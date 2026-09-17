@@ -17,6 +17,15 @@ that needs the *n*-th distinct response to an identical request -- a recursive
 fan-out where every worker asks the same thing -- is not reproducible from this
 corpus until the provider's sampling is reproducible too, and the store records
 that as a gap rather than papering over it with a counter.
+
+The response is held as an opaque *string*, never parsed into structure. That
+distinction is the reason this is not a contradiction of the "never
+re-serialize" rule: a container that holds a byte string verbatim is faithful,
+whereas parsing a body into JSON and writing it back would normalize escapes and
+key order that the fidelity oracle compares. It is encoded as UTF-8 when the
+bytes allow it and base64 when they do not, so a committed fixture is readable
+in a diff -- as the provider's own SSE or JSON text -- instead of being a blob
+that reviewers approve without reading.
 """
 
 from __future__ import annotations
@@ -41,7 +50,9 @@ from temper_harness.store.errors import (
 )
 from temper_harness.store.redaction import RECORDING_SCHEMA, redact_headers
 
-RESPONSE_ENCODING = "base64"
+#: Both are lossless. UTF-8 is preferred because it is reviewable; base64 is the
+#: fallback that keeps a body which is not valid UTF-8 exact.
+RESPONSE_ENCODINGS = ("utf-8", "base64")
 
 _VERSION_PATTERN = re.compile(r"^(\d+)\.(\d+)$")
 
@@ -117,9 +128,39 @@ def request_hash(request: Mapping[str, Any]) -> str:
     return content_hash(canonical_request_bytes(request))
 
 
+def encode_response_body(data: bytes) -> tuple[str, str]:
+    """Return ``(text, encoding)`` for a response body, preferring UTF-8.
+
+    Deterministic: valid UTF-8 always selects UTF-8, so the same bytes always
+    produce the same artifact.
+    """
+    try:
+        return data.decode("utf-8"), "utf-8"
+    except UnicodeDecodeError:
+        return base64.b64encode(data).decode("ascii"), "base64"
+
+
+def decode_response_body(text: str, encoding: str) -> bytes:
+    """Invert :func:`encode_response_body`, refusing anything that will not invert."""
+    if encoding == "utf-8":
+        try:
+            return text.encode("utf-8")
+        except UnicodeEncodeError as err:
+            # Reached from a hand-edited file: a JSON string can hold a lone
+            # surrogate, which has no UTF-8 encoding and therefore no byte
+            # string to hash.
+            raise CorruptRecording(f"response_raw is not encodable as UTF-8: {err}") from err
+    if encoding == "base64":
+        try:
+            return base64.b64decode(text, validate=True)
+        except (binascii.Error, ValueError) as err:
+            raise CorruptRecording(f"response_raw is not valid base64: {err}") from err
+    raise RecordingFormatError(f"unknown response_encoding {encoding!r}")
+
+
 @dataclass(frozen=True, slots=True)
 class Recording:
-    """One recorded call, verified against its own hashes.
+    """One recorded exchange, verified against its own hashes.
 
     Instances are only produced by :meth:`build` or :meth:`from_wire`, both of
     which verify, so holding one is evidence that its response bytes are the
@@ -131,6 +172,11 @@ class Recording:
     schemas cannot collide. A second, dedicated copy of the same fact would be a
     field the store has to keep in agreement with the hash it already checks, and
     a fact with two homes is one that can disagree with itself.
+
+    ``http_status`` is recorded because a recorded exchange includes its status
+    line. Without it a replayed 400 would arrive as a 200 whose body happens to
+    be an error document, and the error taxonomy would classify the past
+    incorrectly.
     """
 
     schema_version: str
@@ -138,8 +184,10 @@ class Recording:
     model: str
     arm: str
     attempt: int
+    http_status: int
     request: dict[str, Any]
     request_hash: str
+    response_encoding: str
     response_raw: bytes
     response_hash: str
     headers: dict[str, str]
@@ -155,6 +203,7 @@ class Recording:
         headers: Mapping[str, str],
         provider: str,
         model: str,
+        http_status: int,
         arm: str,
         attempt: int,
         schema_version: str | None = None,
@@ -173,14 +222,17 @@ class Recording:
         """
         body = copy.deepcopy(dict(request))
         data = bytes(response_raw)
+        text, encoding = encode_response_body(data)
         recording = cls(
             schema_version=schema_version or current_recording_version(),
             provider=provider,
             model=model,
             arm=arm,
             attempt=attempt,
+            http_status=http_status,
             request=body,
             request_hash=request_hash(body),
+            response_encoding=encoding,
             response_raw=data,
             response_hash=content_hash(data),
             headers=redact_headers(headers),
@@ -210,20 +262,17 @@ class Recording:
                 f"recording does not satisfy {RECORDING_SCHEMA}: {err.message} (at {location})"
             ) from err
 
-        try:
-            response_raw = base64.b64decode(raw["response_raw"], validate=True)
-        except (binascii.Error, ValueError) as err:
-            raise CorruptRecording(f"response_raw is not valid base64: {err}") from err
-
         recording = cls(
             schema_version=raw["schema_version"],
             provider=raw["provider"],
             model=raw["model"],
             arm=raw["arm"],
             attempt=raw["attempt"],
+            http_status=raw["http_status"],
             request=copy.deepcopy(dict(raw["request"])),
             request_hash=raw["request_hash"],
-            response_raw=response_raw,
+            response_encoding=raw["response_encoding"],
+            response_raw=decode_response_body(raw["response_raw"], raw["response_encoding"]),
             response_hash=raw["response_hash"],
             headers=dict(raw["headers"]),
         )
@@ -262,16 +311,18 @@ class Recording:
         document cannot retroactively change a recording that has already been
         written or verified.
         """
+        text, encoding = encode_response_body(self.response_raw)
         return {
             "schema_version": self.schema_version,
             "provider": self.provider,
             "model": self.model,
             "arm": self.arm,
             "attempt": self.attempt,
+            "http_status": self.http_status,
             "request": copy.deepcopy(self.request),
             "request_hash": self.request_hash,
-            "response_encoding": RESPONSE_ENCODING,
-            "response_raw": base64.b64encode(self.response_raw).decode("ascii"),
+            "response_encoding": encoding,
+            "response_raw": text,
             "response_hash": self.response_hash,
             "headers": dict(sorted(self.headers.items())),
         }
@@ -285,3 +336,15 @@ class Recording:
         """
         document = json.dumps(self.to_wire(), sort_keys=True, indent=2, ensure_ascii=False)
         return (document + "\n").encode("utf-8")
+
+    # -- convenience -----------------------------------------------------
+
+    @property
+    def response_text(self) -> str:
+        """The response as text, for a caller that has already established UTF-8.
+
+        Raises rather than replacing undecodable bytes: a body that is not UTF-8
+        is a fact about the provider's response, and substituting U+FFFD for it
+        would put a value into a typed view that no byte on the wire produced.
+        """
+        return self.response_raw.decode("utf-8")

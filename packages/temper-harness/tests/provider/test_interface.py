@@ -124,7 +124,7 @@ class _FakeTransport:
 
 def _request() -> Request:
     return Request(
-        model="deepseek-v4.1-flash",
+        model="deepseek-flash",
         messages=[ChatMessage(role="user", content="place it")],
     )
 
@@ -150,7 +150,10 @@ def test_the_buffered_envelope_keeps_every_field_explicit() -> None:
     envelope = terminal.envelope
 
     assert envelope["content"] == "placing"
-    assert envelope["reasoning_content"] is None
+    # "" not None: the provider reports an empty STRING for content on a
+    # tool-call turn, and collapsing it to null would make the streamed and
+    # non-streamed views of the same turn disagree.
+    assert envelope["reasoning_content"] == ""
     assert envelope["finish_reason"] == "tool_calls"
     assert envelope["tool_calls"] == []
     assert envelope["usage"] == USAGE

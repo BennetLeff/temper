@@ -86,6 +86,7 @@ def _valid_call_row(**overrides) -> dict:
             "completion_tokens": None,
             "reasoning_tokens": None,
             "cached_input_tokens": None,
+            "total_tokens": None,
         },
         "usage_source": "unknown",
         "price_table_id": "unpriced",
@@ -160,6 +161,7 @@ def test_usage_schema_rejects_missing_required_field() -> None:
             "completion_tokens": 0,
             "reasoning_tokens": 0,
             "cached_input_tokens": 0,
+            "total_tokens": 0,
         }
     )
     with pytest.raises(ValidationError):

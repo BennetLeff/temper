@@ -89,6 +89,7 @@ class RecordingStore:
         headers: Mapping[str, str],
         provider: str,
         model: str,
+        http_status: int,
     ) -> Recording:
         """Write one recording. Live mode only.
 
@@ -104,6 +105,7 @@ class RecordingStore:
             headers=headers,
             provider=provider,
             model=model,
+            http_status=http_status,
             arm=self.arm,
             attempt=self.attempt,
         )

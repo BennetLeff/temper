@@ -1,0 +1,28 @@
+{
+  "max_tokens": 600,
+  "messages": [
+    {
+      "content": "Place R1.",
+      "role": "user"
+    }
+  ],
+  "model": "deepseek-flash",
+  "temperature": 0,
+  "tools": [
+    {
+      "function": {
+        "description": "Place a component",
+        "name": "place",
+        "parameters": {
+          "properties": {
+            "reference": {
+              "type": "not-a-real-type"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "function"
+    }
+  ]
+}

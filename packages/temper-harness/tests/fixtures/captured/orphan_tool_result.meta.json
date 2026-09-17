@@ -1,0 +1,21 @@
+{
+  "captured_at": "2026-09-17T20:09:18+00:00",
+  "expect_status": 400,
+  "headers": {
+    "content-length": "184",
+    "content-type": "application/octet-stream",
+    "date": "Thu, 17 Sep 2026 20:09:17 GMT",
+    "server": "elb",
+    "x-ds-trace-id": "b3f0b09c326b8d3139c8b7442e1069bb"
+  },
+  "http_status": 400,
+  "model": "deepseek-flash",
+  "name": "orphan_tool_result",
+  "provider": "deepseek",
+  "request_hash": "eee6e70301fe77fc50bb2f91f0384e371f93799a1fbe356d44aa5dfac279761d",
+  "response_bytes": 184,
+  "response_sha256": "406145b296afd206cde7cb0ecc02a065bc07c0769491fbf301be0ef851eb04a5",
+  "reveals": "what the provider does with a tool result whose id matches no assistant tool call -- the local check in R7 exists so this never leaves the client, and this is the error it prevents",
+  "status_as_expected": true,
+  "stream": false
+}

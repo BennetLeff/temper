@@ -54,9 +54,28 @@ class ChatMessage:
     reasoning_content: str | None = None
 
     def to_wire(self) -> dict[str, Any]:
+        """The provider-facing form of this message.
+
+        ``reasoning_content`` is emitted when present, and that is a measured
+        requirement rather than a nicety. This provider runs in a thinking mode
+        and refuses an assistant tool-call turn that omits it:
+
+            {"error": {"message": "The `reasoning_content` in the thinking mode
+             must be passed back to the API."}}
+
+        Worse, the refusal is conditional on server-side state. Measured 5/5
+        against ids the provider had just generated -- accepted without the field
+        -- and 5/5 against ids it had not seen, same body otherwise: refused. A
+        client cannot inspect that state, so the only implementable rule is to
+        always send the field back. Dropping it here produced a transport that
+        worked in a quick test and would have failed later, which is the failure
+        shape this repo calls correct by coincidence.
+        """
         wire: dict[str, Any] = {"role": self.role}
         if self.content is not None:
             wire["content"] = self.content
+        if self.reasoning_content is not None:
+            wire["reasoning_content"] = self.reasoning_content
         if self.tool_calls:
             wire["tool_calls"] = [
                 {

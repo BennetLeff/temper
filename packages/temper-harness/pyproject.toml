@@ -13,6 +13,11 @@ dependencies = [
     # rather than inline constants, and a schema nobody validates against is
     # documentation, not a contract.
     "jsonschema>=4.0",
+    # The live adapter's HTTP client. `requests` rather than a new dependency
+    # because it is already the workspace's precedent (temper-workflow declares
+    # it) and already installed; a second HTTP client in one repo is a second
+    # set of timeout, redirect, and retry semantics to reason about.
+    "requests>=2.28.0",
 ]
 
 [project.optional-dependencies]
@@ -23,6 +28,11 @@ dev = [
 ]
 
 [project.scripts]
+# The probe is a process, not a library: nothing imports it, so a console-script
+# entry point is what makes it reachable. Declared here rather than left as an
+# orphan-with-a-note, because the entry point is the honest description of how it
+# is invoked (`python -m temper_harness.provider.probe` also works).
+temper-harness-probe = "temper_harness.provider.probe:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/temper_harness"]

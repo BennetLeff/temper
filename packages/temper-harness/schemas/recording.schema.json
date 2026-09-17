@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://temper.local/schemas/recording.schema.json",
   "title": "Provider recording",
-  "description": "One recorded call: the request body, the response body, the allowlisted response headers, a content hash of each, and the identity that produced them (R8, R10). The request and response are stored asymmetrically on purpose. The request is an object because we build it, and its hash is taken over a canonical encoding so that a semantically identical request is the same request. The response is opaque base64 bytes because we only receive it: R8 requires a lossless raw payload, and re-serializing a body to fit a JSON field would normalize escapes and key order that the fidelity oracle compares. The response hash is therefore taken over the received bytes, and it is what makes a one-byte mutation detectable rather than merely unlikely.",
+  "description": "One recorded exchange: the request body, the response status and body, the allowlisted response headers, a content hash of each, and the identity that produced them (R8, R10). The request and response are stored asymmetrically on purpose. The request is an object because we build it, and its hash is taken over a canonical encoding so that a semantically identical request is the same request. The response is an opaque string because we only receive it, and R8 requires a lossless raw payload. 'Opaque' is the load-bearing word: the body is never parsed into structure and written back, because that would normalize escapes and key order that the fidelity oracle compares. It is carried as UTF-8 text when the bytes allow it and as base64 when they do not, so that a committed fixture shows the provider's own SSE or JSON text in a diff rather than a blob a reviewer approves without reading.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -11,6 +11,7 @@
     "model",
     "arm",
     "attempt",
+    "http_status",
     "request",
     "request_hash",
     "response_encoding",
@@ -29,7 +30,7 @@
       "minLength": 1
     },
     "model": {
-      "description": "The model id as the provider reported it, not as the request asked for it. A silent alias redirect shows up here.",
+      "description": "The model id as the provider reported it, not as the request asked for it. A silent alias redirect shows up here -- which is not hypothetical: this corpus was captured while the plan still named a model id the provider does not serve, and the provider's own 400 body is what corrected it.",
       "type": "string",
       "minLength": 1
     },
@@ -43,6 +44,12 @@
       "type": "integer",
       "minimum": 0
     },
+    "http_status": {
+      "description": "The status line of the recorded exchange. Required because a replay must reproduce a failure as faithfully as a success: a 400 replayed as a 200 would make the error taxonomy classify the past as a completion, and the captured 400 in this corpus is the evidence that the provider discriminates request defects by status.",
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599
+    },
     "request": {
       "description": "The request body. Left permissive rather than pinned to a field list: it carries arbitrary JSON Schema in its tool definitions (R7), so a closed shape here would silently reject the schemas it exists to preserve.",
       "type": "object"
@@ -52,17 +59,15 @@
       "$ref": "#/$defs/sha256"
     },
     "response_encoding": {
-      "description": "Always base64 today. Explicit rather than implied so that a future encoding is a schema change a reviewer sees, not a decode branch nobody notices.",
-      "enum": ["base64"]
+      "description": "How `response_raw` carries the body. Both encodings are lossless; the decoder is the assertion for either -- `b64decode(validate=True)` for base64, and a strict `.encode('utf-8')` for utf-8 -- so no regex duplicates that check and no second, weaker statement of the same rule can drift from it.",
+      "enum": ["utf-8", "base64"]
     },
     "response_raw": {
-      "description": "The received response body, byte for byte, base64-encoded so that a body which is not valid UTF-8 still round-trips exactly.",
-      "type": "string",
-      "contentEncoding": "base64",
-      "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+      "description": "The received response body, byte for byte, as an opaque string. Not a JSON object: parsing it into structure and writing it back would change the bytes that `response_hash` pins.",
+      "type": "string"
     },
     "response_hash": {
-      "description": "sha256 of the decoded response bytes. Checked on every load, so a truncated or edited recording is a refusal rather than a subtly different turn.",
+      "description": "sha256 of the response bytes, before encoding. Checked on every load, so a truncated or edited recording is a refusal rather than a subtly different turn.",
       "$ref": "#/$defs/sha256"
     },
     "headers": {
@@ -78,7 +83,7 @@
     "headers": {
       "type": "object",
       "propertyNames": {
-        "description": "Lowercased, because HTTP header names are case-insensitive and two spellings of one header would otherwise be two keys. Deliberately excludes authorization, proxy-authorization, cookie, set-cookie, and every api-key spelling: R11 forbids a credential reaching disk in any artifact the transport writes, and an allowlist is only a control if it cannot admit one.",
+        "description": "Lowercased, because HTTP header names are case-insensitive and two spellings of one header would otherwise be two keys. Deliberately excludes authorization, proxy-authorization, cookie, set-cookie, and every api-key spelling: R11 forbids a credential reaching disk in any artifact the transport writes, and an allowlist is only a control if it cannot admit one. The members are the headers a captured exchange actually carried plus the ones a failure would carry; x-ds-trace-id is included because it is the provider's own correlation id, which is what a billing dispute or a support escalation is reconciled against, and it is worthless if it is not recorded at the moment of the call.",
         "enum": [
           "content-type",
           "content-length",
@@ -86,6 +91,7 @@
           "server",
           "retry-after",
           "x-request-id",
+          "x-ds-trace-id",
           "x-ratelimit-limit",
           "x-ratelimit-remaining",
           "x-ratelimit-reset"

@@ -180,6 +180,7 @@ class BufferedTransport:
         finish_reason: str | None = None
         message_id = ""
         model = request.model
+        system_fingerprint: str | None = None
 
         for event in self._inner.stream(request):
             if self._cancelled:
@@ -197,18 +198,27 @@ class BufferedTransport:
                 finish_reason = terminal_envelope.get("finish_reason")
                 message_id = str(terminal_envelope.get("id", ""))
                 model = str(terminal_envelope.get("model", model))
+                system_fingerprint = terminal_envelope.get("system_fingerprint")
                 if usage is None:
                     usage = terminal_envelope.get("usage")
 
         calls = reassemble_tool_calls(deltas)
         validate_tool_arguments(calls)
 
+        # Empty accumulation stays "" rather than becoming None. Captured
+        # evidence: a tool-call turn reports content as an empty STRING, with no
+        # content deltas at all in the streamed form. Collapsing the two would
+        # make the streaming and non-streaming paths disagree about the same
+        # turn, and the loop must not be able to tell which path it used. `null`
+        # still means what the provider means by it -- the field was absent from
+        # the response -- and that is decided by the decoder, not here.
         envelope: dict[str, Any] = {
             "id": message_id,
             "model": model,
             "finish_reason": finish_reason,
-            "content": "".join(text) or None,
-            "reasoning_content": "".join(reasoning) or None,
+            "content": "".join(text),
+            "reasoning_content": "".join(reasoning),
+            "system_fingerprint": system_fingerprint,
             "tool_calls": [
                 {
                     "id": call.id,

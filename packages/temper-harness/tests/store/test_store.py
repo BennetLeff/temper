@@ -29,11 +29,11 @@ from temper_harness.store import (
 )
 
 REQUEST = {
-    "model": "deepseek-v4.1-flash",
+    "model": "deepseek-flash",
     "messages": [{"role": "user", "content": "place the part"}],
 }
 OTHER_REQUEST = {
-    "model": "deepseek-v4.1-flash",
+    "model": "deepseek-flash",
     "messages": [{"role": "user", "content": "a different question entirely"}],
 }
 RESPONSE = b'{"id":"msg-1","choices":[{"finish_reason":"stop"}]}'
@@ -54,13 +54,15 @@ def record_one(
     response: bytes = RESPONSE,
     arm: str = "direct",
     attempt: int = 0,
+    http_status: int = 200,
 ) -> Recording:
     return live(root, arm=arm, attempt=attempt).record(
         request=request or REQUEST,
         response_raw=response,
         headers={"content-type": "application/json", "authorization": "Bearer sk-planted"},
         provider="deepseek",
-        model="deepseek-v4.1-flash",
+        model="deepseek-flash",
+        http_status=http_status,
     )
 
 
@@ -158,7 +160,8 @@ def test_a_replay_store_cannot_record(tmp_path: Path) -> None:
             response_raw=b"overwrite",
             headers={},
             provider="deepseek",
-            model="deepseek-v4.1-flash",
+            model="deepseek-flash",
+            http_status=200,
         )
     assert not (tmp_path / "direct" / "0" / f"{request_hash(OTHER_REQUEST)}.json").exists()
 

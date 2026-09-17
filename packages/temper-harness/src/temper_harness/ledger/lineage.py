@@ -176,6 +176,7 @@ class LineageRegistry:
             "completion_tokens": None,
             "reasoning_tokens": None,
             "cached_input_tokens": None,
+            "total_tokens": None,
         }
         record: dict[str, Any] = {
             "kind": "call_terminal",

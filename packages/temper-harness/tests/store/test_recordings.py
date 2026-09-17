@@ -26,7 +26,7 @@ from temper_harness.store import redaction as redaction_module
 from temper_harness.store.redaction import CREDENTIAL_HEADER_TOKENS, RECORDING_SCHEMA
 
 REQUEST = {
-    "model": "deepseek-v4.1-flash",
+    "model": "deepseek-flash",
     "messages": [{"role": "user", "content": "place the part"}],
 }
 RESPONSE = b'{"id":"msg-1","choices":[{"finish_reason":"stop","message":{"content":"ok"}}]}'
@@ -39,7 +39,8 @@ def build_recording(**overrides: object) -> Recording:
         "response_raw": RESPONSE,
         "headers": HEADERS,
         "provider": "deepseek",
-        "model": "deepseek-v4.1-flash",
+        "model": "deepseek-flash",
+        "http_status": 200,
         "arm": "direct",
         "attempt": 0,
     }
@@ -273,9 +274,45 @@ def test_a_request_whose_hash_disagrees_with_its_body_is_refused() -> None:
         Recording.from_wire(wire)
 
 
-def test_response_bytes_that_are_not_base64_are_refused() -> None:
+def test_response_text_that_is_not_base64_is_refused_when_base64_is_declared() -> None:
+    """The decoder is the assertion for the encoding, so nothing else duplicates it."""
     wire = build_recording().to_wire()
+    wire["response_encoding"] = "base64"
     wire["response_raw"] = "not base64 !!"
+    with pytest.raises(CorruptRecording, match="not valid base64"):
+        Recording.from_wire(wire)
+
+
+def test_an_unknown_response_encoding_is_refused() -> None:
+    wire = build_recording().to_wire()
+    wire["response_encoding"] = "rot13"
+    with pytest.raises(RecordingFormatError):
+        Recording.from_wire(wire)
+
+
+def test_a_utf8_body_is_carried_as_readable_text() -> None:
+    """A committed fixture should show the provider's own bytes, not a blob."""
+    recording = build_recording(response_raw=b'{"id":"msg-1"}')
+    assert recording.response_encoding == "utf-8"
+    assert recording.response_text == '{"id":"msg-1"}'
+
+
+def test_a_body_that_is_not_utf8_falls_back_to_base64() -> None:
+    recording = build_recording(response_raw=b"\xff\xfe\x00\x01")
+    assert recording.response_encoding == "base64"
+    assert Recording.from_wire(recording.to_wire()).response_raw == b"\xff\xfe\x00\x01"
+
+
+def test_the_http_status_round_trips() -> None:
+    """A replayed 400 must arrive as a 400, not as a 200 carrying an error body."""
+    recording = build_recording(http_status=400)
+    assert recording.http_status == 400
+    assert Recording.from_wire(recording.to_wire()).http_status == 400
+
+
+def test_an_impossible_http_status_is_refused() -> None:
+    wire = build_recording().to_wire()
+    wire["http_status"] = 999
     with pytest.raises(RecordingFormatError):
         Recording.from_wire(wire)
 

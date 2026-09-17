@@ -1,0 +1,81 @@
+{
+  "max_tokens": 600,
+  "messages": [
+    {
+      "content": "Make exactly two tool calls in this turn: place reference R1 on layer F.Cu with rotation 0, and check rule clearance. Do not explain.",
+      "role": "user"
+    }
+  ],
+  "model": "deepseek-flash",
+  "stream": true,
+  "temperature": 0,
+  "tools": [
+    {
+      "function": {
+        "description": "Place a component on a copper layer",
+        "name": "place",
+        "parameters": {
+          "$defs": {
+            "layer": {
+              "enum": [
+                "F.Cu",
+                "B.Cu"
+              ],
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "layer": {
+              "$ref": "#/$defs/layer"
+            },
+            "reference": {
+              "type": "string"
+            },
+            "rotation": {
+              "oneOf": [
+                {
+                  "multipleOf": 90,
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "reference",
+            "layer",
+            "rotation"
+          ],
+          "type": "object"
+        }
+      },
+      "type": "function"
+    },
+    {
+      "function": {
+        "description": "Check a design rule",
+        "name": "check",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "rule": {
+              "enum": [
+                "clearance",
+                "creepage"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "rule"
+          ],
+          "type": "object"
+        }
+      },
+      "type": "function"
+    }
+  ]
+}

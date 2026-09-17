@@ -5,18 +5,25 @@
   "description": "The typed view a caller consumes, carried alongside the lossless raw payload (R8). Every later layer reads this rather than a raw HTTP response, so a field added here is a field the loop can reason about; a field omitted is invisible. `reasoning_content` is therefore explicit rather than dropped.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "model", "finish_reason", "content", "reasoning_content", "tool_calls", "usage", "served_from"],
+  "required": ["id", "model", "finish_reason", "content", "reasoning_content", "tool_calls", "usage", "served_from", "system_fingerprint"],
   "properties": {
     "id": { "type": "string" },
     "model": { "type": "string" },
     "finish_reason": {
-      "description": "null is possible on a truncated stream and must stay distinguishable from a completed turn -- an absent reason is not a successful stop.",
+      "description": "null is possible on a truncated stream and must stay distinguishable from a completed turn -- an absent reason is not a successful stop. Observed values on this provider: stop and tool_calls.",
       "type": ["string", "null"],
       "enum": ["stop", "length", "tool_calls", "content_filter", null]
     },
-    "content": { "type": ["string", "null"] },
+    "content": {
+      "description": "A tool-call turn reports an empty STRING here, not null, and the distinction is preserved rather than normalized: the fidelity oracle re-serializes the typed view and compares it against the captured bytes, so collapsing '' to null would make a faithful response look unfaithful.",
+      "type": ["string", "null"]
+    },
     "reasoning_content": {
-      "description": "Captured explicitly. Whether it is replayed into the next request is a provider rule pinned by U1, not a default.",
+      "description": "Captured explicitly, and replayed: U1 pinned this against the live provider, and the rule is stronger than 'replay it when asked'. An assistant tool-call turn that omits it is refused with a 400 when the provider does not recognize the tool_call id, and accepted when it does -- so the requirement depends on server-side state a client cannot inspect. The only implementable rule is to always send it back.",
+      "type": ["string", "null"]
+    },
+    "system_fingerprint": {
+      "description": "The provider's backend-build identifier, present on every captured success. Retained because it is the one field that explains a behaviour change between two runs of the same bytes against the same model id: without it, a shift looks like the model becoming worse, and with it, there is a name for what changed.",
       "type": ["string", "null"]
     },
     "tool_calls": {

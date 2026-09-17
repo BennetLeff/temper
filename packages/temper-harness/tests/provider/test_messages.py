@@ -128,11 +128,55 @@ def test_assistant_may_carry_tool_calls_with_null_content() -> None:
     assert wire["tool_calls"][0]["function"]["name"] == "place"
 
 
+def test_reasoning_content_is_replayed_onto_the_wire() -> None:
+    """The measured provider requirement, not a nicety.
+
+    This provider runs in a thinking mode and refuses an assistant tool-call turn
+    that omits ``reasoning_content`` -- but only when it does not already
+    recognize the tool_call id, which is server-side state a client cannot see.
+    Measured 5/5 accepted with the field present and 5/5 refused without it
+    against ids the provider had not seen, on an otherwise identical body. So the
+    only implementable rule is to always send it, and dropping it here produced a
+    transport that would have worked in a quick test and failed later.
+    """
+    message = ChatMessage(
+        role="assistant",
+        content="",
+        reasoning_content="weighing the two placements",
+        tool_calls=(_call("a"),),
+    )
+    wire = message.to_wire()
+    assert wire["reasoning_content"] == "weighing the two placements"
+    assert wire["content"] == ""
+
+
+def test_a_message_without_reasoning_omits_the_key_entirely() -> None:
+    """absent and empty are different, and the provider distinguishes them."""
+    assert "reasoning_content" not in ChatMessage(role="user", content="hi").to_wire()
+
+
+def test_reasoning_content_survives_the_round_trip_into_a_wire_request() -> None:
+    body = build_wire_request(
+        model="deepseek-flash",
+        messages=[
+            ChatMessage(role="user", content="place it"),
+            ChatMessage(
+                role="assistant",
+                content="",
+                reasoning_content="thinking",
+                tool_calls=(_call("a"),),
+            ),
+            ChatMessage(role="tool", tool_call_id="a", content="ok"),
+        ],
+    )
+    assert body["messages"][1]["reasoning_content"] == "thinking"
+
+
 def test_validation_happens_before_anything_is_sent() -> None:
     """build_wire_request validates, so a bad array never reaches an adapter."""
     with pytest.raises(MessageArrayError):
         build_wire_request(
-            model="deepseek-v4.1-flash",
+            model="deepseek-flash",
             messages=[
                 ChatMessage(role="assistant", tool_calls=(_call("a"),)),
                 ChatMessage(role="tool", tool_call_id="ghost", content="ok"),

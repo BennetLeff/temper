@@ -124,6 +124,7 @@ def test_unreported_usage_is_null_never_zero(registry: LineageRegistry, store) -
         "completion_tokens": None,
         "reasoning_tokens": None,
         "cached_input_tokens": None,
+        "total_tokens": None,
     }
     assert usage["prompt_tokens"] is None
 
@@ -141,6 +142,7 @@ def test_price_table_identity_is_recorded_per_row(registry: LineageRegistry, sto
             "completion_tokens": 5,
             "reasoning_tokens": None,
             "cached_input_tokens": None,
+            "total_tokens": 15,
         },
         usage_source="provider",
         price_table_id="2026-09-17",

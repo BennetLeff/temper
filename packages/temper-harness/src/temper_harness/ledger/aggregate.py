@@ -16,12 +16,27 @@ from typing import Any
 from temper_harness.ledger.errors import UnresolvedLineageError
 from temper_harness.ledger.store import LedgerStore
 
-USAGE_FIELDS = (
-    "prompt_tokens",
-    "completion_tokens",
-    "reasoning_tokens",
-    "cached_input_tokens",
-)
+#: The usage fields that ADD. Measured against captured bytes rather than
+#: assumed, and the distinction is not academic.
+#:
+#: ``reasoning_tokens`` is a SUBSET of ``completion_tokens``: a captured trivial
+#: completion reported ``completion_tokens=18`` with
+#: ``completion_tokens_details.reasoning_tokens=15`` and three tokens of content.
+#: ``cached_input_tokens`` is likewise a subset of ``prompt_tokens``. Summing
+#: either on top of its superset over-counts -- by 15 of 18 output tokens in that
+#: example, so the error is not a rounding artefact but the majority of the
+#: figure. This module exists because the prior attempt *under*-reported; an
+#: aggregate that over-reports is the same defect with the sign flipped, and just
+#: as quotable.
+ADDITIVE_USAGE_FIELDS = ("prompt_tokens", "completion_tokens")
+
+#: Retained for pricing rather than for summing: cached input is priced
+#: differently from uncached, and reasoning output is priced differently from
+#: visible output on some providers. They are breakdowns of the addends above.
+BREAKDOWN_USAGE_FIELDS = ("reasoning_tokens", "cached_input_tokens")
+
+#: The provider's own sum, kept for the reconciliation check and never added.
+PROVIDER_TOTAL_FIELD = "total_tokens"
 
 #: Terminal statuses the aggregate refuses to fold into a total (R15).
 CLOSED_STATUSES = ("cancelled", "incomplete")
@@ -51,6 +66,8 @@ class Aggregate:
     root_exclusive_usd: float
     descendant_usd: float
     call_count: int
+    provider_total_tokens: int = 0
+    rows_without_provider_total: int = 0
     is_lower_bound: bool = False
     excluded: tuple[str, ...] = field(default=())
 
@@ -62,11 +79,41 @@ class Aggregate:
     def inclusive_usd(self) -> float:
         return self.root_exclusive_usd + self.descendant_usd
 
+    @property
+    def reconciles(self) -> bool:
+        """Whether this client's arithmetic agrees with the provider's own sum.
+
+        KTD7 wanted an external check on the accounting and could not have one
+        for cost -- the provider reports no cost field -- so this is the one
+        available, and it compares a number we computed against a number the
+        provider computed rather than against ourselves.
+
+        Fails closed on three counts: no rows at all (a vacuous agreement),
+        any row that withheld the provider's total, and an actual mismatch. A
+        caller that wants to know "is this total trustworthy" gets ``False``
+        rather than a reassuring sum over rows nobody checked.
+        """
+        return (
+            self.call_count > 0
+            and self.rows_without_provider_total == 0
+            and self.inclusive_tokens == self.provider_total_tokens
+        )
+
 
 def _tokens(row: dict[str, Any]) -> int:
-    """Sum known usage fields. ``None`` contributes nothing but is not zero."""
+    """Sum the additive usage fields.
+
+    ``None`` contributes nothing but is not zero (R4) -- which is why the
+    reconciliation below counts rows that withheld the provider's own total,
+    rather than treating a missing number as agreement.
+    """
     usage = row.get("usage") or {}
-    return sum(v for k, v in usage.items() if k in USAGE_FIELDS and isinstance(v, int))
+    return sum(v for k, v in usage.items() if k in ADDITIVE_USAGE_FIELDS and isinstance(v, int))
+
+
+def _provider_total(row: dict[str, Any]) -> int | None:
+    value = (row.get("usage") or {}).get(PROVIDER_TOTAL_FIELD)
+    return value if isinstance(value, int) else None
 
 
 def _usd(row: dict[str, Any]) -> float:
@@ -144,6 +191,8 @@ def _summarize(
     exclusive_usd = 0.0
     descendant_tokens = 0
     descendant_usd = 0.0
+    provider_total = 0
+    missing_provider_total = 0
 
     for row in in_scope:
         if is_lower_bound and (
@@ -154,6 +203,11 @@ def _summarize(
         is_root_exclusive = lineage.get("parent_session_id") is None
         tokens = _tokens(row)
         usd = _usd(row)
+        reported_total = _provider_total(row)
+        if reported_total is None:
+            missing_provider_total += 1
+        else:
+            provider_total += reported_total
         if is_root_exclusive:
             exclusive_tokens += tokens
             exclusive_usd += usd
@@ -168,6 +222,8 @@ def _summarize(
         root_exclusive_usd=exclusive_usd,
         descendant_usd=descendant_usd,
         call_count=len(in_scope),
+        provider_total_tokens=provider_total,
+        rows_without_provider_total=missing_provider_total,
         is_lower_bound=is_lower_bound,
         excluded=excluded,
     )

@@ -15,13 +15,16 @@ from temper_harness.provider.errors import (
     MalformedStream,
     PreConnectionUnavailable,
     RateLimited,
+    RequestRejected,
     RequestTimeout,
     ServerError,
     ToolSchemaRejected,
     TransportError,
     UnknownTransportError,
     classify_exception,
+    classify_http_response,
     for_http_status,
+    provider_error_message,
 )
 from temper_harness.provider.interface import (
     OFFICIAL_HOST,
@@ -47,6 +50,7 @@ from temper_harness.provider.messages import (
     build_wire_request,
     validate_messages,
 )
+from temper_harness.provider.usage import normalize_usage, usage_fields
 
 __all__ = [
     "OFFICIAL_HOST",
@@ -66,6 +70,7 @@ __all__ = [
     "RateLimited",
     "ReasoningDelta",
     "Request",
+    "RequestRejected",
     "RequestTimeout",
     "ServerError",
     "Terminal",
@@ -80,8 +85,12 @@ __all__ = [
     "UsageReported",
     "build_wire_request",
     "classify_exception",
+    "classify_http_response",
     "for_http_status",
+    "normalize_usage",
+    "provider_error_message",
     "reassemble_tool_calls",
+    "usage_fields",
     "validate_messages",
     "validate_tool_arguments",
 ]

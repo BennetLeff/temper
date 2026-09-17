@@ -19,7 +19,7 @@ status: active
 - **Deliverable:** A new `packages/temper-harness/` Python package providing a DeepSeek client, a typed error taxonomy, an exact cost/token ledger with session lineage, a record/replay store, a three-tier fidelity oracle, and the CI wiring that makes its own suite run.
 - **Authority:** This plan is authoritative for S0. `docs/superpowers/specs/2026-09-17-deepseek-pcb-harness-design.md` is the parent design and is authoritative for S1–S7. Where they conflict, the conflict is recorded on the affected KTD.
 - **Execution profile:** Python, test-first per unit. No Rust, no pyo3 boundary, no optimizer work.
-- **Prerequisite:** a provisioned production DeepSeek API key, read from an environment variable. It is not present in this environment today and no unit can start U1 without it (see Dependencies).
+- **Prerequisite:** a provisioned production DeepSeek API key, read from an environment variable. **Satisfied** — a key was provisioned, U1 ran against the live API on 2026-09-17, and the resulting captures are committed. The key is not, and must not be, in the tree.
 - **Stop conditions:** Stop and report rather than absorbing a change, if any of these hold: no provisioned key is available (never substitute a hand-written fixture); the provider cannot express parallel tool calls or strict tool schemas; a required usage field is absent with no substitute; or the transport contract must change shape rather than gain a case.
 - **Tail ownership:** S0 ends at a proven transport. The loop, L1 assembly, compaction, budget enforcement, and retry policy are S1 and are out of scope here.
 
@@ -85,13 +85,13 @@ The 2026-09-09 → 2026-09-17 harness attempt spent 2,676,994,364 tokens across 
 
 ### Dependencies
 
-- The official DeepSeek API and a provisioned key, read from an environment variable and never from a file in the repo. **No key is present in the environment today, and U1 cannot run without it.** All six units depend transitively on U1, so key provisioning is the critical path.
+- The official DeepSeek API and a provisioned key, read from an environment variable and never from a file in the repo. **Satisfied: U1 has run.** All six units depend transitively on U1, so this was the critical path and it is now clear.
 - Third-party runtime dependencies (an HTTP client and a JSON Schema validator) plus a regenerated `uv.lock`, both committed.
 - The parent design's L2/L3 boundaries, so the store's scope does not drift into S1's offline-run mode.
 
 ### Outstanding Questions
 
-- **Blocking (operational):** who provisions the DeepSeek key, and through which mechanism. U1 cannot start until it exists. This is an access prerequisite rather than a design question, so the plan stays executable once the key is present.
+- **Resolved (operational):** the DeepSeek key was provisioned as an environment variable and U1 ran. No blocking question remains for S0's offline units.
 - **Deferred:** which git ref carries the Zapote Rust validators and the Python/KiCad adapter. Blocks S2.
 - **Deferred:** the interlock unit's acceptance checklist in machine-readable form. Blocks S1 and the S7 scalar.
 - **Deferred:** the interlock verifier's end-to-end latency and the pre-registered fixed cost `C*`. Blocks S7.
@@ -114,7 +114,7 @@ The 2026-09-09 → 2026-09-17 harness attempt spent 2,676,994,364 tokens across 
 - KTD1. **S0 ships as `packages/temper-harness/`, a member of the existing uv workspace, and wires its own CI triggers.** (session-settled: user-directed — chosen over a new top-level `harness/` tree: `packages/**` is already a trigger path, whereas a new top-level tree matches none and would ship with no required contexts.) The inheritance claim is partial and is not the whole rationale: `packages/**` does trigger **Repo Hygiene & Import Gates**, **Fast Gates**, and **Cargo/Rustc Smoke Check**, but it does **not** trigger **Core Tests**, whose `job_triggers.paths` enumerates specific packages, and it does not trigger the job that runs `check_vacuous_gates.py`. No CI step invokes a bare root `pytest`, so adding the suite to root `testpaths` is a developer convenience only. R17 and U1 therefore make the missing wiring an explicit deliverable. This is also a deliberate exception to the repo-wide Rust preference in `AGENTS.md`: the runtime is a Python-dominant subsystem that is not a port of existing Rust logic. Python is the language with precedent here — `requests` is already declared in `packages/temper-workflow/pyproject.toml`.
 - KTD2. **The fidelity oracle's authority is a live canary; recorded replay is the regression guard.** (conflict call-out: the approved parent design's S0 gate reads "fidelity tests pass against recorded responses". That wording is necessary but not sufficient, and if it is the only gate it is the self-consistency trap this repo has already hit twice — `test_clearance_rust_differential.py` pinned Rust equal to Python bit-for-bit and could not see a rotation-sign error, and the `R(+theta)` incident reproduced `kicad-cli` to four decimals while being the mirror of the truth. Recorded replay proves the client is reproducible, never that it carries the provider's semantics. The decision stands as the parent design's intent; the gate wording is strengthened per the evidence, not the decision reversed.) Per R12, the recorded tier is called a reproducibility instrument until Tier B has run.
 - KTD3. **Accounting is descendant-inclusive by construction.** Root identity is inherited from context rather than supplied by the caller (R1), usage merges across all stream chunks, unknown fields stay `null` (R4), and the aggregate fails closed on any incomplete, cancelled, or replayed row (R15). Chosen over a single-process counter upgraded once subagents exist, because the prior attempt's numbers make the cost concrete: 6 root sessions reported 331.9 M tokens against a true 2.68 B. Two failure shapes drive the R15 clause specifically — a crashed call whose unmeasured usage would otherwise vanish behind a reassuring `incomplete` row, and a cancelled call whose partial usage a scored run could otherwise drop.
-- KTD4. **U1 probes the live provider and freezes the schema from captured bytes.** Chosen over coding against the documented shape, because cache fields, whether reasoning tokens sit inside or beside completion tokens, parallel tool-call support, strict-schema support, and which stream chunk carries usage are all unverified for `deepseek-v4.1-flash` here.
+- KTD4. **U1 probes the live provider and freezes the schema from captured bytes.** Chosen over coding against the documented shape, because cache fields, whether reasoning tokens sit inside or beside completion tokens, parallel tool-call support, strict-schema support, and which stream chunk carries usage are all unverified for this provider's flash tier here. All five turned out to need correction, and the model id itself was wrong — see the captured-behaviour list in the Definition of Done.
 - KTD5. **The ledger is an append-only JSONL file holding one row per call, appended once at terminal resolution.** Chosen over a locked database so the S3 daemon can append from multiple processes without a server (canonical JSONL mirrors `tools/wasm/r19_agreement_ledger.py`). Crash visibility comes from a separate append-only in-flight journal, not from mutating a row: an in-flight entry is opened before the request and a terminal entry appended after, so a crash leaves an unclosed in-flight entry. This resolves the tension between "exactly one row per call" (R3) and "a crash is visible" — an append-only file cannot close a row in place, so the two facts live in two records and R15 makes an unclosed entry fail the aggregate closed.
 - KTD6. **Store scope is capture plus deterministic replay for tests and the oracle.** Chosen over a general offline-run mode, which belongs to S1's record/replay row in the parent design. Mode-exclusivity invariants stay in S0 because the seam is here.
 - KTD7. **USD is derived from a versioned price table at `packages/temper-harness/pricing/<version>.json`, with its schema committed and its version identity recorded per row.** Both provider-reported and computed cost are retained. Chosen over a hardcoded rate, because a rate change would silently shift the fixed-expenditure comparison. A rate change adds a new version; existing rows keep the identity that produced them. Field names carry the convention (`billed_usd` versus `estimated_usd`) rather than a bare `cost`. Because both arms of a later comparison would share the same wrong table, U1 additionally asserts that computed and provider-reported cost agree on the probe set within a stated tolerance, so the arithmetic has an external check rather than certifying itself.
@@ -147,8 +147,8 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 
 ### Assumptions
 
-- The official DeepSeek API supports a chat-completions surface with tool calling, and its `usage` block is reachable from a non-streaming call. If U1 falsifies either, the transport contract changes shape and the plan returns to planning rather than absorbing the change.
-- The provider exposes no billing reconciliation endpoint reachable from this client. If it does, U1 replaces the tolerance assertion with a real reconciliation.
+- ~~The official DeepSeek API supports a chat-completions surface with tool calling, and its `usage` block is reachable from a non-streaming call.~~ **VERIFIED.** Both hold: tool calling works (including parallel calls and strict schemas), and `usage` is reachable from both a non-streaming and a streamed call. The contract did not need to change shape, though six *values* it carries did — enumerated in the Definition of Done. One further assumption was falsified: the model id the plan named does not exist on this provider.
+- The provider exposes no billing reconciliation endpoint reachable from this client. **Partially verified, and worse than assumed:** no billing endpoint was probed, but the completion response carries no cost field either, so there is no provider-reported figure to reconcile against at all. KTD7's tolerance assertion is therefore unavailable and the price table is unpopulated by design — see the named unknowns in the Definition of Done.
 
 ---
 
@@ -156,7 +156,7 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 
 ### U1. Probe the live provider, freeze the schema, and wire CI
 
-**Goal:** Replace every assumption about `deepseek-v4.1-flash`'s wire behavior with captured bytes, and make the package's own gates actually run.
+**Goal:** Replace every assumption about the provider's wire behavior with captured bytes, and make the package's own gates actually run.
 
 **Requirements:** R4, R11, R14, R17. **Depends on:** a provisioned API key.
 
@@ -275,6 +275,82 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 **Per unit**
 
 - U1 complete when the captured fixtures and five schemas are committed, no fixture carries a credential, the CI wiring schedules the suite, and every unverified provider behavior is named.
+
+### Captured provider behaviour (U1) — measured, not documented
+
+Ten probes were issued live against `deepseek-flash`; the bytes are committed under
+`packages/temper-harness/tests/fixtures/captured/` with a manifest carrying each
+request hash, status, and response digest. Six assumptions the plan made turned out
+to be wrong, and each is worth more than the fixture it changed:
+
+1. **`deepseek-v4.1-flash` is not a model this provider serves.** The account offers
+   `deepseek-flash` and `deepseek-v4-pro`; the API's own 400 names them. The plan's
+   model id belongs to a different provider's catalogue, so every reference in this
+   plan and in the code is corrected to `deepseek-flash`. The plan's Assumptions
+   section is falsified here and amended below.
+2. **`reasoning_content` must be replayed.** The provider runs in a thinking mode and
+   refuses an assistant tool-call turn that omits it — but only when it does not
+   already recognize the `tool_call` id. Measured 5/5 accepted with the field present
+   versus 5/5 refused without it against ids the provider had not seen, on an
+   otherwise identical body. A client cannot inspect that server-side state, so the
+   rule is *always* replay it. `ChatMessage.to_wire` silently dropped the field, which
+   would have produced a transport that worked in a quick test and failed later.
+3. **Reasoning tokens sit inside completion tokens.** `completion_tokens=18` with
+   `completion_tokens_details.reasoning_tokens=15` and three tokens of visible
+   content. The aggregate summed both, over-reporting output tokens by 83 % on that
+   sample. The additive set is now `prompt_tokens + completion_tokens` only, and
+   `total_tokens` is reconciled against it.
+4. **Usage is not fragmented in streaming.** It arrives complete on the final chunk,
+   directly beside the `finish_reason`, and the stream terminates with an SSE
+   `data: [DONE]` record. Accumulating across chunks would have produced a null usage
+   block for every streamed call — a systematically-zero column.
+5. **A 400 is not a tool-schema rejection.** All four captured 400s carry
+   `type: invalid_request_error` and `code: invalid_request_error`: a bad model name,
+   an orphaned tool result, a malformed tool schema, and a dropped reasoning field.
+   The status cannot discriminate; the body can. `for_http_status(400)` now maps to a
+   new non-retryable `request_rejected` category, and `classify_http_response`
+   refines to `tool_schema_rejected` from the message.
+6. **Tool-call arguments fragment character by character** (`{`, `"`, `reference`, …),
+   so a split inside an escape sequence is the norm rather than an edge case.
+   Continuation fragments carry only `index` and `arguments` — no `id`, no `name`,
+   and no `type`. The reassembler is now also run over the real fragments in CI.
+
+Also measured: parallel tool calls and strict schemas (including `$defs`, `$ref`,
+nested `oneOf`, `additionalProperties: false`) are both supported; the provider
+validates tool schemas server-side; `system_fingerprint` is present on every
+success; a tool-call turn reports `content` as an empty string, not null; absent
+stream delta fields are explicit `null`; and the response carries **no cost field**.
+
+### Named unknowns (U1) — stated, not inferred away
+
+- **No cost reconciliation is possible from this provider.** The response has no cost
+  field and no billing endpoint was probed. KTD7's "computed and provider-reported
+  cost agree" check therefore cannot be satisfied; `provider_reported_usd` stays null
+  and `estimated_usd` stays null because **no price table can be populated from
+  evidence in this environment**. KTD7's versioned price table remains unbuilt on
+  purpose: inventing rates would be a fabricated measurement, which is worse than an
+  absent one. Token counts are exact and reconcilable; USD is not, and must not be
+  quoted as though it were.
+- **The context-length and content-filter message texts are unverified.** No probe
+  produced either, so `_CONTEXT_LENGTH_MARKERS` and `_CONTENT_FILTER_MARKERS` are
+  declared unverified in code and exercised only against synthetic bodies. Both
+  categories stay wired, because a category that can never be reached makes the
+  taxonomy a claim rather than a mechanism.
+- **No 429 was produced**, so whether `retry-after` and the `x-ratelimit-*` family
+  appear on a rate-limit response is unknown. They remain on the header allowlist as
+  structurally-necessary names with no capture behind them.
+- **Whether `finish_reason` can be `length` or `content_filter`** is unknown; only
+  `stop` and `tool_calls` were observed. The envelope's enum keeps both.
+- **Whether `content` can be `null` at the message level** is unknown; only `""` was
+  observed on a tool-call turn. The distinction is preserved either way rather than
+  normalized.
+- **Whether `reasoning_content` can be absent or null on a successful turn** is
+  unknown; every captured success carried a string.
+- **The store cannot reproduce the *n*-th distinct response to an identical
+  request.** Recordings are keyed by request hash, so a recursive fan-out in which
+  every worker asks the same question replays one answer for all of them. This is a
+  property of deterministic replay, not a defect, and it constrains what S7 can
+  score from a recorded corpus.
 - U2 complete when self-rooting is rejected, an unresolved parent chain fails the aggregate closed, a crash leaves an unclosed in-flight entry that fails the aggregate, and the reconciliation invariant holds.
 - U3 complete when a malformed message array raises before network I/O, a pre-connection failure is classified and produces a row, and a cancelled stream's usage is explicit rather than zero.
 - U4 complete when a request-hash or arm mismatch refuses to serve, a failed live call cannot fall back to a recording, and the redaction canary fails on a planted key in any transport-written artifact.

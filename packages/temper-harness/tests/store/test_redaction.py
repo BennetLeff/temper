@@ -30,7 +30,7 @@ from temper_harness.store import (
 #: Shaped like a key, and never a real one: this value exists to be found.
 PLANTED = "sk-live-9f4b2c7d8e1a3f5b6c0d"
 
-REQUEST = {"model": "deepseek-v4.1-flash", "messages": [{"role": "user", "content": "hi"}]}
+REQUEST = {"model": "deepseek-flash", "messages": [{"role": "user", "content": "hi"}]}
 
 #: One representative file per artifact kind R11 names, as a path relative to the
 #: artifact root. Held as data so the parametrised test below cannot cover fewer
@@ -57,7 +57,8 @@ def build_artifacts(tmp_path: Path) -> Path:
         # becomes observable rather than assumed.
         headers={"content-type": "application/json", "authorization": f"Bearer {PLANTED}"},
         provider="deepseek",
-        model="deepseek-v4.1-flash",
+        model="deepseek-flash",
+        http_status=200,
     )
 
     ledger = LedgerStore(root / "ledger")
@@ -76,7 +77,7 @@ def build_artifacts(tmp_path: Path) -> Path:
     )
     (root / "canary").mkdir(parents=True, exist_ok=True)
     (root / "canary" / "evidence.json").write_text(
-        json.dumps({"model": "deepseek-v4.1-flash", "date": "2026-09-17"}), encoding="utf-8"
+        json.dumps({"model": "deepseek-flash", "date": "2026-09-17"}), encoding="utf-8"
     )
     return root
 

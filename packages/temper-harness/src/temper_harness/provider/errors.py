@@ -17,6 +17,7 @@ these flags are pinned from real bytes by U1's capture rather than assumed.
 
 from __future__ import annotations
 
+import json
 import socket
 import ssl
 from dataclasses import dataclass
@@ -119,6 +120,23 @@ class ContentFiltered(TransportError):
     spec = ErrorSpec(category="content_filtered", retryable=False, billable=False)
 
 
+class RequestRejected(TransportError):
+    """The provider refused the request itself, and it is not one of the known shapes.
+
+    Added because the captured 400s on this provider are indistinguishable by
+    status: a bad model name, a tool result with no matching call, and a dropped
+    reasoning field all arrive as ``invalid_request_error`` /
+    ``code: invalid_request_error``. Before this class existed a 400 became a
+    ``ToolSchemaRejected``, which was wrong for three of those four cases, and
+    the only other option -- ``unknown_transport`` -- is retryable, so a
+    deterministic request defect would have been retried forever.
+
+    Not retryable, and not billable: the provider rejects before generating.
+    """
+
+    spec = ErrorSpec(category="request_rejected", retryable=False, billable=False)
+
+
 class EndpointRejected(TransportError):
     """A host override, a non-HTTPS scheme, or a redirect (R16)."""
 
@@ -152,7 +170,16 @@ def classify_exception(exc: BaseException, *, http_status: int | None = None) ->
 
 
 def for_http_status(status: int, message: str = "") -> TransportError:
-    """Map an HTTP status onto the taxonomy."""
+    """Map an HTTP status onto the taxonomy on the status alone.
+
+    A 400 maps to :class:`RequestRejected`, not to :class:`ToolSchemaRejected`.
+    That is a correction, not a preference: the captured 400s carry the same
+    ``type`` and ``code`` for a bad model name, a tool result with no matching
+    call, a malformed tool schema, and a dropped reasoning field, so a
+    status-only classifier labelled four different defects identically -- and the
+    one it labelled them as was wrong three times out of four. Use
+    :func:`classify_http_response` when the body is available.
+    """
     detail = message or f"HTTP {status}"
     if status == 429:
         return RateLimited(detail, http_status=status)
@@ -163,5 +190,81 @@ def for_http_status(status: int, message: str = "") -> TransportError:
     if status >= 500:
         return ServerError(detail, http_status=status)
     if status == 400:
-        return ToolSchemaRejected(detail, http_status=status)
+        return RequestRejected(detail, http_status=status)
     return UnknownTransportError(detail, http_status=status)
+
+
+#: Message fragments that place a rejected request on a specific category.
+#: The two schema markers are VERIFIED against captured 400 bodies. The
+#: context-length and content-filter markers are NOT verified on this provider --
+#: no probe produced either -- so they are declared as unverified rather than
+#: presented as measured, and the plan's unknowns list carries them as such. A
+#: category that could never be reached would make the taxonomy a claim rather
+#: than a mechanism, so they stay wired even while unproven.
+_SCHEMA_REJECTION_MARKERS = (
+    "invalid schema for function",
+    "is not valid under any of the schemas",
+)
+_CONTEXT_LENGTH_MARKERS = (
+    "maximum context length",
+    "context length exceeded",
+    "reduce the length of the messages",
+)
+_CONTENT_FILTER_MARKERS = (
+    "content filter",
+    "content_filter",
+    "content policy",
+)
+
+
+def provider_error_message(body: bytes | str | None) -> str | None:
+    """The provider's own message from an error body, if the body has that shape.
+
+    ``{"error": {"message": ..., "type": ..., "code": ...}}`` is the captured
+    shape. Returns ``None`` rather than raising when the body is something else:
+    a proxy or a load balancer can answer with an HTML page, and that is a
+    malformed response, not a crash inside the classifier.
+    """
+    if body is None:
+        return None
+    text = body.decode("utf-8", errors="replace") if isinstance(body, bytes) else body
+    stripped = text.strip()
+    if not stripped.startswith("{"):
+        return None
+    try:
+        payload = json.loads(stripped)
+    except json.JSONDecodeError:
+        return None
+    error = payload.get("error") if isinstance(payload, dict) else None
+    if isinstance(error, dict) and isinstance(error.get("message"), str):
+        message: str = error["message"]
+        return message
+    return None
+
+
+def classify_http_response(status: int, body: bytes | str | None = None) -> TransportError:
+    """Map a non-2xx response onto the taxonomy, using the provider's own message.
+
+    The status narrows the class; the body picks the category inside it. This is
+    the entry point the live adapter uses, because the alternative -- classifying
+    a 400 by its status -- cannot tell a bad model name from a bad tool schema,
+    and this repo's own record is that filtering before reading the evidence
+    produces a confidently wrong set.
+    """
+    message = provider_error_message(body)
+    if message is None:
+        raw = body.decode("utf-8", errors="replace") if isinstance(body, bytes) else (body or "")
+        message = raw.strip()[:400]
+
+    error = for_http_status(status, message)
+    if status != 400:
+        return error
+
+    lowered = message.lower()
+    if any(marker in lowered for marker in _SCHEMA_REJECTION_MARKERS):
+        return ToolSchemaRejected(message, http_status=status)
+    if any(marker in lowered for marker in _CONTEXT_LENGTH_MARKERS):
+        return ContextLengthExceeded(message, http_status=status)
+    if any(marker in lowered for marker in _CONTENT_FILTER_MARKERS):
+        return ContentFiltered(message, http_status=status)
+    return error

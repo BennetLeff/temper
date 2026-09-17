@@ -1,0 +1,164 @@
+{
+  "account_models": [
+    "deepseek-flash",
+    "deepseek-v4-pro"
+  ],
+  "captured_at": "2026-09-17T20:09:18+00:00",
+  "endpoint_host": "api.deepseek.com",
+  "harness_commit": "f0a31ff4c4a44519e295a5f85f2f8fc35ffd6898",
+  "model": "deepseek-flash",
+  "probes": [
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "plain.meta.json",
+        "request": "plain.request.json",
+        "response": "plain.response.json"
+      },
+      "http_status": 200,
+      "name": "plain",
+      "request_hash": "6a6a20dffe7c260b8d414c9247ed9506123aa674618d11beeb77b815393f19c2",
+      "response_sha256": "1e6619ff451a530f82d0368a8a66c69cd1ea3c8d4147357ab241806c9d77ea4c",
+      "reveals": "the usage block's real field names and nesting, whether reasoning_content is emitted, and the top-level response shape",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "parallel_tools.meta.json",
+        "request": "parallel_tools.request.json",
+        "response": "parallel_tools.response.json"
+      },
+      "http_status": 200,
+      "name": "parallel_tools",
+      "request_hash": "62245801d3b3f9d22709433a74a0f8844f8169cc5c831961c275dfe9e8eeadfc",
+      "response_sha256": "ecd250be6f5b75db13486a276979a320fb37495c74e547722873af8845f34fd8",
+      "reveals": "whether two tool calls can arrive in one response, with distinct ids and stable ordering, and what an assistant tool-call turn looks like verbatim -- the input to the round-trip probe",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "strict_schema.meta.json",
+        "request": "strict_schema.request.json",
+        "response": "strict_schema.response.json"
+      },
+      "http_status": 200,
+      "name": "strict_schema",
+      "request_hash": "1cc2b6b5cdddd07487ec3012c9415f8e82e9afa44fd276d4afa63e0dd8b04d21",
+      "response_sha256": "3e3b86b255a387a90c7fa2c0a4ab097672ba3e5dd352fa8664274b0390a382f7",
+      "reveals": "whether a tool schema carrying $defs, a $ref, a nested oneOf, and additionalProperties:false is accepted rather than rejected or rewritten",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "stream_plain.meta.json",
+        "request": "stream_plain.request.json",
+        "response": "stream_plain.response.sse"
+      },
+      "http_status": 200,
+      "name": "stream_plain",
+      "request_hash": "7fe50326772b8fca95dd111a21bb38b0ec670df9863059b72242b50fdd22a7b7",
+      "response_sha256": "1161694f24c25a910ea0986c022b4d5c4084c5b8406cebde373ef1b0d4987205",
+      "reveals": "the SSE framing, which chunk carries usage, whether usage is fragmented, and the terminal sentinel",
+      "status_as_expected": true,
+      "stream": true
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "stream_tools.meta.json",
+        "request": "stream_tools.request.json",
+        "response": "stream_tools.response.sse"
+      },
+      "http_status": 200,
+      "name": "stream_tools",
+      "request_hash": "b3b55d7934f2cf91784b09cf68481a1cfc16757fbe8bed7d7862a8f18278baf4",
+      "response_sha256": "c54b8bb211a9c680ac0cddb2cc89f6052ba29f0c7c111335aab49cfb94e37db7",
+      "reveals": "how tool_calls fragment across chunks -- whether the id repeats on every fragment or appears once, and how arguments split",
+      "status_as_expected": true,
+      "stream": true
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "tool_roundtrip.meta.json",
+        "request": "tool_roundtrip.request.json",
+        "response": "tool_roundtrip.response.json"
+      },
+      "http_status": 200,
+      "name": "tool_roundtrip",
+      "request_hash": "32fd9c3c9ff9ec62fc5d91629df8e51b528d4f9c42d196a3951704265fb0b06c",
+      "response_sha256": "c0b42a727b0b9b9259978d5b8d296a7f15f6cce466733b153b458d4ef0c1ad60",
+      "reveals": "that a continued tool turn is accepted when the assistant message is replayed verbatim, reasoning_content included",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 400,
+      "files": {
+        "meta": "reasoning_omitted.meta.json",
+        "request": "reasoning_omitted.request.json",
+        "response": "reasoning_omitted.response.json"
+      },
+      "http_status": 400,
+      "name": "reasoning_omitted",
+      "request_hash": "c22527269d2c5a5ba71af2bcc2e02f833a2173e1e38b5a2db300a6656d1db534",
+      "response_sha256": "7d37f6cbc3d0c569a1d63cd6f8771c2b455375f6b0bd80b831f71ac2c74d7194",
+      "reveals": "that the identical turn is refused when reasoning_content is dropped and the tool_call ids are ones the provider has not seen, so reasoning must always be replayed rather than re-requested",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 400,
+      "files": {
+        "meta": "orphan_tool_result.meta.json",
+        "request": "orphan_tool_result.request.json",
+        "response": "orphan_tool_result.response.json"
+      },
+      "http_status": 400,
+      "name": "orphan_tool_result",
+      "request_hash": "eee6e70301fe77fc50bb2f91f0384e371f93799a1fbe356d44aa5dfac279761d",
+      "response_sha256": "406145b296afd206cde7cb0ecc02a065bc07c0769491fbf301be0ef851eb04a5",
+      "reveals": "what the provider does with a tool result whose id matches no assistant tool call -- the local check in R7 exists so this never leaves the client, and this is the error it prevents",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 400,
+      "files": {
+        "meta": "invalid_model.meta.json",
+        "request": "invalid_model.request.json",
+        "response": "invalid_model.response.json"
+      },
+      "http_status": 400,
+      "name": "invalid_model",
+      "request_hash": "e0d7b53578c547bee19833dd34007f3f9ff9b14e91f9c61e88999b9812447400",
+      "response_sha256": "2a98c82dabc0d5b015ce0d62a00657afcd9e72fb63b648159c786f7fa83aa634",
+      "reveals": "that the plan's model id is wrong, by capturing the provider naming the ids it does serve",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 400,
+      "files": {
+        "meta": "invalid_tool_schema.meta.json",
+        "request": "invalid_tool_schema.request.json",
+        "response": "invalid_tool_schema.response.json"
+      },
+      "http_status": 400,
+      "name": "invalid_tool_schema",
+      "request_hash": "8745abd6101a4a712ccb80eb79bf1e914e4bc8a5507c0f242f6b926d99884190",
+      "response_sha256": "b34e659fd60711df06048793ad010e862aadfa78d09de01432de879208f55589",
+      "reveals": "that the provider validates a tool schema server-side, so a malformed schema is a request defect the provider reports rather than something only the model can discover",
+      "status_as_expected": true,
+      "stream": false
+    }
+  ],
+  "provider": "deepseek",
+  "schema_version": "1.0"
+}

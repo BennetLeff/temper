@@ -1761,6 +1761,7 @@ version = "0.1.0"
 source = { editable = "packages/temper-harness" }
 dependencies = [
     { name = "jsonschema" },
+    { name = "requests" },
 ]
 
 [package.optional-dependencies]
@@ -1775,6 +1776,7 @@ requires-dist = [
     { name = "jsonschema", specifier = ">=4.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0" },
+    { name = "requests", specifier = ">=2.28.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.6" },
 ]
 provides-extras = ["dev"]

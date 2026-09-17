@@ -15,11 +15,24 @@ USAGE = {
     "completion_tokens": None,
     "reasoning_tokens": None,
     "cached_input_tokens": None,
+    "total_tokens": None,
 }
 
 
-def _usage(prompt: int, completion: int) -> dict[str, int | None]:
-    return {**USAGE, "prompt_tokens": prompt, "completion_tokens": completion}
+def _usage(prompt: int, completion: int, *, reasoning: int | None = None) -> dict[str, int | None]:
+    """A usage block whose provider total is the additive sum, as measured.
+
+    ``total_tokens`` is filled in because the committed schema requires it and
+    because the aggregate reconciles against it; a row that omitted it would be
+    counted as un-reconcilable rather than as agreeing.
+    """
+    return {
+        **USAGE,
+        "prompt_tokens": prompt,
+        "completion_tokens": completion,
+        "reasoning_tokens": reasoning,
+        "total_tokens": prompt + completion,
+    }
 
 
 def _tree(
@@ -202,3 +215,102 @@ def test_every_reason_is_reported_not_just_the_first(
     with pytest.raises(AggregateNotClosedError) as excinfo:
         aggregate(store, root_id)
     assert len(excinfo.value.reasons) >= 2
+
+
+# -- the token arithmetic, pinned by the capture -----------------------------
+
+
+def test_reasoning_tokens_do_not_add_to_completion_tokens(
+    registry: LineageRegistry, store: LedgerStore
+) -> None:
+    """The over-count this module would have shipped.
+
+    Captured from the live provider: a trivial completion reported
+    ``completion_tokens=18`` with ``completion_tokens_details.reasoning_tokens=15``
+    and three tokens of visible content. Reasoning is a SUBSET of completion, so
+    summing both reports 33 output tokens where the provider counted 18 -- an
+    error larger than the value it is measuring, and in the direction that makes
+    a fixed-expenditure comparison look more expensive than it was.
+
+    This is the fault injection for the additive set: move ``reasoning_tokens``
+    into ``ADDITIVE_USAGE_FIELDS`` and this test goes red.
+    """
+    root_id = registry.open_root()
+    registry.register_session("root-session")
+    handle = registry.open_call("root-session")
+    registry.close_call(
+        handle,
+        status="ok",
+        served_from="live",
+        usage=_usage(37, 18, reasoning=15),
+        usage_source="provider",
+    )
+
+    result = aggregate(store, root_id)
+    assert result.inclusive_tokens == 55  # 37 + 18, not 37 + 18 + 15
+    assert result.inclusive_tokens == result.provider_total_tokens
+
+
+def test_the_aggregate_reconciles_against_the_providers_own_total(
+    registry: LineageRegistry, store: LedgerStore
+) -> None:
+    """The one external check on the accounting that this provider allows.
+
+    KTD7 wanted computed and provider-reported *cost* to agree; the provider
+    reports no cost field at all, so tokens are where that check can live.
+    """
+    root_id, *_ = _tree(registry)
+    result = aggregate(store, root_id)
+    assert result.rows_without_provider_total == 0
+    assert result.reconciles
+
+
+def test_reconciliation_fails_closed_when_a_row_withholds_the_total(
+    registry: LineageRegistry, store: LedgerStore
+) -> None:
+    """Silence is not agreement, and the schema lets a field be null (R4)."""
+    root_id, *_ = _tree(registry)
+    handle = registry.open_call("child")
+    registry.close_call(
+        handle,
+        status="ok",
+        served_from="live",
+        usage={**_usage(1, 1), "total_tokens": None},
+        usage_source="provider",
+    )
+
+    result = aggregate(store, root_id)
+    assert result.rows_without_provider_total == 1
+    assert not result.reconciles
+
+
+def test_reconciliation_fails_closed_on_an_empty_selection(
+    registry: LineageRegistry, store: LedgerStore
+) -> None:
+    """A vacuous agreement -- 0 == 0 over no rows -- is not a clean verdict."""
+    root_id = registry.open_root()
+    registry.register_session("root-session")
+    result = aggregate(store, root_id)
+    assert result.call_count == 0
+    assert not result.reconciles
+
+
+def test_reconciliation_reports_a_genuine_mismatch(
+    registry: LineageRegistry, store: LedgerStore
+) -> None:
+    """A provider total that disagrees with the parts is a real finding."""
+    root_id = registry.open_root()
+    registry.register_session("root-session")
+    handle = registry.open_call("root-session")
+    registry.close_call(
+        handle,
+        status="ok",
+        served_from="live",
+        usage={**_usage(37, 18, reasoning=15), "total_tokens": 9_999},
+        usage_source="provider",
+    )
+
+    result = aggregate(store, root_id)
+    assert result.rows_without_provider_total == 0
+    assert not result.reconciles
+    assert result.inclusive_tokens == 55

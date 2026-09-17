@@ -27,11 +27,13 @@ from temper_harness.store.errors import (
 )
 from temper_harness.store.recorder import Mode, RecordingStore, scan_corpus
 from temper_harness.store.recordings import (
-    RESPONSE_ENCODING,
+    RESPONSE_ENCODINGS,
     Recording,
     canonical_request_bytes,
     content_hash,
     current_recording_version,
+    decode_response_body,
+    encode_response_body,
     request_hash,
     supported_recording_versions,
 )
@@ -46,7 +48,7 @@ from temper_harness.store.redaction import (
 __all__ = [
     "CREDENTIAL_HEADER_TOKENS",
     "RECORDING_SCHEMA",
-    "RESPONSE_ENCODING",
+    "RESPONSE_ENCODINGS",
     "ArmMismatch",
     "CorruptRecording",
     "CredentialLeakError",
@@ -65,6 +67,8 @@ __all__ = [
     "canonical_request_bytes",
     "content_hash",
     "current_recording_version",
+    "decode_response_body",
+    "encode_response_body",
     "header_allowlist",
     "redact_headers",
     "request_hash",
