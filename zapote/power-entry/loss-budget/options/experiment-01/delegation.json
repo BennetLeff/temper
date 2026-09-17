@@ -1,0 +1,17 @@
+{
+  "schema": "zapote.experiment-delegation.v1",
+  "base_commit": "225dfaca03e0d069d938269a4cf1cf8a1da03086",
+  "agent": "/root/pfc_mosfet_experiment",
+  "requested_model": "gpt-5.6-luna",
+  "implementation_worktree": "/private/tmp/zapote-pfc-mosfet-experiment-01",
+  "ownership": "new pfc_mosfet_experiment Rust module and CLI, module registration, module tests",
+  "coordinator_ownership": "contract, independent PDF/arithmetic audit, integration and results",
+  "context_hashes": {
+    "zapote/AGENTS.md": "e8471cf401d539e8f068f049533b5553cbf4e666c532c2e4865bb7a541cae10f",
+    "zapote/power-entry/loss-budget/SWITCHING-REVIEW-LESSONS.md": "29945b498f31fa2d2767cdb162b09e68a77c1cadc27a2129328c966340be199c",
+    "zapote/power-entry/loss-budget/options/experiment-01/PLAN.md": "81cb76a2328572d65e60bdd14613846a76c55b9222f0fe5455be9f3e52f80205",
+    "zapote/power-entry/loss-budget/options/experiment-01/SOURCE-AUDIT.md": "b840d242888e762744f071b241ef0d32fe02f65de8cd44e18ffcd713e8396864",
+    "zapote/power-entry/loss-budget/options/experiment-01/independent-audit.rs": "267b2d2416e5d0c41095ee84be1ee64aabc25f47f2b3b9314a52bad9c577c1a1"
+  },
+  "record_scope": "Requested model and context identities; not a provider response receipt or proof of complete prompt delivery. New research experiment, no unit construction or frozen memory-catalog revision."
+}

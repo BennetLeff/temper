@@ -1,5 +1,11 @@
 # PFC assurance and three electrical options
 
+Update: [experiment 01](experiment-01/RESULTS.md) now compares all three
+MOSFETs through the maintained switching model. C7 has the lowest conditional
+nominal partial loss, but device sensitivity ranges overlap and physical
+qualification remains INDETERMINATE. The next step is a source-bound gate-drive
+comparison, not automatic substitution.
+
 The four Luna work packages are integrated together so numerical safeguards
 and component research use the same comparison contract. The current PCB and
 its STW65N65DM2AG remain unchanged. No option is qualified or selected.

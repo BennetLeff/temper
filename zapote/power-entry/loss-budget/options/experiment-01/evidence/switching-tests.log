@@ -1,0 +1,20 @@
+   Compiling libc v0.2.189
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling zapote-core v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-core)
+   Compiling zapote-erc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-erc)
+    Finished `release` profile [optimized] target(s) in 6.13s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_erc-36a52a74ad6311f9)
+
+running 8 tests
+test pfc_switching::tests::asymmetric_event_currents_and_driver_caps ... ok
+test pfc_switching::tests::driver_and_miller_model_converges_with_timestep_refinement ... ok
+test pfc_switching::tests::clamped_inductive_miller_stage_has_triangle_energy ... ok
+test pfc_switching::tests::eoss_once_and_gate_network_separate_from_die ... ok
+test pfc_switching::tests::miller_change_does_not_change_current_slew_overshoot ... ok
+test pfc_switching::tests::independent_triangle_and_duty_anchors ... ok
+test pfc_switching::tests::stages_hold_current_or_voltage_and_reverse_order ... ok
+test pfc_switching::tests::rejects_invalid_or_unbounded_inputs ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 48 filtered out; finished in 0.00s
+

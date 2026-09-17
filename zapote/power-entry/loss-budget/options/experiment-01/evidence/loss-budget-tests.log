@@ -1,0 +1,15 @@
+    Finished `release` profile [optimized] target(s) in 0.02s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_harness-53cdfcc1dc177d16)
+
+running 8 tests
+test pfc_loss_budget::tests::every_manufacturer_document_rejects_byte_drift ... ok
+test pfc_loss_budget::tests::production_report_exposes_assurance_rules_without_qualifying_hardware ... ok
+test pfc_loss_budget::tests::real_source_budget_is_incomplete_even_below_allowance ... ok
+test pfc_loss_budget::tests::copper_temperature_reference_is_twenty_not_twentyfive ... ok
+test pfc_loss_budget::tests::boost_switch_bound_is_datasheet_derived_and_leaves_overlap_open ... ok
+test pfc_loss_budget::tests::production_switching_adapter_rejects_rms_and_term_mutations ... ok
+test pfc_loss_budget::tests::stale_part_data_cannot_follow_a_part_change ... ok
+test pfc_loss_budget::tests::switching_adapter_uses_branch_rms_and_separate_event_moments ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 70 filtered out; finished in 0.10s
+

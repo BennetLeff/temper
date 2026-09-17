@@ -16,6 +16,7 @@ pub mod pfc_paths;
 pub mod pfc_power;
 pub mod pfc_candidates;
 pub mod pfc_loss_budget;
+pub mod pfc_mosfet_experiment;
 pub mod runner;
 pub use current_sense::{build_current_sense_input, parse_current_sense_input, run_current_sense};
 mod model_qualification;

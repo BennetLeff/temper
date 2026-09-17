@@ -1,0 +1,15 @@
+    Finished `release` profile [optimized] target(s) in 0.05s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_harness-53cdfcc1dc177d16)
+
+running 8 tests
+test model_assurance::tests::supported_synthetic_pass_has_three_separate_dimensions ... ok
+test model_assurance::tests::wrong_nominal_current_cannot_become_decision_input ... ok
+test model_assurance::tests::unsupported_inputs_are_indeterminate_but_numerics_can_pass ... ok
+test model_assurance::tests::corrupt_adapter_cannot_accept_reference_or_terms ... ok
+test model_assurance::tests::gate_assumption_is_not_actual_qualification ... ok
+test model_assurance::tests::fake_measured_label_without_importer_cannot_pass ... ok
+test model_assurance::tests::duplicate_owned_term_cannot_be_hidden_by_a_new_label ... ok
+test model_assurance::tests::missing_provenance_stale_evidence_and_missing_reference_fail_closed ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 70 filtered out; finished in 0.00s
+
