@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 from urllib.parse import urlparse
 
-from temper_harness.provider.errors import EndpointRejected, MalformedStream
+from temper_harness.provider.errors import EndpointRejected, MalformedStream, TransportError
 from temper_harness.provider.messages import ChatMessage, ToolCall, ToolDefinition
 
 OFFICIAL_HOST = "api.deepseek.com"
@@ -55,6 +55,26 @@ class UsageReported:
 
 
 @dataclass(frozen=True, slots=True)
+class StreamEnd:
+    """The metadata a streaming provider puts on its final chunk.
+
+    Distinct from :class:`Terminal`, and the distinction is load-bearing. A
+    streaming transport has the finish reason, the message id, the reported model,
+    and the backend fingerprint at the end of the stream, but it does *not* have
+    an assembled turn -- the deltas are the turn, and the consumer accumulated
+    them. Emitting a partial envelope as a ``Terminal`` would be a document that
+    satisfies no schema; emitting this keeps the two roles separate. A consumer
+    that wants the assembled turn wraps its transport in
+    :class:`BufferedTransport`.
+    """
+
+    id: str
+    model: str
+    finish_reason: str | None
+    system_fingerprint: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class Terminal:
     """The single terminal event a buffered transport yields."""
 
@@ -65,7 +85,7 @@ class Terminal:
         return self.envelope.get("finish_reason")
 
 
-Event = TextDelta | ReasoningDelta | ToolCallDelta | UsageReported | Terminal
+Event = TextDelta | ReasoningDelta | ToolCallDelta | UsageReported | StreamEnd | Terminal
 
 
 # -- request -----------------------------------------------------------------
@@ -77,7 +97,14 @@ class Request:
     messages: list[ChatMessage]
     tools: tuple[ToolDefinition, ...] = field(default=())
     temperature: float | None = None
+    max_tokens: int | None = None
+    #: Set by the caller, and asserted by the transport rather than trusted: a live
+    #: transport refuses to stamp a row "replay" and a replay transport refuses to
+    #: stamp one "live". Provenance is the one field a caller must not be able to
+    #: get wrong, because a recorded turn summed into a scored aggregate is exactly
+    #: what R15 fails closed on.
     served_from: str = "live"
+    stream: bool = False
 
 
 # -- reassembly --------------------------------------------------------------
@@ -182,25 +209,35 @@ class BufferedTransport:
         model = request.model
         system_fingerprint: str | None = None
 
-        for event in self._inner.stream(request):
-            if self._cancelled:
-                break
-            if isinstance(event, TextDelta):
-                text.append(event.text)
-            elif isinstance(event, ReasoningDelta):
-                reasoning.append(event.text)
-            elif isinstance(event, ToolCallDelta):
-                deltas.append(event)
-            elif isinstance(event, UsageReported):
-                usage = event.usage
-            elif isinstance(event, Terminal):
-                terminal_envelope = event.envelope
-                finish_reason = terminal_envelope.get("finish_reason")
-                message_id = str(terminal_envelope.get("id", ""))
-                model = str(terminal_envelope.get("model", model))
-                system_fingerprint = terminal_envelope.get("system_fingerprint")
-                if usage is None:
-                    usage = terminal_envelope.get("usage")
+        try:
+            for event in self._inner.stream(request):
+                if self._cancelled:
+                    break
+                if isinstance(event, TextDelta):
+                    text.append(event.text)
+                elif isinstance(event, ReasoningDelta):
+                    reasoning.append(event.text)
+                elif isinstance(event, ToolCallDelta):
+                    deltas.append(event)
+                elif isinstance(event, UsageReported):
+                    usage = event.usage
+                elif isinstance(event, StreamEnd):
+                    finish_reason = event.finish_reason
+                    message_id = event.id
+                    model = event.model
+                    system_fingerprint = event.system_fingerprint
+                elif isinstance(event, Terminal):
+                    # A transport that already assembled a turn -- the buffered
+                    # consumption of a non-streaming response. Nothing to add.
+                    yield event
+                    return
+        except TransportError as err:
+            # The accumulator is about to be unwound, and with it the only record
+            # of what this call cost. Attach it before re-raising so the ledger can
+            # write an `incomplete` row carrying real usage rather than a zero.
+            if err.partial_usage is None:
+                err.partial_usage = usage
+            raise
 
         calls = reassemble_tool_calls(deltas)
         validate_tool_arguments(calls)

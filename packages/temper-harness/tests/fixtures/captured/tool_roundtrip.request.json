@@ -1,5 +1,4 @@
 {
-  "max_tokens": 300,
   "messages": [
     {
       "content": "Place R1 on F.Cu and check clearance.",
@@ -7,7 +6,7 @@
     },
     {
       "content": "",
-      "reasoning_content": "The user wants exactly two tool calls in one block.",
+      "reasoning_content": "The user wants exactly two tool calls: place R1 on F.Cu rotation 0, and check rule clearance. No explanation.",
       "role": "assistant",
       "tool_calls": [
         {
@@ -15,8 +14,7 @@
             "arguments": "{\"reference\": \"R1\", \"layer\": \"F.Cu\", \"rotation\": 0}",
             "name": "place"
           },
-          "id": "call_00_J5hMyKuo8E56YF0NICmi3264",
-          "index": 0,
+          "id": "call_00_LZDozREaBf9oFVVt9b479098",
           "type": "function"
         },
         {
@@ -24,8 +22,7 @@
             "arguments": "{\"rule\": \"clearance\"}",
             "name": "check"
           },
-          "id": "call_01_YWYnIkSMPM3l1jHR3z674637",
-          "index": 1,
+          "id": "call_01_RHMCOWMsU9pCSRomkUPJ9123",
           "type": "function"
         }
       ]
@@ -33,12 +30,12 @@
     {
       "content": "done",
       "role": "tool",
-      "tool_call_id": "call_00_J5hMyKuo8E56YF0NICmi3264"
+      "tool_call_id": "call_00_LZDozREaBf9oFVVt9b479098"
     },
     {
       "content": "done",
       "role": "tool",
-      "tool_call_id": "call_01_YWYnIkSMPM3l1jHR3z674637"
+      "tool_call_id": "call_01_RHMCOWMsU9pCSRomkUPJ9123"
     }
   ],
   "model": "deepseek-flash",

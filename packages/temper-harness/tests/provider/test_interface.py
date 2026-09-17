@@ -14,6 +14,7 @@ from temper_harness.provider.interface import (
     Event,
     ReasoningDelta,
     Request,
+    StreamEnd,
     Terminal,
     TextDelta,
     ToolCallDelta,
@@ -22,12 +23,14 @@ from temper_harness.provider.interface import (
     validate_tool_arguments,
 )
 from temper_harness.provider.messages import ChatMessage
+from temper_harness.schema_registry import build_validator
 
 USAGE = {
     "prompt_tokens": 12,
     "completion_tokens": 7,
     "reasoning_tokens": None,
     "cached_input_tokens": None,
+    "total_tokens": 19,
 }
 
 
@@ -105,17 +108,13 @@ class _FakeTransport:
 
     def stream(self, request: Request) -> Iterator[Event]:
         yield from self._events
-        yield Terminal(
-            {
-                "id": "msg-1",
-                "model": request.model,
-                "finish_reason": "tool_calls",
-                "content": None,
-                "reasoning_content": None,
-                "tool_calls": [],
-                "usage": self._terminal_usage,
-                "served_from": request.served_from,
-            }
+        if self._terminal_usage is not None:
+            yield UsageReported(self._terminal_usage)
+        yield StreamEnd(
+            id="msg-1",
+            model=request.model,
+            finish_reason="tool_calls",
+            system_fingerprint="fp-probe",
         )
 
     def cancel(self) -> None:
@@ -144,21 +143,30 @@ def test_buffered_transport_yields_exactly_one_terminal_event() -> None:
 
 
 def test_the_buffered_envelope_keeps_every_field_explicit() -> None:
-    """A field omitted here is invisible to every later layer."""
+    """A field omitted here is invisible to every later layer.
+
+    The assembled envelope is validated against the committed schema, because
+    "explicit" is only useful if the result is a document the rest of the system
+    can actually consume.
+    """
     inner = _FakeTransport([TextDelta("placing"), UsageReported(USAGE)])
     terminal = next(iter(BufferedTransport(inner).stream(_request())))
     envelope = terminal.envelope
 
+    assert envelope["id"] == "msg-1"
+    assert envelope["model"] == "deepseek-flash"
     assert envelope["content"] == "placing"
     # "" not None: the provider reports an empty STRING for content on a
     # tool-call turn, and collapsing it to null would make the streamed and
     # non-streamed views of the same turn disagree.
     assert envelope["reasoning_content"] == ""
     assert envelope["finish_reason"] == "tool_calls"
+    assert envelope["system_fingerprint"] == "fp-probe"
     assert envelope["tool_calls"] == []
     assert envelope["usage"] == USAGE
     assert envelope["served_from"] == "live"
     assert terminal.finish_reason == "tool_calls"
+    build_validator("envelope.schema.json").validate(envelope)
 
 
 def test_a_provider_stream_that_never_reports_usage_leaves_it_null() -> None:

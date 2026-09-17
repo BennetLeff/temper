@@ -98,14 +98,36 @@ def _require_supported_version(value: Any) -> str:
     return value
 
 
+def _normalized_numbers(value: Any) -> Any:
+    """Rewrite an integral float to an int, recursively.
+
+    The request identity is a hash of the encoding, and ``json.dumps`` writes ``0``
+    and ``0.0`` differently. Without this, a refactor that passed ``0.0`` where it
+    used to pass ``0`` would change every request hash and silently invalidate a
+    corpus -- failing closed, but for a reason no one would guess from the symptom.
+    A numeric *value* is what a request means; the Python scalar's type is not.
+    """
+    if isinstance(value, bool):
+        return value  # a bool is an int subclass, and `True` is not the number 1 here
+    if isinstance(value, float) and value.is_integer() and abs(value) < 2**53:
+        return int(value)
+    if isinstance(value, Mapping):
+        return {key: _normalized_numbers(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_normalized_numbers(item) for item in value]
+    return value
+
+
 def canonical_request_bytes(request: Mapping[str, Any]) -> bytes:
     """The canonical encoding whose hash identifies a request.
 
     Key order is projected away because a JSON object has no order to a model:
     two bodies differing only in insertion order are the same request, and a
     hash that disagreed would refuse a replay for a reason the provider cannot
-    observe. Everything else is preserved, including the unknown keywords in a
-    tool schema that R7 requires be passed through untouched.
+    observe. Numeric type is projected away for the same reason, see
+    :func:`_normalized_numbers`. Everything else is preserved, including the
+    unknown keywords in a tool schema that R7 requires be passed through
+    untouched.
 
     The live adapter must serialize with this function as well. If it does not,
     the hash it records will not match the hash a replay derives, which fails
@@ -113,9 +135,12 @@ def canonical_request_bytes(request: Mapping[str, Any]) -> bytes:
     contract rather than a convenience, so it is stated here and not inferred
     from the code.
     """
-    return json.dumps(request, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
-        "utf-8"
-    )
+    return json.dumps(
+        _normalized_numbers(dict(request)),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
 
 
 def content_hash(data: bytes) -> str:

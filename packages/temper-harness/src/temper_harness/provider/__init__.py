@@ -1,14 +1,30 @@
 """Provider transport: the seam every later layer calls.
 
-Live and replay are the only two adapters (KTD6). The DeepSeek live adapter and
-the fixture adapter that reads U1's captures are not built yet — they need U1's
-live capture to exist, because a fixture authored alongside the parser only
-proves that the two agree.
+Live and replay are the only two adapters (KTD6), and both feed the same decoder,
+so a recorded test says something about the live path. `probe` is deliberately not
+exported here: it is a process rather than a library, reachable as the
+`temper-harness-probe` console script.
 """
 
+from temper_harness.provider.deepseek import (
+    ALTERNATE_MODEL,
+    API_KEY_ENV,
+    COMPLETIONS_PATH,
+    DONE_SENTINEL,
+    MODEL,
+    PROVIDER,
+    LiveTransport,
+    decode_completion,
+    decode_stream_payloads,
+    fetch_account_models,
+    is_event_stream,
+    iter_sse_payloads,
+    wire_body,
+)
 from temper_harness.provider.errors import (
     ContentFiltered,
     ContextLengthExceeded,
+    CredentialMissing,
     EndpointRejected,
     IncompleteStream,
     MalformedResponse,
@@ -33,6 +49,7 @@ from temper_harness.provider.interface import (
     Event,
     ReasoningDelta,
     Request,
+    StreamEnd,
     Terminal,
     TextDelta,
     ToolCallDelta,
@@ -50,29 +67,40 @@ from temper_harness.provider.messages import (
     build_wire_request,
     validate_messages,
 )
+from temper_harness.provider.replay import ReplayTransport
 from temper_harness.provider.usage import normalize_usage, usage_fields
 
 __all__ = [
+    "ALTERNATE_MODEL",
+    "API_KEY_ENV",
+    "COMPLETIONS_PATH",
+    "DONE_SENTINEL",
+    "MODEL",
     "OFFICIAL_HOST",
+    "PROVIDER",
     "ROLES",
     "BufferedTransport",
     "ChatMessage",
     "ContentFiltered",
     "ContextLengthExceeded",
+    "CredentialMissing",
     "EndpointPolicy",
     "EndpointRejected",
     "Event",
     "IncompleteStream",
+    "LiveTransport",
     "MalformedResponse",
     "MalformedStream",
     "MessageArrayError",
     "PreConnectionUnavailable",
     "RateLimited",
     "ReasoningDelta",
+    "ReplayTransport",
     "Request",
     "RequestRejected",
     "RequestTimeout",
     "ServerError",
+    "StreamEnd",
     "Terminal",
     "TextDelta",
     "ToolCall",
@@ -86,11 +114,17 @@ __all__ = [
     "build_wire_request",
     "classify_exception",
     "classify_http_response",
+    "decode_completion",
+    "decode_stream_payloads",
+    "fetch_account_models",
     "for_http_status",
+    "is_event_stream",
+    "iter_sse_payloads",
     "normalize_usage",
     "provider_error_message",
     "reassemble_tool_calls",
     "usage_fields",
     "validate_messages",
     "validate_tool_arguments",
+    "wire_body",
 ]

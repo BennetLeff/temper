@@ -182,6 +182,7 @@ def build_wire_request(
     messages: list[ChatMessage],
     tools: list[ToolDefinition] | None = None,
     temperature: float | None = None,
+    max_tokens: int | None = None,
 ) -> dict[str, Any]:
     """Assemble the request body, validating before anything is sent."""
     validate_messages(messages)
@@ -193,4 +194,9 @@ def build_wire_request(
         body["tools"] = [tool.to_wire() for tool in tools]
     if temperature is not None:
         body["temperature"] = temperature
+    if max_tokens is not None:
+        # Present because a harness that cannot bound a completion cannot bound what
+        # it spends, and the fixed-expenditure comparison S7 depends on is denominated
+        # in exactly that bound.
+        body["max_tokens"] = max_tokens
     return body

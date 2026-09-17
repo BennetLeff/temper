@@ -1,19 +1,19 @@
 {
-  "captured_at": "2026-09-17T20:09:18+00:00",
+  "captured_at": "2026-09-17T21:31:19+00:00",
   "expect_status": 200,
   "headers": {
     "content-type": "application/json",
-    "date": "Thu, 17 Sep 2026 20:09:10 GMT",
+    "date": "Thu, 17 Sep 2026 21:31:10 GMT",
     "server": "elb",
-    "x-ds-trace-id": "ddc16d9004df772c87d4f49bbe2e0aac"
+    "x-ds-trace-id": "92ecfc725adfbc8d34faf9d3a54ce751"
   },
   "http_status": 200,
   "model": "deepseek-flash",
   "name": "plain",
   "provider": "deepseek",
-  "request_hash": "6a6a20dffe7c260b8d414c9247ed9506123aa674618d11beeb77b815393f19c2",
-  "response_bytes": 599,
-  "response_sha256": "1e6619ff451a530f82d0368a8a66c69cd1ea3c8d4147357ab241806c9d77ea4c",
+  "request_hash": "5568df11e4d4c09da102635b8bfea323874c9626b45b4911bdeaf7f297f2072e",
+  "response_bytes": 598,
+  "response_sha256": "5b402a2e6acbe7104e5f0eda54479185a8d3979ff09fbf3dad698b3d9f964cde",
   "reveals": "the usage block's real field names and nesting, whether reasoning_content is emitted, and the top-level response shape",
   "status_as_expected": true,
   "stream": false

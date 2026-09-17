@@ -275,6 +275,9 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 **Per unit**
 
 - U1 complete when the captured fixtures and five schemas are committed, no fixture carries a credential, the CI wiring schedules the suite, and every unverified provider behavior is named.
+- **U2 complete.** Self-rooting is rejected, an unresolved parent chain fails the aggregate closed, a crash leaves an unclosed in-flight entry that fails the aggregate, and the reconciliation invariant holds — against the provider's own `total_tokens`, which is the only external check available.
+- **U3 complete.** A malformed message array raises before network I/O (and one captured fixture is the provider's refusal of exactly that array, so the local guard is aligned with a real refusal rather than an imagined one). A pre-connection failure is classified and carries defined retryable/billable flags. A cancelled stream cannot be confused with a completed one, because a turn with no `finish_reason` is never `ok`. The live and replay adapters share one decoder, and their typed views are asserted equal on the same bytes.
+- **U4 complete** for the offline half: request-hash and arm mismatches refuse to serve, a failed live call cannot fall back to a recording, the store cannot be written during a replay run, and the redaction canary fails on a planted key in every artifact kind R11 names. The provider-facing adapter is now built (U3), so replay is wired end to end.
 
 ### Captured provider behaviour (U1) — measured, not documented
 
@@ -321,6 +324,36 @@ validates tool schemas server-side; `system_fingerprint` is present on every
 success; a tool-call turn reports `content` as an empty string, not null; absent
 stream delta fields are explicit `null`; and the response carries **no cost field**.
 
+### Found while building the adapter (U3) — four more corrections
+
+7. **The request identity depended on a Python scalar's type.** A captured
+   `"temperature": 0` and a client that passed `0.0` encode differently, so a
+   refactor that changed nothing observable would have changed every request hash
+   and silently invalidated the corpus. `canonical_request_bytes` now normalizes
+   integral floats to ints, so a request's identity is its numeric *value*.
+8. **The client could not bound a completion.** `max_tokens` was absent from
+   `build_wire_request`, which means a harness that cannot bound a turn cannot bound
+   what it spends — and S7's fixed-expenditure comparison is denominated in exactly
+   that bound. Added, and the captured bodies already carried it, so the fixtures
+   are reproducible by the client's own encoder byte for byte.
+9. **A recording without its status line replays a failure as a success.** The
+   recording schema gained `http_status`, and the adapter records successes only: a
+   refusal's evidence is the ledger row and the captured 400 fixtures, while a
+   replay corpus entry that reproduces a truncated turn would be worse than none.
+10. **Two more error categories were reachable and misclassified.** A 401/403 fell
+    through to the unknown catch-all, which is retryable — so a wrong key would have
+    been retried forever against a provider that refuses it identically every time.
+    Both map to `request_rejected` now, with the status retained on the record. And
+    a missing credential, which happens on this side before any I/O, needed its own
+    category (`credential_missing`) because R3 still requires a row for a call that
+    failed before reaching the provider.
+
+The corpus is also a corpus rather than a log: `test_probe` re-derives each
+captured request's hash through the client's own encoder, so a fixture that no
+replay could ever look up fails the suite. The one exception is
+`orphan_tool_result`, which is *deliberately* a body the client refuses to build —
+that is what its fixture is evidence for.
+
 ### Named unknowns (U1) — stated, not inferred away
 
 - **No cost reconciliation is possible from this provider.** The response has no cost
@@ -339,6 +372,13 @@ stream delta fields are explicit `null`; and the response carries **no cost fiel
 - **No 429 was produced**, so whether `retry-after` and the `x-ratelimit-*` family
   appear on a rate-limit response is unknown. They remain on the header allowlist as
   structurally-necessary names with no capture behind them.
+- **The authentication-failure body is unverified.** No probe used an invalid key, so
+  a 401 is classified from its status and the provider's general error envelope
+  rather than from a captured auth body. The classification is still the right
+  shape — non-retryable, not billable, status retained — but the message text is an
+  inference, and it is the one place a probe is cheap and was skipped deliberately:
+  spending a call to confirm the shape of a failure the adapter already refuses to
+  provoke is a poor trade against the credential it would put on the wire.
 - **Whether `finish_reason` can be `length` or `content_filter`** is unknown; only
   `stop` and `tool_calls` were observed. The envelope's enum keeps both.
 - **Whether `content` can be `null` at the message level** is unknown; only `""` was

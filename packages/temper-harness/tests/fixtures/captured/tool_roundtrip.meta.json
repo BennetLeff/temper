@@ -1,20 +1,20 @@
 {
-  "captured_at": "2026-09-17T20:09:18+00:00",
+  "captured_at": "2026-09-17T21:31:19+00:00",
   "expect_status": 200,
   "headers": {
     "content-type": "application/json",
-    "date": "Thu, 17 Sep 2026 20:09:16 GMT",
+    "date": "Thu, 17 Sep 2026 21:31:16 GMT",
     "server": "elb",
-    "x-ds-trace-id": "9be849ea8d8e2cb478664d523df645a5"
+    "x-ds-trace-id": "c7cf791c0d4fe1f6c0f6222d85a84842"
   },
   "http_status": 200,
   "model": "deepseek-flash",
   "name": "tool_roundtrip",
   "provider": "deepseek",
-  "request_hash": "32fd9c3c9ff9ec62fc5d91629df8e51b528d4f9c42d196a3951704265fb0b06c",
-  "response_bytes": 880,
-  "response_sha256": "c0b42a727b0b9b9259978d5b8d296a7f15f6cce466733b153b458d4ef0c1ad60",
-  "reveals": "that a continued tool turn is accepted when the assistant message is replayed verbatim, reasoning_content included",
+  "request_hash": "49a08977c31956c2528d4e0e285fca992003e75d02a240b2ad30d771ca4d6875",
+  "response_bytes": 679,
+  "response_sha256": "6042d214f6ce9adcca4960ef8ea39166ab30d47c4af6e951cbb25ec8f380f50d",
+  "reveals": "that a continued tool turn is accepted when the assistant message is replayed through the client's own encoder, reasoning_content included",
   "status_as_expected": true,
   "stream": false
 }

@@ -48,127 +48,162 @@ from typing import Any
 
 import requests
 
-from temper_harness.provider.interface import OFFICIAL_HOST
+from temper_harness.provider.deepseek import (
+    API_KEY_ENV,
+    COMPLETIONS_PATH,
+    MODEL,
+    PROVIDER,
+    fetch_account_models,
+    wire_body,
+)
+from temper_harness.provider.interface import OFFICIAL_HOST, Request
+from temper_harness.provider.messages import ChatMessage, ToolCall, ToolDefinition
+from temper_harness.store.recordings import canonical_request_bytes
 from temper_harness.store.redaction import redact_headers
 
-PROVIDER = "deepseek"
 
-#: The model this harness targets. NOT the ``deepseek-v4.1-flash`` the plan
-#: names: that id belongs to a different provider's catalogue, and the official
-#: API rejects it. `deepseek-flash` is the flash tier on the official host, and
-#: `deepseek-v4-pro` is the larger sibling, captured for comparison rather than
-#: as a target.
-MODEL = "deepseek-flash"
-ALTERNATE_MODEL = "deepseek-v4-pro"
+def _request(
+    content: str | None = None,
+    *,
+    messages: list[ChatMessage] | None = None,
+    tools: tuple[ToolDefinition, ...] = (),
+    stream: bool = False,
+    max_tokens: int = 600,
+    model: str = MODEL,
+) -> Request:
+    """A probe request, built the way the client builds one.
 
-API_KEY_ENV = "DEEPSEEK_API_KEY"
+    Deliberately routed through the production types rather than assembled as a
+    raw dict: the fixture then holds the body the *client* would send, so its
+    recorded hash is a hash a replay can reproduce. A capture that only a
+    hand-written serializer can regenerate is not a corpus entry.
+    """
+    if messages is None:
+        assert content is not None
+        messages = [ChatMessage(role="user", content=content)]
+    return Request(
+        model=model,
+        messages=messages,
+        tools=tools,
+        temperature=0,
+        max_tokens=max_tokens,
+        served_from="live",
+        stream=stream,
+    )
 
-MODELS_PATH = "/models"
-COMPLETIONS_PATH = "/chat/completions"
 
 #: The tool schema R7 requires be preserved verbatim: an unknown keyword
 #: (``$defs``), a ``$ref`` to it, a nested ``oneOf``, an ``enum``, ``required``,
 #: and ``additionalProperties: false``. If the client filtered to a known
 #: keyword set, the model would be asked to satisfy a schema it never saw.
-STRICT_TOOL = {
-    "type": "function",
-    "function": {
-        "name": "place",
-        "description": "Place a component on a copper layer",
-        "parameters": {
-            "type": "object",
-            "additionalProperties": False,
-            "required": ["reference", "layer", "rotation"],
-            "properties": {
-                "reference": {"type": "string"},
-                "layer": {"$ref": "#/$defs/layer"},
-                "rotation": {"oneOf": [{"type": "integer", "multipleOf": 90}, {"type": "number"}]},
-            },
-            "$defs": {"layer": {"type": "string", "enum": ["F.Cu", "B.Cu"]}},
+PLACE_TOOL = ToolDefinition(
+    name="place",
+    description="Place a component on a copper layer",
+    parameters={
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference", "layer", "rotation"],
+        "properties": {
+            "reference": {"type": "string"},
+            "layer": {"$ref": "#/$defs/layer"},
+            "rotation": {"oneOf": [{"type": "integer", "multipleOf": 90}, {"type": "number"}]},
         },
+        "$defs": {"layer": {"type": "string", "enum": ["F.Cu", "B.Cu"]}},
     },
-}
+)
 
-CHECK_TOOL = {
-    "type": "function",
-    "function": {
-        "name": "check",
-        "description": "Check a design rule",
-        "parameters": {
-            "type": "object",
-            "additionalProperties": False,
-            "required": ["rule"],
-            "properties": {"rule": {"type": "string", "enum": ["clearance", "creepage"]}},
-        },
+CHECK_TOOL = ToolDefinition(
+    name="check",
+    description="Check a design rule",
+    parameters={
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["rule"],
+        "properties": {"rule": {"type": "string", "enum": ["clearance", "creepage"]}},
     },
-}
+)
 
-
-def _completion(content: str, *, stream: bool = False, **extra: Any) -> dict[str, Any]:
-    body: dict[str, Any] = {
-        "model": MODEL,
-        "messages": [{"role": "user", "content": content}],
-        "max_tokens": 600,
-        "temperature": 0,
-    }
-    if stream:
-        body["stream"] = True
-    body.update(extra)
-    return body
+TWO_CALLS = (
+    "Make exactly two tool calls in this turn: place reference R1 on layer F.Cu "
+    "with rotation 0, and check rule clearance. Do not explain."
+)
 
 
 @dataclass(frozen=True, slots=True)
 class Probe:
     """One request to issue, and what it exists to reveal.
 
-    ``body`` may be a callable so that a probe can be a genuine continuation of
+    ``request`` may be a callable so that a probe can be a genuine continuation of
     an earlier capture rather than a reconstruction of one. That matters for the
     tool round trip: rebuilding the assistant turn by hand would produce a fixture
-    that agrees with my assumptions, which is the self-consistency trap. Taking
-    the provider's own message -- its ``reasoning_content``, its tool_call ids --
-    and sending it back is the only version of that probe worth having.
+    that agrees with my assumptions, which is the self-consistency trap. Taking the
+    provider's own reasoning and tool_call ids and sending them back through the
+    client's own encoder is the only version of that probe worth having.
+
+    ``raw_body`` is the escape hatch, and it exists for exactly one probe. Some of
+    what is worth knowing about a provider is what it does with a request this
+    client refuses to send: the client validates the message array before any I/O
+    (R7), so an orphaned tool result has no client-shaped form to build. Capturing
+    the provider's 400 requires going around our own guard, and the fixture is then
+    the evidence that the guard is protecting against something real rather than
+    something imagined.
     """
 
     name: str
     reveals: str
-    body: dict[str, Any] | Callable[[Mapping[str, CapturedExchange]], dict[str, Any]]
-    stream: bool = False
+    request: Request | Callable[[Mapping[str, CapturedExchange]], Request] | None = None
+    raw_body: Mapping[str, Any] | None = None
     expect_status: int = 200
 
-
-def _assistant_turn(prior: Mapping[str, CapturedExchange]) -> dict[str, Any]:
-    """The provider's own assistant message from the non-streaming tool probe."""
-    payload = json.loads(prior["parallel_tools"].body)
-    message: dict[str, Any] = payload["choices"][0]["message"]
-    return message
+    def __post_init__(self) -> None:
+        if (self.request is None) == (self.raw_body is None):
+            raise ValueError(f"probe {self.name!r} must define exactly one of request/raw_body")
 
 
-def _tool_roundtrip_body(prior: Mapping[str, CapturedExchange]) -> dict[str, Any]:
-    """Continue the provider's own tool-call turn with its own reasoning.
+def _assistant_turn(prior: Mapping[str, CapturedExchange]) -> ChatMessage:
+    """The provider's own assistant message, carried into the client's types.
 
-    This is the shape a loop must send, and the shape that fails outright when
-    the assistant turn omits ``reasoning_content`` -- see ``reasoning_omitted``
-    below for that half.
+    The provider's message also carries an ``index`` on each tool call, which is a
+    response-side field the client's request encoder does not emit. It is dropped
+    here rather than smuggled through, so the fixture is the body the client would
+    send -- and the fact that the provider accepted it both ways is recorded as an
+    observation rather than relied on.
+    """
+    raw = json.loads(prior["parallel_tools"].body)["choices"][0]["message"]
+    return ChatMessage(
+        role="assistant",
+        content=raw.get("content"),
+        reasoning_content=raw.get("reasoning_content"),
+        tool_calls=tuple(
+            ToolCall(
+                id=call["id"],
+                name=call["function"]["name"],
+                arguments=call["function"]["arguments"],
+            )
+            for call in raw["tool_calls"]
+        ),
+    )
+
+
+def _tool_roundtrip_request(prior: Mapping[str, CapturedExchange]) -> Request:
+    """Continue the provider's own tool-call turn, reasoning replayed.
+
+    This is the shape a loop must send. The half that fails without it is
+    ``reasoning_omitted`` below.
     """
     assistant = _assistant_turn(prior)
-    messages: list[dict[str, Any]] = [
-        {"role": "user", "content": "Place R1 on F.Cu and check clearance."},
+    messages = [
+        ChatMessage(role="user", content="Place R1 on F.Cu and check clearance."),
         assistant,
     ]
     messages.extend(
-        {"role": "tool", "tool_call_id": call["id"], "content": "done"}
-        for call in assistant["tool_calls"]
+        ChatMessage(role="tool", tool_call_id=call.id, content="done")
+        for call in assistant.tool_calls
     )
-    return {
-        "model": MODEL,
-        "messages": messages,
-        "tools": [STRICT_TOOL, CHECK_TOOL],
-        "max_tokens": 300,
-        "temperature": 0,
-    }
+    return _request(messages=messages, tools=(PLACE_TOOL, CHECK_TOOL), max_tokens=300)
 
 
-def _reasoning_omitted_body(_: Mapping[str, CapturedExchange]) -> dict[str, Any]:
+def _reasoning_omitted_request(_: Mapping[str, CapturedExchange]) -> Request:
     """The same turn with ``reasoning_content`` dropped and unrecognized ids.
 
     Synthetic ids are load-bearing here, and this is the surprising part of the
@@ -184,90 +219,88 @@ def _reasoning_omitted_body(_: Mapping[str, CapturedExchange]) -> dict[str, Any]
     a quick test and fails later, which is this repo's definition of correct by
     coincidence.
     """
-    calls = [
-        {
-            "id": "call_probe_00",
-            "type": "function",
-            "function": {
-                "name": "place",
-                "arguments": '{"reference": "R1", "layer": "F.Cu", "rotation": 0}',
-            },
-        },
-        {
-            "id": "call_probe_01",
-            "type": "function",
-            "function": {"name": "check", "arguments": '{"rule": "clearance"}'},
-        },
+    calls = (
+        ToolCall(
+            id="call_probe_00",
+            name="place",
+            arguments='{"reference": "R1", "layer": "F.Cu", "rotation": 0}',
+        ),
+        ToolCall(id="call_probe_01", name="check", arguments='{"rule": "clearance"}'),
+    )
+    messages = [
+        ChatMessage(role="user", content="Place R1 on F.Cu and check clearance."),
+        ChatMessage(role="assistant", content="", tool_calls=calls),
     ]
-    return {
-        "model": MODEL,
-        "messages": [
-            {"role": "user", "content": "Place R1 on F.Cu and check clearance."},
-            {"role": "assistant", "content": "", "tool_calls": calls},
-            {"role": "tool", "tool_call_id": calls[0]["id"], "content": "done"},
-            {"role": "tool", "tool_call_id": calls[1]["id"], "content": "done"},
-        ],
-        "tools": [STRICT_TOOL, CHECK_TOOL],
-        "max_tokens": 300,
-        "temperature": 0,
-    }
+    messages.extend(
+        ChatMessage(role="tool", tool_call_id=call.id, content="done") for call in calls
+    )
+    return _request(messages=messages, tools=(PLACE_TOOL, CHECK_TOOL), max_tokens=300)
+
+
+def _invalid_tool_schema_request(_: Mapping[str, CapturedExchange]) -> Request:
+    return _request(
+        "Place R1.",
+        tools=(
+            ToolDefinition(
+                name="place",
+                description="Place a component",
+                parameters={
+                    "type": "object",
+                    "properties": {"reference": {"type": "not-a-real-type"}},
+                },
+            ),
+        ),
+        max_tokens=64,
+    )
 
 
 PROBE_SET: tuple[Probe, ...] = (
     Probe(
         name="plain",
         reveals="the usage block's real field names and nesting, whether reasoning_content is emitted, and the top-level response shape",
-        body=_completion("Reply with exactly the word: temper"),
+        request=_request("Reply with exactly the word: temper", max_tokens=64),
     ),
     Probe(
         name="parallel_tools",
         reveals="whether two tool calls can arrive in one response, with distinct ids and stable ordering, and what an assistant tool-call turn looks like verbatim -- the input to the round-trip probe",
-        body=_completion(
-            "Make exactly two tool calls in this turn: place reference R1 on layer F.Cu "
-            "with rotation 0, and check rule clearance. Do not explain.",
-            tools=[STRICT_TOOL, CHECK_TOOL],
-        ),
+        request=_request(TWO_CALLS, tools=(PLACE_TOOL, CHECK_TOOL)),
     ),
     Probe(
         name="strict_schema",
         reveals="whether a tool schema carrying $defs, a $ref, a nested oneOf, and additionalProperties:false is accepted rather than rejected or rewritten",
-        body=_completion(
+        request=_request(
             "Place reference C6 on layer B.Cu at rotation 90. Use the tool.",
-            tools=[STRICT_TOOL],
+            tools=(PLACE_TOOL,),
         ),
     ),
     Probe(
         name="stream_plain",
         reveals="the SSE framing, which chunk carries usage, whether usage is fragmented, and the terminal sentinel",
-        body=_completion("Reply with exactly the word: temper", stream=True),
-        stream=True,
+        request=_request("Reply with exactly the word: temper", stream=True, max_tokens=64),
     ),
     Probe(
         name="stream_tools",
         reveals="how tool_calls fragment across chunks -- whether the id repeats on every fragment or appears once, and how arguments split",
-        body=_completion(
-            "Make exactly two tool calls in this turn: place reference R1 on layer F.Cu "
-            "with rotation 0, and check rule clearance. Do not explain.",
-            stream=True,
-            tools=[STRICT_TOOL, CHECK_TOOL],
-        ),
-        stream=True,
+        request=_request(TWO_CALLS, tools=(PLACE_TOOL, CHECK_TOOL), stream=True),
     ),
     Probe(
         name="tool_roundtrip",
-        reveals="that a continued tool turn is accepted when the assistant message is replayed verbatim, reasoning_content included",
-        body=_tool_roundtrip_body,
+        reveals="that a continued tool turn is accepted when the assistant message is replayed through the client's own encoder, reasoning_content included",
+        request=_tool_roundtrip_request,
     ),
     Probe(
         name="reasoning_omitted",
         reveals="that the identical turn is refused when reasoning_content is dropped and the tool_call ids are ones the provider has not seen, so reasoning must always be replayed rather than re-requested",
-        body=_reasoning_omitted_body,
+        request=_reasoning_omitted_request,
         expect_status=400,
     ),
     Probe(
         name="orphan_tool_result",
         reveals="what the provider does with a tool result whose id matches no assistant tool call -- the local check in R7 exists so this never leaves the client, and this is the error it prevents",
-        body={
+        # The only probe that goes around the client's encoder, because the client
+        # refuses to produce this body at all (R7). Capturing the provider's 400 is
+        # what shows the local guard is protecting against something real.
+        raw_body={
             "model": MODEL,
             "messages": [
                 {"role": "user", "content": "Place R1 on F.Cu."},
@@ -285,28 +318,13 @@ PROBE_SET: tuple[Probe, ...] = (
     Probe(
         name="invalid_model",
         reveals="that the plan's model id is wrong, by capturing the provider naming the ids it does serve",
-        body={**_completion("hello"), "model": "deepseek-v4.1-flash"},
+        request=_request("hello", max_tokens=64, model="deepseek-v4.1-flash"),
         expect_status=400,
     ),
     Probe(
         name="invalid_tool_schema",
         reveals="that the provider validates a tool schema server-side, so a malformed schema is a request defect the provider reports rather than something only the model can discover",
-        body=_completion(
-            "Place R1.",
-            tools=[
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "place",
-                        "description": "Place a component",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {"reference": {"type": "not-a-real-type"}},
-                        },
-                    },
-                }
-            ],
-        ),
+        request=_invalid_tool_schema_request,
         expect_status=400,
     ),
 )
@@ -344,9 +362,10 @@ class CapturedExchange:
 def request_hash_of(body_bytes: bytes) -> str:
     """sha256 of the bytes actually sent.
 
-    Hashed over the wire bytes rather than the dict: the recording's canonical
-    encoder and this must agree, and hashing what was sent is the version that
-    cannot be wrong.
+    Hashed over the wire bytes rather than the dict, so the manifest records the
+    identity of what was on the wire. A test asserts it equals what the store's
+    canonical encoder derives from the same body, which is the check that the
+    probe and the client agree about what "the same request" means.
     """
     return hashlib.sha256(body_bytes).hexdigest()
 
@@ -423,47 +442,48 @@ def _post(body_bytes: bytes, api_key: str, *, timeout: float) -> tuple[int, dict
 
 
 def list_account_models(api_key: str, *, timeout: float = 30.0) -> list[str]:
-    """The model ids this account is served, straight from the provider."""
-    response = requests.get(
-        f"https://{OFFICIAL_HOST}{MODELS_PATH}",
-        headers={"Authorization": f"Bearer {api_key}"},
-        allow_redirects=False,
-        timeout=timeout,
-    )
-    response.raise_for_status()
-    payload = response.json()
-    return sorted(entry["id"] for entry in payload["data"])
+    """The model ids this account is served. Thin alias for the adapter's reader.
+
+    Kept as a name because the probe's manifest records what it returned, and the
+    probe is not the place to reimplement an HTTP call the adapter already makes.
+    """
+    return fetch_account_models(api_key, timeout=timeout)
 
 
 def run_probe_set(api_key: str, *, timeout: float = 120.0) -> list[CapturedExchange]:
     """Issue every probe, in order, and return what came back. Writes nothing.
 
-    Each probe's body is serialized once and both sent and hashed, so the
-    recorded hash is over the bytes that were on the wire rather than over a
-    re-serialization that merely ought to match.
+    Each probe's body is built by the client's own encoder and serialized once, and
+    both sent and hashed. That is what makes a capture a corpus entry: the bytes on
+    the wire are the bytes the client would produce, so the recorded hash is one a
+    replay can reproduce.
 
-    Probes run in declaration order and a callable body receives the captures so
+    Probes run in declaration order and a callable request receives the captures so
     far, which is what lets a later probe continue an earlier one instead of
     reconstructing it.
     """
     captures: list[CapturedExchange] = []
     by_name: dict[str, CapturedExchange] = {}
     for probe in PROBE_SET:
-        resolved = probe.body(by_name) if callable(probe.body) else probe.body
-        body_bytes = json.dumps(
-            resolved, sort_keys=True, separators=(",", ":"), ensure_ascii=False
-        ).encode("utf-8")
-        status, headers, body = _post(body_bytes, api_key, timeout=timeout)
+        if probe.raw_body is not None:
+            body = dict(probe.raw_body)
+        else:
+            source = probe.request
+            resolved = source(by_name) if callable(source) else source
+            assert isinstance(resolved, Request)
+            body = wire_body(resolved)
+        body_bytes = canonical_request_bytes(body)
+        status, headers, payload = _post(body_bytes, api_key, timeout=timeout)
         exchange = CapturedExchange(
             name=probe.name,
             reveals=probe.reveals,
-            request=resolved,
+            request=body,
             request_hash=request_hash_of(body_bytes),
-            stream=probe.stream,
+            stream=bool(body.get("stream", False)),
             expect_status=probe.expect_status,
             http_status=status,
             headers=headers,
-            body=body,
+            body=payload,
         )
         captures.append(exchange)
         by_name[probe.name] = exchange

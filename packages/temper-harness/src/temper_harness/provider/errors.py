@@ -38,6 +38,14 @@ class TransportError(Exception):
 
     spec = ErrorSpec(category="unknown_transport", retryable=True, billable=False)
 
+    #: Usage measured before a failure interrupted the call, attached by the
+    #: buffered transport when an inner stream raises. ``None`` means no usage was
+    #: observed, which the ledger records as ``usage_source: unknown`` -- never as
+    #: a zero (R4). A truncated but billed call needs this: the row must carry what
+    #: was actually spent, and discarding the accumulator because the exception
+    #: unwound would report a call that cost money as having cost nothing.
+    partial_usage: dict[str, int | None] | None = None
+
     def __init__(self, message: str, *, http_status: int | None = None) -> None:
         super().__init__(message)
         self.http_status = http_status
@@ -137,6 +145,23 @@ class RequestRejected(TransportError):
     spec = ErrorSpec(category="request_rejected", retryable=False, billable=False)
 
 
+class CredentialMissing(TransportError):
+    """No usable credential is configured, so no request was attempted.
+
+    A send-path refusal by *us*, before any I/O, which is why it is a transport
+    error with a category rather than a ``ValueError``: R3 requires a ledger row
+    for a call that failed before reaching the provider, and R6 requires that
+    every send-path failure be classified rather than propagated raw. It is also
+    the shape U6 needs -- running the canary without a key must be a typed blocked
+    error, not a skip that reports clean.
+
+    ``retryable`` is False because retrying changes nothing; ``billable`` is False
+    because nothing was sent.
+    """
+
+    spec = ErrorSpec(category="credential_missing", retryable=False, billable=False)
+
+
 class EndpointRejected(TransportError):
     """A host override, a non-HTTPS scheme, or a redirect (R16)."""
 
@@ -189,7 +214,13 @@ def for_http_status(status: int, message: str = "") -> TransportError:
         return RequestTimeout(detail, http_status=status)
     if status >= 500:
         return ServerError(detail, http_status=status)
-    if status == 400:
+    # 401 and 403 are the provider refusing the request, exactly like a 400. They
+    # must not fall through to the unknown catch-all, which is retryable: a wrong
+    # key would then be retried forever against a provider that will refuse it
+    # identically every time. The status is retained on the record, so a caller
+    # that wants to distinguish "your key is wrong" from "your body is wrong" can,
+    # without a category per remedy.
+    if status in (400, 401, 403):
         return RequestRejected(detail, http_status=status)
     return UnknownTransportError(detail, http_status=status)
 
