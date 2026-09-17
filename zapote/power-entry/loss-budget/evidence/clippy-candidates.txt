@@ -150,4 +150,4 @@ warning: manual `!Range::contains` implementation
 warning: `zapote-drc` (lib) generated 5 warnings (run `cargo clippy --fix --lib -p zapote-drc` to apply 5 suggestions)
 warning: `zapote-erc` (lib) generated 8 warnings (run `cargo clippy --fix --lib -p zapote-erc` to apply 8 suggestions)
     Checking zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.37s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.18s

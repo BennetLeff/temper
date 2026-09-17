@@ -3,12 +3,12 @@
 Current follow-up: [loss budget](loss-budget/README.md) adds mandatory source,
 loss-coverage and cooling-closure rules to the maintained shunt-repair board.
 It computes condition-labeled partial losses and MOSFET design sensitivities,
-and its [candidate screen](loss-budget/candidates.md) compares five
-re-engineering architectures over the reviewer's five operating cases. Total
-loss and cooling margin remain absent because the exact MOSFET identity and
-major loss/assembly inputs remain unresolved, and no candidate is promoted.
-Earlier GBU observations below describe historical candidates; the current
-registry is `shunt-repair/units.json`.
+and its [candidate screen](loss-budget/candidates.md) screens five
+re-engineering options at a common required power, enforcing the 15 A input
+ceiling. Total loss and cooling margin remain absent because the exact MOSFET
+identity and major loss/assembly inputs remain unresolved, and no candidate is
+promoted or ranked. Earlier GBU observations below describe historical
+candidates; the current registry is `shunt-repair/units.json`.
 
 Execution contract, 2026-09-16, starting at `7f506ba86`.
 

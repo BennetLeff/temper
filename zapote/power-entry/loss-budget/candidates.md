@@ -1,108 +1,131 @@
-# Power-entry re-engineering candidate screen
+# Power-entry re-engineering screen
 
-This is the first executable pass at the reviewer's question: *is the 36-38 W
-partial loss worth re-engineering the board for, and which architecture lever
-actually moves it?* It compares five candidate architectures over the same five
-operating cases and reports every term as either **computed from a source-bound
-value** or **unresolved**. Nothing is zero-filled, no candidate is promoted, and
-no total-loss or cooling-margin figure is produced.
+This screen asks *which architecture lever moves the power-entry loss while the
+board carries the same required power*. It is a screening instrument. It does
+not select an architecture, it does not complete five operating cases, and it
+does not establish that any candidate is qualified.
 
-Rust owns the screen (`packages/zapote-harness/src/pfc_candidates.rs`); it runs
-inside the common unit runner, so its findings and rule coverage are retained
-with the rest of the power-entry evidence rather than summarized by hand.
+Rust owns it (`packages/zapote-harness/src/pfc_candidates.rs`) and it runs inside
+the common unit runner, so its findings and rule coverage are retained with the
+rest of the power-entry evidence instead of being summarized by hand.
 
-## The matrix
+## Status
 
-| Case | Conditions | Attached to |
-| --- | --- | --- |
-| 1 | 120 V RMS, full load, nominal cooling | 20 °C copper |
-| 2 | 108 V RMS, full load | 20 °C copper |
-| 3 | 132 V RMS, full load | 20 °C copper |
-| 4 | Hot / degraded cooling | 120 V RMS at 100 °C copper |
-| 5 | Startup, inrush, shutdown, fault | no CCM operating point |
+**No candidate is selected, and no architecture is ranked.** The useful output
+is a priority order for the next measurement work. Where a comparison would need
+a number nobody has measured, the screen reports the threshold that decision
+turns on and leaves it open.
 
-Cases 1-3 hold the 15 A true-RMS input ceiling at every line voltage. Case 4 is
-bound to copper temperature because that is the only cooling variable the
-current CCM model can carry; it is not an ambient, airflow or junction
-temperature. Case 5 has no CCM operating point at all, so it stays unresolved by
-construction rather than being estimated.
+Earlier revisions of this screen overstated what it shows in four specific ways.
+Those four are now fixable claims, and each is addressed below.
 
-## Computed results at the nominal case
+## The requirement
 
-| Candidate | Computed term | W |
-| --- | --- | ---: |
-| Keep bridge, improve thermal path | drop at 1.05 V (retained test point) | 28.304 |
-| | drop at 0.85 / 1.30 V band | 22.912 / 35.042 |
-| | drop sensitivity | 26.956 W/V |
-| Larger / lower-drop passive bridge | drop at 1.05 V | 28.304 |
-| | value of a 0.1 V improvement | 2.696 |
-| Parallel passive bridges | drop, ideal split | 28.304 |
-| | drop, all current in one bridge | 28.304 |
-| | slope coefficient, ideal split / one bridge | 225 / 450 W/ohm |
-| Active rectifier | conduction at 50 mOhm, 25 °C | 22.500 |
-| | conduction at 100 mOhm, assumed hot | 45.000 |
-| | reference passive bridge drop | 28.304 |
-| Boost-stage optimization | MOSFET conduction, 50 / 100 mOhm | 7.091 / 14.183 |
-| | MOSFET overlap, 50 ns edges | 33.898 |
-| | gate drive, typical | 0.155 |
-| | SiC capacitive, typical | 0.465 |
+The screen fixes a common **required power** and derives the current each line
+needs to carry it. The requirement is the ideal CCM model's input power at the
+nominal line and the 15 A true-RMS ceiling: **1,796.4 W**.
 
-Three things follow, and they are the point of the screen.
+This is the model's input power. It is not delivered DC power and not pan power.
+Converting it to either needs the efficiency, which is itself unresolved and is
+named as a required input.
 
-**The line voltage barely moves the bridge term.** It computes 28.299 / 28.304 /
-28.309 W at 132 / 120 / 108 V, because the model holds 15 A true RMS at every
-line voltage and the drop term follows the rectified current mean, not the
-voltage. Low and high line are stress cases for that reason, not loss cases.
+| Line | Required input RMS | 15 A ceiling | Reachable input power | Shortfall | Bridge drop at 1.05 V |
+| --- | ---: | --- | ---: | ---: | ---: |
+| 108 V | 16.658 A | **binds** | 1,617.1 W | **179.3 W** | 28.309 W |
+| 120 V | 15.000 A | met | 1,796.4 W | 0 W | 28.304 W |
+| 132 V | 13.645 A | met | 1,796.4 W | 0 W | 25.730 W |
 
-**Paralleling two bridges changes nothing under the retained model.** The drop
-term is identical whether the current splits ideally or runs entirely in one
-bridge, because a junction drop does not respond to current sharing. Only the
-*unmeasured* forward slope responds, by a factor of two in the favourable
-direction. So the credible benefit of paralleling is thermal spreading, and the
-credible risk is current and thermal imbalance; the conduction claim cannot be
-made without the slope.
+Two things follow directly.
 
-**The boost stage may be the larger lever, and it is the one this study cannot
-bound.** At 50 ns edges the overlap term alone (33.898 W) exceeds the whole
-bridge drop (28.304 W). Across the loss budget's design band of 20-100 ns edges
-and 50/100 mOhm, that term spans 20.651-81.980 W. It is a sensitivity, not a
-prediction about the authored `STW65N65DM2`, whose exact order code is still
-unresolved.
+**Low line cannot deliver the requirement at all.** At 108 V it needs 16.658 A
+inside a 15 A ceiling. The shortfall is reported (179.3 W), not absorbed, and the
+reachable power is 1,617.1 W. So low line is not merely a stress case; it is the
+case that fails the requirement.
 
-## Screening statement per candidate
+**The bridge drop falls as line voltage rises**, from 28.309 W at 108 V to
+25.730 W at 132 V, because a fixed required power needs less current at a higher
+line. This is the opposite of what a fixed-current sweep implies, and it is the
+reason the requirement is fixed in power.
 
-| Candidate | Screen | Why |
-| --- | --- | --- |
-| 1. Keep bridge, improve thermal path | **open, lowest risk** | Moves heat only; the electrical term is unchanged by copper, via or heatsink work |
-| 2. Larger / lower-drop passive bridge | **blocked on sourcing** | Worth 2.696 W per 0.1 V, so a substitute can be scored the moment an exact orderable part with a drop curve exists |
-| 3. Parallel passive bridges | **not justified yet** | Predicts no conduction benefit at all under a constant-drop model; needs measured sharing and the forward slope |
-| 4. Active rectifier | **indeterminate, and inverts** | 22.500 W at the 25 °C maximum is below the passive bridge; 45.000 W at the assumed hot value is above it. It also adds gate drive, isolation, dead time, startup-state and EMI obligations |
-| 5. Boost-stage optimization | **largest unresolved term** | Overlap sensitivity already exceeds the bridge drop; resolving it needs the exact part and real gate-drive waveforms |
+## Findings
 
-Case 4's numbers are not a discrimination. The hot case computes the *same*
-semiconductor terms as nominal for every candidate, because the CCM model
-carries copper temperature only; hot forward drop, hot `RDS(on)` and hot core
-loss are not modelled. The screen says so in its own output rather than
-presenting a case that looks informative and is not.
+**The strongest result is that switching behaviour can move the heat budget by
+tens of watts.** At the nominal point the boost overlap term is 33.898 W at
+50 ns edges, which exceeds the entire bridge drop of 28.304 W, and across the
+loss budget's 20-100 ns band it spans tens of watts. That single term outweighs
+every bridge-architecture question here, and it is a design sensitivity keyed to
+an assumed edge time rather than a statement about the authored device.
 
-## What this does not establish
+**The active-rectifier question reduces to one number.** The screen reports the
+break-even per-device `RDS(on)` at which synchronous conduction would equal the
+passive bridge's drop term:
 
-The screen adds no thermal verdict. Loss reduction and thermal closure are
-separate results: heat still has to be assigned to a sink, board or air path,
-and the harness bridge-thermal and physical-model checks own that FEM evidence.
-A green native DRC remains unrelated to thermal acceptance. No candidate here
-is qualified, purchased, fabricated or measured.
+| Line | Passive drop at 1.05 V | Break-even per device | Retained device, 25 °C max |
+| --- | ---: | ---: | ---: |
+| 108 V | 28.309 W | 62.9 mΩ | 50 mΩ |
+| 120 V | 28.304 W | 62.9 mΩ | 50 mΩ |
+| 132 V | 25.730 W | 69.1 mΩ | 50 mΩ |
 
-The 19 unresolved terms are emitted in full in the run report, under
-`candidates.unresolved_terms`, and they are also the reported coverage gaps. The
-screen cannot reach a pass while any of them is open.
+Synchronous rectification pays only if the device's **hot** `RDS(on)` stays under
+that threshold. The retained 650 V part's 25 °C maximum sits below it and an
+assumed hot value sits above it, so the decision is exactly the unread hot curve.
+That is why this stays unresolved instead of ranked.
+
+**Parallel bridges are inconclusive, not rejected.** Under a constant-drop model
+the drop term is identical whether the current splits equally or runs entirely
+in one bridge. That is a statement about a missing model term, not evidence that
+paralleling cannot help. The decision needs the element's forward slope; the
+screen reports the slope coefficient it would be applied to (450 W/Ω for one
+bridge, 225 W/Ω for two sharing equally at the nominal point) and the imbalance
+risk the constant-drop model cannot express.
+
+**A substitute bridge is worth 2.696 W per 0.1 V** of forward drop at the
+nominal point. That stays a part-sourcing question and is blocked until an
+exact, orderable part exists to score.
+
+## What this screen cannot show
+
+Five inputs are named in the report and no loss term is computed without them:
+
+- hot junction temperature for every semiconductor, not a copper temperature;
+- degraded-airflow and installed-heatsink data for the assembly;
+- startup, inrush, precharge, shutdown and fault behaviour, for which no CCM
+  operating point exists;
+- measured switching waveforms for the boost cell;
+- delivered-output efficiency, needed to convert the ideal input power used
+  here into delivered DC or pan power.
+
+The screen therefore does not present hot/degraded cooling as a case, and does
+not present startup or fault as a case. A copper-temperature sweep is not a
+substitute for either, and there is no operating point in this report that
+claims to be one. Only the three line voltages appear as operating points.
+
+## Recommended next step
+
+Pursue **candidates 1 and 5 together**: keep the passive bridge as the baseline
+and establish its practical heatsink path, while resolving the boost MOSFET and
+its switching losses. These two are compatible and they attack the two things
+the screen actually identified, the concentrated bridge heat and the largest
+unmeasured term.
+
+That work is baseline-model completion, not board variants. It needs the exact
+orderable MOSFET identity, source-backed switching energies at the real bus
+voltage and gate network, the inductor's core and AC loss, and the assembly's
+installed airflow and sink coupling. Once those exist, compare the alternatives
+at a common required **output** power with the 15 A input limit enforced and any
+reduced output reported explicitly, rather than at a common input current.
+
+Revisit a different bridge architecture only if the resulting loss, temperature
+or enclosure requirements justify it. The earlier five-candidate framing asked
+for five board variants up front; that is not the plan. The plan is one
+sufficiently complete baseline model that can support a design decision.
 
 ## Rules
 
 | Rule | Meaning |
 | --- | --- |
 | `ERC.PFC.CANDIDATE_SOURCE_BINDING` | Bridge, boost switch, SiC diode, inductor, shunt and bypass identities rechecked; every computed term binds to a retained source value |
-| `ERC.PFC.CANDIDATE_COVERAGE` | Every candidate/case term is computed or explicitly unresolved |
+| `ERC.PFC.CANDIDATE_COVERAGE` | Every required input and unresolved term is named; nothing is zero-filled |
 | `THERMAL.PFC.CANDIDATE_CLOSURE` | No candidate assigns its heat to an assembly path here |
 
 All three are in the runner's required set for `power-entry`, so removing the
@@ -129,9 +152,6 @@ its power-entry stage after 25 minutes, while the same run in release completes
 the whole seven-unit suite in about five minutes. `suite-identity.json` records
 the executable hash, so the profile used is visible in the retained evidence.
 
-Two invalid instrument runs are retained locally under
-`validation/runs/candidates-invalid-*`: one invoked the KiCad extractor with a
-Python that has no `pcbnew`, and one ran without main-display access (KiCad's
-framework Python needs it). Both failed closed with a runner error rather than
-producing a plausible-looking result. `validation/runs/` is Git-ignored, so
-these are local records, not checkout contents.
+The 15 A ceiling, the 1.05 V bridge test point and the 50 mΩ 25 °C maximum are
+retained source values. The 0.85/1.30 V band and the 100 mΩ hot resistance are
+explicit sensitivities, never part guarantees.

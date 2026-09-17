@@ -31,38 +31,41 @@ The slower-edge assumptions plus the partial sum already exceed the previous
 to the design decision; it is not evidence that the actual board dissipates
 that amount. Total-loss and cooling-margin fields are deliberately null.
 
-## Candidate screen: five architectures, five cases
+## Candidate screen: one requirement, three lines
 
 The candidate screen now runs inside the common runner
 ([`pfc_candidates.rs`](../../packages/zapote-harness/src/pfc_candidates.rs),
 rules `ERC.PFC.CANDIDATE_SOURCE_BINDING`, `ERC.PFC.CANDIDATE_COVERAGE`,
-`THERMAL.PFC.CANDIDATE_CLOSURE`). It compares five re-engineering candidates over
-the reviewer's five operating cases, computing a term only where a retained
-source value supports it. Full write-up: [candidates.md](candidates.md).
+`THERMAL.PFC.CANDIDATE_CLOSURE`). It fixes a common required power — the ideal
+CCM input power at 120 V RMS and 15 A true RMS, **1,796.4 W** — and derives the
+current each line needs to carry it, enforcing the 15 A ceiling. Full write-up:
+[candidates.md](candidates.md).
 
-| Candidate | Screen | Anchor number |
+| Line | Required input RMS | 15 A ceiling | Reachable input power | Shortfall | Bridge drop at 1.05 V |
+| --- | ---: | --- | ---: | ---: | ---: |
+| 108 V | 16.658 A | **binds** | 1,617.1 W | **179.3 W** | 28.309 W |
+| 120 V | 15.000 A | met | 1,796.4 W | 0 W | 28.304 W |
+| 132 V | 13.645 A | met | 1,796.4 W | 0 W | 25.730 W |
+
+| Candidate | Screen | Anchor |
 | --- | --- | ---: |
-| Keep bridge, improve thermal path | open, lowest risk; moves heat, not loss | 28.304 W drop, 26.956 W/V sensitivity |
+| Keep bridge, improve thermal path | open; moves heat, not loss | 28.304 W at 120 V, 26.956 W/V |
 | Larger / lower-drop passive bridge | blocked on sourcing an exact part | 2.696 W per 0.1 V |
-| Parallel passive bridges | not justified; constant-drop model shows no benefit | 28.304 W at ideal split and at full imbalance |
-| Active rectifier | indeterminate and inverting | 22.500 W at 25 °C, 45.000 W assumed hot, against 28.304 W passive |
+| Parallel passive bridges | inconclusive, not rejected | constant-drop identity holds; 450 vs 225 W/ohm slope |
+| Active rectifier | unresolved at one threshold | break-even 62.9 mOhm per device vs 50 mOhm 25 °C max |
 | Boost-stage optimization | largest unresolved term | 33.898 W overlap at 50 ns edges |
 
-Three findings are worth carrying forward. The bridge drop is essentially
-line-voltage independent (28.299/28.304/28.309 W at 132/120/108 V) because the
-model holds 15 A true RMS at every line voltage, so low and high line are stress
-cases rather than loss cases. Paralleling two bridges changes no term under a
-constant-drop model, so its only credible benefit is thermal spreading and its
-real risk is imbalance. And the boost-stage overlap sensitivity (33.898 W at
-50 ns edges, spanning 20.651-81.980 W over the loss budget's design band)
-exceeds the whole bridge drop while remaining exactly the quantity this study
-cannot bound.
+The strongest result is that switching behaviour can move the heat budget by
+tens of watts, which is larger than any bridge-architecture question here. The
+bridge drop falls as line voltage rises (25.730 W at 132 V against 28.304 W at
+120 V) because a fixed required power needs less current at a higher line, and
+the 108 V line cannot meet the requirement inside the ceiling at all.
 
-Case 4 does not discriminate: the screen computes the same semiconductor terms
-as nominal there and says so, because the CCM model carries copper temperature
-only. Case 5 has no CCM operating point and stays unresolved. Nineteen terms
-remain open, no candidate is promoted, and total loss and cooling margin stay
-absent.
+No candidate is promoted, no architecture is ranked, and total loss and cooling
+margins stay absent. Hot junction temperature, degraded airflow, startup and
+fault behaviour, measured switching waveforms and delivered-output efficiency
+are named as required inputs rather than modelled as cases; only the three line
+voltages appear as operating points.
 
 ## What to do next
 
@@ -77,14 +80,26 @@ absent.
    airflow. Revisit the prior imposed 60°C board boundary using that assembly,
    then close parasitics, precharge/shutdown timing and the auxiliary supply.
 
+The candidate screen's own priority order, for the same sequence: pursue
+candidates 1 and 5 together — keep the passive bridge as the baseline and
+establish its practical heatsink path while resolving the boost MOSFET and its
+switching losses. They are compatible and they attack the two things the screen
+identified: the concentrated bridge heat and the largest unmeasured term. This
+is baseline-model completion, not board variants. Compare alternatives at a
+common required **output** power with the 15 A input limit enforced and any
+reduced output reported, rather than at a common input current, and revisit a
+different bridge architecture only if loss, temperature or enclosure
+requirements justify it.
+
 ## Evidence and validation
 
 - Common run: `../../validation/runs/loss-budget-candidates-20260916/`
   (`evidence/common-run-candidates.txt`). All seven units have native checks
   PASS; all overall verdicts remain INDETERMINATE; the suite did not change
   during the run. Power-entry contains the 18 planning cases, the five-candidate
-  screen (five cases each, 19 unresolved terms), six required loss/candidate
-  rules and the exact executable/source hashes.
+  screen (three line operating points each at a common required power, five named
+  required inputs, 29 unresolved terms), six required loss/candidate rules and
+  the exact executable/source hashes.
 - The runner must be built with `--release`. The power-entry stage replays about
   1.2 GB of retained FEM meshes, and a debug build had not finished that stage
   after 25 minutes; the same run in release completed all seven units in about
@@ -93,9 +108,9 @@ absent.
   no main-display access). Both failed closed rather than producing a
   plausible result. `validation/runs/` is Git-ignored, so those are local
   records.
-- Workspace tests, release profile: **507 passed, 0 failed, 1 ignored**
+- Workspace tests, release profile: **509 passed, 0 failed, 1 ignored**
   (`evidence/workspace-tests-candidates.txt`). That is the earlier 498 plus the
-  8 new candidate-screen tests and one further document-pin test in
+  10 candidate-screen tests and one further document-pin test in
   `pfc_loss_budget` (3 to 4). The 8 focused tests after the pin repair also
   passed, including drift rejection for every embedded document.
 - Regular workspace Clippy completes. Strict `-D warnings` fails in unchanged

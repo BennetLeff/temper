@@ -1,8 +1,8 @@
 # Power-entry loss budget
 
 Read [results and next decisions](RESULTS.md) for the retained 18-case run, and
-the [candidate screen](candidates.md) for the five-architecture comparison over
-the common five-case matrix.
+the [candidate screen](candidates.md) for the five re-engineering options
+screened at a common required power.
 
 Execution contract (2026-09-16): compute a source-bound planning loss budget
 for the maintained shunt-repair board using the existing CCM current model.
@@ -51,16 +51,16 @@ other-electronics reservation is shown only for comparison, never as spare
 capacity or an acceptance margin.
 
 The [candidate screen](candidates.md) adds the re-engineering question to this
-unit: five architectures over the same five operating cases, with every term
-computed from a source-backed value or left unresolved. It promotes nothing and
-adds no thermal verdict. Its two useful findings are that the bridge drop is
-essentially line-voltage independent (28.299/28.304/28.309 W at 132/120/108 V,
-because the model holds 15 A true RMS at every line voltage) and that
-paralleling two bridges changes nothing under a constant-drop model, so the
-credible benefit there is thermal spreading rather than conduction. It also
-shows the boost-stage overlap sensitivity (33.898 W at 50 ns edges) exceeding the
-whole bridge drop (28.304 W) while remaining exactly the term this study cannot
-bound.
+unit. It fixes a common required power and derives the current each line needs
+to carry it, rather than holding 15 A at every line (which would mean three
+different powers and an unintentionally flat bridge term). It promotes nothing,
+selects no architecture and adds no thermal verdict. Its useful output is a
+priority order for the next measurement work: the boost cell's switching
+behaviour can move the heat budget by tens of watts, low line cannot meet the
+requirement at all inside the 15 A ceiling (179.3 W short at 108 V), paralleling
+two bridges is inconclusive rather than rejected because the constant-drop model
+has no slope term to share, and the active-rectifier question reduces to whether
+the device's hot RDS(on) stays under about 63 mOhm.
 
 Run the runner in `--release`. The power-entry stage replays about 1.2 GB of
 retained FEM meshes, and a debug build is roughly an order of magnitude slower:

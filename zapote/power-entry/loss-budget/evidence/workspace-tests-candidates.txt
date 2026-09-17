@@ -1,13 +1,13 @@
    Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
-    Finished `release` profile [optimized] target(s) in 17.97s
+    Finished `release` profile [optimized] target(s) in 17.74s
      Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_core-37f65786c28eaadd)
 
 running 6 tests
 test unit::tests::standalone_profile_matches_source_and_manufacturing_contract ... ok
-test unit::tests::typed_unit_input_rejects_incomplete_unit_native_transport ... ok
-test unit::tests::deferred_contracts_cannot_be_reported_as_run ... ok
 test unit::tests::connector_qualification_cannot_be_filled_by_fixture_mutation ... ok
+test unit::tests::typed_unit_input_rejects_incomplete_unit_native_transport ... ok
 test unit::tests::typed_unit_input_rejects_duplicate_native_components ... ok
+test unit::tests::deferred_contracts_cannot_be_reported_as_run ... ok
 test current_sense::tests::captured_source_manifest_uses_bridge_and_strict_pin_map_shape ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
@@ -17,55 +17,55 @@ test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 80 tests
 test donor_geometry::tests::crossing_segments_are_intersecting ... ok
 test donor_geometry::tests::separated_segments_are_not_intersecting ... ok
+test current_sense::tests::pad_rotation_uses_kicad_clockwise_child_transform ... ok
 test ipc::tests::capacity_increases_with_width_and_finished_thickness ... ok
 test ipc::tests::seven_tenths_millimeter_seventy_um_carries_low_current_branch ... ok
-test current_sense::tests::pad_rotation_uses_kicad_clockwise_child_transform ... ok
 test donor_clearance::tests::raw_pcbnew_shape_codes_are_explicitly_mapped ... ok
-test donor_clearance::tests::unsupported_shape_is_rejected_fail_closed ... ok
 test donor_clearance::tests::oval_and_through_hole_shapes_are_supported ... ok
-test manufacturing::tests::edge_between_inside_vertices_cannot_cross_concave_notch ... ok
-test donor_clearance::tests::shape_aware_pad_to_capsule_uses_rectangular_corners ... ok
+test donor_clearance::tests::unsupported_shape_is_rejected_fail_closed ... ok
 test donor_clearance::tests::mapped_roundrect_uses_its_radius_ratio ... ok
-test manufacturing::tests::outline_crossing_is_detected ... ok
+test donor_clearance::tests::shape_aware_pad_to_capsule_uses_rectangular_corners ... ok
+test manufacturing::tests::edge_between_inside_vertices_cannot_cross_concave_notch ... ok
+test manufacturing::tests::missing_body_is_indeterminate ... ok
+test manufacturing::tests::drill_outside_copper_cannot_have_positive_annular_ring ... ok
 test manufacturing::tests::body_collision_is_exact_and_object_identified ... ok
 test manufacturing::tests::drill_conflict_is_detected ... ok
-test manufacturing::tests::drill_outside_copper_cannot_have_positive_annular_ring ... ok
-test manufacturing::tests::missing_body_is_indeterminate ... ok
+test manufacturing::tests::outline_crossing_is_detected ... ok
 test manufacturing::tests::empty_polygon_nan_and_negative_limits_are_not_success ... ok
 test manufacturing::tests::passing_baseline_has_no_findings ... ok
 test manufacturing::tests::population_reports_rule_objects_without_changing_check_report ... ok
-test manufacturing::tests::slotted_holes_use_native_polygon_not_round_width ... ok
-test manufacturing::tests::population_tracks_actual_early_returns_and_pair_skips ... ok
 test manufacturing::tests::undersized_ring_fails_with_actual_and_required ... ok
+test manufacturing::tests::population_tracks_actual_early_returns_and_pair_skips ... ok
 test manufacturing::tests::unsupported_angle_is_indeterminate_under_quadrant_policy ... ok
-test manufacturing::tests::native_fractured_zone_hole_matches_pcbnew_membership ... ok
-test power_branches::tests::invalid_graph_and_samples_are_rejected ... ok
-test power_branches::tests::endpoint_reversal_preserves_envelope ... ok
+test manufacturing::tests::slotted_holes_use_native_polygon_not_round_width ... ok
 test power_branches::tests::disconnected_components_validate_kcl_independently ... ok
-test current_sense::tests::trace_entirely_in_zone_hole_is_not_treated_as_filled_copper ... ok
-test current_sense::tests::zone_crossing_is_detected_without_a_vertex_inside ... ok
-test current_sense::tests::trace_via_crossing_is_checked_as_a_native_pair ... ok
-test current_sense::tests::primary_secondary_separation_checks_cross_layer_xy ... ok
-test current_sense::tests::primary_secondary_pad_clearance_is_measured_from_native_geometry ... ok
+test power_branches::tests::endpoint_reversal_preserves_envelope ... ok
+test power_branches::tests::invalid_graph_and_samples_are_rejected ... ok
 test power_branches::tests::parallel_edges_are_cycle_envelopes ... ok
-test power_branches::tests::zero_weight_sample_controls_peak_but_not_rms ... ok
+test manufacturing::tests::native_fractured_zone_hole_matches_pcbnew_membership ... ok
 test power_branches::tests::split_branches_have_exact_kcl_currents ... ok
-test power_contact::tests::large_pad_never_hides_a_narrow_trace ... ok
 test power_contact::tests::drill_void_and_tangent_do_not_create_a_chord ... ok
 test native_binding::bridge_tests::bridge_geometry_passes_against_native_fixture ... ok
+test power_branches::tests::zero_weight_sample_controls_peak_but_not_rms ... ok
+test current_sense::tests::trace_via_crossing_is_checked_as_a_native_pair ... ok
+test current_sense::tests::primary_secondary_separation_checks_cross_layer_xy ... ok
+test current_sense::tests::zone_crossing_is_detected_without_a_vertex_inside ... ok
+test current_sense::tests::trace_entirely_in_zone_hole_is_not_treated_as_filled_copper ... ok
+test current_sense::tests::primary_secondary_pad_clearance_is_measured_from_native_geometry ... ok
+test power_contact::tests::large_pad_never_hides_a_narrow_trace ... ok
 test power_contact::tests::side_overlap_is_measured_and_direction_invariant ... ok
-test power_integrity::tests::missing_path_is_indeterminate ... ok
 test power_integrity::tests::missing_barrier_fails_closed ... ok
+test power_integrity::tests::missing_path_is_indeterminate ... ok
 test power_integrity::tests::narrow_real_trace_fails ... ok
 test power_integrity::tests::pad_candidate_cannot_claim_entry_geometry_and_rejects_missing_trace ... ok
 test power_integrity::tests::removed_barrier_fails ... ok
 test power_integrity::tests::removed_via_is_preserved_as_indeterminate ... ok
 test power_integrity::tests::via_mapping_is_checked_before_missing_electrical_inputs ... ok
 test power_integrity::tests::via_sharing_rejects_missing_plating_and_accepts_explicit_equal_share ... ok
-test switching::tests::disconnected_return_fails_even_with_a_current_loop ... ok
 test native_binding::bridge_tests::bridge_geometry_mutations_fail_closed ... ok
-test switching::tests::enlarged_unscoped_extent_cannot_fail_loop_bound ... ok
 test stackup::tests::four_layer_stackup_checks_each_dielectric_and_copper_order ... ok
+test switching::tests::disconnected_return_fails_even_with_a_current_loop ... ok
+test switching::tests::enlarged_unscoped_extent_cannot_fail_loop_bound ... ok
 test switching::tests::missing_noise_population_is_indeterminate ... ok
 test switching::tests::missing_path_is_indeterminate ... ok
 test switching::tests::missing_spacing_and_malformed_limits_cannot_pass ... ok
@@ -76,20 +76,20 @@ test switching::tests::projection_axes_and_duplicate_victims_do_not_manufacture_
 test switching::tests::small_unscoped_extent_cannot_pass_loop_bound ... ok
 test switching::tests::splitting_native_traces_preserves_measured_overlap ... ok
 test switching::tests::unscoped_extent_never_passes_or_fails_from_remote_return_branch ... ok
+test tests::copper_width_is_included_at_boundary ... ok
 test tests::crossing_segment_is_detected_without_vertex_inside ... ok
 test tests::filled_corridor_accepts_connected_route_with_terminal_clearance ... ok
-test tests::copper_width_is_included_at_boundary ... ok
 test tests::filled_corridor_rejects_hole_crossing_even_when_endpoints_are_covered ... ok
 test tests::filled_corridor_rejects_island_gap_between_valid_entries ... ok
 test tests::narrow_slot_between_old_sample_positions_fails ... ok
 test tests::region_predicate_uses_authored_margin ... ok
+test tests::three_terminal_samples_cannot_hide_long_slot ... ok
 test tests::own_antipad_requires_one_envelope_and_connected_ground_entry ... ok
 test tests::nearby_return_via_with_long_copper_detour_fails ... ok
-test tests::three_terminal_samples_cannot_hide_long_slot ... ok
-test stackup::tests::physical_total_includes_mask ... ok
 test stackup::tests::native_zero_core_is_rejected ... ok
-test stackup::tests::excessive_nesting_and_unicode_are_handled_without_panics ... ok
 test stackup::tests::string_contents_cannot_spoof_structural_fields ... ok
+test stackup::tests::physical_total_includes_mask ... ok
+test stackup::tests::excessive_nesting_and_unicode_are_handled_without_panics ... ok
 test stackup::tests::duplicate_fields_and_trailing_documents_are_rejected ... ok
 test power_branches::tests::long_chain_is_analyzed_without_recursive_dfs ... ok
 test stackup::tests::missing_stackup_or_copper_cannot_pass ... ok
@@ -157,16 +157,16 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_erc-7d3c3eee63f26228)
 
 running 48 tests
-test domain_contract::tests::feedback_tap_misclassification_fails ... ok
-test domain_contract::tests::protective_earth_is_distinct_from_hot ... ok
-test domain_contract::tests::reviewed_contract_passes ... ok
-test domain_contract::tests::intentional_nc_with_net_fails ... ok
-test operating_limits::tests::missing_delay_corner_is_indeterminate ... ok
-test domain_contract::tests::missing_barrier_fails ... ok
-test domain_contract::tests::swapped_native_domain_membership_fails_against_fixed_expectation ... ok
 test operating_limits::tests::excessive_shutdown_fails ... ok
-test domain_contract::tests::matching_crossing_id_cannot_hide_wrong_domain_or_barrier ... ok
+test domain_contract::tests::reviewed_contract_passes ... ok
+test domain_contract::tests::missing_barrier_fails ... ok
+test operating_limits::tests::missing_delay_corner_is_indeterminate ... ok
+test domain_contract::tests::intentional_nc_with_net_fails ... ok
+test domain_contract::tests::swapped_native_domain_membership_fails_against_fixed_expectation ... ok
+test domain_contract::tests::protective_earth_is_distinct_from_hot ... ok
+test domain_contract::tests::feedback_tap_misclassification_fails ... ok
 test operating_limits::tests::missing_heatsink_is_indeterminate ... ok
+test domain_contract::tests::matching_crossing_id_cannot_hide_wrong_domain_or_barrier ... ok
 test operating_limits::tests::negative_resistance_and_delay_cannot_manufacture_margin ... ok
 test operating_limits::tests::nominal_timing_without_guarantee_is_indeterminate ... ok
 test operating_limits::tests::passing_models_are_reported ... ok
@@ -174,33 +174,33 @@ test operating_limits::tests::stressed_device_fails ... ok
 test pfc_currents::tests::invalid_configuration_is_rejected ... ok
 test pfc_interfaces::tests::missing_source_does_not_remove_external_obligations ... ok
 test current_sense::tests::recomputation_uses_profile_values_without_rtd_constants ... ok
-test pfc_currents::tests::true_rms_hits_limit_and_ripple_is_included ... ok
-test pfc_currents::tests::energy_and_capacitor_mean_balance ... ok
-test pfc_currents::tests::inductor_moment_matches_independent_gauss_oracle ... ok
-test pfc_currents::tests::switch_and_diode_moments_match_ideal_duty_formula ... ok
-test current_sense::tests::owner_model_fixture_matches_floating_burden_topology ... ok
-test pfc_interfaces::tests::extra_output_midpoint_is_rejected ... ok
-test pfc_losses::tests::loss_helpers_have_expected_scaling_and_reject_bad_inputs ... ok
 test pfc_currents::tests::branch_rms_values_differ_and_sample_kcl_holds ... ok
+test pfc_currents::tests::true_rms_hits_limit_and_ripple_is_included ... ok
+test pfc_currents::tests::inductor_moment_matches_independent_gauss_oracle ... ok
+test pfc_currents::tests::energy_and_capacitor_mean_balance ... ok
+test pfc_losses::tests::loss_helpers_have_expected_scaling_and_reject_bad_inputs ... ok
+test pfc_currents::tests::switch_and_diode_moments_match_ideal_duty_formula ... ok
 test pfc_protection::tests::malformed_values_fail_closed ... ok
 test pfc_protection::tests::ovp_latches_until_conservative_reset ... ok
 test pfc_protection::tests::soc_and_pcl_are_not_conflated ... ok
-test pfc_protection::tests::uvlo_dominates_permit_and_has_hysteresis_band ... ok
-test current_sense::tests::missing_independent_electrical_claims_fail_closed ... ok
-test pfc_losses::tests::moments_match_waveform_and_conserve_rectified_current ... ok
-test pfc_interfaces::tests::old_split_bus_label_is_not_an_accepted_output ... ok
-test pfc_shunt::tests::historical_identity_fails_closed ... ok
+test pfc_interfaces::tests::extra_output_midpoint_is_rejected ... ok
+test current_sense::tests::owner_model_fixture_matches_floating_burden_topology ... ok
 test pfc_losses::tests::edge_events_are_phase_weighted_not_duty_weighted ... ok
+test pfc_protection::tests::uvlo_dominates_permit_and_has_hysteresis_band ... ok
+test pfc_losses::tests::moments_match_waveform_and_conserve_rectified_current ... ok
+test current_sense::tests::missing_independent_electrical_claims_fail_closed ... ok
 test tests::asymmetric_fault_cases_keep_documented_blind_spot ... ok
-test pfc_interfaces::tests::real_source_has_reviewed_pins_but_no_external_qualification ... ok
 test tests::low_threshold_strictly_exceeds_exact_code ... ok
 test tests::threshold_encoding_matches_board_words ... ok
 test thermal_sense::tests::open_detection_numeric_corner_reference_is_independent ... ok
-test pfc_protection::tests::invalid_source_never_passes_and_static_uvlo_does_not_qualify_bias_decay ... ok
 test thermal_sense::tests::thermal_math_matches_independent_loaded_network_audit ... ok
-test pfc_shunt::tests::reviewed_replacement_passes_identity_contract ... ok
-test pfc_shunt::tests::pad_census_mutation_fails ... ok
+test pfc_shunt::tests::historical_identity_fails_closed ... ok
+test pfc_interfaces::tests::old_split_bus_label_is_not_an_accepted_output ... ok
+test pfc_interfaces::tests::real_source_has_reviewed_pins_but_no_external_qualification ... ok
+test pfc_protection::tests::invalid_source_never_passes_and_static_uvlo_does_not_qualify_bias_decay ... ok
 test pfc_protection::tests::source_binding_keeps_missing_isolation_indeterminate ... ok
+test pfc_shunt::tests::pad_census_mutation_fails ... ok
+test pfc_shunt::tests::reviewed_replacement_passes_identity_contract ... ok
 test pfc_interfaces::tests::consistent_ground_rename_cannot_turn_hot_return_into_control_ground ... ok
 test pfc_shunt::tests::package_mutations_never_pass ... ok
 test pfc_losses::tests::closed_form_no_ripple_limit_uses_sin_cubed_moment ... ok
@@ -224,8 +224,8 @@ test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 3 tests
 test calculates_1800w_nominal_case ... ok
-test rejects_bad_inputs_and_out_of_range_m1m2 ... ok
 test reproduces_ti_m1m2_and_frequency_scale ... ok
+test rejects_bad_inputs_and_out_of_range_m1m2 ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
@@ -233,8 +233,8 @@ test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 3 tests
 test ccm_validity_cannot_depend_on_missing_a_line_zero_crossing ... ok
-test branch_moments_match_closed_form_line_integrals ... ok
 test current_samples_match_pinned_independent_ngspice_measurements ... ok
+test branch_moments_match_closed_form_line_integrals ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
@@ -246,10 +246,10 @@ test historical_source_18_is_rejected_after_hf_bypass_contract_change ... ok
 test historical_source_20_is_rejected_after_feedback_resistor_update ... ok
 test alternate_bridge_cannot_keep_the_original_package_footprint ... ok
 test alternate_bridge_requires_its_reviewed_dc_pin_order ... ok
-test contradictory_duplicate_graph_cannot_hide_correct_primary_pins ... ok
 test similar_bridge_part_numbers_are_not_reviewed_substitutes ... ok
-test ratings_and_compensation_cannot_silently_change ... ok
+test contradictory_duplicate_graph_cannot_hide_correct_primary_pins ... ok
 test source_21_manifest_matches_and_rejects_missing_or_wrongly_connected_hf_bypass ... ok
+test ratings_and_compensation_cannot_silently_change ... ok
 test rejects_actual_prior_topology_and_package_mistakes ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
@@ -257,8 +257,8 @@ test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
      Running tests/power_stage_models.rs (/private/tmp/zapote-rtd-target/release/deps/power_stage_models-06d6ce1662661556)
 
 running 7 tests
-test dead_time_34k_fails_and_39k_passes_300ns_floor ... ok
 test cold_tcr_and_initial_tolerance_are_independent_corners ... ok
+test dead_time_34k_fails_and_39k_passes_300ns_floor ... ok
 test requested_work_and_equation_domain_are_bounded ... ok
 test invalid_and_nonconverged_inputs_fail_closed ... ok
 test nominal_doubler_conserves_energy_and_has_expected_current ... ok
@@ -272,8 +272,8 @@ test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 7 tests
 test one_logical_pin_can_have_two_distinct_physical_relay_terminals ... ok
 test every_physical_terminal_and_uuid_is_required ... ok
-test missing_pins_and_crossed_domains_do_not_compare_as_equal_none ... ok
 test gate_drive_local_library_nickname_binds ... ok
+test missing_pins_and_crossed_domains_do_not_compare_as_equal_none ... ok
 test compiler_identity_and_schema_mutations_fail_closed ... ok
 test captured_compiler_graph_matches_real_saved_board_export ... ok
 test each_native_connection_representation_must_match ... ok
@@ -282,51 +282,53 @@ test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
      Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_harness-53cdfcc1dc177d16)
 
-running 56 tests
+running 58 tests
 test bridge_thermal::tests::nominal_wrong_current_is_rejected_but_low_sensitivity_is_allowed ... ok
-test bridge_thermal::tests::undetermined_matching_segment_fails_closed ... ok
-test bridge_thermal::tests::missing_uuid_does_not_fall_back_to_net_only ... ok
 test bridge_thermal::tests::disagreeing_matching_segments_are_not_collapsed ... ok
+test bridge_thermal::tests::undetermined_matching_segment_fails_closed ... ok
+test memory::tests::evidence_hash_accepts_prefixed_form ... ok
+test bridge_thermal::tests::missing_uuid_does_not_fall_back_to_net_only ... ok
+test memory::tests::unsafe_evidence_path_rejected ... ok
 test bridge_thermal::tests::segment_id_collision_cannot_supply_or_override_current ... ok
 test bridge_thermal::tests::configured_missing_evidence_is_a_failure ... ok
-test memory::tests::unsafe_evidence_path_rejected ... ok
-test bridge_thermal::tests::configured_cooling_contract_cannot_pass_without_replay ... ok
-test model_qualification::tests::generalized_formula_is_stable ... ok
-test model_qualification::tests::schur_graph_is_positive ... ok
-test bridge_thermal::tests::physical_current_tracks_width_dependent_segmentation_without_uuid_fallback ... ok
 test bridge_thermal::tests::missing_evidence_is_indeterminate_and_rules_are_checked ... ok
-test model_qualification::tests::narrowed_capacitance_is_rejected_by_required_envelope ... ok
-test model_qualification::tests::expected_case_builder_covers_exactly_five_cases ... ok
-test memory::tests::evidence_hash_accepts_prefixed_form ... ok
-test model_qualification::tests::expected_cases_match_independent_reference_scalars ... ok
+test model_qualification::tests::generalized_formula_is_stable ... ok
+test bridge_thermal::tests::configured_cooling_contract_cannot_pass_without_replay ... ok
 test p1::tests::aggregate_status_preserves_failures ... ok
-test p3::tests::gate_drive_saved_native_export_binds_reviewed_paths ... ok
+test model_qualification::tests::schur_graph_is_positive ... ok
+test model_qualification::tests::expected_case_builder_covers_exactly_five_cases ... ok
+test model_qualification::tests::expected_cases_match_independent_reference_scalars ... ok
+test bridge_thermal::tests::physical_current_tracks_width_dependent_segmentation_without_uuid_fallback ... ok
+test model_qualification::tests::narrowed_capacitance_is_rejected_by_required_envelope ... ok
 test p3::tests::actual_gate_noise_measurement_responds_to_native_geometry ... ok
+test p3::tests::gate_drive_saved_native_export_binds_reviewed_paths ... ok
+test p3::coordinator_regressions::gate_return_is_kelvin_not_control_ground_and_split_cluster_is_incomplete ... ok
 test pfc_candidates::tests::stale_part_data_cannot_follow_a_part_change ... ok
 test pfc_loops::tests::anode_leg_closes_only_when_native_edge_exists ... ok
 test pfc_loops::tests::missing_gate_return_or_resistor_binding_fails_closed ... ok
+test pfc_candidates::tests::active_rectifier_reports_a_break_even_resistance ... ok
 test pfc_loops::tests::wrong_diode_cathode_pair_is_rejected_by_source_nets ... ok
-test p3::coordinator_regressions::gate_return_is_kelvin_not_control_ground_and_split_cluster_is_incomplete ... ok
+test p3::tests::four_saved_units_report_measured_geometry_and_missing_limits ... ok
 test pfc_candidates::tests::a_missing_term_is_never_zero_filled ... ok
-test pfc_candidates::tests::active_rectifier_outcome_inverts_across_the_unmeasured_hot_curve ... ok
-test pfc_candidates::tests::bridge_drop_is_linear_in_per_element_forward_drop ... ok
-test pfc_candidates::tests::every_candidate_covers_all_five_cases_with_a_single_startup_gap ... ok
+test pfc_candidates::tests::parallel_bridges_are_reported_as_a_model_gap_not_a_verdict ... ok
+test pfc_candidates::tests::low_line_cannot_meet_the_requirement_inside_the_ceiling ... ok
+test pfc_candidates::tests::hot_cooling_and_fault_are_named_inputs_not_operating_cases ... ok
 test pfc_paths::tests::repeated_package_pin_keeps_each_physical_barrel_and_separate_pin_stays_separate ... ok
 test pfc_paths::tests::span_coalescing_keeps_real_side_contacts_and_width_layer_net_boundaries ... ok
-test pfc_candidates::tests::constant_drop_model_predicts_no_conduction_benefit_from_paralleling ... ok
-test pfc_candidates::tests::hot_case_reports_its_own_limitation_rather_than_a_discrimination ... ok
 test pfc_paths::tests::t_branch_is_split_at_junction ... ok
 test pfc_paths::tests::unknown_terminal_net_is_an_adapter_error ... ok
-test pfc_candidates::tests::total_loss_and_cooling_margin_stay_absent ... ok
-test pfc_paths::tests::native11_binds_nonempty_graph_and_terminals ... ok
-test p3::tests::four_saved_units_report_measured_geometry_and_missing_limits ... ok
 test p3::coordinator_regressions::pfc_gate_and_power_paths_are_distinct_and_missing_source_return_is_not_a_pass ... ok
+test pfc_candidates::tests::bridge_drop_falls_as_line_rises_at_equal_required_power ... ok
+test pfc_paths::tests::native11_binds_nonempty_graph_and_terminals ... ok
+test pfc_candidates::tests::requirement_is_the_retained_nominal_operating_point ... ok
+test pfc_candidates::tests::required_current_round_trips_through_the_current_model ... ok
+test pfc_candidates::tests::total_loss_and_cooling_margin_stay_absent ... ok
 test runner::cooling_coverage_tests::edited_geometry_with_unchanged_board_identity_cannot_reach_downstream_checks ... ok
 test runner::cooling_coverage_tests::joint_model_evidence_is_hashed_and_mutation_is_rejected ... ok
 test runner::cooling_coverage_tests::power_entry_requires_cooling_even_when_the_hook_emits_no_report ... ok
-test pfc_loss_budget::tests::every_manufacturer_document_rejects_byte_drift ... ok
-test shunt_thermal::tests::missing_evidence_and_missing_waveform_cannot_qualify ... ok
 test runner::cooling_coverage_tests::power_entry_requires_electrical_rules_even_if_hooks_are_removed ... ok
+test shunt_thermal::tests::missing_evidence_and_missing_waveform_cannot_qualify ... ok
+test pfc_loss_budget::tests::every_manufacturer_document_rejects_byte_drift ... ok
 test tests::missing_input_identity_cannot_be_a_pass ... ok
 test pfc_loss_budget::tests::real_source_budget_is_incomplete_even_below_allowance ... ok
 test pfc_loss_budget::tests::copper_temperature_reference_is_twenty_not_twentyfive ... ok
@@ -341,7 +343,7 @@ test pfc_power::tests::narrowing_a_saved_six_mm_branch_adds_a_specific_failure .
 test shunt_thermal::tests::retained_assembly_replay_passes_numerics_without_qualifying_hardware has been running for over 60 seconds
 test shunt_thermal::tests::retained_assembly_replay_passes_numerics_without_qualifying_hardware ... ok
 
-test result: ok. 56 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 226.81s
+test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 205.04s
 
      Running unittests src/bin/zapote-board.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_board-c97263aa328cc521)
 
@@ -419,12 +421,12 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests/board_cli.rs (/private/tmp/zapote-rtd-target/release/deps/board_cli-a002fa3ee2f4c723)
 
 running 4 tests
-test missing_board_is_not_an_empty_pass ... ok
 test no_arguments_cannot_skip_the_board_gate ... ok
+test missing_board_is_not_an_empty_pass ... ok
 test real_board_without_explicit_stackup_is_rejected ... ok
 test saved_rtd_board_passes_the_public_gate ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
 
      Running tests/bridge_thermal.rs (/private/tmp/zapote-rtd-target/release/deps/bridge_thermal-f042a758de25415f)
 
@@ -433,81 +435,81 @@ test retained_pretty_contract_and_source_replay_through_production_boundary ... 
 test physical_model_replay_binds_shared_package_and_pfc_waveform ... ok
 test retained_thermal_run_binds_to_real_pfc_currents_without_clearing_findings ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.90s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.13s
 
      Running tests/current_sense_defect_corpus.rs (/private/tmp/zapote-rtd-target/release/deps/current_sense_defect_corpus-7555b45e580e5eab)
 
 running 17 tests
 test real_source_and_native_artifacts_resolve_complete_census ... ok
-test duplicate_component_fails_exact_census ... ok
-test clearance_violation_is_measured_from_actual_pads ... ok
 test copper_open_fails_required_physical_copper ... ok
 test changed_threshold_and_filter_claims_fail_recomputed_model ... ok
+test clearance_violation_is_measured_from_actual_pads ... ok
+test duplicate_component_fails_exact_census ... ok
 test real_source_burden_to_ground_topology_mutation_is_rejected ... ok
 test unsupported_measurement_remains_indeterminate ... ok
 test source_net_rehash_and_native_net_swap_fail ... ok
-test real_source_bias_value_mutation_is_rejected_by_quantity_binding ... ok
 test removing_placement_guards_cannot_retain_owner_identity ... ok
+test real_source_bias_value_mutation_is_rejected_by_quantity_binding ... ok
 test missing_native_pad_shape_cannot_pass_with_a_rehashed_export ... ok
 test back_layer_ground_is_checked_against_front_transformer_primary ... ok
 test real_route_via_through_supply_track_is_rejected ... ok
 test real_zero_core_board_is_rejected_by_the_normal_harness ... ok
-test real_input_json_roundtrip_preserves_exact_owner_projection ... ok
 test real_artifacts_build_current_sense_transport_without_synthetic_census ... ok
+test real_input_json_roundtrip_preserves_exact_owner_projection ... ok
 test missing_or_changed_stackup_bytes_cannot_retain_board_identity ... ok
 
-test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
 
      Running tests/gbj_model.rs (/private/tmp/zapote-rtd-target/release/deps/gbj_model-485f4114100dd189)
 
 running 6 tests
 test asymmetric_half_cycles_follow_current_entering_the_bridge_not_copper_injection ... ok
-test missing_gbj_evidence_cannot_satisfy_common_thermal_obligations ... ok
 test fresh_hash_does_not_authorize_forged_native_trace_geometry ... ok
+test missing_gbj_evidence_cannot_satisfy_common_thermal_obligations ... ok
 test gbj_current_model_binds_actual_trace_ids_and_keeps_sharing_indeterminate ... ok
 test unknown_ac2_cut_cannot_hide_changed_load_or_missing_segments ... ok
 test retained_gbj_raw_evidence_satisfies_numerics_without_qualifying_hardware ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.55s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.35s
 
      Running tests/interlock.rs (/private/tmp/zapote-rtd-target/release/deps/interlock-c538243b6dfef600)
 
 running 18 tests
-test bypassing_reset_inverter_breaks_actual_clock_behavior ... ok
 test missing_pull_component_fails_census ... ok
+test bypassing_reset_inverter_breaks_actual_clock_behavior ... ok
 test bypassing_actual_clear_pin_breaks_graph_behavior ... ok
 test d_tied_low_cannot_grant_permission ... ok
 test nand_input_bypass_hides_fault_and_is_rejected ... ok
 test swapped_q_outputs_break_connector_behavior ... ok
 test reset_retains_permission_and_recovery_needs_a_new_edge ... ok
-test malformed_input_is_a_hard_failure ... ok
-test split_native_cluster_with_all_nodes_present_is_rejected ... ok
-test changed_resistance_fails_electrical_margin_not_just_part_identity ... ok
-test nc_connected_to_ground_is_rejected ... ok
 test strict_pin_mapping_cannot_be_deleted ... ok
-test wrong_bypass_value_is_rejected ... ok
+test split_native_cluster_with_all_nodes_present_is_rejected ... ok
+test malformed_input_is_a_hard_failure ... ok
 test wdi_bias_substitution_is_rejected ... ok
-test stale_embedded_board_digest_is_rejected ... ok
-test native_fields_cannot_contradict_saved_board_bytes ... ok
+test wrong_bypass_value_is_rejected ... ok
+test nc_connected_to_ground_is_rejected ... ok
+test changed_resistance_fails_electrical_margin_not_just_part_identity ... ok
 test actual_artifacts_have_no_hard_failure_and_all_4096_graph_vectors_pass ... ok
+test native_fields_cannot_contradict_saved_board_bytes ... ok
+test stale_embedded_board_digest_is_rejected ... ok
 test timing_polarity_leakage_and_qualification_cannot_be_relaxed ... ok
 
-test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.72s
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.48s
 
      Running tests/memory_policy.rs (/private/tmp/zapote-rtd-target/release/deps/memory_policy-d85e06b9e5b85fb8)
 
 running 12 tests
-test evidence_tamper_rejects_while_unrelated_changes_do_not ... ok
 test memory::tests::evidence_hash_accepts_prefixed_form ... ok
-test general_procedure_selects_exact_fact_does_not ... ok
-test memory::tests::unsafe_evidence_path_rejected ... ok
-test context_prepare_requires_matching_exact_source_when_required ... ok
-test context_prepare_is_deterministic_and_exposes_bound_hashes ... ok
 test promotion_gates ... ok
+test evidence_tamper_rejects_while_unrelated_changes_do_not ... ok
+test selection_cannot_forge_historical_receipt ... ok
+test memory::tests::unsafe_evidence_path_rejected ... ok
+test general_procedure_selects_exact_fact_does_not ... ok
+test unselectable_states_and_malformed_inputs_cannot_enter_selection ... ok
+test context_prepare_requires_matching_exact_source_when_required ... ok
 test ordering_stable_and_limits_explicit ... ok
 test context_prepare_transfers_procedure_but_excludes_mismatched_exact_fact ... ok
-test selection_cannot_forge_historical_receipt ... ok
-test unselectable_states_and_malformed_inputs_cannot_enter_selection ... ok
+test context_prepare_is_deterministic_and_exposes_bound_hashes ... ok
 test context_prepare_rejects_tamper_duplicate_keys_and_oversize_notes ... ok
 
 test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
@@ -517,10 +519,10 @@ test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 running 7 tests
 test later_sheet_findings_are_not_omitted ... ok
 test hidden_severity_and_new_suppression_are_rejected ... ok
-test actual_interlock_offgrid_incident_is_not_a_root_level_zero ... ok
 test missing_nested_findings_or_empty_sheets_fail_closed ... ok
 test missing_parity_flag_or_failed_command_is_rejected ... ok
 test real_clean_native_capture_passes ... ok
+test actual_interlock_offgrid_incident_is_not_a_root_level_zero ... ok
 test native_drc_categories_are_checked_independently ... ok
 
 test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
@@ -531,19 +533,19 @@ running 2 tests
 test p1_rejects_changed_native_membership_and_source ... ok
 test real_pfc_and_gate_drive_baselines_preserve_incomplete_p1 ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
 
      Running tests/pfc_current_binding.rs (/private/tmp/zapote-rtd-target/release/deps/pfc_current_binding-60de85739c62961e)
 
 running 6 tests
-test duplicate_native_trace_identity_is_rejected_before_filtering ... ok
 test removed_native_via_cannot_reduce_the_evaluated_population ... ok
 test missing_via_identity_is_rejected_instead_of_becoming_an_unbound_envelope ... ok
+test duplicate_native_trace_identity_is_rejected_before_filtering ... ok
 test duplicate_manufacturing_pad_identity_is_rejected ... ok
 test empty_manufacturing_pad_identity_is_rejected ... ok
 test report_binds_vias_and_authored_shunt_stress ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s
 
      Running tests/power_entry.rs (/private/tmp/zapote-rtd-target/release/deps/power_entry-9614f936d2f9420d)
 
@@ -553,7 +555,7 @@ test malformed_source_fails_closed ... ok
 test fabricated_merged_clusters_cannot_certify_copper ... ok
 test historical_source_18_is_rejected_and_unrouted_candidate_fails_copper_connectivity ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
 
      Running tests/power_entry_routed.rs (/private/tmp/zapote-rtd-target/release/deps/power_entry_routed-a0f755da8eca5adf)
 
@@ -566,28 +568,28 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests/rtd_defect_corpus.rs (/private/tmp/zapote-rtd-target/release/deps/rtd_defect_corpus-920588487e2e5d71)
 
 running 20 tests
-test each_conductor_open_is_classified_without_name_only_coverage ... ok
-test local_escape_accepts_explicit_short_same_layer_branch ... ok
-test local_escape_empty_population_is_indeterminate ... ok
-test local_escape_rejects_overlapping_pads_and_disconnected_fragment ... ok
-test local_escape_requires_native_membership_and_same_ic_pads ... ok
 test broken_rref_and_reference_topology_are_detected ... ok
+test local_escape_empty_population_is_indeterminate ... ok
+test each_conductor_open_is_classified_without_name_only_coverage ... ok
+test local_escape_rejects_overlapping_pads_and_disconnected_fragment ... ok
+test local_escape_accepts_explicit_short_same_layer_branch ... ok
+test local_escape_requires_native_membership_and_same_ic_pads ... ok
 test connector_swap_is_detected_against_board_bound_contract ... ok
 test local_escape_accepts_gnd_stub_to_declared_mcu_junction ... ok
-test local_escape_rejects_closed_cycle_wrong_anchor_and_long_detour ... ok
+test native_binding_without_extraction_hash_cannot_pass ... ok
 test missing_identity_field_is_indeterminate_and_never_passes ... ok
 test native_export_bound_to_different_board_cannot_pass ... ok
 test sense_force_short_is_detected_from_typed_net_identity ... ok
 test stale_well_formed_digest_is_rejected_by_artifact_binding ... ok
-test native_binding_without_extraction_hash_cannot_pass ... ok
+test local_escape_rejects_closed_cycle_wrong_anchor_and_long_detour ... ok
 test wrong_rail_and_wrong_cs_are_detected ... ok
-test actual_board_mutations_fail_with_contract_unchanged ... ok
 test actual_capacitor_and_return_cluster_mutations_fail ... ok
+test actual_board_mutations_fail_with_contract_unchanged ... ok
 test real_native_sensitive_trace_intruding_switch_region_fails ... ok
 test each_real_conductor_expectation_is_independent ... ok
 test real_native_board_mutations_fail_with_source_contract_unchanged ... ok
 
-test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
 
      Running tests/runner.rs (/private/tmp/zapote-rtd-target/release/deps/runner-bea5dcabe22d150c)
 
@@ -598,49 +600,49 @@ test stale_native_receipt_is_rejected_even_with_same_basename ... ok
 test changed_saved_pcb_and_composite_identity_fail_after_passing_baseline ... ok
 test all_maintained_saved_units_bind_and_execute_their_truth_functions ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.66s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.34s
 
      Running tests/thermal_sense.rs (/private/tmp/zapote-rtd-target/release/deps/thermal_sense-6799331835dd8c47)
 
 running 21 tests
 test rev_a_source_is_rejected_as_missing_open_detection_components ... ok
-test independent_gate_pin_map_rejects_swapped_open_input ... ok
-test original_coil_bias_is_rejected ... ok
-test missing_component_fails_native_census ... ok
-test corrupt_contract_supply_fails_contract_rule ... ok
+test coherently_changed_source_value_still_rejects_wrong_mpn_binding ... ok
+test oversized_filter_capacitor_fails_settling_rule ... ok
 test real_routed_baseline_is_conditional_indeterminate_without_hard_failures ... ok
 test missing_strict_pin_fails_pin_map_rule ... ok
-test oversized_filter_capacitor_fails_settling_rule ... ok
+test independent_gate_pin_map_rejects_swapped_open_input ... ok
 test fragmented_cluster_fails_exact_connectivity_rule ... ok
-test coherently_changed_source_value_still_rejects_wrong_mpn_binding ... ok
-test rev_b_open_contract_is_checked_independently_of_native_fixture ... ok
+test missing_component_fails_native_census ... ok
+test corrupt_contract_supply_fails_contract_rule ... ok
+test original_coil_bias_is_rejected ... ok
 test unrouted_fixture_fails_connectivity ... ok
+test rev_b_open_contract_is_checked_independently_of_native_fixture ... ok
 test duplicate_or_malformed_cluster_node_is_not_silently_discarded ... ok
-test source_resistor_change_fails_source_and_threshold_rules ... ok
-test split_net_with_complete_union_still_fails_connectivity ... ok
-test swapped_comparator_input_fails_topology_rule ... ok
-test unsafe_open_reference_fails_margin_rule ... ok
-test wrong_sensor_identity_fails_contract_rule ... ok
 test duplicate_or_remapped_strict_pin_fails ... ok
+test source_resistor_change_fails_source_and_threshold_rules ... ok
+test unsafe_open_reference_fails_margin_rule ... ok
+test swapped_comparator_input_fails_topology_rule ... ok
+test split_net_with_complete_union_still_fails_connectivity ... ok
+test wrong_sensor_identity_fails_contract_rule ... ok
 test wrong_capacitor_and_qualification_contract_fail ... ok
 test strict_cli_retains_indeterminate_exit_status ... ok
 
-test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
 
      Running tests/unit_profile.rs (/private/tmp/zapote-rtd-target/release/deps/unit_profile-89ba50ca75567f07)
 
 running 14 tests
-test unit_cli_rules_evaluate_actual_native_shape ... ok
-test unit_model_budget_is_numeric_and_fails_above_authored_limit ... ok
-test unit_adapter_reaches_existing_aggressor_geometry_rule ... ok
 test unit_mutated_observed_mpn_is_a_targeted_failure ... ok
-test unit_adapter_rejects_observed_adc_net_mutation_against_source ... ok
+test unit_consistent_native_pad_and_connection_swap_hits_source_binding ... ok
+test unit_fault_observations_are_compared_without_legacy_blind_spot_classification ... ok
 test unit_mutated_observed_adc_connection_is_a_targeted_failure ... ok
+test unit_adapter_rejects_observed_adc_net_mutation_against_source ... ok
+test unit_adapter_reaches_existing_aggressor_geometry_rule ... ok
+test unit_model_budget_is_numeric_and_fails_above_authored_limit ... ok
+test unit_cli_rules_evaluate_actual_native_shape ... ok
+test qualification_gate_rejects_coordinated_source_hash_change ... ok
 test qualified_receipt_passes_math_gate_but_device_stays_indeterminate ... ok
 test unit_partial_source_binding_is_rejected_before_shared_rules ... ok
-test unit_fault_observations_are_compared_without_legacy_blind_spot_classification ... ok
-test unit_consistent_native_pad_and_connection_swap_hits_source_binding ... ok
-test qualification_gate_rejects_coordinated_source_hash_change ... ok
 test unit_source_component_omission_and_extra_are_census_failures ... ok
 test qualification_gate_fails_closed_for_malformed_missing_case_and_zero_cap ... ok
 test qualified_receipt_rejects_raw_model_drift_and_forged_bound ... ok
@@ -651,19 +653,19 @@ test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 running 15 tests
 test missing_board_bytes_fail_closed ... ok
-test changed_embedded_bytes_without_digest_fail ... ok
-test real_unrouted_board_fails_connectivity ... ok
 test old_adc_divider_fails_even_with_consistently_changed_source_values ... ok
-test rehashed_saved_board_net_change_cannot_hide_behind_old_export ... ok
-test duplicated_source_pin_is_rejected ... ok
-test missing_native_geometry_fails ... ok
-test independent_corner_results_remain_visible ... ok
-test crossing_wrong_net_trace_fails_geometry_and_document_binding ... ok
-test real_routed_unit_has_no_failures_but_retains_qualification_gaps ... ok
+test changed_embedded_bytes_without_digest_fail ... ok
 test missing_component_is_rejected ... ok
+test real_unrouted_board_fails_connectivity ... ok
+test rehashed_saved_board_net_change_cannot_hide_behind_old_export ... ok
+test crossing_wrong_net_trace_fails_geometry_and_document_binding ... ok
+test independent_corner_results_remain_visible ... ok
+test duplicated_source_pin_is_rejected ... ok
+test real_routed_unit_has_no_failures_but_retains_qualification_gaps ... ok
+test missing_native_geometry_fails ... ok
 test rehashed_zero_dielectric_still_fails ... ok
-test swapped_comparator_input_is_rejected ... ok
 test remote_bypass_fails_locality ... ok
+test swapped_comparator_input_is_rejected ... ok
 test cli_is_strict_about_qualification_and_preserves_structured_status ... ok
 
 test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
@@ -671,22 +673,22 @@ test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
      Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_thermal-849dab04ec2addde)
 
 running 81 tests
-test gbj_package::tests::rejects_nonfinite_and_wrong_power ... ok
-test gbj_package::tests::asymmetric_network_closes_each_independent_port ... ok
-test gbj_package::tests::symmetric_case_matches_closed_form ... ok
 test gbj_package::tests::unequal_ports_recover_independently_constructed_node_temperatures ... ok
+test gbj_package::tests::rejects_nonfinite_and_wrong_power ... ok
+test gbj_package::tests::symmetric_case_matches_closed_form ... ok
+test gbj_package::tests::asymmetric_network_closes_each_independent_port ... ok
 test joint_model::tests::invalid_conductance_cannot_produce_a_temperature ... ok
 test joint_model::tests::package_source_is_allocated_once_and_kcl_matches_independent_reference ... ok
 test bridge_cooling::tests::design_budget_arithmetic_is_explicit ... ok
-test bridge_cooling::tests::cooling_profile_has_three_design_meshes_and_declared_pairs ... ok
 test bridge_cooling::tests::contract_rejects_nan_and_relaxed_limits ... ok
+test bridge_cooling::tests::cooling_profile_has_three_design_meshes_and_declared_pairs ... ok
 test bridge_cooling::tests::contract_rejects_unreviewed_parts_status_and_load_or_parser_changes ... ok
 test neck_geometry::tests::duplicate_reviewed_trace_is_rejected ... ok
-test bridge_cooling::tests::pcb_peak_is_checked_against_its_own_limit_not_reservoir_or_junction ... ok
 test neck_geometry::tests::exact_capture_generates_four_bound_necks ... ok
+test bridge_cooling::tests::pcb_peak_is_checked_against_its_own_limit_not_reservoir_or_junction ... ok
 test neck_geometry::tests::reviewed_pin_net_mapping_is_not_net_only ... ok
-test neck_geometry::tests::reviewed_variant_imports_native_width_and_length_without_baseline_constants ... ok
 test neck_geometry::tests::reviewed_pin_shape_is_bound_even_when_bounds_match ... ok
+test neck_geometry::tests::reviewed_variant_imports_native_width_and_length_without_baseline_constants ... ok
 test neck_geometry::tests::stackup_cannot_borrow_a_thickness_from_another_sexpression ... ok
 test neck_geometry::tests::stackup_dimensions_reject_missing_outer_copper ... ok
 test neck_geometry::tests::stale_embedded_board_bytes_are_rejected ... ok
@@ -702,35 +704,35 @@ test physical_model::tests::bound_waveform_hash_rejects_changed_current_or_diode
 test physical_model::tests::changing_one_path_does_not_replicate_package_source ... ok
 test physical_model::tests::coupled_solution_matches_independent_asymmetric_closed_form_reference ... ok
 test physical_model::tests::dynamic_forward_slope_is_applied_about_the_datasheet_reference_point ... ok
-test joint_mesh::tests::independent_reference_has_four_materials_and_three_true_ports ... ok
-test physical_model::tests::missing_neck_or_invalid_bore_fails_closed ... ok
 test joint_physics::tests::changed_voltage_cannot_reuse_joule_power_as_its_own_oracle ... ok
-test joint_physics::tests::independent_reference_matches_electrical_and_heat_balance ... ok
+test physical_model::tests::missing_neck_or_invalid_bore_fails_closed ... ok
+test joint_physics::tests::relative_change_text_without_convergence_is_rejected ... ok
 test physical_model::tests::retained_baseline_contract_is_parseable_and_board_bound ... ok
+test physical_model::tests::reviewed_compressed_pdf_is_valid_without_plaintext_number_markers ... ok
 test physical_model::tests::shared_package_heat_is_injected_once_and_balances_globally ... ok
 test physical_model::tests::source_bound_evaluation_does_not_promote_unreviewed_digest ... ok
 test physical_model::tests::unknown_package_paths_keep_applicability_indeterminate ... ok
-test physical_model::tests::reviewed_compressed_pdf_is_valid_without_plaintext_number_markers ... ok
-test joint_physics::tests::relative_change_text_without_convergence_is_rejected ... ok
+test joint_physics::tests::independent_reference_matches_electrical_and_heat_balance ... ok
 test joint_physics::tests::reordered_flux_labels_are_rejected ... ok
-test joint_mesh::tests::mesh_with_no_boundary_triangles_is_rejected_even_if_solver_exits_zero ... ok
 test joint_mesh::tests::changed_dimension_and_truncated_input_fail_closed ... ok
 test shunt_assembly::tests::changed_solver_input_invalidates_pre_execution_receipt ... ok
+test joint_mesh::tests::independent_reference_has_four_materials_and_three_true_ports ... ok
+test joint_mesh::tests::mesh_with_no_boundary_triangles_is_rejected_even_if_solver_exits_zero ... ok
 test shunt_assembly::tests::partial_profile_and_false_boundary_shift_are_rejected ... ok
-test shunt_assembly::tests::relative_tool_paths_fail_before_creating_evidence ... ok
 test shunt_assembly::tests::compressed_artifact_preserves_bytes_and_rejects_ambiguity ... ok
+test shunt_assembly::tests::relative_tool_paths_fail_before_creating_evidence ... ok
 test shunt_assembly::tests::small_refinement_step_cannot_evade_error_estimate ... ok
 test shunt_assembly::tests::command_contract_rejects_changed_environment_arguments_and_case ... ok
 test shunt_assembly::tests::solver_results_from_a_different_mesh_or_heat_split_are_rejected ... ok
 test joint_mesh::tests::internal_interface_cannot_be_declared_a_reservoir_port ... ok
 test joint_mesh::tests::aggregate_copper_material_cannot_represent_the_joint ... ok
-test gbj_cooling::tests::catalog_budget_includes_shared_load_and_fan_heat_once ... ok
 test shunt_assembly::tests::altered_native_via_cannot_silently_change_geometry ... ok
-test physical_model::tests::geometry_binding_rejects_changed_drill_with_unchanged_geometry_fingerprint ... ok
+test gbj_cooling::tests::catalog_budget_includes_shared_load_and_fan_heat_once ... ok
 test physical_model::tests::native_contract_binds_reviewed_stackup_dimensions ... ok
-test shunt_assembly::tests::seed_identity_and_deck_changes_are_rejected_before_solver_work ... ok
-test shunt_local::tests::energy_and_solver_convergence_are_required_independently ... ok
+test physical_model::tests::geometry_binding_rejects_changed_drill_with_unchanged_geometry_fingerprint ... ok
 test shunt_assembly::tests::clipping_preserves_zone_interior_and_excludes_outside_region ... ok
+test shunt_local::tests::energy_and_solver_convergence_are_required_independently ... ok
+test shunt_assembly::tests::seed_identity_and_deck_changes_are_rejected_before_solver_work ... ok
 test shunt_local::tests::board_or_native_pad_changes_invalidate_geometry ... ok
 test shunt_local::tests::unconverged_and_incomplete_profiles_are_rejected ... ok
 test tests::captured_live_fixture_replay_fails_closed_when_scalar_or_log_changes ... ok
@@ -753,7 +755,7 @@ test shunt_assembly_mesh::tests::real_solver_mesh_has_correct_materials_and_exte
 test shunt_assembly_mesh::tests::wrong_material_or_misplaced_heat_port_is_rejected ... ok
 test neck_run::replay_tests::retained_pcb_replay_rejects_rehashed_model_and_result_mutations ... ok
 
-test result: ok. 81 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.56s
+test result: ok. 81 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.48s
 
      Running unittests src/bin/zapote-bridge-cooling.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_bridge_cooling-67e0e461b2b83eec)
 
@@ -802,7 +804,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 1 test
 test cooling_replay_rejects_rehashed_contract_summary_and_missing_process_evidence ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.39s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.21s
 
      Running tests/gbj_geometry.rs (/private/tmp/zapote-rtd-target/release/deps/gbj_geometry-a29deecda5eef9f1)
 
@@ -812,20 +814,20 @@ test gbj_rejects_pin_net_swap_even_when_geometry_matches ... ok
 test captured_gbj2510f_builds_in_native_pin_order ... ok
 test saved_back_copper_mesh_rejects_front_side_reinterpretation ... ok
 
-test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.15s
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.12s
 
      Running tests/joint_fem.rs (/private/tmp/zapote-rtd-target/release/deps/joint_fem-994f59d8ac156011)
 
 running 7 tests
 test geometry_is_deterministic_and_supports_obround ... ok
-test solver_rejects_changed_scalars_or_missing_completion ... ok
-test working_reference_has_four_materials_interfaces_and_ports ... ok
 test working_reference_solver_conserves_power ... ok
+test solver_rejects_changed_scalars_or_missing_completion ... ok
 test zero_current_is_accepted_only_for_zero_heating ... ok
+test working_reference_has_four_materials_interfaces_and_ports ... ok
 test parser_rejects_empty_ports_and_material_mutations ... ok
 test native_replay_rejects_modified_summary_physics_and_mesh_even_with_updated_hashes ... ok
 
-test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
 
      Running tests/neck_physics.rs (/private/tmp/zapote-rtd-target/release/deps/neck_physics-4a46f57560b92e19)
 
@@ -841,12 +843,12 @@ test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests/neck_transfer.rs (/private/tmp/zapote-rtd-target/release/deps/neck_transfer-7321a7980124b8e9)
 
 running 6 tests
-test changed_node_coordinate_is_rejected ... ok
 test changed_source_material_tag_is_rejected ... ok
-test existing_but_unrelated_boundary_parent_is_rejected ... ok
+test changed_node_coordinate_is_rejected ... ok
 test missing_parent_is_rejected ... ok
-test genuine_gmsh_elmergrid_transfer_preserves_topology ... ok
+test existing_but_unrelated_boundary_parent_is_rejected ... ok
 test mesh_geometry_rejects_wrong_boundary_material_and_nonfinite_coordinate ... ok
+test genuine_gmsh_elmergrid_transfer_preserves_topology ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
@@ -862,9 +864,9 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 5 tests
 test rejects_malformed_column_trailer ... ok
-test rejects_trailing_malformed_or_extra_scalar_row ... ok
-test rejects_duplicate_measurement_in_log ... ok
 test rejects_other_variable_named_max ... ok
+test rejects_duplicate_measurement_in_log ... ok
+test rejects_trailing_malformed_or_extra_scalar_row ... ok
 test rejects_scalar_power_disagreeing_with_raw_log ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
