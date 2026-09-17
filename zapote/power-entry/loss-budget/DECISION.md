@@ -16,6 +16,14 @@ they are electrically compatible, and neither needs a new topology. The
 alternatives are not rejected on principle; they are deferred because the
 numbers that would justify them are not the numbers that currently dominate.
 
+**This is a priority decision, not a ranking.** Nothing here says candidate 1 or
+5 is the lower-loss architecture by measurement — the boost overlap is pursued
+*because it is unmeasured*, and the bridge is pursued *because it is the
+assembly constraint*, not because either was scored against candidates 2, 3 or
+4. The screen that feeds this still promotes nothing and ranks nothing. What the
+decision does say is which unknowns are worth buying first, and it is reversible
+on the evidence listed under "What would change this decision".
+
 ## What was resolved in this pass
 
 **The boost-switch identity.** The authored `STW65N65DM2` is ST's *marking*
