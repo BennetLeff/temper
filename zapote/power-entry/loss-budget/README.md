@@ -1,6 +1,8 @@
 # Power-entry loss budget
 
-Read [results and next decisions](RESULTS.md) for the retained 18-case run.
+Read [results and next decisions](RESULTS.md) for the retained 18-case run, and
+the [candidate screen](candidates.md) for the five-architecture comparison over
+the common five-case matrix.
 
 Execution contract (2026-09-16): compute a source-bound planning loss budget
 for the maintained shunt-repair board using the existing CCM current model.
@@ -47,6 +49,23 @@ controller and small-signal supply. Full-load unbypassed NTC operation is a
 separate fault/startup case. The existing cooling study's 40 W bridge +65 W
 other-electronics reservation is shown only for comparison, never as spare
 capacity or an acceptance margin.
+
+The [candidate screen](candidates.md) adds the re-engineering question to this
+unit: five architectures over the same five operating cases, with every term
+computed from a source-backed value or left unresolved. It promotes nothing and
+adds no thermal verdict. Its two useful findings are that the bridge drop is
+essentially line-voltage independent (28.299/28.304/28.309 W at 132/120/108 V,
+because the model holds 15 A true RMS at every line voltage) and that
+paralleling two bridges changes nothing under a constant-drop model, so the
+credible benefit there is thermal spreading rather than conduction. It also
+shows the boost-stage overlap sensitivity (33.898 W at 50 ns edges) exceeding the
+whole bridge drop (28.304 W) while remaining exactly the term this study cannot
+bound.
+
+Run the runner in `--release`. The power-entry stage replays about 1.2 GB of
+retained FEM meshes, and a debug build is roughly an order of magnitude slower:
+a debug run had not finished power-entry after 25 minutes, while the same run in
+release completes all seven units in about five minutes.
 
 Next closure sequence: correct exact MOSFET identity in authored source and
 native artifacts; model its gate transitions/Eoss plus SiC commutation;

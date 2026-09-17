@@ -13,6 +13,7 @@ pub mod native_reports;
 pub mod power_entry;
 pub mod pfc_paths;
 pub mod pfc_power;
+pub mod pfc_candidates;
 pub mod pfc_loss_budget;
 pub mod runner;
 pub use current_sense::{build_current_sense_input, parse_current_sense_input, run_current_sense};

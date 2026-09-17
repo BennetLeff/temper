@@ -90,6 +90,7 @@ pub struct UnitRunReport {
     pub power_checks: Option<CheckReport>,
     pub pfc_power: Option<crate::pfc_power::Report>,
     pub loss_budget: Option<crate::pfc_loss_budget::Report>,
+    pub candidates: Option<crate::pfc_candidates::Report>,
     pub thermal_checks: Option<CheckReport>,
     pub physical_checks: Option<CheckReport>,
     pub joint_checks: Option<CheckReport>,
@@ -220,6 +221,7 @@ fn required_rules(unit: UnitKind) -> Result<Vec<String>> {
         required.extend(crate::pfc_loops::RULES.map(str::to_owned));
         required.extend(crate::pfc_power::RULES.map(str::to_owned));
         required.extend(crate::pfc_loss_budget::RULES.map(str::to_owned));
+        required.extend(crate::pfc_candidates::RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::COOLING_RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::PHYSICAL_RULES.map(str::to_owned));
@@ -590,6 +592,9 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     let loss_budget = if spec.unit == UnitKind::PowerEntry {
         Some(crate::pfc_loss_budget::run(&source)?)
     } else { None };
+    let candidates = if spec.unit == UnitKind::PowerEntry {
+        Some(crate::pfc_candidates::run(&source)?)
+    } else { None };
     let loop_checks = if spec.unit == UnitKind::PowerEntry {
         Some(crate::pfc_loops::run(
             &source,
@@ -726,6 +731,7 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     parts.extend(power_checks.iter());
     parts.extend(pfc_power.iter().map(|r| &r.checks));
     parts.extend(loss_budget.iter().map(|r| &r.checks));
+    parts.extend(candidates.iter().map(|r| &r.checks));
     parts.extend(thermal_checks.iter());
     parts.extend(physical_checks.iter());
     parts.extend(joint_checks.iter());
@@ -754,7 +760,7 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         ("zones".into(), native.zones.len()),
     ]);
     let executable_sha256 = hash_file(&std::env::current_exe().map_err(|e| e.to_string())?)?;
-    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,loss_budget,thermal_checks,physical_checks,joint_checks,shunt_checks,loop_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
+    Ok(UnitRunReport{schema:"zapote.unit-run.v2",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,pfc_power,loss_budget,candidates,thermal_checks,physical_checks,joint_checks,shunt_checks,loop_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
 }
 
 #[cfg(test)]
