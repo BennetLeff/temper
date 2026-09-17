@@ -49,3 +49,33 @@ solver results must match. It transfers neither boost heat nor installed
 cooling applicability. The new manufacturing mutation test rejects hash,
 geometry and extra-field changes. Earlier claims that the bridge replay was
 unaffected were disproved by the actual common run.
+
+## Follow-through: assurance gates and replacement research
+
+The [four-work-package follow-through](options/RESULTS.md) separates numerical
+verification, physical applicability and qualification in the common runner.
+The fixed 100 µJ anchor checks one analytical waveform case; it is not a
+measurement of this MOSFET. All 54 production sensitivity cases also check
+waveform moments, scenario labels and disjoint term accounting. Unsupported
+physical inputs keep applicability and qualification INDETERMINATE even when
+numerical verification passes.
+
+- Reject non-finite values before tolerance comparisons: `abs(NaN) > tol` is
+  false. The production adapter has explicit nominal and non-nominal mutation
+  regressions.
+- A `Measured` enum and a `stale: false` flag are not evidence importers. This
+  adapter rejects measured claims and has no route to physical qualification.
+- A hash can faithfully identify an access-denied HTML page. Verify file type,
+  parse the source, match exact part/revision/test conditions, then retain the
+  digest. The Rust datasheet gate checks the PDF header as well as the pin;
+  review still has to establish what the document actually supports.
+- Turn-off gate current depends on plateau-to-low voltage; do not copy the
+  high-to-plateau turn-on expression. The option arithmetic has an asymmetric
+  regression for this exact draft error.
+- Double-pulse current is an instantaneous switching current, not duty-weighted
+  RMS. A nominal 15 V supply is neither an actual gate-high measurement nor the
+  Miller plateau. The source conditions must remain attached to every screen.
+
+These protections target the observed failure classes; they do not certify all
+future models. Research arithmetic receipts remain outside production acceptance
+until a candidate is integrated through the maintained source-bound model.

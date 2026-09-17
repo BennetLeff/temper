@@ -1,0 +1,38 @@
+Source receipts and netlist excerpts for the existing-drive investigation
+Retrieved 2026-09-17. The PDFs below are already retained in the parent
+loss-budget/shunt-repair source trees; hashes are recorded in REPORT.md.
+
+TI UCC28180D, SLUSBQ5D Rev D, printed p.7, GATE DRIVER electrical table:
+  GATE peak sinking: 2 A, CGATE = 4.7 nF
+  GATE peak sourcing: -1.5 A, CGATE = 4.7 nF
+  GATE rise time: 8 ns min, 40 ns typ, 60 ns max, CGATE=4.7 nF, 2 V to 8 V
+  GATE fall time: 8 ns min, 25 ns typ, 40 ns max, CGATE=4.7 nF, 8 V to 2 V
+  GATE high voltage: 14.5/15.2/16.1 V at VCC=20 V, CGATE=4.7 nF
+  GATE high voltage: 10.8/11.2/12 V at VCC=12.2 V, CGATE=4.7 nF
+  GATE high voltage: 8.2/9/10.1 V at VCC=VCCOFF+0.2 V, CGATE=4.7 nF
+
+TI UCC28180D, printed p.17, section 8.3.15:
+  internal clamp limits MOSFET gate to 15.2 V typical; external RGATE is
+  selected for rise/fall control, ringing and EMI; 10 kOhm gate-to-ground
+  resistor discharges stray capacitance and prevents dv/dt turn-on.
+
+TI UCC28180D, printed p.26, section 9.2.2.8:
+  design example uses 3.3 Ohm RGATE and a standard 40 V, 1 A Schottky diode
+  anti-parallel with RGATE to facilitate fast turn-off; 10 kOhm gate-ground
+  resistor is retained.
+
+ST STW65N65DM2AG, DocID028164 Rev 1, printed p.4 Table 6:
+  Coss eq 456 pF (time-equivalent, VDS 0..520 V)
+  intrinsic RG 3.3 Ohm (f=1 MHz, ID=0 A)
+  Qg 120 nC (VDD=520 V, ID=60 A, VGS=10 V)
+  Qgs 27 nC; Qgd 58 nC (same gate-charge test circuit)
+  Table 5 RDS(on) typ 0.042 Ohm, max 0.05 Ohm at VGS=10 V, ID=30 A,
+  Tcase=25 C.
+
+Candidate source-manifest / schematic binding (sha256 in REPORT.md):
+  U11 UCC28180D pin 7 -> AUX_15V_IN; pin 1 -> PFC_BUS_MINUS;
+  U11 pin 8 (GATE) -> U13=10ohm -> q_boost-g;
+  U14=10kohm from q_boost-g -> PFC_BUS_MINUS;
+  U27=1uF from AUX_15V_IN -> PFC_BUS_MINUS;
+  U43 is a 2-pin external AUX connector; no onboard producer of AUX_15V_IN
+  exists in the candidate source manifest.

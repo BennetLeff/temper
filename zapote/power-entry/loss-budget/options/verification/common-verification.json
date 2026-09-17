@@ -1,0 +1,92 @@
+{
+  "run": "zapote/validation/runs/pfc-options-20260917-02",
+  "exit_code": 2,
+  "suite_changed_during_run": false,
+  "units": [
+    {
+      "unit": "current-sense",
+      "status": "indeterminate",
+      "failed_findings": 0,
+      "native_status": "pass",
+      "native_findings": [
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities"
+      ]
+    },
+    {
+      "unit": "gate-drive",
+      "status": "indeterminate",
+      "failed_findings": 0,
+      "native_status": "pass",
+      "native_findings": [
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities"
+      ]
+    },
+    {
+      "unit": "interlock",
+      "status": "indeterminate",
+      "failed_findings": 0,
+      "native_status": "pass",
+      "native_findings": [
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities"
+      ]
+    },
+    {
+      "unit": "power-entry",
+      "status": "indeterminate",
+      "failed_findings": 0,
+      "native_status": "pass",
+      "native_findings": [
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities"
+      ]
+    },
+    {
+      "unit": "rtd",
+      "status": "indeterminate",
+      "failed_findings": 0,
+      "native_status": "pass",
+      "native_findings": [
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities"
+      ]
+    },
+    {
+      "unit": "thermal-sense",
+      "status": "indeterminate",
+      "failed_findings": 0,
+      "native_status": "pass",
+      "native_findings": [
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities"
+      ]
+    },
+    {
+      "unit": "voltage-sense",
+      "status": "indeterminate",
+      "failed_findings": 0,
+      "native_status": "pass",
+      "native_findings": [
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities",
+        "0 reported findings across all requested severities"
+      ]
+    }
+  ],
+  "scope_note": "Run uses reviewed production code; subsequent runner.rs edit only extends an existing cfg(test) iterator. No runtime behavior changed. Exact run source identity retained in suite-identity.json."
+}

@@ -9,6 +9,7 @@ pub mod bridge_thermal;
 pub mod gate_drive;
 pub mod interlock;
 pub mod memory;
+pub mod model_assurance;
 pub mod native_reports;
 pub mod power_entry;
 pub mod pfc_paths;

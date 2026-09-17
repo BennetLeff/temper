@@ -15,6 +15,12 @@ explicit assumed charge, exact curve-source binding and audited historical
 thermal transfer. The regressions run in the normal Rust workspace suite;
 none permits a missing physical input to become acceptance.
 
+The [PFC assurance and option follow-through](../power-entry/loss-budget/options/RESULTS.md)
+adds required numerical/applicability/qualification findings, non-finite and
+scenario-binding mutations, measured-evidence rejection and retained-PDF type
+checks. Replacement research remains conditional; the three option reports are
+not approved substitutions or a frozen memory-catalog revision.
+
 Zapote keeps three connected records: the durable explanation in
 `docs/solutions/`, short versioned notes selected for an attempt, and Rust
 validators with counterexamples that enforce engineering acceptance. Notes are

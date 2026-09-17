@@ -1,0 +1,34 @@
+{
+  "schema": "zapote.pfc-options.provenance.v1",
+  "base_commit": "80ae56830d9cc679b280736fde62461573bcafdd",
+  "scope": "Exact integrated Rust, candidate records and reference fixture; run identity separately in common suite-identity.json",
+  "inputs": {
+    "zapote/packages/zapote-harness/src/lib.rs": "8af69665042977fcd2b7aa4c93c4dc584820758d9b8a6432372eb98ca2b9eb71",
+    "zapote/packages/zapote-harness/src/model_assurance.rs": "6b6248b1e601037d8ef3680ed9c5a25989a521eccb51a4683dda43d9a5a9697e",
+    "zapote/packages/zapote-harness/src/pfc_loss_budget.rs": "048315ddb5695df09895916494478eca62bf71169094121edb940035a4a1014b",
+    "zapote/packages/zapote-harness/src/runner.rs": "e2447971a7e0a0953235a06ee4b7d771ef15e08841f864fbb9d4a63bab06816a",
+    "zapote/power-entry/loss-budget/options/existing-drive/candidates.json": "5f452368ae2eb8492ab36e8852f34a5f3ccb86c5aa128bd5d4eff7d67af367f7",
+    "zapote/power-entry/loss-budget/options/existing-drive/gate_calc.rs": "79dac6da9740c2e44617c5c0a72709345e28e21435195a127088a2386ba3c2c2",
+    "zapote/power-entry/loss-budget/options/harness/triangle-anchor.json": "a59dafc68342b497615a6a94eb806e4721b43fb9cb9f8feb62b4b2a90e289a70",
+    "zapote/power-entry/loss-budget/options/replacement-fet/calc.rs": "0ac26e820a03bad61a554c575e2192834910243e70dcf1ee6066e717b4797d71",
+    "zapote/power-entry/loss-budget/options/replacement-fet/candidates.json": "b3a6864495ea71f121bdd75e3667143da3a5d45abd58169b4ae41db4e7ebc0f7",
+    "zapote/power-entry/loss-budget/options/replacement-pair/candidates.json": "ea9d60a2052536b48bc9d25d3224f4788bc23b56389b6fec6c476ed26accd5ed",
+    "zapote/power-entry/loss-budget/options/replacement-pair/reproduce.rs": "9d9da4adcffd5032276d9a3522cdf6d1d556922ca8f72f372527cced7e53e595"
+  },
+  "verification": [
+    "workspace.log",
+    "final-loss-tests.log",
+    "clippy.log",
+    "source-audit.json",
+    "numeric-comparison.json",
+    "assurance-final-review.md",
+    "options-final-review.md"
+  ],
+  "post_review_test_only_amendment": {
+    "path": "zapote/packages/zapote-harness/src/runner.rs",
+    "reviewed_sha256": "8b369d732c4d3f64313a88382e8191cab428b39b974dc6a0f3abbaea0b9369f2",
+    "final_sha256": "e2447971a7e0a0953235a06ee4b7d771ef15e08841f864fbb9d4a63bab06816a",
+    "change": "Append .chain(crate::model_assurance::RULES) in existing required-rule omission test; production code identical",
+    "verification": "required-rule-test.log"
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "schema": "pfc-existing-drive-candidate-v1",
+  "investigation": "existing STW65N65DM2AG with UCC28180D",
+  "source_revision": "80ae56830d9cc679b280736fde62461573bcafdd",
+  "retrieved_at": "2026-09-17",
+  "candidate": {
+    "exact_order_code": "STW65N65DM2AG",
+    "package_marking": "65N65DM2",
+    "controller": "UCC28180D",
+    "driver_supply_net": "AUX_15V_IN",
+    "driver_supply_source": "external connector U43; no onboard producer in source manifest",
+    "mosfet_gate_net": "q_boost-g",
+    "network": {
+      "ucc_gate_to_mosfet_gate_ohm": 10.0,
+      "mosfet_gate_to_pfc_bus_minus_ohm": 10000.0,
+      "mosfet_intrinsic_gate_ohm_typical": 3.3,
+      "vcc_bypass_uF": 1.0,
+      "turnoff_diode": null
+    }
+  },
+  "evidence_backed_inputs": {
+    "ucc_peak_source_a_typical": 1.5,
+    "ucc_peak_sink_a_typical": 2.0,
+    "ucc_gate_high_v_at_vcc_12_2_typical": 11.2,
+    "ucc_gate_high_v_at_vcc_12_2_min_max": [
+      10.8,
+      12.0
+    ],
+    "ucc_gate_high_v_at_vcc_20_typical": 15.2,
+    "ucc_gate_high_v_at_vcc_20_min_max": [
+      14.5,
+      16.1
+    ],
+    "ucc_internal_gate_clamp_v_typical": 15.2,
+    "ucc_rise_ns_typical_4_7nF": 40.0,
+    "ucc_fall_ns_typical_4_7nF": 25.0,
+    "st_qg_c_typical": 1.2e-07,
+    "st_qgd_c_typical": 5.8e-08,
+    "st_rds_on_ohm_max_25C": 0.05,
+    "st_rds_on_normalized_typical_plot_read": {
+      "25C": 1.0,
+      "100C_approx": 1.6,
+      "125C_approx": 2.0
+    }
+  },
+  "assumed_or_unresolved_inputs": {
+    "aux_15v_in_v": null,
+    "actual_ucc_gate_high_v_at_board_vcc": null,
+    "ucc_output_resistance_ohm": null,
+    "mosfet_gate_plateau_v": 6.2,
+    "mosfet_qgd_at_390V_and_operating_current_c": null,
+    "mosfet_current_transfer_charge_c": null,
+    "switch_overlap_energy_j_per_event": null,
+    "hot_rds_on_qualified_ohm": null,
+    "pcb_gate_loop_inductance_h": null
+  },
+  "conditional_calculation": {
+    "frequency_hz": 129107.392,
+    "series_resistance_ohm": 13.3,
+    "plateau_assumption_v": 6.2,
+    "qgd_c": 5.8e-08,
+    "points": [
+      {
+        "vdrive_assumed_v": 9.0,
+        "iplateau_upper_a": 0.2105263158,
+        "qgd_time_lower_ns": 275.5,
+        "qg_supply_energy_w": 0.139435984
+      },
+      {
+        "vdrive_assumed_v": 10.0,
+        "iplateau_upper_a": 0.2857142857,
+        "qgd_time_lower_ns": 203.0,
+        "qg_supply_energy_w": 0.1549288704
+      },
+      {
+        "vdrive_assumed_v": 11.0,
+        "iplateau_upper_a": 0.3609022556,
+        "qgd_time_lower_ns": 160.7083333,
+        "qg_supply_energy_w": 0.1704217574
+      },
+      {
+        "vdrive_assumed_v": 12.2,
+        "iplateau_upper_a": 0.4511278195,
+        "qgd_time_lower_ns": 128.5666667,
+        "qg_supply_energy_w": 0.1890132219
+      },
+      {
+        "vdrive_assumed_v": 15.0,
+        "iplateau_upper_a": 0.6616541353,
+        "qgd_time_lower_ns": 87.6590909,
+        "qg_supply_energy_w": 0.2323933056
+      }
+    ],
+    "interpretation": "Conditional on the stated plateau, Qgd and gate-bias assumptions: omitting nonnegative output/PCB resistance gives an optimistic current ceiling and time floor within this approximation, not a physical bound. Qg supply energy uses the ST typical test-point charge and is not all MOSFET die loss."
+  },
+  "disjoint_loss_terms_w": {
+    "mosfet_switch_overlap": null,
+    "mosfet_conduction_25C_conditional": null,
+    "mosfet_conduction_100C_typical_plot_sensitivity": null,
+    "mosfet_conduction_125C_typical_plot_sensitivity": null,
+    "external_gate_resistor_heat": null,
+    "driver_supply_gate_charge_sensitivity": {
+      "9V_assumption": 0.139435984,
+      "10V_assumption": 0.1549288704,
+      "11V_assumption": 0.1704217574,
+      "12.2V_assumption": 0.1890132219,
+      "15V_assumption": 0.2323933056
+    }
+  },
+  "operating_points": {
+    "108Vrms_15Arms": {
+      "common_required_input_model_anchor_w": 1796.416,
+      "fixed_input_model_reachable_w": 1617.1,
+      "required_output_w": null,
+      "status": "input-current-ceiling-binds; output and efficiency unresolved"
+    },
+    "120Vrms_15Arms": {
+      "common_required_input_model_anchor_w": 1796.416,
+      "fixed_input_model_reachable_w": 1796.416,
+      "required_output_w": null,
+      "status": "fixed input-model anchor; output and efficiency unresolved"
+    },
+    "132Vrms_common_input_power": {
+      "common_required_input_model_anchor_w": 1796.416,
+      "fixed_input_model_reachable_w": 1796.416,
+      "required_output_w": null,
+      "status": "common input-power anchor at approximately 13.645 Arms; 15 A ceiling not binding; output and efficiency unresolved",
+      "input_rms_a": 13.645,
+      "input_rms_ceiling_a": 15.0
+    }
+  },
+  "next_decisive_test": "Low-voltage, current-limited characterization with valid controller operating conditions or a controlled stimulus/load establishes output loading and logic levels only. A representative drain-commutation fixture is required to establish Miller behavior and Eon/Eoff; retain source waveforms and hot-device conditions. No powered test has been performed."
+}

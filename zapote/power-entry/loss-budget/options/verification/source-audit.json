@@ -1,0 +1,41 @@
+{
+  "scope": "File type and text extraction only; parameter and source applicability reviewed separately",
+  "files": [
+    {
+      "path": "zapote/power-entry/loss-budget/options/replacement-fet/sources/IPW65R041CFD7.pdf",
+      "sha256": "414a154a79ad7560104db7ef1061bce3e93878b2417d1468695e20e383889fe3",
+      "pdf_header": true,
+      "text_length": 16262
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/options/replacement-fet/sources/NVHL040N65S3F.pdf",
+      "sha256": "98711c246a814ab3687be0805af93130ff01f7a2474af83fbabd513d5edd820b",
+      "pdf_header": true,
+      "text_length": 15411
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/options/replacement-fet/sources/IPW65R045C7.pdf",
+      "sha256": "7ef568434c6325a919ac38fdf998b60d71e8078cce1ed384e82ee09fdc40911a",
+      "pdf_header": true,
+      "text_length": 14805
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/options/replacement-pair/sources/UCC27524A-RevC.pdf",
+      "sha256": "29272e1d506b8755086380dad1481a7984f8bf0521be9fc2ae6e781866392def",
+      "pdf_header": true,
+      "text_length": 78654
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/options/replacement-pair/sources/UCC27624-RevE.pdf",
+      "sha256": "b42590ddafb28a608aae30f5a2c333851cf11ded63daa03fbdef6df93ecb8a51",
+      "pdf_header": true,
+      "text_length": 79372
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/options/replacement-pair/sources/NTH4L060N065SC1-Rev3-2023-01.pdf",
+      "sha256": "e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4",
+      "pdf_header": true,
+      "text_length": 12413
+    }
+  ]
+}

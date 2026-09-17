@@ -221,6 +221,7 @@ fn required_rules(unit: UnitKind) -> Result<Vec<String>> {
         required.extend(crate::pfc_loops::RULES.map(str::to_owned));
         required.extend(crate::pfc_power::RULES.map(str::to_owned));
         required.extend(crate::pfc_loss_budget::RULES.map(str::to_owned));
+        required.extend(crate::model_assurance::RULES.map(str::to_owned));
         required.extend(crate::pfc_candidates::RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::RULES.map(str::to_owned));
         required.extend(crate::bridge_thermal::COOLING_RULES.map(str::to_owned));
@@ -798,6 +799,7 @@ mod cooling_coverage_tests {
         for rule in zapote_erc::pfc_interfaces::RULES
             .into_iter()
             .chain(crate::pfc_power::RULES)
+            .chain(crate::model_assurance::RULES)
         {
             assert!(required.iter().any(|id| id == rule));
             let missing_one = CheckReport::from_findings(

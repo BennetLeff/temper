@@ -1,0 +1,225 @@
+{
+  "schema": "zapote.pfc.replacement-pair-screen.v1",
+  "observed_at": "2026-09-17",
+  "source_revision": "80ae56830d9cc679b280736fde62461573bcafdd",
+  "operating_point": {
+    "bus_v": 389.6153846,
+    "switching_hz": 129107.39198577,
+    "input_rms_a": 15.0,
+    "line_rms_v": [108.0, 120.0, 132.0],
+    "input_power_w_is_not_output": true,
+    "power_note": "At fixed 15 A, the corrected CCM source model reports 1617.083 W, 1796.416 W and 1975.751 W input at 108/120/132 Vrms. These are fixed-input screening points; 1796.416 W is not a delivered-output requirement.",
+    "switch_rms_a": {
+      "108": 12.25325949559574,
+      "120": 11.9091944502362,
+      "132": 11.554950420013618
+    },
+    "current_source": "loss-budget/evidence/correction-02/loss-report.json, L=180 uH cases 2, 8, 14; Rust pfc_switching model, not measured waveform"
+  },
+  "interface_contract": {
+    "controller": "UCC28180D",
+    "controller_gate": {
+      "function": "push-pull GATE output",
+      "source_peak_a_typ": 1.5,
+      "sink_peak_a_typ": 2.0,
+      "clamp_v_typ": 15.2,
+      "high_v_typ_at_vcc_12_2": 11.2,
+      "high_v_max_at_vcc_12_2": 12.0,
+      "high_v_min_typ_max_at_vcc_20": [14.5, 15.2, 16.1],
+      "low_on_controller_uvlo": true,
+      "fault_behavior": "GATE disabled on controller UVLO and VOUT over-voltage protection; no exposed FAULT pin in this 8-pin device",
+      "source": "TI UCC28180 Rev D, SLUSBQ5D, pp. 6-7 and p. 26"
+    },
+    "signal_wiring": "UCC28180 GATE -> existing 10 ohm input resistor -> driver IN; driver OUT -> new gate resistor -> MOSFET G. Move the 10 kohm pulldown to driver OUT/G. Do not connect UCC28180 GATE directly to the replacement MOSFET gate.",
+    "common_requirements": [
+      "Driver IN must remain below its absolute maximum for the UCC28180 15.2 V typical / 16.1 V specified test-point high; verify the actual UCC28180 GATE high during startup, shutdown and ringing.",
+      "Driver EN must be explicitly sequenced or held low until controller VCC is valid; both selected drivers default EN enabled through an internal pull-up. Driver input pulldown keeps OUT low only if the GATE net is quiet.",
+      "Use Kelvin-source TO-247-4: driver return and MOSFET driver-source pin are a short loop; power-source pin alone carries boost current back to the shunt.",
+      "Place 0.1 uF and >=1 uF ceramic VDD bypass at the driver. Keep driver-MOSFET-VDD capacitor loop short and separate power return from controller signal return.",
+      "Tune turn-on and turn-off gate resistance independently where possible. A stronger driver is a controlled experiment, not automatic evidence of lower total loss: capture VGS, VDS, IDS, overshoot, ringing and EMI at each resistor value."
+    ]
+  },
+  "candidates": [
+    {
+      "id": "A",
+      "status": "conditional_plausible",
+      "mosfet": {
+        "mpn": "IMZA65R048M1H",
+        "manufacturer": "Infineon",
+        "technology": "650 V CoolSiC M1 trench SiC MOSFET",
+        "package": "PG-TO247-4 / TO-247-4 Kelvin source",
+        "vds_v": 650,
+        "vgs_operating_range_v": [-2, 20],
+        "recommended_vgs_on_v": 18,
+        "recommended_vgs_off_v": 0,
+        "rds_on_ohm": {
+          "25C_typ": 0.048,
+          "25C_max": 0.064,
+          "175C_typ": 0.067,
+          "100C": null,
+          "125C": null,
+          "hot_note": "Datasheet gives 175 C typical and a normalized RDS(on) curve (p. 9); 100/125 C values were not extracted as guaranteed numbers."
+        },
+        "gate_charge": {"qg_nc": 33, "qgd_nc": 8, "qgs_pl_nc": 9, "conditions": "400 V, 20.1 A pulsed, 0 to 18 V"},
+        "eoss": {"value_uj": 11.7, "condition": "400 V typical; curve required to map to 389.615 V"},
+        "internal_gate_resistance_ohm": 6.0,
+        "source": "Infineon IMZA65R048M1H Rev 2.2 (2025-01-20), pp. 1, 5-7, 9-11",
+        "source_url": "https://www.infineon.com/dgdl/Infineon-IMZA65R048M1H-DataSheet-v02_01-EN.pdf?fileId=5546d4626f229553016f85d9ac090535"
+      },
+      "driver": {
+        "mpn": "UCC27624DR",
+        "manufacturer": "Texas Instruments",
+        "package": "SOIC-8 (D)",
+        "vdd_operating_v": [4.5, 26],
+        "input_operating_v": [-10, 26],
+        "input_threshold_v_typ": {"high": 2.0, "low": 1.0, "hysteresis": 1.0},
+        "uvlo_v_typ": {"rising": 4.1, "falling": 3.8},
+        "enable": "active high; EN internal pull-up 200 kohm; hold low for fail-safe startup",
+        "polarity": "dual independent non-inverting channels; one channel used",
+        "peak_source_sink_a_typ": [5, 5],
+        "output_resistance_ohm_typ_max": {"pullup": [5.0, 8.5], "pulldown": [0.6, 1.1]},
+        "timing_typ_ns": {"rise": 6, "fall": 10, "propagation": 17},
+        "source": "TI UCC27624 Rev E, SLUSE44E (revised 2026-03), pp. 1, 4-8, 25-26",
+        "source_url": "https://www.ti.com/lit/ds/symlink/ucc27624.pdf"
+      },
+      "bias_and_gate_network": {
+        "required_driver_vdd_v": 18.0,
+        "existing_aux_15v_sufficient": false,
+        "required_change": "Add a regulated 18 V gate-driver bias rail (or a verified 18 V isolated bias source) and clamp/verify the IMZA gate below 20 V including ringing. UCC28180 GATE remains a 15 V-class logic signal into UCC27624 INA.",
+        "initial_gate_resistor_ohm": 6.8,
+        "gate_resistor_basis": "Infineon KIT_1EDB_AUX_SiC application note uses unipolar 18 V and 6.8 ohm on/off resistors for IMZA65R048M1H at 16 A; final value must be tuned on the actual loop.",
+        "input_resistor_ohm": 10.0,
+        "input_pulldown": "UCC27624 internal 120 kohm plus external 10 kohm at driver OUT/G"
+      },
+      "loss_screen_w": {
+        "method": "Pcond = I_switch_rms^2 * RDS(on); Pgate_network = Qg * Vdrive * fSW. Overlap and Eoss are not added without a matched curve/waveform.",
+        "conduction_25C_typ": {"108": 7.206834, "120": 6.807788, "132": 6.40881},
+        "conduction_25C_max": {"108": 9.609112, "120": 9.07705, "132": 8.54508},
+        "conduction_175C_typ_reference": {"108": 10.059539, "120": 9.502537, "132": 8.945631},
+        "conduction_100C": null,
+        "conduction_125C": null,
+        "gate_network_at_18V": 0.07669,
+        "eoss_at_389_615V": null,
+        "overlap_eon_eoff": null,
+        "driver_static_bias": "UCC27624 0.6-1.0 mA static at 12 V no-load; 18 V value and loaded gate current need measurement. Do not add full Qg*V*f again as controller quiescent loss."
+      },
+      "availability": {
+        "source": "Mouser IMZA65R048M1HXKSA1 alias (observed search result 2026-09-17)",
+        "stock_observed": 42,
+        "unit_price_usd_qty1_observed": 11.00,
+        "status": "indicative_cached_distributor_page; recheck live before BOM",
+        "url": "https://www.mouser.com/en/ProductDetail/Infineon-Technologies/IMZA65R048M1HXKSA1",
+        "driver_source": "DigiKey UCC27624DR observed 1038 in stock, $1.46 cut-tape; indicative cached result",
+        "driver_url": "https://www.digikey.com/en/products/detail/texas-instruments/UCC27624DR/15853950"
+      },
+      "qualification_blockers": [
+        "No 18 V bias producer is present in elec/src/power_entry_unit.ato; existing AUX_15V is not enough for the manufacturer's recommended 18 V turn-on.",
+        "Measure input high at UCC27624 INA over UCC28180 startup/UVLO/OVP and ensure no input overshoot beyond 26 V or negative transient below -10 V.",
+        "Double-pulse test at 389.6 V over measured instantaneous drain-current range at switching instants (including ripple and line-phase peak); do not use duty-weighted RMS moments as DPT setpoints. Gate sweep; hot RDS(on) at controlled 25/100/125 C fixture states; thermal and EMI capture.",
+        "Reject if regulated gate reaches >20 V at the IMZA source pin or if the Kelvin-source/power-source routing is not physically separated."
+      ]
+    },
+    {
+      "id": "B",
+      "status": "conditional_plausible",
+      "mosfet": {
+        "mpn": "NTH4L060N065SC1",
+        "manufacturer": "onsemi",
+        "technology": "650 V EliteSiC M2 SiC MOSFET",
+        "package": "TO-247-4LD Kelvin source",
+        "vds_v": 650,
+        "vgs_operating_range_v": [-5, 18],
+        "screen_vgs_v_testpoint": 15,
+        "screen_vgs_note": "15 V is the RDS(on) datasheet test point, not a manufacturer-recommended turn-on voltage; the specified operating range is -5 V to +18 V.",
+        "screen_vgs_off_v": 0,
+        "rds_on_ohm": {
+          "15V_25C_typ": 0.060,
+          "18V_25C_typ": 0.044,
+          "18V_25C_max": 0.070,
+          "18V_175C_typ": 0.050,
+          "100C": null,
+          "125C": null,
+          "hot_note": "Datasheet gives 18 V typ at 175 C; no guaranteed 100/125 C points were used."
+        },
+        "gate_charge": {"qg_nc": 74, "qgd_nc": 23, "qgs_nc": 20, "conditions": "520 V, 20 A, -5/18 V gate swing"},
+        "eoss": {"value_uj": null, "condition": "No directly matched Eoss point retained for 389.615 V"},
+        "switching_reference": {"eon_uj": 45, "eoff_uj": 18, "condition": "400 V, 20 A, -5/18 V, RG=2.2 ohm; source test point, not PFC loss"},
+        "internal_gate_resistance_ohm": 3.9,
+        "source": "onsemi NTH4L060N065SC1 Rev 3 (2023-01), pp. 1-2",
+        "source_url": "https://www.onsemi.com/download/data-sheet/pdf/nth4l060n065sc1-d.pdf"
+      },
+      "driver": {
+        "mpn": "UCC27524AD",
+        "manufacturer": "Texas Instruments",
+        "package": "SOIC-8 (D)",
+        "vdd_operating_v": [4.5, 18],
+        "input_operating_v": [-2, 18],
+        "input_abs_max_v": [-5, 20],
+        "input_threshold_v_typ": {"high": 2.1, "low": 1.2, "hysteresis": 0.9},
+        "uvlo_v_typ": {"rising": 4.2, "falling": 3.9},
+        "enable": "active high; EN internal pull-up 200 kohm; hold low for fail-safe startup",
+        "polarity": "dual independent non-inverting channels; one channel used",
+        "peak_source_sink_a_typ": [5, 5],
+        "output_resistance_ohm_typ_max": {"pullup": [5.0, 8.5], "pulldown": [0.6, 1.1]},
+        "timing_typ_ns": {"rise": 7, "fall": 6, "propagation": 17},
+        "source": "TI UCC27524A Rev C (2024-06), pp. 3-7, 14-15, 23-25",
+        "source_url": "https://www.ti.com/lit/ds/symlink/ucc27524a.pdf"
+      },
+      "bias_and_gate_network": {
+        "required_driver_vdd_v": 15.0,
+        "existing_aux_15v_sufficient": null,
+        "nominal_15v_compatible": true,
+        "required_change": "Add driver SOIC-8, VDD decoupling and a Kelvin-source TO-247-4 MOSFET footprint. Existing 15 V bias is within UCC27524A and NTH4L060N065SC1 specified VGS operating limits; prove AUX_15V regulation and gate overshoot.",
+        "initial_gate_resistor_ohm": 2.2,
+        "gate_resistor_basis": "onsemi datasheet switching reference uses RG=2.2 ohm at 400 V/20 A; final value must be tuned for this boost loop and EMI.",
+        "input_resistor_ohm": 10.0,
+        "input_pulldown": "UCC27524A input pulldown plus external 10 kohm at driver OUT/G"
+      },
+      "loss_screen_w": {
+        "method": "Pcond = I_switch_rms^2 * RDS(on); Pgate_network = Qg * Vdrive * fSW. Eon/Eoff source point is shown separately and is not combined with unknown PFC overlap/Eoss.",
+        "conduction_15V_25C_typ": {"108": 9.008542, "120": 8.509735, "132": 8.011013},
+        "conduction_18V_25C_typ": {"108": 6.606264, "120": 6.240472, "132": 5.874743},
+        "conduction_18V_25C_max": {"108": 10.509966, "120": 9.928024, "132": 9.346182},
+        "conduction_18V_175C_typ_reference": {"108": 7.507118, "120": 7.091446, "132": 6.675844},
+        "conduction_100C": null,
+        "conduction_125C": null,
+        "gate_network_at_15V": 0.143309,
+        "gate_network_at_18V": 0.171971,
+        "eoss_at_389_615V": null,
+        "source_point_eon_eoff_at_129107Hz": 8.133766,
+        "source_point_note": "8.133766 W = (45+18) uJ * 129107.39198577 Hz at the datasheet's 400 V/20 A test point; it is not a PFC loss estimate and must not be added to an independently measured Eon/Eoff or Eoss term."
+      },
+      "availability": {
+        "source": "DigiKey NTH4L060N065SC1 (observed search result 2026-09-17)",
+        "stock_observed": 447,
+        "unit_price_usd_qty1_observed": 12.83,
+        "status": "indicative_cached_distributor_page; recheck live before BOM",
+        "url": "https://www.digikey.com/en/products/detail/onsemi/NTH4L060N065SC1/16528523",
+        "driver_source": "DigiKey UCC27524AD observed 5212 in stock, $2.97 tube qty1; indicative cached result",
+        "driver_url": "https://www.digikey.com/en/products/detail/texas-instruments/UCC27524AD/4327804"
+      },
+      "qualification_blockers": [
+        "Existing controller GATE high must stay below UCC27524A input limits; characterize positive and negative transients rather than relying on nominal 15 V.",
+        "NTH4L060N065SC1 is 4-pin; using the existing TO-247-3 footprint or tying Kelvin and power source together loses the intended switching benefit and can increase gate bounce.",
+        "Double-pulse and PFC waveform tests must use measured instantaneous switching current (not the loss report's RMS moments) at controlled 25/100/125 C fixture states; verify gate-high voltage and the distinct Miller plateau at the proposed 15 V supply, RDS(on), drain overshoot and conducted/radiated EMI.",
+        "Reject if UCC27524A VDD drops below UVLO during AUX startup or if EN default-on can produce a gate pulse before controller GATE is proven low."
+      ]
+    }
+  ],
+  "reproduction": {
+    "rust_source": "zapote/power-entry/loss-budget/options/replacement-pair/reproduce.rs",
+    "command": "rustc reproduce.rs -o /tmp/replacement-pair-reproduce && /tmp/replacement-pair-reproduce",
+    "scope": "Reproduces only the reported I^2R and Qg*V*f arithmetic from retained switch-RMS inputs; it is not a second PFC solver.",
+    "input_report": "zapote/power-entry/loss-budget/evidence/correction-02/loss-report.json",
+    "input_report_sha256": "1c2f556023b8533c2d6b0c8455a19a7d082d923930686c24f067e856dfbd371f"
+  },
+  "source_hash_policy": {
+    "sha256": {
+      "zapote/power-entry/loss-budget/options/replacement-pair/sources/NTH4L060N065SC1-Rev3-2023-01.pdf": "e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4",
+      "zapote/power-entry/loss-budget/options/replacement-pair/sources/UCC27624-RevE.pdf": "b42590ddafb28a608aae30f5a2c333851cf11ded63daa03fbdef6df93ecb8a51",
+      "zapote/power-entry/loss-budget/options/replacement-pair/sources/UCC27524A-RevC.pdf": "29272e1d506b8755086380dad1481a7984f8bf0521be9fc2ae6e781866392def"
+    },
+    "missing": ["Infineon IMZA65R048M1H PDF: official host returned an empty body to curl; retain the parsed revision/page/URL and capture bytes from an alternate official mirror before freezing Pair A"],
+    "note": "Hashes are SHA-256 of the retained official PDF bytes. The Infineon source remains explicitly un-hashed because the official host returned zero bytes in this environment; no fabricated digest is used."
+  }
+}

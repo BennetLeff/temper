@@ -81,3 +81,5 @@ can represent an assembly. Then close switching-loop parasitics and
 startup/inrush/shutdown/bias timing, and define the auxiliary-supply contract.
 
 Latest correction and verification: [2026-09-17 closeout](CLOSEOUT-2026-09-17.md).
+
+Subsequent work: [model-assurance safeguards and three electrical options](options/RESULTS.md).

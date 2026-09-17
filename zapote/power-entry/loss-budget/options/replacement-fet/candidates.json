@@ -1,0 +1,326 @@
+{
+  "schema": "zapote.pfc.replacement_fet_research.v1",
+  "retrieved_date": "2026-09-17",
+  "status": "research_shortlist",
+  "baseline": {
+    "mpn": "STW65N65DM2AG",
+    "vds_v": 650,
+    "bus_v": 389.615,
+    "switching_frequency_hz": 129107.392,
+    "line_rms_v": 120,
+    "input_current_rms_a": 15,
+    "gate_network": {
+      "external_resistance_ohm": 10.0,
+      "intrinsic_resistance_ohm": 3.3,
+      "controller": "UCC28180D",
+      "supply": "AUX_15V_IN (actual gate high not measured)",
+      "source_peak_a": 1.5,
+      "sink_peak_a": 2.0
+    },
+    "eoss_event_uj": 16.835,
+    "eoss_loss_w": 2.174,
+    "duty_weighted_i2_a2": 141.82,
+    "mosfet_plus_gate_loss_w": 136.002,
+    "source": "../../PFC-SWITCHING-MODEL.md"
+  },
+  "common_conditions": {
+    "line_sweep_rms_v": [108, 120, 132],
+    "nominal_vds_to_bus_ratio": 1.668,
+    "current_ceiling_a_rms": 15,
+    "temperatures_c": [25, 100, 125],
+    "temperature_support": "candidate datasheets generally provide 25 C and a 100/125/150 C curve; unsupported rows remain null",
+    "required_output_comparison": "fixed-input sensitivity only until efficiency/output behavior is measured",
+    "switching_loss_model": "not an Eon/Eoff device model; Qgd and Eoss are screening inputs only",
+    "eoss_comparison_caution": "manufacturer Eoss points/curves have different conditions and are not scaled to 389.615 V as a claim",
+    "calculation_source": "calc.rs"
+  },
+  "sources": [
+    {
+      "id": "ifx_ipw65r045c7_ds",
+      "kind": "manufacturer_datasheet",
+      "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw65r045c7-datasheet-en.pdf",
+      "revision": "Rev. 2.1, 2013-04-30",
+      "pages": "1-2, 4-7, 10-11",
+      "retrieved": "2026-09-17",
+      "sha256": "7ef568434c6325a919ac38fdf998b60d71e8078cce1ed384e82ee09fdc40911a",
+      "hash_scope": "official PDF bytes downloaded 2026-09-17"
+    },
+    {
+      "id": "ifx_ipw65r041cfd7_ds",
+      "kind": "manufacturer_datasheet",
+      "url": "https://www.infineon.com/dgdl/Infineon-IPW65R041CFD7-DataSheet-v02_01-EN.pdf?fileId=5546d46272e49d2a01730951911c44eb",
+      "revision": "Rev. 2.1, 2020-08-12",
+      "pages": "1, 3-6, 9-10",
+      "retrieved": "2026-09-17",
+      "sha256": "414a154a79ad7560104db7ef1061bce3e93878b2417d1468695e20e383889fe3",
+      "hash_scope": "official PDF bytes downloaded 2026-09-17"
+    },
+    {
+      "id": "onsemi_nvhl040_ds",
+      "kind": "manufacturer_datasheet",
+      "url": "https://www.onsemi.com/download/data-sheet/pdf/nvhl040n65s3f-d.pdf",
+      "mirror_url": "https://datasheet.lcsc.com/datasheet/pdf/71791785a7e21df265c85fa396d90897.pdf?productCode=C604551",
+      "revision": "Rev. 1, July 2019",
+      "pages": "1-5, Eoss graph on page 5",
+      "retrieved": "2026-09-17",
+      "sha256": "98711c246a814ab3687be0805af93130ff01f7a2474af83fbabd513d5edd820b",
+      "hash_scope": "LCSC-hosted PDF bytes downloaded 2026-09-17; PDF text identifies onsemi NVHL040N65S3F, Rev. 1 July 2019; official URL retained above"
+    },
+    {
+      "id": "digikey_ipw65r041",
+      "kind": "distributor_purchase_page",
+      "url": "https://www.digikey.com/en/products/detail/infineon-technologies/IPW65R041CFD7XKSA1/13420849",
+      "retrieved": "2026-09-17",
+      "observed_page_age": "crawled 6 days ago",
+      "notes": "252 in stock, tube, $10.93 at quantity 1; recheck before purchase"
+    },
+    {
+      "id": "mouser_ipw65r041",
+      "kind": "distributor_purchase_page",
+      "url": "https://www.mouser.com/en/ProductDetail/Infineon-Technologies/IPW65R041CFD7XKSA1?qs=sPbYRqrBIVmSJmwjRw9xOw%3D%3D",
+      "retrieved": "2026-09-17",
+      "observed_page_age": "crawled last week",
+      "notes": "198 in stock, tube, $10.93 at quantity 1; recheck before purchase"
+    },
+    {
+      "id": "mouser_ipw65r045",
+      "kind": "distributor_purchase_page",
+      "url": "https://www.mouser.com/en/ProductDetail/Infineon-Technologies/IPW65R045C7?qs=INZo0DujJQxBq6p2Y8zjw%3D%3D",
+      "retrieved": "2026-09-17",
+      "observed_page_age": "crawled 3 weeks ago",
+      "notes": "519 in stock, tube, $12.55 at quantity 1; recheck before purchase"
+    },
+    {
+      "id": "digikey_nvhl040",
+      "kind": "distributor_purchase_page",
+      "url": "https://www.digikey.com/en/products/detail/onsemi/NVHL040N65S3F/9829252",
+      "retrieved": "2026-09-17",
+      "observed_page_age": "crawled last month",
+      "notes": "exact page URL resolved but live inventory count was not independently re-read; treat stock/price as unknown and recheck before purchase"
+    },
+    {
+      "id": "mouser_nvhl040",
+      "kind": "distributor_purchase_page",
+      "url": "https://www.mouser.com/ProductDetail/onsemi/NVHL040N65S3F?qs=l7cgNqFNU1ifgryjbO3bTQ%3D%3D",
+      "retrieved": "2026-09-17",
+      "observed_page_age": "crawled 4 months ago",
+      "notes": "711 in stock, tube, $15.53 at quantity 1; active/AEC-Q101; recheck before purchase"
+    },
+    {
+      "id": "digikey_nvh4l040",
+      "kind": "distributor_purchase_page",
+      "url": "https://www.digikey.com/en/products/detail/onsemi/NVH4L040N65S3F/13559892",
+      "retrieved": "2026-09-17",
+      "observed_page_age": "crawled last month",
+      "notes": "448 in stock, tube, $15.16 at quantity 1; TO-247-4L/Kelvin; recheck before purchase"
+    },
+    {
+      "id": "mouser_nvh4l040",
+      "kind": "distributor_purchase_page",
+      "url": "https://www.mouser.in/en/ProductDetail/onsemi/NVH4L040N65S3F?qs=DPoM0jnrROX6e3Jb3OwKYg%3D%3D",
+      "retrieved": "2026-09-17",
+      "observed_page_age": "crawled last month",
+      "notes": "12 in stock, tube; regional INR price; recheck before purchase"
+    },
+    {
+      "id": "ti_ucc28180_local",
+      "kind": "retained_controller_datasheet",
+      "url": "https://www.ti.com/lit/ds/symlink/ucc28180.pdf",
+      "revision": "Rev. D, 2016-07",
+      "pages": "7 and 26",
+      "retrieved": "retained repository source",
+      "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    },
+    {
+      "id": "st_baseline_ds",
+      "kind": "retained_baseline_manufacturer_datasheet",
+      "url": "https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf",
+      "revision": "DocID028164 Rev. 1, 2015-08",
+      "pages": "1, 4, 7 (retained Eoss Figure 12)",
+      "retrieved": "retained repository source",
+      "sha256": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322"
+    }
+  ],
+  "candidates": [
+    {
+      "rank": 1,
+      "mpn": "IPW65R045C7",
+      "stocked_order_code": "IPW65R045C7FKSA1",
+      "manufacturer": "Infineon Technologies",
+      "technology": "silicon CoolMOS C7 superjunction",
+      "package": "PG-TO247-3 / TO-247-3, tube",
+      "pinout": "gate pin 1, drain/tab pin 2, source pin 3; no Kelvin source",
+      "identity_source": "ifx_ipw65r045c7_ds",
+      "ratings": {
+        "vds_v": 650,
+        "continuous_id_a_tc25": 46,
+        "continuous_id_a_tc100": 29,
+        "rds_on_max_mohm_vgs10_id24_9a_tc25": 45,
+        "rds_on_typ_mohm_vgs10_id24_9a_tc25": 40,
+        "rds_on_typ_mohm_vgs10_id24_9_9a_tc150": 96,
+        "tj_max_c": 150
+      },
+      "gate_and_switching": {
+        "qg_typ_nc": 93,
+        "qgd_typ_nc": 30,
+        "qgs_typ_nc": 23,
+        "vplateau_typ_v": 5.4,
+        "eoss_uj_at_400v": 11.7,
+        "eoss_uj_at_operating_v": null,
+        "internal_rg_ohm": 0.85,
+        "actual_eon_eoff": null,
+        "test_condition": "400 V, 24.9 A, VGS 0-to-10 V; gate timing test uses VGS=13 V and RG=3.3 ohm"
+      },
+      "common_screen_sensitivity": {
+        "eoss_400v_times_common_fsw_w": 1.5106,
+        "conduction_w_using_150c_typical": 13.615,
+        "conditional_miller_on_ns": 70.761,
+        "conditional_miller_off_ns": 60.278,
+        "overlap_w": null,
+        "gate_network_w": null,
+        "interpretation": "directional sensitivity only; do not sum with measured Eon/Eoff"
+      },
+      "driver_compatibility": {
+        "existing_ucc28180": "electrically plausible at a measured 10 V gate bias; actual AUX_15V_IN gate high is unvalidated",
+        "peak_source_sink_a": "1.5 / 2.0 controller ratings are not an output I-V curve",
+        "required_gate_test": "capture gate-high, plateau, turn-off and undershoot"
+      },
+      "procurement": {
+        "digikey": "unknown; exact current purchase page not resolved (do not copy the CFD7 page count)",
+        "mouser": "observed 519 in stock, tube, $12.55 each (page crawled 3 weeks before retrieval)",
+        "availability_confidence": "indicative cached distributor pages; recheck live"
+      },
+      "limitations": ["Eoss operating-point value is null; 400 V point is not 389.615 V", "hot RDS is typical curve point, not guaranteed maximum", "no Kelvin source and no measured Eon/Eoff", "mechanical fit still needs land-pattern and heatsink verification"]
+    },
+    {
+      "rank": 2,
+      "mpn": "IPW65R041CFD7",
+      "stocked_order_code": "IPW65R041CFD7XKSA1",
+      "manufacturer": "Infineon Technologies",
+      "technology": "silicon CoolMOS CFD7 superjunction with fast body diode",
+      "package": "PG-TO247-3 / TO-247-3, tube",
+      "pinout": "gate pin 1, drain pin 2, source pin 3; no Kelvin source",
+      "identity_source": "ifx_ipw65r041cfd7_ds",
+      "ratings": {
+        "vds_v": 650,
+        "continuous_id_a_tc25": 50,
+        "continuous_id_a_tc100": 32,
+        "rds_on_max_mohm_vgs10_id24_8a_tc25": 41,
+        "rds_on_typ_mohm_vgs10_id24_8a_tc25": 34,
+        "rds_on_typ_mohm_vgs10_id24_8a_tc150": 76,
+        "tj_max_c": 150
+      },
+      "gate_and_switching": {
+        "qg_typ_nc": 102,
+        "qgd_typ_nc": 31,
+        "qgs_typ_nc": 28,
+        "vplateau_typ_v": 5.7,
+        "eoss_uj_at_400v": 14.0,
+        "eoss_uj_at_operating_v": null,
+        "internal_rg_ohm": 3.8,
+        "actual_eon_eoff": null,
+        "test_condition": "400 V, 24.8 A, VGS 0-to-10 V; gate timing test uses VGS=13 V and RG=3.3 ohm"
+      },
+      "common_screen_sensitivity": {
+        "eoss_400v_times_common_fsw_w": 1.8075,
+        "conduction_w_using_150c_typical": 10.778,
+        "conditional_miller_on_ns": 99.488,
+        "conditional_miller_off_ns": 75.053,
+        "overlap_w": null,
+        "gate_network_w": null,
+        "interpretation": "directional sensitivity only; CFD7 headline topology language is not a hard-PFC Eon/Eoff claim"
+      },
+      "driver_compatibility": {
+        "existing_ucc28180": "electrically plausible at a measured 10 V gate bias; actual AUX_15V_IN gate high is unvalidated",
+        "peak_source_sink_a": "1.5 / 2.0 controller ratings are not an output I-V curve",
+        "required_gate_test": "capture gate-high, plateau, turn-off and undershoot"
+      },
+      "procurement": {
+        "digikey": "observed 252 in stock, tube, $10.93 each (page crawled 6 days before retrieval)",
+        "mouser": "observed 198 in stock, tube, $10.93 each (page crawled last week)",
+        "availability_confidence": "indicative cached distributor pages; recheck live"
+      },
+      "limitations": ["Eoss operating-point value is null; 400 V point is not 389.615 V", "hot RDS is typical curve point, not guaranteed maximum", "no Kelvin source and no measured Eon/Eoff", "CFD7 published application emphasis is resonant/ZVS, not proof of CCM-PFC switching loss"]
+    },
+    {
+      "rank": 3,
+      "mpn": "NVHL040N65S3F",
+      "stocked_order_code": "NVHL040N65S3F",
+      "manufacturer": "onsemi",
+      "technology": "silicon SuperFET III FRFET superjunction, AEC-Q101",
+      "package": "TO-247-3, tube",
+      "pinout": "three-lead TO-247; verify exact vendor land-pattern drawing before release",
+      "identity_source": "onsemi_nvhl040_ds",
+      "ratings": {
+        "vds_v": 650,
+        "continuous_id_a_tc25": 65,
+        "rds_on_max_mohm_vgs10_id32_5a_tc25": 40,
+        "rds_on_typ_mohm_vgs10_id32_5a_tc25": 33.8,
+        "rds_on_hot": null,
+        "tj_max_c": 150
+      },
+      "gate_and_switching": {
+        "qg_typ_nc": 153,
+        "qgd_typ_nc": 61,
+        "qgs_typ_nc": 51,
+        "vplateau_typ_v": null,
+        "eoss_uj_at_400v": null,
+        "eoss_uj_at_operating_v": null,
+        "internal_rg_ohm": null,
+        "actual_eon_eoff": null,
+        "test_condition": "400 V, 32.5 A, VGS=10 V, datasheet Eoss graph only"
+      },
+      "common_screen_sensitivity": {
+        "eoss_400v_times_common_fsw_w": null,
+        "conduction_w_using_25c_max": 5.673,
+        "conditional_miller_on_ns": null,
+        "conditional_miller_off_ns": null,
+        "overlap_w": null,
+        "gate_network_w": null,
+        "interpretation": "stocked fallback; Qg/Qgd are materially higher than both Infineon candidates"
+      },
+      "driver_compatibility": {
+        "existing_ucc28180": "same 10 V data-sheet drive class, but larger charge increases required gate current/time; AUX_15V_IN waveform unvalidated",
+        "peak_source_sink_a": "1.5 / 2.0 controller ratings are not an output I-V curve",
+        "required_gate_test": "capture plateau duration and VDS/ID overlap before ranking"
+      },
+      "procurement": {
+        "digikey": "observed 412 in stock, tube, $16.76 each (page crawled about one month before retrieval)",
+        "mouser": "observed 711 in stock, tube, $15.53 each (page crawled about four months before retrieval)",
+        "availability_confidence": "indicative cached distributor pages; recheck live"
+      },
+      "limitations": ["Eoss numeric term is null because manufacturer provides only a graph in retained source", "hot RDS is null", "Qgd/Qg imply a potentially larger overlap sensitivity", "no Kelvin source and no measured Eon/Eoff"]
+    },
+    {
+      "rank": null,
+      "mpn": "NVH4L040N65S3F",
+      "manufacturer": "onsemi",
+      "technology": "silicon SuperFET III FRFET superjunction, AEC-Q101",
+      "package": "TO-247-4L Kelvin source, tube",
+      "pinout": "four-lead package with Kelvin source; not the existing three-lead footprint",
+      "ratings": {"vds_v": 650, "continuous_id_a_tc25": 65, "rds_on_max_mohm_vgs10_id32_5a_tc25": 40, "tj_max_c": 150},
+      "gate_and_switching": {"qg_typ_nc": 160, "qgd_typ_nc": null, "eoss_uj_at_400v": null, "actual_eon_eoff": null},
+      "procurement": {"digikey": "observed 448 in stock, tube, $15.16 (page crawled about one month before retrieval)", "mouser": "observed 12 in stock, tube (regional page; page crawled about one month before retrieval)"},
+      "status": "conditional_layout_option_only",
+      "limitations": ["requires new footprint and gate/source routing review", "Eoss numeric term null", "higher Qg than Infineon shortlist", "not a drop-in replacement"]
+    },
+    {
+      "rank": null,
+      "mpn": "IMW65R048M1H",
+      "manufacturer": "Infineon Technologies",
+      "technology": "650 V CoolSiC M1 trench MOSFET",
+      "package": "PG-TO247-3, tube",
+      "ratings": {"vds_v": 650, "continuous_id_a_tc25": 40, "continuous_id_a_tc100": 28, "rds_on_typ_mohm_vgs18_id20_1a_tc25": 48, "tj_max_c": 175},
+      "gate_and_switching": {"qg_typ_nc": 33, "qgd_typ_nc": 8, "eoss_uj_at_400v": 11.7, "actual_eon_eoff": null, "test_condition": "400 V, 20.1 A, VGS 0-to-18 V; recommended VGS(on)=18 V"},
+      "procurement": {"digikey": "observed 554 in stock, tube, $8.94 (page crawled about eight months before retrieval); recheck live"},
+      "status": "excluded_from_direct_shortlist",
+      "limitations": ["manufacturer recommends 18 V turn-on and 0 V turn-off; existing AUX_15V_IN and UCC28180 gate high are not validated to satisfy this", "continuous current is only 40 A at 25 C and 28 A at 100 C", "SiC is not automatically a drop-in or lower-loss result under this gate drive"]
+    }
+  ],
+  "disjoint_loss_terms": {
+    "modeled_or_sensitized": ["duty-weighted RDS(on) conduction", "Eoss once per cycle pair as a separate term", "gate-network energy as separate term", "linear overlap sensitivity using assumed transfer charge"],
+    "unmodeled_or_null": ["measured Eon", "measured Eoff", "diode reverse-commutation loss", "ringing/overshoot", "actual UCC28180 output I-V waveform", "electrothermal junction/case solution", "candidate hot RDS maximum where not specified"]
+  },
+  "next_tests": ["capture actual UCC28180 VGS/VDS/ID waveform on incumbent", "measure candidate Eon/Eoff at 108/120/132 V and 25/100/125 C", "replace null Eoss/hot-RDS terms only with source-backed data", "verify TO-247 land pattern and heatsink isolation before board change"],
+  "limitations": ["distributor inventory is point-in-time and several pages were cached weeks/months before retrieval", "datasheet Eoss and Qg values are typical and test-condition specific", "no candidate is production-approved", "no PCB or hardware change was made"]
+}

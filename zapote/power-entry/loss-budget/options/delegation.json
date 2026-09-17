@@ -1,0 +1,38 @@
+{
+  "schema": "zapote.delegation-record.v1",
+  "created_at": "2026-09-17T16:34:22.818080+00:00",
+  "base_commit": "80ae56830d9cc679b280736fde62461573bcafdd",
+  "requested_model": "gpt-5.6-luna",
+  "mechanism": "native collaboration.spawn_agent",
+  "memory_context": {
+    "zapote/AGENTS.md": "e8471cf401d539e8f068f049533b5553cbf4e666c532c2e4865bb7a541cae10f",
+    "zapote/power-entry/loss-budget/SWITCHING-REVIEW-LESSONS.md": "51c7487bbb789f9b8a4331aead8f6d29e8dd72e5c6c2c520f5407db11db3f630",
+    "zapote/power-entry/loss-budget/PFC-SWITCHING-MODEL.md": "7e42904e425067382169d117ef7f6805011e7d35bb908ed30b260ebf61c12ec5",
+    "zapote/power-entry/loss-budget/EOSS-REV1-REBIND.md": "5e62e20669be97468336969006212f8c4b03e97c5c8d7deb5e188fe0fb3b837b"
+  },
+  "memory_scope": "Worker packets directed reading applicable notes. This record is not a frozen memory catalog, a full outbound prompt receipt or proof of worker use.",
+  "workers": [
+    {
+      "agent": "/root/pfc_harness_guards",
+      "worktree": "/private/tmp/zapote-pfc-next-harness",
+      "owned_output": "Rust assurance integration plus options/harness"
+    },
+    {
+      "agent": "/root/pfc_existing_drive",
+      "worktree": "/private/tmp/zapote-pfc-next-existing-drive",
+      "owned_output": "options/existing-drive"
+    },
+    {
+      "agent": "/root/pfc_replacement_fet",
+      "worktree": "/private/tmp/zapote-pfc-next-replacement-fet",
+      "owned_output": "options/replacement-fet"
+    },
+    {
+      "agent": "/root/pfc_replacement_pair",
+      "worktree": "/private/tmp/zapote-pfc-next-replacement-pair",
+      "owned_output": "options/replacement-pair"
+    }
+  ],
+  "comparison_contract": "README.md",
+  "integration_authority": "coordinator; worker completion is not acceptance"
+}

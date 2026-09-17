@@ -141,6 +141,7 @@ fn switching_scenarios(bus_v: f64, switching_hz: f64) -> Result<Vec<SwitchingSce
                         gate_bias_v,
                         temperature_c,
                         rds_on_ohm,
+                        current_transfer_charge_c,
                         simulation,
                     });
                 }
@@ -150,10 +151,147 @@ fn switching_scenarios(bus_v: f64, switching_hz: f64) -> Result<Vec<SwitchingSce
     Ok(scenarios)
 }
 
+fn verify_switching_scenario_binding(
+    scenario: &SwitchingScenario,
+    expected_bus_v: f64,
+    expected_switching_hz: f64,
+) -> Result<(), String> {
+    let inputs = scenario.simulation.inputs;
+    let close = |label: &str, actual: f64, expected: f64| {
+        if !actual.is_finite() || !expected.is_finite() {
+            Err(format!("{label} is non-finite: {actual} vs {expected}"))
+        } else if (actual - expected).abs() > expected.abs().max(1e-12) * 1e-9 {
+            Err(format!("{label} differs: {actual} vs {expected}"))
+        } else {
+            Ok(())
+        }
+    };
+    close("bus voltage", inputs.bus_v, expected_bus_v)?;
+    close(
+        "switching frequency",
+        inputs.switching_hz,
+        expected_switching_hz,
+    )?;
+    close("Qg", inputs.qg_c, BOOST_QG_TYP_C)?;
+    close("Qgd", inputs.qgd_c, BOOST_QGD_TYP_C)?;
+    close("gate plateau", inputs.gate_plateau_v, 6.2)?;
+    close(
+        "external gate resistance",
+        inputs.external_gate_r_ohm,
+        BOOST_GATE_R_EXTERNAL_OHM,
+    )?;
+    close(
+        "intrinsic gate resistance",
+        inputs.intrinsic_gate_r_ohm,
+        BOOST_GATE_R_INTRINSIC_OHM,
+    )?;
+    close("driver source limit", inputs.driver_source_peak_a, 1.5)?;
+    close("driver sink limit", inputs.driver_sink_peak_a, 2.0)?;
+    close("loop inductance", inputs.loop_inductance_h, 10e-9)?;
+    close("integration timestep", inputs.timestep_s, 0.25e-9)?;
+    close(
+        "Eoss source curve",
+        inputs.coss_energy_j,
+        loss::eoss_from_curve(&BOOST_EOSS_CURVE_J, expected_bus_v)?,
+    )?;
+    let moments = loss::moments(Config {
+        line_rms_v: scenario.line_rms_v,
+        input_rms_limit_a: 15.0,
+        bus_v: expected_bus_v,
+        inductance_h: 180e-6,
+        switching_hz: expected_switching_hz,
+        phase_samples: 1024,
+    })?;
+    if scenario.simulation.model_version != "clamped-inductive-linear-v2" {
+        return Err("unexpected switching model version".into());
+    }
+    if !scenario.simulation.quadrature_checked {
+        return Err("switching quadrature was not checked".into());
+    }
+    if ![9.0, 10.0, 11.0].contains(&scenario.gate_bias_v)
+        || ![5e-9, 10e-9, 20e-9].contains(&scenario.current_transfer_charge_c)
+        || ![25.0, 125.0].contains(&scenario.temperature_c)
+    {
+        return Err("switching sensitivity metadata is outside the authored grid".into());
+    }
+    let expected_rds = if scenario.temperature_c == 25.0 {
+        0.050
+    } else {
+        0.100
+    };
+    close(
+        "gate bias metadata",
+        inputs.gate_bias_v,
+        scenario.gate_bias_v,
+    )?;
+    close(
+        "scenario Rds metadata",
+        scenario.rds_on_ohm,
+        inputs.rds_on_ohm,
+    )?;
+    close("Rds metadata", inputs.rds_on_ohm, expected_rds)?;
+    close(
+        "transfer-charge metadata",
+        inputs.current_transfer_charge_c,
+        scenario.current_transfer_charge_c,
+    )?;
+    close("switch RMS", inputs.switch_rms_a, moments.switch_rms_a)?;
+    close(
+        "turn-on current",
+        inputs.turn_on_current_a,
+        moments.mean_turn_on_a,
+    )?;
+    close(
+        "turn-off current",
+        inputs.turn_off_current_a,
+        moments.mean_turn_off_a,
+    )?;
+    close(
+        "conduction",
+        scenario.simulation.conduction_loss_w,
+        inputs.switch_rms_a.powi(2) * inputs.rds_on_ohm,
+    )?;
+    close(
+        "overlap",
+        scenario.simulation.overlap_loss_w,
+        (scenario.simulation.turn_on.overlap_energy_j
+            + scenario.simulation.turn_off.overlap_energy_j)
+            * inputs.switching_hz,
+    )?;
+    close(
+        "Eoss",
+        scenario.simulation.output_capacitance_loss_w,
+        inputs.coss_energy_j * inputs.switching_hz,
+    )?;
+    close(
+        "switching subtotal",
+        scenario.simulation.switching_loss_w,
+        scenario.simulation.overlap_loss_w + scenario.simulation.output_capacitance_loss_w,
+    )?;
+    close(
+        "MOSFET subtotal",
+        scenario.simulation.modeled_mosfet_loss_w,
+        scenario.simulation.switching_loss_w + scenario.simulation.conduction_loss_w,
+    )?;
+    close(
+        "gate network",
+        scenario.simulation.gate_charge_loss_w,
+        inputs.qg_c * inputs.gate_bias_v * inputs.switching_hz,
+    )?;
+    close(
+        "total",
+        scenario.simulation.mosfet_plus_gate_loss_w,
+        scenario.simulation.modeled_mosfet_loss_w + scenario.simulation.gate_charge_loss_w,
+    )
+}
+
 fn document_hashes(documents: &[(&str, &[u8], &str)]) -> Result<BTreeMap<String, String>, String> {
     documents
         .iter()
         .map(|(name, bytes, expected)| {
+            if !bytes.starts_with(b"%PDF-") {
+                return Err(format!("retained source is not a PDF: {name}"));
+            }
             let actual = crate::runner::digest(bytes);
             if actual != *expected {
                 return Err(format!("unreviewed loss source bytes: {name}"));
@@ -217,12 +355,13 @@ pub struct BoostSwitchBound {
     pub transition_energy_needs_waveforms: bool,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct SwitchingScenario {
     pub line_rms_v: f64,
     pub gate_bias_v: f64,
     pub temperature_c: f64,
     pub rds_on_ohm: f64,
+    pub current_transfer_charge_c: f64,
     pub simulation: pfc_switching::Result,
 }
 
@@ -238,6 +377,193 @@ pub struct Report {
     pub cooling_margin_w: Option<f64>,
     pub prior_electronics_allowance_w: f64,
     pub assumptions: Vec<String>,
+    pub assurance: crate::model_assurance::ModelAssuranceReport,
+}
+
+const TRIANGLE_ANCHOR_SHA256: &str =
+    "a59dafc68342b497615a6a94eb806e4721b43fb9cb9f8feb62b4b2a90e289a70";
+
+fn triangle_anchor_energy() -> Result<f64, String> {
+    let bytes =
+        include_bytes!("../../../power-entry/loss-budget/options/harness/triangle-anchor.json");
+    if crate::runner::digest(bytes) != TRIANGLE_ANCHOR_SHA256 {
+        return Err("independent triangle anchor fixture hash mismatch".into());
+    }
+    let value: serde_json::Value = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
+    if value["schema"] != "zapote.pfc.triangle-anchor.v1"
+        || value["bus_v"] != 400.0
+        || value["current_a"] != 10.0
+        || value["current_transfer_ns"] != 20.0
+        || value["miller_ns"] != 30.0
+    {
+        return Err("independent triangle anchor fixture inputs changed".into());
+    }
+    value["expected_energy_j"]
+        .as_f64()
+        .filter(|v| (*v - 0.0001).abs() < 1e-12)
+        .ok_or_else(|| "independent triangle anchor expected energy changed".into())
+}
+
+fn assurance_input(
+    source_sha256: &str,
+    case: &Case,
+    scenario: &SwitchingScenario,
+    unknowns: &[String],
+    reference_expected_j: f64,
+    reference_observed_j: f64,
+) -> crate::model_assurance::AssuranceInput {
+    use crate::model_assurance::{
+        AssuranceInput, EvidenceKind, EvidenceRef, IndependentReference, LossTerm, Quantity,
+        TermClass, Unit, UnknownTerm,
+    };
+    let conditions = vec![
+        format!("line {:.3} Vrms", case.config.line_rms_v),
+        format!("input {:.3} Arms", case.config.input_rms_limit_a),
+        format!(
+            "bus {:.3} V, {:.3} Hz",
+            case.config.bus_v, case.config.switching_hz
+        ),
+        format!(
+            "gate bias {:.3} V, Rds {:.3} ohm",
+            scenario.gate_bias_v, scenario.rds_on_ohm
+        ),
+    ];
+    let source = |name: &str,
+                  kind: EvidenceKind,
+                  value: f64,
+                  unit: Unit,
+                  unknowns: Vec<String>|
+     -> Quantity {
+        Quantity {
+            value,
+            unit,
+            source: name.into(),
+            evidence_kind: kind,
+            test_conditions: conditions.clone(),
+            applicability: "PFC loss sensitivity only".into(),
+            unknowns,
+        }
+    };
+    let anchor_conditions = vec!["400 V, 10 A, 20 ns current transfer, 30 ns Miller".into()];
+    let reference = reference_expected_j;
+    AssuranceInput {
+        source_provenance: EvidenceRef {
+            source: "source-manifest".into(),
+            sha256: Some(source_sha256.into()),
+            kind: EvidenceKind::Derived,
+            test_conditions: conditions.clone(),
+            applicability: "authored PFC source identity".into(),
+            stale: false,
+        },
+        nominal_line_rms: source(
+            "source Config.line_rms_v",
+            EvidenceKind::Derived,
+            case.config.line_rms_v,
+            Unit::Volt,
+            Vec::new(),
+        ),
+        nominal_current_rms: source(
+            "source Config.input_rms_limit_a",
+            EvidenceKind::Derived,
+            case.config.input_rms_limit_a,
+            Unit::Amp,
+            Vec::new(),
+        ),
+        gate_drive: source(
+            "assumed gate bias",
+            EvidenceKind::Assumption,
+            scenario.gate_bias_v,
+            Unit::Volt,
+            vec!["actual gate waveform not captured".into()],
+        ),
+        terms: vec![
+            LossTerm {
+                name: "switching_overlap".into(),
+                class: TermClass::SwitchingOverlap,
+                value: source(
+                    "pfc_switching.Result.overlap_loss_w",
+                    EvidenceKind::Derived,
+                    scenario.simulation.overlap_loss_w,
+                    Unit::Watt,
+                    vec!["Eoss excluded".into()],
+                ),
+                disjoint_key: "mosfet.switching.overlap".into(),
+            },
+            LossTerm {
+                name: "output_capacitance".into(),
+                class: TermClass::OutputCapacitance,
+                value: source(
+                    "pfc_switching.Result.output_capacitance_loss_w",
+                    EvidenceKind::Datasheet,
+                    scenario.simulation.output_capacitance_loss_w,
+                    Unit::Watt,
+                    vec!["Eoss included once".into()],
+                ),
+                disjoint_key: "mosfet.switching.eoss".into(),
+            },
+            LossTerm {
+                name: "conduction".into(),
+                class: TermClass::Conduction,
+                value: source(
+                    "pfc_switching.Result.conduction_loss_w",
+                    EvidenceKind::Assumption,
+                    scenario.simulation.conduction_loss_w,
+                    Unit::Watt,
+                    vec!["hot Rds sensitivity, not a bound".into()],
+                ),
+                disjoint_key: "mosfet.conduction".into(),
+            },
+            LossTerm {
+                name: "gate_network".into(),
+                class: TermClass::GateNetwork,
+                value: source(
+                    "pfc_switching.Result.gate_charge_loss_w",
+                    EvidenceKind::Assumption,
+                    scenario.simulation.gate_charge_loss_w,
+                    Unit::Watt,
+                    vec!["driver output and gate waveform unresolved".into()],
+                ),
+                disjoint_key: "gate.network".into(),
+            },
+        ],
+        unknowns: unknowns
+            .iter()
+            .map(|text| UnknownTerm {
+                name: text.split(':').next().unwrap_or(text).into(),
+                reason: text.clone(),
+                may_change_outcome: true,
+            })
+            .collect(),
+        independent_reference: Some(IndependentReference {
+            evidence: EvidenceRef {
+                source: "power-entry/loss-budget/options/harness/triangle-anchor.json".into(),
+                sha256: Some(TRIANGLE_ANCHOR_SHA256.into()),
+                kind: EvidenceKind::IndependentReference,
+                test_conditions: vec!["400 V, 10 A, 20 ns current transfer, 30 ns Miller".into()],
+                applicability: "clamped-inductive triangle-area reference".into(),
+                stale: false,
+            },
+            reference: Quantity {
+                value: reference,
+                unit: Unit::Joule,
+                source: "triangle-anchor.json".into(),
+                evidence_kind: EvidenceKind::IndependentReference,
+                test_conditions: anchor_conditions.clone(),
+                applicability: "clamped-inductive triangle-area reference".into(),
+                unknowns: Vec::new(),
+            },
+            observed: Quantity {
+                value: reference_observed_j,
+                unit: Unit::Joule,
+                source: "pfc_switching fixed-fixture quadrature".into(),
+                evidence_kind: EvidenceKind::Derived,
+                test_conditions: anchor_conditions,
+                applicability: "fixed anchor replay".into(),
+                unknowns: Vec::new(),
+            },
+            tolerance: reference.abs().max(1e-12) * 1e-9,
+        }),
+    }
 }
 
 fn case(config: Config, copper_c: f64) -> Result<Case, String> {
@@ -326,6 +652,9 @@ pub fn run(source: &str) -> Result<Report, String> {
     // first-order sensitivity only; it does not replace a measured waveform.
     let (eoss_at_bus_j, output_capacitance_w) = selected_eoss_w(bus_v, switching_hz)?;
     let scenarios = switching_scenarios(bus_v, switching_hz)?;
+    for scenario in &scenarios {
+        verify_switching_scenario_binding(scenario, bus_v, switching_hz)?;
+    }
     // Ranges over the selected assumptions, never guaranteed device bounds.
     let gate_edge_ns_min = scenarios
         .iter()
@@ -372,7 +701,7 @@ pub fn run(source: &str) -> Result<Report, String> {
         gate_edge_ns_max,
         gate_overlap_w_min,
         gate_overlap_w_max,
-        switching_scenarios: scenarios,
+        switching_scenarios: scenarios.clone(),
         transition_energy_needs_waveforms: true,
     };
     let mut cases = Vec::new();
@@ -399,8 +728,58 @@ pub fn run(source: &str) -> Result<Report, String> {
         Finding::indeterminate(RULES[1], missing.join("; "), "power-entry"),
         Finding::indeterminate(RULES[2], "Total loss unknown; 105 W is a prior allowance, not verified cooling capacity. Installed airflow, thermal interfaces and board boundary remain unbound", "power-entry"),
     ];
+    let nominal_case = cases
+        .iter()
+        .find(|c| {
+            c.config.line_rms_v == 120.0
+                && c.config.inductance_h == 180e-6
+                && c.assumed_copper_c == 20.0
+        })
+        .ok_or_else(|| "nominal PFC loss case missing".to_owned())?;
+    let nominal_scenario = scenarios
+        .iter()
+        .find(|s| {
+            s.line_rms_v == 120.0
+                && s.gate_bias_v == 10.0
+                && s.temperature_c == 25.0
+                && s.rds_on_ohm == 0.05
+                && s.current_transfer_charge_c == 10e-9
+        })
+        .ok_or_else(|| "nominal PFC switching scenario missing".to_owned())?;
+    let reference_expected_j = triangle_anchor_energy()?;
+    let reference_fixture = pfc_switching::simulate(pfc_switching::Config {
+        bus_v: 400.0,
+        switching_hz: 100_000.0,
+        turn_on_current_a: 10.0,
+        turn_off_current_a: 10.0,
+        switch_rms_a: 10.0,
+        gate_bias_v: 10.0,
+        qg_c: 120e-9,
+        qgd_c: 30e-9,
+        current_transfer_charge_c: 20e-9,
+        gate_plateau_v: 6.2,
+        external_gate_r_ohm: 0.5,
+        intrinsic_gate_r_ohm: 3.3,
+        driver_source_peak_a: 1.0,
+        driver_sink_peak_a: 1.0,
+        coss_energy_j: 0.0,
+        loop_inductance_h: 0.0,
+        rds_on_ohm: 0.0,
+        timestep_s: 0.25e-9,
+    })?;
+    let assurance = crate::model_assurance::assess(&assurance_input(
+        &crate::runner::digest(source.as_bytes()),
+        nominal_case,
+        nominal_scenario,
+        &missing,
+        reference_expected_j,
+        reference_fixture.turn_on.overlap_energy_j,
+    ));
+    let base_checks =
+        CheckReport::from_findings(findings, RULES.map(str::to_owned).to_vec(), missing.clone());
+    let checks = crate::runner::combine(&[&base_checks, &assurance.checks]);
     Ok(Report {
-        checks: CheckReport::from_findings(findings, RULES.map(str::to_owned).to_vec(), missing.clone()),
+        checks,
         source_sha256: crate::runner::digest(source.as_bytes()),
         documents_sha256,
         missing_terms: missing,
@@ -421,6 +800,7 @@ pub fn run(source: &str) -> Result<Report, String> {
             "No equal sharing of SiC anodes or capacitor-bank ripple assumed; no individual package thermal verdict".into(),
             "Prior 60C sink target is not proof of 60C remote PCB boundary".into(),
         ],
+        assurance,
     })
 }
 
@@ -523,6 +903,107 @@ mod tests {
                     < 1e-12
             );
         }
+    }
+
+    #[test]
+    fn production_switching_adapter_rejects_rms_and_term_mutations() {
+        let report = run(SOURCE).unwrap();
+        let original = report
+            .boost_switch_bound
+            .switching_scenarios
+            .iter()
+            .find(|s| {
+                s.line_rms_v == 120.0
+                    && s.gate_bias_v == 10.0
+                    && s.current_transfer_charge_c == 10e-9
+            })
+            .unwrap();
+        let expected_bus = report.boost_switch_bound.bus_v;
+        let expected_frequency = report.boost_switch_bound.switching_hz;
+        assert!(
+            verify_switching_scenario_binding(original, expected_bus, expected_frequency).is_ok()
+        );
+        let mut wrong_rms = original.clone();
+        wrong_rms.simulation.inputs.switch_rms_a = wrong_rms.simulation.inputs.turn_on_current_a;
+        assert!(
+            verify_switching_scenario_binding(&wrong_rms, expected_bus, expected_frequency)
+                .is_err()
+        );
+        let mut double_counted = original.clone();
+        double_counted.simulation.overlap_loss_w +=
+            double_counted.simulation.output_capacitance_loss_w;
+        assert!(verify_switching_scenario_binding(
+            &double_counted,
+            expected_bus,
+            expected_frequency
+        )
+        .is_err());
+        let mut nan_result = original.clone();
+        nan_result.simulation.overlap_loss_w = f64::NAN;
+        assert!(
+            verify_switching_scenario_binding(&nan_result, expected_bus, expected_frequency)
+                .is_err()
+        );
+        let mut nan_non_nominal = report
+            .boost_switch_bound
+            .switching_scenarios
+            .iter()
+            .find(|s| s.line_rms_v == 108.0 && s.current_transfer_charge_c == 20e-9)
+            .unwrap()
+            .clone();
+        nan_non_nominal.simulation.inputs.switch_rms_a = f64::NAN;
+        assert!(verify_switching_scenario_binding(
+            &nan_non_nominal,
+            expected_bus,
+            expected_frequency
+        )
+        .is_err());
+        let mut wrong_metadata = original.clone();
+        wrong_metadata.gate_bias_v = 8.0;
+        assert!(verify_switching_scenario_binding(
+            &wrong_metadata,
+            expected_bus,
+            expected_frequency
+        )
+        .is_err());
+        for mutate in ["bus", "frequency", "qgd"] {
+            let mut self_consistent = original.clone();
+            let mut cfg = self_consistent.simulation.inputs;
+            match mutate {
+                "bus" => cfg.bus_v += 1.0,
+                "frequency" => cfg.switching_hz += 100.0,
+                "qgd" => cfg.qgd_c += 1e-9,
+                _ => unreachable!(),
+            }
+            self_consistent.simulation = pfc_switching::simulate(cfg).unwrap();
+            assert!(
+                verify_switching_scenario_binding(
+                    &self_consistent,
+                    expected_bus,
+                    expected_frequency
+                )
+                .is_err(),
+                "{mutate}"
+            );
+        }
+    }
+
+    #[test]
+    fn production_report_exposes_assurance_rules_without_qualifying_hardware() {
+        let report = run(SOURCE).unwrap();
+        for rule in crate::model_assurance::RULES {
+            assert!(report
+                .checks
+                .checked_rules
+                .iter()
+                .any(|actual| actual == rule));
+        }
+        assert_eq!(report.assurance.numerical_verification.status, Status::Pass);
+        assert_eq!(
+            report.assurance.physical_applicability.status,
+            Status::Indeterminate
+        );
+        assert_eq!(report.assurance.qualification.status, Status::Indeterminate);
     }
     #[test]
     fn real_source_budget_is_incomplete_even_below_allowance() {
