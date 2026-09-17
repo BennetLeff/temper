@@ -87,7 +87,21 @@ pub fn run_gbj_model(
             native,
             manufacturing,
         )?;
-        let a = zapote_thermal::joint_model::replay(root, native, manufacturing, &waveform)?;
+        let retained_native = std::fs::read(root.join("native.json"))?;
+        let current_json: serde_json::Value = serde_json::from_slice(native)?;
+        let retained_json: serde_json::Value = serde_json::from_slice(&retained_native)?;
+        let (historical_native, historical_manufacturing, transfer_note) = if current_json["board_sha256"] == retained_json["board_sha256"] {
+            // Unchanged boards still use the original strict replay, including
+            // all native fields and manufacturing equality checks.
+            (native.to_vec(), manufacturing.to_vec(), String::new())
+        } else {
+            let (historical, note) = crate::thermal_identity::reviewed_boost_identity_input(native, root)?;
+            let m = reviewed_manufacturing_transfer(root, manufacturing, native, &historical)?;
+            (historical, m, note)
+        };
+        // Use the current production waveform unchanged: strict replay requires
+        // exact equality to retained currents/profile and rechecks raw solves.
+        let a = zapote_thermal::joint_model::replay(root, &historical_native, &historical_manufacturing, &waveform)?;
         anyhow::ensure!(
             a.gbj_diode_power_w.is_some() && a.gbj_cooling_budget.is_some(),
             "GBJ package/cooling evidence missing"
@@ -116,7 +130,7 @@ pub fn run_gbj_model(
         let budget = a
             .gbj_cooling_budget
             .ok_or_else(|| anyhow::anyhow!("GBJ cooling budget missing"))?;
-        Ok((nominal, weak, fan_loss, fan_diode_c, budget))
+        Ok((nominal, weak, fan_loss, fan_diode_c, budget, transfer_note))
     })();
     let object = "power-entry.gbj-thermal";
     let report = |rules: &[&str], findings| {
@@ -133,7 +147,7 @@ pub fn run_gbj_model(
         COOLING_RULES[1],
         COOLING_RULES[2],
     ];
-    let (nominal, weak, fan_loss, fan_diode_c, budget) = match result {
+    let (nominal, weak, fan_loss, fan_diode_c, budget, transfer_note) = match result {
         Ok(a) => a,
         Err(e) => {
             let failed = |rules: &[&str]| {
@@ -154,7 +168,7 @@ pub fn run_gbj_model(
             };
         }
     };
-    let pass = |r: &str, m: &str| Finding::pass(r, m, object);
+    let pass = |r: &str, m: &str| Finding::pass(r, format!("{m}{transfer_note}"), object);
     let uncertain = |r: &str, m: &str| Finding::indeterminate(r, m, object);
     let peak = |c: &zapote_thermal::joint_model::Case| {
         c.joint_peaks_k
@@ -203,6 +217,26 @@ pub fn run_gbj_model(
         physical: report(&PHYSICAL_RULES,vec![pass(PHYSICAL_RULES[0],"four diode nodes, shared case and FEM ports close every nodal and global balance"),pass(PHYSICAL_RULES[1],"exact GBJ datasheet and production waveform bind the one40 W allocation; VF remains a point estimate"),uncertain(PHYSICAL_RULES[2],"mutual die paths, lead material and actual hot losses remain uncertain")]),
         joint: report(&JOINT_RULES,vec![pass(JOINT_RULES[0],"source-bound GBJ raw FEM replay passed; physical trace side preserved"),uncertain(JOINT_RULES[1],"numerical validity does not qualify assembly cooling or resolve area-current distribution")]),
     }
+}
+
+// Reuse the same manufacturing geometry only after the complete board/native
+// transfer has been proven; no dimensions, materials or feature IDs may drift.
+fn reviewed_manufacturing_transfer(root: &Path, current: &[u8], current_native: &[u8], old_native: &[u8]) -> anyhow::Result<Vec<u8>> {
+    let historical = std::fs::read(root.join("manufacturing.json"))?;
+    let mut old: serde_json::Value = serde_json::from_slice(&historical)?;
+    let mut now: serde_json::Value = serde_json::from_slice(current)?;
+    let old_native: serde_json::Value = serde_json::from_slice(old_native)?;
+    let current_native: serde_json::Value = serde_json::from_slice(current_native)?;
+    anyhow::ensure!(old["board_sha256"].is_string() && now["board_sha256"].is_string()
+        && old["board_sha256"] == old_native["board_sha256"]
+        && now["board_sha256"] == current_native["board_sha256"], "manufacturing transfer board hashes differ");
+    now["board_sha256"] = old["board_sha256"].clone();
+    for value in [&mut old, &mut now] {
+        value.as_object_mut().ok_or_else(|| anyhow::anyhow!("manufacturing object missing"))?.remove("evidence_binding");
+        value["input"].as_object_mut().ok_or_else(|| anyhow::anyhow!("manufacturing input missing"))?.remove("board_id");
+    }
+    anyhow::ensure!(old == now, "manufacturing geometry changed beyond reviewed board identity");
+    Ok(historical)
 }
 
 pub fn physical_waveform(
@@ -803,6 +837,26 @@ mod tests {
             rms_envelope_a: current.unwrap_or(0.0),
             sampled_peak_envelope_a: current.unwrap_or(0.0),
             nominal_external_capacity_a: None,
+        }
+    }
+
+    #[test]
+    fn bridge_transfer_requires_complete_manufacturing_equality() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../power-entry/shunt-repair");
+        let historical = root.join("bridge-thermal-02");
+        let current_native = std::fs::read(root.join("evidence/native-04.json")).unwrap();
+        let (old_native, _) = crate::thermal_identity::reviewed_boost_identity_input(&current_native, &historical).unwrap();
+        let current = std::fs::read(root.join("evidence/manufacturing-04.json")).unwrap();
+        assert_eq!(reviewed_manufacturing_transfer(&historical, &current, &current_native, &old_native).unwrap(),
+            std::fs::read(historical.join("manufacturing.json")).unwrap());
+        for mutation in ["board_sha256", "input", "extra"] {
+            let mut value: serde_json::Value = serde_json::from_slice(&current).unwrap();
+            match mutation {
+                "board_sha256" => value["board_sha256"] = "0".repeat(64).into(),
+                "input" => value["input"]["unreviewed_geometry"] = true.into(),
+                _ => value["unreviewed_field"] = true.into(),
+            }
+            assert!(reviewed_manufacturing_transfer(&historical, &serde_json::to_vec(&value).unwrap(), &current_native, &old_native).is_err(), "{mutation}");
         }
     }
 

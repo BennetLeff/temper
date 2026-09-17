@@ -3,11 +3,7 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 use zapote_core::{CheckReport, Finding};
 use zapote_erc::{
-    pfc_currents::Config,
-    pfc_losses as loss,
-    pfc_switching,
-    power_entry,
-    source_circuit::Circuit,
+    pfc_currents::Config, pfc_losses as loss, pfc_switching, power_entry, source_circuit::Circuit,
 };
 
 pub const RULES: [&str; 3] = [
@@ -28,23 +24,22 @@ pub const BOOST_SOURCE_DOCUMENT: &str = "STW65N65DM2AG.pdf";
 /// time to 80% VDSS, not equal stored energy, so it must never feed the loss
 /// calculation.
 const BOOST_COSS_EQ_F: f64 = 456e-12;
-/// Typical Eoss(VDS) points digitized from ST DS11178 Rev 2 (Dec 2025), p. 6,
-/// Figure 8. The retained PDF is the older Rev 1 copy; the revision and the
-/// digitization uncertainty are carried in the report and evidence note.
+/// Typical Eoss(VDS) from the retained DocID028164 Rev 1, p. 7 Figure 12.
+/// Re-digitized against the PDF vector axes; see EOSS-REV1-REBIND.md.
 const BOOST_EOSS_CURVE_J: [(f64, f64); 13] = [
     (0.0, 0.0),
-    (50.0, 2.1e-6),
+    (50.0, 2.8e-6),
     (100.0, 4.1e-6),
-    (150.0, 5.5e-6),
-    (200.0, 6.9e-6),
-    (250.0, 8.8e-6),
-    (300.0, 11.1e-6),
-    (350.0, 15.0e-6),
-    (400.0, 19.5e-6),
-    (450.0, 24.0e-6),
-    (500.0, 28.6e-6),
-    (550.0, 33.3e-6),
-    (600.0, 37.8e-6),
+    (150.0, 5.3e-6),
+    (200.0, 7.0e-6),
+    (250.0, 9.0e-6),
+    (300.0, 11.5e-6),
+    (350.0, 14.3e-6),
+    (400.0, 17.5e-6),
+    (450.0, 21.0e-6),
+    (500.0, 24.8e-6),
+    (550.0, 29.0e-6),
+    (600.0, 33.5e-6),
 ];
 const BOOST_EOSS_DIGITIZATION_UNCERTAINTY_J: f64 = 0.6e-6;
 /// Total gate charge typical at `VDD` = 520 V, `ID` = 60 A, `VGS` = 10 V.
@@ -52,9 +47,8 @@ const BOOST_QG_TYP_C: f64 = 120e-9;
 const BOOST_QGD_TYP_C: f64 = 58e-9;
 const BOOST_GATE_R_EXTERNAL_OHM: f64 = 10.0;
 const BOOST_GATE_R_INTRINSIC_OHM: f64 = 3.3;
-const BOOST_GATE_BIAS_V: [f64; 2] = [9.0, 11.0];
 const UCC28180_ICC_LOADED_TYP_A: f64 = 7e-3;
-/// The authored gate network drives the gate to this level.
+/// Assumed gate-bias sensitivity center; not a measured driver output.
 const BOOST_VDRIVE_V: f64 = 10.0;
 const UNKNOWN: [&str; 10] = [
     "q_boost: measured turn-on/turn-off overlap energy and hot RDS(on) curve; the order code is resolved, the transition energy is not",
@@ -115,22 +109,24 @@ fn switching_scenarios(bus_v: f64, switching_hz: f64) -> Result<Vec<SwitchingSce
             switching_hz,
             phase_samples: 1024,
         })?;
-        // The turn-off current is the larger event current at the retained
-        // CCM operating point.  Keep it as a named conservative commutation
-        // current rather than substituting a whole-net or pad-size proxy.
-        let commutation_current_a = moments.mean_turn_on_a.max(moments.mean_turn_off_a);
         for gate_bias_v in [9.0, 10.0, 11.0] {
             for (temperature_c, rds_on_ohm) in [(25.0, 0.050), (125.0, 0.100)] {
-                let simulation = pfc_switching::simulate(
-                    pfc_switching::Config {
+                // Explicit unmeasured current-transfer charge sensitivity. Total
+                // Qgs (27 nC typical) includes subthreshold charging; Qg-Qgd
+                // additionally includes charge above the plateau. Neither is
+                // the current-transfer charge. These points are not bounds.
+                for current_transfer_charge_c in [5e-9, 10e-9, 20e-9] {
+                    let simulation = pfc_switching::simulate(pfc_switching::Config {
                         bus_v,
                         switching_hz,
-                        current_a: commutation_current_a,
+                        turn_on_current_a: moments.mean_turn_on_a,
+                        turn_off_current_a: moments.mean_turn_off_a,
+                        switch_rms_a: moments.switch_rms_a,
                         gate_bias_v,
                         qg_c: BOOST_QG_TYP_C,
                         qgd_c: BOOST_QGD_TYP_C,
+                        current_transfer_charge_c,
                         gate_plateau_v: 6.2,
-                        gate_threshold_v: 4.0,
                         external_gate_r_ohm: BOOST_GATE_R_EXTERNAL_OHM,
                         intrinsic_gate_r_ohm: BOOST_GATE_R_INTRINSIC_OHM,
                         driver_source_peak_a: 1.5,
@@ -139,18 +135,15 @@ fn switching_scenarios(bus_v: f64, switching_hz: f64) -> Result<Vec<SwitchingSce
                         loop_inductance_h: 10e-9,
                         rds_on_ohm,
                         timestep_s: 0.25e-9,
-                    },
-                    25.0,
-                    125.0,
-                )?;
-                scenarios.push(SwitchingScenario {
-                    line_rms_v,
-                    commutation_current_a,
-                    gate_bias_v,
-                    temperature_c,
-                    rds_on_ohm,
-                    simulation,
-                });
+                    })?;
+                    scenarios.push(SwitchingScenario {
+                        line_rms_v,
+                        gate_bias_v,
+                        temperature_c,
+                        rds_on_ohm,
+                        simulation,
+                    });
+                }
             }
         }
     }
@@ -216,8 +209,8 @@ pub struct BoostSwitchBound {
     pub gate_overlap_w_min: f64,
     pub gate_overlap_w_max: f64,
     /// Reproducible event-level switching model across line current, gate-bias
-    /// and cold/hot RDS(on) cases.  It is bounded datasheet evidence, not a
-    /// hardware qualification.
+    /// and cold/hot RDS(on) and unmeasured transfer-charge sensitivity points.
+    /// Numerical checks do not bound physical uncertainty or qualify hardware.
     pub switching_scenarios: Vec<SwitchingScenario>,
     /// Turn-on/turn-off overlap still needs measured waveforms; no Eon/Eoff is
     /// claimed here.
@@ -227,7 +220,6 @@ pub struct BoostSwitchBound {
 #[derive(Debug, Serialize)]
 pub struct SwitchingScenario {
     pub line_rms_v: f64,
-    pub commutation_current_a: f64,
     pub gate_bias_v: f64,
     pub temperature_c: f64,
     pub rds_on_ohm: f64,
@@ -333,42 +325,34 @@ pub fn run(source: &str) -> Result<Report, String> {
     // Eoss and Qg are datasheet typicals. The gate-network overlap range is a
     // first-order sensitivity only; it does not replace a measured waveform.
     let (eoss_at_bus_j, output_capacitance_w) = selected_eoss_w(bus_v, switching_hz)?;
-    let nominal_moments = loss::moments(Config {
-        line_rms_v: 120.0,
-        input_rms_limit_a: 15.0,
-        bus_v,
-        inductance_h: 180e-6,
-        switching_hz,
-        phase_samples: 1024,
-    })?;
-    let gate_edge_ns_min = loss::gate_network_edge_s(
-        BOOST_QGD_TYP_C,
-        BOOST_GATE_BIAS_V[1],
-        BOOST_GATE_R_EXTERNAL_OHM,
-        BOOST_GATE_R_INTRINSIC_OHM,
-    )? * 1e9;
-    let gate_edge_ns_max = loss::gate_network_edge_s(
-        BOOST_QGD_TYP_C,
-        BOOST_GATE_BIAS_V[0],
-        BOOST_GATE_R_EXTERNAL_OHM,
-        BOOST_GATE_R_INTRINSIC_OHM,
-    )? * 1e9;
-    let gate_overlap_w_min = loss::switching_overlap_w(
-        bus_v,
-        switching_hz,
-        nominal_moments.mean_turn_on_a,
-        nominal_moments.mean_turn_off_a,
-        gate_edge_ns_min * 1e-9,
-        gate_edge_ns_min * 1e-9,
-    )?;
-    let gate_overlap_w_max = loss::switching_overlap_w(
-        bus_v,
-        switching_hz,
-        nominal_moments.mean_turn_on_a,
-        nominal_moments.mean_turn_off_a,
-        gate_edge_ns_max * 1e-9,
-        gate_edge_ns_max * 1e-9,
-    )?;
+    let scenarios = switching_scenarios(bus_v, switching_hz)?;
+    // Ranges over the selected assumptions, never guaranteed device bounds.
+    let gate_edge_ns_min = scenarios
+        .iter()
+        .flat_map(|s| {
+            [
+                s.simulation.turn_on.miller_ns,
+                s.simulation.turn_off.miller_ns,
+            ]
+        })
+        .fold(f64::INFINITY, f64::min);
+    let gate_edge_ns_max = scenarios
+        .iter()
+        .flat_map(|s| {
+            [
+                s.simulation.turn_on.miller_ns,
+                s.simulation.turn_off.miller_ns,
+            ]
+        })
+        .fold(0.0, f64::max);
+    let gate_overlap_w_min = scenarios
+        .iter()
+        .map(|s| s.simulation.overlap_loss_w)
+        .fold(f64::INFINITY, f64::min);
+    let gate_overlap_w_max = scenarios
+        .iter()
+        .map(|s| s.simulation.overlap_loss_w)
+        .fold(0.0, f64::max);
     let boost_switch_bound = BoostSwitchBound {
         authored_marking: BOOST_AUTHORED_MARKING,
         resolved_order_code: BOOST_ORDER_CODE,
@@ -388,7 +372,7 @@ pub fn run(source: &str) -> Result<Report, String> {
         gate_edge_ns_max,
         gate_overlap_w_min,
         gate_overlap_w_max,
-        switching_scenarios: switching_scenarios(bus_v, switching_hz)?,
+        switching_scenarios: scenarios,
         transition_energy_needs_waveforms: true,
     };
     let mut cases = Vec::new();
@@ -430,9 +414,9 @@ pub fn run(source: &str) -> Result<Report, String> {
             "Input power is not DC output power; current ripple consumes part of the RMS current ceiling".into(),
             "Bridge 1.05 V test point is extrapolated as constant, not a waveform-wide/hot guarantee".into(),
             "Copper alpha20=0.00393/K is assumed; DCR max20mOhm at20C; core/AC loss excluded".into(),
-            "The authored and native MPN is STW65N65DM2AG; its physical package marking is 65N65DM2 per the official DS11178 Rev 2 Device summary. The retained local PDF is Rev 1 and is hash-pinned for the other typicals".into(),
-            "The 456 pF C_oss eq. is time-equivalent (0..80% VDSS), so it is metadata only. Eoss(VDS) is digitized from DS11178 Rev 2 p. 6 Figure 8 with ±0.6 µJ interpolation uncertainty; typical data are not guarantees".into(),
-            "The 10 ohm external plus 3.3 ohm intrinsic gate network and 9..11 V bias sweep imply a first-order 70..86 ns Qgd edge and a nominal overlap sensitivity; UCC28180 source impedance, plateau voltage and layout parasitics still require measured waveforms".into(),
+            "The authored and native MPN is STW65N65DM2AG; its physical package marking is 65N65DM2 per the hash-pinned DocID028164 Rev 1 Device summary".into(),
+            "The 456 pF C_oss eq. is time-equivalent (0..80% VDSS), so it is metadata only. Eoss(VDS) is digitized from the retained DocID028164 Rev 1 p. 7 Figure 12 with an assumed ±0.6 µJ digitization/interpolation allowance; typical data are not guarantees".into(),
+            "Staged clamped-inductive sensitivity: 9..11 V assumed gate bias, 6.2 V assumed plateau, 5/10/20 nC unmeasured transfer charge, 58 nC typical Qgd; peak driver ratings cap an approximate gate current, not its real output I-V curve. Mean on/off event currents set linear overlap; duty-weighted switch RMS sets conduction. 10 nH Ldi/dt uses mean event current and is not a peak-voltage bound. Quadrature is not circuit energy conservation".into(),
             "UCC28180 loaded ICC (15 V * 7 mA typical) already includes charging its characterized load; it must not be added to full Qg*V*f as independent quiescent power".into(),
             "No equal sharing of SiC anodes or capacitor-bank ripple assumed; no individual package thermal verdict".into(),
             "Prior 60C sink target is not proof of 60C remote PCB boundary".into(),
@@ -473,19 +457,21 @@ mod tests {
         // C_oss eq. is retained as metadata and must not be used as energy.
         assert!((b.bus_v - 389.615).abs() < 1e-3, "bus {}", b.bus_v);
         assert!((b.coss_eq_f - 456e-12).abs() < 1e-18);
-        let expected = b.eoss_at_bus_j;
+        // Retained Rev1 Fig12: 350V≈14.3uJ, 400V≈17.5uJ. Hand interpolation.
+        let expected = (14.3 + (389.6153846153846 - 350.0) / 50.0 * 3.2) * 1e-6;
+        assert!((b.eoss_at_bus_j - expected).abs() < 1e-12);
         assert!((b.output_capacitance_energy_j - expected).abs() < 1e-15);
         assert!(
             (b.output_capacitance_w - expected * b.switching_hz).abs() < 1e-9,
             "capacitance {} W",
             b.output_capacitance_w
         );
-        assert!(b.output_capacitance_w > 2.3 && b.output_capacitance_w < 2.7);
+        assert!(b.output_capacitance_w > 2.1 && b.output_capacitance_w < 2.3);
         assert!(
             b.output_capacitance_w < 0.75 * 0.5 * b.coss_eq_f * b.bus_v * b.bus_v * b.switching_hz
         );
-        assert!(b.gate_edge_ns_min > 65.0 && b.gate_edge_ns_min < 75.0);
-        assert!(b.gate_edge_ns_max > 80.0 && b.gate_edge_ns_max < 90.0);
+        assert!(b.gate_edge_ns_min > 120.0 && b.gate_edge_ns_min < 130.0);
+        assert!(b.gate_edge_ns_max > 270.0 && b.gate_edge_ns_max < 280.0);
         assert!(b.gate_overlap_w_max > b.gate_overlap_w_min * 1.15);
         assert!((b.controller_icc_loaded_typical_w - 0.105).abs() < 1e-12);
         // 120 nC at 10 V over the retained 129.107 kHz switching frequency.
@@ -500,18 +486,43 @@ mod tests {
             b.gate_drive_typical_w
         );
         assert!(b.transition_energy_needs_waveforms);
-        assert_eq!(b.switching_scenarios.len(), 18);
+        assert_eq!(b.switching_scenarios.len(), 54);
         assert!(b
             .switching_scenarios
             .iter()
-            .all(|scenario| scenario.simulation.converged));
+            .all(|scenario| scenario.simulation.quadrature_checked));
         assert!(b
             .switching_scenarios
             .iter()
-            .any(|scenario| scenario.temperature_c == 125.0
-                && scenario.gate_bias_v == 9.0));
-        // The switch term is bounded but the budget as a whole still is not.
+            .any(|scenario| scenario.temperature_c == 125.0 && scenario.gate_bias_v == 9.0));
+        // Model sensitivities do not close unknown losses or cooling.
         assert!(r.total_loss_w.is_none() && r.cooling_margin_w.is_none());
+    }
+    #[test]
+    fn switching_adapter_uses_branch_rms_and_separate_event_moments() {
+        let r = run(SOURCE).unwrap();
+        for scenario in &r.boost_switch_bound.switching_scenarios {
+            let m = loss::moments(Config {
+                line_rms_v: scenario.line_rms_v,
+                input_rms_limit_a: 15.0,
+                bus_v: r.boost_switch_bound.bus_v,
+                inductance_h: 180e-6,
+                switching_hz: r.boost_switch_bound.switching_hz,
+                phase_samples: 1024,
+            })
+            .unwrap();
+            let sim = &scenario.simulation;
+            assert_eq!(sim.inputs.turn_on_current_a, m.mean_turn_on_a);
+            assert_eq!(sim.inputs.turn_off_current_a, m.mean_turn_off_a);
+            assert!(
+                (sim.conduction_loss_w - m.switch_rms_a.powi(2) * scenario.rds_on_ohm).abs()
+                    < 1e-12
+            );
+            assert!(
+                (sim.switching_loss_w - sim.overlap_loss_w - sim.output_capacitance_loss_w).abs()
+                    < 1e-12
+            );
+        }
     }
     #[test]
     fn real_source_budget_is_incomplete_even_below_allowance() {
@@ -540,6 +551,7 @@ mod tests {
         // The resolved order code cannot silently replace the authored
         // marking-form identity without an authored-source change.
         assert!(run(&SOURCE.replace("STW65N65DM2AG", "STW65N65DM2")).is_err());
+        assert!(run(&SOURCE.replace("STW65N65DM2AG", "65N65DM2")).is_err());
         assert!(run(&SOURCE.replace("STW65N65DM2AG", "STW63N65DM2")).is_err());
         assert!(run(&SOURCE.replace("150kohm", "100kohm")).is_err());
     }

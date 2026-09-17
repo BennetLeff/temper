@@ -558,7 +558,7 @@ mod tests {
         assert_eq!(invalid.findings.len(), RULES.len());
         assert!(!invalid.findings.iter().any(|f| f.status == Status::Pass));
         let report = evaluate_source(include_str!(
-            "../../../power-entry/candidate/source-manifest.json"
+            "../../../power-entry/shunt-repair/candidate/source-manifest.json"
         ));
         for rule in [RULES[4], RULES[6], RULES[7], RULES[8]] {
             assert!(report
@@ -579,7 +579,7 @@ mod tests {
 
     #[test]
     fn source_binding_keeps_missing_isolation_indeterminate() {
-        let source = include_str!("../../../power-entry/candidate/source-manifest.json");
+        let source = include_str!("../../../power-entry/shunt-repair/candidate/source-manifest.json");
         let report = evaluate_source(source);
         assert_eq!(report.findings[0].status, Status::Pass);
         assert_eq!(

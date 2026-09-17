@@ -2,8 +2,8 @@
 
 > **Corrective experiment (2026-09-17):** The earlier `4.468 W` output-
 > capacitance number was invalid: ST's 456 pF `C_oss eq.` is time-equivalent,
-> not energy-equivalent. The corrected DS11178 Rev 2 Figure 8 interpolation is
-> 2.397 W ±0.078 W typical at the retained bus/frequency. The current GBJ
+> not energy-equivalent. The corrected DocID028164 Rev 1 page 7 Figure 12 interpolation is
+> 2.174 W ±0.078 W typical at the retained bus/frequency. The current GBJ
 > assembly evidence is conditional (Wakefield 392-120AB/Sanyo 9RA1212E1001;
 > nominal 84.35 °C, weak 117.82 °C, fan-loss 118.64 °C), so the old GBU
 > bridge-cooling margin is not applicable. See
@@ -12,8 +12,18 @@
 This is the decision the retained power-entry evidence supports today. It
 replaces the earlier five-board-variant framing. It does not claim the
 electronics are qualified: no powered measurement has been performed. A
-reproducible Rust event model now bounds the switching term; physical waveform
+reproducible Rust event model now estimates the switching term under explicit assumptions; physical waveform
 and thermal qualification remain open.
+
+## Corrected switching consequence
+
+The corrected nominal sensitivity is 126.582 W overlap plus 2.174 W Eoss,
+7.091 W conduction and 0.155 W gate loss. At 136.002 W this subtotal alone
+exceeds the old 105 W electronics allowance. The earlier model cannot support
+an endorsement of the AG MOSFET / 10 Ω gate drive. Keep them as the experiment
+baseline while resolving actual gate bias, driver impedance and operating-point
+charge; do not treat their selection as electrically or thermally closed.
+See [the corrected model and its limits](PFC-SWITCHING-MODEL.md).
 
 ## Decision
 
@@ -44,14 +54,14 @@ and board hash, so the switch terms below are attributed to a real part.
 
 **The output-capacitance and switching terms.** The earlier 4.468 W calculation
 was invalid: ST's 456 pF `C_oss eq.` is time-equivalent. Digitizing the official
-DS11178 Rev 2 Figure 8 gives **2.397 W ±0.078 W** typical at 389.615 V and
+DocID028164 Rev 1 page 7 Figure 12 gives **2.174 W ±0.078 W** typical at 389.615 V and
 129.107 kHz. Gate drive (`Qg` 120 nC at 10 V) is **0.155 W**. The Rust event
 model includes UCC28180 1.5/2 A source/sink limits, 10 ohm external plus 3.3
 ohm intrinsic gate resistance, Miller plateau, 10 nH loop inductance and
-current-dependent VDS transitions. Its nominal 120 Vrms/10 V/25 C case reports
-**43.943 W switching overlap**, **11.261 W conduction**, **0.155 W gate** and
-**2.397 W Eoss**. Eoss is counted once on turn-on and remains separate from a
-measured Eon that already includes Coss discharge. These are typical bounded
+current-dependent VDS transitions. Its nominal 120 Vrms/10 V/50 mΩ/10 nC assumed case reports
+**126.582 W switching overlap**, **7.091 W conduction**, **0.155 W gate** and
+**2.174 W Eoss**. Eoss is counted once on turn-on and remains separate from a
+measured Eon that already includes Coss discharge. These are conditional
 model results; waveform, hot RDS(on) and diode qualification remain open.
 
 **The bridge thermal path.** The current GBJ study is conditional evidence,
@@ -101,19 +111,19 @@ Two consequences:
 | 4. Active rectifier | defer | 62.9 mΩ is a conduction-only screen against the unread hot curve; drive, commutation, protection and EMI costs are missing, so it is not an architecture decision |
 
 The ordering follows from one asymmetry: the bridge drop is 28.304 W of a
-1,796.4 W input, about 2%, and is bounded to roughly a 2:1 band by the forward
-drop; the boost overlap is unbounded and can exceed the entire bridge loss on
-its own. Reducing a bounded 28 W is worth less than resolving an unbounded
-term of the same size.
+1,796.4 W input, about 2%, under a constant test-point forward-drop assumption. That is not a
+hot/waveform-wide bound. The corrected boost overlap sensitivity exceeds this
+bridge estimate; resolving actual switching behavior is essential before
+ranking architectures.
 
 ## What would change this decision
 
 - **Measured overlap energy well below the band.** If the real transition is
   fast at the actual 10 ohm gate network, the boost lever shrinks and the
   bridge architecture becomes proportionally more interesting.
-- **A bridge neck improvement that cannot close the 2.14 K local margin.** At
-  which point candidate 2 or 4 earns a real evaluation, because the assembly,
-  not the silicon, is what fails.
+- **A GBJ cooling design that cannot satisfy the weak-contact/fan-loss cases.**
+  That would justify evaluating another bridge or architecture. The historical
+  GBU 2.14 K margin is not applicable to this assembly.
 - **A lower-drop orderable bridge.** Candidate 2 becomes scorable immediately:
   multiply its forward-drop reduction by 2.696 W per 0.1 V and compare against
   the heatsink work it would save.
@@ -138,7 +148,7 @@ term of the same size.
 | Item | Where |
 | --- | --- |
 | Switch datasheet, order code and marking | `sources/STW65N65DM2AG.pdf` (pinned by hash in `pfc_loss_budget.rs`) |
-| Loss screen and bounded switch terms | `zapote/packages/zapote-harness/src/pfc_candidates.rs`, `pfc_loss_budget.rs` |
-| Reproducible switching model and raw result | `loss-budget/PFC-SWITCHING-MODEL.md`, `loss-budget/evidence/pfc-loss-simulation-2026-09-17.json` |
+| Loss screen and conditional switch terms | `zapote/packages/zapote-harness/src/pfc_candidates.rs`, `pfc_loss_budget.rs` |
+| Reproducible switching model and raw result | `loss-budget/PFC-SWITCHING-MODEL.md`, `loss-budget/evidence/correction-02/loss-report.json` |
 | Bridge joint model | `shunt-repair/bridge-thermal-02/assessment.json` |
 | Bridge cooling study, 20 cases | `thermal/bridge-cooling.md`, `thermal/evidence/bridge-cooling-2026-09-14/` |

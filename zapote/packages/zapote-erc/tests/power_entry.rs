@@ -248,3 +248,13 @@ fn contradictory_duplicate_graph_cannot_hide_correct_primary_pins() {
         .unwrap_err()
         .contains("contradictory"));
 }
+
+#[test]
+fn historical_topology_variant_does_not_allow_arbitrary_suffixes() {
+    for identity in ["STW65N65DM2", "STW65N65DM2AG"] {
+        validate_source(&SOURCE21.replace("STW65N65DM2", identity)).unwrap();
+    }
+    for identity in ["65N65DM2", "STW65N65DM2-extra", "XSTW65N65DM2"] {
+        assert!(validate_source(&SOURCE21.replace("STW65N65DM2", identity)).is_err());
+    }
+}

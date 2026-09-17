@@ -545,3 +545,5 @@ pub mod p3;
 pub mod shunt_thermal;
 
 pub mod pfc_loops;
+
+mod thermal_identity;

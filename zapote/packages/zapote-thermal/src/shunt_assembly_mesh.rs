@@ -455,7 +455,7 @@ mod tests {
     use std::fs;
     fn reference() -> (String, Geometry, Scenario) {
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../power-entry");
-        let native = fs::read(root.join("shunt-repair/evidence/native-04.json")).unwrap();
+        let native = fs::read(root.join("shunt-assembly/run-15/native.json")).unwrap();
         let g = crate::shunt_assembly::geometry(&native, false).unwrap();
         let p = crate::shunt_assembly::scenarios().remove(0);
         let mesh = crate::shunt_assembly::read_text(

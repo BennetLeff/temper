@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "sch",
+    "erc",
+    "--severity-all",
+    "--format",
+    "json",
+    "--output",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/validation/runs/pfc-switching-correction-20260917-04/rtd/erc.json",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/section.kicad_sch"
+  ],
+  "returncode": 0,
+  "input_sha256": "b93db55b2b5af0829162d096a460b03763c68a9b70bdd73846d800937b0f8533",
+  "report_sha256": "e9cdebeb124c979095695e7976b726f54927fff87c904d782eef5b3270560e4c",
+  "report_path": "/private/tmp/zapote-pfc-loss-correction/zapote/validation/runs/pfc-switching-correction-20260917-04/rtd/erc.json",
+  "dependency_hashes": {
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/candidate-libs/Inductor_SMD.pretty/L_0603_1608Metric.kicad_mod": "a2a9c562208496756e22f3ab19e0bd6db2341d14da92e7c767d5eafd1bb45d38",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/candidate-libs/Package_SO.pretty/SSOP-20_3.9x8.7mm_P0.635mm.kicad_mod": "38e1d013616514c692a593ab99a4327a30a98e91bfb4bc7a621bc2c0352d9008",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/candidate-libs/Resistor_SMD.pretty/R_0805_2012Metric.kicad_mod": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/candidate-libs/Temper_RTD.pretty/FTSH-105-01-F-D_2x5_P1.27mm.kicad_mod": "e7bb1532a01e30864dd947afe1a6b27613e0f4440c57c2f1a46d0ed885ba6c5b",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/candidate-libs/Temper_RTD.pretty/TPS389001DSER_WSON-6_DSE.kicad_mod": "42f4a408e86b82b26da7b4b1c68170c1214dedadff38dff5015ac55a23dd6401",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/fp-lib-table": "2a499806d6410b629b5b362162dd12098ad926ab692b95bbbe842d63448234a3",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/rtd-unit.kicad_sym": "dcd83101ecb99814fc182ea4cf655e1945cd25df7a4975b41ee33c8da7f6a318",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/section.kicad_dru": "fb69fedd1be7e36b7e557817547607f6d73f126a15ff99fe9b0a16da0b083dc3",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/section.kicad_pcb": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/section.kicad_pro": "add36658a0d765def5bd7630bc901efc1f96534b8f1e5e18b6b05534acf78b9f",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/section.kicad_sch": "b93db55b2b5af0829162d096a460b03763c68a9b70bdd73846d800937b0f8533",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/rtd/unit/candidate/sym-lib-table": "7aba3087f37af31d6d1e7045220bc0702645de3781a91add46868c1822ffa32f"
+  },
+  "tool_version": "10.0.4"
+}

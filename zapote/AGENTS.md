@@ -178,3 +178,9 @@ Read the relevant detailed record before changing behavior in that area:
   topology and pre-solve input hashes; check cell interiors against drilled
   voids. A contact-temperature solve and prescribed remote-board temperature
   cannot qualify resistor-body temperature or enclosure cooling.
+
+- [Switching-model review lessons](power-entry/loss-budget/SWITCHING-REVIEW-LESSONS.md)
+  — triangle-area agreement is numerical verification, not circuit energy
+  conservation. Distinguish current transfer, Miller charge, duty-weighted RMS,
+  output-capacitance energy and gate-network dissipation. Keep physical
+  uncertainty and historical-evidence transfer explicit.

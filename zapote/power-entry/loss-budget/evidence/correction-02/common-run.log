@@ -1,0 +1,28 @@
+checking rtd
+checking current-sense
+checking voltage-sense
+checking thermal-sense
+checking interlock
+checking gate-drive
+checking power-entry
+{
+  "deferred_units": {
+    "buck": "legacy delegated owner; no Zapote unit suite",
+    "mcu": "not in maintained Zapote registry"
+  },
+  "manifest_sha256": "19087ba71436ada2c7ecbab0731743b90e477c38d9f844817774bb37c18a5f11",
+  "output": "/private/tmp/zapote-pfc-loss-correction/zapote/validation/runs/pfc-switching-correction-20260917-04",
+  "schema": "zapote.unit-run-summary.v1",
+  "status": "indeterminate",
+  "suite_changed_during_run": false,
+  "unit_count": 7,
+  "unit_statuses": [
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate"
+  ]
+}

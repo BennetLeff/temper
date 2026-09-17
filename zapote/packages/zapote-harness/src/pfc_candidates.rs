@@ -516,7 +516,7 @@ fn boost_stage_optimization(models: &[LineModel], requirement_w: f64) -> Result<
         ],
         screening: vec![
             format!(
-                "The authored/native order code `{BOOST_ORDER_CODE}` is paired with physical package marking `65N65DM2` in ST DS11178 Rev 2. The conduction and Eoss terms below are that part's typical data, not an unnamed device's."
+                "The authored/native order code `{BOOST_ORDER_CODE}` is paired with physical package marking `65N65DM2` in retained ST DocID028164 Rev 1. The conduction and Eoss terms below are that part's typical data, not an unnamed device's."
             ),
             "The output-capacitance term uses Eoss(VDS) digitized from DS11178 Rev 2 Figure 8. The 456 pF C_oss eq. is time-equivalent and is retained only as metadata; Eon/Eoff overlap must remain separate.".into(),
             "The Rust event model now characterizes the actual 10 ohm external plus 3.3 ohm intrinsic gate network, UCC28180 source/sink limits, Miller plateau and loop inductance across 18 line/bias/temperature cases. It reports a nominal 43.9 W overlap term and remains a bounded typical model pending measured waveforms.".into(),
@@ -868,7 +868,7 @@ mod tests {
             (capacitive - selected_eoss_w(bus_v, switching_hz).unwrap().1).abs() < 1e-12,
             "capacitive {capacitive}"
         );
-        assert!(capacitive > 2.3 && capacitive < 2.7);
+        assert!(capacitive > 2.1 && capacitive < 2.3);
         // The order code is named, and the overlap term it does not determine
         // is still an explicit unresolved input rather than a silent zero.
         assert!(r

@@ -81,7 +81,7 @@ pub fn validate(source: &str) -> CheckReport {
 mod tests {
     use super::*;
     use zapote_core::Status;
-    const SOURCE: &str = include_str!("../../../power-entry/candidate/source-manifest.json");
+    const SOURCE: &str = include_str!("../../../power-entry/shunt-repair/candidate/source-manifest.json");
 
     #[test]
     fn real_source_has_reviewed_pins_but_no_external_qualification() {

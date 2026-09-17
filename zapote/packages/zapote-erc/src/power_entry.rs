@@ -224,6 +224,13 @@ pub fn validate_source(source: &str) -> Result<(), String> {
             .ok_or_else(|| format!("missing reviewed part {id}"))?;
         let mpn_matches = if *id == "shunt" {
             shunt_footprint(&part.mpn).is_some()
+        } else if *id == "q_boost" {
+            // Frozen topology/current fixtures use the earlier non-AG order
+            // code. Both have the reviewed G/D/S topology; this does not
+            // transfer loss data or thermal ratings between variants. The
+            // loss-budget gate separately requires STW65N65DM2AG and rejects
+            // non-AG variant before assigning any device-specific losses.
+            part.mpn == *mpn || part.mpn == "STW65N65DM2"
         } else {
             *id == "bridge" || part.mpn == *mpn
         };

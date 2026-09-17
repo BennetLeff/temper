@@ -58,12 +58,12 @@ loss budget's 20-100 ns band it spans tens of watts. That single term outweighs
 every bridge-architecture question here, and it is a design sensitivity keyed to
 an assumed edge time rather than a statement about the authored device.
 
-**The device identity and a bounded event model are now explicit.** The
+**The device identity and a conditional event model are now explicit.** The
 authored/native order code is `STW65N65DM2AG`; package marking is `65N65DM2`,
 and the source/native/manufacturing receipts bind that identity. Rust models
 UCC28180 source/sink limits, Miller plateau, the 10 ohm + 3.3 ohm gate network
-and loop inductance across 18 cases. At nominal conditions it reports 43.943 W
-overlap, 2.397 W Eoss and 0.155 W gate loss. This remains typical model
+and loop inductance across 54 sensitivity cases. At nominal line and assumed 10 V gate bias / 10 nC transfer charge it reports 126.582 W
+overlap, 2.174 W Eoss and 0.155 W gate loss. This remains typical model
 evidence; measured waveforms and hot data are required for qualification.
 
 **The active-rectifier question reduces to one number.** The screen reports the

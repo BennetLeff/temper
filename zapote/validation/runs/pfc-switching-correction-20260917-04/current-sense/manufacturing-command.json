@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/zapote-pfc-loss-correction/zapote/packages/zapote-harness/../../validation/p2/extract.py",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/power-entry/shunt-repair/../../current-sense/candidate/section.kicad_pcb",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/validation/runs/pfc-switching-correction-20260917-04/current-sense/manufacturing-input.json"
+  ],
+  "extractor_sha256": "2942646c397e2a3b29a5ebeef2c210694893e2a8d1652941b46fbb94abc51902",
+  "python": "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9",
+  "returncode": 0
+}

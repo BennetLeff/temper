@@ -1,0 +1,183 @@
+   Compiling zapote-harness v0.1.0 (/private/tmp/zapote-pfc-loss-correction/zapote/packages/zapote-harness)
+    Finished `release` profile [optimized] target(s) in 18.56s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_harness-a3500b5aa5d437ff)
+
+running 1 test
+test bridge_thermal::tests::bridge_transfer_requires_complete_manufacturing_equality ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.17s
+
+     Running unittests src/bin/zapote-board.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_board-24eb35268325c8c5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-gate-drive.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_gate_drive-e0aacff3bf72c740)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-interlock.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_interlock-8dfd4c0de4e428ba)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-joint-model.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_joint_model-7f393249f3b9da59)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-native-reports.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_native_reports-e1d63f750925b6ee)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-pfc-loss.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_pfc_loss-9f485febfd39f54f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-pfc-power.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_pfc_power-61b7a1a2b0549a42)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-power-entry.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_power_entry-0a8ebd758c7ad140)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-power-models.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_power_models-2260fd699f9e8636)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_rtd-cb7a712fe6e559d8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-thermal.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_thermal-8371a5c3b405d3aa)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-unit-run.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_unit_run-c3e1f816fe2442c6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-voltage.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_voltage-3f0d9c398da1cabc)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/board_cli.rs (/private/tmp/zapote-rtd-target/release/deps/board_cli-600889f06f8377f4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/bridge_thermal.rs (/private/tmp/zapote-rtd-target/release/deps/bridge_thermal-36a9519322e168e6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+     Running tests/current_sense_defect_corpus.rs (/private/tmp/zapote-rtd-target/release/deps/current_sense_defect_corpus-0eb34474aca7ae19)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 0.00s
+
+     Running tests/gbj_model.rs (/private/tmp/zapote-rtd-target/release/deps/gbj_model-bbb6121a568d208e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+     Running tests/interlock.rs (/private/tmp/zapote-rtd-target/release/deps/interlock-b5b7233f8e81efa2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.00s
+
+     Running tests/memory_policy.rs (/private/tmp/zapote-rtd-target/release/deps/memory_policy-c9faf0956ad5c403)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+     Running tests/native_reports.rs (/private/tmp/zapote-rtd-target/release/deps/native_reports-296efa888a979584)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+     Running tests/p1.rs (/private/tmp/zapote-rtd-target/release/deps/p1-b0247a9fbe319abc)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/pfc_current_binding.rs (/private/tmp/zapote-rtd-target/release/deps/pfc_current_binding-14165fda00811221)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+     Running tests/power_entry.rs (/private/tmp/zapote-rtd-target/release/deps/power_entry-0a3fd30cc1aa6eed)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/power_entry_routed.rs (/private/tmp/zapote-rtd-target/release/deps/power_entry_routed-510472616cbc14ce)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/rtd_defect_corpus.rs (/private/tmp/zapote-rtd-target/release/deps/rtd_defect_corpus-c269944eef79caf5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.00s
+
+     Running tests/runner.rs (/private/tmp/zapote-rtd-target/release/deps/runner-d6c3a11e0e71ff97)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests/thermal_sense.rs (/private/tmp/zapote-rtd-target/release/deps/thermal_sense-188d83a104ab527f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 21 filtered out; finished in 0.00s
+
+     Running tests/unit_profile.rs (/private/tmp/zapote-rtd-target/release/deps/unit_profile-0cde15daadd917f6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.00s
+
+     Running tests/voltage_sense.rs (/private/tmp/zapote-rtd-target/release/deps/voltage_sense-cf30f0c1122a881e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+

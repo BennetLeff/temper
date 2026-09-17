@@ -1,0 +1,23 @@
+   Compiling zapote-core v0.1.0 (/private/tmp/zapote-pfc-loss-correction/zapote/packages/zapote-core)
+   Compiling zapote-erc v0.1.0 (/private/tmp/zapote-pfc-loss-correction/zapote/packages/zapote-erc)
+    Finished `release` profile [optimized] target(s) in 6.91s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_erc-02981457a2c498df)
+
+running 1 test
+test pfc_switching::tests::clamped_inductive_miller_stage_has_triangle_energy ... FAILED
+
+failures:
+
+---- pfc_switching::tests::clamped_inductive_miller_stage_has_triangle_energy stdout ----
+
+thread 'pfc_switching::tests::clamped_inductive_miller_stage_has_triangle_energy' (20352842) panicked at packages/zapote-erc/src/pfc_switching.rs:275:9:
+overlap 0.00019849120734020544 is below Miller triangle 0.0005931894230535002
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    pfc_switching::tests::clamped_inductive_miller_stage_has_triangle_energy
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 50 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p zapote-erc --lib`

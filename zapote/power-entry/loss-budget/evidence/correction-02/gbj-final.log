@@ -1,0 +1,13 @@
+    Finished `release` profile [optimized] target(s) in 0.02s
+     Running tests/gbj_model.rs (/private/tmp/zapote-rtd-target/release/deps/gbj_model-bbb6121a568d208e)
+
+running 6 tests
+test asymmetric_half_cycles_follow_current_entering_the_bridge_not_copper_injection ... ok
+test fresh_hash_does_not_authorize_forged_native_trace_geometry ... ok
+test missing_gbj_evidence_cannot_satisfy_common_thermal_obligations ... ok
+test gbj_current_model_binds_actual_trace_ids_and_keeps_sharing_indeterminate ... ok
+test unknown_ac2_cut_cannot_hide_changed_load_or_missing_segments ... ok
+test retained_gbj_raw_evidence_satisfies_numerics_without_qualifying_hardware ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.14s
+

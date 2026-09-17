@@ -1,0 +1,49 @@
+{
+  "run": "zapote/validation/runs/pfc-switching-correction-20260917-04",
+  "suite_changed_during_run": false,
+  "failed_findings": 0,
+  "units": [
+    {
+      "unit": "power-entry",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "report_sha256": "00d23e9788ea3b1eb5828f737ed140ca87e45e28d5cc8a8f627f779ebb8761a0"
+    },
+    {
+      "unit": "rtd",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "report_sha256": "08ea2a034ed2fa15e3b338e440c383b874c935e069b848029c579e5d16db095a"
+    },
+    {
+      "unit": "current-sense",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "report_sha256": "3582dfcb34c2daaac97dad278885814885757afda342b05ac5edf010d036d065"
+    },
+    {
+      "unit": "gate-drive",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "report_sha256": "fceaa6560bba34cd4030bbc996429a87d8025e7354c1d5ef873acd272d8620e7"
+    },
+    {
+      "unit": "interlock",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "report_sha256": "d0d4d422962021385bd76a2d26dbd2691bf917ef0e583c10cfd3fa52ad90ce44"
+    },
+    {
+      "unit": "thermal-sense",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "report_sha256": "9e7634b55a567655002d3427e04f42b893c39b4b433c04ef3f0ca668dc6a0d54"
+    },
+    {
+      "unit": "voltage-sense",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "report_sha256": "1a9f1bb580d95f8b2e755ff0aff51ea87d85f2d4531da7c16e00843f2b08f4e5"
+    }
+  ]
+}

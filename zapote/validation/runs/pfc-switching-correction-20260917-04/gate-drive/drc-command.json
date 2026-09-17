@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "pcb",
+    "drc",
+    "--severity-all",
+    "--all-track-errors",
+    "--schematic-parity",
+    "--format",
+    "json",
+    "--output",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/validation/runs/pfc-switching-correction-20260917-04/gate-drive/drc.json",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/section.kicad_pcb"
+  ],
+  "returncode": 0,
+  "input_sha256": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+  "report_sha256": "7714712efce6dbb14f72c2832fcfb1d2996097508930f3da9086d281f9619380",
+  "report_path": "/private/tmp/zapote-pfc-loss-correction/zapote/validation/runs/pfc-switching-correction-20260917-04/gate-drive/drc.json",
+  "dependency_hashes": {
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/candidate-libs/Capacitor_SMD.pretty/C_1210_3225Metric.kicad_mod": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/candidate-libs/Connector_PinHeader_2.54mm.pretty/PinHeader_1x02_P2.54mm_Vertical.kicad_mod": "5301303268f72ba9cc94b7fdbac355951933e6854272ce8d300b679b86b5d45d",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/candidate-libs/Diode_SMD.pretty/D_SMA.kicad_mod": "f7cba3b52ed8b34dce89170722de58324eac04e9e61a095e0eab37b9ca93cb7f",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/candidate-libs/Diode_THT.pretty/D_DO-41_SOD81_P10.16mm_Horizontal.kicad_mod": "f7a156e9b80a77d5d232d68b3f1b1e81b7bf99703017f9124da667d1d31af41e",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod": "0d88c86c1b6d8c1aae4aa8c09386264c089d4451a128b6ccd63ed253f4300b15",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/candidate-libs/lib.pretty/SOIC16W_Isolated.kicad_mod": "c336ba882801ba49a297df70d9d051d8aa3f1737d12d5f392cfe22816bb841ed",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/fp-lib-table": "c64c2ed341685754d09e98c5b8da65593211ee3d33779bea5166cfb7fb083cb3",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/gate-drive-unit.kicad_sym": "6d631c2c9e18b0123bef1012f655820a6931650e59badc52a6ebd32c73080e7d",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/section.kicad_dru": "c68daace7b4ccb5f993b35243cbf8b0745871fada7e3623174dd49b8000944d5",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/section.kicad_pcb": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/section.kicad_pro": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/section.kicad_sch": "c7c60f0232794d294f56f3c296595c1ff7f642017f6e5b033d7c2329949bcfc3",
+    "/private/tmp/zapote-pfc-loss-correction/zapote/gate-drive/candidate/sym-lib-table": "a989a3b1ba4170e74abeecb4c923dbe6b1c87291d42431a9126b3a7325f9ce04"
+  },
+  "tool_version": "10.0.4"
+}

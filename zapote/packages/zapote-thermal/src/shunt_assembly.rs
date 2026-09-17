@@ -1026,7 +1026,7 @@ mod tests {
     fn native() -> Vec<u8> {
         fs::read(
             Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../power-entry/shunt-repair/evidence/native-04.json"),
+                .join("../../power-entry/shunt-assembly/run-15/native.json"),
         )
         .unwrap()
     }

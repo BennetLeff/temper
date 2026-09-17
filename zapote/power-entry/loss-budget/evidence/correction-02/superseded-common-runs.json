@@ -1,0 +1,50 @@
+[
+  {
+    "deferred_units": {
+      "buck": "legacy delegated owner; no Zapote unit suite",
+      "mcu": "not in maintained Zapote registry"
+    },
+    "manifest_sha256": "19087ba71436ada2c7ecbab0731743b90e477c38d9f844817774bb37c18a5f11",
+    "output": "/private/tmp/zapote-pfc-loss-correction/zapote/validation/runs/pfc-switching-correction-20260917-02",
+    "schema": "zapote.unit-run-summary.v1",
+    "status": "fail",
+    "suite_changed_during_run": true,
+    "unit_count": 7,
+    "unit_statuses": [
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "fail"
+    ],
+    "raw_directory": "/private/tmp/zapote-pfc-loss-correction/zapote/validation/runs/pfc-switching-correction-20260917-02",
+    "summary_sha256": "1aadcaa0989e206d8e95cea1418d6e2fc05bc55c1f846b1cd8e67c454d3334b1",
+    "power_entry_report_sha256": "0050ee40143f1b88823dc52c7fbc29820794b68caa3d6fe1ed9c1be86a40146d"
+  },
+  {
+    "deferred_units": {
+      "buck": "legacy delegated owner; no Zapote unit suite",
+      "mcu": "not in maintained Zapote registry"
+    },
+    "manifest_sha256": "19087ba71436ada2c7ecbab0731743b90e477c38d9f844817774bb37c18a5f11",
+    "output": "/private/tmp/zapote-pfc-loss-correction/zapote/validation/runs/pfc-switching-correction-20260917-03",
+    "schema": "zapote.unit-run-summary.v1",
+    "status": "fail",
+    "suite_changed_during_run": false,
+    "unit_count": 7,
+    "unit_statuses": [
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "fail"
+    ],
+    "raw_directory": "/private/tmp/zapote-pfc-loss-correction/zapote/validation/runs/pfc-switching-correction-20260917-03",
+    "summary_sha256": "d53e7491c952660807b3fb061e0930eb8f86158a957b3a6aadb8dc3bbb16d65f",
+    "power_entry_report_sha256": "9192c3675d540b886b7a516e316b2dda60cb0e6da253bd5c8ba90aff6d8b39a1"
+  }
+]

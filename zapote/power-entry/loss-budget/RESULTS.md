@@ -26,7 +26,7 @@ context, not an exact-part prediction:
 | 50 ns | 40.990 | 48.081 |
 | 100 ns | 74.888 | 81.980 |
 
-These switch figures are conduction plus overlap only; the separately bounded
+These switch figures are conduction plus overlap only; the separately estimated
 capacitance and gate-drive terms below are not folded into them. The slower-edge
 assumptions plus the partial sum already exceed the previous 105 W electronics
 allowance. This is evidence that switching behavior matters to the design
@@ -34,18 +34,18 @@ decision; it is not evidence that the actual board dissipates that amount.
 Total-loss and cooling-margin fields are deliberately null.
 
 **The identity is resolved, and the switching term now has a reproducible
-bounded model.** Authored/native order code is `STW65N65DM2AG`; package marking
+conditional model.** Authored/native order code is `STW65N65DM2AG`; package marking
 is `65N65DM2`. The board/source/native/manufacturing receipts bind that identity
 and the current board hash. The Rust event model includes UCC28180 source/sink
-limits, Miller plateau, gate network and loop inductance across 18 cases:
+limits, Miller plateau, gate network and loop inductance across 54 sensitivity cases:
 
 | Term | Value at 389.615 V / 129.107 kHz | Basis |
 | --- | ---: | --- |
-| Output capacitance (`Eoss` at 389.615 V, digitized from DS11178 Rev 2 Figure 8) | 2.397 W ±0.078 W | Typical curve interpolation; 456 pF `C_oss eq.` is time-equivalent and not used as energy |
+| Output capacitance (`Eoss` at 389.615 V, digitized from DocID028164 Rev 1 page 7 Figure 12) | 2.174 W ±0.078 W | Typical curve interpolation; 456 pF `C_oss eq.` is time-equivalent and not used as energy |
 | Gate drive (`Qg` 120 nC, 10 V) | 0.155 W | Datasheet typical, one condition |
-| Nominal event-model switching overlap | 43.943 W | 120 Vrms, 10 V bias, 25 C; 0.25 ns fixed-step model |
+| Nominal event-model switching overlap | 126.582 W | 120 Vrms, 10 V bias, 25 C; 0.25 ns fixed-step model |
 
-The event model is a bounded typical calculation, not hardware qualification.
+The event model is a conditional typical calculation, not hardware qualification.
 A double-pulse capture and hot RDS(on) curve remain required to replace it. An
 Eon measured in the real gate network would already include the capacitance
 term, so these two must not be summed without checking that.
@@ -96,7 +96,7 @@ the [decision record](DECISION.md) defines which of it changes the architecture
 choice and which of it does not.
 
 1. Measure the boost cell's turn-on/turn-off overlap in the real gate network
-   and read the hot `RDS(on)` curve at the same time. This replaces the bounded
+   and read the hot `RDS(on)` curve at the same time. This replaces the conditional
    typical model before hardware thermal claims.
 2. Add inductor core/AC loss and frequency-dependent capacitor loss, then close
    parasitics, precharge/shutdown timing and the auxiliary supply.
@@ -112,7 +112,7 @@ reduced output reported, rather than at a common input current, and revisit a
 different bridge architecture only if loss, temperature or enclosure
 requirements justify it.
 
-## Evidence and validation
+## Historical evidence and validation — prior checkpoint
 
 - Common run: `../../validation/runs/loss-budget-candidates-20260916/`
   (`evidence/common-run-candidates.txt`). All seven units have native checks
@@ -133,7 +133,7 @@ requirements justify it.
   (`evidence/workspace-tests-resolution.txt`). That is the previous 509 plus the
   switch-identity resolution tests: `pfc_loss_budget` now pins four embedded
   documents instead of three and asserts the resolved order code, and
-  `pfc_candidates` asserts the bounded output-capacitance term and that the
+  `pfc_candidates` asserts the conditional output-capacitance term and that the
   overlap input stays explicitly unresolved. Focused runs are in
   `evidence/focused-tests-resolution.txt`.
 - Regular workspace Clippy completes. Strict `-D warnings` fails in unchanged
@@ -161,3 +161,11 @@ the new loss model to the validator it independently checks.
 No runtime service is deployed. Future evidence regeneration must execute
 the common runner and retain INDETERMINATE until the listed model inputs are
 resolved; a green native DRC is not thermal acceptance.
+
+## Corrected switching model verification — 2026-09-17
+
+See [the correction closeout](CLOSEOUT-2026-09-17.md) for current test scope,
+final seven-unit common-run results and remaining engineering work. The final
+run has zero failed findings and native checks PASS for all seven units; overall
+verdicts remain INDETERMINATE. Historical receipts above are not current
+qualification evidence.

@@ -9,6 +9,12 @@ Rust regressions enforce part/value rejection and keep incomplete totals and
 cooling margins absent. This is indexed repository guidance, not a new frozen
 catalog revision or proof of delivery to a future agent.
 
+The [switching-model review](../power-entry/loss-budget/SWITCHING-REVIEW-LESSONS.md)
+adds independent clamped-inductive anchors, separate RMS/event moments,
+explicit assumed charge, exact curve-source binding and audited historical
+thermal transfer. The regressions run in the normal Rust workspace suite;
+none permits a missing physical input to become acceptance.
+
 Zapote keeps three connected records: the durable explanation in
 `docs/solutions/`, short versioned notes selected for an attempt, and Rust
 validators with counterexamples that enforce engineering acceptance. Notes are

@@ -614,7 +614,7 @@ mod tests {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../power-entry/shunt-repair")
     }
     fn native() -> Vec<u8> {
-        fs::read(root().join("evidence/native-04.json")).unwrap()
+        fs::read(root().join("thermal-04/native.json")).unwrap()
     }
     struct Scratch(PathBuf);
     impl Scratch {

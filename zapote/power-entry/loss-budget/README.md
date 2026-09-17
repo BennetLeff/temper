@@ -1,3 +1,7 @@
+> The switching estimate was corrected after independent review. Read
+> [PFC-SWITCHING-MODEL.md](PFC-SWITCHING-MODEL.md) and
+> [EOSS-REV1-REBIND.md](EOSS-REV1-REBIND.md) before using earlier receipts.
+
 # Power-entry loss budget
 
 Read [results and next decisions](RESULTS.md) for the retained 18-case run, and
@@ -22,7 +26,7 @@ startup, DCM, thermal feedback and current-loop dynamics.
 The board's authored/native order code is `STW65N65DM2AG`; package marking is
 `65N65DM2`. The Rust event model now represents the actual 10 Ω + 3.3 Ω gate
 network, UCC28180 source/sink limits, Miller plateau and loop inductance across
-18 cases. Its typical outputs are bounded model evidence, not hardware claims;
+54 sensitivity cases. Its typical outputs are conditional model evidence, not hardware claims;
 measured switching waveforms and hot-device data remain required.
 
 Retained primary sources:
@@ -32,7 +36,7 @@ Retained primary sources:
 | sources/760800301.pdf | https://www.we-online.com/components/products/datasheet/760800301.pdf | 180 µH ±20%; maximum 20 mΩ at 20°C; no core-loss model |
 | sources/Diodes-GBJ2510.pdf | https://www.diodes.com/datasheet/download/GBJ2510.pdf | 1.05 V maximum per diode at 12.5 A/25°C only |
 | sources/RT1_Inrush.pdf | https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv&DocFormat=pdf&DocLang=English&DocNm=RT1_Inrush&DocType=Data+Sheet&PartCntxt=2-1393240-3 | 360 Ω coil at 23°C, ±10%; contact loss unspecified |
-| sources/STW65N65DM2AG.pdf | https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf | Selected order code `STW65N65DM2AG`/marking `65N65DM2`; `RDS(on)` max 50 mΩ at 25°C; Eoss curve from official DS11178 Rev 2 Figure 8; `C_oss eq.` 456 pF is time-equivalent only; `Qg` 120 nC |
+| sources/STW65N65DM2AG.pdf | https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf | Selected order code `STW65N65DM2AG`/marking `65N65DM2`; `RDS(on)` max 50 mΩ at 25°C; Eoss curve from official DocID028164 Rev 1 page 7 Figure 12; `C_oss eq.` 456 pF is time-equivalent only; `Qg` 120 nC |
 | sources/TI-UCC28180.pdf | TI UCC28180 datasheet | 1.5 A source / 2 A sink peak driver representation |
 
 The Rust report embeds these documents' hashes. Bridge loss uses a constant
@@ -68,10 +72,12 @@ retained FEM meshes, and a debug build is roughly an order of magnitude slower:
 a debug run had not finished power-entry after 25 minutes, while the same run in
 release completes all seven units in about five minutes.
 
-Next closure sequence: correct exact MOSFET identity in authored source and
-native artifacts; model its gate transitions/Eoss plus SiC commutation;
+Next closure sequence: resolve actual gate bias/drive strength and switching
+waveforms, then model SiC commutation;
 obtain inductor core/AC loss and capacitor impedance; allocate each heat
 source to its actual sink/board/air path. Installed airflow and sink-to-board
 coupling must be established before the prior imposed 60°C board boundary
 can represent an assembly. Then close switching-loop parasitics and
 startup/inrush/shutdown/bias timing, and define the auxiliary-supply contract.
+
+Latest correction and verification: [2026-09-17 closeout](CLOSEOUT-2026-09-17.md).
