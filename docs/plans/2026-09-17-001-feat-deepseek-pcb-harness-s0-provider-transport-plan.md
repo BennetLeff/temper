@@ -281,7 +281,14 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 - **U5 complete.** Nine guards, each with a perturbation crafted to trip it and only it, and each observed accepting that perturbation once disabled — recorded in `packages/temper-harness/tests/oracle/evidence/guard_removal.json` and re-derived on every run so it cannot drift. The five socket faults are ported from the prior attempt's diagnostic, mechanism kept and expectations re-derived.
 - **U6 complete.** The concurrency probe attributes every call to its own session and every one of them to the root aggregate, in CI and without a model. **The live canary has run once** (2026-09-17, `deepseek-flash`): all ten probes matched their recorded shapes, so Tier A is anchored to a live observation rather than resting on reproducibility alone. Its evidence is committed at `packages/temper-harness/tests/canary/evidence/canary.json` and carries no request body, no response body, and no credential.
 
-  **One caveat, recorded rather than smoothed over:** that run was made from a tree whose canary code was still **uncommitted** at the HEAD it names (`e596a1b80`, the U5 commit), so the evidence carries `harness_dirty: true` and cannot be reproduced from that commit alone. The observation is real and the shapes matched; its provenance is dirty. A clean re-run at a committed HEAD is **outstanding** and needs the credential provisioned again. Until it happens, the honest reading of the claim is "one live observation, from a tree that is not fully identified by its recorded commit".
+  **The first run had dirty provenance and was re-run to fix it.** It was made from a
+  tree whose canary code was still uncommitted at the HEAD it named (`e596a1b80`, the U5
+  commit), and the evidence said so — `harness_dirty: true` — because the provenance
+  discipline records dirt instead of assuming it away. That is the field earning its
+  keep: without it the file would have looked identical to a reproducible one. The
+  re-run at `51a789926` (a commit that contains all seven canary files, worst case
+  checked with `git ls-tree`) recorded `harness_dirty: false`, all ten probes matched
+  again, and the committed evidence is therefore reproducible from the commit it names.
 
 ### What Tier B anchors, precisely
 
@@ -490,9 +497,11 @@ was correct, the gate is deliberately syntactic, and the early-return form it wa
 reads better), and one oracle guard had been left behind as a dead function while the
 plan claimed it had been deleted — it is now a comment, so the deletion is the deletion.
 
-The review also found the canary-evidence provenance problem recorded under U6, and it
-confirmed the credential discipline held: no committed file contains a key, an
-`Authorization` value, or a response body carrying one.
+The review also found the canary-evidence provenance problem recorded under U6 — the
+first run was made from a dirty tree — which the `harness_dirty` field then made
+visible, and which a clean re-run closed. It confirmed the credential discipline held:
+no committed file contains a key, an `Authorization` value, or a response body carrying
+one, re-verified after every live run.
 
 ### Named unknowns (U1) — stated, not inferred away
 
