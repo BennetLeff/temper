@@ -1,0 +1,35 @@
+{
+  "status": "degraded",
+  "verdict": "Not ready",
+  "scope": {
+    "base": "a9326ba3b821951c027a184d2dec413ba47a3b7f",
+    "branch": "codex/buck-harness-experiment-plan",
+    "files_changed": 8
+  },
+  "intent": "Review the source-bound Rust loss budget and its common-runner integration. Ensure incomplete thermal evidence stays indeterminate and retained source evidence cannot silently drift.",
+  "reviewers": ["correctness"],
+  "findings": [],
+  "legacy_findings": [
+    {
+      "#": 1,
+      "title": "Embedded document hashes are reported but not authenticated",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-harness/src/pfc_loss_budget.rs",
+      "line": 155,
+      "confidence": "high",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "Bind each embedded document to a reviewed expected SHA-256 constant (or an equivalent checked manifest), fail closed on mismatch, and add mutation coverage for every document.",
+      "why_it_matters": "The LOSS_SOURCE_BINDING pass currently proves only that files were embedded and hashed. Replacing a PDF changes the model's evidence while leaving the pass green; only one document hash is pinned by tests.",
+      "evidence": "documents_sha256 is computed at lines 179-180 without any comparison to expected digests; the sole asserted digest is 760800301.pdf in the test at line 208.",
+      "reviewers": ["correctness"],
+      "independent_reviewers": []
+    }
+  ],
+  "actionable_findings": [],
+  "residual_risks": ["Adversarial reviewer did not reach a terminal outcome after bounded waits; no independent artifact was produced."],
+  "testing_gaps": ["Parent owns build and common-unit verification."],
+  "coverage": {"depth": "focused", "adversarial": "not run to terminal outcome"},
+  "artifact_path": "docs/reviews/loss-budget-20260916"
+}

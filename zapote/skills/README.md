@@ -1,5 +1,14 @@
 # Engineering memory
 
+The [power-entry loss-budget study](../power-entry/loss-budget/README.md)
+adds enforced procedures for waveform moments, resistance temperature
+references and incomplete heat budgets. Exact MPN suffixes must match before
+transferring datasheet values; loaded-gate controller supply current is not
+quiescent current; a cooling allowance is not verified heat-removal capacity.
+Rust regressions enforce part/value rejection and keep incomplete totals and
+cooling margins absent. This is indexed repository guidance, not a new frozen
+catalog revision or proof of delivery to a future agent.
+
 Zapote keeps three connected records: the durable explanation in
 `docs/solutions/`, short versioned notes selected for an attempt, and Rust
 validators with counterexamples that enforce engineering acceptance. Notes are

@@ -1,5 +1,13 @@
 # Power-entry electrical closeout
 
+Current follow-up: [loss budget](loss-budget/README.md) adds mandatory source,
+loss-coverage and cooling-closure rules to the maintained shunt-repair board.
+It computes condition-labeled partial losses and MOSFET design sensitivities.
+Total loss and cooling margin remain absent because the exact MOSFET identity
+and major loss/assembly inputs remain unresolved. Earlier GBU observations
+below describe historical candidates; the current registry is
+`shunt-repair/units.json`.
+
 Execution contract, 2026-09-16, starting at `7f506ba86`.
 
 The next milestone is an explicit electrical handoff to the auxiliary-power

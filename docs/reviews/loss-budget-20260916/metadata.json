@@ -1,0 +1,58 @@
+{
+  "branch": "codex/buck-harness-experiment-plan",
+  "completed_at": "2026-09-17T00:12:00Z",
+  "cost": {
+    "host": "codex",
+    "scope": {
+      "changed_lines": 27,
+      "depth": "focused",
+      "exec_nontest_lines": 10,
+      "size_band": "small",
+      "unclassified_lines": 17
+    },
+    "stages": [
+      {
+        "elapsed_seconds": 6.927,
+        "ended_at": "2026-09-17T00:05:47.028015+00:00",
+        "facts": {
+          "changed_lines": 27,
+          "depth": "focused",
+          "exec_nontest_lines": 10,
+          "size_band": "small",
+          "unclassified_lines": 17
+        },
+        "stage": "scope",
+        "started_at": "2026-09-17T00:05:40.100603+00:00"
+      },
+      {
+        "candidates": 0,
+        "elapsed_seconds": 325.347,
+        "ended_at": "2026-09-17T00:11:12.374828+00:00",
+        "stage": "review",
+        "started_at": "2026-09-17T00:05:47.028015+00:00"
+      },
+      {
+        "candidates": 0,
+        "ended_at": "2026-09-17T00:11:12.336347+00:00",
+        "stage": "peer"
+      },
+      {
+        "elapsed_seconds": 22.047,
+        "ended_at": "2026-09-17T00:11:34.383685+00:00",
+        "stage": "receipt",
+        "started_at": "2026-09-17T00:11:12.336347+00:00"
+      }
+    ],
+    "status": "complete",
+    "totals": {
+      "artifact_bytes": 3050,
+      "candidates": 0,
+      "elapsed_seconds": 354.321,
+      "reviewers": 0
+    },
+    "truncated_events": 0
+  },
+  "head_sha": "a9326ba3b821951c027a184d2dec413ba47a3b7f",
+  "run_id": "20260916-loss-budget",
+  "verdict": "Not ready"
+}

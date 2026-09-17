@@ -1,0 +1,3 @@
+WARN Ignoring non-directory workspace member: `/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/packages/README.md`
+error: Failed to initialize cache at `/Users/bennet/.cache/uv`
+  Caused by: failed to open file `/Users/bennet/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
