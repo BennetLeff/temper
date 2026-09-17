@@ -798,6 +798,21 @@ jobs:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
+      # Harness provider-transport and ledger gate. `packages/temper-harness/**`
+      # does NOT inherit this job: `Core Tests`'s paths enumerate specific
+      # workspace members, so without the matching entry in
+      # .github/required-checks.json AND this step, a diff touching only the new
+      # package would run its suite in no job at all -- the package would ship
+      # with its gates decorative. pytest_guard floors the collection at the 34
+      # tests measured on the introducing branch, so a silently-shrunk
+      # collection fails rather than reporting green.
+      - name: Run harness transport and ledger suites (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-harness
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 34 --
+          tests -v --tb=short -p no:cacheprovider
+
       # Wave 4 Phase 5 anti-vacuity gate (PR merge path): the report /
       # explainability / requirements differential+PBT suites are the ONLY
       # tests that pin the migrated Phase-5 Rust kernels

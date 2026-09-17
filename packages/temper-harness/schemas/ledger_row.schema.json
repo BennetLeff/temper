@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://temper.local/schemas/ledger_row.schema.json",
+  "title": "Ledger records",
+  "description": "The append-only records written by the ledger store. Exactly one `call_terminal` record exists per attempted call (R3); the other record kinds carry the lineage the aggregate needs to attribute that call to a root. Every record is append-only and never rewritten.",
+  "$defs": {
+    "lineage": {
+      "description": "The lineage vector on a call record. `root_id` is inherited from process context and never supplied by the caller (R1); there is deliberately no way to assert a root in this structure other than the one the registry resolved.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_id", "session_id", "parent_session_id", "call_id", "attempt"],
+      "properties": {
+        "root_id": { "type": "string", "minLength": 1 },
+        "session_id": { "type": "string", "minLength": 1 },
+        "parent_session_id": { "type": ["string", "null"] },
+        "call_id": { "type": "string", "minLength": 1 },
+        "attempt": {
+          "description": "Distinguishes a caller-issued retry from the first call. R3 requires retries to be separate rows rather than collapsed into one.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "call_terminal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "seq",
+        "lineage",
+        "status",
+        "served_from",
+        "usage",
+        "usage_source",
+        "price_table_id",
+        "provider_reported_usd",
+        "estimated_usd"
+      ],
+      "properties": {
+        "kind": { "const": "call_terminal" },
+        "seq": { "type": "integer", "minimum": 0 },
+        "lineage": { "$ref": "#/$defs/lineage" },
+        "status": {
+          "description": "`incomplete` and `cancelled` are non-ok terminal states that the aggregate fails closed on (R15). A call that never reached the provider is still `failed` and still gets a row (R3, R6).",
+          "enum": ["ok", "failed", "cancelled", "incomplete"]
+        },
+        "served_from": {
+          "description": "A replay row must never be summed into a scored aggregate (R15).",
+          "enum": ["live", "replay"]
+        },
+        "usage": { "$ref": "https://temper.local/schemas/usage.schema.json" },
+        "usage_source": {
+          "description": "Where the usage numbers came from. `unknown` with a null usage block is the honest state when the provider reported nothing; it is not a zero.",
+          "enum": ["provider", "local", "unknown"]
+        },
+        "price_table_id": {
+          "description": "Identity of the versioned price table that produced estimated_usd, recorded per row so a later rate change cannot retroactively re-price history (KTD7).",
+          "type": "string",
+          "minLength": 1
+        },
+        "provider_reported_usd": {
+          "description": "The provider's own cost figure when it reports one. Retained beside the computed figure so the arithmetic has an external check rather than certifying itself.",
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "estimated_usd": {
+          "description": "Cost computed from price_table_id. This is the billed_usd-versus-estimated_usd naming convention: a bare `cost` field would silently answer two different questions.",
+          "type": ["number", "null"],
+          "minimum": 0
+        }
+      }
+    },
+    "root_opened": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "seq", "root_id"],
+      "properties": {
+        "kind": { "const": "root_opened" },
+        "seq": { "type": "integer", "minimum": 0 },
+        "root_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "session_registered": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "seq", "root_id", "session_id", "parent_session_id"],
+      "properties": {
+        "kind": { "const": "session_registered" },
+        "seq": { "type": "integer", "minimum": 0 },
+        "root_id": { "type": "string", "minLength": 1 },
+        "session_id": { "type": "string", "minLength": 1 },
+        "parent_session_id": { "type": ["string", "null"] }
+      }
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/call_terminal" },
+    { "$ref": "#/$defs/root_opened" },
+    { "$ref": "#/$defs/session_registered" }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://temper.local/schemas/usage.schema.json",
+  "title": "Usage record",
+  "description": "Token counts for one provider call. A field the provider does not report is null, never 0 (R4): a missing count and a measured zero are different facts, and collapsing them is how a structurally-zero column gets published as a measurement. Fields named here are the transport's own; the provider-specific key names that map onto them are frozen by U1's live capture, not assumed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["prompt_tokens", "completion_tokens", "reasoning_tokens", "cached_input_tokens"],
+  "properties": {
+    "prompt_tokens": {
+      "description": "Input tokens. null when the provider does not report it.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "completion_tokens": {
+      "description": "Output tokens. null when the provider does not report it.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "reasoning_tokens": {
+      "description": "Reasoning tokens. Whether this is a subset of completion_tokens or additive to it is a provider fact pinned by U1's capture; it must never be guessed, because adding a subset double-counts and omitting it under-reports.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "cached_input_tokens": {
+      "description": "Input tokens served from the provider's prompt cache. Priced differently from uncached input, so a row that conflates them mis-prices the call.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    }
+  }
+}
