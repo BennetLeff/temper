@@ -1,0 +1,70 @@
+{
+  "run": "zapote/validation/runs/pfc-drive02-20260917-01",
+  "exit_code": 2,
+  "units": [
+    {
+      "unit": "rtd",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "failed_objects": 0,
+      "native_tool_versions": [
+        "10.0.4"
+      ]
+    },
+    {
+      "unit": "current-sense",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "failed_objects": 0,
+      "native_tool_versions": [
+        "10.0.4"
+      ]
+    },
+    {
+      "unit": "voltage-sense",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "failed_objects": 0,
+      "native_tool_versions": [
+        "10.0.4"
+      ]
+    },
+    {
+      "unit": "thermal-sense",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "failed_objects": 0,
+      "native_tool_versions": [
+        "10.0.4"
+      ]
+    },
+    {
+      "unit": "interlock",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "failed_objects": 0,
+      "native_tool_versions": [
+        "10.0.4"
+      ]
+    },
+    {
+      "unit": "gate-drive",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "failed_objects": 0,
+      "native_tool_versions": [
+        "10.0.4"
+      ]
+    },
+    {
+      "unit": "power-entry",
+      "status": "indeterminate",
+      "native_status": "pass",
+      "failed_objects": 0,
+      "native_tool_versions": [
+        "10.0.4"
+      ]
+    }
+  ],
+  "scope": "Seven maintained units; buck and MCU deferred by registry"
+}

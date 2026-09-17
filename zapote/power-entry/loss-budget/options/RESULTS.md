@@ -1,10 +1,13 @@
 # PFC assurance and three electrical options
 
-Update: [experiment 01](experiment-01/RESULTS.md) now compares all three
-MOSFETs through the maintained switching model. C7 has the lowest conditional
-nominal partial loss, but device sensitivity ranges overlap and physical
-qualification remains INDETERMINATE. The next step is a source-bound gate-drive
-comparison, not automatic substitution.
+Update: [experiment 02](experiment-02/RESULTS.md) compares C7 and the incumbent
+ST device with a proposed UCC27624 buffer, separate 12 V driver supply and
+explicit asymmetric drive profiles. At the nominal 4.7 Ω comparison C7 gives
+37.78–53.47 W conditional partial loss, versus 68.35 W for the experiment-01
+10 V/10 Ω C7 control. These are hypothetical sensitivities, not dynamic bounds.
+The next circuit iteration is the C7 buffered gate stage, supply producer and
+hardware enable interlock; physical qualification remains INDETERMINATE.
+[Experiment 01](experiment-01/RESULTS.md) remains the unbuffered device comparison.
 
 The four Luna work packages are integrated together so numerical safeguards
 and component research use the same comparison contract. The current PCB and
@@ -18,8 +21,9 @@ its STW65N65DM2AG remain unchanged. No option is qualified or selected.
 | [Replacement MOSFET](replacement-fet/REPORT.md) | IPW65R045C7 is the first modeling candidate; IPW65R041CFD7 is the alternative. Lower typical Miller charge is promising, but source conditions differ. | Feed exact source-bound candidate parameters into the maintained switching model, with the same operating cases and explicit driver uncertainty. Do not infer total loss from Qgd alone. |
 | [Replacement MOSFET plus driver](replacement-pair/REPORT.md) | IMZA65R048M1H + UCC27624DR needs regulated 18 V and Kelvin routing. NTH4L060N065SC1 + UCC27524AD is a proposed 15 V screen, not a manufacturer-recommended turn-on claim. | Resolve bias, enable/UVLO sequencing, gate overshoot and source curves before modifying CAD. Obtain comparable switching evidence at instantaneous event currents and temperature. |
 
-The second option is the smallest electrical experiment. It is a priority for
-the next model, not an approved substitution. Pair A's exact Infineon PDF bytes
+The device-only comparison and buffered C7 numerical experiment are complete.
+The option records below preserve their initial research context; experiment 02
+sets the current circuit-design priority, not an approved substitution. Pair A's exact Infineon PDF bytes
 remain uncaptured; indexed distributor inventory is indicative, not a live
 procurement guarantee. Read each candidate record for its individual gaps.
 

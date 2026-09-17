@@ -32,6 +32,26 @@ pub struct Config {
     pub timestep_s: f64,
 }
 
+/// External resistance in each direction of the gate path.
+///
+/// Values include the authored gate resistor and any driver output resistance;
+/// `Config::intrinsic_gate_r_ohm` remains the MOSFET's intrinsic contribution.
+#[derive(Clone, Copy, Debug, Serialize)]
+pub struct GatePath {
+    pub turn_on_external_r_ohm: f64,
+    pub turn_off_external_r_ohm: f64,
+}
+
+/// Result of a run that explicitly records the asymmetric gate path applied.
+/// The nested legacy result intentionally keeps its historical schema and
+/// model version so existing experiment-01/production bytes remain stable.
+#[derive(Clone, Debug, Serialize)]
+pub struct GatePathResult {
+    pub result: Result,
+    pub applied_gate_path: GatePath,
+    pub model_variant: &'static str,
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub struct Transition {
     pub direction: &'static str,
@@ -100,8 +120,12 @@ fn waveform(on: bool, t: f64, ti: f64, tv: f64) -> (f64, f64) {
     }
 }
 
-fn transition(c: Config, on: bool) -> std::result::Result<Transition, String> {
-    let resistance = c.external_gate_r_ohm + c.intrinsic_gate_r_ohm;
+fn transition(
+    c: Config,
+    on: bool,
+    external_gate_r_ohm: f64,
+) -> std::result::Result<Transition, String> {
+    let resistance = external_gate_r_ohm + c.intrinsic_gate_r_ohm;
     positive("total gate resistance", resistance)?;
     let gate_current = if on {
         c.driver_source_peak_a
@@ -190,7 +214,7 @@ fn transition(c: Config, on: bool) -> std::result::Result<Transition, String> {
     })
 }
 
-pub fn simulate(c: Config) -> std::result::Result<Result, String> {
+fn simulate_impl(c: Config, path: GatePath) -> std::result::Result<Result, String> {
     for (name, value) in [
         ("bus_v", c.bus_v),
         ("switching_hz", c.switching_hz),
@@ -222,8 +246,9 @@ pub fn simulate(c: Config) -> std::result::Result<Result, String> {
             "bias must exceed plateau and event charges must leave room in total Qg".into(),
         );
     }
-    let on = transition(c, true)?;
-    let off = transition(c, false)?;
+    validate_external_path(path)?;
+    let on = transition(c, true, path.turn_on_external_r_ohm)?;
+    let off = transition(c, false, path.turn_off_external_r_ohm)?;
     let pair_s =
         (on.current_transfer_ns + on.miller_ns + off.current_transfer_ns + off.miller_ns) * 1e-9;
     if pair_s * c.switching_hz >= 1.0 {
@@ -253,6 +278,58 @@ pub fn simulate(c: Config) -> std::result::Result<Result, String> {
         mosfet_plus_gate_loss_w: total,
         quadrature_checked: true,
     })
+}
+
+fn validate_external_path(path: GatePath) -> std::result::Result<(), String> {
+    for (name, value) in [
+        (
+            "turn-on external gate resistance",
+            path.turn_on_external_r_ohm,
+        ),
+        (
+            "turn-off external gate resistance",
+            path.turn_off_external_r_ohm,
+        ),
+    ] {
+        nonnegative(name, value)?;
+    }
+    Ok(())
+}
+
+/// Run the maintained model with an explicitly asymmetric gate path.
+///
+/// `inputs.external_gate_r_ohm` in the nested legacy result is the applied
+/// turn-on path. The turn-off path is carried separately and cannot silently
+/// fall back to symmetry.
+pub fn simulate_with_gate_path(
+    c: Config,
+    path: GatePath,
+) -> std::result::Result<GatePathResult, String> {
+    validate_external_path(path)?;
+    if !c.external_gate_r_ohm.is_finite() || c.external_gate_r_ohm < 0.0 {
+        return Err("config external gate resistance must be finite and nonnegative".into());
+    }
+    if (c.external_gate_r_ohm - path.turn_on_external_r_ohm).abs() > 1e-12 {
+        return Err("config external gate resistance must equal applied turn-on path".into());
+    }
+    let mut applied_config = c;
+    applied_config.external_gate_r_ohm = path.turn_on_external_r_ohm;
+    let result = simulate_impl(applied_config, path)?;
+    Ok(GatePathResult {
+        result,
+        applied_gate_path: path,
+        model_variant: "clamped-inductive-linear-v2-asymmetric-gate-path",
+    })
+}
+
+/// Legacy symmetric API. Its result type, numeric values and serialized bytes
+/// are intentionally unchanged.
+pub fn simulate(c: Config) -> std::result::Result<Result, String> {
+    let path = GatePath {
+        turn_on_external_r_ohm: c.external_gate_r_ohm,
+        turn_off_external_r_ohm: c.external_gate_r_ohm,
+    };
+    simulate_impl(c, path)
 }
 
 #[cfg(test)]
@@ -422,5 +499,127 @@ mod tests {
         for c in cases {
             assert!(simulate(c).is_err(), "accepted {c:?}");
         }
+    }
+
+    #[test]
+    fn symmetric_gate_path_preserves_legacy_numbers_and_bytes() {
+        let cfg = config(0.25e-9);
+        let legacy = simulate(cfg).unwrap();
+        let explicit = simulate_with_gate_path(
+            cfg,
+            GatePath {
+                turn_on_external_r_ohm: cfg.external_gate_r_ohm,
+                turn_off_external_r_ohm: cfg.external_gate_r_ohm,
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            legacy.turn_on.assumed_gate_current_a,
+            explicit.result.turn_on.assumed_gate_current_a
+        );
+        assert_eq!(
+            legacy.turn_off.assumed_gate_current_a,
+            explicit.result.turn_off.assumed_gate_current_a
+        );
+        assert_eq!(
+            serde_json::to_vec(&legacy).unwrap(),
+            serde_json::to_vec(&explicit.result).unwrap()
+        );
+    }
+
+    #[test]
+    fn asymmetric_gate_path_uses_independent_triangle_currents() {
+        let cfg = Config {
+            external_gate_r_ohm: 4.0,
+            ..config(0.25e-9)
+        };
+        let out = simulate_with_gate_path(
+            cfg,
+            GatePath {
+                turn_on_external_r_ohm: 4.0,
+                turn_off_external_r_ohm: 16.0,
+            },
+        )
+        .unwrap();
+        let on_i = cfg
+            .driver_source_peak_a
+            .min((cfg.gate_bias_v - cfg.gate_plateau_v) / (4.0 + cfg.intrinsic_gate_r_ohm));
+        let off_i = cfg
+            .driver_sink_peak_a
+            .min(cfg.gate_plateau_v / (16.0 + cfg.intrinsic_gate_r_ohm));
+        assert!((out.result.turn_on.assumed_gate_current_a - on_i).abs() < 1e-12);
+        assert!((out.result.turn_off.assumed_gate_current_a - off_i).abs() < 1e-12);
+        assert!((out.result.turn_on.overlap_energy_j - 40e-6).abs() < 1e-12);
+        assert!((out.result.turn_off.overlap_energy_j - 160e-6).abs() < 1e-12);
+        assert_eq!(out.result.inputs.external_gate_r_ohm, 4.0);
+        assert_eq!(out.applied_gate_path.turn_off_external_r_ohm, 16.0);
+        let swapped_cfg = Config {
+            external_gate_r_ohm: 16.0,
+            ..config(0.25e-9)
+        };
+        let swapped = simulate_with_gate_path(
+            swapped_cfg,
+            GatePath {
+                turn_on_external_r_ohm: 16.0,
+                turn_off_external_r_ohm: 4.0,
+            },
+        )
+        .unwrap();
+        assert!(
+            swapped.result.turn_on.assumed_gate_current_a
+                < out.result.turn_on.assumed_gate_current_a
+        );
+        assert!(
+            swapped.result.turn_off.assumed_gate_current_a
+                > out.result.turn_off.assumed_gate_current_a
+        );
+    }
+
+    #[test]
+    fn rejects_invalid_gate_path_and_pair_budget() {
+        let cfg = config(0.25e-9);
+        for path in [
+            GatePath {
+                turn_on_external_r_ohm: -1.0,
+                turn_off_external_r_ohm: 10.0,
+            },
+            GatePath {
+                turn_on_external_r_ohm: f64::NAN,
+                turn_off_external_r_ohm: 10.0,
+            },
+            GatePath {
+                turn_on_external_r_ohm: 10.0,
+                turn_off_external_r_ohm: f64::INFINITY,
+            },
+        ] {
+            assert!(simulate_with_gate_path(cfg, path).is_err());
+        }
+        assert!(simulate_with_gate_path(
+            Config {
+                external_gate_r_ohm: f64::NAN,
+                ..cfg
+            },
+            GatePath {
+                turn_on_external_r_ohm: 10.0,
+                turn_off_external_r_ohm: 10.0,
+            },
+        )
+        .is_err());
+        assert!(simulate_with_gate_path(
+            cfg,
+            GatePath {
+                turn_on_external_r_ohm: 9.0,
+                turn_off_external_r_ohm: 10.0,
+            },
+        )
+        .is_err());
+        let path = GatePath {
+            turn_on_external_r_ohm: 10.0,
+            turn_off_external_r_ohm: 10.0,
+        };
+        let mut fast = cfg;
+        fast.switching_hz = 15e6;
+        let error = simulate_with_gate_path(fast, path).unwrap_err();
+        assert!(error.contains("transition pair"), "{error}");
     }
 }

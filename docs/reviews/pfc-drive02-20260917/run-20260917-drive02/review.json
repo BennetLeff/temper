@@ -1,0 +1,118 @@
+{
+  "status": "complete",
+  "verdict": "Not ready",
+  "scope": {
+    "base": "c27abe974",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "c27abe974",
+    "pr_url": null,
+    "files_changed": 29
+  },
+  "intent": "Review the buffered C7/UCC27624 sensitivity experiment, its asymmetric GatePath extension, source-bound 2,916-case report, two legacy controls, and retained evidence. Numerical results are conditional piecewise-linear sensitivity only; physical/interface qualification remains intentionally indeterminate.",
+  "intent_confidence": "explicit",
+  "reviewers": ["correctness", "adversarial"],
+  "findings": [
+    {
+      "#": 1,
+      "title": "Independent audit accepts 2,916 copies of one case",
+      "severity": "P1",
+      "file": "zapote/power-entry/loss-budget/options/experiment-02/independent-audit.rs",
+      "line": 71,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Bind each TSV row to the canonical scenario key and require the exact 2,916-key Cartesian set, rejecting duplicates, missing keys, and out-of-grid rows before accepting the arithmetic audit.",
+      "first_evidence": "zapote/power-entry/loss-budget/options/experiment-02/independent-audit.rs:71 -- fn main() -> Result<(), Box<dyn std::error::Error>> {",
+      "why_it_matters": "The audit checks each row's closed-form arithmetic but never checks row identity, device/profile/grid membership, uniqueness, or correspondence to the source-bound report. Repeating one valid row 2,916 times therefore produces a passing cases=2916 receipt without covering the Cartesian experiment.",
+      "evidence": [
+        "zapote/power-entry/loss-budget/options/experiment-02/independent-audit.rs:54-68 -- audit_row validates only 22 columns and arithmetic values; the first TSV field is used only in an error label.",
+        "zapote/power-entry/loss-budget/options/experiment-02/independent-audit.rs:71-80 -- main increments count for every accepted line and emits pass without a key set or duplicate/missing check.",
+        "A repeated copy of the first valid audit-input.tsv row 2,916 times would be accepted and emit cases=2916 despite omitting the other scenarios."
+      ],
+      "reviewers": ["adversarial"],
+      "independent_reviewers": ["adversarial"]
+    },
+    {
+      "#": 2,
+      "title": "Persisted report JSON has no corruption validation path",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-harness/src/bin/zapote-pfc-drive-experiment.rs",
+      "line": 11,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Add a replay/validation command that deserializes the retained report schema, rechecks report-level identities and scenario relationships, and verifies the source/report digest binding before evidence is accepted.",
+      "first_evidence": "zapote/packages/zapote-harness/src/bin/zapote-pfc-drive-experiment.rs:11 -- let source = fs::read_to_string(&args[0]).context(\"source manifest\")?;",
+      "why_it_matters": "The CLI only reads a source manifest, regenerates a report, and prints JSON. It never ingests evidence/report.json, so a retained report can be changed after generation while still being treated as the claimed 2,916-case evidence; the existing mutation tests cover in-memory structs only.",
+      "evidence": [
+        "zapote/packages/zapote-harness/src/bin/zapote-pfc-drive-experiment.rs:6-13 -- the sole input is a source manifest and the command only serializes a freshly generated report.",
+        "zapote/packages/zapote-harness/src/pfc_drive_experiment.rs:706 -- validate_scenario_grid is called only on newly generated in-memory scenarios.",
+        "zapote/packages/zapote-harness/src/pfc_drive_experiment.rs:800-818 -- corruption tests mutate Rust structs in memory and do not deserialize a serialized evidence artifact."
+      ],
+      "reviewers": ["adversarial"],
+      "independent_reviewers": ["adversarial"]
+    }
+  ],
+  "actionable_findings": [1, 2],
+  "triage_groups": [
+    {
+      "title": "Evidence binding and replay integrity",
+      "findings": [1, 2],
+      "context": "Both findings allow a retained independent or generated artifact to claim complete coverage without proving correspondence to the canonical report.",
+      "preferred_resolution": "Add canonical-key and serialized-report replay validation before accepting retained evidence.",
+      "why": "The experiment's numerical checks are only useful when the checked rows and retained report are bound to the exact source and grid."
+    }
+  ],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "source": "explicit",
+    "status": "partial",
+    "met": [
+      "Explicit asymmetric GatePath API with legacy simulate compatibility and applied path serialization",
+      "Exact 2,916-case grid, two nominal controls, source hashes, scalar/accounting checks, and mutation coverage",
+      "Independent closed-form arithmetic audit retained with raw input/output and source identity",
+      "Numerical PASS is separated from physical/interface/qualification INDETERMINATE status"
+    ],
+    "unresolved": [
+      "Independent audit does not enforce canonical scenario-key coverage",
+      "No serialized report replay/corruption validator binds retained evidence to the generated source-bound report"
+    ]
+  },
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "A validator must assert input correspondence, not only output arithmetic",
+      "citation": "docs/solutions/best-practices/assert-input-preconditions-not-just-output-metrics.md",
+      "note": "The independent audit needs an exact-key precondition so a green arithmetic result cannot stand in for complete scenario coverage."
+    },
+    {
+      "type": "known_pattern",
+      "title": "A runnable model is evidence only inside its declared boundary",
+      "citation": "docs/solutions/best-practices/behavioral-model-evidence-boundary.md",
+      "note": "The report correctly keeps physical qualification indeterminate, but retained artifacts still need source and serialization binding."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "The piecewise-linear switching model remains conditional; driver dynamic impedance, commutation, overshoot, temperature, supply production, sequencing, and installed assembly qualification are intentionally unmeasured.",
+    "No live build or runtime verification was performed in this bounded review; root-owned workspace evidence was inspected as retained artifacts."
+  ],
+  "testing_gaps": [
+    "No regression test compares legacy_controls against the retained experiment-01 report bytes inside the new validator; external retained evidence shows matching nominal values.",
+    "No serialized report mutation test exercises deserialization and source/report identity checks."
+  ],
+  "coverage": {
+    "depth": "full",
+    "peer": "Cross-model private-code egress was skipped after the prior automatic-approval rejection; no external recipient was authorized.",
+    "local_reviewers": ["correctness (Luna)", "adversarial (Luna)"],
+    "not_run": ["project-standards", "testing", "maintainability", "learnings", "cross-model adversarial"],
+    "notes": ["Scope included tracked Rust/API changes and all experiment-02 source/audit/evidence files requested by the coordinator, including untracked paths."]
+  },
+  "artifact_path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/docs/reviews/pfc-drive02-20260917",
+  "run_id": "run-20260917-drive02"
+}

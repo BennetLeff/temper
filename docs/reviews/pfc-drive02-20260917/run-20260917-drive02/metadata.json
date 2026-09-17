@@ -1,0 +1,13 @@
+{
+  "run_id": "run-20260917-drive02",
+  "branch": "codex/buck-harness-experiment-plan",
+  "head_sha": "c27abe974",
+  "verdict": "Not ready",
+  "completed_at": "2026-09-17T00:00:00Z",
+  "cost": {
+    "status": "complete",
+    "scope": {"depth": "full", "exec_nontest_lines": 210, "changed_lines": 220, "size_band": "large"},
+    "reviewers": ["correctness", "adversarial"],
+    "peer": {"outcome": "not-run", "reason": "private-code egress was not authorized after prior automatic approval rejection"}
+  }
+}

@@ -1,0 +1,10 @@
+
+running 5 tests
+test tests::asymmetric_gate_currents_use_distinct_voltage_differences ... ok
+test tests::exchanging_on_and_off_paths_rejects_the_unchanged_energy ... ok
+test tests::changed_report_value_and_nan_are_rejected_after_valid_control ... ok
+test tests::identity_and_canonical_grid_mutations_fail_closed ... ok
+test tests::full_grid_and_population_mutations_fail_closed ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s
+

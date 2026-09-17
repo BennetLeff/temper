@@ -42,10 +42,16 @@ If a future isolated measurement proves 15 V at U11 pin 7 under load, a
 still cannot be promoted to the actual gate bias without observing U11 pin 8
 and the MOSFET gate.
 
-TI recommends VCC from 10.5 to 21 V (printed p.6); UVLO turns the controller
-on at 11.5 V typical and off at 9.5 V typical (printed pp.6 and 14). Those
+TI recommends VCC from VCCOFF + 1 V to 21 V (printed p.5); 10.5 V uses the
+typical VCCOFF, while its 10.3 V maximum gives an 11.3 V operating minimum.
+UVLO turns the controller on at 11.5 V typical (12.1 V maximum) and off at
+9.5 V typical (10.3 V maximum), per the printed p.6 table. Those
 thresholds constrain an external supply but do not establish its nominal
 voltage, ripple or source impedance at U11.
+
+Experiment 02 corrected the earlier fixed 10.5 V wording above. Its proposed
+12 V ±5% buffer supply is separate from controller VCC: the 11.4 V low end
+does not guarantee clearing the controller's maximum startup threshold.
 
 The 10 kohm pulldown draws about 1.1–1.5 mA for a 11–15 V gate and drops only
 about 11–15 mV across the 10 ohm series resistor at DC. Dynamic current is

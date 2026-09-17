@@ -1,0 +1,22 @@
+
+running 5 tests
+test tests::changed_report_value_and_nan_are_rejected_after_valid_control ... ok
+test tests::exchanging_on_and_off_paths_rejects_the_unchanged_energy ... ok
+test tests::identity_and_canonical_grid_mutations_fail_closed ... ok
+test tests::asymmetric_gate_currents_use_distinct_voltage_differences ... FAILED
+test tests::full_grid_and_population_mutations_fail_closed ... ok
+
+failures:
+
+---- tests::asymmetric_gate_currents_use_distinct_voltage_differences stdout ----
+
+thread 'tests::asymmetric_gate_currents_use_distinct_voltage_differences' (20731890) panicked at zapote/power-entry/loss-budget/options/experiment-02/independent-audit.rs:178:9:
+assertion failed: (a[4] - b[4]).abs() > 1.0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::asymmetric_gate_currents_use_distinct_voltage_differences
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+

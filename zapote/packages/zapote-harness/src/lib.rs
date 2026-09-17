@@ -15,6 +15,7 @@ pub mod power_entry;
 pub mod pfc_paths;
 pub mod pfc_power;
 pub mod pfc_candidates;
+pub mod pfc_drive_experiment;
 pub mod pfc_loss_budget;
 pub mod pfc_mosfet_experiment;
 pub mod runner;

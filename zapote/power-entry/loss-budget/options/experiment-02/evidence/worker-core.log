@@ -1,0 +1,56 @@
+Thu Sep 17 18:51:09 UTC 2026
+   Compiling zapote-erc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-erc)
+    Finished `release` profile [optimized] target(s) in 3.71s
+     Running unittests src/lib.rs (/private/tmp/zapote-rtd-target/release/deps/zapote_erc-36a52a74ad6311f9)
+
+running 11 tests
+test pfc_switching::tests::asymmetric_gate_path_uses_independent_triangle_currents ... ok
+test pfc_switching::tests::clamped_inductive_miller_stage_has_triangle_energy ... ok
+test pfc_switching::tests::asymmetric_event_currents_and_driver_caps ... ok
+test pfc_switching::tests::driver_and_miller_model_converges_with_timestep_refinement ... ok
+test pfc_switching::tests::independent_triangle_and_duty_anchors ... ok
+test pfc_switching::tests::miller_change_does_not_change_current_slew_overshoot ... ok
+test pfc_switching::tests::eoss_once_and_gate_network_separate_from_die ... ok
+test pfc_switching::tests::rejects_invalid_or_unbounded_inputs ... ok
+test pfc_switching::tests::stages_hold_current_or_voltage_and_reverse_order ... ok
+test pfc_switching::tests::rejects_invalid_gate_path_and_pair_budget ... ok
+test pfc_switching::tests::symmetric_gate_path_preserves_legacy_numbers_and_bytes ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 48 filtered out; finished in 0.00s
+
+     Running tests/gate_drive.rs (/private/tmp/zapote-rtd-target/release/deps/gate_drive-f4a70d632256392e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+     Running tests/pfc_control.rs (/private/tmp/zapote-rtd-target/release/deps/pfc_control-2027e234655c6b03)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+     Running tests/pfc_current_reference.rs (/private/tmp/zapote-rtd-target/release/deps/pfc_current_reference-2e9c6dfd5f91a364)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+     Running tests/power_entry.rs (/private/tmp/zapote-rtd-target/release/deps/power_entry-0690b84d9dd148f8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.00s
+
+     Running tests/power_stage_models.rs (/private/tmp/zapote-rtd-target/release/deps/power_stage_models-a60e1d7d29a66b2f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+     Running tests/source_circuit.rs (/private/tmp/zapote-rtd-target/release/deps/source_circuit-14e6077cb9e0849a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+

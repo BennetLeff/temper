@@ -1,0 +1,14 @@
+[
+  {
+    "case": "retained",
+    "exit_code": 2,
+    "retained_output_byte_identical": true,
+    "input_sha256": "3805a41c953ae04dec3f65084de51a153e048d9ac4abfd204a8c52abde26749c"
+  },
+  {
+    "case": "mutated",
+    "exit_code": 1,
+    "retained_output_byte_identical": false,
+    "input_sha256": "a515f26039ef2f44294b448d9891ac84af45961ba5bb8d540dde9afea6063831"
+  }
+]

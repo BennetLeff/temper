@@ -1,0 +1,1181 @@
+diff --git a/zapote/packages/zapote-erc/src/pfc_switching.rs b/zapote/packages/zapote-erc/src/pfc_switching.rs
+index 2e3d21c15..7dbb98746 100644
+--- a/zapote/packages/zapote-erc/src/pfc_switching.rs
++++ b/zapote/packages/zapote-erc/src/pfc_switching.rs
+@@ -32,6 +32,26 @@ pub struct Config {
+     pub timestep_s: f64,
+ }
+ 
++/// External resistance in each direction of the gate path.
++///
++/// Values include the authored gate resistor and any driver output resistance;
++/// `Config::intrinsic_gate_r_ohm` remains the MOSFET's intrinsic contribution.
++#[derive(Clone, Copy, Debug, Serialize)]
++pub struct GatePath {
++    pub turn_on_external_r_ohm: f64,
++    pub turn_off_external_r_ohm: f64,
++}
++
++/// Result of a run that explicitly records the asymmetric gate path applied.
++/// The nested legacy result intentionally keeps its historical schema and
++/// model version so existing experiment-01/production bytes remain stable.
++#[derive(Clone, Debug, Serialize)]
++pub struct GatePathResult {
++    pub result: Result,
++    pub applied_gate_path: GatePath,
++    pub model_variant: &'static str,
++}
++
+ #[derive(Clone, Debug, Serialize)]
+ pub struct Transition {
+     pub direction: &'static str,
+@@ -100,8 +120,12 @@ fn waveform(on: bool, t: f64, ti: f64, tv: f64) -> (f64, f64) {
+     }
+ }
+ 
+-fn transition(c: Config, on: bool) -> std::result::Result<Transition, String> {
+-    let resistance = c.external_gate_r_ohm + c.intrinsic_gate_r_ohm;
++fn transition(
++    c: Config,
++    on: bool,
++    external_gate_r_ohm: f64,
++) -> std::result::Result<Transition, String> {
++    let resistance = external_gate_r_ohm + c.intrinsic_gate_r_ohm;
+     positive("total gate resistance", resistance)?;
+     let gate_current = if on {
+         c.driver_source_peak_a
+@@ -190,7 +214,7 @@ fn transition(c: Config, on: bool) -> std::result::Result<Transition, String> {
+     })
+ }
+ 
+-pub fn simulate(c: Config) -> std::result::Result<Result, String> {
++fn simulate_impl(c: Config, path: GatePath) -> std::result::Result<Result, String> {
+     for (name, value) in [
+         ("bus_v", c.bus_v),
+         ("switching_hz", c.switching_hz),
+@@ -222,8 +246,9 @@ pub fn simulate(c: Config) -> std::result::Result<Result, String> {
+             "bias must exceed plateau and event charges must leave room in total Qg".into(),
+         );
+     }
+-    let on = transition(c, true)?;
+-    let off = transition(c, false)?;
++    validate_external_path(path)?;
++    let on = transition(c, true, path.turn_on_external_r_ohm)?;
++    let off = transition(c, false, path.turn_off_external_r_ohm)?;
+     let pair_s =
+         (on.current_transfer_ns + on.miller_ns + off.current_transfer_ns + off.miller_ns) * 1e-9;
+     if pair_s * c.switching_hz >= 1.0 {
+@@ -255,6 +280,58 @@ pub fn simulate(c: Config) -> std::result::Result<Result, String> {
+     })
+ }
+ 
++fn validate_external_path(path: GatePath) -> std::result::Result<(), String> {
++    for (name, value) in [
++        (
++            "turn-on external gate resistance",
++            path.turn_on_external_r_ohm,
++        ),
++        (
++            "turn-off external gate resistance",
++            path.turn_off_external_r_ohm,
++        ),
++    ] {
++        nonnegative(name, value)?;
++    }
++    Ok(())
++}
++
++/// Run the maintained model with an explicitly asymmetric gate path.
++///
++/// `inputs.external_gate_r_ohm` in the nested legacy result is the applied
++/// turn-on path. The turn-off path is carried separately and cannot silently
++/// fall back to symmetry.
++pub fn simulate_with_gate_path(
++    c: Config,
++    path: GatePath,
++) -> std::result::Result<GatePathResult, String> {
++    validate_external_path(path)?;
++    if !c.external_gate_r_ohm.is_finite() || c.external_gate_r_ohm < 0.0 {
++        return Err("config external gate resistance must be finite and nonnegative".into());
++    }
++    if (c.external_gate_r_ohm - path.turn_on_external_r_ohm).abs() > 1e-12 {
++        return Err("config external gate resistance must equal applied turn-on path".into());
++    }
++    let mut applied_config = c;
++    applied_config.external_gate_r_ohm = path.turn_on_external_r_ohm;
++    let result = simulate_impl(applied_config, path)?;
++    Ok(GatePathResult {
++        result,
++        applied_gate_path: path,
++        model_variant: "clamped-inductive-linear-v2-asymmetric-gate-path",
++    })
++}
++
++/// Legacy symmetric API. Its result type, numeric values and serialized bytes
++/// are intentionally unchanged.
++pub fn simulate(c: Config) -> std::result::Result<Result, String> {
++    let path = GatePath {
++        turn_on_external_r_ohm: c.external_gate_r_ohm,
++        turn_off_external_r_ohm: c.external_gate_r_ohm,
++    };
++    simulate_impl(c, path)
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+@@ -423,4 +500,126 @@ mod tests {
+             assert!(simulate(c).is_err(), "accepted {c:?}");
+         }
+     }
++
++    #[test]
++    fn symmetric_gate_path_preserves_legacy_numbers_and_bytes() {
++        let cfg = config(0.25e-9);
++        let legacy = simulate(cfg).unwrap();
++        let explicit = simulate_with_gate_path(
++            cfg,
++            GatePath {
++                turn_on_external_r_ohm: cfg.external_gate_r_ohm,
++                turn_off_external_r_ohm: cfg.external_gate_r_ohm,
++            },
++        )
++        .unwrap();
++        assert_eq!(
++            legacy.turn_on.assumed_gate_current_a,
++            explicit.result.turn_on.assumed_gate_current_a
++        );
++        assert_eq!(
++            legacy.turn_off.assumed_gate_current_a,
++            explicit.result.turn_off.assumed_gate_current_a
++        );
++        assert_eq!(
++            serde_json::to_vec(&legacy).unwrap(),
++            serde_json::to_vec(&explicit.result).unwrap()
++        );
++    }
++
++    #[test]
++    fn asymmetric_gate_path_uses_independent_triangle_currents() {
++        let cfg = Config {
++            external_gate_r_ohm: 4.0,
++            ..config(0.25e-9)
++        };
++        let out = simulate_with_gate_path(
++            cfg,
++            GatePath {
++                turn_on_external_r_ohm: 4.0,
++                turn_off_external_r_ohm: 16.0,
++            },
++        )
++        .unwrap();
++        let on_i = cfg
++            .driver_source_peak_a
++            .min((cfg.gate_bias_v - cfg.gate_plateau_v) / (4.0 + cfg.intrinsic_gate_r_ohm));
++        let off_i = cfg
++            .driver_sink_peak_a
++            .min(cfg.gate_plateau_v / (16.0 + cfg.intrinsic_gate_r_ohm));
++        assert!((out.result.turn_on.assumed_gate_current_a - on_i).abs() < 1e-12);
++        assert!((out.result.turn_off.assumed_gate_current_a - off_i).abs() < 1e-12);
++        assert!((out.result.turn_on.overlap_energy_j - 40e-6).abs() < 1e-12);
++        assert!((out.result.turn_off.overlap_energy_j - 160e-6).abs() < 1e-12);
++        assert_eq!(out.result.inputs.external_gate_r_ohm, 4.0);
++        assert_eq!(out.applied_gate_path.turn_off_external_r_ohm, 16.0);
++        let swapped_cfg = Config {
++            external_gate_r_ohm: 16.0,
++            ..config(0.25e-9)
++        };
++        let swapped = simulate_with_gate_path(
++            swapped_cfg,
++            GatePath {
++                turn_on_external_r_ohm: 16.0,
++                turn_off_external_r_ohm: 4.0,
++            },
++        )
++        .unwrap();
++        assert!(
++            swapped.result.turn_on.assumed_gate_current_a
++                < out.result.turn_on.assumed_gate_current_a
++        );
++        assert!(
++            swapped.result.turn_off.assumed_gate_current_a
++                > out.result.turn_off.assumed_gate_current_a
++        );
++    }
++
++    #[test]
++    fn rejects_invalid_gate_path_and_pair_budget() {
++        let cfg = config(0.25e-9);
++        for path in [
++            GatePath {
++                turn_on_external_r_ohm: -1.0,
++                turn_off_external_r_ohm: 10.0,
++            },
++            GatePath {
++                turn_on_external_r_ohm: f64::NAN,
++                turn_off_external_r_ohm: 10.0,
++            },
++            GatePath {
++                turn_on_external_r_ohm: 10.0,
++                turn_off_external_r_ohm: f64::INFINITY,
++            },
++        ] {
++            assert!(simulate_with_gate_path(cfg, path).is_err());
++        }
++        assert!(simulate_with_gate_path(
++            Config {
++                external_gate_r_ohm: f64::NAN,
++                ..cfg
++            },
++            GatePath {
++                turn_on_external_r_ohm: 10.0,
++                turn_off_external_r_ohm: 10.0,
++            },
++        )
++        .is_err());
++        assert!(simulate_with_gate_path(
++            cfg,
++            GatePath {
++                turn_on_external_r_ohm: 9.0,
++                turn_off_external_r_ohm: 10.0,
++            },
++        )
++        .is_err());
++        let path = GatePath {
++            turn_on_external_r_ohm: 10.0,
++            turn_off_external_r_ohm: 10.0,
++        };
++        let mut fast = cfg;
++        fast.switching_hz = 15e6;
++        let error = simulate_with_gate_path(fast, path).unwrap_err();
++        assert!(error.contains("transition pair"), "{error}");
++    }
+ }
+diff --git a/zapote/packages/zapote-harness/src/lib.rs b/zapote/packages/zapote-harness/src/lib.rs
+index 9c79d1123..5682b5563 100644
+--- a/zapote/packages/zapote-harness/src/lib.rs
++++ b/zapote/packages/zapote-harness/src/lib.rs
+@@ -15,6 +15,7 @@ pub mod power_entry;
+ pub mod pfc_paths;
+ pub mod pfc_power;
+ pub mod pfc_candidates;
++pub mod pfc_drive_experiment;
+ pub mod pfc_loss_budget;
+ pub mod pfc_mosfet_experiment;
+ pub mod runner;
+diff --git a/zapote/power-entry/loss-budget/options/existing-drive/REPORT.md b/zapote/power-entry/loss-budget/options/existing-drive/REPORT.md
+index 19cab0486..c3b0fff72 100644
+--- a/zapote/power-entry/loss-budget/options/existing-drive/REPORT.md
++++ b/zapote/power-entry/loss-budget/options/existing-drive/REPORT.md
+@@ -42,11 +42,17 @@ If a future isolated measurement proves 15 V at U11 pin 7 under load, a
+ still cannot be promoted to the actual gate bias without observing U11 pin 8
+ and the MOSFET gate.
+ 
+-TI recommends VCC from 10.5 to 21 V (printed p.6); UVLO turns the controller
+-on at 11.5 V typical and off at 9.5 V typical (printed pp.6 and 14). Those
++TI recommends VCC from VCCOFF + 1 V to 21 V (printed p.5); 10.5 V uses the
++typical VCCOFF, while its 10.3 V maximum gives an 11.3 V operating minimum.
++UVLO turns the controller on at 11.5 V typical (12.1 V maximum) and off at
++9.5 V typical (10.3 V maximum), per the printed p.6 table. Those
+ thresholds constrain an external supply but do not establish its nominal
+ voltage, ripple or source impedance at U11.
+ 
++Experiment 02 corrected the earlier fixed 10.5 V wording above. Its proposed
++12 V ±5% buffer supply is separate from controller VCC: the 11.4 V low end
++does not guarantee clearing the controller's maximum startup threshold.
++
+ The 10 kohm pulldown draws about 1.1–1.5 mA for a 11–15 V gate and drops only
+ about 11–15 mV across the 10 ohm series resistor at DC. Dynamic current is
+ set by the MOSFET charge, the 10 ohm external resistor, 3.3 ohm intrinsic
+diff --git a/zapote/packages/zapote-harness/src/pfc_drive_experiment.rs b/zapote/packages/zapote-harness/src/pfc_drive_experiment.rs
+new file mode 100644
+index 000000000..5a66bdc26
+--- /dev/null
++++ b/zapote/packages/zapote-harness/src/pfc_drive_experiment.rs
+@@ -0,0 +1,861 @@
++//! Bounded C7/UCC27624 gate-drive sensitivity experiment.
++//!
++//! This module adapts the maintained switching integrator.  It does not copy
++//! waveform physics, select hardware, or claim that datasheet typicals are
++//! dynamic limits.
++
++use serde::Serialize;
++use std::collections::BTreeSet;
++use zapote_core::{CheckReport, Finding, Status};
++use zapote_erc::{pfc_currents::Config as CurrentConfig, pfc_losses, pfc_switching};
++
++pub const RULES: [&str; 4] = [
++    "ERC.PFC.DRIVE_EXPERIMENT.SOURCE",
++    "ERC.PFC.DRIVE_EXPERIMENT.GRID",
++    "ERC.PFC.DRIVE_EXPERIMENT.NUMERICS",
++    "ERC.PFC.DRIVE_EXPERIMENT.DISJOINT_TERMS",
++];
++pub const PHYSICAL_RULE: &str = "ERC.PFC.DRIVE_EXPERIMENT.PHYSICAL_APPLICABILITY";
++pub const QUALIFICATION_RULE: &str = "ERC.PFC.DRIVE_EXPERIMENT.QUALIFICATION";
++pub const INTERFACE_RULE: &str = "ERC.PFC.DRIVE_EXPERIMENT.INTERFACE";
++
++const SOURCE_MANIFEST_SHA256: &str =
++    "136c94c36af498285c731e6cd43877eb5cc2e2b2289de21fbd8d531bc7d18ef2";
++const BUS_V: f64 = 400.0;
++const INDUCTANCE_H: f64 = 180e-6;
++const INPUT_RMS_LIMIT_A: f64 = 15.0;
++const RFREQ_OHM: f64 = 16_200.0;
++const LOOP_INDUCTANCE_H: f64 = 10e-9;
++const TIMESTEP_S: f64 = 0.25e-9;
++const LINES: [f64; 3] = [108.0, 120.0, 132.0];
++const DRIVER_VOLTAGES: [f64; 3] = [11.4, 12.0, 12.6];
++const EXTERNAL_GATE_RESISTANCES: [f64; 3] = [2.2, 4.7, 10.0];
++const QGD_MULTIPLIERS: [f64; 3] = [0.5, 1.0, 1.5];
++const TRANSFER_CHARGES_C: [f64; 3] = [5e-9, 10e-9, 20e-9];
++const RDS_MULTIPLIERS: [f64; 2] = [1.0, 2.0];
++const SOURCE_PEAK_A: f64 = 5.0;
++const SINK_PEAK_A: f64 = 5.0;
++const LOCAL_BYPASS_C_F: f64 = 1e-6;
++const LOCAL_DROOP_BUDGET_V: f64 = 0.2;
++
++#[derive(Clone, Copy, Debug)]
++struct Device {
++    id: &'static str,
++    source_pdf: &'static str,
++    source_sha256: &'static str,
++    revision: &'static str,
++    pages: &'static str,
++    qg_c: f64,
++    qgd_c: f64,
++    plateau_v: f64,
++    intrinsic_gate_r_ohm: f64,
++    eoss_j: f64,
++    rds_max_ohm: f64,
++}
++
++const DEVICES: [Device; 2] = [
++    Device {
++        id: "STW65N65DM2AG",
++        source_pdf: "STW65N65DM2AG.pdf",
++        source_sha256: "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
++        revision: "DocID028164 Rev. 1, 2015-08",
++        pages: "1, 4, 7 (Figure 12 Eoss)",
++        qg_c: 120e-9,
++        qgd_c: 58e-9,
++        plateau_v: 6.2,
++        intrinsic_gate_r_ohm: 3.3,
++        eoss_j: 17.5e-6,
++        rds_max_ohm: 0.050,
++    },
++    Device {
++        id: "IPW65R045C7",
++        source_pdf: "IPW65R045C7.pdf",
++        source_sha256: "7ef568434c6325a919ac38fdf998b60d71e8078cce1ed384e82ee09fdc40911a",
++        revision: "Rev. 2.1, 2013-04-30",
++        pages: "1-2, 4-7, 10-11",
++        qg_c: 93e-9,
++        qgd_c: 30e-9,
++        plateau_v: 5.4,
++        intrinsic_gate_r_ohm: 0.85,
++        eoss_j: 11.7e-6,
++        rds_max_ohm: 0.045,
++    },
++];
++
++#[derive(Clone, Copy, Debug)]
++struct DriverProfile {
++    id: &'static str,
++    source_r_ohm: f64,
++    sink_r_ohm: f64,
++    description: &'static str,
++}
++
++#[derive(Clone, Debug, Serialize)]
++pub struct DriverProfileSource {
++    pub id: &'static str,
++    pub source_r_ohm: f64,
++    pub sink_r_ohm: f64,
++    pub description: &'static str,
++}
++
++const DRIVER_PROFILES: [DriverProfile; 3] = [
++    DriverProfile {
++        id: "full-assist",
++        source_r_ohm: 1.04_f64 * 5.0 / (1.04 + 5.0),
++        sink_r_ohm: 0.6,
++        description: "hypothetical 1.04 ohm parallel transient NMOS assist with 5 ohm PMOS",
++    },
++    DriverProfile {
++        id: "no-assist",
++        source_r_ohm: 5.0,
++        sink_r_ohm: 0.6,
++        description: "hypothetical PMOS-only dynamic path using 5 ohm typical ROH",
++    },
++    DriverProfile {
++        id: "dc-max",
++        source_r_ohm: 8.5,
++        sink_r_ohm: 1.1,
++        description: "hypothetical substitution of DC maximum ROH/ROL anchors",
++    },
++];
++
++#[derive(Clone, Debug, Serialize)]
++pub struct SourceIdentity {
++    pub id: &'static str,
++    pub path: &'static str,
++    pub sha256: &'static str,
++    pub revision: &'static str,
++    pub pages: &'static str,
++}
++
++#[derive(Clone, Debug, Serialize)]
++pub struct DeviceSource {
++    pub device: &'static str,
++    pub source_pdf: &'static str,
++    pub source_pdf_sha256: &'static str,
++    pub revision: &'static str,
++    pub pages: &'static str,
++}
++
++#[derive(Clone, Debug, Serialize)]
++pub struct ScenarioInput {
++    pub line_rms_v: f64,
++    pub driver_v: f64,
++    pub external_gate_r_ohm: f64,
++    pub driver_profile: &'static str,
++    pub qgd_multiplier: f64,
++    pub current_transfer_charge_c: f64,
++    pub rds_multiplier: f64,
++}
++
++#[derive(Clone, Debug, Serialize)]
++pub struct Scenario {
++    pub index: usize,
++    pub device: &'static str,
++    pub device_source_sha256: &'static str,
++    pub input: ScenarioInput,
++    pub input_power_w: f64,
++    pub switch_rms_a: f64,
++    pub turn_on_current_a: f64,
++    pub turn_off_current_a: f64,
++    pub turn_on_gate_current_a: f64,
++    pub turn_off_gate_current_a: f64,
++    pub turn_on_ns: f64,
++    pub turn_off_ns: f64,
++    pub overlap_w: f64,
++    pub eoss_w: f64,
++    pub conduction_w: f64,
++    pub gate_network_w: f64,
++    pub mosfet_w: f64,
++    pub total_w: f64,
++    pub finite: bool,
++    pub disjoint_accounting: bool,
++    pub simulation_inputs: pfc_switching::Config,
++    pub applied_gate_path: pfc_switching::GatePath,
++    pub model_variant: &'static str,
++}
++
++#[derive(Clone, Debug, Serialize)]
++pub struct LegacyControl {
++    pub device: &'static str,
++    pub simulation_inputs: pfc_switching::Config,
++    pub total_w: f64,
++    pub overlap_w: f64,
++    pub gate_network_w: f64,
++    pub model_version: &'static str,
++}
++
++#[derive(Clone, Debug, Serialize)]
++pub struct AuxiliaryLoad {
++    pub device: &'static str,
++    pub qg_c_at_10v: f64,
++    pub gate_charge_current_a: f64,
++    pub gate_network_w_at_driver_v: f64,
++    pub local_delta_v_at_1uf: f64,
++    pub minimum_ceff_for_0_2v_f: f64,
++    pub charge_condition_note: &'static str,
++}
++
++#[derive(Debug, Serialize)]
++pub struct Report {
++    pub schema: &'static str,
++    pub status: Status,
++    pub source_manifest_sha256: String,
++    pub source_manifest_identity: String,
++    pub sources: Vec<SourceIdentity>,
++    pub devices: Vec<DeviceSource>,
++    pub driver_profiles: Vec<DriverProfileSource>,
++    pub scenarios: Vec<Scenario>,
++    pub legacy_controls: Vec<LegacyControl>,
++    pub auxiliary_loads: Vec<AuxiliaryLoad>,
++    pub checks: CheckReport,
++    pub physical_applicability: CheckReport,
++    pub qualification: CheckReport,
++    pub interface: CheckReport,
++    pub assumptions: Vec<String>,
++}
++
++#[derive(Clone)]
++struct Outcome {
++    moments: pfc_losses::Moments,
++    simulation: pfc_switching::GatePathResult,
++}
++
++fn digest(bytes: &[u8]) -> String {
++    crate::runner::digest(bytes)
++}
++
++fn verify_pdf(path: &str, bytes: &[u8], expected: &str) -> Result<(), String> {
++    let known = match path {
++        "STW65N65DM2AG.pdf" => "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
++        "IPW65R045C7.pdf" => "7ef568434c6325a919ac38fdf998b60d71e8078cce1ed384e82ee09fdc40911a",
++        "options/replacement-pair/sources/UCC27624-RevE.pdf" => {
++            "b42590ddafb28a608aae30f5a2c333851cf11ded63daa03fbdef6df93ecb8a51"
++        }
++        "shunt-repair/sources/TI-UCC28180.pdf" => {
++            "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
++        }
++        _ => return Err(format!("unregistered source PDF: {path}")),
++    };
++    if !bytes.starts_with(b"%PDF-") || expected != known || digest(bytes) != known {
++        return Err(format!("source PDF identity changed: {path}"));
++    }
++    Ok(())
++}
++
++fn source_documents() -> Result<(Vec<SourceIdentity>, Vec<DeviceSource>), String> {
++    let driver: &[u8] = include_bytes!(
++        "../../../power-entry/loss-budget/options/replacement-pair/sources/UCC27624-RevE.pdf"
++    )
++    .as_slice();
++    let controller: &[u8] =
++        include_bytes!("../../../power-entry/shunt-repair/sources/TI-UCC28180.pdf").as_slice();
++    let source_defs = [
++        (
++            "ucc27624",
++            "options/replacement-pair/sources/UCC27624-RevE.pdf",
++            "b42590ddafb28a608aae30f5a2c333851cf11ded63daa03fbdef6df93ecb8a51",
++            "SLUSE44E Rev E",
++            "4-7, 16-17, 20-25",
++            driver,
++        ),
++        (
++            "ucc28180",
++            "shunt-repair/sources/TI-UCC28180.pdf",
++            "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be",
++            "SLUSBQ5D Rev D",
++            "4-7, 17, 36",
++            controller,
++        ),
++    ];
++    let mut sources = Vec::new();
++    for (id, path, expected, revision, pages, bytes) in source_defs {
++        verify_pdf(path, bytes, expected)?;
++        sources.push(SourceIdentity {
++            id,
++            path,
++            sha256: match id {
++                "ucc27624" => "b42590ddafb28a608aae30f5a2c333851cf11ded63daa03fbdef6df93ecb8a51",
++                "ucc28180" => "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be",
++                _ => return Err(format!("unknown source id {id}")),
++            },
++            revision,
++            pages,
++        });
++    }
++    let docs = [
++        (
++            &DEVICES[0],
++            include_bytes!("../../../power-entry/loss-budget/sources/STW65N65DM2AG.pdf").as_slice(),
++        ),
++        (
++            &DEVICES[1],
++            include_bytes!(
++                "../../../power-entry/loss-budget/options/replacement-fet/sources/IPW65R045C7.pdf"
++            )
++            .as_slice(),
++        ),
++    ];
++    let mut devices = Vec::new();
++    for (device, bytes) in docs {
++        verify_pdf(device.source_pdf, bytes, device.source_sha256)?;
++        devices.push(DeviceSource {
++            device: device.id,
++            source_pdf: device.source_pdf,
++            source_pdf_sha256: device.source_sha256,
++            revision: device.revision,
++            pages: device.pages,
++        });
++    }
++    Ok((sources, devices))
++}
++
++fn moments(line_rms_v: f64, switching_hz: f64) -> Result<pfc_losses::Moments, String> {
++    pfc_losses::moments(CurrentConfig {
++        line_rms_v,
++        input_rms_limit_a: INPUT_RMS_LIMIT_A,
++        bus_v: BUS_V,
++        inductance_h: INDUCTANCE_H,
++        switching_hz,
++        phase_samples: 1024,
++    })
++}
++
++fn evaluate(
++    device: Device,
++    input: &ScenarioInput,
++    m: pfc_losses::Moments,
++    switching_hz: f64,
++) -> Result<Outcome, String> {
++    let profile = DRIVER_PROFILES
++        .iter()
++        .find(|profile| profile.id == input.driver_profile)
++        .ok_or_else(|| format!("unknown driver profile {}", input.driver_profile))?;
++    let config = pfc_switching::Config {
++        bus_v: BUS_V,
++        switching_hz,
++        turn_on_current_a: m.mean_turn_on_a,
++        turn_off_current_a: m.mean_turn_off_a,
++        switch_rms_a: m.switch_rms_a,
++        gate_bias_v: input.driver_v,
++        qg_c: device.qg_c,
++        qgd_c: device.qgd_c * input.qgd_multiplier,
++        current_transfer_charge_c: input.current_transfer_charge_c,
++        gate_plateau_v: device.plateau_v,
++        external_gate_r_ohm: input.external_gate_r_ohm + profile.source_r_ohm,
++        intrinsic_gate_r_ohm: device.intrinsic_gate_r_ohm,
++        driver_source_peak_a: SOURCE_PEAK_A,
++        driver_sink_peak_a: SINK_PEAK_A,
++        coss_energy_j: device.eoss_j,
++        loop_inductance_h: LOOP_INDUCTANCE_H,
++        rds_on_ohm: device.rds_max_ohm * input.rds_multiplier,
++        timestep_s: TIMESTEP_S,
++    };
++    let path = pfc_switching::GatePath {
++        turn_on_external_r_ohm: input.external_gate_r_ohm + profile.source_r_ohm,
++        turn_off_external_r_ohm: input.external_gate_r_ohm + profile.sink_r_ohm,
++    };
++    Ok(Outcome {
++        moments: m,
++        simulation: pfc_switching::simulate_with_gate_path(config, path)?,
++    })
++}
++
++fn scenario_from(index: usize, device: Device, input: ScenarioInput, outcome: Outcome) -> Scenario {
++    let sim = &outcome.simulation.result;
++    let mosfet = sim.overlap_loss_w + sim.output_capacitance_loss_w + sim.conduction_loss_w;
++    let total = mosfet + sim.gate_charge_loss_w;
++    let finite = [
++        outcome.moments.input_power_w,
++        outcome.moments.switch_rms_a,
++        outcome.moments.mean_turn_on_a,
++        outcome.moments.mean_turn_off_a,
++        sim.turn_on.assumed_gate_current_a,
++        sim.turn_off.assumed_gate_current_a,
++        sim.turn_on.miller_ns,
++        sim.turn_off.miller_ns,
++        sim.overlap_loss_w,
++        sim.output_capacitance_loss_w,
++        sim.conduction_loss_w,
++        sim.gate_charge_loss_w,
++        mosfet,
++        total,
++    ]
++    .iter()
++    .all(|value| value.is_finite());
++    let disjoint = finite
++        && (sim.switching_loss_w - sim.overlap_loss_w - sim.output_capacitance_loss_w).abs()
++            < 1e-12
++        && (sim.modeled_mosfet_loss_w - mosfet).abs() < 1e-12
++        && (sim.mosfet_plus_gate_loss_w - total).abs() < 1e-12;
++    Scenario {
++        index,
++        device: device.id,
++        device_source_sha256: device.source_sha256,
++        input,
++        input_power_w: outcome.moments.input_power_w,
++        switch_rms_a: outcome.moments.switch_rms_a,
++        turn_on_current_a: outcome.moments.mean_turn_on_a,
++        turn_off_current_a: outcome.moments.mean_turn_off_a,
++        turn_on_gate_current_a: sim.turn_on.assumed_gate_current_a,
++        turn_off_gate_current_a: sim.turn_off.assumed_gate_current_a,
++        turn_on_ns: sim.turn_on.current_transfer_ns + sim.turn_on.miller_ns,
++        turn_off_ns: sim.turn_off.current_transfer_ns + sim.turn_off.miller_ns,
++        overlap_w: sim.overlap_loss_w,
++        eoss_w: sim.output_capacitance_loss_w,
++        conduction_w: sim.conduction_loss_w,
++        gate_network_w: sim.gate_charge_loss_w,
++        mosfet_w: mosfet,
++        total_w: total,
++        finite,
++        disjoint_accounting: disjoint,
++        simulation_inputs: sim.inputs,
++        applied_gate_path: outcome.simulation.applied_gate_path,
++        model_variant: outcome.simulation.model_variant,
++    }
++}
++
++/// Validate the exact 2,916-case Cartesian grid and recompute relationships.
++pub fn validate_scenario_grid(scenarios: &[Scenario]) -> Result<(), String> {
++    let expected = DEVICES.len()
++        * LINES.len()
++        * DRIVER_VOLTAGES.len()
++        * EXTERNAL_GATE_RESISTANCES.len()
++        * DRIVER_PROFILES.len()
++        * QGD_MULTIPLIERS.len()
++        * TRANSFER_CHARGES_C.len()
++        * RDS_MULTIPLIERS.len();
++    if scenarios.len() != expected {
++        return Err(format!(
++            "scenario grid has {}, expected {expected}",
++            scenarios.len()
++        ));
++    }
++    let switching_hz =
++        zapote_erc::power_entry::frequency_from_rf(RFREQ_OHM).map_err(str::to_owned)?;
++    let mut seen = BTreeSet::new();
++    let close = |label: &str, a: f64, b: f64| {
++        if a.is_finite() && b.is_finite() && (a - b).abs() <= b.abs().max(1e-12) * 1e-9 {
++            Ok(())
++        } else {
++            Err(format!("{label} differs or is non-finite: {a} vs {b}"))
++        }
++    };
++    for scenario in scenarios {
++        let device = DEVICES
++            .iter()
++            .find(|d| d.id == scenario.device)
++            .ok_or_else(|| format!("unknown device {}", scenario.device))?;
++        let profile = DRIVER_PROFILES
++            .iter()
++            .find(|p| p.id == scenario.input.driver_profile)
++            .ok_or_else(|| format!("unknown driver profile {}", scenario.input.driver_profile))?;
++        if !LINES.contains(&scenario.input.line_rms_v)
++            || !DRIVER_VOLTAGES.contains(&scenario.input.driver_v)
++            || !EXTERNAL_GATE_RESISTANCES.contains(&scenario.input.external_gate_r_ohm)
++            || !QGD_MULTIPLIERS.contains(&scenario.input.qgd_multiplier)
++            || !TRANSFER_CHARGES_C.contains(&scenario.input.current_transfer_charge_c)
++            || !RDS_MULTIPLIERS.contains(&scenario.input.rds_multiplier)
++        {
++            return Err("scenario has malformed or out-of-grid input".into());
++        }
++        if scenario.device_source_sha256 != device.source_sha256
++            || scenario.model_variant != "clamped-inductive-linear-v2-asymmetric-gate-path"
++        {
++            return Err(format!(
++                "scenario {} source/model identity mismatch",
++                scenario.index
++            ));
++        }
++        let values = [
++            scenario.input_power_w,
++            scenario.switch_rms_a,
++            scenario.turn_on_current_a,
++            scenario.turn_off_current_a,
++            scenario.turn_on_gate_current_a,
++            scenario.turn_off_gate_current_a,
++            scenario.turn_on_ns,
++            scenario.turn_off_ns,
++            scenario.overlap_w,
++            scenario.eoss_w,
++            scenario.conduction_w,
++            scenario.gate_network_w,
++            scenario.mosfet_w,
++            scenario.total_w,
++            scenario.applied_gate_path.turn_on_external_r_ohm,
++            scenario.applied_gate_path.turn_off_external_r_ohm,
++        ];
++        if values.iter().any(|v| !v.is_finite())
++            || !scenario.finite
++            || !scenario.disjoint_accounting
++        {
++            return Err(format!(
++                "scenario {} has invalid finite/accounting flags",
++                scenario.index
++            ));
++        }
++        let expected_m = moments(scenario.input.line_rms_v, switching_hz)?;
++        close(
++            "input power",
++            scenario.input_power_w,
++            expected_m.input_power_w,
++        )?;
++        close("switch RMS", scenario.switch_rms_a, expected_m.switch_rms_a)?;
++        close(
++            "turn-on current",
++            scenario.turn_on_current_a,
++            expected_m.mean_turn_on_a,
++        )?;
++        close(
++            "turn-off current",
++            scenario.turn_off_current_a,
++            expected_m.mean_turn_off_a,
++        )?;
++        let cfg = scenario.simulation_inputs;
++        close("bus voltage", cfg.bus_v, BUS_V)?;
++        close("switch frequency", cfg.switching_hz, switching_hz)?;
++        close(
++            "configured switch RMS",
++            cfg.switch_rms_a,
++            expected_m.switch_rms_a,
++        )?;
++        close(
++            "configured turn-on current",
++            cfg.turn_on_current_a,
++            expected_m.mean_turn_on_a,
++        )?;
++        close(
++            "configured turn-off current",
++            cfg.turn_off_current_a,
++            expected_m.mean_turn_off_a,
++        )?;
++        close("driver voltage", cfg.gate_bias_v, scenario.input.driver_v)?;
++        close("Qg", cfg.qg_c, device.qg_c)?;
++        close(
++            "Qgd",
++            cfg.qgd_c,
++            device.qgd_c * scenario.input.qgd_multiplier,
++        )?;
++        close("gate plateau", cfg.gate_plateau_v, device.plateau_v)?;
++        close(
++            "intrinsic gate resistance",
++            cfg.intrinsic_gate_r_ohm,
++            device.intrinsic_gate_r_ohm,
++        )?;
++        close("source peak", cfg.driver_source_peak_a, SOURCE_PEAK_A)?;
++        close("sink peak", cfg.driver_sink_peak_a, SINK_PEAK_A)?;
++        close("Eoss", cfg.coss_energy_j, device.eoss_j)?;
++        close("loop inductance", cfg.loop_inductance_h, LOOP_INDUCTANCE_H)?;
++        close("timestep", cfg.timestep_s, TIMESTEP_S)?;
++        close(
++            "external on path",
++            scenario.applied_gate_path.turn_on_external_r_ohm,
++            scenario.input.external_gate_r_ohm + profile.source_r_ohm,
++        )?;
++        close(
++            "external off path",
++            scenario.applied_gate_path.turn_off_external_r_ohm,
++            scenario.input.external_gate_r_ohm + profile.sink_r_ohm,
++        )?;
++        close(
++            "configured external path",
++            cfg.external_gate_r_ohm,
++            scenario.applied_gate_path.turn_on_external_r_ohm,
++        )?;
++        close(
++            "configured transfer charge",
++            cfg.current_transfer_charge_c,
++            scenario.input.current_transfer_charge_c,
++        )?;
++        close(
++            "Rds",
++            cfg.rds_on_ohm,
++            device.rds_max_ohm * scenario.input.rds_multiplier,
++        )?;
++        close(
++            "turn-on gate current",
++            scenario.turn_on_gate_current_a,
++            cfg.driver_source_peak_a.min(
++                (cfg.gate_bias_v - cfg.gate_plateau_v)
++                    / (scenario.applied_gate_path.turn_on_external_r_ohm
++                        + cfg.intrinsic_gate_r_ohm),
++            ),
++        )?;
++        close(
++            "turn-off gate current",
++            scenario.turn_off_gate_current_a,
++            cfg.driver_sink_peak_a.min(
++                cfg.gate_plateau_v
++                    / (scenario.applied_gate_path.turn_off_external_r_ohm
++                        + cfg.intrinsic_gate_r_ohm),
++            ),
++        )?;
++        let on_duration = cfg.current_transfer_charge_c / scenario.turn_on_gate_current_a
++            + cfg.qgd_c / scenario.turn_on_gate_current_a;
++        let off_duration = cfg.current_transfer_charge_c / scenario.turn_off_gate_current_a
++            + cfg.qgd_c / scenario.turn_off_gate_current_a;
++        close("turn-on duration", scenario.turn_on_ns, on_duration * 1e9)?;
++        close(
++            "turn-off duration",
++            scenario.turn_off_ns,
++            off_duration * 1e9,
++        )?;
++        close(
++            "overlap",
++            scenario.overlap_w,
++            0.5 * cfg.bus_v
++                * (cfg.turn_on_current_a * on_duration + cfg.turn_off_current_a * off_duration)
++                * cfg.switching_hz,
++        )?;
++        close(
++            "Eoss",
++            scenario.eoss_w,
++            cfg.coss_energy_j * cfg.switching_hz,
++        )?;
++        close(
++            "conduction",
++            scenario.conduction_w,
++            cfg.switch_rms_a.powi(2) * cfg.rds_on_ohm,
++        )?;
++        close(
++            "gate network",
++            scenario.gate_network_w,
++            cfg.qg_c * cfg.gate_bias_v * cfg.switching_hz,
++        )?;
++        if (scenario.mosfet_w - scenario.overlap_w - scenario.eoss_w - scenario.conduction_w).abs()
++            > 1e-12
++            || (scenario.total_w - scenario.mosfet_w - scenario.gate_network_w).abs() > 1e-12
++        {
++            return Err(format!(
++                "scenario {} failed disjoint accounting",
++                scenario.index
++            ));
++        }
++        let unique = format!(
++            "{}|{}|{:.9}|{:.9}|{:.9}|{}|{:.12e}|{:.9}",
++            scenario.device,
++            scenario.input.driver_profile,
++            scenario.input.line_rms_v,
++            scenario.input.driver_v,
++            scenario.input.external_gate_r_ohm,
++            scenario.input.qgd_multiplier,
++            scenario.input.current_transfer_charge_c,
++            scenario.input.rds_multiplier
++        );
++        if !seen.insert(unique) {
++            return Err(format!("duplicate scenario {}", scenario.index));
++        }
++    }
++    if seen.len() != expected {
++        return Err("scenario grid is incomplete".into());
++    }
++    Ok(())
++}
++
++pub fn run(source: &str) -> Result<Report, String> {
++    let source_sha256 = digest(source.as_bytes());
++    if source_sha256 != SOURCE_MANIFEST_SHA256 {
++        return Err(format!("source-manifest identity changed: {source_sha256}"));
++    }
++    zapote_erc::power_entry::validate_source(source)?;
++    let switching_hz =
++        zapote_erc::power_entry::frequency_from_rf(RFREQ_OHM).map_err(str::to_owned)?;
++    let circuit =
++        zapote_erc::source_circuit::Circuit::parse(source, zapote_erc::power_entry::ENTRY)?;
++    if circuit.components.get("q_boost").map(|p| p.mpn.as_str()) != Some("STW65N65DM2AG") {
++        return Err("experiment requires exact authored STW65N65DM2AG incumbent".into());
++    }
++    let (sources, devices) = source_documents()?;
++    let mut line_moments = Vec::new();
++    for line in LINES {
++        line_moments.push((line, moments(line, switching_hz)?));
++    }
++    let mut scenarios = Vec::with_capacity(2916);
++    for device in DEVICES {
++        for (line, m) in &line_moments {
++            for driver_v in DRIVER_VOLTAGES {
++                for external_r in EXTERNAL_GATE_RESISTANCES {
++                    for profile in DRIVER_PROFILES {
++                        for qgd_multiplier in QGD_MULTIPLIERS {
++                            for transfer in TRANSFER_CHARGES_C {
++                                for rds_multiplier in RDS_MULTIPLIERS {
++                                    let input = ScenarioInput {
++                                        line_rms_v: *line,
++                                        driver_v,
++                                        external_gate_r_ohm: external_r,
++                                        driver_profile: profile.id,
++                                        qgd_multiplier,
++                                        current_transfer_charge_c: transfer,
++                                        rds_multiplier,
++                                    };
++                                    let outcome = evaluate(device, &input, *m, switching_hz)?;
++                                    scenarios.push(scenario_from(
++                                        scenarios.len(),
++                                        device,
++                                        input,
++                                        outcome,
++                                    ));
++                                }
++                            }
++                        }
++                    }
++                }
++            }
++        }
++    }
++    validate_scenario_grid(&scenarios)?;
++    let mut legacy_controls = Vec::new();
++    let nominal_m = line_moments
++        .iter()
++        .find(|(line, _)| *line == 120.0)
++        .map(|(_, m)| *m)
++        .ok_or("missing nominal moments")?;
++    for device in DEVICES {
++        let config = pfc_switching::Config {
++            bus_v: BUS_V,
++            switching_hz,
++            turn_on_current_a: nominal_m.mean_turn_on_a,
++            turn_off_current_a: nominal_m.mean_turn_off_a,
++            switch_rms_a: nominal_m.switch_rms_a,
++            gate_bias_v: 10.0,
++            qg_c: device.qg_c,
++            qgd_c: device.qgd_c,
++            current_transfer_charge_c: 10e-9,
++            gate_plateau_v: device.plateau_v,
++            external_gate_r_ohm: 10.0,
++            intrinsic_gate_r_ohm: device.intrinsic_gate_r_ohm,
++            driver_source_peak_a: 1.5,
++            driver_sink_peak_a: 2.0,
++            coss_energy_j: device.eoss_j,
++            loop_inductance_h: LOOP_INDUCTANCE_H,
++            rds_on_ohm: device.rds_max_ohm,
++            timestep_s: TIMESTEP_S,
++        };
++        let result = pfc_switching::simulate(config)?;
++        legacy_controls.push(LegacyControl {
++            device: device.id,
++            simulation_inputs: config,
++            total_w: result.mosfet_plus_gate_loss_w,
++            overlap_w: result.overlap_loss_w,
++            gate_network_w: result.gate_charge_loss_w,
++            model_version: result.model_version,
++        });
++    }
++    let auxiliary_loads = DEVICES.iter().map(|device| AuxiliaryLoad { device: device.id, qg_c_at_10v: device.qg_c, gate_charge_current_a: device.qg_c * switching_hz, gate_network_w_at_driver_v: device.qg_c * 12.0 * switching_hz, local_delta_v_at_1uf: device.qg_c / LOCAL_BYPASS_C_F, minimum_ceff_for_0_2v_f: device.qg_c / LOCAL_DROOP_BUDGET_V, charge_condition_note: "10 V-source Qg is applied at 12 V as an explicit approximation, not a dynamic upper bound" }).collect();
++    let driver_profiles = DRIVER_PROFILES.iter().map(|profile| DriverProfileSource {
++        id: profile.id,
++        source_r_ohm: profile.source_r_ohm,
++        sink_r_ohm: profile.sink_r_ohm,
++        description: profile.description,
++    }).collect();
++    let checks = CheckReport::from_findings(
++        vec![
++            Finding::pass(
++                RULES[0],
++                "source manifest, device PDFs and driver source identity verified",
++                "source",
++            ),
++            Finding::pass(
++                RULES[1],
++                "all 2,916 Cartesian scenarios are unique and complete",
++                "grid",
++            ),
++            Finding::pass(
++                RULES[2],
++                "all scenario scalars and recomputed relationships are finite",
++                "scenarios",
++            ),
++            Finding::pass(
++                RULES[3],
++                "overlap, Eoss, conduction and gate terms remain disjoint",
++                "terms",
++            ),
++        ],
++        RULES.map(str::to_owned).to_vec(),
++        Vec::new(),
++    );
++    let physical_applicability = CheckReport::from_findings(vec![Finding::indeterminate(PHYSICAL_RULE, "Qg/Qgd and Rds points are 10 V source data applied at 11.4-12.6 V; commutation, ringing, temperature and dynamic driver behavior are unmeasured", "device-driver-model")], vec![PHYSICAL_RULE.to_string()], vec!["hypothetical full-assist/no-assist/DC-max profiles are not guaranteed dynamic bounds".into()]);
++    let qualification = CheckReport::from_findings(vec![Finding::indeterminate(QUALIFICATION_RULE, "supply production, EN sequencing, fault shutdown, measured VGS/VDS and thermal qualification are unimplemented", "driver-interface")], vec![QUALIFICATION_RULE.to_string()], vec!["numeric PASS cannot qualify hardware".into()]);
++    let interface = CheckReport::from_findings(vec![Finding::indeterminate(INTERFACE_RULE, "driver VDD 11.4-12.6 V and separate controller VCC 14.25-15.75 V are proposed contracts; EN supervisor and rail producers are absent", "supply-contract")], vec![INTERFACE_RULE.to_string()], vec!["controller 15 V ±5% clears the 12.1 V maximum rising UVLO threshold; shared 12 V is not accepted as a controller guarantee".into()]);
++    Ok(Report { schema: "zapote.pfc.drive-experiment.v1", status: Status::Indeterminate, source_manifest_sha256: source_sha256, source_manifest_identity: "shunt-repair/candidate/source-manifest.json".into(), sources, devices, driver_profiles, scenarios, legacy_controls, auxiliary_loads, checks, physical_applicability, qualification, interface, assumptions: vec!["UCC27624 VDD is swept at 11.4/12.0/12.6 V with a separate proposed controller rail of 15 V ±5%".into(), "full-assist, no-assist and DC-max output profiles are hypothetical dynamic sensitivities, not measured bounds".into(), "one equal external resistor is used in both directions; driver asymmetry is represented by explicit GatePath values".into(), "source/sink peak caps are 5 A typical test values, not guaranteed plateau current".into(), "EN fail-off, supply producers, commutation/overshoot and qualification remain unimplemented".into(), "Qg*f and Qg/C are conditional screens; 10 V-source Qg does not bound 12 V charge".into()] })
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    const SOURCE: &str =
++        include_str!("../../../power-entry/shunt-repair/candidate/source-manifest.json");
++
++    #[test]
++    fn maintained_source_produces_grid_controls_and_indeterminate_interface() {
++        let report = run(SOURCE).unwrap();
++        assert_eq!(report.scenarios.len(), 2916);
++        assert_eq!(report.legacy_controls.len(), 2);
++        assert_eq!(report.checks.status, Status::Pass);
++        assert_eq!(report.status, Status::Indeterminate);
++        assert_eq!(report.interface.status, Status::Indeterminate);
++    }
++
++    #[test]
++    fn source_grid_and_scalar_mutations_fail_closed() {
++        assert!(run(&SOURCE.replace("STW65N65DM2AG", "STW65N65DM2")).is_err());
++        let mut report = run(SOURCE).unwrap();
++        report.scenarios.pop();
++        assert!(validate_scenario_grid(&report.scenarios).is_err());
++        report = run(SOURCE).unwrap();
++        report.scenarios[1] = report.scenarios[0].clone();
++        assert!(validate_scenario_grid(&report.scenarios).is_err());
++        report = run(SOURCE).unwrap();
++        report.scenarios[0].input.driver_v = f64::NAN;
++        assert!(validate_scenario_grid(&report.scenarios).is_err());
++        report = run(SOURCE).unwrap();
++        report.scenarios[0]
++            .applied_gate_path
++            .turn_off_external_r_ohm += 1.0;
++        assert!(validate_scenario_grid(&report.scenarios).is_err());
++        report = run(SOURCE).unwrap();
++        report.scenarios[0].device_source_sha256 = "corrupt";
++        assert!(validate_scenario_grid(&report.scenarios).is_err());
++    }
++
++    #[test]
++    fn auxiliary_loads_use_conditional_charge_screen() {
++        let report = run(SOURCE).unwrap();
++        let c7 = report
++            .auxiliary_loads
++            .iter()
++            .find(|load| load.device == "IPW65R045C7")
++            .unwrap();
++        assert!(
++            (c7.gate_charge_current_a - 93e-9 * report.scenarios[0].simulation_inputs.switching_hz)
++                .abs()
++                < 1e-15
++        );
++        assert!((c7.local_delta_v_at_1uf - 0.093).abs() < 1e-12);
++        assert!((c7.minimum_ceff_for_0_2v_f - 465e-9).abs() < 1e-15);
++    }
++
++    #[test]
++    fn known_driver_sources_reject_mutation_even_with_mutated_hash() {
++        let mut modified = include_bytes!(
++            "../../../power-entry/loss-budget/options/replacement-pair/sources/UCC27624-RevE.pdf"
++        )
++        .to_vec();
++        modified.extend_from_slice(b"mutation");
++        assert!(verify_pdf(
++            "options/replacement-pair/sources/UCC27624-RevE.pdf",
++            &modified,
++            &digest(&modified),
++        )
++        .is_err());
++        let mut modified =
++            include_bytes!("../../../power-entry/shunt-repair/sources/TI-UCC28180.pdf").to_vec();
++        modified.extend_from_slice(b"mutation");
++        assert!(verify_pdf(
++            "shunt-repair/sources/TI-UCC28180.pdf",
++            &modified,
++            &digest(&modified),
++        )
++        .is_err());
++    }
++}
+diff --git a/zapote/packages/zapote-harness/src/bin/zapote-pfc-drive-experiment.rs b/zapote/packages/zapote-harness/src/bin/zapote-pfc-drive-experiment.rs
+new file mode 100644
+index 000000000..37ddb904d
+--- /dev/null
++++ b/zapote/packages/zapote-harness/src/bin/zapote-pfc-drive-experiment.rs
+@@ -0,0 +1,19 @@
++//! Run the bounded C7/UCC27624 gate-drive experiment and emit deterministic JSON.
++use anyhow::{Context, Result};
++use std::{env, fs, process::ExitCode};
++
++fn main() -> Result<ExitCode> {
++    let args: Vec<_> = env::args_os().skip(1).collect();
++    anyhow::ensure!(
++        args.len() == 1,
++        "usage: zapote-pfc-drive-experiment SOURCE-MANIFEST.json"
++    );
++    let source = fs::read_to_string(&args[0]).context("source manifest")?;
++    let report = zapote_harness::pfc_drive_experiment::run(&source).map_err(anyhow::Error::msg)?;
++    println!("{}", serde_json::to_string_pretty(&report)?);
++    Ok(ExitCode::from(match report.status {
++        zapote_core::Status::Pass => 0,
++        zapote_core::Status::Fail => 1,
++        zapote_core::Status::Indeterminate => 2,
++    }))
++}

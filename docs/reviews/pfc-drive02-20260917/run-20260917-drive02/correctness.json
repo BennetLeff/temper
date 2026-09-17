@@ -1,0 +1,11 @@
+{
+  "reviewer": "correctness",
+  "findings": [],
+  "residual_risks": [
+    "The numerical model remains conditional: driver output resistance/assist duration, supply sequencing, commutation, overshoot, parasitics, and device parameter applicability are explicitly unmeasured.",
+    "The reviewed harness validates emitted scenario relationships and source identities, but the independent audit and retained evidence remain necessary to establish that generated values were actually produced from the maintained solver."
+  ],
+  "testing_gaps": [
+    "No additional correctness gap was established in the frozen diff; existing mutation tests cover grid cardinality, duplicates, malformed scalars, source hashes, and asymmetric path fields."
+  ]
+}

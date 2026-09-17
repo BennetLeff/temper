@@ -1,0 +1,5 @@
+{"stage":"scope","status":"complete","base":"c27abe974","changed_lines":220,"exec_nontest_lines":210,"size_band":"large","depth":"full"}
+{"stage":"select","status":"complete","reviewers":["correctness","adversarial"],"peer":"not-run"}
+{"stage":"dispatch","status":"complete","reviewers":["correctness","adversarial"],"findings":2}
+{"stage":"validate","status":"skipped","reason":"bounded review receipt; root owns build/runtime verification"}
+{"stage":"report","status":"complete","verdict":"Not ready"}

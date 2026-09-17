@@ -1,0 +1,45 @@
+{
+  "reviewer": "adversarial",
+  "findings": [
+    {
+      "title": "Independent audit accepts 2916 copies of one case",
+      "severity": "P1",
+      "file": "zapote/power-entry/loss-budget/options/experiment-02/independent-audit.rs",
+      "line": 71,
+      "why_it_matters": "The audit checks each TSV row arithmetically and only requires a nonzero row count. It never checks row identities, source/device/profile/grid membership, uniqueness, or that the audited rows correspond to the source-bound report. A corrupted or incorrectly exported audit input can therefore report pass for 2916 repeated copies of one valid case, while the retained audit-result.json still says cases=2916.",
+      "autofix_class": "required",
+      "owner": "human",
+      "requires_verification": true,
+      "suggested_fix": "Bind the audit input to the report's canonical scenario key and require the exact 2916-key Cartesian set (including duplicate/missing/out-of-grid rejection), or have the independent auditor parse and validate a signed/hashed report export before arithmetic checks.",
+      "confidence": 98,
+      "evidence": [
+        "zapote/power-entry/loss-budget/options/experiment-02/independent-audit.rs:71-75: main increments count for every accepted line and emits pass; no key set or uniqueness check exists.",
+        "zapote/power-entry/loss-budget/options/experiment-02/independent-audit.rs:54-69: audit_row validates only 22 columns and closed-form values, with no device/profile/grid identity semantics.",
+        "Reproduction: repeat the first valid line in evidence/audit-input.tsv 2916 times and pipe it to the compiled auditor; every row is accepted and output remains {\"cases\":2916,\"status\":\"pass\"} despite the Cartesian report being absent."
+      ],
+      "pre_existing": false
+    },
+    {
+      "title": "Persisted report JSON has no corruption validation path",
+      "severity": "P1",
+      "file": "zapote/packages/zapote-harness/src/bin/zapote-pfc-drive-experiment.rs",
+      "line": 4,
+      "why_it_matters": "The CLI only reads a source manifest, regenerates a report, and prints JSON. There is no deserializer or validator for evidence/report.json, and validate_scenario_grid is called only on freshly generated in-memory scenarios. Consequently a retained report can have a changed total, loss term, source hash, or status and still be used as the claimed 2916-case evidence without any gate detecting it; the mutation tests do not exercise serialized report ingestion.",
+      "autofix_class": "required",
+      "owner": "human",
+      "requires_verification": true,
+      "suggested_fix": "Add a report-validation/replay command that deserializes the persisted schema, rejects malformed/unknown fields as appropriate, checks all report-level identities and scenario relationships, and verifies the exact source/report digest binding before accepting evidence.",
+      "confidence": 94,
+      "evidence": [
+        "zapote/packages/zapote-harness/src/bin/zapote-pfc-drive-experiment.rs:6-13: the only input is a source manifest; the command never accepts or parses a report JSON.",
+        "zapote/packages/zapote-harness/src/pfc_drive_experiment.rs:706: validate_scenario_grid(&scenarios) is applied to newly generated scenarios only.",
+        "zapote/packages/zapote-harness/src/pfc_drive_experiment.rs:801-818: corruption tests mutate Rust structs in memory, not a serialized report/evidence artifact."
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [
+    "The numerical model's declared physical applicability and qualification gaps remain intentionally indeterminate per the experiment plan and are not findings here."
+  ],
+  "testing_gaps": []
+}

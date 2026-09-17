@@ -1,0 +1,146 @@
+[
+  {
+    "device": "STW65N65DM2AG",
+    "profile": "full-assist",
+    "resistor": 2.2,
+    "total_w": 58.57217051638059,
+    "overlap_w": 48.92748041003136,
+    "gate_network_w": 0.1859146444595074
+  },
+  {
+    "device": "STW65N65DM2AG",
+    "profile": "no-assist",
+    "resistor": 2.2,
+    "total_w": 73.51736648873081,
+    "overlap_w": 63.8726763823816,
+    "gate_network_w": 0.1859146444595074
+  },
+  {
+    "device": "STW65N65DM2AG",
+    "profile": "dc-max",
+    "resistor": 2.2,
+    "total_w": 88.28286873079641,
+    "overlap_w": 78.63817862444719,
+    "gate_network_w": 0.1859146444595074
+  },
+  {
+    "device": "STW65N65DM2AG",
+    "profile": "full-assist",
+    "resistor": 4.7,
+    "total_w": 78.23829152291107,
+    "overlap_w": 68.59360141656185,
+    "gate_network_w": 0.1859146444595074
+  },
+  {
+    "device": "STW65N65DM2AG",
+    "profile": "no-assist",
+    "resistor": 4.7,
+    "total_w": 93.18348749526136,
+    "overlap_w": 83.53879738891214,
+    "gate_network_w": 0.1859146444595074
+  },
+  {
+    "device": "STW65N65DM2AG",
+    "profile": "dc-max",
+    "resistor": 4.7,
+    "total_w": 107.94898973732685,
+    "overlap_w": 98.30429963097764,
+    "gate_network_w": 0.1859146444595074
+  },
+  {
+    "device": "STW65N65DM2AG",
+    "profile": "full-assist",
+    "resistor": 10.0,
+    "total_w": 119.93046805675567,
+    "overlap_w": 110.28577795040646,
+    "gate_network_w": 0.1859146444595074
+  },
+  {
+    "device": "STW65N65DM2AG",
+    "profile": "no-assist",
+    "resistor": 10.0,
+    "total_w": 134.87566402910593,
+    "overlap_w": 125.23097392275673,
+    "gate_network_w": 0.1859146444595074
+  },
+  {
+    "device": "STW65N65DM2AG",
+    "profile": "dc-max",
+    "resistor": 10.0,
+    "total_w": 149.64116627117153,
+    "overlap_w": 139.9964761648223,
+    "gate_network_w": 0.1859146444595074
+  },
+  {
+    "device": "IPW65R045C7",
+    "profile": "full-assist",
+    "resistor": 2.2,
+    "total_w": 25.9248141186226,
+    "overlap_w": 17.790717291008097,
+    "gate_network_w": 0.14408384945611827
+  },
+  {
+    "device": "IPW65R045C7",
+    "profile": "no-assist",
+    "resistor": 2.2,
+    "total_w": 33.65049474604074,
+    "overlap_w": 25.51639791842624,
+    "gate_network_w": 0.14408384945611827
+  },
+  {
+    "device": "IPW65R045C7",
+    "profile": "dc-max",
+    "resistor": 2.2,
+    "total_w": 41.62043661058185,
+    "overlap_w": 33.48633978296735,
+    "gate_network_w": 0.14408384945611827
+  },
+  {
+    "device": "IPW65R045C7",
+    "profile": "full-assist",
+    "resistor": 4.7,
+    "total_w": 37.77665684756483,
+    "overlap_w": 29.64256001995033,
+    "gate_network_w": 0.14408384945611827
+  },
+  {
+    "device": "IPW65R045C7",
+    "profile": "no-assist",
+    "resistor": 4.7,
+    "total_w": 45.502337474982966,
+    "overlap_w": 37.36824064736847,
+    "gate_network_w": 0.14408384945611827
+  },
+  {
+    "device": "IPW65R045C7",
+    "profile": "dc-max",
+    "resistor": 4.7,
+    "total_w": 53.47227933952407,
+    "overlap_w": 45.33818251190957,
+    "gate_network_w": 0.14408384945611827
+  },
+  {
+    "device": "IPW65R045C7",
+    "profile": "full-assist",
+    "resistor": 10.0,
+    "total_w": 62.90256343292238,
+    "overlap_w": 54.76846660530788,
+    "gate_network_w": 0.14408384945611827
+  },
+  {
+    "device": "IPW65R045C7",
+    "profile": "no-assist",
+    "resistor": 10.0,
+    "total_w": 70.62824406034052,
+    "overlap_w": 62.494147232726,
+    "gate_network_w": 0.14408384945611827
+  },
+  {
+    "device": "IPW65R045C7",
+    "profile": "dc-max",
+    "resistor": 10.0,
+    "total_w": 78.5981859248816,
+    "overlap_w": 70.4640890972671,
+    "gate_network_w": 0.14408384945611827
+  }
+]
