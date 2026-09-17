@@ -1,0 +1,33 @@
+{
+  "schema": "zapote.pfc.architecture-research-provenance.v1",
+  "date": "2026-09-17",
+  "source_revision": "07a066e86251c13b0aec95b3d6f4ce958459db39",
+  "capture_worktree_dirty": true,
+  "purpose": "research snapshot, not an acceptance measurement",
+  "requested_worker_model": "gpt-5.6-luna",
+  "requested_reasoning": "high",
+  "provider_execution_receipt": null,
+  "baseline_report": {
+    "path": "zapote/power-entry/loss-budget/options/experiment-02/evidence/report.json",
+    "sha256": "3805a41c953ae04dec3f65084de51a153e048d9ac4abfd204a8c52abde26749c"
+  },
+  "files": {
+    ".gitattributes": "547f59603028195ff9f8a87d04c4651551e8bd0d68f075257dfd549cd846b25b",
+    "BRIEF.md": "0d8a9ad701b2719991ba8b00bdd4ddef0491f7f8a34af0d4308dbeaab3649be1",
+    "DELEGATION.md": "5f04a03ab42d3a94fadad35e9706d5974f2a1d82ca79d23860c2e8b160a74a9d",
+    "RESULTS.md": "bc72590cd0e167c3c741815c48f853af782828c457c5e86efc35cfa8bd399860",
+    "VALIDATION.md": "189c05c2e69a487e6812649f8b84eb9295cf9eed25b3af4a953ccf5d4d4e7b6c",
+    "benchmark/REPORT.md": "f0cde2f53920d169242b916549af72fe57de5f8ff7f502a69f87b3fb94a272fc",
+    "benchmark/SOURCES.md": "9816bd76e2becd99d039fe3f5004df5461fefb9f7d2797c83719beaa6081998c",
+    "benchmark/TIDUBE1D.pdf": "1f2abaf8f7460ec110186d59f3d01624bdbd260d57ae7b7b698d0754c717d465",
+    "benchmark/benchmark.json": "2a2aa37b62bbe342296098049d23f04600ca77c5a60cca1755b990e58716b2af",
+    "sic/REPORT.md": "c954b2fc93136b91f8c59a369ba4087bc2ff0d4a34d3e6958a96cb4374d56d4a",
+    "sic/candidate.json": "a8c48a7629fb8f2fdec559ceebbbcf49f05c79d4e67e9c8cd45323fbef77ef45",
+    "sic/sources/NTH4L060N065SC1-Rev3-2023-01.pdf": "e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4",
+    "sic/sources/TI-UCC28180.pdf": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be",
+    "sic/sources/UCC27624-RevE.pdf": "b42590ddafb28a608aae30f5a2c333851cf11ded63daa03fbdef6df93ecb8a51",
+    "sic/sources.json": "8ea0e0689e83fa567c7242f8629689d1da87d6369041af16125bda5557474187",
+    "silicon/REPORT.md": "719f385852e4e12a90f5d73cb30e7c55d022db7ec95bc928db02a3902a539ec5",
+    "silicon/comparison.json": "a13f33e656b5e720f97da8523e47e8d5aeb3946136c63d19455108b629eaafea"
+  }
+}

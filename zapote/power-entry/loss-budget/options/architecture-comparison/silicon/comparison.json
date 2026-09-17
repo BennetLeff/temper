@@ -1,0 +1,294 @@
+{
+  "schema": "zapote.pfc.silicon-frequency-comparison.v1",
+  "status": "decision_screen_only",
+  "source_revision": "07a066e86251c13b0aec95b3d6f4ce958459db39",
+  "scope": "Conventional single-phase CCM boost PFC alternatives around the maintained IPW65R045C7/UCC27624 experiment-02 baseline. No delivered-output or assembly-efficiency claim.",
+  "operating_contract": {
+    "bus_v": {
+      "value": 400.0,
+      "kind": "assumed",
+      "basis": "experiment-02 switching-model baseline; do not mix with the older 389.615 V control calculation"
+    },
+    "requested_input_power_w": {
+      "value": 1796.310032,
+      "kind": "assumed",
+      "basis": "experiment-02 120 Vrms / 15 Arms input anchor; input ceiling, not pan/DC output"
+    },
+    "line_rms_v": {
+      "values": [
+        108.0,
+        120.0,
+        132.0
+      ],
+      "kind": "assumed",
+      "basis": "common comparison grid"
+    },
+    "input_current_limit_a_rms": {
+      "value": 15.0,
+      "kind": "assumed",
+      "basis": "source manifest"
+    },
+    "lowline_derating": {
+      "value": "At 108 Vrms, 15 Arms can supply at most 1620 W ideal-PF input; the 1796.310032 W anchor needs 16.633 Arms and is infeasible.",
+      "kind": "derived"
+    },
+    "same_power_132v_real_power_component_a": {
+      "value": 13.6084,
+      "kind": "derived",
+      "equation": "1796.310032/132; ideal PF current screen only"
+    },
+    "same_power_132v_true_rms_a": null
+  },
+  "frequency_cases": [
+    {
+      "fsw_hz": 65000,
+      "inductance_uH_matched_effective": 357.528,
+      "inductance_uH_nominal_if_10pct_tol_and_10pct_bias": 441.393,
+      "ripple_a_pp_at_duty_0_5": 4.30305,
+      "c7_partial_loss_w_frequency_scaled": 26.126,
+      "c7_partial_loss_model": {
+        "kind": "assumed",
+        "basis": "experiment-02 IPW65R045C7 no-assist overlap 37.3682 W + Eoss 1.5106 W + gate 0.1441 W scale with fsw; conduction 6.4795 W held constant at matched ripple",
+        "complete_assembly": false
+      },
+      "frequency_status": "inside UCC28180 18-250 kHz programmable range; 65 kHz is a source-check case",
+      "ideal_ccm_peak_upper_bound_a": 23.3647,
+      "stored_energy_j_at_peak_bound": 0.09759
+    },
+    {
+      "fsw_hz": 90000,
+      "inductance_uH_matched_effective": 258.215,
+      "inductance_uH_nominal_if_10pct_tol_and_10pct_bias": 318.784,
+      "ripple_a_pp_at_duty_0_5": 4.30305,
+      "c7_partial_loss_w_frequency_scaled": 33.682,
+      "c7_partial_loss_model": {
+        "kind": "assumed",
+        "basis": "experiment-02 IPW65R045C7 no-assist overlap 37.3682 W + Eoss 1.5106 W + gate 0.1441 W scale with fsw; conduction 6.4795 W held constant at matched ripple",
+        "complete_assembly": false
+      },
+      "frequency_status": "inside UCC28180 18-250 kHz programmable range; no exact candidate choke selected",
+      "ideal_ccm_peak_upper_bound_a": 23.3647,
+      "stored_energy_j_at_peak_bound": 0.07048
+    },
+    {
+      "fsw_hz": 129107.392,
+      "inductance_uH_matched_effective": 180.0,
+      "inductance_uH_nominal_if_10pct_tol_and_10pct_bias": 222.222,
+      "ripple_a_pp_at_duty_0_5": 4.30305,
+      "c7_partial_loss_w_frequency_scaled": 45.502,
+      "c7_partial_loss_model": {
+        "kind": "source_bound_conditional",
+        "basis": "experiment-02 IPW65R045C7, 120 V, 400 V bus, 12 V, 4.7 ohm, no-assist, Qgd x1, transfer 10 nC, Rds x1",
+        "complete_assembly": false
+      },
+      "frequency_status": "maintained baseline; UCC28180 reference material also uses 130 kHz",
+      "ideal_ccm_peak_upper_bound_a": 23.3647,
+      "stored_energy_j_at_peak_bound": 0.04913
+    }
+  ],
+  "line_points_same_load": [
+    {
+      "line_rms_v": 108.0,
+      "requested_input_power_w": 1796.310032,
+      "allowed_input_power_w_at_15a": 1620.0,
+      "status": "derate_required; ideal PF ceiling only; solve true RMS including ripple for a matched-power comparison",
+      "kind": "derived",
+      "ideal_pf_current_lower_bound_a": 16.6325,
+      "true_rms_current_a": null
+    },
+    {
+      "line_rms_v": 120.0,
+      "requested_input_power_w": 1796.310032,
+      "allowed_input_power_w_at_15a": 1800.0,
+      "status": "nominal_same_load; ideal PF screen; solve true RMS including ripple for a matched-power comparison",
+      "kind": "derived",
+      "ideal_pf_current_lower_bound_a": 14.9693,
+      "true_rms_current_a": 15.0
+    },
+    {
+      "line_rms_v": 132.0,
+      "requested_input_power_w": 1796.310032,
+      "allowed_input_power_w_at_15a": 1980.0,
+      "status": "same_power_current_reduced; ideal PF screen; solve true RMS including ripple for a matched-power comparison",
+      "kind": "derived",
+      "ideal_pf_current_lower_bound_a": 13.6084,
+      "true_rms_current_a": null
+    }
+  ],
+  "magnetics": [
+    {
+      "mpn": "760800301",
+      "manufacturer": "Wurth Elektronik Midcom",
+      "inductance_uH_nominal": 180.0,
+      "inductance_tolerance_pct": 20,
+      "rated_current_a_delta_t40": 24.5,
+      "rated_current_a_delta_t40_forced_air_4mps": 48.0,
+      "saturation_current_a_typ": 43.0,
+      "rdc_mohm_max": 20.0,
+      "operating_voltage_vdc_max": 1000,
+      "source": "Wurth 760800301 datasheet, local retained PDF SHA-256 4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+      "fit_assessment": "Exact 180 uH baseline candidate. Its 24.5 A rating is a thermal RMS rating; the maintained model's inductor RMS is the 15.0 A true-RMS input current. An ideal CCM conservative peak bound is about 23.365 A at that 15 A point, below the 43 A typical saturation-current screen. Installed airflow and hot-bias inductance still require proof.",
+      "core_loss_at_65_90_129_khz": {
+        "value": null,
+        "kind": "unknown",
+        "required": "vendor Steinmetz/B-H data or measured loss at bias and ripple"
+      },
+      "ac_winding_loss_at_65_90_129_khz": {
+        "value": null,
+        "kind": "unknown",
+        "required": "winding AC resistance/temperature-rise data"
+      }
+    },
+    {
+      "mpn": "custom_or_series_choke_envelope",
+      "manufacturer": null,
+      "inductance_uH_effective_required": {
+        "65k": 357.528,
+        "90k": 258.215,
+        "129k": 180.0
+      },
+      "nominal_uH_for_10pct_tolerance_plus_10pct_dc_bias": {
+        "65k": 441.393,
+        "90k": 318.784,
+        "129k": 222.222
+      },
+      "kind": "design_envelope",
+      "unknowns": [
+        "core size/material",
+        "turns and gap",
+        "Rdc",
+        "temperature rise",
+        "saturation curve",
+        "core loss",
+        "AC copper loss",
+        "cost and availability"
+      ],
+      "warning": "Scaling L inversely with frequency preserves ripple only if the new inductor reaches the stated effective L at operating current; fixed 180 uH at lower fsw increases ripple and changes peak/RMS/current stress."
+    }
+  ],
+  "silicon_switch_alternatives": [
+    {
+      "mpn": "IPW65R045C7",
+      "technology": "650 V silicon CoolMOS C7 superjunction",
+      "rds_on_max_mohm_25c": 45,
+      "rds_on_typ_mohm_150c": 96,
+      "qg_typ_nc": 93,
+      "qgd_typ_nc": 30,
+      "eoss_uJ_at_400v": 11.7,
+      "source": "Infineon Rev 2.1 datasheet, retained SHA-256 7ef568434c6325a919ac38fdf998b60d71e8078cce1ed384e82ee09fdc40911a",
+      "status": "baseline; actual Eon/Eoff and hot Rds in this loop remain unknown"
+    },
+    {
+      "mpn": "IPW65R041CFD7",
+      "technology": "650 V silicon CoolMOS CFD7 superjunction with fast body diode",
+      "rds_on_max_mohm_25c": 41,
+      "rds_on_typ_mohm_150c": 76,
+      "qg_typ_nc": 102,
+      "qgd_typ_nc": 31,
+      "eoss_uJ_at_400v": 14.0,
+      "source": "Infineon Rev 2.1 datasheet, retained source manifest",
+      "directional_screen": "Lower hot Rds typical but higher Qg/Eoss than C7; cannot call it lower total PFC loss without matched Eon/Eoff and thermal data.",
+      "status": "conditional candidate; same TO-247-3 class, no Kelvin source"
+    },
+    {
+      "mpn": "STW65N65DM2AG",
+      "technology": "650 V silicon superjunction",
+      "rds_on_max_mohm_25c": 50,
+      "qg_typ_nc": 120,
+      "qgd_typ_nc": 58,
+      "source": "ST retained datasheet SHA-256 6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
+      "directional_screen": "Control device in experiment-02; substantially higher modeled switching loss than C7 under the same gate profile.",
+      "status": "control, not a recommended replacement"
+    }
+  ],
+  "other_terms": {
+    "bridge": {
+      "value": null,
+      "kind": "unknown",
+      "screen_anchor_w_at_120v": 28.28,
+      "basis": "GBJ2510 estimated 1.05 V constant drop in maintained report; actual Vf-vs-current-temperature curve and thermal path missing"
+    },
+    "boost_diode": {
+      "value": null,
+      "kind": "unknown",
+      "baseline": "C3D20065D SiC; zero reverse-recovery in model is not a measured loss",
+      "silicon_alternative": "requires exact ultrafast diode Qrr/forward curve; Qrr*Vbus*fsw grows with frequency and can erase lower-switching-loss benefit"
+    },
+    "shunt": {
+      "value_w_at_15a": 2.25,
+      "kind": "derived",
+      "basis": "10 mOhm nominal times 15 Arms squared; active shunt-repair candidate HCSM2818FT10L0 is 5 W conditional package rating, while historical WSL2726 was 3 W. Assembly thermal derating remains open"
+    },
+    "bulk_capacitor_esr": {
+      "value": null,
+      "kind": "unknown",
+      "basis": "frequency-dependent ESR/current sharing and 120 Hz ripple not closed"
+    },
+    "aux_and_controller": {
+      "value": null,
+      "kind": "unknown",
+      "basis": "supply producer, driver quiescent loss, controller loss and startup sequencing not implemented"
+    },
+    "heatsink_and_size_cost": {
+      "value": null,
+      "kind": "unknown",
+      "basis": "magnetic volume, airflow, thermal interface and procurement quotes absent; do not rank by fabricated cost"
+    }
+  },
+  "cheap_15v_control": {
+    "proposal": "Power UCC27624 from the actual AUX_15V rail instead of adding a separate nominal 12 V rail, if the rail is regulated at the driver pins and gate overshoot is bounded.",
+    "why_plausible": "UCC27624 recommended VDD spans 4.5-26 V; C7 VGS absolute maximum is +/-20 V; 15 V is compatible in principle.",
+    "energy_screen": {
+      "qg_93nC_at_129kHz": {
+        "12V": 0.1441,
+        "15V": 0.1801
+      },
+      "kind": "derived",
+      "warning": "Qg*V*f is supply charge energy, not MOSFET switching loss; driver static and rail losses remain unknown. Qg is held fixed from a different bias test point; these are charge-scale estimates, not matched 15 V gate-drive predictions."
+    },
+    "blocking_measurements": [
+      "AUX_15V at UCC27624 pins during gate current including overshoot/ripple",
+      "C7 VGS high/plateau/negative undershoot and ringing below +/-20 V",
+      "UCC28180 GATE-to-driver INA waveform at startup, UVLO, OVP and fault",
+      "rerun experiment-02 model with 15 V if measured waveform justifies it"
+    ],
+    "status": "conditionally favorable simplification; not evidence to add a new 12 V rail or to assume 15 V improves total efficiency"
+  },
+  "sources": [
+    {
+      "id": "ucc28180",
+      "url": "https://www.ti.com/lit/ds/symlink/ucc28180.pdf",
+      "claim": "18-250 kHz programmable CCM PFC controller; 1.5 A source/2 A sink; 15.2 V typical clamp"
+    },
+    {
+      "id": "ucc27624",
+      "url": "https://www.ti.com/lit/ds/symlink/ucc27624.pdf",
+      "claim": "4.5-26 V driver supply; 5 A typical peak source/sink test; dynamic output resistance remains conditional in experiment-02"
+    },
+    {
+      "id": "slup348",
+      "url": "https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/234/07_5F00_2kWcharger_5F00_slup348.pdf",
+      "claim": "2 kW UCC28180 reference material uses 130 kHz and 168 uH at a 30% ripple design point"
+    },
+    {
+      "id": "ucc28180_evm",
+      "url": "https://www.ti.com/lit/ug/sluuat3b/sluuat3b.pdf",
+      "claim": "360 W UCC28180 EVM at 390 V and 120 kHz"
+    },
+    {
+      "id": "tida00779",
+      "url": "https://www.ti.com/lit/ug/tidube1d/tidube1d.pdf",
+      "claim": "TI 230 V / 3.5 kW UCC28180 reference uses 45 kHz and an actual 180 uH choke; its 190-270 Vac input envelope is not a 120 Vac magnetic drop-in"
+    },
+    {
+      "id": "ti_choke_article",
+      "url": "https://www.ti.com/lit/ta/sszta19/sszta19.pdf",
+      "claim": "bridge, inductor, diode and switching losses; sendust 45 kHz tradeoff example"
+    },
+    {
+      "id": "wurth_760800301",
+      "url": "https://www.we-online.com/components/products/datasheet/760800301.pdf",
+      "claim": "180 uH T75 choke, 24.5 A at 40 K, 48 A at 4 m/s, 43 A typical saturation, 20 mOhm max DCR"
+    }
+  ]
+}

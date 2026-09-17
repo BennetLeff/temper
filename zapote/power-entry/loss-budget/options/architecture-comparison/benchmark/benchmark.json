@@ -1,0 +1,166 @@
+{
+  "schema": "zapote.pfc.manufacturer-benchmark.v1",
+  "result": "insufficient_evidence",
+  "claim": "Manufacturer references establish architecture and whole-board efficiency points only; they do not validate pfc_switching event-energy predictions.",
+  "sources": [
+    {
+      "id": "TI-TIDA-00779",
+      "sha256": "1f2abaf8f7460ec110186d59f3d01624bdbd260d57ae7b7b698d0754c717d465",
+      "pages": [
+        4,
+        5,
+        6,
+        9,
+        12,
+        13,
+        14
+      ],
+      "captured_pdf": "TIDUBE1D.pdf"
+    },
+    {
+      "id": "INF-AN201408",
+      "sha256": null,
+      "pages": [
+        3,
+        14,
+        19,
+        20,
+        27
+      ],
+      "status": "web_parsed_primary_pdf; CloudFront WAF 202 prevented capture"
+    },
+    {
+      "id": "INF-IPZ-DS",
+      "sha256": null,
+      "pages": [
+        4,
+        5,
+        6
+      ],
+      "status": "web_parsed_primary_pdf; CloudFront WAF 202 prevented capture"
+    }
+  ],
+  "measured_points": [
+    {
+      "source": "TI-TIDA-00779",
+      "page": 9,
+      "label": "230V_high_load",
+      "vin_vac": 226.62,
+      "iin_a": 14.68,
+      "pin_w": 3314.7,
+      "vout_v": 381.55,
+      "iout_a": 8.497,
+      "pout_w": 3242.4,
+      "efficiency_pct": 97.82,
+      "whole_board_loss_w": 72.3,
+      "fsw_hz": 45000
+    },
+    {
+      "source": "TI-TIDA-00779",
+      "page": 9,
+      "label": "230V_full_load",
+      "vin_vac": 226.07,
+      "iin_a": 16.775,
+      "pin_w": 3778.5,
+      "vout_v": 381.17,
+      "iout_a": 9.686,
+      "pout_w": 3692.1,
+      "efficiency_pct": 97.714,
+      "whole_board_loss_w": 86.4,
+      "fsw_hz": 45000
+    },
+    {
+      "source": "INF-AN201408",
+      "pdf_page_index": 18,
+      "label": "230V_full_load_4pin_100kHz",
+      "vin_vac": 229.56,
+      "iin_a": 11.178,
+      "pin_w": 2561.5,
+      "vout_v": 401.15,
+      "iout_a": 6.235,
+      "pout_w": 2500.9,
+      "efficiency_pct": 97.6342,
+      "whole_board_loss_w": 60.6,
+      "fsw_hz": 100000,
+      "heatsink_c": 60
+    },
+    {
+      "source": "INF-AN201408",
+      "pdf_page_index": 18,
+      "label": "85V_high_load_4pin_100kHz",
+      "vin_vac": 84.61,
+      "iin_a": 8.924,
+      "pin_w": 753.7,
+      "vout_v": 401.45,
+      "iout_a": 1.7855,
+      "pout_w": 716.8,
+      "efficiency_pct": 95.10415,
+      "whole_board_loss_w": 36.9,
+      "fsw_hz": 100000,
+      "heatsink_c": 60
+    },
+    {
+      "source": "INF-AN201408",
+      "pdf_page_index": 18,
+      "label": "85V_full_load_4pin_100kHz",
+      "vin_vac": 84.31,
+      "iin_a": 15.215,
+      "pin_w": 1280.2,
+      "vout_v": 401.34,
+      "iout_a": 2.9842,
+      "pout_w": 1197.6,
+      "efficiency_pct": 93.54788,
+      "whole_board_loss_w": 82.6,
+      "fsw_hz": 100000,
+      "heatsink_c": 60
+    }
+  ],
+  "source_anchors": {
+    "ipz60r040c7": {
+      "qg_c": 1.07e-07,
+      "qgd_c": 3.6e-08,
+      "qgs_c": 2.2e-08,
+      "gate_plateau_v": 5.0,
+      "intrinsic_gate_r_ohm": 0.77,
+      "rds_on_max_ohm": 0.04,
+      "co_er_f": 1.58e-10,
+      "eoss_inferred_at_400v_j": 1.264e-05,
+      "inference": "0.5*C*V^2; not a measured Eoss waveform"
+    }
+  },
+  "model_observability": {
+    "observed": [
+      "bus/output voltage",
+      "switching frequency",
+      "nominal gate-bias supply",
+      "board gate resistor setting",
+      "device Qg/Qgd/Rg/RDS datasheet anchors",
+      "whole-board Pin/Pout"
+    ],
+    "missing": [
+      "turn_on_current_a",
+      "turn_off_current_a",
+      "switch_rms_a",
+      "current_transfer_charge_c at operating current",
+      "measured gate I-V/plateau",
+      "loop_inductance_h",
+      "simultaneous VDS/VGS/ID waveforms",
+      "junction temperature",
+      "per-device Eon/Eoff/Eoss"
+    ]
+  },
+  "notes": [
+    "TI Table 3-1 row 227.33 VAC/2513.6 W in/2560.7 W out is internally inconsistent and excluded."
+  ],
+  "maintained_model_comparison": {
+    "device": "IPW65R045C7",
+    "line_rms_v": 120,
+    "bus_v": 400,
+    "switching_hz": 129107.39198576905,
+    "input_power_w": 1796.31003212911,
+    "full_assist_total_w": 37.77665684756483,
+    "no_assist_total_w": 45.502337474982966,
+    "dc_max_total_w": 53.47227933952407,
+    "status": "not a same-case holdout"
+  }
+}

@@ -1,12 +1,19 @@
 # PFC assurance and three electrical options
 
+Latest: [architecture comparison](architecture-comparison/RESULTS.md) completes
+three Luna investigations into model benchmarking, frequency/magnetics and
+Kelvin-source SiC. The next priority is a matched-ripple 90/65 kHz magnetic
+comparison; the buffered C7 remains an experimental baseline, not a selected
+optimum. Whole-assembly loss and physical switching validation remain open.
+
 Update: [experiment 02](experiment-02/RESULTS.md) compares C7 and the incumbent
 ST device with a proposed UCC27624 buffer, separate 12 V driver supply and
 explicit asymmetric drive profiles. At the nominal 4.7 Ω comparison C7 gives
 37.78–53.47 W conditional partial loss, versus 68.35 W for the experiment-01
 10 V/10 Ω C7 control. These are hypothetical sensitivities, not dynamic bounds.
-The next circuit iteration is the C7 buffered gate stage, supply producer and
-hardware enable interlock; physical qualification remains INDETERMINATE.
+Experiment 02 proposed the C7 buffered gate stage, supply producer and
+hardware enable interlock. The latest comparison broadens that priority;
+physical qualification remains INDETERMINATE.
 [Experiment 01](experiment-01/RESULTS.md) remains the unbuffered device comparison.
 
 The four Luna work packages are integrated together so numerical safeguards
@@ -23,7 +30,7 @@ its STW65N65DM2AG remain unchanged. No option is qualified or selected.
 
 The device-only comparison and buffered C7 numerical experiment are complete.
 The option records below preserve their initial research context; experiment 02
-sets the current circuit-design priority, not an approved substitution. Pair A's exact Infineon PDF bytes
+establishes the buffered baseline, not an approved substitution. Pair A's exact Infineon PDF bytes
 remain uncaptured; indexed distributor inventory is indicative, not a live
 procurement guarantee. Read each candidate record for its individual gaps.
 

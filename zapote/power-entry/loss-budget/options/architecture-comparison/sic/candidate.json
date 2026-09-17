@@ -1,0 +1,153 @@
+{
+  "schema": "zapote.pfc.architecture-comparison.sic-kelvin.v1",
+  "observed_at": "2026-09-17",
+  "source_revision": "07a066e86251c13b0aec95b3d6f4ce958459db39",
+  "qualification": "indeterminate_research_candidate",
+  "topology": "single_phase_conventional_diode_bridge_ccm_boost_pfc",
+  "candidate": {
+    "mosfet": {
+      "mpn": "NTH4L060N065SC1",
+      "manufacturer": "onsemi",
+      "package": "TO-247-4LD with separate Kelvin source",
+      "vds_rating_v": 650,
+      "recommended_vgs_range_v": [
+        -5,
+        18
+      ],
+      "proposed_gate_bias": "0/+15 V unipolar, regulated at driver pins; 15 V is the data-sheet RDS(on) test point, not a recommended turn-on claim",
+      "rds_on_ohm": {
+        "15V_25C_typ": 0.06,
+        "18V_25C_typ": 0.044,
+        "18V_25C_max": 0.07,
+        "18V_175C_typ": 0.05,
+        "100C": null,
+        "125C": null
+      },
+      "qg_nc": 74,
+      "qgd_nc": 23,
+      "qg_conditions": "VDS=520 V, ID=20 A, VGS=-5/+18 V",
+      "switching_reference": {
+        "eon_uj": 45,
+        "eoff_uj": 18,
+        "total_uj": 63,
+        "conditions": "TJ=25 C, VDS=400 V, ID=20 A, inductive load, VGS=-5/+18 V, RG=2.2 ohm",
+        "use": "source anchor for a future matched double-pulse calibration only; not a PFC loss estimate"
+      },
+      "source_pdf": "sources/NTH4L060N065SC1-Rev3-2023-01.pdf",
+      "source_sha256": "e1063468f3c85e75c1830382be534ad8d7647d7f69ba8d4fe4c4dc31b004f8c4",
+      "source_url": "https://www.onsemi.com/download/data-sheet/pdf/nth4l060n065sc1-d.pdf"
+    },
+    "driver": {
+      "mpn": "UCC27624DR",
+      "manufacturer": "Texas Instruments",
+      "package": "SOIC-8, one channel used and the other explicitly disabled",
+      "vdd_range_v": [
+        4.5,
+        26
+      ],
+      "proposed_vdd_v": 15.0,
+      "peak_source_sink_a_typ": [
+        5,
+        5
+      ],
+      "uvlo_rising_typ_v": 4.1,
+      "uvlo_falling_typ_v": 3.8,
+      "input_threshold_typ_v": {
+        "high": 2.0,
+        "low": 1.0
+      },
+      "enable": "active high with internal pull-up; external interlock must hold EN low until controller and driver rails are valid and PWM is low",
+      "source_pdf": "sources/UCC27624-RevE.pdf",
+      "source_sha256": "b42590ddafb28a608aae30f5a2c333851cf11ded63daa03fbdef6df93ecb8a51",
+      "source_url": "https://www.ti.com/lit/ds/symlink/ucc27624.pdf"
+    }
+  },
+  "pfc_reference": {
+    "controller": "UCC28180D",
+    "controller_source_pdf": "sources/TI-UCC28180.pdf",
+    "controller_source_sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be",
+    "controller_source_url": "https://www.ti.com/lit/ds/symlink/ucc28180.pdf",
+    "nominal_input_w": 1796.31003212911,
+    "line_conditions": {
+      "108Vrms": {
+        "input_current_limit_a": 15.0,
+        "available_input_at_limit_w": 1617.0095355030217,
+        "status": "derated_low_line"
+      },
+      "120Vrms": {
+        "input_current_a": 15.0,
+        "input_w": 1796.31003212911,
+        "status": "nominal"
+      },
+      "132Vrms": {
+        "same_power_real_power_target_current_a": 13.6084093,
+        "true_rms_including_ripple": null,
+        "status": "must_rerun_model_at_same_power; retained 15 A point is 1975.605 W and is not comparable"
+      }
+    },
+    "retained_source_model": {
+      "report": "../../experiment-02/evidence/report.json",
+      "sha256": "3805a41c953ae04dec3f65084de51a153e048d9ac4abfd204a8c52abde26749c",
+      "bus_v": 400.0,
+      "switching_hz": 129107.39198577,
+      "switch_rms_a_at_15A": {
+        "108": 12.3322992461,
+        "120": 11.9994967412,
+        "132": 11.6572564368
+      },
+      "status": "experiment-02 model moments, not measured waveforms"
+    }
+  },
+  "supported_terms_only": {
+    "equations": [
+      "Pcond = Iswitch_rms^2 * RDS(on)",
+      "Pgate_network = Qg * Vdrive * fsw"
+    ],
+    "screen_w_at_proposed_0_plus_15V": {
+      "conduction_60mohm_25C_typ": {
+        "108": 9.125136,
+        "120": 8.639275,
+        "132_at_15A_not_same_power": 8.153498
+      },
+      "gate_charge": 0.143309,
+      "units": "W",
+      "gate_charge_note": "Charge-scale estimate only: 74 nC is characterized at -5/+18 V, not the proposed 0/+15 V; actual gate-network loss is unknown."
+    },
+    "source_condition_reference_not_in_15V_screen": {
+      "conduction_70mohm_18V_25C_max": {
+        "108": 10.645992,
+        "120": 10.079155,
+        "132": 9.512414
+      },
+      "note": "18 V RDS(on) condition is retained only to show source sensitivity; it is not applied to the proposed 0/+15 V candidate."
+    },
+    "excluded_from_total": [
+      "PFC switching overlap: NTH source EON/EOFF uses -5/+18 V and 400 V/20 A, while proposed drive is 0/+15 V and the PFC event current is phase/ripple dependent",
+      "EOSS: no matched 400 V source point for the proposed PFC case; do not add to a future EON/EOFF capture if that capture already includes capacitive energy",
+      "bridge diode conduction/recovery",
+      "boost diode conduction/recovery",
+      "inductor DCR and core loss",
+      "shunt I2R and shunt-body thermal path",
+      "bulk/output capacitor ESR/ripple and lifetime",
+      "controller, driver static bias, AUX producer and gate-loop copper loss",
+      "heatsink, interface, airflow and enclosure thermal paths",
+      "EMI filter and line-commutation loss"
+    ]
+  },
+  "ranking_requirements": [
+    "Solve the 132 Vrms model current to deliver 1796.310032 W input including ripple: P/V=13.6084093 A is only an ideal-PF lower bound, not the true-RMS setpoint. Retain 108 Vrms at the 15 A derating limit.",
+    "Measure 0/+15 V gate waveform at Kelvin source, including plateau, overshoot and ringing; log any peak above a provisional 16 V review flag, then check the actual operating and absolute limits from the data sheet. The 16 V flag is not a qualification limit.",
+    "Double-pulse at 400 V over instantaneous switching-current range, then CCM PFC at 108/120/132 Vrms; hold fixture states at 25/100/125 C and fit EON/EOFF only to matched conditions.",
+    "Prove AUX_15V regulation at driver pins through startup, shutdown, UVLO and faults; EN must be fail-off and the unused driver channel disabled.",
+    "Close bridge, diode, magnetic, shunt, capacitor, auxiliary, cooling and EMI terms before any whole-assembly ranking."
+  ],
+  "escalation_trigger": {
+    "interleaved": "Escalate only after the single-boost coupon is measured and the system loss/thermal budget or inductor-current/EMI limits are demonstrably missed; then evaluate a two-phase interleaved bridge-boost. Expect a second MOSFET/diode/inductor/current path and a second driver channel; do not claim the benefit before a matched assembly measurement.",
+    "bridgeless": "Evaluate only if measured bridge diode conduction and commutation loss is the dominant remaining shortfall and line-commutation/EMI controls are available. Removing the bridge adds line-referenced switching and control/EMI complexity; it is not a free loss subtraction.",
+    "status": "trigger criteria only; no interleaved or bridgeless design performed"
+  },
+  "availability": {
+    "mosfet": "DigiKey indexed observation 2026-09-17: 447 units, $12.83 qty1; cached/indicative, recheck live",
+    "driver": "Existing retained option record observed DigiKey UCC27624DR 1038 units, $1.46 cut tape; cached/indicative, recheck live"
+  }
+}
