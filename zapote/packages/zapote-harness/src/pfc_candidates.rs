@@ -38,14 +38,23 @@ const BRIDGE_VF_TEST_V: f64 = 1.05;
 const BRIDGE_VF_BAND_V: [f64; 2] = [0.85, 1.30];
 /// Two rectifier elements sit in the line path in series at every instant.
 const BRIDGE_ELEMENTS_IN_PATH: f64 = 2.0;
-/// STW65N65DM2 `RDS(on)` maximum at `ID`=30 A, `TC`=25 C.
+/// Resolved boost-switch `RDS(on)` maximum at `ID`=30 A, `TC`=25 C. The
+/// authored identity is the ST marking form `STW65N65DM2`; the retained
+/// datasheet gives its order code as `STW65N65DM2AG`.
 const BOOST_RDS_25_MAX_OHM: f64 = 0.050;
 /// Assumed hot `RDS(on)`. The datasheet curve was not read into this study, so
 /// this is a design sensitivity and never a part guarantee.
 const BOOST_RDS_ASSUMED_HOT_OHM: f64 = 0.100;
-/// STW65N65DM2 `Qg` typical at `VDD`=520 V, `ID`=60 A, `VGS` 0-10 V.
+/// `Qg` typical at `VDD`=520 V, `ID`=60 A, `VGS` 0-10 V for that same part.
 const BOOST_QG_TYP_C: f64 = 120e-9;
 const BOOST_VDRIVE_V: f64 = 10.0;
+/// `C_oss eq.` typical at `VDS` = 0 to 520 V, `VGS` = 0 V. The retained ST
+/// datasheet's Device summary resolves the authored marking form `65N65DM2` to
+/// order code `STW65N65DM2AG`, and this equivalent capacitance is what lets the
+/// hard-switched output-capacitance term be bounded instead of left unnamed.
+const BOOST_COSS_EQ_F: f64 = 456e-12;
+/// The order code the retained datasheet prints for the authored marking form.
+const BOOST_ORDER_CODE: &str = "STW65N65DM2AG";
 /// C3D20065D capacitive stored energy typical at `VR`=400 V, 25 C.
 const SIC_EC_TYP_J: f64 = 3.6e-6;
 /// The authored source and the retained studies share this true-RMS ceiling.
@@ -480,6 +489,14 @@ fn boost_stage_optimization(models: &[LineModel], requirement_w: f64) -> Result<
                         loss::gate_drive_w(BOOST_QG_TYP_C, BOOST_VDRIVE_V, model.switching_hz)?,
                     ),
                     (
+                        "mosfet_output_capacitance_datasheet_w".into(),
+                        loss::output_capacitance_w(
+                            BOOST_COSS_EQ_F,
+                            model.bus_v,
+                            model.switching_hz,
+                        )?,
+                    ),
+                    (
                         "sic_diode_capacitive_typical_w".into(),
                         SIC_EC_TYP_J * model.switching_hz,
                     ),
@@ -489,8 +506,10 @@ fn boost_stage_optimization(models: &[LineModel], requirement_w: f64) -> Result<
         },
         || {
             vec![
-                "exact STW65N65DM2 manufacturer order code".into(),
-                "Eon, Eoff, Eoss and capacitive commutation from real gate-drive waveforms".into(),
+                format!(
+                    "measured turn-on/turn-off overlap energy for {BOOST_ORDER_CODE} at the real bus voltage, current and gate network"
+                ),
+                "hot RDS(on) from the manufacturer curve rather than a 25 C maximum".into(),
                 "inductor core and AC winding loss at the actual ripple and frequency".into(),
                 "frequency-dependent capacitor ESR and ripple sharing".into(),
             ]
@@ -501,10 +520,15 @@ fn boost_stage_optimization(models: &[LineModel], requirement_w: f64) -> Result<
         question: "does the boost stage, rather than the bridge, dominate the unresolved heat",
         points,
         required_inputs: vec![
-            "measured or datasheet-backed switching energies at the real bus voltage, current and gate network",
+            "measured turn-on/turn-off overlap energy at the real bus voltage, current and gate network",
+            "the hot RDS(on) curve at the actual junction temperature",
             "inductor core and AC winding loss at the actual ripple and frequency",
         ],
         screening: vec![
+            format!(
+                "The authored identity `STW65N65DM2` is the ST marking form; the retained datasheet resolves it to order code {BOOST_ORDER_CODE}. The conduction and capacitance terms below are that part's data, not an unnamed device's."
+            ),
+            "The output-capacitance term is now bounded from the datasheet's equivalent C_oss rather than left unnamed. It is a single-equivalent value at one voltage span, so it stays an estimate.".into(),
             "The switching-overlap term is a design sensitivity keyed to an assumed edge time, not a prediction about the authored device. Across the loss budget's 20-100 ns band it spans tens of watts, which is the largest single lever this study can name.".into(),
             "Conduction is a weaker lever than overlap at 50 ns edges, and it is bounded by the same unread hot curve.".into(),
             "The gate-drive estimate is a single-condition typical and must not be added to the controller's loaded-gate supply current, which already includes drive energy.".into(),
@@ -518,7 +542,7 @@ const REQUIRED_INPUTS: [&str; 5] = [
     "hot junction temperature for every semiconductor, not a copper temperature",
     "degraded-airflow and installed-heatsink data for the assembly",
     "startup, inrush, precharge, shutdown and fault behaviour: no CCM operating point exists for these, so no loss term is computed",
-    "measured switching waveforms for the boost cell",
+    "measured switching waveforms for the boost cell: the datasheet bounds the output-capacitance term, not the turn-on/turn-off overlap",
     "delivered-output efficiency, required to convert the ideal input power used here into delivered DC or pan power",
 ];
 
@@ -529,6 +553,8 @@ pub fn run(source: &str) -> Result<Report, String> {
     let circuit = Circuit::parse(source, power_entry::ENTRY)?;
     for (id, mpn) in [
         ("bridge", "GBJ2510-F"),
+        // The authored string is the ST marking form; its order code is
+        // resolved in `pfc_loss_budget::BOOST_ORDER_CODE`.
         ("q_boost", "STW65N65DM2"),
         ("d_boost", "C3D20065D"),
         ("shunt", "HCSM2818FT10L0"),
@@ -619,6 +645,7 @@ pub fn run(source: &str) -> Result<Report, String> {
         assumptions: vec![
             "The required power is the ideal CCM model's input power at 120 V RMS and 15 A true RMS; it is not delivered DC power or pan power".into(),
             "The retained GBJ2510-F datasheet has one forward-drop test point, so the 0.85/1.30 V band is an explicit sensitivity rather than a part bound".into(),
+            "The retained ST datasheet resolves the authored boost-switch marking form to an order code and supplies C_oss eq. and Qg; its output-capacitance and gate terms are single-condition typicals, and a measured Eon that already includes the C_oss discharge would double-count the capacitance term".into(),
             "The 50 mOhm figure is a 25 C maximum at 30 A and the 100 mOhm figure is a design sensitivity; neither is a hot guarantee".into(),
             "Gate-drive and SiC capacitive terms are single-condition typicals, and the controller's loaded-gate supply current already includes drive energy and must not be double-counted".into(),
             "No equal current sharing, package thermal sharing or capacitor ripple sharing is assumed anywhere in this screen".into(),
@@ -841,6 +868,31 @@ mod tests {
     }
 
     #[test]
+    fn boost_switch_is_resolved_to_an_order_code_with_a_bounded_capacitance_term() {
+        let r = report();
+        let boost = point(candidate(&r, "boost-stage-optimization"), 120.0);
+        let (bus_v, switching_hz) = bus_and_frequency();
+        // The datasheet's equivalent C_oss bounds the hard-switched turn-on
+        // term that used to be excluded outright.
+        let capacitive = boost.computed_w["mosfet_output_capacitance_datasheet_w"];
+        assert!(
+            (capacitive - 0.5 * 456e-12 * bus_v * bus_v * switching_hz).abs() < 1e-9,
+            "capacitive {capacitive}"
+        );
+        assert!(capacitive > 4.0 && capacitive < 5.0);
+        // The order code is named, and the overlap term it does not determine
+        // is still an explicit unresolved input rather than a silent zero.
+        assert!(r
+            .unresolved_terms
+            .iter()
+            .any(|u| u.contains("STW65N65DM2AG") && u.contains("overlap")));
+        assert!(r
+            .unresolved_terms
+            .iter()
+            .any(|u| u.contains("hot RDS(on) from the manufacturer curve")));
+    }
+
+    #[test]
     fn total_loss_and_cooling_margin_stay_absent() {
         let r = report();
         assert!(r.total_loss_w.is_none() && r.cooling_margin_w.is_none());
@@ -852,7 +904,10 @@ mod tests {
     fn stale_part_data_cannot_follow_a_part_change() {
         for (from, to) in [
             ("GBJ2510-F", "GBU2510A"),
+            // Swapping the marking form for the order code, or for a different
+            // device, must both fail until the authored source moves with it.
             ("STW65N65DM2", "STW65N65DM2AG"),
+            ("STW65N65DM2", "STW63N65DM2"),
             ("C3D20065D", "C3D20065A"),
             ("760800301", "760800302"),
         ] {

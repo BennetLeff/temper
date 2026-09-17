@@ -9,8 +9,25 @@ pub const RULES: [&str; 3] = [
     "ERC.PFC.LOSS_COVERAGE",
     "THERMAL.PFC.LOSS_COOLING_CLOSURE",
 ];
+/// The identity the authored source carries for the boost switch. ST's own
+/// Device summary prints `65N65DM2` as the *marking* on a TO-247 tube part, so
+/// this string is the marking form, not an order code.
+pub const BOOST_AUTHORED_IDENTITY: &str = "STW65N65DM2";
+/// The order code that resolves that marking, from the retained ST datasheet's
+/// Device summary table (`Order code STW65N65DM2AG`, `Marking 65N65DM2`).
+pub const BOOST_ORDER_CODE: &str = "STW65N65DM2AG";
+/// Retained primary source that resolves the identity and supplies the switch
+/// capacitance and gate charge used below.
+pub const BOOST_SOURCE_DOCUMENT: &str = "STW65N65DM2AG.pdf";
+/// `C_oss eq.` typical, `VDS` = 0 to 520 V, `VGS` = 0 V, from the retained
+/// datasheet. A single equivalent value, not the `C_oss(V)` curve.
+const BOOST_COSS_EQ_F: f64 = 456e-12;
+/// Total gate charge typical at `VDD` = 520 V, `ID` = 60 A, `VGS` = 10 V.
+const BOOST_QG_TYP_C: f64 = 120e-9;
+/// The authored gate network drives the gate to this level.
+const BOOST_VDRIVE_V: f64 = 10.0;
 const UNKNOWN: [&str; 10] = [
-    "q_boost: exact STW65N65DM2 manufacturer identity and hot/switching loss",
+    "q_boost: measured turn-on/turn-off overlap energy and hot RDS(on) curve; the order code is resolved, the transition energy is not",
     "d_boost: forward-drop curve, current sharing and capacitive commutation",
     "l_boost: core and AC winding loss",
     "cmc: hot DC, AC winding and core loss",
@@ -21,7 +38,7 @@ const UNKNOWN: [&str; 10] = [
     "bridge: waveform/temperature-dependent forward drop beyond single test point",
     "hot shunt and relay tolerance/temperature corrections",
 ];
-const DOCUMENTS: [(&str, &[u8], &str); 3] = [
+const DOCUMENTS: [(&str, &[u8], &str); 4] = [
     (
         "760800301.pdf",
         include_bytes!("../../../power-entry/loss-budget/sources/760800301.pdf"),
@@ -36,6 +53,11 @@ const DOCUMENTS: [(&str, &[u8], &str); 3] = [
         "RT1_Inrush.pdf",
         include_bytes!("../../../power-entry/loss-budget/sources/RT1_Inrush.pdf"),
         "4296fa1a3def9a6398bf6b8ef13b6ecda809cd4aa1f96cf4ab01475029e008e5",
+    ),
+    (
+        BOOST_SOURCE_DOCUMENT,
+        include_bytes!("../../../power-entry/loss-budget/sources/STW65N65DM2AG.pdf"),
+        "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
     ),
 ];
 
@@ -71,6 +93,28 @@ pub struct Case {
     pub partial_estimated_w: f64,
     pub mosfet_design_sensitivity: Vec<MosfetSensitivity>,
 }
+
+/// What the retained manufacturer datasheet lets the switch term claim, and
+/// what it does not. Every field here is single-condition typical data.
+#[derive(Debug, Serialize)]
+pub struct BoostSwitchBound {
+    pub authored_identity: &'static str,
+    pub resolved_order_code: &'static str,
+    pub source_document: &'static str,
+    pub coss_eq_f: f64,
+    pub bus_v: f64,
+    pub switching_hz: f64,
+    /// `0.5 * C_oss eq. * V_bus^2`, the energy a hard-switched turn-on dumps.
+    pub output_capacitance_energy_j: f64,
+    /// The same energy at the switching frequency.
+    pub output_capacitance_w: f64,
+    /// `Qg * Vdrive * f`. A single-condition typical, not a guaranteed maximum.
+    pub gate_drive_typical_w: f64,
+    /// Turn-on/turn-off overlap still needs measured waveforms; no Eon/Eoff is
+    /// claimed here.
+    pub transition_energy_needs_waveforms: bool,
+}
+
 #[derive(Debug, Serialize)]
 pub struct Report {
     pub checks: CheckReport,
@@ -78,6 +122,7 @@ pub struct Report {
     pub documents_sha256: BTreeMap<String, String>,
     pub missing_terms: Vec<String>,
     pub cases: Vec<Case>,
+    pub boost_switch_bound: BoostSwitchBound,
     pub total_loss_w: Option<f64>,
     pub cooling_margin_w: Option<f64>,
     pub prior_electronics_allowance_w: f64,
@@ -155,6 +200,7 @@ pub fn run(source: &str) -> Result<Report, String> {
     let c = Circuit::parse(source, power_entry::ENTRY)?;
     for (id, mpn) in [
         ("bridge", "GBJ2510-F"),
+        ("q_boost", BOOST_AUTHORED_IDENTITY),
         ("shunt", "HCSM2818FT10L0"),
         ("l_boost", "760800301"),
         ("bypass", "RT33K012"),
@@ -165,6 +211,23 @@ pub fn run(source: &str) -> Result<Report, String> {
     }
     let bus_v = power_entry::nominal_screen()?.bus_setpoint_v;
     let switching_hz = power_entry::frequency_from_rf(16_200.)?;
+    // The switch term the retained datasheet can actually support: the output
+    // capacitance energy and the gate charge are datasheet typicals, so they
+    // are reported as an estimate. The overlap energy is deliberately absent
+    // because it needs measured waveforms, not a datasheet table.
+    let output_capacitance_energy_j = 0.5 * BOOST_COSS_EQ_F * bus_v * bus_v;
+    let boost_switch_bound = BoostSwitchBound {
+        authored_identity: BOOST_AUTHORED_IDENTITY,
+        resolved_order_code: BOOST_ORDER_CODE,
+        source_document: BOOST_SOURCE_DOCUMENT,
+        coss_eq_f: BOOST_COSS_EQ_F,
+        bus_v,
+        switching_hz,
+        output_capacitance_energy_j,
+        output_capacitance_w: loss::output_capacitance_w(BOOST_COSS_EQ_F, bus_v, switching_hz)?,
+        gate_drive_typical_w: loss::gate_drive_w(BOOST_QG_TYP_C, BOOST_VDRIVE_V, switching_hz)?,
+        transition_energy_needs_waveforms: true,
+    };
     let mut cases = Vec::new();
     for line in [108.0, 120.0, 132.0] {
         for inductance in [144e-6, 180e-6, 216e-6] {
@@ -193,14 +256,19 @@ pub fn run(source: &str) -> Result<Report, String> {
         checks: CheckReport::from_findings(findings, RULES.map(str::to_owned).to_vec(), missing.clone()),
         source_sha256: crate::runner::digest(source.as_bytes()),
         documents_sha256,
-        missing_terms: missing, cases, total_loss_w: None, cooling_margin_w: None,
+        missing_terms: missing,
+        cases,
+        boost_switch_bound,
+        total_loss_w: None,
+        cooling_margin_w: None,
         prior_electronics_allowance_w: 105.0,
         assumptions: vec![
             "108/120/132 V and L±20% are sensitivity points, not qualified input limits; ideal CCM, 15 A true RMS, fixed nominal bus/frequency".into(),
             "Input power is not DC output power; current ripple consumes part of the RMS current ceiling".into(),
             "Bridge 1.05 V test point is extrapolated as constant, not a waveform-wide/hot guarantee".into(),
             "Copper alpha20=0.00393/K is assumed; DCR max20mOhm at20C; core/AC loss excluded".into(),
-            "MOSFET sweep is hypothetical and not attributable to authored STW65N65DM2; exact identity unresolved; Eoss and capacitive commutation excluded".into(),
+            "The authored boost-switch identity is the ST marking form 65N65DM2; the retained datasheet resolves its order code to STW65N65DM2AG, and the capacitance and gate-charge terms below are that part's typicals".into(),
+            "The MOSFET sweep remains a design sensitivity, not a prediction: the output-capacitance term is a single-equivalent-Coss estimate and the overlap term still needs measured waveforms".into(),
             "UCC loaded-gate ICC must not be added to full Qg*V*f as quiescent power; partition those losses first".into(),
             "No equal sharing of SiC anodes or capacitor-bank ripple assumed; no individual package thermal verdict".into(),
             "Prior 60C sink target is not proof of 60C remote PCB boundary".into(),
@@ -216,7 +284,7 @@ mod tests {
         include_str!("../../../power-entry/shunt-repair/candidate/source-manifest.json");
     #[test]
     fn every_manufacturer_document_rejects_byte_drift() {
-        assert_eq!(document_hashes(&DOCUMENTS).unwrap().len(), 3);
+        assert_eq!(document_hashes(&DOCUMENTS).unwrap().len(), 4);
         for index in 0..DOCUMENTS.len() {
             let mut changed = DOCUMENTS[index].1.to_vec();
             changed[20] ^= 1;
@@ -226,6 +294,39 @@ mod tests {
                 .unwrap_err()
                 .contains(DOCUMENTS[index].0));
         }
+    }
+
+    #[test]
+    fn boost_switch_bound_is_datasheet_derived_and_leaves_overlap_open() {
+        let r = run(SOURCE).unwrap();
+        let b = &r.boost_switch_bound;
+        // The identity is resolved to an order code, but only through the
+        // retained document that carries the Device summary.
+        assert_eq!(b.authored_identity, "STW65N65DM2");
+        assert_eq!(b.resolved_order_code, "STW65N65DM2AG");
+        assert_eq!(b.source_document, "STW65N65DM2AG.pdf");
+        assert_eq!(r.documents_sha256[b.source_document].len(), 64);
+        // C_oss eq. 456 pF at the 389.615 V bus setpoint.
+        assert!((b.bus_v - 389.615).abs() < 1e-3, "bus {}", b.bus_v);
+        assert!((b.coss_eq_f - 456e-12).abs() < 1e-18);
+        let expected = 0.5 * 456e-12 * b.bus_v * b.bus_v;
+        assert!((b.output_capacitance_energy_j - expected).abs() < 1e-15);
+        assert!(
+            (b.output_capacitance_w - expected * b.switching_hz).abs() < 1e-9,
+            "capacitance {} W",
+            b.output_capacitance_w
+        );
+        assert!(b.output_capacitance_w > 4.0 && b.output_capacitance_w < 5.0);
+        // 120 nC at 10 V over the retained 129.107 kHz switching frequency.
+        assert!((b.switching_hz - 129_107.0).abs() < 1.0, "hz {}", b.switching_hz);
+        assert!(
+            (b.gate_drive_typical_w - 120e-9 * 10.0 * b.switching_hz).abs() < 1e-9,
+            "gate {} W",
+            b.gate_drive_typical_w
+        );
+        assert!(b.transition_energy_needs_waveforms);
+        // The switch term is bounded but the budget as a whole still is not.
+        assert!(r.total_loss_w.is_none() && r.cooling_margin_w.is_none());
     }
     #[test]
     fn real_source_budget_is_incomplete_even_below_allowance() {
@@ -251,6 +352,9 @@ mod tests {
         assert!(run(&SOURCE.replace("760800301", "760800302")).is_err());
         assert!(run(&SOURCE.replace("GBJ2510-F", "GBU2510")).is_err());
         assert!(run(&SOURCE.replace("HCSM2818FT10L0", "WSL2512R0100FEA")).is_err());
+        // The resolved order code cannot silently replace the authored
+        // marking-form identity without an authored-source change.
+        assert!(run(&SOURCE.replace("STW65N65DM2", "STW65N65DM2AG")).is_err());
         assert!(run(&SOURCE.replace("150kohm", "100kohm")).is_err());
     }
     #[test]

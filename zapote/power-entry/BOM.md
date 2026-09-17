@@ -8,7 +8,7 @@
 | NTC | SL32 10015 | 10 ohm, 15 A |
 | Bypass relay | RT33K012 | 12 V coil, 360 ohm; 91 ohm series dropper |
 | Boost inductor | 760800301 | source-build-22 identity; thermal/core-loss verification open |
-| MOSFET / SiC diode | STW65N65DM2 / C3D20065D | 650 V class; switching/thermal verification open |
+| MOSFET / SiC diode | STW65N65DM2 / C3D20065D | 650 V class; `STW65N65DM2` is the marking form, order code `STW65N65DM2AG`; switching/thermal verification open |
 | Bulk capacitors | LGX2W561MELC50 x4 | 560 uF, 450 V, 50 mm height |
 | HF bus capacitor | B32672P6474K000 | 470 nF, 630 VDC PP film, 15 mm pitch |
 | Controller | UCC28180D | SOIC-8, TI CCM PFC controller |
@@ -19,3 +19,8 @@
 | Bleeders | RC2512FR-07150KL x2 | 150 kOhm; passive discharge is ~21 min nominal |
 
 Exact component census is in source-build-22/build/default.csv. Native and Rust construction checks pass; the overall hardware qualification remains INDETERMINATE. Current stock, pricing, thermal performance and assembled mechanical fit have not been established for procurement.
+
+The authored source, this BOM and the native board still read the boost switch as
+`STW65N65DM2`. That string is ST's marking form; the order code resolved against
+the retained datasheet is `STW65N65DM2AG` (marking `65N65DM2`). The correction is
+queued with the next board revision because it forces a native regeneration.

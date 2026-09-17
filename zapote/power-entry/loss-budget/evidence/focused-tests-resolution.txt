@@ -1,0 +1,52 @@
+# focused pfc tests after the switch-identity resolution (release profile)
+    Finished `release` profile [optimized] target(s) in 0.02s
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_harness-53cdfcc1dc177d16)
+
+running 32 tests
+test pfc_candidates::tests::stale_part_data_cannot_follow_a_part_change ... ok
+test pfc_candidates::tests::a_missing_term_is_never_zero_filled ... ok
+test pfc_candidates::tests::bridge_drop_falls_as_line_rises_at_equal_required_power ... ok
+test pfc_loops::tests::anode_leg_closes_only_when_native_edge_exists ... ok
+test pfc_candidates::tests::low_line_cannot_meet_the_requirement_inside_the_ceiling ... ok
+test pfc_candidates::tests::boost_switch_is_resolved_to_an_order_code_with_a_bounded_capacitance_term ... ok
+test pfc_candidates::tests::required_current_round_trips_through_the_current_model ... ok
+test pfc_loops::tests::missing_gate_return_or_resistor_binding_fails_closed ... ok
+test p3::coordinator_regressions::pfc_gate_and_power_paths_are_distinct_and_missing_source_return_is_not_a_pass ... ok
+test pfc_loops::tests::wrong_diode_cathode_pair_is_rejected_by_source_nets ... ok
+test pfc_candidates::tests::hot_cooling_and_fault_are_named_inputs_not_operating_cases ... ok
+test pfc_paths::tests::native11_binds_nonempty_graph_and_terminals ... ok
+test pfc_candidates::tests::requirement_is_the_retained_nominal_operating_point ... ok
+test pfc_paths::tests::repeated_package_pin_keeps_each_physical_barrel_and_separate_pin_stays_separate ... ok
+test pfc_paths::tests::span_coalescing_keeps_real_side_contacts_and_width_layer_net_boundaries ... ok
+test pfc_paths::tests::t_branch_is_split_at_junction ... ok
+test pfc_paths::tests::unknown_terminal_net_is_an_adapter_error ... ok
+test pfc_candidates::tests::total_loss_and_cooling_margin_stay_absent ... ok
+test pfc_candidates::tests::active_rectifier_reports_a_break_even_resistance ... ok
+test pfc_candidates::tests::parallel_bridges_are_reported_as_a_model_gap_not_a_verdict ... ok
+test pfc_loss_budget::tests::real_source_budget_is_incomplete_even_below_allowance ... ok
+test pfc_loss_budget::tests::copper_temperature_reference_is_twenty_not_twentyfive ... ok
+test pfc_loss_budget::tests::every_manufacturer_document_rejects_byte_drift ... ok
+test pfc_loss_budget::tests::boost_switch_bound_is_datasheet_derived_and_leaves_overlap_open ... ok
+test pfc_loss_budget::tests::stale_part_data_cannot_follow_a_part_change ... ok
+test pfc_power::tests::rejects_native_trace_width_that_disagrees_with_saved_board ... ok
+test pfc_power::tests::alternate_bridge_injections_follow_reversed_dc_pins ... ok
+test pfc_power::tests::source_pin_injections_conserve_every_power_net_and_distinguish_branches ... ok
+test pfc_loops::tests::repaired_gbj_uses_its_own_polarity_and_preserves_geometry_obligations ... ok
+test pfc_power::tests::saved_pfc_runs_the_model_and_native_contact_measurements ... ok
+test pfc_power::tests::subdividing_saved_copper_preserves_failure_set_and_determined_current ... ok
+test pfc_power::tests::narrowing_a_saved_six_mm_branch_adds_a_specific_failure ... ok
+
+test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 1.81s
+
+# zapote-erc lib tests (pfc_losses helper)
+    Finished `release` profile [optimized] target(s) in 0.01s
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_erc-36a52a74ad6311f9)
+
+running 4 tests
+test pfc_losses::tests::loss_helpers_have_expected_scaling_and_reject_bad_inputs ... ok
+test pfc_losses::tests::edge_events_are_phase_weighted_not_duty_weighted ... ok
+test pfc_losses::tests::moments_match_waveform_and_conserve_rectified_current ... ok
+test pfc_losses::tests::closed_form_no_ripple_limit_uses_sin_cubed_moment ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 44 filtered out; finished in 0.01s
+

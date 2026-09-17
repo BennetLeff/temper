@@ -2,7 +2,8 @@
 
 Read [results and next decisions](RESULTS.md) for the retained 18-case run, and
 the [candidate screen](candidates.md) for the five re-engineering options
-screened at a common required power.
+screened at a common required power. [The decision record](DECISION.md) states
+which architecture the retained evidence supports and what remains unmeasured.
 
 Execution contract (2026-09-16): compute a source-bound planning loss budget
 for the maintained shunt-repair board using the existing CCM current model.
@@ -18,13 +19,16 @@ At 120 V/15 A even an ideal input leaves less than 1,800 W after losses.
 The model omits line-zero-crossing distortion, controller maximum-duty effects,
 startup, DCM, thermal feedback and current-loop dynamics.
 
-The board's `STW65N65DM2` identity has no exact manufacturer record in the
-sources retrieved for this study. ST publishes `STW65N65DM2AG` and
-`STW63N65DM2`; neither is silently substituted. The MOSFET sweep uses explicit
-design assumptions (50/100 mΩ, 20/50/100 ns each edge), not part guarantees.
-It excludes Eoss and diode capacitive commutation loss. Resolve the exact
-orderable MOSFET and validate actual 10 Ω gate-drive switching waveforms before
-using a switch loss prediction to size cooling.
+The board's `STW65N65DM2` identity is ST's marking form, not an order code.
+The retained datasheet's Device summary gives the order code as `STW65N65DM2AG`
+against marking `65N65DM2`; `STW63N65DM2` is a different orderable device and is
+not substituted. The MOSFET sweep still uses explicit design assumptions
+(50/100 mΩ, 20/50/100 ns each edge), not part guarantees, but the output
+capacitance and gate terms are now that part's datasheet typicals rather than an
+unnamed device's. Measured switching waveforms at the actual 10 Ω gate network
+remain required before a switch loss prediction sizes cooling, and the authored
+source, BOM and native board still carry the marking form pending a board
+regeneration.
 
 Retained primary sources:
 
@@ -33,6 +37,7 @@ Retained primary sources:
 | sources/760800301.pdf | https://www.we-online.com/components/products/datasheet/760800301.pdf | 180 µH ±20%; maximum 20 mΩ at 20°C; no core-loss model |
 | sources/Diodes-GBJ2510.pdf | https://www.diodes.com/datasheet/download/GBJ2510.pdf | 1.05 V maximum per diode at 12.5 A/25°C only |
 | sources/RT1_Inrush.pdf | https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv&DocFormat=pdf&DocLang=English&DocNm=RT1_Inrush&DocType=Data+Sheet&PartCntxt=2-1393240-3 | 360 Ω coil at 23°C, ±10%; contact loss unspecified |
+| sources/STW65N65DM2AG.pdf | https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf | Order code `STW65N65DM2AG`/marking `65N65DM2`; `RDS(on)` max 50 mΩ at 25°C; `C_oss eq.` 456 pF; `Qg` 120 nC |
 
 The Rust report embeds these documents' hashes. Bridge loss uses a constant
 1.05 V sensitivity assumption across the waveform; the datasheet's one test

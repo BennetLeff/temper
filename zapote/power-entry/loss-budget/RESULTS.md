@@ -25,11 +25,29 @@ The independent MOSFET *design sensitivity*, not an exact-part prediction:
 | 50 ns | 40.990 | 48.081 |
 | 100 ns | 74.888 | 81.980 |
 
-These switch figures omit Eoss, SiC capacitive commutation and gate-drive loss.
-The slower-edge assumptions plus the partial sum already exceed the previous
-105 W electronics allowance. This is evidence that switching behavior matters
-to the design decision; it is not evidence that the actual board dissipates
-that amount. Total-loss and cooling-margin fields are deliberately null.
+These switch figures are conduction plus overlap only; the separately bounded
+capacitance and gate-drive terms below are not folded into them. The slower-edge
+assumptions plus the partial sum already exceed the previous 105 W electronics
+allowance. This is evidence that switching behavior matters to the design
+decision; it is not evidence that the actual board dissipates that amount.
+Total-loss and cooling-margin fields are deliberately null.
+
+**The identity is resolved, and one of those omitted terms is now bounded.**
+The authored boost-switch identity `STW65N65DM2` is the marking form, not an
+order code: the retained ST datasheet's own Device summary prints `Order code
+STW65N65DM2AG` against `Marking 65N65DM2`. That document is now retained and
+hash-pinned (`sources/STW65N65DM2AG.pdf`), so the switch terms are that part's
+data rather than an unnamed device's:
+
+| Term | Value at 389.615 V / 129.107 kHz | Basis |
+| --- | ---: | --- |
+| Output capacitance (`C_oss eq.` 456 pF) | 4.468 W | Datasheet typical, one equivalent value |
+| Gate drive (`Qg` 120 nC, 10 V) | 0.155 W | Datasheet typical, one condition |
+
+Excluding the **turn-on/turn-off overlap** is the remaining gap, and it is the
+large one: a datasheet charges the capacitor, it does not clock the transition.
+An Eon measured in the real gate network would already include the capacitance
+term, so these two must not be summed without checking that.
 
 ## Candidate screen: one requirement, three lines
 
@@ -49,7 +67,7 @@ current each line needs to carry it, enforcing the 15 A ceiling. Full write-up:
 
 | Candidate | Screen | Anchor |
 | --- | --- | ---: |
-| Keep bridge, improve thermal path | open; moves heat, not loss | 28.304 W at 120 V, 26.956 W/V |
+| Keep bridge, improve thermal path | open here; moves heat, not loss | 28.304 W at 120 V, 26.956 W/V |
 | Larger / lower-drop passive bridge | blocked on sourcing an exact part | 2.696 W per 0.1 V |
 | Parallel passive bridges | inconclusive, not rejected | constant-drop identity holds; 450 vs 225 W/ohm slope |
 | Active rectifier | unresolved at one threshold | break-even 62.9 mOhm per device vs 50 mOhm 25 °C max |
@@ -62,23 +80,31 @@ bridge drop falls as line voltage rises (25.730 W at 132 V against 28.304 W at
 the 108 V line cannot meet the requirement inside the ceiling at all.
 
 No candidate is promoted, no architecture is ranked, and total loss and cooling
-margins stay absent. Hot junction temperature, degraded airflow, startup and
-fault behaviour, measured switching waveforms and delivered-output efficiency
-are named as required inputs rather than modelled as cases; only the three line
-voltages appear as operating points.
+margins stay absent: the screen's own anchor column above is not a score. Within
+this screen only the three line voltages appear as operating points, and
+measured switching waveforms and delivered-output efficiency remain required
+inputs. Startup and fault behaviour is unmodelled everywhere in the project. Hot
+junction temperature and degraded cooling *are* modelled, but by the bridge joint
+and cooling instruments, not here; [the decision record](DECISION.md) reads those
+together with this screen.
 
 ## What to do next
 
-1. Resolve `STW65N65DM2` to an exact manufacturer order code, updating authored
-   source and native identities together. ST records for `STW65N65DM2AG` and
-   `STW63N65DM2` are candidates, not approved substitutions. Use the selected
-   part's gate-charge/Coss data with the actual UCC28180 and 10 Ω gate network.
-2. Model switch transitions and SiC commutation across current and temperature;
-   add inductor core/AC loss and frequency-dependent capacitor loss. Bench
-   waveforms remain a separate validation obligation.
-3. Assign losses to actual heatsink/PCB/air paths and establish installed
-   airflow. Revisit the prior imposed 60°C board boundary using that assembly,
-   then close parasitics, precharge/shutdown timing and the auxiliary supply.
+The identity question is closed. What remains is measurement and board work, and
+the [decision record](DECISION.md) defines which of it changes the architecture
+choice and which of it does not.
+
+1. Measure the boost cell's turn-on/turn-off overlap in the real gate network.
+   That is the one outstanding number that can still move the total by tens of
+   watts; the capacitance and gate terms are now datasheet-bounded, but the
+   transition is not. Read the hot `RDS(on)` curve at the same time.
+2. Correct the authored identity in `elec/src/power_entry_unit.ato`, the BOM and
+   the native board together, moving `STW65N65DM2` to its resolved order code
+   `STW65N65DM2AG`. In this repository that is a board regeneration, not a
+   metadata edit: routing is applied rather than replayed, so it is queued with
+   the next board revision rather than done here.
+3. Add inductor core/AC loss and frequency-dependent capacitor loss, then close
+   parasitics, precharge/shutdown timing and the auxiliary supply.
 
 The candidate screen's own priority order, for the same sequence: pursue
 candidates 1 and 5 together — keep the passive bridge as the baseline and
@@ -108,14 +134,17 @@ requirements justify it.
   no main-display access). Both failed closed rather than producing a
   plausible result. `validation/runs/` is Git-ignored, so those are local
   records.
-- Workspace tests, release profile: **509 passed, 0 failed, 1 ignored**
-  (`evidence/workspace-tests-candidates.txt`). That is the earlier 498 plus the
-  10 candidate-screen tests and one further document-pin test in
-  `pfc_loss_budget` (3 to 4). The 8 focused tests after the pin repair also
-  passed, including drift rejection for every embedded document.
+- Workspace tests, release profile: **511 passed, 0 failed, 1 ignored**
+  (`evidence/workspace-tests-resolution.txt`). That is the previous 509 plus the
+  switch-identity resolution tests: `pfc_loss_budget` now pins four embedded
+  documents instead of three and asserts the resolved order code, and
+  `pfc_candidates` asserts the bounded output-capacitance term and that the
+  overlap input stays explicitly unresolved. Focused runs are in
+  `evidence/focused-tests-resolution.txt`.
 - Regular workspace Clippy completes. Strict `-D warnings` fails in unchanged
   `gate_drive.rs`, `power_stage_models.rs`, `domain_clearance.rs` and
-  `stackup.rs`; no new-module warnings. Raw diagnostics are retained.
+  `stackup.rs`; no new-module warnings. Raw diagnostics are retained in
+  `evidence/clippy-resolution.txt`.
 - Import boundary gate PASS: 5 contracts kept, 0 broken, 0 new violations
   after supplying the checkout's Python package path. Initial environment
   failures are retained, not relabeled as passes.

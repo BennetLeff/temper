@@ -2,8 +2,9 @@
 
 This screen asks *which architecture lever moves the power-entry loss while the
 board carries the same required power*. It is a screening instrument. It does
-not select an architecture, it does not complete five operating cases, and it
-does not establish that any candidate is qualified.
+not complete the five-case matrix on its own — it screens three line points and
+names the rest as inputs — and it does not establish that any candidate is
+qualified. [The decision record](DECISION.md) carries the case-by-case state.
 
 Rust owns it (`packages/zapote-harness/src/pfc_candidates.rs`) and it runs inside
 the common unit runner, so its findings and rule coverage are retained with the
@@ -16,8 +17,9 @@ is a priority order for the next measurement work. Where a comparison would need
 a number nobody has measured, the screen reports the threshold that decision
 turns on and leaves it open.
 
-Earlier revisions of this screen overstated what it shows in four specific ways.
-Those four are now fixable claims, and each is addressed below.
+Earlier revisions of this screen overstated what it shows in four specific ways
+about the comparison itself, and treated a resolvable part identity as an open
+question. Those are now fixable claims, and each is addressed below.
 
 ## The requirement
 
@@ -56,6 +58,15 @@ loss budget's 20-100 ns band it spans tens of watts. That single term outweighs
 every bridge-architecture question here, and it is a design sensitivity keyed to
 an assumed edge time rather than a statement about the authored device.
 
+**The device is no longer unnamed, and one switch term is now bounded.** The
+authored `STW65N65DM2` is ST's marking form; the retained datasheet's Device
+summary gives the order code as `STW65N65DM2AG` against marking `65N65DM2`, and
+that document is hash-pinned. Its equivalent output capacitance (`C_oss eq.`
+456 pF) bounds the hard-switched turn-on term at **4.468 W** at the 389.615 V
+bus and 129.107 kHz, and `Qg` 120 nC bounds gate drive at **0.155 W**. The
+turn-on/turn-off overlap is still open, and it is the large one: a datasheet
+charges the capacitor, it does not clock the transition.
+
 **The active-rectifier question reduces to one number.** The screen reports the
 break-even per-device `RDS(on)` at which synchronous conduction would equal the
 passive bridge's drop term:
@@ -91,34 +102,39 @@ Five inputs are named in the report and no loss term is computed without them:
 - degraded-airflow and installed-heatsink data for the assembly;
 - startup, inrush, precharge, shutdown and fault behaviour, for which no CCM
   operating point exists;
-- measured switching waveforms for the boost cell;
+- measured switching waveforms for the boost cell: the retained datasheet bounds
+  the output-capacitance term, but not the turn-on/turn-off overlap;
 - delivered-output efficiency, needed to convert the ideal input power used
   here into delivered DC or pan power.
 
-The screen therefore does not present hot/degraded cooling as a case, and does
-not present startup or fault as a case. A copper-temperature sweep is not a
-substitute for either, and there is no operating point in this report that
-claims to be one. Only the three line voltages appear as operating points.
+Only the three line voltages appear as operating points in this screen, and a
+copper-temperature sweep is not a substitute for a real cooling case. That is a
+statement about the screen, not about the project: the hot and degraded-cooling
+case is modelled by the bridge joint and cooling instruments
+(`shunt-repair/bridge-thermal-02`, `thermal/bridge-cooling.md`), and
+[the decision record](DECISION.md) reads them together. Startup and fault remain
+genuinely unmodelled everywhere, because no CCM operating point describes them.
 
-## Recommended next step
+## Decision
 
-Pursue **candidates 1 and 5 together**: keep the passive bridge as the baseline
-and establish its practical heatsink path, while resolving the boost MOSFET and
-its switching losses. These two are compatible and they attack the two things
-the screen actually identified, the concentrated bridge heat and the largest
-unmeasured term.
+Pursue **candidates 1 and 5 together**: keep the passive bridge and establish
+its practical heatsink path, while resolving the boost MOSFET's switching
+losses. These two are compatible and they attack the two things the screen
+actually identified, the concentrated bridge heat and the largest unmeasured
+term. Candidates 2, 3 and 4 are deferred with their thresholds computed, not
+rejected.
 
-That work is baseline-model completion, not board variants. It needs the exact
-orderable MOSFET identity, source-backed switching energies at the real bus
-voltage and gate network, the inductor's core and AC loss, and the assembly's
-installed airflow and sink coupling. Once those exist, compare the alternatives
-at a common required **output** power with the 15 A input limit enforced and any
-reduced output reported explicitly, rather than at a common input current.
+[The decision record](DECISION.md) states the choice, the case-by-case state of
+the five experiments, what would reverse it, and what is explicitly not
+decided. Its short version: the bridge thermal path is already modelled and the
+answer is that the bridge is a constraint with 5 K of junction margin at design
+and a failed-fan budget 25 K over, while the boost overlap term is still
+unbounded and can exceed the whole bridge loss.
 
-Revisit a different bridge architecture only if the resulting loss, temperature
-or enclosure requirements justify it. The earlier five-candidate framing asked
-for five board variants up front; that is not the plan. The plan is one
-sufficiently complete baseline model that can support a design decision.
+The earlier five-candidate framing asked for five board variants up front; that
+is not the plan. The plan is one sufficiently complete baseline model that can
+support a design decision, and the remaining work is measurement, not another
+candidate board.
 
 ## Rules
 
@@ -153,5 +169,8 @@ the whole seven-unit suite in about five minutes. `suite-identity.json` records
 the executable hash, so the profile used is visible in the retained evidence.
 
 The 15 A ceiling, the 1.05 V bridge test point and the 50 mΩ 25 °C maximum are
-retained source values. The 0.85/1.30 V band and the 100 mΩ hot resistance are
-explicit sensitivities, never part guarantees.
+retained source values. The boost-switch order code, its `C_oss eq.` 456 pF and
+its `Qg` 120 nC come from the retained `sources/STW65N65DM2AG.pdf`. The
+0.85/1.30 V band and the 100 mΩ hot resistance are explicit sensitivities, and
+the output-capacitance term is a single-equivalent-value estimate, never part
+guarantees.

@@ -5,10 +5,14 @@ loss-coverage and cooling-closure rules to the maintained shunt-repair board.
 It computes condition-labeled partial losses and MOSFET design sensitivities,
 and its [candidate screen](loss-budget/candidates.md) screens five
 re-engineering options at a common required power, enforcing the 15 A input
-ceiling. Total loss and cooling margin remain absent because the exact MOSFET
-identity and major loss/assembly inputs remain unresolved, and no candidate is
-promoted or ranked. Earlier GBU observations below describe historical
-candidates; the current registry is `shunt-repair/units.json`.
+ceiling. The MOSFET identity is now resolved: the authored `STW65N65DM2` is ST's
+marking form and its order code is `STW65N65DM2AG`, confirmed against a retained
+and hash-pinned datasheet, which also bounds the output-capacitance term.
+[The decision record](loss-budget/DECISION.md) states which architecture the
+evidence supports. Total loss and cooling margin remain absent, however, because
+the measured switching overlap and the major loss/assembly inputs are still
+missing. Earlier GBU observations below describe historical candidates; the
+current registry is `shunt-repair/units.json`.
 
 Execution contract, 2026-09-16, starting at `7f506ba86`.
 

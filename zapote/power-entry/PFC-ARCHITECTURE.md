@@ -16,6 +16,9 @@ by UCC28180 ISENSE.
 
 Declared orderable identities are UCC28180D, Vishay IHV30EB150 (150 uH / 30 A),
 STW65N65DM2, C3D20065D, GBU2510A, B43504A5567M000, and WSL2726R0100FEA.
+`STW65N65DM2` is the ST marking form rather than an order code; the retained
+datasheet resolves it to order code `STW65N65DM2AG` (marking `65N65DM2`), and
+the authored source carries the marking form pending a board regeneration.
 IHV30EB150 has a manufacturer land-pattern family and +/-10% inductance at
 30 A, but hot winding/core loss at the proposed 130 kHz remains open. The
 prior Bourns SRP1265-150M sketch and incompatible footprint are rejected. The

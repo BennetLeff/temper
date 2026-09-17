@@ -136,6 +136,20 @@ pub fn gate_drive_w(qg_c: f64, vdrive_v: f64, fsw_hz: f64) -> Result<f64, String
     finite_result("gate_drive_w", q * v * f)
 }
 
+/// First-order energy stored on a switch's output capacitance, `0.5*C_oss*V^2`,
+/// returned as the watts a hard-switched turn-on dissipates each cycle.
+///
+/// The caller supplies `coss_eq_f`, the manufacturer's equivalent output
+/// capacitance over the voltage span it actually covers. That is a
+/// single-value equivalent rather than the `C_oss(V)` curve, so this is a
+/// datasheet-backed estimate and never a guaranteed per-cycle loss.
+pub fn output_capacitance_w(coss_eq_f: f64, vds_v: f64, fsw_hz: f64) -> Result<f64, String> {
+    let c = nonnegative("coss_eq_f", coss_eq_f)?;
+    let v = nonnegative("vds_v", vds_v)?;
+    let f = positive("fsw_hz", fsw_hz)?;
+    finite_result("output_capacitance_w", 0.5 * c * v * v * f)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -221,6 +235,18 @@ mod tests {
         assert!(switching_overlap_w(400.0, 100_000.0, 2.0, 3.0, 1e-8, 1e-8).is_ok());
         assert!(gate_drive_w(1e-6, 10.0, 100_000.0).is_ok());
         assert!(gate_drive_w(f64::INFINITY, 10.0, 100_000.0).is_err());
+        // 456 pF at 400 V and 130 kHz: 0.5 * 456e-12 * 160000 * 130000.
+        assert!(
+            (output_capacitance_w(456e-12, 400.0, 130_000.0).unwrap() - 4.7424).abs() < 1e-9
+        );
+        assert!(
+            (output_capacitance_w(456e-12, 400.0, 65_000.0).unwrap()
+                - output_capacitance_w(456e-12, 400.0, 130_000.0).unwrap() / 2.0)
+                .abs()
+                < 1e-12
+        );
+        assert!(output_capacitance_w(-1.0, 400.0, 130_000.0).is_err());
+        assert!(output_capacitance_w(456e-12, 400.0, 0.0).is_err());
         assert!(resistive_w(-1.0, 1.0).is_err());
         assert!(switching_overlap_w(f64::MAX, f64::MAX, f64::MAX, 1.0, 1.0, 1.0).is_err());
     }
