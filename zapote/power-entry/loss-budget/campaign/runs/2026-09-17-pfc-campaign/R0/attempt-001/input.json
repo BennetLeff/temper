@@ -1,0 +1,27 @@
+{
+  "schema": "zapote.pfc.campaign-manifest.v1",
+  "device": {
+    "id": "IPW65R045C7",
+    "qg_c": 9.3e-8,
+    "qgd_c": 3.0e-8,
+    "plateau_v": 5.4,
+    "intrinsic_gate_r_ohm": 0.85,
+    "eoss_j": 1.17e-5,
+    "rds_on_ohm": 0.045
+  },
+  "drive": {
+    "gate_bias_v": 12.0,
+    "external_gate_r_on_ohm": 9.7,
+    "external_gate_r_off_ohm": 5.3,
+    "driver_source_peak_a": 5.0,
+    "driver_sink_peak_a": 5.0,
+    "current_transfer_charge_c": 1.0e-8,
+    "loop_inductance_h": 1.0e-8,
+    "timestep_s": 2.5e-10
+  },
+  "cases": [
+    {"case_id": "r0-108", "line_rms_v": 108.0, "bus_v": 400.0, "inductance_h": 1.8e-4, "switching_hz": 129107.39198576905, "requested_power_w": 1796.31003212911, "input_rms_ceiling_a": 15.0},
+    {"case_id": "r0-120", "line_rms_v": 120.0, "bus_v": 400.0, "inductance_h": 1.8e-4, "switching_hz": 129107.39198576905, "requested_power_w": 1796.31003212911, "input_rms_ceiling_a": 15.0},
+    {"case_id": "r0-132", "line_rms_v": 132.0, "bus_v": 400.0, "inductance_h": 1.8e-4, "switching_hz": 129107.39198576905, "requested_power_w": 1796.31003212911, "input_rms_ceiling_a": 15.0}
+  ]
+}

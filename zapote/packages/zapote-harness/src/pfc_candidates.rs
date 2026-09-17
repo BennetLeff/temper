@@ -127,28 +127,48 @@ struct Terms {
 }
 
 /// One line's model constants, recovered from the audited current model.
-struct LineModel {
-    line_rms_v: f64,
-    bus_v: f64,
-    switching_hz: f64,
+///
+/// Crate-visible so the bounded campaign adapter
+/// (`crate::pfc_campaign`) can reuse this matched-power inversion at an
+/// explicit effective inductance instead of forking a second solver. The
+/// retained candidate screen keeps using the nominal constructor, so its
+/// behaviour is unchanged.
+pub(crate) struct LineModel {
+    pub(crate) line_rms_v: f64,
+    pub(crate) bus_v: f64,
+    pub(crate) inductance_h: f64,
+    pub(crate) switching_hz: f64,
     /// `E[delta_I^2]/12` from the model's own solution. It does not depend on
     /// the RMS limit, so it transfers to any required current at this line.
-    ripple_variance_a2: f64,
+    pub(crate) ripple_variance_a2: f64,
 }
 
 impl LineModel {
     fn new(line_rms_v: f64, bus_v: f64, switching_hz: f64) -> Result<Self, String> {
+        Self::with_inductance(line_rms_v, bus_v, NOMINAL_INDUCTANCE_H, switching_hz)
+    }
+
+    /// The same matched-power line model at an explicit effective inductance.
+    /// `new` delegates here so the retained screen and the campaign share one
+    /// inversion implementation and cannot drift apart.
+    pub(crate) fn with_inductance(
+        line_rms_v: f64,
+        bus_v: f64,
+        inductance_h: f64,
+        switching_hz: f64,
+    ) -> Result<Self, String> {
         let profile = pfc_currents::calculate(pfc_currents::Config {
             line_rms_v,
             input_rms_limit_a: INPUT_RMS_CEILING_A,
             bus_v,
-            inductance_h: NOMINAL_INDUCTANCE_H,
+            inductance_h,
             switching_hz,
             phase_samples: PHASE_SAMPLES,
         })?;
         // The model solves `I_fund^2 = limit^2 - ripple_variance`. Recovering
         // the variance from its output keeps one home for the ripple formula
-        // instead of restating it here.
+        // instead of restating it here. It is limit-independent, so recovering
+        // it at the ceiling is valid for any required current at this line.
         let ripple_variance_a2 = INPUT_RMS_CEILING_A.powi(2) - profile.fundamental_rms_a.powi(2);
         if !ripple_variance_a2.is_finite() || ripple_variance_a2 < 0.0 {
             return Err(format!(
@@ -158,13 +178,14 @@ impl LineModel {
         Ok(Self {
             line_rms_v,
             bus_v,
+            inductance_h,
             switching_hz,
             ripple_variance_a2,
         })
     }
 
     /// Total input RMS this line needs in order to carry `power_w`.
-    fn required_rms_a(&self, power_w: f64) -> Result<f64, String> {
+    pub(crate) fn required_rms_a(&self, power_w: f64) -> Result<f64, String> {
         let fundamental = power_w / self.line_rms_v;
         let total = (fundamental * fundamental + self.ripple_variance_a2).sqrt();
         if total.is_finite() && total > 0.0 {
@@ -177,12 +198,12 @@ impl LineModel {
         }
     }
 
-    fn moments_at(&self, limit_a: f64) -> Result<loss::Moments, String> {
+    pub(crate) fn moments_at(&self, limit_a: f64) -> Result<loss::Moments, String> {
         loss::moments(pfc_currents::Config {
             line_rms_v: self.line_rms_v,
             input_rms_limit_a: limit_a,
             bus_v: self.bus_v,
-            inductance_h: NOMINAL_INDUCTANCE_H,
+            inductance_h: self.inductance_h,
             switching_hz: self.switching_hz,
             phase_samples: PHASE_SAMPLES,
         })

@@ -1,0 +1,168 @@
+{
+  "schema": "pfc-gate-network-resolution/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "B-INF-GATE",
+  "attempt_id": "attempt-001",
+  "kind": "reference_research_source_only",
+  "board": "Infineon EVAL_2.5KW_CCM_4PIN (schematic sheet name FPS27, V01, 23.07.2015)",
+  "question": "Which gate network is actually populated on the EVAL_2.5KW_CCM_4PIN board, resolving the 3.3 / 20 / 10 ohm conflict?",
+
+  "primary_sources": [
+    {
+      "role": "application_note_schematic_component_list_captions",
+      "file": "B-INF/attempt-001/raw/chipdip_appnote.pdf",
+      "identity": "Infineon AN_201408_PL11_027 Rev 1.2, 2015-11-02, 31 pp.",
+      "sha256": "fdbed1c55c3b36b71da7dd7b2938646f9f55f4cc2f36aeaa253178e3884d49ce"
+    },
+    {
+      "role": "manufacturer_deck_schematic_render",
+      "file": "B-INF/attempt-001/raw/infineon_presentation.pdf",
+      "identity": "Infineon 2.5 kW PFC eval-board deck, 16 pp.; page 7 = Schematic sheet",
+      "sha256": "b213daba3f2e92cb697fe65d9ac46449cb4ad59abc929b5ebee4e52ecc9cc78d"
+    }
+  ],
+
+  "driver": {
+    "part": "1EDI60N12AF",
+    "designator": "IC4",
+    "description": "EiceDRIVER Compact 6 A isolated single-channel gate driver (coreless-transformer isolation, 1200 V, CMTI >= 100 V/ns)",
+    "source_page_figure": "AN_201408_PL11_027 sec.1.5 p.5; Table 2 component list p.15 (IC4 = 1EDI60N12AF '6 A isolated MOS driver'); Fig 6 schematic p.12; deck p.5 and deck p.7",
+    "note": "App-note body text page 5 prints the part as 'IEDI60N12AF' (typo/OCR); component list, schematic and deck all print '1EDI60N12AF'.",
+    "gate_drive_bias_v": 12.0,
+    "gate_drive_bias_basis": "VCC2 (output stage rail) is fed from the isolated Gate_12V / Galv_12V 12 V rail through solder jumpers J9/J10 and D6 ('short', 0 ohm) and series filter R7 (10 ohm), decoupled by C14 (1u) / C25 (100n) to SGND. VCC1 (input stage) is fed from the non-isolated 12 V rail with C32 (100n). Bias is therefore nominal 12 V, not the 10 V device-datasheet test condition.",
+    "gate_drive_bias_v_range": [12.0, 12.0],
+    "gate_drive_bias_evidence_kind": "schematic",
+    "gate_drive_bias_page_figure": "Fig 6 schematic p.12 (Gate_12V -> J10/J9 -> D6 -> R7 -> VCC2); deck p.7 (Galv_12V/12V -> J9/J10 -> D6 -> R7 -> VCC2); IC4 pinout Table 2 p.15",
+
+    "output_stage_config": "Out+ (pin 6) and Out- (pin 7) are tied together at the board",
+    "output_stage_source": "AN sec.1.5 p.5 ('In the evaluation board the two output pins are joined together'); confirmed on Fig 6 p.12 and deck p.7"
+  },
+
+  "turn_on_off_split": {
+    "split_present": false,
+    "steering_diode_part": null,
+    "steering_diode_designator": null,
+    "source_kind": "application_note_text",
+    "source_page_figure": "AN_201408_PL11_027 sec.1.5 p.5",
+    "evidence_quote": "In the evaluation board the two output pins are joined together. When creating a parallel design for 3 and 4pin devices two different changeable gate resistors are created. In order to keep the complexity low, the design did not take the opportunity to separate turn-on and turn-off gate resistors as this is not highly relevant for efficiency analysis.",
+    "conflict_note": "No evidence of any steering diode or of separate R_g(on)/R_g(off). A single gate-resistance element is shared by turn-on and turn-off."
+  },
+
+  "gate_resistors": [
+    {
+      "resistor_designator": "R9",
+      "value_ohm": 20.0,
+      "value_basis": "full-scale rating of an adjustable trimmer (Bourns 3314G-1-200E, 20 ohm)",
+      "role": "on_and_off_shared",
+      "device_configuration": "4-pin device path; paralleled by header X6 labelled 'Rg_4pin' (SPC20485)",
+      "source_page_figure": "Fig 6 schematic p.12; deck p.7; Table 2 component list p.15",
+      "source_kind": "schematic",
+      "authoritative": true,
+      "conflict_note": "Schematic and component list agree on the fitted value 20 ohm. The part is a trimmer (3314G-1-200E), so 20 ohm is its maximum rating, not necessarily the operating setting. The operating setting is not stated in the schematic."
+    },
+    {
+      "resistor_designator": "R16",
+      "value_ohm": 20.0,
+      "value_basis": "full-scale rating of an adjustable trimmer (Bourns 3314G-1-200E, 20 ohm)",
+      "role": "on_and_off_shared",
+      "device_configuration": "3-pin device path; paralleled by header X7 labelled 'Rg_3pin' (SPC20485)",
+      "source_page_figure": "Fig 6 schematic p.12; deck p.7; Table 2 component list p.15",
+      "source_kind": "schematic",
+      "authoritative": true,
+      "conflict_note": "Same as R9: fitted 20 ohm trimmer; operating setting not stated."
+    },
+    {
+      "resistor_designator": "R9/R16 effective (published measurement condition)",
+      "value_ohm": 3.3,
+      "value_basis": "test condition annotated on the efficiency figures",
+      "role": "on_and_off_shared",
+      "device_configuration": "covers both 3-pin and 4-pin curves",
+      "source_page_figure": "Figure 12 and Figure 13 captions, AN p.21 ('... @ 65 kHz & 100 kHz 3.3 ohm')",
+      "source_kind": "caption",
+      "authoritative": true,
+      "conflict_note": "This is the only numeric gate resistance in the document tied to measured data. The captions cover both 65 kHz and 100 kHz, i.e. the same conditions as Table 3 (100 kHz, p.20). It is consistent with R9/R16 being adjustable 20 ohm trimmers set to 3.3 ohm for the measurements; it is NOT, on its own, proof of the as-shipped wiper setting, which the document does not state."
+    }
+  ],
+
+  "gate_source_resistor": {
+    "present": false,
+    "value_ohm": null,
+    "designator": null,
+    "conflict_note": "No gate-source (pull-down) resistor is drawn across the DUT gate-source in Fig 6 p.12 or deck p.7. The gate elements R9/R16 connect the driver output node to the gate network, not gate to source."
+  },
+
+  "parallel_series_elements": [
+    {
+      "designator": "X6",
+      "description": "2-pin header in parallel with R9; labelled 'Rg_4pin'",
+      "value_ohm": null,
+      "source_kind": "schematic",
+      "source_page_figure": "Fig 6 p.12; deck p.7; Table 2 p.16"
+    },
+    {
+      "designator": "X7",
+      "description": "2-pin header in parallel with R16; labelled 'Rg_3pin'",
+      "value_ohm": null,
+      "source_kind": "schematic",
+      "source_page_figure": "Fig 6 p.12; deck p.7; Table 2 p.16"
+    },
+    {
+      "designator": "B1, B2",
+      "description": "gate/source-sense line elements, component list says 'Placeholder for ferrite bead, 0 ohm resistor'; drawn as bead symbols between the R9/R16 network and DUT1A",
+      "value_ohm": null,
+      "source_kind": "component_list",
+      "source_page_figure": "Table 2 p.14; deck p.7"
+    }
+  ],
+
+  "excluded_designators": [
+    {
+      "resistor_designator": "R7",
+      "bom_value_ohm": 10.0,
+      "role": "driver secondary-side VCC2 supply filter resistor, NOT a gate resistor",
+      "source_page_figure": "Fig 6 p.12; deck p.7; Table 2 p.15",
+      "source_kind": "schematic",
+      "conflict_note": "Net path traced: Gate_12V/Galv_12V -> J9/J10 -> D6 ('short') -> R7 (10R) -> IC4 pin 5 (VCC2), decoupled by C14 1u / C25 100n. The 10 ohm pairing with R11 in the component list is not in the gate path."
+    },
+    {
+      "resistor_designator": "R11",
+      "bom_value_ohm": 10.0,
+      "role": "series element in the controller VBTHL / BOFO enable divider fed from the external 12 V rail, NOT a gate resistor",
+      "source_page_figure": "deck p.7; Table 2 p.15",
+      "source_kind": "schematic",
+      "conflict_note": "Net path traced: 12 V selected by J11 (12Vextern or Bias1 Galv_12V) -> R11 (10R) -> R18 (36k) -> BOFO/VBTHL enable tap -> R8 (10k) -> GND. Distinct sub-circuit (ICE3PCS01G bulk-voltage/enable function), not the gate drive."
+    }
+  ],
+
+  "unresolved": [
+    {
+      "item": "R9/R16 wiper setting as shipped",
+      "value": null,
+      "reason": "No source in the bundle states the as-delivered trimmer setting; only the measurement condition 3.3 ohm is annotated."
+    },
+    {
+      "item": "exact effective Rg if R9 and R16 are simultaneously in-circuit",
+      "value": null,
+      "reason": "The schematic connects both branches between the driver output node and the B1/B2 gate network. The app note frames them as the 3-pin and 4-pin alternatives (one per configuration), so the simultaneous-parallel value (20||20 = 10 ohm at full scale) is not asserted as populated."
+    }
+  ],
+
+  "verdict": {
+    "populated_effective_gate_resistance_ohm": 3.3,
+    "fitted_component_ohm": 20.0,
+    "fitted_component_type": "adjustable trimmer (Bourns 3314G-1-200E)",
+    "designators": ["R9", "R16"],
+    "turn_on_ohm": 3.3,
+    "turn_off_ohm": 3.3,
+    "turn_on_off_share_one_element": true,
+    "confidence": "medium-high",
+    "confidence_reason": "HIGH confidence that R9/R16 are the gate resistors, that there is no split on/off path and no steering diode, and that R7/R11 are NOT gate resistors (all directly traced on the manufacturer schematic). MEDIUM-HIGH confidence that the effective populated value under the published measured data is 3.3 ohm: the caption is the only measurement-tied numeric value, and it is consistent with 20 ohm trimmers being adjusted. The as-shipped wiper setting itself is not documented.",
+    "which_resistance_is_populated": "The gate-position components are 20 ohm trimmers (R9 4-pin, R16 3-pin), and the effective gate resistance under the published efficiency/Table-3 measurements is 3.3 ohm. For a model comparison against Table 3 (100 kHz), 3.3 ohm is the populated/effective value.",
+    "model_implication": "The coordinator's whole-board bound should be read at 3.3 ohm (the measurement condition), where the model's switch-only loss is a minority share of the board's measured whole-board loss. The 20 ohm figure is the trimmer's full-scale rating, not the measurement setting, so it is not evidence that the model is falsified. This is reinforced by the driver bias: the board drives ~12 V while the probe ran the model at the device's 10 V datasheet condition, which is the higher-loss direction, so the probe's 3.3 ohm share is already an upper bound."
+  },
+
+  "task_completion": "FINISHED",
+  "evidence_status": "RESOLVED_WITH_RESIDUAL_UNCERTAINTY",
+  "physical_applicability": "NOT_PERFORMED",
+  "solver_invocations": 0
+}

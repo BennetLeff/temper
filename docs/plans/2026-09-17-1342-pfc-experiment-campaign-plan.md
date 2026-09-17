@@ -309,6 +309,51 @@ contains deliberately bad cases that must fail before bulk runs begin. A coordin
 must fill packet values and freeze the baseline; unresolved placeholders block
 execution rather than being guessed by workers.
 
+## Coordinator status update (2026-09-17, executed wave)
+
+This plan has been executed in part. Findings that change it, in the order they
+were measured. Artifacts are under
+`zapote/power-entry/loss-budget/campaign/`; see `campaign/G0.md`.
+
+1. **The six-task frequency axis (F030–F180) is degenerate and should not be
+   run as specified.** Every current moment in `zapote-erc::pfc_currents`
+   depends only on the product `L*f`. Holding `L*f` fixed therefore leaves Pin
+   and all current moments bit-identical, and only the f-proportional switching
+   terms move, so a fixed-`L*f` sweep is strictly monotone with its minimum at
+   the lowest frequency. Measured in
+   `packages/zapote-harness/tests/frequency_lf_axis_probe.rs`: total switch/gate
+   loss 15.55 W (30 kHz) to 60.88 W (180 kHz), with Pin 1796.3100 W and
+   I_sw_rms 11.99950 at every point. The sweep can only become informative if
+   each frequency carries a sourced magnetic's core/winding loss and volume.
+2. **G0 was over-scoped and duplicated an existing solver.** The matched-power
+   true-RMS inversion the plan asked G0 to build already existed as
+   `pfc_candidates::LineModel`. G0 was implemented as a parameterization of
+   that solver plus a new campaign binding, not a second harness. It reproduces
+   the retained control exactly (45.502337 W at 120 V). See `campaign/G0.md`.
+3. **The device axis is source-gated, and no reference anchors the dominant
+   term.** All three K-* datasheets were captured and hashed; none publishes
+   Eon/Eoff, two of three omit the Miller plateau, and the gate biases (10 V,
+   18 V) do not match C1's 12 V. B-TI and B-INF both returned
+   INSUFFICIENT_EVIDENCE for the switching-energy claim and both named the same
+   missing observation: a device-level clamped-inductive capture.
+4. **The one external check obtained is a whole-board bound, and it did not
+   falsify the model.** At the B-INF board's own operating points the model's
+   switch-only loss for IPZ60R040C7 is consistent with the board's measured
+   whole-board loss at the gate resistance tied to the measured data (3.3 ohm,
+   30–35% of board loss) and exceeds it at the trimmer's full-scale 20 ohm.
+   `B-INF-GATE` established that the populated gate element is the R9/R16
+   trimmer and that the previously reported "10 ohm" gate resistance was a
+   misattribution (R7/R11 are the driver VCC2 filter and an enable divider).
+   The board's as-shipped wiper setting remains undocumented.
+5. **Two plan defects were fixed.** The plan's artifact path was silently
+   gitignored (`zapote/.gitignore` `runs/`); the campaign path is now
+   re-included. Dispatch packets mislabelled the contract path.
+
+Still open and load-bearing: no model anchor for the dominant switching term;
+no approved volume/cost budgets; no frozen ambient/cooling contract, so
+temperature — the stated motivation — remains unrankable; the device axis needs
+matched-bias source data before it can be ranked.
+
 ## Copyable coordinator instruction
 
 > Read this campaign plan and its WORKER.md, tasks.json, result-template.json and

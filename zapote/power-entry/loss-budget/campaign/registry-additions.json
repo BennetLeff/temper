@@ -1,0 +1,16 @@
+{
+  "schema": "pfc-campaign-registry-additions/v1",
+  "additions": [
+    {
+      "id": "B-INF-GATE",
+      "kind": "reference_research",
+      "wave": 1,
+      "depends_on": [
+        "B-INF"
+      ],
+      "reason": "Coordinator-issued discriminator created after the whole-board bound in reference_loss_bound_probe.rs; not in the original 26-task draft.",
+      "hypothesis_or_question": "Which gate network is actually populated on the EVAL_2.5KW_CCM_4PIN board?",
+      "worker_status": "DISPATCHED_attempt-001"
+    }
+  ]
+}

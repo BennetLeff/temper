@@ -1,0 +1,35 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "B-INF-GATE",
+  "attempt_id": "attempt-001",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/B-INF-GATE/attempt-001",
+  "source_revision": "abfd531752d6d73b40687c5faf16aad1a5fd5890",
+  "produced_files": [
+    {
+      "path": "resolved_gate_network.json",
+      "bytes": 10257,
+      "sha256": "779c10dfa247ea8232dcb56ccc1cdb156aa52b22a4eee6419c03140c9710b3c5"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 5935,
+      "sha256": "335760c9e0c6dfd07618b596ef02a9374b057267c9303d1532518a2299b9b833"
+    }
+  ],
+  "input_sources_read": [
+    {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/B-INF/attempt-001/raw/chipdip_appnote.pdf",
+      "sha256": "fdbed1c55c3b36b71da7dd7b2938646f9f55f4cc2f36aeaa253178e3884d49ce"
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/B-INF/attempt-001/raw/infineon_presentation.pdf",
+      "sha256": "b213daba3f2e92cb697fe65d9ac46449cb4ad59abc929b5ebee4e52ecc9cc78d"
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/B-INF/attempt-001/raw/extracted/chipdip_appnote.txt",
+      "sha256": "01b6d14ef6dff548d336e2b0681871f2169796c07e5547d41c1db69f980c3b70"
+    }
+  ],
+  "notes": "manifest does not hash itself. All produced files live under the allowed output directory. No commits, no git stash."
+}

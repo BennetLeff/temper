@@ -1,0 +1,112 @@
+{
+  "schema": "zapote.pfc.campaign-report.v1",
+  "manifest_sha256": "86e31526118987a4baf098d82fef02d1741650919b66eacbffd659bdbc9fd3c6",
+  "device": {
+    "id": "IPW65R045C7",
+    "qg_c": 9.3e-8,
+    "qgd_c": 3e-8,
+    "plateau_v": 5.4,
+    "intrinsic_gate_r_ohm": 0.85,
+    "eoss_j": 0.0000117,
+    "rds_on_ohm": 0.045
+  },
+  "drive": {
+    "gate_bias_v": 12.0,
+    "external_gate_r_on_ohm": 9.7,
+    "external_gate_r_off_ohm": 5.3,
+    "driver_source_peak_a": 5.0,
+    "driver_sink_peak_a": 5.0,
+    "current_transfer_charge_c": 1e-8,
+    "loop_inductance_h": 1e-8,
+    "timestep_s": 2.5e-10
+  },
+  "cases": [
+    {
+      "case_id": "r0-108",
+      "status": "DERATED",
+      "requested_power_w": 1796.31003212911,
+      "achieved_input_power_w": 1617.0095355030217,
+      "required_input_rms_a": 16.657430294643827,
+      "effective_input_rms_a": 15.0,
+      "ceiling_binds": true,
+      "power_shortfall_w": 179.30049662608826,
+      "inductance_h": 0.00018,
+      "switching_hz": 129107.39198576905,
+      "moments": {
+        "input_power_w": 1617.0095355030217,
+        "switch_rms_a": 12.332299246144684,
+        "diode_rms_a": 8.538992639857435,
+        "mean_turn_on_a": 12.01518284900892,
+        "mean_turn_off_a": 14.944448043490965
+      },
+      "losses": {
+        "mosfet_conduction_w": 6.8438522113407325,
+        "switching_overlap_w": 37.41651366579156,
+        "output_capacitance_w": 1.510556486233498,
+        "gate_charge_w": 0.14408384945611827
+      },
+      "total_switch_gate_w": 45.91500621282191,
+      "unsupported_reason": null
+    },
+    {
+      "case_id": "r0-120",
+      "status": "SOLVED",
+      "requested_power_w": 1796.31003212911,
+      "achieved_input_power_w": 1796.31003212911,
+      "required_input_rms_a": 15.0,
+      "effective_input_rms_a": 15.0,
+      "ceiling_binds": false,
+      "power_shortfall_w": 0.0,
+      "inductance_h": 0.00018,
+      "switching_hz": 129107.39198576905,
+      "moments": {
+        "input_power_w": 1796.31003212911,
+        "switch_rms_a": 11.999496741229411,
+        "diode_rms_a": 9.000670972612259,
+        "mean_turn_on_a": 11.927145603148093,
+        "mean_turn_off_a": 15.02697491022746
+      },
+      "losses": {
+        "mosfet_conduction_w": 6.479456491924886,
+        "switching_overlap_w": 37.36824064736847,
+        "output_capacitance_w": 1.510556486233498,
+        "gate_charge_w": 0.14408384945611827
+      },
+      "total_switch_gate_w": 45.502337474982966,
+      "unsupported_reason": null
+    },
+    {
+      "case_id": "r0-132",
+      "status": "SOLVED",
+      "requested_power_w": 1796.31003212911,
+      "achieved_input_power_w": 1796.3100321291101,
+      "required_input_rms_a": 13.64501565387463,
+      "effective_input_rms_a": 13.64501565387463,
+      "ceiling_binds": false,
+      "power_shortfall_w": -2.2737367544323206e-13,
+      "inductance_h": 0.00018,
+      "switching_hz": 129107.39198576905,
+      "moments": {
+        "input_power_w": 1796.3100321291101,
+        "switch_rms_a": 10.604416381587395,
+        "diode_rms_a": 8.586780852007614,
+        "mean_turn_on_a": 10.632167230576977,
+        "mean_turn_off_a": 13.871578690673529
+      },
+      "losses": {
+        "mosfet_conduction_w": 5.060414105733559,
+        "switching_overlap_w": 33.87111262032869,
+        "output_capacitance_w": 1.510556486233498,
+        "gate_charge_w": 0.14408384945611827
+      },
+      "total_switch_gate_w": 40.58616706175186,
+      "unsupported_reason": null
+    }
+  ],
+  "census": {
+    "expected": 3,
+    "solved": 2,
+    "derated": 1,
+    "unsupported": 0
+  }
+}

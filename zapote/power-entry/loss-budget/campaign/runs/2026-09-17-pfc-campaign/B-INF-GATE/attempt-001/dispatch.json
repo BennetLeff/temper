@@ -1,0 +1,25 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "B-INF-GATE",
+  "attempt_id": "attempt-001",
+  "kind": "reference_research",
+  "supersedes_question_of": "B-INF (attempt-001 returned INSUFFICIENT_EVIDENCE for the per-device claim but supplied a whole-board bound)",
+  "absolute_deadline_utc": "2026-09-17T22:45:00Z",
+  "max_solver_invocations": 0,
+  "max_candidate_parts": 0,
+  "max_primary_sources": 4,
+  "checkout_path": "zapote",
+  "source_revision": "abfd531752d6d73b40687c5faf16aad1a5fd5890",
+  "model_revision_and_sha256": "not_applicable: source-only task",
+  "checker_revision_and_sha256": "not_applicable: G0 checker unimplemented",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.json 3bf1125fe37e8df6a493449ec5edfa01082fdd9e40a8d5d724147b388737f183",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/B-INF-GATE/attempt-001",
+  "exact_build_or_run_commands": "none; source resolution only",
+  "source_bundle_paths_and_hashes": [
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/B-INF/attempt-001/raw/chipdip_appnote.pdf fdbed1c55c3b36b71da7dd7b2938646f9f55f4cc2f36aeaa253178e3884d49ce",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/B-INF/attempt-001/raw/infineon_presentation.pdf b213daba3f2e92cb697fe65d9ac46449cb4ad59abc929b5ebee4e52ecc9cc78d"
+  ],
+  "question": "Which gate network is actually populated on the EVAL_2.5KW_CCM_4PIN board?",
+  "why": "The coordinator's whole-board loss bound found the maintained model predicts a switch-only loss exceeding the board's measured whole-board loss at 20 ohm gate resistance (132-156%) and 71-84% at 10 ohm, but only ~30-35% at 3.3 ohm. Resolving the populated gate resistance/network decides whether the model's absolute overlap term is consistent with that reference board.",
+  "focus": "Resolve R_g(on)/R_g(off) actually populated, the driver part and its bias, and any series/parallel gate network, from the schematic, the component list and the figure captions. Distinguish a schematic symbol value from a BOM value from a caption; report the conflict if they disagree and say which is authoritative and why."
+}
