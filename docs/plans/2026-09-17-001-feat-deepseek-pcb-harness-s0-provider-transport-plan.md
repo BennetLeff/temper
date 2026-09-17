@@ -535,6 +535,19 @@ one, re-verified after every live run.
   normalized.
 - **Whether `reasoning_content` can be absent or null on a successful turn** is
   unknown; every captured success carried a string.
+- **The `max_tokens` ceiling is unverified.** The probes use 64 to 600 and all of them
+  succeed, so the bound is at least 600; nothing larger has been tried, and the adapter
+  does not clamp what a caller sets. The risk is low — an over-large value comes back as
+  a 400, which classifies as a non-retryable `request_rejected` rather than as something
+  to retry — but it is unpinned, and it became worth naming the moment `max_tokens`
+  actually reached the wire.
+- **The canary's evidence cannot be authenticated offline.** These tests check its
+  schema, its internal consistency, and that it records whether it can be reproduced;
+  none of that distinguishes a real live run from a fabricated file. That is inherent,
+  and the honest statement of it is that the evidence's trustworthiness rests on the run
+  being *reproducible* — `harness_dirty: false` and a commit that contains the canary —
+  so the check is to re-run it, not to read it. Stated because "the offline suite
+  validates the evidence" is easy to over-read.
 - **The store cannot reproduce the *n*-th distinct response to an identical
   request.** Recordings are keyed by request hash, so a recursive fan-out in which
   every worker asks the same question replays one answer for all of them. This is a

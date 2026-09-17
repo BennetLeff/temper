@@ -189,6 +189,52 @@ def test_sequence_numbers_stay_unique_under_concurrency(store) -> None:
     assert seqs == sorted(seqs)
 
 
+def test_sequence_numbers_stay_unique_across_processes(tmp_path) -> None:
+    """The append pattern KTD5 designs for: several processes, one file.
+
+    A file lock is exactly the kind of thing whose value cannot be shown in-process --
+    an instance counter and a `flock` look identical from one thread -- so this runs real
+    processes. It is the residual risk the adversarial review left open: the fix for the
+    in-process race was demonstrated with threads, and the multi-process claim it is
+    *for* was not demonstrated at all.
+    """
+    import os
+    import subprocess
+    import sys
+    import textwrap
+    from pathlib import Path
+
+    from temper_harness.ledger.store import LedgerStore
+
+    source = Path(__file__).resolve().parents[2] / "src"
+    program = textwrap.dedent(
+        """
+        import sys
+        from pathlib import Path
+
+        from temper_harness.ledger.store import LedgerStore
+
+        directory, index = sys.argv[1], sys.argv[2]
+        store = LedgerStore(Path(directory))
+        for n in range(10):
+            store.append_ledger({"kind": "root_opened", "root_id": f"root-{index}-{n}"})
+        """
+    )
+    processes = [
+        subprocess.Popen(
+            [sys.executable, "-c", program, str(tmp_path), str(index)],
+            env={**os.environ, "PYTHONPATH": str(source)},
+        )
+        for index in range(4)
+    ]
+    assert [process.wait(timeout=180) for process in processes] == [0, 0, 0, 0]
+
+    seqs = [record["seq"] for record in LedgerStore(tmp_path).ledger_records()]
+    assert len(seqs) == 40
+    assert len(set(seqs)) == len(seqs), "two processes were handed the same sequence number"
+    assert seqs == sorted(seqs)
+
+
 def test_sequence_numbers_survive_a_new_store_over_the_same_directory(tmp_path) -> None:
     """The allocation reads the file, so a second process continues rather than restarting."""
     from temper_harness.ledger.store import LedgerStore
