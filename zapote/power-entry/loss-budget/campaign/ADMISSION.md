@@ -51,6 +51,38 @@ python3 zapote/tools/check_campaign_dispatch.py handback <attempt-dir>
 research that informs a decision and a run the harness validated. Collapsing
 them is how an inadmissible attempt becomes a census entry.
 
+## Evidence and completion admission
+
+An attempt that makes an electrical-model claim — a loss, current, stress,
+protection arrangement or fault result — must include an **evidence ledger** and
+pass:
+
+```bash
+zapote-claims <attempt-dir>/claims.json
+```
+
+and, where a fault loop is modelled:
+
+```bash
+python3 zapote/tools/check_fault_loop.py --netlist <netlist> \
+  --loop-nets A,B,C --assignments <assignments.json>
+```
+
+Both must exit 0, and their output must be retained under `raw/`. A failing
+ledger is an **admission failure for the claim**, not a note appended to the
+report. The ledger records, per claim: whether the value is typical, minimum,
+maximum, assumed or measured; its source condition and exact part; its fault
+state; whether the assertion is illustrative or qualified; and the completion
+status with the evidence supporting it.
+
+The campaign's committed ledgers are run through these checks by
+`zapote/packages/zapote-harness/tests/campaign_ledgers.rs`, so a ledger that
+regresses fails the normal test suite rather than going unnoticed. Procedure:
+`zapote/skills/electrical-model-review/SKILL.md`. Incidents and reasoning:
+`docs/solutions/best-practices/electrical-model-acceptance-rules-2026-09-18.md`.
+
+A passing check means the derivations are sound, not that the claims are true.
+
 ## Consequences
 
 - An attempt that fails dispatch admission may still be executed if it is useful,

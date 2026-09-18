@@ -1,51 +1,120 @@
-[
-  {
-    "id": "clamp-at-50A",
-    "quantity": "mov_clamp_v",
-    "bound_kind": "upper",
-    "source_condition": "V150LA10AP, IPK = 50 A, 8/20 us, 25 C (Littelfuse LA Series rev 2024-09-16 p.2)",
-    "device_state": "healthy",
-    "derived_from": null
-  },
-  {
-    "id": "clamp-at-surge",
-    "quantity": "mov_clamp_v",
-    "bound_kind": "unknown",
-    "source_condition": "surge current through the MOV not established; not the generator prospective current",
-    "device_state": "healthy",
-    "derived_from": "clamp-at-50A",
-    "justification": null
-  },
-  {
-    "id": "bank-stored-energy",
-    "quantity": "bus_bank_energy_j",
-    "bound_kind": "point",
-    "source_condition": "2240.47 uF at 400 V, board capacitance as retained",
-    "device_state": "not_applicable",
-    "derived_from": null
-  },
-  {
-    "id": "internal-loop-interruptible-healthy-switch",
-    "quantity": "internal_loop_interruptible",
-    "bound_kind": "unknown",
-    "source_condition": "U10 shorted, U9 healthy; detection and latency budget unquantified",
-    "device_state": "healthy",
-    "derived_from": null
-  },
-  {
-    "id": "internal-loop-interruptible-failed-short",
-    "quantity": "internal_loop_interruptible",
-    "bound_kind": "unknown",
-    "source_condition": "U10 shorted, U9 failed short",
-    "device_state": "failed_short",
-    "derived_from": null
-  },
-  {
-    "id": "internal-loop-timescale",
-    "quantity": "internal_loop_timescale_s",
-    "bound_kind": "unknown",
-    "source_condition": "illustrative RC with normal-device 42 mOhm; not validated for a destructive fault",
-    "device_state": "not_applicable",
-    "derived_from": null
-  }
-]
+{
+  "schema": "pfc-campaign-claims/v1",
+  "note": "Claims as corrected. Bounds, conditions, fault states and completion rungs preserved.",
+  "claims": [
+    {
+      "id": "clamp-at-50A",
+      "quantity": "mov_clamp_v",
+      "part": "V150LA10AP",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "V150LA10AP, IPK = 50 A, 8/20 us, 25 C",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "qualifying_evidence": "Littelfuse LA Series rev 2024-09-16 p.2",
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "clamp-at-surge",
+      "quantity": "mov_clamp_v",
+      "part": "V150LA10AP",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "surge current through the MOV not established; not the generator prospective current",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "qualifying_evidence": null,
+      "derived_from": "clamp-at-50A",
+      "justification": null
+    },
+    {
+      "id": "bank-stored-energy",
+      "quantity": "bus_bank_energy_j",
+      "part": null,
+      "value_kind": "measured",
+      "bound_kind": "point",
+      "source_condition": "2240.47 uF at 400 V, board capacitance as retained",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "qualifying_evidence": "board bill of materials",
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "internal-loop-timescale",
+      "quantity": "internal_loop_timescale_s",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "illustrative RC with normal-device 42 mOhm; not validated for a destructive fault",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "qualifying_evidence": null,
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "healthy-switch-can-turn-off",
+      "quantity": "internal_loop_interruptible",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "U10 shorted, U9 healthy; detection and latency budget unquantified",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "qualifying_evidence": null,
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "failed-short-no-interrupter",
+      "quantity": "internal_loop_interruptible",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "U10 shorted, U9 failed short",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "qualifying_evidence": null,
+      "derived_from": null,
+      "justification": "case split: the switch is assumed failed short, not merely conducting"
+    }
+  ],
+  "protection_claims": [
+    {
+      "case_id": "U10-shorted-U9-failed-short",
+      "fault_case": "failed_short",
+      "interrupting_device": null,
+      "interrupting_device_state": "failed_short",
+      "interrupts": false,
+      "evidence": "no element in the loop can open it"
+    },
+    {
+      "case_id": "line-fed-switch-short",
+      "fault_case": "failed_short",
+      "interrupting_device": "F1",
+      "interrupting_device_state": "healthy_off",
+      "interrupts": true,
+      "evidence": "coordination requires total clearing; see AR-PROTECT receipt"
+    }
+  ],
+  "promotions": [
+    {
+      "subject": "TEA2209T protection",
+      "from": "none",
+      "to": "protection_identified",
+      "evidence": [
+        "AR-PROTECT coordinator receipt"
+      ]
+    },
+    {
+      "subject": "TEA2209T protection",
+      "from": "protection_identified",
+      "to": "part_selected",
+      "evidence": [
+        "AR-PROTCKT dispatch, pending"
+      ]
+    }
+  ]
+}

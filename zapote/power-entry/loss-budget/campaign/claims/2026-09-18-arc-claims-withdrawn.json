@@ -1,36 +1,105 @@
-[
-  {
-    "id": "clamp-at-50A",
-    "quantity": "mov_clamp_v",
-    "bound_kind": "upper",
-    "source_condition": "V150LA10AP, IPK = 50 A, 8/20 us, 25 C",
-    "device_state": "healthy",
-    "derived_from": null
-  },
-  {
-    "id": "clamp-at-surge-withdrawn",
-    "quantity": "mov_clamp_v",
-    "bound_kind": "lower",
-    "source_condition": null,
-    "device_state": "healthy",
-    "derived_from": "clamp-at-50A",
-    "justification": null
-  },
-  {
-    "id": "shutdown-opens-internal-loop-withdrawn",
-    "quantity": "internal_loop_interruptible",
-    "bound_kind": "unknown",
-    "source_condition": "U10 shorted, U9 conducting",
-    "device_state": "failed_short",
-    "derived_from": "healthy-switch-can-turn-off",
-    "justification": null
-  },
-  {
-    "id": "healthy-switch-can-turn-off",
-    "quantity": "internal_loop_interruptible",
-    "bound_kind": "unknown",
-    "source_condition": "U10 shorted, U9 healthy",
-    "device_state": "healthy",
-    "derived_from": null
-  }
-]
+{
+  "schema": "pfc-campaign-claims/v1",
+  "note": "Withdrawn claims from the AR-MOV and AR-PROTECT review. Every entry here was actually stated and then corrected; this is the negative control.",
+  "claims": [
+    {
+      "id": "clamp-at-50A",
+      "quantity": "mov_clamp_v",
+      "part": "V150LA10AP",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "V150LA10AP, IPK = 50 A, 8/20 us, 25 C",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "qualifying_evidence": "retained source",
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "clamp-at-surge-withdrawn",
+      "quantity": "mov_clamp_v",
+      "part": null,
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": null,
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "qualifying_evidence": null,
+      "derived_from": "clamp-at-50A",
+      "justification": null
+    },
+    {
+      "id": "timescale-withdrawn",
+      "quantity": "internal_loop_timescale_s",
+      "part": null,
+      "value_kind": "measured",
+      "bound_kind": "point",
+      "source_condition": "illustrative RC with normal-device 42 mOhm; not validated for a destructive fault",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "qualifying_evidence": null,
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "healthy-switch-can-turn-off",
+      "quantity": "internal_loop_interruptible",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "U10 shorted, U9 healthy",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "qualifying_evidence": null,
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "failed-short-withdrawn",
+      "quantity": "internal_loop_interruptible",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "U10 shorted, U9 conducting",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "qualifying_evidence": null,
+      "derived_from": "healthy-switch-can-turn-off",
+      "justification": null
+    }
+  ],
+  "protection_claims": [
+    {
+      "case_id": "U10-shorted-U9-failed-short",
+      "fault_case": "failed_short",
+      "interrupting_device": null,
+      "interrupting_device_state": "healthy_on",
+      "interrupts": true,
+      "evidence": "proposal list"
+    },
+    {
+      "case_id": "line-fed-switch-short",
+      "fault_case": "failed_short",
+      "interrupting_device": "F1",
+      "interrupting_device_state": "failed_short",
+      "interrupts": true,
+      "evidence": "proposal list"
+    }
+  ],
+  "promotions": [
+    {
+      "subject": "TEA2209T protection",
+      "from": "protection_identified",
+      "to": "coordination_demonstrated",
+      "evidence": [
+        "a proposal list"
+      ]
+    },
+    {
+      "subject": "TEA2209T protection",
+      "from": "none",
+      "to": "protection_identified",
+      "evidence": []
+    }
+  ]
+}

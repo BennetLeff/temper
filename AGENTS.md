@@ -767,6 +767,43 @@ These gates are prerequisites for the constraint to ship; they are NOT optional
 nice-to-haves. See `docs/physics-verification-methodology.md` for the broader
 verification pattern.
 
+## Electrical Model Acceptance (mandatory for electrical-model claims)
+
+Any claim that a loss, current, stress, protection arrangement or fault result is
+**accepted** — in a campaign handback, a model certificate, an evidence ledger or a
+design decision — must satisfy this workflow before promotion. It exists because the
+same four classes of error recurred in review, and each was corrected only after the
+fact.
+
+1. **Preserve bounds and conditions.** Record whether a value is typical, minimum,
+   maximum, assumed or measured, with the current, temperature, waveform and exact
+   part. A bound may not change direction: "maximum at 50 A" is **not** a minimum
+   above 50 A, and monotonicity does not make it one.
+2. **Declare fault states.** Healthy/on, healthy/off, failed-short and failed-open
+   are different devices. A protection claim must name the device that opens the
+   path and establish that it remains functional in that scenario.
+3. **Separate calculations from qualified predictions.** An illustrative `R × C`
+   number does not establish a clearing deadline without evidence that the
+   resistance model applies to the fault being analysed.
+4. **Require completion evidence.** `protection identified → part selected →
+   coordination demonstrated → hardware verified` are distinct statuses; no rung is
+   skipped and each needs retained evidence.
+
+**Enforced, not merely documented.** `zapote-claims` checks an evidence ledger and
+`zapote-fault-loop` checks a fault-loop model. Both are Rust under `zapote-erc` (the
+Python entry points are thin wrappers), with regression cases in the normal
+workspace suite — including the campaign's committed ledgers in
+`zapote/packages/zapote-harness/tests/campaign_ledgers.rs`. Run them before
+promoting a claim and retain their output in the handback.
+
+Procedure and per-class detail:
+`zapote/skills/electrical-model-review/SKILL.md`. Incidents and reasoning behind
+each rule:
+`docs/solutions/best-practices/electrical-model-acceptance-rules-2026-09-18.md`.
+
+A passing check means the derivations are **sound**, not that the claims are true,
+and neither check replaces tracing the actual current path.
+
 ## Session Lifecycle
 
 ### Base-Commit Assertion (Session Start — do this first)
