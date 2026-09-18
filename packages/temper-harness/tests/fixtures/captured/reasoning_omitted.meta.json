@@ -1,18 +1,18 @@
 {
-  "captured_at": "2026-09-17T21:31:19+00:00",
+  "captured_at": "2026-09-18T01:39:13+00:00",
   "expect_status": 400,
   "headers": {
     "content-length": "175",
     "content-type": "application/octet-stream",
-    "date": "Thu, 17 Sep 2026 21:31:17 GMT",
+    "date": "Fri, 18 Sep 2026 01:39:08 GMT",
     "server": "elb",
-    "x-ds-trace-id": "3025fe5b4e21a3e0e9a3137a0d507bbc"
+    "x-ds-trace-id": "03d1ab3991d177079394aea1be65601e"
   },
   "http_status": 400,
   "model": "deepseek-flash",
   "name": "reasoning_omitted",
   "provider": "deepseek",
-  "request_hash": "1d39bc25060d567f4708342b3d83dd67f913912b2b012d8e1a4aad1c832e461b",
+  "request_hash": "c22527269d2c5a5ba71af2bcc2e02f833a2173e1e38b5a2db300a6656d1db534",
   "response_bytes": 175,
   "response_sha256": "7d37f6cbc3d0c569a1d63cd6f8771c2b455375f6b0bd80b831f71ac2c74d7194",
   "reveals": "that the identical turn is refused when reasoning_content is dropped and the tool_call ids are ones the provider has not seen, so reasoning must always be replayed rather than re-requested",

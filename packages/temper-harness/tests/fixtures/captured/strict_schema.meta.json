@@ -1,19 +1,19 @@
 {
-  "captured_at": "2026-09-17T21:31:19+00:00",
+  "captured_at": "2026-09-18T01:39:13+00:00",
   "expect_status": 200,
   "headers": {
     "content-type": "application/json",
-    "date": "Thu, 17 Sep 2026 21:31:12 GMT",
+    "date": "Fri, 18 Sep 2026 01:39:03 GMT",
     "server": "elb",
-    "x-ds-trace-id": "72b7683ead781caadfb84abe0da46f45"
+    "x-ds-trace-id": "41498e299f986bfac72e9f923e7bd09b"
   },
   "http_status": 200,
   "model": "deepseek-flash",
   "name": "strict_schema",
   "provider": "deepseek",
-  "request_hash": "4b0c8c62732c088f0f941cc0794ceb69b12fc4189b31f5f08a609ade4f383764",
-  "response_bytes": 1064,
-  "response_sha256": "d63acc62f36d23c64f7c360297b8e21d66bbfba3cc77396c0b191f0bbb746d94",
+  "request_hash": "1cc2b6b5cdddd07487ec3012c9415f8e82e9afa44fd276d4afa63e0dd8b04d21",
+  "response_bytes": 818,
+  "response_sha256": "ed172635872cae01018bb3c01a306003577b918b404306c8ccb16fb69f2cdefe",
   "reveals": "whether a tool schema carrying $defs, a $ref, a nested oneOf, and additionalProperties:false is accepted rather than rejected or rewritten",
   "status_as_expected": true,
   "stream": false

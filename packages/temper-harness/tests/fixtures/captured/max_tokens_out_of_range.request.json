@@ -1,8 +1,8 @@
 {
-  "max_tokens": 64,
+  "max_tokens": 99999999,
   "messages": [
     {
-      "content": "Reply with exactly the word: temper",
+      "content": "hi",
       "role": "user"
     }
   ],

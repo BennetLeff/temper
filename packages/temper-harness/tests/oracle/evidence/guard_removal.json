@@ -4,7 +4,7 @@
       "fixture": "plain",
       "guard": "typed_view_valid",
       "perturbation": "enrich_the_typed_view",
-      "perturbed_input_sha256": "7be3ba5374bc8bd28fa80e8dbd5442f9b9ed16a688ec01b3eab34f1ea8235c50",
+      "perturbed_input_sha256": "14e40867dd49cfb1aaa8d8befaf84fb7a8ff43a8c13b1c693bf86f5cd47740fb",
       "what": "an extra field in the typed view, which only the committed schema forbids",
       "with_guard": {
         "checks_failed": [
@@ -21,7 +21,7 @@
       "fixture": "parallel_tools",
       "guard": "typed_view_faithful",
       "perturbation": "swap_tool_arguments",
-      "perturbed_input_sha256": "4a0c62b2d2d0459ca8007ec86578796b5ddde11182a1290bbf3da977d5d430c5",
+      "perturbed_input_sha256": "994dbed21d47439bd9ed264dde03457cd756dcd6750823651a98e99b2a7f7022",
       "what": "two calls' argument strings exchanged, leaving ids, order, and schema intact",
       "with_guard": {
         "checks_failed": [
@@ -38,7 +38,7 @@
       "fixture": "parallel_tools",
       "guard": "tool_call_order",
       "perturbation": "reorder_tool_calls",
-      "perturbed_input_sha256": "1f515eb6d6762e95f694370eae68f353fad18f0af20abdac94b18d6f2e14ca7d",
+      "perturbed_input_sha256": "fd4160feec4d6c19c485a8ea4c56e86ccb4cf91304f5add0f923f656fc4ef8b9",
       "what": "the same two calls in the other order",
       "with_guard": {
         "checks_failed": [
@@ -55,7 +55,7 @@
       "fixture": "plain",
       "guard": "usage_reconciled",
       "perturbation": "alter_the_usage_total",
-      "perturbed_input_sha256": "cded844c19fd892025c8ac4f7295d08d1b4155029576aa73aad577b45b3a5159",
+      "perturbed_input_sha256": "3c5fb4c561b78ade2f199e66e88891415a8be483aa8542cf8d35c31e619c3eeb",
       "what": "a provider total that no longer equals prompt + completion",
       "with_guard": {
         "checks_failed": [
@@ -72,7 +72,7 @@
       "fixture": "plain",
       "guard": "usage_present",
       "perturbation": "null_the_usage_block",
-      "perturbed_input_sha256": "6a8713607167a79403ecd8ae3ef3974e2f1a86d87895f20c02b1cc37e13bec52",
+      "perturbed_input_sha256": "f9ead0cf2f78500c1b8e2d3cfd01c38d53d906ac8056de67cb258056c15fb2ff",
       "what": "a successful response with no usage block at all",
       "with_guard": {
         "checks_failed": [
@@ -89,7 +89,7 @@
       "fixture": "stream_plain",
       "guard": "stream_framing",
       "perturbation": "drop_the_done_sentinel",
-      "perturbed_input_sha256": "05259bc320c7c9ac009c2c2826156d99259082c7ef68457db9a90a9d2f9e804f",
+      "perturbed_input_sha256": "279930e170db5877b6eec8ca59fa685252b8a8ef9cfb3d6e7f66b93b14c40cce",
       "what": "a streamed body with a finish reason but no [DONE] sentinel",
       "with_guard": {
         "checks_failed": [
@@ -106,7 +106,7 @@
       "fixture": "plain",
       "guard": "raw_round_trip",
       "perturbation": "disagree_the_response_hash",
-      "perturbed_input_sha256": "d83e6c76eb58382b102de7c2e6f06a2bb8b8e400cfd9eb7747f073b01374ecec",
+      "perturbed_input_sha256": "27befacf9ac59946a49f493b65031741062c27ecc66f9901f2e186860945f923",
       "what": "a stored hash that does not match the stored bytes",
       "with_guard": {
         "checks_failed": [
@@ -123,7 +123,7 @@
       "fixture": "strict_schema",
       "guard": "request_identity",
       "perturbation": "perturb_a_tool_schema",
-      "perturbed_input_sha256": "a48d6bb9b713276e67674987495a970e30b4455adbebaad582ba0bb2a5010574",
+      "perturbed_input_sha256": "25ede477114872d296303514f39d1fc57e667c8003e7daba072ba405b89c64e3",
       "what": "a tool schema that the recorded request hash does not name",
       "with_guard": {
         "checks_failed": [

@@ -97,46 +97,6 @@ def successful_nonstreams() -> list[str]:
     )
 
 
-def rebuild_request(body: dict[str, Any]) -> Request:
-    """The client's types, reconstructed from a captured wire body."""
-    from temper_harness.provider.messages import ToolCall
-
-    messages = [
-        ChatMessage(
-            role=message["role"],
-            content=message.get("content"),
-            reasoning_content=message.get("reasoning_content"),
-            tool_calls=tuple(
-                ToolCall(
-                    id=call["id"],
-                    name=call["function"]["name"],
-                    arguments=call["function"]["arguments"],
-                )
-                for call in message.get("tool_calls", ())
-            ),
-            tool_call_id=message.get("tool_call_id"),
-        )
-        for message in body["messages"]
-    ]
-    tools = tuple(
-        ToolDefinition(
-            name=tool["function"]["name"],
-            description=tool["function"]["description"],
-            parameters=tool["function"]["parameters"],
-        )
-        for tool in body.get("tools", ())
-    )
-    return Request(
-        model=body["model"],
-        messages=messages,
-        tools=tools,
-        temperature=body.get("temperature"),
-        max_tokens=body.get("max_tokens"),
-        served_from="live",
-        stream=body.get("stream", False),
-    )
-
-
 # -- decoding captured successes --------------------------------------------
 
 

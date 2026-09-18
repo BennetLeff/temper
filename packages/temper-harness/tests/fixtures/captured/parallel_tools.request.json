@@ -1,4 +1,5 @@
 {
+  "max_tokens": 600,
   "messages": [
     {
       "content": "Make exactly two tool calls in this turn: place reference R1 on layer F.Cu with rotation 0, and check rule clearance. Do not explain.",

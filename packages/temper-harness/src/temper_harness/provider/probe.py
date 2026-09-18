@@ -70,6 +70,7 @@ def _request(
     stream: bool = False,
     max_tokens: int = 600,
     model: str = MODEL,
+    thinking: bool | None = None,
 ) -> Request:
     """A probe request, built the way the client builds one.
 
@@ -87,6 +88,7 @@ def _request(
         tools=tools,
         temperature=0,
         max_tokens=max_tokens,
+        thinking=thinking,
         served_from="live",
         stream=stream,
     )
@@ -292,6 +294,17 @@ PROBE_SET: tuple[Probe, ...] = (
         name="reasoning_omitted",
         reveals="that the identical turn is refused when reasoning_content is dropped and the tool_call ids are ones the provider has not seen, so reasoning must always be replayed rather than re-requested",
         request=_reasoning_omitted_request,
+        expect_status=400,
+    ),
+    Probe(
+        name="thinking_disabled",
+        reveals="the shape of a non-thinking response: whether reasoning_content is absent or explicit null, whether completion_tokens_details exists at all, and that prompt_tokens falls because thinking mode injects hidden prompt overhead",
+        request=_request("Reply with exactly the word: temper", thinking=False, max_tokens=64),
+    ),
+    Probe(
+        name="max_tokens_out_of_range",
+        reveals="the measured max_tokens ceiling. The model page states 384K; the error names the exact range, which is a measurement rather than a transcription, and it tells a caller what to clamp to",
+        request=_request("hi", max_tokens=99_999_999),
         expect_status=400,
     ),
     Probe(

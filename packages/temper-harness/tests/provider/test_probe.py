@@ -24,18 +24,16 @@ import pytest
 
 from temper_harness.provider.deepseek import MODEL, wire_body
 from temper_harness.provider.errors import TransportError, classify_http_response
-from temper_harness.provider.interface import Request, ToolCallDelta, reassemble_tool_calls
+from temper_harness.provider.interface import ToolCallDelta, reassemble_tool_calls
 from temper_harness.provider.messages import (
-    ChatMessage,
     MessageArrayError,
-    ToolCall,
-    ToolDefinition,
 )
 from temper_harness.provider.probe import PROBE_SET
 from temper_harness.provider.usage import normalize_usage, usage_fields
 from temper_harness.schema_registry import build_validator
 from temper_harness.store.recordings import request_hash
 from temper_harness.store.redaction import header_allowlist
+from tests.corpus import captured_request
 
 CAPTURED = Path(__file__).resolve().parents[1] / "fixtures" / "captured"
 
@@ -78,49 +76,6 @@ def successful_nonstreams() -> list[str]:
         name
         for name, entry in ENTRIES.items()
         if entry["http_status"] == 200 and not entry["stream"]
-    )
-
-
-def rebuild_request(body: dict[str, Any]) -> Request:
-    """The client's types, reconstructed from a captured wire body.
-
-    Deliberately lossy in one direction: the captured body may carry fields the
-    client does not model, and a reconstruction that silently kept them would be
-    testing the fixture against itself.
-    """
-    messages = [
-        ChatMessage(
-            role=message["role"],
-            content=message.get("content"),
-            reasoning_content=message.get("reasoning_content"),
-            tool_calls=tuple(
-                ToolCall(
-                    id=call["id"],
-                    name=call["function"]["name"],
-                    arguments=call["function"]["arguments"],
-                )
-                for call in message.get("tool_calls", ())
-            ),
-            tool_call_id=message.get("tool_call_id"),
-        )
-        for message in body["messages"]
-    ]
-    tools = tuple(
-        ToolDefinition(
-            name=tool["function"]["name"],
-            description=tool["function"]["description"],
-            parameters=tool["function"]["parameters"],
-        )
-        for tool in body.get("tools", ())
-    )
-    return Request(
-        model=body["model"],
-        messages=messages,
-        tools=tools,
-        temperature=body.get("temperature"),
-        max_tokens=body.get("max_tokens"),
-        served_from="live",
-        stream=body.get("stream", False),
     )
 
 
@@ -176,7 +131,7 @@ def test_every_client_shaped_capture_is_reproducible_by_the_client_encoder() -> 
         if probe.raw_body is not None:
             continue
         assert (
-            request_hash(wire_body(rebuild_request(request_of(probe.name))))
+            request_hash(wire_body(captured_request(probe.name)))
             == (ENTRIES[probe.name]["request_hash"])
         ), probe.name
         checked += 1
@@ -191,7 +146,7 @@ def test_the_raw_body_probe_is_refused_by_the_client_encoder() -> None:
     protecting against a refusal the provider really does produce.
     """
     with pytest.raises(MessageArrayError):
-        wire_body(rebuild_request(request_of("orphan_tool_result")))
+        wire_body(captured_request("orphan_tool_result"))
 
 
 def test_the_chained_tool_roundtrip_continues_the_captured_turn() -> None:
@@ -278,11 +233,28 @@ def test_every_captured_usage_block_normalizes_into_the_committed_schema(name: s
     build_validator("usage.schema.json").validate(record)
 
 
+def is_non_thinking(name: str) -> bool:
+    """Whether this probe asked for thinking mode to be disabled."""
+    thinking = request_of(name).get("thinking")
+    return isinstance(thinking, dict) and thinking.get("type") == "disabled"
+
+
 @pytest.mark.parametrize("name", successful_nonstreams())
 def test_the_provider_reports_every_field_the_record_requires(name: str) -> None:
-    """No field is null, so the record is a measurement rather than a gap."""
+    """No field is null in thinking mode, so the record is a measurement rather than a gap.
+
+    Measured exception, and worth pinning as a fact rather than exempting: with thinking
+    disabled the provider omits `completion_tokens_details` **entirely**, so
+    `reasoning_tokens` is *absent* rather than zero. The record says ``None`` for it --
+    which is the distinction R4 exists to keep, and the reason this test asserts the
+    absence of the whole nested block rather than just tolerating a null.
+    """
     record = normalize_usage(response_of(name)["usage"])
     missing = sorted(field for field, value in record.items() if value is None)
+    if is_non_thinking(name):
+        assert missing == ["reasoning_tokens"], name
+        assert "completion_tokens_details" not in response_of(name)["usage"], name
+        return
     assert missing == [], name
 
 
@@ -301,13 +273,17 @@ def test_the_providers_own_total_equals_prompt_plus_completion(name: str) -> Non
 def test_reasoning_tokens_are_a_subset_of_completion_tokens(name: str) -> None:
     """The measured fact the aggregate's additive set depends on.
 
-    This is why ``reasoning_tokens`` must not be summed with
-    ``completion_tokens``: over this corpus reasoning is most of the completion,
-    so adding them would over-report by a large factor rather than a rounding
-    error.
+    This is why ``reasoning_tokens`` must not be summed with ``completion_tokens``: over
+    this corpus reasoning is most of the completion, so adding them would over-report by a
+    large factor rather than a rounding error.
+
+    The absent case is asserted rather than skipped, so a *thinking-mode* capture that
+    silently lost its reasoning tokens cannot hide behind the same branch.
     """
     record = normalize_usage(response_of(name)["usage"])
-    assert record["reasoning_tokens"] is not None
+    if record["reasoning_tokens"] is None:
+        assert is_non_thinking(name), name
+        return
     assert record["reasoning_tokens"] <= record["completion_tokens"]
 
 

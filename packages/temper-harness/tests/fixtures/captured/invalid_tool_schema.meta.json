@@ -1,18 +1,18 @@
 {
-  "captured_at": "2026-09-17T21:31:19+00:00",
+  "captured_at": "2026-09-18T01:39:13+00:00",
   "expect_status": 400,
   "headers": {
     "content-length": "223",
     "content-type": "application/octet-stream",
-    "date": "Thu, 17 Sep 2026 21:31:19 GMT",
+    "date": "Fri, 18 Sep 2026 01:39:13 GMT",
     "server": "elb",
-    "x-ds-trace-id": "9ef6cd0feb64983b48196fb6b39c3442"
+    "x-ds-trace-id": "28fc0774dfa8cb540b3a38ba013a90f2"
   },
   "http_status": 400,
   "model": "deepseek-flash",
   "name": "invalid_tool_schema",
   "provider": "deepseek",
-  "request_hash": "c98d30cf2b5fa071b3d0bfaef53a3838c43ed1929a5dd09714f95790d7c2472e",
+  "request_hash": "4c10f760ea7998219756666dce34f9e1ff76d717e52413ffcb6ced3438f4f2d3",
   "response_bytes": 223,
   "response_sha256": "b34e659fd60711df06048793ad010e862aadfa78d09de01432de879208f55589",
   "reveals": "that the provider validates a tool schema server-side, so a malformed schema is a request defect the provider reports rather than something only the model can discover",

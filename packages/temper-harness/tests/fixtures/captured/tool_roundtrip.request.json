@@ -1,4 +1,5 @@
 {
+  "max_tokens": 300,
   "messages": [
     {
       "content": "Place R1 on F.Cu and check clearance.",
@@ -14,7 +15,7 @@
             "arguments": "{\"reference\": \"R1\", \"layer\": \"F.Cu\", \"rotation\": 0}",
             "name": "place"
           },
-          "id": "call_00_LZDozREaBf9oFVVt9b479098",
+          "id": "call_00_4qEsUpwJUqgyD0qNmRfY6550",
           "type": "function"
         },
         {
@@ -22,7 +23,7 @@
             "arguments": "{\"rule\": \"clearance\"}",
             "name": "check"
           },
-          "id": "call_01_RHMCOWMsU9pCSRomkUPJ9123",
+          "id": "call_01_DK4ykVM7Ff8caDmk5INm3214",
           "type": "function"
         }
       ]
@@ -30,12 +31,12 @@
     {
       "content": "done",
       "role": "tool",
-      "tool_call_id": "call_00_LZDozREaBf9oFVVt9b479098"
+      "tool_call_id": "call_00_4qEsUpwJUqgyD0qNmRfY6550"
     },
     {
       "content": "done",
       "role": "tool",
-      "tool_call_id": "call_01_RHMCOWMsU9pCSRomkUPJ9123"
+      "tool_call_id": "call_01_DK4ykVM7Ff8caDmk5INm3214"
     }
   ],
   "model": "deepseek-flash",

@@ -34,9 +34,9 @@ from temper_harness.provider.interface import (
     ToolCallDelta,
     reassemble_tool_calls,
 )
-from temper_harness.provider.messages import ChatMessage, ToolCall, ToolDefinition
 from temper_harness.provider.replay import ReplayTransport
 from temper_harness.store import RecordingNotFound, RecordingStore
+from tests.corpus import captured_request
 
 CAPTURED = Path(__file__).resolve().parents[1] / "fixtures" / "captured"
 ENTRIES: dict[str, dict[str, Any]] = {
@@ -61,51 +61,6 @@ def headers_of(name: str) -> dict[str, str]:
 
 def captured_body(name: str) -> dict[str, Any]:
     return json.loads((CAPTURED / f"{name}.request.json").read_text(encoding="utf-8"))
-
-
-def captured_request(name: str, *, stream: bool | None = None) -> Request:
-    """The captured request, carried in the client's own types.
-
-    Built this way so ``wire_body`` reproduces the fixture byte for byte -- the
-    property the corpus suite establishes, and the reason a replay lookup hits at
-    all. A hand-assembled body here would test the store against my own copy of the
-    request rather than against the one that was sent.
-    """
-    body = captured_body(name)
-    messages = [
-        ChatMessage(
-            role=message["role"],
-            content=message.get("content"),
-            reasoning_content=message.get("reasoning_content"),
-            tool_calls=tuple(
-                ToolCall(
-                    id=call["id"],
-                    name=call["function"]["name"],
-                    arguments=call["function"]["arguments"],
-                )
-                for call in message.get("tool_calls", ())
-            ),
-            tool_call_id=message.get("tool_call_id"),
-        )
-        for message in body["messages"]
-    ]
-    tools = tuple(
-        ToolDefinition(
-            name=tool["function"]["name"],
-            description=tool["function"]["description"],
-            parameters=tool["function"]["parameters"],
-        )
-        for tool in body.get("tools", ())
-    )
-    return Request(
-        model=body["model"],
-        messages=messages,
-        tools=tools,
-        temperature=body.get("temperature"),
-        max_tokens=body.get("max_tokens"),
-        served_from="replay",
-        stream=bool(body.get("stream", False)) if stream is None else stream,
-    )
 
 
 def _live_store(root: Path) -> RecordingStore:

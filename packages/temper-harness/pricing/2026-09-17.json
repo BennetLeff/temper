@@ -1,50 +1,90 @@
 {
-  "table_version": "1.0",
-  "source": "https://api-docs.deepseek.com/quick_start/pricing",
-  "retrieved_at": "2026-09-17",
   "currency": "USD",
-  "unit": "per_million_tokens",
-  "peak_windows": {
-    "timezone": "UTC",
-    "weekdays": ["monday", "tuesday", "wednesday", "thursday", "friday"],
-    "hours": [[1, 4], [6, 10]]
-  },
   "models": {
     "deepseek-flash": {
       "model_version": "DeepSeek-V4.1-Flash",
       "rates": {
-        "peak": {
-          "input_cache_hit": 0.006,
-          "input_cache_miss": 0.3,
-          "output": 1.2
-        },
         "off_peak": {
           "input_cache_hit": 0.003,
           "input_cache_miss": 0.15,
           "output": 0.6
+        },
+        "peak": {
+          "input_cache_hit": 0.006,
+          "input_cache_miss": 0.3,
+          "output": 1.2
         }
       }
     },
     "deepseek-v4-pro": {
       "model_version": "DeepSeek-V4-Pro-0813",
       "rates": {
-        "peak": {
-          "input_cache_hit": 0.044,
-          "input_cache_miss": 1.32,
-          "output": 3.96
-        },
         "off_peak": {
           "input_cache_hit": 0.022,
           "input_cache_miss": 0.66,
           "output": 1.98
+        },
+        "peak": {
+          "input_cache_hit": 0.044,
+          "input_cache_miss": 1.32,
+          "output": 3.96
         }
       }
     }
   },
+  "peak_windows": {
+    "hours": [
+      [
+        1,
+        4
+      ],
+      [
+        6,
+        10
+      ]
+    ],
+    "timezone": "UTC",
+    "weekdays": [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday"
+    ]
+  },
+  "retrieved_at": "2026-09-17",
+  "source": "https://api-docs.deepseek.com/quick_start/pricing",
+  "table_version": "1.0",
+  "unit": "per_million_tokens",
   "verification": {
-    "status": "unverified",
-    "method": null,
-    "observed": null,
-    "tolerance_usd": null
+    "method": "balance_delta",
+    "observed": [
+      {
+        "at": "2026-09-18T01:41:19+00:00",
+        "model": "deepseek-flash",
+        "note": "One call with a fresh ~1MB input, so it could not be a cache hit, and the response confirms cached_tokens=0. Balance 9.97 -> 9.83. The computed 0.1481 lies inside the interval the two-decimal readings allow, (0.130, 0.150). This is the input cache-miss rate, which is the dominant cost for a harness that sends large contexts.",
+        "observed_usd": 0.14,
+        "usage": {
+          "cached_input_tokens": 0,
+          "completion_tokens": 1,
+          "prompt_tokens": 493539
+        },
+        "window": "peak"
+      },
+      {
+        "at": "2026-09-18T01:53:06+00:00",
+        "model": "deepseek-flash",
+        "note": "A generation truncated at max_tokens, so the output count is exactly 60000 rather than however long the model felt like writing -- the truncation is what makes this a controlled measurement, and it also captures finish_reason='length'. Balance 9.83 -> 9.75. Computed 0.0720 lies inside (0.070, 0.090). This is the output rate.",
+        "observed_usd": 0.08,
+        "usage": {
+          "cached_input_tokens": 0,
+          "completion_tokens": 60000,
+          "prompt_tokens": 28
+        },
+        "window": "peak"
+      }
+    ],
+    "status": "measured",
+    "tolerance_usd": 0.02
   }
 }

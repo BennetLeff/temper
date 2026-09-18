@@ -18,7 +18,9 @@
   "properties": {
     "table_version": {
       "description": "The table's own format version, read from this file by the loader rather than restated in Python.",
-      "enum": ["1.0"]
+      "enum": [
+        "1.0"
+      ]
     },
     "source": {
       "description": "Where the rates came from, as a URL. Required because a rate is a claim about the world: without a source it is an assertion, and this repo does not accept assertions about prices any more than about physics.",
@@ -30,7 +32,9 @@
       "type": "string",
       "minLength": 1
     },
-    "currency": { "const": "USD" },
+    "currency": {
+      "const": "USD"
+    },
     "unit": {
       "description": "Explicit rather than implied: `per_million_tokens` is how the provider quotes, and a consumer that assumed per-token would be off by six orders of magnitude.",
       "const": "per_million_tokens"
@@ -39,14 +43,30 @@
       "description": "The definition of the expensive window, transcribed. Off-peak is everything else, and is half the peak rate.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["timezone", "weekdays", "hours"],
+      "required": [
+        "timezone",
+        "weekdays",
+        "hours"
+      ],
       "properties": {
-        "timezone": { "const": "UTC" },
+        "timezone": {
+          "const": "UTC"
+        },
         "weekdays": {
           "description": "Monday through Friday, as documented.",
           "type": "array",
           "minItems": 1,
-          "items": { "enum": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] }
+          "items": {
+            "enum": [
+              "monday",
+              "tuesday",
+              "wednesday",
+              "thursday",
+              "friday",
+              "saturday",
+              "sunday"
+            ]
+          }
         },
         "hours": {
           "description": "Half-open intervals [start, end) in local hours, so the boundary belongs to exactly one window. The provider writes them as `01:00 - 04:00`, which does not say whether the endpoints are inclusive; half-open is the assumption this table makes, and the plan records it as an assumption rather than a fact, because getting it wrong doubles a bill or halves it.",
@@ -56,7 +76,11 @@
             "type": "array",
             "minItems": 2,
             "maxItems": 2,
-            "items": { "type": "integer", "minimum": 0, "maximum": 24 }
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 24
+            }
           }
         }
       }
@@ -68,16 +92,29 @@
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["model_version", "rates"],
+        "required": [
+          "model_version",
+          "rates"
+        ],
         "properties": {
-          "model_version": { "type": "string", "minLength": 1 },
+          "model_version": {
+            "type": "string",
+            "minLength": 1
+          },
           "rates": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["peak", "off_peak"],
+            "required": [
+              "peak",
+              "off_peak"
+            ],
             "properties": {
-              "peak": { "$ref": "#/$defs/rate_set" },
-              "off_peak": { "$ref": "#/$defs/rate_set" }
+              "peak": {
+                "$ref": "#/$defs/rate_set"
+              },
+              "off_peak": {
+                "$ref": "#/$defs/rate_set"
+              }
             }
           }
         }
@@ -87,25 +124,96 @@
       "description": "Whether the rates have been checked against the provider's own accounting, and how. `unverified` means the numbers are transcribed from documentation -- which is an inherited figure, not a measurement, and must not be described as measured. The `method` field names how any verification was done (a balance delta), and `observations` carries what was seen so a reader can judge the tolerance rather than trust it.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["status"],
+      "required": [
+        "status"
+      ],
       "properties": {
-        "status": { "enum": ["unverified", "measured"] },
-        "method": { "type": ["string", "null"] },
+        "status": {
+          "enum": [
+            "unverified",
+            "measured"
+          ]
+        },
+        "method": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "observed": {
-          "type": ["array", "null"],
+          "type": [
+            "array",
+            "null"
+          ],
           "items": {
+            "description": "One checked call. It records what was *consumed* and what the bill moved by, and NOT a pre-computed cost -- the figure is derived from the recorded usage and the current rates by the test, which is what makes this a ratchet instead of a note: edit a rate and the recomputation stops matching the observed delta, so the 'measured' status cannot outlive the numbers it was measured on.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["at", "computed_usd", "observed_usd"],
+            "required": [
+              "at",
+              "model",
+              "window",
+              "usage",
+              "observed_usd",
+              "note"
+            ],
             "properties": {
-              "at": { "type": "string" },
-              "computed_usd": { "type": "number" },
-              "observed_usd": { "type": "number" },
-              "note": { "type": "string" }
+              "at": {
+                "type": "string",
+                "minLength": 1
+              },
+              "model": {
+                "type": "string",
+                "minLength": 1
+              },
+              "window": {
+                "enum": [
+                  "peak",
+                  "off_peak"
+                ]
+              },
+              "usage": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "prompt_tokens",
+                  "completion_tokens",
+                  "cached_input_tokens"
+                ],
+                "properties": {
+                  "prompt_tokens": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "completion_tokens": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "cached_input_tokens": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              },
+              "observed_usd": {
+                "description": "The change in the account's reported balance, which the provider quotes to two decimals -- so this is a reading, not an exact figure, and `tolerance_usd` says how much slack that leaves.",
+                "type": "number",
+                "minimum": 0
+              },
+              "note": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           }
         },
-        "tolerance_usd": { "type": ["number", "null"] }
+        "tolerance_usd": {
+          "description": "How far a recomputed cost may sit from an observed balance delta before the verification is considered broken. Not a taste parameter: the balance is quoted to two decimals and a delta is the difference of two rounded readings, so roughly 0.01 is the floor. This is set to twice that, which allows one extra tick. It bounds what the verification is worth -- it excludes the peak/off-peak and cache-hit/miss transpositions, both of which are 2x or 50x, but it would not catch a small typo, and anything quoting USD must not pretend otherwise.",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
       }
     }
   },
@@ -114,11 +222,24 @@
       "description": "The three rates a call's cost is computed from. Input is split by cache status because the provider prices a cache hit at roughly a fiftieth of a miss, and output is one rate -- reasoning tokens are billed as output, which is why the ledger's usage record treats `reasoning_tokens` as a SUBSET of `completion_tokens` rather than a separate line.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["input_cache_hit", "input_cache_miss", "output"],
+      "required": [
+        "input_cache_hit",
+        "input_cache_miss",
+        "output"
+      ],
       "properties": {
-        "input_cache_hit": { "type": "number", "minimum": 0 },
-        "input_cache_miss": { "type": "number", "minimum": 0 },
-        "output": { "type": "number", "minimum": 0 }
+        "input_cache_hit": {
+          "type": "number",
+          "minimum": 0
+        },
+        "input_cache_miss": {
+          "type": "number",
+          "minimum": 0
+        },
+        "output": {
+          "type": "number",
+          "minimum": 0
+        }
       }
     }
   }

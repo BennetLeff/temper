@@ -80,12 +80,61 @@ def test_the_documented_flash_rates_are_the_numbers_transcribed() -> None:
     assert table.rate("deepseek-flash", OFF_PEAK, "output") == Decimal("0.60")
 
 
-def test_transcribed_rates_are_not_claimed_to_be_measured() -> None:
-    """Documentation is an inherited figure. The table says which it is."""
+def test_the_table_says_whether_its_rates_are_measured_or_inherited() -> None:
+    """Documentation is an inherited figure. The table says which it is, and a
+    `measured` claim has to come with something that was actually measured."""
     table = load_table()
-    if not table.is_verified:
-        assert table.raw["verification"]["status"] == "unverified"
-        assert table.raw["verification"]["observed"] is None
+    verification = table.raw["verification"]
+    assert verification["status"] in ("measured", "unverified")
+    if table.is_verified:
+        assert verification["method"]
+        assert verification["observed"], "a measured claim with no observation is a claim"
+        assert verification["tolerance_usd"] is not None
+    else:
+        assert verification["observed"] is None
+
+
+def test_a_measured_verification_still_holds_against_the_current_rates() -> None:
+    """The ratchet: the cost is DERIVED from the recorded usage, not restated.
+
+    An observation records what a call consumed and what the account's balance moved by.
+    This recomputes the cost from those tokens and the table as it stands now, and compares
+    it to the delta. So editing a rate breaks the verification rather than leaving a stale
+    `measured` badge on numbers nobody re-checked -- which is the whole reason the
+    observation stores usage instead of a pre-computed figure.
+
+    What the comparison is worth is bounded by the instrument, and the tolerance says so:
+    the balance is quoted to two decimals, so the delta is only known to about +/-0.01. That
+    is enough to exclude the peak/off-peak and cache-hit/miss transpositions, which are 2x
+    and 50x, and not enough to catch a small typo.
+    """
+    table = load_table()
+    assert table.is_verified, "this test is about a measured table; see #1602"
+    tolerance = Decimal(str(table.raw["verification"]["tolerance_usd"]))
+
+    for entry in table.raw["verification"]["observed"]:
+        at = dt.datetime.fromisoformat(entry["at"])
+        assert window_for(table.raw, at) == entry["window"], entry["at"]
+        computed = table.estimate_usd(entry["usage"], model=entry["model"], at=at)
+        assert computed is not None, entry["at"]
+        observed = Decimal(str(entry["observed_usd"]))
+        assert abs(computed - observed) <= tolerance, (
+            f"{entry['at']}: recomputed {computed} is more than {tolerance} from the "
+            f"observed balance delta {observed}; the rates disagree with the measurement"
+        )
+        assert entry["note"]
+
+
+def test_the_two_measured_observations_cover_input_and_output() -> None:
+    """One rate each, so the verification is not two readings of the same number."""
+    table = load_table()
+    observed = table.raw["verification"]["observed"]
+    if not observed:
+        pytest.skip("the table is not measured; see #1602")
+    assert len(observed) >= 2
+    kinds = [max(entry["usage"], key=lambda k: entry["usage"][k] or 0) for entry in observed]
+    assert "prompt_tokens" in kinds
+    assert "completion_tokens" in kinds
 
 
 @pytest.mark.parametrize(

@@ -587,6 +587,70 @@ enumerates the documented codes and asserts the flag for each. A corpus-level du
 that would have been a second home for one fact, which is the thing this plan keeps warning
 about.
 
+### Found by measuring the things the docs only implied (post-docs) — five more
+
+Two new probes were added (`thinking_disabled`, `max_tokens_out_of_range`) and the price
+table was verified against the provider's own accounting. The corpus is twelve probes.
+
+34. **The `max_tokens` range is `[1, 393216]`, measured.** An out-of-range value returns a
+    400 naming the bounds exactly, so the ceiling is no longer inferred from the model
+    page's "384K". 393216 is 384K, so the two agree -- which is the point: the documented
+    figure is now confirmed rather than trusted, and the adapter still does not clamp.
+35. **`finish_reason: "length"` is real and was observed.** Forcing a truncation at
+    `max_tokens` produced 60,000 completion tokens with `finish_reason: "length"`, closing
+    a named unknown. It is *not* added to the probe set: reproducing it costs about $0.07 in
+    output tokens every canary run, which is a poor trade for a value the envelope already
+    permits. Recorded here as a measurement with its date and usage instead.
+36. **Non-thinking mode has a different usage shape, and it is not just "fewer tokens".**
+    With `thinking` disabled the provider omits `completion_tokens_details` **entirely**, so
+    `reasoning_tokens` is *absent* rather than zero -- exactly the distinction the usage
+    schema exists to keep (R4) -- and `prompt_tokens` falls (11 against 37 for the same
+    short prompt), because thinking mode injects hidden prompt overhead. Both are now pinned
+    by tests that assert the absence rather than tolerating it, so a *thinking-mode* capture
+    that loses its reasoning tokens cannot hide in the same branch.
+37. **`thinking.type` accepts `adaptive`, which is undocumented.** The documentation lists
+    `enabled` and `disabled`; the API's own error names three variants
+    (`adaptive`, `enabled`, `disabled`). One call with `adaptive` behaved like thinking-on
+    (reasoning content present, the same inflated prompt count), but what it *means* is
+    unspecified and one sample cannot distinguish it from `enabled`. It is therefore not
+    expressible in `Request`: an undocumented mode whose behaviour is unknown is not
+    something to expose as a switch.
+38. **Every out-of-range parameter returns 400, not 422.** Six deliberately invalid requests
+    (negative `max_tokens`, a string `temperature`, an unknown `thinking.type`, `top_p: 5`,
+    a missing `messages`) all returned 400 with detail in the message. So the documented 422
+    "Invalid Parameters" exists on paper and was not observed once. The mapping stays --
+    a documented status must not be unclassifiable -- but it is documented-and-unobserved,
+    and the observed behaviour is that the provider describes the specific defect in a 400
+    rather than escalating the status.
+
+**The price table is now measured, not just transcribed.** Two controlled calls, each
+verified against the account's own balance:
+
+| what | tokens | computed | observed delta | allowed interval |
+|---|---|---|---|---|
+| input cache-miss, peak | 493,539 | $0.1481 | $0.14 | (0.130, 0.150) |
+| output, peak | 60,000 | $0.0720 | $0.08 | (0.070, 0.090) |
+
+The method's worth is bounded by its instrument and the table says so: the balance is
+quoted to two decimals, so a delta is known to about ±0.01, and `tolerance_usd` is twice
+that. That is enough to exclude the two transpositions most likely to be made in
+transcription -- peak/off-peak (2×) and cache-hit/miss (50×) -- and *not* enough to catch a
+small typo, which is why the schema's description says so rather than leaving a reader to
+assume a stronger claim. The observation records the *usage* and not a pre-computed figure,
+so the test recomputes the cost from the table as it stands: editing a rate breaks the
+verification instead of leaving a stale `measured` badge, confirmed by perturbing the peak
+output rate to the off-peak value and watching both that assertion and the 2× relationship
+fail.
+
+**And one defect in the test suite itself, of the same shape as the `max_tokens` one.** The
+helper that reconstructs a client `Request` from a captured wire body existed in **four**
+copies across the suite, one of them dead. When `thinking`, `user_id` and `reasoning_effort`
+were added, two copies silently did not learn them -- and `thinking_disabled` then
+reconstructed to `plain`'s body *exactly*, so the corpus reported a duplicate request hash
+between two genuinely different requests rather than a missing field. A helper whose whole
+job is to mirror another function is a defect generator when it exists more than once; there
+is now one copy, and the hash-identity test is what caught it.
+
 ### Named unknowns (U1) — stated, not inferred away
 
 - **No cost reconciliation is possible from this provider.** The response has no cost
@@ -616,18 +680,20 @@ about.
   inference, and it is the one place a probe is cheap and was skipped deliberately:
   spending a call to confirm the shape of a failure the adapter already refuses to
   provoke is a poor trade against the credential it would put on the wire.
-- **Whether `finish_reason` can be `length` or `content_filter`** is unknown; only
-  `stop` and `tool_calls` were observed. The envelope's enum keeps both.
+- ~~Whether `finish_reason` can be `length` or `content_filter`.~~ **`length` is now
+  measured** (a truncation at `max_tokens` reports it, with 60,000 completion tokens); see
+  finding 35. `content_filter` remains unobserved, and now looks less likely to exist as a
+  finish reason too: the error-code page lists no content-filter status and no probe has
+  produced one.
 - **Whether `content` can be `null` at the message level** is unknown; only `""` was
   observed on a tool-call turn. The distinction is preserved either way rather than
   normalized.
 - **Whether `reasoning_content` can be absent or null on a successful turn** is
   unknown; every captured success carried a string.
-- **The `max_tokens` ceiling is documented but not measured.** The model page states a
-  context length of 1M and a maximum output of 384K, so the probes' 64–600 is far inside it
-  and the adapter still does not clamp what a caller sets. Documented rather than measured:
-  no probe has exceeded the bound, and an over-large value would come back as a
-  non-retryable `request_rejected`, so the risk of not knowing is low.
+- ~~The `max_tokens` ceiling is documented but not measured.~~ **Closed (measured):** the
+  valid range is `[1, 393216]`, reported by the provider in its own error, which confirms the
+  documented 384K. The adapter still does not clamp — an out-of-range value is a
+  non-retryable `request_rejected`, which is the correct outcome for a caller defect.
 - **The canary's evidence cannot be authenticated offline.** These tests check its
   schema, its internal consistency, and that it records whether it can be reproduced;
   none of that distinguishes a real live run from a fabricated file. That is inherent,
@@ -635,12 +701,13 @@ about.
   being *reproducible* — `harness_dirty: false` and a commit that contains the canary —
   so the check is to re-run it, not to read it. Stated because "the offline suite
   validates the evidence" is easy to over-read.
-- **The price table is transcribed, not measured.** `verification.status` says
-  `unverified`, which means the rates are *inherited from documentation* rather than
-  measured, and anything quoting a USD total must say so. Verifying them against the
-  provider's own accounting (a balance delta around calls with known usage) is the next
-  step, and #1602 records it. Until then a USD figure here is a computation over a
-  documented rate, not a measurement of a bill.
+- ~~The price table is transcribed, not measured.~~ **Closed (measured):** see the table
+  above. Two controlled calls place the input cache-miss and output rates inside the
+  intervals the account's two-decimal balance allows. The residual gap is the *precision*,
+  not the verification: a sub-20% error in a rate would not be caught by this instrument,
+  and the cache-hit rate could not be checked at all (a repeat of the same 1 MB prompt costs
+  about $0.003, well below the balance's resolution). Stated so a reader does not read
+  "measured" as "exact".
 - **The peak-window boundaries are an assumption.** The provider writes the windows as
   "01:00 - 04:00" and "06:00 - 10:00" without saying whether the endpoints are inclusive.
   This table treats them as half-open, so a boundary belongs to exactly one window. Getting
@@ -650,9 +717,17 @@ about.
   the moment it was passed, which is the caller's choice and therefore recorded in the
   call's own timestamp rather than guessed at.
 - **The 401, 402 and 422 response bodies are uncaptured.** The codes are documented and now
-  classified, but no captured body shows what the provider puts in one. The classification
-  does not depend on it — it is made from the status — so this is a gap in message text, not
-  in behaviour.
+  classified, but no captured body shows what the provider puts in one. 422 in particular
+  could not be provoked at all: six deliberately invalid requests each returned 400. The
+  classification does not depend on the body — it is made from the status — so this is a gap
+  in message text, not in behaviour.
+- **`thinking.type: adaptive` is undocumented and uncharacterised.** The API names it; the
+  documentation does not. One sample behaved like thinking-on, which cannot distinguish it
+  from `enabled`, so it is not expressible in `Request` and its semantics are unknown.
+- **The `top_p` bounds are documented and confirmed only at the edges.** The documented range
+  is `(0, 1.0]`, and thinking mode floors it at 0.95; an out-of-range value returns 400
+  naming the range. The floor itself was not measured — it would need a distribution over
+  many samples to observe.
 - **The store cannot reproduce the *n*-th distinct response to an identical
   request.** Recordings are keyed by request hash, so a recursive fan-out in which
   every worker asks the same question replays one answer for all of them. This is a

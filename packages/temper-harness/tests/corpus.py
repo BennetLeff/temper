@@ -54,10 +54,17 @@ def captured_body(name: str) -> dict[str, Any]:
 def captured_request(name: str, *, stream: bool | None = None) -> Request:
     """The captured request, carried in the client's own types.
 
-    Built this way so ``wire_body`` reproduces the fixture byte for byte -- the
-    property ``test_probe`` establishes, and the reason a replay lookup hits at all.
-    A hand-assembled body would test the store against my copy of the request rather
-    than against the one that was sent.
+    **One copy, and that is the point.** This reconstruction has to mirror
+    `build_wire_request` field for field, and it lived in four places. When `thinking`,
+    `user_id`, and `reasoning_effort` were added, two of those copies silently lost them --
+    and `thinking_disabled` then reconstructed to `plain`'s body *exactly*, so the
+    hash-identity test reported a collision between two probes that are genuinely different
+    requests. A helper whose whole job is to mirror another function is a defect generator
+    when it exists more than once, and the failure mode here was a duplicate request hash
+    rather than a loud missing-field error.
+
+    Built this way so ``wire_body`` reproduces the fixture byte for byte -- the property
+    ``test_probe`` establishes, and the reason a replay lookup hits at all.
     """
     body = captured_body(name)
     messages = [
@@ -85,12 +92,25 @@ def captured_request(name: str, *, stream: bool | None = None) -> Request:
         )
         for tool in body.get("tools", ())
     )
+    # `thinking` travels as a nested object, so it does not round-trip through a plain
+    # `Request` field without this mapping. An undocumented variant (the API accepts
+    # `adaptive`) is deliberately not expressible: it would reconstruct to None and fail
+    # the hash test loudly rather than silently collapsing to a different request.
+    thinking = body.get("thinking")
+    thinking_flag = (
+        {"enabled": True, "disabled": False}.get(thinking.get("type"))
+        if isinstance(thinking, dict)
+        else None
+    )
     return Request(
         model=body["model"],
         messages=messages,
         tools=tools,
         temperature=body.get("temperature"),
         max_tokens=body.get("max_tokens"),
+        user_id=body.get("user_id"),
+        thinking=thinking_flag,
+        reasoning_effort=body.get("reasoning_effort"),
         served_from="replay",
         stream=bool(body.get("stream", False)) if stream is None else stream,
     )
