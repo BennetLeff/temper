@@ -188,6 +188,10 @@ and device state in structured evidence.** The connectivity gate catches one
 mistake and cannot serve as the acceptance gate for a whole assessment — and
 neither can this third check: it detects specific violations, not false claims.
 
+**Enforcement is now frozen — see §10.** Do not extend these checks. A defect gets
+fixed only if it blocks the current milestone or would let an incorrect result be
+accepted in the workflow actually in use.
+
 ## 9. What is settled, and what is not
 
 **Settled:** the heat is concentrated in the switch and the bridge; the analytic
@@ -211,3 +215,56 @@ protection has not been demonstrated**.
 **Not done:** no bench or powered operation, no procurement, and no CAD or BOM
 change. No candidate is qualified; `hardware_qualification` is NOT_PERFORMED
 everywhere.
+
+## 10. Harness development is frozen (2026-09-18)
+
+**Decision.** No further work on `zapote-claims`, `zapote-fault-loop`, the
+campaign gates, or the claim schema, unless a defect meets the reopening rule
+below.
+
+**Why.** This campaign drifted from *deciding how to protect the power-entry
+board* into repeatedly hardening a general evidence system. Each review finding
+was turned into another round of harness work, with no stopping point proposed —
+including by the coordinator. The harness results are real and reusable; the
+recent rounds are not where the cooker's remaining value is.
+
+**Reopening rule — both conditions must hold:**
+
+1. the defect **blocks** the current milestone, or would let an **incorrect
+   result be accepted in the workflow actually in use**; and
+2. it cannot be handled by the existing review procedure.
+
+A defect that is merely real, reproducible, or embarrassing does **not** qualify.
+Track it and move on.
+
+**Known defects and limits, tracked and deliberately not fixed:**
+
+| Item | Status |
+| --- | --- |
+| `#1607` report-to-ledger consistency: a receipt or generated table can restate an `illustrative` entry as a bound | open, tracked |
+| `#1608` the focused Zapote checks run in no CI workflow | open, tracked |
+| the checker cannot detect a calculation *declared* as a source | documented; asserted by `the_documented_residual_gap_is_still_open` |
+| `zapote-claims` detects specific violations, not false claims | documented in its own output |
+| `zapote-fault-loop` is necessary-not-sufficient connectivity | documented in its own output |
+
+**How to read a pass.** A clean run means *no violations were detected by the
+implemented checks*. It is limited evidence. It does not establish that a claim is
+true, that a derivation is sound, or that a design is protected.
+
+## 11. Next power-entry milestone
+
+**A defensible protection choice and its concrete qualification plan** — a named
+part, a stated arrangement, the qualification steps that would establish it, and
+the evidence that would close each one. **Not** another checker, and not a
+perfectly closed analytical model.
+
+Power-entry protection stays **explicitly unqualified** until that plan is
+executed. Per the coordinator decision of 2026-09-18, that gap **does not block
+progress on other units** — it is recorded, not carried as a global stop.
+
+The manufacturer inquiry
+(`runs/2026-09-17-pfc-campaign/AR-MERSEN/manufacturer-packet/A70QS50-14F-application-review.md`)
+is the open external dependency: it asks Mersen four specific questions (time-constant
+definition, capacitor-discharge current limit, minimum breaking current,
+capacitor-discharge let-through). Its own known limits are stated in it, and its
+figures are labelled estimates. Sending it is a human action.
