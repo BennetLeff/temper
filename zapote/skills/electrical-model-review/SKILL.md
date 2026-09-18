@@ -93,7 +93,7 @@ selected"; "part selected" is not "coordination demonstrated"; nothing is
 
 | Check | Command | Catches |
 | --- | --- | --- |
-| Evidence ledger | `zapote-claims LEDGER.json` | bound reversal, the maximum→minimum inference, dropped condition or part, silent fault-state change, illustrative→qualified promotion, unnamed or failed interrupting device, skipped completion rung |
+| Evidence ledger | `zapote-claims LEDGER.json` | bound reversal, the maximum→minimum inference, a changed condition or part without a declared transformation, silent fault-state change, illustrative→qualified promotion, unnamed or failed interrupting device, broken completion history, and any evidence reference that is malformed or does not resolve to retained bytes — across claims, protection claims and promotions alike |
 | Fault loop | `zapote-fault-loop NETLIST.json --loop-nets A,B,C --assignments A.json` | current assigned to an element that cannot conduct in the declared loop |
 
 Both are Rust under `zapote-erc`; the Python entry points are thin wrappers. The

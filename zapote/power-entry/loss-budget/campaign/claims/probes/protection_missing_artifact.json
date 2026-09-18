@@ -1,0 +1,17 @@
+{
+  "protection_claims": [
+    {
+      "case_id": "short",
+      "fault_case": "failed_short",
+      "interrupting_device": "Fbus",
+      "interrupting_device_state": "healthy_on",
+      "interrupts": true,
+      "evidence": [
+        {
+          "path": "missing-evidence.pdf",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    }
+  ]
+}

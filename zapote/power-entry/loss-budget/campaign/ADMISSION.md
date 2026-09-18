@@ -68,7 +68,10 @@ python3 zapote/tools/check_fault_loop.py --netlist <netlist> \
   --loop-nets A,B,C --assignments <assignments.json>
 ```
 
-Both must exit 0, and their output must be retained under `raw/`. A failing
+Both must exit 0, and their output must be retained under `raw/`. Evidence
+references are `{path, sha256}` and are resolved against retained bytes for
+**every** collection that carries them — ordinary claims, protection claims and
+status promotions — so a non-empty list is not on its own evidence. A failing
 ledger is an **admission failure for the claim**, not a note appended to the
 report. The ledger records, per claim: whether the value is typical, minimum,
 maximum, assumed or measured; its source condition and exact part; its fault

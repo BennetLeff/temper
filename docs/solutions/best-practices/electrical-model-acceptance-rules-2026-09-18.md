@@ -155,6 +155,14 @@ Completion history is verified as a chain from `none`, so a `from` nobody
 established is rejected. An empty ledger is rejected rather than passing. The
 pass message became `no violations detected by implemented checks`.
 
+**A second review pass found the fix incomplete.** Evidence resolution had been
+wired to ordinary claims only, so two well-formed ledgers still passed: a
+protection claim citing a nonexistent file, and a complete
+`none -> hardware_verified` chain citing nonexistent evidence at every rung.
+Protection and promotion checks required only a *non-empty* list. One shared
+evidence-validation path now covers all three collections, and missing files,
+mismatched hashes and valid retained files are tested for each.
+
 **What that does not fix.** A pass still does not establish derivation soundness
 in general — only that the specific implemented checks found nothing. The six
 probes are retained verbatim as fixtures, and one test asserts that none of them

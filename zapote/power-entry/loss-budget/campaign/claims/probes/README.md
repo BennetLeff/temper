@@ -14,6 +14,12 @@ holes fails the suite.
 | `unverified_evidence.json` | a qualified prediction whose evidence reference does not resolve |
 | `unsupported_completion_history.json` | a completion promotion whose `from` status the history never established, citing a nonexistent record |
 | `empty_ledger.json` | a ledger with nothing in it, which must not read as a clean pass |
+| `protection_missing_artifact.json` | a protection claim citing a nonexistent evidence file |
+| `hardware_verified_missing_artifacts.json` | a full `none -> hardware_verified` chain with nonexistent evidence at every step |
+
+The last two were supplied in a second review pass, after the first hardening run
+`unsound_evidence` only over ordinary claims. They are the reason one shared
+evidence path now covers all three collections.
 
 They are kept verbatim as supplied, so some use the pre-hardening schema; a
 schema rejection is an acceptable outcome for those. The invariant is that **no

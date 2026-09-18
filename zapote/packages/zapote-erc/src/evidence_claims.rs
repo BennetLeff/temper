@@ -330,17 +330,45 @@ pub fn unsound_derivations(claims: &[Claim]) -> Vec<String> {
     failures
 }
 
-/// One message per evidence reference that is malformed or does not resolve.
+/// Every evidence reference in a ledger, with its owner.
+///
+/// One validation path covers claims, protection claims and promotions alike: an
+/// evidence reference is an evidence reference wherever it appears, and a
+/// collection that merely requires a *non-empty* list is not checking anything.
+pub fn ledger_evidence<'a>(
+    claims: &'a [Claim],
+    protection_claims: &'a [ProtectionClaim],
+    promotions: &'a [Promotion],
+) -> Vec<(String, &'a [EvidenceRef])> {
+    let mut owners: Vec<(String, &'a [EvidenceRef])> = Vec::new();
+    for claim in claims {
+        owners.push((format!("claim {}", claim.id), &claim.evidence));
+    }
+    for claim in protection_claims {
+        owners.push((format!("protection claim {}", claim.case_id), &claim.evidence));
+    }
+    for promotion in promotions {
+        owners.push((
+            format!("promotion {} -> {:?}", promotion.subject, promotion.to),
+            &promotion.evidence,
+        ));
+    }
+    owners
+}
+
+/// One message per evidence reference that is malformed or does not resolve,
+/// across every collection that carries evidence.
 ///
 /// `resolve` maps a path to the SHA-256 of the retained bytes, or `None` when
 /// nothing is retained at that path. Pass a filesystem-backed resolver to check
 /// real artifacts; pass `|_| None` to skip resolution and check form only.
-pub fn unsound_evidence<R>(claims: &[Claim], resolve: R) -> Vec<String>
+pub fn unsound_evidence<'a, I, R>(owners: I, resolve: R) -> Vec<String>
 where
+    I: IntoIterator<Item = (String, &'a [EvidenceRef])>,
     R: Fn(&str) -> Option<String>,
 {
     let mut failures = Vec::new();
-    let mut check = |owner: &str, refs: &[EvidenceRef]| {
+    for (owner, refs) in owners {
         for reference in refs {
             if reference.path.trim().is_empty() {
                 failures.push(format!("{owner} has an evidence reference with no path"));
@@ -364,9 +392,6 @@ where
                 Some(_) => {}
             }
         }
-    };
-    for claim in claims {
-        check(&claim.id, &claim.evidence);
     }
     failures
 }
@@ -438,6 +463,61 @@ pub fn unsound_promotions(promotions: &[Promotion]) -> Vec<String> {
 mod tests {
     use super::*;
 
+    fn evidence_failures(
+        claims: &[Claim],
+        protection: &[ProtectionClaim],
+        promotions: &[Promotion],
+        resolve: impl Fn(&str) -> Option<String>,
+    ) -> Vec<String> {
+        unsound_evidence(ledger_evidence(claims, protection, promotions), resolve)
+    }
+
+    /// A real retained artifact in a temporary directory, with its true SHA-256.
+    fn temp_artifact(name: &str, bytes: &[u8]) -> (std::path::PathBuf, String) {
+        use sha2::{Digest, Sha256};
+        let dir = std::env::temp_dir().join(format!("zapote-claims-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join(name);
+        std::fs::write(&path, bytes).unwrap();
+        let mut hasher = Sha256::new();
+        hasher.update(bytes);
+        (path, format!("{:x}", hasher.finalize()))
+    }
+
+    fn file_resolver() -> impl Fn(&str) -> Option<String> {
+        |path: &str| {
+            use sha2::{Digest, Sha256};
+            let bytes = std::fs::read(path).ok()?;
+            let mut hasher = Sha256::new();
+            hasher.update(&bytes);
+            Some(format!("{:x}", hasher.finalize()))
+        }
+    }
+
+    fn ref_to(path: &std::path::Path, sha: &str) -> EvidenceRef {
+        EvidenceRef { path: path.to_string_lossy().into_owned(), sha256: sha.to_string() }
+    }
+
+    fn protection_with(evidence: Vec<EvidenceRef>) -> ProtectionClaim {
+        ProtectionClaim {
+            case_id: "short".into(),
+            fault_case: FaultState::FailedShort,
+            interrupting_device: Some("Fbus".into()),
+            interrupting_device_state: FaultState::HealthyOn,
+            interrupts: true,
+            evidence,
+        }
+    }
+
+    fn promotion_with(evidence: Vec<EvidenceRef>) -> Promotion {
+        Promotion {
+            subject: "bus protection".into(),
+            from: CompletionStatus::None,
+            to: CompletionStatus::ProtectionIdentified,
+            evidence,
+        }
+    }
+
     fn cond(amps: f64) -> Option<SourceCondition> {
         Some(SourceCondition::Text(format!("{amps} A, 8/20 us, 25 C")))
     }
@@ -499,7 +579,7 @@ mod tests {
         let mut c = child();
         c.assertion = AssertionStrength::Qualified;
         c.evidence = vec![evidence("/does-not-exist/review.pdf")];
-        let out = unsound_evidence(&[c], |_| None);
+        let out = evidence_failures(&[c], &[], &[], |_| None);
         assert!(out.iter().any(|f| f.contains("not retained")), "{out:?}");
     }
 
@@ -508,7 +588,7 @@ mod tests {
         let mut c = child();
         c.assertion = AssertionStrength::Qualified;
         c.evidence = vec![evidence("review.pdf")];
-        let out = unsound_evidence(&[c], |_| Some("b".repeat(64)));
+        let out = evidence_failures(&[c], &[], &[], |_| Some("b".repeat(64)));
         assert!(out.iter().any(|f| f.contains("whose bytes hash")), "{out:?}");
     }
 
@@ -547,7 +627,7 @@ mod tests {
         let mut c = child();
         c.assertion = AssertionStrength::Qualified;
         c.evidence = vec![evidence("review.pdf")];
-        assert!(unsound_evidence(&[c], |_| Some("a".repeat(64))).is_empty());
+        assert!(evidence_failures(&[c], &[], &[], |_| Some("a".repeat(64))).is_empty());
     }
 
     #[test]
@@ -577,5 +657,90 @@ mod tests {
             evidence: Vec::new(),
         };
         assert!(unsound_protection_claims(&[claim]).is_empty());
+    }
+
+    // --- one shared evidence path across all three collections ---
+
+    #[test]
+    fn a_protection_claim_citing_a_nonexistent_file_is_rejected() {
+        let claim = protection_with(vec![EvidenceRef {
+            path: "missing-evidence.pdf".into(),
+            sha256: "a".repeat(64),
+        }]);
+        let out = evidence_failures(&[], &[claim], &[], |_| None);
+        assert!(
+            out.iter().any(|f| f.starts_with("protection claim short") && f.contains("not retained")),
+            "{out:?}"
+        );
+    }
+
+    #[test]
+    fn a_promotion_citing_a_nonexistent_file_is_rejected() {
+        let out = evidence_failures(
+            &[],
+            &[],
+            &[promotion_with(vec![EvidenceRef {
+                path: "missing-evidence.pdf".into(),
+                sha256: "a".repeat(64),
+            }])],
+            |_| None,
+        );
+        assert!(
+            out.iter().any(|f| f.starts_with("promotion bus protection") && f.contains("not retained")),
+            "{out:?}"
+        );
+    }
+
+    #[test]
+    fn a_valid_retained_file_passes_in_every_collection() {
+        let (path, digest) = temp_artifact("shared.pdf", b"shared retained evidence");
+        let reference = ref_to(&path, &digest);
+        let mut claim = child();
+        claim.assertion = AssertionStrength::Qualified;
+        claim.evidence = vec![reference.clone()];
+        let out = evidence_failures(
+            &[claim],
+            &[protection_with(vec![reference.clone()])],
+            &[promotion_with(vec![reference])],
+            file_resolver(),
+        );
+        assert!(out.is_empty(), "{out:?}");
+    }
+
+    #[test]
+    fn a_hash_mismatch_is_rejected_in_every_collection() {
+        let (path, digest) = temp_artifact("mismatch.pdf", b"real bytes");
+        let wrong = "0".repeat(64);
+        assert_ne!(digest, wrong);
+        let reference = ref_to(&path, &wrong);
+        let mut claim = child();
+        claim.assertion = AssertionStrength::Qualified;
+        claim.evidence = vec![reference.clone()];
+        let out = evidence_failures(
+            &[claim],
+            &[protection_with(vec![reference.clone()])],
+            &[promotion_with(vec![reference])],
+            file_resolver(),
+        );
+        assert_eq!(
+            out.iter().filter(|f| f.contains("whose bytes hash")).count(),
+            3,
+            "{out:?}"
+        );
+    }
+
+    #[test]
+    fn a_missing_file_is_rejected_in_every_collection() {
+        let reference = EvidenceRef { path: "nope.pdf".into(), sha256: "a".repeat(64) };
+        let mut claim = child();
+        claim.assertion = AssertionStrength::Qualified;
+        claim.evidence = vec![reference.clone()];
+        let out = evidence_failures(
+            &[claim],
+            &[protection_with(vec![reference.clone()])],
+            &[promotion_with(vec![reference])],
+            |_| None,
+        );
+        assert_eq!(out.iter().filter(|f| f.contains("not retained")).count(), 3, "{out:?}");
     }
 }

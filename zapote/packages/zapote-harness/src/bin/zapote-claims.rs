@@ -17,8 +17,8 @@ use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::{env, fs, path::Path, path::PathBuf, process::ExitCode};
 use zapote_erc::evidence_claims::{
-    empty_ledger_failure, unsound_derivations, unsound_evidence, unsound_promotions,
-    unsound_protection_claims, Claim, Promotion, ProtectionClaim,
+    empty_ledger_failure, ledger_evidence, unsound_derivations, unsound_evidence,
+    unsound_promotions, unsound_protection_claims, Claim, Promotion, ProtectionClaim,
 };
 
 #[derive(Deserialize)]
@@ -66,7 +66,10 @@ fn main() -> Result<ExitCode> {
         failures.push(failure);
     }
     failures.extend(unsound_derivations(&ledger.claims));
-    failures.extend(unsound_evidence(&ledger.claims, resolver(base)));
+    failures.extend(unsound_evidence(
+        ledger_evidence(&ledger.claims, &ledger.protection_claims, &ledger.promotions),
+        resolver(base),
+    ));
     failures.extend(unsound_protection_claims(&ledger.protection_claims));
     failures.extend(unsound_promotions(&ledger.promotions));
 

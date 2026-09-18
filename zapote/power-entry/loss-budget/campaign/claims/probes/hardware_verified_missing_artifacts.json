@@ -1,0 +1,48 @@
+{
+  "promotions": [
+    {
+      "subject": "bus protection",
+      "from": "none",
+      "to": "protection_identified",
+      "evidence": [
+        {
+          "path": "missing-evidence.pdf",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "subject": "bus protection",
+      "from": "protection_identified",
+      "to": "part_selected",
+      "evidence": [
+        {
+          "path": "missing-evidence.pdf",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "subject": "bus protection",
+      "from": "part_selected",
+      "to": "coordination_demonstrated",
+      "evidence": [
+        {
+          "path": "missing-evidence.pdf",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "subject": "bus protection",
+      "from": "coordination_demonstrated",
+      "to": "hardware_verified",
+      "evidence": [
+        {
+          "path": "missing-evidence.pdf",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    }
+  ]
+}

@@ -12,8 +12,9 @@
 
 use serde::Deserialize;
 use zapote_erc::evidence_claims::{
-    empty_ledger_failure, unsound_derivations, unsound_evidence, unsound_promotions,
-    unsound_protection_claims, Claim, Promotion, ProtectionClaim,
+    empty_ledger_failure, ledger_evidence, unsound_derivations, unsound_evidence, unsound_promotions,
+    unsound_protection_claims, Claim, CompletionStatus, EvidenceRef, FaultState, Promotion,
+    ProtectionClaim,
 };
 
 const WITHDRAWN: &str =
@@ -94,22 +95,29 @@ fn the_corrected_ledger_keeps_valid_counterexamples_accepted() {
 /// The six probes supplied during review, kept verbatim. Some predate the
 /// hardened schema, so a schema rejection is an acceptable outcome; the
 /// invariant is that **none yields a clean pass**.
-const PROBES: [(&str, &str); 6] = [
+const PROBES: [(&str, &str); 8] = [
     ("changed_condition", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/changed_condition.json")),
     ("changed_part", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/changed_part.json")),
     ("qualified_root_without_evidence", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/qualified_root_without_evidence.json")),
     ("unverified_evidence", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/unverified_evidence.json")),
     ("unsupported_completion_history", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/unsupported_completion_history.json")),
     ("empty_ledger", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/empty_ledger.json")),
+    ("protection_missing_artifact", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/protection_missing_artifact.json")),
+    ("hardware_verified_missing_artifacts", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/hardware_verified_missing_artifacts.json")),
 ];
 
-/// Mirrors the CLI: parse either shape, then run every check. `Ok(failures)`,
-/// or `Err` when the ledger is malformed — which is itself a rejection.
+/// Mirrors the CLI: parse either shape, then run every check through the shared
+/// evidence path. `Ok(failures)`, or `Err` when the ledger is malformed — which
+/// is itself a rejection.
 fn check_raw(raw: &str) -> Result<Vec<String>, String> {
     let ledger: Ledger = match serde_json::from_str::<Vec<Claim>>(raw) {
         Ok(claims) => Ledger { claims, protection_claims: Vec::new(), promotions: Vec::new() },
         Err(_) => serde_json::from_str(raw).map_err(|e| e.to_string())?,
     };
+    Ok(check_ledger(&ledger, |_| None))
+}
+
+fn check_ledger<R: Fn(&str) -> Option<String>>(ledger: &Ledger, resolve: R) -> Vec<String> {
     let mut out = Vec::new();
     if let Some(failure) = empty_ledger_failure(
         ledger.claims.len(),
@@ -119,10 +127,13 @@ fn check_raw(raw: &str) -> Result<Vec<String>, String> {
         out.push(failure);
     }
     out.extend(unsound_derivations(&ledger.claims));
-    out.extend(unsound_evidence(&ledger.claims, |_| None));
+    out.extend(unsound_evidence(
+        ledger_evidence(&ledger.claims, &ledger.protection_claims, &ledger.promotions),
+        resolve,
+    ));
     out.extend(unsound_protection_claims(&ledger.protection_claims));
     out.extend(unsound_promotions(&ledger.promotions));
-    Ok(out)
+    out
 }
 
 #[test]
@@ -137,4 +148,117 @@ fn no_review_probe_yields_a_clean_pass() {
         }
     }
 }
+
+fn sha256_of(path: &std::path::Path) -> String {
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    hasher.update(std::fs::read(path).expect("read artifact"));
+    format!("{:x}", hasher.finalize())
+}
+
+/// Current-schema counterparts of the historical probes.
+///
+/// The verbatim fixtures above may be rejected on schema, and their resolver
+/// sees no files at all — so a pass there could be for the wrong reason. These
+/// assert the **intended diagnostic** with a real retained artifact available,
+/// so a missing-file failure cannot masquerade as the diagnostic under test.
+#[test]
+fn current_schema_counterparts_assert_the_intended_diagnostic() {
+    use std::path::PathBuf;
+
+    let dir = std::env::temp_dir().join(format!("zapote-ledgers-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("temp dir");
+    let artifact = dir.join("evidence.pdf");
+    std::fs::write(&artifact, b"retained evidence").expect("write artifact");
+    let digest = sha256_of(&artifact);
+    let good = EvidenceRef { path: artifact.to_string_lossy().into_owned(), sha256: digest.clone() };
+    let missing = EvidenceRef { path: "definitely-not-retained.pdf".into(), sha256: digest };
+    let resolver = |p: &str| {
+        let path = PathBuf::from(p);
+        if path.exists() {
+            Some(sha256_of(&path))
+        } else {
+            None
+        }
+    };
+
+    let protection = |evidence: Vec<EvidenceRef>| ProtectionClaim {
+        case_id: "short".into(),
+        fault_case: FaultState::FailedShort,
+        interrupting_device: Some("Fbus".into()),
+        interrupting_device_state: FaultState::HealthyOn,
+        interrupts: true,
+        evidence,
+    };
+    let promotion = |to: CompletionStatus, evidence: Vec<EvidenceRef>| Promotion {
+        subject: "bus protection".into(),
+        from: CompletionStatus::None,
+        to,
+        evidence,
+    };
+    let claim = |assertion, evidence: Vec<EvidenceRef>| Claim {
+        id: "c1".into(),
+        quantity: "clamp_voltage".into(),
+        part: Some("PART".into()),
+        value_kind: zapote_erc::evidence_claims::ValueKind::Maximum,
+        bound_kind: zapote_erc::evidence_claims::BoundKind::Upper,
+        source_condition: None,
+        fault_state: FaultState::NotApplicable,
+        assertion,
+        evidence,
+        derived_from: None,
+        part_transformation: None,
+        condition_transformation: None,
+        justification: None,
+    };
+
+    // 1. A protection claim whose evidence does not resolve, while a real
+    //    artifact exists elsewhere — the diagnostic is the missing reference.
+    let out = check_ledger(
+        &Ledger { claims: vec![], protection_claims: vec![protection(vec![good.clone(), missing.clone()])], promotions: vec![] },
+        resolver,
+    );
+    assert!(out.iter().any(|f| f.starts_with("protection claim short") && f.contains("not retained")), "{out:?}");
+
+    // 2. A promotion whose evidence does not resolve, in an otherwise complete chain.
+    let out = check_ledger(
+        &Ledger { claims: vec![], protection_claims: vec![], promotions: vec![promotion(CompletionStatus::ProtectionIdentified, vec![missing.clone()])] },
+        resolver,
+    );
+    assert!(out.iter().any(|f| f.starts_with("promotion bus protection") && f.contains("not retained")), "{out:?}");
+
+    // 3. A fully valid ledger — real artifact, real hashes, complete chain — passes.
+    let out = check_ledger(
+        &Ledger {
+            claims: vec![claim(zapote_erc::evidence_claims::AssertionStrength::Qualified, vec![good.clone()])],
+            protection_claims: vec![protection(vec![good.clone()])],
+            promotions: vec![promotion(CompletionStatus::ProtectionIdentified, vec![good.clone()])],
+        },
+        |p| {
+            let path = PathBuf::from(p);
+            if path.exists() {
+                Some(sha256_of(&path))
+            } else {
+                None
+            }
+        },
+    );
+    assert!(out.is_empty(), "a fully valid ledger must pass: {out:?}");
+
+    // 4. A hash mismatch on a real file, in a promotion.
+    let wrong = EvidenceRef { path: artifact.to_string_lossy().into_owned(), sha256: "0".repeat(64) };
+    let out = check_ledger(
+        &Ledger { claims: vec![], protection_claims: vec![], promotions: vec![promotion(CompletionStatus::ProtectionIdentified, vec![wrong])] },
+        resolver,
+    );
+    assert!(out.iter().any(|f| f.starts_with("promotion bus protection") && f.contains("whose bytes hash")), "{out:?}");
+
+    // 5. A root claim asserted qualified with no evidence is still caught.
+    let out = check_ledger(
+        &Ledger { claims: vec![claim(zapote_erc::evidence_claims::AssertionStrength::Qualified, vec![])], protection_claims: vec![], promotions: vec![] },
+        resolver,
+    );
+    assert!(out.iter().any(|f| f.contains("qualified with no evidence reference")), "{out:?}");
+}
+
 
