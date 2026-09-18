@@ -1,0 +1,24 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-MOV",
+  "attempt_id": "attempt-001",
+  "kind": "source_research",
+  "absolute_deadline_utc": "2026-09-18T07:44:49Z",
+  "max_solver_invocations": 0,
+  "max_candidate_parts": 3,
+  "max_primary_sources": 10,
+  "checkout_path": "zapote",
+  "source_revision": "3691798cac69e894fec3caa6fa66fdc70fe1c4e4",
+  "model_revision_and_sha256": "not_applicable: no maintained-model invocation; record any computation script in raw/",
+  "checker_revision_and_sha256": "not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt will not be counted as a validated run",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MOV/attempt-001",
+  "exact_build_or_run_commands": "none mandated; record any computation script in raw/",
+  "source_bundle_paths_and_hashes": [
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001/coordinator-receipt.md",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/coordinator-receipt.md"
+  ],
+  "question": "Capture the MOV's clamp behaviour at the specified surge and derive the resulting device rating and controller node stresses.",
+  "focus": "1) CAPTURE primary MOV data for the intended part (V150LA10AP or the selected alternative): clamp voltage at the specified surge waveform (8/20 us) and current, from the manufacturer, with revision and page. Two earlier capture attempts returned HTTP 403 and the failures are retained; try the manufacturer and at most one manufacturer-authored mirror. 2) STATE the surge contract explicitly, marking which part is an assumed product requirement (the earlier attempt assumed IEC 61000-4-5, 1 kV L-L / 2 kV L-PE) and which is sourced. 3) From the CLAMPED TERMINAL voltages derive BOTH (i) the MOSFET's required voltage rating and (ii) the controller's node stresses against its own limits. Do not equate a controller limit with a device requirement. 4) Note explicitly that a MOV line-surge clamp does not resolve an internally powered fault; the internal discharge loop is a separate protection question (AR-PROTECT).",
+  "stop_rule": "Do not hash HTML and call it a datasheet. Do not equate a controller limit with a device rating. Do not use the MOV clamp to resolve the internal fault. Mark assumed-vs-sourced."
+}
