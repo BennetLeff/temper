@@ -49,6 +49,13 @@ than a few tenths of a volt does not help.
 - **How temperature is established:** placed on the intended assembly or a
   controlled stage; record how the case temperature is set and verified, and
   record it, not ambient.
+- **Case is not junction.** The datasheet's forward-voltage condition is junction
+  temperature; the fixture controls and reports case temperature. Record the case
+  temperature and state explicitly that the junction temperature is inferred, not
+  measured.
+- **One specimen.** This characterizes the bridge it is performed on. It does not
+  bound part-to-part spread, which remains a separate uncertainty term rather than
+  something a single measured curve can discharge.
 
 ## 4. What to record per point
 
@@ -58,8 +65,11 @@ repeat at one point per temperature to show repeatability.
 
 ## 5. Acceptance
 
-- The measured 25 °C curve must not exceed the datasheet's 1.05 V maximum at any
-  current; a result that does means the fixture or the reference point is wrong.
+- **Point check, not a curve bound.** At 12.5 A and a 25 °C junction, the measured
+  forward voltage must not exceed the datasheet's 1.05 V maximum. That maximum is
+  stated at one current and one junction temperature. It is not a curve-wide
+  ceiling: above 12.5 A a correct measurement legitimately exceeds it, so a
+  curve-wide inequality would reject valid points.
 - The point set must span the waveform's full current range, or the integration
   will clamp over a range it should measure.
 - Report the reading resolution so the uncertainty budget can carry it as a

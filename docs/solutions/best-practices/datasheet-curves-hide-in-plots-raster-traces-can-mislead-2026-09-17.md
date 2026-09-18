@@ -83,11 +83,24 @@ was therefore about five times the effect being measured. A trace like that
 cannot answer the question it was commissioned for, however carefully it is
 averaged.
 
-**A source's own stated bound is a free correctness oracle.** The maximum-V_F
-row is not merely a specification; it is an inequality any typical curve must
-satisfy. It cost nothing to apply and it failed one of three candidate traces
-immediately — the single most useful check in the whole exercise, and it came
-from the same document that had been misread as containing no curve.
+**A source's own stated bound is a free correctness oracle — but only at the
+condition it was stated for.** The maximum-`V_F` row is an inequality any
+typical curve must satisfy *at that current and that junction temperature*. It
+cost nothing to apply and it failed one of three candidate traces immediately —
+the single most useful check in the whole exercise, and it came from the same
+document that had been misread as containing no curve. Applying it as a
+curve-wide ceiling instead would reject valid points above 12.5 A, where a
+correct forward voltage legitimately exceeds 1.05 V.
+
+**A precision requirement is only meaningful against a bounded reference.** A
+measurement precision demanded of one quantity is useless if the quantity it is
+being ordered against is itself more uncertain. Here the switching term behind
+the ~1.5 W ordering carried unresolved physical uncertainty (an independent
+vendor model disagreed with the analytic model by ~1.45x), so no bridge
+measurement could settle the ordering on its own. The shape that works is to
+compare the achievable net saving of named alternatives — including their own
+added losses and complexity — and to declare a comparison unresolved when the
+budget exceeds that saving.
 
 ## Guidance
 

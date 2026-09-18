@@ -15,7 +15,7 @@ execution: code
 
 - **Objective:** Replace the input bridge's assumed 0.85/1.30 V forward-drop band with a curve-integrated loss pinned tightly enough to rank rectifier architectures.
 - **Product authority:** The project engineer. This unit owns the bridge's *electrical* loss for the GBJ2510-F part only. Architecture ranking, the bridge's thermal/mounting work, and the switching measurement are separate units, not active scope here.
-- **Bar:** Set per comparison from committed anchors, not a single invented range. The commmitted bridge-versus-switch margin is 28.30 W against 26.76 W, about 1.5 W, so the ordering statement is the tightest bar the unit must meet. The rectifier-candidate comparisons are wider and are resolved by the same budget.
+- **Bar:** The precision the unit must reach is set by the **achievable net saving of the specific rectifier alternatives being compared**, including each alternative's own added losses and complexity — not by the ordering against the switching term, which is itself physically uncertain and cannot be resolved by a bridge measurement alone. A candidate whose net saving is smaller than the budget yields an unresolved comparison, not a win.
 - **Execution profile:** Rust model change plus a specified, separately authorized bench protocol. Stage 2 is not executed by this plan.
 - **Stop conditions:** Stop and report if the digitized curve cannot be bound to the retained PDF hash, or if the uncertainty budget exceeds the comparison it must support (R10).
 - **Tail ownership:** `ce-work` implements Units 1-6. Unit 7 produces a protocol document only.
@@ -24,7 +24,7 @@ execution: code
 
 ## Product Contract
 
-**Product Contract preservation:** restructured, no scope change, two clarifications. R6 was re-pointed: its original wording named a location that does not exist (planning found four bridge-loss homes), and it now names the owner and scopes to the GBJ consumers this unit touches. R10's bar was rebased from an ungrounded 5-15 W range onto committed anchors. R1-R5, R7-R9, and R11-R15 are unchanged.
+**Product Contract preservation:** restructured, no scope change; three requirements re-worded under user direction. R6 was re-pointed: its original wording named a location that does not exist (planning found four bridge-loss homes), so it now names the owner and its GBJ scope. R9 adds the part-to-part spread a single specimen cannot bound and the case-versus-junction distinction. R10 and R14 base the comparison on the achievable net saving of each alternative rather than a precision requirement derived from the switching term, which is itself uncertain. R1-R5, R7, R8, R11, R12, R13 and R15 are unchanged.
 
 ### Summary
 
@@ -66,15 +66,15 @@ The absence was missed because `pdftotext` returns the datasheet's numeric table
 
 **Uncertainty and acceptance**
 
-- R9. The result carries an explicit uncertainty budget whose terms include digitization error as a function of current, typical-versus-maximum part spread, temperature, element count, and any sharing assumption; the budget is expressed as a number.
-- R10. The unit states whether its uncertainty is small relative to the comparison it must support, using committed anchors: the bridge-versus-switch margin (28.30 W against 26.76 W) and the rectifier-candidate differences the screen resolves. When it is not small, the unit reports that it did not meet the bar instead of asserting a ranking.
+- R9. The result carries an explicit uncertainty budget whose terms include digitization error as a function of current, part-to-part spread that a single measured specimen does not bound, temperature with case and junction temperature distinguished, element count, and any sharing assumption; the budget is expressed as a number.
+- R10. The unit states whether its uncertainty is small relative to the achievable net saving of each rectifier alternative it is compared against, where the net saving includes that alternative's own added losses and complexity. The bridge-versus-switch ordering is reported as an observation conditioned on both quantities being bounded, never as the precision requirement. When the uncertainty is not small relative to a candidate's net saving, the unit reports that comparison as unresolved instead of asserting a ranking.
 - R11. When Stage 2's authorization is unavailable, Stage 1's result stands alone, temperature is bounded analytically from the retained thermal resistance and a forward-voltage temperature coefficient, and any remaining gap is reported as an explicit residual rather than filled by a silent assumption.
 
 **Integrity**
 
 - R12. An absence claim about a source document is verified against that document's rendered content, including its images, not only against a text extraction.
 - R13. No blanket correction factor is derived from any model-versus-model or model-versus-measurement disagreement; discrepancies are reported per condition and their applicability stated.
-- R14. The unit reports the pinned bridge loss against the current 28.30 W constant-drop figure and states explicitly whether the bridge-versus-switch priority ordering changes.
+- R14. The unit reports the pinned bridge loss against the current 28.30 W constant-drop figure, states whether the bridge-versus-switch ordering changes, and states the unresolved uncertainty on the switching term that limits how far that ordering statement can be taken.
 - R15. Overlapping loss boundaries within this unit's scope — notably diode reverse recovery and junction capacitance against forward conduction — are named, and each is either counted once or explicitly excluded.
 
 ### Acceptance Examples
@@ -117,6 +117,7 @@ This plan owns the bridge's electrical loss. The surrounding breakdown is the cu
 ### Outstanding Questions
 
 - **Deferred to planning:** the exact reading-error model for a raster trace; the bench fixture, current range and temperature points; the numerical tolerance for the R7 regression; which non-provenanced artifacts U4 regenerates.
+- **Open, and the next thing to settle:** what measurement precision actually changes a design decision. The bridge measurement's required precision follows from the achievable net saving of the alternatives it is meant to separate, so that saving has to be estimated before a precision target is set. Without it, a small and uncertain ordering difference risks becoming an optimization target in its own right.
 
 ### Sources / Research
 
@@ -174,7 +175,13 @@ The four bridge-loss homes found at planning time, three of them constant-drop f
 
 ### Sequencing
 
-Unit 1 (trace) gates Unit 2 (kernel), which gates Units 3-4 (replace and correct), which gate Units 5-6 (regression and budget). Unit 7 is a document and depends only on Units 1-3.
+U1 (trace) gates the source-derived integration: U3 (replace the term) and U6
+(the curve-dependent budget). Everything else is independent of it. U2 (kernel)
+and U4 (claim correction) are complete; U5's flat-curve regression and
+source-hash rejection use the kernel's own curve and also run without U1; U7 is a
+document. Preliminary architecture screening can proceed on the current
+constant-drop figure with explicit uncertainty, so a stalled trace delays the
+final number rather than the whole investigation.
 
 ---
 
@@ -187,7 +194,7 @@ Unit 1 (trace) gates Unit 2 (kernel), which gates Units 3-4 (replace and correct
 - **Files:** `zapote/power-entry/loss-budget/sources/Diodes-GBJ2510.pdf` (read), `zapote/power-entry/loss-budget/evidence/<change>/gbj-page3.png` (new), `zapote/power-entry/loss-budget/<change>-digitization.md` (new), `zapote/packages/zapote-harness/src/pfc_loss_budget.rs` (curve const plus per-point error array)
 - **Approach:** Render page 3 at high dpi and retain the rendered page. The plots are embedded raster images, so trace the curve from the bitmap: calibrate both axes from the figure's labelled ticks, sample V_F at the currents the waveform reaches, and record the reading error per point or per decade. Bind the curve to the PDF hash. Follow the caveat style in `docs/solutions/best-practices/verify-the-binding-axis-not-the-headline-rating-2026-07-28.md`: state what was traced rather than tabulated.
 - **Patterns:** `BOOST_EOSS_CURVE_J` in `zapote/packages/zapote-harness/src/pfc_loss_budget.rs` for the const shape; `zapote/power-entry/loss-budget/EOSS-REV1-REBIND.md` for the method record format.
-- **Test Scenarios:** The retained render exists and is referenced by the method doc. The PDF hash in the method doc matches the file on disk. Traced points are finite, positive, and monotonically ordered in current. The curve does not exceed the retained datasheet's own maximum at any current, which is a hard sanity gate a raster trace can fail.
+- **Test Scenarios:** The retained render exists and is referenced by the method doc. The PDF hash in the method doc matches the file on disk. Traced points are finite, positive, and monotonically ordered in current. The traced point at 12.5 A, at a 25 °C junction, does not exceed the retained datasheet's 1.05 V maximum. That is a **point check, not a curve bound**: the maximum is stated at one current and one junction temperature, and a correct trace legitimately exceeds it above 12.5 A.
 - **Execution note (2026-09-17):** an attempt at automated raster tracing was abandoned. Three tracer variants returned 0.833 V, 0.961 V and 1.100 V at 12.5 A; the third exceeds the datasheet's 1.05 V maximum, and the 0.27 V spread is roughly five times the ~0.055 V that corresponds to the ~1.5 W bridge-versus-switch margin. The unit needs a specified trace method with the maximum-voltage gate above, not an opportunistic one.
 - **Verification:** Method doc renders; curve const compiles; point count and error array length agree.
 
@@ -228,7 +235,8 @@ Unit 1 (trace) gates Unit 2 (kernel), which gates Units 3-4 (replace and correct
 - **Files:** `zapote/packages/zapote-harness/src/pfc_candidates.rs`, `zapote/packages/zapote-harness/tests/curve_binding.rs` (new)
 - **Approach:** The flat-curve identity lives in the in-file `#[cfg(test)] mod tests`, since private items are unreachable from an integration test. Add an integration test that rejects a curve whose source hash does not match the retained PDF, using the curve type's binding field from KTD3.
 - **Patterns:** `active_rectifier_reports_a_break_even_resistance` (`pfc_candidates.rs:770-789`) for banded numeric assertions; `a_missing_term_is_never_zero_filled` (`:847-878`); `zapote/packages/zapote-harness/tests/pfc_current_binding.rs` for mutation rejection.
-- **Test Scenarios:** AE1 flat-curve identity at a stated tolerance. A curve paired with a mismatched source hash is rejected. A never-zero-filled sweep over the new keys passes.
+- **Test Scenarios:** AE1 flat-curve identity at a stated tolerance. A curve paired with a mismatched source hash is rejected. A never-zero-filled sweep over the new keys passes. The flat-curve identity and the hash-rejection test use the kernel's own curve and do not depend on the traced GBJ data, so they are not blocked by U1.
+- **Note:** U1 blocks the final source-derived integration, not all progress. The generic binding and rejection coverage here, and preliminary architecture screening with explicit uncertainty, can proceed before the curve exists.
 - **Verification:** `cargo test -p zapote-harness`.
 
 ### U6. Uncertainty budget and the bar statement
