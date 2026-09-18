@@ -125,6 +125,7 @@ This plan owns the bridge's electrical loss. The surrounding breakdown is the cu
 - `zapote/thermal/gbj-study/README.md` — thermal context: the 40 W bridge allowance and 1.0 °C/W per-element RθJC.
 - `zapote/power-entry/loss-budget/campaign/LOSS-ACCOUNTING-AUDIT.md` — the 28.30 W figure and the ~1.5 W bridge-versus-switch margin.
 - `docs/solutions/best-practices/calibration-point-must-equal-design-point-2026-07-28.md`, `docs/solutions/best-practices/verify-the-binding-axis-not-the-headline-rating-2026-07-28.md`, `docs/solutions/best-practices/measurement-convention-must-be-stated-2026-07-28.md`, `docs/solutions/best-practices/model-certificates-need-semantic-binding.md`, `docs/solutions/best-practices/solver-independence-is-not-model-independence-2026-07-09.md`.
+- `docs/solutions/best-practices/datasheet-curves-hide-in-plots-raster-traces-can-mislead-2026-09-17.md` and `docs/solutions/best-practices/plan-premises-are-claims-verify-home-and-number-2026-09-17.md` — the learnings this unit produced.
 
 ---
 
