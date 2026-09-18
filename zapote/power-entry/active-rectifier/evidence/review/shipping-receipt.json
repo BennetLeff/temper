@@ -1,0 +1,116 @@
+{
+  "status": "complete",
+  "verdict": "Not ready",
+  "scope": {
+    "base": "3b0c411785cb0df8fb931841fe97b9ea3473f6aa",
+    "branch": "codex/buck-harness-experiment-plan",
+    "head_sha": "3b0c411785cb0df8fb931841fe97b9ea3473f6aa",
+    "files_changed": 258
+  },
+  "intent": "Review the active synchronous-rectifier power-entry construction checkpoint from Atopile through native KiCad and explicit route serialization, preserving known acceptance and qualification blockers.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "adversarial"
+  ],
+  "findings": [
+    {
+      "#": 1,
+      "title": "Construction manifest leaves generation-input identity ambiguous",
+      "severity": "P1",
+      "file": "zapote/power-entry/active-rectifier/candidate/source-manifest.json",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Partition and hash every generation input (skeleton/native source, libraries, scripts, outline/poses/routes) under explicit generation_input_hashes, and verify those hashes during replay; keep current construction_inputs separate.",
+      "first_evidence": "source-manifest.json lists construction_inputs and a separate input_hashes set that omits the retained native skeleton, local libraries, and integration/route helpers.",
+      "why_it_matters": "A changed retained skeleton, library, or helper can produce a different board while the board_sha256 remains unchanged, so the replay identity is not closed.",
+      "evidence": [
+        "source-manifest.json: construction_inputs and input_hashes are separate sets; input_hashes omits native-source-unrouted.kicad_pcb and integration helpers."
+      ],
+      "reviewers": [
+        "correctness",
+        "project-standards"
+      ],
+      "independent_reviewers": []
+    },
+    {
+      "#": 2,
+      "title": "New exact PCB parts lack required component documentation records",
+      "severity": "P2",
+      "file": "AGENTS.md",
+      "line": 1079,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Add components/<PART>/<PART>_Documentation.md for each newly introduced exact component, or record a scoped exception tying the retained source packet to the component identity.",
+      "first_evidence": "AGENTS.md:1079 -- New component? Create components/<PART>/<PART>_Documentation.md.",
+      "why_it_matters": "The board has exact new controller, MOSFET, fuse, clip, and passive identities, but the repository component traceability convention has no per-part record for them.",
+      "evidence": [
+        "AGENTS.md:1079 -- New component? Create components/<PART>/<PART>_Documentation.md."
+      ],
+      "reviewers": [
+        "project-standards"
+      ],
+      "independent_reviewers": []
+    },
+    {
+      "#": 3,
+      "title": "Route recipe does not establish electrical route qualification",
+      "severity": "P2",
+      "file": "zapote/power-entry/active-rectifier/tools/apply_routes.py",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Keep the serializer transport-only but add/retain a separate Rust/native check for current capacity, voltage-domain spacing, loop inductance and thermal constraints before any acceptance claim.",
+      "first_evidence": "apply_routes.py:1 -- pure explicit polyline serializer; it does not search routes or judge engineering.",
+      "why_it_matters": "A clean KiCad DRC result and successful route serialization can still leave high-current, high-voltage, or switching-loop requirements unvalidated.",
+      "evidence": [
+        "apply_routes.py:1 -- pure explicit polyline serializer; it does not search routes or judge engineering."
+      ],
+      "reviewers": [
+        "adversarial"
+      ],
+      "independent_reviewers": []
+    }
+  ],
+  "actionable_findings": [
+    1,
+    2
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "source": "inferred",
+    "status": "partial",
+    "notes": "Construction artifacts present; full Rust unit contract and physical qualification remain incomplete."
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Rust common suite still rejects the active source entry; native ERC/DRC cleanliness does not close Rust electrical acceptance.",
+    "Source/native no-connect representation is documented as 49 compiler nets versus 45 native connected nets and remains outside existing Rust graph comparison.",
+    "F2 clip fit, fuse coordination, high-current capacity, surge/common-mode, bootstrap/startup, cooling, and hardware qualification remain open."
+  ],
+  "testing_gaps": [
+    "No powered hardware test; no full active-unit Rust validation because the passive contract is intentionally not aliased.",
+    "Cross-model review was not run because host privacy review rejected repository egress; in-process adversarial fallback ran."
+  ],
+  "coverage": {
+    "depth": "full",
+    "peer": "Cross-model pass not run: host privacy review rejected external repository-diff egress; local adversarial fallback completed.",
+    "validator": "Not run in this bounded subagent receipt; native and Rust evidence were inspected as retained artifacts."
+  },
+  "artifact_path": "/tmp/compound-engineering-501/ce-code-review/20260918-153018-4cf2b570",
+  "run_id": "20260918-153018-4cf2b570"
+}

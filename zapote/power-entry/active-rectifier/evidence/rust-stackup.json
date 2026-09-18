@@ -1,0 +1,27 @@
+{
+  "board": "zapote/power-entry/active-rectifier/candidate/section.kicad_pcb",
+  "board_sha256": "a9f0ed4a8c4fb874da2c8a295111c5a63d4af7522d118f65c5ad000411c19179",
+  "checks": [
+    {
+      "checked_rules": [
+        "DRC.BOARD.STACKUP"
+      ],
+      "coverage_gaps": [],
+      "findings": [
+        {
+          "actual": null,
+          "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+          "object": "board.setup.stackup",
+          "required": null,
+          "rule": "DRC.BOARD.STACKUP",
+          "severity": "info",
+          "status": "pass"
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "schema": "zapote.board-checks.v1",
+  "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+  "status": "pass"
+}

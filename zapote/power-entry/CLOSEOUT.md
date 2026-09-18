@@ -7,7 +7,10 @@ campaign evidence linked below. This document supersedes the priorities in
 **Decision milestone complete: choose the next design direction and define its
 qualification work. Protection coordination remains UNESTABLISHED; hardware
 qualification remains NOT PERFORMED.** This is a design handoff, not a fabrication
-release. The active bridge and F2 are proposals, not parts on the routed board.
+release. The passive baseline is unchanged. The separate [active-rectifier
+construction checkpoint](active-rectifier/README.md) now contains the active
+bridge and F2 proposal in authored source and routed CAD; its Rust integration,
+fuse mechanical fit and Q1–Q5 qualification remain incomplete.
 
 ## 1. Decisions made
 

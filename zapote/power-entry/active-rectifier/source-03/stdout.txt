@@ -1,0 +1,273 @@
+[14:47:00] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/power-entry/             
+                    active-rectifier/source-03                                  
+           INFO     Building default                                 build.py:38
+[14:47:02] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/power-entry/             
+                    active-rectifier/source-03/elec/src/power_entry             
+                    _active_unit.ato:334:4                                      
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/power-entry/             
+                    active-rectifier/source-03/elec/src/power_entry             
+                    _active_unit.ato:PowerEntryActiveUnit::boost_ou             
+                    tput. Declaring implicitly for now, but in the              
+                    future this may become an error...                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/power-entry/             
+                    active-rectifier/source-03/elec/src/power_entry             
+                    _active_unit.ato:572:4                                      
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/power-entry/             
+                    active-rectifier/source-03/elec/src/power_entry             
+                    _active_unit.ato:PowerEntryActiveUnit::ac_l.                
+                    Declaring implicitly for now, but in the future             
+                    this may become an error...                                 
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/power-entry/             
+                    active-rectifier/source-03/elec/src/power_entry             
+                    _active_unit.ato:573:4                                      
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/power-entry/             
+                    active-rectifier/source-03/elec/src/power_entry             
+                    _active_unit.ato:PowerEntryActiveUnit::ac_n.                
+                    Declaring implicitly for now, but in the future             
+                    this may become an error...                                 
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/power-entry/             
+                    active-rectifier/source-03/elec/src/power_entry             
+                    _active_unit.ato:574:4                                      
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/power-entry/             
+                    active-rectifier/source-03/elec/src/power_entry             
+                    _active_unit.ato:PowerEntryActiveUnit::pe.                  
+                    Declaring implicitly for now, but in the future             
+                    this may become an error...                                 
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /Users/bennet/Desktop/temper/.worktrees/codex/bu            
+                    ck-harness-experiment-plan/zapote/power-entry/ac            
+                    tive-rectifier/source-03/build                              
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint      ┃ LCSC            ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ TEA2209T/1      │ U1              │ Package_SO:SO… │ TEA2209T/1      │ 0.00  │
+│ 0031.2510       │ U2              │ Fuse:Fusehold… │ 0031.2510       │ 0.00  │
+│ B82726S2163N030 │ U3              │ temper:CMC_B8… │ B82726S2163N030 │ 0.00  │
+│ SL32 10015      │ U4              │ temper:SL32_1… │ SL32 10015      │ 0.00  │
+│ RT33K012        │ U5              │ temper:Relay_… │ RT33K012        │ 0.00  │
+│ B32922C3224M289 │ U6              │ Capacitor_THT… │ B32922C3224M289 │ 0.00  │
+│ V150LA10AP      │ U7              │ Varistor:RV_D… │ V150LA10AP      │ 0.00  │
+│ 760800301       │ U8              │ Inductor_THT_… │ 760800301       │ 0.00  │
+│ STW65N65DM2AG   │ U9              │ Package_TO_SO… │ STW65N65DM2AG   │ 0.00  │
+│ C3D20065D       │ U10             │ Package_TO_SO… │ C3D20065D       │ 0.00  │
+│ UCC28180D       │ U11             │ Package_SO:SO… │ UCC28180D       │ 0.00  │
+│ HCSM2818FT10L0  │ U12             │ temper:HCSM28… │ HCSM2818FT10L0  │ 0.00  │
+│ RC1206FR-0710RL │ U13,U62,U63,U6… │ Resistor_SMD:… │ RC1206FR-0710RL │ 0.00  │
+│ RC1206FR-0710KL │ U14             │ Resistor_SMD:… │ RC1206FR-0710KL │ 0.00  │
+│ RC1206FR-071KL  │ U15,U50         │ Resistor_SMD:… │ RC1206FR-071KL  │ 0.00  │
+│ RC1206FR-07100… │ U16,U48,U49,U51 │ Resistor_SMD:… │ RC1206FR-07100… │ 0.00  │
+│ RC2512FR-0791RL │ U17             │ Resistor_SMD:… │ RC2512FR-0791RL │ 0.00  │
+│ RC1206FR-07220… │ U18             │ Resistor_SMD:… │ RC1206FR-07220… │ 0.00  │
+│ RC1206FR-0716K… │ U19             │ Resistor_SMD:… │ RC1206FR-0716K… │ 0.00  │
+│ CRCW2512200KFK… │ U20,U21,U22,U2… │ Resistor_SMD:… │ CRCW2512200KFK… │ 0.00  │
+│ RC1206FR-0713KL │ U25             │ Resistor_SMD:… │ RC1206FR-0713KL │ 0.00  │
+│ RC1206FR-0740K… │ U26             │ Resistor_SMD:… │ RC1206FR-0740K… │ 0.00  │
+│ C0805C105K5RAC… │ U27             │ Capacitor_SMD… │ C0805C105K5RAC… │ 0.00  │
+│ C0805C272J5GAC… │ U28             │ Capacitor_SMD… │ C0805C272J5GAC… │ 0.00  │
+│ GRM32ER71H475K… │ U29             │ Capacitor_SMD… │ GRM32ER71H475K… │ 0.00  │
+│ C0805C224K5RAC… │ U30,U59,U60     │ Capacitor_SMD… │ C0805C224K5RAC… │ 0.00  │
+│ C0805C102J5GAC… │ U31             │ Capacitor_SMD… │ C0805C102J5GAC… │ 0.00  │
+│ C0805C681J5GAC… │ U32             │ Capacitor_SMD… │ C0805C681J5GAC… │ 0.00  │
+│ AO3400A         │ U33,U46,U47     │ Package_TO_SO… │ AO3400A         │ 0.00  │
+│ SS14            │ U34             │ Diode_SMD:D_S… │ SS14            │ 0.00  │
+│ BAT54H,115      │ U35             │ Diode_SMD:D_S… │ BAT54H,115      │ 0.00  │
+│ LGX2W561MELC50  │ U36,U37,U38,U39 │ Capacitor_THT… │ LGX2W561MELC50  │ 0.00  │
+│ B32672P6474K000 │ U40             │ temper:B32672… │ B32672P6474K000 │ 0.00  │
+│ VY1102M31Y5UQ6… │ U41             │ Capacitor_THT… │ VY1102M31Y5UQ6… │ 0.00  │
+│ 1714984         │ U42             │ temper:Phoeni… │ 1714984         │ 0.00  │
+│ 61300211121     │ U43,U44,U45     │ Connector_Pin… │ 61300211121     │ 0.00  │
+│ 1714971         │ U52             │ temper:Phoeni… │ 1714971         │ 0.00  │
+│ RC2512FR-07150… │ U53,U54         │ Resistor_SMD:… │ RC2512FR-07150… │ 0.00  │
+│ IPW60R017C7     │ U55,U56,U57,U58 │ Package_TO_SO… │ IPW60R017C7     │ 0.00  │
+│ C0805C225K5RAC… │ U61             │ Capacitor_SMD… │ C0805C225K5RAC… │ 0.00  │
+│ A70QS50-14F     │ U66             │ temper:A70QS5… │ A70QS50-14F     │ 0.00  │
+└─────────────────┴─────────────────┴────────────────┴─────────────────┴───────┘
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name               ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│           U1 │ bridge             │
+│           U2 │ holder             │
+│           U3 │ cmc                │
+│           U4 │ ntc                │
+│           U5 │ bypass             │
+│           U6 │ x2                 │
+│           U7 │ mov                │
+│           U8 │ l_boost            │
+│           U9 │ q_boost            │
+│          U10 │ d_boost            │
+│          U11 │ pfc                │
+│          U12 │ shunt              │
+│          U13 │ r_gate             │
+│          U14 │ r_gate_pd          │
+│          U15 │ r_relay_gate       │
+│          U16 │ r_relay_pd         │
+│          U17 │ r_relay_drop       │
+│          U18 │ r_isense           │
+│          U19 │ r_freq             │
+│          U20 │ r_vtop             │
+│          U21 │ r_vtop2            │
+│          U22 │ r_vtop3            │
+│          U23 │ r_vtop4            │
+│          U24 │ r_vtop5            │
+│          U25 │ r_vbottom          │
+│          U26 │ r_vcomp            │
+│          U27 │ c_vcc              │
+│          U28 │ c_icomp            │
+│          U29 │ c_vcomp            │
+│          U30 │ c_vcomp_p          │
+│          U31 │ c_isense           │
+│          U32 │ c_vfeed            │
+│          U33 │ relay_driver       │
+│          U34 │ relay_flyback      │
+│          U35 │ isense_clamp       │
+│          U36 │ c1                 │
+│          U37 │ c2                 │
+│          U38 │ c3                 │
+│          U39 │ c4                 │
+│          U40 │ c_hf               │
+│          U41 │ y1                 │
+│          U42 │ mains              │
+│          U43 │ aux                │
+│          U44 │ control            │
+│          U45 │ permit             │
+│          U46 │ q_inhibit          │
+│          U47 │ q_permit           │
+│          U48 │ r_inhibit_pulldown │
+│          U49 │ r_inhibit_pullup   │
+│          U50 │ r_permit_gate      │
+│          U51 │ r_permit_pd        │
+│          U52 │ output             │
+│          U53 │ bleeder1           │
+│          U54 │ bleeder2           │
+│          U55 │ q_hl               │
+│          U56 │ q_ll               │
+│          U57 │ q_hr               │
+│          U58 │ q_lr               │
+│          U59 │ c_boot_l           │
+│          U60 │ c_boot_r           │
+│          U61 │ c_bridge_vcc       │
+│          U62 │ r_hl               │
+│          U63 │ r_ll               │
+│          U64 │ r_hr               │
+│          U65 │ r_lr               │
+│          U66 │ bus_fuse           │
+└──────────────┴────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓             ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ aux                │ U43        │
+│ bleeder1           │ U53        │
+│ bleeder2           │ U54        │
+│ bridge             │ U1         │
+│ bus_fuse           │ U66        │
+│ bypass             │ U5         │
+│ c1                 │ U36        │
+│ c2                 │ U37        │
+│ c3                 │ U38        │
+│ c4                 │ U39        │
+│ c_boot_l           │ U59        │
+│ c_boot_r           │ U60        │
+│ c_bridge_vcc       │ U61        │
+│ c_hf               │ U40        │
+│ c_icomp            │ U28        │
+│ c_isense           │ U31        │
+│ c_vcc              │ U27        │
+│ c_vcomp            │ U29        │
+│ c_vcomp_p          │ U30        │
+│ c_vfeed            │ U32        │
+│ cmc                │ U3         │
+│ control            │ U44        │
+│ d_boost            │ U10        │
+│ holder             │ U2         │
+│ isense_clamp       │ U35        │
+│ l_boost            │ U8         │
+│ mains              │ U42        │
+│ mov                │ U7         │
+│ ntc                │ U4         │
+│ output             │ U52        │
+│ permit             │ U45        │
+│ pfc                │ U11        │
+│ q_boost            │ U9         │
+│ q_hl               │ U55        │
+│ q_hr               │ U57        │
+│ q_inhibit          │ U46        │
+│ q_ll               │ U56        │
+│ q_lr               │ U58        │
+│ q_permit           │ U47        │
+│ r_freq             │ U19        │
+│ r_gate             │ U13        │
+│ r_gate_pd          │ U14        │
+│ r_hl               │ U62        │
+│ r_hr               │ U64        │
+│ r_inhibit_pulldown │ U48        │
+│ r_inhibit_pullup   │ U49        │
+│ r_isense           │ U18        │
+│ r_ll               │ U63        │
+│ r_lr               │ U65        │
+│ r_permit_gate      │ U50        │
+│ r_permit_pd        │ U51        │
+│ r_relay_drop       │ U17        │
+│ r_relay_gate       │ U15        │
+│ r_relay_pd         │ U16        │
+│ r_vbottom          │ U25        │
+│ r_vcomp            │ U26        │
+│ r_vtop             │ U20        │
+│ r_vtop2            │ U21        │
+│ r_vtop3            │ U22        │
+│ r_vtop4            │ U23        │
+│ r_vtop5            │ U24        │
+│ relay_driver       │ U33        │
+│ relay_flyback      │ U34        │
+│ shunt              │ U12        │
+│ x2                 │ U6         │
+│ y1                 │ U41        │
+└────────────────────┴────────────┘
+           INFO     Successfully built 'copy-3dmodels,              build.py:105
+                    assertions-report, bom, netlist,                            
+                    copy-footprints, clone-footprints,                          
+                    variable-report, layout-module-map,                         
+                    designator-map' for 'default' config                        
+           INFO     Build complete!                                  build.py:59

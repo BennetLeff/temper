@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-18",
+  "sources": [
+    {
+      "path": "ETI-Green-Protect.pdf",
+      "url": "https://files.eti.si/levels/en-GB/4309_TD.pdf",
+      "sha256": "6c56e3097b33f3b4c1a7ad79e293c05da20e627d4f100a88da30d232831b2f60",
+      "used_pages": [
+        34
+      ],
+      "printed_page": 36,
+      "path_base": "sources directory"
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001/raw/reused_sources/TEA2209T.pdf",
+      "sha256": "fb611299c890a0dcaf7d610ed3fe742a3ab8debf21a75b540b8cede2e7badc99",
+      "path_base": "repository root"
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001/raw/reused_sources/Infineon-IPW60R017C7.pdf",
+      "sha256": "2c5a60a28231e7d2457e59b1329740a4711d88815611a0d9c4bdac40c7f9b617",
+      "path_base": "repository root"
+    }
+  ]
+}

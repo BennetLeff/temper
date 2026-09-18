@@ -1,0 +1,632 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-18T14:57:02",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 4 [hvs1] of U1 on F.Cu",
+                    "pos": {
+                        "x": -43.475,
+                        "y": 112.365
+                    },
+                    "uuid": "eab8b151-9af4-416b-83ad-d10ea65c3662"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 9 [comp] of U1 on F.Cu",
+                    "pos": {
+                        "x": -38.525,
+                        "y": 117.445
+                    },
+                    "uuid": "9d868470-7299-41f1-8bbc-d31bfe7f61c2"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 11 [hvs2] of U1 on F.Cu",
+                    "pos": {
+                        "x": -38.525,
+                        "y": 114.905
+                    },
+                    "uuid": "0e0570be-1b48-45c5-8ca6-936901fe8fa3"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "No corresponding pin found in schematic",
+            "items": [
+                {
+                    "description": "Pad 15 [hvs3] of U1 on F.Cu",
+                    "pos": {
+                        "x": -38.525,
+                        "y": 109.825
+                    },
+                    "uuid": "bde2ae24-7302-4174-a9bd-60822eea066c"
+                }
+            ],
+            "severity": "warning",
+            "type": "net_conflict"
+        },
+        {
+            "description": "Field 'Datasheet' differs (PCB: 'https://www.seielect.com/catalog/SEI-HCSM.pdf', Schematic: '')",
+            "items": [
+                {
+                    "description": "Footprint U12",
+                    "pos": {
+                        "x": 78.0,
+                        "y": 132.0
+                    },
+                    "uuid": "0806cfd7-cf67-35e3-5dd1-1b1accb2a887"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_field_mismatch"
+        }
+    ],
+    "source": "section.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [PFC_BUS_MINUS] on B.Cu, length 40.0000 mm",
+                    "pos": {
+                        "x": 145.0,
+                        "y": 80.0
+                    },
+                    "uuid": "11f90f2c-432b-4dce-9f4b-169883c1b6ba"
+                },
+                {
+                    "description": "Track [BOOST_DIODE_POSITIVE] on B.Cu, length 78.0000 mm",
+                    "pos": {
+                        "x": 120.0,
+                        "y": 100.0
+                    },
+                    "uuid": "26ada728-965c-4826-b5e0-e8fed5805d60"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [RECTIFIER_NEGATIVE] on F.Cu, length 2.0500 mm",
+                    "pos": {
+                        "x": -49.0,
+                        "y": 115.05
+                    },
+                    "uuid": "47a00fa1-2bab-4382-8543-c49edb944c88"
+                },
+                {
+                    "description": "Track [gatell] on F.Cu, length 8.5250 mm",
+                    "pos": {
+                        "x": -52.0,
+                        "y": 113.635
+                    },
+                    "uuid": "e8b38934-253a-4997-8c59-0e8a975692bf"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [RECTIFIER_NEGATIVE] on B.Cu, length 14.0000 mm",
+                    "pos": {
+                        "x": -13.1,
+                        "y": 149.0
+                    },
+                    "uuid": "213176d6-7548-482d-a245-b407e72d74d3"
+                },
+                {
+                    "description": "Track [RECTIFIER_R] on B.Cu, length 9.5500 mm",
+                    "pos": {
+                        "x": -9.0,
+                        "y": 135.0
+                    },
+                    "uuid": "541941c8-7bc3-4343-9c8f-75f826a38cdc"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets RECTIFIER_NEGATIVE and RECTIFIER_R)",
+            "items": [
+                {
+                    "description": "Track [RECTIFIER_NEGATIVE] on B.Cu, length 14.0000 mm",
+                    "pos": {
+                        "x": -13.1,
+                        "y": 149.0
+                    },
+                    "uuid": "213176d6-7548-482d-a245-b407e72d74d3"
+                },
+                {
+                    "description": "Track [RECTIFIER_R] on B.Cu, length 15.8114 mm",
+                    "pos": {
+                        "x": -9.0,
+                        "y": 135.0
+                    },
+                    "uuid": "8dad2f37-4d2c-4ee0-b766-74e37cab0026"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0092 mm)",
+            "items": [
+                {
+                    "description": "Track [RECTIFIER_L] on B.Cu, length 9.0555 mm",
+                    "pos": {
+                        "x": -54.0,
+                        "y": 130.0
+                    },
+                    "uuid": "2814f96d-cc88-4cbe-a513-40201ad2a464"
+                },
+                {
+                    "description": "Track [RECTIFIER_NEGATIVE] on B.Cu, length 14.0000 mm",
+                    "pos": {
+                        "x": -56.1,
+                        "y": 135.0
+                    },
+                    "uuid": "5619a442-e458-41a9-b7ad-2750236ad724"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets RECTIFIER_R and RECTIFIER_NEGATIVE)",
+            "items": [
+                {
+                    "description": "Track [RECTIFIER_R] on B.Cu, length 9.5500 mm",
+                    "pos": {
+                        "x": -9.0,
+                        "y": 135.0
+                    },
+                    "uuid": "541941c8-7bc3-4343-9c8f-75f826a38cdc"
+                },
+                {
+                    "description": "PTH pad 3 [RECTIFIER_NEGATIVE] of U58",
+                    "pos": {
+                        "x": -13.1,
+                        "y": 135.0
+                    },
+                    "uuid": "bf64091f-d229-4e32-b192-c3d05e2ec062"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [RECTIFIER_R] on B.Cu, length 9.5500 mm",
+                    "pos": {
+                        "x": -9.0,
+                        "y": 135.0
+                    },
+                    "uuid": "541941c8-7bc3-4343-9c8f-75f826a38cdc"
+                },
+                {
+                    "description": "PTH pad 3 [RECTIFIER_NEGATIVE] of U58",
+                    "pos": {
+                        "x": -13.1,
+                        "y": 135.0
+                    },
+                    "uuid": "bf64091f-d229-4e32-b192-c3d05e2ec062"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        },
+        {
+            "description": "Items shorting two nets (nets RECTIFIER_R and RECTIFIER_NEGATIVE)",
+            "items": [
+                {
+                    "description": "Track [RECTIFIER_R] on B.Cu, length 15.8114 mm",
+                    "pos": {
+                        "x": -9.0,
+                        "y": 135.0
+                    },
+                    "uuid": "8dad2f37-4d2c-4ee0-b766-74e37cab0026"
+                },
+                {
+                    "description": "PTH pad 3 [RECTIFIER_NEGATIVE] of U58",
+                    "pos": {
+                        "x": -13.1,
+                        "y": 135.0
+                    },
+                    "uuid": "bf64091f-d229-4e32-b192-c3d05e2ec062"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Tracks crossing",
+            "items": [
+                {
+                    "description": "Track [BOOST_DIODE_POSITIVE] on F.Cu, length 49.5500 mm",
+                    "pos": {
+                        "x": 120.45,
+                        "y": 118.0
+                    },
+                    "uuid": "721009e7-4323-4f13-a38c-35442f84f46c"
+                },
+                {
+                    "description": "Track [a1] on F.Cu, length 15.2000 mm",
+                    "pos": {
+                        "x": 125.9,
+                        "y": 106.8
+                    },
+                    "uuid": "f30339bd-8d7a-4fe8-8975-cd4b57d9fa43"
+                }
+            ],
+            "severity": "error",
+            "type": "tracks_crossing"
+        },
+        {
+            "description": "Items shorting two nets (nets RECTIFIER_NEGATIVE and RECTIFIER_L)",
+            "items": [
+                {
+                    "description": "PTH pad 3 [RECTIFIER_NEGATIVE] of U56",
+                    "pos": {
+                        "x": -56.1,
+                        "y": 135.0
+                    },
+                    "uuid": "05f4f29b-af8b-42d8-a562-fb86fa73b38d"
+                },
+                {
+                    "description": "Track [RECTIFIER_L] on B.Cu, length 9.0555 mm",
+                    "pos": {
+                        "x": -54.0,
+                        "y": 130.0
+                    },
+                    "uuid": "2814f96d-cc88-4cbe-a513-40201ad2a464"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Items shorting two nets (nets q_lr-g and gatelr)",
+            "items": [
+                {
+                    "description": "Track [q_lr-g] on F.Cu, length 8.4625 mm",
+                    "pos": {
+                        "x": -24.0,
+                        "y": 126.5375
+                    },
+                    "uuid": "447e80d9-f17d-4fe2-beb3-733b75ae1058"
+                },
+                {
+                    "description": "Pad 1 [gatelr] of U65 on F.Cu",
+                    "pos": {
+                        "x": -25.0,
+                        "y": 129.4625
+                    },
+                    "uuid": "95cee269-20b1-418e-b288-ad12f2c73d49"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.0600 mm)",
+            "items": [
+                {
+                    "description": "Via [RECTIFIER_NEGATIVE] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": -49.0,
+                        "y": 113.0
+                    },
+                    "uuid": "377b4477-7310-483a-8140-10a7cef38032"
+                },
+                {
+                    "description": "Track [gatell] on F.Cu, length 8.5250 mm",
+                    "pos": {
+                        "x": -52.0,
+                        "y": 113.635
+                    },
+                    "uuid": "e8b38934-253a-4997-8c59-0e8a975692bf"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [RECTIFIER_R] on B.Cu, length 9.5500 mm",
+                    "pos": {
+                        "x": -9.0,
+                        "y": 135.0
+                    },
+                    "uuid": "541941c8-7bc3-4343-9c8f-75f826a38cdc"
+                },
+                {
+                    "description": "PTH pad 3 [RECTIFIER_NEGATIVE] of U58",
+                    "pos": {
+                        "x": -13.1,
+                        "y": 135.0
+                    },
+                    "uuid": "bf64091f-d229-4e32-b192-c3d05e2ec062"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [RECTIFIER_R] on B.Cu, length 15.8114 mm",
+                    "pos": {
+                        "x": -9.0,
+                        "y": 135.0
+                    },
+                    "uuid": "8dad2f37-4d2c-4ee0-b766-74e37cab0026"
+                },
+                {
+                    "description": "PTH pad 3 [RECTIFIER_NEGATIVE] of U58",
+                    "pos": {
+                        "x": -13.1,
+                        "y": 135.0
+                    },
+                    "uuid": "bf64091f-d229-4e32-b192-c3d05e2ec062"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Rear solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [RECTIFIER_L] on B.Cu, length 9.0555 mm",
+                    "pos": {
+                        "x": -54.0,
+                        "y": 130.0
+                    },
+                    "uuid": "2814f96d-cc88-4cbe-a513-40201ad2a464"
+                },
+                {
+                    "description": "PTH pad 3 [RECTIFIER_NEGATIVE] of U56",
+                    "pos": {
+                        "x": -56.1,
+                        "y": 135.0
+                    },
+                    "uuid": "05f4f29b-af8b-42d8-a562-fb86fa73b38d"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Front solder mask aperture bridges items with different nets",
+            "items": [
+                {
+                    "description": "Track [q_lr-g] on F.Cu, length 8.4625 mm",
+                    "pos": {
+                        "x": -24.0,
+                        "y": 126.5375
+                    },
+                    "uuid": "447e80d9-f17d-4fe2-beb3-733b75ae1058"
+                },
+                {
+                    "description": "Pad 1 [gatelr] of U65 on F.Cu",
+                    "pos": {
+                        "x": -25.0,
+                        "y": 129.4625
+                    },
+                    "uuid": "95cee269-20b1-418e-b288-ad12f2c73d49"
+                }
+            ],
+            "severity": "error",
+            "type": "solder_mask_bridge"
+        },
+        {
+            "description": "Footprint 'C_0805_2012Metric' does not match copy in library 'Capacitor_SMD'",
+            "items": [
+                {
+                    "description": "Footprint U60",
+                    "pos": {
+                        "x": -33.0,
+                        "y": 105.0
+                    },
+                    "uuid": "0c032d6d-5628-4ab6-8bd0-0bf909da83a6"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'TO-247-3_Vertical' does not match copy in library 'Package_TO_SOT_THT'",
+            "items": [
+                {
+                    "description": "Footprint U58",
+                    "pos": {
+                        "x": -24.0,
+                        "y": 135.0
+                    },
+                    "uuid": "3b60a378-7d9d-445b-baf4-7267dc198646"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'TO-247-3_Vertical' does not match copy in library 'Package_TO_SOT_THT'",
+            "items": [
+                {
+                    "description": "Footprint U57",
+                    "pos": {
+                        "x": -24.0,
+                        "y": 92.0
+                    },
+                    "uuid": "477223af-9bc1-4bb0-8aa4-1b6a43246ce0"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'A70QS50_ETI_CH14_Prototype' does not match copy in library 'temper'",
+            "items": [
+                {
+                    "description": "Footprint U66",
+                    "pos": {
+                        "x": 195.0,
+                        "y": 22.0
+                    },
+                    "uuid": "6699f33f-c38b-40c6-8caa-2a0202ba99aa"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'R_1206_3216Metric' does not match copy in library 'Resistor_SMD'",
+            "items": [
+                {
+                    "description": "Footprint U64",
+                    "pos": {
+                        "x": -25.0,
+                        "y": 103.0
+                    },
+                    "uuid": "a7aab79b-af53-48e1-845c-5c0aa0e586c4"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'TO-247-3_Vertical' does not match copy in library 'Package_TO_SOT_THT'",
+            "items": [
+                {
+                    "description": "Footprint U55",
+                    "pos": {
+                        "x": -67.0,
+                        "y": 92.0
+                    },
+                    "uuid": "a9ae7012-7452-47e1-82ca-1ae0a0c16039"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'C_0805_2012Metric' does not match copy in library 'Capacitor_SMD'",
+            "items": [
+                {
+                    "description": "Footprint U59",
+                    "pos": {
+                        "x": -49.0,
+                        "y": 105.0
+                    },
+                    "uuid": "aa28634e-47c5-4d29-b3a3-af702dea444f"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'C_0805_2012Metric' does not match copy in library 'Capacitor_SMD'",
+            "items": [
+                {
+                    "description": "Footprint U61",
+                    "pos": {
+                        "x": -49.0,
+                        "y": 116.0
+                    },
+                    "uuid": "c6d7948b-15f3-47f9-ad5a-65e538ed3467"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'R_1206_3216Metric' does not match copy in library 'Resistor_SMD'",
+            "items": [
+                {
+                    "description": "Footprint U65",
+                    "pos": {
+                        "x": -25.0,
+                        "y": 128.0
+                    },
+                    "uuid": "dfebb6c7-54eb-486a-a5f4-afc98740ae67"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'TO-247-3_Vertical' does not match copy in library 'Package_TO_SOT_THT'",
+            "items": [
+                {
+                    "description": "Footprint U56",
+                    "pos": {
+                        "x": -67.0,
+                        "y": 135.0
+                    },
+                    "uuid": "f0c9fd64-8ae9-42aa-b8f6-652429bee831"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        }
+    ]
+}

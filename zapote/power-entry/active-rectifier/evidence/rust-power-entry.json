@@ -1,0 +1,237 @@
+{
+  "status": "fail",
+  "findings": [
+    {
+      "rule": "ERC.PFC.INTERFACE_PINS",
+      "severity": "error",
+      "status": "fail",
+      "message": "wrong entry or empty compiled circuit",
+      "object": "power-entry.interfaces",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.BUS_ENVELOPE",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "The reviewed setpoint is 389.615 V nominal, not a guaranteed maximum. Ripple, overshoot and faults require a source-bound bus envelope before rating downstream consumers. Legacy split-bus consumers are not accepted.",
+      "object": "power-entry.output",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.ISOLATED_BIAS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "External regulated 15 V bias must return to HOT PFC_BUS_MINUS. The auxiliary unit, load/startup budget, source architecture and isolation evidence are absent; CTRL_GND or PE cannot substitute for this return.",
+      "object": "power-entry.aux",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.EXTERNAL_SUPERVISOR",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "HOT permit and relay-bypass inputs need isolated external producers and verified startup, precharge, loss-of-bias, reset and fault sequencing. Default-off static topology is not a shutdown timing or stored-energy guarantee.",
+      "object": "power-entry.permit/control",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.INPUT_FOLDBACK",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "15 A RMS and PF 0.99 bound nominal 120 V input to 1782 W before losses. Low-line foldback and fault/inrush currents remain unmodeled; a nominal 1800 W target cannot waive the input-current limit.",
+      "object": "power-entry.mains",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.UVLO",
+      "severity": "error",
+      "status": "fail",
+      "message": "source topology does not satisfy the reviewed UCC28180 power-entry contract",
+      "object": "power-entry.source",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.STANDBY",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding failed; protection claim is not evaluated",
+      "object": "power-entry.source",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.OVP_HYSTERESIS",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding failed; protection claim is not evaluated",
+      "object": "power-entry.source",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.ISENSE_OPEN",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding failed; protection claim is not evaluated",
+      "object": "power-entry.source",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.ICOMP",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding failed; protection claim is not evaluated",
+      "object": "power-entry.source",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.SOC_PCL",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding failed; protection claim is not evaluated",
+      "object": "power-entry.source",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.BIAS_PRIORITY",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding failed; protection claim is not evaluated",
+      "object": "power-entry.source",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.EXTERNAL_DISCONNECT",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "source binding failed; external disconnect remains unmodeled",
+      "object": "power-entry.mains",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.TIMING",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "source binding failed; shutdown timing cannot be bounded",
+      "object": "power-entry.timing",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.SHUNT_PART",
+      "severity": "error",
+      "status": "fail",
+      "message": "source graph is not physically bound: wrong entry or empty compiled circuit",
+      "object": "shunt",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.POWER_ENTRY.SOURCE_GRAPH",
+      "severity": "error",
+      "status": "fail",
+      "message": "wrong entry or empty compiled circuit",
+      "object": "PowerEntryUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.BOARD.STACKUP",
+      "severity": "info",
+      "status": "pass",
+      "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+      "object": "board.setup.stackup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "expected one net",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.POWER_ENTRY.SAVED_BYTES",
+      "severity": "info",
+      "status": "pass",
+      "message": "native evidence contains the supplied board bytes",
+      "object": "board",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.POWER_ENTRY.CONNECTIVITY",
+      "severity": "error",
+      "status": "fail",
+      "message": "wrong entry or empty compiled circuit",
+      "object": "connectivity_clusters",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.CLEARANCE_PROFILE",
+      "severity": "error",
+      "status": "fail",
+      "message": "profile net set is absent from native geometry",
+      "object": "profile",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.POWER_ENTRY.NOMINAL_MODEL",
+      "severity": "info",
+      "status": "pass",
+      "message": "nominal control/bleeder model constructed: bus 389.6 V, bleed 0.253 W each, external HOT permit required",
+      "object": "PowerEntryUnit",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "ERC.PFC.INTERFACE_PINS",
+    "ERC.PFC.BUS_ENVELOPE",
+    "ERC.PFC.ISOLATED_BIAS",
+    "ERC.PFC.EXTERNAL_SUPERVISOR",
+    "ERC.PFC.INPUT_FOLDBACK",
+    "ERC.PFC.PROTECTION.UVLO",
+    "ERC.PFC.PROTECTION.STANDBY",
+    "ERC.PFC.PROTECTION.OVP_HYSTERESIS",
+    "ERC.PFC.PROTECTION.ISENSE_OPEN",
+    "ERC.PFC.PROTECTION.ICOMP",
+    "ERC.PFC.PROTECTION.SOC_PCL",
+    "ERC.PFC.PROTECTION.BIAS_PRIORITY",
+    "ERC.PFC.PROTECTION.EXTERNAL_DISCONNECT",
+    "ERC.PFC.PROTECTION.TIMING",
+    "ERC.PFC.SHUNT_PART",
+    "ERC.POWER_ENTRY.SOURCE_GRAPH",
+    "DRC.BOARD.STACKUP",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.POWER_ENTRY.SAVED_BYTES",
+    "DRC.POWER_ENTRY.CONNECTIVITY",
+    "DRC.NATIVE.CLEARANCE_PROFILE",
+    "ERC.POWER_ENTRY.NOMINAL_MODEL"
+  ],
+  "coverage_gaps": [
+    "The reviewed setpoint is 389.615 V nominal, not a guaranteed maximum. Ripple, overshoot and faults require a source-bound bus envelope before rating downstream consumers. Legacy split-bus consumers are not accepted.",
+    "External regulated 15 V bias must return to HOT PFC_BUS_MINUS. The auxiliary unit, load/startup budget, source architecture and isolation evidence are absent; CTRL_GND or PE cannot substitute for this return.",
+    "HOT permit and relay-bypass inputs need isolated external producers and verified startup, precharge, loss-of-bias, reset and fault sequencing. Default-off static topology is not a shutdown timing or stored-energy guarantee.",
+    "15 A RMS and PF 0.99 bound nominal 120 V input to 1782 W before losses. Low-line foldback and fault/inrush currents remain unmodeled; a nominal 1800 W target cannot waive the input-current limit.",
+    "source topology invalid",
+    "External isolated bias supply, HOT permit, precharge and bypass sequencing are required; this harness does not implement them.",
+    "15 A RMS foldback/PF behavior is a declared input constraint, not a measured result.",
+    "Bus bleeder decay, relay timing, semiconductor/capacitor thermal limits, EMC, insulation and mains qualification are NOT RUN."
+  ]
+}

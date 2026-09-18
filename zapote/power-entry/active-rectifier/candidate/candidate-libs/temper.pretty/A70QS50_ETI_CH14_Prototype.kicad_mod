@@ -1,0 +1,97 @@
+(footprint "A70QS50_ETI_CH14_Prototype"
+	(version 20260206)
+	(generator "kicad-footprint-generator")
+	(layer "F.Cu")
+	(descr "PROVISIONAL 14x51 Mersen fuse with two ETI 006710340 clips. Confirm slot/clip/fuse fit before fabrication. ETI drawing p36 G=10.7 F=0.75 D=5; selected clip centres 38mm.")
+	(property "Reference" "F?"
+		(at 0 -10 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "A70QS50-14F"
+		(at 0 10 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_rect
+		(start -27 -7.5)
+		(end 27 7.5)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+	)
+	(fp_rect
+		(start -28 -8.5)
+		(end 28 8.5)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+	)
+	(fp_rect
+		(start -27 -7)
+		(end -11 7)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+	)
+	(fp_rect
+		(start 11 -7)
+		(end 27 7)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+	)
+	(pad "1" thru_hole oval
+		(at -24.35 0)
+		(size 3 7)
+		(drill oval 1.2 5.4)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "1" thru_hole oval
+		(at -13.65 0)
+		(size 3 7)
+		(drill oval 1.2 5.4)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "2" thru_hole oval
+		(at 13.65 0)
+		(size 3 7)
+		(drill oval 1.2 5.4)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(pad "2" thru_hole oval
+		(at 24.35 0)
+		(size 3 7)
+		(drill oval 1.2 5.4)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+	)
+	(embedded_fonts no)
+)

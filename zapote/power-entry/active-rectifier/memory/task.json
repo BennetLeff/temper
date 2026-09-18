@@ -1,0 +1,13 @@
+{
+  "attempt_id": "active-rectifier-construction-001",
+  "capabilities": [
+    "datasheet-land-pattern-review",
+    "native-copper-verification",
+    "simulation-evidence-scoping",
+    "assumption-ledger-reading"
+  ],
+  "source_identities": {},
+  "required_ids": [
+    "pfc-routing-mem-001"
+  ]
+}

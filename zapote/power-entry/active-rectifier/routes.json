@@ -1,0 +1,755 @@
+{
+  "paths": [
+    {
+      "net": "RECTIFIER_POSITIVE",
+      "layer": "F.Cu",
+      "width_mm": 3,
+      "points": [
+        "U55.2",
+        [
+          -61.55,
+          78
+        ],
+        [
+          -18.55,
+          78
+        ],
+        "U57.2"
+      ]
+    },
+    {
+      "net": "RECTIFIER_POSITIVE",
+      "layer": "F.Cu",
+      "width_mm": 6,
+      "points": [
+        [
+          -18.55,
+          78
+        ],
+        [
+          -8,
+          78
+        ],
+        [
+          2,
+          88
+        ],
+        [
+          2,
+          100
+        ],
+        [
+          59.5,
+          100.45
+        ]
+      ]
+    },
+    {
+      "net": "RECTIFIER_POSITIVE",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U1.16",
+        [
+          -37,
+          108.555
+        ]
+      ]
+    },
+    {
+      "net": "RECTIFIER_POSITIVE",
+      "layer": "B.Cu",
+      "width_mm": 0.5,
+      "points": [
+        [
+          -37,
+          108.555
+        ],
+        [
+          -37,
+          87
+        ],
+        [
+          -61.55,
+          87
+        ],
+        "U55.2"
+      ]
+    },
+    {
+      "net": "RECTIFIER_L",
+      "layer": "B.Cu",
+      "width_mm": 3,
+      "points": [
+        "U55.3",
+        [
+          -54,
+          98
+        ],
+        [
+          -54,
+          126
+        ],
+        [
+          -61.55,
+          126
+        ],
+        "U56.2"
+      ]
+    },
+    {
+      "net": "RECTIFIER_L",
+      "layer": "F.Cu",
+      "width_mm": 3,
+      "points": [
+        "U56.2",
+        [
+          -61.55,
+          145
+        ],
+        [
+          -5,
+          145
+        ],
+        [
+          5,
+          130
+        ],
+        [
+          35.08,
+          130
+        ]
+      ]
+    },
+    {
+      "net": "RECTIFIER_L",
+      "layer": "F.Cu",
+      "width_mm": 0.5,
+      "points": [
+        "U55.3",
+        [
+          -56.1,
+          100
+        ],
+        [
+          -49,
+          100
+        ],
+        "U59.2"
+      ]
+    },
+    {
+      "net": "RECTIFIER_L",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U59.2",
+        [
+          -46,
+          104.05
+        ],
+        [
+          -46,
+          108.555
+        ],
+        "U1.1"
+      ]
+    },
+    {
+      "net": "vcchl",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U59.1",
+        [
+          -47,
+          105.95
+        ],
+        [
+          -47,
+          109.825
+        ],
+        "U1.2"
+      ]
+    },
+    {
+      "net": "RECTIFIER_R",
+      "layer": "B.Cu",
+      "width_mm": 3,
+      "points": [
+        "U57.3",
+        [
+          -9,
+          98
+        ],
+        [
+          -9,
+          125
+        ],
+        [
+          -18.55,
+          125
+        ],
+        "U58.2"
+      ]
+    },
+    {
+      "net": "RECTIFIER_R",
+      "layer": "B.Cu",
+      "width_mm": 6,
+      "points": [
+        [
+          -9,
+          125
+        ],
+        [
+          0,
+          115
+        ],
+        [
+          14,
+          115
+        ],
+        [
+          20,
+          128
+        ],
+        [
+          20,
+          136
+        ]
+      ]
+    },
+    {
+      "net": "RECTIFIER_R",
+      "layer": "F.Cu",
+      "width_mm": 0.5,
+      "points": [
+        "U57.3",
+        [
+          -13.1,
+          99
+        ],
+        [
+          -30,
+          99
+        ],
+        "U60.2"
+      ]
+    },
+    {
+      "net": "RECTIFIER_R",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U60.2",
+        [
+          -31,
+          104.05
+        ],
+        [
+          -31,
+          111.6
+        ],
+        [
+          -33,
+          113.635
+        ],
+        "U1.12"
+      ]
+    },
+    {
+      "net": "vcchr",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U60.1",
+        [
+          -35,
+          105.95
+        ],
+        [
+          -35,
+          112.365
+        ],
+        "U1.13"
+      ]
+    },
+    {
+      "net": "RECTIFIER_NEGATIVE",
+      "layer": "B.Cu",
+      "width_mm": 3,
+      "points": [
+        "U56.3",
+        [
+          -56.1,
+          149
+        ],
+        [
+          -13.1,
+          149
+        ],
+        "U58.3"
+      ]
+    },
+    {
+      "net": "RECTIFIER_NEGATIVE",
+      "layer": "F.Cu",
+      "width_mm": 3,
+      "points": [
+        "U58.3",
+        [
+          -13.1,
+          118
+        ],
+        [
+          5,
+          118
+        ],
+        [
+          20,
+          123.5
+        ],
+        [
+          30,
+          123.5
+        ]
+      ]
+    },
+    {
+      "net": "RECTIFIER_NEGATIVE",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U1.7",
+        "U1.8",
+        [
+          -44.5,
+          118.5
+        ]
+      ]
+    },
+    {
+      "net": "RECTIFIER_NEGATIVE",
+      "layer": "F.Cu",
+      "width_mm": 0.5,
+      "points": [
+        "U61.2",
+        [
+          -48,
+          115.05
+        ]
+      ]
+    },
+    {
+      "net": "RECTIFIER_NEGATIVE",
+      "layer": "B.Cu",
+      "width_mm": 0.7,
+      "points": [
+        [
+          -48,
+          115.05
+        ],
+        [
+          -44.5,
+          115.05
+        ],
+        [
+          -44.5,
+          118.5
+        ],
+        [
+          -44.5,
+          149
+        ]
+      ]
+    },
+    {
+      "net": "vcc",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U1.6",
+        [
+          -46,
+          114.905
+        ],
+        [
+          -46,
+          120
+        ],
+        [
+          -49,
+          120
+        ],
+        "U61.1"
+      ]
+    },
+    {
+      "net": "gatehl",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U62.1",
+        [
+          -54,
+          109
+        ],
+        [
+          -46,
+          111.095
+        ],
+        "U1.3"
+      ]
+    },
+    {
+      "net": "q_hl-g",
+      "layer": "F.Cu",
+      "width_mm": 0.5,
+      "points": [
+        "U55.1",
+        [
+          -70,
+          96
+        ],
+        [
+          -70,
+          101.5375
+        ],
+        "U62.2"
+      ]
+    },
+    {
+      "net": "gatell",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U63.1",
+        [
+          -52,
+          129.4625
+        ],
+        [
+          -52,
+          113.635
+        ],
+        "U1.5"
+      ]
+    },
+    {
+      "net": "q_ll-g",
+      "layer": "F.Cu",
+      "width_mm": 0.5,
+      "points": [
+        "U63.2",
+        [
+          -67,
+          126.5375
+        ],
+        "U56.1"
+      ]
+    },
+    {
+      "net": "gatehr",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U64.1",
+        [
+          -28,
+          107
+        ]
+      ]
+    },
+    {
+      "net": "gatehr",
+      "layer": "B.Cu",
+      "width_mm": 0.5,
+      "points": [
+        [
+          -28,
+          107
+        ],
+        [
+          -36.5,
+          111.095
+        ]
+      ]
+    },
+    {
+      "net": "gatehr",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        [
+          -36.5,
+          111.095
+        ],
+        "U1.14"
+      ]
+    },
+    {
+      "net": "q_hr-g",
+      "layer": "B.Cu",
+      "width_mm": 0.5,
+      "points": [
+        "U57.1",
+        [
+          -25,
+          100.5
+        ]
+      ]
+    },
+    {
+      "net": "q_hr-g",
+      "layer": "F.Cu",
+      "width_mm": 0.5,
+      "points": [
+        [
+          -25,
+          100.5
+        ],
+        "U64.2"
+      ]
+    },
+    {
+      "net": "gatelr",
+      "layer": "F.Cu",
+      "width_mm": 0.35,
+      "points": [
+        "U65.1",
+        [
+          -29,
+          129.4625
+        ],
+        [
+          -29,
+          116.175
+        ],
+        "U1.10"
+      ]
+    },
+    {
+      "net": "q_lr-g",
+      "layer": "F.Cu",
+      "width_mm": 0.5,
+      "points": [
+        "U65.2",
+        [
+          -25,
+          124.5
+        ]
+      ]
+    },
+    {
+      "net": "BOOST_DIODE_POSITIVE",
+      "layer": "B.Cu",
+      "width_mm": 3,
+      "points": [
+        [
+          120,
+          100
+        ],
+        [
+          115,
+          95
+        ],
+        [
+          115,
+          88
+        ]
+      ]
+    },
+    {
+      "net": "PFC_BUS_PLUS_390V",
+      "layer": "F.Cu",
+      "width_mm": 3,
+      "points": [
+        [
+          208.65,
+          22
+        ],
+        [
+          219.35,
+          22
+        ],
+        [
+          219.35,
+          32
+        ],
+        [
+          190,
+          32
+        ],
+        [
+          177,
+          40
+        ]
+      ]
+    },
+    {
+      "net": "BOOST_DIODE_POSITIVE",
+      "layer": "B.Cu",
+      "width_mm": 0.6,
+      "points": [
+        "U10.2",
+        [
+          120.45,
+          125.5
+        ],
+        [
+          167.9625,
+          125.5
+        ]
+      ]
+    },
+    {
+      "net": "q_lr-g",
+      "layer": "B.Cu",
+      "width_mm": 0.5,
+      "points": [
+        [
+          -25,
+          124.5
+        ],
+        "U58.1"
+      ]
+    },
+    {
+      "net": "BOOST_DIODE_POSITIVE",
+      "layer": "F.Cu",
+      "width_mm": 3,
+      "points": [
+        [
+          115,
+          92
+        ],
+        [
+          115,
+          22
+        ],
+        [
+          170.65,
+          22
+        ],
+        [
+          181.35,
+          22
+        ]
+      ]
+    },
+    {
+      "net": "BOOST_DIODE_POSITIVE",
+      "layer": "F.Cu",
+      "width_mm": 0.6,
+      "points": [
+        [
+          167.9625,
+          125.5
+        ],
+        "U20.1"
+      ]
+    }
+  ],
+  "vias": [
+    {
+      "net": "RECTIFIER_POSITIVE",
+      "at": [
+        -37,
+        108.555
+      ],
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4
+    },
+    {
+      "net": "RECTIFIER_NEGATIVE",
+      "at": [
+        -44.5,
+        118.5
+      ],
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4
+    },
+    {
+      "net": "RECTIFIER_NEGATIVE",
+      "at": [
+        -48,
+        115.05
+      ],
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4
+    },
+    {
+      "net": "gatehr",
+      "at": [
+        -28,
+        107
+      ],
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4
+    },
+    {
+      "net": "gatehr",
+      "at": [
+        -36.5,
+        111.095
+      ],
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4
+    },
+    {
+      "net": "q_hr-g",
+      "at": [
+        -25,
+        100.5
+      ],
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4
+    },
+    {
+      "net": "q_lr-g",
+      "at": [
+        -25,
+        124.5
+      ],
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4
+    },
+    {
+      "net": "BOOST_DIODE_POSITIVE",
+      "at": [
+        167.9625,
+        125.5
+      ],
+      "diameter_mm": 0.8,
+      "drill_mm": 0.4
+    },
+    {
+      "net": "BOOST_DIODE_POSITIVE",
+      "at": [
+        115,
+        88
+      ],
+      "diameter_mm": 1.2,
+      "drill_mm": 0.6
+    },
+    {
+      "net": "BOOST_DIODE_POSITIVE",
+      "at": [
+        115,
+        90
+      ],
+      "diameter_mm": 1.2,
+      "drill_mm": 0.6
+    },
+    {
+      "net": "BOOST_DIODE_POSITIVE",
+      "at": [
+        115,
+        92
+      ],
+      "diameter_mm": 1.2,
+      "drill_mm": 0.6
+    }
+  ]
+}

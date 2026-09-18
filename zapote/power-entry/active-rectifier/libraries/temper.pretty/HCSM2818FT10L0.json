@@ -1,0 +1,13 @@
+{
+  "mpn": "HCSM2818FT10L0",
+  "manufacturer": "Stackpole Electronics",
+  "datasheet": "https://www.seielect.com/catalog/SEI-HCSM.pdf",
+  "drawing_review": "Retained 2019 manufacturer drawing page 3; dimensions agree with 2024 published table. a is each pad X width, b pad Y height, d inner gap; c=0.50 mm shows external sense-track width, not a third/fourth pad.",
+  "body_mm": [7.15, 4.95, 1.65],
+  "body_tolerance_mm": [0.25, 0.25, 0.25],
+  "pad_size_mm": [3.50, 5.30],
+  "pad_centres_mm": [[-2.05, 0.0], [2.05, 0.0]],
+  "gap_mm": 0.60,
+  "sense_track_width_mm": 0.50,
+  "courtyard_half_mm": [4.05, 2.90]
+}
