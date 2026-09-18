@@ -1,0 +1,50 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "M065",
+  "attempt_id": "attempt-001",
+  "kind": "source_research",
+  "absolute_deadline_utc": "2026-09-17T23:10:00Z",
+  "max_solver_invocations": 0,
+  "max_candidate_parts": 3,
+  "max_primary_sources": 8,
+  "checkout_path": "zapote",
+  "source_revision": "b1a9ad74de50f283762a488a28c19f764830cdee",
+  "model_revision_and_sha256": "not_applicable: source-only task; envelope supplied by the coordinator",
+  "checker_revision_and_sha256": "not_applicable: G0 checker not required for a source-only task",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/M065/attempt-001",
+  "exact_build_or_run_commands": "none; source capture and extraction only",
+  "source_bundle_paths_and_hashes": [
+    "zapote/power-entry/loss-budget/sources/760800301.pdf (retained baseline choke; hash it yourself and record it)"
+  ],
+  "question": "Can a physical choke supply approximately 357.528 uH effective at operating bias, carrying the supplied envelope, without erasing the 19.38 W switching saving?",
+  "envelope": {
+    "note": "Same envelope at every frequency because L*f is held constant; only inductance changes.",
+    "line_rms_v": 120.0,
+    "bus_v": 400.0,
+    "requested_power_w": 1796.31003212911,
+    "input_rms_ceiling_a": 15.0,
+    "inductor_rms_a": 15.0,
+    "inductor_peak_a": 23.2719,
+    "ripple_peak_to_peak_max_a": 4.2043,
+    "source": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/F-AXIS/attempt-001/raw/report.json"
+  },
+  "frequency_trade": {
+    "baseline_129_khz": {
+      "effective_uH": 180.0,
+      "switch_gate_w": 45.5023
+    },
+    "candidate_90_khz": {
+      "effective_uH": 258.215,
+      "switch_gate_w": 33.6821,
+      "switching_saving_w": 11.8202
+    },
+    "candidate_65_khz": {
+      "effective_uH": 357.528,
+      "switch_gate_w": 26.1258,
+      "switching_saving_w": 19.3765
+    },
+    "decision_rule": "A candidate choke wins only if its increase in DC+AC+core loss over the retained Wurth 760800301 at this envelope is less than the switching saving."
+  },
+  "focus": "Up to three exact catalog or custom-vendor candidates near 357.5 uH effective at the supplied bias and 65 kHz. Capture L versus DC bias/temperature, tolerance, the saturation definition and the current at which it is specified, thermal current rating, DCR, core and winding loss applicability at this ripple and frequency, dimensions, mass and a dated price/availability observation. Evaluate the supplied envelope keeping RMS heating and peak saturation SEPARATE: the choke must not saturate at 23.27 A peak, and must not overheat at 15.0 A rms with 4.20 A pk-pk ripple. ALSO capture the retained baseline Wurth 760800301's own DC+AC+core loss at the same envelope, so the coordinator can compute the magnetic loss DELTA. If no complete catalog option exists, provide a vendor/custom winding requirement with the unknowns stated; do not design a core from invented material data."
+}

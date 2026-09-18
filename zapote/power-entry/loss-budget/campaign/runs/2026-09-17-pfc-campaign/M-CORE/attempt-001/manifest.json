@@ -1,0 +1,155 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "task_id": "M-CORE",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "hash_algorithm": "sha256",
+  "note": "manifest.json is intentionally absent from files[] (a file cannot contain its own digest). dispatch.json is the delivered input, retained unmodified.",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "sha256": "8073223bba95dc3e9a7e74955d8ef05ad960dd5c9b79b52f53aa6eb755b0d71d",
+      "bytes": 6965
+    },
+    {
+      "path": "dispatch.json",
+      "sha256": "1e07b7a18167a75eaf81b0b5525f284b98da588a56b54cba574238cc5e3a626a",
+      "bytes": 2867
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "467c6327f3ebf9611927fdd0700888def0e005462f886e25df1451502bc24c32",
+      "bytes": 9838
+    },
+    {
+      "path": "raw/760800301-all.txt",
+      "sha256": "5d7048afe15c37b2c9f472bb020274bdf38175186968160d62729f167e5ca8c6",
+      "bytes": 85000
+    },
+    {
+      "path": "raw/760800301.pdf",
+      "sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+      "bytes": 661997
+    },
+    {
+      "path": "raw/760801202-all.txt",
+      "sha256": "54fdbcfad6e53329272b6898142cb7fb7d5675465f0ea350e1703f4197515300",
+      "bytes": 85256
+    },
+    {
+      "path": "raw/760801202.pdf",
+      "sha256": "e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab",
+      "bytes": 686931
+    },
+    {
+      "path": "raw/760801403-all.txt",
+      "sha256": "22ef7640d9ffec8e23f6650b8ffc6897e1ebda1644d695c621e488eda354a7ee",
+      "bytes": 85250
+    },
+    {
+      "path": "raw/760801403.pdf",
+      "sha256": "fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a",
+      "bytes": 688424
+    },
+    {
+      "path": "raw/LTSpice_WE-TORPFC_%28rev25a%29.zip",
+      "sha256": "bb43843ce5c69b99ae0f6686ad8d9467859f4075ea6a537101bd6ced903280b6",
+      "bytes": 2091
+    },
+    {
+      "path": "raw/PSpice_WE-TORPFC_%28rev25a%29.zip",
+      "sha256": "92d79491ede0758b5b6307eb0a4cf442980e760f5894360f5086b3009544fda0",
+      "bytes": 5768
+    },
+    {
+      "path": "raw/capture_log.txt",
+      "sha256": "b76270e98ae0c56fafe84f6f4cb360e02fe380a5952fc01c6ac07d2d8889da47",
+      "bytes": 4026
+    },
+    {
+      "path": "raw/compute_bound.py",
+      "sha256": "a77a1328b625d49484b132335467616e702201f0abd3919da1dffee372871805",
+      "bytes": 8065
+    },
+    {
+      "path": "raw/computed_bound.json",
+      "sha256": "8fb5f416025faedb71e9dab659ff5b80c8bb3445d716101f6eb0bded3ef778ef",
+      "bytes": 4287
+    },
+    {
+      "path": "raw/mag-inc-high-flux-cores.html",
+      "sha256": "22296149679ef8e47d61ea0b1f084486509aaf64a40d8fe0dff876654f1a6589",
+      "bytes": 248164
+    },
+    {
+      "path": "raw/mag-inc-high-flux-material-curves.html",
+      "sha256": "e48e6b65f0c401e08e7141ea8f7f18bec86a3bb079ffb910057a3bcf5e6b4989",
+      "bytes": 110351
+    },
+    {
+      "path": "raw/material/magnetics-HF-toroid-14mu-core-loss-density.JPG",
+      "sha256": "e9d4019b46f891df732e3c09429b70e555a7aff9f6fbd020f1f5c81082f1087e",
+      "bytes": 72844
+    },
+    {
+      "path": "raw/material/magnetics-HF-toroid-26mu-core-loss-density.JPG",
+      "sha256": "6f62f17e582ee19e613de348411d670bc4f1a7476a047b17220ae6d4190e9573",
+      "bytes": 73628
+    },
+    {
+      "path": "raw/material/magnetics-HF-toroid-40mu-core-loss-density.JPG",
+      "sha256": "1a885713eb3c176ce6efbe62611e6e1ee5f5116099149566c61d671c81f23614",
+      "bytes": 72953
+    },
+    {
+      "path": "raw/material/magnetics-HF-toroid-60mu-core-loss-density.JPG",
+      "sha256": "f0f8d59a37d021411dc2fa39b95420de03477c811277bbbada4cecd2f9d0d1df",
+      "bytes": 75011
+    },
+    {
+      "path": "raw/p1-760800301-1.png",
+      "sha256": "9853e8e5281c755cebdad612fa6cb248ebce094370b35182dbf5348f6b2c3a94",
+      "bytes": 603619
+    },
+    {
+      "path": "raw/p1-760801202-1.png",
+      "sha256": "08deafd37d77ca5b59ecda9c6e31ab2bbdebed6f925357104ffcab473e2e31bf",
+      "bytes": 663407
+    },
+    {
+      "path": "raw/p1-760801403-1.png",
+      "sha256": "c25b552a47ee663e7c102cd4e4014a184637cad26e79f4fdcf5cbf532684d168",
+      "bytes": 639458
+    },
+    {
+      "path": "raw/spice/Disclaimer_READ_ME.txt",
+      "sha256": "a06eec7c421b098883721ce285ad569b1e3dbc0cfeeb9d78e1d58595ee2a086c",
+      "bytes": 756
+    },
+    {
+      "path": "raw/spice/WE-TORPFC.asy",
+      "sha256": "2c29b699a4a3f44bc7434b0a8366ebf4f82c2527d0ec2b3c4693ac7a61179d94",
+      "bytes": 722
+    },
+    {
+      "path": "raw/spice/WE-TORPFC.lib",
+      "sha256": "81776ae67b004da39ff5f6c5d1568d1502aa1a92772e44837bd8c033c6a7dd3e",
+      "bytes": 3729
+    },
+    {
+      "path": "raw/we-torpfc-totem-pole-e-mobility.pdf",
+      "sha256": "2b0aaf9f3599fe71a48bd0e6444b0f778988341e2ead53c1ee737901bbd74998",
+      "bytes": 2498812
+    },
+    {
+      "path": "raw/we-torpfc-totem-pole-e-mobility.txt",
+      "sha256": "ff7eda7fbaf780d7e869eb0b3af39dcf7ebe9850df6abb28443473bc3feca219",
+      "bytes": 14872
+    },
+    {
+      "path": "result.json",
+      "sha256": "a0062050ff9fb34e74c25d15b827ba16e4276052fff1ccbcbe83d4844b677149",
+      "bytes": 13693
+    }
+  ]
+}

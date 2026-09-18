@@ -1,0 +1,311 @@
+{
+  "schema": "zapote.pfc.source-inputs.v1",
+  "task_id": "M090",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "kind": "source_research",
+  "worker": "subagent M090",
+  "source_revision": "b1a9ad74de50f283762a488a28c19f764830cdee",
+  "retrieved_at_utc": "2026-09-17T23:10:00Z",
+  "question": "Does a physical choke of ~258.215 uH effective at operating bias exist that can carry the envelope (15.0 A rms, 23.2719 A peak, 4.2043 A pk-pk ripple, 90 kHz) without erasing the 11.8202 W switching saving?",
+  "envelope": {
+    "line_rms_v": 120.0,
+    "bus_v": 400.0,
+    "requested_power_w": 1796.31003212911,
+    "input_rms_ceiling_a": 15.0,
+    "inductor_rms_a": 15.0,
+    "inductor_peak_a": 23.2719,
+    "ripple_peak_to_peak_max_a": 4.2043,
+    "switching_hz": 90000.0,
+    "target_effective_uH": 258.215,
+    "envelope_source": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/F-AXIS/attempt-001/raw/report.json"
+  },
+  "frequency_trade": {
+    "baseline_129_khz": {"effective_uH": 180.0, "switch_gate_w": 45.5023},
+    "candidate_90_khz": {"effective_uH": 258.215, "switch_gate_w": 33.6821, "switching_saving_w": 11.8202},
+    "candidate_65_khz": {"effective_uH": 357.528, "switch_gate_w": 26.1258, "switching_saving_w": 19.3765},
+    "decision_rule": "candidate DC+AC+core delta over baseline must be < switching_saving_w"
+  },
+  "method_notes": {
+    "L_vs_bias": "Digitized from the published 'Typical Inductance vs. Current Characteristics' curve (page 2) of each datasheet at 300 dpi; curve is TYPICAL, measured at 100 kHz / 100 mV, 20 degC unless stated; not a guaranteed limit.",
+    "effective_L_reading": "The model's 258.215 uH is a constant-L equivalent (180 uH x 129107.39/90000). The published typical curve is read at the 23.2719 A peak. For reference, the retained baseline's own published curve falls to ~159.7 uH at 23.2719 A, i.e. the constant-L model is ~13% optimistic about the baseline at peak. Equivalent bias-matched target if the candidate derates like the baseline: ~229 uH at 23.2719 A.",
+    "loss_boundaries": "DC winding loss uses I_rms^2 * R_DC. AC winding loss and core loss are separate, disjoint terms and are NOT published for any part in this family; they are reported null, never inferred from DCR.",
+    "thermal_estimate": "dt_*_k_est is derived from the datasheet IR/IR2 rating (40 K at the rated current) by the square law, not from a published temperature curve; it is an estimate used only to compare against the envelope."
+  },
+  "baseline_choke": {
+    "mpn": "760800301",
+    "manufacturer": "Wurth Elektronik (Midcom)",
+    "series": "WE-TORPFC Toroidal PFC Choke",
+    "document_revision": "REVISION 001.001, DATE 2023-12-11, page 1/8 of 8",
+    "pdf_filename": "raw/760800301.pdf",
+    "pdf_sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+    "source_url": "zapote/power-entry/loss-budget/sources/760800301.pdf (delivered bundle)",
+    "package_mounting": "through-hole toroid, 8 x 0.7 mm pins, 4 mm central mounting bolt + lock nut (through-PCB)",
+    "size_code": "T75",
+    "dimensions_mm": {"diameter_max": 99.0, "height_max": 62.0, "pin_diameter_mm": 0.7, "pin_count": 8},
+    "mass_g": null,
+    "mass_reason": "mass is not published in the datasheet",
+    "inductance": {
+      "nominal_uH": 180.0,
+      "tolerance_pct": 20,
+      "test_condition": "N1 / 100 kHz / 100 mV, +20 degC",
+      "L_uH_at_23p2719A_typical": 159.7,
+      "L_at_peak_pct_of_nominal": 88.7,
+      "L_at_peak_basis": "digitized typical curve, page 2"
+    },
+    "saturation": {
+      "isat_a_typ": 43.0,
+      "definition": "N1 / |dL/L| < 30 %",
+      "condition": "+20 degC unless stated",
+      "margin_vs_peak_a": 19.7,
+      "note": "curve-consistent: digitized L(40 A) ~ 130 uH ~ -28% of nominal"
+    },
+    "dcr": {"typ_mohm": null, "max_mohm": 20.0, "temp_condition": "N1 / 20 degC", "typ_reason": "datasheet gives max only"},
+    "loss_at_envelope": {
+      "dc_w_20c": 4.5,
+      "dc_w_hot_engineer_est": 4.765,
+      "dc_basis": "I_rms^2 * R_DC_max; hot value uses dt_est_nofan and copper alpha 0.00393/K",
+      "ac_winding_w_at_90kHz": null,
+      "ac_winding_reason": "not published; no Rac/Rdc(f) or winding-loss curve",
+      "core_w_at_90kHz": null,
+      "core_reason": "not published; no core-loss curve, no core material or Steinmetz data",
+      "total_w": null,
+      "total_reason": "AC insulation and core terms unavailable; do not sum partial terms"
+    },
+    "thermal": {
+      "ir_a": 24.5, "ir_condition": "N1 / dT = 40 K (natural convection, no fan)",
+      "ir2_a": 48.0, "ir2_condition": "N1 / dT = 40 K, 4 m/s fan",
+      "dt_est_at_15A_nofan_k": 15.0,
+      "dt_est_at_15A_fan_k": 3.9,
+      "envelope_vs_ir": "15.0 A rms < 24.5 A rating: OK without forced air"
+    },
+    "procurement_observation": {
+      "label": "procurement observation, not device performance",
+      "retrieval_date": "2026-09-17",
+      "retailer": "DigiKey (WE-TORPFC Flat Wire product highlight)",
+      "price_usd": 36.74,
+      "stock_pcs": 51,
+      "source_url": "https://www.digikey.com/en/product-highlight/w/wurth-electronics/we-torpfc-flat-wire-pfc-inductors"
+    }
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "mpn": "760801403",
+      "manufacturer": "Wurth Elektronik",
+      "series": "WE-TORPFC Toroidal PFC Choke (flat wire)",
+      "document_revision": "REVISION 001.001, DATE 2023-12-11, page 1/8 of 8",
+      "pdf_filename": "raw/760801403.pdf",
+      "pdf_sha256": "fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a",
+      "source_url": "https://www.we-online.com/components/products/datasheet/760801403.pdf",
+      "package_mounting": "through-hole toroid, 4 x 0.7 mm pins, 4 mm central mounting bolt + lock nut",
+      "size_code": "T37",
+      "dimensions_mm": {"diameter_max": 53.0, "height_max": 50.0, "pin_diameter_mm": 0.7, "pin_count": 4, "pin_length_mm": 5.5},
+      "mass_g": null, "mass_reason": "mass not published",
+      "inductance": {
+        "nominal_uH": 355.0, "tolerance_pct": 20,
+        "test_condition": "N1 / 100 kHz / 100 mV, +20 degC",
+        "L_uH_vs_bias_typical": {"2": 366.0, "5": 362.7, "10": 346.9, "15": 316.5, "20": 273.6, "23.2719": 242.7, "25": 226.0, "30": 179.1},
+        "L_uH_at_23p2719A_typical": 242.7,
+        "L_at_peak_pct_of_nominal": 68.4,
+        "L_at_peak_pct_vs_258p215_target": -6.0,
+        "worst_case_low_uH_at_peak": 194.2,
+        "worst_case_note": "nominal -20% tolerance scaled by the typical derating ratio (0.684): 355*0.8*0.684; L(I) tolerance band is not separately published"
+      },
+      "saturation": {
+        "isat_a_typ": 23.0,
+        "definition": "N1 / |dL/L| < 30 %",
+        "condition": "+20 degC unless stated",
+        "margin_vs_peak_a": -0.2719,
+        "note": "peak 23.2719 A is 1.2% ABOVE the stated ISAT; operation is at/just past the -30% derating point. Digitized L(23.2719 A)=242.7 uH (-31.6% of nominal) is consistent with the stated ISAT."
+      },
+      "dcr": {"typ_mohm": null, "max_mohm": 35.0, "temp_condition": "N1 / 20 degC", "typ_reason": "datasheet gives max only"},
+      "loss_at_envelope": {
+        "dc_w_20c": 7.875,
+        "dc_w_hot_nofan_est": 9.716,
+        "dc_w_hot_fan_est": 8.335,
+        "dc_delta_vs_baseline_20c_w": 3.375,
+        "dc_delta_vs_baseline_hot_nofan_w": 4.951,
+        "dc_basis": "I_rms^2 * R_DC_max; hot uses dt_est and copper alpha 0.00393/K",
+        "ac_winding_w_at_90kHz": null,
+        "ac_winding_reason": "not published; no Rac/Rdc(f) or winding-loss curve",
+        "core_w_at_90kHz": null,
+        "core_reason": "not published; no core-loss curve, no core material or Steinmetz data; not inferred from DCR",
+        "total_w": null,
+        "total_reason": "AC winding and core terms unavailable; DC-only subtotal is not a total"
+      },
+      "thermal": {
+        "ir_a": 12.3, "ir_condition": "N1 / dT = 40 K (natural convection, no fan)",
+        "ir2_a": 24.6, "ir2_condition": "N1 / dT = 40 K, 4 m/s fan",
+        "dt_est_at_15A_nofan_k": 59.5,
+        "dt_est_at_15A_fan_k": 14.9,
+        "envelope_vs_ir": "15.0 A rms is 22% above the no-fan 40 K rating (estimated dT ~ 59.5 K) but below the 4 m/s fan rating (estimated dT ~ 14.9 K); carries the envelope ONLY with forced air"
+      },
+      "procurement_observation": {
+        "label": "procurement observation, not device performance",
+        "retrieval_date": "2026-09-17",
+        "retailer": "DigiKey (WE-TORPFC Flat Wire product highlight)",
+        "price_usd": 32.32,
+        "stock_pcs": 260,
+        "source_url": "https://www.digikey.com/en/product-highlight/w/wurth-electronics/we-torpfc-flat-wire-pfc-inductors"
+      },
+      "assessment": "Closest published L at the 23.2719 A operating peak of the screened set (-6% vs the model's constant-L target) and the lowest-DCR candidate that reaches the target. Saturation margin is effectively zero at the peak. Thermal requires forced air. Core+AC loss unpublished: the decisive unknown."
+    },
+    {
+      "rank": 2,
+      "mpn": "760801202",
+      "manufacturer": "Wurth Elektronik",
+      "series": "WE-TORPFC Toroidal PFC Choke (flat wire)",
+      "document_revision": "REVISION 001.001, DATE 2023-12-11, page 1/8 of 8",
+      "pdf_filename": "raw/760801202.pdf",
+      "pdf_sha256": "e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab",
+      "source_url": "https://www.we-online.com/components/products/datasheet/760801202.pdf",
+      "package_mounting": "through-hole toroid, 4 x 0.8 mm pins, 4 mm central mounting bolt + lock nut",
+      "size_code": "T50",
+      "dimensions_mm": {"diameter_max": 72.0, "height_max": 45.0, "pin_diameter_mm": 0.8, "pin_count": 4, "pin_length_mm": 5.5},
+      "mass_g": null, "mass_reason": "mass not published",
+      "inductance": {
+        "nominal_uH": 389.0, "tolerance_pct": 20,
+        "test_condition": "N1 / 100 kHz / 100 mV, +20 degC",
+        "L_uH_vs_bias_typical": {"2": 412.6, "5": 411.1, "10": 403.1, "15": 388.2, "20": 367.3, "23.2719": 350.4, "25": 341.3, "30": 311.4},
+        "L_uH_at_23p2719A_typical": 350.4,
+        "L_at_peak_pct_of_nominal": 90.1,
+        "L_at_peak_pct_vs_258p215_target": 35.7,
+        "worst_case_low_uH_at_peak": 280.3,
+        "worst_case_note": "nominal -20% scaled by typical derating ratio (0.901)"
+      },
+      "saturation": {
+        "isat_a_typ": 37.0,
+        "definition": "N1 / |dL/L| < 30 %",
+        "condition": "+20 degC unless stated",
+        "margin_vs_peak_a": 13.7281,
+        "note": "softest saturation: only -10% of nominal at 23.2719 A; large peak margin"
+      },
+      "dcr": {"typ_mohm": null, "max_mohm": 50.0, "temp_condition": "N1 / 20 degC", "typ_reason": "datasheet gives max only"},
+      "loss_at_envelope": {
+        "dc_w_20c": 11.25,
+        "dc_w_hot_nofan_est": 14.259,
+        "dc_w_hot_fan_est": 12.245,
+        "dc_delta_vs_baseline_20c_w": 6.75,
+        "dc_delta_vs_baseline_hot_nofan_w": 9.494,
+        "dc_basis": "I_rms^2 * R_DC_max; hot uses dt_est and copper alpha 0.00393/K",
+        "ac_winding_w_at_90kHz": null,
+        "ac_winding_reason": "not published; no Rac/Rdc(f) or winding-loss curve",
+        "core_w_at_90kHz": null,
+        "core_reason": "not published; no core-loss curve, no core material or Steinmetz data; not inferred from DCR",
+        "total_w": null,
+        "total_reason": "AC winding and core terms unavailable; DC-only subtotal is not a total"
+      },
+      "thermal": {
+        "ir_a": 11.5, "ir_condition": "N1 / dT = 40 K (natural convection, no fan)",
+        "ir2_a": 20.0, "ir2_condition": "N1 / dT = 40 K, 4 m/s fan",
+        "dt_est_at_15A_nofan_k": 68.1,
+        "dt_est_at_15A_fan_k": 22.5,
+        "envelope_vs_ir": "15.0 A rms is 30% above the no-fan 40 K rating; carries the envelope ONLY with forced air"
+      },
+      "procurement_observation": {"label": "procurement observation", "retrieval_date": "2026-09-17", "retailer": null, "price_usd": null, "stock_pcs": null, "source_url": null, "note": "no per-part distributor price/stock captured (see source_failures)"},
+      "assessment": "Saturation-margin option (ISAT 37 A vs 23.27 A peak) but delivers ~350 uH at the peak (+36% over target) and carries the largest DC loss. DC-only delta already ~9.5 W hot, leaving little room for core+AC."
+    },
+    {
+      "rank": 3,
+      "mpn": "760801101",
+      "manufacturer": "Wurth Elektronik",
+      "series": "WE-TORPFC Toroidal PFC Choke (flat wire)",
+      "document_revision": "REVISION 001.001, DATE 2023-12-11, page 1/8 of 8",
+      "pdf_filename": "raw/760801101.pdf",
+      "pdf_sha256": "e93d8a5dfd097aa6b75c45a984562b6735d9c262d9d2db9560f7733e32758977",
+      "source_url": "https://www.we-online.com/components/products/datasheet/760801101.pdf",
+      "package_mounting": "through-hole toroid, 4 x 0.5 mm pins, 4 mm central mounting bolt + lock nut",
+      "size_code": "T43",
+      "dimensions_mm": {"diameter_max": 60.0, "height_max": 34.0, "pin_diameter_mm": 0.5, "pin_count": 4, "pin_length_mm": 5.5},
+      "mass_g": null, "mass_reason": "mass not published",
+      "inductance": {
+        "nominal_uH": 255.0, "tolerance_pct": 20,
+        "test_condition": "N1 / 100 kHz / 100 mV, +20 degC",
+        "L_uH_vs_bias_typical": {"2": 264.9, "5": 261.2, "10": 250.2, "15": 230.7, "20": 203.3, "23.2719": 183.1, "25": 172.2, "30": 141.1},
+        "L_uH_at_23p2719A_typical": 183.1,
+        "L_at_peak_pct_of_nominal": 71.8,
+        "L_at_peak_pct_vs_258p215_target": -29.1,
+        "worst_case_low_uH_at_peak": 146.5,
+        "worst_case_note": "nominal -20% scaled by typical derating ratio (0.718)"
+      },
+      "saturation": {
+        "isat_a_typ": 24.0,
+        "definition": "N1 / |dL/L| < 30 %",
+        "condition": "+20 degC unless stated",
+        "margin_vs_peak_a": 0.7281,
+        "note": "nominal L is closest to the 258.2 uH target but the published curve collapses to ~183 uH at the peak (-28%); ripple would be ~5.9 A pk-pk, exceeding the 4.2043 A budget"
+      },
+      "dcr": {"typ_mohm": null, "max_mohm": 36.0, "temp_condition": "N1 / 20 degC", "typ_reason": "datasheet gives max only"},
+      "loss_at_envelope": {
+        "dc_w_20c": 8.1,
+        "dc_w_hot_nofan_est": 10.384,
+        "dc_w_hot_fan_est": 8.708,
+        "dc_delta_vs_baseline_20c_w": 3.6,
+        "dc_delta_vs_baseline_hot_nofan_w": 5.619,
+        "dc_basis": "I_rms^2 * R_DC_max; hot uses dt_est and copper alpha 0.00393/K",
+        "ac_winding_w_at_90kHz": null,
+        "ac_winding_reason": "not published; no Rac/Rdc(f) or winding-loss curve",
+        "core_w_at_90kHz": null,
+        "core_reason": "not published; no core-loss curve, no core material or Steinmetz data; not inferred from DCR",
+        "total_w": null,
+        "total_reason": "AC winding and core terms unavailable; DC-only subtotal is not a total"
+      },
+      "thermal": {
+        "ir_a": 11.2, "ir_condition": "N1 / dT = 40 K (natural convection, no fan)",
+        "ir2_a": 21.7, "ir2_condition": "N1 / dT = 40 K, 4 m/s fan",
+        "dt_est_at_15A_nofan_k": 71.7,
+        "dt_est_at_15A_fan_k": 19.1,
+        "envelope_vs_ir": "15.0 A rms is 34% above the no-fan 40 K rating; carries the envelope ONLY with forced air"
+      },
+      "procurement_observation": {"label": "procurement observation", "retrieval_date": "2026-09-17", "retailer": null, "price_usd": null, "stock_pcs": null, "source_url": null, "note": "no per-part distributor price/stock captured (see source_failures)"},
+      "assessment": "Nominal-inductance near-match to 258 uH, but the published bias curve shows only ~183 uH remaining at the operating peak, so the in-circuit ripple is ~40% larger than the model assumes. Screened out on ripple, not on loss."
+    }
+  ],
+  "screened_rejected": [
+    {
+      "mpn": "760800202",
+      "pdf_sha256": "5068cf0aad681dc075fdba97d71422cc899d140fec621e82f2c14acc2e07e8c6",
+      "l_nom_uH": 389.0, "isat_a_typ": 19.0, "dcr_max_mohm": 50.0,
+      "L_uH_at_23p2719A_typical": 243.2,
+      "reason": "same nominal L as 760801202 but hard saturation (ISAT 19 A, -30% at ~19 A); at the 23.2719 A peak it is ~-37.5% of nominal, i.e. past its specified saturation point. Rejected on peak saturation."
+    },
+    {
+      "mpn": "760800403",
+      "pdf_sha256": "a9cebee7f8cf0892c42884b704ef407aa640c379bd627aafb498ebed279d14b9",
+      "l_nom_uH": 355.0, "isat_a_typ": 9.5, "dcr_max_mohm": 35.0,
+      "reason": "hard-saturating twin of 760801403 (same 355 uH / 35 mOhm / T37) with ISAT only 9.5 A; deep saturation at the 23.2719 A peak. Rejected on peak saturation."
+    }
+  ],
+  "sources": [
+    {"kind": "datasheet_primary", "mpn": "760800301", "url": "zapote/power-entry/loss-budget/sources/760800301.pdf", "content_type": "application/pdf", "pdf_sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8", "bytes": 661997, "notes": "retained baseline (delivered bundle)"},
+    {"kind": "datasheet_primary", "mpn": "760801403", "url": "https://www.we-online.com/components/products/datasheet/760801403.pdf", "content_type": "application/pdf", "pdf_sha256": "fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a", "bytes": 688424},
+    {"kind": "datasheet_primary", "mpn": "760801202", "url": "https://www.we-online.com/components/products/datasheet/760801202.pdf", "content_type": "application/pdf", "pdf_sha256": "e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab", "bytes": 686931},
+    {"kind": "datasheet_primary", "mpn": "760801101", "url": "https://www.we-online.com/components/products/datasheet/760801101.pdf", "content_type": "application/pdf", "pdf_sha256": "e93d8a5dfd097aa6b75c45a984562b6735d9c262d9d2db9560f7733e32758977", "bytes": 687340},
+    {"kind": "datasheet_primary", "mpn": "760800202", "url": "https://www.we-online.com/components/products/datasheet/760800202.pdf", "content_type": "application/pdf", "pdf_sha256": "5068cf0aad681dc075fdba97d71422cc899d140fec621e82f2c14acc2e07e8c6", "bytes": 624939, "notes": "screened/rejected"},
+    {"kind": "datasheet_primary", "mpn": "760800403", "url": "https://www.we-online.com/components/products/datasheet/760800403.pdf", "content_type": "application/pdf", "pdf_sha256": "a9cebee7f8cf0892c42884b704ef407aa640c379bd627aafb498ebed279d14b9", "bytes": 688508, "notes": "screened/rejected"},
+    {"kind": "manufacturer_catalog_secondary", "url": "https://www.we-online.com/en/components/products/WE-TORPFC", "content_type": "text/html", "sha256_recorded_in_manifest": true, "notes": "HTML catalog listing; used only to enumerate the family and confirm ratings - NOT a datasheet, NOT hashed as one"},
+    {"kind": "distributor_procurement_secondary", "url": "https://www.digikey.com/en/product-highlight/w/wurth-electronics/we-torpfc-flat-wire-pfc-inductors", "content_type": "text/html", "notes": "procurement observation only (price/stock), retrieval 2026-09-17; page publish date 2023-09-12"}
+  ],
+  "source_failures": [
+    {
+      "target": "DigiKey per-part pages for 760801101, 760801202, 760800301, 760801403",
+      "failure": "distributor search results returned unrelated product pages (connectors, LEDs); no per-part price/stock table obtained for 760801101 and 760801202",
+      "attempts": 1,
+      "consequence": "procurement price/stock left null for 760801101 and 760801202; no second mirror attempted because the two datasheet URLs did not fail"
+    },
+    {
+      "target": "published core-loss and AC-winding-loss data for ANY WE-TORPFC part",
+      "failure": "NOT PRESENT in the datasheets; the family datasheets publish only DCR, L(I) typical curve, temperature-rise vs current typical curve, and ratings. No core-loss curve, no core material/Steinmetz data, no Rac/Rdc(f).",
+      "attempts": 0,
+      "consequence": "core+AC loss is null for baseline and every candidate; this is the single decisive missing curve"
+    }
+  ],
+  "unknowns": [
+    "core loss (W) for every candidate and the baseline at 90 kHz and 23.27 A bias",
+    "AC winding loss (W) for every candidate and the baseline at 90 kHz with 4.20 A pk-pk ripple",
+    "DCR typical (datasheets publish max only)",
+    "component mass (not published)",
+    "L at bias ± tolerance band / at temperature (only a typical 20 degC curve is published)"
+  ]
+}

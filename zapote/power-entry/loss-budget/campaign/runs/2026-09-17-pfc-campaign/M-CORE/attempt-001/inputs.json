@@ -1,0 +1,186 @@
+{
+  "schema": "pfc-campaign-source-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "M-CORE",
+  "attempt_id": "attempt-001",
+  "source_only": true,
+  "captured_utc": "2026-09-17T22:31:15Z",
+  "base_revision": "b1a9ad74de50f283762a488a28c19f764830cdee",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "question": "Can the core + AC winding loss of the candidate chokes be bounded tightly enough to decide the 65 kHz / 90 kHz frequency trade, using the core MATERIAL's published loss data and the core geometry?",
+  "envelope": {
+    "inductor_rms_a": 15.0,
+    "inductor_peak_a": 23.2719,
+    "ripple_peak_to_peak_a": 4.2043,
+    "dc_bias_max_a": 23.3,
+    "switching_hz": { "M065": 65000.0, "M090": 90000.0 },
+    "source": "dispatch.json + F-AXIS/attempt-001/raw/report.json (via M065/M090)"
+  },
+  "decision_rule": "A candidate wins only if its increase in DC+AC+core loss over the retained Wurth 760800301 is less than the switching saving (19.3765 W at 65 kHz, 11.8202 W at 90 kHz).",
+  "core_identification": [
+    {
+      "mpn": "760800301",
+      "role": "retained baseline",
+      "manufacturer": "Wurth Elektronik eiSos GmbH & Co. KG (Midcom)",
+      "family": "WE-TORPFC Toroidal PFC Choke",
+      "size_type": "T75",
+      "document_revision": "001.001, dated 2023-12-11 (page-1 revision block)",
+      "pdf_path": "raw/760800301.pdf",
+      "pdf_sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+      "core_series_or_size": "T75 (family/package size; NOT a core-material or core-shape designation)",
+      "core_material": {
+        "identified": false,
+        "value": null,
+        "reason": "The datasheet does not state a core material. The only 'Material' fields (pages 3-4) are packaging: 'PET' (tray) and 'Paper' (paperboard). A manufacturer family presentation (raw/we-torpfc-totem-pole-e-mobility.pdf, p.7) states the series uses BOTH 'High Flux cores: Ni-Fe' and 'Sendust: Al-Si-Fe' with no per-part mapping."
+      },
+      "geometry": {
+        "Ae_mm2": null,
+        "le_mm": null,
+        "Ve_mm3": null,
+        "AL_nH_per_turn2": null,
+        "turns": null,
+        "reason": "No core geometry or turns are published in the datasheet, the family product table, the PFC-choke catalog table (the 'n' column is '-' for WE-TORPFC), or the LTspice/PSpice models. Only external package dimensions (OD 99 mm, H 62 mm) are given."
+      },
+      "electrical_properties_published": {
+        "inductance_nominal_uH": 180.0,
+        "tolerance_pct": 20.0,
+        "rated_current_IR_a": 24.5,
+        "rated_current2_IR2_a": 48.0,
+        "saturation_current_ISAT_typ_a": 43.0,
+        "dcr_max_mohm_20C": 20.0,
+        "vop_v_dc": 1000.0
+      },
+      "L_at_bias_typical_uH": 159.8,
+      "L_at_bias_source": "digitized typical L(I) curve, M065/attempt-001 (page 2)"
+    },
+    {
+      "mpn": "760801202",
+      "role": "M065 candidate at 65 kHz",
+      "manufacturer": "Wurth Elektronik eiSos GmbH & Co. KG (Midcom)",
+      "family": "WE-TORPFC Toroidal PFC Choke",
+      "size_type": "T50",
+      "document_revision": "001.001, dated 2023-12-11",
+      "pdf_path": "raw/760801202.pdf",
+      "pdf_sha256": "e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab",
+      "core_series_or_size": "T50 (package size designation)",
+      "core_material": {
+        "identified": false,
+        "value": null,
+        "reason": "Not published per part. Family-level statement covers High Flux (Ni-Fe) and Sendust (Al-Si-Fe) without a mapping. Part-number/ISAT covariance is present across the family (e.g. 760800202 ISAT 19 A vs 760801202 ISAT 37 A at the same 389 uH / T50 / 50 mOhm) but no primary source states which material corresponds to which suffix, so this is an inference and is recorded as NOT a source."
+      },
+      "geometry": {
+        "Ae_mm2": null, "le_mm": null, "Ve_mm3": null, "AL_nH_per_turn2": null, "turns": null,
+        "reason": "Not published (see baseline reason). External package dimensions only: OD 72 mm max, H 45 mm max."
+      },
+      "electrical_properties_published": {
+        "inductance_nominal_uH": 389.0,
+        "tolerance_pct": 20.0,
+        "rated_current_IR_a": 11.5,
+        "rated_current2_IR2_a": 20.0,
+        "saturation_current_ISAT_typ_a": 37.0,
+        "dcr_max_mohm_20C": 50.0,
+        "vop_v_dc": 1000.0
+      },
+      "L_at_bias_typical_uH": 350.1,
+      "L_at_bias_source": "digitized typical L(I) curve, M065/attempt-001"
+    },
+    {
+      "mpn": "760801403",
+      "role": "M090 candidate at 90 kHz",
+      "manufacturer": "Wurth Elektronik eiSos GmbH & Co. KG (Midcom)",
+      "family": "WE-TORPFC Toroidal PFC Choke",
+      "size_type": "T37",
+      "document_revision": "001.001, dated 2023-12-11",
+      "pdf_path": "raw/760801403.pdf",
+      "pdf_sha256": "fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a",
+      "core_series_or_size": "T37 (package size designation)",
+      "core_material": {
+        "identified": false,
+        "value": null,
+        "reason": "Not published per part (see 760801202)."
+      },
+      "geometry": {
+        "Ae_mm2": null, "le_mm": null, "Ve_mm3": null, "AL_nH_per_turn2": null, "turns": null,
+        "reason": "Not published. External package dimensions only: OD 53 mm max, H 50 mm max."
+      },
+      "electrical_properties_published": {
+        "inductance_nominal_uH": 355.0,
+        "tolerance_pct": 20.0,
+        "rated_current_IR_a": 12.3,
+        "rated_current2_IR2_a": 24.6,
+        "saturation_current_ISAT_typ_a": 23.0,
+        "dcr_max_mohm_20C": 35.0,
+        "vop_v_dc": 1000.0
+      },
+      "L_at_bias_typical_uH": 242.7,
+      "L_at_bias_source": "digitized typical L(I) curve, M090/attempt-001"
+    }
+  ],
+  "material_loss_data_used": {
+    "per_part_material": null,
+    "per_part_material_reason": "No source maps a part number to a core material; therefore no material-specific loss curve can be selected.",
+    "family_material_statement": {
+      "source": "raw/we-torpfc-totem-pole-e-mobility.pdf (Wurth Elektronik, Isaac Aboelsaad, 27.06.2023), page 7",
+      "sha256": "2b0aaf9f3599fe71a48bd0e6444b0f778988341e2ead53c1ee737901bbd74998",
+      "quote": "Introducing WE-TORPFC (High Flux cores: Ni-Fe, Sendust: Al-Si-Fe)"
+    },
+    "material_ceiling_used": {
+      "quantity": "saturation flux density ceiling Bsat = 1.5 T",
+      "source": "raw/mag-inc-high-flux-cores.html (Magnetics, core manufacturer): High Flux composition Ni-Fe, 'high saturation flux density (15,000 gauss)'",
+      "class": "manufacturer HTML product page (NOT a datasheet); used only as an upper ceiling",
+      "note": "Highest Bsat among the family's two candidate materials; used to bound the flux swing from above, never as this part's material."
+    },
+    "material_core_loss_curves_available_but_not_usable": {
+      "source": "raw/material/magnetics-HF-toroid-{14,26,40,60}mu-core-loss-density.JPG (Magnetics High Flux core-loss-density curves) and raw/mag-inc-high-flux-material-curves.html",
+      "reason": "Available, but cannot be converted to watts without the core volume and cannot be assigned to a part without the per-part material."
+    }
+  },
+  "flux_swing_derivation": {
+    "identity": "For a uniform-flux toroid, L(I)*I = N*Ae*B(I), so N*Ae = L(I)*I/B(I).",
+    "upper_bound": {
+      "expression": "dB <= dI * Bsat_ceiling / I_peak",
+      "value_T": 0.2709899062818249,
+      "inputs": { "dI_pp_a": 4.2043, "Bsat_ceiling_T": 1.5, "I_peak_a": 23.2719 },
+      "validity": "B <= Bsat for any magnetic core, so this is a genuine upper bound; it is conservative because B at the operating peak is below Bsat for 760801202 (ISAT 37 A >> 23.27 A). L cancels, so it is material- and geometry-independent given the ceiling.",
+      "assumption": "Bsat <= 1.5 T (High Flux, the highest of the family's candidate materials)."
+    },
+    "lower_bound": {
+      "value_T": null,
+      "reason": "No published upper bound on N*Ae (core size x turns), so the flux swing cannot be bounded from below."
+    }
+  },
+  "headroom": {
+    "760801202": {
+      "switching_saving_w": 19.3765,
+      "dc_copper_w_20C": 11.25,
+      "dc_delta_vs_baseline_w": 6.75,
+      "headroom_for_core_plus_ac_w": 12.6265,
+      "source": "M065/attempt-001 + dispatch"
+    },
+    "760801403": {
+      "switching_saving_w": 11.8202,
+      "dc_copper_w_20C": 7.875,
+      "dc_delta_vs_baseline_w": 3.375,
+      "headroom_for_core_plus_ac_w": 8.4452,
+      "source": "M090/attempt-001 + dispatch"
+    }
+  },
+  "ac_winding_resistance_vs_frequency": {
+    "Rac_over_Rdc": null,
+    "reason": "Not published for any WE-TORPFC part at 65-90 kHz. The datasheet gives only a 20 C max DCR; the family presentation notes flat wire 'minimized skin effect' qualitatively but gives no R_ac/R_dc data at these frequencies; wire thickness and turns are not published, so no bound can be formed."
+  },
+  "source_failures_and_non_findings": [
+    { "what": "per-part core material", "result": "not found in datasheet, family product page, PFC-choke catalog table, LTspice/PSpice models, or the family presentation" },
+    { "what": "core geometry (Ae, le, Ve, AL, turns)", "result": "not published anywhere located" },
+    { "what": "core loss vs frequency/flux for these parts", "result": "not published" },
+    { "what": "AC winding resistance vs frequency", "result": "not published" },
+    { "what": "DigiKey 760801202 product-detail attribute table", "result": "returned navigation HTML without a Core Material attribute (prior attempt: HTTP 403)" }
+  ],
+  "method": {
+    "model_invocations": 0,
+    "computation_script": "raw/compute_bound.py",
+    "computation_output": "raw/computed_bound.json",
+    "hashing": "shasum -a 256",
+    "pdf_tools": "poppler pdfinfo / pdftotext -layout / pdftoppm -r 300 -png"
+  }
+}

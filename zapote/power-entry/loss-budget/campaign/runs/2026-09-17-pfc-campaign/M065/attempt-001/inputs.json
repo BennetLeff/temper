@@ -1,0 +1,425 @@
+{
+  "schema": "pfc-campaign-source-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "M065",
+  "attempt_id": "attempt-001",
+  "source_only": true,
+  "captured_utc": "2026-09-17T16:25:00Z",
+  "base_revision": "b1a9ad74de50f283762a488a28c19f764830cdee",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "question": "Can a physical choke supply approximately 357.528 uH effective at operating bias, carrying the supplied envelope, without erasing the 19.38 W switching saving?",
+  "envelope": {
+    "line_rms_v": 120.0,
+    "bus_v": 400.0,
+    "requested_power_w": 1796.31003212911,
+    "input_rms_ceiling_a": 15.0,
+    "inductor_rms_a_heating": 15.0,
+    "inductor_peak_a_saturation": 23.2719,
+    "ripple_peak_to_peak_max_a": 4.2043,
+    "switching_hz": 65000.0,
+    "target_effective_inductance_uH": 357.528,
+    "derived_ripple_basis": {
+      "ac_ripple_rms_a_assumed_triangular": 1.2137,
+      "dc_component_a": 14.9508,
+      "note": "I_ac = dIpp/(2*sqrt(3)); I_dc = sqrt(I_rms^2 - I_ac^2). Reported for bookkeeping only; total RMS heating uses I_rms = 15.0 A per WORKER.md I_rms^2*R rule."
+    },
+    "source": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/F-AXIS/attempt-001/raw/report.json"
+  },
+  "decision_rule": "A candidate choke wins only if its increase in DC+AC+core loss over the retained Wurth 760800301 at this envelope is less than the switching saving (19.3765 W at 65 kHz).",
+  "digitization_method": {
+    "what": "L versus DC bias for each part read from datasheet page 2, 'Typical Inductance vs. Current Characteristics' (a graph; no tabulated L(bias) is published).",
+    "how": "page 2 rendered at 600 dpi (pdftoppm); the left chart's grey gridlines (grey level ~137) calibrate x (0..xmax A) and y (0..YMAX uH); the pure-black (V<60) curve is traced column by column; L at a requested current is the median of traced columns within +/-0.6 A. Script: derived/digitize_l_curve.py; output: derived/l_vs_current_digitized.json.",
+    "uncertainty": "One rendered pixel is ~0.17-0.34 uH and the drawn line is ~5-6 px thick; registration/frame error is <0.5 A equivalent. Digitized typical L values carry ~+/-2 uH uncertainty. These are typical-curve readings, NOT guaranteed limits.",
+    "validation": "For 760800301 and 760801202 the digitized curve at the printed ISAT reads 0.698 and 0.687 of nominal L, matching the family's stated |dL/L|<30% saturation definition. For 760801403 (0.957) and 760801321 (0.805) the printed ISAT and the printed curve DISAGREE; both values are reported, neither is silently reconciled."
+  },
+  "envelope_peak_vs_target": {
+    "note": "The envelope peak of 23.2719 A is the current at which the candidate's effective L is compared with the 357.528 uH target."
+  },
+  "baseline_choke": {
+    "manufacturer": "Wurth Elektronik eiSos GmbH & Co. KG (Midcom)",
+    "mpn": "760800301",
+    "size_type": "T75",
+    "role": "retained baseline; same envelope applied so the magnetic delta can be computed",
+    "pdf_local_path": "raw/760800301.pdf",
+    "pdf_sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+    "pdf_bytes": 661997,
+    "document_revision": "001.001, dated 2023-12-11 (page 1 revision block)",
+    "document_source": "coordinator source bundle zapote/power-entry/loss-budget/sources/760800301.pdf (copy retained in raw/); hash matches bundle",
+    "electrical_properties_published": {
+      "inductance_nominal_uH": 180.0,
+      "inductance_tolerance_pct": 20.0,
+      "inductance_test_condition": "N1 / 100 kHz / 100 mV; +20 C, 33 % rH",
+      "rated_current_IR_a": 24.5,
+      "rated_current_condition": "N1, dT = 40 K, no fan",
+      "rated_current2_IR2_a": 48.0,
+      "rated_current2_condition": "N1, dT = 40 K, 4 m/s fan",
+      "saturation_current_isat_a": 43.0,
+      "isat_definition": "N1 / |dL/L| < 30 % (typ)",
+      "dcr_max_mohm": 20.0,
+      "dcr_typical_mohm": null,
+      "dcr_condition": "N1, 20 C",
+      "vop_v_dc": 1000.0,
+      "operating_temp_c": [-40.0, 155.0]
+    },
+    "L_vs_bias_typical_digitized_uH": {
+      "0 A": 198.5, "5 A": 192.2, "10 A": 184.0, "11.5 A": 181.4, "12.3 A": 180.0,
+      "15 A": 175.2, "17.2 A": 171.1, "20 A": 165.9, "23.2719 A": 159.8, "25 A": 156.6,
+      "30 A": 147.5, "35 A": 138.6, "37 A": 135.3, "40 A": 130.3, "50 A": 115.3, "60 A": 102.4
+    },
+    "L_at_envelope_peak_uH_typical": 159.8,
+    "L_at_envelope_peak_ratio_to_nominal": 0.8878,
+    "key_finding": "The retained model's baseline 'effective inductance' is 180 uH (nominal rating). The datasheet's typical curve gives 159.8 uH at the envelope peak 23.27 A, i.e. the real part is ~11 % below the value the frequency trade assumed. This makes the baseline's true ripple at its own L (and 129 kHz) about 4.2043*180/159.8 = 4.736 A pk-pk, not the supplied 4.2043 A. Reported as a caution; the supplied envelope is used unchanged for the loss figures below.",
+    "loss_at_envelope": {
+      "inductor_rms_a": 15.0,
+      "dc_copper_w_at_20c": 4.5,
+      "dc_copper_formula": "I_rms^2 * Rdc_max = 15.0^2 * 0.020 ohm",
+      "dc_copper_w_assumed_100c": 5.92,
+      "dc_copper_100c_basis": "ASSUMED, NOT SOURCED: copper resistivity temp coefficient 0.00393 /K applied to the 20 C max DCR; datasheet publishes only a 20 C max.",
+      "ac_winding_w": null,
+      "ac_winding_reason": "Datasheet publishes no AC resistance / skin-proximity data at 65 kHz.",
+      "core_w": null,
+      "core_reason": "Datasheet publishes no core-loss data (page 2 gives only typical L vs current and typical dT vs current). Core loss is NOT inferred from DCR.",
+      "dc_plus_ac_plus_core_w": null,
+      "dc_plus_ac_plus_core_reason": "Only the DC copper term is sourced; AC winding and core loss are unpublished, so the total magnetic loss is null (unknown), not the DC number."
+    }
+  },
+  "candidates": [
+    {
+      "rank_by_L_match": 1,
+      "manufacturer": "Wurth Elektronik eiSos GmbH & Co. KG (Midcom)",
+      "mpn": "760801202",
+      "size_type": "T50",
+      "document": {
+        "title": "760801202 Datasheet WE-TORPFC Toroidal PFC Choke",
+        "revision": "001.001, dated 2023-12-11 (page 1 revision block)",
+        "pdf_creation_date": "2025-01-14T13:58:50 CST",
+        "page_count": 8,
+        "source_url": "https://www.we-online.com/components/products/datasheet/760801202.pdf",
+        "http_status": 200,
+        "http_content_type": "application/pdf",
+        "http_content_length": 686931,
+        "http_last_modified": "Wed, 15 Jan 2025 11:00:02 GMT",
+        "pdf_local_path": "raw/760801202.pdf",
+        "pdf_bytes": 686931,
+        "pdf_sha256": "e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab",
+        "verification": "magic %PDF-1.7; file(1)=PDF document version 1.7; pdfinfo parses 8 pages. Not HTML."
+      },
+      "package_mounting": "Through-hole toroidal, flat-wire winding, 4x 0.8 mm pins; #4 bolt through PCB for mechanical stability (bolt is not an electrical connection); horizontal or vertical mount.",
+      "electrical_properties": {
+        "inductance_nominal_uH": 389.0,
+        "inductance_tolerance_pct": 20.0,
+        "inductance_test_condition": "N1 / 100 kHz / 100 mV; +20 C, 33 % rH",
+        "rated_current_IR_a": 11.5,
+        "rated_current_condition": "N1, dT = 40 K, no fan (max)",
+        "rated_current2_IR2_a": 20.0,
+        "rated_current2_condition": "N1, dT = 40 K, 4 m/s fan (max)",
+        "saturation_current_isat_a": 37.0,
+        "isat_definition": "N1 / |dL/L| < 30 % (typ)",
+        "dcr_max_mohm": 50.0,
+        "dcr_typical_mohm": null,
+        "dcr_condition": "N1, 20 C (max only; no typical published)",
+        "vop_v_dc": 1000.0,
+        "insulation_test_v_dc": 1000.0,
+        "operating_temp_c": [-40.0, 155.0],
+        "component_qualification": "AEC-Q200 Grade 1"
+      },
+      "L_vs_bias": {
+        "source": "datasheet page 2, 'Typical Inductance vs. Current Characteristics'",
+        "published_form": "typical curve only; no L(bias) table and no L-vs-temperature curve",
+        "L_at_operating_bias": {
+          "current_a": 23.2719,
+          "L_typical_uH": 350.1,
+          "definition": "typical curve reading; no percentage-defined datasheet value at this bias. Nominal rating is 389 uH +/-20%; the curve is typical.",
+          "ratio_to_target_357_528_uH": 0.9792
+        },
+        "L_profile_uH": {
+          "0 A": 412.8, "5 A": 410.9, "10 A": 402.9, "11.5 A": 399.1, "12.3 A": 396.7,
+          "15 A": 387.9, "17.2 A": 379.2, "20 A": 366.8, "23.2719 A": 350.1, "25 A": 340.6,
+          "30 A": 311.0, "35 A": 279.7, "37 A": 267.2, "40 A": 248.4, "50 A": 191.5, "60 A": 147.5
+        },
+        "isat_curve_crosscheck": {
+          "printed_isat_a": 37.0,
+          "digitized_L_at_printed_isat_uH": 267.2,
+          "ratio_to_nominal": 0.687,
+          "verdict": "CONSISTENT with |dL/L| < 30 % (would predict 272.3 uH)"
+        }
+      },
+      "loss_at_envelope": {
+        "inductor_rms_a": 15.0,
+        "inductor_peak_a": 23.2719,
+        "ripple_pp_a": 4.2043,
+        "switching_hz": 65000.0,
+        "dc_copper_w_at_20c": 11.25,
+        "dc_copper_formula": "I_rms^2 * Rdc_max = 15.0^2 * 0.050 ohm",
+        "dc_copper_w_assumed_100c": 14.79,
+        "dc_copper_100c_basis": "ASSUMED, NOT SOURCED: 0.00393 /K copper coefficient applied to the 20 C max DCR.",
+        "ac_winding_w": null,
+        "ac_winding_reason": "R_ac / skin-proximity data at 65 kHz not published.",
+        "core_w": null,
+        "core_reason": "No core-loss data published (only typical L vs current and typical dT vs current). Not inferred from DCR.",
+        "delta_vs_baseline_dc_only_20c_w": 6.75,
+        "delta_vs_baseline_dc_only_assumed_100c_w": 8.87,
+        "delta_vs_baseline_full_magnetic_w": null,
+        "delta_vs_baseline_full_magnetic_reason": "AC winding + core loss are unpublished for BOTH baseline and candidate, so the full magnetic delta is unknown, not the DC-only delta."
+      },
+      "envelope_capability": {
+        "saturation": "PASS with margin: peak 23.2719 A vs ISAT 37 A typ (ratio 0.63). At the peak the typical curve still shows 350.1 uH (-15.1 % vs nominal).",
+        "thermal_no_fan": "FAIL as specified: 15.0 A rms vs IR 11.5 A max at dT = 40 K (ratio 1.30). Predicted dT at 15 A would be ~68 K if the curve held, above the 40 K rating.",
+        "thermal_4m_s_fan": "PASS: 15.0 A rms vs IR2 20 A max at dT = 40 K, 4 m/s fan.",
+        "thermal_verdict": "Conditional on >= 4 m/s forced air; the assembly's actual airflow is not supplied by the campaign and is therefore INDETERMINATE."
+      },
+      "dimensions": {
+        "size_type": "T50",
+        "od_mm_max": 72.0,
+        "height_mm_max": 45.0,
+        "pin_count": 4,
+        "pin_dia_mm_nominal": 0.8,
+        "pin_dia_mm_tol": 0.2,
+        "mounting_bolt": "#4 bolt, mechanical stability only",
+        "hole_pattern_ref_mm": {"pin_span": 30.05, "pin_offset": 17.0, "other": [13.05, 5.5, 4.4, 1.5]}
+      },
+      "mass_g": null,
+      "mass_reason": "Mass is not published on the datasheet page 1 mechanical drawing or in the WE-TORPFC family table.",
+      "procurement_observation": {
+        "observation_date": "2026-09-17",
+        "class": "procurement observation only; carries no device performance",
+        "mouser_sg_snippet": {"stock": 0, "on_order": 12, "expected": "2026-10-16", "factory_lead_time_weeks": 22, "unit_price_1": 68.54, "currency": "not resolved in the search snippet"},
+        "digikey_ca_snippet": {"in_stock": 24, "unit_price_1": 70.17, "currency": "CAD"},
+        "capture_note": "Direct distributor page capture failed (digikey 403; mouser bot block, see raw/capture_log.txt); the figures are distributor search-result snippets, not a fetched price sheet."
+      }
+    },
+    {
+      "rank_by_L_match": 2,
+      "manufacturer": "Wurth Elektronik eiSos GmbH & Co. KG (Midcom)",
+      "mpn": "760801403",
+      "size_type": "T37",
+      "document": {
+        "title": "760801403 Datasheet WE-TORPFC Toroidal PFC Choke",
+        "revision": "001.001, dated 2023-12-11 (page 1 revision block)",
+        "pdf_creation_date": "2025-01-14T13:57:34 CST",
+        "page_count": 8,
+        "source_url": "https://www.we-online.com/components/products/datasheet/760801403.pdf",
+        "http_status": 200,
+        "http_content_type": "application/pdf",
+        "http_content_length": 688424,
+        "http_last_modified": "Wed, 15 Jan 2025 11:00:02 GMT",
+        "pdf_local_path": "raw/760801403.pdf",
+        "pdf_bytes": 688424,
+        "pdf_sha256": "fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a",
+        "verification": "magic %PDF-1.7; file(1)=PDF document version 1.7; pdfinfo parses 8 pages. Not HTML."
+      },
+      "package_mounting": "Through-hole toroidal, flat-wire winding, 4x 0.7 mm pins; #4 bolt through PCB for mechanical stability.",
+      "electrical_properties": {
+        "inductance_nominal_uH": 355.0,
+        "inductance_tolerance_pct": 20.0,
+        "inductance_test_condition": "N1 / 100 kHz / 100 mV; +20 C, 33 % rH",
+        "rated_current_IR_a": 12.3,
+        "rated_current_condition": "N1, dT = 40 K, no fan (max)",
+        "rated_current2_IR2_a": 24.6,
+        "rated_current2_condition": "N1, dT = 40 K, 4 m/s fan (max)",
+        "saturation_current_isat_a": 23.0,
+        "isat_definition": "N1 / |dL/L| < 30 % (typ)",
+        "dcr_max_mohm": 35.0,
+        "dcr_typical_mohm": null,
+        "dcr_condition": "N1, 20 C (max only)",
+        "vop_v_dc": 1000.0,
+        "operating_temp_c": [-40.0, 155.0]
+      },
+      "L_vs_bias": {
+        "source": "datasheet page 2, 'Typical Inductance vs. Current Characteristics'",
+        "published_form": "typical curve only; no table; no L-vs-temperature curve",
+        "L_at_operating_bias": {
+          "current_a": 23.2719,
+          "L_typical_uH": 338.8,
+          "definition": "typical curve reading; nominal is 355 uH +/-20 %",
+          "ratio_to_target_357_528_uH": 0.9476
+        },
+        "L_profile_uH": {
+          "0 A": 366.9, "5 A": 365.7, "10 A": 362.8, "11.5 A": 361.3, "12.3 A": 360.5,
+          "15 A": 356.9, "17.2 A": 353.1, "20 A": 347.2, "23.2719 A": 338.8, "25 A": 333.6,
+          "30 A": 316.5, "35 A": 296.4, "37 A": 287.7, "40 A": 274.1, "50 A": 226.3, "60 A": 179.7
+        },
+        "isat_curve_crosscheck": {
+          "printed_isat_a": 23.0,
+          "digitized_L_at_printed_isat_uH": 339.6,
+          "ratio_to_nominal": 0.957,
+          "verdict": "INCONSISTENT: |dL/L| < 30 % at 23 A would predict 248.5 uH, but the printed curve shows only -4.3 % at 23 A. The curve reaches -30 % of nominal near 36-37 A. Both the printed ISAT (23 A) and the curve-derived -30 % point (~37 A) are reported; the discrepancy is not resolved by this document. A conservative envelope check should use the printed ISAT 23 A, which is essentially equal to the 23.2719 A envelope peak -> NO saturation margin."
+        }
+      },
+      "loss_at_envelope": {
+        "inductor_rms_a": 15.0,
+        "inductor_peak_a": 23.2719,
+        "ripple_pp_a": 4.2043,
+        "switching_hz": 65000.0,
+        "dc_copper_w_at_20c": 7.875,
+        "dc_copper_formula": "I_rms^2 * Rdc_max = 15.0^2 * 0.035 ohm",
+        "dc_copper_w_assumed_100c": 10.35,
+        "dc_copper_100c_basis": "ASSUMED, NOT SOURCED: 0.00393 /K copper coefficient applied to the 20 C max DCR.",
+        "ac_winding_w": null,
+        "ac_winding_reason": "R_ac at 65 kHz not published.",
+        "core_w": null,
+        "core_reason": "No core-loss data published. Not inferred from DCR.",
+        "delta_vs_baseline_dc_only_20c_w": 3.375,
+        "delta_vs_baseline_full_magnetic_w": null,
+        "delta_vs_baseline_full_magnetic_reason": "AC winding + core loss unpublished for both parts."
+      },
+      "envelope_capability": {
+        "saturation": "FAIL as a clean margin: printed ISAT 23 A typ is at the 23.2719 A envelope peak (ratio 1.01). Per the printed ISAT definition the part is already at the -30 % knee. The printed L curve contradicts this and shows -4.3 %; unresolved.",
+        "thermal_no_fan": "FAIL as specified: 15.0 A rms vs IR 12.3 A max at dT = 40 K (ratio 1.22).",
+        "thermal_4m_s_fan": "PASS: 15.0 A rms vs IR2 24.6 A max at dT = 40 K, 4 m/s fan.",
+        "thermal_verdict": "Conditional on >= 4 m/s forced air; assembly airflow not supplied."
+      },
+      "dimensions": {
+        "size_type": "T37",
+        "od_mm_max": 53.0,
+        "height_mm_max": 50.0,
+        "pin_count": 4,
+        "pin_dia_mm_nominal": 0.7,
+        "pin_dia_mm_tol": 0.2,
+        "mounting_bolt": "#4 bolt, mechanical stability only",
+        "hole_pattern_ref_mm": {"pin_span": 21.95, "pin_offset": 14.95, "other": [7.0, 5.5, 4.4, 1.5]}
+      },
+      "mass_g": null,
+      "mass_reason": "Mass not published.",
+      "procurement_observation": {
+        "observation_date": "2026-09-17",
+        "class": "procurement observation only",
+        "captured": false,
+        "reason": "No distributor page captured for this MPN within budget; availability not observed."
+      }
+    },
+    {
+      "rank_by_L_match": 3,
+      "manufacturer": "Wurth Elektronik eiSos GmbH & Co. KG (Midcom)",
+      "mpn": "760801321",
+      "size_type": "T75",
+      "candidate_note": "Included as the only screened WE-TORPFC member whose no-fan 40 K current rating exceeds the 15 A envelope. Its digitized typical L at the envelope peak (694.9 uH) is ~1.94x the 357.528 uH target, so it does NOT meet the fixed 65 kHz / 357.5 uH design point; it is reported as a thermal-feasible but L-mismatched option.",
+      "document": {
+        "title": "760801321 Datasheet WE-TORPFC Toroidal PFC Choke",
+        "revision": "001.001, dated 2023-12-11 (page 1 revision block)",
+        "pdf_creation_date": "2025-01-14T13:56:38 CST",
+        "page_count": 8,
+        "source_url": "https://www.we-online.com/components/products/datasheet/760801321.pdf",
+        "http_status": 200,
+        "http_content_type": "application/pdf",
+        "http_content_length": 654245,
+        "http_last_modified": "Wed, 15 Jan 2025 11:00:02 GMT",
+        "pdf_local_path": "raw/760801321.pdf",
+        "pdf_bytes": 654245,
+        "pdf_sha256": "5e16a6904ed2a69cc99a26104d0e1512bc299da3143ca7206b7ecc82052ea41c",
+        "verification": "magic %PDF-1.7; file(1)=PDF document version 1.7; pdfinfo parses 8 pages. Not HTML."
+      },
+      "package_mounting": "Through-hole toroidal, flat-wire winding, 8x 0.7 mm pins; #4 bolt through PCB for mechanical stability.",
+      "electrical_properties": {
+        "inductance_nominal_uH": 720.0,
+        "inductance_tolerance_pct": 20.0,
+        "inductance_test_condition": "N1 / 100 kHz / 100 mV; +20 C, 33 % rH",
+        "rated_current_IR_a": 17.2,
+        "rated_current_condition": "N1, dT = 40 K, no fan (max)",
+        "rated_current2_IR2_a": 31.6,
+        "rated_current2_condition": "N1, dT = 40 K, 4 m/s fan (max)",
+        "saturation_current_isat_a": 38.0,
+        "isat_definition": "N1 / |dL/L| < 30 % (typ)",
+        "dcr_max_mohm": 42.0,
+        "dcr_typical_mohm": null,
+        "dcr_condition": "N1, 20 C (max only)",
+        "vop_v_dc": 1000.0,
+        "operating_temp_c": [-40.0, 155.0]
+      },
+      "L_vs_bias": {
+        "source": "datasheet page 2, 'Typical Inductance vs. Current Characteristics'; x-axis 0..160 A",
+        "published_form": "typical curve only; no table; no L-vs-temperature curve",
+        "L_at_operating_bias": {
+          "current_a": 23.2719,
+          "L_typical_uH": 694.9,
+          "definition": "typical curve reading; nominal is 720 uH +/-20 %",
+          "ratio_to_target_357_528_uH": 1.9436
+        },
+        "L_profile_uH": {
+          "0 A": null, "5 A": 752.9, "10 A": 750.9, "11.5 A": 746.1, "12.3 A": 743.7,
+          "15 A": 736.4, "17.2 A": 725.9, "20 A": 716.4, "23.2719 A": 694.9, "25 A": 681.1,
+          "30 A": 643.9, "35 A": 600.5, "37 A": 586.7, "40 A": 562.8, "50 A": 477.6, "60 A": 397.8
+        },
+        "L_profile_note": "0 A value is null because the traced curve does not reach the x=0 frame column; the leftmost reliable reading is 5 A.",
+        "isat_curve_crosscheck": {
+          "printed_isat_a": 38.0,
+          "digitized_L_at_printed_isat_uH": 586.7,
+          "ratio_to_nominal": 0.815,
+          "verdict": "INCONSISTENT with |dL/L| < 30 % (would predict 504 uH at 38 A; the curve reaches -30 % near 45 A). Both values reported; not reconciled."
+        }
+      },
+      "loss_at_envelope": {
+        "inductor_rms_a": 15.0,
+        "inductor_peak_a": 23.2719,
+        "ripple_pp_a": 4.2043,
+        "switching_hz": 65000.0,
+        "dc_copper_w_at_20c": 9.45,
+        "dc_copper_formula": "I_rms^2 * Rdc_max = 15.0^2 * 0.042 ohm",
+        "dc_copper_w_assumed_100c": 12.42,
+        "dc_copper_100c_basis": "ASSUMED, NOT SOURCED: 0.00393 /K copper coefficient applied to the 20 C max DCR.",
+        "ac_winding_w": null,
+        "ac_winding_reason": "R_ac at 65 kHz not published.",
+        "core_w": null,
+        "core_reason": "No core-loss data published. Not inferred from DCR.",
+        "delta_vs_baseline_dc_only_20c_w": 4.95,
+        "delta_vs_baseline_full_magnetic_w": null,
+        "delta_vs_baseline_full_magnetic_reason": "AC winding + core loss unpublished for both parts."
+      },
+      "envelope_capability": {
+        "saturation": "PASS with margin: peak 23.2719 A vs ISAT 38 A typ (ratio 0.61); curve shows 694.9 uH at the peak.",
+        "thermal_no_fan": "PASS: 15.0 A rms vs IR 17.2 A max at dT = 40 K (ratio 0.87).",
+        "thermal_4m_s_fan": "PASS: vs IR2 31.6 A max.",
+        "thermal_verdict": "Only screened candidate that meets the thermal envelope without forced air; but its inductance at bias is ~1.94x the required design point."
+      },
+      "dimensions": {
+        "size_type": "T75",
+        "od_mm_max": 99.0,
+        "height_mm_max": 62.0,
+        "pin_count": 8,
+        "pin_dia_mm_nominal": 0.7,
+        "pin_dia_mm_tol": 0.2,
+        "mounting_bolt": "#4 bolt, mechanical stability only",
+        "hole_pattern_ref_mm": {"pin_span": 42.45, "pin_offset": 22.75, "other": [19.7, 9.5, 4.4, 1.5]}
+      },
+      "mass_g": null,
+      "mass_reason": "Mass not published.",
+      "procurement_observation": {
+        "observation_date": "2026-09-17",
+        "class": "procurement observation only",
+        "captured": false,
+        "reason": "No distributor page captured for this MPN within budget; availability not observed."
+      }
+    }
+  ],
+  "candidate_selection_note": "Only the WE-TORPFC family was screened, because it is the family of the retained baseline and publishes the same L-vs-bias and dT-vs-current curves under the same conditions, which is what makes the delta comparable. max_candidate_parts = 3, so no fourth-vendor candidate was added. The three parts span the family near the target (389 uH / 355 uH / 720 uH nominal). No catalog candidate both (a) delivers ~357.5 uH at the 23.27 A bias and (b) meets the 15 A rms thermal envelope without forced air.",
+  "source_failures": [
+    {
+      "url": "https://eu.mouser.com/c/passive-components/inductors-chokes-coils/power-inductors-leaded/?series=WE-TORPFC",
+      "stage": "webfetch",
+      "error": "Request timed out",
+      "classification": "distributor (non-primary); not needed for device data"
+    },
+    {
+      "url": "https://www.digikey.ca/en/products/detail/w%C3%BCrth-elektronik/760801202/17829962",
+      "stage": "curl",
+      "http_status": 403,
+      "body": "HTML bot-block",
+      "classification": "procurement only"
+    },
+    {
+      "url": "https://www.mouser.sg/ProductDetail/Wurth-Elektronik/760801202",
+      "stage": "curl",
+      "http_status": 200,
+      "body": "HTML bot-challenge page titled 'Access to this page has been denied.' (13897 bytes)",
+      "retained_at": "raw/procurement-760801202-mouser-sg-BLOCKED.html",
+      "classification": "procurement only; NOT treated as product data"
+    }
+  ],
+  "extraction_tooling": {
+    "pdfinfo": "poppler pdfinfo (macOS homebrew)",
+    "pdftotext": "poppler pdftotext -layout (per page)",
+    "render": "poppler pdftoppm -r 600 -png (page 2 curves); -r 200 -png (page 1 drawings)",
+    "hashing": "shasum -a 256",
+    "digitizer": "derived/digitize_l_curve.py (PIL 12.1.0 + numpy 2.4.6)"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "schema": "zapote.pfc.capture-log.v1",
+  "captures": [
+    {
+      "path": "raw/760800301.pdf",
+      "kind": "datasheet_primary",
+      "identifier": "760800301",
+      "url": "zapote/power-entry/loss-budget/sources/760800301.pdf (delivered bundle)",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 661997,
+      "sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+      "retrieved_at_utc": "2026-09-17T23:10:00Z",
+      "is_datasheet": true,
+      "note": null
+    },
+    {
+      "path": "raw/760801403.pdf",
+      "kind": "datasheet_primary",
+      "identifier": "760801403",
+      "url": "https://www.we-online.com/components/products/datasheet/760801403.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 688424,
+      "sha256": "fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a",
+      "retrieved_at_utc": "2026-09-17T23:10:00Z",
+      "is_datasheet": true,
+      "note": null
+    },
+    {
+      "path": "raw/760801202.pdf",
+      "kind": "datasheet_primary",
+      "identifier": "760801202",
+      "url": "https://www.we-online.com/components/products/datasheet/760801202.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 686931,
+      "sha256": "e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab",
+      "retrieved_at_utc": "2026-09-17T23:10:00Z",
+      "is_datasheet": true,
+      "note": null
+    },
+    {
+      "path": "raw/760801101.pdf",
+      "kind": "datasheet_primary",
+      "identifier": "760801101",
+      "url": "https://www.we-online.com/components/products/datasheet/760801101.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 687340,
+      "sha256": "e93d8a5dfd097aa6b75c45a984562b6735d9c262d9d2db9560f7733e32758977",
+      "retrieved_at_utc": "2026-09-17T23:10:00Z",
+      "is_datasheet": true,
+      "note": null
+    },
+    {
+      "path": "raw/760800202.pdf",
+      "kind": "datasheet_primary",
+      "identifier": "760800202",
+      "url": "https://www.we-online.com/components/products/datasheet/760800202.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 624939,
+      "sha256": "5068cf0aad681dc075fdba97d71422cc899d140fec621e82f2c14acc2e07e8c6",
+      "retrieved_at_utc": "2026-09-17T23:10:00Z",
+      "is_datasheet": true,
+      "note": null
+    },
+    {
+      "path": "raw/760800403.pdf",
+      "kind": "datasheet_primary",
+      "identifier": "760800403",
+      "url": "https://www.we-online.com/components/products/datasheet/760800403.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 688508,
+      "sha256": "a9cebee7f8cf0892c42884b704ef407aa640c379bd627aafb498ebed279d14b9",
+      "retrieved_at_utc": "2026-09-17T23:10:00Z",
+      "is_datasheet": true,
+      "note": null
+    },
+    {
+      "path": "raw/WE-TORPFC_catalog.html",
+      "kind": "manufacturer_catalog_secondary",
+      "identifier": "WE-TORPFC family",
+      "url": "https://www.we-online.com/en/components/products/WE-TORPFC",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "bytes": 326207,
+      "sha256": "a29c84ae14d4686357b58d4c71773b714c9e3b2d6519c3f2adee613ef37d9256",
+      "retrieved_at_utc": "2026-09-17T23:10:00Z",
+      "is_datasheet": false,
+      "note": "HTML secondary listing; NOT hashed as a datasheet"
+    }
+  ],
+  "capture_failures": [
+    {
+      "target": "DigiKey per-part pages (760801101, 760801202)",
+      "result": "no per-part price/stock obtained; search returned unrelated pages",
+      "attempts": 1
+    },
+    {
+      "target": "any published core-loss or AC-winding-loss curve for WE-TORPFC",
+      "result": "not present in the datasheets (0 attempts: source absence, not a URL failure)",
+      "attempts": 0
+    }
+  ]
+}

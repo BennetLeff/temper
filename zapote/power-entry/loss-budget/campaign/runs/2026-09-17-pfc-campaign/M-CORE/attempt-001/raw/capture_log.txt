@@ -1,0 +1,60 @@
+M-CORE attempt-001 capture log
+captured_utc_start: 2026-09-17T22:20:00Z (approx)
+captured_utc_end:   2026-09-17T22:31:15Z
+base_revision: b1a9ad74de50f283762a488a28c19f764830cdee (matches dispatch)
+
+PRIMARY SOURCES (source bundle, copied byte-for-byte; hashes verified against
+the coordinator bundle and the prior M065/M090 captures):
+  raw/760800301.pdf  sha256 4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8
+  raw/760801202.pdf  sha256 e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab
+  raw/760801403.pdf  sha256 fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a
+  -> pdfinfo: 8 pages each; %PDF-1.7; Creator "Wurth Electronics Midcom Inc."
+  -> text extraction: pdftotext -layout raw/<mpn>.pdf raw/<mpn>-all.txt
+  -> page-1 render: pdftoppm -r 300 -png raw/p1-<mpn>-1.png
+
+MANUFACTURER FAMILY / MATERIAL SOURCES (fetched this session):
+  1. https://www.we-online.com/files/pdf1/totem-pole-pfc-design-for-e-mobility---partnered.pdf
+     -> raw/we-torpfc-totem-pole-e-mobility.pdf  (HTTP 200, application/pdf, 2,498,812 bytes)
+     sha256 2b0aaf9f3599fe71a48bd0e6444b0f778988341e2ead53c1ee737901bbd74998
+     21 pages, "Totem Pole PFC Design for E-Mobility", Isaac Aboelsaad, 27.06.2023.
+     p.7 line: "Introducing WE-TORPFC (High Flux cores: Ni-Fe, Sendust: Al-Si-Fe)"
+     => family uses TWO powder materials; NO per-part mapping.
+  2. https://www.we-online.com/en/components/products/WE-TORPFC
+     family product table: L, IR, ISAT, RDC only. No material, no turns, no geometry.
+  3. https://www.we-online.com/en/components/products/pbs/power_magnetics/pfc_chokes
+     catalog table columns: VIN, L, n (turns ratio), IR, ISAT, RDC1, RDC2, VT, Size.
+     For WE-TORPFC the "n" column is "-" (not published). No core material column.
+  4. https://www.we-online.com/components/products/download/LTSpice_WE-TORPFC%20%28rev25a%29.zip
+     -> raw/LTSpice_WE-TORPFC_%28rev25a%29.zip (HTTP 200, application/zip, 2,091 bytes)
+     -> extracted raw/spice/ ; models are small-signal RP/CP/RS/L only. No core loss,
+        no material, no turns. (760801202: Rp 206.1k, Cp 6.81p, Rs 37m, L 389u.)
+  5. https://www.mag-inc.com/Products/Powder-Cores/High-Flux-Cores
+     -> raw/mag-inc-high-flux-cores.html (HTTP 200, text/html, 248,164 bytes; HTML, NOT a datasheet)
+     Magnetics (core manufacturer) High Flux = Ni-Fe, Bsat 15,000 gauss = 1.5 T,
+     "Core Loss Density curves" published.
+  6. https://www.mag-inc.com/Products/Powder-Cores/High-Flux-Cores/High-Flux-Material-Curves
+     -> raw/mag-inc-high-flux-material-curves.html (HTTP 200, text/html, 110,351 bytes)
+     core-loss-density curves are raster images; retrieved for mu=14,26,40,60 toroids:
+       raw/material/magnetics-HF-toroid-{14,26,40,60}mu-core-loss-density.JPG
+
+CAPTURE FAILURES / NON-FINDINGS (retained):
+  - No primary or manufacturer source found anywhere that maps 760801202 / 760801403 /
+    760800301 to a specific core material (High Flux vs Sendust) or publishes core
+    geometry (Ae, le, Ve, AL, turns). Datasheet pages 1-8 contain only: L, IR, IR2,
+    ISAT, RDC, VOP, VT, dimensions, packaging (Material column = PET/Paper, i.e.
+    packaging, not core), soldering profile, legal notes.
+  - DigiKey product detail page for 760801202 returned navigation HTML without a
+    "Core Material" attribute table (the prior M065 attempt recorded HTTP 403 for the
+    same page). Not treated as product data.
+  - Mouser/other distributor attribute tables not captured (prior M065 attempt
+    recorded a bot-challenge page; not re-attempted here).
+  - No AC-winding resistance / skin-proximity data at 65-90 kHz published for any
+    WE-TORPFC part.
+
+NOT USED / OUT OF SCOPE:
+  - Wurth REDEXPERT (online tool) was NOT invoked: the dispatch forbids maintained-model
+    invocation and REDEXPERT is a model/calculator, not a published datasheet value.
+  - No bench work performed.
+
+REPRODUCE:
+  python3 zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/M-CORE/attempt-001/raw/compute_bound.py

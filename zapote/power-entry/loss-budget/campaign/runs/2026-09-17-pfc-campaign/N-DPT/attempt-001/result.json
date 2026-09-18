@@ -1,0 +1,131 @@
+{
+  "schema": "pfc-campaign-numerical-result/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "N-DPT",
+  "attempt_id": "attempt-001",
+  "evidence_class": "independent_vendor_device_model_simulation",
+  "not_measured": true,
+  "status": {
+    "task_completion": "PARTIAL",
+    "task_completion_reason": "2 of 3 candidate parts produced usable vendor models (IPW65R045C7, IPZ60R040C7); STW65N65DM2AG model could not be captured (www.st.com unreachable). Eon/Eoff/Eoss obtained at 25 C and 125 C for both devices, but only with the vendor Level-0 model; the vendor Level-1/Level-3 temperature/electrothermal models do not converge in ngspice-45.",
+    "numerical_status": "CONVERGED",
+    "numerical_status_reason": "Eon/Eoff stable to <0.01 % under 10x timestep refinement; integration-window shift changes Eoff by +0.087 %, Eon unchanged; Eoss stable to 0.04 % on a 25 -> 43 point grid refinement.",
+    "physical_applicability": "LIMITED",
+    "physical_applicability_reason": "Vendor typical-device macromodel, not a measurement; clamped-inductive double pulse with an ideal bus source and a substituted freewheel diode; no board parasitics, no self-heating.",
+    "assembly_completeness": "NOT_APPLICABLE_DEVICE_LEVEL",
+    "hardware_qualification": "NOT_PERFORMED"
+  },
+  "analytic_target_w": 37.36824064736847,
+  "analytic_target_basis": "zapote-erc::pfc_switching switching_overlap_w at contract case 120 Vrms full load (R0/attempt-001 report.json case[1]); total switch+gate 45.5023 W includes overlap + Eoss 1.5106 W + conduction 6.4795 W",
+  "frequency_hz": 129107.39198576905,
+  "headline": {
+    "device": "IPW65R045C7",
+    "temperature_c": 25,
+    "eon_j": 0.000102495,
+    "eoff_j": 0.000104786,
+    "eoss_j": 0.0000097579321251,
+    "p_switch_on_off_w": 26.761509318202194,
+    "ratio_vs_analytic_overlap": 0.7161565236838835,
+    "p_overlap_only_w": 25.50168815035638,
+    "ratio_overlap_only_vs_analytic_overlap": 0.6824428367127916
+  },
+  "devices": {
+    "IPW65R045C7": {
+      "manufacturer": "Infineon",
+      "model": "IPW65R045C7_L0",
+      "model_source": "raw/models/infineon_c7_650v_spice_ngspice.lib",
+      "model_sha256": "d159f168d39139850f11a78cab26e6e168f510a98912d9d5e36a0f80ef883983",
+      "cases": {
+        "25C": {
+          "eon_j": 0.000102495,
+          "eoff_j": 0.000104786,
+          "eoss_j": 0.0000097579321251,
+          "turn_on_current_a": 12.06969,
+          "turn_off_current_a": 14.985,
+          "p_switch_on_off_w": 26.761509318202194,
+          "ratio_vs_analytic_overlap": 0.7161565236838835,
+          "p_overlap_only_w": 25.50168815035638,
+          "ratio_overlap_only_vs_analytic_overlap": 0.6824428367127916,
+          "refinement": {
+            "eon_j": {"nominal": 0.000102495, "fine5x": 0.000102504, "fine10x": 0.0001025},
+            "eoff_j": {"nominal": 0.000104786, "fine5x": 0.000104782, "fine10x": 0.000104777},
+            "window_shift_10ns": {"eon_j": 0.000102495, "eoff_j": 0.000104877}
+          }
+        },
+        "125C": {
+          "eon_j": 0.0000994706,
+          "eoff_j": 0.0000973056,
+          "eoss_j": 0.0000086862280539,
+          "turn_on_current_a": 12.0329,
+          "turn_off_current_a": 14.94428,
+          "p_switch_on_off_w": 25.405261986870087,
+          "ratio_vs_analytic_overlap": 0.679862405795633,
+          "p_overlap_only_w": 24.283805736637436,
+          "ratio_overlap_only_vs_analytic_overlap": 0.6498514598478305
+        }
+      }
+    },
+    "IPZ60R040C7": {
+      "manufacturer": "Infineon",
+      "model": "IPZ60R040C7_L0",
+      "model_source": "raw/models/infineon_c7_600v_spice_ngspice.lib",
+      "model_sha256": "6e743505d4a521e26a5e7d13ae8b621d74518bc22fe6cfc704f1d36949a5ff3e",
+      "cases": {
+        "25C": {
+          "eon_j": 0.000078376,
+          "eoff_j": 0.0000949363,
+          "eoss_j": 0.000010577925900999999,
+          "turn_on_current_a": 12.10883,
+          "turn_off_current_a": 15.04392,
+          "p_switch_on_off_w": 22.375899052055203,
+          "ratio_vs_analytic_overlap": 0.5987945556016149,
+          "p_overlap_only_w": 21.010210626358372,
+          "ratio_overlap_only_vs_analytic_overlap": 0.5622477874895067
+        },
+        "125C": {
+          "eon_j": 0.0000735575,
+          "eoff_j": 0.000084314,
+          "eoss_j": 0.0000094042396091,
+          "turn_on_current_a": 12.07154,
+          "turn_off_current_a": 15.0048,
+          "p_switch_on_off_w": 20.38237763388134,
+          "ratio_vs_analytic_overlap": 0.5454465417899385,
+          "p_overlap_only_w": 19.16822078434117,
+          "ratio_overlap_only_vs_analytic_overlap": 0.5129548636026307
+        }
+      }
+    },
+    "STW65N65DM2AG": {
+      "manufacturer": "STMicroelectronics",
+      "model": null,
+      "eon_j": null,
+      "eoff_j": null,
+      "eoss_j": null,
+      "ratio_vs_analytic_overlap": null,
+      "status": "NOT_CAPTURED",
+      "failure": "www.st.com unreachable from this host (HTTP/2 INTERNAL_ERROR; connect timeout on /resource/en/simulation_model/... over IPv6 and IPv4, 0 bytes)"
+    }
+  },
+  "analytic_verdict": {
+    "verdict": "CONTRADICTED",
+    "basis": "For the baseline device IPW65R045C7 at 25 C the vendor model predicts (Eon+Eoff)*f = 26.76 W and overlap-only (Eon-Eoss+Eoff)*f = 25.50 W, i.e. 0.72x / 0.68x of the analytic overlap 37.37 W. The vendor model is ~30 % LOWER than the analytic overlap term, and the gap grows at 125 C (0.68x / 0.65x). The analytic model is not corroborated at this operating point.",
+    "caveats": [
+      "vendor model is Level-0 (typical, 25 C nominal); the vendor's electrothermal models did not run",
+      "freewheel diode substituted (C3D20065D -> IDH16G65C5); the substitution changes Eon +10 % / Eoff -7 % but the sum only +1.0 %",
+      "event currents are ~1 % above the requested turn-on current",
+      "a model, not a measurement"
+    ]
+  },
+  "unknowns": {
+    "STW65N65DM2AG_all": null,
+    "vendor_electrothermal_125C": null,
+    "wolfspeed_C3D20065D_model": null,
+    "hardware_measurement": null
+  },
+  "files": {
+    "report": "REPORT.md",
+    "inputs": "inputs.json",
+    "final_numbers": "raw/derived/final_numbers.json",
+    "capture_log": "raw/capture_log.txt"
+  }
+}

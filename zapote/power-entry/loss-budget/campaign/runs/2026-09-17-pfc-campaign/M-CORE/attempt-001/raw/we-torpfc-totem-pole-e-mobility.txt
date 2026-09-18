@@ -1,0 +1,416 @@
+TOTEM POLE PFC DESIGN FOR E-
+MOBILITY - PARTNERED WITH DIGI-KEY
+ELECTRONICS
+Isaac Aboelsaad
+Product Definition Engineer
+AGENDA
+ WE-PPTI Transformers
+   • New parts and characteristics
+   • Application in Microchip Design
+ Custom PFC and New WE-TORPFC Overview
+   • Product family and characteristics
+   • Specification and measurements
+ Why flat wire?
+   • Skin and proximity effects
+   • Round vs Flat wire measurements
+   • Conclusion and equivalent circuit
+ WCAP-FTDB Series Film Capacitors
+   •Characteristics
+   •Additional resources
+22What WE offer
+WE-PPTI EXTENDED SERIES OVERVIEW
+Push-Pull Transformers
+
+                                           19x Catalogue parts in stock – No MOQ    Applications
+             AEC – Q200
+              Qualified                      Voltage second product up to 41 Vµs      Isolated interface power
+                                             Switching Frequency up to 620 KHz         supply for CAN, RS-485,
+                                             AEC-Q200 Grade 1                          RS-422, RS-232, SPI, I2C,
+                                                                                        lower-power LAN
+                                           Characteristics                            Isolated gate driver power
+                                             Small size                                supplies
+                                             Surface mount                            AC motor drives
+                                             Low profile                              Polyphase energy meters
+                                             Operating temp: -40°C to 125°C
+                                             Standards detail: IEC60950-1,
+                                              EN60950-1/CSA60950-1 and
+                                              AS/NZS609501.1
+
+
+
+
+3 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+  ISAAC ABOELSAAD | 27.06.2023
+WE-PPTI EXTENDED SERIES OVERVIEW
+Push-Pull Transformers
+
+
+
+
+                                          Source: Microchip
+
+
+
+
+4 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+  ISAAC ABOELSAAD | 27.06.2023
+CUSTOM MPP CORE PFC CHOKES
+Magnetics Molypermalloy Powder (MPP): Mo-Ni-Fe
+
+   Lowest core loss among all the powder materials.
+   Best temperature stability. Under 1%.
+   The maximum saturation flux density is 8000 gauss (0.8 tesla)
+   High Cost
+
+
+
+
+                                                                    Source: Wikipedia
+
+
+
+
+5 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+  ISAAC ABOELSAAD | 27.06.2023
+WE-PPTI EXTENDED SERIES OVERVIEW
+Push-Pull Transformers
+
+
+
+
+                                          Source: Microchip
+
+
+
+
+6 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+  ISAAC ABOELSAAD | 27.06.2023
+NEW SERIES OVERVIEW
+Introducing WE-TORPFC (High Flux cores: Ni-Fe, Sendust: Al-Si-Fe)
+
+                                           17x Catalogue parts in stock – No MOQ    Applications
+                                             Inductance: 118uH up to 720uH            External EV Chargers
+            AEC – Q200
+             Qualified                       Voltage: up to 1000VDC                   Solar Inverters
+                                             High saturation current up to 105A       Industrial/Medical AC-DC
+                                             Temperature: -40°C up to 155°C           Telecom PSU
+                                             Outer diameter sizes: 53mm – 99mm
+                                             Height sizes: 28mm – 62mm
+                                             AEC-Q200 Grade 1
+
+                                           Flat Wire Windings
+                                             Very low intra-winding capacitance
+                                             Minimized Skin Effect
+                                             Lower DCR
+                                             Mechanically stable
+
+
+
+
+7 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+  ISAAC ABOELSAAD | 27.06.2023
+NEW SERIES OVERVIEW
+P/Ns and Values
+
+ Typical Inductance values
+ Specification of rated current with
+  airflow
+ Smaller parts for same inductance
+  and current compared to
+  competition
+
+
+
+
+8            TOTEM POLE PFC DESIGN FOR E-MOBILITY
+             ISAAC ABOELSAAD | 27.06.2023
+WHY FLAT WIRE?                                                                                              Biezl, Wikipedia
+
+
+Theory and measurements
+
+ Skin Effect
+   Tendency of the current density in alternating current to become distributed
+     towards the surface of the conductor
+   The higher the frequency, the more the current is pushed towards the surface
+   Effective cross-section is reduced resulting in higher AC resistance
+   Skin Depth – the depth at which current density is 37% of the value at the surface
+                                              𝑙𝜌
+                                          𝑅≈
+                                             𝜋𝐷𝛿
+
+
+
+
+                                                                                                        Eddy currents cancel
+                                                                                   Current flow         current flow in center
+                                                                                   reinforced towards
+              60Hz                        1000Hz           400kHz                  outer surface
+
+9 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+  ISAAC ABOELSAAD | 27.06.2023
+ WHY FLAT WIRE?
+ Theory and measurements
+
+  Proximity effect
+    Current redistribution in conductors running in parallel and
+      carrying alternating current
+    Conductors carrying current in same direction have current
+      density distributed to the opposite sides
+    Conductors carrying current in opposite direction have
+      current density distributed to the neighboring sides
+    Increase in AC resistance
+    Increased effect with higher frequency
+
+
+
+
+                                                                    Stan Zurek, Encyclopedia Magnetica
+
+
+
+
+10             TOTEM POLE PFC DESIGN FOR E-MOBILITY
+               ISAAC ABOELSAAD | 27.06.2023
+  WHY FLAT WIRE?
+  Theory and measurements
+
+   For this testing, 760800201 standard flat wire part was
+    used and then hand wound a similar round wire sample.
+    To wind a similar round wire part, the same core as
+    760800201 was used, same number of turns, and used
+    equivalent sized round wires to obtain a similar DCR.
+
+
+
+     Characteristics                       Round Wire     Flat Wire   760800201 Datasheet
+                                                                      Specifications
+     Inductance (uH)                       204            197          194
+     DCR (mΩ)                              27.7           27.1        40mΩ max
+     Interwinding Cap (pF)                 154            2.99        -
+     Rated I. ∆T=40K                       11             12.4        12.4
+
+
+
+
+11 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+   ISAAC ABOELSAAD | 27.06.2023
+  WHY FLAT WIRE?
+  Capacitance matters
+
+   Round conductor normal winding with all the parasitic
+    capacitances shown – Parasitic capacitances are not just between
+    adjacent horizontal layers, but also between vertical layers as well    Series and parallel
+    and between multiple inductors                                          parasitic capacitance
+
+   Flat wire, due to winding nature only has series parasitic
+    capacitance
+
+
+
+
+                                                                           Cpar = C/n
+
+
+
+
+12 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+   ISAAC ABOELSAAD | 27.06.2023
+  WHY FLAT WIRE?
+  Theory and measurements
+                                                                                              No Air Flow PFC Inductor Temp. Rise
+   For something as small as 0.6mΩ difference in DCR, at
+                                                                             80
+    15A we have 14.3 degrees difference.
+                                                                             70
+
+   The difference comes from the better heat dissipation                    60
+    capabilities of the flat wire increased surface area.
+                                                                             50
+
+
+
+
+                                                            Temp. Rise (K)
+                                                                             40
+                                                                                                                                              Round Wire
+
+                                                                             30                                                               Flat Wire
+
+                                                                             20
+
+
+                                                                             10
+
+
+                                                                             0
+                                                                                  0   2   4        6         8          10   12     14   16
+                                                                                                       DC Current (A)
+
+
+
+
+13 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+   ISAAC ABOELSAAD | 27.06.2023
+  FLAT WIRE CONCLUSION
+                                                                       Capacitive Region
+
+
+                                                                                                                Inductive Region
+     Less interwinding capacitance – higher frequency
+     Lower DCR – lower losses
+     Skin effect reduced – reduced AC losses
+     Space between windings – proximity effect reduced + better cooling
+     Flat wire – higher mechanical stability
+
+
+
+                                                                     DC Resistance          Resonant Region
+
+
+                                                                                     Real equivalent circuit of inductor
+
+
+
+
+14 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+   ISAAC ABOELSAAD | 27.06.2023
+WCAP-FTDB: DC-LINK FILM CAPACITOR
+Introducing new series WCAP-FTDB
+
+                                            Würth Elektronik WCAP-FTDB DC-Link Film capacitors
+                                            Boxed THT - MKP Film Capacitors
+
+
+                                             24x catalogue parts in stock – no MOQ
+                                               Capacitance: 1 µF up to 75 µF
+                                               Voltage: 500 VDC up to 1200 VDC
+                                               Temperature: -40°C up to 105°C
+                                               Pitch / Pin distance: 27.5, 37.5 and 52.5 mm
+
+
+
+
+ 15 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+    ISAAC ABOELSAAD | 27.06.2023
+WCAP-FTDB: DC-LINK FILM CAPACITOR
+Introducing new series WCAP-FTDB
+
+
+   MKP: Polypropylene metallized film
+       High ripple current capability
+       Self-healing properties
+       Very long expected load life
+
+
+
+
+ 16 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+    ISAAC ABOELSAAD | 27.06.2023
+  DC LINK CAPACITOR TECHNOLOGIES
+
+                    Film DC Link Capacitors                        Aluminum Electrolytic Capacitors
+
+
+
+
+     Rated voltages up to 1,200 V                     Rated voltages up to 650 V
+         Perfect for SiC Modules                         Series connection necessary!
+     Very low ESR - High RMS current capabilities     Relatively high ESR internal resistance
+         Ripple current: several ARMS per μF             Depends on the part 1 mA/µF…20 mA/µF or higher
+     Low capacitance may cause high voltage ripple    High capacitance values
+     No liquid inside - long storage and load life       Highest capacitance per volume (µF / mm³)
+     Self-healing properties                          Get large bulk capacitance for low voltage ripple
+
+
+
+17 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+   ISAAC ABOELSAAD | 27.06.2023
+REDEXPERT
+Free browser platform optimized for component selection
+                                                      Find all standard specifications and following curves:
+
+                                                      •   Z vs Freq. (Impedance spectrum)
+                                                      •   ESR vs Freq.
+                                                      •   D (tan δ) vs Freq.
+                                                      •   Capacitance vs Temperature
+                                                      •   D (tan δ) vs Temperature
+                                                      •   Temperature /Voltage vs Lifetime (Derating curve)
+
+
+
+
+                         Scan for
+                         DC-Link
+                         Module!
+
+
+ 18 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+    ISAAC ABOELSAAD | 27.06.2023
+   MORE INFORMATION
+
+
+ Webinar (Youtube) - DC-Link Capacitor,
+  Specification and Application
+
+ Webinar (Youtube) - The Effects of
+  Harsh Environmental Conditions on
+  Film Capacitors
+
+ Application Note: Impedance Spectra of
+  Different Capacitor Technologies
+
+   Register for our next Webinar
+      about this topic on 11.07.2023        Scan to go to
+                                            Webinar
+                                            registration!
+
+
+
+
+ 19 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+    ISAAC ABOELSAAD | 27.06.2023
+      MICROCHIP 11KW TOTEM POLE PFC
+
+       What                  offer?
+
+   WE-CBF                                 WCAP-CSGP    WL-TMRC    WS-TASV
+
+   WE-TI
+                                           WCAP-FTXX    WR-TBL     WA-SSTIE
+   WE-PD
+
+
+   WE-LHMI                                WCAP-CSMH    WR-PHD     WA-SSTII
+
+   WE-CMBNC
+
+                                           WCAP-ATLI    WR-DSUB
+   WE-PPTI
+
+
+   WE-PFC                                 WCAP-FTX2    WE-VD
+
+   WE-AGDT
+
+                                           WCAP-AIG8
+   WE-FAMI
+
+
+
+    20 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+       ISAAC ABOELSAAD | 27.06.2023
+  Questions
+                               & Answers
+
+
+
+
+                         Online Catalogue   Online Catalogue   Online Catalogue
+                           WCAP-FTDB            Push Pull        PFC Chokes
+                                             Transformers
+
+
+21 TOTEM  POLE PFC DESIGN FOR E-MOBILITY
+   ISAAC ABOELSAAD | 27.06.2023
+

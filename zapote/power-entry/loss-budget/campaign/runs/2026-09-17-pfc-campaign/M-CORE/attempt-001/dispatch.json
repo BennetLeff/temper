@@ -1,0 +1,27 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "M-CORE",
+  "attempt_id": "attempt-001",
+  "kind": "source_then_compute",
+  "supersedes_question_of": "M065/M090 reported null core+AC loss for every catalog candidate",
+  "absolute_deadline_utc": "2026-09-17T23:40:00Z",
+  "max_solver_invocations": 0,
+  "max_candidate_parts": 4,
+  "max_primary_sources": 10,
+  "checkout_path": "zapote",
+  "source_revision": "b1a9ad74de50f283762a488a28c19f764830cdee",
+  "model_revision_and_sha256": "not_applicable: no maintained-model invocation; the deliverable is a sourced arithmetic bound",
+  "checker_revision_and_sha256": "not_applicable",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/M-CORE/attempt-001",
+  "exact_build_or_run_commands": "none mandated; record any computation script in raw/",
+  "source_bundle_paths_and_hashes": [
+    "M065/attempt-001/raw/760801202.pdf (defaults capture candidates)",
+    "M090/attempt-001/raw/760801403.pdf",
+    "zapote/power-entry/loss-budget/sources/760800301.pdf (retained baseline)"
+  ],
+  "question": "Can the core + AC winding loss of the candidate chokes be bounded tightly enough to decide the frequency trade, using the core MATERIAL's published loss data and the core geometry?",
+  "why": "M065 reports a 19.38 W switching saving and M090 an 11.82 W saving. M065's DC copper penalty is +6.75 W and M090's is +3.38 W; core+AC loss is the only remaining term and no catalog datasheet publishes it. A defensible upper bound is enough to decide the frequency move.",
+  "focus": "For 760801202 (65 kHz case), 760801403 (90 kHz case) and the baseline 760800301: identify the core MATERIAL and geometry from the manufacturer datasheet (core series and size, e.g. T50/T37, Ae, le, Ve, AL). Then source the MATERIAL's core-loss data (manufacturer core-loss curves or Steinmetz parameters) and compute or bound the core loss at the operating flux swing and frequency. Also obtain AC winding resistance versus frequency (skin/proximity) if published. The operating envelope: 15.0 A rms, 23.2719 A peak, 4.2043 A pk-pk ripple, DC bias up to 23.3 A, at 65 kHz and 90 kHz. Report an explicit UPPER bound with its assumptions, not a single optimistic point. If the DC-bias effect on core loss cannot be established from published data, say so and bound with the zero-bias and worst-bias cases.",
+  "stop_rule": "Do not invent material constants or fit loss to a desired outcome. If neither the material loss data nor the flux swing can be established from primary sources, return UNKNOWN naming the exact missing input. A tight bound, an explicit UNKNOWN and a demonstrated infeasibility are all valid outcomes."
+}

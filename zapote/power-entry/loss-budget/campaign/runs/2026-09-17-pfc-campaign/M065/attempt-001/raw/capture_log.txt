@@ -1,0 +1,36 @@
+Capture log — M065 attempt-001 (source-only), 2026-09-17
+Host: bennet-mac (macOS). Tool: curl 8.x, poppler pdftotext/pdfinfo/pdftoppm, shasum -a 256.
+
+BASELINE (delivered in the coordinator source bundle)
+  path      : zapote/power-entry/loss-budget/sources/760800301.pdf
+  copied to : raw/760800301.pdf
+  sha256    : 4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8
+  file      : PDF document, version 1.7; 8 pages; pdfinfo parses; CreationDate 2025-01-14
+  revision  : 001.001, dated 2023-12-11 (from page 1 revision block)
+  NOTE: hash matches the bundle; no capture needed.
+
+CANDIDATES (manufacturer primary source, we-online.com)
+  URL pattern: https://www.we-online.com/components/products/datasheet/<MPN>.pdf
+  All three returned HTTP/1.1 200 OK, Content-Type: application/pdf, Last-Modified 2025-01-15.
+  760801202.pdf  686931 bytes  Content-Length header 686931  -> sha256 e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab
+  760801403.pdf  688424 bytes  Content-Length header 688424  -> sha256 fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a
+  760801321.pdf  654245 bytes  Content-Length header 654245  -> sha256 5e16a6904ed2a69cc99a26104d0e1512bc299da3143ca7206b7ecc82052ea41c
+  Verification for each: '%PDF-1.7' magic; `file` reports PDF document; pdfinfo parses 8 pages.
+  No HTML was hashed as a datasheet. No mirror was needed for the manufacturer PDFs.
+
+FAMILY SOURCE (used only to enumerate part numbers, not a datasheet for any candidate)
+  https://www.we-online.com/en/components/products/WE-TORPFC  (fetched, rendered markdown)
+  Established that WE-TORPFC spans 118..720 uH and listed MPN / L / IR / ISAT / RDC.
+
+CAPTURE FAILURES / NON-PRIMARY ATTEMPTS (retained, not used as evidence)
+  1. https://eu.mouser.com/c/.../?series=WE-TORPFC  -- webfetch TIMEOUT (distributor, non-primary).
+  2. https://www.digikey.ca/en/products/detail/.../760801202/17829962 -- curl HTTP 403 (bot block).
+  3. https://www.mouser.sg/ProductDetail/Wurth-Elektronik/760801202 -- curl HTTP 200 but body is a
+     bot-challenge page titled "Access to this page has been denied."; saved as
+     raw/procurement-760801202-mouser-sg-BLOCKED.html and explicitly NOT treated as product data.
+
+PROCUREMENT OBSERVATION (distributor search results, dated 2026-09-17; NOT a device-performance source)
+  Mouser SG listing snippet : 760801202 -- Stock: 0, On Order: 12, expected 2026-10-16,
+                              factory lead time 22 weeks, price 1 = 68.54 (currency not resolved in snippet).
+  DigiKey CA listing snippet: 760801202 -- In-Stock: 24, price 1 = CAD 70.17.
+  These are labelled procurement observations only; they carry no electrical meaning.

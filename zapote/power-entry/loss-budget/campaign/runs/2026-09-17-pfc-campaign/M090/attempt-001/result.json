@@ -1,0 +1,65 @@
+{
+  "schema": "zapote.pfc.source-result.v1",
+  "task_id": "M090",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "kind": "source_research",
+  "hypothesis": "A physical choke of approximately 258.215 uH effective at operating bias, carrying 15.0 A rms / 23.2719 A peak / 4.2043 A pk-pk ripple at 90 kHz, exists such that its increase in DC+AC+core loss over the retained Wurth 760800301 is less than the 11.8202 W switching saving.",
+  "changed_variable": "Effective boost inductance (180 uH -> 258.215 uH) with L*f held constant; switching frequency 129.107 kHz -> 90 kHz. Source-only: no model/CAD/board edit.",
+  "status": {
+    "execution": "FINISHED",
+    "numerical_status": "NOT_RUN",
+    "numerical_reason": "source-only task; coordinator-supplied envelope, no solver invocation (max_solver_invocations=0)",
+    "checker_status": "NOT_RUN",
+    "checker_reason": "not_applicable: G0 checker not required for a source-only task",
+    "physical_qualification": "NOT_PERFORMED",
+    "assembly_rank": "NONE_EMITTED",
+    "assembly_rank_reason": "source-only partial result; unknowns stay unknown, no assembly rank"
+  },
+  "case_counts": {
+    "expected": 0, "attempted": 0, "valid": 0, "failed": 0, "unsupported": 0, "unrun": 0,
+    "note": "no numerical case grid applies to this source-only task"
+  },
+  "answer": {
+    "catalog_part_meeting_L_at_bias": "PARTIAL",
+    "catalog_part_carrying_envelope": "PARTIAL",
+    "magnetic_loss_delta_vs_baseline_w": null,
+    "magnetic_loss_delta_status": "UNKNOWN",
+    "magnetic_delta_under_11p82_w_possible": "UNKNOWN",
+    "verdict": "No catalog WE-TORPFC part provides BOTH approximately 258 uH at the 23.2719 A bias AND a published core+AC loss. The closest-bias-match candidate (760801403) has an acceptable DC-only delta (~3.4-5.0 W) leaving ~6.8-8.5 W of the 11.82 W saving for core+AC, but those terms are unpublished for every part in the family, so the decision cannot be closed from sources. Whether the delta is under 11.82 W is UNKNOWN.",
+    "best_candidate_mpn": "760801403",
+    "best_candidate_L_at_23p2719A_uH": 242.7,
+    "best_candidate_core_plus_ac_loss_w": null,
+    "best_candidate_core_plus_ac_reason": "not published in the datasheet; no core-loss curve, no core material data, no Rac/Rdc(f); not inferred from DCR"
+  },
+  "evidence": {
+    "inputs_json": "inputs.json",
+    "extraction_json": "raw/extraction.json",
+    "extraction_script": "raw/extract_choke_data.py",
+    "baseline_pdf": "raw/760800301.pdf",
+    "baseline_pdf_sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+    "captured_datasheets": [
+      {"mpn": "760801403", "sha256": "fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a"},
+      {"mpn": "760801202", "sha256": "e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab"},
+      {"mpn": "760801101", "sha256": "e93d8a5dfd097aa6b75c45a984562b6735d9c262d9d2db9560f7733e32758977"},
+      {"mpn": "760800202", "sha256": "5068cf0aad681dc075fdba97d71422cc899d140fec621e82f2c14acc2e07e8c6"},
+      {"mpn": "760800403", "sha256": "a9cebee7f8cf0892c42884b704ef407aa640c379bd627aafb498ebed279d14b9"}
+    ]
+  },
+  "unresolved_findings": [
+    "Core loss at 90 kHz / 23.27 A bias is unpublished for the baseline and every candidate; it is the single most decision-relevant missing term.",
+    "AC winding loss at 90 kHz with 4.20 A pk-pk ripple is unpublished for every part.",
+    "The 258.215 uH target is a constant-L model equivalent; the retained baseline's own published curve falls to ~159.7 uH at the 23.2719 A peak, so the model is ~13% optimistic about the baseline at the peak. A bias-matched target (candidate derating like the baseline) would be ~229 uH at peak.",
+    "L tolerance at bias / at temperature is not published; only a typical +20 degC curve.",
+    "Thermal ratings are at dT=40 K with a stated airflow; the 15 A envelope exceeds every candidate's no-fan rating and depends on 4 m/s forced air."
+  ],
+  "recommended_next_observation": "Obtain core loss (and, second, AC winding loss) at 90 kHz and the 23.27 A DC-bias operating point for 760801403 and for the retained 760800301 - from the manufacturer's loss tool or a vendor loss statement - then compute (DC+AC+core)_candidate - (DC+AC+core)_baseline and compare to 11.8202 W.",
+  "wall_time_minutes_approx": 55,
+  "solver_invocations": 0,
+  "touched_files": [
+    "raw/760800301.pdf", "raw/760801403.pdf", "raw/760801202.pdf", "raw/760801101.pdf",
+    "raw/760800202.pdf", "raw/760800403.pdf", "raw/WE-TORPFC_catalog.html",
+    "raw/extract_choke_data.py", "raw/extraction.json",
+    "inputs.json", "result.json", "REPORT.md", "manifest.json"
+  ]
+}

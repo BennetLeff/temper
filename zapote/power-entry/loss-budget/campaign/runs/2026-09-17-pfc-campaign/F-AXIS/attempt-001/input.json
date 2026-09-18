@@ -1,0 +1,78 @@
+{
+  "schema": "zapote.pfc.campaign-manifest.v1",
+  "device": {
+    "id": "IPW65R045C7",
+    "qg_c": 9.3e-08,
+    "qgd_c": 3e-08,
+    "plateau_v": 5.4,
+    "intrinsic_gate_r_ohm": 0.85,
+    "eoss_j": 1.17e-05,
+    "rds_on_ohm": 0.045
+  },
+  "drive": {
+    "gate_bias_v": 12.0,
+    "external_gate_r_on_ohm": 9.7,
+    "external_gate_r_off_ohm": 5.3,
+    "driver_source_peak_a": 5.0,
+    "driver_sink_peak_a": 5.0,
+    "current_transfer_charge_c": 1e-08,
+    "loop_inductance_h": 1e-08,
+    "timestep_s": 2.5e-10
+  },
+  "cases": [
+    {
+      "case_id": "f-30000",
+      "line_rms_v": 120.0,
+      "bus_v": 400.0,
+      "inductance_h": 0.0007746443519146143,
+      "switching_hz": 30000,
+      "requested_power_w": 1796.31003212911,
+      "input_rms_ceiling_a": 15.0
+    },
+    {
+      "case_id": "f-45000",
+      "line_rms_v": 120.0,
+      "bus_v": 400.0,
+      "inductance_h": 0.0005164295679430761,
+      "switching_hz": 45000,
+      "requested_power_w": 1796.31003212911,
+      "input_rms_ceiling_a": 15.0
+    },
+    {
+      "case_id": "f-65000",
+      "line_rms_v": 120.0,
+      "bus_v": 400.0,
+      "inductance_h": 0.0003575281624221297,
+      "switching_hz": 65000,
+      "requested_power_w": 1796.31003212911,
+      "input_rms_ceiling_a": 15.0
+    },
+    {
+      "case_id": "f-90000",
+      "line_rms_v": 120.0,
+      "bus_v": 400.0,
+      "inductance_h": 0.00025821478397153807,
+      "switching_hz": 90000,
+      "requested_power_w": 1796.31003212911,
+      "input_rms_ceiling_a": 15.0
+    },
+    {
+      "case_id": "f-129107",
+      "line_rms_v": 120.0,
+      "bus_v": 400.0,
+      "inductance_h": 0.00018,
+      "switching_hz": 129107.39198576905,
+      "requested_power_w": 1796.31003212911,
+      "input_rms_ceiling_a": 15.0
+    },
+    {
+      "case_id": "f-180000",
+      "line_rms_v": 120.0,
+      "bus_v": 400.0,
+      "inductance_h": 0.00012910739198576903,
+      "switching_hz": 180000,
+      "requested_power_w": 1796.31003212911,
+      "input_rms_ceiling_a": 15.0
+    }
+  ]
+}

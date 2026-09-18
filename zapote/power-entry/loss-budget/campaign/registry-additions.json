@@ -11,6 +11,27 @@
       "reason": "Coordinator-issued discriminator created after the whole-board bound in reference_loss_bound_probe.rs; not in the original 26-task draft.",
       "hypothesis_or_question": "Which gate network is actually populated on the EVAL_2.5KW_CCM_4PIN board?",
       "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "M-CORE",
+      "kind": "source_then_compute",
+      "wave": 1,
+      "depends_on": [
+        "M065",
+        "M090"
+      ],
+      "reason": "Coordinator-issued core-loss bound; without it the frequency trade cannot be decided from catalog data.",
+      "hypothesis_or_question": "Can the core + AC winding loss of the candidate chokes be bounded tightly enough to decide the frequency trade, using the core MATERIAL's published loss data and the core geometry?",
+      "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "N-DPT",
+      "kind": "numerical_independent_model",
+      "wave": 1,
+      "depends_on": [],
+      "reason": "Coordinator-issued independent-model cross-check of the dominant switching term, after both external references returned INSUFFICIENT_EVIDENCE.",
+      "hypothesis_or_question": "What Eon, Eoff and Eoss does an independent VENDOR DEVICE MODEL predict at the campaign's real operating point, and does it agree with the maintained analytic model's 37.368 W overlap term?",
+      "worker_status": "DISPATCHED_attempt-001"
     }
   ]
 }

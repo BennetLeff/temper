@@ -1,0 +1,25 @@
+* ============================================================
+* Eoss measurement: quasi-static linear drain ramp 0->400 V with Vgs = 0
+* DUT: IPW65R045C7_L0  (Infineon CoolMOS C7 vendor model, Level-0)
+* Eoss(400 V) = integral over the ramp of v(d) * (-i(vds)) dt
+* Vendor Level-0 model.
+* ============================================================
+.param TEMP=25
+.temp 25
+.include "../models/infineon_c7_650v_spice_ngspice.lib"
+
+Vds d 0 PWL(0 0 1m 400)
+Xdut d g 0 IPW65R045C7_L0
+Vg  g 0 0
+
+.options reltol=1e-5 abstol=1e-12 vntol=1e-7
+.tran 1e-7 1.2m 0 1e-8
+
+.control
+run
+let pv = v(d)*(-i(vds))
+meas tran eoss   integ pv from=0        to=1m
+meas tran qoss   integ (-i(vds)) from=0 to=1m
+meas tran vfinal find v(d) at=1m
+.endc
+.end

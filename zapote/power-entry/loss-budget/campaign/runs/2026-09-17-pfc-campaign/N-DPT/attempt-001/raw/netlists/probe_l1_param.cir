@@ -1,0 +1,12 @@
+* probe: IPW65R045C7_L1 with deck-level .param TEMP
+.param TEMP=25
+.include "../models/infineon_c7_650v_spice.lib"
+Vd d 0 400
+Vg g 0 0
+Xdut d g 0 IPW65R045C7_L1
+.op
+.control
+run
+print v(d) v(g) i(vd)
+.endc
+.end

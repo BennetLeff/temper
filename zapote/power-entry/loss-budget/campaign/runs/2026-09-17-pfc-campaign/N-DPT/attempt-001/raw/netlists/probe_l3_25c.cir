@@ -1,0 +1,13 @@
+* probe: IPW65R045C7_L3 with node-driven Tj/Tcase at 25 C
+.include "../models/infineon_c7_650v_spice.lib"
+Vd d 0 400
+Vg g 0 0
+Vtj tj 0 25
+Vtc tc 0 25
+Xdut d g 0 tj tc IPW65R045C7_L3
+.op
+.control
+run
+print v(d) v(g) v(tj) v(tc) i(vd)
+.endc
+.end

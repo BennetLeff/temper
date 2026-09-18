@@ -1,0 +1,67 @@
+N-DPT vendor-model capture log — 2026-09-17
+Host tool: /opt/homebrew/bin/ngspice -> ngspice-45.2
+All captures via curl 8.x, -A "Mozilla/5.0", --max-time 120.
+
+USABLE CAPTURES (verified model text, not HTML)
+------------------------------------------------
+1) Infineon CoolMOS C7 650 V PSpice library (contains IPW65R045C7)
+   URL    : https://www.infineon.com/assets/row/public/documents/24/50/infineon-power-coolmos-c7-mosfet-650v-spice-simulationmodels-en.zip
+   HTTP   : 200, application/zip, 7416 bytes
+   sha256 : c6c556688240713b58fb08782b97855fc018c3eacd2e229bd9761c6d447a8bca
+   extract: Infineon_Simulation Model_CoolMOS_C7_MOSFET_650V_Spice.lib
+            sha256 3688f71b829e86aacebf8de59091ee49fc15c7dcd86a13412d1eaa5b2c566d82 (232 KB text)
+   header : "Level-0/1/3 PSPICE Library for CoolMOS Transistors C7 650V, Version 260813"
+
+2) Infineon CoolMOS C7 600 V PSpice library (contains IPZ60R040C7)
+   URL    : https://www.infineon.com/assets/row/public/documents/24/50/infineon-power-coolmos-c7-mosfet-600v-spice-simulationmodels-en.zip
+   HTTP   : 200, application/zip, 7536 bytes
+   sha256 : 47d504d94f6e9c877bdf2d8f3eee64569d2b62361c76d529de5b034bf1318aa8
+   extract: Infineon_SimulationModel_CoolMOS_C7_MOSFET_600V_Spice.lib
+            sha256 dd8c00adb52bde29e27f7a77e57ec54633271c166995895a293aaec1929b0db1
+
+3) Infineon CoolSiC G5 650 V Schottky diode library (substitute freewheel diode)
+   URL    : https://www.infineon.com/assets/row/public/documents/24/50/infineon-simulationmodel-sic-diodes-coolsic-pspice-generation5-650v-idhxxg65c5-simulationmodels-en.zip
+   HTTP   : 200, application/zip, 5857 bytes
+   sha256 : ebb14c0018636905a7540a71aa89b37f78d7a4621981b1ab8c1c5bbae226d55e
+   extract: SiC_SCS_G5_650V_IDH_v1a.7.lib
+            sha256 32cfc673d3e56e1069fc07f9e4f83d52cff4a559205e4ff312f6c162ee36aacb
+   DUT used: IDH16G65C5_L3 (650 V, 16 A, TO-247). Retained board part is
+             Wolfspeed C3D20065D (650 V, 20 A) — see FAILED CAPTURES (b).
+
+CONVERSION (PSpice -> ngspice)
+------------------------------
+raw/tools/convert_infineon_pspice_to_ngspice.py: syntax-only
+  (a) if(cond,a,b)/IF(...) -> iif(...), with .func iif(c,a,b) { (c)?(a):(b) }.
+      ngspice-45 has no if() expression function.
+  (b) PSpice `PARAMS:` continuation `+ fparNN value` -> `+ fparNN=value`.
+  (c) exponent `^` -> `**`.
+  E/G element types preserved (rewriting them as B sources was tried first and
+  made ngspice fail on the first transient step).
+Outputs:
+  infineon_c7_650v_spice_ngspice.lib            sha256 d159f168d39139850f11a78cab26e6e168f510a98912d9d5e36a0f80ef883983
+  infineon_c7_600v_spice_ngspice.lib            sha256 6e743505d4a521e26a5e7d13ae8b621d74518bc22fe6cfc704f1d36949a5ff3e
+  infineon_coolsic_g5_650v_ngspice.lib          sha256 36abbff6d4b04d88e47427e37dc067b5a9f7909e2206ee70642ac331b2a1c875
+
+FAILED CAPTURES
+---------------
+(a) STW65N65DM2AG (ST, retained board part), priority 3
+    https://www.st.com/en/power-transistors/stw65n65dm2ag.html
+      -> curl (92) HTTP/2 stream INTERNAL_ERROR
+    https://www.st.com/resource/en/simulation_model/stw65n65dm2ag.lib
+    https://www.st.com/resource/en/simulation_model/stw65n65dm2ag.zip
+      -> curl (28) connect/read timeout, 0 bytes, over both IPv6 and IPv4.
+    www.st.com resolves (Akamai 23.45.122.203) but serves nothing to this host.
+    No model captured; no substitute used for a MOSFET.
+
+(b) Wolfspeed C3D20065D (retained freewheel diode)
+    https://www.wolfspeed.com/tools-and-support/power/ltspice-and-plecs-models/
+      page-data.json fetched (HTTP 200, 8099 bytes) but contains no direct
+      .lib/.zip model link; per Wolfspeed forum guidance the model download
+      requires account registration. No model captured. Substituted with the
+      Infineon CoolSiC G5 IDH16G65C5 (650 V/16 A) vendor model; measured effect
+      of the substitution on the DPT (ideal 120 pF diode vs the vendor SiC
+      diode, same timings/currents) is Eon +9.3 uJ (+10 %), Eoff -7.3 uJ (-7 %),
+      sum +1.0 % — see REPORT.md.
+
+(c) Encrypted/unsupported models: none of the captured .lib files were
+    encrypted or empty; all are plain text.

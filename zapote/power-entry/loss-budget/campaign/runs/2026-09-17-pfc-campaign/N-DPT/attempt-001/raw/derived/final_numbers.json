@@ -1,0 +1,60 @@
+{
+  "f_hz": 129107.39198576905,
+  "analytic_overlap_w": 37.36824064736847,
+  "analytic_eoss_w": 1.5106,
+  "analytic_total_switch_gate_w": 45.502337474982966,
+  "devices": {
+    "IPW65R045C7@25C": {
+      "eon_j": 0.000102495,
+      "eoff_j": 0.000104786,
+      "eoss_j": 9.7579321251e-06,
+      "turn_on_current_a": 12.06969,
+      "turn_off_current_a": 14.985,
+      "p_switch_on_off_w": 26.761509318202194,
+      "ratio_vs_analytic_overlap": 0.7161565236838835,
+      "p_overlap_only_w": 25.50168815035638,
+      "ratio_overlap_only_vs_analytic": 0.6824428367127916,
+      "p_eoss_w": 1.259821167845814,
+      "ratio_total_vs_analytic_total": 0.6158217806163044
+    },
+    "IPW65R045C7@125C": {
+      "eon_j": 9.94706e-05,
+      "eoff_j": 9.73056e-05,
+      "eoss_j": 8.6862280539e-06,
+      "turn_on_current_a": 12.0329,
+      "turn_off_current_a": 14.94428,
+      "p_switch_on_off_w": 25.405261986870087,
+      "ratio_vs_analytic_overlap": 0.679862405795633,
+      "p_overlap_only_w": 24.283805736637436,
+      "ratio_overlap_only_vs_analytic": 0.6498514598478305,
+      "p_eoss_w": 1.121456250232651,
+      "ratio_total_vs_analytic_total": 0.5829748472083888
+    },
+    "IPZ60R040C7@25C": {
+      "eon_j": 7.8376e-05,
+      "eoff_j": 9.49363e-05,
+      "eoss_j": 1.0577925900999999e-05,
+      "turn_on_current_a": 12.10883,
+      "turn_off_current_a": 15.04392,
+      "p_switch_on_off_w": 22.375899052055203,
+      "ratio_vs_analytic_overlap": 0.5987945556016149,
+      "p_overlap_only_w": 21.010210626358372,
+      "ratio_overlap_only_vs_analytic": 0.5622477874895067,
+      "p_eoss_w": 1.365688425696826,
+      "ratio_total_vs_analytic_total": 0.5217663266377266
+    },
+    "IPZ60R040C7@125C": {
+      "eon_j": 7.35575e-05,
+      "eoff_j": 8.4314e-05,
+      "eoss_j": 9.4042396091e-06,
+      "turn_on_current_a": 12.07154,
+      "turn_off_current_a": 15.0048,
+      "p_switch_on_off_w": 20.38237763388134,
+      "ratio_vs_analytic_overlap": 0.5454465417899385,
+      "p_overlap_only_w": 19.16822078434117,
+      "ratio_overlap_only_vs_analytic": 0.5129548636026307,
+      "p_eoss_w": 1.2141568495401693,
+      "ratio_total_vs_analytic_total": 0.4746247265933363
+    }
+  }
+}

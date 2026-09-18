@@ -1,0 +1,185 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "template_only": false,
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "M-CORE",
+  "attempt_id": "attempt-001",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "source_revision": "b1a9ad74de50f283762a488a28c19f764830cdee",
+  "model_source_sha256": null,
+  "model_source_sha256_note": "not_applicable: no maintained-model invocation; dispatch max_solver_invocations = 0",
+  "binary_sha256": null,
+  "checker_sha256": null,
+  "checker_sha256_note": "not_applicable: no G0 checker issued for this source+arithmetic task",
+  "dirty_state": "other-workers-present",
+  "dirty_state_detail": "git status --short at attempt start (HEAD b1a9ad74de50f283762a488a28c19f764830cdee): modified zapote/packages/zapote-harness/src/pfc_campaign.rs, zapote/packages/zapote-harness/tests/pfc_campaign.rs, and three R0/attempt-001/raw files; untracked F-AXIS/, M065/, M090/ (and M-CORE/ itself). Those are other workers' edits and were not touched. This attempt wrote only inside zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/M-CORE/attempt-001/.",
+  "requested_model": null,
+  "served_model_receipt": null,
+
+  "task_completion": "FINISHED",
+  "task_completion_note": "Core identification, material search, flux-swing derivation and bound attempt completed. No manufactured-model invocation, no solver, no CAD/board edit; writes confined to the run directory.",
+  "evidence_status": "NOT_REVIEWED",
+  "evidence_status_note": "3 datasheet PDFs hash-verified against the coordinator bundle; 1 manufacturer presentation and 2 manufacturer web pages plus 4 core-loss-curve images captured. Not independently reviewed.",
+  "numerical_status": "NOT_RUN",
+  "physical_applicability": "INDETERMINATE",
+  "physical_applicability_note": "Core + AC winding loss cannot be evaluated because neither the per-part core material nor the core geometry is published; the decision term stays unknown.",
+  "assembly_completeness": "INCOMPLETE",
+  "assembly_completeness_note": "Only the choke magnetics term is examined; the surrounding assembly and whole-ledger loss balance are outside this task.",
+  "hardware_qualification": "NOT_PERFORMED",
+
+  "hypothesis": "The core + AC winding loss of 760801202 (65 kHz case) and 760801403 (90 kHz case) can be given a defensible UPPER bound below the remaining headroom (12.6265 W and 8.4452 W respectively), using the core material's published loss data and the published core geometry, so the frequency move survives.",
+  "actual_changed_variables": [
+    "evidence.core_identification: added core material and geometry fields for 760801202, 760801403, 760800301 from the manufacturer datasheet",
+    "evidence.material_loss_data: sourced the family-level core material statement and one candidate material's published loss/saturation data"
+  ],
+
+  "controls": [
+    {
+      "control": "retained baseline Wurth 760800301 source identity",
+      "reproduced": "yes",
+      "detail": "raw/760800301.pdf sha256 4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8 equals the coordinator bundle and the M065/M090 copies. No numerical control was issued (source-only task)."
+    }
+  ],
+
+  "core_identification": {
+    "per_part_core_material": null,
+    "per_part_core_material_reason": "No manufacturer source maps any WE-TORPFC part number to a specific core material. Datasheet 'Material' fields are packaging (PET/Paper). A Wurth family presentation states the series uses BOTH High Flux (Ni-Fe) and Sendust (Al-Si-Fe); the mapping is unpublished.",
+    "per_part_geometry": {
+      "Ae_mm2": null,
+      "le_mm": null,
+      "Ve_mm3": null,
+      "AL_nH_per_turn2": null,
+      "turns": null,
+      "reason": "Not published in the datasheet, the family product page, the PFC-choke catalog table (the 'n' column is '-' for WE-TORPFC), or the LTspice/PSpice models. Only external package dimensions are given (T37 OD 53/H 50; T50 OD 72/H 45; T75 OD 99/H 62 mm)."
+    },
+    "family_size_types": { "760800301": "T75", "760801202": "T50", "760801403": "T37" }
+  },
+
+  "flux_swing": {
+    "upper_bound_T": 0.2709899062818249,
+    "upper_bound_derivation": "dB <= dI * Bsat_ceiling / I_pk = 4.2043 * 1.5 / 23.2719; valid because B <= Bsat for any magnetic core and L*I = N*Ae*B gives N*Ae >= L*I/Bsat; L cancels.",
+    "upper_bound_assumption": "Bsat <= 1.5 T (Magnetics High Flux, the highest of the family's two candidate materials).",
+    "lower_bound_T": null,
+    "lower_bound_reason": "No published upper bound on N*Ae, so the flux swing cannot be bounded from below."
+  },
+
+  "core_volume_bracket": {
+    "760801202": {
+      "lower_m3": 1.482556237968963e-06,
+      "lower_basis": "magnetic energy / max energy density at Bsat=1.5 T and the smallest Magnetics High Flux permeability grade (14u)",
+      "upper_m3": 0.00018321768355735675,
+      "upper_basis": "bounding cylinder from the T50 external envelope (72 mm x 45 mm)",
+      "range_ratio": 123.6
+    },
+    "760801403": {
+      "lower_m3": 1.02775321038294e-06,
+      "upper_m3": 0.00011030917204917161,
+      "range_ratio": 107.3
+    },
+    "760800301": {
+      "lower_m3": 6.766994767993154e-07,
+      "upper_m3": 0.0004772566187664202,
+      "range_ratio": 705.3
+    }
+  },
+
+  "magnetic_loss_ledger": [
+    { "mpn": "760800301", "term": "inductor_dc_copper", "value_w": 4.5, "evidence_class": "SOURCED", "basis": "I_rms^2 * Rdc_max = 15.0^2 * 0.020, 20 C max DCR", "uncertainty": {"kind": "UPPER", "upper_w": 4.5} },
+    { "mpn": "760800301", "term": "inductor_core_plus_ac", "value_w": null, "evidence_class": "UNKNOWN", "missing_evidence": "Core loss and AC winding loss unpublished; core volume unknown over 705x and per-part material unpublished." },
+    { "mpn": "760801202", "term": "inductor_dc_copper", "value_w": 11.25, "evidence_class": "SOURCED", "basis": "I_rms^2 * Rdc_max = 15.0^2 * 0.050, 20 C max DCR", "uncertainty": {"kind": "UPPER", "upper_w": 11.25} },
+    { "mpn": "760801202", "term": "inductor_core_plus_ac", "value_w": null, "evidence_class": "UNKNOWN", "missing_evidence": "Core loss requires both dB (upper-bounded only, <=0.271 T) and Ve (unknown over 124x); per-part material unpublished; no AC-resistance data at 65 kHz." },
+    { "mpn": "760801403", "term": "inductor_dc_copper", "value_w": 7.875, "evidence_class": "SOURCED", "basis": "I_rms^2 * Rdc_max = 15.0^2 * 0.035, 20 C max DCR", "uncertainty": {"kind": "UPPER", "upper_w": 7.875} },
+    { "mpn": "760801403", "term": "inductor_core_plus_ac", "value_w": null, "evidence_class": "UNKNOWN", "missing_evidence": "Same missing inputs as 760801202, at 90 kHz; Ve unknown over 107x." }
+  ],
+
+  "supported_subtotals": [
+    {
+      "subtotal": "dc_copper_loss_delta_vs_baseline_20C",
+      "unit": "W",
+      "760801202": 6.75,
+      "760801403": 3.375,
+      "switching_saving_65kHz_w": 19.3765,
+      "switching_saving_90kHz_w": 11.8202,
+      "assessment": "DC-copper-only deltas leave 12.6265 W (760801202) and 8.4452 W (760801403) of headroom for core + AC winding loss."
+    },
+    {
+      "subtotal": "core_plus_ac_upper_bound",
+      "unit": "W",
+      "value": null,
+      "reason": "Not constructible. The upper bound needs a worst-case Ve (unknown over ~100x) and a material-specific loss density (per-part material unpublished); the flux swing is upper-bounded only. The lower bound (0 W above DC copper) does not exceed the headroom either, so the trade cannot be closed in either direction."
+    }
+  ],
+
+  "bound": {
+    "core_plus_ac_upper_bound_W": { "760801202": null, "760801403": null },
+    "core_plus_ac_lower_bound_W": { "760801202": 0.0, "760801403": 0.0 },
+    "headroom_W": { "760801202": 12.6265, "760801403": 8.4452 },
+    "reason": "Material identity per part and core geometry (N, Ae, le, Ve) are not published by the manufacturer; without them neither the flux swing nor the conversion of published core-loss density to watts is established."
+  },
+
+  "constraint_findings": [
+    {
+      "finding": "Per-part core material is unpublished",
+      "detail": "The datasheet does not name a core material; its only 'Material' fields are packaging. Wurth's own family presentation (raw/we-torpfc-totem-pole-e-mobility.pdf, p.7) says the series uses High Flux (Ni-Fe) AND Sendust (Al-Si-Fe) with no mapping. Part-number/ISAT covariance across the family (e.g. 760800202 ISAT 19 A vs 760801202 ISAT 37 A, both 389 uH/T50/50 mOhm) suggests two material or permeability variants, but this is an inference, not a source, and is recorded as such.",
+      "class": "MISSING_SOURCE"
+    },
+    {
+      "finding": "Core geometry is unpublished",
+      "detail": "Ae, le, Ve, AL and turns are absent from the datasheet, the family product page, the PFC-choke catalog table ('n' is '-'), and the LTspice/PSpice models (small-signal RP/CP/RS/L only). Only external package dimensions are given.",
+      "class": "MISSING_SOURCE"
+    },
+    {
+      "finding": "Flux swing bounded above only",
+      "detail": "Using B <= Bsat from the core manufacturer gives dB <= 0.271 T for both candidates (geometry- and L-independent). No lower bound on dB exists without a published N*Ae upper bound.",
+      "class": "PARTIAL_BOUND"
+    },
+    {
+      "finding": "Core loss cannot be expressed in watts",
+      "detail": "Core loss = loss density * Ve. Ve is only bracketed over ~100x (energy floor vs dimensional envelope), so even with a published loss-density curve the watt-level term is unknown. The Magnetics High Flux core-loss-density curves were captured but are not usable without the mapping and volume.",
+      "class": "MISSING_SOURCE"
+    },
+    {
+      "finding": "AC winding resistance vs frequency is unpublished",
+      "detail": "No Rac/Rdc or impedance-vs-frequency data at 65-90 kHz for any WE-TORPFC part; wire cross-section and turns are unpublished, so no bound can be formed. Not inferred from DCR.",
+      "class": "MISSING_SOURCE"
+    },
+    {
+      "finding": "DC-only deltas alone do not decide the trade",
+      "detail": "DC copper leaves 12.63 W / 8.44 W of headroom, which is large enough that a plausible core+AC loss could either fit under it or exceed it; the bound must be an upper bound to decide, and it is not obtainable.",
+      "class": "INCONCLUSIVE"
+    }
+  ],
+
+  "unsupported_cases": [],
+  "source_failures": [
+    { "url": "https://www.digikey.com/en/products/detail/wurth-elektronik/760801202/17829962", "error": "navigation HTML returned without a Core Material attribute table (prior attempt: HTTP 403)", "class": "procurement/attribute" }
+  ],
+  "tool_failures": [],
+  "raw_artifacts": [
+    { "kind": "datasheet_pdf", "role": "baseline", "path": "raw/760800301.pdf", "sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8" },
+    { "kind": "datasheet_pdf", "role": "candidate", "path": "raw/760801202.pdf", "sha256": "e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab" },
+    { "kind": "datasheet_pdf", "role": "candidate", "path": "raw/760801403.pdf", "sha256": "fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a" },
+    { "kind": "manufacturer_presentation_pdf", "path": "raw/we-torpfc-totem-pole-e-mobility.pdf", "sha256": "2b0aaf9f3599fe71a48bd0e6444b0f778988341e2ead53c1ee737901bbd74998", "note": "family material statement, p.7" },
+    { "kind": "manufacturer_html", "path": "raw/mag-inc-high-flux-cores.html", "sha256": "22296149679ef8e47d61ea0b1f084486509aaf64a40d8fe0dff876654f1a6589", "note": "HTML, NOT a datasheet; source of the Bsat 1.5 T ceiling" },
+    { "kind": "core_loss_density_curve_images", "path": "raw/material/magnetics-HF-toroid-{14,26,40,60}mu-core-loss-density.JPG", "note": "captured but not usable without per-part material + core volume" },
+    { "kind": "spice_model", "path": "raw/spice/WE-TORPFC.lib", "note": "small-signal only; no core loss/material/turns" },
+    { "kind": "computation_script", "path": "raw/compute_bound.py" },
+    { "kind": "computation_output", "path": "raw/computed_bound.json" }
+  ],
+
+  "manifest_sha256": null,
+  "manifest_sha256_note": "manifest.json lists the SHA-256 of every other produced file; a file cannot contain its own hash, so this stays null.",
+  "checker_receipt": null,
+  "coordinator_receipt": null,
+
+  "next_discriminating_observation": "The single missing input is the per-part core geometry and material: without N, Ae/le/Ve and the material's core-loss density, core loss cannot be expressed in watts. Obtain from Wurth (a) the core material and core part number/dimensions for 760801202, 760801403 and 760800301, and (b) a core-loss (and AC-winding-loss) measurement at 65/90 kHz, 0-23.3 A bias, 4.2043 A pk-pk ripple. Otherwise the trade stays UNKNOWN.",
+
+  "verdict": {
+    "value": "UNKNOWN",
+    "missing_input": "per-part core material identity AND core geometry (N, Ae, le, Ve) for 760801202 / 760801403 / 760800301; without them the operating flux swing and the watt-level core loss cannot be established from primary sources",
+    "frequency_move_survives": null,
+    "frequency_move_dies": null,
+    "detail": "DC-copper deltas (+6.75 W / +3.375 W) leave 12.6265 W / 8.4452 W of headroom, so DC copper alone does not erase the saving. The unpublished core+AC term was the only remaining question and it cannot be bounded: the flux swing is upper-bounded (<=0.271 T) but the core volume is unknown over ~100x and the per-part material is unpublished, so no upper bound can be formed, and the lower bound (DC copper only) does not exceed the headroom either."
+  },
+  "example_warning": "Template nulls mean unfilled/unknown, never zero. Absence of a published loss term cannot be converted to zero or to a PASS."
+}

@@ -1,0 +1,208 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "template_only": false,
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "M065",
+  "attempt_id": "attempt-001",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "source_revision": "b1a9ad74de50f283762a488a28c19f764830cdee",
+  "model_source_sha256": null,
+  "model_source_sha256_note": "not_applicable: source-only task; no solver invocation issued (dispatch max_solver_invocations = 0)",
+  "binary_sha256": null,
+  "checker_sha256": null,
+  "checker_sha256_note": "not_applicable: G0 checker not required for a source-only task (dispatch)",
+  "dirty_state": "other-workers-present",
+  "dirty_state_detail": "git status --short at attempt start (HEAD b1a9ad74de50f283762a488a28c19f764830cdee): modified zapote/packages/zapote-harness/src/pfc_campaign.rs, zapote/packages/zapote-harness/tests/pfc_campaign.rs, and three R0/attempt-001/raw files; untracked F-AXIS/, M065/, M090/. Those are other workers' edits and were not touched. This attempt wrote only inside zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/M065/attempt-001/.",
+  "requested_model": null,
+  "requested_model_note": "not restated in the dispatch packet",
+  "served_model_receipt": null,
+  "task_completion": "FINISHED",
+  "task_completion_note": "Three exact WE-TORPFC catalog candidates captured and hashed; L-vs-bias digitized and cross-checked against the printed ISAT definition; DCR, thermal and saturation ratings extracted with conditions; baseline hashed and its envelope losses captured. No solver, no model/CAD edits.",
+  "evidence_status": "NOT_REVIEWED",
+  "evidence_status_note": "Manufacturer PDFs captured and self-verified (header magic, file(1), pdfinfo page count, pdftotext parse). Curve values are graph-digitized (script retained). Not independently reviewed; no checker ran.",
+  "numerical_status": "NOT_RUN",
+  "physical_applicability": "INDETERMINATE",
+  "physical_applicability_note": "L(bias) and saturation are sourced, but the thermal envelope depends on airflow not supplied by the campaign (no-fan IR is below 15 A rms for the two L-matched parts; IR2 passes only at 4 m/s fan). Core and AC winding loss at 65 kHz / 23.27 A bias / 4.20 A pk-pk are unpublished, so the magnetic delta that decides the 19.38 W question cannot be computed from these sources.",
+  "assembly_completeness": "INCOMPLETE",
+  "assembly_completeness_note": "Only the magnetic component is examined; the surrounding assembly, cooling and the retained whole-assembly ledger are outside this source-only task.",
+  "hardware_qualification": "NOT_PERFORMED",
+  "hypothesis": "A physical choke can supply ~357.528 uH effective at the 23.2719 A operating bias, carry 15.0 A rms / 23.2719 A peak with 4.2043 A pk-pk ripple at 65 kHz, and add less than 19.3765 W of DC+AC+core loss over the retained Wurth 760800301.",
+  "actual_changed_variables": [
+    "source_capture.candidate_chokes: three exact WE-TORPFC MPNs (760801202, 760801403, 760801321) captured at 65 kHz design point, plus the retained baseline 760800301"
+  ],
+  "controls": [
+    {
+      "control": "retained baseline Wurth 760800301",
+      "reproduced": "source identity reproduced",
+      "detail": "PDF sha256 4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8 matches the coordinator source bundle. No numerical control was run (source-only)."
+    }
+  ],
+  "target_match": {
+    "target_effective_inductance_uH": 357.528,
+    "best_candidate_mpn": "760801202",
+    "best_candidate_L_at_bias_uH": 350.1,
+    "best_candidate_ratio_to_target": 0.9792,
+    "second_mpn": "760801403",
+    "second_L_at_bias_uH": 338.8,
+    "third_mpn": "760801321",
+    "third_L_at_bias_uH": 694.9,
+    "verdict": "A catalog part near the target DOES exist: 760801202 is within 2.1 % of the required effective inductance at the operating bias. It can carry the peak (ISAT 37 A typ) and, with >= 4 m/s forced air, the 15 A rms envelope (IR2 20 A)."
+  },
+  "magnetic_loss_ledger": [
+    {
+      "mpn": "760800301",
+      "role": "baseline",
+      "term": "inductor_dc_copper",
+      "value_w": 4.5,
+      "evidence_class": "SOURCED",
+      "source_conditions": "Rdc_max = 20 mOhm at N1 / 20 C (datasheet p.1); I_rms = 15.0 A",
+      "basis": "I_rms^2 * Rdc_max",
+      "temperature": "20 C",
+      "uncertainty": {"kind": "UPPER", "lower_w": null, "upper_w": 4.5, "basis": "max DCR published; typical DCR not published, so 4.5 W is an upper bound at 20 C"}
+    },
+    {
+      "mpn": "760800301",
+      "role": "baseline",
+      "term": "inductor_ac_winding",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "missing_evidence": "No AC resistance / skin-proximity data at 65 kHz in the datasheet."
+    },
+    {
+      "mpn": "760800301",
+      "role": "baseline",
+      "term": "inductor_core",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "missing_evidence": "No core-loss data in the datasheet (page 2 has only typical L vs current and typical dT vs current). Not inferred from DCR."
+    },
+    {
+      "mpn": "760801202",
+      "role": "candidate_rank1",
+      "term": "inductor_dc_copper",
+      "value_w": 11.25,
+      "evidence_class": "SOURCED",
+      "source_conditions": "Rdc_max = 50 mOhm at N1 / 20 C (datasheet p.1); I_rms = 15.0 A",
+      "basis": "I_rms^2 * Rdc_max",
+      "temperature": "20 C",
+      "uncertainty": {"kind": "UPPER", "lower_w": null, "upper_w": 11.25, "basis": "max DCR published; typical not published"}
+    },
+    {
+      "mpn": "760801202",
+      "role": "candidate_rank1",
+      "term": "inductor_ac_winding",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "missing_evidence": "No AC resistance data at 65 kHz."
+    },
+    {
+      "mpn": "760801202",
+      "role": "candidate_rank1",
+      "term": "inductor_core",
+      "value_w": null,
+      "evidence_class": "UNKNOWN",
+      "missing_evidence": "No core-loss data published. Not inferred from DCR."
+    },
+    {
+      "mpn": "760801403",
+      "role": "candidate_rank2",
+      "term": "inductor_dc_copper",
+      "value_w": 7.875,
+      "evidence_class": "SOURCED",
+      "source_conditions": "Rdc_max = 35 mOhm at N1 / 20 C; I_rms = 15.0 A",
+      "basis": "I_rms^2 * Rdc_max",
+      "temperature": "20 C"
+    },
+    {
+      "mpn": "760801321",
+      "role": "candidate_rank3",
+      "term": "inductor_dc_copper",
+      "value_w": 9.45,
+      "evidence_class": "SOURCED",
+      "source_conditions": "Rdc_max = 42 mOhm at N1 / 20 C; I_rms = 15.0 A",
+      "basis": "I_rms^2 * Rdc_max",
+      "temperature": "20 C"
+    }
+  ],
+  "supported_subtotals": [
+    {
+      "subtotal": "dc_copper_loss_delta_vs_baseline_20C",
+      "unit": "W",
+      "760801202": 6.75,
+      "760801403": 3.375,
+      "760801321": 4.95,
+      "switching_saving_at_65kHz_w": 19.3765,
+      "assessment": "The DC-copper-only deltas are all well below the 19.3765 W switching saving, leaving 12.63 W (760801202) / 16.00 W (760801403) / 14.43 W (760801321) of headroom for the unpublished AC winding + core loss before the saving is erased."
+    },
+    {
+      "subtotal": "full_magnetic_loss_delta_vs_baseline",
+      "unit": "W",
+      "value": null,
+      "reason": "Requires AC winding loss AND core loss at 65 kHz, 15 A rms bias, 4.2043 A pk-pk for both the candidate and the baseline. None of the four datasheets publishes either. The total is unknown, not the DC-only delta."
+    }
+  ],
+  "total_loss_w": null,
+  "achieved_input_power_w": null,
+  "dc_output_power_w": null,
+  "efficiency": null,
+  "assembly_cost": {"value": null, "currency": null, "quantity_basis": null, "observation_date": null, "coverage": []},
+  "assembly_volume_mm3": null,
+  "temperature_predictions": [],
+  "constraint_findings": [
+    {
+      "finding": "Baseline effective inductance at bias is below the value the frequency trade assumed",
+      "detail": "The retained model uses 180 uH as the 760800301 effective inductance. The datasheet's typical curve gives 159.8 uH at 23.2719 A (-11.2 % of nominal). The baseline's real ripple at its own L and 129 kHz would be ~4.74 A pk-pk rather than the supplied 4.2043 A. The supplied envelope was used unchanged for all loss numbers; only the loss values that depend on the baseline ripple are affected."
+    },
+    {
+      "finding": "Printed ISAT and printed L-vs-bias curve disagree for two candidates",
+      "detail": "760800301 and 760801202 agree with the family's |dL/L| < 30 % definition (digitized ratio 0.698 and 0.687 at the printed ISAT). 760801403 (0.957) and 760801321 (0.805) do not. For 760801403 the printed ISAT of 23 A is essentially the 23.2719 A envelope peak, so a conservative use of that part has NO saturation margin even though its curve looks flat."
+    },
+    {
+      "finding": "Thermal envelope is conditional on forced air",
+      "detail": "The two L-matched parts (760801202 IR 11.5 A; 760801403 IR 12.3 A) are below the 15 A rms envelope at dT = 40 K without a fan; they pass only at the 4 m/s fan rating (IR2 20 A / 24.6 A). The only no-fan-capable member (760801321, IR 17.2 A) misses the inductance target by ~1.94x. Assembly airflow is not supplied, so thermal applicability is INDETERMINATE."
+    },
+    {
+      "finding": "Core and AC winding loss are unpublished for every part, including the baseline",
+      "detail": "WE-TORPFC datasheets publish typical L vs current and typical temperature rise vs current only. There is no core-loss, Steinmetz, AC-resistance or impedance-vs-frequency data. Per the task rule, core loss is not inferred from DCR, so the magnetic term that decides the 19.38 W question stays null."
+    },
+    {
+      "finding": "L tolerance is +/-20 % and the curve is typical only",
+      "detail": "A production unit at the -20 % tolerance edge would deliver ~280 uH at bias for the 760801202, raising ripple to ~5.25 A pk-pk and the peak to ~24.4 A. Whether that unit still passes ISAT is not established by this document."
+    },
+    {
+      "finding": "Mass not published",
+      "detail": "None of the datasheets or the family page publishes a mass for any WE-TORPFC part; mass stays null for all candidates."
+    }
+  ],
+  "unsupported_cases": [],
+  "source_failures": [
+    {"url": "https://eu.mouser.com/c/.../?series=WE-TORPFC", "error": "webfetch timeout", "class": "procurement"},
+    {"url": "https://www.digikey.ca/en/products/detail/.../760801202/17829962", "error": "HTTP 403 bot block", "class": "procurement"},
+    {"url": "https://www.mouser.sg/ProductDetail/Wurth-Elektronik/760801202", "error": "HTTP 200 but bot-challenge HTML, retained as raw/procurement-760801202-mouser-sg-BLOCKED.html", "class": "procurement"}
+  ],
+  "tool_failures": [],
+  "raw_artifacts": [
+    {"kind": "datasheet_pdf", "role": "baseline", "path": "raw/760800301.pdf", "sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8", "bytes": 661997},
+    {"kind": "datasheet_pdf", "role": "candidate_rank1", "path": "raw/760801202.pdf", "sha256": "e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab", "bytes": 686931, "source_url": "https://www.we-online.com/components/products/datasheet/760801202.pdf"},
+    {"kind": "datasheet_pdf", "role": "candidate_rank2", "path": "raw/760801403.pdf", "sha256": "fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a", "bytes": 688424, "source_url": "https://www.we-online.com/components/products/datasheet/760801403.pdf"},
+    {"kind": "datasheet_pdf", "role": "candidate_rank3", "path": "raw/760801321.pdf", "sha256": "5e16a6904ed2a69cc99a26104d0e1512bc299da3143ca7206b7ecc82052ea41c", "bytes": 654245, "source_url": "https://www.we-online.com/components/products/datasheet/760801321.pdf"},
+    {"kind": "curve_digitization_json", "path": "derived/l_vs_current_digitized.json", "note": "digitized L-vs-bias values for all four parts"},
+    {"kind": "curve_digitization_script", "path": "derived/digitize_l_curve.py", "note": "deterministic digitiser; re-run reproduces derived/l_vs_current_digitized.json"}
+  ],
+  "manifest_sha256": null,
+  "manifest_sha256_note": "manifest.json lists the SHA-256 of every other produced file; a file cannot contain its own hash, so this stays null.",
+  "checker_receipt": null,
+  "coordinator_receipt": null,
+  "next_discriminating_observation": "The single most important missing curve is the candidate choke's CORE LOSS (and AC winding resistance) at 65 kHz as a function of DC bias from 0 to 23.3 A, at 4.2043 A pk-pk ripple, for the 760801202 and the retained 760800301. This is the only remaining term that can consume the 19.3765 W switching saving. It is not published by Wurth; obtain it by requesting a core-loss/winding-loss measurement from the manufacturer for the exact bias/ripple/frequency, or measure both chokes on a B-H/calorimetric or impedance-analyzer bench at the envelope.",
+  "budget": {
+    "deadline_utc": "2026-09-17T23:10:00Z",
+    "elapsed_seconds": null,
+    "solver_invocations": 0,
+    "remaining_invocations": 0
+  },
+  "verdict_on_19_38_w": {
+    "value": "UNKNOWN",
+    "detail": "DC-copper delta alone is +6.75 W (760801202) vs a 19.3765 W saving, so the saving is not erased by DC copper. But AC winding and core loss are unpublished for both the candidate and the baseline, so the full magnetic delta that the decision rule needs is unknown. A < 19.3765 W magnetic delta is plausible (14.43-16.00 W of DC-copper headroom remains) but is not established by these sources."
+  },
+  "example_warning": "Template nulls mean unfilled/unknown, never zero. Absence of a published loss term cannot be converted to zero or to a PASS."
+}

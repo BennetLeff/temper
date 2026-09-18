@@ -1,0 +1,70 @@
+{
+  "schema": "zapote.pfc.manifest.v1",
+  "task_id": "M090",
+  "attempt_id": "attempt-001",
+  "manifest_hash_note": "manifest.json is excluded from its own hash list",
+  "produced_file_count": 14,
+  "produced_files": {
+    "REPORT.md": {
+      "sha256": "419fea85f9b245ac7b90669412d5b5570dc4ff5a4c53ae2844a12cdeef27f42b",
+      "bytes": 6776
+    },
+    "inputs.json": {
+      "sha256": "959cbac8a3e388dff85fece036d38e36d20c2585d5b62e2d1f2a49c3cb6bfed5",
+      "bytes": 20254
+    },
+    "raw/760800202.pdf": {
+      "sha256": "5068cf0aad681dc075fdba97d71422cc899d140fec621e82f2c14acc2e07e8c6",
+      "bytes": 624939
+    },
+    "raw/760800301.pdf": {
+      "sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+      "bytes": 661997
+    },
+    "raw/760800403.pdf": {
+      "sha256": "a9cebee7f8cf0892c42884b704ef407aa640c379bd627aafb498ebed279d14b9",
+      "bytes": 688508
+    },
+    "raw/760801101.pdf": {
+      "sha256": "e93d8a5dfd097aa6b75c45a984562b6735d9c262d9d2db9560f7733e32758977",
+      "bytes": 687340
+    },
+    "raw/760801202.pdf": {
+      "sha256": "e99128a5c3a315d0f6a98d875ace8bd460ed61c38d0fb8e4b870de7b70ec3aab",
+      "bytes": 686931
+    },
+    "raw/760801403.pdf": {
+      "sha256": "fc6d14407cbb0fb5f4e466fa4ea70ce546e0387bdef0002cb8921ef7f5e27e4a",
+      "bytes": 688424
+    },
+    "raw/WE-TORPFC_catalog.html": {
+      "sha256": "a29c84ae14d4686357b58d4c71773b714c9e3b2d6519c3f2adee613ef37d9256",
+      "bytes": 326207
+    },
+    "raw/capture_log.json": {
+      "sha256": "9dc5f63de4930a7a3054de862dfda5c5073388d2428c1ce1d0cda9f555148f7f",
+      "bytes": 3874
+    },
+    "raw/extract_choke_data.py": {
+      "sha256": "0fa989245f5162af51bfc20dde2000a346f87c36339755f96d5fd6d854a36cac",
+      "bytes": 5792
+    },
+    "raw/extraction.json": {
+      "sha256": "02397aa42b5bd63feb99b027933a14c80e99776ce9b82ef73e78e2c4f73c0fb7",
+      "bytes": 4959
+    },
+    "raw/make_manifest.py": {
+      "sha256": "e016a4de696e7d937439eaee85271e23ae366b484c89b5f17eeb2ce1ce517d68",
+      "bytes": 3608
+    },
+    "result.json": {
+      "sha256": "f28b152d6921e77afc9e66dc1db04dcc6858fc3426cb199e6a70d4878169b50b",
+      "bytes": 4693
+    }
+  },
+  "input_files": {
+    "dispatch.json": {
+      "sha256": "a2cf2fdd662aafdec2b4174c4a6eef41f525b721e91db007ed0eeddc24bc1c3e"
+    }
+  }
+}

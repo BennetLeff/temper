@@ -1,0 +1,93 @@
+{
+  "schema": "pfc-campaign-core-ac-bound/v1",
+  "task_id": "M-CORE",
+  "attempt_id": "attempt-001",
+  "model_invocations": 0,
+  "envelope": {
+    "i_rms_a": 15.0,
+    "i_peak_a": 23.2719,
+    "ripple_pp_a": 4.2043,
+    "f_hz": {
+      "M065": 65000.0,
+      "M090": 90000.0
+    },
+    "source": "F-AXIS/attempt-001/raw/report.json via M065/M090 dispatch"
+  },
+  "material_ceiling": {
+    "Bsat_ceiling_T": 1.5,
+    "basis": "Magnetics High Flux (Ni-Fe) published saturation flux density 15,000 gauss = 1.5 T; highest of the family's candidate materials (High Flux Ni-Fe / Sendust Al-Si-Fe).",
+    "used_for": "upper bound on flux swing only; not a per-part material claim."
+  },
+  "flux_swing": {
+    "upper_bound_T": 0.2709899062818249,
+    "derivation": "dB <= dI * Bsat_ceiling / I_pk  =  4.2043 * 1.5 / 23.2719 = 0.27099 T  (geometry- and L-independent)",
+    "lower_bound_T": null,
+    "lower_bound_reason": "No published N*Ae upper bound exists, so the flux swing cannot be bounded from below; a watts-level core-loss bound needs both."
+  },
+  "core_loss": {
+    "760800301": {
+      "L_at_bias_uH": 159.8,
+      "magnetic_energy_J": 0.043272348235838996,
+      "core_volume_lower_bound_m3": 6.766994767993154e-07,
+      "core_volume_envelope_upper_bound_m3": 0.0004772566187664202,
+      "core_volume_range_ratio": 705.2711508272043,
+      "core_loss_W": null,
+      "core_loss_reason": "Core volume is unestablished over a 705x range (energy floor vs dimensional envelope) and the per-part core material is unpublished, so a published loss-density curve cannot be converted to watts."
+    },
+    "760801202": {
+      "L_at_bias_uH": 350.1,
+      "magnetic_energy_J": 0.0948038117482305,
+      "core_volume_lower_bound_m3": 1.482556237968963e-06,
+      "core_volume_envelope_upper_bound_m3": 0.00018321768355735675,
+      "core_volume_range_ratio": 123.5822823209438,
+      "core_loss_W": null,
+      "core_loss_reason": "Core volume is unestablished over a 124x range (energy floor vs dimensional envelope) and the per-part core material is unpublished, so a published loss-density curve cannot be converted to watts."
+    },
+    "760801403": {
+      "L_at_bias_uH": 242.7,
+      "magnetic_energy_J": 0.06572089434817349,
+      "core_volume_lower_bound_m3": 1.02775321038294e-06,
+      "core_volume_envelope_upper_bound_m3": 0.00011030917204917161,
+      "core_volume_range_ratio": 107.33040863776091,
+      "core_loss_W": null,
+      "core_loss_reason": "Core volume is unestablished over a 107x range (energy floor vs dimensional envelope) and the per-part core material is unpublished, so a published loss-density curve cannot be converted to watts."
+    }
+  },
+  "ac_winding_loss": {
+    "760800301": {
+      "Rac_over_Rdc": null,
+      "reason": "No AC-resistance / skin-proximity data at 65-90 kHz is published for any WE-TORPFC part; wire thickness and turns are not published, so Rac/Rdc cannot be bounded."
+    },
+    "760801202": {
+      "Rac_over_Rdc": null,
+      "reason": "No AC-resistance / skin-proximity data at 65-90 kHz is published for any WE-TORPFC part; wire thickness and turns are not published, so Rac/Rdc cannot be bounded."
+    },
+    "760801403": {
+      "Rac_over_Rdc": null,
+      "reason": "No AC-resistance / skin-proximity data at 65-90 kHz is published for any WE-TORPFC part; wire thickness and turns are not published, so Rac/Rdc cannot be bounded."
+    }
+  },
+  "verdict_inputs": {
+    "760800301": {
+      "dc_copper_w_at_20C": 4.5,
+      "switching_saving_w": 11.8202,
+      "headroom_for_core_plus_ac_w": null
+    },
+    "760801202": {
+      "dc_copper_w_at_20C": 11.25,
+      "switching_saving_w": 19.3765,
+      "headroom_for_core_plus_ac_w": 12.6265,
+      "dc_delta_vs_baseline_w": 6.75
+    },
+    "760801403": {
+      "dc_copper_w_at_20C": 7.875,
+      "switching_saving_w": 11.8202,
+      "headroom_for_core_plus_ac_w": 8.4452,
+      "dc_delta_vs_baseline_w": 3.375
+    }
+  },
+  "bound": {
+    "core_plus_ac_upper_bound_W": null,
+    "reason": "Not constructible from primary sources. The flux swing is bounded above only, and the core volume needed to convert published loss density to watts is unestablished; the per-part core material is unpublished. A lower bound (>= DC copper only) does not exceed the headroom either."
+  }
+}

@@ -36,6 +36,9 @@ use zapote_erc::pfc_switching::{self, GatePath};
 pub const SCHEMA_MANIFEST: &str = "zapote.pfc.campaign-manifest.v1";
 pub const SCHEMA_REPORT: &str = "zapote.pfc.campaign-report.v1";
 
+/// Phase quadrature samples, matching the retained screen's resolution.
+const PHASE_SAMPLES: usize = 1024;
+
 /// Device parameters the maintained switching model consumes. These are the
 /// exactly-documented datasheet quantities; a missing one is a source gap, not
 /// a zero.
@@ -106,6 +109,12 @@ pub struct MomentsOut {
     pub diode_rms_a: f64,
     pub mean_turn_on_a: f64,
     pub mean_turn_off_a: f64,
+    pub switch_duty_mean: f64,
+    /// Inductor waveform envelope: the heating RMS, the saturation peak and
+    /// the worst switching ripple. These are what a magnetic design must carry.
+    pub inductor_rms_a: f64,
+    pub inductor_peak_a: f64,
+    pub ripple_peak_to_peak_max_a: f64,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -272,6 +281,24 @@ pub fn run_case(
             ))
         }
     };
+    // The inductor envelope comes from the same authoritative waveform the
+    // loss moments use; `moments_at` already ran `calculate` successfully.
+    let profile = match zapote_erc::pfc_currents::calculate(zapote_erc::pfc_currents::Config {
+        line_rms_v: case.line_rms_v,
+        input_rms_limit_a: effective,
+        bus_v: case.bus_v,
+        inductance_h: case.inductance_h,
+        switching_hz: case.switching_hz,
+        phase_samples: PHASE_SAMPLES,
+    }) {
+        Ok(value) => value,
+        Err(reason) => {
+            return Ok(unsupported(
+                case,
+                format!("MODEL_DOMAIN reading the inductor envelope: {reason}"),
+            ))
+        }
+    };
 
     let config = pfc_switching::Config {
         bus_v: case.bus_v,
@@ -336,6 +363,10 @@ pub fn run_case(
             diode_rms_a: moments.diode_rms_a,
             mean_turn_on_a: moments.mean_turn_on_a,
             mean_turn_off_a: moments.mean_turn_off_a,
+            switch_duty_mean: moments.switch_duty_mean,
+            inductor_rms_a: profile.inductor_rms_a,
+            inductor_peak_a: profile.inductor_peak_a,
+            ripple_peak_to_peak_max_a: profile.ripple_peak_to_peak_max_a,
         }),
         losses: Some(losses),
         total_switch_gate_w: Some(total),

@@ -1,0 +1,14 @@
+* L1 resistive-load switching smoke test (isolates MOSFET model transient)
+.param TEMP=25
+.include "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/N-DPT/attempt-001/raw/netlists/../models/infineon_c7_650v_spice_ngspice.lib"
+Vbus bus 0 400
+Rload bus drain 20
+Xdut drain gate 0 IPW65R045C7_L1
+Vdrive drive 0 PULSE(0 12 1u 5n 5n 2u 5u)
+Rg gate drive 9.7
+.tran 1e-10 3u 0 1e-9
+.control
+run
+meas tran vds_on find v(drain) at=2u
+.endc
+.end

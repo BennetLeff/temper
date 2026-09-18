@@ -37,7 +37,11 @@
         "switch_rms_a": 12.332299246144684,
         "diode_rms_a": 8.538992639857435,
         "mean_turn_on_a": 12.01518284900892,
-        "mean_turn_off_a": 14.944448043490965
+        "mean_turn_off_a": 14.944448043490965,
+        "switch_duty_mean": 0.7569142133014622,
+        "inductor_rms_a": 14.999999999999995,
+        "inductor_peak_a": 23.20540828288133,
+        "ripple_peak_to_peak_max_a": 4.0627273880776205
       },
       "losses": {
         "mosfet_conduction_w": 6.8438522113407325,
@@ -64,7 +68,11 @@
         "switch_rms_a": 11.999496741229411,
         "diode_rms_a": 9.000670972612259,
         "mean_turn_on_a": 11.927145603148093,
-        "mean_turn_off_a": 15.02697491022746
+        "mean_turn_off_a": 15.02697491022746,
+        "switch_duty_mean": 0.7299046814460723,
+        "inductor_rms_a": 14.999999999999982,
+        "inductor_peak_a": 23.271877720452196,
+        "ripple_peak_to_peak_max_a": 4.204321946507097
       },
       "losses": {
         "mosfet_conduction_w": 6.479456491924886,
@@ -91,7 +99,11 @@
         "switch_rms_a": 10.604416381587395,
         "diode_rms_a": 8.586780852007614,
         "mean_turn_on_a": 10.632167230576977,
-        "mean_turn_off_a": 13.871578690673529
+        "mean_turn_off_a": 13.871578690673529,
+        "switch_duty_mean": 0.7028951495906742,
+        "inductor_rms_a": 13.64501565387464,
+        "inductor_peak_a": 21.38717333579601,
+        "ripple_peak_to_peak_max_a": 4.283952585776301
       },
       "losses": {
         "mosfet_conduction_w": 5.060414105733559,

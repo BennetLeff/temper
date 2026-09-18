@@ -1,0 +1,407 @@
+* --- ngspice conversion shim (added by convert_infineon_pspice_to_ngspice.py)
+* Syntax-only conversion; E/G element types unchanged.  ngspice-45 has no
+* if(); iif() is the native ternary, valid in B and behavioral E/G sources.
+.func iif(c,a,b) { (c) ? (a) : (b) }
+*  Copyright: INFINEON Technologies AG / PMM APS SE SL
+*  ***************************************************************
+*  Models provided by INFINEON are not warranted by INFINEON as  *
+*  fully representing all of the specifications and operating    *
+*  characteristics of the semiconductor product to which the     *
+*  model relates. The model describes the characteristics of a   *
+*  typical device.                                               *
+*  In all cases, the current data sheet information for a given  *
+*  device is the final design guideline and the only actual      *
+*  performance garantee.                                         *
+*  Altough models can be a useful tool in evaluating device      *
+*  performance, they cannot model exact device performance under *
+*  all conditions, nor are they intended to replace bread-       *
+*  boarding for final verification. INFINEON reserves the right  *
+*  to change models without prior notice.                        *
+*                                                                *
+*                                                                *
+*                                                                *
+*  content:   IDH02G65C5_L3                                      *
+*             IDH03G65C5_L3                                      *
+*             IDH04G65C5_L3                                      *
+*             IDH05G65C5_L3                                      *
+*             IDH06G65C5_L3                                      *
+*             IDH08G65C5_L3                                      *
+*             IDH09G65C5_L3                                      *
+*             IDH10G65C5_L3                                      *
+*             IDH12G65C5_L3                                      *
+*             IDH16G65C5_L3                                      *
+*             IDH20G65C5_L3                                      *
+*                                                                *
+*                                                                *
+*                                                                *
+*  ------------------------------------------------------------  *
+*  release October/11/2012                                       *
+*  This level 3 model requires a model of the thermal path       *
+*  to calculate the device temperature.                          *
+*  Values of the internal thermal parameters are                 *
+*  already included. The thermal parameters of an external heat- *
+*  sink may be included as a physical correct thermal RC network *
+*  connected to the node TCASE  and referenced to thermal ground *
+*                                                                *
+*  the global parameter tnom has no influence                    *
+*                                                                *
+*                                                                *
+*  ***************************************************************
+
+.SUBCKT IDH02G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=1.705E-01
++ fpar02=1.451E-01
++ fpar03=3.156E-01
++ fpar04=4.016E-01
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 7.178E-01
+RTHD1 td1 td2 1.167
+RTHD2 td2 TCASE 6.663E-01
+CTHD0 TJ 0 2.947E-05
+CTHD1 td1 0 2.025E-04
+CTHD2 td2 0 4.036E-03
+.ENDS
+*  ***************************************************************
+.SUBCKT IDH03G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=2.604E-01
++ fpar02=2.134E-01
++ fpar03=4.738E-01
++ fpar04=5.752E-01
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 5.471E-01
+RTHD1 td1 td2 1.016
+RTHD2 td2 TCASE 6.210E-01
+CTHD0 TJ 0 4.381E-05
+CTHD1 td1 0 2.565E-04
+CTHD2 td2 0 4.486E-03
+.ENDS
+*  ***************************************************************
+.SUBCKT IDH04G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=3.501E-01
++ fpar02=2.724E-01
++ fpar03=6.225E-01
++ fpar04=7.379E-01
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 4.303E-01
+RTHD1 td1 td2 8.889E-01
+RTHD2 td2 TCASE 5.717E-01
+CTHD0 TJ 0 5.822E-05
+CTHD1 td1 0 3.177E-04
+CTHD2 td2 0 5.078E-03
+.ENDS
+*  ***************************************************************
+.SUBCKT IDH05G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=4.357E-01
++ fpar02=3.370E-01
++ fpar03=7.726E-01
++ fpar04=9.006E-01
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 3.466E-01
+RTHD1 td1 td2 7.858E-01
+RTHD2 td2 TCASE 5.274E-01
+CTHD0 TJ 0 7.310E-05
+CTHD1 td1 0 3.904E-04
+CTHD2 td2 0 5.694E-03
+.ENDS
+*  ***************************************************************
+.SUBCKT IDH06G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=5.348E-01
++ fpar02=4.042E-01
++ fpar03=9.390E-01
++ fpar04=1.080
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 2.803E-01
+RTHD1 td1 td2 6.951E-01
+RTHD2 td2 TCASE 4.855E-01
+CTHD0 TJ 0 9.000E-05
+CTHD1 td1 0 4.811E-04
+CTHD2 td2 0 6.376E-03
+.ENDS
+*  ***************************************************************
+.SUBCKT IDH08G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=7.213E-01
++ fpar02=5.309E-01
++ fpar03=1.252
++ fpar04=1.414
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 1.996E-01
+RTHD1 td1 td2 5.695E-01
+RTHD2 td2 TCASE 4.235E-01
+CTHD0 TJ 0 1.230E-04
+CTHD1 td1 0 6.748E-04
+CTHD2 td2 0 7.634E-03
+.ENDS
+*  ***************************************************************
+.SUBCKT IDH09G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=8.030E-01
++ fpar02=5.871E-01
++ fpar03=1.390
++ fpar04=1.560
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 1.754E-01
+RTHD1 td1 td2 5.270E-01
+RTHD2 td2 TCASE 4.014E-01
+CTHD0 TJ 0 1.379E-04
+CTHD1 td1 0 7.681E-04
+CTHD2 td2 0 8.174E-03
+.ENDS
+*  ***************************************************************
+.SUBCKT IDH10G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=8.934E-01
++ fpar02=6.535E-01
++ fpar03=1.547
++ fpar04=1.726
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 1.532E-01
+RTHD1 td1 td2 4.853E-01
+RTHD2 td2 TCASE 3.793E-01
+CTHD0 TJ 0 1.552E-04
+CTHD1 td1 0 8.792E-04
+CTHD2 td2 0 8.779E-03
+.ENDS
+*  ***************************************************************
+.SUBCKT IDH12G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=1.089
++ fpar02=7.849E-01
++ fpar03=1.874
++ fpar04=2.071
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 1.198E-01
+RTHD1 td1 td2 4.156E-01
+RTHD2 td2 TCASE 3.411E-01
+CTHD0 TJ 0 1.919E-04
+CTHD1 td1 0 1.126E-03
+CTHD2 td2 0 9.993E-03
+.ENDS
+*  ***************************************************************
+.SUBCKT IDH16G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=1.439
++ fpar02=1.023
++ fpar03=2.462
++ fpar04=2.686
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 8.464E-02
+RTHD1 td1 td2 3.274E-01
+RTHD2 td2 TCASE 2.908E-01
+CTHD0 TJ 0 2.594E-04
+CTHD1 td1 0 1.610E-03
+CTHD2 td2 0 1.202E-02
+.ENDS
+*  ***************************************************************
+.SUBCKT IDH20G65C5_L3 ANODE KATODE TCASE TJ
+LA ANODE AL 8n
+RLA ANODE AL 100.000
+VIA AL ANO 0
+LK KAT KATODE 3n
+RLK KAT KATODE 100.000
+XSD ANO KAT TJ Pow SCS_G5_650V_v1a
++ PARAMS:
++ fpar01=1.823
++ fpar02=1.262
++ fpar03=3.085
++ fpar04=3.336
+GPOW 0 TJ VALUE = {iif(time > 0,LIMIT(ABS(V(Pow,0)),0,1e10),0)}
+RGPOW TJ 0 1meg
+RTHD0 TJ td1 6.461E-02
+RTHD1 td1 td2 2.629E-01
+RTHD2 td2 TCASE 2.530E-01
+CTHD0 TJ 0 3.323E-04
+CTHD1 td1 0 2.168E-03
+CTHD2 td2 0 1.397E-02
+.ENDS
+*  ***************************************************************
+.SUBCKT SCS_G5_650V_v1a a k Tj Pow
++ PARAMS:
++ fpar01 = {100}
++ fpar02 = {100}
++ fpar03 = {100}
++ fpar04 = {100}
+X$sd a k1 Tj fpar37 fpar39 PARAMS: fpar05 = {fpar01} fpar07 = {fpar03}
+X$pn a k1 Tj fpar38 fpar40 PARAMS: fpar06 = {fpar02} fpar07 = {fpar03}
+Vcurr k1 k DC = 0
+X$cap a k fpar41 fpar43 PARAMS: fpar08 = {fpar04} fpar07 = {fpar03}
+G_Pow 0 Pow VALUE = {LIMIT(abs(V(fpar37,0) + V(fpar38,0) + V(fpar41,0)),0,100k) }
+R_Pow 0 Pow 1
+.ENDS
+.SUBCKT fpar43 a k Pow PARAMS: fpar08 = {100} fpar07 = {100}
+.PARAM fpar30 = {fpar08/100}
++ fpar31 = {7.629e-2}
++ fpar32 = {fpar31 / fpar07}
++ fpar33 = {1E12}
+.PARAM fa_0 = {2.225}
++ fb_0 = {4.581}
++ fc_0 = {7.299}
++ fd_0 = {7.485}
++ pb = {1.553e-2}
++ pc = {1.028e-1}
++ pd = {5.821e-1}
+.PARAM fa = {fa_0 * fpar30 * 1E-9}
++ fb = {fb_0 * fpar30 * 1E-9}
++ fc = {fc_0 * fpar30 * 1E-9}
++ fd = {fd_0 * fpar30 * 1E-9}
+C_a a k1 {fa}
+Rp_a a k1 {fpar33}
+C_b a k_b {fb}
+Rp_b a k_b {fpar33}
+E_b k_b k1 VALUE {iif(V(a,k1)<2, V(a,k1)-(exp(pb*V(a,k1))-1)/pb ,0)}
+C_c a k_c {fc}
+Rp_c a k_c {fpar33}
+E_c k_c k1 VALUE {iif(V(a,k1)<2, V(a,k1)-(exp(pc*V(a,k1))-1)/pc ,0)}
+C_d a k_d {fd}
+Rp_d a k_d {fpar33}
+E_d k_d k1 VALUE {iif(V(a,k1)<2, V(a,k1)-(exp(pd*V(a,k1))-1)/pd ,0)}
+Rser k k1 {fpar32}
+Vcurr k1 k DC=0
+G_Pow 0 Pow VALUE = {LIMIT(abs(I(Vcurr)*(V(k,k1))),0,100k) }
+R_Pow 0 Pow 1
+.ENDS
+.SUBCKT fpar42 a k pow PARAMS: fpar08 = {100} fpar07 = {100}
+.PARAM fpar30 = {fpar08/100}
++ fpar34 = {18.949 * fpar30 * 1E-9}
++ fpar35 = {2.817}
++ fpar31 = {7.629e-2}
++ fpar32 = {fpar31 / fpar07}
++ fpar33 = {1E12}
++ fpar36 = {-280}
+C_b k1 k_b {fpar34}
+E_b a k_b VALUE {iif(V(a,k1) < fpar36,
++ V(a,k1) + (2*(sqrt(fpar35*(fpar35 - fpar36)) - fpar35) + fpar35/sqrt(fpar35*(fpar35-fpar36)) * (fpar36-V(a,k1))) ,
++ iif(V(a,k1)<=fpar35, V(a,k1) + (2*(sqrt(fpar35*(fpar35 - V(a,k1))) - fpar35)) ,
++ 0))}
+R_p k1 k_b {fpar33}
+R_s k2 k1 {fpar32}
+VICap k2 k 0
+G_Pow 0 pow VALUE = {LIMIT(abs(I(VICap)*(V(k2,k1))),0,100k) }
+R_Pow 0 pow 1
+.ENDS
+.SUBCKT fpar40 a k Tj Pow PARAMS: fpar06 = {100} fpar07 = {100}
+.PARAM fpar23 = {2.600e-37}
++ fpar24 = {1.270}
++ fpar25 = {2.700}
++ fpar16 = {8.617E-5}
++ fpar26 = {exp(-fpar25/(fpar16*300))}
++ fpar27 = {3.000e-2}
++ fpar32 = {fpar27 / fpar07}
++ fpar28 = {2.900}
++ fpar29 = {7.500e-3}
+.FUNC RS(T) {fpar32 * (-0.2 + 1.2*(TK(T)/300))}
+.FUNC TK(T) {T + 273}
+.FUNC I0(T) {fpar23/fpar26*exp(-fpar25/(fpar16*TK(T)))}
+.FUNC Vpn(V,T) {V-(fpar28-fpar29*T)}
+.FUNC Ipn(I,V,T) {I0(T)*(exp((Vpn(V,T)-I*RS(T))/(fpar24*fpar16*TK(T)))-1)*fpar06}
+GPN a k1 Value = {iif(V(a,k)>0, Ipn(I(Vcurr),V(a,k),V(Tj,0)), 0)}
+Rshunt a k 1E15
+Vcurr k1 k DC=0
+G_Pow 0 Pow VALUE = {LIMIT(abs(I(Vcurr)*(V(a,k))),0,100k) }
+R_Pow 0 Pow 1
+.ENDS
+.SUBCKT fpar39 a k Tj Pow PARAMS: fpar05 = {100} fpar07 = {100}
+.PARAM fpar09 = {0.170}
++ PhiB0 = {1.159}
++ fpar11 = {1.033}
++ fpar12 = {7.629e-2}
++ fpar13 = {2.317}
++ fpar14 = {-3.660}
++ fpar15 = {2.350}
++ fpar16 = {8.617E-5}
+.PARAM Astern = {fpar09 * fpar05}
++ fpar32 = {fpar12 / fpar07}
+.FUNC TK(T) {T + 273}
+.FUNC PhiB(V) {iif(V<0, PhiB0-sqrt(1.5E-8*abs(V)/4.5/1E-4), PhiB0)}
+.FUNC I0F(V,T) {Astern * TK(T)*TK(T) * exp(-PhiB(V)/TK(T)/fpar16)}
+.FUNC Rs(T) {fpar32 * (fpar13 + fpar14*(TK(T)/300) + fpar15*(TK(T)/300)**2)}
+.FUNC ISDF(I,V,T) {I0F(V,T) * (exp((V-Rs(T)*I)/fpar11/TK(T)/fpar16)-1)}
+.PARAM fpar17 = {-1.250e+1}
++ fpar18 = {6.300e-3}
++ fpar19 = {1.200e-4}
++ fpar20 = {-2.900e-2}
++ fpar21 = {1.240e-5}
++ fpar22 = {3.460e-7}
+.FUNC I0S(T) {10**(fpar17 + fpar18*T + fpar19*T**2)*fpar05/100}
+.FUNC V0S(T) {(fpar20 + fpar21*T + fpar22*T**2)}
+.FUNC ISDS(V,T) {-I0S(T)*exp(V*V0S(T))}
+GSD a k1 Value = {iif(V(a,k)>=0,ISDF(I(Vcurr),V(a,k),V(Tj,0)), ISDF(I(Vcurr),V(a,k),V(Tj,0))+ISDS(V(a,k),V(Tj,0)))}
+Vcurr k1 k DC=0
+G_Pow 0 Pow VALUE={LIMIT(abs(I(Vcurr)*(V(a,k))),0,100k) }
+R_Pow 0 Pow 1
+.ENDS

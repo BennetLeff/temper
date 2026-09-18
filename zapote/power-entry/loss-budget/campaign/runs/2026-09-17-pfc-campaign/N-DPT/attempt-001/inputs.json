@@ -1,0 +1,143 @@
+{
+  "schema": "pfc-campaign-numerical-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "N-DPT",
+  "attempt_id": "attempt-001",
+  "kind": "numerical_independent_model",
+  "base_revision": "b1a9ad74de50f283762a488a28c19f764830cdee",
+  "contract": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "independence": "Does not import, call, edit or reproduce zapote-erc::pfc_switching. All numbers come from vendor device SPICE models run in ngspice.",
+  "solver": {
+    "name": "ngspice",
+    "version": "ngspice-45.2 (KLU)",
+    "path": "/opt/homebrew/bin/ngspice",
+    "invocations": 38,
+    "note": "Batch mode (-b) for every run; every netlist and log retained under raw/netlists and raw/logs."
+  },
+  "analytic_comparison_target": {
+    "model": "zapote-erc::pfc_switching clamped-inductive-linear-v2-asymmetric-gate-path",
+    "artifact": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/R0/attempt-001/raw/report.json case[1]",
+    "switching_overlap_w": 37.36824064736847,
+    "eoss_w": 1.5106,
+    "mosfet_conduction_w": 6.479456491924886,
+    "total_switch_gate_w": 45.502337474982966,
+    "switching_hz": 129107.39198576905
+  },
+  "requested_operating_point": {
+    "bus_v": 400.0,
+    "turn_on_current_a": 11.948585497614935,
+    "turn_off_current_a": 15.007125914829363,
+    "switching_hz": 129107.39198576905,
+    "gate_bias_v": 12.0,
+    "external_gate_r_on_ohm": 9.7,
+    "external_gate_r_off_ohm": 5.3,
+    "temperature_c": [25, 125]
+  },
+  "applied_operating_point": {
+    "bus_source_v": 400.0,
+    "drain_off_state_v_measured": 401.37,
+    "drain_off_state_v_note": "off-state drain sits at bus + freewheel-diode forward drop",
+    "turn_on_current_a_measured": {
+      "IPW65R045C7@25C": 12.06969,
+      "IPW65R045C7@125C": 12.0329,
+      "IPZ60R040C7@25C": 12.10883,
+      "IPZ60R040C7@125C": 12.07154
+    },
+    "turn_off_current_a_measured": {
+      "IPW65R045C7@25C": 14.985,
+      "IPW65R045C7@125C": 14.94428,
+      "IPZ60R040C7@25C": 15.04392,
+      "IPZ60R040C7@125C": 15.0048
+    },
+    "current_error_vs_requested_percent": "turn-on +0.7..+1.4 %, turn-off -0.3..+0.2 %; measured event currents are reported per case rather than scaled.",
+    "gate_drive_v": 12.0,
+    "external_gate_r_on_ohm": 9.7,
+    "external_gate_r_off_ohm": 5.3,
+    "external_gate_r_model": "behavioral resistor R = 5.3 + 4.4*u(V(drive)-6); switches at V(drive)=6 V",
+    "internal_gate_r_ohm_in_vendor_model": 0.82,
+    "inductor_h": 0.00018,
+    "inductor_note": "sets di/dt = 400/180e-6 = 2.22 MA/s; the 180 uH campaign effective inductance",
+    "bus_cap_f": 0.0001,
+    "temperatures_c": [25, 125]
+  },
+  "testbench": {
+    "type": "clamped-inductive double pulse (DPT)",
+    "topology": "400 V bus -> 180 uH boost inductor -> switching node sw -> 0 V sense element -> MOSFET drain, MOSFET source to ground; freewheel SiC diode sw->bus (anode sw, cathode bus)",
+    "gate_network": "PWL 0->12 V drive through behavioral external resistor (9.7 ohm on / 5.3 ohm off); vendor intrinsic gate network (Rg=0.82 ohm, Lg=5 nH) retained inside the model",
+    "turn_on_event": "second pulse: diode is freewheeling, MOSFET turns on at ~12.0 A",
+    "turn_off_event": "second pulse fall: MOSFET turns off at ~15.0 A",
+    "first_pulse_turn_off": "also present on the waveform (at ~11.9 A) and is not used for the headline numbers",
+    "energy_integration": "E = integral of v(drain)*i(Vsense) dt over a window spanning the switching transition; integrator = ngspice `meas tran ... integ <vector> from=.. to=..` on the vector pv = v(drain)*i(vsense)",
+    "integration_windows": {
+      "Eon": "9.383 us .. 9.565 us (182 ns)",
+      "Eoff": "10.749 us .. 10.931 us (182 ns)"
+    },
+    "integration_window_control": "moving each window start 10 ns earlier changes Eon by 0.000 % and Eoff by +0.087 %",
+    "timestep": {"nominal": "tstep 1e-10, tmax 1e-9", "refinement_5x": "tstep 5e-11, tmax 5e-10", "refinement_10x": "tstep 2e-11, tmax 2e-10"},
+    "eoss_method": "Coss(v) from a small-signal AC admittance sweep (100 kHz) at 25 DC drain-bias points, Vgs=0; Eoss(400) = integral of v*Coss(v) dv (trapezoidal). This is the datasheet Coss(v) definition. The direct DC-ramp method did not run (see failures).",
+    "eoss_grid_refinement": "43-point dense bias grid gives Eoss=9.762 uJ vs 9.758 uJ for the 25-point grid (0.04 %)",
+    "freewheel_diode": "substitute Infineon IDH16G65C5_L3 (650 V / 16 A CoolSiC G5); retained part Wolfspeed C3D20065D (650 V / 20 A) not obtainable (see capture_log.txt)"
+  },
+  "device_conditions": {
+    "IPW65R045C7": {
+      "manufacturer": "Infineon",
+      "family": "CoolMOS C7, 650 V, 45 mOhm, TO-247",
+      "source": "Infineon CoolMOS C7 650 V PSpice library",
+      "model_used": "IPW65R045C7_L0",
+      "model_level": "vendor Level-0 (nominal/typical device, no temperature terminal)",
+      "temperature_binding": ".temp 25 / .temp 125; only the vendor's resistor temperature coefficients respond",
+      "temperature_model_limitation": "vendor Level-1 (fixed Tj = TEMP) and Level-3 (Tj/Tcase terminals, self-heating) models did not run in ngspice-45: 'Timestep too small; initial timepoint: trouble with node e.xdut.x1.e_eds4#branch' (see raw/logs/failure_L1_*.log). The 125 C result is therefore NOT the vendor's electrothermal model.",
+      "model_sha256_original": "3688f71b829e86aacebf8de59091ee49fc15c7dcd86a13412d1eaa5b2c566d82",
+      "model_sha256_ngspice_converted": "d159f168d39139850f11a78cab26e6e168f510a98912d9d5e36a0f80ef883983"
+    },
+    "IPZ60R040C7": {
+      "manufacturer": "Infineon",
+      "family": "CoolMOS C7, 600 V, 40 mOhm, TO-247 4-pin (Kelvin source)",
+      "source": "Infineon CoolMOS C7 600 V PSpice library",
+      "model_used": "IPZ60R040C7_L0",
+      "model_level": "vendor Level-0",
+      "temperature_binding": ".temp 25 / .temp 125",
+      "temperature_model_limitation": "same Level-1/Level-3 failure class as above",
+      "model_sha256_original": "dd8c00adb52bde29e27f7a77e57ec54633271c166995895a293aaec1929b0db1",
+      "model_sha256_ngspice_converted": "6e743505d4a521e26a5e7d13ae8b621d74518bc22fe6cfc704f1d36949a5ff3e"
+    },
+    "STW65N65DM2AG": {
+      "manufacturer": "STMicroelectronics",
+      "status": "NOT_CAPTURED",
+      "reason": "www.st.com unreachable from this host: HTTP/2 INTERNAL_ERROR (root) and connect/read timeout on /resource/en/simulation_model/... over IPv6 and IPv4; 0 bytes received.",
+      "result": null
+    }
+  },
+  "failure_records": {
+    "IPW65R045C7_L1_and_L3": {
+      "log": "raw/logs/failure_L1_smoke_resistive.log, raw/logs/failure_L1_dpt_mosfet_idealdiode.log, raw/logs/failure_L1_dpt_ipw65r045c7_25c.log",
+      "message": "doAnalyses: TRAN: Timestep too small; initial timepoint: trouble with node \"e.xdut.x1.e_eds4#branch\" (also xdut.x1.d1, and e.xfw.xsd.x$cap.e_d#branch with the vendor diode)",
+      "attempted": [
+        "conversion of the model's behavioral E/G sources to B sources (same failure, different node)",
+        "options gmin 1e-6..1e-12, itl1/itl4 up to 1000, reltol 1e-3..1e-1, trtol 7..14, method=gear maxord=2, rshunt 1e7..1e10, uic with .ic, ramped bus, gate series resistance 5.3/50 ohm",
+        "ngbehavior=ps/all/lt compatibility modes"
+      ],
+      "conclusion": "The vendor's behavioural temperature/heating model does not solve in ngspice-45; the vendor's Level-0 model does."
+    },
+    "Eoss_DC_ramp_method": {
+      "log": "raw/logs/failure_eoss_dcramp_ipw65r045c7_L0_25c.log",
+      "message": "Timestep too small; trouble with node xdut.g1 near Vds ~ 100 V, for ramp times 1 ms / 100 us / 50 us / 10 us",
+      "resolution": "Eoss obtained by the AC Coss(v) method instead"
+    },
+    "ST_capture": "see capture_log.txt (a)"
+  },
+  "controls": [
+    "timestep refinement 10x (Eon 102.495 -> 102.500 uJ, Eoff 104.786 -> 104.777 uJ)",
+    "integration-window shift 10 ns (Eon unchanged, Eoff +0.087 %)",
+    "matched ideal-diode vs vendor SiC diode at the same timing (diode substitution sensitivity)",
+    "DC sanity: on-state Rds(on) from the DPT (vds_on / I) = 43.4 mOhm at 25 C and 102.0 mOhm at 125 C, vs datasheet 45 mOhm / ~99 mOhm hot",
+    "Eoss grid refinement 25 -> 43 bias points"
+  ],
+  "unknowns": [
+    "STW65N65DM2AG Eon/Eoff/Eoss",
+    "vendor electrothermal (Level-1/Level-3) Eon/Eoff at a true Tj = 125 C",
+    "Wolfspeed C3D20065D model (substituted diode quantified separately)",
+    "any hardware measurement"
+  ]
+}

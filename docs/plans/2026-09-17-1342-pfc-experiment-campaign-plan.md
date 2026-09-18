@@ -348,11 +348,33 @@ were measured. Artifacts are under
 5. **Two plan defects were fixed.** The plan's artifact path was silently
    gitignored (`zapote/.gitignore` `runs/`); the campaign path is now
    re-included. Dispatch packets mislabelled the contract path.
+6. **The dominant switching term is contradicted by an independent vendor
+   model.** `N-DPT` ran a clamped-inductive double-pulse in ngspice using
+   Infineon's vendor CoolMOS C7 models at the C1 operating point. For the
+   baseline IPW65R045C7 the vendor model gives `(Eon+Eoff)*f` = 26.76 W at
+   25 C, against the analytic model's 37.3682 W overlap -- a ratio of **0.72**
+   (0.68 at 125 C). The analytic model therefore overestimates the campaign's
+   dominant term by ~30%, and every switching-derived saving shrinks with it:
+   the 65 kHz saving falls from 19.38 W to ~14 W and its core/AC headroom from
+   12.63 W to ~7.3 W. IPZ60R040C7 is independently better on switching than the
+   baseline (22.38 W vs 26.76 W at 25 C, ~4.4 W), but the far larger
+   STW65N65DM2AG -> C7 delta the analytic model claims (47.7 W) stays
+   unverified because no ST vendor model could be captured. This is
+   independent-*model* evidence, not a measurement: the vendor macromodel is a
+   typical device and the vendor electrothermal models would not run in ngspice.
+7. **The 65/90 kHz frequency trade loses on magnetic evidence anyway.** M065
+   and M090 found real candidates (Wurth 760801202 at 65 kHz, 760801403 at
+   90 kHz) but `M-CORE` could not bound their core+AC loss: the core material
+   and geometry are unpublished, so the term is unbounded above and below.
+   Both candidates also need forced air at 15 A rms, and the baseline choke's
+   real inductance at bias is ~160 uH rather than the 180 uH that C1 and the
+   whole `L*f` rule assume.
 
-Still open and load-bearing: no model anchor for the dominant switching term;
-no approved volume/cost budgets; no frozen ambient/cooling contract, so
-temperature — the stated motivation — remains unrankable; the device axis needs
-matched-bias source data before it can be ranked.
+Still open and load-bearing: no measured anchor for the dominant switching term
+(the independent vendor model narrows it but is still a model); no approved
+volume/cost budgets; no frozen ambient/cooling contract, so temperature -- the
+stated motivation -- remains unrankable; the current-board-part device delta is
+unverified; the frequency axis cannot be closed without a core-loss source.
 
 ## Copyable coordinator instruction
 

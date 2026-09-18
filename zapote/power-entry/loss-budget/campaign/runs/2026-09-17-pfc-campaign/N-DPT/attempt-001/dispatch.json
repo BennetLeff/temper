@@ -1,0 +1,47 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "N-DPT",
+  "attempt_id": "attempt-001",
+  "kind": "numerical_independent_model",
+  "supersedes_question_of": "the campaign's dominant term (~37 W switching overlap) has no independent anchor; B-TI and B-INF both returned INSUFFICIENT_EVIDENCE",
+  "absolute_deadline_utc": "2026-09-18T00:20:00Z",
+  "max_solver_invocations": 48,
+  "max_candidate_parts": 3,
+  "max_primary_sources": 8,
+  "checkout_path": "zapote",
+  "source_revision": "b1a9ad74de50f283762a488a28c19f764830cdee",
+  "model_revision_and_sha256": "independent of zapote-erc::pfc_switching; do not edit it. This task must NOT reuse the analytic Rust switching model.",
+  "checker_revision_and_sha256": "not_applicable",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/N-DPT/attempt-001",
+  "exact_build_or_run_commands": "ngspice is installed at /opt/homebrew/bin/ngspice. Record every netlist and invocation.",
+  "source_bundle_paths_and_hashes": [
+    "vendor device SPICE models you capture (record hashes)"
+  ],
+  "question": "What Eon, Eoff and Eoss does an independent VENDOR DEVICE MODEL predict at the campaign's real operating point, and does it agree with the maintained analytic model's 37.368 W overlap term?",
+  "why": "The analytic Rust model attributes 37.4 W of the 45.5 W baseline to switching overlap, and the whole ranking depends on that term. A vendor SPICE device model is an independent implementation, so agreement or disagreement is real evidence. It is a model, not a measurement: report it as independent-model evidence, never as measured or hardware-qualified.",
+  "operating_point": {
+    "bus_v": 400.0,
+    "turn_on_current_a": 11.948585497614935,
+    "turn_off_current_a": 15.007125914829363,
+    "switching_hz": 129107.39198576905,
+    "gate_bias_v": 12.0,
+    "external_gate_r_on_ohm": 9.7,
+    "external_gate_r_off_ohm": 5.3,
+    "temperature_c": [
+      25,
+      125
+    ],
+    "note": "clamped inductive double pulse; measure Eon at the turn-on current and Eoff at the turn-off current"
+  },
+  "analytic_comparison_target": {
+    "model": "zapote-erc::pfc_switching clamped-inductive-linear-v2-asymmetric-gate-path",
+    "overlap_w_at_this_point": 37.3682,
+    "eoss_w": 1.5106,
+    "conduction_w": 6.4795,
+    "total_switch_gate_w": 45.5023,
+    "baseline_device": "IPW65R045C7"
+  },
+  "focus": "Capture the exact manufacturer SPICE model for the baseline device IPW65R045C7 (Infineon CoolMOS C7) and, if obtainable, IPZ60R040C7 and the retained board part STW65N65DM2AG. Build a clamped-inductive double-pulse testbench in ngspice: bus 400 V, gate drive 0->12 V through 9.7 ohm on / 5.3 ohm off, measure Eon at 11.9486 A and Eoff at 15.0071 A at 25 and 125 C, and Eoss at 400 V. Report per-event energy and the f-weighted average (Eon+Eoff)*f. Compare with the analytic 37.3682 W overlap and state the ratio. If a vendor model is encrypted, unavailable, or will not converge, say so with the exact failure and do not substitute the analytic model or a hand-built device model.",
+  "stop_rule": "Do not tune the testbench until it agrees. A large disagreement is a finding, not a failure. Do not present a vendor model as measured data. If no usable vendor model can be captured, return UNKNOWN with the capture failures."
+}

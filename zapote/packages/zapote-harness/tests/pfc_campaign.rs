@@ -148,6 +148,21 @@ fn explicit_inductance_actually_reaches_the_switch_moment() {
     assert!((ta - tb).abs() > 1e-6, "inductance did not reach the waveform: {ta} vs {tb}");
 }
 
+#[test]
+fn inductor_envelope_is_reported_and_shrinks_with_inductance() {
+    let f = baseline_frequency_hz();
+    let a = run_case(&case("env-180", 120.0, 180e-6, f, 1796.31003212911), &baseline_device(), &baseline_drive()).unwrap();
+    let b = run_case(&case("env-360", 120.0, 360e-6, f, 1796.31003212911), &baseline_device(), &baseline_drive()).unwrap();
+    let ma = a.moments.as_ref().unwrap();
+    let mb = b.moments.as_ref().unwrap();
+    assert!(ma.inductor_peak_a.is_finite() && ma.inductor_peak_a > 0.0);
+    assert!(
+        mb.ripple_peak_to_peak_max_a < ma.ripple_peak_to_peak_max_a,
+        "ripple did not shrink with more inductance"
+    );
+    assert!(mb.inductor_peak_a < ma.inductor_peak_a);
+}
+
 fn manifest_json(cases: &str, schema: &str) -> Vec<u8> {
     format!(
         r#"{{"schema":"{schema}","device":{{"id":"IPW65R045C7","qg_c":0.000000093,"qgd_c":0.00000003,"plateau_v":5.4,"intrinsic_gate_r_ohm":0.85,"eoss_j":0.0000117,"rds_on_ohm":0.045}},"drive":{{"gate_bias_v":12.0,"external_gate_r_on_ohm":9.7,"external_gate_r_off_ohm":5.3,"driver_source_peak_a":5.0,"driver_sink_peak_a":5.0,"current_transfer_charge_c":0.00000001,"loop_inductance_h":0.00000001,"timestep_s":0.00000000025}},"cases":[{cases}]}}"#

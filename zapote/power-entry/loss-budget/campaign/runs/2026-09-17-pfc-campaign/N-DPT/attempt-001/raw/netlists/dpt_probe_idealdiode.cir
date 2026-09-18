@@ -1,0 +1,50 @@
+* ============================================================
+* Clamped-inductive double-pulse test (DPT) for the PFC boost switch
+* DUT: IPW65R045C7 (Infineon CoolMOS C7, vendor Level-1 model)
+* Bench: bus 400 V, freewheel SiC diode, gate 0->12 V via 9.7 ohm on / 5.3 ohm off
+* Events: turn-off at ~11.95 A (pulse 1 fall), turn-on at ~11.95 A (pulse 2 rise),
+*         turn-off at ~15.01 A (pulse 2 fall)
+* ============================================================
+.param TEMP=25
+.temp 25
+.include "../models/infineon_c7_650v_spice_ngspice.lib"
+.model DFW D(IS=1e-9 RS=0.02 N=1.05 CJO=120p VJ=0.8 BV=650)
+
+* --- DC bus (stiff 400 V + decoupling) ---
+Vbus  bus 0 400
+Cbus  bus 0 100u ic=400
+
+* --- boost inductor: di/dt = 400 V / 180 uH = 2.222 MA/s ---
+Lboost bus sw 180u
+
+* --- 0 V sense element: i(Vsense) = MOSFET drain current ---
+Vsense sw drain 0
+
+* --- device under test ---
+Xdut drain gate 0 IPW65R045C7_L1
+
+* --- freewheel diode (substitute; see inputs.json) ---
+Dfw sw bus DFW
+
+* --- gate drive: asymmetric external resistance ---
+Vdrive drive 0 PWL(0 0 1n 12 5380n 12 5381n 0 7380n 0 7381n 12 8760n 12 8761n 0 11u 0)
+Rg gate drive R={5.3+4.4*u(V(drive)-6)}
+
+.options reltol=1e-4 abstol=1e-9 vntol=1e-5
+.tran 1e-10 11u 0 1e-9
+
+.control
+run
+let pv = v(drain)*i(vsense)
+meas tran eoff_pre integ pv from=5.378u to=5.560u
+meas tran eon      integ pv from=7.378u to=7.560u
+meas tran eoff     integ pv from=8.758u to=8.940u
+meas tran ion     find i(vsense) at=7.379u
+meas tran ioff    find i(vsense) at=8.759u
+meas tran ioff_pre find i(vsense) at=5.379u
+meas tran vds_off  find v(drain) at=8.0u
+meas tran vds_on   find v(drain) at=6.0u
+meas tran vg_on    find v(gate)  at=7.5u
+meas tran vg_off   find v(gate)  at=5.45u
+.endc
+.end
