@@ -369,6 +369,16 @@ were measured. Artifacts are under
    Both candidates also need forced air at 15 A rms, and the baseline choke's
    real inductance at bias is ~160 uH rather than the 180 uH that C1 and the
    whole `L*f` rule assume.
+8. **The largest claimed lever is the one that cannot be checked no-bench.**
+   `N-DPT-ST` reproduced the C7 control exactly (`26.7615 W` vs `26.76 W`,
+   ratio 1.0001, `.meas` lines byte-identical) but could not capture the
+   STW65N65DM2AG vendor model: the only published copy sits at an unreachable
+   `st.com`, is absent from the Wayback Machine, and has no acceptable mirror.
+   The retained datasheet publishes no `Eon`/`Eoff` either (only `td(on)` at
+   325 V / 30 A). So the analytic claim that the board part costs ~2.05x the C7
+   on switching remains **unverified**, and cannot be resolved without a
+   measurement of the actual part. It is the one remaining item that needs
+   bench time.
 
 Still open and load-bearing: no measured anchor for the dominant switching term
 (the independent vendor model narrows it but is still a model); no approved

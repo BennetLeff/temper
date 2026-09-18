@@ -1,0 +1,56 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "N-DPT-ST",
+  "attempt_id": "attempt-001",
+  "kind": "numerical_independent_model",
+  "supersedes_question_of": "N-DPT could not capture the STW65N65DM2AG vendor model (st.com unreachable), leaving the largest claimed lever unverified",
+  "absolute_deadline_utc": "2026-09-18T01:10:00Z",
+  "max_solver_invocations": 48,
+  "max_candidate_parts": 2,
+  "max_primary_sources": 8,
+  "checkout_path": "zapote",
+  "source_revision": "83113048974fbe34508e715aec735dfb25642d3a",
+  "model_revision_and_sha256": "independent of zapote-erc::pfc_switching; do not edit it and do not reuse it",
+  "checker_revision_and_sha256": "not_applicable",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/N-DPT-ST/attempt-001",
+  "exact_build_or_run_commands": "/opt/homebrew/bin/ngspice. Reuse the N-DPT testbench from the previous attempt's run directory for comparability.",
+  "source_bundle_paths_and_hashes": [
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/N-DPT/attempt-001/ (previous testbench, netlists and logs -- reuse, do not rebuild)"
+  ],
+  "question": "What does an independent vendor model give for the RETAINED BOARD DEVICE STW65N65DM2AG's switching energy at the C1 operating point, and does it confirm the analytic model's claim that the board part costs roughly twice the C7?",
+  "operating_point": {
+    "bus_v": 400.0,
+    "turn_on_current_a": 11.948585497614935,
+    "turn_off_current_a": 15.007125914829363,
+    "switching_hz": 129107.39198576905,
+    "gate_bias_v": 12.0,
+    "external_gate_r_on_ohm": 9.7,
+    "external_gate_r_off_ohm": 5.3,
+    "temperature_c": [
+      25,
+      125
+    ],
+    "note": "identical to N-DPT so results are directly comparable"
+  },
+  "analytic_comparison_targets": {
+    "STW65N65DM2AG": {
+      "total_switch_gate_w": 93.183,
+      "overlap_is_dominant": true
+    },
+    "IPW65R045C7": {
+      "total_switch_gate_w": 45.5023
+    },
+    "note": "from the retained experiment-02 2916-scenario grid at 120 V / 12 V / 4.7 ohm no-assist / qgd x1 / transfer 10 nC / rds x1"
+  },
+  "vendor_model_result_to_beat": {
+    "device": "IPW65R045C7",
+    "Eon_uJ": 102.5,
+    "Eoff_uJ": 104.79,
+    "Eoss_uJ": 9.76,
+    "Eon_plus_Eoff_times_f_w": 26.76,
+    "at_temp_c": 25
+  },
+  "focus": "Capture the exact STMicroelectronics SPICE model for STW65N65DM2AG (retry st.com; the previous attempt failed with HTTP/2 INTERNAL_ERROR and connect timeouts). A distributor-hosted copy of the MANUFACTURER's model file is acceptable if you verify it is the manufacturer's file by header/content, and you say so. Then run the SAME clamped-inductive double-pulse testbench as N-DPT at the SAME operating point, and ALSO re-run the baseline IPW65R045C7 case as a control to demonstrate the testbench is unchanged (it must reproduce Eon 102.50 uJ / Eoff 104.79 uJ / Eoss 9.76 uJ at 25 C). Report Eon, Eoff, Eoss per device and (Eon+Eoff)*f. Do not tune the testbench. If the ST model cannot be captured, return UNKNOWN with the exact failure record.",
+  "stop_rule": "A large disagreement is the finding. Do not present a vendor model as measured data. Do not substitute a different device for STW65N65DM2AG."
+}

@@ -1,0 +1,153 @@
+N-DPT-ST vendor-model capture log — 2026-09-17/18
+Task: capture the STMicroelectronics SPICE model for STW65N65DM2AG
+      (retained board device). Host tool: /opt/homebrew/bin/ngspice -> ngspice-45.2
+All HTTP via curl 8.x / wget, -A "Mozilla/5.0 (Macintosh...)", --max-time 20..120.
+Result: NOT_CAPTURED. The model exists at www.st.com but st.com is unreachable
+from this host, and no archived or distributor-hosted copy of the SAME file was
+found. No substitution was made.
+
+WHERE THE MODEL LIVES (established from ST's own archived page)
+---------------------------------------------------------------
+Resource title : "STW65N65DM2AG PSpice model", version 1.0, update date 13 Jan 2016
+Exact path     : /resource/en/spice_model/stw65n65dm2ag_spice.zip
+Full URL       : https://www.st.com/resource/en/spice_model/stw65n65dm2ag_spice.zip
+Product page   : https://www.st.com/en/power-transistors/stw65n65dm2ag.html
+Evidence       : raw/failure_records/wayback_product_20260212.html (HTTP 200,
+                 277843 bytes) is ST's own archived product page (Wayback capture
+                 20260212103247, sha256 of file below). It shows the "SPICE models"
+                 table with href/data-pdf-link="/resource/en/spice_model/
+                 stw65n65dm2ag_spice.zip", data-file-name="STW65N65DM2AG PSpice
+                 model", data-file-extension="ZIP", update date 13 Jan 2016.
+                 (Also: the MDmesh DM2 family page lists "SPICE models(52)".)
+
+A. DIRECT st.com ATTEMPTS (all failed; 0 usable bytes)
+------------------------------------------------------
+DNS: www.st.com -> CNAME www.st.com.edgekey.net -> e40218.a.akamaiedge.net
+     -> A 23.45.122.210 / 23.45.122.203 (Akamai).  st.com apex -> 54.194.135.49.
+     Same A records via system resolver, 8.8.8.8 and 1.1.1.1.
+
+A1 https://www.st.com/en/power-transistors/stw65n65dm2ag.html
+     curl (92) HTTP/2 stream 1 was not closed cleanly: INTERNAL_ERROR (err 2);
+     HTTP=000 SIZE=0 CT= IP=23.45.122.203 TIME=0.15s
+A2 https://www.st.com/resource/en/simulation_model/stw65n65dm2ag.lib
+     curl (92) INTERNAL_ERROR; HTTP=000 SIZE=0  (path later shown wrong, see A9)
+A3 https://www.st.com/resource/en/simulation_model/stw65n65dm2ag.zip
+     curl (92) INTERNAL_ERROR; HTTP=000 SIZE=0
+A4 https://www.st.com/resource/en/spice_model/stw65n65dm2ag_spice.zip  (correct path)
+     curl (92) INTERNAL_ERROR HTTP=000 SIZE=0  (repeated, incl. 20:23)
+A5 Same URL, --http1.1            -> curl (56) Recv failure: Operation timed out;
+                                     HTTP=000 SIZE=0 IP=23.45.122.203
+A6 Same URL, --http1.1 --tlsv1.2 --tls-max 1.2
+                                  -> curl (28) Operation timed out after 45s,
+                                     0 bytes received; HTTP=000
+A7 Same URL, --tlsv1.3 --no-alpn  -> HTTP=000 SIZE=0 IP=23.45.122.203
+A8 Same URL, -6 (IPv6 forced)     -> HTTP=000 SIZE=0 IP=::ffff:23.45.122.203
+A9 https://www.st.com/ (root)     -> curl (92) INTERNAL_ERROR; HTTP=000 SIZE=0
+A10 https://www.st.com/en.html, --http1.1 -H 'Connection: close'
+                                  -> curl (28) timeout after 30s, 0 bytes
+A11 http://www.st.com/resource/en/spice_model/stw65n65dm2ag_spice.zip (port 80)
+                                  -> curl (56) Recv failure: Operation timed out;
+                                     HTTP=000 IP=23.45.122.210
+A12 python3 urllib.request (separate TLS stack)
+                                  -> TimeoutError: read operation timed out
+A13 wget direct                   -> exit 0 but 0-byte file (st_wget.bin, 0 bytes)
+A14 alternate ST hosts:
+      https://my.st.com/      HTTP=000 SIZE=0 IP=23.45.122.210
+      https://www.st.com.cn/  HTTP=000 SIZE=0 IP=23.45.122.210
+      https://eds.st.com/resource/en/spice_model/stw65n65dm2ag_spice.zip
+                              HTTP=000 SIZE=0 IP=23.45.122.203
+A15 st.com apex redirect: https://st.com/ -> HTTP 301 Location https://www.st.com/
+      (Server: Apache, IP=54.194.135.49). Following it reproduces A9/A4.
+A16 st.com apex as origin, forced www vhost:
+      curl -k --resolve www.st.com:443:54.194.135.49 <A4> -> HTTP=404 SIZE=196
+      CT=text/html; charset=iso-8859-1  (origin_probe.bin)
+      http://54.194.135.49/resource/... -H 'Host: www.st.com' -> HTTP=404 SIZE=196
+      -> 54.194.135.49 is not the www origin; it serves only the apex redirect.
+A17 https://estore.st.com/en/stw65n65dm2ag-cpn.html -> HTTP=200 SIZE=376093, but
+      the page lists only Data sheet + Material Declaration; no SPICE/model link
+      (failure_records/estore.html).
+
+B. WAYBACK MACHINE / ARCHIVES (the file itself is not archived)
+---------------------------------------------------------------
+B1 CDX exact  st.com/resource/en/spice_model/stw65n65dm2ag_spice.zip  -> [] (empty)
+B2 CDX prefix st.com/resource/en/spice_model/stw65n65dm2ag*           -> [] (empty)
+B3 CDX prefix st.com/resource/en/simulation_model* filter stw65       -> [] (empty)
+B4 CDX prefix st.com/resource/en/spice_model*  (all ST models archived):
+     sibling MDmesh DM2 parts ARE archived, e.g.
+       stw50n65dm2ag_spice.zip  20251012173151 application/zip 200 12657 bytes
+       std6n60dm2_spice.zip     20251011161410 application/zip 200 12009 bytes
+       stw70n60dm2_spice.zip    20220326135328 application/zip 302 (redirect)
+     but NOT stw65n65dm2ag_spice.zip.
+B5 CDX domain-wide st.com, filter original:.*65n65dm2.*  -> empty (no archived
+     page whose URL contains 65n65dm2; note the product page uses stw65n65dm2ag)
+     and filter .*stw65.*  -> the CDX query timed out repeatedly (60s), no result.
+B6 https://web.archive.org/web/2016id_/<A4> -> HTTP 404 (Wayback "not archived")
+B7 Save Page Now, https://web.archive.org/save/<A4>
+     attempt 1 -> HTTP 523 (origin unreachable) SIZE=150479 (spn_response.html)
+     attempt 2 -> HTTP 500 SIZE=150426 (spn_response2.html)
+B8 archive.today: https://archive.ph/newest/<A4> -> HTTP 404, page says
+     "No results" (failure_records/archive_today.html).
+B9 timetravel.mementoweb.org -> DNS: could not resolve host (no aggregator).
+
+C. PUBLIC RELAYS / PROXIES (all failed; no relay returned ST bytes)
+-------------------------------------------------------------------
+C1 https://api.allorigins.win/raw?url=<A4> -> curl (28) timeout 241s, 0 bytes;
+     retry -> HTTP 522 SIZE=16 (relay's own upstream error)
+C2 https://api.codetabs.com/v1/proxy/?quest=<A4> -> HTTP 522 SIZE=16 text/plain
+C3 https://corsproxy.io/?url=<A4>  -> timed out (>120s), no bytes
+C4 https://cors.eu.org/<A4>        -> HTTP 520 SIZE=7323 (relay error page)
+C5 https://api.cors.lol/?url=<A4>  -> HTTP 429 (rate limited)
+C6 https://thingproxy.freeboard.io/fetch/<A4> -> HTTP 000 SIZE=0
+C7 Google Translate proxy https://www-st-com.translate.goog/resource/...
+     -> HTTP 302 Location: https://www.st.com/resource/... (i.e. it only bounces
+        back to the blocked host; following it reproduces A4's INTERNAL_ERROR).
+        (relay_gtranslate.bin, 0 bytes)
+C8 https://r.jina.ai/<A4> -> HTTP 422 CT=application/json:
+     "Failed to interpret <url>" (reader cannot ingest a binary zip).
+C9 wget of the relay/proxy variants: same failures as curl (listed above).
+
+D. DISTRIBUTOR / MIRROR SEARCH (no copy of the MANUFACTURER's model found)
+--------------------------------------------------------------------------
+D1 Mouser product page -> HTTP 200 but content is
+     "Access to this page has been denied." (bot block), 0 occurrences of STW65
+     (failure_records/mouser.html).
+D2 Digi-Key search -> HTTP 403 (failure_records/digikey.html).
+D3 TME product page -> HTTP 403 (failure_records/tme.html).
+D4 Web search (multiple engines/queries) surfaced ONLY: ST product/store pages
+     (unreachable), ST's archived product page (B), datasheet PDFs, and ECAD/
+     footprint models (SamacSys Component Search Engine
+     st.componentsearchengine.com -> HTTP 302) which are symbol/footprint CAD
+     models, NOT ST's SPICE device model. No distributor-hosted .lib/.zip of
+     ST's STW65N65DM2AG PSpice model was found.
+D5 GitHub: repo search for "STW65N65DM2AG" -> total_count 0; code search requires
+     auth (HTTP 401). grep.app returned a Vercel security-checkpoint page, not
+     results. No public mirror of the model found.
+
+E. WHAT WAS VERIFIED AS ST'S OWN FILE (for the record)
+------------------------------------------------------
+No candidate copy was ever downloaded, so no file could be verified as ST's.
+The model's existence, exact resource path, title, extension (ZIP) and update
+date (13 Jan 2016) were verified from ST's own archived product page (B, above),
+which is ST-authored HTML. That establishes WHERE the model is; it does not
+supply the model bytes.
+
+CONCLUSION
+----------
+The STW65N65DM2AG vendor SPICE model is NOT_CAPTURED. The only known location
+(www.st.com) is unreachable from this host (Akamai edge: HTTP/2 INTERNAL_ERROR
+or connect/read timeout on every path, both IP families, all TLS/HTTP variants),
+and the exact file is absent from the Wayback Machine and archive.today. No
+distributor-hosted copy of ST's own model was found. No substitute device and no
+hand-written model were used. STW65N65DM2AG Eon/Eoff/Eoss remain UNKNOWN.
+
+ARTIFACTS RETAINED (raw/failure_records/)
+  wayback_product_20260212.html  ST's archived page proving the model path
+  spn_response.html / spn_response2.html  Wayback Save-Page-Now 523 / 500
+  archive_today.html             archive.today "No results"
+  origin_probe.bin               st.com apex origin 404 body
+  relay_codetabs.bin             relay 522
+  relay_gtranslate.bin           0-byte Google-translate bounce
+  st_wget.bin                    0-byte wget result
+  mouser.html / digikey.html / tme.html  distributor bot blocks (200-shell, 403, 403)
+  estore.html                    ST eStore page, no model link
+  jina.bin                       r.jina.ai 422

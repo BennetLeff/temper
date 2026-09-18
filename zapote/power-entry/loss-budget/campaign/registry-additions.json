@@ -32,6 +32,17 @@
       "reason": "Coordinator-issued independent-model cross-check of the dominant switching term, after both external references returned INSUFFICIENT_EVIDENCE.",
       "hypothesis_or_question": "What Eon, Eoff and Eoss does an independent VENDOR DEVICE MODEL predict at the campaign's real operating point, and does it agree with the maintained analytic model's 37.368 W overlap term?",
       "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "N-DPT-ST",
+      "kind": "numerical_independent_model",
+      "wave": 1,
+      "depends_on": [
+        "N-DPT"
+      ],
+      "reason": "Follow-up to N-DPT: the retained board device is the largest claimed lever and its vendor model was the only capture that failed.",
+      "hypothesis_or_question": "What does an independent vendor model give for the RETAINED BOARD DEVICE STW65N65DM2AG's switching energy at the C1 operating point, and does it confirm the analytic model's claim that the board part costs roughly twice the C7?",
+      "worker_status": "DISPATCHED_attempt-001"
     }
   ]
 }

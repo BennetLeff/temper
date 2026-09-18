@@ -1,0 +1,43 @@
+* ============================================================
+* Clamped-inductive double-pulse test (DPT) -- PFC boost switch
+* DUT: IPW65R045C7_L0  (Infineon CoolMOS C7 vendor model, Level-0)
+* Bench: bus 400 V (soft-ramped 0->400 over 1 us), freewheel SiC diode,
+*        gate 0->12 V, external 9.7 ohm turn-on / 5.3 ohm turn-off
+* Events: Eon at ~11.95 A (pulse-2 rise), Eoff at ~15.01 A (pulse-2 fall)
+* ============================================================
+* Vendor Level-0 model.
+.param TEMP=25
+.temp 25
+.include "../models/infineon_c7_650v_spice_ngspice.lib"
+.include "../models/infineon_coolsic_g5_650v_ngspice.lib"
+
+Vbus  bus 0 PWL(0 0 1u 400 30u 400)
+Cbus  bus 0 100u
+Lboost bus sw 180u
+Vsense sw drain 0
+Xdut drain gate 0 IPW65R045C7_L0
+
+Xfw sw bus dtc dtj IDH16G65C5_L3
+Vdtc dtc 0 25
+Vdtj dtj 0 25
+
+Vdrive drive 0 PWL(0 0 1n 0 2002n 0 2003n 12 7319n 12 7320n 0 9384n 0 9385n 12 10751n 12 10752n 0 13u 0)
+Rg gate drive R={5.3+4.4*u(V(drive)-6)}
+
+.options reltol=1e-4 abstol=1e-9 vntol=1e-5
+.tran 2e-11 13u 0 2e-10
+
+.control
+run
+let pv = v(drain)*i(vsense)
+meas tran eon  integ pv from=9.383u  to=9.565u
+meas tran eoff integ pv from=10.749u to=10.931u
+meas tran iL_eon  find i(lboost) at=9.380u
+meas tran iL_eoff find i(lboost) at=10.745u
+meas tran iL_off1 find i(lboost) at=7.314u
+meas tran vds_off find v(drain) at=9.0u
+meas tran vds_on  find v(drain) at=9.5u
+meas tran vg_on   find v(gate)  at=9.5u
+meas tran vg_off  find v(gate)  at=8.5u
+.endc
+.end

@@ -1,0 +1,121 @@
+{
+  "schema": "pfc-campaign-numerical-result/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "N-DPT-ST",
+  "attempt_id": "attempt-001",
+  "kind": "numerical_independent_model",
+  "base_revision": "83113048974fbe34508e715aec735dfb25642d3a",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "status_axes": {
+    "assignment_status": "FINISHED",
+    "assignment_status_note": "The assigned task (capture the ST model, re-run the control, run the identical DPT) was executed. The task device could not be captured; that is a reported capture failure, not an abandoned task.",
+    "checker_status": "NOT_APPLICABLE",
+    "checker_status_note": "No coordinator checker was issued for this task.",
+    "hardware_qualification": "NOT_PERFORMED",
+    "hardware_qualification_note": "No hardware was measured. All results are vendor-device macromodel simulation, not measurement and not qualification.",
+    "task_device_result_status": "UNKNOWN",
+    "task_device_result_status_note": "STW65N65DM2AG vendor model NOT_CAPTURED; its Eon/Eoff/Eoss are unknown and remain null. No substitution was made."
+  },
+  "testbench": {
+    "identity": "reuse of N-DPT attempt-001 ngspice clamped-inductive double-pulse bench, byte-identical netlists",
+    "solver": "ngspice-45.2 (KLU), /opt/homebrew/bin/ngspice",
+    "operating_point": {
+      "bus_v": 400.0,
+      "turn_on_current_a_requested": 11.948585497614935,
+      "turn_off_current_a_requested": 15.007125914829363,
+      "switching_hz": 129107.39198576905,
+      "gate_bias_v": 12.0,
+      "external_gate_r_on_ohm": 9.7,
+      "external_gate_r_off_ohm": 5.3,
+      "temperatures_c": [25, 125]
+    },
+    "control_reproduced": true,
+    "control_reproduction_note": "The reused IPW65R045C7 control netlists re-ran with .meas lines byte-identical to N-DPT attempt-001 at both 25 C and 125 C."
+  },
+  "devices": {
+    "IPW65R045C7": {
+      "role": "baseline control",
+      "manufacturer": "Infineon",
+      "model_used": "IPW65R045C7_L0",
+      "model_level": "vendor Level-0",
+      "at_25c": {
+        "eon_uj": 102.495,
+        "eoff_uj": 104.786,
+        "eoss_uj": 9.7579321251,
+        "turn_on_current_a_measured": 12.06969,
+        "turn_off_current_a_measured": 14.985,
+        "eon_plus_eoff_times_f_w": 26.761509318202194,
+        "eoss_times_f_w": 1.2598211678458143,
+        "overlap_only_w": 25.50168815035638
+      },
+      "at_125c": {
+        "eon_uj": 99.4706,
+        "eoff_uj": 97.3056,
+        "eoss_uj": 8.6862280539,
+        "turn_on_current_a_measured": 12.0329,
+        "turn_off_current_a_measured": 14.94428,
+        "eon_plus_eoff_times_f_w": 25.405261986870087,
+        "eoss_times_f_w": 1.121456250232651,
+        "overlap_only_w": 24.283805736637436
+      }
+    },
+    "STW65N65DM2AG": {
+      "role": "task device (retained board part)",
+      "manufacturer": "STMicroelectronics",
+      "model_capture_status": "NOT_CAPTURED",
+      "model_source_url": "https://www.st.com/resource/en/spice_model/stw65n65dm2ag_spice.zip",
+      "model_sha256": null,
+      "at_25c": {"eon_uj": null, "eoff_uj": null, "eoss_uj": null, "eon_plus_eoff_times_f_w": null},
+      "at_125c": {"eon_uj": null, "eoff_uj": null, "eoss_uj": null, "eon_plus_eoff_times_f_w": null}
+    }
+  },
+  "ratios": {
+    "control_IPW65R045C7_25c": {
+      "eon_plus_eoff_times_f_w": 26.761509318202194,
+      "ratio_vs_vendor_model_result_to_match_26_76_w": 1.000056376,
+      "ratio_vs_analytic_C7_overlap_37_36824064736847_w": 0.7161565236838835,
+      "ratio_vs_analytic_C7_total_switch_gate_45_502337474982966_w": 0.588134829,
+      "overlap_only_ratio_vs_analytic_C7_overlap": 0.6824428367127916
+    },
+    "STW_to_C7": {
+      "analytic_total_switch_gate_ratio_93_183_over_45_502337474982966": 2.047873,
+      "analytic_note": "the analytic model claims ~2.05x; this is NOT a vendor-model result",
+      "vendor_switching_power_ratio_STW_over_C7": null,
+      "vendor_switching_power_ratio_note": "cannot be formed: STW65N65DM2AG vendor Eon/Eoff are unknown (model NOT_CAPTURED). The campaign's largest claimed lever (STW ~2x C7) therefore remains unverified by an independent vendor model."
+    }
+  },
+  "refinement_evidence": {
+    "nominal": {"eon_uj": 102.495, "eoff_uj": 104.786},
+    "timestep_5x": {"eon_uj": 102.504, "eoff_uj": 104.782},
+    "timestep_10x": {"eon_uj": 102.5, "eoff_uj": 104.777},
+    "window_start_minus_10ns": {"eon_uj": 102.495, "eoff_uj": 104.877},
+    "eoss_25pt_uj": 9.7579321251,
+    "eoss_43pt_uj": 9.76156836565,
+    "conclusion": "Eon spread across 5x/10x timestep refinement = 0.009 uJ (0.009 %); Eoff spread = 0.009 uJ (0.009 %); Eoss grid spread 0.037 %. The control is numerically converged."
+  },
+  "case_accounting": {
+    "candidate_devices_attempted": 2,
+    "candidate_devices_valid": 1,
+    "candidate_devices_capture_failed": 1,
+    "dpt_cases_planned": "2 devices x 2 T = 4",
+    "dpt_cases_valid": 2,
+    "dpt_cases_unrun_task_device": 2,
+    "dpt_cases_valid_note": "only the control device (IPW65R045C7) at 25 C and 125 C; the STW65N65DM2AG cases were not run because the model could not be captured.",
+    "refinement_control_runs": 4,
+    "ngspice_invocations": 9,
+    "invocation_budget": 48,
+    "primary_sources_attempted": "st.com (several paths/hosts), Wayback Machine, archive.today, Mouser, Digi-Key, TME, ST eStore, public relays; see raw/capture_log.txt"
+  },
+  "unknowns": [
+    "STW65N65DM2AG Eon/Eoff/Eoss at 25 C and 125 C",
+    "STW-to-C7 vendor switching-power ratio",
+    "any hardware measurement"
+  ],
+  "evidence_pointers": {
+    "capture_log": "raw/capture_log.txt",
+    "failure_records": "raw/failure_records/",
+    "netlists": "raw/netlists/",
+    "logs": "raw/logs/",
+    "derived": "raw/derived/"
+  }
+}

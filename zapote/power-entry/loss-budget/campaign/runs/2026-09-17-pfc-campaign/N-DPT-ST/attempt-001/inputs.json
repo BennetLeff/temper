@@ -1,0 +1,130 @@
+{
+  "schema": "pfc-campaign-numerical-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "N-DPT-ST",
+  "attempt_id": "attempt-001",
+  "kind": "numerical_independent_model",
+  "base_revision": "83113048974fbe34508e715aec735dfb25642d3a",
+  "contract": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "independence": "Does not import, call, edit or reproduce zapote-erc::pfc_switching, and does not edit or reuse the zapote-erc pfc_switching model. All numbers come from vendor device SPICE models run in ngspice. The testbench is the N-DPT attempt-001 ngspice clamped-inductive double-pulse bench, reused byte-for-byte (see testbench_reuse).",
+  "solver": {
+    "name": "ngspice",
+    "version": "ngspice-45.2 (KLU)",
+    "path": "/opt/homebrew/bin/ngspice",
+    "invocations": 9,
+    "note": "Batch mode (-b) for every run; every netlist and log retained under raw/netlists and raw/logs."
+  },
+  "model_identity": {
+    "requested_part": "STW65N65DM2AG",
+    "manufacturer": "STMicroelectronics",
+    "status": "NOT_CAPTURED",
+    "result": null,
+    "known_location": {
+      "url": "https://www.st.com/resource/en/spice_model/stw65n65dm2ag_spice.zip",
+      "resource_title": "STW65N65DM2AG PSpice model",
+      "version": "1.0",
+      "update_date": "13 Jan 2016",
+      "file_type": "ZIP",
+      "how_established": "ST's own archived product page https://www.st.com/en/power-transistors/stw65n65dm2ag.html (Wayback capture 20260212103247, HTTP 200, 277843 bytes, local copy raw/failure_records/wayback_product_20260212.html) shows the SPICE-models table with data-pdf-link=\"/resource/en/spice_model/stw65n65dm2ag_spice.zip\", data-file-name=\"STW65N65DM2AG PSpice model\", data-file-extension=\"ZIP\", update date 13 Jan 2016."
+    },
+    "captured_bytes": 0,
+    "sha256": null,
+    "provenance_verification": "NONE - no candidate file was ever downloaded, so no copy could be verified as ST's own model. The model's existence and exact resource path were verified from ST-authored archived HTML, but the model bytes were not obtained.",
+    "reason": "www.st.com unreachable from this host. Every request to the Akamai edge (www.st.com -> edgekey.net -> e40218.a.akamaiedge.net, A 23.45.122.210 / 23.45.122.203) failed: HTTP/2 'INTERNAL_ERROR (err 2)' at connect, or connect/read timeout under HTTP/1.1; 0 bytes received, on both IPv4 and IPv6, for HTML pages and for the resource zip, and for alternate ST hosts (my.st.com, www.st.com.cn, eds.st.com). The exact file is absent from the Wayback Machine and archive.today; sibling MDmesh DM2 models (e.g. stw50n65dm2ag_spice.zip) ARE archived but the target part is not. No distributor-hosted copy of the manufacturer's SPICE model was found (Mouser/Digi-Key/TME blocked or 403; search surfaced only datasheets and ECAD footprint models). No substitute device and no hand-written model were used.",
+    "failure_record": "raw/capture_log.txt (full URL/status/bytes/content-type list; artifacts in raw/failure_records/)"
+  },
+  "testbench_reuse": {
+    "source": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/N-DPT/attempt-001/raw/",
+    "method": "copied the exact ngspice netlists, vendor model libs and post-processing tools from the N-DPT attempt-001 raw/ directory; no testbench parameter was changed.",
+    "netlist_identity_sha256": {
+      "dpt_ipw65r045c7_L0_25c.cir": {"prior": "d0549c163b2146f82200fa41dfd02e30f8f9a4118c5f8455c0022dadf9d1151a", "reused": "d0549c163b2146f82200fa41dfd02e30f8f9a4118c5f8455c0022dadf9d1151a", "identical": true},
+      "dpt_ipw65r045c7_L0_125c.cir": {"prior": "67c8814c202dc994744478434b6b329d47d9e727ee6ab1982bda967c802c2260", "reused": "67c8814c202dc994744478434b6b329d47d9e727ee6ab1982bda967c802c2260", "identical": true},
+      "coss_ipw65r045c7_L0_25c.cir": {"prior": "66f5a73e20c1e7fe51cce3841e94cc11337104a91bd83464f06bc9a17829c3e6", "reused": "66f5a73e20c1e7fe51cce3841e94cc11337104a91bd83464f06bc9a17829c3e6", "identical": true},
+      "infineon_c7_650v_spice_ngspice.lib": {"prior": "d159f168d39139850f11a78cab26e6e168f510a98912d9d5e36a0f80ef883983", "reused": "d159f168d39139850f11a78cab26e6e168f510a98912d9d5e36a0f80ef883983", "identical": true},
+      "infineon_coolsic_g5_650v_ngspice.lib": {"prior": "36abbff6d4b04d88e47427e37dc067b5a9f7909e2206ee70642ac331b2a1c875", "reused": "36abbff6d4b04d88e47427e37dc067b5a9f7909e2206ee70642ac331b2a1c875", "identical": true}
+    },
+    "control_reproduction": "the reused control netlists were re-run on this host; the ngspice .meas lines are byte-identical to the N-DPT attempt-001 logs: Eon 1.02495e-04 J / Eoff 1.04786e-04 J / Eoss 9.7579321251e-06 J at 25 C, and Eon 9.94706e-05 J / Eoff 9.73056e-05 J / Eoss 8.6862280539e-06 J at 125 C. See raw/logs/control_*.log."
+  },
+  "requested_operating_point": {
+    "bus_v": 400.0,
+    "turn_on_current_a": 11.948585497614935,
+    "turn_off_current_a": 15.007125914829363,
+    "switching_hz": 129107.39198576905,
+    "gate_bias_v": 12.0,
+    "external_gate_r_on_ohm": 9.7,
+    "external_gate_r_off_ohm": 5.3,
+    "temperature_c": [25, 125]
+  },
+  "applied_operating_point": {
+    "bus_source_v": 400.0,
+    "drain_off_state_v_measured": 401.3725,
+    "gate_drive_v": 12.0,
+    "external_gate_r_on_ohm": 9.7,
+    "external_gate_r_off_ohm": 5.3,
+    "external_gate_r_model": "behavioral resistor R = 5.3 + 4.4*u(V(drive)-6); switches at V(drive)=6 V",
+    "internal_gate_r_ohm_in_vendor_model": 0.82,
+    "inductor_h": 0.00018,
+    "bus_cap_f": 0.0001,
+    "turn_on_current_a_measured": {"IPW65R045C7@25C": 12.06969, "IPW65R045C7@125C": 12.0329},
+    "turn_off_current_a_measured": {"IPW65R045C7@25C": 14.985, "IPW65R045C7@125C": 14.94428},
+    "current_error_vs_requested_percent": "turn-on +0.7 % (25 C) / +0.7 % (125 C); turn-off -0.15 % (25 C) / -0.42 % (125 C); measured event currents are reported per case rather than scaled.",
+    "note": "Identical to N-DPT attempt-001. No STW65N65DM2AG case was run: the vendor model could not be captured."
+  },
+  "device_conditions": {
+    "IPW65R045C7": {
+      "role": "baseline control (C7), NOT the task device",
+      "manufacturer": "Infineon",
+      "family": "CoolMOS C7, 650 V, 45 mOhm, TO-247",
+      "source": "Infineon CoolMOS C7 650 V PSpice library (captured in N-DPT attempt-001; reused byte-identically)",
+      "model_used": "IPW65R045C7_L0",
+      "model_level": "vendor Level-0 (nominal/typical device, no temperature terminal)",
+      "temperature_binding": ".temp 25 / .temp 125; only the vendor's resistor temperature coefficients respond",
+      "model_sha256_original": "3688f71b829e86aacebf8de59091ee49fc15c7dcd86a13412d1eaa5b2c566d82",
+      "model_sha256_ngspice_converted": "d159f168d39139850f11a78cab26e6e168f510a98912d9d5e36a0f80ef883983"
+    },
+    "STW65N65DM2AG": {
+      "role": "task device (retained board part)",
+      "manufacturer": "STMicroelectronics",
+      "family": "MDmesh DM2, automotive-grade 650 V, 42 mOhm typ., 60 A, TO-247",
+      "status": "NOT_CAPTURED",
+      "model_used": null,
+      "result": null
+    }
+  },
+  "testbench": {
+    "type": "clamped-inductive double pulse (DPT)",
+    "topology": "400 V bus -> 180 uH boost inductor -> switching node sw -> 0 V sense element -> MOSFET drain, MOSFET source to ground; freewheel SiC diode sw->bus (anode sw, cathode bus)",
+    "gate_network": "PWL 0->12 V drive through behavioral external resistor (9.7 ohm on / 5.3 ohm off); vendor intrinsic gate network (Rg=0.82 ohm, Lg=5 nH) retained inside the model",
+    "energy_integration": "E = integral of v(drain)*i(Vsense) dt over the switching-transition window; integrator = ngspice `meas tran ... integ <vector>` on pv = v(drain)*i(vsense)",
+    "integration_windows": {"Eon": "9.383 us .. 9.565 us (182 ns)", "Eoff": "10.749 us .. 10.931 us (182 ns)"},
+    "timestep": {"nominal": "tstep 1e-10, tmax 1e-9", "refinement_5x": "tstep 5e-11, tmax 5e-10", "refinement_10x": "tstep 2e-11, tmax 2e-10"},
+    "eoss_method": "Coss(v) from a small-signal AC admittance sweep (100 kHz) at DC drain-bias points, Vgs=0; Eoss(400) = integral of v*Coss(v) dv (trapezoidal). This is the datasheet Coss(v) definition.",
+    "freewheel_diode": "substitute Infineon IDH16G65C5_L3 (650 V / 16 A CoolSiC G5), same as N-DPT; retained part Wolfspeed C3D20065D was not capturable in N-DPT either."
+  },
+  "controls": [
+    "control re-run 25 C: Eon 102.495 uJ / Eoff 104.786 uJ / Eoss 9.757932 uJ -- matches the N-DPT attempt-001 control target (102.50 / 104.79 / 9.76) and is byte-identical in .meas lines.",
+    "control re-run 125 C: Eon 99.4706 uJ / Eoff 97.3056 uJ / Eoss 8.686228 uJ -- .meas lines byte-identical to N-DPT attempt-001.",
+    "timestep refinement 5x (tstep 5e-11, tmax 5e-10): Eon 102.504 uJ, Eoff 104.782 uJ",
+    "timestep refinement 10x (tstep 2e-11, tmax 2e-10): Eon 102.500 uJ, Eoff 104.777 uJ",
+    "integration-window start moved 10 ns earlier: Eon unchanged (102.495 uJ), Eoff +0.087 % (104.877 uJ)",
+    "Eoss grid refinement 25 -> 43 bias points: 9.757932 uJ -> 9.761568 uJ (0.037 %)"
+  ],
+  "analytic_comparison_targets": {
+    "STW65N65DM2AG_total_switch_gate_w": 93.183,
+    "IPW65R045C7_total_switch_gate_w": 45.502337474982966,
+    "IPW65R045C7_switching_overlap_w": 37.36824064736847,
+    "IPW65R045C7_eoss_w": 1.5106,
+    "note": "from the retained experiment-02 2916-scenario grid; analytic STW/C7 total ratio = 93.183 / 45.502337474982966 = 2.047873 (~2x). This is an analytic-model claim, not a vendor-model result."
+  },
+  "vendor_model_result_to_match": {
+    "device": "IPW65R045C7",
+    "Eon_uJ": 102.5, "Eoff_uJ": 104.79, "Eoss_uJ": 9.76,
+    "Eon_plus_Eoff_times_f_w": 26.76, "at_temp_c": 25
+  },
+  "unknowns": [
+    "STW65N65DM2AG Eon/Eoff/Eoss at 25 C and 125 C (vendor model NOT_CAPTURED)",
+    "the STW-to-C7 vendor switching-power ratio (cannot be formed without the ST model)",
+    "any hardware measurement"
+  ]
+}
