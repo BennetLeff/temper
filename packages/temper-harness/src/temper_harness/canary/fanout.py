@@ -244,7 +244,16 @@ def _run_one(
     # The window is recorded beside the figure. Without it a stored cost carries a
     # factor-of-two ambiguity -- off-peak is exactly half of peak -- that nothing on the row
     # could resolve later, and a reader could not tell a cheap call from a mispriced one.
-    window = window_for(priced_by.raw, at) if priced_by is not None and at is not None else None
+    #
+    # It is `None` whenever the cost is, and the condition is on the *cost* rather than on the
+    # table: a call with no usable usage block cannot be priced, so naming the window that
+    # "priced" it would be false. An adversarial review found this: the row said
+    # `price_window: "peak"` with `estimated_usd: null`, which is schema-valid and misleading.
+    window = (
+        window_for(priced_by.raw, at)
+        if priced_by is not None and at is not None and cost is not None
+        else None
+    )
     registry.close_call(
         handle,
         status=status,

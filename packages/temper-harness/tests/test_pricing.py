@@ -164,89 +164,81 @@ def test_a_non_utc_timestamp_is_converted_before_the_window_is_chosen() -> None:
     assert window_for(load_table().raw, elsewhere) == PEAK
 
 
-def test_the_window_does_not_consult_a_locale_formatted_weekday_name() -> None:
-    """The always-runnable half of the locale guard.
+def test_the_window_does_not_depend_on_the_locale() -> None:
+    """The money path must not depend on the ambient locale. One test, two strengths.
 
-    `strftime("%A")` returns a *localised* weekday name, and relying on it made the peak
-    window depend on `LC_TIME` -- measured: `de_DE` and `fr_FR` both moved a Monday 02:00 UTC
-    call from `peak` to `off_peak`, halving every weekday bill. The behavioural test below is
-    the real instrument and needs a non-English locale installed, which a bare CI container
-    does not have.
+    **Always:** the module does not format a date. `strftime("%A")` returns a *localised*
+    weekday name, and relying on it made the peak window follow `LC_TIME` -- measured, a Monday
+    02:00 UTC call came back `peak` under `LC_TIME=C` and `off_peak` under `de_DE` ("Montag") and
+    `fr_FR` ("lundi"), halving every weekday bill with no error and a well-formed figure.
 
-    This asserts the property that made the bug possible, and it is a *source scan*, which is
-    the weaker kind: a locale-independent bug would pass it. It is here because it always runs,
-    and because this particular defect is syntactically visible -- the money path must not call
-    a date formatter at all.
+    **Where a non-English `LC_TIME` is installed:** the window does not move under it, asserted
+    directly. That half is the real instrument and a bare CI container cannot run it.
 
-    It parses the module rather than searching its text. The first version searched the text
-    and immediately tripped on the docstring that *documents* the anti-pattern, which is the
-    same lesson the schema suite records for its inline-version scan: a substring scan matches
-    the sentence explaining why the thing is forbidden.
+    Deliberately **one test, and no `pytest.skip`.** The first version was two tests, the
+    behavioural one skipping when no locale existed -- and this suite runs under
+    `pytest_guard --min-tests`, which counts *executed* tests and deliberately excludes skips.
+    So the skip made the floor unreachable in the very container that caused it, converting a
+    test failure into a guard failure. A platform-conditional assertion inside one test keeps
+    the collected and executed counts identical everywhere.
     """
     import ast
+    import locale
 
     source = (
         Path(__file__).resolve().parents[1] / "src" / "temper_harness" / "pricing.py"
     ).read_text(encoding="utf-8")
-    formatter_calls = [
+    tree = ast.parse(source)
+
+    # Parsed rather than searched: the first version searched the text and tripped on the
+    # docstring that *documents* the anti-pattern -- the same lesson the schema suite records
+    # for its inline-version scan, where a substring scan matches the sentence explaining why
+    # the thing is forbidden.
+    formatters = [
         node.attr
-        for node in ast.walk(ast.parse(source))
+        for node in ast.walk(tree)
         if isinstance(node, ast.Attribute) and node.attr in ("strftime", "strptime")
     ]
-    assert not formatter_calls, (
+    assert not formatters, (
         "the peak window must not format a date: a locale-formatted value in the money path "
-        f"is how a weekday bill got halved (found {formatter_calls})"
+        f"is how a weekday bill got halved (found {formatters})"
+    )
+    # The positive half of the same property, which the negative scan alone does not cover: an
+    # `f"{moment:%A}"` rewrite produces no Attribute node and would slip past the check above,
+    # but it would also have to drop the `weekday()` call the window is built on.
+    weekday_calls = [
+        node.attr
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Attribute) and node.attr == "weekday"
+    ]
+    assert weekday_calls, (
+        "the peak window must derive the day from a weekday *index*, which no locale can move"
     )
 
-
-def test_a_locale_change_does_not_move_the_window() -> None:
-    """The money path must not depend on the ambient locale.
-
-    `strftime("%A")` returns a *localised* weekday name. Measured before the fix, for a
-    Monday 02:00 UTC that is inside the peak window: `LC_TIME=C` gave "Monday" and `peak`,
-    while `LC_TIME=de_DE` gave "Montag" and `off_peak` and `fr_FR` gave "lundi" and
-    `off_peak`. So a process that set a locale halved every weekday bill, with no error and a
-    perfectly well-formed figure. The window now compares `weekday()` indices, which no
-    locale can move.
-    """
-    import locale
-
+    table = load_table()
     moments = {
         "monday 02:00 UTC (peak)": dt.datetime(2026, 9, 14, 2, 0, tzinfo=dt.UTC),
         "monday 11:00 UTC (off-peak)": dt.datetime(2026, 9, 14, 11, 0, tzinfo=dt.UTC),
         "saturday 02:00 UTC (off-peak)": dt.datetime(2026, 9, 19, 2, 0, tzinfo=dt.UTC),
     }
-    table = load_table()
     baseline = {label: window_for(table.raw, at) for label, at in moments.items()}
     assert baseline == {
         "monday 02:00 UTC (peak)": PEAK,
         "monday 11:00 UTC (off-peak)": OFF_PEAK,
         "saturday 02:00 UTC (off-peak)": OFF_PEAK,
-    }, "the baseline is wrong, so this test would not be measuring the locale"
+    }, "the baseline is wrong, so the locale comparison below would measure nothing"
 
     original = locale.setlocale(locale.LC_TIME)
-    compared = 0
     try:
         for candidate in ("de_DE.UTF-8", "fr_FR.UTF-8"):
             try:
                 locale.setlocale(locale.LC_TIME, candidate)
             except locale.Error:
-                continue  # this machine does not have the locale; nothing to compare
-            compared += 1
+                continue  # this platform does not have the locale; the checks above ran
             moved = {label: window_for(table.raw, at) for label, at in moments.items()}
             assert moved == baseline, f"{candidate} moved the window: {moved} != {baseline}"
     finally:
         locale.setlocale(locale.LC_TIME, original)
-    if not compared:
-        # A reasoned skip, not a pass: this test cannot measure the property without a
-        # non-English LC_TIME, and a bare CI container has none. The first version of this
-        # asserted `compared` and so turned "the platform cannot run this test" into a
-        # *failure* -- which is how CI found it. The always-runnable half is
-        # `test_the_window_does_not_consult_a_locale_formatted_weekday_name`.
-        pytest.skip(
-            "no non-English LC_TIME locale is installed, so this test cannot measure the "
-            "locale independence it exists for"
-        )
 
 
 def test_an_unrecognised_weekday_name_is_refused_rather_than_skipped() -> None:
@@ -363,8 +355,11 @@ def test_a_model_absent_from_the_table_is_unpriced() -> None:
 class _Scripted:
     """One priced call per invocation."""
 
-    def __init__(self, *, prompt: int, completion: int, cached: int) -> None:
+    def __init__(
+        self, *, prompt: int, completion: int, cached: int, emit_usage: bool = True
+    ) -> None:
         self.prompt, self.completion, self.cached = prompt, completion, cached
+        self.emit_usage = emit_usage
 
     def stream(self, request: Request):
         yield Terminal(
@@ -382,7 +377,9 @@ class _Scripted:
                     "reasoning_tokens": 0,
                     "cached_input_tokens": self.cached,
                     "total_tokens": self.prompt + self.completion,
-                },
+                }
+                if self.emit_usage
+                else None,
                 "served_from": "live",
             }
         )
@@ -424,6 +421,35 @@ def test_a_priced_run_records_the_table_identity_and_sums_its_usd(tmp_path: Path
     # without this the figure carries a factor-of-two ambiguity nothing can resolve later.
     assert row["price_window"] == "peak"
     assert outcome.price_window == "peak"
+
+
+def test_a_call_with_no_usable_usage_has_no_window_either(tmp_path: Path) -> None:
+    """The window is a property of the figure, so it is absent when the figure is.
+
+    An adversarial review found the row saying `price_window: "peak"` with
+    `estimated_usd: null` -- schema-valid, and a claim that that window priced a call nobody
+    priced. Reachable on any failed or usage-less call once pricing is enabled.
+    """
+    store = LedgerStore(tmp_path / "ledger")
+    result = probe_fanout(
+        store=store,
+        transport=_Scripted(prompt=0, completion=0, cached=0, emit_usage=False),
+        request=Request(
+            model="deepseek-flash",
+            messages=[ChatMessage(role="user", content="x")],
+            served_from="live",
+        ),
+        sessions=["worker-0"],
+        priced_by=load_table(),
+        at=PEAK_MOMENT,
+    )
+    [outcome] = result.outcomes
+    assert outcome.estimated_usd is None
+    assert outcome.price_window is None, "a window must not outlive the figure it explains"
+    row = store.call_rows()[0]
+    assert row["estimated_usd"] is None
+    assert row["price_window"] is None
+    build_validator("ledger_row.schema.json").validate(row)
 
 
 def test_pricing_needs_both_a_table_and_a_moment(tmp_path: Path) -> None:
@@ -472,4 +498,7 @@ def test_an_unpriced_run_says_unpriced_and_never_zero(tmp_path: Path) -> None:
     # test asserted that, calling it "labelled as such" when nothing labelled it.
     assert result.aggregate.priced_rows == 0
     assert result.aggregate.usd_is_complete is False
-    assert result.aggregate.inclusive_usd == 0.0, "the sum of no figures"
+    # None and not 0.0. The first version flagged it beside an unchanged zero, which left the
+    # symptom intact for anyone quoting the naturally-named attribute: $0.00 reads as a free
+    # run. Same rule as a usage field (R4).
+    assert result.aggregate.inclusive_usd is None

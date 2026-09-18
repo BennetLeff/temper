@@ -277,7 +277,11 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 
 **Landing status**
 
-Opened as PR #1603, 17 commits, 459 tests, and the CI floor follows the count. The PR's own two gates pass in the required
+Opened as PR #1603. The suite is wired into **Core Tests** with the floor at the measured
+count -- read the number from the `--min-tests` argument in
+`.github/workflows/python-tests.yml`, which is the only place it can be authoritative. This
+document used to restate the count and was stale within a day, three times, so it no longer
+does. The PR's own two gates pass in the required
 contexts — **Core Tests** (19m50s, which is what actually runs this suite with the
 `--min-tests` floor) and **Repo Hygiene & Import Gates** (9m51s) — and the simulated
 path-diff confirms that a diff touching only `packages/temper-harness/**` schedules
@@ -703,8 +707,49 @@ Two are in the money path.
     The twelve-probe corpus was captured from a dirty tree whose probe code was committed
     later, so checking out the named commit yields a ten-probe corpus -- and, unlike the
     canary's evidence, nothing in the file said so. The manifest now carries
-    `harness_dirty`, and the committed one is marked `true`; a clean re-capture is
-    outstanding and needs the credential.
+    `harness_dirty`, and the committed corpus has since been re-captured at a clean commit, so
+    it now records `false` and names a commit that reproduces it (finding 46).
+
+### Found by a third adversarial review, of the second round's fixes (post-recapture) — seven more
+
+The pattern this time was in the *fixes* themselves, which is now three for three: each review
+finds defects in the previous round's work. Two were defects I had introduced while closing the
+second round's.
+
+46. **The locale guard's `pytest.skip` made the CI floor unreachable, in the very container that
+    caused the skip.** `pytest_guard` counts *executed* tests and deliberately excludes skips
+    (its own docstring says so), so skipping one test made `--min-tests 460` unsatisfiable on a
+    container without a non-English locale -- turning a test failure into a **guard** failure.
+    The fix is one test with a platform-conditional assertion rather than two-with-a-skip, so
+    the collected and executed counts are identical everywhere. Verified by simulating the
+    container: 460 executed, 0 skipped.
+47. **The field-absence half of the new structural wire test was vacuous.** It asserted
+    `wire_key not in body` where `wire_key` is `None` for `served_from` -- so it tested
+    `None not in body`, a key-presence check on a *value*, which passes for any body at all.
+    The one field the test must prove absent from the wire was unguarded, and the counterexample
+    is one line: `None not in {"served_from": "live"}` is True. It now names the field.
+48. **`price_window` was written on rows that were never priced.** A call with no usable usage
+    block got `price_window: "peak"` with `estimated_usd: null` -- schema-valid, and a claim
+    that a window priced a call nobody priced. The window is a property of the *figure*, so it
+    is now `None` whenever the figure is.
+49. **The corpus's dirty flag was a self-declaration.** The test asserted the field exists and is
+    a bool; nothing derived it. It is correct now, and unfalsifiable in general, which is now
+    named as a residual rather than implied to be guarded.
+50. **Nothing checked that the probe set still produces the committed corpus.** The fixtures were
+    verified against themselves and the manifest's *names* against `PROBE_SET`, but editing a
+    probe's *body* without re-capturing left a manifest describing a request nobody makes. That
+    direction is now checked for the static probes; the three with a callable body derive their
+    request from a previous capture and are named as a gap.
+51. **`inclusive_usd` still returned a bare `0.0` for a run with nothing priced.** The second
+    round added `usd_is_complete` *beside* the unchanged zero, which left the symptom intact for
+    anyone quoting the naturally-named attribute. It is now `None` when no row was priced, which
+    is the same rule usage fields follow (R4).
+52. **The plan's own claims were stale again** -- it said the corpus was dirty and a re-capture
+    outstanding, after the commit that fixed it, and restated a test count a commit behind. The
+    volatile counts are **removed** rather than updated a fourth time: the artifact is the
+    authority and this document pointing at it is the durable form. The lesson is the one this
+    repo already records for generated artifacts -- update the derived document in the same
+    commit as the thing it describes -- and it took three rounds to apply it here.
 
 ### Named unknowns (U1) — stated, not inferred away
 
@@ -783,11 +828,11 @@ Two are in the money path.
   is `(0, 1.0]`, and thinking mode floors it at 0.95; an out-of-range value returns 400
   naming the range. The floor itself was not measured — it would need a distribution over
   many samples to observe.
-- **The committed capture corpus cannot be reproduced from its named commit.**
-  `harness_dirty: true` -- the twelve-probe capture came from a dirty tree whose probe code
-  landed later. A clean re-capture at a committed HEAD is outstanding, and the canary's
-  evidence went through the same two-step for the same reason. The *canary* evidence is
-  clean; the corpus is not.
+- ~~The committed capture corpus cannot be reproduced from its named commit.~~ **Closed.**
+  The corpus was re-captured at `252cdc8ec` with a clean tree, so the manifest records
+  `harness_dirty: false` and names a commit that contains the probe code that produced it;
+  the canary was then re-run against it, twelve of twelve matching. Both the corpus and its
+  live anchor are now reproducible from the commits they name.
 - **The ledger records no timestamp at all.** A priced row now carries its table identity and
   its window, which resolves the factor-of-two ambiguity, but not the moment. So a row's
   window cannot be re-derived or cross-checked, and two rows priced in the same window months
@@ -807,6 +852,33 @@ Two are in the money path.
   `schema_registry.py` both use `Path(__file__).parents[2]`, so a non-editable wheel install
   would find no `schemas/` or `pricing/`. The harness is only ever run from the source tree
   today, and the wheel is declared buildable, so this is a latent packaging gap.
+- **The corpus's `harness_dirty` is a self-declaration.** A test asserts the field exists and
+  is a boolean; nothing derives it from git or cross-checks `harness_commit` against
+  `PROBE_SET`. It is correct for the committed corpus, and a hand-edited wrong value would pass.
+  Making it falsifiable means either a git call in a test (fragile: CI checks out with
+  `fetch-depth: 1`, so an older commit does not resolve) or recording a source hash, which would
+  invalidate the corpus on any probe edit including a comment.
+- **The always-runnable half of the locale guard is a proxy.** It parses `pricing.py` for
+  `strftime`/`strptime` attribute calls and asserts a `weekday()` call exists. An
+  `f"{moment:%A}"` rewrite produces no Attribute node -- though it would also drop the
+  `weekday()` call, which the positive assertion covers. `calendar.day_name[...]` and
+  `locale.nl_langinfo` are not covered at all. The behavioural half is the real instrument and
+  cannot run without a non-English locale.
+- **`reconciles` is about tokens, and a reader can conflate it with cost.** A run whose USD is
+  incomplete still reports `reconciles is True`, and `FanoutResult.summary()` prints
+  "(reconciled)" beside a lower-bound cost. No test or consumer ties the two.
+- **`_usd` silently drops a row whose `estimated_usd` is not a number** (a numeric string, say),
+  so `priced_rows < call_count` and the total becomes a lower bound with a `price_table_id` that
+  does not say `unpriced`. It fails closed and mislabels while doing so.
+- **`load_table()` defaults to the newest filename**, so adding a future pricing table silently
+  changes what every unpinned test prices against. `test_the_documented_flash_rates_are_the_numbers_transcribed`
+  pins the numbers and would go red, which is the only tripwire.
+- **The committed price table publishes the account's balance readings** (9.97 -> 9.83 -> 9.75).
+  Account state rather than a credential, and no secret is present anywhere in the tree, but it
+  is public in the repository and worth knowing.
+- **`stage_runner`'s `_harness_state` is duplicated** between `provider/probe.py` and
+  `tests/canary/test_canary_live.py`, so the two can drift -- the same duplication class that
+  produced finding 41.
 - **The JSONL `seq` is per-file**, allocated in `ledger.jsonl` and `inflight.jsonl`
   independently, so one number appears in both. No consumer needs a global sequence.
 - **The store cannot reproduce the *n*-th distinct response to an identical

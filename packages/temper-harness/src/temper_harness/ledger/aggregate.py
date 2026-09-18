@@ -85,7 +85,21 @@ class Aggregate:
         return self.root_exclusive_tokens + self.descendant_tokens
 
     @property
-    def inclusive_usd(self) -> float:
+    def inclusive_usd(self) -> float | None:
+        """The run's cost, or ``None`` when no row could be priced.
+
+        ``None`` rather than ``0.0``, for the same reason a usage field is (R4): "nobody could
+        price this run" and "this run was free" are different facts, and a total of ``0.0``
+        reads as the second. Flagging it beside an unchanged zero was the first attempt at this
+        and it was not enough -- a caller quoting the naturally-named attribute still got
+        $0.00, which an adversarial review pointed out is the same symptom it was fixing.
+
+        When a figure exists it is the sum of the *priced* rows, so it is a lower bound unless
+        :attr:`usd_is_complete` is True. R2's identity (inclusive is the sum of its parts) holds
+        over the values that exist.
+        """
+        if self.priced_rows == 0:
+            return None
         return self.root_exclusive_usd + self.descendant_usd
 
     @property

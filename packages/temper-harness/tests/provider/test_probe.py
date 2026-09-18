@@ -182,6 +182,33 @@ def test_every_probe_answered_with_the_status_it_was_expected_to() -> None:
         )
 
 
+def test_every_static_probe_body_still_hashes_to_its_recorded_capture() -> None:
+    """The corpus must be the corpus *this* probe set produces.
+
+    Nothing checked this direction. The fixtures are verified against themselves -- each
+    captured body is reconstructed and re-hashed -- and the manifest's names are checked against
+    `PROBE_SET`'s names, but a probe whose *body* was edited without a re-capture left a manifest
+    describing a request nobody makes. That is the drift the manifest's own request hashes exist
+    to catch, and it was unguarded.
+
+    Only the probes with a static body are covered here. Three derive their request from a
+    *previous capture* (the tool round trip replays the provider's own assistant turn), so
+    verifying those means replaying the capture chain rather than rebuilding a dict; the plan
+    names that as a gap rather than papering over it.
+    """
+    checked = 0
+    for probe in PROBE_SET:
+        if callable(probe.request) or probe.raw_body is not None:
+            continue
+        built = request_hash(wire_body(probe.request))
+        assert built == ENTRIES[probe.name]["request_hash"], (
+            f"{probe.name}: the probe set now builds a request this corpus does not contain; "
+            "re-capture, or the manifest describes a request nobody makes"
+        )
+        checked += 1
+    assert checked > 1, "anti-vacuity: the loop above must actually check something"
+
+
 def test_the_manifest_says_whether_this_corpus_is_reproducible() -> None:
     """Provenance for the corpus the whole oracle rests on.
 

@@ -548,7 +548,12 @@ def test_every_mapped_request_field_reaches_the_wire() -> None:
     body = wire_body(request)
     for field_name, wire_key in REQUEST_WIRE_FIELDS.items():
         if wire_key is None:
-            assert wire_key not in body, f"{field_name} must not be on the wire"
+            # `field_name`, not `wire_key`: the first version asserted `None not in body`,
+            # which is a key-presence test on the *value* None and passes for a body that
+            # contains anything at all -- so the one field this test must prove absent from
+            # the wire was unguarded. An adversarial review derived the counterexample:
+            # `None not in {"served_from": "live"}` is True.
+            assert field_name not in body, f"{field_name} must not be on the wire"
             continue
         assert wire_key in body, f"{field_name} never reached the wire as {wire_key!r}"
 
