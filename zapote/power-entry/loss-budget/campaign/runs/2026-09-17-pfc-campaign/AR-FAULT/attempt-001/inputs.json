@@ -1,0 +1,218 @@
+{
+  "schema": "pfc-campaign-AR-FAULT-inputs/v1",
+  "task_id": "AR-FAULT",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "kind": "fault_assessment_source_only",
+  "generated_utc": "2026-09-18T00:00:00Z",
+  "governing_question": "What is the real boost-switch-short fault stress from the ACTUAL schematic and fault-current paths, and does the AR-VERIFY ~586.7 V device stress hold?",
+  "board": {
+    "path": "zapote/power-entry/shunt-repair/candidate/",
+    "entry": "elec/src/power_entry_unit.ato:PowerEntryUnit",
+    "schematic_sha256": "49db3ee4e2d79f08d524b92457764098f9dc051b17746729cfb1460bbde4d3a9",
+    "pcb_sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+    "source_manifest_sha256": "136c94c36af498285c731e6cd43877eb5cc2e2b2289de21fbd8d531bc7d18ef2",
+    "footprints": 54,
+    "nets": 33,
+    "topology": "Classic CCM boost PFC: passive diode bridge U1 -> boost inductor U8 -> low-side switch U9 (drain=a1, source=PFC_BUS_MINUS) -> shunt U12 -> bus caps on PFC_BUS_PLUS_390V/PFC_BUS_MINUS; boost diode U10 anode=a1, cathode=hv_plus."
+  },
+
+  "named_topology": {
+    "note": "Net membership is verbatim from source-manifest.json bridge.nets (raw/netlist_fault_loop.json).",
+    "nets": {
+      "plus": ["U8.1 (boost inductor)", "U1.1 (bridge PLUS)"],
+      "a1": ["U8.2 (inductor)", "U9.2 (switch drain)", "U10.1 (diode A1)", "U10.3 (diode A2)"],
+      "PFC_BUS_PLUS_390V": ["U10.2 (diode K)", "U36.1,U37.1,U38.1,U39.1 (c1..c4 +)", "U40.1 (c_hf +)", "U52.1 (output +)", "U20.1 (vsense top)", "U53.1 (bleeder1)"],
+      "PFC_BUS_MINUS": ["U9.3 (switch source)", "U12.1 (shunt control_gnd)", "U36.2..U39.2 (c1..c4 -)", "U40.2 (c_hf -)", "U52.2 (output -)", "U54.2,U53.2 (bleeders)", "U11.1 (controller GND)"],
+      "minus": ["U1.4 (bridge MINUS)", "U12.2 (shunt bridge side)", "U18.2 (isense R)", "U35.2"],
+      "l1": ["U2.2 (fuse out)", "U6.1 (X2)", "U7.1 (MOV)", "U3.1 (CMC L1)"],
+      "AC_L_RECTIFIED_INPUT": ["U42.1 (mains L)", "U2.1 (fuse in)"],
+      "AC_N_RECTIFIED_INPUT": ["U42.2 (mains N)", "U6.2 (X2)", "U7.2 (MOV)", "U3.2 (CMC N1)"],
+      "l2": ["U3.4 (CMC L2)", "U4.1 (NTC)", "U5.4 (bypass relay COM)"],
+      "ac1": ["U1.2 (bridge AC1)", "U4.2 (NTC)", "U5.3 (bypass relay NO)"],
+      "ac2": ["U1.3 (bridge AC2)", "U3.3 (CMC N2)"]
+    },
+    "components": {
+      "U1": {"role": "rectifier bridge", "mpn": "GBJ2510-F", "vrrm_v": 1000, "if_a": 25, "ifsm_a": 350, "i2t_a2s": 510, "vf_v_typ": 1.05},
+      "U2": {"role": "fuse holder", "mpn": "0031.2510", "rated_a": 16, "rated_v": 250},
+      "F1": {"role": "mains fuse link", "mpn": "0034.3129", "family": "Schurter FST 5x20mm", "rated_a": 16, "rated_v": 250, "characteristic": "time-lag (T)", "pre_arcing_i2t": null},
+      "U3": {"role": "common-mode choke", "mpn": "B82726S2163N030", "rated_a": 16},
+      "U4": {"role": "inrush NTC", "mpn": "SL32 10015", "r25_ohm": 10, "rated_a": 15},
+      "U5": {"role": "NTC bypass relay", "mpn": "RT33K012", "contact_a": 16},
+      "U6": {"role": "X2 line cap", "mpn": "B32922C3224M289", "value": "0.22uF"},
+      "U7": {"role": "MOV (line-to-neutral)", "mpn": "V150LA10AP", "mcov_vrms": 150},
+      "U8": {"role": "boost inductor", "mpn": "760800301", "L_h": 1.8e-4, "L_tol": 0.20, "isat_typ_a": 43, "rdc_max_ohm": 0.020, "ir_a": 24.5, "vop_v": 1000},
+      "U9": {"role": "boost switch", "mpn": "STW65N65DM2AG", "vds_v": 650, "id_a": 65, "idm_a": 240, "rds_on_typ_ohm": 0.042, "rds_on_max_ohm": 0.050, "eas_single_pulse_mj": 1100},
+      "U10": {"role": "boost SiC diode", "mpn": "C3D20065D", "v_rating": 650, "i_rating_a": 20, "surge_rating": null},
+      "U11": {"role": "PFC controller", "mpn": "UCC28180D"},
+      "U12": {"role": "current shunt", "mpn": "HCSM2818FT10L0", "r_ohm": 0.010},
+      "bus_caps": {"U36": "c1 560uF/450V", "U37": "c2 560uF/450V", "U38": "c3 560uF/450V", "U39": "c4 560uF/450V", "U40": "c_hf 470nF/630V film"},
+      "bleeders": {"U53": "bleeder1 150k", "U54": "bleeder2 150k"}
+    }
+  },
+
+  "claim_under_test": {
+    "claim_v": 586.7,
+    "claim_v_recomputed": 586.676,
+    "claim_origin": "AR-VERIFY attempt-001 inputs.json terminal_voltages.bus_fault_boost_switch_short_v and REPORT.md:76; constructed in raw/compute_ar_verify.py:415 as round(v_bus + v_peak_132, 2) with v_bus=400 and v_peak_132=186.676.",
+    "claim_margin_on_600v": 1.02,
+    "verdict": "DOES NOT HOLD AS A SINGLE-FAULT DEVICE STRESS",
+    "verdict_basis": "no net on this board is the series sum of the bus potential and the line peak; see fault_paths."
+  },
+
+  "fault_paths": {
+    "A_boost_switch_short": {
+      "fault": "U9 drain (a1) shorted to source (PFC_BUS_MINUS).",
+      "conducting_elements_in_order": ["F1 (0034.3129)", "CMC U3 line winding (1->4)", "NTC U4 or bypass relay U5 (l2->ac1)", "bridge U1 upper diode (AC1->PLUS)", "boost inductor U8", "shorted U9", "shunt U12", "bridge U1 lower diode (MINUS->AC2)", "CMC U3 neutral winding (3->2)"],
+      "loop": "mains L -> F1 -> CMC L1(1)/L2(4) -> U4/U5 -> bridge AC1 -> upper diode -> bridge PLUS -> U8 -> a1 -> shorted U9 -> PFC_BUS_MINUS -> U12 -> bridge MINUS -> lower diode -> bridge AC2 -> CMC N2(3)/N1(2) -> mains N.",
+      "limiting_impedance": {
+        "inductor_L": "180 uH +/-20% limits di/dt only until Isat (43 A typ, |dL/L|<30%)",
+        "inductor_DCR_max_ohm": 0.020,
+        "shunt_ohm": 0.010,
+        "bridge_forward_drop_v": 2.1,
+        "line_source_impedance": null,
+        "line_source_impedance_note": "NOT ESTABLISHED anywhere in the tree; sets the post-saturation current."
+      },
+      "bus_capacitor_in_loop": false,
+      "bus_capacitor_reason": "After the U9 short, node a1 = PFC_BUS_MINUS. Boost diode U10 (anode a1, cathode hv_plus) is reverse-biased by the full bus voltage. hv_plus has no other path to the fault: its only board-side connections are U10.K, c1..c4/c_hf +, output U52.1, bleeder U53, and the U20..U24 vsense divider. So the 179 J stored in the bus bank does NOT discharge into the shorted switch.",
+      "node_voltages_actually_seen": {
+        "U9_switch_vds": 0,
+        "U10_boost_diode_reverse_v": 400.0,
+        "U1_bridge_ac_terminals_v_peak": 186.676,
+        "U1_bridge_output_plus_v": "rectified line, 0..186.676",
+        "board_node_at_586_7_v": "DOES NOT EXIST"
+      }
+    },
+    "B_boost_diode_short": {
+      "fault": "U10 K (hv_plus) shorted to U10 A1/A2 (a1).",
+      "conducting_elements_in_order": ["shorted U10", "boost inductor U8", "bridge U1 output PLUS/MINUS (blocking)", "shunt U12"],
+      "loop": "PFC_BUS_PLUS_390V -> shorted U10 -> a1 -> U8 -> bridge PLUS; and PFC_BUS_MINUS -> U12 -> bridge MINUS. The bus bank sits across the bridge DC output, in reverse, through U8.",
+      "standing_state_switch_off": {
+        "bridge_PLUS_v": 400.0,
+        "bridge_MINUS_v": 0.0,
+        "U9_vds_v": 400.0,
+        "bridge_single_diode_max_reverse_v": 400.0,
+        "bridge_diode_max_reverse_basis": "A standard bridge clamps each AC terminal to [MINUS-Vf, PLUS]; the bridge's own low-side diode prevents an AC node reaching the opposite line peak, so no bridge diode sees V_bus + V_line. Max single-diode reverse is ~V_bus (~400 V).",
+        "current": "zero except leakage: the bridge blocks reverse, and U9 is off."
+      },
+      "if_switch_conducts": {
+        "mechanism": "The controller (U11) still sees a 400 V bus on VSENSE, so nothing signals it to stop; if U9 continues to be driven, hv_plus -> shorted U10 -> a1 -> U9(on) -> PFC_BUS_MINUS is a direct bus-capacitor discharge.",
+        "loop_resistance_typ_ohm": 0.052,
+        "loop_resistance_typ_basis": "U9 Rds_on 0.042 typ + shunt 0.010",
+        "peak_current_typ_a": 7692.3,
+        "peak_current_max_a": 6666.7,
+        "tau_typ_s": 1.165e-4,
+        "energy_total_j": 179.24,
+        "energy_into_U9_typ_j": 144.77,
+        "energy_into_shunt_typ_j": 34.46,
+        "caveat": "This internal loop is NOT seen by the AC fuse F1."
+      }
+    },
+    "C_why_586_7_is_not_a_real_node": {
+      "argument": "Every bridge AC terminal is clamped by the bridge's own devices: the upper device (AC->PLUS) prevents an AC node rising above PLUS, and the lower device (MINUS->AC) prevents it falling below MINUS. So no AC node can be V_PLUS + V_line above MINUS; the largest span any bridge device blocks is PLUS - MINUS = V_bus.",
+      "consequence": "586.676 V would require one AC node at bus+ (400 V) and the other at the opposite line peak (-186.7 V) simultaneously. The second condition is blocked by that node's own lower clamp. Reaching it needs an *additional* open-circuit clamp fault, not the described short fault; therefore 586.676 V corresponds to no real device node on this board under the traced faults.",
+      "residual_note": "The only way a bridge device could legitimately see V_bus + V_line is if it sits between the line and the bus with no intervening clamp (a bridgeless/totem-pole stage). This board is a classic diode-bridge boost, so it does not."
+    }
+  },
+
+  "computed_exposure": {
+    "bus_capacitance": {
+      "c1_c4_each_uF": 560,
+      "c1_c4_total_uF": 2240,
+      "c_hf_uF": 0.47,
+      "c_total_uF": 2240.47,
+      "bulk_voltage_rating_v": 450,
+      "hf_voltage_rating_v": 630,
+      "rating_source": "elec/src/power_entry_unit.ato voltage_rating fields (LGX2W561MELC50 / B32672P6474K000)"
+    },
+    "stored_energy_j": {
+      "at_400v": 179.238,
+      "at_390v_nameplate": 170.388,
+      "hf_only_at_400v": 0.0376,
+      "at_450v_rating": 226.848
+    },
+    "bus_discharge_natural": {
+      "bleeder_ohm": 300000,
+      "tau_s": 672.14,
+      "p_bleed_at_400v_w": 0.533,
+      "time_to_34v_s": 1656.9,
+      "note": "Passive bleed only on this candidate; no active bus-discharge component in the netlist."
+    },
+    "peak_switch_short_current": {
+      "status": "PARAMETRIC - the gating input (line/source impedance) is unknown",
+      "board_only_upper_bound_a": 6152.5,
+      "board_only_basis": "(186.676 - 2*1.05) / (0.020 + 0.010); ideal zero-impedance source",
+      "samples": [
+        {"R_unknown_ohm": 0.02, "I_peak_a": 3691.5},
+        {"R_unknown_ohm": 0.10, "I_peak_a": 1419.8},
+        {"R_unknown_ohm": 0.30, "I_peak_a": 559.3},
+        {"R_unknown_ohm": 1.00, "I_peak_a": 179.2},
+        {"R_unknown_ohm": 10.0, "I_peak_a": 18.4}
+      ],
+      "pre_saturation": {"di_dt_a_per_s": 1037089, "time_to_isat_s": 4.15e-5, "isat_a": 43},
+      "unknown_input": "AC source/line impedance (R, X); also the NTC state at the fault instant."
+    },
+    "device_energy_switch_short": {
+      "status": "NOT_COMPUTABLE_WITHOUT_FUSE_I2T_AND_LINE_IMPEDANCE",
+      "value_j": null,
+      "why": "The line-fed fault energy is the integral of the fault voltage and current over the fuse clearing time. Both the current (line impedance) and the clearing time (F1 pre-arcing I2t, not captured) are unknown. Not zero-filled."
+    },
+    "device_energy_diode_short_if_switch_conducts": {
+      "total_j": 179.24,
+      "into_switch_typ_j": 144.77,
+      "into_shunt_typ_j": 34.46,
+      "peak_switch_power_w": 2483786
+    }
+  },
+
+  "interruption": {
+    "device": "F1 = Schurter 0034.3129, FST 5x20mm, 16 A / 250 V, time-lag; holder U2 = 0031.2510",
+    "is_switch_short_interrupted": "YES, in principle - F1 is in the line-fed loop, so a line-frequency fault current flows through it. Whether it clears before the bridge (IFSM 350 A / I2t 510 A2s) or the PCB is damaged is NOT established (F1 pre-arcing I2t not captured).",
+    "is_bus_cap_discharge_interrupted": "NO - the bus-cap discharge loop (caps -> U10 -> U9 -> shunt) is internal and does not pass through F1; nothing on the board interrupts it.",
+    "fuse_in_switch_short_loop": true,
+    "fuse_in_bus_cap_discharge_loop": false,
+    "line_frequency_vs_cap_discharge": {
+      "line_frequency_fault_current": "rectified 120 Hz current through bridge/L/switch-short, sourced by the mains; timescale set by F1 (ms to tens of ms); bounded by the source impedance.",
+      "capacitor_discharge_current": "2240 uF through ~50 mohm, tau ~116 us; only occurs (a) on a diode short with the switch conducting, or (b) an external load; not on a bare switch short."
+    }
+  },
+
+  "mov_assessment": {
+    "designator": "U7",
+    "mpn": "V150LA10AP",
+    "connection": "line-to-neutral: l1 (after F1) to AC_N_RECTIFIED_INPUT",
+    "in_switch_short_loop": false,
+    "in_diode_short_loop": false,
+    "statement": "The MOV is NOT in either internal fault loop. Neither bus rail (PFC_BUS_PLUS_390V, PFC_BUS_MINUS) reaches its terminals; it clamps the line only. Its clamp voltage is therefore not admissible evidence for this fault and no MOV clamp figure is used anywhere in this assessment."
+  },
+
+  "protection_recommendations": {
+    "bridge_device_voltage_class": "On the actual board the rectifier U1 is already 1000 V. If a candidate replaces U1 with an active bridge, the single-fault blocking requirement is the bus (~400 V) on a diode short and the line peak (186.7 V) on a switch short; a 600 V device gives ~1.5x on the 400 V case. The 586.7 V figure does not force an 800/1000 V device, because it is not a single-fault stress.",
+    "switch_current_energy_withstand": "The switch-short case is a CURRENT/ENERGY fault, not a voltage fault. The switch is the failed element; the surviving bridge sees IFSM 350 A / I2t 510 A2s, so the fault must be cleared well inside those.",
+    "required_additions": [
+      "Capture F1's pre-arcing I2t / time-current curve and coordinate it against the bridge IFSM/I2t and the prospective fault current.",
+      "Add protection for the internal bus-cap discharge path (bus-side fuse, DC breaker, crowbar, or a controller fast overcurrent shutdown); the AC fuse cannot interrupt it.",
+      "Resolve the AC source/line impedance to bound the prospective fault current."
+    ],
+    "crowbar_or_clamp_note": "A bus-side clamp/crowbar could bound the diode-short discharge; it is a design addition, not present on the candidate."
+  },
+
+  "assumptions_marked": [
+    {"id": "A1", "assumption": "bus setpoint is 400 V (worst case); the board net is named PFC_BUS_PLUS_390V", "class": "design/contract", "impact": "energy scales as V^2 (179.2 J at 400 V vs 170.4 J at 390 V)"},
+    {"id": "A2", "assumption": "fault occurs while running at full load, NTC bypass relay U5 closed (NTC out of loop)", "class": "ASSUMED - not established", "impact": "if the relay is open, the cold 10 ohm NTC limits the line-fed fault current to ~19 A"},
+    {"id": "A3", "assumption": "post-saturation loop resistance known part = 30 mohm (L DCR max 20 + shunt 10)", "class": "sourced", "impact": "sets the board-only upper bound"},
+    {"id": "A4", "assumption": "boost diode C3D20065D has no captured surge rating", "class": "unknown", "impact": "diode-short self-survival not bounded"},
+    {"id": "A5", "assumption": "controller U11 keeps driving U9 after a diode short", "class": "ASSUMED - response not established", "impact": "determines whether the 179 J cap discharge occurs"}
+  ],
+
+  "unknowns_null": {
+    "ac_source_line_impedance_ohm": null,
+    "f1_pre_arcing_i2t_a2s": null,
+    "switch_short_fault_duration_s": null,
+    "switch_short_fault_energy_j": null,
+    "controller_post_fault_response": null,
+    "C3D20065D_surge_rating": null,
+    "bus_setpoint_tolerance_and_overshoot_v": null,
+    "external_load_at_fault": null
+  }
+}

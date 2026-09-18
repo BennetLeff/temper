@@ -1,0 +1,233 @@
+{
+  "schema": "pfc-campaign-AR-FAULT-compute/v1",
+  "task_id": "AR-FAULT",
+  "attempt_id": "attempt-001",
+  "board_identity": {
+    "schematic_sha256": "49db3ee4e2d79f08d524b92457764098f9dc051b17746729cfb1460bbde4d3a9",
+    "pcb_sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+    "source_manifest_sha256": "136c94c36af498285c731e6cd43877eb5cc2e2b2289de21fbd8d531bc7d18ef2",
+    "footprints": 54,
+    "nets": 33,
+    "entry": "elec/src/power_entry_unit.ato:PowerEntryUnit"
+  },
+  "bus_capacitors": {
+    "U36": {
+      "instance": "c1",
+      "value": "560uF",
+      "rating_v": 450,
+      "mpn": "LGX2W561MELC50"
+    },
+    "U37": {
+      "instance": "c2",
+      "value": "560uF",
+      "rating_v": 450,
+      "mpn": "LGX2W561MELC50"
+    },
+    "U38": {
+      "instance": "c3",
+      "value": "560uF",
+      "rating_v": 450,
+      "mpn": "LGX2W561MELC50"
+    },
+    "U39": {
+      "instance": "c4",
+      "value": "560uF",
+      "rating_v": 450,
+      "mpn": "LGX2W561MELC50"
+    },
+    "U40": {
+      "instance": "c_hf",
+      "value": "470nF",
+      "rating_v": 630,
+      "mpn": "B32672P6474K000"
+    }
+  },
+  "bus_capacitance": {
+    "C_bulk_f": 0.00224,
+    "C_hf_f": 4.7000000000000005e-07,
+    "C_total_f": 0.0022404699999999996,
+    "note": "4x560uF bulk in parallel + 470nF film, all from PFC_BUS_PLUS_390V to PFC_BUS_MINUS (netlist)."
+  },
+  "stored_energy": {
+    "at_400v_j": 179.2376,
+    "at_390v_j": 170.38774349999997,
+    "bulk_only_at_400v_j": 179.2,
+    "hf_film_at_400v_j": 0.0376,
+    "at_450v_rating_j": 226.84758749999995
+  },
+  "bus_discharge_natural": {
+    "bleeder_ohm": 300000.0,
+    "tau_s": 672.1409999999998,
+    "p_bleed_at_400v_w": 0.5333333333333333,
+    "time_to_34v_s": 1656.8974827816744,
+    "note": "passive bleed path hv_plus->bleeder1->bleeder2->control_gnd. No active bus-discharge part is present on this candidate netlist."
+  },
+  "claim_586_7": {
+    "recomputed_v": 586.6761902332486,
+    "construction": "V_BUS(400) + V_line_peak(132 Vrms=186.676) = 586.676",
+    "proof_it_is_a_sum": "AR-VERIFY raw/compute_ar_verify.py:415 computes round(v_bus + v_peak_132, 2); margin line 422 computes 600/(v_bus+v_peak_132).",
+    "verdict": "NOT A SINGLE-FAULT DEVICE STRESS (see result.json)."
+  },
+  "boost_switch_short": {
+    "fault_node_map": "a1 = l_boost.2 = q_boost.D(2) = d_boost.A1/A2(1,3)",
+    "loop": "mains L -> F1 -> CMC L1-L2 -> NTC(U4, bypassed by U5 when running) -> bridge U1 AC1 -> upper diode -> PLUS -> L(U8) -> a1 -> shorted U9 -> PFC_BUS_MINUS(control_gnd) -> shunt U12 -> bridge MINUS -> lower diode -> AC2 -> CMC N2-N1 -> mains N",
+    "bus_cap_in_loop": false,
+    "bus_cap_reason": "D10 (a1->hv_plus) is reverse-biased by the full bus voltage; there is no path from hv_plus to the shorted switch.",
+    "diode_reverse_voltage_v": 400.0,
+    "pre_saturation": {
+      "di_dt_a_per_s_at_132v": 1037089.9457402696,
+      "time_to_isat_s": 4.1462170351393016e-05,
+      "note": "L limits di/dt only until Isat(43 A typ, 30% drop)."
+    },
+    "bridge_sees": {
+      "max_reverse_v": 186.67619023324855,
+      "note": "bridge output tracks the rectified line (inductor averages ~0 V)."
+    },
+    "post_saturation_parametric": [
+      {
+        "R_unknown_ohm": 0.0,
+        "R_total_ohm": 0.03,
+        "I_peak_a": 6152.539674441618,
+        "label": "board-only absolute upper bound (source=ideal short)"
+      },
+      {
+        "R_unknown_ohm": 0.01,
+        "R_total_ohm": 0.04,
+        "I_peak_a": 4614.404755831214,
+        "label": "UNKNOWN-input proxy"
+      },
+      {
+        "R_unknown_ohm": 0.02,
+        "R_total_ohm": 0.05,
+        "I_peak_a": 3691.523804664971,
+        "label": "UNKNOWN-input proxy"
+      },
+      {
+        "R_unknown_ohm": 0.05,
+        "R_total_ohm": 0.08,
+        "I_peak_a": 2307.202377915607,
+        "label": "UNKNOWN-input proxy"
+      },
+      {
+        "R_unknown_ohm": 0.1,
+        "R_total_ohm": 0.13,
+        "I_peak_a": 1419.8168479480657,
+        "label": "UNKNOWN-input proxy"
+      },
+      {
+        "R_unknown_ohm": 0.3,
+        "R_total_ohm": 0.32999999999999996,
+        "I_peak_a": 559.3217885856018,
+        "label": "UNKNOWN-input proxy"
+      },
+      {
+        "R_unknown_ohm": 1.0,
+        "R_total_ohm": 1.03,
+        "I_peak_a": 179.20018469247432,
+        "label": "UNKNOWN-input proxy"
+      },
+      {
+        "R_unknown_ohm": 10.0,
+        "R_total_ohm": 10.03,
+        "I_peak_a": 18.402411787960972,
+        "label": "UNKNOWN-input proxy"
+      }
+    ],
+    "known_board_resistance_ohm": 0.03,
+    "v_head_v": 184.57619023324855
+  },
+  "boost_diode_short": {
+    "fault_node_map": "d_boost.K(2)=hv_plus shorted to d_boost.A1/A2(1,3)=a1; a1 DC-couples through L to bridge PLUS",
+    "standing_voltage": {
+      "bridge_plus_v": 400.0,
+      "bridge_minus_v": 0.0,
+      "boost_switch_vds_v": 400.0,
+      "bridge_diode_max_reverse_v": 400.0,
+      "why_not_586_7": "the bridge's own low-side diode clamps each AC terminal to >= MINUS-Vf, so the line cannot pull an AC node to the opposite peak; max reverse across a bridge diode is ~V_BUS."
+    },
+    "if_switch_conducts": {
+      "label": "bus-cap discharge (internal loop; AC fuse F1 does NOT see it)",
+      "R_on_typ": 0.042,
+      "R_on_max": 0.05,
+      "R_shunt": 0.01,
+      "I_peak_typ_a": 7692.3076923076915,
+      "I_peak_max_a": 6666.666666666666,
+      "tau_s_typ": 0.00011650443999999998,
+      "energy_total_j": 179.2376,
+      "energy_into_switch_typ_j": 144.76883076923076,
+      "energy_into_shunt_typ_j": 34.468769230769226,
+      "peak_switch_power_typ_w": 2485207.1005917154,
+      "caveat": "requires the controller to keep U9 on after D10 shorts; if the 400 V bus is fed back on VSENSE the controller has no signal to stop, but its response is not established here."
+    }
+  },
+  "interruption": {
+    "fuse_F1": {
+      "designator": "F1",
+      "holder": "U2 (Schurter FUP 0031.2510)",
+      "mpn": "0034.3129",
+      "family": "Schurter FST 5x20 mm",
+      "rating": "16 A / 250 V, time-lag (T)",
+      "source": "docs/hardware/BOM.md:44, docs/hardware/IEC60335_CRITICAL_COMPONENTS.md:77, elec/src/modules.ato:662",
+      "pre_arcing_i2t": null,
+      "pre_arcing_i2t_note": "NOT captured anywhere in this tree; no I2t/time-current coordination analysis exists (BOM.md:77).",
+      "in_switch_short_loop": true,
+      "in_bus_cap_discharge_loop": false,
+      "breaking_capacity_v": 250
+    },
+    "line_vs_cap_timescale": {
+      "line_frequency_fault": "rectified 120 Hz current fed through F1; interrupted by the 16 A time-lag fuse (timescale ms..10s of ms, not established).",
+      "cap_discharge": "2240 uF through ~50 mohm: tau ~= 116 us; the AC fuse is not in this loop, so nothing on the board interrupts it."
+    },
+    "mov_in_loop": {
+      "designator": "U7 (V150LA10AP)",
+      "connection": "l1 (line after F1) to AC_N_RECTIFIED_INPUT (neutral) - line-to-neutral, downstream of the fuse",
+      "netlist_evidence": "nets 'l1': [U7.1, U6.1, U3.1, U2.2]; 'AC_N_RECTIFIED_INPUT': [U42.2, U6.2, U7.2, U3.2]",
+      "in_switch_short_loop": false,
+      "in_diode_short_loop": false,
+      "reason": "neither bus rail reaches the MOV's terminals; it clamps the line only. It is therefore NOT automatically (and here, not at all) in either internal fault loop."
+    }
+  },
+  "device_ratings": {
+    "U9_switch": {
+      "mpn": "STW65N65DM2AG",
+      "vds_v": 650,
+      "id_a": 65,
+      "idm_a": 240,
+      "rds_on_typ_ohm": 0.042,
+      "rds_on_max_ohm": 0.05,
+      "eas_single_pulse_mj": 1100,
+      "source": "captured STW65N65DM2AG datasheet"
+    },
+    "U10_diode": {
+      "mpn": "C3D20065D",
+      "v_rating": 650,
+      "source": "ato voltage_rating=650V; datasheet NOT captured here"
+    },
+    "U1_bridge": {
+      "mpn": "GBJ2510-F",
+      "vrrm_v": 1000,
+      "if_a": 25,
+      "ifsm_a": 350,
+      "i2t_a2s": 510,
+      "source": "Diodes-GBJ2510.pdf"
+    },
+    "U8_inductor": {
+      "mpn": "760800301",
+      "L_h": 0.00018,
+      "isat_typ_a": 43.0,
+      "rdc_max_ohm": 0.02,
+      "ir_a": 24.5,
+      "source": "captured WE-TORPFC 760800301 datasheet"
+    }
+  },
+  "unresolved_assumptions": [
+    "AC source/line impedance at the fault (R and X) - NOT established, and the single largest factor in the peak switch-short current.",
+    "F1 pre-arcing I2t / time-current curve - NOT captured.",
+    "NTC U4 state at the fault instant (bypassed by U5 when running vs cold 10 ohm).",
+    "Controller (U11) response after a diode short - whether U9 keeps switching.",
+    "Bus setpoint tolerance and any overshoot above 400 V.",
+    "U10 C3D20065D surge/energy ratings - datasheet not captured here.",
+    "c1..c4 datasheet voltage rating (450 V from ato only; LGX capture absent).",
+    "Whether an external load is attached to U52 at the fault (affects bus discharge)."
+  ]
+}

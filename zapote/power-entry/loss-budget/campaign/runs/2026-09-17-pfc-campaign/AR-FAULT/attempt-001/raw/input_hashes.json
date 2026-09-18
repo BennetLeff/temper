@@ -1,0 +1,68 @@
+{
+  "schema": "pfc-campaign-AR-FAULT-input-hashes/v1",
+  "task_id": "AR-FAULT",
+  "attempt_id": "attempt-001",
+  "workspace_validation": {
+    "worktree": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan",
+    "git_head": "95d1d528bca3d87ae1cb6146f4baba098be024c4",
+    "dispatch_source_revision": "95d1d528bca3d87ae1cb6146f4baba098be024c4",
+    "head_matches_source_revision": true,
+    "git_status_short": [
+      " M zapote/power-entry/loss-budget/campaign/registry-additions.json",
+      "?? zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/"
+    ],
+    "git_status_interpretation": "The modified registry-additions.json and the untracked AR-FAULT/ tree both pre-date this attempt (registry edit is the coordinator's; AR-FAULT/ holds only the delivered dispatch.json). No foreign uncommitted work was reverted.",
+    "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001",
+    "output_dir_pre_existing_files": ["dispatch.json (delivered input, preserved)"],
+    "own_worktree_confirmed": true
+  },
+  "delivered_input_hashes": {
+    "dispatch_json": {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/dispatch.json",
+      "sha256": "aa16aaceec4516623c1c4780f4e24aff8809a77549974c25943de1dd4bbd1a45"
+    },
+    "contract_C1.1_json": {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json",
+      "sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+      "matches_dispatch": true
+    },
+    "source_bundle_section_kicad_sch": {
+      "path": "zapote/power-entry/shunt-repair/candidate/section.kicad_sch",
+      "sha256": "49db3ee4e2d79f08d524b92457764098f9dc051b17746729cfb1460bbde4d3a9"
+    },
+    "source_bundle_section_kicad_pcb": {
+      "path": "zapote/power-entry/shunt-repair/candidate/section.kicad_pcb",
+      "sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+      "matches_manifest_board_sha256": true
+    },
+    "source_bundle_source_manifest": {
+      "path": "zapote/power-entry/shunt-repair/candidate/source-manifest.json",
+      "sha256": "136c94c36af498285c731e6cd43877eb5cc2e2b2289de21fbd8d531bc7d18ef2"
+    },
+    "source_bundle_coordinator_receipt": {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001/coordinator-receipt.md",
+      "sha256": "23f63a2d04b203f771c923a161219456f19f291d040d465143f2bc5f06ddf283"
+    },
+    "AR_VERIFY_compute_script": {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001/raw/compute_ar_verify.py",
+      "sha256": "e1e84c5533e542c340540fdae5ab1651e9fef4824a3a22fe3cbb6d92adc85347",
+      "use": "cited line 415 constructs the 586.68 figure as v_bus + v_peak_132"
+    },
+    "worker_packet": {
+      "path": "docs/plans/2026-09-17-pfc-experiment-campaign/WORKER.md",
+      "sha256": "e1ba8d0fa23834e70b8744c9ce258697a23f50a28eee4e162af6a84fa9d2bfb4"
+    },
+    "admission": {
+      "path": "zapote/power-entry/loss-budget/campaign/ADMISSION.md",
+      "sha256": "8f151272daec4833254aad2b5638aa0949f431676e41349599ca02b7c051280c"
+    }
+  },
+  "supporting_evidence_hashes": {
+    "docs/hardware/BOM.md": "21ccdf9e500d42ff873d6fc6e969aaf03e9283a698c877a2b62828c5adcca6e1",
+    "docs/hardware/IEC60335_CRITICAL_COMPONENTS.md": "7df1e0d25a415d16f2516588f7042e4ae3155fa020245e205efe984a7a38109e",
+    "elec/src/power_entry_unit.ato": "read in-tree; component voltage_rating/current_rating source",
+    "captured STW65N65DM2AG datasheet text": "a0a03c7fa9ea327e2e2670f8956acbd85f53a23d8ba87a2ee827cb1139db8819",
+    "captured Diodes-GBJ2510.pdf": "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02",
+    "captured WE-TORPFC 760800301 text": "5d7048afe15c37b2c9f472bb020274bdf38175186968160d62729f167e5ca8c6"
+  }
+}

@@ -1,0 +1,535 @@
+{
+  "schema": "pfc-campaign-AR-FAULT-raw-netlist/v1",
+  "netlist_evidence": {
+    "plus": {
+      "nodes": [
+        [
+          "U8",
+          "1"
+        ],
+        [
+          "U1",
+          "1"
+        ]
+      ],
+      "node_meaning": [
+        "boost inductor 760800301",
+        "Q_boost bridge GBJ2510"
+      ]
+    },
+    "a1": {
+      "nodes": [
+        [
+          "U10",
+          "1"
+        ],
+        [
+          "U10",
+          "3"
+        ],
+        [
+          "U9",
+          "2"
+        ],
+        [
+          "U8",
+          "2"
+        ]
+      ],
+      "node_meaning": [
+        "boost diode C3D20065D",
+        "boost diode C3D20065D",
+        "boost switch STW65N65DM2AG",
+        "boost inductor 760800301"
+      ]
+    },
+    "PFC_BUS_PLUS_390V": {
+      "nodes": [
+        [
+          "U20",
+          "1"
+        ],
+        [
+          "U10",
+          "2"
+        ],
+        [
+          "U36",
+          "1"
+        ],
+        [
+          "U37",
+          "1"
+        ],
+        [
+          "U38",
+          "1"
+        ],
+        [
+          "U39",
+          "1"
+        ],
+        [
+          "U40",
+          "1"
+        ],
+        [
+          "U52",
+          "1"
+        ],
+        [
+          "U53",
+          "1"
+        ]
+      ],
+      "node_meaning": [
+        "U20",
+        "boost diode C3D20065D",
+        "c1 560uF",
+        "c2 560uF",
+        "c3 560uF",
+        "c4 560uF",
+        "c_hf 470nF",
+        "output connector",
+        "U53"
+      ]
+    },
+    "PFC_BUS_MINUS": {
+      "nodes": [
+        [
+          "U43",
+          "2"
+        ],
+        [
+          "U41",
+          "1"
+        ],
+        [
+          "U12",
+          "1"
+        ],
+        [
+          "U44",
+          "2"
+        ],
+        [
+          "U45",
+          "2"
+        ],
+        [
+          "U9",
+          "3"
+        ],
+        [
+          "U36",
+          "2"
+        ],
+        [
+          "U37",
+          "2"
+        ],
+        [
+          "U38",
+          "2"
+        ],
+        [
+          "U39",
+          "2"
+        ],
+        [
+          "U40",
+          "2"
+        ],
+        [
+          "U52",
+          "2"
+        ],
+        [
+          "U54",
+          "2"
+        ],
+        [
+          "U46",
+          "2"
+        ],
+        [
+          "U48",
+          "2"
+        ],
+        [
+          "U47",
+          "2"
+        ],
+        [
+          "U51",
+          "2"
+        ],
+        [
+          "U14",
+          "2"
+        ],
+        [
+          "U31",
+          "2"
+        ],
+        [
+          "U35",
+          "1"
+        ],
+        [
+          "U11",
+          "1"
+        ],
+        [
+          "U19",
+          "2"
+        ],
+        [
+          "U28",
+          "2"
+        ],
+        [
+          "U29",
+          "2"
+        ],
+        [
+          "U30",
+          "2"
+        ],
+        [
+          "U25",
+          "2"
+        ],
+        [
+          "U27",
+          "2"
+        ],
+        [
+          "U32",
+          "2"
+        ],
+        [
+          "U33",
+          "2"
+        ],
+        [
+          "U16",
+          "2"
+        ]
+      ],
+      "node_meaning": [
+        "U43",
+        "U41",
+        "shunt 10mohm",
+        "U44",
+        "U45",
+        "boost switch STW65N65DM2AG",
+        "c1 560uF",
+        "c2 560uF",
+        "c3 560uF",
+        "c4 560uF",
+        "c_hf 470nF",
+        "output connector",
+        "U54",
+        "U46",
+        "U48",
+        "U47",
+        "U51",
+        "U14",
+        "U31",
+        "U35",
+        "PFC controller UCC28180D",
+        "U19",
+        "U28",
+        "U29",
+        "U30",
+        "U25",
+        "U27",
+        "U32",
+        "U33",
+        "U16"
+      ]
+    },
+    "minus": {
+      "nodes": [
+        [
+          "U1",
+          "4"
+        ],
+        [
+          "U12",
+          "2"
+        ],
+        [
+          "U18",
+          "2"
+        ],
+        [
+          "U35",
+          "2"
+        ]
+      ],
+      "node_meaning": [
+        "Q_boost bridge GBJ2510",
+        "shunt 10mohm",
+        "U18",
+        "U35"
+      ]
+    },
+    "l1": {
+      "nodes": [
+        [
+          "U7",
+          "1"
+        ],
+        [
+          "U6",
+          "1"
+        ],
+        [
+          "U3",
+          "1"
+        ],
+        [
+          "U2",
+          "2"
+        ]
+      ],
+      "node_meaning": [
+        "MOV V150LA10AP",
+        "U6",
+        "CMC",
+        "fuse holder"
+      ]
+    },
+    "l2": {
+      "nodes": [
+        [
+          "U5",
+          "4"
+        ],
+        [
+          "U4",
+          "1"
+        ],
+        [
+          "U3",
+          "4"
+        ]
+      ],
+      "node_meaning": [
+        "bypass relay",
+        "NTC",
+        "CMC"
+      ]
+    },
+    "ac1": {
+      "nodes": [
+        [
+          "U1",
+          "2"
+        ],
+        [
+          "U4",
+          "2"
+        ],
+        [
+          "U5",
+          "3"
+        ]
+      ],
+      "node_meaning": [
+        "Q_boost bridge GBJ2510",
+        "NTC",
+        "bypass relay"
+      ]
+    },
+    "ac2": {
+      "nodes": [
+        [
+          "U1",
+          "3"
+        ],
+        [
+          "U3",
+          "3"
+        ]
+      ],
+      "node_meaning": [
+        "Q_boost bridge GBJ2510",
+        "CMC"
+      ]
+    },
+    "AC_L_RECTIFIED_INPUT": {
+      "nodes": [
+        [
+          "U2",
+          "1"
+        ],
+        [
+          "U42",
+          "1"
+        ]
+      ],
+      "node_meaning": [
+        "fuse holder",
+        "mains connector"
+      ]
+    },
+    "AC_N_RECTIFIED_INPUT": {
+      "nodes": [
+        [
+          "U42",
+          "2"
+        ],
+        [
+          "U6",
+          "2"
+        ],
+        [
+          "U7",
+          "2"
+        ],
+        [
+          "U3",
+          "2"
+        ]
+      ],
+      "node_meaning": [
+        "mains connector",
+        "U6",
+        "MOV V150LA10AP",
+        "CMC"
+      ]
+    },
+    "PE_CHASSIS": {
+      "nodes": [
+        [
+          "U42",
+          "3"
+        ],
+        [
+          "U41",
+          "2"
+        ]
+      ],
+      "node_meaning": [
+        "mains connector",
+        "U41"
+      ]
+    },
+    "q_boost-g": {
+      "nodes": [
+        [
+          "U9",
+          "1"
+        ],
+        [
+          "U13",
+          "2"
+        ],
+        [
+          "U14",
+          "1"
+        ]
+      ],
+      "node_meaning": [
+        "boost switch STW65N65DM2AG",
+        "U13",
+        "U14"
+      ]
+    }
+  },
+  "component_evidence": {
+    "U1": {
+      "mpn": "GBJ2510-F",
+      "value": null,
+      "instance_path": "bridge"
+    },
+    "U8": {
+      "mpn": "760800301",
+      "value": null,
+      "instance_path": "l_boost"
+    },
+    "U9": {
+      "mpn": "STW65N65DM2AG",
+      "value": null,
+      "instance_path": "q_boost"
+    },
+    "U10": {
+      "mpn": "C3D20065D",
+      "value": null,
+      "instance_path": "d_boost"
+    },
+    "U12": {
+      "mpn": "HCSM2818FT10L0",
+      "value": "10mohm",
+      "instance_path": "shunt"
+    },
+    "U36": {
+      "mpn": "LGX2W561MELC50",
+      "value": "560uF",
+      "instance_path": "c1"
+    },
+    "U37": {
+      "mpn": "LGX2W561MELC50",
+      "value": "560uF",
+      "instance_path": "c2"
+    },
+    "U38": {
+      "mpn": "LGX2W561MELC50",
+      "value": "560uF",
+      "instance_path": "c3"
+    },
+    "U39": {
+      "mpn": "LGX2W561MELC50",
+      "value": "560uF",
+      "instance_path": "c4"
+    },
+    "U40": {
+      "mpn": "B32672P6474K000",
+      "value": "470nF",
+      "instance_path": "c_hf"
+    },
+    "U2": {
+      "mpn": "0031.2510",
+      "value": null,
+      "instance_path": "holder"
+    },
+    "U7": {
+      "mpn": "V150LA10AP",
+      "value": null,
+      "instance_path": "mov"
+    },
+    "U3": {
+      "mpn": "B82726S2163N030",
+      "value": null,
+      "instance_path": "cmc"
+    },
+    "U4": {
+      "mpn": "SL32 10015",
+      "value": null,
+      "instance_path": "ntc"
+    },
+    "U5": {
+      "mpn": "RT33K012",
+      "value": null,
+      "instance_path": "bypass"
+    },
+    "U42": {
+      "mpn": "1714984",
+      "value": null,
+      "instance_path": "mains"
+    },
+    "U52": {
+      "mpn": "1714971",
+      "value": null,
+      "instance_path": "output"
+    },
+    "U11": {
+      "mpn": "UCC28180D",
+      "value": null,
+      "instance_path": "pfc"
+    }
+  }
+}

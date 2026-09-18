@@ -1,0 +1,100 @@
+{
+  "schema": "pfc-campaign-AR-FAULT-result/v1",
+  "task_id": "AR-FAULT",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "kind": "fault_assessment_source_only",
+  "generated_utc": "2026-09-18T00:00:00Z",
+
+  "status_axes": {
+    "assignment_status": "FINISHED",
+    "assignment_note": "FINISHED means the assignment was completed; it is not PASS, SELECTED, VALIDATED or QUALIFIED.",
+    "checker_status": "NOT_APPLICABLE",
+    "checker_note": "Dispatch declared checker_revision_and_sha256 'not_applicable: G0 checker unimplemented'. Per ADMISSION.md this attempt is evidence only, NOT a validated run; no checker receipt exists.",
+    "evidence_class": "source_research",
+    "hardware_qualification": "NOT_PERFORMED"
+  },
+
+  "headline": {
+    "claim_586_7_v_holds": false,
+    "claim_586_7_v_recomputed": 586.676,
+    "claim_origin": "AR-VERIFY raw/compute_ar_verify.py:415 = v_bus(400) + v_line_peak(186.676); an explicit sum of two node potentials.",
+    "why_not": "No board node is the series sum of the bus and the line peak. On a boost-switch short the bus is isolated from the bridge by the reverse-biased boost diode, and the bridge sees only the line. On a boost-diode short the bus is placed on the bridge output, but the bridge's own low-side diode clamps each AC terminal, so a bridge device blocks at most ~V_bus (400 V), not V_bus+V_line.",
+    "is_it_worse": false,
+    "is_there_any_real_586_7_path": "No. The bridge's own upper/lower devices clamp every AC terminal between MINUS and PLUS, so no AC node can sit V_bus+V_line from the opposite rail; the largest device span is ~V_bus (400 V, diode-short case). 586.7 V is a sum of two node potentials that never appear in series across a device on this board (a bridgeless/totem-pole stage would be needed for that)."
+  },
+
+  "answers": {
+    "voltage": {
+      "boost_switch_short": {
+        "switch_vds_v": 0,
+        "boost_diode_reverse_v": 400.0,
+        "bridge_device_v": "line peak 186.676 V across the AC terminals; output tracks the rectified line",
+        "bus_plus_to_bridge": "isolated by reverse-biased U10"
+      },
+      "boost_diode_short": {
+        "bridge_output_v": 400.0,
+        "boost_switch_vds_v": 400.0,
+        "bridge_device_max_reverse_v": 400.0,
+        "note": "the bus IS placed on the bridge output, but a bridge diode sees ~V_bus, not V_bus+V_line"
+      },
+      "compound_fault": {"node_v": null, "note": "no real node: the bridge clamps prevent V_bus+V_line (see inputs.json fault_paths.C)"}
+    },
+    "bus_capacitance_and_energy": {
+      "c1_c4_uF": 2240,
+      "c_hf_uF": 0.47,
+      "voltage_ratings": "c1..c4 450 V (LGX2W561MELC50); c_hf 630 V (B32672P6474K000)",
+      "stored_energy_at_400v_j": 179.238,
+      "where_it_discharges": "A bare boost-switch short does NOT discharge the bank: U10 blocks it. It discharges through the passive bleeders (tau 672 s) or an external load. On a boost-diode short with U9 conducting it discharges through U9+shunt (tau ~116 us, 179 J)."
+    },
+    "current_and_energy": {
+      "boost_switch_short_peak_current": {"value_a": null, "status": "PARAMETRIC_UNKNOWN", "board_only_upper_bound_a": 6152.5, "samples_over_assumed_R": {"0.02": 3691.5, "0.10": 1419.8, "0.30": 559.3, "1.00": 179.2}, "gating_unknown": "AC source/line impedance"},
+      "boost_switch_short_pre_saturation": {"di_dt_a_per_s": 1037089, "time_to_isat_s": 4.15e-5},
+      "boost_switch_short_device_energy_j": {"value": null, "status": "NOT_COMPUTABLE", "needs": ["line impedance", "F1 pre-arcing I2t"]},
+      "boost_diode_short_cap_discharge": {"total_j": 179.24, "into_switch_typ_j": 144.77, "into_shunt_typ_j": 34.46, "peak_current_typ_a": 7692.3}
+    },
+    "interruption": {
+      "fuse_present": true,
+      "fuse": "F1 Schurter 0034.3129 FST 5x20mm, 16 A / 250 V time-lag (holder U2 0031.2510)",
+      "line_fed_switch_short_interrupted_by_fuse": "YES in principle; clearing time not established (pre-arcing I2t not captured)",
+      "bus_cap_discharge_interrupted": false,
+      "line_vs_cap_distinction": "line-fed current is bounded by source impedance and cleared by F1; cap discharge is an internal loop F1 cannot see."
+    },
+    "mov_in_fault_loop": false,
+    "mov_statement": "U7 V150LA10AP is line-to-neutral (l1 to AC_N). Neither bus rail reaches it. No MOV clamp figure was used in this assessment."
+  },
+
+  "recommendations": {
+    "bridge_device_required_voltage_class": "600 V is adequate for the single-fault blocking case (~400 V, 1.5x); the 586.7 V claim does not force 800/1000 V. On the actual board U1 is already 1000 V.",
+    "switch_current_energy_withstand": "The switch-short stress is current/energy. The surviving bridge must be protected inside IFSM 350 A / I2t 510 A2s.",
+    "protection_addition": "Coordinate F1's I2t with the fault current; add bus-side protection (fuse/crowbar/fast controller shutdown) for the internal cap-discharge loop; resolve the line impedance."
+  },
+
+  "unresolved_assumptions": [
+    "AC source/line impedance (gating).",
+    "F1 pre-arcing I2t / time-current curve.",
+    "NTC bypass state at the fault instant.",
+    "Controller post-fault switching response.",
+    "C3D20065D surge rating; LGX datasheet not independently captured.",
+    "Bus setpoint tolerance/overshoot; external load at fault."
+  ],
+
+  "unknowns": {
+    "ac_source_line_impedance_ohm": null,
+    "f1_pre_arcing_i2t_a2s": null,
+    "switch_short_peak_current_a": null,
+    "switch_short_fault_energy_j": null,
+    "switch_short_fault_duration_s": null,
+    "controller_post_fault_response": null,
+    "C3D20065D_surge_rating": null,
+    "bus_setpoint_tolerance_and_overshoot_v": null
+  },
+
+  "checker_receipt": null,
+  "evidence_class": "source_research",
+  "not_counted_as_validated_run": true,
+  "not_counted_reason": "dispatch declared checker not_applicable (ADMISSION.md)",
+  "hardware_qualification": "NOT_PERFORMED",
+
+  "single_most_important_missing_input": "The AC source/line impedance at the fault (with the parallel need for F1's pre-arcing I2t): the line impedance sets the prospective fault current, and the fuse I2t sets whether it is cleared before the bridge (IFSM 350 A / I2t 510 A2s) is destroyed."
+}

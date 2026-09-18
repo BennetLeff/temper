@@ -1,0 +1,65 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "task_id": "AR-FAULT",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "algorithm": "sha256",
+  "note": "SHA-256 of every file produced by this attempt except manifest.json itself. dispatch.json is the delivered input and is excluded (its hash is recorded in inputs.json / raw/input_hashes.json).",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "sha256": "b9b908b940da059782279b68726cd163bf5d27d2b4ae7ccf372d245e69e03994",
+      "bytes": 7782
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "e63de9c1b57be35f19acb685c0668943bdeb5fd48229e4d538ff34fea37f7bb1",
+      "bytes": 15338
+    },
+    {
+      "path": "raw/capture_failures.json",
+      "sha256": "495a20039cc49716b319e76e78ad2dbd8bd561c09a825145817de2090ac74c14",
+      "bytes": 1219
+    },
+    {
+      "path": "raw/checkpoint.md",
+      "sha256": "c14da138c9954a298586f928ab27ac46cf8091df7759385bdd08867eddb78a7b",
+      "bytes": 1371
+    },
+    {
+      "path": "raw/compute_fault.py",
+      "sha256": "881d626ac0b4bb56fdbe49553ebe7987acdfaeda5112cb2bb844e60c6df1bbb1",
+      "bytes": 12671
+    },
+    {
+      "path": "raw/compute_result.json",
+      "sha256": "ef490a98848d4591683a44eefbe38247f4e13220cb1e1cf4ae30b1f4ba3de223",
+      "bytes": 8836
+    },
+    {
+      "path": "raw/extract_pcb.py",
+      "sha256": "7a4a51a0428e6eec63158677a7c86f8c144a8934d5ae0384dea3a6bee952d6dc",
+      "bytes": 3522
+    },
+    {
+      "path": "raw/input_hashes.json",
+      "sha256": "d88d123b11b337b06cfbefdb31c37f82716483384f2de79615275da2d359527c",
+      "bytes": 3942
+    },
+    {
+      "path": "raw/netlist_fault_loop.json",
+      "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b",
+      "bytes": 8225
+    },
+    {
+      "path": "raw/pcb_fault_loop.txt",
+      "sha256": "ff2a299fec8ccdb46bf4c046613182a1ef528ec1f6dfcbe543e7de8a143acefd",
+      "bytes": 41958
+    },
+    {
+      "path": "result.json",
+      "sha256": "07c1cf47d6cf62629bfb575a1bb8ba1909c964cf968eed1d16abf0c5c3f129ed",
+      "bytes": 6211
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-FAULT",
+  "attempt_id": "attempt-001",
+  "kind": "fault_assessment",
+  "supersedes_question_of": "AR-VERIFY flagged ~586.7 V across the bridge device on a boost-switch-short bus fault (1.02x on a 600 V part), derived only by adding bus voltage and line peak",
+  "absolute_deadline_utc": "2026-09-18T07:26:38Z",
+  "max_solver_invocations": 0,
+  "max_candidate_parts": 1,
+  "max_primary_sources": 10,
+  "checkout_path": "zapote",
+  "source_revision": "95d1d528bca3d87ae1cb6146f4baba098be024c4",
+  "model_revision_and_sha256": "not_applicable: no maintained-model invocation; record any computation script in raw/",
+  "checker_revision_and_sha256": "not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt will not be counted as a validated run",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001",
+  "exact_build_or_run_commands": "none mandated; record any computation script in raw/",
+  "source_bundle_paths_and_hashes": [
+    "zapote/power-entry/shunt-repair/candidate/section.kicad_sch",
+    "zapote/power-entry/shunt-repair/candidate/section.kicad_pcb",
+    "zapote/power-entry/shunt-repair/candidate/source-manifest.json",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001/coordinator-receipt.md"
+  ],
+  "envelope": {
+    "bus_v": 400.0,
+    "line_rms_v": [
+      108.0,
+      120.0,
+      132.0
+    ],
+    "line_peak_at_132_v": 186.68,
+    "input_rms_a": 15.0,
+    "claim_to_verify_v": 586.7,
+    "claim_origin": "AR-VERIFY derived it as bus 400 V + line peak 186.7 V; adding two voltages does not establish a device stress"
+  },
+  "question": "What is the real device stress on a boost-switch-short fault? Verify the 586.7 V claim from the schematic and the actual fault-current paths, then bound the voltage, current and energy exposure and the resulting device/protection requirements.",
+  "focus": "1) VERIFY THE 586.7 V CLAIM FROM THE SCHEMATIC, not by adding two voltages. Trace the actual fault-current path(s) from `section.kicad_sch`/`section.kicad_pcb` for a boost-switch short (and, separately, a boost-diode short if that is the path that produces the claim). Identify every conducting element, the loop, and the node voltages the bridge device actually sees. State whether 586.7 V holds, is worse, or is not a real path - and show the circuit reasoning, naming nets and components. 2) VOLTAGE, CURRENT AND ENERGY EXPOSURE. Include: the stored bus-capacitor energy from the ACTUAL bus capacitance on this board (identify c1..c4 and c_hf values and their voltage ratings), where that energy discharges to, the fault current path and its limiting impedance, the peak fault current, and HOW AND WHETHER THE FAULT IS INTERRUPTED (fuse type and rating, or nothing). Distinguish line-frequency fault current from capacitor discharge. 3) RECOMMEND THE RESULTING DEVICE/PROTECTION REQUIREMENTS: required voltage class, current/energy withstand, and any protection addition (fuse rating, clamp, crowbar, or none needed). State which assumptions are unresolved. Do NOT use a MOV line-surge clamp figure to resolve an internally powered fault: the MOV protects against line surges, and the fault here is internal, so the clamp is not automatically in the fault loop. Say explicitly whether it is.",
+  "stop_rule": "Do not derive a device stress by adding two voltages; do not assume a protection element is in the fault loop without tracing it; do not zero-fill an unknown. If the board does not establish a value (e.g. an unstated fuse), say so. A conclusion that 586.7 V is wrong, or is real, or that no interrupting device exists, are all valid outcomes."
+}

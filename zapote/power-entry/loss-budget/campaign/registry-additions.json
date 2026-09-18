@@ -76,6 +76,17 @@
       "reason": "Coordinator-issued after review downgraded four AR-DESIGN claims; bounded verification pass before any design convergence.",
       "hypothesis_or_question": "Bounded engineering verification of the TEA2209T + IPW60R017C7 candidate: correct the four downgraded claims, evaluate the bootstrap capacitor's real operating corners with per-point Rds(VGS), and define the surge/protection contract the voltage rating follows from.",
       "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "AR-FAULT",
+      "kind": "fault_assessment",
+      "wave": 2,
+      "depends_on": [
+        "AR-VERIFY"
+      ],
+      "reason": "Coordinator-issued: the AR-VERIFY fault figure was derived by adding two voltages, and it could change the required device class before any MOV is selected.",
+      "hypothesis_or_question": "What is the real device stress on a boost-switch-short fault? Verify the 586.7 V claim from the schematic and the actual fault-current paths, then bound the voltage, current and energy exposure and the resulting device/protection requirements.",
+      "worker_status": "DISPATCHED_attempt-001"
     }
   ]
 }

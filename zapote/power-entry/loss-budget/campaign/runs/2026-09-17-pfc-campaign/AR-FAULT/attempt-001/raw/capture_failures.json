@@ -1,0 +1,22 @@
+{
+  "schema": "pfc-campaign-AR-FAULT-capture-failures/v1",
+  "task_id": "AR-FAULT",
+  "attempt_id": "attempt-001",
+  "web_captures_attempted": 0,
+  "note": "Source-only assessment. No new web captures were attempted; the fault path and ratings were established from in-tree authored source, the routed PCB, and datasheets already captured in this repo by sibling attempts.",
+  "datasheet_capture_gaps": [
+    {
+      "part": "C3D20065D (U10, boost SiC diode)",
+      "needed_for": "surge current / I2t / single-pulse energy for the diode-short case",
+      "status": "NOT_CAPTURED_IN_TREE",
+      "impact": "the diode-short case is the FAILED device, so its own surge rating does not bound the stress on the surviving devices; recorded as unknown, not zero-filled."
+    },
+    {
+      "part": "LGX2W561MELC50 (c1..c4, 560 uF)",
+      "needed_for": "independent confirmation of the 450 V voltage rating",
+      "status": "NOT_CAPTURED_IN_TREE",
+      "source_available": "https://www.nichicon.co.jp/english/products/pdfs/e-lgx.pdf (cited in elec/src/power_entry_unit.ato)",
+      "impact": "the 450 V rating used here is the authored ato value; it is labelled design-source, not independently re-confirmed."
+    }
+  ]
+}
