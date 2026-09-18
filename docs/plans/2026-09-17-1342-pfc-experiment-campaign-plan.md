@@ -1,9 +1,14 @@
 # PFC experiment campaign: broad search with independently checked evidence
 Created: 2026-09-17
 
-Status: instructions ready for coordinator review and preparation; no campaign
-experiments have been run. This plan authorizes no purchase, fabrication or
-powered bench operation. Those require a separate qualified physical test plan.
+Status: **executed in part and closed on the no-bench path (2026-09-17).** The
+corrected wave ran; results, census, uncertainty ledger and shortlist are in
+[campaign/CLOSEOUT.md](../../zapote/power-entry/loss-budget/campaign/CLOSEOUT.md).
+The one remaining measurement is scoped in
+[campaign/PHYSICAL-TEST-PLAN.md](../../zapote/power-entry/loss-budget/campaign/PHYSICAL-TEST-PLAN.md),
+which is a proposal and not authorized. This plan authorizes no purchase,
+fabrication or powered bench operation. Those require a separate qualified
+physical test plan and approval.
 
 ## Start here
 
