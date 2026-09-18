@@ -164,6 +164,41 @@ def test_a_non_utc_timestamp_is_converted_before_the_window_is_chosen() -> None:
     assert window_for(load_table().raw, elsewhere) == PEAK
 
 
+def test_the_window_does_not_consult_a_locale_formatted_weekday_name() -> None:
+    """The always-runnable half of the locale guard.
+
+    `strftime("%A")` returns a *localised* weekday name, and relying on it made the peak
+    window depend on `LC_TIME` -- measured: `de_DE` and `fr_FR` both moved a Monday 02:00 UTC
+    call from `peak` to `off_peak`, halving every weekday bill. The behavioural test below is
+    the real instrument and needs a non-English locale installed, which a bare CI container
+    does not have.
+
+    This asserts the property that made the bug possible, and it is a *source scan*, which is
+    the weaker kind: a locale-independent bug would pass it. It is here because it always runs,
+    and because this particular defect is syntactically visible -- the money path must not call
+    a date formatter at all.
+
+    It parses the module rather than searching its text. The first version searched the text
+    and immediately tripped on the docstring that *documents* the anti-pattern, which is the
+    same lesson the schema suite records for its inline-version scan: a substring scan matches
+    the sentence explaining why the thing is forbidden.
+    """
+    import ast
+
+    source = (
+        Path(__file__).resolve().parents[1] / "src" / "temper_harness" / "pricing.py"
+    ).read_text(encoding="utf-8")
+    formatter_calls = [
+        node.attr
+        for node in ast.walk(ast.parse(source))
+        if isinstance(node, ast.Attribute) and node.attr in ("strftime", "strptime")
+    ]
+    assert not formatter_calls, (
+        "the peak window must not format a date: a locale-formatted value in the money path "
+        f"is how a weekday bill got halved (found {formatter_calls})"
+    )
+
+
 def test_a_locale_change_does_not_move_the_window() -> None:
     """The money path must not depend on the ambient locale.
 
@@ -202,7 +237,16 @@ def test_a_locale_change_does_not_move_the_window() -> None:
             assert moved == baseline, f"{candidate} moved the window: {moved} != {baseline}"
     finally:
         locale.setlocale(locale.LC_TIME, original)
-    assert compared, "no locale was available, so this test measured nothing"
+    if not compared:
+        # A reasoned skip, not a pass: this test cannot measure the property without a
+        # non-English LC_TIME, and a bare CI container has none. The first version of this
+        # asserted `compared` and so turned "the platform cannot run this test" into a
+        # *failure* -- which is how CI found it. The always-runnable half is
+        # `test_the_window_does_not_consult_a_locale_formatted_weekday_name`.
+        pytest.skip(
+            "no non-English LC_TIME locale is installed, so this test cannot measure the "
+            "locale independence it exists for"
+        )
 
 
 def test_an_unrecognised_weekday_name_is_refused_rather_than_skipped() -> None:
