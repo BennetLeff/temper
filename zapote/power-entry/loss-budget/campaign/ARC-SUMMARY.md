@@ -206,11 +206,23 @@ protection has not been demonstrated**.
 
 | Open question | Input it needs |
 | --- | --- |
-| Is the active rectifier worth building? | a committed surge/transient contract, and the MOV clamp at the current it produces |
+| Is the active rectifier worth building? | ~~a committed surge/transient contract~~ **DONE** (`docs/specs/SURGE_CONTRACT.md`, REQ-EMC-03); still needs the MOV clamp at the committed 500 A |
 | Is the bridge's true loss 23, 28 or 35 W? | a candidate bridge part, characterized on the same basis |
 | Does the real switching loss match any model? | a device-level clamped-inductive measurement |
 | Is the frequency axis worth revisiting? | a sourced choke's core and AC loss at bias |
 | Is the design protected against an internal short? | one concrete protection circuit with named parts and explicit fault cases |
+
+**The surge contract was committed on 2026-09-18** (`docs/specs/SURGE_CONTRACT.md`
++ `REQ-EMC-03`). It adopts IEC 61000-4-5, 1 kV differential / 2 kV common mode, and
+names the current that follows (500 A / 1000 A at 8/20 µs). Its own basis is stated
+field by field: the levels are an **adopted design target**, not a verified standard
+reading, and the standard clause must be confirmed before a compliance submission.
+
+Two things it forced into the open rather than solved: the **common-mode path is
+unclamped** (the fitted MOV is L–N only), and the MOV's clamp **at 500 A is
+unknown** — the captured 395 V is specified at 50 A and is a lower bound above it.
+`REQUIREMENTS.md` also said "MOV: 275 V", which is a 230 V-class MCOV and matches
+neither the fitted part nor the 120 V line; that line is corrected.
 
 **Not done:** no bench or powered operation, no procurement, and no CAD or BOM
 change. No candidate is qualified; `hardware_qualification` is NOT_PERFORMED

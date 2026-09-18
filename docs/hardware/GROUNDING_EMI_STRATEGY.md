@@ -282,7 +282,7 @@ PE ───────┴─┴──────────┴────�
 | Component | Value | Rating | Type | Purpose |
 |-----------|-------|--------|------|---------|
 | FUSE | 15A | 250VAC | Slow-blow | Overcurrent protection |
-| MOV | 275V | 10kA | Metal oxide | Surge suppression |
+| MOV | 150V MCOV | 4500A (8/20µs), 45J | Metal oxide | Surge suppression, **L–N only** — see `docs/specs/SURGE_CONTRACT.md` |
 | L_DM | 470µH | 15A | Toroidal | DM noise suppression |
 | L_CM | 10mH | 15A | Common-mode choke | CM noise suppression |
 | C_X1, C_X2 | 470nF | 275VAC | X2 safety cap | DM filter |

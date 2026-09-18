@@ -508,7 +508,10 @@ typedef struct {
 - CM choke: 10 mH, 15A
 - X2 capacitors: 470 nF, 275VAC
 - Y2 capacitors: 2.2 nF, 300VAC (touch current <0.35mA)
-- MOV: 275V, 10kA surge rating
+- MOV: **150 V MCOV** (`V150LA10AP`), line-to-neutral — surge environment and
+  clamp obligations in **REQ-EMC-03**. (This line previously read "275 V", which is
+  a 230 V-class MCOV and does not match the committed part or the 120 V line; see
+  `SURGE_CONTRACT.md` §5.)
 
 **ZVS Benefit:** Zero-voltage switching reduces dV/dt from 50-100 V/ns to <0.1 V/ns, providing ~40 dB EMI reduction.
 
@@ -544,6 +547,36 @@ typedef struct {
 
 ---
 
+### REQ-EMC-03: Surge and Transient Immunity
+**Priority:** P1 (High)
+**Status:** COMMITTED — full contract in [`SURGE_CONTRACT.md`](SURGE_CONTRACT.md)
+
+| Parameter | Requirement |
+| --- | --- |
+| Test method | IEC 61000-4-5, combination wave (1.2/50 µs / 8/20 µs, 2 Ω generator) |
+| Differential (L–N) | **1 kV** → 500 A prospective at 8/20 µs |
+| Common mode (L–PE, N–PE) | **2 kV** → 1000 A prospective at 8/20 µs |
+| Clamp required | bounded at the committed current, below the downstream surge limits |
+| Acceptance | no hazard, no damage, function restored without operator action |
+
+**Obligations this creates.** The MOV clamp must be *bounded* at 500 A, not merely
+asserted: the captured 395 V is specified at **50 A only** and is a **lower bound**
+for any higher current, so the clamp at the committed current is presently unknown.
+The binding limits are the downstream ones — TEA2209T **440 V operating / 700 V
+mains-transient**, and the 600 V active-bridge class at 1.52× margin at 395 V
+falling to 1.00× at 600 V — **not** the 400 V bus.
+
+**Common mode is not clamped today.** The fitted MOV is line-to-neutral only, so
+L–PE/N–PE is INDETERMINATE until a clamp is fitted or the gap is accepted.
+
+**Basis.** The 1 kV / 2 kV levels are **adopted** here as a design target, having
+previously existed only in `docs/architecture/induction_curriculum.md`. No standard
+text was opened when adopting them; the applicable clause and level for this
+product class must be confirmed before a compliance submission. See
+`SURGE_CONTRACT.md` §6.
+
+---
+
 ## 8. Requirements Traceability Matrix
 
 | Requirement | Priority | Status | Related bd Issues | Validation Method |
@@ -568,6 +601,7 @@ typedef struct {
 | REQ-UI-02 | P1 | ACTIVE | - | Debug session |
 | REQ-EMC-01 | P1 | ACTIVE | - | LISN measurement |
 | REQ-EMC-02 | P2 | NEW | temper-emc-01 | Pre-compliance test |
+| REQ-EMC-03 | P1 | COMMITTED | - | MOV V–I curve at 500 A; clamp bounded |
 
 ---
 
@@ -620,4 +654,6 @@ typedef struct {
 - `THERMAL_DESIGN_GUIDE.md` - Thermal management
 - `RESONANT_TANK_DESIGN.md` - Resonant tank design
 - IEC 60335-2-6 - Safety standard for cooking appliances
-- EN 55014-1 - EMC standard for household appliances
+- EN 55014-1 - EMC standard for household appliances (emissions)
+- EN 55014-2 - EMC immunity for household appliances (invokes IEC 61000-4-5 for surge)
+- `SURGE_CONTRACT.md` - committed surge/transient environment (REQ-EMC-03)
