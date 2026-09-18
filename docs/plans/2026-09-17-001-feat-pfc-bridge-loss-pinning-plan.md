@@ -117,7 +117,7 @@ This plan owns the bridge's electrical loss. The surrounding breakdown is the cu
 ### Outstanding Questions
 
 - **Deferred to planning:** the exact reading-error model for a raster trace; the bench fixture, current range and temperature points; the numerical tolerance for the R7 regression; which non-provenanced artifacts U4 regenerates.
-- **Open, and the next thing to settle:** what measurement precision actually changes a design decision. The bridge measurement's required precision follows from the achievable net saving of the alternatives it is meant to separate, so that saving has to be estimated before a precision target is set. Without it, a small and uncertain ordering difference risks becoming an optimization target in its own right.
+- **Answered 2026-09-17 — see `zapote/power-entry/loss-budget/2026-09-17-rectifier-alternative-net-savings.md`.** Read from the committed screen: passive alternatives are worth 0-4.5 W (lower-drop passive ~1-3 W for a 0.05-0.10 V per-element cut; parallel bridges 0 W under the constant datum and ~1.1-4.5 W only if the element slope is real), and each saving is a difference between two parts' curves, so the bridge measurement changes a decision only if a specific candidate part is named and characterized on the same basis. Active/synchronous and bridgeless are gated on the **hot Rds(on) curve** against a 62.9 mOhm break-even, not on forward-drop precision. Passive part changes no longer look like the largest lever, and the ~1.5 W bridge-versus-switch ordering stays unresolvable by any bridge measurement.
 
 ### Sources / Research
 
@@ -125,6 +125,8 @@ This plan owns the bridge's electrical loss. The surrounding breakdown is the cu
 - `zapote/packages/zapote-harness/src/pfc_candidates.rs` — the 0.85/1.30 V band, the false no-curve comment, and the bridge-bearing candidates.
 - `zapote/thermal/gbj-study/README.md` — thermal context: the 40 W bridge allowance and 1.0 °C/W per-element RθJC.
 - `zapote/power-entry/loss-budget/campaign/LOSS-ACCOUNTING-AUDIT.md` — the 28.30 W figure and the ~1.5 W bridge-versus-switch margin.
+- `zapote/power-entry/loss-budget/2026-09-17-rectifier-alternative-net-savings.md` — the achievable net saving of each rectifier alternative, and what precision changes a decision.
+- `zapote/power-entry/loss-budget/2026-09-17-bridge-vf-sweep-protocol.md` — the Stage-2 measurement protocol.
 - `docs/solutions/best-practices/calibration-point-must-equal-design-point-2026-07-28.md`, `docs/solutions/best-practices/verify-the-binding-axis-not-the-headline-rating-2026-07-28.md`, `docs/solutions/best-practices/measurement-convention-must-be-stated-2026-07-28.md`, `docs/solutions/best-practices/model-certificates-need-semantic-binding.md`, `docs/solutions/best-practices/solver-independence-is-not-model-independence-2026-07-09.md`.
 - `docs/solutions/best-practices/datasheet-curves-hide-in-plots-raster-traces-can-mislead-2026-09-17.md` and `docs/solutions/best-practices/plan-premises-are-claims-verify-home-and-number-2026-09-17.md` — the learnings this unit produced.
 
