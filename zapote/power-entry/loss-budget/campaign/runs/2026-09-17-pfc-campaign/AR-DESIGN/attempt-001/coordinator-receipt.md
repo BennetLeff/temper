@@ -1,97 +1,123 @@
-# Coordinator receipt — AR-DESIGN attempt-001
+# Coordinator receipt — AR-DESIGN attempt-001 (corrected)
 
 Date: 2026-09-18
 Attempt: `zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-DESIGN/attempt-001/`
-Verdict: **ACCEPTED_CONDITIONAL.** Consistent evidence, bounded claims, eligible
-for a conditional comparison — not hardware acceptance.
+Verdict: **ACCEPTED_CONDITIONAL, with claims downgraded.** Eligible for a
+conditional comparison; not hardware acceptance.
+
+**This receipt supersedes the first version, which stated "both corrections
+closed" and "only a product decision remains". Both of those were wrong, and two
+of the errors were the coordinator's, not the attempt's.** The attempt's script
+is in several places better than the receipt that described it.
 
 ## 1. Admission
 
-- Dispatch: **ADMITTED** (deadline computed at issue time, gate passes).
-- Handback: **NOT COUNTED AS A VALIDATED RUN** — no checker was issued, per
-  `ADMISSION.md`. Retained as source-and-arithmetic evidence, not a validated
-  harness result. This is expected for the current campaign state, not a defect
-  of the attempt.
+- Dispatch: **ADMITTED**.
+- Handback: **NOT COUNTED AS A VALIDATED RUN** — no checker issued, per
+  `ADMISSION.md`. Retained as source-and-arithmetic evidence.
 
-## 2. Both corrections verified fixed
+## 2. Correction A — the thermal calculation, and the receipt's error
 
-**Gate bias (was: "VGS = 10 V is conservative").** The attempt establishes the
-actual gate voltage rather than assuming it: `Vregd` is the VCC rail, not VGS,
-and the high-side gate sits behind a floating bootstrap (VCCHL/VCCHR referenced
-to the switching node, internal bootstrap diode 0.8/1.0/1.3 V, 100-220 nF cap).
-Solving the charge/discharge self-consistently:
+The script is **correct** and shares the heatsink across **four** devices:
 
-| Rail | Actual VGS |
+```python
+P_hs  = 0.5 * R_hs * I2 + p_add_dev / 2.0     # one HS device, half the line cycle
+P_tot = 2.0 * (P_hs + P_ls)                   # both diagonals, line-cycle average
+```
+
+Each MOSFET consequently averages **≈1.95 W** (0.5 · 0.0172 · 225 = 1.935 W),
+not the **3.91 W** the previous receipt claimed. The 3.91 W figure came from
+dividing a two-device instantaneous total by two instead of four; it was a
+receipt arithmetic error, and the "self-consistent" check built on it was
+wrong. The script's own arithmetic closes correctly (4 × 1.935 ≈ 7.74 W total,
+Tj ≈ 45.4 °C).
+
+**The "~26 W" claim is also withdrawn.** It quoted the 98 % figure at the *best*
+bracket point (35 W) as though it were the worst. The 98 % savings are
+**13.98 / 19.28 / 25.98 W** at P_bridge = 23 / 28.30 / 35 W, so the pessimistic
+worst-bracket figure is **13.98 W**, not ~26 W.
+
+Both temperatures remain **conditional**: `Rsa` is a catalog value at 500 LFM
+(typical, not installed airflow) and `Rcs` is assumed at 0.50 K/W (sensitivity
+range 0.25-1.0). At `Rcs = Rsa = 1.0` the computed case rises to ≤50.7 °C.
+
+## 3. Correction B — the gate result is partly assumed
+
+`F_VGS_HS = 1.020` is a **fixed constant** with an asserted interval of
+1.00-1.07. The script does not recompute Rds(on) from the `Rds(VGS)` curve at
+each calculated gate voltage; it applies one factor. The bootstrap VGS values
+themselves are computed and defensible (≈8.5 V typ high side, 6.31 V worst
+case), but the *resistance correction* is not derived per point.
+
+Two further limits:
+
+- **Typical charge data cannot establish a worst-case bootstrap bound.** `Qg`
+  is a typical value, so the 6.31 V worst case is an illustration, not a bound.
+- **The low-side minimum is 9.91 V**, which contradicts the script's own comment
+  that "LS VGS ~ VCC (>=10.2 V): 10 V data applies" and its `F_VGS_LS = 1.00`.
+  At 9.91 V the 10 V data is slightly optimistic, so the low side is not exempt
+  either.
+
+Status: **partly assumed.** The direction is right and the effect is small at
+220 nF, but it is not the closed derivation the previous receipt claimed.
+
+## 4. Correction C — recovery is a sensitivity, not an upper bound
+
+```python
+E_RR_UB = QRR_TYP * 20.0      # J, assuming 20 V residual (generous)
+```
+
+Named `_UB`, but it multiplies a **typical** Qrr by an **assumed** 20 V residual
+voltage. Neither is a guaranteed maximum, so the 43 mW figure is a
+**sensitivity**, not an upper bound, and it must be labelled and propagated that
+way. Its operating value remains unknown.
+
+## 5. Correction D — the voltage table mixed component limits with required stresses
+
+The previous receipt's table implied that the controller's 700 V transient limit
+"requires" an 800 V MOSFET. That is a category error in both directions:
+
+- A **component limit** (the controller's node rating) is not a **required
+  device rating**. NXP's 700 V transient limit does not by itself force an 800 V
+  MOSFET.
+- Conversely, selecting higher-voltage MOSFETs does **not** protect the
+  controller — the controller's node voltage is set by the circuit, not by the
+  MOSFET's rating.
+
+The required MOSFET rating follows from the **specified surge** and the
+**protection circuit's resulting terminal voltages**. Both are undeclared, so
+the correct statement is: the rating question is open, and the 600 V reference
+candidate's validity is contingent on a protection design that has not been
+specified.
+
+The attempt's substantive conclusion — that a lower-voltage alternative is not
+supported by any retained variant and was therefore not screened — survives.
+
+## 6. What survives, and at what strength
+
+| Claim | Status |
 | --- | --- |
-| High side | **~8.5 V** (8.49 at 220 nF; 7.31 at 100 nF; 6.31 worst case) |
-| Low side | **~10.4 V** (9.91-10.91) |
+| Circuit and controller (TEA2209T/1, four-MOSFET synchronous bridge) | retained |
+| Actual VGS ≈ 8.5 V HS / ≈10.4 V LS typ, Vregd is VCC not VGS | retained |
+| Conduction saving ≈7.8 W; `P_saved` 15.2 / 20.5 / 27.2 W (typ) | retained as typical |
+| `P_saved` 13.98 / 19.28 / 25.98 W (98 % curve) | retained; worst-bracket figure is 13.98 W |
+| Tj computed, not assumed | retained, **conditional** on assumed Rcs and catalog airflow |
+| Gate correction fully closed | **withdrawn** — partly assumed |
+| 43 mW recovery as an upper bound | **withdrawn** — it is a sensitivity |
+| 600 V valid only under a ≤500 V clamp | **restated** — depends on an unspecified protection design |
+| "Only a product decision remains" | **withdrawn** |
 
-So the 10 V data applies to the low side and **not** the high side. The
-high-side correction is small (f_VGS = 1.02, bound 1.00-1.07) because the C7 die
-is near fully enhanced above ~7-8 V, but it grows materially at 100 nF — hence
-the requirement to specify ~220 nF. **Fixed, and the assumption is now a
-computed value with a stated bound.**
+## 7. Next: a bounded engineering verification pass
 
-**Junction temperature (was: an assumed value used to bound a margin).** Tj is
-now an output. Coupling the device losses to the proposed assembly
-(Ta = 40 °C, Rsa = 0.50 K/W, Rjc = 0.28 K/W max, Rcs = 0.50 K/W assumed) and
-iterating gives **Tj ≈ 45.5 °C typ**, 46.3 °C on the 98 % curve, and ≤50.7 °C at
-the pessimistic Rcs = Rsa = 1.0. Rds(on) at that temperature is **17.56 mΩ (HS)
-/ 17.21 mΩ (LS) typ**. The arithmetic is self-consistent (≈3.91 W per device
-across ≈1.28 K/W). **Fixed.** No 25 °C maximum was used as a hot value and no
-typical hot value was presented as a bound.
+The ~20 W nominal opportunity justifies this; it does not yet establish a final
+saving. The pass should:
 
-## 3. Voltage contract — correctly left open
-
-Line peak is **186.68 V** at 132 Vrms. The required device rating is a function
-of an **undeclared** product clamp:
-
-| Assumption | Permitted rating |
-| --- | --- |
-| line only, ×2 margin | 400 V |
-| NXP 700 V node limit binding | 800 V |
-| **added clamp ≤500 V** | **600 V** (the reference candidate) |
-| retained-bridge equivalent | 1000 V |
-
-The reference candidate's 600 V class is therefore **valid only with an added
-≤500 V clamp**. A lower-voltage alternative is not supported by any retained
-variant, and the attempt correctly **did not screen one for performance** rather
-than assuming a rating. That is the discipline the previous attempt lacked.
-
-## 4. Result
-
-`P_saved = P_bridge − 225·(R_HS + R_LS) − P_add` across the committed bridge
-bracket:
-
-| P_bridge | P_saved (typ) | P_saved (98 %) |
-| ---: | ---: | ---: |
-| 23.0 W | 15.2 W | 13.98 W |
-| 28.30 W | 20.5 W | 19.28 W |
-| 35.0 W | 27.2 W | 25.98 W |
-
-Additional losses: gate plus controller 2.5 mW; dead-time bound 2.7 µW; an
-over-bound reverse-recovery figure of 43 mW whose operating value is unknown;
-inrush and EMI **null**. The conduction saving (~7.8 W of the total) dominates
-because the bridge switches at line frequency.
-
-## 5. Retained uncertainties
-
-Operating reverse-recovery loss at the zero crossing; start-up inrush body-diode
-loss; EMI and filter re-qualification; a guaranteed hot Rds(on) maximum;
-installed Rcs; and the slow C7 body diode (Qrr 18 µC typ) as a selection risk,
-not a loss input.
-
-## 6. The gating input
-
-**The product's real input transient/surge contract** — the test level and
-whether a front-end clamp is fitted. It is the one input that decides whether
-*any* 600 V-class device may be used, so it gates the entire result. The loss
-matter is otherwise favourable and robust: even the pessimistic 98 % curve at
-the worst bracket point leaves **~26 W**.
-
-## 7. Next
-
-Resolve the transient/surge contract. If a ≤500 V clamp is acceptable, the
-reference candidate stands and the comparison is decided. If not, the rating
-requirement rises and the device must be re-selected against it — which is a
-sourcing task, not a measurement.
+1. **Correct the four claims above** in the attempt's own numbers, so the
+   retained artifact does not carry superseded statements.
+2. **Evaluate the selected bootstrap capacitor's actual operating corners** —
+   charge, discharge, leakage and droop across the real VGS range, deriving
+   Rds(on) per point rather than applying one factor, and stating a worst-case
+   gate voltage with its basis.
+3. **Define the surge/protection contract** — the specified test level and the
+   protection circuit, from which the MOSFET's required voltage rating and the
+   controller's node stresses both follow.

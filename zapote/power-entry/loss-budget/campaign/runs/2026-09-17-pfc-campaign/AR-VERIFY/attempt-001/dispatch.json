@@ -1,0 +1,25 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-VERIFY",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_verification",
+  "supersedes_question_of": "AR-DESIGN's claims were downgraded on review: the gate factor is assumed not derived, the low-side VGS minimum is 9.91 V, the 43 mW recovery figure is a sensitivity, and the voltage table mixed controller limits with MOSFET requirements",
+  "absolute_deadline_utc": "2026-09-18T06:43:31Z",
+  "max_solver_invocations": 0,
+  "max_candidate_parts": 2,
+  "max_primary_sources": 10,
+  "checkout_path": "zapote",
+  "source_revision": "d94b2b8f0ada01ffef05985a3f87d985bd236f82",
+  "model_revision_and_sha256": "not_applicable: no maintained-model invocation; record the computation script in raw/",
+  "checker_revision_and_sha256": "not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt will not be counted as a validated run",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001",
+  "exact_build_or_run_commands": "none mandated; record the computation script in raw/",
+  "source_bundle_paths_and_hashes": [
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-DESIGN/attempt-001/coordinator-receipt.md",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-DESIGN/attempt-001/raw/compute_ar_design.py"
+  ],
+  "question": "Bounded engineering verification of the TEA2209T + IPW60R017C7 candidate: correct the four downgraded claims, evaluate the bootstrap capacitor's real operating corners with per-point Rds(VGS), and define the surge/protection contract the voltage rating follows from.",
+  "focus": "1) CORRECT THE FOUR CLAIMS in the attempt's own numbers so the retained artifact stops carrying them: (a) per-device thermal power is ~1.95 W averaged over four devices (0.5*R*I^2), not 3.91 W; (b) the 98% worst-bracket saving is 13.98 W at P_bridge=23 W, not ~26 W (that is the best bracket point); (c) F_VGS_HS is an assumed constant, and F_VGS_LS=1.00 is invalid at the computed 9.91 V low-side minimum; (d) the 43 mW recovery figure is a sensitivity (typical Qrr x assumed 20 V residual), not an upper bound; (e) the voltage table mixed the controller's component limit with the MOSFET's required rating - neither direction holds. 2) BOOTSTRAP OPERATING CORNERS: evaluate the selected bootstrap capacitor across its real charge/discharge/leakage/droop range. Derive Rds(on) PER POINT from the digitised Rds(VGS) curve rather than applying one factor. State a worst-case gate voltage with its basis, and justify the capacitor value. If typical charge data cannot support a worst-case bound, say so and bound what can be bounded. 3) SURGE / PROTECTION CONTRACT: specify the test level and the protection circuit, then derive BOTH the MOSFET's required voltage rating and the controller's node stresses from the resulting terminal voltages. Do not equate a controller limit with a device requirement. 4) Report the revised P_saved with each figure's label (typical / sensitivity / bound) explicit, and the residual uncertainty.",
+  "stop_rule": "Do not present an assumed factor as a derived one, do not call a sensitivity a bound, do not equate a component limit with a required rating, and do not zero-fill unknown losses. If the surge contract cannot be specified from sources or a stated assumption, say which part is assumed and which is required rather than collapsing them. A concluded smaller-or-conditional saving is valid."
+}

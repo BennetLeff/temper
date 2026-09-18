@@ -65,6 +65,17 @@
       "reason": "Coordinator-issued after the AR-ACTIVE adjudication: gate bias unverified, voltage figure corrected, Tj must be computed rather than assumed.",
       "hypothesis_or_question": "One complete active-rectifier design assessment: does a concrete TEA2209T-based synchronous bridge, with its real gate supply and a computed junction temperature, beat the passive bridge across its uncertainty?",
       "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "AR-VERIFY",
+      "kind": "engineering_verification",
+      "wave": 2,
+      "depends_on": [
+        "AR-DESIGN"
+      ],
+      "reason": "Coordinator-issued after review downgraded four AR-DESIGN claims; bounded verification pass before any design convergence.",
+      "hypothesis_or_question": "Bounded engineering verification of the TEA2209T + IPW60R017C7 candidate: correct the four downgraded claims, evaluate the bootstrap capacitor's real operating corners with per-point Rds(VGS), and define the surge/protection contract the voltage rating follows from.",
+      "worker_status": "DISPATCHED_attempt-001"
     }
   ]
 }
