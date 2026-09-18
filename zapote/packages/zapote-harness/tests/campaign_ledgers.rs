@@ -12,8 +12,8 @@
 
 use serde::Deserialize;
 use zapote_erc::evidence_claims::{
-    unsound_derivations, unsound_promotions, unsound_protection_claims, Claim, Promotion,
-    ProtectionClaim,
+    empty_ledger_failure, unsound_derivations, unsound_evidence, unsound_promotions,
+    unsound_protection_claims, Claim, Promotion, ProtectionClaim,
 };
 
 const WITHDRAWN: &str =
@@ -58,18 +58,18 @@ fn each_withdrawn_error_class_is_still_caught() {
         // bound direction and the maximum-to-minimum inference
         "reverses the bound direction",
         "cannot flip direction",
-        // conditions and part binding
-        "drops the source condition",
+        // conditions and part identity
+        "source condition with no supported transformation",
         "drops the part binding",
-        // calculation vs qualified prediction
-        "qualified with no qualifying evidence",
+        // calculation vs qualified prediction / evidence resolution
+        "qualified with no evidence reference",
         // fault state
         "changes fault state",
         // protection claims
         "without naming the device that opens the path",
         "only an intact device can open a path",
-        // completion evidence
-        "skips a completion rung",
+        // completion history and evidence
+        "history does not support",
         "with no evidence",
     ] {
         assert!(out.contains(needle), "expected to catch {needle:?} in:\n{out}");
@@ -90,3 +90,51 @@ fn the_corrected_ledger_keeps_valid_counterexamples_accepted() {
         "the corrected ledger should retain a declared non-interruption"
     );
 }
+
+/// The six probes supplied during review, kept verbatim. Some predate the
+/// hardened schema, so a schema rejection is an acceptable outcome; the
+/// invariant is that **none yields a clean pass**.
+const PROBES: [(&str, &str); 6] = [
+    ("changed_condition", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/changed_condition.json")),
+    ("changed_part", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/changed_part.json")),
+    ("qualified_root_without_evidence", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/qualified_root_without_evidence.json")),
+    ("unverified_evidence", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/unverified_evidence.json")),
+    ("unsupported_completion_history", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/unsupported_completion_history.json")),
+    ("empty_ledger", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/empty_ledger.json")),
+];
+
+/// Mirrors the CLI: parse either shape, then run every check. `Ok(failures)`,
+/// or `Err` when the ledger is malformed — which is itself a rejection.
+fn check_raw(raw: &str) -> Result<Vec<String>, String> {
+    let ledger: Ledger = match serde_json::from_str::<Vec<Claim>>(raw) {
+        Ok(claims) => Ledger { claims, protection_claims: Vec::new(), promotions: Vec::new() },
+        Err(_) => serde_json::from_str(raw).map_err(|e| e.to_string())?,
+    };
+    let mut out = Vec::new();
+    if let Some(failure) = empty_ledger_failure(
+        ledger.claims.len(),
+        ledger.protection_claims.len(),
+        ledger.promotions.len(),
+    ) {
+        out.push(failure);
+    }
+    out.extend(unsound_derivations(&ledger.claims));
+    out.extend(unsound_evidence(&ledger.claims, |_| None));
+    out.extend(unsound_protection_claims(&ledger.protection_claims));
+    out.extend(unsound_promotions(&ledger.promotions));
+    Ok(out)
+}
+
+#[test]
+fn no_review_probe_yields_a_clean_pass() {
+    for (name, raw) in PROBES {
+        match check_raw(raw) {
+            Err(_) => {} // malformed ledger: rejected
+            Ok(failures) => assert!(
+                !failures.is_empty(),
+                "probe {name} produced a clean pass: {failures:?}"
+            ),
+        }
+    }
+}
+

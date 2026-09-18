@@ -1,7 +1,9 @@
 """Tests for the campaign dispatch/handback admission checks."""
 import datetime as dt
 import json
+import os
 import pathlib
+import stat
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
@@ -103,3 +105,63 @@ def test_missing_result_is_a_failure(tmp_path: pathlib.Path) -> None:
     failures, counted = gate.check_handback(tmp_path)
     assert any("result.json" in f for f in failures), failures
     assert counted is False
+
+
+# --- evidence-ledger admission for electrical-model attempts ---
+
+def _model_attempt(tmp_path: pathlib.Path, kind: str, ledger: bool, body: str = "{}") -> pathlib.Path:
+    write_dispatch(tmp_path, "2026-09-17T18:00:00Z", issued=NOW, kind=kind)
+    (tmp_path / "result.json").write_text(json.dumps({"checker_receipt": None}))
+    if ledger:
+        (tmp_path / "claims.json").write_text(body)
+    return tmp_path
+
+
+def test_a_model_attempt_without_a_ledger_is_rejected(tmp_path: pathlib.Path) -> None:
+    attempt = _model_attempt(tmp_path, "fault_assessment", ledger=False)
+    failures, _ = gate.check_handback(attempt)
+    assert any("required evidence ledger missing" in f for f in failures), failures
+
+
+def test_a_non_model_attempt_owes_no_ledger(tmp_path: pathlib.Path) -> None:
+    attempt = _model_attempt(tmp_path, "source_research", ledger=False)
+    failures, _ = gate.check_handback(attempt)
+    assert not any("evidence ledger" in f for f in failures), failures
+
+
+def test_a_failing_ledger_rejects_the_handback(tmp_path: pathlib.Path) -> None:
+    stub = make_stub(tmp_path, 'echo "VIOLATIONS DETECTED"\nexit 1\n')
+    attempt = _model_attempt(tmp_path, "engineering_design", ledger=True)
+    old = os.environ.get("ZAPOTE_CLAIMS_BIN")
+    os.environ["ZAPOTE_CLAIMS_BIN"] = str(stub)
+    try:
+        failures, _ = gate.check_handback(attempt)
+    finally:
+        if old is None:
+            os.environ.pop("ZAPOTE_CLAIMS_BIN", None)
+        else:
+            os.environ["ZAPOTE_CLAIMS_BIN"] = old
+    assert any("evidence ledger failed its checks" in f for f in failures), failures
+
+
+def test_a_passing_ledger_does_not_block_the_handback(tmp_path: pathlib.Path) -> None:
+    stub = make_stub(tmp_path, 'echo "No violations detected"\nexit 0\n')
+    attempt = _model_attempt(tmp_path, "engineering_design", ledger=True)
+    old = os.environ.get("ZAPOTE_CLAIMS_BIN")
+    os.environ["ZAPOTE_CLAIMS_BIN"] = str(stub)
+    try:
+        failures, _ = gate.check_handback(attempt)
+    finally:
+        if old is None:
+            os.environ.pop("ZAPOTE_CLAIMS_BIN", None)
+        else:
+            os.environ["ZAPOTE_CLAIMS_BIN"] = old
+    assert not any("evidence ledger" in f for f in failures), failures
+
+
+def make_stub(directory: pathlib.Path, body: str) -> pathlib.Path:
+    stub = directory / "zapote-claims"
+    stub.write_text("#!/bin/sh\n" + body)
+    stub.chmod(stub.stat().st_mode | stat.S_IEXEC)
+    return stub
+

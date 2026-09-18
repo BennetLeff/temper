@@ -81,7 +81,9 @@ regresses fails the normal test suite rather than going unnoticed. Procedure:
 `zapote/skills/electrical-model-review/SKILL.md`. Incidents and reasoning:
 `docs/solutions/best-practices/electrical-model-acceptance-rules-2026-09-18.md`.
 
-A passing check means the derivations are sound, not that the claims are true.
+A clean run means **no violations were detected by the implemented checks**. It
+does not establish derivation soundness in general and does not establish that any
+claim is true.
 
 ## Consequences
 

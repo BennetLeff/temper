@@ -126,6 +126,40 @@ diode blocks the bus in that fault.
 **Rule.** Do not derive a device stress by adding two voltages. Trace the actual
 current path, name the nets and components, and state each element's state.
 
+## The first implementation was weaker than its own receipt claimed
+
+The first version of these checks reported `LEDGER SOUND`. A reviewer reproduced
+every test as passing, then tried six inputs the tests did not cover. **All six
+were accepted, exit 0:**
+
+| Probe | Why it slipped through |
+| --- | --- |
+| `50 A` changed to `500 A` | the condition was checked for presence, not value |
+| the exact part changed to another device | the part was checked for presence, not identity |
+| a **root** claim declared `qualified` with no evidence | the assertion check lived inside the derived-claim branch and never ran on roots |
+| a nonexistent file as qualifying evidence | nothing resolved evidence against retained bytes |
+| `coordination demonstrated → hardware verified` with no history | the submitted `from` status was trusted rather than derived from a chain |
+| an empty ledger | nothing to check read as a clean pass |
+
+The root cause is one sentence: **the implementation checked whether strings were
+present, not what they meant, which artifact they identified, or whether a
+referenced file existed.** Filenames such as `winner.json` without a hash are not
+a dependency identity — the same rule the campaign's own checker specification
+already stated.
+
+**What changed.** Structured conditions and part identity are compared by value,
+and any change requires a declared supported transformation. Assertion strength is
+checked on root claims too. Evidence references became `{path, sha256}` and are
+resolved against retained bytes; a missing file or a hash mismatch is a violation.
+Completion history is verified as a chain from `none`, so a `from` nobody
+established is rejected. An empty ledger is rejected rather than passing. The
+pass message became `no violations detected by implemented checks`.
+
+**What that does not fix.** A pass still does not establish derivation soundness
+in general — only that the specific implemented checks found nothing. The six
+probes are retained verbatim as fixtures, and one test asserts that none of them
+yields a clean pass, so re-opening a hole fails the suite.
+
 ## Why these are checks and not reminders
 
 Every one of the five was caught by a human reading the artifact, not by the
@@ -137,8 +171,8 @@ circuit reasoning right? — is what the review procedure in
 
 Two honesty constraints are built into the checks and must survive future edits:
 
-- They reject unsound **derivations**, not false **claims**. A ledger can be
-  internally sound and still wrong. Their CLI output says so.
+- They detect **specific violations**, not false **claims**. A ledger can pass
+  every implemented check and still be wrong. Their CLI output says so.
 - The connectivity check is necessary, not sufficient. Passing it is consistent
   with conduction; it is not evidence of it.
 

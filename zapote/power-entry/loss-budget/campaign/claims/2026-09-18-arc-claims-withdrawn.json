@@ -1,6 +1,6 @@
 {
   "schema": "pfc-campaign-claims/v1",
-  "note": "Withdrawn claims from the AR-MOV and AR-PROTECT review. Every entry here was actually stated and then corrected; this is the negative control.",
+  "note": "Negative control. Every entry was actually stated during the investigation and later corrected.",
   "claims": [
     {
       "id": "clamp-at-50A",
@@ -11,20 +11,25 @@
       "source_condition": "V150LA10AP, IPK = 50 A, 8/20 us, 25 C",
       "fault_state": "not_applicable",
       "assertion": "qualified",
-      "qualifying_evidence": "retained source",
+      "evidence": [
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-MOV/attempt-001/raw/littelfuse_LA_series_datasheet.pdf",
+          "sha256": "8e6c56a7901cc2748a4a58685ccdc7228b13ee07dc5442c411824172e00a7ecc"
+        }
+      ],
       "derived_from": null,
       "justification": null
     },
     {
       "id": "clamp-at-surge-withdrawn",
       "quantity": "mov_clamp_v",
-      "part": null,
+      "part": "V150LA10AP",
       "value_kind": "minimum",
       "bound_kind": "lower",
-      "source_condition": null,
+      "source_condition": "V150LA10AP, IPK = 500 A, 8/20 us, 25 C",
       "fault_state": "not_applicable",
-      "assertion": "qualified",
-      "qualifying_evidence": null,
+      "assertion": "illustrative",
+      "evidence": [],
       "derived_from": "clamp-at-50A",
       "justification": null
     },
@@ -34,10 +39,10 @@
       "part": null,
       "value_kind": "measured",
       "bound_kind": "point",
-      "source_condition": "illustrative RC with normal-device 42 mOhm; not validated for a destructive fault",
+      "source_condition": "illustrative RC with normal-device 42 mOhm",
       "fault_state": "not_applicable",
       "assertion": "qualified",
-      "qualifying_evidence": null,
+      "evidence": [],
       "derived_from": null,
       "justification": null
     },
@@ -50,7 +55,7 @@
       "source_condition": "U10 shorted, U9 healthy",
       "fault_state": "healthy_on",
       "assertion": "illustrative",
-      "qualifying_evidence": null,
+      "evidence": [],
       "derived_from": null,
       "justification": null
     },
@@ -63,9 +68,21 @@
       "source_condition": "U10 shorted, U9 conducting",
       "fault_state": "failed_short",
       "assertion": "illustrative",
-      "qualifying_evidence": null,
+      "evidence": [],
       "derived_from": "healthy-switch-can-turn-off",
       "justification": null
+    },
+    {
+      "id": "part-dropped-withdrawn",
+      "quantity": "clamp_voltage",
+      "part": null,
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "V150LA10AP, IPK = 50 A, 8/20 us, 25 C",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": "clamp-at-50A"
     }
   ],
   "protection_claims": [
@@ -75,7 +92,7 @@
       "interrupting_device": null,
       "interrupting_device_state": "healthy_on",
       "interrupts": true,
-      "evidence": "proposal list"
+      "evidence": []
     },
     {
       "case_id": "line-fed-switch-short",
@@ -83,7 +100,12 @@
       "interrupting_device": "F1",
       "interrupting_device_state": "failed_short",
       "interrupts": true,
-      "evidence": "proposal list"
+      "evidence": [
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-PROTECT/attempt-001/coordinator-receipt.md",
+          "sha256": "5e33dbb55932a2a3e06c4bb2375c8b24cad08e1b8cd229605a70e29750a0ee8c"
+        }
+      ]
     }
   ],
   "promotions": [
@@ -92,7 +114,10 @@
       "from": "protection_identified",
       "to": "coordination_demonstrated",
       "evidence": [
-        "a proposal list"
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-PROTECT/attempt-001/coordinator-receipt.md",
+          "sha256": "5e33dbb55932a2a3e06c4bb2375c8b24cad08e1b8cd229605a70e29750a0ee8c"
+        }
       ]
     },
     {

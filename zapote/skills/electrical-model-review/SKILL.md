@@ -86,7 +86,8 @@ selected"; "part selected" is not "coordination demonstrated"; nothing is
 6. **Keep unresolved quantities null.** A null with a named missing input is a
    result. A filled-in number without evidence is a defect.
 7. **Run the checks and retain their output.** See below. Passing a check means
-   the derivations are sound, not that the claims are true.
+   the derivations are sound, not that the claims are true. The CLI reports
+   "no violations detected by implemented checks" and says so in its own output.
 
 ## Tooling
 
@@ -102,8 +103,8 @@ ledgers through them, so a ledger that regresses fails the normal test suite.
 
 ## What these checks cannot do
 
-- They reject unsound **derivations**, not false **claims**. A ledger can be
-  internally sound and still wrong.
+- They detect **specific violations**, not false **claims**. A ledger can pass
+  every implemented check and still be wrong. Their CLI output says so.
 - The fault-loop check is a **necessary connectivity** test. Two terminals on a
   loop's nets is consistent with conduction; it does not prove a conductive path,
   a device state, a direction, or a distribution.

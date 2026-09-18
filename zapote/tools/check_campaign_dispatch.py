@@ -24,7 +24,10 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
 import pathlib
+import shutil
+import subprocess
 import sys
 
 REQUIRED_DISPATCH_FIELDS = [
@@ -56,6 +59,73 @@ def parse_utc(value: str) -> dt.datetime:
 
 def is_explicit_not_applicable(value: object) -> bool:
     return isinstance(value, str) and value.startswith(NOT_APPLICABLE)
+
+
+# Task kinds that make electrical-model claims, and therefore owe an evidence ledger.
+ELECTRICAL_MODEL_KINDS = {
+    "source_then_numerical",
+    "numerical_independent_model",
+    "engineering_verification",
+    "fault_assessment",
+    "engineering_design",
+}
+
+
+def claims_binary() -> str | None:
+    override = os.environ.get("ZAPOTE_CLAIMS_BIN")
+    if override:
+        return override
+    found = shutil.which("zapote-claims")
+    if found:
+        return found
+    roots = []
+    try:
+        common = subprocess.run(
+            ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
+            capture_output=True, text=True, check=True,
+            cwd=str(pathlib.Path(__file__).resolve().parents[1]),
+        ).stdout.strip()
+        if common:
+            roots.append(pathlib.Path(common).parent)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+    roots.append(pathlib.Path(__file__).resolve().parents[2])
+    for root in roots:
+        for profile in ("debug", "release"):
+            candidate = root / "target-shared" / profile / "zapote-claims"
+            if candidate.exists():
+                return str(candidate)
+    return None
+
+
+def check_evidence(attempt_dir: pathlib.Path, dispatch: dict) -> list[str]:
+    """Invoke the evidence checks on the attempt itself, and reject a missing ledger.
+
+    An attempt whose kind makes electrical-model claims must carry a
+    ``claims.json`` and pass ``zapote-claims`` on it. This runs the check rather
+    than instructing an operator to run it.
+    """
+    kind = dispatch.get("kind")
+    if kind not in ELECTRICAL_MODEL_KINDS:
+        return []
+    ledger = attempt_dir / "claims.json"
+    if not ledger.exists():
+        return [
+            f"required evidence ledger missing for kind {kind}: {ledger} "
+            "(see zapote/skills/electrical-model-review/SKILL.md)"
+        ]
+    binary = claims_binary()
+    if binary is None:
+        return [
+            "zapote-claims not found, so the evidence ledger cannot be verified; build it with "
+            "'cd zapote && cargo build -p zapote-harness --bin zapote-claims'"
+        ]
+    proc = subprocess.run([binary, str(ledger)], capture_output=True, text=True)
+    if proc.returncode != 0:
+        detail = (proc.stdout or proc.stderr).strip().replace("\n", " | ")
+        return [f"evidence ledger failed its checks: {detail}"]
+    return []
+
 
 
 def check_dispatch(path: pathlib.Path, now: dt.datetime | None) -> list[str]:
@@ -102,6 +172,8 @@ def check_handback(attempt_dir: pathlib.Path) -> tuple[list[str], bool]:
 
     dispatch = json.loads(dispatch_path.read_text())
     result = json.loads(result_path.read_text())
+
+    failures.extend(check_evidence(attempt_dir, dispatch))
 
     checker_declared = dispatch.get("checker_revision_and_sha256")
     receipt = result.get("checker_receipt")

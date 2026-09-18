@@ -801,8 +801,9 @@ Procedure and per-class detail:
 each rule:
 `docs/solutions/best-practices/electrical-model-acceptance-rules-2026-09-18.md`.
 
-A passing check means the derivations are **sound**, not that the claims are true,
-and neither check replaces tracing the actual current path.
+A clean run means **no violations were detected by the implemented checks**. It
+does not establish derivation soundness in general, it does not establish that any
+claim is true, and neither check replaces tracing the actual current path.
 
 ## Session Lifecycle
 

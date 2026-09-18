@@ -186,7 +186,7 @@ Three things that were previously noticed after the fact are now machine-checked
 The recurring lesson, now encoded: **preserve bound direction, source conditions
 and device state in structured evidence.** The connectivity gate catches one
 mistake and cannot serve as the acceptance gate for a whole assessment — and
-neither can this third check: it rejects unsound *derivations*, not false claims.
+neither can this third check: it detects specific violations, not false claims.
 
 ## 9. What is settled, and what is not
 

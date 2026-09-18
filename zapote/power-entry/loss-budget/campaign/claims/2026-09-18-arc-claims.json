@@ -1,6 +1,6 @@
 {
   "schema": "pfc-campaign-claims/v1",
-  "note": "Claims as corrected. Bounds, conditions, fault states and completion rungs preserved.",
+  "note": "Claims as corrected. Bounds, conditions, part identity, fault states and completion history preserved.",
   "claims": [
     {
       "id": "clamp-at-50A",
@@ -11,7 +11,12 @@
       "source_condition": "V150LA10AP, IPK = 50 A, 8/20 us, 25 C",
       "fault_state": "not_applicable",
       "assertion": "qualified",
-      "qualifying_evidence": "Littelfuse LA Series rev 2024-09-16 p.2",
+      "evidence": [
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-MOV/attempt-001/raw/littelfuse_LA_series_datasheet.pdf",
+          "sha256": "8e6c56a7901cc2748a4a58685ccdc7228b13ee07dc5442c411824172e00a7ecc"
+        }
+      ],
       "derived_from": null,
       "justification": null
     },
@@ -21,12 +26,13 @@
       "part": "V150LA10AP",
       "value_kind": "assumed",
       "bound_kind": "unknown",
-      "source_condition": "surge current through the MOV not established; not the generator prospective current",
+      "source_condition": "surge current through the MOV not established",
       "fault_state": "not_applicable",
       "assertion": "illustrative",
-      "qualifying_evidence": null,
+      "evidence": [],
       "derived_from": "clamp-at-50A",
-      "justification": null
+      "justification": null,
+      "condition_transformation": "the surge condition is not established; the bound is weakened to unknown rather than moved"
     },
     {
       "id": "bank-stored-energy",
@@ -34,10 +40,15 @@
       "part": null,
       "value_kind": "measured",
       "bound_kind": "point",
-      "source_condition": "2240.47 uF at 400 V, board capacitance as retained",
+      "source_condition": "2240.47 uF at 400 V",
       "fault_state": "not_applicable",
       "assertion": "qualified",
-      "qualifying_evidence": "board bill of materials",
+      "evidence": [
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/coordinator-receipt.md",
+          "sha256": "38e0b63df694534760de855961997081b2ab6c6e1985961b5fe4ec3cd9362228"
+        }
+      ],
       "derived_from": null,
       "justification": null
     },
@@ -50,7 +61,7 @@
       "source_condition": "illustrative RC with normal-device 42 mOhm; not validated for a destructive fault",
       "fault_state": "not_applicable",
       "assertion": "illustrative",
-      "qualifying_evidence": null,
+      "evidence": [],
       "derived_from": null,
       "justification": null
     },
@@ -63,7 +74,7 @@
       "source_condition": "U10 shorted, U9 healthy; detection and latency budget unquantified",
       "fault_state": "healthy_on",
       "assertion": "illustrative",
-      "qualifying_evidence": null,
+      "evidence": [],
       "derived_from": null,
       "justification": null
     },
@@ -76,9 +87,10 @@
       "source_condition": "U10 shorted, U9 failed short",
       "fault_state": "failed_short",
       "assertion": "illustrative",
-      "qualifying_evidence": null,
+      "evidence": [],
       "derived_from": null,
-      "justification": "case split: the switch is assumed failed short, not merely conducting"
+      "justification": "case split: the switch is assumed failed short, not merely conducting",
+      "condition_transformation": "case split: the same fault is evaluated with the switch failed short rather than healthy"
     }
   ],
   "protection_claims": [
@@ -88,7 +100,7 @@
       "interrupting_device": null,
       "interrupting_device_state": "failed_short",
       "interrupts": false,
-      "evidence": "no element in the loop can open it"
+      "evidence": []
     },
     {
       "case_id": "line-fed-switch-short",
@@ -96,7 +108,12 @@
       "interrupting_device": "F1",
       "interrupting_device_state": "healthy_off",
       "interrupts": true,
-      "evidence": "coordination requires total clearing; see AR-PROTECT receipt"
+      "evidence": [
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-PROTECT/attempt-001/coordinator-receipt.md",
+          "sha256": "5e33dbb55932a2a3e06c4bb2375c8b24cad08e1b8cd229605a70e29750a0ee8c"
+        }
+      ]
     }
   ],
   "promotions": [
@@ -105,7 +122,10 @@
       "from": "none",
       "to": "protection_identified",
       "evidence": [
-        "AR-PROTECT coordinator receipt"
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-PROTECT/attempt-001/coordinator-receipt.md",
+          "sha256": "5e33dbb55932a2a3e06c4bb2375c8b24cad08e1b8cd229605a70e29750a0ee8c"
+        }
       ]
     },
     {
@@ -113,7 +133,10 @@
       "from": "protection_identified",
       "to": "part_selected",
       "evidence": [
-        "AR-PROTCKT dispatch, pending"
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/coordinator-receipt.md",
+          "sha256": "38e0b63df694534760de855961997081b2ab6c6e1985961b5fe4ec3cd9362228"
+        }
       ]
     }
   ]

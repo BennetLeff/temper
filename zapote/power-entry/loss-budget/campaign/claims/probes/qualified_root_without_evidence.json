@@ -1,0 +1,14 @@
+{
+  "claims": [
+    {
+      "id": "source",
+      "quantity": "clamp_voltage",
+      "part": "V150LA10AP",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "50 A, 8/20 us, 25 C",
+      "fault_state": "not_applicable",
+      "assertion": "qualified"
+    }
+  ]
+}
