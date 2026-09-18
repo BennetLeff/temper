@@ -7,7 +7,7 @@
     },
     {
       "content": "",
-      "reasoning_content": "The user wants exactly two tool calls: place R1 on F.Cu rotation 0, and check rule clearance. No explanation.",
+      "reasoning_content": "The user wants exactly two tool calls: place R1 on F.Cu rotation 0, and check clearance rule. These are independent, so make both calls in the same block.",
       "role": "assistant",
       "tool_calls": [
         {
@@ -15,7 +15,7 @@
             "arguments": "{\"reference\": \"R1\", \"layer\": \"F.Cu\", \"rotation\": 0}",
             "name": "place"
           },
-          "id": "call_00_4qEsUpwJUqgyD0qNmRfY6550",
+          "id": "call_00_14PmRFZQyFbeQq6g2Ttz8757",
           "type": "function"
         },
         {
@@ -23,7 +23,7 @@
             "arguments": "{\"rule\": \"clearance\"}",
             "name": "check"
           },
-          "id": "call_01_DK4ykVM7Ff8caDmk5INm3214",
+          "id": "call_01_drIONgQYHMsolPHTm87Z9642",
           "type": "function"
         }
       ]
@@ -31,12 +31,12 @@
     {
       "content": "done",
       "role": "tool",
-      "tool_call_id": "call_00_4qEsUpwJUqgyD0qNmRfY6550"
+      "tool_call_id": "call_00_14PmRFZQyFbeQq6g2Ttz8757"
     },
     {
       "content": "done",
       "role": "tool",
-      "tool_call_id": "call_01_DK4ykVM7Ff8caDmk5INm3214"
+      "tool_call_id": "call_01_drIONgQYHMsolPHTm87Z9642"
     }
   ],
   "model": "deepseek-flash",

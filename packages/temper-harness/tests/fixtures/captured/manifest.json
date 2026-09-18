@@ -3,10 +3,10 @@
     "deepseek-flash",
     "deepseek-v4-pro"
   ],
-  "captured_at": "2026-09-18T01:39:13+00:00",
+  "captured_at": "2026-09-18T03:14:01+00:00",
   "endpoint_host": "api.deepseek.com",
-  "harness_commit": "e0bb28f1fc6ffe6f95e19b099bcef5e7bea0feec",
-  "harness_dirty": true,
+  "harness_commit": "252cdc8ecc135729a9777611327abd0cf2827844",
+  "harness_dirty": false,
   "model": "deepseek-flash",
   "probes": [
     {
@@ -19,7 +19,7 @@
       "http_status": 200,
       "name": "plain",
       "request_hash": "e0ad80d8c7d81a1503a8bf2bb738e0e9c18e088489989fffeb62f3e54b6c3ffb",
-      "response_sha256": "0dcfd99cb70a637632f3fb1f01e246d83f02f776db03ff58168dced17821b15d",
+      "response_sha256": "7ec5b0f0db4f060b89e020457e6022f4cab9adec739f4d11dbd225919aad3df3",
       "reveals": "the usage block's real field names and nesting, whether reasoning_content is emitted, and the top-level response shape",
       "status_as_expected": true,
       "stream": false
@@ -34,7 +34,7 @@
       "http_status": 200,
       "name": "parallel_tools",
       "request_hash": "62245801d3b3f9d22709433a74a0f8844f8169cc5c831961c275dfe9e8eeadfc",
-      "response_sha256": "61fd3de7a04a8dcea6104386ba4b88d457c097aff471e23859c6c6bdfd2109d6",
+      "response_sha256": "636c4af1f1516b27edb557f69edae0c8d3889ca414a5ac701b51c8395297b584",
       "reveals": "whether two tool calls can arrive in one response, with distinct ids and stable ordering, and what an assistant tool-call turn looks like verbatim -- the input to the round-trip probe",
       "status_as_expected": true,
       "stream": false
@@ -49,7 +49,7 @@
       "http_status": 200,
       "name": "strict_schema",
       "request_hash": "1cc2b6b5cdddd07487ec3012c9415f8e82e9afa44fd276d4afa63e0dd8b04d21",
-      "response_sha256": "ed172635872cae01018bb3c01a306003577b918b404306c8ccb16fb69f2cdefe",
+      "response_sha256": "368540ee49885e004aff6c960b9d7aed41ff9afc59f40b544ddc6335404afc08",
       "reveals": "whether a tool schema carrying $defs, a $ref, a nested oneOf, and additionalProperties:false is accepted rather than rejected or rewritten",
       "status_as_expected": true,
       "stream": false
@@ -64,7 +64,7 @@
       "http_status": 200,
       "name": "stream_plain",
       "request_hash": "cd4b8434ee022c96ad6920867418c687c34168ac056070b30953d30eb8d9f7ce",
-      "response_sha256": "6837572c6de3cafa2bb261a857f9af09cb2a730e0fe46a49b2d4dac160c9a0bd",
+      "response_sha256": "bf84de6be8cd91348367d6b9fd12942ca003c99b0fbeb1d94d18a7445909eeea",
       "reveals": "the SSE framing, which chunk carries usage, whether usage is fragmented, and the terminal sentinel",
       "status_as_expected": true,
       "stream": true
@@ -79,7 +79,7 @@
       "http_status": 200,
       "name": "stream_tools",
       "request_hash": "b3b55d7934f2cf91784b09cf68481a1cfc16757fbe8bed7d7862a8f18278baf4",
-      "response_sha256": "21e2e86d0edb230a0fe7d5ce5a255340ea5f30a1630ec04a77f2a56d43599c95",
+      "response_sha256": "95c067e4f82cb7454b26374fb123f6086812632aeec867bc744f0888467aa733",
       "reveals": "how tool_calls fragment across chunks -- whether the id repeats on every fragment or appears once, and how arguments split",
       "status_as_expected": true,
       "stream": true
@@ -93,8 +93,8 @@
       },
       "http_status": 200,
       "name": "tool_roundtrip",
-      "request_hash": "c25d0fec80a77fb4df46fe60778b29c92126200748b73ac720656f5729267fa0",
-      "response_sha256": "6657798a2542a6745f5b5ed083eb830aa72681575a29e4d40e1f285839b44a72",
+      "request_hash": "135bdd56972f66335b34b03ab071524d43242ca53c0468e67bf324d60cc0befb",
+      "response_sha256": "b26740a47dcaa7bf2c8539a4cb84a34a66a278437b51ef53f84bd8362ccce5a5",
       "reveals": "that a continued tool turn is accepted when the assistant message is replayed through the client's own encoder, reasoning_content included",
       "status_as_expected": true,
       "stream": false
@@ -124,7 +124,7 @@
       "http_status": 200,
       "name": "thinking_disabled",
       "request_hash": "f249532a3d79e206c135e25594234e326e35503fc153665912ce5d9f04094b04",
-      "response_sha256": "167a34edb91d099b3d957504ae8ffb707550a62890b562a907ea4ff628358141",
+      "response_sha256": "f35178c46edd9fef369ca2284f452bf62e3ee9ea87a62f2633302fdf28a0f93a",
       "reveals": "the shape of a non-thinking response: whether reasoning_content is absent or explicit null, whether completion_tokens_details exists at all, and that prompt_tokens falls because thinking mode injects hidden prompt overhead",
       "status_as_expected": true,
       "stream": false

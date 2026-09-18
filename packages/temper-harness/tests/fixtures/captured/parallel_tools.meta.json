@@ -1,19 +1,19 @@
 {
-  "captured_at": "2026-09-18T01:39:13+00:00",
+  "captured_at": "2026-09-18T03:14:01+00:00",
   "expect_status": 200,
   "headers": {
     "content-type": "application/json",
-    "date": "Fri, 18 Sep 2026 01:39:01 GMT",
+    "date": "Fri, 18 Sep 2026 03:13:51 GMT",
     "server": "elb",
-    "x-ds-trace-id": "e85c3f9d6aedfea212f80af8f1799ed7"
+    "x-ds-trace-id": "e49a4d2fd7c30ac60864d07463b976c6"
   },
   "http_status": 200,
   "model": "deepseek-flash",
   "name": "parallel_tools",
   "provider": "deepseek",
   "request_hash": "62245801d3b3f9d22709433a74a0f8844f8169cc5c831961c275dfe9e8eeadfc",
-  "response_bytes": 978,
-  "response_sha256": "61fd3de7a04a8dcea6104386ba4b88d457c097aff471e23859c6c6bdfd2109d6",
+  "response_bytes": 1023,
+  "response_sha256": "636c4af1f1516b27edb557f69edae0c8d3889ca414a5ac701b51c8395297b584",
   "reveals": "whether two tool calls can arrive in one response, with distinct ids and stable ordering, and what an assistant tool-call turn looks like verbatim -- the input to the round-trip probe",
   "status_as_expected": true,
   "stream": false

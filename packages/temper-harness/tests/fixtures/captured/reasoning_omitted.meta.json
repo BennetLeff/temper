@@ -1,12 +1,12 @@
 {
-  "captured_at": "2026-09-18T01:39:13+00:00",
+  "captured_at": "2026-09-18T03:14:01+00:00",
   "expect_status": 400,
   "headers": {
     "content-length": "175",
     "content-type": "application/octet-stream",
-    "date": "Fri, 18 Sep 2026 01:39:08 GMT",
+    "date": "Fri, 18 Sep 2026 03:13:58 GMT",
     "server": "elb",
-    "x-ds-trace-id": "03d1ab3991d177079394aea1be65601e"
+    "x-ds-trace-id": "594e53de41c56791a4fc8e7be6046650"
   },
   "http_status": 400,
   "model": "deepseek-flash",

@@ -1,19 +1,19 @@
 {
-  "captured_at": "2026-09-18T01:39:13+00:00",
+  "captured_at": "2026-09-18T03:14:01+00:00",
   "expect_status": 200,
   "headers": {
     "content-type": "text/event-stream; charset=utf-8",
-    "date": "Fri, 18 Sep 2026 01:39:06 GMT",
+    "date": "Fri, 18 Sep 2026 03:13:55 GMT",
     "server": "elb",
-    "x-ds-trace-id": "ce329cabbb0f375474583e39f3203ca9"
+    "x-ds-trace-id": "e5bb815339a5a0ffee7f61054ef4a798"
   },
   "http_status": 200,
   "model": "deepseek-flash",
   "name": "stream_tools",
   "provider": "deepseek",
   "request_hash": "b3b55d7934f2cf91784b09cf68481a1cfc16757fbe8bed7d7862a8f18278baf4",
-  "response_bytes": 20252,
-  "response_sha256": "21e2e86d0edb230a0fe7d5ce5a255340ea5f30a1630ec04a77f2a56d43599c95",
+  "response_bytes": 25387,
+  "response_sha256": "95c067e4f82cb7454b26374fb123f6086812632aeec867bc744f0888467aa733",
   "reveals": "how tool_calls fragment across chunks -- whether the id repeats on every fragment or appears once, and how arguments split",
   "status_as_expected": true,
   "stream": true

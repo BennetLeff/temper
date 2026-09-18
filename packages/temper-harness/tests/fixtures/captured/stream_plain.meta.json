@@ -1,19 +1,19 @@
 {
-  "captured_at": "2026-09-18T01:39:13+00:00",
+  "captured_at": "2026-09-18T03:14:01+00:00",
   "expect_status": 200,
   "headers": {
     "content-type": "text/event-stream; charset=utf-8",
-    "date": "Fri, 18 Sep 2026 01:39:04 GMT",
+    "date": "Fri, 18 Sep 2026 03:13:54 GMT",
     "server": "elb",
-    "x-ds-trace-id": "f19a7680bb3a8918dba72aec711f8755"
+    "x-ds-trace-id": "3cfbc5da436c982160bf223bbf5d6790"
   },
   "http_status": 200,
   "model": "deepseek-flash",
   "name": "stream_plain",
   "provider": "deepseek",
   "request_hash": "cd4b8434ee022c96ad6920867418c687c34168ac056070b30953d30eb8d9f7ce",
-  "response_bytes": 5370,
-  "response_sha256": "6837572c6de3cafa2bb261a857f9af09cb2a730e0fe46a49b2d4dac160c9a0bd",
+  "response_bytes": 5068,
+  "response_sha256": "bf84de6be8cd91348367d6b9fd12942ca003c99b0fbeb1d94d18a7445909eeea",
   "reveals": "the SSE framing, which chunk carries usage, whether usage is fragmented, and the terminal sentinel",
   "status_as_expected": true,
   "stream": true

@@ -1,11 +1,11 @@
 {
-  "captured_at": "2026-09-18T01:39:13+00:00",
+  "captured_at": "2026-09-18T03:14:01+00:00",
   "expect_status": 200,
   "headers": {
     "content-type": "application/json",
-    "date": "Fri, 18 Sep 2026 01:39:09 GMT",
+    "date": "Fri, 18 Sep 2026 03:13:58 GMT",
     "server": "elb",
-    "x-ds-trace-id": "170c25280bd429c80d3e2922015bea7b"
+    "x-ds-trace-id": "508559f43c7e4f1a46bc14fdbffd2828"
   },
   "http_status": 200,
   "model": "deepseek-flash",
@@ -13,7 +13,7 @@
   "provider": "deepseek",
   "request_hash": "f249532a3d79e206c135e25594234e326e35503fc153665912ce5d9f04094b04",
   "response_bytes": 458,
-  "response_sha256": "167a34edb91d099b3d957504ae8ffb707550a62890b562a907ea4ff628358141",
+  "response_sha256": "f35178c46edd9fef369ca2284f452bf62e3ee9ea87a62f2633302fdf28a0f93a",
   "reveals": "the shape of a non-thinking response: whether reasoning_content is absent or explicit null, whether completion_tokens_details exists at all, and that prompt_tokens falls because thinking mode injects hidden prompt overhead",
   "status_as_expected": true,
   "stream": false
