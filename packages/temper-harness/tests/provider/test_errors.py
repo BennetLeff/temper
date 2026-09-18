@@ -12,10 +12,13 @@ from jsonschema import ValidationError
 
 from temper_harness.provider import errors
 from temper_harness.provider.errors import (
+    AuthRejected,
     ContentFiltered,
     ContextLengthExceeded,
+    CredentialMissing,
     EndpointRejected,
     IncompleteStream,
+    InsufficientBalance,
     MalformedResponse,
     MalformedStream,
     PreConnectionUnavailable,
@@ -44,6 +47,9 @@ ALL_ERROR_CLASSES = [
     ContextLengthExceeded,
     ToolSchemaRejected,
     RequestRejected,
+    CredentialMissing,
+    AuthRejected,
+    InsufficientBalance,
     ContentFiltered,
     EndpointRejected,
     UnknownTransportError,
@@ -139,6 +145,10 @@ def test_classify_passes_an_already_typed_error_through() -> None:
         (408, RequestTimeout),
         (504, RequestTimeout),
         (400, RequestRejected),
+        (401, AuthRejected),
+        (403, AuthRejected),
+        (402, InsufficientBalance),
+        (422, RequestRejected),
     ],
 )
 def test_http_status_mapping(status: int, expected: type[TransportError]) -> None:
@@ -188,6 +198,70 @@ def test_a_redirect_status_maps_to_an_endpoint_refusal() -> None:
     """Not the retryable catch-all: a 3xx is a refused endpoint, not an unknown fault."""
     assert isinstance(for_http_status(302), EndpointRejected)
     assert for_http_status(302).retryable is False
+
+
+#: The status codes the provider's own error-code page documents, and what this client
+#: makes of each. Transcribed from https://api-docs.deepseek.com/quick_start/error_codes
+#: (retrieved 2026-09-17), so a code the provider promises cannot silently become one this
+#: taxonomy does not know -- which would land it on the retryable catch-all and retry a
+#: deterministic refusal forever. 402 and 422 were both missing until this table existed.
+DOCUMENTED_ERROR_CODES: dict[int, type[TransportError]] = {
+    400: RequestRejected,  # Invalid Format
+    401: AuthRejected,  # Authentication Fails
+    402: InsufficientBalance,  # Insufficient Balance
+    422: RequestRejected,  # Invalid Parameters
+    429: RateLimited,  # Rate Limit Reached
+    500: ServerError,  # Server Error
+    503: ServerError,  # Server Overloaded
+}
+
+
+def test_every_documented_status_lands_on_a_named_category() -> None:
+    """Exhaustiveness against the provider's own list, not against my imagination."""
+    assert len(DOCUMENTED_ERROR_CODES) >= 7
+    for status, expected in DOCUMENTED_ERROR_CODES.items():
+        error = for_http_status(status)
+        assert isinstance(error, expected), status
+        assert error.category != "unknown_transport", status
+        assert error.http_status == status
+
+
+def test_retryability_follows_the_providers_own_advice() -> None:
+    """Retryable exactly where the documented remedy is to wait.
+
+    The page says "retry your request after a brief wait" for 500 and 503, and "pace
+    your requests" for 429. For 400/401/402/422 the remedy is to change something, so a
+    retry is a loop. That distinction is what `retryable` is for, and it is the flag S1's
+    backoff policy reads.
+    """
+    for status, error in ((s, for_http_status(s)) for s in DOCUMENTED_ERROR_CODES):
+        should_retry = status == 429 or status >= 500
+        assert error.retryable is should_retry, status
+        assert error.billable is False, status
+
+
+def test_an_out_of_balance_account_is_not_a_request_defect() -> None:
+    """402 is the account, not the message array.
+
+    Its remedy is to top up, so grouping it with the 4xx request rejections would send an
+    operator to read their request body while the real answer is on the billing page.
+    """
+    error = for_http_status(402)
+    assert isinstance(error, InsufficientBalance)
+    assert error.category == "insufficient_balance"
+    assert error.retryable is False
+
+
+def test_a_bad_credential_is_distinct_from_a_missing_one() -> None:
+    """Two facts with the same remedy, and the ledger should say which happened.
+
+    `credential_missing` is our refusal before any I/O; `auth_rejected` means we sent and
+    the provider said no. An operator pages on both, but a loop author debugging a fan-out
+    needs to know whether a request left the process at all.
+    """
+    assert for_http_status(401).category == "auth_rejected"
+    assert CredentialMissing("x").category == "credential_missing"
+    assert for_http_status(401).category != CredentialMissing("x").category
 
 
 def test_a_rejected_request_is_not_retryable() -> None:

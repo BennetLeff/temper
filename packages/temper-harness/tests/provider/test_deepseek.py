@@ -16,6 +16,7 @@ import pytest
 
 from temper_harness.provider.deepseek import (
     DONE_SENTINEL,
+    KEEP_ALIVE_COMMENT,
     LiveTransport,
     decode_completion,
     decode_stream_payloads,
@@ -44,7 +45,12 @@ from temper_harness.provider.interface import (
     UsageReported,
     reassemble_tool_calls,
 )
-from temper_harness.provider.messages import ChatMessage, ToolDefinition
+from temper_harness.provider.messages import (
+    REASONING_EFFORT_MAP,
+    ChatMessage,
+    RequestParameterError,
+    ToolDefinition,
+)
 from temper_harness.provider.usage import normalize_usage
 from temper_harness.schema_registry import build_validator
 from temper_harness.store.recorder import RecordingStore
@@ -513,6 +519,9 @@ def test_every_request_field_reaches_the_wire() -> None:
         tools=(ToolDefinition(name="place", description="d", parameters={"type": "object"}),),
         temperature=0,
         max_tokens=64,
+        user_id="arm-control",
+        thinking=False,
+        reasoning_effort="low",
         served_from="live",
         stream=True,
     )
@@ -526,6 +535,60 @@ def test_every_request_field_reaches_the_wire() -> None:
         "a harness that cannot bound a turn cannot bound what it spends"
     )
     assert body["stream"] is True
+    # The three documented parameters a harness needs and the client did not have. This
+    # walk exists because `max_tokens` was added to `Request` and never reached the wire,
+    # and every test agreed with the omission.
+    assert body["user_id"] == "arm-control"
+    assert body["thinking"] == {"type": "disabled"}
+    assert body["reasoning_effort"] == "low"
+
+
+def test_a_malformed_parameter_never_reaches_the_network() -> None:
+    """The rule R7 applies to message arrays, applied to the other parameters.
+
+    A `user_id` violating the provider's documented shape is a caller defect, and it must
+    raise locally rather than become a provider 400 a classifier then has to guess about.
+    """
+    for bad in ("has spaces", "has/slash", "", "x" * 513):
+        transport, calls = _adapter()
+        with pytest.raises(RequestParameterError):
+            list(transport.stream(_request(user_id=bad)))
+        assert calls == [], bad
+
+
+def test_an_unknown_reasoning_effort_is_refused_locally() -> None:
+    transport, calls = _adapter()
+    with pytest.raises(RequestParameterError):
+        list(transport.stream(_request(reasoning_effort="turbo")))
+    assert calls == []
+
+
+def test_the_requested_effort_is_mapped_not_honoured_literally() -> None:
+    """Documented mapping, kept in the client so a caller can find it out here."""
+    assert REASONING_EFFORT_MAP["medium"] == "high"
+    assert REASONING_EFFORT_MAP["high"] == "high"
+    assert REASONING_EFFORT_MAP["xhigh"] == "high"
+    assert REASONING_EFFORT_MAP["ultra"] == "max"
+    assert REASONING_EFFORT_MAP["minimal"] == "low"
+
+
+def test_thinking_on_is_sent_as_enabled() -> None:
+    assert wire_body(_request(thinking=True))["thinking"] == {"type": "enabled"}
+
+
+def test_a_keep_alive_comment_is_not_a_payload() -> None:
+    """The provider's documented keep-alive, which arrives whenever it is slow to start.
+
+    "streaming requests: continuously return SSE keep-alive comments (`: keep-alive`)".
+    A parser that treated one as a payload would fail on every call the provider queues --
+    which is exactly when a harness is under load and when losing the turn hurts most.
+    """
+    raw = response_bytes("stream_plain")
+    body = KEEP_ALIVE_COMMENT + b"\n\n" + KEEP_ALIVE_COMMENT + b"\n\n" + raw
+    payloads = list(iter_sse_payloads(body.split(b"\n")))
+    assert all(payload.strip() != KEEP_ALIVE_COMMENT for payload in payloads)
+    assert any(b"chat.completion.chunk" in payload for payload in payloads)
+    assert len(payloads) == len(list(iter_sse_payloads(raw.split(b"\n"))))
 
 
 def test_the_credential_travels_in_a_header_and_never_in_the_body() -> None:

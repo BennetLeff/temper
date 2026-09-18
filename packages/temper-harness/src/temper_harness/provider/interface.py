@@ -96,8 +96,25 @@ class Request:
     model: str
     messages: list[ChatMessage]
     tools: tuple[ToolDefinition, ...] = field(default=())
+    #: Accepted and **ignored while thinking mode is enabled**, which is the provider's
+    #: default: the documentation states thinking mode does not support `temperature`,
+    #: `presence_penalty`, or `frequency_penalty`, and that setting them neither errors nor
+    #: has an effect. Do not rely on it for determinism. It takes effect only with
+    #: ``thinking=False``.
     temperature: float | None = None
     max_tokens: int | None = None
+    #: The provider's isolation control for KVCache, content safety, and scheduling. Two
+    #: experiment arms sharing a cache would have one arm's input priced at cache-hit rates
+    #: for text the other arm paid to cache -- enough to invalidate a fixed-expenditure
+    #: comparison with nothing appearing in any response.
+    user_id: str | None = None
+    #: Thinking mode, which the provider enables by default. ``False`` is the only way to
+    #: make ``temperature`` effective, and the cheapest way to cut output tokens, because
+    #: reasoning tokens are billed as output.
+    thinking: bool | None = None
+    #: One of the documented efforts (see ``REASONING_EFFORT_MAP``). Requested effort is
+    #: *mapped*, not honoured literally: ``medium`` becomes ``high``.
+    reasoning_effort: str | None = None
     #: Set by the caller, and asserted by the transport rather than trusted: a live
     #: transport refuses to stamp a row "replay" and a replay transport refuses to
     #: stamp one "live". Provenance is the one field a caller must not be able to

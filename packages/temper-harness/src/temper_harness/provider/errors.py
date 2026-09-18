@@ -140,6 +140,35 @@ class ContentFiltered(TransportError):
     spec = ErrorSpec(category="content_filtered", retryable=False, billable=False)
 
 
+class AuthRejected(TransportError):
+    """The provider refused our credential (a documented 401, or a 403).
+
+    Separate from :class:`CredentialMissing`, which is *our* refusal before any I/O.
+    The two are distinct facts with the same remedy: "we did not send because we have no
+    key" versus "we sent and the key was wrong". Both mean fix the credential, and
+    neither is a request defect -- which is why 401 is not folded into
+    :class:`RequestRejected` even though the retryable and billable flags coincide. A
+    ledger that cannot distinguish "the key is broken" (page someone) from "the loop is
+    sending bad bodies" (fix the loop) is a ledger an operator has to read raw.
+
+    Not retryable: the provider will refuse the same credential identically.
+    """
+
+    spec = ErrorSpec(category="auth_rejected", retryable=False, billable=False)
+
+
+class InsufficientBalance(TransportError):
+    """The account is out of balance -- the documented 402.
+
+    An account state rather than a request defect: the request may be perfect and the
+    refusal still happens. Without its own category a 402 would reach the catch-all,
+    which is retryable, and an empty account would be retried forever while every row
+    read as an unknown transport fault.
+    """
+
+    spec = ErrorSpec(category="insufficient_balance", retryable=False, billable=False)
+
+
 class RequestRejected(TransportError):
     """The provider refused the request itself, and it is not one of the known shapes.
 
@@ -249,13 +278,25 @@ def for_http_status(status: int, message: str = "") -> TransportError:
         return RequestTimeout(detail, http_status=status)
     if status >= 500:
         return ServerError(detail, http_status=status)
-    # 401 and 403 are the provider refusing the request, exactly like a 400. They
-    # must not fall through to the unknown catch-all, which is retryable: a wrong
-    # key would then be retried forever against a provider that will refuse it
-    # identically every time. The status is retained on the record, so a caller
-    # that wants to distinguish "your key is wrong" from "your body is wrong" can,
-    # without a category per remedy.
-    if status in (400, 401, 403):
+    # The provider's own documented codes, in the order they mean something different.
+    # `docs`: 400 Invalid Format, 401 Authentication Fails, 402 Insufficient Balance,
+    # 422 Invalid Parameters, 429 Rate Limit Reached, 500 Server Error, 503 Server
+    # Overloaded. Every one of them must land somewhere that is not the catch-all, which
+    # is retryable -- a status the docs promise and this taxonomy cannot classify is a
+    # deterministic failure that would be retried forever.
+    if status == 402:
+        # Not a request defect: the request may be perfect and the refusal still happens.
+        # Grouping it with the 4xx request rejections would tell an operator to go read
+        # their message array when the answer is to top up.
+        return InsufficientBalance(detail, http_status=status)
+    if status in (401, 403):
+        # 403 is not documented but is the same remedy as 401, and it is a real status a
+        # proxy can return. Distinct from `CredentialMissing`, which is our refusal before
+        # any I/O: this one means we sent and the provider said no.
+        return AuthRejected(detail, http_status=status)
+    # 400 (Invalid Format) and 422 (Invalid Parameters) are both "fix your request", so
+    # they share a category; the status on the record keeps them apart.
+    if status in (400, 422):
         return RequestRejected(detail, http_status=status)
     if 300 <= status < 400:
         # A redirect is a refusal of the endpoint, not an unknown transport fault. The
@@ -268,12 +309,18 @@ def for_http_status(status: int, message: str = "") -> TransportError:
 
 
 #: Message fragments that place a rejected request on a specific category.
+#:
 #: The two schema markers are VERIFIED against captured 400 bodies. The
-#: context-length and content-filter markers are NOT verified on this provider --
-#: no probe produced either -- so they are declared as unverified rather than
-#: presented as measured, and the plan's unknowns list carries them as such. A
-#: category that could never be reached would make the taxonomy a claim rather
-#: than a mechanism, so they stay wired even while unproven.
+#: context-length and content-filter markers are NOT: the provider's own error-code page
+#: documents neither status nor message for them -- it lists only 400, 401, 402, 422,
+#: 429, 500 and 503 -- so a context-length refusal arrives as one of those with a message
+#: this client has never seen. They stay wired, and declared unverified, because a
+#: category that could never be reached would make the taxonomy a claim rather than a
+#: mechanism; the plan's unknowns list carries the gap.
+#:
+#: Worth noting what the documentation *did* settle: there is no documented
+#: content-filter status at all, so a filtered response is more likely a message on a 400
+#: than a status of its own. That is why the marker list matters more than the status.
 _SCHEMA_REJECTION_MARKERS = (
     "invalid schema for function",
     "is not valid under any of the schemas",

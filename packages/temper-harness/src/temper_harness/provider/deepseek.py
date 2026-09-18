@@ -81,6 +81,16 @@ PROVIDER_MODELS_PATH = "/models"
 #: convention, and the only indication that a stream finished deliberately.
 DONE_SENTINEL = b"[DONE]"
 
+#: The SSE comment the provider sends as a keep-alive while a request is queued.
+#: Documented in "Rate Limit & Isolation": "streaming requests: continuously return SSE
+#: keep-alive comments (`: keep-alive`)", and non-streaming requests get empty lines
+#: instead. Both are handled, and handling them is not optional -- a parser that treated
+#: a comment as a payload would fail on every call the provider is slow to start, which is
+#: exactly when a harness is under load. The same page notes the server closes a connection
+#: whose inference has not started within ten minutes, which surfaces here as an
+#: ``IncompleteStream``.
+KEEP_ALIVE_COMMENT = b": keep-alive"
+
 _EVENT_STREAM_CONTENT_TYPE = "text/event-stream"
 
 
@@ -101,6 +111,9 @@ def wire_body(request: Request) -> dict[str, Any]:
         tools=list(request.tools) or None,
         temperature=request.temperature,
         max_tokens=request.max_tokens,
+        user_id=request.user_id,
+        thinking=request.thinking,
+        reasoning_effort=request.reasoning_effort,
     )
     if request.stream:
         body["stream"] = True

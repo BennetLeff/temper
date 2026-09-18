@@ -18,6 +18,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -123,6 +124,62 @@ class ToolDefinition:
         return hashlib.sha256(canonical.encode()).hexdigest()
 
 
+#: The `user_id` shape the provider documents: `[a-zA-Z0-9\-_]+`, at most 512 characters.
+USER_ID_PATTERN = re.compile(r"^[a-zA-Z0-9\-_]+$")
+USER_ID_MAX_LENGTH = 512
+
+#: The effort values the provider documents as *requestable*, and what each maps to.
+#: Transcribed from https://api-docs.deepseek.com/guides/thinking_mode (retrieved
+#: 2026-09-17), because a caller asking for `medium` and getting `high` should be able to
+#: find that out from the client rather than from a latency graph.
+REASONING_EFFORT_MAP = {
+    "minimal": "low",
+    "low": "low",
+    "medium": "high",
+    "high": "high",
+    "xhigh": "high",
+    "max": "max",
+    "ultra": "max",
+}
+
+
+class RequestParameterError(ValueError):
+    """A request parameter the provider would reject, caught before the network.
+
+    Deliberately a ``ValueError`` and not a ``TransportError``: nothing was sent, so this
+    is a caller defect rather than a transport outcome, and it must not enter the failure
+    taxonomy the ledger classifies against.
+    """
+
+
+def validate_user_id(user_id: str) -> str:
+    """Check a `user_id` against the provider's documented shape.
+
+    Worth checking locally because `user_id` is not cosmetic: the provider documents it as
+    the isolation control for KVCache, content safety, and scheduling. A malformed one is
+    rejected by the provider -- and a *missing* one means two experiment arms share a cache,
+    which would silently halve one arm's input cost at cache-hit rates and invalidate a
+    fixed-expenditure comparison. Recorded in the plan as an arm-isolation requirement.
+    """
+    if not user_id or not USER_ID_PATTERN.match(user_id):
+        raise RequestParameterError(
+            f"user_id must match {USER_ID_PATTERN.pattern!r}, got {user_id!r}"
+        )
+    if len(user_id) > USER_ID_MAX_LENGTH:
+        raise RequestParameterError(
+            f"user_id must be at most {USER_ID_MAX_LENGTH} characters, got {len(user_id)}"
+        )
+    return user_id
+
+
+def validate_reasoning_effort(effort: str) -> str:
+    if effort not in REASONING_EFFORT_MAP:
+        raise RequestParameterError(
+            f"reasoning_effort must be one of {sorted(REASONING_EFFORT_MAP)}, got {effort!r}"
+        )
+    return effort
+
+
 def validate_messages(messages: list[ChatMessage]) -> None:
     """Raise :class:`MessageArrayError` on a malformed array. Sends nothing."""
     if not messages:
@@ -183,8 +240,30 @@ def build_wire_request(
     tools: list[ToolDefinition] | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
+    user_id: str | None = None,
+    thinking: bool | None = None,
+    reasoning_effort: str | None = None,
 ) -> dict[str, Any]:
-    """Assemble the request body, validating before anything is sent."""
+    """Assemble the request body, validating before anything is sent.
+
+    Three of these deserve a warning rather than just a type.
+
+    ``temperature`` is **accepted and silently ignored**, because the provider enables
+    thinking mode by default and documents that thinking mode does not support
+    `temperature`, `presence_penalty`, or `frequency_penalty`: setting them "will not
+    trigger an error but will also have no effect". A caller therefore cannot buy
+    determinism with `temperature=0` on this model by default, and nothing in the response
+    says so -- which is why it is written here. It takes effect when ``thinking`` is
+    explicitly disabled.
+
+    ``user_id`` is not cosmetic. The provider documents it as the isolation control for
+    KVCache, content safety, and scheduling. A cache shared between two experiment arms
+    would halve one arm's input cost at cache-hit rates -- enough to corrupt a
+    fixed-expenditure comparison without an error appearing anywhere.
+
+    ``thinking=False`` is the only way to make ``temperature`` effective, and the cheapest
+    way to cut output tokens, because reasoning is billed as output.
+    """
     validate_messages(messages)
     body: dict[str, Any] = {
         "model": model,
@@ -199,4 +278,10 @@ def build_wire_request(
         # it spends, and the fixed-expenditure comparison S7 depends on is denominated
         # in exactly that bound.
         body["max_tokens"] = max_tokens
+    if user_id is not None:
+        body["user_id"] = validate_user_id(user_id)
+    if thinking is not None:
+        body["thinking"] = {"type": "enabled" if thinking else "disabled"}
+    if reasoning_effort is not None:
+        body["reasoning_effort"] = validate_reasoning_effort(reasoning_effort)
     return body
