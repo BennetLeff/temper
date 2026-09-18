@@ -1,0 +1,1074 @@
+                 TEA2209T
+                 Active bridge rectifier controller
+                 Rev. 1.1 — 14 April 2021                                          Product data sheet
+
+
+
+
+1   General description
+               The TEA2209T is a product of a new generation of active bridge rectifier controllers
+               replacing the traditional diode bridge.
+               Using the TEA2209T with low-ohmic high-voltage external MOSFETs significantly
+               improves the efficiency of the power converter as the typical rectifier diode-forward
+               conduction losses are eliminated. Efficiency can improve up to about 1.4 % at 90 V (AC)
+               mains voltage.
+               The TEA2209T is designed in a silicon-on insulator (SOI) process.
+
+2   Features and benefits
+
+           2.1 Efficiency features
+               • Forward conduction losses of the diode rectifier bridge are eliminated
+               • Very low IC power consumption (2 mW)
+
+           2.2 Application features
+               • Integrated high-voltage level shifters
+               • Directly drives all four rectifier MOSFETs
+               • Very low external part count
+               • Integrated X-capacitor discharge (2 mA)
+               • Self-supplying
+               • Full-wave drive improving total harmonic distortion (THD)
+               • S016 package
+
+           2.3 Control features
+               • Disable function for all external power FETs
+               • Undervoltage lockout (UVLO) for high-side and low-side drivers
+               • Drain-source overvoltage protection for all external power MOSFETs
+               • Gate pull-down currents at start-up for all external power MOSFETs
+NXP Semiconductors
+                                                                                                                                  TEA2209T
+                                                                                                                      Active bridge rectifier controller
+
+
+3          Applications
+                        The TEA2209T is intended for power supplies with a boost-type power-factor controller
+                        as a first stage. The second stage can be a resonant controller, a flyback controller,
+                        or any other controller topology. It can be used in all power supplies requiring high
+                        efficiency:
+                        • Adapters
+                        • Power supplies for desktop PC and all-in-one PC
+                        • Power supplies for television
+                        • Power supplies for servers
+
+4          Ordering information
+Table 1. Ordering information
+Type number          Package
+                     Name       Description                                                                                            Version
+TEA2209T/1           SO16       plastic small outline package; 16 leads; body width 3.9 mm                                             SOT109-1
+
+
+5          Marking
+Table 2. Marking
+Type number                                                                    Marking code
+TEA2209T/1                                                                     TEA2209T
+
+
+
+
+TEA2209T                                 All information provided in this document is subject to legal disclaimers.                  © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                      Rev. 1.1 — 14 April 2021
+                                                                                                                                                                 2 / 19
+NXP Semiconductors
+                                                                                                                               TEA2209T
+                                                                                                                   Active bridge rectifier controller
+
+
+6          Block diagram
+
+                                                                                                VR
+
+                              VCCHL                                                                                                 VCCHR
+                                                                   VCC                                           VCC
+
+
+
+                             GATEHL                            LEVEL                                              LEVEL             GATEHR
+                                                               SHIFT                                              SHIFT
+
+
+
+                                   L                                                                                                R
+                                                                                      CONTROL
+
+
+
+                              GATELL                                                                                                GATELR
+
+                                                                                                                   VR
+
+                               COMP
+
+                                                   1.3 V                                                          SUPPLY            VCC
+                                                                                                                    +
+                                                                                                                XCAP DISCH
+
+
+
+                                                                                               COMP_POL                GND
+
+                                                                                                                                  aaa-038078
+
+                     Figure 1. Block diagram
+
+
+
+
+TEA2209T                           All information provided in this document is subject to legal disclaimers.                     © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                Rev. 1.1 — 14 April 2021
+                                                                                                                                                              3 / 19
+NXP Semiconductors
+                                                                                                                                      TEA2209T
+                                                                                                                          Active bridge rectifier controller
+
+
+7          Pinning information
+
+                     7.1 Pinning
+
+                                                                               L     1                                16 VR
+
+                                                                      VCCHL          2                                15 HVS
+
+                                                                    GATEHL           3                                14 GATEHR
+
+                                                                          HVS        4                                13 VCCHR
+                                                                                                     IC
+                                                                    GATELL           5                                12 R
+
+                                                                          VCC        6                                11 HVS
+
+                                                                          GND        7                                10 GATELR
+
+                                                               COMP_POL              8                                9   COMP
+
+                                                                                                     aaa-038079
+
+                          Figure 2. Pinning diagram (SOT109-1)
+
+
+                     7.2 Pin description
+                         Table 3. Pin description
+                         Symbol           Pin                Description
+                         L                1                  left input, source of upper left MOSFET
+                         VCCHL            2                  left high-side floating supply
+                         GATEHL           3                  gate driver left high side
+                         HVS              4                  high-voltage spacer; not to be connected
+                         GATELL           5                  gate driver left low side
+                         VCC              6                  supply voltage
+                         GND              7                  ground
+                         COMP_POL         8                  comparator polarity setting
+                         COMP             9                  comparator input
+                         GATELR           10                 gate driver right low side
+                         HVS              11                 high-voltage spacer; not to be connected
+                         R                12                 right input, source of upper right MOSFET
+                         VCCHR            13                 right high-side floating supply
+                         GATEHR           14                 gate driver right high side
+                         HVS              15                 high-voltage spacer; not to be connected
+                         VR               16                 rectified mains voltage
+
+
+
+
+TEA2209T                                 All information provided in this document is subject to legal disclaimers.                      © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                      Rev. 1.1 — 14 April 2021
+                                                                                                                                                                     4 / 19
+NXP Semiconductors
+                                                                                                                                       TEA2209T
+                                                                                                                           Active bridge rectifier controller
+
+
+8          Functional description
+
+                     8.1 Introduction
+                         The TEA2209T is a controller IC for an active bridge rectifier. It can directly drive the four
+                         MOSFETs in an active bridge. Figure 3 shows a typical configuration. Since the output is
+                         a rectified sine wave, a boost-type power-factor circuit must follow the application.
+
+                                                                                                          VR
+
+                                               VCCHL                                                                                    VCCHR
+                                                                                  VCC                                    VCC
+
+
+
+                                  200 nF      GATEHL                           LEVEL                                      LEVEL         GATEHR                      200 nF
+                                                                               SHIFT                                      SHIFT
+
+
+
+                                                       L                                                                                R
+                                                                                                  CONTROL
+
+
+
+                                              GATELL                                                                                    GATELR
+
+                                                                                                                           VR
+
+                                                COMP
+
+                                                                     1.3 V                                                SUPPLY        VCC
+                                                                                                                            +
+                                                                                                                        XCAP DISCH
+
+
+                                                                                                                                                 2.2 µF
+                                                                                                         COMP_POL              GND
+
+
+
+
+                                            enable
+
+
+                                                                                                                                                                  aaa-038080
+
+
+                          Figure 3. Typical configuration
+
+
+                     8.2 Operation
+                         The control circuit of the TEA2209T senses the polarity of the mains voltage between
+                         pins L and R. Depending on the polarity, diagonal pairs of power MOSFETs are switched
+                         on or off. Depending on the slope polarity, the comparator in the control circuit, which
+                         compares the L and R voltages, has thresholds of +250 mV and −250 mV.
+                         The gate drivers are high-current rail-to-rail MOS output drivers. An on-chip supply
+                         circuit which draws current from the rectified sine-wave pin VR generates the gate driver
+                         voltage. After a zero-crossing of the mains voltage, the supply capacitor CVCC is charged
+                         to the regulation level Vreg. Then the discharge state is entered. The resulting power
+                         dissipation from the mains voltage is about 1 mW, excluding gate charge losses of the
+                         external power MOSFETs. These gate charge losses typically add a 1 mW dissipation.
+                         At start-up, the body diodes of the power MOSFETs act as a traditional diode bridge.
+                         They cause a peak rectified voltage at pin VR. From this high voltage, the supply
+                         capacitor is first charged to the Vstart voltage and then enters the start-up state. After a
+                         next zero-crossing of the mains voltage, the supply capacitor is charged to Vreg in the
+                         charging state. When the voltage at the supply capacitor exceeds Vdis, the gate driver
+                         outputs are enabled. The high-side drivers start up later than the low-side drivers. The
+                         floating supplies must be charged first and the drain-source voltage of the high-side
+
+TEA2209T                                   All information provided in this document is subject to legal disclaimers.                       © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                         Rev. 1.1 — 14 April 2021
+                                                                                                                                                                        5 / 19
+NXP Semiconductors
+                                                                                                                                                                                TEA2209T
+                                                                                                                                                             Active bridge rectifier controller
+
+
+                     power MOSFETs must be less than the drain-source protection voltage. When all drivers
+                     are active, the MOSFETs take over the role of the diodes. The result is a much lower
+                     power loss than with a passive diode rectifier bridge.
+                     In the discharge state, when the mains voltage is disconnected, the internal bias current
+                     discharges the supply capacitor. When the voltage at pin VCC drops to below Vdis the
+                     X-capacitor discharge state is entered, which draws a 2 mA current from pin VR to
+                     discharge the X-capacitor. The waiting time, td until the X-capacitor discharge starts is:
+
+
+                                                                                                                                                                                                                             (1)
+
+
+                     Using a typical value of 2.2 μF for CVCC yields about 0.24 s. While the VR pin discharges
+                     the X-capacitor, the mains can be reconnected. In that case, the charge mode is entered
+                     again.
+
+                                                                                                                                                     mains
+                                                                                                                                                    discount
+
+
+
+
+                               L-R                                                                                                                                      td
+
+
+
+
+                               VR
+
+
+
+                                             Vreg
+                                            Vdis
+                              VCC
+                                         Vstartup
+                                                                                                                                                                                X-capacitor discharge
+                                                          startup
+
+                                                                    charge
+
+                                                                                charge
+
+
+                                                                                                     charge
+
+
+                                                                                                                             charge
+
+                                                                                                                                      charge
+
+
+                                                                                                                                                           charge
+                                                                             discharge
+
+                                                                                         discharge
+
+
+                                                                                                              discharge
+
+
+                                                                                                                          discharge
+
+
+                                                                                                                                               discharge
+
+
+
+
+                                                                                                                                                                    discharge
+
+
+
+
+                           GATELL
+
+
+                           GATEHR
+
+
+                           GATELR
+
+
+                           GATEHL
+
+                                                                                                                                                                                                        aaa-038081
+
+                     Figure 4. TEA2209T signals
+
+
+
+
+TEA2209T                             All information provided in this document is subject to legal disclaimers.                                                                                 © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                  Rev. 1.1 — 14 April 2021
+                                                                                                                                                                                                                            6 / 19
+NXP Semiconductors
+                                                                                                                                  TEA2209T
+                                                                                                                      Active bridge rectifier controller
+
+
+
+                         Table 4. TEA2209T states
+                         State                          Description                                   IVR                         IVCC
+                         start-up                       supply capacitor kept                         2 mA                        0
+                                                        stable at 4.8 V
+                         charge                         supply capacitor is                           +2 mA                       −2 mA
+                                                        charged from pin VR
+                                                        with 2 mA
+                         discharge                      internal bias currents 1 μA                                               20 μA
+                                                        and gate charge losses
+                                                        discharge the supply
+                                                        capacitor
+                         X-capacitor discharge          supply capacitor and                          +2 mA                       −2 mA
+                                                        X-capacitor at pin VR
+                                                        are discharged by
+                                                        2 mA
+
+                         When there is hardly any load current or no load current at all on pin VR, the dissipation
+                         in the capacitor connected between pin VR and GND, although very low by itself, can
+                         contribute relatively much to the total low-load power consumption when the TEA2209T
+                         is enabled. So, an external control signal at pin COMP can disable the gate drivers. A
+                         comparator with 1.3 V input threshold and 350 mV hysteresis is used at pin COMP. Pin
+                         COMP_POL can select the polarity of the comparator. Pin COMP has an internal pull-
+                         up and pull-down current which pin COMP_POL selects. The selection is such that with
+                         an open pin at COMP, the TEA2209T is enabled. Pin COMP_POL has an internal 0.5 μA
+                         pull-down current. Connect pin COMP_POL to either GND or VCC. Do not drive the
+                         COMP_POL pin with an external signal.
+
+                         Table 5. COMP functionality
+                         COMP_POL = GND                                                               COMP_POL = VCC
+                         COMP = low: all gate drivers disabled; internal                              COMP = low; all gate drivers enabled; internal
+                         pull-up current = 0.25 μA                                                    pull-down current = 0.5 μA
+
+
+                     8.3 Protections
+
+                8.3.1 Gate pull-down
+                         All gate driver outputs have a pull-down circuit. It ensures that, if a driver supply voltage
+                         is lower than the undervoltage lockout level, the discharge of the gate driver output
+                         discharges to less than 2 V.
+
+                8.3.2 Power MOSFET drain-source protection
+                         If the drain-source voltage of the external power MOSFET exceeds VVCC − 2 V (low
+                         side), VVCCHL − 3.5 V (high side left), or VVCCHR − 3.5 V (high side right), all gate driver
+                         outputs are disabled. Disabling the gate driver outputs avoids high dissipation and high
+                         current peaks in the power MOSFETs during start-up.
+
+                8.3.3 Minimum mains voltage
+                         Only when the voltage at either node L or R exceeds 22 V, the charge state is entered.
+
+TEA2209T                                 All information provided in this document is subject to legal disclaimers.                   © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                      Rev. 1.1 — 14 April 2021
+                                                                                                                                                                  7 / 19
+NXP Semiconductors
+                                                                                                                                TEA2209T
+                                                                                                                    Active bridge rectifier controller
+
+
+9          Limiting values
+                      Table 6. Limiting values
+                      In accordance with the Absolute Maximum Rating System (IEC 60134). All voltages are measured
+                      with respect to ground (pin 7). Positive currents flow into the chip. Voltage ratings are valid
+                      provided other ratings are not violated. Current ratings are valid provided the other ratings are
+                      not violated. The internal IC clearances comply with all NXP design standards and regulations.
+                      Moreover, at final testing every chip is checked against the maximum voltage rating in the data
+                      sheet.
+                      Symbol      Parameter                                      Conditions                                   Min          Max             Unit
+                      Voltages
+                      VVR         voltage on pin VR                              operating                                    −0.4         440             V
+                                                                                 mains transient:                             −0.4         700             V
+                                                                                 maximum 10 minutes
+                                                                                 over lifetime
+                      VVCCHL      voltage on pin VCCHL                           operating                                    −0.4         440             V
+                                                                                 mains transient:                             −0.4         700             V
+                                                                                 maximum 10 minutes
+                                                                                 over lifetime
+                      VVCCHR      voltage on pin VCCHR                           operating                                    −0.4         440             V
+                                                                                 mains transient:                             −0.4         700             V
+                                                                                 maximum 10 minutes
+                                                                                 over lifetime
+                      VL          voltage on pin L                               operating                                    −5           +440            V
+                                                                                 mains transient:                             −5           +700            V
+                                                                                 maximum 10 minutes
+                                                                                 over lifetime
+                      VR          voltage on pin R                               operating                                    −5           +440            V
+                                                                                 mains transient:                             −5           +700            V
+                                                                                 maximum 10 minutes
+                                                                                 over lifetime
+                      ΔV(VR-L)    voltage difference                             operating                                    −10          +440            V
+                                  between pins VR and L
+                                                                                 mains transient:                             −10          +700            V
+                                                                                 maximum 10 minutes
+                                                                                 over lifetime
+                      ΔV(VR-R)    voltage difference                             operating                                    −10          +440            V
+                                  between pins VR and R
+                                                                                 mains transient:                             −10          +700            V
+                                                                                 maximum 10 minutes
+                                                                                 over lifetime
+                      VGATEHR     voltage on pin GATEHR                          operating                                    −5           +440            V
+                                                                                 mains transient:                             −5           +700            V
+                                                                                 maximum 10 minutes
+                                                                                 over lifetime
+                      VGATEHL     voltage on pin GATEHL                          operating                                    −5           +440            V
+                                                                                 mains transient:                             −5           +700            V
+                                                                                 maximum 10 minutes
+                                                                                 over lifetime
+
+TEA2209T                               All information provided in this document is subject to legal disclaimers.                    © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                    Rev. 1.1 — 14 April 2021
+                                                                                                                                                                 8 / 19
+NXP Semiconductors
+                                                                                                                                                 TEA2209T
+                                                                                                                                   Active bridge rectifier controller
+
+
+                                Table 6. Limiting values...continued
+                                In accordance with the Absolute Maximum Rating System (IEC 60134). All voltages are measured
+                                with respect to ground (pin 7). Positive currents flow into the chip. Voltage ratings are valid
+                                provided other ratings are not violated. Current ratings are valid provided the other ratings are
+                                not violated. The internal IC clearances comply with all NXP design standards and regulations.
+                                Moreover, at final testing every chip is checked against the maximum voltage rating in the data
+                                sheet.
+                                Symbol          Parameter                                       Conditions                                   Min          Max             Unit
+                                SRmax           maximum slew rate                               pins VR, L, R, VCCHL,                        -            50              V/ns
+                                                                                                VCCHR, GATEHL,
+                                                                                                GATEHR
+                                VVCC            voltage on pin VCC                                                                           −0.4         14              V
+                                VGATELR         voltage on pin GATELR                                                                        −0.4         14              V
+                                VGATELL         voltage on pin GATELL                                                                        −0.4         14              V
+                                VCOMP           voltage on pin COMP                                                                          −0.4         14              V
+                                VCOMP_POL voltage on pin COMP_                                                                               −0.4         14              V
+                                          POL
+                                VDD(float)      float supply voltage                            pins GATEHL-L,                               −0.4         14              V
+                                                                                                GATEHR-R, VCCHR-R,
+                                                                                                VCCHL-L
+                                General
+                                Tj              junction temperature                                                                         −40          +125            °C
+                                Tstg            storage temperature                                                                          −55          +150            °C
+                                Electrostatic discharge (ESD)
+                                VESD            electrostatic discharge                         human body model (HBM)
+                                                voltage
+                                                                                                      pins VR, L, R,                         −1000        +1000           V
+                                                                                                      VCCHL, VCCHR,
+                                                                                                      GATEHL, and
+                                                                                                      GATEHR
+                                                                                                      other pins                             −2000        +2000           V
+                                                                                                charge device model                          −500         +500            V
+                                                                                                (CDM)
+
+
+10 Thermal characteristics
+Table 7. Thermal characteristics
+Symbol          Parameter                                                          Conditions                                                             Typ             Unit
+                                                                                                                                                    [1]
+Rth(j-c)        thermal resistance from junction to case                           in free air                                                            46              K/W
+                                                                                                                                                    [1]
+Rth(j-a)        thermal resistance from junction to ambient in free air; 1-layer PCB                                                                      148             K/W
+                                                                                                                                                    [1]
+                                                                                   in free air; 4-layer PCB; JEDEC test board                             106             K/W
+
+[1]   Given thermal resistance values are based on simulation results.
+
+
+
+
+TEA2209T                                              All information provided in this document is subject to legal disclaimers.                    © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                                   Rev. 1.1 — 14 April 2021
+                                                                                                                                                                                9 / 19
+NXP Semiconductors
+                                                                                                                                        TEA2209T
+                                                                                                                       Active bridge rectifier controller
+
+
+11 Characteristics
+Table 8. Characteristics
+Tamb = 25 °C; all voltages are measured with respect to GND; currents are positive when flowing into the IC; unless
+otherwise specified.
+Symbol         Parameter                                 Conditions                                                          Min    Typ          Max             Unit
+VR pin
+Ion            on-state current                          charging state; X-capacitor                                         1.5    2            2.75            mA
+                                                         discharge state; start-up state
+Ioff           off-state current                         discharge state                                                     0.5    0.8          1.2             μA
+Vstart         start voltage                             high-voltage start-up                                               9      -            -               V
+VCC pin
+Idch           discharge current                         X-capacitor discharge                                               3      4            5.5             mA
+Ibias          bias current                              discharge state                                                     15     23           33              μA
+Ich            charge current                            charge state                                                        1.5    2            2.75            mA
+VUVLO          undervoltage lockout voltage                                                                                  3.6    4.2          4.9             V
+Vstartup       start-up voltage                          start-up state                                                      4.3    4.8          5.3             V
+Vdis           disable voltage                           high level                                                          9.2    9.7          10.2            V
+                                                         hysteresis                                                          1.1    1.5          1.8             V
+Vregd          regulated output voltage                                                                                      10.2   10.7         11.2            V
+Floating supply pins (VCCHL, VCCHR)
+II(VCCHL)      input current on pin VCCHL                VL = 0 V                                                            1.4    1.8          2.5             μA
+                                                         VL = 200 V                                                          4      7            12              μA
+II(VCHHR)      input current on pin VCCHR                VL = 0 V                                                            1.4    1.8          2.5             μA
+                                                         VL = 200 V                                                          4      7            12              μA
+VDD(float)UVLO undervoltage lockout float supply                                                                             3.6    4.2          5.0             V
+               voltage
+Vd(bs)         bootstrap diode voltage                   current on diode = 1 mA                                             0.8    1            1.3             V
+Gate driver output pins (GATELL, GATELR, GATEHL, GATEHR)
+                                                                                                                       [1]
+Isource        source current                            VVCC = 12 V;                                                        125    200          400             mA
+                                                         VGATELL = VGATEHL = 6 V;
+                                                         VGATELR = VGATEHR = 6 V
+                                                                                                                       [1]
+Isink          sink current                              VVCC = 12 V;                                                        150    200          500             mA
+                                                         VGATELL = VGATEHL = 6 V;
+                                                         VGATELR = VGATEHR = 6 V
+Ipd            pull-down current                         off-state current; VVCC = 2 V;                                      100    200          250             μA
+                                                         VGATELL = VGATEHL = 2 V;
+                                                         VGATELR = VGATEHR = 2 V
+Ron            on-state resistance                                                                                           11     15           20              Ω
+Roff           off-state resistance                                                                                          7      10           14              Ω
+Vprot(G)       gate driver protection voltage            VR-VCCHR; VR-VCCHL                                                  −5     −3.5         −2              V
+                                                         L-VCC; R-VCC                                                        −3     −2.3         −1              V
+
+TEA2209T                                  All information provided in this document is subject to legal disclaimers.                       © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                       Rev. 1.1 — 14 April 2021
+                                                                                                                                                                     10 / 19
+NXP Semiconductors
+                                                                                                                                           TEA2209T
+                                                                                                                             Active bridge rectifier controller
+
+
+Table 8. Characteristics...continued
+Tamb = 25 °C; all voltages are measured with respect to GND; currents are positive when flowing into the IC; unless
+otherwise specified.
+Symbol              Parameter                                  Conditions                                                          Min    Typ          Max             Unit
+Control circuit (pins L and R)
+Vth                 threshold voltage                          peak detector threshold voltage                                     15     22           32              V
+Idet                detection current                          peak detector current                                               0.4    0.5          0.6             μA
+Voffset             offset voltage                             zero-crossing comparator offset                                     150    250          350             mV
+                                                               voltage
+td                  delay time                                 zero-crossing comparator delay time
+                                                                                                                             [2]
+                                                                      dV/dt = 0.1 V/μs                                             1200   1500         2500            ns
+                                                                                                                             [2]
+                                                                      dV/dt = 10 V/μs                                              550    700          1200            ns
+Disable circuit (pin COMP and COMP_POL)
+Vth(COMP)           threshold voltage on pin COMP              high level                                                          1.2    1.3          1.4             V
+                                                               hysteresis                                                          0.28   0.35         0.42            V
+Ii(COMP)            input current on pin COMP                  pull-up current                                                     0.18   0.25         0.32            μA
+                                                               pull-down current                                                   0.2    0.44         0.7             μA
+Vth(COMP_POL) threshold voltage on pin COMP_                   high level                                                          3.5    4.2          5.0             V
+              POL
+                                                               hysteresis                                                          0.2    0.27         0.4             V
+Ii(COMP_POL)        input current on pin COMP_POL              pull-down current                                                   0.33   0.5          0.65            μA
+
+[1]    Covered by correlating measurement.
+[2]    Guaranteed by design and validation.
+
+
+
+
+TEA2209T                                        All information provided in this document is subject to legal disclaimers.                       © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                             Rev. 1.1 — 14 April 2021
+                                                                                                                                                                           11 / 19
+NXP Semiconductors
+                                                                                                                                                       TEA2209T
+                                                                                                                                        Active bridge rectifier controller
+
+
+12 Application information
+                                     A switched-mode power supply (SMPS) with the TEA2209T typically consists of a
+                                     mains filter in front of the TEA2209T followed by a boost-type power factor controller. A
+                                     resonant controller, flyback controller, or any other topology can follow this boost-type
+                                     PFC.
+                                     Special attention must be given to the connection of the VR, L, and R pins of the
+                                     TEA2209T. Mains transients or surges must be limited to voltages below 700 V.
+                                     If a 2 kV ESD rating is required on all pins, a 100 pF capacitor from pins L, R, and VR to
+                                     ground can be used to achieve the 2 kV ESD.
+                                     Typical values for the three external capacitors are 1 μF to 2.2 μF (supply capacitor)
+                                     and 100 nF to 220 nF (bootstrap capacitors). Supply capacitors with higher values
+                                     increase the delay time (td) for the X-capacitor discharge. They may also increase the
+                                     dissipation because the supply capacitor CVCC may not be charged every half-mains
+                                     cycle. Bootstrap capacitors with lower value may cause a voltage drop that is too high
+                                     because of the gate charge losses.
+                                     When there is hardly any load current or no load current at all on pin VR, the dissipation
+                                     in the capacitor connected between pins VR and GND, although very low by itself, can
+                                     contribute relatively much to the total low-load power consumption when the TEA2209T
+                                     is enabled. So, to minimize power consumption, the TEA2209T can be switched off at
+                                     low power. Switching off at low power can be done in several ways. One option is a filter
+                                     connected to the PFC gate signal. The pin COMP_POL is grounded such that, at a low
+                                     duty cycle of the PFC signal, the voltage at pin COMP is low. It disables the TEA2209T.
+
+                                                                                                                                                                     VBOOST
+
+                                                                                      VR
+
+                                              VCCHL                                                                        VCCHR
+                                                                  VCC                              VCC
+
+
+
+                                     200 nF   GATEHL           LEVEL                                LEVEL                  GATEHR            200 nF
+                                                               SHIFT                                SHIFT
+
+
+
+                                                   L                                                                       R
+                                                                                CONTROL
+
+
+
+
+             V (AC)                           GATELL                                                                       GATELR
+
+                                                                                                      VR
+                      mains filter
+                                               COMP
+
+                                                       1.3 V                                       SUPPLY                  VCC
+                                                                                                     +
+                                                                                                 XCAP DISCH
+
+
+                                                                                                                                    2.2 µF
+                                                                                                                                                        PFC
+                                                                                                                                                      CONTROL
+                                                                                      COMP_POL           GND
+
+
+                                                                                                                                                                  boost-type pFC
+
+
+                                                                                                    RCOMP_high
+
+
+
+                                                          CCOMP_low                    RCOMP_low
+
+
+
+
+                                                                                                                                                                     aaa-038084
+
+
+ Figure 5. Application with mains filter, boost-type PFC, and low-power disable function via PFC gate signal
+
+                                     A microcontroller can also disable the TEA2209T. An application with a microcontroller
+                                     is shown in Figure 6. Pin COMP_POL is connected to VCC. If pin COMP is high, the
+                                     TEA2209T is disabled.
+TEA2209T                                               All information provided in this document is subject to legal disclaimers.                          © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                                    Rev. 1.1 — 14 April 2021
+                                                                                                                                                                                     12 / 19
+NXP Semiconductors
+                                                                                                                                                        TEA2209T
+                                                                                                                                        Active bridge rectifier controller
+
+
+                                                                                                                                                                           VBOOST
+
+                                                                                    VR
+
+                                             VCCHL                                                                       VCCHR
+                                                                VCC                              VCC
+
+
+
+                                    200 nF   GATEHL           LEVEL                               LEVEL                  GATEHR              200 nF
+                                                              SHIFT                               SHIFT
+
+
+
+                                                  L                                                                      R
+                                                                             CONTROL
+
+
+
+
+            V (AC)                           GATELL                                                                      GATELR
+
+                                                                                                    VR
+                     mains filter
+                                              COMP
+
+                                                      1.3 V                                     SUPPLY                   VCC
+                                                                                                  +
+                                                                                              XCAP DISCH
+
+                                                                                                                                                          PFC
+                                                                                                                                    2.2 µF
+                                                                                                                                                        CONTROL
+                                                                                    COMP_POL           GND
+
+
+                                                                                                                                                                       boost-type pFC
+
+
+
+                                                                                                                                                   MICRO
+                                                                                                                                                 CONTROLLER
+
+                                                                                                                                                                           aaa-038085
+
+
+ Figure 6. Application with mains filter, boost-type PFC, and low-power disable function via microcontroller
+
+
+
+
+TEA2209T                                               All information provided in this document is subject to legal disclaimers.                             © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                                    Rev. 1.1 — 14 April 2021
+                                                                                                                                                                                        13 / 19
+NXP Semiconductors
+                                                                                                                                                                           TEA2209T
+                                                                                                                                                      Active bridge rectifier controller
+
+
+13 Package outline
+Table 9.
+ SO16: plastic small outline package; 16 leads; body width 3.9 mm                                                                                                                             SOT109-1
+
+
+
+
+                                                                D                                                                                 E                   A
+                                                                                                                                                                                   X
+
+
+
+                                                                                                                   c
+
+                               y                                                                                                                 HE                                v M A
+
+
+                         Z
+
+                        16                                                                             9
+
+
+
+
+                                                                                                                                                               Q
+                                                                                                                           A2
+                                                                                                                                                                   (A 3)       A
+                                                                                                                                 A1
+                             pin 1 index
+                                                                                                                                                                           θ
+                                                                                                                                                           Lp
+
+                         1                                                                             8                                                   L
+
+                                                      e                                                        w M                                 detail X
+                                                                                                  bp
+
+
+
+
+                                                                                 0                  2.5                   5 mm
+                                                                                                   scale
+
+
+     DIMENSIONS (inch dimensions are derived from the original mm dimensions)
+                 A
+       UNIT                  A1     A2           A3        bp        c         D (1)      E (1)        e         HE          L         Lp         Q        v        w          y        Z (1)      θ
+                max.
+                             0.25   1.45                  0.49      0.25      10.0        4.0                    6.2                   1.0        0.7                                   0.7
+           mm   1.75                         0.25                                                    1.27                  1.05                           0.25     0.25     0.1
+                             0.10   1.25                  0.36      0.19       9.8        3.8                    5.8                   0.4        0.6                                   0.3        8
+                                                                                                                                                                                                       o
+                                                                                                                                                                                                     o
+                         0.010 0.057                      0.019 0.0100 0.39               0.16                 0.244                  0.039      0.028                                 0.028       0
+      inches    0.069                        0.01                                                    0.05            0.041                                0.01     0.01    0.004
+                         0.004 0.049                      0.014 0.0075 0.38               0.15                 0.228                  0.016      0.020                                 0.012
+
+     Note
+     1. Plastic or metal protrusions of 0.15 mm (0.006 inch) maximum per side are not included.
+
+
+            OUTLINE                                                          REFERENCES                                                                   EUROPEAN
+                                                                                                                                                                                   ISSUE DATE
+            VERSION                        IEC                      JEDEC                          JEITA                                                 PROJECTION
+
+                                                                                                                                                                                       99-12-27
+            SOT109-1                  076E07                        MS-012
+                                                                                                                                                                                       03-02-19
+
+
+
+ Figure 7. Package outline SOT109-1 (SO16)
+TEA2209T                                                            All information provided in this document is subject to legal disclaimers.                                 © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                                                   Rev. 1.1 — 14 April 2021
+                                                                                                                                                                                                           14 / 19
+NXP Semiconductors
+                                                                                                                             TEA2209T
+                                                                                                                 Active bridge rectifier controller
+
+
+14 Abbreviations
+                     Table 10. Abbreviations
+                     Acronym           Description
+                     CDM               change device model
+                     ESD               electrostatic discharge
+                     HBM               human body model
+                     MOSFET            metal–oxide–semiconductor field-effect transistor
+                     MOV               metal-oxide varistor
+                     PFC               power-factor controller
+                     SMPS              switched-mode power supply
+                     SOI               silicon-on insulator
+                     THD               total harmonic distortion
+                     UVLO              undervoltage lockout
+
+
+
+
+TEA2209T                            All information provided in this document is subject to legal disclaimers.                  © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                 Rev. 1.1 — 14 April 2021
+                                                                                                                                                          15 / 19
+NXP Semiconductors
+                                                                                                                                 TEA2209T
+                                                                                                                     Active bridge rectifier controller
+
+
+15 Revision history
+Table 11. Revision history
+Document ID                  Release date              Data sheet status                            Change notice           Supersedes
+TEA2209T v.1.1               20210414                  Product data sheet                           -                       TEA2209T v.1
+Modifications:               • Section 11 "Characteristics" has been updated.
+TEA2209T v.1                 20210324                  Product data sheet                           -                       -
+
+
+
+
+TEA2209T                                All information provided in this document is subject to legal disclaimers.                  © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                     Rev. 1.1 — 14 April 2021
+                                                                                                                                                              16 / 19
+NXP Semiconductors
+                                                                                                                                                TEA2209T
+                                                                                                                                    Active bridge rectifier controller
+
+
+16 Legal information
+
+16.1 Data sheet status
+                    [1][2]                                       [3]
+ Document status                               Product status                                Definition
+ Objective [short] data sheet                  Development                                   This document contains data from the objective specification for product
+                                                                                             development.
+ Preliminary [short] data sheet                Qualification                                 This document contains data from the preliminary specification.
+ Product [short] data sheet                    Production                                    This document contains the product specification.
+
+[1]   Please consult the most recently issued document before initiating or completing a design.
+[2]   The term 'short data sheet' is explained in section "Definitions".
+[3]   The product status of device(s) described in this document may have changed since this document was published and may differ in case of multiple
+      devices. The latest product status information is available on the Internet at URL http://www.nxp.com.
+
+
+                                                                                                notice. This document supersedes and replaces all information supplied prior
+                                                                                                to the publication hereof.
+16.2 Definitions
+                                                                                                Suitability for use — NXP Semiconductors products are not designed,
+Draft — A draft status on a document indicates that the content is still                        authorized or warranted to be suitable for use in life support, life-critical or
+under internal review and subject to formal approval, which may result                          safety-critical systems or equipment, nor in applications where failure or
+in modifications or additions. NXP Semiconductors does not give any                             malfunction of an NXP Semiconductors product can reasonably be expected
+representations or warranties as to the accuracy or completeness of                             to result in personal injury, death or severe property or environmental
+information included in a draft version of a document and shall have no                         damage. NXP Semiconductors and its suppliers accept no liability for
+liability for the consequences of use of such information.                                      inclusion and/or use of NXP Semiconductors products in such equipment or
+                                                                                                applications and therefore such inclusion and/or use is at the customer’s own
+Short data sheet — A short data sheet is an extract from a full data sheet                      risk.
+with the same product type number(s) and title. A short data sheet is
+intended for quick reference only and should not be relied upon to contain                      Applications — Applications that are described herein for any of these
+detailed and full information. For detailed and full information see the                        products are for illustrative purposes only. NXP Semiconductors makes
+relevant full data sheet, which is available on request via the local NXP                       no representation or warranty that such applications will be suitable
+Semiconductors sales office. In case of any inconsistency or conflict with the                  for the specified use without further testing or modification. Customers
+short data sheet, the full data sheet shall prevail.                                            are responsible for the design and operation of their applications and
+                                                                                                products using NXP Semiconductors products, and NXP Semiconductors
+Product specification — The information and data provided in a Product                          accepts no liability for any assistance with applications or customer product
+data sheet shall define the specification of the product as agreed between                      design. It is customer’s sole responsibility to determine whether the NXP
+NXP Semiconductors and its customer, unless NXP Semiconductors and                              Semiconductors product is suitable and fit for the customer’s applications
+customer have explicitly agreed otherwise in writing. In no event however,                      and products planned, as well as for the planned application and use of
+shall an agreement be valid in which the NXP Semiconductors product                             customer’s third party customer(s). Customers should provide appropriate
+is deemed to offer functions and qualities beyond those described in the                        design and operating safeguards to minimize the risks associated with
+Product data sheet.                                                                             their applications and products. NXP Semiconductors does not accept any
+                                                                                                liability related to any default, damage, costs or problem which is based
+                                                                                                on any weakness or default in the customer’s applications or products, or
+                                                                                                the application or use by customer’s third party customer(s). Customer is
+16.3 Disclaimers                                                                                responsible for doing all necessary testing for the customer’s applications
+                                                                                                and products using NXP Semiconductors products in order to avoid a
+                                                                                                default of the applications and the products or of the application or use by
+Limited warranty and liability — Information in this document is believed                       customer’s third party customer(s). NXP does not accept any liability in this
+to be accurate and reliable. However, NXP Semiconductors does not                               respect.
+give any representations or warranties, expressed or implied, as to the
+accuracy or completeness of such information and shall have no liability                        Limiting values — Stress above one or more limiting values (as defined in
+for the consequences of use of such information. NXP Semiconductors                             the Absolute Maximum Ratings System of IEC 60134) will cause permanent
+takes no responsibility for the content in this document if provided by an                      damage to the device. Limiting values are stress ratings only and (proper)
+information source outside of NXP Semiconductors. In no event shall NXP                         operation of the device at these or any other conditions above those
+Semiconductors be liable for any indirect, incidental, punitive, special or                     given in the Recommended operating conditions section (if present) or the
+consequential damages (including - without limitation - lost profits, lost                      Characteristics sections of this document is not warranted. Constant or
+savings, business interruption, costs related to the removal or replacement                     repeated exposure to limiting values will permanently and irreversibly affect
+of any products or rework charges) whether or not such damages are based                        the quality and reliability of the device.
+on tort (including negligence), warranty, breach of contract or any other
+legal theory. Notwithstanding any damages that customer might incur for
+                                                                                                Terms and conditions of commercial sale — NXP Semiconductors
+any reason whatsoever, NXP Semiconductors’ aggregate and cumulative
+                                                                                                products are sold subject to the general terms and conditions of commercial
+liability towards customer for the products described herein shall be limited
+                                                                                                sale, as published at http://www.nxp.com/profile/terms, unless otherwise
+in accordance with the Terms and conditions of commercial sale of NXP
+                                                                                                agreed in a valid written individual agreement. In case an individual
+Semiconductors.
+                                                                                                agreement is concluded only the terms and conditions of the respective
+                                                                                                agreement shall apply. NXP Semiconductors hereby expressly objects to
+Right to make changes — NXP Semiconductors reserves the right to                                applying the customer’s general terms and conditions with regard to the
+make changes to information published in this document, including without                       purchase of NXP Semiconductors products by customer.
+limitation specifications and product descriptions, at any time and without
+
+
+TEA2209T                                               All information provided in this document is subject to legal disclaimers.                   © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                                     Rev. 1.1 — 14 April 2021
+                                                                                                                                                                              17 / 19
+NXP Semiconductors
+                                                                                                                                                 TEA2209T
+                                                                                                                                     Active bridge rectifier controller
+
+
+No offer to sell or license — Nothing in this document may be interpreted                        Translations — A non-English (translated) version of a document is for
+or construed as an offer to sell products that is open for acceptance or                         reference only. The English version shall prevail in case of any discrepancy
+the grant, conveyance or implication of any license under any copyrights,                        between the translated and English versions.
+patents or other industrial or intellectual property rights.
+                                                                                                 Security — Customer understands that all NXP products may be subject
+Quick reference data — The Quick reference data is an extract of the                             to unidentified or documented vulnerabilities. Customer is responsible
+product data given in the Limiting values and Characteristics sections of this                   for the design and operation of its applications and products throughout
+document, and as such is not complete, exhaustive or legally binding.                            their lifecycles to reduce the effect of these vulnerabilities on customer’s
+                                                                                                 applications and products. Customer’s responsibility also extends to other
+Export control — This document as well as the item(s) described herein                           open and/or proprietary technologies supported by NXP products for use
+may be subject to export control regulations. Export might require a prior                       in customer’s applications. NXP accepts no liability for any vulnerability.
+authorization from competent authorities.                                                        Customer should regularly check security updates from NXP and follow up
+                                                                                                 appropriately. Customer shall select products with security features that best
+Non-automotive qualified products — Unless this data sheet expressly                             meet rules, regulations, and standards of the intended application and make
+states that this specific NXP Semiconductors product is automotive qualified,                    the ultimate design decisions regarding its products and is solely responsible
+the product is not suitable for automotive use. It is neither qualified nor                      for compliance with all legal, regulatory, and security related requirements
+tested in accordance with automotive testing or application requirements.                        concerning its products, regardless of any information or support that may
+NXP Semiconductors accepts no liability for inclusion and/or use of non-                         be provided by NXP. NXP has a Product Security Incident Response Team
+automotive qualified products in automotive equipment or applications. In                        (PSIRT) (reachable at PSIRT@nxp.com) that manages the investigation,
+the event that customer uses the product for design-in and use in automotive                     reporting, and solution release to security vulnerabilities of NXP products.
+applications to automotive specifications and standards, customer (a) shall
+use the product without NXP Semiconductors’ warranty of the product for
+such automotive applications, use and specifications, and (b) whenever
+customer uses the product for automotive applications beyond NXP                                 16.4 Trademarks
+Semiconductors’ specifications such use shall be solely at customer’s own
+risk, and (c) customer fully indemnifies NXP Semiconductors for any liability,                   Notice: All referenced brands, product names, service names and
+damages or failed product claims resulting from customer design and use                          trademarks are the property of their respective owners.
+of the product for automotive applications beyond NXP Semiconductors’
+standard warranty and NXP Semiconductors’ product specifications.
+                                                                                                 GreenChip — is a trademark of NXP B.V.
+                                                                                                 NXP — wordmark and logo are trademarks of NXP B.V.
+
+
+
+
+TEA2209T                                                All information provided in this document is subject to legal disclaimers.                  © NXP B.V. 2021. All rights reserved.
+
+Product data sheet                                                     Rev. 1.1 — 14 April 2021
+                                                                                                                                                                              18 / 19
+NXP Semiconductors
+                                                                                                                                             TEA2209T
+                                                                                                                         Active bridge rectifier controller
+
+
+
+Contents
+1       General description ............................................ 1
+2       Features and benefits .........................................1
+2.1       Efficiency features ............................................. 1
+2.2       Application features ........................................... 1
+2.3       Control features ................................................. 1
+3       Applications .........................................................2
+4       Ordering information .......................................... 2
+5       Marking .................................................................2
+6       Block diagram ..................................................... 3
+7       Pinning information ............................................ 4
+7.1       Pinning ............................................................... 4
+7.2       Pin description ................................................... 4
+8       Functional description ........................................5
+8.1       Introduction ........................................................ 5
+8.2       Operation ........................................................... 5
+8.3       Protections ......................................................... 7
+8.3.1     Gate pull-down .................................................. 7
+8.3.2     Power MOSFET drain-source protection ........... 7
+8.3.3     Minimum mains voltage .....................................7
+9       Limiting values .................................................... 8
+10      Thermal characteristics ......................................9
+11      Characteristics .................................................. 10
+12      Application information .................................... 12
+13      Package outline .................................................14
+14      Abbreviations .................................................... 15
+15      Revision history ................................................ 16
+16      Legal information .............................................. 17
+
+
+
+
+                                                                                      Please be aware that important notices concerning this document and the product(s)
+                                                                                      described herein, have been included in section 'Legal information'.
+
+
+                                                                                      © NXP B.V. 2021.                                                 All rights reserved.
+                                                                                      For more information, please visit: http://www.nxp.com
+                                                                                      For sales office addresses, please send an email to: salesaddresses@nxp.com
+                                                                                                                                                 Date of release: 14 April 2021
+                                                                                                                                                Document identifier: TEA2209T
+

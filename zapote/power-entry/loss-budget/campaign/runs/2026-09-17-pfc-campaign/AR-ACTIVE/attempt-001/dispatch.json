@@ -1,0 +1,44 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-ACTIVE",
+  "attempt_id": "attempt-001",
+  "kind": "source_then_numerical",
+  "supersedes_question_of": "the candidate screen's active-rectifier row is a conduction-only delta over two evaluated Rds assumptions, which cannot say whether an opportunity exists",
+  "absolute_deadline_utc": "2026-09-18T01:30:00Z",
+  "max_solver_invocations": 0,
+  "max_candidate_parts": 3,
+  "max_primary_sources": 8,
+  "checkout_path": "zapote",
+  "source_revision": "d2c0263702d6bcc6992d725d3fd9272c428833fb",
+  "model_revision_and_sha256": "not_applicable: source capture and arithmetic; the governing relation is P_saved = P_bridge - 450*R_hot - P_additional",
+  "checker_revision_and_sha256": "not_applicable",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-ACTIVE/attempt-001",
+  "exact_build_or_run_commands": "none; source capture and arithmetic only",
+  "source_bundle_paths_and_hashes": [
+    "zapote/power-entry/loss-budget/2026-09-17-rectifier-alternative-net-savings.md",
+    "zapote/power-entry/loss-budget/sources/Diodes-GBJ2510.pdf c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02"
+  ],
+  "envelope": {
+    "bus_v": 400.0,
+    "line_rms_v": 120.0,
+    "input_rms_a": 15.0,
+    "requested_input_power_w": 1796.31003212911,
+    "conducting_devices_in_line_path": 2,
+    "conduction_coefficient_w_per_ohm": 450.0,
+    "bridge_drop_w_nominal": 28.3035,
+    "bridge_bracket_w": [
+      23.0,
+      35.0
+    ],
+    "break_even_rds_nominal_ohm": 0.0629,
+    "break_even_rds_bracket_ohm": [
+      0.0511,
+      0.0778
+    ],
+    "break_even_note": "before additional losses; P_additional > 0 lowers it"
+  },
+  "question": "Is there a worthwhile active-rectifier opportunity? Choose one concrete circuit and exact devices, get their applicable hot Rds(on), quantify the added losses, and compare across the bridge bracket.",
+  "focus": "1) Choose ONE specific active-rectifier circuit for a 400 V bus / 120 V / 15 A true-RMS PFC input: name the topology and a specific controller. 2) Choose up to three exact MOSFET candidates: real order code, package, pinout (note any Kelvin/source-sense pin), and blocking voltage headroom for a 400 V bus. 3) Obtain each candidate's applicable HOT Rds(on) at the real operating junction temperature and gate bias from PRIMARY manufacturer sources - not a 25 C maximum, not a headline figure. Record document revision, page and condition. 4) Quantify P_additional as far as sources allow: gate-drive and rail generation, controller supply, current sensing, dead time and a safe fail-off state, and the conducted/radiated EMI re-assessment obligation. Where a term cannot be sourced, report it as an explicit unknown rather than zero. 5) Compute P_saved = 450*R_hot ... i.e. P_saved = P_bridge - 450*R_hot - P_additional across the bridge bracket 23-35 W, and state whether any candidate beats the 51-78 mOhm pre-additional break-even. 6) State the single missing input most likely to change the conclusion.",
+  "stop_rule": "No substitute device, no undocumented digitization, no hot-Rds extrapolation from a 25 C maximum, and no zero-filling P_additional. A conclusion of 'no opportunity at the break-even' is a valid and useful result. If no concrete circuit can be sourced, return UNKNOWN with the capture failures."
+}

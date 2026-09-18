@@ -1,0 +1,264 @@
+{
+  "schema": "pfc-campaign-AR-ACTIVE-inputs/v1",
+  "task_id": "AR-ACTIVE",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "kind": "source_then_numerical",
+  "generated_utc": "2026-09-18T04:20:00Z",
+  "governing_relation": "P_saved = P_bridge - 450 * R_hot - P_additional",
+
+  "workspace_validation": {
+    "worktree": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan",
+    "pwd_when_run": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan",
+    "git_head": "d2c0263702d6bcc6992d725d3fd9272c428833fb",
+    "expected_source_revision": "d2c0263702d6bcc6992d725d3fd9272c428833fb",
+    "head_matches_dispatch": true,
+    "git_status_short": [
+      " M zapote/power-entry/loss-budget/campaign/registry-additions.json",
+      "?? zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-ACTIVE/"
+    ],
+    "own_worktree_confirmed": true,
+    "other_agents_files_untouched": true,
+    "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-ACTIVE/attempt-001",
+    "output_dir_was_unused_for_this_attempt": true,
+    "pre_existing_file_in_output_dir": "dispatch.json (delivered input, preserved)"
+  },
+
+  "delivered_input_hashes": {
+    "dispatch_json": "not_recomputed_here_used_as_delivered",
+    "contract_C1.1_json": {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json",
+      "expected_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+      "observed_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+      "match": true
+    },
+    "source_bundle_rectifier_note": {
+      "path": "zapote/power-entry/loss-budget/2026-09-17-rectifier-alternative-net-savings.md",
+      "observed_sha256": "2c9339d4ec76b5428fe98add8a8c41de80ceebcc50a545c62927663d8face9e6"
+    },
+    "source_bundle_gbj2510_pdf": {
+      "path": "zapote/power-entry/loss-budget/sources/Diodes-GBJ2510.pdf",
+      "expected_sha256": "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02",
+      "observed_sha256": "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02",
+      "match": true
+    }
+  },
+
+  "envelope": {
+    "bus_v": 400.0,
+    "line_rms_v": 120.0,
+    "input_rms_a": 15.0,
+    "requested_input_power_w": 1796.31003212911,
+    "conducting_devices_in_line_path": 2,
+    "conduction_coefficient_w_per_ohm": 450.0,
+    "conduction_coefficient_basis": "2 devices conduct at every instant, each carrying line current i(t); total instantaneous loss = 2*R*i(t)^2; line-cycle average = 2*R*I_rms^2 = 2*225*R = 450*R. Matches the retained screen's coefficient.",
+    "bridge_drop_w_nominal": 28.3035,
+    "bridge_bracket_w": [23.0, 35.0],
+    "break_even_rds_nominal_ohm": 0.0629,
+    "break_even_rds_bracket_ohm": [0.0511, 0.0778],
+    "break_even_recomputed_with_p_additional_ohm": [0.05110, 0.06289, 0.07777],
+    "source": "dispatch.json envelope + zapote/power-entry/loss-budget/2026-09-17-rectifier-alternative-net-savings.md"
+  },
+
+  "circuit": {
+    "topology": "Four-MOSFET active (synchronous) full-bridge rectifier replacing the four-diode GBJ2510 at the PFC input; the downstream boost-type PFC stage is unchanged.",
+    "controller": {
+      "part": "TEA2209T/1",
+      "manufacturer": "NXP Semiconductors",
+      "package": "SO16 (SOT109-1)",
+      "document": "TEA2209T Active bridge rectifier controller, Product data sheet, Rev. 1.1, 14 April 2021",
+      "controller_role": "Senses mains polarity between pins L and R and drives a diagonal pair of the four rectifier MOSFETs; full-wave drive of all four devices (datasheet feature list, page 2).",
+      "why_this_part": "It is a purpose-built active bridge rectifier controller for exactly this function: full-wave control of all four bridge MOSFETs, integrated HV level shifters, self-supplying from the rectified line, integrated X-capacitor discharge, D-S overvoltage protection and a gate pull-down fail-off state."
+    },
+    "devices_conducting_in_line_path": 2,
+    "conduction_pair": "At any instant one high-side and one low-side MOSFET of the same diagonal pair conduct (2 devices in series with the line); the other two block.",
+    "where_the_drop_is_replaced": "The two conducting diode forward drops of the passive bridge (one upper, one lower) are replaced by the Rds(on) of the two conducting MOSFETs. Body diodes conduct only during polarity handover and at start-up.",
+    "gate_bias": {
+      "value_v": 10.7,
+      "basis": "TEA2209T internally regulated VCC output Vregd: min 10.2, typ 10.7, max 11.2 V (Table 8, page 10). Gate drivers are rail-to-rail MOS outputs (page 5).",
+      "consequence": "Rds(on) specified at VGS = 10 V is at or below the applied gate-source bias, so a 10 V datasheet value is conservative."
+    },
+    "dead_time": {
+      "zero_crossing_comparator_delay_td_ns": [550, 2500],
+      "basis": "Table 8, page 11: td 550/700/1200 ns at dV/dt = 10 V/us and 1200/1500/2500 ns at dV/dt = 0.1 V/us.",
+      "note": "Body diodes carry the line current during this handover window."
+    },
+    "fail_off_state": "Gate pull-down discharges each gate to <2 V when its driver supply is below UVLO; D-S overvoltage protection disables all gate drivers; COMP can disable the drivers; on loss of supply the body diodes revert the bridge to a passive diode bridge (TEA2209T Sections 8.2-8.3, pages 5-7).",
+    "self_supply": "CVCC is charged from the rectified line via pin VR; mains-side dissipation about 1 mW excluding gate charge, gate charge typically adds about 1 mW (page 5)."
+  },
+
+  "candidates": [
+    {
+      "id": "C1_IPW60R017C7",
+      "mpn": "IPW60R017C7",
+      "manufacturer": "Infineon Technologies",
+      "technology": "600 V CoolMOS C7 superjunction",
+      "order_code": "IPW60R017C7",
+      "package": "PG-TO247-3 (TO-247 3-pin, through-hole)",
+      "pinout": "Gate = pin 1, Drain = pin 2 (and tab), Source = pin 3",
+      "kelvin_or_source_sense_pin": false,
+      "source_document": "IPW60R017C7 600V CoolMOS C7 Power Transistor, Final Data Sheet, Rev. 2.0, 2016-03-01",
+      "source_sha256": "2c5a60a28231e7d2457e59b1329740a4711d88815611a0d9c4bdac40c7f9b617",
+      "blocking_vds_class_v": 600,
+      "vds_at_tjmax_key_param_v": 650,
+      "blocking_vs_400v_bus": "PASS; 600 V class gives 1.5x headroom over the 400 V bus. In this circuit the off bridge device blocks the reverse line voltage (about 170 V peak at 120 V RMS), so margin is larger still.",
+      "rds_on": {
+        "test_condition": "VGS = 10 V, ID = 58.2 A",
+        "at_25c": {"typ_ohm": 0.015, "max_ohm": 0.017, "evidence_class": "manufacturer_datasheet_table", "location": "Electrical characteristics table, page 5"},
+        "at_100c": {"typ_ohm": 0.0248, "max_ohm": null, "evidence_class": "manufacturer_datasheet_figure_digitized", "location": "Diagram 8 (RDS(on)=f(Tj); ID=58.2 A; VGS=10 V), page 8", "note": "typ curve; not tabulated"},
+        "at_125c": {"typ_ohm": 0.0293, "max_ohm": null, "evidence_class": "manufacturer_datasheet_figure_digitized", "location": "Diagram 8, page 8", "note": "typ curve; not tabulated. 98% curve reads about 0.0331 ohm"},
+        "at_150c": {"typ_ohm": 0.033, "max_ohm": null, "evidence_class": "manufacturer_datasheet_table", "location": "Electrical characteristics table, page 5", "note": "explicit hot table row: VGS=10V, ID=58.2A, Tj=150C, typ 0.033 ohm; 98% curve on Diagram 8 reads about 0.0388 ohm"}
+      }
+    },
+    {
+      "id": "C2_NVHL040N60S5F",
+      "mpn": "NVHL040N60S5F",
+      "manufacturer": "onsemi (Semiconductor Components Industries)",
+      "technology": "SUPERFET V FRFET (fast-recovery body diode)",
+      "order_code": "NVHL040N60S5F",
+      "package": "TO-247-3L (TO-247 long leads)",
+      "pinout": "G-D-S (Gate, Drain/tab, Source)",
+      "kelvin_or_source_sense_pin": false,
+      "source_document": "NVHL040N60S5F MOSFET - Power, Single N-Channel, SUPERFET V, FRFET, TO247-3L, 600 V, 40 mohm, 59 A, Rev. 1, May 2022, Publication Order Number NVHL040N60S5F/D",
+      "source_sha256": "78c55892d25fe3a2dd320de77e3c62b7d2dd2e8df0183716e2c3f7dc1aee302e",
+      "blocking_vds_class_v": 600,
+      "blocking_vs_400v_bus": "PASS; 600 V class gives 1.5x headroom over the 400 V bus.",
+      "rds_on": {
+        "test_condition": "VGS = 10 V, ID = 29.5 A",
+        "at_25c": {"typ_ohm": 0.032, "max_ohm": 0.040, "evidence_class": "manufacturer_datasheet_table", "location": "ON CHARACTERISTICS table, page 2"},
+        "normalization_figure": {"location": "Figure 8, On-Resistance Variation vs Temperature, page 4", "conditions": "ID = 29.5 A, VGS = 10 V", "read_at_25c": 1.000, "read_at_100c": 1.738, "read_at_125c": 2.065, "read_at_150c": 2.431},
+        "at_100c": {"typ_ohm": 0.0556, "max_ohm": null, "evidence_class": "derived_from_manufacturer_datasheet_figure", "note": "0.032 (25C typ) x 1.738 (Figure 8)"},
+        "at_125c": {"typ_ohm": 0.0661, "max_ohm": null, "evidence_class": "derived_from_manufacturer_datasheet_figure", "note": "0.032 x 2.065"},
+        "at_150c": {"typ_ohm": 0.0778, "max_ohm": null, "evidence_class": "derived_from_manufacturer_datasheet_figure", "note": "0.032 x 2.431"}
+      }
+    },
+    {
+      "id": "C3_STW65N65DM2AG",
+      "mpn": "STW65N65DM2AG",
+      "manufacturer": "STMicroelectronics",
+      "technology": "MDmesh DM2 (fast-recovery body diode), automotive-grade AEC-Q101",
+      "order_code": "STW65N65DM2AG",
+      "package": "TO-247",
+      "pinout": "Gate = pin 1, Drain = tab/pin 2, Source = pin 3",
+      "kelvin_or_source_sense_pin": false,
+      "source_document": "STW65N65DM2AG Automotive-grade N-channel 650 V, 0.042 ohm typ., 60 A Power MOSFET MDmesh DM2 in a TO-247 package, DocID028164 Rev 1, August 2015",
+      "source_sha256": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
+      "source_provenance": "This is the retained board device; its PDF is the campaign source bundle file zapote/power-entry/loss-budget/sources/STW65N65DM2AG.pdf, copied unchanged into raw/STW65N65DM2AG.pdf.",
+      "blocking_vds_class_v": 650,
+      "blocking_vs_400v_bus": "PASS; 650 V class gives 1.63x headroom over the 400 V bus.",
+      "rds_on": {
+        "test_condition": "VGS = 10 V, ID = 30 A",
+        "at_25c": {"typ_ohm": 0.042, "max_ohm": 0.050, "evidence_class": "manufacturer_datasheet_table", "location": "Table 5: Static, page 4"},
+        "normalization_figure": {"location": "Figure 10, Normalized on-resistance vs temperature, page 7", "conditions": "VGS = 10 V", "read_at_25c": 1.000, "read_at_100c": 1.730, "read_at_125c": 2.050, "read_at_150c": 2.350},
+        "at_100c": {"typ_ohm": 0.0727, "max_ohm": null, "evidence_class": "derived_from_manufacturer_datasheet_figure", "note": "0.042 (25C typ) x 1.730 (Figure 10)"},
+        "at_125c": {"typ_ohm": 0.0861, "max_ohm": null, "evidence_class": "derived_from_manufacturer_datasheet_figure", "note": "0.042 x 2.050"},
+        "at_150c": {"typ_ohm": 0.0987, "max_ohm": null, "evidence_class": "derived_from_manufacturer_datasheet_figure", "note": "0.042 x 2.350"}
+      }
+    }
+  ],
+
+  "p_additional": {
+    "definition": "Additional losses introduced by the active circuit beyond the two conducting MOSFETs' conduction loss, plus obligations that cannot be converted to a sourced number.",
+    "terms": [
+      {
+        "term": "controller_supply_and_gate_drive",
+        "value_w": 0.003,
+        "range_w": [0.002, 0.004],
+        "evidence_class": "manufacturer_datasheet_prose",
+        "location": "TEA2209T Section 2.1 (page 2): 'Very low IC power consumption (2 mW)'; Section 8.2 (page 5): mains-side dissipation about 1 mW excluding gate charge, gate charge typically adds about 1 mW",
+        "overlap_note": "The 2 mW IC quiescent figure and the ~1 mW mains-side + ~1 mW gate-charge figures are quoted separately by the same document and may partially overlap; the reported value is the conservative sum order-of-magnitude, not a disjoint decomposition."
+      },
+      {
+        "term": "rail_generation",
+        "value_w": 0.0,
+        "evidence_class": "manufacturer_datasheet_prose",
+        "location": "TEA2209T Section 8.2, page 5 (self-supplying from pin VR; no separate auxiliary rail)",
+        "justification": "Justified zero, not a fill: the controller self-supplies from the rectified line, so there is no separate auxiliary rail whose generation loss must be added."
+      },
+      {
+        "term": "current_sensing",
+        "value_w": 0.0,
+        "evidence_class": "manufacturer_datasheet_prose",
+        "location": "TEA2209T pin description (pins L, R, page 4) and Section 8.2, page 5 (polarity sensed by an internal comparator with +/-250 mV thresholds)",
+        "justification": "Justified zero: the active bridge introduces no new current-sense element. The polarity is sensed on L/R internally; the boost PFC's existing current sense is unchanged and is not attributable to the rectifier change."
+      },
+      {
+        "term": "dead_time_and_body_diode_conduction",
+        "value_w": null,
+        "upper_bound_w": 0.0001,
+        "bound_method": "Per handover the body diode conducts for at most td (<= 2.5 us) about the zero crossing where i(t) = I_pk*sin(wt); energy per crossing ~= V_SD * I_pk * w * td^2 / 2. With I_pk = 21.2 A, w = 377 rad/s, td = 2.5 us, V_SD = 1.6 V this is < 1e-7 J per crossing, i.e. < 1e-4 W over two crossings per 60 Hz line cycle.",
+        "evidence_class": "derived_bound_from_manufacturer_datasheet_conditions",
+        "location": "td from TEA2209T Table 8, page 11; V_SD from candidate datasheets",
+        "note": "Reported as an explicit unknown (value null) with an upper bound, not as zero."
+      },
+      {
+        "term": "startup_inrush_through_body_diodes",
+        "value_w": null,
+        "evidence_class": "unknown",
+        "reason": "Before VCC charges, the bridge operates as a body-diode bridge; the body-diode forward drop and thermal capability under the actual inrush are not characterised and no inrush energy was measured. No bench work permitted."
+      },
+      {
+        "term": "emi_reassessment_obligation",
+        "value_w": null,
+        "evidence_class": "unknown",
+        "reason": "Replacing diode commutation with MOSFET switching at the line zero crossings changes the conducted/radiated EMI and common-mode picture; any added input-filter or snubber components and their loss are not quantified by the captured sources. Recorded as an obligation, not a number."
+      },
+      {
+        "term": "line_commutation_reverse_recovery",
+        "value_w": null,
+        "evidence_class": "unknown",
+        "reason": "The chosen body diode's reverse recovery at polarity handover occurs near zero line current but the peak recovery current and any ringing/snubber loss are device- and layout-dependent. Not quantified. Candidate C1 (C7) has a slow body diode (Qrr typ 18 uC, trr typ 630 ns, VGS=0 V, IF=58.2 A, Tj=25 C, datasheet page 6), which is a selection risk for an active bridge; candidates C2 (FRFET) and C3 (DM2) have fast body diodes."
+      },
+      {
+        "term": "thermal_path_change",
+        "value_w": null,
+        "evidence_class": "out_of_scope",
+        "reason": "Four TO-247 devices replace one GBJ2510 package; the assembly heat path and junction temperature are not modelled here and are the subject of the GBJ/thermal work, not this task."
+      }
+    ],
+    "sourced_sum_w": 0.003,
+    "sourced_sum_basis": "controller + gate drive only; all other terms are explicit unknowns or justified zeros.",
+    "note": "No term is zero-filled beyond the two justified zeros above. Any un-sourced EMI/snubber/filter loss would reduce P_saved."
+  },
+
+  "break_even": {
+    "pre_additional_per_device_ohm": {"at_23w": 0.05111, "at_28_3035w": 0.06290, "at_35w": 0.07778},
+    "note": "Per-device hot Rds(on) that makes P_saved = 0 before P_additional. P_additional > 0 lowers these only in the 4th-5th significant figure at 3 mW.",
+    "criterion_used": "A candidate 'beats the 51-78 mOhm pre-additional break-even' when its hot per-device Rds(on) is below 51.1 mOhm (wins across the whole bracket); it is 'inside the band' when between 51.1 and 77.8 mOhm (wins only at the high-bridge-loss end)."
+  },
+
+  "p_saved_table": {
+    "formula": "P_saved = P_bridge - 450 * R_hot - 0.003",
+    "note_on_R_basis": "R_hot is the per-device value; typical values are used throughout (see candidates). No guaranteed maximum hot Rds(on) is published for any candidate.",
+    "rows": [
+      {"candidate": "C1_IPW60R017C7", "tj_c": 25,  "r_hot_ohm": 0.0150, "conduction_delta_w": 6.750,  "p_saved_low_w": 16.247, "p_saved_nominal_w": 21.550, "p_saved_high_w": 28.247},
+      {"candidate": "C1_IPW60R017C7", "tj_c": 100, "r_hot_ohm": 0.0248, "conduction_delta_w": 11.160, "p_saved_low_w": 11.837, "p_saved_nominal_w": 17.140, "p_saved_high_w": 23.837},
+      {"candidate": "C1_IPW60R017C7", "tj_c": 125, "r_hot_ohm": 0.0293, "conduction_delta_w": 13.185, "p_saved_low_w": 9.812,  "p_saved_nominal_w": 15.115, "p_saved_high_w": 21.812},
+      {"candidate": "C1_IPW60R017C7", "tj_c": 150, "r_hot_ohm": 0.0330, "conduction_delta_w": 14.850, "p_saved_low_w": 8.147,  "p_saved_nominal_w": 13.450, "p_saved_high_w": 20.147},
+      {"candidate": "C2_NVHL040N60S5F", "tj_c": 25,  "r_hot_ohm": 0.0320, "conduction_delta_w": 14.400, "p_saved_low_w": 8.597,  "p_saved_nominal_w": 13.900, "p_saved_high_w": 20.597},
+      {"candidate": "C2_NVHL040N60S5F", "tj_c": 100, "r_hot_ohm": 0.0556, "conduction_delta_w": 25.027, "p_saved_low_w": -2.030, "p_saved_nominal_w": 3.273,  "p_saved_high_w": 9.970},
+      {"candidate": "C2_NVHL040N60S5F", "tj_c": 125, "r_hot_ohm": 0.0661, "conduction_delta_w": 29.736, "p_saved_low_w": -6.739, "p_saved_nominal_w": -1.436, "p_saved_high_w": 5.261},
+      {"candidate": "C2_NVHL040N60S5F", "tj_c": 150, "r_hot_ohm": 0.0778, "conduction_delta_w": 35.006, "p_saved_low_w": -12.009,"p_saved_nominal_w": -6.706, "p_saved_high_w": -0.009},
+      {"candidate": "C3_STW65N65DM2AG", "tj_c": 25,  "r_hot_ohm": 0.0420, "conduction_delta_w": 18.900, "p_saved_low_w": 4.097,  "p_saved_nominal_w": 9.400,  "p_saved_high_w": 16.097},
+      {"candidate": "C3_STW65N65DM2AG", "tj_c": 100, "r_hot_ohm": 0.0727, "conduction_delta_w": 32.697, "p_saved_low_w": -9.700, "p_saved_nominal_w": -4.397, "p_saved_high_w": 2.300},
+      {"candidate": "C3_STW65N65DM2AG", "tj_c": 125, "r_hot_ohm": 0.0861, "conduction_delta_w": 38.745, "p_saved_low_w": -15.748,"p_saved_nominal_w": -10.444,"p_saved_high_w": -3.748},
+      {"candidate": "C3_STW65N65DM2AG", "tj_c": 150, "r_hot_ohm": 0.0987, "conduction_delta_w": 44.415, "p_saved_low_w": -21.418,"p_saved_nominal_w": -16.115,"p_saved_high_w": -9.418}
+    ]
+  },
+
+  "digitization_method": {
+    "applicable_to": ["C1 Diagram 8 (page 8)", "C2 Figure 8 (page 4)", "C3 Figure 10 (page 7)"],
+    "method": "Pages rendered from the captured PDFs with pdftoppm at 200 dpi; plot gridlines detected from pixel row/column darkness profiles to establish the pixel-to-value calibration; at a target temperature the curve was read from a 3-pixel column window. Calibration anchors were the manufacturer's own labelled gridlines and, for C1, the 25 C and 150 C table rows (digitized 0.0154 and 0.0343 vs table 0.015 and 0.033).",
+    "uncertainty": "about +/-0.05 in the normalized factor, and about +/-0.001 ohm for the C1 absolute-ohm curve; the C2 and C3 curves are normalized and read 1.000 at 25 C, confirming calibration.",
+    "no_extrapolation": "Values are read only within the plotted temperature range; no value outside the manufacturer's plotted domain was used."
+  },
+
+  "source_failures": "see raw/capture_failures.json",
+
+  "unknowns_list": [
+    "real operating junction temperature of the bridge MOSFETs under the actual thermal path (unknown; this task assumed the datasheet evaluation temperatures 100/125/150 C)",
+    "guaranteed maximum hot Rds(on) for any candidate (no manufacturer publishes a hot maximum; only typical curves or a typical hot table value)",
+    "P_additional beyond the ~3 mW controller/gate term: line-commutation reverse recovery, EMI re-qualification and any added filter/snubber loss, start-up inrush body-diode loss",
+    "the real passive bridge drop P_bridge remains the retained 0.85/1.30 V band (23-35 W), not a measurement"
+  ]
+}

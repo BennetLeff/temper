@@ -1,0 +1,85 @@
+{
+  "schema": "pfc-campaign-artifact-manifest/v1",
+  "task_id": "AR-ACTIVE",
+  "attempt_id": "attempt-001",
+  "generated_utc": "2026-09-18T04:20:00Z",
+  "algorithm": "sha256",
+  "excludes": [
+    "manifest.json"
+  ],
+  "not_produced_by_this_attempt": [
+    "dispatch.json (coordinator-delivered input, preserved)"
+  ],
+  "files": [
+    {
+      "path": "REPORT.md",
+      "sha256": "7c4e9ca830810bddea957a4206fdd8b648bae3df6dabf3d896404058a076460d",
+      "bytes": 8713
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "0946d7a92e635506840bc82d8326bc54223a5038ac2f69d811717d991874e3bd",
+      "bytes": 20343
+    },
+    {
+      "path": "raw/Infineon-IPW60R017C7.pdf",
+      "sha256": "2c5a60a28231e7d2457e59b1329740a4711d88815611a0d9c4bdac40c7f9b617",
+      "bytes": 1244896
+    },
+    {
+      "path": "raw/Infineon-IPW60R017C7.txt",
+      "sha256": "e548d89fe59c3f480ab269d171fb1118a5a28f306cfe5f110fa904869cb502d5",
+      "bytes": 38889
+    },
+    {
+      "path": "raw/STW65N65DM2AG.pdf",
+      "sha256": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
+      "bytes": 399076
+    },
+    {
+      "path": "raw/STW65N65DM2AG.txt",
+      "sha256": "a0a03c7fa9ea327e2e2670f8956acbd85f53a23d8ba87a2ee827cb1139db8819",
+      "bytes": 20547
+    },
+    {
+      "path": "raw/TEA2209T.pdf",
+      "sha256": "fb611299c890a0dcaf7d610ed3fe742a3ab8debf21a75b540b8cede2e7badc99",
+      "bytes": 289633
+    },
+    {
+      "path": "raw/TEA2209T.txt",
+      "sha256": "3a3ccfd8d99645e236337427f73c79758e00b35be267bc47d139478c447002c6",
+      "bytes": 86368
+    },
+    {
+      "path": "raw/capture_failures.json",
+      "sha256": "f0cac586efc07ca4c785e0898c0a71a18a3bc7a4188ee4815b0f0f56b5a3a834",
+      "bytes": 1464
+    },
+    {
+      "path": "raw/figures/infineon-p8-08.png",
+      "sha256": "38eaa709d4a52f1ca8e58ee8b637830499832259b3f61945b566416ce6cc76db",
+      "bytes": 282485
+    },
+    {
+      "path": "raw/figures/onsemi-p4-4.png",
+      "sha256": "a578f280263b33ca0dff8f723276c1e46dbc94915cfc5b2731c8b0127a7f83c6",
+      "bytes": 244014
+    },
+    {
+      "path": "raw/onsemi-NVHL040N60S5F.pdf",
+      "sha256": "78c55892d25fe3a2dd320de77e3c62b7d2dd2e8df0183716e2c3f7dc1aee302e",
+      "bytes": 358451
+    },
+    {
+      "path": "raw/onsemi-NVHL040N60S5F.txt",
+      "sha256": "7fa855102286cad74ba942b3a3f2f36770b85f06af90549bdcbe6b0fd962512f",
+      "bytes": 38967
+    },
+    {
+      "path": "result.json",
+      "sha256": "96f3b2d043241e6bde29258774d904c435869e7d0850357282f7c0e76d504188",
+      "bytes": 5318
+    }
+  ]
+}

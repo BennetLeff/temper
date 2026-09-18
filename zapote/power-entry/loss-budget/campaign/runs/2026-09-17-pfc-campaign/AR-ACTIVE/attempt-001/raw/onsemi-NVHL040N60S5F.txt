@@ -1,0 +1,560 @@
+                                                                                                                           DATA SHEET
+                                                                                                                      www.onsemi.com
+
+
+MOSFET - Power, Single                                                                   VDSS               RDS(ON) MAX         ID MAX
+
+N-Channel, SUPERFET) V,                                                                  600 V              40 mW @ 10 V         59 A
+
+FRFET), TO247-3L
+                                                                                                                  D
+600 V, 40 mW, 59 A
+
+NVHL040N60S5F
+                                                                                                G
+Description
+  The SUPERFET V MOSFET FRFET series has optimized body
+diode performance characteristics. This can allow for the removal of                                              S
+components in the application and improve application performance                                       POWER MOSFET
+and reliability, particularly when soft switching topologies are used.
+
+Features
+• 650 V @ TJ = 150°C / Typ. RDS(on) = 32 mW
+• 100% Avalanche Tested
+• Pb−Free, Halogen Free/BFR Free and are RoHS Compliant
+Applications                                                                                        G
+                                                                                                        D
+• Electric Vehicle On Board Chargers                                                                        S
+• EV Main Battery DC/DC Converters                                                                      TO−247 Long Leads
+                                                                                                           CASE 340CX
+ABSOLUTE MAXIMUM RATINGS (TJ = 25°C, Unless otherwise noted)
+                    Parameter                          Symbol     Value        Unit
+ Drain−to−Source Voltage                                VDSS       600          V
+                                                                                                    MARKING DIAGRAM
+ Gate−to−Source Voltage                      DC         VGSS       ±30          V
+                                       AC (f > 1 Hz)               ±30
+ Continuous Drain Current               TC = 25°C         ID       59           A
+                                        TC = 100°C                 37
+                                                                                                                 V040N
+ Power Dissipation                      TC = 25°C        PD        347          W                                60S5F
+                                                                                                                AYWWZZ
+ Pulsed Drain Current (Note 1)          TC = 25°C        IDM       209          A
+ Pulsed Source Current                  TC = 25°C        ISM       209          A
+ (Body Diode) (Note 1)
+ Operating Junction and Storage Temperature            TJ, TSTG   −55 to       °C
+ Range                                                            +150                   V040N60S5F         = Specific Device Code
+ Source Current (Body Diode)                              IS       59           A        A                  = Assembly Location
+                                                                                         YWW                = Date Code (Year & Week)
+ Single Pulse Avalanche                 IL = 8.3 A,      EAS       574         mJ        ZZ                 = Assembly Lot
+ Energy                                 RG = 25 W
+ Avalanche Current                                       IAS       8.3          A
+ Repetitive Avalanche Energy (Note 1)                    EAR      3.47         mJ               ORDERING INFORMATION
+ MOSFET dv/dt                                           dv/dt      120         V/ns
+                                                                                          Device                 Package      Shipping
+ Peak Diode Recovery dv/dt (Note 2)                                70
+                                                                                      NVHL040N60S5F              TO−247     30 Units / Tube
+ Lead Temperature for Soldering Purposes                 TL        260         °C
+ (1/8″ from case for 10 seconds)
+Stresses exceeding those listed in the Maximum Ratings table may damage the
+device. If any of these limits are exceeded, device functionality should not be
+assumed, damage may occur and reliability may be affected.
+1. Repetitive rating: pulse−width limited by maximum junction temperature.
+2. ISD ≤ 29.5 A, di/dt ≤ 200 A/ms, VDD ≤ 400 V, starting TJ = 25°C.
+
+
+
+
+© Semiconductor Components Industries, LLC, 2020                           1                                      Publication Order Number:
+May, 2022 − Rev. 1                                                                                                      NVHL040N60S5F/D
+                                                         NVHL040N60S5F
+
+THERMAL CHARACTERISTICS
+                                   Parameter                                           Symbol                   Value                Unit
+ Thermal Resistance, Junction−to−Case, Max.                                              RqJC                    0.36                °C/W
+ Thermal Resistance, Junction−to−Ambient, Max.                                           RqJA                     40
+
+
+ELECTRICAL CHARACTERISTICS (TJ = 25°C unless otherwise noted)
+              Parameter                      Symbol                   Test Conditions                  Min       Typ       Max       Unit
+OFF CHARACTERISTICS
+ Drain−to−Source Breakdown Voltage           V(BR)DSS         VGS = 0 V, ID = 1 mA, TJ = 25_C          600        −          −         V
+ Drain−to−Source Breakdown Voltage          DV(BR)DSS/        ID = 10 mA, Referenced to 25_C            −        630         −      mV/_C
+ Temperature Coefficient                       DTJ
+ Zero Gate Voltage Drain Current               IDSS          VGS = 0 V, VDS = 600 V, TJ = 25_C          −         −         10        mA
+ Gate−to−Source Leakage Current                IGSS                VGS = ±30 V, VDS = 0 V               −         −        ±100       nA
+ON CHARACTERISTICS
+ Drain−to−Source On Resistance               RDS(on)         VGS = 10 V, ID = 29.5 A, TJ = 25_C         −         32        40        mW
+ Gate Threshold Voltage                       VGS(th)        VGS = VDS, ID = 7.2 mA, TJ = 25_C         3.2        −         4.8        V
+ Forward Trans−conductance                     gFS                 VDS = 20 V, ID = 29.5 A              −        59.5        −         S
+CHARGES, CAPACITANCES & GATE RESISTANCE
+ Input Capacitance                             CISS         VDS = 400 V, VGS = 0 V, f = 250 kHz         −       6318         −        pF
+ Output Capacitance                           COSS                                                      −        98.9        −
+ Time Related Output Capacitance             COSS(tr.)       ID = Constant, VDS = 0 V to 400 V,         −       1478         −
+                                                                        VGS = 0 V
+
+ Energy Related Output Capacitance           COSS(er.)         VDS = 0 V to 400 V, VGS = 0 V            −        170         −
+ Total Gate Charge                            QG(tot)       VDD = 400 V, ID = 29.5 A, VGS = 10 V        −        115         −        nC
+ Gate−to−Source Charge                         QGS                                                      −        35.9        −
+ Gate−to−Drain Charge                          QGD                                                      −        32.7        −
+ Gate Resistance                                RG                        f = 1 MHz                     −        4.5         −         W
+SWITCHING CHARACTERISTICS
+ Turn-On Delay Time                            td(on)            VGS = 0/10 V, VDD = 400 V,             −        49.6        −        ns
+                                                                  ID = 29.5 A, RG = 2.2 W
+ Rise Time                                       tr                                                     −        85.9        −
+ Turn-Off Delay Time                           td(off)                                                  −        110         −
+ Fall Time                                       tf                                                     −        2.5         −
+SOURCE-TO−DRAIN DIODE CHARACTERISTICS
+ Forward Diode Voltage                         VSD           VGS = 0 V, ISD = 29.5 A, TJ = 25_C         −         −         1.2        V
+ Reverse Recovery Time                          tRR                VGS = 0 V, ISD = 29.5 A,             −        140         −        ns
+                                                                dI/dt = 100 A/ms, VDD = 400 V
+ Reverse Recovery Charge                       QRR                                                      −        917         −        nC
+Product parametric performance is indicated in the Electrical Characteristics for the listed test conditions, unless otherwise noted. Product
+performance may not be indicated by the Electrical Characteristics if operated under different conditions.
+
+
+
+
+                                                           www.onsemi.com
+                                                                     2
+                                                                                                           NVHL040N60S5F
+
+                                                                                                    TYPICAL CHARACTERISTICS
+
+
+                                             120                                                                                                              1000
+                                                       TJ=25°C                                                                                                                   VDS=20V
+
+                                             100
+ID, DRAIN CURRENT (A)
+
+
+
+
+                                                                                                                        ID, DRAIN CURRENT (A)
+                                             80                                                                                                                        100
+
+
+                                             60
+
+
+                                             40                                                 VGS=4.5V                                                               10
+                                                                                                 VGS=5V
+                                                                                                VGS=5.5V
+                                             20                                                  VGS=6V                                                                                                                 TJ=−55°C
+                                                                                                 VGS=7V                                                                                                                  TJ=25°C
+                                                                                                VGS=10V                                                                                                                 TJ=150°C
+                                              0                                                                                                                         1
+                                                   0                     5           10             15           20                                                          3                4           5               6          7
+
+                                                                VDS, DRAIN−TO−SOURCE VOLTAGE (V)                                                                                       VGS, GATE−TO−SOURCE VOLTAGE (V)
+                                                               Figure 1. On−Region Characteristics                                                                                        Figure 2. Transfer Characteristics
+RDS(on), DRAIN−TO−SOURCE ON−RESISTANCE (W)
+
+
+
+
+                                             0.08                                                                                                              1000
+                                                           TJ=25°C                                                                                                               VGS=0V
+                                             0.07                                                                                  IS, SOURCE CURRENT (A)
+
+                                             0.06                                                                                                                      100
+
+                                             0.05
+
+                                             0.04                                                                                                                       10
+
+                                             0.03
+
+                                             0.02                                                                                                                        1
+
+                                             0.01                                                                                                                                                                       TJ=150°C
+                                                                                                    VGS=10V                                                                                                              TJ=25°C
+                                                                                                    VGS=20V                                                                                                             TJ=−55°C
+                                                   0                                                                                                                   0.1
+                                                       0           20          40      60     80         100      120                                                        0         0.2        0.4    0.6      0.8         1     1.2
+                                                                             ID, DRAIN CURRENT (A)                                                                                        VSD, DIODE FORWARD VOLTAGE (V)
+                                                           Figure 3. On−Resistance Variation vs. Drain                                                                            Figure 4. Diode Forward Voltage vs. Source
+                                                                     Current and Gate Voltage                                                                                                       Current
+
+                                              105                                                                                                                      10
+                                                                                                                                     VGS, GATE−TO−SOURCE VOLTAGE (V)
+
+
+
+
+                                                  VGS=0V                                                                                                                         ID=29.5A
+                                                  TJ=25°C
+                                                  f=250KHz
+                                              104
+                                                                                                                                                                        8
+CAPACITANCE (pF)
+
+
+
+
+                                              103
+                                                                                                                                                                        6
+                                              102
+                                                                                                                                                                        4
+                                              101
+
+                                                                                                                                                                        2
+                                              100           CISS                                                                                                                                                    VDD=120V
+                                                           COSS                                                                                                                                                     VDD=360V
+                                                           CRSS                                                                                                                                                     VDD=400V
+                                             10−1                                                                                                                       0
+                                                       0           100        200     300     400        500      600                                                        0          20        40      60      80          100   120
+                                                                VDS, DRAIN−TO−SOURCE VOLTAGE (V)                                                                                             QG, TOTAL GATE CHARGE (nC)
+                                                              Figure 5. Capacitance Characteristics                                                                                  Figure 6. Gate Charge Characteristics
+
+
+
+
+                                                                                                              www.onsemi.com
+                                                                                                                        3
+                                                                                              NVHL040N60S5F
+
+                                                                                       TYPICAL CHARACTERISTICS
+
+
+                                  1.2                                                                                                         3
+                                             VGS=0V                                                                                                ID=29.5A
+BREAKDOWN VOLTAGE (Normalized)
+
+
+                                             ID=10mA                                                                                               VGS=10V
+                                 1.15
+
+
+
+
+                                                                                                                ON−RESISTANCE (Normalized)
+                                                                                                                RDS(on), DRAIN−TO−SOURCE
+   BVDSS, DRAIN−TO−SOURCE
+
+
+
+
+                                                                                                                                             2.5
+                                  1.1
+                                                                                                                                              2
+                                 1.05
+
+                                     1                                                                                                       1.5
+
+                                 0.95
+                                                                                                                                              1
+                                  0.9
+                                                                                                                                             0.5
+                                 0.85
+
+                                  0.8                                                                                                         0
+                                     −75        −50     −25    0    25     50   75     100   125    150    175                                 −75    −50     −25    0    25   50   75    100   125 150 175
+
+                                                      TJ, JUNCTION TEMPERATURE (°C)                                                                           TJ, JUNCTION TEMPERATURE (°C)
+                                              Figure 7. Breakdown Voltage Variation vs.                                                                Figure 8. On−Resistance Variation vs.
+                                                            Temperature                                                                                            Temperature
+                                                                                                                                             60
+                        1000
+
+                                                                                                                                             50
+ID, DRAIN CURRENT (A)
+
+
+
+
+                                                                                                                     ID, DRAIN CURRENT (A)
+
+
+                            100                                                               10 ms
+                                                                                                                                             40
+                                                                                             100 ms
+                                 10                                                                                                          30
+                                                                                               1 ms
+                                               Operation in this Area
+                                               is Limited by RDS(on)                         10 ms                                           20
+
+                                  1
+                                              TC = 25°C                                                                                      10
+                                                                                                   DC
+                                              TJ = 150°C
+                                              Single Pulse
+                                 0.1                                                                                                          0
+                                         1                     10                    100                  1000                                 25             50          75        100         125     150
+
+                                                 VDS, DRAIN−TO−SOURCE VOLTAGE (V)                                                                                  TC, CASE TEMPERATURE (°C)
+                                               Figure 9. Maximum Safe Operating Area                                                                 Figure 10. Maximum Drain Current vs. Case
+                                                                                                                                                                    Temperature
+
+                             25
+                                         VGS=0V
+                                         TJ=25°C
+                                         f=250KHz
+                             20
+
+
+                             15
+EOSS (mJ)
+
+
+
+
+                             10
+
+
+                                 5
+
+
+                                                                                           EOSS
+                                 0
+                                     0            100         200        300     400         500          600
+                                                 VDS, DRAIN−TO−SOURCE VOLTAGE (V)
+                                             Figure 11. EOSS vs. Drain−to−Source Voltage
+
+
+
+
+                                                                                                   www.onsemi.com
+                                                                                                                4
+                                                                        NVHL040N60S5F
+
+                                                                    TYPICAL CHARACTERISTICS
+
+
+                                 1
+ZqJC(t), EFFECTIVE TRANSIENT
+ THERMAL IMPEDANCE (°C/W)
+
+
+
+
+                                       D = 0.5
+
+                                0.1    D = 0.2
+                                       D = 0.1
+                                       D = 0.05
+                                                             D = 0.02
+                                                          D = 0.01                                      Notes:
+                               0.01                                                                     ZqJC(t) = 0.36°C/W Max
+                                       Single Pulse                                                     Duty Cycle, D = t1/t2
+                                                                                                        TJM = PDM x ZqJC(t) + TC
+
+                          0.001
+                                      0.00001         0.0001              0.001               0.01            0.1                  1
+                                                                  t, RECTANGULAR PULSE DURATION (s)
+                                                               Figure 12. Transient Thermal Impedance
+
+
+
+
+                                                                          www.onsemi.com
+                                                                                  5
+                                                      NVHL040N60S5F
+
+
+                                                             VGS
+                                         RL                                        Qg
+
+
+                                                       VDD           Qgs           Qgd
+                         VGS
+
+
+
+                                          DUT
+      IG = Const.
+
+
+                                                                                    Charge
+
+                                       Figure 13. Gate Charge Test Circuit & Waveform
+
+
+
+
+                                                 RL                 VDS
+                                 VDS                                        90%                    90%                  90%
+
+                          VGS                         VDD
+                    RG
+
+                                                                          10%                          10%
+                                              DUT                   VGS
+VGS
+                                                                                         tr                       tf
+                                                                          td(on)                    td(off)
+
+                                                                                    ton                        toff
+
+                                Figure 14. Resistive Switching Test Circuit & Waveforms
+
+
+
+
+                                                L
+                                                                                        E AS + 1 @ LI AS
+                                                                                                           2
+                                VDS                                                            2
+
+                                                                    BVDSS
+                                 ID
+                                                                          IAS
+
+                    RG
+                                                              VDD                              ID(t)
+
+                                           DUT                        VDD
+VGS                                                                                                                       VDS(t)
+
+        tp
+                                                                                                                       Time
+                                                                                                  tp
+
+                         Figure 15. Unclamped Inductive Switching Test Circuit & Waveforms
+
+
+
+
+                                                      www.onsemi.com
+                                                               6
+                                                             NVHL040N60S5F
+
+
+                                                                 +
+                                             DUT
+
+                                                                VSD
+
+
+                                                                 −
+
+
+                                                   ISD
+                                                                                   L
+
+
+
+                                             Driver
+                                      RG
+                                                              Same Type
+                                                              as DUT
+                                                                                                                  VDD
+
+                             VGS
+                                                               − dv/dt controlled by RG
+                                                               − ISD controlled by pulse period
+
+
+
+
+                                                         Gate Pulse Width
+                                                   D+
+                                                         Gate Pulse Period
+                    VGS
+                                                                                                               10 V
+                 (Driver)
+
+
+
+
+                                                  IFM, Body Diode Forward Current
+
+                    ISD                                                                             di/dt
+                  (DUT)
+
+                                                                                IRM
+
+                                                                        Body Diode Reverse Current
+
+
+                                                                Body Diode Recovery dv/dt
+
+
+                    VDS
+                                                                     VSD                                       VDD
+                  (DUT)
+
+
+
+                                                              Body Diode
+                                                          Forward Voltage Drop
+
+
+                                Figure 16. Peak Diode Recovery dv/dt Test Circuit & Waveforms
+
+
+
+
+SUPERFET and FRFET are a registered trademarks of Semiconductor Components Industries, LLC or its subsidiaries in the United States and/or other
+countries.
+
+
+                                                              www.onsemi.com
+                                                                           7
+                                                                                                                   MECHANICAL CASE OUTLINE
+                                                                                                                                                   PACKAGE DIMENSIONS
+
+
+
+                                                                                    TO−247−3LD
+                                                                                    CASE 340CX
+                                                                                      ISSUE A
+                                                                                                                                                                 DATE 06 JUL 2020
+
+
+
+
+                            GENERIC
+                        MARKING DIAGRAM*
+
+                                                                  XXXXX = Specific Device Code
+                                                                  A     = Assembly Location
+                                                                  Y     = Year
+                                                                  WW    = Work Week
+                                XXXXXXXXX                         G     = Pb−Free Package
+                                  AYWWG
+                                                               *This information is generic. Please refer to
+                                                                device data sheet for actual part marking.
+                                                                Pb−Free indicator, “G” or microdot “ G”, may
+                                                                or may not be present. Some products may
+                                                                not follow the Generic Marking.
+
+
+                                                                                         Electronic versions are uncontrolled except when accessed directly from the Document Repository.
+ DOCUMENT NUMBER:                          98AON93302G                                   Printed versions are uncontrolled except when stamped “CONTROLLED COPY” in red.
+
+             DESCRIPTION:                  TO−247−3LD                                                                                                                  PAGE 1 OF 1
+
+ onsemi and               are trademarks of Semiconductor Components Industries, LLC dba onsemi or its subsidiaries in the United States and/or other countries. onsemi reserves
+ the right to make changes without further notice to any products herein. onsemi makes no warranty, representation or guarantee regarding the suitability of its products for any particular
+ purpose, nor does onsemi assume any liability arising out of the application or use of any product or circuit, and specifically disclaims any and all liability, including without limitation
+ special, consequential or incidental damages. onsemi does not convey any license under its patent rights nor the rights of others.
+
+
+© Semiconductor Components Industries, LLC, 2018                                                                                                                       www.onsemi.com
+ onsemi,                , and other names, marks, and brands are registered and/or common law trademarks of Semiconductor Components Industries, LLC dba “onsemi” or its affiliates
+ and/or subsidiaries in the United States and/or other countries. onsemi owns the rights to a number of patents, trademarks, copyrights, trade secrets, and other intellectual property.
+ A listing of onsemi’s product/patent coverage may be accessed at www.onsemi.com/site/pdf/Patent−Marking.pdf. onsemi reserves the right to make changes at any time to any
+ products or information herein, without notice. The information herein is provided “as−is” and onsemi makes no warranty, representation or guarantee regarding the accuracy of the
+ information, product features, availability, functionality, or suitability of its products for any particular purpose, nor does onsemi assume any liability arising out of the application or use
+ of any product or circuit, and specifically disclaims any and all liability, including without limitation special, consequential or incidental damages. Buyer is responsible for its products
+ and applications using onsemi products, including compliance with all laws, regulations and safety requirements or standards, regardless of any support or applications information
+ provided by onsemi. “Typical” parameters which may be provided in onsemi data sheets and/or specifications can and do vary in different applications and actual performance may
+ vary over time. All operating parameters, including “Typicals” must be validated for each customer application by customer’s technical experts. onsemi does not convey any license
+ under any of its intellectual property rights nor the rights of others. onsemi products are not designed, intended, or authorized for use as a critical component in life support systems
+ or any FDA Class 3 medical devices or medical devices with a same or similar classification in a foreign jurisdiction or any devices intended for implantation in the human body. Should
+ Buyer purchase or use onsemi products for any such unintended or unauthorized application, Buyer shall indemnify and hold onsemi and its officers, employees, subsidiaries, affiliates,
+ and distributors harmless against all claims, costs, damages, and expenses, and reasonable attorney fees arising out of, directly or indirectly, any claim of personal injury or death
+ associated with such unintended or unauthorized use, even if such claim alleges that onsemi was negligent regarding the design or manufacture of the part. onsemi is an Equal
+ Opportunity/Affirmative Action Employer. This literature is subject to all applicable copyright laws and is not for resale in any manner.
+
+
+ADDITIONAL INFORMATION
+    TECHNICAL PUBLICATIONS:                                                                               ONLINE SUPPORT: www.onsemi.com/support
+    Technical Library: www.onsemi.com/design/resources/technical−documentation                            For additional information, please contact your local Sales Representative at
+    onsemi Website: www.onsemi.com                                                                        www.onsemi.com/support/sales
+
+
+
+
+

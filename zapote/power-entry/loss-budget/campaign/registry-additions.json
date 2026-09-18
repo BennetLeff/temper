@@ -43,6 +43,17 @@
       "reason": "Follow-up to N-DPT: the retained board device is the largest claimed lever and its vendor model was the only capture that failed.",
       "hypothesis_or_question": "What does an independent vendor model give for the RETAINED BOARD DEVICE STW65N65DM2AG's switching energy at the C1 operating point, and does it confirm the analytic model's claim that the board part costs roughly twice the C7?",
       "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "AR-ACTIVE",
+      "kind": "source_then_numerical",
+      "wave": 2,
+      "depends_on": [
+        "L-BRIDGE / bridge screening"
+      ],
+      "reason": "Coordinator-issued: the screen cannot say whether an active-rectifier opportunity exists because no concrete circuit or device has been specified.",
+      "hypothesis_or_question": "Is there a worthwhile active-rectifier opportunity? Choose one concrete circuit and exact devices, get their applicable hot Rds(on), quantify the added losses, and compare across the bridge bracket.",
+      "worker_status": "DISPATCHED_attempt-001"
     }
   ]
 }

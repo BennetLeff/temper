@@ -1,0 +1,373 @@
+                                                                     STW65N65DM2AG
+
+                 Automotive-grade N-channel 650 V, 0.042 Ω typ., 60 A
+                Power MOSFET MDmesh™ DM2 in a TO-247 package
+                                                                                      Datasheet - production data
+
+
+
+                                                           Features
+                                                                                         RDS(on)
+                                                               Order code      VDS                  ID       PTOT
+                                                                                         max.
+                                                           STW65N65DM2AG      650 V      0.05 Ω    60 A    446 W
+
+
+                                                           •    Designed for automotive applications and
+                                          3                     AEC-Q101 qualified
+                                      2                    •    Fast-recovery body diode
+                                  1
+                                                           •    Extremely low gate charge and input
+                                                                capacitance
+                         TO-247                            •    Low on-resistance
+                                                           •    100% avalanche tested
+                                                           •    Extremely high dv/dt ruggedness
+       Figure 1: Internal schematic diagram                •    Zener-protected
+
+                                                           Applications
+                                                           •    Switching applications
+
+                                                           Description
+                                                           This high voltage N-channel Power MOSFET is
+                                                           part of the MDmesh™ DM2 fast recovery diode
+                                                           series. It offers very low recovery charge (Qrr)
+                                                           and time (trr) combined with low RDS(on), rendering
+                                                           it suitable for the most demanding high efficiency
+                                                           converters and ideal for bridge topologies and
+                                                           ZVS phase-shift converters.
+
+
+                                              Table 1: Device summary
+              Order code                             Marking                Package                Packing
+          STW65N65DM2AG                            65N65DM2                 TO-247                  Tube
+
+
+
+
+August 2015                                    DocID028164 Rev 1                                             1/12
+This is information on a product in full production.                                                  www.st.com
+Contents                                                                                  STW65N65DM2AG
+Contents
+1      Electrical ratings ............................................................................. 3
+2      Electrical characteristics ................................................................ 4
+            2.1       Electrical characteristics (curves) ...................................................... 6
+3      Test circuits ..................................................................................... 8
+4      Package information ....................................................................... 9
+            4.1       TO-247 package information ............................................................. 9
+5      Revision history ............................................................................ 11
+
+
+
+
+2/12                                       DocID028164 Rev 1
+STW65N65DM2AG                                                                           Electrical ratings
+
+
+1       Electrical ratings
+                                                Table 2: Absolute maximum ratings
+               Symbol                                       Parameter                   Value      Unit
+                 VGS           Gate-source voltage                                       ±25         V
+                               Drain current (continuous) at Tcase = 25 °C               60
+                  ID                                                                                 A
+                               Drain current (continuous) at Tcase = 100 °C              38
+                    (1)
+                IDM            Drain current (pulsed)                                    240         A
+                 PTOT          Total dissipation at Tcase = 25 °C                        446        W
+                        (2)
+               dv/dt           Peak diode recovery voltage slope                         50
+                        (3)
+                                                                                                   V/ns
+               dv/dt           MOSFET dv/dt ruggedness                                   50
+                 Tstg          Storage temperature
+                                                                                      -55 to 150    °C
+                  Tj           Operating junction temperature
+
+        Notes:
+        (1)
+              Pulse width is limited by safe operating area.
+        (2)
+              ISD ≤ 60 A, di/dt=800 A/μs; VDS peak < V(BR)DSS, VDD = 80% V(BR)DSS.
+        (3)
+              VDS ≤ 520 V.
+
+
+                                                           Table 3: Thermal data
+               Symbol                                       Parameter                   Value      Unit
+               Rthj-case       Thermal resistance junction-case                         0.28
+                                                                                                   °C/W
+               Rthj-amb        Thermal resistance junction-ambient                       50
+
+
+                                                 Table 4: Avalanche characteristics
+               Symbol                                       Parameter                   Value      Unit
+                  IAR          Avalanche current, repetitive or not repetitive            8          A
+                   (1)
+                EAS            Single pulse avalanche energy                            1100        mJ
+
+        Notes:
+        (1)
+              starting Tj = 25 °C, ID = IAR, VDD = 50 V.
+
+
+
+
+                                                 DocID028164 Rev 1                                   3/12
+Electrical characteristics                                                                                 STW65N65DM2AG
+
+
+2           Electrical characteristics
+            (Tcase = 25 °C unless otherwise specified)
+                                                                   Table 5: Static
+             Symbol                     Parameter                     Test conditions             Min.      Typ.   Max.   Unit
+                                  Drain-source
+             V(BR)DSS                                          VGS = 0 V, ID = 1 mA               650                      V
+                                  breakdown voltage
+                                                               VGS = 0 V, VDS = 650 V                               10
+                                  Zero gate voltage drain
+                  IDSS                                         VGS = 0 V, VDS = 650 V,                                    µA
+                                  current                                                                          100
+                                                               Tcase = 125 °C
+                                  Gate-body leakage
+                  IGSS                                         VDS = 0 V, VGS = ±25 V                               ±5    µA
+                                  current
+              VGS(th)             Gate threshold voltage       VDS = VGS, ID = 250 µA              3         4      5      V
+                                  Static drain-source on-
+              RDS(on)                                          VGS = 10 V, ID = 30 A                       0.042   0.05    Ω
+                                  resistance
+
+
+                                                                 Table 6: Dynamic
+             Symbol                     Parameter                      Test conditions            Min.      Typ.   Max.   Unit
+                  Ciss            Input capacitance                                                 -       5500    -
+                  Coss            Output capacitance           VDS = 100 V, f = 1 MHz,              -       210     -
+                                                                                                                          pF
+                                                               VGS = 0 V
+                                  Reverse transfer
+                  Crss                                                                              -        3      -
+                                  capacitance
+                            (1)   Equivalent output
+            Coss eq.                                           VDS = 0 to 520 V, VGS = 0 V          -       456     -     pF
+                                  capacitance
+                   RG             Intrinsic gate resistance    f = 1 MHz, ID = 0 A                  -       3.3     -      Ω
+                   Qg             Total gate charge            VDD = 520 V, ID = 60 A,              -       120     -
+                  Qgs             Gate-source charge           VGS = 10 V (see Figure 15:           -        27     -     nC
+                                                               "Gate charge test circuit")
+                  Qgd             Gate-drain charge                                                 -        58     -
+
+            Notes:
+            (1)
+               Coss eq. is defined as a constant equivalent capacitance giving the same charging time as Coss when VDS
+            increases from 0 to 80% VDSS.
+
+
+                                                              Table 7: Switching times
+             Symbol                     Parameter                      Test conditions            Min.      Typ.   Max.   Unit
+                  td(on)          Turn-on delay time           VDD = 325 V, ID = 30 A                  -     33     -
+                                                               RG = 4.7 Ω, VGS = 10 V (see
+                    tr            Rise time                                                            -    13.5    -
+                                                               Figure 14: "Switching times test
+                  td(off)         Turn-off delay time                                                  -    114     -     ns
+                                                               circuit for resistive load" and
+                                                               Figure 19: "Switching time
+                    tf            Fall time                    waveform")                              -    11.5    -
+
+
+
+
+4/12                                                    DocID028164 Rev 1
+STW65N65DM2AG                                                                              Electrical characteristics
+                                                    Table 8: Source-drain diode
+        Symbol                   Parameter                      Test conditions              Min.   Typ.   Max.   Unit
+               ISD         Source-drain current                                                -            60     A
+                     (1)   Source-drain current
+          ISDM                                                                                 -           240     A
+                           (pulsed)
+                     (2)
+              VSD          Forward on voltage           VGS = 0 V, ISD = 60 A                  -           1.6     V
+               trr         Reverse recovery time                                               -    154            ns
+                                                        ISD = 60 A, di/dt = 100 A/µs,
+                           Reverse recovery             VDD = 60 V (see Figure 16: "Test
+               Qrr                                                                             -    0.94          µC
+                           charge                       circuit for inductive load
+                                                        switching and diode recovery
+                           Reverse recovery
+              IRRM                                      times")                                -    12.2           A
+                           current
+               trr         Reverse recovery time                                               -    288            ns
+                                                        ISD = 60 A, di/dt = 100 A/µs,
+                           Reverse recovery             VDD = 60 V, Tj = 150 °C (see
+               Qrr                                                                             -    3.65          µC
+                           charge                       Figure 16: "Test circuit for
+                                                        inductive load switching and
+                           Reverse recovery
+              IRRM                                      diode recovery times")                 -    25.4           A
+                           current
+
+        Notes:
+        (1)
+              Pulse width is limited by safe operating area.
+        (2)
+              Pulse test: pulse duration = 300 µs, duty cycle 1.5%.
+
+
+
+
+                                                DocID028164 Rev 1                                                 5/12
+Electrical characteristics                                                         STW65N65DM2AG
+2.1         Electrical characteristics (curves)
+                    Figure 2: Safe operating area                Figure 3: Thermal impedance
+
+
+
+
+                   Figure 4: Output characteristics            Figure 5: Transfer characteristics
+
+
+
+
+            Figure 6: Gate charge vs gate-source voltage   Figure 7: Static drain-source on-resistance
+
+
+
+
+6/12                                      DocID028164 Rev 1
+STW65N65DM2AG                                                          Electrical characteristics
+                                                      Figure 9: Normalized gate threshold voltage
+             Figure 8: Capacitance variations
+                                                                    vs temperature
+
+
+
+
+          Figure 10: Normalized on-resistance vs          Figure 11: Normalized V(BR)DSS vs
+                       temperature                                    temperature
+
+
+
+
+                                                        Figure 13: Source- drain diode forward
+        Figure 12: Output capacitance stored energy
+                                                                    characteristics
+
+
+
+
+                                    DocID028164 Rev 1                                         7/12
+Test circuits                                                                           STW65N65DM2AG
+
+
+3             Test circuits
+ Figure 14: Switching times test circuit for resistive           Figure 15: Gate charge test circuit
+                        load
+
+
+
+
+ Figure 16: Test circuit for inductive load switching
+                                                         Figure 17: Unclamped inductive load test circuit
+             and diode recovery times
+
+
+
+
+       Figure 18: Unclamped inductive waveform                 Figure 19: Switching time waveform
+
+
+
+
+8/12                                         DocID028164 Rev 1
+STW65N65DM2AG                                                                Package information
+
+
+4       Package information
+        In order to meet environmental requirements, ST offers these devices in different grades of
+                    ®                                                                            ®
+        ECOPACK packages, depending on their level of environmental compliance. ECOPACK
+        specifications, grade definitions and product status are available at: www.st.com.
+                    ®
+        ECOPACK is an ST trademark.
+
+4.1     TO-247 package information
+                                     Figure 20: TO-247 package outline
+
+
+
+
+                                                                                            0075325_H
+
+
+
+
+                                     DocID028164 Rev 1                                         9/12
+Package information                                               STW65N65DM2AG
+                        Table 9: TO-247 package mechanical data
+                                                    mm.
+                 Dim.
+                            Min.                    Typ.              Max.
+                  A         4.85                                      5.15
+                  A1        2.20                                      2.60
+                  b          1.0                                      1.40
+                  b1         2.0                                      2.40
+                  b2         3.0                                      3.40
+                  c         0.40                                      0.80
+                  D         19.85                                     20.15
+                  E         15.45                                     15.75
+                  e         5.30                    5.45              5.60
+                  L         14.20                                     14.80
+                  L1        3.70                                      4.30
+                  L2                               18.50
+                 ØP         3.55                                      3.65
+                 ØR         4.50                                      5.50
+                  S         5.30                    5.50              5.70
+
+
+
+
+10/12                      DocID028164 Rev 1
+STW65N65DM2AG                                                                  Revision history
+
+
+5       Revision history
+                              Table 10: Document revision history
+                   Date                   Revision                         Changes
+                04-Aug-2015                   1             Initial release.
+
+
+
+
+                              DocID028164 Rev 1                                          11/12
+                                                                                                                      STW65N65DM2AG
+
+
+                                           IMPORTANT NOTICE – PLEASE READ CAREFULLY
+
+
+STMicroelectronics NV and its subsidiaries (“ST”) reserve the right to make changes, corrections, enhancements, modifications, and
+improvements to ST products and/or to this document at any time without notice. Purchasers should obtain the latest relevant information on ST
+products before placing orders. ST products are sold pursuant to ST’s terms and conditions of sale in place at the time of order
+acknowledgement.
+
+
+Purchasers are solely responsible for the choice, selection, and use of ST products and ST assumes no liability for application assistance or the
+design of Purchasers’ products.
+
+
+No license, express or implied, to any intellectual property right is granted by ST herein.
+
+
+Resale of ST products with provisions different from the information set forth herein shall void any warranty granted by ST for such product.
+
+
+ST and the ST logo are trademarks of ST. All other product or service names are the property of their respective owners.
+
+
+Information in this document supersedes and replaces information previously supplied in any prior versions of this document.
+
+
+                                                  © 2015 STMicroelectronics – All rights reserved
+
+
+
+
+12/12                                                       DocID028164 Rev 1
+

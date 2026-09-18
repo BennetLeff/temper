@@ -1,0 +1,72 @@
+{
+  "schema": "pfc-campaign-AR-ACTIVE-result/v1",
+  "task_id": "AR-ACTIVE",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "kind": "source_then_numerical",
+  "generated_utc": "2026-09-18T04:20:00Z",
+  "source_revision": "d2c0263702d6bcc6992d725d3fd9272c428833fb",
+
+  "status_axes": {
+    "completion": "FINISHED",
+    "completion_meaning": "The assignment (one circuit, up to three devices, hot Rds from primary sources, P_additional, bracket comparison) was carried out. FINISHED is not PASS, SELECTED, VALIDATED or QUALIFIED.",
+    "numerical": "COMPUTED_ARITHMETIC_ONLY",
+    "numerical_meaning": "Only the contract relation P_saved = P_bridge - 450*R_hot - P_additional was evaluated. No solver, no model, no CAD edit.",
+    "checker": "NOT_APPLICABLE_NO_CHECKER_ISSUED",
+    "checker_meaning": "The dispatch marks checker_revision_and_sha256 not_applicable and issues no checker, so no checker receipt exists to report.",
+    "hardware_qualification": "NOT_PERFORMED",
+    "hardware_qualification_meaning": "No bench work, no procurement, no physical or thermal qualification was performed or claimed.",
+    "model_status": "NOT_APPLICABLE",
+    "assembly_rank": null,
+    "assembly_rank_meaning": "Source-only partial result: no assembly rank is emitted."
+  },
+
+  "numerical_status": {
+    "relation": "P_saved = P_bridge - 450 * R_hot - P_additional",
+    "inputs_frozen": {
+      "conduction_coefficient_w_per_ohm": 450.0,
+      "bridge_bracket_w": [23.0, 35.0],
+      "bridge_nominal_w": 28.3035,
+      "p_additional_sourced_w": 0.003,
+      "r_hot_basis": "per device, typical, at the stated Tj"
+    },
+    "pre_additional_break_even_per_device_ohm": {"at_23w": 0.05111, "at_nominal": 0.06290, "at_35w": 0.07778},
+    "p_saved_rows": [
+      {"candidate": "IPW60R017C7", "tj_c": 100, "r_hot_ohm": 0.0248, "p_saved_w": {"low": 11.837, "nominal": 17.140, "high": 23.837}},
+      {"candidate": "IPW60R017C7", "tj_c": 125, "r_hot_ohm": 0.0293, "p_saved_w": {"low": 9.812,  "nominal": 15.115, "high": 21.812}},
+      {"candidate": "IPW60R017C7", "tj_c": 150, "r_hot_ohm": 0.0330, "p_saved_w": {"low": 8.147,  "nominal": 13.450, "high": 20.147}},
+      {"candidate": "NVHL040N60S5F", "tj_c": 100, "r_hot_ohm": 0.0556, "p_saved_w": {"low": -2.030, "nominal": 3.273,  "high": 9.970}},
+      {"candidate": "NVHL040N60S5F", "tj_c": 125, "r_hot_ohm": 0.0661, "p_saved_w": {"low": -6.739, "nominal": -1.436, "high": 5.261}},
+      {"candidate": "NVHL040N60S5F", "tj_c": 150, "r_hot_ohm": 0.0778, "p_saved_w": {"low": -12.009,"nominal": -6.706, "high": -0.009}},
+      {"candidate": "STW65N65DM2AG", "tj_c": 100, "r_hot_ohm": 0.0727, "p_saved_w": {"low": -9.700, "nominal": -4.397, "high": 2.300}},
+      {"candidate": "STW65N65DM2AG", "tj_c": 125, "r_hot_ohm": 0.0861, "p_saved_w": {"low": -15.748,"nominal": -10.444,"high": -3.748}}
+    ],
+    "beats_pre_additional_break_even": {
+      "IPW60R017C7": "YES across the entire 51-78 mOhm band and at every evaluated Tj up to 150 C. Hot typ 24.8-33.0 mOhm vs break-even 51.1 mOhm (low) to 77.8 mOhm (high); margin 18.1-44.8 mOhm below the break-even, i.e. 8.1-20.1 W saved across the bridge bracket at the worst Tj (150 C), and 11.8-23.8 W at 100 C.",
+      "NVHL040N60S5F": "PARTIAL / Tj-DEPENDENT. Hot typ 55.6 mOhm at 100 C and 66.1 mOhm at 125 C are inside the 51-78 mOhm band: it beats only the high-bridge-loss end. Nominal P_saved +3.3 W at 100 C and -1.4 W at 125 C; at the 23 W bracket end it loses (-2.0 W at 100 C).",
+      "STW65N65DM2AG": "NO. Hot typ 72.7 mOhm at 100 C is only just inside the band, and 86.1 mOhm at 125 C exceeds 77.8 mOhm: it beats no part of the band at 125 C. Nominal P_saved -4.4 W at 100 C and -10.4 W at 125 C."
+    }
+  },
+
+  "answer": "YES, a worthwhile active-rectifier opportunity exists for at least one concrete device class: a 600 V CoolMOS C7 (IPW60R017C7-order device) driven by an NXP TEA2209T four-MOSFET active bridge has a hot per-device Rds(on) of about 25-33 mOhm from 100-150 C, below the 51-78 mOhm pre-additional break-even across the whole bridge bracket, saving roughly 8-24 W (nominal 13-17 W) before the unquantified P_additional terms. A mid-Rds 600/650 V device (40-50 mOhm at 25 C) is marginal and Tj-dependent and the retained board part STW65N65DM2AG shows no opportunity.",
+
+  "hardware_qualification": "NOT_PERFORMED",
+
+  "unknowns": {
+    "real_operating_junction_temperature_c": null,
+    "guaranteed_maximum_hot_rds_on_ohm": null,
+    "p_additional_emi_and_commutation_w": null,
+    "p_additional_startup_inrush_w": null,
+    "measured_passive_bridge_drop_w": null
+  },
+
+  "single_missing_input": {
+    "input": "The real operating junction temperature of the bridge MOSFETs under the actual thermal path.",
+    "why": "It selects which datasheet hot Rds(on) applies, and it is the only input that moves the mid-range candidates across the 51-78 mOhm break-even (C2 goes from +3.3 W to -1.4 W nominal between 100 C and 125 C). The low-Rds candidate wins at every evaluated temperature up to the datasheet's 150 C row, so the top-level 'opportunity exists' answer is robust to it; what remains unresolved is which device class is acceptable and the size of the saving."
+  },
+
+  "source_capture_failures": 1,
+  "solver_invocations": 0,
+  "model_edits": 0,
+  "cad_edits": 0
+}
