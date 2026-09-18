@@ -31,11 +31,12 @@ pub const RULES: [&str; 3] = [
 ];
 
 /// Diodes GBJ2510-F forward-drop maximum at `IF`=12.5 A, `TJ`=25 C. The
-/// retained datasheet carries exactly one test point, so applying it to a
-/// waveform is an extrapolation, never a waveform-wide bound.
+/// retained datasheet also carries a per-element typical forward-characteristics
+/// curve (page 3, Fig. 2), so this point is used only where a value at exactly
+/// this test condition is required; it is never a waveform-wide bound.
 const BRIDGE_VF_TEST_V: f64 = 1.05;
-/// Explicit sensitivity band. The retained datasheet has no forward-drop curve
-/// and no high-temperature point, so a band stays labelled an assumption.
+/// Explicit sensitivity band. The retained curve is a 25 C typical, so this band
+/// stands in for part spread and temperature, not for a missing curve.
 const BRIDGE_VF_BAND_V: [f64; 2] = [0.85, 1.30];
 /// Two rectifier elements sit in the line path in series at every instant.
 const BRIDGE_ELEMENTS_IN_PATH: f64 = 2.0;
@@ -302,7 +303,7 @@ fn keep_bridge_thermal_path(models: &[LineModel], requirement_w: f64) -> Result<
         },
         || {
             vec![
-                "GBJ2510-F forward-drop curve and high-temperature points".into(),
+                "GBJ2510-F high-temperature forward-drop points; the 25 C typical curve is retained".into(),
                 "per-element junction-to-case and package-to-sink paths".into(),
             ]
         },
@@ -654,7 +655,7 @@ pub fn run(source: &str) -> Result<Report, String> {
         unresolved_terms: unresolved,
         assumptions: vec![
             "The required power is the ideal CCM model's input power at 120 V RMS and 15 A true RMS; it is not delivered DC power or pan power".into(),
-            "The retained GBJ2510-F datasheet has one forward-drop test point, so the 0.85/1.30 V band is an explicit sensitivity rather than a part bound".into(),
+            "The retained GBJ2510-F datasheet carries a per-element typical forward-drop curve at 25 C plus a 1.05 V maximum test point; the screen applies the point as a constant, and the 0.85/1.30 V band stands in for temperature and part spread".into(),
             "The retained ST datasheet resolves the authored boost-switch marking form to an order code and supplies C_oss eq. and Qg; its output-capacitance and gate terms are single-condition typicals, and a measured Eon that already includes the C_oss discharge would double-count the capacitance term".into(),
             "The 50 mOhm figure is a 25 C maximum at 30 A and the 100 mOhm figure is a design sensitivity; neither is a hot guarantee".into(),
             "Gate-drive and SiC capacitive terms are single-condition typicals, and the controller's loaded-gate supply current already includes drive energy and must not be double-counted".into(),

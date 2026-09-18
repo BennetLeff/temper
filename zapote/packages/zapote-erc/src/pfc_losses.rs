@@ -205,6 +205,127 @@ pub fn output_capacitance_eoss_w(eoss_j: f64, fsw_hz: f64) -> Result<f64, String
     finite_result("output_capacitance_eoss_w", e * f)
 }
 
+/// A forward-drop characteristic: forward voltage as a function of forward
+/// current, traced from a manufacturer's typical curve.
+///
+/// The curve carries its own source binding so a caller cannot silently pair a
+/// traced curve with a different document revision. Points ascend in current.
+/// A current at or below the first point clamps to that point's voltage, which
+/// overestimates drop near the line zero crossing rather than extrapolating an
+/// unstable knee. A current above the last point is an error, never an
+/// extrapolation.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ForwardDropCurve {
+    points: Vec<(f64, f64)>,
+    source_sha256: String,
+}
+
+impl ForwardDropCurve {
+    pub fn new(points: Vec<(f64, f64)>, source_sha256: &str) -> Result<Self, String> {
+        if source_sha256.len() != 64
+            || !source_sha256.chars().all(|c| c.is_ascii_hexdigit())
+        {
+            return Err("forward-drop curve needs a 64-hex-digit source sha256".into());
+        }
+        if points.len() < 2 {
+            return Err("forward-drop curve needs at least two points".into());
+        }
+        for window in points.windows(2) {
+            let (i0, v0) = window[0];
+            let (i1, v1) = window[1];
+            if !i0.is_finite()
+                || !v0.is_finite()
+                || !i1.is_finite()
+                || !v1.is_finite()
+                || i0 < 0.0
+                || i1 <= i0
+                || v0 < 0.0
+                || v1 < 0.0
+            {
+                return Err(
+                    "forward-drop points must be finite, ordered in current and nonnegative".into(),
+                );
+            }
+        }
+        Ok(Self {
+            points,
+            source_sha256: source_sha256.to_ascii_lowercase(),
+        })
+    }
+
+    pub fn source_sha256(&self) -> &str {
+        &self.source_sha256
+    }
+
+    pub fn points(&self) -> &[(f64, f64)] {
+        &self.points
+    }
+
+    /// Forward voltage at `current_a`. Clamps at the low end; errors above the
+    /// traced maximum.
+    pub fn forward_v(&self, current_a: f64) -> Result<f64, String> {
+        let i = nonnegative("current_a", current_a)?;
+        let last = self.points.last().unwrap().0;
+        if i > last {
+            return Err(format!(
+                "current {i} A exceeds forward-drop curve maximum {last} A"
+            ));
+        }
+        if i <= self.points[0].0 {
+            return finite_result("forward_v", self.points[0].1);
+        }
+        let idx = self
+            .points
+            .windows(2)
+            .position(|w| i <= w[1].0)
+            .unwrap_or(self.points.len() - 2);
+        let (i0, v0) = self.points[idx];
+        let (i1, v1) = self.points[idx + 1];
+        finite_result("forward_v", v0 + (v1 - v0) * (i - i0) / (i1 - i0))
+    }
+}
+
+/// Rectified bridge conduction loss from a forward-drop curve and the
+/// authoritative switching waveform.
+///
+/// `element_count` is the number of diode elements in the line path at every
+/// instant (two for a single-phase bridge). `parallel_branches` is the number of
+/// bridges sharing the line current equally, so the per-branch current is the
+/// line current divided by it. With a flat curve the result reduces to
+/// `element_count * V_f * rectified mean current` and is independent of
+/// `parallel_branches`; with a real curve the two cases diverge, which is why
+/// sharing stays an explicit input rather than a constant folded into the caller.
+///
+/// The flat curve is the linear case of this same model; [`diode_w`] is its
+/// closed form in current moments, kept for callers that have moments and no
+/// waveform.
+pub fn forward_drop_w(
+    curve: &ForwardDropCurve,
+    samples: &[crate::pfc_currents::Sample],
+    element_count: f64,
+    parallel_branches: f64,
+) -> Result<f64, String> {
+    let elements = positive("element_count", element_count)?;
+    let branches = positive("parallel_branches", parallel_branches)?;
+    if samples.is_empty() {
+        return Err("forward-drop integration needs the waveform samples".into());
+    }
+    let mut total = 0.0;
+    let mut weighted = 0.0;
+    for sample in samples {
+        if sample.weight <= 0.0 {
+            continue;
+        }
+        let line = sample.inductor_a.abs() / branches;
+        total += sample.weight * branches * elements * curve.forward_v(line)? * line;
+        weighted += sample.weight;
+    }
+    if weighted <= 0.0 {
+        return Err("forward-drop integration found no weighted samples".into());
+    }
+    finite_result("forward_drop_w", total)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -307,5 +428,99 @@ mod tests {
         assert!(output_capacitance_eoss_w(19.5e-6, 0.0).is_err());
         assert!(resistive_w(-1.0, 1.0).is_err());
         assert!(switching_overlap_w(f64::MAX, f64::MAX, f64::MAX, 1.0, 1.0, 1.0).is_err());
+    }
+
+    const CURVE_SHA: &str = "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02";
+
+    fn curve_samples() -> Vec<crate::pfc_currents::Sample> {
+        pfc_currents::calculate(config()).unwrap().samples
+    }
+
+    fn mean_and_rms(samples: &[crate::pfc_currents::Sample]) -> (f64, f64) {
+        let (mut mean, mut sq) = (0.0, 0.0);
+        for s in samples {
+            if s.weight > 0.0 {
+                mean += s.weight * s.inductor_a.abs();
+                sq += s.weight * s.inductor_a * s.inductor_a;
+            }
+        }
+        (mean, sq.sqrt())
+    }
+
+    #[test]
+    fn flat_curve_reproduces_the_constant_drop_result() {
+        let samples = curve_samples();
+        let flat = ForwardDropCurve::new(vec![(0.0, 1.05), (100.0, 1.05)], CURVE_SHA).unwrap();
+        let (mean, _) = mean_and_rms(&samples);
+        let got = forward_drop_w(&flat, &samples, 2.0, 1.0).unwrap();
+        let want = 2.0 * 1.05 * mean;
+        assert!((got - want).abs() < 1e-9, "flat identity: {got} vs {want}");
+    }
+
+    #[test]
+    fn linear_curve_agrees_with_the_moment_form() {
+        // V(i) = a + b*i => loss = elements * (a*mean + b*rms^2) = elements * diode_w(..)
+        let samples = curve_samples();
+        let (a, b) = (0.70, 0.010);
+        let linear =
+            ForwardDropCurve::new(vec![(0.0, a), (100.0, a + 100.0 * b)], CURVE_SHA).unwrap();
+        let (mean, rms) = mean_and_rms(&samples);
+        let from_curve = forward_drop_w(&linear, &samples, 2.0, 1.0).unwrap();
+        let from_moments = 2.0 * diode_w(mean, rms, a, b).unwrap();
+        assert!(
+            (from_curve - from_moments).abs() < 1e-9,
+            "curve {from_curve} vs moments {from_moments}"
+        );
+    }
+
+    #[test]
+    fn parallel_sharing_changes_a_nonlinear_curve_but_not_a_flat_one() {
+        let samples = curve_samples();
+        let flat = ForwardDropCurve::new(vec![(0.0, 1.05), (100.0, 1.05)], CURVE_SHA).unwrap();
+        let one = forward_drop_w(&flat, &samples, 2.0, 1.0).unwrap();
+        let two = forward_drop_w(&flat, &samples, 2.0, 2.0).unwrap();
+        assert!((one - two).abs() < 1e-9, "a flat curve must be sharing-invariant");
+        let curve = ForwardDropCurve::new(
+            vec![(0.01, 0.70), (1.0, 0.75), (10.0, 0.95), (100.0, 1.40)],
+            CURVE_SHA,
+        )
+        .unwrap();
+        let one = forward_drop_w(&curve, &samples, 2.0, 1.0).unwrap();
+        let two = forward_drop_w(&curve, &samples, 2.0, 2.0).unwrap();
+        assert!(two < one, "splitting a rising curve must reduce loss: {two} vs {one}");
+    }
+
+    #[test]
+    fn curve_clamps_low_and_errors_above_its_maximum() {
+        let curve = ForwardDropCurve::new(vec![(0.01, 0.70), (10.0, 0.95)], CURVE_SHA).unwrap();
+        assert!((curve.forward_v(0.0).unwrap() - 0.70).abs() < 1e-12);
+        assert!((curve.forward_v(0.01).unwrap() - 0.70).abs() < 1e-12);
+        assert!((curve.forward_v(10.0).unwrap() - 0.95).abs() < 1e-12);
+        assert!(curve.forward_v(10.1).is_err(), "must not extrapolate above the trace");
+    }
+
+    #[test]
+    fn malformed_curves_are_rejected() {
+        assert!(ForwardDropCurve::new(vec![(0.0, 1.0)], CURVE_SHA).is_err());
+        assert!(ForwardDropCurve::new(vec![(0.0, 1.0), (0.0, 1.1)], CURVE_SHA).is_err());
+        assert!(ForwardDropCurve::new(vec![(0.0, 1.0), (1.0, -1.0)], CURVE_SHA).is_err());
+        assert!(ForwardDropCurve::new(vec![(0.0, 1.0), (1.0, f64::NAN)], CURVE_SHA).is_err());
+        assert!(ForwardDropCurve::new(vec![(0.0, 1.0), (1.0, 1.1)], "deadbeef").is_err());
+    }
+
+    #[test]
+    fn integration_rejects_empty_or_unweighted_waveforms() {
+        let curve = ForwardDropCurve::new(vec![(0.0, 1.0), (10.0, 1.2)], CURVE_SHA).unwrap();
+        assert!(forward_drop_w(&curve, &[], 2.0, 1.0).is_err());
+        let unweighted = vec![crate::pfc_currents::Sample {
+            weight: 0.0,
+            line_sign: 1.0,
+            inductor_a: 1.0,
+            switch_a: 1.0,
+            diode_a: 0.0,
+            load_a: 0.0,
+            capacitor_a: 0.0,
+        }];
+        assert!(forward_drop_w(&curve, &unweighted, 2.0, 1.0).is_err());
     }
 }

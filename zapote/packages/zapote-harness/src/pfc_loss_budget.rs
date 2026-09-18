@@ -59,7 +59,7 @@ const UNKNOWN: [&str; 10] = [
     "PCB, connectors, fuse and holder: distributed resistive loss",
     "bypass: contact loss; unbypassed NTC startup/fault loss",
     "pfc and small-signal devices: supply loss excluding already counted relay",
-    "bridge: waveform/temperature-dependent forward drop beyond single test point",
+    "bridge: temperature-dependent forward drop; the 25 C typical curve is retained but not yet integrated",
     "hot shunt and relay tolerance/temperature corrections",
 ];
 const DOCUMENTS: [(&str, &[u8], &str); 5] = [
@@ -791,7 +791,7 @@ pub fn run(source: &str) -> Result<Report, String> {
         assumptions: vec![
             "108/120/132 V and L±20% are sensitivity points, not qualified input limits; ideal CCM, 15 A true RMS, fixed nominal bus/frequency".into(),
             "Input power is not DC output power; current ripple consumes part of the RMS current ceiling".into(),
-            "Bridge 1.05 V test point is extrapolated as constant, not a waveform-wide/hot guarantee".into(),
+            "Bridge currently applies the 1.05 V test point as a constant; the retained per-element typical curve at 25 C is not yet integrated, and temperature and part spread remain open".into(),
             "Copper alpha20=0.00393/K is assumed; DCR max20mOhm at20C; core/AC loss excluded".into(),
             "The authored and native MPN is STW65N65DM2AG; its physical package marking is 65N65DM2 per the hash-pinned DocID028164 Rev 1 Device summary".into(),
             "The 456 pF C_oss eq. is time-equivalent (0..80% VDSS), so it is metadata only. Eoss(VDS) is digitized from the retained DocID028164 Rev 1 p. 7 Figure 12 with an assumed ±0.6 µJ digitization/interpolation allowance; typical data are not guarantees".into(),

@@ -262,7 +262,8 @@ Run cargo commands from `zapote/`; run `make` targets from the repository root.
 | Retained screen and regression | `cd zapote && cargo test -p zapote-harness --lib` | U3, U5 |
 | Integration and binding tests | `cd zapote && cargo test -p zapote-harness` | U5 |
 | Regenerate the in-scope report | `cd zapote && cargo run -p zapote-harness --bin zapote-pfc-loss -- power-entry/shunt-repair/candidate/source-manifest.json` | U4 |
-| No stale claim | `git grep -nE "no forward-drop curve\|forward drop beyond single test point\|forward-drop curve and high-temperature"` returns nothing in scope | U4 |
+| No stale claim in source | `git grep -nE "no forward-drop curve\|forward drop beyond single test point\|forward-drop curve and high-temperature" -- 'zapote/packages/**'` returns nothing | U4 |
+| Pinned history untouched | the provenance-pinned `zapote/power-entry/loss-budget/evidence/correction-02/`, `zapote/power-entry/loss-budget/options/verification/` and `zapote/validation/runs/**` records are not rewritten | U4 |
 | Full workspace sanity | `cd zapote && cargo test -p zapote-harness -p zapote-erc -p zapote-thermal` | all code units |
 
 Note: the full `-p zapote-harness` suite exceeds 20 minutes in debug because the lib tests replay a 2916-scenario grid. Run the named selections during the loop and the full suite once before declaring done. `make regen-check` does not cover the PFC reports; do not use it for U4.
