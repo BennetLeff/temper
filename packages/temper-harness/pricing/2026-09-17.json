@@ -82,6 +82,18 @@
           "prompt_tokens": 28
         },
         "window": "peak"
+      },
+      {
+        "at": "2026-09-18T04:05:58+00:00",
+        "model": "deepseek-flash",
+        "note": "Same shape as the peak input observation -- a fresh ~1MB input, thinking disabled, so the spend is almost entirely cache-miss input -- and almost the same token count: 493,769 against 493,539. Balance 9.75 -> 9.68. The computed off-peak cost 0.0741 lies inside the interval the two-decimal readings allow, (0.060, 0.080), while the PEAK rate would have predicted 0.1482, which is outside it. So the documented halving is measured rather than inferred, which matters because off-peak is about 79% of the week: 7 peak hours on weekdays against 17 off-peak plus all 48 weekend hours. This is the row the harness will actually bill against most of the time.",
+        "observed_usd": 0.07,
+        "usage": {
+          "cached_input_tokens": 0,
+          "completion_tokens": 1,
+          "prompt_tokens": 493769
+        },
+        "window": "off_peak"
       }
     ],
     "status": "measured",

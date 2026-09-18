@@ -751,6 +751,18 @@ second round's.
     repo already records for generated artifacts -- update the derived document in the same
     commit as the thing it describes -- and it took three rounds to apply it here.
 
+### The off-peak rate, measured rather than inferred (post-third-review)
+
+53. **The documented halving is now a measurement.** The off-peak input cache-miss rate was the
+    last inferred row and the one that ~79% of the week bills against (7 peak hours on weekdays
+    against 17 off-peak plus all 48 weekend hours). A third observation, taken at 04:05:58 UTC
+    inside the off-peak window with 493,769 fresh input tokens, moved the account by $0.07 --
+    inside the (0.060, 0.080) interval the two-decimal balance allows, and the *peak* rate would
+    have predicted $0.1482, outside it. Because the token count is within 0.05% of the peak
+    observation's, the pair is a direct measurement of the ratio rather than of two rates
+    separately. The price table's `verification` block now carries all three observations, and
+    the test that recomputes each cost from its recorded usage covers them.
+
 ### Named unknowns (U1) — stated, not inferred away
 
 - **No cost reconciliation is possible from this provider.** The response has no cost
@@ -844,10 +856,15 @@ second round's.
   error the observation contradicts, and it is not an independent audit. The alternative
   would be a committed balance reading, which the endpoint does not provide as a stable
   artifact.
-- **Only the Flash peak rates are covered by a measurement.** The off-peak rates are inferred
-  from the documented halving, `deepseek-v4-pro`'s rates are transcription only, and a
-  *consistent* mis-transcription of both windows for one model passes the `off_peak == peak/2`
-  invariant. The cache-hit rate is unverifiable at a 1M context, as recorded above.
+- **The Flash rates are measured; `deepseek-v4-pro`'s are transcription only.** All three of
+  the Flash rows a run bills against have an observation behind them now -- peak input cache-miss,
+  peak output, and off-peak input cache-miss -- and the last one *measures* the documented halving
+  rather than inferring it: at almost the same token count (493,769 against 493,539) the account
+  moved by $0.07 where the peak rate would have predicted $0.1482, which is outside the interval
+  the balance's two decimals allow. That matters because off-peak is ~79% of the week. Still
+  open: the cache-hit rate is unverifiable at a 1M context (a repeat of the same 1 MB prompt
+  costs ~$0.003, below the resolution), and a *consistent* mis-transcription of both windows for
+  the Pro model would pass the `off_peak == peak/2` invariant.
 - **The package resolves its data by source-tree path.** `pricing.py` and
   `schema_registry.py` both use `Path(__file__).parents[2]`, so a non-editable wheel install
   would find no `schemas/` or `pricing/`. The harness is only ever run from the source tree
