@@ -275,6 +275,26 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 - **Met.** No abandoned probe scripts or throwaway adapters remain: `probe.py` is the probe, the adapters are the two the design calls for, and the one removed guard (`error_classified`) was deleted from the source rather than left as a comment.
 - **Met.** `make regen-check` is clean and the branch is pushed.
 
+**Landing status**
+
+Opened as PR #1603, 14 commits, 393 tests. The PR's own two gates pass in the required
+contexts — **Core Tests** (19m50s, which is what actually runs this suite with the
+`--min-tests` floor) and **Repo Hygiene & Import Gates** (9m51s) — and the simulated
+path-diff confirms that a diff touching only `packages/temper-harness/**` schedules
+**Core Tests** rather than skipping it.
+
+The PR reads `BLOCKED` for a reason that has nothing to do with it:
+`Rust Checks (cargo check + clippy)` fails on **main** at
+`clearance_grid_hv_expansion_fence` (`packages/temper-orchestration/tests/d3_stages_runner.rs:529`,
+"HV expansion appends one log entry", left 0 right 1). This branch's diff contains zero
+`.rs` files and nothing under `packages/temper-orchestration/`, and main fails the same
+workflow in 6 of 6 recent runs. Filed as #1604 with the evidence; #772 is an older,
+staler trunk-health issue naming a different gate. Two of the three `red` checks are
+downstream of it (`Required Python Tests` is an aggregator; `Board, Provenance &
+Requirements Gates` is advisory and already red on main).
+
+Follow-up with the measurements nobody has taken, and the cost of each: #1602.
+
 **Per unit**
 
 - U1 complete when the captured fixtures and five schemas are committed, no fixture carries a credential, the CI wiring schedules the suite, and every unverified provider behavior is named.
