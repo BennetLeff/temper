@@ -6,6 +6,8 @@
   "claims": [
     {
       "id": "mersen-time-constant-is-lr",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "catalogue_time_constant_definition",
       "part": null,
       "value_kind": "assumed",
@@ -38,6 +40,8 @@
     },
     {
       "id": "a70qs-cap-discharge-voltage",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_capacitor_discharge_voltage_rating_v",
       "part": "A70QS50-14F",
       "value_kind": "minimum",
@@ -66,6 +70,8 @@
     },
     {
       "id": "a70qs-cap-discharge-tau-max",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_capacitor_discharge_max_time_constant_s",
       "part": "A70QS50-14F",
       "value_kind": "maximum",
@@ -94,6 +100,8 @@
     },
     {
       "id": "a70qs-cap-discharge-vs-general-dc",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "dc_rating_condition_basis",
       "part": null,
       "value_kind": "assumed",
@@ -122,6 +130,8 @@
     },
     {
       "id": "a70qs50-pre-arcing-i2t-max",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_pre_arcing_i2t_max_a2s",
       "part": "A70QS50-14F",
       "value_kind": "maximum",
@@ -150,6 +160,8 @@
     },
     {
       "id": "a70qs50-clearing-i2t-700vac",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_clearing_i2t_700vac_a2s",
       "part": "A70QS50-14F",
       "value_kind": "maximum",
@@ -178,6 +190,8 @@
     },
     {
       "id": "a70qs50-watts-loss",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_watts_loss_rated_w",
       "part": "A70QS50-14F",
       "value_kind": "maximum",
@@ -206,6 +220,8 @@
     },
     {
       "id": "a70qs50-dc-interrupting",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_dc_interrupting_capacity_a",
       "part": "A70QS50-14F",
       "value_kind": "minimum",
@@ -234,6 +250,8 @@
     },
     {
       "id": "a70qs50-rated-current",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_continuous_current_rating_a",
       "part": "A70QS50-14F",
       "value_kind": "minimum",
@@ -262,6 +280,8 @@
     },
     {
       "id": "a70qs50-no-mbc",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "fuse_min_breaking_capacity_a",
       "part": "A70QS50-14F",
       "value_kind": "assumed",
@@ -290,6 +310,8 @@
     },
     {
       "id": "a70qs50-no-dc-cap-discharge-let-through",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "fuse_capacitor_discharge_clearing_i2t_a2s",
       "part": "A70QS50-14F",
       "value_kind": "assumed",
@@ -318,6 +340,8 @@
     },
     {
       "id": "bank-stored-energy",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "bus_bank_energy_j",
       "part": null,
       "value_kind": "assumed",
@@ -346,6 +370,8 @@
     },
     {
       "id": "internal-loop-r-envelope",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "internal_loop_resistance_ohm",
       "part": null,
       "value_kind": "assumed",
@@ -370,6 +396,8 @@
     },
     {
       "id": "internal-loop-l-envelope",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "internal_loop_inductance_h",
       "part": null,
       "value_kind": "assumed",
@@ -394,6 +422,8 @@
     },
     {
       "id": "fault-loop-action-invariant",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "discharge_total_action_a2s",
       "part": null,
       "value_kind": "assumed",
@@ -414,6 +444,8 @@
     },
     {
       "id": "a70qs50-action-screen",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "loop_resistance_for_pre_arcing_action_screen_ohm",
       "part": "A70QS50-14F",
       "value_kind": "assumed",
@@ -442,6 +474,8 @@
     },
     {
       "id": "a70qs50-fuse-resistance-estimate",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "fuse_resistance_estimate_ohm",
       "part": "A70QS50-14F",
       "value_kind": "assumed",
@@ -466,6 +500,8 @@
     },
     {
       "id": "peak-envelope",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "discharge_peak_current_a",
       "part": null,
       "value_kind": "assumed",
@@ -486,6 +522,8 @@
     },
     {
       "id": "time-constant-reconciliation",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "applicable_capacitor_discharge_time_constant_basis",
       "part": "A70QS50-14F",
       "value_kind": "assumed",
@@ -514,6 +552,8 @@
     },
     {
       "id": "joint-qualifying-region",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "qualifying_region_cell_count",
       "part": "A70QS50-14F",
       "value_kind": "assumed",
@@ -534,6 +574,8 @@
     },
     {
       "id": "a70qs50-clearing-not-demonstrated",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "fuse_capacitor_discharge_clearing_demonstrated",
       "part": "A70QS50-14F",
       "value_kind": "assumed",
@@ -562,6 +604,8 @@
     },
     {
       "id": "fwp-no-cap-discharge-condition",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "fuse_capacitor_discharge_rating",
       "part": "FWP-50A14F",
       "value_kind": "assumed",
@@ -582,6 +626,8 @@
     },
     {
       "id": "coordination-verdict",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "coordination_demonstrated",
       "part": null,
       "value_kind": "assumed",

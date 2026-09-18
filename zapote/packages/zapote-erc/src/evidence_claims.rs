@@ -24,6 +24,29 @@
 //! 4. **Completion history.** Statuses advance one rung at a time from `none`,
 //!    and the history must actually exist: a submitted `from` that was never
 //!    established is rejected.
+//! 5. **Claim origin and dependency structure** (`unsound_claim_structure`).
+//!    Every claim declares whether it is a `source`, `assumption`,
+//!    `measurement` or `derivation`. A derivation must **name its inputs**.
+//!    Duplicate ids, names that resolve to no claim, dependency cycles, and
+//!    source/measurement claims with no retained evidence are rejected.
+//!
+//! Check 5 exists because checks 1 and 4 all compare a claim against a **parent**,
+//! so a claim that performed a derivation while declaring no parent was compared
+//! against nothing and evaded every one of them. Observed on the AR-BOUNDS
+//! attempt: `bank-esr-bank-max` computed `0.4737 ohm / 4` in its own
+//! justification while declaring `derived_from: null`, and passed. Linking it to
+//! its real parent made the source-condition and part checks fire immediately.
+//!
+//! **The limit of check 5, stated plainly.** It prevents a *declared* derivation
+//! from omitting its parents. It cannot detect a calculation that is declared a
+//! `source` (or an `assumption`) instead of a derivation, because deciding that
+//! requires the meaning of the prose, not its shape. Neither can it detect a
+//! document outside the ledger that restates an `illustrative` entry as a bound:
+//! the AR-BOUNDS defect reached the packet that way, and the packet's own table
+//! is what carried the upgrade. Closing that needs report-to-ledger consistency —
+//! generated tables inheriting evidence strength and conditions from the ledger
+//! rather than restating them — with prose upgrades caught in review. Do not read
+//! a pass here as covering it.
 //!
 //! Assertion strength applies to **every** claim, root claims included: a claim
 //! asserted as `qualified` must carry resolvable evidence.
@@ -99,6 +122,42 @@ pub enum AssertionStrength {
     Qualified,
 }
 
+/// Where a claim's value came from. Every claim must declare exactly one.
+///
+/// Before this existed, the only way to express "this came from something" was
+/// `derived_from`, and omitting it was a silent default. That made an undeclared
+/// derivation indistinguishable from an independently sourced claim — and
+/// because every comparison rule in `unsound_derivations` fires *relative to a
+/// parent*, a claim could perform a derivation while declaring no parent and
+/// evade all of them. The origin is explicit precisely so that omission is a
+/// violation rather than a default.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ClaimOrigin {
+    /// The value is read from a retained external document (datasheet,
+    /// catalogue, standard, contract).
+    Source,
+    /// The value is assumed. It is not established by a retained source, and it
+    /// must remain identifiable as an assumption.
+    Assumption,
+    /// The value comes from a retained measurement record.
+    Measurement,
+    /// The value is computed from one or more other claims in this ledger,
+    /// which must be named.
+    Derivation,
+}
+
+impl ClaimOrigin {
+    pub fn label(self) -> &'static str {
+        match self {
+            ClaimOrigin::Source => "source",
+            ClaimOrigin::Assumption => "assumption",
+            ClaimOrigin::Measurement => "measurement",
+            ClaimOrigin::Derivation => "derivation",
+        }
+    }
+}
+
 /// A retained artifact: where it is, and the SHA-256 of its bytes.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -110,6 +169,14 @@ pub struct EvidenceRef {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claim {
     pub id: String,
+    /// Where this claim's value came from. `None` is a violation, not a
+    /// default: see [`unsound_claim_structure`].
+    #[serde(default)]
+    pub origin: Option<ClaimOrigin>,
+    /// The claims this one consumes. Required (non-empty) when `origin` is
+    /// `derivation`; must be empty otherwise.
+    #[serde(default)]
+    pub inputs: Vec<String>,
     pub quantity: String,
     #[serde(default)]
     pub part: Option<String>,
@@ -211,6 +278,167 @@ fn is_sha256(value: &str) -> bool {
     value.len() == 64 && value.chars().all(|c| c.is_ascii_hexdigit())
 }
 
+/// A claim's declared inputs: `derived_from` plus `inputs`, deduplicated.
+pub fn claim_inputs(claim: &Claim) -> Vec<&str> {
+    let mut out: Vec<&str> = Vec::new();
+    if let Some(parent) = claim.derived_from.as_deref() {
+        out.push(parent);
+    }
+    for input in &claim.inputs {
+        if !out.contains(&input.as_str()) {
+            out.push(input.as_str());
+        }
+    }
+    out
+}
+
+/// One message per structural defect: a claim with no declared origin, a
+/// duplicated id, a derivation that names no inputs, a name that resolves to no
+/// claim, a dependency cycle, and source/measurement claims with no retained
+/// evidence.
+///
+/// **What this closes.** Every rule in [`unsound_derivations`] compares a claim
+/// against a parent, so a claim that performs a derivation while declaring no
+/// parent was compared against nothing. Requiring an origin and requiring a
+/// derivation to name its inputs makes that omission a violation.
+///
+/// **What this does not close.** It cannot tell that a claim *labelled* `source`
+/// is really a calculation, because deciding that needs the meaning of the prose,
+/// not its shape. A calculation can still be declared an assumption and pass. Nor
+/// can it see a document that upgrades an entry's strength outside the ledger.
+/// See the module documentation.
+pub fn unsound_claim_structure(claims: &[Claim]) -> Vec<String> {
+    let mut failures = Vec::new();
+
+    // Duplicate ids. The id-keyed lookup below keeps only the last, so a
+    // duplicate would silently shadow the earlier claim.
+    let mut counts: BTreeMap<&str, usize> = BTreeMap::new();
+    for claim in claims {
+        *counts.entry(claim.id.as_str()).or_insert(0) += 1;
+    }
+    for (id, count) in &counts {
+        if *count > 1 {
+            failures.push(format!(
+                "claim id {id} appears {count} times; ids must be unique, or a later claim silently shadows an earlier one"
+            ));
+        }
+    }
+
+    let by_id: BTreeMap<&str, &Claim> = claims.iter().map(|c| (c.id.as_str(), c)).collect();
+
+    for claim in claims {
+        let Some(origin) = claim.origin else {
+            failures.push(format!(
+                "{} declares no origin: every claim must state whether it is a source, assumption, measurement or derivation",
+                claim.id
+            ));
+            continue;
+        };
+
+        let inputs = claim_inputs(claim);
+
+        // Origin and topology must agree, in both directions.
+        if origin == ClaimOrigin::Derivation && inputs.is_empty() {
+            failures.push(format!(
+                "{} is declared a derivation but names no inputs; a derivation must name what it derives from",
+                claim.id
+            ));
+        }
+        if origin != ClaimOrigin::Derivation && !inputs.is_empty() {
+            failures.push(format!(
+                "{} declares inputs ({}) but its origin is {}; a claim that consumes other claims is a derivation",
+                claim.id,
+                inputs.join(", "),
+                origin.label()
+            ));
+        }
+
+        // Named inputs must resolve. `derived_from` is also reported by
+        // `unsound_derivations`; report each name once.
+        for input in claim_inputs(claim) {
+            if input == claim.id {
+                failures.push(format!("{} names itself as an input", claim.id));
+            } else if !by_id.contains_key(input) {
+                failures.push(format!(
+                    "{} names input {input}, which is not among the claims",
+                    claim.id
+                ));
+            }
+        }
+
+        // A source or a measurement must point at retained bytes.
+        if matches!(origin, ClaimOrigin::Source | ClaimOrigin::Measurement)
+            && claim.evidence.is_empty()
+        {
+            failures.push(format!(
+                "{} is declared a {} but references no retained evidence",
+                claim.id,
+                origin.label()
+            ));
+        }
+    }
+
+    // Dependency cycles: a derivation that consumes itself, directly or
+    // transitively, has no base case.
+    let edges: BTreeMap<&str, Vec<&str>> = claims
+        .iter()
+        .map(|c| (c.id.as_str(), claim_inputs(c)))
+        .collect();
+    let mut state: BTreeMap<&str, u8> = BTreeMap::new();
+    let mut stack: Vec<&str> = Vec::new();
+    let mut seen_cycles: Vec<String> = Vec::new();
+    for claim in claims {
+        visit_for_cycles(
+            claim.id.as_str(),
+            &edges,
+            &mut state,
+            &mut stack,
+            &mut seen_cycles,
+        );
+    }
+    failures.extend(seen_cycles);
+
+    failures
+}
+
+fn visit_for_cycles<'a>(
+    node: &'a str,
+    edges: &BTreeMap<&'a str, Vec<&'a str>>,
+    state: &mut BTreeMap<&'a str, u8>,
+    stack: &mut Vec<&'a str>,
+    failures: &mut Vec<String>,
+) {
+    match state.get(node) {
+        Some(2) => return,
+        Some(1) => return, // already on the stack; the cycle is reported by its opener
+        _ => {}
+    }
+    state.insert(node, 1);
+    stack.push(node);
+
+    for child in edges.get(node).into_iter().flatten() {
+        if !edges.contains_key(child) {
+            continue; // unresolved name; reported above
+        }
+        match state.get(child) {
+            Some(1) => {
+                let from = stack.iter().position(|n| n == child).unwrap_or(0);
+                let mut path: Vec<&str> = stack[from..].to_vec();
+                path.push(child);
+                let message = format!("dependency cycle: {}", path.join(" -> "));
+                if !failures.contains(&message) {
+                    failures.push(message);
+                }
+            }
+            Some(2) => {}
+            _ => visit_for_cycles(child, edges, state, stack, failures),
+        }
+    }
+
+    stack.pop();
+    state.insert(node, 2);
+}
+
 /// One message per derivation that changes a load-bearing property without a
 /// declared supported transformation. Applies to root claims too.
 pub fn unsound_derivations(claims: &[Claim]) -> Vec<String> {
@@ -226,15 +454,14 @@ pub fn unsound_derivations(claims: &[Claim]) -> Vec<String> {
             ));
         }
 
-        let Some(parent_id) = claim.derived_from.as_deref() else {
+        // The comparison parent: `derived_from` when present, else the first
+        // declared input. This keeps the comparison rules firing against
+        // something for a derivation that names inputs but no `derived_from`.
+        let Some(parent_id) = claim_inputs(claim).into_iter().next() else {
             continue;
         };
         let Some(parent) = by_id.get(parent_id) else {
-            failures.push(format!(
-                "{} derives from {parent_id}, which is not among the claims",
-                claim.id
-            ));
-            continue;
+            continue; // unresolved name; reported by unsound_claim_structure
         };
 
         // Bound direction.
@@ -529,6 +756,8 @@ mod tests {
     fn root() -> Claim {
         Claim {
             id: "source".into(),
+            origin: Some(ClaimOrigin::Assumption),
+            inputs: Vec::new(),
             quantity: "clamp_voltage".into(),
             part: Some("V150LA10AP".into()),
             value_kind: ValueKind::Maximum,
@@ -545,7 +774,163 @@ mod tests {
     }
 
     fn child() -> Claim {
-        Claim { id: "child".into(), derived_from: Some("source".into()), ..root() }
+        Claim {
+            id: "child".into(),
+            origin: Some(ClaimOrigin::Derivation),
+            inputs: vec!["source".into()],
+            derived_from: Some("source".into()),
+            ..root()
+        }
+    }
+
+    // ---- claim origin and dependency structure ----
+
+    /// The AR-BOUNDS defect, reduced: a claim whose justification performs a
+    /// derivation but which names no parent must be rejected.
+    #[test]
+    fn a_derivation_that_names_no_inputs_is_rejected() {
+        let mut c = child();
+        c.derived_from = None;
+        c.inputs.clear();
+        let out = unsound_claim_structure(&[root(), c]);
+        assert!(
+            out.iter().any(|f| f.contains("declared a derivation but names no inputs")),
+            "{out:?}"
+        );
+    }
+
+    #[test]
+    fn a_claim_with_no_declared_origin_is_rejected() {
+        let mut r = root();
+        r.origin = None;
+        let out = unsound_claim_structure(&[r]);
+        assert!(out.iter().any(|f| f.contains("declares no origin")), "{out:?}");
+    }
+
+    #[test]
+    fn duplicate_claim_ids_are_rejected() {
+        let out = unsound_claim_structure(&[root(), root()]);
+        assert!(out.iter().any(|f| f.contains("appears 2 times")), "{out:?}");
+    }
+
+    #[test]
+    fn an_input_that_names_no_claim_is_rejected() {
+        let mut c = child();
+        c.inputs = vec!["nonexistent".into()];
+        c.derived_from = None;
+        let out = unsound_claim_structure(&[root(), c]);
+        assert!(
+            out.iter().any(|f| f.contains("names input nonexistent") && f.contains("not among the claims")),
+            "{out:?}"
+        );
+    }
+
+    #[test]
+    fn a_dependency_cycle_is_rejected() {
+        let mut a = child();
+        a.id = "a".into();
+        a.inputs = vec!["b".into()];
+        a.derived_from = None;
+        let mut b = child();
+        b.id = "b".into();
+        b.inputs = vec!["a".into()];
+        b.derived_from = None;
+        let out = unsound_claim_structure(&[a, b]);
+        assert!(out.iter().any(|f| f.contains("dependency cycle")), "{out:?}");
+    }
+
+    #[test]
+    fn a_source_claim_with_no_retained_evidence_is_rejected() {
+        let mut r = root();
+        r.origin = Some(ClaimOrigin::Source);
+        r.evidence = Vec::new();
+        let out = unsound_claim_structure(&[r]);
+        assert!(
+            out.iter().any(|f| f.contains("declared a source but references no retained evidence")),
+            "{out:?}"
+        );
+    }
+
+    #[test]
+    fn a_measurement_claim_with_no_retained_evidence_is_rejected() {
+        let mut r = root();
+        r.origin = Some(ClaimOrigin::Measurement);
+        r.evidence = Vec::new();
+        let out = unsound_claim_structure(&[r]);
+        assert!(
+            out.iter().any(|f| f.contains("declared a measurement but references no retained evidence")),
+            "{out:?}"
+        );
+    }
+
+    #[test]
+    fn a_non_derivation_declaring_inputs_is_rejected() {
+        let mut r = root();
+        r.origin = Some(ClaimOrigin::Assumption);
+        r.inputs = vec!["something".into()];
+        let out = unsound_claim_structure(&[root(), r]);
+        assert!(
+            out.iter().any(|f| f.contains("but its origin is assumption")),
+            "{out:?}"
+        );
+    }
+
+    #[test]
+    fn a_claim_naming_itself_is_rejected() {
+        let mut c = child();
+        c.inputs = vec!["child".into()];
+        c.derived_from = None;
+        let out = unsound_claim_structure(&[root(), c]);
+        assert!(out.iter().any(|f| f.contains("names itself as an input")), "{out:?}");
+    }
+
+    /// The legitimate roots and derivations must still pass, so the structure
+    /// checks cannot be satisfied by rejecting everything.
+    #[test]
+    fn declared_origins_and_a_resolved_dependency_are_allowed() {
+        let mut source = root();
+        source.id = "datasheet".into();
+        source.origin = Some(ClaimOrigin::Source);
+        source.evidence = vec![evidence("datasheet.pdf")];
+
+        let mut assumption = root();
+        assumption.id = "model".into();
+        assumption.origin = Some(ClaimOrigin::Assumption);
+
+        let mut measurement = root();
+        measurement.id = "bench".into();
+        measurement.origin = Some(ClaimOrigin::Measurement);
+        measurement.evidence = vec![evidence("bench-run.json")];
+
+        let mut derivation = child();
+        derivation.id = "derived".into();
+        derivation.inputs = vec!["datasheet".into(), "model".into()];
+        derivation.derived_from = Some("datasheet".into());
+
+        let out = unsound_claim_structure(&[source, assumption, measurement, derivation]);
+        assert!(out.is_empty(), "{out:?}");
+    }
+
+    /// A derivation that names its inputs through `inputs` alone (no
+    /// `derived_from`) is still compared against a parent, so the existing
+    /// comparison rules cannot be evaded by using only the input list.
+    #[test]
+    fn inputs_alone_still_drive_the_comparison_rules() {
+        let mut parent = root();
+        parent.id = "p".into();
+        parent.origin = Some(ClaimOrigin::Assumption);
+
+        let mut c = child();
+        c.id = "c".into();
+        c.inputs = vec!["p".into()];
+        c.derived_from = None;
+        c.source_condition = cond(500.0); // changed, with no transformation
+
+        let out = unsound_derivations(&[parent, c]);
+        assert!(
+            out.iter().any(|f| f.contains("changes") && f.contains("source condition")),
+            "{out:?}"
+        );
     }
 
     // ---- the six probe inputs, as regressions ----

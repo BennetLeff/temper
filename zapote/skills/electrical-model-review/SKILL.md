@@ -93,7 +93,7 @@ selected"; "part selected" is not "coordination demonstrated"; nothing is
 
 | Check | Command | Catches |
 | --- | --- | --- |
-| Evidence ledger | `zapote-claims LEDGER.json` | bound reversal, the maximum→minimum inference, a changed condition or part without a declared transformation, silent fault-state change, illustrative→qualified promotion, unnamed or failed interrupting device, broken completion history, and any evidence reference that is malformed or does not resolve to retained bytes — across claims, protection claims and promotions alike |
+| Evidence ledger | `zapote-claims LEDGER.json` | bound reversal, the maximum→minimum inference, a changed condition or part without a declared transformation, silent fault-state change, illustrative→qualified promotion, unnamed or failed interrupting device, broken completion history, any evidence reference that is malformed or does not resolve to retained bytes — across claims, protection claims and promotions alike — and any claim with no declared origin, any derivation that names no inputs, duplicated ids, inputs naming no claim, and dependency cycles |
 | Fault loop | `zapote-fault-loop NETLIST.json --loop-nets A,B,C --assignments A.json` | current assigned to an element that cannot conduct in the declared loop |
 
 Both are Rust under `zapote-erc`; the Python entry points are thin wrappers. The
@@ -105,6 +105,15 @@ ledgers through them, so a ledger that regresses fails the normal test suite.
 
 - They detect **specific violations**, not false **claims**. A ledger can pass
   every implemented check and still be wrong. Their CLI output says so.
+- The origin rule closes a **declared** derivation that omits its parents. It
+  cannot tell that a claim *labelled* `source` (or `assumption`) is really a
+  calculation — deciding that needs the meaning of the prose, not its shape. A
+  known instance is asserted by `the_documented_residual_gap_is_still_open` in
+  `campaign_ledgers.rs`, so closing it fails a test rather than passing silently.
+- Neither can it see a document *outside* the ledger that restates an
+  `illustrative` entry as a bound. That is how the AR-BOUNDS defect reached the
+  manufacturer packet; closing it needs report-to-ledger consistency, with
+  generated tables inheriting evidence strength and conditions from the ledger.
 - The fault-loop check is a **necessary connectivity** test. Two terminals on a
   loop's nets is consistent with conduction; it does not prove a conductive path,
   a device state, a direction, or a distribution.

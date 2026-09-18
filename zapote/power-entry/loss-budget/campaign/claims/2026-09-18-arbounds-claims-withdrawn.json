@@ -4,6 +4,8 @@
   "claims": [
     {
       "id": "bank-esr-bank-max",
+      "origin": "source",
+      "inputs": [],
       "quantity": "bank_esr_120hz_max_ohm",
       "part": "LGX2W561MELC50 x4",
       "value_kind": "maximum",
@@ -28,6 +30,8 @@
     },
     {
       "id": "copper-loop-resistance-lower",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "copper_loop_resistance_lower_ohm",
       "value_kind": "assumed",
       "bound_kind": "lower",
@@ -56,6 +60,8 @@
     },
     {
       "id": "known-components-loop-r-upper",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "known_components_loop_resistance_upper_ohm",
       "value_kind": "assumed",
       "bound_kind": "upper",
@@ -104,6 +110,8 @@
     },
     {
       "id": "loop-inductance-bounds",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "loop_inductance_bounds_h",
       "value_kind": "assumed",
       "bound_kind": "unknown",

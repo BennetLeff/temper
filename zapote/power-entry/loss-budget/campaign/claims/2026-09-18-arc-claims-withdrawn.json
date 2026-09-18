@@ -4,6 +4,8 @@
   "claims": [
     {
       "id": "clamp-at-50A",
+      "origin": "source",
+      "inputs": [],
       "quantity": "mov_clamp_v",
       "part": "V150LA10AP",
       "value_kind": "maximum",
@@ -22,6 +24,10 @@
     },
     {
       "id": "clamp-at-surge-withdrawn",
+      "origin": "derivation",
+      "inputs": [
+        "clamp-at-50A"
+      ],
       "quantity": "mov_clamp_v",
       "part": "V150LA10AP",
       "value_kind": "minimum",
@@ -35,6 +41,8 @@
     },
     {
       "id": "timescale-withdrawn",
+      "origin": "measurement",
+      "inputs": [],
       "quantity": "internal_loop_timescale_s",
       "part": null,
       "value_kind": "measured",
@@ -48,6 +56,8 @@
     },
     {
       "id": "healthy-switch-can-turn-off",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "internal_loop_interruptible",
       "part": null,
       "value_kind": "assumed",
@@ -61,6 +71,10 @@
     },
     {
       "id": "failed-short-withdrawn",
+      "origin": "derivation",
+      "inputs": [
+        "healthy-switch-can-turn-off"
+      ],
       "quantity": "internal_loop_interruptible",
       "part": null,
       "value_kind": "assumed",
@@ -74,6 +88,10 @@
     },
     {
       "id": "part-dropped-withdrawn",
+      "origin": "derivation",
+      "inputs": [
+        "clamp-at-50A"
+      ],
       "quantity": "clamp_voltage",
       "part": null,
       "value_kind": "maximum",

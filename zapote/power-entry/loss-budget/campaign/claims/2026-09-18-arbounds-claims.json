@@ -4,6 +4,8 @@
   "claims": [
     {
       "id": "assessed-board-identity",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "assessed_board",
       "value_kind": "assumed",
       "bound_kind": "point",
@@ -36,6 +38,8 @@
     },
     {
       "id": "bank-capacitor-identity",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "bank_capacitor_part",
       "part": "LGX2W561MELC50",
       "value_kind": "assumed",
@@ -60,6 +64,8 @@
     },
     {
       "id": "bank-tan-delta-max-120hz",
+      "origin": "source",
+      "inputs": [],
       "quantity": "cap_tan_delta_max",
       "part": "LGX2W561MELC50",
       "value_kind": "maximum",
@@ -84,6 +90,10 @@
     },
     {
       "id": "bank-esr-120hz-max",
+      "origin": "derivation",
+      "inputs": [
+        "bank-tan-delta-max-120hz"
+      ],
       "quantity": "capacitor_esr_120hz_ohm",
       "part": "LGX2W561MELC50",
       "value_kind": "maximum",
@@ -108,6 +118,10 @@
     },
     {
       "id": "bank-esr-bank-max",
+      "origin": "derivation",
+      "inputs": [
+        "bank-esr-120hz-max"
+      ],
       "quantity": "bank_esr_120hz_max_ohm",
       "part": "LGX2W561MELC50 x4",
       "value_kind": "maximum",
@@ -132,6 +146,8 @@
     },
     {
       "id": "bank-esr-min-null",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "bank_esr_min_ohm",
       "part": "LGX2W561MELC50",
       "value_kind": "assumed",
@@ -156,6 +172,8 @@
     },
     {
       "id": "fuse-watts-loss-rated",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_watts_loss_rated_w",
       "part": "A70QS50-14F",
       "value_kind": "typical",
@@ -180,6 +198,8 @@
     },
     {
       "id": "fuse-resistance-hot",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_resistance_hot_ohm",
       "part": "A70QS50-14F",
       "value_kind": "typical",
@@ -204,6 +224,8 @@
     },
     {
       "id": "u9-rds-on-25c-max",
+      "origin": "source",
+      "inputs": [],
       "quantity": "mosfet_rds_on_25c_max_ohm",
       "part": "STW65N65DM2AG",
       "value_kind": "maximum",
@@ -224,6 +246,8 @@
     },
     {
       "id": "u9-rds-on-hot-null",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "mosfet_rds_on_hot_ohm",
       "part": "STW65N65DM2AG",
       "value_kind": "assumed",
@@ -244,6 +268,8 @@
     },
     {
       "id": "u9-short-residual-null",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "mosfet_failed_short_residual_ohm",
       "part": "STW65N65DM2AG",
       "value_kind": "assumed",
@@ -264,6 +290,8 @@
     },
     {
       "id": "u10-short-residual-null",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "diode_failed_short_residual_ohm",
       "part": "C3D20065D",
       "value_kind": "assumed",
@@ -288,6 +316,8 @@
     },
     {
       "id": "u10-forward-series-r-25c",
+      "origin": "source",
+      "inputs": [],
       "quantity": "diode_forward_series_resistance_25c_ohm",
       "part": "C3D20065D",
       "value_kind": "typical",
@@ -312,6 +342,8 @@
     },
     {
       "id": "copper-loop-resistance-lower",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "copper_loop_resistance_lower_ohm",
       "value_kind": "assumed",
       "bound_kind": "unknown",
@@ -340,6 +372,8 @@
     },
     {
       "id": "copper-loop-resistance-upper",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "copper_loop_resistance_upper_ohm",
       "value_kind": "assumed",
       "bound_kind": "upper",
@@ -368,6 +402,8 @@
     },
     {
       "id": "copper-loop-inductance-lower",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "copper_loop_inductance_lower_h",
       "value_kind": "assumed",
       "bound_kind": "lower",
@@ -396,6 +432,8 @@
     },
     {
       "id": "copper-loop-inductance-upper",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "copper_loop_inductance_upper_h",
       "value_kind": "assumed",
       "bound_kind": "upper",
@@ -424,6 +462,8 @@
     },
     {
       "id": "component-internal-inductance-null",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "component_internal_inductance_h",
       "value_kind": "assumed",
       "bound_kind": "unknown",
@@ -460,6 +500,8 @@
     },
     {
       "id": "loop-resistance-upper-null",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "loop_resistance_upper_ohm",
       "value_kind": "assumed",
       "bound_kind": "unknown",
@@ -488,6 +530,8 @@
     },
     {
       "id": "loop-inductance-bounds",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "loop_inductance_bounds_h",
       "value_kind": "assumed",
       "bound_kind": "unknown",
@@ -536,6 +580,8 @@
     },
     {
       "id": "fuse-cap-discharge-tau-condition",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_cap_discharge_max_time_constant_s",
       "part": "A70QS50-14F",
       "value_kind": "maximum",
@@ -560,6 +606,8 @@
     },
     {
       "id": "fuse-action-screen",
+      "origin": "source",
+      "inputs": [],
       "quantity": "action_screen_r_max_ohm",
       "part": "A70QS50-14F",
       "value_kind": "maximum",
@@ -584,6 +632,8 @@
     },
     {
       "id": "time-constant-condition-margin",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "max_total_inductance_for_R_ge_400L_h",
       "value_kind": "assumed",
       "bound_kind": "unknown",
@@ -620,6 +670,8 @@
     },
     {
       "id": "frequency-basis",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "discharge_frequency_basis",
       "value_kind": "assumed",
       "bound_kind": "unknown",
@@ -656,6 +708,8 @@
     },
     {
       "id": "discharge-location-verdict",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "discharge_location_verdict",
       "value_kind": "assumed",
       "bound_kind": "unknown",

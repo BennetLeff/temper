@@ -163,9 +163,41 @@ Protection and promotion checks required only a *non-empty* list. One shared
 evidence-validation path now covers all three collections, and missing files,
 mismatched hashes and valid retained files are tested for each.
 
-**What that does not fix.** A pass still does not establish derivation soundness
-in general — only that the specific implemented checks found nothing. The six
-probes are retained verbatim as fixtures, and one test asserts that none of them
+**A third pass found a hole in the ledger's *structure*, not in its values.** The
+AR-BOUNDS attempt shipped a ledger in which `bank-esr-bank-max` computed
+`0.4737 ohm / 4` in its own justification while declaring `derived_from: null`.
+Every comparison check — bound direction, conditions, part identity, fault state,
+assertion strength — compares a claim against a **parent**. With no parent
+declared, all of them were vacuous for that claim, and it passed. Linking it to
+its real parent made two of them fire immediately. **The defect was one field away
+from detection**, and the silent default was what hid it: `derived_from: null` is
+the *absence* of a declaration, indistinguishable from "independently sourced".
+
+**What changed.** Every claim must declare an `origin` — `source`, `assumption`,
+`measurement` or `derivation` — and a derivation must **name its inputs**.
+Duplicate ids (a map lookup silently keeps the last, so a duplicate shadows an
+earlier claim), inputs that name no claim, and dependency cycles are rejected, as
+are `source`/`measurement` claims with no retained evidence. The committed ledgers
+were migrated by reading the origin each claim **already** declared — its
+`value_kind`, plus `derived_from` — rather than inferring from prose; the rule, its
+known imprecision, and the hash drift are in
+`zapote/power-entry/loss-budget/campaign/migrations/2026-09-18-add-claim-origin.md`.
+
+**What that does not fix.** It closes a *declared* derivation that omits its
+parents. It cannot tell that a claim labelled `source` is really a calculation:
+deciding that needs the meaning of the prose, not its shape. The AR-BOUNDS ledger
+*as stated* still passes for exactly that reason, and
+`the_documented_residual_gap_is_still_open` asserts it so that closing the gap
+fails a test instead of passing silently. Nor can any ledger check see a receipt or
+packet that restates an `illustrative` entry as a bound — which is how this defect
+actually reached the manufacturer packet, through a generated table rather than
+through the ledger. Closing that needs report-to-ledger consistency: generated
+tables inheriting evidence strength and conditions from the ledger instead of
+restating them, with prose upgrades caught in review.
+
+**And a pass is still not soundness.** A clean run does not establish derivation
+soundness in general — only that the specific implemented checks found nothing. The
+six probes are retained verbatim as fixtures, and one test asserts that none of them
 yields a clean pass, so re-opening a hole fails the suite.
 
 ## Why these are checks and not reminders

@@ -78,6 +78,17 @@ maximum, assumed or measured; its source condition and exact part; its fault
 state; whether the assertion is illustrative or qualified; and the completion
 status with the evidence supporting it.
 
+**Every claim must also declare its origin** — `source`, `assumption`,
+`measurement` or `derivation` — and **a derivation must name its inputs**
+(`inputs`, and/or `derived_from`). This is enforced at admission, because
+`zapote-claims` rejects a ledger whose claims omit it. The reason it is required
+rather than optional: every comparison rule compares a claim against a parent, so
+a claim that performed a derivation while naming no parent used to be compared
+against nothing and passed every check. Duplicate claim ids, inputs that name no
+claim, and dependency cycles are rejected too. Migration of the existing ledgers,
+the rule used, and what it deliberately does not fix:
+`zapote/power-entry/loss-budget/campaign/migrations/2026-09-18-add-claim-origin.md`.
+
 The campaign's committed ledgers are run through these checks by
 `zapote/packages/zapote-harness/tests/campaign_ledgers.rs`, so a ledger that
 regresses fails the normal test suite rather than going unnoticed. Procedure:
@@ -86,7 +97,10 @@ regresses fails the normal test suite rather than going unnoticed. Procedure:
 
 A clean run means **no violations were detected by the implemented checks**. It
 does not establish derivation soundness in general and does not establish that any
-claim is true.
+claim is true. It also does **not** catch a calculation that is declared a
+`source` instead of a derivation, nor a receipt or packet that restates an
+illustrative ledger entry as a bound — both are outside the checks' reach and are
+what the review procedure is for.
 
 ## Consequences
 

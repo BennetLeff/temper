@@ -4,6 +4,8 @@
   "claims": [
     {
       "id": "clamp-at-50A",
+      "origin": "source",
+      "inputs": [],
       "quantity": "mov_clamp_v",
       "part": "V150LA10AP",
       "value_kind": "maximum",
@@ -22,6 +24,10 @@
     },
     {
       "id": "clamp-at-surge",
+      "origin": "derivation",
+      "inputs": [
+        "clamp-at-50A"
+      ],
       "quantity": "mov_clamp_v",
       "part": "V150LA10AP",
       "value_kind": "assumed",
@@ -36,6 +42,8 @@
     },
     {
       "id": "bank-stored-energy",
+      "origin": "measurement",
+      "inputs": [],
       "quantity": "bus_bank_energy_j",
       "part": null,
       "value_kind": "measured",
@@ -54,6 +62,8 @@
     },
     {
       "id": "internal-loop-timescale",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "internal_loop_timescale_s",
       "part": null,
       "value_kind": "assumed",
@@ -67,6 +77,8 @@
     },
     {
       "id": "healthy-switch-can-turn-off",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "internal_loop_interruptible",
       "part": null,
       "value_kind": "assumed",
@@ -80,6 +92,8 @@
     },
     {
       "id": "failed-short-no-interrupter",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "internal_loop_interruptible",
       "part": null,
       "value_kind": "assumed",

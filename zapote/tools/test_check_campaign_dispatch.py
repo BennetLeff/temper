@@ -6,6 +6,8 @@ import pathlib
 import stat
 import sys
 
+import pytest
+
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import check_campaign_dispatch as gate  # noqa: E402
 
@@ -186,4 +188,63 @@ def make_stub(directory: pathlib.Path, body: str) -> pathlib.Path:
     stub.write_text("#!/bin/sh\n" + body)
     stub.chmod(stub.stat().st_mode | stat.S_IEXEC)
     return stub
+
+
+# --- schema enforcement at admission, through the real checker ---
+
+def _claim(**overrides: object) -> dict:
+    base = {
+        "id": "c1",
+        "quantity": "clamp_voltage",
+        "value_kind": "typical",
+        "bound_kind": "upper",
+        "fault_state": "not_applicable",
+        "assertion": "illustrative",
+    }
+    base.update(overrides)
+    return base
+
+
+def test_a_ledger_missing_claim_origins_fails_admission(tmp_path: pathlib.Path) -> None:
+    """The origin schema is enforced at handback admission, not only in Rust tests.
+
+    A claim with no declared origin is rejected by the real checker, so the
+    handback carrying it is not admitted.
+    """
+    if gate.claims_binary() is None:
+        pytest.skip("zapote-claims is not built")
+    body = json.dumps({"claims": [_claim()]})
+    attempt = _model_attempt(tmp_path, "engineering_design", ledger=True, body=body)
+    failures, _ = gate.check_handback(attempt)
+    assert any("evidence ledger failed its checks" in f for f in failures), failures
+    assert any("declares no origin" in f for f in failures), failures
+
+
+def test_a_derivation_without_named_inputs_fails_admission(tmp_path: pathlib.Path) -> None:
+    if gate.claims_binary() is None:
+        pytest.skip("zapote-claims is not built")
+    body = json.dumps({"claims": [_claim(origin="derivation", inputs=[])]})
+    attempt = _model_attempt(tmp_path, "engineering_design", ledger=True, body=body)
+    failures, _ = gate.check_handback(attempt)
+    assert any("names no inputs" in f for f in failures), failures
+
+
+def test_a_ledger_with_declared_origins_passes_admission(tmp_path: pathlib.Path) -> None:
+    if gate.claims_binary() is None:
+        pytest.skip("zapote-claims is not built")
+    body = json.dumps({
+        "claims": [
+            _claim(id="assumed-base", origin="assumption", inputs=[]),
+            _claim(
+                id="derived",
+                origin="derivation",
+                inputs=["assumed-base"],
+                quantity="clamp_voltage_derived",
+                justification="same part and conditions",
+            ),
+        ]
+    })
+    attempt = _model_attempt(tmp_path, "engineering_design", ledger=True, body=body)
+    failures, _ = gate.check_handback(attempt)
+    assert not any("evidence ledger failed" in f for f in failures), failures
 

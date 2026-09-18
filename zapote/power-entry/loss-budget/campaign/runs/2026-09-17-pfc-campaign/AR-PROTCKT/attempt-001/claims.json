@@ -6,6 +6,8 @@
   "claims": [
     {
       "id": "bank-stored-energy",
+      "origin": "measurement",
+      "inputs": [],
       "quantity": "bus_bank_energy_j",
       "part": null,
       "value_kind": "measured",
@@ -28,6 +30,8 @@
     },
     {
       "id": "fuse-dc-voltage-rating",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_dc_voltage_rating_v",
       "part": "FWP-50A14F",
       "value_kind": "minimum",
@@ -46,6 +50,8 @@
     },
     {
       "id": "fuse-dc-breaking-capacity",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_dc_breaking_capacity_a",
       "part": "FWP-50A14F",
       "value_kind": "minimum",
@@ -64,6 +70,8 @@
     },
     {
       "id": "fuse-min-melting-i2t",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_min_melting_i2t_a2s",
       "part": "FWP-50A14F",
       "value_kind": "minimum",
@@ -82,6 +90,8 @@
     },
     {
       "id": "fuse-clearing-i2t",
+      "origin": "source",
+      "inputs": [],
       "quantity": "fuse_total_clearing_i2t_a2s",
       "part": "FWP-50A14F",
       "value_kind": "maximum",
@@ -100,6 +110,8 @@
     },
     {
       "id": "internal-prospective-peak",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "internal_loop_peak_current_a",
       "part": null,
       "value_kind": "assumed",
@@ -113,6 +125,8 @@
     },
     {
       "id": "internal-loop-action-i2t",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "internal_loop_action_i2t_a2s",
       "part": null,
       "value_kind": "assumed",
@@ -126,6 +140,8 @@
     },
     {
       "id": "internal-melts-f2-condition",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "internal_loop_melts_f2",
       "part": "FWP-50A14F",
       "value_kind": "assumed",
@@ -139,6 +155,8 @@
     },
     {
       "id": "internal-fuse-clears",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "internal_fuse_clearing_demonstrated",
       "part": "FWP-50A14F",
       "value_kind": "assumed",
@@ -157,6 +175,8 @@
     },
     {
       "id": "line-fed-prospective-peak",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "line_fed_peak_current_a",
       "part": null,
       "value_kind": "assumed",
@@ -170,6 +190,8 @@
     },
     {
       "id": "f1-breaking-capacity",
+      "origin": "source",
+      "inputs": [],
       "quantity": "f1_breaking_capacity_a",
       "part": "Schurter 0034.3129",
       "value_kind": "maximum",
@@ -188,6 +210,8 @@
     },
     {
       "id": "f1-melting-i2t",
+      "origin": "source",
+      "inputs": [],
       "quantity": "f1_melting_i2t_a2s",
       "part": "Schurter 0034.3129",
       "value_kind": "typical",
@@ -206,6 +230,8 @@
     },
     {
       "id": "mov-clamp-at-50a",
+      "origin": "source",
+      "inputs": [],
       "quantity": "mov_clamp_v",
       "part": "V150LA10AP",
       "value_kind": "maximum",
@@ -228,6 +254,10 @@
     },
     {
       "id": "mov-clamp-at-surge",
+      "origin": "derivation",
+      "inputs": [
+        "mov-clamp-at-50a"
+      ],
       "quantity": "mov_clamp_v",
       "part": "V150LA10AP",
       "value_kind": "assumed",
@@ -242,6 +272,8 @@
     },
     {
       "id": "surge-contract-provisional",
+      "origin": "assumption",
+      "inputs": [],
       "quantity": "surge_test_level_v",
       "part": null,
       "value_kind": "assumed",
