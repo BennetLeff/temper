@@ -1,0 +1,156 @@
+{
+  "schema": "pfc-campaign-claims/v1",
+  "note": "Negative control WITH A KNOWN GAP. These are the four AR-BOUNDS claim entries as stated, before coordinator review; the defects they carry are recorded in ../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/withdrawals.json. As stated, this ledger PASSES zapote-claims (exit 0) - the checker does not model these defect classes. Measured: linking bank-esr-bank-max to its real parent (bank-esr-120hz-max, which its own justification '0.4737 ohm / 4' performs but which it declared as derived_from: null) makes the checker fire on the source-condition and part changes. The gap is that every condition/part/fault-state/bound-direction rule fires only RELATIVE TO A PARENT, so an unlinked derived claim evades all of them. Do not read this file's exit 0 as endorsement.",
+  "claims": [
+    {
+      "id": "bank-esr-bank-max",
+      "quantity": "bank_esr_120hz_max_ohm",
+      "part": "LGX2W561MELC50 x4",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "120 Hz, 20 C, four equal capacitors in parallel",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/nichicon-e-lgx.pdf",
+          "sha256": "0d944d705e72bfd1e2688a1d89eb6f16ed57d5864258409aa2a82d3fac3f74f2"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/nichicon-e-lgx.txt",
+          "sha256": "37398b9a4599f1e5296be4ba81d160b096d0adf8a006e3aa701a0b0390864316"
+        }
+      ],
+      "justification": "0.4737 ohm / 4 = 0.11842 ohm for the bank. This is an upper bound for the discharge frequency too: aluminium-electrolytic ESR falls with frequency, so the 120 Hz max exceeds the ESR at the ~0.5-300 kHz discharge content.",
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null
+    },
+    {
+      "id": "copper-loop-resistance-lower",
+      "quantity": "copper_loop_resistance_lower_ohm",
+      "value_kind": "assumed",
+      "bound_kind": "lower",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/geometry.json",
+          "sha256": "5ec069b6ce3d5ba8ba3d688f79f5ed45015ea53037dfbe5dd387b902b624f0fe"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/compute_bounds.py",
+          "sha256": "9a072d552e13cd2bdac18eba35e9b0d042dacbf154bb50aba65bb30f8b220d31"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/section.kicad_pcb",
+          "sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9"
+        }
+      ],
+      "justification": "10.289 mOhm: least-resistance >=3 mm-wide copper path from the nearest bank capacitor U38 (cap+ -> U10 -> a1 -> U9 -> cap-) at 20 C, copper 0.07 mm, rho 1.72e-8 ohm*m. Every other loop element has resistance >= 0, so the total loop R is >= this value.",
+      "part": null,
+      "source_condition": null,
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null
+    },
+    {
+      "id": "known-components-loop-r-upper",
+      "quantity": "known_components_loop_resistance_upper_ohm",
+      "value_kind": "assumed",
+      "bound_kind": "upper",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/nichicon-e-lgx.pdf",
+          "sha256": "0d944d705e72bfd1e2688a1d89eb6f16ed57d5864258409aa2a82d3fac3f74f2"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/nichicon-e-lgx.txt",
+          "sha256": "37398b9a4599f1e5296be4ba81d160b096d0adf8a006e3aa701a0b0390864316"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/STW65N65DM2AG.pdf",
+          "sha256": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/geometry.json",
+          "sha256": "5ec069b6ce3d5ba8ba3d688f79f5ed45015ea53037dfbe5dd387b902b624f0fe"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/compute_bounds.py",
+          "sha256": "9a072d552e13cd2bdac18eba35e9b0d042dacbf154bb50aba65bb30f8b220d31"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/section.kicad_pcb",
+          "sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9"
+        }
+      ],
+      "justification": "193.6 mOhm = bank ESR max 118.42 mOhm (120 Hz) + fuse 4.64 mOhm + U9 Rds_on 25 C max 50.0 mOhm + copper 20.49 mOhm (100 C). This EXCLUDES the two null failed-short residuals, so it is NOT a loop upper bound; it is the sourced portion only.",
+      "part": null,
+      "source_condition": null,
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null
+    },
+    {
+      "id": "loop-inductance-bounds",
+      "quantity": "loop_inductance_bounds_h",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/geometry.json",
+          "sha256": "5ec069b6ce3d5ba8ba3d688f79f5ed45015ea53037dfbe5dd387b902b624f0fe"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/compute_bounds.py",
+          "sha256": "9a072d552e13cd2bdac18eba35e9b0d042dacbf154bb50aba65bb30f8b220d31"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/section.kicad_pcb",
+          "sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/STW65N65DM2AG.pdf",
+          "sha256": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/C3D20065D-promelec.pdf",
+          "sha256": "be9df9d3e092500a41fa429b2dd3bef533b0616d037d5bf8ade8f0c92bf3fd21"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/C3D20065D-promelec.txt",
+          "sha256": "08f33bb10633dae9145adad8a0bc840b7541198dfc716d0638537f88ec0266c6"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        }
+      ],
+      "justification": "Copper term 75.8 nH to 2815.5 nH; unsourced component internal inductances add >= 0 and are unknown, so the total L is not closed above. Both bounds sit inside the campaign's swept range [20 nH, 20 uH].",
+      "part": null,
+      "source_condition": null,
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null
+    }
+  ],
+  "protection_claims": [],
+  "promotions": []
+}

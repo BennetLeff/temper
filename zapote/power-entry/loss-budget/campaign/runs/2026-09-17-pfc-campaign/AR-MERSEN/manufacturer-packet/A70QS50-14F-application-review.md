@@ -39,59 +39,88 @@ and other product lines. Question 1 asks you to confirm it.
 
 ## 3. Fault scenario being analysed
 
-A boost switch fails short (drain-source) while the bus is at 400 Vdc. The
-bank discharges back through the boost diode and the fuse toward the failed
-switch. This is a **failed-short device** scenario, distinct from an
-overload: the drive into the fault is the stored bank energy, not the mains
-source, and the loop is the internal discharge path.
+**Two devices must fail short for this loop to exist**, and the analysis
+treats both that way:
 
-The loop's resistance and inductance are **not known**. They are bounded and
-swept instead:
+- **U10 (the boost diode, C3D20065D) fails short.** This is what connects the
+  400 Vdc bus to the switch node `a1`. Without it, a healthy U10 is
+  reverse-biased and **blocks the discharge entirely** — a bare boost-switch
+  short does *not* discharge the bank. That was established earlier in this
+  work and is the reason U10 is named as a failed device rather than a
+  conducting one.
+- **U9 (the boost switch, STW65N65DM2AG) fails short.** This completes the
+  loop from `a1` to the bus return. It is specified as *failed* short, not
+  merely gated on, because a gate-controllable U9 could be turned off and
+  would then be an interrupter.
+- **F2, a proposed series high-speed DC fuse in the bus path**, sits in this
+  loop. With U9 failed short it is the **only** element that can interrupt,
+  which is why its capacitor-discharge capability is the question.
+
+The loop is therefore `bus+ -> U10 (short) -> a1 -> U9 (short) -> shunt ->
+bus-`, and the drive into it is the stored bank energy, not the mains source.
+
+The loop's resistance and inductance are **not known**. They are swept rather
+than asserted:
 
 | Quantity | Envelope swept |
 | --- | --- |
 | Loop resistance R | 5 mOhm to 5 ohm |
 | Loop inductance L | 20 nH to 20 uH |
 
-The lower bounds are the optimistic case for the fuse (lowest impedance,
-highest current); the upper bounds are the optimistic case for the time
-constant. Section 4 gives the sourced bounds we have since established.
+The ends of that envelope are the two extreme cases for the fuse: lowest
+impedance (highest current), and highest impedance (longest time constant).
+Section 4 gives what we can currently estimate for this board, together with
+what those estimates are not.
 
-## 4. Loop R and L: the bounds we are supplying
+## 4. R and L for this board: estimates, with their assumptions
 
-Decomposed by component, each with a source and an explicit direction — a
-bound, not a point estimate. Unsourced components stay null and are not
-filled with defaults.
+These are **estimates under stated assumptions**, not proven bounds. We are
+giving them so the inquiry carries real numbers; we are not asking you to
+treat any of them as established. Components with no published figure are
+left null rather than filled with a plausible default.
 
-| Term | Value | Kind / direction |
+| Term | Estimate | Basis and what it is *not* |
 | --- | ---: | --- |
-| Copper (geometry-derived, nearest cap, 20 C) | 10.29 mOhm | lower bound (every other term >= 0) |
-| Fuse (catalogue 11.6 W at 50 A) | 4.64 mOhm | hot figure; upper bound at fault onset |
-| Bank ESR (tan-delta max at 120 Hz) | 118.42 mOhm | upper bound (ESR falls with frequency) |
-| U9 healthy/on Rds_on (25 C max) | 50.0 mOhm | upper bound AT 25 C ONLY - not a short residual |
-| Copper at 100 C | 20.49 mOhm | upper bound |
-| **Sourced sub-total of known terms** | **<= 193.6 mOhm** | |
+| Copper R, 20 C | 10.29 mOhm | geometry-derived from the least-resistance *extracted path* per capacitor |
+| Copper R, 100 C | 20.49 mOhm | same method, elevated temperature |
+| Fuse R | 4.64 mOhm | derived from 11.6 W at 50 A; a *hot* figure, so onset R is lower |
+| Bank ESR, per bank | 118.42 mOhm | from tan-delta max at **120 Hz** and nominal capacitance |
 | U9 failed-short residual | **null** | not published |
 | U10 failed-short residual | **null** | not published |
 
-- **R: 10.29 mOhm and above, with no closed
-  upper bound.** A combined failed-short residual above
-  **0.4466 ohm** would take R past the 0.64013 ohm screen; nothing
-  published bounds that residual.
-- **L: copper 75.8 nH to
-  2.82 uH.** The span *is* the return-path
-  assumption (return current directly beneath the forward trace, versus
-  horizontally offset by the measured 34.5 mm worst case). Bank, fuse and
-  package internal inductances are not published and add >= 0.
+Three caveats that matter more than the numbers:
 
-**Where this leaves the location: INDETERMINATE.** Against
-`{400*L <= R <= 0.64013 ohm}`, the lower condition needs L <=
-25.7 uH (the copper
-term is ~9x under that, but internal inductances are unbounded), and the
-upper condition passes on every sourced term while the two null residuals
-leave it open. **Inside is plausible on all sourced evidence, and neither
-boundary is closed.** We are not asserting that the fault lands in the
-screened region.
+1. **The copper figure is not a lower bound — it is a path estimate, and it
+   tends to over-state.** It comes from tracing a single least-resistance
+   path per capacitor, and other conductors (including the return-side B.Cu
+   zone) were excluded from the sum. **Parallel paths can only reduce the
+   effective resistance**, so the extracted-path figure sits above the true
+   network value and cannot bound it from below.
+2. **The ESR figure is a 120 Hz estimate, not a broadband bound.** It uses
+   nominal capacitance, whereas the parts carry a +/-20% tolerance that alone
+   moves the derived ESR by roughly a quarter, and it extends a 120 Hz
+   loss-angle specification to the discharge waveform without evidence that
+   the specification holds there.
+3. **The listed resistances belong to different device states and must not be
+   added into one subtotal.** In particular, U9's healthy on-resistance
+   applies when U9 is *not* shorted; in the fault being analysed U9 is short
+   and that term does not apply. There is also no published short residual to
+   put in its place.
+
+**Inductance: an estimate of roughly 76 nH to
+2.8 uH**, the span coming from the
+**return-path assumption** (return current directly beneath the forward trace
+versus horizontally offset by the measured 34.5 mm worst case). Bank, fuse
+and semiconductor-package internal inductances are not published and we have
+**not** bounded them; they add an unknown amount above these figures.
+
+**Where this leaves the location: INDETERMINATE — and deliberately so.**
+Neither the copper resistance nor the inductance is bounded on the evidence
+we have, and the two failed-short residuals that dominate the resistance are
+unpublished. We therefore cannot say whether the real discharge lands inside
+the screened region `{400*L <= R <= 0.64013 ohm}` or outside it, and we are
+not asserting either. This is the gap the questions in Section 7 are aimed
+at.
 
 ## 5. Representative discharge cases
 
@@ -193,6 +222,9 @@ provide.
   bank/copper withstand exist yet (Q4).
 - Not a melting result. The action screen is a screen.
 - Not a hardware result. No bench or powered testing has been performed.
+- **Not an established bound.** The R and L figures in Section 4 are
+  estimates under stated assumptions; the question we are asking you does
+  not depend on their being proven limits.
 - Not a CAD or BOM change. A70QS50-14F is a candidate, not a design change.
 
 ## 10. Provenance
@@ -208,9 +240,16 @@ provide.
 - Representative cases in this packet: `representative-cases.json`, computed
   by `build_packet.py` with the same model; oracle checks on peak and action
   agree to a worst relative error of 8.31e-04.
-- Loop R and L bounds: AR-BOUNDS attempt-001, derived from
+- Loop R and L figures: AR-BOUNDS attempt-001, derived from
   `zapote/power-entry/shunt-repair/candidate/section.kicad_pcb`
   (sha256 `34e6fba9...`), which is the board the AR-FAULT fault netlist was
   taken from. That is deliberately *not* `pcb/temper.kicad_pcb`, which
   contains none of the loop nets.
+
+**Correction notice.** An earlier revision of this packet presented the same
+numbers as established bounds ('R >= 10.29 mOhm', a 'sourced sub-total', and a
+0.4466 ohm crossing threshold). Those bound claims are **withdrawn**: the
+copper figure is a single-path estimate excluding parallel conductors, the ESR
+figure is a 120 Hz nominal-capacitance estimate, and the components belong to
+different device states. The numbers are unchanged; their status is not.
 

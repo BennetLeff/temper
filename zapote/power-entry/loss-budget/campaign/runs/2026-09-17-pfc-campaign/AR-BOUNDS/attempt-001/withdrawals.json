@@ -1,0 +1,78 @@
+{
+  "schema": "pfc-campaign-claim-withdrawals/v1",
+  "attempt": "AR-BOUNDS/attempt-001",
+  "campaign": "2026-09-17-pfc-campaign",
+  "date": "2026-09-18",
+  "note": "Withdrawals issued by the coordinator review of AR-BOUNDS attempt-001. The ledger's numeric values are unchanged; their STATUS is corrected. Two defects are worker-side, two are coordinator promotions layered on top of a ledger that had labelled the entries 'illustrative'.",
+  "withdrawn": [
+    {
+      "claim_id": "copper-loop-resistance-lower",
+      "field": "bound_kind",
+      "was": "lower",
+      "now": "not_established",
+      "reason": "The figure traces a single least-resistance path per capacitor and excludes other conductors, including the return-side PFC_BUS_MINUS B.Cu zone. Parallel paths can only reduce effective resistance, so the extracted-path value sits ABOVE the true network value and cannot bound it from below.",
+      "value_retained_as": "an estimate of the extracted path's resistance, tending to over-state the network"
+    },
+    {
+      "claim_id": "known-components-loop-r-upper",
+      "status": "withdrawn_entirely",
+      "reason": "The subtotal sums bank ESR + fuse + U9's HEALTHY on-resistance + copper while the same claim's fault state is failed_short. Those belong to different device states: when U9 is shorted its healthy Rds_on does not apply, and no published figure replaces it. The subtotal is incoherent.",
+      "dependent_withdrawn": [
+        "the 0.4466 ohm crossing threshold: 0.19355 ohm is an UPPER bound on the known terms, so the residual needed to cross 0.64013 ohm is 0.64013 - (known), which is LARGER than 0.4466 whenever the known terms are smaller. A residual above 0.4466 ohm therefore does not necessarily cross the screen. A LOWER bound on the known terms would be required, and none exists."
+      ]
+    },
+    {
+      "claim_id": "bank-esr-bank-max",
+      "field": "assertion",
+      "was": "qualified",
+      "now": "illustrative",
+      "condition_scope": "120 Hz only",
+      "reason": "The justification extends the 120 Hz figure to the discharge frequency on the grounds that electrolytic ESR falls with frequency. The derivation uses NOMINAL capacitance although the parts carry a +/-20% tolerance that alone moves the derived ESR by roughly a quarter, and no loss-angle figure for the discharge regime was obtained. It is a 120 Hz nominal estimate, not a broadband bound.",
+      "value_retained_as": "a 120 Hz estimate at nominal capacitance"
+    },
+    {
+      "claim_id": "loop-inductance-bounds",
+      "field": "status",
+      "was": "bounds",
+      "now": "estimates_under_two_return_path_assumptions",
+      "reason": "The range spans two return-path ASSUMPTIONS (return directly beneath the forward trace vs horizontally offset by the measured 34.5 mm worst case). It does not bound the geometry between them. Bank, fuse and semiconductor-package internal inductances are unpublished and were NOT bounded."
+    }
+  ],
+  "coordinator_promotions_withdrawn": [
+    "The AR-BOUNDS coordinator receipt's framing 'R >= 10.29 mOhm' as a lower bound.",
+    "The receipt's 'Sourced sub-total of known terms <= 193.6 mOhm' table and its 0.4466 ohm threshold.",
+    "The manufacturer packet's Section 4 heading 'the bounds we are supplying' and its 'Kind / direction' column asserting 'lower bound' and 'upper bound'.",
+    "The manufacturer packet's ESR row 'upper bound (ESR falls with frequency)'.",
+    "The data-reading '25.7 uH' boundary figure, which depended on the withdrawn lower bound."
+  ],
+  "recommendation_withdrawn": {
+    "text": "One kA-scale pulsed measurement of a failed-short residual, or a qualified shock-test record, closes the only term that can move R across 0.64013 ohm.",
+    "reason": "A single specimen would characterise THAT specimen's failure mode, not bound the population's failed-short behaviour. Device-to-device and failure-mode-to-failure-mode variation is precisely what is unknown, so one measurement yields a number, not a bound."
+  },
+  "survives_unchanged": [
+    {
+      "claim_id": "loop-resistance-upper-null",
+      "reason": "Still correct and now load-bearing: the U9 and U10 failed-short residuals are unpublished, so no upper bound on loop R exists. Its justification's aside that a residual 'could in principle exceed 0.45 ohm' should be read as illustrative rather than as an established threshold."
+    },
+    {
+      "claim_id": "bank-esr-min-null",
+      "reason": "Still correct: the datasheet publishes tan-delta max only, so no lower bound on bank ESR exists."
+    },
+    {
+      "claim_id": "discharge-location-verdict",
+      "reason": "INDETERMINATE remains correct, and is reachable directly from the nulls without any withdrawn bound."
+    },
+    {
+      "claim_id": "u9-short-residual-null",
+      "reason": "Still correct and the most valuable output: no failed-short residual is published, and a healthy Rds_on is not a short residual."
+    },
+    {
+      "claim_id": "u10-short-residual-null",
+      "reason": "Still correct: only a FORWARD model is published, which is not a short residual."
+    },
+    {
+      "claim_id": "assessed-board-identity",
+      "reason": "Still correct and important: the assessed board is zapote/power-entry/shunt-repair/candidate/section.kicad_pcb (34e6fba9...), NOT pcb/temper.kicad_pcb, which contains none of the loop nets. The dispatch named the wrong board; the worker caught it."
+    }
+  ]
+}
