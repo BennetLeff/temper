@@ -300,6 +300,36 @@ def block_exclusion_zone_into_grid_py(trace, net_id, min_row, max_row, min_col, 
                 trace[row, col] = -2
 "#;
 
+/// Serialises the tests in this file, and exists because `install_fakes` is not safe to
+/// run concurrently with itself.
+///
+/// `install_fakes` builds a **fresh** `temper_placer` module tree and replaces
+/// `sys.modules["temper_placer"]` with it, while the stage under test resolves
+/// `deterministic.stages._grid_fence` **by import** -- so it writes to whichever tree was
+/// installed *last*, and each test asserts on the `_EXPANSION_LOG` list from *its own*
+/// namespace. Five tests in this file call `install_fakes`, and `cargo test` runs them in
+/// parallel threads, so one test's install can land between another's install and its
+/// assertion: the second test's stage run writes to the first test's module tree, and the
+/// first asserts on an empty list -- `left: 0, right: 1`, which is exactly how this
+/// surfaced in CI.
+///
+/// It does **not** reproduce on a fast local machine: 0 failures in 200 parallel runs of
+/// this binary, and 0 in 50 serial ones, while CI fails it. That is the definition of a
+/// test that passes by coincidence of scheduling, which is why this is a guard by
+/// construction rather than a fix to the timing.
+/// `a_second_install_replaces_the_module_the_stage_reads` demonstrates the mechanism.
+static FAKES_GUARD: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+/// Hold this for the whole body of any test that calls `install_fakes`.
+///
+/// A poisoned lock is recovered rather than propagated: one failing test must not turn
+/// every other test in the file into a poisoning error, which would bury the real failure.
+fn lock_fakes() -> std::sync::MutexGuard<'static, ()> {
+    FAKES_GUARD
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
 fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     let sys = py.import("sys")?;
     let modules: Bound<PyDict> = sys.getattr("modules")?.cast_into()?;
@@ -402,6 +432,7 @@ fn py_list<'py>(py: Python<'py>, items: Vec<&Bound<'py, PyAny>>) -> PyResult<Bou
 
 #[test]
 fn clearance_grid_no_board_guard() {
+    let _guard = lock_fakes();
     Python::initialize();
     Python::attach(|py| {
         install_fakes(py).unwrap();
@@ -431,6 +462,7 @@ fn clearance_grid_no_board_guard() {
 
 #[test]
 fn clearance_grid_single_stage_end_to_end() {
+    let _guard = lock_fakes();
     Python::initialize();
     Python::attach(|py| {
         let ns = install_fakes(py).unwrap();
@@ -486,6 +518,7 @@ fn clearance_grid_single_stage_end_to_end() {
 
 #[test]
 fn clearance_grid_hv_expansion_fence() {
+    let _guard = lock_fakes();
     Python::initialize();
     Python::attach(|py| {
         let ns = install_fakes(py).unwrap();
@@ -537,7 +570,52 @@ fn clearance_grid_hv_expansion_fence() {
 }
 
 #[test]
+fn a_second_install_replaces_the_module_the_stage_reads() {
+    // Demonstrates the hazard the guard exists for, so it is not merely asserted in a
+    // comment. `install_fakes` creates a fresh module tree per call, so two calls in one
+    // process give two independent `_EXPANSION_LOG` lists -- and the stage reads the one
+    // reachable through `sys.modules`, which is the most recent install, not the caller's.
+    // Deterministic here: no timing, no threads, just two installs in sequence. It is the
+    // same interleaving two parallel tests perform on each other, and it is why the tests
+    // in this file take `lock_fakes`.
+    Python::initialize();
+    let _guard = lock_fakes();
+    Python::attach(|py| {
+        let first = install_fakes(py).unwrap();
+        let first_log = first.getattr("_EXPANSION_LOG").unwrap();
+        let second = install_fakes(py).unwrap();
+        let second_log = second.getattr("_EXPANSION_LOG").unwrap();
+        assert!(
+            !first_log.is(&second_log),
+            "each install must own its own log"
+        );
+
+        // The stage's view of the log is resolved by import, so it follows the LAST install.
+        let live = py
+            .import("temper_placer.deterministic.stages._grid_fence")
+            .unwrap()
+            .getattr("_EXPANSION_LOG")
+            .unwrap();
+        assert!(
+            live.is(&second_log),
+            "the stage resolves the most recent install; if it resolved the first, the \
+             parallel-tests hazard would not exist"
+        );
+
+        // So a write the stage makes is invisible to a caller holding the other namespace --
+        // which is the empty-log assertion CI saw.
+        second_log.call_method1("append", (1,)).unwrap();
+        let first_len: usize = first_log.len().unwrap();
+        assert_eq!(
+            first_len, 0,
+            "the first namespace's log stayed empty while the stage's log gained an entry"
+        );
+    });
+}
+
+#[test]
 fn clearance_grid_exclusion_zone_writes() {
+    let _guard = lock_fakes();
     Python::initialize();
     Python::attach(|py| {
         let ns = install_fakes(py).unwrap();
@@ -600,6 +678,7 @@ fn clearance_grid_exclusion_zone_writes() {
 
 #[test]
 fn clearance_grid_zone_pipeline_chain() {
+    let _guard = lock_fakes();
     Python::initialize();
     Python::attach(|py| {
         let ns = install_fakes(py).unwrap();
