@@ -1,0 +1,490 @@
+C3D20065D                                                                                            VRRM           =          650 V
+Silicon Carbide Schottky Diode
+                                                                                                     IF (TC=135˚C) =          26 A**
+Z-Rec® Rectifier                                                                                     Qc             =           48 nC**
+
+Features                                                           Package
+
+•     650-Volt Schottky Rectifier
+•     Zero Reverse Recovery Current
+•     Zero Forward Recovery Voltage
+•     High-Frequency Operation
+•     Temperature-Independent Switching Behavior
+•     Extremely Fast Switching
+•     Positive Temperature Coefficient on VF
+                                                                          TO-247-3
+Benefits
+
+•     Replace Bipolar with Unipolar Rectifiers
+•     Essentially No Switching Losses
+•     Higher Efficiency
+•     Reduction of Heat Sink Requirements
+•     Parallel Devices Without Thermal Runaway
+
+Applications
+
+•     Switch Mode Power Supplies (SMPS)                                   Part Number            Package                Marking
+•     Boost diodes in PFC or DC/DC stages
+•     Free Wheeling Diodes in Inverter stages                              C3D20065D             TO-247-3               C3D20065
+•     AC/DC converters
+Maximum Ratings (TC = 25 ˚C unless otherwise specified)
+    Symbol                      Parameter                      Value       Unit                Test Conditions                   Note
+
+     VRRM        Repetitive Peak Reverse Voltage                650          V
+
+     VRSM        Surge Peak Reverse Voltage                     650          V
+
+      VDC        DC Blocking Voltage                            650          V
+
+                                                               27.5/55              TC=25˚C
+                 Continuous Forward Current
+       IF                                                       13/26        A      TC=135˚C                                      Fig. 3
+                 (Per Leg/Device)
+                                                                10/20               TC=149˚C
+                                                                46*                 TC=25˚C, tP = 10 ms, Half Sine Wave
+      IFRM       Repetitive Peak Forward Surge Current                       A
+                                                                31*                 TC=110˚C, tP=10 ms, Half Sine Wave
+                                                                90*                 TC=25˚C, tp = 10 ms, Half Sine Wave
+      IFSM       Non-Repetitive Peak Forward Surge Current                   A                                                    Fig. 8
+                                                                71*                 TC=110˚C, tp = 10 ms, Half Sine Wave
+                                                                860*                TC=25˚C, tP = 10 µs, Pulse
+      IFSM       Non-Repetitive Peak Forward Surge Current                   A                                                    Fig. 8
+                                                                680*                TC=110˚C, tP = 10 µs, Pulse
+                                                              115.5/231             TC=25˚C
+      Ptot       Power Dissipation (Per Leg/Device)                         W                                                     Fig. 4
+                                                               50/100               TC=110˚C
+
+     dV/dt       Diode dV/dt ruggedness                         200        V/ns     VR=0-650V
+
+                                                               -55 to
+    TJ , Tstg    Operating Junction and Storage Temperature                 ˚C
+                                                               +175
+                                                                  1         Nm      M3 Screw
+                 TO-247 Mounting Torque
+                                                                 8.8       lbf-in   6-32 Screw
+       *
+            Per Leg, ** Per Device
+
+
+1            C3D20065D Rev. 3, May 2021
+Electrical Characteristics (Per Leg)
+
+     Symbol                                Parameter                  Typ.    Max.           Unit                                                   Test Conditions            Note
+
+                                                                       1.5     1.8                                                   IF = 10 A TJ=25°C
+                      VF        Forward Voltage                                                   V                                                                            Fig. 1
+                                                                       2.0     2.4                                                   IF = 10 A TJ=175°C
+                                                                        12     60                                                    VR = 650 V TJ=25°C
+                       IR       Reverse Current                                              μA                                                                                Fig. 2
+                                                                        24     220                                                   VR = 650 V TJ=175°C
+                                                                                                                                     VR = 400 V, IF = 10 A
+                      QC        Total Capacitive Charge                 24                   nC                                      di/dt = 500 A/μs                          Fig. 5
+                                                                                                                                     TJ = 25°C
+                                                                      460.5                                                          VR = 0 V, TJ = 25°C, f = 1 MHz
+                       C        Total Capacitance                      44                     pF                                     VR = 200 V, TJ = 25˚C, f = 1 MHz          Fig. 6
+                                                                       40                                                            VR = 400 V, TJ = 25˚C, f = 1 MHz
+
+                      EC        Capacitance Stored Energy              3.6                    μJ                                     VR = 400 V                                Fig. 7
+
+Note:This is a majority carrier diode, so there is no reverse recovery charge.
+
+Thermal Characteristics
+
+     Symbol                     Parameter                                            Typ.                                       Unit       Note
+
+                                                                                     1.3**
+                      RθJC      Thermal Resistance from Junction to Case                                                        °C/W       Fig. 9
+                                                                                     0.65*
+        **
+                      Per Leg, * Both Legs
+
+
+Typical Performance (Per Leg)
+
+                      30                                                                                                   100
+
+                             TJ = -55 °C
+                                                                                                                                90
+                      25
+                                                                                                                                80
+                             TJ = 25 °C
+                                                                                                                (mA) IRR (mA)
+
+
+
+
+                                                                                                                                70
+       I (A) IF (A)
+
+
+
+
+                      20     TJ = 75 °C
+                                                                                                                                                              TJ = 175 °C
+                                                                                                                                60
+Foward Current,
+
+
+
+
+                                                                                             Reverse Leakage ICurrent,
+
+
+
+
+                             TJ = 125 °C
+                                                                                                                                                              TJ = 125 °C
+                      15                                                                                                        50
+                             TJ = 175 °C
+           F
+
+
+
+
+                                                                                                                                                              TJ = 75 °C
+                                                                                                                 R
+
+
+
+
+                                                                                                                                40
+                      10                                                                                                                                      TJ = 25 °C
+                                                                                                                                30
+                                                                                                                                                              TJ = -55 °C
+                                                                                                                                20
+                       5
+                                                                                                                                10
+                       0                                                                                                         0
+           0.0 0.5 1.0 1.5 2.0 2.5 3.0 3.5
+0        200       400       600      800      1000     1200            4.0 4.5 5.0                                                  0   100 200 300 400 500 600 700 800 900 1000
+                                            FowardVVoltage,
+                                                    F
+                                                      (V) VF (V)                                                                                     ReverseVVoltage,
+                                                                                                                                                              R
+                                                                                                                                                                (V) VR (V)
+
+                                    Figure 1. Forward Characteristics                                                                      Figure 2. Reverse Characteristics
+
+
+
+
+    2                        C3D20065D Rev. 3, May 2021
+Typical Performance (Per Leg)
+
+                   100                                                                                                   140
+                                                                                      10% Duty
+                                                                                      20% Duty
+                                                                                                                         120
+                                                                                      30% Duty
+                             80
+                                                                                      50% Duty
+                                                                                      70% Duty                           100
+                                                                                      DC
+                             60
+ IF(peak) (A)
+
+
+
+
+                                                                                                                          80
+
+
+
+
+                                                                                                        PTot (W)
+                                                                                                                          60
+                             40
+
+                                                                                                                         40
+                             20
+                                                                                                                         20
+
+                             0                                                                                            0
+                                  25         50        75         100         125     150        175                           25     50         75     100      125          150            175
+                                                              TC ˚C                                                                                   TC ˚C
+
+
+                                                  Figure 3. Current Derating                                                               Figure 4. Power Derating
+
+                             40                                                                                          500
+                                       Conditions:                                                                                                                           Conditions:
+                             35        TJ = 25 °C                                                                        450                                                 TJ = 25 °C
+                                                                                                                                                                             Ftest = 1 MHz
+                                                                                                                         400                                                 Vtest = 25 mV
+                             30
+              (nC) QC (nC)
+
+
+
+
+                                                                                                                         350
+                             25
+                                                                                                            C (pF)(pF)
+
+
+
+
+                                                                                                                         300
+          Charge,
+
+
+
+
+                                                                                                       Capacitance
+
+
+
+
+                             20                                                                                          250
+            C
+CapacitiveQ
+
+
+
+
+                             15                                                                                          200
+
+                                                                                                                         150
+                             10
+                                                                                                                         100
+                              5
+                                                                                                                          50
+                              0                                                                                            0
+                                  0        100       200    300         400     500    600       700                           0            1            10            100               1000
+                                                     ReverseVVoltage,
+                                                              R
+                                                                (V) VR (V)                                                                      ReverseVVoltage,
+                                                                                                                                                        R
+                                                                                                                                                          (V) VR (V)
+
+          Figure 5. Total Capacitance Charge vs. Reverse Voltage                                                                   Figure 6. Capacitance vs. Reverse Voltage
+
+
+
+
+     3                                 C3D20065D Rev. 3, May 2021
+Typical Performance
+
+                                    10                                                                                                               1,000
+
+                                     9
+
+                                     8
+                     (mJ) EC (µJ)
+
+
+
+
+                                     7
+
+                                     6
+Capacitance StoredE Energy,
+
+
+
+
+                                                                                                                                               (A)
+                                                                                                                                          IFSM (A)
+                                     5                                                                                                                100    TJ_initial = 25 °C
+
+
+
+
+                                                                                                                                              FSM
+                   C
+
+
+
+
+                                                                                                                                                             TJ_initial = 110 °C
+                                     4
+
+                                     3
+
+                                     2
+
+                                     1
+
+                                     0                                                                                                                 10
+                                         0     100                      200            300            400    500        600       700                    10E-6                     100E-6                  1E-3   10E-3
+                                                                                  ReverseVVoltage,
+                                                                                            (V) VR (V)                                                                                      tp (s)
+                                                                                                                                                                                            Time, tp (s)
+                                                                                            R
+
+
+                                               Figure 7. Capacitance Stored Energy                                                                     Figure 8. Non-repetitive peak forward surge current
+                                                                                                                                                          versus pulse duration (sinusoidal waveform)
+
+
+
+
+                                                                                      1
+                                                                                                0.5
+                                                     Thermal Resistance (˚C/W)
+
+
+
+
+                                                                                                0.3
+
+                                                                                                0.1
+                                                                                 100E-3         0.05
+
+
+                                                                                                0.02
+
+                                                                                                                    SinglePulse
+                                                                                                0.01
+                                                                                  10E-3
+
+
+
+
+                                                                                   1E-3
+                                                                                          1E-6              10E-6           100E-6       1E-3                10E-3                 100E-3              1
+                                                                                                                                        T (Sec)
+
+                                                                                                                   Figure 9. Transient Thermal Impedance
+
+
+
+
+        4                                    C3D20065D Rev. 3, May 2021
+Package Dimensions
+                                                                          DWG NO.    98WHP03165A
+                                                                                                                   Inches                    Millimeters
+                                                 PACKAGE
+         ASE
+Package TO-247-3                                                                                     POS
+             Advanced
+             Semiconductor
+                                                                            ISSUE          O                 Min            Max             Min       Max
+                                                 OUTLINE
+                      Engineering Weihai, Inc.
+
+                                                                            DATE      Sep.05, 2016
+                                                                                                      A     .190            .205            4.83      5.21
+                                                                                                     A1     .090            .100            2.29      2.54
+                                                                                                     A2     .075            .085            1.91      2.16
+                                                                                                      b     .042            .052            1.07      1.33
+                                                                                                     b1     .075            .095            1.91      2.41
+                                                                                                     b3     .113            .133            2.87      3.38
+                                                                                                      c     .022            .027            0.55      0.68
+                                                                                                     D      .819            .831         20.80       21.10
+                                                                                                     D1     .640            .695         16.25       17.65
+                                                                                                     D2     .037            .049            0.95      1.25
+                                                                                                      E     .620            .635         15.75       16.13
+                                                                                                     E1     .516            .557         13.10       14.15
+                                                                                                     E2     .145            .201            3.68      5.10
+                                                                                                     E3     .039            .075            1.00      1.90
+                                                                                                     E4     .487            .529         12.38       13.43
+                                                   e                                                  e          .214 BSC                      5.44 BSC
+                                                                                                      L     .780            .800         19.81       20.32
+                                                                                                     L1     .161            .173            4.10      4.40
+                                                                                                      N                              3
+                                                                                                     ØP     .138            .144            3.51      3.65
+                                                                                                     Q      .216            .236            5.49      6.00
+           NOTE ;
+           1. ALL METAL SURFACES: TIN PLATED,EXCEPT AREA OF CUT
+           2. DIMENSIONING & TOLERANCEING CONFIRM TO                                                  S     .238            .248            6.04      6.30
+             ASME Y14.5M-1994.
+           3. ALL DIMENSIONS ARE IN MILLIMETERS.
+             ANGLES ARE IN DEGREES.                                                                   T                       17.5° REF
+           4. THIS DRAWING WILL MEET ALL DIMENSIONS REQUIREMENT
+              OF JEDEC outlines TO-247 AD.                                                           W                         3.5° REF
+           1 - GATE                                                                                   X                            4° REF
+           2 - DRAIN (COLLECTOR)
+           3 - SOURCE (EMITTER)
+           4 - DRAIN (COLLECTOR)
+
+TITLE:                                                               COMPANY          ASE Weihai
+           TO-247 3LD, Only For Cree
+                                                                       SHEET              1 OF 3
+Recommended Solder Pad Layout
+
+
+
+
+                                                                                    Part Number       Package                Marking
+
+                                                                                     C3D20065D        TO-247-3              C3D20065
+
+
+
+
+                                                       all units are in inches
+
+                                       TO-247-3
+
+
+                  Note: Recommended soldering profiles can be found in the applications note here:
+                               http://www.wolfspeed.com/power_app_notes/soldering
+
+
+
+
+ 5          C3D20065D Rev. 3, May 2021
+Diode Model (Per Leg)
+                   Diode Model CSD04060
+
+
+                                                                 Vf T = VT + If*RT
+
+                                                           VT= 0.965 + (Tj * -1.3*10-3)
+                                                           RT= 0.096 + (Tj * 1.06*10-3)
+                                                                         VfT = VT + If * RT
+
+                                                                  VT = 0.94 + (TJ * -1.3*10-3)
+                                                                  RT = 0.044 + (TJ * 4.4*10-4)
+
+                                                                  Note: Tj = Diode Junction Temperature In Degrees Celsius,
+                                 VT          RT                                valid from 25°C to 175°C
+
+
+
+
+Notes
+
+•    RoHS Compliance
+     The levels of RoHS restricted materials in this product are below the maximum concentration values (also referred
+     to as the threshold limits) permitted for such substances, or are used in an exempted application, in accordance
+     with EU Directive 2011/65/EC (RoHS2), as implemented January 2, 2013. RoHS Declarations for this product can
+     be obtained from your Wolfpseed representative or from the Product Ecology section of our website at http://
+     www.wolfspeed.com/Power/Tools-and-Support/Product-Ecology.
+
+•    REACh Compliance
+     REACh substances of high concern (SVHCs) information is available for this product. Since the European Chemi-
+     cal Agency (ECHA) has published notice of their intent to frequently revise the SVHC listing for the foreseeable
+     future,please contact a Cree representative to insure you get the most up-to-date REACh SVHC Declaration.
+     REACh banned substance information (REACh Article 67) is also available upon request.
+
+•    This product has not been designed or tested for use in, and is not intended for use in, applications implanted into
+     the human body nor in applications in which failure of the product could lead to death, personal injury or property
+     damage, including but not limited to equipment used in the operation of nuclear facilities, life-support machines,
+     cardiac defibrillators or similar emergency medical equipment, aircraft navigation or communication or control
+     systems, or air traffic control systems.
+
+
+
+
+Related Links
+
+•    Cree SiC Schottky diode portfolio: http://www.wolfspeed.com/Power/Products#SiCSchottkyDiodes
+•    Schottky diode Spice models: http://www.wolfspeed.com/power/tools-and-support/DIODE-model-request2
+•    SiC MOSFET and diode reference designs: http://go.pardot.com/l/101562/2015-07-31/349i
+
+
+
+
+    Copyright © 2021 Cree, Inc. All rights reserved.                                                                                  Cree, Inc.
+                                                                                                                              4600 Silicon Drive
+    The information in this document is subject to change without notice.                                                    Durham, NC 27703
+                                                                                                                      USA Tel: +1.919.313.5300
+    Cree, the Cree logo, and Zero Recovery are registered trademarks of Cree, Inc.                                       Fax: +1.919.313.5451
+                                                                                                                          www.cree.com/power
+
+
+
+6          C3D20065D Rev. 3, May 2021
+

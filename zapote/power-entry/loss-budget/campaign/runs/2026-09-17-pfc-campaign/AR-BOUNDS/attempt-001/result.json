@@ -1,0 +1,158 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-BOUNDS",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_verification",
+  "generated_utc": "2026-09-18T00:00:00Z",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "source_revision": "8781fc5151866e69c416deb2a53a0ec169db8c12",
+  "worktree_head": "8781fc5151866e69c416deb2a53a0ec169db8c12",
+  "dirty_state": "worktree has pre-existing modifications outside this attempt; this attempt writes only inside its allowed output directory",
+  "requested_model": "not_applicable: no maintained-model invocation",
+  "binary_sha256": "not_applicable",
+  "checker_sha256": "not_applicable: G0 checker unimplemented (dispatch)",
+
+  "status_axes": {
+    "task_completion": "FINISHED",
+    "assignment_status": "FINISHED",
+    "assignment_note": "FINISHED means the assignment was completed; it is not PASS, SELECTED, VALIDATED or QUALIFIED.",
+    "evidence_status": "BOUNDS_ESTABLISHED_WITH_NULLS",
+    "checker_status": "RUN",
+    "checker_note": "zapote-claims exit 0 (26 claims, 4 protection claims, 0 promotions); zapote-fault-loop exit 0 FAULT LOOP CONSISTENT (connectivity only). Negative control U12 rejected (exit 1). Outputs in raw/checker/. The dispatch declared the G0 checker not_applicable, so per ADMISSION.md this is NOT a harness-validated run.",
+    "evidence_class": "source_research",
+    "numerical_status": "GEOMETRY_DERIVED_PLUS_DATASHEET_BOUNDS",
+    "physical_applicability": "INDETERMINATE",
+    "assembly_completeness": "INCOMPLETE",
+    "hardware_qualification": "NOT_PERFORMED",
+    "completion_ladder": "none; NOT promoted (no promotions in the ledger)"
+  },
+  "checker_receipt": null,
+  "evidence_check_receipt": "raw/checker/",
+  "checker_counted_as_validated_run": false,
+
+  "loop_definition": {
+    "board": "zapote/power-entry/shunt-repair/candidate/section.kicad_pcb",
+    "board_sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+    "nets": ["PFC_BUS_PLUS_390V", "PFC_BUS_MINUS", "a1"],
+    "path": "bank+ -> shorted U10 (C3D20065D) -> a1 -> U9 (STW65N65DM2AG) -> bank-",
+    "dispatch_board_mismatch": "the delivered pcb/temper.kicad_pcb (00a27419...) contains none of the loop nets; geometry was taken from the board the AR-FAULT netlist came from and the substitution is recorded",
+    "fuse_role": "the A70QS50-14F is the AR-PROTCKT F2 bus-side candidate, not present on this board; included as the candidate series element"
+  },
+
+  "resistance_decomposition": {
+    "bank_esr": {
+      "value_ohm": 0.118419,
+      "kind": "upper_bound",
+      "direction": "upper bound at 120 Hz and therefore also at the discharge frequency (ESR falls with frequency)",
+      "source": "Nichicon LGX datasheet: tan delta max 0.20 at 120 Hz; ESR_each = 0.4737 ohm; /4 parallel",
+      "lower_bound": null,
+      "lower_bound_reason": "no minimum or high-frequency ESR is published"
+    },
+    "fuse_resistance": {
+      "value_ohm": 0.00464,
+      "kind": "typical hot, upper bound on cold",
+      "direction": "HOT figure (steady state at 50 A rated); positive temperature coefficient makes the cold onset resistance lower, so it is an upper bound at fault onset",
+      "source": "Mersen A70QS50-14F Watts Loss @ Rated Current = 11.6 W at 50 A; R = P/I^2"
+    },
+    "u9_healthy_on": {
+      "value_ohm_max_25c": 0.05,
+      "value_ohm_typ_25c": 0.042,
+      "kind": "upper bound at 25 C only",
+      "direction": "at 25 C this bounds the on-resistance; the HOT on-resistance is higher and is NOT published, so this is a lower bound on the hot value and cannot bound the loop R",
+      "source": "STW65N65DM2AG datasheet Table 5 (VGS=10 V, ID=30 A, Tcase=25 C)"
+    },
+    "u9_failed_short_residual": {
+      "value_ohm": null,
+      "kind": "unsourced",
+      "direction": null,
+      "reason": "no failed-short residual is published; Rds_on is a healthy/on parameter and is not the short residual"
+    },
+    "u10_failed_short_residual": {
+      "value_ohm": null,
+      "kind": "unsourced",
+      "direction": null,
+      "reason": "no failed-short residual is published; the datasheet gives only a forward model (RT = 0.055 ohm/leg at 25 C), which is not a short residual"
+    },
+    "copper": {
+      "value_ohm_lower": 0.010288843,
+      "value_ohm_upper": 0.020494051,
+      "kind": "geometry-derived",
+      "direction": "lower bound at 20 C / nearest cap / least-resistance path; upper at 100 C / farthest cap",
+      "source": "raw/compute_bounds.py over section.kicad_pcb, >=3 mm power copper, 0.07 mm copper"
+    },
+    "known_components_upper_sum": {
+      "value_ohm": 0.193553,
+      "kind": "sourced sub-total (NOT a loop bound)",
+      "composition": "bank 0.118419 + fuse 0.00464 + U9 25C max 0.05 + copper 0.020494",
+      "excludes": ["U9 failed-short residual (null)", "U10 failed-short residual (null)", "hot correction to U9 Rds_on (null)"]
+    },
+    "loop_resistance_lower_bound_ohm": 0.010288843,
+    "loop_resistance_upper_bound_ohm": null,
+    "loop_resistance_upper_bound_reason": "unbounded above by sourced data: the two failed-short residuals are unpublished and each could exceed the 0.4466 ohm left below the action screen"
+  },
+
+  "inductance_decomposition": {
+    "copper": {
+      "value_h_lower": 7.5769e-08,
+      "value_h_upper": 2.8155e-06,
+      "kind": "geometry-derived",
+      "model": "current sheet L = mu0 * h_eff * length / w_eff",
+      "return_path_assumption_lower": "return current flows directly beneath the forward path; h = the 1.44 mm single-core dielectric",
+      "return_path_assumption_upper": "return current is horizontally offset by the measured worst-case separation (34.5 mm); h = 1.44 + 34.5 mm",
+      "source": "raw/compute_bounds.py / raw/geometry.json"
+    },
+    "bank_internal_inductance": {"value_h": null, "kind": "unsourced", "reason": "not published"},
+    "fuse_internal_inductance": {"value_h": null, "kind": "unsourced", "reason": "not published"},
+    "semiconductor_package_inductance": {"value_h": null, "kind": "unsourced", "reason": "not published"},
+    "loop_inductance_lower_bound_h": 7.5769e-08,
+    "loop_inductance_upper_bound_h": null,
+    "loop_inductance_upper_bound_note": "the copper term is bounded; the unpublished internal inductances add >= 0 and are not bounded, though at component scale they are far below the 25.7 uH break-even for R >= 400L"
+  },
+
+  "frequency_caveat": {
+    "discharge_frequency": "~0.5 kHz to ~300 kHz, from 1/(2*pi*L/R) over the bounded (L,R)",
+    "esr_basis": "tan delta is quoted at 120 Hz; ESR decreases with frequency, so the 120 Hz max is a safe upper bound at the discharge frequency",
+    "copper_basis": "skin depth at 100 kHz = 0.209 mm > 0.07 mm copper, so the DC copper resistance is a lower bound on AC copper resistance; proximity/edge effects over 8 mm traces are not modelled",
+    "dc_is_a_bound_in_the_safe_direction": "yes for the upper-bound use: DC/tan-delta figures overestimate the bank ESR and underestimate the copper AC resistance, and both directions are stated per term"
+  },
+
+  "screen_location": {
+    "region_expression": "{400*L <= R <= 0.64013 ohm}",
+    "region_basis": "AR-MERSEN 142 of 400 cells (manufacturer L/R <= 2.5 ms AND pre-arcing action screen E/R >= 280 A2s)",
+    "sourced_box": {"R_lower_ohm": 0.010288843, "R_upper_ohm": 0.193553,
+                    "L_lower_h": 7.5769e-08, "L_upper_copper_h": 2.8155e-06},
+    "lower_boundary_check": {"required": "R >= 400*L", "holds_for_total_L_up_to_h": 2.5722e-05,
+                              "copper_L_max_h": 2.8155e-06, "margin": "~9x", "closed_by_sourced_data": false},
+    "upper_boundary_check": {"required": "R <= 0.64013", "sourced_sub_total_ohm": 0.193553,
+                              "closed_by_sourced_data": false,
+                              "why": "the two failed-short residuals are null; a combined residual > 0.4466 ohm would put R above the screen"},
+    "verdict": "INDETERMINATE",
+    "verdict_note": "The sourced components place R <= 0.194 ohm and the copper L in [75.8, 2815.5] nH, i.e. the plausible cell sits well inside the screened region; but the null U9/U10 failed-short residuals (and the null bank-ESR minimum) prevent closing either boundary by bounds. Inside is plausible on all sourced evidence; it is not established."
+  },
+
+  "completion_ladder": {
+    "protection_identified": "unchanged",
+    "part_selected": "unchanged",
+    "coordination_demonstrated": false,
+    "hardware_verified": false,
+    "note": "this task locates a plausible envelope cell only; it is a SCREEN, not coordination, not melting and not clearing. No promotion is recorded."
+  },
+
+  "unknowns": {
+    "u9_failed_short_residual_ohm": null,
+    "u10_failed_short_residual_ohm": null,
+    "u9_rds_on_hot_ohm": null,
+    "bank_esr_min_ohm": null,
+    "component_internal_inductance_h": null,
+    "loop_resistance_upper_ohm": null
+  },
+
+  "single_most_important_missing_input": "The failed-short residual resistance of U9 (STW65N65DM2AG) and U10 (C3D20065D). It is the only term that can move the loop R across the 0.64013 ohm action screen, and no datasheet publishes it. A high-current pulse measurement (or a supplier/qualification shock-test record) of the shorted-device residual would close the upper bound and turn the INDETERMINATE verdict into inside or outside. Paired second: the bank's minimum/high-frequency ESR, which is needed to close the R >= 400L boundary.",
+
+  "next_discriminating_observation": "Measure the failed-short residual of one U9 and one U10 at kA-scale pulse current (or obtain a qualified short-residual figure), then recompute the loop (R,L) cell; optionally measure the 1-100 kHz ESR of the LGX2W561MELC50 bank.",
+
+  "raw_artifacts": "see manifest.json",
+  "budget": {"deadline_utc": "2026-09-18T19:49:50Z", "solver_invocations": 0, "model_cad_bom_edits": 0,
+             "bench_work": "none", "candidate_parts": 1, "primary_sources": 6, "web_searches": 4}
+}

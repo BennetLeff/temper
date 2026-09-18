@@ -1,0 +1,85 @@
+{
+  "board": "zapote/power-entry/shunt-repair/candidate/section.kicad_pcb",
+  "board_sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+  "min_width_mm_filter": 3.0,
+  "copper_thickness_mm": 0.07,
+  "dielectric_mm": 1.44,
+  "assumptions": [
+    "all loop current flows in conductors of width >= 3 mm; <3 mm net members are sense/control routing",
+    "copper thickness 0.07 mm on both F.Cu and B.Cu per the board stackup",
+    "the B.Cu PFC_BUS_MINUS zone (off the direct path) is not modelled as a conductor",
+    "L model: current sheet, L = mu0 * h_eff * length / w_eff",
+    "L lower bound: return directly beneath the forward path (h = 1.44 mm core)",
+    "L upper bound: return separation = projected loop area / path length"
+  ],
+  "per_capacitor": {
+    "U36": {
+      "R_copper_20c_ohm": 0.012131700252936561,
+      "R_copper_100c_ohm": 0.01622262243125238,
+      "length_mm": 254.451,
+      "w_eff_mm": 5.154,
+      "legs_len_mm": {
+        "forward_bus_plus": 87.011,
+        "a1": 54.55,
+        "return_bus_minus": 112.89
+      },
+      "loop_area_mm2": 308.35,
+      "h_low_mm": 1.44,
+      "h_high_mm": 23.801,
+      "d_h_max_mm": 22.361,
+      "L_low_h": 8.93371521078735e-08,
+      "L_high_h": 1.4765867703679001e-06
+    },
+    "U37": {
+      "R_copper_20c_ohm": 0.015325985967222275,
+      "R_copper_100c_ohm": 0.020494051002680952,
+      "length_mm": 358.451,
+      "w_eff_mm": 5.747,
+      "legs_len_mm": {
+        "forward_bus_plus": 149.011,
+        "a1": 54.55,
+        "return_bus_minus": 154.89
+      },
+      "loop_area_mm2": 1077.65,
+      "h_low_mm": 1.44,
+      "h_high_mm": 35.922,
+      "d_h_max_mm": 34.482,
+      "L_low_h": 1.1286543384106889e-07,
+      "L_high_h": 2.815512841307775e-06
+    },
+    "U38": {
+      "R_copper_20c_ohm": 0.010288843110079418,
+      "R_copper_100c_ohm": 0.013758336716966666,
+      "length_mm": 194.451,
+      "w_eff_mm": 4.644,
+      "legs_len_mm": {
+        "forward_bus_plus": 44.011,
+        "a1": 54.55,
+        "return_bus_minus": 95.89
+      },
+      "loop_area_mm2": 738.35,
+      "h_low_mm": 1.44,
+      "h_high_mm": 21.289,
+      "d_h_max_mm": 19.849,
+      "L_low_h": 7.576878549869007e-08,
+      "L_high_h": 1.1201906254494214e-06
+    },
+    "U39": {
+      "R_copper_20c_ohm": 0.013913128824365132,
+      "R_copper_100c_ohm": 0.018604765288395237,
+      "length_mm": 312.451,
+      "w_eff_mm": 5.518,
+      "legs_len_mm": {
+        "forward_bus_plus": 106.011,
+        "a1": 54.55,
+        "return_bus_minus": 151.89
+      },
+      "loop_area_mm2": 1158.35,
+      "h_low_mm": 1.44,
+      "h_high_mm": 23.801,
+      "d_h_max_mm": 22.361,
+      "L_low_h": 1.0246430035069006e-07,
+      "L_high_h": 1.6935555562610974e-06
+    }
+  }
+}

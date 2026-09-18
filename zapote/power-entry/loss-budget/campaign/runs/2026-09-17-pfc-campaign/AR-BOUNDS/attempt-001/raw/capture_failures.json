@@ -1,0 +1,13 @@
+{
+  "schema": "pfc-campaign-AR-BOUNDS-capture-failures/v1",
+  "capture_failures": [
+    {"target": "pcb/temper.kicad_pcb", "role": "dispatch source_bundle board; sha256 00a27419... verified",
+     "finding": "the delivered board does NOT contain the loop nets PFC_BUS_PLUS_390V / a1 / PFC_BUS_MINUS (0 hits); it is the 6-layer product board with +170V_BUS / DC_BUS_RTN and no boost stage. The loop board is zapote/power-entry/shunt-repair/candidate/section.kicad_pcb (sha256 34e6fba9...), the board the delivered AR-FAULT netlist was extracted from. Geometry was derived from the loop board and this substitution is recorded."},
+    {"target": "https://www.nichicon.co.jp/english/products/pdfs/e-lgx.pdf", "http_status": 404,
+     "note": "first guess at the Nichicon LGX datasheet path; replaced by the manufacturer page the search engine returned"},
+    {"target": "https://static6.arrow.com/.../wolfspeed_c3d20065d_data_sheet.pdf", "error": "fetch timed out",
+     "note": "one mirror; replaced by the promelec mirror of the same Wolfspeed datasheet"},
+    {"target": "https://www.gdsicsemi.com/.../c3d20065d.pdf", "error": "transport error", "note": "second mirror rejected; promelec mirror used"},
+    {"target": "https://cdn.promelec.ru/.../CREE-S-A0014923702-1.pdf", "http_status": 200, "note": "accepted as the C3D20065D datasheet (Rev.3, May 2021)"}
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "bank": {
+    "c_bank_f": 0.00224047,
+    "v_bus_v": 400.0,
+    "energy_j": 179.23760000000001
+  },
+  "cases": [
+    {
+      "label": "Envelope peak corner",
+      "r_ohm": 0.005,
+      "l_h": 2e-08,
+      "tau_l_over_r_s": 4e-06,
+      "zeta": 0.8367477965313084,
+      "peak_a": 55227.55865756487,
+      "t_peak_s": 7.083833336171947e-06,
+      "action_a2s": 35847.520000000004,
+      "action_basis": "E/R by energy balance (exact)",
+      "action_screen_met": true,
+      "tau_condition_met": true
+    },
+    {
+      "label": "Most underdamped cell (= the 4.00 ms exclusion)",
+      "r_ohm": 0.005,
+      "l_h": 2e-05,
+      "tau_l_over_r_s": 0.004,
+      "zeta": 0.026460288641660733,
+      "peak_a": 4064.073497550427,
+      "t_peak_s": 0.0003270224699820517,
+      "action_a2s": 35847.520000000004,
+      "action_basis": "E/R by energy balance (exact)",
+      "action_screen_met": true,
+      "tau_condition_met": false
+    },
+    {
+      "label": "Second exclusion: tau = 2.52 ms",
+      "r_ohm": 0.005,
+      "l_h": 1.262e-05,
+      "tau_l_over_r_s": 0.0025239999999999998,
+      "zeta": 0.03331040382777687,
+      "peak_a": 5063.4385266438985,
+      "t_peak_s": 0.00025867218345247515,
+      "action_a2s": 35847.520000000004,
+      "action_basis": "E/R by energy balance (exact)",
+      "action_screen_met": true,
+      "tau_condition_met": false
+    },
+    {
+      "label": "Mid-damped, low R",
+      "r_ohm": 0.05,
+      "l_h": 2e-05,
+      "tau_l_over_r_s": 0.0004,
+      "zeta": 0.26460288641660734,
+      "peak_a": 2961.0441118035237,
+      "t_peak_s": 0.00028601732546962663,
+      "action_a2s": 3584.752,
+      "action_basis": "E/R by energy balance (exact)",
+      "action_screen_met": true,
+      "tau_condition_met": true
+    },
+    {
+      "label": "Near-critical (zeta ~ 1)",
+      "r_ohm": 0.2,
+      "l_h": 2e-05,
+      "tau_l_over_r_s": 0.0001,
+      "zeta": 1.0584115456664294,
+      "peak_a": 1498.9878756299486,
+      "t_peak_s": 0.00020765469527425976,
+      "action_a2s": 896.188,
+      "action_basis": "E/R by energy balance (exact)",
+      "action_screen_met": true,
+      "tau_condition_met": true
+    },
+    {
+      "label": "Screen edge: R = 0.64013 ohm",
+      "r_ohm": 0.6401342857142858,
+      "l_h": 2e-05,
+      "tau_l_over_r_s": 3.1243444455850784e-05,
+      "zeta": 3.3876275938846643,
+      "peak_a": 585.1626196367262,
+      "t_peak_s": 0.0001236571240147015,
+      "action_a2s": 280.0,
+      "action_basis": "E/R by energy balance (exact)",
+      "action_screen_met": true,
+      "tau_condition_met": true
+    },
+    {
+      "label": "Most damped envelope corner",
+      "r_ohm": 5.0,
+      "l_h": 2e-05,
+      "tau_l_over_r_s": 4.000000000000001e-06,
+      "zeta": 26.460288641660732,
+      "peak_a": 79.80186322052684,
+      "t_peak_s": 3.177017695168382e-05,
+      "action_a2s": 35.84752,
+      "action_basis": "E/R by energy balance (exact)",
+      "action_screen_met": false,
+      "tau_condition_met": true
+    }
+  ],
+  "oracle_checks": [
+    {
+      "check": "peak(5 ohm / 20 nH, zeta=837) -> V0/R",
+      "computed": 79.99960450240661,
+      "reference": 80.0,
+      "rel_err": 4.9437199173496534e-06
+    },
+    {
+      "check": "peak(1 ohm / 20 nH, zeta=167) -> V0/R",
+      "computed": 399.9620571039023,
+      "reference": 400.0,
+      "rel_err": 9.485724024429487e-05
+    },
+    {
+      "check": "peak(0.1 mOhm, 20 uH, zeta~5e-4) -> V0/Z0 (lossless limit)",
+      "computed": 4230.129507167936,
+      "reference": 4233.646182665718,
+      "rel_err": 0.0008306493613425874
+    },
+    {
+      "check": "action quadrature (R=0.05 ohm, 20 uH) -> E/R",
+      "computed": 3584.751992808326,
+      "reference": 3584.752,
+      "rel_err": 2.006184481011637e-09
+    },
+    {
+      "check": "action quadrature (R=0.640134 ohm, 20 uH) -> E/R",
+      "computed": 279.9999993818884,
+      "reference": 280.0,
+      "rel_err": 2.207541375095648e-09
+    },
+    {
+      "check": "action quadrature (R=5 ohm, 20 uH) -> E/R",
+      "computed": 35.847520249868516,
+      "reference": 35.84752,
+      "rel_err": 6.970315197133812e-09
+    }
+  ],
+  "max_oracle_rel_err": 0.0008306493613425874
+}

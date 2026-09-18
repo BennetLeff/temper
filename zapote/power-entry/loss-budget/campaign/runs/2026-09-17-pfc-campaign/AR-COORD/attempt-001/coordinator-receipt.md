@@ -50,13 +50,19 @@ and the melt column is a screen, not a melting result:
   claim that "wherever it melts, the manufacturer's condition holds" is
   **withdrawn**.
 
-### The time-constant definition — RESOLVED by AR-MERSEN
+### The time-constant definition — resolved in the weak sense
 
 Substituting `R·C` for the manufacturer's criterion was not established at the
-time; it is now confirmed to be wrong. The captured Mersen catalogue defines the
-time constant as **`L/R`** (`*Time Constant: L/R <=1ms` in its high-speed-fuse
-tables), and its A70QS capacitor-discharge sentence is scoped to **890 VDC, `L/R`
-<= 2.5 ms**. At the envelope's peak corner (R = 5 mΩ, L = 20 µH, C = 2240.47 µF):
+time, and is now known to be wrong. The captured Mersen catalogue defines the
+time constant as **`L/R`** in its high-speed-fuse tables
+(`*Time Constant: L/R <=1ms`), and its A70QS capacitor-discharge sentence is
+scoped to **890 VDC, 2.5 ms time constant**. That makes `L/R` the
+best-supported reading **by context** — the `L/R` statements concern the general
+DC ratings and other product lines, not the capacitor-discharge sentence itself,
+so this is a supported interpretation, not a manufacturer-confirmed definition of
+that condition. What *is* settled is that `R·C` is not it.
+
+At the envelope's peak corner (R = 5 mΩ, L = 20 µH, C = 2240.47 µF):
 
 | Quantity | Value |
 | --- | ---: |
@@ -66,7 +72,7 @@ tables), and its A70QS capacitor-discharge sentence is scoped to **890 VDC, `L/R
 | **`L/R` : `R·C` — the relevant ratio** | **357x** |
 
 The 714x figure in the earlier draft of this receipt compared `2L/R` against
-`R·C`; with the definition confirmed as `L/R`, the correct ratio is **357x**.
+`R·C`; with the time constant read as `L/R`, the relevant ratio is **357x**.
 Either way the point stands: `R·C` is not the manufacturer's time constant, the
 damping factor at that corner is 0.0265 (heavily underdamped), and the
 "wherever it melts, the manufacturer's condition holds" claim is withdrawn.

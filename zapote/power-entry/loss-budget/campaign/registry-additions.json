@@ -143,6 +143,17 @@
       "reason": "Coordinator-issued after review: Mersen defines the time constant as L/R, so AR-COORD's R*C mapping is invalid; the envelope must be re-mapped onto the real conditions.",
       "hypothesis_or_question": "Map the AR-COORD fault-impedance envelope onto Mersen's actual capacitor-discharge application conditions for the exact candidate, with the time constant defined as L/R.",
       "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "AR-BOUNDS",
+      "kind": "engineering_verification",
+      "wave": 3,
+      "depends_on": [
+        "AR-MERSEN"
+      ],
+      "reason": "Coordinator-issued: the loop R and L are the single input that decides which envelope cell the fault occupies; the manufacturer packet asks for them and they must be defensible.",
+      "hypothesis_or_question": "Establish defensible BOUNDS (a range, not a point estimate) for the internal discharge loop's high-current resistance R and inductance L, decomposed by component, each with a cited source and an explicit bound direction.",
+      "worker_status": "DISPATCHED_attempt-001"
     }
   ]
 }

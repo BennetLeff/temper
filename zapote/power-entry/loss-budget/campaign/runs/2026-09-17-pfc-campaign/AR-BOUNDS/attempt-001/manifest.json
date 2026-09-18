@@ -1,0 +1,145 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "task_id": "AR-BOUNDS",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "algorithm": "sha256",
+  "note": "SHA-256 of every file produced by this attempt except manifest.json itself and dispatch.json (the delivered input).",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "sha256": "70d64130e5e47754760b15631862d0d82ce3e56d992087016c8d17f57152104e",
+      "bytes": 9155
+    },
+    {
+      "path": "claims.json",
+      "sha256": "bbf054d774678dda49b0c9096cd3c0303ca778b8c46a83a68bde60da8a7041fd",
+      "bytes": 32726
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "4f9312df21ea8a2407ac80f40eca763d2f1558e85d55460ae055e59b122f69cd",
+      "bytes": 6819
+    },
+    {
+      "path": "raw/assignments.json",
+      "sha256": "a58ebcaa77cf8b049cdbb5d27e2cb9e13d666ed6e205ee66419642fcf588740b",
+      "bytes": 118
+    },
+    {
+      "path": "raw/assignments_negative_control_u12.json",
+      "sha256": "77a76979254180b71ec1ea6ba8fc60f37512b212ea8ee910d7f22d5880e038ae",
+      "bytes": 16
+    },
+    {
+      "path": "raw/build_claims.py",
+      "sha256": "ef27c4a40d135a7287d12f581f255d54eb302b227027343d267c63a07e80d07a",
+      "bytes": 16672
+    },
+    {
+      "path": "raw/capture_failures.json",
+      "sha256": "b7c4b924b3fff4efaa407402f607ae90ecb70f18032a9550b389a7644be8f856",
+      "bytes": 1365
+    },
+    {
+      "path": "raw/checker/exit_claims.txt",
+      "sha256": "48e4328f36140187e590bac78c8aca9fe4cdfdb5a123da9969ce6291dd8b23af",
+      "bytes": 14
+    },
+    {
+      "path": "raw/checker/exit_fault_loop.txt",
+      "sha256": "bacefb9534ed41e2bd80b5a5074494a6b5c412d481a29f9416359dfe21bf55f5",
+      "bytes": 18
+    },
+    {
+      "path": "raw/checker/exit_fault_loop_negative.txt",
+      "sha256": "cf205dbb8cea84897b488abcc281bf96698d5e94b1096b16657b4caba9082a22",
+      "bytes": 7
+    },
+    {
+      "path": "raw/checker/out_claims.txt",
+      "sha256": "87b3356645d382a413ec3e6200888924139ef18d7e603f1355f2a1415b2261da",
+      "bytes": 150
+    },
+    {
+      "path": "raw/checker/out_fault_loop.txt",
+      "sha256": "cdd8fcf7415968a99f30ac74b4aa4cbd532f8de034d42cca6af9976cd81947b6",
+      "bytes": 87
+    },
+    {
+      "path": "raw/checker/out_fault_loop_negative.txt",
+      "sha256": "84636a1d62ec67a7fab3681240f39ff9e1842d7c4e9a7f3a5bf500d37833daba",
+      "bytes": 170
+    },
+    {
+      "path": "raw/compute_bounds.py",
+      "sha256": "9a072d552e13cd2bdac18eba35e9b0d042dacbf154bb50aba65bb30f8b220d31",
+      "bytes": 12082
+    },
+    {
+      "path": "raw/compute_stdout.txt",
+      "sha256": "5ec069b6ce3d5ba8ba3d688f79f5ed45015ea53037dfbe5dd387b902b624f0fe",
+      "bytes": 2731
+    },
+    {
+      "path": "raw/geometry.json",
+      "sha256": "5ec069b6ce3d5ba8ba3d688f79f5ed45015ea53037dfbe5dd387b902b624f0fe",
+      "bytes": 2731
+    },
+    {
+      "path": "raw/sexpr.py",
+      "sha256": "7c0207801352d93d1ef0725a9ba1020bfc1cbbe9c0011bea639226c6189dcc94",
+      "bytes": 864
+    },
+    {
+      "path": "raw/sources/C3D20065D-promelec.pdf",
+      "sha256": "be9df9d3e092500a41fa429b2dd3bef533b0616d037d5bf8ade8f0c92bf3fd21",
+      "bytes": 869711
+    },
+    {
+      "path": "raw/sources/C3D20065D-promelec.txt",
+      "sha256": "08f33bb10633dae9145adad8a0bc840b7541198dfc716d0638537f88ec0266c6",
+      "bytes": 30932
+    },
+    {
+      "path": "raw/sources/STW65N65DM2AG.pdf",
+      "sha256": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
+      "bytes": 399076
+    },
+    {
+      "path": "raw/sources/a70qs-conditions.json",
+      "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b",
+      "bytes": 4294
+    },
+    {
+      "path": "raw/sources/mersen-hs-high-speed-fuses.pdf",
+      "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789",
+      "bytes": 10671588
+    },
+    {
+      "path": "raw/sources/netlist_fault_loop.json",
+      "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b",
+      "bytes": 8225
+    },
+    {
+      "path": "raw/sources/nichicon-e-lgx.pdf",
+      "sha256": "0d944d705e72bfd1e2688a1d89eb6f16ed57d5864258409aa2a82d3fac3f74f2",
+      "bytes": 652373
+    },
+    {
+      "path": "raw/sources/nichicon-e-lgx.txt",
+      "sha256": "37398b9a4599f1e5296be4ba81d160b096d0adf8a006e3aa701a0b0390864316",
+      "bytes": 24199
+    },
+    {
+      "path": "raw/sources/section.kicad_pcb",
+      "sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+      "bytes": 706411
+    },
+    {
+      "path": "result.json",
+      "sha256": "76e0ce37307717446955c7b652fb09d60e8671744d59d6f56611168de3c657d6",
+      "bytes": 10015
+    }
+  ]
+}

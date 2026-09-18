@@ -1,0 +1,125 @@
+{
+  "schema": "pfc-campaign-AR-BOUNDS-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-BOUNDS",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_verification",
+  "generated_utc": "2026-09-18T00:00:00Z",
+  "contract_path": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "checkout_path": "zapote",
+  "worktree_path": ".worktrees/codex/buck-harness-experiment-plan",
+  "worktree_head": "8781fc5151866e69c416deb2a53a0ec169db8c12",
+  "dispatch_source_revision": "8781fc5151866e69c416deb2a53a0ec169db8c12",
+  "source_revision_relation": "exact match: worktree HEAD equals dispatch source_revision",
+  "evidence_class": "source_research",
+  "checker_declared_not_applicable": true,
+  "absolute_deadline_utc": "2026-09-18T19:49:50Z",
+  "max_primary_sources": 12,
+  "primary_sources_used": 6,
+
+  "delivered_inputs_verified": [
+    {"path": "pcb/temper.kicad_pcb", "sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+     "matches_dispatch": true,
+     "finding": "NOT the loop board: 0 occurrences of PFC_BUS_PLUS_390V / a1 / PFC_BUS_MINUS. It is the 6-layer induction-cooker product board (+170V_BUS, DC_BUS_RTN, GATE_HS/LS). Not used for geometry; recorded in raw/capture_failures.json."},
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/raw/netlist_fault_loop.json",
+     "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b",
+     "matches_dispatch": "path delivered; hash matches the AR-FAULT raw netlist"},
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MERSEN/attempt-001/raw/a70qs-conditions.json",
+     "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b",
+     "matches_dispatch": true},
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MERSEN/manufacturer-packet/A70QS50-14F-application-review.md",
+     "sha256": "44e6a5bfbaa849ffb1947752a84a34bc1dda2a84b685a839e709244f33de3ca6",
+     "matches_dispatch": true}
+  ],
+
+  "board_substitution": {
+    "dispatch_board": "pcb/temper.kicad_pcb",
+    "loop_board_used": "zapote/power-entry/shunt-repair/candidate/section.kicad_pcb",
+    "loop_board_sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+    "basis": "this is the board whose source-manifest.json produced the delivered AR-FAULT netlist (AR-FAULT REPORT.md board identity PCB 34e6fba9); pcb/temper.kicad_pcb does not contain the loop",
+    "loop_board_stackup": {"layers": ["F.Cu", "B.Cu"], "copper_thickness_mm": 0.07, "core_mm": 1.44}
+  },
+
+  "circuit_under_assessment": {
+    "board": "zapote/power-entry/shunt-repair/candidate/section.kicad_pcb",
+    "internal_discharge_loop": "bank+ (PFC_BUS_PLUS_390V) -> shorted boost diode U10 (C3D20065D) -> a1 -> boost switch U9 (STW65N65DM2AG) -> bank- (PFC_BUS_MINUS)",
+    "loop_nets": ["PFC_BUS_PLUS_390V", "PFC_BUS_MINUS", "a1"],
+    "fault_state": "boost diode U10 failed short; U9 either healthy/on (case a) or itself failed short (case b)",
+    "stored_energy_j": 179.2376,
+    "stored_energy_basis": "0.5 * 2240.47 uF * (400 V)^2 (contract C1.1 + netlist bank U36-U39 4x560uF + U40 470nF)",
+    "candidate_fuse": "A70QS50-14F bus-side candidate (not present on the assessed board; AR-PROTCKT F2 position)"
+  },
+
+  "component_sources": {
+    "bank": {"part": "LGX2W561MELC50", "manufacturer": "Nichicon", "document": "LGX series datasheet (CAT.8100N)",
+             "captured": "2026-09-18", "used": "tan delta max 0.20 at 120 Hz (450-500 V class); 560 uF / 450 V, 35x50 mm",
+             "local": "raw/sources/nichicon-e-lgx.pdf"},
+    "fuse": {"part": "A70QS50-14F", "manufacturer": "Mersen", "document": "High Speed Fuses catalogue 2024, PDF p.20/p.21",
+             "used": "Watts Loss @ Rated Current = 11.6 W at 50 A; pre-arcing I2t max 280 A2s; 890 VDC cap-discharge, L/R <= 2.5 ms",
+             "local": "raw/sources/mersen-hs-high-speed-fuses.pdf"},
+    "switch": {"part": "STW65N65DM2AG", "manufacturer": "STMicroelectronics", "document": "DocID028164 Rev 1 (August 2015)",
+               "used": "Rds_on typ 0.042 / max 0.05 ohm at VGS=10 V, ID=30 A, Tcase=25 C; no hot value, no short residual",
+               "local": "raw/sources/STW65N65DM2AG.pdf"},
+    "diode": {"part": "C3D20065D", "manufacturer": "Wolfspeed (Cree)", "document": "C3D20065D Rev.3, May 2021",
+              "used": "forward model VfT=VT+If*RT, RT=0.044+4.4e-4*Tj (0.055 ohm per leg at 25 C); no short residual",
+              "local": "raw/sources/C3D20065D-promelec.pdf"}
+  },
+
+  "frequency_basis": {
+    "dominant_discharge_frequency_hz": "~0.5k to ~300k (from the bounded range of L/R)",
+    "esr_frequency": "the datasheet tan delta is quoted at 120 Hz; ESR falls with frequency, so the 120 Hz value is an upper bound at the discharge frequency",
+    "skin_effect": "copper skin depth at 100 kHz = 0.209 mm, greater than the 0.07 mm copper; DC copper resistance is a lower bound on AC copper resistance"
+  },
+
+  "nulls_by_design": {
+    "bank_esr_min_ohm": null,
+    "u9_failed_short_residual_ohm": null,
+    "u10_failed_short_residual_ohm": null,
+    "u9_rds_on_hot_ohm": null,
+    "component_internal_inductance_h": null,
+    "loop_resistance_upper_ohm": null,
+    "loop_inductance_upper_h": null
+  },
+
+  "computed": {
+    "bank_esr_each_120hz_max_ohm": 0.473675,
+    "bank_esr_120hz_max_ohm": 0.118419,
+    "fuse_resistance_hot_ohm": 0.00464,
+    "u9_rds_on_25c_max_ohm": 0.05,
+    "copper_r_20c_min_ohm": 0.010288843,
+    "copper_r_100c_max_ohm": 0.020494051,
+    "copper_l_low_h": 7.5769e-08,
+    "copper_l_high_h": 2.8155e-06,
+    "known_components_r_upper_sum_ohm": 0.193553,
+    "r_lower_bound_ohm": 0.010288843,
+    "four_hundred_l_max_ohm": 0.001126205,
+    "breakeven_total_l_for_R_ge_400L_h": 2.5722e-05
+  },
+
+  "raw_artifacts": [
+    "raw/compute_bounds.py",
+    "raw/sexpr.py",
+    "raw/geometry.json",
+    "raw/compute_stdout.txt",
+    "raw/build_claims.py",
+    "raw/assignments.json",
+    "raw/assignments_negative_control_u12.json",
+    "raw/capture_failures.json",
+    "raw/sources/nichicon-e-lgx.pdf",
+    "raw/sources/nichicon-e-lgx.txt",
+    "raw/sources/C3D20065D-promelec.pdf",
+    "raw/sources/C3D20065D-promelec.txt",
+    "raw/sources/STW65N65DM2AG.pdf",
+    "raw/sources/mersen-hs-high-speed-fuses.pdf",
+    "raw/sources/a70qs-conditions.json",
+    "raw/sources/netlist_fault_loop.json",
+    "raw/sources/section.kicad_pcb",
+    "raw/checker/out_claims.txt",
+    "raw/checker/exit_claims.txt",
+    "raw/checker/out_fault_loop.txt",
+    "raw/checker/exit_fault_loop.txt",
+    "raw/checker/out_fault_loop_negative.txt",
+    "raw/checker/exit_fault_loop_negative.txt"
+  ]
+}

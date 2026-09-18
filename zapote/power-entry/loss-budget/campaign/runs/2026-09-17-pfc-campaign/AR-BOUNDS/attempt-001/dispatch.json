@@ -1,0 +1,28 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-BOUNDS",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_verification",
+  "supersedes_question_of": "AR-MERSEN ends with the loop's high-current R and L unknown: it decides which of the 400 envelope cells the real discharge occupies, and therefore whether the nonempty screened region actually contains the fault",
+  "absolute_deadline_utc": "2026-09-18T19:49:50Z",
+  "max_solver_invocations": 0,
+  "max_candidate_parts": 1,
+  "max_primary_sources": 12,
+  "checkout_path": "zapote",
+  "source_revision": "8781fc5151866e69c416deb2a53a0ec169db8c12",
+  "model_revision_and_sha256": "not_applicable: no maintained-model invocation; record any computation script in raw/",
+  "checker_revision_and_sha256": "not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt will not be counted as a validated run",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001",
+  "exact_build_or_run_commands": "zapote-claims and zapote-fault-loop are available; record every invocation and its output",
+  "source_bundle_paths_and_hashes": [
+    "pcb/temper.kicad_pcb 00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "elec/src (schematic sources)",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/raw/netlist_fault_loop.json",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MERSEN/attempt-001/raw/a70qs-conditions.json 503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MERSEN/manufacturer-packet/A70QS50-14F-application-review.md 44e6a5bfbaa849ffb1947752a84a34bc1dda2a84b685a839e709244f33de3ca6"
+  ],
+  "question": "Establish defensible BOUNDS (a range, not a point estimate) for the internal discharge loop's high-current resistance R and inductance L, decomposed by component, each with a cited source and an explicit bound direction.",
+  "focus": "1) DECOMPOSE the loop as defined in the AR-FAULT netlist: bank ESR at the discharge frequency, the fuse (A70QS50-14F; the catalogue gives 11.6 W at 50 A, so derive its resistance and say whether that is a hot or cold figure), the U9/U10 failed-SHORT residual, the boost diode path, and the copper (trace/plane) contribution. 2) EACH COMPONENT needs a source and a DIRECTION: is your number a lower bound, an upper bound, typical, or unsourced? An unsourced component stays null and must not be filled with a plausible default. The A70QS catalogue publishes no U9/U10 short residual - if the device datasheet does not either, say so and keep it null rather than inventing one. 3) COPPER: derive R and L from the ACTUAL board geometry in pcb/temper.kicad_pcb (trace lengths from pad to pad, widths, layer, plane return path), not from a rule of thumb alone. State the return-path assumption explicitly - it dominates the inductance. 4) FREQUENCY CAVEAT: ESR and skin/proximity effects are frequency dependent; state the frequency basis and whether the DC figure is a bound. 5) OUTPUT the resulting R and L ranges and locate them against the AR-MERSEN screened region {400*L <= R <= 0.64013 ohm}: does the real discharge plausibly land inside the 142 screened cells, outside them, or is it indeterminate? Report which, and do not force a conclusion if the bounds straddle the region. 6) EVIDENCE LEDGER (required): claims.json passing `zapote-claims`, output retained; any current/energy assignment also passing check_fault_loop.py, output retained. 7) Do NOT promote completion: locating a plausible cell is a SCREEN, not coordination. It does not establish melting or clearing.",
+  "stop_rule": "Do not invent an unsourced component value; do not present a point estimate as a bound; do not claim the discharge is located in the screened region unless the bounds put it there. One candidate, twelve sources, or the deadline."
+}
