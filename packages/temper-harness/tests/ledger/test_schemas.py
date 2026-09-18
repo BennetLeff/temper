@@ -24,6 +24,7 @@ EXPECTED_SCHEMAS = (
     "envelope.schema.json",
     "recording.schema.json",
     "canary_evidence.schema.json",
+    "pricing.schema.json",
 )
 
 

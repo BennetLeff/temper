@@ -22,6 +22,7 @@ Two facts about the machinery, both load-bearing:
 
 from __future__ import annotations
 
+import datetime as dt
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -29,12 +30,13 @@ from dataclasses import dataclass
 from temper_harness.ledger import LineageRegistry, aggregate
 from temper_harness.ledger.aggregate import Aggregate
 from temper_harness.ledger.store import LedgerStore
+from temper_harness.pricing import PriceTable
 from temper_harness.provider.errors import IncompleteStream, TransportError
 from temper_harness.provider.interface import BufferedTransport, Request, Terminal, Transport
 
-#: No price table can be populated from evidence on this provider -- the response
-#: carries no cost field -- so every row from this probe is explicitly unpriced
-#: rather than silently priced at zero.
+#: The identity a row carries when it was not priced. A row is never silently priced at
+#: zero: zero is a claim that the call was free, and `unpriced` is the honest state of a
+#: call nobody could cost.
 UNPRICED = "unpriced"
 
 
@@ -48,6 +50,10 @@ class CallOutcome:
     usage: dict[str, int | None]
     usage_source: str = "unknown"
     error_category: str | None = None
+    price_table_id: str = UNPRICED
+    #: Computed from the committed table, or ``None`` when the call could not be priced.
+    #: A float because the ledger schema says `number`; the arithmetic itself is Decimal.
+    estimated_usd: float | None = None
 
     @property
     def ok(self) -> bool:
@@ -122,6 +128,8 @@ def probe_fanout(
     root_session: str = "fanout-root",
     max_workers: int | None = None,
     served_from: str = "live",
+    priced_by: PriceTable | None = None,
+    at: dt.datetime | None = None,
 ) -> FanoutResult:
     """Issue one call per session, simultaneously, and aggregate the root.
 
@@ -144,6 +152,13 @@ def probe_fanout(
         raise ValueError("each concurrent call needs its own session; got a duplicate")
     if root_session in sessions:
         raise ValueError("the root session cannot also be a worker session")
+    if (priced_by is None) != (at is None):
+        # A cost is a function of the peak window, so a table without a moment cannot price
+        # anything, and a moment without a table has nothing to price against.
+        raise ValueError(
+            "pricing needs both a table and the timestamp the calls happened at; the "
+            "window is half the rate"
+        )
 
     registry = LineageRegistry(store)
     root_id = registry.open_root()
@@ -159,6 +174,8 @@ def probe_fanout(
             request=request,
             session_id=session_id,
             served_from=served_from,
+            priced_by=priced_by,
+            at=at,
         )
 
     with ThreadPoolExecutor(max_workers=max_workers or len(sessions)) as pool:
@@ -181,6 +198,8 @@ def _run_one(
     request: Request,
     session_id: str,
     served_from: str,
+    priced_by: PriceTable | None = None,
+    at: dt.datetime | None = None,
 ) -> CallOutcome:
     registry = LineageRegistry(store)
     # contextvars do not cross a thread boundary, so the root the parent opened is
@@ -214,13 +233,19 @@ def _run_one(
         status, usage, category = "failed", err.partial_usage, err.category
 
     block, source = _usage_source(usage)
+    cost = (
+        priced_by.estimate_usd(block, model=request.model, at=at)
+        if priced_by is not None and at is not None
+        else None
+    )
     registry.close_call(
         handle,
         status=status,
         served_from=served_from,
         usage=block,
         usage_source=source,
-        price_table_id=UNPRICED,
+        price_table_id=priced_by.table_id if priced_by is not None else UNPRICED,
+        estimated_usd=float(cost) if cost is not None else None,
     )
     registry.detach_root()
     return CallOutcome(
@@ -230,4 +255,6 @@ def _run_one(
         usage=block,
         usage_source=source,
         error_category=category,
+        price_table_id=priced_by.table_id if priced_by is not None else UNPRICED,
+        estimated_usd=float(cost) if cost is not None else None,
     )

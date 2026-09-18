@@ -1,0 +1,50 @@
+{
+  "table_version": "1.0",
+  "source": "https://api-docs.deepseek.com/quick_start/pricing",
+  "retrieved_at": "2026-09-17",
+  "currency": "USD",
+  "unit": "per_million_tokens",
+  "peak_windows": {
+    "timezone": "UTC",
+    "weekdays": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+    "hours": [[1, 4], [6, 10]]
+  },
+  "models": {
+    "deepseek-flash": {
+      "model_version": "DeepSeek-V4.1-Flash",
+      "rates": {
+        "peak": {
+          "input_cache_hit": 0.006,
+          "input_cache_miss": 0.3,
+          "output": 1.2
+        },
+        "off_peak": {
+          "input_cache_hit": 0.003,
+          "input_cache_miss": 0.15,
+          "output": 0.6
+        }
+      }
+    },
+    "deepseek-v4-pro": {
+      "model_version": "DeepSeek-V4-Pro-0813",
+      "rates": {
+        "peak": {
+          "input_cache_hit": 0.044,
+          "input_cache_miss": 1.32,
+          "output": 3.96
+        },
+        "off_peak": {
+          "input_cache_hit": 0.022,
+          "input_cache_miss": 0.66,
+          "output": 1.98
+        }
+      }
+    }
+  },
+  "verification": {
+    "status": "unverified",
+    "method": null,
+    "observed": null,
+    "tolerance_usd": null
+  }
+}

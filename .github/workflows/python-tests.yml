@@ -804,13 +804,13 @@ jobs:
       # in .github/required-checks.json AND this step, a diff touching only the
       # new package would run its suite in no job at all -- the package would
       # ship with its gates decorative. pytest_guard floors the collection at the
-      # 409 tests measured on the branch, so a silently-shrunk
+      # 443 tests measured on the branch, so a silently-shrunk
       # collection fails rather than reporting green.
       - name: Run harness transport, ledger, and store suites (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-harness
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 409 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 443 --
           tests -v --tb=short -p no:cacheprovider
 
       # Wave 4 Phase 5 anti-vacuity gate (PR merge path): the report /
