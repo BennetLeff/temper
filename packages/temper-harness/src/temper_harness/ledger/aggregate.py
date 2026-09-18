@@ -70,6 +70,11 @@ class Aggregate:
     #: gates on this being non-zero, so counting an excluded row would let a lower bound
     #: claim a non-vacuous agreement it had not earned.
     call_count: int
+    #: How many of the counted rows carried a computable price. `inclusive_usd` is the sum of
+    #: those, so when this is short of `call_count` the USD figure is a *lower bound* on the
+    #: run's cost, and `usd_is_complete` says so rather than leaving a reader to assume the
+    #: total is the total.
+    priced_rows: int = 0
     provider_total_tokens: int = 0
     rows_without_provider_total: int = 0
     is_lower_bound: bool = False
@@ -82,6 +87,14 @@ class Aggregate:
     @property
     def inclusive_usd(self) -> float:
         return self.root_exclusive_usd + self.descendant_usd
+
+    @property
+    def usd_is_complete(self) -> bool:
+        """Whether every counted row contributed to `inclusive_usd`.
+
+        False means the figure is a lower bound, and the caller must say so when quoting it.
+        """
+        return self.call_count > 0 and self.priced_rows == self.call_count
 
     @property
     def reconciles(self) -> bool:
@@ -120,9 +133,17 @@ def _provider_total(row: dict[str, Any]) -> int | None:
     return value if isinstance(value, int) else None
 
 
-def _usd(row: dict[str, Any]) -> float:
+def _usd(row: dict[str, Any]) -> float | None:
+    """The row's cost, or ``None`` when it has none.
+
+    ``None`` and not ``0.0``: a row the harness could not price -- unpriced, or priced
+    against a table that does not know the model -- must not contribute zero to a total a
+    reader will quote as "what this run cost". The distinction the usage fields keep (R4) has
+    to hold for USD too, and it did not: an all-unpriced run reported ``inclusive_usd == 0.0``
+    with ``reconciles`` True, which reads as a free run.
+    """
     value = row.get("estimated_usd")
-    return float(value) if isinstance(value, (int, float)) else 0.0
+    return float(value) if isinstance(value, (int, float)) else None
 
 
 def _diagnose(store: LedgerStore, root_id: str) -> tuple[list[dict[str, Any]], list[str]]:
@@ -198,6 +219,7 @@ def _summarize(
     provider_total = 0
     missing_provider_total = 0
     counted = 0
+    priced = 0
 
     for row in in_scope:
         if is_lower_bound and (
@@ -209,6 +231,8 @@ def _summarize(
         is_root_exclusive = lineage.get("parent_session_id") is None
         tokens = _tokens(row)
         usd = _usd(row)
+        if usd is not None:
+            priced += 1
         reported_total = _provider_total(row)
         if reported_total is None:
             missing_provider_total += 1
@@ -216,10 +240,12 @@ def _summarize(
             provider_total += reported_total
         if is_root_exclusive:
             exclusive_tokens += tokens
-            exclusive_usd += usd
+            if usd is not None:
+                exclusive_usd += usd
         else:
             descendant_tokens += tokens
-            descendant_usd += usd
+            if usd is not None:
+                descendant_usd += usd
 
     return Aggregate(
         root_id=root_id,
@@ -228,6 +254,7 @@ def _summarize(
         root_exclusive_usd=exclusive_usd,
         descendant_usd=descendant_usd,
         call_count=counted,
+        priced_rows=priced,
         provider_total_tokens=provider_total,
         rows_without_provider_total=missing_provider_total,
         is_lower_bound=is_lower_bound,

@@ -164,6 +164,57 @@ def test_a_non_utc_timestamp_is_converted_before_the_window_is_chosen() -> None:
     assert window_for(load_table().raw, elsewhere) == PEAK
 
 
+def test_a_locale_change_does_not_move_the_window() -> None:
+    """The money path must not depend on the ambient locale.
+
+    `strftime("%A")` returns a *localised* weekday name. Measured before the fix, for a
+    Monday 02:00 UTC that is inside the peak window: `LC_TIME=C` gave "Monday" and `peak`,
+    while `LC_TIME=de_DE` gave "Montag" and `off_peak` and `fr_FR` gave "lundi" and
+    `off_peak`. So a process that set a locale halved every weekday bill, with no error and a
+    perfectly well-formed figure. The window now compares `weekday()` indices, which no
+    locale can move.
+    """
+    import locale
+
+    moments = {
+        "monday 02:00 UTC (peak)": dt.datetime(2026, 9, 14, 2, 0, tzinfo=dt.UTC),
+        "monday 11:00 UTC (off-peak)": dt.datetime(2026, 9, 14, 11, 0, tzinfo=dt.UTC),
+        "saturday 02:00 UTC (off-peak)": dt.datetime(2026, 9, 19, 2, 0, tzinfo=dt.UTC),
+    }
+    table = load_table()
+    baseline = {label: window_for(table.raw, at) for label, at in moments.items()}
+    assert baseline == {
+        "monday 02:00 UTC (peak)": PEAK,
+        "monday 11:00 UTC (off-peak)": OFF_PEAK,
+        "saturday 02:00 UTC (off-peak)": OFF_PEAK,
+    }, "the baseline is wrong, so this test would not be measuring the locale"
+
+    original = locale.setlocale(locale.LC_TIME)
+    compared = 0
+    try:
+        for candidate in ("de_DE.UTF-8", "fr_FR.UTF-8"):
+            try:
+                locale.setlocale(locale.LC_TIME, candidate)
+            except locale.Error:
+                continue  # this machine does not have the locale; nothing to compare
+            compared += 1
+            moved = {label: window_for(table.raw, at) for label, at in moments.items()}
+            assert moved == baseline, f"{candidate} moved the window: {moved} != {baseline}"
+    finally:
+        locale.setlocale(locale.LC_TIME, original)
+    assert compared, "no locale was available, so this test measured nothing"
+
+
+def test_an_unrecognised_weekday_name_is_refused_rather_than_skipped() -> None:
+    """Skipping one would move that day's calls to the cheaper window."""
+    import copy
+
+    raw = copy.deepcopy(load_table().raw)
+    raw["peak_windows"]["weekdays"] = ["funday"]
+    with pytest.raises(PriceTableError, match="not weekdays"):
+        window_for(raw, dt.datetime(2026, 9, 14, 2, 0, tzinfo=dt.UTC))
+
+
 def test_a_naive_timestamp_is_refused() -> None:
     """Because `datetime.hour` on a naive value reads the local clock.
 
@@ -323,6 +374,12 @@ def test_a_priced_run_records_the_table_identity_and_sums_its_usd(tmp_path: Path
     assert row["price_table_id"] == table.table_id
     assert row["estimated_usd"] == pytest.approx(0.0003612)
     assert result.aggregate.inclusive_usd == pytest.approx(0.0003612)
+    assert result.aggregate.priced_rows == 1
+    assert result.aggregate.usd_is_complete is True
+    # D4: the row records WHICH window priced it. Off-peak is exactly half of peak, so
+    # without this the figure carries a factor-of-two ambiguity nothing can resolve later.
+    assert row["price_window"] == "peak"
+    assert outcome.price_window == "peak"
 
 
 def test_pricing_needs_both_a_table_and_a_moment(tmp_path: Path) -> None:
@@ -366,4 +423,9 @@ def test_an_unpriced_run_says_unpriced_and_never_zero(tmp_path: Path) -> None:
     assert outcome.price_table_id == "unpriced"
     assert outcome.estimated_usd is None
     assert store.call_rows()[0]["estimated_usd"] is None
-    assert result.aggregate.inclusive_usd == 0.0  # the sum of no figures, and labelled as such
+    # The row says unpriced, and the aggregate says how much of it was priced. It used to
+    # report `inclusive_usd == 0.0` with no flag at all, which reads as a free run -- and a
+    # test asserted that, calling it "labelled as such" when nothing labelled it.
+    assert result.aggregate.priced_rows == 0
+    assert result.aggregate.usd_is_complete is False
+    assert result.aggregate.inclusive_usd == 0.0, "the sum of no figures"

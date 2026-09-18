@@ -47,6 +47,23 @@ OFF_PEAK = "off_peak"
 #: figure ends up six orders of magnitude wrong.
 _PER_MILLION = Decimal(1_000_000)
 
+#: Weekday name to `datetime.weekday()` index, because `strftime("%A")` is **localised**.
+#:
+#: Measured, and it is the money path: with `LC_TIME=de_DE` a Monday 02:00 UTC reports
+#: ``"Montag"``, matched no name in the table's English list, and the window came back
+#: ``off_peak`` -- halving every weekday bill, with no error and a perfectly well-formed
+#: figure. Same under ``fr_FR`` (``"lundi"``). The table stores names because a human reads
+#: it; the code compares indices, which no locale can move.
+_WEEKDAY_INDEX = {
+    "monday": 0,
+    "tuesday": 1,
+    "wednesday": 2,
+    "thursday": 3,
+    "friday": 4,
+    "saturday": 5,
+    "sunday": 6,
+}
+
 
 class PriceTableError(ValueError):
     """A price table that cannot be used, or a question it cannot answer."""
@@ -85,14 +102,20 @@ def load_table(table_id: str | None = None) -> PriceTable:
 
 def window_for(raw: Mapping[str, Any], at: dt.datetime) -> str:
     """Which of the two windows a moment falls in, or raises on a naive timestamp."""
-    if at.tzinfo is None:
+    if at.tzinfo is None:  # noqa: SIM102 - kept as its own guard for the message
         raise PriceTableError(
             "a cost depends on the peak window, so the timestamp must carry a timezone; "
             "a naive one would be read as local time and pick the wrong rate"
         )
     peak = raw["peak_windows"]
     moment = at.astimezone(dt.UTC)
-    if moment.strftime("%A").lower() not in peak["weekdays"]:
+    unknown = [name for name in peak["weekdays"] if name.lower() not in _WEEKDAY_INDEX]
+    if unknown:
+        # Fail closed rather than skipping an unrecognised day, which would silently move
+        # that day's calls to the cheaper window.
+        raise PriceTableError(f"peak_windows.weekdays names {unknown}, which are not weekdays")
+    allowed = {_WEEKDAY_INDEX[name.lower()] for name in peak["weekdays"]}
+    if moment.weekday() not in allowed:
         return OFF_PEAK
     for start, end in peak["hours"]:
         # Half-open, so a boundary belongs to exactly one window. The provider writes the

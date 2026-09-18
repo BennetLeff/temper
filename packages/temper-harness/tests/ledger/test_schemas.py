@@ -97,6 +97,7 @@ def _valid_call_row(**overrides) -> dict:
         },
         "usage_source": "unknown",
         "price_table_id": "unpriced",
+        "price_window": None,
         "provider_reported_usd": None,
         "estimated_usd": None,
     }

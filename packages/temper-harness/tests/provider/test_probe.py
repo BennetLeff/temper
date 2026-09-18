@@ -182,6 +182,30 @@ def test_every_probe_answered_with_the_status_it_was_expected_to() -> None:
         )
 
 
+def test_the_manifest_says_whether_this_corpus_is_reproducible() -> None:
+    """Provenance for the corpus the whole oracle rests on.
+
+    The manifest used to record only a commit, and the committed corpus names a commit that
+    cannot reproduce it -- the twelve-probe capture came from a dirty tree whose probe code
+    landed later, so that commit yields a ten-probe corpus. The field is required here so a
+    reader can tell a reproducible corpus from an anecdote, which is the same rule the canary
+    evidence follows.
+    """
+    assert "harness_dirty" in MANIFEST
+    assert isinstance(MANIFEST["harness_dirty"], bool)
+    if MANIFEST["harness_dirty"]:
+        plan = (
+            Path(__file__).resolve().parents[4]
+            / "docs"
+            / "plans"
+            / "2026-09-17-001-feat-deepseek-pcb-harness-s0-provider-transport-plan.md"
+        )
+        text = plan.read_text(encoding="utf-8")
+        assert "harness_dirty" in text, (
+            "a corpus that cannot be reproduced from its named commit must be stated in the plan"
+        )
+
+
 def test_the_account_serves_the_target_model() -> None:
     """The plan's model id was wrong; the manifest records the ids that exist."""
     assert MODEL in MANIFEST["account_models"]

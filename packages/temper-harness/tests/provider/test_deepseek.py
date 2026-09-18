@@ -503,13 +503,73 @@ def test_every_request_field_reaches_the_wire() -> None:
     assert body["reasoning_effort"] == "low"
 
 
+#: Every field of `Request`, and the wire key it becomes -- or ``None`` with the reason it
+#: is deliberately absent from the wire.
+#:
+#: The test below asserts this table covers the dataclass *exactly*, so adding a field to
+#: `Request` fails the suite until someone decides what happens to it on the wire. The
+#: previous version of this test enumerated seven literal keys and its docstring claimed it
+#: "walks the fields the Request carries" -- it did not, so a new field that never reached
+#: the wire would have passed. That is the same shape as the defect it was written for.
+REQUEST_WIRE_FIELDS: dict[str, str | None] = {
+    "model": "model",
+    "messages": "messages",
+    "tools": "tools",
+    "temperature": "temperature",
+    "max_tokens": "max_tokens",
+    "user_id": "user_id",
+    "thinking": "thinking",
+    "reasoning_effort": "reasoning_effort",
+    "stream": "stream",
+    # Deliberately not on the wire: provenance is ours, and the transport asserts it rather
+    # than telling the provider about it (R15).
+    "served_from": None,
+}
+
+
+def test_request_field_coverage_is_structural_not_enumerated() -> None:
+    """A new `Request` field must be a deliberate decision about the wire."""
+    import dataclasses
+
+    declared = {field.name for field in dataclasses.fields(Request)}
+    assert set(REQUEST_WIRE_FIELDS) == declared, (
+        f"a Request field is not accounted for here: {sorted(set(REQUEST_WIRE_FIELDS) ^ declared)}"
+    )
+
+
+def test_every_mapped_request_field_reaches_the_wire() -> None:
+    request = _request(
+        tools=(ToolDefinition(name="place", description="d", parameters={}),),
+        user_id="arm-control",
+        thinking=False,
+        reasoning_effort="low",
+        stream=True,
+    )
+    body = wire_body(request)
+    for field_name, wire_key in REQUEST_WIRE_FIELDS.items():
+        if wire_key is None:
+            assert wire_key not in body, f"{field_name} must not be on the wire"
+            continue
+        assert wire_key in body, f"{field_name} never reached the wire as {wire_key!r}"
+
+
 def test_a_malformed_parameter_never_reaches_the_network() -> None:
     """The rule R7 applies to message arrays, applied to the other parameters.
 
     A `user_id` violating the provider's documented shape is a caller defect, and it must
     raise locally rather than become a provider 400 a classifier then has to guess about.
     """
-    for bad in ("has spaces", "has/slash", "", "x" * 513):
+    for bad in (
+        "has spaces",
+        "has/slash",
+        "",
+        "x" * 513,
+        # `$` matches before a trailing newline, so an anchored search accepted this. The
+        # provider's own shape forbids it, and the test that claimed "any value violating
+        # the documented shape is refused locally" did not include one.
+        "abc\n",
+        "abc\r\n",
+    ):
         transport, calls = _adapter()
         with pytest.raises(RequestParameterError):
             list(transport.stream(_request(user_id=bad)))
@@ -523,13 +583,26 @@ def test_an_unknown_reasoning_effort_is_refused_locally() -> None:
     assert calls == []
 
 
-def test_the_requested_effort_is_mapped_not_honoured_literally() -> None:
-    """Documented mapping, kept in the client so a caller can find it out here."""
-    assert REASONING_EFFORT_MAP["medium"] == "high"
-    assert REASONING_EFFORT_MAP["high"] == "high"
-    assert REASONING_EFFORT_MAP["xhigh"] == "high"
-    assert REASONING_EFFORT_MAP["ultra"] == "max"
-    assert REASONING_EFFORT_MAP["minimal"] == "low"
+def test_the_requested_effort_is_sent_verbatim_and_the_mapping_is_the_providers() -> None:
+    """The client validates the documented set and does *not* apply the documented mapping.
+
+    The provider maps a requested effort onto the effort it actually uses (`medium` becomes
+    `high`), so applying that mapping here would send a value the caller did not ask for and
+    would report the provider's decision as the caller's request. What the client owes is
+    validation against the requestable set, which is what this asserts.
+
+    The previous version of this test asserted `REASONING_EFFORT_MAP["medium"] == "high"`, a
+    constant against the literal it was defined from -- a check that could only ever restate
+    the code, while the commit message claimed the client "keeps the documented mapping".
+    """
+    assert wire_body(_request(reasoning_effort="medium"))["reasoning_effort"] == "medium"
+    assert wire_body(_request(reasoning_effort="ultra"))["reasoning_effort"] == "ultra"
+    # Every documented requestable effort is accepted, and nothing else is.
+    for effort in REASONING_EFFORT_MAP:
+        assert wire_body(_request(reasoning_effort=effort))["reasoning_effort"] == effort
+    assert REASONING_EFFORT_MAP["medium"] == "high", (
+        "the documented mapping is recorded for a reader; it is the provider's to apply"
+    )
 
 
 def test_thinking_on_is_sent_as_enabled() -> None:

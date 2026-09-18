@@ -510,6 +510,7 @@ def write_fixtures(
     models: list[str],
     captured_at: str,
     harness_commit: str,
+    harness_dirty: bool,
 ) -> list[Path]:
     """Write the capture set and its manifest; return the files written."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -544,6 +545,9 @@ def write_fixtures(
         "account_models": models,
         "captured_at": captured_at,
         "harness_commit": harness_commit,
+        # Recorded, not refused: a dirty capture is still evidence, and the field is what
+        # lets a reader tell a reproducible corpus from an anecdote.
+        "harness_dirty": harness_dirty,
         "probes": manifest_entries,
     }
     manifest_path = out_dir / "manifest.json"
@@ -555,24 +559,37 @@ def write_fixtures(
     return written
 
 
-def _git_commit() -> str:
-    """The commit this capture came from, or ``UNKNOWN``.
+def _harness_state() -> tuple[str, bool]:
+    """HEAD, and whether the tree was clean, for the capture manifest.
 
-    Best-effort and declared as such: a capture whose provenance cannot be named
-    is still evidence, but the repo's rule is that a measurement carries its
-    commit, so an honest ``UNKNOWN`` is recorded rather than a fabricated sha.
+    Both, because a commit alone is not provenance. The first version of this recorded only
+    HEAD, and the committed manifest consequently names a commit that *cannot* reproduce it:
+    the twelve-probe corpus was captured from a dirty tree whose probe code was committed
+    later, so checking out the named commit yields a ten-probe corpus. Nothing in the file
+    said so. The canary's evidence had the same problem and gained a dirty flag for it; the
+    corpus -- which the whole fidelity oracle rests on -- had not.
+
+    Best-effort and declared as such: an honest ``UNKNOWN`` is recorded rather than a
+    fabricated sha.
     """
     try:
-        completed = subprocess.run(
+        commit = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             capture_output=True,
             text=True,
             check=True,
             timeout=10,
-        )
+        ).stdout.strip()
+        status = subprocess.run(
+            ["git", "status", "--porcelain"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=10,
+        ).stdout
     except (OSError, subprocess.SubprocessError):
-        return "UNKNOWN"
-    return completed.stdout.strip() or "UNKNOWN"
+        return "UNKNOWN", True
+    return (commit or "UNKNOWN"), bool(status.strip())
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -619,12 +636,14 @@ def main(argv: list[str] | None = None) -> int:
             "about the provider, but the suite asserts this so it cannot pass silently.",
             file=sys.stderr,
         )
+    harness_commit, harness_dirty = _harness_state()
     written = write_fixtures(
         captures,
         args.out,
         models=models,
         captured_at=dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat(),
-        harness_commit=_git_commit(),
+        harness_commit=harness_commit,
+        harness_dirty=harness_dirty,
     )
     print(f"wrote {len(written)} file(s) under {args.out}", file=sys.stderr)
     return 0

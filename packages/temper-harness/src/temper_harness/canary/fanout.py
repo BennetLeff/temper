@@ -30,7 +30,7 @@ from dataclasses import dataclass
 from temper_harness.ledger import LineageRegistry, aggregate
 from temper_harness.ledger.aggregate import Aggregate
 from temper_harness.ledger.store import LedgerStore
-from temper_harness.pricing import PriceTable
+from temper_harness.pricing import PriceTable, window_for
 from temper_harness.provider.errors import IncompleteStream, TransportError
 from temper_harness.provider.interface import BufferedTransport, Request, Terminal, Transport
 
@@ -51,6 +51,9 @@ class CallOutcome:
     usage_source: str = "unknown"
     error_category: str | None = None
     price_table_id: str = UNPRICED
+    #: Which of the table's two windows priced this call, or ``None`` when it was unpriced.
+    #: Off-peak is exactly half of peak, so the figure is not auditable without it.
+    price_window: str | None = None
     #: Computed from the committed table, or ``None`` when the call could not be priced.
     #: A float because the ledger schema says `number`; the arithmetic itself is Decimal.
     estimated_usd: float | None = None
@@ -238,6 +241,10 @@ def _run_one(
         if priced_by is not None and at is not None
         else None
     )
+    # The window is recorded beside the figure. Without it a stored cost carries a
+    # factor-of-two ambiguity -- off-peak is exactly half of peak -- that nothing on the row
+    # could resolve later, and a reader could not tell a cheap call from a mispriced one.
+    window = window_for(priced_by.raw, at) if priced_by is not None and at is not None else None
     registry.close_call(
         handle,
         status=status,
@@ -245,6 +252,7 @@ def _run_one(
         usage=block,
         usage_source=source,
         price_table_id=priced_by.table_id if priced_by is not None else UNPRICED,
+        price_window=window,
         estimated_usd=float(cost) if cost is not None else None,
     )
     registry.detach_root()
@@ -256,5 +264,6 @@ def _run_one(
         usage_source=source,
         error_category=category,
         price_table_id=priced_by.table_id if priced_by is not None else UNPRICED,
+        price_window=window,
         estimated_usd=float(cost) if cost is not None else None,
     )

@@ -124,6 +124,7 @@ def test_unattributable_row_fails_the_whole_aggregate(
             "usage": _usage(9_999, 0),
             "usage_source": "provider",
             "price_table_id": "t",
+            "price_window": None,
             "provider_reported_usd": None,
             "estimated_usd": None,
         }

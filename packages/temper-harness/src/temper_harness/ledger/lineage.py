@@ -167,6 +167,7 @@ class LineageRegistry:
         usage: dict[str, int | None] | None = None,
         usage_source: str = "unknown",
         price_table_id: str = "unpriced",
+        price_window: str | None = None,
         provider_reported_usd: float | None = None,
         estimated_usd: float | None = None,
     ) -> dict[str, Any]:
@@ -192,6 +193,7 @@ class LineageRegistry:
             "usage": usage_block,
             "usage_source": usage_source,
             "price_table_id": price_table_id,
+            "price_window": price_window,
             "provider_reported_usd": provider_reported_usd,
             "estimated_usd": estimated_usd,
         }

@@ -148,7 +148,7 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 ### Assumptions
 
 - ~~The official DeepSeek API supports a chat-completions surface with tool calling, and its `usage` block is reachable from a non-streaming call.~~ **VERIFIED.** Both hold: tool calling works (including parallel calls and strict schemas), and `usage` is reachable from both a non-streaming and a streamed call. The contract did not need to change shape, though six *values* it carries did — enumerated in the Definition of Done. One further assumption was falsified: the model id the plan named does not exist on this provider.
-- The provider exposes no billing reconciliation endpoint reachable from this client. **Partially verified, and worse than assumed:** no billing endpoint was probed, but the completion response carries no cost field either, so there is no provider-reported figure to reconcile against at all. KTD7's tolerance assertion is therefore unavailable and the price table is unpopulated by design — see the named unknowns in the Definition of Done.
+- The provider exposes no billing reconciliation endpoint reachable from this client. **Partially verified, and worse than assumed:** no billing endpoint was probed, but the completion response carries no cost field either, so there is no provider-reported figure to reconcile against at all. KTD7's tolerance assertion is therefore unavailable, **but the price table is now committed and its rates verified against the account's own balance** (see the U1 findings). The reconciliation is against a balance *delta* rather than a per-call cost field, and its precision is bounded by the two decimals the balance is quoted to — which the table's own schema states.
 
 ---
 
@@ -267,17 +267,17 @@ The caller never talks to a raw HTTP response. The adapter is the only place tha
 **Global**
 
 - **Met.** All six units' test scenarios pass. Every gate has been observed failing on its motivating input: the oracle's nine guards via the committed guard-removal evidence, the redaction canary via a planted key in each artifact kind, the allowlist via fault injection, the replay refusals via perturbed corpora, and the two implementation guards (mode exclusivity, request-hash refusal) by removing them from the source and watching exactly their tests go red.
-- **Met.** **Six** schema files are committed and validated in CI — the five R14 names plus `canary_evidence.schema.json`, added because the canary's evidence is a record we commit and a claim that gets checked, so its shape belongs in a file rather than in a dataclass. No `SCHEMA_VERSION` constant exists inline in Python, and the field lists, header allowlist, recording versions, and evidence format version are all read from those files rather than restated. The anti-inline-version check was **widened** from the literal `SCHEMA_VERSION` spelling to any `\w*SCHEMA_VERSION`: a prefixed name had walked straight past it, and one had (`EVIDENCE_SCHEMA_VERSION`).
+- **Met.** **Seven** schema files are committed and validated in CI — the five R14 names, plus `canary_evidence.schema.json` and `pricing.schema.json` (KTD7 asks for the price table's schema explicitly), added because the canary's evidence is a record we commit and a claim that gets checked, so its shape belongs in a file rather than in a dataclass. No `SCHEMA_VERSION` constant exists inline in Python, and the field lists, header allowlist, recording versions, and evidence format version are all read from those files rather than restated. The anti-inline-version check was **widened** from the literal `SCHEMA_VERSION` spelling to any `\w*SCHEMA_VERSION`: a prefixed name had walked straight past it, and one had (`EVIDENCE_SCHEMA_VERSION`).
 - **Met.** The harness suite runs in CI under a required context, with the floor at the measured test count. Simulated path-diff: a diff touching only `packages/temper-harness/**` schedules **Core Tests** (via `packages/temper-harness/**`), **Cargo / Rustc Smoke Check** and **Repo Hygiene & Import Gates** (both via `packages/**`). Reproduce with `matching_patterns(changed, job_triggers[job].paths)` from `scripts/check_required_checks.py` — note the argument order, and that `changed` must be a list rather than a single string, or the call iterates the path's characters and reports a false negative.
 - **Met.** Descendant-inclusive aggregation is the only public way to obtain a cost total, it fails closed on an incomplete, cancelled, or replayed row, and it now reconciles against the provider's own `total_tokens`.
-- **Met.** The live canary has run once against the official API — 2026-09-17, `deepseek-flash`, all ten probes matching — and its hashed evidence is committed. Tier A is therefore anchored to a live *shape* observation. See "What Tier B anchors, precisely" for how far that claim reaches and where it stops.
+- **Met.** The live canary has run against the official API — 2026-09-17, `deepseek-flash`, all **twelve** probes matching — and its hashed evidence is committed. Tier A is therefore anchored to a live *shape* observation. See "What Tier B anchors, precisely" for how far that claim reaches and where it stops.
 - **Met.** Unknown provider behaviours found in U1 are enumerated in the unknowns list, including the ones that could not be resolved: cost, the context-length and content-filter message texts, the 401 body shape, and whether a 429 carries `retry-after` here.
 - **Met.** No abandoned probe scripts or throwaway adapters remain: `probe.py` is the probe, the adapters are the two the design calls for, and the one removed guard (`error_classified`) was deleted from the source rather than left as a comment.
 - **Met.** `make regen-check` is clean and the branch is pushed.
 
 **Landing status**
 
-Opened as PR #1603, 14 commits, 393 tests. The PR's own two gates pass in the required
+Opened as PR #1603, 17 commits, 459 tests, and the CI floor follows the count. The PR's own two gates pass in the required
 contexts — **Core Tests** (19m50s, which is what actually runs this suite with the
 `--min-tests` floor) and **Repo Hygiene & Import Gates** (9m51s) — and the simulated
 path-diff confirms that a diff touching only `packages/temper-harness/**` schedules
@@ -302,7 +302,7 @@ Follow-up with the measurements nobody has taken, and the cost of each: #1602.
 - **U3 complete.** A malformed message array raises before network I/O (and one captured fixture is the provider's refusal of exactly that array, so the local guard is aligned with a real refusal rather than an imagined one). A pre-connection failure is classified and carries defined retryable/billable flags. A cancelled stream cannot be confused with a completed one, because a turn with no `finish_reason` is never `ok`. The live and replay adapters share one decoder, and their typed views are asserted equal on the same bytes.
 - **U4 complete** for the offline half: request-hash and arm mismatches refuse to serve, a failed live call cannot fall back to a recording, the store cannot be written during a replay run, and the redaction canary fails on a planted key in every artifact kind R11 names. The provider-facing adapter is now built (U3), so replay is wired end to end.
 - **U5 complete.** Nine guards, each with a perturbation crafted to trip it and only it, and each observed accepting that perturbation once disabled — recorded in `packages/temper-harness/tests/oracle/evidence/guard_removal.json` and re-derived on every run so it cannot drift. The five socket faults are ported from the prior attempt's diagnostic, mechanism kept and expectations re-derived.
-- **U6 complete.** The concurrency probe attributes every call to its own session and every one of them to the root aggregate, in CI and without a model. **The live canary has run once** (2026-09-17, `deepseek-flash`): all ten probes matched their recorded shapes, so Tier A is anchored to a live observation rather than resting on reproducibility alone. Its evidence is committed at `packages/temper-harness/tests/canary/evidence/canary.json` and carries no request body, no response body, and no credential.
+- **U6 complete.** The concurrency probe attributes every call to its own session and every one of them to the root aggregate, in CI and without a model. **The live canary has run** (2026-09-17, `deepseek-flash`): all twelve probes matched their recorded shapes, so Tier A is anchored to a live observation rather than resting on reproducibility alone. Its evidence is committed at `packages/temper-harness/tests/canary/evidence/canary.json` and carries no request body, no response body, and no credential.
 
   **The first run had dirty provenance and was re-run to fix it.** It was made from a
   tree whose canary code was still uncommitted at the HEAD it named (`e596a1b80`, the U5
@@ -310,7 +310,7 @@ Follow-up with the measurements nobody has taken, and the cost of each: #1602.
   discipline records dirt instead of assuming it away. That is the field earning its
   keep: without it the file would have looked identical to a reproducible one. The
   re-run at `51a789926` (a commit that contains all seven canary files, worst case
-  checked with `git ls-tree`) recorded `harness_dirty: false`, all ten probes matched
+  checked with `git ls-tree`) recorded `harness_dirty: false`, all twelve probes matched
   again, and the committed evidence is therefore reproducible from the commit it names.
 
 ### What Tier B anchors, precisely
@@ -475,9 +475,12 @@ class this repository documents most insistently.
     the captured fixtures agreed with the omission — having been produced through the
     same function.** Correction #8's own claim that "the captured bodies already carried
     it" was therefore false. This is the "correct by coincidence" shape, in this branch,
-    in the one field that bounds cost. Fixed, and now pinned by a test that walks the
-    fields `Request` carries and asserts each reaches the wire — a test that would have
-    caught it on the day.
+    in the one field that bounds cost. Fixed, and pinned — after an adversarial review
+    pointed out that the first version of the pinning test *enumerated* seven keys while
+    claiming to "walk the fields `Request` carries", so a newly added field would have
+    passed it. It is now structural: a table of `Request` field to wire key, asserted to
+    cover the dataclass exactly, so a new field fails the suite until someone decides what
+    happens to it on the wire (finding 41).
 20. **The ledger's `seq` was not unique, and a test asserted that it was.** The counter
     lived on the instance, so two threads read the same value and two processes each
     seeded from their own read of the file. Measured: sixty concurrent appends wrote
@@ -651,6 +654,58 @@ between two genuinely different requests rather than a missing field. A helper w
 job is to mirror another function is a defect generator when it exists more than once; there
 is now one copy, and the hash-identity test is what caught it.
 
+### Found by a second adversarial review, of the work above (post-pricing) — seven more
+
+The reviewer independently confirmed all nine defects from the first pass are genuinely
+closed -- it tried to falsify each and could not -- and then found seven in the new work.
+Two are in the money path.
+
+39. **An unpriced call was summed as `$0.00`, and the aggregate still said `reconciles`.**
+    `_usd` returned `0.0` for a `None` figure, so an all-unpriced run reported
+    `inclusive_usd == 0.0` with `call_count > 0` and `reconciles is True` -- which reads as a
+    free run, and is exactly what a fixed-expenditure comparison would quote. R4 says a
+    missing number is null and never zero; that held for token fields and had never been
+    applied to USD, and the price-table integration is what made it reachable. Worse, **a test
+    asserted it**, calling the zero "labelled as such" when nothing labelled it. `Aggregate`
+    now carries `priced_rows` and a `usd_is_complete` property, `_usd` returns ``None``, and
+    the test asserts the flag instead of the zero.
+40. **The peak window depended on the ambient locale, and it halved every weekday bill.**
+    `strftime("%A")` returns a *localised* weekday name. Measured: with `LC_TIME=C` a Monday
+    02:00 UTC gave "Monday" and `peak`; with `de_DE` it gave "Montag" and `off_peak`; with
+    `fr_FR`, "lundi" and `off_peak`. Every weekday would have been priced off-peak, with no
+    error and a perfectly well-formed figure. The window now compares `weekday()` indices,
+    which no locale can move, and an unrecognised weekday name in the table fails closed
+    rather than being skipped. *This is the same shape as the `R(+theta)` incident: correct
+    under the ambient environment and wrong under another.*
+41. **The test written to pin finding 19 was not the test it claimed to be.** It enumerated
+    seven literal keys while its docstring and the commit message said it "walks the fields
+    `Request` carries", so a *newly added* field that never reached the wire would have passed
+    it. It is now structural -- a table of `Request` field to wire key, asserted to cover the
+    dataclass exactly -- so adding a field fails the suite until someone decides what happens
+    to it on the wire.
+42. **`REASONING_EFFORT_MAP` was never applied, and its test restated the constant.** Only
+    membership was validated; the requested effort is sent verbatim, which is correct,
+    because the *provider* performs the documented mapping. The commit message's claim that
+    the client "keeps the documented mapping" implied more than that, and the test asserted
+    the dict against the literals it was defined from -- a check that could only ever restate
+    the code. The mapping is now documented as the provider's, and the test asserts the
+    behaviour: every documented effort is accepted and sent verbatim.
+43. **`validate_user_id` accepted a trailing newline.** `^[a-zA-Z0-9\-_]+$` matches `"abc\n"`
+    because `$` also matches before a final newline, so a value the provider's documented
+    shape forbids was sent after local validation said it was fine -- falsifying the
+    docstring's promise that such a value is refused locally. Now `fullmatch`.
+44. **A priced row recorded the table but not the window, so its USD was not auditable.**
+    Off-peak is exactly half of peak, so a stored `estimated_usd` carried a factor-of-two
+    ambiguity that nothing on the row could resolve later. The row now carries `price_window`,
+    and the plan's claim that the moment is "recorded in the call's own timestamp" is
+    corrected: the *window* is recorded, the timestamp is not (see the unknowns).
+45. **The capture manifest had no dirty flag and named a commit that cannot reproduce it.**
+    The twelve-probe corpus was captured from a dirty tree whose probe code was committed
+    later, so checking out the named commit yields a ten-probe corpus -- and, unlike the
+    canary's evidence, nothing in the file said so. The manifest now carries
+    `harness_dirty`, and the committed one is marked `true`; a clean re-capture is
+    outstanding and needs the credential.
+
 ### Named unknowns (U1) — stated, not inferred away
 
 - **No cost reconciliation is possible from this provider.** The response has no cost
@@ -728,6 +783,32 @@ is now one copy, and the hash-identity test is what caught it.
   is `(0, 1.0]`, and thinking mode floors it at 0.95; an out-of-range value returns 400
   naming the range. The floor itself was not measured — it would need a distribution over
   many samples to observe.
+- **The committed capture corpus cannot be reproduced from its named commit.**
+  `harness_dirty: true` -- the twelve-probe capture came from a dirty tree whose probe code
+  landed later. A clean re-capture at a committed HEAD is outstanding, and the canary's
+  evidence went through the same two-step for the same reason. The *canary* evidence is
+  clean; the corpus is not.
+- **The ledger records no timestamp at all.** A priced row now carries its table identity and
+  its window, which resolves the factor-of-two ambiguity, but not the moment. So a row's
+  window cannot be re-derived or cross-checked, and two rows priced in the same window months
+  apart are indistinguishable. No consumer needs the moment today; it is named because
+  `estimated_usd` is not a figure anyone can independently recompute from the row.
+- **The price verification is a consistency check, not an external one.** The rates and the
+  observed balance deltas live in one file, so an edit to a rate *plus* a matching edit to
+  `observed_usd` would pass the ratchet. It catches a rate edited alone, or a transcription
+  error the observation contradicts, and it is not an independent audit. The alternative
+  would be a committed balance reading, which the endpoint does not provide as a stable
+  artifact.
+- **Only the Flash peak rates are covered by a measurement.** The off-peak rates are inferred
+  from the documented halving, `deepseek-v4-pro`'s rates are transcription only, and a
+  *consistent* mis-transcription of both windows for one model passes the `off_peak == peak/2`
+  invariant. The cache-hit rate is unverifiable at a 1M context, as recorded above.
+- **The package resolves its data by source-tree path.** `pricing.py` and
+  `schema_registry.py` both use `Path(__file__).parents[2]`, so a non-editable wheel install
+  would find no `schemas/` or `pricing/`. The harness is only ever run from the source tree
+  today, and the wheel is declared buildable, so this is a latent packaging gap.
+- **The JSONL `seq` is per-file**, allocated in `ledger.jsonl` and `inflight.jsonl`
+  independently, so one number appears in both. No consumer needs a global sequence.
 - **The store cannot reproduce the *n*-th distinct response to an identical
   request.** Recordings are keyed by request hash, so a recursive fan-out in which
   every worker asks the same question replays one answer for all of them. This is a

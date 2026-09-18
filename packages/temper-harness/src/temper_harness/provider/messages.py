@@ -125,7 +125,11 @@ class ToolDefinition:
 
 
 #: The `user_id` shape the provider documents: `[a-zA-Z0-9\-_]+`, at most 512 characters.
-USER_ID_PATTERN = re.compile(r"^[a-zA-Z0-9\-_]+$")
+#:
+#: Matched with `fullmatch` rather than `^...$`: `$` also matches immediately *before* a
+#: trailing newline, so `"abc\n"` passed an anchored search -- a value the provider's own
+#: shape forbids, sent to the wire after local validation said it was fine.
+USER_ID_PATTERN = re.compile(r"[a-zA-Z0-9\-_]+")
 USER_ID_MAX_LENGTH = 512
 
 #: The effort values the provider documents as *requestable*, and what each maps to.
@@ -161,7 +165,7 @@ def validate_user_id(user_id: str) -> str:
     which would silently halve one arm's input cost at cache-hit rates and invalidate a
     fixed-expenditure comparison. Recorded in the plan as an arm-isolation requirement.
     """
-    if not user_id or not USER_ID_PATTERN.match(user_id):
+    if not user_id or not USER_ID_PATTERN.fullmatch(user_id):
         raise RequestParameterError(
             f"user_id must match {USER_ID_PATTERN.pattern!r}, got {user_id!r}"
         )
