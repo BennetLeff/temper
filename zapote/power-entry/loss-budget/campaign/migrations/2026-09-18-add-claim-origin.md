@@ -22,7 +22,7 @@ was one field away from detection.
 
 Full analysis: `runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/coordinator-receipt.md`.
 
-## How origins were assigned
+## How origins were assigned in v1 (superseded — see the v2 section below)
 
 Read from what each claim already declared. Nothing was inferred from prose and
 nothing was invented:
@@ -40,13 +40,15 @@ bounded from a document (typical/minimum/maximum) or is a model result
 (`assumed`). Rule 3 reads a field the claim already carries rather than guessing
 at meaning.
 
-**Known imprecision, deliberately not papered over.** A claim whose value is a
-*computation over* source documents but whose `value_kind` is a maximum — e.g.
-`fuse-action-screen`, an action screen built from a catalogue I²t and a computed
-`E/R` — is labelled `source` by rule 3 rather than `derivation`. Refining those
-to derivations with named inputs is follow-up work, and the checker cannot detect
-the difference in any case. Rule 4 is the weakest honest label: a claim with no
-bounded or sourced value establishes nothing.
+**Known imprecision, and why v1 was replaced rather than annotated.** A claim whose
+value is a *computation over* source documents but whose `value_kind` is a maximum
+— e.g. `fuse-action-screen` — was labelled `source` by rule 3 rather than
+`derivation`. The v1 response was to record that imprecision; that was not enough.
+`value_kind` does not establish origin at all, and v2 replaces the rule outright.
+See **v2 — the `value_kind` rule was wrong** below.
+
+**The v1 per-ledger table that followed is retained as the record of what v1
+produced.** The current hashes and origin counts are in the v2 section.
 
 ## Per-ledger effect
 
@@ -61,33 +63,119 @@ bounded or sourced value establishes nothing.
 | `claims/2026-09-18-arc-claims-withdrawn.json` | assumption 1, derivation 3, measurement 1, source 1 | `979ccbf94dfbb9a1` | `6b42904f8db5b4aeb1ca287ac87864b4be54a173a130e8a8c9fa9b9577d22608` |
 | `claims/2026-09-18-arc-claims.json` | assumption 3, derivation 1, measurement 1, source 1 | `62884b587c553318` | `5064a7ab8f10a8e2e52e34cf2cc4ab60e2c88e39e3c7a43ba31844531682c0a7` |
 
-## Hash drift — recorded rather than hidden
+## v2 — the `value_kind` rule was wrong, and its errors are corrected
 
-Migrating a ledger changes its bytes, and several artifacts record the old ones:
+**v1 assigned origins from `value_kind`**: typical/minimum/maximum → `source`. That
+is unsound. `value_kind` describes the *value* — bounded, typical, assumed,
+measured — and says nothing about whether the value was **read from a record** or
+**computed**. It produced a concrete error: AR-PROTCKT's `bank-stored-energy` was
+labelled a `measurement` while citing a computation and a netlist. Recording the
+imprecision in prose did not make that provenance accurate.
 
-- the four `attempt-001/manifest.json` files list `claims.json` with its hash;
-- `AR-COORD` and `AR-PROTCKT` `raw/checker/checker_receipt.json` record
-  `claims_json_sha256`;
-- `AR-PROTCKT/attempt-001/inputs.json` records the canonical ARC ledger's hash.
+**v2 rules** (`2026-09-18-claim-origin-v2-provenance-fix.py`):
 
-**Those records were deliberately left unchanged.** Each one is a true statement
-about the bytes that existed when it was written, and rewriting it would claim a
-checker was run on bytes it never saw. Nothing in the repository verifies them,
-as `grep` for `claims_json_sha256` outside the receipts confirms — they are
-records, not gates. The drift is stated here instead.
+| Rule | Condition | Origin |
+| --- | --- | --- |
+| 1 | `derived_from`/`inputs` present | `derivation` |
+| 2 | `value_kind == assumed` | `assumption` |
+| 3 | an explicit reviewed override | as stated |
+| 4 | otherwise | `source` |
 
-## Residual gap, still open
+`value_kind` appears only in rule 2, and only in the one direction that is safe: a
+claim asserting its **own** value is assumed is an assumption. Nothing follows from
+`maximum` — that is what rule 3's reviewed table is for, because deciding it needs
+the claim's meaning.
 
-Two of the four AR-BOUNDS defects are **not** addressed and cannot be by this
-schema:
+**Computations corrected to derivations.** Each names the claims it consumes:
+
+| Claim | Ledger | Now | Computes |
+| --- | --- | --- | --- |
+| `bank-stored-energy` | AR-PROTCKT (+ARC: see below) | derivation, `inputs=[bank-capacitance]` | `E = 0.5·C·V²` |
+| `fuse-resistance-hot` | AR-BOUNDS (attempt + canonical) | derivation, `inputs=[fuse-watts-loss-rated]` | `R = P/I²` |
+| `fuse-action-screen` | AR-BOUNDS (attempt + canonical) | derivation, `inputs=[a70qs50-pre-arcing-i2t-max]` | `R ≤ E/I²t` |
+| `bank-esr-bank-max` | AR-BOUNDS attempt | derivation, `inputs=[bank-esr-120hz-max]` | `ESR/4` |
+| `a70qs50-fuse-resistance-estimate` | AR-MERSEN | derivation, `inputs=[a70qs50-watts-loss]` | `R = P/I²` |
+
+Two input claims were **added** where a computation had no claim to name, sourced
+from artifacts the attempt already retained — not invented:
+
+- `bank-capacitance` (AR-PROTCKT) ← `raw/netlist_fault_loop.json`.
+- `a70qs50-pre-arcing-i2t-max` (AR-BOUNDS, both ledgers) ← the Mersen catalogue.
+
+An input that is a **document** rather than a claim is carried as `evidence` and
+described in `justification`; the schema's `inputs` names claim parents only. This
+is now stated in the `ClaimOrigin` documentation.
+
+**AR-PROTCKT `bank-stored-energy` — before and after**
+
+```
+before: origin=measurement  inputs=[]                    vk=measured
+after:  origin=derivation   inputs=[bank-capacitance]     vk=typical
+        condition_transformation: evaluated at the 400 V bus setpoint
+```
+
+**ARC's `bank-stored-energy` is `source`, not `derivation`** — it is taken from
+AR-FAULT's retained coordinator receipt, and the ARC ledger contains no claim it
+was computed from. "Read from a record" is what makes a claim a source; that is
+why the `ClaimOrigin::Source` doc now says "retained document … or a prior
+attempt's retained record" rather than "external document".
+
+## v2 per-ledger state
+
+| Ledger | n | Origins | sha256 |
+| --- | ---: | --- | --- |
+| `AR-BOUNDS/attempt-001/claims.json` | 27 | assumption 17, derivation 4, source 6 | `95b7371e6356d58ab412c2e3e1f3f4fca600ef0356c2158c594fa977bf6a3124` |
+| `AR-COORD/attempt-001/claims.json` | 29 | assumption 18, derivation 1, source 10 | `1d0a505e24b2f0e1d86de7edc527453b6003eeafbbe8ca431263a12a6b9dd87f` |
+| `AR-MERSEN/attempt-001/claims.json` | 23 | assumption 15, derivation 1, source 7 | `fe5f36f02fab2635874842b8ebb4687e6ba00bc86e16e9b815b89355038aef55` |
+| `AR-PROTCKT/attempt-001/claims.json` | 16 | assumption 6, derivation 2, source 8 | `db4d70ec3daf063566f3b6db88ed479ee56366ac69d17c59bf22d267c478ea7b` |
+| `claims/2026-09-18-arbounds-claims-withdrawn.json` | 4 | assumption 3, source 1 | `80b7ecde5acfd83db126026b8eb7ac115c720df12f9b03bdc162c4d5fd249391` |
+| `claims/2026-09-18-arbounds-claims.json` | 26 | assumption 16, derivation 4, source 6 | `ea5cdcc4a88bdcc817a8fbefc99174b0add279167f0b1f7e5b567b68d95b67c7` |
+| `claims/2026-09-18-arc-claims-withdrawn.json` | 6 | assumption 1, derivation 3, source 2 | `ddcef49444b11f71db0ef6107c4213329ceea91bf3f854887043205a96c86b32` |
+| `claims/2026-09-18-arc-claims.json` | 6 | assumption 3, derivation 1, source 2 | `d70363fdf083975e7dc9e02a526b3b4111bf82b510f419b56589769598100f9f` |
+
+The as-stated (`*-withdrawn.json`) fixtures are deliberately **not** overridden and
+are reset to the provenance they were originally stated with, so they keep
+recording the defect instead of being silently corrected.
+
+## Hash drift — resolved, not hidden
+
+**Historical receipts are retained untouched.** Each `raw/checker/checker_receipt.json`
+records the bytes that existed when it ran; rewriting one would claim a check that
+never happened.
+
+**Fresh verification records are issued for the migrated bytes**
+(`2026-09-18-issue-post-migration-verification.py`):
+
+- `runs/*/AR-*/attempt-001/raw/checker/verification-post-migration.json` — the
+  current `claims.json` sha256, the exact command, its exit code and output, and a
+  pointer to the historical receipt it supersedes.
+- `claims/verification-post-migration.json` — the same for the canonical ledgers.
+
+**Manifests are reconciled.** Each attempt `manifest.json`'s `claims.json` entry now
+carries the current hash plus a `post_migration_note`; the pre-migration hashes for
+the v1 pass are in the table above. The manifest is the artifact-identity authority
+for the tree as it stands, so leaving it pointing at bytes that no longer exist
+would have been the disagreement, not the reconciliation.
+
+`AR-PROTCKT/attempt-001/inputs.json` records the canonical ARC ledger as an *input*
+at its pre-migration hash. It is left as-is for the same reason as the receipts: it
+is a record of what that attempt consumed. The drift is noted here.
+
+## Residual gaps, still open
+
+Three things this work does **not** fix, kept explicit:
 
 1. `2026-09-18-arbounds-claims-withdrawn.json` still **passes**. Its
    `bank-esr-bank-max` performs a derivation while being declared a `source`.
    Detecting that needs the meaning of the prose, not its shape. The regression
-   `the_documented_residual_gap_is_still_open` asserts this, so that closing the
-   gap fails a test rather than passing silently.
+   `the_documented_residual_gap_is_still_open` asserts this, so closing the gap
+   fails a test rather than passing silently.
 2. A receipt or packet that restates an `illustrative` entry as a **bound** is
-   outside the ledger entirely. That is how the AR-BOUNDS defect reached the
-   manufacturer packet. Closing it needs report-to-ledger consistency: generated
-   tables inheriting evidence strength and conditions from the ledger rather than
-   restating them, with prose upgrades caught in review.
+   outside the ledger. That is how the AR-BOUNDS defect reached the manufacturer
+   packet. Closing it needs report-to-ledger consistency: generated tables
+   inheriting evidence strength and conditions from the ledger. Tracked separately.
+3. Origins were assigned by a reviewed rule plus an explicit override table, claim
+   by claim over ~120 claims. Claims neither computed nor explicitly `assumed` are
+   `source` by rule 4; an author who disguises a calculation as a document read is
+   still not detectable, which is gap 1 restated.
+

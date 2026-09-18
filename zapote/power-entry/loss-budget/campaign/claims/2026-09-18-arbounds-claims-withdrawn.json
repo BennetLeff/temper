@@ -25,8 +25,8 @@
       ],
       "justification": "0.4737 ohm / 4 = 0.11842 ohm for the bank. This is an upper bound for the discharge frequency too: aluminium-electrolytic ESR falls with frequency, so the 120 Hz max exceeds the ESR at the ~0.5-300 kHz discharge content.",
       "derived_from": null,
-      "part_transformation": null,
-      "condition_transformation": null
+      "part_transformation": "Four LGX2W561MELC50 in parallel; bank ESR = per-part ESR / 4.",
+      "condition_transformation": "Declared as valid at 120 Hz ONLY: the four-in-parallel bank condition. The 120 Hz maximum is not shown to bound the discharge waveform, which is why the claim is illustrative."
     },
     {
       "id": "copper-loop-resistance-lower",

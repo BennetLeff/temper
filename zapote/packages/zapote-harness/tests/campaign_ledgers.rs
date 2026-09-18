@@ -102,10 +102,10 @@ fn the_corrected_ledger_keeps_valid_counterexamples_accepted() {
     );
 }
 
-/// The six probes supplied during review, kept verbatim. Some predate the
-/// hardened schema, so a schema rejection is an acceptable outcome; the
-/// invariant is that **none yields a clean pass**.
-const PROBES: [(&str, &str); 8] = [
+/// The eight probes supplied during review, plus the two input-order probes.
+/// Some predate the hardened schema, so a schema rejection is an acceptable
+/// outcome; the invariant is that **none yields a clean pass**.
+const PROBES: [(&str, &str); 10] = [
     ("changed_condition", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/changed_condition.json")),
     ("changed_part", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/changed_part.json")),
     ("qualified_root_without_evidence", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/qualified_root_without_evidence.json")),
@@ -114,6 +114,11 @@ const PROBES: [(&str, &str); 8] = [
     ("empty_ledger", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/empty_ledger.json")),
     ("protection_missing_artifact", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/protection_missing_artifact.json")),
     ("hardware_verified_missing_artifacts", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/hardware_verified_missing_artifacts.json")),
+    // The input-order bypass: the SAME derivation, differing only in the order
+    // its inputs are named. Before every input was compared, the first of these
+    // passed and the second failed.
+    ("input_order_bypass_passes", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/input_order_bypass_passes.json")),
+    ("input_order_bypass_fails", include_str!("../../../power-entry/loss-budget/campaign/claims/probes/input_order_bypass_fails.json")),
 ];
 
 /// Mirrors the CLI: parse either shape, then run every check through the shared

@@ -134,16 +134,20 @@ pub enum AssertionStrength {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ClaimOrigin {
-    /// The value is read from a retained external document (datasheet,
-    /// catalogue, standard, contract).
+    /// The value is taken from a retained **document** — a datasheet, catalogue,
+    /// standard, contract, or a prior attempt's retained record. What makes a
+    /// claim a source is that the value is *read from a record* rather than
+    /// computed from other claims.
     Source,
     /// The value is assumed. It is not established by a retained source, and it
     /// must remain identifiable as an assumption.
     Assumption,
     /// The value comes from a retained measurement record.
     Measurement,
-    /// The value is computed from one or more other claims in this ledger,
-    /// which must be named.
+    /// The value is computed from one or more **other claims in this ledger**,
+    /// which must be named in `inputs` (and/or `derived_from`). An input that is
+    /// a retained document rather than a claim is carried as `evidence` and
+    /// described in `justification`; it is not a claim parent.
     Derivation,
 }
 
@@ -157,6 +161,13 @@ impl ClaimOrigin {
         }
     }
 }
+
+// **`value_kind` is not an origin.** It was used as one in the first migration --
+// typical/minimum/maximum were read as "came from a document" -- and that was
+// wrong: those describe the *value*, not how it was obtained. It produced a
+// computation labelled a `measurement`. `value_kind` is only ever safe in one
+// direction, namely that a claim asserting its own value is `assumed` is an
+// assumption; nothing follows from `maximum`.
 
 /// A retained artifact: where it is, and the SHA-256 of its bytes.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -441,6 +452,14 @@ fn visit_for_cycles<'a>(
 
 /// One message per derivation that changes a load-bearing property without a
 /// declared supported transformation. Applies to root claims too.
+///
+/// **Every** declared input is compared, not just the first. Comparing against
+/// one input made the verdict depend on input *order*: a derivation that
+/// preserved `at_500A`'s condition but silently changed `at_50A`'s passed when
+/// written `[at_500A, at_50A]` and failed when written `[at_50A, at_500A]`.
+/// Dependency validation must not be a function of argument order, so a claim
+/// combining several inputs has to carry each of their conditions, or declare
+/// the transformation that changes them.
 pub fn unsound_derivations(claims: &[Claim]) -> Vec<String> {
     let by_id: BTreeMap<&str, &Claim> = claims.iter().map(|c| (c.id.as_str(), c)).collect();
     let mut failures = Vec::new();
@@ -454,16 +473,19 @@ pub fn unsound_derivations(claims: &[Claim]) -> Vec<String> {
             ));
         }
 
-        // The comparison parent: `derived_from` when present, else the first
-        // declared input. This keeps the comparison rules firing against
-        // something for a derivation that names inputs but no `derived_from`.
-        let Some(parent_id) = claim_inputs(claim).into_iter().next() else {
-            continue;
-        };
-        let Some(parent) = by_id.get(parent_id) else {
-            continue; // unresolved name; reported by unsound_claim_structure
-        };
+        for parent_id in claim_inputs(claim) {
+            let Some(parent) = by_id.get(parent_id) else {
+                continue; // unresolved name; reported by unsound_claim_structure
+            };
+            compare_against_input(claim, parent, &mut failures);
+        }
+    }
+    failures
+}
 
+/// The comparison of one derived claim against one of its inputs.
+fn compare_against_input(claim: &Claim, parent: &Claim, failures: &mut Vec<String>) {
+    {
         // Bound direction.
         let reversed = matches!(
             (parent.bound_kind, claim.bound_kind),
@@ -554,7 +576,6 @@ pub fn unsound_derivations(claims: &[Claim]) -> Vec<String> {
             ));
         }
     }
-    failures
 }
 
 /// Every evidence reference in a ledger, with its owner.
@@ -572,7 +593,10 @@ pub fn ledger_evidence<'a>(
         owners.push((format!("claim {}", claim.id), &claim.evidence));
     }
     for claim in protection_claims {
-        owners.push((format!("protection claim {}", claim.case_id), &claim.evidence));
+        owners.push((
+            format!("protection claim {}", claim.case_id),
+            &claim.evidence,
+        ));
     }
     for promotion in promotions {
         owners.push((
@@ -659,7 +683,10 @@ pub fn unsound_promotions(promotions: &[Promotion]) -> Vec<String> {
     let mut failures = Vec::new();
     let mut by_subject: BTreeMap<&str, Vec<&Promotion>> = BTreeMap::new();
     for promotion in promotions {
-        by_subject.entry(promotion.subject.as_str()).or_default().push(promotion);
+        by_subject
+            .entry(promotion.subject.as_str())
+            .or_default()
+            .push(promotion);
     }
 
     for (subject, mut steps) in by_subject {
@@ -670,7 +697,8 @@ pub fn unsound_promotions(promotions: &[Promotion]) -> Vec<String> {
                 failures.push(format!(
                     "{subject} promotes to {:?} while the established status is rank {established}; the history does not support {:?} -> {:?}",
                     step.to, step.from, step.to
-                ));            }
+                ));
+            }
             if step.from.rank() != established {
                 failures.push(format!(
                     "{subject} claims to promote from {:?}, which the recorded history does not establish",
@@ -678,7 +706,10 @@ pub fn unsound_promotions(promotions: &[Promotion]) -> Vec<String> {
                 ));
             }
             if step.evidence.is_empty() {
-                failures.push(format!("{subject} promotes to {:?} with no evidence", step.to));
+                failures.push(format!(
+                    "{subject} promotes to {:?} with no evidence",
+                    step.to
+                ));
             }
             established = step.to.rank();
         }
@@ -722,7 +753,10 @@ mod tests {
     }
 
     fn ref_to(path: &std::path::Path, sha: &str) -> EvidenceRef {
-        EvidenceRef { path: path.to_string_lossy().into_owned(), sha256: sha.to_string() }
+        EvidenceRef {
+            path: path.to_string_lossy().into_owned(),
+            sha256: sha.to_string(),
+        }
     }
 
     fn protection_with(evidence: Vec<EvidenceRef>) -> ProtectionClaim {
@@ -750,7 +784,10 @@ mod tests {
     }
 
     fn evidence(path: &str) -> EvidenceRef {
-        EvidenceRef { path: path.into(), sha256: "a".repeat(64) }
+        EvidenceRef {
+            path: path.into(),
+            sha256: "a".repeat(64),
+        }
     }
 
     fn root() -> Claim {
@@ -794,7 +831,8 @@ mod tests {
         c.inputs.clear();
         let out = unsound_claim_structure(&[root(), c]);
         assert!(
-            out.iter().any(|f| f.contains("declared a derivation but names no inputs")),
+            out.iter()
+                .any(|f| f.contains("declared a derivation but names no inputs")),
             "{out:?}"
         );
     }
@@ -804,7 +842,10 @@ mod tests {
         let mut r = root();
         r.origin = None;
         let out = unsound_claim_structure(&[r]);
-        assert!(out.iter().any(|f| f.contains("declares no origin")), "{out:?}");
+        assert!(
+            out.iter().any(|f| f.contains("declares no origin")),
+            "{out:?}"
+        );
     }
 
     #[test]
@@ -820,7 +861,9 @@ mod tests {
         c.derived_from = None;
         let out = unsound_claim_structure(&[root(), c]);
         assert!(
-            out.iter().any(|f| f.contains("names input nonexistent") && f.contains("not among the claims")),
+            out.iter().any(
+                |f| f.contains("names input nonexistent") && f.contains("not among the claims")
+            ),
             "{out:?}"
         );
     }
@@ -836,7 +879,10 @@ mod tests {
         b.inputs = vec!["a".into()];
         b.derived_from = None;
         let out = unsound_claim_structure(&[a, b]);
-        assert!(out.iter().any(|f| f.contains("dependency cycle")), "{out:?}");
+        assert!(
+            out.iter().any(|f| f.contains("dependency cycle")),
+            "{out:?}"
+        );
     }
 
     #[test]
@@ -846,7 +892,8 @@ mod tests {
         r.evidence = Vec::new();
         let out = unsound_claim_structure(&[r]);
         assert!(
-            out.iter().any(|f| f.contains("declared a source but references no retained evidence")),
+            out.iter()
+                .any(|f| f.contains("declared a source but references no retained evidence")),
             "{out:?}"
         );
     }
@@ -858,7 +905,8 @@ mod tests {
         r.evidence = Vec::new();
         let out = unsound_claim_structure(&[r]);
         assert!(
-            out.iter().any(|f| f.contains("declared a measurement but references no retained evidence")),
+            out.iter()
+                .any(|f| f.contains("declared a measurement but references no retained evidence")),
             "{out:?}"
         );
     }
@@ -870,7 +918,8 @@ mod tests {
         r.inputs = vec!["something".into()];
         let out = unsound_claim_structure(&[root(), r]);
         assert!(
-            out.iter().any(|f| f.contains("but its origin is assumption")),
+            out.iter()
+                .any(|f| f.contains("but its origin is assumption")),
             "{out:?}"
         );
     }
@@ -881,7 +930,10 @@ mod tests {
         c.inputs = vec!["child".into()];
         c.derived_from = None;
         let out = unsound_claim_structure(&[root(), c]);
-        assert!(out.iter().any(|f| f.contains("names itself as an input")), "{out:?}");
+        assert!(
+            out.iter().any(|f| f.contains("names itself as an input")),
+            "{out:?}"
+        );
     }
 
     /// The legitimate roots and derivations must still pass, so the structure
@@ -928,9 +980,57 @@ mod tests {
 
         let out = unsound_derivations(&[parent, c]);
         assert!(
-            out.iter().any(|f| f.contains("changes") && f.contains("source condition")),
+            out.iter()
+                .any(|f| f.contains("changes") && f.contains("source condition")),
             "{out:?}"
         );
+    }
+
+    /// Input order must not change the verdict.
+    ///
+    /// Comparing only the *first* declared input made a derivation that silently
+    /// changed `at_50A`'s condition pass when written `[at_500A, at_50A]` and
+    /// fail when written `[at_50A, at_500A]` — a mechanically reproducible
+    /// bypass. Every input is now compared.
+    #[test]
+    fn input_order_does_not_change_the_verdict() {
+        let at = |id: &str, text: &str| Claim {
+            id: id.into(),
+            origin: Some(ClaimOrigin::Assumption),
+            inputs: Vec::new(),
+            source_condition: Some(SourceCondition::Text(text.into())),
+            ..root()
+        };
+        let derived = |inputs: Vec<String>| Claim {
+            id: "derived".into(),
+            origin: Some(ClaimOrigin::Derivation),
+            inputs,
+            derived_from: None,
+            source_condition: Some(SourceCondition::Text("500 A, 25 C".into())),
+            ..root()
+        };
+
+        let at_50a = at("at_50A", "50 A, 25 C");
+        let at_500a = at("at_500A", "500 A, 25 C");
+
+        // Names at_500A first: preserves its condition, changes at_50A's.
+        let one = unsound_derivations(&[
+            at_50a.clone(),
+            at_500a.clone(),
+            derived(vec!["at_500A".into(), "at_50A".into()]),
+        ]);
+        // The same claim, inputs reversed.
+        let other = unsound_derivations(&[
+            at_50a,
+            at_500a,
+            derived(vec!["at_50A".into(), "at_500A".into()]),
+        ]);
+
+        assert!(
+            !one.is_empty(),
+            "changing at_50A's condition must be caught whichever order it is named in"
+        );
+        assert_eq!(one, other, "the verdict must not depend on input order");
     }
 
     // ---- the six probe inputs, as regressions ----
@@ -940,7 +1040,11 @@ mod tests {
         let mut c = child();
         c.source_condition = cond(500.0);
         let out = unsound_derivations(&[root(), c]);
-        assert!(out.iter().any(|f| f.contains("changes") && f.contains("source condition")), "{out:?}");
+        assert!(
+            out.iter()
+                .any(|f| f.contains("changes") && f.contains("source condition")),
+            "{out:?}"
+        );
     }
 
     #[test]
@@ -948,7 +1052,11 @@ mod tests {
         let mut c = child();
         c.part = Some("DIFFERENT_PART".into());
         let out = unsound_derivations(&[root(), c]);
-        assert!(out.iter().any(|f| f.contains("changes") && f.contains("part")), "{out:?}");
+        assert!(
+            out.iter()
+                .any(|f| f.contains("changes") && f.contains("part")),
+            "{out:?}"
+        );
     }
 
     #[test]
@@ -956,7 +1064,10 @@ mod tests {
         let mut r = root();
         r.assertion = AssertionStrength::Qualified;
         let out = unsound_derivations(&[r]);
-        assert!(out.iter().any(|f| f.contains("qualified with no evidence")), "{out:?}");
+        assert!(
+            out.iter().any(|f| f.contains("qualified with no evidence")),
+            "{out:?}"
+        );
     }
 
     #[test]
@@ -974,7 +1085,10 @@ mod tests {
         c.assertion = AssertionStrength::Qualified;
         c.evidence = vec![evidence("review.pdf")];
         let out = evidence_failures(&[c], &[], &[], |_| Some("b".repeat(64)));
-        assert!(out.iter().any(|f| f.contains("whose bytes hash")), "{out:?}");
+        assert!(
+            out.iter().any(|f| f.contains("whose bytes hash")),
+            "{out:?}"
+        );
     }
 
     #[test]
@@ -986,7 +1100,12 @@ mod tests {
             evidence: vec![evidence("/does-not-exist/bench-record.pdf")],
         };
         let out = unsound_promotions(&[promotion]);
-        assert!(out.iter().any(|f| f.contains("history does not establish") || f.contains("does not establish")), "{out:?}");
+        assert!(
+            out.iter()
+                .any(|f| f.contains("history does not establish")
+                    || f.contains("does not establish")),
+            "{out:?}"
+        );
     }
 
     // ---- valid counterexamples ----
@@ -1024,9 +1143,18 @@ mod tests {
             evidence: vec![evidence("evidence.pdf")],
         };
         let out = unsound_promotions(&[
-            step(CompletionStatus::None, CompletionStatus::ProtectionIdentified),
-            step(CompletionStatus::ProtectionIdentified, CompletionStatus::PartSelected),
-            step(CompletionStatus::PartSelected, CompletionStatus::CoordinationDemonstrated),
+            step(
+                CompletionStatus::None,
+                CompletionStatus::ProtectionIdentified,
+            ),
+            step(
+                CompletionStatus::ProtectionIdentified,
+                CompletionStatus::PartSelected,
+            ),
+            step(
+                CompletionStatus::PartSelected,
+                CompletionStatus::CoordinationDemonstrated,
+            ),
         ]);
         assert!(out.is_empty(), "{out:?}");
     }
@@ -1054,7 +1182,8 @@ mod tests {
         }]);
         let out = evidence_failures(&[], &[claim], &[], |_| None);
         assert!(
-            out.iter().any(|f| f.starts_with("protection claim short") && f.contains("not retained")),
+            out.iter()
+                .any(|f| f.starts_with("protection claim short") && f.contains("not retained")),
             "{out:?}"
         );
     }
@@ -1071,7 +1200,8 @@ mod tests {
             |_| None,
         );
         assert!(
-            out.iter().any(|f| f.starts_with("promotion bus protection") && f.contains("not retained")),
+            out.iter()
+                .any(|f| f.starts_with("promotion bus protection") && f.contains("not retained")),
             "{out:?}"
         );
     }
@@ -1108,7 +1238,9 @@ mod tests {
             file_resolver(),
         );
         assert_eq!(
-            out.iter().filter(|f| f.contains("whose bytes hash")).count(),
+            out.iter()
+                .filter(|f| f.contains("whose bytes hash"))
+                .count(),
             3,
             "{out:?}"
         );
@@ -1116,7 +1248,10 @@ mod tests {
 
     #[test]
     fn a_missing_file_is_rejected_in_every_collection() {
-        let reference = EvidenceRef { path: "nope.pdf".into(), sha256: "a".repeat(64) };
+        let reference = EvidenceRef {
+            path: "nope.pdf".into(),
+            sha256: "a".repeat(64),
+        };
         let mut claim = child();
         claim.assertion = AssertionStrength::Qualified;
         claim.evidence = vec![reference.clone()];
@@ -1126,6 +1261,10 @@ mod tests {
             &[promotion_with(vec![reference])],
             |_| None,
         );
-        assert_eq!(out.iter().filter(|f| f.contains("not retained")).count(), 3, "{out:?}");
+        assert_eq!(
+            out.iter().filter(|f| f.contains("not retained")).count(),
+            3,
+            "{out:?}"
+        );
     }
 }

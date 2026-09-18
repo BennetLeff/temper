@@ -1,0 +1,40 @@
+{
+  "claims": [
+    {
+      "id": "at_50A",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "clamp_v",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "50 A, 25 C",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative"
+    },
+    {
+      "id": "at_500A",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "clamp_v",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "500 A, 25 C",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative"
+    },
+    {
+      "id": "derived",
+      "origin": "derivation",
+      "quantity": "clamp_v",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "500 A, 25 C",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "inputs": [
+        "at_50A",
+        "at_500A"
+      ]
+    }
+  ]
+}

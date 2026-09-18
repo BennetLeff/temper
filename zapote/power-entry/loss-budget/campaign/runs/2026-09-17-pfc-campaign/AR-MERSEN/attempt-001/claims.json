@@ -474,8 +474,10 @@
     },
     {
       "id": "a70qs50-fuse-resistance-estimate",
-      "origin": "assumption",
-      "inputs": [],
+      "origin": "derivation",
+      "inputs": [
+        "a70qs50-watts-loss"
+      ],
       "quantity": "fuse_resistance_estimate_ohm",
       "part": "A70QS50-14F",
       "value_kind": "assumed",
@@ -495,8 +497,8 @@
       ],
       "derived_from": null,
       "part_transformation": null,
-      "condition_transformation": null,
-      "justification": "not a datasheet resistance and not at fault current; used only to locate the fuse inside the swept R envelope"
+      "condition_transformation": "R = P/I^2 evaluated at the catalogue's 50 A rated current, from the watts-loss claim's condition.",
+      "justification": "Computed from the catalogue's watts-loss figure and the 50 A rated current (R = P/I^2). A derivation, not an independently sourced value."
     },
     {
       "id": "peak-envelope",

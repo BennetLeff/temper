@@ -13,8 +13,9 @@
     },
     {
       "path": "claims.json",
-      "sha256": "64135a3a1117a3ee15a2f25825ffb2f5355425ec4a2cf8896c42c7393ddc93e9",
-      "bytes": 11438
+      "sha256": "db4d70ec3daf063566f3b6db88ed479ee56366ac69d17c59bf22d267c478ea7b",
+      "bytes": 11438,
+      "post_migration_note": "Refreshed after the 2026-09-18 claim-origin migration; the pre-migration hash is preserved in campaign/migrations/2026-09-18-add-claim-origin.md"
     },
     {
       "path": "inputs.json",

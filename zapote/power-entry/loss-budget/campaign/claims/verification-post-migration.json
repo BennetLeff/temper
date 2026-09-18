@@ -1,0 +1,32 @@
+{
+  "schema": "pfc-campaign-post-migration-verification/v1",
+  "verified_at_utc": "2026-09-18T19:00:11Z",
+  "tool": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-claims",
+  "note": "Fresh verification of the canonical ledgers after the 2026-09-18 claim-origin migrations. The attempt ledgers carry their own records under runs/*/AR-*/attempt-001/raw/checker/verification-post-migration.json.",
+  "ledgers": [
+    {
+      "ledger": "claims/2026-09-18-arbounds-claims-withdrawn.json",
+      "claims_json_sha256": "80b7ecde5acfd83db126026b8eb7ac115c720df12f9b03bdc162c4d5fd249391",
+      "exit_code": 0,
+      "output": "No violations detected by implemented checks (4 claims, 0 protection claims, 0 promotions). This does not establish derivation soundness in general."
+    },
+    {
+      "ledger": "claims/2026-09-18-arbounds-claims.json",
+      "claims_json_sha256": "ea5cdcc4a88bdcc817a8fbefc99174b0add279167f0b1f7e5b567b68d95b67c7",
+      "exit_code": 0,
+      "output": "No violations detected by implemented checks (26 claims, 0 protection claims, 0 promotions). This does not establish derivation soundness in general."
+    },
+    {
+      "ledger": "claims/2026-09-18-arc-claims-withdrawn.json",
+      "claims_json_sha256": "ddcef49444b11f71db0ef6107c4213329ceea91bf3f854887043205a96c86b32",
+      "exit_code": 1,
+      "output": "VIOLATIONS DETECTED\n  - timescale-withdrawn is declared a source but references no retained evidence\n  - clamp-at-surge-withdrawn reverses the bound direction of clamp-at-50A: Upper -> Lower\n  - clamp-at-surge-withdrawn restates clamp-at-50A's Maximum as a Minimum \u2014 a bound cannot flip direction\n  - clamp-at-surge-withdrawn changes clamp-at-50A's source condition with no supported transformation\n  - timescale-withdrawn is asserted as qualified with no evidence reference\n  - failed-short-withdrawn changes healthy-switch-can-turn-off's source condition with no supported transformation\n  - failed-short-withdrawn changes fault state from healthy-switch-can-turn-off (HealthyOn -> FailedShort) with no justification\n  - part-dropped-withdrawn drops the part binding of clamp-at-50A\n  - U10-shorted-U9-failed-short claims interruption without naming the device that opens the path\n  - line-fed-switch-short credits F1 with interruption while it is FailedShort; only an intact device can open a path\n  - TEA2209T protection promotes to ProtectionIdentified with no evidence\n  - TEA2209T protection promotes to CoordinationDemonstrated while the established status is rank 1; the history does not support ProtectionIdentified -> CoordinationDemonstrated"
+    },
+    {
+      "ledger": "claims/2026-09-18-arc-claims.json",
+      "claims_json_sha256": "d70363fdf083975e7dc9e02a526b3b4111bf82b510f419b56589769598100f9f",
+      "exit_code": 0,
+      "output": "No violations detected by implemented checks (6 claims, 2 protection claims, 2 promotions). This does not establish derivation soundness in general."
+    }
+  ]
+}

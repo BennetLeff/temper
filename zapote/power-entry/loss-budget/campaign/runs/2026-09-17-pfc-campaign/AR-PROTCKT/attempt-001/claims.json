@@ -6,11 +6,13 @@
   "claims": [
     {
       "id": "bank-stored-energy",
-      "origin": "measurement",
-      "inputs": [],
+      "origin": "derivation",
+      "inputs": [
+        "bank-capacitance"
+      ],
       "quantity": "bus_bank_energy_j",
       "part": null,
-      "value_kind": "measured",
+      "value_kind": "typical",
       "bound_kind": "point",
       "source_condition": "2240.47 uF (U36-U39 4x560uF + U40 470nF) at 400 V bus setpoint; equal voltage across the parallel bank",
       "fault_state": "not_applicable",
@@ -26,7 +28,8 @@
         }
       ],
       "derived_from": null,
-      "justification": null
+      "justification": "Computed as 0.5 * C * V^2 from the bank capacitance and the 400 V bus setpoint. A computation, not a measurement. (v1 mislabelled this a measurement from its value_kind.)",
+      "condition_transformation": "Evaluated at the 400 V bus setpoint: E = 0.5 * C * V^2. The voltage is a declared operating condition of the discharge, not a property of the capacitance claim."
     },
     {
       "id": "fuse-dc-voltage-rating",
@@ -284,6 +287,26 @@
       "evidence": [],
       "derived_from": null,
       "justification": null
+    },
+    {
+      "id": "bank-capacitance",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "bus_bank_capacitance_f",
+      "part": null,
+      "value_kind": "typical",
+      "bound_kind": "point",
+      "source_condition": "4 x 560 uF (U36-U39) + 470 nF (U40), parallel bank",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "derived_from": null,
+      "justification": "Bank capacitance read from the retained fault-loop netlist's component evidence. Added in v2 so that the energy computation has a named input instead of resting on an external document.",
+      "evidence": [
+        {
+          "path": "raw/netlist_fault_loop.json",
+          "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b"
+        }
+      ]
     }
   ],
   "protection_claims": [

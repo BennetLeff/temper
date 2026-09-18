@@ -1,0 +1,11 @@
+{
+  "schema": "pfc-campaign-post-migration-verification/v1",
+  "ledger": "claims.json",
+  "claims_json_sha256": "95b7371e6356d58ab412c2e3e1f3f4fca600ef0356c2158c594fa977bf6a3124",
+  "verified_at_utc": "2026-09-18T19:00:11Z",
+  "tool": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-claims",
+  "command": "zapote-claims /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/claims.json",
+  "exit_code": 0,
+  "output": "No violations detected by implemented checks (27 claims, 4 protection claims, 0 promotions). This does not establish derivation soundness in general.",
+  "note": "Issued after the 2026-09-18 claim-origin migrations changed this ledger's bytes. Supersedes the sha256 recorded in raw/checker/checker_receipt.json, which is retained untouched because it is a true record of the bytes that existed when it ran. Script: campaign/migrations/2026-09-18-issue-post-migration-verification.py"
+}

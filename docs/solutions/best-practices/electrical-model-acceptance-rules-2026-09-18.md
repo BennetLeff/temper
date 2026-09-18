@@ -178,10 +178,37 @@ the *absence* of a declaration, indistinguishable from "independently sourced".
 Duplicate ids (a map lookup silently keeps the last, so a duplicate shadows an
 earlier claim), inputs that name no claim, and dependency cycles are rejected, as
 are `source`/`measurement` claims with no retained evidence. The committed ledgers
-were migrated by reading the origin each claim **already** declared — its
-`value_kind`, plus `derived_from` — rather than inferring from prose; the rule, its
-known imprecision, and the hash drift are in
+were migrated: rule, override table, per-ledger hashes and the resolved hash drift
+are in
 `zapote/power-entry/loss-budget/campaign/migrations/2026-09-18-add-claim-origin.md`.
+
+**Two defects in the first cut of that work, both mechanically reproducible.** They
+are worth recording because each is a *proof-of-concept against the fix itself*:
+
+1. **Input order changed the verdict.** Comparing a derivation against only its
+   *first* declared input made the same claim pass as `[at_500A, at_50A]` and fail
+   as `[at_50A, at_500A]`. Dependency validation is now order-independent: every
+   declared input is compared, so a claim combining several inputs must carry each
+   of their conditions or declare the transformation. The two orderings are
+   retained as probes, and a unit test asserts the verdicts are identical.
+2. **`value_kind` does not establish origin.** The first migration read
+   typical/minimum/maximum as "came from a document", which labelled a
+   *computation* — AR-PROTCKT's `bank-stored-energy`, computed as `0.5·C·V²` and
+   citing a netlist — a `measurement`. Recording that as "known imprecision" did
+   not make the provenance accurate. Origins are now assigned from dependency
+   structure and an explicit reviewed table; `value_kind` is used only in the one
+   safe direction, that a claim asserting its own value is *assumed* is an
+   assumption. Computations were corrected to derivations naming real inputs, and
+   two input claims were added where a computation had none to name — sourced from
+   artifacts the attempt already retained.
+
+**And the migrated bytes are verified.** Historical checker receipts are retained
+untouched, because each is a true record of the bytes that existed when it ran;
+fresh `verification-post-migration.json` records were issued for the migrated
+ledgers, and the attempt manifests were reconciled to the current hashes. Leaving
+a current artifact without matching verification, or a manifest pointing at bytes
+that no longer exist, is the same class of defect as the ones above — an artifact
+and its stated identity disagreeing.
 
 **What that does not fix.** It closes a *declared* derivation that omits its
 parents. It cannot tell that a claim labelled `source` is really a calculation:

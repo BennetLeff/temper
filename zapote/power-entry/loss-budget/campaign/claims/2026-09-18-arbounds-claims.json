@@ -142,7 +142,7 @@
       "justification": "0.4737 ohm / 4 = 0.11842 ohm for the bank at 120 Hz and nominal capacitance. This is an ESTIMATE at the stated condition, not a broadband bound at the fault.",
       "derived_from": "bank-esr-120hz-max",
       "part_transformation": "Four LGX2W561MELC50 in parallel; bank ESR = per-part ESR / 4.",
-      "condition_transformation": "Declared as valid at 120 Hz ONLY. The 120 Hz maximum is NOT shown to bound the discharge waveform: the derivation uses nominal capacitance although the parts carry a +/-20% tolerance that alone moves the derived ESR by roughly a quarter, and no loss-angle figure for the discharge regime was obtained."
+      "condition_transformation": "Declared as valid at 120 Hz ONLY: the four-in-parallel bank condition. The 120 Hz maximum is not shown to bound the discharge waveform, which is why the claim is illustrative."
     },
     {
       "id": "bank-esr-min-null",
@@ -198,8 +198,10 @@
     },
     {
       "id": "fuse-resistance-hot",
-      "origin": "source",
-      "inputs": [],
+      "origin": "derivation",
+      "inputs": [
+        "fuse-watts-loss-rated"
+      ],
       "quantity": "fuse_resistance_hot_ohm",
       "part": "A70QS50-14F",
       "value_kind": "typical",
@@ -217,10 +219,10 @@
           "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
         }
       ],
-      "justification": "R = P/I^2 = 11.6/50^2 = 4.64 mOhm. HOT figure (steady state at rated current). The element has a positive temperature coefficient, so the cold onset resistance is lower: 4.64 mOhm is an upper bound on the cold/onset resistance and a typical value for the hot state. It is NOT a resistance measured at fault current.",
+      "justification": "R = P/I^2 = 11.6 W / (50 A)^2 = 4.64 mOhm, computed from the catalogue's watts-loss claim. A derivation, not a value read from the catalogue.",
       "derived_from": null,
       "part_transformation": null,
-      "condition_transformation": null
+      "condition_transformation": "R = P/I^2 evaluated at the catalogue's 50 A rated current. The state is the thermal-equilibrium (HOT) condition, which is what the watts-loss figure itself represents."
     },
     {
       "id": "u9-rds-on-25c-max",
@@ -606,8 +608,10 @@
     },
     {
       "id": "fuse-action-screen",
-      "origin": "source",
-      "inputs": [],
+      "origin": "derivation",
+      "inputs": [
+        "a70qs50-pre-arcing-i2t-max"
+      ],
       "quantity": "action_screen_r_max_ohm",
       "part": "A70QS50-14F",
       "value_kind": "maximum",
@@ -625,10 +629,10 @@
           "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
         }
       ],
-      "justification": "R <= E/280 = 0.64013 ohm. A pre-arcing ACTION screen only; it does not establish melting across durations, temperatures or tolerances.",
+      "justification": "R <= E / 280 A2s = 0.64013 ohm, computed from the catalogue's pre-arcing I2t bound. A screen, not a melting result; the fault state differs from the catalogue claim's because the screen is evaluated for the failed-short case.",
       "derived_from": null,
       "part_transformation": null,
-      "condition_transformation": null
+      "condition_transformation": "Screened at the 400 Vdc bus energy E = 179.2376 J: the resistance below which the available action E/R reaches the catalogue's pre-arcing I2t. The energy is an external input carried as evidence, not a property of the I2t claim."
     },
     {
       "id": "time-constant-condition-margin",
@@ -743,6 +747,30 @@
       "derived_from": null,
       "part_transformation": null,
       "condition_transformation": null
+    },
+    {
+      "id": "a70qs50-pre-arcing-i2t-max",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "fuse_pre_arcing_i2t_max_a2s",
+      "part": "A70QS50-14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "Melting I2t (Max) = 0.28 x 10^3 A2s at the catalogue's rated condition (Mersen HS catalogue 2024, ratings table)",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "derived_from": null,
+      "justification": "Catalogue maximum pre-arcing I2t. Added in v2 so the action screen consumes a named input claim rather than an unnamed catalogue reference.",
+      "evidence": [
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "../runs/2026-09-17-pfc-campaign/AR-BOUNDS/attempt-001/raw/sources/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        }
+      ]
     }
   ],
   "protection_claims": [],

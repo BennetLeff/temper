@@ -42,7 +42,7 @@
     },
     {
       "id": "bank-stored-energy",
-      "origin": "measurement",
+      "origin": "source",
       "inputs": [],
       "quantity": "bus_bank_energy_j",
       "part": null,
