@@ -3,9 +3,9 @@
     "deepseek-flash",
     "deepseek-v4-pro"
   ],
-  "captured_at": "2026-09-17T22:31:19+00:00",
+  "captured_at": "2026-09-18T02:03:14+00:00",
   "endpoint_host": "api.deepseek.com",
-  "harness_commit": "51a78992694d7e5110c315b6ec8e3b1ce5204e5a",
+  "harness_commit": "17d85687fdc45845eb64d8e43e8476091910e77f",
   "harness_dirty": false,
   "model": "deepseek-flash",
   "probes": [
@@ -16,8 +16,8 @@
       "matched": true,
       "name": "plain",
       "recorded_shape_digest": "da02990e5b8219725fe2517e26d705541b7dce451047244e196621da30b189b1",
-      "response_bytes": 613,
-      "response_sha256": "013e38bc977905c7566fd91b4c3f73e8a2f3000f9d36f3ec23afee07cebc2504"
+      "response_bytes": 614,
+      "response_sha256": "eb5f9a073c30e9cabc75aa45f1a0a2b910e9d84e06f8841c9e987d23c845dcde"
     },
     {
       "differences": [],
@@ -26,8 +26,8 @@
       "matched": true,
       "name": "parallel_tools",
       "recorded_shape_digest": "3256c00f8da337e0b55235ebd7b9783ffbfdd7803da8e55980338bcabf914a8a",
-      "response_bytes": 973,
-      "response_sha256": "caa897f96f8f9651f5d6994d5d50064632ff8b4cba34dacab282763c022e7e87"
+      "response_bytes": 1042,
+      "response_sha256": "ab29f807aff85688e13e58b0661901121627c54e8e1645fd40974df2b7aaaa79"
     },
     {
       "differences": [],
@@ -36,8 +36,8 @@
       "matched": true,
       "name": "strict_schema",
       "recorded_shape_digest": "3256c00f8da337e0b55235ebd7b9783ffbfdd7803da8e55980338bcabf914a8a",
-      "response_bytes": 799,
-      "response_sha256": "df81fa2898572efd5db72b6b86bae2fd4288a789165964e2472d85b9d73ae2d7"
+      "response_bytes": 827,
+      "response_sha256": "2b8ead655958534590ac744d3ed0a53fd3cb35217c25e16ae5eba3e255d7e00d"
     },
     {
       "differences": [],
@@ -46,8 +46,8 @@
       "matched": true,
       "name": "stream_plain",
       "recorded_shape_digest": "6841187aee07ad2f5b2639f0fb6453f4755894f28288524d4476b8bdd4267818",
-      "response_bytes": 6878,
-      "response_sha256": "c58da69ce56891cc8a16cacc65afa866509134b3052544413e4f6f983c42d2ed"
+      "response_bytes": 5672,
+      "response_sha256": "91c31745fa64e57425fa469e48cbdf63ac2c26e53cc554e12334174170fad027"
     },
     {
       "differences": [],
@@ -56,8 +56,8 @@
       "matched": true,
       "name": "stream_tools",
       "recorded_shape_digest": "68856c34248df3295044506b2fc4d6c35022dea3b3e102aff9fae1fabffe8db7",
-      "response_bytes": 20857,
-      "response_sha256": "69740dc8c558942e518da1ac7710de49980b217ad1503c1540b67bf037f5106c"
+      "response_bytes": 21159,
+      "response_sha256": "c774fb259000a869a9479f0c1f4b316525ce618bd943179f87b002f652b30645"
     },
     {
       "differences": [],
@@ -66,8 +66,8 @@
       "matched": true,
       "name": "tool_roundtrip",
       "recorded_shape_digest": "da02990e5b8219725fe2517e26d705541b7dce451047244e196621da30b189b1",
-      "response_bytes": 636,
-      "response_sha256": "e56e3fe89ac5ef4398a14118ef7dd31c222adadeaa1f73d4484752313d811893"
+      "response_bytes": 617,
+      "response_sha256": "c69c74ce5a1d83d77ac44cc29a5fe0e79c37ec040a8ca1bb2391e76cbe96b5b7"
     },
     {
       "differences": [],
@@ -78,6 +78,26 @@
       "recorded_shape_digest": "9f2ae91987bd5833ebd3e618f7e220855bf4db127a83e32a636311759a441fc9",
       "response_bytes": 175,
       "response_sha256": "7d37f6cbc3d0c569a1d63cd6f8771c2b455375f6b0bd80b831f71ac2c74d7194"
+    },
+    {
+      "differences": [],
+      "http_status": 200,
+      "live_shape_digest": "4bb67b0721541d2dfc698fc4482911aaace19e7e375a28d2d0e59f36c5c50860",
+      "matched": true,
+      "name": "thinking_disabled",
+      "recorded_shape_digest": "4bb67b0721541d2dfc698fc4482911aaace19e7e375a28d2d0e59f36c5c50860",
+      "response_bytes": 458,
+      "response_sha256": "ff594a21568ce7c68ca14ff71db29da6110d30f709dd89e20eb673940af7be27"
+    },
+    {
+      "differences": [],
+      "http_status": 400,
+      "live_shape_digest": "9f2ae91987bd5833ebd3e618f7e220855bf4db127a83e32a636311759a441fc9",
+      "matched": true,
+      "name": "max_tokens_out_of_range",
+      "recorded_shape_digest": "9f2ae91987bd5833ebd3e618f7e220855bf4db127a83e32a636311759a441fc9",
+      "response_bytes": 169,
+      "response_sha256": "52f79ef80ea568cefb04739ef4771b004817493146ffc4d0d9f60667f30037fb"
     },
     {
       "differences": [],
