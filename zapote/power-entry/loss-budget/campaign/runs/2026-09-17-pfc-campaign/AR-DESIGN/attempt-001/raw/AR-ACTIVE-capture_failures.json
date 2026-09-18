@@ -1,0 +1,36 @@
+{
+  "schema": "pfc-campaign-capture-failures/v1",
+  "task_id": "AR-ACTIVE",
+  "attempt_id": "attempt-001",
+  "captured_utc": "2026-09-18T04:15:00Z",
+  "policy": "Retain each failure. At most one other primary or manufacturer-authored mirror per source. Never hash HTML and call it a datasheet.",
+  "failures": [
+    {
+      "source": "Infineon IPW60R017C7 datasheet, infineon.com primary host",
+      "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw60r017c7-ds-en.pdf",
+      "http_status": 202,
+      "bytes": 0,
+      "content_type": "text/html; charset=UTF-8",
+      "outcome": "FAILED_NOT_A_PDF",
+      "note": "Served an HTML/empty body (HTTP 202, 0 bytes), not the PDF. Not hashed or retained as a datasheet."
+    }
+  ],
+  "recovered_by_mirror": [
+    {
+      "source": "Infineon IPW60R017C7 datasheet",
+      "mirror": "Infineon manufacturer-authored mirror (infineon.cn)",
+      "url": "https://www.infineon.cn/assets/row/public/documents/24/49/infineon-ipw60r017c7-ds-en.pdf",
+      "http_status": 200,
+      "bytes": 1244896,
+      "content_type": "application/pdf",
+      "pdf_magic_verified": "%PDF",
+      "retained_as": "raw/Infineon-IPW60R017C7.pdf"
+    }
+  ],
+  "not_failures": [
+    {
+      "source": "NXP TEA2209T datasheet",
+      "note": "The macOS 'file' utility reported '3 pages' for the 19-page PDF; pdftotext confirms page markers 2/19..19/19. A tool page-count artefact, not a capture failure."
+    }
+  ]
+}

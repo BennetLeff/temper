@@ -1,0 +1,149 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-DESIGN",
+  "attempt_id": "attempt-001",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "source_revision": "f7fbb2138c01fc1a6279593b39ce3a1bf96715f6",
+  "model_source_sha256": "not_applicable: no maintained-model invocation; the thermal estimate names its own method and assumptions",
+  "binary_sha256": null,
+  "checker_sha256": "not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt is not counted as a validated run",
+  "dirty_state": false,
+  "requested_model": "gpt-5.6-luna",
+  "served_model_receipt": null,
+
+  "task_completion": "FINISHED",
+  "task_completion_meaning": "All six requested steps were carried out: circuit and high-side gate path named; actual VGS established with the bootstrap drop; explicit transient contract and derived rating; commutation/start-up losses; a computed converged Tj with bias- and temperature-corrected Rds(on); and the bracket comparison with residual uncertainty. FINISHED is not PASS, SELECTED, VALIDATED or QUALIFIED.",
+  "evidence_status": "NOT_REVIEWED",
+  "numerical_status": "COMPUTED_ARITHMETIC_ONLY",
+  "numerical_status_meaning": "Only closed-form arithmetic and datasheet-figure digitisation were used. No solver, no maintained model, no CAD/BOM edit.",
+  "physical_applicability": "INDETERMINATE",
+  "assembly_completeness": "INCOMPLETE",
+  "hardware_qualification": "NOT_PERFORMED",
+  "checker_receipt": null,
+  "coordinator_receipt": null,
+
+  "hypothesis": "A concrete TEA2209T four-MOSFET active bridge, with its real (bootstrap-derived) gate bias and a computed junction temperature, beats the passive bridge across the 23-35 W uncertainty bracket.",
+  "actual_changed_variables": [
+    "high-side gate bias is derived (bootstrap: VCC - Vd(bs) - Qg/Cbs - leakage), not taken as Vregd",
+    "Rds(on) is corrected for the actual VGS and for the COMPUTED Tj rather than a datasheet evaluation temperature",
+    "required voltage rating is derived from an explicit transient contract rather than the line range",
+    "conduction coefficient is (R_HS + R_LS)*I_rms^2 rather than 450*R_hot, to allow the two biases to differ"
+  ],
+  "controls": [
+    "retained 23-35 W bridge bracket (unchanged)",
+    "I_rms = 15 A contract ceiling (unchanged)",
+    "reference candidate IPW60R017C7 (unchanged, per dispatch)",
+    "IPW60R017C7 25 C table row (typ 0.015, max 0.017) and 150 C typ 0.033 used as digitisation anchors; digitised Diagram 8 reproduced 0.01517 / 0.03363"
+  ],
+
+  "case_census": {
+    "expected": 1,
+    "attempted": 1,
+    "valid": 1,
+    "failed": 0,
+    "unsupported": 0,
+    "unrun": 0,
+    "case_ids": ["AR-DESIGN-design-assessment"]
+  },
+
+  "cases": [
+    {
+      "id": "AR-DESIGN-design-assessment",
+      "requested_inputs": {
+        "controller": "TEA2209T/1",
+        "reference_device": "IPW60R017C7",
+        "line_rms_v": [108.0, 120.0, 132.0],
+        "input_rms_a": 15.0,
+        "bridge_bracket_w": [23.0, 35.0]
+      },
+      "achieved_inputs": {
+        "high_side_vgs_v": 8.49,
+        "low_side_vgs_v": 10.41,
+        "f_vgs_hs": 1.02,
+        "computed_Tj_hs_c": 45.45,
+        "computed_Tj_ls_c": 45.42,
+        "R_hs_ohm": 0.017561,
+        "R_ls_ohm": 0.017213,
+        "p_cond_total_w": 7.8242,
+        "p_additional_quantified_w": 0.002547
+      },
+      "tool_outcome": "SOURCE_ONLY_COMPUTED_NO_CHECKER",
+      "raw_artifact_refs": [
+        "raw/compute_ar_design.py",
+        "raw/digitize_ipw60r017c7.py",
+        "raw/digitized_ipw60r017c7.json",
+        "raw/compute_result.json",
+        "raw/TEA2209T.pdf",
+        "raw/Infineon-IPW60R017C7.pdf",
+        "raw/capture_failures.json"
+      ],
+      "source_conditioned_temperature_c": {"typical": 45.45, "p98_percentile": 46.29},
+      "findings": "A converged steady-state Tj of ~45-46 C (typical) drives Rds(on) to ~17.2-17.6 mOhm per device, so conduction is ~7.8 W and P_saved is ~15.2/20.5/27.2 W across the 23/28.3/35 W bracket. Conduction-only and typical-parameter; the voltage-rating condition gates the whole result."
+    }
+  ],
+
+  "ledger": [
+    {"term": "mosfet_conduction", "value_w": 7.8242, "evidence_class": "DERIVED_FROM_MANUFACTURER_DATASHEET_FIGURE", "source_conditions": "TEA2209T gate supply + IPW60R017C7 Rds(Tj) typ (Diagram 8) corrected to VGS 8.5/10.4 V; I_rms 15 A; Tj computed", "accounting_boundary": "two conducting devices in the line path", "overlaps_with": [], "uncertainty": {"kind": "RANGE", "lower_w": 7.82, "upper_w": 9.02, "basis": "typ vs 98% curve at the computed Tj"}, "missing_evidence": "guaranteed hot maximum Rds(on)"},
+    {"term": "gate_network", "value_w": 0.00054, "evidence_class": "CALCULATED_FROM_DATASHEET_CHARGE", "source_conditions": "4 x Qg 240 nC per line cycle at 60 Hz, VGS 8.5/10.5 V", "accounting_boundary": "four bridge gates", "overlaps_with": [], "uncertainty": {"kind": "ORDER_OF_MAGNITUDE", "lower_w": 0.0004, "upper_w": 0.0008, "basis": null}, "missing_evidence": null},
+    {"term": "driver_static", "value_w": 0.002, "evidence_class": "MANUFACTURER_DATASHEET_PROSE", "source_conditions": "TEA2209T '2 mW' IC consumption", "accounting_boundary": "controller", "overlaps_with": ["gate_network may partly overlap"], "uncertainty": {"kind": "ORDER_OF_MAGNITUDE", "lower_w": 0.001, "upper_w": 0.004, "basis": null}, "missing_evidence": null},
+    {"term": "switching_commutation", "value_w": null, "evidence_class": "UNKNOWN", "source_conditions": "line-zero-crossing body-diode reverse recovery and dead-time conduction", "accounting_boundary": "two commutating events per line cycle", "overlaps_with": [], "uncertainty": {"kind": "UPPER_BOUND_ONLY", "lower_w": null, "upper_w": 0.0432, "basis": "rated Qrr 18 uC at 20 V residual, a gross over-bound; operating value unknown"}, "missing_evidence": "reverse-recovery waveform at the line zero crossing"},
+    {"term": "startup_inrush", "value_w": null, "evidence_class": "UNKNOWN", "source_conditions": "NTC-limited inrush through the body diodes before VCC charges", "accounting_boundary": "start-up interval, not steady state", "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "inrush current/energy capture"},
+    {"term": "emi_components", "value_w": null, "evidence_class": "UNKNOWN", "source_conditions": "line-frequency MOSFET commutation EMI", "accounting_boundary": "any added filter/snubber", "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "EMI re-qualification"},
+    {"term": "input_rectification_voltage_rating", "value_w": null, "evidence_class": "CONTRACT_DEPENDENT", "source_conditions": "off device must block the line peak and the surge/transient contract", "accounting_boundary": "device selection gate, not a loss", "overlaps_with": [], "uncertainty": {"kind": "GATING_CONDITION", "lower_w": null, "upper_w": null, "basis": "600 V valid only under an added <=500 V clamp; retained design point implies 1000 V"}, "missing_evidence": "declared surge test level and clamp"}
+  ],
+
+  "supported_subtotals": [
+    {"name": "conduction_saving_typical", "value_w": 20.477, "basis": "nominal 28.3035 W bridge minus 7.824 W conduction minus 0.0025 W additional; bracket 15.17-27.17 W"},
+    {"name": "conduction_saving_98pct", "value_w": 19.281, "basis": "nominal; bracket 13.98-25.98 W"}
+  ],
+  "total_loss_w": null,
+  "achieved_input_power_w": null,
+  "dc_output_power_w": null,
+  "efficiency": null,
+
+  "temperature_predictions": [
+    {"item": "reference_IPW60R017C7_high_side", "Tj_c": 45.45, "evidence_class": "COMPUTED_FROM_ASSUMED_ASSEMBLY", "method": "T_sink = Ta + P_total*Rsa; Tj = T_sink + P*(Rjc+Rcs); iterated"},
+    {"item": "reference_IPW60R017C7_low_side", "Tj_c": 45.42, "evidence_class": "COMPUTED_FROM_ASSUMED_ASSEMBLY", "method": "same"},
+    {"item": "sink", "Tj_c": 43.91, "evidence_class": "COMPUTED_FROM_ASSUMED_ASSEMBLY", "method": "Ta + P_total*Rsa"}
+  ],
+
+  "constraint_findings": [
+    {"finding": "The 600 V reference candidate does not satisfy the retained design's implied transient contract (1000 V-class bridge, no declared surge clamp), nor NXP's own 700 V node limit; it satisfies only an added-clamp contract limiting the bridge node to <=500 V.", "severity": "GATING"},
+    {"finding": "The high-side gate-source voltage is ~8.5 V typical, not Vregd 10.7 V; the 10 V Rds(on) data is not directly applicable to the high side. The penalty is small for this die (~2%), but grows if the bootstrap capacitor is undersized (100 nF -> ~7.3 V).", "severity": "MATERIAL"},
+    {"finding": "The IPW60R017C7 body diode is slow (Qrr typ 18 uC at 58.2 A/400 V); a fast-body-diode device may be required for the active bridge, which would change Rds(on) and the saving.", "severity": "RISK"}
+  ],
+  "unsupported_cases": [],
+  "source_failures": ["raw/capture_failures.json"],
+  "tool_failures": [],
+  "raw_artifacts": [
+    "raw/TEA2209T.pdf", "raw/TEA2209T.txt",
+    "raw/Infineon-IPW60R017C7.pdf", "raw/Infineon-IPW60R017C7.txt",
+    "raw/digitize_ipw60r017c7.py", "raw/digitized_ipw60r017c7.json",
+    "raw/compute_ar_design.py", "raw/compute_result.json",
+    "raw/capture_failures.json",
+    "raw/figures/diagram7_rds_vs_id_125C.png",
+    "raw/figures/diagram8_rds_vs_tj.png",
+    "raw/figures/diagram10_gate_charge.png"
+  ],
+  "manifest_sha256": null,
+
+  "answer": "CONDITIONAL YES on losses, CONDITIONAL on voltage rating. With the real bootstrap-derived high-side gate bias (~8.5 V) and a COMPUTED steady-state Tj of ~45-46 C in the proposed four-TO-247 heatsink assembly, the reference IPW60R017C7 conducts at ~17.2-17.6 mOhm per device and saves ~15-27 W (nominal ~20.5 W) against the 23-35 W bridge bracket, before the unquantified inrush/EMI terms. However, the 600 V device does not satisfy the retained design's implied transient contract (a 1000 V-class bridge with no declared surge clamp); it is valid only if an added clamp limits the bridge node to <=500 V. A lower-voltage alternative is not supported by the contract and was not screened.",
+
+  "unknowns": {
+    "operating_reverse_recovery_loss_w": null,
+    "startup_inrush_body_diode_loss_w": null,
+    "emi_filter_added_loss_w": null,
+    "guaranteed_maximum_hot_rds_on_ohm": null,
+    "installed_case_to_sink_resistance_k_per_w": null,
+    "declared_surge_test_level_v": null,
+    "presence_of_front_end_surge_clamp": null
+  },
+
+  "single_missing_input": {
+    "input": "The product's real input transient/surge contract (test level and whether a front-end clamp is fitted).",
+    "why": "It is the only input that decides whether a 600 V-class device may be used at all. The loss result is already robust and favourable (~15-27 W saved at a computed 45-46 C junction), but it is gated: with no declared clamp and a retained 1000 V-class bridge, the reference candidate's 600 V rating is unsupported, and every lower-voltage alternative is excluded outright."
+  },
+
+  "budget": {"deadline_utc": "2026-09-18T06:26:17Z", "elapsed_seconds": null, "solver_invocations": 0, "remaining_invocations": 0}
+}

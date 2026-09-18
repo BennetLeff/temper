@@ -1,0 +1,71 @@
+{
+  "schema": "pfc-campaign-capture-failures/v1",
+  "task_id": "AR-DESIGN",
+  "attempt_id": "attempt-001",
+  "captured_utc": "2026-09-18T05:10:00Z",
+  "policy": "Retain each failure. At most one other primary or manufacturer-authored mirror per source. Never hash HTML and call it a datasheet.",
+  "reused_captures": [
+    {
+      "source": "NXP TEA2209T Active bridge rectifier controller, Rev. 1.1, 2021-04-14",
+      "retained_as": "raw/TEA2209T.pdf",
+      "sha256": "fb611299c890a0dcaf7d610ed3fe742a3ab8debf21a75b540b8cede2e7badc99",
+      "origin": "copied unchanged from the AR-ACTIVE attempt-001 capture"
+    },
+    {
+      "source": "Infineon IPW60R017C7 600V CoolMOS C7, Final Data Sheet Rev. 2.0, 2016-03-01",
+      "retained_as": "raw/Infineon-IPW60R017C7.pdf",
+      "sha256": "2c5a60a28231e7d2457e59b1329740a4711d88815611a0d9c4bdac40c7f9b617",
+      "origin": "copied unchanged from the AR-ACTIVE attempt-001 capture (Infineon manufacturer mirror)"
+    }
+  ],
+  "carried_forward_failures": [
+    {
+      "source": "Infineon IPW60R017C7 datasheet, infineon.com primary host",
+      "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw60r017c7-ds-en.pdf",
+      "http_status": 202,
+      "bytes": 0,
+      "content_type": "text/html; charset=UTF-8",
+      "outcome": "FAILED_NOT_A_PDF",
+      "note": "From AR-ACTIVE attempt-001; recovered via the Infineon .cn manufacturer mirror there."
+    }
+  ],
+  "new_failures_this_attempt": [
+    {
+      "source": "Infineon IPW50R280CE 500 V CoolMOS CE datasheet (lower-voltage alternative screen)",
+      "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw50r280ce-datasheet-en.pdf",
+      "http_status": 202,
+      "bytes": 0,
+      "content_type": "text/html; charset=UTF-8",
+      "outcome": "FAILED_NOT_A_PDF",
+      "note": "Same 202/0-byte HTML behaviour as the IPW60R017C7 primary host."
+    },
+    {
+      "source": "Infineon IPW50R280CE 500 V CoolMOS CE datasheet (.cn mirror)",
+      "url": "https://www.infineon.cn/assets/row/public/documents/24/49/infineon-ipw50r280ce-datasheet-en.pdf",
+      "http_status": 404,
+      "bytes": 1482186,
+      "content_type": "text/html; charset=utf-8",
+      "outcome": "FAILED_NOT_A_PDF",
+      "note": "The .cn mirror that recovered the 600 V part does not host the 500 V part under this path."
+    },
+    {
+      "source": "Infineon IPW50R280CE datasheet (guessed dgdl URL)",
+      "url": "https://www.infineon.com/dgdl/Infineon-IPW50R280CE-DS-v02_01-EN.pdf?fileId=5546d462576f3475015775210e8f3b1f",
+      "http_status": 404,
+      "bytes": 1523888,
+      "content_type": "text/html; charset=utf-8",
+      "outcome": "FAILED_NOT_A_PDF",
+      "note": "The fileId in this guessed URL is not the one for this part; served the 404 HTML page."
+    },
+    {
+      "source": "Infineon IPW50R280CE datasheet (distributor-hosted copy)",
+      "url": "https://www.mouser.com/datasheet/2/196/Infineon_IPW50R280CE_DS_v02_02_EN-3165672.pdf",
+      "http_status": 200,
+      "bytes": 13897,
+      "content_type": "text/html",
+      "outcome": "FAILED_NOT_A_PDF",
+      "note": "Distributor PDF endpoint served an HTML consent/JS wall, not the PDF. One mirror per source policy reached; not retried further."
+    }
+  ],
+  "consequence": "The lower-voltage alternative is screened against the explicit voltage contract by its VDS class. Its datasheet was NOT obtained, so no performance (Rds(on)/thermal) claim is made or needed for it; the class name is used and the capture failure is retained."
+}
