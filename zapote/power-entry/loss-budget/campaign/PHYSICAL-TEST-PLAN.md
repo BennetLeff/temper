@@ -1,169 +1,204 @@
 # PFC switching-loss measurement — physical test plan (proposal)
 
-Date: 2026-09-17
+Date: 2026-09-17 (revised after audit)
 Status: **PROPOSAL — NOT AUTHORIZED.** The campaign plan explicitly authorizes
-no purchase, fabrication or powered bench operation. Nothing in this document
-may be executed until a qualified engineer, working under the site's electrical
-safety process, separately approves it. This is a scope and comparison
-specification, not an authorization.
+no purchase, fabrication or powered bench operation. Nothing here may be
+executed until a qualified engineer, working under the site's electrical safety
+process, separately approves it.
 
-Campaign context: [CLOSEOUT.md](CLOSEOUT.md). Evidence commit
-`a975fff03e5599d805d19da3788e9e756d6b809d`.
+Campaign context: [CLOSEOUT.md](CLOSEOUT.md),
+[LOSS-ACCOUNTING-AUDIT.md](LOSS-ACCOUNTING-AUDIT.md).
+
+Method reference: Tektronix, *Double Pulse Testing for Power Semiconductor
+Devices with an Oscilloscope and Arbitrary Function Generator*
+(75W-61623-4). Standards: JEDEC JEP182, JESD24-10; IEC 60747-8, 60747-9.
 
 ## 1. Why this measurement
 
-Every model-based result in the campaign depends on one number: the boost
-switch's switching energy. The retained analytic model attributes 37.37 W of
-the 45.50 W baseline switch/gate subtotal to switching overlap, and an
-independent vendor-model double-pulse simulation disagrees by ~30% (26.76 W for
-the baseline device). Two external references could not anchor the term at all,
-and the largest claimed lever in the whole campaign — the retained board device
-STW65N65DM2AG costing ~2.05x the C7 on switching (93.183 W vs 45.5023 W) —
-has neither a reachable vendor model nor a datasheet energy curve.
+The two switching models disagree by ~1.45x at the retained baseline operating
+point (analytic 37.37 W overlap vs independent vendor model 26.76 W
+Eoss-inclusive), and the retained board device STW65N65DM2AG has no independent
+result at all — no reachable vendor model, no datasheet Eon/Eoff. Until one
+switching energy is measured, neither model can be used to rank switching-
+adjacent candidates.
 
-This measurement closes that gap. It is the only remaining item in the campaign
-that requires bench time.
+## 2. What this measurement can and cannot decide
 
-## 2. What the result decides
+This section exists because the first draft of this plan overreached.
 
-| Outcome | Decision it enables |
-| --- | --- |
-| measured STW-to-C7 switching ratio >= 1.5 | The board part is the wrong part; a device swap is the primary heat fix, and its size is known. |
-| measured ratio 1.2-1.5 | Swap is worthwhile but modest; weigh against the bridge (Section 8). |
-| measured ratio < 1.2 | The analytic model's largest claim is wrong; the device axis is not the lever, and the bridge becomes the lead target. |
-| measured C7 energy far from both models | The whole switching model is unusable; re-derive before ranking anything. |
+**Can decide, at the tested conditions only:**
+- Whether the analytic or the vendor switching model is closer to reality for
+  the tested device at the tested bus, current, gate network and temperature.
+- The measured Eon/Eoff/Eoss of the tested devices at those conditions.
+
+**Cannot decide:**
+- "Everything derived" from either model. Agreement at one operating point
+  validates that point; it does not license applying a factor elsewhere.
+- That a part swap is worthwhile overall. A switching-energy ratio says nothing
+  about package thermal path, gate-drive compatibility, EMI, sourcing, cost, or
+  the rest of the assembly ledger. Swap economics require an assembly-level
+  comparison, not this test.
+- Anything about conduction, gate, bridge, inductor or auxiliary losses.
+- The board's thermal behaviour.
+
+A switching ratio is a **necessary input** to a swap decision, not the decision.
 
 ## 3. Devices under test
 
 | Priority | Device | Role |
 | --- | --- | --- |
-| P0 | `STW65N65DM2AG` | the retained board part; the unverified large lever |
-| P0 | `IPW65R045C7` | C1 baseline; also the control that ties this measurement to the frozen models |
-| P1 | `IPZ60R040C7` | K-SILICON candidate; independently the best switching device found |
+| P0 | `STW65N65DM2AG` | retained board part; the unverified lever |
+| P0 | `IPW65R045C7` | C1 baseline; control tying this test to the frozen models |
+| P1 | `IPZ60R040C7` | K-SILICON candidate; best independent switching device found |
 
-Same package (TO-247) for P0; the fixture should accept all three.
+## 4. Conditions (frozen, so results compare to the models)
 
-## 4. Conditions to reproduce (frozen)
-
-These are the exact conditions the two models were evaluated at, so the
-measured energies are directly comparable. Do not "improve" them.
-
-- **Bus voltage:** 400 V DC clamp (measure at the device terminals, not the
-  supply output).
-- **Gate drive:** 0 -> 12 V; **external gate resistance 9.7 ohm turn-on /
-  5.3 ohm turn-off** (the retained `no-assist` buffered drive: 4.7 ohm external
-  plus 5.0/0.6 ohm driver path). Record the actual measured edge and any
-  driver-source/sink current limit.
-- **Turn-on current:** 11.95 A; **turn-off current:** 15.01 A. Sweep at least
-  8 / 12 / 15 A so the energy-vs-current slope is visible.
-- **Case temperature:** 25 C and 125 C set-points. State how temperature was
-  established and held (hot-plate or heater), and measure case temperature, not
-  ambient. A two-second double pulse will not reach a settled junction; report
-  case temperature and state the junction-temperature limitation explicitly.
+- **Bus:** 400 V DC, measured at the device terminals.
+- **Gate drive:** 0 -> 12 V; **9.7 ohm turn-on / 5.3 ohm turn-off** external
+  (the retained `no-assist` buffered drive). Record the measured edge and any
+  driver current limit.
+- **Target currents:** turn-off 15.01 A, turn-on 11.95 A; sweep at least
+  8 / 12 / 15 A to expose the energy-vs-current slope. Report the **achieved**
+  current for every event; never scale an energy to a requested current.
+- **Temperature:** 25 C and a hot point. DPT pulses deliberately limit
+  self-heating; a two-pulse test does **not** establish a settled junction
+  temperature. Establish and report the case/tab temperature, state the method,
+  and state explicitly that junction temperature is inferred, not measured.
 - **Freewheel diode:** use the retained boost diode if available
-  (`C3D20065D`); otherwise state the substitute and its SiC technology. The
-  vendor simulation quantified a substitute as +1.0% on `Eon+Eoff`; expect a
-  similar-order effect here.
-- **Clamp inductor:** sized to reach the test currents without saturating; it is
-  a test element, not the PFC boost choke. State its value and saturation
-  current.
+  (`C3D20065D`); otherwise state the substitute. The substitution changes both
+  Eon and Eoff (the vendor simulation: Eon +10%, Eoff -7%, sum +1.0%), so it
+  must be reported with the result.
+- **Clamp inductor:** sized for the target currents without saturating; a test
+  element, not the PFC boost choke. State value and saturation current.
 
-## 5. Apparatus (minimum)
+## 5. Apparatus
 
-- Isolated DC bus supply, 400 V, current-limited, with a low-inductance film
-  bus capacitor bank.
-- Clamped-inductive double-pulse fixture with the DUT, freewheel diode, and
-  clamp inductor.
-- Gate driver reproducing 9.7/5.3 ohm and 0 -> 12 V, with a clean single-pulse
-  input.
-- **High-voltage differential voltage probe**, >= 1 kV, >= 100 MHz, measuring
-  `V_ds` at the device pins (not at the bulk capacitor).
-- **Current transducer**: coaxial shunt or Rogowski, >= 30 A, >= 50 MHz
-  bandwidth, in the device source/drain path.
-- Gate-voltage probe.
-- Oscilloscope >= 500 MHz, >= 2 GS/s, >= 4 channels.
-- Thermal fixture for the 25/125 C points.
+- Isolated DC supply, 400 V, current-limited, with low-inductance film bus caps.
+- Clamped-inductive double-pulse fixture with DUT, freewheel diode, clamp
+  inductor, and a **coaxial shunt or current-viewing resistor (CVR)** in the
+  device source/drain path.
+- Isolated gate driver reproducing 9.7/5.3 ohm at 0 -> 12 V, driven by pulse
+  widths that are independently adjustable.
+- Oscilloscope >= 500 MHz, >= 2 GS/s, >= 4 channels, with area/integration math.
+- Probes rated for the maximum voltage and current:
+  - `V_DS`: high-voltage differential probe, >= 1 kV.
+  - `I_D`: **isolated current probe across a coaxial shunt/CVR**. Clamp-on
+    Hall probes and Rogowski coils are explicitly not suitable here — their
+    bandwidth (<= 120 MHz / ~15 MHz) and insertion inductance distort the fast
+    edge. (Tektronix Table 1.)
+  - `V_GS`: passive probe with an MMCX test point where possible.
+- Safety enclosure with interlocks (Section 9).
 
-## 6. Method
+## 6. Standards and measurement definitions
 
-1. **Deskew V and I before any measurement.** Measure the residual probe skew
-   with a known resistive or reference edge and report it. Skew is the largest
-   systematic error in an `Eon`/`Eoff` integration; an unreported skew makes the
-   number non-comparable to the models.
-2. Apply a single double pulse; capture `V_ds(t)` and `I_d(t)`.
-3. **Define the integration window by a stated rule** (e.g. from the 10% point
-   of the current rise to the point where `V_ds` reaches its on-state value)
-   and record it. Report the sensitivity of the result to a +/-10 ns window
-   shift, exactly as the simulation did (+0.087% for `Eoff`).
-4. `Eon = INT V_ds(t) * I_d(t) dt` over the turn-on window; `Eoff` likewise over
-   the turn-off window.
-5. **State the `Eoss` convention.** `Eon` from a hard-switched clamp may or may
-   not include the Coss discharge. Report both `Eon_including_Coss` and
-   `Eon_excluding_Coss`, and measure or source `Eoss(400 V)` separately. The
-   analytic model books `Eoss` separately (1.5106 W at this point); the vendor
-   simulation measured 9.76 uJ. Do not double-count.
-6. Repeat at least 10 pulses per condition; report mean and spread. Discard and
-   re-run on any probe or fixture fault; never average across a fault.
-7. Repeat for each device and both temperatures.
-8. Retain raw oscilloscope files, not screenshots alone.
+Use the industry-standard threshold definitions, not ad-hoc ones:
 
-## 7. Comparison targets and acceptance criteria
+- `td(on)`: V_GS at 10% to V_DS at 90%.
+- `tr`: V_DS 90% to 10% (falling edge, turn-on).
+- `td(off)`: V_GS at 90% to V_DS at 10%.
+- `tf`: V_DS 10% to 90% (rising edge, turn-off).
 
-Frequency-weighted comparison, `f = 129107.39198576905 Hz`, at 25 C:
+The double-pulse sequence has three stages: (1) first pulse establishes the
+target current in the load inductor; (2) turn-off is measured at the end of the
+first pulse; (3) turn-on is measured at the start of the second pulse, whose
+width is kept short to limit heating.
 
-| Quantity | Analytic model | Independent vendor model |
+## 7. Method
+
+1. **Deskew V_DS against I_D before any energy measurement.** Probe delay
+   mismatch is the dominant systematic error in an Eon/Eoff integration. A
+   post-acquisition software deskew against measured waveforms is acceptable;
+   report the residual skew in ns, and report the energy sensitivity to it.
+2. Capture the turn-off event and the turn-on event in one acquisition per
+   condition. Record pulse widths, trigger, and probe settings.
+3. Integrate `E = INT v_ds(t) * i_d(t) dt` over each transition, using an
+   explicit window rule (e.g. V_DS 10%-90% thresholds) and reporting the
+   sensitivity to a +/-10 ns window shift, as the simulation did (+0.087%).
+4. **Reverse recovery is part of turn-on.** The freewheel diode's recovery
+   current adds to `I_D` during turn-on, so a measured `Eon` includes the diode's
+   recovery energy. Record the freewheel device, and state explicitly whether
+   `Eon` is reported with or without recovery. Note that the clamp inductor and
+   the PFC boost inductor are different elements.
+5. **State the `Eoss` convention in both directions.** A hard-switched clamp
+   turn-on dissipates the DUT's stored output-capacitance energy, so a measured
+   `Eon` normally includes it. Report `Eon_including_Coss` and
+   `Eon_excluding_Coss`, and measure `Eoss(400 V)` separately. The analytic
+   model books `Eoss` separately (1.5106 W at this point); the vendor simulation
+   measured 9.76 uJ. Do not double-count in either direction.
+6. Repeat >= 10 events per condition; report mean, spread and the number of
+   rejected events with reasons. Never average across a fault or a probe
+   artefact.
+7. Retain raw waveform files, not screenshots alone.
+
+## 8. Comparison targets and acceptance criteria
+
+At 25 C, `f = 129107.39198576905 Hz`:
+
+| Quantity | Analytic | Independent vendor model |
 | --- | ---: | ---: |
 | IPW65R045C7 `Eon` | — | 102.50 uJ @ 12.07 A |
 | IPW65R045C7 `Eoff` | — | 104.79 uJ @ 14.99 A |
 | IPW65R045C7 `Eoss(400 V)` | 11.7 uJ (datasheet) | 9.76 uJ |
-| IPW65R045C7 `(Eon+Eoff)*f` | 37.368 W (overlap term) | 26.76 W |
-| IPW65R045C7 total switch+gate | 45.5023 W | — |
-| STW65N65DM2AG total switch+gate | 93.183 W | not obtained |
-| STW65N65DM2AG / IPW65R045C7 ratio | 2.05x | not obtained |
+| IPW65R045C7 overlap term | 37.368 W | — |
+| IPW65R045C7 `(Eon+Eoff)*f` | — | 26.76 W (Eoss-inclusive) |
+| IPW65R045C7 overlap-only* | 37.368 W | 25.50 W |
+| STW65N65DM2AG analytic switch+gate | 93.183 W | not obtained |
 
-Acceptance, to be confirmed by the authorizing engineer before the test:
+\* overlap-only = `(Eon - Eoss + Eoff)*f`, the treatment that matches the
+analytic model's separate `Eoss` booking.
 
-- **Control:** if measured C7 `(Eon+Eoff)*f` is within +/-25% of 26.76 W, the
-  vendor model is corroborated and the correction applies to everything derived
-  from it. If it lands near 37.4 W instead, the analytic model was right and the
-  vendor model is not usable.
-- **Lever:** the STW-to-C7 switching ratio (Section 2).
-- Report an explicit uncertainty band; a bare point value is not an acceptable
-  receipt.
+Acceptance criteria, scoped deliberately:
 
-## 8. Optional companion measurement (recommended, lower risk)
+- **Model discrimination (the primary result).** Report the measured
+  `(Eon+Eoff)*f` and its overlap-only counterpart against both model values. A
+  result within +/-25% of one model and far from the other discriminates between
+  them **at these conditions only**. State that scope in the receipt.
+- **Device ratio (secondary input).** Report the STW65N65DM2AG to IPW65R045C7
+  switching ratio as an input to a swap analysis, not as a swap decision.
+- **Uncertainty.** Report an explicit band from probe skew, window sensitivity,
+  event spread, diode substitution and temperature. A bare point value is not an
+  acceptable receipt.
 
-The input bridge is the largest *certain* term (28.30 W) and its datasheet
-carries exactly one forward-drop test point (1.05 V at 12.5 A, 25 C). A simple
-`V_F(I)` sweep on `GBJ2510-F` — DC or low-frequency, no fast probes needed —
-would replace a 0.85/1.30 V assumption band with measured data at the real
-currents and temperatures, and would firm up the campaign's second-largest term
-for far less effort than the switching test. Consider running it in the same
-session.
+Do not widen the criteria after seeing results. If the measurement lands between
+the models or outside the band, that is the finding.
 
 ## 9. Safety
 
-400 V DC is lethal, and DC arcs do not self-extinguish at zero crossing.
+400 V DC is lethal and DC arcs do not self-extinguish at zero crossing.
+Tektronix states plainly that power semiconductor testing involves lethal
+voltages and currents and requires appropriate enclosures with safety interlocks
+and PPE.
 
 - Qualified personnel only, under the site's electrical safety process; no lone
   work.
-- Isolate and lock out before changing the fixture; verify dead before touch.
+- Sealed enclosure with interlocks; de-energize and verify dead before
+  connecting or changing anything.
 - Discharge and verify the bus capacitor bank before every intervention.
-- Treat the double pulse as live at all times the bus is charged.
-- Rated PPE and an appropriate safe-work distance; use differential probes and
-  isolated supplies as intended.
-- This document does not constitute a safety assessment. The authorizing
-  engineer owns the hazard analysis.
+- Rated probes and PPE; correct grounding/isolation practice for the chosen
+  probe type.
+- This document is not a safety assessment. The authorizing engineer owns the
+  hazard analysis.
 
-## 10. What to retain
+## 10. Optional companion measurement (recommended)
 
-Raw oscilloscope captures, probe calibration and deskew records, fixture
-schematics, actual measured temperatures, per-pulse energies and spread, the
-integration-window rule and its sensitivity, `Eoss` convention, and SHA-256 of
-every file. The receipt must separate measured from modelled quantities and
-must leave `hardware_qualification` state explicit.
+The input bridge is the largest term not challenged by any independent
+comparison (28.30 W) and its datasheet carries one forward-drop test point
+(1.05 V at 12.5 A, 25 C). A simple `V_F(I)` sweep on `GBJ2510-F` — DC or
+low-frequency, no fast probes, no deskew — would replace an 0.85/1.30 V
+assumption band with measured data at the real currents and temperatures. It is
+materially lower risk than the switching test and firms up the term that the
+audit shows now matters relatively more. Consider running it in the same
+session.
 
-## 11. Authorization
+## 11. What to retain
+
+Raw captures, probe calibration and deskew records, fixture schematic, measured
+and inferred temperatures, per-event energies and spread, achieved currents,
+window rule and sensitivity, Eoss and reverse-recovery conventions, and SHA-256
+of every file. The receipt must separate measured from modelled quantities and
+leave hardware qualification explicit.
+
+## 12. Authorization
 
 ```text
 authorizing engineer:

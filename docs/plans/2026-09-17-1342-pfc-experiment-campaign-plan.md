@@ -1,9 +1,12 @@
 # PFC experiment campaign: broad search with independently checked evidence
 Created: 2026-09-17
 
-Status: **executed in part and closed on the no-bench path (2026-09-17).** The
-corrected wave ran; results, census, uncertainty ledger and shortlist are in
-[campaign/CLOSEOUT.md](../../zapote/power-entry/loss-budget/campaign/CLOSEOUT.md).
+Status: **evidence collection complete; design conclusions provisional
+(2026-09-17).** The corrected wave ran. Results and the revised next step are in
+[campaign/CLOSEOUT.md](../../zapote/power-entry/loss-budget/campaign/CLOSEOUT.md),
+with the accounting audit in
+[campaign/LOSS-ACCOUNTING-AUDIT.md](../../zapote/power-entry/loss-budget/campaign/LOSS-ACCOUNTING-AUDIT.md).
+The design conclusions are provisional and do **not** close the broader search.
 The one remaining measurement is scoped in
 [campaign/PHYSICAL-TEST-PLAN.md](../../zapote/power-entry/loss-budget/campaign/PHYSICAL-TEST-PLAN.md),
 which is a proposal and not authorized. This plan authorizes no purchase,
@@ -353,27 +356,30 @@ were measured. Artifacts are under
 5. **Two plan defects were fixed.** The plan's artifact path was silently
    gitignored (`zapote/.gitignore` `runs/`); the campaign path is now
    re-included. Dispatch packets mislabelled the contract path.
-6. **The dominant switching term is contradicted by an independent vendor
-   model.** `N-DPT` ran a clamped-inductive double-pulse in ngspice using
-   Infineon's vendor CoolMOS C7 models at the C1 operating point. For the
-   baseline IPW65R045C7 the vendor model gives `(Eon+Eoff)*f` = 26.76 W at
-   25 C, against the analytic model's 37.3682 W overlap -- a ratio of **0.72**
-   (0.68 at 125 C). The analytic model therefore overestimates the campaign's
-   dominant term by ~30%, and every switching-derived saving shrinks with it:
-   the 65 kHz saving falls from 19.38 W to ~14 W and its core/AC headroom from
-   12.63 W to ~7.3 W. IPZ60R040C7 is independently better on switching than the
-   baseline (22.38 W vs 26.76 W at 25 C, ~4.4 W), but the far larger
-   STW65N65DM2AG -> C7 delta the analytic model claims (47.7 W) stays
-   unverified because no ST vendor model could be captured. This is
-   independent-*model* evidence, not a measurement: the vendor macromodel is a
-   typical device and the vendor electrothermal models would not run in ngspice.
-7. **The 65/90 kHz frequency trade loses on magnetic evidence anyway.** M065
-   and M090 found real candidates (Wurth 760801202 at 65 kHz, 760801403 at
-   90 kHz) but `M-CORE` could not bound their core+AC loss: the core material
-   and geometry are unpublished, so the term is unbounded above and below.
-   Both candidates also need forced air at 15 A rms, and the baseline choke's
-   real inductance at bias is ~160 uH rather than the 180 uH that C1 and the
-   whole `L*f` rule assume.
+6. **An independent vendor model disagrees with the analytic switching term.**
+   `N-DPT` ran a clamped-inductive double-pulse in ngspice using Infineon's
+   vendor CoolMOS C7 models at the C1 operating point. For the baseline
+   IPW65R045C7 the vendor model gives `(Eon+Eoff)*f` = 26.76 W at 25 C against
+   the analytic 37.3682 W overlap -- a ratio of 0.72 (0.688 on a like-for-like
+   Eoss-inclusive treatment). **This is a discrepancy under one tested
+   condition, not a calibration**: it does not license a correction factor, and
+   it says nothing about conduction, gate, bridge, or the unmodeled ST device.
+   The analytic model predicts *more* loss than the independent model, i.e. it
+   is pessimistic about efficiency, not optimistic. `N-DPT-ST` reproduced the
+   control exactly (26.7615 W, ratio 1.0001). This is independent-*model*
+   evidence, not a measurement: the vendor macromodel is a typical device and
+   the vendor electrothermal models would not run in ngspice. See
+   `campaign/LOSS-ACCOUNTING-AUDIT.md`.
+7. **The frequency axis cannot be closed without a core-loss source -- but it is
+   not eliminated.** The `L*f` degeneracy shows the simplified model cannot
+   discover the magnetic tradeoff; it should have been encoded analytically
+   instead of allocated six agents. M065 and M090 found real candidates (Wurth
+   760801202 at 65 kHz, 760801403 at 90 kHz) but `M-CORE` could not bound their
+   core+AC loss: the core material and geometry are unpublished, so the term is
+   unbounded above and below. Both candidates also need forced air at 15 A rms,
+   and the baseline choke's real inductance at bias is ~160 uH rather than the
+   180 uH that C1 and the whole `L*f` rule assume. Frequency remains a design
+   axis; what is missing is the magnetic loss data.
 8. **The largest claimed lever is the one that cannot be checked no-bench.**
    `N-DPT-ST` reproduced the C7 control exactly (`26.7615 W` vs `26.76 W`,
    ratio 1.0001, `.meas` lines byte-identical) but could not capture the
@@ -385,11 +391,20 @@ were measured. Artifacts are under
    measurement of the actual part. It is the one remaining item that needs
    bench time.
 
-Still open and load-bearing: no measured anchor for the dominant switching term
-(the independent vendor model narrows it but is still a model); no approved
-volume/cost budgets; no frozen ambient/cooling contract, so temperature -- the
-stated motivation -- remains unrankable; the current-board-part device delta is
-unverified; the frequency axis cannot be closed without a core-loss source.
+Still open and load-bearing: no measured switching energy (two models disagree
+by ~1.45x); the current-board-part device delta is unverified and needs bench
+time; no approved volume/cost budgets; no frozen ambient/cooling contract, so
+temperature -- the stated motivation -- remains unrankable; the frequency axis
+cannot be closed without a core-loss source.
+
+**Next step (recommended): resume bridge/rectification architecture
+screening.** The bridge is the largest term not challenged by any independent
+comparison (28.30 W) and does not depend on the contested switching model, so
+L-BRIDGE and the A-BRIDGELESS screen are unblocked. Keep the topology studies
+open -- they are the escape from the current architecture's local optimum, which
+was this campaign's stated purpose. The switching measurement above is a
+parallel, separately authorized activity, not a prerequisite for the bridge
+work. The design conclusions are provisional; the broader search is not closed.
 
 ## Copyable coordinator instruction
 
