@@ -1,0 +1,154 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-VERIFY",
+  "attempt_id": "attempt-001",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "source_revision": "d94b2b8f0ada01ffef05985a3f87d985bd236f82",
+  "model_source_sha256": "not_applicable: no maintained-model invocation; raw/compute_ar_verify.py is the computation record",
+  "binary_sha256": null,
+  "checker_sha256": "not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt is not counted as a validated run",
+  "dirty_state": false,
+  "requested_model": "gpt-5.6-luna",
+  "served_model_receipt": null,
+
+  "task_completion": "FINISHED",
+  "task_completion_meaning": "The three open items were closed as far as sources allow: the four downgraded claims are corrected and relabelled; the bootstrap capacitor is evaluated across charge/discharge/leakage/droop with Rds(on) derived per point from the digitised Rds(VGS) family; and the surge/protection contract is specified with the MOSFET required rating and the controller node stresses derived separately from the terminal voltages. Every figure carries a typical/sensitivity/bound label. FINISHED is not PASS, SELECTED, VALIDATED or QUALIFIED.",
+  "evidence_status": "NOT_REVIEWED",
+  "numerical_status": "COMPUTED_ARITHMETIC_ONLY",
+  "numerical_status_meaning": "Only closed-form arithmetic and re-use of AR-DESIGN's retained datasheet-figure digitisation. No solver, no maintained model, no CAD/BOM edit.",
+  "physical_applicability": "INDETERMINATE",
+  "assembly_completeness": "INCOMPLETE",
+  "hardware_qualification": "NOT_PERFORMED",
+  "checker_receipt": null,
+  "coordinator_receipt": null,
+
+  "hypothesis": "AR-DESIGN's retained conclusions survive correction and tightening, but only as conditional values: the four-part claims are fixed, the gate correction is small and per-point, and the voltage rating remains conditional on an assumed MOV clamp.",
+  "actual_changed_variables": [
+    "per-device thermal power stated as 0.5*R*I_rms^2 averaged over four devices (~1.95 W), not 3.91 W",
+    "the 98% worst-bracket saving stated at P_bridge=23 W (~14.05 W), not the best-bracket ~26 W",
+    "F_VGS_HS and F_VGS_LS replaced by a per-point Rds(VGS) ratio derived from the digitised Diagram 7 family",
+    "the 43 mW recovery term relabelled a sensitivity, not an upper bound",
+    "the voltage table replaced by a terminal-voltage derivation that separates the MOSFET required rating from the controller node stresses",
+    "bootstrap capacitor justified from charge/discharge/leakage/droop corners across the 100-220 nF range"
+  ],
+  "controls": [
+    "retained 23-35 W bridge bracket (unchanged)",
+    "I_rms = 15 A contract ceiling (unchanged)",
+    "reference candidate IPW60R017C7 (unchanged, per dispatch)",
+    "AR-DESIGN's digitised Diagram 8 anchored to the p.5 table (0.015 / 0.033 typ; 0.017 max)",
+    "AR-DESIGN's thermal assembly Ta=40 C, Rsa=0.50, Rjc=0.28, Rcs=0.50 (unchanged so the correction is isolated)"
+  ],
+
+  "case_census": {
+    "expected": 1,
+    "attempted": 1,
+    "valid": 1,
+    "failed": 0,
+    "unsupported": 0,
+    "unrun": 0,
+    "case_ids": ["AR-VERIFY-engineering-verification"]
+  },
+
+  "cases": [
+    {
+      "id": "AR-VERIFY-engineering-verification",
+      "requested_inputs": {
+        "controller": "TEA2209T/1",
+        "reference_device": "IPW60R017C7",
+        "bridge_bracket_w": [23.0, 35.0],
+        "input_rms_a": 15.0
+      },
+      "achieved_inputs": {
+        "per_device_power_typ_w": 1.9501,
+        "per_device_power_98pct_w": 2.2468,
+        "hs_vgs_typ_v": 8.491,
+        "hs_vgs_conditional_worst_v": 7.592,
+        "ls_vgs_min_v": 9.906,
+        "chosen_cbs_nf": 220,
+        "p_additional_quantified_w": 0.002547
+      },
+      "tool_outcome": "SOURCE_ONLY_COMPUTED_NO_CHECKER",
+      "raw_artifact_refs": [
+        "raw/compute_ar_verify.py",
+        "raw/compute_result.json",
+        "raw/capture_failures.json",
+        "raw/reused_sources/digitized_ipw60r017c7.json",
+        "raw/reused_sources/TEA2209T.pdf",
+        "raw/reused_sources/Infineon-IPW60R017C7.pdf"
+      ],
+      "findings": "Corrected per-device conduction is ~1.95 W typ / ~2.25 W on the 98% curve; the revised P_saved is 15.23/20.54/27.23 W (typical) and 14.05/19.36/26.05 W (98% curve) across the 23/28.30/35 W bracket. The 98% worst-bracket figure is 14.05 W. The high-side gate is ~8.5 V typ and 7.59 V conditional worst case with 220 nF; the 10 V data is not directly applicable to the high side and only marginally optimistic on the low side. All numbers remain conditional on an ASSUMED MOV clamp (~400 V) and typical device data."
+    }
+  ],
+
+  "ledger": [
+    {"term": "mosfet_conduction", "value_w": 7.764, "label": "typical", "evidence_class": "DERIVED_FROM_MANUFACTURER_DATASHEET_FIGURE", "source_conditions": "Rds(Tj=45.4 C) typ from digitised Diagram 8, corrected per point by the Diagram 7 Rds(VGS) family at ID=30 A; I_rms 15 A; Tj computed", "accounting_boundary": "two conducting devices in the line path, averaged over four", "overlaps_with": [], "uncertainty": {"kind": "RANGE", "lower_w": 7.764, "upper_w": 8.975, "basis": "typ vs 98% curve and typ vs conditional-worst gate"}, "missing_evidence": "guaranteed hot maximum Rds(on)"},
+    {"term": "gate_network", "value_w": 0.000544, "label": "calculated_typical", "evidence_class": "CALCULATED_FROM_DATASHEET_CHARGE", "source_conditions": "4 x Qg 240 nC per line cycle at 60 Hz, VGS 8.49/10.41 V", "accounting_boundary": "four bridge gates", "overlaps_with": [], "uncertainty": {"kind": "ORDER_OF_MAGNITUDE", "lower_w": 0.0004, "upper_w": 0.0008, "basis": null}, "missing_evidence": null},
+    {"term": "driver_static", "value_w": 0.002, "label": "datasheet_prose", "evidence_class": "MANUFACTURER_DATASHEET_PROSE", "source_conditions": "TEA2209T '2 mW' IC consumption", "accounting_boundary": "controller", "overlaps_with": ["gate_network may partly overlap"], "uncertainty": {"kind": "ORDER_OF_MAGNITUDE", "lower_w": 0.001, "upper_w": 0.004, "basis": null}, "missing_evidence": null},
+    {"term": "dead_time_body_diode", "value_w": null, "label": "bound", "upper_bound_w": 2.7e-06, "evidence_class": "DERIVED_BOUND_FROM_DATASHEET_CONDITIONS", "source_conditions": "td <= 2.5 us about the zero crossing; VSD typ 0.9 V", "accounting_boundary": "two events per line cycle", "overlaps_with": [], "uncertainty": {"kind": "UPPER_BOUND_ONLY", "lower_w": null, "upper_w": 2.7e-06, "basis": "derived at the zero crossing"}, "missing_evidence": null},
+    {"term": "line_commutation_reverse_recovery", "value_w": null, "label": "sensitivity", "sensitivity_w": 0.0432, "evidence_class": "TYPICAL_QRR_TIMES_ASSUMED_RESIDUAL", "source_conditions": "typical Qrr 18 uC (rated 58.2 A / 400 V) x ASSUMED 20 V residual x 2 events/line-cycle", "accounting_boundary": "line commutation", "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": "neither factor is a guaranteed maximum; the 43 mW is not a bound"}, "missing_evidence": "reverse-recovery waveform at the line zero crossing"},
+    {"term": "startup_inrush_body_diode", "value_w": null, "label": "unknown", "evidence_class": "UNKNOWN", "source_conditions": "NTC-limited inrush through the body diodes before VCC charges", "accounting_boundary": "start-up interval, not steady state", "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "inrush current/energy capture"},
+    {"term": "emi_components", "value_w": null, "label": "unknown", "evidence_class": "UNKNOWN", "source_conditions": "line-frequency MOSFET commutation EMI", "accounting_boundary": "any added filter/snubber", "overlaps_with": [], "uncertainty": {"kind": "UNKNOWN", "lower_w": null, "upper_w": null, "basis": null}, "missing_evidence": "EMI re-qualification"},
+    {"term": "input_rectification_voltage_rating", "value_w": null, "label": "gating_condition", "evidence_class": "CONTRACT_DEPENDENT", "source_conditions": "off device blocks the surge-clamped terminal voltage; assumed MOV clamp ~400 V", "accounting_boundary": "device selection gate, not a loss", "overlaps_with": [], "uncertainty": {"kind": "GATING_CONDITION", "lower_w": null, "upper_w": null, "basis": "600 V valid only under the assumed L-N MOV clamp"}, "missing_evidence": "captured/measured MOV clamp voltage"}
+  ],
+
+  "supported_subtotals": [
+    {"name": "conduction_saving_typical", "value_w": 20.537, "label": "typical", "basis": "nominal 28.3035 W bridge minus 7.764 W conduction minus 0.0025 W additional; bracket 15.23-27.23 W"},
+    {"name": "conduction_saving_98pct", "value_w": 19.356, "label": "98th-percentile_curve_not_a_max", "basis": "nominal; bracket 14.05-26.05 W; worst bracket 14.05 W"},
+    {"name": "conduction_saving_conditional_worst_gate", "value_w": 19.326, "label": "conditional_then_98pct", "basis": "guaranteed-min VCC/Vd/leak with TYPICAL Qg, so conditional not a bound"}
+  ],
+  "total_loss_w": null,
+  "achieved_input_power_w": null,
+  "dc_output_power_w": null,
+  "efficiency": null,
+
+  "temperature_predictions": [
+    {"item": "reference_IPW60R017C7_high_side", "Tj_c": 45.4, "label": "typical", "evidence_class": "COMPUTED_FROM_ASSUMED_ASSEMBLY"},
+    {"item": "reference_IPW60R017C7_low_side", "Tj_c": 45.39, "label": "typical", "evidence_class": "COMPUTED_FROM_ASSUMED_ASSEMBLY"},
+    {"item": "reference_IPW60R017C7_high_side_98pct", "Tj_c": 46.23, "label": "98th-percentile_curve", "evidence_class": "COMPUTED_FROM_ASSUMED_ASSEMBLY"},
+    {"item": "reference_IPW60R017C7_high_side_rcs1.0_rsa1.0", "Tj_c": 50.62, "label": "contact_sensitivity", "evidence_class": "COMPUTED_FROM_ASSUMED_ASSEMBLY"}
+  ],
+
+  "constraint_findings": [
+    {"finding": "The 600 V reference candidate's required rating follows from an ASSUMED ~400 V MOV-clamped terminal voltage, not from the controller's 700 V node limit; the MOV is absent from the power-entry candidate BOM and would have to be added.", "severity": "GATING"},
+    {"finding": "The high-side gate-source voltage is ~8.5 V typical, not Vregd 10.7 V; the 10 V Rds(on) data is not directly applicable to the high side (1.009x per-point) and is only marginally optimistic on the low side (1.0006x at the 9.91 V minimum).", "severity": "MATERIAL"},
+    {"finding": "The worst-case bootstrap gate voltage (7.59 V with 220 nF) is CONDITIONAL on typical Qg; no guaranteed worst case can be constructed because Qg has no published maximum. The 220 nF choice is a robustness margin, not a proven necessity.", "severity": "MATERIAL"},
+    {"finding": "The IPW60R017C7 body diode is slow (Qrr typ 18 uC at 58.2 A / 400 V); a fast-body-diode device may be required for the active bridge, which would change Rds(on) and the saving.", "severity": "RISK"},
+    {"finding": "The line-to-PE (2 kV) common-mode stress is not clamped by the L-N MOV and is INDETERMINATE from the captured sources.", "severity": "OPEN"}
+  ],
+  "unsupported_cases": [],
+  "source_failures": ["raw/capture_failures.json"],
+  "tool_failures": [],
+  "raw_artifacts": [
+    "raw/compute_ar_verify.py", "raw/compute_result.json", "raw/capture_failures.json",
+    "raw/reused_sources/TEA2209T.pdf", "raw/reused_sources/TEA2209T.txt",
+    "raw/reused_sources/Infineon-IPW60R017C7.pdf", "raw/reused_sources/Infineon-IPW60R017C7.txt",
+    "raw/reused_sources/digitize_ipw60r017c7.py", "raw/reused_sources/digitized_ipw60r017c7.json",
+    "raw/reused_sources/AR-DESIGN-capture_failures.json",
+    "raw/reused_sources/figures/diagram7_rds_vs_id_125C.png",
+    "raw/reused_sources/figures/diagram8_rds_vs_tj.png",
+    "raw/reused_sources/figures/diagram10_gate_charge.png"
+  ],
+  "manifest_sha256": null,
+
+  "answer": "CORRECTED and CONDITIONAL. The four downgraded claims are fixed: per-device conduction is 0.5*R*I_rms^2 averaged over four devices (~1.95 W typ, not 3.91 W); the 98% worst-bracket saving is 14.05 W at P_bridge=23 W (the ~26 W figure was the best bracket point); F_VGS_HS is now derived per point (1.009-1.029, not an assumed 1.020) and F_VGS_LS is 0.9996-1.0026 (the 1.000 constant was invalid at the 9.91 V minimum); the 43 mW recovery figure is a sensitivity, not a bound; and the voltage table is replaced by a terminal-voltage derivation that does not equate the controller's 700 V limit with a MOSFET requirement. Revised typical P_saved = 15.23 / 20.54 / 27.23 W and 98%-curve P_saved = 14.05 / 19.36 / 26.05 W across 23 / 28.30 / 35 W. The saving is not protected: it is conditional on an ASSUMED MOV clamp (~400 V) and on typical device data, and unknown recovery/inrush/EMI losses are not subtracted from it.",
+
+  "unknowns": {
+    "operating_reverse_recovery_loss_w": null,
+    "startup_inrush_body_diode_loss_w": null,
+    "emi_filter_added_loss_w": null,
+    "guaranteed_maximum_hot_rds_on_ohm": null,
+    "guaranteed_maximum_qg_c": null,
+    "installed_case_to_sink_resistance_k_per_w": null,
+    "mov_clamp_voltage_at_specified_surge_v": null,
+    "declared_released_surge_test_level_v": null,
+    "line_to_pe_common_mode_node_stress_v": null
+  },
+
+  "single_missing_input": {
+    "input": "The MOV's clamp voltage at the specified surge waveform: a captured Littelfuse LA-series V150LA10AP 8/20 us V-I characteristic, or a measured clamp.",
+    "why": "It is the one terminal-voltage number from which BOTH the MOSFET's required voltage rating and the controller's node stress are derived, and it is currently ASSUMED at ~400 V because both capture attempts returned HTTP 403. Without it the 600 V reference candidate's adequacy cannot be established in either direction, and no voltage-derivation conclusion here is a bound."
+  },
+
+  "budget": {"deadline_utc": "2026-09-18T06:43:31Z", "elapsed_seconds": null, "solver_invocations": 0, "remaining_invocations": 0}
+}

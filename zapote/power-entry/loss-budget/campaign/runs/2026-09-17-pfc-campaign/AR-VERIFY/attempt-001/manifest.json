@@ -1,0 +1,90 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "task_id": "AR-VERIFY",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "algorithm": "sha256",
+  "note": "SHA-256 of every file produced by this attempt except manifest.json itself. dispatch.json is the delivered input and is excluded (its hash is recorded in inputs.json).",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "sha256": "aca0bca12da1dce1131c064eb987923da81c78d34b01ee1a5ba2d1737f3e8b21",
+      "bytes": 9554
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "04f80e619d60f0e581aacf1ae3d98236f059de0b5ef26a69b7988a4069e48d48",
+      "bytes": 17802
+    },
+    {
+      "path": "raw/capture_failures.json",
+      "sha256": "e0aa96e5aeba6175700d6ee98f0005c60fe3692a8d6004e434d39c3a3cdfc1ec",
+      "bytes": 4308
+    },
+    {
+      "path": "raw/compute_ar_verify.py",
+      "sha256": "e1e84c5533e542c340540fdae5ab1651e9fef4824a3a22fe3cbb6d92adc85347",
+      "bytes": 23651
+    },
+    {
+      "path": "raw/compute_result.json",
+      "sha256": "3a583f57aaad386cd57ad22dfcae5d47bd32b456327204113cba2a18f95fe4e4",
+      "bytes": 16481
+    },
+    {
+      "path": "raw/reused_sources/AR-DESIGN-capture_failures.json",
+      "sha256": "473c86b4277a7c623235a0da79a5d5f50d2a00b140ef3b42f33348eb715e7502",
+      "bytes": 3544
+    },
+    {
+      "path": "raw/reused_sources/Infineon-IPW60R017C7.pdf",
+      "sha256": "2c5a60a28231e7d2457e59b1329740a4711d88815611a0d9c4bdac40c7f9b617",
+      "bytes": 1244896
+    },
+    {
+      "path": "raw/reused_sources/Infineon-IPW60R017C7.txt",
+      "sha256": "e548d89fe59c3f480ab269d171fb1118a5a28f306cfe5f110fa904869cb502d5",
+      "bytes": 38889
+    },
+    {
+      "path": "raw/reused_sources/TEA2209T.pdf",
+      "sha256": "fb611299c890a0dcaf7d610ed3fe742a3ab8debf21a75b540b8cede2e7badc99",
+      "bytes": 289633
+    },
+    {
+      "path": "raw/reused_sources/TEA2209T.txt",
+      "sha256": "3a3ccfd8d99645e236337427f73c79758e00b35be267bc47d139478c447002c6",
+      "bytes": 86368
+    },
+    {
+      "path": "raw/reused_sources/digitize_ipw60r017c7.py",
+      "sha256": "8ae5c1a400a459e0199d22f16843d098c4799bda0815c210beebba8917c6e114",
+      "bytes": 4144
+    },
+    {
+      "path": "raw/reused_sources/digitized_ipw60r017c7.json",
+      "sha256": "73fca8864db5899d040ffb73af7b623ee4088f31a85995e54ea5b3e30f48e044",
+      "bytes": 3207
+    },
+    {
+      "path": "raw/reused_sources/figures/diagram10_gate_charge.png",
+      "sha256": "075d9614fbed2cd8736217ad610e0f6f51a4310219071c28e69e6fbd04e4335c",
+      "bytes": 87325
+    },
+    {
+      "path": "raw/reused_sources/figures/diagram7_rds_vs_id_125C.png",
+      "sha256": "942cc69428d1bda98e79e0bfa7b6cbdd605404cf52f9a0437d9e78419a0c2388",
+      "bytes": 163811
+    },
+    {
+      "path": "raw/reused_sources/figures/diagram8_rds_vs_tj.png",
+      "sha256": "a54f0210af43ef44ca6d0095b302454d20d1cf40e1ef348615d72736925ba995",
+      "bytes": 127338
+    },
+    {
+      "path": "result.json",
+      "sha256": "b46d81e6d45d9cc443809723000fc5306a84b98da0538db013b5903ea9717f62",
+      "bytes": 13871
+    }
+  ]
+}

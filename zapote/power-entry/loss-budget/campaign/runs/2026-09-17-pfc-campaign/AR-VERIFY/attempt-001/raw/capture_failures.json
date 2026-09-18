@@ -1,0 +1,75 @@
+{
+  "schema": "pfc-campaign-capture-failures/v1",
+  "task_id": "AR-VERIFY",
+  "attempt_id": "attempt-001",
+  "captured_utc": "2026-09-18T05:05:00Z",
+  "policy": "Retain each failure. At most one other primary or manufacturer-authored mirror per source. Never hash HTML and call it a datasheet. No bench work; no procurement.",
+  "reused_captures": [
+    {
+      "source": "NXP TEA2209T Active bridge rectifier controller, Product data sheet, Rev. 1.1, 2021-04-14",
+      "retained_as": "raw/reused_sources/TEA2209T.pdf",
+      "sha256": "fb611299c890a0dcaf7d610ed3fe742a3ab8debf21a75b540b8cede2e7badc99",
+      "origin": "copied unchanged from AR-DESIGN attempt-001 (itself from AR-ACTIVE attempt-001)"
+    },
+    {
+      "source": "Infineon IPW60R017C7 600V CoolMOS C7, Final Data Sheet Rev. 2.0, 2016-03-01",
+      "retained_as": "raw/reused_sources/Infineon-IPW60R017C7.pdf",
+      "sha256": "2c5a60a28231e7d2457e59b1329740a4711d88815611a0d9c4bdac40c7f9b617",
+      "origin": "copied unchanged from AR-DESIGN attempt-001 (itself from the AR-ACTIVE attempt-001 Infineon manufacturer mirror)"
+    },
+    {
+      "source": "IPW60R017C7 digitised page-8 figures (Diagram 7 Rds(ID,VGS) and Diagram 8 Rds(Tj))",
+      "retained_as": "raw/reused_sources/digitized_ipw60r017c7.json",
+      "sha256": "73fca8864db5899d040ffb73af7b623ee4088f31a85995e54ea5b3e30f48e044",
+      "origin": "copied unchanged from AR-DESIGN attempt-001"
+    }
+  ],
+  "carried_forward_failures": [
+    {
+      "source": "Infineon IPW60R017C7 datasheet, infineon.com primary host",
+      "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw60r017c7-ds-en.pdf",
+      "http_status": 202,
+      "bytes": 0,
+      "content_type": "text/html; charset=UTF-8",
+      "outcome": "FAILED_NOT_A_PDF",
+      "note": "From AR-ACTIVE attempt-001; recovered there via the Infineon .cn manufacturer mirror. Retained, not retried."
+    },
+    {
+      "source": "Infineon IPW50R280CE 500 V CoolMOS CE (lower-voltage alternative screen)",
+      "urls_tried": [
+        "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw50r280ce-datasheet-en.pdf (202 / HTML)",
+        "https://www.infineon.cn/assets/row/public/documents/24/49/infineon-ipw50r280ce-datasheet-en.pdf (404 / HTML)",
+        "https://www.infineon.com/dgdl/Infineon-IPW50R280CE-DS-v02_01-EN.pdf?fileId=5546d462576f3475015775210e8f3b1f (404 / HTML)",
+        "https://www.mouser.com/datasheet/2/196/Infineon_IPW50R280CE_DS_v02_02_EN-3165672.pdf (200 / text/html consent wall)"
+      ],
+      "outcome": "FAILED_NOT_A_PDF",
+      "note": "Carried forward from AR-DESIGN attempt-001 capture_failures.json. The 500 V alternative is screened by voltage class only; no performance claim is made."
+    }
+  ],
+  "new_failures_this_attempt": [
+    {
+      "source": "Littelfuse LA-series varistor datasheet (V150LA10AP MOV clamp characteristic) - primary host",
+      "url": "https://www.littelfuse.com/assetdocs/la-varistor-datasheet?assetguid=8f6b9e0a-6f3d-4d4e-9e4a-4f7f5b6e8c9d",
+      "http_status": 403,
+      "bytes": 0,
+      "outcome": "FAILED_HTTP_403",
+      "note": "Direct primary fetch blocked. This is the one number in the surge derivation that stays ASSUMED: the MOV clamp voltage."
+    },
+    {
+      "source": "Littelfuse LA-series varistor datasheet - manufacturer media mirror",
+      "url": "https://www.littelfuse.com/~/media/electronics/datasheets/varistors/littelfuse_varistor_la_datasheet.pdf.pdf",
+      "http_status": 403,
+      "bytes": 0,
+      "outcome": "FAILED_HTTP_403",
+      "note": "One manufacturer-authored mirror tried after the primary failed, per policy. Not retried further. Retained."
+    }
+  ],
+  "capture_gaps": [
+    {
+      "missing": "V150LA10AP 8/20 us clamp voltage / V-I characteristic",
+      "consequence": "the surge-clamped terminal voltage used to derive both the MOSFET required rating and the controller node stress is an ASSUMED 400 V, not a sourced value",
+      "would_settle_it": "a captured primary LA-series datasheet V-I curve, or a measured clamp on the assembled front end"
+    }
+  ],
+  "consequence": "No new device-performance claim depends on a failed capture. The two device datasheets are reused verbatim from AR-DESIGN. The MOV clamp is labelled assumed everywhere it is used."
+}

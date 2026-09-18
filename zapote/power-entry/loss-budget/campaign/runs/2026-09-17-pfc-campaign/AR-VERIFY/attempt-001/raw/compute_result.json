@@ -1,0 +1,434 @@
+{
+  "schema": "pfc-campaign-AR-VERIFY-compute/v1",
+  "corrected_claims": {
+    "a_per_device_thermal_power": {
+      "correct_value_w": 1.6875,
+      "statement": "Per-device line-cycle-average conduction is 0.5*R*I_rms^2 (each of four devices conducts half the line cycle), = 0.5*0.015*225 = 1.6875 W at Rds(25C,10V) typ; at the computed hot Rds it is ~1.96-2.28 W. The superseded 3.91 W divided a two-device instantaneous total by two.",
+      "superseded_value_w": 3.91,
+      "superseded_source": "AR-DESIGN coordinator-receipt v1 (withdrawn)"
+    },
+    "b_worst_bracket_98pct_saving": {
+      "worst_bracket_w": 23.0,
+      "note": "98% curve saving at the WORST bracket point; see savings rows",
+      "superseded_value_w": 26.0,
+      "superseded_source": "~26 W quoted the 35 W bracket point as if it were the worst; 25.98 W is the BEST bracket point"
+    },
+    "c_gate_correction": {
+      "f_vgs_hs": {
+        "status": "ASSUMED constant in AR-DESIGN, now DERIVED per point",
+        "superseded_value": 1.02,
+        "basis": "digitised Diagram 7 family at ID=30 A, Tj=125 C"
+      },
+      "f_vgs_ls": {
+        "status": "INVALID as 1.000 at AR-DESIGN's own 9.91 V LS minimum; now derived per point from the same family",
+        "superseded_value": 1.0,
+        "ls_min_v": 9.906
+      }
+    },
+    "d_recovery": {
+      "superseded_label": "E_RR_UB (upper bound)",
+      "correct_label": "SENSITIVITY",
+      "statement": "typical Qrr (18 uC) times an ASSUMED 20 V residual, x 2 events/line-cycle; not a guaranteed maximum, so not a bound"
+    },
+    "e_voltage_table": {
+      "superseded": "mixed the controller's 700 V node limit (a component limit) with the MOSFET's required rating (both directions: '700 V requires 800 V device' AND 'higher-V device protects controller')",
+      "correct": "the MOSFET rating follows from the surge-clamped terminal voltage it must block; the controller's node stress follows from the same terminal voltages compared against its OWN 440 V operating / 700 V transient limits; neither dictates the other"
+    }
+  },
+  "bootstrap": {
+    "method": "HS: solve VGS = (VCC-Vd) - Qg(VGS)/Cbs - (I_leak+I_gss)*T_on/Cbs self-consistently. LS: VCC - (2*Qg + I_bias*T_on)/Cvcc.",
+    "T_on_s": 0.008333333333333333,
+    "discharge_terms": [
+      "Qg(VGS)",
+      "II(VCCHL) quiescent over T_on",
+      "IGSS (100 nA max)",
+      "reverse leakage of the internal bootstrap diode while it blocks the line (NOT SPECIFIED in the captured datasheet)"
+    ],
+    "hs_vgs_v": {
+      "100nF": {
+        "typ": 7.302,
+        "guaranteed_min_vcc_vd_leak_typ_qg": 6.305,
+        "qg_sensitivity_x1.3": 5.934,
+        "qg_sensitivity_x1.5": 5.708,
+        "leakage_droop_guaranteed_v": 1.0,
+        "charge_time_constant_note": "recharge is over the 8.33 ms off half-cycle; with any plausible internal bootstrap impedance (<<30 kohm) the RC is <1 ms, so charge completeness is not the binding constraint"
+      },
+      "200nF": {
+        "typ": 8.382,
+        "guaranteed_min_vcc_vd_leak_typ_qg": 7.474,
+        "qg_sensitivity_x1.3": 7.232,
+        "qg_sensitivity_x1.5": 7.078,
+        "leakage_droop_guaranteed_v": 0.5,
+        "charge_time_constant_note": "recharge is over the 8.33 ms off half-cycle; with any plausible internal bootstrap impedance (<<30 kohm) the RC is <1 ms, so charge completeness is not the binding constraint"
+      },
+      "220nF": {
+        "typ": 8.491,
+        "guaranteed_min_vcc_vd_leak_typ_qg": 7.592,
+        "qg_sensitivity_x1.3": 7.366,
+        "qg_sensitivity_x1.5": 7.222,
+        "leakage_droop_guaranteed_v": 0.455,
+        "charge_time_constant_note": "recharge is over the 8.33 ms off half-cycle; with any plausible internal bootstrap impedance (<<30 kohm) the RC is <1 ms, so charge completeness is not the binding constraint"
+      }
+    },
+    "ls_vgs_v": {
+      "nominal_cvcc_min_vcc": 9.9061,
+      "nominal_cvcc_typ_vcc": 10.4061,
+      "nominal_cvcc_max_vcc": 10.9061,
+      "min_allowed_cvcc_min_vcc": 9.5533,
+      "min_allowed_cvcc_typ_vcc": 10.0533,
+      "min_allowed_cvcc_max_vcc": 10.5533
+    },
+    "worst_case_gate_voltage": {
+      "value_v": 7.592,
+      "capacitor": "220 nF",
+      "basis": "VCC>=10.2 V, Vd(bs)<=1.3 V and II(VCCHL)<=12 uA are guaranteed maxima from TEA2209T Table 8; Qg is TYPICAL only, so this is a CONDITIONAL worst case, NOT a guaranteed bound",
+      "boundable_part": "leakage droop >= 12 uA*8.333 ms/220 nF = 0.455 V, Vd <= 1.3 V, VCC >= 10.2 V; the Qg/Cbs term cannot be bounded from a typical Qg",
+      "functional_floor_v": 5.0
+    },
+    "chosen_capacitor": "220 nF",
+    "justification": "220 nF is at the top of NXP's own 100-220 nF range (Sec 12) and is essentially the 200 nF value NXP shows in its typical configuration. Relative to 100 nF it cuts the guaranteed leakage droop from 1.000 V to 0.455 V and lifts the typical-Qg conditional worst case from 6.31 V to 7.59 V, which is above the ~7 V near-full-enhancement knee of Diagram 7 (3.0% vs 1.4% Rds penalty). The recharge cost is nil (RC < 1 ms in an 8.33 ms half-cycle). This is a ROBUSTNESS choice, not a proof that 100 nF fails: from typical Qg it takes ~2.2x Qg to reach the 5.0 V floating UVLO with 100 nF and ~5.8x with 220 nF, because Qg has no published maximum. The datasheet's own warning against low bootstrap values (Sec 12) plus NXP's own 200 nF configuration is the basis for the top of the range.",
+    "evidence_class": "guaranteed_limits_plus_typical_Qg; Qg-bound is ASSUMED/sensitivity, not a guaranteed bound"
+  },
+  "per_point_rds": {
+    "primary_family": {
+      "ID_a": 30,
+      "Tj_c": 125,
+      "ratios_vs_10v": {
+        "5.5": 1.0536705737199261,
+        "6.0": 1.0354719309068479,
+        "6.5": 1.024984577421345,
+        "7.0": 1.0175817396668723,
+        "10.0": 1.0,
+        "20.0": 0.9888957433682912
+      }
+    },
+    "method": "Rds(Tj, VGS) = Rds10(Tj) * [Rds(VGS)/Rds(10 V)] where Rds10(Tj) is the digitised Diagram 8 curve and the ratio is the digitised Diagram 7 family. ASSUMPTION: the VGS ratio is temperature-independent over the 45-51 C range (Diagram 7 is only at 125 C).",
+    "points": {
+      "hs_typ_220nF": {
+        "vgs_v": 8.491,
+        "ratio_vs_10v": 1.00884
+      },
+      "hs_conditional_worst_220nF": {
+        "vgs_v": 7.592,
+        "ratio_vs_10v": 1.01411
+      },
+      "hs_min_datasheet_100nF": {
+        "vgs_v": 7.302,
+        "ratio_vs_10v": 1.01581
+      },
+      "hs_conditional_worst_100nF": {
+        "vgs_v": 6.305,
+        "ratio_vs_10v": 1.02908
+      },
+      "ls_typ_2.2uF": {
+        "vgs_v": 10.406,
+        "ratio_vs_10v": 0.99955
+      },
+      "ls_min_2.2uF": {
+        "vgs_v": 9.906,
+        "ratio_vs_10v": 1.00055
+      },
+      "ls_min_1.0uF": {
+        "vgs_v": 9.553,
+        "ratio_vs_10v": 1.00262
+      }
+    },
+    "id_current_sensitivity": {
+      "hs_typ_220nF": {
+        "ID_15A": 1.00934,
+        "ID_21A": 1.00996,
+        "ID_30A": 1.00884,
+        "ID_60A": 1.01058,
+        "ID_90A": 1.01193
+      },
+      "hs_conditional_worst_220nF": {
+        "ID_15A": 1.01491,
+        "ID_21A": 1.01589,
+        "ID_30A": 1.01411,
+        "ID_60A": 1.01688,
+        "ID_90A": 1.01903
+      },
+      "hs_min_datasheet_100nF": {
+        "ID_15A": 1.01671,
+        "ID_21A": 1.0178,
+        "ID_30A": 1.01581,
+        "ID_60A": 1.01891,
+        "ID_90A": 1.02132
+      },
+      "hs_conditional_worst_100nF": {
+        "ID_15A": 1.03646,
+        "ID_21A": 1.03957,
+        "ID_30A": 1.02908,
+        "ID_60A": 1.03498,
+        "ID_90A": 1.04173
+      },
+      "ls_typ_2.2uF": {
+        "ID_15A": 0.99955,
+        "ID_21A": 0.99955,
+        "ID_30A": 0.99955,
+        "ID_60A": 0.99952,
+        "ID_90A": 0.99949
+      },
+      "ls_min_2.2uF": {
+        "ID_15A": 1.00058,
+        "ID_21A": 1.00062,
+        "ID_30A": 1.00055,
+        "ID_60A": 1.00066,
+        "ID_90A": 1.00074
+      },
+      "ls_min_1.0uF": {
+        "ID_15A": 1.00277,
+        "ID_21A": 1.00295,
+        "ID_30A": 1.00262,
+        "ID_60A": 1.00313,
+        "ID_90A": 1.00353
+      }
+    }
+  },
+  "additional_losses": {
+    "controller_ic_w": 0.002,
+    "gate_network_w": 0.000544,
+    "dead_time_body_diode_bound_w": 2.7e-06,
+    "quantified_p_additional_w": 0.002547,
+    "recovery_sensitivity_w": 0.0432,
+    "recovery_label": "SENSITIVITY: typical Qrr 18 uC x ASSUMED 20 V residual x 2 events/line-cycle; the real commutation is at the zero crossing, so neither factor is a guaranteed maximum",
+    "unknowns_not_subtracted": [
+      "line-commutation reverse recovery (sensitivity only)",
+      "start-up/inrush body-diode energy",
+      "added EMI filter loss"
+    ]
+  },
+  "thermal": {
+    "typical": {
+      "T_sink_c": 43.88,
+      "Tj_hs_c": 45.4,
+      "Tj_ls_c": 45.39,
+      "R_hs_ohm": 0.017334,
+      "R_ls_ohm": 0.017173,
+      "P_hs_w": 1.9501,
+      "P_ls_w": 1.9319,
+      "P_total_w": 7.764,
+      "k_T_hs": 1.1455
+    },
+    "p98_percentile_VGS_typ": {
+      "T_sink_c": 44.47,
+      "Tj_hs_c": 46.23,
+      "Tj_ls_c": 46.21,
+      "R_hs_ohm": 0.019972,
+      "R_ls_ohm": 0.019785,
+      "P_hs_w": 2.2468,
+      "P_ls_w": 2.2259,
+      "P_total_w": 8.9454,
+      "k_T_hs": 1.151
+    },
+    "typical_VGS_worst_conditional": {
+      "T_sink_c": 43.89,
+      "Tj_hs_c": 45.42,
+      "Tj_ls_c": 45.4,
+      "R_hs_ohm": 0.017427,
+      "R_ls_ohm": 0.017191,
+      "P_hs_w": 1.9605,
+      "P_ls_w": 1.934,
+      "P_total_w": 7.7891,
+      "k_T_hs": 1.1456
+    },
+    "p98_VGS_worst_conditional": {
+      "T_sink_c": 44.49,
+      "Tj_hs_c": 46.25,
+      "Tj_ls_c": 46.23,
+      "R_hs_ohm": 0.020079,
+      "R_ls_ohm": 0.019808,
+      "P_hs_w": 2.2589,
+      "P_ls_w": 2.2283,
+      "P_total_w": 8.9745,
+      "k_T_hs": 1.1512
+    },
+    "typical_100nF_worst_conditional": {
+      "T_sink_c": 43.9,
+      "Tj_hs_c": 45.43,
+      "Tj_ls_c": 45.41,
+      "R_hs_ohm": 0.017457,
+      "R_ls_ohm": 0.017228,
+      "P_hs_w": 1.9639,
+      "P_ls_w": 1.9382,
+      "P_total_w": 7.8043,
+      "k_T_hs": 1.1457
+    },
+    "typical_rcs1.0_rsa1.0": {
+      "T_sink_c": 48.04,
+      "Tj_hs_c": 50.62,
+      "Tj_ls_c": 50.59,
+      "R_hs_ohm": 0.01794,
+      "R_ls_ohm": 0.017772,
+      "P_hs_w": 2.0182,
+      "P_ls_w": 1.9993,
+      "P_total_w": 8.0351,
+      "k_T_hs": 1.1855
+    }
+  },
+  "savings": {
+    "formula": "P_saved = P_bridge - 225*(R_HS + R_LS) - P_additional",
+    "p_additional_w": 0.002547,
+    "note": "P_saved is an upper-side estimate: unknown losses (recovery, inrush, EMI) are NOT subtracted because they are unknown, not zero",
+    "rows": [
+      {
+        "basis": "typical",
+        "bridge_w": 23.0,
+        "p_cond_w": 7.764,
+        "p_saved_w": 15.233
+      },
+      {
+        "basis": "typical",
+        "bridge_w": 28.303,
+        "p_cond_w": 7.764,
+        "p_saved_w": 20.537
+      },
+      {
+        "basis": "typical",
+        "bridge_w": 35.0,
+        "p_cond_w": 7.764,
+        "p_saved_w": 27.233
+      },
+      {
+        "basis": "p98_percentile_VGS_typ",
+        "bridge_w": 23.0,
+        "p_cond_w": 8.945,
+        "p_saved_w": 14.052
+      },
+      {
+        "basis": "p98_percentile_VGS_typ",
+        "bridge_w": 28.303,
+        "p_cond_w": 8.945,
+        "p_saved_w": 19.356
+      },
+      {
+        "basis": "p98_percentile_VGS_typ",
+        "bridge_w": 35.0,
+        "p_cond_w": 8.945,
+        "p_saved_w": 26.052
+      },
+      {
+        "basis": "typical_VGS_worst_conditional",
+        "bridge_w": 23.0,
+        "p_cond_w": 7.789,
+        "p_saved_w": 15.208
+      },
+      {
+        "basis": "typical_VGS_worst_conditional",
+        "bridge_w": 28.303,
+        "p_cond_w": 7.789,
+        "p_saved_w": 20.512
+      },
+      {
+        "basis": "typical_VGS_worst_conditional",
+        "bridge_w": 35.0,
+        "p_cond_w": 7.789,
+        "p_saved_w": 27.208
+      },
+      {
+        "basis": "p98_VGS_worst_conditional",
+        "bridge_w": 23.0,
+        "p_cond_w": 8.975,
+        "p_saved_w": 14.023
+      },
+      {
+        "basis": "p98_VGS_worst_conditional",
+        "bridge_w": 28.303,
+        "p_cond_w": 8.975,
+        "p_saved_w": 19.326
+      },
+      {
+        "basis": "p98_VGS_worst_conditional",
+        "bridge_w": 35.0,
+        "p_cond_w": 8.975,
+        "p_saved_w": 26.023
+      },
+      {
+        "basis": "typical_100nF_worst_conditional",
+        "bridge_w": 23.0,
+        "p_cond_w": 7.804,
+        "p_saved_w": 15.193
+      },
+      {
+        "basis": "typical_100nF_worst_conditional",
+        "bridge_w": 28.303,
+        "p_cond_w": 7.804,
+        "p_saved_w": 20.497
+      },
+      {
+        "basis": "typical_100nF_worst_conditional",
+        "bridge_w": 35.0,
+        "p_cond_w": 7.804,
+        "p_saved_w": 27.193
+      },
+      {
+        "basis": "typical_rcs1.0_rsa1.0",
+        "bridge_w": 23.0,
+        "p_cond_w": 8.035,
+        "p_saved_w": 14.962
+      },
+      {
+        "basis": "typical_rcs1.0_rsa1.0",
+        "bridge_w": 28.303,
+        "p_cond_w": 8.035,
+        "p_saved_w": 20.266
+      },
+      {
+        "basis": "typical_rcs1.0_rsa1.0",
+        "bridge_w": 35.0,
+        "p_cond_w": 8.035,
+        "p_saved_w": 26.962
+      }
+    ],
+    "worst_bracket_98pct_w": 14.052
+  },
+  "surge_contract": {
+    "test_level": {
+      "standard": "IEC 61000-4-5",
+      "line_to_line_v": 1000.0,
+      "line_to_pe_v": 2000.0,
+      "waveform": "1.2/50 us voltage, 8/20 us current (combination wave)",
+      "source": "docs/architecture/induction_curriculum.md:2112 (project checklist)",
+      "second_source": "IEC 60335-1 OVC II rated impulse 1500 V on a 120 V mains-derived board: docs/evidence/2026-08-13-mains-selv-barrier-derivation.md:15-20",
+      "evidence_class": "project_requirement_not_measured_not_datasheet",
+      "assumption_flag": "the released product's real test level is not a committed requirement document; the curriculum line is a checklist item.  Treat as the ASSUMED contract."
+    },
+    "protection_circuit": {
+      "specified": [
+        "fuse -> MOV across L-N -> X2 (L-N) -> CMC -> Y caps (L-PE, N-PE)",
+        "MOV: Littelfuse V150LA10AP, 150 V rms MCOV, line-to-neutral (the main board carries it; the power-entry candidate BOM does NOT)"
+      ],
+      "required_addition": "the power-entry candidate BOM lists no MOV; the surge derivation is therefore conditional on adding the L-N MOV shown in docs/hardware/BOM.md:46",
+      "mov_clamp_assumed_v": 400.0,
+      "mov_clamp_status": "ASSUMED - no primary datasheet captured (two 403s retained in raw/capture_failures.json); the repo's own IEC60335 critical-components audit also marks this part UNVERIFIED (secondary-source only)",
+      "would_settle_it": "a captured Littelfuse LA-series V-I / clamp-voltage characteristic at 8/20 us, or a measured clamp"
+    },
+    "terminal_voltages": {
+      "steady_off_device_blocks_v": 186.68,
+      "surge_with_mov_terminal_v": 400.0,
+      "surge_without_mov": "INDETERMINATE - the surge source impedance and the bus-capacitor clamp are not captured; no rating derivable",
+      "bus_fault_boost_switch_short_v": 586.68
+    },
+    "mosfet_required_rating": {
+      "from_surge_with_mov_v": 400.0,
+      "chosen_class_v": 600,
+      "margin": {
+        "steady": 3.21,
+        "surge": 1.5,
+        "bus_fault": 1.02
+      },
+      "statement": "the required rating follows from the TERMINAL voltage the off device must block (surge-clamped L-N ~400 V assumed), NOT from the controller's 700 V node limit"
+    },
+    "controller_node_stresses": {
+      "operating_limit_v": 440.0,
+      "transient_limit_v": 700.0,
+      "surge_clamped_node_v": 400.0,
+      "statement": "L/R/VR see the same MOV-clamped line voltage (~400 V assumed) against their OWN 440 V operating limit; a higher-rated MOSFET does NOT lower this node voltage, and the controller's 700 V transient allowance does NOT require an 800/1000 V device"
+    },
+    "line_to_pe_common_mode": "not clamped by the L-N MOV; the controller and bridge common-mode stress depends on the Y-cap / PE / dc-return network, which is NOT captured - INDETERMINATE"
+  },
+  "conflicts_found": {
+    "mov_part": "docs/specs/REQUIREMENTS.md:511 says 'MOV: 275V, 10kA' but the committed BOM is V150LA10AP (150 V rms MCOV) and the board is 120 V single-market (docs/evidence/2026-08-13-...:22).  A 275 V MOV would not clamp at the 186.7 V line peak; a 150 V MCOV part is the plausible one.",
+    "surge_level": "the curriculum checklist (1 kV L-L / 2 kV L-PE) is not repeated in docs/specs/REQUIREMENTS.md, whose EMC section lists filter parts but no surge test level."
+  }
+}
