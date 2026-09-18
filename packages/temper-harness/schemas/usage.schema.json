@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://temper.local/schemas/usage.schema.json",
+  "title": "Usage record",
+  "description": "Token counts for one provider call. A field the provider does not report is null, never 0 (R4): a missing count and a measured zero are different facts, and collapsing them is how a structurally-zero column gets published as a measurement. The names here are the transport's own; the provider-specific names they map onto were frozen by U1's live capture rather than assumed, and the mapping is not what the provider's own nesting suggests -- see the per-field notes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["prompt_tokens", "completion_tokens", "reasoning_tokens", "cached_input_tokens", "total_tokens"],
+  "properties": {
+    "prompt_tokens": {
+      "description": "Input tokens, from the provider's `prompt_tokens`. null when the provider does not report it.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "completion_tokens": {
+      "description": "Output tokens, from the provider's `completion_tokens`. null when the provider does not report it.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "reasoning_tokens": {
+      "description": "Reasoning tokens, from the provider's `completion_tokens_details.reasoning_tokens`. Measured, not assumed: this is a SUBSET of completion_tokens. A captured completion reporting completion_tokens=18 with reasoning_tokens=15 contained three tokens of content, so adding the two double-counts and omitting it under-reports. It also sits one level deeper than the other fields, which is exactly why a hand-written mapping would have got it wrong.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "cached_input_tokens": {
+      "description": "Input tokens served from the provider's prompt cache, from `prompt_tokens_details.cached_tokens`. Priced differently from uncached input, so a row that conflates them mis-prices the call. The provider also reports `prompt_cache_hit_tokens` and `prompt_cache_miss_tokens`, which carry the same information; they are deliberately not normalized into a second and third field here, because two more homes for one fact is how one of them drifts.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "total_tokens": {
+      "description": "The provider's own total, retained as an external check on the arithmetic. The aggregate sums the fields above, and comparing that sum to a number the provider computed is the only place token accounting can be validated against something other than itself. KTD7 wanted exactly that for cost and could not have it -- the provider reports no cost field -- which makes this the one such check available, and discarding it would leave the accounting certifying itself.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    }
+  }
+}

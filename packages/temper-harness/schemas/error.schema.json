@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://temper.local/schemas/error.schema.json",
+  "title": "Typed transport error record",
+  "description": "One record per classified failure. R6 exists so that a transport failure is never stored as a model failure; that only holds if the taxonomy is exhaustive, so every exception on the send path must land on one of these categories (see UnknownTransportError) rather than propagating raw.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "category",
+    "retryable",
+    "billable",
+    "message",
+    "http_status",
+    "retry_after"
+  ],
+  "properties": {
+    "category": {
+      "description": "Pre-connection covers DNS, refused, and TLS failures -- the class a 'timeout' check would otherwise miss, leaving a network outage recorded as the model producing nothing. `request_rejected` exists because a 400 is not always a tool-schema problem: the captured 400s on this provider carry the same `type` and `code` for a bad model name, an orphaned tool result, and a dropped reasoning field, so the status alone cannot classify them and the catch-all for a rejected request must not be `unknown_transport` -- which is retryable, and retrying a request the provider will refuse again is a loop. `auth_rejected` and `insufficient_balance` are the same argument for the provider's documented 401/403 and 402: a wrong key and an empty account are deterministic refusals with distinct remedies, and both would otherwise have been retried forever while every row read as an unknown transport fault. `credential_missing` is the same argument one step earlier -- the refusal happens on this side, before any I/O, and still needs a row (R3) and a category (R6).",
+      "enum": [
+        "pre_connection_unavailable",
+        "rate_limited",
+        "server_error",
+        "timeout",
+        "malformed_stream",
+        "incomplete_stream",
+        "malformed_response",
+        "context_length_exceeded",
+        "tool_schema_rejected",
+        "request_rejected",
+        "credential_missing",
+        "content_filtered",
+        "endpoint_rejected",
+        "unknown_transport",
+        "auth_rejected",
+        "insufficient_balance"
+      ]
+    },
+    "retryable": {
+      "type": "boolean"
+    },
+    "billable": {
+      "description": "Whether the provider may have charged for this attempt. A declared default, not a measured fact: the only evidence of actual billing is the usage block on a call_terminal row.",
+      "type": "boolean"
+    },
+    "message": {
+      "type": "string"
+    },
+    "http_status": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "retry_after": {
+      "description": "Seconds the provider asked the caller to wait, from a numeric `Retry-After`. The only actionable fact on a 429, and unavailable after the fact: a header not captured at the moment of the refusal cannot be recovered from a ledger row later. null means the provider sent none, or sent the HTTP-date form, which is deliberately not converted because that would put a clock inside a classifier.",
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    }
+  }
+}

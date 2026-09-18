@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://temper.local/schemas/recording.schema.json",
+  "title": "Provider recording",
+  "description": "One recorded exchange: the request body, the response status and body, the allowlisted response headers, a content hash of each, and the identity that produced them (R8, R10). The request and response are stored asymmetrically on purpose. The request is an object because we build it, and its hash is taken over a canonical encoding so that a semantically identical request is the same request. The response is an opaque string because we only receive it, and R8 requires a lossless raw payload. 'Opaque' is the load-bearing word: the body is never parsed into structure and written back, because that would normalize escapes and key order that the fidelity oracle compares. It is carried as UTF-8 text when the bytes allow it and as base64 when they do not, so that a committed fixture shows the provider's own SSE or JSON text in a diff rather than a blob a reviewer approves without reading.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "provider",
+    "model",
+    "arm",
+    "attempt",
+    "http_status",
+    "request",
+    "request_hash",
+    "response_encoding",
+    "response_raw",
+    "response_hash",
+    "headers"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "The recording format version. The enum here IS the set of versions this client understands -- the store reads it from this file rather than carrying its own constant, so a format change cannot leave the reader and the schema disagreeing about what is valid. A version outside this enum fails closed rather than being interpreted.",
+      "enum": ["1.0"]
+    },
+    "provider": {
+      "description": "Which provider served this. One adapter today, but a recording that cannot name its source cannot prove it came from the official host (R16).",
+      "type": "string",
+      "minLength": 1
+    },
+    "model": {
+      "description": "The model id as the provider reported it, not as the request asked for it. A silent alias redirect shows up here -- which is not hypothetical: this corpus was captured while the plan still named a model id the provider does not serve, and the provider's own 400 body is what corrected it.",
+      "type": "string",
+      "minLength": 1
+    },
+    "arm": {
+      "description": "The experiment arm that produced this recording. A recording never serves a request from a different arm (R10, KTD9): a shared store would otherwise hand a later arm an earlier arm's complete model output, which defeats both 'fresh isolated state per attempt' and 'solution hidden'.",
+      "type": "string",
+      "minLength": 1
+    },
+    "attempt": {
+      "description": "The attempt within the arm. Distinct from the ledger's per-call retry counter: this scopes a whole run of the arm.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "http_status": {
+      "description": "The status line of the recorded exchange. Required because a replay must reproduce a failure as faithfully as a success: a 400 replayed as a 200 would make the error taxonomy classify the past as a completion, and the captured 400 in this corpus is the evidence that the provider discriminates request defects by status.",
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599
+    },
+    "request": {
+      "description": "The request body. Left permissive rather than pinned to a field list: it carries arbitrary JSON Schema in its tool definitions (R7), so a closed shape here would silently reject the schemas it exists to preserve.",
+      "type": "object"
+    },
+    "request_hash": {
+      "description": "sha256 of the canonical encoding of `request`. This is the recording's primary identity: the file name is a lookup convenience, and the store re-derives this hash rather than trusting the path it found the file at.",
+      "$ref": "#/$defs/sha256"
+    },
+    "response_encoding": {
+      "description": "How `response_raw` carries the body. Both encodings are lossless; the decoder is the assertion for either -- `b64decode(validate=True)` for base64, and a strict `.encode('utf-8')` for utf-8 -- so no regex duplicates that check and no second, weaker statement of the same rule can drift from it.",
+      "enum": ["utf-8", "base64"]
+    },
+    "response_raw": {
+      "description": "The received response body, byte for byte, as an opaque string. Not a JSON object: parsing it into structure and writing it back would change the bytes that `response_hash` pins.",
+      "type": "string"
+    },
+    "response_hash": {
+      "description": "sha256 of the response bytes, before encoding. Checked on every load, so a truncated or edited recording is a refusal rather than a subtly different turn.",
+      "$ref": "#/$defs/sha256"
+    },
+    "headers": {
+      "description": "The response headers retained under R11's allowlist. The allowlist is enforced by this schema's `propertyNames`, not by a Python set, so a credential header cannot be written by any caller and widening the allowlist is a reviewed diff.",
+      "$ref": "#/$defs/headers"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "headers": {
+      "type": "object",
+      "propertyNames": {
+        "description": "Lowercased, because HTTP header names are case-insensitive and two spellings of one header would otherwise be two keys. Deliberately excludes authorization, proxy-authorization, cookie, set-cookie, and every api-key spelling: R11 forbids a credential reaching disk in any artifact the transport writes, and an allowlist is only a control if it cannot admit one. The members are the headers a captured exchange actually carried plus the ones a failure would carry; x-ds-trace-id is included because it is the provider's own correlation id, which is what a billing dispute or a support escalation is reconciled against, and it is worthless if it is not recorded at the moment of the call.",
+        "enum": [
+          "content-type",
+          "content-length",
+          "date",
+          "server",
+          "retry-after",
+          "x-request-id",
+          "x-ds-trace-id",
+          "x-ratelimit-limit",
+          "x-ratelimit-remaining",
+          "x-ratelimit-reset"
+        ]
+      },
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}

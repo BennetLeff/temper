@@ -1,0 +1,20 @@
+{
+  "captured_at": "2026-09-18T03:14:01+00:00",
+  "expect_status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "date": "Fri, 18 Sep 2026 03:13:52 GMT",
+    "server": "elb",
+    "x-ds-trace-id": "82ed4958bb4978245bad96ae300c9c55"
+  },
+  "http_status": 200,
+  "model": "deepseek-flash",
+  "name": "strict_schema",
+  "provider": "deepseek",
+  "request_hash": "1cc2b6b5cdddd07487ec3012c9415f8e82e9afa44fd276d4afa63e0dd8b04d21",
+  "response_bytes": 811,
+  "response_sha256": "368540ee49885e004aff6c960b9d7aed41ff9afc59f40b544ddc6335404afc08",
+  "reveals": "whether a tool schema carrying $defs, a $ref, a nested oneOf, and additionalProperties:false is accepted rather than rejected or rewritten",
+  "status_as_expected": true,
+  "stream": false
+}

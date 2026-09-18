@@ -1,0 +1,20 @@
+{
+  "captured_at": "2026-09-18T03:14:01+00:00",
+  "expect_status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "date": "Fri, 18 Sep 2026 03:13:56 GMT",
+    "server": "elb",
+    "x-ds-trace-id": "86382f857c650960874bf6a00921c49d"
+  },
+  "http_status": 200,
+  "model": "deepseek-flash",
+  "name": "tool_roundtrip",
+  "provider": "deepseek",
+  "request_hash": "135bdd56972f66335b34b03ab071524d43242ca53c0468e67bf324d60cc0befb",
+  "response_bytes": 714,
+  "response_sha256": "b26740a47dcaa7bf2c8539a4cb84a34a66a278437b51ef53f84bd8362ccce5a5",
+  "reveals": "that a continued tool turn is accepted when the assistant message is replayed through the client's own encoder, reasoning_content included",
+  "status_as_expected": true,
+  "stream": false
+}

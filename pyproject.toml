@@ -71,11 +71,13 @@ temper-orchestration = { workspace = true }
 testpaths = [
     "packages/temper-placer/tests",
     "packages/temper-workflow/tests",
+    "packages/temper-harness/tests",
     "elec/validation"
 ]
 pythonpath = [
     "packages/temper-placer/src",
     "packages/temper-workflow/src",
+    "packages/temper-harness/src",
     "elec/validation"
 ]
 addopts = ["-v", "--tb=short"]

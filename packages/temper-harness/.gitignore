@@ -1,0 +1,13 @@
+# Recordings produced by scored attempts (R10, KTD9).
+#
+# A recording is one arm's complete model output for a request. Committing one
+# would let a later arm read an earlier arm's answer to the same question, which
+# is precisely what the store's arm scoping exists to prevent -- and the store
+# cannot defend against a recording that was committed before it was asked to
+# serve it. The "solution hidden" rule and "fresh isolated state per attempt"
+# are both defeated by a fixture corpus that is also the scored corpus.
+#
+# Tier A fixtures are not covered by this rule: they live under tests/fixtures/,
+# are committed deliberately, and are reproducible instruments rather than
+# scored-attempt output.
+recordings/

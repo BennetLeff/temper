@@ -1,0 +1,14 @@
+{
+  "max_tokens": 64,
+  "messages": [
+    {
+      "content": "Reply with exactly the word: temper",
+      "role": "user"
+    }
+  ],
+  "model": "deepseek-flash",
+  "temperature": 0,
+  "thinking": {
+    "type": "disabled"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "max_tokens": 64,
+  "messages": [
+    {
+      "content": "hello",
+      "role": "user"
+    }
+  ],
+  "model": "deepseek-v4.1-flash",
+  "temperature": 0
+}

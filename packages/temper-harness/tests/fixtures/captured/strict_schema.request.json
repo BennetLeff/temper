@@ -1,0 +1,57 @@
+{
+  "max_tokens": 600,
+  "messages": [
+    {
+      "content": "Place reference C6 on layer B.Cu at rotation 90. Use the tool.",
+      "role": "user"
+    }
+  ],
+  "model": "deepseek-flash",
+  "temperature": 0,
+  "tools": [
+    {
+      "function": {
+        "description": "Place a component on a copper layer",
+        "name": "place",
+        "parameters": {
+          "$defs": {
+            "layer": {
+              "enum": [
+                "F.Cu",
+                "B.Cu"
+              ],
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "layer": {
+              "$ref": "#/$defs/layer"
+            },
+            "reference": {
+              "type": "string"
+            },
+            "rotation": {
+              "oneOf": [
+                {
+                  "multipleOf": 90,
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "reference",
+            "layer",
+            "rotation"
+          ],
+          "type": "object"
+        }
+      },
+      "type": "function"
+    }
+  ]
+}

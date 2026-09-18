@@ -1,0 +1,21 @@
+{
+  "captured_at": "2026-09-18T03:14:01+00:00",
+  "expect_status": 400,
+  "headers": {
+    "content-length": "175",
+    "content-type": "application/octet-stream",
+    "date": "Fri, 18 Sep 2026 03:13:58 GMT",
+    "server": "elb",
+    "x-ds-trace-id": "594e53de41c56791a4fc8e7be6046650"
+  },
+  "http_status": 400,
+  "model": "deepseek-flash",
+  "name": "reasoning_omitted",
+  "provider": "deepseek",
+  "request_hash": "c22527269d2c5a5ba71af2bcc2e02f833a2173e1e38b5a2db300a6656d1db534",
+  "response_bytes": 175,
+  "response_sha256": "7d37f6cbc3d0c569a1d63cd6f8771c2b455375f6b0bd80b831f71ac2c74d7194",
+  "reveals": "that the identical turn is refused when reasoning_content is dropped and the tool_call ids are ones the provider has not seen, so reasoning must always be replayed rather than re-requested",
+  "status_as_expected": true,
+  "stream": false
+}

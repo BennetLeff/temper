@@ -1,0 +1,112 @@
+{
+  "max_tokens": 300,
+  "messages": [
+    {
+      "content": "Place R1 on F.Cu and check clearance.",
+      "role": "user"
+    },
+    {
+      "content": "",
+      "role": "assistant",
+      "tool_calls": [
+        {
+          "function": {
+            "arguments": "{\"reference\": \"R1\", \"layer\": \"F.Cu\", \"rotation\": 0}",
+            "name": "place"
+          },
+          "id": "call_probe_00",
+          "type": "function"
+        },
+        {
+          "function": {
+            "arguments": "{\"rule\": \"clearance\"}",
+            "name": "check"
+          },
+          "id": "call_probe_01",
+          "type": "function"
+        }
+      ]
+    },
+    {
+      "content": "done",
+      "role": "tool",
+      "tool_call_id": "call_probe_00"
+    },
+    {
+      "content": "done",
+      "role": "tool",
+      "tool_call_id": "call_probe_01"
+    }
+  ],
+  "model": "deepseek-flash",
+  "temperature": 0,
+  "tools": [
+    {
+      "function": {
+        "description": "Place a component on a copper layer",
+        "name": "place",
+        "parameters": {
+          "$defs": {
+            "layer": {
+              "enum": [
+                "F.Cu",
+                "B.Cu"
+              ],
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "layer": {
+              "$ref": "#/$defs/layer"
+            },
+            "reference": {
+              "type": "string"
+            },
+            "rotation": {
+              "oneOf": [
+                {
+                  "multipleOf": 90,
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "reference",
+            "layer",
+            "rotation"
+          ],
+          "type": "object"
+        }
+      },
+      "type": "function"
+    },
+    {
+      "function": {
+        "description": "Check a design rule",
+        "name": "check",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "rule": {
+              "enum": [
+                "clearance",
+                "creepage"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "rule"
+          ],
+          "type": "object"
+        }
+      },
+      "type": "function"
+    }
+  ]
+}

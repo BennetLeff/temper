@@ -1,0 +1,21 @@
+{
+  "captured_at": "2026-09-18T03:14:01+00:00",
+  "expect_status": 400,
+  "headers": {
+    "content-length": "201",
+    "content-type": "application/octet-stream",
+    "date": "Fri, 18 Sep 2026 03:14:01 GMT",
+    "server": "elb",
+    "x-ds-trace-id": "326c320c4fe3c867d50aaa0be2cbfcfc"
+  },
+  "http_status": 400,
+  "model": "deepseek-flash",
+  "name": "invalid_model",
+  "provider": "deepseek",
+  "request_hash": "20f841a1ed7524cfbbfcc99e508d63a404644ce9abef3e1d7f6f07b46b6d49ab",
+  "response_bytes": 201,
+  "response_sha256": "2a98c82dabc0d5b015ce0d62a00657afcd9e72fb63b648159c786f7fa83aa634",
+  "reveals": "that the plan's model id is wrong, by capturing the provider naming the ids it does serve",
+  "status_as_expected": true,
+  "stream": false
+}

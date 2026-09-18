@@ -1,0 +1,195 @@
+{
+  "account_models": [
+    "deepseek-flash",
+    "deepseek-v4-pro"
+  ],
+  "captured_at": "2026-09-18T03:14:01+00:00",
+  "endpoint_host": "api.deepseek.com",
+  "harness_commit": "252cdc8ecc135729a9777611327abd0cf2827844",
+  "harness_dirty": false,
+  "model": "deepseek-flash",
+  "probes": [
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "plain.meta.json",
+        "request": "plain.request.json",
+        "response": "plain.response.json"
+      },
+      "http_status": 200,
+      "name": "plain",
+      "request_hash": "e0ad80d8c7d81a1503a8bf2bb738e0e9c18e088489989fffeb62f3e54b6c3ffb",
+      "response_sha256": "7ec5b0f0db4f060b89e020457e6022f4cab9adec739f4d11dbd225919aad3df3",
+      "reveals": "the usage block's real field names and nesting, whether reasoning_content is emitted, and the top-level response shape",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "parallel_tools.meta.json",
+        "request": "parallel_tools.request.json",
+        "response": "parallel_tools.response.json"
+      },
+      "http_status": 200,
+      "name": "parallel_tools",
+      "request_hash": "62245801d3b3f9d22709433a74a0f8844f8169cc5c831961c275dfe9e8eeadfc",
+      "response_sha256": "636c4af1f1516b27edb557f69edae0c8d3889ca414a5ac701b51c8395297b584",
+      "reveals": "whether two tool calls can arrive in one response, with distinct ids and stable ordering, and what an assistant tool-call turn looks like verbatim -- the input to the round-trip probe",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "strict_schema.meta.json",
+        "request": "strict_schema.request.json",
+        "response": "strict_schema.response.json"
+      },
+      "http_status": 200,
+      "name": "strict_schema",
+      "request_hash": "1cc2b6b5cdddd07487ec3012c9415f8e82e9afa44fd276d4afa63e0dd8b04d21",
+      "response_sha256": "368540ee49885e004aff6c960b9d7aed41ff9afc59f40b544ddc6335404afc08",
+      "reveals": "whether a tool schema carrying $defs, a $ref, a nested oneOf, and additionalProperties:false is accepted rather than rejected or rewritten",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "stream_plain.meta.json",
+        "request": "stream_plain.request.json",
+        "response": "stream_plain.response.sse"
+      },
+      "http_status": 200,
+      "name": "stream_plain",
+      "request_hash": "cd4b8434ee022c96ad6920867418c687c34168ac056070b30953d30eb8d9f7ce",
+      "response_sha256": "bf84de6be8cd91348367d6b9fd12942ca003c99b0fbeb1d94d18a7445909eeea",
+      "reveals": "the SSE framing, which chunk carries usage, whether usage is fragmented, and the terminal sentinel",
+      "status_as_expected": true,
+      "stream": true
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "stream_tools.meta.json",
+        "request": "stream_tools.request.json",
+        "response": "stream_tools.response.sse"
+      },
+      "http_status": 200,
+      "name": "stream_tools",
+      "request_hash": "b3b55d7934f2cf91784b09cf68481a1cfc16757fbe8bed7d7862a8f18278baf4",
+      "response_sha256": "95c067e4f82cb7454b26374fb123f6086812632aeec867bc744f0888467aa733",
+      "reveals": "how tool_calls fragment across chunks -- whether the id repeats on every fragment or appears once, and how arguments split",
+      "status_as_expected": true,
+      "stream": true
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "tool_roundtrip.meta.json",
+        "request": "tool_roundtrip.request.json",
+        "response": "tool_roundtrip.response.json"
+      },
+      "http_status": 200,
+      "name": "tool_roundtrip",
+      "request_hash": "135bdd56972f66335b34b03ab071524d43242ca53c0468e67bf324d60cc0befb",
+      "response_sha256": "b26740a47dcaa7bf2c8539a4cb84a34a66a278437b51ef53f84bd8362ccce5a5",
+      "reveals": "that a continued tool turn is accepted when the assistant message is replayed through the client's own encoder, reasoning_content included",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 400,
+      "files": {
+        "meta": "reasoning_omitted.meta.json",
+        "request": "reasoning_omitted.request.json",
+        "response": "reasoning_omitted.response.json"
+      },
+      "http_status": 400,
+      "name": "reasoning_omitted",
+      "request_hash": "c22527269d2c5a5ba71af2bcc2e02f833a2173e1e38b5a2db300a6656d1db534",
+      "response_sha256": "7d37f6cbc3d0c569a1d63cd6f8771c2b455375f6b0bd80b831f71ac2c74d7194",
+      "reveals": "that the identical turn is refused when reasoning_content is dropped and the tool_call ids are ones the provider has not seen, so reasoning must always be replayed rather than re-requested",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 200,
+      "files": {
+        "meta": "thinking_disabled.meta.json",
+        "request": "thinking_disabled.request.json",
+        "response": "thinking_disabled.response.json"
+      },
+      "http_status": 200,
+      "name": "thinking_disabled",
+      "request_hash": "f249532a3d79e206c135e25594234e326e35503fc153665912ce5d9f04094b04",
+      "response_sha256": "f35178c46edd9fef369ca2284f452bf62e3ee9ea87a62f2633302fdf28a0f93a",
+      "reveals": "the shape of a non-thinking response: whether reasoning_content is absent or explicit null, whether completion_tokens_details exists at all, and that prompt_tokens falls because thinking mode injects hidden prompt overhead",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 400,
+      "files": {
+        "meta": "max_tokens_out_of_range.meta.json",
+        "request": "max_tokens_out_of_range.request.json",
+        "response": "max_tokens_out_of_range.response.json"
+      },
+      "http_status": 400,
+      "name": "max_tokens_out_of_range",
+      "request_hash": "fec6d7877898251d3f59d566da7b3edeb0cda25fde91ecbd541202a00b553cc1",
+      "response_sha256": "52f79ef80ea568cefb04739ef4771b004817493146ffc4d0d9f60667f30037fb",
+      "reveals": "the measured max_tokens ceiling. The model page states 384K; the error names the exact range, which is a measurement rather than a transcription, and it tells a caller what to clamp to",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 400,
+      "files": {
+        "meta": "orphan_tool_result.meta.json",
+        "request": "orphan_tool_result.request.json",
+        "response": "orphan_tool_result.response.json"
+      },
+      "http_status": 400,
+      "name": "orphan_tool_result",
+      "request_hash": "eee6e70301fe77fc50bb2f91f0384e371f93799a1fbe356d44aa5dfac279761d",
+      "response_sha256": "406145b296afd206cde7cb0ecc02a065bc07c0769491fbf301be0ef851eb04a5",
+      "reveals": "what the provider does with a tool result whose id matches no assistant tool call -- the local check in R7 exists so this never leaves the client, and this is the error it prevents",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 400,
+      "files": {
+        "meta": "invalid_model.meta.json",
+        "request": "invalid_model.request.json",
+        "response": "invalid_model.response.json"
+      },
+      "http_status": 400,
+      "name": "invalid_model",
+      "request_hash": "20f841a1ed7524cfbbfcc99e508d63a404644ce9abef3e1d7f6f07b46b6d49ab",
+      "response_sha256": "2a98c82dabc0d5b015ce0d62a00657afcd9e72fb63b648159c786f7fa83aa634",
+      "reveals": "that the plan's model id is wrong, by capturing the provider naming the ids it does serve",
+      "status_as_expected": true,
+      "stream": false
+    },
+    {
+      "expect_status": 400,
+      "files": {
+        "meta": "invalid_tool_schema.meta.json",
+        "request": "invalid_tool_schema.request.json",
+        "response": "invalid_tool_schema.response.json"
+      },
+      "http_status": 400,
+      "name": "invalid_tool_schema",
+      "request_hash": "4c10f760ea7998219756666dce34f9e1ff76d717e52413ffcb6ced3438f4f2d3",
+      "response_sha256": "b34e659fd60711df06048793ad010e862aadfa78d09de01432de879208f55589",
+      "reveals": "that the provider validates a tool schema server-side, so a malformed schema is a request defect the provider reports rather than something only the model can discover",
+      "status_as_expected": true,
+      "stream": false
+    }
+  ],
+  "provider": "deepseek",
+  "schema_version": "1.0"
+}

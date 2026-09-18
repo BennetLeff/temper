@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://temper.local/schemas/canary_evidence.schema.json",
+  "title": "Live canary evidence",
+  "description": "The hashed record of one Tier B run. It exists so that a fidelity claim can be checked rather than taken on trust, and its defining constraint is what it must NOT contain: no request body, no response body, and no credential. Every field here is a digest, a closed-vocabulary value, a count, or a shape difference naming key names -- which is why the file can be committed at all. R12 makes the alternative invalid: a canary whose evidence could not be committed would leave the recorded tier a reproducibility instrument forever.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "provider",
+    "model",
+    "endpoint_host",
+    "captured_at",
+    "harness_commit",
+    "harness_dirty",
+    "account_models",
+    "verdict",
+    "probes"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "The evidence format version. The enum is the set of versions this client understands, read from this file by the writer rather than restated in Python, so the reader and the schema cannot disagree.",
+      "enum": ["1.0"]
+    },
+    "provider": { "type": "string", "minLength": 1 },
+    "model": {
+      "description": "The model id as the provider reported it, not as the request asked for it.",
+      "type": "string",
+      "minLength": 1
+    },
+    "endpoint_host": {
+      "description": "The host the run actually talked to, so the R16 pinning is part of the record rather than an assumption about it.",
+      "type": "string",
+      "minLength": 1
+    },
+    "captured_at": {
+      "description": "ISO-8601 UTC. The thing that makes the claim dated: a shape observation is evidence about a moment, and a claim without one is unfalsifiable.",
+      "type": "string",
+      "minLength": 1
+    },
+    "harness_commit": {
+      "description": "The commit HEAD pointed at when the canary ran, or \"UNKNOWN\". Advisory identity only -- the content hashes in `probes` are what pin the observation.",
+      "type": "string",
+      "minLength": 1
+    },
+    "harness_dirty": {
+      "description": "Whether the working tree had uncommitted changes during the run. A dirty run cannot be reproduced from the named commit, so this is the field that distinguishes an observation from an anecdote. Recorded rather than refused, because refusing would have discarded a real observation while reporting nothing; a reader who needs a reproducible run can see that this one is not.",
+      "type": "boolean"
+    },
+    "account_models": {
+      "description": "The model ids the account was served at that moment. A pinned model id disappearing is a change this client must hear about, and it is invisible in a per-probe shape.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "verdict": {
+      "description": "`shape_stable` means every probe matched the recorded shapes and Tier A is anchored to this observation. `shape_changed` means at least one did not, and the `differences` fields name what.",
+      "enum": ["shape_stable", "shape_changed"]
+    },
+    "probes": {
+      "description": "One entry per probe, and a run with an empty list proves nothing -- the offline suite rejects it rather than reading an empty comparison as agreement.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "http_status",
+          "recorded_shape_digest",
+          "live_shape_digest",
+          "response_sha256",
+          "response_bytes",
+          "matched",
+          "differences"
+        ],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "http_status": { "type": "integer", "minimum": 100, "maximum": 599 },
+          "recorded_shape_digest": { "$ref": "#/$defs/sha256" },
+          "live_shape_digest": { "$ref": "#/$defs/sha256" },
+          "response_sha256": {
+            "description": "A digest of the live response body. The body itself is never written: a digest pins the bytes for comparison without carrying them.",
+            "$ref": "#/$defs/sha256"
+          },
+          "response_bytes": { "type": "integer", "minimum": 0 },
+          "matched": { "type": "boolean" },
+          "differences": {
+            "description": "Human-readable shape differences. Each names a key and two values drawn from a closed vocabulary or a key list, never prose from a response.",
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}
