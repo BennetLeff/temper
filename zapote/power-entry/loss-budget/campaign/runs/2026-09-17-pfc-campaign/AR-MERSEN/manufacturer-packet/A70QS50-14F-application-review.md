@@ -39,8 +39,9 @@ and other product lines. Question 1 asks you to confirm it.
 
 ## 3. Fault scenario being analysed
 
-**Two devices must fail short for this loop to exist**, and the analysis
-treats both that way:
+**This inquiry evaluates U10 and U9 both failed short.** The loop also
+exists with U10 shorted and a healthy U9 conducting; that separate case
+does not establish shutdown without detection, latency and survival evidence.
 
 - **U10 (the boost diode, C3D20065D) fails short.** This is what connects the
   400 Vdc bus to the switch node `a1`. Without it, a healthy U10 is
@@ -50,14 +51,16 @@ treats both that way:
   conducting one.
 - **U9 (the boost switch, STW65N65DM2AG) fails short.** This completes the
   loop from `a1` to the bus return. It is specified as *failed* short, not
-  merely gated on, because a gate-controllable U9 could be turned off and
-  would then be an interrupter.
+  merely gated on. A healthy U9 might interrupt after detection, but no
+  detection/latency or turn-off-survival credit is taken in this inquiry.
 - **F2, a proposed series high-speed DC fuse in the bus path**, sits in this
   loop. With U9 failed short it is the **only** element that can interrupt,
   which is why its capacitor-discharge capability is the question.
 
-The loop is therefore `bus+ -> U10 (short) -> a1 -> U9 (short) -> shunt ->
-bus-`, and the drive into it is the stored bank energy, not the mains source.
+The proposed stored-energy loop is `bank+ -> F2 -> U10 (short) -> a1 ->
+U9 (short) -> PFC_BUS_MINUS -> bank-`. U12 (shunt) and F1 are outside
+this loop. The bank and U9 source share PFC_BUS_MINUS; U12 bridges that
+net to the rectifier-side minus net. F2 is proposed, not present in CAD.
 
 The loop's resistance and inductance are **not known**. They are swept rather
 than asserted:
@@ -67,8 +70,8 @@ than asserted:
 | Loop resistance R | 5 mOhm to 5 ohm |
 | Loop inductance L | 20 nH to 20 uH |
 
-The ends of that envelope are the two extreme cases for the fuse: lowest
-impedance (highest current), and highest impedance (longest time constant).
+These are sensitivity cases, not proven application limits. Peak current
+depends on both R and L; the largest L/R occurs at high L and low R.
 Section 4 gives what we can currently estimate for this board, together with
 what those estimates are not.
 
@@ -212,7 +215,7 @@ provide.
 | Q1: a different definition | Re-derive the exclusion set; an underdamped case could be outside the rating at a much higher `R`. |
 | Q2: a lower cap-discharge peak limit | Re-cut the region; at 55 kA peak this could exclude the low-impedance cells entirely. |
 | Q3: an MBC above our low-current faults | The fuse would not clear high-impedance faults; the protection claim would need restructuring. |
-| Q4: a let-through I2t | Compare against a sourced bank/copper withstand I2t — the last gate before coordination can be claimed. |
+| Q4: a let-through I2t | Compare against a sourced bank/copper withstand I2t — one input to coordination, alongside applicable fault, current, duty and withstand evidence. |
 
 ## 9. What we are not claiming
 

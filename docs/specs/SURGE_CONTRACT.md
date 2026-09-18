@@ -35,9 +35,10 @@ environment so those become answerable. It does **not** by itself qualify any pa
 
 **These are prospective SHORT-CIRCUIT currents, not device currents.** A MOV clamps,
 so the current through it is *lower* than the prospective value and is set by where
-its V–I curve meets the generator's load line. For this board the MOV carries
-~56 % of the 500 A prospective (see §4). The prospective figure sizes the *test
-setup*; the device current sizes the *part*.
+its V–I curve meets the generator's load line. In the retained fixed-resistance
+source sensitivity, the MOV carries ~56 % of the 500 A prospective (see §4);
+that is not a qualified event current. The prospective figure characterizes the
+test setup; device assessment needs the loaded waveform.
 
 Prospective current is `V_OC / Z`. ST AN4275 Table 2 gives the standard's own
 values: 2 Ω → 500 A at 1 kV; **12 Ω → 167 A at 2 kV**. The common-mode figure is
@@ -51,7 +52,8 @@ transient requirement, not a steady-state one.
 
 ## 3. What is clamped on this board today
 
-The fitted part is **RV1 = `V150LA10AP`** (Littelfuse LA series, 14 mm disc),
+On the assessed PFC candidate the part is **U7 = `V150LA10AP`** (authored instance
+`mov`, Littelfuse LA series, 14 mm disc),
 wired **line-to-neutral only** (`fuse.p2 ~ mov.p1`, `mov.p2 ~ ac_n`). Its captured
 ratings:
 
@@ -87,11 +89,11 @@ wrong in the same direction — overstating what the datasheet supports:
    it — which is not 500 A.** The captured 395 V is a **maximum at 50 A**; it
    bounds nothing above 50 A in either direction, because the V–I characteristic
    rises with current but its shape above 50 A is not tabulated. Resolving this
-   required the device's V–I curve, and the operating point where that curve meets
-   the generator's load line. **Done — see
-   `zapote/power-entry/surge/README.md`**: the MOV carries ~56 % of the prospective
-   current, clamping at ~443 V (typical curve) to ~454 V (curve scaled to its
-   tabulated maximum).
+   required the device's V–I curve and a loaded source model. A conditional
+   screen now exists in `zapote/power-entry/surge/README.md`: approximately
+   443 V / 279 A on the typical curve and 454 V / 273 A on an assumed scaled
+   curve. Neither curve scaling nor a fixed 2 Ω source establishes a worst-case
+   combination-wave response. **Qualification remains open.**
 2. **The bounded clamp must sit below the downstream surge limits**, which are the
    binding constraints — not the 400 V bus:
    - TEA2209T: **440 V operating / 700 V mains-transient** at the relevant pins
@@ -99,32 +101,27 @@ wrong in the same direction — overstating what the datasheet supports:
    - Active-bridge candidate, 600 V class: 1.52× margin at 395 V, falling to
      **1.00× at a 600 V clamp**.
    A higher-rated MOSFET does **not** lower the node voltage; the clamp does.
-3. **Common-mode must be resolved** — either a clamp is fitted for L–PE/N–PE, or
-   the mode is accepted as unclamped and recorded as an open qualification gap.
-   That decision is deliberately **not** made here.
-4. **MOV energy margin must be established** for the committed event. `I_TM =
-   4500 A` suggests survival at 500 A, but that is not an energy calculation and
-   is not treated as one.
+3. **Common-mode must be resolved.** The development choice is insulation and
+   return-path withstand on the actual PFC assembly, with qualification open.
+   No PE clamp is selected at this stage; see `zapote/power-entry/CLOSEOUT.md`, Q4.
+4. **MOV energy/current survival must be established** for the committed event.
+   The 4500 A catalog value applies at 8/20 µs. The retained approximately
+   3.5 J calculation uses a voltage-source waveform without a verified 8/20
+   short-circuit response, and does not close this obligation.
 
 ## 5. Known conflicts this contract forces into the open
 
-**The requirement and the fitted part disagree.**
-`REQUIREMENTS.md` REQ-EMC-01 listed "MOV: **275 V**, 10 kA surge rating"; the
-committed part is `V150LA10AP`, a **150 V RMS MCOV** varistor on a 132 V-max line.
-These are not interchangeable: a 275 V MCOV part has a varistor voltage near 430 V
-and would not conduct until well above that, so it would clamp the surge far higher
-and would not protect a 440 V-limited controller. A 275 V MCOV MOV suits a 230 V
-design, not this one. REQ-EMC-01 is corrected in the same change; how the
-discrepancy arose is not established.
+**The earlier requirement and the fitted part disagreed.** REQ-EMC-01
+previously listed 275 V / 10 kA, while the assessed board uses V150LA10AP,
+a 150 V RMS MCOV device. The requirement was reconciled to the selected part.
+MCOV alone does not specify another MOV's clamp voltage; do not derive a
+replacement-part verdict from that rating alone. The original discrepancy's
+cause is not established.
 
-**The clamp above 50 A was not bounded by the datasheet.** The datasheet tabulates
-one clamp point, 395 V **maximum** at 50 A, and carries the V–I characteristic only
-as a multi-curve family chart — an earlier automated trace of which was rejected as
-an unreliable instrument. It has since been read exactly, from the PDF's **vector**
-paths, and validated against the datasheet's own tabulated maxima for three
-consecutive parts; the loaded calculation follows. See
-`zapote/power-entry/surge/`. How the 275 V figure arose is not established, but the
-adjacent 275 VAC X2-capacitor row in `GROUNDING_EMI_STRATEGY.md` is a likely origin.
+**The clamp above 50 A remains unbounded by the single tabulated point.**
+Vector-path extraction supports a conditional curve calculation, not a guaranteed
+maximum characteristic. See `zapote/power-entry/surge/README.md` for the source
+model's limits and `zapote/power-entry/CLOSEOUT.md` for qualification.
 
 ## 6. Basis and status — what is adopted versus sourced
 
@@ -160,11 +157,11 @@ target; they must be confirmed before any compliance submission.
 
 | Open item | Closed by |
 | --- | --- |
-| ~~MOV clamp at the surge current~~ | **DONE** — vector-extracted V–I curve + loaded calculation, `zapote/power-entry/surge/` |
-| MOV energy margin at the committed event | **DONE for the differential case** (~3.5 J absorbed; peak current 16× below I_TM). Not established for common mode |
-| Common-mode disposition | an insulation and current-path assessment (`zapote/power-entry/surge/README.md` §CM): needs the Y-cap impulse rating captured and the CM return path stated |
-| Standard clause and level | the applicable standard text, for the product class and market |
-| Bridge/device class | **partially resolved**: the differential clamp (~454 V worst case) leaves 1.32× margin on the 600 V class |
+| Loaded clamp and terminal stress | Conditional screen available; close with a calibrated combination-wave model/test including actual terminals, mains phase and wiring (closeout Q3) |
+| MOV energy/current survival | Open; the retained voltage-source energy is not a qualified event or waveform-matched rating comparison (Q3) |
+| Common-mode disposition | Development route chosen: insulation/return-path withstand. Qualify the actual U41/PE/HOT-interface assembly (Q4) |
+| Standard clause and level | Confirm applicable product/market standard and test details before compliance submission |
+| Bridge/device class | 600 V remains a candidate; the assumed 454 V result is not a worst-case voltage bound |
 
 ## 8. What this contract does not cover
 

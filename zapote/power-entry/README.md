@@ -1,5 +1,10 @@
 # Active-PFC power-entry unit
 
+**Current decision and next-revision handoff:** [CLOSEOUT.md](CLOSEOUT.md).
+The architecture/protection-choice milestone is complete; coordination and hardware
+qualification remain open. The active rectifier and bus fuse are proposed changes,
+not components on the routed baseline below.
+
 The current working authoring source and repaired GBJ/shunt candidate are
 documented in [shunt-repair/README.md](shunt-repair/README.md). That candidate
 uses the manufacturer-backed HCSM2818FT10L0 shunt and its own common-suite

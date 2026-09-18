@@ -1,146 +1,102 @@
-# Loaded differential surge on V150LA10AP
+# Loaded differential surge screen on V150LA10AP
 
-**Question.** Does `V150LA10AP` protect the proposed bridge and controller under the
-adopted differential surge (IEC 61000-4-5, 1 kV, combination wave, 2 Ω generator)?
+**Status: conditional screen, not a surge-protection pass.** Current design
+choices and the finite qualification work are in [CLOSEOUT.md](../CLOSEOUT.md).
+Keep the MOV as the candidate L–N clamp; qualify it with the real source and
+assembly before crediting protection.
 
-**Answer.** **Yes, against the transient limits — conditionally, and with the clamp
-landing just above the controller's continuous-operating rating.**
+## Retained calculation
 
-| | typical curve | scaled to the tabulated maximum |
+The script solves a 1 kV open-circuit voltage source behind a fixed 2 Ω resistor
+against the extracted V–I curve. It reports:
+
+| Quantity | Typical curve | Curve scaled to match maximum at 50 A |
 | --- | ---: | ---: |
-| MOV operating point at surge peak | 278.7 A / **442.6 V** | 273.0 A / **454.0 V** |
-| share of the 500 A prospective current | 56 % | 55 % |
-| absorbed energy | 3.55 J | 3.49 J |
-| peak current vs `I_TM` = 4500 A (8/20 µs) | 16.1× margin | 16.5× margin |
+| Peak operating point | 278.7 A / 442.6 V | 273.0 A / 454.0 V |
+| Fraction of 500 A prospective short-circuit current | 56% | 55% |
+| Calculated MOV energy in this source model | 3.55 J | 3.49 J |
 
-Against the applicable limits, worst case:
+500 A is the generator's prospective short-circuit current, not the MOV current.
+395 V is a **maximum at 50 A, 8/20 µs only**. It is neither an upper nor a lower
+bound at other currents. Multiplying the extracted curve by 395/383.1 is an
+**assumed shape sensitivity**, not a maximum curve or a worst-case bracket.
 
-| Limit | Value | Result |
-| --- | ---: | --- |
-| TEA2209T continuous **operating** | 440 V | **1.032 — EXCEEDS** |
-| TEA2209T mains **transient** | 700 V | 0.649 — passes |
-| proposed 600 V bridge class | 600 V | 1.32× margin |
+The 454 V scenario is numerically above TEA2209T's 440 V operating rating and
+below its 700 V mains-transient rating and the proposed MOSFET's 600 V rating.
+The ratios are 1.032, 0.649 and 600/454 = 1.32 respectively. They are scalar
+comparisons, not qualified margins. Each pin's reference, transient conditions
+and actual overshoot must be evaluated; the controller and MOSFET limits cannot
+be substituted for one another. See the [NXP TEA2209T datasheet](https://www.nxp.com/docs/en/data-sheet/TEA2209T.pdf).
 
-The MOV itself is comfortable: it carries just over half the prospective current
-and absorbs ~3.5 J, with peak current 16× below its rating. **The binding
-constraint is the clamp voltage against the controller, not the MOV's own
-ratings.**
+## Model boundary that prevents acceptance
 
-The clamp (~443–454 V) sits **above the TEA2209T's 440 V continuous-operating
-rating** and well below its 700 V mains-transient rating. During a ~50 µs surge the
-applicable figure is the transient rating — the datasheet's own note says surges
-must be limited below 700 V. That is the comparison made above, and it passes. But
-the margin against the *operating* line is only −3 %, so if the vendor treats 440 V
-as binding during any excursion, this needs their confirmation. **It is stated
-rather than smoothed over.**
+A fixed resistance makes the source's short-circuit current proportional to its
+open-circuit voltage. Fitting that voltage to 1.2/50 µs therefore does **not**
+produce the required 8/20 µs short-circuit current. Dropping that cross-check did
+not make the source a validated combination-wave model. The retained calculation
+is useful as a load-line sensitivity, but cannot close the adopted surge test.
 
-## Why the answer is not "the clamp at 500 A"
+Consequently, neither approximately 3.5 J nor the ratio to the MOV's 4500 A
+8/20 rating demonstrates energy/current survival. The event waveform, mains
+superposition/phase, component variation and installed wiring must be included.
+The former statements "passes", "worst case" and "energy margin done" are
+withdrawn as qualification claims. No numerical model was changed in this
+closeout; the script output now states these limits too.
 
-Two corrections to the earlier framing, both of which changed the result:
+## Extraction and reproduction
 
-1. **500 A is the prospective SHORT-CIRCUIT current, not the MOV current.** It is
-   `V_OC / Z` = 1000 V / 2 Ω, i.e. what would flow into a short. A MOV clamps, so
-   the current through it is lower and must be solved jointly with the voltage:
-   the operating point is where the device's V–I curve meets the generator's load
-   line `V = V_OC − Z·I`. Here that is ~279 A at ~443 V — the MOV carries **56 %**
-   of the prospective current. Sizing the part from 500 A would overstate it by
-   ~1.8×.
-2. **395 V is a MAXIMUM at 50 A — an upper bound at that current, and nothing at
-   any other.** The datasheet tabulates one clamp point. Calling it "a lower bound
-   for any current above 50 A" is wrong: the clamp rises with current, but 395 V
-   neither bounds it from below nor from above above 50 A. That inference had
-   already been withdrawn once in this work and was reintroduced in the contract;
-   it is now corrected there too.
+The retained LA-series PDF's Figure 10 uses vector paths. The extraction script
+chains those paths and calibrates log-log axes. Its three 50 A cross-checks are:
 
-## The curve, and why it can be trusted
-
-The datasheet carries the V–I characteristics only as **multi-curve family
-charts**. An earlier automated trace was rejected as an unreliable instrument — it
-hopped between the adjacent V130/V140/V150/V175 curves.
-
-The figures are **vector**, not raster (only page 1 of the PDF is an image), so the
-curve is *read*, not traced: Bézier paths are extracted and chained, and the axes
-are calibrated from their own printed tick labels (log-log; ~25.4 px/decade in
-current, ~91.4 px/decade in volts, reproducing every tick to ~1 px).
-
-The read is then validated against the datasheet's own tabulated **maximum** clamp
-for three consecutive parts — and each identified curve falls just *below* its
-stated maximum, as a typical curve must:
-
-| Identified curve | read at 50 A | datasheet max at 50 A |
+| Curve | Extracted voltage | Tabulated maximum |
 | --- | ---: | ---: |
 | V130LA10A(P) | 333.7 V | 340 V |
 | V140LA10A(P) | 346.8 V | 360 V |
-| **V150LA10A(P)** | **383.1 V** | **395 V** |
+| V150LA10A(P) | 383.1 V | 395 V |
 
-That agreement is three independent checks in one: the curve *identification*, the
-axis *calibration*, and the *direction* of the typical-vs-maximum relationship.
+These comparisons support the extraction; falling below a maximum does not by
+itself prove the identity, typical status or entire shape of a curve.
 
-The "scaled to the tabulated maximum" column multiplies the whole curve by
-395/383.1. **That is an assumption about curve shape, not a datasheet statement** —
-it is a worst-case bracket, labelled as such.
-
-## Method and reproduction
-
-```
-zapote/power-entry/surge/
-  extract_la_vi_curve.py   # PDF -> data/v150la10a_vi_curve.json   (needs pymupdf)
-  loaded_surge.py          # curve + generator -> operating point   (stdlib only)
-  data/v150la10a_vi_curve.json
+```sh
+python3 zapote/power-entry/surge/extract_la_vi_curve.py
+python3 zapote/power-entry/surge/loaded_surge.py
 ```
 
-Inputs: `V_OC` = 1000 V, `Z` = 2 Ω (the committed differential contract), and the
-captured LA-series datasheet from
+The extractor requires PyMuPDF; the load-line script uses the standard library.
+Inputs are `data/v150la10a_vi_curve.json` and the captured LA-series PDF under
 `../loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MOV/attempt-001/raw/`.
+The fitted voltage markers are checked before reporting energy. That numerical
+check verifies the selected voltage waveform, not its physical applicability as
+an IEC combination-wave source.
 
-The generator is modelled as the 1.2/50 µs open-circuit voltage behind 2 Ω, which
-is the physically consistent picture for the combination-wave generator: the
-open-circuit voltage drives the current, and the MOV's clamping sets it. The fit is
-validated against the waveform's own defining markers, and the script **refuses to
-report an energy** if they do not converge.
+## Common mode: use this board's circuit
 
-**A cross-check that was dropped, and why.** An 8/20 µs current-wave model was
-attempted and removed: a two-exponential cannot reproduce the standard's 8/20
-markers under the 1.25 front-time convention (the narrowest achievable
-front/half-value ratio is ~3.8 against the 2.5 required). Rather than force a fit,
-the check was dropped and this is recorded. The energy figure is therefore from the
-1.2/50 voltage-source model only.
+The adopted target is 2 kV at 12 Ω, approximately 167 A prospective. The L–N MOV
+provides no common-mode clamp. The chosen development path is insulation and
+return-path withstand, with physical qualification still open.
 
-## Common mode — an insulation and current-path question
+On the saved shunt-repair board, **U41 is VY1102M31Y5UQ63V0, authored as 1 nF Y1,
+from PFC_BUS_MINUS to PE_CHASSIS**. Its exact pad nets and board hash are recorded
+in [the closeout](../CLOSEOUT.md#2-exact-baseline-and-circuit-boundaries). The
+previous paragraph about 2.2 nF Y2 capacitors and a 5.6 nF doubler-midpoint
+capacitor was transferred from another design and is withdrawn here.
 
-The committed common-mode level is **2 kV at 12 Ω → 167 A prospective** (ST AN4275
-Table 2; see the contract §2 — this is not 1,000 A).
+The current [Vishay VY1 family datasheet](https://www.vishay.com/docs/28537/vy1series.pdf)
+identifies Y1/500 VAC classification and component AC proof tests. This is useful
+family evidence; exact retained order-code approvals and impulse applicability
+must be established for U41. It is not evidence of a completed assembly test.
 
-**The MOV does not clamp this mode** — it is line-to-neutral only. That is a fact,
-not a defect. **Absence of a clamp does not automatically require adding one**, and
-the withstanding route is the one to test:
+The connected HOT bias supply, permit/control wiring, PE, enclosure and all
+isolation barriers determine the actual common-mode path. A 3000 VAC hipot
+requirement is not a test receipt and cannot be compared numerically with 2 kV
+surge to establish withstand. Q4 in the closeout specifies the required assembly
+assessment and test. No extra PE clamp is selected merely from its absence.
 
-- **Current path.** The common-mode current returns through the Y-caps: the EMI
-  filter's 2.2 nF Y2 line-to-PE capacitors and `Y_CAP_PE`
-  (`B81123C1562M000`, TDK 5.6 nF **Y1 500 VAC**, doubler midpoint to PE).
-- **Where the voltage lands.** At the surge's dominant frequency the Y-caps present
-  roughly 1.0 kΩ against a 12 Ω source, so **the great majority of the 2 kV appears
-  across the Y-caps** and very little across the source. *(Single-frequency
-  estimate at ~20 kHz; the surge is broadband, so treat it as an estimate, not a
-  bound.)*
-- **Whether that withstands.** The Y-caps carry an impulse-withstand classification
-  (Y1 per IEC 60384-14), and the mains-to-SELV barrier is **reinforced**, hipot
-  tested at **3000 V AC for 1 minute** (`REQ-SAFETY`), which exceeds the 2 kV
-  common-mode level.
+## Disposition
 
-**What is NOT established:** the Y-caps' actual impulse-withstand rating (the
-datasheet has not been captured), and a computed statement of where the common-mode
-current returns and what fraction reaches the SELV side. Until those exist, the
-common-mode verdict is **not "protected" and not "must add a clamp"** — it is
-**plausibly handled by withstanding, to be demonstrated**.
-
-## What this does not establish
-
-- **Not hardware qualification.** No bench or powered test; everything here is
-  computation over a captured datasheet.
-- **Not a compliance statement.** The standard clause and level remain unconfirmed
-  (contract §6). No standard text was opened.
-- **Not the internal fault case.** A line surge MOV across L–N says nothing about
-  the internally powered capacitor-discharge fault; that is power-entry protection,
-  which remains explicitly unqualified.
-- **Not the common-mode verdict** — see above.
+The extraction and numerical screen are retained. The MOV choice is provisional;
+differential and common-mode qualification remain open. The
+[adopted contract](../../../docs/specs/SURGE_CONTRACT.md) defines the target,
+not a compliance certification. There has been no powered test. The internal
+capacitor-discharge fault is separate and receives no protection credit from
+this L–N clamp.

@@ -202,31 +202,35 @@ typical; the 586.7 V fault claim is refuted; and — on protection — the bus b
 stores ~179 J, the internal fault bypasses both the shunt and F1, and **adequate
 protection has not been demonstrated**.
 
-**Open, and each needs a specific input:**
+**Current decisions and qualification work:** [power-entry closeout](../../CLOSEOUT.md).
+The next-revision preference is the TEA2209T/IPW60R017C7 active bridge with
+A70QS50-14F as the bus-fuse application-review candidate. Neither is in CAD/BOM.
+The existing passive board remains the baseline. Coordination is unestablished.
 
-| Open question | Input it needs |
+The adopted surge target is 1 kV differential at 2 Ω (500 A prospective) and
+2 kV common mode at 12 Ω (167 A prospective). These are generator short-circuit
+figures, not MOV currents. The loaded MOV calculation gives approximately
+443 V / 279 A for its typical curve and 454 V / 273 A for an assumed scaled
+curve. Scaling one maximum point does not establish a maximum characteristic.
+The voltage-source model does not reproduce the required 8/20 short-circuit
+waveform, so its energy output does not close surge qualification.
+
+The captured 395 V is a maximum at 50 A only; it is not a lower bound above
+50 A. The provisional common-mode route is insulation and return-path withstand
+using the actual PFC assembly, including U41 (1 nF Y1, bus return to PE), not the
+doubler capacitors from the main product board. No system hipot or surge pass has
+been demonstrated.
+
+| Remaining question | Defined closer |
 | --- | --- |
-| Is the active rectifier worth building? | ~~a committed surge/transient contract~~ **DONE** (`docs/specs/SURGE_CONTRACT.md`, REQ-EMC-03); still needs the MOV clamp at the committed 500 A |
-| Is the bridge's true loss 23, 28 or 35 W? | a candidate bridge part, characterized on the same basis |
-| Does the real switching loss match any model? | a device-level clamped-inductive measurement |
-| Is the frequency axis worth revisiting? | a sourced choke's core and AC loss at bias |
-| Is the design protected against an internal short? | one concrete protection circuit with named parts and explicit fault cases |
+| Internal and line fault protection | Manufacturer application limits, actual fault/withstand evidence and a coordination report; closeout Q1/Q2 |
+| Differential and common-mode surge | Calibrated-source tests and assembly-specific insulation/current-path assessment; Q3/Q4 |
+| Active-bridge saving and boost switching loss | Exact-assembly loss, gate, startup and thermal measurements; Q5 |
+| New board implementation | Atopile/native ECO, exact parts, routing and existing validators; Q6 |
 
-**The surge contract was committed on 2026-09-18** (`docs/specs/SURGE_CONTRACT.md`
-+ `REQ-EMC-03`). It adopts IEC 61000-4-5, 1 kV differential / 2 kV common mode, and
-names the current that follows (500 A / 1000 A at 8/20 µs). Its own basis is stated
-field by field: the levels are an **adopted design target**, not a verified standard
-reading, and the standard clause must be confirmed before a compliance submission.
-
-Two things it forced into the open rather than solved: the **common-mode path is
-unclamped** (the fitted MOV is L–N only), and the MOV's clamp **at 500 A is
-unknown** — the captured 395 V is specified at 50 A and is a lower bound above it.
-`REQUIREMENTS.md` also said "MOV: 275 V", which is a 230 V-class MCOV and matches
-neither the fitted part nor the 120 V line; that line is corrected.
-
-**Not done:** no bench or powered operation, no procurement, and no CAD or BOM
-change. No candidate is qualified; `hardware_qualification` is NOT_PERFORMED
-everywhere.
+No bridge V–F measurement or further frequency campaign is scheduled for this
+milestone. No bench work, procurement, or CAD/BOM change occurred in this
+closeout. `hardware_qualification` remains NOT_PERFORMED.
 
 ## 10. Harness development is frozen (2026-09-18)
 
@@ -280,3 +284,7 @@ is the open external dependency: it asks Mersen four specific questions (time-co
 definition, capacitor-discharge current limit, minimum breaking current,
 capacitor-discharge let-through). Its own known limits are stated in it, and its
 figures are labelled estimates. Sending it is a human action.
+
+**Milestone disposition (2026-09-18):** the named choice and finite qualification
+plan are now recorded in [CLOSEOUT.md](../../CLOSEOUT.md). The decision milestone
+is closed; executing qualification and implementing the ECO are separate work.

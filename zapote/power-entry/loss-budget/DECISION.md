@@ -1,4 +1,8 @@
-# Power-entry architecture decision - 2026-09-16
+# Historical power-entry architecture decision - 2026-09-16
+
+**Superseded for current priorities by [the power-entry closeout](../CLOSEOUT.md).**
+The earlier switching estimates and passive-bridge-only recommendation below are
+retained as history; use the closeout and campaign accounting for current work.
 
 > **Corrective experiment (2026-09-17):** The earlier `4.468 W` output-
 > capacitance number was invalid: ST's 456 pF `C_oss eq.` is time-equivalent,

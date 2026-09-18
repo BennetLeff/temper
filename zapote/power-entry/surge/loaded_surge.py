@@ -181,9 +181,9 @@ def fit_waveform(front_us: float, half_us: float, front_factor: float) -> tuple:
 def energy_vsource(curve, v_oc_peak: float, z: float, shape) -> tuple[float, float, float]:
     """Energy absorbed, generator modelled as V_oc(t) behind Z_source.
 
-    This is the physically consistent model for the combination-wave generator:
-    the open-circuit voltage drives the current through the MOV, and the MOV's
-    clamping is what sets the current.
+    This is a voltage-source sensitivity model, not a validated combination-wave
+    generator: its fixed resistance cannot produce a different short-circuit
+    waveform from the open-circuit voltage waveform.
     """
     e = pk_i = pk_v = 0.0
     t, t_end = 0.0, 400e-6
@@ -221,26 +221,28 @@ def main() -> int:
     if bad:
         print(f"  REFUSING to report an energy: waveform did not converge: {bad}")
         return 1
+    print("  SCREEN ONLY: fixed-resistance voltage source; not a validated combination-wave generator.")
+    print("  Scaled curve is a sensitivity, not a guaranteed maximum. No qualification verdict.")
     print(f"  prospective short-circuit current = V_oc/Z = {V_OC:.0f}/{Z_SOURCE:.0f} = {V_PROSPECTIVE:.0f} A")
     print()
 
-    for name, c in (("typical curve", curve), ("scaled to the tabulated maximum", max_curve)):
+    for name, c in (("typical curve", curve), ("scaled to match the 50 A maximum (assumed shape)", max_curve)):
         e_v, pk_i, pk_v = energy_vsource(c, V_OC, Z_SOURCE, v_shape)
         print(f"  {name}")
         print(f"    operating point at peak: I = {pk_i:6.1f} A, V = {pk_v:6.1f} V")
         print(f"    absorbs {100 * pk_i / V_PROSPECTIVE:.0f}% of the {V_PROSPECTIVE:.0f} A prospective"
               f" -> the MOV current is NOT the prospective current")
-        print(f"    absorbed energy {e_v:5.2f} J; peak current is "
+        print(f"    absorbed energy {e_v:5.2f} J; catalog ratio (different waveform): peak current is "
               f"{I_TM / pk_i:.1f}x below I_TM = {I_TM:.0f} A (8/20 us)")
         print()
 
     v_op_max = operating_point(max_curve, V_OC, Z_SOURCE)[1]
-    print("  against the applicable limits (worst case: curve scaled to its tabulated maximum):")
+    print("  scalar rating comparisons for the assumed scaled curve (not worst-case limits):")
     for label, lim in (("TEA2209T continuous operating", TEA2209T_OPERATING),
                        ("TEA2209T mains transient", TEA2209T_TRANSIENT)):
         flag = "  <-- EXCEEDS" if v_op_max > lim else ""
         print(f"    {label:<30} {lim:5.0f} V : {v_op_max / lim:.3f} of limit{flag}")
-    print(f"    {'proposed bridge class':<30} {BRIDGE_CLASS:5.0f} V : {BRIDGE_CLASS / v_op_max:.2f}x margin")
+    print(f"    {'proposed bridge class':<30} {BRIDGE_CLASS:5.0f} V : {BRIDGE_CLASS / v_op_max:.2f}x voltage ratio (not qualified margin)")
     return 0
 
 
