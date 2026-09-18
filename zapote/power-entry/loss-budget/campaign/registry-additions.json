@@ -121,6 +121,17 @@
       "reason": "Coordinator-issued: AR-PROTECT identified the gap but did not resolve it; one concrete circuit with named parts and explicit fault cases is the next step.",
       "hypothesis_or_question": "Deliver ONE concrete protection circuit, with named parts and explicit fault cases, that addresses the internal capacitor-discharge loop and the line-fed loop.",
       "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "AR-COORD",
+      "kind": "engineering_verification",
+      "wave": 3,
+      "depends_on": [
+        "AR-PROTCKT"
+      ],
+      "reason": "Coordinator-issued after review: the resistance window is a screen not a criterion, the continuous-duty basis must be RMS, and the applicable fuse revision is unresolved.",
+      "hypothesis_or_question": "Fuse coordination: do the candidate fuse ratings actually cover the normal-current waveform and a fault-impedance envelope, with applicable capacitor-discharge clearing data?",
+      "worker_status": "DISPATCHED_attempt-001"
     }
   ]
 }
