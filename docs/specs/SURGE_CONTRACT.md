@@ -26,15 +26,24 @@ environment so those become answerable. It does **not** by itself qualify any pa
 | --- | --- | --- |
 | Test method | IEC 61000-4-5, combination wave | **adopted** — see §6 |
 | Waveform | 1.2/50 µs open-circuit voltage, 8/20 µs short-circuit current | **adopted** |
-| Generator source impedance | 2 Ω (combination-wave generator) | **sourced** — defining property of the test method |
-| **Differential (L–N)** | **1 kV** → prospective **500 A** at 8/20 µs | **adopted** |
-| **Common mode (L–PE, N–PE)** | **2 kV** → prospective **1000 A** at 8/20 µs | **adopted** |
+| Generator source impedance | 2 Ω differential; **12 Ω common mode** (10 Ω external + 2 Ω) | **sourced** — ST AN4275 |
+| **Differential (L–N)** | **1 kV**, 2 Ω → prospective short-circuit **500 A** | **adopted** |
+| **Common mode (L–PE, N–PE)** | **2 kV**, 12 Ω → prospective short-circuit **167 A** | **adopted** |
 | Coupling modes in scope | differential (L–N) and common mode (L–PE, N–PE) | **adopted** |
 | Polarity / count | both polarities, per the test method | to confirm against the standard |
 | Acceptance criterion | no safety hazard, no component damage, full function restored without operator action | **project-adopted**; the standard's performance criterion to be confirmed |
 
-Prospective current is the generator's short-circuit current, `I = V_OC / Z_source`
-= 1000 V / 2 Ω = **500 A**, and 2000 V / 2 Ω = **1000 A**.
+**These are prospective SHORT-CIRCUIT currents, not device currents.** A MOV clamps,
+so the current through it is *lower* than the prospective value and is set by where
+its V–I curve meets the generator's load line. For this board the MOV carries
+~56 % of the 500 A prospective (see §4). The prospective figure sizes the *test
+setup*; the device current sizes the *part*.
+
+Prospective current is `V_OC / Z`. ST AN4275 Table 2 gives the standard's own
+values: 2 Ω → 500 A at 1 kV; **12 Ω → 167 A at 2 kV**. The common-mode figure is
+**not** 1,000 A — that would apply the differential impedance to a common-mode
+level. (ST AN4275: "The 12 Ω (10 Ω + 2 Ω) impedance represents the source impedance
+of the low-voltage power supply network and ground (common mode).")
 
 **Board context.** 120 V RMS ±10% (`REQ-SYS-01`), so the steady-state line peak is
 132 × √2 = **186.68 V**. The surge environment sits far above this; it is a
@@ -55,16 +64,34 @@ ratings:
 | Energy W_TM | 45 J (10/1000 µs) | same |
 
 **Consequence, stated plainly.** The MOV clamps the **differential** mode. The
-**common-mode (L–PE, N–PE) surge is not clamped at all** — the Y2 capacitors
-provide a path but no clamp. The L–PE case is therefore **INDETERMINATE**, and this
-contract does not pretend otherwise.
+**common-mode (L–PE, N–PE) surge is not clamped at all** — the Y-caps provide the
+return path but no clamp. The common-mode case is therefore an **insulation and
+current-path** question, not a clamping one, and is assessed on that basis in
+`zapote/power-entry/surge/README.md`. Absence of a clamp does **not** by itself
+require adding one.
+
+Two corrections to earlier statements in this document, recorded because both were
+wrong in the same direction — overstating what the datasheet supports:
+
+- The captured **395 V is a MAXIMUM at 50 A** — an *upper* bound at that current.
+  It bounds nothing at any higher current, in either direction. An earlier revision
+  of this document called it "a lower bound for any current above 50 A"; that
+  inference had already been withdrawn once in this work and was reintroduced here
+  in error.
+- The **500 A is the prospective short-circuit current**, not the MOV current. The
+  MOV current is lower and is determined jointly with the clamp (§4).
 
 ## 4. Design obligations this contract creates
 
-1. **The MOV clamp must be bounded — not merely asserted — at the committed
-   current of 500 A (differential).** The captured 395 V is specified **at 50 A
-   only**, and the V–I characteristic rises with current, so **395 V is a lower
-   bound for any current above 50 A**. The clamp at 500 A is presently `null`.
+1. **The MOV clamp must be known at the current the surge actually drives through
+   it — which is not 500 A.** The captured 395 V is a **maximum at 50 A**; it
+   bounds nothing above 50 A in either direction, because the V–I characteristic
+   rises with current but its shape above 50 A is not tabulated. Resolving this
+   required the device's V–I curve, and the operating point where that curve meets
+   the generator's load line. **Done — see
+   `zapote/power-entry/surge/README.md`**: the MOV carries ~56 % of the prospective
+   current, clamping at ~443 V (typical curve) to ~454 V (curve scaled to its
+   tabulated maximum).
 2. **The bounded clamp must sit below the downstream surge limits**, which are the
    binding constraints — not the 400 V bus:
    - TEA2209T: **440 V operating / 700 V mains-transient** at the relevant pins
@@ -90,10 +117,14 @@ and would not protect a 440 V-limited controller. A 275 V MCOV MOV suits a 230 V
 design, not this one. REQ-EMC-01 is corrected in the same change; how the
 discrepancy arose is not established.
 
-**The clamp at the committed current is unknown**, and it is the single input that
-decides both open questions below. An automated trace of the datasheet's V–I figure
-was attempted and **rejected as an unreliable instrument** (it hopped between
-adjacent family curves); no digitised value is used.
+**The clamp above 50 A was not bounded by the datasheet.** The datasheet tabulates
+one clamp point, 395 V **maximum** at 50 A, and carries the V–I characteristic only
+as a multi-curve family chart — an earlier automated trace of which was rejected as
+an unreliable instrument. It has since been read exactly, from the PDF's **vector**
+paths, and validated against the datasheet's own tabulated maxima for three
+consecutive parts; the loaded calculation follows. See
+`zapote/power-entry/surge/`. How the 275 V figure arose is not established, but the
+adjacent 275 VAC X2-capacitor row in `GROUNDING_EMI_STRATEGY.md` is a likely origin.
 
 ## 6. Basis and status — what is adopted versus sourced
 
@@ -101,7 +132,8 @@ Being explicit here is the whole point of committing this document.
 
 **Sourced** (a document establishes it): the MOV ratings and clamp in §3, from the
 captured LA-series datasheet; the controller limits, from the TEA2209T datasheet;
-the generator impedance, being a defining property of the combination-wave test.
+the generator impedances and the prospective-current table, from **ST AN4275**
+(`DocID024389 Rev 1`, Table 2 and the differential/common-mode set-up text).
 
 **Adopted** (a project decision, not a verified reading): the IEC 61000-4-5 test
 method, the 1.2/50 µs / 8/20 µs waveform, the **1 kV differential / 2 kV
@@ -109,6 +141,11 @@ common-mode levels**, and the acceptance criterion. The levels previously appear
 only in a curriculum checklist
 (`docs/architecture/induction_curriculum.md`), not in a requirements document.
 Adopting them here makes them a design target with a stated basis.
+
+**A deliberate deviation must be labelled.** The standard's impedance for a
+power-line common-mode test is **12 Ω**; imposing 2 Ω common mode instead would be
+a more severe *over-test* and must be recorded as such rather than presented as the
+standard's requirement. No such deviation is adopted here.
 
 **To confirm.** The exact clause and level for this product class against the
 applicable standard text. The standard chain for a US residential induction cooker
@@ -123,11 +160,11 @@ target; they must be confirmed before any compliance submission.
 
 | Open item | Closed by |
 | --- | --- |
-| MOV clamp at 500 A | the V150LA10A(P) V–I curve read at the calculated current — a clean single-part curve or a measured clamp |
-| MOV energy margin at the committed event | a waveform-based energy calculation once the clamp is known |
-| Common-mode disposition | a design decision: fit an L–PE/N–PE clamp, or record the gap |
+| ~~MOV clamp at the surge current~~ | **DONE** — vector-extracted V–I curve + loaded calculation, `zapote/power-entry/surge/` |
+| MOV energy margin at the committed event | **DONE for the differential case** (~3.5 J absorbed; peak current 16× below I_TM). Not established for common mode |
+| Common-mode disposition | an insulation and current-path assessment (`zapote/power-entry/surge/README.md` §CM): needs the Y-cap impulse rating captured and the CM return path stated |
 | Standard clause and level | the applicable standard text, for the product class and market |
-| Bridge/device class | follows once the clamp is bounded |
+| Bridge/device class | **partially resolved**: the differential clamp (~454 V worst case) leaves 1.32× margin on the 600 V class |
 
 ## 8. What this contract does not cover
 
