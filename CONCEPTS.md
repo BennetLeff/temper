@@ -72,3 +72,15 @@ The explicit limit between what a runnable approximate model can support (such
 as feedback, power-path, convergence, and restart checks) and claims that need
 independent model or hardware evidence (such as transient accuracy, stability,
 efficiency, thermal behavior, and fault performance).
+
+## Measurement and evidence
+
+### Evidence class
+
+The provenance category a reported number may claim, in descending strength:
+measured, source-bound, modelled, assumed. A number is never reported under a
+stronger class than its provenance supports.
+
+Agreement between two implementations of the same model does not upgrade a
+class: two models agreeing is still modelled, and a discrepancy between them is
+a condition-specific finding rather than a correction factor.
