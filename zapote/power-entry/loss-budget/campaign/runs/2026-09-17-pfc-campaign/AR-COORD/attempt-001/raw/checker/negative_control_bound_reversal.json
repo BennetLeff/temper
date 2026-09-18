@@ -1,0 +1,721 @@
+{
+  "schema": "pfc-campaign-claims/v1",
+  "task_id": "AR-COORD",
+  "attempt_id": "attempt-001",
+  "note": "Coordination unestablished. Normal current is compared on the RMS basis Eaton itself uses. The fault-impedance envelope is swept over R and L, not presented as a resistance window. No AC/inductive clearing figure is applied to a capacitor discharge. The FWP DC rating is reconciled by revision (retained 800 Vdc vs current-applicable 700 Vdc). Completion is NOT advanced past part_selected.",
+  "claims": [
+    {
+      "id": "diode-rms-108",
+      "quantity": "boost_diode_rms_current_a",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "108 Vrms line, 400 V bus setpoint, 15 A input RMS ceiling, 129107 Hz, C1.1 maintained model; boost-diode RMS including ripple",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../evidence/R0-report.json",
+          "sha256": "037ff2011a00f465e45f44609c19b238f135968c894d5ce8d6f4174de3284ff9"
+        }
+      ],
+      "derived_from": null,
+      "justification": "model output, not a measurement; amplitude uncertainty not quantified"
+    },
+    {
+      "id": "diode-rms-120",
+      "quantity": "boost_diode_rms_current_a",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "120 Vrms line, 400 V bus setpoint, 15 A input RMS ceiling, 129107 Hz, C1.1 maintained model; boost-diode RMS including ripple",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../evidence/R0-report.json",
+          "sha256": "037ff2011a00f465e45f44609c19b238f135968c894d5ce8d6f4174de3284ff9"
+        }
+      ],
+      "derived_from": null,
+      "justification": "worst of the three retained lines; model output, not a measurement"
+    },
+    {
+      "id": "diode-rms-132",
+      "quantity": "boost_diode_rms_current_a",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "132 Vrms line, 400 V bus setpoint, 13.645 A input RMS, 129107 Hz, C1.1 maintained model; boost-diode RMS including ripple",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../evidence/R0-report.json",
+          "sha256": "037ff2011a00f465e45f44609c19b238f135968c894d5ce8d6f4174de3284ff9"
+        }
+      ],
+      "derived_from": null,
+      "justification": "model output, not a measurement"
+    },
+    {
+      "id": "normal-current-rms-basis",
+      "quantity": "continuous_rating_basis",
+      "part": "FWP-50A14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "retained FWP datasheet p.207: the power-loss correction factor Kp is a function of the RMS load current Ib in percent of rated current",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ],
+      "derived_from": null,
+      "justification": "Eaton's own correction is expressed against RMS load current, so RMS (not average) is the continuous-duty basis; the 4.49 A bus average is not a sizing basis"
+    },
+    {
+      "id": "fwp50-rated-current",
+      "quantity": "fuse_continuous_current_rating_a",
+      "part": "FWP-50A14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "50 A rated RMS current; retained revision and current Eaton product specification agree",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        },
+        {
+          "path": "../sources/fwp-50a14f-houseofelectrical.pdf",
+          "sha256": "363ba1c10273d66a6a9a9e2cb6cc5ca50fc854e2abe67d15d3ca147b2fdce7a9"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "fwp50-min-melting-i2t",
+      "quantity": "fuse_min_melting_i2t_a2s",
+      "part": "FWP-50A14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "minimum melting I2t, FWP-50A14F, at high current (adiabatic short-circuit region)",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        },
+        {
+          "path": "../sources/fwp-50a14f-houseofelectrical.pdf",
+          "sha256": "363ba1c10273d66a6a9a9e2cb6cc5ca50fc854e2abe67d15d3ca147b2fdce7a9"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "fwp50-clearing-i2t",
+      "quantity": "fuse_total_clearing_i2t_a2s",
+      "part": "FWP-50A14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "clearing I2t at rated voltage, power factor 0.15 (AC/inductive test); NOT a 400 Vdc capacitor-discharge condition",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        },
+        {
+          "path": "../sources/fwp-50a14f-houseofelectrical.pdf",
+          "sha256": "363ba1c10273d66a6a9a9e2cb6cc5ca50fc854e2abe67d15d3ca147b2fdce7a9"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "fwp50-dc-voltage-retained-rev",
+      "quantity": "fuse_dc_voltage_rating_v",
+      "part": "FWP-50A14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "800 Vdc, 5-50 A non-striker; retained Cooper Bussmann catalogue page, Data Sheet 720025 (PDF 2011-03-01 / modified 2014-03-26)",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "fwp50-dc-voltage-current-rev",
+      "quantity": "fuse_dc_voltage_rating_v",
+      "part": "FWP-50A14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "700 Vdc (UL), 690 Vac (IEC), 50 kAIC at 700 Vdc; current Eaton product specification sheet generated 2023-12-04 for technical data sheet 720025",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/fwp-50a14f-houseofelectrical.pdf",
+          "sha256": "363ba1c10273d66a6a9a9e2cb6cc5ca50fc854e2abe67d15d3ca147b2fdce7a9"
+        }
+      ],
+      "derived_from": "fwp50-dc-voltage-retained-rev",
+      "condition_transformation": "different document revision, not a re-measurement: the current Eaton catalogue revision supersedes the retained 2011-2014 catalogue page for a part ordered now; the value moves 800 -> 700 Vdc and is not a bound reversal",
+      "justification": "a newly ordered part follows the current revision, so 700 Vdc is the applicable figure while 800 Vdc is the retained revision's figure"
+    },
+    {
+      "id": "fwp50-dc-breaking-current-rev",
+      "quantity": "fuse_dc_breaking_capacity_a",
+      "part": "FWP-50A14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "50 kAIC at 700 Vdc (current revision); the retained 2011-2014 revision states 50 kA at 800 Vdc",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/fwp-50a14f-houseofelectrical.pdf",
+          "sha256": "363ba1c10273d66a6a9a9e2cb6cc5ca50fc854e2abe67d15d3ca147b2fdce7a9"
+        },
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "fwp50-no-cap-discharge-rating",
+      "quantity": "fuse_capacitor_discharge_rating",
+      "part": "FWP-50A14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "neither the retained 2011-2014 datasheet nor the captured current-revision Eaton spec sheet publishes a capacitor-discharge rating or a DC L/R time-constant limit for FWP",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        },
+        {
+          "path": "../sources/fwp-50a14f-houseofelectrical.pdf",
+          "sha256": "363ba1c10273d66a6a9a9e2cb6cc5ca50fc854e2abe67d15d3ca147b2fdce7a9"
+        },
+        {
+          "path": "../capture_failures.json",
+          "sha256": "655ec3f253339b44cbafb1fbd1e878d12ceab9d267cbcb0a54d0616c169a3203"
+        }
+      ],
+      "derived_from": null,
+      "justification": "documented absence, not a demonstrated inability; the published AC/inductive clearing I2t must not be applied to a capacitor discharge"
+    },
+    {
+      "id": "fwp50-fuse-resistance-estimate",
+      "quantity": "fuse_cold_resistance_ohm",
+      "part": "FWP-50A14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "estimated from rated watts loss 9 W at 50 A: R = P / I^2 = 3.6 mOhm; not a datasheet resistance and not at fault current",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        },
+        {
+          "path": "../sources/fwp-50a14f-houseofelectrical.pdf",
+          "sha256": "363ba1c10273d66a6a9a9e2cb6cc5ca50fc854e2abe67d15d3ca147b2fdce7a9"
+        }
+      ],
+      "derived_from": null,
+      "justification": "used only to place the fuse's own resistance inside the swept loop-R envelope"
+    },
+    {
+      "id": "fwp25-min-melting-i2t",
+      "quantity": "fuse_min_melting_i2t_a2s",
+      "part": "FWP-25A14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "minimum melting I2t, FWP-25A14F, 14x51 mm; retained revision",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "a70qs50-ratings",
+      "quantity": "fuse_ratings",
+      "part": "A70QS50-14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "50 A, 700 Vac/700 Vdc, 100 kA DC interrupting at L/R <= 10 ms, 14x51 mm; Mersen A70QS",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/mersen-a70qs-datasheet.pdf",
+          "sha256": "90d2e8c314fa52c20309cfce08edf5182098d162309227efb40475d693408df7"
+        },
+        {
+          "path": "../sources/mersen-high-speed-catalog.pdf",
+          "sha256": "43e30ee13049de959478b2dc414035b551a37a40f29ff177fbbef72b0eec7a47"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "a70qs50-min-melting-i2t",
+      "quantity": "fuse_min_melting_i2t_a2s",
+      "part": "A70QS50-14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "A70QS50-14F melting I2t 0.28 x 10^3 A2s; Mersen/Ferraz ADVISOR catalogue table",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/mersen-semiconductor-fuse-advisor.pdf",
+          "sha256": "8c73014cdea9a7dc23400c4860084dabae9d43ed6db6adfc7aa95daf0d246026"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "a70qs50-clearing-i2t",
+      "quantity": "fuse_total_clearing_i2t_a2s",
+      "part": "A70QS50-14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "max clearing I2t 1.50 x 10^3 A2s at 700 VAC; Mersen/Ferraz ADVISOR catalogue table",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/mersen-semiconductor-fuse-advisor.pdf",
+          "sha256": "8c73014cdea9a7dc23400c4860084dabae9d43ed6db6adfc7aa95daf0d246026"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "a70qs50-capacitor-discharge-rating",
+      "quantity": "fuse_capacitor_discharge_voltage_rating_v",
+      "part": "A70QS50-14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "890 Vdc rating for capacitor-discharge applications up to 2.5 ms time constant; Mersen A70QS French Cylindrical 14 mm and 22 mm fuses",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/mersen-high-speed-catalog.pdf",
+          "sha256": "43e30ee13049de959478b2dc414035b551a37a40f29ff177fbbef72b0eec7a47"
+        },
+        {
+          "path": "../sources/mersen-a70qs-datasheet.pdf",
+          "sha256": "90d2e8c314fa52c20309cfce08edf5182098d162309227efb40475d693408df7"
+        }
+      ],
+      "derived_from": null,
+      "justification": "manufacturer guidance for a capacitor discharge at a voltage above the 400 Vdc bus, conditional on the discharge time constant being <= 2.5 ms"
+    },
+    {
+      "id": "dc-voltage-rating-time-constant-dependent",
+      "quantity": "dc_voltage_rating_basis",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "Mersen DC semiconductor-protection application note: the interruptible DC voltage depends on the circuit time constant L/R; longer time constants reduce it",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../sources/mersen-dc-semiconductor-protection.pdf",
+          "sha256": "0f26c8e65314da10b5d8dfdee785535f7ac60157ffd0cb5e69a62daf9a121451"
+        }
+      ],
+      "derived_from": null,
+      "justification": "an AC/inductive clearing I2t and a DC breaking capacity do not by themselves establish clearing of a capacitor discharge"
+    },
+    {
+      "id": "bank-stored-energy",
+      "quantity": "bus_bank_energy_j",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "2240.47 uF (U36-U39 4x560 uF + U40 470 nF) at 400 V bus setpoint; equal voltage across the parallel bank",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../evidence/contract-C1.1.json",
+          "sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6"
+        },
+        {
+          "path": "../evidence/netlist_fault_loop.json",
+          "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b"
+        },
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        }
+      ],
+      "derived_from": null,
+      "justification": "0.5 C V^2 from contracted bus setpoint and netlist-identified bank"
+    },
+    {
+      "id": "fault-loop-action-invariant",
+      "quantity": "discharge_total_action_a2s",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "series R-L-C discharge, single constant lumped R, no arc, no evolving short residual; action integral equals stored energy divided by loop resistance",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        }
+      ],
+      "derived_from": null,
+      "justification": "energy-balance invariant; the numeric integral reproduces E/R to 3.8e-14 at the probe point"
+    },
+    {
+      "id": "internal-loop-r-envelope",
+      "quantity": "internal_loop_resistance_ohm",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "swept 0.005 to 5 ohm to span U10 short residual, U9 failed-short residual, bank ESR, fuse resistance and layout; none measured at multi-kA",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        },
+        {
+          "path": "../evidence/netlist_fault_loop.json",
+          "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b"
+        }
+      ],
+      "derived_from": null,
+      "justification": "assumed envelope, not a measured loop resistance; the bank ESR is not published"
+    },
+    {
+      "id": "internal-loop-l-envelope",
+      "quantity": "internal_loop_inductance_h",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "swept 20 nH to 20 uH to span a compact bus loop through long bank leads; not measured",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        }
+      ],
+      "derived_from": null,
+      "justification": "assumed envelope; inductance changes the prospective peak and timescale but not the total action integral"
+    },
+    {
+      "id": "melt-envelope-fwp50",
+      "quantity": "loop_resistance_for_melting_ohm",
+      "part": "FWP-50A14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "adiabatic melt screen: loop action E/R exceeds 200 A2s, i.e. R <= 0.896 ohm, independent of L; assumes constant R and no arc",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        },
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        },
+        {
+          "path": "../evidence/contract-C1.1.json",
+          "sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6"
+        }
+      ],
+      "derived_from": null,
+      "justification": "a melt screen, not an interruption criterion; clearing is not established"
+    },
+    {
+      "id": "melt-envelope-a70qs50",
+      "quantity": "loop_resistance_for_melting_ohm",
+      "part": "A70QS50-14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "adiabatic melt screen: loop action E/R exceeds 280 A2s, i.e. R <= 0.640 ohm, independent of L",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        },
+        {
+          "path": "../sources/mersen-semiconductor-fuse-advisor.pdf",
+          "sha256": "8c73014cdea9a7dc23400c4860084dabae9d43ed6db6adfc7aa95daf0d246026"
+        },
+        {
+          "path": "../evidence/contract-C1.1.json",
+          "sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6"
+        }
+      ],
+      "derived_from": null,
+      "justification": "melt screen only; narrower than FWP-50A14F because its melting I2t is higher"
+    },
+    {
+      "id": "melt-envelope-fwp25",
+      "quantity": "loop_resistance_for_melting_ohm",
+      "part": "FWP-25A14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "adiabatic melt screen: loop action E/R exceeds 46.5 A2s, i.e. R <= 3.855 ohm, independent of L",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        },
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        },
+        {
+          "path": "../evidence/contract-C1.1.json",
+          "sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6"
+        }
+      ],
+      "derived_from": null,
+      "justification": "illustrates that the melt envelope widens as the fuse rating falls; it is not a selection"
+    },
+    {
+      "id": "peak-envelope",
+      "quantity": "discharge_peak_current_a",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "series R-L-C peak over the swept (R, L) envelope; maximum 55.2 kA at R = 5 mOhm, L = 20 nH; peak <= 50 kA for R >= ~8.9 mOhm at the lowest L",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        }
+      ],
+      "derived_from": null,
+      "justification": "peak is bounded by the lossless V0/Z0 limit; the model's independent oracles reproduce V0/Z0 and V0/R"
+    },
+    {
+      "id": "clearing-fwp50",
+      "quantity": "fuse_capacitor_discharge_clearing_demonstrated",
+      "part": "FWP-50A14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "no capacitor-discharge clearing characteristic or manufacturer guidance located for FWP; the 1800 A2s clearing figure is AC/inductive",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        },
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        },
+        {
+          "path": "../capture_failures.json",
+          "sha256": "655ec3f253339b44cbafb1fbd1e878d12ceab9d267cbcb0a54d0616c169a3203"
+        }
+      ],
+      "derived_from": null,
+      "justification": "clearing is unestablished, not disproved; an AC/inductive clearing I2t must not be applied to a capacitor discharge"
+    },
+    {
+      "id": "clearing-a70qs50",
+      "quantity": "fuse_capacitor_discharge_clearing_demonstrated",
+      "part": "A70QS50-14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "manufacturer states an 890 Vdc capacitor-discharge rating up to a 2.5 ms time constant; board coordination (peak, let-through vs bank/copper withstand) is not established",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        },
+        {
+          "path": "../sources/mersen-high-speed-catalog.pdf",
+          "sha256": "43e30ee13049de959478b2dc414035b551a37a40f29ff177fbbef72b0eec7a47"
+        }
+      ],
+      "derived_from": null,
+      "justification": "class guidance exists for this candidate; it is not a board-specific demonstrated coordination"
+    },
+    {
+      "id": "coordination-verdict",
+      "quantity": "coordination_demonstrated",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "loop R and L unmeasured; bank/copper withstand I2t unsourced; FWP clearing figure inapplicable to a capacitor discharge",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../compute_result.json",
+          "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2"
+        },
+        {
+          "path": "../evidence/AR-PROTCKT-coordinator-receipt.md",
+          "sha256": "8050ffea8199eafd98c04cbfb731ab53fe4b7a76a9f8d82d3e870d6617f19569"
+        }
+      ],
+      "derived_from": null,
+      "justification": "the honest status is coordination unestablished; no completion rung is advanced"
+    },
+    {
+      "id": "fwp50-melting-upper-negative-control",
+      "quantity": "fuse_min_melting_i2t_a2s",
+      "part": "FWP-50A14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "negative control only: restates the minimum melting I2t as a maximum",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": "fwp50-min-melting-i2t"
+    }
+  ],
+  "protection_claims": [
+    {
+      "case_id": "case-a-U10-short-U9-healthy",
+      "fault_case": "healthy_on",
+      "interrupting_device": "FWP-50A14F",
+      "interrupting_device_state": "healthy_on",
+      "interrupts": false,
+      "evidence": [
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ]
+    },
+    {
+      "case_id": "case-b-U10-short-U9-failed-short",
+      "fault_case": "failed_short",
+      "interrupting_device": "FWP-50A14F",
+      "interrupting_device_state": "healthy_on",
+      "interrupts": false,
+      "evidence": [
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ]
+    },
+    {
+      "case_id": "case-b-alternative-A70QS50-14F",
+      "fault_case": "failed_short",
+      "interrupting_device": "A70QS50-14F",
+      "interrupting_device_state": "healthy_on",
+      "interrupts": false,
+      "evidence": [
+        {
+          "path": "../sources/mersen-high-speed-catalog.pdf",
+          "sha256": "43e30ee13049de959478b2dc414035b551a37a40f29ff177fbbef72b0eec7a47"
+        }
+      ]
+    },
+    {
+      "case_id": "case-c-line-fed-switch-short",
+      "fault_case": "failed_short",
+      "interrupting_device": "F1",
+      "interrupting_device_state": "healthy_off",
+      "interrupts": false,
+      "evidence": [
+        {
+          "path": "../evidence/AR-PROTCKT-coordinator-receipt.md",
+          "sha256": "8050ffea8199eafd98c04cbfb731ab53fe4b7a76a9f8d82d3e870d6617f19569"
+        }
+      ]
+    },
+    {
+      "case_id": "case-d-line-surge",
+      "fault_case": "not_applicable",
+      "interrupting_device": null,
+      "interrupting_device_state": "not_applicable",
+      "interrupts": false,
+      "evidence": []
+    }
+  ],
+  "promotions": [
+    {
+      "subject": "concrete-protection-circuit",
+      "from": "none",
+      "to": "protection_identified",
+      "evidence": [
+        {
+          "path": "../evidence/AR-PROTCKT-protection-arrangement.json",
+          "sha256": "aa15889e0d53e07929bacb2187866d777bf262155f017259a498be3e7ce29066"
+        }
+      ]
+    },
+    {
+      "subject": "concrete-protection-circuit",
+      "from": "protection_identified",
+      "to": "part_selected",
+      "evidence": [
+        {
+          "path": "../evidence/AR-PROTCKT-protection-arrangement.json",
+          "sha256": "aa15889e0d53e07929bacb2187866d777bf262155f017259a498be3e7ce29066"
+        },
+        {
+          "path": "../evidence/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ]
+    }
+  ]
+}

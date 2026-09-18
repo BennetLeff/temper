@@ -1,0 +1,205 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "task_id": "AR-COORD",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "algorithm": "sha256",
+  "note": "SHA-256 of every file produced by this attempt except manifest.json itself and dispatch.json (the delivered input).",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "sha256": "6df834b692e1ff6e6658caff23817695ab29b2ef8b9f14c12aacab7f5b2df184",
+      "bytes": 9173
+    },
+    {
+      "path": "claims.json",
+      "sha256": "69b1c9fc670c2913cbc107fd08c4592ad9c1bdf1ab8c6a90adfabee733e91299",
+      "bytes": 27860
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "f01f1f7f4e7b7fb72580c2ce19a392bb2a284a90798bd4fb0ec48cf95ccab15f",
+      "bytes": 10435
+    },
+    {
+      "path": "raw/assignments_envelope_representative.json",
+      "sha256": "6d177893bb1cd8f2bee15f086edb163848ba594ca536e9c0618b5daf8f549fe5",
+      "bytes": 120
+    },
+    {
+      "path": "raw/assignments_negative_control_u12.json",
+      "sha256": "1fb286a44698c70f2d882f8d2762724dd39c8131f86fd8c06a6b640701cb7f86",
+      "bytes": 20
+    },
+    {
+      "path": "raw/build_claims.py",
+      "sha256": "321ceb6fcde6ce22b1ad68a9697b59767096c754eb3cda33e68e7569fd1cbdc6",
+      "bytes": 22311
+    },
+    {
+      "path": "raw/build_receipt_manifest.py",
+      "sha256": "6428b841757feffdab62e6149a2a712bd029fa58cedfa25155f2b8ba96a49f65",
+      "bytes": 4804
+    },
+    {
+      "path": "raw/capture_failures.json",
+      "sha256": "655ec3f253339b44cbafb1fbd1e878d12ceab9d267cbcb0a54d0616c169a3203",
+      "bytes": 4852
+    },
+    {
+      "path": "raw/checker/checker_receipt.json",
+      "sha256": "b94127e287acef804f42a0785a6466f0329e09833055b29e8d9d55e6ee372208",
+      "bytes": 3638
+    },
+    {
+      "path": "raw/checker/exit_claims.txt",
+      "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
+      "bytes": 7
+    },
+    {
+      "path": "raw/checker/exit_claims_negative_control.txt",
+      "sha256": "cf205dbb8cea84897b488abcc281bf96698d5e94b1096b16657b4caba9082a22",
+      "bytes": 7
+    },
+    {
+      "path": "raw/checker/exit_fault_loop_negative_control.txt",
+      "sha256": "cf205dbb8cea84897b488abcc281bf96698d5e94b1096b16657b4caba9082a22",
+      "bytes": 7
+    },
+    {
+      "path": "raw/checker/exit_fault_loop_representative.txt",
+      "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
+      "bytes": 7
+    },
+    {
+      "path": "raw/checker/negative_control_bound_reversal.json",
+      "sha256": "13ea4c64c811659312aa25e2f593a467b8e5cd9dad4194d81f6e9b30976db710",
+      "bytes": 28240
+    },
+    {
+      "path": "raw/checker/out_claims.txt",
+      "sha256": "fdc270823b15d9ac870b93fb8b210bff2b89a513f78d326ba0933d36443eef64",
+      "bytes": 150
+    },
+    {
+      "path": "raw/checker/out_claims_negative_control.txt",
+      "sha256": "d16307bba95731fc230cad08092c7d076e5044fc89bd4f71a34db7c6050902e9",
+      "bytes": 383
+    },
+    {
+      "path": "raw/checker/out_fault_loop_negative_control.txt",
+      "sha256": "1c2cfd5fd62c9f9b0ce57407eacaed56181f8ff51de78dc01394199fbffc349a",
+      "bytes": 172
+    },
+    {
+      "path": "raw/checker/out_fault_loop_representative.txt",
+      "sha256": "cdd8fcf7415968a99f30ac74b4aa4cbd532f8de034d42cca6af9976cd81947b6",
+      "bytes": 87
+    },
+    {
+      "path": "raw/checker/out_handback_admission.txt",
+      "sha256": "a12d43f25b9df442254673aaac14bc1116ebb61e4dd642dc8a9d39596a29d2a5",
+      "bytes": 228
+    },
+    {
+      "path": "raw/compute_coordination.py",
+      "sha256": "792270ff329e3d37a59b552ddcd84a8385d9663ab78afcda4e75cfd3b9de2f74",
+      "bytes": 12813
+    },
+    {
+      "path": "raw/compute_result.json",
+      "sha256": "0b94942ec76682e3e68716a7badbdd6baffd1248b3ccf0dc4327c20703e6bef2",
+      "bytes": 220443
+    },
+    {
+      "path": "raw/compute_stdout.txt",
+      "sha256": "12be5e3d1757bb668c21122b9dfbf3acca4c689ff7c566ecf979dd3bf248cda2",
+      "bytes": 1996
+    },
+    {
+      "path": "raw/evidence/AR-PROTCKT-coordinator-receipt.md",
+      "sha256": "8050ffea8199eafd98c04cbfb731ab53fe4b7a76a9f8d82d3e870d6617f19569",
+      "bytes": 6514
+    },
+    {
+      "path": "raw/evidence/AR-PROTCKT-protection-arrangement.json",
+      "sha256": "aa15889e0d53e07929bacb2187866d777bf262155f017259a498be3e7ce29066",
+      "bytes": 5719
+    },
+    {
+      "path": "raw/evidence/R0-report.json",
+      "sha256": "037ff2011a00f465e45f44609c19b238f135968c894d5ce8d6f4174de3284ff9",
+      "bytes": 4148
+    },
+    {
+      "path": "raw/evidence/contract-C1.1.json",
+      "sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+      "bytes": 2916
+    },
+    {
+      "path": "raw/evidence/fwp-1-50a.pdf",
+      "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974",
+      "bytes": 133126
+    },
+    {
+      "path": "raw/evidence/fwp-720012-salsify.pdf",
+      "sha256": "88644adced3afd90a0b99710a8b35d5e85d316fb47c97450364e1515c980e770",
+      "bytes": 323456
+    },
+    {
+      "path": "raw/evidence/netlist_fault_loop.json",
+      "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b",
+      "bytes": 8225
+    },
+    {
+      "path": "raw/sources/fwp-50a14f-houseofelectrical.pdf",
+      "sha256": "363ba1c10273d66a6a9a9e2cb6cc5ca50fc854e2abe67d15d3ca147b2fdce7a9",
+      "bytes": 37350
+    },
+    {
+      "path": "raw/sources/fwp-50a14f-southerncontrols.html",
+      "sha256": "a2a7dbe2c5607914353fd374464fba0389680f192ab977b3ae08bc965a0d5c61",
+      "bytes": 117865
+    },
+    {
+      "path": "raw/sources/littelfuse-l50s-datasheet.403.html",
+      "sha256": "09a0222f8f1ac52571f5413cc6b5d5f2574b98978a1260cf67cd9e5a1148a1d1",
+      "bytes": 409
+    },
+    {
+      "path": "raw/sources/mersen-a70qs-datasheet.pdf",
+      "sha256": "90d2e8c314fa52c20309cfce08edf5182098d162309227efb40475d693408df7",
+      "bytes": 244611
+    },
+    {
+      "path": "raw/sources/mersen-advisor.txt",
+      "sha256": "ee7d560c48e78e95031daed31a3b1c709275ba4bc09032146e7ca96eacb03f86",
+      "bytes": 329819
+    },
+    {
+      "path": "raw/sources/mersen-dc-semiconductor-protection.pdf",
+      "sha256": "0f26c8e65314da10b5d8dfdee785535f7ac60157ffd0cb5e69a62daf9a121451",
+      "bytes": 312548
+    },
+    {
+      "path": "raw/sources/mersen-high-speed-catalog.pdf",
+      "sha256": "43e30ee13049de959478b2dc414035b551a37a40f29ff177fbbef72b0eec7a47",
+      "bytes": 10838189
+    },
+    {
+      "path": "raw/sources/mersen-high-speed-catalog.txt",
+      "sha256": "605247c5adfdeabde32354d6ae5b9ff6813252909eebccd06208f4784b60ce71",
+      "bytes": 431790
+    },
+    {
+      "path": "raw/sources/mersen-semiconductor-fuse-advisor.pdf",
+      "sha256": "8c73014cdea9a7dc23400c4860084dabae9d43ed6db6adfc7aa95daf0d246026",
+      "bytes": 3280597
+    },
+    {
+      "path": "result.json",
+      "sha256": "6edb6e7fd30d3c517ed5224fe7f1342c6bf07a1e9f337476a0e577011d647f80",
+      "bytes": 9302
+    }
+  ]
+}

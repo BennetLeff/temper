@@ -1,0 +1,65 @@
+{
+  "energy_j": 179.23760000000001,
+  "normal": {
+    "FWP-50A14F": {
+      "worst_line_v": 120.0,
+      "diode_rms_a": 9.000670972612259,
+      "rated_current_a": 50.0,
+      "percent_of_rated": 18.001341945224517,
+      "continuous_margin_ratio": 5.555141405806609
+    },
+    "FWP-25A14F": {
+      "worst_line_v": 120.0,
+      "diode_rms_a": 9.000670972612259,
+      "rated_current_a": 25.0,
+      "percent_of_rated": 36.002683890449035,
+      "continuous_margin_ratio": 2.7775707029033043
+    },
+    "A70QS50-14F": {
+      "worst_line_v": 120.0,
+      "diode_rms_a": 9.000670972612259,
+      "rated_current_a": 50.0,
+      "percent_of_rated": 18.001341945224517,
+      "continuous_margin_ratio": 5.555141405806609
+    }
+  },
+  "melt": {
+    "FWP-50A14F": {
+      "min_melting_i2t_a2s": 200.0,
+      "r_melt_max_ohm": 0.8961880000000001,
+      "melts_for_all_r_below_ohm": 0.8961880000000001,
+      "time_to_melt_at_r06_ohm_s": 0.0007524177758731014
+    },
+    "FWP-25A14F": {
+      "min_melting_i2t_a2s": 46.5,
+      "r_melt_max_ohm": 3.854572043010753,
+      "melts_for_all_r_below_ohm": 3.854572043010753,
+      "time_to_melt_at_r06_ohm_s": 0.00012559326348267634
+    },
+    "A70QS50-14F": {
+      "min_melting_i2t_a2s": 280.0,
+      "r_melt_max_ohm": 0.6401342857142858,
+      "melts_for_all_r_below_ohm": 0.6401342857142858,
+      "time_to_melt_at_r06_ohm_s": 0.001863037067201063
+    }
+  },
+  "oracles": {
+    "lossless_peak_should_approach_V0_over_Z0": {
+      "computed_peak_a": 59176.35035655557,
+      "V0_over_Z0_a": 59872.798498149394,
+      "rel_err": 0.011632129432121788
+    },
+    "large_R_small_L_peak_should_approach_V0_over_R": {
+      "computed_peak_a": 199.99999951090075,
+      "V0_over_R_a": 200.0,
+      "rel_err": 2.4454962499476096e-09
+    },
+    "action_integral_should_equal_E_over_R": {
+      "r_ohm": 0.05,
+      "numeric_action_a2s": 3584.752000000135,
+      "E_over_R_a2s": 3584.752,
+      "rel_err": 3.7676236239851416e-14
+    }
+  },
+  "envelope_points": 400
+}

@@ -1,0 +1,174 @@
+{
+  "schema": "pfc-campaign-AR-COORD-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-COORD",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_verification",
+  "generated_utc": "2026-09-18",
+  "contract_path": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "checkout_path": "zapote",
+  "worktree_path": ".worktrees/codex/buck-harness-experiment-plan",
+  "worktree_head": "0cef82ec45b9f8a00ee719b8bc911a03d08569b7",
+  "dispatch_source_revision": "9c8c2775642131606deefc6bef124ac89b386ed0",
+  "source_revision_relation": "direct ancestor of HEAD (verified 'git merge-base --is-ancestor'); the single commit between is 'docs(zapote): correct four AR-PROTCKT overstatements; add AR-COORD fuse coordination', which ADDS this dispatch and the corrected receipt. Working tree clean.",
+  "evidence_class": "source_research",
+  "checker_declared_not_applicable": true,
+
+  "delivered_inputs": [
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-COORD/attempt-001/dispatch.json", "sha256": "924c2c096912d39c40eccdb97d7d806bca9fb4c8d5c06f024c19b5383477365c"},
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-PROTCKT/attempt-001/coordinator-receipt.md", "sha256": "8050ffea8199eafd98c04cbfb731ab53fe4b7a76a9f8d82d3e870d6617f19569"},
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-PROTCKT/attempt-001/raw/fwp-1-50a.pdf", "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"},
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/R0/attempt-001/raw/report.json", "sha256": "037ff2011a00f465e45f44609c19b238f135968c894d5ce8d6f4174de3284ff9"},
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/raw/netlist_fault_loop.json", "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b"}
+  ],
+
+  "circuit_under_assessment": {
+    "board": "pcb/temper.kicad_pcb (retained candidate), 108/120/132 Vrms, 400 V bus, 1796.31 W requested",
+    "internal_discharge_loop": "capacitor bank (PFC_BUS_PLUS_390V) -> shorted boost diode U10 -> a1 -> boost switch U9 -> capacitor bank (PFC_BUS_MINUS)",
+    "key_components": {
+      "U9": "STW65N65DM2AG boost switch (Rds_on typ 0.042 ohm, max 0.050 ohm)",
+      "U10": "C3D20065D SiC boost diode",
+      "U8": "760800301 boost inductor (180 uH, DCR max 20 mohm) - NOT in the internal loop",
+      "U12": "HCSM2818FT10L0 10 mohm shunt - NOT in the internal loop (one terminal only)",
+      "U36-U39": "LGX2W561MELC50 4 x 560 uF bus electrolytics (ESR not published)",
+      "U40": "B32672P6474K000 470 nF bus film",
+      "F2 (proposed)": "series in the DC bus between the U10 cathode and the cap bank, on PFC_BUS_PLUS_390V"
+    },
+    "stored_energy_j": 179.2376,
+    "stored_energy_basis": "0.5 * 2240.47 uF * (400 V)^2 (contract C1.1 bus setpoint)"
+  },
+
+  "normal_current_basis": {
+    "waveform": "pulsed boost-diode current; F2 is in the DC bus between the boost-diode cathode and the bank",
+    "diode_rms_by_line_a": {"108": 8.538992639857435, "120": 9.000670972612259, "132": 8.586780852007614},
+    "worst_line_v": 120.0,
+    "worst_diode_rms_a": 9.000670972612259,
+    "bus_average_a": 4.490775080322774,
+    "bus_rectified_peak_a": 7.05409300063307,
+    "basis": "RMS, because Eaton's retained FWP sheet expresses its power-loss correction against RMS load current; the 4.49 A average is NOT a sizing basis",
+    "repetitive_pulses": "switching period 1/129107 Hz = 7.75 us, far below a fuse element thermal time constant, so the pulse train merges thermally and the RMS is the heating basis",
+    "startup_inrush_a": null,
+    "temperature_derated_ampacity_a": null,
+    "missing": [
+      "precharge/inrush model into the 2240 uF bank (NTC U4 + bypass relay U5 sequence, hot restart)",
+      "the FWP ambient-temperature, forced-cooling, conductor-size and altitude derating factors (none captured)"
+    ]
+  },
+
+  "candidate_parts": [
+    {
+      "reference": "FWP-50A14F (incumbent proposal)",
+      "manufacturer": "Eaton / Cooper Bussmann",
+      "package": "14 x 51 mm ferrule, non-striker",
+      "applicable_revision": "current revision (Eaton product specification sheet generated 2023-12-04, for technical data sheet 720025)",
+      "ratings_applicable": {"rated_current_a": 50, "dc_voltage_v": 700, "dc_breaking_a_at_700vdc": 50000, "min_melting_i2t_a2s": 200, "clearing_i2t_a2s_ac_inductive": 1800, "watts_loss_w": 9},
+      "retained_revision_ratings": {"dc_voltage_v": 800, "dc_breaking_a_at_800vdc": 50000, "pdf_creation_date": "2011-03-01", "pdf_mod_date": "2014-03-26"},
+      "capacitor_discharge_rating": null,
+      "normal_current_percent_of_rated": 18.001341945224517
+    },
+    {
+      "reference": "FWP-25A14F (lower-rated same-class envelope comparison)",
+      "manufacturer": "Eaton / Cooper Bussmann",
+      "package": "14 x 51 mm ferrule",
+      "ratings": {"rated_current_a": 25, "min_melting_i2t_a2s": 46.5, "clearing_i2t_a2s_ac_inductive": 375, "dc_voltage_retained_v": 800},
+      "capacitor_discharge_rating": null,
+      "normal_current_percent_of_rated": 36.002683890449035
+    },
+    {
+      "reference": "A70QS50-14F (alternative, same class, comparable rating)",
+      "manufacturer": "Mersen / Ferraz Shawmut",
+      "package": "14 x 51 mm ferrule",
+      "ratings": {"rated_current_a": 50, "dc_voltage_v": 700, "dc_breaking_a": 100000, "dc_breaking_condition": "L/R <= 10-11.6 ms", "min_melting_i2t_a2s": 280, "clearing_i2t_a2s_at_700vac": 1500, "watts_loss_w": 11.6},
+      "capacitor_discharge_rating": {"dc_voltage_v": 890, "max_time_constant_ms": 2.5, "source": "Mersen High Speed Fuses catalogue, A70QS French Cylindrical 14 mm / 22 mm"},
+      "normal_current_percent_of_rated": 18.001341945224517
+    }
+  ],
+
+  "fault_impedance_assumptions": {
+    "model": "series R-L-C discharge from v_c(0)=400 V, i(0)=0; L di/dt + R i + v_c = 0",
+    "r_envelope_ohm": [0.005, 5.0],
+    "l_envelope_h": [2.0e-8, 2.0e-5],
+    "r_components": "U10 failed-short residual + U9 failed-short residual + bank ESR (not published) + fuse resistance + layout; none measured at multi-kA",
+    "l_components": "bus/loop layout + bank internal inductance; not measured",
+    "arc_modelled": false,
+    "evolving_resistance_modelled": false,
+    "action_invariant": "total action integral = stored energy / loop resistance, independent of L (verified numerically to 3.8e-14 at the probe point)",
+    "model_oracles": "lossless peak approaches V0/Z0 (1.2% at R=0.1 mohm); large-R small-L peak approaches V0/R (2.4e-9); both independent limits reproduced"
+  },
+
+  "clearing_data": {
+    "fwp_class_at_400vdc": null,
+    "fwp_reason": "no capacitor-discharge clearing characteristic or manufacturer guidance located for FWP; the 1800 A2s figure is an AC/inductive clearing I2t at rated voltage and must not be applied to a capacitor discharge",
+    "a70qs_class_at_400vdc": "manufacturer states an 890 Vdc capacitor-discharge rating for the A70QS French Cylindrical line up to a 2.5 ms time constant; 400 Vdc < 890 Vdc so the voltage is covered, conditional on the discharge time constant",
+    "what_would_resolve_fwp": "a manufacturer capacitor-discharge rating or let-through curve for FWP-50A14F, or an Eaton application-engineering statement, plus a sourced bank/copper withstand I2t"
+  },
+
+  "assumed_vs_sourced": {
+    "sourced": [
+      "bank capacitance 2240.47 uF and 400 V bus (contract C1.1 + netlist)",
+      "boost-diode RMS by line (retained R0 maintained model)",
+      "FWP-50A14F current-revision ratings 700 Vdc / 50 kAIC at 700 Vdc and retained-revision 800 Vdc (two documents)",
+      "FWP-50A14F and FWP-25A14F I2t values (retained datasheet)",
+      "Mersen A70QS50-14F ratings and 890 Vdc / 2.5 ms capacitor-discharge rating (manufacturer documents)",
+      "DC voltage rating dependence on circuit time constant (Mersen DC application note)"
+    ],
+    "assumed": [
+      "the internal loop is a single-lumped-R series R-L-C discharge (no arc, no evolving resistance)",
+      "the R and L sweep ranges",
+      "the fuse's own resistance from rated watts loss",
+      "bank ESR (not published)"
+    ]
+  },
+
+  "nulls_by_design": {
+    "internal_loop_resistance_ohm": null,
+    "internal_loop_inductance_h": null,
+    "internal_loop_peak_current_a": null,
+    "fwp_capacitor_discharge_clearing": null,
+    "a70qs_melting_and_clearing_demonstrated_for_board": null,
+    "bank_copper_withstand_i2t_a2s": null,
+    "startup_inrush_current_a": null,
+    "temperature_derated_ampacity_a": null,
+    "u9_u10_short_residual_ohm": null,
+    "bank_esr_ohm": null
+  },
+
+  "source_capture_failures": ["raw/capture_failures.json"],
+  "raw_artifacts": [
+    "raw/compute_coordination.py",
+    "raw/compute_result.json",
+    "raw/compute_stdout.txt",
+    "raw/build_claims.py",
+    "raw/build_receipt_manifest.py",
+    "raw/capture_failures.json",
+    "raw/assignments_envelope_representative.json",
+    "raw/assignments_negative_control_u12.json",
+    "raw/evidence/fwp-1-50a.pdf",
+    "raw/evidence/fwp-720012-salsify.pdf",
+    "raw/evidence/R0-report.json",
+    "raw/evidence/contract-C1.1.json",
+    "raw/evidence/netlist_fault_loop.json",
+    "raw/evidence/AR-PROTCKT-protection-arrangement.json",
+    "raw/evidence/AR-PROTCKT-coordinator-receipt.md",
+    "raw/sources/fwp-50a14f-houseofelectrical.pdf",
+    "raw/sources/mersen-a70qs-datasheet.pdf",
+    "raw/sources/mersen-high-speed-catalog.pdf",
+    "raw/sources/mersen-high-speed-catalog.txt",
+    "raw/sources/mersen-semiconductor-fuse-advisor.pdf",
+    "raw/sources/mersen-advisor.txt",
+    "raw/sources/mersen-dc-semiconductor-protection.pdf",
+    "raw/sources/fwp-50a14f-southerncontrols.html",
+    "raw/sources/littelfuse-l50s-datasheet.403.html",
+    "raw/checker/checker_receipt.json",
+    "raw/checker/out_claims.txt",
+    "raw/checker/exit_claims.txt",
+    "raw/checker/negative_control_bound_reversal.json",
+    "raw/checker/out_claims_negative_control.txt",
+    "raw/checker/exit_claims_negative_control.txt",
+    "raw/checker/out_fault_loop_representative.txt",
+    "raw/checker/exit_fault_loop_representative.txt",
+    "raw/checker/out_fault_loop_negative_control.txt",
+    "raw/checker/exit_fault_loop_negative_control.txt"
+  ]
+}

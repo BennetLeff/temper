@@ -1,0 +1,133 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-COORD",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_verification",
+  "generated_utc": "2026-09-18",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "source_revision": "9c8c2775642131606deefc6bef124ac89b386ed0",
+  "worktree_head": "0cef82ec45b9f8a00ee719b8bc911a03d08569b7",
+
+  "status_axes": {
+    "assignment_status": "FINISHED",
+    "assignment_note": "FINISHED means the assignment was completed; it is not PASS, SELECTED, VALIDATED or QUALIFIED.",
+    "checker_status": "RUN",
+    "checker_note": "zapote-claims passed (exit 0, 29 claims / 5 protection claims / 2 promotions); check_fault_loop passed on the representative envelope assignment (exit 0). Both negative controls failed as designed (exit 1). Outputs retained in raw/checker/. The dispatch declared the G0 checker 'not_applicable', so per ADMISSION.md this is NOT a harness-validated run.",
+    "evidence_class": "source_research",
+    "numerical_status": "COMPUTED_ARITHMETIC_ONLY",
+    "hardware_qualification": "NOT_PERFORMED"
+  },
+  "checker_receipt": null,
+  "evidence_check_receipt": "raw/checker/checker_receipt.json",
+  "checker_receipt_note": "checker_receipt is null because the dispatch declared the G0 checker 'not_applicable' (no machine receipt can exist), per ADMISSION.md. The evidence-check outputs from zapote-claims and check_fault_loop are retained under raw/checker/ and summarised in evidence_check_receipt. Note: check_campaign_dispatch.py handback keys on a non-null result.json.checker_receipt, so with the (correct) null it reports NOT COUNTED AS VALIDATED RUN; leaving a non-null value would have produced a false COUNTED.",
+  "checker_counted_as_validated_run": false,
+
+  "headline": {
+    "coordination_verdict": "UNESTABLISHED",
+    "normal_current_basis": "RMS (9.0007 A worst line, 18.0 percent of a 50 A rating); the 4.49 A average is not a sizing basis",
+    "applicable_fwp_revision": "current revision, 700 Vdc (50 kAIC at 700 Vdc); the retained 2011-2014 revision's 800 Vdc is NOT the ordered-part figure",
+    "candidate_with_applicable_capacitor_discharge_data": "A70QS50-14F (890 Vdc for capacitor discharges up to a 2.5 ms time constant); FWP-50A14F has none",
+    "coordination_demonstrated": false,
+    "hardware_verified": false,
+    "sized_from_average_current": false,
+    "presented_resistance_window_as_criterion": false,
+    "applied_ac_inductive_clearing_to_capacitor_discharge": false
+  },
+
+  "normal_current_waveform": {
+    "carried_by": "F2 (proposed series fuse in the DC bus, inside the internal discharge loop)",
+    "diode_rms_a": {"108": 8.538992639857435, "120": 9.000670972612259, "132": 8.586780852007614},
+    "worst_line_v": 120.0,
+    "worst_diode_rms_a": 9.000670972612259,
+    "bus_average_a": 4.490775080322774,
+    "per_candidate": {
+      "FWP-50A14F": {"rated_a": 50, "percent_of_rated": 18.001341945224517, "continuous_margin": 5.555141405806609},
+      "FWP-25A14F": {"rated_a": 25, "percent_of_rated": 36.002683890449035, "continuous_margin": 2.7775707029033043},
+      "A70QS50-14F": {"rated_a": 50, "percent_of_rated": 18.001341945224517, "continuous_margin": 5.555141405806609}
+    },
+    "basis": "RMS of the boost-diode current, because Eaton's retained FWP sheet expresses its loss correction Kp against RMS load current",
+    "repetitive_pulses": "129.1 kHz pulse train merges thermally inside the fuse element; RMS includes the pulse duty",
+    "startup": null,
+    "temperature": null,
+    "note": "an average-based size would undersize heating by roughly half"
+  },
+
+  "fault_impedance_envelope": {
+    "model": "series R-L-C, constant lumped R, no arc, no evolving short residual; total action integral = 179.2376 J / R, independent of L",
+    "r_sweep_ohm": [0.005, 5.0],
+    "l_sweep_h": [2.0e-8, 2.0e-5],
+    "grid_points": 400,
+    "peak_current": {
+      "maximum_a": 55227.6,
+      "maximum_at": {"r_ohm": 0.005, "l_h": 2.0e-8, "regime": "underdamped"},
+      "peak_within_fwp_50ka_condition": "R >= ~8.9 mOhm at the lowest L (L ~ 20-32 nH); for R >= 10 mOhm the peak is inside 50 kA across the sweep",
+      "peak_within_a70qs_100ka_condition": "all 400 grid points",
+      "caveat": "the 50 kA DC breaking capacity is specified for an L/R DC test, not a capacitor-discharge waveshape; the peak comparison is a screen, not a clearing criterion"
+    },
+    "melts": {
+      "FWP-50A14F": {"min_melting_i2t_a2s": 200, "melts_iff_r_ohm_max": 0.8961880000000001},
+      "FWP-25A14F": {"min_melting_i2t_a2s": 46.5, "melts_iff_r_ohm_max": 3.854572043010753},
+      "A70QS50-14F": {"min_melting_i2t_a2s": 280, "melts_iff_r_ohm_max": 0.6401342857142858},
+      "note": "adiabatic melt screen; independent of L because the total action integral is E/R"
+    },
+    "clears": {
+      "FWP-50A14F": null,
+      "FWP-25A14F": null,
+      "A70QS50-14F": {
+        "manufacturer_capacitor_discharge_rating_v": 890,
+        "max_time_constant_ms": 2.5,
+        "r_for_2p5ms_rc_ohm": 1.115813,
+        "relation_to_melting": "under the natural capacitor-discharge reading tau = R*C, the A70QS50-14F melts only for R <= 0.640 ohm, where R*C <= 1.43 ms, so the stated 2.5 ms condition holds wherever it melts; the manufacturer does not define its 'time constant' explicitly, so this reading should be confirmed",
+        "status": "manufacturer class guidance, not a board-specific demonstrated coordination (let-through vs bank/copper withstand unresolved)"
+      },
+      "note": "the FWP cells stay null: an AC/inductive clearing I2t cannot be applied to a capacitor discharge"
+    }
+  },
+
+  "applicable_clearing_data": {
+    "obtained": "partially",
+    "fwp_50a14f_at_400vdc": null,
+    "a70qs50_14f_at_400vdc": "890 Vdc capacitor-discharge rating up to a 2.5 ms time constant (manufacturer catalogue)",
+    "what_would_resolve": "an Eaton capacitor-discharge rating / let-through characteristic for FWP-50A14F, plus a sourced bank / PCB-copper withstand I2t to compare against"
+  },
+
+  "revision_reconciliation": {
+    "retained_revision": {"document": "Cooper Bussmann High Speed Fuses catalogue page, Data Sheet 720025", "pdf_creation_date": "2011-03-01", "pdf_mod_date": "2014-03-26", "dc_voltage_v": 800, "dc_breaking_a": 50000},
+    "current_revision": {"document": "Eaton product specification sheet for FWP-50A14F, generated 2023-12-04, technical data sheet 720025", "dc_voltage_v": 700, "dc_breaking_a_at_700vdc": 50000},
+    "applicable_to_ordered_part": "current revision, 700 Vdc / 50 kAIC at 700 Vdc",
+    "unreconciled_used_as_rating": false,
+    "manufacturer_pdf_capture": "failed from this host (HTTP/1.1 timeout, 0 bytes, twice); a manufacturer-authored spec-sheet mirror was captured instead. See raw/capture_failures.json"
+  },
+
+  "candidates": [
+    {"ref": "FWP-50A14F", "role": "incumbent proposal", "applicable_dc_voltage_v": 700, "min_melting_i2t_a2s": 200, "capacitor_discharge_rating": null, "normal_percent_of_rated": 18.001341945224517, "clears_envelope": null},
+    {"ref": "FWP-25A14F", "role": "lower-rated same-class envelope comparison", "applicable_dc_voltage_v": 700, "revision_note": "family current revision (FWP 5-50 A non-striker, 700 Vdc); a 25 A-specific current sheet was not separately captured, the retained sheet gives 800 Vdc", "min_melting_i2t_a2s": 46.5, "capacitor_discharge_rating": null, "normal_percent_of_rated": 36.002683890449035, "clears_envelope": null},
+    {"ref": "A70QS50-14F", "role": "alternative, same class, comparable rating", "applicable_dc_voltage_v": 700, "min_melting_i2t_a2s": 280, "capacitor_discharge_rating": {"dc_voltage_v": 890, "max_time_constant_ms": 2.5}, "normal_percent_of_rated": 18.001341945224517, "clears_envelope": "manufacturer class guidance, conditional"}
+  ],
+
+  "completion_ladder": {
+    "protection_identified": true,
+    "part_selected": true,
+    "coordination_demonstrated": false,
+    "hardware_verified": false,
+    "note": "unchanged from AR-PROTCKT; NOT promoted to coordination_demonstrated"
+  },
+
+  "unknowns": {
+    "internal_loop_resistance_ohm": null,
+    "internal_loop_inductance_h": null,
+    "internal_loop_peak_current_a": null,
+    "fwp_capacitor_discharge_clearing": null,
+    "a70qs_melting_and_clearing_demonstrated_for_board": null,
+    "bank_copper_withstand_i2t_a2s": null,
+    "startup_inrush_current_a": null,
+    "temperature_derated_ampacity_a": null,
+    "u9_u10_short_residual_ohm": null,
+    "bank_esr_ohm": null
+  },
+
+  "single_most_important_missing_input": "The internal discharge loop's high-current R and L at the fault (U10/U9 failed-short residual, bank ESR at the discharge frequency, fuse resistance, layout). It sets the action integral E/R, the prospective peak, and the discharge time constant, and therefore whether any candidate both melts and stays inside its capacitor-discharge rating. Paired secondary input: a sourced bank/copper withstand I2t and an FWP capacitor-discharge rating. Until then coordination is unestablished and no completion rung is advanced.",
+
+  "budget": {"deadline_utc": "2026-09-18T19:01:25Z", "solver_invocations": 0, "model_cad_bom_edits": 0, "bench_work": "none", "candidate_parts": 3, "primary_sources": 6, "web_searches": 5}
+}

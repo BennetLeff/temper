@@ -1,0 +1,69 @@
+{
+  "schema": "pfc-campaign-AR-COORD-capture-failures/v1",
+  "captured_ok": [
+    {
+      "file": "raw/evidence/fwp-1-50a.pdf",
+      "document": "Cooper Bussmann High Speed Fuses catalogue page, Data Sheet 720025, FWP 690V/700V 1-50 A (14x51 mm), retained revision",
+      "provenance": "delivered input (AR-PROTCKT attempt-001 source bundle)",
+      "pdf_creation_date": "2011-03-01",
+      "pdf_mod_date": "2014-03-26"
+    },
+    {
+      "file": "raw/sources/fwp-50a14f-houseofelectrical.pdf",
+      "source": "https://houseofelectrical.com/media/catalog/document/87066/Bussmann_FWP-50A14F_Specification_Sheet_CA.pdf",
+      "document": "Eaton product specification sheet, FWP-50A14F, generated 2023-12-04 (states 700 Vac (UL) / 700 Vdc (UL), 50 kAIC at 700 Vdc; technical data sheet 720025)",
+      "http": 200
+    },
+    {
+      "file": "raw/sources/mersen-a70qs-datasheet.pdf",
+      "source": "https://pim.mersen.com/437F287E0F344C1DB5B80736B52AADA1-1en.pdf",
+      "document": "Mersen A70QS Amp-Trap Form 101 datasheet, 700VAC/VDC, 35-800A, 100kA IR DC, L/R 10ms",
+      "http": 200
+    },
+    {
+      "file": "raw/sources/mersen-high-speed-catalog.pdf",
+      "source": "https://www.mersen.com/sites/default/files/files_imported_ep/CAT-High-Speed-Fuses-and-Fusegear-Catalog-Mersen.pdf",
+      "document": "Mersen High Speed Fuses and Fusegear Catalog (A70QS French Cylindrical: 700 VDC, 100 kA at 10 ms, plus 890 VDC capacitor-discharge rating up to 2.5 ms time constant)",
+      "http": 200
+    },
+    {
+      "file": "raw/sources/mersen-semiconductor-fuse-advisor.pdf",
+      "source": "https://datasheet.octopart.com/L1014563-Mersen-datasheet-154734158.pdf",
+      "document": "Mersen/Ferraz Shawmut ADVISOR catalogue (2017): A70QS French Cylindrical ratings table (A70QS50-14F: melting I2t 0.28e3 A2s, max clearing I2t 1.50e3 A2s @700 VAC, 11.6 W)",
+      "http": 200
+    },
+    {
+      "file": "raw/sources/mersen-dc-semiconductor-protection.pdf",
+      "source": "https://www.mersen.com/sites/default/files/files_imported_ep/AN-Mersen-Application-Information-Semiconductor-Protection-DC-Circuit-Protection.pdf",
+      "document": "Mersen application note, Semiconductor Protection DC Circuit Protection (time-constant dependence of DC voltage rating)",
+      "http": 200
+    }
+  ],
+  "failures": [
+    {
+      "attempted": "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/bussmann-iec-high-speed-semi-conductors-fuses/bussmann-iec-ferrule-high-speed-fuses/eaton-bussmann-series-fwp-ferrule-high-speed-fuses-datasheet-720025-en-gb.pdf",
+      "outcome": "HTTP/1.1 timeout after 45-60 s, 0 bytes, twice; the manufacturer host is unreachable from this environment (reproduces the AR-PROTCKT capture failure). The current rating data were taken from an Eaton-authored product specification sheet mirror instead.",
+      "file": null
+    },
+    {
+      "attempted": "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/bussmann-iec-high-speed-semi-conductors-fuses/eaton-bussmann-series-high-speed-fuses-application-guide-br132015en-en-us.pdf",
+      "outcome": "HTTP/1.1 timeout after 45 s, 0 bytes; not captured. Its RMS-basis and DC time-constant guidance is therefore cited only via the retained FWP sheet (RMS load current) and the retained Mersen DC application note, not from this guide.",
+      "file": null
+    },
+    {
+      "attempted": "https://www.southerncontrols.com/products/FWP-50A14F.pdf",
+      "outcome": "HTTP 200 but Content-Type text/html (117865 bytes); an HTML page, not a datasheet. Retained at raw/sources/fwp-50a14f-southerncontrols.html for the record; NOT hashed as a datasheet and NOT cited.",
+      "file": "raw/sources/fwp-50a14f-southerncontrols.html"
+    },
+    {
+      "attempted": "https://www.littelfuse.com/assetdocs/l50s-datasheet?assetguid=0b19c43c-f077-47b9-8fbc-bfe1d93a5592",
+      "outcome": "HTTP 403 with a 409-byte HTML body; retained at raw/sources/littelfuse-l50s-datasheet.403.html. Littelfuse L50S (500 Vac / 450 Vdc) was dropped as the alternative because its DC rating (450 Vdc) leaves only 12.5 percent margin on a 400 Vdc bus and no document was captured.",
+      "file": "raw/sources/littelfuse-l50s-datasheet.403.html"
+    },
+    {
+      "attempted": "Eaton/Bussmann capacitor-discharge clearing characteristic for the FWP class at 400 Vdc",
+      "outcome": "NOT FOUND. Neither the retained FWP datasheet nor the captured current-revision spec sheet publishes a capacitor-discharge rating or a DC time-constant (L/R) limit for FWP; only an AC/inductive clearing I2t (rated voltage, pf 0.15) and a 50 kA DC breaking capacity are published. What would resolve it: a manufacturer capacitor-discharge test rating / let-through curve for FWP-50A14F, or an Eaton application-engineering statement.",
+      "file": null
+    }
+  ]
+}

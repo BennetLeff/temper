@@ -1,0 +1,4 @@
+VIOLATIONS DETECTED
+  - fwp50-melting-upper-negative-control reverses the bound direction of fwp50-min-melting-i2t: Lower -> Upper
+  - fwp50-melting-upper-negative-control restates fwp50-min-melting-i2t's Minimum as a Maximum — a bound cannot flip direction
+  - fwp50-melting-upper-negative-control changes fwp50-min-melting-i2t's source condition with no supported transformation

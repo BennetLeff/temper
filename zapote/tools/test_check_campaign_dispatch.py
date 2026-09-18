@@ -93,6 +93,28 @@ def test_handback_with_receipt_is_counted(tmp_path: pathlib.Path) -> None:
     assert counted is True
 
 
+def test_a_receipt_that_does_not_report_a_pass_is_not_counted(tmp_path: pathlib.Path) -> None:
+    # a non-null receipt of any shape used to count as a validated run
+    attempt = _handback(tmp_path, "checker.rs abcd", {"status": "fail", "detail": "unexplained"})
+    failures, counted = gate.check_handback(attempt)
+    assert counted is False
+    assert any("does not report a pass" in f for f in failures), failures
+
+
+def test_a_receipt_with_no_status_is_not_counted(tmp_path: pathlib.Path) -> None:
+    attempt = _handback(tmp_path, "checker.rs abcd", {"note": "looks fine"})
+    failures, counted = gate.check_handback(attempt)
+    assert counted is False
+    assert any("does not report a pass" in f for f in failures), failures
+
+
+def test_a_receipt_with_passed_true_is_counted(tmp_path: pathlib.Path) -> None:
+    attempt = _handback(tmp_path, "checker.rs abcd", {"passed": True})
+    failures, counted = gate.check_handback(attempt)
+    assert failures == []
+    assert counted is True
+
+
 def test_declared_checker_without_receipt_is_a_failure(tmp_path: pathlib.Path) -> None:
     attempt = _handback(tmp_path, "checker.rs abcd", None)
     failures, counted = gate.check_handback(attempt)

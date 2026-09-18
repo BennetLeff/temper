@@ -1,0 +1,55 @@
+{
+  "schema": "pfc-campaign-AR-COORD-checker-receipt/v1",
+  "task_id": "AR-COORD",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "scope_disclaimer": "A clean run means NO VIOLATIONS DETECTED BY THE IMPLEMENTED CHECKS. It does not establish derivation soundness in general, does not establish that any claim is true, and is not physical evidence.",
+  "binaries": {
+    "zapote-claims": {
+      "path": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-claims",
+      "sha256": "857cf81b993a3735fe39641df16538b8a08f93ec0eb380e49ea6831379727ad6"
+    },
+    "zapote-fault-loop": {
+      "path": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-fault-loop",
+      "sha256": "6b91d64f241ac39d86def7490784a9157041f1d71777181dd42fd7a1539ce37a"
+    }
+  },
+  "checker_status": "RUN",
+  "counted_as_validated_run": false,
+  "counted_reason": "dispatch declared checker_revision_and_sha256 'not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt will not be counted as a validated run'",
+  "runs": [
+    {
+      "check": "evidence ledger",
+      "command": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-claims claims.json",
+      "exit_code": 0,
+      "stdout_file": "raw/checker/out_claims.txt",
+      "stdout": "No violations detected by implemented checks (29 claims, 5 protection claims, 2 promotions). This does not establish derivation soundness in general.",
+      "role": "required pass"
+    },
+    {
+      "check": "evidence ledger (negative control: bound reversal / min->max restatement)",
+      "command": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-claims raw/checker/negative_control_bound_reversal.json",
+      "exit_code": 1,
+      "stdout_file": "raw/checker/out_claims_negative_control.txt",
+      "stdout": "VIOLATIONS DETECTED\n  - fwp50-melting-upper-negative-control reverses the bound direction of fwp50-min-melting-i2t: Lower -> Upper\n  - fwp50-melting-upper-negative-control restates fwp50-min-melting-i2t's Minimum as a Maximum \u2014 a bound cannot flip direction\n  - fwp50-melting-upper-negative-control changes fwp50-min-melting-i2t's source condition with no supported transformation",
+      "role": "negative control; retained as the checker's teeth, not a model of this attempt"
+    },
+    {
+      "check": "fault loop (representative envelope discharge: U10/U9 and bank caps)",
+      "command": "python3 zapote/tools/check_fault_loop.py --netlist raw/evidence/netlist_fault_loop.json --loop-nets PFC_BUS_PLUS_390V,PFC_BUS_MINUS,a1 --assignments raw/assignments_envelope_representative.json",
+      "exit_code": 0,
+      "stdout_file": "raw/checker/out_fault_loop_representative.txt",
+      "stdout": "FAULT LOOP CONSISTENT (connectivity only; not a conductive-path or distribution claim)",
+      "role": "required pass (connectivity only)"
+    },
+    {
+      "check": "fault loop (negative control: current assigned to the out-of-loop shunt U12)",
+      "command": "python3 zapote/tools/check_fault_loop.py --netlist raw/evidence/netlist_fault_loop.json --loop-nets PFC_BUS_PLUS_390V,PFC_BUS_MINUS,a1 --assignments raw/assignments_negative_control_u12.json",
+      "exit_code": 1,
+      "stdout_file": "raw/checker/out_fault_loop_negative_control.txt",
+      "stdout": "FAULT LOOP INCONSISTENT\n  - U12 carries 4495.6 but only 1 of its terminals {\"PFC_BUS_MINUS\", \"minus\"} lie on the declared loop {\"PFC_BUS_MINUS\", \"PFC_BUS_PLUS_390V\", \"a1\"}",
+      "role": "negative control; retained as the checker's teeth"
+    }
+  ],
+  "claims_json_sha256": "69b1c9fc670c2913cbc107fd08c4592ad9c1bdf1ab8c6a90adfabee733e91299"
+}

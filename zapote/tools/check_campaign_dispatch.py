@@ -158,6 +158,21 @@ def check_dispatch(path: pathlib.Path, now: dt.datetime | None) -> list[str]:
     return failures
 
 
+def receipt_declares_pass(receipt: object) -> bool:
+    """A receipt counts as a machine pass only when it says so.
+
+    A non-null receipt of any shape previously counted as a validated run, so an
+    undocumented or failing receipt could be recorded as a pass. The receipt must
+    report a passing status explicitly.
+    """
+    if not isinstance(receipt, dict):
+        return False
+    status = receipt.get("status")
+    if isinstance(status, str) and status.strip().lower() == "pass":
+        return True
+    return receipt.get("passed") is True
+
+
 def check_handback(attempt_dir: pathlib.Path) -> tuple[list[str], bool]:
     """Return (failures, counted_as_validated_run)."""
     failures: list[str] = []
@@ -177,8 +192,14 @@ def check_handback(attempt_dir: pathlib.Path) -> tuple[list[str], bool]:
 
     checker_declared = dispatch.get("checker_revision_and_sha256")
     receipt = result.get("checker_receipt")
-    if receipt:
-        return failures, True
+    if receipt is not None:
+        if receipt_declares_pass(receipt):
+            return failures, True
+        failures.append(
+            "checker receipt is present but does not report a pass: "
+            f"{receipt!r}"
+        )
+        return failures, False
     if is_explicit_not_applicable(checker_declared):
         # No checker was ever issued, so no machine receipt can exist. The
         # research is retained; it is not a validated run.
