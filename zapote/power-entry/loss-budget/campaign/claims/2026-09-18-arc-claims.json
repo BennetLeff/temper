@@ -1,0 +1,51 @@
+[
+  {
+    "id": "clamp-at-50A",
+    "quantity": "mov_clamp_v",
+    "bound_kind": "upper",
+    "source_condition": "V150LA10AP, IPK = 50 A, 8/20 us, 25 C (Littelfuse LA Series rev 2024-09-16 p.2)",
+    "device_state": "healthy",
+    "derived_from": null
+  },
+  {
+    "id": "clamp-at-surge",
+    "quantity": "mov_clamp_v",
+    "bound_kind": "unknown",
+    "source_condition": "surge current through the MOV not established; not the generator prospective current",
+    "device_state": "healthy",
+    "derived_from": "clamp-at-50A",
+    "justification": null
+  },
+  {
+    "id": "bank-stored-energy",
+    "quantity": "bus_bank_energy_j",
+    "bound_kind": "point",
+    "source_condition": "2240.47 uF at 400 V, board capacitance as retained",
+    "device_state": "not_applicable",
+    "derived_from": null
+  },
+  {
+    "id": "internal-loop-interruptible-healthy-switch",
+    "quantity": "internal_loop_interruptible",
+    "bound_kind": "unknown",
+    "source_condition": "U10 shorted, U9 healthy; detection and latency budget unquantified",
+    "device_state": "healthy",
+    "derived_from": null
+  },
+  {
+    "id": "internal-loop-interruptible-failed-short",
+    "quantity": "internal_loop_interruptible",
+    "bound_kind": "unknown",
+    "source_condition": "U10 shorted, U9 failed short",
+    "device_state": "failed_short",
+    "derived_from": null
+  },
+  {
+    "id": "internal-loop-timescale",
+    "quantity": "internal_loop_timescale_s",
+    "bound_kind": "unknown",
+    "source_condition": "illustrative RC with normal-device 42 mOhm; not validated for a destructive fault",
+    "device_state": "not_applicable",
+    "derived_from": null
+  }
+]

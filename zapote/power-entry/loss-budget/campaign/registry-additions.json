@@ -109,6 +109,18 @@
       "reason": "Coordinator-issued after the AR-FAULT receipt was corrected and the discharge distribution withdrawn.",
       "hypothesis_or_question": "Capture MOV clamp behaviour at the specified surge, derive stresses on both MOSFETs and controller, and keep the surge contract provisional.",
       "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "AR-PROTCKT",
+      "kind": "engineering_design",
+      "wave": 3,
+      "depends_on": [
+        "AR-PROTECT",
+        "AR-FAULT"
+      ],
+      "reason": "Coordinator-issued: AR-PROTECT identified the gap but did not resolve it; one concrete circuit with named parts and explicit fault cases is the next step.",
+      "hypothesis_or_question": "Deliver ONE concrete protection circuit, with named parts and explicit fault cases, that addresses the internal capacitor-discharge loop and the line-fed loop.",
+      "worker_status": "DISPATCHED_attempt-001"
     }
   ]
 }

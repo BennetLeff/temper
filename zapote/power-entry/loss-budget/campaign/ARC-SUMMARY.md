@@ -109,10 +109,13 @@ heatsink across four devices, each averages **1.95 W** — not 3.91 W — giving
 Recovery, inrush and EMI remain **unknown and not subtracted**, so these are
 upper-side estimates.
 
-**MOV.** The V150LA10AP clamps at **395 V maximum at 50 A, 8/20 µs**. But the
-clamp is guaranteed only at 50 A while the provisional contract's prospective
-current is ~500 A, so **395 V is a lower bound and the margins are optimistic**.
-The surge contract itself is **assumed, not adopted**.
+**MOV.** The V150LA10AP clamps at **395 V maximum at 50 A, 8/20 µs** — an
+*upper* bound, at that current only. The clamp at the surge current **cannot be
+bounded in either direction** from this specification: a device could clamp at
+350 V at 50 A and 380 V at a higher current while satisfying both statements.
+The MOV current is also not the generator's prospective ~500 A figure. So the
+surge verdict is **unknown**, and the surge contract itself is **assumed, not
+adopted**.
 
 ## 6. The finding that is not a measurement
 
@@ -122,11 +125,19 @@ The real switch-short stress is **current and energy**:
 
 - Bus bank **2240.47 µF**, **179.24 J** stored at 400 V.
 - The internal discharge loop (capacitors → shorted boost diode → switch →
-  capacitors) has a **~100 µs** timescale and **nothing interrupts it**.
-- Gate shutdown cannot open the line loop: with all drivers off the body diodes
-  conduct. Because the active bridge conducts through channels rather than ~2
-  diode drops, it **lowers** the loop impedance and **raises** the prospective
-  current.
+  capacitors) **bypasses both the shunt and F1**. Its physical timescale, peak
+  current and energy distribution are **unresolved**: an illustrative RC
+  calculation gives 94.1 µs, but it assumes normal-device resistance describes a
+  destructive fault.
+- The **line-fed** loop: gate shutdown cannot open it, because with all drivers
+  off the bridge's body diodes conduct. And because the active bridge conducts
+  through channels rather than ~2 diode drops, it **lowers** the loop impedance
+  and **raises** the prospective current.
+- The **internal** loop is device-state dependent, and two cases must be kept
+  apart: a *healthy* switch may potentially be turned off after the diode shorts,
+  subject to an unquantified detection-and-latency budget, while an
+  *already-failed-short* switch cannot. In the failed-short case nothing
+  interrupts the loop.
 - F1 (16 A time-lag) publishes 1,638 A²s melting I²t at 10× rated and 160 A
   breaking capacity — which **do not** establish safe interruption at matching
   conditions.
@@ -157,7 +168,7 @@ without a checker are recorded as evidence rather than validated runs.
 
 ## 8. Enforcement added
 
-Two things that were previously noticed after the fact are now machine-checked:
+Three things that were previously noticed after the fact are now machine-checked:
 
 - `zapote/tools/check_campaign_dispatch.py` — rejects a dispatch issued after its
   own deadline, and refuses to count a handback as a validated run without a
@@ -166,6 +177,16 @@ Two things that were previously noticed after the fact are now machine-checked:
   rejects an energy model that assigns current to an element that cannot conduct
   in the declared loop. It is a **necessary connectivity check only**, and says
   so in its own output.
+- `zapote-erc::evidence_claims` (Rust, CLI `zapote-claims`) — rejects a derivation
+  that reverses a **bound direction**, drops a **source condition**, or changes a
+  **device state** without justification. The three error classes from the
+  withdrawn AR-MOV and AR-PROTECT claims are reproduced as a negative control in
+  `zapote/power-entry/loss-budget/campaign/claims/`.
+
+The recurring lesson, now encoded: **preserve bound direction, source conditions
+and device state in structured evidence.** The connectivity gate catches one
+mistake and cannot serve as the acceptance gate for a whole assessment — and
+neither can this third check: it rejects unsound *derivations*, not false claims.
 
 ## 9. What is settled, and what is not
 
@@ -173,8 +194,9 @@ Two things that were previously noticed after the fact are now machine-checked:
 switching model is contradicted by an independent model at the tested condition;
 the input bridge's forward-drop band rests on a test point the datasheet
 contradicts; the active rectifier's nominal conduction opportunity is ~20 W
-typical; the 586.7 V fault claim is refuted; an internal 179 J discharge path has
-no interrupter.
+typical; the 586.7 V fault claim is refuted; and — on protection — the bus bank
+stores ~179 J, the internal fault bypasses both the shunt and F1, and **adequate
+protection has not been demonstrated**.
 
 **Open, and each needs a specific input:**
 
@@ -184,7 +206,7 @@ no interrupter.
 | Is the bridge's true loss 23, 28 or 35 W? | a candidate bridge part, characterized on the same basis |
 | Does the real switching loss match any model? | a device-level clamped-inductive measurement |
 | Is the frequency axis worth revisiting? | a sourced choke's core and AC loss at bias |
-| Is the design protected against an internal short? | a DC-rated interruption in the discharge path, and F1's total clearing behaviour |
+| Is the design protected against an internal short? | one concrete protection circuit with named parts and explicit fault cases |
 
 **Not done:** no bench or powered operation, no procurement, and no CAD or BOM
 change. No candidate is qualified; `hardware_qualification` is NOT_PERFORMED

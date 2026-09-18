@@ -17,18 +17,32 @@ only one of them has an interrupting element:
 
 | | (i) line-fed switch short | (ii) internal cap discharge |
 | --- | --- | --- |
-| Source / timescale | AC mains, ms | DC bank, **~100 µs** (τ = 94.1 µs) |
+| Source / timescale | AC mains, ms class | DC bank; **timescale unresolved** — an illustrative RC calc gives 94.1 µs, but it assumes the normal-device 42 mΩ describes a destructive fault |
 | Limiting impedance | line/source — **unknown** | not defensibly modelled |
 | Energy | **null** | **179.238 J** |
 | Loop | mains → bridge → U8 → shorted U9 → **U12** → back | **caps → shorted U10 → U9 → caps, bypassing U12** |
 | Interrupter | F1 (coordination unestablished) | **none** |
 
-A **crowbar diverts, it does not interrupt**. Gate shutdown cannot open the
-line loop either: with all drivers off the body diodes conduct, so the stage
-reverts to a passive-diode path. And by conducting through channels rather than
-~2 diode drops, the active bridge **lowers** the loop impedance and **raises**
-the prospective fault current — the protection problem is worse than for the
-passive bridge it replaces.
+A **crowbar diverts, it does not interrupt**. For the line-fed loop, gate
+shutdown cannot open it: with all drivers off the bridge's body diodes conduct,
+so the stage reverts to a passive-diode path. And by conducting through channels
+rather than ~2 diode drops, the active bridge **lowers** the loop impedance and
+**raises** the prospective fault current — the protection problem is worse than
+for the passive bridge it replaces.
+
+**The internal loop is a separate, device-state-dependent case**, because it
+requires `U9` to conduct. Two cases must be kept apart:
+
+- **`U9` healthy:** it may potentially be commanded off after `U10` shorts,
+  subject to detection, latency and turn-off stresses — which are unquantified.
+  The loop may therefore be interruptible by the controller, on a latency budget
+  nobody has established.
+- **`U9` already failed short:** it cannot be turned off, and nothing else in the
+  loop interrupts it.
+
+The report's blanket claim that shutdown cannot open "a conducting U9" collapsed
+those two cases; the receipt repeated it. The shunt's inability to sense the loop
+is a real problem in **both** cases and is unaffected by this correction.
 
 ## Active-bridge survival: null, correctly
 
@@ -57,15 +71,25 @@ model (`U9` + `U12`) correctly reports `FAULT LOOP INCONSISTENT` under the
 Rust-backed checker. The checker's claim stays narrow — connectivity only, not
 a conductive path, device state, direction or distribution.
 
-## Recommendation
+## Recommendation: the gap is identified, not resolved
 
-1. Add a **DC-rated, semiconductor-grade interrupting element in series with the
-   internal discharge path**, coordinated to carry ~4.5 A and clear a ~100 µs
-   multi-kA pulse; or a bus crowbar **plus** a coordinated series interruption
-   and energy-handling path.
-2. For the line-fed loop, establish **F1's total clearing behaviour** at matching
-   conditions and confirm the device stays inside its SOA; otherwise a faster
-   line-side element, or an active trip **with a series interrupter**.
+AR-PROTECT establishes that **no protection has been demonstrated** for the
+internal loop. It does not establish a protection design.
+
+1. "Add a DC-rated, semiconductor-grade interrupting element in series with the
+   internal discharge path" is an **architectural proposal, not a result**: no
+   device is selected and no coordinated clearing analysis demonstrates
+   interruption of a multi-kA pulse.
+2. The **~4.5 A average bus current is not a sizing basis** for an element that
+   must carry pulsed charging current and clear a fault pulse. Sizing needs the
+   pulse waveform and the prospective current, both unresolved above.
+3. For the line-fed loop, establishing **F1's total clearing behaviour** at
+   matching conditions remains the first step, with a faster line-side element or
+   an active trip **with a series interrupter** as alternatives.
+4. Do not credit the controller with interruption.
+
+The next step is **one concrete protection circuit with named parts and explicit
+fault cases**, not a further proposal list.
 3. Do not credit the controller with interruption.
 
 ## Single gating input

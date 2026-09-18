@@ -2,8 +2,9 @@
 
 Date: 2026-09-18
 Attempt: `.../runs/2026-09-17-pfc-campaign/AR-MOV/attempt-001/`
-Verdict: **ACCEPTED_CONDITIONAL**, with one critical caveat that keeps the
-voltage verdict one-sided.
+Verdict: **ACCEPTED_CONDITIONAL**, with one critical caveat: the clamp at the
+surge current is unknown, so the voltage verdict cannot be settled from this
+source.
 
 ## Admission
 
@@ -21,12 +22,28 @@ retained as failures.
 
 ## The critical caveat
 
-**The datasheet guarantees the clamp only at 50 A. The provisional contract's
-prospective L-L current is ~500 A.** At that current the clamp is *higher* and
-untabulated, so **395 V is a lower bound and every margin below is optimistic**.
+**395 V is an UPPER bound, and only at 50 A.** The datasheet's `VC = 395 V
+maximum at IPK = 50 A` says the device clamps at *no more than* 395 V at 50 A.
+It is **not** a lower bound at any current: a device could clamp at 350 V at 50 A
+and 380 V at a higher current while satisfying both statements, so the clamp at
+the surge current **cannot be bounded from this specification in either
+direction**. It is **unknown**.
+
+Two further limits on the arithmetic:
+
+- **The MOV current is not the generator's prospective current.** ~500 A is the
+  provisional generator short-circuit figure; the current through a
+  line-to-neutral MOV during a surge depends on coupling and source impedance,
+  and is not established here.
+- The 1.52× margin is evaluated at 395 V, which is an **upper bound at 50 A**, so
+  it is the most favourable reading rather than a conservative one — and the
+  margin at the real surge current is unknown either way.
+
 The attempt set `clamp_at_provisional_product_surge_v = null` rather than
-extrapolating, and explicitly rejected an automated Figure-10 trace as
-unreliable when it hopped between adjacent curves. That is the right call.
+extrapolating, and rejected an automated Figure-10 trace when it hopped between
+adjacent curves. That is the right call. This receipt's earlier claim that 395 V
+is "a lower bound" and that margins "are necessarily smaller" had the
+datasheet's bound direction backwards and is withdrawn.
 
 ## Derived stresses, each against its own limit
 
@@ -39,8 +56,8 @@ unreliable when it hopped between adjacent curves. That is the right call.
   limit. Above ~440 V they **exceed the operating limit during the surge**. A
   higher-rated MOSFET does not lower that node.
 
-Both are one-sided for the reason above, and both shrink at the real surge
-current.
+Both are evaluated at 395 V. Neither the clamp value nor the margin at the real
+surge current is established, in either direction.
 
 ## Surge contract: provisional, as required
 
@@ -62,7 +79,8 @@ no MOV clamp is admissible there.
 **The V150LA10AP clamp voltage at the actual MOV current of the surge event** —
 an 8/20 µs V-I value at a few hundred amps, under a **committed** surge
 requirement rather than the datasheet's 50 A test point. Until it is known, both
-the MOSFET rating margin and the controller node-stress verdict are one-sided.
+the MOSFET rating margin and the controller node-stress verdict cannot be
+evaluated at the real surge current.
 
 ## Net effect
 
