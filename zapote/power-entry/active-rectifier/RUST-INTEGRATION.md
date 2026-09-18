@@ -87,7 +87,8 @@ and [power-entry report](evidence/rust-integration-01/common-suite-03/power-entr
   obligations remain indeterminate, not silently omitted or qualified.
 - Focused verification: 99 ERC library tests, 5 active ERC integration tests,
   11 active harness tests and 6 native-binding tests pass. Import-boundary,
-  regeneration and diff-whitespace checks pass.
+  regeneration and source diff-whitespace checks pass. Raw Cargo output
+  retains terminal blank lines, which the full diff-whitespace check reports.
 - The optional full workspace run was interrupted after 28 minutes in the
   unchanged retained shunt-assembly thermal replay; no complete workspace pass
   is claimed. The separate maintained GBJ suite was interrupted after 20 minutes
