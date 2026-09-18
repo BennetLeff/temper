@@ -1,0 +1,342 @@
+{
+  "schema": "pfc-campaign-claims/v1",
+  "task_id": "AR-PROTCKT",
+  "attempt_id": "attempt-001",
+  "note": "Protection identified and one part selected; coordination NOT demonstrated; hardware NOT verified. No promotion to coordination_demonstrated. Every R_loop-derived quantity is illustrative/assumed and stays null.",
+  "claims": [
+    {
+      "id": "bank-stored-energy",
+      "quantity": "bus_bank_energy_j",
+      "part": null,
+      "value_kind": "measured",
+      "bound_kind": "point",
+      "source_condition": "2240.47 uF (U36-U39 4x560uF + U40 470nF) at 400 V bus setpoint; equal voltage across the parallel bank",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "2d286719ec416df8adfdd4b5c207d19dffe061dddeb2fb11fd2303550738cadb"
+        },
+        {
+          "path": "raw/netlist_fault_loop.json",
+          "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "fuse-dc-voltage-rating",
+      "quantity": "fuse_dc_voltage_rating_v",
+      "part": "FWP-50A14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "800 Vdc (5-50 A, non-striker), UL; Cooper Bussmann Data Sheet 720025",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "fuse-dc-breaking-capacity",
+      "quantity": "fuse_dc_breaking_capacity_a",
+      "part": "FWP-50A14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "50 kA at 800 Vdc; Cooper Bussmann Data Sheet 720025",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "fuse-min-melting-i2t",
+      "quantity": "fuse_min_melting_i2t_a2s",
+      "part": "FWP-50A14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "minimum melting I2t, FWP-50A14F, 14x51 mm ferrule; Cooper Bussmann Data Sheet 720025",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "fuse-clearing-i2t",
+      "quantity": "fuse_total_clearing_i2t_a2s",
+      "part": "FWP-50A14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "clearing I2t at rated voltage, power factor 0.15 (AC/inductive test); NOT a 400 Vdc capacitor-discharge condition",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "internal-prospective-peak",
+      "quantity": "internal_loop_peak_current_a",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "series R-C model, V0 = 400 V; loop resistance not established; model not validated for a destructive fault",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "internal-loop-action-i2t",
+      "quantity": "internal_loop_action_i2t_a2s",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "E/R with E = 179.24 J; loop resistance R not established",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "internal-melts-f2-condition",
+      "quantity": "internal_loop_melts_f2",
+      "part": "FWP-50A14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "R_loop unknown; conditional melting threshold E / 200 A2s = 0.896 ohm (illustrative)",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "internal-fuse-clears",
+      "quantity": "internal_fuse_clearing_demonstrated",
+      "part": "FWP-50A14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "prospective peak and action I2t not established; clearing I2t published only for AC/inductive test",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "2d286719ec416df8adfdd4b5c207d19dffe061dddeb2fb11fd2303550738cadb"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "line-fed-prospective-peak",
+      "quantity": "line_fed_peak_current_a",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "AC source/line impedance not established; 108/120/132 Vrms contract lines",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "f1-breaking-capacity",
+      "quantity": "f1_breaking_capacity_a",
+      "part": "Schurter 0034.3129",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "160 A at 250 VAC, as recorded in the AR-FAULT coordinator receipt; primary Schurter datasheet not re-captured in this attempt",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/AR-FAULT-coordinator-receipt.md",
+          "sha256": "38e0b63df694534760de855961997081b2ab6c6e1985961b5fe4ec3cd9362228"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "f1-melting-i2t",
+      "quantity": "f1_melting_i2t_a2s",
+      "part": "Schurter 0034.3129",
+      "value_kind": "typical",
+      "bound_kind": "point",
+      "source_condition": "typical melting I2t at 10x rated, as recorded in the AR-FAULT coordinator receipt",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/AR-FAULT-coordinator-receipt.md",
+          "sha256": "38e0b63df694534760de855961997081b2ab6c6e1985961b5fe4ec3cd9362228"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "mov-clamp-at-50a",
+      "quantity": "mov_clamp_v",
+      "part": "V150LA10AP",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "V150LA10AP, IPK = 50 A, 8/20 us, 25 C; Littelfuse LA Series Rev VL 16/9/2024 p.2",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/littelfuse_LA_series_datasheet.pdf",
+          "sha256": "8e6c56a7901cc2748a4a58685ccdc7228b13ee07dc5442c411824172e00a7ecc"
+        },
+        {
+          "path": "raw/littelfuse_LA_series_page2_table.txt",
+          "sha256": "95f6968923b7e24b6b79ff6eb1b04ef735278516cf018f68d4066185ed92d46f"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "mov-clamp-at-surge",
+      "quantity": "mov_clamp_v",
+      "part": "V150LA10AP",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "operating 8/20 us surge current through the MOV is not established",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": "mov-clamp-at-50a",
+      "justification": null,
+      "condition_transformation": "the operating surge condition is not established; the bound is weakened to unknown rather than moved"
+    },
+    {
+      "id": "surge-contract-provisional",
+      "quantity": "surge_test_level_v",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "IEC 61000-4-5 1 kV L-L / 2 kV L-PE assumed; no committed requirement document names it",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null,
+      "justification": null
+    }
+  ],
+  "protection_claims": [
+    {
+      "case_id": "case-a-U10-short-U9-healthy",
+      "fault_case": "healthy_on",
+      "interrupting_device": "FWP-50A14F",
+      "interrupting_device_state": "healthy_on",
+      "interrupts": false,
+      "evidence": [
+        {
+          "path": "raw/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ]
+    },
+    {
+      "case_id": "case-b-U10-short-U9-failed-short",
+      "fault_case": "failed_short",
+      "interrupting_device": "FWP-50A14F",
+      "interrupting_device_state": "healthy_on",
+      "interrupts": false,
+      "evidence": [
+        {
+          "path": "raw/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ]
+    },
+    {
+      "case_id": "case-c-line-fed-switch-short",
+      "fault_case": "failed_short",
+      "interrupting_device": "F1",
+      "interrupting_device_state": "healthy_off",
+      "interrupts": false,
+      "evidence": [
+        {
+          "path": "raw/AR-FAULT-coordinator-receipt.md",
+          "sha256": "38e0b63df694534760de855961997081b2ab6c6e1985961b5fe4ec3cd9362228"
+        }
+      ]
+    },
+    {
+      "case_id": "case-d-line-surge",
+      "fault_case": "not_applicable",
+      "interrupting_device": null,
+      "interrupting_device_state": "not_applicable",
+      "interrupts": false,
+      "evidence": []
+    },
+    {
+      "case_id": "case-e-line-to-PE-surge",
+      "fault_case": "not_applicable",
+      "interrupting_device": null,
+      "interrupting_device_state": "not_applicable",
+      "interrupts": false,
+      "evidence": []
+    }
+  ],
+  "promotions": [
+    {
+      "subject": "concrete-protection-circuit",
+      "from": "none",
+      "to": "protection_identified",
+      "evidence": [
+        {
+          "path": "raw/protection_arrangement.json",
+          "sha256": "aa15889e0d53e07929bacb2187866d777bf262155f017259a498be3e7ce29066"
+        }
+      ]
+    },
+    {
+      "subject": "concrete-protection-circuit",
+      "from": "protection_identified",
+      "to": "part_selected",
+      "evidence": [
+        {
+          "path": "raw/protection_arrangement.json",
+          "sha256": "aa15889e0d53e07929bacb2187866d777bf262155f017259a498be3e7ce29066"
+        },
+        {
+          "path": "raw/fwp-1-50a.pdf",
+          "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974"
+        }
+      ]
+    }
+  ]
+}

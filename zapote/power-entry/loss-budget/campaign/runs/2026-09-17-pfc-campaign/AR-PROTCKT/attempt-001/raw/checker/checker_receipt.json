@@ -1,0 +1,63 @@
+{
+  "schema": "pfc-campaign-AR-PROTCKT-checker-receipt/v1",
+  "task_id": "AR-PROTCKT",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "scope_disclaimer": "A clean run means NO VIOLATIONS DETECTED BY THE IMPLEMENTED CHECKS. It does not establish derivation soundness in general, does not establish that any claim is true, and is not physical evidence.",
+  "binaries": {
+    "zapote-claims": {
+      "path": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-claims",
+      "sha256": "857cf81b993a3735fe39641df16538b8a08f93ec0eb380e49ea6831379727ad6"
+    },
+    "zapote-fault-loop": {
+      "path": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-fault-loop",
+      "sha256": "6b91d64f241ac39d86def7490784a9157041f1d71777181dd42fd7a1539ce37a"
+    }
+  },
+  "checker_status": "RUN",
+  "counted_as_validated_run": false,
+  "counted_reason": "dispatch declared checker_revision_and_sha256 'not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt will not be counted as a validated run'",
+  "runs": [
+    {
+      "check": "evidence ledger",
+      "command": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-claims claims.json",
+      "exit_code": 0,
+      "stdout_file": "raw/checker/out_claims.txt",
+      "stdout": "No violations detected by implemented checks (15 claims, 5 protection claims, 2 promotions). This does not establish derivation soundness in general.",
+      "role": "required pass"
+    },
+    {
+      "check": "evidence ledger (negative control: withdrawn AR-MOV bound reversal)",
+      "command": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-claims raw/checker/negative_control_bound_reversal.json",
+      "exit_code": 1,
+      "stdout_file": "raw/checker/out_claims_negative_control.txt",
+      "stdout": "VIOLATIONS DETECTED\n  - mov-clamp-above-50a-lower-bound reverses the bound direction of mov-clamp-at-50a: Upper -> Lower\n  - mov-clamp-above-50a-lower-bound restates mov-clamp-at-50a's Maximum as a Minimum - a bound cannot flip direction",
+      "role": "negative control; retained as the checker's teeth, not a model of this attempt"
+    },
+    {
+      "check": "fault loop (illustrative loop current + bank energy)",
+      "command": "python3 zapote/tools/check_fault_loop.py --netlist raw/netlist_fault_loop.json --loop-nets PFC_BUS_PLUS_390V,PFC_BUS_MINUS,a1 --assignments raw/assignments_loop_illustrative.json",
+      "exit_code": 0,
+      "stdout_file": "raw/checker/out_fault_loop_illustrative.txt",
+      "stdout": "FAULT LOOP CONSISTENT (connectivity only; not a conductive-path or distribution claim)",
+      "role": "required pass (connectivity only)"
+    },
+    {
+      "check": "fault loop (null distribution)",
+      "command": "python3 zapote/tools/check_fault_loop.py --netlist raw/netlist_fault_loop.json --loop-nets PFC_BUS_PLUS_390V,PFC_BUS_MINUS,a1 --assignments raw/assignments_null_distribution.json",
+      "exit_code": 0,
+      "stdout_file": "raw/checker/out_fault_loop_null.txt",
+      "stdout": "FAULT LOOP CONSISTENT (connectivity only; not a conductive-path or distribution claim)",
+      "role": "required pass (connectivity only)"
+    },
+    {
+      "check": "fault loop (negative control: withdrawn U12 = 34 A)",
+      "command": "python3 zapote/tools/check_fault_loop.py --netlist raw/netlist_fault_loop.json --loop-nets PFC_BUS_PLUS_390V,PFC_BUS_MINUS,a1 --assignments raw/assignments_withdrawn_negative_control.json",
+      "exit_code": 1,
+      "stdout_file": "raw/checker/out_fault_loop_negative_control.txt",
+      "stdout": "FAULT LOOP INCONSISTENT\n  - U12 carries 34 but only 1 of its terminals {\"PFC_BUS_MINUS\", \"minus\"} lie on the declared loop {\"PFC_BUS_MINUS\", \"PFC_BUS_PLUS_390V\", \"a1\"}",
+      "role": "negative control; retained as the checker's teeth, not a model of this attempt"
+    }
+  ],
+  "claims_json_sha256": "64135a3a1117a3ee15a2f25825ffb2f5355425ec4a2cf8896c42c7393ddc93e9"
+}

@@ -1,0 +1,3 @@
+VIOLATIONS DETECTED
+  - mov-clamp-above-50a-lower-bound reverses the bound direction of mov-clamp-at-50a: Upper -> Lower
+  - mov-clamp-above-50a-lower-bound restates mov-clamp-at-50a's Maximum as a Minimum — a bound cannot flip direction

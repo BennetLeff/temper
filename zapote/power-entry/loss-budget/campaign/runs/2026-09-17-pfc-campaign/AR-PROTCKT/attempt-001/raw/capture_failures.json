@@ -1,0 +1,49 @@
+{
+  "schema": "pfc-campaign-AR-PROTCKT-capture-failures/v1",
+  "captured_ok": [
+    {
+      "file": "raw/fwp-1-50a.pdf",
+      "source": "https://storage.sea.com.ua/tech_info/bussmann/BUS_Ele_Ferrule_FWP_1_50A_Striker_Optional.pdf",
+      "document": "Cooper Bussmann High Speed Fuses catalogue page, Data Sheet 720025, FWP 690V/700V 1-50 A (14x51 mm)",
+      "http": 200
+    },
+    {
+      "file": "raw/fwp-720012-salsify.pdf",
+      "source": "https://images.salsify.com/image/upload/s---ScYTn09--/ipaxsgs5nqgektsyecro.pdf",
+      "document": "Bussmann series FWP 5-1200 A high speed fuses, Data Sheet 720012 (secondary confirmation)",
+      "http": 200
+    },
+    {
+      "file": "raw/littelfuse_LA_series_datasheet.pdf",
+      "source": "AR-MOV/attempt-001/raw (Littelfuse LA Series, Rev VL 16/9/2024), copied byte-for-byte",
+      "note": "captured by the AR-MOV attempt; sha256 confirms it is the same Rev VL 16/9/2024 document"
+    }
+  ],
+  "failures": [
+    {
+      "attempted": "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/bussmann-iec-high-speed-semi-conductors-fuses/bussmann-iec-ferrule-high-speed-fuses/eaton-bussmann-series-fwp-14x51mm-ferrule-high-speed-fuses-datasheet-720024-en-gb.pdf",
+      "outcome": "curl error 92 (HTTP/2 stream not closed cleanly, INTERNAL_ERROR); retried --http1.1, timed out after 30 s with 0 bytes",
+      "note": "manufacturer host unreachable from this environment; manufacturer-authored mirror used instead"
+    },
+    {
+      "attempted": "https://www.eaton.com/content/dam/.../eaton-bussmann-series-fwp-22x58mm-ferrule-high-speed-fuses-datasheet-720026-en-gb.pdf",
+      "outcome": "curl error 92 then timeout",
+      "note": "not needed; 14x51 mm part selected"
+    },
+    {
+      "attempted": "https://www.eaton.com/content/dam/.../eaton-bussmann-series-fwp-50-1200-amps-north-american-fuses-datasheet-720012-en-gb.pdf",
+      "outcome": "curl error 92 then timeout; the salsify mirror of the same Data Sheet 720012 was captured",
+      "note": "secondary"
+    },
+    {
+      "attempted": "https://www.expressfuses.com/pub/media/catalog/product/file/bussmann-fwp-a14f-cylindrical-semiconductor-fuses.pdf",
+      "outcome": "HTTP 403; a Cloudflare challenge HTML body (5459 bytes) was returned, retained at raw/capture/fwp-a14f-403-body.html for the record",
+      "note": "per WORKER.md, the HTML was not hashed and called a datasheet; the real FWP data came from raw/fwp-1-50a.pdf"
+    },
+    {
+      "attempted": "primary Schurter datasheet for 0034.3129 (F1)",
+      "outcome": "not attempted within budget; F1 ratings are cited from the retained AR-FAULT coordinator receipt, and that secondary-source condition is recorded on the claim",
+      "note": "would resolve the f1-* claims from primary bytes"
+    }
+  ]
+}

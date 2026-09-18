@@ -1,0 +1,152 @@
+{
+  "schema": "pfc-campaign-AR-PROTCKT-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-PROTCKT",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_design",
+  "generated_utc": "2026-09-18",
+  "contract_path": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "checkout_path": "zapote",
+  "worktree_path": ".worktrees/codex/buck-harness-experiment-plan",
+  "worktree_head": "025e2faecf00ebb1763c4bafd0d3aed0dc57c07f",
+  "dispatch_source_revision": "c11915ae311e2b77b62ec1ef6cd18ecb70695ebb",
+  "source_revision_relation": "direct ancestor of HEAD (verified with 'git merge-base --is-ancestor'); the four commits between are the coordinator's checker/hardening commits and the AR-PROTCKT dispatch. Source-only attempt; the delta cannot affect a number.",
+  "evidence_class": "source_research",
+  "checker_declared_not_applicable": true,
+
+  "delivered_inputs": [
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-PROTCKT/attempt-001/dispatch.json", "sha256": "6f4271c1e8332d1de8beb2ea00abcf4c72535cb289c5d9af74ace6882ac8750e"},
+    {"path": "zapote/power-entry/loss-budget/campaign/claims/2026-09-18-arc-claims.json", "sha256": "62884b587c55331893262bae5d9e698f9831efb6161f7d32b11d17d983a4f56f"},
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-PROTECT/attempt-001/coordinator-receipt.md", "sha256": "5e33dbb55932a2a3e06c4bb2375c8b24cad08e1b8cd229605a70e29750a0ee8c"},
+    {"path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/raw/netlist_fault_loop.json", "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b"}
+  ],
+
+  "circuit_under_assessment": {
+    "board": "pcb/temper.kicad_pcb (retained candidate), 108/120/132 Vrms, 400 V bus, 1796.31 W requested",
+    "line_fed_loop": "mains -> F1 -> CMC U3 -> NTC U4 / bypass relay U5 -> bridge U1 -> plus -> boost inductor U8 -> a1 -> boost switch U9 -> PFC_BUS_MINUS -> shunt U12 -> minus -> bridge return",
+    "internal_discharge_loop": "capacitor bank (PFC_BUS_PLUS_390V) -> shorted boost diode U10 -> a1 -> U9 -> capacitor bank (PFC_BUS_MINUS)",
+    "key_components": {
+      "U1": "GBJ2510-F passive bridge (incumbent); proposed replacement is a TEA2209T/1 active bridge (AR-DESIGN)",
+      "U7": "V150LA10AP line-to-neutral MOV",
+      "U8": "760800301 boost inductor",
+      "U9": "STW65N65DM2AG boost switch (650 V SiC-drive MOSFET class)",
+      "U10": "C3D20065D SiC boost diode",
+      "U11": "UCC28180D PFC controller",
+      "U12": "HCSM2818FT10L0 10 mOhm shunt (NOT in the internal discharge loop; only 1 terminal on it)",
+      "U36-U39": "LGX2W561MELC50 4 x 560 uF bus electrolytics",
+      "U40": "B32672P6474K000 470 nF bus film",
+      "F1": "Schurter 0034.3129, 16 A time-lag, 250 VAC"
+    },
+    "stored_energy_j": 179.2376,
+    "stored_energy_basis": "0.5 * 2240.47 uF * (400 V)^2"
+  },
+
+  "candidate_parts": [
+    {
+      "reference": "F2 (new)",
+      "part": "FWP-50A14F",
+      "manufacturer": "Eaton / Cooper Bussmann",
+      "package": "14 x 51 mm ferrule, non-striker",
+      "role": "series DC-bus interrupter, in the internal discharge loop",
+      "source": "raw/fwp-1-50a.pdf (Cooper Bussmann High Speed Fuses, Data Sheet 720025, FWP 690V/700V 1-50 A)",
+      "ratings": {
+        "rated_current_a": 50,
+        "dc_voltage_rating_v": 800,
+        "dc_breaking_capacity_a_at_800vdc": 50000,
+        "min_melting_i2t_a2s": 200,
+        "clearing_i2t_at_rated_voltage_a2s": 1800
+      },
+      "rating_conditions": "clearing I2t published at rated voltage and power factor 0.15; not a 400 Vdc capacitor-discharge condition"
+    },
+    {
+      "reference": "U7 (existing)",
+      "part": "V150LA10AP",
+      "manufacturer": "Littelfuse",
+      "role": "line-to-neutral surge clamp",
+      "source": "raw/littelfuse_LA_series_datasheet.pdf (Rev VL 16/9/2024), raw/littelfuse_LA_series_page2_table.txt, raw/figures/littelfuse-la-p7-07.png (Figure 10)",
+      "ratings": {
+        "vc_max_at_50a_8_20us_v": 395,
+        "itm_8_20us_a": 4500,
+        "wtm_10_1000us_j": 45,
+        "vnom_v": [216, 264]
+      },
+      "bound_note": "395 V is a MAXIMUM at 50 A (an UPPER bound at that current only); it bounds no other current in either direction"
+    },
+    {
+      "reference": "F1 (existing)",
+      "part": "Schurter 0034.3129",
+      "manufacturer": "Schurter",
+      "role": "line-fed loop series interrupter",
+      "source": "raw/AR-FAULT-coordinator-receipt.md (secondary; primary Schurter datasheet not captured this attempt)",
+      "ratings": {
+        "rated_current_a": 16,
+        "breaking_capacity_a_at_250vac": 160,
+        "typical_melting_i2t_at_10x_a2s": 1638
+      }
+    }
+  ],
+
+  "fault_cases": [
+    {"id": "a", "name": "U10 shorted, U9 healthy", "device_states": {"U10": "failed_short", "U9": "healthy_on"}, "candidate_interrupter": "F2 by I2t; alternatively U9 turn-off", "interrupts_as_demonstrated": false, "detection_latency_budget": "unquantified; no loop-current sensor exists"},
+    {"id": "b", "name": "U10 shorted, U9 failed short", "device_states": {"U10": "failed_short", "U9": "failed_short"}, "candidate_interrupter": "F2 only", "interrupts_as_demonstrated": false},
+    {"id": "c", "name": "line-fed switch short with the bridge following", "device_states": {"U9": "failed_short", "bridge": "conducts"}, "candidate_interrupter": "F1", "interrupts_as_demonstrated": false},
+    {"id": "d", "name": "line surge", "device_states": "not_applicable", "candidate_element": "U7 MOV (clamps; does not interrupt)", "required_clamp_at_operating_current_v": null},
+    {"id": "e", "name": "cannot interrupt", "items": ["internal discharge if F2 does not clear", "any already-bolted short", "crowbar alone", "line fault below F1 threshold", "line-to-PE/common-mode surge", "case (b) if demonstrated clearing is required"]}
+  ],
+
+  "assumed_vs_sourced": {
+    "sourced": [
+      "bank capacitance 2240.47 uF and 400 V bus (contract C1.1)",
+      "internal loop topology and 179.2376 J stored energy",
+      "FWP-50A14F ratings (800 Vdc, 50 kA at 800 Vdc, 200 A2s min melting, 1800 A2s clearing, 50 A)",
+      "V150LA10AP ratings and the 395 V max at 50 A / 8-20 us point",
+      "F1 160 A at 250 VAC and 1638 A2s melting at 10x (secondary source)"
+    ],
+    "assumed": [
+      "the internal loop is an overdamped single-R series R-C discharge (illustrative; not validated for a destructive fault)",
+      "IEC 61000-4-5 1 kV L-L / 2 kV L-PE surge contract (no committed requirement document)",
+      "the prospective line-fed and internal-loop currents are unknown; every current/an energy derived from them is illustrative"
+    ]
+  },
+
+  "nulls_by_design": {
+    "internal_loop_resistance_ohm": null,
+    "internal_loop_peak_current_a": null,
+    "internal_loop_action_i2t_a2s": null,
+    "fuse_clearing_at_400vdc_cap_discharge": null,
+    "line_fed_peak_current_a": null,
+    "f1_total_clearing_at_matching_conditions": null,
+    "mov_current_at_operating_surge_a": null,
+    "mov_required_clamp_v": null,
+    "u9_gate_state_at_fault": null,
+    "internal_loop_energy_split_j": null
+  },
+
+  "source_capture_failures": ["raw/capture_failures.json"],
+  "raw_artifacts": [
+    "raw/compute_ar_protckt.py",
+    "raw/compute_result.json",
+    "raw/protection_arrangement.json",
+    "raw/build_claims.py",
+    "raw/netlist_fault_loop.json",
+    "raw/assignments_loop_illustrative.json",
+    "raw/assignments_null_distribution.json",
+    "raw/assignments_withdrawn_negative_control.json",
+    "raw/fwp-1-50a.pdf",
+    "raw/fwp-720012-salsify.pdf",
+    "raw/littelfuse_LA_series_datasheet.pdf",
+    "raw/littelfuse_LA_series_page2_table.txt",
+    "raw/littelfuse_LA_series_page7_14mm_vi.txt",
+    "raw/figures/littelfuse-la-p7-07.png",
+    "raw/AR-FAULT-coordinator-receipt.md",
+    "raw/capture_failures.json",
+    "raw/checker/checker_receipt.json",
+    "raw/checker/negative_control_bound_reversal.json",
+    "raw/checker/out_claims.txt",
+    "raw/checker/out_claims_negative_control.txt",
+    "raw/checker/out_fault_loop_illustrative.txt",
+    "raw/checker/out_fault_loop_null.txt",
+    "raw/checker/out_fault_loop_negative_control.txt"
+  ]
+}

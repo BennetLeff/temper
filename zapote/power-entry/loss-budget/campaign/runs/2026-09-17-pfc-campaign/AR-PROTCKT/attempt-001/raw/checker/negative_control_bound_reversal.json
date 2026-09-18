@@ -1,0 +1,33 @@
+{
+  "schema": "pfc-campaign-claims/v1",
+  "note": "NEGATIVE CONTROL ONLY -- reproduces the withdrawn AR-MOV error (restating an upper bound at 50 A as a lower bound at a higher current). It MUST fail zapote-claims. It is not a model of this attempt.",
+  "claims": [
+    {
+      "id": "mov-clamp-at-50a",
+      "quantity": "mov_clamp_v",
+      "part": "V150LA10AP",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "IPK = 50 A, 8/20 us, 25 C",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null
+    },
+    {
+      "id": "mov-clamp-above-50a-lower-bound",
+      "quantity": "mov_clamp_v",
+      "part": "V150LA10AP",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "IPK = 50 A, 8/20 us, 25 C",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": "mov-clamp-at-50a",
+      "justification": "negative control: this is the exact bound reversal that was withdrawn"
+    }
+  ],
+  "protection_claims": [],
+  "promotions": []
+}

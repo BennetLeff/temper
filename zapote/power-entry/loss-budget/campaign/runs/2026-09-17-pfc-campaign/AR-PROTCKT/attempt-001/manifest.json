@@ -1,0 +1,195 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "task_id": "AR-PROTCKT",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "algorithm": "sha256",
+  "note": "SHA-256 of every file produced by this attempt except manifest.json itself and dispatch.json (the delivered input).",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "sha256": "4032cf1eb75215ea3171c50589ca9d718ad175ae78cf901184693994a28ed95f",
+      "bytes": 10445
+    },
+    {
+      "path": "claims.json",
+      "sha256": "64135a3a1117a3ee15a2f25825ffb2f5355425ec4a2cf8896c42c7393ddc93e9",
+      "bytes": 11438
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "c56f50e47687ffe2cc05fa4adb440dd4174ca19eac9ab9dd06be6f609de65220",
+      "bytes": 8316
+    },
+    {
+      "path": "raw/AR-FAULT-coordinator-receipt.md",
+      "sha256": "38e0b63df694534760de855961997081b2ab6c6e1985961b5fe4ec3cd9362228",
+      "bytes": 4813
+    },
+    {
+      "path": "raw/assignments_loop_illustrative.json",
+      "sha256": "c7233bf2cc49aa59e1310d34fa8627fd422316aec35c5f6fdbe25c1ca0c2f18e",
+      "bytes": 113
+    },
+    {
+      "path": "raw/assignments_null_distribution.json",
+      "sha256": "671a064703b02fe7ae46a426b84122174398ab2d0d8fb5a7ea0127fc33031fc1",
+      "bytes": 44
+    },
+    {
+      "path": "raw/assignments_withdrawn_negative_control.json",
+      "sha256": "ee665954618dce4d0de3b3a23fdbc8743dd9936d9cbf55fef40d7d3cd35e7a1a",
+      "bytes": 18
+    },
+    {
+      "path": "raw/build_claims.py",
+      "sha256": "dd1b5d8e125fc888e27d5b84234e03ff2f07406003d048db9eb72e891a2613a2",
+      "bytes": 11408
+    },
+    {
+      "path": "raw/build_manifest.py",
+      "sha256": "d5090555796ae85d851afdc84c429ce4216d94c76297a75fdfa52c4ea0f1d3f0",
+      "bytes": 1104
+    },
+    {
+      "path": "raw/capture/fwp-a14f-403-body.html",
+      "sha256": "29fa8d2479b73291c1940d8e3cdf318b4f033e1b6c3bfc9b1ab2ce1d44565eff",
+      "bytes": 5459
+    },
+    {
+      "path": "raw/capture_failures.json",
+      "sha256": "22a233e7d484ff5eb94022b16a379287f79086d058fb35db0d987a5bef9c421d",
+      "bytes": 2805
+    },
+    {
+      "path": "raw/checker/checker_receipt.json",
+      "sha256": "b679c17670b2fe7d4e030ad76e737853e0c06ad3a9ddefb9923aff7de49c0cf7",
+      "bytes": 3950
+    },
+    {
+      "path": "raw/checker/exit_claims.txt",
+      "sha256": "785b5c6c6f8af427ff4652dcab9a969f996122cc157a07db0ae4682f6caef1e9",
+      "bytes": 14
+    },
+    {
+      "path": "raw/checker/exit_claims_negative.txt",
+      "sha256": "1a1cb1df35aafa072d06fca7b81ab56821a2df9ab2887c6133855aace3358b5f",
+      "bytes": 23
+    },
+    {
+      "path": "raw/checker/exit_fault_loop.txt",
+      "sha256": "79e8b93c9003b9759a2ca3c33c3bff4218b5f68639da87cd61cfe8a5975d36d0",
+      "bytes": 18
+    },
+    {
+      "path": "raw/checker/exit_fault_loop_negative.txt",
+      "sha256": "8ca014dd14a287a9f5b74f1cc761f560f54a02820f3eee56521b40874b98b7ee",
+      "bytes": 27
+    },
+    {
+      "path": "raw/checker/exit_fault_loop_null.txt",
+      "sha256": "1db2f3336108b6b948f5c363a8fb83c64010c701993525b3e18c8a8f2fd56983",
+      "bytes": 23
+    },
+    {
+      "path": "raw/checker/negative_control_bound_reversal.json",
+      "sha256": "f6ac8292a94fdf0302eb5ea31db391c67fb7adf842788668303a349eb583e66b",
+      "bytes": 1131
+    },
+    {
+      "path": "raw/checker/out_claims.txt",
+      "sha256": "e6fa4a58414445af6410c2c633f11d3960884f33556dcd26d68a915cd8c09ad8",
+      "bytes": 150
+    },
+    {
+      "path": "raw/checker/out_claims_negative_control.txt",
+      "sha256": "c1d888c0d4b1bd9f19fd19de47676ace81096cc1624775ef5f0eca07cd931173",
+      "bytes": 240
+    },
+    {
+      "path": "raw/checker/out_fault_loop_illustrative.txt",
+      "sha256": "cdd8fcf7415968a99f30ac74b4aa4cbd532f8de034d42cca6af9976cd81947b6",
+      "bytes": 87
+    },
+    {
+      "path": "raw/checker/out_fault_loop_negative_control.txt",
+      "sha256": "70d79f0c4a54885d5f66f436da543511b5f3fbe815d4214d5b0039222b234d67",
+      "bytes": 168
+    },
+    {
+      "path": "raw/checker/out_fault_loop_null.txt",
+      "sha256": "cdd8fcf7415968a99f30ac74b4aa4cbd532f8de034d42cca6af9976cd81947b6",
+      "bytes": 87
+    },
+    {
+      "path": "raw/compute_ar_protckt.py",
+      "sha256": "80f08833895e391eb88eaae8e76c6ef6d5649d7e3991742dc8db009645d45640",
+      "bytes": 8329
+    },
+    {
+      "path": "raw/compute_result.json",
+      "sha256": "2d286719ec416df8adfdd4b5c207d19dffe061dddeb2fb11fd2303550738cadb",
+      "bytes": 6415
+    },
+    {
+      "path": "raw/figures/littelfuse-la-p7-07.png",
+      "sha256": "7ee048f5cb4e081c4c50a02ec41df922b19891c5f64e70b32445925988eaf2c5",
+      "bytes": 289022
+    },
+    {
+      "path": "raw/fwp-1-50a.pdf",
+      "sha256": "9d9dac37453cd90059479a4c87d4058b2573a788bcf77342bd047fc4cd8b0974",
+      "bytes": 133126
+    },
+    {
+      "path": "raw/fwp-1-50a.txt",
+      "sha256": "ceb019dc21e479fdf09d85c23efa5f5cee65223d2a8de54bbf704af6434dad47",
+      "bytes": 17031
+    },
+    {
+      "path": "raw/fwp-720012-salsify.pdf",
+      "sha256": "88644adced3afd90a0b99710a8b35d5e85d316fb47c97450364e1515c980e770",
+      "bytes": 323456
+    },
+    {
+      "path": "raw/fwp-720012.txt",
+      "sha256": "46189d79c7d3c453cad7048f6efe372a38b6258e859635c827cf7c5020c93dbf",
+      "bytes": 32279
+    },
+    {
+      "path": "raw/la.txt",
+      "sha256": "3aa8efe6166d33574d370d122165ff6dd090fe15ca22700d69a3c7f704a396b7",
+      "bytes": 374205
+    },
+    {
+      "path": "raw/littelfuse_LA_series_datasheet.pdf",
+      "sha256": "8e6c56a7901cc2748a4a58685ccdc7228b13ee07dc5442c411824172e00a7ecc",
+      "bytes": 1376391
+    },
+    {
+      "path": "raw/littelfuse_LA_series_page2_table.txt",
+      "sha256": "95f6968923b7e24b6b79ff6eb1b04ef735278516cf018f68d4066185ed92d46f",
+      "bytes": 9218
+    },
+    {
+      "path": "raw/littelfuse_LA_series_page7_14mm_vi.txt",
+      "sha256": "3991b18bda3fb8844c16e0464ef7885f60b445c3a3608d576c1777673ce9a658",
+      "bytes": 66757
+    },
+    {
+      "path": "raw/netlist_fault_loop.json",
+      "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b",
+      "bytes": 8225
+    },
+    {
+      "path": "raw/protection_arrangement.json",
+      "sha256": "aa15889e0d53e07929bacb2187866d777bf262155f017259a498be3e7ce29066",
+      "bytes": 5719
+    },
+    {
+      "path": "result.json",
+      "sha256": "118d3ceb892781585e99fcba0fde93d92d4394bc6bfb259e7b50fb143c80372a",
+      "bytes": 9214
+    }
+  ]
+}

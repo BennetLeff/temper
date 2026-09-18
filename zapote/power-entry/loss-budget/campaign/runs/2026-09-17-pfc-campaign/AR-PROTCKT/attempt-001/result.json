@@ -1,0 +1,158 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-PROTCKT",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_design",
+  "generated_utc": "2026-09-18",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "source_revision": "c11915ae311e2b77b62ec1ef6cd18ecb70695ebb",
+  "worktree_head": "025e2faecf00ebb1763c4bafd0d3aed0dc57c07f",
+
+  "status_axes": {
+    "assignment_status": "FINISHED",
+    "assignment_note": "FINISHED means the assignment was completed; it is not PASS, SELECTED, VALIDATED or QUALIFIED.",
+    "checker_status": "RUN",
+    "checker_note": "zapote-claims passed (exit 0); zapote-fault-loop passed on the illustrative and null assignments (exit 0); both negative controls failed as designed (exit 1). Outputs retained in raw/checker/. Dispatch declared the checker 'not_applicable', so per ADMISSION.md this is NOT a harness-validated run.",
+    "evidence_class": "source_research",
+    "numerical_status": "COMPUTED_ARITHMETIC_ONLY",
+    "hardware_qualification": "NOT_PERFORMED"
+  },
+  "checker_receipt": "raw/checker/checker_receipt.json",
+  "checker_counted_as_validated_run": false,
+
+  "headline": {
+    "one_concrete_circuit": "a series high-speed DC-rated fuse in the DC bus (in the internal discharge loop), the existing line-to-neutral MOV for the surge case, and the existing line fuse for the line-fed case",
+    "new_part_selected": "FWP-50A14F (Eaton/Cooper Bussmann), 14 x 51 mm ferrule",
+    "mov_named": "V150LA10AP (Littelfuse, existing U7)",
+    "line_side_element": "F1 (Schurter 0034.3129, existing)",
+    "completion_status": "part_selected",
+    "coordination_demonstrated": false,
+    "hardware_verified": false,
+    "case_b_interrupted_by_available_parts": false,
+    "prospective_internal_current_established": false,
+    "sized_from_average_current": false
+  },
+
+  "circuit": {
+    "F2": {
+      "part": "FWP-50A14F",
+      "manufacturer": "Eaton / Cooper Bussmann",
+      "placement": "in series in the DC bus between the boost-diode U10 cathode and the capacitor bank (on PFC_BUS_PLUS_390V)",
+      "why_in_the_loop": "the internal discharge loop is caps -> shorted U10 -> a1 -> U9 -> caps; a series element in the bus between the cap bank and the boost stage carries the entire discharge and opens the path regardless of U9's health",
+      "ratings": {
+        "dc_voltage_rating_v": 800,
+        "rated_current_a": 50,
+        "dc_breaking_capacity_a_at_800vdc": 50000,
+        "min_melting_i2t_a2s": 200,
+        "clearing_i2t_at_rated_voltage_a2s": 1800
+      },
+      "rating_source": "raw/fwp-1-50a.pdf (Cooper Bussmann High Speed Fuses, Data Sheet 720025, FWP 690V/700V 1-50 A)",
+      "continuous_duty": "normal bus current ~4.49 A average, ~7.05 A peak (rectified) vs 50 A rating; the fault pulse, not the average, is the binding sizing case"
+    },
+    "U7": {
+      "part": "V150LA10AP",
+      "manufacturer": "Littelfuse",
+      "role": "line-to-neutral surge clamp (diverts; does not interrupt)",
+      "required_clamp_at_operating_surge_v": null,
+      "required_clamp_characteristic": "V_clamp(I_MOV) read from the LA Series Transient V-I curve (Figure 10, 14 mm parts) at the actual MOV surge current; that current is not established, so the required clamp is null",
+      "device_limits_to_respect_v": {"fet_blocking": 600, "controller_operating": 440, "controller_transient": 700}
+    },
+    "F1": {
+      "part": "Schurter 0034.3129",
+      "role": "only series interrupting element in the line-fed loop",
+      "coordination": "NOT_DEMONSTRATED"
+    }
+  },
+
+  "fault_cases": {
+    "a_U10_short_u9_healthy": {
+      "device_states": {"U10": "failed_short", "U9": "healthy_on"},
+      "interrupter": "F2 (by I2t); alternatively U9 turn-off",
+      "interrupts_as_demonstrated": false,
+      "detection_latency_budget_assumed": null,
+      "detection_latency_budget_required": "there is no loop-current sensor: the shunt U12 is not in the internal loop and the controller has no OCP. A dedicated in-loop current sense plus a desaturating gate drive, tripping inside the U9 short-circuit SOA, would be required; no such budget is established."
+    },
+    "b_U10_short_u9_failed_short": {
+      "device_states": {"U10": "failed_short", "U9": "failed_short"},
+      "interrupter": "F2 only",
+      "interrupts_as_demonstrated": false,
+      "statement": "U9 cannot be turned off. The series fuse F2 is the only element that can act, and whether it clears at 400 Vdc for a capacitor-discharge pulse is NOT demonstrated. If demonstrated clearing is required, NO available part interrupts case (b)."
+    },
+    "c_line_fed_switch_short": {
+      "interrupter": "F1",
+      "interrupts_as_demonstrated": false,
+      "statement": "F1 is the only series element by topology, but its breaking capacity is 160 A at 250 VAC and the prospective line current is unknown; coordination with the surviving bridge/switch SOA is not demonstrated. F2 is not in this loop and does not help."
+    },
+    "d_line_surge": {
+      "element": "U7 (V150LA10AP MOV)",
+      "interrupts": false,
+      "statement": "the MOV clamps. The required clamp at the operating surge current cannot be resolved because that current is not established; 395 V max at 50 A is an upper bound at that current only. The surge contract is PROVISIONAL/ASSUMED."
+    },
+    "e_cannot_interrupt": [
+      "the internal discharge if F2 does not clear (clearing not demonstrated)",
+      "any already-bolted short (no gate command opens a failed-short device)",
+      "a crowbar alone (diverts, does not interrupt; not part of this arrangement)",
+      "a line-fed fault below F1's clearing threshold",
+      "line-to-PE / common-mode surge (the MOV is line-to-neutral only)",
+      "case (b) if demonstrated clearing is required"
+    ]
+  },
+
+  "pulse_and_sizing": {
+    "waveform": "unidirectional decaying exponential i(t) = (V0/R) exp(-t/(R C)), V0 = 400 V, C = 2240.47 uF",
+    "waveform_kind": "assumed_illustrative",
+    "waveform_validity": "assumes an overdamped non-inductive loop with a single lumped R; AR-PROTECT's receipt states the normal-device resistance does not describe a destructive fault",
+    "prospective_peak_current_a": null,
+    "prospective_action_i2t_a2s": null,
+    "conditional_melting_threshold_ohm": 0.896,
+    "conditional_breaking_threshold_ohm": 0.008,
+    "what_would_size_it": [
+      "the internal loop's high-current impedance model: U10 failed-short residual, U9 failed-short residual, capacitor-bank ESR at the discharge frequency, fuse resistance and layout",
+      "the FWP-50A14F DC let-through / clearing characteristic for a 400 Vdc capacitor-discharge waveshape (not the published AC/inductive clearing I2t)",
+      "a sourced withstand I2t for the capacitor bank and the PCB copper, to compare against the fuse let-through"
+    ],
+    "sized_from_average_current": false
+  },
+
+  "coordination": {
+    "verdict": "NOT_DEMONSTRATED",
+    "reasons": [
+      "the prospective internal-loop peak current and action I2t are not established (loop impedance unknown)",
+      "the fuse clearing I2t is published for an AC/inductive test at rated voltage, not a 400 Vdc capacitor discharge",
+      "the let-through I2t is not compared against a sourced withstand I2t for the capacitor bank or PCB copper",
+      "the line-fed prospective current and F1's total clearing at matching conditions are not established"
+    ],
+    "what_is_shown": [
+      "F2's DC voltage rating (800 Vdc) exceeds the 400 V bus, and its DC breaking capacity (50 kA at 800 Vdc) is published",
+      "F2 melts for any loop resistance below 0.896 ohm under the illustrative series-R-C model",
+      "F2 carries the normal bus current with wide margin"
+    ]
+  },
+
+  "completion_ladder": {
+    "protection_identified": true,
+    "part_selected": true,
+    "coordination_demonstrated": false,
+    "hardware_verified": false,
+    "note": "advanced one rung at a time; promoted none -> protection_identified -> part_selected; NOT promoted to coordination_demonstrated"
+  },
+
+  "unknowns": {
+    "internal_loop_resistance_ohm": null,
+    "internal_loop_peak_current_a": null,
+    "internal_loop_action_i2t_a2s": null,
+    "fuse_clearing_at_400vdc_cap_discharge": null,
+    "line_fed_peak_current_a": null,
+    "f1_total_clearing_at_matching_conditions": null,
+    "mov_current_at_operating_surge_a": null,
+    "mov_required_clamp_v": null,
+    "u9_gate_state_at_fault": null,
+    "internal_loop_energy_split_j": null,
+    "active_bridge_mosfet_survival_at_fault": null
+  },
+
+  "single_most_important_missing_input": "The internal discharge loop's high-current impedance at the fault (U10/U9 failed-short residual + bank ESR + fuse + layout). It sets the prospective peak current and the action I2t, and therefore decides whether the selected FWP-50A14F both melts and clears inside its 400 Vdc capacitor-discharge rating. Until it exists, coordination for case (b) cannot be demonstrated and the honest verdict is that no available part is shown to interrupt it.",
+
+  "budget": {"deadline_utc": "2026-09-18T18:41:50Z", "solver_invocations": 0, "model_cad_bom_edits": 0, "bench_work": "none"}
+}

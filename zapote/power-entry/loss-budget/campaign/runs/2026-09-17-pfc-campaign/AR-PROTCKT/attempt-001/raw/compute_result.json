@@ -1,0 +1,174 @@
+{
+  "schema": "pfc-campaign-AR-PROTCKT-compute/v1",
+  "note": "Illustrative closed-form arithmetic only. The series R-C model is NOT validated for a destructive fault and the loop resistance is NOT established; every R_loop-derived number is assumed/illustrative.",
+  "stored_energy": {
+    "c_bank_f": 0.00224047,
+    "v_bus_v": 400.0,
+    "energy_j": 179.23760000000001,
+    "basis": "0.5*C*V^2, equal voltage across the parallel bank"
+  },
+  "pulse_model": {
+    "waveform": "unidirectional decaying exponential i(t)=(V0/R)exp(-t/(R C))",
+    "validity": "assumes an overdamped non-inductive loop with a single lumped R; unproven for a destructive short",
+    "prospective_peak_formula": "V0/R",
+    "action_i2t_formula": "(1/2) C V0^2 / R = E/R",
+    "model_kind": "assumed_illustrative"
+  },
+  "series_rc_table": [
+    {
+      "r_loop_ohm": 0.008,
+      "prospective_peak_a": 50000.0,
+      "time_constant_s": 1.792376e-05,
+      "time_constant_us": 17.92376,
+      "action_i2t_a2s": 22404.7,
+      "melts_fwp50": true,
+      "peak_within_fwp_breaking": true
+    },
+    {
+      "r_loop_ohm": 0.01,
+      "prospective_peak_a": 40000.0,
+      "time_constant_s": 2.2404700000000003e-05,
+      "time_constant_us": 22.404700000000002,
+      "action_i2t_a2s": 17923.760000000002,
+      "melts_fwp50": true,
+      "peak_within_fwp_breaking": true
+    },
+    {
+      "r_loop_ohm": 0.02,
+      "prospective_peak_a": 20000.0,
+      "time_constant_s": 4.4809400000000005e-05,
+      "time_constant_us": 44.809400000000004,
+      "action_i2t_a2s": 8961.880000000001,
+      "melts_fwp50": true,
+      "peak_within_fwp_breaking": true
+    },
+    {
+      "r_loop_ohm": 0.05,
+      "prospective_peak_a": 8000.0,
+      "time_constant_s": 0.0001120235,
+      "time_constant_us": 112.0235,
+      "action_i2t_a2s": 3584.752,
+      "melts_fwp50": true,
+      "peak_within_fwp_breaking": true
+    },
+    {
+      "r_loop_ohm": 0.1,
+      "prospective_peak_a": 4000.0,
+      "time_constant_s": 0.000224047,
+      "time_constant_us": 224.047,
+      "action_i2t_a2s": 1792.376,
+      "melts_fwp50": true,
+      "peak_within_fwp_breaking": true
+    },
+    {
+      "r_loop_ohm": 0.2,
+      "prospective_peak_a": 2000.0,
+      "time_constant_s": 0.000448094,
+      "time_constant_us": 448.094,
+      "action_i2t_a2s": 896.188,
+      "melts_fwp50": true,
+      "peak_within_fwp_breaking": true
+    },
+    {
+      "r_loop_ohm": 0.5,
+      "prospective_peak_a": 800.0,
+      "time_constant_s": 0.001120235,
+      "time_constant_us": 1120.2350000000001,
+      "action_i2t_a2s": 358.47520000000003,
+      "melts_fwp50": true,
+      "peak_within_fwp_breaking": true
+    },
+    {
+      "r_loop_ohm": 0.8962,
+      "prospective_peak_a": 446.3289444320464,
+      "time_constant_s": 0.002007909214,
+      "time_constant_us": 2007.909214,
+      "action_i2t_a2s": 199.99732202633342,
+      "melts_fwp50": false,
+      "peak_within_fwp_breaking": true
+    },
+    {
+      "r_loop_ohm": 1.0,
+      "prospective_peak_a": 400.0,
+      "time_constant_s": 0.00224047,
+      "time_constant_us": 2240.4700000000003,
+      "action_i2t_a2s": 179.23760000000001,
+      "melts_fwp50": false,
+      "peak_within_fwp_breaking": true
+    },
+    {
+      "r_loop_ohm": 2.0,
+      "prospective_peak_a": 200.0,
+      "time_constant_s": 0.00448094,
+      "time_constant_us": 4480.9400000000005,
+      "action_i2t_a2s": 89.61880000000001,
+      "melts_fwp50": false,
+      "peak_within_fwp_breaking": true
+    }
+  ],
+  "conditions": {
+    "r_loop_for_melting_ohm_max": 0.8961880000000001,
+    "r_loop_for_breaking_ohm_min": 0.008,
+    "coordinated_window_ohm": [
+      0.008,
+      0.8961880000000001
+    ],
+    "coordinated_window_note": "IF r_break_min <= R_loop <= r_melt_max the fuse melts AND the prospective peak is within the fuse's DC breaking capacity. The window's EXISTENCE does not show R_loop lies in it, and does not show clearing at 400 Vdc for a capacitor-discharge waveshape."
+  },
+  "normal_operation": {
+    "bus_current_avg_a": 4.490775080322774,
+    "bus_current_peak_rectified_a": 7.05409300063307,
+    "fuse_continuous_rating_a": 50.0,
+    "fuse_continuous_margin": 7.088083470903027,
+    "note": "sizing basis for CONTINUOUS duty only; the fault pulse is the binding case"
+  },
+  "fuse_candidate": {
+    "part": "FWP-50A14F",
+    "manufacturer": "Eaton / Cooper Bussmann (Bussmann series)",
+    "dc_voltage_rating_v": 800.0,
+    "dc_breaking_capacity_a_at_800vdc": 50000.0,
+    "min_melting_i2t_a2s": 200.0,
+    "clearing_i2t_at_rated_voltage_a2s": 1800.0,
+    "clearing_i2t_source_condition": "tested at rated voltage and power factor 0.15 (AC/inductive); NOT a 400 Vdc capacitor-discharge condition",
+    "coordination": "NOT_DEMONSTRATED",
+    "coordination_reasons": [
+      "prospective internal-loop peak current and action I2t are not established (loop impedance unknown)",
+      "clearing I2t is published for an AC/inductive test, not a 400 Vdc capacitor discharge",
+      "the let-through I2t is compared against no sourced withstand I2t for the capacitor bank or PCB copper"
+    ]
+  },
+  "mov_candidate": {
+    "part": "V150LA10AP",
+    "manufacturer": "Littelfuse",
+    "vc_max_at_50a_8_20us_v": 395.0,
+    "vc_at_50a_bound_direction": "upper bound at 50 A only; bounds no other current in either direction",
+    "itm_8_20us_a": 4500.0,
+    "wtm_10_1000us_j": 45.0,
+    "required_clamp_at_operating_surge_v": null,
+    "required_clamp_resolution": "read the LA Series Transient V-I curve at the actual MOV surge current; that current is not established, so the required clamp is null",
+    "device_limits_to_respect_v": {
+      "fet_blocking": 600.0,
+      "controller_operating": 440.0,
+      "controller_transient": 700.0
+    },
+    "lpe_common_mode_clamped": false,
+    "internal_discharge_loop_helped": false
+  },
+  "line_side": {
+    "existing_part": "F1, Schurter 0034.3129, 16 A time-lag, 250 VAC",
+    "breaking_capacity_a_at_250vac": 160.0,
+    "melting_i2t_at_10x_a2s": 1638.0,
+    "prospective_line_current_a": null,
+    "coordination": "NOT_DEMONSTRATED"
+  },
+  "nulls": {
+    "internal_loop_resistance_ohm": null,
+    "internal_loop_peak_current_a": null,
+    "internal_loop_action_i2t_a2s": null,
+    "fuse_clearing_at_400vdc_cap_discharge": null,
+    "line_fed_peak_current_a": null,
+    "f1_total_clearing_at_matching_conditions": null,
+    "mov_current_at_operating_surge_a": null,
+    "mov_required_clamp_v": null
+  }
+}
