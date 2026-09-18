@@ -1,18 +1,23 @@
 # Rectifier alternative net savings — what precision changes a decision
 
-Date: 2026-09-17
+Date: 2026-09-17 (revised)
 Source: committed candidate screen output
 (`zapote/packages/zapote-harness/tests/rectifier_alternatives_probe.rs`,
 `zapote/packages/zapote-harness/src/pfc_candidates.rs`). No new model; every
 number below is a term the retained screen already computes.
+
+**Revision note.** The first version of this note called several
+conduction-only deltas "net savings", treated two evaluated assumptions as the
+design space, and asserted a bridgeless result without a current-path model.
+Those are corrected below. The screen supports narrower conclusions than it
+first did.
 
 ## 1. Why this exists
 
 The bridge loss-pinning plan's bar was "pinned tightly enough to rank
 rectifier architectures". That phrasing hides the real question: **which
 architectures, and would measuring the bridge actually separate them?** This
-note answers that by comparing the *achievable net saving* of each alternative —
-its gross loss reduction less the losses and complexity it adds.
+note asks what the committed screen can actually say about that.
 
 ## 2. Committed bridge terms at C1 nominal (120 V)
 
@@ -21,77 +26,103 @@ its gross loss reduction less the losses and complexity it adds.
 | Passive bridge drop, 2 elements at 1.05 V | **28.30 W** |
 | Sensitivity to per-element forward drop | **26.96 W per volt** (2.70 W per 0.1 V) |
 | Rectified mean line current (implied) | 13.48 A |
-| Active-rectifier conduction, 50 mΩ/device, 25 °C | 22.50 W |
-| Active-rectifier conduction, 100 mΩ/device, assumed hot | 45.00 W |
+| Conducting devices in the line path | 2 |
+| Conduction coefficient, 2 devices | **450 W per ohm** of per-device Rds(on) |
+| Active-rectifier conduction, **50 mΩ/device, 25 °C max** | 22.50 W |
+| Active-rectifier conduction, **100 mΩ/device, assumed hot** | 45.00 W |
 | Active-rectifier break-even per-device Rds(on) | **62.9 mΩ** |
 | Parallel-bridge slope term, one bridge / two sharing | 450 / 225 W per ohm of element slope |
 
-## 3. Net saving per alternative
+50 mΩ and 100 mΩ are **the screen's two evaluated assumptions**, not the
+available design space. Nothing in this note bounds what active rectification
+could achieve with a different device.
 
-| Alternative | Gross saving | What it adds | Net saving | Deciding input |
-| --- | --- | --- | --- | --- |
-| **Keep the GBJ as-is** | 0 | — | **0** | — |
-| **Lower-drop passive bridge** | 26.96 W per volt of per-element drop cut: **1.35 W at −0.05 V, 2.70 W at −0.10 V** | a part change only; no drive, no control | **~1–3 W** | the candidate part's `V_F(I, T)` on the same basis as the incumbent's |
-| **Parallel passive bridges** | **0 W** under the constant-drop datum; 225 W per ohm of element slope if the slope is real: **1.1 W at 5 mΩ, 4.5 W at 20 mΩ** | a second bridge, a second thermal path, unverified current sharing | **~0–4.5 W, unproven** | the element's forward slope and measured sharing |
-| **Active / synchronous rectification** | bridge drop replaced by conduction: **+5.80 W at 50 mΩ**, **−16.70 W at 100 mΩ** | gate drive, rail generation, control, current sensing, dead time, fail-off, EMI | **−16.7 W to +5.8 W** | the **hot Rds(on) curve** — the screen reports a 62.9 mΩ break-even and the datum carries neither the hot curve nor a max |
-| **Bridgeless** | the same conduction lever as active rectification — the drop is replaced by switch conduction, not removed | the active-rectifier additions plus common-mode and line-polarity control | **≈ active rectifier's, at materially higher complexity** | same hot Rds(on) curve, plus a topology model that does not exist |
+## 3. The governing relation
 
-Two corrections to the intuition this analysis started with:
+For the screen's assumed two conducting switches:
 
-- **The bridge's 28.30 W is not the reducible prize.** For every passive
-  alternative the reducible amount is 0–4.5 W. Only active rectification has a
-  large lever, and its sign depends entirely on a curve the datum lacks.
-- **Bridgeless does not save the bridge drop.** It replaces a diode drop with
-  switch conduction, so its gross saving is bounded the same way active
-  rectification's is — not by the 28.30 W.
+```
+P_saved = P_bridge − 450 · R_hot − P_additional
+```
 
-## 4. What precision actually changes a decision
+- `P_bridge` is the passive drop term, itself uncertain across the retained
+  1.05 V test point — the committed bracket is **23–35 W** (the 0.85/1.30 V band).
+- `R_hot` is the **per-device hot** Rds(on). The retained datum carries a 25 °C
+  maximum and an assumed hot value; it carries neither a hot curve nor a device
+  choice.
+- `P_additional` covers gate drive, rail generation, control, current sensing,
+  dead time, fail-off and EMI. **None of it is quantified here.**
 
-| Decision | Precision needed | Is it obtainable? |
+**Nominal conduction-only break-even:** `R_hot = 28.30 / 450 = 62.9 mΩ`.
+**Across the bridge bracket, before additional losses: 51–78 mΩ**
+(23/450 = 51.1 mΩ; 35/450 = 77.8 mΩ). `P_additional > 0` moves the break-even
+down, i.e. a real design must beat 51–78 mΩ, not 62.9 mΩ.
+
+## 4. What each alternative's numbers actually support
+
+| Alternative | What the screen supports | What it does **not** support |
 | --- | --- | --- |
-| Keep GBJ vs a lower-drop passive part | ~0.05–0.10 V per element (1.3–2.7 W) | Yes, by DC bench sweep — but **only if the candidate part is characterized too**, on the same basis and at the same temperature |
-| Keep GBJ vs parallel bridges | the element slope and measured sharing | Not by a single-device sweep; needs a sharing measurement |
-| Passive vs active/synchronous | **not a forward-drop question at all** — it is the hot Rds(on) curve against a 62.9 mΩ break-even | No: the curve is absent from the retained datum |
-| Bridge ordering vs the switching term | ~1.5 W, i.e. ~0.055 V | **Not meaningful** — the switching term's own uncertainty is larger than that, so no bridge precision settles it |
+| **Keep the GBJ as-is** | the reference: 28.30 W nominal, 23–35 W across the retained band | — |
+| **Lower-drop passive bridge** | a **conditional** sensitivity: 26.96 W per volt of per-element drop cut. At an assumed −0.05 / −0.10 V this is 1.35 / 2.70 W | a demonstrated ceiling. The value is conditional on the assumed ΔV, and no candidate part has been named or characterized |
+| **Parallel passive bridges** | 0 W difference under the constant-drop datum; a **conditional** slope sensitivity of 225 W per ohm of element slope | a demonstrated saving. The public slope value is unverified and current sharing is unmeasured |
+| **Active / synchronous** | a **conduction-only** delta: +5.80 W at 50 mΩ/device, −16.70 W at 100 mΩ/device, against a 62.9 mΩ nominal break-even | net saving, or a bound on what active rectification could achieve. The two Rds values are evaluated assumptions; `P_additional` is entirely unquantified |
+| **Bridgeless** | nothing quantitative | **unmodeled.** It has a different current path from the active-bridge screen, so the active calculation cannot establish or bound its savings. It needs its own current-path model |
 
-The last row is the plan's revised R10, confirmed numerically: a bridge
-measurement precise to 0.055 V would still not order the bridge against the
-switch, because the switching term is uncertain by more than the gap.
+Three corrections to the previous version, stated plainly:
 
-## 5. Conclusion — the measurement changes a decision only under a condition
+- **The active-rectifier range is a conduction-only difference.** It excludes
+  driver, control and commutation losses, so it is not a net saving and must not
+  be read as one.
+- **The 50–100 mΩ span is two assumptions, not a design space.** It cannot bound
+  the opportunity in either direction.
+- **The passive 0–4.5 W span is conditional** on the chosen drop and slope
+  assumptions, not a demonstrated ceiling across all passive alternatives.
 
-Pinning the incumbent bridge's forward drop is **necessary but not sufficient**.
-It tells you the size of the passive prize (1–4.5 W across the passive
-alternatives). It cannot by itself capture that prize, because every passive
-saving is a *difference between two parts' curves*, and it cannot touch the one
-large lever (active rectification), which is gated on the hot Rds(on) curve.
+## 5. What precision actually changes a decision
 
-So the condition on "does the measurement change a decision" is:
+| Decision | Deciding input | Status |
+| --- | --- | --- |
+| Keep GBJ vs a lower-drop passive part | **two** parts' `V_F(I, T)` on the same basis | no candidate part named |
+| Keep GBJ vs parallel bridges | element slope + measured sharing | slope unverified, sharing unmeasured |
+| Passive vs active/synchronous | `R_hot` per device for a **chosen** device, plus `P_additional`, against 51–78 mΩ | no circuit, no device, no hot data |
+| Bridge ordering vs the switching term | ~0.055 V | **not meaningful** — the switching term's uncertainty exceeds the gap, so no bridge precision settles it |
 
-- **Yes**, if a specific candidate bridge part is named and characterized on the
-  same basis — then the 1–3 W passive comparison becomes decidable, and the
-  precision target is ~0.05 V per element.
-- **No**, if the incumbent is characterized alone — the output is the size of a
-  prize no alternative has yet been shown to win, and the screen's own
-  conservative output already brackets it (23–35 W) tightly enough for that.
-- **Not applicable**, for the active/synchronous and bridgeless decisions, which
-  need the hot Rds(on) curve instead. That is a different input, cheaply
-  identified and currently absent, and it is the one that gates the largest
-  lever.
+Forward-drop uncertainty still matters here: it sets `P_bridge`, hence the
+break-even. But it is not automatically the binding input — **a sufficiently
+favorable candidate device could put `R_hot` far enough below the break-even
+that precise bridge measurement is unnecessary to make the decision.**
 
-**Recommendation:** before commissioning any bridge V_F measurement, name the
-candidate passive part. If none exists, the higher-value next input is the hot
-Rds(on) curve for the active-rectifier screen, not bridge forward-drop
-precision.
+## 6. The useful next assignment
 
-## 6. Limits of this note
+The screen cannot answer whether there is an opportunity, because no concrete
+active-rectifier alternative has been specified. The assignment that would:
+
+1. **Choose one specific active-rectifier circuit** — a named topology and a
+   named controller.
+2. **Choose the exact MOSFET candidates** — real order codes, package and pinout
+   (a Kelvin-source part changes the drive picture).
+3. **Obtain their applicable hot Rds(on) data** — at the actual junction
+   temperature and gate bias, from primary sources, not a 25 °C maximum.
+4. **Quantify `P_additional`** — gate drive and rail generation, controller
+   supply, current sensing, dead time and fail-off, and the EMI re-assessment
+   obligation.
+5. **Compare across the existing bridge bracket**, i.e. against 51–78 mΩ rather
+   than a single 62.9 mΩ point.
+
+That establishes whether a worthwhile opportunity exists **before** any
+measurement is commissioned. Until those concrete comparisons exist, the
+broader architecture search stays open, and the passive alternatives stay
+conditional.
+
+## 7. Limits of this note
 
 - Every number is the retained screen's; none is measured. The screen is
   source-bound but derived from a single forward-drop test point, which is the
   defect the plan exists to fix.
-- "What it adds" is qualitative. Gate drive, control, sensing and EMI for active
-  rectification are named but not estimated; they are the reason its net saving
-  is stated as a range rather than a number.
-- The passive alternatives assume the candidate part is used in the same
-  position with the same thermal path. A different package changes the thermal
-  picture, which is the GBJ study's scope, not this note's.
+- `P_additional` is named but not estimated. It is the reason the active
+  alternative is stated as a conduction-only delta rather than a range of net
+  savings.
+- The passive alternatives assume the candidate part sits in the same position
+  with the same thermal path. A different package changes the thermal picture,
+  which is the GBJ study's scope, not this note's.
+- Nothing here models bridgeless.
