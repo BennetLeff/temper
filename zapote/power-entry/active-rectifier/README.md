@@ -2,8 +2,8 @@
 
 2026-09-18. Implements the selected circuit from [CLOSEOUT](../CLOSEOUT.md).
 **CAD construction checkpoint; acceptance incomplete. Do not fabricate or power
-from this checkpoint.** The existing Rust power-entry contract rejects the new
-entry. Fuse/clip fit and Q1–Q5 qualification remain open. This is not a validated
+from this checkpoint.** The active Rust contract now runs against the saved board. Three TEA package
+clearance findings, fuse/clip fit and Q1–Q5 qualification remain open. This is not a validated
 campaign run or a protection-coordination result.
 
 ## Implemented
@@ -36,20 +36,21 @@ campaign run or a protection-coordination result.
 - [Authored Atopile](../../../elec/src/power_entry_active_unit.ato).
 - [PCB](candidate/section.kicad_pcb), [schematic](candidate/section.kicad_sch),
   [project](candidate/section.kicad_pro).
-- [3D preview](renders/board-3d.png), [copper](renders/copper.pdf),
+- [3D preview](evidence/rust-integration-01/board-3d.png), [copper](evidence/rust-integration-01/copper.pdf),
   [schematic PDF](renders/schematic.pdf). The 3D preview omits F2/clips,
   heatsinks and several inherited custom-part bodies; it cannot verify assembly fit.
 - [BOM](bom.csv), [fuse mechanical review](MECHANICAL.md),
-  [validation report](VALIDATION.md), [replay instructions](REPRODUCE.md).
+  [validation report](VALIDATION.md), [Rust integration and repairs](RUST-INTEGRATION.md),
+  [replay instructions](REPRODUCE.md).
 
 ## What remains
 
-1. Extend the **concrete unit contract** to represent this circuit, including
-   all active-bridge high-voltage nets, F2 and diode-side feedback. Run the
-   existing electrical/current/clearance/manufacturing checks on it with
-   actual operating-current assignments. The current passive fixture cannot
-   qualify this replacement. Do not alias the new source as the old one.
-   No generic harness/schema work is requested.
+1. Resolve three TEA footprint gaps (pads 3–5, 10–12, 14–16): 1.94 mm
+   against the retained 2 mm elevated-voltage construction floor. The active
+   Rust contract, NC binding, domain and current assignments now run. Routing
+   repairs clear nine other spacing findings and all eight determined nominal
+   branch-current findings. Surface creepage, pad/barrel capacity and active
+   loss/thermal qualification remain open; see [the integration record](RUST-INTEGRATION.md).
 2. Resolve the F2 clip drawing/fit and Mersen/holder application review;
    finalize the land pattern and rerun construction checks. Selected slot
    allowances and clip spacing are prototype assumptions.

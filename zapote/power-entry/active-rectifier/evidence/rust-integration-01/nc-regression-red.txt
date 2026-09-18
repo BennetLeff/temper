@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/zapote_drc-15514d3373cea946)
+
+running 1 test
+test native_binding::bridge_tests::active_board_empty_net_pads_bind_without_omitting_pad_identity ... FAILED
+
+failures:
+
+---- native_binding::bridge_tests::active_board_empty_net_pads_bind_without_omitting_pad_identity stdout ----
+
+thread 'native_binding::bridge_tests::active_board_empty_net_pads_bind_without_omitting_pad_identity' (21962023) panicked at packages/zapote-drc/src/native_binding.rs:511:9:
+assertion `left == right` failed
+  left: Fail
+ right: Pass
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    native_binding::bridge_tests::active_board_empty_net_pads_bind_without_omitting_pad_identity
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 82 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `-p zapote-drc --lib`

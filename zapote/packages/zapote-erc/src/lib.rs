@@ -9,6 +9,7 @@ pub mod interlock;
 pub mod pfc_control;
 pub mod pfc_interfaces;
 pub mod power_entry;
+pub mod power_entry_active;
 pub mod power_stage_models;
 pub mod source_circuit;
 

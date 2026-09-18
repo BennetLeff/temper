@@ -1,0 +1,14 @@
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-drc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.68s
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/zapote_drc-15514d3373cea946)
+
+running 6 tests
+test native_binding::bridge_tests::bridge_geometry_passes_against_native_fixture ... ok
+test native_binding::bridge_tests::bridge_geometry_mutations_fail_closed ... ok
+test native_binding::bridge_tests::actual_power_entry_geometry_binds ... ok
+test native_binding::bridge_tests::active_board_empty_net_pads_bind_without_omitting_pad_identity ... ok
+test native_binding::bridge_tests::omitting_an_unassigned_physical_pad_is_rejected ... ok
+test native_binding::bridge_tests::assigning_an_export_net_to_a_saved_unassigned_pad_is_rejected ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 77 filtered out; finished in 0.14s
+

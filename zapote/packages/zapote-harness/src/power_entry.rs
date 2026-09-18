@@ -14,10 +14,13 @@ fn append(dst: &mut CheckReport, src: CheckReport) {
 }
 
 fn validate_connectivity(source: &str, evidence: &UnitNativeEvidence) -> Result<(), String> {
-    let circuit =
-        zapote_erc::source_circuit::Circuit::parse(source, zapote_erc::power_entry::ENTRY)?;
+    let circuit = zapote_erc::power_entry::parse(source)?;
+    let no_connects = zapote_erc::power_entry::no_connects(source)?;
     let mut expected: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
     for (endpoint, net) in circuit.pins {
+        if no_connects.contains(&endpoint.as_str()) {
+            continue;
+        }
         expected.entry(net).or_default().insert(endpoint);
     }
     let mut actual: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
@@ -103,7 +106,7 @@ pub fn run(source: &str, native: &str, board: &[u8]) -> CheckReport {
                         Finding::fail("DRC.POWER_ENTRY.CONNECTIVITY", e, "connectivity_clusters")
                     }
                 });
-            append(&mut r, power_entry_clearance_profile(&evidence));
+            append(&mut r, power_entry_clearance_profile(source, &evidence));
         }
         Err(e) => r.findings.push(Finding::fail(
             "DRC.POWER_ENTRY.NATIVE_INPUT",
@@ -124,7 +127,10 @@ pub fn run(source: &str, native: &str, board: &[u8]) -> CheckReport {
     CheckReport::from_findings(r.findings, r.checked_rules, r.coverage_gaps)
 }
 
-fn power_entry_clearance_profile(evidence: &UnitNativeEvidence) -> CheckReport {
+fn power_entry_clearance_profile(source: &str, evidence: &UnitNativeEvidence) -> CheckReport {
+    if zapote_erc::power_entry::entry(source) == Ok(zapote_erc::power_entry::ACTIVE_ENTRY) {
+        return active_clearance_profile(source, evidence);
+    }
     let hv: BTreeSet<String> = [
         "AC_L_RECTIFIED_INPUT",
         "AC_N_RECTIFIED_INPUT",
@@ -153,5 +159,186 @@ pub fn exit_code(status: Status) -> i32 {
         Status::Pass => 0,
         Status::Fail => 1,
         Status::Indeterminate => 2,
+    }
+}
+
+/// Construction spacing policy, not insulation qualification. Floating gate
+/// and bootstrap nets follow their source terminal, not logic ground. First
+/// check every distinct net at the functional floor; then coalesce only the
+/// reviewed low-differential groups for the existing high-voltage checker.
+fn active_clearance_profile(source: &str, evidence: &UnitNativeEvidence) -> CheckReport {
+    const RULE: &str = "DRC.NATIVE.CLEARANCE_PROFILE";
+    let domains = (|| -> Result<BTreeMap<String, String>, String> {
+        zapote_erc::power_entry::validate_source(source)?;
+        let c = zapote_erc::power_entry::parse(source)?;
+        let mut groups = BTreeMap::new();
+        for (domain, pins) in [
+            (
+                "RECTIFIER_L",
+                ["bridge.1", "bridge.2", "bridge.3", "q_hl.1"],
+            ),
+            (
+                "RECTIFIER_R",
+                ["bridge.12", "bridge.13", "bridge.14", "q_hr.1"],
+            ),
+        ] {
+            for pin in pins {
+                groups.insert(c.net(pin)?.to_owned(), domain.to_owned());
+            }
+        }
+        Ok(groups)
+    })();
+    let groups = match domains {
+        Ok(g) => g,
+        Err(e) => {
+            return CheckReport::from_findings(
+                vec![Finding::fail(RULE, e, "active domains")],
+                vec![RULE.into()],
+                vec![],
+            )
+        }
+    };
+    let mut local = zapote_drc::current_sense::native_clearance(evidence, 0.2);
+    for finding in &mut local.findings {
+        finding.rule = RULE.into();
+    }
+    local.checked_rules = vec![RULE.into()];
+    let mut grouped = evidence.clone();
+    let remap = |net: &mut String| {
+        if let Some(domain) = groups.get(net) {
+            *net = domain.clone();
+        }
+    };
+    for component in &mut grouped.components {
+        for pad in &mut component.footprint_pads {
+            remap(&mut pad.net);
+        }
+    }
+    for trace in &mut grouped.traces {
+        remap(&mut trace.net);
+    }
+    for via in &mut grouped.vias {
+        remap(&mut via.net);
+    }
+    for zone in &mut grouped.zones {
+        remap(&mut zone.net);
+    }
+    let hv = [
+        "AC_L_RECTIFIED_INPUT",
+        "AC_N_RECTIFIED_INPUT",
+        "l1",
+        "l2",
+        "RECTIFIER_L",
+        "RECTIFIER_R",
+        "RECTIFIER_POSITIVE",
+        "a1",
+        "BOOST_DIODE_POSITIVE",
+        "PFC_BUS_PLUS_390V",
+        "bleeder1-p2",
+        "r_vtop-p2",
+        "r_vtop2-p2",
+        "r_vtop3-p2",
+        "r_vtop4-p2",
+    ]
+    .into_iter()
+    .map(str::to_owned)
+    .collect();
+    append(
+        &mut local,
+        zapote_drc::current_sense::native_clearance_profile(
+            &grouped,
+            &hv,
+            "PE_CHASSIS",
+            2.0,
+            6.0,
+            0.2,
+        ),
+    );
+    local.coverage_gaps.push("0.2 mm local / 2 mm between elevated-voltage domains / 6 mm to PE are retained construction floors. Surface creepage, package-internal insulation, pollution degree, material group and surge qualification are not established by this copper-clearance check.".into());
+    CheckReport::from_findings(local.findings, local.checked_rules, local.coverage_gaps)
+}
+
+#[cfg(test)]
+mod active_tests {
+    use super::*;
+    const SOURCE: &str =
+        include_str!("../../../power-entry/active-rectifier/candidate/source-manifest.json");
+    const NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/native.json");
+
+    #[test]
+    fn half_bus_bleeder_midpoint_uses_high_voltage_spacing() {
+        let mut evidence: UnitNativeEvidence = serde_json::from_str(NATIVE).unwrap();
+        for (id, pin, x) in [("bleeder1", "2", 1000.), ("c_icomp", "1", 1002.)] {
+            let pad = evidence.components.iter_mut().find(|c| c.id == id).unwrap()
+                .footprint_pads.iter_mut().find(|p| p.pad == pin).unwrap();
+            pad.position_mm = [x, 1000.];
+            pad.size_mm = [0.1, 0.1];
+        }
+        let report = active_clearance_profile(SOURCE, &evidence);
+        assert!(report.findings.iter().any(|f| f.object.contains("bleeder1.2")
+            && f.object.contains("c_icomp.1") && f.status == Status::Fail
+            && f.message.contains("2.000000")));
+    }
+
+    #[test]
+    fn intentional_nc_does_not_hide_a_missing_or_split_connected_net() {
+        let evidence: UnitNativeEvidence = serde_json::from_str(NATIVE).unwrap();
+        validate_connectivity(SOURCE, &evidence).unwrap();
+        let mut missing = evidence.clone();
+        missing
+            .connectivity_clusters
+            .retain(|c| c.net != "RECTIFIER_POSITIVE");
+        assert!(validate_connectivity(SOURCE, &missing)
+            .unwrap_err()
+            .contains("net census"));
+        let mut split = evidence;
+        split
+            .connectivity_clusters
+            .push(split.connectivity_clusters[0].clone());
+        assert!(validate_connectivity(SOURCE, &split)
+            .unwrap_err()
+            .contains("split"));
+    }
+
+    #[test]
+    fn floating_gate_domains_keep_local_clearance_and_cross_domain_failures() {
+        let evidence: UnitNativeEvidence = serde_json::from_str(NATIVE).unwrap();
+        let report = active_clearance_profile(SOURCE, &evidence);
+        // The unchanged standard SOIC footprint is a discriminating oracle:
+        // 2*1.27 - 0.60 = 1.94 mm between gates in different HV domains.
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.object == "bridge.3 / bridge.5"
+                && f.status == Status::Fail
+                && f.message.contains("1.940000")));
+        assert!(!report
+            .findings
+            .iter()
+            .any(|f| f.object == "bridge.1 / bridge.2" && f.status == Status::Fail));
+        // Same floating domain still has to meet the 0.2 mm functional floor.
+        let mut short = evidence;
+        let bridge = short
+            .components
+            .iter_mut()
+            .find(|c| c.id == "bridge")
+            .unwrap();
+        let first = bridge
+            .footprint_pads
+            .iter()
+            .find(|p| p.pad == "1")
+            .unwrap()
+            .position_mm;
+        bridge
+            .footprint_pads
+            .iter_mut()
+            .find(|p| p.pad == "2")
+            .unwrap()
+            .position_mm = first;
+        let report = active_clearance_profile(SOURCE, &short);
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.object == "bridge.1 / bridge.2" && f.status == Status::Fail));
     }
 }

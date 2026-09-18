@@ -1,0 +1,21 @@
+{
+  "deferred_units": {
+    "buck": "legacy delegated owner; no Zapote unit suite",
+    "mcu": "not in maintained Zapote registry"
+  },
+  "manifest_sha256": "76a3ddfeaba567abaa1e01d67bfe17c384e30affa5fbd2a8ebd0cd241bae95d0",
+  "output": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/active-rectifier/evidence/rust-integration-01/common-suite-03",
+  "schema": "zapote.unit-run-summary.v1",
+  "status": "fail",
+  "suite_changed_during_run": false,
+  "unit_count": 7,
+  "unit_statuses": [
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "fail"
+  ]
+}

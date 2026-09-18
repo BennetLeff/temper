@@ -5,8 +5,7 @@
 use sha2::Digest;
 use zapote_core::unit::UnitNativeEvidence;
 use zapote_drc::switching::{
-    CommutationPath, NoisePair, SwitchingBoard, SwitchingContract,
-    SwitchingTrace, SwitchingVia,
+    CommutationPath, NoisePair, SwitchingBoard, SwitchingContract, SwitchingTrace, SwitchingVia,
 };
 use zapote_erc::source_circuit::Circuit;
 
@@ -19,9 +18,87 @@ pub struct SourcePath {
     pub required_return_stitches: Option<u32>,
 }
 
+fn active_gate_paths() -> Vec<SourcePath> {
+    [
+        ("high-side left", "bridge.3", "q_hl.1", "bridge.1", "r_hl"),
+        ("low-side left", "bridge.5", "q_ll.1", "bridge.7", "r_ll"),
+        (
+            "high-side right",
+            "bridge.14",
+            "q_hr.1",
+            "bridge.12",
+            "r_hr",
+        ),
+        ("low-side right", "bridge.10", "q_lr.1", "bridge.7", "r_lr"),
+    ]
+    .into_iter()
+    .map(
+        |(name, driver, gate, return_endpoint, resistor)| SourcePath {
+            name: format!("active {name} gate path"),
+            current_endpoints: vec![
+                driver.into(),
+                format!("{resistor}.1"),
+                format!("{resistor}.2"),
+                gate.into(),
+            ],
+            return_endpoint: return_endpoint.into(),
+            max_bbox_area_mm2: None,
+            required_return_stitches: None,
+        },
+    )
+    .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn active_rectifier_declares_four_gate_returns() {
+        let paths = active_gate_paths();
+        assert_eq!(paths.len(), 4);
+        for (index, (path, (gate, expected_return))) in paths
+            .iter()
+            .zip([
+                ("q_hl.1", "bridge.1"),
+                ("q_ll.1", "bridge.7"),
+                ("q_hr.1", "bridge.12"),
+                ("q_lr.1", "bridge.7"),
+            ])
+            .enumerate()
+        {
+            assert!(path
+                .current_endpoints
+                .iter()
+                .any(|endpoint| endpoint == gate));
+            assert_eq!(path.return_endpoint, expected_return, "path {index}");
+            assert!(path.name.starts_with("active "));
+        }
+    }
+
+    #[test]
+    fn active_rectifier_p3_binds_source_and_native_graph() {
+        let source =
+            include_str!("../../../power-entry/active-rectifier/candidate/source-manifest.json");
+        let native = include_str!("../../../power-entry/active-rectifier/evidence/native.json");
+        let json: serde_json::Value = serde_json::from_str(native).unwrap();
+        let board = json["board_file_utf8"].as_str().unwrap().as_bytes();
+        let report = run("power-entry", source, native, board);
+        assert!(
+            !report.findings.iter().any(|finding| {
+                finding.rule == "DRC.P3.SOURCE_NATIVE_BINDING"
+                    && finding.status == zapote_core::Status::Fail
+            }),
+            "{report:?}"
+        );
+        assert!(
+            report.findings.iter().any(|finding| {
+                finding.rule == "DRC.P3.SWITCHING_LOOP_AREA"
+                    && finding.object.contains("active high-side left")
+            }),
+            "{report:?}"
+        );
+    }
 
     #[test]
     fn gate_drive_saved_native_export_binds_reviewed_paths() {
@@ -216,7 +293,12 @@ pub fn switching_input(
     noise_pairs: Vec<NoisePair>,
 ) -> Result<(SwitchingBoard, SwitchingContract), String> {
     let circuit = Circuit::parse(source, entry)?;
-    circuit.bind_native(native)?;
+    if entry == zapote_erc::power_entry::ACTIVE_ENTRY {
+        circuit
+            .bind_native_with_no_connects(native, zapote_erc::power_entry::no_connects(source)?)?;
+    } else {
+        circuit.bind_native(native)?;
+    }
     let native_json: serde_json::Value =
         serde_json::from_str(native).map_err(|e| format!("native JSON: {e}"))?;
     let embedded_matches =
@@ -316,6 +398,9 @@ pub fn run(unit: &str, source: &str, native: &str, board: &[u8]) -> zapote_core:
             vec![Finding::pass("DRC.P3.APPLICABILITY", "no on-board power-switch commutation loop; operating/timing checks remain required", unit)],
             vec!["DRC.P3.APPLICABILITY".into()], vec![])]);
     }
+    let active = matches!(unit, "power-entry" | "pfc")
+        && zapote_erc::power_entry::entry(source).ok()
+            == Some(zapote_erc::power_entry::ACTIVE_ENTRY);
     let (entry, paths) = match unit {
         "gate-drive" => (
             zapote_erc::gate_drive::ENTRY,
@@ -336,11 +421,26 @@ pub fn run(unit: &str, source: &str, native: &str, board: &[u8]) -> zapote_core:
                 },
             ],
         ),
+        "power-entry" | "pfc" if active => {
+            let mut paths = active_gate_paths();
+            paths.push(SourcePath {
+                name: "boost gate drive; required return q_boost.3 to pfc.1".into(),
+                current_endpoints: ["pfc.8", "r_gate.1", "r_gate.2", "q_boost.1"]
+                    .map(str::to_owned)
+                    .to_vec(),
+                return_endpoint: "q_boost.3".into(),
+                max_bbox_area_mm2: None,
+                required_return_stitches: None,
+            });
+            (zapote_erc::power_entry::ACTIVE_ENTRY, paths)
+        }
         "power-entry" | "pfc" => (
             zapote_erc::power_entry::ENTRY,
             vec![SourcePath {
                 name: "boost gate drive; required return q_boost.3 to pfc.1".into(),
-                current_endpoints: ["pfc.8", "r_gate.1", "r_gate.2", "q_boost.1"].map(str::to_owned).to_vec(),
+                current_endpoints: ["pfc.8", "r_gate.1", "r_gate.2", "q_boost.1"]
+                    .map(str::to_owned)
+                    .to_vec(),
                 return_endpoint: "q_boost.3".into(),
                 max_bbox_area_mm2: None,
                 required_return_stitches: None,
@@ -432,21 +532,35 @@ mod coordinator_regressions {
         let mut n: serde_json::Value = serde_json::from_str(native).unwrap();
         let board = n["board_file_utf8"].as_str().unwrap().as_bytes().to_vec();
         let report = run("power-entry", source, native, &board);
-        let loops: Vec<_> = report.findings.iter().filter(|f| f.rule == "DRC.P3.SWITCHING_LOOP_AREA").collect();
+        let loops: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.rule == "DRC.P3.SWITCHING_LOOP_AREA")
+            .collect();
         assert_eq!(loops.len(), 2);
         assert!(loops.iter().all(|f| f.status == Status::Indeterminate));
-        let gate = loops.iter().find(|f| f.object.starts_with("boost gate drive")).unwrap();
+        let gate = loops
+            .iter()
+            .find(|f| f.object.starts_with("boost gate drive"))
+            .unwrap();
         for endpoint in ["pfc.8", "r_gate.1", "r_gate.2", "q_boost.1", "q_boost.3"] {
             assert!(gate.message.contains(endpoint), "missing {endpoint}");
         }
         assert!(gate.object.contains("pfc.1"));
         assert!(loops.iter().any(|f| f.object == "boost power commutation"));
         for cluster in n["connectivity_clusters"].as_array_mut().unwrap() {
-            cluster["nodes"].as_array_mut().unwrap().retain(|node| node != "q_boost.3");
+            cluster["nodes"]
+                .as_array_mut()
+                .unwrap()
+                .retain(|node| node != "q_boost.3");
         }
         let changed = run("power-entry", source, &n.to_string(), &board);
-        assert!(changed.findings.iter().any(|f| f.rule == "DRC.P3.RETURN_PATH_CONTINUITY"
-            && f.object == "PFC_BUS_MINUS" && f.status != Status::Pass));
+        assert!(changed
+            .findings
+            .iter()
+            .any(|f| f.rule == "DRC.P3.RETURN_PATH_CONTINUITY"
+                && f.object == "PFC_BUS_MINUS"
+                && f.status != Status::Pass));
     }
     #[test]
     fn gate_return_is_kelvin_not_control_ground_and_split_cluster_is_incomplete() {

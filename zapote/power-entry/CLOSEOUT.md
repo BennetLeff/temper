@@ -9,8 +9,9 @@ qualification work. Protection coordination remains UNESTABLISHED; hardware
 qualification remains NOT PERFORMED.** This is a design handoff, not a fabrication
 release. The passive baseline is unchanged. The separate [active-rectifier
 construction checkpoint](active-rectifier/README.md) now contains the active
-bridge and F2 proposal in authored source and routed CAD; its Rust integration,
-fuse mechanical fit and Q1–Q5 qualification remain incomplete.
+bridge and F2 proposal in authored source and routed CAD. Its [active Rust
+integration](active-rectifier/RUST-INTEGRATION.md) now runs; three package-spacing
+findings, fuse mechanical fit and Q1–Q5 qualification remain open.
 
 ## 1. Decisions made
 

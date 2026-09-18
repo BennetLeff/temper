@@ -3,7 +3,7 @@
 //! Connector nets are checked against the reviewed interface, independently of
 //! source/native agreement. External producers have not been built or qualified;
 //! their obligations must remain indeterminate in every common unit run.
-use crate::{power_entry, source_circuit::Circuit};
+use crate::power_entry;
 use zapote_core::{CheckReport, Finding};
 
 pub const RULES: [&str; 5] = [
@@ -29,7 +29,7 @@ const PINS: &[(&str, &str)] = &[
 ];
 
 fn check_pins(source: &str) -> Result<(), String> {
-    let circuit = Circuit::parse(source, power_entry::ENTRY)?;
+    let circuit = power_entry::parse(source)?;
     // Also bind the bus-setpoint model and default-off topology to the reviewed
     // parts; a connector label alone cannot establish either electrical fact.
     power_entry::validate_source(source)?;

@@ -13,6 +13,7 @@ const EPS: f64 = 1e-5;
 const MODELED_COMPONENTS: &[&str] = &[
     "mains", "holder", "cmc", "ntc", "bypass", "bridge", "l_boost", "q_boost", "d_boost", "c1",
     "c2", "c3", "c4", "c_hf", "output", "shunt",
+    "q_hl", "q_ll", "q_hr", "q_lr", "bus_fuse",
 ];
 
 #[derive(Debug, Clone)]

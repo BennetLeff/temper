@@ -1,0 +1,18 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/zapote_harness-9b931f84e0515063)
+
+running 11 tests
+test p3::tests::active_rectifier_declares_four_gate_returns ... ok
+test runner::cooling_coverage_tests::active_model_gaps_keep_every_obligation_and_reject_passive_evidence ... ok
+test pfc_loops::tests::active_rectifier_power_paths_use_switch_terminals_and_split_halves ... ok
+test power_entry::active_tests::intentional_nc_does_not_hide_a_missing_or_split_connected_net ... ok
+test pfc_candidates::tests::active_rectifier_reports_a_break_even_resistance ... ok
+test p3::tests::active_rectifier_p3_binds_source_and_native_graph ... ok
+test p1::tests::active_fixture_runs_source_binding_and_power_domains ... ok
+test power_entry::active_tests::half_bus_bleeder_midpoint_uses_high_voltage_spacing ... ok
+test pfc_loops::tests::active_native_loop_adapter_preserves_paths_and_excludes_only_reviewed_nc ... ok
+test power_entry::active_tests::floating_gate_domains_keep_local_clearance_and_cross_domain_failures ... ok
+test pfc_power::tests::active_half_cycles_and_fuse_pulses_obey_source_net_kcl ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 82 filtered out; finished in 1.45s
+

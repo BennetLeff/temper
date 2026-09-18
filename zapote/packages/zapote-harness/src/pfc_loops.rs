@@ -90,6 +90,80 @@ pub const BOOST_ON_INPUT: LoopSpec = LoopSpec {
     ],
 };
 
+// The synchronous bridge has two distinct line-frequency paths.  The
+// controller's VR/GND sense pins are not power terminals, so these paths bind
+// the MOSFET drain/source pins and preserve the rectifier-side shunt return.
+pub const ACTIVE_ON_HL_LR: LoopSpec = LoopSpec {
+    name: "active rectifier positive half-cycle (HL/LR)",
+    legs: &[
+        LoopLeg {
+            from: "q_hl.2",
+            to: "l_boost.1",
+        },
+        LoopLeg {
+            from: "l_boost.2",
+            to: "q_boost.2",
+        },
+        LoopLeg {
+            from: "q_boost.3",
+            to: "shunt.1",
+        },
+        LoopLeg {
+            from: "shunt.2",
+            to: "q_lr.3",
+        },
+        LoopLeg {
+            from: "q_lr.2",
+            to: "cmc.3",
+        },
+        // RECTIFIER_L is fed through either the NTC or the relay bypass;
+        // retain both physical input branches instead of using bridge.1,
+        // which is only the controller's voltage-sense tap.
+        LoopLeg {
+            from: "q_hl.3",
+            to: "ntc.2",
+        },
+        LoopLeg {
+            from: "q_hl.3",
+            to: "bypass.3",
+        },
+    ],
+};
+
+pub const ACTIVE_ON_HR_LL: LoopSpec = LoopSpec {
+    name: "active rectifier negative half-cycle (HR/LL)",
+    legs: &[
+        LoopLeg {
+            from: "q_hr.2",
+            to: "l_boost.1",
+        },
+        LoopLeg {
+            from: "l_boost.2",
+            to: "q_boost.2",
+        },
+        LoopLeg {
+            from: "q_boost.3",
+            to: "shunt.1",
+        },
+        LoopLeg {
+            from: "shunt.2",
+            to: "q_ll.3",
+        },
+        LoopLeg {
+            from: "q_ll.2",
+            to: "ntc.2",
+        },
+        LoopLeg {
+            from: "q_ll.2",
+            to: "bypass.3",
+        },
+        LoopLeg {
+            from: "q_hr.3",
+            to: "cmc.3",
+        },
+    ],
+};
+
 pub const RULES: [&str; 3] = [TOPOLOGY, GEOMETRY, INDUCTANCE];
 pub const REQUIRED: &[LoopSpec] = &[BOOST_COMMUTATION, BOOST_GATE, BOOST_ON_INPUT];
 
@@ -237,28 +311,52 @@ pub fn run(source: &str, native_text: &str, manufacturing: &serde_json::Value) -
         if zapote_drc::native_binding::validate(native_text).status != Status::Pass {
             return Err("native copper is not board-bound".into());
         }
-        let circuit = Circuit::parse(source, zapote_erc::power_entry::ENTRY)?;
+        let circuit = zapote_erc::power_entry::parse(source)?;
         let raw: serde_json::Value =
             serde_json::from_str(native_text).map_err(|e| e.to_string())?;
         if manufacturing["board_sha256"] != raw["board_sha256"] {
             return Err("manufacturing board hash mismatch".into());
         }
-        let native = serde_json::from_value(raw.clone()).map_err(|e| e.to_string())?;
+        let mut native: zapote_core::unit::UnitNativeEvidence =
+            serde_json::from_value(raw.clone()).map_err(|e| e.to_string())?;
+        // The full source/native check above already requires these exact NC
+        // pads to exist and remain unassigned. They are not conductors in a
+        // loop graph; do not remove any other empty-net pad here.
+        let no_connects = zapote_erc::power_entry::no_connects(source)?;
+        for component in &mut native.components {
+            component.footprint_pads.retain(|pad| {
+                !no_connects.contains(&format!("{}.{}", component.id, pad.pad).as_str())
+            });
+        }
         let bound = crate::pfc_paths::build_with_manufacturing(&native, &raw, manufacturing)?;
-        let pins = zapote_erc::power_entry::bridge_pins(&circuit.components["bridge"].mpn)?;
-        let mut on = BOOST_ON_INPUT.legs.to_vec();
-        on[0].from = pins.positive;
-        on[3].to = pins.negative;
+        let active =
+            zapote_erc::power_entry::entry(source)? == zapote_erc::power_entry::ACTIVE_ENTRY;
+        if !active {
+            let mut on = BOOST_ON_INPUT.legs.to_vec();
+            let pins = zapote_erc::power_entry::bridge_pins(&circuit.components["bridge"].mpn)?;
+            on[0].from = pins.positive;
+            on[3].to = pins.negative;
+            return Ok(validate(
+                &circuit,
+                &bound,
+                &[
+                    BOOST_COMMUTATION,
+                    BOOST_GATE,
+                    LoopSpec {
+                        name: BOOST_ON_INPUT.name,
+                        legs: &on,
+                    },
+                ],
+            ));
+        }
         Ok(validate(
             &circuit,
             &bound,
             &[
                 BOOST_COMMUTATION,
                 BOOST_GATE,
-                LoopSpec {
-                    name: BOOST_ON_INPUT.name,
-                    legs: &on,
-                },
+                ACTIVE_ON_HL_LR,
+                ACTIVE_ON_HR_LL,
             ],
         ))
     })();
@@ -278,6 +376,62 @@ pub fn run(source: &str, native_text: &str, manufacturing: &serde_json::Value) -
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn active_native_loop_adapter_preserves_paths_and_excludes_only_reviewed_nc() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../power-entry/active-rectifier");
+        let source = std::fs::read_to_string(root.join("candidate/source-manifest.json")).unwrap();
+        let native = std::fs::read_to_string(root.join(
+            "evidence/rust-integration-01/native-contact-repaired.json")).unwrap();
+        let manufacturing = serde_json::from_slice(&std::fs::read(root.join(
+            "evidence/rust-integration-01/common-suite-final/power-entry/manufacturing-input.json"
+        )).unwrap()).unwrap();
+        let report = run(&source, &native, &manufacturing);
+        assert!(!report.findings.iter().any(|f| f.status == Status::Fail), "{:?}", report.findings);
+        assert_eq!(report.findings.iter().filter(|f| f.rule == TOPOLOGY).count(),
+            BOOST_COMMUTATION.legs.len() + BOOST_GATE.legs.len()
+                + ACTIVE_ON_HL_LR.legs.len() + ACTIVE_ON_HR_LL.legs.len());
+        assert_eq!(report.status, Status::Indeterminate);
+        let mut changed: serde_json::Value = serde_json::from_str(&native).unwrap();
+        let bridge = changed["components"].as_array_mut().unwrap().iter_mut()
+            .find(|c| c["id"] == "bridge").unwrap();
+        bridge["footprint_pads"].as_array_mut().unwrap().iter_mut()
+            .find(|p| p["pad"] == "4").unwrap()["net"] = "RECTIFIER_NEGATIVE".into();
+        assert_eq!(run(&source, &changed.to_string(), &manufacturing).status, Status::Fail);
+    }
+
+    #[test]
+    fn active_rectifier_power_paths_use_switch_terminals_and_split_halves() {
+        let source =
+            include_str!("../../../power-entry/active-rectifier/candidate/source-manifest.json");
+        let circuit = zapote_erc::power_entry::parse(source).unwrap();
+        for spec in [ACTIVE_ON_HL_LR, ACTIVE_ON_HR_LL] {
+            for leg in spec.legs {
+                assert_eq!(
+                    circuit.net(leg.from).unwrap(),
+                    circuit.net(leg.to).unwrap(),
+                    "{}: {} ↔ {}",
+                    spec.name,
+                    leg.from,
+                    leg.to
+                );
+            }
+        }
+        assert_eq!(circuit.net("q_hl.2").unwrap(), "RECTIFIER_POSITIVE");
+        assert_eq!(circuit.net("q_hr.2").unwrap(), "RECTIFIER_POSITIVE");
+        assert_eq!(circuit.net("q_hl.3").unwrap(), "RECTIFIER_L");
+        assert_eq!(circuit.net("q_hr.3").unwrap(), "RECTIFIER_R");
+        assert_eq!(circuit.net("q_lr.3").unwrap(), "RECTIFIER_NEGATIVE");
+        assert_eq!(circuit.net("q_ll.3").unwrap(), "RECTIFIER_NEGATIVE");
+        assert_eq!(circuit.net("cmc.3").unwrap(), "RECTIFIER_R");
+        assert_eq!(circuit.net("ntc.2").unwrap(), "RECTIFIER_L");
+        assert_eq!(circuit.net("bypass.3").unwrap(), "RECTIFIER_L");
+        assert_ne!(
+            circuit.net("q_boost.3").unwrap(),
+            circuit.net("shunt.2").unwrap()
+        );
+    }
     #[test]
     fn repaired_gbj_uses_its_own_polarity_and_preserves_geometry_obligations() {
         let root =

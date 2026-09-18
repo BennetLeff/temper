@@ -1,0 +1,471 @@
+   Compiling zapote-erc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-erc)
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-drc)
+warning: unused import: `source_circuit::Circuit`
+  --> packages/zapote-harness/src/pfc_power.rs:14:54
+   |
+14 | use zapote_erc::{pfc_currents as model, power_entry, source_circuit::Circuit};
+   |                                                      ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling zapote-thermal v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-thermal)
+warning: `zapote-harness` (lib) generated 1 warning (run `cargo fix --lib -p zapote-harness` to apply 1 suggestion)
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-harness)
+warning: field `id` is never read
+  --> packages/zapote-harness/tests/reference_loss_bound_probe.rs:26:5
+   |
+25 | struct Device {
+   |        ------ field in this struct
+26 |     id: &'static str,
+   |     ^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `zapote-harness` (test "reference_loss_bound_probe") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.43s
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/zapote_core-949dc14d28b52f13)
+
+running 6 tests
+test unit::tests::standalone_profile_matches_source_and_manufacturing_contract ... ok
+test unit::tests::deferred_contracts_cannot_be_reported_as_run ... ok
+test unit::tests::connector_qualification_cannot_be_filled_by_fixture_mutation ... ok
+test unit::tests::typed_unit_input_rejects_incomplete_unit_native_transport ... ok
+test unit::tests::typed_unit_input_rejects_duplicate_native_components ... ok
+test current_sense::tests::captured_source_manifest_uses_bridge_and_strict_pin_map_shape ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/zapote_drc-d19d66392ea8fc2e)
+
+running 83 tests
+test donor_clearance::tests::raw_pcbnew_shape_codes_are_explicitly_mapped ... ok
+test current_sense::tests::pad_rotation_uses_kicad_clockwise_child_transform ... ok
+test donor_geometry::tests::crossing_segments_are_intersecting ... ok
+test donor_clearance::tests::unsupported_shape_is_rejected_fail_closed ... ok
+test donor_clearance::tests::oval_and_through_hole_shapes_are_supported ... ok
+test donor_clearance::tests::shape_aware_pad_to_capsule_uses_rectangular_corners ... ok
+test donor_clearance::tests::mapped_roundrect_uses_its_radius_ratio ... ok
+test donor_geometry::tests::separated_segments_are_not_intersecting ... ok
+test ipc::tests::capacity_increases_with_width_and_finished_thickness ... ok
+test ipc::tests::seven_tenths_millimeter_seventy_um_carries_low_current_branch ... ok
+test current_sense::tests::primary_secondary_separation_checks_cross_layer_xy ... ok
+test current_sense::tests::zone_crossing_is_detected_without_a_vertex_inside ... ok
+test current_sense::tests::trace_entirely_in_zone_hole_is_not_treated_as_filled_copper ... ok
+test current_sense::tests::trace_via_crossing_is_checked_as_a_native_pair ... ok
+test current_sense::tests::primary_secondary_pad_clearance_is_measured_from_native_geometry ... ok
+test manufacturing::tests::edge_between_inside_vertices_cannot_cross_concave_notch ... ok
+test manufacturing::tests::drill_outside_copper_cannot_have_positive_annular_ring ... ok
+test manufacturing::tests::body_collision_is_exact_and_object_identified ... ok
+test manufacturing::tests::drill_conflict_is_detected ... ok
+test manufacturing::tests::missing_body_is_indeterminate ... ok
+test manufacturing::tests::empty_polygon_nan_and_negative_limits_are_not_success ... ok
+test manufacturing::tests::outline_crossing_is_detected ... ok
+test manufacturing::tests::native_fractured_zone_hole_matches_pcbnew_membership ... ok
+test manufacturing::tests::passing_baseline_has_no_findings ... ok
+test manufacturing::tests::population_reports_rule_objects_without_changing_check_report ... ok
+test manufacturing::tests::slotted_holes_use_native_polygon_not_round_width ... ok
+test manufacturing::tests::population_tracks_actual_early_returns_and_pair_skips ... ok
+test manufacturing::tests::undersized_ring_fails_with_actual_and_required ... ok
+test manufacturing::tests::unsupported_angle_is_indeterminate_under_quadrant_policy ... ok
+test power_branches::tests::invalid_graph_and_samples_are_rejected ... ok
+test power_branches::tests::endpoint_reversal_preserves_envelope ... ok
+test power_branches::tests::disconnected_components_validate_kcl_independently ... ok
+test power_branches::tests::parallel_edges_are_cycle_envelopes ... ok
+test power_branches::tests::split_branches_have_exact_kcl_currents ... ok
+test power_branches::tests::zero_weight_sample_controls_peak_but_not_rms ... ok
+test power_contact::tests::large_pad_never_hides_a_narrow_trace ... ok
+test power_contact::tests::drill_void_and_tangent_do_not_create_a_chord ... ok
+test power_integrity::tests::missing_barrier_fails_closed ... ok
+test power_contact::tests::side_overlap_is_measured_and_direction_invariant ... ok
+test power_integrity::tests::missing_path_is_indeterminate ... ok
+test power_integrity::tests::pad_candidate_cannot_claim_entry_geometry_and_rejects_missing_trace ... ok
+test power_integrity::tests::removed_barrier_fails ... ok
+test power_integrity::tests::narrow_real_trace_fails ... ok
+test power_integrity::tests::via_mapping_is_checked_before_missing_electrical_inputs ... ok
+test power_integrity::tests::via_sharing_rejects_missing_plating_and_accepts_explicit_equal_share ... ok
+test power_integrity::tests::removed_via_is_preserved_as_indeterminate ... ok
+test native_binding::bridge_tests::bridge_geometry_passes_against_native_fixture ... ok
+test stackup::tests::four_layer_stackup_checks_each_dielectric_and_copper_order ... ok
+test native_binding::bridge_tests::bridge_geometry_mutations_fail_closed ... ok
+test stackup::tests::excessive_nesting_and_unicode_are_handled_without_panics ... ok
+test stackup::tests::string_contents_cannot_spoof_structural_fields ... ok
+test switching::tests::disconnected_return_fails_even_with_a_current_loop ... ok
+test switching::tests::enlarged_unscoped_extent_cannot_fail_loop_bound ... ok
+test switching::tests::missing_noise_population_is_indeterminate ... ok
+test switching::tests::missing_path_is_indeterminate ... ok
+test switching::tests::missing_spacing_and_malformed_limits_cannot_pass ... ok
+test switching::tests::missing_stitch_fails_closed ... ok
+test switching::tests::parallel_overlap_fails_only_when_same_layer_and_close ... ok
+test switching::tests::perpendicular_remote_and_different_layer_do_not_count_as_parallel ... ok
+test switching::tests::projection_axes_and_duplicate_victims_do_not_manufacture_overlap ... ok
+test switching::tests::small_unscoped_extent_cannot_pass_loop_bound ... ok
+test switching::tests::splitting_native_traces_preserves_measured_overlap ... ok
+test switching::tests::unscoped_extent_never_passes_or_fails_from_remote_return_branch ... ok
+test tests::copper_width_is_included_at_boundary ... ok
+test tests::crossing_segment_is_detected_without_vertex_inside ... ok
+test tests::filled_corridor_accepts_connected_route_with_terminal_clearance ... ok
+test tests::filled_corridor_rejects_hole_crossing_even_when_endpoints_are_covered ... ok
+test tests::filled_corridor_rejects_island_gap_between_valid_entries ... ok
+test tests::narrow_slot_between_old_sample_positions_fails ... ok
+test tests::nearby_return_via_with_long_copper_detour_fails ... ok
+test tests::own_antipad_requires_one_envelope_and_connected_ground_entry ... ok
+test tests::region_predicate_uses_authored_margin ... ok
+test tests::three_terminal_samples_cannot_hide_long_slot ... ok
+test stackup::tests::native_zero_core_is_rejected ... ok
+test stackup::tests::physical_total_includes_mask ... ok
+test stackup::tests::duplicate_fields_and_trailing_documents_are_rejected ... ok
+test stackup::tests::missing_stackup_or_copper_cannot_pass ... ok
+test native_binding::bridge_tests::actual_power_entry_geometry_binds ... ok
+test stackup::tests::missing_and_invalid_thicknesses_fail_closed ... ok
+test power_branches::tests::long_chain_is_analyzed_without_recursive_dfs ... ok
+test native_binding::bridge_tests::active_board_empty_net_pads_bind_without_omitting_pad_identity ... ok
+test native_binding::bridge_tests::omitting_an_unassigned_physical_pad_is_rejected ... ok
+test native_binding::bridge_tests::assigning_an_export_net_to_a_saved_unassigned_pad_is_rejected ... ok
+
+test result: ok. 83 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running unittests src/bin/p2-manufacturing.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/p2_manufacturing-86d6d480ccd0f57f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/branch_cut_oracle.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/branch_cut_oracle-1606b5177dfe526a)
+
+running 2 tests
+test subdividing_and_reordering_parallel_paths_preserves_currents ... ok
+test all_five_node_graphs_match_cut_current_oracle ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/clearance_profile.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/clearance_profile-33ce2e6783460326)
+
+running 2 tests
+test profile_does_not_cross_count_opposite_copper_layers ... ok
+test profile_applies_two_mm_hv_and_six_mm_pe_floors ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/domain_clearance.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/domain_clearance-a15e08408d7d5fdc)
+
+running 4 tests
+test invalid_sets_clearance_and_missing_domain_geometry_fail_closed ... ok
+test unlisted_geometry_is_explicitly_out_of_scope ... ok
+test close_opposite_trace_fails_with_domain_namespace_and_id ... ok
+test projected_cross_layer_geometry_passes_and_reports_third_nets ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ipc_reference.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/ipc_reference-80becbb837e05919)
+
+running 1 test
+test exact_mil_dimensions_match_published_scalar ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/native_multipad.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/native_multipad-aa395d670cc2ca71)
+
+running 4 tests
+test mechanical_npth_hole_is_accepted_without_electrical_assignment ... ok
+test physical_relay_contacts_bind_to_their_saved_uuids ... ok
+test mechanical_npth_mutations_fail_closed ... ok
+test repeated_uuid_missing_pad_and_changed_net_fail ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/power_contact_oracle.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/power_contact_oracle-861e23dc8e7ad16f)
+
+running 1 test
+test native_rotated_oval_and_oblong_drill_provide_contact_certificate ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/zapote_erc-93835a3e989d30cf)
+
+running 99 tests
+test domain_contract::tests::feedback_tap_misclassification_fails ... ok
+test domain_contract::tests::missing_barrier_fails ... ok
+test evidence_claims::tests::a_claim_with_no_declared_origin_is_rejected ... ok
+test domain_contract::tests::intentional_nc_with_net_fails ... ok
+test domain_contract::tests::reviewed_contract_passes ... ok
+test domain_contract::tests::swapped_native_domain_membership_fails_against_fixed_expectation ... ok
+test domain_contract::tests::matching_crossing_id_cannot_hide_wrong_domain_or_barrier ... ok
+test domain_contract::tests::protective_earth_is_distinct_from_hot ... ok
+test evidence_claims::tests::a_declared_non_interruption_needs_nothing ... ok
+test evidence_claims::tests::a_declared_condition_transformation_is_allowed ... ok
+test evidence_claims::tests::a_claim_naming_itself_is_rejected ... ok
+test evidence_claims::tests::a_declared_part_transformation_is_allowed ... ok
+test evidence_claims::tests::a_dependency_cycle_is_rejected ... ok
+test evidence_claims::tests::a_derivation_that_names_no_inputs_is_rejected ... ok
+test evidence_claims::tests::a_full_completion_chain_is_allowed ... ok
+test evidence_claims::tests::a_measurement_claim_with_no_retained_evidence_is_rejected ... ok
+test evidence_claims::tests::a_missing_file_is_rejected_in_every_collection ... ok
+test evidence_claims::tests::a_non_derivation_declaring_inputs_is_rejected ... ok
+test evidence_claims::tests::a_nonexistent_evidence_file_is_rejected ... ok
+test evidence_claims::tests::a_promotion_citing_a_nonexistent_file_is_rejected ... ok
+test evidence_claims::tests::a_protection_claim_citing_a_nonexistent_file_is_rejected ... ok
+test evidence_claims::tests::a_root_claim_qualified_without_evidence_is_rejected ... ok
+test evidence_claims::tests::a_source_claim_with_no_retained_evidence_is_rejected ... ok
+test evidence_claims::tests::an_input_that_names_no_claim_is_rejected ... ok
+test evidence_claims::tests::an_unsupported_completion_history_is_rejected ... ok
+test evidence_claims::tests::changing_50a_to_500a_without_a_transformation_is_rejected ... ok
+test evidence_claims::tests::changing_the_part_without_a_transformation_is_rejected ... ok
+test evidence_claims::tests::declared_origins_and_a_resolved_dependency_are_allowed ... ok
+test evidence_claims::tests::duplicate_claim_ids_are_rejected ... ok
+test evidence_claims::tests::evidence_whose_bytes_do_not_match_its_hash_is_rejected ... ok
+test evidence_claims::tests::a_hash_mismatch_is_rejected_in_every_collection ... ok
+test evidence_claims::tests::input_order_does_not_change_the_verdict ... ok
+test evidence_claims::tests::inputs_alone_still_drive_the_comparison_rules ... ok
+test evidence_claims::tests::resolving_evidence_is_allowed ... ok
+test evidence_claims::tests::a_valid_retained_file_passes_in_every_collection ... ok
+test fault_loop::tests::a_three_terminal_device_qualifies_on_two_power_terminals ... ok
+test fault_loop::tests::a_device_outside_the_loop_is_rejected ... ok
+test fault_loop::tests::a_shunt_outside_the_loop_is_rejected ... ok
+test operating_limits::tests::excessive_shutdown_fails ... ok
+test fault_loop::tests::a_two_terminal_element_on_the_loop_is_accepted ... ok
+test fault_loop::tests::a_zero_assignment_is_ignored ... ok
+test operating_limits::tests::missing_delay_corner_is_indeterminate ... ok
+test fault_loop::tests::an_element_absent_from_the_netlist_is_rejected ... ok
+test operating_limits::tests::missing_heatsink_is_indeterminate ... ok
+test operating_limits::tests::negative_resistance_and_delay_cannot_manufacture_margin ... ok
+test operating_limits::tests::nominal_timing_without_guarantee_is_indeterminate ... ok
+test operating_limits::tests::passing_models_are_reported ... ok
+test operating_limits::tests::stressed_device_fails ... ok
+test pfc_currents::tests::invalid_configuration_is_rejected ... ok
+test pfc_interfaces::tests::missing_source_does_not_remove_external_obligations ... ok
+test pfc_currents::tests::inductor_moment_matches_independent_gauss_oracle ... ok
+test pfc_currents::tests::switch_and_diode_moments_match_ideal_duty_formula ... ok
+test pfc_currents::tests::branch_rms_values_differ_and_sample_kcl_holds ... ok
+test pfc_losses::tests::curve_clamps_low_and_errors_above_its_maximum ... ok
+test pfc_currents::tests::energy_and_capacitor_mean_balance ... ok
+test pfc_currents::tests::true_rms_hits_limit_and_ripple_is_included ... ok
+test pfc_losses::tests::integration_rejects_empty_or_unweighted_waveforms ... ok
+test current_sense::tests::recomputation_uses_profile_values_without_rtd_constants ... ok
+test pfc_losses::tests::loss_helpers_have_expected_scaling_and_reject_bad_inputs ... ok
+test pfc_losses::tests::malformed_curves_are_rejected ... ok
+test pfc_losses::tests::flat_curve_reproduces_the_constant_drop_result ... ok
+test pfc_losses::tests::linear_curve_agrees_with_the_moment_form ... ok
+test pfc_interfaces::tests::extra_output_midpoint_is_rejected ... ok
+test pfc_protection::tests::malformed_values_fail_closed ... ok
+test pfc_protection::tests::ovp_latches_until_conservative_reset ... ok
+test pfc_protection::tests::soc_and_pcl_are_not_conflated ... ok
+test pfc_losses::tests::parallel_sharing_changes_a_nonlinear_curve_but_not_a_flat_one ... ok
+test pfc_protection::tests::uvlo_dominates_permit_and_has_hysteresis_band ... ok
+test pfc_losses::tests::moments_match_waveform_and_conserve_rectified_current ... ok
+test pfc_shunt::tests::historical_identity_fails_closed ... ok
+test pfc_losses::tests::edge_events_are_phase_weighted_not_duty_weighted ... ok
+test current_sense::tests::missing_independent_electrical_claims_fail_closed ... ok
+test pfc_switching::tests::asymmetric_event_currents_and_driver_caps ... ok
+test pfc_switching::tests::asymmetric_gate_path_uses_independent_triangle_currents ... ok
+test pfc_switching::tests::clamped_inductive_miller_stage_has_triangle_energy ... ok
+test pfc_switching::tests::driver_and_miller_model_converges_with_timestep_refinement ... ok
+test pfc_switching::tests::eoss_once_and_gate_network_separate_from_die ... ok
+test pfc_switching::tests::independent_triangle_and_duty_anchors ... ok
+test pfc_switching::tests::miller_change_does_not_change_current_slew_overshoot ... ok
+test pfc_switching::tests::rejects_invalid_gate_path_and_pair_budget ... ok
+test pfc_switching::tests::rejects_invalid_or_unbounded_inputs ... ok
+test pfc_switching::tests::stages_hold_current_or_voltage_and_reverse_order ... ok
+test pfc_switching::tests::symmetric_gate_path_preserves_legacy_numbers_and_bytes ... ok
+test tests::asymmetric_fault_cases_keep_documented_blind_spot ... ok
+test tests::low_threshold_strictly_exceeds_exact_code ... ok
+test tests::threshold_encoding_matches_board_words ... ok
+test thermal_sense::tests::open_detection_numeric_corner_reference_is_independent ... ok
+test thermal_sense::tests::thermal_math_matches_independent_loaded_network_audit ... ok
+test pfc_interfaces::tests::old_split_bus_label_is_not_an_accepted_output ... ok
+test current_sense::tests::owner_model_fixture_matches_floating_burden_topology ... ok
+test pfc_shunt::tests::reviewed_replacement_passes_identity_contract ... ok
+test pfc_interfaces::tests::real_source_has_reviewed_pins_but_no_external_qualification ... ok
+test pfc_protection::tests::invalid_source_never_passes_and_static_uvlo_does_not_qualify_bias_decay ... ok
+test pfc_protection::tests::source_binding_keeps_missing_isolation_indeterminate ... ok
+test pfc_shunt::tests::pad_census_mutation_fails ... ok
+test pfc_interfaces::tests::consistent_ground_rename_cannot_turn_hot_return_into_control_ground ... ok
+test pfc_shunt::tests::package_mutations_never_pass ... ok
+test pfc_losses::tests::closed_form_no_ripple_limit_uses_sin_cubed_moment ... ok
+test pfc_interfaces::tests::every_interface_net_name_is_an_independent_contract ... ok
+
+test result: ok. 99 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+
+     Running tests/gate_drive.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/gate_drive-a0a9c515a91df1e7)
+
+running 6 tests
+test dead_time_model_is_independent_of_native_binding ... ok
+test real_compiled_candidate_passes_structural_gate_checks ... ok
+test native_connection_mismatch_is_not_hidden_by_source_match ... ok
+test topology_and_native_mpn_mutations_fail_closed ... ok
+test permit_resistor_and_disable_inverter_mutations_fail_closed ... ok
+test matching_source_and_native_cannot_hide_any_pair_of_shorted_intended_nets ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+
+     Running tests/pfc_control.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/pfc_control-1a7fda5afca6c080)
+
+running 3 tests
+test calculates_1800w_nominal_case ... ok
+test reproduces_ti_m1m2_and_frequency_scale ... ok
+test rejects_bad_inputs_and_out_of_range_m1m2 ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pfc_current_reference.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/pfc_current_reference-6c3fd0692bd322fa)
+
+running 3 tests
+test ccm_validity_cannot_depend_on_missing_a_line_zero_crossing ... ok
+test current_samples_match_pinned_independent_ngspice_measurements ... ok
+test branch_moments_match_closed_form_line_integrals ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/power_entry.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/power_entry-e2a6471ec9da0580)
+
+running 11 tests
+test nominal_screen_preserves_input_power_and_slow_discharge_limits ... ok
+test historical_source_18_is_rejected_after_hf_bypass_contract_change ... ok
+test historical_source_20_is_rejected_after_feedback_resistor_update ... ok
+test alternate_bridge_cannot_keep_the_original_package_footprint ... ok
+test alternate_bridge_requires_its_reviewed_dc_pin_order ... ok
+test contradictory_duplicate_graph_cannot_hide_correct_primary_pins ... ok
+test source_21_manifest_matches_and_rejects_missing_or_wrongly_connected_hf_bypass ... ok
+test similar_bridge_part_numbers_are_not_reviewed_substitutes ... ok
+test historical_topology_variant_does_not_allow_arbitrary_suffixes ... ok
+test ratings_and_compensation_cannot_silently_change ... ok
+test rejects_actual_prior_topology_and_package_mistakes ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/power_entry_active.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/power_entry_active-7587ebf2c2bf908a)
+
+running 5 tests
+test passive_entry_is_not_an_alias_for_active_source ... ok
+test active_fixture_has_its_own_entry_and_exact_graph ... ok
+test active_mutants_fail_the_authored_contract ... ok
+test unchanged_power_entry_network_mutants_fail_closed ... ok
+test native_no_connect_mutants_fail_closed ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running tests/power_stage_models.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/power_stage_models-6da5e2f7261cfeaf)
+
+running 7 tests
+test cold_tcr_and_initial_tolerance_are_independent_corners ... ok
+test dead_time_34k_fails_and_39k_passes_300ns_floor ... ok
+test requested_work_and_equation_domain_are_bounded ... ok
+test invalid_and_nonconverged_inputs_fail_closed ... ok
+test nominal_doubler_conserves_energy_and_has_expected_current ... ok
+test parallel_scaling_preserves_bus_and_halves_per_cap_current ... ok
+test timestep_converges ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/source_circuit.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/source_circuit-c99a3ab3086ca9c6)
+
+running 7 tests
+test one_logical_pin_can_have_two_distinct_physical_relay_terminals ... ok
+test every_physical_terminal_and_uuid_is_required ... ok
+test missing_pins_and_crossed_domains_do_not_compare_as_equal_none ... ok
+test gate_drive_local_library_nickname_binds ... ok
+test compiler_identity_and_schema_mutations_fail_closed ... ok
+test captured_compiler_graph_matches_real_saved_board_export ... ok
+test each_native_connection_representation_must_match ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/zapote_harness-9b931f84e0515063)
+
+running 90 tests
+test bridge_thermal::tests::nominal_wrong_current_is_rejected_but_low_sensitivity_is_allowed ... ok
+test bridge_thermal::tests::undetermined_matching_segment_fails_closed ... ok
+test bridge_thermal::tests::missing_uuid_does_not_fall_back_to_net_only ... ok
+test bridge_thermal::tests::disagreeing_matching_segments_are_not_collapsed ... ok
+test memory::tests::evidence_hash_accepts_prefixed_form ... ok
+test bridge_thermal::tests::segment_id_collision_cannot_supply_or_override_current ... ok
+test memory::tests::unsafe_evidence_path_rejected ... ok
+test bridge_thermal::tests::configured_missing_evidence_is_a_failure ... ok
+test bridge_thermal::tests::configured_cooling_contract_cannot_pass_without_replay ... ok
+test bridge_thermal::tests::physical_current_tracks_width_dependent_segmentation_without_uuid_fallback ... ok
+test bridge_thermal::tests::missing_evidence_is_indeterminate_and_rules_are_checked ... ok
+test model_assurance::tests::supported_synthetic_pass_has_three_separate_dimensions ... ok
+test model_assurance::tests::gate_assumption_is_not_actual_qualification ... ok
+test model_assurance::tests::unsupported_inputs_are_indeterminate_but_numerics_can_pass ... ok
+test model_qualification::tests::generalized_formula_is_stable ... ok
+test model_qualification::tests::expected_case_builder_covers_exactly_five_cases ... ok
+test model_qualification::tests::expected_cases_match_independent_reference_scalars ... ok
+test model_qualification::tests::narrowed_capacitance_is_rejected_by_required_envelope ... ok
+test p1::tests::aggregate_status_preserves_failures ... ok
+test model_qualification::tests::schur_graph_is_positive ... ok
+test model_assurance::tests::fake_measured_label_without_importer_cannot_pass ... ok
+test model_assurance::tests::wrong_nominal_current_cannot_become_decision_input ... ok
+test model_assurance::tests::corrupt_adapter_cannot_accept_reference_or_terms ... ok
+test model_assurance::tests::duplicate_owned_term_cannot_be_hidden_by_a_new_label ... ok
+test model_assurance::tests::missing_provenance_stale_evidence_and_missing_reference_fail_closed ... ok
+test p3::tests::active_rectifier_declares_four_gate_returns ... ok
+test p3::tests::gate_drive_saved_native_export_binds_reviewed_paths ... ok
+test p3::tests::actual_gate_noise_measurement_responds_to_native_geometry ... ok
+test p3::coordinator_regressions::gate_return_is_kelvin_not_control_ground_and_split_cluster_is_incomplete ... ok
+test pfc_candidates::tests::hot_cooling_and_fault_are_named_inputs_not_operating_cases ... ok
+test pfc_candidates::tests::active_rectifier_reports_a_break_even_resistance ... ok
+test pfc_candidates::tests::bridge_drop_falls_as_line_rises_at_equal_required_power ... ok
+test pfc_candidates::tests::a_missing_term_is_never_zero_filled ... ok
+test pfc_candidates::tests::low_line_cannot_meet_the_requirement_inside_the_ceiling ... ok
+test pfc_candidates::tests::boost_switch_is_resolved_to_an_order_code_with_a_bounded_capacitance_term ... ok
+test pfc_candidates::tests::stale_part_data_cannot_follow_a_part_change ... ok
+test pfc_candidates::tests::parallel_bridges_are_reported_as_a_model_gap_not_a_verdict ... ok
+test p3::tests::active_rectifier_p3_binds_source_and_native_graph ... ok
+test pfc_loops::tests::active_rectifier_power_paths_use_switch_terminals_and_split_halves ... ok
+test pfc_loops::tests::anode_leg_closes_only_when_native_edge_exists ... ok
+test pfc_loops::tests::missing_gate_return_or_resistor_binding_fails_closed ... ok
+test pfc_candidates::tests::required_current_round_trips_through_the_current_model ... ok
+test pfc_loops::tests::wrong_diode_cathode_pair_is_rejected_by_source_nets ... ok
+test p3::tests::four_saved_units_report_measured_geometry_and_missing_limits ... ok
+test pfc_candidates::tests::total_loss_and_cooling_margin_stay_absent ... ok
+test pfc_candidates::tests::requirement_is_the_retained_nominal_operating_point ... ok
+test p3::coordinator_regressions::pfc_gate_and_power_paths_are_distinct_and_missing_source_return_is_not_a_pass ... ok
+test pfc_drive_experiment::tests::known_driver_sources_reject_mutation_even_with_mutated_hash ... ok
+test pfc_loss_budget::tests::copper_temperature_reference_is_twenty_not_twentyfive ... ok
+test pfc_loss_budget::tests::production_report_exposes_assurance_rules_without_qualifying_hardware ... ok
+test pfc_loss_budget::tests::boost_switch_bound_is_datasheet_derived_and_leaves_overlap_open ... ok
+test pfc_loss_budget::tests::production_switching_adapter_rejects_rms_and_term_mutations ... ok
+test pfc_loss_budget::tests::every_manufacturer_document_rejects_byte_drift ... ok
+test pfc_loops::tests::repaired_gbj_uses_its_own_polarity_and_preserves_geometry_obligations ... ok
+test pfc_mosfet_experiment::tests::source_verifier_rejects_hashed_html_and_modified_pdf ... ok
+test pfc_paths::tests::native11_binds_nonempty_graph_and_terminals ... ok
+test pfc_paths::tests::repeated_package_pin_keeps_each_physical_barrel_and_separate_pin_stays_separate ... ok
+test pfc_paths::tests::span_coalescing_keeps_real_side_contacts_and_width_layer_net_boundaries ... ok
+test pfc_paths::tests::t_branch_is_split_at_junction ... ok
+test pfc_paths::tests::unknown_terminal_net_is_an_adapter_error ... ok
+test pfc_loss_budget::tests::real_source_budget_is_incomplete_even_below_allowance ... ok
+test bridge_thermal::tests::bridge_transfer_requires_complete_manufacturing_equality ... ok
+test pfc_loss_budget::tests::switching_adapter_uses_branch_rms_and_separate_event_moments ... ok
+test pfc_power::tests::rejects_native_trace_width_that_disagrees_with_saved_board ... ok
+test pfc_loss_budget::tests::stale_part_data_cannot_follow_a_part_change ... ok
+test pfc_power::tests::alternate_bridge_injections_follow_reversed_dc_pins ... ok
+test pfc_power::tests::active_half_cycles_and_fuse_pulses_obey_source_net_kcl ... ok
+test pfc_power::tests::source_pin_injections_conserve_every_power_net_and_distinguish_branches ... ok
+test power_entry::active_tests::intentional_nc_does_not_hide_a_missing_or_split_connected_net ... ok
+test runner::cooling_coverage_tests::active_model_gaps_keep_every_obligation_and_reject_passive_evidence ... ok
+test runner::cooling_coverage_tests::edited_geometry_with_unchanged_board_identity_cannot_reach_downstream_checks ... ok
+test runner::cooling_coverage_tests::joint_model_evidence_is_hashed_and_mutation_is_rejected ... ok
+test runner::cooling_coverage_tests::power_entry_requires_cooling_even_when_the_hook_emits_no_report ... ok
+test runner::cooling_coverage_tests::power_entry_requires_electrical_rules_even_if_hooks_are_removed ... ok
+test power_entry::active_tests::floating_gate_domains_keep_local_clearance_and_cross_domain_failures ... ok
+test shunt_thermal::tests::identical_tampered_retained_input_cannot_bypass_hash_validation ... ok
+test shunt_thermal::tests::missing_evidence_and_missing_waveform_cannot_qualify ... ok
+test shunt_thermal::tests::historical_transfer_rejects_any_other_saved_board_or_native_change ... ok
+test tests::missing_input_identity_cannot_be_a_pass ... ok
+test pfc_drive_experiment::tests::maintained_source_produces_grid_controls_and_indeterminate_interface ... ok
+test pfc_drive_experiment::tests::auxiliary_loads_use_conditional_charge_screen ... ok
+test pfc_power::tests::saved_pfc_runs_the_model_and_native_contact_measurements ... ok
+test pfc_mosfet_experiment::tests::independent_triangle_arithmetic_matches_nominal_branch_without_simulate ... ok
+test pfc_mosfet_experiment::tests::maintained_source_produces_exact_grid_and_indeterminate_qualification ... ok
+test pfc_power::tests::subdividing_saved_copper_preserves_failure_set_and_determined_current ... ok
+test pfc_power::tests::narrowing_a_saved_six_mm_branch_adds_a_specific_failure ... ok
+test pfc_drive_experiment::tests::retained_report_replay_rejects_mutation_missing_duplicate_and_stale_source has been running for over 60 seconds
+test pfc_drive_experiment::tests::source_grid_and_scalar_mutations_fail_closed has been running for over 60 seconds
+test pfc_drive_experiment::tests::source_grid_and_scalar_mutations_fail_closed ... ok
+test pfc_mosfet_experiment::tests::source_identity_and_grid_mutations_fail_closed has been running for over 60 seconds
+test shunt_thermal::tests::retained_assembly_replay_passes_numerics_without_qualifying_hardware has been running for over 60 seconds
+test pfc_drive_experiment::tests::retained_report_replay_rejects_mutation_missing_duplicate_and_stale_source ... ok
+test pfc_mosfet_experiment::tests::source_identity_and_grid_mutations_fail_closed ... ok
+error: test failed, to rerun pass `-p zapote-harness --lib`
+
+Caused by:
+  process didn't exit successfully: `/Users/bennet/Desktop/temper/target-shared/debug/deps/zapote_harness-9b931f84e0515063` (signal: 2, SIGINT: terminal interrupt signal)

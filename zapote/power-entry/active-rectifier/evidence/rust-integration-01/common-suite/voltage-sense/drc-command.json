@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "pcb",
+    "drc",
+    "--severity-all",
+    "--all-track-errors",
+    "--schematic-parity",
+    "--format",
+    "json",
+    "--output",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/active-rectifier/evidence/rust-integration-01/common-suite/voltage-sense/drc.json",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/section.kicad_pcb"
+  ],
+  "returncode": 0,
+  "input_sha256": "ef9853e9fb03df4f7723076ac8eb77c17743465a0b2e146cec11d2da54876e1f",
+  "report_sha256": "ee462426ea702827b9a00450873bedac95efb866804fb7ce7c9e058365162315",
+  "report_path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/active-rectifier/evidence/rust-integration-01/common-suite/voltage-sense/drc.json",
+  "dependency_hashes": {
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/VoltageSenseUnit.kicad_sym": "1eb5db3ec0992c987dfb8699041916092286eca5a17dd09460d1feb9165debfe",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "4cbfc933e73b2bbf99db031f49f31fe3694172ddfe03d3ebe63a4326f6af3355",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "2b2e297ab9db7a84603fcb74c9817ce447b53be525b08162839712d6d941f6be",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "c38b99a29fdd267643c938ddb60878c50dd0fe71138dd1af66249b868fb16676",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "cc177dfc23159ab73b7ee0c83db4e9dad09d2f9d2ca789762655f176ed194710",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod": "f79918c759b897bf3c0f09f4161a6dc1036aee0556c50de5cb65cf06cbb38c6c",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/candidate-libs/lib.pretty/VoltageInput_691253500002.kicad_mod": "737779cb32aa98c6ec30e7abf3bbd7967aeaf1db830226d06c76605f97e55038",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/fp-lib-table": "b6781ad44ca26b2d322dd366655ff7826bc5bb8e546d395e56f66c857e2991f6",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/section.kicad_dru": "3a50d4365ed7b467d33c802017850081fcc7da982daa8e00036e6099affd2dc3",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/section.kicad_pcb": "ef9853e9fb03df4f7723076ac8eb77c17743465a0b2e146cec11d2da54876e1f",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/section.kicad_pro": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/section.kicad_sch": "cc3ccc209c374951f767f46bd63621ba1426570323b7580df16ca4f9bef5b796",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/voltage-sense/candidate/sym-lib-table": "589985163e275ae9263cc4d4a28e7ce798210cae464e0ae7f516e1456ad6463b"
+  },
+  "tool_version": "10.0.4"
+}

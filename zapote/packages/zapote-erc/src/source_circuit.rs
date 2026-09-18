@@ -184,6 +184,20 @@ impl Circuit {
     /// Bind the whole compiled graph to exported pads and connection records.
     /// The caller also runs the saved-board byte binding and native DRC gates.
     pub fn bind_native(&self, native: &str) -> Result<(), String> {
+        self.bind_native_with_no_connects(native, &[])
+    }
+
+    /// Bind a graph whose explicitly reviewed no-connect pads are present in
+    /// the footprint export but intentionally have no native net or logical
+    /// connection. The source graph still retains those singleton nets, so a
+    /// missing or accidentally connected NC cannot disappear from the source
+    /// census. Callers must supply the reviewed endpoint list; manifest fields
+    /// are transport data and are never treated as authority.
+    pub fn bind_native_with_no_connects(
+        &self,
+        native: &str,
+        no_connects: &[&str],
+    ) -> Result<(), String> {
         #[derive(Deserialize)]
         struct Native {
             components: Vec<NativeComponent>,
@@ -211,9 +225,32 @@ impl Circuit {
             net: String,
         }
         let n: Native = serde_json::from_str(native).map_err(|e| e.to_string())?;
+        let no_connect_count = no_connects.len();
+        let no_connects: BTreeSet<&str> = no_connects.iter().copied().collect();
+        if no_connects.len() != no_connect_count {
+            return Err("duplicate reviewed no-connect endpoint".into());
+        }
+        for endpoint in &no_connects {
+            let Some(net) = self.pins.get(*endpoint) else {
+                return Err(format!(
+                    "reviewed no-connect {endpoint} is absent from source"
+                ));
+            };
+            let members = self
+                .pins
+                .values()
+                .filter(|candidate| *candidate == net)
+                .count();
+            if members != 1 {
+                return Err(format!(
+                    "reviewed no-connect {endpoint} is not a singleton source net"
+                ));
+            }
+        }
         let mut ids = BTreeSet::new();
         let mut uuids = BTreeSet::new();
         let mut physical = BTreeMap::<String, (String, usize)>::new();
+        let mut seen_no_connects = BTreeMap::<String, usize>::new();
         for c in n.components {
             if !ids.insert(c.id.clone()) {
                 return Err("duplicate native component".into());
@@ -241,6 +278,18 @@ impl Circuit {
                     .physical_multiplicity
                     .get(&endpoint)
                     .ok_or("unexpected native pad")?;
+                let is_no_connect = no_connects.contains(endpoint.as_str());
+                if is_no_connect {
+                    *seen_no_connects.entry(endpoint.clone()).or_default() += 1;
+                    if !p.net.is_empty() {
+                        return Err(format!("native no-connect {endpoint} has net {}", p.net));
+                    }
+                    if p.pad_type.as_deref() != Some("electrical") {
+                        return Err(format!(
+                            "native no-connect {endpoint} is not an electrical pad"
+                        ));
+                    }
+                }
                 match p.uuid {
                     Some(uuid) if uuid.trim().is_empty() || !uuids.insert(uuid.clone()) => {
                         return Err("empty or duplicate native pad UUID".into())
@@ -249,6 +298,9 @@ impl Circuit {
                         return Err("every repeated physical pad requires its own UUID".into())
                     }
                     _ => {}
+                }
+                if is_no_connect {
+                    continue;
                 }
                 let entry = physical.entry(endpoint).or_insert((p.net.clone(), 0));
                 if entry.0 != p.net {
@@ -269,8 +321,19 @@ impl Circuit {
         let expected: BTreeMap<_, _> = self
             .physical_multiplicity
             .iter()
+            .filter(|(endpoint, _)| !no_connects.contains(endpoint.as_str()))
             .map(|(k, count)| (k.clone(), (self.pins[k].clone(), *count)))
             .collect();
+        for endpoint in &no_connects {
+            let expected_count = self
+                .physical_multiplicity
+                .get(*endpoint)
+                .copied()
+                .unwrap_or(0);
+            if seen_no_connects.get(*endpoint).copied().unwrap_or(0) != expected_count {
+                return Err(format!("reviewed no-connect census differs at {endpoint}"));
+            }
+        }
         if ids != self.components.keys().cloned().collect()
             || physical != expected
             || connections != expected

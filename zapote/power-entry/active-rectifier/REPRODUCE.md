@@ -21,15 +21,17 @@ cargo build --locked --offline --manifest-path zapote/Cargo.toml -p zapote-harne
 /Users/bennet/Desktop/temper/target-shared/debug/zapote-unit-run "$AR/units.json" /tmp/zapote-active-recheck/common "$KICAD" "$PCB_PY" --all
 ```
 
-The last two commands are expected to report failure with the current passive-only
-contract; see VALIDATION.md. This is an observed blocker, not a successful test.
+The last two commands now evaluate the active contract. They are expected to
+report the three TEA package-spacing failures and explicit qualification gaps;
+see RUST-INTEGRATION.md. A non-green construction result is intentional evidence,
+not a waived failure.
 On this host native DRC needed execution outside the sandbox. Library tables and
 candidate-libs must remain alongside the board. Do not copy only the PCB file.
 
 Verify retained construction inputs before replay:
 
 ```sh
-shasum -a 256 -c zapote/power-entry/active-rectifier/evidence/construction-inputs.sha256
+shasum -a 256 -c zapote/power-entry/active-rectifier/evidence/rust-integration-01/construction-inputs.sha256
 ```
 
 This verifies the committed input set only. An intentional source/layout change

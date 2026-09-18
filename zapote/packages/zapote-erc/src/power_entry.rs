@@ -7,6 +7,35 @@ use serde::Serialize;
 use std::collections::BTreeSet;
 
 pub const ENTRY: &str = "elec/src/power_entry_unit.ato:PowerEntryUnit";
+pub const ACTIVE_ENTRY: &str = crate::power_entry_active::ENTRY;
+
+/// Resolve the authored unit entry without allowing one circuit to alias the
+/// other. This is the single dispatch point used by entry-aware ERC rules.
+pub fn entry(source: &str) -> Result<&'static str, String> {
+    let value: serde_json::Value = serde_json::from_str(source).map_err(|e| e.to_string())?;
+    match value["entry"].as_str() {
+        Some(ENTRY) => Ok(ENTRY),
+        Some(ACTIVE_ENTRY) => Ok(ACTIVE_ENTRY),
+        Some(other) => Err(format!("unreviewed power-entry source entry {other}")),
+        None => Err("compiled source has no entry".into()),
+    }
+}
+
+pub fn parse(source: &str) -> Result<Circuit, String> {
+    match entry(source)? {
+        ENTRY => Circuit::parse(source, ENTRY),
+        ACTIVE_ENTRY => crate::power_entry_active::parse(source),
+        _ => unreachable!(),
+    }
+}
+
+pub fn no_connects(source: &str) -> Result<&'static [&'static str], String> {
+    match entry(source)? {
+        ENTRY => Ok(&[]),
+        ACTIVE_ENTRY => crate::power_entry_active::no_connects(source),
+        _ => unreachable!(),
+    }
+}
 
 /// Reviewed shunt identities.  The legacy identity is retained so historical
 /// source snapshots can still be replayed by the topology checker; the
@@ -205,6 +234,9 @@ const PARTS: &[(&str, &str, Option<&str>)] = &[
 ];
 
 pub fn validate_source(source: &str) -> Result<(), String> {
+    if entry(source)? == ACTIVE_ENTRY {
+        return crate::power_entry_active::validate_source(source);
+    }
     let c = Circuit::parse(source, ENTRY)?;
     if c.components.len() != PARTS.len() {
         return Err("power-entry part census changed".into());
@@ -280,6 +312,9 @@ pub fn validate_source(source: &str) -> Result<(), String> {
 }
 
 pub fn validate(source: &str, native: &str) -> Result<(), String> {
+    if entry(source)? == ACTIVE_ENTRY {
+        return crate::power_entry_active::validate(source, native);
+    }
     validate_source(source)?;
     Circuit::parse(source, ENTRY)?.bind_native(native)
 }

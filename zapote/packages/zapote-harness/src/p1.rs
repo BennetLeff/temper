@@ -65,22 +65,46 @@ fn expected_domain(unit: P1Unit, net: &str) -> (&'static str, &'static str) {
 pub fn run(source: &str, native: &str, board: &[u8], unit: P1Unit) -> CheckReport {
     let mut r = CheckReport::from_findings(vec![], vec![], vec![]);
     let entry = match unit {
-        P1Unit::Pfc => zapote_erc::power_entry::ENTRY,
-        P1Unit::GateDrive => zapote_erc::gate_drive::ENTRY,
+        P1Unit::Pfc => zapote_erc::power_entry::entry(source),
+        P1Unit::GateDrive => Ok(zapote_erc::gate_drive::ENTRY),
     };
-    let parsed = Circuit::parse(source, entry);
+    let parsed = entry.as_ref().map(|_| match unit {
+        P1Unit::Pfc => zapote_erc::power_entry::parse(source),
+        P1Unit::GateDrive => Circuit::parse(source, zapote_erc::gate_drive::ENTRY),
+    });
     r.checked_rules
         .push("ERC.POWER.P1_SOURCE_NATIVE_BINDING".into());
     r.findings.push(match &parsed {
-        Ok(c) => match c.bind_native(native) {
+        Ok(Ok(c)) => match unit {
+            P1Unit::Pfc => match zapote_erc::power_entry::no_connects(source)
+                .and_then(|ncs| c.bind_native_with_no_connects(native, ncs))
+            {
+                Ok(()) => Finding::pass(
+                    "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
+                    "source circuit and native package-pin membership agree, including reviewed active-controller no-connects",
+                    *entry.as_ref().unwrap(),
+                ),
+                Err(e) => Finding::fail("ERC.POWER.P1_SOURCE_NATIVE_BINDING", e, *entry.as_ref().unwrap()),
+            },
+            P1Unit::GateDrive => match c.bind_native(native) {
             Ok(()) => Finding::pass(
                 "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
                 "source circuit and native package-pin membership agree",
-                entry,
+                *entry.as_ref().unwrap(),
             ),
-            Err(e) => Finding::fail("ERC.POWER.P1_SOURCE_NATIVE_BINDING", e, entry),
+            Err(e) => Finding::fail("ERC.POWER.P1_SOURCE_NATIVE_BINDING", e, *entry.as_ref().unwrap()),
+            },
         },
-        Err(e) => Finding::fail("ERC.POWER.P1_SOURCE_NATIVE_BINDING", e, entry),
+        Ok(Err(e)) => Finding::fail(
+            "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
+            e.clone(),
+            *entry.as_ref().unwrap_or(&"power-entry"),
+        ),
+        Err(e) => Finding::fail(
+            "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
+            (*e).clone(),
+            (*e).clone(),
+        ),
     });
     let digest = format!("{:x}", Sha256::digest(board));
     let copper_um = std::str::from_utf8(board)
@@ -113,7 +137,7 @@ pub fn run(source: &str, native: &str, board: &[u8], unit: P1Unit) -> CheckRepor
         finalize(&mut r);
         return r;
     };
-    if let Ok(circuit) = parsed {
+    if let Ok(Ok(circuit)) = parsed {
         let mut seen = BTreeSet::new();
         let mut pins = Vec::new();
         for c in &evidence.connections {
@@ -164,7 +188,27 @@ pub fn run(source: &str, native: &str, board: &[u8], unit: P1Unit) -> CheckRepor
     // input ceiling is not copied onto every same-net branch, and gate-drive
     // bias/output branches remain indeterminate until waveform bounds are
     // supplied by the reviewed operating contract.
+    let active = matches!(unit, P1Unit::Pfc)
+        && entry.as_ref().ok() == Some(&zapote_erc::power_entry::ACTIVE_ENTRY);
     let nets: &[&str] = match unit {
+        P1Unit::Pfc if active => &[
+            "AC_L_RECTIFIED_INPUT",
+            "AC_N_RECTIFIED_INPUT",
+            "RECTIFIER_L",
+            "RECTIFIER_R",
+            "RECTIFIER_POSITIVE",
+            "RECTIFIER_NEGATIVE",
+            "l1",
+            "l2",
+            "a1",
+            "BOOST_DIODE_POSITIVE",
+            "PFC_BUS_PLUS_390V",
+            "PFC_BUS_MINUS",
+            "AUX_15V_IN",
+            "HOT_PERMIT_EXTERNAL",
+            "RELAY_BYPASS_CTRL",
+            "PE_CHASSIS",
+        ],
         P1Unit::Pfc => &[
             "AC_L_RECTIFIED_INPUT",
             "AC_N_RECTIFIED_INPUT",
@@ -319,6 +363,10 @@ pub fn run(source: &str, native: &str, board: &[u8], unit: P1Unit) -> CheckRepor
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const ACTIVE_SOURCE: &str = include_str!("../../../power-entry/active-rectifier/candidate/source-manifest.json");
+    const ACTIVE_NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/native.json");
+
     #[test]
     fn aggregate_status_preserves_failures() {
         let r = CheckReport::from_findings(
@@ -330,5 +378,39 @@ mod tests {
             vec![],
         );
         assert_eq!(r.status, zapote_core::Status::Fail);
+    }
+
+    #[test]
+    fn active_fixture_runs_source_binding_and_power_domains() {
+        let native: serde_json::Value = serde_json::from_str(ACTIVE_NATIVE).unwrap();
+        let board = native["board_file_utf8"].as_str().unwrap().as_bytes().to_vec();
+        let report = run(ACTIVE_SOURCE, ACTIVE_NATIVE, &board, P1Unit::Pfc);
+        assert!(report.findings.iter().any(|finding| {
+            finding.rule == "ERC.POWER.P1_SOURCE_NATIVE_BINDING"
+                && finding.status == Status::Pass
+        }), "active source/native binding did not pass: {report:?}");
+        assert!(report.checked_rules.iter().any(|rule| rule == "DRC.POWER.PATH_AMPACITY"));
+        assert!(report.findings.iter().any(|finding| {
+            finding.object.contains("RECTIFIER_L") || finding.object.contains("RECTIFIER_R")
+        }), "active rectifier power domains were not evaluated: {report:?}");
+
+        let mut changed = native;
+        let connection = changed["connections"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|connection| connection["component"] == "q_hl" && connection["pin"] == "3")
+            .unwrap();
+        connection["net"] = "RECTIFIER_POSITIVE".into();
+        let report = run(
+            ACTIVE_SOURCE,
+            &changed.to_string(),
+            &board,
+            P1Unit::Pfc,
+        );
+        assert!(report.findings.iter().any(|finding| {
+            finding.rule == "ERC.POWER.P1_SOURCE_NATIVE_BINDING"
+                && finding.status == Status::Fail
+        }), "active net mutation was accepted: {report:?}");
     }
 }

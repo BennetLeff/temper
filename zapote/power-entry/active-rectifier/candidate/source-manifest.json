@@ -14,7 +14,7 @@
       210
     ]
   },
-  "board_sha256": "a9f0ed4a8c4fb874da2c8a295111c5a63d4af7522d118f65c5ad000411c19179",
+  "board_sha256": "b0e5d537b0a827eac693b1b0373c650e6b2ef14637c3caf7d7c0a042695cb36b",
   "bridge": {
     "components": [
       {
@@ -2208,7 +2208,7 @@
     "zapote/power-entry/active-rectifier/native-source-unrouted.kicad_pcb": "7913e56428349b4bf9bdc880af5e3609dfcbee76cc80d449b68c2cc1c0a619e4",
     "zapote/power-entry/active-rectifier/outline.json": "bd15bcbca7eac71867eda89f4ed027108ee114f5a9dac6ceb2c56cc75bd4f3be",
     "zapote/power-entry/active-rectifier/poses.json": "48f270bd10c1f80302fddc7efde0fd30270e18fcaad07f35dda235344860d315",
-    "zapote/power-entry/active-rectifier/routes.json": "3cf9bbc6e76b2dadbd5d0f8397d9f09ed7c77f0b2352bc18172cd1d1e663ffde",
+    "zapote/power-entry/active-rectifier/routes.json": "d36f6cecb0b4be255ab1fdc8bd401af4837883ac4a17c79cfa9fb5be41106441",
     "zapote/power-entry/active-rectifier/source-03/ato.yaml": "2ef5b945c8da3824bfc826e6b38ff9924dd0dd0e3849fdf964358bbabed4c10f",
     "zapote/power-entry/active-rectifier/source-03/build-receipt.json": "85e369370432a7248eb574220f6d63fab7a41b8caab15564266bf29036cdc7d7",
     "zapote/power-entry/active-rectifier/source-03/build/default.csv": "b77940bab49636a7939441105b40b41924361b8ec8b34efa7be2b2c8324dda90",
@@ -2244,7 +2244,7 @@
     "zapote/power-entry/active-rectifier/tools/integrate_board.py": "963cd56d48a83e8e4b687f5b5529f02329d00b25dcd95d5673ed7fa04c5c25e5",
     "zapote/power-entry/shunt-repair/candidate/section.kicad_pcb": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9"
   },
-  "construction_stage": "routed active rectifier candidate; not qualified",
+  "construction_stage": "rust-integration-routing-repair; qualification incomplete",
   "entry": "elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit",
   "footprint_census": {
     "Capacitor_SMD:C_0805_2012Metric": {

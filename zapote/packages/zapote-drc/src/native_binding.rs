@@ -125,7 +125,14 @@ fn inspect(n: &Value) -> Result<(), String> {
             } else {
                 pin.clone()
             };
-            let net = scalar(pad, "net")?;
+            // KiCad omits the net field for an unassigned electrical pad.
+            // Preserve that pad in the census; source contracts decide whether
+            // it is intentionally NC. An omitted export pad still fails binding.
+            let net = if children(pad, "net")?.is_empty() {
+                String::new()
+            } else {
+                scalar(pad, "net")?
+            };
             let value = if counts[&pin] > 1 {
                 json!({"pin":pin,"net":net})
             } else {
@@ -500,9 +507,36 @@ pub fn validate_bridge_neck_geometry(native: &str) -> CheckReport {
 
 #[cfg(test)]
 mod bridge_tests {
-    use super::validate_bridge_neck_geometry;
+    use super::{validate, validate_bridge_neck_geometry};
     use serde_json::{json, Value};
     use zapote_core::Status;
+
+    const ACTIVE_NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/native.json");
+
+    #[test]
+    fn active_board_empty_net_pads_bind_without_omitting_pad_identity() {
+        assert_eq!(validate(ACTIVE_NATIVE).status, Status::Pass);
+    }
+
+    #[test]
+    fn assigning_an_export_net_to_a_saved_unassigned_pad_is_rejected() {
+        let mut n: Value = serde_json::from_str(ACTIVE_NATIVE).unwrap();
+        let controller = n["components"].as_array_mut().unwrap().iter_mut()
+            .find(|c| c["id"] == "bridge").unwrap();
+        let pad = controller["footprint_pads"].as_array_mut().unwrap().iter_mut()
+            .find(|p| p["pad"] == "4").unwrap();
+        pad["net"] = json!("RECTIFIER_NEGATIVE");
+        assert_eq!(validate(&n.to_string()).status, Status::Fail);
+    }
+
+    #[test]
+    fn omitting_an_unassigned_physical_pad_is_rejected() {
+        let mut n: Value = serde_json::from_str(ACTIVE_NATIVE).unwrap();
+        let controller = n["components"].as_array_mut().unwrap().iter_mut()
+            .find(|c| c["id"] == "bridge").unwrap();
+        controller["footprint_pads"].as_array_mut().unwrap().retain(|p| p["pad"] != "4");
+        assert_eq!(validate(&n.to_string()).status, Status::Fail);
+    }
 
     fn evidence() -> Value {
         let board = r#"(kicad_pcb

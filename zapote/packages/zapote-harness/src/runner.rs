@@ -534,9 +534,21 @@ fn bound_manufacturing_bytes(path: &Path, expected_hash: &str) -> Result<Vec<u8>
     Ok(bytes)
 }
 
+fn active_model_gap(rules: impl IntoIterator<Item = &'static str>, incompatible_evidence: bool) -> CheckReport {
+    let rules: Vec<_> = rules.into_iter().collect();
+    let message = "active rectifier has no board-bound loss/thermal model in this runner; passive GBU/GBJ evidence cannot qualify four IPW60R017C7 devices or the TEA2209T";
+    CheckReport::from_findings(
+        rules.iter().map(|rule| if incompatible_evidence {
+            Finding::fail(rule, format!("inapplicable model supplied: {message}"), "active-rectifier")
+        } else { Finding::indeterminate(rule, message, "active-rectifier") }).collect(),
+        rules.iter().map(|r| (*r).into()).collect(),
+        vec![message.into()],
+    )
+}
+
 pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Result<UnitRunReport> {
     let evidence_before = evidence_hashes(spec)?;
-    let (unit_checks, native, hashes) = evaluate(spec)?;
+    let (mut unit_checks, native, hashes) = evaluate(spec)?;
     let native_text = String::from_utf8(read(&spec.native)?).map_err(|e| e.to_string())?;
     let source = String::from_utf8(read(&spec.source)?).map_err(|e| e.to_string())?;
     let board = read(&spec.board)?;
@@ -590,10 +602,18 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     } else {
         None
     };
-    let loss_budget = if spec.unit == UnitKind::PowerEntry {
+    let active_rectifier = spec.unit == UnitKind::PowerEntry
+        && zapote_erc::power_entry::entry(&source)? == zapote_erc::power_entry::ACTIVE_ENTRY;
+    if active_rectifier {
+        unit_checks = combine(&[&unit_checks, &active_model_gap(
+            crate::pfc_loss_budget::RULES.into_iter()
+                .chain(crate::model_assurance::RULES)
+                .chain(crate::pfc_candidates::RULES), false)]);
+    }
+    let loss_budget = if spec.unit == UnitKind::PowerEntry && !active_rectifier {
         Some(crate::pfc_loss_budget::run(&source)?)
     } else { None };
-    let candidates = if spec.unit == UnitKind::PowerEntry {
+    let candidates = if spec.unit == UnitKind::PowerEntry && !active_rectifier {
         Some(crate::pfc_candidates::run(&source)?)
     } else { None };
     let loop_checks = if spec.unit == UnitKind::PowerEntry {
@@ -629,6 +649,9 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         )
     });
     let thermal_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        if active_rectifier {
+            return active_model_gap(crate::bridge_thermal::RULES.into_iter().chain(crate::bridge_thermal::COOLING_RULES), spec.thermal_evidence.is_some() || spec.contract.is_some());
+        }
         if let Some(reports) = &gbj_reports {
             return reports.thermal.clone();
         }
@@ -656,6 +679,9 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         .map(|p| read(p))
         .transpose()?;
     let physical_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        if active_rectifier {
+            return active_model_gap(crate::bridge_thermal::PHYSICAL_RULES, spec.physical_model.is_some() || spec.physical_model_source.is_some());
+        }
         if let Some(reports) = &gbj_reports {
             return reports.physical.clone();
         }
@@ -671,6 +697,9 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         )
     });
     let joint_checks = (spec.unit == UnitKind::PowerEntry).then(|| {
+        if active_rectifier {
+            return active_model_gap(crate::bridge_thermal::JOINT_RULES, spec.joint_model_evidence.is_some());
+        }
         if let Some(reports) = &gbj_reports {
             return reports.joint.clone();
         }
@@ -768,6 +797,23 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
 mod cooling_coverage_tests {
     use super::*;
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    #[test]
+    fn active_model_gaps_keep_every_obligation_and_reject_passive_evidence() {
+        let rules: Vec<_> = crate::pfc_loss_budget::RULES.into_iter()
+            .chain(crate::model_assurance::RULES).chain(crate::pfc_candidates::RULES)
+            .chain(crate::bridge_thermal::RULES).chain(crate::bridge_thermal::COOLING_RULES)
+            .chain(crate::bridge_thermal::PHYSICAL_RULES).chain(crate::bridge_thermal::JOINT_RULES).collect();
+        let report = active_model_gap(rules.iter().copied(), false);
+        assert_eq!(report.status, zapote_core::Status::Indeterminate);
+        for rule in &rules {
+            assert!(report.checked_rules.iter().any(|r| r == rule));
+            assert!(report.findings.iter().any(|f| f.rule == *rule && f.status == zapote_core::Status::Indeterminate));
+        }
+        let reuse = active_model_gap(crate::bridge_thermal::JOINT_RULES, true);
+        assert_eq!(reuse.status, zapote_core::Status::Fail);
+        assert!(reuse.findings.iter().all(|f| f.message.contains("inapplicable model supplied")));
+    }
 
     #[test]
     fn edited_geometry_with_unchanged_board_identity_cannot_reach_downstream_checks() {

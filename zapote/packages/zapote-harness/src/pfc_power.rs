@@ -11,7 +11,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use zapote_core::unit::UnitNativeEvidence;
 use zapote_core::{CheckReport, Finding};
 use zapote_drc::{power_branches as flow, power_contact as contact};
-use zapote_erc::{pfc_currents as model, power_entry, source_circuit::Circuit};
+use zapote_erc::{pfc_currents as model, power_entry};
+#[cfg(test)]
+use zapote_erc::source_circuit::Circuit;
 
 pub const RULES: [&str; 5] = [
     "ERC.PFC.BRANCH_WAVEFORMS",
@@ -50,6 +52,34 @@ const ENDPOINTS: &[&str] = &[
     "shunt.1",
     "shunt.2",
 ];
+
+#[derive(Clone, Copy)]
+enum Rectifier {
+    Passive(power_entry::BridgePins),
+    Active,
+}
+
+impl Rectifier {
+    fn endpoints(self) -> Vec<&'static str> {
+        let mut pins = ENDPOINTS.to_vec();
+        if matches!(self, Self::Active) {
+            pins.retain(|p| !p.starts_with("bridge."));
+            pins.extend([
+                "q_hl.2",
+                "q_hl.3",
+                "q_ll.2",
+                "q_ll.3",
+                "q_hr.2",
+                "q_hr.3",
+                "q_lr.2",
+                "q_lr.3",
+                "bus_fuse.1",
+                "bus_fuse.2",
+            ]);
+        }
+        pins
+    }
+}
 
 #[derive(Debug, Serialize)]
 pub struct Branch {
@@ -107,7 +137,7 @@ pub struct Report {
 
 fn inject(
     bound: &crate::pfc_paths::BoundGraph,
-    bridge: power_entry::BridgePins,
+    bridge: Rectifier,
     s: &model::Sample,
     relay: f64,
     anode: f64,
@@ -142,10 +172,7 @@ fn inject(
         ("bypass.4", -relay * a),
         ("ntc.2", (1. - relay) * a),
         ("bypass.3", relay * a),
-        ("bridge.2", -a),
         ("cmc.3", -a),
-        ("bridge.3", a),
-        (bridge.positive, i),
         ("l_boost.1", -i),
         ("l_boost.2", i),
         ("q_boost.2", -sw),
@@ -157,9 +184,41 @@ fn inject(
         ("output.2", o),
         ("shunt.1", -i),
         ("shunt.2", i),
-        (bridge.negative, -i),
     ] {
         put(pin, value)?;
+    }
+    match bridge {
+        Rectifier::Passive(pins) => {
+            for (pin, value) in [
+                ("bridge.2", -a),
+                ("bridge.3", a),
+                (pins.positive, i),
+                (pins.negative, -i),
+            ] {
+                put(pin, value)?;
+            }
+        }
+        Rectifier::Active => {
+            // Positive half-cycle: HL and LR. Negative: HR and LL.
+            // These are ideal line-frequency conduction assignments, not
+            // evidence of TEA commutation timing or fault interruption.
+            let (upper, lower) = if s.line_sign > 0. {
+                ("q_hl", "q_lr")
+            } else {
+                ("q_hr", "q_ll")
+            };
+            for name in ["q_hl", "q_ll", "q_hr", "q_lr"] {
+                let on = name == upper || name == lower;
+                put(&format!("{name}.2"), if on { i } else { 0. })?;
+                put(&format!("{name}.3"), if on { -i } else { 0. })?;
+            }
+            // c_hf is upstream of F2; the four bulk capacitors and load are
+            // downstream. Retain both sharing extremes, rather than assigning
+            // average load current to a pulse-carrying fuse.
+            let f = if CAPS[cap] == "c_hf" { o } else { d };
+            put("bus_fuse.1", -f)?;
+            put("bus_fuse.2", f)?;
+        }
     }
     for (index, name) in CAPS.iter().enumerate() {
         put(&format!("{name}.1"), if index == cap { -c } else { 0. })?;
@@ -171,9 +230,7 @@ fn inject(
     })
 }
 
-fn check_manufacturing_pad_identity(
-    pads: &[serde_json::Value],
-) -> Result<(), String> {
+fn check_manufacturing_pad_identity(pads: &[serde_json::Value]) -> Result<(), String> {
     let mut seen = BTreeSet::new();
     for pad in pads {
         let id = pad["id"]
@@ -209,8 +266,12 @@ pub fn run(
             binding.findings
         ));
     }
-    let circuit = Circuit::parse(source, power_entry::ENTRY)?;
-    let bridge = power_entry::bridge_pins(&circuit.components["bridge"].mpn)?;
+    let circuit = power_entry::parse(source)?;
+    let bridge = if power_entry::entry(source)? == power_entry::ACTIVE_ENTRY {
+        Rectifier::Active
+    } else {
+        Rectifier::Passive(power_entry::bridge_pins(&circuit.components["bridge"].mpn)?)
+    };
     let raw: serde_json::Value = serde_json::from_str(native_text).map_err(|e| e.to_string())?;
     let mut native: UnitNativeEvidence =
         serde_json::from_value(raw.clone()).map_err(|e| e.to_string())?;
@@ -224,7 +285,7 @@ pub fn run(
         .as_array()
         .ok_or("missing native pad polygons")?;
     check_manufacturing_pad_identity(manufacturing_pads)?;
-    let mut modeled: BTreeSet<String> = ENDPOINTS.iter().map(|s| s.to_string()).collect();
+    let mut modeled: BTreeSet<String> = bridge.endpoints().iter().map(|s| s.to_string()).collect();
     for cap in CAPS {
         for pin in [1, 2] {
             modeled.insert(format!("{cap}.{pin}"));
@@ -454,10 +515,14 @@ pub fn run(
         .components
         .get("shunt")
         .ok_or("source PFC shunt component is missing")?;
-    let resistance_ohm = shunt_component.value.as_deref()
+    let resistance_ohm = shunt_component
+        .value
+        .as_deref()
         .and_then(|value| value.strip_suffix("mohm"))
         .ok_or("reviewed shunt value must specify milliohms")?
-        .parse::<f64>().map_err(|e| e.to_string())? / 1000.0;
+        .parse::<f64>()
+        .map_err(|e| e.to_string())?
+        / 1000.0;
     if !resistance_ohm.is_finite() || resistance_ohm <= 0.0 {
         return Err("shunt resistance must be finite and positive".into());
     }
@@ -500,6 +565,10 @@ pub fn run(
         .cloned()
         .collect();
     let assumptions=vec!["Nominal 120VAC / 15A true RMS ideal steady-state CCM boost; no losses, inrush, shorts, reverse recovery or control transients".into(),"180uH nominal Würth 760800301; saturation/temperature/tolerance require separate corner qualification".into(),"Nonnegative time-varying current shares between NTC/relay, diode anodes, and five DC-link capacitors; no circulating/parasitic currents; no equal-sharing assumption".into(),"Only listed power-stage terminal injections are modeled. EMI/reactive, divider, bleeder, bias/control and gate-drive contributions are excluded, so this cannot certify total trace current".into(),"Native pad inside-polygons minus outside drill polygons; sampled transverse chords are attachment lower bounds, not whole-pad minimum cuts".into(),"Via paths are identity and waveform populations only; no plating/current-density rating is inferred".into(),"Shunt stress uses the exact authored 10 mOhm resistance; dissipation is nominal I²R only and is not package thermal qualification".into()];
+    let mut assumptions = assumptions;
+    if matches!(bridge, Rectifier::Active) {
+        assumptions.push("Active bridge uses ideal alternating HL/LR and HR/LL conduction. The upstream c_hf and downstream bank sharing vertices determine F2 pulse current. TEA commutation timing, body-diode intervals, fuse heating/clearing and startup remain unqualified.".into());
+    }
     gaps.extend(assumptions.iter().cloned());
     Ok(Report {
         checks: CheckReport::from_findings(findings, RULES.map(str::to_owned).to_vec(), gaps),
@@ -522,16 +591,28 @@ mod tests {
 
     #[test]
     fn source_pin_injections_conserve_every_power_net_and_distinguish_branches() {
-        check_pin_injections(false);
+        check_pin_injections(false, false);
     }
 
     #[test]
     fn alternate_bridge_injections_follow_reversed_dc_pins() {
-        check_pin_injections(true);
+        check_pin_injections(true, false);
     }
 
-    fn check_pin_injections(alternate: bool) {
-        let mut circuit = Circuit::parse(SOURCE, power_entry::ENTRY).unwrap();
+    #[test]
+    fn active_half_cycles_and_fuse_pulses_obey_source_net_kcl() {
+        check_pin_injections(false, true);
+    }
+
+    fn check_pin_injections(alternate: bool, active: bool) {
+        let mut circuit = if active {
+            power_entry::parse(include_str!(
+                "../../../power-entry/active-rectifier/candidate/source-manifest.json"
+            ))
+            .unwrap()
+        } else {
+            Circuit::parse(SOURCE, power_entry::ENTRY).unwrap()
+        };
         if alternate {
             let positive = circuit.pins["bridge.4"].clone();
             let negative = circuit.pins["bridge.1"].clone();
@@ -539,8 +620,12 @@ mod tests {
             circuit.pins.insert("bridge.4".into(), negative);
             circuit.components.get_mut("bridge").unwrap().mpn = "GBJ2510-F".into();
         }
-        let bridge = power_entry::bridge_pins(&circuit.components["bridge"].mpn).unwrap();
-        let mut terminals: Vec<String> = ENDPOINTS.iter().map(|s| s.to_string()).collect();
+        let bridge = if active {
+            Rectifier::Active
+        } else {
+            Rectifier::Passive(power_entry::bridge_pins(&circuit.components["bridge"].mpn).unwrap())
+        };
+        let mut terminals: Vec<String> = bridge.endpoints().iter().map(|s| s.to_string()).collect();
         for cap in CAPS {
             for pin in [1, 2] {
                 terminals.push(format!("{cap}.{pin}"));
@@ -602,8 +687,48 @@ mod tests {
                     assert!((rms("q_boost.2") - profile.switch_rms_a).abs() < 1e-8);
                     assert!((rms("d_boost.2") - profile.diode_rms_a).abs() < 1e-8);
                     assert!((rms("output.1") - profile.load_rms_a).abs() < 1e-8);
+                    if active {
+                        for name in ["q_hl", "q_ll", "q_hr", "q_lr"] {
+                            assert!((rms(&format!("{name}.2")) - 15. / 2_f64.sqrt()).abs() < 1e-8);
+                        }
+                        let expected = if cap == 4 {
+                            profile.load_rms_a
+                        } else {
+                            profile.diode_rms_a
+                        };
+                        assert!((rms("bus_fuse.1") - expected).abs() < 1e-8);
+                        for (s, injected) in profile.samples.iter().zip(&samples) {
+                            let active_pair = if s.line_sign > 0. {
+                                ["q_hl", "q_lr"]
+                            } else {
+                                ["q_hr", "q_ll"]
+                            };
+                            for name in ["q_hl", "q_ll", "q_hr", "q_lr"] {
+                                let expected = if active_pair.contains(&name) {
+                                    s.inductor_a
+                                } else {
+                                    0.
+                                };
+                                assert_eq!(
+                                    injected.injections_a
+                                        [bound.terminal_nodes[&format!("{name}.2")]],
+                                    expected
+                                );
+                            }
+                        }
+                        // Average load current is not generally the fuse waveform.
+                        // A physically misassigned fuse flow must fail per-net KCL.
+                        let mut wrong_fuse = samples.clone();
+                        for (s, injected) in profile.samples.iter().zip(&mut wrong_fuse) {
+                            let wrong = if cap == 4 { s.diode_a } else { s.load_a };
+                            injected.injections_a[bound.terminal_nodes["bus_fuse.1"]] = -wrong;
+                            injected.injections_a[bound.terminal_nodes["bus_fuse.2"]] = wrong;
+                        }
+                        assert!(flow::analyze(&bound.graph, &wrong_fuse).is_err());
+                    }
                     let mut wrong = samples;
-                    wrong[0].injections_a[bound.terminal_nodes["bridge.1"]] *= -1.;
+                    let pin = if active { "q_hl.2" } else { "bridge.1" };
+                    wrong[0].injections_a[bound.terminal_nodes[pin]] *= -1.;
                     assert!(flow::analyze(&bound.graph, &wrong).is_err());
                 }
             }

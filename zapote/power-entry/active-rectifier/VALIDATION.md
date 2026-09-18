@@ -1,8 +1,16 @@
 # Construction validation — 2026-09-18
 
-**Acceptance incomplete.** Native construction checks pass; the full Rust
-power-entry assessment does not run successfully for this circuit variant.
+**Acceptance incomplete.** The active Rust assessment now runs. Source/native
+connectivity is supported, and routing repairs clear nine spacing findings
+and eight nominal-current findings. Three 1.94 mm TEA package gaps still fail
+the 2 mm construction screen. See [RUST-INTEGRATION.md](RUST-INTEGRATION.md)
+for current checks and [the final common run](evidence/rust-integration-01/common-suite-03/summary.json).
 No fabrication or powered test is authorized by these artifacts.
+
+## Historical construction checkpoint — 2b65c3e18
+
+The table and unsupported-entry diagnosis below record the original checkpoint,
+before Rust integration and routing repair. They are not current results.
 
 | Check | Result | Retained evidence |
 | --- | --- | --- |
@@ -15,7 +23,7 @@ No fabrication or powered test is authorized by these artifacts.
 | Source/pad wiring review | Active bridge pin map, shunt sides and F2 split checked independently | review notes below |
 | Mechanical / thermal / interruption / surge / powered operation | Not qualified; no physical tests | `MECHANICAL.md`, parent `CLOSEOUT.md` Q1–Q5 |
 
-## Why the Rust assessment fails
+## Why the original Rust assessment failed
 
 `zapote_erc::power_entry::ENTRY` accepts only
 `elec/src/power_entry_unit.ato:PowerEntryUnit`. This authored variant is
@@ -33,7 +41,7 @@ high-voltage spacing, manufacturing or loss/thermal qualification is claimed.
 The direct runner's nominal-model pass evaluates its existing baseline model;
 it does not establish active-rectifier performance. Do not rename the entry,
 copy passive survival limits, suppress errors, or rebind old model evidence
-just to obtain a green result. Concrete active-unit contract work is still needed.
+just to obtain a green result. Concrete active-unit contract work was needed at that checkpoint; it is now implemented.
 
 ## Explicit NC conversion
 
@@ -44,15 +52,18 @@ pads have no assigned net. Native extraction therefore has 45 connected
 clusters. `candidate/source-manifest.json` retains the original compiler graph
 and separately records `native_no_connects`; it does not rewrite the compiled
 source to pretend those records never existed. `unconnected_pads` refers to
-unrouted required connections, not intentional NC pins. Existing Rust graph
-comparison does not yet implement this distinction for this unit.
+unrouted required connections, not intentional NC pins. The active Rust binding now enforces this distinction explicitly, including
+physical pad presence, multiplicity and the empty native net.
 
-## Final bytes versus intermediate receipts
+## Historical bytes versus current evidence
 
-`evidence/final-artifacts.json` hashes the reviewed construction inputs, final
-CAD, exports and check reports. `candidate/source-manifest.json.board_sha256`,
-`evidence/native.json.board_sha256` and the Rust stackup receipt match the final
-saved PCB. The schematic generation receipt binds the final schematic.
+`evidence/final-artifacts.json`, `evidence/native.json`, the original Rust stackup
+receipt and `renders/` bind the original construction checkpoint, not the
+repaired PCB. Their hashes are preserved; these historical receipts were not
+rewritten to claim a new execution. The current source manifest and active
+`units.json` instead bind `evidence/rust-integration-01/native-contact-repaired.json`; current
+DRC, stackup, manufacturing and common-suite reports live in that new directory.
+The schematic is unchanged.
 
 `evidence/native-generation-manifest.json` describes the initial generated
 skeleton, before the passive copper was incorporated. `evidence/routes-receipt.json`
@@ -69,7 +80,7 @@ pad assignments and the final native checks. Review found the unsupported Rust
 entry, NC representation difference, intermediate/final identity ambiguity,
 provisional fuse land pattern, enlarged outline and separate F1 consumable.
 The identity/NC distinctions are documented and the final bytes bound; BOM
-includes F1 and two clips; the 310 × 210 mm outline is explicit. Rust integration
+includes F1 and two clips; the 310 × 210 mm outline is explicit. That review preceded Rust integration. The current package-spacing findings
 and fuse mechanical fit remain release blockers. No hardware acceptance is inferred.
 
 The schematic PDF is a source-derived pin/net projection with labelled box

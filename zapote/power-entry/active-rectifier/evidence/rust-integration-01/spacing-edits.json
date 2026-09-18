@@ -1,0 +1,136 @@
+{
+  "input_sha256": "a9f0ed4a8c4fb874da2c8a295111c5a63d4af7522d118f65c5ad000411c19179",
+  "output_sha256_before_refill": "c9945040b5b8237723da7de3f371617590af61f2e087b1c8503ba5a21a1a6741",
+  "edits": [
+    {
+      "uuid": "888af9c3-5216-49af-96e6-781ec9760506",
+      "net": "BOOST_DIODE_POSITIVE",
+      "field": "SetStart",
+      "before": [
+        167.9625,
+        125.5
+      ],
+      "after": [
+        167.9625,
+        127.0
+      ]
+    },
+    {
+      "uuid": "daee2ddd-5c74-4537-864a-b46668dbb773",
+      "net": "BOOST_DIODE_POSITIVE",
+      "field": "SetPosition",
+      "before": [
+        167.9625,
+        125.5
+      ],
+      "after": [
+        167.9625,
+        127.0
+      ]
+    },
+    {
+      "uuid": "a11e37bd-f7ba-4a8a-8d60-de186c888cf3",
+      "net": "BOOST_DIODE_POSITIVE",
+      "field": "SetEnd",
+      "before": [
+        120.45,
+        125.5
+      ],
+      "after": [
+        120.45,
+        127.0
+      ]
+    },
+    {
+      "uuid": "ebce063a-c6b9-4dbc-b773-016f41609f48",
+      "net": "BOOST_DIODE_POSITIVE",
+      "field": "SetStart",
+      "before": [
+        120.45,
+        125.5
+      ],
+      "after": [
+        120.45,
+        127.0
+      ]
+    },
+    {
+      "uuid": "ebce063a-c6b9-4dbc-b773-016f41609f48",
+      "net": "BOOST_DIODE_POSITIVE",
+      "field": "SetEnd",
+      "before": [
+        167.9625,
+        125.5
+      ],
+      "after": [
+        167.9625,
+        127.0
+      ]
+    },
+    {
+      "uuid": "25a45b0c-7f6e-4f65-ae95-b6ce443e9f62",
+      "net": "RECTIFIER_L",
+      "field": "SetStart",
+      "before": [
+        5.0,
+        130.0
+      ],
+      "after": [
+        5.0,
+        129.0
+      ]
+    },
+    {
+      "uuid": "d2b7fe4e-3ee6-4702-b735-e3a441f95efe",
+      "net": "RECTIFIER_L",
+      "field": "SetEnd",
+      "before": [
+        5.0,
+        130.0
+      ],
+      "after": [
+        5.0,
+        129.0
+      ]
+    },
+    {
+      "uuid": "54405ab8-2e1d-4cf1-92ee-e4bbfb7eca0c",
+      "net": "RECTIFIER_POSITIVE",
+      "field": "SetEnd",
+      "before": [
+        -37.0,
+        108.555
+      ],
+      "after": [
+        -38.525,
+        106.0
+      ]
+    },
+    {
+      "uuid": "b603c06a-d01b-4672-a8af-e18c505e6aae",
+      "net": "RECTIFIER_POSITIVE",
+      "field": "SetPosition",
+      "before": [
+        -37.0,
+        108.555
+      ],
+      "after": [
+        -38.525,
+        106.0
+      ]
+    },
+    {
+      "uuid": "8397d053-7d35-4fdb-ade6-4ba2992608f1",
+      "net": "RECTIFIER_POSITIVE",
+      "field": "SetStart",
+      "before": [
+        -37.0,
+        108.555
+      ],
+      "after": [
+        -38.525,
+        106.0
+      ]
+    }
+  ]
+}

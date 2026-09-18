@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "pcb",
+    "drc",
+    "--severity-all",
+    "--all-track-errors",
+    "--schematic-parity",
+    "--format",
+    "json",
+    "--output",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/active-rectifier/evidence/rust-integration-01/common-suite-final/current-sense/drc.json",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_pcb"
+  ],
+  "returncode": 0,
+  "input_sha256": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+  "report_sha256": "549c9e52539b0117bdbf9ae3f549c7ec0c21f63b0719481b7bbf1faae3267b06",
+  "report_path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/power-entry/active-rectifier/evidence/rust-integration-01/common-suite-final/current-sense/drc.json",
+  "dependency_hashes": {
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Capacitor_SMD.pretty/C_1206_3216Metric.kicad_mod": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Diode_SMD.pretty/D_SOD-123F.kicad_mod": "8be1e25f240367187beafa1e339963dfdf4aa4f3e671731970e7f2e8491b6246",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Package_SO.pretty/SOIC-14_3.9x8.7mm_P1.27mm.kicad_mod": "a885b619b22880c9559522d2bf865b059d80453b95a98defc9e6ceef284da1fc",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/lib.pretty/LitzPad_15A.kicad_mod": "b433c013381f55c26320e0c6f900d104df3573b0906d462a052d155fe17e9535",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/candidate-libs/temper.pretty/CST3015_Datasheet2025.kicad_mod": "a4541edc45c617a00a4318770853290197c8b10c80920026353b3550c99222cd",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/current-sense-unit.kicad_sym": "8a648b275475839cd04b5b8de25124a0b83f4cbddeedda429247def125c3110f",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/fp-lib-table": "efc13c1ba8deda1a61d9633c8cb554beee050b20d1a8c570ed6b800b3b51e6bb",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_dru": "4afe34c44a45179c179cc2a6ee6266fba5ba3de79b8cd6bc41d58dabe89f37ac",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_pcb": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_pro": "475efe612450f02e7b45eeb551138d2d65e560bb0215d252d9dba7b39bdddaae",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/section.kicad_sch": "a00fc0bfa1f33c815dec88a5d33feb601968fb92b88182f4a3ad33377d8f5505",
+    "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/current-sense/candidate/sym-lib-table": "e164afa5dbed3ede58165d15676b4a27a892af20060ee6f8250ff3ee34b29b45"
+  },
+  "tool_version": "10.0.4"
+}

@@ -1,0 +1,13 @@
+   Compiling zapote-erc v0.1.0 (/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/packages/zapote-erc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.76s
+     Running tests/power_entry_active.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/power_entry_active-4192b7ac9083322e)
+
+running 5 tests
+test passive_entry_is_not_an_alias_for_active_source ... ok
+test active_fixture_has_its_own_entry_and_exact_graph ... ok
+test active_mutants_fail_the_authored_contract ... ok
+test unchanged_power_entry_network_mutants_fail_closed ... ok
+test native_no_connect_mutants_fail_closed ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+

@@ -4,8 +4,7 @@
 //! wattage number is not a thermal approval: board copper area, airflow and
 //! the actual surface temperature still need the thermal model.
 
-use crate::power_entry::{self, ENTRY, SHUNT_FOOTPRINT, SHUNT_MPN};
-use crate::source_circuit::Circuit;
+use crate::power_entry::{self, SHUNT_FOOTPRINT, SHUNT_MPN};
 use serde_json::Value;
 use zapote_core::{CheckReport, Finding};
 
@@ -101,7 +100,7 @@ pub fn evaluate_source(source: &str) -> CheckReport {
             "shunt",
         ));
     }
-    let circuit = match Circuit::parse(source, ENTRY) {
+    let circuit = match power_entry::parse(source) {
         Ok(circuit) => circuit,
         Err(error) => {
             findings.push(Finding::fail(
