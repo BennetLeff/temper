@@ -1,95 +1,75 @@
 #!/usr/bin/env python3
-"""Fault-loop consistency check.
+"""Thin wrapper over Zapote's Rust fault-loop connectivity check.
 
-Rejects a discharge model that assigns current (or energy) to an element that
-cannot conduct in the declared loop.
+The check itself lives in Rust — `zapote-erc::fault_loop`, exposed as the
+`zapote-fault-loop` binary — per the project's convention that Rust owns
+engineering rules and Python only transports. This file exists only to invoke
+it; do not reintroduce the logic here.
 
-Motivating error: an AR-FAULT discharge model put energy into the current-sense
-shunt U12, but the retained netlist shows U12 sits between `PFC_BUS_MINUS` and
-the bridge return (`minus`), while the internal capacitor-discharge loop is
-capacitors -> shorted U10 -> U9 -> capacitors. The loop never crosses the shunt,
-so any current assigned to it is a wiring error, not a small error.
-
-Rule: an element can carry current in a loop only when **at least two of its
-terminals** are on that loop's nets. A two-terminal element needs both; a
-three-terminal device such as a MOSFET qualifies on its two power terminals even
-though its gate is on a control net.
+The check is a **necessary connectivity check, and nothing more**: an element
+can carry current in a declared loop only when at least two of its terminals lie
+on that loop's nets. Two terminals on the loop's nets is *consistent with*
+conduction. It does not prove a conductive path, a device state, a current
+direction, or a current distribution, and peak current and energy distribution
+stay unresolved wherever the model lacks defensible inputs.
 
 Usage:
-  check_fault_loop.py --netlist <netlist.json> --loop-nets A,B,C \
-                      --assignments <assignments.json>
+  check_fault_loop.py --netlist NETLIST.json --loop-nets A,B,C --assignments ASSIGNMENTS.json
 
-The netlist file is a map of net name -> {"nodes": [[ref, pin], ...]} (the shape
-the campaign's `netlist_fault_loop.json` uses). The assignments file is a map of
-element reference -> number (energy in J, or current in A). Zero means "not in
-this loop" and is ignored.
-
-Exit 0 when every non-zero assignment is loop-consistent, 1 when any is not,
-2 on usage error.
+Locate the binary with ZAPOTE_FAULT_LOOP_BIN, else on PATH, else at the shared
+cargo target directory. Build it with:
+  cd zapote && cargo build -p zapote-harness --bin zapote-fault-loop
 """
 from __future__ import annotations
 
-import argparse
-import json
+import os
 import pathlib
+import shutil
+import subprocess
 import sys
 
 
-def element_nets(netlist: dict) -> dict[str, set[str]]:
-    """ref -> set of net names its terminals sit on."""
-    membership: dict[str, set[str]] = {}
-    evidence = netlist.get("netlist_evidence", netlist)
-    for net, info in evidence.items():
-        for ref, _pin in info["nodes"]:
-            membership.setdefault(ref, set()).add(net)
-    return membership
-
-
-def terminals_on_loop(nets: set[str], loop: set[str]) -> int:
-    return len(nets & loop)
-
-
-def check(netlist: dict, loop_nets: set[str], assignments: dict[str, float]) -> list[str]:
-    membership = element_nets(netlist)
-    failures: list[str] = []
-    for ref, value in assignments.items():
-        if not value:
-            continue
-        nets = membership.get(ref)
-        if nets is None:
-            failures.append(f"{ref} carries {value} but has no terminals in the netlist evidence")
-            continue
-        on_loop = terminals_on_loop(nets, loop_nets)
-        if on_loop < 2:
-            failures.append(
-                f"{ref} carries {value} but only {on_loop} of its terminals "
-                f"{sorted(nets)} lie on the declared loop {sorted(loop_nets)}"
-            )
-    return failures
+def binary_path() -> str | None:
+    override = os.environ.get("ZAPOTE_FAULT_LOOP_BIN")
+    if override:
+        return override
+    found = shutil.which("zapote-fault-loop")
+    if found:
+        return found
+    # The build cache is shared across worktrees via CARGO_TARGET_DIR (the repo's
+    # cargo wrapper derives it from the common git dir), so try that root first,
+    # then a local target-shared.
+    roots = []
+    try:
+        common = subprocess.run(
+            ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
+            capture_output=True, text=True, check=True,
+            cwd=str(pathlib.Path(__file__).resolve().parents[1]),
+        ).stdout.strip()
+        if common:
+            roots.append(pathlib.Path(common).parent)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+    roots.append(pathlib.Path(__file__).resolve().parents[2])
+    for root in roots:
+        for profile in ("debug", "release"):
+            candidate = root / "target-shared" / profile / "zapote-fault-loop"
+            if candidate.exists():
+                return str(candidate)
+    return None
 
 
 def main(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--netlist", type=pathlib.Path, required=True)
-    parser.add_argument("--loop-nets", required=True, help="comma-separated loop net names")
-    parser.add_argument("--assignments", type=pathlib.Path, required=True)
-    args = parser.parse_args(argv)
-
-    netlist = json.loads(args.netlist.read_text())
-    assignments = json.loads(args.assignments.read_text())
-    loop_nets = {n.strip() for n in args.loop_nets.split(",") if n.strip()}
-    if not loop_nets:
-        print("no loop nets given", file=sys.stderr)
+    binary = binary_path()
+    if binary is None:
+        print(
+            "zapote-fault-loop not found; build it with:\n"
+            "  cd zapote && cargo build -p zapote-harness --bin zapote-fault-loop\n"
+            "or set ZAPOTE_FAULT_LOOP_BIN",
+            file=sys.stderr,
+        )
         return 2
-
-    failures = check(netlist, loop_nets, assignments)
-    if failures:
-        print("FAULT LOOP INCONSISTENT")
-        for failure in failures:
-            print(f"  - {failure}")
-        return 1
-    print("FAULT LOOP CONSISTENT")
-    return 0
+    return subprocess.call([binary, *argv])
 
 
 if __name__ == "__main__":

@@ -1,0 +1,147 @@
+{
+  "schema": "pfc-campaign-AR-PROTECT-result/v1",
+  "task_id": "AR-PROTECT",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "kind": "fault_assessment",
+  "generated_utc": "2026-09-18",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "source_revision": "3691798cac69e894fec3caa6fa66fdc70fe1c4e4",
+
+  "status_axes": {
+    "assignment_status": "FINISHED",
+    "assignment_note": "FINISHED means the assignment was completed; it is not PASS, SELECTED, VALIDATED or QUALIFIED.",
+    "checker_status": "RUN",
+    "checker_note": "The campaign fault-loop connectivity checker was run and its output retained (raw/checker/), exit 0 for the model assignments and exit 1 for the withdrawn negative control. The dispatch declared the checker 'not_applicable: G0 checker unimplemented', so per ADMISSION.md this is still NOT a harness-validated run and no issued G0 receipt exists.",
+    "evidence_class": "source_research",
+    "hardware_qualification": "NOT_PERFORMED",
+    "hardware_qualification_meaning": "No bench work, no procurement, no physical or thermal qualification was performed or claimed."
+  },
+
+  "checker_receipt": "raw/checker/checker_receipt.json",
+  "checker_counted_as_validated_run": false,
+  "checker_counted_reason": "dispatch declared checker_revision_and_sha256 'not_applicable: G0 checker unimplemented' (ADMISSION.md); the checker run here is a worker-run connectivity gate, not an issued G0 receipt",
+
+  "headline": {
+    "active_bridge_assessed": "NXP TEA2209T/1 four-MOSFET synchronous bridge, reference IPW60R017C7",
+    "active_bridge_survival_at_the_fault": null,
+    "active_bridge_survival_status": "INDETERMINATE",
+    "active_bridge_qualified_by_passive_bridge_ratings": false,
+    "two_fault_classes_separated": true,
+    "protection_interrupts_line_fed_path": "F1 (in principle, by topology) - coordination UNESTABLISHED",
+    "protection_interrupts_internal_discharge_path": false,
+    "no_adequate_protection_for_internal_loop": true
+  },
+
+  "answers": {
+    "active_bridge": {
+      "is_it_on_the_retained_board": false,
+      "in_line_fed_fault_loop": true,
+      "in_internal_cap_discharge_loop": false,
+      "controller_under_fault": {
+        "has_overcurrent_protection": false,
+        "protections": ["gate pull-down on UVLO", "power-MOSFET drain-source protection (documented for start-up)", "minimum-mains-voltage gate", "external COMP disable"],
+        "gate_shutdown_effect": "cannot interrupt an already-shorted transistor; and an all-drivers-off active bridge still conducts through its body diodes, so gate shutdown reverts to the passive-diode path rather than opening it"
+      },
+      "mosfet_survival": {
+        "value": null,
+        "status": "INDETERMINATE",
+        "device_id_pulse_a_tc25": 495.0,
+        "device_eas_single_pulse_mj": 582.0,
+        "device_i2t_a2s": null,
+        "device_short_circuit_withstand_s": null,
+        "why": "needs the prospective fault current (line impedance unresolved) and fault duration (F1 total clearing unresolved) to map onto the SOA/Zth curves; the GBJ passive bridge's 350 A IFSM / 510 A2s I2t cannot qualify this replacement"
+      },
+      "voltage_under_the_two_faults": "boost-switch short: line peak 186.7 V; boost-diode short: bus ~400 V on the bridge output. Inside the 600 V device and the 440 V controller operating limit; not the binding stress.",
+      "structural_effect": "same series position as the passive bridge (cannot open the line loop) but LOWER loop impedance (channels vs ~2 diode drops), so the prospective fault current is higher and survival is MORE dependent on F1, not less"
+    },
+    "fault_classes": {
+      "line_fed_switch_short": {
+        "source": "AC mains",
+        "timescale": "ms class (60 Hz half-cycle 8.333 ms)",
+        "limiting_impedance": "unknown (AC source/line impedance not established)",
+        "stored_energy_j": null,
+        "peak_current_a": null,
+        "energy_j": null,
+        "interrupting_element": "F1 series fuse - in the loop, coordination unestablished"
+      },
+      "internal_capacitor_discharge": {
+        "source": "DC bus capacitor bank",
+        "c_bank_f": 2.24047e-3,
+        "stored_energy_j": 179.238,
+        "timescale_us": 94.1,
+        "loop": "capacitors -> shorted U10 -> U9 -> capacitors, bypassing U12",
+        "peak_current_a": null,
+        "energy_split_j": null,
+        "interrupting_element": null,
+        "interrupting_element_note": "NONE on the current board"
+      }
+    },
+    "protection_arrangement": {
+      "line_fed": "F1 (series, self-interrupting) is the acting element; coordination unestablished",
+      "internal": "nothing acts",
+      "cannot_interrupt": [
+        "internal capacitor discharge (no element in the loop; F1, shunt U12, PFC controller and gate shutdown are all outside it)",
+        "any already-bolted short (gate shutdown cannot open a physical short; body diodes still conduct)",
+        "a crowbar alone (diverts, does not interrupt)",
+        "a line-fed fault below F1's clearing threshold (may outlast the device SOA)",
+        "L-PE / common-mode surge (MOV is L-N only)",
+        "active-bridge cross-conduction from a shorted device (no detection)"
+      ]
+    },
+    "loop_consistency": {
+      "command": "python3 zapote/tools/check_fault_loop.py --netlist raw/netlist_fault_loop.json --loop-nets PFC_BUS_PLUS_390V,PFC_BUS_MINUS,a1 --assignments <file>",
+      "corrected": {"exit_code": 0, "status": "CONSISTENT"},
+      "null_distribution": {"exit_code": 0, "status": "CONSISTENT"},
+      "withdrawn_negative_control": {"exit_code": 1, "status": "INCONSISTENT", "role": "checker teeth; not a model of this attempt"},
+      "scope": "necessary connectivity check only; not physical evidence"
+    }
+  },
+
+  "circuit_recommendation": "Add a DC-rated semiconductor-grade interrupting element in series with the internal discharge path (bus between the capacitor bank and the boost diode/switch junction), coordinated to carry the ~4.5 A steady bus current and clear the ~100 us multi-kA pulse; or a DC-bus crowbar plus a coordinated series interruption/energy-handling path. For the line-fed loop, establish F1's total clearing at the prospective current and matching conditions and confirm clearance inside the device SOA; if not, add a faster line-side element or an active overcurrent trip with a series interrupter. Do not credit the TEA2209T with fault interruption.",
+
+  "remaining_evidence_requirements": [
+    "AC source/line impedance at the fault (gating)",
+    "F1 total clearing I2t / time-current curves at matching conditions",
+    "internal-loop high-current impedance model (C3D20065D Vf(I), U9 Rds(Tj), bank ESR, layout)",
+    "active-bridge SOA / Zth digitised against the actual fault waveform",
+    "MOV clamp at the specified surge",
+    "U9 gate state at the fault instant"
+  ],
+
+  "unknowns": {
+    "ac_source_line_impedance_ohm": null,
+    "line_fed_peak_current_a": null,
+    "line_fed_fault_duration_s": null,
+    "line_fed_fault_energy_j": null,
+    "internal_loop_peak_current_a": null,
+    "internal_loop_u9_u10_energy_split_j": null,
+    "f1_total_clearing_i2t_a2s": null,
+    "f1_breaking_behaviour_at_matching_conditions": null,
+    "active_bridge_mosfet_survival_at_fault": null,
+    "controller_post_fault_response": null,
+    "active_bridge_voltage_rating_qualified": null,
+    "u9_gate_state_at_fault": null
+  },
+
+  "not_filled": {
+    "policy": "Do not fill an unresolved quantity.",
+    "list": [
+      "AC source/line impedance",
+      "line-fed peak current, duration and energy",
+      "internal-loop peak current",
+      "U9 vs U10 energy split",
+      "F1 total clearing I2t",
+      "active-bridge MOSFET survival",
+      "controller post-fault response"
+    ]
+  },
+
+  "checker_receipt_present": true,
+  "evidence_class": "source_research",
+  "not_counted_as_validated_run": true,
+  "not_counted_reason": "dispatch declared the checker not_applicable (ADMISSION.md); the worker-run connectivity check is retained but is not an issued G0 receipt",
+  "hardware_qualification": "NOT_PERFORMED",
+
+  "single_most_important_missing_input": "The AC source/line impedance at the fault, jointly with F1's total clearing behaviour at matching conditions: the impedance sets the prospective line-fed fault current the active bridge must survive, and F1's total clearing (not its melting I2t at 10x) decides whether the only series interrupting element on the board clears before the device SOA is exceeded. The internal-loop conclusion (no interrupting element exists) does not depend on either."
+}

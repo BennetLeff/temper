@@ -1,0 +1,122 @@
+{
+  "schema": "pfc-campaign-AR-MOV-compute/v1",
+  "captured_mov": {
+    "mpn": "V150LA10AP",
+    "branding": "P150L10",
+    "disc_dia_mm": 14,
+    "vm_ac_v": 150.0,
+    "vm_dc_v": 200.0,
+    "wtm_j_10_1000us": 45.0,
+    "itm_a_8_20us": 4500.0,
+    "vnom_min_v_1ma": 216.0,
+    "vnom_max_v_1ma": 264.0,
+    "vc_max_v_8_20us": 395.0,
+    "ipk_a_for_vc": 50.0,
+    "capacitance_pf": 800.0,
+    "source": "Littelfuse LA Series datasheet Rev VL 16/9/2024, p.2"
+  },
+  "controller_limits": {
+    "part": "TEA2209T",
+    "operating_node_limit_v": 440.0,
+    "mains_transient_node_limit_v": 700.0,
+    "note_p12": "Mains transients or surges must be limited below 700 V.",
+    "source": "NXP TEA2209T Rev. 1.1 (2021-04-14), p.8 + p.12"
+  },
+  "surge_contract": {
+    "standard": "IEC 61000-4-5",
+    "line_to_line_open_circuit_v": 1000.0,
+    "line_to_pe_open_circuit_v": 2000.0,
+    "waveform": "1.2/50 us voltage / 8/20 us current combination wave",
+    "generator_effective_z_ohm": 2.0,
+    "status": "PROVISIONAL_ASSUMED_NOT_ADOPTED",
+    "prospective_8_20us_current_ll_a": 500.0,
+    "prospective_8_20us_current_lpe_a": 1000.0,
+    "applies_to_ln_mov": "LL differential only; the L-N MOV does not clamp the L-PE common-mode surge",
+    "would_settle_it": [
+      "a committed product requirement document naming the surge test level (and whether an L-PE clamp is fitted)",
+      "a captured/measured V150LA10AP V-I curve so the clamp at the actual MOV current can be read"
+    ]
+  },
+  "clamp_at_specified_surge": {
+    "captured_clamp_v": 395.0,
+    "at_datasheet_surge_current_a": 50.0,
+    "waveform": "8/20 us",
+    "evidence_class": "MANUFACTURER_DATASHEET_GUARANTEED_MAX",
+    "clamp_at_provisional_product_surge_v": null,
+    "reason_null": "The datasheet guarantees the clamp ONLY at IPK=50 A. The provisional contract's prospective 8/20us current is 500 A (L-L). At that current the MOV clamps higher (p.7 Figure 10 shows the 14mm family V-I rising with current); the datasheet tabulates no guaranteed clamp there, and the actual MOV current under the combination wave is itself set by the (unknown) clamp. Figure digitisation was attempted and rejected as unreliable across the adjacent curves, so no digitised value is used.",
+    "direction": "395 V is a LOWER BOUND on the terminal clamp at any current > 50 A."
+  },
+  "mosfet_required_rating": {
+    "device_class_assumed_v": 600.0,
+    "basis": "the active-bridge MOSFET that is off blocks the line terminal voltage; the L-N MOV clamps that terminal voltage. The required rating therefore follows from the clamped TERMINAL voltage, NOT from the controller's 700 V limit and NOT from the PFC bus.",
+    "steady_line_peak_v": 186.68,
+    "surge_clamped_v_sourced": 395.0,
+    "margin_vs_steady": 3.214,
+    "margin_vs_sourced_clamp": 1.519,
+    "sensitivity_margin_if_clamp_v": {
+      "395.0": 1.519,
+      "440.0": 1.364,
+      "500.0": 1.2,
+      "600.0": 1.0
+    },
+    "statement": "600 V gives 1.52x against the SOURCED guarantee point (395 V @ 50 A). Because the clamp rises with current and is untabulated above 50 A, the margin at the product surge current is unknown and strictly smaller."
+  },
+  "controller_node_stresses": {
+    "nodes": [
+      "L",
+      "R",
+      "VR",
+      "VCCHL",
+      "VCCHR",
+      "GATEHR",
+      "GATEHL",
+      "dV(VR-L)",
+      "dV(VR-R)"
+    ],
+    "operating_limit_v": 440.0,
+    "transient_limit_v": 700.0,
+    "steady": {
+      "node_v": 186.68,
+      "fraction_of_440_operating": 0.424,
+      "fraction_of_700_transient": 0.267
+    },
+    "surge_sourced_clamp": {
+      "node_v": 395.0,
+      "fraction_of_440_operating": 0.898,
+      "fraction_of_700_transient": 0.564
+    },
+    "sensitivity_if_clamp_v": {
+      "395.0": {
+        "node_v": 395.0,
+        "fraction_of_440_operating": 0.898,
+        "fraction_of_700_transient": 0.564
+      },
+      "440.0": {
+        "node_v": 440.0,
+        "fraction_of_440_operating": 1.0,
+        "fraction_of_700_transient": 0.629
+      },
+      "500.0": {
+        "node_v": 500.0,
+        "fraction_of_440_operating": 1.136,
+        "fraction_of_700_transient": 0.714
+      },
+      "600.0": {
+        "node_v": 600.0,
+        "fraction_of_440_operating": 1.364,
+        "fraction_of_700_transient": 0.857
+      }
+    },
+    "statement": "At the sourced clamp (395 V @ 50 A) the nodes sit at 0.898 of the 440 V operating limit and 0.564 of the 700 V transient limit. If the surge current drives the clamp above 440 V (untabulated), the nodes exceed their OPERATING limit during the surge while remaining under the 700 V transient limit. The node voltage is set by the circuit clamp, NOT by the MOSFET rating: a higher-rated MOSFET does not lower it, and the controller's 700 V transient limit does not require an 800/1000 V device."
+  },
+  "internal_fault_boundary": {
+    "statement": "A line-surge MOV across L-N does not resolve an internally powered fault. The boost-switch-short capacitor-discharge loop (179.24 J in 2240.47 uF) never passes through the MOV's terminals; it is AR-PROTECT's question, not this task's. No MOV clamp figure is admissible as a bound on that loop.",
+    "source": "AR-FAULT/attempt-001/raw + coordinator receipt (corrected)"
+  },
+  "boost_switch_note": {
+    "device": "IPW65R045C7 (contract baseline) / IPW60R017C7 (AR-VERIFY candidate)",
+    "statement": "Separate case: the boost switch blocks the PFC bus (~400 V steady), not the MOV-clamped line. The L-N MOV clamp does not set its rating. Bus excursion under line surge is controlled by the PFC loop and bus capacitance and is not derived from the MOV here.",
+    "required_rating_v": null,
+    "reason_null": "bus surge excursion is not established from the captured sources"
+  }
+}

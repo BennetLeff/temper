@@ -1,0 +1,89 @@
+{
+  "schema": "pfc-campaign-capture-failures/v1",
+  "task_id": "AR-MOV",
+  "attempt_id": "attempt-001",
+  "captured_utc": "2026-09-18T05:52:00Z",
+  "policy": "Retain every failure. Try the manufacturer, then at most one manufacturer-authored mirror. Never hash HTML and call it a datasheet. No bench work, no procurement.",
+  "outcome_summary": "Manufacturer host rejected every direct request (HTTP 403, Akamai). The one permitted alternate mirror served an HTML consent wall, not a PDF. The manufacturer's ORIGINAL PDF was then retrieved from the Internet Archive's snapshot of the manufacturer's own assetdocs URL; it is a real PDF (magic %PDF-1.7) and is the only captured primary source.",
+
+  "carried_forward_failures": [
+    {
+      "source": "Littelfuse LA-series varistor datasheet - primary host (AR-VERIFY attempt-001)",
+      "url": "https://www.littelfuse.com/assetdocs/la-varistor-datasheet?assetguid=8f6b9e0a-6f3d-4d4e-9e4a-4f7f5b6e8c9d",
+      "http_status": 403,
+      "bytes": 0,
+      "outcome": "FAILED_HTTP_403",
+      "note": "Carried forward unchanged from AR-VERIFY attempt-001. NOTE: that URL's assetguid does not resolve to a real Littelfuse asset; the real LA-series assetguid is f7c547ce-c2fa-4789-86cc-ec39a5060afb. The earlier 403 is therefore a dead asset path, not only a WAF block."
+    },
+    {
+      "source": "Littelfuse LA-series varistor datasheet - manufacturer media mirror (AR-VERIFY attempt-001)",
+      "url": "https://www.littelfuse.com/~/media/electronics/datasheets/varistors/littelfuse_varistor_la_datasheet.pdf.pdf",
+      "http_status": 403,
+      "bytes": 0,
+      "outcome": "FAILED_HTTP_403",
+      "note": "Carried forward unchanged from AR-VERIFY attempt-001. Not retried."
+    }
+  ],
+
+  "new_failures_this_attempt": [
+    {
+      "source": "Littelfuse LA-series datasheet - manufacturer primary (real assetguid)",
+      "url": "https://www.littelfuse.com/assetdocs/varistors-la-datasheet?assetguid=f7c547ce-c2fa-4789-86cc-ec39a5060afb",
+      "http_status": 403,
+      "bytes": 419,
+      "content_type": "text/html",
+      "server": "AkamaiGHost",
+      "outcome": "FAILED_HTTP_403",
+      "retained_body": "raw/body_A.bin",
+      "retained_headers": "raw/hdr_A.txt"
+    },
+    {
+      "source": "same asset on manufacturer regional hosts",
+      "urls_tried": [
+        "https://m.littelfuse.com/assetdocs/varistors-la-datasheet?assetguid=f7c547ce-c2fa-4789-86cc-ec39a5060afb",
+        "https://www.littelfuse.cn/assetdocs/varistors-la-datasheet?assetguid=f7c547ce-c2fa-4789-86cc-ec39a5060afb"
+      ],
+      "http_status": 403,
+      "outcome": "FAILED_HTTP_403",
+      "retained_bodies": ["raw/body_m.littelfuse.com.bin", "raw/body_www.littelfuse.cn.bin"]
+    },
+    {
+      "source": "manufacturer-authored LA-series PDF, single permitted alternate mirror",
+      "url": "https://www.mouser.com/datasheet/2/240/Littelfuse_Varistor_LA_Datasheet_pdf-596275.pdf",
+      "http_status": 200,
+      "bytes": 13897,
+      "content_type": "text/html",
+      "outcome": "FAILED_NOT_A_PDF",
+      "retained_body": "raw/body_mouser.bin",
+      "retained_headers": "raw/hdr_mouser.txt",
+      "note": "Distributor host returned an HTML consent/bot wall at HTTP 200. The magic bytes are 0d0a0d0a0d0a3c21 ('<!'), not %PDF. Not usable."
+    }
+  ],
+
+  "successful_capture": {
+    "source": "Littelfuse Metal-Oxide Varistors Datasheet - LA Series Radial Lead Varistors",
+    "document_revision": "Revised: VL 16/9/2024; (c) 2024 Littelfuse, Inc.",
+    "retrieved_as": "raw/littelfuse_LA_series_datasheet.pdf",
+    "sha256": "8e6c56a7901cc2748a4a58685ccdc7228b13ee07dc5442c411824172e00a7ecc",
+    "bytes": 1376391,
+    "magic": "%PDF-1.7",
+    "pages": 13,
+    "retrieval_route": "Internet Archive Wayback Machine snapshot 20260711204225 of the manufacturer URL https://www.littelfuse.com/assetdocs/varistors-la-datasheet?assetguid=f7c547ce-c2fa-4789-86cc-ec39a5060afb",
+    "retrieval_url": "https://web.archive.org/web/20260711204225id_/https://www.littelfuse.com/assetdocs/varistors-la-datasheet?assetguid=f7c547ce-c2fa-4789-86cc-ec39a5060afb",
+    "provenance_headers": "raw/hdr_wayback.txt (x-archive-orig-server: Microsoft-IIS/10.0; x-archive-orig-content-length equals the captured size; content-disposition inline;filename=Littelfuse-Varistor-LA-Datasheet.pdf)",
+    "deviation_note": "This is a retrieval of the manufacturer's own PDF through an archive, because the manufacturer host 403'd all direct requests. The bytes are the manufacturer document; the retrieval host is archive.org, not Littelfuse."
+  },
+
+  "capture_gaps": [
+    {
+      "missing": "V150LA10AP clamp voltage at the provisional product 8/20 us surge current (500 A L-L prospective)",
+      "consequence": "the terminal voltage at the product surge is a lower bound (395 V); the MOSFET margin at that current and whether the clamp exceeds the controller's 440 V operating limit are not established",
+      "would_settle_it": "a captured/digitised V150LA10A(P) V-I curve read at the actual MOV current, or a measured clamp, or a committed surge requirement that names the current"
+    },
+    {
+      "missing": "a committed product surge requirement document",
+      "consequence": "the IEC 61000-4-5 1 kV L-L / 2 kV L-PE level remains PROVISIONAL/ASSUMED",
+      "would_settle_it": "a released requirements document naming the standard, level, and whether an L-PE clamp is fitted"
+    }
+  ]
+}

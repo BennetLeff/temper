@@ -1,0 +1,146 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-MOV",
+  "attempt_id": "attempt-001",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "source_revision": "3691798cac69e894fec3caa6fa66fdc70fe1c4e4",
+  "model_source_sha256": "not_applicable: no maintained-model invocation; raw/compute_ar_mov.py is the computation record",
+  "binary_sha256": null,
+  "checker_sha256": "not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt is not counted as a validated run",
+  "dirty_state": true,
+  "dirty_state_note": "The worktree carried the coordinator's own uncommitted edits (dispatch, registry, zapote-erc fault-loop sources) on top of HEAD fd9d70577. This attempt wrote only inside its allowed output directory; it made no source/CAD/BOM edits and no commits.",
+  "requested_model": "gpt-5.6-luna",
+  "served_model_receipt": null,
+
+  "task_completion": "FINISHED",
+  "task_completion_meaning": "The MOV clamp was captured from the manufacturer with revision and page and with its surge current and waveform; both the MOSFET required rating and the controller node stresses were derived from the clamped terminal voltage against their own limits; the surge contract is marked PROVISIONAL/ASSUMED; and the internal-fault boundary is stated and deferred to AR-PROTECT. FINISHED is not PASS, SELECTED, VALIDATED or QUALIFIED.",
+  "evidence_status": "NOT_REVIEWED",
+  "numerical_status": "COMPUTED_ARITHMETIC_ONLY",
+  "numerical_status_meaning": "Closed-form arithmetic only (line peak, margins, node fractions). No solver, no maintained model, no CAD/BOM edit. The higher-current clamp was NOT digitised (the multi-curve figure trace was rejected as unreliable).",
+  "physical_applicability": "INDETERMINATE",
+  "assembly_completeness": "INCOMPLETE",
+  "hardware_qualification": "NOT_PERFORMED",
+  "checker_receipt": null,
+  "coordinator_receipt": null,
+
+  "hypothesis": "The MOV's surge-clamped terminal voltage sets both the active-bridge MOSFET's required voltage rating and the TEA2209T's node stress, and the sourced clamp can replace AR-VERIFY's ASSUMED ~400 V.",
+  "actual_changed_variables": [
+    "MOV clamp replaced from ASSUMED ~400 V to SOURCED 395 V max at IPK=50 A, 8/20 us (Littelfuse LA datasheet Rev VL 16/9/2024, p.2)",
+    "the product surge current is separated from the datasheet's clamp-test current: provisional contract gives 500 A (L-L) / 1000 A (L-PE) prospective vs the datasheet's 50 A",
+    "the MOSFET required rating and the controller node stresses are derived independently, each against its own limit",
+    "the surge contract is explicitly re-marked PROVISIONAL/ASSUMED, not adopted"
+  ],
+  "controls": [
+    "line set 108/120/132 Vrms; 132 Vrms used as the worst steady line (contract-C1.1)",
+    "PFC bus 400 V (contract-C1.1)",
+    "controller TEA2209T 440 V operating / 700 V transient node limits (captured datasheet, unchanged)",
+    "active-bridge MOSFET class 600 V (IPW60R017C7 / IPW65R045C7, unchanged)",
+    "MOV part identity V150LA10AP (unchanged; captured directly, no substitution)"
+  ],
+
+  "case_census": {
+    "expected": 1,
+    "attempted": 1,
+    "valid": 1,
+    "failed": 0,
+    "unsupported": 0,
+    "unrun": 0,
+    "case_ids": ["AR-MOV-source-capture-and-derivation"]
+  },
+
+  "cases": [
+    {
+      "id": "AR-MOV-source-capture-and-derivation",
+      "requested_inputs": {
+        "mov": "V150LA10AP",
+        "requested_clamp_condition": "specified surge current, 8/20 us",
+        "controller": "TEA2209T"
+      },
+      "achieved_inputs": {
+        "captured_clamp_v": 395.0,
+        "captured_clamp_surge_current_a": 50.0,
+        "captured_clamp_waveform": "8/20 us",
+        "datasheet_revision": "VL 16/9/2024",
+        "datasheet_page": 2,
+        "datasheet_sha256": "8e6c56a7901cc2748a4a58685ccdc7228b13ee07dc5442c411824172e00a7ecc",
+        "clamp_at_provisional_surge_v": null
+      },
+      "tool_outcome": "SOURCE_ONLY_COMPUTED_NO_CHECKER",
+      "raw_artifact_refs": [
+        "raw/littelfuse_LA_series_datasheet.pdf",
+        "raw/littelfuse_LA_series_page2_table.txt",
+        "raw/capture_failures.json",
+        "raw/hdr_wayback.txt",
+        "raw/compute_ar_mov.py",
+        "raw/compute_result.json"
+      ],
+      "findings": "Captured: VC = 395 V max at IPK = 50 A, 8/20 us (V150LA10AP, Littelfuse LA datasheet p.2, Rev VL 16/9/2024). Rating basis: ITM 4500 A 8/20 us, WTM 45 J 10/1000 us, VNOM 216-264 V @1 mA. From 395 V: 600 V class gives 1.52x for the off active-bridge MOSFET, and the TEA2209T L/R/VR nodes sit at 0.898 of 440 V operating and 0.564 of 700 V transient. The product surge current (provisional 500 A L-L) is 10x the datasheet test current; the clamp there is untabulated and higher, so 395 V is a lower bound and the true margins are smaller."
+    }
+  ],
+
+  "ledger": [
+    {"term": "mov_clamp_voltage", "value_v": 395.0, "label": "datasheet_guaranteed_max_at_50A_8_20us", "evidence_class": "MANUFACTURER_DATASHEET_GUARANTEED_MAX", "source_conditions": "V150LA10AP, 8/20 us current wave, IPK=50 A, 25 C, Littelfuse LA Series Rev VL 16/9/2024 p.2", "uncertainty": {"kind": "UPPER_BOUND_AT_STATED_CURRENT", "lower_v": null, "upper_v": 395.0, "basis": "guaranteed maximum at 50 A only; rises with current"}, "missing_evidence": "clamp at the provisional product surge current"},
+    {"term": "mosfet_required_voltage_rating", "value_v": 600.0, "label": "candidate_class", "evidence_class": "CALCULATED_GATE_CONDITION_FROM_SOURCED_CLAMP", "source_conditions": "off active-bridge device blocks the MOV-clamped line terminal; 600/395 = 1.52x", "uncertainty": {"kind": "RANGE", "lower_v": null, "upper_v": null, "basis": "true margin depends on the untabulated clamp above 50 A"}, "missing_evidence": "clamp at the product surge current"},
+    {"term": "controller_node_stress_at_sourced_clamp", "value_v": 395.0, "label": "0.898_of_440V_operating_0.564_of_700V_transient", "evidence_class": "CALCULATED_GATE_CONDITION_FROM_SOURCED_CLAMP", "source_conditions": "TEA2209T pins L/R/VR/VCCHL/VCCHR/gates and dV(VR-L)/dV(VR-R)", "uncertainty": {"kind": "RANGE", "lower_v": 395.0, "upper_v": null, "basis": "lower bound; exceeds 440 V operating if the clamp rises above it"}, "missing_evidence": "clamp at the product surge current"},
+    {"term": "internal_capacitor_discharge_loop", "value_v": null, "label": "out_of_scope", "evidence_class": "AR-PROTECT_OWNED", "source_conditions": "boost-switch-short loop, 179.24 J in 2240.47 uF; MOV terminals not on the loop", "uncertainty": {"kind": "UNKNOWN", "lower_v": null, "upper_v": null, "basis": "no MOV clamp is admissible here"}, "missing_evidence": "corrected fault-loop and protection assessment (AR-PROTECT)"},
+    {"term": "lpe_common_mode_surge", "value_v": null, "label": "unknown", "evidence_class": "UNKNOWN", "source_conditions": "2 kV L-PE not clamped by the L-N MOV", "uncertainty": {"kind": "UNKNOWN", "lower_v": null, "upper_v": null, "basis": null}, "missing_evidence": "Y-cap / PE / dc-return network behaviour"}
+  ],
+
+  "supported_subtotals": [
+    {"name": "mosfet_margin_vs_sourced_clamp", "value": 1.519, "label": "sourced_lower_bound_case", "basis": "600 V / 395 V; larger real margin unknown, smaller real margin unknown"},
+    {"name": "controller_fraction_of_operating_limit", "value": 0.898, "label": "sourced_lower_bound_case", "basis": "395 V / 440 V; rises above 1.0 if the surge clamp exceeds 440 V"}
+  ],
+  "total_loss_w": null,
+  "achieved_input_power_w": null,
+  "dc_output_power_w": null,
+  "efficiency": null,
+
+  "temperature_predictions": [],
+  "constraint_findings": [
+    {"finding": "The MOV clamp is SOURCED at 395 V max, but only at the datasheet's IPK=50 A, 8/20 us test current. The provisional product surge current (500 A L-L prospective) is 10x higher, and the clamp is untabulated there, so 395 V is a LOWER BOUND on the surge terminal voltage.", "severity": "GATING"},
+    {"finding": "At 395 V the active-bridge MOSFET's 600 V class has 1.52x; at the true surge clamp the margin is unknown and strictly smaller (1.00x at 600 V, 1.20x at 500 V).", "severity": "MATERIAL"},
+    {"finding": "The TEA2209T L/R/VR and differential nodes sit at 0.898 of their 440 V OPERATING limit at the sourced clamp. If the surge clamp exceeds 440 V they exceed the operating limit during the surge (transient limit 700 V still applies).", "severity": "MATERIAL"},
+    {"finding": "The controller's 700 V transient limit is NOT a MOSFET requirement; a higher-rated MOSFET does not lower the node voltage.", "severity": "INFORMATIONAL"},
+    {"finding": "The surge contract (IEC 61000-4-5, 1 kV L-L / 2 kV L-PE) is PROVISIONAL/ASSUMED; no committed requirement document names it.", "severity": "GATING"},
+    {"finding": "The L-N MOV does not clamp the L-PE common-mode surge; controller/bridge common-mode stress is INDETERMINATE.", "severity": "OPEN"},
+    {"finding": "A line-surge MOV does not resolve the internally powered boost-switch-short capacitor-discharge fault; that loop is AR-PROTECT's question.", "severity": "INFORMATIONAL"}
+  ],
+  "unsupported_cases": [],
+  "source_failures": ["raw/capture_failures.json"],
+  "tool_failures": [
+    {"tool": "automated curve digitisation of datasheet Figure 10", "outcome": "REJECTED_UNRELIABLE", "note": "The trace hopped between the adjacent V130/V140/V150/V175LA10A curves; no digitised clamp value is used."}
+  ],
+  "raw_artifacts": [
+    "raw/littelfuse_LA_series_datasheet.pdf",
+    "raw/littelfuse_LA_series_page2_table.txt",
+    "raw/capture_failures.json",
+    "raw/hdr_wayback.txt",
+    "raw/hdr_A.txt",
+    "raw/hdr_mouser.txt",
+    "raw/body_A.bin",
+    "raw/body_www.littelfuse.com.bin",
+    "raw/body_m.littelfuse.com.bin",
+    "raw/body_www.littelfuse.cn.bin",
+    "raw/body_mouser.bin",
+    "raw/compute_ar_mov.py",
+    "raw/compute_result.json"
+  ],
+  "manifest_sha256": null,
+
+  "answer": "CAPTURED and CONDITIONAL. The V150LA10AP clamp is 395 V MAXIMUM at IPK = 50 A, 8/20 us (Littelfuse LA Series datasheet, Rev VL 16/9/2024, page 2); rating basis ITM 4500 A 8/20 us and WTM 45 J 10/1000 us. This replaces AR-VERIFY's ASSUMED ~400 V with a sourced number. Derived from 395 V: the off active-bridge MOSFET needs a blocking rating above the clamped terminal voltage, giving 1.52x on a 600 V class; the TEA2209T's L/R/VR (and VCCHL/VCCHR/gate, dV(VR-L)/dV(VR-R)) nodes sit at 0.898 of their 440 V operating limit and 0.564 of their 700 V transient limit. BUT the datasheet guarantees the clamp only at 50 A while the provisional contract's prospective L-L surge current is 500 A, where the clamp is higher and untabulated: 395 V is a LOWER BOUND and the real margins are smaller (the controller may exceed its 440 V operating limit during the surge). The IEC 61000-4-5 1 kV/2 kV contract remains PROVISIONAL/ASSUMED. A line-surge MOV does not resolve the internally powered discharge loop, which stays AR-PROTECT's question.",
+
+  "unknowns": {
+    "mov_clamp_at_provisional_surge_current_v": null,
+    "mov_clamp_at_lpe_common_mode_v": null,
+    "committed_surge_test_level_v": null,
+    "bus_surge_excursion_v": null
+  },
+
+  "single_missing_input": {
+    "input": "The V150LA10AP clamp voltage at the ACTUAL MOV current of the surge event - i.e. a captured/measured 8/20 us V-I characteristic read at the MOV's operating current (hundreds of A), not the datasheet's 50 A test point - under a COMMITTED surge requirement.",
+    "why": "The sourced 395 V is a lower bound; every derived margin (MOSFET rating, controller node stress) is one-sided until the clamp at the real current is known. It is the one number that can move the 600 V device from adequate to insufficient and the controller from within to above its 440 V operating limit."
+  },
+
+  "budget": {"deadline_utc": "2026-09-18T07:48:04Z", "elapsed_seconds": null, "solver_invocations": 0, "remaining_invocations": 0}
+}

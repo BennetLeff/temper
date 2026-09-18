@@ -1,0 +1,90 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "task_id": "AR-MOV",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "algorithm": "sha256",
+  "note": "SHA-256 of every file produced by this attempt except manifest.json itself. dispatch.json is the delivered input and is excluded (its hash is recorded in inputs.json).",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "sha256": "8bd62e3f221ae43da3c04cc4d45cbc19609b93571af0fd1922140cffe77a0141",
+      "bytes": 8418
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "1192af432dfacb02b88dc4ef98aae75c585c9156ba9ab80a1f94487b4e1e5cbb",
+      "bytes": 12974
+    },
+    {
+      "path": "raw/body_A.bin",
+      "sha256": "3b002d59fa8c450da75ce2b802857829ee996469215b0dd946f73354bbf501f7",
+      "bytes": 419
+    },
+    {
+      "path": "raw/body_m.littelfuse.com.bin",
+      "sha256": "8c1e5ef1c9824559dd1f285d6a45fb95990e6505ae27ee6d588df79d318235c7",
+      "bytes": 417
+    },
+    {
+      "path": "raw/body_mouser.bin",
+      "sha256": "a39eb92aa05cb51708b49f97179117b1aeb1a965b867afef26292433a559c4ed",
+      "bytes": 13897
+    },
+    {
+      "path": "raw/body_www.littelfuse.cn.bin",
+      "sha256": "f8e258061d9c76dcb51ffe0c78330f97057d070b93f2b4defde59ba3f2aab552",
+      "bytes": 418
+    },
+    {
+      "path": "raw/body_www.littelfuse.com.bin",
+      "sha256": "2fa77b94150cc0abe732aa2382a77d3b3c2bd5039c2fee3ed39ea5bcd8e71357",
+      "bytes": 419
+    },
+    {
+      "path": "raw/capture_failures.json",
+      "sha256": "9e6203be32ad57059588de8b59140afe3fe11c248d7e9c32df3841ba78445c01",
+      "bytes": 5414
+    },
+    {
+      "path": "raw/compute_ar_mov.py",
+      "sha256": "97788e143dc1f6a5ce0b736d0cf13cfec1f6cf211c19e7481c01eb8dc421c5a4",
+      "bytes": 9657
+    },
+    {
+      "path": "raw/compute_result.json",
+      "sha256": "bff4c5cd81ea86271e739aba5caf9e9c712b2370f38ac53c5096210f19c03c51",
+      "bytes": 5724
+    },
+    {
+      "path": "raw/hdr_A.txt",
+      "sha256": "8116ee0639f6f0542be21dd104e747f5f730e269c669ee1d855e78732ea607af",
+      "bytes": 296
+    },
+    {
+      "path": "raw/hdr_mouser.txt",
+      "sha256": "fa1fb7e58378864e6d5af565ea2f48b916b9eb1d6f3dd244fe64a42b3370ac6b",
+      "bytes": 539
+    },
+    {
+      "path": "raw/hdr_wayback.txt",
+      "sha256": "bebe09b61e6e817a8b1182092b90afc9eea82aa676f4cf4e6ec03c2cea519370",
+      "bytes": 2331
+    },
+    {
+      "path": "raw/littelfuse_LA_series_datasheet.pdf",
+      "sha256": "8e6c56a7901cc2748a4a58685ccdc7228b13ee07dc5442c411824172e00a7ecc",
+      "bytes": 1376391
+    },
+    {
+      "path": "raw/littelfuse_LA_series_page2_table.txt",
+      "sha256": "95f6968923b7e24b6b79ff6eb1b04ef735278516cf018f68d4066185ed92d46f",
+      "bytes": 9218
+    },
+    {
+      "path": "result.json",
+      "sha256": "ce5777d9da7bb1fe55aa4398e2d3c90eb4a9ebc8078602eee7ced3627693e2ad",
+      "bytes": 11925
+    }
+  ]
+}

@@ -1,0 +1,1101 @@
+{
+  "schema": "pfc-campaign-AR-PROTECT-compute/v1",
+  "note": "source-only; no solver, no model, no CAD/BOM edit",
+  "internal_loop_nets": [
+    "PFC_BUS_PLUS_390V",
+    "PFC_BUS_MINUS",
+    "a1"
+  ],
+  "line_loop_nets": [
+    "AC_L_RECTIFIED_INPUT",
+    "l1",
+    "l2",
+    "ac1",
+    "ac2",
+    "plus",
+    "a1",
+    "PFC_BUS_MINUS",
+    "minus",
+    "AC_N_RECTIFIED_INPUT"
+  ],
+  "internal_loop_membership": [
+    {
+      "element": "U1",
+      "nets": [
+        "ac1",
+        "ac2",
+        "minus",
+        "plus"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U10",
+      "nets": [
+        "PFC_BUS_PLUS_390V",
+        "a1"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_PLUS_390V",
+        "a1"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U11",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U12",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "minus"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U13",
+      "nets": [
+        "q_boost-g"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U14",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "q_boost-g"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U16",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U18",
+      "nets": [
+        "minus"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U19",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U2",
+      "nets": [
+        "AC_L_RECTIFIED_INPUT",
+        "l1"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U20",
+      "nets": [
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_PLUS_390V"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U25",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U27",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U28",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U29",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U3",
+      "nets": [
+        "AC_N_RECTIFIED_INPUT",
+        "ac2",
+        "l1",
+        "l2"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U30",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U31",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U32",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U33",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U35",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "minus"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U36",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U37",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U38",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U39",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U4",
+      "nets": [
+        "ac1",
+        "l2"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U40",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U41",
+      "nets": [
+        "PE_CHASSIS",
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U42",
+      "nets": [
+        "AC_L_RECTIFIED_INPUT",
+        "AC_N_RECTIFIED_INPUT",
+        "PE_CHASSIS"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U43",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U44",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U45",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U46",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U47",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U48",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U5",
+      "nets": [
+        "ac1",
+        "l2"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U51",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U52",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U53",
+      "nets": [
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_PLUS_390V"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U54",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U6",
+      "nets": [
+        "AC_N_RECTIFIED_INPUT",
+        "l1"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U7",
+      "nets": [
+        "AC_N_RECTIFIED_INPUT",
+        "l1"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U8",
+      "nets": [
+        "a1",
+        "plus"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "a1"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U9",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "a1",
+        "q_boost-g"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS",
+        "a1"
+      ],
+      "can_conduct_in_loop": true
+    }
+  ],
+  "line_loop_membership": [
+    {
+      "element": "U1",
+      "nets": [
+        "ac1",
+        "ac2",
+        "minus",
+        "plus"
+      ],
+      "terminals_on_loop": 4,
+      "on_loop_nets": [
+        "ac1",
+        "ac2",
+        "minus",
+        "plus"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U10",
+      "nets": [
+        "PFC_BUS_PLUS_390V",
+        "a1"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "a1"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U11",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U12",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "minus"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS",
+        "minus"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U13",
+      "nets": [
+        "q_boost-g"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U14",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "q_boost-g"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U16",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U18",
+      "nets": [
+        "minus"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "minus"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U19",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U2",
+      "nets": [
+        "AC_L_RECTIFIED_INPUT",
+        "l1"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "AC_L_RECTIFIED_INPUT",
+        "l1"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U20",
+      "nets": [
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U25",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U27",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U28",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U29",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U3",
+      "nets": [
+        "AC_N_RECTIFIED_INPUT",
+        "ac2",
+        "l1",
+        "l2"
+      ],
+      "terminals_on_loop": 4,
+      "on_loop_nets": [
+        "AC_N_RECTIFIED_INPUT",
+        "ac2",
+        "l1",
+        "l2"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U30",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U31",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U32",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U33",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U35",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "minus"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS",
+        "minus"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U36",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U37",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U38",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U39",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U4",
+      "nets": [
+        "ac1",
+        "l2"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "ac1",
+        "l2"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U40",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U41",
+      "nets": [
+        "PE_CHASSIS",
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U42",
+      "nets": [
+        "AC_L_RECTIFIED_INPUT",
+        "AC_N_RECTIFIED_INPUT",
+        "PE_CHASSIS"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "AC_L_RECTIFIED_INPUT",
+        "AC_N_RECTIFIED_INPUT"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U43",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U44",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U45",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U46",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U47",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U48",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U5",
+      "nets": [
+        "ac1",
+        "l2"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "ac1",
+        "l2"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U51",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U52",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U53",
+      "nets": [
+        "PFC_BUS_PLUS_390V"
+      ],
+      "terminals_on_loop": 0,
+      "on_loop_nets": [],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U54",
+      "nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "terminals_on_loop": 1,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS"
+      ],
+      "can_conduct_in_loop": false
+    },
+    {
+      "element": "U6",
+      "nets": [
+        "AC_N_RECTIFIED_INPUT",
+        "l1"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "AC_N_RECTIFIED_INPUT",
+        "l1"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U7",
+      "nets": [
+        "AC_N_RECTIFIED_INPUT",
+        "l1"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "AC_N_RECTIFIED_INPUT",
+        "l1"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U8",
+      "nets": [
+        "a1",
+        "plus"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "a1",
+        "plus"
+      ],
+      "can_conduct_in_loop": true
+    },
+    {
+      "element": "U9",
+      "nets": [
+        "PFC_BUS_MINUS",
+        "a1",
+        "q_boost-g"
+      ],
+      "terminals_on_loop": 2,
+      "on_loop_nets": [
+        "PFC_BUS_MINUS",
+        "a1"
+      ],
+      "can_conduct_in_loop": true
+    }
+  ],
+  "stored_energy": {
+    "c_bank_f": 0.0022404699999999996,
+    "v_bus_v": 400.0,
+    "e_total_j": 179.238,
+    "e_per_bulk_cap_j": 44.8,
+    "e_hf_cap_j": 0.0376,
+    "basis": "0.5*C*V^2 at the 400 V bus setpoint, equal voltage across the parallel bank"
+  },
+  "internal_loop_timescale": {
+    "tau_corrected_s": 9.409973999999999e-05,
+    "tau_corrected_us": 94.1,
+    "tau_withdrawn_s": 0.00011650443999999998,
+    "tau_withdrawn_us": 116.5,
+    "basis": "R_loop * C; R_loop taken as the boost switch Rds_on(typ) only, because the shunt U12 is NOT in this loop",
+    "line_half_cycle_us": 8333.3
+  },
+  "defensible_device_ratings": {
+    "gbj_passive_bridge_incumbent": {
+      "ifsm_a": 350.0,
+      "i2t_a2s": 510.0,
+      "note": "the INCUMBENT U1's rating; not transferable to a replacement"
+    },
+    "active_bridge_mosfet_ipw60r017c7": {
+      "id_pulse_a_tc25": 495.0,
+      "id_pulse_note": "pulse width limited by Tj,max; not an IFSM",
+      "eas_single_pulse_mj": 582.0,
+      "ias_single_pulse_a": 12.6,
+      "i2t_a2s": null,
+      "i2t_note": "no I2t rating is published for this MOSFET",
+      "short_circuit_withstand_s": null,
+      "soa": "Diagrams 2 and 3 (Safe operating area) and Diagram 4 (max transient thermal impedance) exist in the datasheet; their coordinates are not digitised here because the fault current and duration are unresolved"
+    },
+    "tea2209t_controller": {
+      "v_operating_max_v": 440.0,
+      "v_mains_transient_max_v": 700.0,
+      "tj_max_c": 125.0,
+      "overcurrent_protection": null,
+      "protections": [
+        "gate pull-down on driver-supply UVLO (<2 V at the gate)",
+        "power-MOSFET drain-source protection disables all gate drivers; documented purpose is to avoid high dissipation and high current peaks during start-up",
+        "charge state entered only when |L| or |R| > 22 V",
+        "external disable only via COMP pin"
+      ]
+    }
+  },
+  "nulls_by_design": {
+    "ac_source_line_impedance_ohm": null,
+    "line_fed_peak_current_a": null,
+    "line_fed_fault_duration_s": null,
+    "line_fed_fault_energy_j": null,
+    "internal_loop_peak_current_a": null,
+    "internal_loop_u9_u10_energy_split_j": null,
+    "f1_total_clearing_i2t_a2s": null,
+    "active_bridge_mosfet_survival_at_fault": null,
+    "controller_post_fault_response": null
+  }
+}

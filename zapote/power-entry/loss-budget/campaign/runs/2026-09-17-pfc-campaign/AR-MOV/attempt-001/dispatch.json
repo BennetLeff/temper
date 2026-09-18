@@ -3,7 +3,7 @@
   "task_id": "AR-MOV",
   "attempt_id": "attempt-001",
   "kind": "source_research",
-  "absolute_deadline_utc": "2026-09-18T07:44:49Z",
+  "absolute_deadline_utc": "2026-09-18T07:48:04Z",
   "max_solver_invocations": 0,
   "max_candidate_parts": 3,
   "max_primary_sources": 10,
@@ -19,6 +19,6 @@
     "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/coordinator-receipt.md"
   ],
   "question": "Capture the MOV's clamp behaviour at the specified surge and derive the resulting device rating and controller node stresses.",
-  "focus": "1) CAPTURE primary MOV data for the intended part (V150LA10AP or the selected alternative): clamp voltage at the specified surge waveform (8/20 us) and current, from the manufacturer, with revision and page. Two earlier capture attempts returned HTTP 403 and the failures are retained; try the manufacturer and at most one manufacturer-authored mirror. 2) STATE the surge contract explicitly, marking which part is an assumed product requirement (the earlier attempt assumed IEC 61000-4-5, 1 kV L-L / 2 kV L-PE) and which is sourced. 3) From the CLAMPED TERMINAL voltages derive BOTH (i) the MOSFET's required voltage rating and (ii) the controller's node stresses against its own limits. Do not equate a controller limit with a device requirement. 4) Note explicitly that a MOV line-surge clamp does not resolve an internally powered fault; the internal discharge loop is a separate protection question (AR-PROTECT).",
-  "stop_rule": "Do not hash HTML and call it a datasheet. Do not equate a controller limit with a device rating. Do not use the MOV clamp to resolve the internal fault. Mark assumed-vs-sourced."
+  "focus": "1) CAPTURE primary MOV clamp data (V150LA10AP or the selected alternative) AT THE SPECIFIED SURGE CURRENT AND WAVEFORM (8/20 us), from the manufacturer with revision and page. Two earlier attempts returned HTTP 403; failures retained. At most one manufacturer-authored mirror. 2) DERIVE the resulting stresses on BOTH the MOSFETs and the controller from the clamped terminal voltages, each against its own limits. Do not equate a controller limit with a device requirement, and do not claim a MOSFET rating protects the controller. 3) KEEP THE SURGE CONTRACT EXPLICITLY PROVISIONAL: mark the assumed product requirement (the earlier attempt assumed IEC 61000-4-5, 1 kV L-L / 2 kV L-PE) as provisional until formally adopted, and state what would settle it. Do not present an assumed contract as adopted. 4) State explicitly that a MOV line-surge clamp does not resolve an internally powered fault; the internal discharge loop is AR-PROTECT's question.",
+  "stop_rule": "Do not hash HTML and call it a datasheet. Do not equate a controller limit with a device rating. Do not use the MOV clamp to resolve the internal fault. Do not present the surge contract as adopted. Mark assumed-vs-sourced."
 }

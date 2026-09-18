@@ -1,0 +1,40 @@
+{
+  "schema": "pfc-campaign-AR-PROTECT-input-hashes/v1",
+  "task_id": "AR-PROTECT",
+  "attempt_id": "attempt-001",
+  "hash_algorithm": "sha256",
+  "computed_utc": "2026-09-18",
+  "delivered_inputs": {
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-PROTECT/attempt-001/dispatch.json": "404754549854347872881fbe6f9f4bfb6ae8b5dd0aa6490460899cb374a83706",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/coordinator-receipt.md": "38e0b63df694534760de855961997081b2ab6c6e1985961b5fe4ec3cd9362228",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/raw/netlist_fault_loop.json": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b",
+    "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6"
+  },
+  "checker": {
+    "rust_symbol": "zapote/packages/zapote-erc/src/fault_loop.rs",
+    "rust_symbol_sha256": "aec1a4f405c20a7a218fbf8ceb1a762ea6c68939d633ffbaef239a8065150af5",
+    "rust_lib_registration": "zapote/packages/zapote-erc/src/lib.rs",
+    "rust_lib_registration_sha256": "a5230ec61ef3dce274ac0f3266a514a656de4e4f24230ebae9f11a753a0c3446",
+    "cli_source": "zapote/packages/zapote-harness/src/bin/zapote-fault-loop.rs",
+    "cli_source_sha256": "de0c576301f67f84f1aa2806df5cd52aafa70e8255d6e01427b88a7c0e6eeed0",
+    "python_wrapper": "zapote/tools/check_fault_loop.py",
+    "python_wrapper_sha256": "e3ae2a8d1c35dc23d88aff0edef04657d6ae2f38051a8c6a2168c4b24b3cc61f",
+    "binary": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-fault-loop",
+    "binary_sha256": "cc2a3ee60edcf3044f0377e15c6cc57e81833c8f86abe548580e55d06a773c54",
+    "provenance_note": "The Rust symbol, CLI source and Python wrapper are WORKING-TREE / UNCOMMITTED in this worktree (the in-progress migration off the pure-Python check). Binary and sources share mtime 2026-09-17T23:46. The binary's behaviour was confirmed against the working-tree source: it rejects the withdrawn U12 assignment and accepts the corrected one."
+  },
+  "active_bridge_sources": {
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-DESIGN/attempt-001/raw/TEA2209T.pdf": "fb611299c890a0dcaf7d610ed3fe742a3ab8debf21a75b540b8cede2e7badc99",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-DESIGN/attempt-001/raw/Infineon-IPW60R017C7.pdf": "2c5a60a28231e7d2457e59b1329740a4711d88815611a0d9c4bdac40c7f9b617",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-DESIGN/attempt-001/REPORT.md": "a5f0b2bcc74ab1ab3ca9dd33c4e176328899723bbf15635081633a4d054e0e54",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-DESIGN/attempt-001/result.json": "bea67a172ac49678ef344ead40515763e944e61fe7bd0f4363de8e6f7ceb0ec2",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001/REPORT.md": "aca0bca12da1dce1131c064eb987923da81c78d34b01ee1a5ba2d1737f3e8b21"
+  },
+  "revision": {
+    "worktree_head": "fd9d705770db3f4d836bbd2d762bf458e6adc834",
+    "branch": "codex/buck-harness-experiment-plan",
+    "dispatch_source_revision": "3691798cac69e894fec3caa6fa66fdc70fe1c4e4",
+    "source_revision_relation": "direct ancestor of HEAD (HEAD = source_revision + the coordinator's withdraw/enforce commit, which added this dispatch)",
+    "git_status_note": "foreign uncommitted Rust-migration files present; not modified by this attempt"
+  }
+}

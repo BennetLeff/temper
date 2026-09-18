@@ -1,55 +1,63 @@
-"""Tests for the fault-loop consistency check."""
-import importlib.util
+"""Tests for the fault-loop wrapper.
+
+The check logic lives in Rust (`zapote-erc::fault_loop`) and is tested there —
+`cargo test -p zapote-erc --lib fault_loop`. These tests cover only the Python
+wrapper: that it forwards arguments and propagates the exit code, and that it
+fails legibly when the Rust binary is absent.
+"""
+import os
 import pathlib
+import stat
+import subprocess
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-import check_fault_loop as gate  # noqa: E402
+import check_fault_loop as wrapper  # noqa: E402
+
+WRAPPER = pathlib.Path(__file__).parent / "check_fault_loop.py"
 
 
-def netlist() -> dict:
-    """Element -> nets, in the campaign netlist-evidence shape."""
-    return {
-        "netlist_evidence": {
-            "PFC_BUS_PLUS_390V": {"nodes": [["U10", "2"], ["U36", "1"], ["U37", "1"]]},
-            "PFC_BUS_MINUS": {"nodes": [["U9", "3"], ["U12", "1"], ["U36", "2"], ["U37", "2"]]},
-            "a1": {"nodes": [["U10", "1"], ["U9", "2"], ["U8", "2"]]},
-            "q_boost-g": {"nodes": [["U9", "1"]]},
-            "minus": {"nodes": [["U12", "2"], ["U1", "3"]]},
-            "plus": {"nodes": [["U8", "1"], ["U1", "1"]]},
-        }
-    }
+def make_stub(directory: pathlib.Path, body: str) -> pathlib.Path:
+    stub = directory / "zapote-fault-loop"
+    stub.write_text("#!/bin/sh\n" + body)
+    stub.chmod(stub.stat().st_mode | stat.S_IEXEC)
+    return stub
 
 
-LOOP = {"PFC_BUS_PLUS_390V", "PFC_BUS_MINUS", "a1"}
+def test_forwards_arguments_and_propagates_exit_zero(tmp_path: pathlib.Path) -> None:
+    stub = make_stub(tmp_path, 'echo "ARGS:$@"\nexit 0\n')
+    env = {**os.environ, "ZAPOTE_FAULT_LOOP_BIN": str(stub)}
+    result = subprocess.run(
+        [sys.executable, str(WRAPPER), "--netlist", "n.json", "--loop-nets", "A,B"],
+        capture_output=True, text=True, env=env,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "ARGS:--netlist n.json --loop-nets A,B" in result.stdout
 
 
-def test_shunt_outside_the_loop_is_rejected() -> None:
-    # the motivating error: energy assigned to the shunt in the internal loop
-    failures = gate.check(netlist(), LOOP, {"U9": 145.0, "U12": 34.0})
-    assert len(failures) == 1, failures
-    assert "U12" in failures[0]
+def test_propagates_a_nonzero_exit(tmp_path: pathlib.Path) -> None:
+    stub = make_stub(tmp_path, 'echo "FAULT LOOP INCONSISTENT"\nexit 1\n')
+    env = {**os.environ, "ZAPOTE_FAULT_LOOP_BIN": str(stub)}
+    result = subprocess.run(
+        [sys.executable, str(WRAPPER), "--netlist", "n.json"],
+        capture_output=True, text=True, env=env,
+    )
+    assert result.returncode == 1
+    assert "INCONSISTENT" in result.stdout
 
 
-def test_two_terminal_element_on_the_loop_is_accepted() -> None:
-    assert gate.check(netlist(), LOOP, {"U10": 145.0, "U36": 30.0, "U37": 20.0, "U9": 100.0}) == []
+def test_missing_binary_is_reported_as_a_usage_error(tmp_path: pathlib.Path) -> None:
+    # an explicit but absent override, and no PATH entry
+    env = {**os.environ, "ZAPOTE_FAULT_LOOP_BIN": str(tmp_path / "does-not-exist"), "PATH": str(tmp_path)}
+    result = subprocess.run(
+        [sys.executable, str(WRAPPER), "--netlist", "n.json"],
+        capture_output=True, text=True, env=env,
+    )
+    # the override is returned as-is and exec fails; the wrapper must not silently succeed
+    assert result.returncode != 0
 
 
-def test_three_terminal_device_qualifies_on_two_power_terminals() -> None:
-    # U9's gate sits on q_boost-g, outside the loop; its power terminals do not
-    assert gate.check(netlist(), LOOP, {"U9": 1.0}) == []
-
-
-def test_element_absent_from_the_netlist_is_rejected() -> None:
-    failures = gate.check(netlist(), LOOP, {"U99": 1.0})
-    assert any("U99" in f for f in failures), failures
-
-
-def test_zero_assignment_is_ignored() -> None:
-    assert gate.check(netlist(), LOOP, {"U12": 0.0}) == []
-
-
-def test_bridge_device_is_outside_the_internal_loop() -> None:
-    # U1 sits on plus/minus/ac nets, none of which are loop nets
-    failures = gate.check(netlist(), LOOP, {"U1": 40.0})
-    assert any("U1 " in f or "U1 carries" in f for f in failures), failures
+def test_wrapper_claim_is_narrowed_in_its_own_text() -> None:
+    text = WRAPPER.read_text()
+    assert "necessary connectivity check" in text
+    assert "does not prove a conductive path" in text

@@ -96,7 +96,7 @@
         "AR-FAULT"
       ],
       "reason": "Coordinator-issued after the AR-FAULT receipt was corrected and the discharge distribution withdrawn.",
-      "hypothesis_or_question": "Corrected fault-loop and protection assessment: distribute the stored bus energy through the ACTUAL loop and name a protection element that can act on it.",
+      "hypothesis_or_question": "Corrected fault-loop and protection assessment: assess the active bridge, separate the two fault classes, name what interrupts each path and what it cannot, and keep unresolved quantities null.",
       "worker_status": "DISPATCHED_attempt-001"
     },
     {
@@ -107,7 +107,7 @@
         "AR-FAULT"
       ],
       "reason": "Coordinator-issued after the AR-FAULT receipt was corrected and the discharge distribution withdrawn.",
-      "hypothesis_or_question": "Capture the MOV's clamp behaviour at the specified surge and derive the resulting device rating and controller node stresses.",
+      "hypothesis_or_question": "Capture MOV clamp behaviour at the specified surge, derive stresses on both MOSFETs and controller, and keep the surge contract provisional.",
       "worker_status": "DISPATCHED_attempt-001"
     }
   ]

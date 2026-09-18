@@ -897,3 +897,4 @@ pub mod pfc_shunt;
 pub mod pfc_switching;
 
 pub mod pfc_protection;
+pub mod fault_loop;

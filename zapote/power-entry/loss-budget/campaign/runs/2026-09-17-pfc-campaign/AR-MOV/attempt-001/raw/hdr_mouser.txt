@@ -1,0 +1,17 @@
+HTTP/2 200 
+server: AkamaiGHost
+mime-version: 1.0
+content-length: 13897
+x-reference-error: 18.8529c817.1789710575.bec73d6f
+cache-control: no-cache, no-store, must-revalidate
+pragma: no-cache
+expires: 0
+content-type: text/html
+cache-control: max-age=86400
+expires: Sat, 19 Sep 2026 05:49:35 GMT
+date: Fri, 18 Sep 2026 05:49:35 GMT
+server-timing: cdn-cache; desc=HIT
+server-timing: edge; dur=3
+akamai-grn: 0.8529c817.1789710575.bec73d6f
+server-timing: ak_p; desc="1789710575456_398993797_3200728431_303_9476_9_18_15";dur=1
+

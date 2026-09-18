@@ -1,0 +1,90 @@
+{
+  "schema": "pfc-campaign-manifest/v1",
+  "task_id": "AR-PROTECT",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "algorithm": "sha256",
+  "note": "SHA-256 of every file produced by this attempt except manifest.json itself. dispatch.json is the delivered input and is excluded (its hash is recorded in raw/input_hashes.json).",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "sha256": "92d36d848820d5cf481834e1af22fc4eca130067c4c783deb2024590f3ceac69",
+      "bytes": 10364
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "0459be65723257fd4cbe08ad0ab9c65d6c6adf2cc75c81e3b1c1923d2f52f716",
+      "bytes": 15037
+    },
+    {
+      "path": "raw/capture_failures.json",
+      "sha256": "430bc96e111668c26927f083cac12714691f7286da88e89f32e691a5e7eaea94",
+      "bytes": 2844
+    },
+    {
+      "path": "raw/checker/assignments_corrected.json",
+      "sha256": "5e428f5416d7af6046a1a77fa85c5431845b663c81f6dfdc5ea8fbec4d5119a7",
+      "bytes": 121
+    },
+    {
+      "path": "raw/checker/assignments_null_distribution.json",
+      "sha256": "dbb793287077d1363e67e07faab18021400d369153f184415c5f306f894d1ed8",
+      "bytes": 114
+    },
+    {
+      "path": "raw/checker/assignments_withdrawn_negative_control.json",
+      "sha256": "672da7d5f510b5c8effd2d6a05335cf5419a87975bd88494dd11cf546eed0868",
+      "bytes": 35
+    },
+    {
+      "path": "raw/checker/checker_receipt.json",
+      "sha256": "f0f5cad20f27b3f11e0068dbcdbe839cfcf60fc1672d6d6d70d9f2d67020da47",
+      "bytes": 3545
+    },
+    {
+      "path": "raw/checker/out_corrected.txt",
+      "sha256": "cdd8fcf7415968a99f30ac74b4aa4cbd532f8de034d42cca6af9976cd81947b6",
+      "bytes": 87
+    },
+    {
+      "path": "raw/checker/out_null_distribution.txt",
+      "sha256": "cdd8fcf7415968a99f30ac74b4aa4cbd532f8de034d42cca6af9976cd81947b6",
+      "bytes": 87
+    },
+    {
+      "path": "raw/checker/out_withdrawn_negative_control.txt",
+      "sha256": "f52c99846eef33bcf9f36492a7f670c7e2d5394aa8c479e1a8fda249c1429b04",
+      "bytes": 171
+    },
+    {
+      "path": "raw/checkpoint.md",
+      "sha256": "69ba1653f3e2581cf22f7c2a6ad5a619b9757d7450426d66b6bc04bdefb4b6c7",
+      "bytes": 2670
+    },
+    {
+      "path": "raw/compute_fault_protection.py",
+      "sha256": "d49ebdf445891e75228612cc06f1ea65c9b8027af098cfdbe5a78f9da3f36d99",
+      "bytes": 8702
+    },
+    {
+      "path": "raw/compute_result.json",
+      "sha256": "4a105eca780cc582205b3867f51d81f5a5a3c6a218bc26aba8cef9a3b4b43c68",
+      "bytes": 22123
+    },
+    {
+      "path": "raw/input_hashes.json",
+      "sha256": "8f423851e2d91701895a685e419e93a7df4c1fd7da22ef37523e264f04c74c72",
+      "bytes": 3543
+    },
+    {
+      "path": "raw/netlist_fault_loop.json",
+      "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b",
+      "bytes": 8225
+    },
+    {
+      "path": "result.json",
+      "sha256": "576af76ab402968b0ce40151f3d34db3d59fcdc3a8464bce764bfe5a943ab4fb",
+      "bytes": 8646
+    }
+  ]
+}

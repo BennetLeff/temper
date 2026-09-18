@@ -1,0 +1,196 @@
+{
+  "schema": "pfc-campaign-AR-MOV-inputs/v1",
+  "task_id": "AR-MOV",
+  "attempt_id": "attempt-001",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "kind": "source_research (source capture + arithmetic)",
+  "generated_utc": "2026-09-18T05:55:00Z",
+
+  "workspace_validation": {
+    "worktree": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan",
+    "git_head": "fd9d705770db3f4d836bbd2d762bf458e6adc834",
+    "dispatch_source_revision": "3691798cac69e894fec3caa6fa66fdc70fe1c4e4",
+    "head_is_direct_descendant_of_source_revision": true,
+    "delta_commit": "fd9d70577 fix(zapote): withdraw the AR-FAULT discharge distribution; enforce loop consistency",
+    "assessment": "The dispatch source_revision is a direct ancestor of HEAD; the only extra commit is the coordinator's own AR-FAULT-correction commit. The tree also carries uncommitted coordinator edits (dispatch.json deadline/focus text, registry-additions.json, AR-PROTECT dispatch, zapote-erc fault_loop sources). Those are the coordinator's live work, not mine; I did not touch them. This is a source-only task, so the one-commit delta cannot affect the captured external numbers.",
+    "dispatches_modified_in_tree": true,
+    "git_status_short_foreign_entries": [
+      " M zapote/packages/zapote-erc/src/lib.rs",
+      " M zapote/power-entry/loss-budget/campaign/registry-additions.json",
+      " M zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MOV/attempt-001/dispatch.json",
+      " M zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-PROTECT/attempt-001/dispatch.json",
+      " M zapote/tools/check_fault_loop.py",
+      " M zapote/tools/test_check_fault_loop.py",
+      "?? zapote/packages/zapote-erc/src/fault_loop.rs",
+      "?? zapote/packages/zapote-harness/src/bin/zapote-fault-loop.rs"
+    ],
+    "own_worktree_confirmed": true,
+    "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MOV/attempt-001",
+    "output_dir_was_unused_for_this_attempt": true,
+    "pre_existing_file_in_output_dir": "dispatch.json (delivered input, preserved)",
+    "dispatch_admitted": true,
+    "deadline_utc": "2026-09-18T07:48:04Z",
+    "revision_discrepancy_note": "WORKER.md step 1 says stop on a revision difference. HEAD here is AHEAD of the dispatch source_revision by exactly the coordinator's own fix commit, and the dispatch/registry were being edited in the same tree by the coordinator after issue. Treated as the coordinator's live tree rather than a stale worktree. Recorded, not silently ignored."
+  },
+
+  "delivered_input_hashes": {
+    "dispatch_json": "0d8862006f28dfe0167060230496dfba84c2082a6981c6e7d1483e808eab9e22",
+    "contract_C1.1_json": {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json",
+      "sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+      "matches_dispatch": true
+    },
+    "source_bundle_AR_VERIFY_receipt": {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001/coordinator-receipt.md",
+      "sha256": "23f63a2d04b203f771c923a161219456f19f291d040d465143f2bc5f06ddf283"
+    },
+    "source_bundle_AR_FAULT_receipt": {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-FAULT/attempt-001/coordinator-receipt.md",
+      "sha256": "38e0b63df694534760de855961997081b2ab6c6e1985961b5fe4ec3cd9362228"
+    },
+    "worker_packet": {
+      "path": "docs/plans/2026-09-17-pfc-experiment-campaign/WORKER.md",
+      "sha256": "e1ba8d0fa23834e70b8744c9ce258697a23f50a28eee4e162af6a84fa9d2bfb4"
+    },
+    "admission": {
+      "path": "zapote/power-entry/loss-budget/campaign/ADMISSION.md",
+      "sha256": "8f151272daec4833254aad2b5638aa0949f431676e41349599ca02b7c051280c"
+    },
+    "retained_controller_datasheet": {
+      "path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001/raw/reused_sources/TEA2209T.pdf",
+      "sha256": "fb611299c890a0dcaf7d610ed3fe742a3ab8debf21a75b540b8cede2e7badc99",
+      "origin": "reused unchanged from AR-VERIFY attempt-001"
+    }
+  },
+
+  "part_identity": {
+    "mpn": "V150LA10AP",
+    "manufacturer": "Littelfuse, Inc.",
+    "series": "LA Series Radial Lead Varistors",
+    "branding": "P150L10",
+    "description": "Metal-oxide varistor (MOV), 150 V rms MCOV, standard 'A' clamping selection, bulk pack",
+    "substitution": "none - the intended part was captured directly, so no alternative was selected",
+    "document": {
+      "title": "Metal-Oxide Varistors Datasheet - LA Series Radial Lead Varistors",
+      "revision": "Revised: VL 16/9/2024",
+      "copyright": "(c) 2024 Littelfuse, Inc.",
+      "pages_total": 13,
+      "file": "raw/littelfuse_LA_series_datasheet.pdf",
+      "sha256": "8e6c56a7901cc2748a4a58685ccdc7228b13ee07dc5442c411824172e00a7ecc",
+      "bytes": 1376391,
+      "magic": "%PDF-1.7"
+    },
+    "page_for_clamp": 2,
+    "table": "LA Series Ratings & Specifications",
+    "retrieval": "manufacturer host 403 (Akamai) on www/m/www.cn; the one permitted alternate mirror served HTML; captured via Internet Archive snapshot 20260711204225 of the manufacturer's own assetdocs URL. See raw/capture_failures.json and raw/hdr_wayback.txt."
+  },
+
+  "captured_clamp": {
+    "parameter": "Maximum Clamping Voltage VC, 8 x 20 us waveform",
+    "value_v": 395.0,
+    "value_class": "GUARANTEED MAXIMUM at the stated test current (datasheet table)",
+    "surge_current_a": 50.0,
+    "surge_current_name": "IPK (datasheet test current at which VC is specified)",
+    "waveform": "8/20 us current wave",
+    "temperature_c": 25,
+    "source": "Littelfuse LA Series datasheet Rev VL 16/9/2024, page 2",
+    "usability": "This is a complete, source-conditioned clamp: 395 V at 50 A, 8/20 us. A clamp without its current/waveform would not be usable."
+  },
+
+  "rating_basis": {
+    "vm_ac_rms_v": 150.0,
+    "vm_dc_v": 200.0,
+    "vnom_min_v_at_1ma_dc": 216.0,
+    "vnom_max_v_at_1ma_dc": 264.0,
+    "single_pulse_energy_wtm_j": 45.0,
+    "wtm_waveform": "10/1000 us",
+    "peak_pulse_current_itm_a": 4500.0,
+    "itm_waveform": "8/20 us",
+    "typical_capacitance_pf": 800.0,
+    "disc_dia_mm": 14,
+    "notes": "Peak pulse current ITM = 4500 A (8/20 us) is the survival rating and is 90x the 50 A clamp-test current. The datasheet tabulates no clamp voltage above 50 A."
+  },
+
+  "clamp_at_product_surge": {
+    "value_v": null,
+    "reason_null": "The datasheet guarantees VC only at IPK=50 A. Under the provisional contract the prospective 8/20 us current is 500 A (L-L); the MOV clamps higher there (p.7 Figure 10 shows the 14 mm family V-I rising with current), but no guaranteed value is tabulated and the actual MOV current depends on the unknown clamp itself. Figure 10 was rendered and an automated curve trace was attempted; it hopped between adjacent curves (V130/V140/V150/V175LA10A) and was rejected as an unreliable instrument. No digitised value is used.",
+    "lower_bound_v": 395.0,
+    "direction": "clamp rises with current, so 395 V is a lower bound for any I > 50 A"
+  },
+
+  "surge_contract": {
+    "status": "PROVISIONAL_ASSUMED_NOT_ADOPTED",
+    "assumed_standard": "IEC 61000-4-5",
+    "assumed_level": {"line_to_line_open_circuit_v": 1000.0, "line_to_pe_open_circuit_v": 2000.0},
+    "assumed_waveform": "1.2/50 us voltage / 8/20 us current combination wave",
+    "assumed_generator_effective_z_ohm": 2.0,
+    "derived_prospective_8_20us_current_a": {"line_to_line": 500.0, "line_to_pe": 1000.0},
+    "provenance_of_assumption": "AR-VERIFY attempt-001 sourced the 1 kV/2 kV level to docs/architecture/induction_curriculum.md:2112 (a checklist item) and a second IEC 60335-1 OVC II 1500 V reference. No committed requirements document names a surge level; docs/specs/REQUIREMENTS.md's EMC section lists filter parts but no test level.",
+    "mov_position": "MOV is across L-N; it clamps the differential (L-L) mode only. The L-PE common-mode surge is not clamped by it.",
+    "what_would_settle_it": [
+      "a committed/released product requirement document naming the surge standard, level and current waveform, and stating whether an L-PE clamp is fitted",
+      "capture (or measurement) of the V150LA10A(P) V-I curve so the clamp at the actual MOV current can be read"
+    ],
+    "explicit_statement": "This is NOT an adopted requirement. Every surge-derived number below is conditional on it."
+  },
+
+  "derived_mosfets": {
+    "which_mosfets": "active-bridge MOSFETs (TEA2209T synchronous bridge; AR-VERIFY candidate IPW60R017C7, contract baseline IPW65R045C7). Each off bridge device blocks the line terminal voltage, which the L-N MOV clamps.",
+    "steady_line_peak_v": 186.68,
+    "surge_clamped_terminal_v_sourced": 395.0,
+    "required_rating_class_v": 600.0,
+    "required_rating_basis": "the terminal voltage the off device must block (surge-clamped line); NOT the controller's 700 V limit, NOT the 400 V bus",
+    "margin": {"vs_steady": 3.213, "vs_sourced_clamp_395v": 1.519, "at_50A_test_current": true},
+    "sensitivity_margin_vs_clamp": {"395 V": 1.519, "440 V": 1.364, "500 V": 1.2, "600 V": 1.0},
+    "statement": "600 V has 1.52x against the SOURCED guarantee point. Because the clamp rises with current and is untabulated above 50 A, the margin at the product surge is unknown and strictly smaller. This does not make the device wrong; it makes the margin unquantified.",
+    "not_equated": "The controller's 440 V operating / 700 V transient limits are NOT device requirements, and a MOSFET rating does NOT protect the controller."
+  },
+
+  "derived_controller": {
+    "controller": "NXP TEA2209T active bridge rectifier controller, Rev. 1.1 (2021-04-14)",
+    "nodes": ["L", "R", "VR", "VCCHL", "VCCHR", "GATEHR", "GATEHL", "dV(VR-L)", "dV(VR-R)"],
+    "own_limits": {
+      "operating_max_v": 440.0,
+      "mains_transient_max_v": 700.0,
+      "source": "TEA2209T p.8 absolute maximum ratings; p.12 note 'Mains transients or surges must be limited to voltages below 700 V.'"
+    },
+    "steady": {"node_v": 186.68, "fraction_of_440": 0.424, "fraction_of_700": 0.267},
+    "surge_at_sourced_clamp": {"node_v": 395.0, "fraction_of_440": 0.898, "fraction_of_700": 0.564},
+    "sensitivity_vs_clamp": {
+      "395 V": {"fraction_of_440": 0.898, "fraction_of_700": 0.564, "within_operating": true},
+      "440 V": {"fraction_of_440": 1.0, "fraction_of_700": 0.629, "within_operating": true},
+      "500 V": {"fraction_of_440": 1.136, "fraction_of_700": 0.714, "within_operating": false},
+      "600 V": {"fraction_of_440": 1.364, "fraction_of_700": 0.857, "within_operating": false}
+    },
+    "statement": "At the sourced clamp (395 V @ 50 A) the nodes sit at 0.898 of the operating limit and 0.564 of the transient limit. If the surge current drives the clamp above 440 V (untabulated), the nodes exceed their OPERATING limit during the surge while staying under the 700 V transient limit. The node voltage is set by the circuit clamp; a higher-rated MOSFET does not lower it, and the 700 V transient allowance does not require an 800/1000 V device.",
+    "line_to_pe_common_mode": "INDETERMINATE - not clamped by the L-N MOV; depends on the Y-cap / PE / dc-return network, not captured"
+  },
+
+  "internal_fault_boundary": {
+    "statement": "A line-surge MOV across L-N does NOT resolve an internally powered fault. The boost-switch-short capacitor-discharge loop (179.24 J stored in 2240.47 uF) never reaches the MOV terminals; U12 (shunt) is also outside that loop. The internal discharge loop is AR-PROTECT's question, not this task's, and no MOV clamp figure is admissible as a bound on it.",
+    "source": "AR-FAULT attempt-001 retained netlist + corrected coordinator receipt; AR-PROTECT attempt-001 dispatch"
+  },
+
+  "conflicts_found": {
+    "mov_part_vs_requirements": "docs/specs/REQUIREMENTS.md:511 says 'MOV: 275V, 10kA' but the committed part is V150LA10AP (150 V rms MCOV) on a 120 V / 132 V-max board; a 275 V MCOV part would not clamp the 186.7 V line peak. (Carried forward from AR-VERIFY, now with a captured datasheet.)",
+    "surge_level_not_committed": "the IEC 61000-4-5 1 kV/2 kV level lives in a curriculum checklist, not in docs/specs/REQUIREMENTS.md."
+  },
+
+  "unknowns": {
+    "clamp_at_provisional_surge_current_v": null,
+    "clamp_at_lpe_common_mode_v": null,
+    "guaranteed_surge_test_level_v": null,
+    "mov_energy_margin_for_a_500a_8_20us_event_j": null,
+    "bus_surge_excursion_v": null
+  },
+
+  "source_failures": ["raw/capture_failures.json"],
+
+  "evidence_classes_used": [
+    "MANUFACTURER_DATASHEET_GUARANTEED_MAX (395 V @ 50 A, 8/20 us; ITM; WTM; VNOM)",
+    "MANUFACTURER_DATASHEET_ABSOLUTE_MAX (TEA2209T 440 V / 700 V node limits)",
+    "ASSUMED_PROVISIONAL_CONTRACT (IEC 61000-4-5 1 kV/2 kV; 2 ohm generator)",
+    "CALCULATED_ARITHMETIC (peak, margins, node fractions)",
+    "UNKNOWN_NULL (clamp above 50 A; L-PE common mode)"
+  ]
+}

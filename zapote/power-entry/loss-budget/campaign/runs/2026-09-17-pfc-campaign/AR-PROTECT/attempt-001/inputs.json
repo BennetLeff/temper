@@ -1,0 +1,193 @@
+{
+  "schema": "pfc-campaign-AR-PROTECT-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-PROTECT",
+  "attempt_id": "attempt-001",
+  "kind": "fault_assessment",
+  "generated_utc": "2026-09-18",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "checkout_path": "zapote",
+  "worktree_head": "fd9d705770db3f4d836bbd2d762bf458e6adc834",
+  "dispatch_source_revision": "3691798cac69e894fec3caa6fa66fdc70fe1c4e4",
+  "source_revision_relation": "direct ancestor of HEAD; HEAD adds the coordinator's withdraw/enforce commit and this dispatch. Source-only, so the delta cannot affect a number.",
+  "evidence_class": "source_research",
+
+  "proposed_active_bridge": {
+    "description": "NXP TEA2209T/1 active-bridge-rectifier controller driving a four-MOSFET synchronous full bridge at the PFC input, replacing the incumbent U1 passive GBJ2510-F bridge. The proposal is AR-DESIGN/AR-VERIFY attempt-001 (this is the design the task says to assess); it is NOT on the retained board.",
+    "controller": "TEA2209T/1 (SO16), NXP, Rev. 1.1, 2021-04-14",
+    "controller_pdf_sha256": "fb611299c890a0dcaf7d610ed3fe742a3ab8debf21a75b540b8cede2e7badc99",
+    "reference_mosfet": "IPW60R017C7, Infineon 600 V CoolMOS C7, Final Data Sheet Rev. 2.0, 2016-03-01",
+    "reference_mosfet_pdf_sha256": "2c5a60a28231e7d2457e59b1329740a4711d88815611a0d9c4bdac40c7f9b617",
+    "topology": "two devices conduct in the line path per half-cycle (one high side, one low side); high side driven from a bootstrap floating supply (VCCHL/VCCHR), low side from VCC; body diodes form a passive bridge at start-up and whenever the drivers are off",
+    "reference_hot_rds_ohm_per_device": 0.0174,
+    "reference_hot_rds_basis": "AR-DESIGN/AR-VERIFY computed Tj 45-46 C, typical curve; not a guaranteed hot maximum",
+
+    "controller_behaviour_under_fault": {
+      "operation": "senses mains polarity at L/R (+/-250 mV comparator) and switches diagonal device pairs on/off; has no current sensing and no overcurrent protection",
+      "protections_present": [
+        "8.3.1 gate pull-down: on driver-supply UVLO the gate output is discharged to <2 V",
+        "8.3.2 power-MOSFET drain-source protection: if Vds exceeds VVCC-2 V (low side) or VVCCHL/VCCHR-3.5 V (high side), all gate driver outputs are disabled; the documented purpose is to avoid high dissipation and high current peaks during start-up",
+        "8.3.3 minimum mains voltage: the charge state is entered only when |L| or |R| > 22 V",
+        "external disable only via the COMP pin"
+      ],
+      "protections_absent": [
+        "no overcurrent detection",
+        "no short-circuit or desaturation trip on the power devices",
+        "no fault output / no shoot-through latch",
+        "no way to open a body-diode path"
+      ],
+      "behaviour_on_a_shorted_external_device": "cannot detect or isolate it; gate shutdown leaves the body diode conducting, so all-drivers-off reverts the bridge to the passive diode bridge and the fault path persists",
+      "abs_max": {"V_operating_max_v": 440.0, "V_mains_transient_max_v": 700.0, "transient_note": "700 V max 10 minutes over lifetime", "tj_max_c": 125.0, "slew_rate_max_v_per_ns": 50.0}
+    },
+
+    "fault_path_assessment": {
+      "in_the_line_fed_loop": true,
+      "in_the_internal_cap_discharge_loop": false,
+      "line_fed_path": "mains L -> F1 -> CMC U3 -> NTC U4 / bypass relay U5 -> active-bridge AC terminal (L or R) -> conducting diagonal pair -> VR/plus -> boost inductor U8 -> shorted U9 -> PFC_BUS_MINUS -> shunt U12 -> bridge return minus -> active-bridge complementary device -> AC terminal -> CMC -> mains N",
+      "structural_effect_vs_passive_bridge": "the active bridge is in the same series position as the passive bridge, so it cannot open the line-fed loop either; because it conducts through MOSFET channels (low Rds) instead of ~2 diode drops, it LOWERS the fault-loop limiting impedance and raises the prospective fault current for the same (unknown) line impedance. It makes interruption MORE dependent on F1, not less.",
+      "active_bridge_specific_new_fault": "a single active-bridge MOSFET failing short creates a line-fed short on the opposite half-cycle through that device and the complementary body diode; the TEA2209T has no overcurrent detection, so it cannot identify or isolate it, and a shorted device also defeats the diagonal-pair dead time",
+      "voltage_stress": "on a boost-diode short the bus is placed on the bridge output (~400 V, AR-FAULT corrected result); on a boost-switch short the devices see the line peak (186.7 V at 132 Vrms). 400 V is inside the 600 V device and the 440 V controller operating limit; voltage is NOT the binding fault stress. The active-bridge voltage rating remains gated by the undeclared surge clamp (AR-DESIGN/AR-VERIFY), separate from this fault."
+    },
+
+    "mosfet_survival_evidence": {
+      "device": "IPW60R017C7",
+      "id_pulse_a_tc25": 495.0,
+      "id_pulse_note": "pulse width limited by Tj,max; a single-pulse rating, NOT an IFSM",
+      "eas_single_pulse_mj": 582.0,
+      "ias_single_pulse_a": 12.6,
+      "i2t_a2s": null,
+      "i2t_note": "no I2t rating is published for this MOSFET",
+      "short_circuit_withstand_time_s": null,
+      "soa": "Datasheet Diagrams 2 and 3 (Safe operating area) and Diagram 4 (max transient thermal impedance) exist but are raster figures whose coordinates were not digitised for this attempt (AR-DESIGN digitised only Diagrams 7, 8, 10)",
+      "survival_at_the_fault": null,
+      "survival_status": "INDETERMINATE",
+      "survival_why": "requires the prospective fault current (line impedance unresolved) AND the fault duration (F1 total clearing unresolved) to map onto the SOA/Zth curves; both are null. The incumbent GBJ passive bridge's 350 A IFSM / 510 A2s I2t cannot be used to qualify this replacement.",
+      "cannot_be_qualified_by": "the GBJ passive bridge's IFSM 350 A / I2t 510 A2s"
+    }
+  },
+
+  "fault_classes": [
+    {
+      "id": "i_line_fed_switch_short",
+      "name": "Line-fed switch short",
+      "examples": ["boost switch U9 drain-source short", "active-bridge MOSFET short"],
+      "energy_source": "the AC mains",
+      "source_fed": true,
+      "limiting_impedance": "AC source/line impedance + CMC + NTC/bypass + wiring + the conducting device channels; the AC source/line impedance is NOT established, so the limiting impedance is unknown",
+      "timescale": "ms class; a 60 Hz half-cycle is 8.333 ms and F1 (16 A time-lag) clears in ms to 10s of ms at these currents",
+      "timescale_value_s": null,
+      "stored_energy_j": null,
+      "peak_current_a": null,
+      "energy_j": null,
+      "interrupting_element": "F1 (Schurter 0034.3129, 16 A / 250 V time-lag, holder U2) is the only series interrupting element in this loop; its coordination is UNESTABLISHED",
+      "bypasses_shunt_U12": false,
+      "nulls": ["peak current", "fault energy", "fault duration", "limiting impedance"],
+      "why_null": "the AC source/line impedance is not established, so the prospective current is unknown; F1 total clearing behaviour at matching conditions is not captured"
+    },
+    {
+      "id": "ii_internal_capacitor_discharge",
+      "name": "Internal capacitor discharge",
+      "examples": ["shorted boost diode U10 with the boost switch U9 conducting"],
+      "energy_source": "the DC bus capacitor bank",
+      "source_fed": false,
+      "loop": "capacitors (PFC_BUS_PLUS_390V) -> shorted U10 -> a1 -> U9 -> capacitors (PFC_BUS_MINUS)",
+      "bypasses_shunt_U12": true,
+      "shunt_U12_terminals_on_loop": 1,
+      "shunt_U12_nets": ["PFC_BUS_MINUS", "minus"],
+      "c_bank_f": 2.24047e-3,
+      "c_bank_note": "4 x 560 uF (U36-U39) + 470 nF c_hf film (U40) = 2240.47 uF",
+      "stored_energy_j": 179.238,
+      "stored_energy_basis": "0.5*C*V^2 at the 400 V bus setpoint; equal voltage across the parallel bank",
+      "timescale_us": 94.1,
+      "timescale_note": "~100 us class; R_loop * C with R_loop taken as the boost-switch Rds_on(typ) 42 mOhm ONLY, because the shunt is not in this loop (the withdrawn 116 us figure wrongly included the 10 mOhm shunt)",
+      "limiting_impedance": "boost switch channel Rds_on + the shorted SiC boost diode's forward characteristic at multi-kA + bank ESR + layout; not defensibly modelled at multi-kA",
+      "peak_current_a": null,
+      "energy_split_j": null,
+      "interrupting_element": "NONE on the current board",
+      "interrupting_element_note": "F1 is not in this loop; the shunt U12 has only one terminal on the loop; the PFC controller UCC28180D observes bus voltage and the shunt, neither of which is in this loop; gate shutdown cannot open a shorted U10 or a conducting U9 channel",
+      "nulls": ["peak current", "U9 vs U10 energy split"],
+      "why_null": "no defensible model exists for the loop impedance over a multi-kA SiC-diode discharge; the split depends on the diode Vf(I), Rds(Tj), EST and layout, none of which is established"
+    }
+  ],
+
+  "protection_arrangement": {
+    "line_fed_switch_short": {
+      "acting_element": "F1 Schurter 0034.3129 time-lag fuse, series in the line path",
+      "loop": "line-fed switch short (class i)",
+      "why_it_can": "it is a series, self-interrupting element present in every line-fed path, including the active bridge's line terminals, and it melts on I2t and extinguishes at current zero",
+      "why_it_is_not_yet_relied_on": "total clearing behaviour at the prospective fault current and matching test conditions is UNESTABLISHED; only a typical melting I2t of 1638 A2s at 10x rated and a 160 A breaking capacity at 250 VAC are published, and the prospective current itself is unknown because the line impedance is unresolved",
+      "cannot_be_assisted_by": "active-bridge gate shutdown (gates off leaves the body diodes conducting)"
+    },
+    "internal_capacitor_discharge": {
+      "acting_element": null,
+      "loop": "internal capacitor discharge (class ii)",
+      "why_nothing_acts": "no element with an interrupting function lies in this loop: F1 is outside it, the shunt U12 has one terminal on it, the PFC controller cannot sense it, and gate shutdown cannot open a shorted U10 or a conducting U9",
+      "conclusion": "No adequate protection exists on the current board for the internal capacitor-discharge loop.",
+      "crowbar_note": "a DC-bus crowbar would DIVERT the discharge, not interrupt it; it needs a coordinated series interruption or an energy-handling path and a trigger, none of which exists today"
+    },
+    "faults_it_cannot_interrupt": [
+      "internal capacitor discharge: nothing acts, and gate shutdown / shunt U12 / F1 / the PFC controller are all outside the loop",
+      "any already-bolted short: gate shutdown cannot open a physical short, and an OFF active bridge still conducts through its body diodes",
+      "a crowbar alone (without a coordinated series interruption or energy-handling path) diverts but does not interrupt",
+      "a line-fed fault below F1's clearing threshold can persist past the device SOA even though F1 is topologically in the path",
+      "L-PE / common-mode surge: the MOV is line-to-neutral only, and the active bridge's L/R nodes see only the L-N clamp",
+      "active-bridge cross-conduction or shoot-through from a shorted device: no detection in the TEA2209T"
+    ]
+  },
+
+  "loop_consistency": {
+    "checker": "zapote-erc::fault_loop via zapote-fault-loop, wrapped by zapote/tools/check_fault_loop.py",
+    "exact_command": "python3 zapote/tools/check_fault_loop.py --netlist raw/netlist_fault_loop.json --loop-nets PFC_BUS_PLUS_390V,PFC_BUS_MINUS,a1 --assignments raw/checker/assignments_corrected.json",
+    "scope_disclaimer": "necessary connectivity check only; it does not prove a conductive path, a device state, a direction, or a distribution. A passing run is not physical evidence.",
+    "receipt": "raw/checker/checker_receipt.json",
+    "model_assignments": {
+      "corrected": {"exit_code": 0, "result": "CONSISTENT"},
+      "null_distribution": {"exit_code": 0, "result": "CONSISTENT"},
+      "withdrawn_negative_control": {"exit_code": 1, "result": "INCONSISTENT", "role": "retained negative control; not a model of this attempt"}
+    }
+  },
+
+  "circuit_recommendation": {
+    "for_the_internal_discharge_loop": "Add a DC-rated, semiconductor-grade interrupting element IN series with the internal discharge path (in the bus between the capacitor bank and the boost diode/switch junction), coordinated to carry the steady bus current (~4.5 A at ~1796 W / 400 V) and to clear the ~100 us multi-kA pulse; OR a DC-bus crowbar PLUS a coordinated series interruption and energy-handling path. A bus capacitor is not a protection element.",
+    "for_the_line_fed_loop": "Establish F1's total clearing behaviour at the actual prospective current and matching test conditions and confirm it clears inside the surviving devices' SOA; if it does not, add a faster line-side element or an active overcurrent trip WITH a series interrupter. An overcurrent trip alone cannot open a body-diode path.",
+    "for_the_active_bridge": "Do not credit the TEA2209T with fault interruption: it has no overcurrent protection and gate shutdown leaves the body diodes conducting. Treat the active bridge as line-fed-fault-exposed and dependent on F1 exactly as the passive bridge was."
+  },
+
+  "remaining_evidence_requirements": [
+    "AC source/line impedance at the fault (gating)",
+    "F1 total clearing I2t / time-current curves at the applicable voltage and prospective current (matching test conditions, not melting I2t at 10x)",
+    "internal-loop high-current impedance model: C3D20065D Vf(I), U9 Rds(Tj), bank ESR, layout",
+    "active-bridge SOA / Zth curves digitised and mapped to the actual fault waveform",
+    "MOV clamp at the specified surge waveform (AR-MOV) - gates the active-bridge voltage rating",
+    "U9 gate state at the fault instant (is the internal discharge path armed?)"
+  ],
+
+  "nulls_by_design": {
+    "ac_source_line_impedance_ohm": null,
+    "line_fed_peak_current_a": null,
+    "line_fed_fault_duration_s": null,
+    "line_fed_fault_energy_j": null,
+    "internal_loop_peak_current_a": null,
+    "internal_loop_u9_u10_energy_split_j": null,
+    "f1_total_clearing_i2t_a2s": null,
+    "active_bridge_mosfet_survival_at_fault": null,
+    "controller_post_fault_response": null
+  },
+
+  "source_capture_failures": ["raw/capture_failures.json"],
+  "raw_artifacts": [
+    "raw/netlist_fault_loop.json",
+    "raw/compute_fault_protection.py",
+    "raw/compute_result.json",
+    "raw/input_hashes.json",
+    "raw/capture_failures.json",
+    "raw/checkpoint.md",
+    "raw/checker/checker_receipt.json",
+    "raw/checker/assignments_corrected.json",
+    "raw/checker/assignments_null_distribution.json",
+    "raw/checker/assignments_withdrawn_negative_control.json",
+    "raw/checker/out_corrected.txt",
+    "raw/checker/out_null_distribution.txt",
+    "raw/checker/out_withdrawn_negative_control.txt"
+  ]
+}

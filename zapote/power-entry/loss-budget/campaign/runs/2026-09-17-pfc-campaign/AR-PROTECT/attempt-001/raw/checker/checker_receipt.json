@@ -1,0 +1,48 @@
+{
+  "schema": "pfc-campaign-AR-PROTECT-checker-receipt/v1",
+  "task_id": "AR-PROTECT",
+  "attempt_id": "attempt-001",
+  "checker": "zapote-fault-loop (Rust, zapote-erc::fault_loop) wrapped by zapote/tools/check_fault_loop.py",
+  "binary_sha256": "cc2a3ee60edcf3044f0377e15c6cc57e81833c8f86abe548580e55d06a773c54",
+  "binary_path": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-fault-loop",
+  "exact_command_template": "python3 zapote/tools/check_fault_loop.py --netlist <netlist> --loop-nets PFC_BUS_PLUS_390V,PFC_BUS_MINUS,a1 --assignments <assignments.json>",
+  "netlist": "raw/netlist_fault_loop.json",
+  "netlist_sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b",
+  "loop_nets": ["PFC_BUS_PLUS_390V", "PFC_BUS_MINUS", "a1"],
+  "runs": [
+    {
+      "name": "corrected",
+      "kind": "model",
+      "assignments": "raw/checker/assignments_corrected.json",
+      "assignments_sha256": "5e428f5416d7af6046a1a77fa85c5431845b663c81f6dfdc5ea8fbec4d5119a7",
+      "exit_code": 0,
+      "stdout_file": "raw/checker/out_corrected.txt",
+      "result": "FAULT LOOP CONSISTENT (connectivity only; not a conductive-path or distribution claim)",
+      "meaning": "The defensible assignments (stored 1/2 C V^2 energy held by the loop capacitors; delivered split into U9/U10 and any shunt term left 0.0 = null) are connectivity-consistent in the declared loop. This is a necessary connectivity check, NOT physical evidence."
+    },
+    {
+      "name": "withdrawn_negative_control",
+      "kind": "negative_control_retained",
+      "assignments": "raw/checker/assignments_withdrawn_negative_control.json",
+      "assignments_sha256": "672da7d5f510b5c8effd2d6a05335cf5419a87975bd88494dd11cf546eed0868",
+      "exit_code": 1,
+      "stdout_file": "raw/checker/out_withdrawn_negative_control.txt",
+      "result": "FAULT LOOP INCONSISTENT: U12 carries 34.46 but only 1 of its terminals {PFC_BUS_MINUS, minus} lie on the declared loop {PFC_BUS_MINUS, PFC_BUS_PLUS_390V, a1}",
+      "meaning": "The withdrawn AR-FAULT distribution is retained as the checker's teeth. It MUST fail, and it does: it is not a model of this attempt and is not an assignment this attempt makes."
+    },
+    {
+      "name": "null_distribution",
+      "kind": "model_null",
+      "assignments": "raw/checker/assignments_null_distribution.json",
+      "assignments_sha256": "dbb793287077d1363e67e07faab18021400d369153f184415c5f306f894d1ed8",
+      "exit_code": 0,
+      "stdout_file": "raw/checker/out_null_distribution.txt",
+      "result": "FAULT LOOP CONSISTENT (connectivity only; not a conductive-path or distribution claim)",
+      "meaning": "A wholly unresolved energy distribution (every assignment 0.0 = null) is connectivity-consistent. A null distribution is a legitimate model outcome here, not a gap in the check."
+    }
+  ],
+  "scope_disclaimer": "The checker is a NECESSARY connectivity check only. It does not prove a conductive path, a device state, a current direction, or a distribution, and a passing run is not presented as physical evidence.",
+  "checker_status": "RUN",
+  "checker_receipt_present": true,
+  "checker_note": "The dispatch declares checker_revision_and_sha256 'not_applicable: G0 checker unimplemented'. This attempt nevertheless ran the campaign's fault-loop checker as the task requires, and retains the output. Per ADMISSION.md the attempt is therefore still NOT a harness-validated run unless the coordinator reclassifies it; the checker here is a worker-run connectivity gate, not an issued G0 receipt."
+}

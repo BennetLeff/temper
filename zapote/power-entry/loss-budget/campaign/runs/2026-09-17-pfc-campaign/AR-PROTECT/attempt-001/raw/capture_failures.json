@@ -1,0 +1,46 @@
+{
+  "schema": "pfc-campaign-capture-failures/v1",
+  "task_id": "AR-PROTECT",
+  "attempt_id": "attempt-001",
+  "captured_utc": "2026-09-18",
+  "policy": "Retain each failure. At most one other primary or manufacturer-authored mirror per source. Never hash HTML and call it a datasheet.",
+  "new_capture_attempts_this_attempt": [],
+  "new_capture_failures_this_attempt": [],
+  "note": "This is a source-only assessment of already-captured evidence. No bench work and no procurement were performed. No new network captures were attempted: the two device documents the active-bridge assessment depends on (TEA2209T, IPW60R017C7) are already captured with hashes recorded in raw/input_hashes.json.",
+  "carried_forward_failures": [
+    {
+      "source": "NXP TEA2209T node/limit data",
+      "status": "CAPTURED",
+      "retained_as": "AR-DESIGN/attempt-001/raw/TEA2209T.pdf",
+      "sha256": "fb611299c890a0dcaf7d610ed3fe742a3ab8debf21a75b540b8cede2e7badc99"
+    },
+    {
+      "source": "Infineon IPW60R017C7 datasheet (primary infineon.com host)",
+      "http_status": 202,
+      "outcome": "FAILED_NOT_A_PDF",
+      "recovery": "Infineon .cn manufacturer mirror, captured as AR-DESIGN/attempt-001/raw/Infineon-IPW60R017C7.pdf",
+      "sha256": "2c5a60a28231e7d2457e59b1329740a4711d88815611a0d9c4bdac40c7f9b617"
+    },
+    {
+      "source": "V150LA10AP MOV LA-series clamp curve (AR-VERIFY)",
+      "outcome": "FAILED_HTTP_403",
+      "note": "Both capture attempts in AR-VERIFY returned HTTP 403. The MOV clamp is still uncaptured; this attempt does not use any MOV clamp figure. AR-MOV owns that capture."
+    },
+    {
+      "source": "Schurter 0034.3129 total clearing / time-current curves",
+      "outcome": "NOT_CAPTURED",
+      "note": "Only the melting I2t (typical, at 10x rated) and the 160 A breaking capacity at 250 VAC are available in the tree (AR-FAULT receipt). Total clearing behaviour at matching test conditions is not captured anywhere; it remains an evidence requirement, not a number this attempt may fill."
+    },
+    {
+      "source": "AC source / line impedance at the fault",
+      "outcome": "NOT_ESTABLISHED",
+      "note": "No capture exists and none is attempted. This is the gating unknown; its absence keeps the line-fed peak current and energy null."
+    },
+    {
+      "source": "Internal-loop high-current impedance model (C3D20065D Vf(I), bank ESR, layout)",
+      "outcome": "NOT_ESTABLISHED",
+      "note": "No defensible model exists for the multi-kA discharge; the peak current and the U9/U10 energy split stay null."
+    }
+  ],
+  "consequence": "The active-bridge survival at the fault and the F1 coordination are INDETERMINATE, not failed and not passed. The internal capacitor-discharge loop has no interrupting element on the current board, which is a conclusion independent of the missing numbers."
+}
