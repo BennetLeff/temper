@@ -526,6 +526,67 @@ visible, and which a clean re-run closed. It confirmed the credential discipline
 no committed file contains a key, an `Authorization` value, or a response body carrying
 one, re-verified after every live run.
 
+### Found by reading the provider's own documentation (post-review) — six more
+
+The provider publishes an error-code page and four quick-start pages. U1 measured the wire
+and never read them, which was a mistake worth naming: every finding below was available
+for free, and two of them are defects the captures could not have revealed because nothing
+in the corpus exercises those paths.
+
+28. **402 and 422 were unclassified.** The documented codes are 400 (Invalid Format), 401
+    (Authentication Fails), 402 (Insufficient Balance), 422 (Invalid Parameters), 429 (Rate
+    Limit Reached), 500 (Server Error) and 503 (Server Overloaded). This client handled
+    400, 401, 403, 408, 429, 3xx and 5xx — so 402 and 422 fell through to
+    `UnknownTransportError`, whose `retryable` flag is True. An empty account and a bad
+    parameter would each have been retried forever while every row read as an unknown
+    transport fault. Fixed by drawing the line at *remedy*: 422 joins 400 in
+    `request_rejected`; 402 becomes `insufficient_balance` because the request may be
+    perfect and the refusal still happens; 401/403 become `auth_rejected`, distinct from
+    `credential_missing` which is our refusal before any I/O. A table transcribed from the
+    published codes now pins the mapping, and a second test pins retryability to the
+    documentation's own advice — retry on 429 and the 5xx family, change something on 4xx.
+29. **`temperature` is accepted and silently ignored.** Thinking mode is enabled by default,
+    and the documentation states it does not support `temperature`, `presence_penalty`, or
+    `frequency_penalty`: setting them "will not trigger an error but will also have no
+    effect". **Every probe in the corpus sets `temperature: 0` and it does nothing.** So a
+    caller cannot buy determinism with it on this model, and no response says so. Documented
+    on `Request` and `build_wire_request`; it takes effect only with `thinking=False`.
+30. **The price table cannot be flat.** Every rate is quoted at two prices and off-peak is
+    exactly half of peak, with peak a wall-clock window (weekdays, 01:00-04:00 and
+    06:00-10:00 UTC). A table carrying one number per rate would be wrong by a factor of two
+    for part of every day. KTD7 asked for a versioned table and did not know this; the table
+    now carries the window definition, and a cost requires a timezone-aware timestamp.
+31. **`user_id` is the documented arm-isolation control.** The provider documents it as the
+    isolation for KVCache, content safety, and scheduling. That makes it load-bearing for S7
+    rather than cosmetic: two arms sharing a cache would have one arm's input priced at
+    cache-hit rates for text the other arm paid to cache — a fiftyfold difference on the
+    input half, enough to corrupt a fixed-expenditure comparison with no error appearing
+    anywhere. The parameter is now on `Request` and validated against the documented shape.
+32. **`thinking` and `reasoning_effort` are documented controls the client lacked.**
+    `thinking=False` is the only way to make `temperature` effective, and the cheapest way to
+    reduce output tokens, because reasoning tokens bill as output. `reasoning_effort` is
+    validated against the documented set, with the documented *mapping* kept in the client
+    because a caller asking for `medium` receives `high`.
+33. **Keep-alives are documented, not incidental.** Streaming responses carry `: keep-alive`
+    SSE comments and non-streaming ones carry empty lines while a request is queued, and the
+    server closes a connection whose inference has not started within ten minutes. The
+    parser already ignored comments — foresight rather than knowledge — and a test now pins
+    the documented string, because a parser that treated one as a payload would fail exactly
+    when the provider is loaded.
+
+The documentation also settled three of the named unknowns below, and one earlier finding
+becomes more precise: `deepseek-flash`'s documented **model version is DeepSeek-V4.1-Flash**,
+so the plan's original id was the version and only the *API name* was wrong. The U1 conclusion
+stands — `deepseek-v4.1-flash` is rejected as a model name — but the reason is now exact.
+
+**And the judgement call flagged at review is resolved.** I removed an `error_classified`
+oracle guard because no input could make it fail. The value it would have provided — a
+regression that made a deterministic refusal retryable — is now provided by
+`test_retryability_follows_the_providers_own_advice`, which is falsifiable because it
+enumerates the documented codes and asserts the flag for each. A corpus-level duplicate of
+that would have been a second home for one fact, which is the thing this plan keeps warning
+about.
+
 ### Named unknowns (U1) — stated, not inferred away
 
 - **No cost reconciliation is possible from this provider.** The response has no cost
@@ -536,14 +597,18 @@ one, re-verified after every live run.
   purpose: inventing rates would be a fabricated measurement, which is worse than an
   absent one. Token counts are exact and reconcilable; USD is not, and must not be
   quoted as though it were.
-- **The context-length and content-filter message texts are unverified.** No probe
-  produced either, so `_CONTEXT_LENGTH_MARKERS` and `_CONTENT_FILTER_MARKERS` are
-  declared unverified in code and exercised only against synthetic bodies. Both
-  categories stay wired, because a category that can never be reached makes the
-  taxonomy a claim rather than a mechanism.
-- **No 429 was produced**, so whether `retry-after` and the `x-ratelimit-*` family
-  appear on a rate-limit response is unknown. They remain on the header allowlist as
-  structurally-necessary names with no capture behind them.
+- **The context-length and content-filter message texts are unverified, and the docs make
+  that more interesting rather than less.** The error-code page lists only 400, 401, 402,
+  422, 429, 500 and 503 — there is **no documented content-filter status and no documented
+  context-length status**. So a filtered response or an over-long request arrives as one of
+  those seven carrying a message this client has never seen, which is why the message
+  markers matter more than the status and why they stay wired while declared unverified.
+- **No 429 was produced, and the documentation does not promise any header on one.** The
+  rate-limit page describes a 429 as what an account receives for exceeding its concurrency
+  limit (2500 for `deepseek-flash`, account-wide) and names no header at all. So
+  `retry-after` and the `x-ratelimit-*` family remain *permissions* with nothing behind them,
+  kept because the cost of retaining a permission is zero and the cost of dropping the one
+  actionable fact on a rate-limit response is not.
 - **The authentication-failure body is unverified.** No probe used an invalid key, so
   a 401 is classified from its status and the provider's general error envelope
   rather than from a captured auth body. The classification is still the right
@@ -558,12 +623,11 @@ one, re-verified after every live run.
   normalized.
 - **Whether `reasoning_content` can be absent or null on a successful turn** is
   unknown; every captured success carried a string.
-- **The `max_tokens` ceiling is unverified.** The probes use 64 to 600 and all of them
-  succeed, so the bound is at least 600; nothing larger has been tried, and the adapter
-  does not clamp what a caller sets. The risk is low — an over-large value comes back as
-  a 400, which classifies as a non-retryable `request_rejected` rather than as something
-  to retry — but it is unpinned, and it became worth naming the moment `max_tokens`
-  actually reached the wire.
+- **The `max_tokens` ceiling is documented but not measured.** The model page states a
+  context length of 1M and a maximum output of 384K, so the probes' 64–600 is far inside it
+  and the adapter still does not clamp what a caller sets. Documented rather than measured:
+  no probe has exceeded the bound, and an over-large value would come back as a
+  non-retryable `request_rejected`, so the risk of not knowing is low.
 - **The canary's evidence cannot be authenticated offline.** These tests check its
   schema, its internal consistency, and that it records whether it can be reproduced;
   none of that distinguishes a real live run from a fabricated file. That is inherent,
@@ -571,6 +635,24 @@ one, re-verified after every live run.
   being *reproducible* — `harness_dirty: false` and a commit that contains the canary —
   so the check is to re-run it, not to read it. Stated because "the offline suite
   validates the evidence" is easy to over-read.
+- **The price table is transcribed, not measured.** `verification.status` says
+  `unverified`, which means the rates are *inherited from documentation* rather than
+  measured, and anything quoting a USD total must say so. Verifying them against the
+  provider's own accounting (a balance delta around calls with known usage) is the next
+  step, and #1602 records it. Until then a USD figure here is a computation over a
+  documented rate, not a measurement of a bill.
+- **The peak-window boundaries are an assumption.** The provider writes the windows as
+  "01:00 - 04:00" and "06:00 - 10:00" without saying whether the endpoints are inclusive.
+  This table treats them as half-open, so a boundary belongs to exactly one window. Getting
+  it wrong doubles or halves a bill, so it is named rather than buried.
+- **A call straddling a window boundary has no documented answer.** Which window applies to a
+  call that starts off-peak and finishes in peak is not stated. The probe prices a call by
+  the moment it was passed, which is the caller's choice and therefore recorded in the
+  call's own timestamp rather than guessed at.
+- **The 401, 402 and 422 response bodies are uncaptured.** The codes are documented and now
+  classified, but no captured body shows what the provider puts in one. The classification
+  does not depend on it — it is made from the status — so this is a gap in message text, not
+  in behaviour.
 - **The store cannot reproduce the *n*-th distinct response to an identical
   request.** Recordings are keyed by request hash, so a recursive fan-out in which
   every worker asks the same question replays one answer for all of them. This is a
