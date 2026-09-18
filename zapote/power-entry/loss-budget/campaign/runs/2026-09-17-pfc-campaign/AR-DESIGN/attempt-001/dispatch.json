@@ -1,0 +1,45 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-DESIGN",
+  "attempt_id": "attempt-001",
+  "kind": "design_assessment",
+  "supersedes_question_of": "AR-ACTIVE sourced a circuit and typical hot data but left gate bias unverified, used 170 V instead of 187 V, and asserted a margin bound instead of computing Tj",
+  "absolute_deadline_utc": "2026-09-18T06:26:17Z",
+  "max_solver_invocations": 0,
+  "max_candidate_parts": 2,
+  "max_primary_sources": 10,
+  "checkout_path": "zapote",
+  "source_revision": "f7fbb2138c01fc1a6279593b39ce3a1bf96715f6",
+  "model_revision_and_sha256": "not_applicable: no maintained-model invocation; the thermal estimate must name its own method and assumptions",
+  "checker_revision_and_sha256": "not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt will not be counted as a validated run",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-DESIGN/attempt-001",
+  "exact_build_or_run_commands": "none mandated; record any computation script in raw/",
+  "source_bundle_paths_and_hashes": [
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-ACTIVE/attempt-001/coordinator-receipt.md",
+    "zapote/power-entry/loss-budget/2026-09-17-rectifier-alternative-net-savings.md",
+    "zapote/power-entry/loss-budget/campaign/ADMISSION.md"
+  ],
+  "envelope": {
+    "bus_v": 400.0,
+    "line_rms_v": [
+      108.0,
+      120.0,
+      132.0
+    ],
+    "line_peak_at_132_v": 186.7,
+    "input_rms_a": 15.0,
+    "requested_input_power_w": 1796.31003212911,
+    "conducting_devices_in_line_path": 2,
+    "conduction_coefficient_w_per_ohm": 450.0,
+    "bridge_bracket_w": [
+      23.0,
+      35.0
+    ],
+    "reference_candidate": "IPW60R017C7",
+    "note": "132 Vrms peaks at 186.7 V; the previous attempt used 170 V"
+  },
+  "question": "One complete active-rectifier design assessment: does a concrete TEA2209T-based synchronous bridge, with its real gate supply and a computed junction temperature, beat the passive bridge across its uncertainty?",
+  "focus": "1) CIRCUIT: name the exact controller and MOSFET circuit, including the high-side gate-drive path. 2) GATE SUPPLY BEHAVIOUR: establish the ACTUAL VGS presented at each MOSFET through operation - include the high-side bootstrap drop and supply discharge under load. The controller's regulated supply (typ 10.7 V) is not the MOSFET VGS. State whether the 10 V Rds(on) data is applicable, and if VGS is lower, use data at that bias. 3) VOLTAGE STRESSES: state an explicit input/transient contract (line range, surge, switching transients, fault conditions) and derive the required device voltage rating from it. 132 Vrms peaks at 186.7 V; do not treat the line range alone as settling the rating. 4) COMMUTATION AND START-UP LOSSES: body-diode reverse recovery (Qrr), dead-time conduction, and start-up/inrush, each with its condition and evidence class. 5) COUPLED THERMAL ESTIMATE: couple the device losses to a proposed thermal assembly, COMPUTE the resulting junction temperature, derive Rds(on) at that temperature, and iterate to convergence. Tj is an output, not an input. State the thermal path assumptions and their evidence class. 6) Compare against the bridge bracket 23-35 W with the additional losses applied, and state the residual uncertainty. Retain IPW60R017C7 as the reference candidate. Screen a lower-voltage alternative ONLY against the explicit contract from step 3, and if the contract does not support it, say so rather than assuming a rating.",
+  "stop_rule": "Do not assume a junction temperature, do not use a 25 C maximum as a hot value, do not present typical hot data as a bound, and do not zero-fill any loss term. A concluded 'no opportunity once Tj is computed' is valid. If the gate supply or the transient contract cannot be established from primary sources, return UNKNOWN for that step with the capture failures."
+}

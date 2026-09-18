@@ -54,6 +54,17 @@
       "reason": "Coordinator-issued: the screen cannot say whether an active-rectifier opportunity exists because no concrete circuit or device has been specified.",
       "hypothesis_or_question": "Is there a worthwhile active-rectifier opportunity? Choose one concrete circuit and exact devices, get their applicable hot Rds(on), quantify the added losses, and compare across the bridge bracket.",
       "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "AR-DESIGN",
+      "kind": "design_assessment",
+      "wave": 2,
+      "depends_on": [
+        "AR-ACTIVE"
+      ],
+      "reason": "Coordinator-issued after the AR-ACTIVE adjudication: gate bias unverified, voltage figure corrected, Tj must be computed rather than assumed.",
+      "hypothesis_or_question": "One complete active-rectifier design assessment: does a concrete TEA2209T-based synchronous bridge, with its real gate supply and a computed junction temperature, beat the passive bridge across its uncertainty?",
+      "worker_status": "DISPATCHED_attempt-001"
     }
   ]
 }
