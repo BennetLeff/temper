@@ -1,0 +1,689 @@
+{
+  "schema": "pfc-campaign-claims/v1",
+  "task_id": "AR-MERSEN",
+  "attempt_id": "attempt-001",
+  "note": "Maps the AR-COORD 400-point (R, L) fault-impedance envelope onto Mersen's stated capacitor-discharge conditions for A70QS50-14F, with the manufacturer's time constant defined as L/R (not R*C). The action column is a pre-arcing ACTION screen, not a melting result. Coordination stays UNESTABLISHED: clearing is not demonstrated. Completion is not advanced past part_selected. The RLC oracles validate the calculation only.",
+  "claims": [
+    {
+      "id": "mersen-time-constant-is-lr",
+      "quantity": "catalogue_time_constant_definition",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "Mersen HS catalogue: '*Time Constant: L/R <=1ms' (D100QS p.3/HS2, D70QS p.7/HS6); A70QS page uses 'L/R <=10ms' and '10ms time constant' interchangeably",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/mersen.txt",
+          "sha256": "5a5eda413301d3b83efa2e4f8662089553e1658a6ebec229dc02b80af3435650"
+        },
+        {
+          "path": "raw/time-constant-evidence.txt",
+          "sha256": "40f9d3c231b4b60d17d219beeb66572648f1be7046cfd130de576b44f542bf2f"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "the catalogue's own DC tables define the time constant as L/R; the 2.5 ms capacitor-discharge figure uses the same term"
+    },
+    {
+      "id": "a70qs-cap-discharge-voltage",
+      "quantity": "fuse_capacitor_discharge_voltage_rating_v",
+      "part": "A70QS50-14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "890 VDC rating for capacitor discharge applications; A70QS French Cylindrical 14 mm (14F) / 22 mm (22F) range; Mersen High Speed Fuses catalogue 2024, PDF p.20/p.21 (catalogue pages HS 20/HS 21)",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "line-level rating; A70QS50-14F is in the 14 mm range"
+    },
+    {
+      "id": "a70qs-cap-discharge-tau-max",
+      "quantity": "fuse_capacitor_discharge_max_time_constant_s",
+      "part": "A70QS50-14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "capacitor discharge applications up to 2.5 ms time constant, time constant = L/R; Mersen High Speed Fuses catalogue 2024, PDF p.20/p.21 (catalogue pages HS 20/HS 21)",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": null
+    },
+    {
+      "id": "a70qs-cap-discharge-vs-general-dc",
+      "quantity": "dc_rating_condition_basis",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "p.20 states BOTH '700VDC rated for DC protection of equipment with L/R <=10ms' (general DC) and '890 VDC rating for capacitor discharge applications up to 2.5ms time constant' (capacitor discharge); the latter is explicitly scoped to the cap discharge",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": null
+    },
+    {
+      "id": "a70qs50-pre-arcing-i2t-max",
+      "quantity": "fuse_pre_arcing_i2t_max_a2s",
+      "part": "A70QS50-14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "Melting I2t (A2s x 10^3) Max = 0.28, i.e. 280 A2s; Mersen High Speed Fuses catalogue 2024, PDF p.20/p.21 (catalogue pages HS 20/HS 21)",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "table header says 'Max'; this is not a minimum melting I2t"
+    },
+    {
+      "id": "a70qs50-clearing-i2t-700vac",
+      "quantity": "fuse_clearing_i2t_700vac_a2s",
+      "part": "A70QS50-14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "Max Clearing I2t @ 700VAC (A2s x 10^3) = 1.50, i.e. 1500 A2s at 700 VAC; Mersen High Speed Fuses catalogue 2024, PDF p.20/p.21 (catalogue pages HS 20/HS 21)",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "AC condition; must not be applied to the 890 VDC capacitor discharge"
+    },
+    {
+      "id": "a70qs50-watts-loss",
+      "quantity": "fuse_watts_loss_rated_w",
+      "part": "A70QS50-14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "Watts Loss @ Rated Current = 11.6 W at 50 A; Mersen High Speed Fuses catalogue 2024, PDF p.20/p.21 (catalogue pages HS 20/HS 21)",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": null
+    },
+    {
+      "id": "a70qs50-dc-interrupting",
+      "quantity": "fuse_dc_interrupting_capacity_a",
+      "part": "A70QS50-14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "I.R.: 100kA I.R. DC; ratings-table footnote p.21 '*100kA, L/R = 11.6ms'; p.20 highlights say '100kA interrupting at 10ms time constant'",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "the catalogue states both 10 ms and 11.6 ms; both are recorded"
+    },
+    {
+      "id": "a70qs50-rated-current",
+      "quantity": "fuse_continuous_current_rating_a",
+      "part": "A70QS50-14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "50 A rated current, 14 x 51 mm body; Mersen High Speed Fuses catalogue 2024, PDF p.20/p.21 (catalogue pages HS 20/HS 21)",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": null
+    },
+    {
+      "id": "a70qs50-no-mbc",
+      "quantity": "fuse_min_breaking_capacity_a",
+      "part": "A70QS50-14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "no MBC column or figure is published for the A70QS line in this catalogue; MBC is published for the D70QS and D100QS DC lines (p.7/HS6, p.3/HS2), not for A70QS",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "documented absence, not a demonstrated inability"
+    },
+    {
+      "id": "a70qs50-no-dc-cap-discharge-let-through",
+      "quantity": "fuse_capacitor_discharge_clearing_i2t_a2s",
+      "part": "A70QS50-14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "the catalogue publishes clearing I2t only at 700 VAC; no DC or capacitor-discharge clearing I2t / let-through curve is given",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        },
+        {
+          "path": "raw/mersen-extract.txt",
+          "sha256": "a38549ed49eb969b96bfcf37fc5a627cc0079aa2f8c254605e4c549369034ed3"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "documented absence; the 1500 A2s figure is AC-only"
+    },
+    {
+      "id": "bank-stored-energy",
+      "quantity": "bus_bank_energy_j",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "2240.47 uF (U36-U39 4x560 uF + U40 470 nF) at the 400 V bus setpoint; E = 179.2376 J",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "raw/evidence/contract-C1.1.json",
+          "sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6"
+        },
+        {
+          "path": "raw/evidence/netlist_fault_loop.json",
+          "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b"
+        },
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "fedf68dfcb900644c5f1316347e035099694ae7810192275b1fc007723e04474"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": null
+    },
+    {
+      "id": "internal-loop-r-envelope",
+      "quantity": "internal_loop_resistance_ohm",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "swept 0.005 to 5 ohm to span U10 short residual, U9 failed-short residual, bank ESR, fuse resistance and layout; none measured at multi-kA",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "fedf68dfcb900644c5f1316347e035099694ae7810192275b1fc007723e04474"
+        },
+        {
+          "path": "raw/evidence/netlist_fault_loop.json",
+          "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "assumed envelope, not a measured loop resistance; bank ESR is not published"
+    },
+    {
+      "id": "internal-loop-l-envelope",
+      "quantity": "internal_loop_inductance_h",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "swept 20 nH to 20 uH to span a compact bus loop through long bank leads; not measured",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "fedf68dfcb900644c5f1316347e035099694ae7810192275b1fc007723e04474"
+        },
+        {
+          "path": "raw/evidence/netlist_fault_loop.json",
+          "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "assumed envelope; L changes peak and time constant but not the total action E/R"
+    },
+    {
+      "id": "fault-loop-action-invariant",
+      "quantity": "discharge_total_action_a2s",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "series R-L-C discharge, one constant lumped R, no arc, no evolving short residual; total action integral = stored energy / loop resistance, independent of L",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "fedf68dfcb900644c5f1316347e035099694ae7810192275b1fc007723e04474"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "energy-balance invariant; the numeric integral reproduces E/R to 3.8e-14 at the probe"
+    },
+    {
+      "id": "a70qs50-action-screen",
+      "quantity": "loop_resistance_for_pre_arcing_action_screen_ohm",
+      "part": "A70QS50-14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "pre-arcing ACTION screen (not a melting result): E/R >= 280 A2s, i.e. R <= 0.64013 ohm, independent of L; uses the catalogue's MAX pre-arcing I2t",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "fedf68dfcb900644c5f1316347e035099694ae7810192275b1fc007723e04474"
+        },
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/evidence/contract-C1.1.json",
+          "sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "a screen, not an interruption criterion; it does not establish melting across pulse durations, temperatures and fuse tolerances, and models no arc"
+    },
+    {
+      "id": "a70qs50-fuse-resistance-estimate",
+      "quantity": "fuse_resistance_estimate_ohm",
+      "part": "A70QS50-14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "estimated from rated watts loss 11.6 W at 50 A: R = P/I^2 = 4.64 mOhm",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "not a datasheet resistance and not at fault current; used only to locate the fuse inside the swept R envelope"
+    },
+    {
+      "id": "peak-envelope",
+      "quantity": "discharge_peak_current_a",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "series R-L-C peak over the swept (R, L) envelope; maximum 55227.6 A at R = 5 mOhm, L = 20 nH; all 400 cells below the 100 kA DC I.R.",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "fedf68dfcb900644c5f1316347e035099694ae7810192275b1fc007723e04474"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "peak is bounded by the lossless V0/Z0 limit; oracles reproduce V0/Z0 and V0/R"
+    },
+    {
+      "id": "time-constant-reconciliation",
+      "quantity": "applicable_capacitor_discharge_time_constant_basis",
+      "part": "A70QS50-14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "the applicable figure is L/R <= 2.5 ms (capacitor discharge), NOT R*C <= 2.5 ms; at R=5 mOhm, L=20 uH: L/R = 4.000 ms vs R*C = 11.20 us (357x; the 714x cited in the dispatch is 2L/R = 8.000 ms), and zeta = 0.02646 (heavily underdamped)",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "fedf68dfcb900644c5f1316347e035099694ae7810192275b1fc007723e04474"
+        },
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "AR-COORD's R*C <= 1.43 ms comparison against the 2.5 ms figure is withdrawn"
+    },
+    {
+      "id": "joint-qualifying-region",
+      "quantity": "qualifying_region_cell_count",
+      "part": "A70QS50-14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "on the 400-point grid, cells meeting the action screen AND L/R <= 2.5 ms AND V <= 890 V AND peak <= 100 kA: 142 of 400; region = {400*L <= R <= 0.64013 ohm}, R in [5 mOhm, 0.5 ohm], L in [20 nH, 20 uH]; 144 action-met cells, 2 of which fail only the L/R condition",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "fedf68dfcb900644c5f1316347e035099694ae7810192275b1fc007723e04474"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "a model-screen intersection, not a board location: the real loop (R, L) is unmeasured, and the current limit used is the general DC I.R., not a cap-discharge-specific one"
+    },
+    {
+      "id": "a70qs50-clearing-not-demonstrated",
+      "quantity": "fuse_capacitor_discharge_clearing_demonstrated",
+      "part": "A70QS50-14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "manufacturer class condition exists and some cells meet it, but no DC/capacitor-discharge let-through is published and the bank/copper withstand I2t is unsourced",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "fedf68dfcb900644c5f1316347e035099694ae7810192275b1fc007723e04474"
+        },
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/evidence/AR-COORD-coordinator-receipt.md",
+          "sha256": "af99e52ce16f0e5d2cb54ca459110ab4f45e21cc8362689eeb3543e14ccd24cf"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "manufacturer class guidance is not a demonstrated board-specific coordination"
+    },
+    {
+      "id": "fwp-no-cap-discharge-condition",
+      "quantity": "fuse_capacitor_discharge_rating",
+      "part": "FWP-50A14F",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "Mersen's capacitor-discharge condition applies to the A70QS line only; the Eaton FWP candidates carry no capacitor-discharge rating, so the joint mapping is undefined for them",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/evidence/AR-COORD-coordinator-receipt.md",
+          "sha256": "af99e52ce16f0e5d2cb54ca459110ab4f45e21cc8362689eeb3543e14ccd24cf"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "undefined (no condition available), which is distinct from a qualifying region that is empty"
+    },
+    {
+      "id": "coordination-verdict",
+      "quantity": "coordination_demonstrated",
+      "part": null,
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "internal loop R and L unmeasured; no DC cap-discharge let-through; bank/copper withstand I2t unsourced",
+      "fault_state": "failed_short",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "raw/compute_result.json",
+          "sha256": "fedf68dfcb900644c5f1316347e035099694ae7810192275b1fc007723e04474"
+        },
+        {
+          "path": "raw/evidence/AR-COORD-coordinator-receipt.md",
+          "sha256": "af99e52ce16f0e5d2cb54ca459110ab4f45e21cc8362689eeb3543e14ccd24cf"
+        }
+      ],
+      "derived_from": null,
+      "part_transformation": null,
+      "condition_transformation": null,
+      "justification": "the honest status is coordination unestablished; no completion rung is advanced"
+    }
+  ],
+  "protection_claims": [
+    {
+      "case_id": "case-a-U10-short-U9-healthy",
+      "fault_case": "failed_short",
+      "interrupting_device": "A70QS50-14F",
+      "interrupting_device_state": "healthy_on",
+      "interrupts": false,
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        }
+      ]
+    },
+    {
+      "case_id": "case-b-U10-short-U9-failed-short",
+      "fault_case": "failed_short",
+      "interrupting_device": "A70QS50-14F",
+      "interrupting_device_state": "healthy_on",
+      "interrupts": false,
+      "evidence": [
+        {
+          "path": "raw/mersen-hs-high-speed-fuses.pdf",
+          "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789"
+        },
+        {
+          "path": "raw/a70qs-conditions.json",
+          "sha256": "503882bfab5576c795f9ea6491c48c29a2b32c1baa6f2d8298972734d55b4c7b"
+        }
+      ]
+    },
+    {
+      "case_id": "case-c-line-fed-switch-short",
+      "fault_case": "failed_short",
+      "interrupting_device": "F1",
+      "interrupting_device_state": "healthy_off",
+      "interrupts": false,
+      "evidence": [
+        {
+          "path": "raw/evidence/AR-COORD-coordinator-receipt.md",
+          "sha256": "af99e52ce16f0e5d2cb54ca459110ab4f45e21cc8362689eeb3543e14ccd24cf"
+        }
+      ]
+    },
+    {
+      "case_id": "case-d-line-surge",
+      "fault_case": "not_applicable",
+      "interrupting_device": null,
+      "interrupting_device_state": "not_applicable",
+      "interrupts": false,
+      "evidence": []
+    }
+  ],
+  "promotions": [
+    {
+      "subject": "concrete-protection-circuit",
+      "from": "none",
+      "to": "protection_identified",
+      "evidence": [
+        {
+          "path": "raw/evidence/AR-PROTCKT-protection-arrangement.json",
+          "sha256": "aa15889e0d53e07929bacb2187866d777bf262155f017259a498be3e7ce29066"
+        }
+      ]
+    },
+    {
+      "subject": "concrete-protection-circuit",
+      "from": "protection_identified",
+      "to": "part_selected",
+      "evidence": [
+        {
+          "path": "raw/evidence/AR-PROTCKT-protection-arrangement.json",
+          "sha256": "aa15889e0d53e07929bacb2187866d777bf262155f017259a498be3e7ce29066"
+        }
+      ]
+    }
+  ]
+}

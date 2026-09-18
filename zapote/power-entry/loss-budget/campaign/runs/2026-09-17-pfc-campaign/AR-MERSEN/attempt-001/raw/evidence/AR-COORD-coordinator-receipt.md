@@ -50,26 +50,21 @@ and the melt column is a screen, not a melting result:
   claim that "wherever it melts, the manufacturer's condition holds" is
   **withdrawn**.
 
-### The time-constant definition — RESOLVED by AR-MERSEN
+### The time-constant definition is unresolved
 
-Substituting `R·C` for the manufacturer's criterion was not established at the
-time; it is now confirmed to be wrong. The captured Mersen catalogue defines the
-time constant as **`L/R`** (`*Time Constant: L/R <=1ms` in its high-speed-fuse
-tables), and its A70QS capacitor-discharge sentence is scoped to **890 VDC, `L/R`
-<= 2.5 ms**. At the envelope's peak corner (R = 5 mΩ, L = 20 µH, C = 2240.47 µF):
+Substituting `R·C` for the manufacturer's criterion is not established. At the
+envelope's peak corner (R = 5 mΩ, L = 20 µH, C = 2240.47 µF):
 
-| Quantity | Value |
+| Candidate interpretation | Value |
 | --- | ---: |
-| `L/R` — the manufacturer's time constant | **4.000 ms** |
-| `2L/R` — oscillation envelope decay | 8.000 ms |
-| `R·C` — what the report used | **11.20 µs** |
-| **`L/R` : `R·C` — the relevant ratio** | **357x** |
+| `R·C` | **11.2 µs** |
+| `2L/R` (oscillation envelope decay, `ζ = 0.0265` — heavily underdamped) | **8.0 ms** |
 
-The 714x figure in the earlier draft of this receipt compared `2L/R` against
-`R·C`; with the definition confirmed as `L/R`, the correct ratio is **357x**.
-Either way the point stands: `R·C` is not the manufacturer's time constant, the
-damping factor at that corner is 0.0265 (heavily underdamped), and the
-"wherever it melts, the manufacturer's condition holds" claim is withdrawn.
+A **714x** difference. The report's comparison used `R·C ≤ 1.43 ms` against the
+2.5 ms figure; that is one unconfirmed reading among several, and the damping
+factor at that corner says the discharge is oscillatory rather than a simple
+RC decay. Mersen's definition, applicable waveform and current limits must be
+obtained before the envelope can be mapped onto their conditions.
 
 The previous `E/R >= 200 A²s` comparison is correctly relabelled: an ideal
 discharge's available action against a pre-arcing figure is a **screen**, not an

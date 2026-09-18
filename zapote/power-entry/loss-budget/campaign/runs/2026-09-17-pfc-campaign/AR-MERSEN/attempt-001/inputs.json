@@ -1,0 +1,171 @@
+{
+  "schema": "pfc-campaign-AR-MERSEN-inputs/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-MERSEN",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_verification",
+  "generated_utc": "2026-09-18T16:56:03Z",
+  "contract_path": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "checkout_path": "zapote",
+  "worktree_path": ".worktrees/codex/buck-harness-experiment-plan",
+  "worktree_head": "3d557e401d8b561837f3503e492f65e130593cb7",
+  "dispatch_source_revision": "3d557e401d8b561837f3503e492f65e130593cb7",
+  "source_revision_relation": "exact match: worktree HEAD equals dispatch source_revision",
+  "evidence_class": "source_research",
+  "checker_declared_not_applicable": true,
+  "absolute_deadline_utc": "2026-09-18T18:50:31Z",
+
+  "delivered_inputs_verified": [
+    {"path": "raw/mersen-hs-high-speed-fuses.pdf", "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789", "matches_dispatch": true, "matches_raw_catalogue_sha256": true},
+    {"path": "raw/mersen.txt", "sha256": "5a5eda413301d3b83efa2e4f8662089553e1658a6ebec229dc02b80af3435650"},
+    {"path": "raw/time-constant-evidence.txt", "sha256": "40f9d3c231b4b60d17d219beeb66572648f1be7046cfd130de576b44f542bf2f"},
+    {"path": "raw/evidence/AR-COORD-coordinator-receipt.md", "sha256": "af99e52ce16f0e5d2cb54ca459110ab4f45e21cc8362689eeb3543e14ccd24cf", "note": "the corrected receipt (working-tree revision); source bundle path zapote/.../AR-COORD/attempt-001/coordinator-receipt.md"},
+    {"path": "raw/evidence/netlist_fault_loop.json", "sha256": "83b6b49477a3da69bfade5a4587d9b5edd87539c55aea872094b974db5381f7b", "provenance": "AR-FAULT attempt-001 raw netlist"},
+    {"path": "raw/evidence/contract-C1.1.json", "sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6"},
+    {"path": "raw/evidence/AR-PROTCKT-protection-arrangement.json", "sha256": "aa15889e0d53e07929bacb2187866d777bf262155f017259a498be3e7ce29066"}
+  ],
+
+  "circuit_under_assessment": {
+    "board": "pcb/temper.kicad_pcb (retained candidate), 108/120/132 Vrms, 400 V bus",
+    "internal_discharge_loop": "capacitor bank (PFC_BUS_PLUS_390V) -> shorted boost diode U10 -> a1 -> boost switch U9 -> capacitor bank (PFC_BUS_MINUS)",
+    "stored_energy_j": 179.2376,
+    "stored_energy_basis": "0.5 * 2240.47 uF * (400 V)^2 (contract C1.1 bus setpoint + netlist bank U36-U40)"
+  },
+
+  "exact_candidate": {
+    "reference": "A70QS50-14F",
+    "manufacturer": "Mersen (Ferraz Shawmut)",
+    "package": "14 x 51 mm ferrule, French Cylindrical, non-striker",
+    "why_this_candidate": "it is the only one of AR-COORD's three candidates for which a manufacturer capacitor-discharge condition exists, so it is the candidate Mersen's conditions can be mapped onto"
+  },
+
+  "applicable_mersen_conditions": {
+    "document": "Mersen High Speed Fuses catalogue, 2024 (captured 2026-09-18)",
+    "pdf_sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789",
+    "time_constant_definition": "L/R",
+    "time_constant_basis": "'*Time Constant: L/R <=1ms' in the DC tables (p.3/HS2, p.7/HS6); the A70QS page uses 'L/R <=10ms' and '10ms time constant' interchangeably",
+    "capacitor_discharge_condition": {
+      "dc_voltage_v": 890.0,
+      "max_time_constant_s": 0.0025,
+      "time_constant_kind": "L/R",
+      "page": "PDF p.20 (catalogue HS 20), A70QS French Cylindrical"
+    },
+    "general_dc_condition_not_used": {"dc_voltage_v": 700.0, "max_time_constant_s": 0.010, "page": "PDF p.20"},
+    "part_values_page": "PDF p.21 (catalogue HS 21), RATINGS AND APPLICATION DATA",
+    "part_values": {
+      "rated_current_a": 50.0,
+      "pre_arcing_i2t_max_a2s": 280.0,
+      "clearing_i2t_700vac_a2s": 1500.0,
+      "watts_loss_rated_w": 11.6,
+      "dc_interrupting_a": 100000.0,
+      "dc_interrupting_tau_ref_s": 0.0116,
+      "dc_interrupting_tau_highlight_s": 0.010
+    },
+    "not_published": {
+      "min_breaking_capacity_a": null,
+      "dc_capacitor_discharge_clearing_i2t_a2s": null,
+      "dc_let_through_curve": null,
+      "cap_discharge_specific_peak_current_limit_a": null
+    }
+  },
+
+  "time_constant_reconciliation": {
+    "use": "L/R",
+    "do_not_use": "R*C",
+    "why": "the catalogue defines its DC time constant as L/R; R*C is not a manufacturer condition and does not describe the discharge at low damping",
+    "peak_corner": {
+      "r_ohm": 0.005,
+      "l_h": 2.0e-5,
+      "rc_s": 1.120235e-5,
+      "lr_s": 0.004,
+      "two_l_over_r_s": 0.008,
+      "lr_over_rc": 357.0679366382946,
+      "two_lr_over_rc": 714.1358732765892,
+      "damping_zeta": 0.026460288641660733,
+      "note": "the dispatch/receipt cite 714x at this corner; that factor is 2L/R : R*C. L/R : R*C is 357x."
+    },
+    "withdrawn": "AR-COORD's comparison of R*C <= 1.43 ms against the 2.5 ms figure"
+  },
+
+  "joint_mapping": {
+    "method": "a cell qualifies only if the pre-arcing ACTION screen is met AND L/R is within the stated cap-discharge condition AND the voltage/current limits are respected",
+    "action_screen": {"kind": "pre-arcing action screen, not a melting result", "expression": "E/R >= 280 A2s", "r_max_ohm": 0.6401342857142858, "L_independent": true},
+    "manufacturer_time_constant": {"expression": "L/R <= 2.5 ms", "equivalent": "R >= 400 * L"},
+    "voltage_check": {"v_bus_v": 400.0, "v_rating_v": 890.0, "within": true, "model_note": "the most underdamped cell can swing the loop voltage toward ~2x V0 (~800 V peak-to-peak), still below 890 V"},
+    "current_check": {"dc_interrupting_a": 100000.0, "peak_max_a": 55227.55865756488, "within_on_all_cells": true, "caveat": "the 100 kA figure is the general DC I.R. at L/R = 11.6 ms; no peak limit is published separately for the 890 VDC cap-discharge condition"},
+    "grid_cells": 400,
+    "qualifying_cells": 142,
+    "region_empty": false,
+    "region_expression": "{R : 400*L <= R <= 0.64013 ohm} on the grid; R in [5 mOhm, 0.5 ohm], L in [20 nH, 20 uH]",
+    "action_screen_met_cells": 144,
+    "action_met_but_time_constant_fails": [
+      {"r_ohm": 0.005, "l_h": 1.2619146889603861e-5, "tau_lr_s": 0.002523829377920772},
+      {"r_ohm": 0.005, "l_h": 2.0e-5, "tau_lr_s": 0.004}
+    ],
+    "under_wrong_rc_reading_would_admit": 144
+  },
+
+  "oracle_scope": {
+    "validates": "the R-L-C arithmetic only (peak against V0/Z0 and V0/R; action against E/R)",
+    "does_not_validate": "the translation of that arithmetic into Mersen's qualification conditions; class guidance is not demonstrated coordination"
+  },
+
+  "assumed_vs_sourced": {
+    "sourced": [
+      "Mersen time constant is L/R (three catalogue statements)",
+      "A70QS capacitor-discharge condition 890 VDC / L/R <= 2.5 ms (p.20)",
+      "A70QS50-14F pre-arcing I2t max 280 A2s, clearing I2t @700 VAC 1500 A2s, 11.6 W, 100 kA DC I.R. (p.21)",
+      "bank capacitance and energy from contract C1.1 + AR-FAULT netlist"
+    ],
+    "assumed": [
+      "the internal loop is a single-lumped-R series R-L-C discharge (no arc, no evolving resistance)",
+      "the R and L sweep ranges",
+      "the fuse's own resistance from rated watts loss"
+    ]
+  },
+
+  "nulls_by_design": {
+    "internal_loop_resistance_ohm": null,
+    "internal_loop_inductance_h": null,
+    "internal_loop_peak_current_a": null,
+    "a70qs50_min_breaking_capacity_a": null,
+    "a70qs50_dc_capacitor_discharge_clearing_i2t_a2s": null,
+    "a70qs50_cap_discharge_peak_current_limit_a": null,
+    "bank_copper_withstand_i2t_a2s": null,
+    "u9_u10_short_residual_ohm": null,
+    "bank_esr_ohm": null,
+    "startup_inrush_current_a": null,
+    "temperature_derated_ampacity_a": null
+  },
+
+  "raw_artifacts": [
+    "raw/compute_mersen_mapping.py",
+    "raw/compute_result.json",
+    "raw/compute_stdout.txt",
+    "raw/a70qs-conditions.json",
+    "raw/mersen-extract.txt",
+    "raw/capture_failures.json",
+    "raw/mersen.txt",
+    "raw/time-constant-evidence.txt",
+    "raw/catalogue.sha256",
+    "raw/mersen-hs-high-speed-fuses.pdf",
+    "raw/build_claims.py",
+    "raw/build_manifest.py",
+    "raw/assignments_qualifying_cell.json",
+    "raw/assignments_negative_control_u12.json",
+    "raw/evidence/netlist_fault_loop.json",
+    "raw/evidence/contract-C1.1.json",
+    "raw/evidence/AR-PROTCKT-protection-arrangement.json",
+    "raw/evidence/AR-COORD-coordinator-receipt.md",
+    "raw/checker/out_claims.txt",
+    "raw/checker/exit_claims.txt",
+    "raw/checker/out_claims_negative_control.txt",
+    "raw/checker/exit_claims_negative_control.txt",
+    "raw/checker/negative_control_max_to_min.json",
+    "raw/checker/out_fault_loop_qualifying.txt",
+    "raw/checker/exit_fault_loop_qualifying.txt",
+    "raw/checker/out_fault_loop_negative_control.txt",
+    "raw/checker/exit_fault_loop_negative_control.txt"
+  ]
+}

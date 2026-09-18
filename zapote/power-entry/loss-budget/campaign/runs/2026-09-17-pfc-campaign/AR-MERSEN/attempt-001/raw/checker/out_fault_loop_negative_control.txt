@@ -1,0 +1,2 @@
+FAULT LOOP INCONSISTENT
+  - U12 carries 4501.091 but only 1 of its terminals {"PFC_BUS_MINUS", "minus"} lie on the declared loop {"PFC_BUS_MINUS", "PFC_BUS_PLUS_390V", "a1"}

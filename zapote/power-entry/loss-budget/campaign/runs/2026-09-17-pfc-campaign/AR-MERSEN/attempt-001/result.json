@@ -1,0 +1,163 @@
+{
+  "schema": "pfc-campaign-result-draft/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-MERSEN",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_verification",
+  "generated_utc": "2026-09-18T16:56:03Z",
+  "contract_sha256": "0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "source_revision": "3d557e401d8b561837f3503e492f65e130593cb7",
+  "worktree_head": "3d557e401d8b561837f3503e492f65e130593cb7",
+  "dirty_state": "worktree has pre-existing modifications outside this attempt (AR-COORD receipt, registry additions); this attempt writes only inside its allowed output directory",
+  "requested_model": "not_applicable: no maintained-model invocation",
+  "model_source_sha256": "not_applicable",
+  "binary_sha256": "not_applicable",
+  "checker_sha256": "not_applicable: G0 checker unimplemented",
+
+  "status_axes": {
+    "task_completion": "FINISHED",
+    "assignment_status": "FINISHED",
+    "assignment_note": "FINISHED means the assignment was completed; it is not PASS, SELECTED, VALIDATED or QUALIFIED.",
+    "evidence_status": "SOURCE_MAPPED",
+    "checker_status": "RUN",
+    "checker_note": "zapote-claims passed (exit 0, 23 claims / 4 protection claims / 2 promotions); check_fault_loop passed on the qualifying-cell assignment (exit 0). Both negative controls failed as designed (exit 1). Outputs retained in raw/checker/. The dispatch declared the G0 checker 'not_applicable', so per ADMISSION.md this is NOT a harness-validated run.",
+    "evidence_class": "source_research",
+    "numerical_status": "COMPUTED_ARITHMETIC_ONLY",
+    "physical_applicability": "INDETERMINATE",
+    "assembly_completeness": "INCOMPLETE",
+    "hardware_qualification": "NOT_PERFORMED"
+  },
+  "checker_receipt": null,
+  "evidence_check_receipt": "raw/checker/",
+  "checker_receipt_note": "checker_receipt is null because the dispatch declared the G0 checker 'not_applicable' (no machine receipt can exist), per ADMISSION.md; the evidence-check outputs from zapote-claims and check_fault_loop are retained under raw/checker/",
+  "checker_counted_as_validated_run": false,
+
+  "hypothesis": "The AR-COORD fault-impedance envelope can be mapped onto Mersen's stated capacitor-discharge conditions for A70QS50-14F once the manufacturer's time constant is read as L/R (not R*C).",
+  "actual_changed_variables": [
+    "the definition of the manufacturer time constant used for A70QS50-14F (L/R, replacing the withdrawn R*C reading)",
+    "the treatment of the melt column as an L-independent pre-arcing ACTION screen, evaluated JOINTLY with the L-dependent manufacturer condition"
+  ],
+  "controls": [
+    {"control": "org: model constants C=2240.47 uF, V=400 V, E=179.2376 J", "result": "reproduced from contract C1.1 and the AR-FAULT netlist"},
+    {"control": "org: 400-point (R, L) grid identical to AR-COORD", "result": "reproduced (25 R x 16 L)"},
+    {"control": "org: oracles peak->V0/Z0, peak->V0/R, action->E/R", "result": "reproduced (1.2%, 2.4e-9, 3.8e-14)"}
+  ],
+  "case_census": {"expected": 0, "attempted": 0, "valid": 0, "failed": 0, "unsupported": 0, "unrun": 0, "case_ids": [], "note": "source-only task; no solver"},
+  "cases": [],
+  "supported_subtotals": [],
+  "total_loss_w": null,
+  "achieved_input_power_w": null,
+  "dc_output_power_w": null,
+  "efficiency": null,
+  "unsupported_cases": [],
+  "source_failures": [],
+  "tool_failures": [],
+
+  "headline": {
+    "applicable_mersen_condition": "890 VDC, L/R <= 2.5 ms, for capacitor discharge applications (A70QS French Cylindrical, PDF p.20 / HS 20)",
+    "time_constant_definition": "L/R (the catalogue's own definition), NOT R*C",
+    "qualifying_region_empty": false,
+    "qualifying_cells": 142,
+    "coordination_verdict": "UNESTABLISHED",
+    "coordination_demonstrated": false,
+    "clearing_demonstrated_for_any_candidate": false,
+    "hardware_verified": false,
+    "substituted_rc_for_manufacturer_time_constant": false,
+    "labelled_action_screen_as_melting": false,
+    "presented_class_guidance_as_demonstration": false
+  },
+
+  "time_constant_reconciliation": {
+    "manufacturer_definition": "L/R",
+    "basis": "'*Time Constant: L/R <=1ms' in the catalogue's DC tables (p.3/HS2, p.7/HS6); the A70QS page uses 'L/R <=10ms' and '10ms time constant' interchangeably",
+    "applicable_capacitor_discharge_figure": "890 VDC up to 2.5 ms time constant (PDF p.20), explicitly scoped to capacitor discharge",
+    "general_dc_figure_not_applicable": "700 VDC / L/R <= 10 ms (same page) is the general DC-protection rating, not the capacitor-discharge condition",
+    "rc_rejected": {
+      "r_ohm": 0.005,
+      "l_h": 2.0e-5,
+      "r_c_s": 1.120235e-5,
+      "l_over_r_s": 0.004,
+      "two_l_over_r_s": 0.008,
+      "l_over_r_to_rc": 357.0679366382946,
+      "two_l_over_r_to_rc": 714.1358732765892,
+      "damping_zeta": 0.026460288641660733,
+      "note": "AR-COORD's 714x factor corresponds to 2L/R : R*C; L/R : R*C is 357x. Either way R*C is not the manufacturer's time constant and the heavily underdamped zeta shows an RC decay does not describe the waveform."
+    },
+    "withdrawn": "the R*C <= 1.43 ms comparison against the 2.5 ms figure (AR-COORD)"
+  },
+
+  "joint_mapping": {
+    "rule": "cell qualifies iff (pre-arcing ACTION screen met) AND (L/R <= 2.5 ms) AND (V <= 890 V) AND (peak <= 100 kA)",
+    "action_screen": {
+      "kind": "pre-arcing ACTION screen, not a melting result",
+      "expression": "E/R >= 280 A2s (catalogue MAX pre-arcing I2t)",
+      "r_max_ohm": 0.6401342857142858,
+      "L_independent": true
+    },
+    "manufacturer_time_constant": {"expression": "L/R <= 2.5 ms", "equivalent": "R >= 400*L"},
+    "voltage": {"v_bus_v": 400.0, "v_rating_v": 890.0, "within": true},
+    "current": {
+      "dc_interrupting_a": 100000.0,
+      "peak_max_a": 55227.55865756488,
+      "peak_max_at": {"r_ohm": 0.005, "l_h": 2.0e-8},
+      "within_on_all_cells": true,
+      "caveat": "100 kA is the general DC I.R. at L/R = 11.6 ms; no cap-discharge-specific peak limit is published"
+    },
+    "grid_cells": 400,
+    "qualifying_cells": 142,
+    "region_is_empty": false,
+    "region_expression": "{400*L <= R <= 0.64013 ohm}; R in [5 mOhm, 0.5 ohm], L in [20 nH, 20 uH]",
+    "action_screen_met_cells": 144,
+    "action_met_but_time_constant_fails": 2,
+    "under_wrong_rc_reading_would_admit": 144
+  },
+
+  "applicable_clearing_data": {
+    "obtained": "partially",
+    "a70qs50_14f": {
+      "capacitor_discharge_condition": "890 VDC, L/R <= 2.5 ms (manufacturer catalogue p.20)",
+      "dc_interrupting_a": 100000.0,
+      "clearing_i2t_at_700vac_a2s": 1500.0,
+      "dc_capacitor_discharge_clearing_i2t_a2s": null,
+      "min_breaking_capacity_a": null,
+      "cap_discharge_specific_peak_limit_a": null
+    },
+    "what_would_resolve": "a DC / capacitor-discharge let-through (total clearing I2t) curve for A70QS50-14F at the 890 VDC condition, plus a sourced bank/PCB-copper withstand I2t to compare against"
+  },
+
+  "candidates": [
+    {"ref": "A70QS50-14F", "role": "exact candidate (only one with a Mersen capacitor-discharge condition)", "applicable_dc_voltage_v": 700, "cap_discharge_condition": "890 VDC / L/R <= 2.5 ms", "pre_arcing_i2t_max_a2s": 280, "action_screen_r_max_ohm": 0.6401342857142858, "qualifying_cells": 142, "clears_envelope": null},
+    {"ref": "FWP-50A14F", "role": "incumbent (Eaton)", "cap_discharge_condition": null, "action_screen_r_max_ohm": 0.896188, "qualifying_cells": null, "clears_envelope": null},
+    {"ref": "FWP-25A14F", "role": "lower-rated same-class (Eaton)", "cap_discharge_condition": null, "action_screen_r_max_ohm": 3.854572043010753, "qualifying_cells": null, "clears_envelope": null}
+  ],
+
+  "completion_ladder": {
+    "protection_identified": true,
+    "part_selected": true,
+    "coordination_demonstrated": false,
+    "hardware_verified": false,
+    "note": "unchanged from AR-COORD; NOT promoted to coordination_demonstrated"
+  },
+
+  "oracle_scope": "The RLC oracles validate the R-L-C calculation only (peak -> V0/Z0 and V0/R; action -> E/R). They do not validate the translation of that calculation into Mersen's qualification conditions.",
+
+  "unknowns": {
+    "internal_loop_resistance_ohm": null,
+    "internal_loop_inductance_h": null,
+    "internal_loop_peak_current_a": null,
+    "a70qs50_min_breaking_capacity_a": null,
+    "a70qs50_dc_capacitor_discharge_clearing_i2t_a2s": null,
+    "a70qs50_cap_discharge_peak_current_limit_a": null,
+    "bank_copper_withstand_i2t_a2s": null,
+    "startup_inrush_current_a": null,
+    "temperature_derated_ampacity_a": null
+  },
+
+  "single_most_important_missing_input": "The internal discharge loop's high-current R and L at the fault (U10/U9 failed-short residual, bank ESR at the discharge frequency, fuse resistance, layout). It decides which of the 400 envelope cells the real discharge occupies, and therefore whether the (nonempty) qualifying region actually contains the fault. Paired second input: a DC/capacitor-discharge let-through I2t for A70QS50-14F and a sourced bank/PCB-copper withstand I2t, without which even a located qualifying cell is not a demonstrated coordination.",
+
+  "next_discriminating_observation": "Measure or defensibly model the internal discharge loop R and L (one high-current pulse test, or documented short-residual + ESR + layout), then locate the operating cell in the mapped region; then obtain the A70QS capacitor-discharge let-through and the bank/copper withstand I2t.",
+
+  "raw_artifacts": "see manifest.json",
+  "manifest_sha256": null,
+  "budget": {"deadline_utc": "2026-09-18T18:50:31Z", "solver_invocations": 0, "model_cad_bom_edits": 0, "bench_work": "none", "candidate_parts": 3, "primary_sources": 1, "web_searches": 0}
+}

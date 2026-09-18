@@ -1,0 +1,4 @@
+VIOLATIONS DETECTED
+  - melting-min-bad reverses the bound direction of pre-arcing-max: Upper -> Lower
+  - melting-min-bad restates pre-arcing-max's Maximum as a Minimum — a bound cannot flip direction
+  - melting-min-bad changes pre-arcing-max's source condition with no supported transformation

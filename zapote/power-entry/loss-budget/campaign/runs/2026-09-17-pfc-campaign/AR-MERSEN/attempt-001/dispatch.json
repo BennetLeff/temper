@@ -1,0 +1,26 @@
+{
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-MERSEN",
+  "attempt_id": "attempt-001",
+  "kind": "engineering_verification",
+  "supersedes_question_of": "AR-COORD compared R*C against Mersen's 2.5 ms capacitor-discharge figure; the catalogue defines the time constant as L/R, so that mapping is invalid and the melt column is only a pre-arcing action screen",
+  "absolute_deadline_utc": "2026-09-18T18:50:31Z",
+  "max_solver_invocations": 0,
+  "max_candidate_parts": 3,
+  "max_primary_sources": 10,
+  "checkout_path": "zapote",
+  "source_revision": "3d557e401d8b561837f3503e492f65e130593cb7",
+  "model_revision_and_sha256": "not_applicable: no maintained-model invocation; record any computation script in raw/",
+  "checker_revision_and_sha256": "not_applicable: G0 checker unimplemented, so per ADMISSION.md this attempt will not be counted as a validated run",
+  "contract_path_and_sha256": "zapote/power-entry/loss-budget/campaign/runs/contract-C1.1.json 0accd9bc55afbf875b08ed4dcdd8b7bbaf009d6f6fd1824f6b03c58797a825d6",
+  "allowed_output_directory": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MERSEN/attempt-001",
+  "exact_build_or_run_commands": "zapote-claims and zapote-fault-loop are available; record every invocation and its output",
+  "source_bundle_paths_and_hashes": [
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MERSEN/attempt-001/raw/mersen-hs-high-speed-fuses.pdf e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-COORD/attempt-001/coordinator-receipt.md",
+    "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-COORD/attempt-001/raw/compute_coordination.py"
+  ],
+  "question": "Map the AR-COORD fault-impedance envelope onto Mersen's actual capacitor-discharge application conditions for the exact candidate, with the time constant defined as L/R.",
+  "focus": "1) THE DEFINITION IS ESTABLISHED: the captured catalogue states '*Time Constant: L/R <=1ms' in its high-speed-fuse tables, and the A70QS section states an 890 VDC rating for capacitor discharge applications up to 2.5 ms time. Use L/R, NOT R*C. Reconcile which figure applies to a capacitor discharge and on what basis. 2) OBTAIN the remaining application conditions for the exact candidate: applicable waveform and current limits, minimum breaking capacity at the relevant voltage/time constant, and any clearing or let-through evidence or manufacturer guidance. Record revision and page. 3) MAP the existing 400-point (R, L) envelope onto those conditions. Note that the pre-arcing ACTION screen is L-independent (action = E/R) while the manufacturer's time constant is L-dependent (L/R), so the two must be evaluated JOINTLY: a cell qualifies only if the action screen is met AND L/R is inside the stated condition AND the voltage/current limits are respected. Report the qualifying region, or that it is empty. 4) THE ORACLES validate the RLC calculation only; they do not validate the translation into manufacturer conditions. State that separation explicitly. 5) EVIDENCE LEDGER (required): claims.json passing `zapote-claims`, output retained; any current/energy assignment also passing `check_fault_loop.py`, output retained. 6) Do NOT promote completion past the rung the evidence supports. 'Coordination unestablished' remains the expected outcome unless clearing is demonstrated against the real conditions.",
+  "stop_rule": "Do not substitute R*C for a manufacturer's stated time constant; do not label a pre-arcing action screen as melting; do not present class guidance as demonstrated coordination; do not claim coordination without demonstrating it. Three candidates, ten sources, or the deadline."
+}

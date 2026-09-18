@@ -1,0 +1,30 @@
+{
+  "energy_j": 179.23760000000001,
+  "action_screen_r_max_ohm": 0.6401342857142858,
+  "qualifying_cells": 142,
+  "action_met_cells": 144,
+  "action_met_but_tau_fails": 2,
+  "rc_would_admit_cells": 144,
+  "peak_max_a": 55227.55865756488,
+  "min_zeta": 0.02646028864166073,
+  "corner_rc_s": 1.1202350000000001e-05,
+  "corner_lr_s": 0.004,
+  "oracles": {
+    "lossless_peak_should_approach_V0_over_Z0": {
+      "computed_peak_a": 59176.35035655557,
+      "V0_over_Z0_a": 59872.798498149394,
+      "rel_err": 0.011632129432121788
+    },
+    "large_R_small_L_peak_should_approach_V0_over_R": {
+      "computed_peak_a": 199.99999951090075,
+      "V0_over_R_a": 200.0,
+      "rel_err": 2.4454962499476096e-09
+    },
+    "action_integral_should_equal_E_over_R": {
+      "r_ohm": 0.05,
+      "numeric_action_a2s": 3584.752000000135,
+      "E_over_R_a2s": 3584.752,
+      "rel_err": 3.7676236239851416e-14
+    }
+  }
+}

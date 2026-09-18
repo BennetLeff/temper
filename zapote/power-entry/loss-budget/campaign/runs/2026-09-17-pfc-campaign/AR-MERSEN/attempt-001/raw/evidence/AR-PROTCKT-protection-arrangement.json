@@ -1,0 +1,94 @@
+{
+  "schema": "pfc-campaign-AR-PROTCKT-arrangement/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "task_id": "AR-PROTCKT",
+  "attempt_id": "attempt-001",
+  "status_language": "protection_identified -> part_selected; coordination NOT demonstrated; hardware NOT verified",
+  "one_circuit": {
+    "summary": "ONE arrangement: a series high-speed DC-rated fuse in the DC bus (in the internal discharge loop), the existing line-to-neutral MOV for the surge case, and the existing line fuse for the line-fed case.",
+    "new_part": {
+      "reference": "F2",
+      "part": "FWP-50A14F",
+      "manufacturer": "Eaton / Cooper Bussmann (Bussmann series)",
+      "package": "14 x 51 mm ferrule, non-striker",
+      "placement": "in series in the DC bus between the boost-diode (U10) cathode and the capacitor bank (on the PFC_BUS_PLUS_390V conductor)",
+      "why_here": "this conductor is common to the internal discharge loop (caps -> shorted U10 -> U9 -> caps); a series element on it carries the entire discharge and opens the loop irrespective of U9 health",
+      "ratings": {
+        "dc_voltage_rating_v": 800,
+        "rated_current_a": 50,
+        "dc_breaking_capacity_a_at_800vdc": 50000,
+        "min_melting_i2t_a2s": 200,
+        "clearing_i2t_at_rated_voltage_a2s": 1800
+      },
+      "rating_source": "Cooper Bussmann High Speed Fuses catalogue page, Data Sheet 720025 (FWP 690V/700V, 1-50 A), 14x51 mm ferrule, FWP-50A14F row",
+      "rating_source_condition": "clearing I2t published at rated voltage and power factor 0.15 (AC/inductive test); NOT a 400 Vdc capacitor-discharge condition"
+    },
+    "existing_mov": {
+      "reference": "U7",
+      "part": "V150LA10AP",
+      "manufacturer": "Littelfuse",
+      "role": "line-to-neutral surge clamp",
+      "required_clamp_at_operating_surge_v": null,
+      "manufacturer_vi_figure": "LA Series Transient V-I Characteristics, Maximum Clamping Voltage for 14mm Parts, Figure 10, page 7, Rev VL 16/9/2024"
+    },
+    "existing_line_fuse": {
+      "reference": "F1",
+      "part": "Schurter 0034.3129",
+      "role": "only series interrupting element in the line-fed loop",
+      "breaking_capacity_a_at_250vac": 160,
+      "melting_i2t_at_10x_a2s": 1638
+    }
+  },
+  "fault_cases": [
+    {
+      "id": "a",
+      "name": "U10 shorted, U9 healthy",
+      "device_states": {"U10": "failed_short", "U9": "healthy_on"},
+      "loop": "caps -> shorted U10 -> a1 -> U9 -> caps (internal)",
+      "candidate_interrupter": "F2 (FWP-50A14F) by I2t; alternatively U9 commanded off",
+      "interrupts_as_demonstrated": false,
+      "why": "F2 is topologically in the loop and melts when the pulse action E/R exceeds 200 A2s (R_loop < 0.896 ohm, illustrative). U9 can open the path in principle, but no loop-current detection exists (the shunt U12 is not in the loop and the controller has no OCP), so the detection/latency budget is unquantified and turn-off is not credited.",
+      "detection_latency_budget_assumed": null,
+      "detection_latency_budget_required": "a dedicated loop-current sense (e.g. a current transformer or an in-loop shunt) plus a gate driver with desaturation, tripping within the U9 short-circuit SOA; no such path exists on the board"
+    },
+    {
+      "id": "b",
+      "name": "U10 shorted, U9 failed short",
+      "device_states": {"U10": "failed_short", "U9": "failed_short"},
+      "loop": "caps -> shorted U10 -> a1 -> shorted U9 -> caps (internal)",
+      "candidate_interrupter": "F2 (FWP-50A14F) only",
+      "interrupts_as_demonstrated": false,
+      "why": "U9 cannot be turned off; no gate command opens a failed-short switch. Only the series fuse F2 can act. Whether F2 clears is NOT demonstrated: the prospective peak and action I2t depend on an unestablished loop resistance, and the published clearing I2t is an AC/inductive figure, not a 400 Vdc capacitor-discharge figure. If demonstrated clearing is required, NO available part interrupts case (b)."
+    },
+    {
+      "id": "c",
+      "name": "line-fed switch short with the bridge following",
+      "device_states": {"U9": "failed_short", "bridge": "conducts (channel and/or body diode)"},
+      "loop": "mains -> F1 -> CMC -> NTC/bypass -> bridge -> U8 -> shorted U9 -> U12 -> bridge return",
+      "candidate_interrupter": "F1 (Schurter 0034.3129)",
+      "interrupts_as_demonstrated": false,
+      "why": "F1 is the only series element by topology, but its breaking capacity is 160 A at 250 VAC and the prospective line current is unestablished; coordination with the surviving bridge/switch SOA is NOT demonstrated. F2 is not in this loop."
+    },
+    {
+      "id": "d",
+      "name": "line surge",
+      "device_states": "not_applicable",
+      "loop": "line-to-neutral surge",
+      "candidate_element": "U7 (V150LA10AP MOV) - clamps, does not interrupt",
+      "interrupts_as_demonstrated": false,
+      "why": "The MOV diverts the surge; the required clamp at the operating surge current is not resolvable because that current is not established (the datasheet 395 V max is an upper bound at 50 A only). The surge contract (IEC 61000-4-5, 1 kV L-L / 2 kV L-PE) is PROVISIONAL/ASSUMED."
+    },
+    {
+      "id": "e",
+      "name": "faults the arrangement cannot interrupt",
+      "items": [
+        "internal capacitor discharge if F2 does not clear (clearing not demonstrated)",
+        "any already-bolted short: no gate command opens a failed-short device",
+        "a crowbar alone (diverts, does not interrupt; not part of this arrangement)",
+        "a line-fed fault below F1's clearing threshold",
+        "line-to-PE / common-mode surge (the MOV is line-to-neutral only)",
+        "case (b) if demonstrated clearing is required"
+      ]
+    }
+  ]
+}

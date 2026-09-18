@@ -1,0 +1,81 @@
+{
+  "schema": "pfc-campaign-AR-MERSEN-catalogue-conditions/v1",
+  "candidate": "A70QS50-14F",
+  "manufacturer": "Mersen (Ferraz Shawmut)",
+  "document": {
+    "title": "Mersen High Speed Fuses catalogue (2024)",
+    "pdf": "raw/mersen-hs-high-speed-fuses.pdf",
+    "pdf_sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789",
+    "pdf_creation_date": "2024-12-16",
+    "pdf_pages_total": 77,
+    "text_extract": "raw/mersen.txt",
+    "text_extract_sha256": "5a5eda413301d3b83efa2e4f8662089553e1658a6ebec229dc02b80af3435650",
+    "captured": "2026-09-18"
+  },
+  "time_constant_definition": {
+    "value": "L/R",
+    "basis": "The catalogue's DC high-speed-fuse tables state '*Time Constant: L/R <= 1ms' with the footnote 'MBC ... at rated voltage and associated time constant'. The A70QS page uses the two forms interchangeably: '700VDC rated for DC protection of equipment with L/R <=10ms' and '700VDC, 100kA interrupting at 10ms time constant'.",
+    "quotes": [
+      {
+        "pdf_page": 3,
+        "catalogue_page": "HS 2",
+        "line": 173,
+        "text": "*Time Constant: L/R \u22641ms"
+      },
+      {
+        "pdf_page": 7,
+        "catalogue_page": "HS 6",
+        "line": 402,
+        "text": "*Time Constant: L/R \u22641ms"
+      },
+      {
+        "pdf_page": 20,
+        "catalogue_page": "HS 20",
+        "line": 1387,
+        "text": "700VDC rated for DC protection of equipment with L/R \u226410ms"
+      }
+    ]
+  },
+  "capacitor_discharge_condition": {
+    "pdf_page": 20,
+    "catalogue_page": "HS 20",
+    "line": 1373,
+    "quote": "IEC rated 690VAC, 200kA Interrupting and 700VDC, 100kA interrupting at 10ms time constant. In addition, these fuses have an 890 VDC rating for capacitor discharge applications up to 2.5ms time constant.",
+    "dc_voltage_v": 890.0,
+    "max_time_constant_s": 0.0025,
+    "time_constant_kind": "L/R",
+    "scope": "A70QS French Cylindrical 14 mm (14F) and 22 mm (22F) range; A70QS50-14F is in this range",
+    "general_dc_rating_not_the_cap_discharge_condition": {
+      "dc_voltage_v": 700.0,
+      "max_time_constant_s": 0.010,
+      "note": "700 VDC / L/R <= 10 ms is the general DC-protection rating on the same page; the 890 VDC / 2.5 ms figure is the one explicitly scoped to capacitor discharge applications."
+    }
+  },
+  "waveform_and_current_limits": {
+    "applicable_waveform": "capacitor discharge with circuit time constant L/R <= 2.5 ms; the catalogue does not specify a waveshape beyond the time constant",
+    "dc_interrupting_capacity_a": 100000.0,
+    "dc_interrupting_condition": "footnote '*100kA, L/R = 11.6ms' on the ratings table (PDF p.21 / HS 21); the p.20 highlights state '100kA interrupting at 10ms time constant' and 'I.R.: 200kA I.R. AC; 100kA I.R. DC'",
+    "dc_breaking_tau_ref_s": 0.0116,
+    "catalogue_internal_discrepancy_ms": [10.0, 11.6],
+    "note": "no peak current limit is published separately for the 890 VDC capacitor-discharge condition"
+  },
+  "minimum_breaking_capacity": {
+    "value_a": null,
+    "reason": "The A70QS line publishes no MBC column or figure in this catalogue. An MBC is published for other DC lines: the D70QS tables carry a 'Min. breaking capacity (MBC)' column and the D100QS tables carry an 'MBC @1000VDC, L/R<1ms' column, whose footnote defines MBC as 'Smallest current fuse has been tested to safely open at rated voltage and associated time constant' (p.3 / HS 2, p.7 / HS 6)."
+  },
+  "clearing_and_let_through": {
+    "pre_arcing_i2t_max_a2s": 280.0,
+    "pre_arcing_i2t_table_header": "Melting I2t (A2s x 10^3) Max = 0.28",
+    "clearing_i2t_at_700vac_a2s": 1500.0,
+    "clearing_i2t_condition": "Max Clearing I2t @ 700VAC (A2s x 10^3) = 1.50; AC condition, NOT the 890 VDC capacitor-discharge condition",
+    "watts_loss_rated_w": 11.6,
+    "rated_current_a": 50.0,
+    "dc_capacitor_discharge_clearing_i2t_a2s": null,
+    "dc_let_through_curve": null,
+    "reason": "no DC or capacitor-discharge clearing I2t / let-through characteristic is published; the only clearing figure is the 700 VAC one"
+  },
+  "catalogue_pages": {
+    "front_page": {"pdf_page": 20, "label": "HS 20", "section": "A70QS Amp-Trap French Cylindrical"},
+    "ratings_table": {"pdf_page": 21, "label": "HS 21", "section": "A70QS RATINGS AND APPLICATION DATA"}
+  }
+}

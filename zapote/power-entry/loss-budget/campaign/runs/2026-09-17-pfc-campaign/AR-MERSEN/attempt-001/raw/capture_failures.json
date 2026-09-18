@@ -1,0 +1,13 @@
+{
+  "schema": "pfc-campaign-AR-MERSEN-capture-failures/v1",
+  "note": "The Mersen catalogue was delivered already captured and hashed in this attempt's raw/ directory (raw/mersen-hs-high-speed-fuses.pdf, sha256 e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789, matching raw/catalogue.sha256). No new network capture was required or attempted for this task: the applicable capacitor-discharge conditions are read from the delivered catalogue. No capture failures to report.",
+  "delivered_source_verification": {
+    "path": "raw/mersen-hs-high-speed-fuses.pdf",
+    "sha256_expected": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789",
+    "sha256_actual": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789",
+    "pdf_pages_total": 77,
+    "pdf_creation_date": "2024-12-16",
+    "verified": true
+  },
+  "failures": []
+}

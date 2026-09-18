@@ -1,0 +1,83 @@
+AR-MERSEN catalogue extract -- Mersen High Speed Fuses catalogue
+PDF:  raw/mersen-hs-high-speed-fuses.pdf
+sha256: e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789
+Full text extract: raw/mersen.txt (sha256 5a5eda413301d3b83efa2e4f8662089553e1658a6ebec229dc02b80af3435650)
+Captured: 2026-09-18.  PDF pages counted 1..77; catalogue page labels HS n are one
+lower than the PDF page for the A70QS section (PDF p.20 = HS 20, p.21 = HS 21).
+
+-------------------------------------------------------------------------------
+1. THE TIME CONSTANT IS DEFINED AS L/R
+-------------------------------------------------------------------------------
+PDF p.3 (HS 2), D100QS table, extracted line 173:
+    *Time Constant: L/R <=1ms
+extracted line 174:
+    **MBC (Minimum Breaking Capacity): Smallest current fuse has been tested to
+    safely open at rated voltage and associated time constant
+
+PDF p.7 (HS 6), D70QS table, extracted line 402:
+    *Time Constant: L/R <=1ms
+
+PDF p.20 (HS 20), A70QS highlights, extracted line 1387:
+    700VDC rated for DC protection of equipment with L/R <=10ms
+    (used on the same page as "700VDC, 100kA interrupting at 10ms time constant")
+
+=> Mersen's DC "time constant" is L/R. The two forms ("L/R <=10ms" and
+   "10ms time constant") are used interchangeably on the A70QS page.
+
+-------------------------------------------------------------------------------
+2. THE CAPACITOR-DISCHARGE CONDITION (A70QS French Cylindrical, 14F/22F)
+-------------------------------------------------------------------------------
+PDF p.20 (HS 20), extracted lines 1371-1375:
+    These Premium Amp-Trap(R) French cylindrical semiconductor fuses are an
+    extension of the popular A7OQS product line. They are solid-fill 14mm
+    and 22mm fuses, IEC rated 690VAC, 200kA Interrupting and 700VDC,
+    100kA interrupting at 10ms time constant. In addition, these fuses have
+    an 890 VDC rating for capacitor discharge applications up to 2.5ms time
+    constant.
+
+=> APPLICABLE CAPACITOR-DISCHARGE CONDITION: 890 VDC, L/R <= 2.5 ms.
+   The 700 VDC / L/R <= 10 ms figure on the same page is the GENERAL DC
+   protection rating, not the capacitor-discharge one.
+   The 1 ms figures in the D100QS/D70QS tables are different product lines.
+
+-------------------------------------------------------------------------------
+3. EXACT CANDIDATE A70QS50-14F -- RATINGS AND APPLICATION DATA
+-------------------------------------------------------------------------------
+PDF p.21 (HS 21), extracted line 1429 (14 x 51 mm body), row:
+    Ampere Rating 50 | Melting I2t (A2s x 10^3) Max = 0.28 |
+    Max Clearing I2t @ 700VAC (A2s x 10^3) = 1.50 |
+    Watts Loss @ Rated Current = 11.6 W | A70QS50-14F
+
+Footnote on the same table (extracted line 1455):
+    *100kA, L/R = 11.6ms
+(while the p.20 highlights say "100kA interrupting at 10ms time constant")
+
+CARRIED VALUES
+  rated current .................. 50 A
+  pre-arcing I2t, table header ... 0.28 x 10^3 = 280 A2s (MAX, not minimum)
+  clearing I2t @ 700 VAC .......... 1.50 x 10^3 = 1500 A2s (AC, not the cap-discharge condition)
+  watts loss @ 50 A .............. 11.6 W
+  DC interrupting ................ 100 kA (L/R = 11.6 ms per footnote; 10 ms in highlights)
+  capacitor-discharge voltage .... 890 VDC
+  capacitor-discharge time const.. L/R <= 2.5 ms
+
+NOT PUBLISHED (remains null)
+  minimum breaking capacity (MBC) for A70QS
+  DC / capacitor-discharge clearing I2t or let-through curve
+  a separate peak-current limit for the 890 VDC capacitor-discharge condition
+
+-------------------------------------------------------------------------------
+4. WHY R*C IS NOT THE CONDITION
+-------------------------------------------------------------------------------
+At the envelope corner R = 5 mOhm, L = 20 uH (C = 2240.47 uF):
+    R*C  = 1.120e-5 s = 11.20 us
+    L/R  = 4.000e-3 s = 4.00  ms       (L/R : R*C = 357x)
+    2L/R = 8.000e-3 s = 8.00  ms       (2L/R : R*C = 714x)
+    zeta = (R/2)*sqrt(C/L) = 0.02646   (heavily underdamped -- not an RC decay)
+
+The dispatch and the AR-COORD receipt cite a 714x difference at this corner; that
+factor corresponds to 2L/R, not L/R. Either way R*C understates the manufacturer's
+L/R time constant by more than two orders of magnitude, and the damping factor
+shows the discharge is oscillatory, so an RC-decay reading does not describe the
+waveform. AR-COORD's R*C <= 1.43 ms comparison against the 2.5 ms figure is
+withdrawn.

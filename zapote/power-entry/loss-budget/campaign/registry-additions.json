@@ -132,6 +132,17 @@
       "reason": "Coordinator-issued after review: the resistance window is a screen not a criterion, the continuous-duty basis must be RMS, and the applicable fuse revision is unresolved.",
       "hypothesis_or_question": "Fuse coordination: do the candidate fuse ratings actually cover the normal-current waveform and a fault-impedance envelope, with applicable capacitor-discharge clearing data?",
       "worker_status": "DISPATCHED_attempt-001"
+    },
+    {
+      "id": "AR-MERSEN",
+      "kind": "engineering_verification",
+      "wave": 3,
+      "depends_on": [
+        "AR-COORD"
+      ],
+      "reason": "Coordinator-issued after review: Mersen defines the time constant as L/R, so AR-COORD's R*C mapping is invalid; the envelope must be re-mapped onto the real conditions.",
+      "hypothesis_or_question": "Map the AR-COORD fault-impedance envelope onto Mersen's actual capacitor-discharge application conditions for the exact candidate, with the time constant defined as L/R.",
+      "worker_status": "DISPATCHED_attempt-001"
     }
   ]
 }

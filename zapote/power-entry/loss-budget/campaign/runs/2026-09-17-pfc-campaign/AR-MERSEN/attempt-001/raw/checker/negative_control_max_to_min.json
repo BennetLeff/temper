@@ -1,0 +1,39 @@
+{
+  "schema": "pfc-campaign-claims/v1",
+  "note": "NEGATIVE CONTROL (deliberately unsound): restates the catalogue MAX pre-arcing I2t as a MINIMUM melting I2t, the mislabel the dispatch forbids. Expected to fail.",
+  "claims": [
+    {
+      "id": "pre-arcing-max",
+      "quantity": "fuse_pre_arcing_i2t_max_a2s",
+      "part": "A70QS50-14F",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "0.28e3 A2s MAX",
+      "fault_state": "not_applicable",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../a70qs-conditions.json",
+          "sha256": "3878b43c43d3017cf7ca5d06603cd0cb58680bddffd4c9bcea9b32d69eef8ebe"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "melting-min-bad",
+      "quantity": "fuse_min_melting_i2t_a2s",
+      "part": "A70QS50-14F",
+      "value_kind": "minimum",
+      "bound_kind": "lower",
+      "source_condition": "0.28e3 A2s",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": "pre-arcing-max",
+      "justification": null
+    }
+  ],
+  "protection_claims": [],
+  "promotions": []
+}

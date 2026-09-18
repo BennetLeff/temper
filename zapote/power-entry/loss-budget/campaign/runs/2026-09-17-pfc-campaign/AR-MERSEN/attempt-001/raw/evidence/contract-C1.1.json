@@ -1,0 +1,68 @@
+{
+  "schema": "pfc-campaign-contract-C1.1/v1",
+  "campaign_id": "2026-09-17-pfc-campaign",
+  "frozen_at_utc": "2026-09-17T21:20:52Z",
+  "frozen_by": "coordinator",
+  "note": "Coordinator-frozen for the corrected first wave. Not a product requirement.",
+  "input_lines_rms_v": [
+    108.0,
+    120.0,
+    132.0
+  ],
+  "line_frequency_hz": 60.0,
+  "line_frequency_note": "Maintained project reference; the current CCM model is line-frequency independent, so this is documentation-only and cannot appear in a solver-bound hash.",
+  "bus_setpoint_v": 400.0,
+  "requested_nominal_input_power_w": 1796.31003212911,
+  "input_rms_ceiling_a": 15.0,
+  "input_rms_ceiling_note": "true RMS including ripple",
+  "load_fractions": [
+    0.2,
+    0.5,
+    1.0
+  ],
+  "device_eval_temperatures_c": [
+    25,
+    100,
+    125
+  ],
+  "temperature_note": "prescribed source evaluation temperatures, not predicted junction/ambient",
+  "baseline_device": "IPW65R045C7",
+  "baseline_driver": "UCC27624DR",
+  "baseline_drive_v": 12.0,
+  "baseline_external_gate_r_ohm": 4.7,
+  "baseline_effective_inductance_h": 0.00018,
+  "baseline_frequency_hz": 129107.39198576905,
+  "baseline_partial_switch_gate_loss_w": 45.502337474982966,
+  "baseline_note": "partial switch/gate loss only; not a measurement and not whole-assembly",
+  "retained_report_path": "zapote/power-entry/loss-budget/options/experiment-02/evidence/report.json",
+  "retained_report_sha256": "3805a41c953ae04dec3f65084de51a153e048d9ac4abfd204a8c52abde26749c",
+  "revision": "1e0d8132d66e16027bbe4f6b21844b2d208b87d2",
+  "supersedes": "contract-C1.json (3bf1125fe37e8df6a493449ec5edfa01082fdd9e40a8d5d724147b388737f183) for numerical work; C1 remains the frozen base for the completed source tasks",
+  "revision_reason": "Add the exact baseline device and gate-network constants that produced the 45.502337474982966 W control, so two workers cannot report subtotals under different 'same contract' assumptions. Values are unchanged from C1; this is an additive revision.",
+  "baseline_case": {
+    "device": {
+      "id": "IPW65R045C7",
+      "qg_c": 9.3e-08,
+      "qgd_c": 3e-08,
+      "plateau_v": 5.4,
+      "intrinsic_gate_r_ohm": 0.85,
+      "eoss_j": 1.17e-05,
+      "rds_on_ohm": 0.045,
+      "source_pdf_sha256": "7ef568434c6325a919ac38fdf998b60d71e8078cce1ed384e82ee09fdc40911a"
+    },
+    "drive": {
+      "driver": "UCC27624DR",
+      "profile": "no-assist",
+      "gate_bias_v": 12.0,
+      "external_gate_r_on_ohm": 9.7,
+      "external_gate_r_off_ohm": 5.3,
+      "driver_source_peak_a": 5.0,
+      "driver_sink_peak_a": 5.0,
+      "current_transfer_charge_c": 1e-08,
+      "loop_inductance_h": 1e-08,
+      "timestep_s": 2.5e-10
+    },
+    "note": "external_gate_r_on/off = 4.7 ohm external + 5.0/0.6 ohm no-assist profile source/sink",
+    "invariant": "the campaign adapter's R0 control must reproduce total_switch_gate_w = 45.502337474982966 W at 120 V"
+  }
+}
