@@ -30,10 +30,12 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from temper_design_bundle_python import parse_engine as _parse_engine
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.io._kicad_types import TraceData
+
+TraceData = _parse_engine.TraceData
 from temper_placer.placer.cp_sat._encoder_solve import solve_placement
 from temper_placer.placer.cp_sat.fixed_copper import (
     COPPER_LAYERS,

@@ -45,14 +45,15 @@ from types import SimpleNamespace
 import click
 import pytest
 from click.testing import CliRunner
+from temper_design_bundle_python import parse_engine as _parse_engine
 
 from temper_placer.cli import main as cli_main
 from temper_placer.cli.repair_commands import _build_plan, _frozen_positions, _rot_idx
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.io._kicad_types import TraceData
-from temper_placer.placer.cp_sat._encoder_solve import solve_placement
 
+TraceData = _parse_engine.TraceData
+from temper_placer.placer.cp_sat._encoder_solve import solve_placement
 
 # ---------------------------------------------------------------------------
 # Group 1: plan building (pure, no solver)

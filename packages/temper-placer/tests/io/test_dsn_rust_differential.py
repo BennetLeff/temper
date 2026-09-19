@@ -340,7 +340,8 @@ def test_network_power_classification_edges():
 
 
 def test_wiring_bit_identical():
-    from temper_placer.io._kicad_types import TraceData
+    from temper_design_bundle_python import parse_engine as _parse_engine
+    TraceData = _parse_engine.TraceData
 
     traces = [
         TraceData(start=(0.0, 0.0), end=(10.0, 10.0), width=0.2, layer="F.Cu", net="SIG1"),
@@ -354,7 +355,8 @@ def test_wiring_bit_identical():
 
 
 def test_export_pcb_full_bit_identical():
-    from temper_placer.io._kicad_types import TraceData
+    from temper_design_bundle_python import parse_engine as _parse_engine
+    TraceData = _parse_engine.TraceData
 
     traces = [TraceData(start=(0.0, 0.0), end=(1.0, 1.0), width=0.2, layer="F.Cu", net="SIG1")]
     r, p = both(_rich_board(), _rich_netlist())

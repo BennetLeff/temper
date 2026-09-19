@@ -27,8 +27,9 @@ import math
 from pathlib import Path
 
 import pytest
+from temper_io_types import write_types as _write_types_rs
 
-from temper_placer.io._write_types import PlacementUpdate
+PlacementUpdate = _write_types_rs.PlacementUpdate
 from temper_placer.io.kicad_writer import write_placements_to_pcb
 
 kiutils_board = pytest.importorskip("kiutils.board")

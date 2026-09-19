@@ -32,6 +32,11 @@ from hypothesis import strategies as st
 # Rust symbol under test — must exist or this file fails to collect (RED).
 GROUP_VIOLATIONS = _tdrc.group_violations
 
+from temper_drc_rs import (  # noqa: E402
+    ComponentPlacement,
+    Placement,
+)
+
 from temper_placer.validation.drc_result import (  # noqa: E402
     CheckResult as _CheckResult,
 )
@@ -49,10 +54,6 @@ from temper_placer.validation.drc_result import (  # noqa: E402
 )
 from temper_placer.validation.drc_runner import (
     _violations_to_run_result as shim_convert,  # noqa: E402
-)
-from temper_placer.validation.drc_types import (  # noqa: E402
-    ComponentPlacement,
-    Placement,
 )
 
 # The runner's wrapper adds elapsed_ms to the RunResult — drive it through

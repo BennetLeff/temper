@@ -35,7 +35,7 @@ dataclass):
   scalars plus the containers — is assignable, exactly like the mutable
   dataclass. The dynamically-attached ``class_pairs`` attribute is a real
   property (defaults to an empty dict), so consumers that set/read it
-  (``io/netclass_loader.py``, ``placer/cp_sat/feedback.py``) behave
+  (``temper_design_bundle_python`` loaders, ``placer/cp_sat/feedback.py``) behave
   identically.
 - The stray ``print("DEBUG: Loading design_rules.py")`` class-body statement
   from the pre-migration module is gone (it was a debug artifact with no API

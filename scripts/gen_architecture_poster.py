@@ -39,7 +39,7 @@ LOC_EXCLUDE_PATTERNS: list[str] = [
 
 CMAKE_TARGET_MAP: dict[str, dict[str, str]] = {
     "temper-firmware": {"name": "firmware", "src_dir": "firmware/main"},
-    "hal":            {"name": "firmware (hal)", "src_dir": "firmware/components/hal"},
+    "hal":            {"name": "firmware (hal)", "src_dir": "firmware/components/temper_hal"},
     "webui":          {"name": "firmware (webui)", "src_dir": "firmware/components/webui"},
 }
 

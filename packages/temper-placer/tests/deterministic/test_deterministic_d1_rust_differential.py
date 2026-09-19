@@ -39,6 +39,7 @@ import temper_orchestration as _to
 import tests.deterministic._config_attach_py_oracle as _orc_config_attach
 import tests.deterministic._net_ordering_py_oracle as _orc_net_ordering
 import tests.deterministic._setup_py_oracle as _orc_setup
+from temper_design_bundle_python import parse_engine as _parse_engine
 
 from temper_placer._constraint_types.clearance import (
     DifferentialPairRule,
@@ -59,7 +60,8 @@ from temper_placer.deterministic.stages import (
 )
 from temper_placer.deterministic.stages import NetOrderingStage as _shim_net_ordering
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io._kicad_types import PadData
+
+PadData = _parse_engine.PadData
 
 # ---------------------------------------------------------------------------
 # Oracle body pinning (G1)

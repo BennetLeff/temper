@@ -26,12 +26,12 @@ from _lib.pytest_artifact_guard import (  # noqa: E402
     protected_artifact_guard,  # noqa: F401  (imported to register the fixture)
     pytest_sessionstart,  # noqa: F401  (imported to register the hook)
 )
+from temper_io_types import load_footprint_library  # noqa: E402
 
 from temper_placer.core.board import Board, Zone  # noqa: E402
 from temper_placer.core.design_rules import DesignRules, NetClassRules  # noqa: E402
 from temper_placer.core.netlist import Component, Net, Netlist, Pin  # noqa: E402
 from temper_placer.deterministic.state import BoardState  # noqa: E402
-from temper_placer.io.footprint_library import load_footprint_library  # noqa: E402
 
 # Historical paths referenced only by immutable pre-migration oracles are
 # test-only sentinels.  Install them before collecting test modules so direct

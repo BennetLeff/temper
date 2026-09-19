@@ -63,7 +63,7 @@ from temper_placer.core._contract_dataclass_compat import (
 )
 
 if TYPE_CHECKING:
-    from temper_placer.validation.drc_types import ConstraintSet, Placement
+    from temper_drc_rs import ConstraintSet, Placement
 
 # =========================================================================
 #  Result contracts  (was temper_drc.core.result / temper_drc.core.severity)

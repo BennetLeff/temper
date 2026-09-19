@@ -82,7 +82,7 @@ from temper_placer.heuristics.base import (
     HeuristicResult,
     PlacementContext,
 )
-from temper_placer.io.config_loader import PlacementConstraints
+from temper_placer._constraint_types import PlacementConstraints
 
 # =============================================================================
 # Star Ground Topology Heuristic (STYLE priority)

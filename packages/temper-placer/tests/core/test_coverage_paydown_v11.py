@@ -22,7 +22,6 @@ from pathlib import Path
 
 import pytest
 
-
 # ===========================================================================
 # router_v6/_check_report_base.py — BaseCheckReport mixin
 # ===========================================================================
@@ -409,7 +408,6 @@ class TestRouteProfileStats:
 
     def test_reset_route_profile_stats_zeros(self):
         from temper_placer.router_v6.astar_core_rust import (
-            RouteProfileStats,
             get_route_profile_stats,
             reset_route_profile_stats,
         )
@@ -737,10 +735,8 @@ class TestRoutingResults:
 
     def test_success_count_from_connectivity(self):
         from temper_placer.router_v6.connectivity import (
-            ConnectivityComponent,
             NetConnectivity,
             NetDisposition,
-            PadIdentity,
         )
         from temper_placer.router_v6.routing_results import RoutingResults
 
@@ -848,7 +844,6 @@ class TestAggregateBoardScore:
 
     def test_all_perfect(self):
         from temper_placer.router_v6.diagnostics import (
-            FailureReason,
             NetRoutingReport,
             RoutingStatus,
             aggregate_board_score,
@@ -1081,7 +1076,6 @@ class TestNetConnectivity:
 
     def test_empty(self):
         from temper_placer.router_v6.connectivity import (
-            ConnectivityComponent,
             NetConnectivity,
             NetDisposition,
         )
@@ -1127,7 +1121,8 @@ class TestWriteResult:
     """Covers WriteResult.has_warnings."""
 
     def test_has_warnings_true(self):
-        from temper_placer.io._write_types import WriteResult
+        from temper_io_types import write_types as _write_types_rs
+        WriteResult = _write_types_rs.WriteResult
 
         wr = WriteResult(
             output_path=Path("/tmp/test.pcb"),
@@ -1138,7 +1133,8 @@ class TestWriteResult:
         assert wr.has_warnings is True
 
     def test_has_warnings_false(self):
-        from temper_placer.io._write_types import WriteResult
+        from temper_io_types import write_types as _write_types_rs
+        WriteResult = _write_types_rs.WriteResult
 
         wr = WriteResult(
             output_path=Path("/tmp/test.pcb"),
@@ -1153,7 +1149,8 @@ class TestStrippingResult:
     """Covers StrippingResult.has_warnings."""
 
     def test_has_warnings_true(self):
-        from temper_placer.io._write_types import StrippingResult
+        from temper_io_types import write_types as _write_types_rs
+        StrippingResult = _write_types_rs.StrippingResult
 
         sr = StrippingResult(
             output_path=Path("/tmp/stripped.pcb"),
@@ -1166,7 +1163,8 @@ class TestStrippingResult:
         assert sr.has_warnings is True
 
     def test_has_warnings_false(self):
-        from temper_placer.io._write_types import StrippingResult
+        from temper_io_types import write_types as _write_types_rs
+        StrippingResult = _write_types_rs.StrippingResult
 
         sr = StrippingResult(
             output_path=Path("/tmp/stripped.pcb"),
@@ -1183,7 +1181,8 @@ class TestIsolationSlotResult:
     """Covers IsolationSlotResult.has_warnings."""
 
     def test_has_warnings_true(self):
-        from temper_placer.io._write_types import IsolationSlotResult
+        from temper_io_types import write_types as _write_types_rs
+        IsolationSlotResult = _write_types_rs.IsolationSlotResult
 
         isr = IsolationSlotResult(
             output_path=Path("/tmp/isolated.pcb"),
@@ -1194,7 +1193,8 @@ class TestIsolationSlotResult:
         assert isr.has_warnings is True
 
     def test_has_warnings_false(self):
-        from temper_placer.io._write_types import IsolationSlotResult
+        from temper_io_types import write_types as _write_types_rs
+        IsolationSlotResult = _write_types_rs.IsolationSlotResult
 
         isr = IsolationSlotResult(
             output_path=Path("/tmp/isolated.pcb"),

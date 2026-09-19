@@ -18,9 +18,12 @@ from pathlib import Path
 
 import temper_design_bundle_python as _tdb
 from temper_io_types import kicad_write_geometry as _GEOM
+from temper_io_types import write_types as _write_types_rs
 
 from temper_placer.core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER
-from temper_placer.io._write_types import StrippingResult, WriteResult
+
+StrippingResult = _write_types_rs.StrippingResult
+WriteResult = _write_types_rs.WriteResult
 
 _UNRANKED_LAYER = len(STANDARD_LAYER_ORDER)
 

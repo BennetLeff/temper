@@ -38,7 +38,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from temper_placer.constraints.compiler import ConstraintCompiler
-from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
+from temper_placer._constraint_types import IsolationSlot, PlacementConstraints
 
 from temper_placer.deterministic.channels import ChannelMap
 from temper_placer.deterministic.state import BoardState

@@ -71,6 +71,23 @@ jobs:
           uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
       - name: Verify temper-drc-rs loads
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+      # ci_closure_test.py drives the CP-SAT deterministic placer, which imports
+      # `temper_constraints` lazily at solve time. The venv cache is keyed only
+      # on uv.lock (populated by python-tests.yml's sync, which excludes this
+      # package via --no-install-package), so without an explicit build the
+      # closure run dies with `No module named 'temper_constraints'` and the
+      # step's `|| echo` mask records the failure as a green metric. Mirrors
+      # python-tests.yml's temper-constraints step.
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
       # Removed 2026-08-07: `continue-on-error` was dead weight here -- the
       # `run:` command already ends in `|| echo "CLOSURE_EXIT=$?" >>
       # $GITHUB_ENV`, which makes the step exit 0 unconditionally regardless

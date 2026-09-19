@@ -61,6 +61,18 @@ a coverage gap, not a defect.
 from __future__ import annotations
 
 import pytest
+from temper_drc_rs import (
+    ClearanceRule,
+    ComponentPlacement,
+    ConstraintSet,
+    LoopConstraint,
+    Placement,
+    TracePlacement,
+    TraceSegment,
+    Via,
+    ViaPlacement,
+    ZoneDefinition,
+)
 
 from temper_placer.validation.drc_result import (
     Check,
@@ -80,18 +92,6 @@ from temper_placer.validation.drc_result import (
     TraceClearanceCheck,
     ViaSpacingCheck,
     ZoneContainmentCheck,
-)
-from temper_placer.validation.drc_types import (
-    ClearanceRule,
-    ComponentPlacement,
-    ConstraintSet,
-    LoopConstraint,
-    Placement,
-    TracePlacement,
-    TraceSegment,
-    Via,
-    ViaPlacement,
-    ZoneDefinition,
 )
 
 

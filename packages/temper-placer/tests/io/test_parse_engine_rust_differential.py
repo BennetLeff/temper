@@ -2,7 +2,7 @@
 vs the pinned verbatim kiutils oracle.
 
 Wave 4, Phase 3, candidate 3 -- the parse engine
-(``io/kicad_parser.py``, ``io/_parse_*``, ``io/_kicad_types.py``,
+(``io/kicad_parser.py``, ``io/_parse_*``,
 ``io/kicad_metadata.py``), per plan
 ``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``.
 

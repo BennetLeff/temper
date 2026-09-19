@@ -50,7 +50,7 @@ def test_experimental_creepage_omission_keeps_ordinary_encoder_constraints(
     """Only auto-generated creepage is omitted by the diagnostic switch."""
     netlist, board = _inputs()
     monkeypatch.setattr(
-        "temper_placer.io.netclass_loader.load_netclass_rules",
+        "temper_design_bundle_python.load_netclass_rules",
         lambda _path: SimpleNamespace(design_rules=SimpleNamespace()),
     )
     monkeypatch.setattr(_encoder_solve, "courtyard_clearance_mm", lambda _default: 1.0)
@@ -78,7 +78,7 @@ def test_generated_creepage_remains_eager_by_default(
 ) -> None:
     netlist, board = _inputs()
     monkeypatch.setattr(
-        "temper_placer.io.netclass_loader.load_netclass_rules",
+        "temper_design_bundle_python.load_netclass_rules",
         lambda _path: SimpleNamespace(design_rules=SimpleNamespace()),
     )
     monkeypatch.setattr(_encoder_solve, "courtyard_clearance_mm", lambda _default: 1.0)
@@ -109,7 +109,7 @@ def test_experimental_creepage_omission_is_explicitly_incompatible_with_lazy(
 def _patch_coarse_dependencies(monkeypatch: pytest.MonkeyPatch, result):
     netlist, board = _inputs()
     monkeypatch.setattr(
-        "temper_placer.io.netclass_loader.load_netclass_rules",
+        "temper_design_bundle_python.load_netclass_rules",
         lambda _path: SimpleNamespace(design_rules=SimpleNamespace()),
     )
     monkeypatch.setattr(_encoder_solve, "courtyard_clearance_mm", lambda _default: 1.0)
@@ -695,7 +695,7 @@ def test_quantized_component_boxes_do_not_false_fail_inside_envelope(
         solve_time_s=0.01,
     )
     monkeypatch.setattr(
-        "temper_placer.io.netclass_loader.load_netclass_rules",
+        "temper_design_bundle_python.load_netclass_rules",
         lambda _path: SimpleNamespace(design_rules=SimpleNamespace()),
     )
     monkeypatch.setattr(_encoder_solve, "courtyard_clearance_mm", lambda _default: 0.0)

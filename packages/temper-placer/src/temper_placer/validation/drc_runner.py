@@ -75,8 +75,8 @@ from temper_placer.validation.drc_result import (
 )
 
 if _TYPE_CHECKING:
-    from temper_placer.validation.drc_types import ConstraintSet as _ConstraintSet
-    from temper_placer.validation.drc_types import Placement as _Placement
+    from temper_drc_rs import ConstraintSet as _ConstraintSet
+    from temper_drc_rs import Placement as _Placement
 
 # Severity string → Severity enum
 _SEVERITY_MAP: dict[str, _Severity] = {

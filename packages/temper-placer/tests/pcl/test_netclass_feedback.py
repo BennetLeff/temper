@@ -9,7 +9,7 @@ RULES_PATH = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.y
 
 @pytest.fixture
 def design_rules():
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
 
     return load_netclass_rules(RULES_PATH).design_rules
 

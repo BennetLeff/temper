@@ -35,11 +35,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 sys.path.insert(0, str(REPO_ROOT / "packages" / "temper-placer" / "src"))
 
+from temper_design_bundle_python import load_netclass_rules  # noqa: E402
+
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6  # noqa: E402
-from temper_placer.io.netclass_loader import load_netclass_rules  # noqa: E402
+from temper_placer.router_v6.constraint_model import ModelBuilder  # noqa: E402
 from temper_placer.router_v6.diff_pair_inference import infer_differential_pairs  # noqa: E402
 from temper_placer.router_v6.stage2_orchestrator import Stage2Orchestrator  # noqa: E402
-from temper_placer.router_v6.constraint_model import ModelBuilder  # noqa: E402
 
 
 def rss_kb() -> int:

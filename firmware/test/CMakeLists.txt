@@ -53,12 +53,12 @@ set(UNITY_SOURCES
 
 # HAL mock implementations
 set(MOCK_HAL_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/hal_init_mock.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/mock_gpio.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/mock_adc.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/mock_pwm.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/mock_spi.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/mock_timer.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/hal_init_mock.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_gpio.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_adc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_pwm.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_spi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_timer.c
 )
 
 # Firmware components to test (the actual production code)
@@ -87,8 +87,8 @@ set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}/unity
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety
     ${CMAKE_CURRENT_SOURCE_DIR}/../main
@@ -323,10 +323,10 @@ add_executable(test_adc_guard_only
     test_main_adc_guard.c
     test_adc_guard.c
     ../components/safety/adc_guard.c
-    ../components/hal/mock/mock_adc.c
+    ../components/temper_hal/mock/mock_adc.c
 )
 target_include_directories(test_adc_guard_only PRIVATE 
-    ../components/hal/include
+    ../components/temper_hal/include
     ../components/safety/include
     unity
 )
@@ -340,7 +340,7 @@ add_executable(test_pwm_guard_only
     ../components/safety/pwm_guard.c
 )
 target_include_directories(test_pwm_guard_only PRIVATE 
-    ../components/hal/include
+    ../components/temper_hal/include
     ../components/safety/include
     unity
 )
@@ -354,7 +354,7 @@ add_executable(test_ntc_guard_only
     ../components/safety/ntc_guard.c
 )
 target_include_directories(test_ntc_guard_only PRIVATE 
-    ../components/hal/include
+    ../components/temper_hal/include
     ../components/safety/include
     unity
 )
@@ -368,7 +368,7 @@ add_executable(test_fan_guard_only
     ../components/safety/fan_guard.c
 )
 target_include_directories(test_fan_guard_only PRIVATE 
-    ../components/hal/include
+    ../components/temper_hal/include
     ../components/safety/include
     unity
 )
@@ -381,7 +381,7 @@ add_executable(test_coil_guard_only
     ../components/safety/coil_guard.c
 )
 target_include_directories(test_coil_guard_only PRIVATE 
-    ../components/hal/include
+    ../components/temper_hal/include
     ../components/safety/include
     unity
 )
@@ -405,6 +405,13 @@ add_test(NAME safety_tests COMMAND test_safety_only)
 add_test(NAME pan_detection_tests COMMAND test_pan_detection_only)
 add_test(NAME pll_tests COMMAND test_pll_only)
 add_test(NAME integration_tests COMMAND test_integration_only)
+# The NTC conversion pins the thermistor constants against the schematic part
+# (NTCALUG01A104GA, 100k/B4190). It was previously built but never registered
+# here, so a wrong-part conversion went unnoticed. Note that
+# test_adc_guard_only, test_fan_guard_only, test_coil_guard_only and
+# test_pwm_guard_only are still unregistered -- all four build and pass today,
+# but registering them is out of scope for this change.
+add_test(NAME ntc_guard_tests COMMAND test_ntc_guard_only)
 
 # ============================================================================
 # Custom targets
@@ -430,8 +437,8 @@ add_executable(test_ui_only
     test_main_ui.c
     test_ui.c
     ../main/ui.c
-    ../components/hal/mock/hal_encoder_mock.c
-    ../components/hal/mock/hal_led_mock.c
+    ../components/temper_hal/mock/hal_encoder_mock.c
+    ../components/temper_hal/mock/hal_led_mock.c
 )
 target_include_directories(test_ui_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_ui_only m)

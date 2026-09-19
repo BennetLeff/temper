@@ -47,12 +47,14 @@ from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.io.dsn import DSNExpression, dsn_list
 
 if TYPE_CHECKING:
+    # TraceData is a Rust pyclass in temper_design_bundle_python.parse_engine
+    # (the former io/_kicad_types.py shim was deleted); kicad_parser no
+    # longer carries it.
+    from temper_design_bundle_python import parse_engine as _parse_engine
+
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
-
-    # TraceData moved to _kicad_types (Rust-backed) in the de-kiutils
-    # migration; kicad_parser no longer carries it.
-    from temper_placer.io._kicad_types import TraceData
+    TraceData = _parse_engine.TraceData
 
 __all__ = ["DSNExporter"]
 

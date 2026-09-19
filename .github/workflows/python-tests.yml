@@ -3729,9 +3729,25 @@ jobs:
           (cd packages/temper-workflow && uv run pytest tests/ -v --tb=short) &
           WORKFLOW_PID=$!
 
+          # Scope the `cd` to its own subshell so the gen_transition_table.py
+          # paths below stay repo-root-relative. Before this, `cd
+          # packages/temper-placer` leaked into the later commands, so
+          # `firmware/test/gen_transition_table.py` resolved under
+          # packages/temper-placer/ and did not exist (and the `git diff` path
+          # on the next line was wrong for the same reason). Introduced in
+          # 6be2e82c (2026-06-22) and unchanged since.
+          #
+          # PREREQUISITE NOT FIXED HERE: the first command,
+          # tools/check_kicad_layers.py, hardcodes exactly 4 copper layers
+          # ({F.Cu, In1.Cu, In2.Cu, B.Cu}) while pcb/temper.kicad_pcb is an
+          # intentional 6-layer board, so this subshell still fails there
+          # before reaching the paths repaired above. Updating that check to
+          # the 6-layer board (or accepting a layer-count argument) is a
+          # separate, board-boundary change; until it lands this path fix is
+          # not observable in the job's output (which is masked anyway).
           (uv run python tools/check_kicad_layers.py && \
-           cd packages/temper-placer && \
-           uv run pytest tests/io/test_4layer_output_properties.py -v --tb=short && \
+           (cd packages/temper-placer && \
+            uv run pytest tests/io/test_4layer_output_properties.py -v --tb=short) && \
            uv run python3 firmware/test/gen_transition_table.py --generate && \
            git diff --exit-code firmware/test/test_transition_table_generated.c) &
           CHECKS_PID=$!
@@ -3741,21 +3757,17 @@ jobs:
             wait $pid || FAIL=1
           done
           exit $FAIL
-        # Still genuinely failing, but NOT flakiness -- verified 2026-08-07
-        # by running all three backgrounded suites locally: CHECKS_PID fails
-        # deterministically, every time, at a broken relative path. The
-        # subshell does `cd packages/temper-placer` then references
-        # `firmware/test/gen_transition_table.py`, but that script only
-        # exists at the repo root (firmware/test/gen_transition_table.py),
-        # not under packages/temper-placer/firmware/ -- `python3: can't open
-        # file '.../packages/temper-placer/firmware/test/
-        # gen_transition_table.py'`. Introduced in 6be2e82c (2026-06-22) and
-        # unchanged since. This is a one-line path bug (missing `../../` or
-        # equivalent), not test-suite flakiness -- the stated reason is
-        # wrong, not just the ticket placeholder. Not fixed here (out of
-        # scope for a continue-on-error-only pass on this file); flagged for
-        # a follow-up PR that corrects the path and can then remove this
-        # mask entirely.
+        # The CHECKS_PID chain below used to fail deterministically on a broken
+        # relative path (verified 2026-08-07 by running all three backgrounded
+        # suites locally): the subshell did `cd packages/temper-placer` and then
+        # referenced repo-root-relative `firmware/test/gen_transition_table.py`,
+        # so python3 could not open
+        # `.../packages/temper-placer/firmware/test/gen_transition_table.py`.
+        # Introduced in 6be2e82c (2026-06-22). FIXED in-place by scoping that
+        # `cd` to its own subshell (see the run: block above). The step remains
+        # `continue-on-error` because the `check_kicad_layers.py` 4-vs-6-layer
+        # prerequisite noted above still makes the chain red; removing the mask
+        # is a separate, maintainer-gated decision.
         continue-on-error: true
 
   # 2026-07-30: the 2026-07-29 split (see the comment above

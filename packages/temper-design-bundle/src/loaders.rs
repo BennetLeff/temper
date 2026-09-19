@@ -71,9 +71,11 @@
 //!   pre-migration module defined — a consumer that pickled the class, or
 //!   compared it by identity against a re-imported copy, would see the change.
 //!   No consumer does (verified 2026-08-04 across `src/`, `tests/`, `scripts/`).
-//! - `NetClassRulesDict` likewise gets its `__module__` restored (to
-//!   `temper_placer.io.netclass_loader`) so the class pickles by reference and
-//!   `repr(cls)` reads unchanged, and carries an explicit `__copy__` so
+//! - `NetClassRulesDict` gets its `__module__` set (to
+//!   `temper_design_bundle_python`, its real surviving home; the former
+//!   `temper_placer.io.netclass_loader` module was deleted 2026-09-10) so the
+//!   class pickles by reference and `repr(cls)` resolves, and carries an
+//!   explicit `__copy__` so
 //!   `copy.copy(result)` shallow-copies with both fields shared like the
 //!   dataclass. Instance pickling still fails (the held `DesignRules` is a
 //!   pyclass) — exactly like the pre-migration dataclass. Pinned by the
@@ -742,14 +744,14 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     let py = module.py();
     module.add_class::<NetClassRulesDict>()?;
 
-    // Restore the pre-migration `__module__` so pickling by reference,
-    // `repr(cls)` and tracebacks read `temper_placer.io.netclass_loader`
-    // exactly as before (mirrors the LoopLoadError restore below). Without
-    // this the class reports `builtins.NetClassRulesDict`, which breaks
-    // `pickle.loads(pickle.dumps(NetClassRulesDict))` (attribute lookup on
-    // builtins fails) — the pre-migration dataclass round-tripped fine.
+    // The pre-migration `__module__` was `temper_placer.io.netclass_loader`.
+    // That module is deleted (2026-09-10); leaving the string pointed at a
+    // non-importable module would make `pickle.loads(pickle.dumps(cls))` fail
+    // at attribute lookup. The class is a top-level export of this extension,
+    // so point at the extension's public package — correct by construction for
+    // pickle-by-reference, `repr(cls)` and tracebacks.
     let netclass_rules_dict = py.get_type::<NetClassRulesDict>();
-    netclass_rules_dict.setattr("__module__", "temper_placer.io.netclass_loader")?;
+    netclass_rules_dict.setattr("__module__", "temper_design_bundle_python")?;
 
     let loop_load_error = py.get_type::<LoopLoadError>();
     // Restore the pre-migration `__module__` so tracebacks and `repr(cls)`

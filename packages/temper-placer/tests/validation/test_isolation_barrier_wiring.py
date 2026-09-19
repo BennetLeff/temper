@@ -44,7 +44,6 @@ from temper_placer._constraint_types import IsolationBarrier
 from temper_placer.validation.drc_oracle import DRCOracle, _constraint_value_to_plain
 from temper_placer.validation.drc_runner import _placement_to_board_dict
 
-
 # ---------------------------------------------------------------------------
 # Fakes -- duck-typed stand-ins for the real Placement/context objects.
 # ---------------------------------------------------------------------------
@@ -134,7 +133,7 @@ class TestPlacementToBoardDictShape:
         reads the `Placement` pyclass (the `_FakePlacement` dataclass this
         test used previously is no longer accepted by the typed path); the
         zones-collision guard is asserted on the snapshot's `to_dict()`."""
-        from temper_placer.validation.drc_types import Placement
+        from temper_drc_rs import Placement
 
         placement = Placement(
             zones={"power_zone": (0.0, 110.0, 100.0, 150.0)},
@@ -159,7 +158,7 @@ class TestPlacementToBoardDictShape:
         Phase-A U5: the marshaler is the typed `DrcBoardSnapshot`, so the
         placement is built from the real `Placement` pyclasses and the shape
         is asserted on `to_dict()`."""
-        from temper_placer.validation.drc_types import Placement, TracePlacement, TraceSegment
+        from temper_drc_rs import Placement, TracePlacement, TraceSegment
 
         placement = Placement(
             trace_placement=TracePlacement(
