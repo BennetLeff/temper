@@ -60,9 +60,24 @@ functional-insulation (intra-circuit) class, not from a protective separation.
 
 The 2 mm construction floor stands for all three pairs on current evidence.
 The candidate is recorded as failing the screen (wrong-build-vs-screen),
-not as physically unsafe and not as qualified. Revisit only with: (a) the
-product standard and insulation class for these pairs stated with clause;
-(b) declared mains/OVC/pollution/material inputs; (c) a bounded transient
-environment with a verified clamp; (d) the 29.1.5 computation re-run on
-those inputs showing required clearance ≤1.94 mm with the justification
-written into the rule.
+not as physically unsafe and not as qualified. Revisit only with all of the
+following, per pair:
+
+(a) validated differential stress inputs — working voltage, impulse
+    withstand from the supply system and overvoltage category, and the
+    transient environment with a verified clamp (limiting values such as the
+    TEA 440 V / 700 V figures are not coordination inputs on their own);
+(b) the insulation classification and its governing clause stated with
+    reference (protective vs functional/intra-circuit determined, not assumed);
+(c) environment and manufacturing inputs (pollution degree, material group,
+    tolerances, altitude as applicable);
+(d) clearance AND creepage requirements derived from (a)–(c), evaluated
+    against the full geometry — PCB copper plus package leads, solder, and
+    the unconnected spacer pads — with the controlling path and its
+    requirement identified.
+
+A copper-clearance-only recomputation (e.g. 29.1.5 ≤ 1.94 mm) is not
+sufficient to reopen: the screen measures copper clearance, while the
+verdict may be determined by creepage or package geometry the screen does
+not see. The 60 µm shortfall may not be the limiting problem in either
+direction — resolution must name what is.
