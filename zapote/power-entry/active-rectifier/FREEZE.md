@@ -13,9 +13,11 @@ SHA-256: `f0b3682aa653ae900c78f9e3d8f3edfd0f7fd2d4496199e781a797489e80e6f8`
 
 U20 vsense-divider deviation dispositioned per `CLOSEOUT.md` §3 intent:
 divider top moved from diode-side `boost_output` to bank-side `hv_plus`
-(`elec/src/power_entry_active_unit.ato`). Opening F2 now removes boost
-feedback (controller blind to the bank); loss-of-feedback behavior, continued
-mains drive, and opening transients remain Q5 qualification work. The Rust
+(`elec/src/power_entry_active_unit.ato`). With F2 open, the controller keeps
+sensing the stranded bank (divider, bank, and control_gnd stay connected)
+while the boost stage can still energize the disconnected diode-side output:
+diode-side overvoltage, continued mains drive, and the resulting control
+behavior remain Q5 qualification work. The Rust
 contract (`power_entry_active.rs`), divider feed route (now bank-side F.Cu
 stub to the bleeder trunk), schematic, and test fixtures moved with it.
 

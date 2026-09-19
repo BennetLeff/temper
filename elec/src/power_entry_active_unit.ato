@@ -489,12 +489,14 @@ module PowerEntryActiveUnit:
     c4.plus ~ hv_plus
     c4.minus ~ control_gnd
     # Bank-voltage sensing sits bank-side of F2 per the qualification handoff:
-    # after F2 opens the controller must see bank voltage, not diode-side
-    # voltage. Consequence: opening F2 removes boost feedback (controller
-    # goes blind to the bank); loss-of-feedback behavior, continued mains
-    # drive, and opening transients remain qualification work (Q5).
-    # HF bypass stays diode-side of F2 for local commutation; that leaves
-    # 470 nF unfused (~0.0376 J at 400 V).
+    # after F2 opens, the controller keeps sensing the bank (divider,
+    # bank, and control_gnd stay one connected island), but that
+    # measurement is disconnected from the diode-side output the boost
+    # stage can still energize from mains. The diode side then runs
+    # open-loop into c_hf: diode-side overvoltage, continued mains drive,
+    # and what the stranded bank reading commands remain qualification
+    # work (Q5). HF bypass stays diode-side of F2 for local commutation;
+    # that leaves 470 nF unfused (~0.0376 J at 400 V).
     c_hf.plus ~ boost_output
     c_hf.minus ~ control_gnd
     output.plus ~ hv_plus
