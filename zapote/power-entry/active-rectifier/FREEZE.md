@@ -23,15 +23,15 @@ stub to the bleeder trunk), schematic, and test fixtures moved with it.
 
 ## Verdicts (plan `docs/plans/2026-09-19-001-fix-active-rectifier-construction-freeze-plan.md`)
 
-- **R1–R3 TEA spacing: FAIL vs the 2 mm construction screen (AE2 path).**
-  U1 pairs 3–5, 10–12, 14–16 at 1.94 mm
-  (`evidence/vsense-bank-side-01/common/power-entry.json`). The insulation-clause
-  question is now closed against retained texts
-  (`evidence/vsense-bank-side-01/tea-insulation-analysis.md`): Table 16 binds
-  protective separations and no functional-insulation clause is on file; the
-  29.1.5 arithmetic forks on undeclared mains/OVC/pollution inputs; NXP gives
-  no PCB figure and marks each gap with an HVS spacer. Floor stands. Screen
-  failure only — not claimed unsafe, not qualified.
+- **R1–R3 TEA spacing: FAIL, determined (not just screened).**
+  Copper is 1.94 mm vs the 2 mm screen, but the determination
+  (`evidence/vsense-bank-side-01/tea-determination.md`, 120 V mains declared)
+  shows clearance likely passes (~1.0–1.4 mm basic) while **Table 18
+  functional creepage governs and fails**: 2.2 mm (pairs 3–5, 10–12) and
+  6.3 mm (pair 14–16) required at PD3 vs ~0.78 mm of package surface.
+  No trace move, pad narrowing, or waiver fixes package-surface geometry.
+  Open tracks: different package, layout reclamation with clause basis, or
+  the unrun clause-19 exemption test.
 - **R4–R5 F2 mounting: paper geometry verified, fit provisional,
   unchanged.** Sole copper bridge remains U66 (re-audited on routed copper:
   no shared vias/zones, no second footprint across the split). U20 item
