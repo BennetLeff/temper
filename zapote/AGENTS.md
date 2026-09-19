@@ -121,6 +121,32 @@ documents contain the incident details and the evidence behind each rule.
   before trusting a result; preserve unrelated user work and generated-file
   requirements.
 
+### Dispatch and coordinator handback
+
+Use this compact contract for bounded engineering dispatches. For documentation
+or tooling work, name the revision and files and mark PCB/part identities as not
+applicable. It is an operating template, not a new harness schema:
+
+```text
+Acceptance row / intended decision: <milestone row> → <decision this enables>
+Variant identity: <exact variant/source revision, PCB hash, part/stackup hashes>
+Ownership: <geometry/software | circuit design | physical qualification>; <files owned>
+Decisive check: <command/oracle and input>; stop if <failure, missing input or deadline>
+Applicable lessons/current claims: <selected notes>; <withdrawn or superseded claims to search>
+Handback: <concrete changed artifact + evidence paths>; implemented: <...>
+blocked: <...>; remaining qualification or external dependency: <...>
+```
+
+The coordinator resolves the exact identities and acceptance row before work
+starts. Keep geometry/software, circuit design and physical qualification as
+separate ownership and status categories; a worker finishing its files does not
+close the milestone. Freeze worker writes before the final shared suite, then
+review the handback against the raw result and current decision tables. The
+[passive milestone](power-entry/passive-reva/MILESTONE.md) is a current example
+of this separation, not a permanent universal definition of done. Parallel
+workers may edit disjoint documents when the user has authorized that batch;
+shared-CAD changes remain coordinated and sequential.
+
 ## Evidence map
 
 Read the relevant detailed record before changing behavior in that area:

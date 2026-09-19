@@ -13,7 +13,34 @@ was not modified to recognize an additional entry.
 
 ## Commands and identity
 
-From repository root:
+From repository root, use the maintained passive manifest explicitly. The
+general Make target defaults to `validation/units.json`, the registry baseline;
+it must not silently stand in for this later shunt-repair variant. Paths passed
+to `make -C zapote` are relative to `zapote/`, or absolute:
+
+```sh
+make -C zapote check-units \
+  UNIT_MANIFEST=power-entry/shunt-repair/units.json \
+  RUN_DIR=/tmp/passive-reva-new-run \
+  KICAD_CLI=/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli \
+  KICAD_PYTHON=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
+```
+
+Choose a fresh `RUN_DIR` each time. `check-units` prints the selected manifest,
+rejects a missing manifest before Cargo starts, and runs the existing validator
+in release mode. Native setup still needs a Python that imports `pcbnew`, display
+access, and the candidate's KiCad sidecars/libraries. Check those before the
+expensive replay; no new preflight framework is introduced.
+
+Before the final run, finish integrating worker edits and pause all source/CAD
+mutations. Inspect `summary.json` and each unit report afterwards: a nonzero Make
+exit alone cannot distinguish an execution error, an engineering failure, and
+an INDETERMINATE outcome. Make maps all recipe failures to a nonzero Make status;
+the underlying runner uses 0/1/2 for PASS/FAIL/INDETERMINATE. Do not turn exit 2
+into success. A changed suite or missing result requires investigation.
+
+The direct release command used for the historical `baseline-04` receipt is
+retained below for provenance. Do not rerun into that existing directory:
 
 ```sh
 cargo build --release --locked --offline --manifest-path zapote/Cargo.toml -p zapote-harness --bin zapote-unit-run
@@ -71,3 +98,15 @@ This run used KiCad 10.0.4 and required native display access for pcbnew.
 - `baseline-04`: final completed stable-suite run described above.
 
 No attempt is silently discarded or counted as a full pass.
+
+## Workflow command verification (2026-09-19)
+
+[Compact verification record](workflow-command-check.json): the new Make entry
+point replayed all seven units with the same executable/source/input hashes,
+required and declared rule IDs, and finding rule/object/status/severity/values
+as `baseline-04`. All remain INDETERMINATE; the suite did not change during the
+run. Invocation probes also verify manifest overrides and spaced paths,
+missing/empty manifest rejection before Cargo, and nonzero failure propagation.
+The subsequent printf-only logging fix was checked with the final invocation
+probes. Raw replay and probe directories are temporary; the compact record does
+not replace the retained baseline or claim physical qualification.

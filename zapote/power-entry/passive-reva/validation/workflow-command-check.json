@@ -1,0 +1,76 @@
+{
+  "scope": "Release-mode Make entry point and bounded instruction changes; not physical qualification",
+  "verification_date": "2026-09-19",
+  "command_probes": {
+    "default_registry_release": "pass",
+    "override_spaced_paths_and_literal_identity": "pass",
+    "missing_before_cargo": "pass",
+    "empty_before_cargo": "pass",
+    "runner_exit_1_nonzero": "pass",
+    "runner_exit_2_nonzero": "pass"
+  },
+  "probe_logs_temporary": "/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/zapote-workflow-final-dlye7nny",
+  "live_run_temporary": "/tmp/zapote-workflow-live-20260919-01",
+  "comparison_baseline": "baseline-04",
+  "manifest_sha256": "19087ba71436ada2c7ecbab0731743b90e477c38d9f844817774bb37c18a5f11",
+  "executable_sha256": "683d16b467e6894de575247e05d8014220566bf034888dbeaeac24592cfc0ffb",
+  "suite_source_hashes_unchanged": true,
+  "suite_changed_during_run": false,
+  "live_status": "indeterminate",
+  "units": {
+    "rtd": {
+      "status": "indeterminate",
+      "inputs_required_and_checked_ids_match": true,
+      "finding_rule_object_status_severity_values_match": true,
+      "finding_entries_compared": 15
+    },
+    "current-sense": {
+      "status": "indeterminate",
+      "inputs_required_and_checked_ids_match": true,
+      "finding_rule_object_status_severity_values_match": true,
+      "finding_entries_compared": 19
+    },
+    "voltage-sense": {
+      "status": "indeterminate",
+      "inputs_required_and_checked_ids_match": true,
+      "finding_rule_object_status_severity_values_match": true,
+      "finding_entries_compared": 107
+    },
+    "thermal-sense": {
+      "status": "indeterminate",
+      "inputs_required_and_checked_ids_match": true,
+      "finding_rule_object_status_severity_values_match": true,
+      "finding_entries_compared": 112
+    },
+    "interlock": {
+      "status": "indeterminate",
+      "inputs_required_and_checked_ids_match": true,
+      "finding_rule_object_status_severity_values_match": true,
+      "finding_entries_compared": 91
+    },
+    "gate-drive": {
+      "status": "indeterminate",
+      "inputs_required_and_checked_ids_match": true,
+      "finding_rule_object_status_severity_values_match": true,
+      "finding_entries_compared": 133
+    },
+    "power-entry": {
+      "status": "indeterminate",
+      "inputs_required_and_checked_ids_match": true,
+      "finding_rule_object_status_severity_values_match": true,
+      "finding_entries_compared": 445
+    }
+  },
+  "review": {
+    "receipt_temporary": "/tmp/zapote-workflow-review-20260919/review.json",
+    "finding": "Make abspath split paths with spaces in identity log",
+    "resolution": "Print literal path plus resolution base; final command probe verifies both log and argv"
+  },
+  "limits": [
+    "Full native run preceded the final printf-only logging fix; final invocation probes cover that fix.",
+    "No engineering validator logic, source circuit or PCB changed.",
+    "No permanent automated test added for Make configuration; executable invocation probes and live unchanged-suite comparison are the verification.",
+    "Raw live outputs and probe logs are temporary; this is a compact verification summary, not a replacement for full run evidence."
+  ],
+  "verification_note": "Comparison inspects the actual report rule field and requires nonempty finding sets; the first scratch rule_id lookup produced zero entries and was rejected before accepting this comparison."
+}

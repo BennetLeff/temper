@@ -85,16 +85,17 @@ selected"; "part selected" is not "coordination demonstrated"; nothing is
    two of our own implementations. Say explicitly when none exists.
 6. **Keep unresolved quantities null.** A null with a named missing input is a
    result. A filled-in number without evidence is a defect.
-7. **Run the checks and retain their output.** See below. Passing a check means
-   the derivations are sound, not that the claims are true. The CLI reports
-   "no violations detected by implemented checks" and says so in its own output.
+7. **Run the checks and retain their output.** See below. A pass means only that
+   the implemented checks found no violation; it does not establish sound
+   derivations, true claims or a protected design. The CLI reports this limit in
+   its own output.
 
 ## Tooling
 
 | Check | Command | Catches |
 | --- | --- | --- |
 | Evidence ledger | `zapote-claims LEDGER.json` | bound reversal, the maximum→minimum inference, a changed condition or part without a declared transformation, silent fault-state change, illustrative→qualified promotion, unnamed or failed interrupting device, broken completion history, any evidence reference that is malformed or does not resolve to retained bytes — across claims, protection claims and promotions alike — and any claim with no declared origin, any derivation that names no inputs, duplicated ids, inputs naming no claim, and dependency cycles |
-| Fault loop | `zapote-fault-loop NETLIST.json --loop-nets A,B,C --assignments A.json` | current assigned to an element that cannot conduct in the declared loop |
+| Fault loop | `zapote-fault-loop NETLIST.json --loop-nets A,B,C --assignments A.json` | necessary connectivity check: each assigned loop element must expose at least two terminals on the declared loop nets; it does not prove conduction |
 
 Both are Rust under `zapote-erc`; the Python entry points are thin wrappers. The
 campaign's acceptance regressions
@@ -123,6 +124,15 @@ ledgers through them, so a ledger that regresses fails the normal test suite.
 ## Reporting
 
 State which failure classes each finding falls in, which artifacts support it,
-and which quantities remain null with what would resolve them. When a review
-correction turns out to be mechanically checkable, add the regression case —
-including a valid counterexample so the check does not simply reject everything.
+and which quantities remain null with what would resolve them. When a mechanical
+correction meets the freeze's reopening rule below, add the regression case with
+a valid counterexample so the check does not simply reject everything.
+Before accepting a campaign or worker result, the coordinator records a receipt
+that reviews the numeric results, exact parts and conditions, and status against
+the retained raw outputs and current decision tables. For a withdrawn claim,
+perform a targeted search of current tables and summaries for the superseded
+wording and link the replacement or historical record. Treat the receipt as an
+integration review: implemented, evaluated, unsupported and externally blocked
+remain separate statuses. The campaign's [ARC-SUMMARY §10 freeze](../../power-entry/loss-budget/campaign/ARC-SUMMARY.md#10-harness-development-is-frozen-2026-09-18)
+still applies; a mechanical finding does not by itself require a new regression
+or checker. Reopen that work only under the documented milestone/workflow rule.

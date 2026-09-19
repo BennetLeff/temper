@@ -205,7 +205,10 @@ records the external dependency; it does not repeatedly redispatch “finish it.
 
 ## Recommended changes, in priority order
 
-These are proposals, not implemented harness changes. Reuse existing homes.
+The first three rows are now implemented in the existing instruction, Makefile
+and review-skill homes; see the [workflow verification](../../zapote/power-entry/passive-reva/validation/workflow-command-check.json).
+The remaining rows are proposals. This does not change the engineering
+milestone status or reopen general harness development.
 
 | Priority / home | Bounded change | Evidence that it helped |
 |---|---|---|
@@ -217,8 +220,8 @@ These are proposals, not implemented harness changes. Reuse existing homes.
 | P1 — repeated decision tables only | Generate numeric rows with part, condition, evidence class and status from the reviewed record; keep narrative reasoning reviewed | Changing a datum or withdrawing a bound updates the current table; historical raw receipts remain intact |
 | Conditional — existing ERC/DRC owners | Add only demonstrated missing checks on current edited geometry/model paths, with independent oracle or analytic case and valid counterexample | A representative old defect fails for the intended reason while a correct neighboring case passes; coverage includes actual production inputs |
 
-The first batch should be the first three rows. It is a small workflow repair,
-not a new harness architecture. The remaining proposals wait until their actual
+The implemented first batch is a small workflow repair, not a new harness
+architecture. The remaining proposals wait until their actual
 consumer is touched. Do not mix all seven into the next circuit revision.
 
 ERC/DRC still matter: source-to-native pin identity, stackup, clearances,
