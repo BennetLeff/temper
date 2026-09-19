@@ -73,7 +73,7 @@ The active runner now evaluates the board but power entry stays FAIL on three in
 
 ### Outstanding Questions
 
-- Resolve Before Planning: which insulation standard and clause actually governs the three TEA pairs on this board?
+- Resolve Before Planning: which insulation standard and clause actually governs the three TEA pairs on this board? → Closed 2026-09-19 in `zapote/power-entry/active-rectifier/evidence/vsense-bank-side-01/tea-insulation-analysis.md`: no relieving clause on file; 2 mm floor stands.
 - Deferred to Planning: exact rerun command set and receipt layout for the frozen bytes.
 - Deferred to Planning (review 2026-09-19): confirm the frozen verdict still decides when the governing clause is unresolved at freeze time; state the R7 FAIL-as-success gate so PASS and FAIL cannot both satisfy it vacuously; record which retained F2 assumptions the paper verification re-checks versus inherits; pin runner version/flags/sample handling for the R6 rerun; define the escalation when R2 evidence splits across the dual TEA tracks.
 
