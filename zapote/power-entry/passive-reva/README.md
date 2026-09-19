@@ -7,6 +7,10 @@ in this CAD or BOM**. Active-bridge construction remains paused.
 
 The user-directed objective and completion criteria are in [MILESTONE.md](MILESTONE.md).
 
+The [2026-09-19 follow-up review](REVIEW-2026-09-19.md) records the exact-part
+loss and F2-open findings, remaining design dependencies, and the limited
+verification performed after this checkpoint.
+
 ## What is concrete
 
 - The separate authored entry is
