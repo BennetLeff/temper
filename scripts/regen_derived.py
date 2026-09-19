@@ -102,6 +102,11 @@ PURE_GENERATORS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     ),
     (
         "gen_wasm_test_registry.py",
+        "gen_wasm_test_registry.py [temper-quality-oracle]",
+        ("--crate", "temper-quality-oracle"),
+    ),
+    (
+        "gen_wasm_test_registry.py",
         "gen_wasm_test_registry.py [temper-rust-router-core]",
         ("--crate", "temper-rust-router-core"),
     ),

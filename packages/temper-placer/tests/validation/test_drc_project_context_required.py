@@ -32,6 +32,7 @@ from temper_placer.validation._drc_api import (
     DrcProjectContextError,
     DrcRunnerError,
     copy_kicad_project_sidecar,
+    ensure_complete_kicad_project,
     ensure_resolvable_kicad_project,
     is_kicad_cli_available,
     run_drc,
@@ -59,6 +60,62 @@ class TestEnsureResolvableKicadProject:
         pcb.with_suffix(".kicad_pro").write_text("{}")
         ensure_resolvable_kicad_project(pcb)  # must not raise
 
+
+class TestEnsureCompleteKicadProject:
+    """Strict candidate evidence requires generated rules and local libs."""
+
+    def _stage(self, tmp_path):
+        pcb = tmp_path / "candidate.kicad_pcb"
+        pcb.write_text("(kicad_pcb)\n")
+        pcb.with_suffix(".kicad_pro").write_text("{}\n")
+        pcb.with_suffix(".kicad_dru").write_text("(version 1)\n")
+        (tmp_path / "fp-lib-table").write_text(
+            '(fp_lib_table (lib (name "candidate")(type "KiCad")'
+            '(uri "${KIPRJMOD}/libs/candidate.pretty")(options "")(descr "")))\n'
+        )
+        return pcb
+
+    def test_requires_generated_dru(self, tmp_path):
+        pcb = self._stage(tmp_path)
+        pcb.with_suffix(".kicad_dru").unlink()
+        with pytest.raises(DrcProjectContextError, match="missing generated DRU"):
+            ensure_complete_kicad_project(pcb)
+
+    def test_requires_sibling_fp_lib_table(self, tmp_path):
+        pcb = self._stage(tmp_path)
+        (tmp_path / "fp-lib-table").unlink()
+        with pytest.raises(DrcProjectContextError, match="fp-lib-table"):
+            ensure_complete_kicad_project(pcb)
+
+    def test_requires_declared_project_local_library(self, tmp_path):
+        pcb = self._stage(tmp_path)
+        with pytest.raises(DrcProjectContextError, match="footprint libraries"):
+            ensure_complete_kicad_project(pcb)
+
+    def test_accepts_complete_project_context(self, tmp_path):
+        pcb = self._stage(tmp_path)
+        (tmp_path / "libs" / "candidate.pretty").mkdir(parents=True)
+        ensure_complete_kicad_project(pcb)
+
+    @pytest.mark.parametrize(
+        "relative",
+        ["../outside.pretty", "/absolute.pretty", "C:/outside.pretty", r"..\outside.pretty"],
+    )
+    def test_rejects_unsafe_project_local_library_paths(self, tmp_path, relative):
+        pcb = self._stage(tmp_path)
+        (tmp_path / "fp-lib-table").write_text(
+            f'(fp_lib_table (lib (uri "${{KIPRJMOD}}/{relative}")))'
+        )
+        with pytest.raises(DrcProjectContextError, match="Unsafe project-local"):
+            ensure_complete_kicad_project(pcb)
+
+    def test_rejects_project_local_library_symlink_escape(self, tmp_path):
+        pcb = self._stage(tmp_path)
+        outside = Path("/tmp")
+        (tmp_path / "libs").symlink_to(outside, target_is_directory=True)
+        with pytest.raises(DrcProjectContextError, match="Unsafe project-local"):
+            ensure_complete_kicad_project(pcb)
+
     def test_project_context_error_is_a_drc_runner_error(self):
         """Callers that already catch the broad DrcRunnerError (CI's
         ci_check_drc.py, RegressionRunner._run_board, ...) must not need a
@@ -69,6 +126,48 @@ class TestEnsureResolvableKicadProject:
 
 
 class TestCopyKicadProjectSidecar:
+    def test_rejects_unsafe_project_local_path_before_copying(self, tmp_path):
+        source_pcb = tmp_path / "source" / "real.kicad_pcb"
+        source_pcb.parent.mkdir()
+        source_pcb.write_text("(kicad_pcb)")
+        (tmp_path / "source" / "real.kicad_pro").write_text("{}")
+        (tmp_path / "source" / "fp-lib-table").write_text(
+            '(fp_lib_table (lib (uri "${KIPRJMOD}/../outside.pretty")))'
+        )
+        scratch_pcb = tmp_path / "scratch" / "copy.kicad_pcb"
+        scratch_pcb.parent.mkdir()
+        scratch_pcb.write_text("(kicad_pcb)")
+
+        with pytest.raises(DrcProjectContextError, match="Unsafe project-local"):
+            copy_kicad_project_sidecar(scratch_pcb, source_pcb)
+        assert not scratch_pcb.with_suffix(".kicad_pro").exists()
+
+    def test_propagates_project_local_fp_lib_context(self, tmp_path):
+        source_pcb = tmp_path / "source" / "real.kicad_pcb"
+        source_pcb.parent.mkdir()
+        source_pcb.write_text("(kicad_pcb)")
+        (tmp_path / "source" / "real.kicad_pro").write_text("{}")
+        (tmp_path / "source" / "fp-lib-table").write_text(
+            '(fp_lib_table (lib (name "local")(type "KiCad")'
+            '(uri "${KIPRJMOD}/libs/local.pretty")(options "")(descr "")))'
+        )
+        (tmp_path / "source" / "libs" / "local.pretty").mkdir(parents=True)
+        (tmp_path / "source" / "libs" / "local.pretty" / "local.kicad_mod").write_text(
+            "(footprint local)"
+        )
+
+        scratch_pcb = tmp_path / "scratch" / "copy.kicad_pcb"
+        scratch_pcb.parent.mkdir()
+        scratch_pcb.write_text("(kicad_pcb)")
+        copy_kicad_project_sidecar(scratch_pcb, source_pcb)
+
+        assert scratch_pcb.parent.joinpath("fp-lib-table").read_text() == (
+            tmp_path / "source" / "fp-lib-table"
+        ).read_text()
+        assert scratch_pcb.parent.joinpath("libs/local.pretty/local.kicad_mod").read_text() == (
+            "(footprint local)"
+        )
+
     def test_propagates_project_and_dru_under_the_copy_s_own_stem(self, tmp_path):
         source_pcb = tmp_path / "source" / "real.kicad_pcb"
         source_pcb.parent.mkdir()

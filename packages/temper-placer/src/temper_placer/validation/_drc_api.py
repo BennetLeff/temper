@@ -23,7 +23,7 @@ import sys
 import tempfile
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 
 class DrcRunnerError(Exception):
@@ -90,6 +90,10 @@ class DrcProjectContextError(DrcRunnerError):
     """
 
 
+_PROJECT_LOCAL_FOOTPRINT_URI_RE = re.compile(r'\(uri\s+"\$\{KIPRJMOD\}/([^"]+)"\)')
+_FOOTPRINT_START_RE = re.compile(r'^\s*\(footprint\s+"', re.MULTILINE)
+
+
 def _kicad_project_path(pcb_path: Path) -> Path:
     """The ``.kicad_pro`` kicad-cli would resolve for *pcb_path* -- same
     stem, same directory, per KiCad's own project-file convention."""
@@ -124,15 +128,80 @@ def ensure_resolvable_kicad_project(pcb_path: Path) -> None:
         )
 
 
+def ensure_complete_kicad_project(pcb_path: Path) -> None:
+    """Require the project-local context needed for strict DRC evidence.
+
+    The historical parsed API only requires a sibling ``.kicad_pro``.  A
+    candidate evidence measurement also needs the generated rules and every
+    project-local footprint library declared by ``fp-lib-table``; otherwise
+    kicad-cli can silently produce a partial report.
+    """
+    ensure_resolvable_kicad_project(pcb_path)
+    dru_path = pcb_path.with_suffix(".kicad_dru")
+    if not dru_path.is_file():
+        raise DrcProjectContextError(
+            f"Incomplete KiCad project for {pcb_path}: missing generated DRU {dru_path}"
+        )
+    table_path = pcb_path.parent / "fp-lib-table"
+    if not table_path.is_file():
+        raise DrcProjectContextError(
+            f"Incomplete KiCad project for {pcb_path}: missing sibling {table_path}"
+        )
+    try:
+        table = table_path.read_text(encoding="utf-8")
+    except OSError as error:
+        raise DrcProjectContextError(
+            f"Incomplete KiCad project for {pcb_path}: cannot read {table_path}: {error}"
+        ) from error
+    missing: list[str] = []
+    for relative in _PROJECT_LOCAL_FOOTPRINT_URI_RE.findall(table):
+        library_path = _project_local_library_path(pcb_path.parent, relative)
+        if not library_path.exists():
+            missing.append(relative)
+    if missing:
+        raise DrcProjectContextError(
+            f"Incomplete KiCad project for {pcb_path}: missing project-local "
+            f"footprint libraries declared by fp-lib-table: {missing}"
+        )
+
+
+def _project_local_library_path(project_dir: Path, relative: str) -> Path:
+    """Resolve a ``${KIPRJMOD}`` URI without permitting project escape."""
+    posix = PurePosixPath(relative)
+    windows = PureWindowsPath(relative)
+    if (
+        posix.is_absolute()
+        or windows.is_absolute()
+        or windows.drive
+        or ".." in posix.parts
+        or ".." in windows.parts
+    ):
+        raise DrcProjectContextError(
+            "Unsafe project-local footprint library path in fp-lib-table: "
+            f"{relative!r} escapes the KiCad project directory"
+        )
+
+    project_root = project_dir.resolve()
+    candidate = (project_root / relative).resolve()
+    try:
+        candidate.relative_to(project_root)
+    except ValueError as error:
+        raise DrcProjectContextError(
+            "Unsafe project-local footprint library path in fp-lib-table: "
+            f"{relative!r} escapes the KiCad project directory"
+        ) from error
+    return candidate
+
+
 def copy_kicad_project_sidecar(pcb_path: Path, source_pcb_path: Path) -> None:
     """Give a scratch copy of a board a resolvable KiCad project, so DRC on
     it is not silently blind to the source project's custom rules.
 
-    Copies ``<source_pcb_path.stem>.kicad_pro`` (and, if present,
-    ``<source_pcb_path.stem>.kicad_dru``) from ``source_pcb_path``'s
-    directory to ``<pcb_path.stem>.kicad_pro`` / ``.kicad_dru`` next to
-    *pcb_path* -- i.e. renamed to match the scratch copy's own stem, which
-    is what kicad-cli's project-resolution-by-filename-convention requires.
+    Copies the project, generated rules, and (when present) the sibling
+    ``fp-lib-table`` plus its project-local ``${KIPRJMOD}`` libraries from
+    ``source_pcb_path``'s directory to the scratch directory. The project
+    and rules are renamed to match the scratch copy's own stem, which is
+    what kicad-cli's project-resolution-by-filename convention requires.
 
     This is the supported way to DRC a routed/mutated/otherwise-derived copy
     of a real board without tripping :func:`ensure_resolvable_kicad_project`
@@ -150,12 +219,35 @@ def copy_kicad_project_sidecar(pcb_path: Path, source_pcb_path: Path) -> None:
             f"source board {source_pcb_path} has no {source_project} to "
             f"propagate -- cannot give the copy a resolvable project"
         )
+    # Validate all project-local paths before copying any table or library.
+    source_table = source_pcb_path.parent / "fp-lib-table"
+    local_libraries: list[tuple[Path, Path]] = []
+    if source_table.is_file():
+        table = source_table.read_text(encoding="utf-8")
+        for relative in _PROJECT_LOCAL_FOOTPRINT_URI_RE.findall(table):
+            source_library = _project_local_library_path(source_pcb_path.parent, relative)
+            destination_library = _project_local_library_path(pcb_path.parent, relative)
+            local_libraries.append((source_library, destination_library))
+
     dest_project = _kicad_project_path(pcb_path)
     shutil.copyfile(source_project, dest_project)
 
     source_dru = source_pcb_path.with_suffix(".kicad_dru")
     if source_dru.exists():
         shutil.copyfile(source_dru, pcb_path.with_suffix(".kicad_dru"))
+
+    # Strict candidate evidence also requires the project-local footprint
+    # table and every ${KIPRJMOD} library it names. Global KiCad libraries
+    # remain resolved through the seeded KICAD_CONFIG_HOME and need no copy.
+    if source_table.is_file():
+        destination_table = pcb_path.parent / "fp-lib-table"
+        shutil.copyfile(source_table, destination_table)
+        for source_library, destination_library in local_libraries:
+            if source_library.is_dir():
+                shutil.copytree(source_library, destination_library, dirs_exist_ok=True)
+            elif source_library.is_file():
+                destination_library.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source_library, destination_library)
 
 
 @dataclass
@@ -243,6 +335,30 @@ class DrcResult:
     warnings: list[DrcWarning] = field(default_factory=list)
     ignored_checks: list[str] = field(default_factory=list)
     included_severities: list[str] = field(default_factory=list)
+
+
+@dataclass
+class DrcMeasurement:
+    """One kicad-cli invocation in parsed and lossless forms.
+
+    ``raw_report_bytes`` is the exact byte sequence emitted by kicad-cli,
+    retained before the temporary report is removed. ``raw_report`` is the
+    decoded convenience view for consumers that need to inspect included and
+    excluded findings without reparsing. ``result`` remains the historical
+    structured API.
+    """
+
+    result: DrcResult
+    raw_report_bytes: bytes
+    raw_report: dict
+    thread_pinned: bool
+
+    @property
+    def raw_findings(self) -> list[dict]:
+        """All violation-shaped arrays in the parser's canonical order."""
+        return [
+            finding for key in _VIOLATION_ARRAY_KEYS for finding in self.raw_report.get(key, [])
+        ]
 
 
 @dataclass
@@ -698,9 +814,8 @@ def drc_violation_key(violation: dict) -> tuple:
     )
 
 
-def _parse_drc_json(json_path: Path) -> DrcResult:
-    """
-    Parse kicad-cli DRC JSON output.
+def _parse_drc_report(data: dict, json_path: Path) -> DrcResult:
+    """Parse an already-decoded kicad-cli DRC report.
 
     Reads EVERY violation-shaped top-level array kicad-cli emits -- see the
     key registry above -- not just ``violations``.  Raises
@@ -708,7 +823,8 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
     than dropping it silently.
 
     Args:
-        json_path: Path to JSON report file.
+        data: Decoded JSON report.
+        json_path: Path to JSON report file, used in diagnostics.
 
     Returns:
         DrcResult with parsed errors and warnings.
@@ -718,9 +834,6 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
             in neither ``_VIOLATION_ARRAY_KEYS`` nor ``_METADATA_KEYS`` --
             i.e. a section this parser would otherwise silently drop.
     """
-    with open(json_path) as f:
-        data = json.load(f)
-
     unknown = sorted(set(data) - _KNOWN_TOP_LEVEL_KEYS)
     if unknown:
         raise DrcReportSchemaError(
@@ -792,15 +905,54 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
     )
 
 
-def run_drc(pcb_path: Path) -> DrcResult:
-    """
-    Run KiCad DRC on a PCB file.
+def _parse_drc_json(json_path: Path) -> DrcResult:
+    """Parse a kicad-cli DRC JSON file while preserving legacy callers."""
+    raw_report_bytes = json_path.read_bytes()
+    return _parse_drc_report(json.loads(raw_report_bytes), json_path)
+
+
+def _reject_footprint_resolution_failure(pcb_path: Path, raw_report: dict) -> None:
+    """Reject the all-footprints-unresolved kicad-cli report signature."""
+    try:
+        board_text = pcb_path.read_text(encoding="utf-8")
+    except OSError as error:
+        raise DrcProjectContextError(
+            f"Cannot census footprints in measured subject {pcb_path}: {error}"
+        ) from error
+    footprint_count = len(_FOOTPRINT_START_RE.findall(board_text))
+    by_type = {"lib_footprint_issues": 0, "lib_footprint_mismatch": 0}
+    for key in _VIOLATION_ARRAY_KEYS:
+        for finding in raw_report.get(key, []):
+            category = finding.get("type")
+            if category in by_type:
+                by_type[category] += 1
+    if (
+        footprint_count > 0
+        and by_type["lib_footprint_issues"] == footprint_count
+        and by_type["lib_footprint_mismatch"] == 0
+    ):
+        raise DrcProjectContextError(
+            "KiCad footprint resolution failure for "
+            f"{pcb_path}: lib_footprint_issues={footprint_count} equals the "
+            "subject footprint census while lib_footprint_mismatch=0. "
+            "Refusing to treat unresolved libraries as a DRC measurement."
+        )
+
+
+def run_drc_measurement(pcb_path: Path, *, strict: bool = True) -> DrcMeasurement:
+    """Run one DRC measurement and retain raw and parsed report forms.
+
+    Strict measurements are the candidate-evidence path: they require the
+    complete project-local context, a pinned KiCad worker pool, and request
+    all track errors, all severities, and zone refill.  ``strict=False`` is
+    retained for the historical :func:`run_drc` wrapper and deliberately
+    keeps its project guard and invocation behavior.
 
     Args:
         pcb_path: Path to .kicad_pcb file.
 
     Returns:
-        DrcResult with all errors and warnings.
+        A :class:`DrcMeasurement` backed by one kicad-cli invocation.
 
     Raises:
         FileNotFoundError: If PCB file doesn't exist.
@@ -823,7 +975,10 @@ def run_drc(pcb_path: Path) -> DrcResult:
     # run before the subprocess call below -- kicad-cli itself gives no
     # warning when it can't resolve a project, it just quietly measures
     # fewer categories.
-    ensure_resolvable_kicad_project(pcb_path)
+    if strict:
+        ensure_complete_kicad_project(pcb_path)
+    else:
+        ensure_resolvable_kicad_project(pcb_path)
 
     # Get output path for JSON report
     with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
@@ -856,18 +1011,30 @@ def run_drc(pcb_path: Path) -> DrcResult:
         # _single_threaded_kicad_env): with the default pool the *count*
         # itself moves run to run.
         with _single_threaded_kicad_env() as env:
-            result = subprocess.run(
-                [
-                    "kicad-cli",
-                    "pcb",
-                    "drc",
-                    "--all-track-errors",
+            if strict and env is None:
+                raise DrcRunnerError(
+                    "Strict DRC measurement requires the single-thread KiCad "
+                    "configuration; ambient/unpinned fallback is not evidence."
+                )
+            command = [
+                "kicad-cli",
+                "pcb",
+                "drc",
+                "--all-track-errors",
+            ]
+            if strict:
+                command.extend(("--severity-all", "--refill-zones"))
+            command.extend(
+                (
                     "--format",
                     "json",
                     "--output",
                     str(json_path),
                     str(pcb_path),
-                ],
+                )
+            )
+            result = subprocess.run(
+                command,
                 capture_output=True,
                 text=True,
                 timeout=60,
@@ -884,12 +1051,30 @@ def run_drc(pcb_path: Path) -> DrcResult:
                 f"stderr: {result.stderr}"
             )
 
-        if not json_path.exists():
+        try:
+            raw_report_bytes = json_path.read_bytes()
+        except FileNotFoundError as error:
             raise DrcRunnerError(
                 f"DRC did not produce output file. stdout: {result.stdout}, stderr: {result.stderr}"
-            )
+            ) from error
 
-        return _parse_drc_json(json_path)
+        try:
+            raw_report = json.loads(raw_report_bytes)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise DrcReportSchemaError(
+                f"Cannot retain raw kicad-cli DRC report {json_path}: {error}"
+            ) from error
+        # Derive parsed records from the exact byte buffer retained below;
+        # the legacy path-based parser remains available for existing users.
+        parsed = _parse_drc_report(raw_report, json_path)
+        if strict:
+            _reject_footprint_resolution_failure(pcb_path, raw_report)
+        return DrcMeasurement(
+            result=parsed,
+            raw_report_bytes=raw_report_bytes,
+            raw_report=raw_report,
+            thread_pinned=env is not None,
+        )
 
     except subprocess.TimeoutExpired as e:
         raise DrcRunnerError("DRC timed out after 60 seconds") from e
@@ -897,6 +1082,10 @@ def run_drc(pcb_path: Path) -> DrcResult:
         raise DrcRunnerError(f"Failed to run kicad-cli: {e}") from e
     finally:
         # Clean up JSON file
-        if json_path.exists():
-            with contextlib.suppress(OSError):
-                json_path.unlink()
+        with contextlib.suppress(FileNotFoundError, OSError):
+            json_path.unlink()
+
+
+def run_drc(pcb_path: Path) -> DrcResult:
+    """Run KiCad DRC with the historical parsed-result compatibility shape."""
+    return run_drc_measurement(pcb_path, strict=False).result

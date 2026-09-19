@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-19'
-  total_scripts: 174
+  total_scripts: 175
   counts:
-    keep: 161
+    keep: 162
     ticket: 13
   ticket_scripts_deleted: 43
 scripts:
@@ -321,7 +321,10 @@ scripts:
   - _lib.repo
   - argparse
   - ast
+  - collections.abc
   - dataclasses
+  - hashlib
+  - json
   - pathlib
   - re
   - sys
@@ -2980,6 +2983,21 @@ scripts:
   imports:
   - __future__
   - argparse
+  - hashlib
+  - json
+  - pathlib
+  - sys
+  - typing
+- path: check_split_board_feasibility.py
+  purpose: Sealed Rust-owned replay gate for split-board admission and U7 terminal evidence
+  owner: split.qualification_integration
+  last_run: '2026-09-04'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections.abc
   - hashlib
   - json
   - pathlib
