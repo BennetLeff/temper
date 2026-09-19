@@ -383,9 +383,9 @@ mod tests {
             .join("../../power-entry/active-rectifier");
         let source = std::fs::read_to_string(root.join("candidate/source-manifest.json")).unwrap();
         let native = std::fs::read_to_string(root.join(
-            "evidence/rust-integration-01/native-contact-repaired.json")).unwrap();
+            "evidence/vsense-bank-side-01/native.json")).unwrap();
         let manufacturing = serde_json::from_slice(&std::fs::read(root.join(
-            "evidence/rust-integration-01/common-suite-final/power-entry/manufacturing-input.json"
+            "evidence/vsense-bank-side-01/common/power-entry/manufacturing-input.json"
         )).unwrap()).unwrap();
         let report = run(&source, &native, &manufacturing);
         assert!(!report.findings.iter().any(|f| f.status == Status::Fail), "{:?}", report.findings);

@@ -4,7 +4,7 @@ use zapote_erc::source_circuit::Circuit;
 
 const SOURCE: &str =
     include_str!("../../../power-entry/active-rectifier/candidate/source-manifest.json");
-const NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/native.json");
+const NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/vsense-bank-side-01/native.json");
 
 fn source_value() -> Value {
     serde_json::from_str(SOURCE).unwrap()

@@ -1,0 +1,276 @@
+{
+  "status": "fail",
+  "findings": [
+    {
+      "rule": "ERC.PFC.INTERFACE_PINS",
+      "severity": "info",
+      "status": "pass",
+      "message": "11 reviewed connector pins match: single HOT bus, no midpoint; bias, relay and permit returns are PFC_BUS_MINUS, distinct from PE",
+      "object": "power-entry.interfaces",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.BUS_ENVELOPE",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "The reviewed setpoint is 389.615 V nominal, not a guaranteed maximum. Ripple, overshoot and faults require a source-bound bus envelope before rating downstream consumers. Legacy split-bus consumers are not accepted.",
+      "object": "power-entry.output",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.ISOLATED_BIAS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "External regulated 15 V bias must return to HOT PFC_BUS_MINUS. The auxiliary unit, load/startup budget, source architecture and isolation evidence are absent; CTRL_GND or PE cannot substitute for this return.",
+      "object": "power-entry.aux",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.EXTERNAL_SUPERVISOR",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "HOT permit and relay-bypass inputs need isolated external producers and verified startup, precharge, loss-of-bias, reset and fault sequencing. Default-off static topology is not a shutdown timing or stored-energy guarantee.",
+      "object": "power-entry.permit/control",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.INPUT_FOLDBACK",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "15 A RMS and PF 0.99 bound nominal 120 V input to 1782 W before losses. Low-line foldback and fault/inrush currents remain unmodeled; a nominal 1800 W target cannot waive the input-current limit.",
+      "object": "power-entry.mains",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.UVLO",
+      "severity": "info",
+      "status": "pass",
+      "message": "executed source-bound UVLO cases: 9.0 V guarantees off while 12.0 V remains in the startup uncertainty band",
+      "object": "U11.VCC",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.STANDBY",
+      "severity": "info",
+      "status": "pass",
+      "message": "executed independent datasheet-bound scenario: VSENSE standby threshold",
+      "object": "VSENSE standby threshold",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.OVP_HYSTERESIS",
+      "severity": "info",
+      "status": "pass",
+      "message": "executed independent datasheet-bound scenario: high OVP shutdown",
+      "object": "high OVP shutdown",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.ISENSE_OPEN",
+      "severity": "info",
+      "status": "pass",
+      "message": "executed independent datasheet-bound scenario: ISENSE open-pin shutdown",
+      "object": "ISENSE open-pin shutdown",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.ICOMP",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "executed datasheet case remains indeterminate: ICOMP unit ambiguity",
+      "object": "ICOMP unit ambiguity",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.SOC_PCL",
+      "severity": "info",
+      "status": "pass",
+      "message": "executed independent datasheet-bound scenario: SOC average-current limit",
+      "object": "SOC average-current limit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.SOC_PCL",
+      "severity": "info",
+      "status": "pass",
+      "message": "executed independent datasheet-bound scenario: PCL immediate gate shutdown",
+      "object": "PCL immediate gate shutdown",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.BIAS_PRIORITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "UVLO inhibits PWM at the tested 9 V point; the inhibit-clamp release versus UVLO sequence during bias decay is not time-modeled",
+      "object": "UVLO bias priority",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.EXTERNAL_DISCONNECT",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "controller PWM disable is not galvanic mains isolation; external disconnect and discharge behavior are unmodeled",
+      "object": "power-entry.mains",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.PROTECTION.TIMING",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "datasheet provides no guaranteed propagation delay for UVLO, OLP, OVP, ISOP, ICOMP, SOC, or PCL shutdown",
+      "object": "power-entry.timing",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.PFC.SHUNT_PART",
+      "severity": "info",
+      "status": "pass",
+      "message": "HCSM2818FT10L0 is 10 mΩ ±1%, 5 W nominal with 500 mm² PCB copper and surface below 100 °C; thermal qualification remains separate",
+      "object": "shunt",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.POWER_ENTRY.SOURCE_GRAPH",
+      "severity": "info",
+      "status": "pass",
+      "message": "reviewed PFC component and net graph matches the construction contract",
+      "object": "PowerEntryUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.BOARD.STACKUP",
+      "severity": "info",
+      "status": "pass",
+      "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+      "object": "board.setup.stackup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+      "severity": "info",
+      "status": "pass",
+      "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.POWER_ENTRY.SAVED_BYTES",
+      "severity": "info",
+      "status": "pass",
+      "message": "native evidence contains the supplied board bytes",
+      "object": "board",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.POWER_ENTRY.CONNECTIVITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "native copper clusters exactly match every source net",
+      "object": "connectivity_clusters",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.CLEARANCE_PROFILE",
+      "severity": "info",
+      "status": "pass",
+      "message": "native copper clears 0.2 mm fabrication floor",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.CLEARANCE_PROFILE",
+      "severity": "error",
+      "status": "fail",
+      "message": "pad clearance 1.940000 mm is below 2.000000 mm",
+      "object": "bridge.3 / bridge.5",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.CLEARANCE_PROFILE",
+      "severity": "error",
+      "status": "fail",
+      "message": "pad clearance 1.940000 mm is below 2.000000 mm",
+      "object": "bridge.14 / bridge.16",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.CLEARANCE_PROFILE",
+      "severity": "error",
+      "status": "fail",
+      "message": "pad clearance 1.940000 mm is below 2.000000 mm",
+      "object": "bridge.10 / bridge.12",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.POWER_ENTRY.NOMINAL_MODEL",
+      "severity": "info",
+      "status": "pass",
+      "message": "nominal control/bleeder model constructed: bus 389.6 V, bleed 0.253 W each, external HOT permit required",
+      "object": "PowerEntryUnit",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "ERC.PFC.INTERFACE_PINS",
+    "ERC.PFC.BUS_ENVELOPE",
+    "ERC.PFC.ISOLATED_BIAS",
+    "ERC.PFC.EXTERNAL_SUPERVISOR",
+    "ERC.PFC.INPUT_FOLDBACK",
+    "ERC.PFC.PROTECTION.UVLO",
+    "ERC.PFC.PROTECTION.STANDBY",
+    "ERC.PFC.PROTECTION.OVP_HYSTERESIS",
+    "ERC.PFC.PROTECTION.ISENSE_OPEN",
+    "ERC.PFC.PROTECTION.ICOMP",
+    "ERC.PFC.PROTECTION.SOC_PCL",
+    "ERC.PFC.PROTECTION.BIAS_PRIORITY",
+    "ERC.PFC.PROTECTION.EXTERNAL_DISCONNECT",
+    "ERC.PFC.PROTECTION.TIMING",
+    "ERC.PFC.SHUNT_PART",
+    "ERC.POWER_ENTRY.SOURCE_GRAPH",
+    "DRC.BOARD.STACKUP",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.POWER_ENTRY.SAVED_BYTES",
+    "DRC.POWER_ENTRY.CONNECTIVITY",
+    "DRC.NATIVE.CLEARANCE_PROFILE",
+    "DRC.NATIVE.CLEARANCE_PROFILE",
+    "ERC.POWER_ENTRY.NOMINAL_MODEL"
+  ],
+  "coverage_gaps": [
+    "The reviewed setpoint is 389.615 V nominal, not a guaranteed maximum. Ripple, overshoot and faults require a source-bound bus envelope before rating downstream consumers. Legacy split-bus consumers are not accepted.",
+    "External regulated 15 V bias must return to HOT PFC_BUS_MINUS. The auxiliary unit, load/startup budget, source architecture and isolation evidence are absent; CTRL_GND or PE cannot substitute for this return.",
+    "HOT permit and relay-bypass inputs need isolated external producers and verified startup, precharge, loss-of-bias, reset and fault sequencing. Default-off static topology is not a shutdown timing or stored-energy guarantee.",
+    "15 A RMS and PF 0.99 bound nominal 120 V input to 1782 W before losses. Low-line foldback and fault/inrush currents remain unmodeled; a nominal 1800 W target cannot waive the input-current limit.",
+    "UCC28180 datasheet does not provide a guaranteed propagation delay for these shutdown paths",
+    "PWM inhibition does not provide mains isolation or disconnect the rectifier/boost bus; an external mains disconnect and stored-energy discharge contract is missing",
+    "0.2 mm local / 2 mm between elevated-voltage domains / 6 mm to PE are retained construction floors. Surface creepage, package-internal insulation, pollution degree, material group and surge qualification are not established by this copper-clearance check.",
+    "External isolated bias supply, HOT permit, precharge and bypass sequencing are required; this harness does not implement them.",
+    "15 A RMS foldback/PF behavior is a declared input constraint, not a measured result.",
+    "Bus bleeder decay, relay timing, semiconductor/capacitor thermal limits, EMC, insulation and mains qualification are NOT RUN."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "note": "vsense-bank-side revision replay (routes.json with bank-side U20.1 feed; B.Cu trunk corrected to 3.0 to match suite-03 copper)",
+  "input_board_sha256": "9630c50dafc8c4e6a7070df4719102db361c920385828e7a847e703a31c9b66f",
+  "routes_sha256_stage": "67829e79f6b6d4e170693c23176d089d77a1c1a549584b86ca6e0ece84043f0a",
+  "output_board_sha256_after_routes": "d5af79f2fcedc85d2ea750a137ef421715100431d4e62a268750e9c0a3e5e6b8",
+  "paths": 36,
+  "post_replay_direct_edits": "bcu-width-edits.json (7 B.Cu trunk segments 4.3 -> 3.0 mm); routes.json idx4/idx14 corrected to 3.0 after the fact",
+  "status": "applied-validation-pending"
+}

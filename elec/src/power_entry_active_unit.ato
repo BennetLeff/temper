@@ -488,11 +488,13 @@ module PowerEntryActiveUnit:
     c3.minus ~ control_gnd
     c4.plus ~ hv_plus
     c4.minus ~ control_gnd
-    # HF bypass and regulation stay diode-side of F2. Opening F2 must not
-    # remove the boost feedback. This leaves 470 nF unfused (~0.0376 J at
-    # 400 V); opening transients/control stability remain qualification work.
-    # Local HF commutation bypass across the MOSFET/boost-diode switching
-    # loop, placed beside the bulk bank.
+    # Bank-voltage sensing sits bank-side of F2 per the qualification handoff:
+    # after F2 opens the controller must see bank voltage, not diode-side
+    # voltage. Consequence: opening F2 removes boost feedback (controller
+    # goes blind to the bank); loss-of-feedback behavior, continued mains
+    # drive, and opening transients remain qualification work (Q5).
+    # HF bypass stays diode-side of F2 for local commutation; that leaves
+    # 470 nF unfused (~0.0376 J at 400 V).
     c_hf.plus ~ boost_output
     c_hf.minus ~ control_gnd
     output.plus ~ hv_plus
@@ -544,7 +546,7 @@ module PowerEntryActiveUnit:
     c_vcomp_p.p2 ~ control_gnd
     pfc.VSENSE ~ r_vbottom.p1
     r_vbottom.p2 ~ control_gnd
-    boost_output ~ r_vtop.p1
+    hv_plus ~ r_vtop.p1
     r_vtop.p2 ~ r_vtop2.p1
     r_vtop2.p2 ~ r_vtop3.p1
     r_vtop3.p2 ~ r_vtop4.p1

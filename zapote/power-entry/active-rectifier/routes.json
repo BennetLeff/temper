@@ -79,7 +79,7 @@
     {
       "net": "RECTIFIER_L",
       "layer": "B.Cu",
-      "width_mm": 4.3,
+      "width_mm": 3.0,
       "points": [
         "U55.3",
         [
@@ -286,7 +286,7 @@
     {
       "net": "RECTIFIER_NEGATIVE",
       "layer": "B.Cu",
-      "width_mm": 4.3,
+      "width_mm": 3.0,
       "points": [
         "U56.3",
         [
@@ -596,22 +596,6 @@
       ]
     },
     {
-      "net": "BOOST_DIODE_POSITIVE",
-      "layer": "B.Cu",
-      "width_mm": 0.6,
-      "points": [
-        "U10.2",
-        [
-          120.45,
-          127.0
-        ],
-        [
-          167.9625,
-          127.0
-        ]
-      ]
-    },
-    {
       "net": "q_lr-g",
       "layer": "B.Cu",
       "width_mm": 0.5,
@@ -647,15 +631,19 @@
       ]
     },
     {
-      "net": "BOOST_DIODE_POSITIVE",
+      "net": "PFC_BUS_PLUS_390V",
       "layer": "F.Cu",
       "width_mm": 0.6,
       "points": [
+        "U20.1",
         [
           167.9625,
-          127.0
+          121.0
         ],
-        "U20.1"
+        [
+          203.0,
+          121.0
+        ]
       ]
     }
   ],
@@ -719,15 +707,6 @@
       "at": [
         -25,
         124.5
-      ],
-      "diameter_mm": 0.8,
-      "drill_mm": 0.4
-    },
-    {
-      "net": "BOOST_DIODE_POSITIVE",
-      "at": [
-        167.9625,
-        127.0
       ],
       "diameter_mm": 0.8,
       "drill_mm": 0.4

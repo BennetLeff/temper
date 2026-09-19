@@ -1012,11 +1012,11 @@
     (property "MPN" "CRCW2512200KFKEG" (at 313.69 243.84 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "" (at 313.69 243.84 0) (effects (font (size 1.27 1.27)) hide))
 )
-  (global_label "BOOST_DIODE_POSITIVE"
+  (global_label "PFC_BUS_PLUS_390V"
     (shape bidirectional)
     (at 298.45 243.84 180)
     (effects (font (size 1.27 1.27)) (justify right bottom))
-    (uuid "021b44a7-5694-90ba-90d4-0b1fae962c4f")
+    (uuid "25e2eadd-edc5-986a-8802-dd8e71b40d27")
   )
   (global_label "r_vtop-p2"
     (shape bidirectional)

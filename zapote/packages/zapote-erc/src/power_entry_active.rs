@@ -216,6 +216,7 @@ const EXPECTED_NETS: &[(&str, &[&str])] = &[
             "c4.1",
             "output.1",
             "bleeder1.1",
+            "r_vtop.1",
         ],
     ),
     (
@@ -269,7 +270,7 @@ const EXPECTED_NETS: &[(&str, &[&str])] = &[
     ("q_boost-g", &["q_boost.1", "r_gate.2", "r_gate_pd.1"]),
     (
         "BOOST_DIODE_POSITIVE",
-        &["c_hf.1", "r_vtop.1", "bus_fuse.1", "d_boost.2"],
+        &["c_hf.1", "bus_fuse.1", "d_boost.2"],
     ),
     ("icomp", &["c_icomp.1", "pfc.2"]),
     ("isense", &["c_isense.1", "r_isense.1", "pfc.3"]),
@@ -423,7 +424,8 @@ fn check_pin_graph(c: &Circuit) -> Result<(), String> {
     c.require_net(&["c_boot_r.2", "q_hr.3"])?;
     c.require_net(&["bridge.6", "c_bridge_vcc.1"])?;
     c.require_net(&["c_bridge_vcc.2", "bridge.7"])?;
-    c.require_net(&["d_boost.2", "bus_fuse.1", "c_hf.1", "r_vtop.1"])?;
+    c.require_net(&["d_boost.2", "bus_fuse.1", "c_hf.1"])?;
+    c.require_net(&["bus_fuse.2", "r_vtop.1"])?;
     c.require_net(&["d_boost.1", "l_boost.2"])?;
     c.require_net(&["d_boost.3", "l_boost.2"])?;
     c.require_net(&["l_boost.1", "q_hl.2"])?;
