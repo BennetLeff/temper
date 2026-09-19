@@ -1,3 +1,11 @@
+# TEA determination: SUPERSEDED by external review — see tea-dossier.md §§3, 8
+
+> Status 2026-09-19: the 408 V RMS / 560 V peak stress model below is
+> withdrawn (pin 16 sits on the pre-boost `RECTIFIER_POSITIVE` node, not the
+> bulk bus — proven from the compiled manifest), as is the 0.78 mm complete-
+> creepage verdict and the 6.3 mm requirement for pair 14–16. Retained only
+> for the analysis trail. The live record is `tea-dossier.md`.
+
 # TEA determination: creepage governs, clearance passes, footprint fails
 
 Answers the oracle question with retained texts + declared 120 V mains
