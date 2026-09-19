@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+    "sch",
+    "erc",
+    "--severity-all",
+    "--format",
+    "json",
+    "--output",
+    "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/validation/baseline-04/interlock/erc.json",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/section.kicad_sch"
+  ],
+  "returncode": 0,
+  "input_sha256": "705542db81c7b689bb3b4d48cf9f7b5a79dc6cf9120d466e1f535f293976e595",
+  "report_sha256": "10e302bc037eaedaa4d77b5b6bf1d0ebd3be566f448d08b11f8d01269044af8a",
+  "report_path": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/validation/baseline-04/interlock/erc.json",
+  "dependency_hashes": {
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/InterlockUnit.kicad_sym": "25b9e1550cd548d2208b8bc5eeed3274632d76d63a46d9b44948453414968e45",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/candidate-libs/Connector_JST.pretty/JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical.kicad_mod": "a766bce948da6d215573b8741a08d46c00842315a00e4fd5f18374bd6158a7e9",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/candidate-libs/Package_SO.pretty/SOIC-14_3.9x8.7mm_P1.27mm.kicad_mod": "a885b619b22880c9559522d2bf865b059d80453b95a98defc9e6ceef284da1fc",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/candidate-libs/Package_SO.pretty/TSSOP-14_4.4x5mm_P0.65mm.kicad_mod": "e4bf82cea6d3b3259ddf42469b1407628ad1181a28ae6f3f340190c0cca31ccd",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/candidate-libs/Package_SO.pretty/VSSOP-8_2.3x2mm_P0.5mm.kicad_mod": "dca72da69de3263affb64fd1abd218db3cf30ff727c784b3f02c8c588a2875a8",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/fp-lib-table": "211b051e3fef404547ae94ca096139ca72c02cf1ce259d551299fe0aa9a90a04",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/section.kicad_dru": "3a50d4365ed7b467d33c802017850081fcc7da982daa8e00036e6099affd2dc3",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/section.kicad_pcb": "09017d5c8ffa4414220adab11190829bb603e2e7063588f3838a75650fbfbe87",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/section.kicad_pro": "0c3de5035de2a9cdfe63a0915c16b22008effaf3f0f45cd53f16a6df410e58cb",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/section.kicad_sch": "705542db81c7b689bb3b4d48cf9f7b5a79dc6cf9120d466e1f535f293976e595",
+    "/private/tmp/temper-pkgs-1-4/zapote/interlock/candidate/sym-lib-table": "c6c27c035349bd76288f8ed62de02251c5b03284f5f5d559398f117ec8b0009b"
+  },
+  "tool_version": "10.0.4"
+}

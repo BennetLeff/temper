@@ -1,0 +1,22 @@
+{
+  "reviewer": "Luna passive_review",
+  "model": "gpt-5.6-luna",
+  "scope": [
+    "passive-reva source/native metadata",
+    "protection disposition",
+    "cooling budget and protocol",
+    "zapote-erc/tests/passive_reva.rs"
+  ],
+  "initial_findings": [
+    "stale layer count in candidate manifest",
+    "generic source receipt schema not explained",
+    "missing retained parity command"
+  ],
+  "resolution": [
+    "saved board and authoritative manifests agree on two layers",
+    "historical exporter schema preserved and explicit unit entry documented",
+    "native parity command retained; existing Rust source/native binding checks candidate board bytes"
+  ],
+  "final_acceptance_changing_findings": [],
+  "limit": "review is not physical protection or cooling qualification; final common suite recorded separately"
+}

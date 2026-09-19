@@ -1,5 +1,13 @@
 # Power-entry decision and qualification handoff
 
+**2026-09-19 direction change (user-approved):** the passive GBJ2510-F
+section is the next integration baseline. The active-rectifier construction
+is preserved but paused. Follow [the passive milestone](passive-reva/MILESTONE.md)
+and its protection/cooling dispositions. The protected, thermally defensible
+milestone is **not complete**: shared fault coordination and installed cooling
+still need evidence. The active-first decisions below are the historical
+2026-09-18 handoff, not instructions to resume active-board construction.
+
 Date: 2026-09-18. Based on repository revision `59aedee4f` and the retained
 campaign evidence linked below. This document supersedes the priorities in
 `loss-budget/DECISION.md` and is the current entry point for this work.

@@ -1,0 +1,59 @@
+{
+  "schema": "zapote.passive-power-entry-protection.v1",
+  "status": "conditional_design_checkpoint",
+  "baseline": {
+    "bridge": "Diodes GBJ2510-F",
+    "board": "zapote/power-entry/shunt-repair/candidate/section.kicad_pcb",
+    "board_sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+    "fixed_bridge_loss_w": 28.304207404476514,
+    "thermal_applicability": "conditional_model_not_installed_qualification"
+  },
+  "series_elements": [
+    {
+      "ref": "F1",
+      "part": "Schurter 0034.3129",
+      "loop": "ac_line",
+      "status": "existing_unqualified_baseline"
+    },
+    {
+      "ref": "F2",
+      "part": "Mersen A70QS50-14F",
+      "loop": "dc_bank_discharge",
+      "location": "between U10 cathode and bulk-capacitor bank positive",
+      "status": "part_selected_coordination_unestablished",
+      "holder": {
+        "part": "Mersen UltraSafe US141",
+        "reference": "Z331153",
+        "quantity": 1,
+        "rated_current_a": 50,
+        "ul_rated_voltage_vdc": 1000,
+        "general_rated_voltage_vdc": 750,
+        "ul_dc_rating_a": 50000,
+        "rating_note": "Holder UL DC rating, not standalone interruption; apply ambient, fuse-dissipation and wiring conditions from the sheet. Non-load operation only.",
+        "impulse_withstand_kv": 8,
+        "status": "holder_candidate_selected_din_mount_and_assembly_unverified",
+        "source": "sources/Mersen-US14.pdf",
+        "source_sha256": "776c47a6781b1d82d762a827d2ceed9d7e17b15439217b9fb5dc259aa9884562"
+      },
+      "bypass_allowed": false
+    }
+  ],
+  "internal_fault_path": ["bank_plus", "F2", "U10_failed_short", "a1", "U9_conducting_or_failed_short", "bank_minus"],
+  "excluded_from_internal_path": ["F1", "U12_shunt"],
+  "open_design_and_qualification_inputs": [
+    "holder_enclosure_mounting_cable_interconnect_RL_contact_heating_and_clearance",
+    "maximum_bank_voltage_and_capacitance_tolerance",
+    "exact_part_capacitor_discharge_let_through_or_application_confirmation",
+    "minimum_breaking_current",
+    "bank_copper_semiconductor_and_enclosure_withstand",
+    "ac_source_impedance_and_F1_total_clearing",
+    "approved_physical_fault_test"
+  ],
+  "claims_not_made": [
+    "F2 clears the internal fault",
+    "F1 protects the passive bridge",
+    "the bank is safe after F2 opens",
+    "the thermal model predicts the installed board",
+    "ERC_DRC_or_netlist_parity qualifies protection"
+  ]
+}

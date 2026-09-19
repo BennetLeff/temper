@@ -1,0 +1,55 @@
+{
+  "status": "pass",
+  "scope": "source hashes and five finite arithmetic tests only; no physical qualification",
+  "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+  "checks": [
+    {
+      "path": "zapote/power-entry/shunt-repair/bridge-thermal-02/assessment.json",
+      "sha256": "0ee234c5d77a18d0fe0ac9c5e921c145aa6ea2f9d98e9ad4fa72c4feee121872"
+    },
+    {
+      "path": "zapote/thermal/gbj-study/evidence-01/wakefield-bonded-fin.pdf",
+      "sha256": "d7f9c8636915b10c858c0df9940547f51925ed9fe30d7a6416e192928f3d5952"
+    },
+    {
+      "path": "zapote/thermal/gbj-study/evidence-01/sanyo-san-ace-e.pdf",
+      "sha256": "a9dd3971db4030adab9935759c83c4ca7d6ad785ff6692113a231ea97ab4962e"
+    },
+    {
+      "path": "zapote/power-entry/loss-budget/evidence/correction-02/loss-report.json",
+      "sha256": "1c2f556023b8533c2d6b0c8455a19a7d082d923930686c24f067e856dfbd371f"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/sources/Mersen-US14.pdf",
+      "sha256": "776c47a6781b1d82d762a827d2ceed9d7e17b15439217b9fb5dc259aa9884562"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/cooling/budget_calc.rs",
+      "sha256": "608fc0e95a7b9413a0e32d922b9d3a5280faa31fe9d8f733f75a7ab558cc0df2",
+      "test_command": [
+        "rustc",
+        "--edition=2021",
+        "--test",
+        "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/cooling/budget_calc.rs",
+        "-o",
+        "/tmp/passive-budget_calc"
+      ],
+      "test_returncode": 0,
+      "log": "budget_calc-tests.txt"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/film_reservoir_screen.rs",
+      "sha256": "94f8df84bd47770f42ee4875b32f4c573a10f178feec290d9a285a1bba87b06b",
+      "test_command": [
+        "rustc",
+        "--edition=2021",
+        "--test",
+        "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/film_reservoir_screen.rs",
+        "-o",
+        "/tmp/passive-film_reservoir_screen"
+      ],
+      "test_returncode": 0,
+      "log": "film_reservoir_screen-tests.txt"
+    }
+  ]
+}

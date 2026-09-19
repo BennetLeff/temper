@@ -1,0 +1,33 @@
+{
+  "schema": "zapote.passive-reva.native-validation.v1",
+  "status": "baseline-replayed",
+  "source_entry": "elec/src/power_entry_passive_reva.ato:PowerEntryPassiveReva",
+  "source_build": "../source-build-01/build-receipt.json",
+  "board": {
+    "path": "section.kicad_pcb",
+    "sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+    "origin": "shunt-repair/candidate/section.kicad_pcb",
+    "components": 54,
+    "layers": ["F.Cu", "B.Cu"]
+  },
+  "erc": {
+    "path": "erc.json",
+    "violations": 0,
+    "kicad_version": "10.0.4"
+  },
+  "drc": {
+    "status": "fresh-native-run",
+    "report": "drc.rpt",
+    "source_sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+    "report_sha256": "e8c13773d2407bde299a3857e7177832aed430bbb66853d166ca42c2483ce0c1",
+    "violations": 0,
+    "unconnected_items": 0,
+    "schematic_parity_issues": 0,
+    "note": "The saved board bytes are the retained routed passive baseline; no new routing or protection qualification is claimed."
+  },
+  "protection": {
+    "status": "coordination_unestablished",
+    "f2": "not installed in baseline",
+    "eco_contract": "../protection/topology.json"
+  }
+}

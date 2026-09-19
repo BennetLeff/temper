@@ -1,0 +1,7 @@
+Command: cargo test --locked --offline --manifest-path zapote/Cargo.toml -p zapote-erc --test passive_reva
+Test: compiled_passive_source_binds_exact_retained_native_board
+Result: PASS (1 passed, 0 failed)
+Source manifest: passive-reva/native-01/source-manifest.json
+Native evidence: shunt-repair/evidence/native-04.json
+Native board SHA256: 34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9
+Scope: existing zapote_erc::source_circuit::Circuit::parse + bind_native; no new semantic comparator.

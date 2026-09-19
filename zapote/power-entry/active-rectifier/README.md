@@ -1,5 +1,10 @@
 # Active rectifier and fused-bank construction candidate
 
+**Development priority, 2026-09-19:** active-board construction is paused by
+user direction while the [passive GBJ section](../passive-reva/MILESTONE.md)
+is developed toward its protection and cooling milestone. Preserve this
+experiment; resume it only after a supported net-benefit or packaging decision.
+
 **2026-09-19 review correction:** the authored source is now an experimental
 Infineon-bridge integration; `candidate/` remains the older TEA routed board.
 They are deliberately different revisions, not source/PCB parity. The new

@@ -1,0 +1,5 @@
+Tool: /Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli
+Version: 10.0.4
+Command: kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output drc.rpt section.kicad_pcb
+Result: 0 violations; 0 unconnected items; 0 schematic parity issues
+Board SHA256: 34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9

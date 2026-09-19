@@ -1,0 +1,32 @@
+{
+  "schema": "zapote.passive-reva.reproducibility.v1",
+  "source": {
+    "entry": "elec/src/power_entry_passive_reva.ato:PowerEntryPassiveReva",
+    "build_adapter": "zapote/power-entry/passive-reva/tools/build_source.py",
+    "output": "zapote/power-entry/passive-reva/source-build-01",
+    "resolved_components_sha256": "fef4024ef17d43462c765309fe2dfa0d81202535e0b9cb34c621ae6645ed5690",
+    "receipt_schema_note": "Historical generic exporter schema zapote.current-sense.source-build-receipt.v1 retained unchanged; explicit entry identifies this unit."
+  },
+  "native": {
+    "adapter": "zapote/power-entry/passive-reva/tools/build_native.py",
+    "schematic_sha256": "49db3ee4e2d79f08d524b92457764098f9dc051b17746729cfb1460bbde4d3a9",
+    "board_sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+    "footprint_count": 54,
+    "source_netlist_component_count": 54,
+    "source_netlist_net_count": 33,
+    "native_netlist_sha256": "14c34f6c87165742ececc2c7bdf5767fca4680d2b82d85bd9688d6ddca945fa7",
+    "source_to_pcb_netlist_parity": "Existing Rust Circuit::parse/bind_native passes against native-04; integration test binds its full PCB text to candidate bytes. Fresh KiCad parity separately compares saved schematic and PCB.",
+    "layer_stack": [
+      "F.Cu",
+      "B.Cu"
+    ]
+  },
+  "validation": {
+    "erc": "zapote/power-entry/passive-reva/native-01/erc.json",
+    "erc_violations": 0,
+    "drc": "zapote/power-entry/passive-reva/native-01/drc.rpt",
+    "drc_replay_reason": "fresh kicad-cli run on identical retained routed board bytes",
+    "rust_source_native_binding": "zapote/power-entry/passive-reva/native-01/rust-source-native.txt",
+    "f2": "not installed; see ../protection/topology.json"
+  }
+}

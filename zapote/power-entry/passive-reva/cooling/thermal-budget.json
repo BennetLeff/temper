@@ -1,0 +1,82 @@
+{
+  "schema": "zapote.passive-gbj-cooling-checkpoint.v1",
+  "status": "conditional_unqualified",
+  "board_candidate": "GBJ2510-F passive bridge candidate",
+  "model_reference": "zapote/power-entry/shunt-repair/bridge-thermal-02/assessment.json",
+  "model_reference_sha256": "0ee234c5d77a18d0fe0ac9c5e921c145aa6ea2f9d98e9ad4fa72c4feee121872",
+  "cooling_arrangement": {
+    "heatsink_mpn": "392-120AB",
+    "heatsink_dimensions_mm": [120.0, 125.0, 135.8],
+    "heatsink_source": "zapote/thermal/gbj-study/evidence-01/wakefield-bonded-fin.pdf",
+    "heatsink_source_sha256": "d7f9c8636915b10c858c0df9940547f51925ed9fe30d7a6416e192928f3d5952",
+    "heatsink_theta_sa_forced_flow_catalog_c_per_w": 0.16,
+    "heatsink_theta_sa_natural_catalog_c_per_w": 0.50,
+    "fan_mpn": "9RA1212E1001",
+    "fan_quantity": 1,
+    "fan_dimensions_mm": [120.0, 120.0, 38.0],
+    "fan_source": "zapote/thermal/gbj-study/evidence-01/sanyo-san-ace-e.pdf",
+    "fan_source_sha256": "a9dd3971db4030adab9935759c83c4ca7d6ad785ff6692113a231ea97ab4962e",
+    "installed_flow_requirement_cfm": 100.0,
+    "flow_requirement_basis": "existing GBJ study catalog screen; installed flow is not demonstrated",
+    "mechanical_requirements": [
+      "bridge leads and PCB solder joints carry no heatsink or duct load",
+      "spreader and electrical isolation are defined by a released mechanical drawing",
+      "sink, fan, grille and enclosure are tested as one pressure-flow system"
+    ]
+  },
+  "loss_budget_w": {
+    "bridge_allowance": 40.0,
+    "other_pfc_allowance": 65.0,
+    "fan_allowance": 5.6,
+    "shared_screen_total": 110.6,
+    "bridge_allowance_kind": "assumed_design_allowance",
+    "whole_board_loss": null,
+    "measured_bridge_loss": null,
+    "note": "The shared total is a screen input, not a qualified loss bound; other-PFC does not include every remaining converter, control or enclosure loss."
+  },
+  "conditional_screen": {
+    "catalog_theta_sa_forced_flow_c_per_w": 0.16,
+    "catalog_theta_sa_natural_c_per_w": 0.50,
+    "recorded_bulk_air_rise_k": 1.9431851439784267,
+    "recorded_sink_temperature_c": 59.63918514397842,
+    "calculation": "40 C inlet plus forced-flow catalog sink rise for 110.6 W plus recorded bulk-air-rise",
+    "air_rise_coefficient_k_per_w": 0.01756948593108885,
+    "allowable_total_heat_w_at_60c_forced_with_scaled_air_rise": 112.63196429910035,
+    "allowable_total_heat_w_at_60c_natural_catalog_without_air_rise": 40.0,
+    "applicability": "indeterminate_until_installed_flow_and_loss_are_measured"
+  },
+  "disputed_stw_switch_screen": {
+    "source": "zapote/power-entry/loss-budget/evidence/correction-02/loss-report.json",
+    "source_sha256": "1c2f556023b8533c2d6b0c8455a19a7d082d923930686c24f067e856dfbd371f",
+    "line_rms_v": 120.0,
+    "gate_bias_v_range": [9.0, 11.0],
+    "switch_plus_gate_loss_w_range": [112.90499166572496, 157.43656708737427],
+    "status": "conditional_unqualified_model_screen",
+    "bridge_plus_stw_plus_fan_total_w_range": [158.50499166572495, 203.03656708737428],
+    "excess_over_existing_110_6w_screen_w_range": [47.90499166572496, 92.83656708737428],
+    "forced_flow_sink_c_range_using_scaled_air_rise": [68.1456498875943, 76.05309884291808],
+    "note": "The 9-11 V gate points are assumed model inputs, not measured or schematic-derived. This is switch-plus-gate sensitivity only, not a whole-board total; it excludes remaining PFC/control/enclosure terms and cannot replace the missing AUX15V producer or hardware measurement."
+  },
+  "retained_model_results_c": {
+    "nominal_hottest_lumped_diode": 80.22,
+    "nominal_hottest_whole_joint": 84.35,
+    "weak_assembly_hottest_lumped_diode": 95.95,
+    "weak_assembly_hottest_whole_joint": 117.82,
+    "fan_loss_hottest_lumped_diode": 119.53,
+    "fan_loss_hottest_whole_joint": 118.64
+  },
+  "acceptance_limits_c": {
+    "junction_screen": 125.0,
+    "pcb_screen": 110.0,
+    "terminal_screen": 95.0,
+    "board_screen": 80.0
+  },
+  "open_inputs": [
+    "GBJ forward-drop loss at the actual PFC waveform and temperature",
+    "installed pressure-flow operating point and airflow distribution",
+    "case-to-spreader and spreader-to-sink thermal resistance",
+    "AC2 pad/contact current distribution",
+    "whole-board loss and enclosure recirculation",
+    "transient thermal behavior after fan or controller fault"
+  ]
+}

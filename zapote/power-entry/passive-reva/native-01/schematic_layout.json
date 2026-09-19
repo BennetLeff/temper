@@ -1,0 +1,16 @@
+{
+  "flat": true,
+  "module_to_sheet": {
+    "power_entry_passive_reva": "CurrentSense"
+  },
+  "root_sheet": "section.kicad_sch",
+  "schema_version": 1,
+  "sheet_description": "Generated from PowerEntryPassiveReva Atopile source",
+  "sheet_files": {
+    "CurrentSense": "section.kicad_sch"
+  },
+  "sheets": [
+    "CurrentSense"
+  ],
+  "title": "Passive GBJ2510-F power-entry baseline (incomplete protection)"
+}

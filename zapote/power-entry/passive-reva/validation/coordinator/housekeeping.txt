@@ -1,0 +1,5 @@
+make regen: PASS; see regen.txt
+make regen-check: PASS; see regen-check.txt
+Import boundary gate: PASS, 5 kept / 0 broken / 0 new violations.
+Command: PYTHONPATH=packages/temper-placer/src UV_CACHE_DIR=/tmp/passive-uv-cache UV_PROJECT_ENVIRONMENT=/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv uv run --no-sync python scripts/import_linter_gate.py
+git diff --cached --check: whitespace warnings only in byte-preserved compiler/source snapshots and raw test logs. Their CRLF, source trailing spaces and terminal blank lines were preserved to retain evidence hashes; newly authored code/doc whitespace checks pass.
