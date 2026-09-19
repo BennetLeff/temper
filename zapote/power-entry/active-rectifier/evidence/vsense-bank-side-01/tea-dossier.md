@@ -194,3 +194,40 @@ schematic `f0b3682aa653ae900c78f9e3d8f3edfd0f7fd2d4496199e781a797489e80e6f8`)
 and the documented component, material, assembly, and operating assumptions
 above. Changes require an impact review and revalidation of affected claims;
 textual edits that alter no assumption do not.
+
+## 10. Supplement: primary-text recovery from IS 302-1:2008 (agent, 2026-09-19)
+
+Fetched the BIS RTI text cited by the repo's hv-hv determination; SHA-256
+matches the cited artifact byte-for-byte
+(`2695a4bc1b2c87dd24a6126d984d01ad30be53c8d905ff196b73241b73f99251`,
+312769 bytes). Read first-hand, not via the repo's transcription:
+
+- **29.1.4**: "For functional insulation, the values of Table 16 are
+  applicable. However, clearances are not specified if the appliance
+  complies with 19 with the functional insulation short-circuited." The
+  governing functional-clearance provision is now on file; the §5 gap is
+  closed. Lacquered winding conductors count as bare (not relevant here).
+- **Annex L**: at PD3, clearances for basic AND functional insulation are
+  measured against Table 16 (no impulse-test reduction); Table 18 governs
+  functional creepage. Confirms the Table 16 functional route used in §6.
+- **Fig. 12 note pattern**: where a spanning clearance meets the higher
+  requirement, sub-segment clearances of lesser insulation are not measured
+  — the spanning treatment for clearance has textual support (analogous
+  construction, not this exact geometry).
+- **Clearance result**: required ≈1.0–1.4 mm basic (29.1.5 on corrected
+  peaks ≈1514/1870 V, interpolation Note 1, +0.5 mm solder adder included)
+  vs 1.94 mm span → PASSES, subject to Table 15 Note 2 (generated
+  overvoltages; clamp unverified, Q3) and altitude (unrecorded).
+- **29.2 creepage measurement is delegated**: "The way in which creepage
+  distances are measured is specified in IS 15382 (Part 1)" (= IEC 60664-1),
+  which is not recovered anywhere in this repository. The spacer-metal
+  creepage rule is therefore still genuinely open — confirmed, not resolved.
+- **PD is now the hinge**: 29.2 applies PD2 *unless* conductive pollution
+  (→PD3). At >50–125 V / IIIa-IIIb, Table 18 reads 1.4 mm (PD2) vs 2.2 mm
+  (PD3) — the 1.94 mm endpoint span passes one and fails the other. The
+  repo's PD3 default rests on the cooking-appliance installed environment;
+  an open bench prototype has no enclosure record either way. Determining
+  PD for the assessed configuration may determine the verdict by itself.
+- 2 N force applies to bare conductors when measuring (assembly-position
+  caveat retained alongside §1). A force is applied to try to reduce
+  creepage — measured paths assume worst-case positions.
