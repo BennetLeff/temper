@@ -1,0 +1,17 @@
+param,value,unit,note
+E_trip_typ_J,0.042383,J,0.5*C*Vt^2 from 0 V typ threshold
+worst_cycle_Ipk_A,7.047,A,Vin crest DMAX one ON (bounding)
+worst_cycle_E_mJ,9.2629,mJ,Vin*Ipk*Tsw generous bound
+cycles_to_first_trip_le,5.0,cycles,E_trip/E_cyc_max ceiling bound
+first_burst_overshoot_bound_V,545.3,V,closed form from Vt with 2xIpk (bounding)
+burst_period_typ_s,0.031646,s,Rdiv*C*ln(Vt/Vr)
+burst_energy_typ_mJ,5.2758,mJ,0.5*C*(Vt^2-Vr^2)
+burst_avg_power_typ_mW,166.7121,mW,E_burst/T
+burst_period_latest_s,0.053548,s,Rdiv*C*ln(Vt/Vr)
+burst_energy_latest_mJ,9.7712,mJ,0.5*C*(Vt^2-Vr^2)
+burst_avg_power_latest_mW,182.4749,mW,E_burst/T
+burst_period_typ_1p5uF_s,0.100998,s,Rdiv*C*ln(Vt/Vr)
+burst_energy_typ_1p5uF_mJ,16.8376,mJ,0.5*C*(Vt^2-Vr^2)
+burst_avg_power_typ_1p5uF_mW,166.7121,mW,E_burst/T
+unfused_energy_470nF_400V_J,0.03760,J,0.5*C*V^2
+unfused_energy_1p5uF_400V_J,0.12000,J,0.5*C*V^2

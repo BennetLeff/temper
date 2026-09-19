@@ -1,0 +1,26 @@
+{
+  "kind": "construction_experiment",
+  "owner_scope": "zapote/power-entry/active-rectifier/experiments/infineon-schematic/**",
+  "operating_target": {
+    "vac_nominal": 120,
+    "vac_range": [108, 132],
+    "input_rms_ceiling_a": 15,
+    "power_class_w": 1800
+  },
+  "architecture": [
+    "IR11688S plus BSP300H6327XUSA1 sense extensions",
+    "four IPW60R017C7 active devices",
+    "retained GBJ2510-F passive surge path",
+    "UCC21530BQDWKRQ1 high-side driver",
+    "IRM-10-15 direct line-fed auxiliary"
+  ],
+  "constraints": [
+    "no PCB or generic harness edits",
+    "no production, surge, fault, thermal, or isolation qualification claim",
+    "bootstrap and 15 V tolerance remain explicit gates"
+  ],
+  "source_inputs": {
+    "infineon_reference_pdf_sha256": "f6d559251aa4b3c32734dc6aafa910947746c04b617daa45d275db1bd7337350",
+    "ucc21530_pdf_sha256": "84da68758e2e65b1a3ef667211aeef2740090e10e7aeba8b5e22a7c082b10c27"
+  }
+}

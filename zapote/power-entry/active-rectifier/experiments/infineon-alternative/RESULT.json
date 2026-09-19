@@ -1,0 +1,58 @@
+{
+  "study": "public-active-bridge-alternative",
+  "date": "2026-09-19",
+  "status": "feasible_prototype_candidate",
+  "qualified": false,
+  "email_dependency": false,
+  "board_sha256": "a725929a65e1756b0ad36c39373b6ab993335818344a19721cdc4b7c07ef7ab7",
+  "operating_screen": {
+    "line_nominal_vac": 120.0,
+    "line_range_vac": [108.0, 132.0],
+    "input_rms_limit_a": 15.0,
+    "ideal_input_power_w_at_120v": 1796.416,
+    "note": "At 108 Vac the maintained screen requires about 16.66 A for the same ideal power and therefore binds the 15 A limit."
+  },
+  "selected_high_side_driver": {
+    "mpn": "UCC21530DWKR",
+    "status": "active",
+    "package": "SOIC-14 DWK",
+    "source_peak_a": 4.0,
+    "sink_peak_a": 6.0,
+    "channel_spacing_mm": 3.3,
+    "external_clearance_mm_gt": 8.0,
+    "external_creepage_mm_gt": 8.0,
+    "input_output_isolation_vrms": 5700.0,
+    "output_output_working_voltage_v": 1850.0,
+    "uvlo_supply_range_v": [13.5, 25.0],
+    "pin_compatibility_with_2EDF7275F": false
+  },
+  "reference_control": {
+    "low_side_controller": "IR11688S",
+    "sense_extension": "BSP300H6327XUSA1 x2",
+    "sense_extension_required_because_bare_controller_limit_v": 200,
+    "passive_bridge_retained_for_surge": true
+  },
+  "conduction_screen_w": {
+    "formula": "2 * I_rms^2 * Rds_on",
+    "at_15a_rms": {
+      "17mohm": 7.65,
+      "22mohm": 9.90,
+      "30mohm_sensitivity": 13.50
+    },
+    "existing_constant_drop_bridge_screen": 28.304,
+    "qualification": "illustrative_only"
+  },
+  "remaining_gates": [
+    "floating VDDA/VSSA and VDDB/VSSB supply architecture and startup",
+    "IR11688S 800 V sense-extension SOA and exact timing interaction",
+    "high-side/low-side dead-time and failed-short protection behavior",
+    "hot Rds(on), body-diode blanking/recovery and switching loss",
+    "TO-247 heatsink isolation and thermal model",
+    "surge and retained passive-bridge coordination",
+    "product-standard PCB clearance/creepage and hardware verification"
+  ],
+  "source_files": {
+    "infineon-kit-act-brd.pdf": "f6d559251aa4b3c32734dc6aafa910947746c04b617daa45d275db1bd7337350",
+    "ti-ucc21530.pdf": "84da68758e2e65b1a3ef667211aeef2740090e10e7aeba8b5e22a7c082b10c27"
+  }
+}

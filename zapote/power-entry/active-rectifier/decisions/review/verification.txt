@@ -1,0 +1,13 @@
+Review verification — 2026-09-19T15:46:21.688793+00:00
+Base commit: a2536ee140c8bd368a4bb16a464e36620df2858f
+PCB and schematic exact frozen SHA-256: PASS (unchanged)
+Native endpoints: U20 bank side; U66 separates diode output and bank; local HF cap diode side: PASS
+TEA L/R/VR/GND net identities and single-node HVS nets: PASS
+Authored connections agree with those native observations: PASS
+Ideal sinusoidal 132 V RMS quadrature: [93.33809511662463, 93.33809511662461, 93.33809511662463] V RMS for pairs 3-5,10-12,14-16 with source-relative gate offsets set to zero.
+100000 midpoint samples; each agrees with 132/sqrt(2) within 1e-8 V. Algebraic sanity check only; NOT a device-waveform model or operating bound.
+Retained NXP UM11493 p26 and Bourns p2 visually inspected after PDF rendering.
+Source/PCB/CAD/BOM/validator bytes not edited by this review.
+No new stress/protection/insulation acceptance; no physical test, simulation or native suite rerun.
+External request drafted only; not sent. No commit or push.
+Final checks: 10 retained input hashes verified; review links resolve; git diff --check clean; Markdown hard-break whitespace preserved. Active-rectifier README corrected to distinguish current bank-side CAD from recommended diode-side ECO.

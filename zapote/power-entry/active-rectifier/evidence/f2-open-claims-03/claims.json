@@ -1,0 +1,1310 @@
+{
+ "schema": "f2-open-claims/v1",
+ "task_id": "PKG2-F2-OPEN",
+ "attempt_id": "f2-open-claims-03",
+ "note": "F2-open behavior and protection package ledger. All timed/burst peaks are ILLUSTRATIVE model results; all ceilings are authored values, not qualifications. No interruption is credited in any fault case (interrupts=false throughout): the arrangement is protection_identified only - no MPN selected, no coordination demonstrated, no hardware verified. No claim that F2 clears, that shutdown meets the budget in hardware, or that the arrangement is qualified. Run identity and reproduction: README.md in this directory.",
+ "claims": [
+  {
+   "id": "ucc28180-vref-25c-typ",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vref_v",
+   "part": "UCC28180",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6: 4.93/5.00/5.07 V at TA=25C; typical 5.00 V used by the model",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-vref-temp-min",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vref_v",
+   "part": "UCC28180",
+   "value_kind": "minimum",
+   "bound_kind": "lower",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6, -40C<=TA<=+125C: 4.87 V minimum",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-vref-temp-max",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vref_v",
+   "part": "UCC28180",
+   "value_kind": "maximum",
+   "bound_kind": "upper",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6, -40C<=TA<=+125C: 5.15 V maximum",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-vovph-min",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vovp_h_threshold_pct_vref",
+   "part": "UCC28180",
+   "value_kind": "minimum",
+   "bound_kind": "lower",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6: 107% VREF minimum",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-vovph-typ",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vovp_h_threshold_pct_vref",
+   "part": "UCC28180",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6: 109% VREF typical",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-vovph-max",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vovp_h_threshold_pct_vref",
+   "part": "UCC28180",
+   "value_kind": "maximum",
+   "bound_kind": "upper",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6: 111% VREF maximum",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-vovph-reset-typ",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vovp_h_reset_threshold_pct_vref",
+   "part": "UCC28180",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6: 100/102/104% VREF; 102% typical used in the burst analysis",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-volp-typ",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "volp_threshold_pct_vref",
+   "part": "UCC28180",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6: 15.6/16.5/17.6% VREF; 16.5% typical is the standby target of the inhibit path",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-vpcl-min",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vpcl_threshold_v",
+   "part": "UCC28180",
+   "value_kind": "minimum",
+   "bound_kind": "lower",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6: -0.345 V minimum-magnitude pin threshold; sourced current corner 34.16 A at Rsense 10 mOhm +1%",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-vpcl-typ",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vpcl_threshold_v",
+   "part": "UCC28180",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6: -0.400 V typical; 40.0 A at 10 mOhm",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-dmax-typ",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "dmax_pct",
+   "part": "UCC28180",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6: 94.8/96.5/98%; 96.5% typical used in the stated simplified gate law",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-uvlo-off-min",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vcc_uvlo_off_threshold_v",
+   "part": "UCC28180",
+   "value_kind": "minimum",
+   "bound_kind": "lower",
+   "source_condition": "TI UCC28180 Rev D EC table, printed p.6, and section 8.3.3 pp.14-15: VCC turn-off 9.1/9.5/10.3 V; GATE held off below UVLO. Carried as the loss-of-bias safe-state basis (same-rail argument, PROTECTION-SELECTION section 3.2)",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ucc28180-ovp-behavior",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "ovp_h_behavior",
+   "part": "UCC28180",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "TI UCC28180 Rev D section 8.3.4, printed p.15: OVP_H disables PWM when VSENSE exceeds VOVP_H and re-enables below the reset threshold; OVP_L discharges VCOMP through 4 kOhm above 105/107/109% VREF. Protection acts only on the voltage present at VSENSE",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "c-hf-value",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "c_hf_capacitance_f",
+   "part": "B32672P6474K000 (U40)",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "authored elec/src/power_entry_active_unit.ato: 470 nF PP film, BOOST_DIODE_POSITIVE to PFC_BUS_MINUS; tolerance, DC-bias and temperature derating documents not retained (NULL)",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "c-hf-voltage-rating",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "c_hf_voltage_rating_vdc",
+   "part": "B32672P6474K000 (U40)",
+   "value_kind": "maximum",
+   "bound_kind": "upper",
+   "source_condition": "authored .ato value: 630 VDC; pulse current / dv/dt / ESR manufacturer data not retained (NULL)",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "u9-vds-rating",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "u9_vds_rating_v",
+   "part": "STW65N65DM2AG (U9)",
+   "value_kind": "maximum",
+   "bound_kind": "upper",
+   "source_condition": "authored .ato voltage_rating: 650 V; no avalanche credit taken (no retained datasheet basis for avalanche energy)",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "u10-vds-rating",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "u10_vds_rating_v",
+   "part": "C3D20065D (U10)",
+   "value_kind": "maximum",
+   "bound_kind": "upper",
+   "source_condition": "authored .ato voltage_rating: 650 V; no avalanche credit taken",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "l-boost-value",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "l_boost_inductance_h",
+   "part": "760800301 (Wurth, U8)",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "authored .ato: 180 uH; saturation and temperature curves not retained (NULL); the 216 uH row is an assumed sensitivity, not a tolerance bound",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "divider-top-value",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vsense_divider_top_resistance_ohm",
+   "part": "CRCW2512200KFKEG x5 (r_vtop..r_vtop5)",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "authored .ato: 5 x 200 kOhm; working and pulse voltage ratings not retained (NULL) - reported stresses only, see PROTECTION-SELECTION section 1",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "divider-bottom-value",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vsense_divider_bottom_resistance_ohm",
+   "part": "r_vbottom 13 kOhm authored",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "authored .ato: 13 kOhm; rating documentation not retained (NULL)",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "rsense-value",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "rsense_resistance_ohm",
+   "part": "HCSM2818FT10L0 (shunt)",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "authored .ato: 10 mOhm; +/-1% per retained Stackpole HCSM doc and MPN F code",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    },
+    {
+     "path": "../../../shunt-repair/sources/Stackpole-HCSM-2019.pdf",
+     "sha256": "3b7f5335006da93130dab4c0bff5195a8561a76e3ce292e8aa07ec0871a8c3aa"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "vsense-filter-value",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vsense_filter_capacitance_f",
+   "part": "C0805C681J5GACTU (c_vfeed)",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "authored .ato: 680 pF at VSENSE; capacitor tolerance not retained (NULL) - tau corners not swept",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "f2-element",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "f2_series_element",
+   "part": "A70QS50-14F (U66)",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "sole intentional series element between BOOST_DIODE_POSITIVE and PFC_BUS_PLUS_390V; authored .ato plus post-ECO native connectivity (fault-loop netlist)",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    },
+    {
+     "path": "../vsense-diode-side-02/native.json",
+     "sha256": "f3efab5bc359bfc0542acc4077d735c8ff2d0f9227116f1d7a9d1db7147aca51"
+    },
+    {
+     "path": "fault-loop/netlist.json",
+     "sha256": "800c5c997baad3395ee9f98c0d9ad20a735a08904bb9cddd2efd3b39d5fdec0e"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "divider-top-diode-side",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "vsense_divider_top_connection",
+   "part": "CRCW2512200KFKEG x5 (r_vtop..r_vtop5)",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "post-ECO feedback: r_vtop pin 1 on BOOST_DIODE_POSITIVE (diode-side); bank, output connector and bleeders stay on PFC_BUS_PLUS_390V",
+   "fault_state": "not_applicable",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../vsense-diode-side-02/native.json",
+     "sha256": "f3efab5bc359bfc0542acc4077d735c8ff2d0f9227116f1d7a9d1db7147aca51"
+    },
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "ccm-crest-operating-point",
+   "origin": "source",
+   "inputs": [],
+   "quantity": "f2_open_model_operating_point",
+   "part": null,
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "retained CCM model case: Vin crest 169.7056 V (120 Vrms), I0 23.2318 A (mean 21.1710 + half-ripple 2.0609), V0 389.615 V, L 180 uH; an assumed consistent model case, not a measurement and not a prediction of when the fuse opens",
+   "fault_state": "healthy_on",
+   "assertion": "qualified",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/README.md",
+     "sha256": "2c146b7f9c5e484949ce8addf7f5b71c961197bdc30305ce6bb23ebbd6384e88"
+    },
+    {
+     "path": "../../experiments/f2-open/raw/immediate-off.csv",
+     "sha256": "7961f14f74c6983e47de8e030f9106b45013989314d8359412cfd932d83587b3"
+    }
+   ],
+   "justification": null
+  },
+  {
+   "id": "rdiv-tolerance",
+   "origin": "assumption",
+   "inputs": [],
+   "quantity": "vsense_divider_tolerance",
+   "part": null,
+   "value_kind": "assumed",
+   "bound_kind": "point",
+   "source_condition": "+/-1% assumed axis on the divider ratio (no retained resistor documentation); earliest/latest threshold corners use it",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [],
+   "justification": null
+  },
+  {
+   "id": "l-saturation-null",
+   "origin": "assumption",
+   "inputs": [],
+   "quantity": "l_boost_saturation_curve",
+   "part": null,
+   "value_kind": "assumed",
+   "bound_kind": "unknown",
+   "source_condition": "no saturation or temperature curve retained for the 180 uH inductor; L corners 180/216 uH are an assumed sensitivity, not a tolerance bound",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [],
+   "justification": null
+  },
+  {
+   "id": "c-hf-tolerance-axis",
+   "origin": "assumption",
+   "inputs": [],
+   "quantity": "c_hf_tolerance",
+   "part": null,
+   "value_kind": "assumed",
+   "bound_kind": "point",
+   "source_condition": "+/-10% assumed axis (423/517 nF rows at 470 nF; 1.35 uF row at 1.5 uF); capacitor tolerance and DC-bias/temperature derating documents not retained",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [],
+   "justification": null
+  },
+  {
+   "id": "tresp-requirement-axis",
+   "origin": "assumption",
+   "inputs": [],
+   "quantity": "post_trip_response_delay_sweep",
+   "part": null,
+   "value_kind": "assumed",
+   "bound_kind": "point",
+   "source_condition": "T_resp swept 0/2/5/10/20 us as a REQUIREMENT axis (detection + comparator + latch + driver + gate fall); actual delays NULL (TI publishes no number); never zero-by-default",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [],
+   "justification": null
+  },
+  {
+   "id": "fline-assumption",
+   "origin": "assumption",
+   "inputs": [],
+   "quantity": "mains_frequency_hz",
+   "part": null,
+   "value_kind": "assumed",
+   "bound_kind": "point",
+   "source_condition": "60 Hz assumed for the line-phase sweep",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [],
+   "justification": null
+  },
+  {
+   "id": "local-c-complement",
+   "origin": "assumption",
+   "inputs": [],
+   "quantity": "local_c_complement_value_f",
+   "part": null,
+   "value_kind": "assumed",
+   "bound_kind": "point",
+   "source_condition": "1.5 uF film EVALUATED value (1.0 uF row also evaluated), not selected; QR-CAP owns part selection; unfused stored-energy consequence carried separately",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [],
+   "justification": null
+  },
+  {
+   "id": "detector-trip-proposal",
+   "origin": "assumption",
+   "inputs": [],
+   "quantity": "diode_side_detector_trip_v",
+   "part": null,
+   "value_kind": "assumed",
+   "bound_kind": "point",
+   "source_condition": "500 V nominal at the power node, corners 490.2/510.0 V on the same assumed +/-1% divider axis; a selection criterion (PROTECTION-SELECTION section 3.3), not a part",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [],
+   "justification": null
+  },
+  {
+   "id": "clamp-criteria",
+   "origin": "assumption",
+   "inputs": [],
+   "quantity": "diode_side_clamp_selection_criteria",
+   "part": null,
+   "value_kind": "assumed",
+   "bound_kind": "point",
+   "source_condition": "standoff window 430-490 V; clamping voltage <=600 V at <=30 A illustrative bound; single-pulse (non-repetitive) energy >=250 mJ floor; declared fail mode; QR-CLAMP owns selection (PROTECTION-SELECTION section 3.4)",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [],
+   "justification": null
+  },
+  {
+   "id": "tresp-budget",
+   "origin": "assumption",
+   "inputs": [],
+   "quantity": "trip_to_inhibit_delay_budget_s",
+   "part": null,
+   "value_kind": "assumed",
+   "bound_kind": "point",
+   "source_condition": "<=5 us requirement (detector output through q_inhibit2 to VSENSE below OLP), to be measured by QR-DET; rationale in PROTECTION-SELECTION section 3.4",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [],
+   "justification": null
+  },
+  {
+   "id": "vsense-filter-tau",
+   "origin": "derivation",
+   "inputs": [
+    "divider-top-value",
+    "divider-bottom-value",
+    "vsense-filter-value"
+   ],
+   "quantity": "vsense_filter_time_constant_s",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "nominal divider Thevenin 12.835 kOhm x 680 pF at the VSENSE node",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/f2_open_timed.rs",
+     "sha256": "606f67148ac52bb1235954f116221024b50bdf999d45d3b1727e793ca4c25a19"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "tau = 12.835 kOhm x 680 pF = 8.726 us nominal; tau corners NOT swept (680 pF tolerance NULL). Modeled as a first-order lag on the sense."
+  },
+  {
+   "id": "ovp-node-thresholds",
+   "origin": "derivation",
+   "inputs": [
+    "ucc28180-vovph-min",
+    "ucc28180-vovph-typ",
+    "ucc28180-vovph-max",
+    "ucc28180-vref-25c-typ",
+    "ucc28180-vref-temp-min",
+    "ucc28180-vref-temp-max",
+    "divider-top-value",
+    "divider-bottom-value",
+    "rdiv-tolerance"
+   ],
+   "quantity": "ovp_h_threshold_at_power_node_v",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "at the BOOST_DIODE_POSITIVE power node through the nominal divider ratio 13/1013",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/timed-sweep.csv",
+     "sha256": "1a608550335ba9284675a542799be3916b70e1cc80df39f13aede84a32e6e739"
+    },
+    {
+     "path": "../../experiments/f2-open/MODEL.md",
+     "sha256": "0afc5636433243900fafd3b28b5a2608e5efc8b7c5f46d46210e4a22c9749fc4"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "VREF x OVP% / divider ratio: typical 424.68 V; early 403.02 V (107% x 4.93 V with +1% ratio); latest 454.33 V (111% x 5.15 V over-temp with -1% ratio). Excludes resistor tolerance beyond the assumed +/-1% axis. Bound strengthened to point from the corner parents because the three corners are computed exactly from the cited corner inputs."
+  },
+  {
+   "id": "immediate-off-limit",
+   "origin": "derivation",
+   "inputs": [
+    "l-boost-value",
+    "c-hf-value",
+    "ccm-crest-operating-point"
+   ],
+   "quantity": "f2_open_immediate_off_peak_v",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "gate already off at t=0, constant crest Vin=169.7056 V, V0=389.615 V, I0=23.2318 A, L=180 uH, C=470 nF",
+   "fault_state": "healthy_off",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/immediate-off.csv",
+     "sha256": "7961f14f74c6983e47de8e030f9106b45013989314d8359412cfd932d83587b3"
+    },
+    {
+     "path": "../../experiments/f2-open/f2_open.rs",
+     "sha256": "05fcd56f22bea7a1dddc8d4b3ed82885bbf314c28a6d54171ee4efa2a00d9a4e"
+    },
+    {
+     "path": "../../experiments/f2-open/README.md",
+     "sha256": "2c146b7f9c5e484949ce8addf7f5b71c961197bdc30305ce6bb23ebbd6384e88"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "Vpeak = Vin + sqrt((V0-Vin)^2 + (L/C) I0^2) = 674.74 V closed form; 674.73 V integrator (rel 1.5e-5). The retained conditional immediate-off screen - superseded as a bound by the timed model, retained as the integrator closed-form verification limit. fault_state healthy_off: the optimistic lower-latency case for a healthy, controllable U9."
+  },
+  {
+   "id": "timed-vpeak-470nf",
+   "origin": "derivation",
+   "inputs": [
+    "ovp-node-thresholds",
+    "vsense-filter-tau",
+    "l-boost-value",
+    "c-hf-value",
+    "ccm-crest-operating-point",
+    "tresp-requirement-axis",
+    "ucc28180-dmax-typ",
+    "ucc28180-vpcl-typ",
+    "rsense-value",
+    "fline-assumption"
+   ],
+   "quantity": "f2_open_diode_side_peak_v_470nf_typ",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "crest phase, typ OVP 424.68 V, L=180 uH, C=470 nF, I0=23.2318 A, T_resp swept 0-20 us",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/timed-sweep.csv",
+     "sha256": "1a608550335ba9284675a542799be3916b70e1cc80df39f13aede84a32e6e739"
+    },
+    {
+     "path": "../../experiments/f2-open/f2_open_timed.rs",
+     "sha256": "606f67148ac52bb1235954f116221024b50bdf999d45d3b1727e793ca4c25a19"
+    },
+    {
+     "path": "../../experiments/f2-open/MODEL.md",
+     "sha256": "0afc5636433243900fafd3b28b5a2608e5efc8b7c5f46d46210e4a22c9749fc4"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "751.4 V at T_resp=0 rising to 947.2 V at 20 us; every row exceeds the 630 V illustrative ceiling - shutdown alone does not close the budget at 470 nF. Mains source work to peak 48-182 mJ vs 48-59 mJ released inductor energy. fault_state healthy_on: continued switching under the stated simplified gate law for a healthy U9; the F2-open event itself is the initiating fault."
+  },
+  {
+   "id": "timed-vpeak-470nf-worst",
+   "origin": "derivation",
+   "inputs": [
+    "timed-vpeak-470nf",
+    "tresp-requirement-axis"
+   ],
+   "quantity": "f2_open_diode_side_peak_v_470nf_worst_swept",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "maximum",
+   "bound_kind": "point",
+   "source_condition": "worst non-aborted swept row at 470 nF: typ OVP, T_resp=20 us, crest",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/timed-sweep.csv",
+     "sha256": "1a608550335ba9284675a542799be3916b70e1cc80df39f13aede84a32e6e739"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "947.15 V (abort limit 950 V approached); exceeds the U40 630 VDC authored rating and both 650 V silicon ratings. value_kind maximum = worst row of the swept requirement axis, not a tolerance bound."
+  },
+  {
+   "id": "timed-vpeak-1p5uf",
+   "origin": "derivation",
+   "inputs": [
+    "ovp-node-thresholds",
+    "vsense-filter-tau",
+    "l-boost-value",
+    "local-c-complement",
+    "ccm-crest-operating-point",
+    "tresp-requirement-axis",
+    "l-saturation-null",
+    "c-hf-tolerance-axis"
+   ],
+   "quantity": "f2_open_diode_side_peak_v_1p5uf",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "crest, typ OVP, C=1.5 uF evaluated (not selected), T_resp swept",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/timed-sweep.csv",
+     "sha256": "1a608550335ba9284675a542799be3916b70e1cc80df39f13aede84a32e6e739"
+    },
+    {
+     "path": "../../experiments/f2-open/MODEL.md",
+     "sha256": "0afc5636433243900fafd3b28b5a2608e5efc8b7c5f46d46210e4a22c9749fc4"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "576.2/598.0/613.3 V at T_resp 0/5/10 us; interpolated 630 V crossing about 14 us; five corner rows (L=216 uH, C-10%, I0+10%, Vpk+10%, OVP-latest) at 5 us read 604.0-616.8 V with the nominal row 598.0 V - margins 13-32 V against the 630 V illustrative ceiling (thin, noted, not padded)."
+  },
+  {
+   "id": "timed-vpeak-detector-latest",
+   "origin": "derivation",
+   "inputs": [
+    "detector-trip-proposal",
+    "timed-vpeak-470nf",
+    "timed-vpeak-1p5uf"
+   ],
+   "quantity": "f2_open_diode_side_peak_v_detector_latest",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "maximum",
+   "bound_kind": "point",
+   "source_condition": "detector-latest trip corner 509.97 V",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/timed-sweep.csv",
+     "sha256": "1a608550335ba9284675a542799be3916b70e1cc80df39f13aede84a32e6e739"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "the independent detector is NOT the first-peak limiter: 877.1 V at 470 nF / T_resp=5 us; 824.9/840.3 V at 470 nF / T_resp=0/2 us; 677.5 V at 1.5 uF / T_resp=10 us. Its functions are backup trip, latch source and clamp coordination."
+  },
+  {
+   "id": "response-slope",
+   "origin": "derivation",
+   "inputs": [
+    "timed-vpeak-470nf",
+    "timed-vpeak-1p5uf"
+   ],
+   "quantity": "f2_open_peak_vs_delay_slope_v_per_us",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "near trip, crest phase",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/timed-sweep.csv",
+     "sha256": "1a608550335ba9284675a542799be3916b70e1cc80df39f13aede84a32e6e739"
+    },
+    {
+     "path": "../../experiments/f2-open/MODEL.md",
+     "sha256": "0afc5636433243900fafd3b28b5a2608e5efc8b7c5f46d46210e4a22c9749fc4"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "about 15 V/us at 470 nF and 4-5 V/us at 1.5 uF near trip - each microsecond of detection+response delay costs about that many volts; this is the slope the <=5 us trip-to-inhibit budget is set against."
+  },
+  {
+   "id": "allowable-peak-ceiling",
+   "origin": "derivation",
+   "inputs": [
+    "c-hf-voltage-rating",
+    "u9-vds-rating",
+    "u10-vds-rating"
+   ],
+   "quantity": "diode_side_max_permissible_peak_v_illustrative",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "maximum",
+   "bound_kind": "upper",
+   "source_condition": "illustrative ceiling only, from authored part maximum ratings",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../decisions/f2-open/PROTECTION-SELECTION.md",
+     "sha256": "3b1aff9eaddc8e3c114483f428b9afd72f68bce4e84921429988317194b32dcc"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "governing ceiling = most restrictive of the authored maxima {630 VDC U40 film, 650 V U9, 650 V U10} = 630 V. ILLUSTRATIVE only: U40 pulse/dv/dt/ESR data NULL, divider working/pulse ratings NULL, no PCB-spacing credit taken (TEA construction screens remain open with three failures). Not a qualification."
+  },
+  {
+   "id": "delay-budget-closure",
+   "origin": "derivation",
+   "inputs": [
+    "timed-vpeak-470nf",
+    "timed-vpeak-1p5uf",
+    "response-slope",
+    "tresp-budget",
+    "allowable-peak-ceiling"
+   ],
+   "quantity": "f2_open_delay_budget_closure",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "healthy U9, against the 630 V illustrative ceiling",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/timed-sweep.csv",
+     "sha256": "1a608550335ba9284675a542799be3916b70e1cc80df39f13aede84a32e6e739"
+    },
+    {
+     "path": "../../decisions/f2-open/PROTECTION-SELECTION.md",
+     "sha256": "3b1aff9eaddc8e3c114483f428b9afd72f68bce4e84921429988317194b32dcc"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "at 470 nF the budget never closes (751 V even at T_resp=0 - the filtered sense trips only after the node has passed about 460 V while pumping); at 1.5 uF it closes across the swept corners iff post-trip gate-off lands within about 14 us, and the selected arrangement requires trip-to-inhibit <=5 us to hold the 13-32 V corner margins. Closure is a model result against an illustrative ceiling, NOT a hardware claim."
+  },
+  {
+   "id": "startup-first-trip-energy",
+   "origin": "derivation",
+   "inputs": [
+    "c-hf-value",
+    "ovp-node-thresholds"
+   ],
+   "quantity": "f2_open_startup_energy_to_first_trip_j",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "startup with F2 already open, no-load diode-side output, cap from 0 V",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/startup-bursts.csv",
+     "sha256": "bc82ad6215edf50818fc6e19a2f0491c875f86a7a1d48c5c5b08226e034e489c"
+    },
+    {
+     "path": "../../experiments/f2-open/MODEL.md",
+     "sha256": "0afc5636433243900fafd3b28b5a2608e5efc8b7c5f46d46210e4a22c9749fc4"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "E = 0.5 x 470 nF x 424.68^2 = 42.4 mJ typ to first OVP trip; <=5 bounding DMAX cycles of pump energy; wall-clock time to trip NULL (soft-start ramp dynamics not modeled). VSENSE/OVP DOES engage post-ECO - the divider observes the diode-side cap directly, so the controller is not blind to the pumped node."
+  },
+  {
+   "id": "startup-first-burst-overshoot",
+   "origin": "derivation",
+   "inputs": [
+    "startup-first-trip-energy",
+    "l-boost-value",
+    "c-hf-value",
+    "ucc28180-dmax-typ",
+    "ccm-crest-operating-point"
+   ],
+   "quantity": "f2_open_first_burst_overshoot_bound_v",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "maximum",
+   "bound_kind": "upper",
+   "source_condition": "one further full ON plus freewheel from the trip voltage (bounding)",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/startup-bursts.csv",
+     "sha256": "bc82ad6215edf50818fc6e19a2f0491c875f86a7a1d48c5c5b08226e034e489c"
+    },
+    {
+     "path": "../../experiments/f2-open/MODEL.md",
+     "sha256": "0afc5636433243900fafd3b28b5a2608e5efc8b7c5f46d46210e4a22c9749fc4"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "closed form from the trip voltage with 2x worst-cycle peak current (2 x 7.047 A): 545.3 V - below the 630 V illustrative ceiling but above the OVP threshold, and unqualified as repetitive stress. A bounding construction, not a prediction."
+  },
+  {
+   "id": "restart-burst-train",
+   "origin": "derivation",
+   "inputs": [
+    "divider-top-value",
+    "divider-bottom-value",
+    "c-hf-value",
+    "ucc28180-vovph-reset-typ",
+    "ovp-node-thresholds"
+   ],
+   "quantity": "f2_open_restart_burst_period_s",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "no-load diode-side; cap discharges through the 1.013 MOhm divider into the OVP reset window (typ 397.4 V)",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/startup-bursts.csv",
+     "sha256": "bc82ad6215edf50818fc6e19a2f0491c875f86a7a1d48c5c5b08226e034e489c"
+    },
+    {
+     "path": "../../experiments/f2-open/MODEL.md",
+     "sha256": "0afc5636433243900fafd3b28b5a2608e5efc8b7c5f46d46210e4a22c9749fc4"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "burst period = Rdiv x C x ln(Vt/Vr): 31.6 ms typ / 53.5 ms latest corner (about 19-31 bursts/s); 5.28 mJ typ per burst; about 167 mW average into the divider. Without a latch every burst re-applies the overshoot - repetitive, unqualified stress on U40/U9/U10; this is the mechanism that forces the latching reset choice (PROTECTION-SELECTION section 3.6)."
+  },
+  {
+   "id": "unfused-energy",
+   "origin": "derivation",
+   "inputs": [
+    "c-hf-value",
+    "local-c-complement"
+   ],
+   "quantity": "unfused_diode_side_stored_energy_j",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "at the 400 V bus setpoint",
+   "fault_state": "not_applicable",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/startup-bursts.csv",
+     "sha256": "bc82ad6215edf50818fc6e19a2f0491c875f86a7a1d48c5c5b08226e034e489c"
+    },
+    {
+     "path": "../../decisions/f2-open/PROTECTION-SELECTION.md",
+     "sha256": "3b1aff9eaddc8e3c114483f428b9afd72f68bce4e84921429988317194b32dcc"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "0.5CV^2 at 400 V: 0.0376 J (470 nF) -> 0.120 J (1.5 uF evaluated). The stated unfused-energy consequence of the local-C complement: energy stored diode-side, outside F2, to be re-assessed by QR-CAP."
+  },
+  {
+   "id": "energy-identity",
+   "origin": "derivation",
+   "inputs": [
+    "timed-vpeak-470nf",
+    "timed-vpeak-1p5uf",
+    "immediate-off-limit"
+   ],
+   "quantity": "f2_open_energy_identity_residual_j",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "trapezoidal dEcap - dEL_rel - Wsrc + Ediv integrated to the voltage peak, per run",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../../experiments/f2-open/raw/timed-sweep.csv",
+     "sha256": "1a608550335ba9284675a542799be3916b70e1cc80df39f13aede84a32e6e739"
+    },
+    {
+     "path": "../../experiments/f2-open/f2_open_timed.rs",
+     "sha256": "606f67148ac52bb1235954f116221024b50bdf999d45d3b1727e793ca4c25a19"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "residuals 0.000-0.002 uJ on 40-230 mJ events (last CSV column; <1 uJ asserted in-code on check runs; about 1 nJ on the xcheck/patt runs re-verified this session). Numerical verification of the integrator only - not circuit energy-conservation evidence."
+  },
+  {
+   "id": "ngspice-second-path",
+   "origin": "derivation",
+   "inputs": [
+    "immediate-off-limit",
+    "timed-vpeak-470nf"
+   ],
+   "quantity": "f2_open_ngspice_cross_check_delta_v",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "ngspice 45.2, synthetic diode IS=1e-12 N=1 RS=0.001 CJO=10p TT=0 and ideal switch Ron=1m - deliberately not C3D20065D/STW65N65DM2AG models",
+   "fault_state": "healthy_off",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "../f2-open-timed-02/result.json",
+     "sha256": "eb291c04c42bffb2525293e394dabf5c719c78aa05147da4e12528c1883e0e5e"
+    },
+    {
+     "path": "../f2-open-timed-02/freewheel-5ns.log",
+     "sha256": "bdcf19887698b068675229174a11a2282b67d5d28ee6672059979ee1fb0b3d25"
+    },
+    {
+     "path": "../f2-open-timed-02/patt-5ns.log",
+     "sha256": "5cf6121aee72b77cf0ef81a6de0314f65792216c58b4668c9e1bf5b64e2bfc57"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "freewheel from (425 V, 20 A): ngspice 636.6334 V at both 5 ns and 10 ns max step, vs Rust 636.9936 V and closed form 637.0029 V; prescribed pattern (ON 0-4/8-12 us then latched off): ngspice 793.7040/793.7035 V vs Rust 794.3178 V. Rust reads higher by 0.36/0.61 V (<0.1%) - the expected sign, since Rust is loss-free while ngspice carries synthetic diode/switch loss (same mechanism as oracle-01\u2019s 0.45 V). Re-verified this session: peaks reproduce identically; only ngspice \"Reference value\" truncation-statistics lines differ between runs. fault_state healthy_off describes the freewheel case (gate already off)."
+  },
+  {
+   "id": "drive-loop-connectivity",
+   "origin": "derivation",
+   "inputs": [
+    "f2-element",
+    "divider-top-diode-side"
+   ],
+   "quantity": "f2_open_drive_loop_connectivity",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "healthy U9, F2 open: bridge, l_boost, q_boost, d_boost, c_hf, shunt carry current; bus_fuse assigned 0",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "fault-loop/netlist.json",
+     "sha256": "800c5c997baad3395ee9f98c0d9ad20a735a08904bb9cddd2efd3b39d5fdec0e"
+    },
+    {
+     "path": "fault-loop/runs.txt",
+     "sha256": "54024000d670c4eab2ccfe180f4f1107223ae699c2efb67d40c3b87eb9cdcfe3"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "zapote-fault-loop: CONSISTENT - the line-fed drive loop exists with the fuse out of it (counterexample run 2 correctly rejects current through the open bus_fuse: only 1 of 2 terminals on the loop). Connectivity only; not a conductive-path or current-distribution claim."
+  },
+  {
+   "id": "internal-loop-connectivity",
+   "origin": "derivation",
+   "inputs": [
+    "f2-element"
+   ],
+   "quantity": "internal_bank_loop_connectivity",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "U9 and U10 failed short, F2 closed: bus_fuse, d_boost, q_boost, c1..c4 carry current in the loop bank+ -> F2 -> U10 -> a1 -> U9 -> PFC_BUS_MINUS -> bank-",
+   "fault_state": "failed_short",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "fault-loop/netlist.json",
+     "sha256": "800c5c997baad3395ee9f98c0d9ad20a735a08904bb9cddd2efd3b39d5fdec0e"
+    },
+    {
+     "path": "fault-loop/runs.txt",
+     "sha256": "54024000d670c4eab2ccfe180f4f1107223ae699c2efb67d40c3b87eb9cdcfe3"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "zapote-fault-loop: CONSISTENT - the internal bank loop runs through F2. Counterexample run 4 correctly rejects the controller (pfc) and q_inhibit as interrupters (only 1 terminal on the loop): NO gate-disable element lies in the internal loop. F2 is the only candidate interrupting element; clearing, let-through and withstand are unestablished (QR-F2A/QR-F2B). fault_state failed_short: U9 and U10 failed short."
+  },
+  {
+   "id": "sense-path-connectivity",
+   "origin": "derivation",
+   "inputs": [
+    "divider-top-diode-side"
+   ],
+   "quantity": "post_eco_sense_inhibit_path_connectivity",
+   "part": "power_entry_active_unit:BOOST_DIODE_POSITIVE",
+   "value_kind": "typical",
+   "bound_kind": "point",
+   "source_condition": "BOOST_DIODE_POSITIVE -> r_vtop..r_vtop5 -> vsense -> r_vbottom -> PFC_BUS_MINUS; q_inhibit sits on vsense + PFC_BUS_MINUS",
+   "fault_state": "healthy_on",
+   "assertion": "illustrative",
+   "evidence": [
+    {
+     "path": "fault-loop/netlist.json",
+     "sha256": "800c5c997baad3395ee9f98c0d9ad20a735a08904bb9cddd2efd3b39d5fdec0e"
+    },
+    {
+     "path": "fault-loop/runs.txt",
+     "sha256": "54024000d670c4eab2ccfe180f4f1107223ae699c2efb67d40c3b87eb9cdcfe3"
+    }
+   ],
+   "part_transformation": "value referred to the BOOST_DIODE_POSITIVE power node of power_entry_active_unit (post-ECO construction)",
+   "condition_transformation": "evaluated at the BOOST_DIODE_POSITIVE power node / in the timed F2-open model (see justification)",
+   "justification": "zapote-fault-loop: CONSISTENT - the post-ECO divider observes the diode-side node and the existing q_inhibit clamps VSENSE from that node; this is the wired-OR point the proposed q_inhibit2 parallels (PROTECTION-SELECTION section 3.1). Connectivity only."
+  }
+ ],
+ "protection_claims": [
+  {
+   "case_id": "f2-open-startup-healthy-u9",
+   "fault_case": "healthy_on",
+   "interrupting_device": "q_inhibit2 + SR latch + shunt clamp (PROPOSED, unapplied; PROTECTION-SELECTION section 3)",
+   "interrupting_device_state": "healthy_on",
+   "interrupts": false,
+   "evidence": [
+    {
+     "path": "../../decisions/f2-open/PROTECTION-SELECTION.md",
+     "sha256": "3b1aff9eaddc8e3c114483f428b9afd72f68bce4e84921429988317194b32dcc"
+    },
+    {
+     "path": "../../decisions/f2-open/f2-protection-eco.patch",
+     "sha256": "9b7681c444657d56e52cfc20f885872c26042914c07467234a2120f8d0b99a84"
+    },
+    {
+     "path": "fault-loop/netlist.json",
+     "sha256": "800c5c997baad3395ee9f98c0d9ad20a735a08904bb9cddd2efd3b39d5fdec0e"
+    }
+   ]
+  },
+  {
+   "case_id": "f2-open-during-operation-healthy-u9",
+   "fault_case": "healthy_on",
+   "interrupting_device": "U9 STW65N65DM2AG gate-off via UCC28180 OVP_H plus proposed q_inhibit2 latch",
+   "interrupting_device_state": "healthy_off",
+   "interrupts": false,
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    },
+    {
+     "path": "../../experiments/f2-open/raw/timed-sweep.csv",
+     "sha256": "1a608550335ba9284675a542799be3916b70e1cc80df39f13aede84a32e6e739"
+    },
+    {
+     "path": "../../decisions/f2-open/PROTECTION-SELECTION.md",
+     "sha256": "3b1aff9eaddc8e3c114483f428b9afd72f68bce4e84921429988317194b32dcc"
+    }
+   ]
+  },
+  {
+   "case_id": "internal-bank-loop-u9-u10-failed-short",
+   "fault_case": "failed_short",
+   "interrupting_device": "F2 A70QS50-14F (sole candidate element in the internal loop)",
+   "interrupting_device_state": "healthy_on",
+   "interrupts": false,
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    },
+    {
+     "path": "fault-loop/netlist.json",
+     "sha256": "800c5c997baad3395ee9f98c0d9ad20a735a08904bb9cddd2efd3b39d5fdec0e"
+    },
+    {
+     "path": "fault-loop/runs.txt",
+     "sha256": "54024000d670c4eab2ccfe180f4f1107223ae699c2efb67d40c3b87eb9cdcfe3"
+    },
+    {
+     "path": "../../decisions/f2-open/PROTECTION-SELECTION.md",
+     "sha256": "3b1aff9eaddc8e3c114483f428b9afd72f68bce4e84921429988317194b32dcc"
+    }
+   ]
+  },
+  {
+   "case_id": "line-fed-u9-failed-short",
+   "fault_case": "failed_short",
+   "interrupting_device": "F1 (line fuse)",
+   "interrupting_device_state": "healthy_on",
+   "interrupts": false,
+   "evidence": [
+    {
+     "path": "../../../../../elec/src/power_entry_active_unit.ato",
+     "sha256": "2ce30c94b9aa7b1e39cc8d0966c386c862bc2e634c2fd437c97a28de1bf3f5fe"
+    },
+    {
+     "path": "../../decisions/f2-open/PROTECTION-SELECTION.md",
+     "sha256": "3b1aff9eaddc8e3c114483f428b9afd72f68bce4e84921429988317194b32dcc"
+    }
+   ]
+  },
+  {
+   "case_id": "u10-failed-short-u9-healthy",
+   "fault_case": "healthy_on",
+   "interrupting_device": "U9 turn-off via the proposed inhibit path",
+   "interrupting_device_state": "healthy_off",
+   "interrupts": false,
+   "evidence": [
+    {
+     "path": "../../../shunt-repair/sources/TI-UCC28180.pdf",
+     "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+    },
+    {
+     "path": "../../decisions/f2-open/PROTECTION-SELECTION.md",
+     "sha256": "3b1aff9eaddc8e3c114483f428b9afd72f68bce4e84921429988317194b32dcc"
+    }
+   ]
+  }
+ ],
+ "promotions": [
+  {
+   "subject": "f2-open-protection-arrangement",
+   "from": "none",
+   "to": "protection_identified",
+   "evidence": [
+    {
+     "path": "../../decisions/f2-open/PROTECTION-SELECTION.md",
+     "sha256": "3b1aff9eaddc8e3c114483f428b9afd72f68bce4e84921429988317194b32dcc"
+    },
+    {
+     "path": "../../decisions/f2-open/f2-protection-eco.patch",
+     "sha256": "9b7681c444657d56e52cfc20f885872c26042914c07467234a2120f8d0b99a84"
+    }
+   ]
+  }
+ ]
+}

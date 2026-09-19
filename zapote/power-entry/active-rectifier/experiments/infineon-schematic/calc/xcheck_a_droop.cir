@@ -1,0 +1,12 @@
+* Part A: hold droop of current-source-loaded C (no diode -- exact check).
+* Nominal corner: C 100 uF from 13.180486 V, I_hold 2.405 mA, 8.333 ms.
+* Rust closed-form droop without Qg: 2.405mA*8.333ms/100uF = 0.200409 V,
+* so v_end must equal 12.980077 V.
+IholdA nA 0 DC 2.405mA
+CbulkA nA 0 100uF IC=13.180486
+.tran 10us 8.333ms uic
+.meas tran vdropA FIND V(nA) AT=8.333ms
+.control
+run
+.endc
+.end

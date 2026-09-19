@@ -1,0 +1,21 @@
+F2 open idealized immediate gate off, independent numerical oracle only
+.param vin=186.676190233 v0=400 i0=20 ll=180u cc=470n
+Vline line 0 DC {vin}
+Lboost line anode {ll} IC={i0}
+Dboost anode out ideal
+.model ideal D(IS=1e-12 N=1 RS=0.001 CJO=10p TT=0)
+Cout out 0 {cc} IC={v0}
+Rleak out 0 1e12
+.options reltol=1e-7 abstol=1e-12 vntol=1e-8 method=gear
+.tran 5n 11u 0 5n UIC
+.measure tran vpeak MAX v(out)
+.measure tran source_q INTEG i(Lboost)
+.control
+set noaskquit
+run
+set wr_singlescale
+set wr_vecnames
+wrdata regularized-5ns.dat v(out) i(Lboost) v(anode)
+quit
+.endc
+.end

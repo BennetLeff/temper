@@ -1,0 +1,852 @@
+{
+ "netlist_evidence": {
+  "AC_L_RECTIFIED_INPUT": {
+   "nodes": [
+    [
+     "holder",
+     "1"
+    ],
+    [
+     "mains",
+     "1"
+    ]
+   ]
+  },
+  "AC_N_RECTIFIED_INPUT": {
+   "nodes": [
+    [
+     "mov",
+     "2"
+    ],
+    [
+     "mains",
+     "2"
+    ],
+    [
+     "x2",
+     "2"
+    ],
+    [
+     "cmc",
+     "2"
+    ]
+   ]
+  },
+  "AUX_15V_IN": {
+   "nodes": [
+    [
+     "aux",
+     "1"
+    ],
+    [
+     "c_vcc",
+     "1"
+    ],
+    [
+     "r_relay_drop",
+     "1"
+    ],
+    [
+     "r_inhibit_pullup",
+     "1"
+    ],
+    [
+     "pfc",
+     "7"
+    ]
+   ]
+  },
+  "BOOST_DIODE_POSITIVE": {
+   "nodes": [
+    [
+     "bus_fuse",
+     "1"
+    ],
+    [
+     "bus_fuse",
+     "1"
+    ],
+    [
+     "c_hf",
+     "1"
+    ],
+    [
+     "d_boost",
+     "2"
+    ],
+    [
+     "r_vtop",
+     "1"
+    ]
+   ]
+  },
+  "HOT_PERMIT_EXTERNAL": {
+   "nodes": [
+    [
+     "r_permit_gate",
+     "1"
+    ],
+    [
+     "permit",
+     "1"
+    ]
+   ]
+  },
+  "PE_CHASSIS": {
+   "nodes": [
+    [
+     "y1",
+     "2"
+    ],
+    [
+     "mains",
+     "3"
+    ]
+   ]
+  },
+  "PFC_BUS_MINUS": {
+   "nodes": [
+    [
+     "shunt",
+     "1"
+    ],
+    [
+     "aux",
+     "2"
+    ],
+    [
+     "c_vcc",
+     "2"
+    ],
+    [
+     "r_inhibit_pulldown",
+     "2"
+    ],
+    [
+     "c_hf",
+     "2"
+    ],
+    [
+     "q_permit",
+     "2"
+    ],
+    [
+     "y1",
+     "1"
+    ],
+    [
+     "c_vfeed",
+     "2"
+    ],
+    [
+     "q_boost",
+     "3"
+    ],
+    [
+     "c_vcomp_p",
+     "2"
+    ],
+    [
+     "r_vbottom",
+     "2"
+    ],
+    [
+     "c_vcomp",
+     "2"
+    ],
+    [
+     "c_icomp",
+     "2"
+    ],
+    [
+     "r_freq",
+     "2"
+    ],
+    [
+     "permit",
+     "2"
+    ],
+    [
+     "control",
+     "2"
+    ],
+    [
+     "r_permit_pd",
+     "2"
+    ],
+    [
+     "isense_clamp",
+     "1"
+    ],
+    [
+     "q_inhibit",
+     "2"
+    ],
+    [
+     "c2",
+     "2"
+    ],
+    [
+     "c1",
+     "2"
+    ],
+    [
+     "r_gate_pd",
+     "2"
+    ],
+    [
+     "c_isense",
+     "2"
+    ],
+    [
+     "bleeder2",
+     "2"
+    ],
+    [
+     "r_relay_pd",
+     "2"
+    ],
+    [
+     "c4",
+     "2"
+    ],
+    [
+     "c3",
+     "2"
+    ],
+    [
+     "output",
+     "2"
+    ],
+    [
+     "pfc",
+     "1"
+    ],
+    [
+     "relay_driver",
+     "2"
+    ]
+   ]
+  },
+  "PFC_BUS_PLUS_390V": {
+   "nodes": [
+    [
+     "bus_fuse",
+     "2"
+    ],
+    [
+     "bus_fuse",
+     "2"
+    ],
+    [
+     "bleeder1",
+     "1"
+    ],
+    [
+     "c2",
+     "1"
+    ],
+    [
+     "c1",
+     "1"
+    ],
+    [
+     "c4",
+     "1"
+    ],
+    [
+     "c3",
+     "1"
+    ],
+    [
+     "output",
+     "1"
+    ]
+   ]
+  },
+  "RECTIFIER_L": {
+   "nodes": [
+    [
+     "bypass",
+     "3"
+    ],
+    [
+     "bypass",
+     "3"
+    ],
+    [
+     "bridge",
+     "1"
+    ],
+    [
+     "c_boot_l",
+     "2"
+    ],
+    [
+     "q_hl",
+     "3"
+    ],
+    [
+     "ntc",
+     "2"
+    ],
+    [
+     "q_ll",
+     "2"
+    ]
+   ]
+  },
+  "RECTIFIER_NEGATIVE": {
+   "nodes": [
+    [
+     "shunt",
+     "2"
+    ],
+    [
+     "bridge",
+     "7"
+    ],
+    [
+     "bridge",
+     "8"
+    ],
+    [
+     "q_lr",
+     "3"
+    ],
+    [
+     "r_isense",
+     "2"
+    ],
+    [
+     "q_ll",
+     "3"
+    ],
+    [
+     "c_bridge_vcc",
+     "2"
+    ],
+    [
+     "isense_clamp",
+     "2"
+    ]
+   ]
+  },
+  "RECTIFIER_POSITIVE": {
+   "nodes": [
+    [
+     "bridge",
+     "16"
+    ],
+    [
+     "q_hl",
+     "2"
+    ],
+    [
+     "l_boost",
+     "1"
+    ],
+    [
+     "q_hr",
+     "2"
+    ]
+   ]
+  },
+  "RECTIFIER_R": {
+   "nodes": [
+    [
+     "c_boot_r",
+     "2"
+    ],
+    [
+     "bridge",
+     "12"
+    ],
+    [
+     "q_lr",
+     "2"
+    ],
+    [
+     "q_hr",
+     "3"
+    ],
+    [
+     "cmc",
+     "3"
+    ]
+   ]
+  },
+  "RELAY_BYPASS_CTRL": {
+   "nodes": [
+    [
+     "r_relay_gate",
+     "1"
+    ],
+    [
+     "control",
+     "1"
+    ]
+   ]
+  },
+  "a1": {
+   "nodes": [
+    [
+     "q_boost",
+     "2"
+    ],
+    [
+     "d_boost",
+     "1"
+    ],
+    [
+     "d_boost",
+     "3"
+    ],
+    [
+     "l_boost",
+     "2"
+    ]
+   ]
+  },
+  "bleeder1-p2": {
+   "nodes": [
+    [
+     "bleeder1",
+     "2"
+    ],
+    [
+     "bleeder2",
+     "1"
+    ]
+   ]
+  },
+  "coil1": {
+   "nodes": [
+    [
+     "bypass",
+     "1"
+    ],
+    [
+     "r_relay_drop",
+     "2"
+    ],
+    [
+     "relay_flyback",
+     "1"
+    ]
+   ]
+  },
+  "coil2": {
+   "nodes": [
+    [
+     "bypass",
+     "2"
+    ],
+    [
+     "relay_flyback",
+     "2"
+    ],
+    [
+     "relay_driver",
+     "3"
+    ]
+   ]
+  },
+  "freq": {
+   "nodes": [
+    [
+     "r_freq",
+     "1"
+    ],
+    [
+     "pfc",
+     "4"
+    ]
+   ]
+  },
+  "gate": {
+   "nodes": [
+    [
+     "pfc",
+     "8"
+    ],
+    [
+     "r_gate",
+     "1"
+    ]
+   ]
+  },
+  "gatehl": {
+   "nodes": [
+    [
+     "bridge",
+     "3"
+    ],
+    [
+     "r_hl",
+     "1"
+    ]
+   ]
+  },
+  "gatehr": {
+   "nodes": [
+    [
+     "bridge",
+     "14"
+    ],
+    [
+     "r_hr",
+     "1"
+    ]
+   ]
+  },
+  "gatell": {
+   "nodes": [
+    [
+     "bridge",
+     "5"
+    ],
+    [
+     "r_ll",
+     "1"
+    ]
+   ]
+  },
+  "gatelr": {
+   "nodes": [
+    [
+     "bridge",
+     "10"
+    ],
+    [
+     "r_lr",
+     "1"
+    ]
+   ]
+  },
+  "icomp": {
+   "nodes": [
+    [
+     "c_icomp",
+     "1"
+    ],
+    [
+     "pfc",
+     "2"
+    ]
+   ]
+  },
+  "isense": {
+   "nodes": [
+    [
+     "r_isense",
+     "1"
+    ],
+    [
+     "c_isense",
+     "1"
+    ],
+    [
+     "pfc",
+     "3"
+    ]
+   ]
+  },
+  "l1": {
+   "nodes": [
+    [
+     "mov",
+     "1"
+    ],
+    [
+     "holder",
+     "2"
+    ],
+    [
+     "holder",
+     "2"
+    ],
+    [
+     "x2",
+     "1"
+    ],
+    [
+     "cmc",
+     "1"
+    ]
+   ]
+  },
+  "l2": {
+   "nodes": [
+    [
+     "bypass",
+     "4"
+    ],
+    [
+     "bypass",
+     "4"
+    ],
+    [
+     "ntc",
+     "1"
+    ],
+    [
+     "cmc",
+     "4"
+    ]
+   ]
+  },
+  "q_boost-g": {
+   "nodes": [
+    [
+     "q_boost",
+     "1"
+    ],
+    [
+     "r_gate_pd",
+     "1"
+    ],
+    [
+     "r_gate",
+     "2"
+    ]
+   ]
+  },
+  "q_hl-g": {
+   "nodes": [
+    [
+     "q_hl",
+     "1"
+    ],
+    [
+     "r_hl",
+     "2"
+    ]
+   ]
+  },
+  "q_hr-g": {
+   "nodes": [
+    [
+     "r_hr",
+     "2"
+    ],
+    [
+     "q_hr",
+     "1"
+    ]
+   ]
+  },
+  "q_inhibit-g": {
+   "nodes": [
+    [
+     "r_inhibit_pulldown",
+     "1"
+    ],
+    [
+     "q_permit",
+     "3"
+    ],
+    [
+     "r_inhibit_pullup",
+     "2"
+    ],
+    [
+     "q_inhibit",
+     "1"
+    ]
+   ]
+  },
+  "q_ll-g": {
+   "nodes": [
+    [
+     "q_ll",
+     "1"
+    ],
+    [
+     "r_ll",
+     "2"
+    ]
+   ]
+  },
+  "q_lr-g": {
+   "nodes": [
+    [
+     "q_lr",
+     "1"
+    ],
+    [
+     "r_lr",
+     "2"
+    ]
+   ]
+  },
+  "q_permit-g": {
+   "nodes": [
+    [
+     "r_permit_gate",
+     "2"
+    ],
+    [
+     "q_permit",
+     "1"
+    ],
+    [
+     "r_permit_pd",
+     "1"
+    ]
+   ]
+  },
+  "r_relay_gate-g": {
+   "nodes": [
+    [
+     "r_relay_gate",
+     "2"
+    ],
+    [
+     "r_relay_pd",
+     "1"
+    ],
+    [
+     "relay_driver",
+     "1"
+    ]
+   ]
+  },
+  "r_vcomp-p2": {
+   "nodes": [
+    [
+     "r_vcomp",
+     "2"
+    ],
+    [
+     "c_vcomp",
+     "1"
+    ]
+   ]
+  },
+  "r_vtop-p2": {
+   "nodes": [
+    [
+     "r_vtop2",
+     "1"
+    ],
+    [
+     "r_vtop",
+     "2"
+    ]
+   ]
+  },
+  "r_vtop2-p2": {
+   "nodes": [
+    [
+     "r_vtop3",
+     "1"
+    ],
+    [
+     "r_vtop2",
+     "2"
+    ]
+   ]
+  },
+  "r_vtop3-p2": {
+   "nodes": [
+    [
+     "r_vtop3",
+     "2"
+    ],
+    [
+     "r_vtop4",
+     "1"
+    ]
+   ]
+  },
+  "r_vtop4-p2": {
+   "nodes": [
+    [
+     "r_vtop5",
+     "1"
+    ],
+    [
+     "r_vtop4",
+     "2"
+    ]
+   ]
+  },
+  "vcc": {
+   "nodes": [
+    [
+     "bridge",
+     "6"
+    ],
+    [
+     "c_bridge_vcc",
+     "1"
+    ]
+   ]
+  },
+  "vcchl": {
+   "nodes": [
+    [
+     "bridge",
+     "2"
+    ],
+    [
+     "c_boot_l",
+     "1"
+    ]
+   ]
+  },
+  "vcchr": {
+   "nodes": [
+    [
+     "c_boot_r",
+     "1"
+    ],
+    [
+     "bridge",
+     "13"
+    ]
+   ]
+  },
+  "vcomp": {
+   "nodes": [
+    [
+     "r_vcomp",
+     "1"
+    ],
+    [
+     "c_vcomp_p",
+     "1"
+    ],
+    [
+     "pfc",
+     "5"
+    ]
+   ]
+  },
+  "vsense": {
+   "nodes": [
+    [
+     "r_vtop5",
+     "2"
+    ],
+    [
+     "c_vfeed",
+     "1"
+    ],
+    [
+     "r_vbottom",
+     "1"
+    ],
+    [
+     "q_inhibit",
+     "3"
+    ],
+    [
+     "pfc",
+     "6"
+    ]
+   ]
+  }
+ }
+}

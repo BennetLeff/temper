@@ -1,0 +1,279 @@
+import IR11688S from "components.ato"
+import UCC21530BQDWKRQ1 from "components.ato"
+import BSP300H6327XUSA1 from "components.ato"
+import IPW60R017C7 from "components.ato"
+import GBJ2510F from "components.ato"
+import IRM_10_15 from "components.ato"
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+import BootstrapCeramic from "components.ato"
+import BootstrapBulk from "components.ato"
+import BootstrapResistor from "components.ato"
+import BootstrapDiode from "components.ato"
+import Interface from "components.ato"
+
+module InfineonActiveBridge:
+    # HOT mains/rectifier domain. PREBOOST_POS is the rectifier output and is
+    # deliberately not the downstream 390-V PFC bank net.
+    signal AC_L
+    signal AC_N
+    signal PREBOOST_POS
+    signal HOT_GND
+    signal AUX_15V
+    signal AUX_RTN
+    signal CMD_A
+    signal CMD_B
+    signal SENSE_A
+    signal SENSE_B
+    signal HS_L
+    signal HS_N
+    signal GATE_Q1
+    signal GATE_Q2
+    signal GATE_Q3
+    signal GATE_Q4
+    signal BOOT_A
+    signal BOOT_B
+
+    J1 = new Interface
+    passive_bridge = new GBJ2510F
+    aux = new IRM_10_15
+    sr = new IR11688S
+    hs_driver = new UCC21530BQDWKRQ1
+    q1 = new IPW60R017C7
+    q2 = new IPW60R017C7
+    q3 = new IPW60R017C7
+    q4 = new IPW60R017C7
+    sense_a = new BSP300H6327XUSA1
+    sense_b = new BSP300H6327XUSA1
+    d_boot_a = new BootstrapDiode
+    d_boot_b = new BootstrapDiode
+    r_mot = new Resistor
+    r_vs_top = new Resistor
+    r_vs_bottom = new Resistor
+    r_sense_a = new Resistor
+    r_sense_b = new Resistor
+    r_gate_1 = new Resistor
+    r_gate_2 = new Resistor
+    r_gate_3 = new Resistor
+    r_gate_4 = new Resistor
+    r_pd_1 = new Resistor
+    r_pd_2 = new Resistor
+    r_pd_3 = new Resistor
+    r_pd_4 = new Resistor
+    r_en = new Resistor
+    r_en_pd = new Resistor
+    r_dt = new Resistor
+    r_boot_a = new BootstrapResistor
+    r_boot_b = new BootstrapResistor
+    c_vcc = new BootstrapCeramic
+    c_vcci = new Capacitor
+    c_vdda = new Capacitor
+    c_vddb = new Capacitor
+    c_sense_a = new Capacitor
+    c_sense_b = new Capacitor
+    c_dt = new Capacitor
+    c_boot_a = new BootstrapCeramic
+    c_boot_b = new BootstrapCeramic
+    c_bulk_a = new BootstrapBulk
+    c_bulk_b = new BootstrapBulk
+
+    # Maintained exact part/nominal values. Every value remains subject to a
+    # source and tolerance check before layout or production release.
+    r_mot.value = 100kohm
+    r_mot.mpn = "RC0603FR-07100KL"
+    r_vs_top.value = 47kohm
+    r_vs_top.mpn = "RC0603FR-0747KL"
+    r_vs_bottom.value = 150ohm
+    r_vs_bottom.mpn = "RC0603FR-07150RL"
+    r_sense_a.value = 100ohm
+    r_sense_a.mpn = "RC0603FR-07100RL"
+    r_sense_b.value = 100ohm
+    r_sense_b.mpn = "RC0603FR-07100RL"
+    r_gate_1.value = 10ohm
+    r_gate_1.mpn = "RC0603FR-0710RL"
+    r_gate_2.value = 10ohm
+    r_gate_2.mpn = "RC0603FR-0710RL"
+    r_gate_3.value = 10ohm
+    r_gate_3.mpn = "RC0603FR-0710RL"
+    r_gate_4.value = 10ohm
+    r_gate_4.mpn = "RC0603FR-0710RL"
+    r_pd_1.value = 10kohm
+    r_pd_1.mpn = "RC0603FR-0710KL"
+    r_pd_2.value = 10kohm
+    r_pd_2.mpn = "RC0603FR-0710KL"
+    r_pd_3.value = 10kohm
+    r_pd_3.mpn = "RC0603FR-0710KL"
+    r_pd_4.value = 10kohm
+    r_pd_4.mpn = "RC0603FR-0710KL"
+    r_en.value = 10kohm
+    r_en.mpn = "RC0603FR-0710KL"
+    r_en_pd.value = 100kohm
+    r_en_pd.mpn = "RC0603FR-07100KL"
+    r_dt.value = 10kohm
+    r_dt.mpn = "RC0603FR-0710KL"
+    r_boot_a.value = 220ohm
+    r_boot_a.mpn = "ERJ-P08J221V"
+    r_boot_b.value = 220ohm
+    r_boot_b.mpn = "ERJ-P08J221V"
+    c_vcc.value = 4.7uF
+    c_vcc.mpn = "GRM21BR61H475KA12L"
+    c_vcci.value = 100nF
+    c_vcci.mpn = "C0603C104K5RACTU"
+    c_vdda.value = 1uF
+    c_vdda.mpn = "GRM188R71H105KA12D"
+    c_vddb.value = 1uF
+    c_vddb.mpn = "GRM188R71H105KA12D"
+    c_sense_a.value = 470pF
+    c_sense_a.mpn = "C0603C471K5RACTU"
+    c_sense_b.value = 470pF
+    c_sense_b.mpn = "C0603C471K5RACTU"
+    c_dt.value = 1nF
+    c_dt.mpn = "C0603C102K5RACTU"
+    c_boot_a.value = 220nF
+    c_boot_a.mpn = "C0805C224K5RACTU"
+    c_boot_b.value = 220nF
+    c_boot_b.mpn = "C0805C224K5RACTU"
+    c_bulk_a.value = 100uF
+    c_bulk_a.mpn = "EEU-FC1E101"
+    c_bulk_b.value = 100uF
+    c_bulk_b.mpn = "EEU-FC1E101"
+    d_boot_a.mpn = "ES1J"
+    d_boot_b.mpn = "ES1J"
+
+    # Interface and retained passive surge path.
+    J1.AC_L ~ AC_L
+    J1.AC_N ~ AC_N
+    J1.PREBOOST_POS ~ PREBOOST_POS
+    J1.HOT_GND ~ HOT_GND
+    J1.AUX_15V ~ AUX_15V
+    J1.GATE_CMD_A ~ CMD_A
+    J1.GATE_CMD_B ~ CMD_B
+    passive_bridge.AC1 ~ AC_L
+    passive_bridge.AC2 ~ AC_N
+    passive_bridge.PLUS ~ PREBOOST_POS
+    passive_bridge.MINUS ~ HOT_GND
+
+    # Cold-start auxiliary supply is line-fed; its negative is intentionally
+    # referenced to HOT_GND. This is not a user-SELV claim.
+    aux.ACL ~ AC_L
+    aux.ACN ~ AC_N
+    aux.VP ~ AUX_15V
+    aux.VN ~ HOT_GND
+    AUX_RTN ~ HOT_GND
+    c_vcc.p1 ~ AUX_15V
+    c_vcc.p2 ~ HOT_GND
+
+    # Four-MOSFET synchronous rectifier: Q1/Q2 drain to PREBOOST_POS and
+    # source to AC_L/AC_N; Q3/Q4 drain to AC_L/AC_N and source to HOT_GND.
+    # This orientation preserves the passive body-diode rectifier when gates
+    # are all off and prevents an active-device DC short.
+    q1.D ~ PREBOOST_POS
+    q1.S ~ HS_L
+    q1.G ~ GATE_Q1
+    q2.D ~ PREBOOST_POS
+    q2.S ~ HS_N
+    q2.G ~ GATE_Q2
+    q3.D ~ HS_L
+    q3.S ~ HOT_GND
+    q3.G ~ GATE_Q3
+    q4.D ~ HS_N
+    q4.S ~ HOT_GND
+    q4.G ~ GATE_Q4
+    HS_L ~ AC_L
+    HS_N ~ AC_N
+
+    # IR11688S low-side sensing. The 800-V extensions keep the bare 200-V
+    # controller pins away from AC_L/AC_N; the resistor/cap values follow the
+    # Infineon reference and are not a blanket SOA qualification.
+    sr.VCC ~ AUX_15V
+    sr.GND ~ HOT_GND
+    sr.MOT ~ r_mot.p1
+    r_mot.p2 ~ HOT_GND
+    sr.VS ~ r_vs_bottom.p1
+    r_vs_top.p1 ~ AUX_15V
+    r_vs_top.p2 ~ r_vs_bottom.p1
+    r_vs_bottom.p2 ~ HOT_GND
+    sense_a.D ~ AC_L
+    sense_a.D2 ~ AC_L
+    sense_a.G ~ AUX_15V
+    sense_a.S ~ r_sense_a.p1
+    r_sense_a.p2 ~ SENSE_A
+    sr.VD1 ~ SENSE_A
+    sense_b.D ~ AC_N
+    sense_b.D2 ~ AC_N
+    sense_b.G ~ AUX_15V
+    sense_b.S ~ r_sense_b.p1
+    r_sense_b.p2 ~ SENSE_B
+    sr.VD2 ~ SENSE_B
+    c_sense_a.p1 ~ SENSE_A
+    c_sense_a.p2 ~ HOT_GND
+    c_sense_b.p1 ~ SENSE_B
+    c_sense_b.p2 ~ HOT_GND
+    sr.Gate1 ~ r_gate_3.p1
+    r_gate_3.p2 ~ GATE_Q3
+    sr.Gate2 ~ r_gate_4.p1
+    r_gate_4.p2 ~ GATE_Q4
+    r_pd_3.p1 ~ GATE_Q3
+    r_pd_3.p2 ~ HOT_GND
+    r_pd_4.p1 ~ GATE_Q4
+    r_pd_4.p2 ~ HOT_GND
+
+    # UCC input side is HOT referenced. Outputs A/B drive the two high-side
+    # domains through explicit bootstrap supplies; no black-box float is used.
+    hs_driver.VCCI ~ AUX_15V
+    hs_driver.VCCI2 ~ AUX_15V
+    hs_driver.GNDI ~ HOT_GND
+    hs_driver.EN ~ r_en.p1
+    r_en.p2 ~ AUX_15V
+    r_en_pd.p1 ~ r_en.p1
+    r_en_pd.p2 ~ HOT_GND
+    hs_driver.DT ~ c_dt.p1
+    c_dt.p2 ~ HOT_GND
+    r_dt.p1 ~ c_dt.p1
+    r_dt.p2 ~ HOT_GND
+    hs_driver.NC ~ HOT_GND
+    # IR11688S is the internal command producer, matching the reference card:
+    # Gate2/O_A drives high-side INA and Gate1/O_B drives high-side INB.
+    sr.Gate2 ~ CMD_A
+    sr.Gate1 ~ CMD_B
+    hs_driver.INA ~ CMD_A
+    hs_driver.INB ~ CMD_B
+    hs_driver.VSSA ~ HS_L
+    hs_driver.VSSB ~ HS_N
+    hs_driver.VDDA ~ BOOT_A
+    hs_driver.VDDB ~ BOOT_B
+    hs_driver.OUTA ~ r_gate_1.p1
+    r_gate_1.p2 ~ GATE_Q1
+    hs_driver.OUTB ~ r_gate_2.p1
+    r_gate_2.p2 ~ GATE_Q2
+    r_pd_1.p1 ~ GATE_Q1
+    r_pd_1.p2 ~ HS_L
+    r_pd_2.p1 ~ GATE_Q2
+    r_pd_2.p2 ~ HS_N
+    c_vcci.p1 ~ AUX_15V
+    c_vcci.p2 ~ HOT_GND
+    c_vdda.p1 ~ BOOT_A
+    c_vdda.p2 ~ HS_L
+    c_vddb.p1 ~ BOOT_B
+    c_vddb.p2 ~ HS_N
+    c_boot_a.p1 ~ BOOT_A
+    c_boot_a.p2 ~ HS_L
+    c_boot_b.p1 ~ BOOT_B
+    c_boot_b.p2 ~ HS_N
+    c_bulk_a.p1 ~ BOOT_A
+    c_bulk_a.p2 ~ HS_L
+    c_bulk_b.p1 ~ BOOT_B
+    c_bulk_b.p2 ~ HS_N
+    r_boot_a.p1 ~ AUX_15V
+    r_boot_a.p2 ~ d_boot_a.A
+    d_boot_a.K ~ BOOT_A
+    r_boot_b.p1 ~ AUX_15V
+    r_boot_b.p2 ~ d_boot_b.A
+    d_boot_b.K ~ BOOT_B
+
+    # Additional explicit high-side gate pull-downs retained at the MOSFET
+    # source reference. The low-side command paths are owned by IR11688S.
+    r_pd_1.p1 ~ GATE_Q1
+    r_pd_1.p2 ~ HS_L
+    r_pd_2.p1 ~ GATE_Q2
+    r_pd_2.p2 ~ HS_N

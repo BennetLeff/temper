@@ -1,0 +1,26 @@
+# zapote-fault-loop runs — f2-open-claims-03 (post-ECO netlist: ../netlist.json)
+# binary: /Users/bennet/Desktop/temper/target-shared/debug/zapote-fault-loop (c9ae782ea19e988c...), 2026-09-19T19:28:17Z
+# Currents are ILLUSTRATIVE placeholders; the check is connectivity-only.
+
+## 1. line-fed drive loop, healthy U9, F2 OPEN (bus_fuse assigned 0 = open)
+loop nets: RECTIFIER_POSITIVE,a1,PFC_BUS_MINUS,BOOST_DIODE_POSITIVE,RECTIFIER_NEGATIVE
+FAULT LOOP CONSISTENT (connectivity only; not a conductive-path or distribution claim)
+
+## 2. COUNTEREXAMPLE (expected INCONSISTENT): current credited through the OPEN fuse in the drive loop
+loop nets: same as run 1; bus_fuse=1.0
+FAULT LOOP INCONSISTENT
+  - bus_fuse carries 1 but only 1 of its terminals {"BOOST_DIODE_POSITIVE", "PFC_BUS_PLUS_390V"} lie on the declared loop {"BOOST_DIODE_POSITIVE", "PFC_BUS_MINUS", "RECTIFIER_NEGATIVE", "RECTIFIER_POSITIVE", "a1"}
+
+## 3. internal bank loop, U9+U10 failed-short, F2 CLOSED (loop F2 is the candidate interrupter of)
+loop nets: PFC_BUS_PLUS_390V,BOOST_DIODE_POSITIVE,a1,PFC_BUS_MINUS
+FAULT LOOP CONSISTENT (connectivity only; not a conductive-path or distribution claim)
+
+## 4. COUNTEREXAMPLE (expected INCONSISTENT): gate-disable elements credited in the internal loop
+loop nets: same as run 3; pfc=1.0, q_inhibit=1.0
+FAULT LOOP INCONSISTENT
+  - pfc carries 1 but only 1 of its terminals {"AUX_15V_IN", "PFC_BUS_MINUS", "freq", "gate", "icomp", "isense", "vcomp", "vsense"} lie on the declared loop {"BOOST_DIODE_POSITIVE", "PFC_BUS_MINUS", "PFC_BUS_PLUS_390V", "a1"}
+  - q_inhibit carries 1 but only 1 of its terminals {"PFC_BUS_MINUS", "q_inhibit-g", "vsense"} lie on the declared loop {"BOOST_DIODE_POSITIVE", "PFC_BUS_MINUS", "PFC_BUS_PLUS_390V", "a1"}
+
+## 5. post-ECO sense + inhibit path (wired-OR node the proposed q_inhibit2 parallels)
+loop nets: BOOST_DIODE_POSITIVE,r_vtop-p2,r_vtop2-p2,r_vtop3-p2,r_vtop4-p2,vsense,PFC_BUS_MINUS
+FAULT LOOP CONSISTENT (connectivity only; not a conductive-path or distribution claim)

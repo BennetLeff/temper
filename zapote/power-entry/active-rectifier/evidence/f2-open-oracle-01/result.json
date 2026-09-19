@@ -1,0 +1,108 @@
+{
+  "classification": "ILLUSTRATIVE NUMERICAL ORACLE, not a physical operating bound",
+  "solver": "ngspice-45.2",
+  "parameters": {
+    "vin_v": 186.676190233,
+    "v0_v": 400.0,
+    "i0_a": 20.0,
+    "L_h": 0.00018,
+    "C_f": 4.7e-07,
+    "diode": "synthetic D: IS=1e-12 N=1 RS=.001 CJO=10p TT=0"
+  },
+  "ideal_lossless_peak_v": 632.432331161209,
+  "runs": [
+    {
+      "max_step": "10ns",
+      "samples": 7135,
+      "peak_v": 632.018074,
+      "peak_time_s": 9.84336259e-06,
+      "charge_to_peak_c": 0.0001090465275346683,
+      "source_energy_to_peak_j": 0.020356390318309815,
+      "series_diode_energy_to_peak_j": 8.674629441026598e-05,
+      "LC_energy_change_j": 0.020269637424966278,
+      "energy_residual_j": -6.598933271345642e-09,
+      "note": "Energy quadrature starts at first raw sample; tiny nonlinear junction energy and 1e12-ohm leakage omitted."
+    },
+    {
+      "max_step": "5ns",
+      "samples": 8109,
+      "peak_v": 632.018077,
+      "peak_time_s": 9.84363962e-06,
+      "charge_to_peak_c": 0.00010904750439300898,
+      "source_energy_to_peak_j": 0.020356572674503248,
+      "series_diode_energy_to_peak_j": 8.674708524741595e-05,
+      "LC_energy_change_j": 0.0202698238568668,
+      "energy_residual_j": -1.7323890343090564e-09,
+      "note": "Energy quadrature starts at first raw sample; tiny nonlinear junction energy and 1e12-ohm leakage omitted."
+    }
+  ],
+  "retained_files": [
+    {
+      "path": "failed-ideal.cir",
+      "sha256": "a2a5e31155e3f85e50b7700cd2fbdcccd39f12cde5e96e59f898c593d9ba5320"
+    },
+    {
+      "path": "failed-ideal.log",
+      "sha256": "370a0299e5538483c6a993d2981266fc1cc100bf729ca3aa8520e4d7c3a1e53c"
+    },
+    {
+      "path": "failed-n01.cir",
+      "sha256": "093055f87c03cbe1a7608da58cd38b87e0d7779774982a99297f3e1bd8b1c14c"
+    },
+    {
+      "path": "failed-n01.log",
+      "sha256": "2f22164063e9b642cb6fb334bb5911448d382415490cb585b6b477c64ad022ef"
+    },
+    {
+      "path": "regularized-10ns.cir",
+      "sha256": "88265607db3df6f4411ad0d402752ab2e79a0177c957073070fdbe6ece09cba2"
+    },
+    {
+      "path": "regularized-10ns.dat",
+      "sha256": "011ec9589ea3710b6427025216c8036ea404429f7c12f1919b9fec22eeda2af3"
+    },
+    {
+      "path": "regularized-10ns.log",
+      "sha256": "375a39255ea3604ae9f2eb62ff56b02fdffd9498b6ed6aa0cd7c97813a4c6bde"
+    },
+    {
+      "path": "regularized-5ns.cir",
+      "sha256": "f65c3b7d97624077560594dd09fe89cacdd94f44290dc8124da0c13625239796"
+    },
+    {
+      "path": "regularized-5ns.dat",
+      "sha256": "4e13e9c8d407fbc895307b171cf93e67d0cfa584730189fbaaf770f1e6a50fec"
+    },
+    {
+      "path": "regularized-5ns.log",
+      "sha256": "30170ba8e66de1c044f00ba17b8ba1e3c050aeb2e6f0616f0e4dfc6d4851fe85"
+    },
+    {
+      "path": "nominal-model-5ns.cir",
+      "sha256": "ee4253bb16c412635c0eafa777d8e5b3723107f9fe747b0ac19a3aaf6b0bdab9"
+    },
+    {
+      "path": "nominal-model-5ns.log",
+      "sha256": "5fd8f4777e40304882f1d44f1120e1821fc6ad9b1dae4aeab8adbaea3f1c15a1"
+    },
+    {
+      "path": "nominal-model-5ns.dat",
+      "sha256": "a6e915e37d0d9cb11ac9bd927f241c095d9327fcd5ab35cf8b5d5f44f4325779"
+    }
+  ],
+  "retained_nominal_current_crosscheck": {
+    "classification": "same synthetic numerical model; retained nominal CCM initial current, not a physical bound",
+    "vin_v": 169.7056274847714,
+    "v0_v": 389.61538461538464,
+    "i0_a": 23.23183831948713,
+    "max_step_s": 5e-09,
+    "samples": 6047,
+    "peak_v": 674.288936,
+    "peak_time_s": 1.02908943e-05,
+    "ideal_peak_v": 674.7412017714548,
+    "source_energy_to_peak_j": 0.022705835249298652,
+    "diode_terminal_energy_to_peak_j": 0.00010730365599552011,
+    "LC_energy_change_j": 0.022598529923219965,
+    "energy_residual_j": -1.6700831655114268e-09
+  }
+}

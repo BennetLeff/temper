@@ -1,0 +1,14 @@
+* Part B: diode-free RC step charge (exact check of the exponential algebra).
+* Vsrc 14.15 V step into R 220 ohm + C 100 uF from 0. tau = 22 ms.
+* Expect v(25.08 ms) = 14.15*(1-exp(-25.08/22)) = 9.624561 V;
+* v(100 ms) = 14.15*(1-exp(-100/22)) = 13.999793 V.
+VsrcB srcB 0 DC 14.15
+RB srcB nB 220
+CbulkB nB 0 100uF IC=0
+.tran 50us 100ms uic
+.meas tran vchgB FIND V(nB) AT=25.08ms
+.meas tran vchgB2 FIND V(nB) AT=100ms
+.control
+run
+.endc
+.end

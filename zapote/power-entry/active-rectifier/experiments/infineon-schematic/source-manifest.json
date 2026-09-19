@@ -1,0 +1,346 @@
+{
+  "schema": "temper.source-manifest.v1",
+  "status": "EXPERIMENTAL",
+  "source": "src/main.ato:InfineonActiveBridge",
+  "components": [
+    {
+      "reference": "U1",
+      "value": "HIERARCHICAL_PORTS_ONLY",
+      "mpn": "HIERARCHICAL_PORTS_ONLY",
+      "footprint": "temper:HierarchicalPort",
+      "manufacturer_part_number": "HIERARCHICAL_PORTS_ONLY",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U2",
+      "value": "GBJ2510-F",
+      "mpn": "GBJ2510-F",
+      "footprint": "temper:Diode_Bridge_GBJ2510",
+      "manufacturer_part_number": "GBJ2510-F",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U3",
+      "value": "IRM-10-15",
+      "mpn": "IRM-10-15",
+      "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-10-xx_THT",
+      "manufacturer_part_number": "IRM-10-15",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U4",
+      "value": "IR11688S",
+      "mpn": "IR11688S",
+      "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+      "manufacturer_part_number": "IR11688S",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U5",
+      "value": "UCC21530BQDWKRQ1",
+      "mpn": "UCC21530BQDWKRQ1",
+      "footprint": "temper:SOIC16W_Isolated",
+      "manufacturer_part_number": "UCC21530BQDWKRQ1",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U6",
+      "value": "IPW60R017C7",
+      "mpn": "IPW60R017C7",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "manufacturer_part_number": "IPW60R017C7",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U7",
+      "value": "IPW60R017C7",
+      "mpn": "IPW60R017C7",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "manufacturer_part_number": "IPW60R017C7",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U8",
+      "value": "IPW60R017C7",
+      "mpn": "IPW60R017C7",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "manufacturer_part_number": "IPW60R017C7",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U9",
+      "value": "IPW60R017C7",
+      "mpn": "IPW60R017C7",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "manufacturer_part_number": "IPW60R017C7",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U10",
+      "value": "BSP300H6327XUSA1",
+      "mpn": "BSP300H6327XUSA1",
+      "footprint": "temper:BSP300_PG-SOT223-4-21",
+      "manufacturer_part_number": "BSP300H6327XUSA1",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U11",
+      "value": "BSP300H6327XUSA1",
+      "mpn": "BSP300H6327XUSA1",
+      "footprint": "temper:BSP300_PG-SOT223-4-21",
+      "manufacturer_part_number": "BSP300H6327XUSA1",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U12",
+      "value": "ES1J",
+      "mpn": "ES1J",
+      "footprint": "Diode_SMD:D_SMA",
+      "manufacturer_part_number": "ES1J",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "U13",
+      "value": "ES1J",
+      "mpn": "ES1J",
+      "footprint": "Diode_SMD:D_SMA",
+      "manufacturer_part_number": "ES1J",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R1",
+      "value": "RC0603FR-07100KL",
+      "mpn": "RC0603FR-07100KL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-07100KL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R15",
+      "value": "RC0603FR-07100KL",
+      "mpn": "RC0603FR-07100KL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-07100KL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R2",
+      "value": "RC0603FR-0747KL",
+      "mpn": "RC0603FR-0747KL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0747KL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R3",
+      "value": "RC0603FR-07150RL",
+      "mpn": "RC0603FR-07150RL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-07150RL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R4",
+      "value": "RC0603FR-07100RL",
+      "mpn": "RC0603FR-07100RL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-07100RL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R5",
+      "value": "RC0603FR-07100RL",
+      "mpn": "RC0603FR-07100RL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-07100RL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R6",
+      "value": "RC0603FR-0710RL",
+      "mpn": "RC0603FR-0710RL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710RL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R7",
+      "value": "RC0603FR-0710RL",
+      "mpn": "RC0603FR-0710RL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710RL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R8",
+      "value": "RC0603FR-0710RL",
+      "mpn": "RC0603FR-0710RL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710RL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R9",
+      "value": "RC0603FR-0710RL",
+      "mpn": "RC0603FR-0710RL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710RL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R17",
+      "value": "RC0603FR-0710RL",
+      "mpn": "RC0603FR-0710RL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710RL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R18",
+      "value": "RC0603FR-0710RL",
+      "mpn": "RC0603FR-0710RL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710RL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R10",
+      "value": "RC0603FR-0710KL",
+      "mpn": "RC0603FR-0710KL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710KL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R11",
+      "value": "RC0603FR-0710KL",
+      "mpn": "RC0603FR-0710KL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710KL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R12",
+      "value": "RC0603FR-0710KL",
+      "mpn": "RC0603FR-0710KL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710KL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R13",
+      "value": "RC0603FR-0710KL",
+      "mpn": "RC0603FR-0710KL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710KL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R14",
+      "value": "RC0603FR-0710KL",
+      "mpn": "RC0603FR-0710KL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710KL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "R16",
+      "value": "RC0603FR-0710KL",
+      "mpn": "RC0603FR-0710KL",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer_part_number": "RC0603FR-0710KL",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C1",
+      "value": "GRM21BR61H475KA12L",
+      "mpn": "GRM21BR61H475KA12L",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer_part_number": "GRM21BR61H475KA12L",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C2",
+      "value": "C0603C104K5RACTU",
+      "mpn": "C0603C104K5RACTU",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer_part_number": "C0603C104K5RACTU",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C3",
+      "value": "GRM188R71H105KA12D",
+      "mpn": "GRM188R71H105KA12D",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer_part_number": "GRM188R71H105KA12D",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C4",
+      "value": "GRM188R71H105KA12D",
+      "mpn": "GRM188R71H105KA12D",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer_part_number": "GRM188R71H105KA12D",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C5",
+      "value": "C0603C471K5RACTU",
+      "mpn": "C0603C471K5RACTU",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer_part_number": "C0603C471K5RACTU",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C6",
+      "value": "C0603C471K5RACTU",
+      "mpn": "C0603C471K5RACTU",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer_part_number": "C0603C471K5RACTU",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C7",
+      "value": "C0603C102K5RACTU",
+      "mpn": "C0603C102K5RACTU",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer_part_number": "C0603C102K5RACTU",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C8",
+      "value": "C0805C224K5RACTU",
+      "mpn": "C0805C224K5RACTU",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "manufacturer_part_number": "C0805C224K5RACTU",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C9",
+      "value": "C0805C224K5RACTU",
+      "mpn": "C0805C224K5RACTU",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "manufacturer_part_number": "C0805C224K5RACTU",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C10",
+      "value": "EEU-FC1E102",
+      "mpn": "EEU-FC1E102",
+      "footprint": "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm",
+      "manufacturer_part_number": "EEU-FC1E102",
+      "evidence_class": "source-required"
+    },
+    {
+      "reference": "C11",
+      "value": "EEU-FC1E102",
+      "mpn": "EEU-FC1E102",
+      "footprint": "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm",
+      "manufacturer_part_number": "EEU-FC1E102",
+      "evidence_class": "source-required"
+    }
+  ],
+  "notes": [
+    "Generated from Atopile default.csv; not a fabrication release."
+  ]
+}

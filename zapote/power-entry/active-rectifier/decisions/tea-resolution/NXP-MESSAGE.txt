@@ -1,0 +1,30 @@
+Subject: TEA2209T/1 SOT109-1 HVS lead construction and recommended PCB lands
+
+Draft — not sent. Scope: package information only; no full PCB or source attachment.
+
+We are assessing TEA2209T/1 for a 120 VAC nominal (108–132 VAC) active
+rectifier in an induction cooking appliance, at or below 2000 m altitude.
+The board environment and product-safety disposition are not yet qualified.
+
+The external pin pairs being assessed are 3–5 (GATEHL/GATELL), 10–12
+(GATELR/R), and 14–16 (GATEHR/VR), with intervening HVS pins 4, 11 and 15.
+VR is pre-boost rectified mains. Our current lands are 0.60 mm wide along
+the 1.27 mm pitch: 1.94 mm endpoint spacing, with an intervening floating
+land/lead. We do not treat that endpoint spacing as assembled creepage.
+
+Your TEA2209DB1584 Gerber archive uses approximately 0.630 mm-wide copper
+lands in the SO16 pattern. We have not treated the reference layout as an
+appliance insulation approval.
+
+Could applications/package engineering provide:
+1. Whether these HVS leads are internally unbonded, and any relevant package
+   material/path or lead-position tolerance data beyond the outline drawing.
+2. The recommended high-voltage land pattern, and whether leaving these
+   three NC leads unsoldered with no PCB land is supported mechanically and
+   electrically. No lead clipping or modification is proposed.
+3. Any published construction or qualification guidance for assessing these
+   external pin pairs, including conditions used by TEA2209DB1584.
+
+Our product-safety reviewer will separately determine the governing appliance
+clauses and assembled clearance/creepage requirements. We are seeking the
+package facts needed for that review, not permission to waive a PCB rule.

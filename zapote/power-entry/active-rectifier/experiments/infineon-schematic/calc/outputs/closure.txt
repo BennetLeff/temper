@@ -1,0 +1,3 @@
+closure check (closed-form fixed point vs 1-us time-stepped integration, identical ODEs):
+worst |stepped - closed| hold-end error = 0.037679 mV at corner 'asym-60Hz-worse-leg'
+verdict: PASS (< 2 mV)

@@ -1,0 +1,94 @@
+{
+ "classification": "ILLUSTRATIVE NUMERICAL ORACLE, not a physical operating bound",
+ "compared_against": "../../experiments/f2-open/f2_open_timed.rs",
+ "parameters_freewheel": {
+  "c_cm": "constant 169.705627485 V (120 Vrms crest, retained CCM input)",
+  "c_f": 4.7e-07,
+  "diode": "synthetic D: IS=1e-12 N=1 RS=.001 CJO=10p TT=0 (deliberately not a C3D20065D model)",
+  "i0_a": 20.0,
+  "l_h": 0.00018,
+  "rdiv_ohm": 1013000.0,
+  "switch": "absent (already off)",
+  "v0_v": 425.0
+ },
+ "parameters_patt": {
+  "c_cm": "constant 169.705627485 V",
+  "c_f": 4.7e-07,
+  "diode": "synthetic D: IS=1e-12 N=1 RS=.001 CJO=10p TT=0",
+  "gate": "PWL ON 0-4us OFF 4-8us ON 8-12us latched OFF after 12us (20ns edges)",
+  "i0_a": 23.231838319,
+  "l_h": 0.00018,
+  "rdiv_ohm": 1013000.0,
+  "switch": "ideal SW Ron=1m Roff=1G Vt=2.5 (deliberately not a STW65N65DM2AG model)",
+  "v0_v": 389.6153846
+ },
+ "retained_files": [
+  {
+   "path": "freewheel-5ns.cir",
+   "sha256": "befadf8eae127cc4bebab1693d356089e0edddfec2045f4047f3fae78bdcb369"
+  },
+  {
+   "path": "freewheel-5ns.log",
+   "sha256": "bdcf19887698b068675229174a11a2282b67d5d28ee6672059979ee1fb0b3d25"
+  },
+  {
+   "path": "freewheel-10ns.cir",
+   "sha256": "05c5e699dc1c34ce44a3ea39ca1733bd9976e0a981a0a3148fb5899f352143a8"
+  },
+  {
+   "path": "freewheel-10ns.log",
+   "sha256": "5234278560bab1f5a8eafd917715063c4993c2eb570f86ee236d67acc212387b"
+  },
+  {
+   "path": "patt-5ns.cir",
+   "sha256": "3470c66cebf7baf7ad0c1d256b20d69831a1e23ea50e9a8b59e112db1e9d8991"
+  },
+  {
+   "path": "patt-5ns.log",
+   "sha256": "5cf6121aee72b77cf0ef81a6de0314f65792216c58b4668c9e1bf5b64e2bfc57"
+  },
+  {
+   "path": "patt-10ns.cir",
+   "sha256": "4c6cb0eb5d88e5b1c644d6981241ec4d1de72d99dd0e7064858614fc061631c9"
+  },
+  {
+   "path": "patt-10ns.log",
+   "sha256": "740ba4ce85b4ea3ce2d6f27ab241b75287ba60c91ea7e801ecab884aefdbfd5e"
+  }
+ ],
+ "runs_freewheel": [
+  {
+   "max_step": "10ns",
+   "note": "step refinement: identical peak to 4 decimals",
+   "peak_time_s": 9.118948e-06,
+   "peak_v": 636.6334
+  },
+  {
+   "max_step": "5ns",
+   "peak_time_s": 9.118934e-06,
+   "peak_v": 636.6334,
+   "rust_xcheck_v": 636.9936,
+   "rust_minus_ngspice_v": 0.3602
+  }
+ ],
+ "runs_patt": [
+  {
+   "max_step": "10ns",
+   "note": "step refinement: 0.0005 V difference",
+   "peak_time_s": 1.961179e-05,
+   "peak_v": 793.7035
+  },
+  {
+   "max_step": "5ns",
+   "peak_time_s": 1.961186e-05,
+   "peak_v": 793.704,
+   "rust_patt_v": 794.3178,
+   "rust_minus_ngspice_v": 0.6138
+  }
+ ],
+ "rust_reference": {
+  "closed_form_freewheel_v": 637.0029,
+  "note": "Rust is loss-free (ideal diode Vf=0, ideal switch); ngspice carries synthetic-diode forward loss and 1mOhm switch, so ngspice reads lower by the expected sign and magnitude (cf. oracle-01: 0.45 V on the same mechanism). Agreement <0.1% in both cases."
+ },
+ "solver": "ngspice-45.2"
+}

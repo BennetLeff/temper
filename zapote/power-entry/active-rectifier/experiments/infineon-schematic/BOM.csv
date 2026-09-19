@@ -1,0 +1,26 @@
+Reference,Quantity,Manufacturer,MPN,Value,Footprint,Role,Status
+U1,1,Logical port,HIERARCHICAL_PORTS_ONLY,8-net unit interface,no footprint,hot-domain interface,physical connector intentionally deferred
+U2,1,Diodes Incorporated,GBJ2510-F,passive bridge,temper:Diode_Bridge_GBJ2510,retained surge path,source retained
+U3,1,Mean Well,IRM-10-15,15 V 10 W AC/DC,Converter_ACDC:Converter_ACDC_MeanWell_IRM-10-xx_THT,cold-start auxiliary,source retained
+U4,1,Infineon,IR11688S,smart diode controller,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,low-side VDS control,candidate
+U5,1,Texas Instruments,UCC21530BQDWKRQ1,dual isolated driver,temper:SOIC16W_Isolated,high-side gate driver,active orderable 8 V UVLO candidate
+U6-U9,4,Infineon,IPW60R017C7,600 V MOSFET,Package_TO_SOT_THT:TO-247-3_Vertical,active rectifier switches,candidate
+U10-U11,2,Infineon,BSP300H6327XUSA1,800 V sense MOSFET,temper:BSP300_PG-SOT223-4-21,IR11688S sense extension,candidate
+U12-U13,2,Diodes Incorporated,ES1J,600 V fast diode,Diode_SMD:D_SMA,bootstrap recharge,candidate
+R1,1,Vishay,RC0603FR-07100KL,100 kohm,Resistor_SMD:R_0603_1608Metric,IR11688 MOT,screen
+R2,1,Vishay,RC0603FR-0747KL,47 kohm,Resistor_SMD:R_0603_1608Metric,VS top,screen
+R3,1,Vishay,RC0603FR-07150RL,150 ohm,Resistor_SMD:R_0603_1608Metric,VS bottom,screen
+R4-R5,2,Vishay,RC0603FR-07100RL,100 ohm,Resistor_SMD:R_0603_1608Metric,sense extension,screen
+R6-R9,4,Vishay,RC0603FR-0710RL,10 ohm,Resistor_SMD:R_0603_1608Metric,gate series,screen
+R10-R13,4,Vishay,RC0603FR-0710KL,10 kohm,Resistor_SMD:R_0603_1608Metric,gate pull-down,screen
+R14,1,Vishay,RC0603FR-0710KL,10 kohm,Resistor_SMD:R_0603_1608Metric,driver enable pull-up,screen
+R15,1,Vishay,RC0603FR-07100KL,100 kohm,Resistor_SMD:R_0603_1608Metric,driver enable pull-down,screen
+R16,1,Vishay,RC0603FR-0710KL,10 kohm,Resistor_SMD:R_0603_1608Metric,UCC21530 dead-time setting,screen
+R17-R18,2,Panasonic,ERJ-P08J221V,220 ohm,Resistor_SMD:R_1206_3216Metric,bootstrap recharge limiting and startup pulse,"1206 anti-surge 0.66 W AEC-Q200; pulse life bench B-4 (no single-pulse curve retained)"
+C1,1,Murata,GRM21BR61H475KA12L,4.7 uF,Capacitor_SMD:C_0805_2012Metric,aux bypass,screen
+C2,1,Kemet,C0603C104K5RACTU,100 nF,Capacitor_SMD:C_0603_1608Metric,driver input bypass,screen
+C3-C4,2,Murata,GRM188R71H105KA12D,1 uF,Capacitor_SMD:C_0603_1608Metric,driver output bypass,screen
+C5-C6,2,Kemet,C0603C471K5RACTU,470 pF,Capacitor_SMD:C_0603_1608Metric,sense filtering,reference value
+C7,1,Kemet,C0603C102K5RACTU,1 nF,Capacitor_SMD:C_0603_1608Metric,dead-time pin,screen
+C8-C9,2,Kemet,C0805C224K5RACTU,220 nF,Capacitor_SMD:C_0805_2012Metric,high-side bootstrap,screen
+C10-C11,2,Panasonic,EEU-FC1E101,100 uF 25 V,Capacitor_THT:C_Radial_D6.3mm_H11.0mm_P2.50mm,high-side bootstrap hold-up,"selected per STARTUP-SELECTION.md; FC-A datasheet retained in sources/"

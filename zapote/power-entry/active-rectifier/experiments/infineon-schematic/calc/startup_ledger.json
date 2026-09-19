@@ -1,0 +1,257 @@
+{
+  "schema": "startup-selection-claims/v1",
+  "note": "Bootstrap/AUX_15V startup selection claims for the Infineon active-bridge experiment. Bounds, conditions, part identity, fault states and illustrative-vs-qualified status preserved per the electrical-model-review skill. Passing zapote-claims means no implemented-check violation was detected, not that any claim is true.",
+  "claims": [
+    {
+      "id": "ucc-vcci-quiescent",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "driver_input_quiescent_a",
+      "part": "UCC21530BQDWKRQ1",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "UCC21530-Q1, VINA=VINB=0 V, TJ -40..+150 C, VVCCI 3.3/5 V table condition; applied at VCCI=15 V as assumed extension",
+      "fault_state": "healthy_on",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/ti-ucc21530-q1.pdf",
+          "sha256": "5df004147881b4d750a78f5bae8fc75df3ece35da513e53487f15f61601638dc"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "ucc-vdda-quiescent",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "driver_output_quiescent_a",
+      "part": "UCC21530BQDWKRQ1",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "UCC21530-Q1, VINA=VINB=0 V, TJ -40..+150 C, VDDA/B=15 V, 2.5 mA per channel",
+      "fault_state": "healthy_on",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/ti-ucc21530-q1.pdf",
+          "sha256": "5df004147881b4d750a78f5bae8fc75df3ece35da513e53487f15f61601638dc"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "ucc-uvlo-thresholds",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "driver_uvlo_v",
+      "part": "UCC21530BQDWKRQ1",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "UCC21530-Q1 8-V UVLO grade: rise 8.9 V max, fall 8.4 V max; recommended operating minimum 9.2 V",
+      "fault_state": "healthy_on",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/ti-ucc21530-q1.pdf",
+          "sha256": "5df004147881b4d750a78f5bae8fc75df3ece35da513e53487f15f61601638dc"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "irm-rated-current",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "aux_rated_current_a",
+      "part": "IRM-10-15",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "IRM-10-SPEC, IRM-10-15 column, 0.67 A rated, 0-0.67 A range, 230 Vac / rated load / 25 C unless stated; overload 115-190% hiccup",
+      "fault_state": "healthy_on",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../../../../../../harness-lab/audits/buck-final-20260910/margin-resolution/IRM-10-SPEC.PDF",
+          "sha256": "1aab6b30492328818e4d0900416676891eeb1076f409d56dc2277d7119ed208a"
+        }
+      ]
+    },
+    {
+      "id": "fc-bulk-spec",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "bootstrap_bulk_spec",
+      "part": "EEU-FC1E101",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "FC-A datasheet: 100 uF +-20% at 120 Hz/20 C, leakage <=0.01CV after 2 min, -55..+105 C",
+      "fault_state": "healthy_on",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/panasonic-fc-a-series.pdf",
+          "sha256": "31d50abf415e2782654b0a9e9e8cf10aa30a666961dc1d2fcb60ac0ccde42206"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "erjp-resistor-spec",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "bootstrap_resistor_spec",
+      "part": "ERJ-P08J221V",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "ERJ P-series datasheet: 220 ohm +-5%, TCR +-200 ppm/C, 0.66 W at 70 C, overload 2xRCWV 5 s",
+      "fault_state": "healthy_on",
+      "assertion": "qualified",
+      "evidence": [
+        {
+          "path": "../sources/panasonic-erj-p-series.pdf",
+          "sha256": "3bb6b21a42f2f946a4581abcb453747ffabbf56bad31f0d9a6a9ac4c53ab4ebf"
+        }
+      ],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "ir11688s-vcc",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "sr_controller_supply_a",
+      "part": "IR11688S",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "no retained IR11688S datasheet; bench B-3 owns the value",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "es1j-vf-band",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "bootstrap_diode_vf_v",
+      "part": "ES1J",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "0.6 min / 1.1 max screening pair assumed; no retained ES1J datasheet; bench B-6 owns verification",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null,
+      "justification": null
+    },
+    {
+      "id": "fet-gate-charge",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "fet_gate_charge_c",
+      "part": "IPW60R017C7",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "240 nC TYP at VDD=400 V, ID=58.2 A, VGS 0-10 V; conditions do not match this bridge (~170 Vpk, ~15 A, 0-13 V) and no MAX is published; model uses typ plus x2 sensitivity",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null,
+      "justification": null,
+      "condition_transformation": "source condition mismatched, so the value is weakened to assumed/unknown rather than carried as a bound"
+    },
+    {
+      "id": "cold-start-peak",
+      "origin": "derivation",
+      "inputs": [
+        "erjp-resistor-spec",
+        "es1j-vf-band"
+      ],
+      "quantity": "cold_start_peak_a",
+      "part": "system: ERJ-P08J221V + ES1J + IRM-10-15",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "both bootstrap bulks discharged, max AUX rail 15.475 V, Vf_min 0.6 assumed, R_min 209 ohm, C_max 120 uF, plus 4 mA worst-known AUX base; IR11688S/sense NULL loads excluded",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "outputs/cold_charge.csv",
+          "sha256": "b8fd2776c66b048e236d6fe0dd454cd44f13eb9ccf34abf4e17b7351c64c985c"
+        }
+      ],
+      "derived_from": null,
+      "justification": "worst-known screening peak from the RC model; excludes unbounded NULL loads, so not a worst-case bound",
+      "condition_transformation": "peak excludes unbounded NULL loads, so it is a worst-known screening number, not a worst-case bound",
+      "part_transformation": "system-level screening quantity spanning charge resistor, diode, rail, and base load; not attributable to one part"
+    },
+    {
+      "id": "worst-hold-margin",
+      "origin": "derivation",
+      "inputs": [
+        "ucc-vdda-quiescent",
+        "ucc-uvlo-thresholds",
+        "fc-bulk-spec",
+        "erjp-resistor-spec",
+        "es1j-vf-band",
+        "fet-gate-charge"
+      ],
+      "quantity": "bootstrap_hold_end_v",
+      "part": "system: UCC21530BQDWKRQ1 + EEU-FC1E101 + ERJ-P08J221V + ES1J + IPW60R017C7",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "50 Hz worst screening corner: min rail with ripple trough, max Vf/R, min C, max hold current, Qg x2; hold-end 11.18 V, 1.98 V over the 9.2 V floor",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "outputs/startup_corners.csv",
+          "sha256": "0fc319aac0cdf1f42d6619916dd714022c45bb1f85086f52352c0bb3c6f3796d"
+        }
+      ],
+      "derived_from": null,
+      "justification": "periodic fixed-point margin conditional on assumed Vf and gate-charge inputs; illustrative pending bench B-5/B-6",
+      "condition_transformation": "rests on assumed Vf and gate-charge inputs, so the margin is illustrative pending bench B-5/B-6",
+      "part_transformation": "system-level screening margin spanning driver, bulk, resistor, diode, and MOSFET gate charge; not attributable to one part"
+    },
+    {
+      "id": "resistor-pulse-comparison",
+      "origin": "derivation",
+      "inputs": [
+        "erjp-resistor-spec"
+      ],
+      "quantity": "bootstrap_resistor_pulse",
+      "part": "ERJ-P08J221V",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "14.9 V peak / 13.3 mJ per cold charge vs the 2xRCWV/5 s overload-test envelope; an overload test is not a repetitive-pulse rating and no single-pulse curve is retained",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null,
+      "justification": null,
+      "condition_transformation": "overload-test envelope compared illustratively only; pulse life stays with bench B-4"
+    },
+    {
+      "id": "sag-chatter-conjecture",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "brownout_uvlo_chatter",
+      "part": "IRM-10-15",
+      "value_kind": "assumed",
+      "bound_kind": "unknown",
+      "source_condition": "parametric AUX sag suggests a 11.6-12.4 V chatter band, but IRM sub-85 Vac output behavior is unspecified; bench B-8 owns the behavior",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "evidence": [],
+      "derived_from": null,
+      "justification": null
+    }
+  ]
+}

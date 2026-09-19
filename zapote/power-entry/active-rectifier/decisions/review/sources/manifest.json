@@ -1,0 +1,67 @@
+{
+  "date": "2026-09-19T15:46:21.688793+00:00",
+  "base_commit": "a2536ee140c8bd368a4bb16a464e36620df2858f",
+  "scope": "Review input identity; not a qualification receipt",
+  "files": [
+    {
+      "path": "../../../candidate/section.kicad_pcb",
+      "sha256": "e274d8ad1181f426f731f170e46202e16f969bb751538837a45ee221c3b09ceb",
+      "url": null,
+      "bytes": 774525
+    },
+    {
+      "path": "../../../candidate/section.kicad_sch",
+      "sha256": "f0b3682aa653ae900c78f9e3d8f3edfd0f7fd2d4496199e781a797489e80e6f8",
+      "url": null,
+      "bytes": 130430
+    },
+    {
+      "path": "../../../evidence/vsense-bank-side-01/fault-loop/netlist.json",
+      "sha256": "d2b6600409214ed6b3a2aff7ec9ca7fe889b38d68bd1b4746e674924a44c5386",
+      "url": null,
+      "bytes": 3580
+    },
+    {
+      "path": "../../../../../../elec/src/power_entry_active_unit.ato",
+      "sha256": "7928361aada8b511ffd67baee23d6bd30fa3f44f4a88b00b5a2375c3ca145531",
+      "url": null,
+      "bytes": 18754
+    },
+    {
+      "path": "../../../../shunt-repair/sources/TI-UCC28180.pdf",
+      "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be",
+      "url": "https://www.ti.com/lit/ds/symlink/ucc28180.pdf",
+      "bytes": 1665665
+    },
+    {
+      "path": "../../../../loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-VERIFY/attempt-001/raw/reused_sources/TEA2209T.pdf",
+      "sha256": "fb611299c890a0dcaf7d610ed3fe742a3ab8debf21a75b540b8cede2e7badc99",
+      "url": "https://www.nxp.com/docs/en/data-sheet/TEA2209T.pdf",
+      "bytes": 289633
+    },
+    {
+      "path": "NXP-UM11493.pdf",
+      "sha256": "547687e6c2be634b67e4dbdedf9261678dd2a186fca40831f94989a195ffe723",
+      "url": "https://www.nxp.com/docs/en/user-guide/UM11493_v1.pdf",
+      "bytes": 8897767
+    },
+    {
+      "path": "Bourns-floating-conductors.pdf",
+      "sha256": "505e56ddd6eb4eb53b5410c4046cb775320cefc6677b3b06b1fa19dff0c30c1a",
+      "url": "https://bourns.com/docs/technical-documents/technical-library/inductive-components/publications/bourns_creepage_clearance_transformers-standards_practical_guidance_white_paper.pdf?sfvrsn=fd3828f6_15",
+      "bytes": 753908
+    },
+    {
+      "path": "../../../../../../docs/ENVIRONMENTAL_SPEC.md",
+      "sha256": "afa367890d4872cce0033455ded49ea9b5826b9ba3a25229f4ec336d34cbaccf",
+      "url": null,
+      "bytes": 4167
+    },
+    {
+      "path": "../../../../../../docs/specs/SURGE_CONTRACT.md",
+      "sha256": "fe6c05d9ab61908bff18c34955ade3c274244306bca05567d577c66eb4ac2e6a",
+      "url": null,
+      "bytes": 10345
+    }
+  ]
+}

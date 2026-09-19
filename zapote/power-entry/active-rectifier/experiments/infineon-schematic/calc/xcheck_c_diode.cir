@@ -1,0 +1,18 @@
+* Part C: full leg with a real diode model (QUALITATIVE only).
+* Reports the diode Vf operating point at end of charge; NOT asserted equal
+* to the Rust fixed-Vf screening input (0.85 V nominal corner). The residual
+* between this run and the Rust model is expected diode-curvature, and is
+* reported as such -- it does not validate or invalidate the Vf assumption.
+.model DM D(IS=1e-12 N=1.7)
+VsrcC srcC 0 DC 15.0
+RCc srcC nDC 220
+DD nDC nCC DM
+CbulkC nCC 0 100uF IC=0
+IholdC nCC 0 DC 2.405mA
+.tran 100us 300ms uic
+.meas tran vfullC FIND V(nCC) AT=300ms
+.meas tran vanodeC FIND V(nDC) AT=300ms
+.control
+run
+.endc
+.end

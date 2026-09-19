@@ -1,0 +1,53 @@
+# ngspice cross-check report (independent solver vs Rust model)
+
+Date: 2026-09-19. Tool: ngspice (brew) batch mode, three single-analysis
+netlists (`calc/xcheck_a_droop.cir`, `calc/xcheck_b_charge.cir`,
+`calc/xcheck_c_diode.cir`). Raw logs: `calc/outputs/xcheck_{a_droop,
+b_charge,c_diode}.log` (`.meas` lines are the retained measurements).
+
+Scope of this check: it validates the Rust ODE integration/algebra with an
+independent solver. It does NOT validate any datasheet input (Vf, Qg,
+leakage, TCR) — those remain screening assumptions per LOAD-INVENTORY.md.
+
+## Part A — hold droop, current-source-loaded C, no diode (EXACT check)
+
+Setup: C = 100 uF, IC = 13.180486 V (Rust nominal-60Hz v_start),
+I_hold = 2.405 mA DC discharging, t = 8.333 ms.
+
+| Path | v_end (V) |
+|---|---|
+| Python closed form (I·t/C) | 12.980077 |
+| Rust stepped/closed (`startup_corners.csv`, nominal v_hold_end + Qg step backed out) | 12.977669 + 0.002400 = 12.980069 |
+| ngspice `.meas vdropa` | 12.980080 |
+
+Agreement: within 11 µV across all three paths. PASS.
+
+## Part B — diode-free RC step charge (EXACT check of exponential algebra)
+
+Setup: 14.15 V step into R = 220 ohm + C = 100 uF from 0 (tau = 22 ms).
+
+| t | Closed form 14.15·(1−e^(−t/τ)) (V) | ngspice `.meas` (V) |
+|---|---|---|
+| 25.08 ms | 9.624561 | 9.624560 |
+| 100 ms | 13.999793 | 13.999790 |
+
+Agreement: within 3 µV. PASS.
+
+## Part C — full leg with a real diode model (QUALITATIVE, no pass/fail)
+
+Setup: 15.0 V source, R = 220 ohm, generic diode (IS=1e-12, N=1.7),
+C = 100 uF from 0, 2.405 mA load, 300 ms transient.
+
+- ngspice v_cap(300 ms) = 13.521070 V; anode = 14.470860 V.
+- Implied diode Vf at the ~2.4 mA tail current = 0.949790 V.
+- Rust nominal-corner equilibrium with the fixed 0.85 V screening Vf:
+  15 − 0.85 − 2.405 mA × 220 ohm = 13.620900 V.
+
+Reading: the real-diode run lands 0.10 V below the fixed-Vf equilibrium,
+consistent with its higher tail-current Vf (0.95 vs 0.85 V). The operating
+point sits inside the assumed 0.6–1.1 V screening band. This does NOT
+validate the ES1J Vf assumption — the diode model is generic, not the
+ES1J (no retained ES1J model exists). It confirms the fixed-Vf ODE has the
+same shape as a real diode charge and that no sign/convention error hides
+in the Rust integration. Bench item B-6 (retain ES1J datasheet, verify Vf
+at 4 mA and at 71 mA peak) remains open.
