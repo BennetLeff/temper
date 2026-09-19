@@ -1,0 +1,126 @@
+diff --git a/zapote/power-entry/active-rectifier/candidate/section.kicad_pcb b/zapote/power-entry/active-rectifier/candidate/section.kicad_pcb
+index e5ed31d49..bda2cdc00 100644
+--- a/zapote/power-entry/active-rectifier/candidate/section.kicad_pcb
++++ b/zapote/power-entry/active-rectifier/candidate/section.kicad_pcb
+@@ -23362,7 +23362,7 @@
+ 			(size 1.225 3.35)
+ 			(layers "F.Cu" "F.Mask" "F.Paste")
+ 			(roundrect_rratio 0.204082)
+-			(net "PFC_BUS_PLUS_390V")
++			(net "BOOST_DIODE_POSITIVE")
+ 			(uuid "5c30fa3f-d3ec-4932-9208-999789a0e5ed")
+ 		)
+ 		(pad "2" smd roundrect
+@@ -38876,6 +38876,14 @@
+ 		(net "AUX_15V_IN")
+ 		(uuid "d1863edc-3fe6-4903-95ec-7f1204033af4")
+ 	)
++	(segment
++		(start 167.9625 126)
++		(end 165 130)
++		(width 0.6)
++		(layer "F.Cu")
++		(net "BOOST_DIODE_POSITIVE")
++		(uuid "29432121-d635-453f-b08c-c8e511770b61")
++	)
+ 	(segment
+ 		(start 170.65 22)
+ 		(end 181.35 22)
+@@ -38916,6 +38924,14 @@
+ 		(net "BOOST_DIODE_POSITIVE")
+ 		(uuid "7182eed1-ec16-49c1-a4c7-11ada85b7e96")
+ 	)
++	(via
++		(at 165 130)
++		(size 1.2)
++		(drill 0.6)
++		(layers "F.Cu" "B.Cu")
++		(net "BOOST_DIODE_POSITIVE")
++		(uuid "bb5cf34a-819d-4525-91a3-b5945131f445")
++	)
+ 	(via
+ 		(at 115 90)
+ 		(size 1.2)
+@@ -38924,6 +38940,14 @@
+ 		(net "BOOST_DIODE_POSITIVE")
+ 		(uuid "e1bf8441-9391-4803-9c71-366cf772df16")
+ 	)
++	(segment
++		(start 135 115)
++		(end 120 113)
++		(width 0.6)
++		(layer "B.Cu")
++		(net "BOOST_DIODE_POSITIVE")
++		(uuid "0a1d30f5-ad73-4a7e-925d-c6fb6d1986ad")
++	)
+ 	(segment
+ 		(start 115 95)
+ 		(end 115 88)
+@@ -38932,6 +38956,14 @@
+ 		(net "BOOST_DIODE_POSITIVE")
+ 		(uuid "128215d4-feb7-42db-add3-d85fe8983874")
+ 	)
++	(segment
++		(start 155 125)
++		(end 145 120)
++		(width 0.6)
++		(layer "B.Cu")
++		(net "BOOST_DIODE_POSITIVE")
++		(uuid "152ee453-2854-4981-99e4-f4fd3f6e40bf")
++	)
+ 	(segment
+ 		(start 120 100)
+ 		(end 115 95)
+@@ -38948,6 +38980,22 @@
+ 		(net "BOOST_DIODE_POSITIVE")
+ 		(uuid "954a68d8-8c29-4706-8ddb-251c8518a7a2")
+ 	)
++	(segment
++		(start 165 130)
++		(end 155 125)
++		(width 0.6)
++		(layer "B.Cu")
++		(net "BOOST_DIODE_POSITIVE")
++		(uuid "a4017a5c-2c26-4e2b-a3ab-ab491c7714b5")
++	)
++	(segment
++		(start 145 120)
++		(end 135 115)
++		(width 0.6)
++		(layer "B.Cu")
++		(net "BOOST_DIODE_POSITIVE")
++		(uuid "dc348026-e6b2-4062-9600-5c30fc48d2a5")
++	)
+ 	(segment
+ 		(start 120 113)
+ 		(end 120.45 122)
+@@ -38956,14 +39004,6 @@
+ 		(net "BOOST_DIODE_POSITIVE")
+ 		(uuid "ff4fe944-8cd7-4b47-abb1-6eea457d35a0")
+ 	)
+-	(segment
+-		(start 167.9625 121)
+-		(end 203 121)
+-		(width 0.6)
+-		(layer "F.Cu")
+-		(net "PFC_BUS_PLUS_390V")
+-		(uuid "06face3f-810f-4ba5-9dae-1973afaf435b")
+-	)
+ 	(segment
+ 		(start 135 93)
+ 		(end 135 83)
+@@ -39084,14 +39124,6 @@
+ 		(net "PFC_BUS_PLUS_390V")
+ 		(uuid "df320985-7c91-4c6e-a672-6377eace752a")
+ 	)
+-	(segment
+-		(start 167.9625 126)
+-		(end 167.9625 121)
+-		(width 0.6)
+-		(layer "F.Cu")
+-		(net "PFC_BUS_PLUS_390V")
+-		(uuid "e40b8a74-1b08-468b-a6ed-8cf9d69d8f5d")
+-	)
+ 	(segment
+ 		(start 220 153)
+ 		(end 205 168)

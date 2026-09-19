@@ -4,7 +4,7 @@ use zapote_erc::source_circuit::Circuit;
 
 const SOURCE: &str =
     include_str!("../../../power-entry/active-rectifier/candidate/source-manifest.json");
-const NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/vsense-bank-side-01/native.json");
+const NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/vsense-diode-side-02/native.json");
 
 fn source_value() -> Value {
     serde_json::from_str(SOURCE).unwrap()
@@ -101,6 +101,8 @@ fn unchanged_power_entry_network_mutants_fail_closed() {
         ("bleeder1", "1", "shunt", "2"),
         ("shunt", "2", "bridge", "16"),
         ("q_hl", "1", "q_hl", "3"),
+        // F2 opening must not strand regulation on the disconnected bank.
+        ("r_vtop", "1", "bus_fuse", "2"),
     ];
     for (id, pin, target, target_pin) in cases {
         let mut changed = source_value();

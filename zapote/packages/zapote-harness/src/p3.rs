@@ -80,7 +80,7 @@ mod tests {
     fn active_rectifier_p3_binds_source_and_native_graph() {
         let source =
             include_str!("../../../power-entry/active-rectifier/candidate/source-manifest.json");
-        let native = include_str!("../../../power-entry/active-rectifier/evidence/vsense-bank-side-01/native.json");
+        let native = include_str!("../../../power-entry/active-rectifier/evidence/vsense-diode-side-02/native.json");
         let json: serde_json::Value = serde_json::from_str(native).unwrap();
         let board = json["board_file_utf8"].as_str().unwrap().as_bytes();
         let report = run("power-entry", source, native, board);

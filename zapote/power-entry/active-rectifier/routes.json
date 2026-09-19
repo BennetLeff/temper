@@ -631,18 +631,41 @@
       ]
     },
     {
-      "net": "PFC_BUS_PLUS_390V",
+      "net": "BOOST_DIODE_POSITIVE",
       "layer": "F.Cu",
       "width_mm": 0.6,
       "points": [
         "U20.1",
         [
-          167.9625,
-          121.0
+          165,
+          130
+        ]
+      ]
+    },
+    {
+      "net": "BOOST_DIODE_POSITIVE",
+      "layer": "B.Cu",
+      "width_mm": 0.6,
+      "points": [
+        [
+          165,
+          130
         ],
         [
-          203.0,
-          121.0
+          155,
+          125
+        ],
+        [
+          145,
+          120
+        ],
+        [
+          135,
+          115
+        ],
+        [
+          120,
+          113
         ]
       ]
     }
@@ -734,6 +757,15 @@
       "at": [
         115,
         92
+      ],
+      "diameter_mm": 1.2,
+      "drill_mm": 0.6
+    },
+    {
+      "net": "BOOST_DIODE_POSITIVE",
+      "at": [
+        165,
+        130
       ],
       "diameter_mm": 1.2,
       "drill_mm": 0.6

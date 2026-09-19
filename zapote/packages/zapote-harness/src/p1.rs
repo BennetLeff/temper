@@ -365,7 +365,7 @@ mod tests {
     use super::*;
 
     const ACTIVE_SOURCE: &str = include_str!("../../../power-entry/active-rectifier/candidate/source-manifest.json");
-    const ACTIVE_NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/vsense-bank-side-01/native.json");
+    const ACTIVE_NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/vsense-diode-side-02/native.json");
 
     #[test]
     fn aggregate_status_preserves_failures() {

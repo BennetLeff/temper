@@ -263,7 +263,7 @@ mod active_tests {
     use super::*;
     const SOURCE: &str =
         include_str!("../../../power-entry/active-rectifier/candidate/source-manifest.json");
-    const NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/vsense-bank-side-01/native.json");
+    const NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/vsense-diode-side-02/native.json");
 
     #[test]
     fn half_bus_bleeder_midpoint_uses_high_voltage_spacing() {

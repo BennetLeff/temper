@@ -1,4 +1,53 @@
-# Construction freeze — vsense-bank-side revision, 2026-09-19
+# Construction checkpoint — diode-side feedback ECO, 2026-09-19
+
+Current board SHA-256:
+`a725929a65e1756b0ad36c39373b6ab993335818344a19721cdc4b7c07ef7ab7`.
+Current schematic SHA-256:
+`b32d6cdb81f96de58bd944de784829a3ddbae9d77155bc0e5fb4bc02d4867608`.
+This supersedes the bank-side construction below. It is not a fabrication or
+protection release.
+
+U20.1 now connects to `BOOST_DIODE_POSITIVE`, alongside U10.K, U40.1 and
+U66.1. The bank remains on U66.2. The source was compiled into `source-04`,
+passed through the strict bridge (`native-f2-eco`), and used to regenerate the
+schematic. A precise KiCad ECO applied to the previously clean routed board
+removes the bank feeder and adds a diode-side feeder. The retained
+`evidence/vsense-diode-side-02/feedback-eco.patch` reproduces the exact current
+board hash from commit `a2536ee140c8bd368a4bb16a464e36620df2858f`.
+
+Fresh common suite: **six units INDETERMINATE, power-entry FAIL only on the
+three existing TEA gaps**; 70 required rule IDs, `suite_changed_during_run=false`.
+Native ERC/DRC: zero violations, unconnected items and schematic-parity issues.
+99 ERC library tests, 5 active ERC tests (including the bank-side regression),
+and 11 active harness tests pass. Native-binding/runner receipts are retained
+with the current evidence. Current-capacity and physical qualification gaps
+remain INDETERMINATE.
+
+The raw generation manifest remains unchanged and identifies its six-layer
+skeleton. The candidate manifest's separate `final_construction` identifies
+the observed two-layer, 45-connected-net PCB; it does not relabel the skeleton
+as final evidence. Historical receipts remain unchanged.
+
+Two limits remain explicit:
+
+* **F2:** feedback observation is repaired, not energy management. The
+  [conditional immediate-off model](experiments/f2-open/README.md) gives 674.7 V
+  for 470 nF at one retained nominal CCM case, above the authored capacitor
+  and silicon ratings. Larger capacitance reduces the calculated peak but is
+  not selected or qualified. Controller/filter delay, startup, restart and
+  fuse clearing remain open.
+* **TEA:** the official NXP reference Gerbers use wider lands and provide no
+  supported geometry change that closes the 2 mm screen. The manufacturer/
+  product-safety disposition is external; the prepared request is unsent.
+
+Full construction replay from a fresh skeleton produced unrelated net/routing
+errors, retained under `failed-full-replay`. The exact scoped ECO replay passes;
+full automatic construction replay is not claimed. No generic harness expansion,
+bench work, component purchase or powered test was performed.
+
+---
+
+## Superseded: construction freeze — vsense-bank-side revision, 2026-09-19
 
 Supersedes the earlier freeze section below (board `b0e5d537…`).
 No fabrication, procurement, powered operation, or qualification is

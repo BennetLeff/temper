@@ -1,0 +1,80 @@
+{
+  "scope": "Construction/ECO and conditional equation checks only; not protection or hardware acceptance",
+  "board_sha256": "a725929a65e1756b0ad36c39373b6ab993335818344a19721cdc4b7c07ef7ab7",
+  "schematic_sha256": "b32d6cdb81f96de58bd944de784829a3ddbae9d77155bc0e5fb4bc02d4867608",
+  "source_manifest_sha256": "2796610dbad33f3c2942f33f9d257c765a5fdeee7d6762aaaa235169458ad193",
+  "construction_inputs_verified": 65,
+  "native_connectivity_observed": {
+    "r_vtop.1": "BOOST_DIODE_POSITIVE",
+    "d_boost.2": "BOOST_DIODE_POSITIVE",
+    "bus_fuse.1": "BOOST_DIODE_POSITIVE",
+    "bus_fuse.2": "PFC_BUS_PLUS_390V",
+    "c_hf.1": "BOOST_DIODE_POSITIVE",
+    "c1.1": "PFC_BUS_PLUS_390V",
+    "c2.1": "PFC_BUS_PLUS_390V",
+    "c3.1": "PFC_BUS_PLUS_390V",
+    "c4.1": "PFC_BUS_PLUS_390V"
+  },
+  "patch_replay_sha256": "a725929a65e1756b0ad36c39373b6ab993335818344a19721cdc4b7c07ef7ab7",
+  "common_suite": {
+    "unit_statuses": [
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "indeterminate",
+      "fail"
+    ],
+    "required_rule_ids": 70,
+    "suite_changed_during_run": false,
+    "explicit_failures": [
+      {
+        "actual": null,
+        "message": "pad clearance 1.940000 mm is below 2.000000 mm",
+        "object": "bridge.3 / bridge.5",
+        "required": null,
+        "rule": "DRC.NATIVE.CLEARANCE_PROFILE",
+        "severity": "error",
+        "status": "fail"
+      },
+      {
+        "actual": null,
+        "message": "pad clearance 1.940000 mm is below 2.000000 mm",
+        "object": "bridge.14 / bridge.16",
+        "required": null,
+        "rule": "DRC.NATIVE.CLEARANCE_PROFILE",
+        "severity": "error",
+        "status": "fail"
+      },
+      {
+        "actual": null,
+        "message": "pad clearance 1.940000 mm is below 2.000000 mm",
+        "object": "bridge.10 / bridge.12",
+        "required": null,
+        "rule": "DRC.NATIVE.CLEARANCE_PROFILE",
+        "severity": "error",
+        "status": "fail"
+      }
+    ]
+  },
+  "test_counts": {
+    "erc_library": 99,
+    "active_erc": 5,
+    "active_harness": 11,
+    "native_reports": 7,
+    "runner": 5,
+    "standalone_transient": 2
+  },
+  "hardware_qualification": "NOT_PERFORMED",
+  "external_request": "prepared, not sent; user authorization pending",
+  "retained_checks": {
+    "erc-tests.log": "3090f8b0c0956f4c673f906913a7beb8ba37d50102eafd6b85ff5faae7b584a7",
+    "harness-active-tests.log": "255476849e7c05f01e42a7af2bbb6c676b1c37c5f8a080617fe4d640e8f9ca76",
+    "native-runner-tests.log": "dbf67fa71be96d2032ee95b3f9a271e58c2ee2b5194d65f080cad43b7542a881",
+    "common/summary.json": "1c03868c4f277cd0fb022a4f24d530572d439d6d2fc57b9151bb5e14ea0569b3",
+    "common/power-entry.json": "f4b51d42e8d177a678b242c5cbf3d2a0e8e854ca07229fd56601871a77cc09ad",
+    "common/power-entry/drc-command.json": "4366f3c97988c918ae375ad1196096c55ce11340c3a367e5bc90fba8802f138f",
+    "common/power-entry/erc-command.json": "8f31f11a261f6ffe34e84272098d872a6003fdd9d52a847de0ca8d96f0cba966"
+  }
+}

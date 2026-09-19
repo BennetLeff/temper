@@ -6,6 +6,16 @@ from this checkpoint.** The active Rust contract now runs against the saved boar
 clearance findings, fuse/clip fit and Q1–Q5 qualification remain open. This is not a validated
 campaign run or a protection-coordination result.
 
+**2026-09-19 implementation:** U20 feedback now senses the diode side of F2
+through authored source, compiled netlist, schematic and PCB. The
+[current freeze](FREEZE.md) records fresh checks. The
+[F2 transient assessment](experiments/f2-open/README.md) finds a conditional
+674.7 V excursion with the existing 470 nF even with immediate switch-off;
+the wiring correction does not close protection. The
+[TEA reference-Gerber comparison](decisions/tea-resolution/reference-gerber/README.md)
+provides no supported spacing fix. A limited
+[NXP request](decisions/tea-resolution/NXP-MESSAGE.txt) is prepared and unsent.
+
 ## Implemented
 
 - TEA2209T/1 (U1), four IPW60R017C7 (U55–U58), two 220 nF
@@ -18,11 +28,12 @@ campaign run or a protection-coordination result.
   any shared heatsink needs an engineered electrical isolation arrangement.
 - Proposed F2, Mersen A70QS50-14F, represented as U66 to preserve the source
   compiler's reference identities. `BOOST_DIODE_POSITIVE` connects U10.K,
-  local C40 and the feedback divider; U66 separates that net from all four
+  local U40 and U20 feedback-divider top; U66 separates that net from all four
   bulk capacitors, output and bulk bleeders. There is no copper bypass.
-- Deliberate refinement of CLOSEOUT §3: feedback remains **diode-side** so
-  opening F2 does not remove feedback from the still line-fed converter.
-  This does not prove stable operation or acceptable opening transients.
+- Current saved feedback is **diode-side**. Opening F2 leaves the controller
+  sensing the still line-fed diode-side output. The disconnected bank has no
+  separate implemented voltage monitor. Remaining inductor energy, VSENSE
+  filtering, controller response and no-load restart still need resolution.
   The local 470 nF remains unfused; the fused bank is nominally 2240 µF
   (~179.2 J at 400 V), not a maximum energy bound. U12/F1 still do not sense
   or interrupt the internal bank/U10/U9 loop. No shutdown credit is added.
@@ -36,8 +47,10 @@ campaign run or a protection-coordination result.
 - [Authored Atopile](../../../elec/src/power_entry_active_unit.ato).
 - [PCB](candidate/section.kicad_pcb), [schematic](candidate/section.kicad_sch),
   [project](candidate/section.kicad_pro).
-- [3D preview](evidence/rust-integration-01/board-3d.png), [copper](evidence/rust-integration-01/copper.pdf),
-  [schematic PDF](renders/schematic.pdf). The 3D preview omits F2/clips,
+- [Current copper](evidence/vsense-diode-side-02/copper.svg),
+  [current schematic PDF](evidence/vsense-diode-side-02/section.pdf),
+  [historical pre-ECO 3D preview](evidence/rust-integration-01/board-3d.png).
+  The 3D preview omits F2/clips,
   heatsinks and several inherited custom-part bodies; it cannot verify assembly fit.
 - [BOM](bom.csv), [fuse mechanical review](MECHANICAL.md),
   [validation report](VALIDATION.md), [Rust integration and repairs](RUST-INTEGRATION.md),

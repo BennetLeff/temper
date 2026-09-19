@@ -4,6 +4,26 @@ Run from the repository root of this branch. KiCad used here was **10.0.4**,
 with its bundled Python/pcbnew. The source compiler was Atopile **0.2.69**.
 The strict bridge extension must be fresh before rebuilding native artifacts.
 
+## Current diode-side ECO replay
+
+The current PCB uses `source-04` and the exact feedback ECO recorded in
+`evidence/vsense-diode-side-02`. Full fresh-skeleton integration currently
+produces unrelated route errors; its failed candidate is retained there.
+Do not treat the older construction recipe below as a successful replay of
+the current PCB.
+
+To reproduce the precise PCB edit in an empty scratch directory, extract
+`zapote/power-entry/active-rectifier/candidate/section.kicad_pcb` from commit
+`a2536ee140c8bd368a4bb16a464e36620df2858f`, preserving that relative path.
+Its SHA-256 must be `e274d8ad1181f426f731f170e46202e16f969bb751538837a45ee221c3b09ceb`.
+Apply `evidence/vsense-diode-side-02/feedback-eco.patch` with `git apply` from
+the scratch root. The resulting SHA-256 must be
+`a725929a65e1756b0ad36c39373b6ab993335818344a19721cdc4b7c07ef7ab7`.
+This exact replay was verified independently. Use the local library tables,
+project and freshly generated `source-04` schematic for the checks below.
+`routes.json` also records the actual F.Cu feeder, B.Cu polyline and via;
+changing its net name alone would have left it pointing at the bank trunk.
+
 ## Recheck the committed candidate
 
 ```sh
