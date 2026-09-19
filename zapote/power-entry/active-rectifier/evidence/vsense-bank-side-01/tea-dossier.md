@@ -231,3 +231,45 @@ matches the cited artifact byte-for-byte
 - 2 N force applies to bare conductors when measuring (assembly-position
   caveat retained alongside §1). A force is applied to try to reduce
   creepage — measured paths assume worst-case positions.
+
+## 11. Supplement: IS 15382-1 (IEC 60664-1) recovery (agent, 2026-09-19)
+
+Recovered first-hand from the BIS RTI text
+(`archive.org/download/gov.in.is.15382.1.2003/is.15382.1.2003_djvu.txt`;
+identical adoption of IEC 60664-1:2002, no deviations). Functional-
+insulation provisions now on file, quoted or precisely located:
+
+- **2.2.1.2**: the *working voltage* determines functional-insulation
+  dimensions. **1.3.5**: working voltage is highest RMS across the
+  insulation (transients disregarded; open-circuit + normal operation
+  counted) — validates the §3 RMS values as the correct stress inputs.
+- **3.1.4**: functional clearance uses the *maximum impulse expected across
+  the gap under rated conditions*, not the equipment 1500 V rating.
+- **3.2.2**: functional creepage dimensioned from **Table 4 (Table F.4)**
+  by working voltage; interpolation for intermediate voltages allowed.
+- **Table 1**: 120–240 V single-phase, OVC II → **1500 V** equipment impulse
+  (appliances are OVC II by example).
+- **Table 2 (Table F.2), Case A**: 1.5 kV → 0.5 mm; 2.5 kV → 1.5 mm (all
+  PD). Even the full equipment rating leaves the 1.94 mm span passing with
+  margin; per 3.1.4 the applicable impulse is far lower.
+- **Table 4 (Table F.4) recovered rows** (PD2/PD3 × groups I/II/III,
+  validated against two repo-cited cells: 400 V PD3 III = 6.3 and 400 V
+  PD2 III = 4.0 both match): 125 V → PD2 (0.75/1.05/**1.5**), PD3
+  (1.9/2.1/**2.4**); 500 V → PD2 (2.5/3.6/5.0), PD3 (6.3/7.1/**8.0**).
+- **PD hinge sharpened**: at ~120 V working, PD2/III = 1.5 mm (1.94 mm span
+  passes) vs PD3/III = 2.4 mm (fails). At ~408–500 V, PD2/III ≈ 5–6.4 mm
+  vs PD3/III ≈ 6.4–8.0 mm (fails either way). 29.2's PD2 default vs the
+  cooking-appliance PD3 record is now the single highest-leverage open
+  call — it alone flips pairs 3–5/10–12.
+- **4.2 X-dimensions**: PD3 X = 1.5 mm (groove-bridging scale); recesses
+  assumed bridged at width X in the worst position. No floating-conductor
+  rule text recovered — examples 9–11 are figure-only in the OCR and the
+  running text never states an interposed-metal creepage rule. Still open.
+- **Altitude** ≤2000 m covered by the tables (3.1.1); lab altitude
+  unrecorded, assumed below. **2.4 NOTE** (short-time-stress one-step
+  reduction): inapplicable, stress is continuous. **2.7.1.3**: groups
+  I/II/IIIa/IIIb by CTI; no CTI record for this laminate or molding
+  compound — IIIa/IIIb stays an assumption.
+- **2.2.1.1.2**: internal circuits not on the mains use the highest RMS
+  occurring under the most onerous rated combination (faults excluded) —
+  supports the pair-3 408 V working value methodology.
