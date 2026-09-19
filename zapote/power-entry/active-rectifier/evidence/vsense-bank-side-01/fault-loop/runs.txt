@@ -1,0 +1,10 @@
+=== drive loop ===
+FAULT LOOP CONSISTENT (connectivity only; not a conductive-path or distribution claim)
+rc=0
+=== current through open F2 ===
+FAULT LOOP INCONSISTENT
+  - U66 carries 1 but only 1 of its terminals {"BOOST_DIODE_POSITIVE", "PFC_BUS_PLUS_390V"} lie on the declared loop {"AC_L_RECTIFIED_INPUT", "AC_N_RECTIFIED_INPUT", "BOOST_DIODE_POSITIVE", "PFC_BUS_MINUS", "RECTIFIER_L", "RECTIFIER_NEGATIVE", "RECTIFIER_POSITIVE", "RECTIFIER_R", "a1"}
+rc=1
+=== bank sense island ===
+FAULT LOOP CONSISTENT (connectivity only; not a conductive-path or distribution claim)
+rc=0
