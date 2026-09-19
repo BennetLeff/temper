@@ -1,0 +1,1034 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "43f1657ff6258c29d98e6fdc2cb92990edad22db082829d82f0ec60f642a94e6",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "932d2a09b1fd8deb455e45b17fc2315132c070585e7b31908ccd3c626c926f82",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::holder",
+      "attributes": {
+        "current_rating": "16A",
+        "footprint": "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed",
+        "mpn": "0031.2510"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::cmc",
+      "attributes": {
+        "current_rating": "16A",
+        "footprint": "temper:CMC_B82726S",
+        "mpn": "B82726S2163N030"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::ntc",
+      "attributes": {
+        "current_rating": "15A",
+        "footprint": "temper:SL32_10015",
+        "mpn": "SL32 10015"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::bypass",
+      "attributes": {
+        "contact_current": "16A",
+        "footprint": "temper:Relay_SPST_Schrack-RT33K012",
+        "mpn": "RT33K012"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::x2",
+      "attributes": {
+        "footprint": "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3",
+        "mpn": "B32922C3224M289",
+        "value": "0.22uF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::mov",
+      "attributes": {
+        "footprint": "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm",
+        "mpn": "V150LA10AP"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::l_boost",
+      "attributes": {
+        "current_rating": "24.5A",
+        "datasheet": "https://www.we-online.com/components/products/datasheet/760800301.pdf",
+        "footprint": "Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75",
+        "inductance": "180uH",
+        "mpn": "760800301",
+        "voltage_rating": "1000V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::q_boost",
+      "attributes": {
+        "current_rating": "65A",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "mpn": "STW65N65DM2AG",
+        "voltage_rating": "650V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::d_boost",
+      "attributes": {
+        "current_rating": "20A",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "mpn": "C3D20065D",
+        "voltage_rating": "650V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::pfc",
+      "attributes": {
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "mpn": "UCC28180D"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::shunt",
+      "attributes": {
+        "footprint": "temper:HCSM2818FT10L0",
+        "mpn": "HCSM2818FT10L0",
+        "power_rating": "5W",
+        "value": "10mohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_gate",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0710RL",
+        "value": "10ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_gate_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_relay_gate",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-071KL",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_relay_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_relay_drop",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "RC2512FR-0791RL",
+        "value": "91ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_isense",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07220RL",
+        "value": "220ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_freq",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0716K2L",
+        "value": "16.2kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_vtop",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_vtop2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_vtop3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_vtop4",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_vtop5",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_vbottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0713KL",
+        "value": "13kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_vcomp",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0740K2L",
+        "value": "40.2kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_vcc",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C105K5RACTU",
+        "value": "1uF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_icomp",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C272J5GACTU",
+        "value": "2.7nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_vcomp",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "GRM32ER71H475KA88L",
+        "value": "4.7uF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_vcomp_p",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C224K5RACTU",
+        "value": "220nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_isense",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C102J5GACTU",
+        "value": "1nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_vfeed",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C681J5GACTU",
+        "value": "680pF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::relay_driver",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::relay_flyback",
+      "attributes": {
+        "footprint": "Diode_SMD:D_SMA",
+        "mpn": "SS14"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::isense_clamp",
+      "attributes": {
+        "footprint": "Diode_SMD:D_SOD-123F",
+        "mpn": "BAT54H,115"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c1",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "LGX2W561MELC50",
+        "ripple_current": "1.98A",
+        "value": "560uF",
+        "voltage_rating": "450V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c2",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "LGX2W561MELC50",
+        "ripple_current": "1.98A",
+        "value": "560uF",
+        "voltage_rating": "450V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c3",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "LGX2W561MELC50",
+        "ripple_current": "1.98A",
+        "value": "560uF",
+        "voltage_rating": "450V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c4",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "LGX2W561MELC50",
+        "ripple_current": "1.98A",
+        "value": "560uF",
+        "voltage_rating": "450V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_hf",
+      "attributes": {
+        "dielectric": "PP",
+        "footprint": "temper:B32674D6155K000",
+        "mpn": "B32674D6155K000",
+        "value": "1.5uF",
+        "voltage_rating": "630V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::y1",
+      "attributes": {
+        "dielectric": "Y1",
+        "footprint": "Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0",
+        "mpn": "VY1102M31Y5UQ63V0",
+        "value": "1nF",
+        "voltage_rating": "500V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::mains",
+      "attributes": {
+        "footprint": "temper:Phoenix_1714984",
+        "mpn": "1714984"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::aux",
+      "attributes": {
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::control",
+      "attributes": {
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::permit",
+      "attributes": {
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::q_inhibit",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::q_permit",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_inhibit_pulldown",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_inhibit_pullup",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_permit_gate",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-071KL",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_permit_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::output",
+      "attributes": {
+        "current_rating": "32A",
+        "footprint": "temper:Phoenix_1714971",
+        "mpn": "1714971",
+        "voltage_rating": "1000V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::bleeder1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "RC2512FR-07150KL",
+        "power_rating": "1W",
+        "value": "150kohm",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::bleeder2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "RC2512FR-07150KL",
+        "power_rating": "1W",
+        "value": "150kohm",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::q_hl",
+      "attributes": {
+        "datasheet": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw60r017c7-datasheet-en.pdf",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "mpn": "IPW60R017C7",
+        "voltage_rating": "600V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::q_ll",
+      "attributes": {
+        "datasheet": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw60r017c7-datasheet-en.pdf",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "mpn": "IPW60R017C7",
+        "voltage_rating": "600V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::q_hr",
+      "attributes": {
+        "datasheet": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw60r017c7-datasheet-en.pdf",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "mpn": "IPW60R017C7",
+        "voltage_rating": "600V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::q_lr",
+      "attributes": {
+        "datasheet": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw60r017c7-datasheet-en.pdf",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "mpn": "IPW60R017C7",
+        "voltage_rating": "600V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::bus_fuse",
+      "attributes": {
+        "datasheet": "https://www.mersen.com/en/products/a70qs-amp-trap-form-101-semiconductor-protection-fuses",
+        "footprint": "temper:A70QS50_ETI_CH14_Prototype",
+        "mpn": "A70QS50-14F"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::hs_driver",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/ucc21530-q1.pdf",
+        "footprint": "temper:SOIC16W_Isolated",
+        "manufacturer": "Texas Instruments",
+        "mpn": "UCC21530BQDWKRQ1"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::sr",
+      "attributes": {
+        "datasheet": "https://www.infineon.com/dgdl/Infineon-IR11688S-DS-v01_00-EN.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "manufacturer": "Infineon",
+        "mpn": "IR11688S"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::sense_a",
+      "attributes": {
+        "datasheet": "https://www.infineon.com/dgdl/Infineon-BSP300-DS-v01_01-EN.pdf",
+        "footprint": "temper:BSP300_PG-SOT223-4-21",
+        "manufacturer": "Infineon",
+        "mpn": "BSP300H6327XUSA1"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::sense_b",
+      "attributes": {
+        "datasheet": "https://www.infineon.com/dgdl/Infineon-BSP300-DS-v01_01-EN.pdf",
+        "footprint": "temper:BSP300_PG-SOT223-4-21",
+        "manufacturer": "Infineon",
+        "mpn": "BSP300H6327XUSA1"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::passive_bridge",
+      "attributes": {
+        "current_rating": "25A",
+        "footprint": "temper:Diode_Bridge_GBJ2510",
+        "mpn": "GBJ2510-F",
+        "voltage_rating": "1000V"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::irm",
+      "attributes": {
+        "datasheet": "https://www.meanwell.com/Upload/PDF/IRM-10/IRM-10-SPEC.PDF",
+        "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-10-xx_THT",
+        "manufacturer": "Mean Well",
+        "mpn": "IRM-10-15"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_mot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_vs_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0747KL",
+        "value": "47kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_vs_bottom",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07150RL",
+        "value": "150ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_sense_a",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100RL",
+        "value": "100ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_sense_b",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100RL",
+        "value": "100ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_hl",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710RL",
+        "value": "10ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_hr",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710RL",
+        "value": "10ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_ll",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710RL",
+        "value": "10ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_lr",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710RL",
+        "value": "10ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_pd_hl",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_pd_hr",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_pd_ll",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_pd_lr",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_en",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_en_pd",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_dt",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_boot_a",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "ERJ-P08J221V",
+        "value": "220ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_boot_b",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "ERJ-P08J221V",
+        "value": "220ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::d_boot_a",
+      "attributes": {
+        "footprint": "Diode_SMD:D_SMA",
+        "mpn": "ES1J"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::d_boot_b",
+      "attributes": {
+        "footprint": "Diode_SMD:D_SMA",
+        "mpn": "ES1J"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_boot_a",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C224K5RACTU",
+        "value": "220nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_boot_b",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C224K5RACTU",
+        "value": "220nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_bulk_a",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_THT:C_Radial_D6.3mm_H11.0mm_P2.50mm",
+        "mpn": "EEU-FC1E101",
+        "value": "100uF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_bulk_b",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_THT:C_Radial_D6.3mm_H11.0mm_P2.50mm",
+        "mpn": "EEU-FC1E101",
+        "value": "100uF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_vdda",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM188R71H105KA12D",
+        "value": "1uF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_vddb",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM188R71H105KA12D",
+        "value": "1uF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_sr_vcc",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "GRM21BR61H475KA12L",
+        "value": "4.7uF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_vcci",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_sense_a",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C471K5RACTU",
+        "value": "470pF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_sense_b",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C471K5RACTU",
+        "value": "470pF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_dt",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C102K5RACTU",
+        "value": "1nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::det_top1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::det_top2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::det_top3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::det_top4",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::det_top5",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::det_bot",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::vref",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/lm4040.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Texas Instruments",
+        "mpn": "LM4040AIM3-5.0"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_vref",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-074K7L",
+        "value": "4.7kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_vref",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_aux_tap",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_aux_tap_bot",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0762KL",
+        "value": "62kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_fault_pullup",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::det_cmp",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/lm393.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "LM393ADR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::det_latch",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/cd4013b.pdf",
+        "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "CD4013BM"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::por_gate",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/cd40106b.pdf",
+        "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "CD40106BM"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_por",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_por_bleed",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07301KL",
+        "value": "300kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::c_por",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C105K5RACTU",
+        "value": "1uF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::q_inhibit2",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_inh2_gate",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_inh2_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::q_startup",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_start_gate",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit::r_start_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    }
+  ],
+  "entry": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/source-review-07/elec/src/power_entry_active_unit.ato:PowerEntryActiveUnit",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
+    "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+    "elec/src/current_sense_unit.ato": "973de56249de1b18c779650e1506605ce9db574102df9f86846662519ae79898",
+    "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+    "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+    "elec/src/gate_drive_unit.ato": "6e81398feb135f9a7382033173beda50f7a9cb8b7602ccab00a032f4fe40b2b1",
+    "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+    "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+    "elec/src/interlock_unit.ato": "8e457eaa3c50c810e0877ce5b533faae4a751f966a1f9e1c39bb6b4fe067276d",
+    "elec/src/main.ato": "492faf4b04351003c859512332b91d207e234274a4b7344f86c3674477626461",
+    "elec/src/modules.ato": "1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d",
+    "elec/src/power_entry_active_unit.ato": "6f91eed643c175804209371acc004f373473e476cee88746f27c3caa5f43f80d",
+    "elec/src/power_entry_unit.ato": "3b1a3c893adfbe51b7e814ee0c28e3e8437ccef214e5c9963057b770d74cbed6",
+    "elec/src/rtd_unit.ato": "521d46ea86f55ecefe0e0d38e6303623dabb1e1648e5d1cd3cebd51c9d05f673",
+    "elec/src/thermal_sense_unit.ato": "0597bd4a07f31d20fb0c15961a6b907ac772c87bdd592f6d24d1be48a5fce6cd",
+    "elec/src/voltage_sense_unit.ato": "5aca80ff589ff7156cae128a66f09111730d2a59439f59cccdfbb336a1577de5"
+  }
+}

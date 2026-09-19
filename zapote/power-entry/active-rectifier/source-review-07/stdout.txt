@@ -1,0 +1,394 @@
+[14:32:25] INFO     Using project                                   common.py:72
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /active-rectifier/source-review-07                          
+           INFO     Building default                                 build.py:38
+[14:32:28] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /active-rectifier/source-review-07/elec/src/pow             
+                    er_entry_active_unit.ato:622:4                              
+                        Field 'override_net_name' not declared for              
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /active-rectifier/source-review-07/elec/src/pow             
+                    er_entry_active_unit.ato:PowerEntryActiveUnit::             
+                    boost_output. Declaring implicitly for now, but             
+                    in the future this may become an error...                   
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /active-rectifier/source-review-07/elec/src/pow             
+                    er_entry_active_unit.ato:1175:4                             
+                        Field 'override_net_name' not declared for              
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /active-rectifier/source-review-07/elec/src/pow             
+                    er_entry_active_unit.ato:PowerEntryActiveUnit::             
+                    ac_l. Declaring implicitly for now, but in the              
+                    future this may become an error...                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /active-rectifier/source-review-07/elec/src/pow             
+                    er_entry_active_unit.ato:1176:4                             
+                        Field 'override_net_name' not declared for              
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /active-rectifier/source-review-07/elec/src/pow             
+                    er_entry_active_unit.ato:PowerEntryActiveUnit::             
+                    ac_n. Declaring implicitly for now, but in the              
+                    future this may become an error...                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /active-rectifier/source-review-07/elec/src/pow             
+                    er_entry_active_unit.ato:1177:4                             
+                        Field 'override_net_name' not declared for              
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /active-rectifier/source-review-07/elec/src/pow             
+                    er_entry_active_unit.ato:PowerEntryActiveUnit::             
+                    pe. Declaring implicitly for now, but in the                
+                    future this may become an error...                          
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry/            
+                    active-rectifier/source-review-07/build                     
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name               ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│           C1 │ c_boot_a           │
+│           C2 │ c_boot_b           │
+│           C3 │ c_bulk_a           │
+│           C4 │ c_bulk_b           │
+│           C5 │ c_vdda             │
+│           C6 │ c_vddb             │
+│           C7 │ c_sr_vcc           │
+│           C8 │ c_vcci             │
+│           C9 │ c_sense_a          │
+│          C10 │ c_sense_b          │
+│          C11 │ c_dt               │
+│           R1 │ r_mot              │
+│           R2 │ r_vs_top           │
+│           R3 │ r_vs_bottom        │
+│           R4 │ r_sense_a          │
+│           R5 │ r_sense_b          │
+│           R6 │ r_hl               │
+│           R7 │ r_hr               │
+│           R8 │ r_ll               │
+│           R9 │ r_lr               │
+│          R10 │ r_pd_hl            │
+│          R11 │ r_pd_hr            │
+│          R12 │ r_pd_ll            │
+│          R13 │ r_pd_lr            │
+│          R14 │ r_en               │
+│          R15 │ r_en_pd            │
+│          R16 │ r_dt               │
+│          R17 │ r_boot_a           │
+│          R18 │ r_boot_b           │
+│           U1 │ holder             │
+│           U2 │ cmc                │
+│           U3 │ ntc                │
+│           U4 │ bypass             │
+│           U5 │ x2                 │
+│           U6 │ mov                │
+│           U7 │ l_boost            │
+│           U8 │ q_boost            │
+│           U9 │ d_boost            │
+│          U10 │ pfc                │
+│          U11 │ shunt              │
+│          U12 │ r_gate             │
+│          U13 │ r_gate_pd          │
+│          U14 │ r_relay_gate       │
+│          U15 │ r_relay_pd         │
+│          U16 │ r_relay_drop       │
+│          U17 │ r_isense           │
+│          U18 │ r_freq             │
+│          U19 │ r_vtop             │
+│          U20 │ r_vtop2            │
+│          U21 │ r_vtop3            │
+│          U22 │ r_vtop4            │
+│          U23 │ r_vtop5            │
+│          U24 │ r_vbottom          │
+│          U25 │ r_vcomp            │
+│          U26 │ c_vcc              │
+│          U27 │ c_icomp            │
+│          U28 │ c_vcomp            │
+│          U29 │ c_vcomp_p          │
+│          U30 │ c_isense           │
+│          U31 │ c_vfeed            │
+│          U32 │ relay_driver       │
+│          U33 │ relay_flyback      │
+│          U34 │ isense_clamp       │
+│          U35 │ c1                 │
+│          U36 │ c2                 │
+│          U37 │ c3                 │
+│          U38 │ c4                 │
+│          U39 │ c_hf               │
+│          U40 │ y1                 │
+│          U41 │ mains              │
+│          U42 │ aux                │
+│          U43 │ control            │
+│          U44 │ permit             │
+│          U45 │ q_inhibit          │
+│          U46 │ q_permit           │
+│          U47 │ r_inhibit_pulldown │
+│          U48 │ r_inhibit_pullup   │
+│          U49 │ r_permit_gate      │
+│          U50 │ r_permit_pd        │
+│          U51 │ output             │
+│          U52 │ bleeder1           │
+│          U53 │ bleeder2           │
+│          U54 │ q_hl               │
+│          U55 │ q_ll               │
+│          U56 │ q_hr               │
+│          U57 │ q_lr               │
+│          U58 │ bus_fuse           │
+│          U59 │ hs_driver          │
+│          U60 │ sr                 │
+│          U61 │ sense_a            │
+│          U62 │ sense_b            │
+│          U63 │ passive_bridge     │
+│          U64 │ irm                │
+│          U65 │ d_boot_a           │
+│          U66 │ d_boot_b           │
+│          U67 │ det_top1           │
+│          U68 │ det_top2           │
+│          U69 │ det_top3           │
+│          U70 │ det_top4           │
+│          U71 │ det_top5           │
+│          U72 │ det_bot            │
+│          U73 │ vref               │
+│          U74 │ r_vref             │
+│          U75 │ c_vref             │
+│          U76 │ r_aux_tap          │
+│          U77 │ r_aux_tap_bot      │
+│          U78 │ r_fault_pullup     │
+│          U79 │ det_cmp            │
+│          U80 │ det_latch          │
+│          U81 │ por_gate           │
+│          U82 │ r_por              │
+│          U83 │ r_por_bleed        │
+│          U84 │ c_por              │
+│          U85 │ q_inhibit2         │
+│          U86 │ r_inh2_gate        │
+│          U87 │ r_inh2_pd          │
+│          U88 │ q_startup          │
+│          U89 │ r_start_gate       │
+│          U90 │ r_start_pd         │
+└──────────────┴────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓             ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ aux                │ U42        │
+│ bleeder1           │ U52        │
+│ bleeder2           │ U53        │
+│ bus_fuse           │ U58        │
+│ bypass             │ U4         │
+│ c1                 │ U35        │
+│ c2                 │ U36        │
+│ c3                 │ U37        │
+│ c4                 │ U38        │
+│ c_boot_a           │ C1         │
+│ c_boot_b           │ C2         │
+│ c_bulk_a           │ C3         │
+│ c_bulk_b           │ C4         │
+│ c_dt               │ C11        │
+│ c_hf               │ U39        │
+│ c_icomp            │ U27        │
+│ c_isense           │ U30        │
+│ c_por              │ U84        │
+│ c_sense_a          │ C9         │
+│ c_sense_b          │ C10        │
+│ c_sr_vcc           │ C7         │
+│ c_vcc              │ U26        │
+│ c_vcci             │ C8         │
+│ c_vcomp            │ U28        │
+│ c_vcomp_p          │ U29        │
+│ c_vdda             │ C5         │
+│ c_vddb             │ C6         │
+│ c_vfeed            │ U31        │
+│ c_vref             │ U75        │
+│ cmc                │ U2         │
+│ control            │ U43        │
+│ d_boost            │ U9         │
+│ d_boot_a           │ U65        │
+│ d_boot_b           │ U66        │
+│ det_bot            │ U72        │
+│ det_cmp            │ U79        │
+│ det_latch          │ U80        │
+│ det_top1           │ U67        │
+│ det_top2           │ U68        │
+│ det_top3           │ U69        │
+│ det_top4           │ U70        │
+│ det_top5           │ U71        │
+│ holder             │ U1         │
+│ hs_driver          │ U59        │
+│ irm                │ U64        │
+│ isense_clamp       │ U34        │
+│ l_boost            │ U7         │
+│ mains              │ U41        │
+│ mov                │ U6         │
+│ ntc                │ U3         │
+│ output             │ U51        │
+│ passive_bridge     │ U63        │
+│ permit             │ U44        │
+│ pfc                │ U10        │
+│ por_gate           │ U81        │
+│ q_boost            │ U8         │
+│ q_hl               │ U54        │
+│ q_hr               │ U56        │
+│ q_inhibit          │ U45        │
+│ q_inhibit2         │ U85        │
+│ q_ll               │ U55        │
+│ q_lr               │ U57        │
+│ q_permit           │ U46        │
+│ q_startup          │ U88        │
+│ r_aux_tap          │ U76        │
+│ r_aux_tap_bot      │ U77        │
+│ r_boot_a           │ R17        │
+│ r_boot_b           │ R18        │
+│ r_dt               │ R16        │
+│ r_en               │ R14        │
+│ r_en_pd            │ R15        │
+│ r_fault_pullup     │ U78        │
+│ r_freq             │ U18        │
+│ r_gate             │ U12        │
+│ r_gate_pd          │ U13        │
+│ r_hl               │ R6         │
+│ r_hr               │ R7         │
+│ r_inh2_gate        │ U86        │
+│ r_inh2_pd          │ U87        │
+│ r_inhibit_pulldown │ U47        │
+│ r_inhibit_pullup   │ U48        │
+│ r_isense           │ U17        │
+│ r_ll               │ R8         │
+│ r_lr               │ R9         │
+│ r_mot              │ R1         │
+│ r_pd_hl            │ R10        │
+│ r_pd_hr            │ R11        │
+│ r_pd_ll            │ R12        │
+│ r_pd_lr            │ R13        │
+│ r_permit_gate      │ U49        │
+│ r_permit_pd        │ U50        │
+│ r_por              │ U82        │
+│ r_por_bleed        │ U83        │
+│ r_relay_drop       │ U16        │
+│ r_relay_gate       │ U14        │
+│ r_relay_pd         │ U15        │
+│ r_sense_a          │ R4         │
+│ r_sense_b          │ R5         │
+│ r_start_gate       │ U89        │
+│ r_start_pd         │ U90        │
+│ r_vbottom          │ U24        │
+│ r_vcomp            │ U25        │
+│ r_vref             │ U74        │
+│ r_vs_bottom        │ R3         │
+│ r_vs_top           │ R2         │
+│ r_vtop             │ U19        │
+│ r_vtop2            │ U20        │
+│ r_vtop3            │ U21        │
+│ r_vtop4            │ U22        │
+│ r_vtop5            │ U23        │
+│ relay_driver       │ U32        │
+│ relay_flyback      │ U33        │
+│ sense_a            │ U61        │
+│ sense_b            │ U62        │
+│ shunt              │ U11        │
+│ sr                 │ U60        │
+│ vref               │ U73        │
+│ x2                 │ U5         │
+│ y1                 │ U40        │
+└────────────────────┴────────────┘
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint      ┃ LCSC            ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ 0031.2510       │ U1              │ Fuse:Fusehold… │ 0031.2510       │ 0.00  │
+│ B82726S2163N030 │ U2              │ temper:CMC_B8… │ B82726S2163N030 │ 0.00  │
+│ SL32 10015      │ U3              │ temper:SL32_1… │ SL32 10015      │ 0.00  │
+│ RT33K012        │ U4              │ temper:Relay_… │ RT33K012        │ 0.00  │
+│ B32922C3224M289 │ U5              │ Capacitor_THT… │ B32922C3224M289 │ 0.00  │
+│ V150LA10AP      │ U6              │ Varistor:RV_D… │ V150LA10AP      │ 0.00  │
+│ 760800301       │ U7              │ Inductor_THT_… │ 760800301       │ 0.00  │
+│ STW65N65DM2AG   │ U8              │ Package_TO_SO… │ STW65N65DM2AG   │ 0.00  │
+│ C3D20065D       │ U9              │ Package_TO_SO… │ C3D20065D       │ 0.00  │
+│ UCC28180D       │ U10             │ Package_SO:SO… │ UCC28180D       │ 0.00  │
+│ HCSM2818FT10L0  │ U11             │ temper:HCSM28… │ HCSM2818FT10L0  │ 0.00  │
+│ RC1206FR-0710RL │ U12             │ Resistor_SMD:… │ RC1206FR-0710RL │ 0.00  │
+│ RC1206FR-0710KL │ U13,U72,U78     │ Resistor_SMD:… │ RC1206FR-0710KL │ 0.00  │
+│ RC1206FR-071KL  │ U14,U49         │ Resistor_SMD:… │ RC1206FR-071KL  │ 0.00  │
+│ RC1206FR-07100… │ U15,U47,U48,U5… │ Resistor_SMD:… │ RC1206FR-07100… │ 0.00  │
+│ RC2512FR-0791RL │ U16             │ Resistor_SMD:… │ RC2512FR-0791RL │ 0.00  │
+│ RC1206FR-07220… │ U17             │ Resistor_SMD:… │ RC1206FR-07220… │ 0.00  │
+│ RC1206FR-0716K… │ U18             │ Resistor_SMD:… │ RC1206FR-0716K… │ 0.00  │
+│ CRCW2512200KFK… │ U19,U20,U21,U2… │ Resistor_SMD:… │ CRCW2512200KFK… │ 0.00  │
+│ RC1206FR-0713KL │ U24             │ Resistor_SMD:… │ RC1206FR-0713KL │ 0.00  │
+│ RC1206FR-0740K… │ U25             │ Resistor_SMD:… │ RC1206FR-0740K… │ 0.00  │
+│ C0805C105K5RAC… │ U26,U84         │ Capacitor_SMD… │ C0805C105K5RAC… │ 0.00  │
+│ C0805C272J5GAC… │ U27             │ Capacitor_SMD… │ C0805C272J5GAC… │ 0.00  │
+│ GRM32ER71H475K… │ U28             │ Capacitor_SMD… │ GRM32ER71H475K… │ 0.00  │
+│ C0805C224K5RAC… │ U29,C1,C2       │ Capacitor_SMD… │ C0805C224K5RAC… │ 0.00  │
+│ C0805C102J5GAC… │ U30             │ Capacitor_SMD… │ C0805C102J5GAC… │ 0.00  │
+│ C0805C681J5GAC… │ U31             │ Capacitor_SMD… │ C0805C681J5GAC… │ 0.00  │
+│ AO3400A         │ U32,U45,U46,U8… │ Package_TO_SO… │ AO3400A         │ 0.00  │
+│ SS14            │ U33             │ Diode_SMD:D_S… │ SS14            │ 0.00  │
+│ BAT54H,115      │ U34             │ Diode_SMD:D_S… │ BAT54H,115      │ 0.00  │
+│ LGX2W561MELC50  │ U35,U36,U37,U38 │ Capacitor_THT… │ LGX2W561MELC50  │ 0.00  │
+│ B32674D6155K000 │ U39             │ temper:B32674… │ B32674D6155K000 │ 0.00  │
+│ VY1102M31Y5UQ6… │ U40             │ Capacitor_THT… │ VY1102M31Y5UQ6… │ 0.00  │
+│ 1714984         │ U41             │ temper:Phoeni… │ 1714984         │ 0.00  │
+│ 61300211121     │ U42,U43,U44     │ Connector_Pin… │ 61300211121     │ 0.00  │
+│ 1714971         │ U51             │ temper:Phoeni… │ 1714971         │ 0.00  │
+│ RC2512FR-07150… │ U52,U53         │ Resistor_SMD:… │ RC2512FR-07150… │ 0.00  │
+│ IPW60R017C7     │ U54,U55,U56,U57 │ Package_TO_SO… │ IPW60R017C7     │ 0.00  │
+│ A70QS50-14F     │ U58             │ temper:A70QS5… │ A70QS50-14F     │ 0.00  │
+│ UCC21530BQDWKR… │ U59             │ temper:SOIC16… │ UCC21530BQDWKR… │ 0.00  │
+│ IR11688S        │ U60             │ Package_SO:SO… │ IR11688S        │ 0.00  │
+│ BSP300H6327XUS… │ U61,U62         │ temper:BSP300… │ BSP300H6327XUS… │ 0.00  │
+│ GBJ2510-F       │ U63             │ temper:Diode_… │ GBJ2510-F       │ 0.00  │
+│ IRM-10-15       │ U64             │ Converter_ACD… │ IRM-10-15       │ 0.00  │
+│ RC0603FR-07100… │ R1,R15          │ Resistor_SMD:… │ RC0603FR-07100… │ 0.00  │
+│ RC0603FR-0747KL │ R2              │ Resistor_SMD:… │ RC0603FR-0747KL │ 0.00  │
+│ RC0603FR-07150… │ R3              │ Resistor_SMD:… │ RC0603FR-07150… │ 0.00  │
+│ RC0603FR-07100… │ R4,R5           │ Resistor_SMD:… │ RC0603FR-07100… │ 0.00  │
+│ RC0603FR-0710RL │ R6,R7,R8,R9     │ Resistor_SMD:… │ RC0603FR-0710RL │ 0.00  │
+│ RC0603FR-0710KL │ R10,R11,R12,R1… │ Resistor_SMD:… │ RC0603FR-0710KL │ 0.00  │
+│ ERJ-P08J221V    │ R17,R18         │ Resistor_SMD:… │ ERJ-P08J221V    │ 0.00  │
+│ ES1J            │ U65,U66         │ Diode_SMD:D_S… │ ES1J            │ 0.00  │
+│ EEU-FC1E101     │ C3,C4           │ Capacitor_THT… │ EEU-FC1E101     │ 0.00  │
+│ GRM188R71H105K… │ C5,C6           │ Capacitor_SMD… │ GRM188R71H105K… │ 0.00  │
+│ GRM21BR61H475K… │ C7              │ Capacitor_SMD… │ GRM21BR61H475K… │ 0.00  │
+│ C0603C104K5RAC… │ C8              │ Capacitor_SMD… │ C0603C104K5RAC… │ 0.00  │
+│ C0603C471K5RAC… │ C9,C10          │ Capacitor_SMD… │ C0603C471K5RAC… │ 0.00  │
+│ C0603C102K5RAC… │ C11             │ Capacitor_SMD… │ C0603C102K5RAC… │ 0.00  │
+│ LM4040AIM3-5.0  │ U73             │ Package_TO_SO… │ LM4040AIM3-5.0  │ 0.00  │
+│ RC1206FR-074K7L │ U74             │ Resistor_SMD:… │ RC1206FR-074K7L │ 0.00  │
+│ C0805C104K5RAC… │ U75             │ Capacitor_SMD… │ C0805C104K5RAC… │ 0.00  │
+│ RC1206FR-0762KL │ U77             │ Resistor_SMD:… │ RC1206FR-0762KL │ 0.00  │
+│ LM393ADR        │ U79             │ Package_SO:SO… │ LM393ADR        │ 0.00  │
+│ CD4013BM        │ U80             │ Package_SO:SO… │ CD4013BM        │ 0.00  │
+│ CD40106BM       │ U81             │ Package_SO:SO… │ CD40106BM       │ 0.00  │
+│ RC1206FR-07301… │ U83             │ Resistor_SMD:… │ RC1206FR-07301… │ 0.00  │
+└─────────────────┴─────────────────┴────────────────┴─────────────────┴───────┘
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Successfully built 'designator-map,             build.py:105
+                    assertions-report, layout-module-map,                       
+                    copy-footprints, copy-3dmodels, netlist, bom,               
+                    variable-report, clone-footprints' for                      
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

@@ -1,0 +1,17 @@
+param,value,unit,note
+C_selected_F,0.000001500,F,nominal integration capacitor; not effective minimum
+E_at_typ_OVP_J,0.135264827,J,stored energy only; not source work or trip energy bound
+cycles_to_first_trip_upper,null,cycles,unknown startup current and soft-start trajectory
+first_burst_overshoot_upper,null,V,no established current at detection or complete gate-off latency
+single_event_guaranteed,false,bool,detector clamp latch and controller must be evaluated together
+ideal_divider_decay_historical_470nF_s,0.031646,s,Rdiv*C*ln(Vt/Vr); not restart period
+ideal_cap_energy_delta_historical_470nF_mJ,5.2758,mJ,0.5*C*(Vt^2-Vr^2)
+ideal_decay_avg_power_historical_470nF_mW,166.7121,mW,E_delta/T; not clamp power
+ideal_divider_decay_selected_1p5uF_s,0.100998,s,Rdiv*C*ln(Vt/Vr); not restart period
+ideal_cap_energy_delta_selected_1p5uF_mJ,16.8376,mJ,0.5*C*(Vt^2-Vr^2)
+ideal_decay_avg_power_selected_1p5uF_mW,166.7121,mW,E_delta/T; not clamp power
+ideal_divider_decay_selected_latest_s,0.170899,s,Rdiv*C*ln(Vt/Vr); not restart period
+ideal_cap_energy_delta_selected_latest_mJ,31.1848,mJ,0.5*C*(Vt^2-Vr^2)
+ideal_decay_avg_power_selected_latest_mW,182.4749,mW,E_delta/T; not clamp power
+unfused_energy_470nF_400V_J,0.03760,J,0.5*C*V^2
+unfused_energy_1p5uF_400V_J,0.12000,J,0.5*C*V^2

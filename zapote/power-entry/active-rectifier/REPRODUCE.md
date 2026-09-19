@@ -4,7 +4,16 @@ Run from the repository root of this branch. KiCad used here was **10.0.4**,
 with its bundled Python/pcbnew. The source compiler was Atopile **0.2.69**.
 The strict bridge extension must be fresh before rebuilding native artifacts.
 
-## Current diode-side ECO replay
+## New experimental construction (review correction)
+
+The current authored source is the unfinished Infineon/AUX/protection variant.
+Its compiled export is `source-review-07` and its **unrouted** native project is
+`native-review-03`. Follow [protection-review-04](evidence/protection-review-04/README.md)
+for its checks. It has no selected clamp and is not ready for routing/freeze.
+The maintained `candidate/` below remains the older routed TEA construction;
+rebuilding current source is not a replay of that PCB.
+
+## Maintained diode-side ECO replay
 
 The current PCB uses `source-04` and the exact feedback ECO recorded in
 `evidence/vsense-diode-side-02`. Full fresh-skeleton integration currently

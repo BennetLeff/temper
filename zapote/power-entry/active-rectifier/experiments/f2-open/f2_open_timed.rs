@@ -367,35 +367,60 @@ fn simulate_pattern() -> Out {
 }
 
 fn run_burst_table() {
-    // Case (a)/(c): startup into open F2 and repeated restart bursts.
-    // All closed-form; assumptions stated per row in MODEL.md.
+    // Charge inventory and ideal divider decay only. These calculations
+    // cannot bound a startup trajectory, a controller delay or restart rate.
     println!("param,value,unit,note");
-    let c = 470e-9;
+    let c = 1.5e-6;
     let vt = 424.68; // typ OVP_H engage at node
     let vr = 397.37; // typ OVP_H reset (102%) at node
-    let e_trip = 0.5 * c * vt * vt;
-    println!("E_trip_typ_J,{:.6},J,0.5*C*Vt^2 from 0 V typ threshold", e_trip);
-    let tsw = 1.0 / FSW;
-    let ton = DMAX * tsw;
-    let ipk_cyc = VPK_LINE * ton / 180e-6;
-    println!("worst_cycle_Ipk_A,{:.3},A,Vin crest DMAX one ON (bounding)", ipk_cyc);
-    let e_cyc_max = VPK_LINE * ipk_cyc * tsw;
-    println!("worst_cycle_E_mJ,{:.4},mJ,Vin*Ipk*Tsw generous bound", e_cyc_max * 1e3);
-    println!("cycles_to_first_trip_le,{:.1},cycles,E_trip/E_cyc_max ceiling bound", (e_trip / e_cyc_max).ceil());
-    // overshoot bound: one more full ON worth of current + freewheel from Vt
-    let i_over = ipk_cyc * 2.0; // residual + one fresh ON (bounding)
-    let v_over = immediate_off_closed(VPK_LINE, vt, i_over, 180e-6, c);
-    println!("first_burst_overshoot_bound_V,{:.1},V,closed form from Vt with 2xIpk (bounding)", v_over);
-    for (name, cc, vtt, vrr) in [("typ", c, vt, vr), ("latest", c, 454.33, 406.0), ("typ_1p5uF", 1.5e-6, vt, vr)] {
+    let e_trip = stored_energy(c, vt);
+    println!("C_selected_F,{c:.9},F,nominal integration capacitor; not effective minimum");
+    println!("E_at_typ_OVP_J,{e_trip:.9},J,stored energy only; not source work or trip energy bound");
+    println!("cycles_to_first_trip_upper,null,cycles,unknown startup current and soft-start trajectory");
+    println!("first_burst_overshoot_upper,null,V,no established current at detection or complete gate-off latency");
+    println!("single_event_guaranteed,false,bool,detector clamp latch and controller must be evaluated together");
+    for (name, cc, vtt, vrr) in [("historical_470nF", 470e-9, vt, vr), ("selected_1p5uF", c, vt, vr), ("selected_latest", c, 454.33, 406.0)] {
         let tau = RDIV * cc;
         let tb = tau * (vtt / vrr).ln();
         let e_burst = 0.5 * cc * (vtt * vtt - vrr * vrr);
-        println!("burst_period_{}_s,{:.6},s,Rdiv*C*ln(Vt/Vr)", name, tb);
-        println!("burst_energy_{}_mJ,{:.4},mJ,0.5*C*(Vt^2-Vr^2)", name, e_burst * 1e3);
-        println!("burst_avg_power_{}_mW,{:.4},mW,E_burst/T", name, e_burst / tb * 1e3);
+        println!("ideal_divider_decay_{}_s,{:.6},s,Rdiv*C*ln(Vt/Vr); not restart period", name, tb);
+        println!("ideal_cap_energy_delta_{}_mJ,{:.4},mJ,0.5*C*(Vt^2-Vr^2)", name, e_burst * 1e3);
+        println!("ideal_decay_avg_power_{}_mW,{:.4},mW,E_delta/T; not clamp power", name, e_burst / tb * 1e3);
     }
     println!("unfused_energy_470nF_400V_J,{:.5},J,0.5*C*V^2", 0.5 * 470e-9 * 400.0 * 400.0);
     println!("unfused_energy_1p5uF_400V_J,{:.5},J,0.5*C*V^2", 0.5 * 1.5e-6 * 400.0 * 400.0);
+}
+
+fn stored_energy(capacitance_f: f64, voltage_v: f64) -> f64 {
+    0.5 * capacitance_f * voltage_v * voltage_v
+}
+
+#[cfg(test)]
+mod review_regressions {
+    use super::*;
+
+    #[test]
+    fn selected_capacitor_charge_inventory_uses_1p5uf() {
+        assert!((stored_energy(1.5e-6, 424.68) - 0.1352648268).abs() < 1e-12);
+    }
+
+    #[test]
+    fn maximum_energy_per_cycle_cannot_upper_bound_cycle_count() {
+        // Counterexample to the withdrawn ceil(E / E_cycle_max) <= claim.
+        let energy = stored_energy(470e-9, 424.68);
+        let assumed_max: f64 = 0.01;
+        let withdrawn_upper = (energy / assumed_max).ceil();
+        let slower_valid_transfer = assumed_max / 10.0;
+        let actual_cycles = (energy / slower_valid_transfer).ceil();
+        assert!(actual_cycles > withdrawn_upper);
+    }
+
+    #[test]
+    fn residual_current_changes_peak_at_identical_detection_voltage() {
+        let low = immediate_off_closed(VPK_LINE, 424.68, 14.0, 180e-6, 1.5e-6);
+        let high = immediate_off_closed(VPK_LINE, 424.68, 40.0, 180e-6, 1.5e-6);
+        assert!(high > 630.0 && low < 630.0);
+    }
 }
 
 fn main() {

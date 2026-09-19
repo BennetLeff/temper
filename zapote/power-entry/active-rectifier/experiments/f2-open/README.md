@@ -1,5 +1,12 @@
 # F2-open diode-side transient assessment
 
+Current status: **INCOMPLETE PROTECTION DESIGN**. This immediate-off screen
+is historical and remains useful within its stated scope. The timed/startup
+selection was corrected after review; see
+`../../decisions/f2-open/PROTECTION-SELECTION.md` and
+`../../evidence/protection-review-04/README.md`. Do not treat the historical
+startup CSV or placeholder patch as accepted design inputs.
+
 This is a bounded calculation for the proposed feedback change: U20.1 senses
 `BOOST_DIODE_POSITIVE`, while F2 separates that node from the 2240 uF bank.
 It is not a controller qualification or a claim about an actual fault current.

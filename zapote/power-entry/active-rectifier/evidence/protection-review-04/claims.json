@@ -1,0 +1,67 @@
+{
+  "schema": "f2-review-corrections/v1",
+  "claims": [
+    {
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "part": "U40-local-cap",
+      "source_condition": "Illustrative nominal C=1.5 uF at V=424.68 V; capacitor energy only; no startup trajectory bound",
+      "id": "charge-inventory-inputs",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "nominal_capacitance_and_voltage",
+      "evidence": [
+        {
+          "path": "../../../../../elec/src/power_entry_active_unit.ato",
+          "sha256": "6f91eed643c175804209371acc004f373473e476cee88746f27c3caa5f43f80d"
+        }
+      ],
+      "justification": "Selected nominal capacitance and illustrative trip voltage; effective capacitance and trajectory remain unqualified."
+    },
+    {
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "part": "U40-local-cap",
+      "source_condition": "Illustrative nominal C=1.5 uF at V=424.68 V; capacitor energy only; no startup trajectory bound",
+      "id": "charge-inventory-result",
+      "origin": "derivation",
+      "inputs": [
+        "charge-inventory-inputs"
+      ],
+      "derived_from": "charge-inventory-inputs",
+      "quantity": "stored_energy_j",
+      "evidence": [
+        {
+          "path": "startup-corrected.csv",
+          "sha256": "8e13f10cbc7269a42f81ed34008008812cecd47eed426b03c55f9f42dba5c5c4"
+        }
+      ],
+      "justification": "E=0.5*C*V^2=0.1352648268 J. Inventory is not an inflow or time bound."
+    },
+    {
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "fault_state": "healthy_on",
+      "assertion": "illustrative",
+      "part": null,
+      "source_condition": "Experimental source: no clamp selected; complete physical timing unknown.",
+      "id": "complete-protection-unestablished",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "protection_status",
+      "evidence": [
+        {
+          "path": "logic-status.txt",
+          "sha256": "970cc85add865596caa780127a0a74cfa3cad1f2869c3c74a05039dd8b50b6c2"
+        }
+      ],
+      "justification": "INDETERMINATE. No qualification or completion promotion is asserted."
+    }
+  ],
+  "protection_claims": [],
+  "promotions": []
+}

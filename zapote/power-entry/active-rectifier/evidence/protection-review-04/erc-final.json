@@ -1,0 +1,2138 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-19T14:39:10",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55",
+            "violations": [
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U59 [UCC21530BQDWKRQ1]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 1.2446
+                            },
+                            "uuid": "89b4c7eb-91af-305f-ca42-d6dd643b1e76"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U59 [UCC21530BQDWKRQ1]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 1.2446
+                            },
+                            "uuid": "89b4c7eb-91af-305f-ca42-d6dd643b1e76"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U32 [AO3400A]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 2.3368
+                            },
+                            "uuid": "1b97e2d6-1116-58ab-d238-e67995720378"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U9 [STW65N65DM2AG]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 2.8702
+                            },
+                            "uuid": "9862c987-6678-60e0-b055-34b85c145d6b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R1 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 3.3528
+                            },
+                            "uuid": "7f9262d5-985c-7c19-0959-291fc372eaa1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R4 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 3.7846
+                            },
+                            "uuid": "faf02eb7-ae57-ad18-16d6-63967184eb8c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U16 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 4.2164
+                            },
+                            "uuid": "b66ffeb6-374e-c8f3-f70b-c201dc40bf67"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U28 [GRM32ER71H475KA88L]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 4.6482
+                            },
+                            "uuid": "68a5aa54-7f3e-ec8d-374c-055ef0001953"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Footprint 'C_Disc_Vishay_VY1102M31Y5UQ63V0' not found in library 'Capacitor_THT'",
+                    "items": [
+                        {
+                            "description": "Symbol U40 [VY1102M31Y5UQ63V0]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 5.08
+                            },
+                            "uuid": "e7a7871b-25b5-2710-28be-b0ce510e6786"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U40 [VY1102M31Y5UQ63V0]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 5.08
+                            },
+                            "uuid": "e7a7871b-25b5-2710-28be-b0ce510e6786"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U58 [A70QS50-14F]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 5.5118
+                            },
+                            "uuid": "7246f7fe-7695-79df-ce6e-51f9ab0cd21b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U58 [A70QS50-14F]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 5.5118
+                            },
+                            "uuid": "7246f7fe-7695-79df-ce6e-51f9ab0cd21b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U75 [C0805C105K5RACTU]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 5.9436
+                            },
+                            "uuid": "109d7baa-a550-66b3-5745-2ca1554f7f7a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U80 [CD4013BM]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 1.2446
+                            },
+                            "uuid": "678d6b3a-2906-c898-187c-dc22a836a213"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U41 [1714984]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 2.3368
+                            },
+                            "uuid": "724ba03f-1377-a26a-2b53-53ef0a0de731"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U41 [1714984]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 2.3368
+                            },
+                            "uuid": "724ba03f-1377-a26a-2b53-53ef0a0de731"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C1 [C0805C105K5RACTU]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 2.8702
+                            },
+                            "uuid": "e93ecd28-a308-97d3-6ff8-eba483a9d233"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R10 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 3.3528
+                            },
+                            "uuid": "f9669e8f-c090-5233-554a-5ee78e8e4af7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R5 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 3.7846
+                            },
+                            "uuid": "3b0fb026-ee20-6132-4544-03a8984faf64"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U17 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 4.2164
+                            },
+                            "uuid": "35a3a1e0-48d5-2942-2a12-2387ddbac119"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U29 [C0805C105K5RACTU]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 4.6482
+                            },
+                            "uuid": "02815b18-90a0-9513-d745-ac885505973e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U42 [61300211121]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 5.08
+                            },
+                            "uuid": "ade896a6-0e98-48ae-81ce-0e6bd1271aca"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Varistor'",
+                    "items": [
+                        {
+                            "description": "Symbol U6 [V150LA10AP]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 5.5118
+                            },
+                            "uuid": "18d36274-16d9-101e-d5a7-03490d90f1bf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U6 [V150LA10AP]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 5.5118
+                            },
+                            "uuid": "18d36274-16d9-101e-d5a7-03490d90f1bf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U76 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 1.4605,
+                                "y": 5.9436
+                            },
+                            "uuid": "9cd69b6e-0f22-ec55-9f22-dd935fe0dcf4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U81 [CD4013BM]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 1.2446
+                            },
+                            "uuid": "06b8df63-d4fa-330d-4963-9d25b0c99d41"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U45 [AO3400A]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 2.3368
+                            },
+                            "uuid": "79f1e46a-84d1-0b74-db60-a2f1c16ad7e3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C10 [GRM188R71H105KA12D]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 2.8702
+                            },
+                            "uuid": "c0e9dcf8-f0c8-44a4-3bb0-6f62ac9f00a1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R11 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 3.3528
+                            },
+                            "uuid": "9b5282d3-cb4f-c381-09f4-90a1f59d7d5d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R6 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 3.7846
+                            },
+                            "uuid": "b83bc67e-d3bb-0d9e-af12-53c48e1d34a4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U18 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 4.2164
+                            },
+                            "uuid": "5cb45835-f942-d1c0-0190-75cf4dcd9bb1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U3 [SL32_10015]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 4.6482
+                            },
+                            "uuid": "18ee1bae-26d6-d5eb-e75b-28c25c93045d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U3 [SL32_10015]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 4.6482
+                            },
+                            "uuid": "18ee1bae-26d6-d5eb-e75b-28c25c93045d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U43 [61300211121]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 5.08
+                            },
+                            "uuid": "06e22efb-cb41-7ebd-2b53-6fd14127c4e5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Diode_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol U65 [SS14]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 5.5118
+                            },
+                            "uuid": "e6a9797b-8791-c1f9-a6cb-fc917fe9cfcf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U65 [SS14]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 5.5118
+                            },
+                            "uuid": "e6a9797b-8791-c1f9-a6cb-fc917fe9cfcf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U77 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 2.3749,
+                                "y": 5.9436
+                            },
+                            "uuid": "29815d6c-6d88-e9b1-7701-45f858cc8609"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U10 [UCC28180D]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 1.2446
+                            },
+                            "uuid": "f4c68d19-a077-f9ac-fe9b-c09408b5febf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U46 [AO3400A]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 2.3368
+                            },
+                            "uuid": "283158b2-5d21-8683-ce76-1b42bb953d21"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C11 [GRM188R71H105KA12D]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 2.8702
+                            },
+                            "uuid": "09b76234-c07a-5912-671d-cd85ee7825a8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R12 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 3.3528
+                            },
+                            "uuid": "f5eafc45-a9bd-af2a-af82-c88b93f62ecf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R7 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 3.7846
+                            },
+                            "uuid": "0fb19ddf-34b7-e053-a5d8-69a1a55c1a13"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U19 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 4.2164
+                            },
+                            "uuid": "dc707249-abcc-dc90-ee73-f521a87a69a0"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U30 [C0805C105K5RACTU]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 4.6482
+                            },
+                            "uuid": "62c16874-4d0e-ad62-77e2-15aafb4accfc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U44 [61300211121]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 5.08
+                            },
+                            "uuid": "cbdd1770-1d70-9220-2e5a-ea5f405313a1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Diode_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol U66 [SS14]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 5.5118
+                            },
+                            "uuid": "cc3e0029-f498-cd76-f05d-4ef0eb98ad50"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U66 [SS14]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 5.5118
+                            },
+                            "uuid": "cc3e0029-f498-cd76-f05d-4ef0eb98ad50"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U78 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 3.2893,
+                                "y": 5.9436
+                            },
+                            "uuid": "5f9bdf7c-b500-fa42-010d-badcce3f0b1b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U60 [UCC28180D]",
+                            "pos": {
+                                "x": 4.2037,
+                                "y": 1.2446
+                            },
+                            "uuid": "f3ff1bc2-4cd5-ea8b-2a02-67488283846d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U54 [STW65N65DM2AG]",
+                            "pos": {
+                                "x": 4.2037,
+                                "y": 2.3368
+                            },
+                            "uuid": "3a580724-96ed-6029-4af1-916898bb63ae"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C2 [C0805C105K5RACTU]",
+                            "pos": {
+                                "x": 4.2037,
+                                "y": 2.8702
+                            },
+                            "uuid": "f81f80ac-79b4-e025-4c12-233110169546"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R13 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 4.2037,
+                                "y": 3.3528
+                            },
+                            "uuid": "70d2ac0e-14c1-f0f1-e652-beacbfa5de6e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R8 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 4.2037,
+                                "y": 3.7846
+                            },
+                            "uuid": "483901b9-e5fb-8955-2d99-e804d5a4977c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U20 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 4.2037,
+                                "y": 4.2164
+                            },
+                            "uuid": "acce092e-b9e0-c8f3-10f8-61a341b4f9e8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U31 [C0805C105K5RACTU]",
+                            "pos": {
+                                "x": 4.2037,
+                                "y": 4.6482
+                            },
+                            "uuid": "1e83abd9-f446-9c79-8750-34db7847834e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U47 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 4.2037,
+                                "y": 5.08
+                            },
+                            "uuid": "e9ca3f17-4f5b-a6c6-d217-aba5334b0a81"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U67 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 4.2037,
+                                "y": 5.5118
+                            },
+                            "uuid": "d2e8ffb9-2b76-e501-1f84-4d17f0f345f8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U82 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 4.2037,
+                                "y": 5.9436
+                            },
+                            "uuid": "968e1497-8fed-ae36-2893-de0c2f3a2b33"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U79 [UCC28180D]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 1.2446
+                            },
+                            "uuid": "87438873-6389-7754-1575-964f7bdfd204"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U55 [STW65N65DM2AG]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 2.3368
+                            },
+                            "uuid": "2e619d5c-cf09-5e7d-e6f9-d796458a5f42"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C3 [EEU-FC1E101]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 2.8702
+                            },
+                            "uuid": "12895d02-0449-e617-52a2-2fb95aa9c7a7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R14 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 3.3528
+                            },
+                            "uuid": "0b8dbec6-8eda-2739-83ee-4e93ebc54d3a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R9 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 3.7846
+                            },
+                            "uuid": "0730d7b8-72e8-1a3b-945c-70505eb3f027"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U21 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 4.2164
+                            },
+                            "uuid": "b7e89c63-44d1-515c-5ce1-4acf9f1f16fc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Diode_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol U33 [SS14]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 4.6482
+                            },
+                            "uuid": "918ff587-8417-67fd-2782-e3505bb7e835"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U33 [SS14]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 4.6482
+                            },
+                            "uuid": "918ff587-8417-67fd-2782-e3505bb7e835"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U48 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 5.08
+                            },
+                            "uuid": "2a13d336-e540-c3ee-c51b-746a0965129e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U68 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 5.5118
+                            },
+                            "uuid": "a76655a8-6a91-fdf0-e0ae-afa6d1969010"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U83 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 5.1181,
+                                "y": 5.9436
+                            },
+                            "uuid": "256d1c48-d23e-50fd-9ffc-644b4e4e2883"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U2 [B82726S2163N030]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 1.2446
+                            },
+                            "uuid": "be8d6607-f6c3-a803-82c0-2b6c58abc70c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U2 [B82726S2163N030]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 1.2446
+                            },
+                            "uuid": "be8d6607-f6c3-a803-82c0-2b6c58abc70c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U56 [STW65N65DM2AG]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 2.3368
+                            },
+                            "uuid": "5bad0b1d-f3f1-f219-9151-d6528b051041"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C4 [EEU-FC1E101]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 2.8702
+                            },
+                            "uuid": "eca054a7-ec01-8966-9c1d-1ccc0148577b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R15 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 3.3528
+                            },
+                            "uuid": "3c99dcc0-f538-a5cb-7eaa-e00befdcb986"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Fuse'",
+                    "items": [
+                        {
+                            "description": "Symbol U1 [0031.2510]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 3.7846
+                            },
+                            "uuid": "ab7bd980-6050-7aa1-b6e5-4b4afe932dab"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U1 [0031.2510]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 3.7846
+                            },
+                            "uuid": "ab7bd980-6050-7aa1-b6e5-4b4afe932dab"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U22 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 4.2164
+                            },
+                            "uuid": "d1da478b-724b-53c8-3f32-1e203347758d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Diode_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol U34 [BAT54H_115]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 4.6482
+                            },
+                            "uuid": "2e47ba8d-3826-e3a1-a11d-f51d351ba0fd"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U34 [BAT54H_115]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 4.6482
+                            },
+                            "uuid": "2e47ba8d-3826-e3a1-a11d-f51d351ba0fd"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U49 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 5.08
+                            },
+                            "uuid": "8999a696-18f2-7cec-8fd8-4f937a302a9e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U69 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 5.5118
+                            },
+                            "uuid": "4f6f936b-fa12-5a68-370f-bd9ae2594874"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U84 [C0805C105K5RACTU]",
+                            "pos": {
+                                "x": 6.0325,
+                                "y": 5.9436
+                            },
+                            "uuid": "5ee717af-80b5-2dea-cba0-c9b15903bc72"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U4 [RT33K012]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 1.2446
+                            },
+                            "uuid": "87b55c04-5b26-5637-98ff-dbd4d134d73d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U4 [RT33K012]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 1.2446
+                            },
+                            "uuid": "87b55c04-5b26-5637-98ff-dbd4d134d73d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U57 [STW65N65DM2AG]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 2.3368
+                            },
+                            "uuid": "65785450-f846-2f4b-46ef-ea1a70a9cbe2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C5 [GRM188R71H105KA12D]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 2.8702
+                            },
+                            "uuid": "a4dba465-ffd4-bccd-1f8d-9bee058963ae"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R16 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 3.3528
+                            },
+                            "uuid": "27c5e0ba-3fab-b745-0cc1-077b6b2ff9c8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U11 [HCSM2818FT10L0]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 3.7846
+                            },
+                            "uuid": "5e67f3a0-2901-c9e5-6d82-8b9f4a60af03"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U11 [HCSM2818FT10L0]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 3.7846
+                            },
+                            "uuid": "5e67f3a0-2901-c9e5-6d82-8b9f4a60af03"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U23 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 4.2164
+                            },
+                            "uuid": "5647a693-1f26-39c9-0f60-b2ad4947dcfc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U35 [LGX2W561MELC50]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 4.6482
+                            },
+                            "uuid": "66c9fcb1-b6c8-1202-1627-8dcb63ebfc58"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U5 [B32922C3224M289]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 5.08
+                            },
+                            "uuid": "66d17c34-cc7a-6bde-9bea-96d56de47bc3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Inductor_THT_Wurth'",
+                    "items": [
+                        {
+                            "description": "Symbol U7 [760800301]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 5.5118
+                            },
+                            "uuid": "00706366-e5ea-0b07-ff2c-168a962a591e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U7 [760800301]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 5.5118
+                            },
+                            "uuid": "00706366-e5ea-0b07-ff2c-168a962a591e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U86 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 6.9469,
+                                "y": 5.9436
+                            },
+                            "uuid": "9e73e05c-64e2-de6d-6d64-3bf587134370"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U61 [BSP300H6327XUSA1]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 1.2446
+                            },
+                            "uuid": "0bf1e7e9-416f-251c-fe86-224656a1ae67"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U61 [BSP300H6327XUSA1]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 1.2446
+                            },
+                            "uuid": "0bf1e7e9-416f-251c-fe86-224656a1ae67"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U73 [AO3400A]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 2.3368
+                            },
+                            "uuid": "cbb073a1-b63e-a525-0d3d-c16b56a433f2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C6 [GRM188R71H105KA12D]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 2.8702
+                            },
+                            "uuid": "191bf86a-20ba-2bed-9570-1f1308afc359"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R17 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 3.3528
+                            },
+                            "uuid": "a510d9bc-7020-3870-f539-c1871c379536"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U12 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 3.7846
+                            },
+                            "uuid": "94fba97d-8295-c727-9938-2dcbfa7602f3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U24 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 4.2164
+                            },
+                            "uuid": "aee72616-95f2-26cb-26e0-f80c9c1045a7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U36 [LGX2W561MELC50]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 4.6482
+                            },
+                            "uuid": "733a63e8-6d19-d690-0818-20fc0b8f6c03"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U50 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 5.08
+                            },
+                            "uuid": "45278106-5edd-cf9f-af55-daa52a797da2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U70 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 5.5118
+                            },
+                            "uuid": "760183c7-7434-4435-18d7-ceae48963498"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U87 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 7.8613,
+                                "y": 5.9436
+                            },
+                            "uuid": "35541baa-2994-ffef-2318-9da9b8cc9664"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U62 [BSP300H6327XUSA1]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 1.2446
+                            },
+                            "uuid": "e515dcb4-5be1-e69b-54f1-62f56b770c74"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U62 [BSP300H6327XUSA1]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 1.2446
+                            },
+                            "uuid": "e515dcb4-5be1-e69b-54f1-62f56b770c74"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U8 [STW65N65DM2AG]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 2.3368
+                            },
+                            "uuid": "862f3bef-f3ac-756d-a005-f431443168e0"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C7 [C0805C105K5RACTU]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 2.8702
+                            },
+                            "uuid": "da70fefb-0e1b-3b5b-72cc-9659566ab0fa"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R18 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 3.3528
+                            },
+                            "uuid": "4eb65c8a-fb36-6bad-0cf9-dfdebf853618"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U13 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 3.7846
+                            },
+                            "uuid": "872efb1a-f69d-6135-ff5d-2b96a4873662"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U25 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 4.2164
+                            },
+                            "uuid": "b24043d5-1101-7120-7b0c-c18027f27b93"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U37 [LGX2W561MELC50]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 4.6482
+                            },
+                            "uuid": "5256acdc-b54e-7f71-4c67-0d23fe31f883"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U51 [1714971]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 5.08
+                            },
+                            "uuid": "84631be8-f4ca-1dce-42ec-06d23ecf9c2d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U51 [1714971]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 5.08
+                            },
+                            "uuid": "84631be8-f4ca-1dce-42ec-06d23ecf9c2d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U71 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 5.5118
+                            },
+                            "uuid": "3ad5f9d2-d594-c42d-b72f-6fced4a8c4d3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U89 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 8.7757,
+                                "y": 5.9436
+                            },
+                            "uuid": "2e8e0f37-6d06-eb5b-3961-6bf58528c6d8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U63 [GBJ2510-F]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 1.2446
+                            },
+                            "uuid": "fc8d9566-d31d-aff1-9a21-99741516135f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U63 [GBJ2510-F]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 1.2446
+                            },
+                            "uuid": "fc8d9566-d31d-aff1-9a21-99741516135f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U85 [AO3400A]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 2.3368
+                            },
+                            "uuid": "c6126bea-192a-f176-1df1-ad2db0a206da"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C8 [GRM188R71H105KA12D]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 2.8702
+                            },
+                            "uuid": "f3533582-4678-729d-21b8-85c5424c32f0"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R2 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 3.3528
+                            },
+                            "uuid": "68238214-fdc8-1959-c881-1c12308b1204"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U14 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 3.7846
+                            },
+                            "uuid": "de5f28da-e6df-49e8-b87f-b40f63f812b5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U26 [C0805C105K5RACTU]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 4.2164
+                            },
+                            "uuid": "72a9f97c-4066-7793-9c27-518c0676107d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U38 [LGX2W561MELC50]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 4.6482
+                            },
+                            "uuid": "8bbd6261-bbc8-0d78-1940-44b9a8ef302a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U52 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 5.08
+                            },
+                            "uuid": "18ac1148-584c-93a1-fb21-16e045e4eec0"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U72 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 5.5118
+                            },
+                            "uuid": "d5d3b7d8-7b64-478a-de78-35564394e107"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U90 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 9.6901,
+                                "y": 5.9436
+                            },
+                            "uuid": "ce132eea-4d90-23c8-07e1-35370f714779"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Converter_ACDC'",
+                    "items": [
+                        {
+                            "description": "Symbol U64 [IRM-10-15]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 1.2446
+                            },
+                            "uuid": "fc2048d1-6db4-ad9b-4e35-85f442323e05"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U64 [IRM-10-15]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 1.2446
+                            },
+                            "uuid": "fc2048d1-6db4-ad9b-4e35-85f442323e05"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U88 [AO3400A]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 2.3368
+                            },
+                            "uuid": "d5c85d71-639f-2513-040a-8967f7af924c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol C9 [GRM188R71H105KA12D]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 2.8702
+                            },
+                            "uuid": "740a3716-5827-07ee-59e9-11d00b4bb249"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol R3 [RC0603FR-07100KL]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 3.3528
+                            },
+                            "uuid": "b0a0747c-922d-396e-51f6-5fefc05c9d21"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U15 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 3.7846
+                            },
+                            "uuid": "490e3e58-bdc0-2e6b-27a2-80218ec7451d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U27 [C0805C105K5RACTU]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 4.2164
+                            },
+                            "uuid": "a0c96662-e7e3-9700-1a25-9c6ef9944953"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'temper'",
+                    "items": [
+                        {
+                            "description": "Symbol U39 [B32674D6155K000]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 4.6482
+                            },
+                            "uuid": "49c5e21e-49d5-6694-fa28-22a01fa8cdb9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U39 [B32674D6155K000]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 4.6482
+                            },
+                            "uuid": "49c5e21e-49d5-6694-fa28-22a01fa8cdb9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U53 [RC2512FR-0791RL]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 5.08
+                            },
+                            "uuid": "abc7c9ed-5314-64dc-0c48-3181bf94c490"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'PowerEntryActiveUnit'",
+                    "items": [
+                        {
+                            "description": "Symbol U74 [RC1206FR-0710RL]",
+                            "pos": {
+                                "x": 10.6045,
+                                "y": 5.5118
+                            },
+                            "uuid": "1c3afd4d-b816-2ea3-0673-4757469e6180"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                }
+            ]
+        }
+    ],
+    "source": "section.kicad_sch"
+}

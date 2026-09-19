@@ -1,11 +1,21 @@
 # Startup-supply selection (bootstrap + AUX_15V cold start)
 
-Status: SELECTED. This file appends to (does not rewrite) TIMING-REVIEW.md,
+Status: CONDITIONAL COMPONENT SELECTION; startup supply not qualified.
+This file appends to (does not rewrite) TIMING-REVIEW.md,
 DECISION.md, and the prior `calc/bootstrap_corner.*` screen, all of which
 remain as prior evidence. Model source: `calc/startup_model.rs` (compiled
 `rustc -O`), raw outputs: `calc/outputs/`. Load inventory and supply
 statements: `LOAD-INVENTORY.md`. ngspice cross-check:
 `calc/outputs/xcheck_report.txt`.
+
+Review disposition (2026-09-19): retain 220 ohm / 100 uF as the experimental
+component choice. The calculations support that choice under the listed
+load/recharge assumptions, not completion of Package 1. Input-LOW quiescent
+current is not a guaranteed input-HIGH driver-current bound; the high-side
+hold assumption remains unbounded. Full bridge/PFC/protection/relay AUX load,
+actual recharge intervals, rail dynamics and startup resistor pulse duty must
+be evaluated on the integrated circuit. Independent solutions of the same RC
+equations verify arithmetic, not those physical assumptions.
 
 ## 1. What was wrong with the prior positions
 

@@ -1,0 +1,17 @@
+uv run --no-sync python3 scripts/regen_derived.py
+WARN Ignoring non-directory workspace member: `/private/tmp/temper-pkgs-1-4/packages/README.md`
+derived artifacts:
+  ok     gen_repo_state.py:   docs/plans/README.md
+  ok     gen_wasm_test_registry.py [temper-drc-rs]: wrote registry: 3283 tests across 34 modules
+  ok     gen_wasm_test_registry.py [temper-geometry]: wrote registry: 8321 tests across 67 modules [temper-geometry]
+  ok     gen_wasm_test_registry.py [temper-thermal]: wrote registry: 2637 tests across 19 modules [temper-thermal]
+  ok     gen_wasm_test_registry.py [temper-design-bundle]: wrote registry: 75 tests across 14 modules [temper-design-bundle]
+  ok     gen_wasm_test_registry.py [temper-rust-router-core]: wrote registry: 3473 tests across 20 modules [temper-rust-router-core]
+  ok     gen_wasm_test_registry.py [temper-constraint-compiler]: wrote registry: 1900 tests across 11 modules [temper-constraint-compiler]
+  ok     gen_wasm_test_registry.py [temper-io-types]: wrote registry: 6927 tests across 22 modules [temper-io-types]
+  ok     oracle hashes: oracle content-hash gate: 163/163 oracle files OK (registry: 163 entries)
+  ok     hash order: OK: 18 known salted-hash order site(s) in 447 scanned file(s); no new ones.
+  ok     manifest: Manifest gate PASSED — 193 files, 194 manifest entries, 1 empty-imports warnings
+  ok     unwired kernels: OK: 872 registered kernel(s); 21 unwired, all ledgered.
+  ok     wire formats: OK: 3 kernel(s) reimplement a geometry helper; each references the fields that helper reads.
+all derived artifacts consistent

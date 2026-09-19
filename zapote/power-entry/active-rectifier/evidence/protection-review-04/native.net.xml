@@ -1,0 +1,3690 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>/private/tmp/temper-pkgs-1-4/zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch</source>
+    <date>2026-09-19T14:36:40</date>
+    <tool>Eeschema 10.0.4</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>Experimental active rectifier and fused DC bank</title>
+        <company>Temper</company>
+        <rev>1.0</rev>
+        <date>2026-07-15</date>
+        <source>section.kicad_sch</source>
+        <comment number="1" value="GENERATED -- do not hand-edit"/>
+        <comment number="2" value="edit elec/src/*.ato and run make schematics"/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="C1">
+      <value>C0805C224K5RACTU</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="C0805C105K5RACTU" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e93ecd28-a308-97d3-6ff8-eba483a9d233</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C2">
+      <value>C0805C224K5RACTU</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="C0805C105K5RACTU" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f81f80ac-79b4-e025-4c12-233110169546</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C3">
+      <value>EEU-FC1E101</value>
+      <footprint>Capacitor_THT:C_Radial_D6.3mm_H11.0mm_P2.50mm</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:C_Radial_D6.3mm_H11.0mm_P2.50mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="EEU-FC1E101" description="elec/src/power_entry_active_unit.ato:BootstrapBulk"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>12895d02-0449-e617-52a2-2fb95aa9c7a7</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C4">
+      <value>EEU-FC1E101</value>
+      <footprint>Capacitor_THT:C_Radial_D6.3mm_H11.0mm_P2.50mm</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:C_Radial_D6.3mm_H11.0mm_P2.50mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="EEU-FC1E101" description="elec/src/power_entry_active_unit.ato:BootstrapBulk"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>eca054a7-ec01-8966-9c1d-1ccc0148577b</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C5">
+      <value>GRM188R71H105KA12D</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="GRM188R71H105KA12D" description="elec/src/power_entry_active_unit.ato:BridgeCapacitor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a4dba465-ffd4-bccd-1f8d-9bee058963ae</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C6">
+      <value>GRM188R71H105KA12D</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="GRM188R71H105KA12D" description="elec/src/power_entry_active_unit.ato:BridgeCapacitor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>191bf86a-20ba-2bed-9570-1f1308afc359</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C7">
+      <value>GRM21BR61H475KA12L</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="C0805C105K5RACTU" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>da70fefb-0e1b-3b5b-72cc-9659566ab0fa</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C8">
+      <value>C0603C104K5RACTU</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="GRM188R71H105KA12D" description="elec/src/power_entry_active_unit.ato:BridgeCapacitor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f3533582-4678-729d-21b8-85c5424c32f0</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C9">
+      <value>C0603C471K5RACTU</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="GRM188R71H105KA12D" description="elec/src/power_entry_active_unit.ato:BridgeCapacitor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>740a3716-5827-07ee-59e9-11d00b4bb249</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C10">
+      <value>C0603C471K5RACTU</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="GRM188R71H105KA12D" description="elec/src/power_entry_active_unit.ato:BridgeCapacitor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c0e9dcf8-f0c8-44a4-3bb0-6f62ac9f00a1</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C11">
+      <value>C0603C102K5RACTU</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="GRM188R71H105KA12D" description="elec/src/power_entry_active_unit.ato:BridgeCapacitor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>09b76234-c07a-5912-671d-cd85ee7825a8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R1">
+      <value>RC0603FR-07100KL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>7f9262d5-985c-7c19-0959-291fc372eaa1</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R2">
+      <value>RC0603FR-0747KL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>68238214-fdc8-1959-c881-1c12308b1204</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R3">
+      <value>RC0603FR-07150RL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b0a0747c-922d-396e-51f6-5fefc05c9d21</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R4">
+      <value>RC0603FR-07100RL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>faf02eb7-ae57-ad18-16d6-63967184eb8c</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R5">
+      <value>RC0603FR-07100RL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3b0fb026-ee20-6132-4544-03a8984faf64</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R6">
+      <value>RC0603FR-0710RL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b83bc67e-d3bb-0d9e-af12-53c48e1d34a4</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R7">
+      <value>RC0603FR-0710RL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>0fb19ddf-34b7-e053-a5d8-69a1a55c1a13</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R8">
+      <value>RC0603FR-0710RL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>483901b9-e5fb-8955-2d99-e804d5a4977c</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R9">
+      <value>RC0603FR-0710RL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>0730d7b8-72e8-1a3b-945c-70505eb3f027</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R10">
+      <value>RC0603FR-0710KL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f9669e8f-c090-5233-554a-5ee78e8e4af7</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R11">
+      <value>RC0603FR-0710KL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9b5282d3-cb4f-c381-09f4-90a1f59d7d5d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R12">
+      <value>RC0603FR-0710KL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f5eafc45-a9bd-af2a-af82-c88b93f62ecf</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R13">
+      <value>RC0603FR-0710KL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>70d2ac0e-14c1-f0f1-e652-beacbfa5de6e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R14">
+      <value>RC0603FR-0710KL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>0b8dbec6-8eda-2739-83ee-4e93ebc54d3a</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R15">
+      <value>RC0603FR-07100KL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3c99dcc0-f538-a5cb-7eaa-e00befdcb986</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R16">
+      <value>RC0603FR-0710KL</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC0603FR-07100KL" description="elec/src/power_entry_active_unit.ato:BridgeResistor0603"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>27c5e0ba-3fab-b745-0cc1-077b6b2ff9c8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R17">
+      <value>ERJ-P08J221V</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a510d9bc-7020-3870-f539-c1871c379536</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R18">
+      <value>ERJ-P08J221V</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4eb65c8a-fb36-6bad-0cf9-dfdebf853618</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U1">
+      <value>0031.2510</value>
+      <footprint>Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed</footprint>
+      <fields>
+        <field name="Footprint">Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="0031.2510" description="elec/src/power_entry_active_unit.ato:PfcFuseHolder"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ab7bd980-6050-7aa1-b6e5-4b4afe932dab</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U2">
+      <value>B82726S2163N030</value>
+      <footprint>temper:CMC_B82726S</footprint>
+      <fields>
+        <field name="Footprint">temper:CMC_B82726S</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="B82726S2163N030" description="elec/src/power_entry_active_unit.ato:PfcEmiChoke"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>be8d6607-f6c3-a803-82c0-2b6c58abc70c</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="4"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U3">
+      <value>SL32 10015</value>
+      <footprint>temper:SL32_10015</footprint>
+      <fields>
+        <field name="Footprint">temper:SL32_10015</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="SL32_10015" description="elec/src/power_entry_active_unit.ato:PfcNtc"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>18ee1bae-26d6-d5eb-e75b-28c25c93045d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U4">
+      <value>RT33K012</value>
+      <footprint>temper:Relay_SPST_Schrack-RT33K012</footprint>
+      <fields>
+        <field name="Footprint">temper:Relay_SPST_Schrack-RT33K012</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RT33K012" description="elec/src/power_entry_active_unit.ato:PfcBypassRelay"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>87b55c04-5b26-5637-98ff-dbd4d134d73d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="3"/>
+            <pin num="4"/>
+            <pin num="2"/>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U5">
+      <value>B32922C3224M289</value>
+      <footprint>Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="B32922C3224M289" description="elec/src/power_entry_active_unit.ato:PfcX2"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>66d17c34-cc7a-6bde-9bea-96d56de47bc3</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U6">
+      <value>V150LA10AP</value>
+      <footprint>Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm</footprint>
+      <fields>
+        <field name="Footprint">Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="V150LA10AP" description="elec/src/power_entry_active_unit.ato:PfcMov"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>18d36274-16d9-101e-d5a7-03490d90f1bf</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U7">
+      <value>760800301</value>
+      <footprint>Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75</footprint>
+      <fields>
+        <field name="Footprint">Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="760800301" description="elec/src/power_entry_active_unit.ato:PfcBoostInductor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>00706366-e5ea-0b07-ff2c-168a962a591e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U8">
+      <value>STW65N65DM2AG</value>
+      <footprint>Package_TO_SOT_THT:TO-247-3_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_THT:TO-247-3_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="STW65N65DM2AG" description="elec/src/power_entry_active_unit.ato:PfcMosfet"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>862f3bef-f3ac-756d-a005-f431443168e0</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U9">
+      <value>C3D20065D</value>
+      <footprint>Package_TO_SOT_THT:TO-247-3_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_THT:TO-247-3_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="STW65N65DM2AG" description="elec/src/power_entry_active_unit.ato:PfcMosfet"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9862c987-6678-60e0-b055-34b85c145d6b</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U10">
+      <value>UCC28180D</value>
+      <footprint>Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</footprint>
+      <fields>
+        <field name="Footprint">Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="UCC28180D" description="elec/src/power_entry_active_unit.ato:PfcController"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f4c68d19-a077-f9ac-fe9b-c09408b5febf</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="4"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="8"/>
+            <pin num="7"/>
+            <pin num="6"/>
+            <pin num="5"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U11">
+      <value>HCSM2818FT10L0</value>
+      <footprint>temper:HCSM2818FT10L0</footprint>
+      <fields>
+        <field name="Footprint">temper:HCSM2818FT10L0</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="HCSM2818FT10L0" description="elec/src/power_entry_active_unit.ato:PfcShunt"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5e67f3a0-2901-c9e5-6d82-8b9f4a60af03</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U12">
+      <value>RC1206FR-0710RL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>94fba97d-8295-c727-9938-2dcbfa7602f3</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U13">
+      <value>RC1206FR-0710KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>872efb1a-f69d-6135-ff5d-2b96a4873662</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U14">
+      <value>RC1206FR-071KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>de5f28da-e6df-49e8-b87f-b40f63f812b5</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U15">
+      <value>RC1206FR-07100KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>490e3e58-bdc0-2e6b-27a2-80218ec7451d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U16">
+      <value>RC2512FR-0791RL</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b66ffeb6-374e-c8f3-f70b-c201dc40bf67</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U17">
+      <value>RC1206FR-07220RL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>35a3a1e0-48d5-2942-2a12-2387ddbac119</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U18">
+      <value>RC1206FR-0716K2L</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5cb45835-f942-d1c0-0190-75cf4dcd9bb1</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U19">
+      <value>CRCW2512200KFKEG</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>dc707249-abcc-dc90-ee73-f521a87a69a0</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U20">
+      <value>CRCW2512200KFKEG</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>acce092e-b9e0-c8f3-10f8-61a341b4f9e8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U21">
+      <value>CRCW2512200KFKEG</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b7e89c63-44d1-515c-5ce1-4acf9f1f16fc</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U22">
+      <value>CRCW2512200KFKEG</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d1da478b-724b-53c8-3f32-1e203347758d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U23">
+      <value>CRCW2512200KFKEG</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5647a693-1f26-39c9-0f60-b2ad4947dcfc</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U24">
+      <value>RC1206FR-0713KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>aee72616-95f2-26cb-26e0-f80c9c1045a7</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U25">
+      <value>RC1206FR-0740K2L</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b24043d5-1101-7120-7b0c-c18027f27b93</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U26">
+      <value>C0805C105K5RACTU</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="C0805C105K5RACTU" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>72a9f97c-4066-7793-9c27-518c0676107d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U27">
+      <value>C0805C272J5GACTU</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="C0805C105K5RACTU" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a0c96662-e7e3-9700-1a25-9c6ef9944953</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U28">
+      <value>GRM32ER71H475KA88L</value>
+      <footprint>Capacitor_SMD:C_1210_3225Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_1210_3225Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="GRM32ER71H475KA88L" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>68a5aa54-7f3e-ec8d-374c-055ef0001953</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U29">
+      <value>C0805C224K5RACTU</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="C0805C105K5RACTU" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>02815b18-90a0-9513-d745-ac885505973e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U30">
+      <value>C0805C102J5GACTU</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="C0805C105K5RACTU" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>62c16874-4d0e-ad62-77e2-15aafb4accfc</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U31">
+      <value>C0805C681J5GACTU</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="C0805C105K5RACTU" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1e83abd9-f446-9c79-8750-34db7847834e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U32">
+      <value>AO3400A</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="AO3400A" description="elec/src/power_entry_active_unit.ato:PfcRelayDriver"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1b97e2d6-1116-58ab-d238-e67995720378</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U33">
+      <value>SS14</value>
+      <footprint>Diode_SMD:D_SMA</footprint>
+      <fields>
+        <field name="Footprint">Diode_SMD:D_SMA</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="SS14" description="elec/src/power_entry_active_unit.ato:PfcFlyback"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>918ff587-8417-67fd-2782-e3505bb7e835</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U34">
+      <value>BAT54H,115</value>
+      <footprint>Diode_SMD:D_SOD-123F</footprint>
+      <fields>
+        <field name="Footprint">Diode_SMD:D_SOD-123F</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="BAT54H_115" description="elec/src/power_entry_active_unit.ato:PfcIsenseClamp"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2e47ba8d-3826-e3a1-a11d-f51d351ba0fd</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U35">
+      <value>LGX2W561MELC50</value>
+      <footprint>Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="LGX2W561MELC50" description="elec/src/power_entry_active_unit.ato:PfcBulkCap"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>66c9fcb1-b6c8-1202-1627-8dcb63ebfc58</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U36">
+      <value>LGX2W561MELC50</value>
+      <footprint>Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="LGX2W561MELC50" description="elec/src/power_entry_active_unit.ato:PfcBulkCap"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>733a63e8-6d19-d690-0818-20fc0b8f6c03</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U37">
+      <value>LGX2W561MELC50</value>
+      <footprint>Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="LGX2W561MELC50" description="elec/src/power_entry_active_unit.ato:PfcBulkCap"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5256acdc-b54e-7f71-4c67-0d23fe31f883</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U38">
+      <value>LGX2W561MELC50</value>
+      <footprint>Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="LGX2W561MELC50" description="elec/src/power_entry_active_unit.ato:PfcBulkCap"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8bbd6261-bbc8-0d78-1940-44b9a8ef302a</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U39">
+      <value>B32674D6155K000</value>
+      <footprint>temper:B32674D6155K000</footprint>
+      <fields>
+        <field name="Footprint">temper:B32674D6155K000</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="B32674D6155K000" description="elec/src/power_entry_active_unit.ato:PfcBusHfCap"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>49c5e21e-49d5-6694-fa28-22a01fa8cdb9</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U40">
+      <value>VY1102M31Y5UQ63V0</value>
+      <footprint>Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="VY1102M31Y5UQ63V0" description="elec/src/power_entry_active_unit.ato:PfcY1"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e7a7871b-25b5-2710-28be-b0ce510e6786</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U41">
+      <value>1714984</value>
+      <footprint>temper:Phoenix_1714984</footprint>
+      <fields>
+        <field name="Footprint">temper:Phoenix_1714984</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="1714984" description="elec/src/power_entry_active_unit.ato:PfcMainsConnector"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>724ba03f-1377-a26a-2b53-53ef0a0de731</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U42">
+      <value>61300211121</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="61300211121" description="elec/src/power_entry_active_unit.ato:PfcAuxConnector"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ade896a6-0e98-48ae-81ce-0e6bd1271aca</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U43">
+      <value>61300211121</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="61300211121" description="elec/src/power_entry_active_unit.ato:PfcAuxConnector"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>06e22efb-cb41-7ebd-2b53-6fd14127c4e5</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U44">
+      <value>61300211121</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="61300211121" description="elec/src/power_entry_active_unit.ato:PfcAuxConnector"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cbdd1770-1d70-9220-2e5a-ea5f405313a1</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U45">
+      <value>AO3400A</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="AO3400A" description="elec/src/power_entry_active_unit.ato:PfcRelayDriver"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>79f1e46a-84d1-0b74-db60-a2f1c16ad7e3</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U46">
+      <value>AO3400A</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="AO3400A" description="elec/src/power_entry_active_unit.ato:PfcRelayDriver"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>283158b2-5d21-8683-ce76-1b42bb953d21</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U47">
+      <value>RC1206FR-07100KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e9ca3f17-4f5b-a6c6-d217-aba5334b0a81</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U48">
+      <value>RC1206FR-07100KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2a13d336-e540-c3ee-c51b-746a0965129e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U49">
+      <value>RC1206FR-071KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8999a696-18f2-7cec-8fd8-4f937a302a9e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U50">
+      <value>RC1206FR-07100KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>45278106-5edd-cf9f-af55-daa52a797da2</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U51">
+      <value>1714971</value>
+      <footprint>temper:Phoenix_1714971</footprint>
+      <fields>
+        <field name="Footprint">temper:Phoenix_1714971</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="1714971" description="elec/src/power_entry_active_unit.ato:PfcOutputConnector"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>84631be8-f4ca-1dce-42ec-06d23ecf9c2d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U52">
+      <value>RC2512FR-07150KL</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>18ac1148-584c-93a1-fb21-16e045e4eec0</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U53">
+      <value>RC2512FR-07150KL</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>abc7c9ed-5314-64dc-0c48-3181bf94c490</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U54">
+      <value>IPW60R017C7</value>
+      <footprint>Package_TO_SOT_THT:TO-247-3_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_THT:TO-247-3_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="STW65N65DM2AG" description="elec/src/power_entry_active_unit.ato:PfcMosfet"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3a580724-96ed-6029-4af1-916898bb63ae</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U55">
+      <value>IPW60R017C7</value>
+      <footprint>Package_TO_SOT_THT:TO-247-3_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_THT:TO-247-3_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="STW65N65DM2AG" description="elec/src/power_entry_active_unit.ato:PfcMosfet"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2e619d5c-cf09-5e7d-e6f9-d796458a5f42</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U56">
+      <value>IPW60R017C7</value>
+      <footprint>Package_TO_SOT_THT:TO-247-3_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_THT:TO-247-3_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="STW65N65DM2AG" description="elec/src/power_entry_active_unit.ato:PfcMosfet"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5bad0b1d-f3f1-f219-9151-d6528b051041</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U57">
+      <value>IPW60R017C7</value>
+      <footprint>Package_TO_SOT_THT:TO-247-3_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_THT:TO-247-3_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="STW65N65DM2AG" description="elec/src/power_entry_active_unit.ato:PfcMosfet"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>65785450-f846-2f4b-46ef-ea1a70a9cbe2</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U58">
+      <value>A70QS50-14F</value>
+      <footprint>temper:A70QS50_ETI_CH14_Prototype</footprint>
+      <fields>
+        <field name="Footprint">temper:A70QS50_ETI_CH14_Prototype</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="A70QS50-14F" description="elec/src/power_entry_active_unit.ato:BankFuse"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>7246f7fe-7695-79df-ce6e-51f9ab0cd21b</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U59">
+      <value>UCC21530BQDWKRQ1</value>
+      <footprint>temper:SOIC16W_Isolated</footprint>
+      <fields>
+        <field name="Footprint">temper:SOIC16W_Isolated</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="UCC21530BQDWKRQ1" description="elec/src/power_entry_active_unit.ato:UCC21530Q1"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>89b4c7eb-91af-305f-ca42-d6dd643b1e76</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="7"/>
+            <pin num="6"/>
+            <pin num="5"/>
+            <pin num="4"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="16"/>
+            <pin num="15"/>
+            <pin num="14"/>
+            <pin num="11"/>
+            <pin num="10"/>
+            <pin num="9"/>
+            <pin num="8"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U60">
+      <value>IR11688S</value>
+      <footprint>Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</footprint>
+      <fields>
+        <field name="Footprint">Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="UCC28180D" description="elec/src/power_entry_active_unit.ato:PfcController"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f3ff1bc2-4cd5-ea8b-2a02-67488283846d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="4"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="8"/>
+            <pin num="7"/>
+            <pin num="6"/>
+            <pin num="5"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U61">
+      <value>BSP300H6327XUSA1</value>
+      <footprint>temper:BSP300_PG-SOT223-4-21</footprint>
+      <fields>
+        <field name="Footprint">temper:BSP300_PG-SOT223-4-21</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="BSP300H6327XUSA1" description="elec/src/power_entry_active_unit.ato:BSP300"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>0bf1e7e9-416f-251c-fe86-224656a1ae67</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="4"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U62">
+      <value>BSP300H6327XUSA1</value>
+      <footprint>temper:BSP300_PG-SOT223-4-21</footprint>
+      <fields>
+        <field name="Footprint">temper:BSP300_PG-SOT223-4-21</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="BSP300H6327XUSA1" description="elec/src/power_entry_active_unit.ato:BSP300"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e515dcb4-5be1-e69b-54f1-62f56b770c74</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="4"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U63">
+      <value>GBJ2510-F</value>
+      <footprint>temper:Diode_Bridge_GBJ2510</footprint>
+      <fields>
+        <field name="Footprint">temper:Diode_Bridge_GBJ2510</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="GBJ2510-F" description="elec/src/power_entry_active_unit.ato:PfcBridge"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>fc8d9566-d31d-aff1-9a21-99741516135f</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="4"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U64">
+      <value>IRM-10-15</value>
+      <footprint>Converter_ACDC:Converter_ACDC_MeanWell_IRM-10-xx_THT</footprint>
+      <fields>
+        <field name="Footprint">Converter_ACDC:Converter_ACDC_MeanWell_IRM-10-xx_THT</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="IRM-10-15" description="elec/src/power_entry_active_unit.ato:IRM1015"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>fc2048d1-6db4-ad9b-4e35-85f442323e05</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="4"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U65">
+      <value>ES1J</value>
+      <footprint>Diode_SMD:D_SMA</footprint>
+      <fields>
+        <field name="Footprint">Diode_SMD:D_SMA</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="SS14" description="elec/src/power_entry_active_unit.ato:PfcFlyback"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e6a9797b-8791-c1f9-a6cb-fc917fe9cfcf</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U66">
+      <value>ES1J</value>
+      <footprint>Diode_SMD:D_SMA</footprint>
+      <fields>
+        <field name="Footprint">Diode_SMD:D_SMA</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="SS14" description="elec/src/power_entry_active_unit.ato:PfcFlyback"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cc3e0029-f498-cd76-f05d-4ef0eb98ad50</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U67">
+      <value>CRCW2512200KFKEG</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d2e8ffb9-2b76-e501-1f84-4d17f0f345f8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U68">
+      <value>CRCW2512200KFKEG</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a76655a8-6a91-fdf0-e0ae-afa6d1969010</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U69">
+      <value>CRCW2512200KFKEG</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4f6f936b-fa12-5a68-370f-bd9ae2594874</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U70">
+      <value>CRCW2512200KFKEG</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>760183c7-7434-4435-18d7-ceae48963498</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U71">
+      <value>CRCW2512200KFKEG</value>
+      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC2512FR-0791RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3ad5f9d2-d594-c42d-b72f-6fced4a8c4d3</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U72">
+      <value>RC1206FR-0710KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d5d3b7d8-7b64-478a-de78-35564394e107</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U73">
+      <value>LM4040AIM3-5.0</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="AO3400A" description="elec/src/power_entry_active_unit.ato:PfcRelayDriver"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cbb073a1-b63e-a525-0d3d-c16b56a433f2</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U74">
+      <value>RC1206FR-074K7L</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1c3afd4d-b816-2ea3-0673-4757469e6180</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U75">
+      <value>C0805C104K5RACTU</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="C0805C105K5RACTU" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>109d7baa-a550-66b3-5745-2ca1554f7f7a</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U76">
+      <value>RC1206FR-07100KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9cd69b6e-0f22-ec55-9f22-dd935fe0dcf4</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U77">
+      <value>RC1206FR-0762KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>29815d6c-6d88-e9b1-7701-45f858cc8609</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U78">
+      <value>RC1206FR-0710KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5f9bdf7c-b500-fa42-010d-badcce3f0b1b</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U79">
+      <value>LM393ADR</value>
+      <footprint>Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</footprint>
+      <fields>
+        <field name="Footprint">Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="UCC28180D" description="elec/src/power_entry_active_unit.ato:PfcController"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>87438873-6389-7754-1575-964f7bdfd204</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="4"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="8"/>
+            <pin num="7"/>
+            <pin num="6"/>
+            <pin num="5"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U80">
+      <value>CD4013BM</value>
+      <footprint>Package_SO:SOIC-14_3.9x8.7mm_P1.27mm</footprint>
+      <fields>
+        <field name="Footprint">Package_SO:SOIC-14_3.9x8.7mm_P1.27mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="CD4013BM" description="elec/src/power_entry_active_unit.ato:PfcLatchFF"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>678d6b3a-2906-c898-187c-dc22a836a213</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="7"/>
+            <pin num="6"/>
+            <pin num="5"/>
+            <pin num="4"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="14"/>
+            <pin num="13"/>
+            <pin num="12"/>
+            <pin num="11"/>
+            <pin num="10"/>
+            <pin num="9"/>
+            <pin num="8"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U81">
+      <value>CD40106BM</value>
+      <footprint>Package_SO:SOIC-14_3.9x8.7mm_P1.27mm</footprint>
+      <fields>
+        <field name="Footprint">Package_SO:SOIC-14_3.9x8.7mm_P1.27mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="CD4013BM" description="elec/src/power_entry_active_unit.ato:PfcLatchFF"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>06b8df63-d4fa-330d-4963-9d25b0c99d41</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="7"/>
+            <pin num="6"/>
+            <pin num="5"/>
+            <pin num="4"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="14"/>
+            <pin num="13"/>
+            <pin num="12"/>
+            <pin num="11"/>
+            <pin num="10"/>
+            <pin num="9"/>
+            <pin num="8"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U82">
+      <value>RC1206FR-07100KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>968e1497-8fed-ae36-2893-de0c2f3a2b33</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U83">
+      <value>RC1206FR-07301KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>256d1c48-d23e-50fd-9ffc-644b4e4e2883</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U84">
+      <value>C0805C105K5RACTU</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="C0805C105K5RACTU" description="elec/src/power_entry_active_unit.ato:PfcCapacitor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5ee717af-80b5-2dea-cba0-c9b15903bc72</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U85">
+      <value>AO3400A</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="AO3400A" description="elec/src/power_entry_active_unit.ato:PfcRelayDriver"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c6126bea-192a-f176-1df1-ad2db0a206da</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U86">
+      <value>RC1206FR-07100KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9e73e05c-64e2-de6d-6d64-3bf587134370</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U87">
+      <value>RC1206FR-07100KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>35541baa-2994-ffef-2318-9da9b8cc9664</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U88">
+      <value>AO3400A</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <fields>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="AO3400A" description="elec/src/power_entry_active_unit.ato:PfcRelayDriver"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d5c85d71-639f-2513-040a-8967f7af924c</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2"/>
+            <pin num="1"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U89">
+      <value>RC1206FR-07100KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2e8e0f37-6d06-eb5b-3961-6bf58528c6d8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U90">
+      <value>RC1206FR-07100KL</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_1206_3216Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="" part="RC1206FR-0710RL" description="elec/src/power_entry_active_unit.ato:PfcResistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="zapote/power-entry/active-rectifier/native-review-03/section.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ce132eea-4d90-23c8-07e1-35370f714779</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="" part="0031.2510">
+      <description>elec/src/power_entry_active_unit.ato:PfcFuseHolder</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">0031.2510</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcFuseHolder</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="1714971">
+      <description>elec/src/power_entry_active_unit.ato:PfcOutputConnector</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">1714971</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcOutputConnector</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="1714984">
+      <description>elec/src/power_entry_active_unit.ato:PfcMainsConnector</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">1714984</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcMainsConnector</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="61300211121">
+      <description>elec/src/power_entry_active_unit.ato:PfcAuxConnector</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">61300211121</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcAuxConnector</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="760800301">
+      <description>elec/src/power_entry_active_unit.ato:PfcBoostInductor</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">760800301</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcBoostInductor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="A70QS50-14F">
+      <description>elec/src/power_entry_active_unit.ato:BankFuse</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">A70QS50-14F</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:BankFuse</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="AO3400A">
+      <description>elec/src/power_entry_active_unit.ato:PfcRelayDriver</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">AO3400A</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcRelayDriver</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="B32674D6155K000">
+      <description>elec/src/power_entry_active_unit.ato:PfcBusHfCap</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">B32674D6155K000</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcBusHfCap</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="B32922C3224M289">
+      <description>elec/src/power_entry_active_unit.ato:PfcX2</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">B32922C3224M289</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcX2</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="B82726S2163N030">
+      <description>elec/src/power_entry_active_unit.ato:PfcEmiChoke</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">B82726S2163N030</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcEmiChoke</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="BAT54H_115">
+      <description>elec/src/power_entry_active_unit.ato:PfcIsenseClamp</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">BAT54H,115</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcIsenseClamp</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="BSP300H6327XUSA1">
+      <description>elec/src/power_entry_active_unit.ato:BSP300</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">BSP300H6327XUSA1</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:BSP300</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="C0805C105K5RACTU">
+      <description>elec/src/power_entry_active_unit.ato:PfcCapacitor</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">C0805C105K5RACTU</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcCapacitor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="CD4013BM">
+      <description>elec/src/power_entry_active_unit.ato:PfcLatchFF</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">CD4013BM</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcLatchFF</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+        <pin num="5" name="5" type="bidirectional"/>
+        <pin num="6" name="6" type="bidirectional"/>
+        <pin num="7" name="7" type="bidirectional"/>
+        <pin num="8" name="8" type="bidirectional"/>
+        <pin num="9" name="9" type="bidirectional"/>
+        <pin num="10" name="10" type="bidirectional"/>
+        <pin num="11" name="11" type="bidirectional"/>
+        <pin num="12" name="12" type="bidirectional"/>
+        <pin num="13" name="13" type="bidirectional"/>
+        <pin num="14" name="14" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="EEU-FC1E101">
+      <description>elec/src/power_entry_active_unit.ato:BootstrapBulk</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">EEU-FC1E101</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:BootstrapBulk</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="GBJ2510-F">
+      <description>elec/src/power_entry_active_unit.ato:PfcBridge</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">GBJ2510-F</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcBridge</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="GRM188R71H105KA12D">
+      <description>elec/src/power_entry_active_unit.ato:BridgeCapacitor0603</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">GRM188R71H105KA12D</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:BridgeCapacitor0603</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="GRM32ER71H475KA88L">
+      <description>elec/src/power_entry_active_unit.ato:PfcCapacitor</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">GRM32ER71H475KA88L</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcCapacitor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="HCSM2818FT10L0">
+      <description>elec/src/power_entry_active_unit.ato:PfcShunt</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">HCSM2818FT10L0</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcShunt</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="IRM-10-15">
+      <description>elec/src/power_entry_active_unit.ato:IRM1015</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">IRM-10-15</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:IRM1015</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="LGX2W561MELC50">
+      <description>elec/src/power_entry_active_unit.ato:PfcBulkCap</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">LGX2W561MELC50</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcBulkCap</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="RC0603FR-07100KL">
+      <description>elec/src/power_entry_active_unit.ato:BridgeResistor0603</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">RC0603FR-07100KL</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:BridgeResistor0603</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="RC1206FR-0710RL">
+      <description>elec/src/power_entry_active_unit.ato:PfcResistor</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">RC1206FR-0710RL</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcResistor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="RC2512FR-0791RL">
+      <description>elec/src/power_entry_active_unit.ato:PfcResistor</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">RC2512FR-0791RL</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcResistor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="RT33K012">
+      <description>elec/src/power_entry_active_unit.ato:PfcBypassRelay</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">RT33K012</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcBypassRelay</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="SL32_10015">
+      <description>elec/src/power_entry_active_unit.ato:PfcNtc</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">SL32 10015</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcNtc</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="SS14">
+      <description>elec/src/power_entry_active_unit.ato:PfcFlyback</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">SS14</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcFlyback</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="STW65N65DM2AG">
+      <description>elec/src/power_entry_active_unit.ato:PfcMosfet</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">STW65N65DM2AG</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcMosfet</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="UCC21530BQDWKRQ1">
+      <description>elec/src/power_entry_active_unit.ato:UCC21530Q1</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">UCC21530BQDWKRQ1</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:UCC21530Q1</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+        <pin num="5" name="5" type="bidirectional"/>
+        <pin num="6" name="6" type="bidirectional"/>
+        <pin num="7" name="7" type="bidirectional"/>
+        <pin num="8" name="8" type="bidirectional"/>
+        <pin num="9" name="9" type="bidirectional"/>
+        <pin num="10" name="10" type="bidirectional"/>
+        <pin num="11" name="11" type="bidirectional"/>
+        <pin num="14" name="14" type="bidirectional"/>
+        <pin num="15" name="15" type="bidirectional"/>
+        <pin num="16" name="16" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="UCC28180D">
+      <description>elec/src/power_entry_active_unit.ato:PfcController</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">UCC28180D</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcController</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+        <pin num="3" name="3" type="bidirectional"/>
+        <pin num="4" name="4" type="bidirectional"/>
+        <pin num="5" name="5" type="bidirectional"/>
+        <pin num="6" name="6" type="bidirectional"/>
+        <pin num="7" name="7" type="bidirectional"/>
+        <pin num="8" name="8" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="V150LA10AP">
+      <description>elec/src/power_entry_active_unit.ato:PfcMov</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">V150LA10AP</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcMov</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+    <libpart lib="" part="VY1102M31Y5UQ63V0">
+      <description>elec/src/power_entry_active_unit.ato:PfcY1</description>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">VY1102M31Y5UQ63V0</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">elec/src/power_entry_active_unit.ato:PfcY1</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="bidirectional"/>
+        <pin num="2" name="2" type="bidirectional"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries/>
+  <nets>
+    <net code="1" name="AC_L_RECTIFIED_INPUT" class="Default">
+      <node ref="U1" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U41" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="2" name="AC_N_RECTIFIED_INPUT" class="Default">
+      <node ref="U2" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U41" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U5" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U6" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="3" name="AUX_15V" class="Default">
+      <node ref="C7" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="C8" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R14" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="R17" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R18" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R2" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U10" pin="7" pinfunction="7_7" pintype="bidirectional"/>
+      <node ref="U16" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U26" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U42" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U48" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U59" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U59" pin="8" pinfunction="8_8" pintype="bidirectional"/>
+      <node ref="U60" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U61" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U62" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U64" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U74" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U76" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U78" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U79" pin="8" pinfunction="8_8" pintype="bidirectional"/>
+      <node ref="U80" pin="14" pinfunction="14_14" pintype="bidirectional"/>
+      <node ref="U80" pin="5" pinfunction="5_5" pintype="bidirectional"/>
+      <node ref="U81" pin="14" pinfunction="14_14" pintype="bidirectional"/>
+      <node ref="U82" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="4" name="BOOST_DIODE_POSITIVE" class="Default">
+      <node ref="U19" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U39" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U58" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U67" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U9" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="5" name="BOOT_A" class="Default">
+      <node ref="C1" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="C3" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="C5" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U59" pin="16" pinfunction="16_16" pintype="bidirectional"/>
+      <node ref="U65" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="6" name="BOOT_B" class="Default">
+      <node ref="C2" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="C4" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="C6" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U59" pin="11" pinfunction="11_11" pintype="bidirectional"/>
+      <node ref="U66" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="7" name="CMD_A" class="Default">
+      <node ref="R9" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U59" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U60" pin="8" pinfunction="8_8" pintype="bidirectional"/>
+    </net>
+    <net code="8" name="CMD_B" class="Default">
+      <node ref="R8" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U59" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U60" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="9" name="GATE_Q1" class="Default">
+      <node ref="R10" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R6" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U54" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="10" name="GATE_Q2" class="Default">
+      <node ref="R11" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R7" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U56" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="11" name="GATE_Q3" class="Default">
+      <node ref="R12" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R8" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U55" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="12" name="GATE_Q4" class="Default">
+      <node ref="R13" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R9" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U57" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="13" name="HOT_PERMIT_EXTERNAL" class="Default">
+      <node ref="U44" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U49" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="14" name="PE_CHASSIS" class="Default">
+      <node ref="U40" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U41" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="15" name="PFC_BUS_MINUS" class="Default">
+      <node ref="U10" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U11" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U13" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U15" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U18" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U24" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U26" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U27" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U28" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U29" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U30" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U31" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U32" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U34" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U35" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U36" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U37" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U38" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U39" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U40" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U42" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U43" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U44" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U45" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U46" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U47" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U50" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U51" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U53" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U64" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U72" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U73" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U75" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U77" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U79" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U8" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U80" pin="10" pinfunction="10_10" pintype="bidirectional"/>
+      <node ref="U80" pin="11" pinfunction="11_11" pintype="bidirectional"/>
+      <node ref="U80" pin="6" pinfunction="6_6" pintype="bidirectional"/>
+      <node ref="U80" pin="7" pinfunction="7_7" pintype="bidirectional"/>
+      <node ref="U80" pin="8" pinfunction="8_8" pintype="bidirectional"/>
+      <node ref="U80" pin="9" pinfunction="9_9" pintype="bidirectional"/>
+      <node ref="U81" pin="11" pinfunction="11_11" pintype="bidirectional"/>
+      <node ref="U81" pin="13" pinfunction="13_13" pintype="bidirectional"/>
+      <node ref="U81" pin="7" pinfunction="7_7" pintype="bidirectional"/>
+      <node ref="U81" pin="9" pinfunction="9_9" pintype="bidirectional"/>
+      <node ref="U83" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U84" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U85" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U87" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U88" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U90" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="16" name="PFC_BUS_PLUS_390V" class="Default">
+      <node ref="U35" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U36" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U37" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U38" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U51" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U52" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U58" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="17" name="RECTIFIER_L" class="Default">
+      <node ref="C1" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="C3" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="C5" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="R10" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U3" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U4" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U54" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U55" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U59" pin="14" pinfunction="14_14" pintype="bidirectional"/>
+      <node ref="U61" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U61" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U63" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="18" name="RECTIFIER_NEGATIVE" class="Default">
+      <node ref="C10" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="C11" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="C7" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="C8" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="C9" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="R1" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="R12" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="R13" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="R15" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="R16" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="R3" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U11" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U17" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U34" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U55" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U57" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U59" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U59" pin="7" pinfunction="7_7" pintype="bidirectional"/>
+      <node ref="U60" pin="7" pinfunction="7_7" pintype="bidirectional"/>
+      <node ref="U63" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+    </net>
+    <net code="19" name="RECTIFIER_POSITIVE" class="Default">
+      <node ref="U54" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U56" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U63" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U7" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="20" name="RECTIFIER_R" class="Default">
+      <node ref="C2" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="C4" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="C6" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="R11" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U2" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U56" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U57" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U59" pin="9" pinfunction="9_9" pintype="bidirectional"/>
+      <node ref="U62" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U62" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U63" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U64" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="21" name="RELAY_BYPASS_CTRL" class="Default">
+      <node ref="U14" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U43" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="22" name="SENSE_A" class="Default">
+      <node ref="C9" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R4" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U60" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+    </net>
+    <net code="23" name="SENSE_B" class="Default">
+      <node ref="C10" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R5" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U60" pin="5" pinfunction="5_5" pintype="bidirectional"/>
+    </net>
+    <net code="24" name="a1" class="Default">
+      <node ref="U7" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U8" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U9" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U9" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="25" name="aux_tap" class="Default">
+      <node ref="U76" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U77" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U79" pin="5" pinfunction="5_5" pintype="bidirectional"/>
+    </net>
+    <net code="26" name="bleeder1-p2" class="Default">
+      <node ref="U52" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U53" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="27" name="clk1" class="Default">
+      <node ref="U80" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U81" pin="6" pinfunction="6_6" pintype="bidirectional"/>
+    </net>
+    <net code="28" name="coil1" class="Default">
+      <node ref="U16" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U33" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U4" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="29" name="coil2" class="Default">
+      <node ref="U32" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U33" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U4" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="30" name="d" class="Default">
+      <node ref="U10" pin="6" pinfunction="6_6" pintype="bidirectional"/>
+      <node ref="U23" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U24" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U31" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U45" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U85" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U88" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="31" name="det_tap" class="Default">
+      <node ref="U71" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U72" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U79" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="32" name="det_top1-p2" class="Default">
+      <node ref="U67" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U68" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="33" name="det_top2-p2" class="Default">
+      <node ref="U68" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U69" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="34" name="det_top3-p2" class="Default">
+      <node ref="U69" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U70" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="35" name="det_top4-p2" class="Default">
+      <node ref="U70" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U71" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="36" name="dt" class="Default">
+      <node ref="C11" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R16" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U59" pin="6" pinfunction="6_6" pintype="bidirectional"/>
+    </net>
+    <net code="37" name="en" class="Default">
+      <node ref="R14" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="R15" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U59" pin="5" pinfunction="5_5" pintype="bidirectional"/>
+    </net>
+    <net code="38" name="fault_n" class="Default">
+      <node ref="U78" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U79" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U79" pin="7" pinfunction="7_7" pintype="bidirectional"/>
+      <node ref="U81" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="39" name="freq" class="Default">
+      <node ref="U10" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U18" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="40" name="gate" class="Default">
+      <node ref="U10" pin="8" pinfunction="8_8" pintype="bidirectional"/>
+      <node ref="U12" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="41" name="icomp" class="Default">
+      <node ref="U10" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U27" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="42" name="isense" class="Default">
+      <node ref="U10" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U17" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U30" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="43" name="l1" class="Default">
+      <node ref="U1" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U2" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U5" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U6" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="44" name="l2" class="Default">
+      <node ref="U2" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U3" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U4" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U64" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="45" name="mot" class="Default">
+      <node ref="R1" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U60" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="46" name="nc" class="Default">
+      <node ref="U73" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="47" name="outa" class="Default">
+      <node ref="R6" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U59" pin="15" pinfunction="15_15" pintype="bidirectional"/>
+    </net>
+    <net code="48" name="outb" class="Default">
+      <node ref="R7" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U59" pin="10" pinfunction="10_10" pintype="bidirectional"/>
+    </net>
+    <net code="49" name="por_node" class="Default">
+      <node ref="U81" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U82" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U83" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U84" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="50" name="q1" class="Default">
+      <node ref="U80" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="51" name="q2" class="Default">
+      <node ref="U80" pin="13" pinfunction="13_13" pintype="bidirectional"/>
+    </net>
+    <net code="52" name="q_boost-g" class="Default">
+      <node ref="U12" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U13" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U8" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="53" name="q_inhibit-g" class="Default">
+      <node ref="U45" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U46" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U47" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U48" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="54" name="q_inhibit2-g" class="Default">
+      <node ref="U85" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U86" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U87" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="55" name="q_permit-g" class="Default">
+      <node ref="U46" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U49" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U50" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="56" name="q_startup-g" class="Default">
+      <node ref="U88" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U89" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U90" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="57" name="qn1" class="Default">
+      <node ref="U80" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U86" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="58" name="qn2" class="Default">
+      <node ref="U80" pin="12" pinfunction="12_12" pintype="bidirectional"/>
+    </net>
+    <net code="59" name="r1" class="Default">
+      <node ref="U80" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+      <node ref="U81" pin="4" pinfunction="4_4" pintype="bidirectional"/>
+    </net>
+    <net code="60" name="r_boot_a-a" class="Default">
+      <node ref="R17" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U65" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="61" name="r_boot_b-a" class="Default">
+      <node ref="R18" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U66" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+    </net>
+    <net code="62" name="r_relay_gate-g" class="Default">
+      <node ref="U14" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U15" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U32" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="63" name="r_vcomp-p2" class="Default">
+      <node ref="U25" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U28" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="64" name="r_vtop-p2" class="Default">
+      <node ref="U19" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U20" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="65" name="r_vtop2-p2" class="Default">
+      <node ref="U20" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U21" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="66" name="r_vtop3-p2" class="Default">
+      <node ref="U21" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U22" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="67" name="r_vtop4-p2" class="Default">
+      <node ref="U22" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U23" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="68" name="ref_5v" class="Default">
+      <node ref="U73" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U74" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U75" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U79" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+      <node ref="U79" pin="6" pinfunction="6_6" pintype="bidirectional"/>
+    </net>
+    <net code="69" name="sense_a-s" class="Default">
+      <node ref="R4" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U61" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="70" name="sense_b-s" class="Default">
+      <node ref="R5" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U62" pin="3" pinfunction="3_3" pintype="bidirectional"/>
+    </net>
+    <net code="71" name="vcomp" class="Default">
+      <node ref="U10" pin="5" pinfunction="5_5" pintype="bidirectional"/>
+      <node ref="U25" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U29" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="72" name="vs" class="Default">
+      <node ref="R2" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="R3" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+      <node ref="U60" pin="6" pinfunction="6_6" pintype="bidirectional"/>
+    </net>
+    <net code="73" name="y1" class="Default">
+      <node ref="U81" pin="2" pinfunction="2_2" pintype="bidirectional"/>
+      <node ref="U81" pin="5" pinfunction="5_5" pintype="bidirectional"/>
+      <node ref="U89" pin="1" pinfunction="1_1" pintype="bidirectional"/>
+    </net>
+    <net code="74" name="y4" class="Default">
+      <node ref="U81" pin="8" pinfunction="8_8" pintype="bidirectional"/>
+    </net>
+    <net code="75" name="y5" class="Default">
+      <node ref="U81" pin="10" pinfunction="10_10" pintype="bidirectional"/>
+    </net>
+    <net code="76" name="y6" class="Default">
+      <node ref="U81" pin="12" pinfunction="12_12" pintype="bidirectional"/>
+    </net>
+  </nets>
+</export>

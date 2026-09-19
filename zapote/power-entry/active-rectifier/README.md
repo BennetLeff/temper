@@ -1,5 +1,15 @@
 # Active rectifier and fused-bank construction candidate
 
+**2026-09-19 review correction:** the authored source is now an experimental
+Infineon-bridge integration; `candidate/` remains the older TEA routed board.
+They are deliberately different revisions, not source/PCB parity. The new
+source/native construction and corrected protection logic are recorded in
+[REVIEW-FIXES.md](decisions/f2-open/REVIEW-FIXES.md). Package 2 is incomplete:
+no supported diode-side clamp and no complete gate-off timing budget are
+established. Do not promote the new construction to routing/freeze using the
+older board's reports. The following implementation description and FREEZE
+apply only to the retained TEA `candidate/`.
+
 2026-09-18. Implements the selected circuit from [CLOSEOUT](../CLOSEOUT.md).
 **CAD construction checkpoint; acceptance incomplete. Do not fabricate or power
 from this checkpoint.** The active Rust contract now runs against the saved board. Three TEA package

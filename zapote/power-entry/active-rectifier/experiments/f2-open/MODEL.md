@@ -1,5 +1,12 @@
 # F2-open time-domain model
 
+**Review correction (2026-09-19):** this is a plant/scheduled-gate screen,
+not a simulation of the selected detector, latch, clamp and controller.
+Package 2 remains incomplete. Startup bounds and the single-event claim
+are withdrawn; see section 4 and `../../decisions/f2-open/PROTECTION-SELECTION.md`.
+Historical CSVs are not overwritten. Corrected output is retained in
+`../../evidence/protection-review-04/`.
+
 Source: `f2_open_timed.rs` (build `rustc -O f2_open_timed.rs -o
 /tmp/f2_open_timed`). Raw outputs: `raw/timed-sweep.csv`,
 `raw/startup-bursts.csv`. Scope: **healthy U9 only**. Failed-short U9 is not
@@ -33,7 +40,7 @@ datasheet pages (section numbers are exact; page spans approximate).
 | 3 | OVP_H: GATE disabled above threshold, re-enabled below 102% | §8.3.4 (pp. 14–15), EC table (p. 6): 107/109/111%, reset 100/102/104% | **Modeled** as threshold corners at the power node: early 403.0 V / typ 424.7 V / latest 454.3 V (VREF × OVP% ÷ divider ratio; latest uses over-temp VREF 4.87–5.15 V and assumed ±1% divider tolerance). Reset window modeled in burst analysis (typ 397.4 V). |
 | 4 | OLP/standby below 16.5% VREF (15.6/17.6% corners); internal 100–325 nA VSENSE pull-down; ICC standby 1.8–3.47 mA | §8.3.5 (p. 15), EC table (p. 6) | Entry dynamics **NULL** (missing: external pull-down strength — set by the selected inhibit FET, see PROTECTION-SELECTION). Standby state modeled only as the *target* of the inhibit path. |
 | 5 | SOC (−0.259/−0.285/−0.312 V pin): 4 kΩ VCOMP discharge, UVD disabled | §8.3.11 (p. 17), EC table (p. 6) | **NULL** (missing: VCOMP/average-current state). Omission conservative for peak (SOC only reduces duty). |
-| 6 | PCL (−0.345/−0.40/−0.438 V pin): immediate cycle termination, 300 ns leading-edge blanking | §8.3.12 (p. 17), EC table (p. 6) | **Modeled** as early-OFF at sourced current corners 34.16/40.00/44.24 A (TI pin thresholds ÷ authored 10 mΩ Rsense ±1% per retained Stackpole HCSM doc + MPN `F` code). 300 ns blanking + 220 Ω/1 nF ISENSE filter **NULL**-unmodeled (0.22 µs ≪ event; blanking omission is conservative). PCL never engages in any nominal row (peak switch current ≈ 27 A); it binds only extreme-I0 corners. |
+| 6 | PCL (−0.345/−0.40/−0.438 V pin): immediate cycle termination, 300 ns leading-edge blanking | §8.3.12 (p. 17), EC table (p. 6) | **Modeled** as early-OFF at sourced current corners 34.16/40.00/44.24 A (TI pin thresholds ÷ authored 10 mΩ Rsense ±1% per retained Stackpole HCSM doc + MPN `F` code). 300 ns blanking + 220 Ω/1 nF ISENSE filter **NULL**-unmodeled (0.22 µs ≪ event; omitting blanking can be optimistic when PCL engages; these are not bounded rows). PCL never engages in any nominal row (peak switch current ≈ 27 A); it binds only extreme-I0 corners. |
 | 7 | VCC UVLO (on 10.8–12.1 V, off 9.1–10.3 V, 1.7 V typ hyst.); GATE held off below UVLO; VCOMP rapid-discharge on VCC loss (<1 V in 150 ms typ) | §8.3.3 (pp. 14–15), §8.3.15, EC table (p. 6) | Thresholds carried as the **loss-of-bias safe-state basis** (same-rail argument in PROTECTION-SELECTION). AUX_15V source behavior and VCC hold-up timing **NULL** (missing: bias-supply producer contract). |
 | 8 | EDR (5× gm outside VSENSE 4.75–5.25 V, inhibited until soft-start complete) | §8.3.9 (pp. 15–16) | **NULL** (missing: large-signal comp response). Omission conservative for peak on overvoltage (EDR speeds VCOMP discharge). |
 | 9 | VSENSE filter (authored 680 pF; Thevenin 12.835 kΩ → τ ≈ 8.73 µs nominal) | Authored source (not TI) | **Modeled** as first-order lag at nominal τ. Capacitor tolerance **NULL** (no retained doc for the 680 pF part) — τ corners not swept. |
@@ -85,27 +92,29 @@ against 48–59 mJ released inductor energy. The response axis is steep:
 detection delay costs roughly that many volts — the delay budget in
 PROTECTION-SELECTION inverts this slope.
 
-## 4. Startup with F2 already open (case a) and restart (case c)
+## 4. Startup and restart — bounds withdrawn
 
-`raw/startup-bursts.csv` (closed-form, typ OVP 424.68 V / reset 397.37 V):
+The historical `raw/startup-bursts.csv` used 470 nF while the proposed
+integration uses 1.5 uF. At the same illustrative 424.68 V, stored energy
+is 42.382979064 mJ and 135.2648268 mJ respectively. Neither is a bound on
+source work, current at detection or time-to-trip.
 
-- VSENSE/OVP **does engage**: the feedback observes the diode-side cap
-  directly. First trip needs only 42.4 mJ (typ) — ≤5 bounding DMAX cycles'
-  worth of pump energy. Wall-clock time-to-trip is NULL (soft-start ramp).
-- First-burst overshoot bound (one more full ON + freewheel): 545.3 V —
-  below the illustrative 630 V ceiling but above the OVP threshold, and
-  unqualified as repetitive stress.
-- Bleed through the 1.013 MΩ divider (τ = 0.476 s): burst period 31.6 ms
-  typ (53.5 ms latest corner), burst energy 5.28 mJ typ, average re-pump
-  ≈ 167 mW typ into the divider. Duty: tens of µs on per ~32 ms off.
-- Without a latch, every burst re-applies the overshoot: repetitive,
-  unqualified stress on U40/U9/U10 at ~19–31 bursts/s. This is the mechanism
-  that forces the latching choice in PROTECTION-SELECTION.
-- Bank-side: F2 open leaves the bank with no charge path (only leakages,
-  NULL) — bank stays ≈0 V while the diode side bursts. A bank-ready signal
-  must therefore be withheld by a bank-side status function, never inferred
-  from controller switching or diode-side OVP. OVP activity is **not** a
-  fuse-continuity proof and **not** a bank-ready signal.
+`ceil(E / E_cycle_max)` cannot upper-bound the cycles required: a smaller
+transfer per cycle takes longer. The assumed per-cycle maximum and the
+residual current used for the 545.3 V result were also unestablished.
+Both the cycle upper bound and startup overshoot bound are withdrawn.
+
+The corrected `burst` output reports those quantities as null and computes
+only charge inventory and ideal divider decay. Decay from the chosen trip
+voltage to reset is not the time between real bursts: actual overshoot,
+other loads, incoming source energy and controller state matter.
+
+A controller OVP trip does not itself set the independent external latch;
+the power node might never cross the independent detector threshold.
+Single-event behavior is not established, with or without a clamp.
+F2-open startup, complete gate-off latency and restart require the selected
+combined circuit. Bank-ready must be measured bank-side; OVP is neither a
+fuse-continuity proof nor a bank-ready signal.
 
 ## 5. Verification (three independent paths)
 

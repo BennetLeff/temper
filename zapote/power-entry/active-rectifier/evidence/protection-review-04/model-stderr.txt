@@ -1,0 +1,11 @@
+closed-form check: model 674.7309 V vs formula 674.7412 V (rel 1.531e-5)
+burst-period check typ: numeric 0.031647s vs log 0.031646s (rel 2.747e-5)
+burst-period check latest: numeric 0.053549s vs log 0.053548s (rel 1.121e-5)
+thresholds:
+  ovp_latest = 454.33 V
+  ovp_typ = 424.68 V
+  ovp_early = 403.02 V
+  det_latest = 509.97 V
+  det_typ = 500.00 V
+  det_early = 490.23 V
+i_crest = 23.2318 A, ipcl corners = 34.16/40.00/44.24 A

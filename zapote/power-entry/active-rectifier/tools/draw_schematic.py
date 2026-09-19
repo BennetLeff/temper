@@ -3,7 +3,9 @@ import argparse, hashlib, json, sys
 from pathlib import Path
 
 LIBRARY = "PowerEntryActiveUnit"
-PIN_NAMES = {"U1":{"1":"L","2":"VCCHL","3":"GATEHL","4":"HVS_NC","5":"GATELL","6":"VCC","7":"RECT_GND","8":"COMP_POL","9":"COMP_NC","10":"GATELR","11":"HVS_NC","12":"R","13":"VCCHR","14":"GATEHR","15":"HVS_NC","16":"VR"},"U11":{"1":"HOT_GND","2":"ICOMP","3":"ISENSE","4":"FREQ","5":"VCOMP","6":"VSENSE","7":"VCC","8":"GATE"},"U9":{"1":"G","2":"D","3":"S"},"U10":{"1":"A1","2":"K","3":"A2"}}
+# Pin numbers come from the compiled libpart. Reference designators change
+# when the bridge architecture changes; never apply the old TEA pin names
+# to whichever component now happens to be U1.
 
 def digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 
@@ -12,7 +14,10 @@ def main(repo, source, output, receipt):
     import gen_schematics as g
     net = g.parse_netlist(source / "build/default.net")
     g.apply_bom_values(net, g.load_bom_values(source / "build/default.csv"))
-    comps = sorted(net.components.values(), key=lambda c: c.ref)
+    # Put tall IC symbols together; alphabetic reference order interleaves
+    # them with short parts and needlessly expands multiple rows.
+    comps = sorted(net.components.values(),
+                   key=lambda c: (-len(net.libparts[c.part_name].pins), c.ref))
     manifest=json.loads((output/"source-manifest.json").read_text())
     values={c["reference"]:c.get("value") or c["mpn"] for c in manifest["components"]}
     for c in comps: c.display_value=values[c.ref]
@@ -21,22 +26,30 @@ def main(repo, source, output, receipt):
     for c in comps:
         if c.part_name in symbols: continue
         s = g.synthesize_symbol(parts[c.part_name])
-        for pin, name in PIN_NAMES.get(c.ref, {"1":"G","2":"D","3":"S"} if c.ref in ["U55","U56","U57","U58"] else {}).items():
-            s = s.replace(f'(name "{pin}"', f'(name "{name}"')
         sid = g._sanitize_name(c.part_name)
         symbols[c.part_name] = s
-    d = [g._schematic_header("Active rectifier / fused bank - unqualified prototype", g.ROOT_UUID).replace("2026-07-15", "2026-09-12").replace('(paper "A3")','(paper "A1")'), "(lib_symbols"]
+    d = [g._schematic_header("Active rectifier / fused bank - INCOMPLETE protection", g.ROOT_UUID).replace("2026-07-15", "2026-09-19").replace('(paper "A3")','(paper "A0")'), "(lib_symbols"]
     for part_name, symbol in symbols.items():
         sid = g._sanitize_name(part_name)
         d.append(symbol.replace(f'(symbol "{sid}"', f'(symbol "{LIBRARY}:{sid}"', 1))
     d.append(")")
     def note(t,x,y,size=1.27): return f'(text "{t}" (at {x} {y} 0) (effects (font (size {size} {size})) (justify left)) (uuid "{g._uuid_from_seed(t)}"))'
-    d += [note("1800 W nominal AC input / 120 VAC / external 15 A RMS foldback required", 30.48, 15.24, 2.0), note("ALL control, permit and auxiliary headers are HOT bus-minus referenced",30.48,22.86,2.0),note("UNQUALIFIED PROTOTYPE - external isolated bias and precharge supervisor required",30.48,30.48,2.0)]
+    d += [note("1800 W nominal AC input / 120 VAC / external 15 A RMS foldback required", 30.48, 15.24, 2.0), note("ALL control, permit and auxiliary headers are HOT bus-minus referenced",30.48,22.86,2.0),note("INCOMPLETE: first-peak control / total gate-off latency OPEN. AUX produced onboard; external supervisor required.",30.48,30.48,2.0)]
     pin_net = {(r,p): n.name for n in net.nets.values() for r,p in n.nodes}
     singles = {(r,p) for n in net.nets.values() if len(n.nodes)==1 for r,p in n.nodes}
+    columns = 12
+    row_y = []
+    top = 45.72
+    for start in range(0, len(comps), columns):
+        half_height = max(max(len(parts[c.part_name].pins) * 5.08, 5.08)
+                          for c in comps[start:start + columns]) + 7.62
+        row_y.append(top + half_height)
+        top += 2 * half_height + 7.62
+    if top > 805:
+        raise ValueError("schematic exceeds A0 drawing area; split the drawing before export")
     for idx,c in enumerate(comps):
-        x = 54.61 + (idx % 9) * 86.36
-        y = [124.46, 243.84, 294.64, 345.44, 396.24, 447.04, 497.84, 548.64][idx // 9]
+        x = 54.61 + (idx % columns) * 91.44
+        y = row_y[idx // columns]
         part = parts[c.part_name]; sid = LIBRARY+":"+g._sanitize_name(c.part_name)
         inst = g._symbol_instance(c.ref,sid,x,y,c.footprint,c.part_name,g._uuid_from_seed(f"flatinst:{c.tstamp}"),libpart=part,display_value=c.display_value)
         instance=next(v["instance_path"] for v in manifest["bridge"]["components"] if v["reference"]==c.ref)

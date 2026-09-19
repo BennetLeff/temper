@@ -1,0 +1,8 @@
+persistent_startup_fault_inhibit_trace=[true, true, true]; logical model only
+status=INDETERMINATE; no protection acceptance
+detector_nominal_v=505; selected_local_cap_f=0.0000015
+clamp=NONE_SELECTED; first_peak_control=UNESTABLISHED
+timing_segments=detector,logic,inhibit_gate,vsense_discharge,controller_standby,U9_turn_off
+total_turn_off_delay_s=None
+startup_current_at_trip_A=null; startup_peak_bound_V=null
+single_event_guaranteed=false; hardware_qualification=NOT_PERFORMED

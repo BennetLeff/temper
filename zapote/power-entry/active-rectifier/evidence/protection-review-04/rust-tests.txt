@@ -1,0 +1,21 @@
+   Compiling zapote-harness v0.1.0 (/private/tmp/temper-pkgs-1-4/zapote/packages/zapote-harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.02s
+     Running tests/power_entry_protection_review.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/power_entry_protection_review-97260e5fd6089792)
+
+running 13 tests
+test protection_logic::tests::new_ready_cycle_can_rearm_but_persistent_fault_cannot ... ok
+test protection_logic::tests::startup_inhibits_even_with_unknown_initial_permission ... ok
+test protection_logic::tests::fault_at_or_after_ready_resets_and_stays_inhibited ... ok
+test protection_logic::tests::fault_present_before_ready_cannot_be_lost ... ok
+test protection_logic::tests::vsense_low_alone_does_not_establish_turn_off_delay ... ok
+test timed_model::review_regressions::residual_current_changes_peak_at_identical_detection_voltage ... ok
+test timed_model::review_regressions::maximum_energy_per_cycle_cannot_upper_bound_cycle_count ... ok
+test timed_model::review_regressions::selected_capacitor_charge_inventory_uses_1p5uf ... ok
+test compiled_evidence_binds_the_current_authored_source ... ok
+test protection_logic::tests::source_wiring_matches_permission_model ... ok
+test native_fault_reset_and_startup_inhibit_reach_the_correct_device_pins ... ok
+test native_export_has_exact_compiled_connected_pin_groups ... ok
+test protection_logic::tests::historical_edge_trigger_and_shorted_detector_are_rejected ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

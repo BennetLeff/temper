@@ -1,0 +1,185 @@
+(footprint "Diode_Bridge_GBJ2510"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Diodes Incorporated GBJ2510-F, GBJ package; DS21221 Rev.11-2")
+	(tags "Diodes GBJ2510-F 25A 1000V bridge rectifier")
+	(property "Reference" "U1"
+		(at 12.5 -3 180)
+		(layer "F.SilkS")
+		(uuid "31f6a57a-4cb1-4643-9d9b-3467dfa404c6")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "GBJ2510-F"
+		(at 12.5 3 180)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "0b5d6275-e6e2-4924-bdd9-8ffd90c4e7c6")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 180)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "2094aaf2-7321-40c9-83fd-9111bf4f26aa")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 180)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "48138722-bb34-4dc7-a104-d6bdff264a2f")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Sheetpath" "bridge"
+		(at 0 0 180)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "1e2ef919-c454-44c3-902d-7d07ac5e6efb")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "SourceInstance" "bridge"
+		(at 0 0 180)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "ac203b6f-aa6b-4b02-85ec-1054c7d8a1df")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "MPN" "GBJ2510-F"
+		(at 0 0 180)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "1009e42a-d299-435a-8b1d-9ad06e16bb0d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Manufacturer" "Diodes Incorporated"
+		(at 0 0 180)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "27e5cd84-7ca6-4644-a7ca-c5e0aa79c9fc")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "SourceValue" "GBJ2510-F"
+		(at 0 0 180)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "b91abc52-3451-4119-b349-4717f53c342f")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_rect
+		(start -2.3 -2.5)
+		(end 27.7 2.5)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "03551440-658e-4f0e-a2e7-f3a6890e8411")
+	)
+	(fp_rect
+		(start -2 -2.2)
+		(end 27.4 2.2)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "f556e1b3-b6f8-4ef9-889e-52c5b886d4f9")
+	)
+	(fp_text user "+  ~  ~  -"
+		(at 12.5 1.2 180)
+		(layer "F.Fab")
+		(uuid "a16ca381-7a5a-4515-8855-e692a2c6a568")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole rect
+		(at 0 0 180)
+		(size 4 4)
+		(drill 1.6)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "b4feb579-8128-4305-b260-c3515dc5d4f3")
+	)
+	(pad "2" thru_hole oval
+		(at 10 0 180)
+		(size 4 4)
+		(drill 1.6)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "5d6c08fe-81e4-4bf7-93c7-bd87b0c926c8")
+	)
+	(pad "3" thru_hole oval
+		(at 17.5 0 180)
+		(size 4 4)
+		(drill 1.6)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "18f1ebda-72ea-4de3-ae1b-396ef455ef96")
+	)
+	(pad "4" thru_hole oval
+		(at 25 0 180)
+		(size 4 4)
+		(drill 1.6)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "06060be3-5661-4bf6-a8b3-eb05995e8735")
+	)
+	(embedded_fonts no)
+)
