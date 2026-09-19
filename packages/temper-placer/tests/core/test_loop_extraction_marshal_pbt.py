@@ -31,9 +31,9 @@ import pytest
 import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from temper_design_bundle_python import LoopCollection
 
 import temper_placer.core.loop_extractor_rs as _le
-from temper_placer.core.loop import LoopCollection
 from tests.core._contract_canon import canon
 from tests.core.test_loop_extraction_marshal_rust_differential import (
     _oracle_dict_to_loop_collection,
@@ -448,7 +448,8 @@ def test_p8_reconstruction_mapping_pinned(result):
     from loop_type and matches the PINNED pre-migration hardcoded values
     (the `_ORACLE_LOOP_TYPE_*` tables -- NOT the shim's own tables, so a
     shim-table edit that drifts from the pre-migration contract fails)."""
-    from temper_placer.core.loop import LoopPriority
+    from temper_design_bundle_python import LoopPriority
+
     from tests.core.test_loop_extraction_marshal_rust_differential import (
         _ORACLE_LOOP_TYPE_EVENTS,
         _ORACLE_LOOP_TYPE_PRIORITY,
@@ -473,7 +474,7 @@ def test_p8_fails_for_swapped_priority_table(monkeypatch):
     import temper_placer.core.loop_extractor_rs as _le_mod
 
     swapped = dict(_le_mod._LOOP_TYPE_PRIORITY)
-    from temper_placer.core.loop import LoopPriority
+    from temper_design_bundle_python import LoopPriority
 
     for k in list(swapped):
         swapped[k] = LoopPriority.MEDIUM

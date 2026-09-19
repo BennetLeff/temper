@@ -66,8 +66,6 @@ from temper_placer._constraint_types import (  # noqa: F401
 )
 from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone  # noqa: F401
 from temper_placer.core.differential_pair import DifferentialPairConstraint  # noqa: F401
-from temper_placer.core.net_graph import NetGraph, SubNetEdge  # noqa: F401
-from temper_placer.core.net_types import NetClassification  # noqa: F401
 
 
 class ConfigValidationError(Exception):

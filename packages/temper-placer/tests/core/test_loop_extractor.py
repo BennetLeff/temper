@@ -3,8 +3,8 @@ Tests for automatic loop extraction from netlist.
 """
 
 import pytest
+from temper_design_bundle_python import LoopCollection, LoopPriority, LoopType
 
-from temper_placer.core.loop import LoopCollection, LoopPriority, LoopType
 from temper_placer.core.loop_extractor import (
     auto_extract_loops,
     classify_component,
@@ -400,7 +400,7 @@ class TestLoopMerging:
         auto_loops = auto_extract_loops(half_bridge_netlist)
 
         # Manual loop with different name
-        from temper_placer.core.loop import Loop
+        from temper_design_bundle_python import Loop
 
         manual_loop = Loop(
             name="manual_custom",
@@ -421,7 +421,7 @@ class TestLoopMerging:
         auto_loops = auto_extract_loops(half_bridge_netlist)
 
         # Manual commutation loop (same base name as "auto_commutation")
-        from temper_placer.core.loop import Loop
+        from temper_design_bundle_python import Loop
 
         manual_commutation = Loop(
             name="commutation",
@@ -445,7 +445,7 @@ class TestLoopMerging:
 
     def test_merge_exact_name_match(self):
         """Manual loop with exact name should override auto loop."""
-        from temper_placer.core.loop import Loop
+        from temper_design_bundle_python import Loop
 
         auto_loop = Loop(
             name="auto_test",

@@ -178,7 +178,7 @@ def test_enum_member_not_equal_to_string():
     string value — a silent semantic change would flip consumer branches
     that compare member identity (e.g. the ``_LOOP_TYPE_PRIORITY`` dict
     lookups in ``core/loop_extractor_rs.py``)."""
-    from temper_placer.core.loop import LoopType
+    from temper_design_bundle_python import LoopType
 
     assert LoopType.COMMUTATION != "commutation"
     assert LoopType.COMMUTATION != "commutation"

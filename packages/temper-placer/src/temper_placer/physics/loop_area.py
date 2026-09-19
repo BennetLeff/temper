@@ -62,12 +62,13 @@ def commutation_loop_area(routed_pcb_path: Path) -> float | None:
     Returns None if trace extraction fails (gate returns UNMEASURED).
     """
     try:
-        from temper_placer.core.loop import LoopType
+        from temper_design_bundle_python import LoopType
+
         from temper_placer.core.loop_extractor import auto_extract_loops
         from temper_placer.io.kicad_parser import parse_kicad_pcb
     except ImportError as e:  # pragma: no cover - broken install
         raise ImportError(
-            "temper_placer.core.loop / core.loop_extractor / io.kicad_parser "
+            "temper_design_bundle_python / core.loop_extractor / io.kicad_parser "
             "are required to measure the commutation loop and could not be "
             "imported. This is a broken temper-placer install, not an "
             "optional feature -- reinstall with: uv sync"

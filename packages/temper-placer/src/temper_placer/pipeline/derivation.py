@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
     from temper_placer.core.specification import PcbSpecification
 
-from temper_placer.core.net_types import VoltageClass
+from temper_design_bundle_python import VoltageClass
 
 # IEC 60335-1 voltage classes, indexed by `mains_voltage_to_class_code`
 # (0=LOW_VOLTAGE, 1=MAINS_120V, 2=MAINS_240V, 3=HIGH_VOLTAGE).

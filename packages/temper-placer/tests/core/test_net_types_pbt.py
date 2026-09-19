@@ -44,9 +44,7 @@ import pytest
 import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
-
-from temper_placer.core.board import LayerIndex
-from temper_placer.core.net_types import (
+from temper_design_bundle_python import (
     GROUND_PLANE_SPEC,
     MAINS_HV_SPEC,
     POWER_PLANE_SPEC,
@@ -57,6 +55,8 @@ from temper_placer.core.net_types import (
     NetTypeSpec,
     VoltageClass,
 )
+
+from temper_placer.core.board import LayerIndex
 
 MAX_EXAMPLES = 100
 

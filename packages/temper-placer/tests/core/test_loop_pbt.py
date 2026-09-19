@@ -46,8 +46,7 @@ import pytest
 import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
-
-from temper_placer.core.loop import (
+from temper_design_bundle_python import (
     Loop,
     LoopCollection,
     LoopEvent,

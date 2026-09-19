@@ -15,7 +15,7 @@ Priority order (highest to lowest):
 Example usage:
     >>> from temper_placer.routing.net_ordering import order_nets, NetClass
     >>> from temper_placer.core.netlist import Netlist
-    >>> from temper_placer.core.loop import LoopCollection
+    >>> from temper_design_bundle_python import LoopCollection
     >>>
     >>> ordered = order_nets(netlist, loops)
     >>> print(ordered)  # ['DC_BUS_P', 'SW_NODE', 'DC_BUS_N', 'GATE_H', ...]
@@ -64,8 +64,8 @@ from enum import IntEnum
 from functools import total_ordering
 
 import temper_rust_router as _trr
+from temper_design_bundle_python import LoopCollection
 
-from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
 
 

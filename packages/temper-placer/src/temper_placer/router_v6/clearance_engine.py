@@ -81,8 +81,7 @@ from dataclasses import dataclass
 
 import temper_geometry as _tg
 import temper_orchestration as _to
-
-from temper_placer.core.net_types import VoltageClass
+from temper_design_bundle_python import VoltageClass
 
 # ---------------------------------------------------------------------------
 # Per-standard imports

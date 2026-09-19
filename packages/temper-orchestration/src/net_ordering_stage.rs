@@ -50,7 +50,7 @@ impl Stage<BoardState> for NetOrderingStage {
                     Some(l) => l.clone_ref(py),
                     None => {
                         let loop_collection = py
-                            .import("temper_placer.core.loop")
+                            .import("temper_design_bundle_python")
                             .map_err(|e| pyerr_stage("net_ordering", e))?
                             .getattr("LoopCollection")
                             .map_err(|e| pyerr_stage("net_ordering", e))?;

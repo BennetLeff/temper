@@ -4,9 +4,15 @@
 # Scope (Phase 2): All public functions in temper_placer/ except
 #   _constraint_types/ and profiling/ subpackages.
 # Phase 1 baseline: 193 entries (temper_placer/core/ only).
-# Phase 2 baseline: 1927 entries (temper_placer/ minus exclusions).
-# Phase 1 entries remaining: ~73 — paydown is ~62% (>=50% prerequisite met).
-# Stale entries removed: 111 Phase 1 entries that gained coverage.
+# Phase 2 baseline: 1927 entries at --init (2026-08-19) -- temper_placer/
+#   minus exclusions; the allowlist has since shrunk with the tree.
+# Phase 1 entries remaining in this file: 1 — the Phase 1 allowlist has
+#   shrunk by ~99.5% of its 193-entry baseline (>=50% prerequisite met).
+# 2026-09-09: 34 dead entries removed (28 files + 6 functions deleted from
+#   source since the last --init); 253 live entries remain. The gate is NOT
+#   yet safe to make blocking: ~454 zero-coverage functions are missing from
+#   the allowlist (measured in the CI run of 2026-09-09 on main) — tree
+#   churn outpaced --init. Re-sync with --init before removing the mask.
 #
 # An entry represents a public function with zero line coverage.
 # Entries may only be removed when the same PR adds a test
@@ -15,14 +21,6 @@
 # See AGENTS.md §Coverage Gate for details.
 
 temper_placer/core/state.py::PlacementState.from_netlist_and_board  # TODO: temper-xxx
-temper_placer/adapters/deterministic_adapter.py::wrap_deterministic_stage  # TODO: temper-xxx
-temper_placer/adapters/register_strategies.py::PlacementStage.run  # TODO: temper-xxx
-temper_placer/adapters/register_strategies.py::RoutingStage.run  # TODO: temper-xxx
-temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage0_LoadPCB.run  # TODO: temper-xxx
-temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage1_EscapeVias.run  # TODO: temper-xxx
-temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage2_ChannelAnalysis.run  # TODO: temper-xxx
-temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage3_TopologicalRouting.run  # TODO: temper-xxx
-temper_placer/adapters/router_v6_stage_adapter.py::RouterV6Stage4_GeometricRealization.run  # TODO: temper-xxx
 temper_placer/cli/__init__.py::main  # TODO: temper-xxx
 temper_placer/cli/__init__.py::optimize  # TODO: temper-xxx
 temper_placer/cli/__init__.py::regression  # TODO: temper-xxx
@@ -55,9 +53,6 @@ temper_placer/deterministic/__init__.py::load_channel_map_from_sidecar  # TODO: 
 temper_placer/deterministic/feedback/orchestrator.py::AutomatedZeroDRC.run  # TODO: temper-xxx
 temper_placer/deterministic/feedback/violation_mapper.py::ViolationComponentMapper.map_violation  # TODO: temper-xxx
 temper_placer/deterministic/feedback/zone_adjuster.py::ZoneAdjuster.compute_adjustments  # TODO: temper-xxx
-temper_placer/deterministic/instrumentation.py::InstrumentedStage.run  # TODO: temper-xxx
-temper_placer/deterministic/instrumentation.py::instrument_pipeline  # TODO: temper-xxx
-temper_placer/deterministic/instrumentation.py::run_with_trace_log  # TODO: temper-xxx
 temper_placer/deterministic/stages/component_assignment.py::ComponentAssignmentStage.name  # TODO: temper-xxx
 temper_placer/deterministic/stages/component_assignment.py::ComponentAssignmentStage.run  # TODO: temper-xxx
 temper_placer/deterministic/stages/connectivity_validation.py::ConnectivityValidationStage.name  # TODO: temper-xxx
@@ -84,7 +79,6 @@ temper_placer/deterministic/stages/zone_aware_slot_generation.py::ZoneAwareSlotG
 temper_placer/fixtures/synthetic.py::ComponentDistribution.total  # TODO: temper-xxx
 temper_placer/fixtures/synthetic.py::generate_200_component_netlist  # TODO: temper-xxx
 temper_placer/heuristics/__init__.py::create_default_pipeline  # TODO: temper-xxx
-temper_placer/heuristics/mcu_subsystem.py::MCUSubsystemHeuristic.apply  # TODO: temper-xxx
 temper_placer/heuristics/organizational.py::DecouplingCapHeuristic.apply  # TODO: temper-xxx
 temper_placer/heuristics/organizational.py::DecouplingCapHeuristic.description  # TODO: temper-xxx
 temper_placer/heuristics/organizational.py::DomainSeparationHeuristic.apply  # TODO: temper-xxx
@@ -126,28 +120,18 @@ temper_placer/io/dsn_exporter.py::DSNExporter.export_pcb  # TODO: temper-xxx
 temper_placer/io/dsn_exporter.py::DSNExporter.export_placement  # TODO: temper-xxx
 temper_placer/io/dsn_exporter.py::DSNExporter.export_structure  # TODO: temper-xxx
 temper_placer/io/dsn_exporter.py::DSNExporter.export_wiring  # TODO: temper-xxx
-temper_placer/io/kicad_exporter.py::export_board_state  # TODO: temper-xxx
-temper_placer/io/kicad_exporter.py::export_from_geometry  # TODO: temper-xxx
-temper_placer/io/kicad_exporter.py::export_routed_pcb  # TODO: temper-xxx
-temper_placer/io/kicad_exporter.py::extract_pad_centers  # TODO: temper-xxx
 temper_placer/io/kicad_metadata.py::extract_kicad_metadata  # TODO: temper-xxx
 temper_placer/io/kicad_parser.py::parse_kicad_pcb_v6  # TODO: temper-xxx
 temper_placer/io/loop_loader.py::save_loop_to_yaml  # TODO: temper-xxx
 temper_placer/io/placement_exporter.py::export_positions_to_temp_pcb  # TODO: temper-xxx
-temper_placer/io/zone_manager.py::add_power_planes  # TODO: temper-xxx
 temper_placer/io/zone_manager.py::add_zones_from_classification  # TODO: temper-xxx
 temper_placer/io/zone_manager.py::add_zones_to_pcb  # TODO: temper-xxx
-temper_placer/io/zone_manager.py::create_zone  # TODO: temper-xxx
-temper_placer/io/zone_manager.py::get_board_outline  # TODO: temper-xxx
-temper_placer/io/zone_manager.py::get_net_code  # TODO: temper-xxx
 temper_placer/metrics/external_oracle.py::score_placement  # TODO: temper-xxx
 temper_placer/metrics/routing_quality.py::evaluate_routing_quality  # TODO: temper-xxx
 temper_placer/pcl/constraints.py::BaseConstraint.escalate  # TODO: temper-xxx
 temper_placer/pcl/constraints.py::BaseConstraint.involves_component  # TODO: temper-xxx
 temper_placer/pcl/constraints.py::BaseConstraint.to_dict  # TODO: temper-xxx
-temper_placer/pcl/constraints.py::ConstraintType.capabilities  # TODO: temper-xxx
 temper_placer/pcl/constraints.py::ConstraintType.label  # TODO: temper-xxx
-temper_placer/pcl/constraints.py::ConstraintType.supported_targets  # TODO: temper-xxx
 temper_placer/pcl/linter.py::LintResult.passed  # TODO: temper-xxx
 temper_placer/pcl/linter.py::lint_constraints  # TODO: temper-xxx
 temper_placer/pcl/parser.py::ConstraintCollection.auto_enrich  # TODO: temper-xxx
@@ -159,14 +143,6 @@ temper_placer/pcl/parser.py::ConstraintCollection.lint  # TODO: temper-xxx
 temper_placer/pcl/parser.py::ConstraintCollection.validate_component_refs  # TODO: temper-xxx
 temper_placer/pcl/parser.py::load_pcl_collection  # TODO: temper-xxx
 temper_placer/pcl/parser.py::parse_pcl_file  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::ConstraintOrigin.get_sat_names  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::ConstraintOrigin.lookup_pcl_id  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::ConstraintOrigin.record  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::SATBridgeContext.channels  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::SATBridgeContext.component_indices  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::SATBridgeContext.net_index  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::constraint_to_clauses  # TODO: temper-xxx
-temper_placer/pcl/sat_bridge.py::register_handler  # TODO: temper-xxx
 temper_placer/pcl/tag_dispatch.py::E  # TODO: temper-xxx
 temper_placer/pcl/tag_dispatch.py::components  # TODO: temper-xxx
 temper_placer/pcl/tag_dispatch.py::pre_expansion_validate  # TODO: temper-xxx
@@ -189,8 +165,6 @@ temper_placer/pcl/tagged_constraints.py::TaggedOnSideConstraint.to_dict  # TODO:
 temper_placer/pcl/tagged_constraints.py::TaggedSeparatedConstraint.collect_tag_exprs  # TODO: temper-xxx
 temper_placer/pcl/tagged_constraints.py::TaggedSeparatedConstraint.involves_component  # TODO: temper-xxx
 temper_placer/pcl/tagged_constraints.py::TaggedSeparatedConstraint.to_dict  # TODO: temper-xxx
-temper_placer/pcl/unsat_compiler.py::compile_unsat_to_pcl  # TODO: temper-xxx
-temper_placer/pcl/unsat_compiler.py::reset_escalation_counts  # TODO: temper-xxx
 temper_placer/placer/cp_sat/model.py::CpSatModel.mm_to_units  # TODO: temper-xxx
 temper_placer/placer/cp_sat/model.py::CpSatModel.units_to_mm  # TODO: temper-xxx
 temper_placer/regression/cli.py::main  # TODO: temper-xxx
@@ -281,13 +255,11 @@ temper_placer/strategy_registry.py::get  # TODO: temper-xxx
 temper_placer/strategy_registry.py::get_composite  # TODO: temper-xxx
 temper_placer/strategy_registry.py::list_stages  # TODO: temper-xxx
 temper_placer/strategy_registry.py::register_composite  # TODO: temper-xxx
-temper_placer/testing/golden_diff.py::diff_golden  # TODO: temper-xxx
 temper_placer/testing/quarantine.py::compute_fingerprint  # TODO: temper-xxx
 temper_placer/testing/quarantine.py::compute_stack_hash  # TODO: temper-xxx
 temper_placer/testing/quarantine.py::load_manifest  # TODO: temper-xxx
 temper_placer/testing/quarantine.py::quarantine_error  # TODO: temper-xxx
 temper_placer/testing/quarantine.py::quarantine_summary  # TODO: temper-xxx
-temper_placer/testing/version_gate.py::check_git_ancestry  # TODO: temper-xxx
 temper_placer/validation/_drc_api.py::is_kicad_cli_available  # TODO: temper-xxx
 temper_placer/validation/_drc_api.py::run_drc  # TODO: temper-xxx
 temper_placer/validation/_drc_api.py::DrcCountInfo.is_honest  # TODO: temper-xxx

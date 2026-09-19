@@ -4,6 +4,13 @@
 Usage:
   python3 gen_transition_table.py --generate   # Write generated C file
   python3 gen_transition_table.py --check      # Validate table only (no output)
+
+The transition rows are NOT hardcoded here: they are derived from the single
+source of truth, ``firmware/transition_table.yaml`` (the same manifest
+``firmware/tools/gen_transition_table.py`` regenerates
+``firmware/main/transition_table.h`` from). Only test-harness knowledge that
+the manifest cannot express -- the two wildcard interlock rows and the
+latched-fault expectation for FAULT_RESET_PERSISTS -- lives in this file.
 """
 
 import os
@@ -11,73 +18,80 @@ import re
 import sys
 from pathlib import Path
 
+import yaml
+
 # ---------------------------------------------------------------------------
-# Transition Table (the spec)
+# Transition Table (the spec) -- projected from firmware/transition_table.yaml
 # ---------------------------------------------------------------------------
 # Each row: (from_state_enum, event_name, expected_to_enum, expected_fault_or_None, needs_fault_setup)
-# `needs_fault_setup` is True for rows where from_state is STATE_FAULT and we
-# need to first trigger a fault transition to set sm_ctx.fault_code properly.
+# `needs_fault_setup` is True for rows where from_state is STATE_FAULT (or
+# STATE_RUNAWAY_FAULT) and we need to first trigger a fault transition to set
+# sm_ctx.fault_code properly.
 
-TRANSITIONS = [
-    # INIT transitions
-    ("STATE_INIT", "SELFTEST_PASS", "STATE_IDLE", None, False),
-    ("STATE_INIT", "SELFTEST_FAIL", "STATE_FAULT", "FAULT_SELF_TEST_FAILED", False),
+# Manifest rows whose harness-side expected fault differs from the manifest's
+# (deliberately fault-free) row. The manifest row carries no fault code by
+# design -- a failed reset does not newly cause a fault, it persists whatever
+# code is already latched -- so the fault the two-step runner must assert is
+# test-side knowledge, declared here.
+#
+# FAULT_RESET_PERSISTS keeps the latched fault: the two-step runner always
+# triggers FAULT_OVER_TEMP (trigger_fault_entry(FAULT_OVER_TEMP)), and a
+# failed reset leaves sm_ctx.fault_code untouched. Declaring the code here
+# makes the row accurate and lets the mutation suite's guard-drop/swap
+# mutants die (see firmware/test/mutate_transition_table.py).
+_EXPECTED_FAULT_OVERRIDES = {
+    ("STATE_FAULT", "FAULT_RESET_PERSISTS"): "FAULT_OVER_TEMP",
+}
 
-    # IDLE transitions
-    ("STATE_IDLE", "START_BUTTON", "STATE_PAN_DET", None, False),
-
-    # PAN_DET transitions
-    ("STATE_PAN_DET", "PAN_DETECTED", "STATE_PREHEAT", None, False),
-    ("STATE_PAN_DET", "PAN_TIMEOUT", "STATE_IDLE", None, False),
-
-    # PREHEAT transitions
-    ("STATE_PREHEAT", "NEAR_TARGET", "STATE_HEATING", None, False),
-    ("STATE_PREHEAT", "PREHEAT_TIMEOUT", "STATE_FAULT", "FAULT_THERMAL_RUNAWAY", False),
-    ("STATE_PREHEAT", "OVER_TEMP", "STATE_FAULT", "FAULT_OVER_TEMP", False),
-    ("STATE_PREHEAT", "OVER_CURRENT", "STATE_FAULT", "FAULT_OVER_CURRENT", False),
-    ("STATE_PREHEAT", "FAN_FAILURE", "STATE_FAULT", "FAULT_FAN_FAILURE", False),
-    ("STATE_PREHEAT", "PROBE_OPEN", "STATE_FAULT", "FAULT_PROBE_OPEN", False),
-    ("STATE_PREHEAT", "PROBE_SHORT", "STATE_FAULT", "FAULT_PROBE_SHORT", False),
-    ("STATE_PREHEAT", "PAN_REMOVED", "STATE_NO_PAN", None, False),
-    ("STATE_PREHEAT", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
-
-    # HEATING transitions
-    ("STATE_HEATING", "NEAR_TARGET", "STATE_HEATING", None, False),
-    ("STATE_HEATING", "OVER_TEMP", "STATE_FAULT", "FAULT_OVER_TEMP", False),
-    ("STATE_HEATING", "OVER_CURRENT", "STATE_FAULT", "FAULT_OVER_CURRENT", False),
-    ("STATE_HEATING", "FAN_FAILURE", "STATE_FAULT", "FAULT_FAN_FAILURE", False),
-    ("STATE_HEATING", "PROBE_OPEN", "STATE_FAULT", "FAULT_PROBE_OPEN", False),
-    ("STATE_HEATING", "PROBE_SHORT", "STATE_FAULT", "FAULT_PROBE_SHORT", False),
-    ("STATE_HEATING", "THERMAL_RUNAWAY", "STATE_FAULT", "FAULT_THERMAL_RUNAWAY", False),
-    ("STATE_HEATING", "PAN_REMOVED", "STATE_NO_PAN", None, False),
-    ("STATE_HEATING", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
-    ("STATE_HEATING", "TIMER_EXPIRED", "STATE_COOLDOWN", None, False),
-
-    # NO_PAN transitions
-    ("STATE_NO_PAN", "PAN_REPLACED_SAME", "STATE_PREHEAT", None, False),
-    ("STATE_NO_PAN", "PAN_REPLACED_DIFFERENT", "STATE_COOLDOWN", None, False),
-    ("STATE_NO_PAN", "NO_PAN_TIMEOUT", "STATE_COOLDOWN", None, False),
-
-    # COOLDOWN transitions
-    ("STATE_COOLDOWN", "COOLED_DOWN", "STATE_IDLE", None, False),
-    ("STATE_COOLDOWN", "COOLDOWN_OVERHEAT", "STATE_FAULT", "FAULT_COOLDOWN_OVERHEAT", False),
-
-    # FAULT transitions (require fault_setup = True)
-    ("STATE_FAULT", "FAULT_RESET_CLEARED", "STATE_INIT", None, True),
-    # FAULT_RESET_PERSISTS keeps the latched fault: the two-step runner always
-    # triggers FAULT_OVER_TEMP (trigger_fault_entry(FAULT_OVER_TEMP)), and a
-    # failed reset leaves sm_ctx.fault_code untouched. Declaring the code here
-    # makes the row accurate and lets the mutation suite's guard-drop/swap
-    # mutants die (see firmware/test/mutate_transition_table.py).
-    ("STATE_FAULT", "FAULT_RESET_PERSISTS", "STATE_FAULT", "FAULT_OVER_TEMP", True),
-
-    # RUNAWAY_FAULT transitions (require fault_setup = True)
-    ("STATE_RUNAWAY_FAULT", "FAULT_RESET_PERSISTS", "STATE_RUNAWAY_FAULT", None, True),
-
-    # Wildcard transitions: runaway boundary interlock fires regardless of state
+# Wildcard transitions: runaway boundary interlock fires regardless of state.
+# These are not manifest rows (there is no EVENT_RUNAWAY_* member in
+# EVENT_LIST; see firmware/tools/transition_model.py, KTD2) -- they exist only
+# on the test side.
+_WILDCARD_INTERLOCK_ROWS = [
     ("*", "RUNAWAY_ABSOLUTE_TEMP", "STATE_RUNAWAY_FAULT", "FAULT_RUNAWAY_BOUNDARY", False),
     ("*", "RUNAWAY_RISE_RATE", "STATE_RUNAWAY_FAULT", "FAULT_RUNAWAY_BOUNDARY", False),
 ]
+
+_TRANSITION_MANIFEST = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "transition_table.yaml")
+
+
+def _manifest_transitions():
+    """Project the manifest's transition rows into test 5-tuples.
+
+    Manifest rows are {from, event: EVENT_X, to, [fault]} (enum symbols with
+    an EVENT_ prefix); the generated C table stores the display string, so the
+    EVENT_ prefix is stripped (the EVENT_LIST X-macro pairs the enum symbol
+    1:1 with its display string in state_machine.h). Row order is the
+    manifest's own order -- the manifest is grouped and ordered exactly as
+    the historical hardcoded list was.
+    """
+    manifest_path = Path(_TRANSITION_MANIFEST)
+    if not manifest_path.exists():
+        print(f"ERROR: transition manifest not found at {manifest_path}",
+              file=sys.stderr)
+        sys.exit(1)
+
+    with open(manifest_path) as f:
+        manifest = yaml.safe_load(f)
+
+    rows = []
+    for i, row in enumerate(manifest.get("transitions", [])):
+        event = row["event"]
+        if not event.startswith("EVENT_"):
+            print(f"ERROR: manifest row {i}: event {event!r} has no EVENT_ "
+                  f"prefix -- cannot map to the display string", file=sys.stderr)
+            sys.exit(1)
+        from_state = row["from"]
+        key = (from_state, event[len("EVENT_"):])
+        fault = _EXPECTED_FAULT_OVERRIDES.get(key, row.get("fault"))
+        needs_fault_setup = from_state in ("STATE_FAULT", "STATE_RUNAWAY_FAULT")
+        rows.append((from_state, key[1], row["to"], fault, needs_fault_setup))
+    return rows
+
+
+# The test-side transition spec: manifest projection + test-only wildcard rows.
+TRANSITIONS = _manifest_transitions() + _WILDCARD_INTERLOCK_ROWS
 
 # ---------------------------------------------------------------------------
 # Event-to-stub mapping

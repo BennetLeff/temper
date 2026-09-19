@@ -7,7 +7,8 @@ corpus imports without ``temper_placer``.
 
 from __future__ import annotations
 
-from temper_placer.core.loop import Loop, LoopCollection, LoopPriority, LoopType
+from temper_design_bundle_python import Loop, LoopCollection, LoopPriority, LoopType
+
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 __all__ = ["build_loops", "build_netlist", "build_order_netlist"]

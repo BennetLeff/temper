@@ -30,8 +30,10 @@ This module loads placement constraints from YAML files, defining:
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import temper_design_bundle_python as _tdb
 import yaml  # type: ignore[import-untyped]
 from pydantic import ValidationError
+from temper_design_bundle_python import NetClassification
 
 from temper_placer._constraint_types import (
     AestheticConstraints,
@@ -70,8 +72,9 @@ from temper_placer._constraint_types import (
 )
 from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone
 from temper_placer.core.differential_pair import DifferentialPairConstraint
-from temper_placer.core.net_graph import NetGraph, SubNetEdge
-from temper_placer.core.net_types import NetClassification
+
+NetGraph = _tdb.net_graph_contracts.NetGraph
+SubNetEdge = _tdb.net_graph_contracts.SubNetEdge
 
 if TYPE_CHECKING:
     from temper_placer.core.design_rules import DesignRules
