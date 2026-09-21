@@ -1,0 +1,102 @@
+{
+  "currency": "USD",
+  "models": {
+    "deepseek-flash": {
+      "model_version": "DeepSeek-V4.1-Flash",
+      "rates": {
+        "off_peak": {
+          "input_cache_hit": 0.003,
+          "input_cache_miss": 0.15,
+          "output": 0.6
+        },
+        "peak": {
+          "input_cache_hit": 0.006,
+          "input_cache_miss": 0.3,
+          "output": 1.2
+        }
+      }
+    },
+    "deepseek-v4-pro": {
+      "model_version": "DeepSeek-V4-Pro-0813",
+      "rates": {
+        "off_peak": {
+          "input_cache_hit": 0.022,
+          "input_cache_miss": 0.66,
+          "output": 1.98
+        },
+        "peak": {
+          "input_cache_hit": 0.044,
+          "input_cache_miss": 1.32,
+          "output": 3.96
+        }
+      }
+    }
+  },
+  "peak_windows": {
+    "hours": [
+      [
+        1,
+        4
+      ],
+      [
+        6,
+        10
+      ]
+    ],
+    "timezone": "UTC",
+    "weekdays": [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday"
+    ]
+  },
+  "retrieved_at": "2026-09-17",
+  "source": "https://api-docs.deepseek.com/quick_start/pricing",
+  "table_version": "1.0",
+  "unit": "per_million_tokens",
+  "verification": {
+    "method": "balance_delta",
+    "observed": [
+      {
+        "at": "2026-09-18T01:41:19+00:00",
+        "model": "deepseek-flash",
+        "note": "One call with a fresh ~1MB input, so it could not be a cache hit, and the response confirms cached_tokens=0. Balance 9.97 -> 9.83. The computed 0.1481 lies inside the interval the two-decimal readings allow, (0.130, 0.150). This is the input cache-miss rate, which is the dominant cost for a harness that sends large contexts.",
+        "observed_usd": 0.14,
+        "usage": {
+          "cached_input_tokens": 0,
+          "completion_tokens": 1,
+          "prompt_tokens": 493539
+        },
+        "window": "peak"
+      },
+      {
+        "at": "2026-09-18T01:53:06+00:00",
+        "model": "deepseek-flash",
+        "note": "A generation truncated at max_tokens, so the output count is exactly 60000 rather than however long the model felt like writing -- the truncation is what makes this a controlled measurement, and it also captures finish_reason='length'. Balance 9.83 -> 9.75. Computed 0.0720 lies inside (0.070, 0.090). This is the output rate.",
+        "observed_usd": 0.08,
+        "usage": {
+          "cached_input_tokens": 0,
+          "completion_tokens": 60000,
+          "prompt_tokens": 28
+        },
+        "window": "peak"
+      },
+      {
+        "at": "2026-09-18T04:05:58+00:00",
+        "model": "deepseek-flash",
+        "note": "Same shape as the peak input observation -- a fresh ~1MB input, thinking disabled, so the spend is almost entirely cache-miss input -- and almost the same token count: 493,769 against 493,539. Balance 9.75 -> 9.68. The computed off-peak cost 0.0741 lies inside the interval the two-decimal readings allow, (0.060, 0.080), while the PEAK rate would have predicted 0.1482, which is outside it. So the documented halving is measured rather than inferred, which matters because off-peak is about 79% of the week: 7 peak hours on weekdays against 17 off-peak plus all 48 weekend hours. This is the row the harness will actually bill against most of the time.",
+        "observed_usd": 0.07,
+        "usage": {
+          "cached_input_tokens": 0,
+          "completion_tokens": 1,
+          "prompt_tokens": 493769
+        },
+        "window": "off_peak"
+      }
+    ],
+    "status": "measured",
+    "tolerance_usd": 0.02
+  }
+}

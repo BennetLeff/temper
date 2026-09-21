@@ -1,0 +1,170 @@
+{
+  "entries": [
+    {
+      "fixture": "plain",
+      "guard": "typed_view_valid",
+      "perturbation": "enrich_the_typed_view",
+      "perturbed_input_sha256": "fad2e996ebe1be01122784a473760bde208447627a7df5e07e2f0eca016c85b0",
+      "what": "an extra field in the typed view, which only the committed schema forbids",
+      "with_guard": {
+        "checks_failed": [
+          "typed_view_valid"
+        ],
+        "rejected": true
+      },
+      "without_guard": {
+        "checks_failed": [],
+        "rejected": false
+      }
+    },
+    {
+      "fixture": "parallel_tools",
+      "guard": "typed_view_faithful",
+      "perturbation": "swap_tool_arguments",
+      "perturbed_input_sha256": "c8aa0d1f74316907404f92606475eba0d02cbfa60a5fe57761bcf0fcc8cdb093",
+      "what": "two calls' argument strings exchanged, leaving ids, order, and schema intact",
+      "with_guard": {
+        "checks_failed": [
+          "typed_view_faithful"
+        ],
+        "rejected": true
+      },
+      "without_guard": {
+        "checks_failed": [],
+        "rejected": false
+      }
+    },
+    {
+      "fixture": "parallel_tools",
+      "guard": "tool_call_order",
+      "perturbation": "reorder_tool_calls",
+      "perturbed_input_sha256": "5b1a0e0fd138aacc23b333003dd3f1a32e526f342e103b0dfab3f9ef1fc0c792",
+      "what": "the same two calls in the other order",
+      "with_guard": {
+        "checks_failed": [
+          "tool_call_order"
+        ],
+        "rejected": true
+      },
+      "without_guard": {
+        "checks_failed": [],
+        "rejected": false
+      }
+    },
+    {
+      "fixture": "plain",
+      "guard": "usage_reconciled",
+      "perturbation": "alter_the_usage_total",
+      "perturbed_input_sha256": "6ab7551842eb5a84983dc3c287b6b07535b76e181a455549bca1b5f4314c9fb9",
+      "what": "a provider total that no longer equals prompt + completion",
+      "with_guard": {
+        "checks_failed": [
+          "usage_reconciled"
+        ],
+        "rejected": true
+      },
+      "without_guard": {
+        "checks_failed": [],
+        "rejected": false
+      }
+    },
+    {
+      "fixture": "plain",
+      "guard": "usage_present",
+      "perturbation": "null_the_usage_block",
+      "perturbed_input_sha256": "3b254170444fbfd1609528cff2e8531b8c475a746ec0c3595b5d5c8ed547095e",
+      "what": "a successful response with no usage block at all",
+      "with_guard": {
+        "checks_failed": [
+          "usage_present"
+        ],
+        "rejected": true
+      },
+      "without_guard": {
+        "checks_failed": [],
+        "rejected": false
+      }
+    },
+    {
+      "fixture": "stream_plain",
+      "guard": "stream_framing",
+      "perturbation": "drop_the_done_sentinel",
+      "perturbed_input_sha256": "4d6a87b5ebff3ec995a6a6ca1b186e93687adc68b97fa30f2a12aff4024579c9",
+      "what": "a streamed body with a finish reason but no [DONE] sentinel",
+      "with_guard": {
+        "checks_failed": [
+          "stream_framing"
+        ],
+        "rejected": true
+      },
+      "without_guard": {
+        "checks_failed": [],
+        "rejected": false
+      }
+    },
+    {
+      "fixture": "plain",
+      "guard": "raw_round_trip",
+      "perturbation": "disagree_the_response_hash",
+      "perturbed_input_sha256": "590ec6aa5fbb2e9ced52b13ecf2dad5d53985c8c04fd56853d7244039d009abb",
+      "what": "a stored hash that does not match the stored bytes",
+      "with_guard": {
+        "checks_failed": [
+          "raw_round_trip"
+        ],
+        "rejected": true
+      },
+      "without_guard": {
+        "checks_failed": [],
+        "rejected": false
+      }
+    },
+    {
+      "fixture": "strict_schema",
+      "guard": "request_identity",
+      "perturbation": "perturb_a_tool_schema",
+      "perturbed_input_sha256": "f86c6d0274d68b7e2868a072239c6683d2861a642749ed1e23a67902f4bebee8",
+      "what": "a tool schema that the recorded request hash does not name",
+      "with_guard": {
+        "checks_failed": [
+          "request_identity"
+        ],
+        "rejected": true
+      },
+      "without_guard": {
+        "checks_failed": [],
+        "rejected": false
+      }
+    },
+    {
+      "fixture": null,
+      "guard": "corpus_not_empty",
+      "perturbation": "empty_the_corpus",
+      "perturbed_input_sha256": null,
+      "what": "a corpus with no recordings in it",
+      "with_guard": {
+        "checks_failed": [
+          "corpus_not_empty"
+        ],
+        "rejected": true
+      },
+      "without_guard": {
+        "checks_failed": [],
+        "rejected": false
+      }
+    }
+  ],
+  "guards": [
+    "corpus_not_empty",
+    "request_identity",
+    "raw_round_trip",
+    "typed_view_valid",
+    "typed_view_faithful",
+    "tool_call_order",
+    "usage_reconciled",
+    "usage_present",
+    "stream_framing"
+  ],
+  "note": "Guard-removal evidence for the Tier A oracle. Re-derived by tests/oracle/test_fidelity.py on every run, so it cannot drift from the behaviour it describes. Regenerate with TEMPER_HARNESS_WRITE_GUARD_EVIDENCE=1.",
+  "schema_version": "1.0"
+}

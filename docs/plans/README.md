@@ -19,17 +19,17 @@ uncovered while re-checking a plan that reads as finished but is half-landed.
 
 <!-- BEGIN GENERATED: plan-status -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*204 plan documents. Generated from frontmatter.*
+*205 plan documents. Generated from frontmatter.*
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `active` | 36 | Live work. |
+| `active` | 37 | Live work. |
 | `completed` | 132 | Deliverables landed. |
 | `superseded` | 9 | Replaced by a later plan or by STRATEGY.md. |
 | `draft` | 12 | -- |
 | *(no frontmatter)* | 15 | Legacy documents predating the plan format. |
 
-**Active plans (36):**
+**Active plans (37):**
 
 - [`2026-06-28-004-feat-mathematical-rigor-deferred-items-plan.md`](./2026-06-28-004-feat-mathematical-rigor-deferred-items-plan.md) — 2026-06-28-004-feat-mathematical-rigor-deferred-items-plan
 - [`2026-07-25-002-refactor-baseline-burndown-plan.md`](./2026-07-25-002-refactor-baseline-burndown-plan.md) — refactor: Baseline Burn-Down
@@ -67,6 +67,7 @@ uncovered while re-checking a plan that reads as finished but is half-landed.
 - [`2026-08-07-001-feat-router-encoding-pruning-plan.md`](./2026-08-07-001-feat-router-encoding-pruning-plan.md) — Router SAT Encoding Geographic Pruning — Plan
 - [`2026-08-07-001-feat-wasm-tier-phase1-plan.md`](./2026-08-07-001-feat-wasm-tier-phase1-plan.md) — WASM Verification Tier — Phase 1 Implementation Plan
 - [`2026-08-07-002-feat-wasm-tier-phase2-4-plan.md`](./2026-08-07-002-feat-wasm-tier-phase2-4-plan.md) — WASM Verification Tier — Phases 2–4 Implementation Plan
+- [`2026-09-17-001-feat-deepseek-pcb-harness-s0-provider-transport-plan.md`](./2026-09-17-001-feat-deepseek-pcb-harness-s0-provider-transport-plan.md) — DeepSeek PCB Harness S0 Provider Transport - Plan
 
 <!-- END GENERATED: plan-status -->
 

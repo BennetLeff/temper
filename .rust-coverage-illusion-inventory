@@ -11,6 +11,7 @@
 # shrink instead of accumulating dead triage.
 #
 # <python.module>	<rust file>[,<rust file>...]	<reason>
+temper_harness.schema_registry	packages/temper-design-bundle/src/schema_validator.rs	NAMESAKE_MISS: false positive on the single word "schema". This module reads and resolves the committed JSON Schema files under packages/temper-harness/schemas/ so their validators can resolve each other; it is not a port of schema_validator.rs, which validates a board model. Nothing in Rust implements or should implement it -- the harness is a Python-dominant subsystem (KTD1) and is not a port of existing Rust logic, which is why no other temper_harness module appears in this ledger.
 temper_placer._constraint_types.clearance	packages/temper-drc-rs/src/clearance_matrix.rs,packages/temper-drc-rs/src/router_clearance.rs,packages/temper-geometry/src/clearance_geometry.rs,packages/temper-geometry/src/clearance_halo.rs,packages/temper-geometry/src/via_clearance.rs,packages/temper-orchestration/src/clearance.rs	NO_RUST: recorded at gate introduction; not triaged
 temper_placer._constraint_types.config	packages/temper-design-bundle/src/config_loader.rs,packages/temper-orchestration/src/config_attach_stage.rs	NAMESAKE_MISS: recorded at gate introduction; not triaged
 temper_placer._constraint_types.routing	packages/temper-geometry/src/routing_demand.rs,packages/temper-quality-oracle/src/routing_quality.rs	NO_RUST: recorded at gate introduction; not triaged

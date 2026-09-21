@@ -147,7 +147,8 @@
         "packages/temper-py-bridge-derive/**",
         "elec/**",
         "packages/temper-io-types/**",
-        "packages/temper-constraint-compiler/**"
+        "packages/temper-constraint-compiler/**",
+        "packages/temper-harness/**"
       ]
     },
     "Rust Checks (cargo check + clippy)": {
