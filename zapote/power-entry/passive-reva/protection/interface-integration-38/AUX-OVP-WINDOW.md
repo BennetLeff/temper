@@ -57,6 +57,16 @@ capacitors. The Rev38 AUX OV detector has a separate nominal 16.5 V threshold;
 its corner, capture, and shutdown path have not been qualified against this
 cutoff or its recovery.
 
+The eFuse's **default UVLO is also unsuitable as an assumed startup setting**.
+With UVLO connected to RTN, TI specifies a 14.25–15.75 V rising input
+threshold. The historical TPS7A4701 15 V setting has a 14.625 V minimum
+static output, and the wider AUX operating window extends down to 14.25 V.
+At those valid source voltages, a TPS26601 at its high UVLO corner need not
+turn on. An external UVLO divider must be selected and checked against the
+actual protected-rail run and trip windows, startup ramp, leakage, and
+the HOT rail detectors. Tying the UVLO pin to RTN is not a valid joined
+candidate default.
+
 **Decision:** do not join the 130 kΩ/10 kΩ part or label TPS26601 a qualified
 protected-AUX source. The ±1% static window is impossible under the present
 15.75/18.0 V screens. The illustrative ±0.1% window is too small to claim a
