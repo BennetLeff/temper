@@ -72,6 +72,11 @@ before the adapter runs. No bootloader,
 other-core, GPIO-retention, queue-to-pin, or peripheral-autonomous-edge
 evidence exists, so the post-reset feed tail remains **UNBOUNDED** for
 numerical acceptance.
+The joined source now has a separate `SOURCE_PREWATCHDOG_OK` gate from
+reset-good, interlock and rail-good without WDO. It can support a pre-feed
+software sample without making watchdog recovery depend on WDO already being
+high. Its two external inputs and ESP sampling pin are still unproduced, and
+this logical path does not reduce the unbounded reset-time feed tail.
 
 The two allowable reset times need system hazard analysis of continued PFC
 operation and the first START during source execution loss, including relay,
@@ -167,6 +172,12 @@ divider is adopted or qualified. Both records require the actual converter and r
 loads and a bounded raw/regulator fault waveform before one protection
 path can be adopted. The 20 ms model outcome is not a measured failure of
 a selected assembly.
+The same TPS26601 also has a factory UVLO rising range of 14.25–15.75 V;
+the historical 15 V LDO's specified low static output is 14.625 V. The
+factory UVLO connection may never start at that valid output corner. A
+joined candidate needs an external UVLO threshold checked with the OVP,
+HOT rail detectors, and startup behavior; it cannot use the factory setting
+as an unreviewed default.
 
 Select one source chain and prove its normal and fault output envelope,
 current limit, startup ordering, and thermal behavior at the Rev38
