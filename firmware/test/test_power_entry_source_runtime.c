@@ -148,7 +148,7 @@ static void retained_high_wdi_waits_for_disarm(void) {
     fake.inputs.hot_permit = true;
     fake.now = 1;
     pe_source_runtime_tick(&runtime);
-    pe_source_runtime_local_progress(&runtime, 1);
+    pe_source_runtime_local_progress(&runtime, 1, 1);
     fake.now = 2;
     pe_source_runtime_tick(&runtime);
     assert(runtime.source.state == PE_SOURCE_LOCKOUT);
@@ -158,10 +158,56 @@ static void retained_high_wdi_waits_for_disarm(void) {
     fake.now = 3;
     pe_source_runtime_tick(&runtime);
     assert(runtime.source.state == PE_SOURCE_WAIT_CHALLENGE);
-    pe_source_runtime_local_progress(&runtime, 2);
+    pe_source_runtime_local_progress(&runtime, 2, 2);
     fake.now = 4;
     pe_source_runtime_tick(&runtime);
     assert(fake.wdi_falling_edges == 1);
+}
+
+static void both_tasks_must_progress_before_wdi(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    fake.now = 1;
+    pe_source_runtime_tick(&runtime);
+    assert(runtime.source.state == PE_SOURCE_WAIT_CHALLENGE);
+
+    pe_source_runtime_local_progress(&runtime, 1, 1); /* boot baseline */
+    pe_source_runtime_local_progress(&runtime, 2, 1); /* monitor stalled */
+    fake.now = 2;
+    pe_source_runtime_tick(&runtime);
+    assert(fake.wdi_falling_edges == 0);
+
+    pe_source_runtime_local_progress(&runtime, 2, 2);
+    fake.now = 3;
+    pe_source_runtime_tick(&runtime);
+    assert(fake.wdi_falling_edges == 1);
+
+    pe_source_runtime_local_progress(&runtime, 2, 3); /* control stalled */
+    fake.now = 4;
+    pe_source_runtime_tick(&runtime);
+    assert(fake.wdi_falling_edges == 1);
+
+    pe_source_runtime_local_progress(&runtime, 3, 3);
+    fake.now = 5;
+    pe_source_runtime_tick(&runtime);
+    assert(fake.wdi_falling_edges == 2);
+
+    pe_source_runtime_local_progress(&runtime, 2, 4); /* epoch regressed */
+    assert(runtime.io_fault && runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
+static void stalled_peer_does_not_hide_counter_regression(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    fake.now = 1;
+    pe_source_runtime_tick(&runtime);
+    pe_source_runtime_local_progress(&runtime, 1, 1);
+    pe_source_runtime_local_progress(&runtime, 5, 1);
+    pe_source_runtime_local_progress(&runtime, 4, 2);
+    assert(runtime.io_fault && runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(fake.wdi_falling_edges == 0);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
 }
 
 static void receive(pe_source_runtime_t *runtime, fake_io_t *fake,
@@ -257,7 +303,8 @@ static void watchdog_edge_precedes_blocking_uart_write(void) {
     fake_io_t fake;
     pe_source_runtime_t runtime = boot(&fake);
     through_request(&runtime, &fake);
-    pe_source_runtime_local_progress(&runtime, 1);
+    pe_source_runtime_local_progress(&runtime, 0, 0);
+    pe_source_runtime_local_progress(&runtime, 1, 1);
     assert(pe_source_runtime_ping(&runtime));
     assert(fake.pulses[PE_SOURCE_PIN_WDI_HEARTBEAT] == 1);
     assert(fake.last_wdi_event < fake.ping_send_event);
@@ -267,7 +314,8 @@ static void delayed_actions_cannot_feed_after_deadline(void) {
     fake_io_t fake;
     pe_source_runtime_t runtime = boot(&fake);
     through_request(&runtime, &fake);
-    pe_source_runtime_local_progress(&runtime, 1);
+    pe_source_runtime_local_progress(&runtime, 0, 0);
+    pe_source_runtime_local_progress(&runtime, 1, 1);
     fake.delay_ack_apply = true;
     receive(&runtime, &fake,
             (pe_frame_t){PE_ACK, 71, fake.sent[1].value}, 9);
@@ -385,6 +433,8 @@ static void failed_final_start_sample_sends_no_start(void) {
 
 int main(void) {
     retained_high_wdi_waits_for_disarm();
+    both_tasks_must_progress_before_wdi();
+    stalled_peer_does_not_hide_counter_regression();
     start_and_restart();
     late_commit_cancels_start();
     failed_uart_write_disarms();

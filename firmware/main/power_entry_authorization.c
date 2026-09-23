@@ -300,7 +300,7 @@ void pe_source_stream_idle(pe_source_t *source, pe_stream_t *stream,
     if (expired) abort_source(source, actions);
 }
 
-void pe_source_local_progress(pe_source_t *source, uint32_t epoch) {
+void pe_source_local_progress(pe_source_t *source, uint64_t epoch) {
     if (source->state != PE_SOURCE_LOCKOUT && !source->restart_requested &&
         epoch > source->local_epoch) {
         source->local_epoch = epoch;

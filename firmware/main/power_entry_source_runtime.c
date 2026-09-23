@@ -213,8 +213,34 @@ void pe_source_runtime_serial_error(pe_source_runtime_t *runtime) {
 }
 
 void pe_source_runtime_local_progress(pe_source_runtime_t *runtime,
-                                      uint32_t epoch) {
-    if (!runtime->io_fault) pe_source_local_progress(&runtime->source, epoch);
+                                      uint64_t control_epoch,
+                                      uint64_t monitor_epoch) {
+    if (runtime->io_fault) return;
+    if (!runtime->progress_baselined) {
+        runtime->progress_baselined = true;
+        runtime->control_observed = control_epoch;
+        runtime->monitor_observed = monitor_epoch;
+        runtime->control_credited = control_epoch;
+        runtime->monitor_credited = monitor_epoch;
+        return;
+    }
+    if (control_epoch < runtime->control_observed ||
+        monitor_epoch < runtime->monitor_observed) {
+        io_abort(runtime);
+        return;
+    }
+    runtime->control_observed = control_epoch;
+    runtime->monitor_observed = monitor_epoch;
+    if (control_epoch <= runtime->control_credited ||
+        monitor_epoch <= runtime->monitor_credited) return;
+    if (runtime->paired_progress_epoch == UINT64_MAX) {
+        io_abort(runtime);
+        return;
+    }
+    runtime->control_credited = control_epoch;
+    runtime->monitor_credited = monitor_epoch;
+    pe_source_local_progress(&runtime->source,
+                             ++runtime->paired_progress_epoch);
 }
 
 bool pe_source_runtime_ping(pe_source_runtime_t *runtime) {

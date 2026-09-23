@@ -59,8 +59,8 @@ typedef struct {
     uint32_t next_ping;
     uint32_t awaiting_pong;
     uint32_t last_peer_ping;
-    uint32_t local_epoch;
-    uint32_t local_fed;
+    uint64_t local_epoch;
+    uint64_t local_fed;
     uint32_t link_epoch;
     uint32_t link_fed;
     bool button_released;
@@ -100,7 +100,7 @@ bool pe_source_clock_seen_reset(pe_source_t *source, uint64_t now_ms,
 bool pe_source_confirm_seen_reset(pe_source_t *source, uint64_t now_ms,
                                    pe_source_inputs_t inputs,
                                    pe_source_actions_t *actions);
-void pe_source_local_progress(pe_source_t *source, uint32_t epoch);
+void pe_source_local_progress(pe_source_t *source, uint64_t epoch);
 bool pe_source_ping(pe_source_t *source, uint64_t now_ms,
                     pe_source_inputs_t inputs, pe_source_actions_t *actions);
 void pe_source_stop(pe_source_t *source, pe_source_actions_t *actions);

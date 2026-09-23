@@ -42,6 +42,12 @@ typedef struct {
     pe_stream_t stream;
     pe_source_runtime_io_t io;
     bool io_fault;
+    bool progress_baselined;
+    uint64_t control_observed;
+    uint64_t monitor_observed;
+    uint64_t control_credited;
+    uint64_t monitor_credited;
+    uint64_t paired_progress_epoch;
 } pe_source_runtime_t;
 
 /* The physical circuit must hold STOP low before code runs. This function
@@ -54,8 +60,13 @@ bool pe_source_runtime_boot(pe_source_runtime_t *runtime,
 void pe_source_runtime_tick(pe_source_runtime_t *runtime);
 void pe_source_runtime_byte(pe_source_runtime_t *runtime, uint8_t byte);
 void pe_source_runtime_serial_error(pe_source_runtime_t *runtime);
+/* Called by the sole source owner with atomic snapshots of independent task
+ * counters. The first call sets a baseline; each later credit requires both
+ * counters to have advanced since the previous credit. Regression fails
+ * closed, including wrap. This does not verify the tasks' actual work. */
 void pe_source_runtime_local_progress(pe_source_runtime_t *runtime,
-                                      uint32_t epoch);
+                                      uint64_t control_epoch,
+                                      uint64_t monitor_epoch);
 bool pe_source_runtime_ping(pe_source_runtime_t *runtime);
 void pe_source_runtime_stop(pe_source_runtime_t *runtime);
 void pe_source_runtime_begin_restart(pe_source_runtime_t *runtime);
