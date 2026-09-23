@@ -147,12 +147,16 @@ fn domain(id: &str, pin: &str) -> &'static str {
 }
 
 fn check(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 38 { return Err(format!("expected 38 parts, found {}", g.parts.len())); }
+    if g.parts.len() != 42 { return Err(format!("expected 42 parts, found {}", g.parts.len())); }
     for (id, part) in [
         ("rx", "AVR64DA32-E/PT"),
         ("iso_protocol", "ISO7741FDWR"),
         ("iso_feedback", "ISO7742FDWR"),
         ("reset_pulses", "SN74LV221AQPWRQ1"),
+        ("prep_abort_memory", "SN74HCS74PWR"),
+        ("c_prep_abort_memory", "GRM188R71H104KA93D"),
+        ("prep_trip_ok_pd", "RC0603FR-0710KL"),
+        ("prep_abort_ok_pd", "RC0603FR-0710KL"),
         ("c_prep_timing", "GRM188R71H103KA01D"),
         ("c_history_timing", "GRM188R71H103KA01D"),
         ("r_prep_timing", "RC0603FR-0710KL"),
@@ -167,7 +171,11 @@ fn check(g: &Graph) -> Result<(), String> {
     for (net, expected) in [
         ("selv3v3", "iso_protocol:1 iso_protocol:7 iso_feedback:1 iso_feedback:7 c_iso1_selv:1 c_iso2_selv:1"),
         ("selv_gnd", "iso_protocol:2 iso_protocol:8 iso_feedback:2 iso_feedback:8 c_iso1_selv:2 c_iso2_selv:2 source_permit_fb_pd:2 source_session_fb_pd:2"),
-        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
+        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 prep_abort_memory:1 prep_abort_memory:10 prep_abort_memory:14 c_prep_abort_memory:1 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
+        ("hot_prep_abort_q", "rx:7 prep_abort_memory:5 prep_abort_pu:2"),
+        ("hot_prep_abort_ok", "prep_abort_memory:6 prep_abort_ok_pd:1"),
+        ("hot_prep_trip_ok", "prep_abort_memory:4 prep_trip_ok_pd:1"),
+        ("q1", "reset_pulses:13 prep_abort_memory:3"),
         ("source_command_tx", "iso_protocol:3"),
         ("source_permit_q", "iso_protocol:4"),
         ("source_relay_request", "iso_protocol:5"),
@@ -210,6 +218,14 @@ fn check(g: &Graph) -> Result<(), String> {
         ("rx", "19", "hot0"), ("rx", "29", "hot0"),
         ("reset_pulses", "1", "hot0"), ("reset_pulses", "9", "hot0"),
         ("reset_pulses", "8", "hot0"),
+        ("prep_abort_memory", "2", "hot0"),
+        ("prep_abort_memory", "7", "hot0"),
+        ("prep_abort_memory", "11", "hot0"),
+        ("prep_abort_memory", "12", "hot0"),
+        ("prep_abort_memory", "13", "hot0"),
+        ("c_prep_abort_memory", "2", "hot0"),
+        ("prep_trip_ok_pd", "2", "hot0"),
+        ("prep_abort_ok_pd", "2", "hot0"),
         ("rx", "26", "hot_reset_n"), ("rx", "27", "hot_updi"),
     ] {
         if g.pins.get(&(id.into(), pin.into())).is_none_or(|found| found != net) {
@@ -315,6 +331,27 @@ mod tests {
     fn missing_timing_cap_fails() {
         let mut g = fixture();
         g.pins.remove(&("c_history_timing".into(), "1".into()));
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn trip_preset_miswire_fails() {
+        let mut g = fixture();
+        g.pins.insert(("prep_abort_memory".into(), "4".into()), "hot_logic5".into());
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn reset_clock_miswire_fails() {
+        let mut g = fixture();
+        g.pins.insert(("prep_abort_memory".into(), "3".into()), "hot_prep_reset_raw_n".into());
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn missing_trip_default_fails() {
+        let mut g = fixture();
+        g.pins.remove(&("prep_trip_ok_pd".into(), "2".into()));
         assert!(check(&g).is_err());
     }
 }

@@ -102,9 +102,18 @@ the PC3 pulse must have **no path** to preparation-abort clear. The one-shot
 fixture selects two channels of [SN74LV221A-Q1](https://www.ti.com/lit/ds/symlink/sn74lv221a-q1.pdf)
 with separate RC networks and raw active-low outputs. The part is
 non-retriggerable and rated to 125 °C; this meets the held-request
-requirement at the pulse generator. The raw outputs are not yet connected
-to the retained memories. Their installed width, set/reset dominance during
-coincident trips, and target-adapter sequence still need selection and test;
+requirement at the pulse generator. The first channel's positive Q clocks
+an [SN74HCS74](https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf)
+preparation-abort memory with D low. Its asynchronous PRE1_N takes
+`HOT_PREP_TRIP_OK` (locally pulled low) and forces Q high on a qualified
+trip, including while the finite reset pulse is active. `HOT_PREP_TRIP_OK`
+has no producer in the partial fixture; it must join the real detector,
+rail, source-health and STOP paths before claiming fault capture. The
+second pulse remains unconnected to a permit-seen memory. Do not gate
+either one-shot CLR_N with live faults: its low-to-high transition can
+trigger a fresh pulse when A is low and B is high. Their installed width,
+set/reset dominance during coincident trips, and target-adapter sequence
+still need selection and test;
 this is a U4/U5 completion condition. The 32-pin AVR package has PA3/1 and PA4/2, but **no
 PC4 pin**; the physical package table is the authority for this allocation.
 

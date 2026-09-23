@@ -113,10 +113,32 @@ component HotResetOneShot:
     signal REXT_CEXT1 ~ pin 15
     signal VCC ~ pin 16
 
+component HotRetainedDff:
+    mpn = "SN74HCS74PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal CLR1_N ~ pin 1
+    signal D1 ~ pin 2
+    signal CLK1 ~ pin 3
+    signal PRE1_N ~ pin 4
+    signal Q1 ~ pin 5
+    signal Q1_N ~ pin 6
+    signal GND ~ pin 7
+    signal Q2_N ~ pin 8
+    signal Q2 ~ pin 9
+    signal PRE2_N ~ pin 10
+    signal CLK2 ~ pin 11
+    signal D2 ~ pin 12
+    signal CLR2_N ~ pin 13
+    signal VCC ~ pin 14
+
 component TimingC10n:
     mpn = "GRM188R71H103KA01D"
     manufacturer = "Murata"
-    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    # Atopile 0.2.69 merges unlike MPNs sharing one footprint key; a
+    # provisional distinct key preserves the 10 nF identity in the netlist.
+    footprint = "TBD_REVIEW_ONLY:TIMING_C_0603"
     value: capacitance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
@@ -159,6 +181,8 @@ module ReceiverIsolation38:
     signal HOT_RUN_Q
     signal HOT_DISARM_Q
     signal HOT_PREP_ABORT_Q
+    signal HOT_PREP_ABORT_OK
+    signal HOT_PREP_TRIP_OK
     signal HOT_PERMIT_SEEN_Q
     signal HOT_FAULT_N
     signal HOT_RAILS_OK
@@ -215,6 +239,34 @@ module ReceiverIsolation38:
     reset_pulses.B2 ~ HOT_HISTORY_RESET_REQUEST
     reset_pulses.Q1_N ~ HOT_PREP_RESET_RAW_N
     reset_pulses.Q2_N ~ HOT_HISTORY_RESET_RAW_N
+    # Reset is a single positive clock edge with D=0, never a held async
+    # clear. A subsequent qualified trip uses async PRE_N and stays set even
+    # if the one-shot output remains high. The unused second DFF is cleared.
+    prep_abort_memory = new HotRetainedDff
+    prep_abort_memory.VCC ~ HOT_LOGIC5
+    prep_abort_memory.GND ~ HOT0
+    prep_abort_memory.CLR1_N ~ HOT_LOGIC5
+    prep_abort_memory.D1 ~ HOT0
+    prep_abort_memory.CLK1 ~ reset_pulses.Q1
+    prep_abort_memory.PRE1_N ~ HOT_PREP_TRIP_OK
+    prep_abort_memory.Q1 ~ HOT_PREP_ABORT_Q
+    prep_abort_memory.Q1_N ~ HOT_PREP_ABORT_OK
+    prep_abort_memory.CLR2_N ~ HOT0
+    prep_abort_memory.PRE2_N ~ HOT_LOGIC5
+    prep_abort_memory.D2 ~ HOT0
+    prep_abort_memory.CLK2 ~ HOT0
+    c_prep_abort_memory = new C
+    c_prep_abort_memory.value = 100nF
+    c_prep_abort_memory.p1 ~ HOT_LOGIC5
+    c_prep_abort_memory.p2 ~ HOT0
+    prep_trip_ok_pd = new R
+    prep_trip_ok_pd.value = 10kohm
+    prep_trip_ok_pd.p1 ~ HOT_PREP_TRIP_OK
+    prep_trip_ok_pd.p2 ~ HOT0
+    prep_abort_ok_pd = new R
+    prep_abort_ok_pd.value = 10kohm
+    prep_abort_ok_pd.p1 ~ HOT_PREP_ABORT_OK
+    prep_abort_ok_pd.p2 ~ HOT0
     r_prep_timing = new R
     r_prep_timing.value = 10kohm
     r_prep_timing.p1 ~ HOT_LOGIC5
