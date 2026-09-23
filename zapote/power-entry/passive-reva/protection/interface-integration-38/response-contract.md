@@ -35,6 +35,46 @@ bounded-watchdog option is insufficient. **Stop U2–U7 until this decision and
 the applicable response limits are recorded.** A reset test of source policy
 alone cannot pass this gate.
 
+### Bounded-option timing worksheet
+
+Use worst-case maxima at the selected supply, temperature, loading, and
+component corners. None of the symbols below has an accepted system value.
+
+| Term | Meaning | Present evidence |
+| --- | --- | --- |
+| `T_postreset_WDI` | Time from CPU reset to the **last** possible qualifying source WDI edge, including bootloader, other core, timer, DMA, queued write, and restart-loop behavior | Unbounded until the actual ESP pin owner and reset paths are proved to withhold edges. |
+| `T_TPS3431_max` | Maximum interval from that last edge to asserted physical WDO, with CWD tolerance, leakage, temperature, selected SET1/EN state, and watchdog configuration | Rev35's 144.98 ms is device-only at ideal 1 nF, not this term. |
+| `T_source_clear` | WDO-to-source-PERMIT-latch-Q-low maximum, including WDO low width and asynchronous-clear capture | No joined Rev38 source latch or corner proof. |
+| `T_permit_crossing` | Source-Q-low through isolation and HOT physical PERMIT-low qualification | No selected isolator or line/capture bound. |
+| `T_hot_clear` | Physical PERMIT loss through retained HOT session and RUN clear, including seen-high capture | No joined Rev38 latch. |
+| `T_driver_to_current_zero` | Local EN-low assertion through UCC27624, loaded STW gate discharge, and sustained switch-current cessation | No joined driver or physical capture. |
+| `T_first_START_min_to_RUN` | Minimum reset-to-RUN time for a START already at the last receiver acceptance boundary when the CPU resets | Could approach zero; no positive minimum demonstrated. |
+| `T_first_START_max_to_RUN` | Maximum time for a pre-reset START already in a transport, task queue, or GPIO-write path to reach the physical RUN-set operation | No receiver decoder, queue, or device implementation. |
+
+The bounded continuation candidate must prove
+`T_postreset_WDI + T_TPS3431_max + T_source_clear + T_permit_crossing + T_hot_clear + T_driver_to_current_zero`
+is at or below the product-approved RUN response bound. If
+`T_postreset_WDI` is unbounded because ordinary boot or another execution
+path can keep feeding WDI, **there is no watchdog-based bound at all**. The
+first-START decision is separate: a queued START may reach RUN before WDO
+asserts, so the product must either explicitly accept that behavior during a
+specified interval or require an independent indication whose worst-case
+arrival and inhibition precede the minimum possible queued START acceptance.
+`T_first_START_min_to_RUN` cannot be assumed positive; an
+already queued command may have arbitrarily little delay unless the real
+transport and receiver enforce a lower bound. A source firmware reset handler
+does not retract bytes or edges that have already crossed the isolation barrier.
+
+An event-order counterexample is decisive for the independent option: place
+the CPU-only reset immediately after the last START bit has crossed the
+isolator but immediately before the HOT receiver's RUN-set operation. If every
+external source pin retains its level, the receiver sees the same input trace
+as a no-reset execution until an independent indication arrives. It cannot
+reject the START solely because source software has reset. The independent
+path must therefore be demonstrated at the physical RUN-set boundary, with
+fault/reset clear dominant for simultaneous set and clear. Merely adding a
+message saying “reset” after reboot cannot meet this option.
+
 ## Fault-to-current-cessation limit ownership
 
 The power-stage/safety owner must define a maximum permissible interval for
@@ -128,6 +168,11 @@ Physical capture remains a later, separately labeled NOT RUN campaign; digital
 PASS cannot be reported as physical protection acceptance.
 
 ## Source basis
+
+`source-inputs.sha256` pins the exact local Rev35/Rev37/F2 files read for this
+inventory. Recheck those hashes before treating a later edit to an untracked
+historical fixture as the same evidence. The hashes bind source bytes, not an
+approved design or a live measurement.
 
 - Approved behavior: `docs/superpowers/specs/2026-09-23-power-entry-hot-receiver-design.md`.
 - Rev35 joined fixture: `zapote/power-entry/passive-reva/protection/interface-integration-35/README.md` and its `elec/src/` files.
