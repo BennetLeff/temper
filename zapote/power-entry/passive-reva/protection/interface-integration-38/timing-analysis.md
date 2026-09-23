@@ -3,8 +3,10 @@
 Status: **candidate method recorded; numerical safety acceptance OPEN**. This
 document starts the authorized per-fault derivation. It does not turn Rev35/37
 fixture timing, typical data, or a simulation screen into an accepted limit.
-The joined Rev38 circuit, selected receiver/isolators, installed power-stage
-envelope, and prototype captures do not yet exist.
+The joined Rev38 circuit, installed power-stage envelope, and prototype
+captures do not yet exist. The AVR64DA32 and two ISO774xF devices are
+selected in a partial isolation fixture; their presence does not close a
+complete response path.
 
 ## Acceptance relationship and endpoints
 
@@ -107,6 +109,14 @@ fault-to-clear path or add a supported time bound. The UCC27624 ENA corner
 gap is tracked in `gate-enable-corners.md`: a typical internal pull-up
 resistance is not enough to prove a passive default-low network over the
 partial-power envelope.
+The compiled partial fixture also has a finite-edge preparation-abort
+reset, a six-input HOT trip fan-in, and a separate physical-PERMIT-seen
+memory. The latter's asynchronous preset is asserted by PERMIT high even
+during its reset pulse, subject to an unproved minimum pulse width and
+rail/logic corners. The history-reset clock is not yet qualified by
+post-trip disarm, ACK, RUN low, or live faults. These paths provide no
+numerical implementation bound until their actual producers and joins
+are completed.
 
 ## Existing conditional F2 screen — not an accepted limit
 
