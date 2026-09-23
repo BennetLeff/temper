@@ -1,39 +1,41 @@
 # Rev38 response-contract gate
 
-Status: **OPEN — U1 has not passed.** This is a producer and response inventory for
-the approved HOT-receiver architecture, not a released circuit or a safe-to-run
-power stage. `fault-response.tsv` is the row-level companion. Rev35 and Rev37
-are review fixtures; no Rev38 netlist, selected receiver, loaded-gate capture,
-or assembled prototype exists.
+Status: **bounded-reset candidate selected; numerical timing acceptance OPEN.**
+This is a producer and response inventory for the approved HOT-receiver
+architecture, not a released circuit or a safe-to-run power stage.
+`fault-response.tsv` and `timing-analysis.md` are the row-level and timing
+companions. Rev35 and Rev37 are review fixtures; no Rev38 netlist, selected
+receiver, loaded-gate capture, or assembled prototype exists.
 
-## Decision this gate must make
+## Selected candidate reset contract
 
 An ESP32-S3 CPU-only reset can leave external GPIO levels unchanged. A HOT
 receiver cannot distinguish that reset from continued source operation until
 an independent indication or a qualified liveness timeout reaches it. The
-contract must cover **both** (a) a PFC already RUNNING and (b) the first START
-frame already in flight before reset detection. Two possible closures are:
+contract covers **both** (a) a PFC already RUNNING and (b) one START committed
+to transmission before unexpected reset, after fresh user intent in the
+current session. That already-issued START may produce at most one RUN
+transition before watchdog detection while the fixed command deadline,
+physical PERMIT, and independent HOT fault memory remain valid. Rebooted
+source code cannot generate or retransmit it. START acceptance or reboot
+activity cannot restart or extend the source-execution watchdog deadline.
+The same reset-to-off limit applies if the PFC was already running or begins
+running in the detection interval. After reset, source initialization must
+invalidate external authorization and establish physical disarm before any
+watchdog service capable of preserving permission resumes. Deliberate
+software restart requires disarm and physical acknowledgement **before** the
+restart request.
 
-1. **Independent indication:** demonstrate a source-reset signal that reaches
-   HOT hardware before an in-flight START can set RUN, with a bounded path to
-   source PERMIT clear, HOT RUN clear, and driver disable. A boot-time GPIO
-   assignment, `SOURCE_RESET_GOOD` driven by firmware, or ESP `CHIP_PU` does
-   not establish that behavior for a CPU-only reset. No such indication is
-   identified in the present fixtures.
-2. **Accepted bounded interval:** establish a product-approved maximum
-   interval during which an already-running PFC may continue **and** a first
-   queued START may be accepted after a CPU-only reset. The measured or
-   guaranteed worst case must include any post-reset WDI edge, capacitor and
-   TPS3431 tolerance, watchdog output assertion, source-latch capture,
-   isolation and HOT clear propagation, local driver disable, loaded STW gate
-   discharge, and actual current cessation. Approval of continued RUN alone
-   does not approve the first START.
-
-Neither option is accepted in the current evidence. If the product requires
-that no first START can be accepted after the instant of CPU-only reset, the
-bounded-watchdog option is insufficient. **Stop U2–U7 until this decision and
-the applicable response limits are recorded.** A reset test of source policy
-alone cannot pass this gate.
+This selects the bounded-reset **candidate**, not a numerical interval or
+protected-operation approval. The candidate needs a finite bound including
+post-reset WDI edges, capacitor and TPS3431 tolerances, watchdog output,
+source-latch capture, isolation and HOT clear, local driver disable, loaded
+STW gate discharge, and sustained switch-current cessation. If the bound
+cannot satisfy independently derived first-start and already-running
+allowable times, revise the watchdog, protection, or reset architecture.
+Parameterized protocol tests, reset-driver work, and circuit design may
+proceed while timing inputs remain OPEN; they cannot turn this inventory into
+a safety acceptance result.
 
 ### Bounded-option timing worksheet
 
@@ -53,33 +55,35 @@ component corners. None of the symbols below has an accepted system value.
 
 The bounded continuation candidate must prove
 `T_postreset_WDI + T_TPS3431_max + T_source_clear + T_permit_crossing + T_hot_clear + T_driver_to_current_zero`
-is at or below the product-approved RUN response bound. If
+plus a justified margin is at or below **both** independently derived
+allowable times: first START after reset and continued RUN. If
 `T_postreset_WDI` is unbounded because ordinary boot or another execution
 path can keep feeding WDI, **there is no watchdog-based bound at all**. The
-first-START decision is separate: a queued START may reach RUN before WDO
-asserts, so the product must either explicitly accept that behavior during a
-specified interval or require an independent indication whose worst-case
-arrival and inhibition precede the minimum possible queued START acceptance.
+first-START behavior is selected only for a genuinely pre-reset committed,
+unexpired command; a queued START may reach RUN before WDO asserts, but it
+does not get another watchdog interval.
 `T_first_START_min_to_RUN` cannot be assumed positive; an
 already queued command may have arbitrarily little delay unless the real
 transport and receiver enforce a lower bound. A source firmware reset handler
 does not retract bytes or edges that have already crossed the isolation barrier.
 
-An event-order counterexample is decisive for the independent option: place
+An event-order counterexample explains why an instantaneous-detection claim
+was not selected: place
 the CPU-only reset immediately after the last START bit has crossed the
 isolator but immediately before the HOT receiver's RUN-set operation. If every
 external source pin retains its level, the receiver sees the same input trace
 as a no-reset execution until an independent indication arrives. It cannot
-reject the START solely because source software has reset. The independent
-path must therefore be demonstrated at the physical RUN-set boundary, with
-fault/reset clear dominant for simultaneous set and clear. Merely adding a
-message saying “reset” after reboot cannot meet this option.
+reject the START solely because source software has reset. A later change to
+an independent-reset architecture would need demonstration at the physical
+RUN-set boundary, with fault/reset clear dominant for simultaneous set and
+clear. Merely adding a message saying “reset” after reboot would not suffice.
 
 ## Fault-to-current-cessation limit ownership
 
-The power-stage/safety owner must define a maximum permissible interval for
-each fault class from its hazard, current, stored energy, and installed voltage
-limits. The interval starts at the declared physical fault or threshold and
+The Rev38 timing work package must derive a proposed maximum permissible
+interval for each fault class from its hazard, current, stored energy, and
+installed voltage limits; a power-stage/safety owner must review it before
+numerical acceptance. The interval starts at the declared physical fault or threshold and
 ends at sustained switch-current cessation, not at a latch bit, EN edge, or
 unloaded gate transition. The response budget must cover the producer/filter,
 guaranteed capture, latch/logic, isolation where used, UCC27624 EN and output,
@@ -145,7 +149,8 @@ RUN-set edge; the selected silicon's clear/clock timing must prove this.
 | StartPending | Matching START before deadline, with all hardware conditions still valid | Running | One RUN-set operation; START is consumed. |
 | StartPending | START late, duplicated, cancelled, or from old ID; missing liveness | Lockout | No RUN-set; source PERMIT drops; new ID and fresh press required. |
 | Running | Qualified trip, STOP, PERMIT loss after seen high, or receiver reset | Lockout | HOT session and RUN clear; driver EN falls; source latch clears on returned invalidity or established readback loss. |
-| Any state | ESP CPU-only reset | Undecided until reset choice closes | Existing RUN and first in-flight START must meet the selected physical/bounded contract above. Boot code alone is not detection. |
+| Running or StartPending | Unexpected ESP CPU-only reset | Lockout after one bounded hardware-supervised interval | Existing RUN may continue; one already-issued, unexpired START may set RUN once if all independent permission remains valid. Reboot cannot retransmit it or extend WDI. Source PERMIT and HOT RUN must clear by the same derived reset-to-off bound; later restart requires physical disarm and a new session. |
+| Any authorized state | Deliberate software restart request | Lockout before restart | Source requests PERMIT low and observes local Q and physical HOT PERMIT low before asking the ESP to restart. |
 
 Normal physical PERMIT low before its first high in a session allows
 preparation; low after high is session-invalidating. A new trip during
@@ -157,15 +162,17 @@ eligibility returns. These are independent of message CRC or software state.
 
 | Input | Current finding | Closure evidence |
 | --- | --- | --- |
-| CPU-only reset choice | No independent indication demonstrated; bounded option unapproved | Product decision covering RUN and first START, then pin-level implementation and worst-case capture. |
-| Fault-to-current limits | No accepted per-class maxima; F2 audit is conditional | Hazard-derived limits from power-stage/safety owner, including current/energy and voltage assumptions. |
+| CPU-only reset behavior | Bounded-reset candidate selected for both RUN and one already-issued first START; no numerical duration accepted | Actual ESP WDI ownership and queued-command tests, independent allowable first-start/RUN times, and worst-case physical path. |
+| Fault-to-current limits | No accepted per-class maxima; F2 audit is conditional | Derive per-fault allowable and implementation times independently from current/energy, voltage, derating, and joined-circuit evidence; record missing parameters in `timing-analysis.md`. |
 | Actual fault producers | Rev35/Rev37 have partial circuit joins only | Rev38 exact-pin Atopile source, domain and channel census, negative mutations. |
 | Capture minima and reset dominance | TPS3890 MR requires at least 1 µs low; new latch and pulse conditioning unselected | Datasheet corner checks and adverse pulse/clear-release tests for selected parts. |
 | Loaded shutdown | No Rev38 hardware or capture | Assembled low-voltage fault injection with synchronized detector, latches, PERMIT, EN, VGS, and switch current. |
 
-The first four rows determine whether digital implementation may proceed.
-Physical capture remains a later, separately labeled NOT RUN campaign; digital
-PASS cannot be reported as physical protection acceptance.
+The chosen candidate behavior permits digital implementation to proceed with
+missing numerical terms explicit. These rows remain closure gates for
+numerical timing acceptance and any protected-operation claim. Physical
+capture remains a later, separately labeled NOT RUN campaign; digital PASS
+cannot be reported as physical protection acceptance.
 
 ## Source basis
 

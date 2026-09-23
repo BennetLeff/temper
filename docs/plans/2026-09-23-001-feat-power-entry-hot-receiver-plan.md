@@ -13,7 +13,7 @@ execution: code
 
 ## Goal Capsule
 
-Build one source-to-PFC authorization candidate around a small HOT receiver MCU and independent retained HOT shutdown hardware. Start with the reset and fault-response decision gate; stop circuit and firmware implementation if it cannot establish an acceptable response contract. Preserve the 54-part passive board as the reference while the new candidate is developed separately. Completion means a joined, auditable digital and native-board candidate with explicit physical qualification still open; it does not mean a safe-to-energize mains assembly.
+Build one source-to-PFC authorization candidate around a small HOT receiver MCU and independent retained HOT shutdown hardware. Use the selected bounded-reset candidate contract: one already-issued, unexpired first START may complete after unexpected ESP execution loss, without extending the reset-to-off deadline. Derive allowable and implementation timing independently as engineering work; keep numerical safety acceptance open until supported by the joined design and physical evidence. Preserve the 54-part passive board as the reference while the new candidate is developed separately. Completion means a joined, auditable digital and native-board candidate with explicit physical qualification still open; it does not mean a safe-to-energize mains assembly.
 
 Authority: the approved `docs/superpowers/specs/2026-09-23-power-entry-hot-receiver-design.md` defines behavior. `zapote/power-entry/passive-reva/protection/ARCHITECTURE-REDUCTION.md` defines the retained baseline and reduced protection scope. Manufacturer data sheets supply device limits; compiled connectivity, host models, and native checks retain their narrower evidence classes.
 
@@ -45,8 +45,8 @@ Rev37's ESP-only fixture can clear RUN on a brief HOT fault without guaranteeing
 **Reset, liveness, and evidence**
 
 - R10. Source and receiver watchdog service distinguishes local execution from fresh end-to-end communication in boot, lockout, preparation, READY, START, and RUNNING states.
-- R11. The ESP reset contract explicitly covers both an already-running PFC and a first START arriving before reset detection, with a bounded electrical shutdown path or a separately demonstrated independent reset indication.
-- R12. Each invalidating fault has a real producer, polarity, capture condition, physical clear path, and response bound derived from the power-stage hazard.
+- R11. After unexpected ESP CPU-only reset, one already-issued, unexpired, current-session first START may set RUN at most once while hardware permission remains valid; reboot cannot generate or retransmit it. Neither START nor reboot may extend the source-execution watchdog deadline. The same bounded shutdown inequality covers first-start and already-running states; deliberate software restart requires acknowledged physical disarm first.
+- R12. Each invalidating fault has a real producer, polarity, capture condition, physical clear path, and independently derived allowable and implementation response times. Unknown inputs stay explicit; numerical acceptance requires implementation worst case plus margin no greater than the hazard-derived allowable time. Faults not interruptible through the gate require separate containment.
 - R13. The joined candidate uses actual isolated feedback and detector-to-UCC27624/STW connectivity, with source/native parity and negative mutation checks; model or connectivity PASS is never physical qualification.
 
 ### Key decision
@@ -59,7 +59,7 @@ Use a small HOT receiver MCU for command identity and sequencing, with fault mem
 - AE2. Receiver STOP occurs in READY while PERMIT has always been low; the physical abort path invalidates session memory and the pending identifier. Covers R2, R6.
 - AE3. A short qualified trip occurs after DISARM_ACK while session Q is already low; the pending preparation is discarded, and neither a held clock request nor recovered eligibility produces READY. Covers R1, R7.
 - AE4. A matching START is queued past its fixed deadline while other traffic remains healthy; RUN never sets and source PERMIT falls. Covers R8, R9.
-- AE5. The ESP CPU resets with retained outputs and an in-flight START; the recorded reset contract covers both that first start and any continuing run, or the candidate stops at the gate. Covers R10-R12.
+- AE5. The ESP unexpectedly resets with retained outputs and one already-issued, unexpired START; the receiver may set RUN once before watchdog detection, but no rebooted retransmission, second watchdog interval, or post-expiry START is accepted. Both this case and an already-running PFC remain subject to one derived reset-to-off bound. Covers R10-R12.
 
 ### Scope boundary
 
@@ -71,7 +71,7 @@ This plan delivers a separate integrated candidate and its digital/native eviden
 
 ### Key technical decisions
 
-- KTD1. **Gate before build:** Create a state-transition/fault-response table and derive the product response limits before selecting watchdog, latch, or gate timing values. R11-R12 own the behavior; this unit can execute without assuming which reset option will pass.
+- KTD1. **Candidate contract, separate safety gate:** Use the bounded-reset candidate behavior in R11. Start by inventorying fault producers and deriving per-class allowable and implementation timing from the actual power stage, recording missing parameters and test needs. Continue parameterized protocol, circuit, and firmware work while limits remain open; numerical timing and physical qualification gate any protected-operation or mains-build claim. If the candidate cannot meet independently derived limits, revise the architecture rather than relaxing them. R11-R12 own the behavior.
 - KTD2. **Canonical HOT memory:** Use a separately clocked `HOT_SESSION_OK` and separately retained RUN, with a receiver abort path that physically clears both. Retain a preparation-abort indication even when session Q is already low. This implements R1-R3 and R7 without relying on firmware polling.
 - KTD3. **Freshness at the receiver:** Use a durable identifier committed before PREPARE_CHALLENGE and a fixed, receiver-timed REQUEST-to-RUN deadline. CRC may detect accidental corruption but does not establish freshness. This implements R6, R8, and R9.
 - KTD4. **Independent return meanings:** Allocate protocol response, physical HOT PERMIT readback, and retained HOT validity as distinct reverse-isolated signals. Rev35's one reverse channel cannot carry the three meanings independently. This implements R4 and R13.
@@ -131,23 +131,23 @@ stateDiagram-v2
 
 ### Sequencing and stop rules
 
-U1 is first. If neither a demonstrated independent reset observation nor an explicitly accepted bounded response covers both ongoing RUN and in-flight first START, stop before U2-U7. The power-stage/safety owner must also supply fault-to-current-cessation limits or mark each affected fault unresolved; circuit timing cannot be accepted against an unspecified limit. U2 and U3 define the receiver and model; U4-U6 build the joined electrical/firmware candidate; U7 evaluates native board parity and digital acceptance. Any unselected MCU, isolation device, or detector output is a named unresolved implementation input, never an assumed producer.
+U1 is first and uses the selected bounded-reset candidate contract. Its timing package derives independent allowable and implementation response bounds where the evidence permits and identifies exact missing parameters elsewhere. Missing numerical inputs do not stop parameterized protocol tests, reset-driver development, or construction of the joined candidate; they do prevent a numerical timing PASS, protected-operation claim, or mains-build decision. U2 and U3 define the receiver and model; U4-U6 build the joined electrical/firmware candidate and supply inputs back to U1's timing analysis; U7 evaluates native board parity and digital acceptance. If the candidate cannot meet independently derived limits, revise the watchdog, protection, or reset architecture. Any unselected MCU, isolation device, or detector output is a named unresolved implementation input, never an assumed producer.
 
 ---
 
 ## Implementation Units
 
-### U1. Close response contracts and fault table
+### U1. Establish response contracts and derive timing work
 
 - **Requirements:** R1-R3, R7, R10-R12; AE2, AE3, AE5.
-- **Files:** `zapote/power-entry/passive-reva/protection/interface-integration-38/response-contract.md`, `zapote/power-entry/passive-reva/protection/interface-integration-38/fault-response.tsv`.
-- **Approach:** Trace every actual F2/PFC detector, rail, permit, source/receiver reset, watchdog, STOP, and command-timeout producer from Rev35, Rev37, and the retained baseline. Give each a polarity, guaranteed capture minimum, physical clear destination, and maximum permitted fault-to-STW-current-cessation time or an explicit missing-hazard-limit result. Cover detector, latch, EN, loaded gate, and commutation in the response budget. Analyze independent ESP reset observation and the worst-case watchdog alternative, including post-reset WDI, an in-flight START, and loaded-gate shutdown. Obtain the required product acceptance for a bounded-response option before relying on it.
+- **Files:** `zapote/power-entry/passive-reva/protection/interface-integration-38/response-contract.md`, `zapote/power-entry/passive-reva/protection/interface-integration-38/fault-response.tsv`, `zapote/power-entry/passive-reva/protection/interface-integration-38/timing-analysis.md`.
+- **Approach:** Trace every actual F2/PFC detector, rail, permit, source/receiver reset, watchdog, STOP, and command-timeout producer from Rev35, Rev37, and the retained baseline. Give each a polarity, guaranteed capture minimum, physical clear destination, and independently derived allowable and implementation response-time entries or exact missing-input status. Start the hazard envelope and timing calculations from actual current, energy, voltage, derating, and joined-circuit evidence; include detector, latch, isolation, EN, loaded gate, and commutation where the gate can interrupt the fault. Identify separate containment for faults that gate disable cannot interrupt. For the selected bounded-reset candidate, cover both a first already-issued START and ongoing RUN under one watchdog deadline, including post-reset WDI feed tail. Update the timing analysis as U4-U7 produce part-specific and native evidence; never copy a component delay into an accepted safety limit.
 - **Test scenarios:** An ESP CPU reset during RUN; reset just before first START; a receiver-only reset with HOT latches powered; STOP in READY before PERMIT high; a short detector trip while session Q is already low; a rail collapse while driver supply remains present. Each row names the expected physical clear and evidence class.
-- **Verification:** Review the table against actual schematic/netlist producers and manufacturer limits; fail the gate if a required action has no producer or a required response bound is unavailable. No executable implementation test is claimed for this document unit.
+- **Verification:** The candidate-development gate passes when the reset behavior and the per-fault producer, clear, timing equation, evidence class, and missing-input owner are explicit. Numerical timing acceptance stays OPEN for any class without both independently supported sides of the inequality and adequate margin. No executable implementation test is claimed for this document unit.
 
 ### U2. Select the HOT receiver and durable session mechanism
 
-- **Dependencies:** U1 gate accepted.
+- **Dependencies:** U1 candidate-development gate; numerical timing acceptance may remain open.
 - **Requirements:** R2, R6, R8-R10.
 - **Files:** `zapote/power-entry/passive-reva/protection/interface-integration-38/receiver-selection.md`, `zapote/power-entry/passive-reva/protection/interface-integration-38/receiver-firmware/README.md`.
 - **Approach:** Select a current-production MCU with qualified supply/reset behavior, enough isolated I/O, a suitable clock, and a durable counter store. Define atomic counter reservation before challenge publication, corruption/exhaustion behavior, boot pin defaults, protocol framing, and state-based local/link liveness. Rev35's ATmega328P pin fixture is a reference for function allocation, not the selected BOM.
@@ -205,7 +205,8 @@ U1 is first. If neither a demonstrated independent reset observation nor an expl
 
 | Gate | Applies to | Pass signal |
 | --- | --- | --- |
-| U1 fault-response and reset gate | Before U2-U7 | Every required event has an identified producer, electrical action, and hazard-derived bound; the reset choice explicitly covers first START and ongoing RUN. Otherwise stop. |
+| U1 candidate-development gate | Before U2-U7 | Bounded-reset behavior covers one already-issued first START and ongoing RUN under one deadline; each fault has a producer/clear hypothesis, timing equation, evidence class, and explicit missing inputs. This permits engineering work, not protected operation. |
+| Numerical timing acceptance | Before protected-operation or mains-build claims | For every interruptible fault, independent hazard-derived allowable time exceeds implementation worst case plus margin on the joined circuit; noninterruptible faults have separate containment. Otherwise OPEN. |
 | Offline Atopile 0.2.69 build and `interface-integration-38/audit.rs` | U4 and U7 | Exact joins and domain separation pass; deliberate miswires fail. |
 | Focused Rust model tests and `cargo test --locked --manifest-path zapote/Cargo.toml -p zapote-erc` where rules enter the crate | U3-U4 | Negative controls fail before repair; production scenarios pass on actual board-shaped inputs. |
 | Firmware host CMake suite and selected MCU target build | U5-U6 | Reset, expiry, persistence, and cancellation scenarios pass; output ownership is reviewable. |
@@ -218,7 +219,8 @@ Existing reference commands and acceptance limits live in `zapote/VALIDATION.md`
 
 ## Definition of Done
 
-- The U1 reset/fault gate has a recorded accepted outcome; no downstream unit treats an unresolved hazard limit as an assumed number.
+- The bounded-reset candidate contract is recorded, including one already-issued first START, no reboot retransmission or deadline extension, deliberate-restart disarm, and one reset-to-off inequality for first-start and ongoing RUN.
+- U1's per-fault analysis records independently supported allowable and implementation terms, exact missing parameters and owners, margins, and physical test requirements. An unresolved numerical safety limit remains OPEN and is never replaced by a component setting, typical delay, or simulation observation.
 - R1-R13 and AE1-AE5 trace to implemented sources, applicable digital tests, and one authoritative acceptance record with exact source, board, runtime, tool, and input hashes. Physical response-time and fault-to-current-cessation acceptance stays NOT RUN until captured on an assembled prototype.
 - The joined Atopile candidate, Rust audit/model, receiver firmware, ESP driver, and native board agree on pin ownership, session states, physical clears, and isolated domains.
 - All applicable digital gates pass, with deliberate fault/miswire mutations caught and unrun physical checks labeled NOT RUN.
