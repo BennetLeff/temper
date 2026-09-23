@@ -1,0 +1,158 @@
+# Rev38 AC entry, EMI, NTC/precharge and PE capacitor topology candidate.
+# A fuse-holder footprint is not proof of an installed F1 cartridge.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component MainsConnector38:
+    mpn = "1714984"
+    manufacturer = "Phoenix Contact"
+    footprint = "TBD_REVIEW_ONLY:AC_MAINS_1714984"
+    signal L ~ pin 1
+    signal N ~ pin 2
+    signal PE ~ pin 3
+
+component F1Holder38:
+    mpn = "0031.2510"
+    manufacturer = "Schurter"
+    footprint = "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Cmc38:
+    mpn = "B82726S2163N030"
+    manufacturer = "TDK"
+    footprint = "TBD_REVIEW_ONLY:AC_CMC_B82726S"
+    signal L1 ~ pin 1
+    signal N1 ~ pin 2
+    signal N2 ~ pin 3
+    signal L2 ~ pin 4
+
+component Ntc38:
+    mpn = "SL32 10015"
+    manufacturer = "Ametherm"
+    footprint = "TBD_REVIEW_ONLY:AC_NTC_SL32_10015"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BypassRelay38:
+    mpn = "RT33K012"
+    manufacturer = "TE Connectivity"
+    footprint = "TBD_REVIEW_ONLY:AC_RELAY_RT33K012"
+    signal COM ~ pin 4
+    signal NO ~ pin 3
+    signal coil1 ~ pin 1
+    signal coil2 ~ pin 2
+
+component X2Cap38:
+    mpn = "B32922C3224M289"
+    manufacturer = "TDK"
+    footprint = "TBD_REVIEW_ONLY:AC_X2_B32922C3224M289"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Mov38:
+    mpn = "V150LA10AP"
+    manufacturer = "Littelfuse"
+    footprint = "TBD_REVIEW_ONLY:AC_MOV_V150LA10AP"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Y1Cap38:
+    mpn = "VY1102M31Y5UQ63V0"
+    manufacturer = "Vishay"
+    footprint = "TBD_REVIEW_ONLY:AC_Y1_VY1102M31Y5UQ63V0"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component RelayFet38:
+    mpn = "AO3400A"
+    manufacturer = "Alpha & Omega Semiconductor"
+    footprint = "TBD_REVIEW_ONLY:PFC_AO3400A_SOT23"
+    signal G ~ pin 1
+    signal S ~ pin 2
+    signal D ~ pin 3
+
+component RelayFlyback38:
+    mpn = "SS14"
+    manufacturer = "Vishay"
+    footprint = "TBD_REVIEW_ONLY:AC_RELAY_SS14_SMA"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component AcR38:
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module AcInput38:
+    signal AC_L
+    signal AC_N
+    signal PE
+    signal HOT0
+    signal AUX_PROTECTED
+    signal HOT_RELAY_DRIVER
+    signal AC_RECT_L
+    signal AC_RECT_N
+    signal F1_OUT
+    signal CMC_L_OUT
+    signal RELAY_COIL_HI
+    signal RELAY_COIL_LO
+    signal RELAY_GATE
+
+    mains = new MainsConnector38
+    mains.L ~ AC_L
+    mains.N ~ AC_N
+    mains.PE ~ PE
+    holder = new F1Holder38
+    holder.p1 ~ AC_L
+    holder.p2 ~ F1_OUT
+    cmc = new Cmc38
+    cmc.L1 ~ F1_OUT
+    cmc.N1 ~ AC_N
+    cmc.L2 ~ CMC_L_OUT
+    cmc.N2 ~ AC_RECT_N
+    ntc = new Ntc38
+    ntc.p1 ~ CMC_L_OUT
+    ntc.p2 ~ AC_RECT_L
+    bypass = new BypassRelay38
+    bypass.COM ~ CMC_L_OUT
+    bypass.NO ~ AC_RECT_L
+    x2 = new X2Cap38
+    x2.p1 ~ F1_OUT
+    x2.p2 ~ AC_N
+    mov = new Mov38
+    mov.p1 ~ F1_OUT
+    mov.p2 ~ AC_N
+    y1 = new Y1Cap38
+    y1.p1 ~ HOT0
+    y1.p2 ~ PE
+
+    # Receiver PA2 is the sole HOT relay-control output. Its own pull-down
+    # is in the receiver fixture; add a second local gate pull-down here.
+    relay_gate_r = new AcR38
+    relay_gate_r.mpn = "RC1206FR-071KL"
+    relay_gate_r.footprint = "TBD_REVIEW_ONLY:AC_RELAY_GATE_R1K_1206"
+    relay_gate_r.value = 1kohm
+    relay_gate_r.p1 ~ HOT_RELAY_DRIVER
+    relay_gate_r.p2 ~ RELAY_GATE
+    relay_gate_pd = new AcR38
+    relay_gate_pd.mpn = "RC1206FR-07100KL"
+    relay_gate_pd.footprint = "TBD_REVIEW_ONLY:AC_RELAY_GATE_R100K_1206"
+    relay_gate_pd.value = 100kohm
+    relay_gate_pd.p1 ~ RELAY_GATE
+    relay_gate_pd.p2 ~ HOT0
+    relay_fet = new RelayFet38
+    relay_fet.G ~ RELAY_GATE
+    relay_fet.S ~ HOT0
+    relay_fet.D ~ RELAY_COIL_LO
+    coil_drop = new AcR38
+    coil_drop.mpn = "RC2512FR-0791RL"
+    coil_drop.footprint = "TBD_REVIEW_ONLY:AC_RELAY_DROP_R91_2512"
+    coil_drop.value = 91ohm
+    coil_drop.p1 ~ AUX_PROTECTED
+    coil_drop.p2 ~ RELAY_COIL_HI
+    bypass.coil1 ~ RELAY_COIL_HI
+    bypass.coil2 ~ RELAY_COIL_LO
+    flyback = new RelayFlyback38
+    flyback.K ~ RELAY_COIL_HI
+    flyback.A ~ RELAY_COIL_LO

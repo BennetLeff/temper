@@ -1,6 +1,6 @@
 # Rev38 hardware join contract
 
-Status: **pin-level design input and partial source/receiver/driver/watchdog/rail/VD-VB compiled join**,
+Status: **pin-level design input and partial source/receiver/driver/watchdog/rail/VD-VB/AC-entry compiled join**,
 not a complete U4 circuit or analog approval.
 This records the joins that must replace Rev35's connectivity-only fixture.
 The existing F2 detector and power-stage values remain candidate inputs;
@@ -133,14 +133,16 @@ defaults. The partial fixture now has a HOT TPS3431 WDO producer and two
 TPS3890 undervoltage supervisors with open-drain RESET outputs wire-ANDed
 on `HOT_RAILS_OK`. Four VD/VB TLV3202 channels and two AUX window channels
 now feed `HOT_FAULT_N` through HCS21 fan-in. VD and VB now join the candidate
-boost/F2/reservoir/bank path, but the AC input, AUX source, and source-side
-health/STOP GPIO logic remain external. The compiled fan-in does not prove
-fault capture. The provisional logic5 and AUX falling
+boost/F2/reservoir/bank path. The F1-holder/CMC/NTC/relay AC entry joins the
+bridge. An actual F1 cartridge, protected AUX source, and source-side
+health/STOP GPIO logic remain unselected or external. The compiled fan-in
+does not prove fault capture. The provisional logic5 and AUX falling
 thresholds are 4.531 V and 12.88 V nominal; see [HOT-RAILS.md](HOT-RAILS.md)
 for the unclosed corners, [F2-DETECTOR.md](F2-DETECTOR.md) for the VD/VB
 window topology, [AUX-WINDOW.md](AUX-WINDOW.md) for the fast-dip/OV
-candidate, and [PFC-POWER.md](PFC-POWER.md) for the power path. PA6/4 drives
-attempt-valid high before
+candidate, and [PFC-POWER.md](PFC-POWER.md) for the power path.
+[AC-INPUT.md](AC-INPUT.md) records the mains-entry topology and open safety
+gates. PA6/4 drives attempt-valid high before
 the prep-reset edge and low on lockout, STOP, or reset, with a local
 pull-down. `RECEIVER_ABORT_N` cannot serve this role while it is already low
 through preparation. The second one-shot Q clocks a separate SN74HCS74
@@ -176,7 +178,8 @@ on `AUX_PROTECTED`, and pin 3 GND and the DDA PowerPAD are on HOT0. Pin 8 ENB
 and pin 4 INB are grounded locally; pin 5 OUTB remains unconnected. The
 controller PWM producer and a separate retained-permission VSENSE inhibit
 are joined. The boost/diode/F2/reservoir/bank candidate is also joined, but
-the AC input and AUX source remain external. Confirm loaded
+the AC input now joins the bridge; its fuse cartridge, physical ratings,
+and protected AUX source remain open. Confirm loaded
 STW gate discharge and controller VSENSE inhibit
 independently.
 The old Rev35 UCC27511A IN- behavior cannot be copied as a UCC27624 EN
@@ -189,10 +192,10 @@ corners are still open.
 
 ## Evidence needed to promote this to U4 PASS
 
-1. Select and compile the remaining actual F1/EMI/NTC/relay AC input and
-   AUX source in **one**
-   Atopile 0.2.69 entry. Rev35's `clear_core_ok` includes PERMIT and cannot
-   be reused as `SESSION_CLEAR_N`.
+1. Select and electrically qualify the actual F1 cartridge, EMI parts,
+   NTC/relay AC entry and protected AUX source in **one** Atopile 0.2.69
+   entry. The AC entry is compiled but unqualified. Rev35's `clear_core_ok`
+   includes PERMIT and cannot be reused as `SESSION_CLEAR_N`.
 2. Audit every producer and consumer by physical pin; mutate each critical
    clear, reverse channel, power domain, and EN pull-down to prove a red gate.
 3. Calculate guaranteed logic levels at cold/hot, partial-supply current,

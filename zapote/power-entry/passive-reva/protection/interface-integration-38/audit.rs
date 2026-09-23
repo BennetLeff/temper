@@ -763,6 +763,46 @@ fn check_pfc_power(g: &Graph) -> Result<(), String> {
     Ok(())
 }
 
+fn check_ac_input(g: &Graph) -> Result<(), String> {
+    if g.parts.len() != 13 { return Err(format!("expected 13 AC input parts, found {}", g.parts.len())); }
+    for (id, mpn) in [
+        ("mains", "1714984"), ("holder", "0031.2510"),
+        ("cmc", "B82726S2163N030"), ("ntc", "SL32 10015"),
+        ("bypass", "RT33K012"), ("x2", "B32922C3224M289"),
+        ("mov", "V150LA10AP"), ("y1", "VY1102M31Y5UQ63V0"),
+        ("relay_gate_r", "RC1206FR-071KL"),
+        ("relay_gate_pd", "RC1206FR-07100KL"),
+        ("relay_fet", "AO3400A"), ("coil_drop", "RC2512FR-0791RL"),
+        ("flyback", "SS14"),
+    ] {
+        if g.parts.get(id).is_none_or(|found| found != mpn) {
+            return Err(format!("wrong AC input part identity for {id}"));
+        }
+    }
+    for (net, expected) in [
+        ("ac_l", "mains:1 holder:1"),
+        ("ac_n", "mains:2 cmc:2 x2:2 mov:2"),
+        ("pe", "mains:3 y1:2"),
+        ("hot0", "y1:1 relay_gate_pd:2 relay_fet:2"),
+        ("aux_protected", "coil_drop:1"),
+        ("hot_relay_driver", "relay_gate_r:1"),
+        ("ac_rect_l", "ntc:2 bypass:3"),
+        ("ac_rect_n", "cmc:3"),
+        ("f1_out", "holder:2 cmc:1 x2:1 mov:1"),
+        ("cmc_l_out", "cmc:4 ntc:1 bypass:4"),
+        ("relay_coil_hi", "coil_drop:2 bypass:1 flyback:1"),
+        ("relay_coil_lo", "relay_fet:3 bypass:2 flyback:2"),
+        ("relay_gate", "relay_gate_r:2 relay_gate_pd:1 relay_fet:1"),
+    ] {
+        let wanted: BTreeSet<(String, String)> = expected.split_whitespace().map(|pin| {
+            let (id, number) = pin.split_once(':').expect("static pin mapping");
+            (id.to_owned(), number.to_owned())
+        }).collect();
+        if members(g, net) != wanted { return Err(format!("wrong AC input membership on {net}")); }
+    }
+    Ok(())
+}
+
 fn preserved_joined_nets(g: &Graph, standalone: &Graph, prefix: &str) -> Result<(), String> {
     let mut joined_nets: BTreeMap<&str, &str> = BTreeMap::new();
     for net in standalone.pins.values().collect::<BTreeSet<_>>() {
@@ -782,11 +822,11 @@ fn preserved_joined_nets(g: &Graph, standalone: &Graph, prefix: &str) -> Result<
     Ok(())
 }
 
-fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_wd: &Graph, rails: &Graph, f2: &Graph, aux: &Graph, pfc: &Graph, power: &Graph) -> Result<(), String> {
-    if g.parts.len() != hot.parts.len() + source.parts.len() + driver.parts.len() + hot_wd.parts.len() + rails.parts.len() + f2.parts.len() + aux.parts.len() + pfc.parts.len() + power.parts.len() {
+fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_wd: &Graph, rails: &Graph, f2: &Graph, aux: &Graph, pfc: &Graph, power: &Graph, ac: &Graph) -> Result<(), String> {
+    if g.parts.len() != hot.parts.len() + source.parts.len() + driver.parts.len() + hot_wd.parts.len() + rails.parts.len() + f2.parts.len() + aux.parts.len() + pfc.parts.len() + power.parts.len() + ac.parts.len() {
         return Err("joined part count differs from the standalone fixtures".into());
     }
-    for (prefix, standalone) in [("receiver", hot), ("source", source), ("driver", driver), ("hot_watchdog", hot_wd), ("hot_rails", rails), ("f2_detector", f2), ("aux_window", aux), ("pfc_control", pfc), ("pfc_power", power)] {
+    for (prefix, standalone) in [("receiver", hot), ("source", source), ("driver", driver), ("hot_watchdog", hot_wd), ("hot_rails", rails), ("f2_detector", f2), ("aux_window", aux), ("pfc_control", pfc), ("pfc_power", power), ("ac_input", ac)] {
         for (id, part) in &standalone.parts {
             if g.parts.get(&format!("{prefix}.{id}")) != Some(part) {
                 return Err(format!("joined part identity differs at {prefix}.{id}"));
@@ -903,6 +943,19 @@ fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_
             return Err(format!("missing PFC power join {left_id}.{left_pin} to {right_id}.{right_pin}"));
         }
     }
+    for (left_id, left_pin, right_id, right_pin) in [
+        ("ac_input.ntc", "2", "pfc_power.bridge", "2"),
+        ("ac_input.cmc", "3", "pfc_power.bridge", "3"),
+        ("ac_input.y1", "1", "receiver.rx", "19"),
+        ("ac_input.coil_drop", "1", "driver.driver", "6"),
+        ("ac_input.relay_gate_r", "1", "receiver.rx", "32"),
+    ] {
+        let left = g.pins.get(&(left_id.into(), left_pin.into()));
+        let right = g.pins.get(&(right_id.into(), right_pin.into()));
+        if left.is_none() || left != right {
+            return Err(format!("missing AC input join {left_id}.{left_pin} to {right_id}.{right_pin}"));
+        }
+    }
     // Net names change at module boundaries. Internal conductors must stay
     // intact and two previously distinct conductors must not become one.
     preserved_joined_nets(g, driver, "driver")?;
@@ -912,6 +965,7 @@ fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_
     preserved_joined_nets(g, aux, "aux_window")?;
     preserved_joined_nets(g, pfc, "pfc_control")?;
     preserved_joined_nets(g, power, "pfc_power")?;
+    preserved_joined_nets(g, ac, "ac_input")?;
     for (left_id, left_pin, right_id, right_pin) in [
         ("receiver.iso_protocol", "13", "receiver.rx", "10"),
         ("receiver.iso_feedback", "12", "receiver.iso_protocol", "13"),
@@ -957,6 +1011,8 @@ fn main() {
         .expect("PFC control netlist parse");
     let power = graph(&fs::read_to_string("build/pfc_power.net").expect("Atopile PFC power netlist"))
         .expect("PFC power netlist parse");
+    let ac = graph(&fs::read_to_string("build/ac_input.net").expect("Atopile AC input netlist"))
+        .expect("AC input netlist parse");
     let integrated = graph(&fs::read_to_string("build/integrated.net").expect("Atopile joined netlist"))
         .expect("joined netlist parse");
     check(&hot).expect("isolation pin audit");
@@ -968,8 +1024,9 @@ fn main() {
     check_aux_window(&aux).expect("AUX window pin audit");
     check_pfc_control(&pfc).expect("PFC control pin audit");
     check_pfc_power(&power).expect("PFC power pin audit");
-    check_integrated(&integrated, &hot, &source, &driver, &hot_wd, &rails, &f2, &aux, &pfc, &power).expect("Rev38 join audit");
-    println!("partial Rev38 joined source/receiver/driver/watchdog/rails/VD-VB/AUX/PFC pin audit PASS");
+    check_ac_input(&ac).expect("AC input pin audit");
+    check_integrated(&integrated, &hot, &source, &driver, &hot_wd, &rails, &f2, &aux, &pfc, &power, &ac).expect("Rev38 join audit");
+    println!("partial Rev38 joined source/receiver/AC/PFC/driver/protection pin audit PASS");
 }
 
 #[cfg(test)]
@@ -1012,13 +1069,17 @@ mod tests {
         graph(&fs::read_to_string("build/pfc_power.net").unwrap()).unwrap()
     }
 
+    fn ac_fixture() -> Graph {
+        graph(&fs::read_to_string("build/ac_input.net").unwrap()).unwrap()
+    }
+
     fn integrated_fixture() -> Graph {
         graph(&fs::read_to_string("build/integrated.net").unwrap()).unwrap()
     }
 
     #[test]
     fn compiled_source_receiver_join_passes() {
-        check_integrated(&integrated_fixture(), &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).unwrap();
+        check_integrated(&integrated_fixture(), &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).unwrap();
     }
 
     #[test]
@@ -1041,6 +1102,65 @@ mod tests {
 
     #[test]
     fn compiled_pfc_power_passes() { check_pfc_power(&power_fixture()).unwrap(); }
+
+    #[test]
+    fn compiled_ac_input_passes() { check_ac_input(&ac_fixture()).unwrap(); }
+
+    #[test]
+    fn ac_fuse_holder_bypass_fails() {
+        let mut g = ac_fixture();
+        g.pins.insert(("holder".into(), "2".into()), "ac_l".into());
+        assert!(check_ac_input(&g).is_err());
+    }
+
+    #[test]
+    fn ac_ntc_precharge_bypass_fails() {
+        let mut g = ac_fixture();
+        g.pins.insert(("ntc".into(), "1".into()), "ac_rect_l".into());
+        assert!(check_ac_input(&g).is_err());
+    }
+
+    #[test]
+    fn ac_relay_contact_open_fails() {
+        let mut g = ac_fixture();
+        g.pins.remove(&("bypass".into(), "3".into()));
+        assert!(check_ac_input(&g).is_err());
+    }
+
+    #[test]
+    fn ac_y1_pe_disconnect_fails() {
+        let mut g = ac_fixture();
+        g.pins.insert(("y1".into(), "2".into()), "hot0".into());
+        assert!(check_ac_input(&g).is_err());
+    }
+
+    #[test]
+    fn ac_flyback_reverse_fails() {
+        let mut g = ac_fixture();
+        g.pins.insert(("flyback".into(), "1".into()), "relay_coil_lo".into());
+        assert!(check_ac_input(&g).is_err());
+    }
+
+    #[test]
+    fn joined_ac_bridge_live_disconnect_fails() {
+        let mut g = integrated_fixture();
+        g.pins.insert(("pfc_power.bridge".into(), "2".into()), "ac_live_cut".into());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
+    }
+
+    #[test]
+    fn joined_ac_bridge_neutral_disconnect_fails() {
+        let mut g = integrated_fixture();
+        g.pins.insert(("pfc_power.bridge".into(), "3".into()), "ac_neutral_cut".into());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
+    }
+
+    #[test]
+    fn joined_relay_control_disconnect_fails() {
+        let mut g = integrated_fixture();
+        g.pins.insert(("ac_input.relay_gate_r".into(), "1".into()), "relay_control_cut".into());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
+    }
 
     #[test]
     fn pfc_power_f2_bypass_fails() {
@@ -1067,14 +1187,14 @@ mod tests {
     fn joined_pfc_power_f2_sense_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("pfc_power.f2".into(), "2".into()), "bank_sense_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
     fn joined_pfc_power_switch_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("pfc_power.d_boost".into(), "1".into()), "boost_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
@@ -1102,14 +1222,14 @@ mod tests {
     fn joined_pfc_pwm_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("pfc_control.pfc".into(), "8".into()), "pwm_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
     fn joined_pfc_permission_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("pfc_control.permit_r".into(), "1".into()), "permit_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
@@ -1137,14 +1257,14 @@ mod tests {
     fn joined_aux_window_fault_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("aux_window.window".into(), "4".into()), "aux_window_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
     fn joined_aux_window_reference_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("aux_window.comparator".into(), "2".into()), "aux_ref_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
@@ -1179,14 +1299,14 @@ mod tests {
     fn joined_f2_fault_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("f2_detector.health".into(), "8".into()), "f2_fault_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
     fn joined_f2_rail_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("f2_detector.cmp_vd".into(), "8".into()), "f2_rail_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
@@ -1221,14 +1341,14 @@ mod tests {
     fn joined_hot_rails_reset_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("hot_rails.sup_aux".into(), "6".into()), "rail_reset_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
     fn joined_hot_rails_aux_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("hot_rails.aux_top".into(), "1".into()), "rail_aux_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
@@ -1256,14 +1376,14 @@ mod tests {
     fn joined_hot_watchdog_wdi_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("hot_watchdog.watchdog".into(), "6".into()), "hot_wdi_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
     fn joined_hot_watchdog_trip_output_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("hot_watchdog.watchdog".into(), "7".into()), "hot_trip_cut".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
@@ -1305,7 +1425,7 @@ mod tests {
     fn joined_driver_run_producer_missing_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("driver.qualify".into(), "1".into()), "aux_protected".into());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
@@ -1313,7 +1433,7 @@ mod tests {
         let mut g = integrated_fixture();
         let aux = g.pins.get(&("driver.driver".into(), "6".into())).unwrap().clone();
         g.pins.insert(("driver.stw".into(), "1".into()), aux);
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
@@ -1324,7 +1444,7 @@ mod tests {
         for net in g.pins.values_mut() {
             if *net == ena { *net = aux.clone(); }
         }
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
@@ -1555,14 +1675,14 @@ mod tests {
         let mut g = integrated_fixture();
         let other = g.pins.get(&("receiver.iso_feedback".into(), "6".into())).unwrap().clone();
         g.pins.insert(("receiver.iso_feedback".into(), "5".into()), other);
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
     fn joined_health_producer_missing_fails() {
         let mut g = integrated_fixture();
         g.pins.remove(&("source.health".into(), "6".into()));
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]
@@ -1570,6 +1690,6 @@ mod tests {
         let mut g = integrated_fixture();
         g.pins.insert(("receiver.rx".into(), "19".into()),
                       g.pins.get(&("source.watchdog".into(), "4".into())).unwrap().clone());
-        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 }
