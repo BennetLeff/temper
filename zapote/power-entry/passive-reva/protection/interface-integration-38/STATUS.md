@@ -18,6 +18,9 @@ from the current host tests or partial netlist.
 `ESP-PIN-INVENTORY.md` records the N8R8 module restrictions and the
 firmware/electrical-source pin conflicts that the U4/U6 pin contract must
 resolve. It assigns no candidate GPIOs.
+`F1-SCREEN.md` compares exact holder/cartridge variants and records why
+prospective fault current, inrush, and thermal inputs are required before
+the provisional holder path can become an F1 selection.
 
 Immediate construction order: select and qualify U4's actual F1 cartridge/AC input and protected AUX source; bind those pins to U5's AVR adapter and U6's source driver;
 then export and audit U7. Update U1 with every selected component and

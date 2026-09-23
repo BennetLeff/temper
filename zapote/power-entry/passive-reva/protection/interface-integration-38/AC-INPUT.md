@@ -50,6 +50,10 @@ positive and deliberate-miswire tests accompany the full Rev38 audit.
   holders. Do not treat that link and FUP as a validated pair or 500 A as
   sufficient until available fault current, time/current coordination,
   holder match, and 40 °C power acceptance are established.
+  `F1-SCREEN.md` compares the exact 16 A FST, SP, SPT, and 6.3×32 SHF
+  cartridge/holder options against their published breaking-capacity
+  entries. None is selected without site prospective-fault-current,
+  inrush, coordination, and thermal inputs.
 - Confirm certified X2/Y1 and MOV ordering codes, electrical ratings,
   discharge path for X2, protective-earth leakage, required creepage and
   clearance, connector/trace ratings, and line transient exposure at
