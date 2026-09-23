@@ -39,13 +39,22 @@ cover incoming wiring before F1, block and terminal torque, internal
 connections to the PCB, enclosure access, and the 15 Arms/40 °C temperature
 rise. The 20 A upstream device and 20 A F1 are not a selective pair by
 assumption. F2, MOV, CMC, relay, NTC, traces, and other downstream components
-need their own withstand or coordinated-clearing evidence.
+need their own withstand or coordinated-clearing evidence. In particular,
+the retained CMC and relay contact are rated 16 A and the NTC is rated 15 A
+in steady state. A sustained 15–20 A overload, especially with the bypass
+relay stuck open, is not shown to clear by a 20 A fuse. That fault needs an
+independent current/temperature limit or an evaluated protective response.
 
 **Source/native delta:** replace the `FUP 0031.2510` footprint in
-`elec/src/ac_input.ato` with an off-board Class CC block and defined
-line-in/line-out harness interface before U4 or U7 acceptance. Do not assign
-the block a PCB footprint or mark the current Atopile topology as the selected
-physical F1. The 5×20 options below remain a rejection record.
+`elec/src/ac_input.ato` with a defined harness path: equipment line inlet
+→ off-board Class CC block → **fused** PCB L terminal; equipment N and PE
+reach their PCB terminals without passing through that block. This keeps
+unfused line length confined to the inlet-to-block segment. The existing
+`1714984` connector may serve as the board terminal only after its line pin
+is reinterpreted as fused L and the external inlet/harness is specified.
+Do not assign the block a PCB footprint or mark the current Atopile topology
+as the selected physical F1. The 5×20 options below remain a rejection
+record.
 
 ## Previous 5×20 and 6.3×32 screen
 
@@ -77,8 +86,10 @@ allowable power at its actual local ambient.
    envelope and to F2/MOV/interconnect withstand.
 3. Check holder/cartridge dimensional and approval pairing, fuse and holder
    temperatures at 40 °C inlet, conductor/trace ratings, and field
-   replacement conditions. The 16 A nameplate leaves little continuous
-   current margin and does not replace assembly thermal evidence.
+   replacement conditions. Nominal ratings do not replace assembly thermal
+   evidence. Include
+   sustained overloads below the proposed 20 A F1 rating and the relay-open
+   NTC path.
 
 The LP-CC-20/BCM603-1P nomination addresses part identity and published
 interrupt/block ratings only. It does not pass steps 1–3 yet. Keep the

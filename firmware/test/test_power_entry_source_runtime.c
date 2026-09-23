@@ -20,6 +20,9 @@ typedef struct {
     bool delay_start_wire;
     bool slow_start_wire;
     bool slow_permit_pulse;
+    bool fail_sample;
+    unsigned sample_count;
+    unsigned fail_sample_at;
     unsigned event_count;
     unsigned last_wdi_event;
     unsigned ping_send_event;
@@ -29,8 +32,13 @@ static uint64_t fake_now(void *context) {
     return ((fake_io_t *)context)->now;
 }
 
-static pe_source_inputs_t fake_sample(void *context) {
-    return ((fake_io_t *)context)->inputs;
+static bool fake_sample(void *context, pe_source_inputs_t *inputs) {
+    fake_io_t *fake = context;
+    ++fake->sample_count;
+    if (fake->fail_sample || fake->sample_count == fake->fail_sample_at)
+        return false;
+    *inputs = fake->inputs;
+    return true;
 }
 
 static bool fake_set(void *context, pe_source_pin_t pin, bool high) {
@@ -349,6 +357,32 @@ static void serial_error_cancels_pending_write(void) {
     assert(fake.sent_count == 3 && fake.sent[2].type == PE_STOP);
 }
 
+static void failed_physical_read_disarms(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    through_request(&runtime, &fake);
+    fake.queued_tx = true;
+    fake.fail_sample = true; /* e.g. expander I2C timeout */
+    fake.now = 9;
+    pe_source_runtime_tick(&runtime);
+    assert(runtime.io_fault && runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N] && !fake.queued_tx);
+    assert(fake.pulses[PE_SOURCE_PIN_WDI_HEARTBEAT] == 0);
+}
+
+static void failed_final_start_sample_sends_no_start(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    through_request(&runtime, &fake);
+    /* The ACK decoder samples once per byte; the next sample is the
+     * independent, final physical check before START transmission. */
+    fake.fail_sample_at = fake.sample_count + PE_FRAME_SIZE + 1u;
+    receive(&runtime, &fake,
+            (pe_frame_t){PE_ACK, 71, fake.sent[1].value}, 9);
+    assert(runtime.io_fault && runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(fake.sent_count == 2 && !fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
 int main(void) {
     retained_high_wdi_waits_for_disarm();
     start_and_restart();
@@ -361,5 +395,7 @@ int main(void) {
     delayed_permit_write_cannot_rearm();
     overbound_control_pulse_disarms();
     serial_error_cancels_pending_write();
+    failed_physical_read_disarms();
+    failed_final_start_sample_sends_no_start();
     return 0;
 }

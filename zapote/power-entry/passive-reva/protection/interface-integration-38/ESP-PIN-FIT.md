@@ -67,9 +67,10 @@ reload a cleared memory, or keep the relay energized after permission loss.
 The proposed adapter would treat I²C timeout, missing ACK, bad configuration
 readback, or an incomplete input read as an unsafe physical sample and drive
 direct STOP low. Its timeout, bus recovery, snapshot age, and sample-to-START
-latency belong in the U1 bound. The source runtime currently has no error
-field on `sample()` and no relay-request pin; those interfaces need a
-fail-closed target design before this allocation can be adopted. The
+latency belong in the U1 bound. The source runtime's physical-sample
+callback now returns a validity flag and asserts STOP on failure; a host
+test covers a failed read. The relay-request pin and actual I²C target
+adapter still need a fail-closed design before this allocation can be adopted. The
 expander reset cannot simply be tied to WDO: WDO low would hold the I²C
 readbacks unavailable while boot needs them to establish physical disarm
 before the first recovery feed.

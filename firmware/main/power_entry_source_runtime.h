@@ -15,7 +15,9 @@ typedef enum {
 typedef struct {
     void *context;
     uint64_t (*now_ms)(void *context);
-    pe_source_inputs_t (*sample)(void *context);
+    /* A physical snapshot, not cached GPIO/expander values. Return false on
+     * I2C timeout, missing ACK, bad configuration or incomplete readback. */
+    bool (*sample)(void *context, pe_source_inputs_t *inputs);
     bool (*set_level)(void *context, pe_source_pin_t pin, bool high);
     /* A synchronous low-high-low request. The positive edge triggers the
      * SELV one-shot, whose active-low output supplies the WDI falling edge.
