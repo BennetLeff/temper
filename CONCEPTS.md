@@ -58,6 +58,15 @@ either promotion or a conclusive negative certificate.
 It preserves the measured family result while forbidding uncertainty from
 authorizing wider scope or being restated as physical impossibility.
 
+## Power entry
+
+### Power-entry authorization session
+
+One receiver-issued, durably identified preparation and start opportunity. A
+captured HOT fault, STOP, reset, or expired transaction invalidates it; detector
+recovery or replayed commands cannot restore it. A later start requires physical
+disarm, a new identifier, controlled revalidation, and a fresh user press.
+
 ## Simulation evidence
 
 ### Development cross-check
