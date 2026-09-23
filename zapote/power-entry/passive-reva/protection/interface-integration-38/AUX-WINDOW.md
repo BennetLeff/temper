@@ -48,16 +48,33 @@ Rev38 normal AUX window. At the same ideal endpoints its coil sees
 11.37–12.57 V and the resistor dissipates 0.091–0.111 W. These are
 nominal-resistance screens, not pickup or hot-coil guarantees.
 
+The joined `integrated.net` also shows six direct passive branches from
+`AUX_PROTECTED`. At 15.75 V and nominal resistance, their simple
+`V/R` ceilings are 4.77 mA through the 3.3 kΩ ENA-shunt base feed,
+1.575 mA through the 10 kΩ ENA pull-up, 0.158 mA through the 100 kΩ
+PFC-inhibit pull-up when its node is grounded, and 0.068 mA combined
+through the three AUX-sense
+dividers. Together with the relay, these named passive paths screen at
+about **41.50 mA**. This is neither a load maximum nor a measured operating
+point: transistor drops, resistor tolerances, dynamic loads and several
+ICs remain outside that sum.
+
 If the old 75 mA direct-load allowance did not include this new relay,
 only 40.08–43.40 mA remains for *all* other direct AUX loads before that
 allowance is exceeded. [UCC28180](https://www.ti.com/lit/ds/symlink/ucc28180.pdf)
 alone has a published 8 mA maximum operating current at its stated 15 V,
 4.7 nF gate-load test condition. The UCC27624 gate driver, switching gate
-charge at the selected frequency, bias/shunt resistors, and other direct
+charge at the selected frequency, and other direct
 loads must be added under their actual conditions. LOGIC5 still needs a
 separate worst-case tally including AVR64DA32, isolation, comparators,
 latches and bleeds, followed by buck efficiency and startup-capacitor
 current. No 75 mA number is carried forward as a Rev38 limit by default.
+[TI's UCC27624 guide](https://www.ti.com/lit/ds/symlink/ucc27624.pdf)
+explicitly adds `Qg × fSW` to its quiescent supply current. The selected
+[STW65N65DM2AG sheet](https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf)
+publishes 120 nC **typical** at 10 V gate drive and its stated drain/current
+fixture, with no maximum in that row. It cannot be used as a guaranteed
+15 V gate-charge or source-current bound.
 
 The historical LDO's 2.417 W dissipation screen at its assumed 35 V raw
 input already required a conditional 35.2 °C/W board-level thermal path at

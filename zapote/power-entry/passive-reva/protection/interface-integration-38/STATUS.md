@@ -36,6 +36,10 @@ for a proposed dedicated-20 A, 10 kA prospective-fault-current residential
 review envelope. This off-board Class CC block has not replaced the compiled
 5×20 holder; whole-assembly fault, inrush, thermal, F2/MOV coordination,
 and harness/access gates remain OPEN.
+`AUX-WINDOW.md` now counts the joined relay and direct passive AUX branches;
+about 41.50 mA of nominal-resistance paths at 15.75 V are identifiable before
+the PFC controller, driver, logic5 converter and dynamic loads. The old
+75 mA direct-AUX allowance cannot be inherited without a new load budget.
 `AUX-OVP-WINDOW.md` also records that TPS26601's default UVLO can prevent
 startup at a valid 14.625 V regulator output; the protected-AUX candidate
 needs an externally qualified UVLO threshold as well as the OVP solution.
