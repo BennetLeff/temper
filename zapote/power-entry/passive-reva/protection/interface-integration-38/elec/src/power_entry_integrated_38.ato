@@ -1,0 +1,18 @@
+# Partial source/receiver join. The PFC/F2/driver and HOT watchdog producers
+# remain unconnected and must be added before U4 can pass.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "receiver_isolation.ato" import ReceiverIsolation38
+from "source_authority.ato" import SourceAuthority38
+
+module PowerEntryIntegrated38:
+    receiver = new ReceiverIsolation38
+    source = new SourceAuthority38
+
+    source.SELV3V3 ~ receiver.SELV3V3
+    source.SELV_GND ~ receiver.SELV_GND
+    source.SOURCE_PERMIT_Q ~ receiver.SOURCE_PERMIT_Q
+    source.SOURCE_HEALTH_Q ~ receiver.SOURCE_HEALTH_Q
+    source.SOURCE_STOP_N ~ receiver.SOURCE_STOP_N
+    source.SOURCE_HOT_PERMIT_FB ~ receiver.SOURCE_HOT_PERMIT_FB
+    source.SOURCE_HOT_SESSION_FB ~ receiver.SOURCE_HOT_SESSION_FB

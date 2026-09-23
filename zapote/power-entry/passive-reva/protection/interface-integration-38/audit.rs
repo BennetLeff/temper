@@ -352,10 +352,150 @@ fn check(g: &Graph) -> Result<(), String> {
     Ok(())
 }
 
+fn check_source(g: &Graph) -> Result<(), String> {
+    if g.parts.len() != 47 { return Err(format!("expected 47 source parts, found {}", g.parts.len())); }
+    for (id, part) in [
+        ("watchdog", "TPS3431SDRBR"),
+        ("wdi_buffer", "SN74LVC1G17DBVR"),
+        ("cwd", "GRM1885C1H102JA01D"),
+        ("rail", "TPS389001DSER"),
+        ("rail_top", "RC0603FR-0716KL"),
+        ("heartbeat_pd", "RC0603FR-07100KL"),
+        ("wdi_pd", "RC0603FR-07100KL"),
+        ("health", "SN74HCS21PWR"),
+        ("inv", "SN74HCS04PWR"),
+        ("seen_reset_pulse", "SN74LV221AQPWRQ1"),
+        ("seen", "SN74HCS74PWR"),
+        ("loss", "SN74HCS00PWR"),
+        ("reset_check", "SN74HCS21PWR"),
+        ("permit_clear", "SN74HCS21PWR"),
+        ("permit", "SN74HCS74PWR"),
+        ("reset_c", "GRM188R71H103KA01D"),
+    ] {
+        if g.parts.get(id).is_none_or(|found| found != part) {
+            return Err(format!("wrong source part identity for {id}"));
+        }
+    }
+    for (net, expected) in [
+        ("source_validated_heartbeat", "wdi_buffer:2 heartbeat_pd:1"),
+        ("source_reset_good", "health:1 reset_good_pd:1"),
+        ("source_interlock_n", "health:4 interlock_pd:1"),
+        ("source_stop_n", "permit_clear:2 stop_pd:1"),
+        ("source_hot_permit_fb", "inv:1 permit_fb_pd:1"),
+        ("source_hot_session_fb", "permit_clear:4 session_fb_pd:1"),
+        ("source_permit_set_request", "inv:5 permit:3 permit_set_pd:1"),
+        ("source_seen_reset_request", "seen_reset_pulse:2 seen_reset_pd:1"),
+        ("source_challenge_active", "reset_check:10 challenge_pd:1"),
+        ("source_health_q", "health:6 reset_check:5 permit_clear:1 health_pd:1"),
+        ("source_permit_q", "inv:3 permit:5 permit_q_pd:1"),
+        ("source_permit_seen_q", "seen:5 seen_pu:2 loss:1"),
+        ("source_permit_loss_ok", "loss:3 permit_clear:5 loss_pd:1"),
+        ("source_clear_n", "permit_clear:6 permit:1 permit:2 clear_pd:1"),
+        ("source_rail_reset_n", "rail:6 rail_reset_pu:2 health:5"),
+        ("source_watchdog_good", "watchdog:7 watchdog:8 wdo_pu:2 health:2"),
+        ("source_wdi", "watchdog:6 wdi_buffer:4 wdi_pd:1"),
+        ("source_wd_cwd", "watchdog:2 cwd:1"),
+        ("source_rail_sense", "rail:1 rail_top:2 rail_bottom:1"),
+        ("source_rail_ct", "rail:5 rail_ct:1"),
+        ("source_permit_low", "inv:4 reset_check:1"),
+        ("source_set_low", "inv:6 reset_check:4"),
+        ("source_seen_preset_n", "inv:2 seen:4 loss:2 reset_check:2 seen_preset_pd:1"),
+        ("source_seen_reset_allowed", "inv:9 reset_check:8"),
+        ("source_seen_reset_d", "inv:8 seen:2 reset_d_pu:2"),
+        ("q1", "seen_reset_pulse:13 seen:3"),
+        ("cext1", "seen_reset_pulse:14 reset_c:2"),
+        ("rext_cext1", "seen_reset_pulse:15 reset_r:2 reset_c:1"),
+    ] {
+        let wanted: BTreeSet<(String, String)> = expected.split_whitespace().map(|pin| {
+            let (id, number) = pin.split_once(':').expect("static source pin mapping");
+            (id.to_owned(), number.to_owned())
+        }).collect();
+        if members(g, net) != wanted { return Err(format!("wrong source membership on {net}")); }
+    }
+    for (id, pin, net) in [
+        ("watchdog", "1", "selv3v3"), ("watchdog", "3", "selv3v3"),
+        ("watchdog", "5", "selv3v3"), ("watchdog", "4", "selv_gnd"),
+        ("watchdog", "9", "selv_gnd"), ("cwd", "2", "selv_gnd"),
+        ("rail", "4", "selv3v3"), ("rail", "2", "selv_gnd"),
+        ("seen", "1", "selv3v3"), ("permit", "4", "selv3v3"),
+        ("seen_reset_pulse", "3", "selv3v3"),
+        ("seen_reset_pulse", "9", "selv_gnd"),
+        ("seen_reset_pulse", "10", "selv_gnd"),
+        ("seen_reset_pulse", "11", "selv_gnd"),
+        ("permit_q_pd", "2", "selv_gnd"),
+        ("clear_pd", "2", "selv_gnd"),
+        ("loss_pd", "2", "selv_gnd"),
+        ("session_fb_pd", "2", "selv_gnd"),
+        ("permit_fb_pd", "2", "selv_gnd"),
+    ] {
+        if g.pins.get(&(id.into(), pin.into())).is_none_or(|found| found != net) {
+            return Err(format!("source {id}.{pin} must be on {net}"));
+        }
+    }
+    Ok(())
+}
+
+fn check_integrated(g: &Graph, hot: &Graph, source: &Graph) -> Result<(), String> {
+    if g.parts.len() != hot.parts.len() + source.parts.len() {
+        return Err("joined source/receiver part count differs from the standalone fixtures".into());
+    }
+    for (prefix, standalone) in [("receiver", hot), ("source", source)] {
+        for (id, part) in &standalone.parts {
+            if g.parts.get(&format!("{prefix}.{id}")) != Some(part) {
+                return Err(format!("joined part identity differs at {prefix}.{id}"));
+            }
+        }
+    }
+    for (left_id, left_pin, right_id, right_pin) in [
+        ("source.permit", "5", "receiver.iso_protocol", "4"),
+        ("source.health", "6", "receiver.iso_feedback", "3"),
+        ("source.stop_pd", "1", "receiver.iso_feedback", "4"),
+        ("source.permit_fb_pd", "1", "receiver.iso_feedback", "5"),
+        ("source.session_fb_pd", "1", "receiver.iso_feedback", "6"),
+    ] {
+        let left = g.pins.get(&(left_id.into(), left_pin.into()));
+        let right = g.pins.get(&(right_id.into(), right_pin.into()));
+        if left.is_none() || left != right {
+            return Err(format!("missing source/receiver join {left_id}.{left_pin} to {right_id}.{right_pin}"));
+        }
+    }
+    for (left_id, left_pin, right_id, right_pin) in [
+        ("receiver.iso_protocol", "13", "receiver.rx", "10"),
+        ("receiver.iso_feedback", "12", "receiver.iso_protocol", "13"),
+        ("receiver.iso_feedback", "11", "receiver.session_memory", "5"),
+    ] {
+        let left = g.pins.get(&(left_id.into(), left_pin.into()));
+        let right = g.pins.get(&(right_id.into(), right_pin.into()));
+        if left.is_none() || left != right {
+            return Err(format!("missing HOT physical feedback join {left_id}.{left_pin}"));
+        }
+    }
+    let mut net_domains: BTreeMap<&str, &str> = BTreeMap::new();
+    for ((id, pin), net) in &g.pins {
+        let side = if id.starts_with("source.")
+            || matches!(id.as_str(), "receiver.c_iso1_selv" | "receiver.c_iso2_selv"
+                | "receiver.source_permit_fb_pd" | "receiver.source_session_fb_pd")
+            || matches!(id.as_str(), "receiver.iso_protocol" | "receiver.iso_feedback")
+                && pin.parse::<u8>().is_ok_and(|n| n <= 8)
+        { "SELV" } else { "HOT" };
+        if net_domains.insert(net, side).is_some_and(|old| old != side) {
+            return Err(format!("{net} crosses the joined SELV/HOT boundary"));
+        }
+    }
+    Ok(())
+}
+
 fn main() {
-    let input = fs::read_to_string("build/isolation.net").expect("Atopile netlist");
-    check(&graph(&input).expect("netlist parse")).expect("isolation pin audit");
-    println!("partial Rev38 isolation pin audit PASS");
+    let hot = graph(&fs::read_to_string("build/isolation.net").expect("Atopile isolation netlist"))
+        .expect("isolation netlist parse");
+    let source = graph(&fs::read_to_string("build/source.net").expect("Atopile source netlist"))
+        .expect("source netlist parse");
+    let integrated = graph(&fs::read_to_string("build/integrated.net").expect("Atopile joined netlist"))
+        .expect("joined netlist parse");
+    check(&hot).expect("isolation pin audit");
+    check_source(&source).expect("source pin audit");
+    check_integrated(&integrated, &hot, &source).expect("source/receiver join audit");
+    println!("partial Rev38 joined source/receiver pin audit PASS");
 }
 
 #[cfg(test)]
@@ -365,6 +505,22 @@ mod tests {
     fn fixture() -> Graph {
         graph(&fs::read_to_string("build/isolation.net").unwrap()).unwrap()
     }
+
+    fn source_fixture() -> Graph {
+        graph(&fs::read_to_string("build/source.net").unwrap()).unwrap()
+    }
+
+    fn integrated_fixture() -> Graph {
+        graph(&fs::read_to_string("build/integrated.net").unwrap()).unwrap()
+    }
+
+    #[test]
+    fn compiled_source_receiver_join_passes() {
+        check_integrated(&integrated_fixture(), &fixture(), &source_fixture()).unwrap();
+    }
+
+    #[test]
+    fn compiled_source_passes() { check_source(&source_fixture()).unwrap(); }
 
     #[test]
     fn compiled_fixture_passes() { check(&fixture()).unwrap(); }
@@ -549,5 +705,63 @@ mod tests {
         let mut g = fixture();
         g.pins.insert(("run_memory".into(), "3".into()), "hot_run_clear_n".into());
         assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn source_watchdog_clear_bypass_fails() {
+        let mut g = source_fixture();
+        g.pins.insert(("health".into(), "2".into()), "selv3v3".into());
+        assert!(check_source(&g).is_err());
+    }
+
+    #[test]
+    fn source_retained_feedback_bypass_fails() {
+        let mut g = source_fixture();
+        g.pins.insert(("permit_clear".into(), "4".into()), "selv3v3".into());
+        assert!(check_source(&g).is_err());
+    }
+
+    #[test]
+    fn source_permit_readback_loss_bypass_fails() {
+        let mut g = source_fixture();
+        g.pins.insert(("loss".into(), "1".into()), "selv_gnd".into());
+        assert!(check_source(&g).is_err());
+    }
+
+    #[test]
+    fn source_seen_reset_clock_swap_fails() {
+        let mut g = source_fixture();
+        g.pins.insert(("seen".into(), "3".into()), "source_seen_reset_raw_n".into());
+        assert!(check_source(&g).is_err());
+    }
+
+    #[test]
+    fn source_set_clock_gating_fails() {
+        let mut g = source_fixture();
+        g.pins.insert(("permit".into(), "3".into()), "source_clear_n".into());
+        assert!(check_source(&g).is_err());
+    }
+
+    #[test]
+    fn joined_reverse_feedback_swap_fails() {
+        let mut g = integrated_fixture();
+        let other = g.pins.get(&("receiver.iso_feedback".into(), "6".into())).unwrap().clone();
+        g.pins.insert(("receiver.iso_feedback".into(), "5".into()), other);
+        assert!(check_integrated(&g, &fixture(), &source_fixture()).is_err());
+    }
+
+    #[test]
+    fn joined_health_producer_missing_fails() {
+        let mut g = integrated_fixture();
+        g.pins.remove(&("source.health".into(), "6".into()));
+        assert!(check_integrated(&g, &fixture(), &source_fixture()).is_err());
+    }
+
+    #[test]
+    fn joined_isolation_bypass_fails() {
+        let mut g = integrated_fixture();
+        g.pins.insert(("receiver.rx".into(), "19".into()),
+                      g.pins.get(&("source.watchdog".into(), "4".into())).unwrap().clone());
+        assert!(check_integrated(&g, &fixture(), &source_fixture()).is_err());
     }
 }

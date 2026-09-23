@@ -1,0 +1,379 @@
+# SELV source-side candidate for Rev38. This module is joined to the two
+# isolators by PowerEntryIntegrated38; it does not assert analog timing proof.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "receiver_isolation.ato" import HotRetainedDff, HotPrepTripAnd, HotPermitInverter, HotPermitLossNand, HotResetOneShot, TimingC10n, R, C
+
+component SourceWatchdog:
+    mpn = "TPS3431SDRBR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps3431.pdf"
+    footprint = "TBD_REVIEW_ONLY:TPS3431SDRBR_DRB0008A"
+    signal VDD ~ pin 1
+    signal CWD ~ pin 2
+    signal EN ~ pin 3
+    signal GND ~ pin 4
+    signal SET1 ~ pin 5
+    signal WDI ~ pin 6
+    signal WDO ~ pin 7
+    signal ENOUT ~ pin 8
+    signal EP ~ pin 9
+
+component SourceWdiBuffer:
+    mpn = "SN74LVC1G17DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf"
+    footprint = "TBD_REVIEW_ONLY:SN74LVC1G17DBVR_SOT23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component SourceRailSupervisor:
+    mpn = "TPS389001DSER"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps3890.pdf"
+    footprint = "TBD_REVIEW_ONLY:TPS389001DSER_DSE0006A"
+    signal SENSE ~ pin 1
+    signal GND ~ pin 2
+    signal MR ~ pin 3
+    signal VDD ~ pin 4
+    signal CT ~ pin 5
+    signal RESET_N ~ pin 6
+
+component SourceCwd1n:
+    mpn = "GRM1885C1H102JA01D"
+    manufacturer = "Murata"
+    datasheet = "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM1885C1H102JA01-01A.pdf"
+    footprint = "TBD_REVIEW_ONLY:SOURCE_CWD_C0G_0603"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component SourceR100k:
+    mpn = "RC0603FR-07100KL"
+    manufacturer = "Yageo"
+    footprint = "TBD_REVIEW_ONLY:SOURCE_R100K_0603"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component SourceR16k:
+    mpn = "RC0603FR-0716KL"
+    manufacturer = "Yageo"
+    footprint = "TBD_REVIEW_ONLY:SOURCE_R16K_0603"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module SourceAuthority38:
+    signal SELV3V3
+    signal SELV_GND
+    signal SOURCE_VALIDATED_HEARTBEAT
+    signal SOURCE_RESET_GOOD
+    signal SOURCE_INTERLOCK_N
+    signal SOURCE_STOP_N
+    signal SOURCE_HOT_PERMIT_FB
+    signal SOURCE_HOT_SESSION_FB
+    signal SOURCE_PERMIT_SET_REQUEST
+    signal SOURCE_SEEN_RESET_REQUEST
+    signal SOURCE_CHALLENGE_ACTIVE
+    signal SOURCE_HEALTH_Q
+    signal SOURCE_PERMIT_Q
+    signal SOURCE_PERMIT_SEEN_Q
+    signal SOURCE_PERMIT_LOSS_OK
+    signal SOURCE_CLEAR_N
+    signal SOURCE_RAIL_RESET_N
+    signal SOURCE_WATCHDOG_GOOD
+    signal SOURCE_WDI
+    signal SOURCE_WD_CWD
+    signal SOURCE_RAIL_SENSE
+    signal SOURCE_RAIL_CT
+    signal SOURCE_PERMIT_LOW
+    signal SOURCE_SET_LOW
+    signal SOURCE_SEEN_PRESET_N
+    signal SOURCE_SEEN_RESET_ALLOWED
+    signal SOURCE_SEEN_RESET_D
+    signal SOURCE_SEEN_RESET_RAW_N
+
+    # TPS3431 remains enabled; WDO and ENOUT are open-drain and share one
+    # pull-up. A rebooted ESP must not resume WDI until physical disarm.
+    watchdog = new SourceWatchdog
+    watchdog.VDD ~ SELV3V3
+    watchdog.EN ~ SELV3V3
+    watchdog.SET1 ~ SELV3V3
+    watchdog.GND ~ SELV_GND
+    watchdog.EP ~ SELV_GND
+    watchdog.CWD ~ SOURCE_WD_CWD
+    watchdog.WDI ~ SOURCE_WDI
+    watchdog.WDO ~ SOURCE_WATCHDOG_GOOD
+    watchdog.ENOUT ~ SOURCE_WATCHDOG_GOOD
+    wdi_buffer = new SourceWdiBuffer
+    wdi_buffer.VCC ~ SELV3V3
+    wdi_buffer.GND ~ SELV_GND
+    wdi_buffer.A ~ SOURCE_VALIDATED_HEARTBEAT
+    wdi_buffer.Y ~ SOURCE_WDI
+    cwd = new SourceCwd1n
+    cwd.value = 1nF
+    cwd.p1 ~ SOURCE_WD_CWD
+    cwd.p2 ~ SELV_GND
+    wdo_pu = new R
+    wdo_pu.value = 10kohm
+    wdo_pu.p1 ~ SELV3V3
+    wdo_pu.p2 ~ SOURCE_WATCHDOG_GOOD
+    heartbeat_pd = new SourceR100k
+    heartbeat_pd.value = 100kohm
+    heartbeat_pd.p1 ~ SOURCE_VALIDATED_HEARTBEAT
+    heartbeat_pd.p2 ~ SELV_GND
+    wdi_pd = new SourceR100k
+    wdi_pd.value = 100kohm
+    wdi_pd.p1 ~ SOURCE_WDI
+    wdi_pd.p2 ~ SELV_GND
+
+    rail = new SourceRailSupervisor
+    rail.VDD ~ SELV3V3
+    rail.GND ~ SELV_GND
+    rail.MR ~ SELV3V3
+    rail.SENSE ~ SOURCE_RAIL_SENSE
+    rail.CT ~ SOURCE_RAIL_CT
+    rail.RESET_N ~ SOURCE_RAIL_RESET_N
+    rail_top = new SourceR16k
+    rail_top.value = 16kohm
+    rail_top.p1 ~ SELV3V3
+    rail_top.p2 ~ SOURCE_RAIL_SENSE
+    rail_bottom = new R
+    rail_bottom.value = 10kohm
+    rail_bottom.p1 ~ SOURCE_RAIL_SENSE
+    rail_bottom.p2 ~ SELV_GND
+    rail_ct = new C
+    rail_ct.value = 100nF
+    rail_ct.p1 ~ SOURCE_RAIL_CT
+    rail_ct.p2 ~ SELV_GND
+    rail_reset_pu = new R
+    rail_reset_pu.value = 10kohm
+    rail_reset_pu.p1 ~ SELV3V3
+    rail_reset_pu.p2 ~ SOURCE_RAIL_RESET_N
+
+    # Source health has no PERMIT dependency, so it can qualify preparation
+    # with Q low. STOP_N is separately forwarded to the HOT trip fan-in.
+    health = new HotPrepTripAnd
+    health.VCC ~ SELV3V3
+    health.GND ~ SELV_GND
+    health.A1 ~ SOURCE_RESET_GOOD
+    health.B1 ~ SOURCE_WATCHDOG_GOOD
+    health.C1 ~ SOURCE_INTERLOCK_N
+    health.D1 ~ SOURCE_RAIL_RESET_N
+    health.Y1 ~ SOURCE_HEALTH_Q
+    health.A2 ~ SELV_GND
+    health.B2 ~ SELV_GND
+    health.C2 ~ SELV_GND
+    health.D2 ~ SELV_GND
+
+    # First physical HOT readback high presets seen memory. A later low
+    # readback holds the permit latch clear until controlled disarm reset.
+    inv = new HotPermitInverter
+    inv.VCC ~ SELV3V3
+    inv.GND ~ SELV_GND
+    inv.A1 ~ SOURCE_HOT_PERMIT_FB
+    inv.Y1 ~ SOURCE_SEEN_PRESET_N
+    inv.A2 ~ SOURCE_PERMIT_Q
+    inv.Y2 ~ SOURCE_PERMIT_LOW
+    inv.A3 ~ SOURCE_PERMIT_SET_REQUEST
+    inv.Y3 ~ SOURCE_SET_LOW
+    inv.A4 ~ SOURCE_SEEN_RESET_ALLOWED
+    inv.Y4 ~ SOURCE_SEEN_RESET_D
+    inv.A5 ~ SELV_GND
+    inv.A6 ~ SELV_GND
+    seen_reset_pulse = new HotResetOneShot
+    seen = new HotRetainedDff
+    seen.VCC ~ SELV3V3
+    seen.GND ~ SELV_GND
+    seen.CLR1_N ~ SELV3V3
+    seen.PRE1_N ~ SOURCE_SEEN_PRESET_N
+    seen.D1 ~ SOURCE_SEEN_RESET_D
+    seen.CLK1 ~ seen_reset_pulse.Q1
+    seen.Q1 ~ SOURCE_PERMIT_SEEN_Q
+    seen.CLR2_N ~ SELV_GND
+    seen.PRE2_N ~ SELV3V3
+    seen.D2 ~ SELV_GND
+    seen.CLK2 ~ SELV_GND
+    seen_pu = new R
+    seen_pu.value = 10kohm
+    seen_pu.p1 ~ SELV3V3
+    seen_pu.p2 ~ SOURCE_PERMIT_SEEN_Q
+    loss = new HotPermitLossNand
+    loss.VCC ~ SELV3V3
+    loss.GND ~ SELV_GND
+    loss.A1 ~ SOURCE_PERMIT_SEEN_Q
+    loss.B1 ~ SOURCE_SEEN_PRESET_N
+    loss.Y1 ~ SOURCE_PERMIT_LOSS_OK
+    loss.A2 ~ SELV_GND
+    loss.B2 ~ SELV_GND
+    loss.A3 ~ SELV_GND
+    loss.B3 ~ SELV_GND
+    loss.A4 ~ SELV_GND
+    loss.B4 ~ SELV_GND
+
+    # The separate reset request is finite and raw. D is low only for a
+    # disarmed, challenged, healthy source with set request inactive.
+    seen_reset_pulse.VCC ~ SELV3V3
+    seen_reset_pulse.GND ~ SELV_GND
+    seen_reset_pulse.CLR1_N ~ SELV3V3
+    seen_reset_pulse.A1 ~ SELV_GND
+    seen_reset_pulse.B1 ~ SOURCE_SEEN_RESET_REQUEST
+    seen_reset_pulse.Q1_N ~ SOURCE_SEEN_RESET_RAW_N
+    seen_reset_pulse.CLR2_N ~ SELV_GND
+    seen_reset_pulse.A2 ~ SELV_GND
+    seen_reset_pulse.B2 ~ SELV_GND
+    reset_r = new R
+    reset_r.value = 10kohm
+    reset_r.p1 ~ SELV3V3
+    reset_r.p2 ~ seen_reset_pulse.REXT_CEXT1
+    reset_c = new TimingC10n
+    reset_c.value = 10nF
+    reset_c.p1 ~ seen_reset_pulse.REXT_CEXT1
+    reset_c.p2 ~ seen_reset_pulse.CEXT1
+    reset_check = new HotPrepTripAnd
+    reset_check.VCC ~ SELV3V3
+    reset_check.GND ~ SELV_GND
+    reset_check.A1 ~ SOURCE_PERMIT_LOW
+    reset_check.B1 ~ SOURCE_SEEN_PRESET_N
+    reset_check.C1 ~ SOURCE_SET_LOW
+    reset_check.D1 ~ SOURCE_HEALTH_Q
+    reset_check.A2 ~ reset_check.Y1
+    reset_check.B2 ~ SOURCE_CHALLENGE_ACTIVE
+    reset_check.C2 ~ SELV3V3
+    reset_check.D2 ~ SELV3V3
+    reset_check.Y2 ~ SOURCE_SEEN_RESET_ALLOWED
+
+    # Q cannot rise merely because the clear network recovers. The raw set
+    # edge is from one GPIO; current eligibility is on D and async CLR_N.
+    permit_clear = new HotPrepTripAnd
+    permit_clear.VCC ~ SELV3V3
+    permit_clear.GND ~ SELV_GND
+    permit_clear.A1 ~ SOURCE_HEALTH_Q
+    permit_clear.B1 ~ SOURCE_STOP_N
+    permit_clear.C1 ~ SOURCE_HOT_SESSION_FB
+    permit_clear.D1 ~ SOURCE_PERMIT_LOSS_OK
+    permit_clear.Y1 ~ SOURCE_CLEAR_N
+    permit_clear.A2 ~ SELV_GND
+    permit_clear.B2 ~ SELV_GND
+    permit_clear.C2 ~ SELV_GND
+    permit_clear.D2 ~ SELV_GND
+    permit = new HotRetainedDff
+    permit.VCC ~ SELV3V3
+    permit.GND ~ SELV_GND
+    permit.CLR1_N ~ SOURCE_CLEAR_N
+    permit.PRE1_N ~ SELV3V3
+    permit.D1 ~ SOURCE_CLEAR_N
+    permit.CLK1 ~ SOURCE_PERMIT_SET_REQUEST
+    permit.Q1 ~ SOURCE_PERMIT_Q
+    permit.CLR2_N ~ SELV_GND
+    permit.PRE2_N ~ SELV3V3
+    permit.D2 ~ SELV_GND
+    permit.CLK2 ~ SELV_GND
+
+    # Local defaults at GPIO inputs and safety outputs. Leakage, level,
+    # startup and coincident-event corners still need electrical review.
+    reset_good_pd = new R
+    reset_good_pd.value = 10kohm
+    reset_good_pd.p1 ~ SOURCE_RESET_GOOD
+    reset_good_pd.p2 ~ SELV_GND
+    interlock_pd = new R
+    interlock_pd.value = 10kohm
+    interlock_pd.p1 ~ SOURCE_INTERLOCK_N
+    interlock_pd.p2 ~ SELV_GND
+    stop_pd = new R
+    stop_pd.value = 10kohm
+    stop_pd.p1 ~ SOURCE_STOP_N
+    stop_pd.p2 ~ SELV_GND
+    session_fb_pd = new R
+    session_fb_pd.value = 10kohm
+    session_fb_pd.p1 ~ SOURCE_HOT_SESSION_FB
+    session_fb_pd.p2 ~ SELV_GND
+    permit_fb_pd = new R
+    permit_fb_pd.value = 10kohm
+    permit_fb_pd.p1 ~ SOURCE_HOT_PERMIT_FB
+    permit_fb_pd.p2 ~ SELV_GND
+    permit_set_pd = new R
+    permit_set_pd.value = 10kohm
+    permit_set_pd.p1 ~ SOURCE_PERMIT_SET_REQUEST
+    permit_set_pd.p2 ~ SELV_GND
+    seen_reset_pd = new R
+    seen_reset_pd.value = 10kohm
+    seen_reset_pd.p1 ~ SOURCE_SEEN_RESET_REQUEST
+    seen_reset_pd.p2 ~ SELV_GND
+    challenge_pd = new R
+    challenge_pd.value = 10kohm
+    challenge_pd.p1 ~ SOURCE_CHALLENGE_ACTIVE
+    challenge_pd.p2 ~ SELV_GND
+    permit_q_pd = new R
+    permit_q_pd.value = 10kohm
+    permit_q_pd.p1 ~ SOURCE_PERMIT_Q
+    permit_q_pd.p2 ~ SELV_GND
+    health_pd = new R
+    health_pd.value = 10kohm
+    health_pd.p1 ~ SOURCE_HEALTH_Q
+    health_pd.p2 ~ SELV_GND
+    clear_pd = new R
+    clear_pd.value = 10kohm
+    clear_pd.p1 ~ SOURCE_CLEAR_N
+    clear_pd.p2 ~ SELV_GND
+    loss_pd = new R
+    loss_pd.value = 10kohm
+    loss_pd.p1 ~ SOURCE_PERMIT_LOSS_OK
+    loss_pd.p2 ~ SELV_GND
+    reset_d_pu = new R
+    reset_d_pu.value = 10kohm
+    reset_d_pu.p1 ~ SELV3V3
+    reset_d_pu.p2 ~ SOURCE_SEEN_RESET_D
+    seen_preset_pd = new R
+    seen_preset_pd.value = 10kohm
+    seen_preset_pd.p1 ~ SOURCE_SEEN_PRESET_N
+    seen_preset_pd.p2 ~ SELV_GND
+
+    c_watchdog = new C
+    c_watchdog.value = 100nF
+    c_watchdog.p1 ~ SELV3V3
+    c_watchdog.p2 ~ SELV_GND
+    c_buffer = new C
+    c_buffer.value = 100nF
+    c_buffer.p1 ~ SELV3V3
+    c_buffer.p2 ~ SELV_GND
+    c_rail = new C
+    c_rail.value = 100nF
+    c_rail.p1 ~ SELV3V3
+    c_rail.p2 ~ SELV_GND
+    c_health = new C
+    c_health.value = 100nF
+    c_health.p1 ~ SELV3V3
+    c_health.p2 ~ SELV_GND
+    c_inv = new C
+    c_inv.value = 100nF
+    c_inv.p1 ~ SELV3V3
+    c_inv.p2 ~ SELV_GND
+    c_seen = new C
+    c_seen.value = 100nF
+    c_seen.p1 ~ SELV3V3
+    c_seen.p2 ~ SELV_GND
+    c_loss = new C
+    c_loss.value = 100nF
+    c_loss.p1 ~ SELV3V3
+    c_loss.p2 ~ SELV_GND
+    c_pulse = new C
+    c_pulse.value = 100nF
+    c_pulse.p1 ~ SELV3V3
+    c_pulse.p2 ~ SELV_GND
+    c_reset_check = new C
+    c_reset_check.value = 100nF
+    c_reset_check.p1 ~ SELV3V3
+    c_reset_check.p2 ~ SELV_GND
+    c_permit_clear = new C
+    c_permit_clear.value = 100nF
+    c_permit_clear.p1 ~ SELV3V3
+    c_permit_clear.p2 ~ SELV_GND
+    c_permit = new C
+    c_permit.value = 100nF
+    c_permit.p1 ~ SELV3V3
+    c_permit.p2 ~ SELV_GND

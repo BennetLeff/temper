@@ -1,7 +1,7 @@
 # Rev38 hardware join contract
 
-Status: **pin-level design input and partial compiled fixture**, not a joined
-circuit or analog approval.
+Status: **pin-level design input and partial source/receiver compiled join**,
+not a complete U4 circuit or analog approval.
 This records the joins that must replace Rev35's connectivity-only fixture.
 The existing F2 detector and power-stage values remain candidate inputs;
 none of their typical delays establish a fault allowance.

@@ -21,14 +21,11 @@ capacitors became 100 nF after a new bypass capacitor was added. The
 generated BOM and netlist now preserve their separate MPNs. None of these
 provisional keys is a validated physical footprint.
 
-From this directory:
+From this directory, build `-b isolation` separately before the audit in
+`SOURCE.md`, which also builds the source and partial joined targets:
 
 ```sh
-uvx --from atopile==0.2.69 ato --non-interactive build elec/src/receiver_isolation.ato:ReceiverIsolation38
-rustc --edition=2021 --test audit.rs -o /tmp/temper-rev38-isolation-audit
-/tmp/temper-rev38-isolation-audit
-rustc --edition=2021 audit.rs -o /tmp/temper-rev38-isolation-check
-/tmp/temper-rev38-isolation-check
+uvx --from atopile==0.2.69 ato --non-interactive build -b isolation
 ```
 
 The `SN74LV221AQPWRQ1` uses separate non-retriggerable channels. AVR PA4/2

@@ -2,3 +2,7 @@ ato-version: 0.2.69
 builds:
   isolation:
     entry: elec/src/receiver_isolation.ato:ReceiverIsolation38
+  source:
+    entry: elec/src/source_authority.ato:SourceAuthority38
+  integrated:
+    entry: elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38

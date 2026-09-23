@@ -3,10 +3,10 @@
 Status: **candidate method recorded; numerical safety acceptance OPEN**. This
 document starts the authorized per-fault derivation. It does not turn Rev35/37
 fixture timing, typical data, or a simulation screen into an accepted limit.
-The joined Rev38 circuit, installed power-stage envelope, and prototype
-captures do not yet exist. The AVR64DA32 and two ISO774xF devices are
-selected in a partial isolation fixture; their presence does not close a
-complete response path.
+The complete joined Rev38 circuit, installed power-stage envelope, and
+prototype captures do not yet exist. The AVR64DA32, two ISO774xF devices,
+source TPS3431 and retained source/HOT memories compile in a partial joined
+fixture; their presence does not close a complete response path.
 
 ## Acceptance relationship and endpoints
 

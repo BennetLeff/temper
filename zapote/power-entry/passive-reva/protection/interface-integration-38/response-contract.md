@@ -47,7 +47,7 @@ component corners. None of the symbols below has an accepted system value.
 | --- | --- | --- |
 | `T_postreset_WDI` | Time from CPU reset to the **last** possible qualifying source WDI edge, including bootloader, other core, timer, DMA, queued write, and restart-loop behavior | Unbounded until the actual ESP pin owner and reset paths are proved to withhold edges. |
 | `T_TPS3431_max` | Maximum interval from that last edge to asserted physical WDO, with CWD tolerance, leakage, temperature, selected SET1/EN state, and watchdog configuration | Rev35's 144.98 ms is device-only at ideal 1 nF, not this term. |
-| `T_source_clear` | WDO-to-source-PERMIT-latch-Q-low maximum, including WDO low width and asynchronous-clear capture | No joined Rev38 source latch or corner proof. |
+| `T_source_clear` | WDO-to-source-PERMIT-latch-Q-low maximum, including WDO low width and asynchronous-clear capture | A partial Rev38 source/receiver netlist now joins WDO, source health, latch CLR_N and isolated PERMIT. Electrical timing and capture corners are unproved. |
 | `T_permit_crossing` | Source-Q-low through isolation and HOT physical PERMIT-low qualification | No selected isolator or line/capture bound. |
 | `T_hot_clear` | Physical PERMIT loss through retained HOT session and RUN clear, including seen-high capture | No joined Rev38 latch. |
 | `T_driver_to_current_zero` | Local EN-low assertion through UCC27624, loaded STW gate discharge, and sustained switch-current cessation | No joined driver or physical capture. |
