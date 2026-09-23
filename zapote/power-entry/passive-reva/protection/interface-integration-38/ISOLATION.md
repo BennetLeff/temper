@@ -4,6 +4,7 @@
 selected AVR, eight assignments across two isolators, two HOT reset pulse
 channels, preparation-abort memory, and physical-PERMIT-seen memory in
 `hardware-topology.md`.
+It also includes the separate post-trip disarm observation memory.
 It is not `power_entry_integrated_38.ato` and does not pass U4. The source
 GPIOs, remaining HOT session/RUN latches, F2 detectors, watchdog, rail
 supervisors, gate driver, PFC stage, and reservoir are not present here.
@@ -57,6 +58,16 @@ PERMIT low alone does not erase remembered high; the finite clock edge
 does. The reset clock still lacks hardware qualification against DISARM_ACK,
 post-trip disarm, RUN low, and active faults.
 
+A third SN74HCS74 memory records post-trip disarm. PA6 attempt-valid is
+normally low, so `HOT_PREP_TRIP_OK` holds this memory's asynchronous clear
+low. After PA6 is driven high, AVR PF1/21 supplies one raw rising clock;
+the D input is the physical PERMIT inverter output, high only when HOT
+PERMIT is low. The same trip fan-in holds clear low if a fault coincides
+with the clock. PC0/6 reads Q. This gives the receiver a distinct physical
+sample after the prior trip, but requires the selected AVR adapter to apply
+PA6, wait for valid logic levels, pulse PF1, then read Q on a fresh sample.
+The actual rail, detector, watchdog, and source producers are still absent.
+
 The TI one-shot data sheet gives
 85–115 µs at 5 V over −40 to 125 °C for its **test** R/C and load. The
 installed capacitor's tolerance, voltage/temperature behavior and load are
@@ -71,10 +82,12 @@ can itself trigger this part when A is low and B is high.
 The Rust audit checks compiled MPN identities, exact channel and receiver
 pin membership, local low defaults including PA6 and watchdog health,
 separate RC/pulse channels, the retained abort preset/clock/readback and
-six-input fan-in and physical-PERMIT history paths, separated
+six-input fan-in, physical-PERMIT history, and post-trip disarm paths,
+separated
 relay request/output, and SELV/HOT net separation. Its mutation tests remove
 a low default or timing capacitor, miswire an abort/permit preset, reset
 clock, or F2 fault fan-in,
+or disarm-memory clear/clock,
 short the relay request to the driver,
 swap reverse feedback or reset channels, change the ISO7742F MPN, and add a
 copper boundary crossing. It does not establish pin electrical levels,

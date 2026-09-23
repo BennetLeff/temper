@@ -57,6 +57,7 @@ comparison against Microchip's package drawing before native acceptance.
 | 8 | PC2 | Hardware fault summary input | Diagnostic only; each critical producer still clears the latches physically. |
 | 9 | PC3 | HOT permit-seen history reset request | Separate bounded edge pulse after matching DISARM_ACK and before revalidation, with physical PERMIT and RUN low. It must not clear preparation-abort memory. |
 | 20 | PF0 | `HOT_SESSION_CLEAR_N` physical readback | Sample only after abort is physically released; revalidation requires this async clear input high. The circuit must also remain fault dominant without MCU sampling. |
+| 21 | PF1 | Post-trip disarm sample clock | One raw rising request edge after PA6 attempt-valid is physically high and fresh HOT PERMIT/RUN-low samples pass. A held request cannot acquire a new edge on fault recovery; read PC0 Q after the edge. |
 | 26 | PF6 | RESET input | Keep reset enabled; external POR/rail path asserts it. |
 | 27 | UPDI | Programming/debug | Reserve for production programming and fuse verification. |
 
@@ -68,8 +69,12 @@ pull-down and intermediate-supply behavior need a corner calculation with
 the actual latch/isolator input loading.
 `HOT_ATTEMPT_VALID` is separate because `RECEIVER_ABORT_N` is already low
 through preparation and cannot signal a new STOP or reset while the challenge
-is pending. The partial pin fixture gives PA6 a local 10 kΩ pull-down but
-does not yet join it to `HOT_PREP_TRIP_OK`.
+is pending. The partial pin fixture gives PA6 a local 10 kΩ pull-down and
+joins it to `HOT_PREP_TRIP_OK`. That node also clears the disarm-seen memory
+asynchronously. Before PA6 rises, PC0 Q must read low; after a fresh PF1
+sample edge with physical PERMIT low, PC0 Q must read high before PA4 may
+reset the preparation-abort memory. The adapter must not collapse these
+into one cached input sample.
 
 ## Durable session high-water record
 

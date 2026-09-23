@@ -222,6 +222,7 @@ module ReceiverIsolation38:
     signal HOT_SESSION_Q
     signal HOT_RUN_Q
     signal HOT_DISARM_Q
+    signal HOT_DISARM_SAMPLE_REQUEST
     signal HOT_PREP_ABORT_Q
     signal HOT_PREP_ABORT_OK
     signal HOT_PREP_TRIP_OK
@@ -271,6 +272,7 @@ module ReceiverIsolation38:
     rx.PD6 ~ HOT_WDI
     rx.PD7 ~ HOT_RAILS_OK
     rx.PF0 ~ HOT_SESSION_CLEAR_N
+    rx.PF1 ~ HOT_DISARM_SAMPLE_REQUEST
 
     # Raw finite reset pulses. The joined circuit must qualify them against
     # live fault and disarm inputs before either reaches a retained clear.
@@ -325,6 +327,29 @@ module ReceiverIsolation38:
     permit_seen_memory.PRE2_N ~ HOT_LOGIC5
     permit_seen_memory.D2 ~ HOT0
     permit_seen_memory.CLK2 ~ HOT0
+    # A fresh clock after attempt-valid rises records the physical low
+    # PERMIT level. A concurrent trip holds async clear low, regardless of
+    # request level; recovery cannot create a second raw clock edge.
+    disarm_memory = new HotRetainedDff
+    disarm_memory.VCC ~ HOT_LOGIC5
+    disarm_memory.GND ~ HOT0
+    disarm_memory.CLR1_N ~ HOT_PREP_TRIP_OK
+    disarm_memory.D1 ~ HOT_PERMIT_PRESET_N
+    disarm_memory.CLK1 ~ HOT_DISARM_SAMPLE_REQUEST
+    disarm_memory.PRE1_N ~ HOT_LOGIC5
+    disarm_memory.Q1 ~ HOT_DISARM_Q
+    disarm_memory.CLR2_N ~ HOT0
+    disarm_memory.PRE2_N ~ HOT_LOGIC5
+    disarm_memory.D2 ~ HOT0
+    disarm_memory.CLK2 ~ HOT0
+    c_disarm_memory = new C
+    c_disarm_memory.value = 100nF
+    c_disarm_memory.p1 ~ HOT_LOGIC5
+    c_disarm_memory.p2 ~ HOT0
+    disarm_sample_pd = new R
+    disarm_sample_pd.value = 10kohm
+    disarm_sample_pd.p1 ~ HOT_DISARM_SAMPLE_REQUEST
+    disarm_sample_pd.p2 ~ HOT0
     c_permit_inverter = new C
     c_permit_inverter.value = 100nF
     c_permit_inverter.p1 ~ HOT_LOGIC5

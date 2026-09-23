@@ -26,8 +26,11 @@ physical abort command on STOP and preparation trip, session ID advancement,
 and dual-source WDI feed. All time windows in the test are arbitrary logical
 ticks; no numerical safety allowance follows from them.
 
-`receiver.c` separates the two history resets. Preparation-abort memory is
-reset and read back before reserving the ID. The challenge is published only
+`receiver.c` separates physical disarm observation from the two history
+resets. It first requests PA6 attempt-valid high, then a PF1 disarm-sample
+clock on a later call, then requires a fresh PC0 Q-high sample. Only then is
+preparation-abort memory reset and read back before reserving the ID. The
+challenge is published only
 after a second physical sample following the EEPROM write. The matching
 DISARM_ACK requests a separate HOT permit-seen reset; only after its Q is
 read low and preparation-abort Q remains low does the core release abort and
@@ -46,15 +49,18 @@ latch clear and gate inhibit must dominate
 any race between a sampled input and a pulse. The core alone does not prove
 that race, AVR boot pin levels, or rail-loss behavior.
 
-The core requests `attempt_valid` high when it enters preparation-reset and
+The core requests `attempt_valid` high when it enters disarm observation and
 keeps it high for the current attempt; every lockout/STOP and boot requests
 low. The future PA6 adapter must establish that high level before issuing
-the preparation-abort reset edge and must default PA6 low while reset or
+the PF1 disarm-sample edge and later preparation-abort reset edge, and must
+default PA6 low while reset or
 unpowered. This separates a new STOP or receiver reset during preparation
 from `RECEIVER_ABORT_N`, which is already low at that time. The current
-partial fixture has a PA6 pull-down but no physical fan-in to the retained
-abort preset; the target GPIO sequence and joined hardware remain U4/U5
-gates.
+partial fixture joins PA6 to the abort preset and disarm clear; the target
+GPIO sequence, live fault producers, and full joined hardware remain U4/U5
+gates. PF1 must pulse from low to high once, return low, and never be
+implemented as an eligibility-gated clock. The physical PC0 result after
+that edge determines whether preparation may begin.
 
 `pe_receiver_history_reset_complete` now requests **only** abort release.
 The adapter must apply that pin level, obtain a fresh PF0/20 sample of the

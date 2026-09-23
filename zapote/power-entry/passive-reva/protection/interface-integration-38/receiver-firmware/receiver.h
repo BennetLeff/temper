@@ -9,6 +9,8 @@
 
 typedef enum {
     PE_RX_LOCKOUT,
+    PE_RX_DISARM_ARMED,
+    PE_RX_DISARM_SAMPLED,
     PE_RX_PREP_RESET,
     PE_RX_RESERVED,
     PE_RX_PREPARING,
@@ -36,6 +38,7 @@ typedef struct {
 typedef struct {
     bool abort_n;           /* continuously driven output; low is safe */
     bool attempt_valid;     /* high during current attempt, low on abort/reset */
+    bool disarm_sample_pulse; /* raw PF1 clock after attempt-valid is applied */
     bool prep_reset_pulse;  /* separate history reset before reservation */
     bool history_reset_pulse; /* HOT PERMIT history only, after DISARM_ACK */
     bool revalidate_pulse;  /* one adapter-owned pulse, then return low */
@@ -76,6 +79,14 @@ void pe_receiver_init(pe_receiver_t *receiver, pe_receiver_config_t config);
  * abort in software; independent hardware must clear asynchronously. */
 void pe_receiver_sample(pe_receiver_t *receiver, uint64_t now_ms,
                         pe_receiver_inputs_t inputs, pe_receiver_actions_t *actions);
+bool pe_receiver_begin_disarm(pe_receiver_t *receiver, uint64_t now_ms,
+                              pe_receiver_inputs_t inputs,
+                              pe_receiver_actions_t *actions);
+/* Adapter applies attempt_valid high, then obtains fresh physical inputs
+ * before calling. It must take another fresh sample after the clock edge. */
+bool pe_receiver_clock_disarm(pe_receiver_t *receiver, uint64_t now_ms,
+                              pe_receiver_inputs_t inputs,
+                              pe_receiver_actions_t *actions);
 bool pe_receiver_prepare_reset(pe_receiver_t *receiver, uint64_t now_ms,
                                pe_receiver_inputs_t inputs,
                                pe_receiver_actions_t *actions);

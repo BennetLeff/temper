@@ -62,11 +62,17 @@ physical** high transition and clears only in controlled physical disarm.
 This permits initial preparation with PERMIT low, then makes a later low
 PERMIT a sticky invalidation. STOP and receiver reset assert
 `RECEIVER_ABORT_N` low even in READY before PERMIT first rises.
-`DISARM_SEEN_AFTER_TRIP` is another retained element: a new trip clears it,
-and only physical HOT PERMIT low after that trip sets it. AVR PC0/6 reads its
-Q, so a pre-trip low level cannot masquerade as post-trip disarm. A broken
-PERMIT wire may set this Q, but DISARM_ACK, a new durable ID, and fresh intent
-remain separate requirements.
+`DISARM_SEEN_AFTER_TRIP` is another SN74HCS74 retained element. Its D is the
+physical HOT PERMIT inversion; its raw clock is AVR PF1/21, and its
+asynchronous CLR_N is `HOT_PREP_TRIP_OK`. While PA6 attempt-valid is low,
+the latter holds Q low. The AVR raises PA6, waits for the logic to settle,
+then requests one PF1 edge while physical PERMIT and RUN read low; PC0/6
+must read Q high on a later fresh sample. A new trip forces CLR_N low and
+Q low, including at the clock edge. A held PF1 request cannot clock on
+fault recovery. This prevents a pre-trip low level from masquerading as a
+new disarm observation. A broken PERMIT wire may still set Q, but
+DISARM_ACK, a new durable ID, and fresh intent remain separate requirements.
+The external trip producer, rail and output-level timing still need proof.
 
 The AVR PF0/20 samples the physical `HOT_SESSION_CLEAR_N` node. After the
 matching DISARM_ACK and permit-history reset, the receiver releases

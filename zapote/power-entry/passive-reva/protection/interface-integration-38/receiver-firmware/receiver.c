@@ -57,6 +57,16 @@ void pe_receiver_sample(pe_receiver_t *receiver, uint64_t now_ms,
     }
     receiver->now_ms = now_ms;
     if (receiver->state == PE_RX_LOCKOUT) return;
+    if (receiver->state == PE_RX_DISARM_ARMED ||
+        receiver->state == PE_RX_DISARM_SAMPLED) {
+        if (!inputs.rail_good || inputs.fault || inputs.physical_permit ||
+            inputs.session_q || inputs.run_q ||
+            (receiver->state == PE_RX_DISARM_ARMED && inputs.disarm_seen) ||
+            now_ms >= receiver->prepare_deadline_ms) {
+            abort_session(receiver, actions);
+        }
+        return;
+    }
     if (receiver->state == PE_RX_PREP_RESET) {
         if (!inputs.rail_good || inputs.fault || inputs.physical_permit ||
             inputs.session_q || inputs.run_q || !inputs.disarm_seen ||
@@ -106,20 +116,50 @@ void pe_receiver_sample(pe_receiver_t *receiver, uint64_t now_ms,
     actions->abort_n = receiver->abort_n;
 }
 
-bool pe_receiver_prepare_reset(pe_receiver_t *receiver, uint64_t now_ms,
-                               pe_receiver_inputs_t inputs,
-                               pe_receiver_actions_t *actions) {
+bool pe_receiver_begin_disarm(pe_receiver_t *receiver, uint64_t now_ms,
+                              pe_receiver_inputs_t inputs,
+                              pe_receiver_actions_t *actions) {
     pe_receiver_sample(receiver, now_ms, inputs, actions);
     if (receiver->state != PE_RX_LOCKOUT || !inputs.rail_good || inputs.fault ||
         receiver->clock_fault || receiver->storage_fault ||
         inputs.physical_permit || inputs.session_q || inputs.run_q ||
-        !inputs.disarm_seen || receiver->config.prepare_window_ms == 0 ||
+        inputs.disarm_seen ||
+        receiver->config.prepare_window_ms == 0 ||
         receiver->config.start_window_ms == 0 ||
         receiver->config.watchdog_window_ms == 0 ||
         !deadline(now_ms, receiver->config.prepare_window_ms,
                   &receiver->prepare_deadline_ms)) return false;
-    receiver->state = PE_RX_PREP_RESET;
+    receiver->state = PE_RX_DISARM_ARMED;
     actions->attempt_valid = true;
+    return true;
+}
+
+bool pe_receiver_clock_disarm(pe_receiver_t *receiver, uint64_t now_ms,
+                              pe_receiver_inputs_t inputs,
+                              pe_receiver_actions_t *actions) {
+    pe_receiver_sample(receiver, now_ms, inputs, actions);
+    if (receiver->state != PE_RX_DISARM_ARMED || !inputs.rail_good ||
+        inputs.fault || inputs.physical_permit || inputs.session_q ||
+        inputs.run_q) {
+        abort_session(receiver, actions);
+        return false;
+    }
+    receiver->state = PE_RX_DISARM_SAMPLED;
+    actions->disarm_sample_pulse = true;
+    return true;
+}
+
+bool pe_receiver_prepare_reset(pe_receiver_t *receiver, uint64_t now_ms,
+                               pe_receiver_inputs_t inputs,
+                               pe_receiver_actions_t *actions) {
+    pe_receiver_sample(receiver, now_ms, inputs, actions);
+    if (receiver->state != PE_RX_DISARM_SAMPLED || !inputs.rail_good ||
+        inputs.fault || inputs.physical_permit || inputs.session_q ||
+        inputs.run_q || !inputs.disarm_seen) {
+        abort_session(receiver, actions);
+        return false;
+    }
+    receiver->state = PE_RX_PREP_RESET;
     actions->prep_reset_pulse = true;
     return true;
 }
