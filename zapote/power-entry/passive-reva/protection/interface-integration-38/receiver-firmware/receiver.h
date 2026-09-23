@@ -109,6 +109,15 @@ bool pe_receiver_revalidate(pe_receiver_t *receiver, uint64_t now_ms,
 void pe_receiver_frame(pe_receiver_t *receiver, pe_frame_t frame,
                        uint64_t now_ms, pe_receiver_inputs_t inputs,
                        pe_receiver_actions_t *actions);
+/* The adapter must use these byte/idle entry points rather than the legacy
+ * bool stream API. Decoder errors abort the current attempt. */
+void pe_receiver_byte(pe_receiver_t *receiver, pe_stream_t *stream,
+                      uint8_t byte, uint64_t now_ms,
+                      pe_receiver_inputs_t inputs,
+                      pe_receiver_actions_t *actions);
+void pe_receiver_stream_idle(pe_receiver_t *receiver, pe_stream_t *stream,
+                             uint64_t now_ms, pe_receiver_inputs_t inputs,
+                             pe_receiver_actions_t *actions);
 /* Call immediately before driving the physical RUN-set pin. The adapter
  * must take a new clock reading and physical sample for this call; receipt
  * of START alone never authorizes a later queued pin write. */

@@ -298,6 +298,29 @@ void pe_receiver_frame(pe_receiver_t *receiver, pe_frame_t frame,
     abort_session(receiver, actions);
 }
 
+void pe_receiver_byte(pe_receiver_t *receiver, pe_stream_t *stream,
+                      uint8_t byte, uint64_t now_ms,
+                      pe_receiver_inputs_t inputs,
+                      pe_receiver_actions_t *actions) {
+    pe_frame_t frame;
+    pe_stream_result_t result =
+        pe_stream_push_result(stream, byte, now_ms, &frame);
+    if (result == PE_STREAM_FRAME) {
+        pe_receiver_frame(receiver, frame, now_ms, inputs, actions);
+        return;
+    }
+    pe_receiver_sample(receiver, now_ms, inputs, actions);
+    if (result == PE_STREAM_ERROR) abort_session(receiver, actions);
+}
+
+void pe_receiver_stream_idle(pe_receiver_t *receiver, pe_stream_t *stream,
+                             uint64_t now_ms, pe_receiver_inputs_t inputs,
+                             pe_receiver_actions_t *actions) {
+    bool expired = pe_stream_expire(stream, now_ms);
+    pe_receiver_sample(receiver, now_ms, inputs, actions);
+    if (expired) abort_session(receiver, actions);
+}
+
 bool pe_receiver_commit_run(pe_receiver_t *receiver, uint64_t now_ms,
                             pe_receiver_inputs_t inputs,
                             pe_receiver_actions_t *actions) {

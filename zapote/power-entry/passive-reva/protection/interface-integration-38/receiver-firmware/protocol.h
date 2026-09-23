@@ -43,6 +43,18 @@ typedef struct {
 } pe_stream_t;
 
 void pe_stream_init(pe_stream_t *stream, uint32_t max_gap_ms);
+typedef enum {
+    PE_STREAM_INCOMPLETE,
+    PE_STREAM_FRAME,
+    PE_STREAM_ERROR,
+} pe_stream_result_t;
+/* ERROR reports a malformed complete frame or an interrupted partial frame.
+ * Noise before magic remains INCOMPLETE. Session owners can abort on ERROR. */
+pe_stream_result_t pe_stream_push_result(pe_stream_t *stream, uint8_t byte,
+                                          uint64_t now_ms, pe_frame_t *frame);
+/* A partial frame whose byte gap exceeded max_gap_ms is an invalidating
+ * error even if no later byte arrives. */
+bool pe_stream_expire(pe_stream_t *stream, uint64_t now_ms);
 /* Returns true only for a complete valid frame. Malformed frames cannot
  * count as link progress. The caller must supply monotonic time. */
 bool pe_stream_push(pe_stream_t *stream, uint8_t byte, uint64_t now_ms,

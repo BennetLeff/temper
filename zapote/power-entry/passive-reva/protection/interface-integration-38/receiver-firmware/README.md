@@ -34,6 +34,14 @@ clear dominance if a trip coincides with the edge. All time windows in the
 test are arbitrary logical
 ticks; no numerical safety allowance follows from them.
 
+The byte-stream interface distinguishes incomplete input from a malformed
+complete frame or interrupted partial frame. `pe_receiver_byte` aborts the
+attempt on an invalidating decoder result; `pe_receiver_stream_idle` detects
+a partial frame that stalls with no next byte. The AVR loop must call the
+idle entry point on its periodic tick and use the byte entry point for USART
+data. Noise before a frame marker does not count as link progress. The host
+tests exercise bad CRC and an idle gap through the receiver state machine.
+
 `receiver.c` separates physical disarm observation from the two history
 resets. It first requests PA6 attempt-valid high, then a PF1 disarm-sample
 clock on a later call, then requires a fresh PC0 Q-high sample. Only then is

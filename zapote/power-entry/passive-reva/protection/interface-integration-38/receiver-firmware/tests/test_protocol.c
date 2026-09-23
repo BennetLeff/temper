@@ -70,9 +70,44 @@ static void stream_resynchronizes_without_crediting_bad_frames(void) {
     }
 }
 
+static void stream_reports_invalidating_errors(void) {
+    pe_frame_t input = {PE_START, 42, 7};
+    pe_frame_t output = {0};
+    uint8_t bytes[PE_FRAME_SIZE];
+    pe_stream_t stream;
+    pe_frame_encode(&input, bytes);
+    pe_stream_init(&stream, 5);
+    assert(pe_stream_push_result(&stream, 0x17, 0, &output) ==
+           PE_STREAM_INCOMPLETE);
+    for (size_t i = 0; i < sizeof(bytes); ++i) {
+        uint8_t byte = bytes[i] ^ (i == 6 ? 1u : 0u);
+        pe_stream_result_t result =
+            pe_stream_push_result(&stream, byte, i + 1, &output);
+        assert(result == (i == sizeof(bytes) - 1 ? PE_STREAM_ERROR
+                                                  : PE_STREAM_INCOMPLETE));
+    }
+    assert(pe_stream_push_result(&stream, bytes[0], 30, &output) ==
+           PE_STREAM_INCOMPLETE);
+    assert(pe_stream_push_result(&stream, bytes[1], 40, &output) ==
+           PE_STREAM_ERROR);
+    for (size_t i = 0; i < sizeof(bytes); ++i) {
+        pe_stream_result_t result =
+            pe_stream_push_result(&stream, bytes[i], i + 50, &output);
+        assert(result == (i == sizeof(bytes) - 1 ? PE_STREAM_FRAME
+                                                  : PE_STREAM_INCOMPLETE));
+    }
+    assert(output.type == PE_START && output.session == 42 && output.value == 7);
+    assert(pe_stream_push_result(&stream, bytes[0], 80, &output) ==
+           PE_STREAM_INCOMPLETE);
+    assert(!pe_stream_expire(&stream, 85));
+    assert(pe_stream_expire(&stream, 86));
+    assert(!pe_stream_expire(&stream, 87));
+}
+
 int main(void) {
     round_trip_all_types();
     invalid_frames_are_rejected();
     stream_resynchronizes_without_crediting_bad_frames();
+    stream_reports_invalidating_errors();
     return 0;
 }

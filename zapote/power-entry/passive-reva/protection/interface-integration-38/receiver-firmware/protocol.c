@@ -58,29 +58,51 @@ void pe_stream_init(pe_stream_t *stream, uint32_t max_gap_ms) {
     stream->max_gap_ms = max_gap_ms;
 }
 
-bool pe_stream_push(pe_stream_t *stream, uint8_t byte, uint64_t now_ms,
-                    pe_frame_t *frame) {
-    if (stream == NULL || frame == NULL || stream->max_gap_ms == 0) return false;
+pe_stream_result_t pe_stream_push_result(pe_stream_t *stream, uint8_t byte,
+                                          uint64_t now_ms, pe_frame_t *frame) {
+    if (stream == NULL || frame == NULL || stream->max_gap_ms == 0) {
+        return PE_STREAM_ERROR;
+    }
+    bool interrupted = false;
     if (stream->count != 0 &&
         (now_ms < stream->last_byte_ms ||
          now_ms - stream->last_byte_ms > stream->max_gap_ms)) {
         stream->count = 0;
+        interrupted = true;
     }
     stream->last_byte_ms = now_ms;
-    if (stream->count == 0 && byte != PE_FRAME_MAGIC) return false;
+    if (stream->count == 0 && byte != PE_FRAME_MAGIC) {
+        return interrupted ? PE_STREAM_ERROR : PE_STREAM_INCOMPLETE;
+    }
     stream->bytes[stream->count++] = byte;
-    if (stream->count != PE_FRAME_SIZE) return false;
+    if (stream->count != PE_FRAME_SIZE) {
+        return interrupted ? PE_STREAM_ERROR : PE_STREAM_INCOMPLETE;
+    }
     if (pe_frame_decode(stream->bytes, PE_FRAME_SIZE, frame)) {
         stream->count = 0;
-        return true;
+        return PE_STREAM_FRAME;
     }
     for (unsigned i = 1; i < PE_FRAME_SIZE; ++i) {
         if (stream->bytes[i] == PE_FRAME_MAGIC) {
             stream->count = PE_FRAME_SIZE - i;
             memmove(stream->bytes, stream->bytes + i, stream->count);
-            return false;
+            return PE_STREAM_ERROR;
         }
     }
     stream->count = 0;
-    return false;
+    return PE_STREAM_ERROR;
+}
+
+bool pe_stream_expire(pe_stream_t *stream, uint64_t now_ms) {
+    if (stream == NULL || stream->max_gap_ms == 0) return true;
+    if (stream->count == 0) return false;
+    if (now_ms >= stream->last_byte_ms &&
+        now_ms - stream->last_byte_ms <= stream->max_gap_ms) return false;
+    stream->count = 0;
+    return true;
+}
+
+bool pe_stream_push(pe_stream_t *stream, uint8_t byte, uint64_t now_ms,
+                    pe_frame_t *frame) {
+    return pe_stream_push_result(stream, byte, now_ms, frame) == PE_STREAM_FRAME;
 }

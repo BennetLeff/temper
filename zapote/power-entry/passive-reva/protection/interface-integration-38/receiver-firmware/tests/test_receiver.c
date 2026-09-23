@@ -345,6 +345,38 @@ static void disarm_requires_post_arm_physical_q(void) {
     assert(rx.state == PE_RX_LOCKOUT && !actions.attempt_valid);
 }
 
+static void decoder_errors_abort_physical_authorization(void) {
+    memory_t memory;
+    provision(&memory);
+    pe_journal_io_t journal = journal_for(&memory);
+    pe_receiver_t rx;
+    pe_receiver_init(&rx, (pe_receiver_config_t){10, 10, 100});
+    pe_receiver_inputs_t inputs = disarmed();
+    pe_receiver_actions_t actions;
+    uint64_t id = ready(&rx, &journal, &inputs, 1);
+    pe_stream_t stream;
+    pe_stream_init(&stream, 5);
+    uint8_t bytes[PE_FRAME_SIZE];
+    pe_frame_encode(&(pe_frame_t){PE_PING, id, 1}, bytes);
+    bytes[6] ^= 1u; /* CRC failure after a complete frame. */
+    for (size_t i = 0; i < PE_FRAME_SIZE; ++i) {
+        pe_receiver_byte(&rx, &stream, bytes[i], i + 8, inputs, &actions);
+    }
+    assert(rx.state == PE_RX_LOCKOUT && !actions.abort_n);
+    assert(!actions.attempt_valid && !actions.wdi_falling_pulse);
+
+    inputs = disarmed();
+    assert(ready(&rx, &journal, &inputs, 40) > id);
+    pe_stream_init(&stream, 5);
+    pe_receiver_byte(&rx, &stream, PE_FRAME_MAGIC, 47, inputs, &actions);
+    assert(rx.state == PE_RX_READY && actions.abort_n);
+    pe_receiver_stream_idle(&rx, &stream, 52, inputs, &actions);
+    assert(rx.state == PE_RX_READY && actions.abort_n);
+    pe_receiver_stream_idle(&rx, &stream, 53, inputs, &actions);
+    assert(rx.state == PE_RX_LOCKOUT && !actions.abort_n);
+    assert(!actions.attempt_valid);
+}
+
 int main(void) {
     start_then_stop_requires_new_id();
     start_must_be_current_at_physical_run_set();
@@ -356,5 +388,6 @@ int main(void) {
     clear_must_be_observed_after_abort_release();
     stop_during_preparation_drops_attempt_valid();
     disarm_requires_post_arm_physical_q();
+    decoder_errors_abort_physical_authorization();
     return 0;
 }
