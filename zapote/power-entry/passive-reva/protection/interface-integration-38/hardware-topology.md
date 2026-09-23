@@ -1,6 +1,6 @@
 # Rev38 hardware join contract
 
-Status: **pin-level design input and partial source/receiver/driver/watchdog/rail compiled join**,
+Status: **pin-level design input and partial source/receiver/driver/watchdog/rail/VD-VB compiled join**,
 not a complete U4 circuit or analog approval.
 This records the joins that must replace Rev35's connectivity-only fixture.
 The existing F2 detector and power-stage values remain candidate inputs;
@@ -131,11 +131,13 @@ HOT_PREP_TRIP_OK = HOT_ATTEMPT_VALID & HOT_SOURCE_HEALTH
 The HCS21's output and every unproduced safety input have local low
 defaults. The partial fixture now has a HOT TPS3431 WDO producer and two
 TPS3890 undervoltage supervisors with open-drain RESET outputs wire-ANDed
-on `HOT_RAILS_OK`. It still lacks the F2 summary, AUX overvoltage and fast
-dip producers, and source-side health/STOP GPIO logic, so its compiled
+on `HOT_RAILS_OK`. A four-channel TLV3202 VD/VB detector now drives
+`HOT_FAULT_N`. It still lacks the VD/VB physical power path, AUX overvoltage
+and fast-dip producers, and source-side health/STOP GPIO logic, so its compiled
 fan-in does not prove fault capture. The provisional logic5 and AUX falling
 thresholds are 4.531 V and 12.88 V nominal; see [HOT-RAILS.md](HOT-RAILS.md)
-for the unclosed corners. PA6/4 drives attempt-valid high before
+for the unclosed corners and [F2-DETECTOR.md](F2-DETECTOR.md) for the VD/VB
+window topology. PA6/4 drives attempt-valid high before
 the prep-reset edge and low on lockout, STOP, or reset, with a local
 pull-down. `RECEIVER_ABORT_N` cannot serve this role while it is already low
 through preparation. The second one-shot Q clocks a separate SN74HCS74
@@ -182,8 +184,8 @@ corners are still open.
 
 ## Evidence needed to promote this to U4 PASS
 
-1. Select and compile the remaining actual F2, AUX overvoltage/fast-dip,
-   AUX source, reservoir, and PFC control/power parts in **one**
+1. Select and compile the remaining actual F2 fuse/VD/VB power path, AUX
+   overvoltage/fast-dip, AUX source, reservoir, and PFC control/power parts in **one**
    Atopile 0.2.69 entry. Rev35's `clear_core_ok` includes PERMIT and cannot
    be reused as `SESSION_CLEAR_N`.
 2. Audit every producer and consumer by physical pin; mutate each critical

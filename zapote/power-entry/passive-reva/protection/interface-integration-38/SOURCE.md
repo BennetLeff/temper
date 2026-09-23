@@ -1,7 +1,8 @@
 # Rev38 source authority fixture
 
 `elec/src/source_authority.ato` is the SELV source-side candidate joined to
-`receiver_isolation.ato`, `hot_watchdog.ato`, `hot_rails.ato` and `driver_stage.ato` by
+`receiver_isolation.ato`, `hot_watchdog.ato`, `hot_rails.ato`,
+`f2_detector.ato` and `driver_stage.ato` by
 `power_entry_integrated_38.ato`. The joined
 Atopile build connects five physical source/receiver paths: source PERMIT
 and health forward, STOP forward, and physical HOT PERMIT plus retained HOT
@@ -49,6 +50,7 @@ uvx --from atopile==0.2.69 ato --non-interactive build -b source
 uvx --from atopile==0.2.69 ato --non-interactive build -b driver
 uvx --from atopile==0.2.69 ato --non-interactive build -b hot_watchdog
 uvx --from atopile==0.2.69 ato --non-interactive build -b hot_rails
+uvx --from atopile==0.2.69 ato --non-interactive build -b f2_detector
 uvx --from atopile==0.2.69 ato --non-interactive build -b integrated
 rustc --edition=2021 --test audit.rs -o /tmp/temper-rev38-isolation-audit
 /tmp/temper-rev38-isolation-audit
@@ -61,7 +63,9 @@ the WDO-to-health-to-source-clear path, physical-readback history,
 independent raw set/reset clocks, and SELV/HOT domain separation. Mutation
 tests remove WDO, HOT feedback, and readback-loss inputs, swap feedback,
 and bridge the isolation boundary. HOT rail mutations remove RESET and sense
-connections, disconnect AUX, and short AUX to logic5. HOT watchdog mutations remove WDI, WDO,
+connections, disconnect AUX, and short AUX to logic5. F2 detector mutations
+open a divider, swap an absolute-OV input, disconnect a cross-sense input,
+and break the joined trip and supply. HOT watchdog mutations remove WDI, WDO,
 CWD, EN, or its pull-up. Driver mutations remove the ENA clamp,
 base bias, receiver abort, and PowerPAD return or short the gate to AUX.
 Connectivity does not establish logic

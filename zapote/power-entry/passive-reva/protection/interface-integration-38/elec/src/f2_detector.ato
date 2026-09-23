@@ -1,0 +1,209 @@
+# Rev38 VD/VB detector candidate. Derived from the four TLV3202 channels
+# in Rev35, without Rev35's ARM latch or UCC27511A gate-driver logic.
+# This is a pin topology, not a qualified fault threshold or shutdown time.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "receiver_isolation.ato" import HotPrepTripAnd, R, C
+
+component F2Comparator:
+    mpn = "TLV3202IDR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tlv3202.pdf"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal OUT1 ~ pin 1
+    signal IN1_N ~ pin 2
+    signal IN1_P ~ pin 3
+    signal GND ~ pin 4
+    signal IN2_P ~ pin 5
+    signal IN2_N ~ pin 6
+    signal OUT2 ~ pin 7
+    signal VCC ~ pin 8
+
+component F2Reference:
+    mpn = "LM4040A25IDBZR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/lm4040.pdf"
+    # Distinct provisional key prevents Atopile 0.2.69 from exporting the
+    # driver's PMBT3904 metadata for this same-package reference.
+    footprint = "TBD_REVIEW_ONLY:F2_LM4040A25_SOT23"
+    signal K ~ pin 1
+    signal A ~ pin 2
+    signal NC ~ pin 3
+
+component F2HvR200k:
+    mpn = "TNPW1206200KBEEA"
+    manufacturer = "Vishay"
+    footprint = "TBD_REVIEW_ONLY:F2_HV_R200K_1206"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component F2HvR187k:
+    mpn = "TNPW1206187KBEEA"
+    manufacturer = "Vishay"
+    footprint = "TBD_REVIEW_ONLY:F2_HV_R187K_1206"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component F2HvR200:
+    mpn = "TNPW1206200RBEEA"
+    manufacturer = "Vishay"
+    footprint = "TBD_REVIEW_ONLY:F2_HV_R200_1206"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component F2HvR5k62:
+    mpn = "TNPW12065K62BEEA"
+    manufacturer = "Vishay"
+    footprint = "TBD_REVIEW_ONLY:F2_HV_R5K62_1206"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component F2FilterC47p:
+    mpn = "GRM1885C1H470JA01D"
+    manufacturer = "Murata"
+    footprint = "TBD_REVIEW_ONLY:F2_FILTER_47P_0603"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component F2InputR22k:
+    mpn = "RC0603FR-0722KL"
+    manufacturer = "Yageo"
+    footprint = "TBD_REVIEW_ONLY:F2_INPUT_R22K_0603"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module F2Divider38:
+    signal bus
+    signal high
+    signal low
+    signal gnd
+    r1 = new F2HvR200k
+    r2 = new F2HvR200k
+    r3 = new F2HvR200k
+    r4 = new F2HvR200k
+    r5 = new F2HvR187k
+    step = new F2HvR200
+    bottom = new F2HvR5k62
+    filter = new F2FilterC47p
+    r1.value = 200kohm
+    r2.value = 200kohm
+    r3.value = 200kohm
+    r4.value = 200kohm
+    r5.value = 187kohm
+    step.value = 200ohm
+    bottom.value = 5.62kohm
+    filter.value = 47pF
+    bus ~ r1.p1
+    r1.p2 ~ r2.p1
+    r2.p2 ~ r3.p1
+    r3.p2 ~ r4.p1
+    r4.p2 ~ r5.p1
+    r5.p2 ~ high
+    high ~ step.p1
+    step.p2 ~ low
+    low ~ bottom.p1
+    bottom.p2 ~ gnd
+    filter.p1 ~ high
+    filter.p2 ~ gnd
+
+module F2Detector38:
+    signal VD_LOCAL
+    signal VB_BANK
+    signal HOT_LOGIC5
+    signal HOT0
+    signal HOT_FAULT_N
+    signal REF25
+
+    vd_div = new F2Divider38
+    vb_div = new F2Divider38
+    vd_div.bus ~ VD_LOCAL
+    vb_div.bus ~ VB_BANK
+    vd_div.gnd ~ HOT0
+    vb_div.gnd ~ HOT0
+
+    reference = new F2Reference
+    reference.K ~ REF25
+    reference.A ~ HOT0
+    ref_bias = new R
+    ref_bias.value = 10kohm
+    ref_bias.p1 ~ HOT_LOGIC5
+    ref_bias.p2 ~ REF25
+    ref_bypass = new C
+    ref_bypass.value = 100nF
+    ref_bypass.p1 ~ REF25
+    ref_bypass.p2 ~ HOT0
+
+    cmp_vd = new F2Comparator
+    cmp_vb = new F2Comparator
+    cmp_vd.VCC ~ HOT_LOGIC5
+    cmp_vb.VCC ~ HOT_LOGIC5
+    cmp_vd.GND ~ HOT0
+    cmp_vb.GND ~ HOT0
+    c_vd = new C
+    c_vd.value = 100nF
+    c_vd.p1 ~ HOT_LOGIC5
+    c_vd.p2 ~ HOT0
+    c_vb = new C
+    c_vb.value = 100nF
+    c_vb.p1 ~ HOT_LOGIC5
+    c_vb.p2 ~ HOT0
+
+    # All four outputs are high for the intended healthy input window.
+    # These series elements are candidates for charged-bus injection limits;
+    # their current, tolerance and resulting speed need electrical review.
+    vd_ov_ref = new F2InputR22k
+    vd_ov = new F2InputR22k
+    vd_mismatch_p = new F2InputR22k
+    vb_mismatch_n = new F2InputR22k
+    vb_ov_ref = new F2InputR22k
+    vb_ov = new F2InputR22k
+    vb_mismatch_p = new F2InputR22k
+    vd_mismatch_n = new F2InputR22k
+    vd_ov_ref.value = 22kohm
+    vd_ov.value = 22kohm
+    vd_mismatch_p.value = 22kohm
+    vb_mismatch_n.value = 22kohm
+    vb_ov_ref.value = 22kohm
+    vb_ov.value = 22kohm
+    vb_mismatch_p.value = 22kohm
+    vd_mismatch_n.value = 22kohm
+    vd_ov_ref.p1 ~ REF25
+    vd_ov_ref.p2 ~ cmp_vd.IN1_P
+    vd_ov.p1 ~ vd_div.high
+    vd_ov.p2 ~ cmp_vd.IN1_N
+    vd_mismatch_p.p1 ~ vd_div.high
+    vd_mismatch_p.p2 ~ cmp_vd.IN2_P
+    vb_mismatch_n.p1 ~ vb_div.low
+    vb_mismatch_n.p2 ~ cmp_vd.IN2_N
+    vb_ov_ref.p1 ~ REF25
+    vb_ov_ref.p2 ~ cmp_vb.IN1_P
+    vb_ov.p1 ~ vb_div.high
+    vb_ov.p2 ~ cmp_vb.IN1_N
+    vb_mismatch_p.p1 ~ vb_div.high
+    vb_mismatch_p.p2 ~ cmp_vb.IN2_P
+    vd_mismatch_n.p1 ~ vd_div.low
+    vd_mismatch_n.p2 ~ cmp_vb.IN2_N
+
+    health = new HotPrepTripAnd
+    health.VCC ~ HOT_LOGIC5
+    health.GND ~ HOT0
+    health.A1 ~ cmp_vd.OUT1
+    health.B1 ~ cmp_vd.OUT2
+    health.C1 ~ cmp_vb.OUT1
+    health.D1 ~ cmp_vb.OUT2
+    health.Y1 ~ HOT_FAULT_N
+    # Tie unused gate inputs low; Y2 is deliberately not connected.
+    health.A2 ~ HOT0
+    health.B2 ~ HOT0
+    health.C2 ~ HOT0
+    health.D2 ~ HOT0
+    c_health = new C
+    c_health.value = 100nF
+    c_health.p1 ~ HOT_LOGIC5
+    c_health.p2 ~ HOT0

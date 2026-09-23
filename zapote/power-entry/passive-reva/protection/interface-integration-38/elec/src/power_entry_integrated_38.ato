@@ -7,6 +7,7 @@ from "source_authority.ato" import SourceAuthority38
 from "driver_stage.ato" import DriverStage38
 from "hot_watchdog.ato" import HotWatchdog38
 from "hot_rails.ato" import HotRails38
+from "f2_detector.ato" import F2Detector38
 
 module PowerEntryIntegrated38:
     receiver = new ReceiverIsolation38
@@ -14,6 +15,7 @@ module PowerEntryIntegrated38:
     driver = new DriverStage38
     hot_watchdog = new HotWatchdog38
     hot_rails = new HotRails38
+    f2_detector = new F2Detector38
 
     source.SELV3V3 ~ receiver.SELV3V3
     source.SELV_GND ~ receiver.SELV_GND
@@ -39,3 +41,6 @@ module PowerEntryIntegrated38:
     hot_rails.HOT0 ~ receiver.HOT0
     hot_rails.HOT_RAILS_OK ~ receiver.HOT_RAILS_OK
     hot_rails.AUX_PROTECTED ~ driver.AUX_PROTECTED
+    f2_detector.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
+    f2_detector.HOT0 ~ receiver.HOT0
+    f2_detector.HOT_FAULT_N ~ receiver.HOT_FAULT_N

@@ -10,5 +10,7 @@ builds:
     entry: elec/src/hot_watchdog.ato:HotWatchdog38
   hot_rails:
     entry: elec/src/hot_rails.ato:HotRails38
+  f2_detector:
+    entry: elec/src/f2_detector.ato:F2Detector38
   integrated:
     entry: elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38
