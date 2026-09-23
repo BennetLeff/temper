@@ -21,13 +21,17 @@ enter one [SN74HCS21](https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf):
 | VB absolute OV | REF25 | VB high tap | VB above its reference crossing |
 | VB/VD relative window | VB high tap | VD low tap | VB too low relative to VD |
 
-The AND output `HOT_FAULT_N` joins AVR PC2/8 and the retained
+The first AND output combines the four VD/VB channels. Its second gate
+requires the separate [AUX window](AUX-WINDOW.md) output high; a 10 kΩ local
+pull-down holds that input low if the producer is absent. The second AND
+output `HOT_FAULT_N` joins AVR PC2/8 and the retained
 `HOT_PREP_TRIP_OK` fan-in; a receiver-local 10 kΩ resistor holds it low when
 the detector output is missing. A qualified low therefore clears the HOT
 session and RUN through the existing hardware path and enters preparation
 abort memory. A rising comparator output after recovery cannot set those
 memories. The standalone and joined netlists pass exact part/pin checks and
-negative divider, comparator, summary-output, rail and trip-join mutations.
+negative divider, comparator, AUX-window, summary-output, rail and trip-join
+mutations.
 
 The trip points are **not accepted**. The actual VD/VB allowed ranges,
 divider tolerance and voltage rating per resistor, LM4040 current and startup,

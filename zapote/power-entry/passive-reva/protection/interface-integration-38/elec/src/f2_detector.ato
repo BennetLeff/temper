@@ -118,6 +118,8 @@ module F2Detector38:
     signal HOT_LOGIC5
     signal HOT0
     signal HOT_FAULT_N
+    signal AUX_WINDOW_OK
+    signal VDVB_HEALTH
     signal REF25
 
     vd_div = new F2Divider38
@@ -197,12 +199,16 @@ module F2Detector38:
     health.B1 ~ cmp_vd.OUT2
     health.C1 ~ cmp_vb.OUT1
     health.D1 ~ cmp_vb.OUT2
-    health.Y1 ~ HOT_FAULT_N
-    # Tie unused gate inputs low; Y2 is deliberately not connected.
-    health.A2 ~ HOT0
-    health.B2 ~ HOT0
-    health.C2 ~ HOT0
-    health.D2 ~ HOT0
+    health.Y1 ~ VDVB_HEALTH
+    health.A2 ~ VDVB_HEALTH
+    health.B2 ~ AUX_WINDOW_OK
+    health.C2 ~ HOT_LOGIC5
+    health.D2 ~ HOT_LOGIC5
+    health.Y2 ~ HOT_FAULT_N
+    aux_window_pd = new R
+    aux_window_pd.value = 10kohm
+    aux_window_pd.p1 ~ AUX_WINDOW_OK
+    aux_window_pd.p2 ~ HOT0
     c_health = new C
     c_health.value = 100nF
     c_health.p1 ~ HOT_LOGIC5

@@ -1,4 +1,4 @@
-# Partial source/receiver join. The PFC/F2/driver and HOT watchdog producers
+# Partial source/receiver/protection join. PFC power and supply producers
 # remain unconnected and must be added before U4 can pass.
 #pragma experiment("MODULE_TEMPLATING")
 #pragma experiment("TRAITS")
@@ -8,6 +8,7 @@ from "driver_stage.ato" import DriverStage38
 from "hot_watchdog.ato" import HotWatchdog38
 from "hot_rails.ato" import HotRails38
 from "f2_detector.ato" import F2Detector38
+from "aux_window.ato" import AuxWindow38
 
 module PowerEntryIntegrated38:
     receiver = new ReceiverIsolation38
@@ -16,6 +17,7 @@ module PowerEntryIntegrated38:
     hot_watchdog = new HotWatchdog38
     hot_rails = new HotRails38
     f2_detector = new F2Detector38
+    aux_window = new AuxWindow38
 
     source.SELV3V3 ~ receiver.SELV3V3
     source.SELV_GND ~ receiver.SELV_GND
@@ -44,3 +46,8 @@ module PowerEntryIntegrated38:
     f2_detector.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
     f2_detector.HOT0 ~ receiver.HOT0
     f2_detector.HOT_FAULT_N ~ receiver.HOT_FAULT_N
+    aux_window.AUX_PROTECTED ~ driver.AUX_PROTECTED
+    aux_window.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
+    aux_window.HOT0 ~ receiver.HOT0
+    aux_window.REF25 ~ f2_detector.REF25
+    aux_window.AUX_WINDOW_OK ~ f2_detector.AUX_WINDOW_OK

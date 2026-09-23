@@ -12,5 +12,7 @@ builds:
     entry: elec/src/hot_rails.ato:HotRails38
   f2_detector:
     entry: elec/src/f2_detector.ato:F2Detector38
+  aux_window:
+    entry: elec/src/aux_window.ato:AuxWindow38
   integrated:
     entry: elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38

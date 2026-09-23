@@ -2,7 +2,7 @@
 
 `elec/src/source_authority.ato` is the SELV source-side candidate joined to
 `receiver_isolation.ato`, `hot_watchdog.ato`, `hot_rails.ato`,
-`f2_detector.ato` and `driver_stage.ato` by
+`f2_detector.ato`, `aux_window.ato` and `driver_stage.ato` by
 `power_entry_integrated_38.ato`. The joined
 Atopile build connects five physical source/receiver paths: source PERMIT
 and health forward, STOP forward, and physical HOT PERMIT plus retained HOT
@@ -51,6 +51,7 @@ uvx --from atopile==0.2.69 ato --non-interactive build -b driver
 uvx --from atopile==0.2.69 ato --non-interactive build -b hot_watchdog
 uvx --from atopile==0.2.69 ato --non-interactive build -b hot_rails
 uvx --from atopile==0.2.69 ato --non-interactive build -b f2_detector
+uvx --from atopile==0.2.69 ato --non-interactive build -b aux_window
 uvx --from atopile==0.2.69 ato --non-interactive build -b integrated
 rustc --edition=2021 --test audit.rs -o /tmp/temper-rev38-isolation-audit
 /tmp/temper-rev38-isolation-audit
@@ -65,7 +66,9 @@ tests remove WDO, HOT feedback, and readback-loss inputs, swap feedback,
 and bridge the isolation boundary. HOT rail mutations remove RESET and sense
 connections, disconnect AUX, and short AUX to logic5. F2 detector mutations
 open a divider, swap an absolute-OV input, disconnect a cross-sense input,
-and break the joined trip and supply. HOT watchdog mutations remove WDI, WDO,
+and break the joined trip and supply. AUX window mutations open a divider,
+swap the OV input, and break its output or shared reference. HOT watchdog
+mutations remove WDI, WDO,
 CWD, EN, or its pull-up. Driver mutations remove the ENA clamp,
 base bias, receiver abort, and PowerPAD return or short the gate to AUX.
 Connectivity does not establish logic

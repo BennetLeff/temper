@@ -6,7 +6,8 @@ fixture timing, typical data, or a simulation screen into an accepted limit.
 The complete joined Rev38 circuit, installed power-stage envelope, and
 prototype captures do not yet exist. The AVR64DA32, two ISO774xF devices,
 source and HOT TPS3431 devices, retained source/HOT memories, dual HOT TPS3890
-undervoltage supervisors, four TLV3202 VD/VB channels, and UCC27624/STW driver stage
+undervoltage supervisors, four TLV3202 VD/VB channels, two AUX window
+channels, and UCC27624/STW driver stage
 compile in a partial joined fixture; their presence does not close a
 complete response path.
 
@@ -127,10 +128,13 @@ are completed.
 `F2-DETECTOR.md` records the four-channel VD/VB topology and its open
 threshold, pulse and power-state analysis. The VD/VB external ports still
 lack the physical F2/reservoir/PFC producers in this compiled join.
+`AUX-WINDOW.md` records the separately joined fast-dip and OV candidate,
+whose 13.25 V and 16.5 V nominal crossings and part delays do not establish
+an allowable AUX range or qualified fault response.
 `HOT-RAILS.md` records the selected HOT undervoltage producer topology and
 an illustrative static threshold screen. Its 100 pF CT values and nominal
 trip points do not establish rail-failure detection or capture time. The
-AUX overvoltage and fast-dip paths remain separate missing producers.
+The protected AUX source remains a separate missing producer.
 
 ## Existing conditional F2 screen — not an accepted limit
 
