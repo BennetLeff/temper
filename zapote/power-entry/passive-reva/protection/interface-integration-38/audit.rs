@@ -357,12 +357,11 @@ fn check_source(g: &Graph) -> Result<(), String> {
     if g.parts.len() != 48 { return Err(format!("expected 48 source parts, found {}", g.parts.len())); }
     for (id, part) in [
         ("watchdog", "TPS3431SDRBR"),
-        ("wdi_buffer", "SN74LVC1G17DBVR"),
         ("cwd", "GRM1885C1H102JA01D"),
         ("rail", "TPS389001DSER"),
         ("rail_top", "RC0603FR-0716KL"),
         ("heartbeat_pd", "RC0603FR-07100KL"),
-        ("wdi_pd", "RC0603FR-07100KL"),
+        ("wdi_pu", "RC0603FR-07100KL"),
         ("health", "SN74HCS21PWR"),
         ("prewatchdog_pd", "RC0603FR-0710KL"),
         ("inv", "SN74HCS04PWR"),
@@ -373,13 +372,15 @@ fn check_source(g: &Graph) -> Result<(), String> {
         ("permit_clear", "SN74HCS21PWR"),
         ("permit", "SN74HCS74PWR"),
         ("reset_c", "GRM188R71H103KA01D"),
+        ("wdi_pulse_c", "GRM188R71H103KA01D"),
+        ("wdi_pulse_r", "RC0603FR-0710KL"),
     ] {
         if g.parts.get(id).is_none_or(|found| found != part) {
             return Err(format!("wrong source part identity for {id}"));
         }
     }
     for (net, expected) in [
-        ("source_validated_heartbeat", "wdi_buffer:2 heartbeat_pd:1"),
+        ("source_validated_heartbeat", "seen_reset_pulse:10 heartbeat_pd:1"),
         ("source_reset_good", "health:1 health:9 reset_good_pd:1"),
         ("source_interlock_n", "health:4 health:10 interlock_pd:1"),
         ("source_stop_n", "permit_clear:2 stop_pd:1"),
@@ -396,7 +397,9 @@ fn check_source(g: &Graph) -> Result<(), String> {
         ("source_clear_n", "permit_clear:6 permit:1 permit:2 clear_pd:1"),
         ("source_rail_reset_n", "rail:6 rail_reset_pu:2 health:5 health:12"),
         ("source_watchdog_good", "watchdog:7 watchdog:8 wdo_pu:2 health:2"),
-        ("source_wdi", "watchdog:6 wdi_buffer:4 wdi_pd:1"),
+        ("source_wdi", "watchdog:6 seen_reset_pulse:12 wdi_pu:2"),
+        ("source_wdi_cext", "seen_reset_pulse:6 wdi_pulse_c:2"),
+        ("source_wdi_rext_cext", "seen_reset_pulse:7 wdi_pulse_r:2 wdi_pulse_c:1"),
         ("source_wd_cwd", "watchdog:2 cwd:1"),
         ("source_rail_sense", "rail:1 rail_top:2 rail_bottom:1"),
         ("source_rail_ct", "rail:5 rail_ct:1"),
@@ -423,8 +426,9 @@ fn check_source(g: &Graph) -> Result<(), String> {
         ("seen", "1", "selv3v3"), ("permit", "4", "selv3v3"),
         ("seen_reset_pulse", "3", "selv3v3"),
         ("seen_reset_pulse", "9", "selv_gnd"),
-        ("seen_reset_pulse", "10", "selv_gnd"),
-        ("seen_reset_pulse", "11", "selv_gnd"),
+        ("seen_reset_pulse", "11", "selv3v3"),
+        ("wdi_pu", "1", "selv3v3"),
+        ("wdi_pulse_r", "1", "selv3v3"),
         ("permit_q_pd", "2", "selv_gnd"),
         ("clear_pd", "2", "selv_gnd"),
         ("loss_pd", "2", "selv_gnd"),
@@ -1644,6 +1648,22 @@ mod tests {
     fn source_watchdog_clear_bypass_fails() {
         let mut g = source_fixture();
         g.pins.insert(("health".into(), "2".into()), "selv3v3".into());
+        assert!(check_source(&g).is_err());
+    }
+
+    #[test]
+    fn source_reset_input_fall_cannot_be_wdi_trigger() {
+        let mut g = source_fixture();
+        g.pins.insert(("seen_reset_pulse".into(), "10".into()),
+                      "selv_gnd".into());
+        assert!(check_source(&g).is_err());
+    }
+
+    #[test]
+    fn source_wdi_must_use_active_low_one_shot_output() {
+        let mut g = source_fixture();
+        g.pins.insert(("watchdog".into(), "6".into()),
+                      "source_validated_heartbeat".into());
         assert!(check_source(&g).is_err());
     }
 

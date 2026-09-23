@@ -19,17 +19,6 @@ component SourceWatchdog:
     signal ENOUT ~ pin 8
     signal EP ~ pin 9
 
-component SourceWdiBuffer:
-    mpn = "SN74LVC1G17DBVR"
-    manufacturer = "Texas Instruments"
-    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf"
-    footprint = "TBD_REVIEW_ONLY:SN74LVC1G17DBVR_SOT23-5"
-    signal NC ~ pin 1
-    signal A ~ pin 2
-    signal GND ~ pin 3
-    signal Y ~ pin 4
-    signal VCC ~ pin 5
-
 component SourceRailSupervisor:
     mpn = "TPS389001DSER"
     manufacturer = "Texas Instruments"
@@ -97,6 +86,8 @@ module SourceAuthority38:
     signal SOURCE_SEEN_RESET_ALLOWED
     signal SOURCE_SEEN_RESET_D
     signal SOURCE_SEEN_RESET_RAW_N
+    signal SOURCE_WDI_CEXT
+    signal SOURCE_WDI_REXT_CEXT
 
     # TPS3431 remains enabled; WDO and ENOUT are open-drain and share one
     # pull-up. A rebooted ESP must not resume WDI until physical disarm.
@@ -110,11 +101,6 @@ module SourceAuthority38:
     watchdog.WDI ~ SOURCE_WDI
     watchdog.WDO ~ SOURCE_WATCHDOG_GOOD
     watchdog.ENOUT ~ SOURCE_WATCHDOG_GOOD
-    wdi_buffer = new SourceWdiBuffer
-    wdi_buffer.VCC ~ SELV3V3
-    wdi_buffer.GND ~ SELV_GND
-    wdi_buffer.A ~ SOURCE_VALIDATED_HEARTBEAT
-    wdi_buffer.Y ~ SOURCE_WDI
     cwd = new SourceCwd1n
     cwd.value = 1nF
     cwd.p1 ~ SOURCE_WD_CWD
@@ -127,10 +113,14 @@ module SourceAuthority38:
     heartbeat_pd.value = 100kohm
     heartbeat_pd.p1 ~ SOURCE_VALIDATED_HEARTBEAT
     heartbeat_pd.p2 ~ SELV_GND
-    wdi_pd = new SourceR100k
-    wdi_pd.value = 100kohm
-    wdi_pd.p1 ~ SOURCE_WDI
-    wdi_pd.p2 ~ SELV_GND
+    # WDI must be high at rest. The spare rising-trigger channel below
+    # converts one validated request edge into a finite active-low pulse.
+    # A retained-high ESP pad becoming high-Z/low on CPU reset cannot create
+    # the falling WDI edge that a direct buffer would create.
+    wdi_pu = new SourceR100k
+    wdi_pu.value = 100kohm
+    wdi_pu.p1 ~ SELV3V3
+    wdi_pu.p2 ~ SOURCE_WDI
 
     rail = new SourceRailSupervisor
     rail.VDD ~ SELV3V3
@@ -227,9 +217,20 @@ module SourceAuthority38:
     seen_reset_pulse.A1 ~ SELV_GND
     seen_reset_pulse.B1 ~ SOURCE_SEEN_RESET_REQUEST
     seen_reset_pulse.Q1_N ~ SOURCE_SEEN_RESET_RAW_N
-    seen_reset_pulse.CLR2_N ~ SELV_GND
+    seen_reset_pulse.CLR2_N ~ SELV3V3
     seen_reset_pulse.A2 ~ SELV_GND
-    seen_reset_pulse.B2 ~ SELV_GND
+    seen_reset_pulse.B2 ~ SOURCE_VALIDATED_HEARTBEAT
+    seen_reset_pulse.Q2_N ~ SOURCE_WDI
+    seen_reset_pulse.CEXT2 ~ SOURCE_WDI_CEXT
+    seen_reset_pulse.REXT_CEXT2 ~ SOURCE_WDI_REXT_CEXT
+    wdi_pulse_r = new R
+    wdi_pulse_r.value = 10kohm
+    wdi_pulse_r.p1 ~ SELV3V3
+    wdi_pulse_r.p2 ~ SOURCE_WDI_REXT_CEXT
+    wdi_pulse_c = new TimingC10n
+    wdi_pulse_c.value = 10nF
+    wdi_pulse_c.p1 ~ SOURCE_WDI_REXT_CEXT
+    wdi_pulse_c.p2 ~ SOURCE_WDI_CEXT
     reset_r = new R
     reset_r.value = 10kohm
     reset_r.p1 ~ SELV3V3
@@ -345,10 +346,6 @@ module SourceAuthority38:
     c_watchdog.value = 100nF
     c_watchdog.p1 ~ SELV3V3
     c_watchdog.p2 ~ SELV_GND
-    c_buffer = new C
-    c_buffer.value = 100nF
-    c_buffer.p1 ~ SELV3V3
-    c_buffer.p2 ~ SELV_GND
     c_rail = new C
     c_rail.value = 100nF
     c_rail.p1 ~ SELV3V3

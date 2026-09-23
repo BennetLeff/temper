@@ -31,8 +31,10 @@ action sequencer for that core. It writes STOP low before draining UART at
 boot, leaves WDI untouched, applies challenge before the history-reset pulse,
 separates the pulse
 and physical Q confirmation across scheduler ticks, applies permit-set only
-after a fresh readback, and commits START at the nonqueued UART write. WDI
-falls before a blocking UART send and is rejected if a callback consumed the
+after a fresh readback, and commits START at the nonqueued UART write. The
+validated heartbeat **request** rises before a blocking UART send; the
+one-shot then supplies a falling WDI edge. The request is rejected if its
+callback consumed the
 configured sample-to-pin interval. An I/O failure requests STOP, cancels TX,
 and permanently locks the runtime until reboot. These callbacks have no
 selected ESP GPIOs or target implementation yet; their bounds are host
@@ -49,13 +51,24 @@ source WDI pin owner, boot pin-level capture, or ESP-IDF target build is yet
 present. The existing unconditional TPS3823 feed in `state_machine.c` remains
 a different circuit and cannot be counted as the new TPS3431 feed.
 
-The host runtime no longer drives a retained-high WDI GPIO low during boot:
+The host runtime no longer drives a retained-high heartbeat-request GPIO low during boot:
 its first WDI callback is permitted only after a fresh physical-disarm
 sample and local safety progress. This removes one software-created feed
-edge in the host sequence. ESP reset may still change pad drive or permit
-an edge before this adapter runs. No bootloader/other-core/pad-retention
+edge in the host sequence. The former direct buffer would still have made
+a watchdog feed when a retained-high ESP pad became high impedance and its
+pull-down took over during CPU reset. The joined source candidate now uses
+the spare SN74LV221A-Q1 channel: A2 is low, B2 is the ESP request with a
+100 kΩ pull-down, and active-low Q2_N drives WDI with a 100 kΩ pull-up.
+Only a **rising** B2 request makes the finite low WDI pulse; a B2 fall on
+reset cannot service TPS3431. The requested adapter pulse must begin low,
+rise once, and return low even if the pad was retained high. The 10 kΩ/10 nF
+timing pair targets approximately 100 µs in TI's 3.3 V example. ESP boot,
+the other core, GPIO peripheral ownership, or a queued write could still
+make an unintended **rising** request edge. No bootloader/other-core/pad-retention
 capture yet bounds the actual post-reset feed tail or proves the external
-STOP transition. Do not enter zero for that term in the reset inequality.
+STOP transition. Intermediate SELV rail loss could also change the one-shot
+output while TPS3431 is active; this needs a rail-ordering test. Do not enter
+zero for the post-reset feed-tail term in the reset inequality.
 
 The core's `safety_ok` sample means external interlocks **excluding** WDO;
 the source may need a first qualified WDI edge after physical disarm to
@@ -75,8 +88,9 @@ The target must verify threshold/loading, boot sampling, and the relationship
 between this sample and the independently clearing source health gate.
 
 `TPS3431SDRBR` is continuously enabled. Its open-drain WDO and ENOUT pins
-share a 10 kΩ SELV pull-up. `SN74LVC1G17DBVR` buffers one software-owned
-heartbeat to WDI. The installed candidate CWD is Murata
+share a 10 kΩ SELV pull-up. The source SN74LV221A-Q1's second channel shapes
+one software-owned positive request edge into WDI's negative feed edge. The
+installed candidate CWD is Murata
 `GRM1885C1H102JA01D`, 1 nF C0G ±5% at 50 V. The source-health AND also
 requires the SELV rail supervisor, reset-good, and interlock high. The
 reset-good and interlock signals remain external inputs with local low
@@ -100,7 +114,8 @@ coincident-event, pulse-width, and rail-ramp behavior remain unqualified.
 
 The source pull resistors are provisional. The assembled circuit must
 calculate loaded ESP GPIO high levels, isolator input loading, supervisor
-threshold and delay, one-shot width at 3.3 V, readback pulse capture,
+threshold and delay, both one-shot widths at 3.3 V and rail corners,
+readback pulse capture,
 partial-power leakage, and fault-to-clear timing. Several parts use
 `TBD_REVIEW_ONLY` footprint keys solely to prevent Atopile 0.2.69 from
 merging unlike MPN metadata; no land pattern or BOM sourcing is approved.

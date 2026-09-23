@@ -64,11 +64,16 @@ is not the complete term and is not an allowable interval.
 The new `firmware/main/power_entry_authorization.c` host core starts in
 lockout without a WDI request and issues no START after reinitialization.
 Its synchronous `power_entry_source_runtime.c` adapter drives STOP low,
-drains UART, and leaves WDI untouched at boot. A retained-high WDI pad is
-not driven low by that host sequence; the first requested falling edge waits
-for physical disarm and local progress. The adapter still does not own an
-ESP pin. Reset-time pad tri-state or another owner may still create an edge
-before the adapter runs. No bootloader,
+drains UART, and leaves the heartbeat-request GPIO untouched at boot. A
+retained-high request pad is
+not driven low by that host sequence. The joined circuit now puts a
+rising-trigger SN74LV221A-Q1 between the ESP heartbeat request and WDI: a
+high-to-low request-pad transition on CPU reset cannot become TPS3431's
+qualifying WDI falling edge. The first deliberate request rise waits for
+physical disarm and local progress. The adapter still does not own an ESP
+pin. Reset-time pad reconfiguration, bootloader activity, or another owner
+may still create a **rising request** before this adapter runs; partial rail
+collapse may also alter the one-shot output. No bootloader,
 other-core, GPIO-retention, queue-to-pin, or peripheral-autonomous-edge
 evidence exists, so the post-reset feed tail remains **UNBOUNDED** for
 numerical acceptance.

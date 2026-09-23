@@ -17,9 +17,10 @@ typedef struct {
     uint64_t (*now_ms)(void *context);
     pe_source_inputs_t (*sample)(void *context);
     bool (*set_level)(void *context, pe_source_pin_t pin, bool high);
-    /* A synchronous falling edge that returns the pad low. The first call
-     * must also work from a retained-high pad, without a boot-time write.
-     * No queued, timer, DMA or ISR owner. */
+    /* A synchronous low-high-low request. The positive edge triggers the
+     * SELV one-shot, whose active-low output supplies the WDI falling edge.
+     * First drive low even from a retained-high pad, without a boot-time
+     * write. No queued, timer, DMA or ISR owner. */
     bool (*pulse)(void *context, pe_source_pin_t pin);
     /* Stop and drain pending UART TX, including the hardware shift register.
      * Required before an abort or deliberate disarm can be acknowledged. */

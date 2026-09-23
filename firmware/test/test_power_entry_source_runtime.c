@@ -37,7 +37,8 @@ static bool fake_set(void *context, pe_source_pin_t pin, bool high) {
     fake_io_t *fake = context;
     if (pin == PE_SOURCE_PIN_WDI_HEARTBEAT) {
         ++fake->wdi_set_calls;
-        if (fake->levels[pin] && !high) ++fake->wdi_falling_edges;
+        /* The one-shot triggers only on this request's positive edge. */
+        if (!fake->levels[pin] && high) ++fake->wdi_falling_edges;
     }
     fake->levels[pin] = high;
     if (pin == PE_SOURCE_PIN_STOP_N && high && fake->delay_ack_apply) {
@@ -67,9 +68,11 @@ static bool fake_pulse(void *context, pe_source_pin_t pin) {
         if (fake->slow_permit_pulse) fake->now = 12;
     }
     if (pin == PE_SOURCE_PIN_WDI_HEARTBEAT) {
-        /* A retained-high pad can fall only after physical disarm. */
-        ++fake->wdi_falling_edges;
-        fake->levels[pin] = false;
+        /* A retained-high pad first falls harmlessly, then the deliberate
+         * positive edge makes one active-low pulse at physical WDI. */
+        assert(fake_set(fake, pin, false));
+        assert(fake_set(fake, pin, true));
+        assert(fake_set(fake, pin, false));
         fake->last_wdi_event = ++fake->event_count;
     }
     return true;
@@ -131,6 +134,8 @@ static pe_source_runtime_t boot(fake_io_t *fake) {
 static void retained_high_wdi_waits_for_disarm(void) {
     fake_io_t fake;
     pe_source_runtime_t runtime = boot(&fake);
+    assert(fake_set(&fake, PE_SOURCE_PIN_WDI_HEARTBEAT, false));
+    assert(fake.wdi_falling_edges == 0);
     fake.inputs.local_permit_q = true;
     fake.inputs.hot_permit = true;
     fake.now = 1;
