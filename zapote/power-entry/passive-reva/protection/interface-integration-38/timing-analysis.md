@@ -142,6 +142,17 @@ the 13.25/16.50 V nominal AUX-window thresholds, both TPS3890 rail
 thresholds, and the driver's intermediate-supply OFF condition. The AC
 input's 15 Arms route does not independently define the low-voltage AUX
 fault waveform or permissible supply-loss interval.
+
+One joined AUX load can now be bounded conditionally: the selected
+[RT33K012 relay](https://www.te.com/en/product-2-1393240-3.html) has a
+published **360 Ω nominal** coil. Through Rev38's 91 Ω series resistor,
+an ideal 14.25–15.75 V AUX rail yields `I = V/(360 + 91)`, or
+**31.60–34.92 mA** while energized. This is not a worst-case load or
+pickup proof: coil/resistor tolerance and temperature, the actual AUX
+envelope, flyback/release behavior, and the separate gate-charge, PFC
+controller, logic5 buck, comparator, pull-up and capacitor-startup loads
+are not yet included. The TPS26601 current limit and startup ramp cannot
+be chosen from the historical 115.74 mA budget alone.
 Command deadlines are separate authorization limits derived from the hazard
 and communication envelope. A healthy heartbeat cannot extend START expiry.
 
