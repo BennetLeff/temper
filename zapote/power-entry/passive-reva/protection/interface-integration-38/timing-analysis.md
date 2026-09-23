@@ -151,8 +151,13 @@ substitute for choosing and qualifying that raw source. The
 20 ms startup pulse while its 5 ms pulse recovers. The later
 `docs/evidence/2026-09-22-power-entry-selection-review/supplies.md`
 selects **evaluation** of TPS26601 after the 15 V regulator as a different
-cutoff proposal. Its provisional 130 kΩ/10 kΩ OVP divider is not an adopted
-trip setting. Both records require the actual converter and relay startup
+cutoff proposal. [The Rev38 OVP window screen](AUX-OVP-WINDOW.md) now shows
+that no ±1% divider can both recover at the 15.75 V normal-rail high end
+and trip below the provisional 18.0 V screen. The suggested 130 kΩ/10 kΩ
+divider fails recovery at a healthy 15.75 V rail. A static window exists
+with ±0.1% parts, but its leakage-inclusive example leaves only about
+48 mV recovery and 68 mV trip headroom before dynamic effects. No OVP
+divider is adopted or qualified. Both records require the actual converter and relay startup
 loads and a bounded raw/regulator fault waveform before one protection
 path can be adopted. The 20 ms model outcome is not a measured failure of
 a selected assembly.
