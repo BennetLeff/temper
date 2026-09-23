@@ -230,6 +230,10 @@ module ReceiverIsolation38:
     signal HOT_WATCHDOG_OK
     signal HOT_PERMIT_SEEN_Q
     signal HOT_PERMIT_PRESET_N
+    signal HOT_RUN_LOW
+    signal HOT_ABORT_ASSERTED
+    signal HOT_HISTORY_RESET_ALLOWED
+    signal HOT_HISTORY_RESET_D
     signal HOT_FAULT_N
     signal HOT_RAILS_OK
     signal HOT_RECEIVER_ABORT_N
@@ -305,21 +309,25 @@ module ReceiverIsolation38:
     prep_abort_memory.CLK2 ~ HOT0
     # PERMIT high asynchronously presets history even if a bounded reset
     # clock is active. Low PERMIT alone cannot erase a previously seen high.
+    # D is normally high; only qualified disarm drives it low for the clock.
     permit_inverter = new HotPermitInverter
     permit_inverter.VCC ~ HOT_LOGIC5
     permit_inverter.GND ~ HOT0
     permit_inverter.A1 ~ HOT_PERMIT
     permit_inverter.Y1 ~ HOT_PERMIT_PRESET_N
-    permit_inverter.A2 ~ HOT0
-    permit_inverter.A3 ~ HOT0
-    permit_inverter.A4 ~ HOT0
+    permit_inverter.A2 ~ HOT_RUN_Q
+    permit_inverter.Y2 ~ HOT_RUN_LOW
+    permit_inverter.A3 ~ HOT_RECEIVER_ABORT_N
+    permit_inverter.Y3 ~ HOT_ABORT_ASSERTED
+    permit_inverter.A4 ~ HOT_HISTORY_RESET_ALLOWED
+    permit_inverter.Y4 ~ HOT_HISTORY_RESET_D
     permit_inverter.A5 ~ HOT0
     permit_inverter.A6 ~ HOT0
     permit_seen_memory = new HotRetainedDff
     permit_seen_memory.VCC ~ HOT_LOGIC5
     permit_seen_memory.GND ~ HOT0
     permit_seen_memory.CLR1_N ~ HOT_LOGIC5
-    permit_seen_memory.D1 ~ HOT0
+    permit_seen_memory.D1 ~ HOT_HISTORY_RESET_D
     permit_seen_memory.CLK1 ~ reset_pulses.Q2
     permit_seen_memory.PRE1_N ~ HOT_PERMIT_PRESET_N
     permit_seen_memory.Q1 ~ HOT_PERMIT_SEEN_Q
@@ -374,6 +382,30 @@ module ReceiverIsolation38:
     prep_trip_and.C2 ~ HOT_WATCHDOG_OK
     prep_trip_and.D2 ~ HOT_LOGIC5
     prep_trip_and.Y2 ~ HOT_PREP_TRIP_OK
+    history_reset_and = new HotPrepTripAnd
+    history_reset_and.VCC ~ HOT_LOGIC5
+    history_reset_and.GND ~ HOT0
+    history_reset_and.A1 ~ HOT_DISARM_Q
+    history_reset_and.B1 ~ HOT_RUN_LOW
+    history_reset_and.C1 ~ HOT_PERMIT_PRESET_N
+    history_reset_and.D1 ~ HOT_PREP_ABORT_OK
+    history_reset_and.A2 ~ history_reset_and.Y1
+    history_reset_and.B2 ~ HOT_PREP_TRIP_OK
+    history_reset_and.C2 ~ HOT_ABORT_ASSERTED
+    history_reset_and.D2 ~ HOT_LOGIC5
+    history_reset_and.Y2 ~ HOT_HISTORY_RESET_ALLOWED
+    c_history_reset_and = new C
+    c_history_reset_and.value = 100nF
+    c_history_reset_and.p1 ~ HOT_LOGIC5
+    c_history_reset_and.p2 ~ HOT0
+    history_reset_allowed_pd = new R
+    history_reset_allowed_pd.value = 10kohm
+    history_reset_allowed_pd.p1 ~ HOT_HISTORY_RESET_ALLOWED
+    history_reset_allowed_pd.p2 ~ HOT0
+    history_reset_d_pu = new R
+    history_reset_d_pu.value = 10kohm
+    history_reset_d_pu.p1 ~ HOT_LOGIC5
+    history_reset_d_pu.p2 ~ HOT_HISTORY_RESET_D
     c_prep_trip_and = new C
     c_prep_trip_and.value = 100nF
     c_prep_trip_and.p1 ~ HOT_LOGIC5

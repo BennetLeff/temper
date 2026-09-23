@@ -147,7 +147,7 @@ fn domain(id: &str, pin: &str) -> &'static str {
 }
 
 fn check(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 54 { return Err(format!("expected 54 parts, found {}", g.parts.len())); }
+    if g.parts.len() != 58 { return Err(format!("expected 58 parts, found {}", g.parts.len())); }
     for (id, part) in [
         ("rx", "AVR64DA32-E/PT"),
         ("iso_protocol", "ISO7741FDWR"),
@@ -163,6 +163,10 @@ fn check(g: &Graph) -> Result<(), String> {
         ("c_permit_seen_memory", "GRM188R71H104KA93D"),
         ("permit_preset_pd", "RC0603FR-0710KL"),
         ("prep_trip_and", "SN74HCS21PWR"),
+        ("history_reset_and", "SN74HCS21PWR"),
+        ("c_history_reset_and", "GRM188R71H104KA93D"),
+        ("history_reset_allowed_pd", "RC0603FR-0710KL"),
+        ("history_reset_d_pu", "RC0603FR-0710KL"),
         ("c_prep_trip_and", "GRM188R71H104KA93D"),
         ("watchdog_ok_pd", "RC0603FR-0710KL"),
         ("c_prep_abort_memory", "GRM188R71H104KA93D"),
@@ -183,13 +187,13 @@ fn check(g: &Graph) -> Result<(), String> {
     for (net, expected) in [
         ("selv3v3", "iso_protocol:1 iso_protocol:7 iso_feedback:1 iso_feedback:7 c_iso1_selv:1 c_iso2_selv:1"),
         ("selv_gnd", "iso_protocol:2 iso_protocol:8 iso_feedback:2 iso_feedback:8 c_iso1_selv:2 c_iso2_selv:2 source_permit_fb_pd:2 source_session_fb_pd:2"),
-        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 prep_abort_memory:1 prep_abort_memory:10 prep_abort_memory:14 permit_seen_memory:1 permit_seen_memory:10 permit_seen_memory:14 disarm_memory:4 disarm_memory:10 disarm_memory:14 c_disarm_memory:1 permit_inverter:14 c_permit_inverter:1 c_permit_seen_memory:1 prep_trip_and:13 prep_trip_and:14 c_prep_trip_and:1 c_prep_abort_memory:1 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
+        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 prep_abort_memory:1 prep_abort_memory:10 prep_abort_memory:14 permit_seen_memory:1 permit_seen_memory:10 permit_seen_memory:14 disarm_memory:4 disarm_memory:10 disarm_memory:14 c_disarm_memory:1 permit_inverter:14 c_permit_inverter:1 c_permit_seen_memory:1 prep_trip_and:13 prep_trip_and:14 history_reset_and:13 history_reset_and:14 c_history_reset_and:1 history_reset_d_pu:1 c_prep_trip_and:1 c_prep_abort_memory:1 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
         ("hot_prep_abort_q", "rx:7 prep_abort_memory:5 prep_abort_pu:2"),
-        ("hot_prep_abort_ok", "prep_abort_memory:6 prep_abort_ok_pd:1"),
-        ("hot_prep_trip_ok", "prep_abort_memory:4 disarm_memory:1 prep_trip_and:8 prep_trip_ok_pd:1"),
+        ("hot_prep_abort_ok", "prep_abort_memory:6 history_reset_and:5 prep_abort_ok_pd:1"),
+        ("hot_prep_trip_ok", "prep_abort_memory:4 disarm_memory:1 prep_trip_and:8 history_reset_and:10 prep_trip_ok_pd:1"),
         ("hot_attempt_valid", "rx:4 prep_trip_and:1 attempt_valid_pd:1"),
         ("hot_watchdog_ok", "prep_trip_and:12 watchdog_ok_pd:1"),
-        ("y1", "prep_trip_and:6 prep_trip_and:9"),
+        ("prep_trip_and-y1", "prep_trip_and:6 prep_trip_and:9"),
         ("q1", "reset_pulses:13 prep_abort_memory:3"),
         ("source_command_tx", "iso_protocol:3"),
         ("source_permit_q", "iso_protocol:4"),
@@ -201,9 +205,14 @@ fn check(g: &Graph) -> Result<(), String> {
         ("source_hot_session_fb", "iso_feedback:6 source_session_fb_pd:1"),
         ("hot_permit", "rx:10 iso_protocol:13 iso_feedback:12 permit_inverter:1 permit_pd:1"),
         ("hot_permit_seen_q", "rx:1 permit_seen_memory:5 permit_seen_pu:2"),
-        ("hot_permit_preset_n", "permit_inverter:2 permit_seen_memory:4 disarm_memory:2 permit_preset_pd:1"),
-        ("hot_disarm_q", "rx:6 disarm_memory:5 disarm_pd:1"),
+        ("hot_permit_preset_n", "permit_inverter:2 permit_seen_memory:4 disarm_memory:2 history_reset_and:4 permit_preset_pd:1"),
+        ("hot_disarm_q", "rx:6 disarm_memory:5 history_reset_and:1 disarm_pd:1"),
         ("hot_disarm_sample_request", "rx:21 disarm_memory:3 disarm_sample_pd:1"),
+        ("hot_run_low", "permit_inverter:4 history_reset_and:2"),
+        ("hot_abort_asserted", "permit_inverter:6 history_reset_and:12"),
+        ("hot_history_reset_allowed", "history_reset_and:8 permit_inverter:9 history_reset_allowed_pd:1"),
+        ("hot_history_reset_d", "permit_inverter:8 permit_seen_memory:2 history_reset_d_pu:2"),
+        ("history_reset_and-y1", "history_reset_and:6 history_reset_and:9"),
         ("reset_pulses-q2", "reset_pulses:5 permit_seen_memory:3"),
         ("hot_relay_request", "rx:3 iso_protocol:12 relay_request_pd:1"),
         ("hot_relay_driver", "rx:32 relay_driver_pd:1"),
@@ -212,6 +221,8 @@ fn check(g: &Graph) -> Result<(), String> {
         ("hot_fault_n", "rx:8 prep_trip_and:10 fault_n_pd:1"),
         ("hot_rails_ok", "rx:17 prep_trip_and:5 rails_pd:1"),
         ("hot_session_q", "rx:11 iso_feedback:11 session_pd:1"),
+        ("hot_run_q", "rx:12 permit_inverter:3 run_pd:1"),
+        ("hot_receiver_abort_n", "rx:13 permit_inverter:5 abort_pd:1"),
         ("hot_session_clear_n", "rx:20 session_clear_pd:1"),
         ("hot_prep_reset_request", "rx:2 reset_pulses:2 prep_reset_pd:1"),
         ("hot_history_reset_request", "rx:9 reset_pulses:10 history_reset_pd:1"),
@@ -250,15 +261,14 @@ fn check(g: &Graph) -> Result<(), String> {
         ("prep_abort_ok_pd", "2", "hot0"),
         ("attempt_valid_pd", "2", "hot0"),
         ("prep_trip_and", "7", "hot0"),
+        ("history_reset_and", "7", "hot0"),
+        ("c_history_reset_and", "2", "hot0"),
+        ("history_reset_allowed_pd", "2", "hot0"),
         ("c_prep_trip_and", "2", "hot0"),
         ("watchdog_ok_pd", "2", "hot0"),
-        ("permit_inverter", "3", "hot0"),
-        ("permit_inverter", "5", "hot0"),
         ("permit_inverter", "7", "hot0"),
-        ("permit_inverter", "9", "hot0"),
         ("permit_inverter", "11", "hot0"),
         ("permit_inverter", "13", "hot0"),
-        ("permit_seen_memory", "2", "hot0"),
         ("permit_seen_memory", "7", "hot0"),
         ("permit_seen_memory", "11", "hot0"),
         ("permit_seen_memory", "12", "hot0"),
@@ -447,6 +457,27 @@ mod tests {
     fn disarm_clock_miswire_fails() {
         let mut g = fixture();
         g.pins.insert(("disarm_memory".into(), "3".into()), "q1".into());
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn history_d_bypass_fails() {
+        let mut g = fixture();
+        g.pins.insert(("permit_seen_memory".into(), "2".into()), "hot0".into());
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn history_disarm_qualification_missing_fails() {
+        let mut g = fixture();
+        g.pins.insert(("history_reset_and".into(), "1".into()), "hot_logic5".into());
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn history_abort_qualification_missing_fails() {
+        let mut g = fixture();
+        g.pins.insert(("history_reset_and".into(), "12".into()), "hot_logic5".into());
         assert!(check(&g).is_err());
     }
 }

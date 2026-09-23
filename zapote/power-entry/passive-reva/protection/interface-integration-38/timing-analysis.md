@@ -113,8 +113,10 @@ The compiled partial fixture also has a finite-edge preparation-abort
 reset, a six-input HOT trip fan-in, and a separate physical-PERMIT-seen
 memory. The latter's asynchronous preset is asserted by PERMIT high even
 during its reset pulse, subject to an unproved minimum pulse width and
-rail/logic corners. The history-reset clock is not yet qualified by
-post-trip disarm, ACK, RUN low, or live faults. These paths provide no
+rail/logic corners. The history-reset D input now requires post-trip
+disarm Q high, RUN/PERMIT low, healthy trip fan-in and asserted receiver
+abort at the raw clock edge. ACK remains a receiver-firmware prerequisite;
+the electrical setup/hold and coincident-trip cases remain open. These paths provide no
 numerical implementation bound until their actual producers and joins
 are completed.
 

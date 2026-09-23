@@ -48,15 +48,19 @@ inputs still lack their actual producers; the SELV source-health and STOP
 inputs still lack their source implementation. The gate's output is not an
 end-to-end fault-capture proof.
 
-The second one-shot's positive Q clocks a separate SN74HCS74 memory with
-D=0. Physical HOT PERMIT high passes through an
+The second one-shot's positive Q clocks a separate SN74HCS74 memory.
+Physical HOT PERMIT high passes through an
 [SN74HCS04 inverter](https://www.ti.com/lit/ds/symlink/sn74hcs04.pdf)
 to its asynchronous active-low preset, forcing `HOT_PERMIT_SEEN_Q` high
 even if the reset pulse is active. The inverted preset has a local low
 default; Q has a local high default for a failed or unpowered output.
-PERMIT low alone does not erase remembered high; the finite clock edge
-does. The reset clock still lacks hardware qualification against DISARM_ACK,
-post-trip disarm, RUN low, and active faults.
+PERMIT low alone does not erase remembered high. The finite clock edge
+loads a low D only while disarm Q is high, RUN and physical PERMIT are low,
+preparation and external trip fan-in are healthy, and receiver abort remains
+asserted. Otherwise D is high, so a stray clock cannot erase the seen bit.
+The matching DISARM_ACK remains a receiver-firmware condition, not a
+separate hardware input. Coincident-trip and setup/hold corners still need
+electrical proof.
 
 A third SN74HCS74 memory records post-trip disarm. PA6 attempt-valid is
 normally low, so `HOT_PREP_TRIP_OK` holds this memory's asynchronous clear
@@ -73,8 +77,7 @@ The TI one-shot data sheet gives
 installed capacitor's tolerance, voltage/temperature behavior and load are
 not included in that range. Neither pulse is connected to an asynchronous
 clear pin. The joined circuit must produce the remaining fan-in inputs,
-qualify the history reset against live fault/disarm conditions, and prove
-that a trip during
+prove history-reset level and timing corners, and prove that a trip during
 either pulse dominates reset, including minimum captured pulse width. Do
 not connect the one-shot CLR_N to a live fault: a CLR_N rising transition
 can itself trigger this part when A is low and B is high.
@@ -87,7 +90,7 @@ separated
 relay request/output, and SELV/HOT net separation. Its mutation tests remove
 a low default or timing capacitor, miswire an abort/permit preset, reset
 clock, or F2 fault fan-in,
-or disarm-memory clear/clock,
+or disarm-memory clear/clock, or the history-reset D qualification,
 short the relay request to the driver,
 swap reverse feedback or reset channels, change the ISO7742F MPN, and add a
 copper boundary crossing. It does not establish pin electrical levels,

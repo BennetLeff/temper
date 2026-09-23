@@ -129,13 +129,18 @@ fan-in does not prove fault capture. PA6/4 drives attempt-valid high before
 the prep-reset edge and low on lockout, STOP, or reset, with a local
 pull-down. `RECEIVER_ABORT_N` cannot serve this role while it is already low
 through preparation. The second one-shot Q clocks a separate SN74HCS74
-permit-seen memory with D low. A physical HOT PERMIT high goes through an
+permit-seen memory. Its D is low only when a separate HCS21 gate verifies
+disarm Q high, RUN and physical PERMIT low, preparation-abort Q low,
+external/receiver trip fan-in healthy, and `RECEIVER_ABORT_N` still low.
+Otherwise D is locally pulled high so a stray clock retains seen history.
+A physical HOT PERMIT high goes through an
 [SN74HCS04 inverter](https://www.ti.com/lit/ds/symlink/sn74hcs04.pdf)
 to its asynchronous PRE_N, setting the seen bit even while a reset pulse
 is active. Physical PERMIT low alone cannot clear a prior high. This is
-only a pin-level priority candidate: the history clock is not yet qualified
-by DISARM_ACK, retained post-trip disarm, RUN low, or live faults, and the
-minimum preset pulse still needs electrical proof. Do not gate either
+still a pin-level priority candidate: DISARM_ACK is checked by receiver
+firmware before issuing the edge, and the D qualification has not passed
+propagation, setup/hold, and coincident-fault timing review. The minimum
+preset pulse also needs electrical proof. Do not gate either
 one-shot CLR_N with live faults: its low-to-high transition can
 trigger a fresh pulse when A is low and B is high. Their installed width,
 set/reset dominance during coincident trips, and target-adapter sequence

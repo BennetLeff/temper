@@ -36,6 +36,11 @@ DISARM_ACK requests a separate HOT permit-seen reset; only after its Q is
 read low and preparation-abort Q remains low does the core release abort and
 request revalidation. These host events require the target adapter to take
 fresh physical samples; reusing one earlier sample defeats the ordering.
+The partial hardware drives the permit-history D input low only when
+physical disarm Q is high, RUN/PERMIT are low, preparation is healthy, and
+receiver abort is still asserted. The adapter must hold those conditions
+through the reset clock edge and verify the Q response; the source ACK is
+checked in this core, not in the gate's D path.
 
 The core also requests one RUN-set pulse and one high-then-low WDI pulse per
 validated feed. TI's TPS3431 services a
