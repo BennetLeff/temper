@@ -2,7 +2,10 @@
 
 `elec/src/ac_input.ato` joins the mains connector to the PFC bridge in the
 same Atopile entry as the receiver and gate path. This is a connectivity
-candidate, not an approved mains input or an installed fuse.
+candidate, not an approved mains input or an installed fuse. It still draws
+the Schurter 5×20 PCB holder; `F1-SCREEN.md` nominates an Eaton Class CC
+cartridge and off-board block for a proposed general residential installation
+envelope. The source/native F1 interface has not been changed to that pair.
 
 | Conductor | Compiled route |
 | --- | --- |
@@ -35,10 +38,11 @@ positive and deliberate-miswire tests accompany the full Rev38 audit.
   lists 16 A VDE at 23 °C with ambient derating. These are individual
   component nameplates, not an assembly temperature or endurance proof.
   The NTC's 15 A rating is especially relevant if the relay stays open.
-- Select the actual F1 cartridge, verify the holder and cartridge as one
-  assembly, and coordinate F1/F2 clearing, available fault current,
-  interrupting rating, inrush, and MOV end-of-life behavior. The holder
-  alone has no defined fuse characteristic.
+- Join the nominated `LP-CC-20` Class CC cartridge and `BCM603-1P` mounting
+  block through a defined off-board inlet harness, then verify the installed
+  fuse, block, wiring and enclosure as one assembly. Coordinate F1/F2
+  clearing, available fault current, inrush, and MOV end-of-life behavior.
+  The present 5×20 holder alone has no defined fuse characteristic.
   The retained baseline's Schurter `0034.3129` is a 16 A FST link whose
   [published breaking capacity](https://www.schurter.com/en/datasheet/typ_FST_5x20.pdf)
   is `10 × In` at 250 VAC, or 160 A; it is not a qualified default for this
@@ -50,10 +54,9 @@ positive and deliberate-miswire tests accompany the full Rev38 audit.
   holders. Do not treat that link and FUP as a validated pair or 500 A as
   sufficient until available fault current, time/current coordination,
   holder match, and 40 °C power acceptance are established.
-  `F1-SCREEN.md` compares the exact 16 A FST, SP, SPT, and 6.3×32 SHF
-  cartridge/holder options against their published breaking-capacity
-  entries. None is selected without site prospective-fault-current,
-  inrush, coordination, and thermal inputs.
+  `F1-SCREEN.md` compares those variants and records the proposed 20 A
+  Class CC pair and installation envelope. This is a component nomination,
+  not an installed or electrically qualified F1.
 - Confirm certified X2/Y1 and MOV ordering codes, electrical ratings,
   discharge path for X2, protective-earth leakage, required creepage and
   clearance, connector/trace ratings, and line transient exposure at
