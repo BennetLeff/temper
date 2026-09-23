@@ -5,7 +5,8 @@ document starts the authorized per-fault derivation. It does not turn Rev35/37
 fixture timing, typical data, or a simulation screen into an accepted limit.
 The complete joined Rev38 circuit, installed power-stage envelope, and
 prototype captures do not yet exist. The AVR64DA32, two ISO774xF devices,
-source and HOT TPS3431 devices, retained source/HOT memories, and UCC27624/STW driver stage
+source and HOT TPS3431 devices, retained source/HOT memories, dual HOT TPS3890
+undervoltage supervisors, and UCC27624/STW driver stage
 compile in a partial joined fixture; their presence does not close a
 complete response path.
 
@@ -77,7 +78,7 @@ treated as installed measurements.
 | Current path | Baseline UCC28180D, HCSM2818FT10L0 10 mΩ shunt, Würth 760800301 180 µH nominal inductor, STW65N65DM2AG switch and C3D20065D diode. | Actual `L(I,T)` over the fault trajectory, sense-filter initial state and transient current at detector assertion are unknown. The 43 A saturation figure is typical at 30% L reduction, not a guaranteed fault-current bound. |
 | PCL threshold | UCC28180 input-referred PCL magnitude: 0.400 V typical, 0.438 V maximum. The F2 audit calculates 44.242 A with 1% shunt initial tolerance and a conditional 44.562 A with assumed −40 to +100 °C shunt body and ISENSE-bias behavior. | These are threshold calculations, not peak current. Obtain applicable controller blanking/PCL-to-gate maximum and shunt temperature/bias applicability or add an independent bounded detector. |
 | Voltage/energy nodes | VB has four 450 V-rated electrolytics. A 22 µF ±10%, 630 V VD reservoir and F2 are proposed. VD's 500 V screen and 19.8 µF nominal-tolerance floor are conditional. STW and diode are 650 V-rated. | Derive **separate** derated VD, VB, VDS and diode-reverse limits, actual effective C/ESR/ESL, overshoot, and energy after gate disable. The 450 V VB rating does not authorize a 500 V bank waveform, and a 650 V switch rating does not by itself authorize a 650 V switching peak. |
-| Driver and protection | Rev38 selects HCS21 permission fan-in, LVC1G06 open-drain shunt release, PMBT3904 AUX-biased ENA shunt, UCC27624DDAR, 10 Ω series gate resistor, 10 kΩ gate pull-down, and STW65N65DM2AG in a compiled partial stage. The HOT TPS3431 WDO also joins the retained trip fan-in. Published delays use different fixtures; STW turnoff is typical at a different gate drive. Rev35 instead uses UCC27511A. | Establish AUX and HOT rail ranges, shunt OFF clamp at temperature, base/open fault behavior, watchdog low-pulse capture, filter, loaded gate discharge and complete fault-to-current-zero maximum. The PFC PWM, F2, reservoir and AUX producers are still external. Do not sum incomparable published numbers into a guarantee. |
+| Driver and protection | Rev38 selects HCS21 permission fan-in, LVC1G06 open-drain shunt release, PMBT3904 AUX-biased ENA shunt, UCC27624DDAR, 10 Ω series gate resistor, 10 kΩ gate pull-down, and STW65N65DM2AG in a compiled partial stage. The HOT TPS3431 WDO and dual TPS3890 rail RESET outputs join the retained trip fan-in. The latter use 294 kΩ/100 kΩ and 1.02 MΩ/100 kΩ dividers for nominal 4.531 V logic5 and 12.88 V AUX falling thresholds, respectively. Published delays use different fixtures; STW turnoff is typical at a different gate drive. Rev35 instead uses UCC27511A. | Establish AUX and HOT rail ranges, supervisor threshold/CT/delay corners, shunt OFF clamp at temperature, base/open fault behavior, watchdog low-pulse capture, filter, loaded gate discharge and complete fault-to-current-zero maximum. The PFC PWM, F2, reservoir and AUX producers are still external. Do not sum incomparable published numbers into a guarantee. |
 | Source watchdog | TPS3431 with ideal 1 nF CWD gives 119.82–144.98 ms device-only bounds in the Rev32 fixture. CPU-only reset may retain ESP GPIO/peripheral state. | Select installed CWD and its tolerance/leakage, enforce one WDI owner with finite post-reset tail, and bound every WDO-to-STW stage. No accepted reset allowance exists. |
 
 Sources: `operating-envelope-05/envelope-contract.md`,
@@ -122,6 +123,11 @@ abort at the raw clock edge. ACK remains a receiver-firmware prerequisite;
 the electrical setup/hold and coincident-trip cases remain open. These paths provide no
 numerical implementation bound until their actual producers and joins
 are completed.
+
+`HOT-RAILS.md` records the selected HOT undervoltage producer topology and
+an illustrative static threshold screen. Its 100 pF CT values and nominal
+trip points do not establish rail-failure detection or capture time. The
+AUX overvoltage and fast-dip paths remain separate missing producers.
 
 ## Existing conditional F2 screen — not an accepted limit
 

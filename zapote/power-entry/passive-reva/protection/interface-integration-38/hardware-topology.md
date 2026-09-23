@@ -1,6 +1,6 @@
 # Rev38 hardware join contract
 
-Status: **pin-level design input and partial source/receiver/driver compiled join**,
+Status: **pin-level design input and partial source/receiver/driver/watchdog/rail compiled join**,
 not a complete U4 circuit or analog approval.
 This records the joins that must replace Rev35's connectivity-only fixture.
 The existing F2 detector and power-stage values remain candidate inputs;
@@ -78,7 +78,7 @@ Q low, including at the clock edge. A held PF1 request cannot clock on
 fault recovery. This prevents a pre-trip low level from masquerading as a
 new disarm observation. A broken PERMIT wire may still set Q, but
 DISARM_ACK, a new durable ID, and fresh intent remain separate requirements.
-The external trip producer, rail and output-level timing still need proof.
+The external trip producer and rail/output-level timing still need proof.
 
 The AVR PF0/20 samples the physical `HOT_SESSION_CLEAR_N` node. After the
 matching DISARM_ACK and permit-history reset, the receiver releases
@@ -129,10 +129,13 @@ HOT_PREP_TRIP_OK = HOT_ATTEMPT_VALID & HOT_SOURCE_HEALTH
 ```
 
 The HCS21's output and every unproduced safety input have local low
-defaults. The partial fixture now has a HOT TPS3431 WDO producer, but still
-lacks the actual HOT rail and F2 summary producers and source-side
-health/STOP GPIO logic, so its compiled
-fan-in does not prove fault capture. PA6/4 drives attempt-valid high before
+defaults. The partial fixture now has a HOT TPS3431 WDO producer and two
+TPS3890 undervoltage supervisors with open-drain RESET outputs wire-ANDed
+on `HOT_RAILS_OK`. It still lacks the F2 summary, AUX overvoltage and fast
+dip producers, and source-side health/STOP GPIO logic, so its compiled
+fan-in does not prove fault capture. The provisional logic5 and AUX falling
+thresholds are 4.531 V and 12.88 V nominal; see [HOT-RAILS.md](HOT-RAILS.md)
+for the unclosed corners. PA6/4 drives attempt-valid high before
 the prep-reset edge and low on lockout, STOP, or reset, with a local
 pull-down. `RECEIVER_ABORT_N` cannot serve this role while it is already low
 through preparation. The second one-shot Q clocks a separate SN74HCS74
@@ -179,7 +182,7 @@ corners are still open.
 
 ## Evidence needed to promote this to U4 PASS
 
-1. Select and compile the remaining actual F2 and HOT rail producers,
+1. Select and compile the remaining actual F2, AUX overvoltage/fast-dip,
    AUX source, reservoir, and PFC control/power parts in **one**
    Atopile 0.2.69 entry. Rev35's `clear_core_ok` includes PERMIT and cannot
    be reused as `SESSION_CLEAR_N`.

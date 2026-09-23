@@ -213,10 +213,10 @@ component R:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component HotWatchdogDefaultR100k:
+component HotOpenDrainDefaultR100k:
     mpn = "RC0603FR-07100KL"
     manufacturer = "Yageo"
-    footprint = "TBD_REVIEW_ONLY:HOT_WDO_DEFAULT_R100K_0603"
+    footprint = "TBD_REVIEW_ONLY:HOT_OPEN_DRAIN_DEFAULT_R100K_0603"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
@@ -550,7 +550,7 @@ module ReceiverIsolation38:
     attempt_valid_pd.value = 10kohm
     attempt_valid_pd.p1 ~ HOT_ATTEMPT_VALID
     attempt_valid_pd.p2 ~ HOT0
-    watchdog_ok_pd = new HotWatchdogDefaultR100k
+    watchdog_ok_pd = new HotOpenDrainDefaultR100k
     watchdog_ok_pd.value = 100kohm
     watchdog_ok_pd.p1 ~ HOT_WATCHDOG_OK
     watchdog_ok_pd.p2 ~ HOT0
@@ -682,8 +682,8 @@ module ReceiverIsolation38:
     reset_pullup.value = 10kohm
     reset_pullup.p1 ~ HOT_LOGIC5
     reset_pullup.p2 ~ HOT_RESET_N
-    rails_pd = new R
-    rails_pd.value = 10kohm
+    rails_pd = new HotOpenDrainDefaultR100k
+    rails_pd.value = 100kohm
     rails_pd.p1 ~ HOT_RAILS_OK
     rails_pd.p2 ~ HOT0
     fault_n_pd = new R

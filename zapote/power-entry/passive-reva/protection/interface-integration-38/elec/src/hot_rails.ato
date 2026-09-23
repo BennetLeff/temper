@@ -1,0 +1,128 @@
+# Partial Rev38 HOT rail-health producer. Two TPS389001 open-drain RESET
+# outputs wire-AND logic5 and AUX undervoltage. AUX OV and fast dip capture
+# are separate missing producers; thresholds/timing are not yet accepted.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "source_authority.ato" import SourceRailSupervisor
+from "receiver_isolation.ato" import R, C
+
+component RailR294k:
+    mpn = "RC0603FR-07294KL"
+    manufacturer = "Yageo"
+    footprint = "TBD_REVIEW_ONLY:HOT_RAIL_R294K_0603"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component RailR1M02:
+    mpn = "RC0603FR-071M02L"
+    manufacturer = "Yageo"
+    footprint = "TBD_REVIEW_ONLY:HOT_RAIL_R1M02_0603"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component RailR100k:
+    mpn = "RC0603FR-07100KL"
+    manufacturer = "Yageo"
+    footprint = "TBD_REVIEW_ONLY:HOT_RAIL_R100K_0603"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component RailR47k:
+    mpn = "RC0603FR-0747KL"
+    manufacturer = "Yageo"
+    footprint = "TBD_REVIEW_ONLY:HOT_RAIL_R47K_0603"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component RailC100p:
+    mpn = "GRM1885C1H101JA01D"
+    manufacturer = "Murata"
+    footprint = "TBD_REVIEW_ONLY:HOT_RAIL_CT100P_0603"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module HotRails38:
+    signal HOT_LOGIC5
+    signal HOT0
+    signal AUX_PROTECTED
+    signal HOT_RAILS_OK
+    signal HOT_LOGIC_DIV
+    signal HOT_LOGIC_SENSE
+    signal HOT_LOGIC_CT
+    signal HOT_AUX_DIV
+    signal HOT_AUX_SENSE
+    signal HOT_AUX_CT
+
+    sup_logic = new SourceRailSupervisor
+    sup_aux = new SourceRailSupervisor
+    sup_logic.VDD ~ HOT_LOGIC5
+    sup_aux.VDD ~ HOT_LOGIC5
+    sup_logic.GND ~ HOT0
+    sup_aux.GND ~ HOT0
+    sup_logic.MR ~ HOT_LOGIC5
+    sup_aux.MR ~ HOT_LOGIC5
+    sup_logic.SENSE ~ HOT_LOGIC_SENSE
+    sup_aux.SENSE ~ HOT_AUX_SENSE
+    sup_logic.CT ~ HOT_LOGIC_CT
+    sup_aux.CT ~ HOT_AUX_CT
+    sup_logic.RESET_N ~ HOT_RAILS_OK
+    sup_aux.RESET_N ~ HOT_RAILS_OK
+    # Both RESET outputs are open drain. The receiver provides a separate
+    # 100k low default; this 10k pull-up is not an analog rail-order proof.
+    reset_pu = new R
+    reset_pu.value = 10kohm
+    reset_pu.p1 ~ HOT_LOGIC5
+    reset_pu.p2 ~ HOT_RAILS_OK
+    c_logic = new C
+    c_logic.value = 100nF
+    c_logic.p1 ~ HOT_LOGIC5
+    c_logic.p2 ~ HOT0
+    c_aux = new C
+    c_aux.value = 100nF
+    c_aux.p1 ~ HOT_LOGIC5
+    c_aux.p2 ~ HOT0
+
+    # Nominal logic5 falling threshold: 1.15*(1 + 294/100) = 4.531 V.
+    # 47k series SENSE isolation mirrors Rev35 and is reviewed separately
+    # for input-current, threshold, and back-drive corners.
+    logic_top = new RailR294k
+    logic_top.value = 294kohm
+    logic_top.p1 ~ HOT_LOGIC5
+    logic_top.p2 ~ HOT_LOGIC_DIV
+    logic_bottom = new RailR100k
+    logic_bottom.value = 100kohm
+    logic_bottom.p1 ~ HOT_LOGIC_DIV
+    logic_bottom.p2 ~ HOT0
+    logic_iso = new RailR47k
+    logic_iso.value = 47kohm
+    logic_iso.p1 ~ HOT_LOGIC_DIV
+    logic_iso.p2 ~ HOT_LOGIC_SENSE
+    logic_ct = new RailC100p
+    logic_ct.value = 100pF
+    logic_ct.p1 ~ HOT_LOGIC_CT
+    logic_ct.p2 ~ HOT0
+
+    # Nominal AUX falling threshold: 1.15*(1 + 1020/100) = 12.88 V.
+    # Rev35's 1.03M proposal has no selected resistor MPN here; 1.02M
+    # changes the provisional threshold and requires fresh corner review.
+    aux_top = new RailR1M02
+    aux_top.value = 1.02Mohm
+    aux_top.p1 ~ AUX_PROTECTED
+    aux_top.p2 ~ HOT_AUX_DIV
+    aux_bottom = new RailR100k
+    aux_bottom.value = 100kohm
+    aux_bottom.p1 ~ HOT_AUX_DIV
+    aux_bottom.p2 ~ HOT0
+    aux_iso = new RailR47k
+    aux_iso.value = 47kohm
+    aux_iso.p1 ~ HOT_AUX_DIV
+    aux_iso.p2 ~ HOT_AUX_SENSE
+    aux_ct = new RailC100p
+    aux_ct.value = 100pF
+    aux_ct.p1 ~ HOT_AUX_CT
+    aux_ct.p2 ~ HOT0
