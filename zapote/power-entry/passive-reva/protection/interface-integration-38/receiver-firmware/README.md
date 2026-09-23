@@ -3,9 +3,37 @@
 Target: Microchip `AVR64DA32-E/PT`, as selected in
 `../receiver-selection.md`. This directory contains the fixed wire codec,
 host-tested durable ID journal, receiver session core, and host pin-sequencing
-runtime. It does not yet contain the AVR register backend, fuse image, or
-physical pin driver. The previous
-ATmega328P fixtures are input evidence, not a firmware target.
+runtime. `avr64da32_target.c` now contains an engineering register backend for
+the selected device: exact-pin GPIO, 24 MHz OSCHF/TCB0, USART0 8N1,
+byte-addressed NVMCTRL EEPROM, and synchronous pulse ownership. The default
+target image has zero timing windows and stays in LOCKOUT. There is no fuse
+image or measured pin-timing receipt. The previous ATmega328P fixtures are
+input evidence, not a firmware target.
+
+Build the default locked image with Microchip AVR 8-Bit Toolchain 4.0.0.52
+(avr-gcc 15.1.0):
+
+```sh
+make -f avr64da32.mk AVR_GCC=/path/to/avr-gcc AVR_SIZE=/path/to/avr-size
+```
+
+This checks AVR64DA32 header/linker compatibility and the C register adapter;
+it does not qualify a programmed receiver. Preparation, START, watchdog,
+USART byte-gap, ping-period, and sample-to-RUN bounds must be accepted before
+any nonzero `PE_TARGET_*` values are programmed. The source rejects nonzero
+values unless `PE_TARGET_OFFLINE_COMPILER_EXERCISE` is explicitly defined;
+that flag is only for an offline compiler exercise. The relay output stays
+low: relay policy,
+boot/disarm behavior at real pins, and the fuse/BOD image remain open.
+
+The GPIO map follows `../receiver-selection.md` and
+`elec/src/receiver_isolation.ato`. PC2 reads active-low `HOT_FAULT_N`, PD3 is
+`RECEIVER_ABORT_N`, and PD5 is the sole RUN-set output. The adapter clears
+owned output latches before enabling their drivers; external pull-downs own
+the reset and unpowered interval. A saved netlist/pin-state review and real
+RESET/rail-collapse captures are still required. The EEPROM adapter follows
+Microchip's [mapped EEPROM byte erase/write sequence](https://onlinedocs.microchip.com/oxy/GUID-51D4F2DF-E4D3-4379-8E03-9AAF2593C7DA-en-US-3/GUID-A7C0BF8A-FBED-40D7-8EF1-66D73278B2E3.html)
+and reads each byte back. This is not a power-interruption proof on silicon.
 
 Run the focused host tests from this directory:
 
@@ -54,11 +82,16 @@ issue that pulse synchronously after fresh samples and after checking a
 configured sample-to-pin latency bound against the fixed deadline. The
 fixture proves the requested call order, one RUN edge, late/fault
 cancellation, and decoder idle abort. Its latency value is an arbitrary
-host-test tick. The AVR backend must prove its real bound and low-high-low
-pulse widths at the pins. The runtime does not yet drive the relay high or
-decide when a local safety cycle counts as WDI progress. The USART backend
-must pass framing, parity, and overrun flags to `pe_runtime_serial_error`,
-which requests physical abort before parsing more bytes.
+host-test tick. A third clock/input sample now follows the final output
+callback before RUN-set, because that callback can consume the remaining
+START window; the host fixture forces this case. The AVR backend must prove
+its real bound and pulse widths at the pins. The AVR loop counts a completed
+receiver tick as local progress, sends numbered PINGs at its configured
+interval, and checks the matching PONG before an external WDI pulse can be
+requested. This policy needs target execution evidence. The runtime does not
+yet drive the relay high. The USART adapter passes framing, parity, and
+overrun flags to `pe_runtime_serial_error`, which requests physical abort
+before parsing more bytes.
 
 `receiver.c` separates physical disarm observation from the two history
 resets. It first requests PA6 attempt-valid high, then a PF1 disarm-sample
@@ -124,8 +157,9 @@ Before target firmware can claim build/behavior PASS:
 3. Test STOP in READY, START after the fixed deadline despite healthy
    traffic, a qualified new trip during preparation, and receiver reset with
    the HOT latches powered. Verify `RECEIVER_ABORT_N` at the pin boundary.
-4. Build with the exact AVR64DA32 device toolchain and compare assigned
-   physical pins to the joined Rev38 netlist. This checkout currently has
-   no `avr-gcc`; a host-only build cannot fulfill this step.
+4. Rebuild with the exact AVR64DA32 device toolchain after every adapter
+   change, compare assigned physical pins to the joined Rev38 netlist, and
+   inspect a programmed image plus fuse readback. The offline target build
+   now passes; pin/fuse and physical timing review do not.
 
-No AVR target build or physical test is claimed by this selection record.
+No programmed AVR behavior or physical test is claimed by this record.

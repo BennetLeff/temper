@@ -45,5 +45,9 @@ void pe_runtime_tick(pe_runtime_t *runtime);
 void pe_runtime_byte(pe_runtime_t *runtime, uint8_t byte);
 /* USART framing, parity or overrun errors invalidate the current attempt. */
 void pe_runtime_serial_error(pe_runtime_t *runtime);
+/* The target calls these only after one complete local safety iteration and
+ * at a bounded ping interval. A received byte alone is never progress. */
+void pe_runtime_local_progress(pe_runtime_t *runtime, uint32_t epoch);
+bool pe_runtime_ping(pe_runtime_t *runtime);
 
 #endif

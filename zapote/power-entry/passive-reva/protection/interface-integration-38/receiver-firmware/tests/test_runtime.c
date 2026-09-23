@@ -9,8 +9,12 @@ typedef struct {
     pe_receiver_inputs_t inputs;
     bool pins[PE_PIN_COUNT];
     unsigned run_pulses;
+    unsigned wdi_pulses;
     uint8_t transmitted[PE_FRAME_SIZE];
     unsigned transmissions;
+    unsigned delay_on_abort_high_call;
+    uint64_t delayed_time;
+    unsigned delay_on_sample_call;
 } fixture_t;
 
 static uint8_t read_byte(void *context, uint16_t address) {
@@ -25,12 +29,20 @@ static bool write_byte(void *context, uint16_t address, uint8_t value) {
 static uint64_t now_ms(void *context) { return ((fixture_t *)context)->now; }
 
 static pe_receiver_inputs_t sample(void *context) {
-    return ((fixture_t *)context)->inputs;
+    fixture_t *fixture = context;
+    if (fixture->delay_on_sample_call != 0 &&
+        --fixture->delay_on_sample_call == 0) fixture->now = fixture->delayed_time;
+    return fixture->inputs;
 }
 
 static bool set_level(void *context, pe_output_pin_t pin, bool high) {
     fixture_t *fixture = context;
     fixture->pins[pin] = high;
+    if (pin == PE_PIN_ABORT_N && high &&
+        fixture->delay_on_abort_high_call != 0 &&
+        --fixture->delay_on_abort_high_call == 0) {
+        fixture->now = fixture->delayed_time;
+    }
     if (pin == PE_PIN_ABORT_N) fixture->inputs.session_clear_n = high;
     return true;
 }
@@ -50,6 +62,8 @@ static bool pulse(void *context, pe_output_pin_t pin) {
         assert(fixture->inputs.physical_permit);
         ++fixture->run_pulses;
         fixture->inputs.run_q = true;
+    } else if (pin == PE_PIN_WDI) {
+        ++fixture->wdi_pulses;
     }
     return true;
 }
@@ -159,6 +173,30 @@ static void delayed_or_faulted_commit_never_pulses_run(void) {
     fixture.now = 12;
     pe_runtime_tick(&runtime);
     assert(fixture.run_pulses == 0 && !fixture.pins[PE_PIN_ABORT_N]);
+
+    provision(&fixture);
+    runtime = (pe_runtime_t){0};
+    id = prepare_ready(&runtime, &fixture, &journal);
+    fixture.inputs.physical_permit = fixture.inputs.permit_seen_q = true;
+    send_frame(&runtime, &fixture, (pe_frame_t){PE_REQUEST, id, 9}, 10);
+    send_frame(&runtime, &fixture, (pe_frame_t){PE_START, id, 9}, 11);
+    fixture.delay_on_abort_high_call = 2;
+    fixture.delayed_time = 20; /* second output callback crosses deadline */
+    fixture.now = 12;
+    pe_runtime_tick(&runtime);
+    assert(fixture.run_pulses == 0 && !fixture.pins[PE_PIN_ABORT_N]);
+
+    provision(&fixture);
+    runtime = (pe_runtime_t){0};
+    id = prepare_ready(&runtime, &fixture, &journal);
+    fixture.inputs.physical_permit = fixture.inputs.permit_seen_q = true;
+    send_frame(&runtime, &fixture, (pe_frame_t){PE_REQUEST, id, 10}, 10);
+    send_frame(&runtime, &fixture, (pe_frame_t){PE_START, id, 10}, 11);
+    fixture.delay_on_sample_call = 4;
+    fixture.delayed_time = 20; /* final input callback crosses deadline */
+    fixture.now = 12;
+    pe_runtime_tick(&runtime);
+    assert(fixture.run_pulses == 0 && !fixture.pins[PE_PIN_ABORT_N]);
 }
 
 static void idle_decoder_timeout_reaches_abort_pin(void) {
@@ -189,10 +227,37 @@ static void usart_error_reaches_abort_pin(void) {
     assert(!fixture.pins[PE_PIN_ABORT_N] && !fixture.pins[PE_PIN_ATTEMPT_VALID]);
 }
 
+static void watchdog_needs_local_and_matching_link_progress(void) {
+    fixture_t fixture;
+    provision(&fixture);
+    pe_journal_io_t journal = {&fixture, read_byte, write_byte};
+    pe_runtime_t runtime;
+    uint64_t id = prepare_ready(&runtime, &fixture, &journal);
+    fixture.now = 10;
+    assert(pe_runtime_ping(&runtime));
+    pe_frame_t ping;
+    assert(pe_frame_decode(fixture.transmitted, PE_FRAME_SIZE, &ping));
+    assert(ping.type == PE_PING && ping.session == id);
+    assert(fixture.wdi_pulses == 0);
+    pe_runtime_local_progress(&runtime, 3);
+    fixture.now = 11;
+    pe_runtime_tick(&runtime);
+    assert(fixture.wdi_pulses == 0);
+    send_frame(&runtime, &fixture,
+               (pe_frame_t){PE_PONG, id, ping.value}, 12);
+    fixture.now = 13;
+    pe_runtime_tick(&runtime);
+    assert(fixture.wdi_pulses == 1);
+    fixture.now = 14;
+    pe_runtime_tick(&runtime);
+    assert(fixture.wdi_pulses == 1);
+}
+
 int main(void) {
     accepted_start_has_one_synchronous_run_edge();
     delayed_or_faulted_commit_never_pulses_run();
     idle_decoder_timeout_reaches_abort_pin();
     usart_error_reaches_abort_pin();
+    watchdog_needs_local_and_matching_link_progress();
     return 0;
 }

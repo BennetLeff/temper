@@ -149,6 +149,19 @@ static void commit_run(pe_runtime_t *runtime) {
     checked.wdi_falling_pulse = false;
     actions.wdi_falling_pulse = false;
     if (!apply(runtime, checked)) return;
+    /* Applying the checked outputs is itself a target callback and may
+     * consume the remaining START window. Recheck after it, before RUN. */
+    inputs = runtime->io.sample(runtime->io.context);
+    now = runtime->io.now_ms(runtime->io.context);
+    pe_receiver_sample(receiver, now, inputs, &checked);
+    wdi = wdi || checked.wdi_falling_pulse;
+    if (receiver->state != PE_RX_RUN_CONFIRM ||
+        now > UINT64_MAX - bound ||
+        now + bound >= receiver->start_deadline_ms ||
+        !checked.abort_n) {
+        cancel_attempt(runtime);
+        return;
+    }
     if (!runtime->io.pulse(runtime->io.context, PE_PIN_RUN_SET)) {
         io_abort(runtime);
         return;
@@ -191,4 +204,20 @@ void pe_runtime_serial_error(pe_runtime_t *runtime) {
     if (runtime->io_fault) return;
     cancel_attempt(runtime);
     pe_stream_init(&runtime->stream, runtime->stream.max_gap_ms);
+}
+
+void pe_runtime_local_progress(pe_runtime_t *runtime, uint32_t epoch) {
+    if (!runtime->io_fault) pe_receiver_local_progress(&runtime->receiver, epoch);
+}
+
+bool pe_runtime_ping(pe_runtime_t *runtime) {
+    if (runtime->io_fault) return false;
+    pe_receiver_actions_t actions;
+    uint64_t now = runtime->io.now_ms(runtime->io.context);
+    pe_receiver_inputs_t inputs = runtime->io.sample(runtime->io.context);
+    if (!pe_receiver_ping(&runtime->receiver, now, inputs, &actions)) {
+        (void)apply(runtime, actions);
+        return false;
+    }
+    return apply(runtime, actions);
 }
