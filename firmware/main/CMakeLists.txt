@@ -7,6 +7,7 @@ idf_component_register(
         "state_machine.c"
         "state_handlers.c"
         "power_entry_authorization.c"
+        "power_entry_source_runtime.c"
         "../../zapote/power-entry/passive-reva/protection/interface-integration-38/receiver-firmware/protocol.c"
         "../components/sensors/max31865.c"
         "../components/sensors/rtd_service.c"

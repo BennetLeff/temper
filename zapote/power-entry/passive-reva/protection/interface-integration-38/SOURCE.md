@@ -25,6 +25,19 @@ requires a fresh physical sample and a caller-provided bound from that sample
 through the final START bit; expiry or readback loss aborts. The ESP UART
 owner must call it at a synchronous, nonqueued write and prove that bound.
 Reinitialization never retransmits START.
+
+`firmware/main/power_entry_source_runtime.c` is the host-tested synchronous
+action sequencer for that core. It writes STOP low before draining UART at
+boot, applies challenge before the history-reset pulse, separates the pulse
+and physical Q confirmation across scheduler ticks, applies permit-set only
+after a fresh readback, and commits START at the nonqueued UART write. WDI
+falls before a blocking UART send and is rejected if a callback consumed the
+configured sample-to-pin interval. An I/O failure requests STOP, cancels TX,
+and permanently locks the runtime until reboot. These callbacks have no
+selected ESP GPIOs or target implementation yet; their bounds are host
+fixture parameters, not measured silicon guarantees. The target must use
+one serialized owner and prove complete-frame UART and pulse timing.
+
 Deliberate restart enters a separate stopped state: STOP remains requested,
 no WDI edge is emitted, and a later physical low-PERMIT/HOT-session readback
 must be sampled before `pe_source_disarmed_for_restart` can succeed.
@@ -34,6 +47,13 @@ errors. These are logical host results: no ESP GPIO assignment, UART driver,
 source WDI pin owner, boot pin-level capture, or ESP-IDF target build is yet
 present. The existing unconditional TPS3823 feed in `state_machine.c` remains
 a different circuit and cannot be counted as the new TPS3431 feed.
+
+Driving a retained-high WDI GPIO low during boot may itself make one falling
+edge, despite the logical core requesting none. The runtime drives STOP low
+first, but no bootloader/ESP pad-retention capture yet bounds that possible
+post-reset feed tail or proves the external STOP transition. Do not enter zero
+for that term in the reset inequality.
+
 The core's `safety_ok` sample means external interlocks **excluding** WDO;
 the source may need a first qualified WDI edge after physical disarm to
 recover WDO before the reset/check hardware can accept a new challenge.
