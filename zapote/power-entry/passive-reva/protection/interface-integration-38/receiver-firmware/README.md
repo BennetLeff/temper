@@ -2,8 +2,9 @@
 
 Target: Microchip `AVR64DA32-E/PT`, as selected in
 `../receiver-selection.md`. This directory contains the fixed wire codec,
-host-tested durable ID journal, and receiver session core. It does not yet
-contain the AVR device adapter, fuse image, or pin driver. The previous
+host-tested durable ID journal, receiver session core, and host pin-sequencing
+runtime. It does not yet contain the AVR register backend, fuse image, or
+physical pin driver. The previous
 ATmega328P fixtures are input evidence, not a firmware target.
 
 Run the focused host tests from this directory:
@@ -15,6 +16,8 @@ cc -std=c99 -Wall -Wextra -Werror -pedantic protocol.c journal.c tests/test_jour
 /tmp/temper-rev38-journal-test
 cc -std=c99 -Wall -Wextra -Werror -pedantic protocol.c journal.c receiver.c tests/test_receiver.c -o /tmp/temper-rev38-receiver-test
 /tmp/temper-rev38-receiver-test
+cc -std=c99 -Wall -Wextra -Werror -pedantic protocol.c journal.c receiver.c runtime.c tests/test_runtime.c -o /tmp/temper-rev38-runtime-test
+/tmp/temper-rev38-runtime-test
 ```
 
 The journal test interrupts each of 64 erase/write byte calls for a single
@@ -41,6 +44,21 @@ a partial frame that stalls with no next byte. The AVR loop must call the
 idle entry point on its periodic tick and use the byte entry point for USART
 data. Noise before a frame marker does not count as link progress. The host
 tests exercise bad CRC and an idle gap through the receiver state machine.
+
+`runtime.c` is the host-tested pin-sequencing boundary. Boot requests low on
+every owned safety/pulse output and the relay output. Each preparation step
+samples physical inputs afresh after the preceding output action; the
+history reset and abort release are separated from the revalidation pulse.
+The normal output path rejects a RUN-set request. Only `commit_run` can
+issue that pulse synchronously after fresh samples and after checking a
+configured sample-to-pin latency bound against the fixed deadline. The
+fixture proves the requested call order, one RUN edge, late/fault
+cancellation, and decoder idle abort. Its latency value is an arbitrary
+host-test tick. The AVR backend must prove its real bound and low-high-low
+pulse widths at the pins. The runtime does not yet drive the relay high or
+decide when a local safety cycle counts as WDI progress. The USART backend
+must pass framing, parity, and overrun flags to `pe_runtime_serial_error`,
+which requests physical abort before parsing more bytes.
 
 `receiver.c` separates physical disarm observation from the two history
 resets. It first requests PA6 attempt-valid high, then a PF1 disarm-sample
