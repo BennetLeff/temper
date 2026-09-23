@@ -30,12 +30,14 @@ static bool within_sample_bound(pe_source_runtime_t *runtime,
 
 static bool current_control_sample(pe_source_runtime_t *runtime,
                                    bool reset_seen) {
+    if (!within_sample_bound(runtime,
+                             runtime->io.max_sample_to_control_pin_ms)) return false;
+    pe_source_inputs_t inputs;
+    if (!runtime->io.sample(runtime->io.context, &inputs)) return false;
     uint64_t now = runtime->io.now_ms(runtime->io.context);
     if (!within_sample_bound(runtime,
                              runtime->io.max_sample_to_control_pin_ms) ||
         now >= runtime->source.deadline_ms) return false;
-    pe_source_inputs_t inputs;
-    if (!runtime->io.sample(runtime->io.context, &inputs)) return false;
     if (!inputs.rail_good || !inputs.safety_ok ||
         inputs.local_permit_q || inputs.hot_permit) return false;
     if (reset_seen) {
@@ -135,22 +137,22 @@ bool pe_source_runtime_boot(pe_source_runtime_t *runtime,
 static void advance_preparation(pe_source_runtime_t *runtime) {
     pe_source_actions_t actions;
     if (runtime->source.state == PE_SOURCE_SEEN_ARMED) {
-        uint64_t now = runtime->io.now_ms(runtime->io.context);
         pe_source_inputs_t inputs;
         if (!runtime->io.sample(runtime->io.context, &inputs)) {
             io_abort(runtime);
             return;
         }
+        uint64_t now = runtime->io.now_ms(runtime->io.context);
         (void)pe_source_clock_seen_reset(&runtime->source, now, inputs,
                                          &actions);
         (void)apply(runtime, actions);
     } else if (runtime->source.state == PE_SOURCE_CLEAR_SEEN) {
-        uint64_t now = runtime->io.now_ms(runtime->io.context);
         pe_source_inputs_t inputs;
         if (!runtime->io.sample(runtime->io.context, &inputs)) {
             io_abort(runtime);
             return;
         }
+        uint64_t now = runtime->io.now_ms(runtime->io.context);
         (void)pe_source_confirm_seen_reset(&runtime->source, now, inputs,
                                            &actions);
         (void)apply(runtime, actions);
@@ -159,12 +161,12 @@ static void advance_preparation(pe_source_runtime_t *runtime) {
 
 static void commit_start(pe_source_runtime_t *runtime) {
     pe_source_actions_t actions;
-    uint64_t now = runtime->io.now_ms(runtime->io.context);
     pe_source_inputs_t inputs;
     if (!runtime->io.sample(runtime->io.context, &inputs)) {
         io_abort(runtime);
         return;
     }
+    uint64_t now = runtime->io.now_ms(runtime->io.context);
     (void)pe_source_commit_start(&runtime->source, now,
                                  runtime->io.max_sample_to_start_end_ms,
                                  inputs, &actions);
@@ -174,12 +176,12 @@ static void commit_start(pe_source_runtime_t *runtime) {
 void pe_source_runtime_tick(pe_source_runtime_t *runtime) {
     if (runtime->io_fault) return;
     pe_source_actions_t actions;
-    uint64_t now = runtime->io.now_ms(runtime->io.context);
     pe_source_inputs_t inputs;
     if (!runtime->io.sample(runtime->io.context, &inputs)) {
         io_abort(runtime);
         return;
     }
+    uint64_t now = runtime->io.now_ms(runtime->io.context);
     pe_source_stream_idle(&runtime->source, &runtime->stream, now, inputs,
                           &actions);
     if (!apply(runtime, actions)) return;
@@ -192,12 +194,12 @@ void pe_source_runtime_tick(pe_source_runtime_t *runtime) {
 void pe_source_runtime_byte(pe_source_runtime_t *runtime, uint8_t byte) {
     if (runtime->io_fault) return;
     pe_source_actions_t actions;
-    uint64_t now = runtime->io.now_ms(runtime->io.context);
     pe_source_inputs_t inputs;
     if (!runtime->io.sample(runtime->io.context, &inputs)) {
         io_abort(runtime);
         return;
     }
+    uint64_t now = runtime->io.now_ms(runtime->io.context);
     pe_source_byte(&runtime->source, &runtime->stream, byte, now, inputs,
                    &actions);
     if (!apply(runtime, actions)) return;
@@ -246,12 +248,12 @@ void pe_source_runtime_local_progress(pe_source_runtime_t *runtime,
 bool pe_source_runtime_ping(pe_source_runtime_t *runtime) {
     if (runtime->io_fault) return false;
     pe_source_actions_t actions;
-    uint64_t now = runtime->io.now_ms(runtime->io.context);
     pe_source_inputs_t inputs;
     if (!runtime->io.sample(runtime->io.context, &inputs)) {
         io_abort(runtime);
         return false;
     }
+    uint64_t now = runtime->io.now_ms(runtime->io.context);
     bool requested = pe_source_ping(&runtime->source, now, inputs, &actions);
     return apply(runtime, actions) && requested;
 }
@@ -273,12 +275,12 @@ void pe_source_runtime_begin_restart(pe_source_runtime_t *runtime) {
 bool pe_source_runtime_disarmed_for_restart(pe_source_runtime_t *runtime) {
     if (runtime->io_fault || !runtime->source.restart_requested) return false;
     pe_source_actions_t actions;
-    uint64_t now = runtime->io.now_ms(runtime->io.context);
     pe_source_inputs_t inputs;
     if (!runtime->io.sample(runtime->io.context, &inputs)) {
         io_abort(runtime);
         return false;
     }
+    uint64_t now = runtime->io.now_ms(runtime->io.context);
     pe_source_sample(&runtime->source, now, inputs, &actions);
     if (!apply(runtime, actions)) return false;
     return pe_source_disarmed_for_restart(&runtime->source, inputs);

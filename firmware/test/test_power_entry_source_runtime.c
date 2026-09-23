@@ -23,6 +23,8 @@ typedef struct {
     bool fail_sample;
     unsigned sample_count;
     unsigned fail_sample_at;
+    unsigned delay_sample_at;
+    uint64_t delayed_sample_to_ms;
     unsigned event_count;
     unsigned last_wdi_event;
     unsigned ping_send_event;
@@ -38,6 +40,8 @@ static bool fake_sample(void *context, pe_source_inputs_t *inputs) {
     if (fake->fail_sample || fake->sample_count == fake->fail_sample_at)
         return false;
     *inputs = fake->inputs;
+    if (fake->sample_count == fake->delay_sample_at)
+        fake->now = fake->delayed_sample_to_ms;
     return true;
 }
 
@@ -431,6 +435,36 @@ static void failed_final_start_sample_sends_no_start(void) {
     assert(fake.sent_count == 2 && !fake.levels[PE_SOURCE_PIN_STOP_N]);
 }
 
+static void delayed_control_read_cannot_clock_seen_reset(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    fake.now = 1;
+    pe_source_runtime_tick(&runtime);
+    receive(&runtime, &fake, (pe_frame_t){PE_PREPARE_CHALLENGE, 71, 0}, 2);
+    assert(runtime.source.state == PE_SOURCE_SEEN_ARMED);
+    /* Tick, preparation, then final control read. The last read finishes
+     * after the preparation deadline, despite starting well before it. */
+    fake.delay_sample_at = fake.sample_count + 3u;
+    fake.delayed_sample_to_ms = runtime.source.deadline_ms;
+    fake.now = 3;
+    pe_source_runtime_tick(&runtime);
+    assert(runtime.io_fault && runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(fake.pulses[PE_SOURCE_PIN_SEEN_RESET_REQUEST] == 0);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
+static void delayed_final_start_read_sends_no_start(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    through_request(&runtime, &fake);
+    fake.delay_sample_at = fake.sample_count + PE_FRAME_SIZE + 1u;
+    fake.delayed_sample_to_ms = runtime.source.deadline_ms;
+    receive(&runtime, &fake,
+            (pe_frame_t){PE_ACK, 71, fake.sent[1].value}, 9);
+    assert(runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(fake.sent_count == 2 && !fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
 int main(void) {
     retained_high_wdi_waits_for_disarm();
     both_tasks_must_progress_before_wdi();
@@ -447,5 +481,7 @@ int main(void) {
     serial_error_cancels_pending_write();
     failed_physical_read_disarms();
     failed_final_start_sample_sends_no_start();
+    delayed_control_read_cannot_clock_seen_reset();
+    delayed_final_start_read_sends_no_start();
     return 0;
 }

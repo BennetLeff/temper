@@ -26,6 +26,13 @@ through the final START bit; expiry or readback loss aborts. The ESP UART
 owner must call it at a synchronous, nonqueued write and prove that bound.
 Reinitialization never retransmits START.
 
+The runtime timestamps each completed physical sample after its callback
+returns. It rechecks the preparation deadline and sample-to-pin bound after
+the final control read, before clocking seen-reset or PERMIT-set. A final
+START read that completes at or after expiry cannot authorize transmission.
+Host fixtures delay those reads across the deadline and require no pulse or
+START frame. An ESP adapter still has to bound its own physical read latency.
+
 `firmware/main/power_entry_source_runtime.c` is the host-tested synchronous
 action sequencer for that core. It writes STOP low before draining UART at
 boot, leaves WDI untouched, applies challenge before the history-reset pulse,
@@ -158,8 +165,8 @@ clamp, permission join, or PWM-to-driver path.
 Power-path mutations short F2, move the local capacitor to the bank, omit
 one diode anode, or disconnect the switch/F2 sense joins. AC-input
 mutations disconnect the fused board terminal, bypass the NTC, open the relay
-contact, reverse the flyback diode, miswire the PE capacitor, or cut the bridge L/N and receiver
-relay-control joins.
+contact, reverse the flyback diode, miswire the PE capacitor, or cut the
+bridge L/N and receiver relay-control joins.
 Connectivity does not establish logic
 thresholds, capture minima, or power-stage shutdown.
 
