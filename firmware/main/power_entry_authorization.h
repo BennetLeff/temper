@@ -15,6 +15,7 @@ typedef enum {
     PE_SOURCE_READY,
     PE_SOURCE_PERMIT_PENDING,
     PE_SOURCE_WAIT_ACK,
+    PE_SOURCE_START_ARMED,
     PE_SOURCE_START_SENT,
     PE_SOURCE_RESTART_DISARM,
 } pe_source_state_t;
@@ -77,6 +78,13 @@ void pe_source_sample(pe_source_t *source, uint64_t now_ms,
                       pe_source_inputs_t inputs, pe_source_actions_t *actions);
 void pe_source_frame(pe_source_t *source, pe_frame_t frame, uint64_t now_ms,
                      pe_source_inputs_t inputs, pe_source_actions_t *actions);
+/* ACK only arms START. Call at a synchronous, nonqueued UART write after a
+ * fresh physical sample. max_to_frame_end_ms must bound time from this sample
+ * through the final START bit on the wire; zero or expiry aborts. */
+bool pe_source_commit_start(pe_source_t *source, uint64_t now_ms,
+                            uint32_t max_to_frame_end_ms,
+                            pe_source_inputs_t inputs,
+                            pe_source_actions_t *actions);
 void pe_source_byte(pe_source_t *source, pe_stream_t *stream, uint8_t byte,
                     uint64_t now_ms, pe_source_inputs_t inputs,
                     pe_source_actions_t *actions);

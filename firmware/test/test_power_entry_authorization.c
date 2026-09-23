@@ -59,8 +59,13 @@ static void held_button_and_reset_cannot_replay_start(void) {
     uint32_t intent = actions.frame.value;
     pe_source_frame(&src, (pe_frame_t){PE_ACK, id, intent}, 9,
                     inputs, &actions);
+    assert(src.state == PE_SOURCE_START_ARMED && !actions.transmit);
+    inputs.permit_seen_q = true; /* physical async preset after HOT PERMIT */
+    assert(pe_source_commit_start(&src, 10, 1, inputs, &actions));
     assert(src.state == PE_SOURCE_START_SENT && actions.transmit);
     assert(actions.frame.type == PE_START && actions.frame.value == intent);
+    assert(!pe_source_commit_start(&src, 11, 1, inputs, &actions));
+    assert(src.state == PE_SOURCE_LOCKOUT && !actions.transmit);
     pe_source_init(&src, (pe_source_config_t){20, 10, 30});
     pe_source_sample(&src, 0, inputs, &actions); /* retained GPIO/Q at reset */
     assert(src.state == PE_SOURCE_LOCKOUT && !actions.stop_n);
@@ -102,6 +107,39 @@ static void fixed_start_deadline_and_duplicate_ack_abort(void) {
                     inputs, &actions);
     assert(src.state == PE_SOURCE_LOCKOUT && !actions.stop_n);
     assert(!actions.transmit);
+}
+
+static void delayed_or_unreadable_start_never_transmits(void) {
+    pe_source_t src = source();
+    pe_source_inputs_t inputs = safe_disarm();
+    pe_source_actions_t actions;
+    uint64_t id = ready(&src, &inputs);
+    pe_source_sample(&src, 6, inputs, &actions); /* fresh release */
+    inputs.start_button_pressed = true;
+    pe_source_sample(&src, 7, inputs, &actions); /* deadline 17 */
+    inputs.local_permit_q = inputs.hot_permit = inputs.permit_seen_q = true;
+    pe_source_sample(&src, 8, inputs, &actions);
+    uint32_t intent = actions.frame.value;
+    pe_source_frame(&src, (pe_frame_t){PE_ACK, id, intent}, 9,
+                    inputs, &actions);
+    assert(src.state == PE_SOURCE_START_ARMED && !actions.transmit);
+    assert(!pe_source_commit_start(&src, 16, 1, inputs, &actions));
+    assert(src.state == PE_SOURCE_LOCKOUT && !actions.transmit);
+
+    src = source();
+    inputs = safe_disarm();
+    id = ready(&src, &inputs);
+    pe_source_sample(&src, 6, inputs, &actions);
+    inputs.start_button_pressed = true;
+    pe_source_sample(&src, 7, inputs, &actions);
+    inputs.local_permit_q = inputs.hot_permit = inputs.permit_seen_q = true;
+    pe_source_sample(&src, 8, inputs, &actions);
+    intent = actions.frame.value;
+    pe_source_frame(&src, (pe_frame_t){PE_ACK, id, intent}, 9,
+                    inputs, &actions);
+    inputs.hot_permit = false; /* physical readback lost after ACK */
+    assert(!pe_source_commit_start(&src, 10, 1, inputs, &actions));
+    assert(src.state == PE_SOURCE_LOCKOUT && !actions.transmit);
 }
 
 static void wdi_requires_local_and_link_progress_after_preparation(void) {
@@ -240,5 +278,6 @@ int main(void) {
     malformed_response_aborts_authorization();
     first_wdi_waits_for_physical_disarm();
     deliberate_restart_waits_for_later_disarm_sample();
+    delayed_or_unreadable_start_never_transmits();
     return 0;
 }

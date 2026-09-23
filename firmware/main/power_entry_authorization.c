@@ -108,7 +108,8 @@ void pe_source_sample(pe_source_t *source, uint64_t now_ms,
                  source->state == PE_SOURCE_CLEAR_SEEN ||
                  source->state == PE_SOURCE_WAIT_READY ||
                  source->state == PE_SOURCE_PERMIT_PENDING ||
-                 source->state == PE_SOURCE_WAIT_ACK) &&
+                 source->state == PE_SOURCE_WAIT_ACK ||
+                 source->state == PE_SOURCE_START_ARMED) &&
                 now_ms >= source->deadline_ms) ||
                now_ms - source->last_wdi_ms >=
                    source->config.watchdog_window_ms) {
@@ -231,9 +232,8 @@ void pe_source_frame(pe_source_t *source, pe_frame_t frame, uint64_t now_ms,
             now_ms < source->deadline_ms &&
             inputs.local_permit_q && inputs.hot_permit &&
             inputs.hot_session_q) {
-            source->state = PE_SOURCE_START_SENT;
+            source->state = PE_SOURCE_START_ARMED;
             if (!link_progress(source, actions)) return;
-            send(actions, PE_START, source->session, source->intent);
             return;
         }
         break;
@@ -257,6 +257,25 @@ void pe_source_frame(pe_source_t *source, pe_frame_t frame, uint64_t now_ms,
         break;
     }
     abort_source(source, actions);
+}
+
+bool pe_source_commit_start(pe_source_t *source, uint64_t now_ms,
+                            uint32_t max_to_frame_end_ms,
+                            pe_source_inputs_t inputs,
+                            pe_source_actions_t *actions) {
+    pe_source_sample(source, now_ms, inputs, actions);
+    if (source->state != PE_SOURCE_START_ARMED ||
+        max_to_frame_end_ms == 0 ||
+        now_ms > UINT64_MAX - max_to_frame_end_ms ||
+        now_ms + max_to_frame_end_ms >= source->deadline_ms ||
+        !inputs.local_permit_q || !inputs.hot_permit ||
+        !inputs.hot_session_q || !inputs.permit_seen_q) {
+        abort_source(source, actions);
+        return false;
+    }
+    source->state = PE_SOURCE_START_SENT;
+    send(actions, PE_START, source->session, source->intent);
+    return true;
 }
 
 void pe_source_byte(pe_source_t *source, pe_stream_t *stream, uint8_t byte,

@@ -20,7 +20,11 @@ reset edge, then confirm the physical Q before `DISARM_ACK` can be sent.
 READY requires retained HOT session readback. A button held before READY
 cannot start; a release and later press requests one PERMIT-set edge, and
 local plus HOT PERMIT readbacks precede REQUEST. Matching ACK before the
-fixed deadline emits one START. Reinitialization never retransmits it.
+fixed deadline arms one START without emitting bytes. `pe_source_commit_start`
+requires a fresh physical sample and a caller-provided bound from that sample
+through the final START bit; expiry or readback loss aborts. The ESP UART
+owner must call it at a synchronous, nonqueued write and prove that bound.
+Reinitialization never retransmits START.
 Deliberate restart enters a separate stopped state: STOP remains requested,
 no WDI edge is emitted, and a later physical low-PERMIT/HOT-session readback
 must be sampled before `pe_source_disarmed_for_restart` can succeed.
