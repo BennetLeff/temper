@@ -103,6 +103,33 @@ proposed, typical, and requirement values; this table does not upgrade them.
 The fault/event rows in `fault-response.tsv` keep individual detector and
 transaction cases visible. This ledger groups them only where they share a
 hazard model; it does not merge their electrical producers or capture minima.
+
+The event ledger's evidence-status column now reflects the joined Rev38
+pin paths. Its `UNSET` capture and cessation columns still mean that a
+compiled path has no established analog response bound. In particular,
+the F2-open row has no direct continuity sensor; equal VD/VB after opening
+can precede a later voltage fault without producing a mismatch now.
+
+## AUX producer decision gate
+
+The protected AUX and HOT logic5 ports still lack an installed producer.
+The historical `controller-integration-06/supply` proposal uses
+IRM-10-24 → TPS7A4701 15 V → TPS54202 5 V. The later Rev19/20
+LT4363-1 clamp is a separate downstream proposal, not an interchangeable
+substitute for choosing and qualifying that raw source. The
+`interface-dynamics-23` model latches off for its artificial 150 mA,
+20 ms startup pulse while its 5 ms pulse recovers. That sensitivity is a
+reason to bind the actual converter and relay startup loads before copying
+the clamp into this joined circuit; it is not a measured failure of a
+selected assembly.
+
+Select one source chain and prove its normal and fault output envelope,
+current limit, startup ordering, and thermal behavior at the Rev38
+consumers. Then recalculate the LT4363/FET sense, timer and SOA if used,
+the 13.25/16.50 V nominal AUX-window thresholds, both TPS3890 rail
+thresholds, and the driver's intermediate-supply OFF condition. The AC
+input's 15 Arms route does not independently define the low-voltage AUX
+fault waveform or permissible supply-loss interval.
 Command deadlines are separate authorization limits derived from the hazard
 and communication envelope. A healthy heartbeat cannot extend START expiry.
 
