@@ -64,6 +64,48 @@ This does not reject every precision divider: a specified matched-ratio
 network or sufficiently tighter individual TCR and drift limits could be
 evaluated. It rejects selecting a pair on initial tolerance alone.
 
+## TPS2663x alternative: static range exists, with little system margin
+
+The [TPS2663x cutoff variants](https://www.ti.com/lit/ds/symlink/tps2663.pdf)
+have a wider guaranteed OVP hysteresis window: 1.090 V minimum falling,
+1.224 V maximum rising, and ±150 nA OVP-pin leakage. These figures apply to
+TPS26630/TPS26631 adjustable **cutoff**, not the clamp variants. The same
+15.75/18.0 V screens give an independent-resistor deviation limit of about
+0.472% before leakage. Their factory UVLO still rises as high as 15.9 V and
+would have the same valid-source startup problem; it cannot be selected by
+grounding UVLO. TI permits tying UVLO to IN_SYS when the function is not
+needed. That is only a candidate because the separate AUX window would then
+own the low-rail response.
+
+[Vishay TNPU e3](https://www.vishay.com/docs/28779/tnpue3.pdf) lists
+16.7 kΩ and 1.23 kΩ within its E192, ±0.02%, ±2 ppm/K range. Its rated-power
+resistance-change limit is ±0.3% at 225,000 h. Treating initial tolerance,
+100 K from a 25 °C reference, and that full drift as independent adverse
+terms gives `t = 0.0002 + 0.0002 + 0.0030 = 0.0034` per resistor. For this
+illustrative divider, `q = 16.7/1.23 = 13.57723577`. Including the adverse
+±150 nA OVP input leakage and ±t resistor endpoints gives:
+
+```text
+minimum falling input = 1.090 × (1 + q × (1−t)/(1+t)) − 150 nA × 16.7 kΩ × (1+t)
+                      = 15.78638 V  (36.38 mV above 15.75 V)
+maximum rising input = 1.224 × (1 + q × (1+t)/(1−t)) + 150 nA × 16.7 kΩ × (1+t)
+                     = 17.95844 V  (41.56 mV below 18.0 V)
+```
+
+This shows **algebraic feasibility only**. The 18.0 V upper figure is still
+provisional; neither 36 mV nor 42 mV can be spent without a board-leakage,
+regulator-ripple, common-mode, transient, and threshold-to-output budget.
+The top resistor dissipates about 64 mW if a failed LDO passes 35 V, so its
+footprint and film temperature need a fault/ambient calculation. The eFuse's
+minimum programmed current limit is 0.54 A at its 30 kΩ example, above the
+[IRM-10-24](https://www.meanwell.com/Upload/PDF/IRM-10/IRM-10-SPEC.PDF)'s
+nominal 0.42 A output rating; it cannot be credited as a
+0.42 A source-overload protector without a separate source and conductor
+analysis. No orderable resistor pair or eFuse is selected, and this screen
+does not qualify fast-fault output peak, startup, recovery, or lifetime.
+
+## TPS26601 behavior and decision
+
 TI describes TPS26601 MODE-open latch behavior for **overload**. The OVP
 function cuts off and resumes on its own falling threshold; the overload
 latch must not be treated as an OVP latch. The datasheet's OVP timing entry

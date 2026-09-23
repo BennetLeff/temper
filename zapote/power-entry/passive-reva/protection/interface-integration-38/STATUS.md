@@ -27,6 +27,12 @@ needs an externally qualified UVLO threshold as well as the OVP solution.
 The 15.75/18.0 V screen permits at most 0.32663% independent variation per
 OVP resistor before leakage; ordinary ±0.1%, ±25 ppm/K discrete parts can
 exceed that at 125 °C before lifetime drift. No cutoff divider is selected.
+The `AUX-OVP-WINDOW.md` TPS2663x alternative uses its wider guaranteed OVP
+hysteresis and a screened ±0.02%, ±2 ppm/K TNPU divider. Even with the
+manufacturer's 225,000 h drift and OVP-pin leakage bounds, its static margins
+are only 36 mV for recovery and 42 mV for trip. Board leakage, fault input
+waveform, output peak, top-resistor temperature, and current-limit behavior
+are unqualified, so it is not yet a protected-AUX selection.
 
 Immediate construction order: select and qualify U4's actual F1 cartridge/AC input and protected AUX source; bind those pins to U5's AVR adapter and U6's source driver;
 then export and audit U7. Update U1 with every selected component and
