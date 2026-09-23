@@ -5,11 +5,13 @@
 from "receiver_isolation.ato" import ReceiverIsolation38
 from "source_authority.ato" import SourceAuthority38
 from "driver_stage.ato" import DriverStage38
+from "hot_watchdog.ato" import HotWatchdog38
 
 module PowerEntryIntegrated38:
     receiver = new ReceiverIsolation38
     source = new SourceAuthority38
     driver = new DriverStage38
+    hot_watchdog = new HotWatchdog38
 
     source.SELV3V3 ~ receiver.SELV3V3
     source.SELV_GND ~ receiver.SELV_GND
@@ -27,3 +29,7 @@ module PowerEntryIntegrated38:
     driver.HOT_RECEIVER_ABORT_N ~ receiver.HOT_RECEIVER_ABORT_N
     driver.HOT_PREP_ABORT_OK ~ receiver.HOT_PREP_ABORT_OK
     driver.HOT_SOURCE_STOP_N ~ receiver.HOT_SOURCE_STOP_N
+    hot_watchdog.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
+    hot_watchdog.HOT0 ~ receiver.HOT0
+    hot_watchdog.HOT_WDI ~ receiver.HOT_WDI
+    hot_watchdog.HOT_WATCHDOG_OK ~ receiver.HOT_WATCHDOG_OK

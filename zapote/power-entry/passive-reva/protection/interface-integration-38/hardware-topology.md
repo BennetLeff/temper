@@ -129,8 +129,9 @@ HOT_PREP_TRIP_OK = HOT_ATTEMPT_VALID & HOT_SOURCE_HEALTH
 ```
 
 The HCS21's output and every unproduced safety input have local low
-defaults. The partial fixture still lacks the actual HOT rail, F2 summary,
-and watchdog producers and source-side health/STOP logic, so its compiled
+defaults. The partial fixture now has a HOT TPS3431 WDO producer, but still
+lacks the actual HOT rail and F2 summary producers and source-side
+health/STOP GPIO logic, so its compiled
 fan-in does not prove fault capture. PA6/4 drives attempt-valid high before
 the prep-reset edge and low on lockout, STOP, or reset, with a local
 pull-down. `RECEIVER_ABORT_N` cannot serve this role while it is already low
@@ -178,7 +179,7 @@ corners are still open.
 
 ## Evidence needed to promote this to U4 PASS
 
-1. Select and compile the remaining actual F2 and HOT rail/watchdog producers,
+1. Select and compile the remaining actual F2 and HOT rail producers,
    AUX source, reservoir, and PFC control/power parts in **one**
    Atopile 0.2.69 entry. Rev35's `clear_core_ok` includes PERMIT and cannot
    be reused as `SESSION_CLEAR_N`.

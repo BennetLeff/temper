@@ -1,0 +1,36 @@
+# Independent HOT receiver-execution watchdog candidate. WDO/ENOUT share a
+# pulled-up healthy-high node. This is not a complete rail or timing proof.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "source_authority.ato" import SourceWatchdog, SourceCwd1n
+from "receiver_isolation.ato" import R, C
+
+module HotWatchdog38:
+    signal HOT_LOGIC5
+    signal HOT0
+    signal HOT_WDI
+    signal HOT_WATCHDOG_OK
+    signal HOT_WD_CWD
+
+    watchdog = new SourceWatchdog
+    watchdog.VDD ~ HOT_LOGIC5
+    watchdog.GND ~ HOT0
+    watchdog.EP ~ HOT0
+    watchdog.EN ~ HOT_LOGIC5
+    watchdog.SET1 ~ HOT_LOGIC5
+    watchdog.WDI ~ HOT_WDI
+    watchdog.CWD ~ HOT_WD_CWD
+    watchdog.WDO ~ HOT_WATCHDOG_OK
+    watchdog.ENOUT ~ HOT_WATCHDOG_OK
+    cwd = new SourceCwd1n
+    cwd.value = 1nF
+    cwd.p1 ~ HOT_WD_CWD
+    cwd.p2 ~ HOT0
+    wdo_pu = new R
+    wdo_pu.value = 10kohm
+    wdo_pu.p1 ~ HOT_LOGIC5
+    wdo_pu.p2 ~ HOT_WATCHDOG_OK
+    c_watchdog = new C
+    c_watchdog.value = 100nF
+    c_watchdog.p1 ~ HOT_LOGIC5
+    c_watchdog.p2 ~ HOT0

@@ -6,5 +6,7 @@ builds:
     entry: elec/src/source_authority.ato:SourceAuthority38
   driver:
     entry: elec/src/driver_stage.ato:DriverStage38
+  hot_watchdog:
+    entry: elec/src/hot_watchdog.ato:HotWatchdog38
   integrated:
     entry: elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38

@@ -1,7 +1,8 @@
 # Rev38 source authority fixture
 
 `elec/src/source_authority.ato` is the SELV source-side candidate joined to
-`receiver_isolation.ato` and `driver_stage.ato` by `power_entry_integrated_38.ato`. The joined
+`receiver_isolation.ato`, `hot_watchdog.ato` and `driver_stage.ato` by
+`power_entry_integrated_38.ato`. The joined
 Atopile build connects five physical source/receiver paths: source PERMIT
 and health forward, STOP forward, and physical HOT PERMIT plus retained HOT
 SESSION feedback reverse. The protocol and relay-request channels remain
@@ -46,6 +47,7 @@ every configured target in this version of Atopile:
 uvx --from atopile==0.2.69 ato --non-interactive build -b isolation
 uvx --from atopile==0.2.69 ato --non-interactive build -b source
 uvx --from atopile==0.2.69 ato --non-interactive build -b driver
+uvx --from atopile==0.2.69 ato --non-interactive build -b hot_watchdog
 uvx --from atopile==0.2.69 ato --non-interactive build -b integrated
 rustc --edition=2021 --test audit.rs -o /tmp/temper-rev38-isolation-audit
 /tmp/temper-rev38-isolation-audit
@@ -57,7 +59,8 @@ The Rust audit checks exact source, driver, and joined pin membership, MPN ident
 the WDO-to-health-to-source-clear path, physical-readback history,
 independent raw set/reset clocks, and SELV/HOT domain separation. Mutation
 tests remove WDO, HOT feedback, and readback-loss inputs, swap feedback,
-and bridge the isolation boundary. Driver mutations remove the ENA clamp,
+and bridge the isolation boundary. HOT watchdog mutations remove WDI, WDO,
+CWD, EN, or its pull-up. Driver mutations remove the ENA clamp,
 base bias, receiver abort, and PowerPAD return or short the gate to AUX.
 Connectivity does not establish logic
 thresholds, capture minima, or power-stage shutdown.
