@@ -54,6 +54,11 @@ physical** high transition and clears only in controlled physical disarm.
 This permits initial preparation with PERMIT low, then makes a later low
 PERMIT a sticky invalidation. STOP and receiver reset assert
 `RECEIVER_ABORT_N` low even in READY before PERMIT first rises.
+`DISARM_SEEN_AFTER_TRIP` is another retained element: a new trip clears it,
+and only physical HOT PERMIT low after that trip sets it. AVR PC0/6 reads its
+Q, so a pre-trip low level cannot masquerade as post-trip disarm. A broken
+PERMIT wire may set this Q, but DISARM_ACK, a new durable ID, and fresh intent
+remain separate requirements.
 
 Revalidation must clock SESSION on the raw rising request edge with D equal
 to current eligibility. **Never gate the clock with a recovering fault**:
@@ -64,16 +69,23 @@ RUN-set clock likewise uses a raw request edge; D and asynchronous clear
 require current SESSION, PERMIT, and fault validity. Neither START nor
 revalidation may release an asynchronous clear.
 
-The AVR PC3/9 disarm-history reset request must produce a bounded pulse that
-ends **before** challenge publication. The pulse clears HOT permit-seen and
-preparation-abort history only after both physical PERMIT nodes are low.
-The AVR verifies PC4/22 seen Q low and PC1/7 preparation-abort Q low after
-the pulse, then reserves the new durable ID and rechecks them after the
-EEPROM write before publishing the challenge. A held PC3 level must not keep
-either memory reset during preparation. The one-shot part, its timing
-components, set/reset dominance during a coincident trip, and the target
-adapter sequence still need selection and test; this is a U4/U5 completion
-condition.
+The two history resets are separate. PA4/2 requests a bounded reset of
+preparation-abort memory **before** challenge publication, after physical
+disarm. The AVR verifies PC1/7 Q low, reserves the durable ID, then rechecks
+PC1/7 before publishing the challenge. Any new trip thereafter retains
+preparation-abort Q high. After a matching DISARM_ACK, PC3/9 requests a
+different bounded reset of historical HOT permit-seen memory while physical
+PERMIT and RUN remain low. The AVR verifies PA3/1 seen Q low and PC1/7
+preparation-abort Q still low before releasing abort and revalidation. This
+follows the approved spec's order; resetting preparation-abort memory at
+DISARM_ACK would erase evidence of a trip during preparation.
+
+Held PA4 or PC3 levels must not keep either memory reset. In particular,
+the PC3 pulse must have **no path** to preparation-abort clear. The one-shot
+parts, timing components, set/reset dominance during coincident trips, and
+target-adapter sequence still need selection and test; this is a U4/U5
+completion condition. The 32-pin AVR package has PA3/1 and PA4/2, but **no
+PC4 pin**; the physical package table is the authority for this allocation.
 
 ## Gate-driver boundary
 

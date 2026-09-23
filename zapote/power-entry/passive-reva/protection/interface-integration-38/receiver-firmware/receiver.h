@@ -9,7 +9,11 @@
 
 typedef enum {
     PE_RX_LOCKOUT,
+    PE_RX_PREP_RESET,
+    PE_RX_RESERVED,
     PE_RX_PREPARING,
+    PE_RX_HISTORY_RESET,
+    PE_RX_REVALIDATING,
     PE_RX_READY,
     PE_RX_START_PENDING,
     PE_RX_RUN_CONFIRM,
@@ -24,10 +28,13 @@ typedef struct {
     bool run_q;             /* independent retained HOT_RUN */
     bool disarm_seen;       /* physical post-trip low-PERMIT memory */
     bool preparation_abort; /* retained trip while Q was already low */
+    bool permit_seen_q;     /* historical high HOT PERMIT memory */
 } pe_receiver_inputs_t;
 
 typedef struct {
     bool abort_n;           /* continuously driven output; low is safe */
+    bool prep_reset_pulse;  /* separate history reset before reservation */
+    bool history_reset_pulse; /* HOT PERMIT history only, after DISARM_ACK */
     bool revalidate_pulse;  /* one adapter-owned pulse, then return low */
     bool run_set_pulse;     /* one adapter-owned pulse, then return low */
     bool wdi_falling_pulse; /* high then low: TPS3431 services falling edge */
@@ -57,7 +64,6 @@ typedef struct {
     uint32_t next_ping;
     uint32_t awaiting_pong;
     bool abort_n;
-    bool revalidation_issued;
     bool clock_fault;
     bool storage_fault;
 } pe_receiver_t;
@@ -67,9 +73,19 @@ void pe_receiver_init(pe_receiver_t *receiver, pe_receiver_config_t config);
  * abort in software; independent hardware must clear asynchronously. */
 void pe_receiver_sample(pe_receiver_t *receiver, uint64_t now_ms,
                         pe_receiver_inputs_t inputs, pe_receiver_actions_t *actions);
-bool pe_receiver_begin(pe_receiver_t *receiver, const pe_journal_io_t *journal,
-                       uint64_t now_ms, pe_receiver_inputs_t inputs,
-                       pe_receiver_actions_t *actions);
+bool pe_receiver_prepare_reset(pe_receiver_t *receiver, uint64_t now_ms,
+                               pe_receiver_inputs_t inputs,
+                               pe_receiver_actions_t *actions);
+bool pe_receiver_reserve(pe_receiver_t *receiver, const pe_journal_io_t *journal,
+                         uint64_t now_ms, pe_receiver_inputs_t inputs,
+                         pe_receiver_actions_t *actions);
+bool pe_receiver_publish(pe_receiver_t *receiver, uint64_t now_ms,
+                         pe_receiver_inputs_t inputs,
+                         pe_receiver_actions_t *actions);
+bool pe_receiver_history_reset_complete(pe_receiver_t *receiver,
+                                        uint64_t now_ms,
+                                        pe_receiver_inputs_t inputs,
+                                        pe_receiver_actions_t *actions);
 void pe_receiver_frame(pe_receiver_t *receiver, pe_frame_t frame,
                        uint64_t now_ms, pe_receiver_inputs_t inputs,
                        pe_receiver_actions_t *actions);

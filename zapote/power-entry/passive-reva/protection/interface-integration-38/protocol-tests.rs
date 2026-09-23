@@ -286,3 +286,22 @@ fn deliberate_restart_requires_prior_physical_disarm_acknowledgement() {
     m.deliberate_restart().unwrap();
     assert_eq!(m.feed_source_wdi(), Err(Reject::SourceReset));
 }
+
+#[test]
+fn historical_permit_seen_is_cleared_only_after_matching_disarm_ack() {
+    let (mut m, id) = ready();
+    m.button_release();
+    m.button_press().unwrap();
+    m.raise_permit().unwrap();
+    assert!(m.source_seen_high() && m.hot_seen_high());
+    m.stop();
+    m.observe_disarm_low().unwrap();
+    m.acknowledge_physical_disarm().unwrap();
+    let next = m.reserve_session().unwrap();
+    assert!(next > id);
+    assert!(m.source_seen_high() && m.hot_seen_high());
+    assert_eq!(m.disarm_ack(id), Err(Reject::WrongSession));
+    assert!(m.source_seen_high() && m.hot_seen_high());
+    m.disarm_ack(next).unwrap();
+    assert!(!m.source_seen_high() && !m.hot_seen_high());
+}

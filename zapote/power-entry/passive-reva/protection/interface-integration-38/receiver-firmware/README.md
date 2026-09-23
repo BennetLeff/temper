@@ -26,14 +26,23 @@ physical abort command on STOP and preparation trip, session ID advancement,
 and dual-source WDI feed. All time windows in the test are arbitrary logical
 ticks; no numerical safety allowance follows from them.
 
-`receiver.c` produces requests for one revalidation, one RUN-set pulse, and
-one high-then-low WDI pulse per validated feed. TI's TPS3431 services a
+`receiver.c` separates the two history resets. Preparation-abort memory is
+reset and read back before reserving the ID. The challenge is published only
+after a second physical sample following the EEPROM write. The matching
+DISARM_ACK requests a separate HOT permit-seen reset; only after its Q is
+read low and preparation-abort Q remains low does the core release abort and
+request revalidation. These host events require the target adapter to take
+fresh physical samples; reusing one earlier sample defeats the ordering.
+
+The core also requests one RUN-set pulse and one high-then-low WDI pulse per
+validated feed. TI's TPS3431 services a
 **falling** WDI edge; alternating a GPIO level on successive feeds would
 lose every second service event. The adapter must meet the device's minimum
 WDI pulse width and post-enable setup time.
 The target adapter must drive each pin low before and after the pulse, sample
-the actual Q pins, and leave `RECEIVER_ABORT_N` low until a matching disarm
-acknowledgement. The independent latch clear and gate inhibit must dominate
+the actual Q pins, and leave `RECEIVER_ABORT_N` low until the post-ack HOT
+permit-seen reset has completed and its readback is low. The independent
+latch clear and gate inhibit must dominate
 any race between a sampled input and a pulse. The core alone does not prove
 that race, AVR boot pin levels, or rail-loss behavior.
 

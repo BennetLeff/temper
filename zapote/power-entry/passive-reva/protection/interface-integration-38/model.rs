@@ -150,6 +150,12 @@ impl Model {
     pub fn source_permit(&self) -> bool {
         self.source_q
     }
+    pub fn source_seen_high(&self) -> bool {
+        self.source_seen_high
+    }
+    pub fn hot_seen_high(&self) -> bool {
+        self.hot_seen_high
+    }
     pub fn abort_asserted(&self) -> bool {
         !self.abort_n
     }
@@ -246,8 +252,6 @@ impl Model {
         self.prepare_deadline = Some(deadline);
         self.prep_abort = false;
         self.revalidate_consumed = false;
-        self.source_seen_high = false;
-        self.hot_seen_high = false;
         self.local_progress_fed = self.local_progress;
         self.receiver_local_progress_fed = self.receiver_local_progress;
         self.link_sequence = 0;
@@ -272,6 +276,12 @@ impl Model {
         {
             return Err(Reject::HardwareInvalid);
         }
+        // A matching challenge lets the source clear its historical readback
+        // memory under physical disarm. The receiver then clears the distinct
+        // HOT permit-seen memory before releasing abort for revalidation.
+        // Preparation-abort memory is intentionally not cleared here.
+        self.source_seen_high = false;
+        self.hot_seen_high = false;
         self.abort_n = true;
         Ok(())
     }

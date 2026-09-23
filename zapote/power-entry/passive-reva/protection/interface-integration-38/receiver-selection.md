@@ -31,11 +31,17 @@ belong to the U4 electrical review and U5 programmed-image receipt.
 Physical numbers below are for the **32-pin TQFP** from Microchip's I/O
 multiplexing table. U4 must recheck the saved symbol, footprint, and compiled
 netlist against the manufacturer package, including supply, RESET, and UPDI.
+The PT package outline is a 7 × 7 mm body at 0.80 mm lead pitch; candidate
+KiCad footprint `Package_QFP:TQFP-32_7x7mm_P0.8mm` still needs land-pattern
+comparison against Microchip's package drawing before native acceptance.
 
 | Pin | MCU pad | Direction / function | Physical rule |
 | ---: | --- | --- | --- |
 | 30 | PA0 | USART0 TX, receiver response | Separate reverse isolated protocol channel; its idle level has no safety meaning. |
 | 31 | PA1 | USART0 RX, source command | Forward isolated command; a stale frame cannot reload hardware fault memory. |
+| 32 | PA2 | HOT relay-command output | System-control request; no PFC gate authorization from this signal. |
+| 1 | PA3 | HOT permit-seen Q readback | Confirms historical high-PERMIT memory was cleared before revalidation; the memory also enters the asynchronous HOT clear equation. |
+| 2 | PA4 | Preparation-abort memory reset request | Separate bounded edge pulse, completed before challenge publication; never clears a new trip during the pending attempt. |
 | 10 | PD0 | Physical HOT PERMIT sense | Reads the HOT-side conductor, never only an MCU mirror. |
 | 11 | PD1 | `HOT_SESSION_OK` Q sense | Required before READY and RUN-set; sensing is not a substitute for asynchronous clear. |
 | 12 | PD2 | `HOT_RUN` Q sense | Confirms disarm and detects mismatch. |
@@ -47,9 +53,7 @@ netlist against the manufacturer package, including supply, RESET, and UPDI.
 | 6 | PC0 | Physical disarm-seen input | Reads hardware memory of post-trip PERMIT low. |
 | 7 | PC1 | Preparation-abort memory input | New trip during preparation cancels pending ID even when session Q is already low. |
 | 8 | PC2 | Hardware fault summary input | Diagnostic only; each critical producer still clears the latches physically. |
-| 9 | PC3 | Controlled disarm-history reset request | Must pass through a bounded edge pulse; a held output cannot mask a trip during preparation. Assert only before challenge publication with PERMIT physically low. |
-| 22 | PC4 | HOT permit-seen Q readback | Confirms historical high-PERMIT memory was cleared during physical disarm; the memory also enters the asynchronous HOT clear equation. |
-| 32 | PA2 | HOT relay-command output | System-control request; no PFC gate authorization from this signal. |
+| 9 | PC3 | HOT permit-seen history reset request | Separate bounded edge pulse after matching DISARM_ACK and before revalidation, with physical PERMIT and RUN low. It must not clear preparation-abort memory. |
 | 26 | PF6 | RESET input | Keep reset enabled; external POR/rail path asserts it. |
 | 27 | UPDI | Programming/debug | Reserve for production programming and fuse verification. |
 
@@ -113,9 +117,12 @@ or provisioning policy rather than a claimed fail-safe recovery.
   detects accidental corruption; it is not authentication. A decoder must
   discard incomplete and malformed frames and resynchronize on `A5`, never
   feed liveness for them.
-- `PREPARE_CHALLENGE(id)` is sent only after durable reservation and physical
-  disarm. `DISARM_ACK(id)` is accepted only while that ID is pending and
-  hardware remains safe. A new trip, STOP or receiver reset discards it.
+- `PREPARE_CHALLENGE(id)` is sent only after a separate preparation-abort
+  reset, durable reservation, and a fresh physical disarm/trip-memory sample.
+  `DISARM_ACK(id)` is accepted only while that ID is pending and hardware
+  remains safe. It requests a separate HOT permit-seen reset, which must be
+  verified at its Q pin without erasing preparation-abort memory. A new trip,
+  STOP or receiver reset discards the attempt.
 - `READY(id)` follows one consumed revalidation and Q readback. The ESP
   observes a new button release/press, asserts PERMIT, verifies local and
   physical readback, then sends `REQUEST(id,intent)`.
@@ -146,3 +153,4 @@ time; those remain in `timing-analysis.md` until independently derived.
 - [AVR64DA32 product status](https://www.microchip.com/en-us/product/avr64da32)
 - [AVR64DA28/32/48/64 complete data sheet](https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/AVR64DA28-32-48-64-DataSheet-DS40002233.pdf), including ordering, BOD, NVMCTRL, clock and memory characteristics
 - [32-pin I/O multiplexing table](https://onlinedocs.microchip.com/oxy/GUID-39CA96AF-092A-488F-B367-D24555D1E9C7-en-US-12/GUID-A7F733C9-DB47-4648-90B3-75618ED282E0.html)
+- [Microchip PT package outline](https://ww1.microchip.com/downloads/aemDocuments/documents/package-outline-drawings/c04-00074d.pdf)
