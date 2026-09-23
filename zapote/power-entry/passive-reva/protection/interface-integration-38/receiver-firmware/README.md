@@ -1,10 +1,10 @@
 # Rev38 receiver firmware target
 
 Target: Microchip `AVR64DA32-E/PT`, as selected in
-`../receiver-selection.md`. This directory contains the fixed wire codec and
-host-tested durable ID journal. It does not yet contain a device adapter or
-full session state machine. The previous ATmega328P fixtures are input
-evidence, not a firmware target.
+`../receiver-selection.md`. This directory contains the fixed wire codec,
+host-tested durable ID journal, and receiver session core. It does not yet
+contain the AVR device adapter, fuse image, or pin driver. The previous
+ATmega328P fixtures are input evidence, not a firmware target.
 
 Run the focused host tests from this directory:
 
@@ -13,12 +13,29 @@ cc -std=c99 -Wall -Wextra -Werror -pedantic protocol.c tests/test_protocol.c -o 
 /tmp/temper-rev38-wire-test
 cc -std=c99 -Wall -Wextra -Werror -pedantic protocol.c journal.c tests/test_journal.c -o /tmp/temper-rev38-journal-test
 /tmp/temper-rev38-journal-test
+cc -std=c99 -Wall -Wextra -Werror -pedantic protocol.c journal.c receiver.c tests/test_receiver.c -o /tmp/temper-rev38-receiver-test
+/tmp/temper-rev38-receiver-test
 ```
 
 The journal test interrupts each of 64 erase/write byte calls for a single
 reservation, then checks lockout or a strictly higher next ID. It also
 rotates beyond two full rings and rejects a corrupted newest record. This
 models byte-level failure, not an AVR NVMCTRL or brownout measurement.
+The receiver-core test checks fixed START expiry despite WDI progress, the
+physical abort command on STOP and preparation trip, session ID advancement,
+and dual-source WDI feed. All time windows in the test are arbitrary logical
+ticks; no numerical safety allowance follows from them.
+
+`receiver.c` produces requests for one revalidation, one RUN-set pulse, and
+one high-then-low WDI pulse per validated feed. TI's TPS3431 services a
+**falling** WDI edge; alternating a GPIO level on successive feeds would
+lose every second service event. The adapter must meet the device's minimum
+WDI pulse width and post-enable setup time.
+The target adapter must drive each pin low before and after the pulse, sample
+the actual Q pins, and leave `RECEIVER_ABORT_N` low until a matching disarm
+acknowledgement. The independent latch clear and gate inhibit must dominate
+any race between a sampled input and a pulse. The core alone does not prove
+that race, AVR boot pin levels, or rail-loss behavior.
 
 The protocol core must expose explicit input events and requested outputs so
 host tests can exercise reservation, interruption, cancellation, expiry and

@@ -1,5 +1,7 @@
 #include "protocol.h"
 
+#include <string.h>
+
 uint32_t pe_crc32(const uint8_t *data, size_t length) {
     uint32_t crc = UINT32_MAX;
     for (size_t i = 0; i < length; ++i) {
@@ -49,4 +51,36 @@ bool pe_frame_decode(const uint8_t *data, size_t length, pe_frame_t *frame) {
     frame->session = session;
     frame->value = read32(data + 12);
     return true;
+}
+
+void pe_stream_init(pe_stream_t *stream, uint32_t max_gap_ms) {
+    memset(stream, 0, sizeof(*stream));
+    stream->max_gap_ms = max_gap_ms;
+}
+
+bool pe_stream_push(pe_stream_t *stream, uint8_t byte, uint64_t now_ms,
+                    pe_frame_t *frame) {
+    if (stream == NULL || frame == NULL || stream->max_gap_ms == 0) return false;
+    if (stream->count != 0 &&
+        (now_ms < stream->last_byte_ms ||
+         now_ms - stream->last_byte_ms > stream->max_gap_ms)) {
+        stream->count = 0;
+    }
+    stream->last_byte_ms = now_ms;
+    if (stream->count == 0 && byte != PE_FRAME_MAGIC) return false;
+    stream->bytes[stream->count++] = byte;
+    if (stream->count != PE_FRAME_SIZE) return false;
+    if (pe_frame_decode(stream->bytes, PE_FRAME_SIZE, frame)) {
+        stream->count = 0;
+        return true;
+    }
+    for (unsigned i = 1; i < PE_FRAME_SIZE; ++i) {
+        if (stream->bytes[i] == PE_FRAME_MAGIC) {
+            stream->count = PE_FRAME_SIZE - i;
+            memmove(stream->bytes, stream->bytes + i, stream->count);
+            return false;
+        }
+    }
+    stream->count = 0;
+    return false;
 }

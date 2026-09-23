@@ -43,8 +43,36 @@ static void invalid_frames_are_rejected(void) {
     assert(!pe_frame_decode(bad_version, sizeof(bad_version), &output));
 }
 
+static void stream_resynchronizes_without_crediting_bad_frames(void) {
+    pe_frame_t input = {PE_PING, 64, 12};
+    pe_frame_t output = {0};
+    uint8_t bytes[PE_FRAME_SIZE];
+    pe_frame_encode(&input, bytes);
+    pe_stream_t stream;
+    pe_stream_init(&stream, 5);
+    assert(!pe_stream_push(&stream, 0x17, 0, &output));
+    for (size_t i = 0; i < sizeof(bytes); ++i) {
+        uint8_t byte = bytes[i] ^ (i == 6 ? 1u : 0u);
+        assert(!pe_stream_push(&stream, byte, i + 1, &output));
+    }
+    for (size_t i = 0; i < sizeof(bytes); ++i) {
+        bool complete = pe_stream_push(&stream, bytes[i], i + 30, &output);
+        assert(complete == (i == sizeof(bytes) - 1));
+    }
+    assert(output.type == PE_PING && output.session == 64 && output.value == 12);
+
+    pe_stream_init(&stream, 5);
+    for (size_t i = 0; i < sizeof(bytes) / 2; ++i) {
+        assert(!pe_stream_push(&stream, bytes[i], i, &output));
+    }
+    for (size_t i = sizeof(bytes) / 2; i < sizeof(bytes); ++i) {
+        assert(!pe_stream_push(&stream, bytes[i], i + 30, &output));
+    }
+}
+
 int main(void) {
     round_trip_all_types();
     invalid_frames_are_rejected();
+    stream_resynchronizes_without_crediting_bad_frames();
     return 0;
 }
