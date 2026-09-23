@@ -15,6 +15,10 @@ from the current host tests or partial netlist.
 | U6 | `firmware/main/power_entry_authorization.c` and `power_entry_source_runtime.c` are listed in the main component and pass focused host CMake targets; the ESP-IDF component build has not run. The core enforces boot lockout, physical disarm/history-reset ordering, release-then-press START, fixed ACK deadline, ACK-armed START with a fresh bounded transmit commit, invalidating decoder abort, and stopped deliberate restart. The runtime orders STOP/UART cancellation, challenge, reset pulse, readback, permit set, WDI and synchronous frame writes. Host tests reject delayed commit, delayed permit/WDI writes, failed UART, lost HOT readback, and stale queued TX on serial error or restart. Boot now leaves WDI untouched and the host fixture rejects a boot-time feed edge. | Assign and join actual ESP pins, implement GPIO/UART/timer ownership and boot disarm, wire the runtime into the cooker state machine, prove sample-to-pin, pulse, UART completion and post-reset feed-tail bounds, test two-core progress on target, and run an ESP-IDF build. ESP reset-time pad behavior and other owners may still create a WDI edge; this is not yet captured. `idf.py` is not on this shell's PATH. |
 | U7 | No Rev38 native candidate exists. | Native schematic and PCB, BOM and footprint review, source/native parity, ERC/DRC, stackup and unit gates, authoritative acceptance receipt. Physical captures remain NOT RUN. |
 
+`ESP-PIN-INVENTORY.md` records the N8R8 module restrictions and the
+firmware/electrical-source pin conflicts that the U4/U6 pin contract must
+resolve. It assigns no candidate GPIOs.
+
 Immediate construction order: select and qualify U4's actual F1 cartridge/AC input and protected AUX source; bind those pins to U5's AVR adapter and U6's source driver;
 then export and audit U7. Update U1 with every selected component and
 measured path. Do not promote the partial `isolation` build to a joined
