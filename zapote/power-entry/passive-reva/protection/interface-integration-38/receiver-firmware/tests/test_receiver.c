@@ -100,6 +100,8 @@ static void start_then_stop_requires_new_id(void) {
     pe_receiver_frame(&rx, (pe_frame_t){PE_REQUEST, id, 7}, 7, inputs, &actions);
     assert(rx.state == PE_RX_START_PENDING && actions.frame.type == PE_ACK);
     pe_receiver_frame(&rx, (pe_frame_t){PE_START, id, 7}, 8, inputs, &actions);
+    assert(rx.state == PE_RX_START_ARMED && !actions.run_set_pulse);
+    assert(pe_receiver_commit_run(&rx, 8, inputs, &actions));
     assert(rx.state == PE_RX_RUN_CONFIRM && actions.run_set_pulse);
     inputs.run_q = true;
     pe_receiver_sample(&rx, 9, inputs, &actions);
@@ -109,6 +111,37 @@ static void start_then_stop_requires_new_id(void) {
     assert(!actions.attempt_valid);
     inputs = disarmed();
     assert(ready(&rx, &journal, &inputs, 11) > id);
+}
+
+static void start_must_be_current_at_physical_run_set(void) {
+    memory_t memory;
+    provision(&memory);
+    pe_journal_io_t journal = journal_for(&memory);
+    pe_receiver_t rx = receiver();
+    pe_receiver_inputs_t inputs = disarmed();
+    pe_receiver_actions_t actions;
+    uint64_t id = ready(&rx, &journal, &inputs, 1);
+    inputs.physical_permit = true;
+    inputs.permit_seen_q = true;
+    pe_receiver_frame(&rx, (pe_frame_t){PE_REQUEST, id, 7}, 7, inputs, &actions);
+    pe_receiver_frame(&rx, (pe_frame_t){PE_START, id, 7}, 8, inputs, &actions);
+    assert(rx.state == PE_RX_START_ARMED && !actions.run_set_pulse);
+    /* Traffic and local progress do not extend the REQUEST deadline. */
+    assert(pe_receiver_ping(&rx, 9, inputs, &actions));
+    pe_receiver_local_progress(&rx, 3);
+    pe_receiver_frame(&rx, (pe_frame_t){PE_PONG, id, 1}, 10, inputs, &actions);
+    assert(!pe_receiver_commit_run(&rx, 17, inputs, &actions));
+    assert(rx.state == PE_RX_LOCKOUT && !actions.run_set_pulse);
+
+    inputs = disarmed();
+    id = ready(&rx, &journal, &inputs, 18);
+    inputs.physical_permit = true;
+    inputs.permit_seen_q = true;
+    pe_receiver_frame(&rx, (pe_frame_t){PE_REQUEST, id, 8}, 24, inputs, &actions);
+    pe_receiver_frame(&rx, (pe_frame_t){PE_START, id, 8}, 25, inputs, &actions);
+    inputs.fault = true; /* changed after frame receipt, before pin write */
+    assert(!pe_receiver_commit_run(&rx, 26, inputs, &actions));
+    assert(rx.state == PE_RX_LOCKOUT && !actions.run_set_pulse);
 }
 
 static void deadline_is_fixed_despite_traffic(void) {
@@ -314,6 +347,7 @@ static void disarm_requires_post_arm_physical_q(void) {
 
 int main(void) {
     start_then_stop_requires_new_id();
+    start_must_be_current_at_physical_run_set();
     deadline_is_fixed_despite_traffic();
     receiver_watchdog_needs_both_progress_sources();
     preparation_trip_and_reset_are_default_abort();

@@ -19,6 +19,7 @@ typedef enum {
     PE_RX_REVALIDATING,
     PE_RX_READY,
     PE_RX_START_PENDING,
+    PE_RX_START_ARMED,
     PE_RX_RUN_CONFIRM,
     PE_RX_RUNNING,
 } pe_receiver_state_t;
@@ -108,6 +109,12 @@ bool pe_receiver_revalidate(pe_receiver_t *receiver, uint64_t now_ms,
 void pe_receiver_frame(pe_receiver_t *receiver, pe_frame_t frame,
                        uint64_t now_ms, pe_receiver_inputs_t inputs,
                        pe_receiver_actions_t *actions);
+/* Call immediately before driving the physical RUN-set pin. The adapter
+ * must take a new clock reading and physical sample for this call; receipt
+ * of START alone never authorizes a later queued pin write. */
+bool pe_receiver_commit_run(pe_receiver_t *receiver, uint64_t now_ms,
+                            pe_receiver_inputs_t inputs,
+                            pe_receiver_actions_t *actions);
 void pe_receiver_local_progress(pe_receiver_t *receiver, uint32_t epoch);
 bool pe_receiver_ping(pe_receiver_t *receiver, uint64_t now_ms,
                       pe_receiver_inputs_t inputs,

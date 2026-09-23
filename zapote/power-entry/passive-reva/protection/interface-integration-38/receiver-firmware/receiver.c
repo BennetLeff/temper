@@ -82,7 +82,8 @@ void pe_receiver_sample(pe_receiver_t *receiver, uint64_t now_ms,
         (receiver->state >= PE_RX_START_PENDING && !inputs.permit_seen_q) ||
         (receiver->state == PE_RX_RUNNING && !inputs.run_q) ||
         ((receiver->state == PE_RX_READY ||
-          receiver->state == PE_RX_START_PENDING) && inputs.run_q) ||
+          receiver->state == PE_RX_START_PENDING ||
+          receiver->state == PE_RX_START_ARMED) && inputs.run_q) ||
         (receiver->state == PE_RX_REVALIDATING && inputs.permit_seen_q) ||
         (receiver->state == PE_RX_READY &&
          !inputs.physical_permit && inputs.permit_seen_q) ||
@@ -91,7 +92,8 @@ void pe_receiver_sample(pe_receiver_t *receiver, uint64_t now_ms,
           (receiver->state != PE_RX_REVALIDATING && inputs.session_q))) ||
         (receiver->state < PE_RX_READY &&
          now_ms >= receiver->prepare_deadline_ms) ||
-        (receiver->state == PE_RX_START_PENDING &&
+        ((receiver->state == PE_RX_START_PENDING ||
+          receiver->state == PE_RX_START_ARMED) &&
          now_ms >= receiver->start_deadline_ms) ||
         (receiver->state == PE_RX_RUN_CONFIRM &&
          now_ms >= receiver->start_deadline_ms) ||
@@ -277,8 +279,7 @@ void pe_receiver_frame(pe_receiver_t *receiver, pe_frame_t frame,
             now_ms >= receiver->start_deadline_ms ||
             !current_session_valid(inputs) || !inputs.physical_permit ||
             inputs.run_q) break;
-        receiver->state = PE_RX_RUN_CONFIRM;
-        actions->run_set_pulse = true;
+        receiver->state = PE_RX_START_ARMED;
         return;
     case PE_PING:
         if (frame.value == 0) break;
@@ -295,6 +296,22 @@ void pe_receiver_frame(pe_receiver_t *receiver, pe_frame_t frame,
         break;
     }
     abort_session(receiver, actions);
+}
+
+bool pe_receiver_commit_run(pe_receiver_t *receiver, uint64_t now_ms,
+                            pe_receiver_inputs_t inputs,
+                            pe_receiver_actions_t *actions) {
+    pe_receiver_sample(receiver, now_ms, inputs, actions);
+    if (receiver->state != PE_RX_START_ARMED ||
+        now_ms >= receiver->start_deadline_ms ||
+        !current_session_valid(inputs) || !inputs.physical_permit ||
+        !inputs.permit_seen_q || inputs.run_q) {
+        abort_session(receiver, actions);
+        return false;
+    }
+    receiver->state = PE_RX_RUN_CONFIRM;
+    actions->run_set_pulse = true;
+    return true;
 }
 
 void pe_receiver_local_progress(pe_receiver_t *receiver, uint32_t epoch) {

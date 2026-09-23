@@ -23,7 +23,15 @@ rotates beyond two full rings and rejects a corrupted newest record. This
 models byte-level failure, not an AVR NVMCTRL or brownout measurement.
 The receiver-core test checks fixed START expiry despite WDI progress, the
 physical abort command on STOP and preparation trip, session ID advancement,
-and dual-source WDI feed. All time windows in the test are arbitrary logical
+and dual-source WDI feed. A decoded START now enters `PE_RX_START_ARMED`
+without a RUN pulse. `pe_receiver_commit_run` requires a new monotonic-clock
+reading and physical input sample immediately before the adapter drives
+the RUN-set pin; a queued write that reaches that point at or after the
+REQUEST deadline aborts. The host test delays that commit through healthy
+traffic and injects a fault after frame receipt. The target adapter must
+still bound its sample-to-pin latency and rely on independent hardware
+clear dominance if a trip coincides with the edge. All time windows in the
+test are arbitrary logical
 ticks; no numerical safety allowance follows from them.
 
 `receiver.c` separates physical disarm observation from the two history
