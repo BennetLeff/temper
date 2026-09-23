@@ -172,6 +172,11 @@ divider is adopted or qualified. Both records require the actual converter and r
 loads and a bounded raw/regulator fault waveform before one protection
 path can be adopted. The 20 ms model outcome is not a measured failure of
 a selected assembly.
+The divider's maximum independent resistor deviation is only 0.32663%
+before leakage. A common ±0.1%, ±25 ppm/K discrete-resistor pairing can
+reach ±0.35% per resistor at 125 °C from a 25 °C reference, closing the
+static window; ratio tracking and lifetime drift must be specified before
+such a candidate is joined as a selected cutoff.
 The same TPS26601 also has a factory UVLO rising range of 14.25–15.75 V;
 the historical 15 V LDO's specified low static output is 14.625 V. The
 factory UVLO connection may never start at that valid output corner. A

@@ -48,6 +48,22 @@ resistor endpoints gives approximately **15.79793 V** minimum recovery and
 68.03 mV under the 18.0 V screen. These are algebraic input thresholds; they
 do not include extra leakage from board contamination or attached circuits.
 
+The allowable resistor variation is much smaller than “0.1% parts” might
+suggest. Solving the two inequalities above for their common boundary gives
+**0.32663% maximum independent deviation of each resistor from nominal**,
+even before pin leakage, board leakage, aging, or voltage transient margin.
+At a 125 °C resistor temperature, a 25 °C reference and a specified
+±25 ppm/K TCR permit another ±0.25% per resistor. Added to ±0.1% initial
+tolerance, that is ±0.35%. The necessary ratio interval then closes:
+`q > 13.61107` for recovery but `q < 13.59835` for trip. For example,
+[Vishay TNPW e3](https://www.vishay.com/docs/28758/tnpw_e3.pdf) offers
+±0.1% and ±25 ppm/K 0603 variants, but that combination cannot establish
+this full-temperature static window if the two TCR errors oppose. Its
+load-life resistance drift also needs an explicit ratio/lifetime budget.
+This does not reject every precision divider: a specified matched-ratio
+network or sufficiently tighter individual TCR and drift limits could be
+evaluated. It rejects selecting a pair on initial tolerance alone.
+
 TI describes TPS26601 MODE-open latch behavior for **overload**. The OVP
 function cuts off and resumes on its own falling threshold; the overload
 latch must not be treated as an OVP latch. The datasheet's OVP timing entry
@@ -69,7 +85,8 @@ candidate default.
 
 **Decision:** do not join the 130 kΩ/10 kΩ part or label TPS26601 a qualified
 protected-AUX source. The ±1% static window is impossible under the present
-15.75/18.0 V screens. The illustrative ±0.1% window is too small to claim a
+15.75/18.0 V screens. The illustrative ±0.1% window also needs specified
+ratio tracking over temperature and life, and is too small to claim a
 fast-fault bound without source impedance, regulator pass-through waveform,
 downstream effective capacitance/ESL, eFuse disconnect behavior, and the
 actual load/startup budget. Supply design must either establish a different
