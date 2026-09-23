@@ -39,6 +39,17 @@ positive and deliberate-miswire tests accompany the full Rev38 audit.
   assembly, and coordinate F1/F2 clearing, available fault current,
   interrupting rating, inrush, and MOV end-of-life behavior. The holder
   alone has no defined fuse characteristic.
+  The retained baseline's Schurter `0034.3129` is a 16 A FST link whose
+  [published breaking capacity](https://www.schurter.com/en/datasheet/typ_FST_5x20.pdf)
+  is `10 × In` at 250 VAC, or 160 A; it is not a qualified default for this
+  unknown prospective fault current. Schurter's
+  [FUP holder sheet](https://www.schurter.com/en/datasheet/typ_FUP.pdf)
+  references FST and SP 5×20 links, but does not list SPT 5×20. The
+  [16 A SPT link](https://www.schurter.com/en/datasheet/typ_SPT_5x20.pdf)
+  has a 500 A at 250 VAC breaking-capacity entry and lists other matching
+  holders. Do not treat that link and FUP as a validated pair or 500 A as
+  sufficient until available fault current, time/current coordination,
+  holder match, and 40 °C power acceptance are established.
 - Confirm certified X2/Y1 and MOV ordering codes, electrical ratings,
   discharge path for X2, protective-earth leakage, required creepage and
   clearance, connector/trace ratings, and line transient exposure at
