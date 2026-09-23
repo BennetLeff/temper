@@ -24,6 +24,9 @@ the provisional holder path can become an F1 selection.
 `AUX-OVP-WINDOW.md` also records that TPS26601's default UVLO can prevent
 startup at a valid 14.625 V regulator output; the protected-AUX candidate
 needs an externally qualified UVLO threshold as well as the OVP solution.
+The 15.75/18.0 V screen permits at most 0.32663% independent variation per
+OVP resistor before leakage; ordinary ±0.1%, ±25 ppm/K discrete parts can
+exceed that at 125 °C before lifetime drift. No cutoff divider is selected.
 
 Immediate construction order: select and qualify U4's actual F1 cartridge/AC input and protected AUX source; bind those pins to U5's AVR adapter and U6's source driver;
 then export and audit U7. Update U1 with every selected component and
