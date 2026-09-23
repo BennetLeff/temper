@@ -47,6 +47,8 @@ netlist against the manufacturer package, including supply, RESET, and UPDI.
 | 6 | PC0 | Physical disarm-seen input | Reads hardware memory of post-trip PERMIT low. |
 | 7 | PC1 | Preparation-abort memory input | New trip during preparation cancels pending ID even when session Q is already low. |
 | 8 | PC2 | Hardware fault summary input | Diagnostic only; each critical producer still clears the latches physically. |
+| 9 | PC3 | Controlled disarm-history reset request | Must pass through a bounded edge pulse; a held output cannot mask a trip during preparation. Assert only before challenge publication with PERMIT physically low. |
+| 22 | PC4 | HOT permit-seen Q readback | Confirms historical high-PERMIT memory was cleared during physical disarm; the memory also enters the asynchronous HOT clear equation. |
 | 32 | PA2 | HOT relay-command output | System-control request; no PFC gate authorization from this signal. |
 | 26 | PF6 | RESET input | Keep reset enabled; external POR/rail path asserts it. |
 | 27 | UPDI | Programming/debug | Reserve for production programming and fuse verification. |
