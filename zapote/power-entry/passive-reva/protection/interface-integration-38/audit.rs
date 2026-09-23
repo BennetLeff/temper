@@ -147,7 +147,7 @@ fn domain(id: &str, pin: &str) -> &'static str {
 }
 
 fn check(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 42 { return Err(format!("expected 42 parts, found {}", g.parts.len())); }
+    if g.parts.len() != 43 { return Err(format!("expected 43 parts, found {}", g.parts.len())); }
     for (id, part) in [
         ("rx", "AVR64DA32-E/PT"),
         ("iso_protocol", "ISO7741FDWR"),
@@ -157,6 +157,7 @@ fn check(g: &Graph) -> Result<(), String> {
         ("c_prep_abort_memory", "GRM188R71H104KA93D"),
         ("prep_trip_ok_pd", "RC0603FR-0710KL"),
         ("prep_abort_ok_pd", "RC0603FR-0710KL"),
+        ("attempt_valid_pd", "RC0603FR-0710KL"),
         ("c_prep_timing", "GRM188R71H103KA01D"),
         ("c_history_timing", "GRM188R71H103KA01D"),
         ("r_prep_timing", "RC0603FR-0710KL"),
@@ -175,6 +176,7 @@ fn check(g: &Graph) -> Result<(), String> {
         ("hot_prep_abort_q", "rx:7 prep_abort_memory:5 prep_abort_pu:2"),
         ("hot_prep_abort_ok", "prep_abort_memory:6 prep_abort_ok_pd:1"),
         ("hot_prep_trip_ok", "prep_abort_memory:4 prep_trip_ok_pd:1"),
+        ("hot_attempt_valid", "rx:4 attempt_valid_pd:1"),
         ("q1", "reset_pulses:13 prep_abort_memory:3"),
         ("source_command_tx", "iso_protocol:3"),
         ("source_permit_q", "iso_protocol:4"),
@@ -226,6 +228,7 @@ fn check(g: &Graph) -> Result<(), String> {
         ("c_prep_abort_memory", "2", "hot0"),
         ("prep_trip_ok_pd", "2", "hot0"),
         ("prep_abort_ok_pd", "2", "hot0"),
+        ("attempt_valid_pd", "2", "hot0"),
         ("rx", "26", "hot_reset_n"), ("rx", "27", "hot_updi"),
     ] {
         if g.pins.get(&(id.into(), pin.into())).is_none_or(|found| found != net) {
@@ -352,6 +355,13 @@ mod tests {
     fn missing_trip_default_fails() {
         let mut g = fixture();
         g.pins.remove(&("prep_trip_ok_pd".into(), "2".into()));
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn missing_attempt_default_fails() {
+        let mut g = fixture();
+        g.pins.remove(&("attempt_valid_pd".into(), "2".into()));
         assert!(check(&g).is_err());
     }
 }

@@ -35,6 +35,7 @@ typedef struct {
 
 typedef struct {
     bool abort_n;           /* continuously driven output; low is safe */
+    bool attempt_valid;     /* high during current attempt, low on abort/reset */
     bool prep_reset_pulse;  /* separate history reset before reservation */
     bool history_reset_pulse; /* HOT PERMIT history only, after DISARM_ACK */
     bool revalidate_pulse;  /* one adapter-owned pulse, then return low */

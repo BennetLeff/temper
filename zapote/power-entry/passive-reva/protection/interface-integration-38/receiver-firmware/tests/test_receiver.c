@@ -47,7 +47,7 @@ static uint64_t ready(pe_receiver_t *rx, pe_journal_io_t *journal,
                       pe_receiver_inputs_t *inputs, uint64_t at) {
     pe_receiver_actions_t actions;
     assert(pe_receiver_prepare_reset(rx, at, *inputs, &actions));
-    assert(actions.prep_reset_pulse && !actions.abort_n);
+    assert(actions.prep_reset_pulse && !actions.abort_n && actions.attempt_valid);
     inputs->preparation_abort = false;
     assert(pe_receiver_reserve(rx, journal, at + 1, *inputs, &actions));
     assert(!actions.transmit);
@@ -93,6 +93,7 @@ static void start_then_stop_requires_new_id(void) {
     assert(rx.state == PE_RX_RUNNING && actions.abort_n);
     pe_receiver_frame(&rx, (pe_frame_t){PE_STOP, id, 0}, 10, inputs, &actions);
     assert(rx.state == PE_RX_LOCKOUT && !actions.abort_n);
+    assert(!actions.attempt_valid);
     inputs = disarmed();
     assert(ready(&rx, &journal, &inputs, 11) > id);
 }
@@ -137,6 +138,7 @@ static void receiver_watchdog_needs_both_progress_sources(void) {
     assert(!actions.wdi_falling_pulse);
     pe_receiver_sample(&rx, 30, inputs, &actions);
     assert(rx.state == PE_RX_LOCKOUT && !actions.abort_n);
+    assert(!actions.attempt_valid);
 }
 
 static void preparation_trip_and_reset_are_default_abort(void) {
@@ -159,7 +161,7 @@ static void preparation_trip_and_reset_are_default_abort(void) {
     id = ready(&rx, &journal, &inputs, 6);
     pe_receiver_init(&rx, (pe_receiver_config_t){10, 10, 20});
     pe_receiver_sample(&rx, 0, inputs, &actions);
-    assert(!actions.abort_n && rx.state == PE_RX_LOCKOUT);
+    assert(!actions.abort_n && !actions.attempt_valid && rx.state == PE_RX_LOCKOUT);
     pe_receiver_frame(&rx, (pe_frame_t){PE_START, id, 7}, 1, inputs, &actions);
     assert(!actions.run_set_pulse);
 }
@@ -246,6 +248,25 @@ static void clear_must_be_observed_after_abort_release(void) {
     assert(rx.state == PE_RX_LOCKOUT && !actions.revalidate_pulse);
 }
 
+static void stop_during_preparation_drops_attempt_valid(void) {
+    memory_t memory;
+    provision(&memory);
+    pe_journal_io_t journal = journal_for(&memory);
+    pe_receiver_t rx = receiver();
+    pe_receiver_inputs_t inputs = disarmed();
+    pe_receiver_actions_t actions;
+    assert(pe_receiver_prepare_reset(&rx, 1, inputs, &actions));
+    assert(actions.attempt_valid && !actions.abort_n);
+    assert(pe_receiver_reserve(&rx, &journal, 2, inputs, &actions));
+    assert(actions.attempt_valid);
+    assert(pe_receiver_publish(&rx, 3, inputs, &actions));
+    assert(actions.attempt_valid && actions.transmit);
+    pe_receiver_frame(&rx, (pe_frame_t){PE_STOP, rx.session, 0}, 4,
+                      inputs, &actions);
+    assert(rx.state == PE_RX_LOCKOUT && !actions.attempt_valid &&
+           !actions.abort_n && !actions.prep_reset_pulse);
+}
+
 int main(void) {
     start_then_stop_requires_new_id();
     deadline_is_fixed_despite_traffic();
@@ -254,5 +275,6 @@ int main(void) {
     clock_rollback_and_bad_store_forbid_retry();
     trip_during_reservation_or_history_reset_cannot_publish_ready();
     clear_must_be_observed_after_abort_release();
+    stop_during_preparation_drops_attempt_valid();
     return 0;
 }

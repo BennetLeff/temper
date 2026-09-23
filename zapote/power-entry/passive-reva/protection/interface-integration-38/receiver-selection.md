@@ -40,6 +40,7 @@ comparison against Microchip's package drawing before native acceptance.
 | 30 | PA0 | USART0 TX, receiver response | Separate reverse isolated protocol channel; its idle level has no safety meaning. |
 | 31 | PA1 | USART0 RX, source command | Forward isolated command; a stale frame cannot reload hardware fault memory. |
 | 32 | PA2 | HOT relay-driver output | Sole relay driver owner; pulled low externally, with no PFC gate authorization from this signal. |
+| 4 | PA6 | `HOT_ATTEMPT_VALID` output | Default-low preparation cancellation. Drive high before the bounded prep-reset edge; drive low on STOP, lockout, or MCU reset. The joined circuit must include it in the abort-preset fan-in. |
 | 1 | PA3 | HOT permit-seen Q readback | Confirms historical high-PERMIT memory was cleared before revalidation; the memory also enters the asynchronous HOT clear equation. |
 | 2 | PA4 | Preparation-abort memory reset request | Separate bounded edge pulse, completed before challenge publication; never clears a new trip during the pending attempt. |
 | 3 | PA5 | Isolated source relay-request input | Receiver decides the relay output; this pin must not share the isolator output net with PA2. |
@@ -65,6 +66,10 @@ abort output is deliberately **not** released merely because the MCU boots;
 it waits for rail, storage, physical disarm, and session checks. The local
 pull-down and intermediate-supply behavior need a corner calculation with
 the actual latch/isolator input loading.
+`HOT_ATTEMPT_VALID` is separate because `RECEIVER_ABORT_N` is already low
+through preparation and cannot signal a new STOP or reset while the challenge
+is pending. The partial pin fixture gives PA6 a local 10 kΩ pull-down but
+does not yet join it to `HOT_PREP_TRIP_OK`.
 
 ## Durable session high-water record
 

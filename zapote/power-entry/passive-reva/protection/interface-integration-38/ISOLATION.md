@@ -37,6 +37,10 @@ aborted. A qualified low trip after the clock edge asynchronously forces
 Q high even while the one-shot output stays high. The receiver reads Q on
 PC1/7. The complementary Q output is exposed as `HOT_PREP_ABORT_OK` with
 a local pull-down, but the joined clear path does not yet consume it.
+AVR PA6/4 exposes `HOT_ATTEMPT_VALID` with a local pull-down. It must enter
+the joined `HOT_PREP_TRIP_OK` fan-in so STOP or MCU reset is visible while
+`RECEIVER_ABORT_N` is already low during preparation; that join is absent
+from this fixture.
 
 The TI one-shot data sheet gives
 85–115 µs at 5 V over −40 to 125 °C for its **test** R/C and load. The
@@ -50,7 +54,7 @@ not connect the one-shot CLR_N to a live fault: a CLR_N rising transition
 can itself trigger this part when A is low and B is high.
 
 The Rust audit checks compiled MPN identities, exact channel and receiver
-pin membership, local low defaults, separate RC/pulse channels, the retained
+pin membership, local low defaults including PA6, separate RC/pulse channels, the retained
 abort preset/clock/readback path, separated
 relay request/output, and SELV/HOT net separation. Its mutation tests remove
 a low default or timing capacitor, miswire the abort preset or reset clock,

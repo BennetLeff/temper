@@ -46,6 +46,16 @@ latch clear and gate inhibit must dominate
 any race between a sampled input and a pulse. The core alone does not prove
 that race, AVR boot pin levels, or rail-loss behavior.
 
+The core requests `attempt_valid` high when it enters preparation-reset and
+keeps it high for the current attempt; every lockout/STOP and boot requests
+low. The future PA6 adapter must establish that high level before issuing
+the preparation-abort reset edge and must default PA6 low while reset or
+unpowered. This separates a new STOP or receiver reset during preparation
+from `RECEIVER_ABORT_N`, which is already low at that time. The current
+partial fixture has a PA6 pull-down but no physical fan-in to the retained
+abort preset; the target GPIO sequence and joined hardware remain U4/U5
+gates.
+
 `pe_receiver_history_reset_complete` now requests **only** abort release.
 The adapter must apply that pin level, obtain a fresh PF0/20 sample of the
 physical `HOT_SESSION_CLEAR_N` node, and call `pe_receiver_revalidate`.

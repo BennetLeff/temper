@@ -4,8 +4,9 @@ Status: **bounded-reset candidate selected; numerical timing acceptance OPEN.**
 This is a producer and response inventory for the approved HOT-receiver
 architecture, not a released circuit or a safe-to-run power stage.
 `fault-response.tsv` and `timing-analysis.md` are the row-level and timing
-companions. Rev35 and Rev37 are review fixtures; no Rev38 netlist, selected
-receiver, loaded-gate capture, or assembled prototype exists.
+companions. Rev35 and Rev37 are review fixtures. A selected AVR64DA32
+receiver and a partial Rev38 isolation netlist now exist; the joined
+protection netlist, loaded-gate capture, and assembled prototype do not.
 
 ## Selected candidate reset contract
 

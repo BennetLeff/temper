@@ -108,7 +108,11 @@ preparation-abort memory with D low. Its asynchronous PRE1_N takes
 `HOT_PREP_TRIP_OK` (locally pulled low) and forces Q high on a qualified
 trip, including while the finite reset pulse is active. `HOT_PREP_TRIP_OK`
 has no producer in the partial fixture; it must join the real detector,
-rail, source-health and STOP paths before claiming fault capture. The
+rail, source-health, STOP and receiver `HOT_ATTEMPT_VALID` paths before
+claiming fault capture. PA6/4 drives that attempt-valid level high before
+the prep-reset edge and low on lockout, STOP, or reset, with a local
+pull-down. `RECEIVER_ABORT_N` cannot serve this role while it is already low
+through preparation. The
 second pulse remains unconnected to a permit-seen memory. Do not gate
 either one-shot CLR_N with live faults: its low-to-high transition can
 trigger a fresh pulse when A is low and B is high. Their installed width,
