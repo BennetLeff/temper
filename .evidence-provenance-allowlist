@@ -21,7 +21,6 @@
 2026-07-25-ocp01-trip-point-sim.json  # TODO: temper-xxx
 2026-07-25-ocp02-secondary-ocp-unimplemented.json  # TODO: temper-xxx
 2026-07-25-outline-ab-experiment.log  # TODO: temper-xxx
-2026-07-25-outline-ab-experiment.py  # TODO: temper-xxx
 2026-07-25-ovp01-trip-point-sim.json  # TODO: temper-xxx
 2026-07-25-shorting-items-diagnosis.md  # TODO: temper-xxx
 2026-07-25-thm01-trip-point-sim.json  # TODO: temper-xxx
@@ -47,8 +46,6 @@ cp-sat-feasibility-evidence-2026-07-03.md  # TODO: temper-xxx
 # recoverable from this side of the merge without fabricating a SHA.
 2026-07-27-failure-mechanism-taxonomy.md  # TODO: temper-xxx -- set a real commit when known
 2026-07-27-invariant-suite-parallel-split.md  # TODO: temper-xxx -- set a real commit when known
-2026-07-27-ovp01-ref2025-implementation.md  # TODO: temper-xxx -- set a real commit when known
-2026-07-27-router-determinism.md  # TODO: temper-xxx -- set a real commit when known
 
 # 2026-08-07 backlog paydown (temper-evidence-backlog): each of the entries
 # below carries either no self-declared commit at all, or a self-declared
@@ -61,13 +58,9 @@ cp-sat-feasibility-evidence-2026-07-03.md  # TODO: temper-xxx
 # UNKNOWN and the file is NOT on this list. These are the ones for which no
 # honest, git-history-derived replacement could be found.
 2026-08-01-isolation-barrier-budget-sweep.json  # TODO: temper-xxx
-2026-08-01-isolation-barrier-budget-sweep.py  # TODO: temper-xxx
 2026-08-01-isolation-barrier-corridor-feasibility.json  # TODO: temper-xxx
-2026-08-01-isolation-barrier-corridor-feasibility.py  # TODO: temper-xxx
 2026-08-01-isolation-barrier-feasibility-experiment.md  # TODO: temper-xxx
 2026-08-01-isolation-barrier-feasibility.md  # TODO: temper-xxx
-2026-08-01-isolation-barrier-feasibility.py  # TODO: temper-xxx
-2026-08-04-constraint-types-ffi-cost.py  # TODO: temper-xxx
 2026-08-04-router-output-rebaseline-interim.md  # TODO: temper-xxx -- originally-recorded commit is dangling (orphaned)
 2026-08-04-wave4-phase2-constraint-types-verdict.md  # TODO: temper-xxx
 2026-08-04-wave4-phase4-analysis-mutation-sweep.md  # TODO: temper-xxx -- originally-recorded commit is dangling (orphaned)
