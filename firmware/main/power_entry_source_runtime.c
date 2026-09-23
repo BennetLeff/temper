@@ -106,8 +106,12 @@ bool pe_source_runtime_boot(pe_source_runtime_t *runtime,
         runtime->io_fault = true;
         return false;
     }
+    /* A CPU-only reset may retain the WDI pad high. Writing it low here
+     * would be a qualifying falling watchdog edge before disarm. The target
+     * adapter must leave WDI untouched until a requested pulse is permitted
+     * after a fresh physical disarm sample. */
     for (pe_source_pin_t pin = PE_SOURCE_PIN_STOP_N;
-         pin < PE_SOURCE_PIN_COUNT; ++pin) {
+         pin < PE_SOURCE_PIN_WDI_HEARTBEAT; ++pin) {
         if (!io.set_level(io.context, pin, false)) {
             io_abort(runtime);
             return false;

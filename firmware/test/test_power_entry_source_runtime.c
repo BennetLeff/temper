@@ -8,6 +8,8 @@ typedef struct {
     pe_source_inputs_t inputs;
     bool levels[PE_SOURCE_PIN_COUNT];
     unsigned pulses[PE_SOURCE_PIN_COUNT];
+    unsigned wdi_falling_edges;
+    unsigned wdi_set_calls;
     unsigned cancels;
     pe_frame_t sent[8];
     unsigned sent_count;
@@ -33,6 +35,10 @@ static pe_source_inputs_t fake_sample(void *context) {
 
 static bool fake_set(void *context, pe_source_pin_t pin, bool high) {
     fake_io_t *fake = context;
+    if (pin == PE_SOURCE_PIN_WDI_HEARTBEAT) {
+        ++fake->wdi_set_calls;
+        if (fake->levels[pin] && !high) ++fake->wdi_falling_edges;
+    }
     fake->levels[pin] = high;
     if (pin == PE_SOURCE_PIN_STOP_N && high && fake->delay_ack_apply) {
         fake->now = 17; /* START deadline after fresh press at 7 ms */
@@ -47,7 +53,7 @@ static bool fake_set(void *context, pe_source_pin_t pin, bool high) {
 
 static bool fake_pulse(void *context, pe_source_pin_t pin) {
     fake_io_t *fake = context;
-    assert(!fake->levels[pin]);
+    if (pin != PE_SOURCE_PIN_WDI_HEARTBEAT) assert(!fake->levels[pin]);
     ++fake->pulses[pin];
     if (pin == PE_SOURCE_PIN_SEEN_RESET_REQUEST) {
         assert(fake->levels[PE_SOURCE_PIN_CHALLENGE_ACTIVE]);
@@ -61,6 +67,9 @@ static bool fake_pulse(void *context, pe_source_pin_t pin) {
         if (fake->slow_permit_pulse) fake->now = 12;
     }
     if (pin == PE_SOURCE_PIN_WDI_HEARTBEAT) {
+        /* A retained-high pad can fall only after physical disarm. */
+        ++fake->wdi_falling_edges;
+        fake->levels[pin] = false;
         fake->last_wdi_event = ++fake->event_count;
     }
     return true;
@@ -112,8 +121,34 @@ static pe_source_runtime_t boot(fake_io_t *fake) {
                                   (pe_source_config_t){20, 10, 30}, 5));
     assert(!runtime.io_fault && fake->cancels == 1);
     for (pe_source_pin_t pin = PE_SOURCE_PIN_STOP_N;
-         pin < PE_SOURCE_PIN_COUNT; ++pin) assert(!fake->levels[pin]);
+         pin < PE_SOURCE_PIN_WDI_HEARTBEAT; ++pin) assert(!fake->levels[pin]);
+    assert(fake->levels[PE_SOURCE_PIN_WDI_HEARTBEAT]);
+    assert(fake->wdi_falling_edges == 0);
+    assert(fake->wdi_set_calls == 0);
     return runtime;
+}
+
+static void retained_high_wdi_waits_for_disarm(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    fake.inputs.local_permit_q = true;
+    fake.inputs.hot_permit = true;
+    fake.now = 1;
+    pe_source_runtime_tick(&runtime);
+    pe_source_runtime_local_progress(&runtime, 1);
+    fake.now = 2;
+    pe_source_runtime_tick(&runtime);
+    assert(runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(fake.wdi_falling_edges == 0);
+    fake.inputs.local_permit_q = false;
+    fake.inputs.hot_permit = false;
+    fake.now = 3;
+    pe_source_runtime_tick(&runtime);
+    assert(runtime.source.state == PE_SOURCE_WAIT_CHALLENGE);
+    pe_source_runtime_local_progress(&runtime, 2);
+    fake.now = 4;
+    pe_source_runtime_tick(&runtime);
+    assert(fake.wdi_falling_edges == 1);
 }
 
 static void receive(pe_source_runtime_t *runtime, fake_io_t *fake,
@@ -310,6 +345,7 @@ static void serial_error_cancels_pending_write(void) {
 }
 
 int main(void) {
+    retained_high_wdi_waits_for_disarm();
     start_and_restart();
     late_commit_cancels_start();
     failed_uart_write_disarms();

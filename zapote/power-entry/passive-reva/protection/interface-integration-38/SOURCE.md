@@ -28,7 +28,8 @@ Reinitialization never retransmits START.
 
 `firmware/main/power_entry_source_runtime.c` is the host-tested synchronous
 action sequencer for that core. It writes STOP low before draining UART at
-boot, applies challenge before the history-reset pulse, separates the pulse
+boot, leaves WDI untouched, applies challenge before the history-reset pulse,
+separates the pulse
 and physical Q confirmation across scheduler ticks, applies permit-set only
 after a fresh readback, and commits START at the nonqueued UART write. WDI
 falls before a blocking UART send and is rejected if a callback consumed the
@@ -48,11 +49,13 @@ source WDI pin owner, boot pin-level capture, or ESP-IDF target build is yet
 present. The existing unconditional TPS3823 feed in `state_machine.c` remains
 a different circuit and cannot be counted as the new TPS3431 feed.
 
-Driving a retained-high WDI GPIO low during boot may itself make one falling
-edge, despite the logical core requesting none. The runtime drives STOP low
-first, but no bootloader/ESP pad-retention capture yet bounds that possible
-post-reset feed tail or proves the external STOP transition. Do not enter zero
-for that term in the reset inequality.
+The host runtime no longer drives a retained-high WDI GPIO low during boot:
+its first WDI callback is permitted only after a fresh physical-disarm
+sample and local safety progress. This removes one software-created feed
+edge in the host sequence. ESP reset may still change pad drive or permit
+an edge before this adapter runs. No bootloader/other-core/pad-retention
+capture yet bounds the actual post-reset feed tail or proves the external
+STOP transition. Do not enter zero for that term in the reset inequality.
 
 The core's `safety_ok` sample means external interlocks **excluding** WDO;
 the source may need a first qualified WDI edge after physical disarm to

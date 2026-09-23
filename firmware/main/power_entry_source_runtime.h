@@ -17,7 +17,9 @@ typedef struct {
     uint64_t (*now_ms)(void *context);
     pe_source_inputs_t (*sample)(void *context);
     bool (*set_level)(void *context, pe_source_pin_t pin, bool high);
-    /* A synchronous low-high-low edge. No queued, timer, DMA or ISR owner. */
+    /* A synchronous falling edge that returns the pad low. The first call
+     * must also work from a retained-high pad, without a boot-time write.
+     * No queued, timer, DMA or ISR owner. */
     bool (*pulse)(void *context, pe_source_pin_t pin);
     /* Stop and drain pending UART TX, including the hardware shift register.
      * Required before an abort or deliberate disarm can be acknowledged. */
@@ -40,7 +42,8 @@ typedef struct {
 } pe_source_runtime_t;
 
 /* The physical circuit must hold STOP low before code runs. This function
- * writes every source output low and drains UART before allowing a session. */
+ * writes non-WDI outputs low and drains UART before allowing a session.
+ * WDI is left untouched: a retained-high pad must not fall during boot. */
 bool pe_source_runtime_boot(pe_source_runtime_t *runtime,
                             pe_source_runtime_io_t io,
                             pe_source_config_t config,

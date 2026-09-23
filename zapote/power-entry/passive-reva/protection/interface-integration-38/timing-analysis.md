@@ -63,10 +63,12 @@ is not the complete term and is not an allowable interval.
 
 The new `firmware/main/power_entry_authorization.c` host core starts in
 lockout without a WDI request and issues no START after reinitialization.
-Its synchronous `power_entry_source_runtime.c` adapter drives STOP low and
-drains UART at boot and refuses delayed WDI actions in a host fixture. The
-adapter still does not own an ESP pin. In particular, changing a retained-high
-WDI pad to low at boot may count as a falling feed edge. No bootloader,
+Its synchronous `power_entry_source_runtime.c` adapter drives STOP low,
+drains UART, and leaves WDI untouched at boot. A retained-high WDI pad is
+not driven low by that host sequence; the first requested falling edge waits
+for physical disarm and local progress. The adapter still does not own an
+ESP pin. Reset-time pad tri-state or another owner may still create an edge
+before the adapter runs. No bootloader,
 other-core, GPIO-retention, queue-to-pin, or peripheral-autonomous-edge
 evidence exists, so the post-reset feed tail remains **UNBOUNDED** for
 numerical acceptance.
