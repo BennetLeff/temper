@@ -66,10 +66,15 @@ pub struct Model {
     committed_start: Option<(u64, u32)>,
     source_wdi_last: u64,
     source_watchdog_window: u64,
+    receiver_wdi_last: u64,
+    receiver_watchdog_window: u64,
     local_progress: u64,
     local_progress_fed: u64,
+    receiver_local_progress: u64,
+    receiver_local_progress_fed: u64,
     link_sequence: u64,
     link_sequence_fed: u64,
+    receiver_link_sequence_fed: u64,
 }
 
 impl Model {
@@ -78,8 +83,14 @@ impl Model {
         prepare_window: u64,
         start_window: u64,
         source_watchdog_window: u64,
+        receiver_watchdog_window: u64,
     ) -> Self {
-        assert!(prepare_window > 0 && start_window > 0 && source_watchdog_window > 0);
+        assert!(
+            prepare_window > 0
+                && start_window > 0
+                && source_watchdog_window > 0
+                && receiver_watchdog_window > 0
+        );
         Self {
             state: State::Lockout,
             highwater,
@@ -112,10 +123,15 @@ impl Model {
             committed_start: None,
             source_wdi_last: 0,
             source_watchdog_window,
+            receiver_wdi_last: 0,
+            receiver_watchdog_window,
             local_progress: 0,
             local_progress_fed: 0,
+            receiver_local_progress: 0,
+            receiver_local_progress_fed: 0,
             link_sequence: 0,
             link_sequence_fed: 0,
+            receiver_link_sequence_fed: 0,
         }
     }
 
@@ -175,7 +191,8 @@ impl Model {
             self.invalidate();
         }
         if self.state != State::Lockout
-            && now.saturating_sub(self.source_wdi_last) >= self.source_watchdog_window
+            && (now.saturating_sub(self.source_wdi_last) >= self.source_watchdog_window
+                || now.saturating_sub(self.receiver_wdi_last) >= self.receiver_watchdog_window)
         {
             self.invalidate();
         }
@@ -232,8 +249,10 @@ impl Model {
         self.source_seen_high = false;
         self.hot_seen_high = false;
         self.local_progress_fed = self.local_progress;
+        self.receiver_local_progress_fed = self.receiver_local_progress;
         self.link_sequence = 0;
         self.link_sequence_fed = 0;
+        self.receiver_link_sequence_fed = 0;
         Ok(id)
     }
 
@@ -464,6 +483,10 @@ impl Model {
         self.local_progress = self.local_progress.saturating_add(1);
     }
 
+    pub fn receiver_safety_cycle(&mut self) {
+        self.receiver_local_progress = self.receiver_local_progress.saturating_add(1);
+    }
+
     pub fn fresh_link_exchange(&mut self, sequence: u64) {
         if sequence > self.link_sequence {
             self.link_sequence = sequence;
@@ -482,6 +505,19 @@ impl Model {
         self.local_progress_fed = self.local_progress;
         self.link_sequence_fed = self.link_sequence;
         self.source_wdi_last = self.now;
+        Ok(())
+    }
+
+    pub fn feed_receiver_wdi(&mut self) -> Result<(), Reject> {
+        if self.receiver_local_progress == self.receiver_local_progress_fed
+            || (self.state != State::Lockout
+                && self.link_sequence == self.receiver_link_sequence_fed)
+        {
+            return Err(Reject::NoProgress);
+        }
+        self.receiver_local_progress_fed = self.receiver_local_progress;
+        self.receiver_link_sequence_fed = self.link_sequence;
+        self.receiver_wdi_last = self.now;
         Ok(())
     }
 

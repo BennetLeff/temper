@@ -4,7 +4,7 @@ mod model;
 use model::{InterruptedReservation, Model, Reject, State};
 
 fn ready() -> (Model, u64) {
-    let mut m = Model::new(0, 50, 10, 20);
+    let mut m = Model::new(0, 50, 10, 20, 30);
     m.observe_disarm_low().unwrap();
     m.acknowledge_physical_disarm().unwrap();
     let id = m.reserve_session().unwrap();
@@ -51,7 +51,7 @@ fn stop_in_ready_clears_session_without_permit_ever_rising() {
 
 #[test]
 fn short_trip_during_preparation_cancels_even_with_session_q_already_low() {
-    let mut m = Model::new(0, 50, 10, 20);
+    let mut m = Model::new(0, 50, 10, 20, 20);
     m.observe_disarm_low().unwrap();
     m.acknowledge_physical_disarm().unwrap();
     let old = m.reserve_session().unwrap();
@@ -71,7 +71,7 @@ fn short_trip_during_preparation_cancels_even_with_session_q_already_low() {
 
 #[test]
 fn held_revalidation_request_cannot_clock_on_ack_or_fault_recovery() {
-    let mut m = Model::new(0, 50, 10, 20);
+    let mut m = Model::new(0, 50, 10, 20, 20);
     m.observe_disarm_low().unwrap();
     m.acknowledge_physical_disarm().unwrap();
     let id = m.reserve_session().unwrap();
@@ -99,7 +99,7 @@ fn negative_control_held_request_gated_by_health_creates_a_late_clock() {
 
 #[test]
 fn trip_on_either_side_of_revalidation_edge_leaves_fault_memory_low() {
-    let mut before = Model::new(0, 50, 10, 20);
+    let mut before = Model::new(0, 50, 10, 20, 20);
     before.observe_disarm_low().unwrap();
     before.acknowledge_physical_disarm().unwrap();
     let id = before.reserve_session().unwrap();
@@ -108,7 +108,7 @@ fn trip_on_either_side_of_revalidation_edge_leaves_fault_memory_low() {
     before.revalidation_level(true);
     assert!(!before.session_ok());
 
-    let mut after = Model::new(0, 50, 10, 20);
+    let mut after = Model::new(0, 50, 10, 20, 20);
     after.observe_disarm_low().unwrap();
     after.acknowledge_physical_disarm().unwrap();
     let id = after.reserve_session().unwrap();
@@ -231,20 +231,44 @@ fn watchdog_feed_needs_new_local_and_link_progress_in_ready() {
 }
 
 #[test]
+fn receiver_watchdog_requires_its_own_progress_and_physically_aborts_on_timeout() {
+    let mut m = Model::new(0, 50, 10, 30, 20);
+    m.observe_disarm_low().unwrap();
+    m.acknowledge_physical_disarm().unwrap();
+    let id = m.reserve_session().unwrap();
+    m.disarm_ack(id).unwrap();
+    m.revalidation_level(true);
+    m.local_safety_cycle();
+    m.fresh_link_exchange(1);
+    m.feed_source_wdi().unwrap();
+    assert_eq!(m.feed_receiver_wdi(), Err(Reject::NoProgress));
+    m.receiver_safety_cycle();
+    m.feed_receiver_wdi().unwrap();
+    assert_eq!(m.feed_receiver_wdi(), Err(Reject::NoProgress));
+    m.at(19);
+    m.local_safety_cycle();
+    m.fresh_link_exchange(2);
+    m.feed_source_wdi().unwrap();
+    m.at(20);
+    assert_eq!(m.state(), State::Lockout);
+    assert!(m.abort_asserted() && !m.session_ok());
+}
+
+#[test]
 fn interrupted_reservation_advances_or_locks_out_without_reusing_published_id() {
-    let mut m = Model::new(7, 50, 10, 20);
+    let mut m = Model::new(7, 50, 10, 20, 20);
     m.interrupt_reservation(InterruptedReservation::BeforeCommit);
     m.observe_disarm_low().unwrap();
     m.acknowledge_physical_disarm().unwrap();
     assert_eq!(m.reserve_session().unwrap(), 8);
 
-    let mut advanced = Model::new(7, 50, 10, 20);
+    let mut advanced = Model::new(7, 50, 10, 20, 20);
     advanced.interrupt_reservation(InterruptedReservation::AfterCommit);
     advanced.observe_disarm_low().unwrap();
     advanced.acknowledge_physical_disarm().unwrap();
     assert_eq!(advanced.reserve_session().unwrap(), 9);
 
-    let mut corrupt = Model::new(7, 50, 10, 20);
+    let mut corrupt = Model::new(7, 50, 10, 20, 20);
     corrupt.interrupt_reservation(InterruptedReservation::Corrupt);
     corrupt.observe_disarm_low().unwrap();
     corrupt.acknowledge_physical_disarm().unwrap();
