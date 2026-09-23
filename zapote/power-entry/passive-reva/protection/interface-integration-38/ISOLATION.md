@@ -4,14 +4,16 @@
 selected AVR, eight assignments across two isolators, two HOT reset pulse
 channels, preparation-abort memory, and physical-PERMIT-seen memory in
 `hardware-topology.md`.
-It also includes the separate post-trip disarm observation memory.
+It also includes the separate post-trip disarm observation memory, a
+physical-PERMIT-loss NAND, and retained SESSION and RUN memories with raw
+request clocks and asynchronous clear paths.
 It is not `power_entry_integrated_38.ato` and does not pass U4. The source
-GPIOs, remaining HOT session/RUN latches, F2 detectors, watchdog, rail
+GPIOs, F2 detectors, watchdog, rail
 supervisors, gate driver, PFC stage, and reservoir are not present here.
 Many named signals terminate at fixture pins or pull resistors; they are not
 real producers yet.
 
-The ISO7742FDWR, 10 nF timing capacitor, and HCS21/HCS04 logic packages
+The ISO7742FDWR, 10 nF timing capacitor, and HCS21/HCS04/HCS00 logic packages
 use distinct provisional footprint keys. Atopile 0.2.69 merged MPNs when
 different parts used the same stock footprint key: ISO7742F became
 ISO7741F, and the 10 nF
@@ -40,7 +42,7 @@ source health, STOP, rail, F2-fault summary, and watchdog-health inputs.
 aborted. A qualified low input after the clock edge asynchronously forces
 Q high even while the one-shot output stays high. The receiver reads Q on
 PC1/7. The complementary Q output is exposed as `HOT_PREP_ABORT_OK` with
-a local pull-down, but the joined clear path does not yet consume it.
+a local pull-down and enters the partial SESSION clear path.
 AVR PA6/4 exposes `HOT_ATTEMPT_VALID` with a local pull-down and enters
 that fan-in so STOP or MCU reset is visible while `RECEIVER_ABORT_N` is
 already low during preparation. The HOT watchdog, F2 summary, and rail
@@ -72,6 +74,21 @@ sample after the prior trip, but requires the selected AVR adapter to apply
 PA6, wait for valid logic levels, pulse PF1, then read Q on a fresh sample.
 The actual rail, detector, watchdog, and source producers are still absent.
 
+The partial SESSION path detects a later low physical PERMIT after
+`HOT_PERMIT_SEEN_Q` was high. An SN74HCS00 NAND drives
+`HOT_PERMIT_LOSS_OK = !(HOT_PERMIT_SEEN_Q & !HOT_PERMIT)`.
+An HCS21 gate joins that output with `HOT_PREP_TRIP_OK`,
+`HOT_PREP_ABORT_OK`, and `HOT_RECEIVER_ABORT_N` to drive
+`HOT_SESSION_CLEAR_N` and the SESSION DFF's asynchronous CLR_N.
+Its second gate combines the physical clear, post-trip disarm Q, low
+PERMIT, and low RUN for the revalidation D input. AVR PD4/14 is the raw
+SESSION clock, so recovering clear cannot create a clock edge from a held
+request. Another HCS21 gate combines SESSION Q, physical PERMIT, and
+SESSION clear for RUN's asynchronous CLR_N and D input; AVR PD5/15 is
+the raw RUN-set clock. These are pin-level connections, not a proven
+minimum pulse-capture or power-up/default-off result. Unproduced safety
+inputs still hold the fixture in its cleared state.
+
 The TI one-shot data sheet gives
 85–115 µs at 5 V over −40 to 125 °C for its **test** R/C and load. The
 installed capacitor's tolerance, voltage/temperature behavior and load are
@@ -90,7 +107,8 @@ separated
 relay request/output, and SELV/HOT net separation. Its mutation tests remove
 a low default or timing capacitor, miswire an abort/permit preset, reset
 clock, or F2 fault fan-in,
-or disarm-memory clear/clock, or the history-reset D qualification,
+or disarm-memory clear/clock, the history-reset D qualification, physical
+PERMIT-loss path, SESSION abort/clock path, or RUN permit/clock path,
 short the relay request to the driver,
 swap reverse feedback or reset channels, change the ISO7742F MPN, and add a
 copper boundary crossing. It does not establish pin electrical levels,

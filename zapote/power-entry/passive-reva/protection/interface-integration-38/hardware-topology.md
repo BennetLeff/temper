@@ -1,6 +1,7 @@
 # Rev38 hardware join contract
 
-Status: **pin-level design input**, not a compiled circuit or analog approval.
+Status: **pin-level design input and partial compiled fixture**, not a joined
+circuit or analog approval.
 This records the joins that must replace Rev35's connectivity-only fixture.
 The existing F2 detector and power-stage values remain candidate inputs;
 none of their typical delays establish a fault allowance.
@@ -48,15 +49,20 @@ These are required Boolean behavior, not a substitute for parts, pulse-width
 or partial-supply analysis:
 
 ```text
-BASE_OK = F2_DETECTORS_OK & HOT_RAILS_OK & HOT_WATCHDOG_OK
-          & SOURCE_HEALTH_HOT & SOURCE_STOP_N & RECEIVER_ABORT_N
-PERMIT_HISTORY_OK = !HOT_PERMIT_SEEN_Q | HOT_PERMIT_PHYSICAL
-SESSION_CLEAR_N = BASE_OK & PERMIT_HISTORY_OK
+HOT_PREP_TRIP_OK = HOT_ATTEMPT_VALID & SOURCE_HEALTH_HOT & SOURCE_STOP_N
+                   & HOT_RAILS_OK & HOT_FAULT_N & HOT_WATCHDOG_OK
+PERMIT_HISTORY_OK = !(HOT_PERMIT_SEEN_Q & !HOT_PERMIT_PHYSICAL)
+SESSION_CLEAR_N = HOT_PREP_TRIP_OK & HOT_PREP_ABORT_OK
+                  & RECEIVER_ABORT_N & PERMIT_HISTORY_OK
+SESSION_REVALIDATE_D = SESSION_CLEAR_N & DISARM_Q
+                       & !HOT_PERMIT_PHYSICAL & !HOT_RUN_Q
 RUN_CLEAR_N = SESSION_CLEAR_N & HOT_PERMIT_PHYSICAL & HOT_SESSION_OK_Q
-DRIVER_ENABLE = HOT_RUN_Q & BASE_OK & HOT_PERMIT_PHYSICAL
+RUN_D = RUN_CLEAR_N
+DRIVER_ENABLE = HOT_RUN_Q & HOT_PREP_TRIP_OK
+                & HOT_PERMIT_PHYSICAL & RECEIVER_ABORT_N
 ```
 
-`HOT_SESSION_OK_Q` and `HOT_RUN_Q` require separate retained elements with
+`HOT_SESSION_OK_Q` and `HOT_RUN_Q` use separate retained elements with
 asynchronous, active-low clear pins. `HOT_PERMIT_SEEN_Q` sets from the **HOT
 physical** high transition and clears only in controlled physical disarm.
 This permits initial preparation with PERMIT low, then makes a later low
@@ -169,7 +175,7 @@ low clamp or a source-backed input-current bound is still required.
 
 ## Evidence needed to promote this to U4 PASS
 
-1. Select and compile the remaining session/RUN/disarm/source latches,
+1. Select and compile the remaining source latches,
    AVR64DA32, ISO7742F,
    UCC27624, F2, watchdog, source memory, reservoir, and PFC parts in **one**
    Atopile 0.2.69 entry. Rev35's `clear_core_ok` includes PERMIT and cannot

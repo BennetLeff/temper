@@ -110,7 +110,8 @@ gap is tracked in `gate-enable-corners.md`: a typical internal pull-up
 resistance is not enough to prove a passive default-low network over the
 partial-power envelope.
 The compiled partial fixture also has a finite-edge preparation-abort
-reset, a six-input HOT trip fan-in, and a separate physical-PERMIT-seen
+reset, a six-input HOT trip fan-in, physical-PERMIT-loss detection, separate
+SESSION/RUN retained latches with raw request clocks, and a separate physical-PERMIT-seen
 memory. The latter's asynchronous preset is asserted by PERMIT high even
 during its reset pulse, subject to an unproved minimum pulse width and
 rail/logic corners. The history-reset D input now requires post-trip

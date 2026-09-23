@@ -175,6 +175,26 @@ component HotPermitInverter:
     signal A6 ~ pin 13
     signal VCC ~ pin 14
 
+component HotPermitLossNand:
+    mpn = "SN74HCS00PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs00.pdf"
+    footprint = "TBD_REVIEW_ONLY:SN74HCS00PWR_TSSOP14"
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal Y1 ~ pin 3
+    signal A2 ~ pin 4
+    signal B2 ~ pin 5
+    signal Y2 ~ pin 6
+    signal GND ~ pin 7
+    signal Y3 ~ pin 8
+    signal A3 ~ pin 9
+    signal B3 ~ pin 10
+    signal Y4 ~ pin 11
+    signal A4 ~ pin 12
+    signal B4 ~ pin 13
+    signal VCC ~ pin 14
+
 component TimingC10n:
     mpn = "GRM188R71H103KA01D"
     manufacturer = "Murata"
@@ -234,6 +254,9 @@ module ReceiverIsolation38:
     signal HOT_ABORT_ASSERTED
     signal HOT_HISTORY_RESET_ALLOWED
     signal HOT_HISTORY_RESET_D
+    signal HOT_PERMIT_LOSS_OK
+    signal HOT_SESSION_REVALIDATE_D
+    signal HOT_RUN_CLEAR_N
     signal HOT_FAULT_N
     signal HOT_RAILS_OK
     signal HOT_RECEIVER_ABORT_N
@@ -406,6 +429,99 @@ module ReceiverIsolation38:
     history_reset_d_pu.value = 10kohm
     history_reset_d_pu.p1 ~ HOT_LOGIC5
     history_reset_d_pu.p2 ~ HOT_HISTORY_RESET_D
+    permit_loss_nand = new HotPermitLossNand
+    permit_loss_nand.VCC ~ HOT_LOGIC5
+    permit_loss_nand.GND ~ HOT0
+    permit_loss_nand.A1 ~ HOT_PERMIT_SEEN_Q
+    permit_loss_nand.B1 ~ HOT_PERMIT_PRESET_N
+    permit_loss_nand.Y1 ~ HOT_PERMIT_LOSS_OK
+    permit_loss_nand.A2 ~ HOT0
+    permit_loss_nand.B2 ~ HOT0
+    permit_loss_nand.A3 ~ HOT0
+    permit_loss_nand.B3 ~ HOT0
+    permit_loss_nand.A4 ~ HOT0
+    permit_loss_nand.B4 ~ HOT0
+    c_permit_loss_nand = new C
+    c_permit_loss_nand.value = 100nF
+    c_permit_loss_nand.p1 ~ HOT_LOGIC5
+    c_permit_loss_nand.p2 ~ HOT0
+    permit_loss_ok_pd = new R
+    permit_loss_ok_pd.value = 10kohm
+    permit_loss_ok_pd.p1 ~ HOT_PERMIT_LOSS_OK
+    permit_loss_ok_pd.p2 ~ HOT0
+    session_and = new HotPrepTripAnd
+    session_and.VCC ~ HOT_LOGIC5
+    session_and.GND ~ HOT0
+    session_and.A1 ~ HOT_PREP_TRIP_OK
+    session_and.B1 ~ HOT_PREP_ABORT_OK
+    session_and.C1 ~ HOT_RECEIVER_ABORT_N
+    session_and.D1 ~ HOT_PERMIT_LOSS_OK
+    session_and.Y1 ~ HOT_SESSION_CLEAR_N
+    session_and.A2 ~ HOT_SESSION_CLEAR_N
+    session_and.B2 ~ HOT_DISARM_Q
+    session_and.C2 ~ HOT_PERMIT_PRESET_N
+    session_and.D2 ~ HOT_RUN_LOW
+    session_and.Y2 ~ HOT_SESSION_REVALIDATE_D
+    c_session_and = new C
+    c_session_and.value = 100nF
+    c_session_and.p1 ~ HOT_LOGIC5
+    c_session_and.p2 ~ HOT0
+    revalidate_d_pd = new R
+    revalidate_d_pd.value = 10kohm
+    revalidate_d_pd.p1 ~ HOT_SESSION_REVALIDATE_D
+    revalidate_d_pd.p2 ~ HOT0
+    session_memory = new HotRetainedDff
+    session_memory.VCC ~ HOT_LOGIC5
+    session_memory.GND ~ HOT0
+    session_memory.CLR1_N ~ HOT_SESSION_CLEAR_N
+    session_memory.D1 ~ HOT_SESSION_REVALIDATE_D
+    session_memory.CLK1 ~ HOT_REVALIDATE_REQUEST
+    session_memory.PRE1_N ~ HOT_LOGIC5
+    session_memory.Q1 ~ HOT_SESSION_Q
+    session_memory.CLR2_N ~ HOT0
+    session_memory.PRE2_N ~ HOT_LOGIC5
+    session_memory.D2 ~ HOT0
+    session_memory.CLK2 ~ HOT0
+    c_session_memory = new C
+    c_session_memory.value = 100nF
+    c_session_memory.p1 ~ HOT_LOGIC5
+    c_session_memory.p2 ~ HOT0
+    run_and = new HotPrepTripAnd
+    run_and.VCC ~ HOT_LOGIC5
+    run_and.GND ~ HOT0
+    run_and.A1 ~ HOT_SESSION_Q
+    run_and.B1 ~ HOT_PERMIT
+    run_and.C1 ~ HOT_SESSION_CLEAR_N
+    run_and.D1 ~ HOT_LOGIC5
+    run_and.Y1 ~ HOT_RUN_CLEAR_N
+    run_and.A2 ~ HOT0
+    run_and.B2 ~ HOT0
+    run_and.C2 ~ HOT0
+    run_and.D2 ~ HOT0
+    c_run_and = new C
+    c_run_and.value = 100nF
+    c_run_and.p1 ~ HOT_LOGIC5
+    c_run_and.p2 ~ HOT0
+    run_clear_pd = new R
+    run_clear_pd.value = 10kohm
+    run_clear_pd.p1 ~ HOT_RUN_CLEAR_N
+    run_clear_pd.p2 ~ HOT0
+    run_memory = new HotRetainedDff
+    run_memory.VCC ~ HOT_LOGIC5
+    run_memory.GND ~ HOT0
+    run_memory.CLR1_N ~ HOT_RUN_CLEAR_N
+    run_memory.D1 ~ HOT_RUN_CLEAR_N
+    run_memory.CLK1 ~ HOT_RUN_SET_REQUEST
+    run_memory.PRE1_N ~ HOT_LOGIC5
+    run_memory.Q1 ~ HOT_RUN_Q
+    run_memory.CLR2_N ~ HOT0
+    run_memory.PRE2_N ~ HOT_LOGIC5
+    run_memory.D2 ~ HOT0
+    run_memory.CLK2 ~ HOT0
+    c_run_memory = new C
+    c_run_memory.value = 100nF
+    c_run_memory.p1 ~ HOT_LOGIC5
+    c_run_memory.p2 ~ HOT0
     c_prep_trip_and = new C
     c_prep_trip_and.value = 100nF
     c_prep_trip_and.p1 ~ HOT_LOGIC5
