@@ -771,9 +771,9 @@ fn check_pfc_power(g: &Graph) -> Result<(), String> {
 }
 
 fn check_ac_input(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 13 { return Err(format!("expected 13 AC input parts, found {}", g.parts.len())); }
+    if g.parts.len() != 12 { return Err(format!("expected 12 AC input parts, found {}", g.parts.len())); }
     for (id, mpn) in [
-        ("mains", "1714984"), ("holder", "0031.2510"),
+        ("board_input", "1714984"),
         ("cmc", "B82726S2163N030"), ("ntc", "SL32 10015"),
         ("bypass", "RT33K012"), ("x2", "B32922C3224M289"),
         ("mov", "V150LA10AP"), ("y1", "VY1102M31Y5UQ63V0"),
@@ -787,15 +787,14 @@ fn check_ac_input(g: &Graph) -> Result<(), String> {
         }
     }
     for (net, expected) in [
-        ("ac_l", "mains:1 holder:1"),
-        ("ac_n", "mains:2 cmc:2 x2:2 mov:2"),
-        ("pe", "mains:3 y1:2"),
+        ("ac_n", "board_input:2 cmc:2 x2:2 mov:2"),
+        ("pe", "board_input:3 y1:2"),
         ("hot0", "y1:1 relay_gate_pd:2 relay_fet:2"),
         ("aux_protected", "coil_drop:1"),
         ("hot_relay_enable", "relay_gate_r:1"),
         ("ac_rect_l", "ntc:2 bypass:3"),
         ("ac_rect_n", "cmc:3"),
-        ("f1_out", "holder:2 cmc:1 x2:1 mov:1"),
+        ("fused_l", "board_input:1 cmc:1 x2:1 mov:1"),
         ("cmc_l_out", "cmc:4 ntc:1 bypass:4"),
         ("relay_coil_hi", "coil_drop:2 bypass:1 flyback:1"),
         ("relay_coil_lo", "relay_fet:3 bypass:2 flyback:2"),
@@ -1115,9 +1114,9 @@ mod tests {
     fn compiled_ac_input_passes() { check_ac_input(&ac_fixture()).unwrap(); }
 
     #[test]
-    fn ac_fuse_holder_bypass_fails() {
+    fn ac_fused_board_terminal_disconnect_fails() {
         let mut g = ac_fixture();
-        g.pins.insert(("holder".into(), "2".into()), "ac_l".into());
+        g.pins.insert(("board_input".into(), "1".into()), "unfused_l".into());
         assert!(check_ac_input(&g).is_err());
     }
 

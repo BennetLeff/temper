@@ -157,8 +157,8 @@ PFC-control mutations break the VSENSE ladder, inhibit FET, current-sense
 clamp, permission join, or PWM-to-driver path.
 Power-path mutations short F2, move the local capacitor to the bank, omit
 one diode anode, or disconnect the switch/F2 sense joins. AC-input
-mutations bypass the F1 holder/NTC, open the relay contact, reverse the
-flyback diode, miswire the PE capacitor, or cut the bridge L/N and receiver
+mutations disconnect the fused board terminal, bypass the NTC, open the relay
+contact, reverse the flyback diode, miswire the PE capacitor, or cut the bridge L/N and receiver
 relay-control joins.
 Connectivity does not establish logic
 thresholds, capture minima, or power-stage shutdown.

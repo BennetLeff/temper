@@ -134,8 +134,8 @@ defaults. The partial fixture now has a HOT TPS3431 WDO producer and two
 TPS3890 undervoltage supervisors with open-drain RESET outputs wire-ANDed
 on `HOT_RAILS_OK`. Four VD/VB TLV3202 channels and two AUX window channels
 now feed `HOT_FAULT_N` through HCS21 fan-in. VD and VB now join the candidate
-boost/F2/reservoir/bank path. The F1-holder/CMC/NTC/relay AC entry joins the
-bridge. An actual F1 cartridge, protected AUX source, and source-side
+boost/F2/reservoir/bank path. The fused-board-terminal/CMC/NTC/relay AC section
+joins the bridge. An installed off-board F1 assembly, protected AUX source, and source-side
 health/STOP GPIO logic remain unselected or external. The compiled fan-in
 does not prove fault capture. The provisional logic5 and AUX falling
 thresholds are 4.531 V and 12.88 V nominal; see [HOT-RAILS.md](HOT-RAILS.md)

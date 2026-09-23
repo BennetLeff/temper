@@ -1,10 +1,11 @@
 # Rev38 F1 cartridge and holder screen
 
-Status: **Class CC cartridge and block nominated for the product candidate;
-electrical acceptance and schematic join OPEN**. The user selected a general
-residential installation scope for review. The existing Atopile series path
-still depicts a different 5×20 holder and must not be interpreted as the
-nominated assembly.
+Status: **Class CC cartridge and block nominated; PCB fused-input boundary
+compiled, off-board harness and electrical acceptance OPEN**. The user
+selected a general residential installation scope for review. The Rev38
+Atopile PCB section no longer contains the old 5×20 holder. Its terminal
+pin 1 is explicitly the **post-F1** line input; the off-board fuse/block and
+inlet wiring are separate assembly work, not represented by a PCB footprint.
 
 ## Proposed residential installation envelope (review target)
 
@@ -45,22 +46,33 @@ in steady state. A sustained 15–20 A overload, especially with the bypass
 relay stuck open, is not shown to clear by a 20 A fuse. That fault needs an
 independent current/temperature limit or an evaluated protective response.
 
-**Source/native delta:** replace the `FUP 0031.2510` footprint in
-`elec/src/ac_input.ato` with a defined harness path: equipment line inlet
-→ off-board Class CC block → **fused** PCB L terminal; equipment N and PE
-reach their PCB terminals without passing through that block. This keeps
-unfused line length confined to the inlet-to-block segment. The existing
-`1714984` connector may serve as the board terminal only after its line pin
-is reinterpreted as fused L and the external inlet/harness is specified.
-Do not assign the block a PCB footprint or mark the current Atopile topology
-as the selected physical F1. The 5×20 options below remain a rejection
-record.
+**PCB source boundary now compiled:** `elec/src/ac_input.ato` assigns
+`1714984` pin 1 to `FUSED_L`, pin 2 to N, and pin 3 to PE. `FUSED_L` feeds
+CMC line input, X2, and MOV directly; there is no board-mounted holder or
+unfused-line net in this module. The 12-part board section and its joined
+route pass the exact-pin audit, including a mutation that disconnects fused
+L at pin 1. This establishes only the PCB-side interface.
+
+**Proposed off-board assembly, not yet installed or native-verified:**
+
+| Conductor segment | Proposed physical connection | Open evidence |
+| --- | --- | --- |
+| Unfused L | Equipment line inlet → `BCM603-1P` input pressure-plate terminal | Inlet/cord or fixed-wiring selection, conductor gauge, protection before F1, routing and strain relief. |
+| Fused L | `BCM603-1P` output terminal, with `LP-CC-20` installed and `CVR-CCM` cover → `1714984` PCB pin 1 | Block mounting, terminal torque, accessible replacement policy, fuse presence, wire/PCB terminal temperature and fault withstand. |
+| N | Equipment neutral inlet → `1714984` PCB pin 2 | Wiring and terminal ratings; no fuse or switch is drawn in this segment. |
+| PE | Equipment protective-earth inlet → `1714984` PCB pin 3 and independently qualified chassis bond | Earth continuity, bond construction and Y1 leakage. The Y1 capacitor is not the chassis bond. |
+
+The off-board block, cartridge and cover are separate BOM/assembly items.
+There is no assigned PCB footprint for them, and the Atopile PCB netlist
+cannot prove that a cartridge is installed or that the inlet harness follows
+this table. Keep that evidence OPEN through native and assembly review. The
+5×20 options below remain a historical rejection record.
 
 ## Previous 5×20 and 6.3×32 screen
 
 | Pair screened | Manufacturer evidence | Candidate consequence |
 | --- | --- | --- |
-| Current `FUP 0031.2510` 5×20 holder + retained `FST 0034.3129` 16 A time-lag | [FUP holder](https://www.schurter.com/en/datasheet/typ_FUP.pdf) lists FST 5×20 as a reference. [FST sheet](https://www.schurter.com/en/datasheet/typ_FST_5x20.pdf) gives the 16 A link 10×In, or 160 A, at 250 VAC. | Retains the existing mechanical concept, but 160 A cannot be accepted without an installation fault-current bound. |
+| Former Rev38 `FUP 0031.2510` 5×20 holder + retained `FST 0034.3129` 16 A time-lag | [FUP holder](https://www.schurter.com/en/datasheet/typ_FUP.pdf) lists FST 5×20 as a reference. [FST sheet](https://www.schurter.com/en/datasheet/typ_FST_5x20.pdf) gives the 16 A link 10×In, or 160 A, at 250 VAC. | Retains the existing mechanical concept, but 160 A cannot be accepted without an installation fault-current bound. |
 | Same holder + `SP 0001.1016` 16 A quick-acting | FUP lists SP 5×20 as a reference. The [SP data-sheet row for 0001.1016](https://www.schurter.com/en/datasheet/typ_sp_5x20.pdf) has 1,000 A IEC and 500 A UL breaking-capacity entries at 250 VAC (footnote 2), plus a 120 mV typical voltage drop at rated current. | A stronger screened interruption entry than FST, but quick-acting inrush survival and approval basis are unknown; 1,000 A must not be substituted for the 500 A UL entry. |
 | Same holder + `SPT 0001.2516` 16 A time-lag | The [SPT 5×20 sheet](https://www.schurter.com/en/datasheet/typ_spt_5x20.pdf) gives 500 A at 250 VAC for the 16 A variant, and its corresponding-holder list omits FUP. | Do not infer an approved FUP/SPT pair from matching cartridge dimensions. The 500 A entry still needs available-fault-current evidence. |
 | `FUP 0031.2520` 6.3×32 holder + `SHF 8020.5080` 16 A quick-acting | [FUP](https://www.schurter.com/en/datasheet/typ_FUP.pdf) lists SHF 6.3×32 as a reference. The [SHF 16 A row](https://www.schurter.com/en/datasheet/typ_SHF_6.3x32.pdf) lists 1,500 A at 250 VAC under footnote 3, 130 mV maximum drop at 1×In, and 760 A²s **typical** melting I²t at 10×In. | Changes the holder size and layout. The 1,500 A figure may still be below the site fault current, and a typical melting I²t is not a guaranteed inrush/coordination limit. |
@@ -92,6 +104,6 @@ allowable power at its actual local ambient.
    NTC path.
 
 The LP-CC-20/BCM603-1P nomination addresses part identity and published
-interrupt/block ratings only. It does not pass steps 1–3 yet. Keep the
-Atopile holder path provisional until the off-board F1 interface is joined,
-then perform electrical and thermal qualification before a mains build.
+interrupt/block ratings only. It does not pass steps 1–3 yet. The compiled
+board boundary is fused L, but the external harness, whole-assembly fault
+rating and thermal coordination remain open before any mains build.

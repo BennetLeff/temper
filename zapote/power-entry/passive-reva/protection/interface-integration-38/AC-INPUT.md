@@ -1,17 +1,18 @@
 # Rev38 AC input candidate
 
-`elec/src/ac_input.ato` joins the mains connector to the PFC bridge in the
-same Atopile entry as the receiver and gate path. This is a connectivity
-candidate, not an approved mains input or an installed fuse. It still draws
-the Schurter 5×20 PCB holder; `F1-SCREEN.md` nominates an Eaton Class CC
-cartridge and off-board block for a proposed general residential installation
-envelope. The source/native F1 interface has not been changed to that pair.
+`elec/src/ac_input.ato` joins a **fused-line PCB terminal** to the PFC bridge
+in the same Atopile entry as the receiver and gate path. This is a
+connectivity candidate, not an installed fuse or approved mains input. The
+Schurter 5×20 PCB holder was removed from Rev38. `F1-SCREEN.md` nominates an
+Eaton Class CC cartridge and off-board block for a proposed general
+residential installation envelope and defines the still-unbuilt external
+harness. The PCB source represents only the downstream side of F1.
 
 | Conductor | Compiled route |
 | --- | --- |
-| L | Connector pin 1 → Schurter `0031.2510` **holder** pins 1–2 → TDK `B82726S2163N030` CMC pins 1–4 → Ametherm `SL32 10015` NTC pins 1–2 → bridge AC pin 2. |
-| N | Connector pin 2 → CMC pins 2–3 → bridge AC pin 3. |
-| PE | Connector pin 3 → Vishay `VY1102M31Y5UQ63V0` Y1 pin 2; Y1 pin 1 reaches HOT0. There is no direct PE–HOT0 copper join. |
+| Fused L | `1714984` board terminal pin 1 → TDK `B82726S2163N030` CMC pins 1–4 → Ametherm `SL32 10015` NTC pins 1–2 → bridge AC pin 2. F1 and the inlet are off-board. |
+| N | Board terminal pin 2 → CMC pins 2–3 → bridge AC pin 3. |
+| PE | Board terminal pin 3 → Vishay `VY1102M31Y5UQ63V0` Y1 pin 2; Y1 pin 1 reaches HOT0. There is no direct PE–HOT0 copper join. A separate chassis bond is required. |
 
 The TE `RT33K012` normally open contact connects CMC L output to bridge L
 in parallel with the NTC. Its coil receives `AUX_PROTECTED` through a 91 Ω
@@ -25,7 +26,7 @@ directly energize the coil.
 
 The TDK `B32922C3224M289` X2 capacitor and Littelfuse `V150LA10AP` MOV
 span fused L and incoming N. The netlist audit checks those exact pins,
-the fuse-holder series route, NTC/contact parallelism, PE capacitor,
+the fused-board terminal, NTC/contact parallelism, PE capacitor,
 coil polarity, and the joined retained-RUN-qualified relay-control nets. Nine AC-specific
 positive and deliberate-miswire tests accompany the full Rev38 audit.
 
@@ -36,29 +37,16 @@ positive and deliberate-miswire tests accompany the full Rev38 audit.
   [CMC](https://www.tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s2163.pdf)
   are each rated 16 A, the
   [NTC](https://www.ametherm.com/datasheets/sl3210015) lists 15 A maximum
-  steady state, and the [holder](https://www.schurter.com/en/datasheet/typ_FUP.pdf)
-  lists 16 A VDE at 23 °C with ambient derating. These are individual
+  steady state. These are individual
   component nameplates, not an assembly temperature or endurance proof.
   The NTC's 15 A rating is especially relevant if the relay stays open.
-- Join the nominated `LP-CC-20` Class CC cartridge and `BCM603-1P` mounting
-  block through a defined off-board inlet harness, then verify the installed
+- Build the nominated `LP-CC-20` Class CC cartridge and `BCM603-1P` mounting
+  block into the off-board inlet harness, then verify the installed
   fuse, block, wiring and enclosure as one assembly. Coordinate F1/F2
   clearing, available fault current, inrush, and MOV end-of-life behavior.
-  The present 5×20 holder alone has no defined fuse characteristic.
-  The retained baseline's Schurter `0034.3129` is a 16 A FST link whose
-  [published breaking capacity](https://www.schurter.com/en/datasheet/typ_FST_5x20.pdf)
-  is `10 × In` at 250 VAC, or 160 A; it is not a qualified default for this
-  unknown prospective fault current. Schurter's
-  [FUP holder sheet](https://www.schurter.com/en/datasheet/typ_FUP.pdf)
-  references FST and SP 5×20 links, but does not list SPT 5×20. The
-  [16 A SPT link](https://www.schurter.com/en/datasheet/typ_SPT_5x20.pdf)
-  has a 500 A at 250 VAC breaking-capacity entry and lists other matching
-  holders. Do not treat that link and FUP as a validated pair or 500 A as
-  sufficient until available fault current, time/current coordination,
-  holder match, and 40 °C power acceptance are established.
-  `F1-SCREEN.md` compares those variants and records the proposed 20 A
-  Class CC pair and installation envelope. This is a component nomination,
-  not an installed or electrically qualified F1.
+  The old 5×20 options and their rejection reasons remain in `F1-SCREEN.md`;
+  none is present in the Rev38 PCB candidate. The proposed Class CC pair is
+  a component nomination, not an installed or electrically qualified F1.
 - Confirm certified X2/Y1 and MOV ordering codes, electrical ratings,
   discharge path for X2, protective-earth leakage, required creepage and
   clearance, connector/trace ratings, and line transient exposure at
