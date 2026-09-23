@@ -106,7 +106,7 @@ a low default or timing capacitor, miswire an abort/permit preset, reset
 clock, or F2 fault fan-in,
 or disarm-memory clear/clock, the history-reset D qualification, physical
 PERMIT-loss path, SESSION abort/clock path, or RUN permit/clock path,
-short the relay request to the driver,
+short the relay request to the driver or bypass the relay's retained-RUN gate,
 swap reverse feedback or reset channels, change the ISO7742F MPN, and add a
 copper boundary crossing. It does not establish pin electrical levels,
 fault-pulse capture, component timing, or fault-to-current cessation.

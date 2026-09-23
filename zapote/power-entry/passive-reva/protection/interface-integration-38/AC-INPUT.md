@@ -16,15 +16,17 @@ envelope. The source/native F1 interface has not been changed to that pair.
 The TE `RT33K012` normally open contact connects CMC L output to bridge L
 in parallel with the NTC. Its coil receives `AUX_PROTECTED` through a 91 Ω
 candidate resistor and returns through an `AO3400A` low-side switch to
-HOT0. AVR PA2/32 drives the switch gate through 1 kΩ; a local 100 kΩ
-pull-down holds it low. `SS14` is across the coil, cathode at the positive
+HOT0. AVR PA2/32 and retained `HOT_RUN_Q` enter the receiver's second
+`SN74HCS21PWR` gate; its output drives the switch gate through 1 kΩ. A local
+100 kΩ pull-down holds the MOSFET off if HOT logic5 or that output is absent.
+`SS14` is across the coil, cathode at the positive
 end. The SELV relay request reaches AVR PA5/3 as an input and does not
 directly energize the coil.
 
 The TDK `B32922C3224M289` X2 capacitor and Littelfuse `V150LA10AP` MOV
 span fused L and incoming N. The netlist audit checks those exact pins,
 the fuse-holder series route, NTC/contact parallelism, PE capacitor,
-coil polarity, and the joined AC and relay-control nets. Nine AC-specific
+coil polarity, and the joined retained-RUN-qualified relay-control nets. Nine AC-specific
 positive and deliberate-miswire tests accompany the full Rev38 audit.
 
 ## Open physical and protection gates
@@ -69,7 +71,11 @@ positive and deliberate-miswire tests accompany the full Rev38 audit.
   prove that the relay cannot close before the permitted condition.
 - Verify coil pickup/dropout across the full AUX range and resistor
   tolerance, MOSFET gate levels, flyback voltage and release time, and the
-  resulting mechanical contact state. The relay is a precharge bypass,
+  resulting mechanical contact state. A retained source relay request alone
+  cannot drive the gate after HOT RUN clears in the compiled topology;
+  physical release latency and stuck/welded contact remain unmeasured. The
+  receiver firmware still holds PA2 low pending a precharge policy. The
+  relay is a precharge bypass,
   not a fault-current interrupter or a gate-authorization path.
 - Join a protected AUX source and assess its startup, hold-up, loss and
   transients against the rail detectors and PFC power path. No upstream

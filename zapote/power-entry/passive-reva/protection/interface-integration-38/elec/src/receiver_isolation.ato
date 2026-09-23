@@ -245,6 +245,7 @@ module ReceiverIsolation38:
     signal HOT_PERMIT
     signal HOT_RELAY_REQUEST
     signal HOT_RELAY_DRIVER
+    signal HOT_RELAY_ENABLE
     signal HOT_SOURCE_HEALTH
     signal HOT_SOURCE_STOP_N
     signal HOT_SESSION_Q
@@ -502,10 +503,14 @@ module ReceiverIsolation38:
     run_and.C1 ~ HOT_SESSION_CLEAR_N
     run_and.D1 ~ HOT_LOGIC5
     run_and.Y1 ~ HOT_RUN_CLEAR_N
-    run_and.A2 ~ HOT0
-    run_and.B2 ~ HOT0
-    run_and.C2 ~ HOT0
-    run_and.D2 ~ HOT0
+    # An ESP-side relay request may persist across CPU-only reset. The
+    # receiver output can energize the bypass only while retained RUN Q is
+    # high; loss of HOT logic5 leaves the downstream FET gate pulled low.
+    run_and.A2 ~ HOT_RUN_Q
+    run_and.B2 ~ HOT_RELAY_DRIVER
+    run_and.C2 ~ HOT_LOGIC5
+    run_and.D2 ~ HOT_LOGIC5
+    run_and.Y2 ~ HOT_RELAY_ENABLE
     c_run_and = new C
     c_run_and.value = 100nF
     c_run_and.p1 ~ HOT_LOGIC5

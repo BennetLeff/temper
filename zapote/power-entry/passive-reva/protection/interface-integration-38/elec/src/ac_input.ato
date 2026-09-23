@@ -90,7 +90,7 @@ module AcInput38:
     signal PE
     signal HOT0
     signal AUX_PROTECTED
-    signal HOT_RELAY_DRIVER
+    signal HOT_RELAY_ENABLE
     signal AC_RECT_L
     signal AC_RECT_N
     signal F1_OUT
@@ -127,13 +127,13 @@ module AcInput38:
     y1.p1 ~ HOT0
     y1.p2 ~ PE
 
-    # Receiver PA2 is the sole HOT relay-control output. Its own pull-down
-    # is in the receiver fixture; add a second local gate pull-down here.
+    # The receiver's retained-RUN-qualified relay output reaches this stage.
+    # A local gate pull-down also holds the MOSFET off without HOT logic5.
     relay_gate_r = new AcR38
     relay_gate_r.mpn = "RC1206FR-071KL"
     relay_gate_r.footprint = "TBD_REVIEW_ONLY:AC_RELAY_GATE_R1K_1206"
     relay_gate_r.value = 1kohm
-    relay_gate_r.p1 ~ HOT_RELAY_DRIVER
+    relay_gate_r.p1 ~ HOT_RELAY_ENABLE
     relay_gate_r.p2 ~ RELAY_GATE
     relay_gate_pd = new AcR38
     relay_gate_pd.mpn = "RC1206FR-07100KL"

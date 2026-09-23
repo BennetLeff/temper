@@ -69,6 +69,6 @@ module PowerEntryIntegrated38:
     pfc_power.VB_BANK ~ f2_detector.VB_BANK
     ac_input.HOT0 ~ receiver.HOT0
     ac_input.AUX_PROTECTED ~ driver.AUX_PROTECTED
-    ac_input.HOT_RELAY_DRIVER ~ receiver.HOT_RELAY_DRIVER
+    ac_input.HOT_RELAY_ENABLE ~ receiver.HOT_RELAY_ENABLE
     ac_input.AC_RECT_L ~ pfc_power.AC_RECT_L
     ac_input.AC_RECT_N ~ pfc_power.AC_RECT_N

@@ -39,7 +39,7 @@ comparison against Microchip's package drawing before native acceptance.
 | ---: | --- | --- | --- |
 | 30 | PA0 | USART0 TX, receiver response | Separate reverse isolated protocol channel; its idle level has no safety meaning. |
 | 31 | PA1 | USART0 RX, source command | Forward isolated command; a stale frame cannot reload hardware fault memory. |
-| 32 | PA2 | HOT relay-driver output | Sole relay driver owner; pulled low externally, with no PFC gate authorization from this signal. |
+| 32 | PA2 | HOT relay-driver output | Sole firmware relay owner; pulled low externally and qualified by retained HOT RUN Q through the second HCS21 gate before the relay MOSFET. No PFC gate authorization follows from this signal. |
 | 4 | PA6 | `HOT_ATTEMPT_VALID` output | Default-low preparation cancellation. Drive high before the bounded prep-reset edge; drive low on STOP, lockout, or MCU reset. The joined circuit must include it in the abort-preset fan-in. |
 | 1 | PA3 | HOT permit-seen Q readback | Confirms historical high-PERMIT memory was cleared before revalidation; the memory also enters the asynchronous HOT clear equation. |
 | 2 | PA4 | Preparation-abort memory reset request | Separate bounded edge pulse, completed before challenge publication; never clears a new trip during the pending attempt. |

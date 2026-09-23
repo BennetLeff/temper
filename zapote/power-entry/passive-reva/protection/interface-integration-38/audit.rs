@@ -201,7 +201,7 @@ fn check(g: &Graph) -> Result<(), String> {
     for (net, expected) in [
         ("selv3v3", "iso_protocol:1 iso_protocol:7 iso_feedback:1 iso_feedback:7 c_iso1_selv:1 c_iso2_selv:1"),
         ("selv_gnd", "iso_protocol:2 iso_protocol:8 iso_feedback:2 iso_feedback:8 c_iso1_selv:2 c_iso2_selv:2 source_permit_fb_pd:2 source_session_fb_pd:2"),
-        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 prep_abort_memory:1 prep_abort_memory:10 prep_abort_memory:14 permit_seen_memory:1 permit_seen_memory:10 permit_seen_memory:14 disarm_memory:4 disarm_memory:10 disarm_memory:14 c_disarm_memory:1 permit_inverter:14 c_permit_inverter:1 c_permit_seen_memory:1 prep_trip_and:13 prep_trip_and:14 history_reset_and:13 history_reset_and:14 c_history_reset_and:1 history_reset_d_pu:1 permit_loss_nand:14 c_permit_loss_nand:1 session_and:14 c_session_and:1 session_memory:4 session_memory:10 session_memory:14 c_session_memory:1 run_and:5 run_and:14 c_run_and:1 run_memory:4 run_memory:10 run_memory:14 c_run_memory:1 c_prep_trip_and:1 c_prep_abort_memory:1 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
+        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 prep_abort_memory:1 prep_abort_memory:10 prep_abort_memory:14 permit_seen_memory:1 permit_seen_memory:10 permit_seen_memory:14 disarm_memory:4 disarm_memory:10 disarm_memory:14 c_disarm_memory:1 permit_inverter:14 c_permit_inverter:1 c_permit_seen_memory:1 prep_trip_and:13 prep_trip_and:14 history_reset_and:13 history_reset_and:14 c_history_reset_and:1 history_reset_d_pu:1 permit_loss_nand:14 c_permit_loss_nand:1 session_and:14 c_session_and:1 session_memory:4 session_memory:10 session_memory:14 c_session_memory:1 run_and:5 run_and:12 run_and:13 run_and:14 c_run_and:1 run_memory:4 run_memory:10 run_memory:14 c_run_memory:1 c_prep_trip_and:1 c_prep_abort_memory:1 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
         ("hot_prep_abort_q", "rx:7 prep_abort_memory:5 prep_abort_pu:2"),
         ("hot_prep_abort_ok", "prep_abort_memory:6 history_reset_and:5 session_and:2 prep_abort_ok_pd:1"),
         ("hot_prep_trip_ok", "prep_abort_memory:4 disarm_memory:1 prep_trip_and:8 history_reset_and:10 session_and:1 prep_trip_ok_pd:1"),
@@ -229,7 +229,8 @@ fn check(g: &Graph) -> Result<(), String> {
         ("history_reset_and-y1", "history_reset_and:6 history_reset_and:9"),
         ("reset_pulses-q2", "reset_pulses:5 permit_seen_memory:3"),
         ("hot_relay_request", "rx:3 iso_protocol:12 relay_request_pd:1"),
-        ("hot_relay_driver", "rx:32 relay_driver_pd:1"),
+        ("hot_relay_driver", "rx:32 relay_driver_pd:1 run_and:10"),
+        ("hot_relay_enable", "run_and:8"),
         ("hot_source_health", "iso_feedback:14 prep_trip_and:2 source_health_pd:1"),
         ("hot_source_stop_n", "iso_feedback:13 prep_trip_and:4 source_stop_pd:1"),
         ("hot_fault_n", "rx:8 prep_trip_and:10 fault_n_pd:1"),
@@ -238,7 +239,7 @@ fn check(g: &Graph) -> Result<(), String> {
         ("hot_session_revalidate_d", "session_and:8 revalidate_d_pd:1 session_memory:2"),
         ("hot_run_clear_n", "run_and:6 run_clear_pd:1 run_memory:1 run_memory:2"),
         ("hot_session_q", "rx:11 iso_feedback:11 session_memory:5 run_and:1 session_pd:1"),
-        ("hot_run_q", "rx:12 permit_inverter:3 run_memory:5 run_pd:1"),
+        ("hot_run_q", "rx:12 permit_inverter:3 run_memory:5 run_and:9 run_pd:1"),
         ("hot_receiver_abort_n", "rx:13 permit_inverter:5 session_and:4 abort_pd:1"),
         ("hot_session_clear_n", "rx:20 session_and:6 session_and:9 session_memory:1 run_and:4 session_clear_pd:1"),
         ("hot_revalidate_request", "rx:14 session_memory:3 revalidate_pd:1"),
@@ -311,9 +312,7 @@ fn check(g: &Graph) -> Result<(), String> {
         ("session_memory", "7", "hot0"), ("session_memory", "11", "hot0"),
         ("session_memory", "12", "hot0"), ("session_memory", "13", "hot0"),
         ("c_session_memory", "2", "hot0"),
-        ("run_and", "7", "hot0"), ("run_and", "9", "hot0"),
-        ("run_and", "10", "hot0"), ("run_and", "12", "hot0"),
-        ("run_and", "13", "hot0"), ("c_run_and", "2", "hot0"),
+        ("run_and", "7", "hot0"), ("c_run_and", "2", "hot0"),
         ("run_clear_pd", "2", "hot0"),
         ("run_memory", "7", "hot0"), ("run_memory", "11", "hot0"),
         ("run_memory", "12", "hot0"), ("run_memory", "13", "hot0"),
@@ -793,7 +792,7 @@ fn check_ac_input(g: &Graph) -> Result<(), String> {
         ("pe", "mains:3 y1:2"),
         ("hot0", "y1:1 relay_gate_pd:2 relay_fet:2"),
         ("aux_protected", "coil_drop:1"),
-        ("hot_relay_driver", "relay_gate_r:1"),
+        ("hot_relay_enable", "relay_gate_r:1"),
         ("ac_rect_l", "ntc:2 bypass:3"),
         ("ac_rect_n", "cmc:3"),
         ("f1_out", "holder:2 cmc:1 x2:1 mov:1"),
@@ -956,7 +955,7 @@ fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_
         ("ac_input.cmc", "3", "pfc_power.bridge", "3"),
         ("ac_input.y1", "1", "receiver.rx", "19"),
         ("ac_input.coil_drop", "1", "driver.driver", "6"),
-        ("ac_input.relay_gate_r", "1", "receiver.rx", "32"),
+        ("ac_input.relay_gate_r", "1", "receiver.run_and", "8"),
     ] {
         let left = g.pins.get(&(left_id.into(), left_pin.into()));
         let right = g.pins.get(&(right_id.into(), right_pin.into()));
@@ -1168,6 +1167,14 @@ mod tests {
     fn joined_relay_control_disconnect_fails() {
         let mut g = integrated_fixture();
         g.pins.insert(("ac_input.relay_gate_r".into(), "1".into()), "relay_control_cut".into());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
+    }
+
+    #[test]
+    fn joined_relay_control_cannot_bypass_run_gate() {
+        let mut g = integrated_fixture();
+        let direct = g.pins.get(&("receiver.rx".into(), "32".into())).unwrap().to_string();
+        g.pins.insert(("ac_input.relay_gate_r".into(), "1".into()), direct);
         assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
@@ -1487,6 +1494,13 @@ mod tests {
     fn relay_driver_short_fails() {
         let mut g = fixture();
         g.pins.insert(("rx".into(), "32".into()), "hot_relay_request".into());
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn relay_run_qualification_bypass_fails() {
+        let mut g = fixture();
+        g.pins.insert(("run_and".into(), "9".into()), "hot_logic5".into());
         assert!(check(&g).is_err());
     }
 

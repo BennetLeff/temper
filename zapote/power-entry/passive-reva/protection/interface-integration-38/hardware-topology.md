@@ -21,7 +21,7 @@ codes as active production.
 | --- | --- | --- | --- |
 | ISO7741FDWR A | 3 INA, source UART TX | 14 OUTA, AVR PA1/31 RX | Corrupt or absent traffic cannot count as liveness. |
 | ISO7741FDWR B | 4 INB, source retained PERMIT Q | 13 OUTB, physical HOT PERMIT | Low clears RUN; loss after observed high also clears SESSION. |
-| ISO7741FDWR C | 5 INC, source relay request | 12 OUTC, AVR PA5/3 input | The AVR PA2/32 alone drives the relay stage; low request cannot grant gate authority. |
+| ISO7741FDWR C | 5 INC, source relay request | 12 OUTC, AVR PA5/3 input | AVR PA2/32 owns the firmware output; retained HOT RUN Q gates it before the relay stage. The request alone cannot energize the coil. |
 | ISO7741FDWR D | 6 OUTD, source UART RX | 11 IND, AVR PA0/30 TX | Protocol response only. |
 | ISO7742FDWR A | 3 INA, source hardware-health Q | 14 OUTA, HOT source-health clear | Low clears both HOT memories independently of receiver UART. |
 | ISO7742FDWR B | 4 INB, source STOP_N | 13 OUTB, HOT STOP clear | Low clears both HOT memories; source GPIO default low. |
@@ -40,8 +40,9 @@ claim.
 
 Rev35's fixture tied an isolator relay output to an MCU output. Rev38 must
 place the isolator channel on AVR PA5/3 **input** and use PA2/32 as the sole
-HOT relay-driver output, with its own pull-down. The audit must reject a
-short between those two producer pins.
+HOT relay-driver output, with its own pull-down. The second `SN74HCS21` RUN
+gate qualifies PA2 before the relay MOSFET. The audit must reject a short
+between the request and PA2 or a bypass around retained RUN Q.
 
 ## Retained hardware equations
 

@@ -49,7 +49,7 @@ lose control to a high driver.
 | --- | --- | --- | --- |
 | P0 | `SOURCE_CHALLENGE_ACTIVE` | Output | Low/high-Z cancels preparation; high retained through CPU-only reset needs a stale-challenge proof. |
 | P1 | `SOURCE_SEEN_RESET_REQUEST` | Output | Positive-edge one-shot request; no replay after I²C recovery or CPU reset. |
-| P2 | Isolated relay request | Output | A retained high needs independent HOT relay gating by session/health; the receiver relay policy is not implemented. |
+| P2 | Isolated relay request | Output | A retained high reaches AVR PA5. The joined HOT HCS21 now also requires retained RUN Q before the relay MOSFET gate can rise; receiver timing and contact release remain open. |
 | P3 | `SOURCE_RAIL_RESET_N` | Input | Missing/low is unsafe. |
 | P4 | `SOURCE_PERMIT_Q` | Input | Fresh physical local-latch readback, never a cached output command. |
 | P5 | `SOURCE_HOT_PERMIT_FB` | Input | Fresh reverse-isolator readback. |
@@ -62,7 +62,8 @@ unchanged. Therefore software boot writes, the expander RESET pin, and a
 successful I²C ACK are **not** credited as immediate source-reset detection.
 The direct STOP and watchdog circuit still own the bounded-reset path. A
 held expander output must be proved unable to extend the watchdog deadline,
-reload a cleared memory, or keep the relay energized after permission loss.
+reload a cleared memory, or keep the relay energized after retained RUN
+clears. The new HOT relay gate establishes connectivity, not release time.
 
 The proposed adapter would treat I²C timeout, missing ACK, bad configuration
 readback, or an incomplete input read as an unsafe physical sample and drive
