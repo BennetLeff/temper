@@ -106,6 +106,30 @@ proposed, typical, and requirement values; this table does not upgrade them.
 | Physical PERMIT loss, STOP, receiver abort/reset | Derive the permitted continuation time from the function of the command/interlock and current power-stage state; distinct from a voltage-only detector limit. | Source readback-seen clear, HOT PERMIT-seen clear, `RECEIVER_ABORT_N`, retained latches, EN, loaded STW. Pulse/capture and reset-to-abort maxima are unset. | Exact-pin joined clear path, adverse pulse/reset/clock tests, synchronized hardware permission and current capture. |
 | Failed-short STW, failed-short boost diode, stored-bank discharge | Gate disable cannot interrupt a failed-short channel or discharge VD/VB. Derive F1/F2 and interconnect interruption/withstand and stored-energy containment instead. | No valid gate-to-current-zero path for the failed device. | Separate fuse/interconnect/thermal/energy qualification; do not record a passing gate timing for this row. |
 
+### Missing-input owners and evidence class
+
+These are engineering owners of the missing input, not an approval delegation.
+Every gate-interruptible row still needs its own independently supported
+`T_allowable`, `T_implementation,worst`, and margin. A part maximum applies
+only at its stated test conditions. `fault-response.tsv` identifies the
+individual physical producer and clear for each event; the groups below
+assign the remaining measurements and calculations.
+
+| Fault-response event IDs | Allowable-time input owner | Implementation-time input owner | Evidence now / needed |
+| --- | --- | --- | --- |
+| `VD_OV`, `VB_OV`, `VD_GT_VB`, `VB_GT_VD`, `F2_OPEN` | Power-stage design: separate derated VD/VB/VDS limits, effective C, `L(I,T)`, fault current and line/source envelope; F2/interconnect owner for noninterruptible paths | Analog-protection design: divider/filter and capture corners; driver design: loaded EN/gate/current fall; bench owner: coincident F2/voltage/current traces | Joined pins and a conditional F2 model; no accepted installed limits or complete path capture |
+| `AUX_UV_FAST`, `AUX_OV`, `AUX_UV_SLOW`, `LOGIC5_UV`, `SELV_RAIL_UV`, `SOURCE_HEALTH_LOSS` | Supply design: qualified AUX, logic5 and SELV operating envelopes, rail slew, hold-up and last guaranteed control voltage | Supply/protection design: selected source, regulator, cutoff, supervisors and window thresholds/delays; bench owner: rail-order and loaded-disable traces | Partial comparator/supervisor joins and manufacturer conditions; protected AUX producer and source envelope absent |
+| `INTERLOCK_LOSS`, `HOT_PERMIT_LOSS_BEFORE_HIGH`, `HOT_PERMIT_LOSS_AFTER_HIGH`, `SOURCE_READBACK_LOSS`, `HOT_FAULT_DURING_PREP`, `REVALIDATION_RACE` | System safety owner: permitted continuation in each power-stage state | Interface-logic design: pulse/capture, retained clear, isolator and reset dominance; bench owner: adverse edge order and current trace | Pin-level joins and mutation tests; no minimum captured pulse or maximum physical response |
+| `RECEIVER_STOP_READY`, `RECEIVER_STOP_RUNNING`, `RECEIVER_RESET`, `RECEIVER_EXECUTION_LOSS`, `PROTOCOL_ABORT`, `PREPARATION_TIMEOUT`, `START_TIMEOUT`, `LINK_LOSS` | System safety owner: permitted continuation for each command/interlock state | Receiver firmware and AVR adapter owner: reset default, decoder/timer/queue-to-pin bound, WDI stop; interface/bench owner: retained clear and loaded-current response | Host logic and runtime tests; AVR pin, fuse, watchdog, and physical capture absent |
+| `SOURCE_EXECUTION_LOSS`, `ESP_CPU_RESET_RUNNING`, `ESP_CPU_RESET_FIRST_START` | System safety and power-stage owners: independently derive first-start and already-running allowable time | ESP driver owner: last post-reset WDI edge, boot/other-core/queued writes; hardware/bench owners: TPS3431 corners through source/HOT clear and current cessation | Host source core plus partial pin paths; feed tail and both allowable times unbounded |
+| `ISOLATOR_PARTIAL_POWER`, `DRIVER_WITHOUT_LOGIC` | Supply/driver safety owners: last voltage at which output control is guaranteed and tolerable continuation | Isolation, rail and gate-driver owners: partial-power default, clamp strength, EN/gate/current response; bench owner: every rail-order permutation | Partial topology and conditional data; no intermediate-rail or physical path proof |
+
+For every row the margin owner is the system safety review: choose an
+uncertainty method only after the hazard and implementation evidence exists.
+The acceptance test remains `T_implementation,worst(f) + T_margin(f) <=
+T_allowable(f)`. No row has a numerical PASS. A missing producer or an
+unbounded input makes its row OPEN regardless of a fast device-only number.
+
 The fault/event rows in `fault-response.tsv` keep individual detector and
 transaction cases visible. This ledger groups them only where they share a
 hazard model; it does not merge their electrical producers or capture minima.
