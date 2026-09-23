@@ -131,6 +131,7 @@ module ReceiverIsolation38:
     signal HOT_FAULT_N
     signal HOT_RAILS_OK
     signal HOT_RECEIVER_ABORT_N
+    signal HOT_SESSION_CLEAR_N
     signal HOT_PREP_RESET_REQUEST
     signal HOT_HISTORY_RESET_REQUEST
     signal HOT_REVALIDATE_REQUEST
@@ -165,6 +166,7 @@ module ReceiverIsolation38:
     rx.PD5 ~ HOT_RUN_SET_REQUEST
     rx.PD6 ~ HOT_WDI
     rx.PD7 ~ HOT_RAILS_OK
+    rx.PF0 ~ HOT_SESSION_CLEAR_N
 
     iso_protocol.VCC1 ~ SELV3V3
     iso_protocol.GND1 ~ SELV_GND
@@ -249,6 +251,10 @@ module ReceiverIsolation38:
     abort_pd.value = 10kohm
     abort_pd.p1 ~ HOT_RECEIVER_ABORT_N
     abort_pd.p2 ~ HOT0
+    session_clear_pd = new R
+    session_clear_pd.value = 10kohm
+    session_clear_pd.p1 ~ HOT_SESSION_CLEAR_N
+    session_clear_pd.p2 ~ HOT0
     source_permit_fb_pd = new R
     source_permit_fb_pd.value = 10kohm
     source_permit_fb_pd.p1 ~ SOURCE_HOT_PERMIT_FB

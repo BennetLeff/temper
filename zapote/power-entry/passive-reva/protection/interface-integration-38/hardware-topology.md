@@ -68,6 +68,15 @@ Q, so a pre-trip low level cannot masquerade as post-trip disarm. A broken
 PERMIT wire may set this Q, but DISARM_ACK, a new durable ID, and fresh intent
 remain separate requirements.
 
+The AVR PF0/20 samples the physical `HOT_SESSION_CLEAR_N` node. After the
+matching DISARM_ACK and permit-history reset, the receiver releases
+`RECEIVER_ABORT_N`, waits for a new physical sample showing
+`HOT_SESSION_CLEAR_N` high, and only then issues the raw revalidation edge.
+This is a distinct step because the clear cannot be high while abort is
+asserted. A low readback aborts the attempt. The hardware clear remains
+asynchronous and fault dominant; the readback only prevents a knowingly
+ineffective or premature revalidation pulse.
+
 Revalidation must clock SESSION on the raw rising request edge with D equal
 to current eligibility. **Never gate the clock with a recovering fault**:
 if the request stays high while a fault clears, the clock must not acquire

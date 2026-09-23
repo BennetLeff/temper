@@ -55,6 +55,7 @@ comparison against Microchip's package drawing before native acceptance.
 | 7 | PC1 | Preparation-abort memory input | New trip during preparation cancels pending ID even when session Q is already low. |
 | 8 | PC2 | Hardware fault summary input | Diagnostic only; each critical producer still clears the latches physically. |
 | 9 | PC3 | HOT permit-seen history reset request | Separate bounded edge pulse after matching DISARM_ACK and before revalidation, with physical PERMIT and RUN low. It must not clear preparation-abort memory. |
+| 20 | PF0 | `HOT_SESSION_CLEAR_N` physical readback | Sample only after abort is physically released; revalidation requires this async clear input high. The circuit must also remain fault dominant without MCU sampling. |
 | 26 | PF6 | RESET input | Keep reset enabled; external POR/rail path asserts it. |
 | 27 | UPDI | Programming/debug | Reserve for production programming and fuse verification. |
 

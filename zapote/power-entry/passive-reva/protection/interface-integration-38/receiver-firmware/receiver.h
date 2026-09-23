@@ -13,6 +13,7 @@ typedef enum {
     PE_RX_RESERVED,
     PE_RX_PREPARING,
     PE_RX_HISTORY_RESET,
+    PE_RX_CLEAR_CHECK,
     PE_RX_REVALIDATING,
     PE_RX_READY,
     PE_RX_START_PENDING,
@@ -29,6 +30,7 @@ typedef struct {
     bool disarm_seen;       /* physical post-trip low-PERMIT memory */
     bool preparation_abort; /* retained trip while Q was already low */
     bool permit_seen_q;     /* historical high HOT PERMIT memory */
+    bool session_clear_n;   /* physical async clear at HOT_SESSION_OK */
 } pe_receiver_inputs_t;
 
 typedef struct {
@@ -86,6 +88,11 @@ bool pe_receiver_history_reset_complete(pe_receiver_t *receiver,
                                         uint64_t now_ms,
                                         pe_receiver_inputs_t inputs,
                                         pe_receiver_actions_t *actions);
+/* Called only after the adapter has applied abort_n high and taken a fresh
+ * physical sample of session_clear_n. It consumes the revalidation edge. */
+bool pe_receiver_revalidate(pe_receiver_t *receiver, uint64_t now_ms,
+                            pe_receiver_inputs_t inputs,
+                            pe_receiver_actions_t *actions);
 void pe_receiver_frame(pe_receiver_t *receiver, pe_frame_t frame,
                        uint64_t now_ms, pe_receiver_inputs_t inputs,
                        pe_receiver_actions_t *actions);

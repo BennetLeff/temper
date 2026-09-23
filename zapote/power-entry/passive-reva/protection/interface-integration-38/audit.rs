@@ -147,7 +147,7 @@ fn domain(id: &str, pin: &str) -> &'static str {
 }
 
 fn check(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 29 { return Err(format!("expected 29 parts, found {}", g.parts.len())); }
+    if g.parts.len() != 30 { return Err(format!("expected 30 parts, found {}", g.parts.len())); }
     for (id, part) in [
         ("rx", "AVR64DA32-E/PT"),
         ("iso_protocol", "ISO7741FDWR"),
@@ -177,6 +177,7 @@ fn check(g: &Graph) -> Result<(), String> {
         ("hot_source_health", "iso_feedback:14 source_health_pd:1"),
         ("hot_source_stop_n", "iso_feedback:13 source_stop_pd:1"),
         ("hot_session_q", "rx:11 iso_feedback:11 session_pd:1"),
+        ("hot_session_clear_n", "rx:20 session_clear_pd:1"),
         ("ind", "rx:30 iso_protocol:11"),
         ("outa", "rx:31 iso_protocol:14"),
     ] {
@@ -201,11 +202,13 @@ fn check(g: &Graph) -> Result<(), String> {
         }
     }
     for net in ["hot_permit", "hot_relay_request", "hot_relay_driver", "hot_source_health",
-                "hot_source_stop_n", "hot_session_q", "hot_receiver_abort_n"] {
+                "hot_source_stop_n", "hot_session_q", "hot_receiver_abort_n",
+                "hot_session_clear_n"] {
         let id = match net {
             "hot_permit" => "permit_pd", "hot_relay_request" => "relay_request_pd",
             "hot_relay_driver" => "relay_driver_pd", "hot_source_health" => "source_health_pd",
             "hot_source_stop_n" => "source_stop_pd", "hot_session_q" => "session_pd",
+            "hot_session_clear_n" => "session_clear_pd",
             _ => "abort_pd",
         };
         if g.pins.get(&(id.into(), "1".into())).is_none_or(|found| found != net)
@@ -252,6 +255,13 @@ mod tests {
     fn missing_abort_default_fails() {
         let mut g = fixture();
         g.pins.remove(&("abort_pd".into(), "2".into()));
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn missing_clear_readback_default_fails() {
+        let mut g = fixture();
+        g.pins.remove(&("session_clear_pd".into(), "2".into()));
         assert!(check(&g).is_err());
     }
 

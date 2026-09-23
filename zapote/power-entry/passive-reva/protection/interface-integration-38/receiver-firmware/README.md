@@ -46,6 +46,13 @@ latch clear and gate inhibit must dominate
 any race between a sampled input and a pulse. The core alone does not prove
 that race, AVR boot pin levels, or rail-loss behavior.
 
+`pe_receiver_history_reset_complete` now requests **only** abort release.
+The adapter must apply that pin level, obtain a fresh PF0/20 sample of the
+physical `HOT_SESSION_CLEAR_N` node, and call `pe_receiver_revalidate`.
+Only that later call can request the revalidation pulse. A low clear
+readback, trip, or lost disarm locks the attempt out. Passing a cached
+pre-release sample is invalid because abort itself holds the clear low.
+
 The protocol core must expose explicit input events and requested outputs so
 host tests can exercise reservation, interruption, cancellation, expiry and
 reset without simulating a passing physical protection path. The target

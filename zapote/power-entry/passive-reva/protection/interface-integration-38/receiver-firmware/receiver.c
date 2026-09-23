@@ -65,6 +65,7 @@ void pe_receiver_sample(pe_receiver_t *receiver, uint64_t now_ms,
         return;
     }
     if (!common_healthy(inputs) ||
+        (receiver->state >= PE_RX_CLEAR_CHECK && !inputs.session_clear_n) ||
         (receiver->state >= PE_RX_READY && !inputs.session_q) ||
         (receiver->state >= PE_RX_START_PENDING && !inputs.physical_permit) ||
         (receiver->state >= PE_RX_START_PENDING && !inputs.permit_seen_q) ||
@@ -172,8 +173,23 @@ bool pe_receiver_history_reset_complete(pe_receiver_t *receiver,
     receiver->last_wdi_ms = now_ms;
     receiver->local_fed = receiver->local_epoch;
     receiver->link_fed = receiver->link_epoch;
-    receiver->state = PE_RX_REVALIDATING;
+    receiver->state = PE_RX_CLEAR_CHECK;
     actions->abort_n = true;
+    return true;
+}
+
+bool pe_receiver_revalidate(pe_receiver_t *receiver, uint64_t now_ms,
+                            pe_receiver_inputs_t inputs,
+                            pe_receiver_actions_t *actions) {
+    pe_receiver_sample(receiver, now_ms, inputs, actions);
+    if (receiver->state != PE_RX_CLEAR_CHECK || !receiver->abort_n ||
+        !inputs.session_clear_n || !common_healthy(inputs) ||
+        inputs.physical_permit || inputs.permit_seen_q || inputs.session_q ||
+        inputs.run_q || !inputs.disarm_seen) {
+        abort_session(receiver, actions);
+        return false;
+    }
+    receiver->state = PE_RX_REVALIDATING;
     actions->revalidate_pulse = true;
     return true;
 }
