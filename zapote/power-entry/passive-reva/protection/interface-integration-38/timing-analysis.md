@@ -111,6 +111,26 @@ Sources: `operating-envelope-05/envelope-contract.md`,
 `interface-integration-35/README.md`. Each source labels its own modeled,
 proposed, typical, and requirement values; this table does not upgrade them.
 
+### Manufacturer timing entries that do not yet bound the installed path
+
+These entries were checked against current manufacturer data sheets for the
+selected parts. They are useful for selecting test corners and exposing a
+missing bound. They must not be added as though their test fixtures were
+the loaded, mixed-supply Rev38 circuit.
+
+| Selected part | Published conditional entry | Gap to Rev38 response bound |
+| --- | --- | --- |
+| [TLV3202](https://www.ti.com/lit/ds/symlink/tlv3202.pdf) VD/VB channels | At VCC = 5 V, 20 mV input overdrive and 15 pF load, the data sheet lists 55 ns maximum propagation delay over −40 to +125 °C for each output direction. | The actual divider/filter ramp may spend time below 20 mV overdrive; the real fan-in load, valid supply and minimum captured pulse still need bounds. The 55 ns is not a fault-to-clear maximum. |
+| [ISO774xF](https://www.ti.com/lit/ds/symlink/iso7742.pdf) source/HOT paths | The 5 V/5 V table lists 17 ns maximum propagation delay; the 3.3 V/3.3 V table lists 18.5 ns. The F-device default-output delay after **input** supply falls below 1.7 V is 0.3 µs maximum at those fixtures. | Rev38 uses 3.3 V on SELV and 5 V on HOT. Neither same-supply propagation row directly bounds that mixed condition. An unpowered output-side device cannot actively drive its fail-low value; local pulls and rail-order captures are still required. |
+| [UCC27624](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) driver | The March 2026 data sheet lists 27 ns maximum disable propagation from EN low threshold to 90% of output fall, with 1.8 nF load, 12 V VDD, 0–3.3 V switching input, 500 kHz and 125 °C fixture. | Rev38 uses an AUX-biased EN shunt, 10 Ω gate resistor and actual STW gate charge. That entry does not bound shunt release, loaded gate discharge, switch-current fall or supply-collapse behavior. |
+| [TPS3431](https://www.ti.com/lit/ds/symlink/tps3431.pdf) source/HOT watchdogs | The manufacturer's 1 nF **ideal capacitor** calculation is 119.82–144.98 ms for device timeout. | Selected CWD tolerance/effective value, pin leakage, boot/last-edge behavior and WDO-to-current-zero remain outside this calculated interval; it is not an allowable reset time. |
+
+The ISO774x supply distinction and the UCC27624 loaded-gate distinction
+must stay explicit in every later timing sum. Where a selected part lacks a
+guaranteed maximum at the installed condition, obtain a supported bound or
+leave `T_implementation,worst` OPEN. A prototype capture can test a design
+but cannot by itself manufacture a missing production-corner guarantee.
+
 ## Per-fault work ledger
 
 | Fault class | Independent allowable-time derivation | Candidate implementation path and missing bound | Required closure evidence |
@@ -277,6 +297,41 @@ ringing, wiring spikes, fuse arcing, and failed-short energy paths. If those
 terms matter at the chosen limit, expand the model or qualify them separately.
 
 ## Next evidence to collect
+
+### Synchronized capture definitions for the later physical campaign
+
+The following is a measurement design, **NOT RUN**. Use an assembled,
+isolated low-voltage fault-injection fixture before any mains evaluation.
+The final joined schematic and native board must name accessible test points
+and injection points; a simulated node or an ESP log timestamp cannot stand
+in for a physical transition. Record the injected waveform, probe loading,
+channel skew, trigger uncertainty, supply/temperature corner, component
+identities, and source/board/runtime hashes with each capture.
+
+For a gate-interruptible event, mark `t0` at the physical fault crossing or
+execution-loss stimulus, `t1` at the qualified detector/watchdog output,
+`t2` at retained HOT clear, `t3` at driver EN inhibit, `t4` at the loaded STW
+gate's OFF crossing, and `t5` at **sustained switch-current cessation**. The
+implementation bound is `t5−t0` at accepted worst-case corners; a single
+fast trace only supplies an observation. State separately whether capacitor
+or inductor energy continues elsewhere after `t5`.
+
+| Fault path | Stimulus and synchronized channels beyond `t1`–`t5` | Necessary distinction |
+| --- | --- | --- |
+| ESP execution loss, already RUNNING | External CPU-loss marker; heartbeat-request pad; one-shot active-low WDI; TPS3431 WDO; source PERMIT Q; HOT physical PERMIT, SESSION Q and RUN Q; loaded gate and current. | Measure the last *qualifying* WDI edge after `t0`, including boot/other-core and retained-pad behavior. Preserve the original watchdog interval. |
+| ESP loss with first START pending | The same channels, plus TX shift-register completion, isolated command RX, receiver START acceptance and RUN-set request. | Show at most one pre-reset committed START before its fixed deadline; a first RUN transition cannot restart the reset-to-off clock. |
+| Link loss or receiver execution loss | Last valid complete frame, receiver WDI/WDO, AVR RESET and abort_N, physical PERMIT, SESSION/RUN Q, EN, gate and current. | Distinguish no traffic, malformed traffic, and a stalled decoder; determine the actual last liveness credit. |
+| VD/VB overvoltage, mismatch, or F2 opening | VD_LOCAL, VB_BANK, inductor current, F2 voltage/continuity, actual comparator inputs and outputs, HOT trip fan-in, retained Q, EN, gate and current. | Use the first physical voltage/current violation as `t0`; capture input filtering and any energy-driven peak after gate disable. |
+| Overcurrent | Shunt differential voltage, controller ISENSE/PCL behavior, inductor and STW current, PWM, HOT retained Q, EN and gate. | A cycle-by-cycle PWM limit is not automatically a latched trip; only a demonstrated retained producer gets a retained-clear timing row. |
+| AUX/logic/SELV rail loss or partial isolation power | AUX raw/protected, HOT logic5, SELV3V3, both TPS3890 RESET nodes, AUX-window output, isolator output, AVR reset/abort, EN, gate and current. | Sweep rail order and slew through each device's last guaranteed operating region; check powered driver with absent HOT logic. |
+| Physical PERMIT break, STOP or receiver abort | Source local Q and STOP_N, both sides of the relevant isolator, HOT physical PERMIT, seen memories, SESSION/RUN Q, EN, gate and current. | Test before first PERMIT high and after seen-high, plus short pulses and coincident reset/clock edges. |
+| Failed-short switch/diode or stored-bank discharge | F1/F2 terminal currents/voltages, interconnect temperature, VD/VB energy and enclosure-relevant paths. | There is no valid `t5` from gate disable for the failed channel; use separate interruption and containment criteria. |
+
+Derive each `T_allowable` from the independently accepted operating envelope
+and component limits **before** comparing it with these implementation
+captures. The F1/AC, AUX, AVR and ESP work streams provide candidate parts,
+pin ownership and corner conditions; their findings do not fill a timing
+cell until the final joined circuit and physical evidence support it.
 
 1. From the retained power-stage design and actual source/part data: accepted
    separate VD/VB/VDS and current/energy/temperature envelopes; effective
