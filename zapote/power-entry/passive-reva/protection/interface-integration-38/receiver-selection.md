@@ -60,12 +60,14 @@ the actual latch/isolator input loading.
 
 ## Durable session high-water record
 
-Use 16 logical 32-byte slots in the 512-byte EEPROM. A record contains a
-format/version tag, a 64-bit strictly increasing high-water identifier, its
-bitwise complement, a 32-bit CRC over the preceding fields, and a final
-commit marker. The remaining bytes are reserved and checked for their
-defined erased pattern. The exact byte layout and CRC polynomial must be
-fixed in U5 before programming; neither is an unstated wire guarantee.
+Use 16 logical 32-byte slots in the 512-byte EEPROM. The host-tested
+`receiver-firmware/journal.c` format is: bytes 0–3 `54 50 45 01`, bytes
+4–11 the 64-bit high-water ID little endian, bytes 12–19 its complement,
+bytes 20–23 CRC-32/ISO-HDLC over bytes 0–19, bytes 24–30 `FF`, and byte 31
+the final `3C` commit marker. Manufacturing provisions ID zero in slot zero
+once. Runtime code has no provision-blank path. The newest ID and physical
+slot advance together modulo 16; scan rejects duplicate, gapped, or
+out-of-order records.
 
 Provision a valid initial high-water record during manufacturing. A fully
 blank, ambiguous, exhausted, or corrupt store is **LOCKOUT**, never an
@@ -87,6 +89,12 @@ out. The power-fail test must interrupt every byte/command boundary and
 confirm that no identifier ever published can reappear after reboot.
 The external abort stays asserted throughout all EEPROM operations.
 
+The candidate software ceiling is ID 16,000, limiting each rotating slot to
+roughly 1,000 overwrite cycles from manufacturing ID zero. That is a
+conservative development policy, **not** a qualified endurance calculation:
+the exact data-sheet limit at the selected temperature, NVM write-completion
+semantics, brownout behavior, and field-use budget still need target review.
+
 This scheme assumes a completed, verified EEPROM write retains its bits
 under the specified supply and endurance conditions. A later arbitrary
 bit loss of the maximum record is not proven impossible by CRC. Such a
@@ -95,10 +103,14 @@ or provisioning policy rather than a claimed fail-safe recovery.
 
 ## Wire and state rules for U3/U5/U6
 
-- A frame carries a version, type, 64-bit session ID, 32-bit intent or
-  sequence field as applicable, and CRC. The exact byte framing, length,
-  endian order, CRC polynomial and baud are fixed before firmware coding.
-  CRC detects accidental corruption; it is not authentication.
+- A frame is exactly 20 bytes, using the common `receiver-firmware/protocol.h`
+  and `.c` codec: `A5` magic, version `01`, one-byte type, reserved zero byte,
+  64-bit session ID little endian, 32-bit intent or sequence little endian,
+  and CRC-32/ISO-HDLC little endian over bytes 0–15. UART is 8N1. Baud and
+  clock-error budget remain open until the selected clock is qualified. CRC
+  detects accidental corruption; it is not authentication. A decoder must
+  discard incomplete and malformed frames and resynchronize on `A5`, never
+  feed liveness for them.
 - `PREPARE_CHALLENGE(id)` is sent only after durable reservation and physical
   disarm. `DISARM_ACK(id)` is accepted only while that ID is pending and
   hardware remains safe. A new trip, STOP or receiver reset discards it.
