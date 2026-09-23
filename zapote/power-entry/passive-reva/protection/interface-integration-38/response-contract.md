@@ -50,7 +50,7 @@ component corners. None of the symbols below has an accepted system value.
 | `T_source_clear` | WDO-to-source-PERMIT-latch-Q-low maximum, including WDO low width and asynchronous-clear capture | A partial Rev38 source/receiver netlist now joins WDO, source health, latch CLR_N and isolated PERMIT. Electrical timing and capture corners are unproved. |
 | `T_permit_crossing` | Source-Q-low through isolation and HOT physical PERMIT-low qualification | No selected isolator or line/capture bound. |
 | `T_hot_clear` | Physical PERMIT loss through retained HOT session and RUN clear, including seen-high capture | No joined Rev38 latch. |
-| `T_driver_to_current_zero` | Local EN-low assertion through UCC27624, loaded STW gate discharge, and sustained switch-current cessation | No joined driver or physical capture. |
+| `T_driver_to_current_zero` | Local EN-low assertion through UCC27624, loaded STW gate discharge, and sustained switch-current cessation | A partial UCC27624/STW pin path now joins the receiver. ENA clamp corners, loaded gate/current waveform, and physical capture remain unproved. |
 | `T_first_START_min_to_RUN` | Minimum reset-to-RUN time for a START already at the last receiver acceptance boundary when the CPU resets | Could approach zero; no positive minimum demonstrated. |
 | `T_first_START_max_to_RUN` | Maximum time for a pre-reset START already in a transport, task queue, or GPIO-write path to reach the physical RUN-set operation | No receiver decoder, queue, or device implementation. |
 

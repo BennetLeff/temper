@@ -1,5 +1,5 @@
-//! Exact-pin audit of the partial Rev38 isolation fixture.
-//! This does not audit the eventual joined protection circuit or electrical limits.
+//! Exact-pin audit of the partial Rev38 source, receiver, and driver fixture.
+//! This does not audit the eventual joined F2/PFC circuit or electrical limits.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
@@ -435,11 +435,72 @@ fn check_source(g: &Graph) -> Result<(), String> {
     Ok(())
 }
 
-fn check_integrated(g: &Graph, hot: &Graph, source: &Graph) -> Result<(), String> {
-    if g.parts.len() != hot.parts.len() + source.parts.len() {
-        return Err("joined source/receiver part count differs from the standalone fixtures".into());
+fn check_driver(g: &Graph) -> Result<(), String> {
+    if g.parts.len() != 17 { return Err(format!("expected 17 driver parts, found {}", g.parts.len())); }
+    for (id, part) in [
+        ("qualify", "SN74HCS21PWR"),
+        ("release", "SN74LVC1G06DBVR"),
+        ("shunt", "PMBT3904"),
+        ("base_bias", "RC2512JK-073K3L"),
+        ("base_pd", "RC0603FR-0747KL"),
+        ("ena_pu", "RC1206FR-0710KL"),
+        ("ena_pd", "RC0603FR-07100KL"),
+        ("driver", "UCC27624DDAR"),
+        ("c_driver_bulk", "GCM31CC71H475KA03L"),
+        ("gate_r", "RC1206FR-0710RL"),
+        ("stw", "STW65N65DM2AG"),
+    ] {
+        if g.parts.get(id).is_none_or(|found| found != part) {
+            return Err(format!("wrong driver part identity for {id}"));
+        }
     }
-    for (prefix, standalone) in [("receiver", hot), ("source", source)] {
+    for (net, expected) in [
+        ("hot_logic5", "qualify:14 c_qualify:1 release:5 c_release:1"),
+        ("aux_protected", "base_bias:1 ena_pu:1 driver:6 c_driver_hf:1 c_driver_bulk:1"),
+        ("pfc_pwm", "driver:2 pwm_pd:1"),
+        ("hot_run_q", "qualify:1"),
+        ("hot_session_q", "qualify:2"),
+        ("hot_permit", "qualify:4"),
+        ("hot_prep_trip_ok", "qualify:5"),
+        ("hot_receiver_abort_n", "qualify:10"),
+        ("hot_prep_abort_ok", "qualify:12"),
+        ("hot_source_stop_n", "qualify:13"),
+        ("driver_first_and", "qualify:6 qualify:9"),
+        ("driver_permission", "qualify:8 permission_pd:1 release:2"),
+        ("en_shunt_base", "release:4 shunt:1 base_bias:2 base_pd:1"),
+        ("ena_node", "shunt:3 ena_pu:2 ena_pd:1 driver:1"),
+        ("outa", "driver:7 gate_r:1"),
+        ("stw_gate", "gate_r:2 gate_pd:1 stw:1"),
+        ("outb", "driver:5"),
+        ("stw_drain", "stw:2"),
+        ("stw_source", "stw:3"),
+    ] {
+        let wanted: BTreeSet<(String, String)> = expected.split_whitespace().map(|pin| {
+            let (id, number) = pin.split_once(':').expect("static pin mapping");
+            (id.to_owned(), number.to_owned())
+        }).collect();
+        if members(g, net) != wanted { return Err(format!("wrong driver membership on {net}")); }
+    }
+    for (id, pin) in [
+        ("qualify", "7"), ("permission_pd", "2"), ("c_qualify", "2"),
+        ("release", "3"), ("c_release", "2"), ("shunt", "2"),
+        ("base_pd", "2"), ("ena_pd", "2"), ("driver", "3"),
+        ("driver", "9"), ("driver", "4"), ("driver", "8"),
+        ("pwm_pd", "2"), ("c_driver_hf", "2"),
+        ("c_driver_bulk", "2"), ("gate_pd", "2"),
+    ] {
+        if g.pins.get(&(id.into(), pin.into())).is_none_or(|net| net != "hot0") {
+            return Err(format!("driver {id}.{pin} must be HOT0"));
+        }
+    }
+    Ok(())
+}
+
+fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph) -> Result<(), String> {
+    if g.parts.len() != hot.parts.len() + source.parts.len() + driver.parts.len() {
+        return Err("joined part count differs from the standalone fixtures".into());
+    }
+    for (prefix, standalone) in [("receiver", hot), ("source", source), ("driver", driver)] {
         for (id, part) in &standalone.parts {
             if g.parts.get(&format!("{prefix}.{id}")) != Some(part) {
                 return Err(format!("joined part identity differs at {prefix}.{id}"));
@@ -457,6 +518,40 @@ fn check_integrated(g: &Graph, hot: &Graph, source: &Graph) -> Result<(), String
         let right = g.pins.get(&(right_id.into(), right_pin.into()));
         if left.is_none() || left != right {
             return Err(format!("missing source/receiver join {left_id}.{left_pin} to {right_id}.{right_pin}"));
+        }
+    }
+    for (left_id, left_pin, right_id, right_pin) in [
+        ("driver.qualify", "1", "receiver.run_memory", "5"),
+        ("driver.qualify", "2", "receiver.session_memory", "5"),
+        ("driver.qualify", "4", "receiver.iso_protocol", "13"),
+        ("driver.qualify", "5", "receiver.prep_trip_and", "8"),
+        ("driver.qualify", "10", "receiver.rx", "13"),
+        ("driver.qualify", "12", "receiver.prep_abort_memory", "6"),
+        ("driver.qualify", "13", "receiver.iso_feedback", "13"),
+        ("driver.release", "5", "receiver.rx", "28"),
+        ("driver.shunt", "2", "receiver.rx", "19"),
+    ] {
+        let left = g.pins.get(&(left_id.into(), left_pin.into()));
+        let right = g.pins.get(&(right_id.into(), right_pin.into()));
+        if left.is_none() || left != right {
+            return Err(format!("missing receiver/driver join {left_id}.{left_pin} to {right_id}.{right_pin}"));
+        }
+    }
+    // Preserve the standalone driver conductors after joining. Net names
+    // change at the module boundary, so compare the pin groups by identity.
+    let mut joined_driver_nets: BTreeMap<&str, &str> = BTreeMap::new();
+    for pins in driver.pins.values().collect::<BTreeSet<_>>() {
+        let group: Vec<_> = driver.pins.iter().filter(|(_, net)| net == &pins)
+            .map(|((id, pin), _)| (format!("driver.{id}"), pin.clone())).collect();
+        if let Some(first) = group.first().and_then(|pin| g.pins.get(pin)) {
+            if group.iter().any(|pin| g.pins.get(pin) != Some(first)) {
+                return Err(format!("joined driver net split at {pins}"));
+            }
+            if let Some(other) = joined_driver_nets.insert(first, pins) {
+                return Err(format!("joined driver nets {other} and {pins} shorted"));
+            }
+        } else {
+            return Err(format!("missing joined driver net {pins}"));
         }
     }
     for (left_id, left_pin, right_id, right_pin) in [
@@ -490,12 +585,15 @@ fn main() {
         .expect("isolation netlist parse");
     let source = graph(&fs::read_to_string("build/source.net").expect("Atopile source netlist"))
         .expect("source netlist parse");
+    let driver = graph(&fs::read_to_string("build/driver.net").expect("Atopile driver netlist"))
+        .expect("driver netlist parse");
     let integrated = graph(&fs::read_to_string("build/integrated.net").expect("Atopile joined netlist"))
         .expect("joined netlist parse");
     check(&hot).expect("isolation pin audit");
     check_source(&source).expect("source pin audit");
-    check_integrated(&integrated, &hot, &source).expect("source/receiver join audit");
-    println!("partial Rev38 joined source/receiver pin audit PASS");
+    check_driver(&driver).expect("driver pin audit");
+    check_integrated(&integrated, &hot, &source, &driver).expect("source/receiver/driver join audit");
+    println!("partial Rev38 joined source/receiver/driver pin audit PASS");
 }
 
 #[cfg(test)]
@@ -510,13 +608,81 @@ mod tests {
         graph(&fs::read_to_string("build/source.net").unwrap()).unwrap()
     }
 
+    fn driver_fixture() -> Graph {
+        graph(&fs::read_to_string("build/driver.net").unwrap()).unwrap()
+    }
+
     fn integrated_fixture() -> Graph {
         graph(&fs::read_to_string("build/integrated.net").unwrap()).unwrap()
     }
 
     #[test]
     fn compiled_source_receiver_join_passes() {
-        check_integrated(&integrated_fixture(), &fixture(), &source_fixture()).unwrap();
+        check_integrated(&integrated_fixture(), &fixture(), &source_fixture(), &driver_fixture()).unwrap();
+    }
+
+    #[test]
+    fn compiled_driver_passes() { check_driver(&driver_fixture()).unwrap(); }
+
+    #[test]
+    fn driver_enable_left_floating_fails() {
+        let mut g = driver_fixture();
+        g.pins.remove(&("shunt".into(), "3".into()));
+        assert!(check_driver(&g).is_err());
+    }
+
+    #[test]
+    fn driver_shunt_base_bias_missing_fails() {
+        let mut g = driver_fixture();
+        g.pins.remove(&("base_bias".into(), "2".into()));
+        assert!(check_driver(&g).is_err());
+    }
+
+    #[test]
+    fn driver_logic_power_backfeed_fails() {
+        let mut g = driver_fixture();
+        g.pins.insert(("release".into(), "5".into()), "aux_protected".into());
+        assert!(check_driver(&g).is_err());
+    }
+
+    #[test]
+    fn driver_abort_bypass_fails() {
+        let mut g = driver_fixture();
+        g.pins.insert(("qualify".into(), "10".into()), "hot_logic5".into());
+        assert!(check_driver(&g).is_err());
+    }
+
+    #[test]
+    fn driver_power_pad_floating_fails() {
+        let mut g = driver_fixture();
+        g.pins.remove(&("driver".into(), "9".into()));
+        assert!(check_driver(&g).is_err());
+    }
+
+    #[test]
+    fn joined_driver_run_producer_missing_fails() {
+        let mut g = integrated_fixture();
+        g.pins.insert(("driver.qualify".into(), "1".into()), "aux_protected".into());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture()).is_err());
+    }
+
+    #[test]
+    fn joined_driver_gate_short_to_aux_fails() {
+        let mut g = integrated_fixture();
+        let aux = g.pins.get(&("driver.driver".into(), "6".into())).unwrap().clone();
+        g.pins.insert(("driver.stw".into(), "1".into()), aux);
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture()).is_err());
+    }
+
+    #[test]
+    fn joined_driver_whole_enable_net_short_to_aux_fails() {
+        let mut g = integrated_fixture();
+        let aux = g.pins.get(&("driver.driver".into(), "6".into())).unwrap().clone();
+        let ena = g.pins.get(&("driver.driver".into(), "1".into())).unwrap().clone();
+        for net in g.pins.values_mut() {
+            if *net == ena { *net = aux.clone(); }
+        }
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture()).is_err());
     }
 
     #[test]
@@ -747,14 +913,14 @@ mod tests {
         let mut g = integrated_fixture();
         let other = g.pins.get(&("receiver.iso_feedback".into(), "6".into())).unwrap().clone();
         g.pins.insert(("receiver.iso_feedback".into(), "5".into()), other);
-        assert!(check_integrated(&g, &fixture(), &source_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture()).is_err());
     }
 
     #[test]
     fn joined_health_producer_missing_fails() {
         let mut g = integrated_fixture();
         g.pins.remove(&("source.health".into(), "6".into()));
-        assert!(check_integrated(&g, &fixture(), &source_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture()).is_err());
     }
 
     #[test]
@@ -762,6 +928,6 @@ mod tests {
         let mut g = integrated_fixture();
         g.pins.insert(("receiver.rx".into(), "19".into()),
                       g.pins.get(&("source.watchdog".into(), "4".into())).unwrap().clone());
-        assert!(check_integrated(&g, &fixture(), &source_fixture()).is_err());
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture()).is_err());
     }
 }

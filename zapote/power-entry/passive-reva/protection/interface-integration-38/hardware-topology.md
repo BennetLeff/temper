@@ -1,6 +1,6 @@
 # Rev38 hardware join contract
 
-Status: **pin-level design input and partial source/receiver compiled join**,
+Status: **pin-level design input and partial source/receiver/driver compiled join**,
 not a complete U4 circuit or analog approval.
 This records the joins that must replace Rev35's connectivity-only fixture.
 The existing F2 detector and power-stage values remain candidate inputs;
@@ -158,26 +158,28 @@ PC4 pin**; the physical package table is the authority for this allocation.
 
 The selected [UCC27624](https://www.ti.com/lit/ds/symlink/ucc27624.pdf)
 has **typical internal pull-ups on ENA/ENB**, so an unpowered HOT logic rail
-cannot be allowed to leave EN floating while AUX powers the driver. Use
-channel A only: pin 1 ENA from a locally pulled-low `DRIVER_ENABLE` node,
-pin 2 INA from the UCC28180 PWM, pin 7 OUTA through the gate resistor to
-STW, pin 6 VDD on AUX and pin 3 GND on HOT0. Hold unused pin 8 ENB and pin 4
-INB low locally; leave pin 5 OUTB unconnected. Check worst-case output-high
-drive against the external ENA pull-down and EN threshold, and output-low
-voltage against the internal pull-up. Confirm loaded STW gate discharge and
-controller VSENSE inhibit independently.
+cannot be allowed to leave EN floating while AUX powers the driver. The
+compiled `driver_stage.ato` candidate uses channel A only: pin 1 ENA has an
+AUX-biased PMBT3904 shunt to HOT0, released by a HOT_LOGIC5-powered open-drain
+inverter only when retained hardware permission is high. Pin 2 INA is the
+external PFC PWM port; pin 7 OUTA reaches STW through 10 Ω, pin 6 VDD is
+on `AUX_PROTECTED`, and pin 3 GND and the DDA PowerPAD are on HOT0. Pin 8 ENB
+and pin 4 INB are grounded locally; pin 5 OUTB remains unconnected. The
+external PWM producer, VSENSE inhibit, AUX source and physical load are not
+yet joined. Confirm loaded STW gate discharge and controller VSENSE inhibit
+independently.
 The old Rev35 UCC27511A IN- behavior cannot be copied as a UCC27624 EN
 guarantee.
 The [ENA corner review](gate-enable-corners.md) records why a passive
 pull-down alone has no data-sheet worst-case proof: TI specifies the
-internal EN pull-up resistance only as a typical value. A defined active
-low clamp or a source-backed input-current bound is still required.
+internal EN pull-up resistance only as a typical value. The active shunt is
+now defined by pins, but its temperature, current, partial-rail and failure
+corners are still open.
 
 ## Evidence needed to promote this to U4 PASS
 
-1. Select and compile the remaining source latches,
-   AVR64DA32, ISO7742F,
-   UCC27624, F2, watchdog, source memory, reservoir, and PFC parts in **one**
+1. Select and compile the remaining actual F2 and HOT rail/watchdog producers,
+   AUX source, reservoir, and PFC control/power parts in **one**
    Atopile 0.2.69 entry. Rev35's `clear_core_ok` includes PERMIT and cannot
    be reused as `SESSION_CLEAR_N`.
 2. Audit every producer and consumer by physical pin; mutate each critical

@@ -1,12 +1,12 @@
 # Rev38 source authority fixture
 
 `elec/src/source_authority.ato` is the SELV source-side candidate joined to
-`receiver_isolation.ato` by `power_entry_integrated_38.ato`. The joined
+`receiver_isolation.ato` and `driver_stage.ato` by `power_entry_integrated_38.ato`. The joined
 Atopile build connects five physical source/receiver paths: source PERMIT
 and health forward, STOP forward, and physical HOT PERMIT plus retained HOT
 SESSION feedback reverse. The protocol and relay-request channels remain
 assigned in the receiver fixture but have no ESP GPIO/driver producer yet.
-The source circuit is partial; this is not a U4 or protected-operation PASS.
+The source and driver circuits are partial; this is not a U4 or protected-operation PASS.
 
 `TPS3431SDRBR` is continuously enabled. Its open-drain WDO and ENOUT pins
 share a 10 kΩ SELV pull-up. `SN74LVC1G17DBVR` buffers one software-owned
@@ -45,6 +45,7 @@ every configured target in this version of Atopile:
 ```sh
 uvx --from atopile==0.2.69 ato --non-interactive build -b isolation
 uvx --from atopile==0.2.69 ato --non-interactive build -b source
+uvx --from atopile==0.2.69 ato --non-interactive build -b driver
 uvx --from atopile==0.2.69 ato --non-interactive build -b integrated
 rustc --edition=2021 --test audit.rs -o /tmp/temper-rev38-isolation-audit
 /tmp/temper-rev38-isolation-audit
@@ -52,11 +53,13 @@ rustc --edition=2021 audit.rs -o /tmp/temper-rev38-isolation-check
 /tmp/temper-rev38-isolation-check
 ```
 
-The Rust audit checks exact source and joined pin membership, MPN identity,
+The Rust audit checks exact source, driver, and joined pin membership, MPN identity,
 the WDO-to-health-to-source-clear path, physical-readback history,
 independent raw set/reset clocks, and SELV/HOT domain separation. Mutation
 tests remove WDO, HOT feedback, and readback-loss inputs, swap feedback,
-and bridge the isolation boundary. Connectivity does not establish logic
+and bridge the isolation boundary. Driver mutations remove the ENA clamp,
+base bias, receiver abort, and PowerPAD return or short the gate to AUX.
+Connectivity does not establish logic
 thresholds, capture minima, or power-stage shutdown.
 
 Manufacturer inputs: [TI TPS3431](https://www.ti.com/lit/ds/symlink/tps3431.pdf),

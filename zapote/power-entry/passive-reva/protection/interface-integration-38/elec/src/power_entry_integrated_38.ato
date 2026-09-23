@@ -4,10 +4,12 @@
 #pragma experiment("TRAITS")
 from "receiver_isolation.ato" import ReceiverIsolation38
 from "source_authority.ato" import SourceAuthority38
+from "driver_stage.ato" import DriverStage38
 
 module PowerEntryIntegrated38:
     receiver = new ReceiverIsolation38
     source = new SourceAuthority38
+    driver = new DriverStage38
 
     source.SELV3V3 ~ receiver.SELV3V3
     source.SELV_GND ~ receiver.SELV_GND
@@ -16,3 +18,12 @@ module PowerEntryIntegrated38:
     source.SOURCE_STOP_N ~ receiver.SOURCE_STOP_N
     source.SOURCE_HOT_PERMIT_FB ~ receiver.SOURCE_HOT_PERMIT_FB
     source.SOURCE_HOT_SESSION_FB ~ receiver.SOURCE_HOT_SESSION_FB
+    driver.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
+    driver.HOT0 ~ receiver.HOT0
+    driver.HOT_RUN_Q ~ receiver.HOT_RUN_Q
+    driver.HOT_SESSION_Q ~ receiver.HOT_SESSION_Q
+    driver.HOT_PERMIT ~ receiver.HOT_PERMIT
+    driver.HOT_PREP_TRIP_OK ~ receiver.HOT_PREP_TRIP_OK
+    driver.HOT_RECEIVER_ABORT_N ~ receiver.HOT_RECEIVER_ABORT_N
+    driver.HOT_PREP_ABORT_OK ~ receiver.HOT_PREP_ABORT_OK
+    driver.HOT_SOURCE_STOP_N ~ receiver.HOT_SOURCE_STOP_N
