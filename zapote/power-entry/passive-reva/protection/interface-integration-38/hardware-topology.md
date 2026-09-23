@@ -170,11 +170,12 @@ cannot be allowed to leave EN floating while AUX powers the driver. The
 compiled `driver_stage.ato` candidate uses channel A only: pin 1 ENA has an
 AUX-biased PMBT3904 shunt to HOT0, released by a HOT_LOGIC5-powered open-drain
 inverter only when retained hardware permission is high. Pin 2 INA is the
-external PFC PWM port; pin 7 OUTA reaches STW through 10 Ω, pin 6 VDD is
+UCC28180 PWM port; pin 7 OUTA reaches STW through 10 Ω, pin 6 VDD is
 on `AUX_PROTECTED`, and pin 3 GND and the DDA PowerPAD are on HOT0. Pin 8 ENB
 and pin 4 INB are grounded locally; pin 5 OUTB remains unconnected. The
-external PWM producer, VSENSE inhibit, AUX source and physical load are not
-yet joined. Confirm loaded STW gate discharge and controller VSENSE inhibit
+controller PWM producer and a separate retained-permission VSENSE inhibit
+are joined; the AUX source and physical load remain external. Confirm loaded
+STW gate discharge and controller VSENSE inhibit
 independently.
 The old Rev35 UCC27511A IN- behavior cannot be copied as a UCC27624 EN
 guarantee.
@@ -187,7 +188,7 @@ corners are still open.
 ## Evidence needed to promote this to U4 PASS
 
 1. Select and compile the remaining actual F2 fuse/VD/VB power path, AUX
-   source, reservoir, and PFC control/power parts in **one**
+   source, reservoir, and PFC power parts in **one**
    Atopile 0.2.69 entry. Rev35's `clear_core_ok` includes PERMIT and cannot
    be reused as `SESSION_CLEAR_N`.
 2. Audit every producer and consumer by physical pin; mutate each critical

@@ -128,13 +128,17 @@ are completed.
 `F2-DETECTOR.md` records the four-channel VD/VB topology and its open
 threshold, pulse and power-state analysis. The VD/VB external ports still
 lack the physical F2/reservoir/PFC producers in this compiled join.
+`PFC-CONTROL.md` records the newly joined UCC28180 PWM and VSENSE inhibit
+topology. Its clamp resistance, controller open-loop-protection delay,
+cycle-by-cycle current-limit behavior and physical commutation are not a
+retained overcurrent trip or an accepted response bound.
 `AUX-WINDOW.md` records the separately joined fast-dip and OV candidate,
 whose 13.25 V and 16.5 V nominal crossings and part delays do not establish
 an allowable AUX range or qualified fault response.
 `HOT-RAILS.md` records the selected HOT undervoltage producer topology and
 an illustrative static threshold screen. Its 100 pF CT values and nominal
 trip points do not establish rail-failure detection or capture time. The
-The protected AUX source remains a separate missing producer.
+protected AUX source remains a separate missing producer.
 
 ## Existing conditional F2 screen — not an accepted limit
 

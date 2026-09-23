@@ -1,0 +1,203 @@
+# Rev38 UCC28180 PWM producer and default-inhibited VSENSE candidate.
+# The bridge/boost/fuse/VD reservoir remain external to this module.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component PfcController38:
+    mpn = "UCC28180D"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/ucc28180.pdf"
+    # Atopile 0.2.69 otherwise coalesces its MPN with the same-package
+    # TLV3202. Bind this key to the reviewed TI D package before native use.
+    footprint = "TBD_REVIEW_ONLY:PFC_UCC28180D_SOIC8"
+    signal GND ~ pin 1
+    signal ICOMP ~ pin 2
+    signal ISENSE ~ pin 3
+    signal FREQ ~ pin 4
+    signal VCOMP ~ pin 5
+    signal VSENSE ~ pin 6
+    signal VCC ~ pin 7
+    signal GATE ~ pin 8
+
+component PfcR38:
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcC38:
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcInhibitFet38:
+    mpn = "AO3400A"
+    manufacturer = "Alpha & Omega Semiconductor"
+    footprint = "TBD_REVIEW_ONLY:PFC_AO3400A_SOT23"
+    signal G ~ pin 1
+    signal S ~ pin 2
+    signal D ~ pin 3
+
+component PfcSenseClamp38:
+    mpn = "BAV23C-E3-08"
+    manufacturer = "Vishay"
+    datasheet = "https://www.vishay.com/docs/86374/bav23c.pdf"
+    footprint = "TBD_REVIEW_ONLY:PFC_BAV23C_SOT23"
+    signal A ~ pin 1
+    signal A_unused ~ pin 2
+    signal K ~ pin 3
+
+component PfcShunt38:
+    mpn = "HCSM2818FT10L0"
+    manufacturer = "Stackpole"
+    footprint = "TBD_REVIEW_ONLY:PFC_HCSM2818_10M"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module PfcControl38:
+    signal HOT0
+    signal AUX_PROTECTED
+    signal VD_LOCAL
+    signal RECT_MINUS
+    signal DRIVER_PERMISSION
+    signal PFC_PWM
+    signal VSENSE_NODE
+    signal INHIBIT_GATE
+    signal PERMIT_GATE
+
+    pfc = new PfcController38
+    pfc.GND ~ HOT0
+    pfc.VCC ~ AUX_PROTECTED
+    pfc.GATE ~ PFC_PWM
+    shunt = new PfcShunt38
+    shunt.p1 ~ HOT0
+    shunt.p2 ~ RECT_MINUS
+
+    r_isense = new PfcR38
+    r_isense.mpn = "RC1206FR-07220RL"
+    r_isense.footprint = "TBD_REVIEW_ONLY:PFC_ISENSE_R220_1206"
+    r_isense.value = 220ohm
+    r_isense.p1 ~ RECT_MINUS
+    r_isense.p2 ~ pfc.ISENSE
+    c_isense = new PfcC38
+    c_isense.mpn = "C0805C102J5GACTU"
+    c_isense.footprint = "TBD_REVIEW_ONLY:PFC_ISENSE_C1N_0805"
+    c_isense.value = 1nF
+    c_isense.p1 ~ pfc.ISENSE
+    c_isense.p2 ~ HOT0
+    isense_clamp = new PfcSenseClamp38
+    isense_clamp.A ~ HOT0
+    isense_clamp.K ~ pfc.ISENSE
+    # A_unused is intentionally unconnected; validate the selected package.
+
+    r_freq = new PfcR38
+    r_freq.mpn = "RC1206FR-0716K2L"
+    r_freq.footprint = "TBD_REVIEW_ONLY:PFC_FREQ_R16K2_1206"
+    r_freq.value = 16.2kohm
+    r_freq.p1 ~ pfc.FREQ
+    r_freq.p2 ~ HOT0
+    c_icomp = new PfcC38
+    c_icomp.mpn = "C0805C272J5GACTU"
+    c_icomp.footprint = "TBD_REVIEW_ONLY:PFC_ICOMP_C2N7_0805"
+    c_icomp.value = 2.7nF
+    c_icomp.p1 ~ pfc.ICOMP
+    c_icomp.p2 ~ HOT0
+    r_vcomp = new PfcR38
+    r_vcomp.mpn = "RC1206FR-0740K2L"
+    r_vcomp.footprint = "TBD_REVIEW_ONLY:PFC_VCOMP_R40K2_1206"
+    r_vcomp.value = 40.2kohm
+    r_vcomp.p1 ~ pfc.VCOMP
+    c_vcomp = new PfcC38
+    c_vcomp.mpn = "GRM32ER71H475KA88L"
+    c_vcomp.footprint = "TBD_REVIEW_ONLY:PFC_VCOMP_C4U7_1210"
+    c_vcomp.value = 4.7uF
+    r_vcomp.p2 ~ c_vcomp.p1
+    c_vcomp.p2 ~ HOT0
+    c_vcomp_p = new PfcC38
+    c_vcomp_p.mpn = "C0805C224K5RACTU"
+    c_vcomp_p.footprint = "TBD_REVIEW_ONLY:PFC_VCOMP_C220N_0805"
+    c_vcomp_p.value = 220nF
+    c_vcomp_p.p1 ~ pfc.VCOMP
+    c_vcomp_p.p2 ~ HOT0
+    c_vcc = new PfcC38
+    c_vcc.mpn = "C0805C105K5RACTU"
+    c_vcc.footprint = "TBD_REVIEW_ONLY:PFC_VCC_C1U_0805"
+    c_vcc.value = 1uF
+    c_vcc.p1 ~ AUX_PROTECTED
+    c_vcc.p2 ~ HOT0
+
+    # Five 200k series elements take VD to VSENSE. Both local rail and
+    # controller input corners require an independent electrical review.
+    r_vtop1 = new PfcR38
+    r_vtop2 = new PfcR38
+    r_vtop3 = new PfcR38
+    r_vtop4 = new PfcR38
+    r_vtop5 = new PfcR38
+    r_vtop1.mpn = "CRCW2512200KFKEG"
+    r_vtop2.mpn = "CRCW2512200KFKEG"
+    r_vtop3.mpn = "CRCW2512200KFKEG"
+    r_vtop4.mpn = "CRCW2512200KFKEG"
+    r_vtop5.mpn = "CRCW2512200KFKEG"
+    r_vtop1.footprint = "TBD_REVIEW_ONLY:PFC_VSENSE_R200K_2512"
+    r_vtop2.footprint = "TBD_REVIEW_ONLY:PFC_VSENSE_R200K_2512"
+    r_vtop3.footprint = "TBD_REVIEW_ONLY:PFC_VSENSE_R200K_2512"
+    r_vtop4.footprint = "TBD_REVIEW_ONLY:PFC_VSENSE_R200K_2512"
+    r_vtop5.footprint = "TBD_REVIEW_ONLY:PFC_VSENSE_R200K_2512"
+    r_vtop1.value = 200kohm
+    r_vtop2.value = 200kohm
+    r_vtop3.value = 200kohm
+    r_vtop4.value = 200kohm
+    r_vtop5.value = 200kohm
+    VD_LOCAL ~ r_vtop1.p1
+    r_vtop1.p2 ~ r_vtop2.p1
+    r_vtop2.p2 ~ r_vtop3.p1
+    r_vtop3.p2 ~ r_vtop4.p1
+    r_vtop4.p2 ~ r_vtop5.p1
+    r_vtop5.p2 ~ VSENSE_NODE
+    pfc.VSENSE ~ VSENSE_NODE
+    r_vbottom = new PfcR38
+    r_vbottom.mpn = "RC1206FR-0713KL"
+    r_vbottom.footprint = "TBD_REVIEW_ONLY:PFC_VSENSE_R13K_1206"
+    r_vbottom.value = 13kohm
+    r_vbottom.p1 ~ VSENSE_NODE
+    r_vbottom.p2 ~ HOT0
+    c_vfeed = new PfcC38
+    c_vfeed.mpn = "C0805C681J5GACTU"
+    c_vfeed.footprint = "TBD_REVIEW_ONLY:PFC_VSENSE_C680P_0805"
+    c_vfeed.value = 680pF
+    c_vfeed.p1 ~ VSENSE_NODE
+    c_vfeed.p2 ~ HOT0
+
+    # AUX biases q_inhibit ON when permission is absent; q_permit can only
+    # release the VSENSE clamp while retained local DRIVER_PERMISSION is high.
+    q_inhibit = new PfcInhibitFet38
+    q_inhibit.S ~ HOT0
+    q_inhibit.D ~ VSENSE_NODE
+    q_inhibit.G ~ INHIBIT_GATE
+    inhibit_pu = new PfcR38
+    inhibit_pu.mpn = "RC1206FR-07100KL"
+    inhibit_pu.footprint = "TBD_REVIEW_ONLY:PFC_INHIBIT_R100K_1206"
+    inhibit_pu.value = 100kohm
+    inhibit_pu.p1 ~ AUX_PROTECTED
+    inhibit_pu.p2 ~ INHIBIT_GATE
+    inhibit_pd = new PfcR38
+    inhibit_pd.mpn = "RC1206FR-07100KL"
+    inhibit_pd.footprint = "TBD_REVIEW_ONLY:PFC_INHIBIT_R100K_1206"
+    inhibit_pd.value = 100kohm
+    inhibit_pd.p1 ~ INHIBIT_GATE
+    inhibit_pd.p2 ~ HOT0
+    q_permit = new PfcInhibitFet38
+    q_permit.S ~ HOT0
+    q_permit.D ~ INHIBIT_GATE
+    q_permit.G ~ PERMIT_GATE
+    permit_r = new PfcR38
+    permit_r.mpn = "RC1206FR-071KL"
+    permit_r.footprint = "TBD_REVIEW_ONLY:PFC_PERMIT_R1K_1206"
+    permit_r.value = 1kohm
+    permit_r.p1 ~ DRIVER_PERMISSION
+    permit_r.p2 ~ PERMIT_GATE
+    permit_pd = new PfcR38
+    permit_pd.mpn = "RC1206FR-07100KL"
+    permit_pd.footprint = "TBD_REVIEW_ONLY:PFC_INHIBIT_R100K_1206"
+    permit_pd.value = 100kohm
+    permit_pd.p1 ~ PERMIT_GATE
+    permit_pd.p2 ~ HOT0

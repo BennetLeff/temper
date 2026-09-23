@@ -210,3 +210,4 @@ module DriverStage38:
     stw.G ~ STW_GATE
     stw.D ~ STW_DRAIN
     stw.S ~ STW_SOURCE
+    STW_SOURCE ~ HOT0
