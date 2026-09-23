@@ -89,6 +89,38 @@ component Iso7742F:
     signal GND2B ~ pin 15
     signal VCC2 ~ pin 16
 
+component HotResetOneShot:
+    # Non-retriggerable dual monostable; inverted outputs are finite low
+    # pulses. The two channels are deliberately independent.
+    mpn = "SN74LV221AQPWRQ1"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lv221a-q1.pdf"
+    footprint = "Package_SO:TSSOP-16_4.4x5mm_P0.65mm"
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal CLR1_N ~ pin 3
+    signal Q1_N ~ pin 4
+    signal Q2 ~ pin 5
+    signal CEXT2 ~ pin 6
+    signal REXT_CEXT2 ~ pin 7
+    signal GND ~ pin 8
+    signal A2 ~ pin 9
+    signal B2 ~ pin 10
+    signal CLR2_N ~ pin 11
+    signal Q2_N ~ pin 12
+    signal Q1 ~ pin 13
+    signal CEXT1 ~ pin 14
+    signal REXT_CEXT1 ~ pin 15
+    signal VCC ~ pin 16
+
+component TimingC10n:
+    mpn = "GRM188R71H103KA01D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component R:
     mpn = "RC0603FR-0710KL"
     manufacturer = "Yageo"
@@ -134,6 +166,8 @@ module ReceiverIsolation38:
     signal HOT_SESSION_CLEAR_N
     signal HOT_PREP_RESET_REQUEST
     signal HOT_HISTORY_RESET_REQUEST
+    signal HOT_PREP_RESET_RAW_N
+    signal HOT_HISTORY_RESET_RAW_N
     signal HOT_REVALIDATE_REQUEST
     signal HOT_RUN_SET_REQUEST
     signal HOT_WDI
@@ -167,6 +201,48 @@ module ReceiverIsolation38:
     rx.PD6 ~ HOT_WDI
     rx.PD7 ~ HOT_RAILS_OK
     rx.PF0 ~ HOT_SESSION_CLEAR_N
+
+    # Raw finite reset pulses. The joined circuit must qualify them against
+    # live fault and disarm inputs before either reaches a retained clear.
+    reset_pulses = new HotResetOneShot
+    reset_pulses.VCC ~ HOT_LOGIC5
+    reset_pulses.GND ~ HOT0
+    reset_pulses.CLR1_N ~ HOT_LOGIC5
+    reset_pulses.CLR2_N ~ HOT_LOGIC5
+    reset_pulses.A1 ~ HOT0
+    reset_pulses.A2 ~ HOT0
+    reset_pulses.B1 ~ HOT_PREP_RESET_REQUEST
+    reset_pulses.B2 ~ HOT_HISTORY_RESET_REQUEST
+    reset_pulses.Q1_N ~ HOT_PREP_RESET_RAW_N
+    reset_pulses.Q2_N ~ HOT_HISTORY_RESET_RAW_N
+    r_prep_timing = new R
+    r_prep_timing.value = 10kohm
+    r_prep_timing.p1 ~ HOT_LOGIC5
+    r_prep_timing.p2 ~ reset_pulses.REXT_CEXT1
+    c_prep_timing = new TimingC10n
+    c_prep_timing.value = 10nF
+    c_prep_timing.p1 ~ reset_pulses.REXT_CEXT1
+    c_prep_timing.p2 ~ reset_pulses.CEXT1
+    r_history_timing = new R
+    r_history_timing.value = 10kohm
+    r_history_timing.p1 ~ HOT_LOGIC5
+    r_history_timing.p2 ~ reset_pulses.REXT_CEXT2
+    c_history_timing = new TimingC10n
+    c_history_timing.value = 10nF
+    c_history_timing.p1 ~ reset_pulses.REXT_CEXT2
+    c_history_timing.p2 ~ reset_pulses.CEXT2
+    c_reset_pulses = new C
+    c_reset_pulses.value = 100nF
+    c_reset_pulses.p1 ~ HOT_LOGIC5
+    c_reset_pulses.p2 ~ HOT0
+    prep_reset_raw_pd = new R
+    prep_reset_raw_pd.value = 10kohm
+    prep_reset_raw_pd.p1 ~ HOT_PREP_RESET_RAW_N
+    prep_reset_raw_pd.p2 ~ HOT0
+    history_reset_raw_pd = new R
+    history_reset_raw_pd.value = 10kohm
+    history_reset_raw_pd.p1 ~ HOT_HISTORY_RESET_RAW_N
+    history_reset_raw_pd.p2 ~ HOT0
 
     iso_protocol.VCC1 ~ SELV3V3
     iso_protocol.GND1 ~ SELV_GND

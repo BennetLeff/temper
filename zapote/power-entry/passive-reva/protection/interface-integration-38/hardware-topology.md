@@ -99,9 +99,13 @@ DISARM_ACK would erase evidence of a trip during preparation.
 
 Held PA4 or PC3 levels must not keep either memory reset. In particular,
 the PC3 pulse must have **no path** to preparation-abort clear. The one-shot
-parts, timing components, set/reset dominance during coincident trips, and
-target-adapter sequence still need selection and test; this is a U4/U5
-completion condition. The 32-pin AVR package has PA3/1 and PA4/2, but **no
+fixture selects two channels of [SN74LV221A-Q1](https://www.ti.com/lit/ds/symlink/sn74lv221a-q1.pdf)
+with separate RC networks and raw active-low outputs. The part is
+non-retriggerable and rated to 125 °C; this meets the held-request
+requirement at the pulse generator. The raw outputs are not yet connected
+to the retained memories. Their installed width, set/reset dominance during
+coincident trips, and target-adapter sequence still need selection and test;
+this is a U4/U5 completion condition. The 32-pin AVR package has PA3/1 and PA4/2, but **no
 PC4 pin**; the physical package table is the authority for this allocation.
 
 ## Gate-driver boundary

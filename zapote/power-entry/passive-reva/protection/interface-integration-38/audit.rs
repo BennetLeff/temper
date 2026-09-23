@@ -147,11 +147,16 @@ fn domain(id: &str, pin: &str) -> &'static str {
 }
 
 fn check(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 30 { return Err(format!("expected 30 parts, found {}", g.parts.len())); }
+    if g.parts.len() != 38 { return Err(format!("expected 38 parts, found {}", g.parts.len())); }
     for (id, part) in [
         ("rx", "AVR64DA32-E/PT"),
         ("iso_protocol", "ISO7741FDWR"),
         ("iso_feedback", "ISO7742FDWR"),
+        ("reset_pulses", "SN74LV221AQPWRQ1"),
+        ("c_prep_timing", "GRM188R71H103KA01D"),
+        ("c_history_timing", "GRM188R71H103KA01D"),
+        ("r_prep_timing", "RC0603FR-0710KL"),
+        ("r_history_timing", "RC0603FR-0710KL"),
     ] {
         if g.parts.get(id).is_none_or(|found| found != part) {
             return Err(format!("wrong part identity for {id}"));
@@ -162,7 +167,7 @@ fn check(g: &Graph) -> Result<(), String> {
     for (net, expected) in [
         ("selv3v3", "iso_protocol:1 iso_protocol:7 iso_feedback:1 iso_feedback:7 c_iso1_selv:1 c_iso2_selv:1"),
         ("selv_gnd", "iso_protocol:2 iso_protocol:8 iso_feedback:2 iso_feedback:8 c_iso1_selv:2 c_iso2_selv:2 source_permit_fb_pd:2 source_session_fb_pd:2"),
-        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
+        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
         ("source_command_tx", "iso_protocol:3"),
         ("source_permit_q", "iso_protocol:4"),
         ("source_relay_request", "iso_protocol:5"),
@@ -178,6 +183,14 @@ fn check(g: &Graph) -> Result<(), String> {
         ("hot_source_stop_n", "iso_feedback:13 source_stop_pd:1"),
         ("hot_session_q", "rx:11 iso_feedback:11 session_pd:1"),
         ("hot_session_clear_n", "rx:20 session_clear_pd:1"),
+        ("hot_prep_reset_request", "rx:2 reset_pulses:2 prep_reset_pd:1"),
+        ("hot_history_reset_request", "rx:9 reset_pulses:10 history_reset_pd:1"),
+        ("hot_prep_reset_raw_n", "reset_pulses:4 prep_reset_raw_pd:1"),
+        ("hot_history_reset_raw_n", "reset_pulses:12 history_reset_raw_pd:1"),
+        ("cext1", "reset_pulses:14 c_prep_timing:2"),
+        ("rext_cext1", "reset_pulses:15 r_prep_timing:2 c_prep_timing:1"),
+        ("cext2", "reset_pulses:6 c_history_timing:2"),
+        ("rext_cext2", "reset_pulses:7 r_history_timing:2 c_history_timing:1"),
         ("ind", "rx:30 iso_protocol:11"),
         ("outa", "rx:31 iso_protocol:14"),
     ] {
@@ -195,6 +208,8 @@ fn check(g: &Graph) -> Result<(), String> {
         ("rx", "14", "hot_revalidate_request"), ("rx", "15", "hot_run_set_request"),
         ("rx", "16", "hot_wdi"), ("rx", "17", "hot_rails_ok"),
         ("rx", "19", "hot0"), ("rx", "29", "hot0"),
+        ("reset_pulses", "1", "hot0"), ("reset_pulses", "9", "hot0"),
+        ("reset_pulses", "8", "hot0"),
         ("rx", "26", "hot_reset_n"), ("rx", "27", "hot_updi"),
     ] {
         if g.pins.get(&(id.into(), pin.into())).is_none_or(|found| found != net) {
@@ -203,12 +218,15 @@ fn check(g: &Graph) -> Result<(), String> {
     }
     for net in ["hot_permit", "hot_relay_request", "hot_relay_driver", "hot_source_health",
                 "hot_source_stop_n", "hot_session_q", "hot_receiver_abort_n",
-                "hot_session_clear_n"] {
+                "hot_session_clear_n", "hot_prep_reset_raw_n",
+                "hot_history_reset_raw_n"] {
         let id = match net {
             "hot_permit" => "permit_pd", "hot_relay_request" => "relay_request_pd",
             "hot_relay_driver" => "relay_driver_pd", "hot_source_health" => "source_health_pd",
             "hot_source_stop_n" => "source_stop_pd", "hot_session_q" => "session_pd",
             "hot_session_clear_n" => "session_clear_pd",
+            "hot_prep_reset_raw_n" => "prep_reset_raw_pd",
+            "hot_history_reset_raw_n" => "history_reset_raw_pd",
             _ => "abort_pd",
         };
         if g.pins.get(&(id.into(), "1".into())).is_none_or(|found| found != net)
@@ -283,6 +301,20 @@ mod tests {
     fn new_copper_bypass_fails() {
         let mut g = fixture();
         g.pins.insert(("source_permit_fb_pd".into(), "2".into()), "hot0".into());
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn reset_channels_swapped_fail() {
+        let mut g = fixture();
+        g.pins.insert(("reset_pulses".into(), "12".into()), "hot_prep_reset_raw_n".into());
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn missing_timing_cap_fails() {
+        let mut g = fixture();
+        g.pins.remove(&("c_history_timing".into(), "1".into()));
         assert!(check(&g).is_err());
     }
 }
