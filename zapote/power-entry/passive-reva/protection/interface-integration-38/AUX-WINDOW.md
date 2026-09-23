@@ -34,3 +34,35 @@ dividers, comparator polarity, reference join, AUX supply join, separate
 push-pull outputs and the HCS21 fan-in; deliberate opens and swaps fail.
 The AUX source itself is still an external port, and no native footprint or
 powered result is approved.
+
+## Load budget required before selecting the AUX producer
+
+The historical `IRM-10-24 → TPS7A4701 → TPS54202` supply budget allowed
+75 mA of direct 15 V load and 75 mA of logic5 load. Those were design
+allowances for an earlier circuit, not measured Rev38 consumption. The
+joined [`RT33K012` relay](https://www.te.com/en/product-2-1393240-3.html)
+alone has 360 Ω **nominal** coil resistance and a 91 Ω series resistor.
+Ignoring switch drop and resistance tolerance, its steady current is
+`14.25/(360+91) = 31.60 mA` to `15.75/(360+91) = 34.92 mA` across the
+Rev38 normal AUX window. At the same ideal endpoints its coil sees
+11.37–12.57 V and the resistor dissipates 0.091–0.111 W. These are
+nominal-resistance screens, not pickup or hot-coil guarantees.
+
+If the old 75 mA direct-load allowance did not include this new relay,
+only 40.08–43.40 mA remains for *all* other direct AUX loads before that
+allowance is exceeded. [UCC28180](https://www.ti.com/lit/ds/symlink/ucc28180.pdf)
+alone has a published 8 mA maximum operating current at its stated 15 V,
+4.7 nF gate-load test condition. The UCC27624 gate driver, switching gate
+charge at the selected frequency, bias/shunt resistors, and other direct
+loads must be added under their actual conditions. LOGIC5 still needs a
+separate worst-case tally including AVR64DA32, isolation, comparators,
+latches and bleeds, followed by buck efficiency and startup-capacitor
+current. No 75 mA number is carried forward as a Rev38 limit by default.
+
+The historical LDO's 2.417 W dissipation screen at its assumed 35 V raw
+input already required a conditional 35.2 °C/W board-level thermal path at
+40 °C local ambient. Extra load raises that dissipation. The IRM raw-source
+35 V maximum was itself an assumption, not a measured transient bound.
+Select the AUX producer and protection only after the joined steady-state,
+startup and fault-current tally and a real local-ambient/thermal design are
+available; the 40 °C inlet requirement does not imply a 40 °C device ambient.
