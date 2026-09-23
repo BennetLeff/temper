@@ -16,6 +16,7 @@ typedef enum {
     PE_SOURCE_PERMIT_PENDING,
     PE_SOURCE_WAIT_ACK,
     PE_SOURCE_START_SENT,
+    PE_SOURCE_RESTART_DISARM,
 } pe_source_state_t;
 
 typedef struct {
@@ -65,6 +66,8 @@ typedef struct {
     bool local_permit_seen;
     bool hot_permit_seen;
     bool clock_fault;
+    bool restart_requested;
+    bool restart_disarm_confirmed;
 } pe_source_t;
 
 /* Boot must configure external pins to their safe levels before this core
@@ -93,8 +96,10 @@ void pe_source_local_progress(pe_source_t *source, uint32_t epoch);
 bool pe_source_ping(pe_source_t *source, uint64_t now_ms,
                     pe_source_inputs_t inputs, pe_source_actions_t *actions);
 void pe_source_stop(pe_source_t *source, pe_source_actions_t *actions);
-/* Used before a deliberate restart; call only after applying STOP and taking
- * a fresh physical readback sample. */
+/* Begin deliberate restart: keep STOP asserted, then take a later physical
+ * sample before asking ESP-IDF to restart. This state never requests WDI. */
+void pe_source_begin_deliberate_restart(pe_source_t *source,
+                                        pe_source_actions_t *actions);
 bool pe_source_disarmed_for_restart(const pe_source_t *source,
                                     pe_source_inputs_t inputs);
 

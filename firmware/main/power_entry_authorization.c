@@ -5,7 +5,8 @@
 
 static void reset_actions(const pe_source_t *source, pe_source_actions_t *actions) {
     memset(actions, 0, sizeof(*actions));
-    actions->stop_n = source->state != PE_SOURCE_LOCKOUT;
+    actions->stop_n = source->state != PE_SOURCE_LOCKOUT &&
+                      source->state != PE_SOURCE_RESTART_DISARM;
     actions->challenge_active = source->state == PE_SOURCE_SEEN_ARMED ||
                                 source->state == PE_SOURCE_CLEAR_SEEN;
 }
@@ -18,6 +19,7 @@ static void abort_source(pe_source_t *source, pe_source_actions_t *actions) {
     source->button_released = false;
     source->local_permit_seen = false;
     source->hot_permit_seen = false;
+    source->restart_disarm_confirmed = false;
     source->local_fed = source->local_epoch;
     source->link_fed = source->link_epoch;
     reset_actions(source, actions);
@@ -69,6 +71,13 @@ void pe_source_sample(pe_source_t *source, uint64_t now_ms,
         return;
     }
     source->now_ms = now_ms;
+    if (source->restart_requested) {
+        source->state = PE_SOURCE_RESTART_DISARM;
+        source->restart_disarm_confirmed =
+            !source->clock_fault && physical_disarmed(inputs);
+        reset_actions(source, actions);
+        return;
+    }
     if (source->clock_fault || !inputs.rail_good || !inputs.safety_ok ||
         source->config.prepare_window_ms == 0 ||
         source->config.start_window_ms == 0 ||
@@ -180,6 +189,7 @@ bool pe_source_confirm_seen_reset(pe_source_t *source, uint64_t now_ms,
 void pe_source_frame(pe_source_t *source, pe_frame_t frame, uint64_t now_ms,
                      pe_source_inputs_t inputs, pe_source_actions_t *actions) {
     pe_source_sample(source, now_ms, inputs, actions);
+    if (source->restart_requested) return;
     if (frame.type == PE_STOP || frame.type == PE_ABORT) {
         abort_source(source, actions);
         return;
@@ -272,7 +282,8 @@ void pe_source_stream_idle(pe_source_t *source, pe_stream_t *stream,
 }
 
 void pe_source_local_progress(pe_source_t *source, uint32_t epoch) {
-    if (source->state != PE_SOURCE_LOCKOUT && epoch > source->local_epoch) {
+    if (source->state != PE_SOURCE_LOCKOUT && !source->restart_requested &&
+        epoch > source->local_epoch) {
         source->local_epoch = epoch;
     }
 }
@@ -280,7 +291,8 @@ void pe_source_local_progress(pe_source_t *source, uint32_t epoch) {
 bool pe_source_ping(pe_source_t *source, uint64_t now_ms,
                     pe_source_inputs_t inputs, pe_source_actions_t *actions) {
     pe_source_sample(source, now_ms, inputs, actions);
-    if (source->state < PE_SOURCE_READY || source->awaiting_pong != 0 ||
+    if (source->state < PE_SOURCE_READY || source->restart_requested ||
+        source->awaiting_pong != 0 ||
         source->next_ping == UINT32_MAX) return false;
     source->awaiting_pong = ++source->next_ping;
     send(actions, PE_PING, source->session, source->awaiting_pong);
@@ -293,7 +305,20 @@ void pe_source_stop(pe_source_t *source, pe_source_actions_t *actions) {
     if (old_session != 0) send(actions, PE_STOP, old_session, 0);
 }
 
+void pe_source_begin_deliberate_restart(pe_source_t *source,
+                                        pe_source_actions_t *actions) {
+    uint64_t old_session = source->session;
+    abort_source(source, actions);
+    source->restart_requested = true;
+    source->state = PE_SOURCE_RESTART_DISARM;
+    source->restart_disarm_confirmed = false;
+    reset_actions(source, actions);
+    if (old_session != 0) send(actions, PE_STOP, old_session, 0);
+}
+
 bool pe_source_disarmed_for_restart(const pe_source_t *source,
                                     pe_source_inputs_t inputs) {
-    return source->state == PE_SOURCE_LOCKOUT && physical_disarmed(inputs);
+    return source->restart_requested &&
+           source->state == PE_SOURCE_RESTART_DISARM &&
+           source->restart_disarm_confirmed && physical_disarmed(inputs);
 }

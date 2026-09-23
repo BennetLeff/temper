@@ -203,6 +203,34 @@ static void first_wdi_waits_for_physical_disarm(void) {
     assert(actions.wdi_falling_pulse);
 }
 
+static void deliberate_restart_waits_for_later_disarm_sample(void) {
+    pe_source_t src = source();
+    pe_source_inputs_t inputs = safe_disarm();
+    pe_source_actions_t actions;
+    ready(&src, &inputs);
+    pe_source_begin_deliberate_restart(&src, &actions);
+    assert(src.state == PE_SOURCE_RESTART_DISARM && !actions.stop_n);
+    assert(actions.transmit && actions.frame.type == PE_STOP);
+    assert(!pe_source_disarmed_for_restart(&src, inputs));
+    pe_source_sample(&src, 6, inputs, &actions);
+    assert(!actions.stop_n && !actions.wdi_falling_pulse);
+    assert(!pe_source_disarmed_for_restart(&src, inputs));
+    inputs.hot_session_q = false; /* read after retained clear */
+    pe_source_sample(&src, 7, inputs, &actions);
+    assert(!actions.stop_n && !actions.wdi_falling_pulse);
+    assert(pe_source_disarmed_for_restart(&src, inputs));
+    pe_source_frame(&src, (pe_frame_t){PE_READY, 71, 0}, 8,
+                    inputs, &actions);
+    assert(src.state == PE_SOURCE_RESTART_DISARM && !actions.transmit);
+    pe_stream_t stream;
+    pe_stream_init(&stream, 2);
+    pe_source_byte(&src, &stream, PE_FRAME_MAGIC, 9, inputs, &actions);
+    pe_source_stream_idle(&src, &stream, 12, inputs, &actions);
+    pe_source_sample(&src, 13, inputs, &actions);
+    assert(src.state == PE_SOURCE_RESTART_DISARM && !actions.stop_n);
+    assert(!actions.wdi_falling_pulse && !actions.transmit);
+}
+
 int main(void) {
     held_button_and_reset_cannot_replay_start();
     fixed_start_deadline_and_duplicate_ack_abort();
@@ -211,5 +239,6 @@ int main(void) {
     brief_local_permit_loss_aborts_before_request();
     malformed_response_aborts_authorization();
     first_wdi_waits_for_physical_disarm();
+    deliberate_restart_waits_for_later_disarm_sample();
     return 0;
 }

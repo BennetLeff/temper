@@ -21,6 +21,9 @@ READY requires retained HOT session readback. A button held before READY
 cannot start; a release and later press requests one PERMIT-set edge, and
 local plus HOT PERMIT readbacks precede REQUEST. Matching ACK before the
 fixed deadline emits one START. Reinitialization never retransmits it.
+Deliberate restart enters a separate stopped state: STOP remains requested,
+no WDI edge is emitted, and a later physical low-PERMIT/HOT-session readback
+must be sampled before `pe_source_disarmed_for_restart` can succeed.
 The core's WDI action requires local and fresh link progress after
 preparation. Its byte/idle entry points abort on invalidating decoder
 errors. These are logical host results: no ESP GPIO assignment, UART driver,
