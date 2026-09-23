@@ -24,8 +24,9 @@ disable condition; the actual Q1/Q2 resistance, AUX corners, VD divider
 current, input leakage and controller delay must establish a guaranteed
 below-threshold value and response. A netlist alone does not prove it.
 
-`RECT_MINUS` is still an external port; the bridge and inductor/switch/diode
-network have not been joined. The UCC's internal peak-current limit is
+`RECT_MINUS` now joins bridge minus across the shunt, while VSENSE joins the
+diode-side VD node and GATE drives the UCC27624 input. The AC input and
+protected AUX source remain external. The UCC's internal peak-current limit is
 cycle-by-cycle and is not treated as retained session-invalidating shutdown.
 An independent overcurrent detection and trip path, or a supported argument
 that no separate one is required for the accepted operating envelope, is

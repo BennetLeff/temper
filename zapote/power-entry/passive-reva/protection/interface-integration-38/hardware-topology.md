@@ -132,14 +132,15 @@ The HCS21's output and every unproduced safety input have local low
 defaults. The partial fixture now has a HOT TPS3431 WDO producer and two
 TPS3890 undervoltage supervisors with open-drain RESET outputs wire-ANDed
 on `HOT_RAILS_OK`. Four VD/VB TLV3202 channels and two AUX window channels
-now feed `HOT_FAULT_N` through HCS21 fan-in. It still lacks the VD/VB
-physical power path, the AUX source, and source-side health/STOP GPIO logic,
-so its compiled
-fan-in does not prove fault capture. The provisional logic5 and AUX falling
+now feed `HOT_FAULT_N` through HCS21 fan-in. VD and VB now join the candidate
+boost/F2/reservoir/bank path, but the AC input, AUX source, and source-side
+health/STOP GPIO logic remain external. The compiled fan-in does not prove
+fault capture. The provisional logic5 and AUX falling
 thresholds are 4.531 V and 12.88 V nominal; see [HOT-RAILS.md](HOT-RAILS.md)
 for the unclosed corners, [F2-DETECTOR.md](F2-DETECTOR.md) for the VD/VB
-window topology, and [AUX-WINDOW.md](AUX-WINDOW.md) for the fast-dip/OV
-candidate. PA6/4 drives attempt-valid high before
+window topology, [AUX-WINDOW.md](AUX-WINDOW.md) for the fast-dip/OV
+candidate, and [PFC-POWER.md](PFC-POWER.md) for the power path. PA6/4 drives
+attempt-valid high before
 the prep-reset edge and low on lockout, STOP, or reset, with a local
 pull-down. `RECEIVER_ABORT_N` cannot serve this role while it is already low
 through preparation. The second one-shot Q clocks a separate SN74HCS74
@@ -174,7 +175,8 @@ UCC28180 PWM port; pin 7 OUTA reaches STW through 10 Ω, pin 6 VDD is
 on `AUX_PROTECTED`, and pin 3 GND and the DDA PowerPAD are on HOT0. Pin 8 ENB
 and pin 4 INB are grounded locally; pin 5 OUTB remains unconnected. The
 controller PWM producer and a separate retained-permission VSENSE inhibit
-are joined; the AUX source and physical load remain external. Confirm loaded
+are joined. The boost/diode/F2/reservoir/bank candidate is also joined, but
+the AC input and AUX source remain external. Confirm loaded
 STW gate discharge and controller VSENSE inhibit
 independently.
 The old Rev35 UCC27511A IN- behavior cannot be copied as a UCC27624 EN
@@ -187,8 +189,8 @@ corners are still open.
 
 ## Evidence needed to promote this to U4 PASS
 
-1. Select and compile the remaining actual F2 fuse/VD/VB power path, AUX
-   source, reservoir, and PFC power parts in **one**
+1. Select and compile the remaining actual F1/EMI/NTC/relay AC input and
+   AUX source in **one**
    Atopile 0.2.69 entry. Rev35's `clear_core_ok` includes PERMIT and cannot
    be reused as `SESSION_CLEAR_N`.
 2. Audit every producer and consumer by physical pin; mutate each critical

@@ -10,6 +10,7 @@ from "hot_rails.ato" import HotRails38
 from "f2_detector.ato" import F2Detector38
 from "aux_window.ato" import AuxWindow38
 from "pfc_controller.ato" import PfcControl38
+from "pfc_power.ato" import PfcPower38
 
 module PowerEntryIntegrated38:
     receiver = new ReceiverIsolation38
@@ -20,6 +21,7 @@ module PowerEntryIntegrated38:
     f2_detector = new F2Detector38
     aux_window = new AuxWindow38
     pfc_control = new PfcControl38
+    pfc_power = new PfcPower38
 
     source.SELV3V3 ~ receiver.SELV3V3
     source.SELV_GND ~ receiver.SELV_GND
@@ -58,3 +60,8 @@ module PowerEntryIntegrated38:
     pfc_control.VD_LOCAL ~ f2_detector.VD_LOCAL
     pfc_control.DRIVER_PERMISSION ~ driver.DRIVER_PERMISSION
     pfc_control.PFC_PWM ~ driver.PFC_PWM
+    pfc_power.HOT0 ~ receiver.HOT0
+    pfc_power.RECT_MINUS ~ pfc_control.RECT_MINUS
+    pfc_power.BOOST_SWITCH ~ driver.STW_DRAIN
+    pfc_power.VD_LOCAL ~ f2_detector.VD_LOCAL
+    pfc_power.VB_BANK ~ f2_detector.VB_BANK

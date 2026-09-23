@@ -2,7 +2,7 @@
 
 `elec/src/source_authority.ato` is the SELV source-side candidate joined to
 `receiver_isolation.ato`, `hot_watchdog.ato`, `hot_rails.ato`,
-`f2_detector.ato`, `aux_window.ato`, `pfc_controller.ato` and
+`f2_detector.ato`, `aux_window.ato`, `pfc_controller.ato`, `pfc_power.ato` and
 `driver_stage.ato` by
 `power_entry_integrated_38.ato`. The joined
 Atopile build connects five physical source/receiver paths: source PERMIT
@@ -54,6 +54,7 @@ uvx --from atopile==0.2.69 ato --non-interactive build -b hot_rails
 uvx --from atopile==0.2.69 ato --non-interactive build -b f2_detector
 uvx --from atopile==0.2.69 ato --non-interactive build -b aux_window
 uvx --from atopile==0.2.69 ato --non-interactive build -b pfc_control
+uvx --from atopile==0.2.69 ato --non-interactive build -b pfc_power
 uvx --from atopile==0.2.69 ato --non-interactive build -b integrated
 rustc --edition=2021 --test audit.rs -o /tmp/temper-rev38-isolation-audit
 /tmp/temper-rev38-isolation-audit
@@ -75,6 +76,8 @@ CWD, EN, or its pull-up. Driver mutations remove the ENA clamp,
 base bias, receiver abort, and PowerPAD return or short the gate to AUX.
 PFC-control mutations break the VSENSE ladder, inhibit FET, current-sense
 clamp, permission join, or PWM-to-driver path.
+Power-path mutations short F2, move the local capacitor to the bank, omit
+one diode anode, or disconnect the switch/F2 sense joins.
 Connectivity does not establish logic
 thresholds, capture minima, or power-stage shutdown.
 

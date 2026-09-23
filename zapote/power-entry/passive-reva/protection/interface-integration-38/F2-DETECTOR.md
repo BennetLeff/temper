@@ -43,5 +43,7 @@ Rev35's values were candidate inputs, not transferable Rev38 limits. The
 local 47 pF and reference 100 nF values are selected for this candidate but
 their transient behavior is unproven. `TBD_REVIEW_ONLY` footprint keys avoid
 Atopile 0.2.69's same-footprint MPN collision and require native package and
-creepage review before placement. The VD/VB external ports still lack their
-PFC/reservoir/fuse physical producers in the joined entry.
+creepage review before placement. The VD/VB ports now join the separate
+[PFC power candidate](PFC-POWER.md): VD to the boost diode and local film
+reservoir, VB to the bank beyond F2. The AC input, fault timing and physical
+F2 behavior remain unqualified.

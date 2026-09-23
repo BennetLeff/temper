@@ -16,5 +16,7 @@ builds:
     entry: elec/src/aux_window.ato:AuxWindow38
   pfc_control:
     entry: elec/src/pfc_controller.ato:PfcControl38
+  pfc_power:
+    entry: elec/src/pfc_power.ato:PfcPower38
   integrated:
     entry: elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38
