@@ -2,19 +2,21 @@
 
 `elec/src/receiver_isolation.ato` is a **partial** Atopile fixture for the
 selected AVR, eight assignments across two isolators, two HOT reset pulse
-channels, and one retained preparation-abort element in `hardware-topology.md`.
+channels, preparation-abort memory, and physical-PERMIT-seen memory in
+`hardware-topology.md`.
 It is not `power_entry_integrated_38.ato` and does not pass U4. The source
-GPIOs, remaining HOT retained latches, F2 detectors, watchdog, rail
+GPIOs, remaining HOT session/RUN latches, F2 detectors, watchdog, rail
 supervisors, gate driver, PFC stage, and reservoir are not present here.
 Many named signals terminate at fixture pins or pull resistors; they are not
 real producers yet.
 
-The ISO7742FDWR and the 10 nF timing capacitor use distinct provisional
-footprint keys. Atopile 0.2.69 merged different MPNs when either pair used
-the same stock footprint key: ISO7742F became ISO7741F, and the 10 nF
+The ISO7742FDWR, 10 nF timing capacitor, and HCS21/HCS04 logic packages
+use distinct provisional footprint keys. Atopile 0.2.69 merged MPNs when
+different parts used the same stock footprint key: ISO7742F became
+ISO7741F, and the 10 nF
 capacitors became 100 nF after a new bypass capacitor was added. The
-generated BOM and netlist now preserve their separate MPNs. Neither
-provisional key is a validated physical footprint.
+generated BOM and netlist now preserve their separate MPNs. None of these
+provisional keys is a validated physical footprint.
 
 From this directory:
 
@@ -45,13 +47,23 @@ inputs still lack their actual producers; the SELV source-health and STOP
 inputs still lack their source implementation. The gate's output is not an
 end-to-end fault-capture proof.
 
+The second one-shot's positive Q clocks a separate SN74HCS74 memory with
+D=0. Physical HOT PERMIT high passes through an
+[SN74HCS04 inverter](https://www.ti.com/lit/ds/symlink/sn74hcs04.pdf)
+to its asynchronous active-low preset, forcing `HOT_PERMIT_SEEN_Q` high
+even if the reset pulse is active. The inverted preset has a local low
+default; Q has a local high default for a failed or unpowered output.
+PERMIT low alone does not erase remembered high; the finite clock edge
+does. The reset clock still lacks hardware qualification against DISARM_ACK,
+post-trip disarm, RUN low, and active faults.
+
 The TI one-shot data sheet gives
 85–115 µs at 5 V over −40 to 125 °C for its **test** R/C and load. The
 installed capacitor's tolerance, voltage/temperature behavior and load are
-not included in that range. The permit-history raw pulse is not connected
-to a retained element. Neither pulse is connected to an asynchronous clear
-pin. The joined circuit must produce the remaining fan-in inputs, qualify the history
-reset against live fault/disarm conditions, and prove that a trip during
+not included in that range. Neither pulse is connected to an asynchronous
+clear pin. The joined circuit must produce the remaining fan-in inputs,
+qualify the history reset against live fault/disarm conditions, and prove
+that a trip during
 either pulse dominates reset, including minimum captured pulse width. Do
 not connect the one-shot CLR_N to a live fault: a CLR_N rising transition
 can itself trigger this part when A is low and B is high.
@@ -59,10 +71,10 @@ can itself trigger this part when A is low and B is high.
 The Rust audit checks compiled MPN identities, exact channel and receiver
 pin membership, local low defaults including PA6 and watchdog health,
 separate RC/pulse channels, the retained abort preset/clock/readback and
-six-input fan-in paths, separated
+six-input fan-in and physical-PERMIT history paths, separated
 relay request/output, and SELV/HOT net separation. Its mutation tests remove
-a low default or timing capacitor, miswire the abort preset, reset clock,
-or F2 fault fan-in,
+a low default or timing capacitor, miswire an abort/permit preset, reset
+clock, or F2 fault fan-in,
 short the relay request to the driver,
 swap reverse feedback or reset channels, change the ISO7742F MPN, and add a
 copper boundary crossing. It does not establish pin electrical levels,

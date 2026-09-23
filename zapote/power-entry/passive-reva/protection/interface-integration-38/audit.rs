@@ -147,13 +147,18 @@ fn domain(id: &str, pin: &str) -> &'static str {
 }
 
 fn check(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 46 { return Err(format!("expected 46 parts, found {}", g.parts.len())); }
+    if g.parts.len() != 51 { return Err(format!("expected 51 parts, found {}", g.parts.len())); }
     for (id, part) in [
         ("rx", "AVR64DA32-E/PT"),
         ("iso_protocol", "ISO7741FDWR"),
         ("iso_feedback", "ISO7742FDWR"),
         ("reset_pulses", "SN74LV221AQPWRQ1"),
         ("prep_abort_memory", "SN74HCS74PWR"),
+        ("permit_seen_memory", "SN74HCS74PWR"),
+        ("permit_inverter", "SN74HCS04PWR"),
+        ("c_permit_inverter", "GRM188R71H104KA93D"),
+        ("c_permit_seen_memory", "GRM188R71H104KA93D"),
+        ("permit_preset_pd", "RC0603FR-0710KL"),
         ("prep_trip_and", "SN74HCS21PWR"),
         ("c_prep_trip_and", "GRM188R71H104KA93D"),
         ("watchdog_ok_pd", "RC0603FR-0710KL"),
@@ -175,7 +180,7 @@ fn check(g: &Graph) -> Result<(), String> {
     for (net, expected) in [
         ("selv3v3", "iso_protocol:1 iso_protocol:7 iso_feedback:1 iso_feedback:7 c_iso1_selv:1 c_iso2_selv:1"),
         ("selv_gnd", "iso_protocol:2 iso_protocol:8 iso_feedback:2 iso_feedback:8 c_iso1_selv:2 c_iso2_selv:2 source_permit_fb_pd:2 source_session_fb_pd:2"),
-        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 prep_abort_memory:1 prep_abort_memory:10 prep_abort_memory:14 prep_trip_and:13 prep_trip_and:14 c_prep_trip_and:1 c_prep_abort_memory:1 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
+        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 prep_abort_memory:1 prep_abort_memory:10 prep_abort_memory:14 permit_seen_memory:1 permit_seen_memory:10 permit_seen_memory:14 permit_inverter:14 c_permit_inverter:1 c_permit_seen_memory:1 prep_trip_and:13 prep_trip_and:14 c_prep_trip_and:1 c_prep_abort_memory:1 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
         ("hot_prep_abort_q", "rx:7 prep_abort_memory:5 prep_abort_pu:2"),
         ("hot_prep_abort_ok", "prep_abort_memory:6 prep_abort_ok_pd:1"),
         ("hot_prep_trip_ok", "prep_abort_memory:4 prep_trip_and:8 prep_trip_ok_pd:1"),
@@ -191,7 +196,10 @@ fn check(g: &Graph) -> Result<(), String> {
         ("source_stop_n", "iso_feedback:4"),
         ("source_hot_permit_fb", "iso_feedback:5 source_permit_fb_pd:1"),
         ("source_hot_session_fb", "iso_feedback:6 source_session_fb_pd:1"),
-        ("hot_permit", "rx:10 iso_protocol:13 iso_feedback:12 permit_pd:1"),
+        ("hot_permit", "rx:10 iso_protocol:13 iso_feedback:12 permit_inverter:1 permit_pd:1"),
+        ("hot_permit_seen_q", "rx:1 permit_seen_memory:5 permit_seen_pu:2"),
+        ("hot_permit_preset_n", "permit_inverter:2 permit_seen_memory:4 permit_preset_pd:1"),
+        ("reset_pulses-q2", "reset_pulses:5 permit_seen_memory:3"),
         ("hot_relay_request", "rx:3 iso_protocol:12 relay_request_pd:1"),
         ("hot_relay_driver", "rx:32 relay_driver_pd:1"),
         ("hot_source_health", "iso_feedback:14 prep_trip_and:2 source_health_pd:1"),
@@ -239,6 +247,20 @@ fn check(g: &Graph) -> Result<(), String> {
         ("prep_trip_and", "7", "hot0"),
         ("c_prep_trip_and", "2", "hot0"),
         ("watchdog_ok_pd", "2", "hot0"),
+        ("permit_inverter", "3", "hot0"),
+        ("permit_inverter", "5", "hot0"),
+        ("permit_inverter", "7", "hot0"),
+        ("permit_inverter", "9", "hot0"),
+        ("permit_inverter", "11", "hot0"),
+        ("permit_inverter", "13", "hot0"),
+        ("permit_seen_memory", "2", "hot0"),
+        ("permit_seen_memory", "7", "hot0"),
+        ("permit_seen_memory", "11", "hot0"),
+        ("permit_seen_memory", "12", "hot0"),
+        ("permit_seen_memory", "13", "hot0"),
+        ("c_permit_inverter", "2", "hot0"),
+        ("c_permit_seen_memory", "2", "hot0"),
+        ("permit_preset_pd", "2", "hot0"),
         ("rx", "26", "hot_reset_n"), ("rx", "27", "hot_updi"),
     ] {
         if g.pins.get(&(id.into(), pin.into())).is_none_or(|found| found != net) {
@@ -386,6 +408,20 @@ mod tests {
     fn missing_watchdog_default_fails() {
         let mut g = fixture();
         g.pins.remove(&("watchdog_ok_pd".into(), "2".into()));
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn permit_preset_miswire_fails() {
+        let mut g = fixture();
+        g.pins.insert(("permit_seen_memory".into(), "4".into()), "hot_logic5".into());
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn history_reset_clock_miswire_fails() {
+        let mut g = fixture();
+        g.pins.insert(("permit_seen_memory".into(), "3".into()), "q1".into());
         assert!(check(&g).is_err());
     }
 }

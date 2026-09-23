@@ -155,6 +155,26 @@ component HotPrepTripAnd:
     signal D2 ~ pin 13
     signal VCC ~ pin 14
 
+component HotPermitInverter:
+    mpn = "SN74HCS04PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs04.pdf"
+    footprint = "TBD_REVIEW_ONLY:SN74HCS04PWR_TSSOP14"
+    signal A1 ~ pin 1
+    signal Y1 ~ pin 2
+    signal A2 ~ pin 3
+    signal Y2 ~ pin 4
+    signal A3 ~ pin 5
+    signal Y3 ~ pin 6
+    signal GND ~ pin 7
+    signal Y4 ~ pin 8
+    signal A4 ~ pin 9
+    signal Y5 ~ pin 10
+    signal A5 ~ pin 11
+    signal Y6 ~ pin 12
+    signal A6 ~ pin 13
+    signal VCC ~ pin 14
+
 component TimingC10n:
     mpn = "GRM188R71H103KA01D"
     manufacturer = "Murata"
@@ -208,6 +228,7 @@ module ReceiverIsolation38:
     signal HOT_ATTEMPT_VALID
     signal HOT_WATCHDOG_OK
     signal HOT_PERMIT_SEEN_Q
+    signal HOT_PERMIT_PRESET_N
     signal HOT_FAULT_N
     signal HOT_RAILS_OK
     signal HOT_RECEIVER_ABORT_N
@@ -280,6 +301,42 @@ module ReceiverIsolation38:
     prep_abort_memory.PRE2_N ~ HOT_LOGIC5
     prep_abort_memory.D2 ~ HOT0
     prep_abort_memory.CLK2 ~ HOT0
+    # PERMIT high asynchronously presets history even if a bounded reset
+    # clock is active. Low PERMIT alone cannot erase a previously seen high.
+    permit_inverter = new HotPermitInverter
+    permit_inverter.VCC ~ HOT_LOGIC5
+    permit_inverter.GND ~ HOT0
+    permit_inverter.A1 ~ HOT_PERMIT
+    permit_inverter.Y1 ~ HOT_PERMIT_PRESET_N
+    permit_inverter.A2 ~ HOT0
+    permit_inverter.A3 ~ HOT0
+    permit_inverter.A4 ~ HOT0
+    permit_inverter.A5 ~ HOT0
+    permit_inverter.A6 ~ HOT0
+    permit_seen_memory = new HotRetainedDff
+    permit_seen_memory.VCC ~ HOT_LOGIC5
+    permit_seen_memory.GND ~ HOT0
+    permit_seen_memory.CLR1_N ~ HOT_LOGIC5
+    permit_seen_memory.D1 ~ HOT0
+    permit_seen_memory.CLK1 ~ reset_pulses.Q2
+    permit_seen_memory.PRE1_N ~ HOT_PERMIT_PRESET_N
+    permit_seen_memory.Q1 ~ HOT_PERMIT_SEEN_Q
+    permit_seen_memory.CLR2_N ~ HOT0
+    permit_seen_memory.PRE2_N ~ HOT_LOGIC5
+    permit_seen_memory.D2 ~ HOT0
+    permit_seen_memory.CLK2 ~ HOT0
+    c_permit_inverter = new C
+    c_permit_inverter.value = 100nF
+    c_permit_inverter.p1 ~ HOT_LOGIC5
+    c_permit_inverter.p2 ~ HOT0
+    c_permit_seen_memory = new C
+    c_permit_seen_memory.value = 100nF
+    c_permit_seen_memory.p1 ~ HOT_LOGIC5
+    c_permit_seen_memory.p2 ~ HOT0
+    permit_preset_pd = new R
+    permit_preset_pd.value = 10kohm
+    permit_preset_pd.p1 ~ HOT_PERMIT_PRESET_N
+    permit_preset_pd.p2 ~ HOT0
     prep_trip_and = new HotPrepTripAnd
     prep_trip_and.VCC ~ HOT_LOGIC5
     prep_trip_and.GND ~ HOT0

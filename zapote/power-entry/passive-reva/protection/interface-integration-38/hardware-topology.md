@@ -122,9 +122,15 @@ and watchdog producers and source-side health/STOP logic, so its compiled
 fan-in does not prove fault capture. PA6/4 drives attempt-valid high before
 the prep-reset edge and low on lockout, STOP, or reset, with a local
 pull-down. `RECEIVER_ABORT_N` cannot serve this role while it is already low
-through preparation. The
-second pulse remains unconnected to a permit-seen memory. Do not gate
-either one-shot CLR_N with live faults: its low-to-high transition can
+through preparation. The second one-shot Q clocks a separate SN74HCS74
+permit-seen memory with D low. A physical HOT PERMIT high goes through an
+[SN74HCS04 inverter](https://www.ti.com/lit/ds/symlink/sn74hcs04.pdf)
+to its asynchronous PRE_N, setting the seen bit even while a reset pulse
+is active. Physical PERMIT low alone cannot clear a prior high. This is
+only a pin-level priority candidate: the history clock is not yet qualified
+by DISARM_ACK, retained post-trip disarm, RUN low, or live faults, and the
+minimum preset pulse still needs electrical proof. Do not gate either
+one-shot CLR_N with live faults: its low-to-high transition can
 trigger a fresh pulse when A is low and B is high. Their installed width,
 set/reset dominance during coincident trips, and target-adapter sequence
 still need selection and test;
@@ -152,7 +158,8 @@ low clamp or a source-backed input-current bound is still required.
 
 ## Evidence needed to promote this to U4 PASS
 
-1. Select and compile the new latch, one-shot, AVR64DA32, ISO7742F,
+1. Select and compile the remaining session/RUN/disarm/source latches,
+   AVR64DA32, ISO7742F,
    UCC27624, F2, watchdog, source memory, reservoir, and PFC parts in **one**
    Atopile 0.2.69 entry. Rev35's `clear_core_ok` includes PERMIT and cannot
    be reused as `SESSION_CLEAR_N`.
