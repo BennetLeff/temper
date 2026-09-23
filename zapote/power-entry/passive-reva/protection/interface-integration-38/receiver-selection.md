@@ -39,9 +39,10 @@ comparison against Microchip's package drawing before native acceptance.
 | ---: | --- | --- | --- |
 | 30 | PA0 | USART0 TX, receiver response | Separate reverse isolated protocol channel; its idle level has no safety meaning. |
 | 31 | PA1 | USART0 RX, source command | Forward isolated command; a stale frame cannot reload hardware fault memory. |
-| 32 | PA2 | HOT relay-command output | System-control request; no PFC gate authorization from this signal. |
+| 32 | PA2 | HOT relay-driver output | Sole relay driver owner; pulled low externally, with no PFC gate authorization from this signal. |
 | 1 | PA3 | HOT permit-seen Q readback | Confirms historical high-PERMIT memory was cleared before revalidation; the memory also enters the asynchronous HOT clear equation. |
 | 2 | PA4 | Preparation-abort memory reset request | Separate bounded edge pulse, completed before challenge publication; never clears a new trip during the pending attempt. |
+| 3 | PA5 | Isolated source relay-request input | Receiver decides the relay output; this pin must not share the isolator output net with PA2. |
 | 10 | PD0 | Physical HOT PERMIT sense | Reads the HOT-side conductor, never only an MCU mirror. |
 | 11 | PD1 | `HOT_SESSION_OK` Q sense | Required before READY and RUN-set; sensing is not a substitute for asynchronous clear. |
 | 12 | PD2 | `HOT_RUN` Q sense | Confirms disarm and detects mismatch. |

@@ -1,0 +1,4 @@
+ato-version: 0.2.69
+builds:
+  isolation:
+    entry: elec/src/receiver_isolation.ato:ReceiverIsolation38

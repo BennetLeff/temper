@@ -1,0 +1,307 @@
+# Partial Rev38 isolation/receiver pin fixture. Not the joined U4 circuit.
+# Pins and directions come from the Microchip AVR DA 32-pin I/O table and
+# TI ISO774x data sheet. All HOT-facing outputs are pulled low locally.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component Avr64Da32:
+    mpn = "AVR64DA32-E/PT"
+    manufacturer = "Microchip"
+    datasheet = "https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/AVR64DA28-32-48-64-DataSheet-DS40002233.pdf"
+    footprint = "Package_QFP:TQFP-32_7x7mm_P0.8mm"
+    signal PA3 ~ pin 1
+    signal PA4 ~ pin 2
+    signal PA5 ~ pin 3
+    signal PA6 ~ pin 4
+    signal PA7 ~ pin 5
+    signal PC0 ~ pin 6
+    signal PC1 ~ pin 7
+    signal PC2 ~ pin 8
+    signal PC3 ~ pin 9
+    signal PD0 ~ pin 10
+    signal PD1 ~ pin 11
+    signal PD2 ~ pin 12
+    signal PD3 ~ pin 13
+    signal PD4 ~ pin 14
+    signal PD5 ~ pin 15
+    signal PD6 ~ pin 16
+    signal PD7 ~ pin 17
+    signal AVDD ~ pin 18
+    signal GND19 ~ pin 19
+    signal PF0 ~ pin 20
+    signal PF1 ~ pin 21
+    signal PF2 ~ pin 22
+    signal PF3 ~ pin 23
+    signal PF4 ~ pin 24
+    signal PF5 ~ pin 25
+    signal RESET_N ~ pin 26
+    signal UPDI ~ pin 27
+    signal VDD ~ pin 28
+    signal GND29 ~ pin 29
+    signal PA0 ~ pin 30
+    signal PA1 ~ pin 31
+    signal PA2 ~ pin 32
+
+component Iso7741F:
+    mpn = "ISO7741FDWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/iso7742.pdf"
+    footprint = "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm"
+    signal VCC1 ~ pin 1
+    signal GND1 ~ pin 2
+    signal INA ~ pin 3
+    signal INB ~ pin 4
+    signal INC ~ pin 5
+    signal OUTD ~ pin 6
+    signal EN1 ~ pin 7
+    signal GND1B ~ pin 8
+    signal GND2 ~ pin 9
+    signal EN2 ~ pin 10
+    signal IND ~ pin 11
+    signal OUTC ~ pin 12
+    signal OUTB ~ pin 13
+    signal OUTA ~ pin 14
+    signal GND2B ~ pin 15
+    signal VCC2 ~ pin 16
+
+component Iso7742F:
+    mpn = "ISO7742FDWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/iso7742.pdf"
+    # Atopile 0.2.69 merges different MPN metadata when two component types
+    # use the same footprint key. Distinct provisional key prevents ISO7741F
+    # from silently replacing this part's compiled identity.
+    footprint = "TBD_REVIEW_ONLY:ISO7742FDWR_SOIC16W"
+    signal VCC1 ~ pin 1
+    signal GND1 ~ pin 2
+    signal INA ~ pin 3
+    signal INB ~ pin 4
+    signal OUTC ~ pin 5
+    signal OUTD ~ pin 6
+    signal EN1 ~ pin 7
+    signal GND1B ~ pin 8
+    signal GND2 ~ pin 9
+    signal EN2 ~ pin 10
+    signal IND ~ pin 11
+    signal INC ~ pin 12
+    signal OUTB ~ pin 13
+    signal OUTA ~ pin 14
+    signal GND2B ~ pin 15
+    signal VCC2 ~ pin 16
+
+component R:
+    mpn = "RC0603FR-0710KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C:
+    mpn = "GRM188R71H104KA93D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module ReceiverIsolation38:
+    signal SELV3V3
+    signal SELV_GND
+    signal HOT_LOGIC5
+    signal HOT0
+    signal SOURCE_COMMAND_TX
+    signal SOURCE_PERMIT_Q
+    signal SOURCE_RELAY_REQUEST
+    signal SOURCE_HEALTH_Q
+    signal SOURCE_STOP_N
+    signal SOURCE_RESPONSE_RX
+    signal SOURCE_HOT_PERMIT_FB
+    signal SOURCE_HOT_SESSION_FB
+    signal HOT_PERMIT
+    signal HOT_RELAY_REQUEST
+    signal HOT_RELAY_DRIVER
+    signal HOT_SOURCE_HEALTH
+    signal HOT_SOURCE_STOP_N
+    signal HOT_SESSION_Q
+    signal HOT_RUN_Q
+    signal HOT_DISARM_Q
+    signal HOT_PREP_ABORT_Q
+    signal HOT_PERMIT_SEEN_Q
+    signal HOT_FAULT_N
+    signal HOT_RAILS_OK
+    signal HOT_RECEIVER_ABORT_N
+    signal HOT_PREP_RESET_REQUEST
+    signal HOT_HISTORY_RESET_REQUEST
+    signal HOT_REVALIDATE_REQUEST
+    signal HOT_RUN_SET_REQUEST
+    signal HOT_WDI
+    signal HOT_RESET_N
+    signal HOT_UPDI
+
+    iso_protocol = new Iso7741F
+    rx = new Avr64Da32
+    rx.VDD ~ HOT_LOGIC5
+    rx.AVDD ~ HOT_LOGIC5
+    rx.GND19 ~ HOT0
+    rx.GND29 ~ HOT0
+    rx.RESET_N ~ HOT_RESET_N
+    rx.UPDI ~ HOT_UPDI
+    rx.PA0 ~ iso_protocol.IND
+    rx.PA1 ~ iso_protocol.OUTA
+    rx.PA2 ~ HOT_RELAY_DRIVER
+    rx.PA3 ~ HOT_PERMIT_SEEN_Q
+    rx.PA4 ~ HOT_PREP_RESET_REQUEST
+    rx.PA5 ~ HOT_RELAY_REQUEST
+    rx.PC0 ~ HOT_DISARM_Q
+    rx.PC1 ~ HOT_PREP_ABORT_Q
+    rx.PC2 ~ HOT_FAULT_N
+    rx.PC3 ~ HOT_HISTORY_RESET_REQUEST
+    rx.PD0 ~ HOT_PERMIT
+    rx.PD1 ~ HOT_SESSION_Q
+    rx.PD2 ~ HOT_RUN_Q
+    rx.PD3 ~ HOT_RECEIVER_ABORT_N
+    rx.PD4 ~ HOT_REVALIDATE_REQUEST
+    rx.PD5 ~ HOT_RUN_SET_REQUEST
+    rx.PD6 ~ HOT_WDI
+    rx.PD7 ~ HOT_RAILS_OK
+
+    iso_protocol.VCC1 ~ SELV3V3
+    iso_protocol.GND1 ~ SELV_GND
+    iso_protocol.GND1B ~ SELV_GND
+    iso_protocol.EN1 ~ SELV3V3
+    iso_protocol.VCC2 ~ HOT_LOGIC5
+    iso_protocol.GND2 ~ HOT0
+    iso_protocol.GND2B ~ HOT0
+    iso_protocol.EN2 ~ HOT_LOGIC5
+    iso_protocol.INA ~ SOURCE_COMMAND_TX
+    iso_protocol.INB ~ SOURCE_PERMIT_Q
+    iso_protocol.INC ~ SOURCE_RELAY_REQUEST
+    iso_protocol.OUTD ~ SOURCE_RESPONSE_RX
+    iso_protocol.OUTB ~ HOT_PERMIT
+    iso_protocol.OUTC ~ HOT_RELAY_REQUEST
+
+    iso_feedback = new Iso7742F
+    iso_feedback.VCC1 ~ SELV3V3
+    iso_feedback.GND1 ~ SELV_GND
+    iso_feedback.GND1B ~ SELV_GND
+    iso_feedback.EN1 ~ SELV3V3
+    iso_feedback.VCC2 ~ HOT_LOGIC5
+    iso_feedback.GND2 ~ HOT0
+    iso_feedback.GND2B ~ HOT0
+    iso_feedback.EN2 ~ HOT_LOGIC5
+    iso_feedback.INA ~ SOURCE_HEALTH_Q
+    iso_feedback.INB ~ SOURCE_STOP_N
+    iso_feedback.OUTA ~ HOT_SOURCE_HEALTH
+    iso_feedback.OUTB ~ HOT_SOURCE_STOP_N
+    iso_feedback.INC ~ HOT_PERMIT
+    iso_feedback.IND ~ HOT_SESSION_Q
+    iso_feedback.OUTC ~ SOURCE_HOT_PERMIT_FB
+    iso_feedback.OUTD ~ SOURCE_HOT_SESSION_FB
+
+    c_rx = new C
+    c_rx.value = 100nF
+    c_rx.p1 ~ HOT_LOGIC5
+    c_rx.p2 ~ HOT0
+    c_iso1_hot = new C
+    c_iso1_hot.value = 100nF
+    c_iso1_hot.p1 ~ HOT_LOGIC5
+    c_iso1_hot.p2 ~ HOT0
+    c_iso1_selv = new C
+    c_iso1_selv.value = 100nF
+    c_iso1_selv.p1 ~ SELV3V3
+    c_iso1_selv.p2 ~ SELV_GND
+    c_iso2_hot = new C
+    c_iso2_hot.value = 100nF
+    c_iso2_hot.p1 ~ HOT_LOGIC5
+    c_iso2_hot.p2 ~ HOT0
+    c_iso2_selv = new C
+    c_iso2_selv.value = 100nF
+    c_iso2_selv.p1 ~ SELV3V3
+    c_iso2_selv.p2 ~ SELV_GND
+
+    # Explicit defaults; actual leakage/logic-level corners remain open.
+    permit_pd = new R
+    permit_pd.value = 10kohm
+    permit_pd.p1 ~ HOT_PERMIT
+    permit_pd.p2 ~ HOT0
+    relay_request_pd = new R
+    relay_request_pd.value = 10kohm
+    relay_request_pd.p1 ~ HOT_RELAY_REQUEST
+    relay_request_pd.p2 ~ HOT0
+    relay_driver_pd = new R
+    relay_driver_pd.value = 10kohm
+    relay_driver_pd.p1 ~ HOT_RELAY_DRIVER
+    relay_driver_pd.p2 ~ HOT0
+    source_health_pd = new R
+    source_health_pd.value = 10kohm
+    source_health_pd.p1 ~ HOT_SOURCE_HEALTH
+    source_health_pd.p2 ~ HOT0
+    source_stop_pd = new R
+    source_stop_pd.value = 10kohm
+    source_stop_pd.p1 ~ HOT_SOURCE_STOP_N
+    source_stop_pd.p2 ~ HOT0
+    session_pd = new R
+    session_pd.value = 10kohm
+    session_pd.p1 ~ HOT_SESSION_Q
+    session_pd.p2 ~ HOT0
+    abort_pd = new R
+    abort_pd.value = 10kohm
+    abort_pd.p1 ~ HOT_RECEIVER_ABORT_N
+    abort_pd.p2 ~ HOT0
+    source_permit_fb_pd = new R
+    source_permit_fb_pd.value = 10kohm
+    source_permit_fb_pd.p1 ~ SOURCE_HOT_PERMIT_FB
+    source_permit_fb_pd.p2 ~ SELV_GND
+    source_session_fb_pd = new R
+    source_session_fb_pd.value = 10kohm
+    source_session_fb_pd.p1 ~ SOURCE_HOT_SESSION_FB
+    source_session_fb_pd.p2 ~ SELV_GND
+    reset_pullup = new R
+    reset_pullup.value = 10kohm
+    reset_pullup.p1 ~ HOT_LOGIC5
+    reset_pullup.p2 ~ HOT_RESET_N
+    rails_pd = new R
+    rails_pd.value = 10kohm
+    rails_pd.p1 ~ HOT_RAILS_OK
+    rails_pd.p2 ~ HOT0
+    fault_n_pd = new R
+    fault_n_pd.value = 10kohm
+    fault_n_pd.p1 ~ HOT_FAULT_N
+    fault_n_pd.p2 ~ HOT0
+    disarm_pd = new R
+    disarm_pd.value = 10kohm
+    disarm_pd.p1 ~ HOT_DISARM_Q
+    disarm_pd.p2 ~ HOT0
+    run_pd = new R
+    run_pd.value = 10kohm
+    run_pd.p1 ~ HOT_RUN_Q
+    run_pd.p2 ~ HOT0
+    prep_abort_pu = new R
+    prep_abort_pu.value = 10kohm
+    prep_abort_pu.p1 ~ HOT_LOGIC5
+    prep_abort_pu.p2 ~ HOT_PREP_ABORT_Q
+    permit_seen_pu = new R
+    permit_seen_pu.value = 10kohm
+    permit_seen_pu.p1 ~ HOT_LOGIC5
+    permit_seen_pu.p2 ~ HOT_PERMIT_SEEN_Q
+    prep_reset_pd = new R
+    prep_reset_pd.value = 10kohm
+    prep_reset_pd.p1 ~ HOT_PREP_RESET_REQUEST
+    prep_reset_pd.p2 ~ HOT0
+    history_reset_pd = new R
+    history_reset_pd.value = 10kohm
+    history_reset_pd.p1 ~ HOT_HISTORY_RESET_REQUEST
+    history_reset_pd.p2 ~ HOT0
+    revalidate_pd = new R
+    revalidate_pd.value = 10kohm
+    revalidate_pd.p1 ~ HOT_REVALIDATE_REQUEST
+    revalidate_pd.p2 ~ HOT0
+    run_set_pd = new R
+    run_set_pd.value = 10kohm
+    run_set_pd.p1 ~ HOT_RUN_SET_REQUEST
+    run_set_pd.p2 ~ HOT0
+    wdi_pd = new R
+    wdi_pd.value = 10kohm
+    wdi_pd.p1 ~ HOT_WDI
+    wdi_pd.p2 ~ HOT0

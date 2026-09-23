@@ -20,7 +20,7 @@ codes as active production.
 | --- | --- | --- | --- |
 | ISO7741FDWR A | 3 INA, source UART TX | 14 OUTA, AVR PA1/31 RX | Corrupt or absent traffic cannot count as liveness. |
 | ISO7741FDWR B | 4 INB, source retained PERMIT Q | 13 OUTB, physical HOT PERMIT | Low clears RUN; loss after observed high also clears SESSION. |
-| ISO7741FDWR C | 5 INC, source relay request | 12 OUTC, HOT relay driver | Low requests relay off; no gate authority. |
+| ISO7741FDWR C | 5 INC, source relay request | 12 OUTC, AVR PA5/3 input | The AVR PA2/32 alone drives the relay stage; low request cannot grant gate authority. |
 | ISO7741FDWR D | 6 OUTD, source UART RX | 11 IND, AVR PA0/30 TX | Protocol response only. |
 | ISO7742FDWR A | 3 INA, source hardware-health Q | 14 OUTA, HOT source-health clear | Low clears both HOT memories independently of receiver UART. |
 | ISO7742FDWR B | 4 INB, source STOP_N | 13 OUTB, HOT STOP clear | Low clears both HOT memories; source GPIO default low. |
@@ -30,9 +30,17 @@ codes as active production.
 For each device pin 1/2/8 are SELV supply/returns, pin 16/9/15 are HOT
 supply/returns, pin 7 EN1 is tied to the SELV supply, and pin 10 EN2 to the
 HOT supply. The audit must check these physical pins rather than only net
-names. The selected footprint is
-`Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm`; verify its pad dimensions against
-the DW package drawing in the data sheet before a board claim.
+names. The ISO7741F uses
+`Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm`. The ISO7742F currently uses a
+distinct provisional footprint key: Atopile 0.2.69 otherwise exports both
+same-footprint parts with ISO7741F metadata. Bind that key to reviewed DW
+package pads and verify dimensions against the TI drawing before a board
+claim.
+
+Rev35's fixture tied an isolator relay output to an MCU output. Rev38 must
+place the isolator channel on AVR PA5/3 **input** and use PA2/32 as the sole
+HOT relay-driver output, with its own pull-down. The audit must reject a
+short between those two producer pins.
 
 ## Retained hardware equations
 
