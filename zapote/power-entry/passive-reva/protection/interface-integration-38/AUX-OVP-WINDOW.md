@@ -104,6 +104,43 @@ nominal 0.42 A output rating; it cannot be credited as a
 analysis. No orderable resistor pair or eFuse is selected, and this screen
 does not qualify fast-fault output peak, startup, recovery, or lifetime.
 
+## LTC4368 controller alternative: wider static window, external FET work
+
+The [ADI LTC4368 data sheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf)
+specifies 2.5–60 V operation, a full-temperature OV rising threshold of
+492.5–507.5 mV, 20–32 mV OV hysteresis, and ±10 nA OV leakage at its stated
+test condition. Its UV and OV inputs are independently set. Its 60 V
+operating ceiling includes the historical supply's *assumed* 35 V raw
+pass-through contract. It controls external back-to-back MOSFETs and a
+current-sense path; those parts and their fault/thermal behavior are not in
+Rev38.
+
+For a **mathematical-only** 339 kΩ/10 kΩ OV divider, let each resistance
+have independently adverse fractional deviation `t = 0.0034`. This matches
+the earlier illustrative precision-film budget of ±0.02% initial,
+±2 ppm/K over 100 K, and ±0.30% life drift; it is not a selected pair.
+Treating the minimum falling threshold as `492.5 − 32 = 460.5 mV` and
+using adverse ±10 nA pin leakage gives:
+
+```text
+minimum OV recovery = 0.4605 × [1 + 33.9 × (1−t)/(1+t)]
+                      − 10 nA × 339 kΩ × (1+t) = 15.9623 V
+maximum OV trip     = 0.5075 × [1 + 33.9 × (1+t)/(1−t)]
+                      + 10 nA × 339 kΩ × (1+t) = 17.8325 V
+```
+
+The static headroom is 212 mV above the 15.75 V normal-high screen and
+167 mV below the provisional 18.0 V limit. Those margins still may be too
+small for a fast LDO pass-through event. ADI specifies up to 6 µs for fast
+GATE turn-off with its 2.2 nF test load, plus the FET's own turn-off and
+downstream stored charge. The 1–2 µs OV-to-FAULT entry has a 50 mV
+overdrive fixture and is not an output-peak limit. The circuit needs an
+actual input slew/source-impedance envelope, selected FET gate charge and
+SOA, sense resistor and short-circuit behavior, output effective C/ESL,
+startup/recovery analysis, and measured peak at the UCC27624 VDD pin.
+Until then LTC4368 is only a stronger **static** candidate, not a protected
+AUX source or a U4 PASS.
+
 ## TPS26601 behavior and decision
 
 TI describes TPS26601 MODE-open latch behavior for **overload**. The OVP

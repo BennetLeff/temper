@@ -52,6 +52,11 @@ manufacturer's 225,000 h drift and OVP-pin leakage bounds, its static margins
 are only 36 mV for recovery and 42 mV for trip. Board leakage, fault input
 waveform, output peak, top-resistor temperature, and current-limit behavior
 are unqualified, so it is not yet a protected-AUX selection.
+The LTC4368 controller is a second mathematical-only OVP screen. An
+illustrative 339 kΩ/10 kΩ divider leaves 212 mV normal-high recovery and
+167 mV provisional-limit trip headroom under stated resistor and pin-leakage
+assumptions. External FET selection, dynamic output peak, load current, and
+UV/startup behavior remain unproved; it is not a protected-AUX selection.
 
 Immediate construction order: join and qualify U4's nominated Class CC F1/AC input and protected AUX source; bind those pins to U5's AVR adapter and U6's source driver;
 then export and audit U7. Update U1 with every selected component and
