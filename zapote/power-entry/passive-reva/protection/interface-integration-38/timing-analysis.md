@@ -118,14 +118,20 @@ IRM-10-24 → TPS7A4701 15 V → TPS54202 5 V. The later Rev19/20
 LT4363-1 clamp is a separate downstream proposal, not an interchangeable
 substitute for choosing and qualifying that raw source. The
 `interface-dynamics-23` model latches off for its artificial 150 mA,
-20 ms startup pulse while its 5 ms pulse recovers. That sensitivity is a
-reason to bind the actual converter and relay startup loads before copying
-the clamp into this joined circuit; it is not a measured failure of a
-selected assembly.
+20 ms startup pulse while its 5 ms pulse recovers. The later
+`docs/evidence/2026-09-22-power-entry-selection-review/supplies.md`
+selects **evaluation** of TPS26601 after the 15 V regulator as a different
+cutoff proposal. Its provisional 130 kΩ/10 kΩ OVP divider is not an adopted
+trip setting. Both records require the actual converter and relay startup
+loads and a bounded raw/regulator fault waveform before one protection
+path can be adopted. The 20 ms model outcome is not a measured failure of
+a selected assembly.
 
 Select one source chain and prove its normal and fault output envelope,
 current limit, startup ordering, and thermal behavior at the Rev38
-consumers. Then recalculate the LT4363/FET sense, timer and SOA if used,
+consumers. Then evaluate the TPS26601 cutoff delay, OVP threshold,
+downstream overshoot and restart behavior if selected, or the LT4363/FET
+sense, timer and SOA if that older candidate is selected,
 the 13.25/16.50 V nominal AUX-window thresholds, both TPS3890 rail
 thresholds, and the driver's intermediate-supply OFF condition. The AC
 input's 15 Arms route does not independently define the low-voltage AUX
