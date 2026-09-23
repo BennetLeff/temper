@@ -11,6 +11,28 @@ SESSION feedback reverse. The protocol and relay-request channels remain
 assigned in the receiver fixture but have no ESP GPIO/driver producer yet.
 The source and driver circuits are partial; this is not a U4 or protected-operation PASS.
 
+`firmware/main/power_entry_authorization.c` now contains a host-tested
+source protocol core. Its initial state requests STOP, no PERMIT-set edge,
+and no source TPS3431 WDI edge. After low local and physical HOT readbacks,
+a new durable challenge arms the source's permit-history reset. The caller
+must apply `challenge_active`, take a fresh physical sample, request the raw
+reset edge, then confirm the physical Q before `DISARM_ACK` can be sent.
+READY requires retained HOT session readback. A button held before READY
+cannot start; a release and later press requests one PERMIT-set edge, and
+local plus HOT PERMIT readbacks precede REQUEST. Matching ACK before the
+fixed deadline emits one START. Reinitialization never retransmits it.
+The core's WDI action requires local and fresh link progress after
+preparation. Its byte/idle entry points abort on invalidating decoder
+errors. These are logical host results: no ESP GPIO assignment, UART driver,
+source WDI pin owner, boot pin-level capture, or ESP-IDF target build is yet
+present. The existing unconditional TPS3823 feed in `state_machine.c` remains
+a different circuit and cannot be counted as the new TPS3431 feed.
+The core's `safety_ok` sample means external interlocks **excluding** WDO;
+the source may need a first qualified WDI edge after physical disarm to
+recover WDO before the reset/check hardware can accept a new challenge.
+Mapping `safety_ok` to `SOURCE_HEALTH_Q` would create a boot deadlock. The
+actual WDO behavior, feed timing, and pin ownership need target evidence.
+
 `TPS3431SDRBR` is continuously enabled. Its open-drain WDO and ENOUT pins
 share a 10 kΩ SELV pull-up. `SN74LVC1G17DBVR` buffers one software-owned
 heartbeat to WDI. The installed candidate CWD is Murata

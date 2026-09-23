@@ -61,6 +61,12 @@ physical PERMIT crossing, HOT retained clear, EN, loaded gate, and sustained
 switch-current cessation. Rev35's 119.82–144.98 ms ideal-1-nF device range
 is not the complete term and is not an allowable interval.
 
+The new `firmware/main/power_entry_authorization.c` host core starts in
+lockout without a WDI request and issues no START after reinitialization.
+It does not own an ESP pin yet. No bootloader, other-core, GPIO retention,
+queue-to-pin, or peripheral-autonomous-edge evidence exists, so the
+post-reset feed tail remains **UNBOUNDED** for numerical acceptance.
+
 The two allowable reset times need system hazard analysis of continued PFC
 operation and the first START during source execution loss, including relay,
 downstream load permission, capacitor energy, and absence of UI control.

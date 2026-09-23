@@ -14,6 +14,14 @@ project(temper_tests C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+# Rev38 source authorization is a separate candidate from the existing
+# unconditional TPS3823 feed in state_machine.c.
+add_executable(test_power_entry_authorization
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/power_entry_authorization.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../zapote/power-entry/passive-reva/protection/interface-integration-38/receiver-firmware/protocol.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_power_entry_authorization.c
+)
+
 # Enable warnings
 add_compile_options(-Wall -Wextra -Wpedantic)
 
