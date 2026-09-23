@@ -133,6 +133,28 @@ component HotRetainedDff:
     signal CLR2_N ~ pin 13
     signal VCC ~ pin 14
 
+component HotPrepTripAnd:
+    mpn = "SN74HCS21PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf"
+    # Same physical TSSOP-14 as HCS74, but a distinct provisional key is
+    # needed to preserve both MPNs in Atopile 0.2.69's compiled export.
+    footprint = "TBD_REVIEW_ONLY:SN74HCS21PWR_TSSOP14"
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal NC1 ~ pin 3
+    signal C1 ~ pin 4
+    signal D1 ~ pin 5
+    signal Y1 ~ pin 6
+    signal GND ~ pin 7
+    signal Y2 ~ pin 8
+    signal A2 ~ pin 9
+    signal B2 ~ pin 10
+    signal NC2 ~ pin 11
+    signal C2 ~ pin 12
+    signal D2 ~ pin 13
+    signal VCC ~ pin 14
+
 component TimingC10n:
     mpn = "GRM188R71H103KA01D"
     manufacturer = "Murata"
@@ -184,6 +206,7 @@ module ReceiverIsolation38:
     signal HOT_PREP_ABORT_OK
     signal HOT_PREP_TRIP_OK
     signal HOT_ATTEMPT_VALID
+    signal HOT_WATCHDOG_OK
     signal HOT_PERMIT_SEEN_Q
     signal HOT_FAULT_N
     signal HOT_RAILS_OK
@@ -257,6 +280,22 @@ module ReceiverIsolation38:
     prep_abort_memory.PRE2_N ~ HOT_LOGIC5
     prep_abort_memory.D2 ~ HOT0
     prep_abort_memory.CLK2 ~ HOT0
+    prep_trip_and = new HotPrepTripAnd
+    prep_trip_and.VCC ~ HOT_LOGIC5
+    prep_trip_and.GND ~ HOT0
+    prep_trip_and.A1 ~ HOT_ATTEMPT_VALID
+    prep_trip_and.B1 ~ HOT_SOURCE_HEALTH
+    prep_trip_and.C1 ~ HOT_SOURCE_STOP_N
+    prep_trip_and.D1 ~ HOT_RAILS_OK
+    prep_trip_and.A2 ~ prep_trip_and.Y1
+    prep_trip_and.B2 ~ HOT_FAULT_N
+    prep_trip_and.C2 ~ HOT_WATCHDOG_OK
+    prep_trip_and.D2 ~ HOT_LOGIC5
+    prep_trip_and.Y2 ~ HOT_PREP_TRIP_OK
+    c_prep_trip_and = new C
+    c_prep_trip_and.value = 100nF
+    c_prep_trip_and.p1 ~ HOT_LOGIC5
+    c_prep_trip_and.p2 ~ HOT0
     c_prep_abort_memory = new C
     c_prep_abort_memory.value = 100nF
     c_prep_abort_memory.p1 ~ HOT_LOGIC5
@@ -273,6 +312,10 @@ module ReceiverIsolation38:
     attempt_valid_pd.value = 10kohm
     attempt_valid_pd.p1 ~ HOT_ATTEMPT_VALID
     attempt_valid_pd.p2 ~ HOT0
+    watchdog_ok_pd = new R
+    watchdog_ok_pd.value = 10kohm
+    watchdog_ok_pd.p1 ~ HOT_WATCHDOG_OK
+    watchdog_ok_pd.p2 ~ HOT0
     r_prep_timing = new R
     r_prep_timing.value = 10kohm
     r_prep_timing.p1 ~ HOT_LOGIC5

@@ -147,13 +147,16 @@ fn domain(id: &str, pin: &str) -> &'static str {
 }
 
 fn check(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 43 { return Err(format!("expected 43 parts, found {}", g.parts.len())); }
+    if g.parts.len() != 46 { return Err(format!("expected 46 parts, found {}", g.parts.len())); }
     for (id, part) in [
         ("rx", "AVR64DA32-E/PT"),
         ("iso_protocol", "ISO7741FDWR"),
         ("iso_feedback", "ISO7742FDWR"),
         ("reset_pulses", "SN74LV221AQPWRQ1"),
         ("prep_abort_memory", "SN74HCS74PWR"),
+        ("prep_trip_and", "SN74HCS21PWR"),
+        ("c_prep_trip_and", "GRM188R71H104KA93D"),
+        ("watchdog_ok_pd", "RC0603FR-0710KL"),
         ("c_prep_abort_memory", "GRM188R71H104KA93D"),
         ("prep_trip_ok_pd", "RC0603FR-0710KL"),
         ("prep_abort_ok_pd", "RC0603FR-0710KL"),
@@ -172,11 +175,13 @@ fn check(g: &Graph) -> Result<(), String> {
     for (net, expected) in [
         ("selv3v3", "iso_protocol:1 iso_protocol:7 iso_feedback:1 iso_feedback:7 c_iso1_selv:1 c_iso2_selv:1"),
         ("selv_gnd", "iso_protocol:2 iso_protocol:8 iso_feedback:2 iso_feedback:8 c_iso1_selv:2 c_iso2_selv:2 source_permit_fb_pd:2 source_session_fb_pd:2"),
-        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 prep_abort_memory:1 prep_abort_memory:10 prep_abort_memory:14 c_prep_abort_memory:1 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
+        ("hot_logic5", "rx:18 rx:28 iso_protocol:10 iso_protocol:16 iso_feedback:10 iso_feedback:16 reset_pulses:3 reset_pulses:11 reset_pulses:16 prep_abort_memory:1 prep_abort_memory:10 prep_abort_memory:14 prep_trip_and:13 prep_trip_and:14 c_prep_trip_and:1 c_prep_abort_memory:1 r_prep_timing:1 r_history_timing:1 c_reset_pulses:1 c_rx:1 c_iso1_hot:1 c_iso2_hot:1 reset_pullup:1 prep_abort_pu:1 permit_seen_pu:1"),
         ("hot_prep_abort_q", "rx:7 prep_abort_memory:5 prep_abort_pu:2"),
         ("hot_prep_abort_ok", "prep_abort_memory:6 prep_abort_ok_pd:1"),
-        ("hot_prep_trip_ok", "prep_abort_memory:4 prep_trip_ok_pd:1"),
-        ("hot_attempt_valid", "rx:4 attempt_valid_pd:1"),
+        ("hot_prep_trip_ok", "prep_abort_memory:4 prep_trip_and:8 prep_trip_ok_pd:1"),
+        ("hot_attempt_valid", "rx:4 prep_trip_and:1 attempt_valid_pd:1"),
+        ("hot_watchdog_ok", "prep_trip_and:12 watchdog_ok_pd:1"),
+        ("y1", "prep_trip_and:6 prep_trip_and:9"),
         ("q1", "reset_pulses:13 prep_abort_memory:3"),
         ("source_command_tx", "iso_protocol:3"),
         ("source_permit_q", "iso_protocol:4"),
@@ -189,8 +194,10 @@ fn check(g: &Graph) -> Result<(), String> {
         ("hot_permit", "rx:10 iso_protocol:13 iso_feedback:12 permit_pd:1"),
         ("hot_relay_request", "rx:3 iso_protocol:12 relay_request_pd:1"),
         ("hot_relay_driver", "rx:32 relay_driver_pd:1"),
-        ("hot_source_health", "iso_feedback:14 source_health_pd:1"),
-        ("hot_source_stop_n", "iso_feedback:13 source_stop_pd:1"),
+        ("hot_source_health", "iso_feedback:14 prep_trip_and:2 source_health_pd:1"),
+        ("hot_source_stop_n", "iso_feedback:13 prep_trip_and:4 source_stop_pd:1"),
+        ("hot_fault_n", "rx:8 prep_trip_and:10 fault_n_pd:1"),
+        ("hot_rails_ok", "rx:17 prep_trip_and:5 rails_pd:1"),
         ("hot_session_q", "rx:11 iso_feedback:11 session_pd:1"),
         ("hot_session_clear_n", "rx:20 session_clear_pd:1"),
         ("hot_prep_reset_request", "rx:2 reset_pulses:2 prep_reset_pd:1"),
@@ -229,6 +236,9 @@ fn check(g: &Graph) -> Result<(), String> {
         ("prep_trip_ok_pd", "2", "hot0"),
         ("prep_abort_ok_pd", "2", "hot0"),
         ("attempt_valid_pd", "2", "hot0"),
+        ("prep_trip_and", "7", "hot0"),
+        ("c_prep_trip_and", "2", "hot0"),
+        ("watchdog_ok_pd", "2", "hot0"),
         ("rx", "26", "hot_reset_n"), ("rx", "27", "hot_updi"),
     ] {
         if g.pins.get(&(id.into(), pin.into())).is_none_or(|found| found != net) {
@@ -362,6 +372,20 @@ mod tests {
     fn missing_attempt_default_fails() {
         let mut g = fixture();
         g.pins.remove(&("attempt_valid_pd".into(), "2".into()));
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn missing_trip_fan_in_fails() {
+        let mut g = fixture();
+        g.pins.insert(("prep_trip_and".into(), "10".into()), "hot_logic5".into());
+        assert!(check(&g).is_err());
+    }
+
+    #[test]
+    fn missing_watchdog_default_fails() {
+        let mut g = fixture();
+        g.pins.remove(&("watchdog_ok_pd".into(), "2".into()));
         assert!(check(&g).is_err());
     }
 }

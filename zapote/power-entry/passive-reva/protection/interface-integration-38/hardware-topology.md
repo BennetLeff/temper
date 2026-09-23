@@ -106,10 +106,20 @@ requirement at the pulse generator. The first channel's positive Q clocks
 an [SN74HCS74](https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf)
 preparation-abort memory with D low. Its asynchronous PRE1_N takes
 `HOT_PREP_TRIP_OK` (locally pulled low) and forces Q high on a qualified
-trip, including while the finite reset pulse is active. `HOT_PREP_TRIP_OK`
-has no producer in the partial fixture; it must join the real detector,
-rail, source-health, STOP and receiver `HOT_ATTEMPT_VALID` paths before
-claiming fault capture. PA6/4 drives that attempt-valid level high before
+trip, including while the finite reset pulse is active. One
+[SN74HCS21](https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf) now drives
+that input with both 4-input AND gates cascaded:
+
+```text
+HOT_PREP_TRIP_OK = HOT_ATTEMPT_VALID & HOT_SOURCE_HEALTH
+                   & HOT_SOURCE_STOP_N & HOT_RAILS_OK
+                   & HOT_FAULT_N & HOT_WATCHDOG_OK
+```
+
+The HCS21's output and every unproduced safety input have local low
+defaults. The partial fixture still lacks the actual HOT rail, F2 summary,
+and watchdog producers and source-side health/STOP logic, so its compiled
+fan-in does not prove fault capture. PA6/4 drives attempt-valid high before
 the prep-reset edge and low on lockout, STOP, or reset, with a local
 pull-down. `RECEIVER_ABORT_N` cannot serve this role while it is already low
 through preparation. The
