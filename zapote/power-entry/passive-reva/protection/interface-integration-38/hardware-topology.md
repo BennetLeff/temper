@@ -118,6 +118,10 @@ voltage against the internal pull-up. Confirm loaded STW gate discharge and
 controller VSENSE inhibit independently.
 The old Rev35 UCC27511A IN- behavior cannot be copied as a UCC27624 EN
 guarantee.
+The [ENA corner review](gate-enable-corners.md) records why a passive
+pull-down alone has no data-sheet worst-case proof: TI specifies the
+internal EN pull-up resistance only as a typical value. A defined active
+low clamp or a source-backed input-current bound is still required.
 
 ## Evidence needed to promote this to U4 PASS
 

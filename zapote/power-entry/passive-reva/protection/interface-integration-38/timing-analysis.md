@@ -100,6 +100,14 @@ hazard model; it does not merge their electrical producers or capture minima.
 Command deadlines are separate authorization limits derived from the hazard
 and communication envelope. A healthy heartbeat cannot extend START expiry.
 
+Rev38 receiver revalidation now waits for a fresh physical
+`HOT_SESSION_CLEAR_N` sample after abort release. This avoids requesting a
+clock while the clear is known low; it does not replace the asynchronous
+fault-to-clear path or add a supported time bound. The UCC27624 ENA corner
+gap is tracked in `gate-enable-corners.md`: a typical internal pull-up
+resistance is not enough to prove a passive default-low network over the
+partial-power envelope.
+
 ## Existing conditional F2 screen — not an accepted limit
 
 `f2-timing-02/constraints.json` records null for actual fault-current bound,
