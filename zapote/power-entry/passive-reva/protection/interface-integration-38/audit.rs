@@ -354,7 +354,7 @@ fn check(g: &Graph) -> Result<(), String> {
 }
 
 fn check_source(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 47 { return Err(format!("expected 47 source parts, found {}", g.parts.len())); }
+    if g.parts.len() != 48 { return Err(format!("expected 48 source parts, found {}", g.parts.len())); }
     for (id, part) in [
         ("watchdog", "TPS3431SDRBR"),
         ("wdi_buffer", "SN74LVC1G17DBVR"),
@@ -364,6 +364,7 @@ fn check_source(g: &Graph) -> Result<(), String> {
         ("heartbeat_pd", "RC0603FR-07100KL"),
         ("wdi_pd", "RC0603FR-07100KL"),
         ("health", "SN74HCS21PWR"),
+        ("prewatchdog_pd", "RC0603FR-0710KL"),
         ("inv", "SN74HCS04PWR"),
         ("seen_reset_pulse", "SN74LV221AQPWRQ1"),
         ("seen", "SN74HCS74PWR"),
@@ -379,8 +380,8 @@ fn check_source(g: &Graph) -> Result<(), String> {
     }
     for (net, expected) in [
         ("source_validated_heartbeat", "wdi_buffer:2 heartbeat_pd:1"),
-        ("source_reset_good", "health:1 reset_good_pd:1"),
-        ("source_interlock_n", "health:4 interlock_pd:1"),
+        ("source_reset_good", "health:1 health:9 reset_good_pd:1"),
+        ("source_interlock_n", "health:4 health:10 interlock_pd:1"),
         ("source_stop_n", "permit_clear:2 stop_pd:1"),
         ("source_hot_permit_fb", "inv:1 permit_fb_pd:1"),
         ("source_hot_session_fb", "permit_clear:4 session_fb_pd:1"),
@@ -388,11 +389,12 @@ fn check_source(g: &Graph) -> Result<(), String> {
         ("source_seen_reset_request", "seen_reset_pulse:2 seen_reset_pd:1"),
         ("source_challenge_active", "reset_check:10 challenge_pd:1"),
         ("source_health_q", "health:6 reset_check:5 permit_clear:1 health_pd:1"),
+        ("source_prewatchdog_ok", "health:8 prewatchdog_pd:1"),
         ("source_permit_q", "inv:3 permit:5 permit_q_pd:1"),
         ("source_permit_seen_q", "seen:5 seen_pu:2 loss:1"),
         ("source_permit_loss_ok", "loss:3 permit_clear:5 loss_pd:1"),
         ("source_clear_n", "permit_clear:6 permit:1 permit:2 clear_pd:1"),
-        ("source_rail_reset_n", "rail:6 rail_reset_pu:2 health:5"),
+        ("source_rail_reset_n", "rail:6 rail_reset_pu:2 health:5 health:12"),
         ("source_watchdog_good", "watchdog:7 watchdog:8 wdo_pu:2 health:2"),
         ("source_wdi", "watchdog:6 wdi_buffer:4 wdi_pd:1"),
         ("source_wd_cwd", "watchdog:2 cwd:1"),
@@ -428,6 +430,8 @@ fn check_source(g: &Graph) -> Result<(), String> {
         ("loss_pd", "2", "selv_gnd"),
         ("session_fb_pd", "2", "selv_gnd"),
         ("permit_fb_pd", "2", "selv_gnd"),
+        ("prewatchdog_pd", "2", "selv_gnd"),
+        ("health", "13", "selv3v3"),
     ] {
         if g.pins.get(&(id.into(), pin.into())).is_none_or(|found| found != net) {
             return Err(format!("source {id}.{pin} must be on {net}"));
@@ -958,6 +962,7 @@ fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_
     }
     // Net names change at module boundaries. Internal conductors must stay
     // intact and two previously distinct conductors must not become one.
+    preserved_joined_nets(g, source, "source")?;
     preserved_joined_nets(g, driver, "driver")?;
     preserved_joined_nets(g, hot_wd, "hot_watchdog")?;
     preserved_joined_nets(g, rails, "hot_rails")?;
@@ -1643,6 +1648,14 @@ mod tests {
     }
 
     #[test]
+    fn source_prewatchdog_must_exclude_wdo_and_include_interlock() {
+        let mut g = source_fixture();
+        g.pins.insert(("health".into(), "10".into()),
+                      "source_watchdog_good".into());
+        assert!(check_source(&g).is_err());
+    }
+
+    #[test]
     fn source_retained_feedback_bypass_fails() {
         let mut g = source_fixture();
         g.pins.insert(("permit_clear".into(), "4".into()), "selv3v3".into());
@@ -1682,6 +1695,16 @@ mod tests {
     fn joined_health_producer_missing_fails() {
         let mut g = integrated_fixture();
         g.pins.remove(&("source.health".into(), "6".into()));
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
+    }
+
+    #[test]
+    fn joined_prewatchdog_short_to_wdo_fails() {
+        let mut g = integrated_fixture();
+        let wdo_net = g.pins.get(&("source.watchdog".into(), "7".into())).unwrap().clone();
+        for pin in [("source.health", "8"), ("source.prewatchdog_pd", "1")] {
+            g.pins.insert((pin.0.into(), pin.1.into()), wdo_net.clone());
+        }
         assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 

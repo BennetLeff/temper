@@ -63,6 +63,17 @@ recover WDO before the reset/check hardware can accept a new challenge.
 Mapping `safety_ok` to `SOURCE_HEALTH_Q` would create a boot deadlock. The
 actual WDO behavior, feed timing, and pin ownership need target evidence.
 
+The source candidate now uses the spare `SN74HCS21PWR` gate to produce
+`SOURCE_PREWATCHDOG_OK = SOURCE_RESET_GOOD ∧ SOURCE_INTERLOCK_N ∧
+SOURCE_RAIL_RESET_N`. A 10 kΩ pull-down gives that output a low default.
+This is the proposed physical input for the runtime's pre-feed `safety_ok`
+check; `rail_good` can separately sample `SOURCE_RAIL_RESET_N`. It excludes
+WDO by construction. The standalone and joined netlist audits check that
+separation and reject a deliberate WDO short. It is **not yet wired to an
+ESP GPIO**, and reset-good and interlock still have no physical producers.
+The target must verify threshold/loading, boot sampling, and the relationship
+between this sample and the independently clearing source health gate.
+
 `TPS3431SDRBR` is continuously enabled. Its open-drain WDO and ENOUT pins
 share a 10 kΩ SELV pull-up. `SN74LVC1G17DBVR` buffers one software-owned
 heartbeat to WDI. The installed candidate CWD is Murata

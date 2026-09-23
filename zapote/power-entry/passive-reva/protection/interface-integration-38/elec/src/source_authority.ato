@@ -80,6 +80,7 @@ module SourceAuthority38:
     signal SOURCE_SEEN_RESET_REQUEST
     signal SOURCE_CHALLENGE_ACTIVE
     signal SOURCE_HEALTH_Q
+    signal SOURCE_PREWATCHDOG_OK
     signal SOURCE_PERMIT_Q
     signal SOURCE_PERMIT_SEEN_Q
     signal SOURCE_PERMIT_LOSS_OK
@@ -156,7 +157,9 @@ module SourceAuthority38:
     rail_reset_pu.p2 ~ SOURCE_RAIL_RESET_N
 
     # Source health has no PERMIT dependency, so it can qualify preparation
-    # with Q low. STOP_N is separately forwarded to the HOT trip fan-in.
+    # with Q low. The second HCS21 gate exposes a separate pre-WDO health
+    # sample for the ESP's first post-disarm feed: including WDO there would
+    # deadlock recovery from a watchdog trip. STOP_N is separately isolated.
     health = new HotPrepTripAnd
     health.VCC ~ SELV3V3
     health.GND ~ SELV_GND
@@ -165,10 +168,11 @@ module SourceAuthority38:
     health.C1 ~ SOURCE_INTERLOCK_N
     health.D1 ~ SOURCE_RAIL_RESET_N
     health.Y1 ~ SOURCE_HEALTH_Q
-    health.A2 ~ SELV_GND
-    health.B2 ~ SELV_GND
-    health.C2 ~ SELV_GND
-    health.D2 ~ SELV_GND
+    health.A2 ~ SOURCE_RESET_GOOD
+    health.B2 ~ SOURCE_INTERLOCK_N
+    health.C2 ~ SOURCE_RAIL_RESET_N
+    health.D2 ~ SELV3V3
+    health.Y2 ~ SOURCE_PREWATCHDOG_OK
 
     # First physical HOT readback high presets seen memory. A later low
     # readback holds the permit latch clear until controlled disarm reset.
@@ -316,6 +320,10 @@ module SourceAuthority38:
     health_pd.value = 10kohm
     health_pd.p1 ~ SOURCE_HEALTH_Q
     health_pd.p2 ~ SELV_GND
+    prewatchdog_pd = new R
+    prewatchdog_pd.value = 10kohm
+    prewatchdog_pd.p1 ~ SOURCE_PREWATCHDOG_OK
+    prewatchdog_pd.p2 ~ SELV_GND
     clear_pd = new R
     clear_pd.value = 10kohm
     clear_pd.p1 ~ SOURCE_CLEAR_N

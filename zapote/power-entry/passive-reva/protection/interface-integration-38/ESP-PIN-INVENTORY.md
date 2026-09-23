@@ -60,6 +60,13 @@ expander, multiplexing, USB/JTAG repurpose, or change to existing cooker pin
 functions needs a reviewed timing and failure analysis. The STOP, WDI, and
 permit-set paths especially require direct pin/edge ownership evidence.
 
+The source circuit now generates `SOURCE_PREWATCHDOG_OK` from reset-good,
+interlock, and rail-good without WDO. It is a candidate `safety_ok` sample
+before the first watchdog feed, not a reserved ESP pin. The logical input
+count above is unchanged; the final contract must say whether `rail_good`
+also gets its own GPIO or shares this composite with a justified loss of
+diagnostic detail.
+
 The next pin contract must enumerate every module pad, exact GPIO, net,
 direction, boot state, pull/default, sole firmware owner, competing cooker
 function, and test point. It must be checked against the compiled Rev38
