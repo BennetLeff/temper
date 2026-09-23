@@ -47,6 +47,8 @@ positive and deliberate-miswire tests accompany the full Rev38 audit.
   The old 5×20 options and their rejection reasons remain in `F1-SCREEN.md`;
   none is present in the Rev38 PCB candidate. The proposed Class CC pair is
   a component nomination, not an installed or electrically qualified F1.
+  `F1-SCREEN.md` now lists the exact block/terminal wiring limits and the
+  five installation, clearing, inrush, thermal and MOV qualification records.
 - Confirm certified X2/Y1 and MOV ordering codes, electrical ratings,
   discharge path for X2, protective-earth leakage, required creepage and
   clearance, connector/trace ratings, and line transient exposure at
@@ -57,6 +59,11 @@ positive and deliberate-miswire tests accompany the full Rev38 audit.
   repeated starts, welded/stuck-open contact, and loss of AUX. Select a
   precharge interval from measured bus charging and NTC cooling, then
   prove that the relay cannot close before the permitted condition.
+  The `SL32 10015` data list 10 Ω ±20% cold but only 0.05 Ω at full rated
+  current and a 232 s thermal time constant, so hot restart cannot inherit
+  the cold-start current bound. Its 15 A steady rating equals the required
+  input current if the bypass relay stays open. These are component data,
+  not a measured restart or relay-open allowance.
 - Verify coil pickup/dropout across the full AUX range and resistor
   tolerance, MOSFET gate levels, flyback voltage and release time, and the
   resulting mechanical contact state. A retained source relay request alone
