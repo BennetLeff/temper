@@ -143,3 +143,29 @@ The 22 focused MAX31865 tests and all 17 host CTest entries pass. Those host
 results do not establish that either target image links with the changed
 bytes; repeat both diagnostic and production target builds when ESP-IDF is
 available. Production still has unresolved cooker peripheral/self-test hooks.
+
+## Rev38 source-task test entry (source added, target link NOT RUN)
+
+`firmware/main/rev38_source_test_idf.c` is a third, explicitly selected
+`TEMPER_REV38_TEST_IMAGE=ON` entry. It establishes direct STOP, runaway cut,
+PWM-low and bypass-relay-low outputs, then calls the **real**
+`pe_esp32_source_service_start()` task. That task initializes the GPIO,
+I²C0/TCA6408A and UART1 ownership path before its zero timing qualifiers
+force lockout. The entry treats an armed return as an error and reasserts
+the cooker cuts afterward. The test-image CMake source list excludes the
+incomplete cooker application and its diagnostic mock hooks; the existing
+diagnostic and production image selections remain separate.
+
+Current source SHA-256: entry
+`5fb7af8681470ded15ce9ed9099028451bd41a2826e0910af3ae9080ff6231aa`,
+`firmware/main/CMakeLists.txt`
+`15f9eed25f55086d7616ed579b6134f810e8c50788986497aa72c4569bdd571e`.
+The host CMake suite builds and all 17 CTests pass with the worktree venv on
+`PATH`. This suite does **not** compile the new IDF entry. On 2026-09-24,
+`docker info` still reports the absent Docker socket and no local `idf.py`
+was found, so no ESP32-S3 link, boot, pin or reset receipt exists for this
+entry. U6 digital target-build acceptance remains OPEN. When the IDF v5.3
+toolchain is available, build with the normal configuration plus
+`-D TEMPER_REV38_TEST_IMAGE=ON`; capture the ELF/bin hashes and the actual
+GPIO13/21/48/14, UART, I²C, WDI, PERMIT, gate and relay behavior before
+attributing any hardware safety result.
