@@ -1,0 +1,160 @@
+# Rev38 24 V HOT raw source to pre-cutoff 15 V engineering candidate.
+# This is a populated connectivity candidate, not a qualified 15 V window:
+# effective MLCC values, output-loop stability, transients and thermal limits
+# remain open. AUX15_PRECUT may feed only the proposed disconnect stage.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component Hot15Buck38:
+    mpn = "LMR36015BRNXT"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/lmr36015.pdf"
+    footprint = "Package_DFN_QFN:Texas_RNX0012C_VQFN-14-11-1EP_2x3mm_P0.5mm_EP0.25x1.825mm"
+    signal PGND ~ pin 1
+    signal VIN ~ pin 2
+    signal NC ~ pin 3
+    signal BOOT ~ pin 4
+    signal VCC ~ pin 5
+    signal AGND ~ pin 6
+    signal FB ~ pin 7
+    signal PG ~ pin 8
+    signal EN ~ pin 9
+    signal VIN ~ pin 10
+    signal PGND ~ pin 11
+    signal SW ~ pin 12
+
+component Hot15Cin38:
+    mpn = "C3225X7R2A106K250AC"
+    manufacturer = "TDK"
+    footprint = "Capacitor_SMD:C_1210_3225Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Hot15VinHf38:
+    mpn = "C3216X7R2A224K115AA"
+    manufacturer = "TDK"
+    footprint = "Capacitor_SMD:C_1206_3216Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Hot15Local100n38:
+    mpn = "GRM188R71H104KA93D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Hot15VccCap38:
+    mpn = "C2012X7R1C105K125AA"
+    manufacturer = "TDK"
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Hot15Inductor38:
+    mpn = "XGL6060-183MEC"
+    manufacturer = "Coilcraft"
+    datasheet = "https://www.coilcraft.com/en-us/products/power/shielded-inductors/molded-inductor/xgl/xgl6060/xgl6060-183/"
+    footprint = "TBD_REVIEW_ONLY:HOT15_XGL6060_18UH"
+    value: inductance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Hot15Cout38:
+    mpn = "C5750X7R1H226M250KB"
+    manufacturer = "TDK"
+    footprint = "Capacitor_SMD:C_2220_5750Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Hot15Rtop38:
+    mpn = "ERA3AEB104V"
+    manufacturer = "Panasonic"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Hot15Rbottom38:
+    mpn = "ERA3AEB7151V"
+    manufacturer = "Panasonic"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module Hot15Converter38:
+    signal RAW_AUX24
+    signal HOT0
+    signal AUX15_PRECUT
+    signal BUCK_SW
+    signal BUCK_BOOT
+    signal BUCK_VCC
+    signal BUCK_FB
+
+    buck = new Hot15Buck38
+    buck.VIN ~ RAW_AUX24
+    buck.EN ~ RAW_AUX24
+    buck.PGND ~ HOT0
+    buck.AGND ~ HOT0
+    buck.PG ~ HOT0
+    buck.SW ~ BUCK_SW
+    # TI requires external NC-to-SW connection to simplify CBOOT routing.
+    buck.NC ~ BUCK_SW
+    buck.BOOT ~ BUCK_BOOT
+    buck.VCC ~ BUCK_VCC
+    buck.FB ~ BUCK_FB
+
+    # Two 10 uF nominal bulk capacitors. Validate >=4.7 uF effective at
+    # the worst raw voltage, temperature and age before U4 supply acceptance.
+    cin_a = new Hot15Cin38
+    cin_a.value = 10uF
+    cin_a.p1 ~ RAW_AUX24
+    cin_a.p2 ~ HOT0
+    cin_b = new Hot15Cin38
+    cin_b.value = 10uF
+    cin_b.p1 ~ RAW_AUX24
+    cin_b.p2 ~ HOT0
+    vin_hf_a = new Hot15VinHf38
+    vin_hf_a.value = 220nF
+    vin_hf_a.p1 ~ RAW_AUX24
+    vin_hf_a.p2 ~ HOT0
+    vin_hf_b = new Hot15VinHf38
+    vin_hf_b.value = 220nF
+    vin_hf_b.p1 ~ RAW_AUX24
+    vin_hf_b.p2 ~ HOT0
+
+    boot_c = new Hot15Local100n38
+    boot_c.value = 100nF
+    boot_c.p1 ~ BUCK_BOOT
+    boot_c.p2 ~ BUCK_SW
+    vcc_c = new Hot15VccCap38
+    vcc_c.value = 1uF
+    vcc_c.p1 ~ BUCK_VCC
+    vcc_c.p2 ~ HOT0
+
+    inductor = new Hot15Inductor38
+    inductor.value = 18uH
+    inductor.p1 ~ BUCK_SW
+    inductor.p2 ~ AUX15_PRECUT
+    cout_a = new Hot15Cout38
+    cout_a.value = 22uF
+    cout_a.p1 ~ AUX15_PRECUT
+    cout_a.p2 ~ HOT0
+    cout_b = new Hot15Cout38
+    cout_b.value = 22uF
+    cout_b.p1 ~ AUX15_PRECUT
+    cout_b.p2 ~ HOT0
+    fb_top = new Hot15Rtop38
+    fb_top.value = 100kohm
+    fb_top.p1 ~ AUX15_PRECUT
+    fb_top.p2 ~ BUCK_FB
+    fb_bottom = new Hot15Rbottom38
+    fb_bottom.value = 7.15kohm
+    fb_bottom.p1 ~ BUCK_FB
+    fb_bottom.p2 ~ HOT0

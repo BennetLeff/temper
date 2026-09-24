@@ -91,7 +91,8 @@ does not bound that interval. No expander RESET conductor is assigned yet.
 | SELV3V3/SELV_GND | Source authority, isolation, ESP module and expander loads joined; 3.3 V producer absent | Join supply, reset-good and interlock producers; qualify defaults during partial power. |
 | HOT_LOGIC5/HOT0 | Receiver, isolators, watchdog and logic consumers joined; producer absent | Select/join 5 V producer with startup and rail-order evidence. |
 | AUX_PROTECTED/HOT0 | Driver, PFC control, detectors and relay consumer joined; producer absent | Select/join 15 V protected chain and load budget; verify OVP/UVLO, fast-fault peak and startup. |
-| RAW_AUX24/HOT0 | IRM-20-24 pads 4/3 joined through the post-CMC AUX branch terminal | Physical module orientation, branch cartridge and harness, raw peak, startup and thermal behavior remain unverified. The raw rail is HOT and may feed only the proposed 15 V regulator. |
+| RAW_AUX24/HOT0 | IRM-20-24 pads 4/3 joined through the post-CMC AUX branch terminal to LMR36015BRNXT VIN/EN | Physical module orientation, branch cartridge and harness, raw peak, startup and thermal behavior remain unverified. The raw rail is HOT and feeds only the joined 15 V converter. |
+| AUX15_PRECUT/HOT0 | LMR36015BRNXT SW → 18 µH → 44 µF nominal output bank and feedback divider; no downstream connection yet | Join the overvoltage/undervoltage disconnect as the sole route to AUX_PROTECTED; effective capacitance, loop stability, startup, output window, fault peak and thermal behavior remain unverified. |
 | FUSED_L/N/PE | Board terminal 1714984 pins 1/2/3 and AC path joined | Off-board F1/inlet harness is a separate assembly interface. No fuse installation or interruption PASS is implied. |
 
 For the proposed IRM-20 AUX source, the installed KiCad 10 symbol and THT

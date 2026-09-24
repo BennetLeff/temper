@@ -194,12 +194,14 @@ divider fails recovery at a healthy 15.75 V rail. A static window exists
 with ±0.1% parts, but its leakage-inclusive example leaves only about
 48 mV recovery and 68 mV trip headroom before dynamic effects. No OVP
 divider is adopted or qualified. The [Rev38 source comparison](AUX-SOURCE-CANDIDATE.md)
-now places IRM-20-15 direct output beside IRM-20-24 with an adjustable
-LMR36015 15 V buck, both followed by a proposed LTC4368 disconnect.
+now places IRM-20-15 direct output beside the joined IRM-20-24 raw source
+and LMR36015BRNXT 15 V pre-cutoff buck candidate; the LTC4368 disconnect
+is still a proposal.
 The direct path's conditional 50 °C screen has only 62.5 mV on each side
 of the normal window before cutoff-path loss. The regulated path has about
-497 mV of feedback-only static margin on each side under stated assumptions;
-its full dynamic and fault envelope is unknown. All proposals require the
+388/411 mV of low/high feedback-only static margin in an illustrative
+100 K adverse resistor-temperature screen; its full dynamic and fault
+envelope is unknown. The joined candidate and remaining proposals require the
 actual converter and relay startup loads and a bounded raw/regulator fault
 waveform before one protection path can be adopted. The 20 ms model outcome is not a measured failure of
 a selected assembly.

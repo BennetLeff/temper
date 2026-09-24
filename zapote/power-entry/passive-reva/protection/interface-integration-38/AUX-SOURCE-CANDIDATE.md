@@ -1,9 +1,9 @@
 # Rev38 protected AUX source decision record
 
 Status: **regulated 24 V route selected for digital candidate; protected
-producer and U4 acceptance OPEN**. The IRM-20-24 raw source is joined, but
-its 15 V regulator, disconnect and 5 V converter are not. This is a
-construction choice for the digital/native candidate, not electrical
+producer and U4 acceptance OPEN**. The IRM-20-24 raw source and a populated
+15 V pre-cutoff buck candidate are joined. The disconnect and 5 V converter
+are not. This is a construction choice for the digital/native candidate, not electrical
 qualification. No AC/DC overvoltage trigger or controller static threshold
 is credited as a bound on the driver pin during a fault.
 
@@ -15,8 +15,9 @@ with back-to-back N-channel MOSFETs and a current-sense resistor, then a
 [TI TPS54202](https://www.ti.com/lit/ds/symlink/tps54202.pdf) from the
 protected rail to HOT logic5. The direct IRM-20-15 path below remains a
 bench comparison; its conditional 50 °C voltage screen leaves only 62.5 mV
-before disconnect and wiring losses, versus about 497 mV in the regulated
-path's feedback-only screen. The comparison does not establish a guaranteed
+before disconnect and wiring losses, versus 388/411 mV low/high in the
+joined regulator's illustrative feedback-only temperature screen. The
+comparison does not establish a guaranteed
 normal window or fault peak for either path. The LTC4368 is a **static-window
 candidate only** until FETs, shunt, divider, startup and dynamic behavior
 are selected and tested. The historical IRM-10-24/LDO chain is a reference,
@@ -26,7 +27,8 @@ not a parallel or fallback power path.
 | --- | --- | --- |
 | `ac_input.CMC_L_OUT` → off-board AUX fuse → `AUX_FUSED_L`; `ac_input.AC_RECT_N` → IRM AC/N (after CMC, before main-path NTC) | IRM-20 `AC/L`, `AC/N` | **Proposal**; two-conductor branch-loop terminal and off-board cartridge/block are nominated below; inrush, fault energy and assembly segregation remain open |
 | IRM-20-24 pad 4 `+V`, pad 3 `-V` | `RAW_AUX24`, `HOT0` | **Compiled pin candidate**; physical orientation remains unverified. Bonding its isolated DC return to the bridge/HOT return makes this rail HOT, never SELV. |
-| `RAW_AUX24`, `HOT0` | LMR36015 adjustable 15 V buck, then LTC4368 `VIN` and ground | **Proposal**; regulator and disconnect are not joined; no alternate feed around either. |
+| `RAW_AUX24`, `HOT0` | LMR36015BRNXT adjustable buck | **Joined candidate** to `AUX15_PRECUT`; exact pins and input/output passives audited, electrical window and loop stability unqualified. |
+| `AUX15_PRECUT`, `HOT0` | LTC4368 `VIN` and ground | **Proposal**; disconnect not joined, with no alternate feed around it. |
 | Disconnect output, `HOT0` | `AUX_PROTECTED`, `HOT0` | Required Rev38 driver, relay, PFC and window producer |
 | `AUX_PROTECTED`, `HOT0` | TPS54202 input; its 5 V output | Required `HOT_LOGIC5`, `HOT0` producer; buck input must be downstream of cutoff |
 
@@ -120,7 +122,7 @@ The direct AC/DC source's listed 1000 ms setup at 115 Vac/full load and typical 
 ## Selected regulated 24 V digital route
 
 Build the digital route as the same fused, post-CMC AC tap → joined
-IRM-20-24 raw 24 V → proposed [LMR36015BRNXT](https://www.ti.com/lit/ds/symlink/lmr36015.pdf)
+IRM-20-24 raw 24 V → joined [LMR36015BRNXT](https://www.ti.com/lit/ds/symlink/lmr36015.pdf)
 adjustable 15 V buck → LTC4368 disconnect → `AUX_PROTECTED` → HOT logic5
 buck. The IRM-20-24 is rated 24 V, 0.9 A, 21.6 W at the manufacturer's
 conditions. The TI converter is a 4.2–60 V, 1.5 A device; the nominated
@@ -129,13 +131,25 @@ output and 1 MHz nominal frequency but forces PWM at light load and permits
 limited reverse inductor current from output to input. Before relay pickup,
 this circuit can be lightly loaded; avoid that reverse-current behavior in
 the first candidate. Auto mode's burst ripple and possible effect on the
-15 V normal window and cutoff recovery still need measurement. The **raw module pins are joined**;
-the converter, cutoff and 5 V stages are still proposals, with no output
-current allowance. The 24 V rail is `RAW_AUX24`, stays HOT, and must have no
+15 V normal window and cutoff recovery still need measurement. The **raw
+module and converter pins are joined**; the cutoff and 5 V stages remain
+proposals, with no output current allowance. The 24 V rail is `RAW_AUX24`, stays HOT, and must have no
 feed around either buck or cutoff. The buck's `PG` pin has an 18 V
 recommended ceiling and cannot be pulled up to `RAW_AUX24`.
 
-For an **ideal closed-loop, static feedback-only screen**, a nominal resistor ratio `Rtop/Rbottom = 14` sets 15 V. TI specifies `VFB = 0.985–1.015 V` over its stated junction-temperature conditions, normally at `VIN = 24 V`. If each resistor has independently adverse ±0.1% variation, the mathematical output endpoints are `0.985 × [1 + 14 × (0.999/1.001)] = 14.74745 V` and `1.015 × [1 + 14 × (1.001/0.999)] = 15.25345 V`. That leaves about **497 mV low and 497 mV high** relative to Rev38's 14.25–15.75 V *normal* window, before feedback leakage, resistor TCR/aging, line/load error, ripple, load steps, startup overshoot, thermal limits and disconnect-path voltage drop. Ratio 14 is illustrative; no orderable resistor pair, inductor, capacitors, compensation or layout is chosen. The feedback calculation does **not** establish a protected-rail range or a fast-fault output peak.
+The joined feedback pair is [Panasonic `ERA3AEB104V`](https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB104V)
+100 kΩ top and [`ERA3AEB7151V`](https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB7151V)
+7.15 kΩ bottom, each ±0.1%, ±25 ppm/K. Its nominal feedback-only output is
+`1 × (1 + 100/7.15) = 14.9860 V`. With TI's `VFB = 0.985–1.015 V` and
+independently adverse tolerance alone, the mathematical endpoints are
+14.7337–15.2392 V. Adding independently adverse ±0.25% temperature movement
+over a 100 K resistor excursion from 25 °C makes an illustrative
+14.6378–15.3391 V screen. The latter leaves only 388 mV below and 411 mV
+above the assumed 14.25–15.75 V *normal* window before feedback leakage,
+aging, line/load error, ripple, load steps, startup overshoot and cutoff-path
+drop. It is not a guaranteed terminal voltage: resistor environments, the
+module's raw waveform and buck dynamics are not yet bounded. The calculation
+does **not** establish a protected-rail range or fast-fault output peak.
 
 The two bench paths use the same downstream cutoff concept and must be compared at the same measured local temperatures and load waveforms. The regulated path adds converter loss, EMI, startup sequencing and a high-side-switch failure mode; its extra static margin is meaningful only if the complete source, buck and cutoff pass the normal-window and fault captures. The IRM's published overvoltage trigger is not a bound on `RAW_AUX24` peak or the buck's output under a fault. Qualify `RAW_AUX24` against the buck's input ratings at line surges, and capture buck output and protected output separately during forced high-output, buck short, loss of feedback, mains dips and cutoff recovery. Compare the measured worst-case driver-VDD peak and turn-off delay, not just nominal rail accuracy.
 
@@ -146,25 +160,34 @@ gives the exact RNX pin functions: PGND 1/11, VIN 2/10, NC 3 externally
 joined to SW 12, BOOT 4, VCC 5, AGND 6, FB 7, PG 8, EN 9 and SW 12.
 VIN needs at least 4.7 µF **effective** ceramic capacitance and a nearby
 220 nF bypass at each VIN/PGND pair. BOOT requires 100 nF to SW; VCC
-requires 1 µF to ground and cannot power another load. EN must have a
-defined drive; if PG is unused, TI requires it to be grounded. Check the
-actual RNX footprint pad geometry and thermal connection before native
-release. None of these parts is yet joined to the Rev38 netlist.
+requires 1 µF to ground and cannot power another load. The candidate ties
+EN to RAW_AUX24 and unused PG to HOT0, as permitted by TI. The installed
+KiCad RNX footprint has numbered pads 1–12 and one unnumbered pad; verify
+its geometry and thermal connection against TI's RNX drawing before native
+release. Layout still needs paired short VIN/PGND capacitor loops, a small
+SW area and distinct AGND routing before joining at HOT0.
 
-TI recommends a 100 kΩ top feedback resistor, and its 1 V nominal FB
-reference makes the *ideal* bottom value `100/14 = 7.142857 kΩ` for 15 V.
-The illustrative ±0.1% ratio screen above is not an orderable pair. Select
-parts by manufacturer MPN and recompute the actual ratio, temperature drift,
-FB leakage and output window. Size the inductor from TI's 20–40% ripple
-guidance using the converter's **1.5 A device rating** even if the measured
-Rev38 load is smaller, then check saturation against the published switch
-current-limit range, DCR heating and the subharmonic minimum-inductance
-condition. Select input and output capacitors by effective bias/temperature
-value, ripple current and the measured load-step target. TI calls for load
-transient and loop-gain validation before production; no 15 V output network
-or compensation has yet passed that check. These are prerequisites for a
-fully specified 15 V schematic, not evidence that the converter meets the
-protected-rail window.
+The selected [Coilcraft `XGL6060-183MEC`](https://www.coilcraft.com/en-us/products/power/shielded-inductors/molded-inductor/xgl/xgl6060/xgl6060-183/)
+is 18 µH ±20%, with 4.2 A at 20% inductance loss and 37.3 mΩ maximum DCR
+at 25 °C. In an ideal 24 V→15 V, 1 MHz calculation, ripple is 0.313 A
+peak-to-peak at nominal inductance and 0.391 A at its −20% tolerance edge.
+At a hypothetical 35 V raw input those become 0.476/0.595 A; 35 V is a
+screening point, **not** a proved source-fault ceiling. TI says to size ripple
+against the converter's 1.5 A rating even for a smaller actual load. Check
+temperature-dependent saturation, DCR heat, the device's 2.8 A maximum
+high-side limit, and TI's minimum-inductance condition on the actual layout.
+
+The populated candidate has two [TDK `C3225X7R2A106K250AC`](https://product.tdk.com/en/search/capacitor/ceramic/mlcc/info?part_no=C3225X7R2A106K250AC)
+10 µF/100 V input capacitors, two [`C3216X7R2A224K115AA`](https://product.tdk.com/en/search/capacitor/ceramic/mlcc/info?part_no=C3216X7R2A224K115AA)
+220 nF/100 V high-frequency bypasses, one Murata 100 nF/50 V BOOT cap,
+one TDK 1 µF/16 V VCC cap, and two [TDK `C5750X7R1H226M250KB`](https://product.tdk.com/en/search/capacitor/ceramic/mlcc/info?part_no=C5750X7R1H226M250KB)
+22 µF/50 V output caps. The 44 µF nominal output bank alone needs 660 µC
+to reach 15 V, before downstream cutoff and 5 V startup. Effective
+capacitance after bias, temperature, tolerance and aging, output ripple,
+load-step recovery, inrush, and loop gain remain unverified. TI requires
+load-transient and loop-gain validation before production. The inductor
+footprint remains a native-review placeholder. The audit uses generated BOM
+MPNs because Atopile's netlist can alias different MPNs sharing one footprint.
 
 ## Decision gates before joining
 
@@ -179,8 +202,9 @@ protected-rail window.
 4. Capture the selected raw source (`AUX15_SOURCE` or `RAW_AUX24`), the 15 V buck output if fitted, `AUX_PROTECTED`, UCC27624 `VDD`, `HOT_LOGIC5`, ENA, gate voltage and MOSFET current for slow OV ramps and fast source faults, UV/brownout, overload, cold/warm repeated starts and loss of HOT logic. Bound peak voltage, time to gate disable and recovery. Include FET SOA and capacitor energy.
 
 **Integration decision:** `RAW_AUX24` is now a joined source pin candidate
-on the regulated route. Keep `AUX_PROTECTED` and `HOT_LOGIC5` as unproduced
-ports until gates 1–3 define and audit the regulator, cutoff and 5 V module;
+and `AUX15_PRECUT` is a joined converter output candidate. Keep
+`AUX_PROTECTED` and `HOT_LOGIC5` as unproduced ports until gates 1–3 qualify
+the regulator's electrical behavior and define and audit the cutoff and 5 V module;
 keep fault-response acceptance OPEN until gate 4 is measured on joined
 hardware. The direct 15 V path is a comparison, not the selected digital
 route. No protected Rev38 producer is selected yet.

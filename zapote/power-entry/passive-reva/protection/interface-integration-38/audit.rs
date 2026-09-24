@@ -99,6 +99,7 @@ fn field(node: &Sexp, key: &str) -> Result<String, String> {
 struct Graph {
     parts: BTreeMap<String, String>,
     pins: BTreeMap<(String, String), String>,
+    references: BTreeMap<String, String>,
 }
 
 fn graph(input: &str) -> Result<Graph, String> {
@@ -129,7 +130,35 @@ fn graph(input: &str) -> Result<Graph, String> {
             }
         }
     }
-    Ok(Graph { parts, pins })
+    Ok(Graph { parts, pins, references: refs })
+}
+
+// Atopile can reuse one netlist libsource identity for distinct MPNs that
+// share a footprint. The generated BOM retains the per-reference MPN. Use it
+// for the new converter rather than accepting a false identity from libsource.
+fn with_bom_parts(mut g: Graph, csv_path: &str, prefix: &str) -> Result<Graph, String> {
+    let csv = fs::read_to_string(csv_path).map_err(|e| e.to_string())?;
+    let mut seen = BTreeSet::new();
+    for row in csv.lines().skip(1) {
+        let (mpn, tail) = row.split_once(',').ok_or("BOM row missing MPN")?;
+        let refs = if let Some(quoted) = tail.strip_prefix('"') {
+            quoted.split_once('"').ok_or("unterminated BOM designators")?.0
+        } else {
+            tail.split_once(',').ok_or("BOM row missing designator")?.0
+        };
+        for reference in refs.split(',') {
+            if let Some(id) = g.references.get(reference) {
+                if id.starts_with(prefix) {
+                    if !seen.insert(id.clone()) { return Err(format!("duplicate BOM identity for {id}")); }
+                    g.parts.insert(id.clone(), mpn.to_owned());
+                }
+            }
+        }
+    }
+    for id in g.references.values().filter(|id| id.starts_with(prefix)) {
+        if !seen.contains(id) { return Err(format!("BOM missing {id}")); }
+    }
+    Ok(g)
 }
 
 fn members(g: &Graph, net: &str) -> BTreeSet<(String, String)> {
@@ -813,6 +842,39 @@ fn check_ac_input(g: &Graph) -> Result<(), String> {
     Ok(())
 }
 
+fn check_hot15_converter(g: &Graph) -> Result<(), String> {
+    if g.parts.len() != 12 { return Err(format!("expected 12 HOT 15 V converter parts, found {}", g.parts.len())); }
+    for (id, mpn) in [
+        ("buck", "LMR36015BRNXT"),
+        ("cin_a", "C3225X7R2A106K250AC"), ("cin_b", "C3225X7R2A106K250AC"),
+        ("vin_hf_a", "C3216X7R2A224K115AA"), ("vin_hf_b", "C3216X7R2A224K115AA"),
+        ("boot_c", "GRM188R71H104KA93D"), ("vcc_c", "C2012X7R1C105K125AA"),
+        ("inductor", "XGL6060-183MEC"),
+        ("cout_a", "C5750X7R1H226M250KB"), ("cout_b", "C5750X7R1H226M250KB"),
+        ("fb_top", "ERA3AEB104V"), ("fb_bottom", "ERA3AEB7151V"),
+    ] {
+        if g.parts.get(id).is_none_or(|found| found != mpn) {
+            return Err(format!("wrong HOT 15 V part identity for {id}"));
+        }
+    }
+    for (net, expected) in [
+        ("raw_aux24", "buck:2 buck:10 buck:9 cin_a:1 cin_b:1 vin_hf_a:1 vin_hf_b:1"),
+        ("hot0", "buck:1 buck:11 buck:6 buck:8 cin_a:2 cin_b:2 vin_hf_a:2 vin_hf_b:2 vcc_c:2 cout_a:2 cout_b:2 fb_bottom:2"),
+        ("aux15_precut", "inductor:2 cout_a:1 cout_b:1 fb_top:1"),
+        ("buck_sw", "buck:3 buck:12 boot_c:2 inductor:1"),
+        ("buck_boot", "buck:4 boot_c:1"),
+        ("buck_vcc", "buck:5 vcc_c:1"),
+        ("buck_fb", "buck:7 fb_top:2 fb_bottom:1"),
+    ] {
+        let wanted: BTreeSet<(String, String)> = expected.split_whitespace().map(|pin| {
+            let (id, number) = pin.split_once(':').expect("static HOT 15 V pin mapping");
+            (id.to_owned(), number.to_owned())
+        }).collect();
+        if members(g, net) != wanted { return Err(format!("wrong HOT 15 V membership on {net}")); }
+    }
+    Ok(())
+}
+
 fn preserved_joined_nets(g: &Graph, standalone: &Graph, prefix: &str) -> Result<(), String> {
     let mut joined_nets: BTreeMap<&str, &str> = BTreeMap::new();
     for net in standalone.pins.values().collect::<BTreeSet<_>>() {
@@ -857,10 +919,15 @@ fn check_source_mcu(g: &Graph) -> Result<(), String> {
 }
 
 fn check_integrated_with_mcu(g: &Graph, hot: &Graph, source: &Graph, source_mcu: &Graph, driver: &Graph, hot_wd: &Graph, rails: &Graph, f2: &Graph, aux: &Graph, pfc: &Graph, power: &Graph, ac: &Graph) -> Result<(), String> {
-    if g.parts.len() != hot.parts.len() + source.parts.len() + source_mcu.parts.len() + driver.parts.len() + hot_wd.parts.len() + rails.parts.len() + f2.parts.len() + aux.parts.len() + pfc.parts.len() + power.parts.len() + ac.parts.len() {
+    let hot15 = with_bom_parts(
+        graph(&fs::read_to_string("build/hot15_converter.net").map_err(|e| e.to_string())?)?,
+        "build/hot15_converter.csv", "",
+    )?;
+    check_hot15_converter(&hot15)?;
+    if g.parts.len() != hot.parts.len() + source.parts.len() + source_mcu.parts.len() + driver.parts.len() + hot_wd.parts.len() + rails.parts.len() + f2.parts.len() + aux.parts.len() + pfc.parts.len() + power.parts.len() + ac.parts.len() + hot15.parts.len() {
         return Err("joined part count differs from the standalone fixtures".into());
     }
-    for (prefix, standalone) in [("receiver", hot), ("source", source), ("source_mcu", source_mcu), ("driver", driver), ("hot_watchdog", hot_wd), ("hot_rails", rails), ("f2_detector", f2), ("aux_window", aux), ("pfc_control", pfc), ("pfc_power", power), ("ac_input", ac)] {
+    for (prefix, standalone) in [("receiver", hot), ("source", source), ("source_mcu", source_mcu), ("driver", driver), ("hot_watchdog", hot_wd), ("hot_rails", rails), ("f2_detector", f2), ("aux_window", aux), ("pfc_control", pfc), ("pfc_power", power), ("ac_input", ac), ("hot15_converter", &hot15)] {
         for (id, part) in &standalone.parts {
             if g.parts.get(&format!("{prefix}.{id}")) != Some(part) {
                 return Err(format!("joined part identity differs at {prefix}.{id}"));
@@ -1005,6 +1072,8 @@ fn check_integrated_with_mcu(g: &Graph, hot: &Graph, source: &Graph, source_mcu:
         ("ac_input.y1", "1", "receiver.rx", "19"),
         ("ac_input.coil_drop", "1", "driver.driver", "6"),
         ("ac_input.relay_gate_r", "1", "receiver.run_and", "8"),
+        ("ac_input.raw_aux", "4", "hot15_converter.buck", "2"),
+        ("ac_input.raw_aux", "3", "hot15_converter.buck", "1"),
     ] {
         let left = g.pins.get(&(left_id.into(), left_pin.into()));
         let right = g.pins.get(&(right_id.into(), right_pin.into()));
@@ -1024,6 +1093,7 @@ fn check_integrated_with_mcu(g: &Graph, hot: &Graph, source: &Graph, source_mcu:
     preserved_joined_nets(g, pfc, "pfc_control")?;
     preserved_joined_nets(g, power, "pfc_power")?;
     preserved_joined_nets(g, ac, "ac_input")?;
+    preserved_joined_nets(g, &hot15, "hot15_converter")?;
     for (left_id, left_pin, right_id, right_pin) in [
         ("receiver.iso_protocol", "13", "receiver.rx", "10"),
         ("receiver.iso_feedback", "12", "receiver.iso_protocol", "13"),
@@ -1079,8 +1149,14 @@ fn main() {
         .expect("PFC power netlist parse");
     let ac = graph(&fs::read_to_string("build/ac_input.net").expect("Atopile AC input netlist"))
         .expect("AC input netlist parse");
-    let integrated = graph(&fs::read_to_string("build/integrated.net").expect("Atopile joined netlist"))
-        .expect("joined netlist parse");
+    let hot15 = with_bom_parts(
+        graph(&fs::read_to_string("build/hot15_converter.net").expect("Atopile HOT 15 V netlist"))
+            .expect("HOT 15 V netlist parse"), "build/hot15_converter.csv", "",
+    ).expect("HOT 15 V BOM identity");
+    let integrated = with_bom_parts(
+        graph(&fs::read_to_string("build/integrated.net").expect("Atopile joined netlist"))
+            .expect("joined netlist parse"), "build/integrated.csv", "hot15_converter.",
+    ).expect("joined HOT 15 V BOM identity");
     check(&hot).expect("isolation pin audit");
     check_source(&source).expect("source pin audit");
     check_source_mcu(&source_mcu).expect("source MCU pin audit");
@@ -1092,6 +1168,7 @@ fn main() {
     check_pfc_control(&pfc).expect("PFC control pin audit");
     check_pfc_power(&power).expect("PFC power pin audit");
     check_ac_input(&ac).expect("AC input pin audit");
+    check_hot15_converter(&hot15).expect("HOT 15 V pin audit");
     check_integrated_with_mcu(&integrated, &hot, &source, &source_mcu, &driver, &hot_wd, &rails, &f2, &aux, &pfc, &power, &ac).expect("Rev38 join audit");
     println!("partial Rev38 joined source/receiver/AC/PFC/driver/protection pin audit PASS");
 }
@@ -1145,12 +1222,56 @@ mod tests {
     }
 
     fn integrated_fixture() -> Graph {
-        graph(&fs::read_to_string("build/integrated.net").unwrap()).unwrap()
+        with_bom_parts(graph(&fs::read_to_string("build/integrated.net").unwrap()).unwrap(),
+            "build/integrated.csv", "hot15_converter.").unwrap()
+    }
+
+    fn hot15_fixture() -> Graph {
+        with_bom_parts(graph(&fs::read_to_string("build/hot15_converter.net").unwrap()).unwrap(),
+            "build/hot15_converter.csv", "").unwrap()
     }
 
     #[test]
     fn compiled_source_receiver_join_passes() {
         check_integrated(&integrated_fixture(), &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).unwrap();
+    }
+
+    #[test]
+    fn hot15_switch_to_output_inductor_bypass_is_rejected() {
+        let mut g = hot15_fixture();
+        g.pins.insert(("inductor".into(), "2".into()), "buck_sw".into());
+        assert!(check_hot15_converter(&g).is_err());
+    }
+
+    #[test]
+    fn hot15_feedback_ground_swap_is_rejected() {
+        let mut g = hot15_fixture();
+        g.pins.insert(("fb_top".into(), "2".into()), "hot0".into());
+        assert!(check_hot15_converter(&g).is_err());
+    }
+
+    #[test]
+    fn hot15_nc_to_switch_open_is_rejected() {
+        let mut g = hot15_fixture();
+        g.pins.insert(("buck".into(), "3".into()), "open_nc".into());
+        assert!(check_hot15_converter(&g).is_err());
+    }
+
+    #[test]
+    fn hot15_part_substitution_is_rejected() {
+        let mut g = hot15_fixture();
+        g.parts.insert("buck".into(), "LMR36015FBRNXT".into());
+        assert!(check_hot15_converter(&g).is_err());
+    }
+
+    #[test]
+    fn joined_hot15_raw_feed_bypass_is_rejected() {
+        let mut g = integrated_fixture();
+        let precut = g.pins[&("hot15_converter.inductor".into(), "2".into())].clone();
+        g.pins.insert(("hot15_converter.buck".into(), "2".into()), precut);
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(),
+            &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(),
+            &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]

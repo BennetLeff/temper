@@ -22,5 +22,7 @@ builds:
     entry: elec/src/pfc_power.ato:PfcPower38
   ac_input:
     entry: elec/src/ac_input.ato:AcInput38
+  hot15_converter:
+    entry: elec/src/hot15_converter.ato:Hot15Converter38
   integrated:
     entry: elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38

@@ -12,6 +12,7 @@ from "aux_window.ato" import AuxWindow38
 from "pfc_controller.ato" import PfcControl38
 from "pfc_power.ato" import PfcPower38
 from "ac_input.ato" import AcInput38
+from "hot15_converter.ato" import Hot15Converter38
 from "source_mcu.ato" import SourceMcu38
 
 module PowerEntryIntegrated38:
@@ -25,6 +26,7 @@ module PowerEntryIntegrated38:
     pfc_control = new PfcControl38
     pfc_power = new PfcPower38
     ac_input = new AcInput38
+    hot15_converter = new Hot15Converter38
     source_mcu = new SourceMcu38
 
     source_mcu.SELV3V3 ~ source.SELV3V3
@@ -91,3 +93,5 @@ module PowerEntryIntegrated38:
     ac_input.HOT_RELAY_ENABLE ~ receiver.HOT_RELAY_ENABLE
     ac_input.AC_RECT_L ~ pfc_power.AC_RECT_L
     ac_input.AC_RECT_N ~ pfc_power.AC_RECT_N
+    ac_input.RAW_AUX24 ~ hot15_converter.RAW_AUX24
+    ac_input.HOT0 ~ hot15_converter.HOT0

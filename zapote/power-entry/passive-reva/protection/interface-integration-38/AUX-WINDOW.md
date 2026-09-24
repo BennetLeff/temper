@@ -2,8 +2,8 @@
 
 Status: **compiled pin topology; thresholds and response acceptance OPEN**.
 The [source decision](AUX-SOURCE-CANDIDATE.md) now joins the IRM-20-24 raw
-source as the regulated-route digital candidate; protected AUX and HOT
-logic5 producers remain open. The direct 15 V comparison's conditional
+source and its 15 V pre-cutoff converter as the regulated-route digital
+candidate; protected AUX and HOT logic5 producers remain open. The direct 15 V comparison's conditional
 50 °C screen leaves only 62.5 mV on each side of Rev38's assumed
 14.25–15.75 V normal window before protection-path loss. Its 25 °C
 nominal voltage is insufficient to choose it as the joined source.
@@ -123,7 +123,7 @@ window or fast-fault driver-pin peak.
 ### HOT logic5 census from the joined netlist
 
 The generated `build/integrated.net` with SHA-256
-`f8cdba302168068d0f5da3283575a7833d4cfc488419bdc3d1e76cd3e0d666f4`
+`f463446724648946bc550ea2eb608027a89e03f44475bdb447179f36ca49a890`
 has 86 pin nodes on `hot_logic5`, belonging to 60 distinct components.
 The count is a **connectivity inventory**, not a current measurement or a
 guaranteed load bound. Re-run it whenever the joined source changes.
