@@ -232,6 +232,7 @@ add_executable(test_max31865_only
 )
 target_include_directories(test_max31865_only PRIVATE ${INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_compile_definitions(test_max31865_only PRIVATE RTD_SERVICE_TESTING=1)
 target_link_libraries(test_max31865_only m)
 add_dependencies(test_max31865_only gen_config gen_fault_list gen_transition_table)
 

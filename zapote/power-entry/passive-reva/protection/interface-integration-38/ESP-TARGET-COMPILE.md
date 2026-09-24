@@ -117,3 +117,11 @@ the build used the committed generated config and transition-table headers;
 the independent `make regen-check` gate passed in the worktree. This is a
 compile receipt only: the diagnostic entry point does not run the source
 task or exercise GPIO14 on hardware.
+
+After the RTD freshness-status change on 2026-09-24, a diagnostic rebuild was
+attempted with the same command. It stopped before IDF startup because the
+local Docker daemon socket did not exist. The MAX31865 host tests and all 17
+firmware CTest entries pass, but the updated RTD object and diagnostic image
+have **no new ESP32-S3 target build receipt**. Repeat the target build when
+the IDF container is available; do not transfer the earlier image receipt to
+these changed bytes.

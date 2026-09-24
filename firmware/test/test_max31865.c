@@ -273,6 +273,9 @@ void test_rtd_service_bootstrap_failure_fails_closed_from_control_task(void)
 void test_rtd_service_reads_repeated_drdy_without_restarting_fault_cycle(void)
 {
     TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    rtd_sample_status_t status = rtd_service_sample_status();
+    TEST_ASSERT_FALSE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(0u, status.generation);
 
     /* Bias startup, automatic fault cycle, then continuous conversion. */
     rtd_service_control_tick();
@@ -299,6 +302,9 @@ void test_rtd_service_reads_repeated_drdy_without_restarting_fault_cycle(void)
     rtd_service_control_tick();
     TEST_ASSERT_TRUE(rtd_service_is_ready());
     TEST_ASSERT_TRUE(rtd_service_has_sample());
+    status = rtd_service_sample_status();
+    TEST_ASSERT_TRUE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(1u, status.generation);
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 100.0f, rtd_service_get_resistance());
     TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS |
                                MAX31865_CONFIG_CONVERSION_AUTOMATIC |
@@ -308,6 +314,110 @@ void test_rtd_service_reads_repeated_drdy_without_restarting_fault_cycle(void)
     mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
     rtd_service_control_tick();
     TEST_ASSERT_TRUE(rtd_service_is_ready());
+    status = rtd_service_sample_status();
+    TEST_ASSERT_TRUE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(2u, status.generation);
+    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+}
+
+void test_rtd_service_stall_invalidates_cached_sample(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    const uint8_t rtd_data[] = {0x3Bu, 0x88u};
+    mock_spi_set_register_block((hal_spi_device_t)0, MAX31865_REG_RTD_MSB,
+                                rtd_data, sizeof(rtd_data));
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    TEST_ASSERT_TRUE(rtd_service_sample_status().ready);
+    TEST_ASSERT_EQUAL_UINT32(1u, rtd_service_sample_status().generation);
+
+    for (uint8_t tick = 0u; tick < RTD_DRDY_TIMEOUT_CONTROL_TICKS; tick++) {
+        rtd_service_control_tick();
+    }
+    rtd_sample_status_t status = rtd_service_sample_status();
+    TEST_ASSERT_FALSE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(1u, status.generation);
+    TEST_ASSERT_TRUE(rtd_service_has_sample());
+    TEST_ASSERT_TRUE(rtd_service_get_resistance() > RTD_OPEN_FAULT_OHM);
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+}
+
+void test_rtd_service_faulted_conversion_does_not_publish_generation(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    const uint8_t rtd_data[] = {0x3Bu, 0x88u};
+    mock_spi_set_register_block((hal_spi_device_t)0, MAX31865_REG_RTD_MSB,
+                                rtd_data, sizeof(rtd_data));
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    TEST_ASSERT_TRUE(rtd_service_sample_status().ready);
+    TEST_ASSERT_EQUAL_UINT32(1u, rtd_service_sample_status().generation);
+
+    mock_spi_set_register((hal_spi_device_t)0, MAX31865_REG_FAULT_STATUS,
+                          MAX31865_FAULT_HIGH_THRESHOLD);
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    rtd_sample_status_t status = rtd_service_sample_status();
+    TEST_ASSERT_FALSE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(1u, status.generation);
+    TEST_ASSERT_TRUE(rtd_service_get_resistance() > RTD_OPEN_FAULT_OHM);
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+}
+
+void test_rtd_service_transport_failure_invalidates_cached_sample(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    const uint8_t rtd_data[] = {0x3Bu, 0x88u};
+    mock_spi_set_register_block((hal_spi_device_t)0, MAX31865_REG_RTD_MSB,
+                                rtd_data, sizeof(rtd_data));
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    TEST_ASSERT_TRUE(rtd_service_sample_status().ready);
+
+    mock_spi_fail_next_read(HAL_ERROR);
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    rtd_sample_status_t status = rtd_service_sample_status();
+    TEST_ASSERT_FALSE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(1u, status.generation);
+    TEST_ASSERT_TRUE(rtd_service_get_resistance() > RTD_OPEN_FAULT_OHM);
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+}
+
+void test_rtd_service_generation_wrap_keeps_healthy_sample_ready(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    const uint8_t rtd_data[] = {0x3Bu, 0x88u};
+    mock_spi_set_register_block((hal_spi_device_t)0, MAX31865_REG_RTD_MSB,
+                                rtd_data, sizeof(rtd_data));
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    TEST_ASSERT_TRUE(rtd_service_sample_status().ready);
+
+    rtd_service_test_seed_generation(0x7ffffffeu);
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    rtd_sample_status_t status = rtd_service_sample_status();
+    TEST_ASSERT_TRUE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(0x7fffffffu, status.generation);
+
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    status = rtd_service_sample_status();
+    TEST_ASSERT_TRUE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(1u, status.generation);
     TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
 }
 
@@ -343,5 +453,9 @@ void run_max31865_tests(void)
     RUN_TEST(test_rtd_service_defers_spi_and_state_mutation_until_drdy_control_tick);
     RUN_TEST(test_rtd_service_bootstrap_failure_fails_closed_from_control_task);
     RUN_TEST(test_rtd_service_reads_repeated_drdy_without_restarting_fault_cycle);
+    RUN_TEST(test_rtd_service_stall_invalidates_cached_sample);
+    RUN_TEST(test_rtd_service_faulted_conversion_does_not_publish_generation);
+    RUN_TEST(test_rtd_service_transport_failure_invalidates_cached_sample);
+    RUN_TEST(test_rtd_service_generation_wrap_keeps_healthy_sample_ready);
     RUN_TEST(test_rtd_service_silent_drdy_fails_closed_within_control_bound);
 }

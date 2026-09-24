@@ -11,6 +11,7 @@
 #define RTD_SERVICE_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "hal_types.h"
 
@@ -39,10 +40,29 @@ void rtd_service_control_tick(void);
 /** True only after bootstrap and one fresh RTD conversion/status read. */
 bool rtd_service_is_ready(void);
 
-/** True only after a fresh RTD conversion has been read from MAX31865. */
+/** Control-task only: true after any conversion; use sample status across tasks. */
 bool rtd_service_has_sample(void);
 
-/** Return newest resistance, or an open sentinel before the first sample. */
+typedef struct {
+    bool ready;
+    uint32_t generation;
+} rtd_sample_status_t;
+
+/**
+ * Atomically read conversion readiness and generation across tasks. A new
+ * generation is published only after a completed conversion/status transfer.
+ * Zero means no conversion has been published since bootstrap. Generations
+ * wrap from 0x7fffffff to one; compare for change only within a bounded
+ * maximum-age window, alongside cooker-state checks.
+ */
+rtd_sample_status_t rtd_service_sample_status(void);
+
+#ifdef RTD_SERVICE_TESTING
+/** Host-test seam for the generation wrap boundary. */
+void rtd_service_test_seed_generation(uint32_t generation);
+#endif
+
+/** Control-task only: newest resistance, or an open sentinel if unready. */
 float rtd_service_get_resistance(void);
 
 #ifdef __cplusplus

@@ -15,9 +15,11 @@
  * comfortably below its 5 MHz maximum while board bring-up remains pending. */
 #define RTD_SPI2_BUS       0
 #define RTD_SPI_CLOCK_HZ   500000u
+#define RTD_SAMPLE_READY   0x80000000u
+#define RTD_SAMPLE_COUNT   0x7fffffffu
 
 static max31865_device_t s_max31865;
-static volatile bool s_drdy_complete;
+static uint32_t s_drdy_complete;
 static bool s_ready;
 static bool s_bootstrap_failed;
 static bool s_bootstrap_failure_reported;
@@ -27,6 +29,17 @@ static bool s_fault_cycle_started;
 static bool s_conversion_armed;
 static bool s_has_sample;
 static float s_rtd_resistance_ohm;
+/* Single writer: the control task. One atomic word prevents a monitor from
+ * observing a new generation with the previous readiness state. */
+static uint32_t s_sample_state;
+
+static void invalidate_sample(void)
+{
+    uint32_t state = __atomic_load_n(&s_sample_state, __ATOMIC_RELAXED);
+    s_ready = false;
+    __atomic_store_n(&s_sample_state, state & RTD_SAMPLE_COUNT,
+                     __ATOMIC_RELEASE);
+}
 
 static void rtd_drdy_isr(hal_pin_t pin, void *context)
 {
@@ -35,7 +48,7 @@ static void rtd_drdy_isr(hal_pin_t pin, void *context)
 
     /* No SPI, logging, allocation, or state-machine mutation in interrupt
      * context. The control task atomically consumes this single-bit handoff. */
-    s_drdy_complete = true;
+    __atomic_store_n(&s_drdy_complete, 1u, __ATOMIC_RELEASE);
 }
 
 static void report_bootstrap_failure_once(void)
@@ -44,6 +57,17 @@ static void report_bootstrap_failure_once(void)
         s_bootstrap_failure_reported = true;
         state_machine_report_rtd_device_fault(false, true, NULL);
     }
+}
+
+static void report_conversion_fault(bool short_fault, bool open_fault,
+                                    void *context)
+{
+    bool *faulted = context;
+    if (short_fault || open_fault) {
+        *faulted = true;
+        invalidate_sample();
+    }
+    state_machine_report_rtd_device_fault(short_fault, open_fault, NULL);
 }
 
 hal_status_t rtd_service_bootstrap(void)
@@ -61,7 +85,7 @@ hal_status_t rtd_service_bootstrap(void)
     hal_status_t status;
 
     s_max31865.spi_device = NULL;
-    s_drdy_complete = false;
+    __atomic_store_n(&s_drdy_complete, 0u, __ATOMIC_RELEASE);
     s_ready = false;
     s_bootstrap_failed = false;
     s_bootstrap_failure_reported = false;
@@ -71,6 +95,7 @@ hal_status_t rtd_service_bootstrap(void)
     s_conversion_armed = false;
     s_has_sample = false;
     s_rtd_resistance_ohm = RTD_OPEN_FAULT_OHM + 1.0f;
+    __atomic_store_n(&s_sample_state, 0u, __ATOMIC_RELEASE);
 
     if (hal_spi == NULL || hal_gpio == NULL) {
         s_bootstrap_failed = true;
@@ -132,7 +157,7 @@ void rtd_service_control_tick(void)
             return;
         }
         if (max31865_start_fault_detection(&s_max31865) != HAL_OK) {
-            s_ready = false;
+            invalidate_sample();
             state_machine_report_rtd_device_fault(false, true, NULL);
             return;
         }
@@ -148,52 +173,64 @@ void rtd_service_control_tick(void)
             return;
         }
         if (max31865_start_continuous(&s_max31865) != HAL_OK) {
-            s_ready = false;
+            invalidate_sample();
             state_machine_report_rtd_device_fault(false, true, NULL);
             return;
         }
-        s_drdy_complete = false;
+        __atomic_store_n(&s_drdy_complete, 0u, __ATOMIC_RELEASE);
         s_drdy_wait_ticks = 0u;
         s_conversion_armed = true;
         return;
     }
 
-    if (!s_ready || !s_drdy_complete) {
+    if (!s_ready ||
+        !__atomic_exchange_n(&s_drdy_complete, 0u, __ATOMIC_ACQ_REL)) {
         if (s_ready) {
             s_drdy_wait_ticks++;
             if (s_drdy_wait_ticks >= RTD_DRDY_TIMEOUT_CONTROL_TICKS) {
                 /* A silent MAX31865 or broken DRDY path must not leave the
                  * RTD interlock unmonitored indefinitely. */
-                s_ready = false;
+                invalidate_sample();
                 state_machine_report_rtd_device_fault(false, true, NULL);
             }
         }
         return;
     }
 
-    s_drdy_complete = false;
     s_drdy_wait_ticks = 0u;
     {
         uint16_t rtd_code = 0u;
+        bool faulted = false;
         if (max31865_service_fault_cycle(&s_max31865, &rtd_code,
-                                         state_machine_report_rtd_device_fault,
-                                         NULL) != HAL_OK) {
-        /* The driver has already reported the terminal open fault. Do not
-         * resume a monitor after a failed conversion/status transfer. */
-            s_ready = false;
+                                         report_conversion_fault,
+                                         &faulted) != HAL_OK || faulted) {
+            /* The driver has already reported the device or transport fault.
+             * Do not publish a generation from a failed conversion read. */
+            invalidate_sample();
         } else {
             /* Publish only the fresh conversion that was read before status.
              * MAX31865's 15-bit code is code = floor(32768*R/RREF). */
+            uint32_t generation = __atomic_load_n(&s_sample_state,
+                                                   __ATOMIC_RELAXED) &
+                                  RTD_SAMPLE_COUNT;
+            /* Zero is reserved for "never sampled". The monitor compares
+             * changes within a bounded deadline, so wrapping to one does
+             * not extend a stale sample's lifetime. */
+            generation = generation == RTD_SAMPLE_COUNT ? 1u
+                                                        : generation + 1u;
             s_rtd_resistance_ohm = ((float)rtd_code * 430.0f) / 32768.0f;
             s_has_sample = true;
             s_fault_cycle_wait_ticks = 0u;
+            __atomic_store_n(&s_sample_state,
+                             RTD_SAMPLE_READY | generation,
+                             __ATOMIC_RELEASE);
         }
     }
 }
 
 bool rtd_service_is_ready(void)
 {
-    return s_ready && s_has_sample;
+    return rtd_service_sample_status().ready;
 }
 
 bool rtd_service_has_sample(void)
@@ -201,9 +238,28 @@ bool rtd_service_has_sample(void)
     return s_has_sample;
 }
 
+rtd_sample_status_t rtd_service_sample_status(void)
+{
+    uint32_t state = __atomic_load_n(&s_sample_state, __ATOMIC_ACQUIRE);
+    return (rtd_sample_status_t){
+        .ready = (state & RTD_SAMPLE_READY) != 0u,
+        .generation = state & RTD_SAMPLE_COUNT,
+    };
+}
+
+#ifdef RTD_SERVICE_TESTING
+void rtd_service_test_seed_generation(uint32_t generation)
+{
+    __atomic_store_n(&s_sample_state,
+                     RTD_SAMPLE_READY | (generation & RTD_SAMPLE_COUNT),
+                     __ATOMIC_RELEASE);
+}
+#endif
+
 float rtd_service_get_resistance(void)
 {
-    return s_has_sample ? s_rtd_resistance_ohm : RTD_OPEN_FAULT_OHM + 1.0f;
+    return s_ready && s_has_sample ? s_rtd_resistance_ohm
+                                   : RTD_OPEN_FAULT_OHM + 1.0f;
 }
 
 /* Production state-machine callers already use this interface name. The

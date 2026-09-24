@@ -25,8 +25,17 @@ before advancing its epoch. It needs a state-specific check set:
 The present `control_task` increments its epoch after every
 `state_machine_update()`, including fault states. It must gate that credit
 on a completed, healthy control tick. `read_rtd_resistance()` can return a
-cached conversion; valid-looking ohms alone are not freshness evidence.
-The monitor needs the conversion completion/age from `rtd_service` and
+cached conversion while ready; valid-looking ohms alone are not freshness
+evidence. `rtd_service_sample_status()` now atomically publishes readiness
+and a generation that advances only after a healthy completed conversion and
+status read. It clears readiness on a stalled or faulted conversion and does
+not advance for either. The nonzero generation wraps after `0x7fffffff`, so
+the monitor must compare it only within a bounded sample-age window, rather
+than treat it as a lifetime-unique identifier. Host tests cover repeated
+conversions, a silent DRDY and a faulted conversion after a valid sample, a
+transport failure, and the generation-wrap boundary. This is
+only an input to the future monitor: it still needs a bounded timestamp/age
+or observed-generation deadline from `rtd_service` and
 bounded age for every other sampled input. Cross-task state and result
 publication also need an explicit synchronization rule.
 
