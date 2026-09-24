@@ -71,8 +71,9 @@ this table. Keep that evidence OPEN through native and assembly review. The
 The [AUX source decision](AUX-SOURCE-CANDIDATE.md) now nominates a separate
 off-board `LP-CC-2`/`BCM603-1P`/`CVR-CCM` branch loop after the board CMC.
 Its proposed `1714971` send and return pins must not be bridged on copper.
-The terminal is now in the joined netlist, and the audit rejects a copper
-bridge between its pins; the fuse and wiring remain off-board and unbuilt.
+The terminal and IRM-20-24 raw-source pins are now in the joined netlist,
+and the audit rejects a copper bridge or direct pre-fuse feed; the fuse and
+wiring remain off-board and unbuilt.
 This branch is a second assembly fuse, not a substitute for F1. Its 20 A
 published IRM cold-start inrush lacks
 duration/I²t evidence for the 2 A cartridge; add its waveform, selectivity

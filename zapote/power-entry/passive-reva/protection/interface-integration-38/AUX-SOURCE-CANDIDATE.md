@@ -1,16 +1,32 @@
 # Rev38 protected AUX source decision record
 
-Status: **evaluation architecture proposed; protected producer and U4 acceptance OPEN**. This document proposes the next source to bench and the interfaces it must meet. It does not assert that a published AC/DC overvoltage trigger or a controller's static threshold bounds the driver pin during a fault. No source module is joined to `power_entry_integrated_38.ato` yet.
+Status: **regulated 24 V route selected for digital candidate; protected
+producer and U4 acceptance OPEN**. The IRM-20-24 raw source is joined, but
+its 15 V regulator, disconnect and 5 V converter are not. This is a
+construction choice for the digital/native candidate, not electrical
+qualification. No AC/DC overvoltage trigger or controller static threshold
+is credited as a bound on the driver pin during a fault.
 
 ## Evaluation architecture and exact interface
 
-Evaluate [Mean Well IRM-20-15](https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF) as a direct 15 V AC/DC source **in place of**, not in series with, the historical IRM-10-24 → TPS7A4701. This removes that LDO's conditional 2.417 W screen at the historical assumed 35 V raw input. Evaluate [ADI LTC4368-2](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf) with its required back-to-back N-channel MOSFETs and current-sense resistor as the disconnect stage, then a [TI TPS54202](https://www.ti.com/lit/ds/symlink/tps54202.pdf) from the protected rail to HOT logic5. The LTC4368 is a **static-window candidate only** until the MOSFETs, sense resistor, divider and dynamic test are selected. The old regulator chain is a reference, not a parallel source or a fallback power path.
+Build the engineering candidate around [Mean Well IRM-20-24](https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF)
+raw 24 V, an adjustable 15 V buck, [ADI LTC4368-2](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf)
+with back-to-back N-channel MOSFETs and a current-sense resistor, then a
+[TI TPS54202](https://www.ti.com/lit/ds/symlink/tps54202.pdf) from the
+protected rail to HOT logic5. The direct IRM-20-15 path below remains a
+bench comparison; its conditional 50 °C voltage screen leaves only 62.5 mV
+before disconnect and wiring losses, versus about 497 mV in the regulated
+path's feedback-only screen. The comparison does not establish a guaranteed
+normal window or fault peak for either path. The LTC4368 is a **static-window
+candidate only** until FETs, shunt, divider, startup and dynamic behavior
+are selected and tested. The historical IRM-10-24/LDO chain is a reference,
+not a parallel or fallback power path.
 
 | Proposed source boundary | Destination | Status |
 | --- | --- | --- |
 | `ac_input.CMC_L_OUT` → off-board AUX fuse → `AUX_FUSED_L`; `ac_input.AC_RECT_N` → IRM AC/N (after CMC, before main-path NTC) | IRM-20 `AC/L`, `AC/N` | **Proposal**; two-conductor branch-loop terminal and off-board cartridge/block are nominated below; inrush, fault energy and assembly segregation remain open |
-| IRM `+V`, `-V` | `AUX15_SOURCE`, `HOT0` | **Proposal**; bonding its isolated DC return to the bridge/HOT return makes this rail HOT, never SELV |
-| `AUX15_SOURCE`, `HOT0` | LTC4368 `VIN` and ground, external disconnect path | **Proposal**; no alternate feed around protection |
+| IRM-20-24 pad 4 `+V`, pad 3 `-V` | `RAW_AUX24`, `HOT0` | **Compiled pin candidate**; physical orientation remains unverified. Bonding its isolated DC return to the bridge/HOT return makes this rail HOT, never SELV. |
+| `RAW_AUX24`, `HOT0` | LMR36015 adjustable 15 V buck, then LTC4368 `VIN` and ground | **Proposal**; regulator and disconnect are not joined; no alternate feed around either. |
 | Disconnect output, `HOT0` | `AUX_PROTECTED`, `HOT0` | Required Rev38 driver, relay, PFC and window producer |
 | `AUX_PROTECTED`, `HOT0` | TPS54202 input; its 5 V output | Required `HOT_LOGIC5`, `HOT0` producer; buck input must be downstream of cutoff |
 
@@ -65,12 +81,13 @@ cold or warm starts. Nor do component interrupt ratings establish a 10 kA
 whole-assembly SCCR or coordination with 20 A F1. Record the cartridge,
 block, cover, branch conductor, 1714971 solder joints and two L pads in
 the native BOM; qualify inrush, clearing, terminal temperature, fuse bypass
-faults and access before mains assembly. The `1714971` terminal send/return
-pins now compile in the joined Atopile candidate; the off-board fuse and
-wiring are separate assembly parts and have not been constructed or
-qualified. The exact-pin audit rejects a copper bypass across the two pins.
+faults and access before mains assembly. The `1714971` terminal and
+IRM-20-24 pins now compile in the joined Atopile candidate; the off-board
+fuse and wiring are separate assembly parts and have not been constructed
+or qualified. The exact-pin audit rejects a copper bypass, direct module
+feed before the fuse, broken HOT return and reversed raw output.
 
-## Source and rail arithmetic
+## Direct 15 V comparison arithmetic
 
 Mean Well lists 15 V, 1.4 A, 21 W, ±2.5% voltage tolerance (including setup, line and load regulation), and 200 mV peak-to-peak ripple/noise for IRM-20-15. The specified AC range 85–305 Vac and 47–440 Hz includes Rev38's proposed 108–132 Vac, 60 Hz input. It gives a 1000 ms setup and 20 ms rise at 115 Vac/full load, **typical** 8 ms hold-up at 115 Vac/full load, overload hiccup at 115–160% of rated power, and 17.25–20.25 V overvoltage protection **trigger** range. None is a peak-output clamp or a guaranteed time-to-control waveform. The manufacturer's ripple test uses a 20 MHz bandwidth and 0.1 µF/47 µF termination; board transients may differ.
 
@@ -100,9 +117,18 @@ The LTC4368 uses external back-to-back MOSFETs, a sense resistor and a 32 ms rec
 
 The direct AC/DC source's listed 1000 ms setup at 115 Vac/full load and typical 8 ms hold-up cannot be used as a 1 s command timeout or an 8 ms safety hold-up guarantee. During startup `HOT_RUN_Q` and the relay must remain low until both HOT rails and receiver health are proven; on source collapse the driver EN shunt and retained trip must remove gate permission before their own control limits are lost. Test that rail order with the AVR reset and ESP isolation states, including brownout, repeated mains dips, IRM overload hiccup, cutoff recovery, and an output short.
 
-## Regulated 24 V comparison candidate
+## Selected regulated 24 V digital route
 
-Bench a second topology against the direct source: the same fused, post-CMC AC tap → [IRM-20-24](https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF) raw 24 V → [LMR36015FBRNXT](https://www.ti.com/lit/ds/symlink/lmr36015.pdf) adjustable 15 V buck → LTC4368 disconnect → `AUX_PROTECTED` → HOT logic5 buck. The IRM-20-24 is rated 24 V, 0.9 A, 21.6 W at the manufacturer's conditions. The TI converter is a 4.2–60 V, 1.5 A device; the nominated FBRNXT variant uses 1 MHz forced PWM. These are **comparison parts**, not a selected schematic or output-current allowance. The 24 V rail is `RAW_AUX24`, stays HOT, and must have no feed around either the buck or cutoff. The buck's `PG` pin has an 18 V recommended ceiling and cannot be pulled up to `RAW_AUX24`.
+Build the digital route as the same fused, post-CMC AC tap → joined
+IRM-20-24 raw 24 V → proposed [LMR36015FBRNXT](https://www.ti.com/lit/ds/symlink/lmr36015.pdf)
+adjustable 15 V buck → LTC4368 disconnect → `AUX_PROTECTED` → HOT logic5
+buck. The IRM-20-24 is rated 24 V, 0.9 A, 21.6 W at the manufacturer's
+conditions. The TI converter is a 4.2–60 V, 1.5 A device; the nominated
+FBRNXT variant uses 1 MHz forced PWM. The **raw module pins are joined**;
+the converter, cutoff and 5 V stages are still proposals, with no output
+current allowance. The 24 V rail is `RAW_AUX24`, stays HOT, and must have no
+feed around either buck or cutoff. The buck's `PG` pin has an 18 V
+recommended ceiling and cannot be pulled up to `RAW_AUX24`.
 
 For an **ideal closed-loop, static feedback-only screen**, a nominal resistor ratio `Rtop/Rbottom = 14` sets 15 V. TI specifies `VFB = 0.985–1.015 V` over its stated junction-temperature conditions, normally at `VIN = 24 V`. If each resistor has independently adverse ±0.1% variation, the mathematical output endpoints are `0.985 × [1 + 14 × (0.999/1.001)] = 14.74745 V` and `1.015 × [1 + 14 × (1.001/0.999)] = 15.25345 V`. That leaves about **497 mV low and 497 mV high** relative to Rev38's 14.25–15.75 V *normal* window, before feedback leakage, resistor TCR/aging, line/load error, ripple, load steps, startup overshoot, thermal limits and disconnect-path voltage drop. Ratio 14 is illustrative; no orderable resistor pair, inductor, capacitors, compensation or layout is chosen. The feedback calculation does **not** establish a protected-rail range or a fast-fault output peak.
 
@@ -120,4 +146,9 @@ The two bench paths use the same downstream cutoff concept and must be compared 
 3. Select orderable LTC4368 variant, FETs, shunt, precision OV and UV networks, RETRY/SHDN behavior and capacitors. Prove startup without overcurrent latch/hiccup, with the source's slew and the actual load. Recompute every static divider corner from those selections.
 4. Capture the selected raw source (`AUX15_SOURCE` or `RAW_AUX24`), the 15 V buck output if fitted, `AUX_PROTECTED`, UCC27624 `VDD`, `HOT_LOGIC5`, ENA, gate voltage and MOSFET current for slow OV ramps and fast source faults, UV/brownout, overload, cold/warm repeated starts and loss of HOT logic. Bound peak voltage, time to gate disable and recovery. Include FET SOA and capacitor energy.
 
-**Integration decision:** reserve the listed source and return ports in the single pin/interface contract. Keep `AUX_PROTECTED` and `HOT_LOGIC5` as unproduced ports in the compiled joined circuit until gates 1–3 choose and define an electrically coherent source module; keep fault-response acceptance OPEN until gate 4 is measured on the joined hardware. Neither source path is a selected Rev38 producer.
+**Integration decision:** `RAW_AUX24` is now a joined source pin candidate
+on the regulated route. Keep `AUX_PROTECTED` and `HOT_LOGIC5` as unproduced
+ports until gates 1–3 define and audit the regulator, cutoff and 5 V module;
+keep fault-response acceptance OPEN until gate 4 is measured on joined
+hardware. The direct 15 V path is a comparison, not the selected digital
+route. No protected Rev38 producer is selected yet.

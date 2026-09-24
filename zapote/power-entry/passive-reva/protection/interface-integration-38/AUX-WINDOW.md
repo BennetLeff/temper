@@ -1,11 +1,12 @@
 # Rev38 AUX fast-dip and overvoltage candidate
 
 Status: **compiled pin topology; thresholds and response acceptance OPEN**.
-The [direct 15 V source evaluation](AUX-SOURCE-CANDIDATE.md) leaves the
-protected AUX and HOT logic5 producers open. Its conditional 50 °C rail
-screen leaves only 62.5 mV on each side of Rev38's assumed
-14.25–15.75 V normal window before protection-path loss. That source cannot
-be joined on a 25 °C nominal voltage comparison alone.
+The [source decision](AUX-SOURCE-CANDIDATE.md) now joins the IRM-20-24 raw
+source as the regulated-route digital candidate; protected AUX and HOT
+logic5 producers remain open. The direct 15 V comparison's conditional
+50 °C screen leaves only 62.5 mV on each side of Rev38's assumed
+14.25–15.75 V normal window before protection-path loss. Its 25 °C
+nominal voltage is insufficient to choose it as the joined source.
 The independent [TPS3890](https://www.ti.com/lit/ds/symlink/tps3890.pdf)
 monitors AUX undervoltage with a 100 pF CT capacitor. This module uses a
 [TLV3202](https://www.ti.com/lit/ds/symlink/tlv3202.pdf) powered from HOT
@@ -122,7 +123,7 @@ window or fast-fault driver-pin peak.
 ### HOT logic5 census from the joined netlist
 
 The generated `build/integrated.net` with SHA-256
-`a54311635a5ea1e9af3426221da8cfb961d1f39410d50890683c78d99d259908`
+`f8cdba302168068d0f5da3283575a7833d4cfc488419bdc3d1e76cd3e0d666f4`
 has 86 pin nodes on `hot_logic5`, belonging to 60 distinct components.
 The count is a **connectivity inventory**, not a current measurement or a
 guaranteed load bound. Re-run it whenever the joined source changes.

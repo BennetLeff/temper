@@ -1,4 +1,4 @@
-# Rev38 fused-board AC input, EMI, NTC/precharge and PE topology candidate.
+# Rev38 fused-board AC input, EMI, NTC/precharge, PE and raw AUX topology.
 # F1, the AUX branch fuse and the inlet harness are off-board; the two AUX
 # terminal positions are a send/return boundary, not a PCB fuse bypass.
 #pragma experiment("MODULE_TEMPLATING")
@@ -18,6 +18,18 @@ component AuxBranchLoop38:
     footprint = "TBD_REVIEW_ONLY:AC_AUX_BRANCH_LOOP_1714971"
     signal SEND_L ~ pin 1
     signal RETURN_L ~ pin 2
+
+component Irm20Raw24_38:
+    mpn = "IRM-20-24"
+    manufacturer = "Mean Well"
+    datasheet = "https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF"
+    footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT"
+    # KiCad 10 symbol/footprint candidate pin map; physical bottom-view
+    # orientation remains a required native and assembly review.
+    signal AC_L ~ pin 1
+    signal AC_N ~ pin 2
+    signal DC_MINUS ~ pin 3
+    signal DC_PLUS ~ pin 4
 
 component Cmc38:
     mpn = "B82726S2163N030"
@@ -96,6 +108,7 @@ module AcInput38:
     signal AC_RECT_N
     signal CMC_L_OUT
     signal AUX_FUSED_L
+    signal RAW_AUX24
     signal RELAY_COIL_HI
     signal RELAY_COIL_LO
     signal RELAY_GATE
@@ -114,6 +127,11 @@ module AcInput38:
     aux_branch = new AuxBranchLoop38
     aux_branch.SEND_L ~ CMC_L_OUT
     aux_branch.RETURN_L ~ AUX_FUSED_L
+    raw_aux = new Irm20Raw24_38
+    raw_aux.AC_L ~ AUX_FUSED_L
+    raw_aux.AC_N ~ AC_RECT_N
+    raw_aux.DC_MINUS ~ HOT0
+    raw_aux.DC_PLUS ~ RAW_AUX24
     ntc = new Ntc38
     ntc.p1 ~ CMC_L_OUT
     ntc.p2 ~ AC_RECT_L

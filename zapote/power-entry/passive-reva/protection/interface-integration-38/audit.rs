@@ -771,10 +771,11 @@ fn check_pfc_power(g: &Graph) -> Result<(), String> {
 }
 
 fn check_ac_input(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 13 { return Err(format!("expected 13 AC input parts, found {}", g.parts.len())); }
+    if g.parts.len() != 14 { return Err(format!("expected 14 AC input parts, found {}", g.parts.len())); }
     for (id, mpn) in [
         ("board_input", "1714984"),
         ("aux_branch", "1714971"),
+        ("raw_aux", "IRM-20-24"),
         ("cmc", "B82726S2163N030"), ("ntc", "SL32 10015"),
         ("bypass", "RT33K012"), ("x2", "B32922C3224M289"),
         ("mov", "V150LA10AP"), ("y1", "VY1102M31Y5UQ63V0"),
@@ -790,14 +791,15 @@ fn check_ac_input(g: &Graph) -> Result<(), String> {
     for (net, expected) in [
         ("ac_n", "board_input:2 cmc:2 x2:2 mov:2"),
         ("pe", "board_input:3 y1:2"),
-        ("hot0", "y1:1 relay_gate_pd:2 relay_fet:2"),
+        ("hot0", "y1:1 relay_gate_pd:2 relay_fet:2 raw_aux:3"),
         ("aux_protected", "coil_drop:1"),
         ("hot_relay_enable", "relay_gate_r:1"),
         ("ac_rect_l", "ntc:2 bypass:3"),
-        ("ac_rect_n", "cmc:3"),
+        ("ac_rect_n", "cmc:3 raw_aux:2"),
         ("fused_l", "board_input:1 cmc:1 x2:1 mov:1"),
         ("cmc_l_out", "cmc:4 ntc:1 bypass:4 aux_branch:1"),
-        ("aux_fused_l", "aux_branch:2"),
+        ("aux_fused_l", "aux_branch:2 raw_aux:1"),
+        ("raw_aux24", "raw_aux:4"),
         ("relay_coil_hi", "coil_drop:2 bypass:1 flyback:1"),
         ("relay_coil_lo", "relay_fet:3 bypass:2 flyback:2"),
         ("relay_gate", "relay_gate_r:2 relay_gate_pd:1 relay_fet:1"),
@@ -1209,6 +1211,31 @@ mod tests {
     fn ac_aux_branch_return_disconnect_fails() {
         let mut g = ac_fixture();
         g.pins.remove(&("aux_branch".into(), "2".into()));
+        assert!(check_ac_input(&g).is_err());
+    }
+
+    #[test]
+    fn ac_raw_aux_input_bypass_fails() {
+        let mut g = ac_fixture();
+        let send = g.pins[&("aux_branch".into(), "1".into())].clone();
+        g.pins.insert(("raw_aux".into(), "1".into()), send);
+        assert!(check_ac_input(&g).is_err());
+    }
+
+    #[test]
+    fn ac_raw_aux_hot_return_disconnect_fails() {
+        let mut g = ac_fixture();
+        g.pins.insert(("raw_aux".into(), "3".into()), "raw_aux_return_cut".into());
+        assert!(check_ac_input(&g).is_err());
+    }
+
+    #[test]
+    fn ac_raw_aux_polarity_swap_fails() {
+        let mut g = ac_fixture();
+        let positive = g.pins[&("raw_aux".into(), "4".into())].clone();
+        let negative = g.pins[&("raw_aux".into(), "3".into())].clone();
+        g.pins.insert(("raw_aux".into(), "3".into()), positive);
+        g.pins.insert(("raw_aux".into(), "4".into()), negative);
         assert!(check_ac_input(&g).is_err());
     }
 
