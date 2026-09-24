@@ -68,14 +68,34 @@ Group I reinforced-creepage screen is **12.6 mm**, so the selected DW
 package has no demonstrated margin even before solder lands and nearby
 copper are checked. A PCB rule cannot make an intrinsic package path
 longer. Do not mark U7 native DRC or insulation PASS merely by spacing the
-rest of the board. A qualified wider package may be feasible: TI lists
->14.5 mm external creepage for ISO774x-Q1 DWW variants, which would exceed
-the provisional **package** screen, but its exact channel direction,
-fail-low option, approval, pin map, pad geometry and adjacent Group IIIa
-board path must be rechecked before substitution. A reviewed slot/path
-interpretation is another possibility. The Y1 capacitor,
-relay, AUX supply, controller connector, and any other crossing require
-the same path-by-path check.
+rest of the board.
+
+### Exact wider-package screen (not a source substitution)
+
+TI's 2026-02 package-option addendum lists the active, production
+`ISO7741FQDWWRQ1` (3 forward / 1 reverse, fail-low) in DWW-16. It lists
+`ISO7742FQDWRQ1` only in DW-16: the family's DWW insulation table does
+**not** establish that a fail-low, 2/2 ISO7742 DWW can actually be ordered.
+For the second 2/2 device, TI lists active, production `ISO7842FDWWR`.
+Its datasheet specifies fail-low outputs, the same 2/2 signal pin positions
+as the selected ISO7742FDWR, Group I package material and >14.5 mm
+external package creepage and clearance. This is a concrete alternate pair
+for review, **not** a drop-in insulation approval or a changed Rev38 BOM.
+
+The ISO7842 DWW datasheet's *optimized* land-pattern examples give only
+14.5–15.2 mm between opposed pads. On the project's provisional Group IIIa
+FR-4 screen, those examples do not themselves demonstrate the 16.0 mm
+reinforced **board** creepage. A reviewed slot, qualified Group I laminate,
+or another constructed path may be needed. Its output is undetermined when
+the output-side rail is unpowered or in the stated 1.7–2.25 V transition
+region; retain local default-low loads and qualify the actual rail sequence.
+Before changing the source, compare both candidates' enable/power-loss
+behavior, input/output drive, supply budget, timing, pad-to-pad path, exact
+footprint and certification scope on the joined circuit. The product safety
+review must still establish the applicable appliance requirement.
+
+The Y1 capacitor, relay, AUX supply, controller connector, and any other
+crossing require the same path-by-path check.
 
 Before creating `native/section.kicad_dru`, the integration owner must:
 
@@ -112,3 +132,9 @@ U7 digital blocker, not an accepted rule omission.
   official scope records; full current clause/table review remains open.
 - [TI ISO774x DW data sheet](https://www.ti.com/lit/ds/symlink/iso7741.pdf):
   selected package external insulation geometry.
+- [TI ISO774x-Q1 package-option addendum and insulation table](https://www.ti.com/lit/gpn/ISO7742-Q1):
+  exact DWW orderability of ISO7741F and absence of ISO7742F DWW from
+  the listed orderable parts; DWW package geometry and Group I material.
+- [TI ISO7842F data sheet](https://www.ti.com/lit/ds/symlink/iso7842.pdf):
+  exact `ISO7842FDWWR` orderability, 2/2 pin map, fail-low behavior,
+  package path, optimized land-pattern dimensions and partial-power caveats.
