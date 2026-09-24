@@ -26,4 +26,4 @@ cooling.fault	-	-	-	-	-	HS_FAULT	SELV	gnd	OUT	3.465	HIGH	UNKNOWN	missing
 global.live	-	-	-	-	-	SENSOR_LIVE	SELV	gnd	OUT	3.465	LOW	UNKNOWN	missing
 discharge.fanoff	-	-	-	-	-	FAN_OFF_HEAT	THERMAL	-	EVIDENCE	0	UNKNOWN	UNKNOWN	missing
 f2.continuity	-	-	-	-	-	F2_CONTINUITY	HOT	HOT0	EVIDENCE	0	UNKNOWN	UNKNOWN	missing
-programming.ui	-	-	-	-	-	SERVICE_RESET	SELV	gnd	IN	3.465	LOW	UNKNOWN	missing
+programming.ui	zapote/programming-ui/README.md	reset. A programmer-triggered EN reset is a power-stage event: the service	-	-	-	SERVICE_RESET	SELV	gnd	IN	3.465	LOW	UNKNOWN	source

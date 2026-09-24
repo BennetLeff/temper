@@ -6,7 +6,7 @@ auxiliary_source	zapote/auxiliary/interface-contract.md	b3d89a74f17a37c3416c96c2
 discharge_source	zapote/discharge/interface-contract.md	6ba5815ae019a4aa6da1c17a53e3e75ef5456cb0e648c34cb8c1fd52b505040e	-	-
 inverter_source	zapote/inverter/interface-contract.md	f7ea6599e1e574f202bbba6ff9405d67957ee4e68dc80ea0f3f5457bf6606830	-	-
 cooling_source	zapote/thermal/cooker-envelope/fan-fault-interface.md	b94becd8d69d4dc7a925487f3d2716007dcedc3e0f0083e959f95f4e43c37cbe	-	-
-programming_ui_source	-	-	-	-
+programming_ui_source	zapote/programming-ui/pin-ledger.tsv	9e7cdca6902c48234aabce2c1118957aa4085044cc337f22c73ca832f0b173ac	-	-
 sensing_and_gate_sources	-	-	-	-
 integrated_source	-	-	-	-
 integrated_pcb	-	-	-	-
@@ -15,7 +15,8 @@ adopted_rust_suite	-	-	-	-
 native_erc	-	-	-	-
 native_drc	-	-	-	-
 exact_bom	-	-	-	-
-fab_outputs	-	-	-	-
+fab_gerbers	-	-	-	-
+fab_drill	-	-	-	-
 assembly_outputs	-	-	-	-
 isolation	-	-	-	-
 control_loss_default_off	-	-	-	-

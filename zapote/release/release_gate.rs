@@ -21,7 +21,8 @@ const ROLES: &[(&str, &str)] = &[
     ("native_erc", "machine"),
     ("native_drc", "machine"),
     ("exact_bom", "machine"),
-    ("fab_outputs", "machine"),
+    ("fab_gerbers", "machine"),
+    ("fab_drill", "machine"),
     ("assembly_outputs", "machine"),
     ("isolation", "physical"),
     ("control_loss_default_off", "physical"),
@@ -299,9 +300,8 @@ fn tool_version(tool: &Path, role: &str) -> Result<String, String> {
 fn expected_tool(role: &str) -> Option<&'static str> {
     match role {
         "adopted_rust_suite" => Some("cargo"),
-        "native_erc" | "native_drc" | "exact_bom" | "fab_outputs" | "assembly_outputs" => {
-            Some("kicad-cli")
-        }
+        "native_erc" | "native_drc" | "exact_bom" | "fab_gerbers" | "fab_drill"
+        | "assembly_outputs" => Some("kicad-cli"),
         _ => None,
     }
 }
@@ -324,7 +324,7 @@ fn command_shape(role: &str, args: &[String], board: &Path, artifact: &Path) -> 
         "native_erc" => &["sch", "erc"],
         "native_drc" => &["pcb", "drc"],
         "exact_bom" => &["sch", "export"],
-        "fab_outputs" | "assembly_outputs" => &["pcb", "export"],
+        "fab_gerbers" | "fab_drill" | "assembly_outputs" => &["pcb", "export"],
         "adopted_rust_suite" => &[],
         _ => return Err("non-machine role cannot carry a check receipt".into()),
     };
@@ -336,14 +336,27 @@ fn command_shape(role: &str, args: &[String], board: &Path, artifact: &Path) -> 
     {
         return Err("wrong command family for role".into());
     }
+    if args
+        .iter()
+        .any(|arg| matches!(arg.as_str(), "--help" | "-h" | "--version"))
+    {
+        return Err("help/version invocation is not a release check".into());
+    }
+    if matches!(role, "native_erc" | "native_drc")
+        && !args.iter().any(|arg| arg == "--exit-code-violations")
+    {
+        return Err("native ERC/DRC must fail on violations".into());
+    }
     let required = match role {
-        "adopted_rust_suite" => &["run", "test"][..],
-        "exact_bom" => &["bom"][..],
-        "fab_outputs" => &["gerbers", "drill"][..],
-        "assembly_outputs" => &["pos"][..],
-        _ => &[][..],
+        "adopted_rust_suite" => Some("run"),
+        "exact_bom" => Some("bom"),
+        "fab_gerbers" => Some("gerbers"),
+        "fab_drill" => Some("drill"),
+        "assembly_outputs" => Some("pos"),
+        _ => None,
     };
-    if !required.is_empty() && !args.iter().any(|a| required.contains(&a.as_str())) {
+    let subcommand_index = prefix.len();
+    if required.is_some_and(|name| args.get(subcommand_index).map(String::as_str) != Some(name)) {
         return Err("missing role-specific command".into());
     }
     let board = board.to_str().ok_or("invalid board path")?;
@@ -476,7 +489,11 @@ fn evaluate(
                     &e.receipt,
                     &e.receipt_sha,
                 ) {
-                    Ok(true) => ("PASS", "exact machine replay matched".into()),
+                    Ok(true) => (
+                        "INDETERMINATE",
+                        "exact replay matched; tool authority and report semantics unreviewed"
+                            .into(),
+                    ),
                     Ok(false) => ("FAIL", "machine check exited nonzero".into()),
                     Err(err) => ("FAIL", err),
                 },
@@ -796,7 +813,7 @@ mod tests {
 
     #[test]
     #[cfg(unix)]
-    fn actual_replay_can_pass_a_machine_role_but_not_release() {
+    fn actual_replay_records_identity_but_cannot_self_authorize_pass() {
         let f = Fixture::new();
         let (board_sha, artifact_sha, receipt, receipt_sha) = captured(&f, 0);
         let m = parse_manifest(&manifest(
@@ -821,11 +838,39 @@ mod tests {
         ))
         .unwrap();
         assert_eq!(evaluate(&f.0, &m, false).0[10].1, "INDETERMINATE");
-        assert_eq!(evaluate(&f.0, &m, true).0[10].1, "PASS");
+        assert_eq!(evaluate(&f.0, &m, true).0[10].1, "INDETERMINATE");
+        assert!(evaluate(&f.0, &m, true).0[10].2.contains("tool authority"));
         assert!(evaluate(&f.0, &m, true)
             .0
             .iter()
             .any(|(_, status, _)| *status != "PASS"));
+    }
+
+    #[test]
+    fn drc_requires_violation_exit_and_fabrication_requires_both_roles() {
+        let board = Path::new("/tmp/cooker.kicad_pcb");
+        let artifact = Path::new("/tmp/report.txt");
+        let drc = vec![
+            "pcb".into(),
+            "drc".into(),
+            board.display().to_string(),
+            artifact.display().to_string(),
+        ];
+        assert!(command_shape("native_drc", &drc, board, artifact)
+            .unwrap_err()
+            .contains("fail on violations"));
+        let mut checked = drc;
+        checked.push("--exit-code-violations".into());
+        assert!(command_shape("native_drc", &checked, board, artifact).is_ok());
+        let drill = vec![
+            "pcb".into(),
+            "export".into(),
+            "drill".into(),
+            board.display().to_string(),
+            artifact.display().to_string(),
+        ];
+        assert!(command_shape("fab_gerbers", &drill, board, artifact).is_err());
+        assert!(command_shape("fab_drill", &drill, board, artifact).is_ok());
     }
 
     #[test]

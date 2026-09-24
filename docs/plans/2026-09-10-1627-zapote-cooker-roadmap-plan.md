@@ -33,6 +33,18 @@ several units describe sequencing groups, not permission to combine their goals.
 | 8 | **Full-board validation and fabrication release** | The complete adopted Rust suite and native KiCad checks pass on the frozen board; required indeterminate checks are resolved. BOM and release outputs match it. |
 | 9 | **Assembled and physically verified cooker** | Staged hardware tests measure sensing, protection, heating and thermal behavior; required corrective revisions are closed. |
 
+## Progress recorded 2026-09-23
+
+The [parallel roadmap plan](2026-09-23-zapote-remaining-roadmap-parallel-plan.md)
+produced source-bound digital readiness gates for the auxiliary, discharge,
+inverter, cooling and programming/UI units. The [integration matrix](../../zapote/integration/matrix.tsv)
+is **BLOCKED** by unresolved voltage-sense, return, stop, fault and native
+endpoint interfaces. The [release inventory](../../zapote/release/release-manifest.tsv)
+is **INCOMPLETE**, and its [assembled test protocol](../../zapote/release/physical-test-protocol.md)
+is entirely **NOT_RUN**. These readiness artifacts organize the remaining
+construction and evidence; they do not close orders 5–9 or replace the
+standalone and physical acceptance conditions above.
+
 This is a construction order. Record expected supply/isolation domains, mechanical
 envelopes and inter-unit interfaces during unit work. Final whole-board placement
 and cross-unit routing belong to integration. Revisit affected units when an

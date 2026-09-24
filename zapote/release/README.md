@@ -10,16 +10,21 @@ rustc --edition=2021 --test zapote/release/release_gate.rs -o /private/tmp/zapot
 ```
 
 An incomplete or failed release returns exit 1, a malformed manifest or
-invocation returns exit 2, and only a complete release returns 0. `--replay` is required to
-promote a runnable role to `PASS`; it executes the named tool without a shell.
+invocation returns exit 2, and only a complete release returns 0. `--replay`
+executes the named tool without a shell and checks its exact result. A matching
+replay remains `INDETERMINATE` until a reviewed tool authority and result
+interpreter are added; an executable's own hash and version cannot grant `PASS`.
 Use it only on trusted, reviewed receipts. The role set is closed in Rust and
 every role must appear exactly once in the manifest. `-` means absent evidence,
 not a successful or inapplicable check.
 
-The five present source files are byte identities for provisional work, not
+The six present source files are byte identities for provisional work, not
 accepted unit sources. Their result is `INDETERMINATE`. The integrated board,
 firmware, adopted whole-board suite, native ERC/DRC, exact BOM, manufacturing
-outputs and every physical obligation are `NOT_RUN`. No assembled cooker has
+outputs and every physical obligation are `NOT_RUN`. Gerbers and drill outputs
+have separate mandatory roles. Native ERC/DRC receipts require
+`--exit-code-violations`; their severity policy and report contents still need
+independent review. No assembled cooker has
 been tested.
 
 ## Receipt contract for a future frozen board

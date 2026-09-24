@@ -26,7 +26,7 @@ Determine whether the current standalone units and Rev38 interface can enter coo
 3. Preserve the distinct `HV_RETURN` to `HOT0` low-side Kelvin/isolated-bias join as indeterminate until the exact join, bias isolation and return-current path are reviewed.
 4. Block missing global `SENSOR_LIVE`, VD=VB as F2 continuity evidence, and omitted fan-off discharge heating.
 5. Trace each sensing/cooling/auxiliary fault through interlock to **both** PFC and inverter stop; open-wire and unpowered remote states cannot be assumed safe from powered standalone Boolean behavior. Keep timing unknown until captured.
-6. Preserve programming/UI reset and pin conflicts as a blocked integration dependency. Coordinator R5 work at `ab49fd5c3` is newer than this worktree base and must be source-locked when the branches integrate.
+6. Preserve programming/UI reset and pin conflicts as a blocked integration dependency. Coordinator R5 work at `ab49fd5c3` is source-locked in the combined branch, while the native service connector and measured stop response remain absent.
 
 ## Replay and handoff
 

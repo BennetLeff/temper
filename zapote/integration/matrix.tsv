@@ -32,7 +32,7 @@ unit.interlock	INDETERMINATE	standalone digital construction; integration and ph
 unit.inverter	INDETERMINATE	candidate source/evidence; unit acceptance open
 unit.mcu	BLOCKED	earlier standalone unit has no source/native acceptance binding in this snapshot
 unit.power_entry	INDETERMINATE	candidate source/evidence; unit acceptance open
-unit.programming_ui	BLOCKED	required unit interface source unavailable in this base
+unit.programming_ui	INDETERMINATE	candidate source/evidence; unit acceptance open
 unit.rtd	INDETERMINATE	standalone digital construction; integration and physical qualification open
 unit.thermal	INDETERMINATE	standalone digital construction; integration and physical qualification open
 unit.voltage	INDETERMINATE	standalone digital construction; integration and physical qualification open
