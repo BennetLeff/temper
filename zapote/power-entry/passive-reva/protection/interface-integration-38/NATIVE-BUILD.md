@@ -18,7 +18,9 @@ are not part of this frozen `source-build-03` export. That derivative
 now has its own frozen `cooker-source-01` export and a two-source 16-contact
 connector audit, recorded in `COOKER-ASSEMBLY-SOURCE.md`. It still needs a
 native board, physical harness, SELV rail capacity and reset/interlock pin
-qualification. The
+qualification. Its [static native readiness probe](cooker-mate/README.md)
+identifies two missing canonical footprints and missing ESP module ground
+contacts 40/41 in the source/land pattern; it has not generated a board. The
 source remains an engineering candidate. It includes two unresolved
 footprint references:
 off-board `A70QS50-14F` F2 at `U226` and the distinct Phoenix `1017526`

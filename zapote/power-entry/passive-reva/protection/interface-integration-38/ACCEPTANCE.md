@@ -18,6 +18,7 @@ No numerical fault response, protected operation, or mains build is approved.
 | Reference model and protocol tests | `model.rs` SHA-256 `86165afe2bd2c80cb353aa9fdb3993d89ed9597257fe6416d8ef48d80043a567`; `protocol-tests.rs` SHA-256 `6b4e8456092fe226e649ad37eddb2ed8e424acd7327a7b162e69b67de08db49a` |
 | ESP source adapter | `firmware/main/power_entry_authorization.c` SHA-256 `9241602d8f193ae10a1f1fc4fc87369de6a08116b8804466910194f44d03bc50`; header SHA-256 `62e936dec957a3ae5e7bc55e1c6b9e48b06620cb26cf5d3adab8e57c0faab274` |
 | Native board, production runtime and physical capture | **No accepted artifact or hash** |
+| Cooker native readiness diagnostic | `cooker-mate/evidence/native-readiness-01.json` SHA-256 `65d1c05a769cbd413216b0aa32c8c2f9600a4028824edc71dfcb2917eac72cef`; static probe only |
 
 Each build receipt lists every copied Atopile source hash and its resolved
 export hash. The [two-board source record](COOKER-ASSEMBLY-SOURCE.md) links
@@ -59,6 +60,7 @@ current-cessation result.
 | ESP production integration | **OPEN** | Diagnostic lockout target image is not a production image; cooker hooks and target timing/pin captures remain unresolved. |
 | F1/F2, AUX, cooker SELV rail and thermal/fault envelopes | **OPEN** | See `F1-SCREEN.md`, `F2-BOARD-INTERFACE.md`, `AUX-SOURCE-CANDIDATE.md`, `SELV-SUPPLY-LOAD.md`. |
 | Native schematic/PCB, ERC/DRC, stackup, source/native parity and maintained unit gate | **NOT RUN for Rev38** | No accepted native board bytes; canonical `pcb/temper.kicad_pcb` remains outside this candidate. |
+| Cooker source/footprint readiness | **OPEN** | Static probe finds two unresolved canonical F1/NTC footprints, missing ESP ground pads 40/41 in the source/land pattern, no reviewed poses/outline, and a stale strict-bridge extension. |
 | Low-voltage assembled injection, fault-to-current cessation, mains safety and passive protection/cooling milestone | **NOT RUN / OPEN** | Require a joined physical design and separately accepted measurements. |
 
 The next digital release gate is a reviewed native Rev38 board plus cooker
