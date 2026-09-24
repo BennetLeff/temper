@@ -120,11 +120,16 @@ The direct AC/DC source's listed 1000 ms setup at 115 Vac/full load and typical 
 ## Selected regulated 24 V digital route
 
 Build the digital route as the same fused, post-CMC AC tap → joined
-IRM-20-24 raw 24 V → proposed [LMR36015FBRNXT](https://www.ti.com/lit/ds/symlink/lmr36015.pdf)
+IRM-20-24 raw 24 V → proposed [LMR36015BRNXT](https://www.ti.com/lit/ds/symlink/lmr36015.pdf)
 adjustable 15 V buck → LTC4368 disconnect → `AUX_PROTECTED` → HOT logic5
 buck. The IRM-20-24 is rated 24 V, 0.9 A, 21.6 W at the manufacturer's
 conditions. The TI converter is a 4.2–60 V, 1.5 A device; the nominated
-FBRNXT variant uses 1 MHz forced PWM. The **raw module pins are joined**;
+BRNXT variant uses 1 MHz auto PWM/PFM. TI's `FBRNXT` has the same adjustable
+output and 1 MHz nominal frequency but forces PWM at light load and permits
+limited reverse inductor current from output to input. Before relay pickup,
+this circuit can be lightly loaded; avoid that reverse-current behavior in
+the first candidate. Auto mode's burst ripple and possible effect on the
+15 V normal window and cutoff recovery still need measurement. The **raw module pins are joined**;
 the converter, cutoff and 5 V stages are still proposals, with no output
 current allowance. The 24 V rail is `RAW_AUX24`, stays HOT, and must have no
 feed around either buck or cutoff. The buck's `PG` pin has an 18 V
@@ -133,6 +138,33 @@ recommended ceiling and cannot be pulled up to `RAW_AUX24`.
 For an **ideal closed-loop, static feedback-only screen**, a nominal resistor ratio `Rtop/Rbottom = 14` sets 15 V. TI specifies `VFB = 0.985–1.015 V` over its stated junction-temperature conditions, normally at `VIN = 24 V`. If each resistor has independently adverse ±0.1% variation, the mathematical output endpoints are `0.985 × [1 + 14 × (0.999/1.001)] = 14.74745 V` and `1.015 × [1 + 14 × (1.001/0.999)] = 15.25345 V`. That leaves about **497 mV low and 497 mV high** relative to Rev38's 14.25–15.75 V *normal* window, before feedback leakage, resistor TCR/aging, line/load error, ripple, load steps, startup overshoot, thermal limits and disconnect-path voltage drop. Ratio 14 is illustrative; no orderable resistor pair, inductor, capacitors, compensation or layout is chosen. The feedback calculation does **not** establish a protected-rail range or a fast-fault output peak.
 
 The two bench paths use the same downstream cutoff concept and must be compared at the same measured local temperatures and load waveforms. The regulated path adds converter loss, EMI, startup sequencing and a high-side-switch failure mode; its extra static margin is meaningful only if the complete source, buck and cutoff pass the normal-window and fault captures. The IRM's published overvoltage trigger is not a bound on `RAW_AUX24` peak or the buck's output under a fault. Qualify `RAW_AUX24` against the buck's input ratings at line surges, and capture buck output and protected output separately during forced high-output, buck short, loss of feedback, mains dips and cutoff recovery. Compare the measured worst-case driver-VDD peak and turn-off delay, not just nominal rail accuracy.
+
+### 15 V converter circuit entry conditions
+
+The [TI LMR36015 data sheet](https://www.ti.com/lit/ds/symlink/lmr36015.pdf)
+gives the exact RNX pin functions: PGND 1/11, VIN 2/10, NC 3 externally
+joined to SW 12, BOOT 4, VCC 5, AGND 6, FB 7, PG 8, EN 9 and SW 12.
+VIN needs at least 4.7 µF **effective** ceramic capacitance and a nearby
+220 nF bypass at each VIN/PGND pair. BOOT requires 100 nF to SW; VCC
+requires 1 µF to ground and cannot power another load. EN must have a
+defined drive; if PG is unused, TI requires it to be grounded. Check the
+actual RNX footprint pad geometry and thermal connection before native
+release. None of these parts is yet joined to the Rev38 netlist.
+
+TI recommends a 100 kΩ top feedback resistor, and its 1 V nominal FB
+reference makes the *ideal* bottom value `100/14 = 7.142857 kΩ` for 15 V.
+The illustrative ±0.1% ratio screen above is not an orderable pair. Select
+parts by manufacturer MPN and recompute the actual ratio, temperature drift,
+FB leakage and output window. Size the inductor from TI's 20–40% ripple
+guidance using the converter's **1.5 A device rating** even if the measured
+Rev38 load is smaller, then check saturation against the published switch
+current-limit range, DCR heating and the subharmonic minimum-inductance
+condition. Select input and output capacitors by effective bias/temperature
+value, ripple current and the measured load-step target. TI calls for load
+transient and loop-gain validation before production; no 15 V output network
+or compensation has yet passed that check. These are prerequisites for a
+fully specified 15 V schematic, not evidence that the converter meets the
+protected-rail window.
 
 ## Decision gates before joining
 
