@@ -1,0 +1,730 @@
+# Partial Rev38 isolation/receiver pin fixture. Not the joined U4 circuit.
+# Pins and directions come from the Microchip AVR DA 32-pin I/O table and
+# TI ISO774x data sheet. All HOT-facing outputs are pulled low locally.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component Avr64Da32:
+    mpn = "AVR64DA32-E/PT"
+    manufacturer = "Microchip"
+    datasheet = "https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/AVR64DA28-32-48-64-DataSheet-DS40002233.pdf"
+    footprint = "Package_QFP:TQFP-32_7x7mm_P0.8mm"
+    signal PA3 ~ pin 1
+    signal PA4 ~ pin 2
+    signal PA5 ~ pin 3
+    signal PA6 ~ pin 4
+    signal PA7 ~ pin 5
+    signal PC0 ~ pin 6
+    signal PC1 ~ pin 7
+    signal PC2 ~ pin 8
+    signal PC3 ~ pin 9
+    signal PD0 ~ pin 10
+    signal PD1 ~ pin 11
+    signal PD2 ~ pin 12
+    signal PD3 ~ pin 13
+    signal PD4 ~ pin 14
+    signal PD5 ~ pin 15
+    signal PD6 ~ pin 16
+    signal PD7 ~ pin 17
+    signal AVDD ~ pin 18
+    signal GND19 ~ pin 19
+    signal PF0 ~ pin 20
+    signal PF1 ~ pin 21
+    signal PF2 ~ pin 22
+    signal PF3 ~ pin 23
+    signal PF4 ~ pin 24
+    signal PF5 ~ pin 25
+    signal RESET_N ~ pin 26
+    signal UPDI ~ pin 27
+    signal VDD ~ pin 28
+    signal GND29 ~ pin 29
+    signal PA0 ~ pin 30
+    signal PA1 ~ pin 31
+    signal PA2 ~ pin 32
+
+component Iso7741F:
+    mpn = "ISO7741FDWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/iso7742.pdf"
+    footprint = "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm"
+    signal VCC1 ~ pin 1
+    signal GND1 ~ pin 2
+    signal INA ~ pin 3
+    signal INB ~ pin 4
+    signal INC ~ pin 5
+    signal OUTD ~ pin 6
+    signal EN1 ~ pin 7
+    signal GND1B ~ pin 8
+    signal GND2 ~ pin 9
+    signal EN2 ~ pin 10
+    signal IND ~ pin 11
+    signal OUTC ~ pin 12
+    signal OUTB ~ pin 13
+    signal OUTA ~ pin 14
+    signal GND2B ~ pin 15
+    signal VCC2 ~ pin 16
+
+component Iso7742F:
+    mpn = "ISO7742FDWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/iso7742.pdf"
+    # Exact MPN identity comes from the CSV BOM when Atopile aliases
+    # unlike devices sharing this SOIC-16W footprint.
+    footprint = "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm"
+    signal VCC1 ~ pin 1
+    signal GND1 ~ pin 2
+    signal INA ~ pin 3
+    signal INB ~ pin 4
+    signal OUTC ~ pin 5
+    signal OUTD ~ pin 6
+    signal EN1 ~ pin 7
+    signal GND1B ~ pin 8
+    signal GND2 ~ pin 9
+    signal EN2 ~ pin 10
+    signal IND ~ pin 11
+    signal INC ~ pin 12
+    signal OUTB ~ pin 13
+    signal OUTA ~ pin 14
+    signal GND2B ~ pin 15
+    signal VCC2 ~ pin 16
+
+component HotResetOneShot:
+    # Non-retriggerable dual monostable; inverted outputs are finite low
+    # pulses. The two channels are deliberately independent.
+    mpn = "SN74LV221AQPWRQ1"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lv221a-q1.pdf"
+    footprint = "Package_SO:TSSOP-16_4.4x5mm_P0.65mm"
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal CLR1_N ~ pin 3
+    signal Q1_N ~ pin 4
+    signal Q2 ~ pin 5
+    signal CEXT2 ~ pin 6
+    signal REXT_CEXT2 ~ pin 7
+    signal GND ~ pin 8
+    signal A2 ~ pin 9
+    signal B2 ~ pin 10
+    signal CLR2_N ~ pin 11
+    signal Q2_N ~ pin 12
+    signal Q1 ~ pin 13
+    signal CEXT1 ~ pin 14
+    signal REXT_CEXT1 ~ pin 15
+    signal VCC ~ pin 16
+
+component HotRetainedDff:
+    mpn = "SN74HCS74PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal CLR1_N ~ pin 1
+    signal D1 ~ pin 2
+    signal CLK1 ~ pin 3
+    signal PRE1_N ~ pin 4
+    signal Q1 ~ pin 5
+    signal Q1_N ~ pin 6
+    signal GND ~ pin 7
+    signal Q2_N ~ pin 8
+    signal Q2 ~ pin 9
+    signal PRE2_N ~ pin 10
+    signal CLK2 ~ pin 11
+    signal D2 ~ pin 12
+    signal CLR2_N ~ pin 13
+    signal VCC ~ pin 14
+
+component HotPrepTripAnd:
+    mpn = "SN74HCS21PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal NC1 ~ pin 3
+    signal C1 ~ pin 4
+    signal D1 ~ pin 5
+    signal Y1 ~ pin 6
+    signal GND ~ pin 7
+    signal Y2 ~ pin 8
+    signal A2 ~ pin 9
+    signal B2 ~ pin 10
+    signal NC2 ~ pin 11
+    signal C2 ~ pin 12
+    signal D2 ~ pin 13
+    signal VCC ~ pin 14
+
+component HotPermitInverter:
+    mpn = "SN74HCS04PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs04.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal A1 ~ pin 1
+    signal Y1 ~ pin 2
+    signal A2 ~ pin 3
+    signal Y2 ~ pin 4
+    signal A3 ~ pin 5
+    signal Y3 ~ pin 6
+    signal GND ~ pin 7
+    signal Y4 ~ pin 8
+    signal A4 ~ pin 9
+    signal Y5 ~ pin 10
+    signal A5 ~ pin 11
+    signal Y6 ~ pin 12
+    signal A6 ~ pin 13
+    signal VCC ~ pin 14
+
+component HotPermitLossNand:
+    mpn = "SN74HCS00PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs00.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal Y1 ~ pin 3
+    signal A2 ~ pin 4
+    signal B2 ~ pin 5
+    signal Y2 ~ pin 6
+    signal GND ~ pin 7
+    signal Y3 ~ pin 8
+    signal A3 ~ pin 9
+    signal B3 ~ pin 10
+    signal Y4 ~ pin 11
+    signal A4 ~ pin 12
+    signal B4 ~ pin 13
+    signal VCC ~ pin 14
+
+component TimingC10n:
+    mpn = "GRM188R71H103KA01D"
+    manufacturer = "Murata"
+    # Atopile 0.2.69 can alias unlike MPNs on this common footprint.
+    # Use the generated CSV BOM, rather than netlist metadata, for identity.
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R:
+    mpn = "RC0603FR-0710KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotOpenDrainDefaultR100k:
+    mpn = "RC0603FR-07100KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C:
+    mpn = "GRM188R71H104KA93D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module ReceiverIsolation38:
+    signal SELV3V3
+    signal SELV_GND
+    signal HOT_LOGIC5
+    signal HOT0
+    signal SOURCE_COMMAND_TX
+    signal SOURCE_PERMIT_Q
+    signal SOURCE_RELAY_REQUEST
+    signal SOURCE_HEALTH_Q
+    signal SOURCE_STOP_N
+    signal SOURCE_RESPONSE_RX
+    signal SOURCE_HOT_PERMIT_FB
+    signal SOURCE_HOT_SESSION_FB
+    signal HOT_PERMIT
+    signal HOT_RELAY_REQUEST
+    signal HOT_RELAY_DRIVER
+    signal HOT_RELAY_ENABLE
+    signal HOT_SOURCE_HEALTH
+    signal HOT_SOURCE_STOP_N
+    signal HOT_SESSION_Q
+    signal HOT_RUN_Q
+    signal HOT_DISARM_Q
+    signal HOT_DISARM_SAMPLE_REQUEST
+    signal HOT_PREP_ABORT_Q
+    signal HOT_PREP_ABORT_OK
+    signal HOT_PREP_TRIP_OK
+    signal HOT_ATTEMPT_VALID
+    signal HOT_WATCHDOG_OK
+    signal HOT_PERMIT_SEEN_Q
+    signal HOT_PERMIT_PRESET_N
+    signal HOT_RUN_LOW
+    signal HOT_ABORT_ASSERTED
+    signal HOT_HISTORY_RESET_ALLOWED
+    signal HOT_HISTORY_RESET_D
+    signal HOT_PERMIT_LOSS_OK
+    signal HOT_SESSION_REVALIDATE_D
+    signal HOT_RUN_CLEAR_N
+    signal HOT_FAULT_N
+    signal HOT_RAILS_OK
+    signal HOT_RECEIVER_ABORT_N
+    signal HOT_SESSION_CLEAR_N
+    signal HOT_PREP_RESET_REQUEST
+    signal HOT_HISTORY_RESET_REQUEST
+    signal HOT_PREP_RESET_RAW_N
+    signal HOT_HISTORY_RESET_RAW_N
+    signal HOT_REVALIDATE_REQUEST
+    signal HOT_RUN_SET_REQUEST
+    signal HOT_WDI
+    signal HOT_RESET_N
+    signal HOT_UPDI
+
+    iso_protocol = new Iso7741F
+    rx = new Avr64Da32
+    rx.VDD ~ HOT_LOGIC5
+    rx.AVDD ~ HOT_LOGIC5
+    rx.GND19 ~ HOT0
+    rx.GND29 ~ HOT0
+    rx.RESET_N ~ HOT_RESET_N
+    rx.UPDI ~ HOT_UPDI
+    rx.PA0 ~ iso_protocol.IND
+    rx.PA1 ~ iso_protocol.OUTA
+    rx.PA2 ~ HOT_RELAY_DRIVER
+    rx.PA6 ~ HOT_ATTEMPT_VALID
+    rx.PA3 ~ HOT_PERMIT_SEEN_Q
+    rx.PA4 ~ HOT_PREP_RESET_REQUEST
+    rx.PA5 ~ HOT_RELAY_REQUEST
+    rx.PC0 ~ HOT_DISARM_Q
+    rx.PC1 ~ HOT_PREP_ABORT_Q
+    rx.PC2 ~ HOT_FAULT_N
+    rx.PC3 ~ HOT_HISTORY_RESET_REQUEST
+    rx.PD0 ~ HOT_PERMIT
+    rx.PD1 ~ HOT_SESSION_Q
+    rx.PD2 ~ HOT_RUN_Q
+    rx.PD3 ~ HOT_RECEIVER_ABORT_N
+    rx.PD4 ~ HOT_REVALIDATE_REQUEST
+    rx.PD5 ~ HOT_RUN_SET_REQUEST
+    rx.PD6 ~ HOT_WDI
+    rx.PD7 ~ HOT_RAILS_OK
+    rx.PF0 ~ HOT_SESSION_CLEAR_N
+    rx.PF1 ~ HOT_DISARM_SAMPLE_REQUEST
+
+    # Raw finite reset pulses. The joined circuit must qualify them against
+    # live fault and disarm inputs before either reaches a retained clear.
+    reset_pulses = new HotResetOneShot
+    reset_pulses.VCC ~ HOT_LOGIC5
+    reset_pulses.GND ~ HOT0
+    reset_pulses.CLR1_N ~ HOT_LOGIC5
+    reset_pulses.CLR2_N ~ HOT_LOGIC5
+    reset_pulses.A1 ~ HOT0
+    reset_pulses.A2 ~ HOT0
+    reset_pulses.B1 ~ HOT_PREP_RESET_REQUEST
+    reset_pulses.B2 ~ HOT_HISTORY_RESET_REQUEST
+    reset_pulses.Q1_N ~ HOT_PREP_RESET_RAW_N
+    reset_pulses.Q2_N ~ HOT_HISTORY_RESET_RAW_N
+    # Reset is a single positive clock edge with D=0, never a held async
+    # clear. A subsequent qualified trip uses async PRE_N and stays set even
+    # if the one-shot output remains high. The unused second DFF is cleared.
+    prep_abort_memory = new HotRetainedDff
+    prep_abort_memory.VCC ~ HOT_LOGIC5
+    prep_abort_memory.GND ~ HOT0
+    prep_abort_memory.CLR1_N ~ HOT_LOGIC5
+    prep_abort_memory.D1 ~ HOT0
+    prep_abort_memory.CLK1 ~ reset_pulses.Q1
+    prep_abort_memory.PRE1_N ~ HOT_PREP_TRIP_OK
+    prep_abort_memory.Q1 ~ HOT_PREP_ABORT_Q
+    prep_abort_memory.Q1_N ~ HOT_PREP_ABORT_OK
+    prep_abort_memory.CLR2_N ~ HOT0
+    prep_abort_memory.PRE2_N ~ HOT_LOGIC5
+    prep_abort_memory.D2 ~ HOT0
+    prep_abort_memory.CLK2 ~ HOT0
+    # PERMIT high asynchronously presets history even if a bounded reset
+    # clock is active. Low PERMIT alone cannot erase a previously seen high.
+    # D is normally high; only qualified disarm drives it low for the clock.
+    permit_inverter = new HotPermitInverter
+    permit_inverter.VCC ~ HOT_LOGIC5
+    permit_inverter.GND ~ HOT0
+    permit_inverter.A1 ~ HOT_PERMIT
+    permit_inverter.Y1 ~ HOT_PERMIT_PRESET_N
+    permit_inverter.A2 ~ HOT_RUN_Q
+    permit_inverter.Y2 ~ HOT_RUN_LOW
+    permit_inverter.A3 ~ HOT_RECEIVER_ABORT_N
+    permit_inverter.Y3 ~ HOT_ABORT_ASSERTED
+    permit_inverter.A4 ~ HOT_HISTORY_RESET_ALLOWED
+    permit_inverter.Y4 ~ HOT_HISTORY_RESET_D
+    permit_inverter.A5 ~ HOT0
+    permit_inverter.A6 ~ HOT0
+    permit_seen_memory = new HotRetainedDff
+    permit_seen_memory.VCC ~ HOT_LOGIC5
+    permit_seen_memory.GND ~ HOT0
+    permit_seen_memory.CLR1_N ~ HOT_LOGIC5
+    permit_seen_memory.D1 ~ HOT_HISTORY_RESET_D
+    permit_seen_memory.CLK1 ~ reset_pulses.Q2
+    permit_seen_memory.PRE1_N ~ HOT_PERMIT_PRESET_N
+    permit_seen_memory.Q1 ~ HOT_PERMIT_SEEN_Q
+    permit_seen_memory.CLR2_N ~ HOT0
+    permit_seen_memory.PRE2_N ~ HOT_LOGIC5
+    permit_seen_memory.D2 ~ HOT0
+    permit_seen_memory.CLK2 ~ HOT0
+    # A fresh clock after attempt-valid rises records the physical low
+    # PERMIT level. A concurrent trip holds async clear low, regardless of
+    # request level; recovery cannot create a second raw clock edge.
+    disarm_memory = new HotRetainedDff
+    disarm_memory.VCC ~ HOT_LOGIC5
+    disarm_memory.GND ~ HOT0
+    disarm_memory.CLR1_N ~ HOT_PREP_TRIP_OK
+    disarm_memory.D1 ~ HOT_PERMIT_PRESET_N
+    disarm_memory.CLK1 ~ HOT_DISARM_SAMPLE_REQUEST
+    disarm_memory.PRE1_N ~ HOT_LOGIC5
+    disarm_memory.Q1 ~ HOT_DISARM_Q
+    disarm_memory.CLR2_N ~ HOT0
+    disarm_memory.PRE2_N ~ HOT_LOGIC5
+    disarm_memory.D2 ~ HOT0
+    disarm_memory.CLK2 ~ HOT0
+    c_disarm_memory = new C
+    c_disarm_memory.value = 100nF
+    c_disarm_memory.p1 ~ HOT_LOGIC5
+    c_disarm_memory.p2 ~ HOT0
+    disarm_sample_pd = new R
+    disarm_sample_pd.value = 10kohm
+    disarm_sample_pd.p1 ~ HOT_DISARM_SAMPLE_REQUEST
+    disarm_sample_pd.p2 ~ HOT0
+    c_permit_inverter = new C
+    c_permit_inverter.value = 100nF
+    c_permit_inverter.p1 ~ HOT_LOGIC5
+    c_permit_inverter.p2 ~ HOT0
+    c_permit_seen_memory = new C
+    c_permit_seen_memory.value = 100nF
+    c_permit_seen_memory.p1 ~ HOT_LOGIC5
+    c_permit_seen_memory.p2 ~ HOT0
+    permit_preset_pd = new R
+    permit_preset_pd.value = 10kohm
+    permit_preset_pd.p1 ~ HOT_PERMIT_PRESET_N
+    permit_preset_pd.p2 ~ HOT0
+    prep_trip_and = new HotPrepTripAnd
+    prep_trip_and.VCC ~ HOT_LOGIC5
+    prep_trip_and.GND ~ HOT0
+    prep_trip_and.A1 ~ HOT_ATTEMPT_VALID
+    prep_trip_and.B1 ~ HOT_SOURCE_HEALTH
+    prep_trip_and.C1 ~ HOT_SOURCE_STOP_N
+    prep_trip_and.D1 ~ HOT_RAILS_OK
+    prep_trip_and.A2 ~ prep_trip_and.Y1
+    prep_trip_and.B2 ~ HOT_FAULT_N
+    prep_trip_and.C2 ~ HOT_WATCHDOG_OK
+    prep_trip_and.D2 ~ HOT_LOGIC5
+    prep_trip_and.Y2 ~ HOT_PREP_TRIP_OK
+    history_reset_and = new HotPrepTripAnd
+    history_reset_and.VCC ~ HOT_LOGIC5
+    history_reset_and.GND ~ HOT0
+    history_reset_and.A1 ~ HOT_DISARM_Q
+    history_reset_and.B1 ~ HOT_RUN_LOW
+    history_reset_and.C1 ~ HOT_PERMIT_PRESET_N
+    history_reset_and.D1 ~ HOT_PREP_ABORT_OK
+    history_reset_and.A2 ~ history_reset_and.Y1
+    history_reset_and.B2 ~ HOT_PREP_TRIP_OK
+    history_reset_and.C2 ~ HOT_ABORT_ASSERTED
+    history_reset_and.D2 ~ HOT_LOGIC5
+    history_reset_and.Y2 ~ HOT_HISTORY_RESET_ALLOWED
+    c_history_reset_and = new C
+    c_history_reset_and.value = 100nF
+    c_history_reset_and.p1 ~ HOT_LOGIC5
+    c_history_reset_and.p2 ~ HOT0
+    history_reset_allowed_pd = new R
+    history_reset_allowed_pd.value = 10kohm
+    history_reset_allowed_pd.p1 ~ HOT_HISTORY_RESET_ALLOWED
+    history_reset_allowed_pd.p2 ~ HOT0
+    history_reset_d_pu = new R
+    history_reset_d_pu.value = 10kohm
+    history_reset_d_pu.p1 ~ HOT_LOGIC5
+    history_reset_d_pu.p2 ~ HOT_HISTORY_RESET_D
+    permit_loss_nand = new HotPermitLossNand
+    permit_loss_nand.VCC ~ HOT_LOGIC5
+    permit_loss_nand.GND ~ HOT0
+    permit_loss_nand.A1 ~ HOT_PERMIT_SEEN_Q
+    permit_loss_nand.B1 ~ HOT_PERMIT_PRESET_N
+    permit_loss_nand.Y1 ~ HOT_PERMIT_LOSS_OK
+    permit_loss_nand.A2 ~ HOT0
+    permit_loss_nand.B2 ~ HOT0
+    permit_loss_nand.A3 ~ HOT0
+    permit_loss_nand.B3 ~ HOT0
+    permit_loss_nand.A4 ~ HOT0
+    permit_loss_nand.B4 ~ HOT0
+    c_permit_loss_nand = new C
+    c_permit_loss_nand.value = 100nF
+    c_permit_loss_nand.p1 ~ HOT_LOGIC5
+    c_permit_loss_nand.p2 ~ HOT0
+    permit_loss_ok_pd = new R
+    permit_loss_ok_pd.value = 10kohm
+    permit_loss_ok_pd.p1 ~ HOT_PERMIT_LOSS_OK
+    permit_loss_ok_pd.p2 ~ HOT0
+    session_and = new HotPrepTripAnd
+    session_and.VCC ~ HOT_LOGIC5
+    session_and.GND ~ HOT0
+    session_and.A1 ~ HOT_PREP_TRIP_OK
+    session_and.B1 ~ HOT_PREP_ABORT_OK
+    session_and.C1 ~ HOT_RECEIVER_ABORT_N
+    session_and.D1 ~ HOT_PERMIT_LOSS_OK
+    session_and.Y1 ~ HOT_SESSION_CLEAR_N
+    session_and.A2 ~ HOT_SESSION_CLEAR_N
+    session_and.B2 ~ HOT_DISARM_Q
+    session_and.C2 ~ HOT_PERMIT_PRESET_N
+    session_and.D2 ~ HOT_RUN_LOW
+    session_and.Y2 ~ HOT_SESSION_REVALIDATE_D
+    c_session_and = new C
+    c_session_and.value = 100nF
+    c_session_and.p1 ~ HOT_LOGIC5
+    c_session_and.p2 ~ HOT0
+    revalidate_d_pd = new R
+    revalidate_d_pd.value = 10kohm
+    revalidate_d_pd.p1 ~ HOT_SESSION_REVALIDATE_D
+    revalidate_d_pd.p2 ~ HOT0
+    session_memory = new HotRetainedDff
+    session_memory.VCC ~ HOT_LOGIC5
+    session_memory.GND ~ HOT0
+    session_memory.CLR1_N ~ HOT_SESSION_CLEAR_N
+    session_memory.D1 ~ HOT_SESSION_REVALIDATE_D
+    session_memory.CLK1 ~ HOT_REVALIDATE_REQUEST
+    session_memory.PRE1_N ~ HOT_LOGIC5
+    session_memory.Q1 ~ HOT_SESSION_Q
+    session_memory.CLR2_N ~ HOT0
+    session_memory.PRE2_N ~ HOT_LOGIC5
+    session_memory.D2 ~ HOT0
+    session_memory.CLK2 ~ HOT0
+    c_session_memory = new C
+    c_session_memory.value = 100nF
+    c_session_memory.p1 ~ HOT_LOGIC5
+    c_session_memory.p2 ~ HOT0
+    run_and = new HotPrepTripAnd
+    run_and.VCC ~ HOT_LOGIC5
+    run_and.GND ~ HOT0
+    run_and.A1 ~ HOT_SESSION_Q
+    run_and.B1 ~ HOT_PERMIT
+    run_and.C1 ~ HOT_SESSION_CLEAR_N
+    run_and.D1 ~ HOT_LOGIC5
+    run_and.Y1 ~ HOT_RUN_CLEAR_N
+    # An ESP-side relay request may persist across CPU-only reset. The
+    # receiver output can energize the bypass only while retained RUN Q is
+    # high; loss of HOT logic5 leaves the downstream FET gate pulled low.
+    run_and.A2 ~ HOT_RUN_Q
+    run_and.B2 ~ HOT_RELAY_DRIVER
+    run_and.C2 ~ HOT_LOGIC5
+    run_and.D2 ~ HOT_LOGIC5
+    run_and.Y2 ~ HOT_RELAY_ENABLE
+    c_run_and = new C
+    c_run_and.value = 100nF
+    c_run_and.p1 ~ HOT_LOGIC5
+    c_run_and.p2 ~ HOT0
+    run_clear_pd = new R
+    run_clear_pd.value = 10kohm
+    run_clear_pd.p1 ~ HOT_RUN_CLEAR_N
+    run_clear_pd.p2 ~ HOT0
+    run_memory = new HotRetainedDff
+    run_memory.VCC ~ HOT_LOGIC5
+    run_memory.GND ~ HOT0
+    run_memory.CLR1_N ~ HOT_RUN_CLEAR_N
+    run_memory.D1 ~ HOT_RUN_CLEAR_N
+    run_memory.CLK1 ~ HOT_RUN_SET_REQUEST
+    run_memory.PRE1_N ~ HOT_LOGIC5
+    run_memory.Q1 ~ HOT_RUN_Q
+    run_memory.CLR2_N ~ HOT0
+    run_memory.PRE2_N ~ HOT_LOGIC5
+    run_memory.D2 ~ HOT0
+    run_memory.CLK2 ~ HOT0
+    c_run_memory = new C
+    c_run_memory.value = 100nF
+    c_run_memory.p1 ~ HOT_LOGIC5
+    c_run_memory.p2 ~ HOT0
+    c_prep_trip_and = new C
+    c_prep_trip_and.value = 100nF
+    c_prep_trip_and.p1 ~ HOT_LOGIC5
+    c_prep_trip_and.p2 ~ HOT0
+    c_prep_abort_memory = new C
+    c_prep_abort_memory.value = 100nF
+    c_prep_abort_memory.p1 ~ HOT_LOGIC5
+    c_prep_abort_memory.p2 ~ HOT0
+    prep_trip_ok_pd = new R
+    prep_trip_ok_pd.value = 10kohm
+    prep_trip_ok_pd.p1 ~ HOT_PREP_TRIP_OK
+    prep_trip_ok_pd.p2 ~ HOT0
+    prep_abort_ok_pd = new R
+    prep_abort_ok_pd.value = 10kohm
+    prep_abort_ok_pd.p1 ~ HOT_PREP_ABORT_OK
+    prep_abort_ok_pd.p2 ~ HOT0
+    attempt_valid_pd = new R
+    attempt_valid_pd.value = 10kohm
+    attempt_valid_pd.p1 ~ HOT_ATTEMPT_VALID
+    attempt_valid_pd.p2 ~ HOT0
+    watchdog_ok_pd = new HotOpenDrainDefaultR100k
+    watchdog_ok_pd.value = 100kohm
+    watchdog_ok_pd.p1 ~ HOT_WATCHDOG_OK
+    watchdog_ok_pd.p2 ~ HOT0
+    r_prep_timing = new R
+    r_prep_timing.value = 10kohm
+    r_prep_timing.p1 ~ HOT_LOGIC5
+    r_prep_timing.p2 ~ reset_pulses.REXT_CEXT1
+    c_prep_timing = new TimingC10n
+    c_prep_timing.value = 10nF
+    c_prep_timing.p1 ~ reset_pulses.REXT_CEXT1
+    c_prep_timing.p2 ~ reset_pulses.CEXT1
+    r_history_timing = new R
+    r_history_timing.value = 10kohm
+    r_history_timing.p1 ~ HOT_LOGIC5
+    r_history_timing.p2 ~ reset_pulses.REXT_CEXT2
+    c_history_timing = new TimingC10n
+    c_history_timing.value = 10nF
+    c_history_timing.p1 ~ reset_pulses.REXT_CEXT2
+    c_history_timing.p2 ~ reset_pulses.CEXT2
+    c_reset_pulses = new C
+    c_reset_pulses.value = 100nF
+    c_reset_pulses.p1 ~ HOT_LOGIC5
+    c_reset_pulses.p2 ~ HOT0
+    prep_reset_raw_pd = new R
+    prep_reset_raw_pd.value = 10kohm
+    prep_reset_raw_pd.p1 ~ HOT_PREP_RESET_RAW_N
+    prep_reset_raw_pd.p2 ~ HOT0
+    history_reset_raw_pd = new R
+    history_reset_raw_pd.value = 10kohm
+    history_reset_raw_pd.p1 ~ HOT_HISTORY_RESET_RAW_N
+    history_reset_raw_pd.p2 ~ HOT0
+
+    iso_protocol.VCC1 ~ SELV3V3
+    iso_protocol.GND1 ~ SELV_GND
+    iso_protocol.GND1B ~ SELV_GND
+    iso_protocol.EN1 ~ SELV3V3
+    iso_protocol.VCC2 ~ HOT_LOGIC5
+    iso_protocol.GND2 ~ HOT0
+    iso_protocol.GND2B ~ HOT0
+    iso_protocol.EN2 ~ HOT_LOGIC5
+    iso_protocol.INA ~ SOURCE_COMMAND_TX
+    iso_protocol.INB ~ SOURCE_PERMIT_Q
+    iso_protocol.INC ~ SOURCE_RELAY_REQUEST
+    iso_protocol.OUTD ~ SOURCE_RESPONSE_RX
+    iso_protocol.OUTB ~ HOT_PERMIT
+    iso_protocol.OUTC ~ HOT_RELAY_REQUEST
+
+    iso_feedback = new Iso7742F
+    iso_feedback.VCC1 ~ SELV3V3
+    iso_feedback.GND1 ~ SELV_GND
+    iso_feedback.GND1B ~ SELV_GND
+    iso_feedback.EN1 ~ SELV3V3
+    iso_feedback.VCC2 ~ HOT_LOGIC5
+    iso_feedback.GND2 ~ HOT0
+    iso_feedback.GND2B ~ HOT0
+    iso_feedback.EN2 ~ HOT_LOGIC5
+    iso_feedback.INA ~ SOURCE_HEALTH_Q
+    iso_feedback.INB ~ SOURCE_STOP_N
+    iso_feedback.OUTA ~ HOT_SOURCE_HEALTH
+    iso_feedback.OUTB ~ HOT_SOURCE_STOP_N
+    iso_feedback.INC ~ HOT_PERMIT
+    iso_feedback.IND ~ HOT_SESSION_Q
+    iso_feedback.OUTC ~ SOURCE_HOT_PERMIT_FB
+    iso_feedback.OUTD ~ SOURCE_HOT_SESSION_FB
+
+    c_rx = new C
+    c_rx.value = 100nF
+    c_rx.p1 ~ HOT_LOGIC5
+    c_rx.p2 ~ HOT0
+    c_iso1_hot = new C
+    c_iso1_hot.value = 100nF
+    c_iso1_hot.p1 ~ HOT_LOGIC5
+    c_iso1_hot.p2 ~ HOT0
+    c_iso1_selv = new C
+    c_iso1_selv.value = 100nF
+    c_iso1_selv.p1 ~ SELV3V3
+    c_iso1_selv.p2 ~ SELV_GND
+    c_iso2_hot = new C
+    c_iso2_hot.value = 100nF
+    c_iso2_hot.p1 ~ HOT_LOGIC5
+    c_iso2_hot.p2 ~ HOT0
+    c_iso2_selv = new C
+    c_iso2_selv.value = 100nF
+    c_iso2_selv.p1 ~ SELV3V3
+    c_iso2_selv.p2 ~ SELV_GND
+
+    # Explicit defaults; actual leakage/logic-level corners remain open.
+    permit_pd = new R
+    permit_pd.value = 10kohm
+    permit_pd.p1 ~ HOT_PERMIT
+    permit_pd.p2 ~ HOT0
+    relay_request_pd = new R
+    relay_request_pd.value = 10kohm
+    relay_request_pd.p1 ~ HOT_RELAY_REQUEST
+    relay_request_pd.p2 ~ HOT0
+    relay_driver_pd = new R
+    relay_driver_pd.value = 10kohm
+    relay_driver_pd.p1 ~ HOT_RELAY_DRIVER
+    relay_driver_pd.p2 ~ HOT0
+    source_health_pd = new R
+    source_health_pd.value = 10kohm
+    source_health_pd.p1 ~ HOT_SOURCE_HEALTH
+    source_health_pd.p2 ~ HOT0
+    source_stop_pd = new R
+    source_stop_pd.value = 10kohm
+    source_stop_pd.p1 ~ HOT_SOURCE_STOP_N
+    source_stop_pd.p2 ~ HOT0
+    session_pd = new R
+    session_pd.value = 10kohm
+    session_pd.p1 ~ HOT_SESSION_Q
+    session_pd.p2 ~ HOT0
+    abort_pd = new R
+    abort_pd.value = 10kohm
+    abort_pd.p1 ~ HOT_RECEIVER_ABORT_N
+    abort_pd.p2 ~ HOT0
+    session_clear_pd = new R
+    session_clear_pd.value = 10kohm
+    session_clear_pd.p1 ~ HOT_SESSION_CLEAR_N
+    session_clear_pd.p2 ~ HOT0
+    source_permit_fb_pd = new R
+    source_permit_fb_pd.value = 10kohm
+    source_permit_fb_pd.p1 ~ SOURCE_HOT_PERMIT_FB
+    source_permit_fb_pd.p2 ~ SELV_GND
+    source_session_fb_pd = new R
+    source_session_fb_pd.value = 10kohm
+    source_session_fb_pd.p1 ~ SOURCE_HOT_SESSION_FB
+    source_session_fb_pd.p2 ~ SELV_GND
+    reset_pullup = new R
+    reset_pullup.value = 10kohm
+    reset_pullup.p1 ~ HOT_LOGIC5
+    reset_pullup.p2 ~ HOT_RESET_N
+    rails_pd = new HotOpenDrainDefaultR100k
+    rails_pd.value = 100kohm
+    rails_pd.p1 ~ HOT_RAILS_OK
+    rails_pd.p2 ~ HOT0
+    fault_n_pd = new R
+    fault_n_pd.value = 10kohm
+    fault_n_pd.p1 ~ HOT_FAULT_N
+    fault_n_pd.p2 ~ HOT0
+    disarm_pd = new R
+    disarm_pd.value = 10kohm
+    disarm_pd.p1 ~ HOT_DISARM_Q
+    disarm_pd.p2 ~ HOT0
+    run_pd = new R
+    run_pd.value = 10kohm
+    run_pd.p1 ~ HOT_RUN_Q
+    run_pd.p2 ~ HOT0
+    prep_abort_pu = new R
+    prep_abort_pu.value = 10kohm
+    prep_abort_pu.p1 ~ HOT_LOGIC5
+    prep_abort_pu.p2 ~ HOT_PREP_ABORT_Q
+    permit_seen_pu = new R
+    permit_seen_pu.value = 10kohm
+    permit_seen_pu.p1 ~ HOT_LOGIC5
+    permit_seen_pu.p2 ~ HOT_PERMIT_SEEN_Q
+    prep_reset_pd = new R
+    prep_reset_pd.value = 10kohm
+    prep_reset_pd.p1 ~ HOT_PREP_RESET_REQUEST
+    prep_reset_pd.p2 ~ HOT0
+    history_reset_pd = new R
+    history_reset_pd.value = 10kohm
+    history_reset_pd.p1 ~ HOT_HISTORY_RESET_REQUEST
+    history_reset_pd.p2 ~ HOT0
+    revalidate_pd = new R
+    revalidate_pd.value = 10kohm
+    revalidate_pd.p1 ~ HOT_REVALIDATE_REQUEST
+    revalidate_pd.p2 ~ HOT0
+    run_set_pd = new R
+    run_set_pd.value = 10kohm
+    run_set_pd.p1 ~ HOT_RUN_SET_REQUEST
+    run_set_pd.p2 ~ HOT0
+    wdi_pd = new R
+    wdi_pd.value = 10kohm
+    wdi_pd.p1 ~ HOT_WDI
+    wdi_pd.p2 ~ HOT0

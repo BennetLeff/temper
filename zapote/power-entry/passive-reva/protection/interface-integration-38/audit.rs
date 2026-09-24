@@ -772,10 +772,11 @@ fn check_pfc_control(g: &Graph) -> Result<(), String> {
 }
 
 fn check_pfc_power(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 13 { return Err(format!("expected 13 PFC power parts, found {}", g.parts.len())); }
+    if g.parts.len() != 14 { return Err(format!("expected 14 PFC power parts, found {}", g.parts.len())); }
     for (id, mpn) in [
         ("bridge", "GBJ2510-F"), ("l_boost", "760800301"),
         ("d_boost", "C3D20065D"), ("f2", "A70QS50-14F"),
+        ("f2_board", "1017526"),
         ("local_c", "B32776P6226K000"), ("hf_c", "B32672P6474K000"),
         ("bulk1", "LGX2W561MELC50"), ("bulk2", "LGX2W561MELC50"),
         ("bulk3", "LGX2W561MELC50"), ("bulk4", "LGX2W561MELC50"),
@@ -791,8 +792,8 @@ fn check_pfc_power(g: &Graph) -> Result<(), String> {
         ("hot0", "local_c:2 local_c:3 hf_c:2 bulk1:2 bulk2:2 bulk3:2 bulk4:2 bleed3:2"),
         ("rect_minus", "bridge:4"),
         ("boost_switch", "l_boost:2 d_boost:1 d_boost:3"),
-        ("vd_local", "d_boost:2 f2:1 local_c:1 local_c:4 hf_c:1"),
-        ("vb_bank", "f2:2 bulk1:1 bulk2:1 bulk3:1 bulk4:1 bleed1:1"),
+        ("vd_local", "d_boost:2 f2:1 f2_board:1 f2_board:2 local_c:1 local_c:4 hf_c:1"),
+        ("vb_bank", "f2:2 f2_board:3 f2_board:4 bulk1:1 bulk2:1 bulk3:1 bulk4:1 bleed1:1"),
         ("bleed1", "bleed1:2 bleed2:1"),
         ("bleed2", "bleed2:2 bleed3:1"),
         ("plus", "bridge:1 l_boost:1"),
@@ -1579,6 +1580,20 @@ mod tests {
     fn pfc_power_f2_bypass_fails() {
         let mut g = power_fixture();
         g.pins.insert(("f2".into(), "2".into()), "vd_local".into());
+        assert!(check_pfc_power(&g).is_err());
+    }
+
+    #[test]
+    fn pfc_power_f2_board_terminal_split_potential_fails() {
+        let mut g = power_fixture();
+        g.pins.insert(("f2_board".into(), "2".into()), "terminal_split".into());
+        assert!(check_pfc_power(&g).is_err());
+    }
+
+    #[test]
+    fn pfc_power_f2_board_terminal_cross_potential_fails() {
+        let mut g = power_fixture();
+        g.pins.insert(("f2_board".into(), "3".into()), "vd_local".into());
         assert!(check_pfc_power(&g).is_err());
     }
 

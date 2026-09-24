@@ -1,6 +1,6 @@
 # Rev38 SELV 3.3 V load and startup inventory
 
-**Status:** engineering screen, 2026-09-23. No `SELV3V3` producer or power connector is joined in `PowerEntryIntegrated38`; this record does not select a supply or establish spare capacity on the existing cooker rail. The source inventory is the live Rev38 `elec/src/{power_entry_integrated_38,source_mcu,source_authority,receiver_isolation}.ato`, not the frozen `source-build-01` copy. A refreshed generated BOM/netlist must be used before release.
+**Status:** engineering screen, 2026-09-23. No `SELV3V3` producer or power connector is joined in `PowerEntryIntegrated38`; this record does not select a supply or establish spare capacity on the existing cooker rail. The source inventory is the live Rev38 `elec/src/{power_entry_integrated_38,source_mcu,source_authority,receiver_isolation}.ato`, not the frozen `source-build-02` copy. A refreshed generated BOM/netlist must be used before release.
 
 ## Joined Rev38 load
 

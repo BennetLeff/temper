@@ -6,7 +6,8 @@ interfaces. The HOT MCU and isolation endpoints below are selected in the
 Rev38 Atopile fixture. The ESP module/GPIO and local expander allocation is
 joined as `SourceMcu38` and exact-pin audited. A single source task is now
 wired into `app_main`, but remains locked out; CPU-reset behavior and the
-ESP-IDF target build are unverified.
+ESP-IDF target image are unverified. Rev38 sources compile for ESP32-S3, while
+the full image fails link on unresolved production cooker hooks.
 The approved plan and `receiver-selection.md` govern behavior; a pin listed
 here is not an electrical, boot-state, or timing acceptance.
 
