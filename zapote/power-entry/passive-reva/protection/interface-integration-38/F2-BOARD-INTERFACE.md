@@ -39,15 +39,26 @@ The similar Phoenix [1017531 push-in product](https://www.phoenixcontact.com/en-
 
 ### Additional terminal study: Phoenix 1709681
 
-The current [Phoenix MKDS 10 HV/ 2-ZB-10,16 product record](https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-mkds-10-hv-2-zb-1016-1709681)
-lists order number **1709681**, two potentials, two solder pins per potential,
-76 A / 1000 V IEC III/2, and cULus B/C 60 A / 600 V. It specifies 1 × 0.9 mm
-pins and 1.5 mm PCB holes, avoiding the 1017526 catalog's hole-size conflict.
-The manufacturer page's drawing is a staggered family illustration, however,
-not a released two-position land pattern with pad diameters and explicit
-pin-to-screw continuity. This is a candidate for a controlled drawing or
-sample check, **not** a footprint substitution or a DC fault-current approval.
-The selected 1017526 source and frozen export remain unchanged.
+The current [Phoenix MKDS 10 HV/ 2-ZB-10,16 product record](https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-mkds-10-hv-2-zb-1016-1709681) identifies order number **1709681**. It says two potentials with two solder pins per potential, 76 A and 1000 V IEC III/2, 800 V IEC III/3, and cULus B/C 60 A at 600 V. Its catalog dimensions are 20.32 mm width, 18.7 mm length, 35.8 mm total height, 30.8 mm installed height, 5 mm solder-pin length, 1 × 0.9 mm pins, and **1.5 mm PCB holes**. The current page also specifies 0.5–16 mm² conductors, 10 mm strip length and 1.2–1.5 N·m tightening torque. This avoids the selected 1017526 page's 1.85/2.0 mm drilling conflict but does **not** establish fault-current withstand or a complete two-position land pattern.
+
+I visually inspected the Phoenix-hosted [drilling plan](https://caas.phoenixcontact.com/caas/v1/stable/media/21262/full/b1500?format=jpg) and [dimensional drawing](https://caas.phoenixcontact.com/caas/v1/stable/media/42906/full/b1500?format=jpg) on that exact product page on 2026-09-24. Both illustrations show the **three-position family example**; the former depicts alternating top/bottom pairs, and the latter explicitly labels itself as the three-position version. The drilling view dimensions each within-potential pin pair at 4 mm, successive potential centers at 10.16 mm horizontally, and the stagger at 10.16 mm vertically. The side view puts one pin row 1.98 mm from the housing's rear face. The front view places the last pin 3.18 mm from the right housing edge. Truncating the family pattern to two positions yields this **review-only candidate**, with pad 1 as origin and X increasing across the terminals, Y increasing toward the wire-entry face:
+
+| Proposed pad | Proposed potential | Nominal center (mm) | Basis |
+| --- | --- | --- | --- |
+| 1 | First / left screw position, proposed `VD_LOCAL` | `(0, 0)` | Phoenix first pin pair in the rear row |
+| 2 | First / left screw position, proposed `VD_LOCAL` | `(4.00, 0)` | 4 mm pair separation |
+| 3 | Second / right screw position, proposed `VB_BANK` | `(10.16, 10.16)` | 10.16 mm position pitch and stagger |
+| 4 | Second / right screw position, proposed `VB_BANK` | `(14.16, 10.16)` | 4 mm pair separation |
+
+The resulting nominal body rectangle, derived from the 20.32 × 18.7 mm catalog envelope and the family drawing's 3.18 mm right and 1.98 mm rear offsets, is `X = -2.98…17.34`, `Y = -1.98…16.72` mm. That extrapolation is a placement screen, not a tolerance-controlled two-position mechanical drawing. Phoenix does not publish numeric pad identifiers in these drawings. The left/right screw assignment, pair continuity, orientation relative to the board's viewing face, and final pad numbers need a sample continuity check or a Phoenix-controlled two-position ECAD/drawing before source substitution.
+
+The unassigned [Phoenix_1709681_ReviewOnly footprint](../../libraries/temper.pretty/Phoenix_1709681_ReviewOnly.kicad_mod) implements those four candidate centers and the catalog's **1.5 mm nominal PCB hole**. Whether Phoenix intends that as a finished diameter must be checked before fabrication. Its **2.5 mm circular copper lands** (rectangular pad 1 for orientation) are an engineering choice, not a Phoenix land recommendation. Nominal annular ring is `(2.5 − 1.5)/2 = 0.50 mm`, above the project's [0.254 mm 2 oz fabrication floor](../../../../../docs/hardware/FAB_CAPABILITY.md); drill/registration tolerances and solder-joint/current capacity still need fabrication and thermal review. The 0.5 mm courtyard expansion excludes tool access, cable bend, strain relief and enclosure clearance. No 3D model has been verified. The footprint is deliberately named `ReviewOnly` and is **not assigned** in the selected source or native board.
+
+On that candidate land pattern, the nearest opposite-potential pads are 2 and 3: center distance `sqrt(6.16² + 10.16²) = 11.882 mm`, nominal edge-to-edge copper gap **9.382 mm**, and nominal hole-edge gap **10.382 mm**. These are flat geometry checks only. Phoenix publishes 8 mm clearance / 10 mm creepage for its III/3 800 V component rating. A straight board-surface path between these candidate copper lands is **less than 10 mm**, so the footprint cannot claim that same creepage figure if it applies to the board construction. The molded terminal rating and hole spacing do not qualify solder fillets, adjacent copper, pollution environment or VD-to-VB fault voltage. The project's SELV isolation requirement is a separate boundary and must not be inferred from this HOT-to-HOT pair gap.
+
+The 1709681 page names IEC 60947-7-4 short-time withstand and temperature-rise tests without a numeric fault pulse or DC result. Its 76 A nominal component rating and cULus 60 A table do not qualify the F2 discharge path, PCB copper, PTHs, solder joints, wire or holder at prospective fault current. Obtain the Phoenix short-time test report or a matched assembly test, determine the F2 let-through/current waveform, and qualify temperature rise and DC use at the selected cable size. The selected **1017526 source and frozen export remain unchanged** pending those checks and an explicit part/footprint revision.
+
+Validation receipt: `kicad-cli fp export svg --footprint Phoenix_1709681_ReviewOnly --layers F.Cu,F.SilkS,F.Fab,F.CrtYd` parsed and exported the library footprint on 2026-09-24. The exported SVG text contains one rectangular and three round copper pads at the expected relative centers. A visual review of the footprint render, physical sample fit, 3D collision check and board DRC remain **NOT RUN**. This receipt establishes syntax and pad placement only.
 
 The same 2018 datasheet, page 8, records a **303 A AC** short-time withstand test with a **16 mm²** conductor under IEC 60947-7-4. It does not state the pulse duration or waveform there, and the result does not establish a DC fault-current rating for this board's solder joints, copper, or cable. Retain the fault envelope as an open qualification item.
 

@@ -27,6 +27,54 @@ protected driver supply.
 | Fast dip | 430 kΩ / 100 kΩ, then 22 kΩ to IN1_P | IN1_P against REF25 at IN1_N; high when AUX is above threshold | 2.5 × (1 + 430/100) = 13.25 V |
 | Overvoltage | 560 kΩ / 100 kΩ, then 22 kΩ to IN2_N; 22 kΩ between REF25 and IN2_P | High when AUX is below threshold | 2.5 × (1 + 560/100) = 16.50 V |
 
+### Static detector fixture screen
+
+The exact [Yageo 430 kΩ](https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-07430KL),
+[560 kΩ](https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-07560KL),
+[100 kΩ](https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-07100KL)
+and [22 kΩ](https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-0722KL)
+parts specify ±1% initial tolerance and ±100 ppm/°C temperature
+coefficient. The shared [LM4040A25I reference](https://www.ti.com/lit/ds/symlink/lm4040.pdf)
+specifies ±19 mV at −40 to 85 °C with 100 µA cathode current, requires
+80 µA minimum cathode current over that temperature range, and specifies up to 1 mV
+additional change between its minimum operating current and 1 mA. The
+[TLV3202](https://www.ti.com/lit/ds/symlink/tlv3202.pdf) specifies ±6 mV
+input offset and up to 5 nA input bias at its 5 V, `VCM = VCC/2` fixture
+over −40 to 125 °C; its 1.2 mV internal hysteresis is typical, not a
+guaranteed crossing bound.
+
+With independently adverse resistor drift of ±0.65% for a 65 K excursion
+from 25 °C, use ±1.65% for each resistor in an illustrative full-temperature
+ratio screen. Taking `REF25 = 2.480–2.520 V` (the ±19 mV reference limit
+plus 1 mV current effect), ±6 mV comparator offset, and nominal input-bias
+errors of ±0.53 mV on the fast-dip input and ±0.66 mV across the OV input
+pair yields:
+
+| Crossing | Algebraic input-rail range | Remaining nominal-window separation |
+| --- | ---: | ---: |
+| Fast dip | **12.764–13.755 V** | 14.25 V normal low is only **0.495 V** above the highest crossing |
+| Overvoltage | **15.874–17.151 V** | lowest crossing is only **0.124 V** above 15.75 V normal high |
+
+These are **fixture screens, not accepted trip limits**. The comparator
+offset and bias limits are stated for 5 V and `VCM = VCC/2`, whereas the
+actual HOT logic5 rail and its threshold common mode can differ. The
+reference's ±19 mV value is at 100 µA, and the real 10 kΩ bias resistor,
+PCB leakage, aging and output loading require their own review. The input
+bias corrections use nominal 22 kΩ and divider Thevenin resistances and
+are not full resistor-corner bounds. The static OV separation is small
+enough that these omitted terms and rail ripple matter before declaring
+the 14.25–15.75 V operating window compatible.
+
+At the selected [10 kΩ bias resistor's](https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-0710KL)
+adverse ±1.65% high corner, the *feedback-only* 4.919 V logic5 lower
+screen and 2.520 V reference upper screen would still supply about
+**236 µA**, before comparator input and board leakage, above the LM4040's
+80 µA operating minimum. The same algebra says HOT logic5 must exceed
+**3.333 V plus those extra loads** before reference regulation is assured;
+the comparator's 2.7 V minimum supply specification does not make the
+reference valid throughout a rail ramp. Verify default-low fault and
+driver-inhibit behavior over that interval physically.
+
 The selected Yageo 430 kΩ and 560 kΩ parts are 1% 0603 candidates. Their
 nominal crossings do not establish an allowed AUX operating window. Verify
 the protected AUX source's low/high/ripple/overshoot envelope, both resistor
@@ -111,18 +159,24 @@ during startup, not steady current. The source comparison is in
 | UCC28180 VCC | [TI specifies 8 mA maximum](https://www.ti.com/lit/ds/symlink/ucc28180.pdf) at its 15 V/4.7 nF gate-load fixture | Reconcile its `GATE` driving this circuit's input rather than that fixture, and the selected 16.2 kΩ FREQ resistor's switching-frequency corners |
 | UCC27624 VDD | [TI specifies 1.0 mA maximum static](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) at the stated 12 V/no-output-load fixture; switching current includes `Qg × fSW` | Bound at actual 14.25–15.75 V VDD, actual STW gate charge versus voltage/current/temperature, selected `fSW`, and gate-loop loss. The STW sheet's 120 nC at 10 V is typical only. |
 | HOT logic5 converter input | TPS54202 candidate is joined; old 75 mA logic5 allowance is historical | Sum every joined 5 V consumer at its qualified mode/temperature, converter quiescent current and worst-case efficiency, then measure startup and overlapping load steps |
-| Cutoff and wiring | LTC4368/FDS3992/50 mΩ shunt candidate is joined | Controller bias, divider currents, path drop, effective output capacitance, current-limit and short/latch energy |
+| Cutoff and wiring | LTC4368/FDS3992/50 mΩ shunt candidate is joined | Keep its pre-cutoff VIN/UV/OV current in the source budget, and its protected VOUT/SENSE current and capacitive load in the shunt budget; bound path drop, current-limit and short/latch energy |
 
-The selection equation is
-`I_AUX_run = I_relay+passive + I_PFC + I_driver_static + Qg_max × fSW_max + I_5V_input + I_cutoff + I_other`.
-Each term needs a compatible operating fixture and source-backed maximum;
-the 41.50 mA and 8 mA entries cannot be promoted into a total maximum.
-Separately integrate `I_start(t)` through the selected cutoff and all
-effective capacitances, including simultaneous 5 V buck startup and relay
-pickup. This determines the shunt/current-limit threshold and whether the
-IRM overload mode, buck current limit, or cutoff retries during a valid
-start. Current capacity alone cannot close either candidate's normal voltage
-window or fast-fault driver-pin peak.
+Use two current budgets. At the LTC shunt,
+`I_shunt,run = I_relay+passive + I_PFC + I_driver_static + Qg_max × fSW_max + I_5V_input + I_LTC_post + I_other_post`.
+At the 15 V buck output, add the pre-cutoff LTC VIN/SHDN and UV/OV
+divider currents to `I_shunt,run`; the two dividers alone draw 1.449 mA
+at nominal 20 kΩ/806 Ω and 20 kΩ/590 Ω values with 15 V input. The
+shunt does **not** sense those divider currents. Each term needs a
+compatible operating fixture and source-backed maximum; the 41.50 mA
+and 8 mA entries cannot be promoted into a total maximum. During startup,
+include the 44 µF nominal pre-cutoff bank at the 15 V producer and the
+30.6 µF nominal post-cutoff bank at the shunt. The separate 46.5 µF
+logic5 output bank appears upstream through the TPS54202 input-current
+waveform. Integrate the measured currents with simultaneous converter
+startup, relay pickup and PFC activity. This determines whether the shunt
+trips or the IRM/LMR hiccups during a valid start. Current capacity alone
+cannot close either candidate's normal voltage window or fast-fault
+driver-pin peak. See the [separate-port worksheet](AUX-SOURCE-CANDIDATE.md#source-current-versus-cutoff-current).
 
 ### HOT logic5 census from the joined netlist
 

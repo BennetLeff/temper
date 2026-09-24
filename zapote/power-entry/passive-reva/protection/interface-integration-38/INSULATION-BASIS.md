@@ -8,10 +8,14 @@ board. A default KiCad DRC pass cannot close this gate.
 ## Scope and governing assumptions
 
 - Installation proposal: 108–132 V ac, 15 A rms, general residential cooker.
-  The product classification remains to be selected: IEC 60335-2-6 covers
-  stationary hobs, while IEC 60335-2-9 covers portable cooking appliances.
-  Both use IEC 60335-1 as the general appliance standard; neither has been
-  signed off as the product's certification basis.
+  The recorded detachable-cord, plug-in countertop construction makes
+  **IEC 60335-2-9 the leading particular-standard candidate**: IEC lists
+  portable cookers, hotplates and induction wok hotplates in its scope.
+  IEC 60335-2-6 is the stationary-appliance alternative if the intended
+  installation changes. IEC 60335-1 supplies the general requirements.
+  A product-safety review must still select the exact edition, national
+  adoption and applicable clauses; scope fit alone does not approve the
+  insulation table or a Rev38 construction.
 - Use overvoltage category II and pollution degree 3 for the layout screen.
   The existing cooker construction is vented and has no earned sealed,
   pollution-degree-2 compartment. This is the project's recorded PD3
@@ -87,12 +91,19 @@ themselves certify use in the proposed PD3 appliance construction. That
 application needs an accepted enclosure or component-insulation argument.
 
 The ISO7842 DWW datasheet's *optimized* land-pattern examples give only
-14.5–15.2 mm between opposed pads. On the project's provisional Group IIIa
-FR-4 screen, those examples do not themselves demonstrate the 16.0 mm
-reinforced **board** creepage. A reviewed slot, qualified Group I laminate,
-or another constructed path may be needed. Its output is undetermined when
-the output-side rail is unpowered or in the stated 1.7–2.25 V transition
-region; retain local default-low loads and qualify the actual rail sequence.
+14.5–15.2 mm between opposed pads. Its ordinary DW package example is
+smaller still; **the DWW footprint must be used**. On the project's
+provisional Group IIIa FR-4 screen, even the optimized DWW examples do not
+themselves demonstrate the 16.0 mm reinforced **board** creepage. A reviewed
+slot, qualified Group I laminate, or another constructed path may be needed.
+The physical path must be measured from the closest exposed solder or copper
+edge, including solder spread, vias, planes and nearby unrelated nets, not
+from package body or pad centers. A solder-mask bridge is not credited as
+solid insulation without a specifically qualified construction.
+
+The ISO7842F output is undetermined when the output-side rail is unpowered
+or in the stated 1.7–2.25 V transition region; retain local default-low
+loads and qualify the actual rail sequence.
 Before changing the source, compare both candidates' enable/power-loss
 behavior, input/output drive, supply budget, timing, pad-to-pad path, exact
 footprint and certification scope on the joined circuit. The product safety
@@ -119,6 +130,45 @@ Before creating `native/section.kicad_dru`, the integration owner must:
 No `section.kicad_dru` is emitted from this candidate table because the
 voltage and component decisions above are unresolved. This is an explicit
 U7 digital blocker, not an accepted rule omission.
+
+### Inputs to an executable native rule and coverage check
+
+The 16.0 mm FR-4 / 12.6 mm Group I figures above are a conservative
+**creepage candidate screen for the >400–500 V row only**. They are not
+blanket clearance values, full appliance rules, or an accepted safety basis.
+The integration owner needs the following reviewable inputs before a rule
+file can make a meaningful claim:
+
+1. A signed product-standard/edition and insulation schedule, including
+   OVC/PD, accessible-part and protective-earth assumptions, rated impulse,
+   working voltage per crossing, material CTI, altitude, clearance, creepage
+   and solid-insulation treatment. The portable-cooker scope points to
+   IEC 60335-2-9; the present recovered Table 17 screen is not a substitute
+   for checking its applicable clauses against the chosen IEC 60335-1 edition.
+2. The frozen joined-source netlist identity and an exhaustive map of its
+   nets to SELV, AC, HOT control, VD and VB potentials. For each required
+   pair, record insulation class, normal and fault differential, transient
+   method, required air and surface distances, and any permitted exception.
+   HOT0, an isolator ground and a ground symbol are not enough to infer a
+   pair's maximum differential.
+3. Exact approved MPNs, package drawings and native pad geometry for both
+   isolators and every other crossing; terminal hole/land geometry; laminate
+   CTI and stackup; minimum manufactured slot width and copper-to-slot
+   tolerance; solder, coating and enclosure assumptions. For a component,
+   evaluate both its certified intrinsic barrier **and** its exposed
+   terminal-to-terminal package path. For the PCB, measure the shortest
+   assembled copper/solder path around openings and along all exposed
+   surfaces. Neither side inherits the other's material group.
+4. A deterministic net-to-rule coverage receipt against the same source and
+   board hashes. It must enumerate every required pair and show which rule
+   enforces it, then deliberately lower or remove one required rule and
+   demonstrate failure. A second negative control must bridge HOT and SELV
+   copper in the native board. The checks must fail on missing/unclassified
+   nets rather than silently assign a permissive default.
+
+No routed-board DRC result can replace review of the package, solder-joint,
+slot, coating and enclosure paths, or establish the missing physical test
+evidence.
 
 ## Source trail
 

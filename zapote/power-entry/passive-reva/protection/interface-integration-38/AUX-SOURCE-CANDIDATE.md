@@ -139,6 +139,21 @@ joined as circuit candidates, with no qualified output current allowance. The 24
 feed around either buck or cutoff. The buck's `PG` pin has an 18 V
 recommended ceiling and cannot be pulled up to `RAW_AUX24`.
 
+The [IRM-20-24 manufacturer sheet](https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF)
+lists ±2.5% output tolerance, 200 mV peak-to-peak ripple/noise under its
+specified 20 MHz/termination fixture, and ±0.03%/°C coefficient over
+0–50 °C. Treating the *entire* ripple allowance as an adverse excursion
+on either side gives a conditional 25 °C arithmetic screen of
+**23.20–24.80 V**; adding a separately adverse 0.75% temperature term
+from 25 to 50 °C gives **23.02–24.98 V**. This is useful for normal-input
+review of the LMR36015 but is not a waveform guarantee at the PCB, and
+the 40 °C inlet requirement does not identify the module's local ambient.
+Mean Well's 27.6–32.4 V IRM-20-24 overvoltage entry describes its
+internal protection trigger, not a hard peak clamp. The LMR36015's
+[60 V recommended and 66 V absolute VIN limits](https://www.ti.com/lit/ds/symlink/lmr36015.pdf)
+still require a measured or otherwise qualified `RAW_AUX24` fault/surge
+envelope, including the VIN-pin ringing of the final layout.
+
 The joined feedback pair is [Panasonic `ERA3AEB104V`](https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB104V)
 100 kΩ top and [`ERA3AEB7151V`](https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB7151V)
 7.15 kΩ bottom, each ±0.1%, ±25 ppm/K. Its nominal feedback-only output is
@@ -180,6 +195,70 @@ voltage through startup and each fault; report peak and duration as well
 as settled load. The nominal capacitance figures are connectivity inputs,
 not effective capacitance or inrush bounds. [AUX-WINDOW.md](AUX-WINDOW.md)
 has the detailed HOT logic5 census and measurement terms.
+
+### Source current versus cutoff current
+
+The frozen circuit places the LTC4368 VIN/SHDN and both UV/OV dividers on
+`AUX15_PRECUT`; only the FDS3992/shunt route feeds `AUX_PROTECTED`. Thus the
+15 V converter's output current and the LTC4368's forward-trip current are
+different quantities. At nominal resistor values, the two always-connected
+divider branches draw `V_PRE/(20 kΩ + 806 Ω)` and
+`V_PRE/(20 kΩ + 590 Ω)`: **1.449 mA total at 15 V**, or 1.414–1.482 mA
+over the *illustrative feedback-only* 14.6378–15.3391 V range. This is a
+nominal-resistance calculation, not a maximum over resistor corners,
+leakage or temperature. It is **upstream of the shunt** and therefore must
+enter the IRM/LMR load budget but not the LTC forward-trip comparison.
+
+For a waveform review, use `I_15(t) = I_pre_div(t) + I_LTC_VIN(t) +
+I_shunt(t) + C_pre,eff × dV_PRE/dt + I_other_pre(t)` and
+`I_shunt(t) = I_direct_post(t) + I_5V_input(t) +
+C_post,eff × dV_POST/dt`. The 44 µF *nominal* LMR output bank is `C_pre`;
+the 30.6 µF *nominal* direct protected bank is `C_post`. The HOT logic5
+46.5 µF bank charges through the TPS54202 and appears in
+`I_5V_input(t)`, not as another 46.5 µF across the cutoff. These equations
+are bookkeeping identities only when the effective capacitors and all
+current directions are defined at the measurement ports; they do not
+predict the waveforms.
+
+The [ADI LTC4368 data sheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf)
+specifies a 30 mV minimum forward-trip threshold in its
+`VIN = 12 V, VOUT = 0 V` start fixture and 40 mV minimum at `VOUT = VIN`.
+With only the selected shunt's ±1% initial tolerance, those correspond to
+**0.594 A start** and **0.792 A settled** lower-trip screens. A valid start
+must remain below the former after measurement uncertainty and a chosen
+margin; settled load must remain below the latter. Neither threshold is an
+allowed continuous current or a guarantee at the circuit's other fixtures.
+The selected 1.5 A LMR and 0.9 A/21.6 W IRM ratings cannot replace this
+post-cutoff comparison. In particular, an apparent 1 A operating point in
+the path-drop illustration above can already exceed the LTC's minimum
+settled trip threshold.
+
+The idealized nominal direct-bank calculation gives 0.1836 A capacitive
+inrush from ADI's `COUT × IGATE(UP)/CGATE` relation when `COUT = 30.6 µF`,
+`IGATE(UP) = 60 µA` and `CGATE = 10 nF`. A linear 0→15 V ramp at that
+constant current would last 2.50 ms and dissipate **3.44 mJ in the *pair***
+of pass FETs, with initial combined `V × I = 2.75 W`. This does not assign
+half the energy to either die and does not bound their peak power. The
+[onsemi FDS3992 data sheet](https://www.onsemi.com/download/data-sheet/pdf/fds3992-d.pdf)
+plots forward-bias SOA at a **25 °C case** and transient thermal impedance
+using a specified board/temperature setup; its 2.5 W package power rating
+is not a pulse SOA approval. The actual ramp can overlap 5 V conversion,
+relay pickup and a partially charged output, and the installed copper and
+case temperature are unknown. Capture each die's `VDS(t)` and the common
+`ID(t)` through those events, then assess the trajectory and repeated-pulse
+temperature against manufacturer data. The controller's fast-turnoff and
+fault-propagation specifications use a 2.2 nF GATE fixture, whereas Rev38
+uses 10 nF through 22 kΩ; they do not bound this board's turn-off time.
+
+The [LMR36015 data sheet](https://www.ti.com/lit/ds/symlink/lmr36015.pdf)
+specifies a 3–6 ms *internal soft-start time* at its stated fixture. The
+44 µF nominal pre-cutoff bank needs 660 µC to reach 15 V, which would
+average 110–220 mA if a full 0→15 V charge actually occupied 6–3 ms.
+That interval is not a guaranteed output-ramp duration under the joined
+load, and the source's input peak, startup limit/hiccup and capacitor
+effective values remain open. Similarly, the 5 V bank stores 0.581 mJ
+nominal at 5 V; its 232.5 µC *output* charge cannot be added to the
+15 V shunt charge without a measured conversion efficiency and waveform.
 
 ### 15 V converter circuit entry conditions
 

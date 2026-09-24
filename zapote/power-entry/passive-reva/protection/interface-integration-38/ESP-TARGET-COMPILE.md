@@ -1,8 +1,8 @@
 # Rev38 ESP32-S3 target compile attempt
 
-Status: **diagnostic lockout image linked; production image and target
-behavior OPEN**. The diagnostic link is a compiler/interface check, not a
-timing or reset acceptance.
+Status: **diagnostic lockout and Rev38 source-task test images linked;
+production image and target behavior OPEN**. These links are
+compiler/interface checks, not timing or reset acceptance.
 
 On 2026-09-23, the `espressif/idf:release-v5.3` Docker image reported
 ESP-IDF `v5.3.6-23-gc54ee794c20` and Xtensa GCC 13.2.0. From the worktree's
@@ -136,15 +136,28 @@ tests but no new IDF compiler or device receipt; `esp_restart()` reset and
 retained-peripheral behavior still require target capture.
 
 The later production cooker RTD-temperature and monotonic-clock hooks, INIT
-conversion wait, and diagnostic link-anchor type correction also have no
-ESP32-S3 build receipt. On 2026-09-24, `docker info` still failed because
-`~/.docker/run/docker.sock` did not exist, and no local `idf.py` was found.
-The 22 focused MAX31865 tests and all 17 host CTest entries pass. Those host
-results do not establish that either target image links with the changed
-bytes; repeat both diagnostic and production target builds when ESP-IDF is
-available. Production still has unresolved cooker peripheral/self-test hooks.
+conversion wait, and diagnostic link-anchor type correction initially had no
+ESP32-S3 build receipt. On 2026-09-24, `docker info` failed because
+`~/.docker/run/docker.sock` did not yet exist, and no local `idf.py` was found.
+The 22 focused MAX31865 tests and all 17 host CTest entries passed. That
+Docker outage was subsequently resolved; the refreshed diagnostic and Rev38
+test-image receipts below supersede the target-build gap for those images.
+Production still has unresolved cooker peripheral/self-test hooks.
 
-## Rev38 source-task test entry (source added, target link NOT RUN)
+### Refreshed diagnostic image
+
+After Docker became available on 2026-09-24, the diagnostic reproduction
+command above rebuilt the current sources, including the RTD object and the
+corrected state-machine link anchor. `induction_cooker.elf` linked and the
+ESP32-S3 binary was `0x31b20` bytes. SHA-256: ELF
+`8ddfbea149b14dcf6f232989be5b2aa561738e408646d5207339e1becfe52885`;
+binary `e2a4651d9f09e3ce47dcff7dae924beb535398d3dee901c37c353bf164af6382`.
+The complete local `firmware/sdkconfig` input SHA-256 was
+`88adb4734e78f358e8cbd60dc71eab8bd0052a39700d9443edf43a4e2aaa4861`.
+The diagnostic entry remains a lockout image, not a programmed-pin or
+source-task run receipt.
+
+## Rev38 source-task test entry (target link PASS, 2026-09-24)
 
 `firmware/main/rev38_source_test_idf.c` is a third, explicitly selected
 `TEMPER_REV38_TEST_IMAGE=ON` entry. It establishes direct STOP, runaway cut,
@@ -161,11 +174,76 @@ Current source SHA-256: entry
 `firmware/main/CMakeLists.txt`
 `15f9eed25f55086d7616ed579b6134f810e8c50788986497aa72c4569bdd571e`.
 The host CMake suite builds and all 17 CTests pass with the worktree venv on
-`PATH`. This suite does **not** compile the new IDF entry. On 2026-09-24,
-`docker info` still reports the absent Docker socket and no local `idf.py`
-was found, so no ESP32-S3 link, boot, pin or reset receipt exists for this
-entry. U6 digital target-build acceptance remains OPEN. When the IDF v5.3
-toolchain is available, build with the normal configuration plus
-`-D TEMPER_REV38_TEST_IMAGE=ON`; capture the ELF/bin hashes and the actual
-GPIO13/21/48/14, UART, I²C, WDI, PERMIT, gate and relay behavior before
-attributing any hardware safety result.
+`PATH`. The local Docker daemon became available later on 2026-09-24. The
+full ESP-IDF v5.3 target build then compiled the actual source-task entry,
+source service, ESP32 adapter, IDF GPIO/I²C/UART binding, authorization
+runtime and receiver protocol, linked `induction_cooker.elf`, and generated
+the ESP32-S3 binary. Reproduction from the repository root:
+
+```sh
+docker run --rm -v "$PWD":/work -w /work/firmware \
+  espressif/idf:release-v5.3 bash -lc \
+  'cp sdkconfig /tmp/temper-rev38-sdkconfig && \
+   idf.py -B /tmp/temper-rev38-build \
+     -D SDKCONFIG=/tmp/temper-rev38-sdkconfig \
+     -D TEMPER_REV38_TEST_IMAGE=ON build && \
+   sha256sum /tmp/temper-rev38-build/induction_cooker.elf \
+     /tmp/temper-rev38-build/induction_cooker.bin'
+```
+
+The complete local `firmware/sdkconfig` input SHA-256 was
+`88adb4734e78f358e8cbd60dc71eab8bd0052a39700d9443edf43a4e2aaa4861`;
+the committed `sdkconfig.defaults` SHA-256 was
+`31d786e2cd3c4cbf3b8228bcd123d58dacc6f3b80d95821d3fc4ad3242140405`.
+The linked ELF SHA-256 was
+`f6b5e305203cb5aa817254b5b4bf7f1cddeb4cc933b75ca7d7431904ab734613`;
+the binary SHA-256 was
+`635ebf3527ec84f7adfaad95728baee65452d780f518500c3067bfdef079279b`,
+size `0x376f0` bytes. This passes the **source-task target-build** check.
+The container lacked `jinja2`, so it used the committed generated config
+and transition-table headers. The build emitted non-fatal existing HAL/ADC
+warnings. The local `sdkconfig` is generated and untracked; its hash pins
+this receipt's exact configuration rather than asserting that a fresh
+checkout automatically reproduces it.
+
+A separate fresh build **from committed `sdkconfig.defaults` alone** also
+linked on 2026-09-24. It used `-B /tmp/temper-rev38-repro-build`,
+`-D SDKCONFIG=/tmp/temper-rev38-repro-sdkconfig`,
+`-D IDF_TARGET=esp32s3` and `-D TEMPER_REV38_TEST_IMAGE=ON`, with no copy of
+the local config. IDF generated a config with the **same** SHA-256
+`88adb4734e78f358e8cbd60dc71eab8bd0052a39700d9443edf43a4e2aaa4861`.
+That second ELF was
+`a69de5cfd7ba6aa14a6155414b0cc8aff2fa174c362951c7c97ba4fdbf255c64`
+and the binary was
+`dea7ab8bbc0491b792c80c80ff6797f2be43da00e6264a2179b65661c60aca9a`
+SHA-256, again `0x376f0` bytes. The two output hashes differ despite the
+matching generated config and source bytes; this record claims two
+successful target links, not byte-for-byte reproducible IDF output. The
+fresh build establishes that the test image does not depend on the untracked
+local `sdkconfig` file.
+
+No board has been programmed or captured. GPIO13/21/48/14, UART final-bit,
+I²C age, WDI/PERMIT, gate and relay levels, reset feed tail and fault timing
+remain unmeasured. Zero target timing bounds keep the service locked out.
+The cooker production image still lacks peripheral/self-test hooks, and its
+target link remains OPEN. The earlier Docker-unavailable observations above
+are historical and superseded for this Rev38 test-image build.
+
+## Normal cooker production image retry (target link FAIL, 2026-09-24)
+
+With Docker available, the normal `main.c` entry was selected explicitly by
+`-D TEMPER_DIAGNOSTIC_LOCKOUT=OFF -D TEMPER_REV38_TEST_IMAGE=OFF` using the
+same pinned local `sdkconfig` hash above. ESP-IDF compiled the registered
+production sources and reached the final ELF link, which failed on genuine
+missing cooker peripheral and self-test definitions. The unresolved set
+includes power/PWM, heatsink/DC-current sensing, buttons/UI/fan/buzzer,
+EEPROM logging and seven POST `test_*` hooks. The production source now
+defines `get_time_ms` and `read_pan_temperature`; they no longer require
+stubs. Diagnostic hooks are intentionally excluded from this image.
+
+This retry separates a real production integration gap from a missing Docker
+toolchain. `main.c` already starts the Rev38 source task, but its zero timing
+qualifiers and absent independent monitor progress keep authorization in
+lockout. A production link requires actual board implementations and source
+registration for the remaining hooks. Even a successful link would still
+need programmed-pin, rail, reset and timing captures before physical credit.

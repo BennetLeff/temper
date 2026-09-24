@@ -70,10 +70,32 @@ bootloader, reset loops, queued writes, and timer/DMA/RMT paths are proved
 incapable of another qualifying WDI edge. Otherwise it needs a finite maximum;
 an unbounded feed tail fails the candidate. The watchdog term needs selected
 CWD effective capacitance, leakage, temperature, SET1/EN state, and device
-corners. The final term includes WDO assertion through source-latch clear,
+corners. The selected source and HOT watchdogs each have Murata
+`GRM1885C1H102JA01D` 1 nF C0G CWD parts. Applying only Murata's initial
+±5% tolerance to TI's ideal-capacitor equation gives a **conditional**
+116.320–149.216 ms device interval: `0.905 × (77.4 × 0.95 + 55)` to
+`1.095 × (77.4 × 1.05 + 55)` ms. This is not an installed maximum: capacitor
+temperature/lifetime effects, leakage, PCB contamination, device supply
+excursions and effective C at the pin still need a corner budget. The final
+term includes WDO assertion through source-latch clear,
 physical PERMIT crossing, HOT retained clear, EN, loaded gate, and sustained
 switch-current cessation. Rev35's 119.82–144.98 ms ideal-1-nF device range
 is not the complete term and is not an allowable interval.
+
+The selected source WDI adapter uses the spare `SN74LV221A-Q1` B2
+rising-trigger channel with 10 kΩ/10 nF and its active-low Q2 output. TI's
+3.3 V ±0.3 V, −40 to 125 °C table gives **90–110 µs** output-pulse duration
+for 10 kΩ/10 nF and 50 pF load. The TPS3431 requires a **minimum 50 ns WDI
+pulse** and a falling edge. Thus the nominal selected topology has ample
+fixture-level pulse width, but the 90 µs lower number is not a Rev38
+guarantee: the installed X7R capacitor's effective capacitance, resistor
+corners, output loading, SELV rail and WDI thresholds must be verified.
+Neither the one-shot nor its pulse width bounds how many qualifying edges
+boot code can create after reset. TI also specifies WDO low for
+**170–230 ms** after watchdog expiry while the device remains in its
+operating conditions; the retained source clear must capture that pulse,
+and a rail collapse cannot be credited with this WDO pulse without a
+separate partial-power proof.
 
 The new `firmware/main/power_entry_authorization.c` host core starts in
 lockout without a WDI request and issues no START after reinitialization.
@@ -124,7 +146,7 @@ treated as installed measurements.
 | Voltage/energy nodes | VB has four 450 V-rated electrolytics. A 22 µF ±10%, 630 V VD reservoir and F2 are proposed. VD's 500 V screen and 19.8 µF nominal-tolerance floor are conditional. STW and diode are 650 V-rated. | Derive **separate** derated VD, VB, VDS and diode-reverse limits, actual effective C/ESR/ESL, overshoot, and energy after gate disable. The 450 V VB rating does not authorize a 500 V bank waveform, and a 650 V switch rating does not by itself authorize a 650 V switching peak. |
 | Driver and protection | Rev38 selects HCS21 permission fan-in, LVC1G06 open-drain shunt release, PMBT3904 AUX-biased ENA shunt, UCC27624DDAR, 10 Ω series gate resistor, 10 kΩ gate pull-down, and STW65N65DM2AG in a compiled partial stage. The HOT TPS3431 WDO and dual TPS3890 rail RESET outputs join the retained trip fan-in. The latter use 294 kΩ/100 kΩ and 1.02 MΩ/100 kΩ dividers for nominal 4.531 V logic5 and 12.88 V AUX falling thresholds, respectively. UCC28180 PWM, boost, F2 and local/bank capacitors now join the same candidate. Published delays use different fixtures; STW turnoff is typical at a different gate drive. Rev35 instead uses UCC27511A. | Establish AUX and HOT rail ranges, supervisor threshold/CT/delay corners, shunt OFF clamp at temperature, base/open fault behavior, watchdog low-pulse capture, filter, loaded gate discharge and complete fault-to-current-zero maximum. A fused-board-terminal/CMC/NTC/relay AC-entry topology is now joined, but the off-board F1 assembly, protected AUX source, and thermal/interrupting design remain unqualified. Do not sum incomparable published numbers into a guarantee. |
 | AC entry and precharge | Rev38 now joins `1714984` PCB fused-L/N/PE terminal, TDK `B82726S2163N030` CMC, `SL32 10015` NTC, `RT33K012` bypass relay, X2/MOV and one HOT0-to-PE Y1 capacitor to the bridge. The receiver PA2/32 relay output is gated with retained HOT RUN Q in the spare HCS21 channel before the switch; the MOSFET gate has a local pull-down and the coil has a flyback diode. A 20 A Class CC fuse and off-board block are nominated for review; the external inlet harness is not in the Atopile PCB source. | Build and electrically qualify the actual fuse/block/harness and protected AUX source; derive inrush/precharge/relay timing, repeated-start thermal behavior, F1/F2 clearing and MOV coordination. The relay cannot be treated as a fault-current interrupter. See `AC-INPUT.md` and `F1-SCREEN.md`. |
-| Source watchdog | TPS3431 with ideal 1 nF CWD gives 119.82–144.98 ms device-only bounds in the Rev32 fixture. CPU-only reset may retain ESP GPIO/peripheral state. | Select installed CWD and its tolerance/leakage, enforce one WDI owner with finite post-reset tail, and bound every WDO-to-STW stage. No accepted reset allowance exists. |
+| Source/HOT watchdogs | Both joined TPS3431 instances use Murata `GRM1885C1H102JA01D` 1 nF C0G CWD. TI's 119.82–144.98 ms applies to an ideal 1 nF; initial ±5% C alone widens the conditional calculation to 116.320–149.216 ms. CPU-only reset may retain ESP GPIO/peripheral state. | Complete effective-C/leakage/rail corners and one-shot WDI pulse qualification; prove a finite source post-reset feed tail and receiver last-credit behavior; bound every WDO-to-STW stage. No accepted reset allowance exists. |
 
 Sources: `operating-envelope-05/envelope-contract.md`,
 `f2-timing-02/README.md` and `constraints.json`,
@@ -146,6 +168,8 @@ the loaded, mixed-supply Rev38 circuit.
 | [UCC27624](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) driver | The March 2026 data sheet lists 27 ns maximum disable propagation from EN low threshold to 90% of output fall, with 1.8 nF load, 12 V VDD, 0–3.3 V switching input, 500 kHz and 125 °C fixture. | Rev38 uses an AUX-biased EN shunt, 10 Ω gate resistor and actual STW gate charge. That entry does not bound shunt release, loaded gate discharge, switch-current fall or supply-collapse behavior. |
 | [LTC4368](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf) protected-AUX cutoff | UV/OV to FAULT is 1–2 µs at 50 mV overdrive and VIN = 12 V; UV/OV GATE turn-off is 2–6 µs with 2.2 nF CGATE. UV/OV-to-reconnect delay is 22–45 ms at VIN = 12 V. Overcurrent fault to GATE = 0 V is 3–18 µs with 2.2 nF CGATE and the specified sense overdrive. | Rev38 has 10 nF CGATE, a 22 kΩ series gate resistor, FDS3992 gate charge and 30.6 µF nominal downstream AUX capacitance. The published fixtures cannot bound driver VDD peak, FET turnoff, shunt current, logic5 decay or STW current cessation; measure each event under actual slew/load. |
 | [TPS3431](https://www.ti.com/lit/ds/symlink/tps3431.pdf) source/HOT watchdogs | The manufacturer's 1 nF **ideal capacitor** calculation is 119.82–144.98 ms for device timeout. | Selected CWD tolerance/effective value, pin leakage, boot/last-edge behavior and WDO-to-current-zero remain outside this calculated interval; it is not an allowable reset time. |
+| [SN74LV221A-Q1](https://www.ti.com/lit/ds/symlink/sn74lv221a-q1.pdf) source WDI one-shot | At 3.3 V ±0.3 V, −40 to 125 °C, 10 kΩ/10 nF and 50 pF output load, Q/Q_N pulse width is 90–110 µs. [TPS3431](https://www.ti.com/lit/ds/symlink/tps3431.pdf) requires at least 50 ns WDI pulse duration. | Rev38's X7R effective C, resistor corners, actual WDI load, input thresholds and rail transients remain unbounded. This establishes neither a boot-edge count nor a post-reset feed-tail maximum. |
+| [TPS3890](https://www.ti.com/lit/ds/symlink/tps3890.pdf) source/HOT rail supervisors | Recommended VDD operating range begins at 1.5 V. The SENSE-to-RESET timing entries assume 5% input overdrive and specified supply; MR requires at least 1 µs low to guarantee RESET. | Rail-slew time before the threshold, narrower overdrive, divider/filter response, powered downstream pull-ups, output behavior as VDD falls below 1.5 V and actual latch capture remain outside a whole-path bound. |
 
 The ISO774x supply distinction and the UCC27624 loaded-gate distinction
 must stay explicit in every later timing sum. Where a selected part lacks a
@@ -158,9 +182,9 @@ but cannot by itself manufacture a missing production-corner guarantee.
 | Fault class | Independent allowable-time derivation | Candidate implementation path and missing bound | Required closure evidence |
 | --- | --- | --- | --- |
 | ESP execution loss; control-link loss | Bound consequences of a first START and continued RUN, plus downstream interfaces and stored energy; define the earliest unacceptable state. | Source watchdog/receiver liveness, source PERMIT clear, isolated loss observation, HOT latches, EN, loaded STW. WDI feed tail, selected timing parts, communication detection and complete shutdown are unset. | ESP reset/queue/other-core tests; selected-part corner analysis; synchronized source WDO, PERMIT, HOT clear, EN, gate and current capture. |
-| Overcurrent that requires latched stop | Derive from actual sense threshold/error, maximum current at the evaluated threshold, line voltage, guaranteed incremental `L(I,T)` during growth, switch/shunt/inductor/interconnect derated current and energy limits. | Controller PCL or qualified independent detector through latch, EN, loaded STW and commutation. PCL-to-gate maximum and loaded current fall are unset. | Current-sense corner calculation and source-backed `L(I,T)`; worst-phase current waveform with pre-fault activity and sustained current cessation. |
+| Overcurrent that requires latched stop | Derive from actual sense threshold/error, maximum current at the evaluated threshold, line voltage, guaranteed incremental `L(I,T)` during growth, switch/shunt/inductor/interconnect derated current and energy limits. | The selected UCC28180 PCL terminates the **active PWM cycle** subject to leading-edge blanking; the Figure 26 300 ns annotation is not a guaranteed maximum. SOC adjusts its current loop. Neither is a physical retained HOT trip producer in the joined source. A separate qualified producer or a demonstrated safe nonlatched current envelope is still needed before there is a retained-clear timing path. PCL-to-gate maximum and loaded current fall are unset. | Decide whether overcurrent is session-invalidating from the independent hazard envelope; then join and audit its retained producer if required. Obtain current-sense corner calculation, source-backed `L(I,T)`, worst-phase waveform and sustained current-cessation evidence. |
 | F2 opening, VD/VB mismatch, absolute OV | Derive permissible delay from installed VD reservoir effective C, `Lmin/Lmax` over trajectory, current at threshold, maximum rectified input, initial VD/VB, derated voltage ceiling, and commutation/remaining line energy. | Divider/filter, TLV3202 outputs, HCS combining/retained clear, UCC27624, loaded STW. Applicable filter ramp delay, pulse capture, and loaded current fall are unset. | Recompute envelope at accepted corners; synchronized VD/VB, inductor current, detector, latch, EN, gate and switch-current traces, including F2-open startup and RUN. |
-| HOT logic or driver rail failure; isolator partial power | Determine the last supply level at which each output has guaranteed control and the rail slew/ripple/hold-up envelope; require inhibition before control guarantee is lost or a default-off path through the gap. | TPS3890/AUX fast comparator, POR, local EN bias, isolation defaults, driver UVLO. Intermediate-supply behavior and rail-order propagation are unset. | Selected rail/source envelope, device corner limits, powered-driver/unpowered-logic test, every relevant rail order and isolator-power permutation. |
+| HOT logic or driver rail failure; isolator partial power | Determine the last supply level at which each output has guaranteed control and the rail slew/ripple/hold-up envelope; require inhibition before control guarantee is lost or a default-off path through the gap. | TPS3890/AUX fast comparator, POR, local EN bias, isolation defaults, driver UVLO. The TPS3890's normal VDD range starts at 1.5 V; UCC27624 can remain active on its independent AUX rail (4.5 V minimum recommended VDD) while HOT logic5 is absent. Intermediate-supply behavior and rail-order propagation are unset. | Selected rail/source envelope, device corner limits, powered-driver/unpowered-logic test, every relevant rail order and isolator-power permutation. |
 | Physical PERMIT loss, STOP, receiver abort/reset | Derive the permitted continuation time from the function of the command/interlock and current power-stage state; distinct from a voltage-only detector limit. | Source readback-seen clear, HOT PERMIT-seen clear, `RECEIVER_ABORT_N`, retained latches, EN, loaded STW. Pulse/capture and reset-to-abort maxima are unset. | Exact-pin joined clear path, adverse pulse/reset/clock tests, synchronized hardware permission and current capture. |
 | Failed-short STW, failed-short boost diode, stored-bank discharge | Gate disable cannot interrupt a failed-short channel or discharge VD/VB. Derive F1/F2 and interconnect interruption/withstand and stored-energy containment instead. | No valid gate-to-current-zero path for the failed device. | Separate fuse/interconnect/thermal/energy qualification; do not record a passing gate timing for this row. |
 
@@ -175,7 +199,8 @@ assign the remaining measurements and calculations.
 
 | Fault-response event IDs | Allowable-time input owner | Implementation-time input owner | Evidence now / needed |
 | --- | --- | --- | --- |
-| `VD_OV`, `VB_OV`, `VD_GT_VB`, `VB_GT_VD`, `F2_OPEN` | Power-stage design: separate derated VD/VB/VDS limits, effective C, `L(I,T)`, fault current and line/source envelope; F2/interconnect owner for noninterruptible paths | Analog-protection design: divider/filter and capture corners; driver design: loaded EN/gate/current fall; bench owner: coincident F2/voltage/current traces | Joined pins and a conditional F2 model; no accepted installed limits or complete path capture |
+| `VD_OV`, `VB_OV`, `VD_GT_VB`, `VB_GT_VD`, `F2_OPEN` | Power-stage design: separate derated VD/VB/VDS limits, effective C, `L(I,T)`, fault current and line/source envelope; F2/interconnect owner for noninterruptible paths | Analog-protection design: divider/filter and capture corners; driver design: loaded EN/gate/current fall; bench owner: coincident F2/voltage/current traces | Joined pins and a conditional F2 model; no direct F2 continuity observation, accepted installed limits or complete path capture |
+| `PFC_PCL_OVERCURRENT` | Power-stage safety owner: determine whether current beyond PCL is a session-invalidating fault from derated switch/diode, shunt, inductor and interconnect limits over the complete line phase and controller cycle | PFC/protection owner: obtain an actual maximum for PCL blanking/response and any additional threshold/filter/driver time; if retained shutdown is required, join an independent physical producer into HOT trip fan-in; bench owner: shunt/current/PWM/retained-Q/EN/gate/current capture | UCC28180 internal cycle termination is joined; Figure 26's 300 ns blanking annotation is not a guaranteed maximum; no retained overcurrent producer or end-to-end bound |
 | `AUX_UV_FAST`, `AUX_OV`, `AUX_UV_SLOW`, `LOGIC5_UV`, `SELV_RAIL_UV`, `SOURCE_HEALTH_LOSS` | Supply design: qualified AUX, logic5 and SELV operating envelopes, rail slew, hold-up and last guaranteed control voltage | Supply/protection design: joined source, regulator, cutoff, logic5 converter, supervisors and window thresholds/delays; bench owner: rail-order and loaded-disable traces | AUX/logic5 Atopile pins joined and audited; SELV producer, physical source envelope, fast-fault peak and complete current-cessation response absent |
 | `INTERLOCK_LOSS`, `HOT_PERMIT_LOSS_BEFORE_HIGH`, `HOT_PERMIT_LOSS_AFTER_HIGH`, `SOURCE_READBACK_LOSS`, `HOT_FAULT_DURING_PREP`, `REVALIDATION_RACE` | System safety owner: permitted continuation in each power-stage state | Interface-logic design: pulse/capture, retained clear, isolator and reset dominance; bench owner: adverse edge order and current trace | Pin-level joins and mutation tests; no minimum captured pulse or maximum physical response |
 | `RECEIVER_STOP_READY`, `RECEIVER_STOP_RUNNING`, `RECEIVER_RESET`, `RECEIVER_EXECUTION_LOSS`, `PROTOCOL_ABORT`, `PREPARATION_TIMEOUT`, `START_TIMEOUT`, `LINK_LOSS` | System safety owner: permitted continuation for each command/interlock state | Receiver firmware and AVR adapter owner: reset default, decoder/timer/queue-to-pin bound, WDI stop; interface/bench owner: retained clear and loaded-current response | Host logic and runtime tests; AVR pin, fuse, watchdog, and physical capture absent |
@@ -197,6 +222,12 @@ pin paths. Its `UNSET` capture and cessation columns still mean that a
 compiled path has no established analog response bound. In particular,
 the F2-open row has no direct continuity sensor; equal VD/VB after opening
 can precede a later voltage fault without producing a mismatch now.
+The new `PFC_PCL_OVERCURRENT` row makes an existing gap explicit: a
+controller-internal cycle limit is not a HOT retained fault. If the
+independent current/energy envelope requires a latched stop, the candidate
+must gain a physical retained producer and its own threshold-to-current-zero
+bound. No current fault may be marked covered by borrowing the voltage-trip
+path while that producer is absent.
 
 ## AUX producer decision gate
 
@@ -321,6 +352,20 @@ design target. The circuit's detector/filter, loaded STW turnoff, and physical
 fault current are not bounded. No one may copy those values into
 `T_allowable` or mark this ledger PASS.
 
+That model starts **at a voltage evaluation threshold**, with 50 A already
+assumed there. It does not bound the time from the physical F2 opening to the
+first detected VD/VB crossing. For an F2-open response claim, record both
+`t_open → t_threshold` (including an initially equal VD/VB pair, light-load
+or startup operation) and `t_threshold → sustained current zero`; include
+the intervening current and capacitor energy in the initial state for the
+second interval. If no qualified threshold crossing is guaranteed before a
+hazardous state, a fast downstream comparator cannot close detection
+coverage. The power-stage owner must either show every hazardous F2-open
+case generates a timely voltage/current observation or add a direct
+continuity/independent startup-inhibit mechanism. This distinction is also
+required for an overcurrent model: a PCL threshold crossing after a fault
+onset cannot erase the prethreshold energy.
+
 For the selected F2-open model, the engineering calculation to repeat with
 supported limits is:
 
@@ -399,6 +444,12 @@ energize mains.
 
 ## Sources
 
+- [TI TPS3431, §§5–8](https://www.ti.com/lit/ds/symlink/tps3431.pdf): WDI minimum pulse, WDO reset duration and ideal-CWD timeout equation/table.
+- [TI SN74LV221A-Q1, timing and switching tables](https://www.ti.com/lit/ds/symlink/sn74lv221a-q1.pdf): source B2/Q2_N one-shot reference-fixture pulse.
+- [Murata GRM1885C1H102JA01 reference sheet](https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM1885C1H102JA01-01A.pdf): 1 nF C0G, initial ±5% tolerance; [Murata product listing](https://ds.murata.com/simsurfing/mlcc.html?oripartnumbers=%5B%22GRM1885C1H102JA01J%22%5D&partnumbers=%5B%22GRM1885C1H102JA01%22%5D) confirms family identity.
+- [TI TPS3890, §§7.3–7.6](https://www.ti.com/lit/ds/symlink/tps3890.pdf): supply and SENSE/MR timing conditions.
+- [TI UCC28180, §8.3.12](https://www.ti.com/lit/ds/symlink/ucc28180.pdf): cycle-by-cycle PCL and leading-edge blanking.
+- [TI UCC27624, §§5.5, 7.2.2](https://www.ti.com/lit/ds/symlink/ucc27624.pdf): separate AUX-supplied driver operating/UVLO range.
 - `docs/superpowers/specs/2026-09-23-power-entry-hot-receiver-design.md`
 - `zapote/power-entry/passive-reva/protection/f2-timing-02/README.md` and `constraints.json`
 - `zapote/power-entry/passive-reva/protection/f2-open-01/README.md`

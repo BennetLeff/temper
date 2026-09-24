@@ -50,6 +50,28 @@ in steady state. A sustained 15–20 A overload, especially with the bypass
 relay stuck open, is not shown to clear by a 20 A fuse. That fault needs an
 independent current/temperature limit or an evaluated protective response.
 
+### Continuous-current decision for the nominated 20 A cartridge
+
+The rating margins below use the proposed **15 Arms maximum normal inlet
+current**, not a measured load profile. They are arithmetic screens only;
+ambient conditions, waveform and device heating still have to be qualified.
+
+| Part in the line path | Published continuous rating | 15 Arms as a share of that rating | Decision consequence |
+| --- | --- | --- | --- |
+| `LP-CC-20` | [20 A](https://www.eaton.com/us/en-us/skuPage.LP-CC-20.html) | 75% | Candidate size for no-nuisance operation; 40 °C installed fuse/clip temperature and start cycles remain unproved. |
+| `BCM603-1P` pressure-plate block | [30 A](https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/data-sheets/bus-ele-ds-10241-bcm-bmm-blocks.pdf) | 50% | Block rating does not cover the selected wire, terminal or enclosure thermal path. |
+| TDK `B82726S2163N030` CMC | [16 A at its 60 °C rated temperature](https://www.tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s2163.pdf) | 93.75% | Little nominal current headroom; verify winding/housing temperature and fault survival. |
+| TE `RT33K012` bypass contact | [16 A limiting continuous contact current](https://www.te.com/en/product-2-1393240-3.html) | 93.75% | Verify actual contact duty, relay state and make/break heating. |
+| Ametherm `SL32 10015` before bypass | [15 A maximum steady current up to 65 °C](https://www.ametherm.com/datasheetspdf/SL3210015.pdf) | 100% | A stuck-open bypass leaves no current-rating margin and makes installed body/adjacent-material temperature decisive. |
+
+**Choice at this gate:** retain `LP-CC-20` only as an engineering candidate
+while obtaining an independent overload limit or demonstrated safe response
+for the CMC, relay and NTC, including bypass faults. A smaller fuse would
+change no-nuisance and inrush behavior and cannot be adopted merely because
+its nameplate is closer to 15 A. A larger downstream part likewise requires
+new startup and fault qualification. None of these changes can be inferred
+from the present component ratings.
+
 The slow-overload region is a specific **part-coordination mismatch to
 close**, not a marginal derating question. Eaton guarantees the `LP-CC-20`
 will remain intact for **at least 12 seconds at 40 A** (200% of its rating);
@@ -150,6 +172,18 @@ upstream breaker model. Record instrument bandwidth and calibration for
 peak-current/I²t captures. Do not turn the nominal 75% loading fraction or
 the 700 A apparent-RMS 10 kA let-through table entry into a thermal or
 peak-current pass.
+
+Request the following exact data from Eaton or generate it with the qualified
+fault fixture before making a coordination verdict: `LP-CC-20` minimum-melt
+and **maximum total-clearing** envelopes versus current, initial fuse
+temperature and power factor; peak let-through and total-clearing I²t at
+each actual prospective current; and repeated-pulse no-opening limits for
+the measured cold/hot-restart waveform. The published 12-second minimum at
+40 A and average-melt curves provide none of those upper bounds. Obtain the
+upstream **specific 20 A device** clearing envelope on the same basis and
+compare both devices at each fault location, including impedances that put
+the fault in the slow-overload region. Do not label either device
+"selective" without that comparison.
 
 For each matrix row, keep the exact sample and revision identity, fixture,
 source voltage/impedance and prospective current, component initial
