@@ -1,0 +1,57 @@
+# Inverter U2 candidate screen after paired coil/pan scenarios
+
+Date: 2026-09-23. **Decision: retain the VB_BANK/HOT0 half bridge as a conditional investigation. Hold the inverter schematic, exact switch/tank-cap/local-cap selection, frequency policy and product PCB.** The present inputs do not support a parts-accepted circuit or a safe restart rule. This is a design review of the provisional architecture, not construction or physical qualification.
+
+## Bound inputs and replay
+
+This work reads committed base `8b0a729600873c4e8e535bd614118d979cb38ec2`. The Rev38 `pfc_power.ato` SHA-256 is `e3daa14ea8b74344c307a86908c86cbf4d9b44447af367febeb4b581a84ba761`; standalone gate source `gate_drive_unit.ato` is `6e81398feb135f9a7382033173beda50f7a9cb8b7602ccab00a032f4fe40b2b1`. The [paired pan cases](evidence/provisional-pan-cases.csv) are `b63314c69b2e5c0a39b32d91ac6dfca3804e678672a70cedf6a02f4085b7ce79`; the [transient engine](evidence/coupled_transient.rs) is `920be23df47cc1dfbdac27cb7b9bfab77379b83bcebeca4d07c59a73b6a6201f`. The concurrent Rev38 checkout is not the source of any claim here. Repeat this read-byte review after its protection/restart revision is frozen.
+
+[candidate_matrix.rs](evidence/candidate_matrix.rs) reads all eight *paired* L/R scenarios. It evaluates both 390 V nominal intent and an illustrative 330 V sag, 270/300/330 nF historical three-can tolerance endpoints, and 44/47/50 kHz comparison points. The [144-row saved output](evidence/candidate-matrix-output.csv) reports ideal first-harmonic current/phase and steady-state capacitor AC RMS and absolute sinusoidal peak **assuming VB/2 bias**. `ocp_45a_overlap` is an overlap flag against the system's 45 A *lower* peak-trip requirement, not a prediction that the physical OCP board will trip. `cap_9p5a_proxy_overlap` compares ideal equal current sharing with a **historical** 47 kHz interpolation of the CDE curve; it is not a current rating at all three frequencies, temperatures or mountings. Neither `NO` flag is a pass. The official [CDE 942C catalog](https://www.cde.com/resources/catalogs/942C.pdf) is the part source; the interpolation and its limits are recorded in `elec/src/modules.ato` lines 469–508. The 0.34 Ω coil / reflected pan split and cross-coil transfers are synthetic as explained in [the prior model](evidence/provisional-coil-pan-model.md).
+
+Replay from repository root:
+
+```sh
+rustc --edition=2021 --test zapote/inverter/evidence/candidate_matrix.rs -o /tmp/zapote-candidate-matrix-tests
+/tmp/zapote-candidate-matrix-tests
+rustc --edition=2021 -O zapote/inverter/evidence/candidate_matrix.rs -o /tmp/zapote-candidate-matrix
+/tmp/zapote-candidate-matrix zapote/inverter/evidence/provisional-pan-cases.csv > /tmp/zapote-candidate-matrix-replay.csv
+cmp /tmp/zapote-candidate-matrix-replay.csv zapote/inverter/evidence/candidate-matrix-output.csv
+rustc --edition=2021 -O zapote/inverter/evidence/coupled_transient.rs -o /tmp/zapote-coupled-transient
+/tmp/zapote-coupled-transient zapote/inverter/evidence/candidate-restart-cases.csv > /tmp/zapote-candidate-restart-replay.csv
+cmp /tmp/zapote-candidate-restart-replay.csv zapote/inverter/evidence/candidate-restart-output.csv
+rustfmt --check zapote/inverter/evidence/candidate_matrix.rs
+```
+
+The matrix's nominal 390 V / 300 nF / 47 kHz comparison:
+
+| Paired input | Fundamental tank RMS / sine peak | Ideal current per CDE can | Steady-cap sine absolute peak | Consequence |
+| --- | ---: | ---: | ---: | --- |
+| Kit chart reference vessel | 24.36 / 34.45 A | 8.12 A | 584 V | Baseline sensitivity only. |
+| Kit no vessel | 12.19 / 17.23 A | 4.06 A | 390 V | Low current does not clear hard turn-on or no-pan detection. |
+| Cross-coil Silargan transfer | 32.25 / 45.61 A | 10.75 A | 710 V | Sine peak overlaps 45 A trip lower bound; cap-current proxy also overlaps. This is not a measured pan on the kit coil. |
+| Kit vessel L −10% | 30.90 / 43.70 A | 10.30 A | 688 V | The cap-current proxy overlaps without OCP lower-bound overlap. |
+
+Across 144 grid rows, 16 overlap the 45 A sine-peak marker and 26 overlap the 9.5 A/can proxy; both counts include synthetic cases and repeated operating assumptions, so they are **not probabilities**. The largest point is cross-coil Silargan transfer at 390 V, 270 nF, 44 kHz: 58.30 A fundamental RMS / 82.45 A sine peak, 19.43 A per can under ideal sharing, and 1.30 kV steady capacitor sine absolute peak. It remains inductive in the ideal model (34.5°), yet the amplitude makes the assumed window unusable as an uncontrolled 390 V operating range. Even the kit reference at that same tolerance/frequency corner gives 54.50 A sine peak, spanning the standalone current board's calculated 46.18–54.16 A static trip corner band in [its acceptance boundary](../current-sense/README.md). Real non-sinusoidal current, transformer error and comparator delay can shift either direction. **No 44–50 kHz frequency command is selected.**
+
+## Supply power, VB energy and cap restart
+
+For a 120 V, 15 A domestic source, 1.8 kVA is the apparent-power ceiling; real DC power is **below or at** 1.8 kW before PFC and other losses. The 6 A / 1.8 kW transient-source clip used in [the earlier U2 screen](U2-TRANSIENT.md) is an optimistic illustrative bound, not a measured Rev38 capability or an allowed input draw. At the extreme matrix point, even the model's fundamental `I²R` term is about 8.4 kW. A 390 V stiff-source result therefore cannot be treated as continuous heat or current. The Rev38 bank's nominal 2240 µF contains 170.352 J at 390 V and 121.968 J at 330 V, a 48.384 J difference before tolerance. It can fund a short high-power interval even after PFC stops; the actual trajectory needs measured VB/source impedance, command latency, device loss and load nonlinearity. Bus sag is a sensitivity point, not a protective guarantee.
+
+The [restart fixtures](evidence/candidate-restart-cases.csv) replay the existing ideal Rust transient engine with the same 59.84 µH / 300 nF / 47 kHz illustrative tank, 390 V bank, 2 ms window and 1.8 kW source proxy. They change only initial series-cap voltage and, for one case, F2-open/VD-dead source state. The [saved results](evidence/candidate-restart-output.csv) give tank peaks of 67.34 A from 0 V bias, 67.36 A from +195 V, **72.32 A from −195 V**, and 67.31 A from +390 V. The initial voltages are probes, not a bounded physical restart set. At F2 open with **VD = 0 V, VB = 390 V and source off**, the model still gives a 67.33 A peak when PWM is hypothetically allowed. Thus a VD-dead observation cannot authorize PWM while the bank stays charged. The F2-open case intentionally violates the desired interlock to expose the energy path; it is not an approved startup procedure. Cap charge retention, failed discharge, phase, diode clamping, gate/rail order and pan removal still lack measured bounds. The modeled 67–72 A startup peaks also show why a 45–55 A OCP must be co-designed with any enable sequence and measured timing.
+
+F2 is upstream of the bank. A failed-short high or low switch can receive energy directly from **VB cans → bridge fault → HOT0**, with no F2 in that loop. PERMIT low, PFC stop and the tank CT do not interrupt this DC fault. The prior transient model deliberately leaves F2-opening transfer and failed-short bank current indeterminate. The 1200 V IGBT's [Infineon datasheet](https://www.infineon.com/assets/row/public/documents/60/49/infineon-ikw40n120h3-datasheet-en.pdf?fileId=db3a304325305e6d012591d4832f7032) states a 10 µs short-circuit withstand under specific VCC/VGE/Tj/repetition conditions; the model's arbitrary 20 µs gate-loss delay cannot stand in for a short-circuit protection response. Bank-side interruption/containment, loop R/L, fuse coordination and thermal energy allocation need separate evidence. No live full-bank fault test is proposed by this screen.
+
+## Candidate disposition and missing selections
+
+| Element | Provisional disposition | Required before a schematic can claim selected values |
+| --- | --- | --- |
+| Half bridge and return | Keep VB_BANK/HOT0, series capacitor, two gate outputs as topology candidate. | Freeze Rev38 VB ready/min/max/ripple/sag/surge and F2-open rules; define HOT0 and gate return construction. Historical PWR_RTN midpoint is unavailable. |
+| Two switches | Keep historical **IKW40N120H3** as a comparison article only. Manufacturer lists 1200 V VCE, 40 A DC IC at 100 °C case, 20 A diode IF at 100 °C case, 160 A temperature-limited pulses and 10 µs conditional short withstand. | Measured per-device IGBT/diode currents, switching VCE overshoot, reverse recovery, Tj/case temperature, gate resistor and turn-on regime. Tank RMS or 160 A pulse label cannot approve a switch. Its TO-247-3 emitter is not a dedicated Kelvin pin. [Datasheet](https://www.infineon.com/assets/row/public/documents/60/49/infineon-ikw40n120h3-datasheet-en.pdf?fileId=db3a304325305e6d012591d4832f7032). |
+| Series tank capacitance | Historical **3 × CDE 942C16P1K-F, 100 nF ±10%, 1600 Vdc** is a comparison bank only. | AC+DC waveform and repetitive peaks across startup/stop, actual 44–50 kHz and hot-ambient ripple allowance, lead current and unequal parallel sharing. The catalog's 11.4 A RMS at 70 °C/100 kHz cannot be copied to the cooker. [CDE catalog](https://www.cde.com/resources/catalogs/942C.pdf). |
+| VB-local commutation capacitor | **Unselected**. Rev38's 470 nF film is on VD, across F2. The old transient's 0.47 µF on VB is a fixture, not an MPN. | Loop inductance/ripple and surge envelope, exact part voltage and RMS/pulse capability, placement, discharge inventory and assembly temperature. Even 0.47 µF adds 0.03574 J at 390 V; actual value must be handed to discharge. |
+| Tank current sense | Investigate the routed standalone CT board in the series tank leg, with trip handed to an independent latched PERMIT owner. Its bare primary lands/8 mm tracks are unqualified. | Full waveform transfer, hot trip and timing, primary ampacity/isolation, host input and current-zero evidence. The tank CT cannot monitor a DC bank-to-bridge short. [Interface](../current-sense/INTERFACES.md). |
+| Frequency and stop control | Keep default-disabled active-high PERMIT; PWM and gate rails are separate inputs. | Derive startup sweep, phase/load sensing, power reduction and pan-removal trip from measured complex impedance and source headroom. Measure both gate-off and current-zero time, bootstrap startup, rail loss and 3.9 Ω gate-drive behavior. The accepted [TI UCC21550-based gate unit](../gate-drive/INTERFACES.md) has only standalone digital construction acceptance. [Driver datasheet](https://www.ti.com/lit/ds/symlink/ucc21550.pdf). |
+
+## Review and next acceptance gate
+
+The chosen next artifact is a **revised, source-bound engineering screen** rather than an Atopile schematic. Drawing a selected-part circuit now would encode unresolved operating, protection and mounting claims as if accepted. First acquire a reference coil and identified pan articles, then measure complex impedance over allowed gap, offset, temperature, current and frequency. Freeze Rev38 VB and auxiliary/gate-stop envelopes; select a local cap and bank-side fault path with discharge/cooling owners; validate current/phase trip and restart on a protected limited-energy fixture. Only after those bounds exist should a native standalone inverter schematic and PCB be built and checked. No inverter PCB, purchased article, energized test or appliance qualification is claimed here.
