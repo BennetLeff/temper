@@ -8,9 +8,10 @@ debug. `firmware/main/power_entry_esp32_adapter.c` and
 `power_entry_esp32_idf.c` now implement this candidate mapping and boot
 sequence. `elec/src/source_mcu.ato` joins these pads and the expander to the
 source authority and isolation channels in the integrated candidate; the
-source runtime has not been wired into `app_main`, built with
-ESP-IDF, or checked on a board. See `ESP-PIN-INVENTORY.md` for the competing
-assignments.
+source runtime is wired into `app_main`, and its application objects compile
+with ESP-IDF v5.3. The complete cooker image still fails at link on unresolved
+production hooks; no target board check has run. See `ESP-PIN-INVENTORY.md`
+for the competing assignments.
 
 ## Direct ESP pins in the screened allocation
 
@@ -86,11 +87,10 @@ and reads P3–P7 and the direct GPIO inputs. Host tests cover retained-high
 expander state at CPU-only reset, ordering, and failed readback. The ESP-IDF
 binding uses I²C0 at 100 kHz and UART1 at 115200 8N1, with a TX-FIFO drain
 call; final shift-register completion is not proven and needs target capture.
-The binding uses the I²C master API introduced after this repo's existing
-ESP-IDF v5.0+ floor, so it is not in `firmware/main/CMakeLists.txt` until a
-version decision and target build. The
-binding still needs an installed ESP-IDF toolchain and target build. The
-relay-request P2 remains held low by this adapter until a
+The binding uses the I²C master API available in the tested ESP-IDF v5.3
+toolchain and is registered in `firmware/main/CMakeLists.txt`. The binding
+has compiled for ESP32-S3, but full-image linking and physical timing remain
+open. The relay-request P2 remains held low by this adapter until a
 separate RUN-qualified owner is joined and tested. Its timeout, bus recovery,
 snapshot age, and sample-to-START latency belong in the U1 bound. The
 expander reset cannot simply be tied to WDO: WDO low would hold the I²C
@@ -105,17 +105,14 @@ crediting U1.
 
 ## Reconciliation and acceptance work
 
-The existing cooker firmware uses GPIO19/20 for bypass relay/fault status,
-while `elec/src/modules.ato` uses them for USB and places those functions on
-GPIO16/17. This screen assumes the **new Rev38 variant** keeps USB and
-reconciles the cooker functions to the actual candidate netlist. GPIO16's
-future second RTD-select claim and GPIO17's fault-LED claim must be moved or
-retired explicitly; the canonical board/firmware mapping is not changed by
-this screen. The optional I²C bus must have one owner and a qualified load,
-pull-up and stuck-bus behavior.
+The cooker pin header now assigns the relay and fault inputs to GPIO16/17,
+matching `elec/src/modules.ato`, and reserves GPIO19/20 for USB. GPIO18 is
+assigned to the Rev38 pre-watchdog input. The optional UI I²C header remains
+electrically shared with Rev38 on GPIO38/39. That bus must have one owner
+and qualified load, pull-up and stuck-bus behavior.
 
-Before adoption: resolve native footprints and supply producers, connect the adapter to a sole source
-task with independent control/monitor progress counters; prove no
+Before adoption: resolve native footprints and supply producers, define a
+state-aware independent monitor progress check and prove no
 autonomous/boot WDI edge; test expander retention and interrupted I²C writes
 on CPU-only reset; and capture actual reset-to-off behavior. If
 the three expander outputs cannot meet those failure cases, this allocation

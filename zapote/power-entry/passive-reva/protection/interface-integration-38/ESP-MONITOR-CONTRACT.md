@@ -1,0 +1,40 @@
+# Rev38 shared-ESP monitor progress contract
+
+Status: **OPEN; no monitor epoch is credited in the target service**. The
+source runtime requires both a new control epoch and a new monitor epoch
+before crediting local progress. `PE_LOCAL_PROGRESS_QUALIFIED` remains zero,
+so the current image cannot authorize Rev38 WDI or START.
+
+The existing `main.c::monitor_task` contains no safety work. Calling
+`pe_esp32_source_service_monitor_progress()` on every loop would credit a
+running scheduler, not a completed check. Calling `run_safety_check()` before
+the epoch also fails normal startup: that function unconditionally requires
+PLL lock, while `pll_reset()` clears lock and the cooker starts in idle.
+`state_machine.c::check_safety_interlocks()` is not a monitor substitute:
+it mutates the state machine, whose owner is the control task.
+
+The monitor implementation must publish a fresh, bounded, read-only result
+before advancing its epoch. It needs a state-specific check set:
+
+| Cooker state | Progress requirement |
+| --- | --- |
+| INIT, IDLE, PAN_DET, NO_PAN, COOLDOWN | Check the applicable current, temperature, RTD, fan, interlock, reset and fault conditions without demanding an inactive PLL/ZVS measurement. Define each state's safe output condition and maximum sample age. |
+| PREHEAT, HEATING | Check those inputs plus PLL lock, frequency and ZVS where the measurements are valid and required. Any missing or stale active measurement suppresses progress. |
+| FAULT, RUNAWAY_FAULT or safe mode | No Rev38 progress credit; assert the owned fail-low STOP/fault path. |
+
+The present `control_task` increments its epoch after every
+`state_machine_update()`, including fault states. It must gate that credit
+on a completed, healthy control tick. `read_rtd_resistance()` can return a
+cached conversion; valid-looking ohms alone are not freshness evidence.
+The monitor needs the conversion completion/age from `rtd_service` and
+bounded age for every other sampled input. Cross-task state and result
+publication also need an explicit synchronization rule.
+
+Tests before enabling progress: idle-to-first-start, PREHEAT/HEATING and
+return-to-idle; each task stalled independently; frozen/replayed sensor
+values; fault entry during a sample; late result after cancellation; and
+CPU-only reset while the expander retains outputs. A failed check must
+initiate the physical fail-low path within U1's independently accepted
+deadline, rather than relying solely on eventual watchdog expiration.
+Target captures must establish scheduling, sample age and reset feed-tail
+bounds. No such capture exists yet.

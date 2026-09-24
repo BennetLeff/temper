@@ -50,7 +50,7 @@ numbers in `receiver-selection.md` and the current receiver fixture.
 | 18 AVDD / 19 GND / 28 VDD / 29 GND | HOT logic supply and HOT0 returns | Rail sequencing and brownout behavior remain unqualified. |
 | 26 PF6 / 27 UPDI | RESET / programming | Keep reset enabled; record programmed fuse/BOD/clock image. |
 
-## SELV ESP allocation proposed for the separate Rev38 candidate
+## SELV allocation for the selected shared cooker ESP
 
 Part assumption: ESP32-S3-WROOM-1-N8R8. This allocation preserves native USB
 on GPIO19/20 and UART0 boot/debug on GPIO43/44. GPIO35–37 are unavailable
@@ -77,6 +77,8 @@ or an I²C ACK cannot be counted as immediate CPU-reset detection. The relay
 request cannot bypass the AVR decision and retained HOT RUN gate.
 
 The product integration uses the **existing cooker ESP32-S3 and SELV rail**.
+`SELV-CONTROLLER-CONNECTOR.md` screens a 16-contact mating pair and a
+straight-through pin contract; neither board has that connector joined yet.
 This is a selected direction, not yet a joined source/native claim:
 `SourceMcu38` still instantiates another ESP in the Rev38-only fixture. The
 existing `elec/src/modules.ato::MCU` assigns IO38/39 to the UI I²C header;
@@ -154,12 +156,11 @@ load must be budgeted together. `SELV-SUPPLY-LOAD.md` inventories the joined
 Rev38 loads and direct startup capacitance: Espressif requires at least 0.5 A
 of source capability for the ESP alone, before the isolators and other logic.
 The record does not establish spare power on the existing IRM-10-15 or its
-3.3 V buck. Resolve whether the production and Rev38 ESP instances are one
-physical device or two, and define the physical connector, rail limits,
-reset-good and interlock producers. If Rev38 is a separate
-board, its SELV source must instead be part of that board or a specified
-external supply interface. Neither choice permits bonding `SELV_GND` to
-`HOT0`; no 3.3 V source is credited in the current joined netlist.
+3.3 V buck. Define the physical connector, rail limits, reset-good and
+interlock producers for the selected existing cooker ESP and SELV rail. The
+current Rev38 fixture still contains
+a second ESP and is not the joined product source. `SELV_GND` cannot be
+bonded to `HOT0`, and no 3.3 V source is credited in that fixture.
 
 The production `SafetyInterlock.shutdown` is an active-high latched **fault**
 that drives the UCC21550 `DIS` input (`elec/src/main.ato`), while Rev38
@@ -176,8 +177,10 @@ cases are represented in the joined circuit and tested at the physical pins.
 
 The Atopile candidate now joins source MCU, expander, button, source authority
 and both isolation channels. The ESP adapter is host-tested and wired to one
-`app_main` task, but is not target-built or measured. Zero target timing
-bounds and unqualified UART final-bit, reset feed-tail, and monitor progress
+`app_main` task. Its application objects compile for ESP32-S3 with IDF v5.3;
+the complete cooker image still fails to link on unresolved production hooks.
+Zero target timing bounds and unqualified UART final-bit, reset feed-tail,
+and monitor progress
 conditions keep the task locked out. The expander P1 history-reset pulse
 uses a candidate 5 ms I²C transaction timeout. Runtime now reserves its
 configured sample-to-edge bound before requesting P1 or permit-set; the
@@ -186,9 +189,8 @@ documented as waiting for the TX FIFO to empty; a final START-bit completion
 claim also needs target capture. Before promoting this map, update the native
 KiCad symbols/footprints and obtain the physical evidence.
 Check every physical pad, pull/default, supply return, isolator direction,
-UART ownership and expander retained-output case. The legacy cooker pin
-header still names GPIO18 as a power LED and GPIO38/39 as optional I²C;
-the current firmware has no callers of those aliases, but the native pin
-ownership review must remove or reconcile them. Capture boot/CPU-only reset
+UART ownership and expander retained-output case. GPIO18 and GPIO38/39 are
+now shared with the Rev38 adapter in the cooker pin header; the native
+connector and I²C bus contract still need review. Capture boot/CPU-only reset
 and partial-power behavior on the selected hardware. Until then this is the
 candidate **interface contract**, with ESP and supply joins OPEN.
