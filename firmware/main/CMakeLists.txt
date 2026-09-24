@@ -1,9 +1,24 @@
 # Main component CMakeLists.txt
 # Lists source files for the main application component
 
+option(TEMPER_DIAGNOSTIC_LOCKOUT
+    "Build the non-energizing ESP32-S3 diagnostic image while cooker hooks are unimplemented"
+    ON)
+
+if(TEMPER_DIAGNOSTIC_LOCKOUT)
+    set(TEMPER_ENTRY_SOURCES
+        "diagnostic_lockout.c"
+        "diagnostic_lockout_idf.c"
+        "diagnostic_lockout_hooks.c")
+else()
+    # Keep this path honest: it currently fails to link until the actual
+    # cooker peripheral and self-test implementations are registered.
+    set(TEMPER_ENTRY_SOURCES "main.c")
+endif()
+
 idf_component_register(
-    SRCS 
-        "main.c"
+    SRCS
+        ${TEMPER_ENTRY_SOURCES}
         "state_machine.c"
         "state_handlers.c"
         "../config.c"
@@ -32,3 +47,7 @@ idf_component_register(
         nvs_flash
         esp_timer
 )
+
+if(TEMPER_DIAGNOSTIC_LOCKOUT)
+    target_compile_definitions(${COMPONENT_LIB} PRIVATE TEMPER_DIAGNOSTIC_LOCKOUT=1)
+endif()

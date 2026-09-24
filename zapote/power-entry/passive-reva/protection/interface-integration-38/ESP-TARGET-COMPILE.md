@@ -1,8 +1,8 @@
 # Rev38 ESP32-S3 target compile attempt
 
-Status: **seven application translation units compiled for ESP32-S3; full
-image, link and target behavior OPEN**. This is a compiler compatibility
-check, not a timing or reset acceptance.
+Status: **diagnostic lockout image linked; production image and target
+behavior OPEN**. The diagnostic link is a compiler/interface check, not a
+timing or reset acceptance.
 
 On 2026-09-23, the `espressif/idf:release-v5.3` Docker image reported
 ESP-IDF `v5.3.6-23-gc54ee794c20` and Xtensa GCC 13.2.0. From the worktree's
@@ -61,6 +61,50 @@ symbols are cooker integration work, not Rev38 authorization evidence:
 
 The same names have definitions in `firmware/test/state_machine_stubs.c` but
 those are mock implementations and cannot fill a production image. The
-ESP-IDF build remains **FAIL** and U6 remains OPEN. Neither target compilation
+production ESP-IDF link remains **FAIL** and U6 remains OPEN. Neither target compilation
 nor a host PASS changes the zero-timing lockout or physical qualification
 status.
+
+## Diagnostic lockout image (2026-09-24)
+
+The default `TEMPER_DIAGNOSTIC_LOCKOUT=ON` ESP-IDF configuration selects a
+separate entry point and explicitly marked diagnostic cooker hooks. The
+normal `main.c` path is selected with `-D TEMPER_DIAGNOSTIC_LOCKOUT=OFF` and
+still requires real implementations of the 32 cooker interfaces above. The
+diagnostic hooks cannot compile without the diagnostic definition; they are
+not a production peripheral implementation or a substitute for the U6
+target behavior evidence.
+
+The diagnostic entry point loads the GPIO output latch before enabling each
+pin, then drives Rev38 `SOURCE_STOP_N` (GPIO13) low, cooker `RUNAWAY_CUT`
+(GPIO15) high, both gate PWM pins (GPIO4/5) low, and the bypass-relay pin
+(GPIO16) low. It repeats that sequence and aborts on a GPIO failure. It never
+starts the cooker state-machine tasks, the legacy watchdog initialization
+(which clears `RUNAWAY_CUT`), the Rev38 source task, either watchdog feed, or
+the I²C/UART command owners. Diagnostic power-request hooks reassert the cuts
+and abort; all diagnostic self-tests return failure. The image retains a
+read-only reference to `state_machine_update()` so the cooker core and its
+interfaces must resolve at image link without running that core.
+
+Build reproduction, from the repository root, using the local IDF v5.3.6
+image and a temporary SDK configuration/build directory:
+
+```sh
+docker run --rm -v "$PWD":/work -w /work/firmware \
+  espressif/idf:release-v5.3 bash -lc \
+  'cp sdkconfig /tmp/temper-diagnostic-sdkconfig && \
+   idf.py -B /tmp/temper-diagnostic-build \
+     -D SDKCONFIG=/tmp/temper-diagnostic-sdkconfig build'
+```
+
+The host `test_diagnostic_lockout` checks the exact cut sequence and that a
+single failed pin drive reports failure while still attempting every other
+cut. With `espressif/idf:release-v5.3` (IDF v5.3.6), the full default
+diagnostic build completed the `induction_cooker.elf` link and generated an
+ESP32-S3 binary of `0x31a40` bytes; the state-machine link anchor is present.
+The host lockout test passed. This is software evidence only. No board was
+programmed or measured:
+power-on pin states before the ESP begins executing, GPIO output readback,
+physical gate and relay levels, reset-to-off latency, and Rev38 response
+timing remain unqualified. This linked diagnostic image does **not** close U6
+or change any Rev38 zero timing bound.

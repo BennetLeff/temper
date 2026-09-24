@@ -36,6 +36,15 @@ add_executable(test_power_entry_esp32_adapter
     ${CMAKE_CURRENT_SOURCE_DIR}/../../zapote/power-entry/passive-reva/protection/interface-integration-38/receiver-firmware/protocol.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_power_entry_esp32_adapter.c
 )
+
+add_executable(test_diagnostic_lockout
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/diagnostic_lockout.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostic_lockout.c
+)
+target_include_directories(test_diagnostic_lockout PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/include
+)
 target_include_directories(test_power_entry_esp32_adapter PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/include
 )
@@ -422,6 +431,7 @@ enable_testing()
 add_test(NAME power_entry_authorization_tests COMMAND test_power_entry_authorization)
 add_test(NAME power_entry_source_runtime_tests COMMAND test_power_entry_source_runtime)
 add_test(NAME power_entry_esp32_adapter_tests COMMAND test_power_entry_esp32_adapter)
+add_test(NAME diagnostic_lockout_tests COMMAND test_diagnostic_lockout)
 add_test(NAME all_tests COMMAND test_runner)
 add_test(NAME state_machine_tests COMMAND test_state_machine_only)
 add_test(NAME max31865_tests COMMAND test_max31865_only)
