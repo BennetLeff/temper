@@ -1,0 +1,40 @@
+---
+artifact_contract: "ce-handoff/v1"
+created_at: "2026-09-24T14:06:57Z"
+title: "Zapote standalone PCB fabrication and integration handoff"
+summary: "Five standalone PCB fabrication packages and a vendor/BOM/harness review are ready for external DFM discussion; cooker integration and physical qualification remain open."
+keywords: ["zapote", "standalone-pcb", "fabrication", "dfm", "sourcing", "harness", "integration"]
+cwd: "/Users/bennet/Desktop/temper/worktrees/zapote-coil-intake-20260923"
+resume_focus: "Close the five-board DFM, sourcing, and mechanical holds before prototype ordering; preserve the separate cooker integration gates."
+repository: "temper"
+branch: "codex/zapote-next-milestone-integrated-20260923"
+head: "8178ff257"
+worktree_path: "/Users/bennet/Desktop/temper/worktrees/zapote-coil-intake-20260923"
+---
+
+# What this work covers
+
+The user is aiming for the *functionality* of a Breville Control Freak in a home kitchen, with **1,800 W at the wall** on a 120 V/15 A branch as the input target. No specific coil/pan/fan article or adopted post-power-off discharge limit has been supplied. Scenario distributions and the selected reference coil are provisional design inputs, not measurements or approved hardware. The user asked first for parallel progress on separate units and most recently for the five accepted sensing/protection/drive boards to be prepared for prototype fabrication, then vendor DFM, exact BOM sourcing, and harness/mechanical definition. The power-entry/PFC Rev38 protection and restart effort is a separate parallel section and does **not** include the induction inverter.
+
+The [roadmap](../plans/2026-09-10-1627-zapote-cooker-roadmap-plan.md) distinguishes standalone digital construction, later integration onto one cooker PCB, full-board release, and assembled hardware testing. Do not infer a cooker PCB or physical qualification from a standalone acceptance. [Integration receipt](../../zapote/integration/RECEIPT.md) remains **BLOCKED**; [release gate](../../zapote/release/README.md) remains preintegration and the assembled test protocol is **NOT_RUN**. No appliance has been fabricated or energized under this work.
+
+# Frozen five-board deliverable
+
+Commit `43346dabc` created [the five-board fabrication review package](../../zapote/fabrication/standalone-2026-09-24/README.md). Its `manifest.json` pins source boards and each export by full SHA-256; `regenerate.sh` records the KiCad export procedure. Separate RTD, current-sense, thermal Rev B, interlock Rev A, and gate-drive Rev A folders contain Gerbers, plated drill output, native BOM and positions, ERC/DRC/stackup reports, footprint audit, and top/bottom renderings. RTD is four-layer 35 µm declared copper; the others are two-layer 70 µm declared copper. Fresh KiCad 10.0.4 ERC/DRC/parity had zero findings on the accepted project rules; all 129 references matched the board footprints. The manifest and its saved board hashes, rather than a screenshot or an old BOM, identify the artwork. No source board was changed in the vendor-preparation follow-up.
+
+Commits `972faf939` and `8178ff257` added [release preparation](../../zapote/fabrication/standalone-2026-09-24/release-prep/README.md):
+
+- [DFM/RFQ packet](../../zapote/fabrication/standalone-2026-09-24/release-prep/DFM-RFQ.md): PCBWay is a **proposed** five-piece-per-board fabricator/assembler, screened against its published capability. No vendor quote, written DFM approval, order, or Gerber upload exists. The online assembly inquiry was inspected read-only; it was signed out and required a submitter content/export-control certification. An owner/account and classification are prerequisites to actual submission.
+- [Interlock 0.20 mm DRC probe](../../zapote/fabrication/standalone-2026-09-24/release-prep/interlock-drc-at-0p20mm.json): a *temporary copy* of the project was checked against PCBWay's more comfortable 2 oz spacing. It found six clearances below 0.20 mm and zero opens: five 0.150 mm U4 pad gaps and one 0.190 mm track/via gap. The accepted board rule is 0.15 mm. Vendor-specific written acceptance of the **actual 0.150 mm gap at 70 µm finished copper** is required; if refused, revise the board and repeat standalone acceptance and fabrication exports. Do not silently switch to 1 oz.
+- [Assembly BOM](../../zapote/fabrication/standalone-2026-09-24/release-prep/assembly-bom.csv) and [sourcing snapshot](../../zapote/fabrication/standalone-2026-09-24/release-prep/sourcing-snapshot.json): 129 source references reconcile exactly, with current-sense J1 explicitly non-purchased bare primary lands; 128 purchased placements use 54 unique MPN identities. Fifty-one identities have an exact manufacturer/MPN catalog lead, **none** an accepted purchase allocation. The exact TLV3201 comparator has an LCSC lead despite zero-stock reports at two other distributors. RTD `RG2012V-431-W-T1` lacks a practical small-lot allocation; current-sense `CST3015-100ED` exact reel allocation and Panasonic `ERA3AEB3741V` versus distributor hyphenated spelling need confirmation. No substitutes were approved.
+- [Harness and mechanical register](../../zapote/fabrication/standalone-2026-09-24/release-prep/HARNESS-MECHANICAL.md): identifies JST XH mates and contacts, exact low-voltage board pin maps, harness inspection criteria, Samtec mating family, and the current J1 primary construction boundary. Both interlock 8-pin headers can be swapped, gate J2–J5 are identical unkeyed 2-pin headers, RTD host J2 is unshrouded, and the gate U1 VRML body does not bound TI's maximum package envelope. Appliance keying, primary termination, actual cable assembly, enclosure fit and physical inspection remain open.
+
+# Verification and important limits
+
+The derived assembly CSV was programmatically checked against all five native BOMs for board/reference/value/footprint identity: 129/129 matched, 54 purchased identities, one bare-land J1 exception. The saved stricter interlock report has exactly six clearance findings. `git diff --check` passed before the commits. The fabrication package's checks are *digital construction* evidence only. Procurement snapshots are time/region dependent; recheck exact MPN and ship-to-region stock before purchase. The KiCad native position CSV is not approved assembler machine programming; PCBWay must sign off the centroid datum/rotation and mixed SMT/THT process. All five boards need written fab stackup, drill/plating, solder mask, panel and first-article inspection dispositions.
+
+No mains, bus, inverter, coil or current-primary energized test should be inferred from the harness document. Current-sense J1 is bare copper; its 8 mm/70 µm tracks and 3.00 mm holes do not qualify a 15 A primary termination. Sensor connectors must stay in the cooler electronics region; sensor splices and strain relief are not qualified. The existing standalone [RTD](../../zapote/rtd/unit/ACCEPTANCE.md), [current](../../zapote/current-sense/ACCEPTANCE.md), [interlock](../../zapote/interlock/ACCEPTANCE.md), and [gate-drive](../../zapote/gate-drive/ACCEPTANCE.md) records carry the electrical/digital acceptance boundaries.
+
+# Continuation state
+
+The next concrete prototype-release steps are vendor DFM submission/response for the frozen artwork, exact-part allocation or a separately reviewed RTD reference redesign, and approved mating/primary/mechanical drawings. If any board or component changes, update its source and rerun that unit's digital acceptance, ERC/DRC/parity and fabrication export; then refresh package hashes. After prototype boards exist, use board-specific low-energy bring-up and physical qualification procedures before cooker integration. The wider product still requires an adopted 390 V sensing interface, separate PFC/inverter stop paths, auxiliary and discharge validation, inverter/coil characterization, cooling/UI completion, integrated native board, full-board checks, and assembled hardware tests. The linked roadmap and integration/release gates are the authoritative status, not this handoff's snapshot.
