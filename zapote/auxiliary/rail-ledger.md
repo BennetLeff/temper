@@ -21,7 +21,7 @@ The Rev38 PFC RUN path consumes `AUX_PROTECTED` and `HOT_LOGIC5`, so their produ
 
 ## U1 open decisions and evidence requests
 
-1. Resolve the Rev38 producer itself. The live, uncommitted `AUX-SOURCE-CANDIDATE.md` proposes IRM-20-15 → LTC4368-2 with FET/shunt → TPS54202 HOT logic5, tapped after CMC/before NTC. Its own status says none is joined or accepted. Bind a committed source/netlist revision before adopting it here.
+1. Resolve the Rev38 producer itself. The frozen active, uncommitted `AUX-SOURCE-CANDIDATE.md` compares direct IRM-20-15 and regulated IRM-20-24 → LMR36015 before LTC4368-2 with FET/shunt and TPS54202 HOT logic5, tapped after CMC/before NTC. Its own status says none is joined or accepted. The saved-file SHA-256s and conditional comparison are in [candidate-comparison.md](evidence/candidate-comparison.md); bind a committed source/netlist revision before adopting either path.
 2. Specify the off-board F1 and *additional AUX branch* fuse/conductor/inrush path and the module's exact AC/DC pin/footprint identity; the nominal 20 A F1 candidate does not establish protection for the smaller branch.
 3. Bound actual steady, startup, capacitor-recharge and dropout currents at `AUX_PROTECTED` and `HOT_LOGIC5`; nominal resistor arithmetic and STW typical charge are insufficient. Determine local module temperature, not just the 40 °C cooling inlet.
 4. Obtain selected fan, gate-drive and inverter bias operating conditions and the new SELV supply input topology before finalizing their load and insulation contributions.
