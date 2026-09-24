@@ -1,0 +1,16 @@
+case	tx_gpio	rx_gpio	en_pad	io0_pad	supply_v	return_present	en_released	io0_released	claimed_isolated	barrier_present	backfeed_blocked	extra_gpio_owner	access_isolated_discharged	reset_stops_pfc	reset_stops_inverter	no_auto_rearm	expander_retained_request	expected
+uart-bench-topology-only	43	44	3	27	3.3	true	true	true	false	false	true	false	false	false	false	false	false	indeterminate
+swapped-uart	44	43	3	27	3.3	true	true	true	false	false	true	false	false	false	false	false	false	rejected
+held-en	43	44	3	27	3.3	true	false	true	false	false	true	false	false	false	false	false	false	rejected
+held-io0	43	44	3	27	3.3	true	true	false	false	false	true	false	false	false	false	false	false	rejected
+missing-return	43	44	3	27	3.3	false	true	true	false	false	true	false	false	false	false	false	false	rejected
+missing-rail	43	44	3	27	0	true	true	true	false	false	true	false	false	false	false	false	false	rejected
+false-isolation	43	44	3	27	3.3	true	true	true	true	false	true	false	false	false	false	false	false	rejected
+backfeed	43	44	3	27	3.3	true	true	true	false	false	false	false	false	false	false	false	false	rejected
+duplicate-gpio	43	44	3	27	3.3	true	true	true	false	false	true	true	false	false	false	false	false	rejected
+reset-leaves-pfc-running	43	44	3	27	3.3	true	true	true	false	false	true	false	false	false	true	true	false	rejected
+reset-leaves-inverter-running	43	44	3	27	3.3	true	true	true	false	false	true	false	false	true	false	true	false	rejected
+reset-auto-rearms	43	44	3	27	3.3	true	true	true	false	false	true	false	false	true	true	false	false	rejected
+expander-retains-request	43	44	3	27	3.3	true	true	true	false	false	true	false	false	true	true	true	true	indeterminate
+claimed-discharge-before-access	43	44	3	27	3.3	true	true	true	false	false	true	false	true	false	false	false	false	indeterminate
+claimed-both-stage-stop	43	44	3	27	3.3	true	true	true	false	false	true	false	false	true	true	true	false	indeterminate
