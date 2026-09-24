@@ -1,0 +1,10 @@
+{
+  "flat": true,
+  "module_to_sheet": {"RailOrderFixture": "Fixture"},
+  "root_sheet": "rail-order-fixture.kicad_sch",
+  "schema_version": 1,
+  "sheet_description": "LAB ONLY: passive, mains-disconnected rail-order fixture",
+  "sheet_files": {"Fixture": "rail-order-fixture.kicad_sch"},
+  "sheets": ["Fixture"],
+  "title": "Rail-order laboratory fixture"
+}

@@ -1,6 +1,6 @@
 # HOT rail-order laboratory fixture
 
-**LAB ONLY — no energized Rev38 board, mains, AC, VD, VB or PFC power.** Use only with a standalone, mains-disconnected driver-stage coupon and two isolated, current-limited low-voltage supplies. `HOT0` becomes hazardous if a later assembly ties it to energized mains. Any live-board hookup requires a separate pad-map, isolation, instrumentation and operator-protection review. The generic J3 pinout below is a *fixture harness assignment*, not a claim that a Rev38 connector exists or that the fixture can physically mate with Rev38.
+**LAB ONLY — isolated low-voltage coupon, no direct Rev38 connection.** Use only with a standalone, mains-disconnected driver-stage coupon and two isolated, current-limited low-energy supplies. Set voltage and current limits from a separately approved test procedure before energizing; this board supplies no limiting or protection of its own. Do not connect to Rev38 `HOT0`, `VD`, `VB`, AC, mains or PFC power, even after switch-off, without an independent discharge check and a separate pad-map, isolation, instrumentation and operator-protection review. `HOT0` can remain hazardous in an assembled system. The generic J3 pinout below is a *fixture harness assignment*, not an approved mating harness or claim that a Rev38 connector exists.
 
 This is a passive rail-order harness. It creates neither a protected AUX producer nor a new permission signal. The two supply inputs are independently sequenced and share HOT0 only. DUT signal pins are probes; the fixture does not drive PWM, permission, RUN, ENA or gate. Use a reviewed DUT coupon and probe loading/instrument grounding setup before any powered capture. No powered capture has been made.
 
@@ -10,7 +10,9 @@ This is a passive rail-order harness. It creates neither a protected AUX produce
 | J2 logic input | 1 `HOT_LOGIC5`, 2 `HOT0` |
 | J3 DUT harness | 1 `AUX_PROTECTED`, 2 `HOT_LOGIC5`, 3 `HOT0`, 4 `DRIVER_PERMISSION`, 5 `ENA_NODE`, 6 `EN_SHUNT_BASE`, 7 `PFC_PWM`, 8 `STW_GATE`, 9 `HOT_RUN_Q`, 10 `HOT_SESSION_Q` |
 
-TP1–TP10 mirror the J3 signals in that order. Probe points are passive one-pin taps. J1/J2 are test inputs at the named protected rail of a disconnected coupon. The fixture contains no cutoff element; never use it to bypass an installed LTC4368 or other cutoff. Generic 2.54 mm header footprints are digital fixture candidates only; no native board or mating connector is accepted.
+TP1–TP10 mirror the J3 signals in that order. Probe points are passive one-pin taps. J1/J2 are test inputs at the named protected rail of a disconnected coupon. The fixture contains no cutoff element; never use it to bypass an installed LTC4368 or other cutoff. Generic 2.54 mm header footprints are digital fixture candidates only; the routed native board below does not establish an orderable or approved mating connector.
+
+The [native schematic](candidate/rail-order-fixture.kicad_sch) and [routed two-layer PCB](candidate/rail-order-fixture.kicad_pcb) are source-bound lab candidates. [PCB receipt](../evidence/aux-board-01/receipt.md) records 0 ERC and 0 DRC violations, exact 10-net/24-pad source parity, and the unperformed physical checks. The silkscreen shows J1/J2/J3 and TP1–TP10; the table above remains the exact pin-function map. There is no product auxiliary supply PCB in this fixture.
 
 ## Pinned interface and build
 

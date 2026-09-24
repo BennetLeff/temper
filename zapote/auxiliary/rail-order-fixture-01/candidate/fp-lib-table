@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Connector_PinHeader_2.54mm") (type "KiCad") (uri "${KIPRJMOD}/candidate-libs/Connector_PinHeader_2.54mm.pretty") (options "") (descr "Pinned fixture headers"))
+  (lib (name "TestPoint") (type "KiCad") (uri "${KIPRJMOD}/candidate-libs/TestPoint.pretty") (options "") (descr "Pinned fixture pads"))
+)
