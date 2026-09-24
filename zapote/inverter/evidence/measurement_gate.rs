@@ -599,6 +599,26 @@ fn report(
             _ => recorded += 1,
         }
     }
+    let articles: BTreeSet<_> = records
+        .values()
+        .filter(|record| record.origin != "NONE")
+        .map(|record| record.article.as_str())
+        .collect();
+    if articles.len() > 1 {
+        rejected += 1;
+        output.push_str(
+            "ARTICLE_COHORT\tREJECTED\tmeasurement rows name different physical articles\n",
+        );
+    }
+    let coil_articles: BTreeSet<_> = records
+        .values()
+        .filter(|record| record.kind == Kind::Coil && record.origin != "NONE")
+        .map(|record| record.coil.as_str())
+        .collect();
+    if coil_articles.len() > 1 {
+        rejected += 1;
+        output.push_str("COIL_COHORT\tREJECTED\tcoil sweep rows name different coil builds\n");
+    }
     // Multiple physical load states must not be relabeled copies of one pan.
     let reference = &records["coil_reference_cold"];
     let hot = &records["coil_reference_hot"];
@@ -822,6 +842,26 @@ mod tests {
             .unwrap()
             .0
             .contains("COIL_COHORT\tREJECTED\tone favorable pan reused"));
+    }
+    #[test]
+    fn mixed_article_or_coil_build_cannot_form_one_campaign() {
+        let (s, m) = base();
+        let mut rows = m;
+        for (id, article, coil) in [
+            ("coil_reference_cold", "fixture-1", "coil-1"),
+            ("coil_weak_pan", "fixture-2", "coil-2"),
+        ] {
+            rows = changed(
+                &rows,
+                &format!("{id}\tcoil\tNONE\tUNKNOWN\tUNKNOWN\tUNKNOWN\tHOT0\tUNKNOWN"),
+                &format!(
+                    "{id}\tcoil\tSYNTHETIC\t{article}\t{coil}\tpan-{coil}\tHOT0\t{COIL_VALUES}"
+                ),
+            );
+        }
+        let out = report(&s, &rows, false).unwrap().0;
+        assert!(out.contains("ARTICLE_COHORT\tREJECTED"));
+        assert!(out.contains("COIL_COHORT\tREJECTED\tcoil sweep rows name different"));
     }
     #[test]
     fn zero_volt_startup_is_valid_input_shape() {
