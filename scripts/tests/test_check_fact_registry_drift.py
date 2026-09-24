@@ -189,19 +189,13 @@ class TestSyntheticRegistry:
 
 
 class TestRealRegistryKnownState:
-    """Pins the documented, currently-red mains_voltage_v/pollution_degree
-    finding. See check_fact_registry_drift.py's module docstring for the
-    full investigation and why this is deliberately NOT fixed by editing
-    the registry or the sites -- see docs/evidence/2026-08-17-fact-dedup-
-    inventory-and-gate.md.
+    """Pins the documented mains-voltage/pollution-degree reconciliation.
 
     2026-08-17 UPDATE: specification_contracts.rs's SafetySpec default was
     corrected to 120.0/PD3 and its oracle re-pinned (docs/evidence/
     2026-08-17-safetyspec-default-repin.md) -- removed from known_red
     below, per this class's own instruction ("if this test ever fails
-    because a site now MATCHES... update this pin"). pcb_spec.yaml and
-    design_rules.py remain open, still pinned-oracle-entangled /
-    derivation-surface-unswept respectively."""
+    because a site now MATCHES... update this pin")."""
 
     def test_registry_is_non_empty(self):
         assert len(check.REGISTRY) >= 2
@@ -236,18 +230,13 @@ class TestRealRegistryKnownState:
                 "authoritative value -- SafetySpec's default regressed."
             )
 
-    def test_known_divergent_sites_are_still_divergent(self):
-        # This is an EXPECTED-RED pin, not a normal regression guard: it
-        # documents that the finding is real and still open. If this test
-        # ever fails because a site now MATCHES, that is good news -- go
-        # verify the coordinated fix (registry update, oracle re-pin,
-        # test_specification.py corrections) actually landed, then update
-        # this pin, don't just delete it.
+    def test_safety_fact_sites_are_reconciled(self):
+        """All three formerly divergent production homes now agree."""
         repo_root = find_repo_root()
         results = check.run(repo_root)
         by_key = {(r.fact, r.site.file): r for r in results}
 
-        known_red = [
+        reconciled = [
             ("mains_voltage_v", "packages/temper-placer/configs/pcb_spec.yaml"),
             (
                 "mains_voltage_v",
@@ -255,14 +244,10 @@ class TestRealRegistryKnownState:
             ),
             ("pollution_degree", "packages/temper-placer/configs/pcb_spec.yaml"),
         ]
-        for key in known_red:
+        for key in reconciled:
             r = by_key[key]
-            assert r.error is None, f"{key} is now a tool error, not a value: {r.error}"
-            assert r.matches is False, (
-                f"{key} now MATCHES the authoritative value -- if this is a "
-                "real fix, update this pin (see the docstring above); if "
-                "not, something silently changed the registry or the site."
-            )
+            assert r.error is None, f"{key} is a tool error: {r.error}"
+            assert r.matches is True, f"{key} remains divergent: {r.found_value}"
 
     def test_gate_exits_violation_on_the_real_repo(self):
         """RENAMED 2026-08-17 (session 2, then again same day): the
@@ -272,10 +257,9 @@ class TestRealRegistryKnownState:
         fix.md added the missing "GATE_HS"/"GATE_LS" keys to both
         StackupGate._DEFAULT_NET_CURRENTS and ipc.rs's net_currents(), so
         both citations now resolve and match. has_tool_error is back to
-        False. has_violation stays True: mains_voltage_v/pollution_degree/
-        default_via_diameter_mm/hv_lv_separation_gate_threshold_mm are
-        still red, unrelated pre-existing findings this fix does not
-        touch. If has_tool_error ever goes back to True, verify it is a
+        False. The reconciled scalar families now have no violations; any
+        remaining tool errors are unrelated, explicitly documented findings.
+        If has_tool_error ever goes back to True, verify it is a
         genuine new missing-citation site and not a regression of this
         fix (e.g. a pattern silently stopping to match after further
         edits to either table)."""
@@ -283,7 +267,7 @@ class TestRealRegistryKnownState:
         results = check.run(repo_root)
         has_violation, has_tool_error = check._print_report(results)
         assert has_tool_error is False
-        assert has_violation is True
+        assert has_violation is False
 
 
 # ---------------------------------------------------------------------------
@@ -479,7 +463,7 @@ class TestRealRegistryExtendedFamilies:
     fact families added 2026-08-17 (session 2). See
     docs/evidence/2026-08-17-fact-registry-drift-gate-extension.md."""
 
-    def test_default_via_diameter_rust_site_is_known_red(self):
+    def test_default_via_diameter_rust_site_is_reconciled(self):
         repo_root = find_repo_root()
         results = check.run(repo_root)
         by_key = {(r.fact, r.site.file): r for r in results}
@@ -490,12 +474,8 @@ class TestRealRegistryExtendedFamilies:
             )
         ]
         assert r.error is None
-        assert r.matches is False
-        assert r.found_value == pytest.approx(0.6), (
-            "expected the vestigial pyo3 #[new] default (0.6) -- if this "
-            "now matches 0.9, the coordinated oracle re-pin fix landed; "
-            "update this pin, don't delete it silently."
-        )
+        assert r.matches is True
+        assert r.found_value == pytest.approx(0.9)
 
     def test_default_via_diameter_other_four_sites_agree(self):
         repo_root = find_repo_root()

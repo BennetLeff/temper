@@ -257,7 +257,7 @@ class DesignRules:
 
     default_trace_width: float = 0.2
     default_clearance: float = 0.2
-    default_via_diameter: float = 0.6
+    default_via_diameter: float = 0.9
     default_via_drill: float = 0.3
     net_classes: dict[str, NetClassRules] = field(default_factory=dict)
     net_overrides: dict[str, NetClassRules] = field(default_factory=dict)
@@ -458,7 +458,7 @@ TEMPER_NET_CLASSES = {
         via_diameter=1.2,
         via_drill=0.6,
         via_template="Via2x2",
-        voltage_v=240.0,
+        voltage_v=120.0,
         creepage_mm=6.0,
         routing_strategy="plane_required",
         dru_priority=10,

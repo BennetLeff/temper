@@ -62,7 +62,7 @@ class TestDesignRules:
         rules = DesignRules()
         assert rules.default_trace_width == 0.2
         assert rules.default_clearance == 0.2
-        assert rules.default_via_diameter == 0.6
+        assert rules.default_via_diameter == 0.9
         assert rules.default_via_drill == 0.3
 
     def test_get_rules_for_unknown_net(self):

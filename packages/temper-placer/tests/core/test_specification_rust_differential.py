@@ -390,8 +390,8 @@ def test_load_pcb_spec_yaml_is_still_callable():
     spec = PcbSpecification.load(configs / "pcb_spec.yaml")
     assert spec.name == "Temper V1"
     assert spec.safety is not None
-    assert spec.safety.mains_voltage_v == pytest.approx(230.0)
-    assert spec.safety.pollution_degree == 2
+    assert spec.safety.mains_voltage_v == pytest.approx(120.0)
+    assert spec.safety.pollution_degree == 3
     assert spec.thermal.max_junction_temp_c == pytest.approx(125.0)  # design-for junction limit (2026-08-15)
 
 

@@ -57,31 +57,29 @@ those are flagged as such and deliberately NOT executed.
    | `[creepage/reinforced]` | 6.0 vs 12.6mm | **ACCEPTED with a fix** — 12.6mm is the decision-documented, enforced PD3 figure (2026-08-15 data-driven decision + PR #1229). The ato/pcl 8.0mm PD2-era sites were **fixed to 12.6mm in this changeset** (the exact sites the gate's module docstring calls out: "updated check_isolation_keepout.py and generate_kicad_dru.py but never touched constraints.ato or the pcl yaml" — the PD2→PD3 retarget is now complete, in the strengthening direction). The four 6.0mm TEMPER_NET_CLASSES sites (HighVoltage/HighVoltageIsolated creepage_mm in `design_rules.py` + `netclass_rules.yaml`) carry explicit in-tree "UNSOURCED, values unchanged — re-sourcing is a separate attributed decision" flags written 2026-08-15, and are **accepted as-is** pending that decision. **8.0mm (PD2) is deliberately NOT in the accepted set — a reappearing PD2 figure fails the gate closed.** |
    | `[creepage/functional]` | 6.3 vs 10.0mm | **ACCEPTED** — Table 18 row vi (>500-800V): 10.0mm is PD3 (enforced, decision-documented), 6.3mm is PD2 (declared fallback on the HighVoltageTank placer config, cited 2026-08-12, predates the PD3 decision). Both are legitimate row-vi values for the 570.5 Vrms tank node; the enforced/fallback relationship is now modeled by the selection alias. Fix direction if/when the attributed re-sourcing lands: align HighVoltageTank.creepage_mm (netclass_rules.yaml + design_rules.py) to 10.0mm. |
 
-4. **One family stays a hard red — `[clearance/reinforced]` (2.0 vs 6.0mm).**
+4. **`[clearance/reinforced]` is accepted after review (2.0 vs 6.0mm).**
    This is the honest-red case: the HV→LV barrier clearance is 2.0mm on the
    enforced side (netclass HighVoltage.clearance, cited: Table 16 2500V
    reinforced step + cl. 29.1 soldered adder, keyed to 120V nominal) vs 6.0mm
    on the SSOT side (ato `HV_to_LV.min_clearance`, netclass
-   HighVoltageIsolated.clearance — uncited legacy; 6.0 is in **no** recovered
-   Table 16 value set {0.5, 1.5, 3.0, 5.5, 8.0, 11.0}). Neither side is
-   determinable as "correct" from repo evidence: the DRC's own RULE 4 note
-   flags IEC 60664-1 at 400V may require 3.0mm+, and lowering the declared 6.0
-   to match enforcement would weaken a declared figure. **Owner decision
-   needed**: (a) accept 2.0mm as the truth and align the stale 6.0 sites
-   (weakens the declared figure — owner action), or (b) determine the real
-   barrier figure (raises enforcement — needs a determination), or (c)
-   explicitly accept the family via the registry with a justification. Until
-   then the gate stays red on this family, which is the correct, honest state.
+   HighVoltageIsolated.clearance). The 2.0mm declaration is an intra-class
+   routing figure, while the 6.0mm declarations describe the HV-to-LV / isolated
+   domain barrier tier; they are different requirements that only share the
+   coarse word "reinforced". The values remain unchanged and the family is
+   accepted as reviewed semantic tier-label drift. Full attribution is recorded
+   in `docs/evidence/2026-09-03-clearance-reinforced-tier-label-drift.md` and
+   the gate's `ACCEPTED_DRIFT` registry.
 
 5. **CI enablement is partial and deliberate.** The drift gate's 44 unit tests
    now run in CI (always green — synthetic fixtures). The gate step itself
    stays commented because it exits 3 on main with exactly the one honest red
    above; enabling it would red the required Core Tests context on every PR.
-   Uncomment the gate step when `[clearance/reinforced]` resolves.
+   The gate step can now be enabled: `[clearance/reinforced]` is resolved by
+   the reviewed semantic-drift entry above.
 
 **What the gate now reports on main** (measured, exit 3):
 `[clearance/basic]` ACCEPTED, `[clearance/functional]` OK (1), `[clearance/reinforced]`
-**MISMATCH (the honest red)**, `[clearance/working]` OK, `[creepage/basic]` ACCEPTED,
+**ACCEPTED semantic tier-label drift**, `[clearance/working]` OK, `[creepage/basic]` ACCEPTED,
 `[creepage/functional]` ACCEPTED (6.3 declared-not-enforced vs 10.0 enforced),
 `[creepage/reinforced]` ACCEPTED (6.0 UNSOURCED vs 12.6 enforced), `[creepage/working]`
 OK. 44/44 gate unit tests pass; the pcl + tank test suites show zero new failures

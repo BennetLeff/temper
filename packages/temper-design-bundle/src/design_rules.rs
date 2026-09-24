@@ -516,7 +516,7 @@ impl DesignRules {
     #[pyo3(signature = (
         default_trace_width=0.2,
         default_clearance=0.2,
-        default_via_diameter=0.6,
+        default_via_diameter=0.9,
         default_via_drill=0.3,
         net_classes=None,
         net_overrides=None,
