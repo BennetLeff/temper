@@ -81,6 +81,10 @@ Its datasheet specifies fail-low outputs, the same 2/2 signal pin positions
 as the selected ISO7742FDWR, Group I package material and >14.5 mm
 external package creepage and clearance. This is a concrete alternate pair
 for review, **not** a drop-in insulation approval or a changed Rev38 BOM.
+Both TI insulation tables state **pollution degree 2** for their component
+certifications. Their >14.5 mm physical path and Group I CTI do not by
+themselves certify use in the proposed PD3 appliance construction. That
+application needs an accepted enclosure or component-insulation argument.
 
 The ISO7842 DWW datasheet's *optimized* land-pattern examples give only
 14.5–15.2 mm between opposed pads. On the project's provisional Group IIIa
