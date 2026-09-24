@@ -51,6 +51,17 @@ on 2026-09-23 with the official Microchip AVR 8-Bit Toolchain 4.0.0.52
 This is a compiler/link receipt for the default locked image, not a
 programmed-device fuse, timing or pin-state verification.
 
+On 2026-09-24 the same official toolchain also compiled the nonzero-timing
+branch with `PE_TARGET_OFFLINE_COMPILER_EXERCISE` defined. The exercise used
+arbitrary 1000/500/200 ms preparation/START/watchdog windows, 10 ms byte
+gap, 50 ms ping period, 1 ms sample-to-RUN bound, and the review-only fuse
+bytes `0x05/0x65/0xC9`. `-Wall -Wextra -Werror -Wpedantic` passed; the ELF
+reported 16,594 bytes of text, 0 data and 8 BSS, SHA-256
+`0b1f22c779020a9a79e7684975d1aeb77c95e224c3d0cde9b8d04dcd07a8669b`.
+This confirms that the conditional ping and nonzero-configuration code paths
+compile and link for AVR64DA32. The values are **not** a programmed image or
+accepted timing/fuse configuration; the default remains locked out.
+
 The GPIO map follows `../receiver-selection.md` and
 `elec/src/receiver_isolation.ato`. PC2 reads active-low `HOT_FAULT_N`, PD3 is
 `RECEIVER_ABORT_N`, and PD5 is the sole RUN-set output. The adapter clears
