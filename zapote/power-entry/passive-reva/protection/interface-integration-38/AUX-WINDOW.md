@@ -88,3 +88,33 @@ input already required a conditional 35.2 °C/W board-level thermal path at
 Select the AUX producer and protection only after the joined steady-state,
 startup and fault-current tally and a real local-ambient/thermal design are
 available; the 40 °C inlet requirement does not imply a 40 °C device ambient.
+
+## Joined-load worksheet for the source decision
+
+The current joined source has exactly four direct AUX consumer classes:
+the relay/known passive paths, UCC28180 VCC, UCC27624 VDD and the still
+unjoined HOT logic5 converter input. `driver_stage.ato` also places 4.7 µF
+and 0.1 µF nominal bypass on AUX; `pfc_controller.ato` adds 1 µF. Those
+**5.8 µF nominal** capacitors exclude the converter input, cutoff-required
+output bypass, wiring and effective-value tolerances. They are charge loads
+during startup, not steady current. The source comparison is in
+[AUX-SOURCE-CANDIDATE.md](AUX-SOURCE-CANDIDATE.md).
+
+| Term in `I_AUX_run` | Current evidence | Required bound |
+| --- | --- | --- |
+| Relay plus named passive paths | About 41.50 mA at 15.75 V with nominal resistances and relay energized; zero relay current before pickup | Coil/resistor temperature and tolerance, switching state, and pickup/dropout waveform |
+| UCC28180 VCC | [TI specifies 8 mA maximum](https://www.ti.com/lit/ds/symlink/ucc28180.pdf) at its 15 V/4.7 nF gate-load fixture | Reconcile its `GATE` driving this circuit's input rather than that fixture, and the selected 16.2 kΩ FREQ resistor's switching-frequency corners |
+| UCC27624 VDD | [TI specifies 1.0 mA maximum static](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) at the stated 12 V/no-output-load fixture; switching current includes `Qg × fSW` | Bound at actual 14.25–15.75 V VDD, actual STW gate charge versus voltage/current/temperature, selected `fSW`, and gate-loop loss. The STW sheet's 120 nC at 10 V is typical only. |
+| HOT logic5 converter input | No converter is joined; old 75 mA logic5 allowance is historical | Sum every joined 5 V consumer at its qualified mode/temperature, converter quiescent current and worst-case efficiency, then measure startup and overlapping load steps |
+| Cutoff and wiring | LTC4368/FET/shunt are only candidates | Controller bias, divider currents, path drop, output capacitance, current-limit and short/retry energy |
+
+The selection equation is
+`I_AUX_run = I_relay+passive + I_PFC + I_driver_static + Qg_max × fSW_max + I_5V_input + I_cutoff + I_other`.
+Each term needs a compatible operating fixture and source-backed maximum;
+the 41.50 mA and 8 mA entries cannot be promoted into a total maximum.
+Separately integrate `I_start(t)` through the selected cutoff and all
+effective capacitances, including simultaneous 5 V buck startup and relay
+pickup. This determines the shunt/current-limit threshold and whether the
+IRM overload mode, buck current limit, or cutoff retries during a valid
+start. Current capacity alone cannot close either candidate's normal voltage
+window or fast-fault driver-pin peak.
