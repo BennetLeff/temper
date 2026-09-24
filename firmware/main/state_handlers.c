@@ -8,6 +8,9 @@
  */
 
 #include "state_handlers.h"
+#if defined(ESP_PLATFORM) || defined(RTD_SERVICE_TESTING)
+#include "rtd_service.h"
+#endif
 #include "config.h"
 #include <stddef.h>
 #include <math.h>
@@ -100,6 +103,11 @@ void state_init_entry(void) {
 }
 
 void state_init_update(void) {
+#if defined(ESP_PLATFORM) || defined(RTD_SERVICE_TESTING)
+    /* Self-test consumes RTD data. Wait for the service's first completed
+     * conversion; its own bounded timeout faults if DRDY never arrives. */
+    if (!rtd_service_is_ready()) return;
+#endif
     /* Run power-on self-test */
     bool post_passed = run_self_test();
 

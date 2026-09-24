@@ -15,7 +15,7 @@
 static const char *TAG = "diagnostic_lockout";
 /* Keep the actual cooker core in the link so diagnostic hooks resolve its
  * production interface. This pointer is read but never invoked. */
-static void (*volatile cooker_core_link_anchor)(void) = state_machine_update;
+static bool (*volatile cooker_core_link_anchor)(void) = state_machine_update;
 
 static bool drive_pin(void *context, int pin, bool high) {
     (void)context;

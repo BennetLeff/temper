@@ -7,6 +7,9 @@
  */
 
 #include "state_machine.h"
+#if defined(ESP_PLATFORM) || defined(RTD_SERVICE_TESTING)
+#include "rtd_service.h"
+#endif
 #include "state_handlers.h"
 #include "config.h"
 #include <stddef.h>
@@ -271,6 +274,7 @@ bool state_machine_update(void) {
             break;
     }
     return !started_in_fault && !sm_ctx.message_pending &&
+           sm_ctx.current_state != STATE_INIT &&
            sm_ctx.current_state != STATE_FAULT &&
            sm_ctx.current_state != STATE_RUNAWAY_FAULT &&
            sm_ctx.fault_code == FAULT_NONE;
@@ -456,8 +460,17 @@ bool check_safety_interlocks(void) {
 }
 
 static void check_runaway_boundary(void) {
-    /* If already latched, nothing to check */
-    if (sm_ctx.runaway_latched) return;
+    /* A terminal fault has already cut power. Keep its original diagnosis,
+     * including an RTD failure that makes temperature unavailable. */
+    if (sm_ctx.runaway_latched || sm_ctx.current_state == STATE_FAULT ||
+        sm_ctx.current_state == STATE_RUNAWAY_FAULT) return;
+
+#if defined(ESP_PLATFORM) || defined(RTD_SERVICE_TESTING)
+    /* The first MAX31865 conversion cannot exist on the first boot tick.
+     * INIT keeps power off; the RTD service owns its bounded startup timeout
+     * and reports a hardware fault if that conversion never arrives. */
+    if (sm_ctx.current_state == STATE_INIT && !rtd_service_is_ready()) return;
+#endif
 
     float temp = read_pan_temperature();
     uint32_t now = get_time_ms();

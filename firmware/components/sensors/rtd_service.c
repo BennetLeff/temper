@@ -10,6 +10,7 @@
 #include "config.h"
 #include "state_machine.h"
 #include "temper_pins.h"
+#include <math.h>
 
 /* SPI2 maps to HAL bus zero. MAX31865 supports mode 1 and a 500 kHz clock is
  * comfortably below its 5 MHz maximum while board bring-up remains pending. */
@@ -293,6 +294,64 @@ float rtd_service_get_resistance(void)
     return s_ready && s_has_sample ? s_rtd_resistance_ohm
                                    : RTD_OPEN_FAULT_OHM + 1.0f;
 }
+
+/* MAX31865 data sheet, Temperature Conversion: IEC 751 PT100 coefficients.
+ * R(T) is monotonic on -200..850 C. Use a fixed-count inverse search to avoid
+ * an approximation that silently under-reports high temperatures. */
+static float pt100_resistance_at(float temperature_c)
+{
+    const float a = 3.90830e-3f;
+    const float b = -5.77500e-7f;
+    const float c = -4.18301e-12f;
+    const float t = temperature_c;
+    return 100.0f * (1.0f + a * t + b * t * t +
+                     (t < 0.0f ? c * (t - 100.0f) * t * t * t : 0.0f));
+}
+
+float rtd_pt100_temperature_c(float resistance_ohm)
+{
+    if (!isfinite(resistance_ohm) ||
+        resistance_ohm < pt100_resistance_at(-200.0f) ||
+        resistance_ohm > pt100_resistance_at(850.0f)) {
+        return NAN;
+    }
+    float lo = -200.0f;
+    float hi = 850.0f;
+    for (unsigned int i = 0u; i < 24u; ++i) {
+        const float mid = (lo + hi) * 0.5f;
+        if (pt100_resistance_at(mid) < resistance_ohm) {
+            lo = mid;
+        } else {
+            hi = mid;
+        }
+    }
+    return (lo + hi) * 0.5f;
+}
+
+float rtd_service_pan_temperature_c(void)
+{
+    const rtd_sample_status_t sample = rtd_service_sample_status();
+    if (!sample.ready || sample.age_ms > RTD_MAX_CONTROL_SAMPLE_AGE_MS) {
+        return NAN;
+    }
+    /* Called by the control task, the sole reader of s_rtd_resistance_ohm. */
+    const float resistance_ohm = rtd_service_get_resistance();
+    if (!isfinite(resistance_ohm) ||
+        resistance_ohm <= RTD_SHORT_FAULT_OHM ||
+        resistance_ohm >= RTD_OPEN_FAULT_OHM) {
+        return NAN;
+    }
+    return rtd_pt100_temperature_c(resistance_ohm);
+}
+
+#if defined(ESP_PLATFORM) && !defined(TEMPER_DIAGNOSTIC_LOCKOUT)
+/* The diagnostic image supplies its own fail-closed link hook. In the
+ * production image this is the sole pan-temperature implementation. */
+float read_pan_temperature(void)
+{
+    return rtd_service_pan_temperature_c();
+}
+#endif
 
 /* Production state-machine callers already use this interface name. The
  * weak definition lets host SIL stubs override it while production receives

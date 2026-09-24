@@ -46,6 +46,16 @@ This is only one input to the future monitor: the allowable RTD age, ages of
 every other input, state snapshot and result publication still need an
 explicit contract. A timestamp does not establish a safe age limit.
 
+The cooker control path now converts PT100 ohms with the IEC 751 coefficients
+listed in the [MAX31865 data sheet](https://www.analog.com/media/en/technical-documentation/data-sheets/max31865.pdf),
+and returns an invalid temperature if the conversion is missing or more than
+100 ms old. That 100 ms is the existing control-path missing-DRDY bound, not
+an accepted Rev38 monitor deadline. INIT keeps power off and waits for the
+first healthy conversion before self-test or runaway-temperature evaluation;
+the RTD service itself faults if that conversion never arrives. Host tests
+cover the manufacturer's PT100 table, startup wait, stale value and missing
+first-conversion fault diagnosis. No independent monitor epoch is credited.
+
 Tests before enabling progress: idle-to-first-start, PREHEAT/HEATING and
 return-to-idle; each task stalled independently; frozen/replayed sensor
 values; fault entry during a sample; late result after cancellation; and

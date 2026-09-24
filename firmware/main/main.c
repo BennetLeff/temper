@@ -18,6 +18,7 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_system.h"
+#include "esp_timer.h"
 #include "nvs_flash.h"
 
 #include "state_machine.h"
@@ -31,6 +32,12 @@
 #include "../components/safety/safety.h"
 
 static const char *TAG = "main";
+
+/* Cooker state durations use unsigned 32-bit subtraction, including wrap.
+ * esp_timer is monotonic and available before the control task starts. */
+uint32_t get_time_ms(void) {
+    return (uint32_t)(esp_timer_get_time() / 1000LL);
+}
 
 /* Task priorities */
 #define CONTROL_TASK_PRIORITY   (configMAX_PRIORITIES - 1)  /* Highest */

@@ -134,3 +134,12 @@ IDF GPIO mode, release path or pulse delay builds and behaves on the target.
 The subsequent source-task request and restart path likewise has host runtime
 tests but no new IDF compiler or device receipt; `esp_restart()` reset and
 retained-peripheral behavior still require target capture.
+
+The later production cooker RTD-temperature and monotonic-clock hooks, INIT
+conversion wait, and diagnostic link-anchor type correction also have no
+ESP32-S3 build receipt. On 2026-09-24, `docker info` still failed because
+`~/.docker/run/docker.sock` did not exist, and no local `idf.py` was found.
+The 22 focused MAX31865 tests and all 17 host CTest entries pass. Those host
+results do not establish that either target image links with the changed
+bytes; repeat both diagnostic and production target builds when ESP-IDF is
+available. Production still has unresolved cooker peripheral/self-test hooks.

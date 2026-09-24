@@ -27,6 +27,8 @@ extern "C" {
 #define RTD_DRDY_TIMEOUT_CONTROL_TICKS 7u
 #define RTD_BIAS_STARTUP_CONTROL_TICKS 2u
 #define RTD_FAULT_CYCLE_SETTLE_CONTROL_TICKS 1u
+/* Missing-DRDY control fault bound; this is not an accepted Rev38 monitor age. */
+#define RTD_MAX_CONTROL_SAMPLE_AGE_MS 100u
 
 /** Configure SPI2, MAX31865 chip-select, DRDY, and start the first cycle. */
 hal_status_t rtd_service_bootstrap(void);
@@ -68,6 +70,12 @@ void rtd_service_test_seed_generation(uint32_t generation);
 
 /** Control-task only: newest resistance, or an open sentinel if unready. */
 float rtd_service_get_resistance(void);
+
+/** IEC 751 PT100 resistance to temperature; NAN outside -200 to 850 C. */
+float rtd_pt100_temperature_c(float resistance_ohm);
+
+/** Control-task only: NAN until a valid, at-most-100-ms sample is available. */
+float rtd_service_pan_temperature_c(void);
 
 #ifdef __cplusplus
 }

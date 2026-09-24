@@ -6,6 +6,7 @@
 #include "unity/unity.h"
 
 #include <stddef.h>
+#include <math.h>
 
 #include "../components/temper_hal/include/hal.h"
 #include "../components/temper_hal/include/temper_pins.h"
@@ -27,6 +28,7 @@ extern void mock_gpio_trigger_interrupt(hal_pin_t pin);
 extern bool mock_gpio_is_initialized(hal_pin_t pin);
 extern void mock_timer_set_time(hal_time_us_t time_us);
 extern void mock_sm_reset(void);
+extern void mock_sm_set_pan_temperature(float temp_c);
 extern uint32_t mock_sm_get_trigger_shutdown_count(void);
 
 static max31865_device_t sensor;
@@ -435,6 +437,7 @@ void test_rtd_service_sample_age_tracks_real_time_and_new_conversion(void)
     rtd_sample_status_t status = rtd_service_sample_status();
     TEST_ASSERT_FALSE(status.ready);
     TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, status.age_ms);
+    TEST_ASSERT_TRUE(isnan(rtd_service_pan_temperature_c()));
 
     mock_timer_set_time(1000000u);
     mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
@@ -443,6 +446,7 @@ void test_rtd_service_sample_age_tracks_real_time_and_new_conversion(void)
     TEST_ASSERT_TRUE(status.ready);
     TEST_ASSERT_EQUAL_UINT32(1u, status.generation);
     TEST_ASSERT_EQUAL_UINT32(0u, status.age_ms);
+    TEST_ASSERT_TRUE(isfinite(rtd_service_pan_temperature_c()));
 
     /* A stalled control task cannot keep a cached conversion young. */
     mock_timer_set_time(1150000u);
@@ -450,12 +454,71 @@ void test_rtd_service_sample_age_tracks_real_time_and_new_conversion(void)
     TEST_ASSERT_TRUE(status.ready);
     TEST_ASSERT_EQUAL_UINT32(1u, status.generation);
     TEST_ASSERT_EQUAL_UINT32(150u, status.age_ms);
+    TEST_ASSERT_TRUE(isnan(rtd_service_pan_temperature_c()));
 
     mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
     rtd_service_control_tick();
     status = rtd_service_sample_status();
     TEST_ASSERT_EQUAL_UINT32(2u, status.generation);
     TEST_ASSERT_EQUAL_UINT32(0u, status.age_ms);
+    TEST_ASSERT_TRUE(isfinite(rtd_service_pan_temperature_c()));
+}
+
+void test_pt100_conversion_matches_max31865_reference_table(void)
+{
+    /* MAX31865 data sheet Table 9: PT100 resistance rounded to 0.01 ohm. */
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, -40.0f,
+                             rtd_pt100_temperature_c(84.27f));
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 0.0f,
+                             rtd_pt100_temperature_c(100.0f));
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, 100.0f,
+                             rtd_pt100_temperature_c(138.51f));
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, 250.0f,
+                             rtd_pt100_temperature_c(194.10f));
+    TEST_ASSERT_TRUE(isnan(rtd_pt100_temperature_c(NAN)));
+    TEST_ASSERT_TRUE(isnan(rtd_pt100_temperature_c(0.0f)));
+    TEST_ASSERT_TRUE(isnan(rtd_pt100_temperature_c(400.0f)));
+}
+
+void test_init_waits_for_first_rtd_conversion_without_runaway(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    mock_sm_set_pan_temperature(NAN);
+    TEST_ASSERT_FALSE(state_machine_update());
+    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_NONE, state_machine_get_fault());
+
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    const uint8_t rtd_data[] = {0x3Bu, 0x88u};
+    mock_spi_set_register_block((hal_spi_device_t)0, MAX31865_REG_RTD_MSB,
+                                rtd_data, sizeof(rtd_data));
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    TEST_ASSERT_TRUE(rtd_service_is_ready());
+
+    mock_sm_set_pan_temperature(25.0f);
+    TEST_ASSERT_TRUE(state_machine_update());
+    TEST_ASSERT_EQUAL(STATE_IDLE, state_machine_get_state());
+}
+
+void test_missing_first_rtd_conversion_keeps_probe_fault_diagnosis(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    mock_sm_set_pan_temperature(NAN);
+    for (uint8_t tick = 0u;
+         tick < RTD_BIAS_STARTUP_CONTROL_TICKS +
+                    RTD_FAULT_CYCLE_SETTLE_CONTROL_TICKS +
+                    RTD_DRDY_TIMEOUT_CONTROL_TICKS;
+         ++tick) {
+        rtd_service_control_tick();
+    }
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+    TEST_ASSERT_FALSE(state_machine_update());
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
 }
 
 void test_rtd_service_sample_age_handles_timer_wrap_and_invalidation(void)
@@ -482,6 +545,7 @@ void test_rtd_service_sample_age_handles_timer_wrap_and_invalidation(void)
     status = rtd_service_sample_status();
     TEST_ASSERT_FALSE(status.ready);
     TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, status.age_ms);
+    TEST_ASSERT_TRUE(isnan(rtd_service_pan_temperature_c()));
 }
 
 void test_rtd_service_missing_clock_rejects_conversion(void)
@@ -547,6 +611,9 @@ void run_max31865_tests(void)
     RUN_TEST(test_rtd_service_transport_failure_invalidates_cached_sample);
     RUN_TEST(test_rtd_service_generation_wrap_keeps_healthy_sample_ready);
     RUN_TEST(test_rtd_service_sample_age_tracks_real_time_and_new_conversion);
+    RUN_TEST(test_pt100_conversion_matches_max31865_reference_table);
+    RUN_TEST(test_init_waits_for_first_rtd_conversion_without_runaway);
+    RUN_TEST(test_missing_first_rtd_conversion_keeps_probe_fault_diagnosis);
     RUN_TEST(test_rtd_service_sample_age_handles_timer_wrap_and_invalidation);
     RUN_TEST(test_rtd_service_missing_clock_rejects_conversion);
     RUN_TEST(test_rtd_service_silent_drdy_fails_closed_within_control_bound);
