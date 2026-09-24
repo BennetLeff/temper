@@ -138,6 +138,17 @@ board, its SELV source must instead be part of that board or a specified
 external supply interface. Neither choice permits bonding `SELV_GND` to
 `HOT0`; no 3.3 V source is credited in the current joined netlist.
 
+The production `SafetyInterlock.shutdown` is an active-high latched **fault**
+that drives the UCC21550 `DIS` input (`elec/src/main.ato`), while Rev38
+`SOURCE_INTERLOCK_N` needs a high-to-allow, fail-low producer. The inspected
+production source cross-couples a NAND latch and gives its reset request to
+MCU GPIO14; it does not establish a power-up healthy state for a Rev38
+interlock feed. Directly tying these signals would have the wrong polarity.
+Inversion alone would not prove startup state, missing-wire default, retained
+fault priority, or ownership if the two ESP instances are combined. Keep the
+Rev38 interlock pull-down and treat any producer selection as OPEN until those
+cases are represented in the joined circuit and tested at the physical pins.
+
 ## Integration gate
 
 The Atopile candidate now joins source MCU, expander, button, source authority
