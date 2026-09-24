@@ -1,0 +1,214 @@
+# Partial Rev38 HOT driver boundary. AUX and PWM are external pending the
+# F2/PFC join. ENA has an AUX-biased, normally-on shunt when HOT logic is off.
+# This pin fixture is not a numerical or rail-transition safety proof.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "receiver_isolation.ato" import HotPrepTripAnd, R, C
+
+component GateDriver:
+    mpn = "UCC27624DDAR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/ucc27624.pdf"
+    # KiCad's mask-defined PowerPAD land is generated from TI DDA0008B.
+    footprint = "Package_SO:SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.95x4.9mm_Mask2.71x3.4mm"
+    signal ENA ~ pin 1
+    signal INA ~ pin 2
+    signal GND ~ pin 3
+    signal INB ~ pin 4
+    signal OUTB ~ pin 5
+    signal VDD ~ pin 6
+    signal OUTA ~ pin 7
+    signal ENB ~ pin 8
+    signal EP ~ pin 9
+
+component EnShunt:
+    mpn = "PMBT3904"
+    manufacturer = "Nexperia"
+    datasheet = "https://assets.nexperia.com/documents/data-sheet/PMBT3904.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal B ~ pin 1
+    signal E ~ pin 2
+    signal C ~ pin 3
+
+component EnShuntRelease:
+    mpn = "SN74LVC1G06DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g06.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component AuxBiasR3k3:
+    mpn = "RC2512JK-073K3L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_2512_6332Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component EnaPullupR10k:
+    mpn = "RC1206FR-0710KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component EnaPulldownR100k:
+    mpn = "RC0603FR-07100KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BasePulldownR47k:
+    mpn = "RC0603FR-0747KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxBypassC4u7:
+    mpn = "GCM31CC71H475KA03L"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_1206_3216Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component GateSeriesR10:
+    mpn = "RC1206FR-0710RL"
+    manufacturer = "Yageo"
+    # Separate valid 1206 land variant keeps Atopile 0.2.69 from aliasing
+    # this 10-ohm MPN to the 10-kohm EN pull-up.
+    footprint = "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcSwitch:
+    mpn = "STW65N65DM2AG"
+    manufacturer = "STMicroelectronics"
+    datasheet = "https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf"
+    footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
+    signal G ~ pin 1
+    signal D ~ pin 2
+    signal S ~ pin 3
+
+module DriverStage38:
+    signal HOT_LOGIC5
+    signal HOT0
+    signal AUX_PROTECTED
+    signal PFC_PWM
+    signal STW_DRAIN
+    signal STW_SOURCE
+    signal HOT_RUN_Q
+    signal HOT_SESSION_Q
+    signal HOT_PERMIT
+    signal HOT_PREP_TRIP_OK
+    signal HOT_RECEIVER_ABORT_N
+    signal HOT_PREP_ABORT_OK
+    signal HOT_SOURCE_STOP_N
+    signal DRIVER_PERMISSION
+    signal DRIVER_FIRST_AND
+    signal ENA_NODE
+    signal EN_SHUNT_BASE
+    signal STW_GATE
+
+    # Both AND outputs must be qualified. Receiver abort and STOP retain a
+    # direct path to the driver independent of receiver firmware execution.
+    qualify = new HotPrepTripAnd
+    qualify.VCC ~ HOT_LOGIC5
+    qualify.GND ~ HOT0
+    qualify.A1 ~ HOT_RUN_Q
+    qualify.B1 ~ HOT_SESSION_Q
+    qualify.C1 ~ HOT_PERMIT
+    qualify.D1 ~ HOT_PREP_TRIP_OK
+    qualify.Y1 ~ DRIVER_FIRST_AND
+    qualify.A2 ~ DRIVER_FIRST_AND
+    qualify.B2 ~ HOT_RECEIVER_ABORT_N
+    qualify.C2 ~ HOT_PREP_ABORT_OK
+    qualify.D2 ~ HOT_SOURCE_STOP_N
+    qualify.Y2 ~ DRIVER_PERMISSION
+    permission_pd = new R
+    permission_pd.value = 10kohm
+    permission_pd.p1 ~ DRIVER_PERMISSION
+    permission_pd.p2 ~ HOT0
+    c_qualify = new C
+    c_qualify.value = 100nF
+    c_qualify.p1 ~ HOT_LOGIC5
+    c_qualify.p2 ~ HOT0
+
+    # LVC1G06 is open drain: low permission leaves Y high-Z, so AUX biases
+    # the NPN on. High permission sinks its base and releases ENA. At VCC=0
+    # Ioff prevents the logic gate from sourcing the base; rail crossover
+    # and base-open faults still require separate analysis.
+    release = new EnShuntRelease
+    release.VCC ~ HOT_LOGIC5
+    release.GND ~ HOT0
+    release.A ~ DRIVER_PERMISSION
+    release.Y ~ EN_SHUNT_BASE
+    c_release = new C
+    c_release.value = 100nF
+    c_release.p1 ~ HOT_LOGIC5
+    c_release.p2 ~ HOT0
+    shunt = new EnShunt
+    shunt.B ~ EN_SHUNT_BASE
+    shunt.E ~ HOT0
+    shunt.C ~ ENA_NODE
+    base_bias = new AuxBiasR3k3
+    base_bias.value = 3.3kohm
+    base_bias.p1 ~ AUX_PROTECTED
+    base_bias.p2 ~ EN_SHUNT_BASE
+    base_pd = new BasePulldownR47k
+    base_pd.value = 47kohm
+    base_pd.p1 ~ EN_SHUNT_BASE
+    base_pd.p2 ~ HOT0
+    ena_pu = new EnaPullupR10k
+    ena_pu.value = 10kohm
+    ena_pu.p1 ~ AUX_PROTECTED
+    ena_pu.p2 ~ ENA_NODE
+    ena_pd = new EnaPulldownR100k
+    ena_pd.value = 100kohm
+    ena_pd.p1 ~ ENA_NODE
+    ena_pd.p2 ~ HOT0
+
+    driver = new GateDriver
+    driver.VDD ~ AUX_PROTECTED
+    driver.GND ~ HOT0
+    driver.EP ~ HOT0
+    driver.ENA ~ ENA_NODE
+    driver.INA ~ PFC_PWM
+    driver.INB ~ HOT0
+    driver.ENB ~ HOT0
+    # OUTB is unused and isolated. INA is locally low with no PWM producer.
+    pwm_pd = new R
+    pwm_pd.value = 10kohm
+    pwm_pd.p1 ~ PFC_PWM
+    pwm_pd.p2 ~ HOT0
+    c_driver_hf = new C
+    c_driver_hf.value = 100nF
+    c_driver_hf.p1 ~ AUX_PROTECTED
+    c_driver_hf.p2 ~ HOT0
+    c_driver_bulk = new AuxBypassC4u7
+    c_driver_bulk.value = 4.7uF
+    c_driver_bulk.p1 ~ AUX_PROTECTED
+    c_driver_bulk.p2 ~ HOT0
+    gate_r = new GateSeriesR10
+    gate_r.value = 10ohm
+    driver.OUTA ~ gate_r.p1
+    gate_r.p2 ~ STW_GATE
+    gate_pd = new R
+    gate_pd.value = 10kohm
+    gate_pd.p1 ~ STW_GATE
+    gate_pd.p2 ~ HOT0
+    stw = new PfcSwitch
+    stw.G ~ STW_GATE
+    stw.D ~ STW_DRAIN
+    stw.S ~ STW_SOURCE
+    STW_SOURCE ~ HOT0

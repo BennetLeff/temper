@@ -25,7 +25,7 @@ not a parallel or fallback power path.
 
 | Proposed source boundary | Destination | Status |
 | --- | --- | --- |
-| `ac_input.CMC_L_OUT` → off-board AUX fuse → `AUX_FUSED_L`; `ac_input.AC_RECT_N` → IRM AC/N (after CMC, before main-path NTC) | IRM-20 `AC/L`, `AC/N` | **Proposal**; two-conductor branch-loop terminal and off-board cartridge/block are nominated below; inrush, fault energy and assembly segregation remain open |
+| `ac_input.CMC_L_OUT` → off-board AUX fuse → `AUX_FUSED_L`; `ac_input.AC_RECT_N` → IRM AC/N (after CMC, before main-path NTC) | IRM-20 `AC/L`, `AC/N` | **Joined source candidate** at the two-conductor branch-loop terminal; the off-board cartridge and block remain assembly nominations. Inrush, fault energy and segregation remain open. |
 | IRM-20-24 pad 4 `+V`, pad 3 `-V` | `RAW_AUX24`, `HOT0` | **Compiled pin candidate**; physical orientation remains unverified. Bonding its isolated DC return to the bridge/HOT return makes this rail HOT, never SELV. |
 | `RAW_AUX24`, `HOT0` | LMR36015BRNXT adjustable buck | **Joined candidate** to `AUX15_PRECUT`; exact pins and input/output passives audited, electrical window and loop stability unqualified. |
 | `AUX15_PRECUT`, `HOT0` | LTC4368 `VIN`/SHDN, FDS3992 upstream drain, UV/OV dividers | **Joined candidate**; exact pins audited, no alternate feed around cutoff. Fault peak and startup OPEN. |
@@ -134,8 +134,8 @@ limited reverse inductor current from output to input. Before relay pickup,
 this circuit can be lightly loaded; avoid that reverse-current behavior in
 the first candidate. Auto mode's burst ripple and possible effect on the
 15 V normal window and cutoff recovery still need measurement. The **raw
-module and converter pins are joined**; the cutoff and 5 V stages remain
-proposals, with no output current allowance. The 24 V rail is `RAW_AUX24`, stays HOT, and must have no
+module and converter pins are joined**; the cutoff and 5 V stages are also
+joined as circuit candidates, with no qualified output current allowance. The 24 V rail is `RAW_AUX24`, stays HOT, and must have no
 feed around either buck or cutoff. The buck's `PG` pin has an 18 V
 recommended ceiling and cannot be pulled up to `RAW_AUX24`.
 
@@ -154,6 +154,32 @@ module's raw waveform and buck dynamics are not yet bounded. The calculation
 does **not** establish a protected-rail range or fast-fault output peak.
 
 The two bench paths use the same downstream cutoff concept and must be compared at the same measured local temperatures and load waveforms. The regulated path adds converter loss, EMI, startup sequencing and a high-side-switch failure mode; its extra static margin is meaningful only if the complete source, buck and cutoff pass the normal-window and fault captures. The IRM's published overvoltage trigger is not a bound on `RAW_AUX24` peak or the buck's output under a fault. Qualify `RAW_AUX24` against the buck's input ratings at line surges, and capture buck output and protected output separately during forced high-output, buck short, loss of feedback, mains dips and cutoff recovery. Compare the measured worst-case driver-VDD peak and turn-off delay, not just nominal rail accuracy.
+
+### Source-build-03 load and startup worksheet
+
+The frozen [source-build-03 receipt](source-build-03/build-receipt.json) has 295
+resolved components; its `build/default.net` SHA-256 is
+`df6f1df0185b196b55451229720963e15f296dfb36e6f317a5ef47211025585c`.
+This is the digital candidate for the worksheet below. The earlier
+41.50 mA relay/passive screen and 75 mA historical allowances are not
+accepted maximums. Fill each `UNKNOWN` with compatible worst-case
+conditions before setting source capacity, the 50 mΩ cutoff threshold, or
+FET SOA limits.
+
+| Term | Current source-build-03 input | Missing bound or capture |
+| --- | --- | --- |
+| `I_5V_run(t)` at `HOT_LOGIC5` | AVR, both HOT isolator sides, 22 other active logic/detector devices, pull loads and 46.5 µF nominal output bank | **UNKNOWN** maximum at actual clock, mixed-voltage isolator activity, output states, temperature and 5 V corners; capture receiver startup, run, disarm and fault. |
+| `I_5V_input(t)` at `AUX_PROTECTED` | TPS54202 and 20.1 µF nominal direct input bank | **UNKNOWN** efficiency, input peak and startup waveform while the 46.5 µF output bank charges; measure input current and 5 V voltage together. |
+| `I_AUX_direct(t)` | Relay plus named passive paths screen at about 41.50 mA at 15.75 V and nominal resistances; UCC28180 and UCC27624 add active load | **UNKNOWN** coil pickup/hot resistance, gate charge at maximum switching rate and actual voltage, IC bias and all output states; capture relay pickup and PFC/gate-driver startup. |
+| `I_cutoff_start(t)` and FET energy | 30.6 µF nominal direct `AUX_PROTECTED` bank, including the 20.1 µF buck input; LTC4368 gate network is 22 kΩ/10 nF | **UNKNOWN** effective capacitance maxima/minima, gate slew, shunt peak, FET voltage/current overlap and repeated-start temperature; capture GATE, both FET drains, shunt differential and `AUX_PROTECTED`. |
+| `I_15V_source(t)` | 44 µF nominal `AUX15_PRECUT` output bank and the downstream cutoff load | **UNKNOWN** simultaneous startup peak, buck input demand, raw-module hiccup and thermal/line derating; capture `RAW_AUX24`, `AUX15_PRECUT` and converter input current during cold/warm starts, mains dips and faults. |
+
+Use one synchronized capture for the credible overlap of cutoff ramp,
+5 V charging, relay pickup and PFC switching. Integrate current and
+voltage through startup and each fault; report peak and duration as well
+as settled load. The nominal capacitance figures are connectivity inputs,
+not effective capacitance or inrush bounds. [AUX-WINDOW.md](AUX-WINDOW.md)
+has the detailed HOT logic5 census and measurement terms.
 
 ### 15 V converter circuit entry conditions
 

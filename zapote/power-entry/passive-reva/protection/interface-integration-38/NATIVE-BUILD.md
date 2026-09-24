@@ -7,13 +7,14 @@ existing strict source-to-KiCad bridge. It requires the frozen build, an exact
 pose for every source instance, and a reviewed rectangular outline; it refuses
 to overwrite a native output directory.
 
-The current frozen export, `source-build-02`, has a successful compiler receipt,
-300 compiled references and a per-reference BOM. Its source files match the
+The current frozen export, `source-build-03`, has a successful compiler receipt,
+295 compiled references and a per-reference BOM. Its source files match the
 current `elec/src` tree byte-for-byte. Its compiled `default.net` and
 `default.csv` are retained with the snapshot because the strict bridge reads
-those exact bytes. The source is still an
-engineering candidate: SELV 3.3 V, source reset-good and interlock producers
-are not joined. The source includes two unresolved footprint references:
+those exact bytes. The duplicate ESP has been replaced by a 16-contact
+Rev38-side controller port, but the cooker-board mate, SELV rail and
+reset-good/interlock producers are not joined. The source remains an
+engineering candidate. It includes two unresolved footprint references:
 off-board `A70QS50-14F` F2 at `U226` and the distinct Phoenix `1017526`
 board-terminal candidate at `U227`. The selected Mersen US141 holder is off
 board; `F2-BOARD-INTERFACE.md` records the four board pins but does not close
@@ -26,7 +27,7 @@ retains the excluded reference in the source manifest, and projects only PCB
 references into the board and native schematic. Six focused Rust tests cover
 the exact exclusion and stale, changed, duplicate, or overbroad declarations.
 After the extension rebuild passed its freshness gate, the native probe on
-`source-build-02` reached `vendor_candidate_libs` and stopped on the separate
+`source-build-03` reached `vendor_candidate_libs` and stopped on the separate
 board terminal placeholder `TBD_REVIEW_ONLY:PFC_F2_BOARD_TERMINAL_1017526`.
 The generated partial directory was removed. No `section.kicad_sch` or
 `section.kicad_pcb` was emitted. The terminal needs a released four-pin

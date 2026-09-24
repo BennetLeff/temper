@@ -1,4 +1,4 @@
-//! Exact-pin audit of the partial Rev38 source MCU, receiver, driver, watchdog,
+//! Exact-pin audit of the Rev38 cooker-controller port, receiver, driver, watchdog,
 //! rail supervisors, and VD/VB detector. Electrical limits remain open.
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -972,21 +972,25 @@ fn preserved_joined_nets(g: &Graph, standalone: &Graph, prefix: &str) -> Result<
 }
 
 fn check_source_mcu(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 15 { return Err(format!("expected 15 source MCU parts, found {}", g.parts.len())); }
-    for (id, part) in [("esp", "ESP32-S3-WROOM-1-N8R8"), ("expander", "TCA6408AQPWRQ1"), ("start", "EVQ-P7A01P")] {
+    if g.parts.len() != 10 { return Err(format!("expected 10 source-port parts, found {}", g.parts.len())); }
+    for (id, part) in [("controller_port", "43045-1612"), ("expander", "TCA6408AQPWRQ1"), ("start", "EVQ-P7A01P")] {
         if g.parts.get(id).map(String::as_str) != Some(part) { return Err(format!("wrong source MCU part {id}")); }
     }
     for (a, ap, b, bp) in [
-        ("esp", "31", "expander", "15"), ("esp", "32", "expander", "14"),
-        ("esp", "35", "start", "1"), ("esp", "35", "start_pu", "2"),
-        ("esp", "3", "en_pu", "2"), ("esp", "3", "en_c", "1"),
+        ("controller_port", "11", "expander", "15"),
+        ("controller_port", "12", "expander", "14"),
+        ("controller_port", "10", "start", "1"),
+        ("controller_port", "10", "start_pu", "2"),
         ("expander", "3", "exp_reset_pu", "2"),
         ("expander", "4", "challenge_pd", "1"),
         ("expander", "5", "seen_request_pd", "1"),
         ("expander", "6", "relay_request_pd", "1"),
         ("expander", "2", "expander", "8"),
-        ("esp", "1", "esp", "40"), ("esp", "40", "esp", "41"),
-        ("esp", "2", "expander", "1"), ("esp", "2", "expander", "16"),
+        ("controller_port", "1", "controller_port", "9"),
+        ("controller_port", "8", "controller_port", "13"),
+        ("controller_port", "8", "controller_port", "16"),
+        ("controller_port", "1", "expander", "1"),
+        ("controller_port", "9", "expander", "16"),
     ] {
         let left = g.pins.get(&(a.into(), ap.into()));
         let right = g.pins.get(&(b.into(), bp.into()));
@@ -1026,12 +1030,14 @@ fn check_integrated_with_mcu(g: &Graph, hot: &Graph, source: &Graph, source_mcu:
         }
     }
     for (left_id, left_pin, right_id, right_pin) in [
-        ("source_mcu.esp", "21", "source.stop_pd", "1"),
-        ("source_mcu.esp", "23", "source.heartbeat_pd", "1"),
-        ("source_mcu.esp", "25", "source.permit_set_pd", "1"),
-        ("source_mcu.esp", "11", "source.prewatchdog_pd", "1"),
-        ("source_mcu.esp", "33", "receiver.iso_protocol", "3"),
-        ("source_mcu.esp", "34", "receiver.iso_protocol", "6"),
+        ("source_mcu.controller_port", "2", "source.stop_pd", "1"),
+        ("source_mcu.controller_port", "3", "source.heartbeat_pd", "1"),
+        ("source_mcu.controller_port", "4", "source.permit_set_pd", "1"),
+        ("source_mcu.controller_port", "5", "source.prewatchdog_pd", "1"),
+        ("source_mcu.controller_port", "6", "receiver.iso_protocol", "3"),
+        ("source_mcu.controller_port", "7", "receiver.iso_protocol", "6"),
+        ("source_mcu.controller_port", "14", "source.reset_good_pd", "1"),
+        ("source_mcu.controller_port", "15", "source.interlock_pd", "1"),
         ("source_mcu.expander", "4", "source.challenge_pd", "1"),
         ("source_mcu.expander", "5", "source.seen_reset_pd", "1"),
         ("source_mcu.expander", "6", "receiver.iso_protocol", "5"),
@@ -1435,17 +1441,39 @@ mod tests {
 
     #[test]
     fn compiled_source_mcu_pin_fixture_passes() {
-        check_source_mcu(&source_mcu_fixture()).unwrap();
+        let g = source_mcu_fixture();
+        check_source_mcu(&g).unwrap();
+        assert!(!g.parts.values().any(|mpn| mpn.starts_with("ESP32-S3-WROOM")));
     }
 
     #[test]
     fn source_mcu_uart_pad_swap_is_rejected() {
         let mut g = integrated_fixture();
-        let tx = g.pins.get(&(String::from("source_mcu.esp"), String::from("33"))).unwrap().clone();
-        let rx = g.pins.get(&(String::from("source_mcu.esp"), String::from("34"))).unwrap().clone();
-        g.pins.insert(("source_mcu.esp".into(), "33".into()), rx);
-        g.pins.insert(("source_mcu.esp".into(), "34".into()), tx);
+        let tx = g.pins.get(&(String::from("source_mcu.controller_port"), String::from("6"))).unwrap().clone();
+        let rx = g.pins.get(&(String::from("source_mcu.controller_port"), String::from("7"))).unwrap().clone();
+        g.pins.insert(("source_mcu.controller_port".into(), "6".into()), rx);
+        g.pins.insert(("source_mcu.controller_port".into(), "7".into()), tx);
         assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
+    }
+
+    #[test]
+    fn source_controller_reset_and_interlock_swap_is_rejected() {
+        let mut g = integrated_fixture();
+        let reset = g.pins[&("source_mcu.controller_port".into(), "14".into())].clone();
+        let interlock = g.pins[&("source_mcu.controller_port".into(), "15".into())].clone();
+        g.pins.insert(("source_mcu.controller_port".into(), "14".into()), interlock);
+        g.pins.insert(("source_mcu.controller_port".into(), "15".into()), reset);
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(),
+            &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(),
+            &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
+    }
+
+    #[test]
+    fn source_controller_power_return_short_is_rejected() {
+        let mut g = source_mcu_fixture();
+        let supply = g.pins[&("controller_port".into(), "1".into())].clone();
+        g.pins.insert(("controller_port".into(), "8".into()), supply);
+        assert!(check_source_mcu(&g).is_err());
     }
 
     #[test]

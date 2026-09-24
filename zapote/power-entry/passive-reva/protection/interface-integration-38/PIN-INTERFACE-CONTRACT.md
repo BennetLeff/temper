@@ -3,8 +3,9 @@
 Status: **candidate map joined in Atopile, integration in progress**. This is the integration
 owner's single checklist for the source, isolation, receiver, and supply
 interfaces. The HOT MCU and isolation endpoints below are selected in the
-Rev38 Atopile fixture. The ESP module/GPIO and local expander allocation is
-joined as `SourceMcu38` and exact-pin audited. A single source task is now
+Rev38 Atopile fixture. The Rev38-side 16-contact controller port and local
+expander are joined as `SourceMcu38` and exact-pin audited. The module/GPIO
+allocation is a contract for the existing cooker board. A single source task is now
 wired into `app_main`, but remains locked out; CPU-reset behavior and the
 ESP-IDF target image are unverified. Rev38 sources compile for ESP32-S3, while
 the full image fails link on unresolved production cooker hooks.
@@ -78,9 +79,8 @@ request cannot bypass the AVR decision and retained HOT RUN gate.
 
 The product integration uses the **existing cooker ESP32-S3 and SELV rail**.
 `SELV-CONTROLLER-CONNECTOR.md` screens a 16-contact mating pair and a
-straight-through pin contract; neither board has that connector joined yet.
-This is a selected direction, not yet a joined source/native claim:
-`SourceMcu38` still instantiates another ESP in the Rev38-only fixture. The
+straight-through pin contract. The Rev38 header is joined and exact-pin
+audited; the cooker board still needs its mating header and net joins. The
 existing `elec/src/modules.ato::MCU` assigns IO38/39 to the UI I²C header;
 Rev38 proposes the same pins for the TCA6408A. Firmware currently creates
 I²C0 for Rev38 and no other compiled firmware call to the I²C driver was
@@ -96,9 +96,8 @@ GPIO13, 21, 40, 41, 42 and 48 have no conflicting connection in the inspected
 schematic. The compile-time pin map is now consistent for these named
 functions, while actual bus arbitration and target pin-state capture remain
 open.
-An explicit board connector and a single-ESP source projection are required;
-tying two module footprints together by net name would leave two physical
-controllers in the native BOM.
+The cooker-board derivative must join these nets to its existing ESP and
+SELV rail before the two source trees can describe one product assembly.
 
 `SOURCE_RESET_GOOD` and `SOURCE_INTERLOCK_N` currently have 10 kΩ local
 pull-downs and no driving components, so the pre-watchdog sample stays low
@@ -124,7 +123,7 @@ does not bound that interval. No expander RESET conductor is assigned yet.
 
 | Interface | Current joined status | Required producer/acceptance |
 | --- | --- | --- |
-| SELV3V3/SELV_GND | Source authority, isolation, ESP module and expander loads joined; 3.3 V producer absent | Join supply, reset-good and interlock producers; qualify defaults during partial power. |
+| SELV3V3/SELV_GND | Rev38 header, source authority, isolation and expander loads joined; cooker-board 3.3 V connection absent | Join the cooker mate, rail, reset-good and interlock producers; qualify defaults during partial power. |
 | HOT_LOGIC5/HOT0 | TPS54202 candidate joined after protected AUX; exact pads/net paths audited | Qualify complete load, feedback/output effective capacitance, startup, thermal, reset and rail-order behavior. |
 | AUX_PROTECTED/HOT0 | LTC4368-2/FDS3992/shunt candidate joined as sole pre-cutoff-to-protected path; exact pads/net paths audited | Qualify load budget, divider procurement, FET SOA, OVP/UVLO, fast-fault output peak, startup and latch reset. |
 | RAW_AUX24/HOT0 | IRM-20-24 pads 4/3 joined through the post-CMC AUX branch terminal to LMR36015BRNXT VIN/EN | Physical module orientation, branch cartridge and harness, raw peak, startup and thermal behavior remain unverified. The raw rail is HOT and feeds only the joined 15 V converter. |
@@ -150,17 +149,16 @@ coordination remain open.
 The existing cooker `elec/src/main.ato` connects its `AuxSupply`
 IRM-10-15 output to a **SELV** 15 V rail and a `PowerManagement`
 LMR51430 3.3 V buck, with SELV ground bonded to PE separately from the HOT
-return. That is a possible upstream source if Rev38 is integrated with that
-assembly, but the existing 3.3 V load and new ESP/expander/isolation startup
+return. It is the selected upstream candidate, but the existing 3.3 V load
+and new expander/isolation startup
 load must be budgeted together. `SELV-SUPPLY-LOAD.md` inventories the joined
 Rev38 loads and direct startup capacitance: Espressif requires at least 0.5 A
 of source capability for the ESP alone, before the isolators and other logic.
 The record does not establish spare power on the existing IRM-10-15 or its
-3.3 V buck. Define the physical connector, rail limits, reset-good and
-interlock producers for the selected existing cooker ESP and SELV rail. The
-current Rev38 fixture still contains
-a second ESP and is not the joined product source. `SELV_GND` cannot be
-bonded to `HOT0`, and no 3.3 V source is credited in that fixture.
+3.3 V buck. Join the cooker-side connector, rail limits, reset-good and
+interlock producers for the selected existing cooker ESP and SELV rail.
+`SELV_GND` cannot be bonded to `HOT0`, and no 3.3 V source is credited in
+the Rev38-only fixture.
 
 The production `SafetyInterlock.shutdown` is an active-high latched **fault**
 that drives the UCC21550 `DIS` input (`elec/src/main.ato`), while Rev38
@@ -175,7 +173,7 @@ cases are represented in the joined circuit and tested at the physical pins.
 
 ## Integration gate
 
-The Atopile candidate now joins source MCU, expander, button, source authority
+The Atopile candidate now joins the source controller port, expander, button, source authority
 and both isolation channels. The ESP adapter is host-tested and wired to one
 `app_main` task. Its application objects compile for ESP32-S3 with IDF v5.3;
 the complete cooker image still fails to link on unresolved production hooks.

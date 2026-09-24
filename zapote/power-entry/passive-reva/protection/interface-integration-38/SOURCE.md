@@ -95,8 +95,9 @@ SOURCE_RAIL_RESET_N`. A 10 kΩ pull-down gives that output a low default.
 This is the proposed physical input for the runtime's pre-feed `safety_ok`
 check; `rail_good` can separately sample `SOURCE_RAIL_RESET_N`. It excludes
 WDO by construction. The standalone and joined netlist audits check that
-separation and reject a deliberate WDO short. It is wired to ESP module pad
-11/GPIO18, but reset-good and interlock still have no physical producers.
+separation and reject a deliberate WDO short. It is wired to Rev38
+controller-port pad 5, reserved for cooker ESP module pad 11/GPIO18, but
+reset-good and interlock still have no physical producers.
 The target must verify threshold/loading, boot sampling, and the relationship
 between this sample and the independently clearing source health gate.
 

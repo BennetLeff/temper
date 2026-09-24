@@ -6,8 +6,9 @@ ordinary pads in both existing authorities. The table below shows one way to
 fit the interface while retaining GPIO19/20 native USB and GPIO43/44 UART0
 debug. `firmware/main/power_entry_esp32_adapter.c` and
 `power_entry_esp32_idf.c` now implement this candidate mapping and boot
-sequence. `elec/src/source_mcu.ato` joins these pads and the expander to the
-source authority and isolation channels in the integrated candidate; the
+sequence. `elec/src/source_mcu.ato` joins the Rev38-side 16-contact port and
+expander to the source authority and isolation channels. The module pads in
+this table belong to the existing cooker ESP and its unbuilt mating port; the
 source runtime is wired into `app_main`, and its application objects compile
 with ESP-IDF v5.3. The complete cooker image still fails at link on unresolved
 production hooks; no target board check has run. See `ESP-PIN-INVENTORY.md`
