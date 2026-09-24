@@ -10,7 +10,7 @@ and `cooker-source-02` (cooker receipt `21d303f769dccaaaf25049e87cd948d55de8ab19
 | Boundary | Rev38 source | Existing cooker `Top` in mate derivative |
 | --- | --- | --- |
 | Inlet and protection | `AcInput38` receives already fused L, N and PE on `1714984`; F1 is the proposed off-board `LP-CC-20` assembly. | `PowerInput` retains its own `0034.3129` 5×20 F1, MOV, CMC, NTC and bypass relay. The fuse link/holder remains unqualified under the Rev38 F1 screen. |
-| DC power | `PfcPower38` has its own rectifier, boost switch, F2 and bank nodes `VD_LOCAL`/`VB_BANK`. | `Top.power_in` makes a separate AC doubler and `dc_bus_plus`/`dc_bus_minus`; `Top.hb` and tank use that bus. |
+| DC power | `PfcPower38` has its own rectifier, boost switch, F2 and bank nodes `VD_LOCAL`/`VB_BANK`; `PFC-POWER.md` uses 400 V nominal for the local reservoir. | `Top.power_in` makes a separate AC doubler and `dc_bus_plus`/`dc_bus_minus`; `Top.hb` and tank use that bus. `Top.v_bus_max` is 340 V. |
 | Controller rail | Rev38 takes SELV 3.3 V through the 16-contact header. | `Top.aux_supply` derives isolated 15 V from its existing half bus, and `Top.power_mgmt` derives the ESP 3.3 V rail. |
 | Between boards | The 16 contacts carry 3.3 V, return, GPIO, UART, I²C, reset-good and interlock. | The mate has the matching 16 contacts. There are no AC, DC bank, power-return or inverter bus contacts in this contract. |
 
@@ -41,7 +41,9 @@ The engineering work must specify:
    If so, define their exact positive/negative/return nodes, operating
    voltage and fault-current envelope, isolation boundary, conductor or
    connector, and retained discharge/measurement path. The old half-bus
-   assumptions cannot silently be reused at the Rev38 bank voltage.
+   assumptions cannot silently be reused at the Rev38 bank voltage. In
+   particular, the current 340 V `Top.v_bus_max` and 400 V nominal Rev38
+   bank cannot be declared compatible by connecting names or conductors.
 3. How the cooker fault latch, relay and inverter inhibit paths interact
    with the Rev38 receiver's retained HOT shutdown. A GPIO connection alone
    cannot replace the physical gate-clear path.
