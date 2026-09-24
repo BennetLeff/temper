@@ -2,6 +2,7 @@
 #define TEMPER_POWER_ENTRY_ESP32_ADAPTER_H
 
 #include "power_entry_source_runtime.h"
+#include "temper_pins.h"
 
 /* Rev38 N8R8 module pin screen. These numbers are candidate GPIOs until the
  * joined electrical netlist and target boot capture establish ownership. */
@@ -9,12 +10,12 @@ enum {
     PE_ESP_GPIO_STOP_N = 13,
     PE_ESP_GPIO_WDI_REQUEST = 21,
     PE_ESP_GPIO_PERMIT_SET = 48,
-    PE_ESP_GPIO_PREWATCHDOG_OK = 18,
+    PE_ESP_GPIO_PREWATCHDOG_OK = PIN_POWER_ENTRY_PREWATCHDOG_OK,
     PE_ESP_GPIO_COMMAND_TX = 40,
     PE_ESP_GPIO_RESPONSE_RX = 41,
     PE_ESP_GPIO_START_BUTTON = 42,
-    PE_ESP_GPIO_EXPANDER_SDA = 38,
-    PE_ESP_GPIO_EXPANDER_SCL = 39,
+    PE_ESP_GPIO_EXPANDER_SDA = PIN_I2C_SDA,
+    PE_ESP_GPIO_EXPANDER_SCL = PIN_I2C_SCL,
     PE_ESP_EXPANDER_ADDRESS_ADDR_LOW = 0x20,
 };
 

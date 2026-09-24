@@ -84,15 +84,16 @@ Rev38 proposes the same pins for the TCA6408A. Firmware currently creates
 I²C0 for Rev38 and no other compiled firmware call to the I²C driver was
 found, but the external UI header remains a shared electrical bus. Its
 address, pull-up, cable capacitance and transaction ownership need one bus
-contract before joining. GPIO18 is reserved as `PIN_LED_POWER` in
-`firmware/components/temper_hal/include/temper_pins.h`, but no firmware use
-or cooker schematic connection was found; that stale reservation must be
-removed or relocated before GPIO18 becomes the physical pre-watchdog input.
+contract before joining. The unused GPIO18 `PIN_LED_POWER` reservation has
+been replaced with `PIN_POWER_ENTRY_PREWATCHDOG_OK`; the Rev38 adapter now
+imports that pin and the existing GPIO38/39 I²C pins from the common firmware
+header. The unused fault/relay aliases in the header have also been corrected
+to cooker schematic IO17/16, leaving USB IO20/19 out of those functions.
 GPIO13, 21, 40, 41, 42 and 48 have no conflicting connection in the inspected
 `MCU` source or firmware pin table. GPIO19/20 are cooker USB D-/D+ in the
-schematic; the firmware header's unused relay/fault aliases on those pins
-disagree with the actual cooker IO16/17 wiring. Those aliases need their own
-correction before the combined pin manifest is treated as authoritative.
+schematic. The compile-time pin map is now consistent for these named
+functions, while actual bus arbitration and target pin-state capture remain
+open.
 An explicit board connector and a single-ESP source projection are required;
 tying two module footprints together by net name would leave two physical
 controllers in the native BOM.

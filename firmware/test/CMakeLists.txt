@@ -36,6 +36,9 @@ add_executable(test_power_entry_esp32_adapter
     ${CMAKE_CURRENT_SOURCE_DIR}/../../zapote/power-entry/passive-reva/protection/interface-integration-38/receiver-firmware/protocol.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_power_entry_esp32_adapter.c
 )
+target_include_directories(test_power_entry_esp32_adapter PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/include
+)
 
 # Enable warnings
 add_compile_options(-Wall -Wextra -Wpedantic)

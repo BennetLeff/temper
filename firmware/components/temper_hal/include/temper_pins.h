@@ -70,8 +70,7 @@ extern "C" {
 /** MAX31865 data-ready output (active low). */
 #define PIN_RTD_DRDY            9
 
-/** Reserved chip select for a future RTD sensor 2. */
-#define PIN_SPI_CS_RTD2         16
+/* No second RTD chip select is assigned: IO16 drives the bypass relay. */
 
 /* ============================================================================
  * Control and Status Pins
@@ -86,11 +85,11 @@ extern "C" {
 /** Active-high runaway-cut output to the safety latch */
 #define PIN_RUNAWAY_CUT         15
 
-/** Latched fault status sense (ESP32-S3 IO20; active high SHUTDOWN alias) */
-#define PIN_FAULT_OUT           20
+/** Latched fault status sense (ESP32-S3 IO17; active high SHUTDOWN alias) */
+#define PIN_FAULT_OUT           17
 
-/** Inrush limiter bypass relay control (ESP32-S3 IO19) */
-#define PIN_RELAY_BYPASS        19
+/** Inrush limiter bypass relay control (ESP32-S3 IO16) */
+#define PIN_RELAY_BYPASS        16
 
 /** Master reset input from hardware safety system */
 #define PIN_RESET_INPUT         14
@@ -99,11 +98,10 @@ extern "C" {
  * User Interface Pins
  * ============================================================================ */
 
-/** Fault indicator LED (active high) */
-#define PIN_LED_FAULT           17
+/* No indicator LEDs are connected in elec/src/modules.ato::MCU. */
 
-/** Power indicator LED (active high) */
-#define PIN_LED_POWER           18
+/** Rev38 physical pre-watchdog input on the shared cooker ESP. */
+#define PIN_POWER_ENTRY_PREWATCHDOG_OK 18
 
 /** User reset button (active low with pull-up) */
 #define PIN_BUTTON_RESET        0   /* GPIO0 - boot button, use with care */
