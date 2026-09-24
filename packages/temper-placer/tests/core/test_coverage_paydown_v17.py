@@ -14,11 +14,10 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-import temper_geometry as _tg
 from shapely.geometry import Polygon as ShapelyPolygon
+from temper_design_bundle_python import LoopCollection
 
 from temper_placer.core.board import Board
-from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.pcl.constraints import ConstraintType
 from temper_placer.placer.cp_sat.feedback import FeedbackClassifier
@@ -88,9 +87,6 @@ from temper_placer.router_v6.dense_package_detection import (
     identify_dense_packages,
 )
 from temper_placer.router_v6.diff_pair_inference import DiffPair, infer_differential_pairs
-from temper_placer.router_v6.grid_types import (
-    GridCell,
-)
 from temper_placer.router_v6.layer_assignment import (
     assign_layers,
     get_layer_for_net,

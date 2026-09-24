@@ -1,6 +1,9 @@
-"""Tests for core.net_graph module."""
+"""Tests for the NetGraph/SubNetEdge pyclasses (Rust net_graph_contracts)."""
 
-from temper_placer.core.net_graph import NetGraph, SubNetEdge
+import temper_design_bundle_python as _tdb
+
+NetGraph = _tdb.net_graph_contracts.NetGraph
+SubNetEdge = _tdb.net_graph_contracts.SubNetEdge
 
 
 class TestSubNetEdge:

@@ -980,7 +980,7 @@ def test_load_loop_collection_accepts_str_path():
 
 def _save_cases():
     """(id, Loop) pairs covering every conditional branch of the emitter."""
-    from temper_placer.core.loop import Loop, LoopEvent, LoopPin, LoopPriority, LoopType
+    from temper_design_bundle_python import Loop, LoopEvent, LoopPin, LoopPriority, LoopType
 
     return [
         (
@@ -1092,7 +1092,7 @@ def test_yaml_line_break_characters_are_equally_lossy_on_both_sides(char, tmp_pa
     rather than asserted: both sides emit the same bytes and both sides
     recover the same (possibly altered) value.
     """
-    from temper_placer.core.loop import Loop, LoopType
+    from temper_design_bundle_python import Loop, LoopType
 
     loop = Loop(name="lb", loop_type=LoopType.CUSTOM, description=f"a{char}b")
     py_path = tmp_path / "py" / "out.yaml"

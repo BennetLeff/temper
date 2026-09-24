@@ -569,7 +569,7 @@ def test_enum_member_not_equal_to_int():
     The pyclass must not use eq_int — a silent semantic change would make
     == 1 True and could flip consumer branches that test identity against
     ints."""
-    from temper_placer.core.net_types import NetType
+    from temper_design_bundle_python import NetType
 
     assert NetType.GROUND != 1
     assert NetType.GROUND != 1.0

@@ -17,9 +17,10 @@
 # --- BEGIN PINNED BODY ---
 from dataclasses import replace
 
-from temper_placer.core.loop import LoopCollection
-from temper_placer.deterministic.state import BoardState
+from temper_design_bundle_python import LoopCollection
+
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 
 
 class NetOrderingStage(Stage):

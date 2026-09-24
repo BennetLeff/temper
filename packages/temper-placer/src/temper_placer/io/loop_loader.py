@@ -69,8 +69,7 @@ from typing import Any
 
 import temper_design_bundle_python as _tdb
 import yaml  # type: ignore[import-untyped]
-
-from temper_placer.core.loop import Loop
+from temper_design_bundle_python import Loop
 
 LoopLoadError = _tdb.LoopLoadError
 load_loop_from_dict = _tdb.load_loop_from_dict

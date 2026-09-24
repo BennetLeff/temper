@@ -30,7 +30,8 @@ import json
 import warnings
 from typing import Any
 
-from temper_placer.core.loop import LoopCollection, LoopPriority, LoopType
+from temper_design_bundle_python import LoopCollection, LoopPriority, LoopType
+
 from temper_placer.core.netlist import Netlist
 
 # Reconstructed fields — deterministic from loop_type, matching the
@@ -111,14 +112,14 @@ def _dict_to_loop_collection(data: dict[str, Any]) -> LoopCollection:
         _tdb.LoopExtractionOutput.from_dict(data) if isinstance(data, dict) else data
     )
 
-    from temper_placer.core.loop import Loop as PyLoop
-    from temper_placer.core.loop import LoopEvent
+    from temper_design_bundle_python import Loop as PyLoop
+    from temper_design_bundle_python import LoopEvent
 
     loops = []
     for loop in output.loops:
         loop_type_str = loop.loop_type
 
-        from temper_placer.core.loop import LoopType
+        from temper_design_bundle_python import LoopType
 
         try:
             lt = LoopType(loop_type_str)

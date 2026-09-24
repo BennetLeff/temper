@@ -10,8 +10,7 @@ Tests cover:
 """
 
 import pytest
-
-from temper_placer.core.loop import (
+from temper_design_bundle_python import (
     Loop,
     LoopCollection,
     LoopEvent,

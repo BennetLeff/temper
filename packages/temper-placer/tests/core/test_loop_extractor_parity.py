@@ -11,8 +11,8 @@ Python extractor and the bridge reconstruction maps.
 from __future__ import annotations
 
 import pytest
+from temper_design_bundle_python import Loop, LoopEvent, LoopPriority
 
-from temper_placer.core.loop import Loop, LoopEvent, LoopPriority
 from temper_placer.core.loop_extractor_rs import (
     _LOOP_TYPE_EVENTS,
     _LOOP_TYPE_PRIORITY,
@@ -69,7 +69,7 @@ def _python_loop(
     nets: list[str] | None = None,
 ) -> Loop:
     """Build a Loop matching what the Python extractor produces."""
-    from temper_placer.core.loop import LoopType
+    from temper_design_bundle_python import LoopType
 
     lt = LoopType(loop_type)
     return Loop(

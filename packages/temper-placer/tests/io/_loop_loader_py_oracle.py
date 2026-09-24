@@ -18,8 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml  # type: ignore[import-untyped]
-
-from temper_placer.core.loop import (
+from temper_design_bundle_python import (
     Loop,
     LoopCollection,
     LoopEvent,

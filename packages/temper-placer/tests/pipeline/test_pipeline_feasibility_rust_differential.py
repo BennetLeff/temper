@@ -80,7 +80,11 @@ RS_EXTRACT_MIN_CLEARANCE = _to.extract_min_clearance
 # ---------------------------------------------------------------------------
 
 _ORACLE_PATH = Path(__file__).with_name("_pipeline_feasibility_py_oracle.py")
-_PINNED_BODY_SHA256 = "296cac0c6dd601a8f544996fdd85283cc6c8c95cbb131e169d0d13438f613487"
+# Re-pinned 2026-09-09 (shim deletion, its own commit): the oracle's
+# `VoltageClass` import moved from the deleted `temper_placer.core.net_types`
+# shim to `temper_design_bundle_python` -- the SAME pyclass object, import-path
+# redirect only; no body semantics changed (differential suite green).
+_PINNED_BODY_SHA256 = "ecbd76114ce673a297ff14d32ba3aaed1082b7dd1d91c9199c20787c8e090843"
 _BODY_MARKER = "# --- BEGIN PINNED BODY ---\n"
 
 

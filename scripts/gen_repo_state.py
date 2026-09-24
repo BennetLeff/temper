@@ -56,7 +56,6 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     "elec": "Atopile electrical source -- the schematic's source of truth",
     "firmware": "ESP32-S3 firmware (C), 8-state machine and protection monitoring",
     "max31865": "KiCad library for the MAX31865 RTD front-end (predates components/)",
-    "metrics": "Recorded routing/placement metric snapshots (JSON)",
     "output_gerbers": "Exported Gerber/drill artifacts from a past routed revision",
     "packages": "Python and Rust workspace members -- placer, DRC, geometry, router",
     "crates": "Rust-only crates -- no pyproject.toml, outside the uv workspace. Where code lives once it no longer needs an interpreter: the temper binary and the CP-SAT FFI",

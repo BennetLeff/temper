@@ -44,11 +44,12 @@ from tests.core._contract_canon import canon
 ORACLE_INPUT = _tdb.LoopExtractionInput
 ORACLE_OUTPUT = _tdb.LoopExtractionOutput
 
-from temper_placer.core.loop import (  # noqa: E402
+from temper_design_bundle_python import (  # noqa: E402
     LoopCollection,
     LoopPriority,
     LoopType,
 )
+
 from temper_placer.core.loop_extractor_rs import (  # noqa: E402
     _dict_to_loop_collection,
     _netlist_to_dict,
@@ -126,8 +127,8 @@ _ORACLE_LOOP_TYPE_RETURN_NET = {
 
 def _oracle_dict_to_loop_collection(data):
     """Pre-migration ``_dict_to_loop_collection``, verbatim (loop_extractor_rs.py)."""
-    from temper_placer.core.loop import Loop as PyLoop
-    from temper_placer.core.loop import LoopEvent
+    from temper_design_bundle_python import Loop as PyLoop
+    from temper_design_bundle_python import LoopEvent
 
     loops = []
     for loop_dict in data.get("loops", []):
@@ -136,7 +137,7 @@ def _oracle_dict_to_loop_collection(data):
         loop_type_str = loop_dict.get("loop_type", "unknown")
         max_area = loop_dict.get("max_area_mm2", 500.0)
 
-        from temper_placer.core.loop import LoopType
+        from temper_design_bundle_python import LoopType
 
         try:
             lt = LoopType(loop_type_str)

@@ -247,7 +247,7 @@ def add_zones_from_classification(
     net_classification: "NetClassification",
 ) -> ZoneResult:
     """Add copper zones based on NetClassification type system."""
-    from temper_placer.core.net_types import ConnectivityStrategy
+    from temper_design_bundle_python import ConnectivityStrategy
 
     content = Path(input_pcb).read_text(encoding="utf-8")
     outline = get_board_outline_from_text(content)
@@ -319,4 +319,4 @@ def add_zones_from_classification(
 
 
 if TYPE_CHECKING:
-    from temper_placer.core.net_types import NetClassification, NetTypeSpec
+    from temper_design_bundle_python import NetClassification, NetTypeSpec
