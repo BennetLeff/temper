@@ -1,0 +1,40 @@
+bus_to_legacy_voltage	BLOCKED	390 V-class bus exceeds native 0-250 V legacy sense envelope
+cooling_fault	BLOCKED	fault signal producer or receiver lacks native identity
+ctrl_to_selv	INDETERMINATE	gate-drive CTRL_GND-to-SELV join and isolation policy unreviewed
+current_fault	INDETERMINATE	native endpoints exist; unpowered clamp, voltage and timing unqualified
+f2_equal_voltage	BLOCKED	equal VD/VB does not prove F2 continuity
+fan_off_discharge_heat	BLOCKED	fan-off discharge heat path omitted
+fault.aux	BLOCKED	missing global validity or open-wire/unpowered fault-to-both-stage stop proof
+fault.cooling	BLOCKED	missing global validity or open-wire/unpowered fault-to-both-stage stop proof
+fault.current	BLOCKED	missing global validity or open-wire/unpowered fault-to-both-stage stop proof
+fault.rtd	BLOCKED	missing global validity or open-wire/unpowered fault-to-both-stage stop proof
+fault.thermal_coil	BLOCKED	missing global validity or open-wire/unpowered fault-to-both-stage stop proof
+fault.thermal_heatsink	BLOCKED	missing global validity or open-wire/unpowered fault-to-both-stage stop proof
+fault.voltage	BLOCKED	missing global validity or open-wire/unpowered fault-to-both-stage stop proof
+global_sensor_live	BLOCKED	global SENSOR_LIVE producer absent
+hot0_to_selv	BLOCKED	HOT0 return join would carry mains reference into a host/common-ground domain
+hot_return_to_legacy_return	BLOCKED	HOT0 return join would carry mains reference into a host/common-ground domain
+interlock_to_inverter	INDETERMINATE	interlock-to-gate-drive domain, driven high and loaded stop unproved
+interlock_to_pfc	INDETERMINATE	interlock-to-Rev38 isolated PFC inhibit and timing unproved
+kelvin_hot_join	INDETERMINATE	HV_RETURN-HOT0 Kelvin join, isolated bias and return-current path unreviewed
+pfc_run_to_inverter_permit	BLOCKED	PFC HOT RUN is not inverter PERMIT
+programming_reset_stop	BLOCKED	programming/UI pin allocation and reset-to-both-stage-stop contract unresolved
+rtd_fault	INDETERMINATE	native endpoints exist; unpowered clamp, voltage and timing unqualified
+thermal_coil_fault	INDETERMINATE	native endpoints exist; unpowered clamp, voltage and timing unqualified
+thermal_hs_fault	INDETERMINATE	native endpoints exist; unpowered clamp, voltage and timing unqualified
+unit.auxiliary	INDETERMINATE	candidate source/evidence; unit acceptance open
+unit.buck	BLOCKED	earlier standalone unit has no source/native acceptance binding in this snapshot
+unit.cooling	INDETERMINATE	candidate source/evidence; unit acceptance open
+unit.current	INDETERMINATE	standalone digital construction; integration and physical qualification open
+unit.discharge	INDETERMINATE	candidate source/evidence; unit acceptance open
+unit.gate_drive	INDETERMINATE	standalone digital construction; integration and physical qualification open
+unit.interlock	INDETERMINATE	standalone digital construction; integration and physical qualification open
+unit.inverter	INDETERMINATE	candidate source/evidence; unit acceptance open
+unit.mcu	BLOCKED	earlier standalone unit has no source/native acceptance binding in this snapshot
+unit.power_entry	INDETERMINATE	candidate source/evidence; unit acceptance open
+unit.programming_ui	BLOCKED	required unit interface source unavailable in this base
+unit.rtd	INDETERMINATE	standalone digital construction; integration and physical qualification open
+unit.thermal	INDETERMINATE	standalone digital construction; integration and physical qualification open
+unit.voltage	INDETERMINATE	standalone digital construction; integration and physical qualification open
+voltage_fault	BLOCKED	fault producer and receiver returns/domains differ; no isolation interface
+OVERALL	BLOCKED	39 edges and fault paths; readiness is permission to design, never whole-board acceptance
