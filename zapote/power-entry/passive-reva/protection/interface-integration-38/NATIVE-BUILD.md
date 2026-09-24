@@ -16,17 +16,14 @@ Rev38-side controller port. A separate `cooker-mate` derivative joins the
 existing cooker ESP, SELV rail and reset-good/interlock producers; these
 are not part of this frozen `source-build-03` export. That derivative
 now has its own frozen `cooker-source-02` export and a two-source 16-contact
-connector audit, recorded in `COOKER-ASSEMBLY-SOURCE.md`. It still needs a
-native board, physical harness, SELV rail capacity and reset/interlock pin
-qualification. Its [static native readiness probe](cooker-mate/README.md)
-identifies two missing canonical footprints. The cooker derivative now joins
-ESP module ground contacts 40/41 to SELV return on KiCad's 41-contact stock
-land pattern; no board has been generated. The separate
-[`POWER-ASSEMBLY-BOUNDARY.md`](POWER-ASSEMBLY-BOUNDARY.md) finds a prior
-source-topology gate: importing the cooker `Top` intact retains its older
-inlet, doubler and auxiliary source, while the 16-contact mate carries no
-power-stage join. Resolving two legacy footprint names alone cannot create
-one native product assembly. The
+connector audit, recorded in `COOKER-ASSEMBLY-SOURCE.md`. The native Rev38
+section needs a defined 3.3 V port supply/load/startup/fail-low contract and
+physical connector qualification. The cooker derivative's missing canonical
+footprints, native cooker board and inverter power composition are follow-on
+product work. The separate
+[`POWER-ASSEMBLY-BOUNDARY.md`](POWER-ASSEMBLY-BOUNDARY.md) explains why the
+two-source control-header audit cannot be promoted to a one-front-end cooker
+product; it does not block export of the Rev38 source-to-PFC section. The
 source remains an engineering candidate. It includes two unresolved
 footprint references:
 off-board `A70QS50-14F` F2 at `U226` and the distinct Phoenix `1017526`

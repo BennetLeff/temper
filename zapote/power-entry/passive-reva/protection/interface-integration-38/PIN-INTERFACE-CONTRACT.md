@@ -77,7 +77,11 @@ watchdog own unexpected execution-loss shutdown. Expander reset, ESP reboot,
 or an I²C ACK cannot be counted as immediate CPU-reset detection. The relay
 request cannot bypass the AVR decision and retained HOT RUN gate.
 
-The product integration uses the **existing cooker ESP32-S3 and SELV rail**.
+The Rev38 **command source** is the existing cooker ESP32-S3. Its present
+SELV rail is a supply candidate, not an accepted source for the Rev38 board;
+the 3.3 V port still needs rated current, startup, partial-power and fail-low
+qualification. A later one-front-end product may re-source the cooker rail
+without changing which ESP owns the Rev38 command protocol.
 `SELV-CONTROLLER-CONNECTOR.md` screens a 16-contact mating pair and a
 straight-through pin contract. The Rev38 header is joined and exact-pin
 audited; `cooker-mate/elec/src/cooker_mate.ato` joins the mating header and

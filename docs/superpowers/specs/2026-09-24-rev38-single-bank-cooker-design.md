@@ -2,18 +2,26 @@
 title: Rev38 single-bank cooker integration
 type: design
 date: 2026-09-24
-status: candidate topology selected; electrical qualification open
+status: follow-on product-integration exploration; electrical qualification open
 parent: docs/superpowers/specs/2026-09-23-power-entry-hot-receiver-design.md
 ---
 
 # Rev38 single-bank cooker integration
+
+**Follow-on scope.** This document explores a later one-front-end cooker
+product. It is not part of U7 or the Definition of Done in
+`docs/plans/2026-09-23-001-feat-power-entry-hot-receiver-plan.md`.
+That plan delivers a native Rev38 source-to-PFC section with a defined SELV
+command/supply port; it does not require a bank-to-inverter power join.
+The half-bridge proposal below remains an evaluation topology, not a
+selected or sized production inverter.
 
 ## Decision and evidence boundary
 
 The product candidate uses one Rev38 fused inlet, rectifier, PFC, F2, and
 `VB_BANK`/`HOT0` reservoir. It retains the existing cooker ESP32-S3 and its
 SELV 3.3 V rail. The cooker inverter is redesigned around that bank. The
-selected *evaluation topology* retains a half bridge and puts the series
+proposed *evaluation topology* retains a half bridge and puts the series
 capacitor/coil tank and its current-transformer primary between the half-bridge
 switch node and `HOT0`. The user selected this direction on 2026-09-24. It is
 not an accepted operating point or permission to energize the assembly.

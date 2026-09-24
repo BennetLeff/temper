@@ -65,12 +65,11 @@ Use a small HOT receiver MCU for command identity and sequencing, with fault mem
 
 This plan delivers a separate integrated candidate and its digital/native evidence. It does not alter `pcb/temper.kicad_pcb`, order parts, fabricate a board, perform powered testing, or close F1/F2 interruption, capacitor energy, thermal, inverter, or appliance compliance. A later physical campaign must follow `zapote/power-entry/passive-reva/protection/interface-integration-24/bench-capture.md` and measure actual fault-to-current cessation before any mains-build claim.
 
-The approved 2026-09-24 product-join supplement selects one Rev38
-`VB_BANK`/`HOT0` source feeding an evaluated cooker half bridge and series
-tank; see `docs/superpowers/specs/2026-09-24-rev38-single-bank-cooker-design.md`.
-This extends the **digital/native candidate** to one power assembly while
-leaving inverter operating and physical acceptance open. The old cooker
-`PowerInput` doubler and midpoint cannot survive in that product source.
+The Rev38 native deliverable is the source-to-PFC section board with a
+defined SELV controller port. Joining its bank to a cooker inverter is
+separate product-integration work; the exploratory
+`docs/superpowers/specs/2026-09-24-rev38-single-bank-cooker-design.md`
+does not add a dependency to this plan's U7 or Definition of Done.
 
 ---
 
@@ -138,7 +137,7 @@ stateDiagram-v2
 
 ### Sequencing and stop rules
 
-U1 is first and uses the selected bounded-reset candidate contract. Its timing package derives independent allowable and implementation response bounds where the evidence permits and identifies exact missing parameters elsewhere. Missing numerical inputs do not stop parameterized protocol tests, reset-driver development, or construction of the joined candidate; they do prevent a numerical timing PASS, protected-operation claim, or mains-build decision. U2 and U3 define the receiver and model; U4-U6 build the Rev38 electrical/firmware candidate and supply inputs back to U1's timing analysis. U4b joins that candidate to one cooker bank and inverter source; U7 then evaluates native board parity and digital acceptance. If the candidate cannot meet independently derived limits, revise the watchdog, protection, or reset architecture. Any unselected MCU, isolation device, or detector output is a named unresolved implementation input, never an assumed producer.
+U1 is first and uses the selected bounded-reset candidate contract. Its timing package derives independent allowable and implementation response bounds where the evidence permits and identifies exact missing parameters elsewhere. Missing numerical inputs do not stop parameterized protocol tests, reset-driver development, or construction of the joined candidate; they do prevent a numerical timing PASS, protected-operation claim, or mains-build decision. U2 and U3 define the receiver and model; U4-U6 build the joined electrical/firmware candidate and supply inputs back to U1's timing analysis; U7 evaluates native section-board parity and digital acceptance. If the candidate cannot meet independently derived limits, revise the watchdog, protection, or reset architecture. Any unselected MCU, isolation device, or detector output is a named unresolved implementation input, never an assumed producer.
 
 ---
 
@@ -179,15 +178,6 @@ U1 is first and uses the selected bounded-reset candidate contract. Its timing p
 - **Test scenarios:** Netlist mutation disconnects receiver abort, swaps a reverse feedback channel, bypasses isolation, leaves EN floating, or drops a fault producer; each fails the Rust audit. Qualified PERMIT loss and external/receiver trips reach both retained clear pins and gate inhibit. Driver supply with missing HOT logic, and isolator partial-power states, remain disabled in the electrical corner analysis.
 - **Verification:** Offline Atopile 0.2.69 build, exact-pin Rust audit, mutation tests, complete component/isolator-channel census, electrical-corner worksheet, and source/domain graph checks. Connectivity PASS is not analog or physical timing qualification.
 
-### U4b. Join the Rev38 bank to a redesigned cooker source
-
-- **Dependencies:** U4's selected PFC/F2 bank, isolated-signal contract, and the approved single-bank cooker design; U6 supplies the shared ESP pin and control ownership. Numerical inverter acceptance remains open.
-- **Requirements:** R5, R12-R13, the selected one-inlet product join, and the original plan's native-candidate Definition of Done.
-- **Files:** `zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/`, `zapote/power-entry/passive-reva/protection/interface-integration-38/audit.rs`, `zapote/power-entry/passive-reva/protection/interface-integration-38/POWER-ASSEMBLY-BOUNDARY.md`, `zapote/power-entry/passive-reva/protection/interface-integration-38/ACCEPTANCE.md`, plus a frozen one-product source receipt. The canonical `elec/src/main.ato` and `pcb/temper.kicad_pcb` remain reference artifacts.
-- **Approach:** Compose cooker loads without importing the old `Top` as product source. Feed the half bridge from F2 bank-side `VB_BANK` and bank-capacitor `HOT0`; return the series tank through its CT to `HOT0` and preserve the second CT in the low-side path. Select an isolated SELV 15 V producer for the existing 3.3 V rail; evaluate Rev38 `AUX_PROTECTED`/`HOT0` as the previously absent HOT-referenced low-side gate-drive and bootstrap supply, with added gate-load/cutoff qualification. Select full-bank OVP, one-bank discharge including open-F2 local energy, and a separate isolated physical HOT RUN indication that defaults the cooker UCC21550 disabled. Derive the high-current connector or copper interface, return/Kelvin layout, voltage/current/thermal envelope, and fault response from the new topology, not the 340 V doubler analysis.
-- **Test scenarios:** Duplicate old inlet/doubler/aux path, inverter tied to `VD_LOCAL`, open `HOT0` return, tank CT bypass, low-side CT bypass, PFC shunt polluted by inverter current, HOT-to-SELV short, reverse RUN indicator stuck/open, missing independent inverter disable, open F2 with charged local and bank capacitors, and discharge stuck open/closed. Exact-pin mutations must fail; analog stress cases retain their own quantitative and physical gates.
-- **Verification:** Frozen one-product Atopile export, complete power/control BOM, exact-pin and domain Rust audit with negative mutations, selected parts/pins, and a source-to-native interface contract before U7 placement. Host connectivity does not certify tank operating point, discharge time, insulation or fault response.
-
 ### U5. Implement receiver firmware against the selected device
 
 - **Dependencies:** U2-U4 interface and pin contract.
@@ -208,7 +198,7 @@ U1 is first and uses the selected bounded-reset candidate contract. Its timing p
 
 ### U7. Create native candidate and close digital acceptance
 
-- **Dependencies:** U4-U6 and U4b's selected one-product source, parts and power interfaces.
+- **Dependencies:** U4-U6.
 - **Requirements:** R5, R12-R13; AE1-AE5.
 - **Files:** `zapote/power-entry/passive-reva/protection/interface-integration-38/native/section.kicad_sch`, `zapote/power-entry/passive-reva/protection/interface-integration-38/native/section.kicad_pcb`, `zapote/power-entry/passive-reva/protection/interface-integration-38/ACCEPTANCE.md`, `zapote/power-entry/passive-reva/protection/interface-integration-38/bench-capture.md`.
 - **Approach:** Export the joined source to a native candidate, assign exact part/footprint/BOM identities, preserve the SELV/HOT isolation boundary, and validate source/native pin and net parity. Route only after U4 electrical review. Prepare low-voltage capture points and fault-injection procedure without claiming an assembled test.

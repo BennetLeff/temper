@@ -1,6 +1,7 @@
 # Rev38 to cooker power assembly boundary
 
-**Status: unjoined product power path.** The two frozen Atopile sources prove a
+**Status: follow-on product power path, outside the Rev38 section-board U7 gate.**
+The two frozen Atopile sources prove a
 16-contact SELV control interface. They do not yet describe one cooker power
 assembly. This is a source-topology finding, independent of footprint
 availability or PCB placement. The current source identities are
@@ -24,9 +25,9 @@ audit checks the **control header** only. Its PASS does not connect either
 power stage to the other, remove the old inlet path, or power the cooker
 inverter from the Rev38 bank.
 
-## Integration decision and release gate
+## Follow-on product integration gate
 
-The intended product candidate has **one evaluated power-entry path**: Rev38
+The intended later product candidate has **one evaluated power-entry path**: Rev38
 replaces the cooker's older fused input and front end while retaining the
 existing ESP and its qualified SELV 3.3 V rail. Implementing that intent
 requires a new source composition. The current `Top` import cannot be treated
@@ -50,7 +51,7 @@ The engineering work must specify:
 4. A new frozen source export and audit that checks the **power** joins and
    rejects duplicate inlet/front-end paths, open bus/return, unintended
    HOT-to-SELV joins and power sources surviving only in an obsolete branch.
-   Only then make reviewed native boards, poses and a harness/assembly plan.
+   Only then make a reviewed native **product assembly** and its power harness.
 
 The two missing cooker footprints in
 [`native-readiness-02.json`](cooker-mate/evidence/native-readiness-02.json)
@@ -58,7 +59,10 @@ belong to the old F1/NTC branch. Assigning plausible library footprints to
 those references would make the static probe greener but would not close the
 assembly boundary. Whether those parts remain at all depends on the new
 composition. Keep native-product acceptance **OPEN** until the power
-interface is explicit and checked. No mains or assembled fault test has run.
+interface is explicit and checked. This product gate does not delay the Rev38
+source-to-PFC `native/section.kicad_pcb` deliverable; that section retains
+its own F2 footprint, SELV-port, parts, pose, outline and source/native
+checks. No mains or assembled fault test has run.
 
 ## Direct-bank join audit (2026-09-24)
 

@@ -2,8 +2,8 @@
 
 **Status: engineering candidate, overall OPEN (2026-09-24).** This ledger is
 the current digital evidence index for the selected HOT receiver and existing
-cooker ESP architecture. The source connector contract passed, but there is
-no Rev38 native board, no native cooker mate board, and no assembled harness.
+cooker ESP command-source architecture. The source connector contract passed,
+but there is no Rev38 native section board or assembled SELV harness.
 No numerical fault response, protected operation, or mains build is approved.
 
 ## Evidence identity
@@ -23,7 +23,7 @@ No numerical fault response, protected operation, or mains build is approved.
 | Heatsink NTC host model | `firmware/components/safety/ntc_guard.c` SHA-256 `60fc13c60b9b0e00eebedb16f04a6d359dde3e73faa42ff72697c9e4e9a8496d`; header SHA-256 `90bda483eb56afe7ca091542a237b857177d20c0ed086c55eda6996ab7132855`; host tests SHA-256 `6ca2e1a709a1ec8749e91b6492955874df610133865e8cf66064f7c41dc69f62` and `968910cacfb8a81ff42e428c6399c044ae0ea29d2fd9f1b518bb02afce1de34d` |
 | Native board, production runtime and physical capture | **No accepted artifact or hash** |
 | Cooker native readiness diagnostic | `cooker-mate/evidence/native-readiness-02.json` SHA-256 `9d441e0ae16a4ed912ff7420beb38fc2b3a8c5eed39da8589c8814811565e5ef`; static probe only |
-| Product power assembly | **OPEN**; approved `docs/superpowers/specs/2026-09-24-rev38-single-bank-cooker-design.md` selects a one-bank half-bridge evaluation topology; `POWER-ASSEMBLY-BOUNDARY.md` records the still-unjoined source |
+| Follow-on cooker power assembly | **Outside this plan's U7 gate**; `docs/superpowers/specs/2026-09-24-rev38-single-bank-cooker-design.md` explores a single-bank half bridge, and `POWER-ASSEMBLY-BOUNDARY.md` records the unjoined product source |
 
 Each build receipt lists every copied Atopile source hash and its resolved
 export hash. The [two-board source record](COOKER-ASSEMBLY-SOURCE.md) links
@@ -67,12 +67,13 @@ current-cessation result.
 | Receiver device qualification | **OPEN** | Host and target compilation do not prove programmed fuses, reset, clock or watchdog on silicon. |
 | ESP production integration | **OPEN** | Diagnostic lockout target image is not a production image; cooker hooks and target timing/pin captures remain unresolved. |
 | F1/F2, AUX, cooker SELV rail and thermal/fault envelopes | **OPEN** | See `F1-SCREEN.md`, `F2-BOARD-INTERFACE.md`, `AUX-SOURCE-CANDIDATE.md`, `SELV-SUPPLY-LOAD.md`. |
-| Native schematic/PCB, ERC/DRC, stackup, source/native parity and maintained unit gate | **NOT RUN for Rev38** | No accepted native board bytes or single joined power path; canonical `pcb/temper.kicad_pcb` remains outside this candidate. |
-| Cooker source/footprint readiness | **OPEN** | The frozen derivative now joins ESP pads 1/40/41 to SELV return and uses the stock 41-contact footprint. Static probe still finds unresolved canonical F1/NTC footprints, no reviewed poses/outline, and a stale strict-bridge extension. |
+| Native schematic/PCB, ERC/DRC, stackup, source/native parity and maintained unit gate | **NOT RUN for Rev38** | No accepted Rev38 section-board bytes; canonical `pcb/temper.kicad_pcb` remains outside this candidate. |
+| Cooker source/footprint readiness | **Follow-on product work** | The frozen derivative proves a proposed controller interface. Its old F1/NTC footprints and product placement do not gate the Rev38 section board. The 3.3 V port supply, load, startup and fail-low contract do gate Rev38 interface acceptance. |
 | Low-voltage assembled injection, fault-to-current cessation, mains safety and passive protection/cooling milestone | **NOT RUN / OPEN** | Require a joined physical design and separately accepted measurements. |
 
-The next digital release gate is a reviewed native Rev38 board plus cooker
-mate and cable contract with exact parts, poses, outline, and source/native
-parity. First the two-source assembly must have one evaluated inlet and
-explicit SELV rail and inverter power joins. The F2 terminal drill/pin record
-and the cooker native package/placement work remain open after that decision.
+The next digital release gate is a reviewed native Rev38 section board with
+exact parts, poses, outline, source/native parity, and a defined SELV
+controller port. That port needs a 3.3 V supply/load/startup/fail-low contract
+for the existing cooker ESP command source. The F2 terminal drill/pin record
+remains open. Cooker inverter power joins and native cooker-board placement
+belong to a later product-integration gate.
