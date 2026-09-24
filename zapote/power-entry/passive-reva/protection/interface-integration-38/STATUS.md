@@ -38,7 +38,9 @@ tests. The current restart-disarm API also requires
 disarm while the cooker fault latch is set. The source core and runtime now
 expose a separately sampled, host-tested latch-reset eligibility predicate
 that requires physical local/HOT PERMIT and HOT session low with rail good.
-The production source task has no deliberate reset request path; the changed
+The source task now accepts one queued deliberate restart request, waits for
+physical disarm, uses the one-shot latch reset only when required, and calls
+`esp_restart()` after healthy disarm. No UI/operator caller exists. The changed
 ESP32-S3 object has no target build or pin capture, and the 1 ms candidate
 pulse has no measured maximum. Physical reset behavior remains OPEN.
 

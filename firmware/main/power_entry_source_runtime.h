@@ -87,4 +87,16 @@ bool pe_source_runtime_cooker_latch_reset_eligible(pe_source_runtime_t *runtime)
  * pulse/readback latches IO fault and keeps STOP asserted. */
 bool pe_source_runtime_reset_cooker_latch(pe_source_runtime_t *runtime);
 
+typedef enum {
+    PE_RESTART_WAIT_DISARM,
+    PE_RESTART_READY_TO_REBOOT,
+    PE_RESTART_IO_FAULT,
+} pe_source_restart_step_t;
+
+/* The sole source task calls this after one accepted deliberate request.
+ * It keeps STOP low, waits for physical disarm, and uses at most one cooker
+ * latch reset pulse before returning READY_TO_REBOOT. */
+pe_source_restart_step_t pe_source_runtime_deliberate_restart_step(
+    pe_source_runtime_t *runtime);
+
 #endif

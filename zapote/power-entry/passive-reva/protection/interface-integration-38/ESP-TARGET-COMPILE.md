@@ -131,3 +131,6 @@ The later GPIO14 open-drain candidate also has no ESP32-S3 build receipt.
 installed Docker Desktop bundle returned macOS `kLSNoExecutableErr`, and its
 direct executable exited 134. Host compilation does not establish that the
 IDF GPIO mode, release path or pulse delay builds and behaves on the target.
+The subsequent source-task request and restart path likewise has host runtime
+tests but no new IDF compiler or device receipt; `esp_restart()` reset and
+retained-peripheral behavior still require target capture.

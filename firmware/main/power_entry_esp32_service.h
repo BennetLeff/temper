@@ -7,6 +7,12 @@
  * Rev38 source runtime was armed; false means direct STOP remains asserted. */
 bool pe_esp32_source_service_start(void);
 
+/* Queue one deliberate restart for the sole source task. Acceptance means
+ * queued, with STOP/disarm applied at its next scheduling boundary; a later
+ * terminal I/O fault can still cancel it. The caller never writes GPIO14 or
+ * UART. Reject while locked out, stopped, or already queued. */
+bool pe_esp32_source_service_request_deliberate_restart(void);
+
 /* Report completed work from independent tasks. The present monitor task has
  * no safety work to report, so it must not call the monitor function yet. */
 void pe_esp32_source_service_control_progress(void);

@@ -108,9 +108,9 @@ supervisor, buffer, inverted cooker fault latch and reset-qualified AND
 chain. The exact compiled pins pass the shared audit. This is a **candidate
 producer**, not physical acceptance. GPIO14 shares the open-drain reset
 request and needs a single firmware owner with high-Z/open-drain mode;
-the source adapter and runtime now have a guarded candidate pulse operation,
-but the production source task does not call it and target pin behavior is
-unverified. See
+the source adapter/runtime have a guarded candidate pulse operation. The
+source task calls it only after one queued deliberate restart request and
+physical disarm; no operator caller or target pin capture exists. See
 [`SOURCE-RESET-INTERLOCK.md`](SOURCE-RESET-INTERLOCK.md). ESP EN does not
 report internal CPU-only reset. The source watchdog WDO clears source
 health, but using WDO as the pre-feed sample would make the first feed
@@ -174,8 +174,8 @@ that drives the UCC21550 `DIS` input (`elec/src/main.ato`), while Rev38
 polarity correction, supervised startup reset and explicit reset-request
 qualification. Its pad 15 output still needs physical startup, retained-fault,
 partial-power, broken-wire and CPU-only reset captures. GPIO14 has a guarded
-candidate open-drain pulse in the source adapter/runtime, but no production
-source-task caller or target pin capture, so the producer is
+candidate open-drain pulse in the source adapter/runtime and a queued
+source-task path, but no operator caller or target pin capture, so the producer is
 OPEN despite exact-pin connectivity PASS.
 
 ## Integration gate

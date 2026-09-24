@@ -350,3 +350,14 @@ bool pe_source_runtime_reset_cooker_latch(pe_source_runtime_t *runtime) {
     }
     return true;
 }
+
+pe_source_restart_step_t pe_source_runtime_deliberate_restart_step(
+    pe_source_runtime_t *runtime) {
+    if (runtime->io_fault) return PE_RESTART_IO_FAULT;
+    pe_source_runtime_begin_restart(runtime);
+    if (runtime->io_fault) return PE_RESTART_IO_FAULT;
+    if (pe_source_runtime_disarmed_for_restart(runtime) ||
+        pe_source_runtime_reset_cooker_latch(runtime))
+        return PE_RESTART_READY_TO_REBOOT;
+    return runtime->io_fault ? PE_RESTART_IO_FAULT : PE_RESTART_WAIT_DISARM;
+}

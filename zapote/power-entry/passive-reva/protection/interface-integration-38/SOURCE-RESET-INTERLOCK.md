@@ -12,7 +12,7 @@ physical capture yet.
 `SafetyInterlock` drives an active-high `SHUTDOWN` from NAND-latch Y2. Its
 reset qualification is `R_N = FAULT_ANY OR GPIO14`, and fault set dominates
 simultaneous reset. GPIO14 is named `PIN_RESET_INPUT` in the firmware pin
-header but has no production driver in the inspected firmware. GPIO15's
+header but had no driver in the inspected cooker firmware. GPIO15's
 active-high runaway cut is configured by safety startup, but has no external
 default in the canonical cooker circuit. For `FAULT_ANY = 0`, holding GPIO14
 low clears the latch continuously, so a transient fault is forgotten as soon
@@ -34,8 +34,16 @@ input during boot. A push-pull high can contend
 with the supervisor, and a push-pull low held during operation defeats fault
 retention. The source adapter now has one candidate GPIO14 pulse operation:
 preload released, enable input/output open-drain mode, sink for 1 ms, release
-and read the physical node high. There is no production source-task caller,
-ESP32-S3 target build receipt for these changed bytes, or pin-mode capture.
+and read the physical node high. The source task now accepts one queued
+deliberate restart per boot, waits for physical disarm and calls this operation
+only if the cooker interlock is still low. It calls `esp_restart()` only after
+healthy physical disarm. No UI or operator trigger, ESP32-S3 target build
+receipt for these changed bytes, or pin-mode capture exists.
+The request is a queue operation, not a synchronous STOP acknowledgement. The
+source task checks it around a maximum of 32 received bytes per loop and skips
+the next protocol tick when pending. A byte operation already in progress may
+complete before the task applies STOP; target scheduling and edge timing are
+still unmeasured. A terminal I/O fault cancels the queued reboot and holds STOP.
 
 The current source restart API has an additional recovery dependency:
 `pe_source_disarmed_for_restart()` calls `physical_disarmed()`, which requires
@@ -56,8 +64,8 @@ runtime operation takes a fresh bounded disarm sample, calls the open-drain
 pulse at most once per deliberate restart, then requires a new healthy physical
 disarm sample. Failed pulse or
 readback latches an I/O fault and leaves STOP low. Host tests cover these
-gates; production request wiring, target edge timing and physical proof remain
-open.
+gates; the queued request has no operator caller, and target edge timing and
+physical proof remain open.
 
 The nominal divider falling threshold is about 2.99 V. Using the
 [TPS3890's](https://www.ti.com/lit/ds/symlink/tps3890.pdf) 1.15 V nominal
@@ -104,8 +112,8 @@ GPIO14 reset mode, and fault-latch power-on behavior require measurements.
 
 ## Gates before crediting these producers
 
-1. Connect the candidate GPIO14 operation to a deliberate source-task request
-   and verify that no other cooker or diagnostic task changes its mode or
+1. Connect a deliberate operator action to the queued source-task request,
+   and verify that no other cooker or diagnostic task changes GPIO14 mode or
    level. Capture open-drain mode, the pre-edge sample-to-edge interval, pulse
    width, release and post-pulse readback at the physical pin. A fault during
    the pulse must keep SHUTDOWN

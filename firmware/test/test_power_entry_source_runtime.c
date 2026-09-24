@@ -380,6 +380,49 @@ static void cooker_reset_slow_uart_drain_has_no_edge(void) {
     assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
 }
 
+static void deliberate_restart_waits_then_checks_cooker_latch(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    fake.inputs.local_permit_q = true;
+    fake.inputs.safety_ok = false;
+    fake.now = 1;
+    assert(pe_source_runtime_deliberate_restart_step(&runtime) ==
+           PE_RESTART_WAIT_DISARM);
+    assert(runtime.source.restart_requested);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+    assert(fake.cooker_reset_pulses == 0);
+
+    fake.inputs.local_permit_q = false;
+    fake.now = 2;
+    assert(pe_source_runtime_deliberate_restart_step(&runtime) ==
+           PE_RESTART_READY_TO_REBOOT);
+    assert(fake.cooker_reset_pulses == 1);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
+static void deliberate_restart_skips_pulse_when_already_healthy(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    fake.now = 1;
+    assert(pe_source_runtime_deliberate_restart_step(&runtime) ==
+           PE_RESTART_READY_TO_REBOOT);
+    assert(runtime.source.restart_requested);
+    assert(fake.cooker_reset_pulses == 0);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
+static void deliberate_restart_pulse_error_is_terminal(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    fake.inputs.safety_ok = false;
+    fake.cooker_reset_pulse_fails = true;
+    fake.now = 1;
+    assert(pe_source_runtime_deliberate_restart_step(&runtime) ==
+           PE_RESTART_IO_FAULT);
+    assert(fake.cooker_reset_pulses == 1);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
 static void late_commit_cancels_start(void) {
     fake_io_t fake;
     pe_source_runtime_t runtime = boot(&fake);
@@ -607,6 +650,9 @@ int main(void) {
     cooker_reset_pulse_error_latches_stop();
     cooker_reset_stale_sample_has_no_edge();
     cooker_reset_slow_uart_drain_has_no_edge();
+    deliberate_restart_waits_then_checks_cooker_latch();
+    deliberate_restart_skips_pulse_when_already_healthy();
+    deliberate_restart_pulse_error_is_terminal();
     late_commit_cancels_start();
     failed_uart_write_disarms();
     watchdog_edge_precedes_blocking_uart_write();
