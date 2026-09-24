@@ -4,6 +4,8 @@ builds:
     entry: elec/src/receiver_isolation.ato:ReceiverIsolation38
   source:
     entry: elec/src/source_authority.ato:SourceAuthority38
+  source_mcu:
+    entry: elec/src/source_mcu.ato:SourceMcu38
   driver:
     entry: elec/src/driver_stage.ato:DriverStage38
   hot_watchdog:

@@ -25,6 +25,16 @@ command deadline. Configure BOD for continuous supervision, but keep the
 external rail supervisor and default-low abort path responsible for the
 unsafe intermediate-supply region. Fuse values and BOD threshold corners
 belong to the U4 electrical review and U5 programmed-image receipt.
+The [AVR64DA32 fuse table](https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/AVR64DA28-32-48-64-DataSheet-DS40002233.pdf)
+makes this a programmed-device condition: factory `SYSCFG0.RSTPINCFG` leaves
+PF6 as a GPIO input, so external RESET requires `RSTPINCFG[3:2]=0b10`
+programmed and read back. PF7 is the dedicated UPDI package pin on this
+device; bit 4 is reserved. `SYSCFG0.EESAVE` bit 0 preserves
+the session journal during chip erase. `OSCCFG.CLKSEL` selects OSCHF,
+`BODCFG.ACTIVE` selects continuous mode, and `WDTCFG.PERIOD` selects the
+internal watchdog. The receiver image now checks exact expected fuse bytes
+before boot and feeds its internal WDT only after a completed safety tick.
+No threshold or period is accepted yet; the default image remains locked.
 
 ## Candidate pin and isolation contract
 

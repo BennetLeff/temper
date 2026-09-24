@@ -1,0 +1,199 @@
+# Rev38 SELV ESP/expander pin fixture. This assigns physical pads and local
+# defaults; its 3.3 V producer, reset-good and interlock sources remain open.
+# The TCA outputs may retain their state through an ESP-only CPU reset.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "receiver_isolation.ato" import R, C
+
+component Esp32S3Wroom1N8R8:
+    mpn = "ESP32-S3-WROOM-1-N8R8"
+    manufacturer = "Espressif"
+    datasheet = "https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf"
+    footprint = "TBD_REVIEW_ONLY:ESP32_S3_WROOM_1_N8R8"
+    signal GND1 ~ pin 1
+    signal V3V3 ~ pin 2
+    signal EN ~ pin 3
+    signal IO4 ~ pin 4
+    signal IO5 ~ pin 5
+    signal IO6 ~ pin 6
+    signal IO7 ~ pin 7
+    signal IO15 ~ pin 8
+    signal IO16 ~ pin 9
+    signal IO17 ~ pin 10
+    signal IO18 ~ pin 11
+    signal IO8 ~ pin 12
+    signal IO19 ~ pin 13
+    signal IO20 ~ pin 14
+    signal IO3 ~ pin 15
+    signal IO46 ~ pin 16
+    signal IO9 ~ pin 17
+    signal IO10 ~ pin 18
+    signal IO11 ~ pin 19
+    signal IO12 ~ pin 20
+    signal IO13 ~ pin 21
+    signal IO14 ~ pin 22
+    signal IO21 ~ pin 23
+    signal IO47 ~ pin 24
+    signal IO48 ~ pin 25
+    signal IO45 ~ pin 26
+    signal IO0 ~ pin 27
+    signal IO35 ~ pin 28
+    signal IO36 ~ pin 29
+    signal IO37 ~ pin 30
+    signal IO38 ~ pin 31
+    signal IO39 ~ pin 32
+    signal IO40 ~ pin 33
+    signal IO41 ~ pin 34
+    signal IO42 ~ pin 35
+    signal RXD0 ~ pin 36
+    signal TXD0 ~ pin 37
+    signal IO2 ~ pin 38
+    signal IO1 ~ pin 39
+    signal GND40 ~ pin 40
+    signal EPAD ~ pin 41
+
+component SourceIoExpander:
+    mpn = "TCA6408AQPWRQ1"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tca6408a-q1.pdf"
+    footprint = "TBD_REVIEW_ONLY:TCA6408A_Q1_PW0016A"
+    signal VCCI ~ pin 1
+    signal ADDR ~ pin 2
+    signal RESET_N ~ pin 3
+    signal P0 ~ pin 4
+    signal P1 ~ pin 5
+    signal P2 ~ pin 6
+    signal P3 ~ pin 7
+    signal GND ~ pin 8
+    signal P4 ~ pin 9
+    signal P5 ~ pin 10
+    signal P6 ~ pin 11
+    signal P7 ~ pin 12
+    signal INT_N ~ pin 13
+    signal SCL ~ pin 14
+    signal SDA ~ pin 15
+    signal VCCP ~ pin 16
+
+component StartButtonNo:
+    # Candidate normally open START; ergonomic placement remains open.
+    mpn = "EVQ-P7A01P"
+    manufacturer = "Panasonic"
+    footprint = "Button_Switch_SMD:SW_SPST_EVQP7A"
+    signal A ~ pin 1
+    signal B ~ pin 2
+
+module SourceMcu38:
+    signal SELV3V3
+    signal SELV_GND
+    signal SOURCE_COMMAND_TX
+    signal SOURCE_RESPONSE_RX
+    signal SOURCE_RELAY_REQUEST
+    signal SOURCE_STOP_N
+    signal SOURCE_VALIDATED_HEARTBEAT
+    signal SOURCE_PERMIT_SET_REQUEST
+    signal SOURCE_PREWATCHDOG_OK
+    signal SOURCE_CHALLENGE_ACTIVE
+    signal SOURCE_SEEN_RESET_REQUEST
+    signal SOURCE_RAIL_RESET_N
+    signal SOURCE_PERMIT_Q
+    signal SOURCE_HOT_PERMIT_FB
+    signal SOURCE_HOT_SESSION_FB
+    signal SOURCE_PERMIT_SEEN_Q
+    signal SOURCE_START_N
+    signal SOURCE_I2C_SDA
+    signal SOURCE_I2C_SCL
+    signal SOURCE_ESP_EN
+
+    esp = new Esp32S3Wroom1N8R8
+    esp.V3V3 ~ SELV3V3
+    esp.GND1 ~ SELV_GND
+    esp.GND40 ~ SELV_GND
+    esp.EPAD ~ SELV_GND
+    esp.EN ~ SOURCE_ESP_EN
+    esp.IO13 ~ SOURCE_STOP_N
+    esp.IO21 ~ SOURCE_VALIDATED_HEARTBEAT
+    esp.IO48 ~ SOURCE_PERMIT_SET_REQUEST
+    esp.IO18 ~ SOURCE_PREWATCHDOG_OK
+    esp.IO40 ~ SOURCE_COMMAND_TX
+    esp.IO41 ~ SOURCE_RESPONSE_RX
+    esp.IO42 ~ SOURCE_START_N
+    esp.IO38 ~ SOURCE_I2C_SDA
+    esp.IO39 ~ SOURCE_I2C_SCL
+
+    # EN is an enable conductor, not a CPU-running or reset-good signal.
+    en_pu = new R
+    en_pu.value = 10kohm
+    en_pu.p1 ~ SELV3V3
+    en_pu.p2 ~ SOURCE_ESP_EN
+    en_c = new C
+    en_c.mpn = "GRM188R71A105KA61D"
+    en_c.footprint = "TBD_REVIEW_ONLY:SOURCE_EN_C1U_0603"
+    en_c.value = 1uF
+    en_c.p1 ~ SOURCE_ESP_EN
+    en_c.p2 ~ SELV_GND
+    boot_pu = new R
+    boot_pu.value = 10kohm
+    boot_pu.p1 ~ SELV3V3
+    boot_pu.p2 ~ esp.IO0
+
+    start = new StartButtonNo
+    start.A ~ SOURCE_START_N
+    start.B ~ SELV_GND
+    start_pu = new R
+    start_pu.value = 10kohm
+    start_pu.p1 ~ SELV3V3
+    start_pu.p2 ~ SOURCE_START_N
+
+    expander = new SourceIoExpander
+    expander.VCCI ~ SELV3V3
+    expander.VCCP ~ SELV3V3
+    expander.GND ~ SELV_GND
+    expander.ADDR ~ SELV_GND
+    expander.SDA ~ SOURCE_I2C_SDA
+    expander.SCL ~ SOURCE_I2C_SCL
+    expander.P0 ~ SOURCE_CHALLENGE_ACTIVE
+    expander.P1 ~ SOURCE_SEEN_RESET_REQUEST
+    expander.P2 ~ SOURCE_RELAY_REQUEST
+    expander.P3 ~ SOURCE_RAIL_RESET_N
+    expander.P4 ~ SOURCE_PERMIT_Q
+    expander.P5 ~ SOURCE_HOT_PERMIT_FB
+    expander.P6 ~ SOURCE_HOT_SESSION_FB
+    expander.P7 ~ SOURCE_PERMIT_SEEN_Q
+    sda_pu = new R
+    sda_pu.mpn = "RC0603FR-074K7L"
+    sda_pu.footprint = "TBD_REVIEW_ONLY:SOURCE_I2C_R4K7_0603"
+    sda_pu.value = 4.7kohm
+    sda_pu.p1 ~ SELV3V3
+    sda_pu.p2 ~ SOURCE_I2C_SDA
+    scl_pu = new R
+    scl_pu.mpn = "RC0603FR-074K7L"
+    scl_pu.footprint = "TBD_REVIEW_ONLY:SOURCE_I2C_R4K7_0603"
+    scl_pu.value = 4.7kohm
+    scl_pu.p1 ~ SELV3V3
+    scl_pu.p2 ~ SOURCE_I2C_SCL
+    # The reset input has a passive default; do not wire it to WDO because
+    # readbacks must remain available while the source re-establishes disarm.
+    exp_reset_pu = new R
+    exp_reset_pu.value = 10kohm
+    exp_reset_pu.p1 ~ SELV3V3
+    exp_reset_pu.p2 ~ expander.RESET_N
+    challenge_pd = new R
+    challenge_pd.value = 10kohm
+    challenge_pd.p1 ~ SOURCE_CHALLENGE_ACTIVE
+    challenge_pd.p2 ~ SELV_GND
+    seen_request_pd = new R
+    seen_request_pd.value = 10kohm
+    seen_request_pd.p1 ~ SOURCE_SEEN_RESET_REQUEST
+    seen_request_pd.p2 ~ SELV_GND
+    relay_request_pd = new R
+    relay_request_pd.value = 10kohm
+    relay_request_pd.p1 ~ SOURCE_RELAY_REQUEST
+    relay_request_pd.p2 ~ SELV_GND
+    esp_decoupling = new C
+    esp_decoupling.value = 100nF
+    esp_decoupling.p1 ~ SELV3V3
+    esp_decoupling.p2 ~ SELV_GND
+    exp_decoupling = new C
+    exp_decoupling.value = 100nF
+    exp_decoupling.p1 ~ SELV3V3
+    exp_decoupling.p2 ~ SELV_GND

@@ -10,6 +10,20 @@ target image has zero timing windows and stays in LOCKOUT. There is no fuse
 image or measured pin-timing receipt. The previous ATmega328P fixtures are
 input evidence, not a firmware target.
 
+The target checks four AVR64DA32 fuse bytes before enabling its runtime.
+Build-time `PE_TARGET_EXPECTED_WDTCFG`, `PE_TARGET_EXPECTED_BODCFG`, and
+`PE_TARGET_EXPECTED_SYSCFG0` default to zero; that combination always fails
+the boot check. The OSCCFG expectation is zero for internal OSCHF. An
+operational image requires an explicitly reviewed non-windowed internal WDT
+period, continuous active BOD mode and level, PF6 external RESET
+(`RSTPINCFG[3:2]=0b10`), a physical PF7 UPDI connection,
+and EESAVE for the session journal. The image compares the programmed bytes
+exactly to those expectations. It feeds the internal WDT only after a
+completed receiver tick with no I/O fault; the external WDI still needs
+local and matching link progress. USART receive activity alone feeds
+neither watchdog. These checks do not select a WDT period or BOD threshold,
+or prove reset behavior between valid digital supply levels.
+
 Build the default locked image with Microchip AVR 8-Bit Toolchain 4.0.0.52
 (avr-gcc 15.1.0):
 
@@ -25,6 +39,10 @@ values unless `PE_TARGET_OFFLINE_COMPILER_EXERCISE` is explicitly defined;
 that flag is only for an offline compiler exercise. The relay output stays
 low: relay policy,
 boot/disarm behavior at real pins, and the fuse/BOD image remain open.
+The fuse-readback adapter revision has not been rebuilt with `avr-gcc` in
+this worktree because that compiler is unavailable in the current
+environment. The earlier target build receipt applies to the preceding
+register adapter only.
 
 The GPIO map follows `../receiver-selection.md` and
 `elec/src/receiver_isolation.ato`. PC2 reads active-low `HOT_FAULT_N`, PD3 is
@@ -38,6 +56,8 @@ and reads each byte back. This is not a power-interruption proof on silicon.
 Run the focused host tests from this directory:
 
 ```sh
+cc -std=c99 -Wall -Wextra -Werror -pedantic avr64da32_boot_contract.c tests/test_avr64da32_boot_contract.c -o /tmp/temper-rev38-avr-boot-test
+/tmp/temper-rev38-avr-boot-test
 cc -std=c99 -Wall -Wextra -Werror -pedantic protocol.c tests/test_protocol.c -o /tmp/temper-rev38-wire-test
 /tmp/temper-rev38-wire-test
 cc -std=c99 -Wall -Wextra -Werror -pedantic protocol.c journal.c tests/test_journal.c -o /tmp/temper-rev38-journal-test
@@ -52,6 +72,9 @@ The journal test interrupts each of 64 erase/write byte calls for a single
 reservation, then checks lockout or a strictly higher next ID. It also
 rotates beyond two full rings and rejects a corrupted newest record. This
 models byte-level failure, not an AVR NVMCTRL or brownout measurement.
+The fuse test uses example bytes only. It rejects missing RESET, UPDI,
+EESAVE, continuous BOD, OSCHF, or internal WDT. Its example 2.85 V BOD
+level and 1 s WDT period are **not** selected operating values.
 The receiver-core test checks fixed START expiry despite WDI progress, the
 physical abort command on STOP and preparation trip, session ID advancement,
 and dual-source WDI feed. A decoded START now enters `PE_RX_START_ARMED`
@@ -159,7 +182,7 @@ Before target firmware can claim build/behavior PASS:
    the HOT latches powered. Verify `RECEIVER_ABORT_N` at the pin boundary.
 4. Rebuild with the exact AVR64DA32 device toolchain after every adapter
    change, compare assigned physical pins to the joined Rev38 netlist, and
-   inspect a programmed image plus fuse readback. The offline target build
-   now passes; pin/fuse and physical timing review do not.
+   inspect a programmed image plus fuse readback. Rebuild the present
+   fuse-check revision before counting target compilation as passed.
 
 No programmed AVR behavior or physical test is claimed by this record.

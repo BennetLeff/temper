@@ -1,11 +1,16 @@
 # Rev38 ESP32-S3 source pin-fit screen
 
-Status: **allocation screen, not a pin contract or U6 PASS**. The present
+Status: **joined Atopile pin fixture plus candidate adapter, not U6 PASS**. The present
 source needs 15 logical channels while only GPIO13, 21 and 48 are unclaimed
 ordinary pads in both existing authorities. The table below shows one way to
 fit the interface while retaining GPIO19/20 native USB and GPIO43/44 UART0
-debug. It has not been joined to `source_authority.ato`, built with ESP-IDF,
-or checked on a board. See `ESP-PIN-INVENTORY.md` for the competing assignments.
+debug. `firmware/main/power_entry_esp32_adapter.c` and
+`power_entry_esp32_idf.c` now implement this candidate mapping and boot
+sequence. `elec/src/source_mcu.ato` joins these pads and the expander to the
+source authority and isolation channels in the integrated candidate; the
+source runtime has not been wired into `app_main`, built with
+ESP-IDF, or checked on a board. See `ESP-PIN-INVENTORY.md` for the competing
+assignments.
 
 ## Direct ESP pins in the screened allocation
 
@@ -27,6 +32,13 @@ recovery and boot-pin verification, including eFuse/strap state.
 | 35 / 42 | Fresh dedicated START button | ESP input | External JTAG function relinquished; GPIO0 remains a download strap, not START. |
 | 31 / 38 | I²C SDA to local expander | Bidirectional | Already an optional I²C claim in firmware/source; must not share an unbounded bus owner. |
 | 32 / 39 | I²C SCL to local expander | ESP output | Existing I²C/JTAG claims must be reconciled; USB JTAG remains available. |
+
+The START button is normally open to local ground with an external pull-up
+to the ESP 3.3 V rail. GPIO42 low means pressed. The adapter does not enable
+an internal pull-up. The TCA6408A ADDR pin must be tied low for the adapter's
+7-bit address 0x20; RESET_N needs a pull-up to VCCI and is not allocated to an
+ESP GPIO. The Atopile fixture joins these exact source nets and module pads;
+the 3.3 V producer, source reset-good and interlock producers remain open.
 
 The isolated protocol would use a GPIO-matrix-routed UART, with a single
 driver owner and bounded completed-frame transmission. GPIO43/44 stay on
@@ -65,16 +77,25 @@ held expander output must be proved unable to extend the watchdog deadline,
 reload a cleared memory, or keep the relay energized after retained RUN
 clears. The new HOT relay gate establishes connectivity, not release time.
 
-The proposed adapter would treat I²C timeout, missing ACK, bad configuration
-readback, or an incomplete input read as an unsafe physical sample and drive
-direct STOP low. Its timeout, bus recovery, snapshot age, and sample-to-START
-latency belong in the U1 bound. The source runtime's physical-sample
-callback now returns a validity flag and asserts STOP on failure; a host
-test covers a failed read. The relay-request pin and actual I²C target
-adapter still need a fail-closed design before this allocation can be adopted. The
+The candidate adapter treats I²C timeout, missing ACK, bad configuration
+readback, or an incomplete input read as an unsafe physical sample and drives
+direct STOP low. It sets the TCA6408A output latch to 0x00, verifies the
+readback, clears polarity inversion, and only then enables P0–P2 as outputs
+with configuration 0xF8. Every physical sample checks those registers again
+and reads P3–P7 and the direct GPIO inputs. Host tests cover retained-high
+expander state at CPU-only reset, ordering, and failed readback. The ESP-IDF
+binding uses I²C0 at 100 kHz and UART1 at 115200 8N1, with a TX-FIFO drain
+call; final shift-register completion is not proven and needs target capture.
+The binding still needs an installed ESP-IDF toolchain and target build. The
+relay-request P2 remains held low by this adapter until a
+separate RUN-qualified owner is joined and tested. Its timeout, bus recovery,
+snapshot age, and sample-to-START latency belong in the U1 bound. The
 expander reset cannot simply be tied to WDO: WDO low would hold the I²C
 readbacks unavailable while boot needs them to establish physical disarm
-before the first recovery feed.
+before the first recovery feed. P1's positive edge can occur after two I²C
+transactions; the current post-pulse age check cannot prevent an edge that
+arrives after the control deadline. A pessimistic pre-edge time budget and
+measured worst-case target latency are required before crediting U1.
 
 ## Reconciliation and acceptance work
 
@@ -87,10 +108,9 @@ retired explicitly; the canonical board/firmware mapping is not changed by
 this screen. The optional I²C bus must have one owner and a qualified load,
 pull-up and stuck-bus behavior.
 
-Before adoption: join the ESP/module, expander, source authority, isolators,
-and physical button into one Atopile candidate; audit every numbered pad,
-output default and isolation crossing; implement the synchronous ESP driver;
-prove no autonomous/boot WDI edge; test expander retention and interrupted
-I²C writes on CPU-only reset; and capture actual reset-to-off behavior. If
+Before adoption: resolve native footprints and supply producers, connect the adapter to a sole source
+task with independent control/monitor progress counters; prove no
+autonomous/boot WDI edge; test expander retention and interrupted I²C writes
+on CPU-only reset; and capture actual reset-to-off behavior. If
 the three expander outputs cannot meet those failure cases, this allocation
 fails and the source interface or MCU architecture needs revision.

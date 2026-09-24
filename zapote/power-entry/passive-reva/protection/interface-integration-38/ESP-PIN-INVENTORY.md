@@ -4,7 +4,8 @@ Status: **inventory only; pin contract OPEN**. The joined Rev38 Atopile
 candidate still has no ESP component or GPIO producer. Do not assign the
 firmware runtime callbacks to numbered GPIOs from this inventory alone.
 `ESP-PIN-FIT.md` records one unadopted GPIO/I²C-expander allocation and its
-reset-time failure cases; it does not change this status.
+reset-time failure cases. The candidate adapter now implements that screen,
+but it is not yet a joined electrical pin contract or a target build.
 
 ## Module limits
 

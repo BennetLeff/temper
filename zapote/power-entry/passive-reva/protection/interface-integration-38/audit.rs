@@ -1,4 +1,4 @@
-//! Exact-pin audit of the partial Rev38 source, receiver, driver, watchdog,
+//! Exact-pin audit of the partial Rev38 source MCU, receiver, driver, watchdog,
 //! rail supervisors, and VD/VB detector. Electrical limits remain open.
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -828,11 +828,35 @@ fn preserved_joined_nets(g: &Graph, standalone: &Graph, prefix: &str) -> Result<
     Ok(())
 }
 
-fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_wd: &Graph, rails: &Graph, f2: &Graph, aux: &Graph, pfc: &Graph, power: &Graph, ac: &Graph) -> Result<(), String> {
-    if g.parts.len() != hot.parts.len() + source.parts.len() + driver.parts.len() + hot_wd.parts.len() + rails.parts.len() + f2.parts.len() + aux.parts.len() + pfc.parts.len() + power.parts.len() + ac.parts.len() {
+fn check_source_mcu(g: &Graph) -> Result<(), String> {
+    if g.parts.len() != 15 { return Err(format!("expected 15 source MCU parts, found {}", g.parts.len())); }
+    for (id, part) in [("esp", "ESP32-S3-WROOM-1-N8R8"), ("expander", "TCA6408AQPWRQ1"), ("start", "EVQ-P7A01P")] {
+        if g.parts.get(id).map(String::as_str) != Some(part) { return Err(format!("wrong source MCU part {id}")); }
+    }
+    for (a, ap, b, bp) in [
+        ("esp", "31", "expander", "15"), ("esp", "32", "expander", "14"),
+        ("esp", "35", "start", "1"), ("esp", "35", "start_pu", "2"),
+        ("esp", "3", "en_pu", "2"), ("esp", "3", "en_c", "1"),
+        ("expander", "3", "exp_reset_pu", "2"),
+        ("expander", "4", "challenge_pd", "1"),
+        ("expander", "5", "seen_request_pd", "1"),
+        ("expander", "6", "relay_request_pd", "1"),
+        ("expander", "2", "expander", "8"),
+        ("esp", "1", "esp", "40"), ("esp", "40", "esp", "41"),
+        ("esp", "2", "expander", "1"), ("esp", "2", "expander", "16"),
+    ] {
+        let left = g.pins.get(&(a.into(), ap.into()));
+        let right = g.pins.get(&(b.into(), bp.into()));
+        if left.is_none() || left != right { return Err(format!("missing source MCU pad join {a}.{ap} to {b}.{bp}")); }
+    }
+    Ok(())
+}
+
+fn check_integrated_with_mcu(g: &Graph, hot: &Graph, source: &Graph, source_mcu: &Graph, driver: &Graph, hot_wd: &Graph, rails: &Graph, f2: &Graph, aux: &Graph, pfc: &Graph, power: &Graph, ac: &Graph) -> Result<(), String> {
+    if g.parts.len() != hot.parts.len() + source.parts.len() + source_mcu.parts.len() + driver.parts.len() + hot_wd.parts.len() + rails.parts.len() + f2.parts.len() + aux.parts.len() + pfc.parts.len() + power.parts.len() + ac.parts.len() {
         return Err("joined part count differs from the standalone fixtures".into());
     }
-    for (prefix, standalone) in [("receiver", hot), ("source", source), ("driver", driver), ("hot_watchdog", hot_wd), ("hot_rails", rails), ("f2_detector", f2), ("aux_window", aux), ("pfc_control", pfc), ("pfc_power", power), ("ac_input", ac)] {
+    for (prefix, standalone) in [("receiver", hot), ("source", source), ("source_mcu", source_mcu), ("driver", driver), ("hot_watchdog", hot_wd), ("hot_rails", rails), ("f2_detector", f2), ("aux_window", aux), ("pfc_control", pfc), ("pfc_power", power), ("ac_input", ac)] {
         for (id, part) in &standalone.parts {
             if g.parts.get(&format!("{prefix}.{id}")) != Some(part) {
                 return Err(format!("joined part identity differs at {prefix}.{id}"));
@@ -850,6 +874,28 @@ fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_
         let right = g.pins.get(&(right_id.into(), right_pin.into()));
         if left.is_none() || left != right {
             return Err(format!("missing source/receiver join {left_id}.{left_pin} to {right_id}.{right_pin}"));
+        }
+    }
+    for (left_id, left_pin, right_id, right_pin) in [
+        ("source_mcu.esp", "21", "source.stop_pd", "1"),
+        ("source_mcu.esp", "23", "source.heartbeat_pd", "1"),
+        ("source_mcu.esp", "25", "source.permit_set_pd", "1"),
+        ("source_mcu.esp", "11", "source.prewatchdog_pd", "1"),
+        ("source_mcu.esp", "33", "receiver.iso_protocol", "3"),
+        ("source_mcu.esp", "34", "receiver.iso_protocol", "6"),
+        ("source_mcu.expander", "4", "source.challenge_pd", "1"),
+        ("source_mcu.expander", "5", "source.seen_reset_pd", "1"),
+        ("source_mcu.expander", "6", "receiver.iso_protocol", "5"),
+        ("source_mcu.expander", "7", "source.rail", "6"),
+        ("source_mcu.expander", "9", "source.permit", "5"),
+        ("source_mcu.expander", "10", "receiver.iso_feedback", "5"),
+        ("source_mcu.expander", "11", "receiver.iso_feedback", "6"),
+        ("source_mcu.expander", "12", "source.seen", "5"),
+    ] {
+        let left = g.pins.get(&(left_id.into(), left_pin.into()));
+        let right = g.pins.get(&(right_id.into(), right_pin.into()));
+        if left.is_none() || left != right {
+            return Err(format!("missing source MCU join {left_id}.{left_pin} to {right_id}.{right_pin}"));
         }
     }
     for (left_id, left_pin, right_id, right_pin) in [
@@ -965,6 +1011,7 @@ fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_
     // Net names change at module boundaries. Internal conductors must stay
     // intact and two previously distinct conductors must not become one.
     preserved_joined_nets(g, source, "source")?;
+    preserved_joined_nets(g, source_mcu, "source_mcu")?;
     preserved_joined_nets(g, driver, "driver")?;
     preserved_joined_nets(g, hot_wd, "hot_watchdog")?;
     preserved_joined_nets(g, rails, "hot_rails")?;
@@ -986,7 +1033,7 @@ fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_
     }
     let mut net_domains: BTreeMap<&str, &str> = BTreeMap::new();
     for ((id, pin), net) in &g.pins {
-        let side = if id.starts_with("source.")
+        let side = if id.starts_with("source.") || id.starts_with("source_mcu.")
             || matches!(id.as_str(), "receiver.c_iso1_selv" | "receiver.c_iso2_selv"
                 | "receiver.source_permit_fb_pd" | "receiver.source_session_fb_pd")
             || matches!(id.as_str(), "receiver.iso_protocol" | "receiver.iso_feedback")
@@ -999,11 +1046,19 @@ fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_
     Ok(())
 }
 
+#[cfg(test)]
+fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_wd: &Graph, rails: &Graph, f2: &Graph, aux: &Graph, pfc: &Graph, power: &Graph, ac: &Graph) -> Result<(), String> {
+    let source_mcu = graph(&fs::read_to_string("build/source_mcu.net").map_err(|e| e.to_string())?)?;
+    check_integrated_with_mcu(g, hot, source, &source_mcu, driver, hot_wd, rails, f2, aux, pfc, power, ac)
+}
+
 fn main() {
     let hot = graph(&fs::read_to_string("build/isolation.net").expect("Atopile isolation netlist"))
         .expect("isolation netlist parse");
     let source = graph(&fs::read_to_string("build/source.net").expect("Atopile source netlist"))
         .expect("source netlist parse");
+    let source_mcu = graph(&fs::read_to_string("build/source_mcu.net").expect("Atopile source MCU netlist"))
+        .expect("source MCU netlist parse");
     let driver = graph(&fs::read_to_string("build/driver.net").expect("Atopile driver netlist"))
         .expect("driver netlist parse");
     let hot_wd = graph(&fs::read_to_string("build/hot_watchdog.net").expect("Atopile HOT watchdog netlist"))
@@ -1024,6 +1079,7 @@ fn main() {
         .expect("joined netlist parse");
     check(&hot).expect("isolation pin audit");
     check_source(&source).expect("source pin audit");
+    check_source_mcu(&source_mcu).expect("source MCU pin audit");
     check_driver(&driver).expect("driver pin audit");
     check_hot_watchdog(&hot_wd).expect("HOT watchdog pin audit");
     check_hot_rails(&rails).expect("HOT rail pin audit");
@@ -1032,7 +1088,7 @@ fn main() {
     check_pfc_control(&pfc).expect("PFC control pin audit");
     check_pfc_power(&power).expect("PFC power pin audit");
     check_ac_input(&ac).expect("AC input pin audit");
-    check_integrated(&integrated, &hot, &source, &driver, &hot_wd, &rails, &f2, &aux, &pfc, &power, &ac).expect("Rev38 join audit");
+    check_integrated_with_mcu(&integrated, &hot, &source, &source_mcu, &driver, &hot_wd, &rails, &f2, &aux, &pfc, &power, &ac).expect("Rev38 join audit");
     println!("partial Rev38 joined source/receiver/AC/PFC/driver/protection pin audit PASS");
 }
 
@@ -1046,6 +1102,10 @@ mod tests {
 
     fn source_fixture() -> Graph {
         graph(&fs::read_to_string("build/source.net").unwrap()).unwrap()
+    }
+
+    fn source_mcu_fixture() -> Graph {
+        graph(&fs::read_to_string("build/source_mcu.net").unwrap()).unwrap()
     }
 
     fn driver_fixture() -> Graph {
@@ -1087,6 +1147,21 @@ mod tests {
     #[test]
     fn compiled_source_receiver_join_passes() {
         check_integrated(&integrated_fixture(), &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).unwrap();
+    }
+
+    #[test]
+    fn compiled_source_mcu_pin_fixture_passes() {
+        check_source_mcu(&source_mcu_fixture()).unwrap();
+    }
+
+    #[test]
+    fn source_mcu_uart_pad_swap_is_rejected() {
+        let mut g = integrated_fixture();
+        let tx = g.pins.get(&(String::from("source_mcu.esp"), String::from("33"))).unwrap().clone();
+        let rx = g.pins.get(&(String::from("source_mcu.esp"), String::from("34"))).unwrap().clone();
+        g.pins.insert(("source_mcu.esp".into(), "33".into()), rx);
+        g.pins.insert(("source_mcu.esp".into(), "34".into()), tx);
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]

@@ -1,5 +1,6 @@
 /* AVR64DA32-E/PT engineering adapter. The default image has zero timing
  * windows and cannot leave LOCKOUT. See README before enabling it. */
+#include "avr64da32_boot_contract.h"
 #include "runtime.h"
 
 #include <avr/cpufunc.h>
@@ -33,6 +34,19 @@
 #ifndef PE_TARGET_SAMPLE_TO_RUN_MS
 #define PE_TARGET_SAMPLE_TO_RUN_MS 0u
 #endif
+#ifndef PE_TARGET_EXPECTED_WDTCFG
+#define PE_TARGET_EXPECTED_WDTCFG 0u
+#endif
+#ifndef PE_TARGET_EXPECTED_BODCFG
+#define PE_TARGET_EXPECTED_BODCFG 0u
+#endif
+#ifndef PE_TARGET_EXPECTED_SYSCFG0
+#define PE_TARGET_EXPECTED_SYSCFG0 0u
+#endif
+#if PE_TARGET_EXPECTED_WDTCFG > 255u || PE_TARGET_EXPECTED_BODCFG > 255u || \
+    PE_TARGET_EXPECTED_SYSCFG0 > 255u
+#error "Expected AVR fuse bytes must fit in one byte"
+#endif
 
 /* U1 has no accepted numerical limits. This flag exists only to compile all
  * adapter paths offline; it is not a release or programming configuration. */
@@ -49,6 +63,17 @@
     ((4UL * PE_TARGET_CLOCK_HZ + PE_TARGET_UART_BAUD / 2UL) / PE_TARGET_UART_BAUD)
 
 static volatile uint64_t tick_ms;
+
+static bool programmed_fuses_match(void) {
+    const pe_avr_fuses_t actual = {
+        FUSE.WDTCFG, FUSE.BODCFG, FUSE.OSCCFG, FUSE.SYSCFG0,
+    };
+    const pe_avr_fuses_t expected = {
+        PE_TARGET_EXPECTED_WDTCFG, PE_TARGET_EXPECTED_BODCFG, 0u,
+        PE_TARGET_EXPECTED_SYSCFG0,
+    };
+    return pe_avr_boot_fuses_ok(actual, expected);
+}
 
 ISR(TCB0_INT_vect) {
     ++tick_ms;
@@ -204,6 +229,11 @@ static void clock_and_io_init(void) {
 
 int main(void) {
     pins_low();
+    /* Factory/reset fuse defaults are not an operating configuration. Keep
+     * abort and relay low until exact programmed fuses pass readback. */
+    if (!programmed_fuses_match()) {
+        for (;;) { /* External pull-downs and watchdog own the safe state. */ }
+    }
     clock_and_io_init();
     const pe_journal_io_t journal = {
         .context = NULL, .read_byte = journal_read, .write_byte = journal_write,
@@ -244,6 +274,10 @@ int main(void) {
                 local_epoch != UINT32_MAX) {
                 pe_runtime_local_progress(&runtime, ++local_epoch);
             }
+            /* Internal WDT is local execution supervision. Only a completed
+             * receiver iteration can feed it; USART activity cannot. The
+             * external WDI additionally requires matching link progress. */
+            if (!runtime.io_fault) __asm__ __volatile__("wdr");
         }
 #if PE_TARGET_PING_PERIOD_MS > 0
         if (now - last_ping >= PE_TARGET_PING_PERIOD_MS) {

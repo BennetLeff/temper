@@ -29,6 +29,14 @@ add_executable(test_power_entry_source_runtime
     ${CMAKE_CURRENT_SOURCE_DIR}/test_power_entry_source_runtime.c
 )
 
+add_executable(test_power_entry_esp32_adapter
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/power_entry_authorization.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/power_entry_source_runtime.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/power_entry_esp32_adapter.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../zapote/power-entry/passive-reva/protection/interface-integration-38/receiver-firmware/protocol.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_power_entry_esp32_adapter.c
+)
+
 # Enable warnings
 add_compile_options(-Wall -Wextra -Wpedantic)
 

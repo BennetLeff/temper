@@ -1,6 +1,11 @@
 # Rev38 AUX fast-dip and overvoltage candidate
 
 Status: **compiled pin topology; thresholds and response acceptance OPEN**.
+The [direct 15 V source evaluation](AUX-SOURCE-CANDIDATE.md) leaves the
+protected AUX and HOT logic5 producers open. Its conditional 50 °C rail
+screen leaves only 62.5 mV on each side of Rev38's assumed
+14.25–15.75 V normal window before protection-path loss. That source cannot
+be joined on a 25 °C nominal voltage comparison alone.
 The independent [TPS3890](https://www.ti.com/lit/ds/symlink/tps3890.pdf)
 monitors AUX undervoltage with a 100 pF CT capacitor. This module uses a
 [TLV3202](https://www.ti.com/lit/ds/symlink/tlv3202.pdf) powered from HOT

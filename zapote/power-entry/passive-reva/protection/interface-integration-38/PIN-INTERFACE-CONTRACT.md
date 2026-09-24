@@ -1,10 +1,11 @@
 # Rev38 pin and interface integration contract
 
-Status: **candidate map, integration in progress**. This is the integration
+Status: **candidate map joined in Atopile, integration in progress**. This is the integration
 owner's single checklist for the source, isolation, receiver, and supply
 interfaces. The HOT MCU and isolation endpoints below are selected in the
 Rev38 Atopile fixture. The ESP module/GPIO and local expander allocation is
-screened but is **not yet joined** to that fixture or proven at CPU reset.
+joined as `SourceMcu38` and exact-pin audited, but is not proven at CPU reset
+or built with ESP-IDF.
 The approved plan and `receiver-selection.md` govern behavior; a pin listed
 here is not an electrical, boot-state, or timing acceptance.
 
@@ -62,7 +63,7 @@ is evidence of a joined module pad.
 | 25 / GPIO48 | SOURCE_PERMIT_SET_REQUEST | Direct ESP output; external pull-down; one synchronous low-high-low request. |
 | 11 / GPIO18 | SOURCE_PREWATCHDOG_OK | Direct physical input; reset-good, interlock and rail-good combination excludes WDO. |
 | 33 / GPIO40, 34 / GPIO41 | Isolated command UART TX / response UART RX | One synchronous protocol owner; UART0 remains on GPIO43/44. |
-| 35 / GPIO42 | Fresh START button | Direct input; a prior held press is not a fresh intent. |
+| 35 / GPIO42 | Fresh START button | Direct active-low input with normally open switch to ground and external pull-up; a prior held press is not a fresh intent. |
 | 31 / GPIO38, 32 / GPIO39 | Local I²C SDA / SCL | One bounded bus owner; timeout or stale read must assert direct STOP. |
 | TCA6408A-Q1 P0 / P1 / P2 | CHALLENGE_ACTIVE / SEEN_RESET_REQUEST / isolated relay request | Outputs; write low output latches and read back before enabling directions. Retained outputs during CPU-only reset need fault analysis. |
 | TCA6408A-Q1 P3 / P4 / P5 / P6 / P7 | RAIL_RESET_N / local PERMIT Q / physical HOT PERMIT feedback / HOT SESSION feedback / PERMIT_SEEN Q | Inputs; one complete fresh snapshot with bounded age before START, WDI, or a control edge. |
@@ -87,15 +88,21 @@ does not bound that interval. No expander RESET conductor is assigned yet.
 
 | Interface | Current joined status | Required producer/acceptance |
 | --- | --- | --- |
-| SELV3V3/SELV_GND | Source authority and isolation joined; ESP module producer absent | Join module supply, reset-good and interlock producers; qualify defaults during partial power. |
+| SELV3V3/SELV_GND | Source authority, isolation, ESP module and expander loads joined; 3.3 V producer absent | Join supply, reset-good and interlock producers; qualify defaults during partial power. |
 | HOT_LOGIC5/HOT0 | Receiver, isolators, watchdog and logic consumers joined; producer absent | Select/join 5 V producer with startup and rail-order evidence. |
 | AUX_PROTECTED/HOT0 | Driver, PFC control, detectors and relay consumer joined; producer absent | Select/join 15 V protected chain and load budget; verify OVP/UVLO, fast-fault peak and startup. |
 | FUSED_L/N/PE | Board terminal 1714984 pins 1/2/3 and AC path joined | Off-board F1/inlet harness is a separate assembly interface. No fuse installation or interruption PASS is implied. |
 
 ## Integration gate
 
-Before promoting this map, update the joined Atopile entry, receiver and ESP
-adapters, exact-pin audit, and native KiCad symbols/footprints together.
+The Atopile candidate now joins source MCU, expander, button, source authority
+and both isolation channels. The ESP adapter is host-tested, but is not wired
+to `app_main`, target-built, or measured. The expander P1 history-reset pulse
+uses a candidate 5 ms I²C transaction timeout; its positive-edge time still needs a
+pessimistic pre-edge budget and target capture. `uart_wait_tx_done()` is only
+documented as waiting for the TX FIFO to empty; a final START-bit completion
+claim also needs target capture. Before promoting this map, update the native
+KiCad symbols/footprints and obtain the physical evidence.
 Check every physical pad, pull/default, supply return, isolator direction,
 UART ownership and expander retained-output case. Capture boot/CPU-only reset
 and partial-power behavior on the selected hardware. Until then this is the

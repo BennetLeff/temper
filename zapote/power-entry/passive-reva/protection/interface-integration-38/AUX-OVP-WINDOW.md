@@ -4,6 +4,9 @@ Status: **static divider screen only; protected AUX selection OPEN**. This
 checks the proposed TPS26601RHFT after the TPS7A4701 15 V regulator. It does
 not bound a regulator pass-through transient, the eFuse output peak, or the
 driver voltage. The historical supply and Rev38 loads have not been joined.
+The separate [direct 15 V source evaluation](AUX-SOURCE-CANDIDATE.md)
+considers IRM-20-15 in place of the historical IRM-10-24/LDO; it likewise
+does not establish a protected producer or a safe output peak.
 
 The current Rev38 rail contract is 14.25–15.75 V during normal operation. The
 18.0 V value below is the prior *screen* for a proposed driver supply limit,
