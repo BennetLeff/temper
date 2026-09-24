@@ -15,7 +15,7 @@ Build-time `PE_TARGET_EXPECTED_WDTCFG`, `PE_TARGET_EXPECTED_BODCFG`, and
 `PE_TARGET_EXPECTED_SYSCFG0` default to zero; that combination always fails
 the boot check. The OSCCFG expectation is zero for internal OSCHF. An
 operational image requires an explicitly reviewed non-windowed internal WDT
-period, continuous active BOD mode and level, PF6 external RESET
+period, continuous active and sleep BOD modes and level, PF6 external RESET
 (`RSTPINCFG[3:2]=0b10`), a physical PF7 UPDI connection,
 and EESAVE for the session journal. The image compares the programmed bytes
 exactly to those expectations. It feeds the internal WDT only after a

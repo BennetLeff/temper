@@ -6,12 +6,12 @@ bool pe_avr_boot_fuses_ok(pe_avr_fuses_t actual, pe_avr_fuses_t expected) {
      * dedicated package pin, not a SYSCFG0 bit on this device. */
     if ((expected.syscfg0 & 0x1fu) != 0x09u) return false;
 
-    /* FUSE.BODCFG: LVL[7:5] is 0..3; ACTIVE[3:2] must be either
-     * continuous mode; SLEEP[1:0]=3 is reserved. Its threshold remains
-     * an electrical review input. */
+    /* FUSE.BODCFG: LVL[7:5] is 0..3; ACTIVE[3:2] selects continuous
+     * mode and SLEEP[1:0]=1 keeps BOD continuous during sleep. The
+     * threshold remains an electrical review input. */
     uint8_t active = (expected.bodcfg >> 2) & 0x03u;
     if ((expected.bodcfg >> 5) > 3u || (active != 1u && active != 3u) ||
-        (expected.bodcfg & 0x03u) == 0x03u)
+        (expected.bodcfg & 0x03u) != 0x01u)
         return false;
 
     /* FUSE.OSCCFG selects OSCHF=0. FUSE.WDTCFG is deliberately restricted
