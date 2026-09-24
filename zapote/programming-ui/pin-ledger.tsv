@@ -1,0 +1,22 @@
+authority	gpio	module_pad	role	direction	domain	boot_or_reset	status
+legacy-ato	19	13	USB_DN	bidirectional	SELV	USB function	wired-to-unconnected-top-level-signal
+firmware	19	13	RELAY_BYPASS	output	SELV	firmware-owned	conflict
+legacy-ato	20	14	USB_DP	bidirectional	SELV	USB function	wired-to-unconnected-top-level-signal
+firmware	20	14	FAULT_OUT	input	SELV	firmware-owned	conflict
+legacy-ato	17	10	FAULT_STATUS_IN	input	SELV	input-on-reset	conflict
+firmware	17	10	LED_FAULT	output	SELV	firmware-owned	conflict
+legacy-ato	16	9	RELAY_CTRL	output	SELV	input-on-reset	conflict-with-future-rtd-cs
+firmware	16	9	RTD_CS2_RESERVED	output	SELV	future-only	conflict-with-relay
+legacy-ato	43	37	UART0_TXD	output	SELV	ROM-debug-output	candidate-service-tx
+firmware	43	37	UART0_TXD	output	SELV	ROM-debug-output	declared
+legacy-ato	44	36	UART0_RXD	input	SELV	ROM-debug-input	candidate-service-rx
+firmware	44	36	UART0_RXD	input	SELV	ROM-debug-input	declared
+legacy-ato	0	27	BOOT_STRAP	input	SELV	10k-pull-up-button-to-return	must-release-after-download
+firmware	0	27	RESET_BUTTON	input	SELV	boot-strap-shared	conflicting-button-semantics
+legacy-ato	EN	3	CHIP_ENABLE	input	SELV	10k-pull-up-1uF-and-reset-button	must-release
+legacy-ato	38	31	I2C_SDA	bidirectional	SELV	4k7-pull-up	no-peripheral-or-isolator-bound
+firmware	38	31	I2C_SDA	bidirectional	SELV	optional-isolated-claim	ADUM1250-not-instantiated
+legacy-ato	39	32	I2C_SCL	output	SELV	4k7-pull-up	no-peripheral-or-isolator-bound
+firmware	39	32	I2C_SCL	output	SELV	optional-isolated-claim	ADUM1250-not-instantiated
+rev38-screen	38	31	EXPANDER_SDA	bidirectional	SELV	CPU-reset-may-retain-expander	unadopted
+rev38-screen	39	32	EXPANDER_SCL	output	SELV	CPU-reset-may-retain-expander	unadopted
