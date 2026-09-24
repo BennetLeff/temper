@@ -47,14 +47,20 @@ flags. The firmware host CMake build and all 16 CTest entries also pass after
 the component rename.
 
 The full target build reaches `induction_cooker.elf` but **fails to link** on
-unresolved cooker functions. Examples include `peripherals_init`,
-`get_time_ms`, `display_show_message`, `test_adc_calibration` and other
-self-test callbacks, `read_pan_temperature`, and hardware watchdog/shutdown
-hooks. Some functions have production source that the app's CMake target does
-not include (for example `firmware/config.c` and `components/safety/safety.c`);
-others are currently found only in `firmware/test/state_machine_stubs.c`.
-Those test implementations must not be linked into an operational image.
-The remaining linker set needs real production implementations and an
-explicit component/source inventory. The ESP-IDF build remains **FAIL** and
-U6 remains OPEN. Neither target compilation nor a host PASS changes the
-zero-timing lockout or physical qualification status.
+unresolved cooker functions. Production `config.c`, six control sources, and
+`safety.c` are now registered and compile under IDF v5.3; the build also
+exposed and resolved six invalid `strtof` calls, a target format mismatch,
+and missing IDF declarations in those files. The remaining 32 unique linker
+symbols are cooker integration work, not Rev38 authorization evidence:
+
+| Owner still needed | Unresolved symbols |
+| --- | --- |
+| Boot/time/power and sensing | `peripherals_init`, `peripherals_enter_low_power`, `peripherals_exit_low_power`, `get_time_ms`, `read_pan_temperature`, `read_heatsink_temperature`, `read_dc_bus_current`, `power_enable`, `power_set_level`, `pwm_disable_all`, `pwm_set_duty_cycle` |
+| Local input/output | `button_is_pressed`, `button_set_enabled`, `buzzer_beep`, `buzzer_beep_continuous`, `buzzer_stop`, `display_show_fault`, `display_show_message`, `display_update_countdown`, `display_update_temperature`, `fan_set_auto_mode`, `fan_set_speed`, `is_fan_running`, `led_set_pattern`, `eeprom_log_fault` |
+| Startup self-test | `test_adc_calibration`, `test_pwm_generation`, `test_fan_operation`, `test_hardware_comparators`, `test_rtd_sensor`, `test_display_communication`, `test_eeprom_read` |
+
+The same names have definitions in `firmware/test/state_machine_stubs.c` but
+those are mock implementations and cannot fill a production image. The
+ESP-IDF build remains **FAIL** and U6 remains OPEN. Neither target compilation
+nor a host PASS changes the zero-timing lockout or physical qualification
+status.

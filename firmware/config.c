@@ -11,6 +11,7 @@
 #include "config.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /* ================================
  * Global Configuration Instance
@@ -58,17 +59,17 @@ void config_set_from_env(void) {
     /* Load temperature limits */
     env_str = getenv("TEMP_SAFE_IDLE_C");
     if (env_str) {
-        g_config.temperatures.safe_idle_temp = strtof(env_str, NULL, 10);
+        g_config.temperatures.safe_idle_temp = strtof(env_str, NULL);
     }
     
     env_str = getenv("TEMP_MIN_C");
     if (env_str) {
-        g_config.temperatures.min_temp = strtof(env_str, NULL, 10);
+        g_config.temperatures.min_temp = strtof(env_str, NULL);
     }
     
     env_str = getenv("TEMP_MAX_C");
     if (env_str) {
-        g_config.temperatures.max_temp = strtof(env_str, NULL, 10);
+        g_config.temperatures.max_temp = strtof(env_str, NULL);
     }
     
     /* Load timeouts */
@@ -150,18 +151,18 @@ void config_set_from_env(void) {
     
     env_str = getenv("FAN_MAX_TEMP_RISE_RATE_C_PER_S");
     if (env_str) {
-        g_config.thresholds.fan_max_temp_rise_rate_c_per_s = strtof(env_str, NULL, 10);
+        g_config.thresholds.fan_max_temp_rise_rate_c_per_s = strtof(env_str, NULL);
     }
     
     /* Load runaway interlock limits */
     env_str = getenv("RUNAWAY_MAX_ABSOLUTE_TEMP_C");
     if (env_str) {
-        g_config.runaway.max_absolute_temp_c = strtof(env_str, NULL, 10);
+        g_config.runaway.max_absolute_temp_c = strtof(env_str, NULL);
     }
     
     env_str = getenv("RUNAWAY_MAX_TEMP_RISE_RATE_C_PER_S");
     if (env_str) {
-        g_config.runaway.max_temp_rise_rate_c_per_s = strtof(env_str, NULL, 10);
+        g_config.runaway.max_temp_rise_rate_c_per_s = strtof(env_str, NULL);
     }
 }
 
@@ -285,7 +286,7 @@ void config_print(void) {
     printf("  ADC Min Valid:      %u\n", g_config.thresholds.adc_min_valid_raw);
     printf("  ADC Max Valid:      %u\n", g_config.thresholds.adc_max_valid_raw);
     printf("  ADC Stuck Buffer:   %u\n", g_config.thresholds.adc_stuck_buffer_size);
-    printf("  ADC Stuck Variance: %u\n", g_config.thresholds.adc_stuck_variance_threshold);
+    printf("  ADC Stuck Variance: %lu\n", (unsigned long)g_config.thresholds.adc_stuck_variance_threshold);
     printf("  ADC Watchdog:      %lu ms\n", g_config.thresholds.adc_watchdog_timeout_ms);
     printf("  Fan Max Temp Rise: %.2f °C/s\n", g_config.thresholds.fan_max_temp_rise_rate_c_per_s);
     printf("\n");

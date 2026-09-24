@@ -28,6 +28,7 @@
 #include "driver/mcpwm_prelude.h"
 #include "esp_timer.h"
 #include "esp_log.h"
+#include "esp_attr.h"
 static const char *TAG = "pll_control";
 #endif
 
