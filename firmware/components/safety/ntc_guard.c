@@ -12,9 +12,10 @@
 // External dependency
 extern uint32_t hal_get_tick_ms(void);
 
-// NTC Parameters (Match BOM: NCU18XH103F6SRB)
-#define NTC_R25 10000.0f
-#define NTC_B 3950.0f
+// ThermalComparator in elec/src/modules.ato: NTCALUG01A104GA, 100k at
+// 25C and B25/85 = 4190K. The fixed top resistor is 10k.
+#define NTC_R25 100000.0f
+#define NTC_B 4190.0f
 #define NTC_R_PULLUP 10000.0f
 #define ADC_MAX_COUNTS 4095.0f
 

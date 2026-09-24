@@ -20,9 +20,10 @@ No numerical fault response, protected operation, or mains build is approved.
 | RTD monitor input and cooker temperature | `firmware/components/sensors/rtd_service.c` SHA-256 `ee2b938d75566082798c474b7fb74baedaf11d86e5fe587a1072809142acaf32`; header SHA-256 `4b6fe77c182568587941027c9b821ff3c7f0086a11dd5fdabdf3cea49a5da109`; host test SHA-256 `cf1bd1191baf59aa69f58e580b2b5c65b1e9d66fa8340589f03ac9bfeba14cbf` |
 | Cooker control progress and boot ordering | `firmware/main/main.c` SHA-256 `ca1c5433e979885337035bcd37c7ef0ef124f5e19c2b12d27bd252b5ed9afa41`; `state_machine.c` SHA-256 `4692ffeac4decb32aa762b25f4aed440ab32262563d6fa22f338a7e807039288`; `state_handlers.c` SHA-256 `866f5bafd45152a53fd4c3fe83f4f20554154551e94160907af4d76f9666a98b`; `state_machine.h` SHA-256 `717eb58eeed8b9553eb98417ea08ad1966080df228d75afdf7effbe949f05b6a`; host test SHA-256 `233b80ae37e4b15a3d98f2d369164d96537c1c01700e36736f6a03858d9789ed` |
 | Diagnostic target link anchor | `firmware/main/diagnostic_lockout_idf.c` SHA-256 `931ebbc4d7a834ed2910791022fc36b680aaa4ee555dc4e1e1835c4d06b2d5e2`; target rebuild still OPEN |
+| Heatsink NTC host model | `firmware/components/safety/ntc_guard.c` SHA-256 `60fc13c60b9b0e00eebedb16f04a6d359dde3e73faa42ff72697c9e4e9a8496d`; header SHA-256 `90bda483eb56afe7ca091542a237b857177d20c0ed086c55eda6996ab7132855`; host tests SHA-256 `6ca2e1a709a1ec8749e91b6492955874df610133865e8cf66064f7c41dc69f62` and `968910cacfb8a81ff42e428c6399c044ae0ea29d2fd9f1b518bb02afce1de34d` |
 | Native board, production runtime and physical capture | **No accepted artifact or hash** |
 | Cooker native readiness diagnostic | `cooker-mate/evidence/native-readiness-02.json` SHA-256 `9d441e0ae16a4ed912ff7420beb38fc2b3a8c5eed39da8589c8814811565e5ef`; static probe only |
-| Product power assembly | **OPEN**; `POWER-ASSEMBLY-BOUNDARY.md` records two unjoined front ends and no bank/inverter power contract |
+| Product power assembly | **OPEN**; approved `docs/superpowers/specs/2026-09-24-rev38-single-bank-cooker-design.md` selects a one-bank half-bridge evaluation topology; `POWER-ASSEMBLY-BOUNDARY.md` records the still-unjoined source |
 
 Each build receipt lists every copied Atopile source hash and its resolved
 export hash. The [two-board source record](COOKER-ASSEMBLY-SOURCE.md) links
@@ -61,6 +62,7 @@ current-cessation result.
 | Rust pin audit mutation suite | **PASS: 143/143** | Includes swapped UART contacts, open return, open ESP ground pad 41, extra STOP driver and wrong Rev38 protocol-isolator identity. |
 | Import-boundary and derived-artifact checks | **PASS** | `scripts/import_linter_gate.py`: 5 kept, 0 broken; `scripts/regen_derived.py --check`: consistent. |
 | RTD sample-age and cooker temperature input | **PASS: 22 focused host tests; 17/17 CTest** | Conversion age, wrap and invalidation; PT100 manufacturer-table values; INIT wait and preserved probe-fault diagnosis. The 100 ms control sample rejection is not an accepted monitor deadline. No monitor epoch or Rev38 authorization is credited. |
+| Heatsink NTC host conversion | **PASS: 9 focused host tests; 17/17 CTest** | Matches the selected 100 kΩ/B4190 Vishay part and 10 kΩ top resistor at cold, 25 °C, and 85 °C points; rejects open, short, over-range and implausible rate. ESP ADC transfer/calibration, production read hook, board divider and target behavior remain OPEN. |
 | Cooker control progress gate | **PASS: 61 focused state-machine tests; 17/17 CTest** | A completed nonfault handler permits a control epoch; deferred messages and fault ticks do not. The production call site is not target-tested; target timing and monitor freshness remain OPEN. |
 | Receiver device qualification | **OPEN** | Host and target compilation do not prove programmed fuses, reset, clock or watchdog on silicon. |
 | ESP production integration | **OPEN** | Diagnostic lockout target image is not a production image; cooker hooks and target timing/pin captures remain unresolved. |

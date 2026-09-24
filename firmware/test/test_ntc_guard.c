@@ -26,7 +26,7 @@ uint32_t hal_get_tick_ms(void) {
 
 void setUp(void) {
     hal_adc = &mock_adc_ops;
-    mock_adc_val = 2048; // ~25C
+    mock_adc_val = 3723; // 100k NTC with 10k top resistor at ~25C
     mock_tick_ms = 1000;
 }
 
@@ -46,7 +46,7 @@ void test_ntc_open_circuit(void) {
     ntc_guard_init(&ctx, 0);
     float temp;
     
-    mock_adc_val = 4000; // > NTC_ADC_MAX (3900)
+    mock_adc_val = 4095; // > NTC_ADC_MAX (4080)
     TEST_ASSERT_EQUAL(NTC_GUARD_ERR_OPEN, ntc_guard_read_safe(&ctx, &temp));
 }
 
@@ -55,10 +55,39 @@ void test_valid_reading(void) {
     ntc_guard_init(&ctx, 0);
     float temp;
     
-    mock_adc_val = 2048;
+    mock_adc_val = 3723;
     TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_read_safe(&ctx, &temp));
-    // Check approximate temp at 2048 (R_ntc = R_pullup) -> 25C
+    // The production divider has R_ntc = 100k and a 10k top resistor.
     TEST_ASSERT_FLOAT_WITHIN(1.0f, 25.0f, temp);
+}
+
+void test_cold_sensor_is_not_open(void) {
+    ntc_guard_t ctx;
+    ntc_guard_init(&ctx, 0);
+    float temp;
+
+    mock_adc_val = 4061; // Nominal beta model just inside the -20C range
+    TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_read_safe(&ctx, &temp));
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, -20.0f, temp);
+}
+
+void test_heatsink_trip_temperature_scale(void) {
+    ntc_guard_t ctx;
+    ntc_guard_init(&ctx, 0);
+    float temp;
+
+    mock_adc_val = 1995; // 85C hardware trip neighborhood
+    TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_read_safe(&ctx, &temp));
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, 85.0f, temp);
+}
+
+void test_above_sensor_rating_is_out_of_range(void) {
+    ntc_guard_t ctx;
+    ntc_guard_init(&ctx, 0);
+    float temp;
+
+    mock_adc_val = 838; // ~130C, above selected part's +125C rating
+    TEST_ASSERT_EQUAL(NTC_GUARD_ERR_RANGE, ntc_guard_read_safe(&ctx, &temp));
 }
 
 void test_rate_of_change_violation(void) {
@@ -67,14 +96,14 @@ void test_rate_of_change_violation(void) {
     float temp;
     
     // First read: 25C
-    mock_adc_val = 2048;
+    mock_adc_val = 3723;
     ntc_guard_read_safe(&ctx, &temp);
     
     // Advance time 1 sec
     mock_tick_ms += 1000;
     
-    // Jump to 85C (ADC ~435) -> 60C change in 1 sec > 10C/sec limit
-    mock_adc_val = 435;
+    // Jump to 85C (ADC ~1995) -> 60C change in 1 sec > 10C/sec limit
+    mock_adc_val = 1995;
     
     TEST_ASSERT_EQUAL(NTC_GUARD_ERR_RATE, ntc_guard_read_safe(&ctx, &temp));
 }

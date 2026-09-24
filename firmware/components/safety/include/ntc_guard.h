@@ -22,11 +22,11 @@ extern "C" {
 
 // Safety limits (ADC raw counts, 12-bit)
 #define NTC_ADC_MIN 100     // Below this = Short to GND
-#define NTC_ADC_MAX 3900    // Above this = Open/Short to VCC
+#define NTC_ADC_MAX 4080    // Above this = Open/Short to VCC; -20C is ~4062 nominal
 
 // Physical limits
 #define NTC_TEMP_MIN_C -20.0f
-#define NTC_TEMP_MAX_C 150.0f
+#define NTC_TEMP_MAX_C 125.0f // NTCALUG01A104GA rated sensor limit
 #define NTC_MAX_RATE_C_PER_SEC 10.0f
 
 /**
