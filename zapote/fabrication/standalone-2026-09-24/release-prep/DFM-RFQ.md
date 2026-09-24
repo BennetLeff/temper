@@ -1,6 +1,6 @@
 # Five-board prototype fabrication and assembly RFQ
 
-**Status 2026-09-24:** proposed vendor and review packet; no vendor DFM acceptance, quote, order, or assembly instruction approval has been received. Preserve the frozen source/Gerber identities in `../manifest.json`.
+**Status 2026-09-24:** proposed vendor and review packet; no vendor DFM acceptance, quote, order, or assembly instruction approval has been received. Preserve the frozen source/Gerber identities in `../manifest.json`. PCBWay's online assembly inquiry was inspected read-only: this browser is signed out, and the form asks the submitter to certify its content/export-control policy. Submission therefore requires an account and a project-owner classification before uploading the design files.
 
 ## Proposed route
 
