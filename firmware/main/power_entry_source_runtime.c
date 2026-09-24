@@ -37,7 +37,12 @@ static bool current_control_sample(pe_source_runtime_t *runtime,
     uint64_t now = runtime->io.now_ms(runtime->io.context);
     if (!within_sample_bound(runtime,
                              runtime->io.max_sample_to_control_pin_ms) ||
-        now >= runtime->source.deadline_ms) return false;
+        now >= runtime->source.deadline_ms ||
+        runtime->source.deadline_ms - now <=
+            runtime->io.max_sample_to_control_pin_ms) return false;
+    /* Reserve the entire target-verified sample-to-edge bound before the
+     * positive pulse edge. A post-edge check can detect a late request but
+     * cannot retract it. The adapter still has to meet its promised bound. */
     if (!inputs.rail_good || !inputs.safety_ok ||
         inputs.local_permit_q || inputs.hot_permit) return false;
     if (reset_seen) {
@@ -76,7 +81,9 @@ static bool apply(pe_source_runtime_t *runtime, pe_source_actions_t actions) {
             (runtime->source.state >= PE_SOURCE_SEEN_ARMED &&
              runtime->source.state <= PE_SOURCE_START_ARMED &&
              runtime->source.state != PE_SOURCE_READY &&
-             now >= runtime->source.deadline_ms) ||
+             (now >= runtime->source.deadline_ms ||
+              runtime->source.deadline_ms - now <=
+                  runtime->io.max_sample_to_wdi_ms)) ||
             !runtime->io.pulse(context, PE_SOURCE_PIN_WDI_HEARTBEAT) ||
             !within_sample_bound(runtime,
                                  runtime->io.max_sample_to_wdi_ms)) goto fault;

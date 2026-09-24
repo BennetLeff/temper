@@ -33,7 +33,9 @@ typedef struct {
     uint32_t max_sample_to_start_end_ms;
     /* Target-verified time from the source sample to a WDI falling edge. */
     uint32_t max_sample_to_wdi_ms;
-    /* Target-verified time from source sample to a set/reset control edge. */
+    /* Target-verified worst time from source sample to the positive set/reset
+     * control edge, including expander bus operations. Runtime reserves this
+     * full interval before requesting an edge near a fixed deadline. */
     uint32_t max_sample_to_control_pin_ms;
 } pe_source_runtime_io_t;
 

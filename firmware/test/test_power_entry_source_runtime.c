@@ -453,6 +453,37 @@ static void delayed_control_read_cannot_clock_seen_reset(void) {
     assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
 }
 
+static void near_deadline_control_edge_is_not_requested(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    fake.now = 1;
+    pe_source_runtime_tick(&runtime);
+    receive(&runtime, &fake, (pe_frame_t){PE_PREPARE_CHALLENGE, 71, 0}, 2);
+    assert(runtime.source.state == PE_SOURCE_SEEN_ARMED);
+    /* The sample is still before expiry, but the promised edge bound is
+     * longer than the remaining time. Never emit P1 and abort afterward. */
+    fake.now = runtime.source.deadline_ms - 1;
+    pe_source_runtime_tick(&runtime);
+    assert(runtime.io_fault && runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(fake.pulses[PE_SOURCE_PIN_SEEN_RESET_REQUEST] == 0);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
+static void near_deadline_wdi_edge_is_not_requested(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    through_request(&runtime, &fake);
+    assert(runtime.source.state == PE_SOURCE_WAIT_ACK);
+    pe_source_runtime_local_progress(&runtime, 1, 1); /* baseline */
+    pe_source_runtime_local_progress(&runtime, 2, 2); /* eligible */
+    fake.now = runtime.source.deadline_ms - 1;
+    unsigned prior_edges = fake.wdi_falling_edges;
+    pe_source_runtime_tick(&runtime);
+    assert(runtime.io_fault && runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(fake.wdi_falling_edges == prior_edges);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
 static void delayed_final_start_read_sends_no_start(void) {
     fake_io_t fake;
     pe_source_runtime_t runtime = boot(&fake);
@@ -482,6 +513,8 @@ int main(void) {
     failed_physical_read_disarms();
     failed_final_start_sample_sends_no_start();
     delayed_control_read_cannot_clock_seen_reset();
+    near_deadline_control_edge_is_not_requested();
+    near_deadline_wdi_edge_is_not_requested();
     delayed_final_start_read_sends_no_start();
     return 0;
 }

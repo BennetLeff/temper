@@ -96,9 +96,12 @@ snapshot age, and sample-to-START latency belong in the U1 bound. The
 expander reset cannot simply be tied to WDO: WDO low would hold the I²C
 readbacks unavailable while boot needs them to establish physical disarm
 before the first recovery feed. P1's positive edge can occur after two I²C
-transactions; the current post-pulse age check cannot prevent an edge that
-arrives after the control deadline. A pessimistic pre-edge time budget and
-measured worst-case target latency are required before crediting U1.
+transactions. The runtime now reserves the full configured sample-to-edge
+bound before requesting P1 or permit-set and the sample-to-WDI bound before
+feeding in timed states. Host tests reject a request with less than that
+reserve remaining; the configured bounds still need worst-case target
+measurement, including I²C retries/timeouts and clock resolution, before
+crediting U1.
 
 ## Reconciliation and acceptance work
 

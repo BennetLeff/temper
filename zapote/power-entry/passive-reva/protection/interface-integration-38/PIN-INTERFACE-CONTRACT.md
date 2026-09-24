@@ -98,8 +98,9 @@ does not bound that interval. No expander RESET conductor is assigned yet.
 The Atopile candidate now joins source MCU, expander, button, source authority
 and both isolation channels. The ESP adapter is host-tested, but is not wired
 to `app_main`, target-built, or measured. The expander P1 history-reset pulse
-uses a candidate 5 ms I²C transaction timeout; its positive-edge time still needs a
-pessimistic pre-edge budget and target capture. `uart_wait_tx_done()` is only
+uses a candidate 5 ms I²C transaction timeout. Runtime now reserves its
+configured sample-to-edge bound before requesting P1 or permit-set; the
+bound still needs target capture. `uart_wait_tx_done()` is only
 documented as waiting for the TX FIFO to empty; a final START-bit completion
 claim also needs target capture. Before promoting this map, update the native
 KiCad symbols/footprints and obtain the physical evidence.
