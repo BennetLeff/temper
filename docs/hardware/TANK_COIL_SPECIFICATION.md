@@ -17,6 +17,14 @@ usable. It is deliberately **not a part number**: no orderable coil in this
 class publishes an inductance (§6), so the deliverable is the spec and the
 test, not a purchase order line.
 
+**Power-boundary clarification (2026-09-24):** the cooker's 1800 W target is
+the maximum **real AC input at the wall**, not 1800 W delivered to the pan.
+The 1800 W circuit point cited in §3 is a historical tank-current stress
+case; it is not a measured current at the wall-input cap. Retain the 25 A
+coil-current screen until the selected coil/pans and the input-to-pan losses
+are measured and the stress envelope is reviewed. See the
+[wall-input budget](../../zapote/integration/evidence/power-budget-2026-09-23/README.md).
+
 **Where it is enforced.** `elec/src/modules.ato`'s `ResonantTank.inductor_conn`
 declares `88uH +/- 10%`; `elec/src/main.ato`'s `l_tank_assumed` mirrors it;
 `scripts/check_pll_range_consistency.py` check 7 fails the build if the two
@@ -214,11 +222,12 @@ looks adequate at first glance and is not.
 Not a go/no-go for first articles, but it must be run before the coil is
 released for production.
 
-At the 1800 W operating point the tank carries **20.7 A rms** by this
+At the historical 1800 W circuit operating point the tank carries **20.7 A rms** by this
 repo's ngspice harness and **22.5 A rms** by an independent first-harmonic
 solve. With R_ac ≈ 0.34–0.40 Ω at 40 kHz, the coil dissipates **≈150–200 W
 in its own copper** — comparable to a soldering iron, inside a sealed
-appliance, under a hot pan.
+appliance, under a hot pan. These are stress-screen inputs, not predicted
+coil loss for an 1800 W wall-input product.
 
 Drive the coil at 25 A rms / 40 kHz with the reference pan present, in
 40 °C still air, until temperature is stable (≥ 30 min). Record the
