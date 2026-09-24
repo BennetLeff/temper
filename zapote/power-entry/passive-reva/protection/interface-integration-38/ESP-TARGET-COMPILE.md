@@ -222,6 +222,22 @@ successful target links, not byte-for-byte reproducible IDF output. The
 fresh build establishes that the test image does not depend on the untracked
 local `sdkconfig` file.
 
+### Monitor-fault source task refresh (2026-09-24)
+
+After the source-owner monitor-fault latch was added, all 17 firmware host
+CTest entries passed. A fresh read-only-source Docker build with
+`espressif/idf:release-v5.3`, `-D IDF_TARGET=esp32s3` and
+`-D TEMPER_REV38_TEST_IMAGE=ON` compiled the updated service/runtime and
+linked the test image. The ELF SHA-256 is
+`f11480013851254d0007edc6f288a8cf39d0acd72b9af9e90383bdbffb6a7957`;
+the binary SHA-256 is
+`60a6d4e6dc2b2b9245dcd2e1719129320db6723e23bf7d330356da450919df83`
+and size is `0x37900`. The container again used the committed generated
+headers because `jinja2` is absent. This is a target **link** receipt, not
+programmed-pin or response-time evidence. The monitor producer has no
+qualified cooker safety check yet, and zero timing qualifiers keep the
+source service locked out.
+
 No board has been programmed or captured. GPIO13/21/48/14, UART final-bit,
 I²C age, WDI/PERMIT, gate and relay levels, reset feed tail and fault timing
 remain unmeasured. Zero target timing bounds keep the service locked out.

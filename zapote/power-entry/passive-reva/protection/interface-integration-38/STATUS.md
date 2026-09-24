@@ -145,3 +145,26 @@ measurements needed to qualify the rail. The allocation is not a measured
 port maximum, and the cooker's existing 3.3 V regulator has no accepted
 headroom or startup proof. The native Rev38 section may use this port
 contract for interface design; supply and fail-low acceptance stay OPEN.
+
+## Parallel verification refresh (2026-09-24)
+
+- **U5:** Both AVR64DA32 target profiles link with the official Microchip
+  toolchain. New host cases cover STOP in READY before PERMIT first rises and
+  receiver-only reset in RUN while modeled HOT latches remain powered; the
+  focused receiver/runtime binaries pass. Fuse bytes remain review-only and
+  the physical reset-interval pull-down has not been measured.
+- **U6:** A sticky monitor-fault request now reaches the sole ESP source
+  owner; host tests inject it before PERMIT, WDI and START. All 17 firmware
+  CTests and a fresh ESP-IDF v5.3 ESP32-S3 source-task image link pass. The
+  monitor producer has no qualified idle/heating safety check, and target
+  response time is not measured. Zero timing qualifiers retain lockout.
+- **U7:** Fresh `source-build-04` native preflight stops at on-board U227's
+  review-only footprint; no section schematic or PCB was emitted. The
+  schematic bridge now checks selected-MPN/BOM identity against the
+  footprint-aliased compiler netlist. A KiCad export of a temporary flat
+  schematic preserves all 1,056 numeric pin edges over 295 references;
+  functional pin names remain unverified. The current Phoenix 1017526
+  product data and older drawing disagree on drill/pin size, so no native
+  footprint is released. The ISO7741FQDWWRQ1/ISO6742FQDWWRQ1 DWW pair is
+  a review candidate only; package, board, PD3 and rail-decay timing gates
+  remain open. See `NATIVE-BUILD.md` and `INSULATION-BASIS.md`.

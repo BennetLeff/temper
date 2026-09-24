@@ -97,6 +97,87 @@ def _filter_netlist(netlist: Any, refs: set[str]) -> Any:
     return netlist
 
 
+def _apply_selected_symbol_identity(
+    netlist: Any,
+    selected_mpn_by_ref: dict[str, str],
+    bom_mpn_by_ref: dict[str, str],
+    schematics: Any,
+) -> None:
+    """Rekey numeric-pin symbols to the selected MPN for this native projection.
+
+    Atopile's compiled libpart is shared by footprint. Its part name and pin
+    *names* can therefore belong to another component. Retain only its pin
+    numbers and their order; the resolved export and BOM must agree on the
+    actual part identity for every selected reference. This does not assert
+    that functional pin names have been checked against device datasheets.
+    """
+    refs = set(netlist.components)
+    if set(selected_mpn_by_ref) != refs:
+        missing = sorted(refs - set(selected_mpn_by_ref))
+        extra = sorted(set(selected_mpn_by_ref) - refs)
+        raise ValueError(
+            f"missing selected MPN or extra reference: missing={missing}, extra={extra}"
+        )
+    if set(bom_mpn_by_ref) != refs:
+        missing = sorted(refs - set(bom_mpn_by_ref))
+        extra = sorted(set(bom_mpn_by_ref) - refs)
+        raise ValueError(
+            f"missing BOM MPN or extra reference: missing={missing}, extra={extra}"
+        )
+
+    selected_libparts: dict[str, Any] = {}
+    sanitized_names: dict[str, str] = {}
+    for ref, component in netlist.components.items():
+        mpn = selected_mpn_by_ref[ref]
+        if not isinstance(mpn, str) or not mpn.strip():
+            raise ValueError(f"{ref}: missing selected MPN")
+        if mpn != bom_mpn_by_ref[ref]:
+            raise ValueError(
+                f"{ref}: MPN mismatch: resolved={mpn!r}, BOM={bom_mpn_by_ref[ref]!r}"
+            )
+        alias = component.part_name
+        source_libpart = netlist.libparts.get(alias)
+        if source_libpart is None or not source_libpart.pins:
+            raise ValueError(f"{ref}: missing compiled pin-number libpart {alias!r}")
+        numbers = [num for num, _name in source_libpart.pins]
+        if any(not isinstance(num, str) or not num for num in numbers) or len(
+            numbers
+        ) != len(set(numbers)):
+            raise ValueError(f"{ref}: invalid or duplicate compiled pin numbers")
+        symbol_id = schematics._sanitize_name(mpn)
+        prior = sanitized_names.setdefault(symbol_id, mpn)
+        if prior != mpn:
+            raise ValueError(f"selected MPN symbol ID collision: {prior!r}, {mpn!r}")
+        numeric_pins = [(num, num) for num in numbers]
+        existing = selected_libparts.get(mpn)
+        if existing is not None and existing.pins != numeric_pins:
+            raise ValueError(
+                f"{ref}: selected MPN {mpn!r} has conflicting compiled pin numbers"
+            )
+        if existing is None:
+            selected_libparts[mpn] = schematics.LibPart(
+                part_name=mpn,
+                description=(
+                    f"{mpn}; pin-number connectivity from compiled netlist; "
+                    "functional pin names unverified"
+                ),
+                pins=numeric_pins,
+            )
+        component.part_name = mpn
+        component.description = selected_libparts[mpn].description
+
+    for net in netlist.nets.values():
+        for ref, pin in net.nodes:
+            if ref not in refs:
+                raise ValueError(f"net {net.name!r} contains unselected reference {ref!r}")
+            selected_pins = {
+                num for num, _name in selected_libparts[selected_mpn_by_ref[ref]].pins
+            }
+            if pin not in selected_pins:
+                raise ValueError(f"{ref}: net {net.name!r} uses absent pin number {pin!r}")
+    netlist.libparts = selected_libparts
+
+
 def _require_source_hashes(repo: Path, source: Path, export: Any) -> dict[str, str]:
     """Require source provenance and keep every hashed path inside ``source``."""
     repo_root = repo.resolve()
@@ -244,6 +325,19 @@ def build(
             for net in bridge["nets"]
         ],
     }
+    attrs = {
+        component["address"].split("::", 1)[1]: component["attributes"]
+        for component in export["components"]
+    }
+    selected_mpn_by_ref = {
+        ref: attrs[path]["mpn"] for path, ref in by_path.items() if ref in owned
+    }
+    sch = _filter_netlist(schematics.parse_netlist(net_path), owned)
+    _apply_selected_symbol_identity(
+        sch, selected_mpn_by_ref, {ref: bom[ref] for ref in owned}, schematics
+    )
+    schematics.apply_bom_values(sch, {ref: bom[ref] for ref in owned})
+
     output.mkdir(parents=True)
     table, libraries = block_source.vendor_candidate_libs(
         section, bridge, repo, output / "candidate-libs", local_libraries=local_libraries
@@ -275,10 +369,6 @@ def build(
     poses = _require_poses(poses_path, by_path, owned_paths)
     outline_mm = _outline(outline_path)
     netlist = _filter_netlist(skeleton.parse_netlist(net_path), owned)
-    attrs = {
-        component["address"].split("::", 1)[1]: component["attributes"]
-        for component in export["components"]
-    }
     for component in netlist.components.values():
         component.value = attrs[component.sheetpath].get("value") or attrs[component.sheetpath]["mpn"]
     pin_map = {(entry["reference"], entry["pin"]): entry["pad"] for entry in entries}
@@ -294,11 +384,6 @@ def build(
         values={ref: component.value for ref, component in netlist.components.items()},
     )
 
-    sch = _filter_netlist(schematics.parse_netlist(net_path), owned)
-    all_bom_values = schematics.load_bom_values(csv_path)
-    schematics.apply_bom_values(
-        sch, {ref: all_bom_values[ref] for ref in owned}
-    )
     layout = schematics.SchematicLayout(
         root_sheet="section.kicad_sch",
         sheets=("CurrentSense",),

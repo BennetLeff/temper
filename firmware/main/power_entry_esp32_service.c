@@ -37,6 +37,7 @@ static TaskHandle_t s_source_task;
 static TaskHandle_t s_boot_waiter;
 static uint32_t s_control_epoch;
 static uint32_t s_monitor_epoch;
+static uint32_t s_monitor_fault_requested;
 enum { PE_SERVICE_STOPPED, PE_SERVICE_ARMED, PE_SERVICE_RESTART_QUEUED };
 static uint32_t s_service_state;
 
@@ -46,6 +47,8 @@ static bool restart_pending(void) {
 }
 
 bool pe_esp32_source_service_request_deliberate_restart(void) {
+    if (__atomic_load_n(&s_monitor_fault_requested, __ATOMIC_ACQUIRE) != 0u)
+        return false;
     uint32_t expected = PE_SERVICE_ARMED;
     return __atomic_compare_exchange_n(&s_service_state, &expected,
                                         PE_SERVICE_RESTART_QUEUED,
@@ -59,6 +62,10 @@ void pe_esp32_source_service_control_progress(void) {
 
 void pe_esp32_source_service_monitor_progress(void) {
     (void)__atomic_add_fetch(&s_monitor_epoch, 1u, __ATOMIC_RELEASE);
+}
+
+void pe_esp32_source_service_request_monitor_fault(void) {
+    __atomic_store_n(&s_monitor_fault_requested, 1u, __ATOMIC_RELEASE);
 }
 
 static bool assert_stop_before_task(void) {
@@ -95,6 +102,7 @@ static void source_task(void *unused) {
         pe_source_runtime_io_t io = pe_esp32_adapter_runtime_io(
             &s_adapter, PE_SAMPLE_TO_START_END_MS, PE_SAMPLE_TO_WDI_MS,
             PE_SAMPLE_TO_CONTROL_PIN_MS);
+        io.monitor_fault_requested = &s_monitor_fault_requested;
         pe_source_config_t config = {
             .prepare_window_ms = PE_PREPARE_WINDOW_MS,
             .start_window_ms = PE_START_WINDOW_MS,
@@ -102,6 +110,8 @@ static void source_task(void *unused) {
         };
         bool armed = pe_source_runtime_boot(&s_runtime, io, config,
                                             PE_MAX_BYTE_GAP_MS);
+        if (armed && pe_source_runtime_abort_on_monitor_fault(&s_runtime))
+            armed = false;
         __atomic_store_n(&s_service_state,
                          armed ? PE_SERVICE_ARMED : PE_SERVICE_STOPPED,
                          __ATOMIC_RELEASE);
@@ -115,10 +125,14 @@ static void source_task(void *unused) {
     }
 
     for (;;) {
+        if (pe_source_runtime_abort_on_monitor_fault(&s_runtime))
+            stop_forever();
         if (restart_pending()) {
             pe_source_restart_step_t step =
                 pe_source_runtime_deliberate_restart_step(&s_runtime);
             if (step == PE_RESTART_READY_TO_REBOOT) {
+                if (pe_source_runtime_abort_on_monitor_fault(&s_runtime))
+                    stop_forever();
                 /* Both paths require fresh physical local/HOT disarm;
                  * the reset path also requires healthy post-pulse readback.
                  * Target reset and retained-peripheral capture remain open. */
@@ -159,7 +173,9 @@ static void source_task(void *unused) {
 bool pe_esp32_source_service_start(void) {
     if (s_source_task != NULL)
         return __atomic_load_n(&s_service_state, __ATOMIC_ACQUIRE) !=
-               PE_SERVICE_STOPPED;
+                   PE_SERVICE_STOPPED &&
+               __atomic_load_n(&s_monitor_fault_requested,
+                               __ATOMIC_ACQUIRE) == 0u;
     if (!assert_stop_before_task()) return false;
     s_boot_waiter = xTaskGetCurrentTaskHandle();
     if (xTaskCreatePinnedToCore(source_task, "pe_source", PE_TASK_STACK_BYTES,
@@ -169,5 +185,6 @@ bool pe_esp32_source_service_start(void) {
      * initialization cannot outrun its fail-low boot decision. */
     (void)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     return __atomic_load_n(&s_service_state, __ATOMIC_ACQUIRE) !=
-           PE_SERVICE_STOPPED;
+               PE_SERVICE_STOPPED &&
+           __atomic_load_n(&s_monitor_fault_requested, __ATOMIC_ACQUIRE) == 0u;
 }

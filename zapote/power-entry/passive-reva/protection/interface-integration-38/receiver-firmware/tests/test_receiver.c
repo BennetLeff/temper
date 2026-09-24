@@ -113,6 +113,30 @@ static void start_then_stop_requires_new_id(void) {
     assert(ready(&rx, &journal, &inputs, 11) > id);
 }
 
+static void stop_in_ready_before_first_permit_high_aborts(void) {
+    memory_t memory;
+    provision(&memory);
+    pe_journal_io_t journal = journal_for(&memory);
+    pe_receiver_t rx = receiver();
+    pe_receiver_inputs_t inputs = disarmed();
+    pe_receiver_actions_t actions;
+    uint64_t id = ready(&rx, &journal, &inputs, 1);
+    assert(!inputs.physical_permit && !inputs.permit_seen_q && !inputs.run_q);
+    assert(rx.state == PE_RX_READY && rx.abort_n);
+
+    pe_receiver_frame(&rx, (pe_frame_t){PE_STOP, id, 0}, 7, inputs, &actions);
+    assert(rx.state == PE_RX_LOCKOUT && !rx.abort_n);
+    assert(!actions.abort_n && !actions.attempt_valid &&
+           !actions.run_set_pulse && !actions.wdi_falling_pulse);
+
+    /* The old ID cannot be revived by a later physical PERMIT high. */
+    inputs.physical_permit = true;
+    inputs.permit_seen_q = true;
+    pe_receiver_frame(&rx, (pe_frame_t){PE_REQUEST, id, 1}, 8, inputs, &actions);
+    assert(rx.state == PE_RX_LOCKOUT && !actions.abort_n &&
+           !actions.run_set_pulse);
+}
+
 static void start_must_be_current_at_physical_run_set(void) {
     memory_t memory;
     provision(&memory);
@@ -379,6 +403,7 @@ static void decoder_errors_abort_physical_authorization(void) {
 
 int main(void) {
     start_then_stop_requires_new_id();
+    stop_in_ready_before_first_permit_high_aborts();
     start_must_be_current_at_physical_run_set();
     deadline_is_fixed_despite_traffic();
     receiver_watchdog_needs_both_progress_sources();

@@ -11,8 +11,11 @@ from pathlib import Path
 import pytest
 
 TOOLS = Path(__file__).parents[1] / "tools"
+REPO = Path(__file__).parents[3]
 sys.path.insert(0, str(TOOLS))
+sys.path.insert(0, str(REPO / "scripts"))
 
+import gen_schematics as schematics  # noqa: E402
 from native_report import load_kicad_report, require_success  # noqa: E402
 
 
@@ -108,4 +111,89 @@ def test_source_hash_map_is_required_and_contained(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="contained under repo"):
         build_native._require_source_hashes(
             repo, tmp_path / "outside", export
+        )
+
+
+def _aliased_symbol_netlist() -> schematics.Netlist:
+    """Two selected parts share the compiler's footprint-aliased libpart."""
+    alias = "SN74LV221AQPWRQ1"
+    return schematics.Netlist(
+        components={
+            ref: schematics.Component(
+                ref=ref,
+                value="?",
+                footprint="Package_SO:TSSOP-16_4.4x5mm_P0.65mm",
+                part_name=alias,
+                description="compiled alias",
+                sheet_module="source_mcu",
+                tstamp=ref,
+            )
+            for ref in ("U1", "U2")
+        },
+        nets={
+            "1": schematics.Net("1", "SOURCE_SIGNAL", [("U1", "1"), ("U2", "2")]),
+            "2": schematics.Net("2", "RETURN", [("U1", "2"), ("U2", "1")]),
+        },
+        libparts={
+            alias: schematics.LibPart(
+                alias, "compiled alias", [("1", "ALIAS_A"), ("2", "ALIAS_B")]
+            )
+        },
+    )
+
+
+def test_selected_mpn_rekeys_aliased_symbols_without_changing_numeric_pins() -> None:
+    netlist = _aliased_symbol_netlist()
+    selected = {"U1": "SN74LV221AQPWRQ1", "U2": "TCA6408AQPWRQ1"}
+    before = {code: list(net.nodes) for code, net in netlist.nets.items()}
+    schematics.apply_bom_values(netlist, selected)
+
+    build_native._apply_selected_symbol_identity(
+        netlist, selected, selected, schematics
+    )
+
+    assert {code: net.nodes for code, net in netlist.nets.items()} == before
+    assert netlist.components["U2"].part_name == "TCA6408AQPWRQ1"
+    assert netlist.libparts["TCA6408AQPWRQ1"].pins == [("1", "1"), ("2", "2")]
+    layout = schematics.SchematicLayout(
+        root_sheet="section.kicad_sch",
+        sheets=("CurrentSense",),
+        sheet_files={"CurrentSense": "section.kicad_sch"},
+        module_to_sheet={"source_mcu": "CurrentSense"},
+        title="Identity test",
+        sheet_description="Identity test",
+        flat=True,
+    )
+    generated = schematics._generate_all_sheets(netlist, Path("."), layout)[
+        "section.kicad_sch"
+    ]
+    assert '(lib_id "TCA6408AQPWRQ1")' in generated
+    assert '(property "Value" "TCA6408AQPWRQ1"' in generated
+    assert '(name "1"' in generated and '(name "2"' in generated
+    assert "ALIAS_A" not in generated and "ALIAS_B" not in generated
+    assert '(global_label "SOURCE_SIGNAL"' in generated
+    assert '(global_label "RETURN"' in generated
+
+
+@pytest.mark.parametrize(
+    ("selected", "bom", "message"),
+    [
+        (
+            {"U1": "SN74LV221AQPWRQ1"},
+            {"U1": "SN74LV221AQPWRQ1", "U2": "TCA6408AQPWRQ1"},
+            "missing selected MPN",
+        ),
+        (
+            {"U1": "SN74LV221AQPWRQ1", "U2": "TCA6408AQPWRQ1"},
+            {"U1": "SN74LV221AQPWRQ1", "U2": "WRONG"},
+            "MPN mismatch",
+        ),
+    ],
+)
+def test_selected_symbol_identity_fails_on_missing_or_mismatched_mpn(
+    selected: dict[str, str], bom: dict[str, str], message: str
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        build_native._apply_selected_symbol_identity(
+            _aliased_symbol_netlist(), selected, bom, schematics
         )

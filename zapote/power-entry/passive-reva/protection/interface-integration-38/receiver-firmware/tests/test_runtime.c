@@ -15,6 +15,7 @@ typedef struct {
     unsigned delay_on_abort_high_call;
     uint64_t delayed_time;
     unsigned delay_on_sample_call;
+    bool hot_latches_powered;
 } fixture_t;
 
 static uint8_t read_byte(void *context, uint16_t address) {
@@ -43,7 +44,14 @@ static bool set_level(void *context, pe_output_pin_t pin, bool high) {
         --fixture->delay_on_abort_high_call == 0) {
         fixture->now = fixture->delayed_time;
     }
-    if (pin == PE_PIN_ABORT_N) fixture->inputs.session_clear_n = high;
+    if (pin == PE_PIN_ABORT_N) {
+        fixture->inputs.session_clear_n = high;
+        if (!high && fixture->hot_latches_powered) {
+            /* Model the independent asynchronous clear while HOT stays on. */
+            fixture->inputs.session_q = false;
+            fixture->inputs.run_q = false;
+        }
+    }
     return true;
 }
 
@@ -148,6 +156,66 @@ static void accepted_start_has_one_synchronous_run_edge(void) {
     fixture.now = 13;
     pe_runtime_tick(&runtime);
     assert(runtime.receiver.state == PE_RX_RUNNING);
+}
+
+static void stop_in_ready_before_permit_high_drives_abort_low(void) {
+    fixture_t fixture;
+    provision(&fixture);
+    pe_journal_io_t journal = {&fixture, read_byte, write_byte};
+    pe_runtime_t runtime;
+    uint64_t id = prepare_ready(&runtime, &fixture, &journal);
+    assert(!fixture.inputs.physical_permit && !fixture.inputs.permit_seen_q);
+    assert(fixture.pins[PE_PIN_ABORT_N]);
+
+    send_frame(&runtime, &fixture, (pe_frame_t){PE_STOP, id, 0}, 10);
+    assert(runtime.receiver.state == PE_RX_LOCKOUT);
+    assert(!fixture.pins[PE_PIN_ABORT_N] &&
+           !fixture.pins[PE_PIN_ATTEMPT_VALID]);
+    assert(fixture.run_pulses == 0);
+
+    fixture.inputs.physical_permit = fixture.inputs.permit_seen_q = true;
+    send_frame(&runtime, &fixture, (pe_frame_t){PE_START, id, 1}, 11);
+    assert(runtime.receiver.state == PE_RX_LOCKOUT);
+    assert(!fixture.pins[PE_PIN_ABORT_N] && fixture.run_pulses == 0);
+}
+
+static void receiver_reset_in_run_clears_powered_hot_latches(void) {
+    fixture_t fixture;
+    provision(&fixture);
+    pe_journal_io_t journal = {&fixture, read_byte, write_byte};
+    pe_runtime_t runtime;
+    uint64_t id = prepare_ready(&runtime, &fixture, &journal);
+    fixture.inputs.physical_permit = fixture.inputs.permit_seen_q = true;
+    send_frame(&runtime, &fixture, (pe_frame_t){PE_REQUEST, id, 7}, 10);
+    send_frame(&runtime, &fixture, (pe_frame_t){PE_START, id, 7}, 11);
+    fixture.now = 12;
+    pe_runtime_tick(&runtime);
+    fixture.now = 13;
+    pe_runtime_tick(&runtime);
+    assert(runtime.receiver.state == PE_RX_RUNNING);
+    assert(fixture.pins[PE_PIN_ABORT_N] && fixture.inputs.session_q &&
+           fixture.inputs.run_q && fixture.inputs.physical_permit);
+    assert(fixture.run_pulses == 1);
+
+    /* Reboot only the receiver; retain HOT power and high physical PERMIT. */
+    fixture.hot_latches_powered = true;
+    pe_runtime_t rebooted;
+    pe_runtime_io_t io = {&fixture, now_ms, sample, set_level, pulse,
+                          transmit, &journal, 1};
+    fixture.now = 14;
+    assert(pe_runtime_boot(&rebooted, io,
+                           (pe_receiver_config_t){10, 10, 100}, 5));
+    assert(fixture.hot_latches_powered && fixture.inputs.physical_permit);
+    assert(!fixture.pins[PE_PIN_ABORT_N] &&
+           !fixture.pins[PE_PIN_ATTEMPT_VALID]);
+    assert(!fixture.inputs.session_q && !fixture.inputs.run_q);
+    assert(rebooted.receiver.state == PE_RX_LOCKOUT);
+
+    fixture.now = 15;
+    pe_runtime_tick(&rebooted);
+    send_frame(&rebooted, &fixture, (pe_frame_t){PE_START, id, 7}, 16);
+    assert(rebooted.receiver.state == PE_RX_LOCKOUT);
+    assert(!fixture.pins[PE_PIN_ABORT_N] && fixture.run_pulses == 1);
 }
 
 static void delayed_or_faulted_commit_never_pulses_run(void) {
@@ -255,6 +323,8 @@ static void watchdog_needs_local_and_matching_link_progress(void) {
 
 int main(void) {
     accepted_start_has_one_synchronous_run_edge();
+    stop_in_ready_before_permit_high_drives_abort_low();
+    receiver_reset_in_run_clears_powered_hot_latches();
     delayed_or_faulted_commit_never_pulses_run();
     idle_decoder_timeout_reaches_abort_pin();
     usart_error_reaches_abort_pin();

@@ -21,6 +21,17 @@ static void io_abort(pe_source_runtime_t *runtime) {
     }
 }
 
+bool pe_source_runtime_abort_on_monitor_fault(pe_source_runtime_t *runtime) {
+    if (runtime->io_fault) return true;
+    if (runtime->io.monitor_fault_requested != NULL &&
+        __atomic_load_n(runtime->io.monitor_fault_requested,
+                        __ATOMIC_ACQUIRE) != 0u) {
+        io_abort(runtime);
+        return true;
+    }
+    return false;
+}
+
 static bool within_sample_bound(pe_source_runtime_t *runtime,
                                 uint32_t bound_ms) {
     uint64_t now = runtime->io.now_ms(runtime->io.context);
@@ -55,21 +66,26 @@ static bool current_control_sample(pe_source_runtime_t *runtime,
 
 static bool apply(pe_source_runtime_t *runtime, pe_source_actions_t actions) {
     void *context = runtime->io.context;
+    if (pe_source_runtime_abort_on_monitor_fault(runtime)) return false;
     if (!actions.stop_n) {
         if (!runtime->io.set_level(context, PE_SOURCE_PIN_STOP_N, false) ||
             !runtime->io.cancel_uart_tx(context)) goto fault;
     }
-    if (!runtime->io.set_level(context, PE_SOURCE_PIN_CHALLENGE_ACTIVE,
+    if (pe_source_runtime_abort_on_monitor_fault(runtime) ||
+        !runtime->io.set_level(context, PE_SOURCE_PIN_CHALLENGE_ACTIVE,
                                actions.challenge_active)) goto fault;
     if (actions.stop_n &&
-        !runtime->io.set_level(context, PE_SOURCE_PIN_STOP_N, true)) goto fault;
+        (pe_source_runtime_abort_on_monitor_fault(runtime) ||
+         !runtime->io.set_level(context, PE_SOURCE_PIN_STOP_N, true))) goto fault;
     if (actions.seen_reset_pulse &&
         (!current_control_sample(runtime, true) ||
+         pe_source_runtime_abort_on_monitor_fault(runtime) ||
          !runtime->io.pulse(context, PE_SOURCE_PIN_SEEN_RESET_REQUEST) ||
          !within_sample_bound(runtime,
                               runtime->io.max_sample_to_control_pin_ms))) goto fault;
     if (actions.permit_set_pulse &&
         (!current_control_sample(runtime, false) ||
+         pe_source_runtime_abort_on_monitor_fault(runtime) ||
          !runtime->io.pulse(context, PE_SOURCE_PIN_PERMIT_SET_REQUEST) ||
          !within_sample_bound(runtime,
                               runtime->io.max_sample_to_control_pin_ms))) goto fault;
@@ -84,6 +100,7 @@ static bool apply(pe_source_runtime_t *runtime, pe_source_actions_t actions) {
              (now >= runtime->source.deadline_ms ||
               runtime->source.deadline_ms - now <=
                   runtime->io.max_sample_to_wdi_ms)) ||
+            pe_source_runtime_abort_on_monitor_fault(runtime) ||
             !runtime->io.pulse(context, PE_SOURCE_PIN_WDI_HEARTBEAT) ||
             !within_sample_bound(runtime,
                                  runtime->io.max_sample_to_wdi_ms)) goto fault;
@@ -91,7 +108,8 @@ static bool apply(pe_source_runtime_t *runtime, pe_source_actions_t actions) {
     if (actions.transmit) {
         uint8_t bytes[PE_FRAME_SIZE];
         pe_frame_encode(&actions.frame, bytes);
-        if (!runtime->io.send_frame(context, bytes, sizeof(bytes))) goto fault;
+        if (pe_source_runtime_abort_on_monitor_fault(runtime) ||
+            !runtime->io.send_frame(context, bytes, sizeof(bytes))) goto fault;
         /* The receiver independently rejects late START. This catches an
          * adapter that violated its promised complete-frame bound and drops
          * source permission rather than continuing the session. */
@@ -100,9 +118,10 @@ static bool apply(pe_source_runtime_t *runtime, pe_source_actions_t actions) {
              !within_sample_bound(runtime,
                                   runtime->io.max_sample_to_start_end_ms))) goto fault;
     }
+    if (pe_source_runtime_abort_on_monitor_fault(runtime)) return false;
     return true;
 fault:
-    io_abort(runtime);
+    if (!runtime->io_fault) io_abort(runtime);
     return false;
 }
 
@@ -139,7 +158,7 @@ bool pe_source_runtime_boot(pe_source_runtime_t *runtime,
     }
     pe_source_init(&runtime->source, config);
     pe_stream_init(&runtime->stream, max_byte_gap_ms);
-    return true;
+    return !pe_source_runtime_abort_on_monitor_fault(runtime);
 }
 
 static void advance_preparation(pe_source_runtime_t *runtime) {
@@ -182,7 +201,7 @@ static void commit_start(pe_source_runtime_t *runtime) {
 }
 
 void pe_source_runtime_tick(pe_source_runtime_t *runtime) {
-    if (runtime->io_fault) return;
+    if (pe_source_runtime_abort_on_monitor_fault(runtime)) return;
     pe_source_actions_t actions;
     pe_source_inputs_t inputs;
     if (!runtime->io.sample(runtime->io.context, &inputs)) {
@@ -200,7 +219,7 @@ void pe_source_runtime_tick(pe_source_runtime_t *runtime) {
 }
 
 void pe_source_runtime_byte(pe_source_runtime_t *runtime, uint8_t byte) {
-    if (runtime->io_fault) return;
+    if (pe_source_runtime_abort_on_monitor_fault(runtime)) return;
     pe_source_actions_t actions;
     pe_source_inputs_t inputs;
     if (!runtime->io.sample(runtime->io.context, &inputs)) {
@@ -217,7 +236,7 @@ void pe_source_runtime_byte(pe_source_runtime_t *runtime, uint8_t byte) {
 }
 
 void pe_source_runtime_serial_error(pe_source_runtime_t *runtime) {
-    if (runtime->io_fault) return;
+    if (pe_source_runtime_abort_on_monitor_fault(runtime)) return;
     pe_source_runtime_stop(runtime);
     pe_stream_init(&runtime->stream, runtime->stream.max_gap_ms);
 }
@@ -225,7 +244,7 @@ void pe_source_runtime_serial_error(pe_source_runtime_t *runtime) {
 void pe_source_runtime_local_progress(pe_source_runtime_t *runtime,
                                       uint64_t control_epoch,
                                       uint64_t monitor_epoch) {
-    if (runtime->io_fault) return;
+    if (pe_source_runtime_abort_on_monitor_fault(runtime)) return;
     if (!runtime->progress_baselined) {
         runtime->progress_baselined = true;
         runtime->control_observed = control_epoch;
@@ -254,7 +273,7 @@ void pe_source_runtime_local_progress(pe_source_runtime_t *runtime,
 }
 
 bool pe_source_runtime_ping(pe_source_runtime_t *runtime) {
-    if (runtime->io_fault) return false;
+    if (pe_source_runtime_abort_on_monitor_fault(runtime)) return false;
     pe_source_actions_t actions;
     pe_source_inputs_t inputs;
     if (!runtime->io.sample(runtime->io.context, &inputs)) {
@@ -274,7 +293,8 @@ void pe_source_runtime_stop(pe_source_runtime_t *runtime) {
 }
 
 void pe_source_runtime_begin_restart(pe_source_runtime_t *runtime) {
-    if (runtime->io_fault || runtime->source.restart_requested) return;
+    if (pe_source_runtime_abort_on_monitor_fault(runtime) ||
+        runtime->source.restart_requested) return;
     pe_source_actions_t actions;
     pe_source_begin_deliberate_restart(&runtime->source, &actions);
     runtime->cooker_reset_attempted = false;
@@ -284,13 +304,15 @@ void pe_source_runtime_begin_restart(pe_source_runtime_t *runtime) {
 static bool sample_restart_disarm(pe_source_runtime_t *runtime,
                                   pe_source_inputs_t *inputs,
                                   uint64_t *started_at) {
-    if (runtime->io_fault || !runtime->source.restart_requested) return false;
+    if (pe_source_runtime_abort_on_monitor_fault(runtime) ||
+        !runtime->source.restart_requested) return false;
     pe_source_actions_t actions;
     *started_at = runtime->io.now_ms(runtime->io.context);
     if (!runtime->io.sample(runtime->io.context, inputs)) {
         io_abort(runtime);
         return false;
     }
+    if (pe_source_runtime_abort_on_monitor_fault(runtime)) return false;
     uint64_t now = runtime->io.now_ms(runtime->io.context);
     if (now < *started_at ||
         now - *started_at > runtime->io.max_sample_to_control_pin_ms) {
@@ -338,6 +360,7 @@ bool pe_source_runtime_reset_cooker_latch(pe_source_runtime_t *runtime) {
     /* Consume the allowance before any physical edge. Retrying a failed or
      * completed pulse could erase a newly latched cooker fault. */
     runtime->cooker_reset_attempted = true;
+    if (pe_source_runtime_abort_on_monitor_fault(runtime)) return false;
     if (!runtime->io.pulse_cooker_reset(runtime->io.context)) {
         io_abort(runtime);
         return false;
@@ -353,7 +376,8 @@ bool pe_source_runtime_reset_cooker_latch(pe_source_runtime_t *runtime) {
 
 pe_source_restart_step_t pe_source_runtime_deliberate_restart_step(
     pe_source_runtime_t *runtime) {
-    if (runtime->io_fault) return PE_RESTART_IO_FAULT;
+    if (pe_source_runtime_abort_on_monitor_fault(runtime))
+        return PE_RESTART_IO_FAULT;
     pe_source_runtime_begin_restart(runtime);
     if (runtime->io_fault) return PE_RESTART_IO_FAULT;
     if (pe_source_runtime_disarmed_for_restart(runtime) ||

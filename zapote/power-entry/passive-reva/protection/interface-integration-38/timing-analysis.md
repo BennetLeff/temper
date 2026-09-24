@@ -118,6 +118,16 @@ evidence exists, so the post-reset feed tail remains **UNBOUNDED** for
 numerical acceptance. The full ESP-IDF v5.3.6 diagnostic lockout image now
 links; production mode still fails at image link on unresolved cooker hooks.
 Neither host tests nor a locked diagnostic image close the reset path.
+The source service now accepts a sticky, atomic monitor-fault request from
+another task. Its sole source owner polls that latch before PERMIT, WDI,
+START and restart actions, then requests STOP low and drains UART. Focused
+host tests cover a fault injected during the final sample before each
+authorization edge; all 17 firmware CTests and a refreshed ESP32-S3
+source-task target link pass. The cooker monitor still has no completed
+safety check or accepted sensor-age policy, so it does not yet issue that
+request or earn progress credit. An in-flight I/O action and source-task
+response latency require physical bounds; these tests do not shrink the
+implementation-worst term.
 The joined source now has a separate `SOURCE_PREWATCHDOG_OK` gate from
 reset-good, interlock and rail-good without WDO. It can support a pre-feed
 software sample without making watchdog recovery depend on WDO already being
@@ -176,6 +186,15 @@ must stay explicit in every later timing sum. Where a selected part lacks a
 guaranteed maximum at the installed condition, obtain a supported bound or
 leave `T_implementation,worst` OPEN. A prototype capture can test a design
 but cannot by itself manufacture a missing production-corner guarantee.
+
+The wider-package **review candidate**, not the selected BOM, is
+`ISO7741FQDWWRQ1` plus `ISO6742FQDWWRQ1`. The latter specifies up to
+0.3 µs after its input VCC falls below **1.2 V**, whereas ISO7741F uses
+**1.7 V**. The rail-decay time between those thresholds and the actual HOT
+output defaults are unbounded; no 0.3 µs figure can be inserted directly
+into a Rev38 fault-response sum. The ISO6742 also has a specified startup
+valid-data delay from UVLO. See `INSULATION-BASIS.md` and the
+[TI ISO6742-Q1 data sheet](https://www.ti.com/lit/gpn/iso6742-q1).
 
 ## Per-fault work ledger
 

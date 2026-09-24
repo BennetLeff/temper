@@ -47,21 +47,47 @@ board terminal placeholder `TBD_REVIEW_ONLY:PFC_F2_BOARD_TERMINAL_1017526`.
 The generated partial directory was removed. No `section.kicad_sch` or
 `section.kicad_pcb` was emitted. The terminal needs a released four-pin
 footprint; neither placeholder may be promoted into a fabricated board.
-There are also no
-reviewed `poses.json` or `outline.json`; automatic arbitrary placement would
+There are also no reviewed `poses.json` or `outline.json`; automatic arbitrary placement would
 not satisfy the electrical or isolation layout review.
 
 `source-build-04` freezes a 10 kΩ rather than 100 kΩ GPIO21 heartbeat
 request pull-down. Its two-source assembly lock and audit pass. The native
-probe result above is historical for `source-build-03`; it has not been
-rerun on `source-build-04`. `INSULATION-BASIS.md` now identifies a second,
-independent U7 blocker: the documented 409.307 V maximum static regulation
+probe result above is historical for `source-build-03`. On 2026-09-24 the
+worktree's ten pyo3 extensions were rebuilt and the freshness/import gate
+passed **10/10**. A native probe against the current `source-build-04` with
+`tools/build_native.py` passed source and strict-bridge validation, then
+stopped in `vendor_candidate_libs` on the same PCB-terminal placeholder
+`TBD_REVIEW_ONLY:PFC_F2_BOARD_TERMINAL_1017526` at `U227`. It emitted no
+`section.kicad_sch` or `section.kicad_pcb`. This is a current failure receipt,
+not a native-board qualification. Exact SHA-256 inputs: build receipt
+`ecd434f9e896cae47cadd73f955235d1c254030c46d6887461b6986b423a68cf`,
+netlist `b1a7a8119055b59d7786addd0be70d0cccfb1337dc851a626aa0ca6534f10bfe`,
+resolved export `6b41cb7304a93a5eefdcd71c91831fedbaa6a8aa2c5e50955c65a0a7f0997b7c`,
+fresh `temper-design-bundle` extension
+`98326b1a35f2924fe3a7975c08f0de6f2d495af7286f37b18e39ce28176db460`.
+
+`INSULATION-BASIS.md` identifies another independent U7 blocker: the documented 409.307 V maximum static regulation
 falls in the project's >400–500 V PD3 creepage row (16.0 mm reinforced
 screen on Group IIIa FR-4; the separate Group I package screen is 12.6 mm,
 while the selected ISO774x DW package provides only >8 mm external
 creepage. The selected product standard, clearance, worst VD/VB
 waveforms and complete barrier construction remain unresolved. No native
 rule file or board DRC result is accepted.
+
+The netlist's `(libsource (part ...))` may be a footprint-shared alias rather
+than the selected per-reference MPN. A static comparison on this frozen
+source found 122 such differences among 295 references. For example, the
+selected `TCA6408AQPWRQ1` expander carries `SN74LV221AQPWRQ1` as its
+compiled libsource identity. The native bridge now requires each selected
+MPN in the resolved export to match the per-reference BOM and rekeys the
+schematic symbol ID and visible Value to that MPN. It preserves only the
+compiled **numeric pin** set; functional pin names are explicitly
+unverified. Focused missing/mismatched-MPN tests pass 8/8. A temporary
+flat Rev38 schematic exported by KiCad 10.0.4 had 295 references and the
+same 1,056 `(net, reference, pin number)` edges as the frozen source, with
+zero missing or extra edges; U289's exported libpart and Value are both
+`TCA6408AQPWRQ1`. This verifies identity and numeric connectivity at that
+projection, not pin function or a complete native section board.
 
 Once those inputs are closed, use the current frozen source or generate a
 new one if the selected components or pins change, then run

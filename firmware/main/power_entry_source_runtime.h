@@ -32,6 +32,9 @@ typedef struct {
     bool (*cancel_uart_tx)(void *context);
     /* Return only after the complete frame leaves the wire. No queued TX. */
     bool (*send_frame)(void *context, const uint8_t *bytes, size_t length);
+    /* Sticky cross-task fault latch, set with a release atomic store by the
+     * monitor producer. The sole source owner reads it with acquire order. */
+    const uint32_t *monitor_fault_requested;
     /* Target-verified time from commit sample through final START bit. */
     uint32_t max_sample_to_start_end_ms;
     /* Target-verified time from the source sample to a WDI falling edge. */
@@ -63,6 +66,10 @@ bool pe_source_runtime_boot(pe_source_runtime_t *runtime,
                             pe_source_runtime_io_t io,
                             pe_source_config_t config,
                             uint32_t max_byte_gap_ms);
+/* The source owner polls the sticky monitor fault before authorizing work.
+ * A latched request makes STOP low, drains UART, and becomes terminal.
+ * Returns true for this or any earlier terminal I/O fault. */
+bool pe_source_runtime_abort_on_monitor_fault(pe_source_runtime_t *runtime);
 void pe_source_runtime_tick(pe_source_runtime_t *runtime);
 void pe_source_runtime_byte(pe_source_runtime_t *runtime, uint8_t byte);
 void pe_source_runtime_serial_error(pe_source_runtime_t *runtime);

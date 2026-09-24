@@ -80,17 +80,19 @@ TI's 2026-02 package-option addendum lists the active, production
 `ISO7741FQDWWRQ1` (3 forward / 1 reverse, fail-low) in DWW-16. It lists
 `ISO7742FQDWRQ1` only in DW-16: the family's DWW insulation table does
 **not** establish that a fail-low, 2/2 ISO7742 DWW can actually be ordered.
-For the second 2/2 device, TI lists active, production `ISO7842FDWWR`.
-Its datasheet specifies fail-low outputs, the same 2/2 signal pin positions
-as the selected ISO7742FDWR, Group I package material and >14.5 mm
-external package creepage and clearance. This is a concrete alternate pair
-for review, **not** a drop-in insulation approval or a changed Rev38 BOM.
+For the second 2/2 device, TI lists active, production
+`ISO6742FQDWWRQ1`. Its datasheet specifies fail-low outputs, the same 2/2
+signal pin positions as the selected ISO7742FDWR, Group I package material
+and >14.5 mm external package creepage and clearance. It supports the
+candidate 3.3 V SELV / 5 V HOT rails. `ISO7741FQDWWRQ1` plus
+`ISO6742FQDWWRQ1` is an exact wider-package pair for review, **not** a
+drop-in insulation approval or a changed Rev38 BOM.
 Both TI insulation tables state **pollution degree 2** for their component
 certifications. Their >14.5 mm physical path and Group I CTI do not by
 themselves certify use in the proposed PD3 appliance construction. That
 application needs an accepted enclosure or component-insulation argument.
 
-The ISO7842 DWW datasheet's *optimized* land-pattern examples give only
+The DWW datasheet's *optimized* land-pattern examples give only
 14.5–15.2 mm between opposed pads. Its ordinary DW package example is
 smaller still; **the DWW footprint must be used**. On the project's
 provisional Group IIIa FR-4 screen, even the optimized DWW examples do not
@@ -101,9 +103,17 @@ edge, including solder spread, vias, planes and nearby unrelated nets, not
 from package body or pad centers. A solder-mask bridge is not credited as
 solid insulation without a specifically qualified construction.
 
-The ISO7842F output is undetermined when the output-side rail is unpowered
-or in the stated 1.7–2.25 V transition region; retain local default-low
-loads and qualify the actual rail sequence.
+The ISO6742F specifies up to 0.3 µs from **input** VCC falling below 1.2 V
+to its default output, while ISO7741F uses a 1.7 V threshold. Actual time
+through the intermediate rail region is unbounded here. The ISO6742 also
+specifies up to 300 µs from undervoltage lockout to valid data on startup.
+These are device conditions, not an installed response bound. Retain local
+default-low loads and qualify the actual rail sequence. The alternate
+`ISO7841FDWWR`/`ISO7842FDWWR` pair has a 9 µs maximum input-power-loss
+default delay at its specified threshold, so it is not a timing-equivalent
+substitution. The provisional `ISO7741_DWW16.kicad_mod` under
+`elec/qualification` has unsuitable candidate pad geometry; a native DWW
+footprint needs a new official-land-pattern and assembled-copper review.
 Before changing the source, compare both candidates' enable/power-loss
 behavior, input/output drive, supply budget, timing, pad-to-pad path, exact
 footprint and certification scope on the joined circuit. The product safety
@@ -189,6 +199,8 @@ evidence.
 - [TI ISO774x-Q1 package-option addendum and insulation table](https://www.ti.com/lit/gpn/ISO7742-Q1):
   exact DWW orderability of ISO7741F and absence of ISO7742F DWW from
   the listed orderable parts; DWW package geometry and Group I material.
+- [TI ISO6742-Q1 data sheet and orderable addendum](https://www.ti.com/lit/gpn/iso6742-q1):
+  exact `ISO6742FQDWWRQ1` status, 2/2 pin map, fail-low behavior,
+  package path, optimized land pattern and partial-power timing.
 - [TI ISO7842F data sheet](https://www.ti.com/lit/ds/symlink/iso7842.pdf):
-  exact `ISO7842FDWWR` orderability, 2/2 pin map, fail-low behavior,
-  package path, optimized land-pattern dimensions and partial-power caveats.
+  slower alternative pair and its conditional power-loss default delay.

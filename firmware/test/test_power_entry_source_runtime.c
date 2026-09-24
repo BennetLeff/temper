@@ -29,6 +29,8 @@ typedef struct {
     unsigned fail_sample_at;
     unsigned delay_sample_at;
     uint64_t delayed_sample_to_ms;
+    uint32_t monitor_fault_request;
+    unsigned fault_on_sample_at;
     unsigned event_count;
     unsigned last_wdi_event;
     unsigned ping_send_event;
@@ -44,6 +46,8 @@ static bool fake_sample(void *context, pe_source_inputs_t *inputs) {
     if (fake->fail_sample || fake->sample_count == fake->fail_sample_at)
         return false;
     *inputs = fake->inputs;
+    if (fake->sample_count == fake->fault_on_sample_at)
+        __atomic_store_n(&fake->monitor_fault_request, 1u, __ATOMIC_RELEASE);
     if (fake->sample_count == fake->delay_sample_at)
         fake->now = fake->delayed_sample_to_ms;
     return true;
@@ -144,6 +148,7 @@ static pe_source_runtime_t boot(fake_io_t *fake) {
         .pulse_cooker_reset = fake_pulse_cooker_reset,
         .cancel_uart_tx = fake_cancel_tx,
         .send_frame = fake_send,
+        .monitor_fault_requested = &fake->monitor_fault_request,
         .max_sample_to_start_end_ms = 1,
         .max_sample_to_wdi_ms = 1,
         .max_sample_to_control_pin_ms = 1,
@@ -640,6 +645,63 @@ static void delayed_final_start_read_sends_no_start(void) {
     assert(fake.sent_count == 2 && !fake.levels[PE_SOURCE_PIN_STOP_N]);
 }
 
+static void monitor_fault_aborts_before_wdi_edge(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    fake.now = 1;
+    pe_source_runtime_tick(&runtime);
+    pe_source_runtime_local_progress(&runtime, 1, 1);
+    pe_source_runtime_local_progress(&runtime, 2, 2);
+    fake.fault_on_sample_at = fake.sample_count + 1u;
+    fake.now = 2;
+    pe_source_runtime_tick(&runtime);
+    assert(runtime.io_fault && runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(fake.pulses[PE_SOURCE_PIN_WDI_HEARTBEAT] == 0);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+    /* Even an incorrect producer clear cannot reauthorize this runtime. */
+    __atomic_store_n(&fake.monitor_fault_request, 0u, __ATOMIC_RELEASE);
+    pe_source_runtime_local_progress(&runtime, 3, 3);
+    fake.now = 3;
+    pe_source_runtime_tick(&runtime);
+    assert(runtime.io_fault && fake.pulses[PE_SOURCE_PIN_WDI_HEARTBEAT] == 0);
+}
+
+static void monitor_fault_aborts_before_permit_edge(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    /* The candidate reaches its final control sample at the button press.
+     * The fault is latched while that sample is in flight. */
+    fake.now = 1;
+    pe_source_runtime_tick(&runtime);
+    receive(&runtime, &fake, (pe_frame_t){PE_PREPARE_CHALLENGE, 71, 0}, 2);
+    fake.now = 3;
+    pe_source_runtime_tick(&runtime);
+    fake.now = 4;
+    pe_source_runtime_tick(&runtime);
+    fake.inputs.hot_session_q = true;
+    receive(&runtime, &fake, (pe_frame_t){PE_READY, 71, 0}, 5);
+    fake.now = 6;
+    pe_source_runtime_tick(&runtime);
+    fake.inputs.start_button_pressed = true;
+    fake.fault_on_sample_at = fake.sample_count + 2u;
+    fake.now = 7;
+    pe_source_runtime_tick(&runtime);
+    assert(runtime.io_fault && runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(fake.pulses[PE_SOURCE_PIN_PERMIT_SET_REQUEST] == 0);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
+static void monitor_fault_aborts_before_start_frame(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    through_request(&runtime, &fake);
+    fake.fault_on_sample_at = fake.sample_count + PE_FRAME_SIZE + 1u;
+    receive(&runtime, &fake,
+            (pe_frame_t){PE_ACK, 71, fake.sent[1].value}, 9);
+    assert(runtime.io_fault && runtime.source.state == PE_SOURCE_LOCKOUT);
+    assert(fake.sent_count == 2 && !fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
 int main(void) {
     retained_high_wdi_waits_for_disarm();
     both_tasks_must_progress_before_wdi();
@@ -668,5 +730,8 @@ int main(void) {
     near_deadline_control_edge_is_not_requested();
     near_deadline_wdi_edge_is_not_requested();
     delayed_final_start_read_sends_no_start();
+    monitor_fault_aborts_before_wdi_edge();
+    monitor_fault_aborts_before_permit_edge();
+    monitor_fault_aborts_before_start_frame();
     return 0;
 }

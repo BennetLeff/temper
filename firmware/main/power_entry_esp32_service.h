@@ -13,6 +13,13 @@ bool pe_esp32_source_service_start(void);
  * UART. Reject while locked out, stopped, or already queued. */
 bool pe_esp32_source_service_request_deliberate_restart(void);
 
+/* A monitor producer latches a terminal fault without touching Rev38 GPIO,
+ * UART, or the source runtime from its task. The sole source owner consumes
+ * this request and asserts STOP. In-flight I/O and task response time remain
+ * physical timing qualifications; this API does not synchronously stop a
+ * frame already on the wire. A new boot is required to clear the latch. */
+void pe_esp32_source_service_request_monitor_fault(void);
+
 /* Report completed work from independent tasks. The present monitor task has
  * no safety work to report, so it must not call the monitor function yet. */
 void pe_esp32_source_service_control_progress(void);
