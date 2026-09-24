@@ -4,8 +4,9 @@ Status: **candidate map joined in Atopile, integration in progress**. This is th
 owner's single checklist for the source, isolation, receiver, and supply
 interfaces. The HOT MCU and isolation endpoints below are selected in the
 Rev38 Atopile fixture. The ESP module/GPIO and local expander allocation is
-joined as `SourceMcu38` and exact-pin audited, but is not proven at CPU reset
-or built with ESP-IDF.
+joined as `SourceMcu38` and exact-pin audited. A single source task is now
+wired into `app_main`, but remains locked out; CPU-reset behavior and the
+ESP-IDF target build are unverified.
 The approved plan and `receiver-selection.md` govern behavior; a pin listed
 here is not an electrical, boot-state, or timing acceptance.
 
@@ -74,6 +75,16 @@ watchdog own unexpected execution-loss shutdown. Expander reset, ESP reboot,
 or an I²C ACK cannot be counted as immediate CPU-reset detection. The relay
 request cannot bypass the AVR decision and retained HOT RUN gate.
 
+`SOURCE_RESET_GOOD` and `SOURCE_INTERLOCK_N` currently have 10 kΩ local
+pull-downs and no driving components, so the pre-watchdog sample stays low
+on the compiled candidate. ESP EN is pulled high and does not report an
+internal CPU-only reset. The source watchdog WDO clears source health, but
+using that WDO as the pre-feed sample would make the first feed dependent on
+the watchdog already being healthy. Choose and join independent reset and
+interlock producers, then test CPU-only reset with retained expander and
+GPIO state before enabling the source task. A pin assignment or a boot log
+cannot close that physical producer gap.
+
 For the screened [TCA6408A-Q1](https://www.ti.com/lit/ds/symlink/tca6408a-q1.pdf),
 the output latch register `0x01` and
 configuration register `0x03` both power up to `0xFF`. The adapter must hold
@@ -125,8 +136,10 @@ external supply interface. Neither choice permits bonding `SELV_GND` to
 ## Integration gate
 
 The Atopile candidate now joins source MCU, expander, button, source authority
-and both isolation channels. The ESP adapter is host-tested, but is not wired
-to `app_main`, target-built, or measured. The expander P1 history-reset pulse
+and both isolation channels. The ESP adapter is host-tested and wired to one
+`app_main` task, but is not target-built or measured. Zero target timing
+bounds and unqualified UART final-bit, reset feed-tail, and monitor progress
+conditions keep the task locked out. The expander P1 history-reset pulse
 uses a candidate 5 ms I²C transaction timeout. Runtime now reserves its
 configured sample-to-edge bound before requesting P1 or permit-set; the
 bound still needs target capture. `uart_wait_tx_done()` is only
@@ -134,6 +147,9 @@ documented as waiting for the TX FIFO to empty; a final START-bit completion
 claim also needs target capture. Before promoting this map, update the native
 KiCad symbols/footprints and obtain the physical evidence.
 Check every physical pad, pull/default, supply return, isolator direction,
-UART ownership and expander retained-output case. Capture boot/CPU-only reset
+UART ownership and expander retained-output case. The legacy cooker pin
+header still names GPIO18 as a power LED and GPIO38/39 as optional I²C;
+the current firmware has no callers of those aliases, but the native pin
+ownership review must remove or reconcile them. Capture boot/CPU-only reset
 and partial-power behavior on the selected hardware. Until then this is the
 candidate **interface contract**, with ESP and supply joins OPEN.

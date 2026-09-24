@@ -72,9 +72,10 @@ positive and deliberate-miswire tests accompany the full Rev38 audit.
   receiver firmware still holds PA2 low pending a precharge policy. The
   relay is a precharge bypass,
   not a fault-current interrupter or a gate-authorization path.
-- Join a protected AUX source and assess its startup, hold-up, loss and
-  transients against the rail detectors and PFC power path. No upstream
-  AUX source is present in this candidate.
+- Qualify the joined IRM-20-24 raw source, LMR36015 15 V buck, LTC4368
+  cutoff and TPS54202 logic5 converter against startup, hold-up, loss and
+  transients at the relay and PFC loads. Their compiled connectivity is not
+  a measured supply envelope; the off-board AUX branch fuse remains unbuilt.
 
 No mains energization, thermal qualification, leakage or safety
 certification has been performed on this Rev38 circuit.

@@ -1,11 +1,11 @@
 # Rev38 ESP32-S3 source pin inventory
 
-Status: **inventory only; pin contract OPEN**. The joined Rev38 Atopile
-candidate still has no ESP component or GPIO producer. Do not assign the
-firmware runtime callbacks to numbered GPIOs from this inventory alone.
-`ESP-PIN-FIT.md` records one unadopted GPIO/I²C-expander allocation and its
-reset-time failure cases. The candidate adapter now implements that screen,
-but it is not yet a joined electrical pin contract or a target build.
+Status: **ESP/expander pin candidate joined and host-tested; target acceptance
+OPEN**. The joined Rev38 Atopile candidate contains the exact
+ESP32-S3-WROOM-1-N8R8 module-pad and TCA6408A-Q1 expander allocation recorded
+in [PIN-INTERFACE-CONTRACT.md](PIN-INTERFACE-CONTRACT.md). `ESP-PIN-FIT.md`
+records the allocation's reset-time failure cases. Host adapter tests pass;
+the target image, boot/partial-power behavior and timing are unverified.
 
 ## Module limits
 
@@ -64,13 +64,11 @@ functions needs a reviewed timing and failure analysis. The STOP, WDI, and
 permit-set paths especially require direct pin/edge ownership evidence.
 
 The source circuit now generates `SOURCE_PREWATCHDOG_OK` from reset-good,
-interlock, and rail-good without WDO. It is a candidate `safety_ok` sample
-before the first watchdog feed, not a reserved ESP pin. The logical input
-count above is unchanged; the final contract must say whether `rail_good`
-also gets its own GPIO or shares this composite with a justified loss of
-diagnostic detail.
+interlock, and rail-good without WDO. It is the joined `safety_ok` sample at
+ESP GPIO18. `SOURCE_RAIL_RESET_N` is separately sampled at expander P3.
+The reset-good and interlock signals still need independent producers.
 
-The next pin contract must enumerate every module pad, exact GPIO, net,
-direction, boot state, pull/default, sole firmware owner, competing cooker
-function, and test point. It must be checked against the compiled Rev38
-netlist and target boot capture before U4/U6 pin acceptance.
+The joined pin contract enumerates module pads, GPIOs, nets and local
+defaults and passes an exact-pin netlist audit. Complete its firmware-owner,
+competing cooker function and test-point review on the native candidate,
+then capture target boot and reset behavior before U4/U6 pin acceptance.

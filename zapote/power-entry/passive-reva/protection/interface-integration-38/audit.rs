@@ -134,9 +134,9 @@ fn graph(input: &str) -> Result<Graph, String> {
 }
 
 // Atopile can reuse one netlist libsource identity for distinct MPNs that
-// share a footprint. The generated BOM retains the per-reference MPN. Use it
-// for the new converter rather than accepting a false identity from libsource.
-fn with_bom_parts(mut g: Graph, csv_path: &str, prefix: &str) -> Result<Graph, String> {
+// share a footprint. The generated BOM retains the per-reference MPN;
+// connectivity comes from the netlist and part identity comes from the BOM.
+fn with_bom_parts(mut g: Graph, csv_path: &str) -> Result<Graph, String> {
     let csv = fs::read_to_string(csv_path).map_err(|e| e.to_string())?;
     let mut seen = BTreeSet::new();
     for row in csv.lines().skip(1) {
@@ -148,25 +148,24 @@ fn with_bom_parts(mut g: Graph, csv_path: &str, prefix: &str) -> Result<Graph, S
         };
         for reference in refs.split(',') {
             if let Some(id) = g.references.get(reference) {
-                if id.starts_with(prefix) {
-                    if !seen.insert(id.clone()) { return Err(format!("duplicate BOM identity for {id}")); }
-                    g.parts.insert(id.clone(), mpn.to_owned());
-                }
+                if !seen.insert(id.clone()) { return Err(format!("duplicate BOM identity for {id}")); }
+                g.parts.insert(id.clone(), mpn.to_owned());
             }
         }
     }
-    for id in g.references.values().filter(|id| id.starts_with(prefix)) {
+    for id in g.references.values() {
         if !seen.contains(id) { return Err(format!("BOM missing {id}")); }
     }
     Ok(g)
 }
 
 fn joined_bom_graph() -> Result<Graph, String> {
-    let mut g = graph(&fs::read_to_string("build/integrated.net").map_err(|e| e.to_string())?)?;
-    for prefix in ["hot15_converter.", "aux_cutoff.", "hot_logic5_converter."] {
-        g = with_bom_parts(g, "build/integrated.csv", prefix)?;
-    }
-    Ok(g)
+    load_stage("integrated")
+}
+
+fn load_stage(name: &str) -> Result<Graph, String> {
+    let netlist = fs::read_to_string(format!("build/{name}.net")).map_err(|e| e.to_string())?;
+    with_bom_parts(graph(&netlist)?, &format!("build/{name}.csv"))
 }
 
 fn members(g: &Graph, net: &str) -> BTreeSet<(String, String)> {
@@ -789,10 +788,10 @@ fn check_pfc_power(g: &Graph) -> Result<(), String> {
     }
     for (net, expected) in [
         ("ac_rect_l", "bridge:2"), ("ac_rect_n", "bridge:3"),
-        ("hot0", "local_c:2 hf_c:2 bulk1:2 bulk2:2 bulk3:2 bulk4:2 bleed3:2"),
+        ("hot0", "local_c:2 local_c:3 hf_c:2 bulk1:2 bulk2:2 bulk3:2 bulk4:2 bleed3:2"),
         ("rect_minus", "bridge:4"),
         ("boost_switch", "l_boost:2 d_boost:1 d_boost:3"),
-        ("vd_local", "d_boost:2 f2:1 local_c:1 hf_c:1"),
+        ("vd_local", "d_boost:2 f2:1 local_c:1 local_c:4 hf_c:1"),
         ("vb_bank", "f2:2 bulk1:1 bulk2:1 bulk3:1 bulk4:1 bleed1:1"),
         ("bleed1", "bleed1:2 bleed2:1"),
         ("bleed2", "bleed2:2 bleed3:1"),
@@ -818,7 +817,7 @@ fn check_ac_input(g: &Graph) -> Result<(), String> {
         ("mov", "V150LA10AP"), ("y1", "VY1102M31Y5UQ63V0"),
         ("relay_gate_r", "RC1206FR-071KL"),
         ("relay_gate_pd", "RC1206FR-07100KL"),
-        ("relay_fet", "AO3400A"), ("coil_drop", "RC2512FR-0791RL"),
+        ("relay_fet", "AO3400A"), ("coil_drop", "RC2512FK-0791RL"),
         ("flyback", "SS14"),
     ] {
         if g.parts.get(id).is_none_or(|found| found != mpn) {
@@ -996,19 +995,10 @@ fn check_source_mcu(g: &Graph) -> Result<(), String> {
 }
 
 fn check_integrated_with_mcu(g: &Graph, hot: &Graph, source: &Graph, source_mcu: &Graph, driver: &Graph, hot_wd: &Graph, rails: &Graph, f2: &Graph, aux: &Graph, pfc: &Graph, power: &Graph, ac: &Graph) -> Result<(), String> {
-    let hot15 = with_bom_parts(
-        graph(&fs::read_to_string("build/hot15_converter.net").map_err(|e| e.to_string())?)?,
-        "build/hot15_converter.csv", "",
-    )?;
+    let hot15 = load_stage("hot15_converter")?;
     check_hot15_converter(&hot15)?;
-    let cutoff = with_bom_parts(
-        graph(&fs::read_to_string("build/aux_cutoff.net").map_err(|e| e.to_string())?)?,
-        "build/aux_cutoff.csv", "",
-    )?;
-    let logic5 = with_bom_parts(
-        graph(&fs::read_to_string("build/hot_logic5_converter.net").map_err(|e| e.to_string())?)?,
-        "build/hot_logic5_converter.csv", "",
-    )?;
+    let cutoff = load_stage("aux_cutoff")?;
+    let logic5 = load_stage("hot_logic5_converter")?;
     check_aux_cutoff(&cutoff)?;
     check_hot_logic5_converter(&logic5)?;
     if g.parts.len() != hot.parts.len() + source.parts.len() + source_mcu.parts.len() + driver.parts.len() + hot_wd.parts.len() + rails.parts.len() + f2.parts.len() + aux.parts.len() + pfc.parts.len() + power.parts.len() + ac.parts.len() + hot15.parts.len() + cutoff.parts.len() + logic5.parts.len() {
@@ -1231,45 +1221,25 @@ fn check_integrated_with_mcu(g: &Graph, hot: &Graph, source: &Graph, source_mcu:
 
 #[cfg(test)]
 fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_wd: &Graph, rails: &Graph, f2: &Graph, aux: &Graph, pfc: &Graph, power: &Graph, ac: &Graph) -> Result<(), String> {
-    let source_mcu = graph(&fs::read_to_string("build/source_mcu.net").map_err(|e| e.to_string())?)?;
+    let source_mcu = load_stage("source_mcu")?;
     check_integrated_with_mcu(g, hot, source, &source_mcu, driver, hot_wd, rails, f2, aux, pfc, power, ac)
 }
 
 fn main() {
-    let hot = graph(&fs::read_to_string("build/isolation.net").expect("Atopile isolation netlist"))
-        .expect("isolation netlist parse");
-    let source = graph(&fs::read_to_string("build/source.net").expect("Atopile source netlist"))
-        .expect("source netlist parse");
-    let source_mcu = graph(&fs::read_to_string("build/source_mcu.net").expect("Atopile source MCU netlist"))
-        .expect("source MCU netlist parse");
-    let driver = graph(&fs::read_to_string("build/driver.net").expect("Atopile driver netlist"))
-        .expect("driver netlist parse");
-    let hot_wd = graph(&fs::read_to_string("build/hot_watchdog.net").expect("Atopile HOT watchdog netlist"))
-        .expect("HOT watchdog netlist parse");
-    let rails = graph(&fs::read_to_string("build/hot_rails.net").expect("Atopile HOT rail netlist"))
-        .expect("HOT rail netlist parse");
-    let f2 = graph(&fs::read_to_string("build/f2_detector.net").expect("Atopile F2 detector netlist"))
-        .expect("F2 detector netlist parse");
-    let aux = graph(&fs::read_to_string("build/aux_window.net").expect("Atopile AUX window netlist"))
-        .expect("AUX window netlist parse");
-    let pfc = graph(&fs::read_to_string("build/pfc_control.net").expect("Atopile PFC control netlist"))
-        .expect("PFC control netlist parse");
-    let power = graph(&fs::read_to_string("build/pfc_power.net").expect("Atopile PFC power netlist"))
-        .expect("PFC power netlist parse");
-    let ac = graph(&fs::read_to_string("build/ac_input.net").expect("Atopile AC input netlist"))
-        .expect("AC input netlist parse");
-    let hot15 = with_bom_parts(
-        graph(&fs::read_to_string("build/hot15_converter.net").expect("Atopile HOT 15 V netlist"))
-            .expect("HOT 15 V netlist parse"), "build/hot15_converter.csv", "",
-    ).expect("HOT 15 V BOM identity");
-    let cutoff = with_bom_parts(
-        graph(&fs::read_to_string("build/aux_cutoff.net").expect("Atopile AUX cutoff netlist"))
-            .expect("AUX cutoff netlist parse"), "build/aux_cutoff.csv", "",
-    ).expect("AUX cutoff BOM identity");
-    let logic5 = with_bom_parts(
-        graph(&fs::read_to_string("build/hot_logic5_converter.net").expect("Atopile HOT logic5 netlist"))
-            .expect("HOT logic5 netlist parse"), "build/hot_logic5_converter.csv", "",
-    ).expect("HOT logic5 BOM identity");
+    let hot = load_stage("isolation").expect("isolation netlist/BOM");
+    let source = load_stage("source").expect("source netlist/BOM");
+    let source_mcu = load_stage("source_mcu").expect("source MCU netlist/BOM");
+    let driver = load_stage("driver").expect("driver netlist/BOM");
+    let hot_wd = load_stage("hot_watchdog").expect("HOT watchdog netlist/BOM");
+    let rails = load_stage("hot_rails").expect("HOT rail netlist/BOM");
+    let f2 = load_stage("f2_detector").expect("F2 detector netlist/BOM");
+    let aux = load_stage("aux_window").expect("AUX window netlist/BOM");
+    let pfc = load_stage("pfc_control").expect("PFC control netlist/BOM");
+    let power = load_stage("pfc_power").expect("PFC power netlist/BOM");
+    let ac = load_stage("ac_input").expect("AC input netlist/BOM");
+    let hot15 = load_stage("hot15_converter").expect("HOT 15 V netlist/BOM");
+    let cutoff = load_stage("aux_cutoff").expect("AUX cutoff netlist/BOM");
+    let logic5 = load_stage("hot_logic5_converter").expect("HOT logic5 netlist/BOM");
     let integrated = joined_bom_graph().expect("joined BOM identity");
     check(&hot).expect("isolation pin audit");
     check_source(&source).expect("source pin audit");
@@ -1294,66 +1264,72 @@ mod tests {
     use super::*;
 
     fn fixture() -> Graph {
-        graph(&fs::read_to_string("build/isolation.net").unwrap()).unwrap()
+        load_stage("isolation").unwrap()
     }
 
     fn source_fixture() -> Graph {
-        graph(&fs::read_to_string("build/source.net").unwrap()).unwrap()
+        load_stage("source").unwrap()
     }
 
     fn source_mcu_fixture() -> Graph {
-        graph(&fs::read_to_string("build/source_mcu.net").unwrap()).unwrap()
+        load_stage("source_mcu").unwrap()
     }
 
     fn driver_fixture() -> Graph {
-        graph(&fs::read_to_string("build/driver.net").unwrap()).unwrap()
+        load_stage("driver").unwrap()
     }
 
     fn hot_watchdog_fixture() -> Graph {
-        graph(&fs::read_to_string("build/hot_watchdog.net").unwrap()).unwrap()
+        load_stage("hot_watchdog").unwrap()
     }
 
     fn hot_rails_fixture() -> Graph {
-        graph(&fs::read_to_string("build/hot_rails.net").unwrap()).unwrap()
+        load_stage("hot_rails").unwrap()
     }
 
     fn f2_fixture() -> Graph {
-        graph(&fs::read_to_string("build/f2_detector.net").unwrap()).unwrap()
+        load_stage("f2_detector").unwrap()
     }
 
     fn aux_fixture() -> Graph {
-        graph(&fs::read_to_string("build/aux_window.net").unwrap()).unwrap()
+        load_stage("aux_window").unwrap()
     }
 
     fn pfc_fixture() -> Graph {
-        graph(&fs::read_to_string("build/pfc_control.net").unwrap()).unwrap()
+        load_stage("pfc_control").unwrap()
     }
 
     fn power_fixture() -> Graph {
-        graph(&fs::read_to_string("build/pfc_power.net").unwrap()).unwrap()
+        load_stage("pfc_power").unwrap()
     }
 
     fn ac_fixture() -> Graph {
-        graph(&fs::read_to_string("build/ac_input.net").unwrap()).unwrap()
+        load_stage("ac_input").unwrap()
     }
 
     fn integrated_fixture() -> Graph {
         joined_bom_graph().unwrap()
     }
 
+    #[test]
+    fn joined_part_identity_comes_from_bom() {
+        let mut netlist = graph(&fs::read_to_string("build/integrated.net").unwrap()).unwrap();
+        netlist.parts.insert("source.reset_good_pd".into(), "WRONG_ALIAS".into());
+        let joined = with_bom_parts(netlist, "build/integrated.csv").unwrap();
+        assert_eq!(joined.parts.get("source.reset_good_pd").map(String::as_str),
+                   Some("RC0603FR-0710KL"));
+    }
+
     fn hot15_fixture() -> Graph {
-        with_bom_parts(graph(&fs::read_to_string("build/hot15_converter.net").unwrap()).unwrap(),
-            "build/hot15_converter.csv", "").unwrap()
+        load_stage("hot15_converter").unwrap()
     }
 
     fn cutoff_fixture() -> Graph {
-        with_bom_parts(graph(&fs::read_to_string("build/aux_cutoff.net").unwrap()).unwrap(),
-            "build/aux_cutoff.csv", "").unwrap()
+        load_stage("aux_cutoff").unwrap()
     }
 
     fn logic5_fixture() -> Graph {
-        with_bom_parts(graph(&fs::read_to_string("build/hot_logic5_converter.net").unwrap()).unwrap(),
-            "build/hot_logic5_converter.csv", "").unwrap()
+        load_stage("hot_logic5_converter").unwrap()
     }
 
     #[test]

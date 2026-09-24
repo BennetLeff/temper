@@ -70,9 +70,13 @@ not driven low by that host sequence. The joined circuit now puts a
 rising-trigger SN74LV221A-Q1 between the ESP heartbeat request and WDI: a
 high-to-low request-pad transition on CPU reset cannot become TPS3431's
 qualifying WDI falling edge. The first deliberate request rise waits for
-physical disarm and local progress. The adapter still does not own an ESP
-pin. Reset-time pad reconfiguration, bootloader activity, or another owner
-may still create a **rising request** before this adapter runs; partial rail
+physical disarm and local progress. The new `app_main` source task binds the
+adapter to candidate ESP pins and owns the intended UART/I²C/GPIO path. It
+remains locked out with zero target timing bounds and unqualified UART
+final-bit, reset feed-tail and independent monitor progress; the ESP-IDF
+target image has not been built. Reset-time pad reconfiguration, bootloader
+activity, or another owner may still create a **rising request** before this
+task runs; partial rail
 collapse may also alter the one-shot output. No bootloader,
 other-core, GPIO-retention, queue-to-pin, or peripheral-autonomous-edge
 evidence exists, so the post-reset feed tail remains **UNBOUNDED** for

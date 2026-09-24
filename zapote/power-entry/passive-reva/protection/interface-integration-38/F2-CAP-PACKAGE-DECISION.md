@@ -1,0 +1,19 @@
+# Rev38 F2 and local reservoir package decision
+
+Status: **local reservoir source/package match resolved; F2 physical boundary OPEN**. This is a source and package decision for an unpowered native-layout candidate. It does not qualify either component's electrical fault behavior.
+
+## B32776P6226K000: four physical leads
+
+The [TDK B3277*P series data](https://product.tdk.com/system/files/dam/doc/product/capacitor/film/mkp_mfp/data_sheet/20/20/db/fc_2009/b3277xp.pdf) lists the exact `B32776P6226K000` as 22 µF ±10%, 630 Vdc at 85 °C, with a 42.0 × 28.0 × 42.5 mm maximum body and four 1.2 mm leads at 37.5 × 10.2 mm spacing. Its four-lead drawing applies to this order code. TDK specifies lower operating-voltage limits of 540 Vdc at 105 °C and 450 Vdc at 125 °C; those ratings are not transient or fault acceptance limits.
+
+The existing `temper:B32776P6226K000` footprint has four drilled pads at those centers: pads 1 and 4 at one end of the body, pads 2 and 3 at the other. This pad numbering is the repo's footprint convention, not a TDK terminal-number claim. [`PfcLocalReservoir38`](elec/src/pfc_power.ato) now exposes all four pins and connects **1 + 4 to VD_LOCAL**, **2 + 3 to HOT0**. The `local_c` source can therefore map to every physical pad without silently leaving two leads unconnected. This matches the earlier passive RevA source convention and preserves the diode-side energy path outside F2.
+
+The existing footprint was hand-authored for a construction candidate. Before fabrication, check its hole size, annular rings, courtyard, tolerances, body height and HV spacing against the selected purchased lot and the native placement. The capacitance, pulse/ripple heating, stored energy, and temperature/fault voltage remain open in [PFC-POWER.md](PFC-POWER.md) and the retained [interface design](../../INTERFACE-DESIGN.md).
+
+## A70QS50-14F: off-board holder, not PCB clips
+
+The retained protection disposition selected the [Mersen A70QS](https://www.mersen.com/en/products/amp-trap-a70qs-700vac-700vdc) `A70QS50-14F` fuse with Mersen [US141/Z331153](https://www.mersen.com/en/products/ultrasafe-us14-modular-fuse-holders/z331153-us141), a DIN-rail/enclosure holder for a 14 × 51 mm fuse. The [US14 holder data](https://www.mersen.com/sites/default/files/medias/PIM/files/DS-Semiconductor-Modular-Fuse-Holders-UltraSafe-US14-EN.pdf) specifies application and thermal limits for the holder, but does not turn the fuse and board interconnect into an accepted clearing design. The local `temper:A70QS50_ETI_CH14_Prototype` footprint describes provisional **ETI PCB clips**; using it would silently replace the selected holder and its mechanical/thermal conditions. `PfcBankFuse38` therefore remains `TBD_REVIEW_ONLY` and is not a placeable board component.
+
+The native assembly must separate the schematic fuse from its PCB connection. Preserve the series path **VD_LOCAL → F2 pin 1 / holder input → F2 pin 2 / holder output → VB_BANK**, with the local 22 µF reservoir on VD and the bulk bank on VB. Select actual PCB terminals or a connector for these two conductors, then assign a qualified footprint to that *board interface*, not to F2. The return is **VB**, not HOT0. Keep the two high-voltage conductors, holder, cable, enclosure, touch protection and PE/chassis relationships explicit in the assembly drawing.
+
+The terminal/connector choice needs its voltage, pulse/continuous current, wire size, fault-current withstand, contact temperature rise, creepage/clearance and retention checked against the F2 application envelope. Add cable/contact R and L to the existing fuse/energy analysis, then obtain exact-part DC capacitor-discharge let-through and minimum-breaking-current support from Mersen as required by the [F2 disposition](../DISPOSITION.md). Until those decisions are made, a native PCB that merely places the ETI clip footprint or omits F2 from the connectivity evidence would misrepresent the selected design.

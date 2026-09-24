@@ -3,13 +3,15 @@
 `elec/src/source_authority.ato` is the SELV source-side candidate joined to
 `receiver_isolation.ato`, `hot_watchdog.ato`, `hot_rails.ato`,
 `f2_detector.ato`, `aux_window.ato`, `pfc_controller.ato`, `pfc_power.ato`,
-`ac_input.ato` and `driver_stage.ato` by
+`ac_input.ato`, `driver_stage.ato`, `source_mcu.ato`, `hot15_converter.ato`,
+`aux_cutoff.ato` and `hot_logic5_converter.ato` by
 `power_entry_integrated_38.ato`. The joined
 Atopile build connects five physical source/receiver paths: source PERMIT
 and health forward, STOP forward, and physical HOT PERMIT plus retained HOT
-SESSION feedback reverse. The protocol and relay-request channels remain
-assigned in the receiver fixture but have no ESP GPIO/driver producer yet.
-The source and driver circuits are partial; this is not a U4 or protected-operation PASS.
+SESSION feedback reverse. The protocol and relay-request channels have
+ESP/expander candidate producers and exact-pin audit. Source reset-good,
+interlock and SELV 3.3 V producers remain unresolved; this is not a U4 or
+protected-operation PASS.
 
 `firmware/main/power_entry_authorization.c` now contains a host-tested
 source protocol core. Its initial state requests STOP, no PERMIT-set edge,
@@ -43,9 +45,10 @@ validated heartbeat **request** rises before a blocking UART send; the
 one-shot then supplies a falling WDI edge. The request is rejected if its
 callback consumed the
 configured sample-to-pin interval. An I/O failure requests STOP, cancels TX,
-and permanently locks the runtime until reboot. These callbacks have no
-selected ESP GPIOs or target implementation yet; their bounds are host
-fixture parameters, not measured silicon guarantees. The target must use
+and permanently locks the runtime until reboot. The host-tested
+`power_entry_esp32_adapter.c` and candidate `power_entry_esp32_idf.c` bind
+selected GPIO/I²C/UART pads; their bounds are host fixture parameters, not
+measured silicon guarantees. The target must use
 one serialized owner and prove complete-frame UART and pulse timing.
 
 Deliberate restart enters a separate stopped state: STOP remains requested,
@@ -53,9 +56,12 @@ no WDI edge is emitted, and a later physical low-PERMIT/HOT-session readback
 must be sampled before `pe_source_disarmed_for_restart` can succeed.
 The core's WDI action requires local and fresh link progress after
 preparation. Its byte/idle entry points abort on invalidating decoder
-errors. These are logical host results: no ESP GPIO assignment, UART driver,
-source WDI pin owner, boot pin-level capture, or ESP-IDF target build is yet
-present. The existing unconditional TPS3823 feed in `state_machine.c` remains
+errors. These are logical host results: the GPIO assignment and candidate
+UART/I²C driver now have one serialized `app_main` task, but boot pin-level
+capture and the ESP-IDF target build are absent. The task remains locked out
+with zero target timing bounds and unqualified UART completion, reset feed
+tail, and independent monitor progress. The existing unconditional
+TPS3823 feed in `state_machine.c` remains
 a different circuit and cannot be counted as the new TPS3431 feed.
 
 The host runtime no longer drives a retained-high heartbeat-request GPIO low during boot:
@@ -89,8 +95,8 @@ SOURCE_RAIL_RESET_N`. A 10 kΩ pull-down gives that output a low default.
 This is the proposed physical input for the runtime's pre-feed `safety_ok`
 check; `rail_good` can separately sample `SOURCE_RAIL_RESET_N`. It excludes
 WDO by construction. The standalone and joined netlist audits check that
-separation and reject a deliberate WDO short. It is **not yet wired to an
-ESP GPIO**, and reset-good and interlock still have no physical producers.
+separation and reject a deliberate WDO short. It is wired to ESP module pad
+11/GPIO18, but reset-good and interlock still have no physical producers.
 The target must verify threshold/loading, boot sampling, and the relationship
 between this sample and the independently clearing source health gate.
 

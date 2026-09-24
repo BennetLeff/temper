@@ -23,6 +23,7 @@
 #include "state_machine.h"
 #include "hal.h"
 #include "rtd_service.h"
+#include "power_entry_esp32_service.h"
 /* These will be included when components are built */
 /* #include "pan_detect.h" */
 /* #include "pid_control.h" */
@@ -67,6 +68,7 @@ static void control_task(void *arg) {
 
         /* Update state machine (handles PID, PLL internally) */
         state_machine_update();
+        pe_esp32_source_service_control_progress();
         
         /* Wait for next period */
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
@@ -169,6 +171,14 @@ static void init_peripherals(void) {
  * @brief Application entry point
  */
 void app_main(void) {
+    /* Start the sole Rev38 source owner before the cooker tasks. Its direct
+     * STOP output is asserted first and remains low while target timing and
+     * reset behavior are unqualified. The GPIO7/TPS3823 path below belongs
+     * to the existing cooker and gives no Rev38 authorization credit. */
+    if (!pe_esp32_source_service_start()) {
+        ESP_LOGW(TAG, "Rev38 source remains locked out");
+    }
+
     ESP_LOGI(TAG, "=================================");
     ESP_LOGI(TAG, "  Induction Cooker Firmware");
     ESP_LOGI(TAG, "  Version: 1.0.0");

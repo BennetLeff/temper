@@ -1,0 +1,26 @@
+{
+  "adapter_sha256": "ffe384caec28924ef157cb266d31a4053b2db548d22388d492b40648b6d336f2",
+  "build_report_failed": false,
+  "entry": "elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38",
+  "export_sha256": "ce9a4fba24f470f89fa1b399d6a1fbdb48973d7a27d19cdc9eeb16135d7b744a",
+  "returncode": 0,
+  "schema": "temper.power-entry.rev38.source-build.v1",
+  "source_hashes": {
+    "elec/src/ac_input.ato": "c129484e6cd0b3609876a8ac95766800926a6114be1c939b9d49e063f4ce8131",
+    "elec/src/aux_cutoff.ato": "cf9464d01f630c93317b1d6a9958a10d568ea05e556203bc786aafd5835cb545",
+    "elec/src/aux_window.ato": "394dfa33947c76f1c2b3d31abbc28416b7d39b606c2e6e14dc59fa89419ded66",
+    "elec/src/driver_stage.ato": "4e704870e45f461358f347ddbc9d3b1e3eced83ebf17127e15e6d4d3c0cd5077",
+    "elec/src/f2_detector.ato": "211331f3d65d2d247296b7920643561ce3cc38c55fb3d99316cfb284c7a9fbfe",
+    "elec/src/hot15_converter.ato": "3d9519e7b8a7f5ca1d7eef2cafd34dc5f4aabe55fe0043b459810756f46a35b2",
+    "elec/src/hot_logic5_converter.ato": "0eab29825101ac7d970fdfaf5c8c67faca131adc4286185b20fd7a9cab8f9790",
+    "elec/src/hot_rails.ato": "c5b9b8f93945c59156bc38661077167d7aa68c0389f14484fa449ba3cc7dafab",
+    "elec/src/hot_watchdog.ato": "1aa100167245bb4a505bf13814c2925daaffbc539e2d70386063bef93ec98a77",
+    "elec/src/pfc_controller.ato": "89b23d663258300d03d9c7989d5ffba80e30676f164628647e44ce52b604cf36",
+    "elec/src/pfc_power.ato": "c0c3eb3a9272ad2a5c06f20789c89f57605f3b0d235cb7bb8d2415401b190d00",
+    "elec/src/power_entry_integrated_38.ato": "6e0580d214534c9bb15fe9100fa7a322bdc1da7745243b345e120bb816667e03",
+    "elec/src/receiver_isolation.ato": "af0ad08a8a68724f114377dc5d748455c5e5dd8a1d8f0dd58a1864601dff3c94",
+    "elec/src/source_authority.ato": "d84cb1c1e58c21ad423013ef9b2ae6dfe9030d830a7ab9c5f46912c88fdb3b62",
+    "elec/src/source_mcu.ato": "232d932856a6b32baa0b3dd9cf31eb27f6ae7e6c36017569dac4b4168aac409d"
+  },
+  "status": "compiled-and-exported"
+}

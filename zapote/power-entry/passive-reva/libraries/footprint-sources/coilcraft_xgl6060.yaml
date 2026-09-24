@@ -1,0 +1,10 @@
+default_parameters:
+  manufacturer: Coilcraft
+  library_name: temper
+
+series_XGL6060:
+  default_parameters:
+    tags:
+      - xgl6060
+    series_description: XGL6060
+  csv: coilcraft_xgl6060.csv

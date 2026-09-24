@@ -1,0 +1,107 @@
+# Partial source/receiver/protection join. PFC power and supply producers
+# remain unconnected and must be added before U4 can pass.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "receiver_isolation.ato" import ReceiverIsolation38
+from "source_authority.ato" import SourceAuthority38
+from "driver_stage.ato" import DriverStage38
+from "hot_watchdog.ato" import HotWatchdog38
+from "hot_rails.ato" import HotRails38
+from "f2_detector.ato" import F2Detector38
+from "aux_window.ato" import AuxWindow38
+from "pfc_controller.ato" import PfcControl38
+from "pfc_power.ato" import PfcPower38
+from "ac_input.ato" import AcInput38
+from "hot15_converter.ato" import Hot15Converter38
+from "aux_cutoff.ato" import AuxCutoff38
+from "hot_logic5_converter.ato" import HotLogic5Converter38
+from "source_mcu.ato" import SourceMcu38
+
+module PowerEntryIntegrated38:
+    receiver = new ReceiverIsolation38
+    source = new SourceAuthority38
+    driver = new DriverStage38
+    hot_watchdog = new HotWatchdog38
+    hot_rails = new HotRails38
+    f2_detector = new F2Detector38
+    aux_window = new AuxWindow38
+    pfc_control = new PfcControl38
+    pfc_power = new PfcPower38
+    ac_input = new AcInput38
+    hot15_converter = new Hot15Converter38
+    aux_cutoff = new AuxCutoff38
+    hot_logic5_converter = new HotLogic5Converter38
+    source_mcu = new SourceMcu38
+
+    source_mcu.SELV3V3 ~ source.SELV3V3
+    source_mcu.SELV_GND ~ source.SELV_GND
+    source_mcu.SOURCE_COMMAND_TX ~ receiver.SOURCE_COMMAND_TX
+    source_mcu.SOURCE_RESPONSE_RX ~ receiver.SOURCE_RESPONSE_RX
+    source_mcu.SOURCE_RELAY_REQUEST ~ receiver.SOURCE_RELAY_REQUEST
+    source_mcu.SOURCE_STOP_N ~ source.SOURCE_STOP_N
+    source_mcu.SOURCE_VALIDATED_HEARTBEAT ~ source.SOURCE_VALIDATED_HEARTBEAT
+    source_mcu.SOURCE_PERMIT_SET_REQUEST ~ source.SOURCE_PERMIT_SET_REQUEST
+    source_mcu.SOURCE_PREWATCHDOG_OK ~ source.SOURCE_PREWATCHDOG_OK
+    source_mcu.SOURCE_CHALLENGE_ACTIVE ~ source.SOURCE_CHALLENGE_ACTIVE
+    source_mcu.SOURCE_SEEN_RESET_REQUEST ~ source.SOURCE_SEEN_RESET_REQUEST
+    source_mcu.SOURCE_RAIL_RESET_N ~ source.SOURCE_RAIL_RESET_N
+    source_mcu.SOURCE_PERMIT_Q ~ source.SOURCE_PERMIT_Q
+    source_mcu.SOURCE_HOT_PERMIT_FB ~ source.SOURCE_HOT_PERMIT_FB
+    source_mcu.SOURCE_HOT_SESSION_FB ~ source.SOURCE_HOT_SESSION_FB
+    source_mcu.SOURCE_PERMIT_SEEN_Q ~ source.SOURCE_PERMIT_SEEN_Q
+
+    source.SELV3V3 ~ receiver.SELV3V3
+    source.SELV_GND ~ receiver.SELV_GND
+    source.SOURCE_PERMIT_Q ~ receiver.SOURCE_PERMIT_Q
+    source.SOURCE_HEALTH_Q ~ receiver.SOURCE_HEALTH_Q
+    source.SOURCE_STOP_N ~ receiver.SOURCE_STOP_N
+    source.SOURCE_HOT_PERMIT_FB ~ receiver.SOURCE_HOT_PERMIT_FB
+    source.SOURCE_HOT_SESSION_FB ~ receiver.SOURCE_HOT_SESSION_FB
+    driver.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
+    driver.HOT0 ~ receiver.HOT0
+    driver.HOT_RUN_Q ~ receiver.HOT_RUN_Q
+    driver.HOT_SESSION_Q ~ receiver.HOT_SESSION_Q
+    driver.HOT_PERMIT ~ receiver.HOT_PERMIT
+    driver.HOT_PREP_TRIP_OK ~ receiver.HOT_PREP_TRIP_OK
+    driver.HOT_RECEIVER_ABORT_N ~ receiver.HOT_RECEIVER_ABORT_N
+    driver.HOT_PREP_ABORT_OK ~ receiver.HOT_PREP_ABORT_OK
+    driver.HOT_SOURCE_STOP_N ~ receiver.HOT_SOURCE_STOP_N
+    hot_watchdog.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
+    hot_watchdog.HOT0 ~ receiver.HOT0
+    hot_watchdog.HOT_WDI ~ receiver.HOT_WDI
+    hot_watchdog.HOT_WATCHDOG_OK ~ receiver.HOT_WATCHDOG_OK
+    hot_rails.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
+    hot_rails.HOT0 ~ receiver.HOT0
+    hot_rails.HOT_RAILS_OK ~ receiver.HOT_RAILS_OK
+    hot_rails.AUX_PROTECTED ~ driver.AUX_PROTECTED
+    f2_detector.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
+    f2_detector.HOT0 ~ receiver.HOT0
+    f2_detector.HOT_FAULT_N ~ receiver.HOT_FAULT_N
+    aux_window.AUX_PROTECTED ~ driver.AUX_PROTECTED
+    aux_window.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
+    aux_window.HOT0 ~ receiver.HOT0
+    aux_window.REF25 ~ f2_detector.REF25
+    aux_window.AUX_WINDOW_OK ~ f2_detector.AUX_WINDOW_OK
+    pfc_control.HOT0 ~ receiver.HOT0
+    pfc_control.AUX_PROTECTED ~ driver.AUX_PROTECTED
+    pfc_control.VD_LOCAL ~ f2_detector.VD_LOCAL
+    pfc_control.DRIVER_PERMISSION ~ driver.DRIVER_PERMISSION
+    pfc_control.PFC_PWM ~ driver.PFC_PWM
+    pfc_power.HOT0 ~ receiver.HOT0
+    pfc_power.RECT_MINUS ~ pfc_control.RECT_MINUS
+    pfc_power.BOOST_SWITCH ~ driver.STW_DRAIN
+    pfc_power.VD_LOCAL ~ f2_detector.VD_LOCAL
+    pfc_power.VB_BANK ~ f2_detector.VB_BANK
+    ac_input.HOT0 ~ receiver.HOT0
+    ac_input.AUX_PROTECTED ~ driver.AUX_PROTECTED
+    ac_input.HOT_RELAY_ENABLE ~ receiver.HOT_RELAY_ENABLE
+    ac_input.AC_RECT_L ~ pfc_power.AC_RECT_L
+    ac_input.AC_RECT_N ~ pfc_power.AC_RECT_N
+    ac_input.RAW_AUX24 ~ hot15_converter.RAW_AUX24
+    ac_input.HOT0 ~ hot15_converter.HOT0
+    hot15_converter.AUX15_PRECUT ~ aux_cutoff.AUX15_PRECUT
+    aux_cutoff.HOT0 ~ receiver.HOT0
+    aux_cutoff.AUX_PROTECTED ~ driver.AUX_PROTECTED
+    hot_logic5_converter.AUX_PROTECTED ~ driver.AUX_PROTECTED
+    hot_logic5_converter.HOT0 ~ receiver.HOT0
+    hot_logic5_converter.HOT_LOGIC5 ~ receiver.HOT_LOGIC5
