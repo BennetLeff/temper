@@ -50,6 +50,24 @@ in steady state. A sustained 15–20 A overload, especially with the bypass
 relay stuck open, is not shown to clear by a 20 A fuse. That fault needs an
 independent current/temperature limit or an evaluated protective response.
 
+The slow-overload region is a specific **part-coordination mismatch to
+close**, not a marginal derating question. Eaton guarantees the `LP-CC-20`
+will remain intact for **at least 12 seconds at 40 A** (200% of its rating);
+its published curves are average-melt curves, not maximum total-clearing
+times. The actual CMC is TDK `B82726S2163N030`, rated [16 A at its 60 °C
+rated temperature](https://www.tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s2163.pdf).
+The bypass relay is TE `RT33K012`, with a [16 A limiting continuous contact
+current](https://www.te.com/en/product-2-1393240-3.html), and the NTC is
+Ametherm `SL32 10015`, with a [15 A maximum steady current up to
+65 °C](https://www.ametherm.com/datasheetspdf/SL3210015.pdf). Those ratings
+do not specify survival at 40 A for 12 seconds. If the upstream breaker does
+not open sooner, F1 cannot be credited with limiting that exposure. A fault
+that leaves the bypass relay open forces the NTC to carry the full line
+current; the manufacturer also lists 228 °C body temperature at 15 A. Obtain
+transient withstand or demonstrate another independently evaluated clearing
+or current-limiting path for each affected element. Do not infer that the
+PFC's gate shutdown removes a hard AC-line, MOV, or CMC fault.
+
 **PCB source boundary now compiled:** `elec/src/ac_input.ato` assigns
 `1714984` pin 1 to `FUSED_L`, pin 2 to N, and pin 3 to PE. `FUSED_L` feeds
 CMC line input, X2, and MOV directly; there is no board-mounted holder or
@@ -101,43 +119,42 @@ the 400 V boost trajectory, charge retained across retries, and energy
 delivered after the relay closes. The Ametherm 150 J entry cannot release
 the precharge design on this calculation alone.
 
-## Qualification records to collect
+## Fault location and coordination matrix
 
-1. **Installation and fault boundary:** record plug/inlet and upstream
-   breaker identity, polarized-inlet or fixed-wiring L/N definition, reversed
-   and miswired connection behavior, conductor path before F1, the available prospective
-   RMS symmetrical current and fault power factor at the equipment inlet,
-   and whether the installation meets the proposed 10 kA maximum. Use the
-   same source assumptions for line–neutral, line–PE and MOV faults.
-2. **Fuse and downstream clearing:** obtain `LP-CC-20` tolerance or
-   manufacturer application data for total clearing time, peak let-through
-   and total-clearing I²t over the bounded fault cases. Compare each
-   downstream part's qualified withstand and PCB copper to those values;
-   retain the upstream 20 A device in the analysis without assuming
-   selectivity. Include low-current overloads that neither fuse promptly
-   clears.
-3. **Starts and overloads:** record line voltage/phase, source impedance,
-   capacitor initial voltages, AC current waveform and integrated `I²t`
-   for cold start, hot restart at the shortest allowed interval, failed
-   precharge bypass, and relay welded closed. Record NTC body and nearby
-   material temperatures, and derive a permitted retry interval and
-   relay-open timeout from measured limits.
-4. **Installed thermal and mechanical path:** at 15 Arms and 40 °C local
-   air, record cartridge, block, cover, pressure-plate, wire, PCB terminal,
-   solder and adjacent material temperatures after equilibrium and after
-   repeated starts. Identify wire gauge/insulation, strip, ferrule if
-   used, terminal torque, block mounting and strain relief. Check access
-   to an energized block, fuse replacement, PE continuity and chassis
-   bond. The manufacturer's nameplate temperatures do not establish
-   touch or end-product temperature limits.
-5. **MOV end of life:** evaluate sustained abnormal line voltage and
-   limited-current MOV faults, including neutral failure where applicable,
-   against a defined thermal disconnect or other tested safe failure path.
-   Record what F1 does and does not clear in those tests.
+Use the installed inlet, two fuse blocks, PCB terminals, wiring, and final
+board for these reviews. The proposed 10 kA limit is at the **equipment
+inlet**; record the lower or higher prospective current at each fault
+location after actual cable and source impedance. `F2` is on the DC bank
+path and cannot be credited for an AC input or MOV fault. The separate 2 A
+AUX cartridge lies **after** the CMC; it cannot protect an upstream CMC
+fault or the unfused portion of its own send/return harness.
 
-All five records are **NOT RUN**. This table specifies the evidence needed
-to move beyond the present part nomination; it is not a mains-test
-authorization or an assembly acceptance claim.
+| Case and current region | Components exposed and required evidence | Release criterion | State |
+| --- | --- | --- | --- |
+| Inlet assembly, normal and reversed/miswired L/N | Confirm exact polarized inlet or fixed-wiring connections, pre-F1 line routing, strain relief, PE-to-chassis bond and continuity, three-position PCB terminal conductor size/strip/torque, both fuse-block pressure-plate torques, cover retention and access. | The final assembly preserves the defined line-only fuse path, maintains protective earth under the applicable mechanical/electrical tests, and cannot expose an energized replaceable cartridge under the approved access procedure. | NOT RUN |
+| Sustained 15 Arms at 108 and 132 Vac, 40 °C inlet local air | Record true-RMS and crest factor at the inlet, both CMC windings, relay contact when bypassed, F1 clips/cover, wires and PCB input solder joints. Measure each component's **own** local air and body temperature after equilibrium, including AUX running. | Each exact part, termination, wire, copper path and adjacent material remains within its applicable installed rating and end-product temperature limit. F1 neither opens nor degrades. | NOT RUN |
+| 15–20 A sustained overload; bypass both normal and stuck open | Sweep the current region where F1 is at or below its nominal rating and obtain upstream-device time/current limits. Measure CMC, relay and NTC temperatures and any independent overload shutdown response. | No component relies on F1 opening in this region; a documented current limiter or shutdown keeps all temperatures and durations within proven limits. | NOT RUN |
+| 20–40 A abnormal load, including 40 A for 12 s | Obtain Eaton **maximum total-clearing** time and its tolerance at the actual ambient, plus upstream breaker limits. Obtain CMC, relay and NTC transient thermal withstand. Evaluate relay-open and relay-welded states separately. | The fastest credible independent protection clears before the weakest component's proved transient limit, or the components survive the worst combined clearing envelope. Eaton's 12 s minimum at 40 A cannot be used as a clearing guarantee. | NOT RUN |
+| Cold start, hot restart, retained bank charge, relay welded closed, and AUX module startup | Capture inlet and F1 current versus time, line phase, source impedance, capacitor voltage, NTC resistance/temperature, relay position, and AUX branch current. Integrate **measured** F1 and AUX-cartridge I²t and compare with manufacturer-provided minimum-melt bounds at the initial fuse temperature. | No nuisance opening under the permitted start/retry sequence; NTC energy, peak, temperature and relay make current stay within proven limits. Set the retry and precharge timeout from the worst measured case. | NOT RUN |
+| Line–neutral or line–PE short at each inlet and PCB segment, through 10 kA inlet prospective | Map fault points before F1, after F1/before CMC, after CMC/before AUX 2 A branch fuse, after AUX fuse, and after the bypass/rectifier. Obtain `LP-CC-20` and upstream peak let-through, total-clearing I²t and time at each prospective current and power factor; include F1 and 2 A fuse selectivity where both carry the fault. | The inlet wiring before F1 has its own upstream protection; every downstream terminal, wire, copper section and component withstands the actual clearing envelope without an unsafe outcome. Do not transfer the fuse/block's 200 kA component ratings to the assembly. | NOT RUN |
+| MOV degradation or abnormal overvoltage, including limited-current thermal runaway | Test the retained non-thermally-protected `V150LA10AP` with the final enclosure and any proposed thermal disconnect. Include faults that draw too little current to open a 20 A fuse and locate the disconnect relative to the MOV. | Demonstrated safe end-of-life response at the specified abnormal voltage and source impedance; F1 only credited where its measured/guaranteed clearing actually applies. | NOT RUN |
+| F2 bank or boost fault and AUX branch fault | Carry the F1 waveform and common CMC/PCB exposure into the F2 and AUX qualification. Treat F2's DC bank cartridge and the AUX 2 A cartridge as separate protection with separate clearing data. | Proven coordination for all shared upstream elements; no assumed selectivity between F1, F2, AUX fuse and the upstream 20 A device. | NOT RUN |
+
+Before an energized qualification, freeze the inlet/cord or fixed-wiring
+parts, wire gauge and insulation, block mounts and cover access, fuse
+replacement procedure, PCB terminal termination, enclosure airflow, and
+upstream breaker model. Record instrument bandwidth and calibration for
+peak-current/I²t captures. Do not turn the nominal 75% loading fraction or
+the 700 A apparent-RMS 10 kA let-through table entry into a thermal or
+peak-current pass.
+
+For each matrix row, keep the exact sample and revision identity, fixture,
+source voltage/impedance and prospective current, component initial
+temperature, upstream device, waveforms, calibrated instrument settings,
+measured peaks/I²t, thermal locations, acceptance limits, and outcome.
+Only a qualified electrical-safety lab should run destructive fault and MOV
+end-of-life tests. Every matrix row remains **NOT RUN**; the table is a
+qualification specification, not an assembly acceptance claim.
 
 ## Previous 5×20 and 6.3×32 screen
 
