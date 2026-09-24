@@ -8,13 +8,67 @@ Evaluate [Mean Well IRM-20-15](https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20
 
 | Proposed source boundary | Destination | Status |
 | --- | --- | --- |
-| `ac_input.CMC_L_OUT` and `ac_input.AC_RECT_N` (fused, after CMC, before main-path NTC) | IRM-20-15 `AC/L`, `AC/N` | **Proposal**; AUX branch conductor/fuse, inrush/EMI, AC pin footprint and assembly segregation need design |
+| `ac_input.CMC_L_OUT` → off-board AUX fuse → `AUX_FUSED_L`; `ac_input.AC_RECT_N` → IRM AC/N (after CMC, before main-path NTC) | IRM-20 `AC/L`, `AC/N` | **Proposal**; two-conductor branch-loop terminal and off-board cartridge/block are nominated below; inrush, fault energy and assembly segregation remain open |
 | IRM `+V`, `-V` | `AUX15_SOURCE`, `HOT0` | **Proposal**; bonding its isolated DC return to the bridge/HOT return makes this rail HOT, never SELV |
 | `AUX15_SOURCE`, `HOT0` | LTC4368 `VIN` and ground, external disconnect path | **Proposal**; no alternate feed around protection |
 | Disconnect output, `HOT0` | `AUX_PROTECTED`, `HOT0` | Required Rev38 driver, relay, PFC and window producer |
 | `AUX_PROTECTED`, `HOT0` | TPS54202 input; its 5 V output | Required `HOT_LOGIC5`, `HOT0` producer; buck input must be downstream of cutoff |
 
-The `IRM-20-15` data sheet's bottom-view mechanical drawing labels AC/L, AC/N, +V and -V but does not give a numbered pin table in the retrieved specification. Therefore this record **does not assign numeric module pins or invent a PCB footprint**. Its 52.4 × 27.2 × 24 mm envelope, manufacturer installation clearances, mains separation, local heat and branch routing need native review before source construction. The proposed AC tap precedes the precharge NTC and relay, so AUX can start while the relay is open. It also adds the module's own inrush to the F1/CMC path; F1's 20 A nomination does not establish safe protection of the smaller AUX branch.
+The `IRM-20` data sheet's bottom-view mechanical drawing labels AC/L,
+AC/N, +V and −V but does not give a numbered pin table. The installed
+KiCad 10 `Converter_ACDC` library provides a **candidate** THT mapping for
+both `IRM-20-15` and `IRM-20-24`. Its 45 mm left-to-right, 20.8 mm left-pair
+and 8 mm right-pair hole spacing matches the manufacturer's drawing:
+
+| KiCad pad | Library symbol function | Footprint pad center, mm |
+| ---: | --- | --- |
+| 1 | AC/L | (0, 0), rectangular orientation marker |
+| 2 | AC/N | (0, 20.8) |
+| 3 | −V | (45, 20.8) |
+| 4 | +V | (45, 12.8) |
+
+This is a source/native **mapping candidate**, not a verified physical
+pin-number statement from Mean Well. The footprint is
+`Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT` (installed file
+SHA-256 `f5312e0c533a4a0edb84fb0a8affe6a1a6e6109c9689eedb472d169ca3d38e58`).
+Before native release, overlay the actual module's terminal positions and
+markings against the manufacturer bottom view and a 1:1 footprint print;
+check that a bottom-view mirror has not swapped AC/L with AC/N or +V with
+−V. Its 52.4 × 27.2 × 24 mm envelope, manufacturer installation
+clearances, mains separation, local heat and branch routing also need native
+review. The proposed AC tap precedes the precharge NTC and relay, so AUX
+can start while the relay is open. It adds the module's own inrush to the
+F1/CMC path; F1's 20 A nomination does not establish safe protection of the
+smaller AUX branch.
+
+### AUX AC branch protection candidate
+
+Use a second off-board Class CC branch loop so the small IRM feed does not
+depend on the 20 A main F1 to clear its faults. The proposed PCB boundary is
+[Phoenix Contact `1714971`](https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-mkds-5-2-95-1714971),
+the two-position member of the main terminal's MKDS 5 family. Position 1
+would send `CMC_L_OUT` to the off-board fuse block; position 2 would return
+`AUX_FUSED_L` only to IRM AC/L. IRM AC/N would connect to `AC_RECT_N` on the
+PCB. This retains the existing CMC and MOV upstream of the AUX branch, and
+keeps the tap before the main NTC/relay. There is no direct copper short
+between the terminal's two L positions.
+
+Nominate a separate [Eaton `LP-CC-2`](https://www.eaton.com/us/en-us/skuPage.LP-CC-2.html)
+in a second [`BCM603-1P`](https://www.eaton.com/us/en-us/skuPage.BCM603-1P.html)
+block with `CVR-CCM` cover for review. Eaton lists the 2 A time-delay
+cartridge at 600 Vac and 200 kA AC interruption, and the same block family
+as the main F1. The [IRM-20 sheet](https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF)
+lists 0.6 A AC input at 115 Vac and a **20 A cold-start inrush** at 115 Vac.
+The input-current entry is not a branch-wire thermal limit; the inrush peak
+alone lacks duration and I²t, so it does not prove the 2 A fuse survives
+cold or warm starts. Nor do component interrupt ratings establish a 10 kA
+whole-assembly SCCR or coordination with 20 A F1. Record the cartridge,
+block, cover, branch conductor, 1714971 solder joints and two L pads in
+the native BOM; qualify inrush, clearing, terminal temperature, fuse bypass
+faults and access before mains assembly. The `1714971` terminal send/return
+pins now compile in the joined Atopile candidate; the off-board fuse and
+wiring are separate assembly parts and have not been constructed or
+qualified. The exact-pin audit rejects a copper bypass across the two pins.
 
 ## Source and rail arithmetic
 
@@ -26,7 +80,21 @@ The 1.4 A rating is a module output rating at the manufacturer's conditions, not
 
 ## Cutoff and startup constraints
 
-The [LTC4368 static calculation](AUX-OVP-WINDOW.md) gives a mathematical-only 339 kΩ/10 kΩ OV divider: with the stated ±0.34% per-resistor lifetime/temperature screen and ±10 nA input leakage, minimum recovery is **15.9623 V** and maximum rising trip is **17.8325 V**. Against the conditional `15.575 V` 25 °C source screen, static recovery margin is **387 mV**; against its `15.6875 V` 50 °C screen the margin is **274.8 mV**. Against the provisional 18.0 V cutoff target, static rising margin is **167 mV**. These calculations do not select an orderable ratio network or account for board leakage, source output fault slew, MOSFET charge and SOA, or downstream stored charge. The 17.25–20.25 V IRM OVP figure is an internal trigger, and may occur before or after the LTC threshold; it is never credited as a bound on `AUX_PROTECTED`.
+The [LTC4368 static calculation](AUX-OVP-WINDOW.md) rejected the earlier
+339 kΩ/10 kΩ OV illustration as a part-selection basis: its 339 kΩ top
+resistor falls outside the cited TNPU ±2 ppm/K grade. A mathematical-only
+17 kΩ/500 Ω divider fits that published resistance range. With the stated
+±0.34% per-resistor lifetime/temperature screen and ±10 nA input leakage,
+its minimum recovery is **16.0112 V** and maximum rising trip is
+**17.8804 V**. Against the conditional `15.575 V` 25 °C source screen,
+static recovery margin is **436.2 mV**; against its `15.6875 V` 50 °C screen,
+the margin is **323.7 mV**. Against the provisional 18.0 V cutoff target,
+static rising margin is **119.6 mV**. These calculations do not select a
+stock-verified ratio network or account for board leakage, source output
+fault slew, MOSFET charge and SOA, or downstream stored charge. The
+17.25–20.25 V IRM OVP figure is an internal trigger, and may occur before
+or after the LTC threshold; it is never credited as a bound on
+`AUX_PROTECTED`.
 
 The LTC4368 uses external back-to-back MOSFETs, a sense resistor and a 32 ms reconnection delay after a UV/OV fault. Its published fast GATE discharge is fixture-dependent; the output can remain high while its downstream capacitors hold charge. `RETRY` behavior for overcurrent, `SHDN` control, UV threshold, gate pull-up time, and short/restart energy must be chosen as one design. The required `VOUT` bypass is at least 1 µF per the data sheet; the Rev38 downstream capacitors and 5 V buck add unknown inrush. A sense threshold must exceed the worst startup and run current but protect the selected FETs and branch. No such mutually valid range is established yet.
 
@@ -43,7 +111,12 @@ The two bench paths use the same downstream cutoff concept and must be compared 
 ## Decision gates before joining
 
 1. Measure or bound actual worst Rev38 AUX and logic5 steady, pulsed and startup currents, including gate-charge at the selected switching frequency, relay pickup and all capacitor effective values. Set an explicit supply current ceiling and compare both IRM thermal derating and voltage-window closure at **measured local** ambient, not the 40 °C inlet assumption. The direct source's 62.5 mV 50 °C screen may require the regulated path or a revised rail contract.
-2. Resolve manufacturer pin numbers/footprint and the AC branch protection, conductor ampacity, creepage/clearance, installation spacing and F1/IRM inrush coordination on a native layout. The module's independent safety approvals do not certify the joined appliance.
+2. Verify the candidate KiCad pin/footprint mapping against the physical
+   module and manufacturer's bottom view; finish the proposed
+   1714971/LP-CC-2 off-board branch assembly, then resolve conductor ampacity,
+   creepage/clearance, installation spacing and F1/IRM inrush coordination
+   on a native layout. The module's independent safety approvals do not
+   certify the joined appliance.
 3. Select orderable LTC4368 variant, FETs, shunt, precision OV and UV networks, RETRY/SHDN behavior and capacitors. Prove startup without overcurrent latch/hiccup, with the source's slew and the actual load. Recompute every static divider corner from those selections.
 4. Capture the selected raw source (`AUX15_SOURCE` or `RAW_AUX24`), the 15 V buck output if fitted, `AUX_PROTECTED`, UCC27624 `VDD`, `HOT_LOGIC5`, ENA, gate voltage and MOSFET current for slow OV ramps and fast source faults, UV/brownout, overload, cold/warm repeated starts and loss of HOT logic. Bound peak voltage, time to gate disable and recovery. Include FET SOA and capacitor energy.
 

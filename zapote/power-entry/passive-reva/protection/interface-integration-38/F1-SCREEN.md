@@ -68,6 +68,16 @@ cannot prove that a cartridge is installed or that the inlet harness follows
 this table. Keep that evidence OPEN through native and assembly review. The
 5×20 options below remain a historical rejection record.
 
+The [AUX source decision](AUX-SOURCE-CANDIDATE.md) now nominates a separate
+off-board `LP-CC-2`/`BCM603-1P`/`CVR-CCM` branch loop after the board CMC.
+Its proposed `1714971` send and return pins must not be bridged on copper.
+The terminal is now in the joined netlist, and the audit rejects a copper
+bridge between its pins; the fuse and wiring remain off-board and unbuilt.
+This branch is a second assembly fuse, not a substitute for F1. Its 20 A
+published IRM cold-start inrush lacks
+duration/I²t evidence for the 2 A cartridge; add its waveform, selectivity
+and fault withstand to the qualification records below.
+
 ## Published limits and their application boundary
 
 | Item | Manufacturer evidence | Rev38 interpretation |

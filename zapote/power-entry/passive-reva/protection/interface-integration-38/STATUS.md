@@ -72,6 +72,13 @@ maximum rising trip, still without a stock-verified pair. ADI's `-2`
 suffix applies to reverse sense; its forward comparator is 40–60 mV in the
 equal-voltage fixture. External FET selection, dynamic output peak, load current, and
 UV/startup behavior remain unproved; it is not a protected-AUX selection.
+`AUX-SOURCE-CANDIDATE.md` now records the KiCad 10 IRM-20 pad mapping as a
+native candidate and nominates a separate off-board `LP-CC-2` branch loop
+through a `1714971` PCB terminal after the CMC. The terminal's send and
+return pins compile and two negative audit mutations reject a copper bypass
+or disconnected return. The physical module orientation, fuse
+inrush/clearing, fault withstand and native layout are unverified; the
+off-board fuse and protected source remain unjoined.
 
 Immediate construction order: build and qualify U4's nominated off-board
 Class CC F1/AC input and protected AUX source; bind those pins to U5's AVR

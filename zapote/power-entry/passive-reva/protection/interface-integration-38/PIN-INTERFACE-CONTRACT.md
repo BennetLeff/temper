@@ -93,6 +93,21 @@ does not bound that interval. No expander RESET conductor is assigned yet.
 | AUX_PROTECTED/HOT0 | Driver, PFC control, detectors and relay consumer joined; producer absent | Select/join 15 V protected chain and load budget; verify OVP/UVLO, fast-fault peak and startup. |
 | FUSED_L/N/PE | Board terminal 1714984 pins 1/2/3 and AC path joined | Off-board F1/inlet harness is a separate assembly interface. No fuse installation or interruption PASS is implied. |
 
+For the proposed IRM-20 AUX source, the installed KiCad 10 symbol and THT
+footprint provide a candidate 1=AC/L, 2=AC/N, 3=−V, 4=+V mapping for both
+15 V and 24 V versions; [the source decision record](AUX-SOURCE-CANDIDATE.md)
+gives pad centers and provenance. The manufacturer drawing is a bottom view
+with terminal names but no numeric pin table, so confirm orientation on a
+physical module and a 1:1 native print before using that mapping to release
+a board. The proposed AUX branch adds Phoenix `1714971` position 1 as the
+post-CMC line send to an off-board `LP-CC-2`/`BCM603-1P` assembly and
+position 2 as the fused `AUX_FUSED_L` return to IRM AC/L. IRM AC/N takes
+post-CMC `AC_RECT_N`. The two L terminal pads must stay electrically
+separate on the PCB, with the fuse the only intended connection. The
+terminal pins now compile and the audit rejects a copper bypass; the IRM,
+off-board fuse and wiring are still unjoined. Inrush, fault and F1
+coordination remain open.
+
 The existing cooker `elec/src/main.ato` connects its `AuxSupply`
 IRM-10-15 output to a **SELV** 15 V rail and a `PowerManagement`
 LMR51430 3.3 V buck, with SELV ground bonded to PE separately from the HOT
