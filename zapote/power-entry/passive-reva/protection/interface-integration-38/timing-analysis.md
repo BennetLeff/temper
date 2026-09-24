@@ -290,7 +290,10 @@ trip points do not establish rail-failure detection or capture time. The
 IRM-20-24, LMR36015, LTC4368/FDS3992 and TPS54202 supply path is now
 joined as an engineering candidate. Effective capacitance, startup load,
 fast-fault peak, FET SOA and rail-order response remain unqualified. The
-shared cooker SELV rail and its one-ESP connector are still unjoined.
+Rev38-side controller header and a separate cooker-mate source derivative
+have an exact-pin digital join. `SELV-PORT-CONTRACT.md` defines candidate
+voltage and load-allocation requirements, but the cooker rail, native harness,
+startup and partial-power behavior are not qualified.
 
 ## Existing conditional F2 screen — not an accepted limit
 
