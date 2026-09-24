@@ -20,7 +20,7 @@ idf_component_register(
         "../components/sensors/include"
     REQUIRES
         driver
-        hal
+        temper_hal
         nvs_flash
         esp_timer
 )

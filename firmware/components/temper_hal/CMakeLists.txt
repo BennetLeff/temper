@@ -1,6 +1,18 @@
 # HAL Component CMakeLists.txt
 # Hardware Abstraction Layer for Temper Induction Cooker
 
+# IDF scans component dependencies before CONFIG_IDF_TARGET is available.
+# Keep the ESP driver dependencies outside the implementation conditional.
+set(HAL_REQUIRES
+    esp_adc
+    esp_driver_gpio
+    esp_driver_gptimer
+    esp_driver_mcpwm
+    esp_driver_spi
+    esp_rom
+    esp_timer
+)
+
 # Determine which implementation to use based on build target
 if(CONFIG_IDF_TARGET)
     # Building for ESP32 - use ESP32 HAL implementations
@@ -13,7 +25,6 @@ if(CONFIG_IDF_TARGET)
         "${HAL_IMPL_DIR}/hal_spi_esp32.c"
         "${HAL_IMPL_DIR}/hal_timer_esp32.c"
     )
-    set(HAL_REQUIRES driver esp_timer)
 else()
     # Building for host (testing) - use mock implementations
     set(HAL_IMPL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/mock")
@@ -25,7 +36,6 @@ else()
         "${HAL_IMPL_DIR}/mock_spi.c"
         "${HAL_IMPL_DIR}/mock_timer.c"
     )
-    set(HAL_REQUIRES "")
 endif()
 
 idf_component_register(
