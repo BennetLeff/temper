@@ -86,7 +86,10 @@ and reads P3–P7 and the direct GPIO inputs. Host tests cover retained-high
 expander state at CPU-only reset, ordering, and failed readback. The ESP-IDF
 binding uses I²C0 at 100 kHz and UART1 at 115200 8N1, with a TX-FIFO drain
 call; final shift-register completion is not proven and needs target capture.
-The binding still needs an installed ESP-IDF toolchain and target build. The
+The binding uses the I²C master API introduced after this repo's existing
+ESP-IDF v5.0+ floor, so it is not in `firmware/main/CMakeLists.txt` until a
+version decision and target build. The
+binding still needs an installed ESP-IDF toolchain and target build. The
 relay-request P2 remains held low by this adapter until a
 separate RUN-qualified owner is joined and tested. Its timeout, bus recovery,
 snapshot age, and sample-to-START latency belong in the U1 bound. The
