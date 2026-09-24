@@ -54,6 +54,7 @@ pub(super) struct Manifest {
     article: String,
     rejects: Vec<String>,
     unknowns: Vec<String>,
+    source_bound: bool,
 }
 
 fn sha256(path: &str) -> Result<String, String> {
@@ -77,9 +78,8 @@ fn digest_is_valid(s: &str) -> bool {
 }
 
 impl Manifest {
-    #[cfg(not(test))]
     pub(super) fn is_source_bound(&self) -> bool {
-        self.rejects.is_empty()
+        self.source_bound && self.rejects.is_empty()
     }
 
     pub(super) fn read(path: &str, case_path: &str) -> Self {
@@ -91,6 +91,7 @@ impl Manifest {
                     article: "UNKNOWN".into(),
                     rejects: Vec::new(),
                     unknowns: vec![format!("qualification manifest unavailable: {e}")],
+                    source_bound: false,
                 };
             }
         };
@@ -103,6 +104,7 @@ impl Manifest {
             article: "UNKNOWN".into(),
             rejects: Vec::new(),
             unknowns: Vec::new(),
+            source_bound: false,
         };
         let mut header = BTreeMap::new();
         for (n, raw) in input.lines().enumerate() {
@@ -149,13 +151,18 @@ impl Manifest {
             }
         }
         let source_lock = "zapote/discharge/evidence/source-inputs.sha256";
+        let mut bindings_valid = true;
         for (name, path) in [
             ("source_lock_sha256", source_lock),
             ("case_sha256", case_path),
         ] {
             match header.get(name) {
-                None => manifest.unknowns.push(format!("missing {name}")),
+                None => {
+                    manifest.unknowns.push(format!("missing {name}"));
+                    bindings_valid = false;
+                }
                 Some(value) if !digest_is_valid(value) => {
+                    bindings_valid = false;
                     if value == "UNKNOWN" {
                         manifest.unknowns.push(format!("{name} is UNKNOWN"));
                     } else {
@@ -164,11 +171,18 @@ impl Manifest {
                 }
                 Some(value) => match sha256(path) {
                     Ok(actual) if actual.eq_ignore_ascii_case(value) => {}
-                    Ok(_) => manifest.rejects.push(format!("{name} mismatch for {path}")),
-                    Err(e) => manifest.rejects.push(e),
+                    Ok(_) => {
+                        bindings_valid = false;
+                        manifest.rejects.push(format!("{name} mismatch for {path}"));
+                    }
+                    Err(e) => {
+                        bindings_valid = false;
+                        manifest.rejects.push(e);
+                    }
                 },
             }
         }
+        manifest.source_bound = bindings_valid && manifest.rejects.is_empty();
         manifest.article = header
             .get("article")
             .cloned()
@@ -380,6 +394,7 @@ mod tests {
             "zapote/discharge/evidence/isolated-illustrative.case",
         );
         assert!(m.rejects.is_empty(), "{:?}", m.rejects);
+        assert!(m.is_source_bound());
         assert_eq!(m.records.len(), REQUIRED.len());
         assert!(m.unknowns.len() >= REQUIRED.len());
         let mut altered =
@@ -404,6 +419,28 @@ mod tests {
         .rejects
         .iter()
         .any(|s| s.contains("case_sha256 mismatch")));
+    }
+
+    #[test]
+    fn missing_manifest_or_identity_header_cannot_authorize_sweep() {
+        let missing = Manifest::read(
+            "zapote/discharge/evidence/no-such-manifest.txt",
+            "zapote/discharge/evidence/isolated-illustrative.case",
+        );
+        assert!(!missing.is_source_bound());
+        let source =
+            std::fs::read_to_string("zapote/discharge/evidence/qualification-manifest.txt")
+                .unwrap();
+        let no_case_digest = source
+            .lines()
+            .filter(|line| !line.starts_with("case_sha256="))
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(!Manifest::parse(
+            &no_case_digest,
+            "zapote/discharge/evidence/isolated-illustrative.case"
+        )
+        .is_source_bound());
     }
 
     #[test]

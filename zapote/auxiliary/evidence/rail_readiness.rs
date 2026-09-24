@@ -47,13 +47,13 @@ const DIRECT_AUX: &[&str] = &[
     "aux_sense_supervisor",
 ];
 const REQUIRED_LOCKS: &[&str] = &[
-    "elec/src/power_entry_integrated_38.ato",
-    "elec/src/driver_stage.ato",
-    "elec/src/hot_rails.ato",
-    "elec/src/aux_window.ato",
-    "elec/src/pfc_controller.ato",
-    "AUX-WINDOW.md",
-    "HOT-RAILS.md",
+    "zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/power_entry_integrated_38.ato",
+    "zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/driver_stage.ato",
+    "zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/hot_rails.ato",
+    "zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/aux_window.ato",
+    "zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/pfc_controller.ato",
+    "zapote/power-entry/passive-reva/protection/interface-integration-38/AUX-WINDOW.md",
+    "zapote/power-entry/passive-reva/protection/interface-integration-38/HOT-RAILS.md",
 ];
 
 #[derive(Clone, Debug)]
@@ -273,9 +273,14 @@ fn check_locks(root: &Path, data: &str) -> Vec<String> {
             _ => bad.push(format!("source missing or unreadable: {path}")),
         }
     }
-    for suffix in REQUIRED_LOCKS {
-        if !seen.iter().any(|p| p.ends_with(suffix)) {
-            bad.push(format!("missing source lock {suffix}"));
+    for path in REQUIRED_LOCKS {
+        if !seen.contains(path) {
+            bad.push(format!("missing source lock {path}"));
+        }
+    }
+    for path in seen {
+        if !REQUIRED_LOCKS.contains(&path) {
+            bad.push(format!("unexpected source lock {path}"));
         }
     }
     bad
@@ -502,5 +507,17 @@ mod tests {
         assert!(check_locks(root, &changed)
             .iter()
             .any(|x| x.contains("source bytes changed")));
+    }
+    #[test]
+    fn decoy_source_paths_do_not_satisfy_required_locks() {
+        let locks = include_str!("rail-readiness-sources.tsv");
+        let changed = locks.replacen(
+            REQUIRED_LOCKS[0],
+            &format!("decoy/{}", REQUIRED_LOCKS[0]),
+            1,
+        );
+        assert!(check_locks(Path::new("."), &changed)
+            .iter()
+            .any(|x| x.contains("missing source lock")));
     }
 }
