@@ -22,7 +22,9 @@ unqualified high-to-allow interlock.
 
 The candidate adds a cooker-side TPS389001 supervisor with a 16 kΩ/10 kΩ
 SELV3V3 sense divider, EN connected to its active-low MR input, 100 nF CT,
-and 10 kΩ open-drain RESET pull-up. RESET joins ESP GPIO14 and the latch
+and 10 kΩ open-drain RESET pull-up. The supervisor and each of the four LVC
+gates have a separate 100 nF rail bypass capacitor in the source. RESET
+joins ESP GPIO14 and the latch
 reset request. A 10 kΩ GPIO15 pull-down defines the inactive runaway-cut
 input before firmware owns it. The supervisor holds the latch reset request
 low while its rail/EN condition is false and through its release delay; it
@@ -44,6 +46,10 @@ it reports **physical EN and rail release after CT delay**, not internal ESP
 CPU execution. The `SOURCE_INTERLOCK_N` push-pull path is:
 
     RESET_GOOD AND GPIO14_RESET_REQUEST_HIGH AND NOT SHUTDOWN
+
+The direct reset-request term keeps INTERLOCK_N low if the reset buffer
+sticks high while GPIO14 or the supervisor holds the request low. It does
+not establish independence against a common rail or routing fault.
 
 This uses a [SN74LVC1G17](https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf),
 [SN74LVC1G04](https://www.ti.com/lit/ds/symlink/sn74lvc1g04.pdf), and two

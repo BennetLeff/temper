@@ -157,8 +157,12 @@ module CookerMate38:
     # survived the supervisor delay. CPU-only resets do not lower EN; the
     # independent source TPS3431 watchdog remains their bounded clear path.
     reset_buffer = new MateBuffer
+    reset_buffer_bypass = new MateC100n
+    reset_buffer_bypass.value = 100nF
     reset_buffer.VCC ~ cooker.vcc_3v3
     reset_buffer.GND ~ cooker.gnd
+    reset_buffer_bypass.p1 ~ cooker.vcc_3v3
+    reset_buffer_bypass.p2 ~ cooker.gnd
     reset_buffer.A ~ supervisor.RESET_N
     reset_buffer.Y ~ rev38_mate.RESET_GOOD
 
@@ -167,17 +171,29 @@ module CookerMate38:
     # reset supervisor is good. A stuck-low GPIO14 cannot erase fault memory
     # while permitting Rev38 authorization.
     fault_inverter = new MateInverter
+    fault_inverter_bypass = new MateC100n
+    fault_inverter_bypass.value = 100nF
     fault_inverter.VCC ~ cooker.vcc_3v3
     fault_inverter.GND ~ cooker.gnd
+    fault_inverter_bypass.p1 ~ cooker.vcc_3v3
+    fault_inverter_bypass.p2 ~ cooker.gnd
     fault_inverter.A ~ cooker.safety.shutdown.line
     reset_and = new MateAnd
+    reset_and_bypass = new MateC100n
+    reset_and_bypass.value = 100nF
     reset_and.VCC ~ cooker.vcc_3v3
     reset_and.GND ~ cooker.gnd
+    reset_and_bypass.p1 ~ cooker.vcc_3v3
+    reset_and_bypass.p2 ~ cooker.gnd
     reset_and.A ~ reset_buffer.Y
     reset_and.B ~ supervisor.RESET_N
     interlock_and = new MateAnd
+    interlock_and_bypass = new MateC100n
+    interlock_and_bypass.value = 100nF
     interlock_and.VCC ~ cooker.vcc_3v3
     interlock_and.GND ~ cooker.gnd
+    interlock_and_bypass.p1 ~ cooker.vcc_3v3
+    interlock_and_bypass.p2 ~ cooker.gnd
     interlock_and.A ~ reset_and.Y
     interlock_and.B ~ fault_inverter.Y
     interlock_and.Y ~ rev38_mate.INTERLOCK_N
