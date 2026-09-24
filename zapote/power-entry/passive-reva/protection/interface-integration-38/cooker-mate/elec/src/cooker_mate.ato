@@ -5,6 +5,75 @@
 #pragma experiment("TRAITS")
 from "../../../../../../../../elec/src/main.ato" import Top
 
+component MateSupervisor:
+    mpn = "TPS389001DSER"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps3890.pdf"
+    footprint = "Temper_RTD:TPS389001DSER_WSON-6_DSE"
+    signal SENSE ~ pin 1
+    signal GND ~ pin 2
+    signal MR ~ pin 3
+    signal VDD ~ pin 4
+    signal CT ~ pin 5
+    signal RESET_N ~ pin 6
+
+component MateBuffer:
+    mpn = "SN74LVC1G17DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component MateInverter:
+    mpn = "SN74LVC1G04DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g04.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component MateAnd:
+    mpn = "SN74LVC1G08DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component MateR16k:
+    mpn = "RC0603FR-0716KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component MateR10k:
+    mpn = "RC0603FR-0710KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component MateC100n:
+    mpn = "GRM188R71H104KA93D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component Rev38CookerMate:
     mpn = "43045-1612"
     manufacturer = "Molex"
@@ -23,8 +92,8 @@ component Rev38CookerMate:
     signal I2C_SDA ~ pin 11
     signal I2C_SCL ~ pin 12
     signal SELV_GND_B ~ pin 13
-    signal RESET_GOOD_RESERVED ~ pin 14
-    signal INTERLOCK_N_RESERVED ~ pin 15
+    signal RESET_GOOD ~ pin 14
+    signal INTERLOCK_N ~ pin 15
     signal SELV_GND_C ~ pin 16
 
 module CookerMate38:
@@ -49,6 +118,66 @@ module CookerMate38:
     rev38_mate.I2C_SDA ~ cooker.mcu.i2c.sda
     rev38_mate.I2C_SCL ~ cooker.mcu.i2c.scl
 
-    # Pins 14/15 are physically reserved and have no cooker-side driver.
-    # The Rev38 board's pull-downs hold both low until separate reset-good
-    # and fail-low interlock producers are selected and physically qualified.
+    # The open-drain supervisor holds the cooker's SR-latch reset request low
+    # during rail/EN reset, then releases it high after its CT delay. GPIO14
+    # must remain high-Z or open drain; a push-pull high would contend with
+    # the supervisor. A deliberate GPIO14 low clears the latch only when the
+    # fault OR is inactive, and also forces the Rev38 interlock low.
+    rail_top = new MateR16k
+    rail_top.value = 16kohm
+    rail_bottom = new MateR10k
+    rail_bottom.value = 10kohm
+    reset_pullup = new MateR10k
+    reset_pullup.value = 10kohm
+    runaway_pulldown = new MateR10k
+    runaway_pulldown.value = 10kohm
+    reset_delay = new MateC100n
+    reset_delay.value = 100nF
+    supervisor_bypass = new MateC100n
+    supervisor_bypass.value = 100nF
+    supervisor = new MateSupervisor
+    cooker.vcc_3v3 ~ rail_top.p1
+    rail_top.p2 ~ supervisor.SENSE
+    supervisor.SENSE ~ rail_bottom.p1
+    rail_bottom.p2 ~ cooker.gnd
+    cooker.vcc_3v3 ~ supervisor.VDD
+    cooker.gnd ~ supervisor.GND
+    supervisor.MR ~ cooker.mcu.mcu.EN
+    supervisor.CT ~ reset_delay.p1
+    reset_delay.p2 ~ cooker.gnd
+    cooker.vcc_3v3 ~ supervisor_bypass.p1
+    supervisor_bypass.p2 ~ cooker.gnd
+    cooker.vcc_3v3 ~ reset_pullup.p1
+    reset_pullup.p2 ~ supervisor.RESET_N
+    supervisor.RESET_N ~ cooker.mcu.mcu.IO14
+    runaway_pulldown.p1 ~ cooker.mcu.mcu.IO15
+    runaway_pulldown.p2 ~ cooker.gnd
+
+    # RESET_GOOD is a driven indication that the rail and physical EN have
+    # survived the supervisor delay. CPU-only resets do not lower EN; the
+    # independent source TPS3431 watchdog remains their bounded clear path.
+    reset_buffer = new MateBuffer
+    reset_buffer.VCC ~ cooker.vcc_3v3
+    reset_buffer.GND ~ cooker.gnd
+    reset_buffer.A ~ supervisor.RESET_N
+    reset_buffer.Y ~ rev38_mate.RESET_GOOD
+
+    # The cooker latch output is active-high SHUTDOWN. Its inverse can be
+    # credited only while the reset-request node is released and the physical
+    # reset supervisor is good. A stuck-low GPIO14 cannot erase fault memory
+    # while permitting Rev38 authorization.
+    fault_inverter = new MateInverter
+    fault_inverter.VCC ~ cooker.vcc_3v3
+    fault_inverter.GND ~ cooker.gnd
+    fault_inverter.A ~ cooker.safety.shutdown.line
+    reset_and = new MateAnd
+    reset_and.VCC ~ cooker.vcc_3v3
+    reset_and.GND ~ cooker.gnd
+    reset_and.A ~ reset_buffer.Y
+    reset_and.B ~ supervisor.RESET_N
+    interlock_and = new MateAnd
+    interlock_and.VCC ~ cooker.vcc_3v3
+    interlock_and.GND ~ cooker.gnd
+    interlock_and.A ~ reset_and.Y
+    interlock_and.B ~ fault_inverter.Y
+    interlock_and.Y ~ rev38_mate.INTERLOCK_N

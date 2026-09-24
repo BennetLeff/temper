@@ -102,15 +102,18 @@ The cooker derivative compiles with one ESP and these net joins, but the
 native cooker board, harness and qualified rail must agree before the two
 source trees can describe one product assembly.
 
-`SOURCE_RESET_GOOD` and `SOURCE_INTERLOCK_N` currently have 10 kΩ local
-pull-downs and no driving components, so the pre-watchdog sample stays low
-on the compiled candidate. ESP EN is pulled high and does not report an
-internal CPU-only reset. The source watchdog WDO clears source health, but
-using that WDO as the pre-feed sample would make the first feed dependent on
-the watchdog already being healthy. Choose and join independent reset and
-interlock producers, then test CPU-only reset with retained expander and
-GPIO state before enabling the source task. A pin assignment or a boot log
-cannot close that physical producer gap.
+`SOURCE_RESET_GOOD` and `SOURCE_INTERLOCK_N` have 10 kΩ local pull-downs.
+The cooker-mate derivative now drives them through a TPS389001 EN/rail
+supervisor, buffer, inverted cooker fault latch and reset-qualified AND
+chain. The exact compiled pins pass the shared audit. This is a **candidate
+producer**, not physical acceptance. GPIO14 shares the open-drain reset
+request and needs a single firmware owner with high-Z/open-drain mode;
+production firmware has no such implementation yet. See
+[`SOURCE-RESET-INTERLOCK.md`](SOURCE-RESET-INTERLOCK.md). ESP EN does not
+report internal CPU-only reset. The source watchdog WDO clears source
+health, but using WDO as the pre-feed sample would make the first feed
+dependent on the watchdog already being healthy. Test CPU-only reset with
+retained expander and GPIO state before enabling the source task.
 
 For the screened [TCA6408A-Q1](https://www.ti.com/lit/ds/symlink/tca6408a-q1.pdf),
 the output latch register `0x01` and
@@ -165,14 +168,12 @@ the Rev38-only fixture.
 
 The production `SafetyInterlock.shutdown` is an active-high latched **fault**
 that drives the UCC21550 `DIS` input (`elec/src/main.ato`), while Rev38
-`SOURCE_INTERLOCK_N` needs a high-to-allow, fail-low producer. The inspected
-production source cross-couples a NAND latch and gives its reset request to
-MCU GPIO14; it does not establish a power-up healthy state for a Rev38
-interlock feed. Directly tying these signals would have the wrong polarity.
-Inversion alone would not prove startup state, missing-wire default, retained
-fault priority, or ownership if the two ESP instances are combined. Keep the
-Rev38 interlock pull-down and treat any producer selection as OPEN until those
-cases are represented in the joined circuit and tested at the physical pins.
+`SOURCE_INTERLOCK_N` is high to allow. The cooker-mate derivative adds
+polarity correction, supervised startup reset and explicit reset-request
+qualification. Its pad 15 output still needs physical startup, retained-fault,
+partial-power, broken-wire and CPU-only reset captures. GPIO14 open-drain
+ownership remains unimplemented in production firmware, so the producer is
+OPEN despite exact-pin connectivity PASS.
 
 ## Integration gate
 

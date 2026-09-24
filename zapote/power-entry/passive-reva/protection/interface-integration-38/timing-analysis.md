@@ -79,14 +79,16 @@ reconfiguration, bootloader activity, or another owner may still create a
 the one-shot output. No bootloader,
 other-core, GPIO-retention, queue-to-pin, or peripheral-autonomous-edge
 evidence exists, so the post-reset feed tail remains **UNBOUNDED** for
-numerical acceptance. The full ESP-IDF v5.3.6 target build now compiles the
-Rev38 sources but fails at image link on unresolved production cooker hooks;
-host tests and compile-only evidence do not close the reset path.
+numerical acceptance. The full ESP-IDF v5.3.6 diagnostic lockout image now
+links; production mode still fails at image link on unresolved cooker hooks.
+Neither host tests nor a locked diagnostic image close the reset path.
 The joined source now has a separate `SOURCE_PREWATCHDOG_OK` gate from
 reset-good, interlock and rail-good without WDO. It can support a pre-feed
 software sample without making watchdog recovery depend on WDO already being
-high. Its ESP sampling pin is joined, while the two external inputs are still unproduced, and
-this logical path does not reduce the unbounded reset-time feed tail.
+high. Its ESP sampling pin is joined. The cooker-mate derivative now has
+compiled reset-good and interlock producer circuits, but GPIO14 open-drain
+ownership and physical startup/reset behavior are OPEN; this logical path
+does not reduce the unbounded reset-time feed tail.
 
 The two allowable reset times need system hazard analysis of continued PFC
 operation and the first START during source execution loss, including relay,

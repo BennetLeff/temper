@@ -18,14 +18,18 @@ be made.
 | 8, 13, 16 | Existing SELV ground | 1 (modeled) |
 | 10 | `SOURCE_START_N`, GPIO42 | 35 |
 | 11, 12 | Existing GPIO38/39 I²C, with the cooker's 4.7 kΩ pull-ups | 31, 32 |
-| 14, 15 | Reserved; no cooker-side driver | — |
+| 14 | `SOURCE_RESET_GOOD`, buffered supervisor RESET | Cooker-side TPS389001 output |
+| 15 | `SOURCE_INTERLOCK_N`, gated inverse of latched SHUTDOWN | Cooker-side LVC logic |
 
 The Rev38 board has local 10 kΩ pull-downs on `SOURCE_RESET_GOOD` and
-`SOURCE_INTERLOCK_N`. Pins 14 and 15 stay unconnected on this cooker derivative,
-so neither signal earns a high state. A reset-valid producer and a polarity
-correct fail-low interlock producer still need design and physical testing.
-The present cooker `SafetyInterlock.shutdown` is an active-high fault and must
-not be connected directly to pad 15.
+`SOURCE_INTERLOCK_N`. This derivative now joins a cooker-side supervisor,
+buffer, inverter and AND gates to pins 14/15. The reset request is shared
+with GPIO14 and must be high-Z/open-drain in firmware. The current production
+firmware has no such owner, so authorization remains locked out. See
+[`SOURCE-RESET-INTERLOCK.md`](../SOURCE-RESET-INTERLOCK.md) for the reset
+truth table and unmeasured startup/partial-power gates. The present cooker
+`SafetyInterlock.shutdown` is an active-high fault; the inverter and reset
+qualification provide the high-to-allow polarity at pad 15.
 
 The cooker MCU's modeled ground is module pad 1; physical WROOM-1 ground
 pads 40/41 are not represented in that existing component and need a package
@@ -45,10 +49,10 @@ shared Rust exact-pin audit against the generated netlist and BOM, then prints
 their paths. The audit checks the selected cooker ESP, connector, I²C pull-ups,
 every used header pad, the existing 15 V module and buck input/output/return
 chain, separation of port functions and power rails, exact members on each
-control net, and the absence of producers on reserved pads 14/15. In the 2026-09-24 build, the
-exported BOM had one
+control net, including the new reset/interlock producer path. In the
+2026-09-24 build, the exported BOM had one
 `ESP32-S3-WROOM-1-N8R8` and one `43045-1612`; the netlist joined all listed
 signal pads to the module pads above, tied pads 1/9 to the existing `+3V3`
-net, tied pads 8/13/16 to SELV ground, and showed only one node each on pads
-14/15. This is source connectivity evidence, not a native-board, rail-load,
+net, tied pads 8/13/16 to SELV ground, and joined pads 14/15 to their
+candidate producer outputs. This is source connectivity evidence, not a native-board, rail-load,
 startup, timing, or harness qualification.

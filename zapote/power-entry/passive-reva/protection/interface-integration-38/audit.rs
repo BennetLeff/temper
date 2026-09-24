@@ -188,6 +188,17 @@ fn check_cooker_mate(g: &Graph) -> Result<(), String> {
         ("cooker.aux_supply.psu", "IRM-10-15"),
         ("cooker.power_mgmt.buck_3v3.buck", "LMR51430XDDCR"),
         ("cooker.power_mgmt.buck_3v3.l_out", "SRP1265A-5R6M"),
+        ("supervisor", "TPS389001DSER"),
+        ("reset_buffer", "SN74LVC1G17DBVR"),
+        ("fault_inverter", "SN74LVC1G04DBVR"),
+        ("reset_and", "SN74LVC1G08DBVR"),
+        ("interlock_and", "SN74LVC1G08DBVR"),
+        ("rail_top", "RC0603FR-0716KL"),
+        ("rail_bottom", "RC0603FR-0710KL"),
+        ("reset_pullup", "RC0603FR-0710KL"),
+        ("runaway_pulldown", "RC0603FR-0710KL"),
+        ("reset_delay", "GRM188R71H104KA93D"),
+        ("supervisor_bypass", "GRM188R71H104KA93D"),
     ] {
         if g.parts.get(id).map(String::as_str) != Some(part) {
             return Err(format!("cooker mate part identity differs at {id}"));
@@ -200,8 +211,8 @@ fn check_cooker_mate(g: &Graph) -> Result<(), String> {
     }
 
     let groups: &[(&str, &[(&str, &str)])] = &[
-        ("SELV 3.3 V", &[("rev38_mate", "1"), ("rev38_mate", "9"), ("cooker.mcu.mcu", "2"), ("cooker.mcu.r_sda_pullup", "1"), ("cooker.mcu.r_scl_pullup", "1"), ("cooker.power_mgmt.buck_3v3.l_out", "2")]),
-        ("SELV ground", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1"), ("cooker.aux_supply.psu", "4"), ("cooker.power_mgmt.buck_3v3.buck", "1")]),
+        ("SELV 3.3 V", &[("rev38_mate", "1"), ("rev38_mate", "9"), ("cooker.mcu.mcu", "2"), ("cooker.mcu.r_sda_pullup", "1"), ("cooker.mcu.r_scl_pullup", "1"), ("cooker.power_mgmt.buck_3v3.l_out", "2"), ("supervisor", "4"), ("reset_buffer", "5"), ("fault_inverter", "5"), ("reset_and", "5"), ("interlock_and", "5"), ("rail_top", "1"), ("reset_pullup", "1"), ("supervisor_bypass", "1")]),
+        ("SELV ground", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1"), ("cooker.aux_supply.psu", "4"), ("cooker.power_mgmt.buck_3v3.buck", "1"), ("supervisor", "2"), ("reset_buffer", "3"), ("fault_inverter", "3"), ("reset_and", "3"), ("interlock_and", "3"), ("rail_bottom", "2"), ("runaway_pulldown", "2"), ("reset_delay", "2"), ("supervisor_bypass", "2")]),
         ("SELV 15 V source", &[("cooker.aux_supply.psu", "3"), ("cooker.power_mgmt.buck_3v3.buck", "3"), ("cooker.power_mgmt.buck_3v3.buck", "5")]),
         ("SOURCE_STOP_N", &[("rev38_mate", "2"), ("cooker.mcu.mcu", "21")]),
         ("SOURCE_VALIDATED_HEARTBEAT", &[("rev38_mate", "3"), ("cooker.mcu.mcu", "23")]),
@@ -212,6 +223,8 @@ fn check_cooker_mate(g: &Graph) -> Result<(), String> {
         ("SOURCE_START_N", &[("rev38_mate", "10"), ("cooker.mcu.mcu", "35")]),
         ("I2C_SDA", &[("rev38_mate", "11"), ("cooker.mcu.mcu", "31"), ("cooker.mcu.r_sda_pullup", "2")]),
         ("I2C_SCL", &[("rev38_mate", "12"), ("cooker.mcu.mcu", "32"), ("cooker.mcu.r_scl_pullup", "2")]),
+        ("SOURCE_RESET_GOOD", &[("rev38_mate", "14"), ("reset_buffer", "4"), ("reset_and", "1")]),
+        ("SOURCE_INTERLOCK_N", &[("rev38_mate", "15"), ("interlock_and", "4")]),
     ];
     let mut distinct = BTreeSet::new();
     for (label, pins) in groups {
@@ -234,11 +247,31 @@ fn check_cooker_mate(g: &Graph) -> Result<(), String> {
             }
         }
     }
-    for (pin, label) in [("14", "SOURCE_RESET_GOOD"), ("15", "SOURCE_INTERLOCK_N")] {
-        let net = g.pins.get(&("rev38_mate".into(), pin.into()))
-            .ok_or_else(|| format!("cooker mate missing reserved {label}"))?;
-        if !distinct.insert(net) || members(g, net).len() != 1 {
-            return Err(format!("cooker mate reserved {label} has a producer or short"));
+    let internal: &[(&str, &[(&str, &str)])] = &[
+        ("reset request", &[("cooker.mcu.mcu", "22"), ("cooker.safety.fault_any_or", "4"), ("supervisor", "6"), ("reset_pullup", "2"), ("reset_buffer", "2"), ("reset_and", "2")]),
+        ("rail sense", &[("rail_top", "2"), ("rail_bottom", "1"), ("supervisor", "1")]),
+        ("reset delay", &[("reset_delay", "1"), ("supervisor", "5")]),
+        ("fault inverted", &[("fault_inverter", "4"), ("interlock_and", "2")]),
+        ("reset and", &[("reset_and", "4"), ("interlock_and", "1")]),
+        ("ESP EN", &[("supervisor", "3"), ("cooker.mcu.mcu", "3"), ("cooker.mcu.r_en", "2"), ("cooker.mcu.c_en", "1"), ("cooker.mcu.btn_reset", "1")]),
+        ("latched shutdown", &[("cooker.safety.latch", "6"), ("cooker.safety.latch", "10"), ("cooker.hb.gate_hs.driver", "5"), ("cooker.mcu.mcu", "10"), ("cooker.safety.tp_shutdown", "1"), ("cooker.safety.tp_fault", "1"), ("fault_inverter", "2")]),
+        ("runaway cut", &[("cooker.mcu.mcu", "8"), ("cooker.safety.fault_or", "5"), ("runaway_pulldown", "1")]),
+    ];
+    for (label, pins) in internal {
+        let net = g.pins.get(&(pins[0].0.into(), pins[0].1.into()))
+            .ok_or_else(|| format!("cooker mate missing {label}"))?;
+        let wanted: BTreeSet<(String, String)> = pins.iter().map(|(id, pin)| ((*id).into(), (*pin).into())).collect();
+        if members(g, net) != wanted || !distinct.insert(net) {
+            return Err(format!("cooker mate {label} differs or is shorted"));
+        }
+    }
+    let reset_request = g.pins.get(&("supervisor".into(), "6".into())).unwrap();
+    let rail = g.pins.get(&("rev38_mate".into(), "1".into())).unwrap();
+    let ground = g.pins.get(&("rev38_mate".into(), "8".into())).unwrap();
+    for (label, net) in [("reset request", reset_request), ("rail", rail), ("ground", ground)] {
+        if net == g.pins.get(&("rev38_mate".into(), "14".into())).unwrap() ||
+           net == g.pins.get(&("rev38_mate".into(), "15".into())).unwrap() {
+            return Err(format!("cooker mate {label} shorted to authorization output"));
         }
     }
     Ok(())
@@ -1313,7 +1346,7 @@ fn main() {
         let cooker = with_bom_parts(graph(&netlist).expect("cooker mate netlist graph"), &args[3])
             .expect("cooker mate BOM identity");
         check_cooker_mate(&cooker).expect("cooker mate exact-pin audit");
-        println!("cooker mate compiled exact-pin audit PASS; reserved pins 14/15 unproduced");
+        println!("cooker mate compiled exact-pin audit PASS; reset/interlock producers joined");
         return;
     }
     let hot = load_stage("isolation").expect("isolation netlist/BOM");
@@ -1362,9 +1395,22 @@ mod tests {
         g.parts.insert("cooker.aux_supply.psu".into(), "IRM-10-15".into());
         g.parts.insert("cooker.power_mgmt.buck_3v3.buck".into(), "LMR51430XDDCR".into());
         g.parts.insert("cooker.power_mgmt.buck_3v3.l_out".into(), "SRP1265A-5R6M".into());
+        for (id, mpn) in [
+            ("supervisor", "TPS389001DSER"),
+            ("reset_buffer", "SN74LVC1G17DBVR"),
+            ("fault_inverter", "SN74LVC1G04DBVR"),
+            ("reset_and", "SN74LVC1G08DBVR"),
+            ("interlock_and", "SN74LVC1G08DBVR"),
+            ("rail_top", "RC0603FR-0716KL"),
+            ("rail_bottom", "RC0603FR-0710KL"),
+            ("reset_pullup", "RC0603FR-0710KL"),
+            ("runaway_pulldown", "RC0603FR-0710KL"),
+            ("reset_delay", "GRM188R71H104KA93D"),
+            ("supervisor_bypass", "GRM188R71H104KA93D"),
+        ] { g.parts.insert(id.into(), mpn.into()); }
         let groups: &[(&str, &[(&str, &str)])] = &[
-            ("vcc", &[("rev38_mate", "1"), ("rev38_mate", "9"), ("cooker.mcu.mcu", "2"), ("cooker.mcu.r_sda_pullup", "1"), ("cooker.mcu.r_scl_pullup", "1"), ("cooker.power_mgmt.buck_3v3.l_out", "2")]),
-            ("gnd", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1"), ("cooker.aux_supply.psu", "4"), ("cooker.power_mgmt.buck_3v3.buck", "1")]),
+            ("vcc", &[("rev38_mate", "1"), ("rev38_mate", "9"), ("cooker.mcu.mcu", "2"), ("cooker.mcu.r_sda_pullup", "1"), ("cooker.mcu.r_scl_pullup", "1"), ("cooker.power_mgmt.buck_3v3.l_out", "2"), ("supervisor", "4"), ("reset_buffer", "5"), ("fault_inverter", "5"), ("reset_and", "5"), ("interlock_and", "5"), ("rail_top", "1"), ("reset_pullup", "1"), ("supervisor_bypass", "1")]),
+            ("gnd", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1"), ("cooker.aux_supply.psu", "4"), ("cooker.power_mgmt.buck_3v3.buck", "1"), ("supervisor", "2"), ("reset_buffer", "3"), ("fault_inverter", "3"), ("reset_and", "3"), ("interlock_and", "3"), ("rail_bottom", "2"), ("runaway_pulldown", "2"), ("reset_delay", "2"), ("supervisor_bypass", "2")]),
             ("selv15", &[("cooker.aux_supply.psu", "3"), ("cooker.power_mgmt.buck_3v3.buck", "3"), ("cooker.power_mgmt.buck_3v3.buck", "5")]),
             ("stop", &[("rev38_mate", "2"), ("cooker.mcu.mcu", "21")]),
             ("heartbeat", &[("rev38_mate", "3"), ("cooker.mcu.mcu", "23")]),
@@ -1375,8 +1421,16 @@ mod tests {
             ("start", &[("rev38_mate", "10"), ("cooker.mcu.mcu", "35")]),
             ("sda", &[("rev38_mate", "11"), ("cooker.mcu.mcu", "31"), ("cooker.mcu.r_sda_pullup", "2")]),
             ("scl", &[("rev38_mate", "12"), ("cooker.mcu.mcu", "32"), ("cooker.mcu.r_scl_pullup", "2")]),
-            ("reset_reserved", &[("rev38_mate", "14")]),
-            ("interlock_reserved", &[("rev38_mate", "15")]),
+            ("reset_good", &[("rev38_mate", "14"), ("reset_buffer", "4"), ("reset_and", "1")]),
+            ("interlock_n", &[("rev38_mate", "15"), ("interlock_and", "4")]),
+            ("reset_request", &[("cooker.mcu.mcu", "22"), ("cooker.safety.fault_any_or", "4"), ("supervisor", "6"), ("reset_pullup", "2"), ("reset_buffer", "2"), ("reset_and", "2")]),
+            ("sense", &[("rail_top", "2"), ("rail_bottom", "1"), ("supervisor", "1")]),
+            ("delay", &[("reset_delay", "1"), ("supervisor", "5")]),
+            ("inverted", &[("fault_inverter", "4"), ("interlock_and", "2")]),
+            ("reset_and_out", &[("reset_and", "4"), ("interlock_and", "1")]),
+            ("en", &[("supervisor", "3"), ("cooker.mcu.mcu", "3"), ("cooker.mcu.r_en", "2"), ("cooker.mcu.c_en", "1"), ("cooker.mcu.btn_reset", "1")]),
+            ("shutdown", &[("fault_inverter", "2"), ("cooker.safety.latch", "6"), ("cooker.safety.latch", "10"), ("cooker.hb.gate_hs.driver", "5"), ("cooker.mcu.mcu", "10"), ("cooker.safety.tp_shutdown", "1"), ("cooker.safety.tp_fault", "1")]),
+            ("runaway", &[("runaway_pulldown", "1"), ("cooker.mcu.mcu", "8"), ("cooker.safety.fault_or", "5")]),
         ];
         for (net, pins) in groups {
             for (id, pin) in *pins {
@@ -1402,10 +1456,45 @@ mod tests {
     }
 
     #[test]
-    fn cooker_mate_rejects_driven_reserved_interlock() {
+    fn cooker_mate_rejects_extra_interlock_driver() {
         let mut g = cooker_mate_fixture();
         let net = g.pins[&("rev38_mate".into(), "15".into())].clone();
         g.pins.insert(("cooker.mcu.mcu".into(), "39".into()), net);
+        assert!(check_cooker_mate(&g).is_err());
+    }
+
+    #[test]
+    fn cooker_mate_rejects_reset_supervisor_disconnected_from_latch() {
+        let mut g = cooker_mate_fixture();
+        g.pins.insert(("supervisor".into(), "6".into()), "orphan".into());
+        assert!(check_cooker_mate(&g).is_err());
+    }
+
+    #[test]
+    fn cooker_mate_rejects_reset_request_bypassing_interlock() {
+        let mut g = cooker_mate_fixture();
+        g.pins.insert(("reset_and".into(), "2".into()), "vcc".into());
+        assert!(check_cooker_mate(&g).is_err());
+    }
+
+    #[test]
+    fn cooker_mate_rejects_wrong_latch_polarity_source() {
+        let mut g = cooker_mate_fixture();
+        g.pins.insert(("fault_inverter".into(), "2".into()), "orphan".into());
+        assert!(check_cooker_mate(&g).is_err());
+    }
+
+    #[test]
+    fn cooker_mate_rejects_en_monitor_bypass() {
+        let mut g = cooker_mate_fixture();
+        g.pins.insert(("supervisor".into(), "3".into()), "vcc".into());
+        assert!(check_cooker_mate(&g).is_err());
+    }
+
+    #[test]
+    fn cooker_mate_rejects_missing_runaway_default() {
+        let mut g = cooker_mate_fixture();
+        g.pins.insert(("runaway_pulldown".into(), "1".into()), "orphan".into());
         assert!(check_cooker_mate(&g).is_err());
     }
 

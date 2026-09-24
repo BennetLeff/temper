@@ -39,8 +39,10 @@ The START button is normally open to local ground with an external pull-up
 to the ESP 3.3 V rail. GPIO42 low means pressed. The adapter does not enable
 an internal pull-up. The TCA6408A ADDR pin must be tied low for the adapter's
 7-bit address 0x20; RESET_N needs a pull-up to VCCI and is not allocated to an
-ESP GPIO. The Atopile fixture joins these exact source nets and module pads;
-the 3.3 V producer, source reset-good and interlock producers remain open.
+ESP GPIO. The Atopile fixture joins these exact source nets and module pads.
+The cooker-mate derivative joins candidate reset-good and interlock producers
+to the existing cooker rail; its capacity, GPIO14 firmware ownership and
+physical producer behavior remain open.
 
 The isolated protocol would use a GPIO-matrix-routed UART, with a single
 driver owner and bounded completed-frame transmission. GPIO43/44 stay on
