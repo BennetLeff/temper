@@ -119,8 +119,14 @@ fn graph(input: &str) -> Result<Graph, String> {
     }
     let section = children(&root, "nets").next().ok_or("missing nets")?;
     let mut pins = BTreeMap::new();
+    let mut net_names = BTreeSet::new();
+    let mut net_codes = BTreeSet::new();
     for net in children(section, "net") {
         let name = field(net, "name")?;
+        let code = field(net, "code")?;
+        if !net_names.insert(name.clone()) || !net_codes.insert(code) {
+            return Err(format!("duplicate net name or code: {name}"));
+        }
         for node in children(net, "node") {
             let reference = field(node, "ref")?;
             let identity = refs.get(&reference).ok_or_else(|| format!("unknown reference {reference}"))?;
@@ -179,6 +185,9 @@ fn check_cooker_mate(g: &Graph) -> Result<(), String> {
         ("cooker.mcu.mcu", "ESP32-S3-WROOM-1-N8R8"),
         ("cooker.mcu.r_sda_pullup", "RC0603FR-074K7L"),
         ("cooker.mcu.r_scl_pullup", "RC0603FR-074K7L"),
+        ("cooker.aux_supply.psu", "IRM-10-15"),
+        ("cooker.power_mgmt.buck_3v3.buck", "LMR51430XDDCR"),
+        ("cooker.power_mgmt.buck_3v3.l_out", "SRP1265A-5R6M"),
     ] {
         if g.parts.get(id).map(String::as_str) != Some(part) {
             return Err(format!("cooker mate part identity differs at {id}"));
@@ -191,8 +200,9 @@ fn check_cooker_mate(g: &Graph) -> Result<(), String> {
     }
 
     let groups: &[(&str, &[(&str, &str)])] = &[
-        ("SELV 3.3 V", &[("rev38_mate", "1"), ("rev38_mate", "9"), ("cooker.mcu.mcu", "2"), ("cooker.mcu.r_sda_pullup", "1"), ("cooker.mcu.r_scl_pullup", "1")]),
-        ("SELV ground", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1")]),
+        ("SELV 3.3 V", &[("rev38_mate", "1"), ("rev38_mate", "9"), ("cooker.mcu.mcu", "2"), ("cooker.mcu.r_sda_pullup", "1"), ("cooker.mcu.r_scl_pullup", "1"), ("cooker.power_mgmt.buck_3v3.l_out", "2")]),
+        ("SELV ground", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1"), ("cooker.aux_supply.psu", "4"), ("cooker.power_mgmt.buck_3v3.buck", "1")]),
+        ("SELV 15 V source", &[("cooker.aux_supply.psu", "3"), ("cooker.power_mgmt.buck_3v3.buck", "3"), ("cooker.power_mgmt.buck_3v3.buck", "5")]),
         ("SOURCE_STOP_N", &[("rev38_mate", "2"), ("cooker.mcu.mcu", "21")]),
         ("SOURCE_VALIDATED_HEARTBEAT", &[("rev38_mate", "3"), ("cooker.mcu.mcu", "23")]),
         ("SOURCE_PERMIT_SET_REQUEST", &[("rev38_mate", "4"), ("cooker.mcu.mcu", "25")]),
@@ -214,6 +224,13 @@ fn check_cooker_mate(g: &Graph) -> Result<(), String> {
         for (id, pin) in *pins {
             if g.pins.get(&((*id).into(), (*pin).into())) != Some(net) {
                 return Err(format!("cooker mate {label} missing {id}.{pin}"));
+            }
+        }
+        if !matches!(*label, "SELV 3.3 V" | "SELV ground" | "SELV 15 V source") {
+            let expected: BTreeSet<(String, String)> = pins.iter()
+                .map(|(id, pin)| ((*id).into(), (*pin).into())).collect();
+            if members(g, net) != expected {
+                return Err(format!("cooker mate {label} has an unexpected load or driver"));
             }
         }
     }
@@ -1342,9 +1359,13 @@ mod tests {
         g.parts.insert("cooker.mcu.mcu".into(), "ESP32-S3-WROOM-1-N8R8".into());
         g.parts.insert("cooker.mcu.r_sda_pullup".into(), "RC0603FR-074K7L".into());
         g.parts.insert("cooker.mcu.r_scl_pullup".into(), "RC0603FR-074K7L".into());
+        g.parts.insert("cooker.aux_supply.psu".into(), "IRM-10-15".into());
+        g.parts.insert("cooker.power_mgmt.buck_3v3.buck".into(), "LMR51430XDDCR".into());
+        g.parts.insert("cooker.power_mgmt.buck_3v3.l_out".into(), "SRP1265A-5R6M".into());
         let groups: &[(&str, &[(&str, &str)])] = &[
-            ("vcc", &[("rev38_mate", "1"), ("rev38_mate", "9"), ("cooker.mcu.mcu", "2"), ("cooker.mcu.r_sda_pullup", "1"), ("cooker.mcu.r_scl_pullup", "1")]),
-            ("gnd", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1")]),
+            ("vcc", &[("rev38_mate", "1"), ("rev38_mate", "9"), ("cooker.mcu.mcu", "2"), ("cooker.mcu.r_sda_pullup", "1"), ("cooker.mcu.r_scl_pullup", "1"), ("cooker.power_mgmt.buck_3v3.l_out", "2")]),
+            ("gnd", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1"), ("cooker.aux_supply.psu", "4"), ("cooker.power_mgmt.buck_3v3.buck", "1")]),
+            ("selv15", &[("cooker.aux_supply.psu", "3"), ("cooker.power_mgmt.buck_3v3.buck", "3"), ("cooker.power_mgmt.buck_3v3.buck", "5")]),
             ("stop", &[("rev38_mate", "2"), ("cooker.mcu.mcu", "21")]),
             ("heartbeat", &[("rev38_mate", "3"), ("cooker.mcu.mcu", "23")]),
             ("permit", &[("rev38_mate", "4"), ("cooker.mcu.mcu", "25")]),
@@ -1386,6 +1407,47 @@ mod tests {
         let net = g.pins[&("rev38_mate".into(), "15".into())].clone();
         g.pins.insert(("cooker.mcu.mcu".into(), "39".into()), net);
         assert!(check_cooker_mate(&g).is_err());
+    }
+
+    #[test]
+    fn cooker_mate_rejects_added_stop_pullup() {
+        let mut g = cooker_mate_fixture();
+        let net = g.pins[&("rev38_mate".into(), "2".into())].clone();
+        g.pins.insert(("cooker.mcu.r_en".into(), "2".into()), net);
+        assert!(check_cooker_mate(&g).is_err());
+    }
+
+    #[test]
+    fn cooker_mate_rejects_orphaned_cooker_rail_producer() {
+        let mut g = cooker_mate_fixture();
+        g.pins.insert(("cooker.power_mgmt.buck_3v3.l_out".into(), "2".into()), "orphan".into());
+        assert!(check_cooker_mate(&g).is_err());
+    }
+
+    #[test]
+    fn cooker_mate_rejects_orphaned_cooker_rail_return() {
+        let mut g = cooker_mate_fixture();
+        g.pins.insert(("cooker.aux_supply.psu".into(), "4".into()), "orphan".into());
+        assert!(check_cooker_mate(&g).is_err());
+    }
+
+    #[test]
+    fn cooker_mate_rejects_orphaned_15v_source() {
+        let mut g = cooker_mate_fixture();
+        g.pins.insert(("cooker.aux_supply.psu".into(), "3".into()), "orphan".into());
+        assert!(check_cooker_mate(&g).is_err());
+    }
+
+    #[test]
+    fn netlist_rejects_duplicate_name_for_disconnected_nets() {
+        let input = r#"(export
+          (components
+            (comp (ref "U1") (sheetpath (names "Top::esp")) (libsource (part "ESP")))
+            (comp (ref "J1") (sheetpath (names "Top::port")) (libsource (part "PORT"))))
+          (nets
+            (net (code "1") (name "stop_n") (node (ref "U1") (pin "21")))
+            (net (code "2") (name "stop_n") (node (ref "J1") (pin "2")))))"#;
+        assert!(graph(input).is_err());
     }
 
     fn fixture() -> Graph {
