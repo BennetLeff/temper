@@ -40,6 +40,42 @@ ADI specifies 40–60 mV forward sense threshold at `VOUT = VIN` and 30–70 mV 
 
 The joined protected rail has **30.6 µF nominal direct capacitance**: driver 4.8 µF, PFC control 1.0 µF, logic5 buck VIN 20.1 µF, and cutoff VOUT 4.7 µF. The [ADI inrush relation](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf) `Iinrush = COUT × IGATE(UP) / CGATE` gives 183.6 mA using 30.6 µF, 60 µA maximum gate-up current and *nominal* 10 nF. This is **not a maximum**, because CGATE effective minimum, capacitance maxima, active load, source ramp and FET gate dynamics are missing. At nominal values the direct-bank charge to 15 V is 459 µC, and the ideal half-`C V²` charge loss is 3.44 mJ, mainly in the series pass path. Actual FET energy and peak power depend on the waveform and on other starting loads. The HOT logic5 buck output adds a separate 46.5 µF nominal 5 V bank, whose charging current appears upstream through the buck with an efficiency- and timing-dependent profile.
 
+The most restrictive published forward-trip fixture is 30 mV minimum with
+`VIN = 12 V, VOUT = 0 V`. With the selected shunt's 1% initial high corner,
+that is the conditional **0.594 A** threshold above. Subtracting the
+**nominal** 0.184 A direct-bank inrush screen leaves only **0.410 A** for
+simultaneous active startup before this fixture's minimum threshold. That
+subtraction is a feasibility question, not a guaranteed margin: the source
+is 15 V, the two capacitance corners are unknown, and the 5 V buck, relay,
+PFC and driver startup currents may overlap. ADI's own reference Figure 7
+uses FDS3992 with different 24 V/100 µF/20 mΩ conditions; it supports this
+as a candidate device pairing, not the Rev38 FET's linear SOA at its actual
+waveforms.
+
+## Decision worksheet for the joined load
+
+For each intended cold, warm, partially charged and repeated-start state,
+record the maximum *simultaneous* upstream current through the shunt. The
+candidate can proceed to a native review only if an evidence-backed lower
+trip threshold exceeds the highest valid-start current with a stated margin.
+The relevant test is the complete waveform, not separate peaks added from
+incompatible operating states.
+
+| Gate | Quantities to record on the joined article | Review condition |
+| --- | --- | --- |
+| Valid startup | Effective `C_AUX` maximum, effective `C_GATE` minimum, 5 V buck input current during its output-bank charge, relay/PFC/driver overlap, shunt tolerance and temperature | `I_valid_start_peak + margin < I_OC_forward_min` at the applicable LTC4368 fixture, with no nuisance latch, supply hiccup or rail-good chatter. |
+| Steady run | State-by-state direct AUX and 5 V loads, buck input power/efficiency, cutoff controller current and path drop at the hot part temperature | Protected VDD and logic5 stay in their accepted windows while each converter and shunt remain inside their qualified current/thermal limits. |
+| Cold cutoff FET | Simultaneous `VDS(t)` and `ID(t)` on each FDS3992 die during every startup, fault and restart; pulse spacing, case/board temperatures and copper area | Compare each trajectory and accumulated heating with manufacturer SOA/transient thermal data for the *actual* board. The 3.44 mJ ideal charge loss is not this trajectory. |
+| Fast overvoltage | Pre-cutoff VIN, both FET terminals/gates, `AUX_PROTECTED`, UCC27624 VDD, HOT logic5 and retained-clear/driver EN | Derive the highest protected pin voltage, response time and stored-energy path. Compare with the separately accepted driver and rail limits; the 18 V screen alone is not that limit. |
+| Overcurrent and restart | Shunt Kelvin differential, gate discharge, FET current, VIN/SHDN and VOUT through short, overload, source dip and recovery | Show latch-off on forward overcurrent and a controlled reset policy; tying SHDN to VIN makes converter discharge/brownout part of reset behavior. |
+
+[ADI's LTC4368 data sheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf)
+requires at least 1 µF at VOUT and states that valid-start inrush plus output
+load must stay below the forward threshold. Its 8 µs fault example and the
+TPS54202's 5 ms *typical* soft start are not worst-case board response
+limits. Record source, scope/probe uncertainty, raw traces and article identity
+using [`bench-capture.md`](bench-capture.md); all worksheet rows are **NOT RUN**.
+
 ## Required physical evidence before acceptance
 
 1. Measure `AUX15_PRECUT`, `AUX_PROTECTED`, FET GATE/source/drain, shunt differential voltage and current, and UCC27624 VDD during cold/warm/partially discharged starts, relay pickup, PFC startup, logic5 load steps and mains dips. Derive the combined valid-start current and no-chatter margin at voltage and temperature corners.
