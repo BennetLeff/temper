@@ -23,6 +23,8 @@ completed receiver tick with no I/O fault; the external WDI still needs
 local and matching link progress. USART receive activity alone feeds
 neither watchdog. These checks do not select a WDT period or BOD threshold,
 or prove reset behavior between valid digital supply levels.
+`../AVR-FUSE-SCREEN.md` records device-specific review bytes and the exact
+readback/measurement gates; they are not programmed or accepted defaults.
 
 Build the default locked image with Microchip AVR 8-Bit Toolchain 4.0.0.52
 (avr-gcc 15.1.0):

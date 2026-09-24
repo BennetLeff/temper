@@ -1,0 +1,14 @@
+# AVR64DA32 receiver fuse screen
+
+Status: **byte candidates for a locked engineering image; programmed-device and timing acceptance OPEN**. The source is Microchip's [AVR64DA28/32/48/64(S) Complete Data Sheet, DS40002233C](https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/AVR64DA28-32-48-64-DataSheet-DS40002233.pdf), pages 48–53 (fuses), 215–216 (watchdog period/lock), and 589 (BOD and watchdog electrical characteristics). These are device-specific entries; fuse tables from other AVR families are not interchangeable.
+
+| Fuse address | Review byte | Bit basis | Gate before selection |
+| --- | ---: | --- | --- |
+| `WDTCFG` 0x00 | `0x05` candidate | `WINDOW=0` (normal mode), `PERIOD=5` (nominal 125 ms). Nonzero period automatically locks WDT control. | The data sheet gives no guaranteed min/max watchdog time at this setting; Table 37-15 gives only a typical 500 ms at 512 clocks and marks characterized values as not production-tested. Derive the receiver tick/feed budget and measure programmed devices over supply and temperature. The external HOT TPS3431 and hardware clear remain the response path. |
+| `BODCFG` 0x01 | `0x65` candidate | `LVL=3` (2.85 V nominal), `SAMPFREQ=0`, `ACTIVE=1` continuous, `SLEEP=1` continuous. | Table 37-15 gives 2.70–3.00 V for level 3. This is well below the candidate HOT logic5 supervisor's nominal 4.531 V falling threshold, so BOD is a last-resort MCU reset, not proof of default-low outputs across 5 V rail collapse. Verify actual rail sequence and reset/abort pins. |
+| `OSCCFG` 0x02 | `0x00` candidate | `CLKSEL=0` selects internal OSCHF. | Verify the 24 MHz clock setup, oscillator accuracy, USART baud and timer/deadline error over supply and temperature. |
+| `SYSCFG0` 0x05 | `0xC9` candidate | `CRCSRC=3` retains factory no-CRC selection, `CRCSEL=0`, `RSTPINCFG=2` makes PF6 external RESET, `EESAVE=1` preserves the session journal on chip erase; reserved bits remain zero. | Confirm the no-CRC policy, PF6 pull/reset circuit and PF7 UPDI access on the exact TQFP-32 board. Read back all bits after programming. |
+
+These four bytes satisfy the current `pe_avr_boot_fuses_ok` *format* check if supplied as explicit build expectations. The default build still expects zero for WDTCFG, BODCFG and SYSCFG0 and deliberately stays in LOCKOUT. Do not change those defaults or enable nonzero protocol windows from this screen.
+
+For a programmed candidate, record the device signature and the four pre-program bytes; program the reviewed byte set through PF7 UPDI; read back all four bytes; power-cycle and read back again; then capture PF6 reset, PA6 abort, PA2 relay, HOT retained state, watchdog service and clock/UART behavior at the pins. Reject a byte mismatch, reset-inaccessible board, missing journal preservation, or any response outside the independently accepted limits. No device has been programmed or measured for this record.

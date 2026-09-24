@@ -14,7 +14,7 @@ The [Phoenix Contact `TDPT 16/ 2-SC-10,16-ZB` product record](https://www.phoeni
 | Insulation geometry | Manufacturer states 8 mm minimum clearance and 8 mm creepage for III/2, 1000 V/8 kV; III/3 is 8 mm clearance and 10 mm creepage at 800 V/8 kV | Check adjacent live structures, solder pads, copper and enclosure in the native board; the terminal's internal figures do not prove board spacing. |
 | Board pattern | 10.16 mm pitch, **zigzag W pinning**, two solder pins per potential, 3.5 mm solder-pin length | Phoenix's 2018 family drawing establishes the stagger and nominal centers below. Its illustrative Ø2.0 mm holes conflict with the 1.85 mm hole specified in both the 2018 data table and the current product page. Resolve that conflict before a production footprint is assigned. |
 
-The product page also lists a 21.34 × 31.9 mm board-facing envelope and 31.2 mm installed height. The [manufacturer's generated product PDF](https://www.phoenixcontact.com/en-gb/products/printed-circuit-board-terminal-tdpt-16-2-sc-1016-zb-1017526?type=pdf) repeats the dimensions and ratings. No Rev38 library footprint exists for 1017526.
+The product page also lists a 21.34 × 31.9 mm board-facing envelope and 31.2 mm installed height. The [manufacturer's generated product PDF](https://www.phoenixcontact.com/en-gb/products/printed-circuit-board-terminal-tdpt-16-2-sc-1016-zb-1017526?type=pdf), dated 2026-08-29, repeats the current 1.85 mm hole and 1 × 0.9 mm pin entries. It has no dimensioned four-hole pattern or land diameter. This newer catalog evidence favors 1.85 mm but does not formally supersede the controlled 2018 drawing's illustrative Ø2.0 mm callout. No Rev38 library footprint exists for 1017526.
 
 ### Manufacturer drilling drawing and pad-center derivation
 
