@@ -80,6 +80,37 @@ actually reached.
 | Partial-power and rail-order permutations | SELV3V3, HOT logic5, driver VDD, both sides of each relied-on isolator channel, reset supervisors, local EN bias, AVR reset/abort | Show default-off with driver supply present and HOT logic absent, and no false liveness or stale high across either domain. |
 | Failed-short STW/diode or noninterruptible bank discharge | F1/F2 terminal voltage/current, bank energy and current paths, interconnect temperatures | Use a separate interruption/containment verdict; gate disable has no valid `t5` for the failed path. This row is **not** authorized by low-voltage gate captures. |
 
+### Source-reset feed-tail discriminator
+
+For the ESP execution-loss row, start once with RUN retained and once with a
+first START already committed but not yet received. Repeat CPU-only reset,
+`esp_restart`, panic, task/RTC watchdog reset and brownout. Inject each reset
+immediately after a qualifying WDI edge, during an expander P1 write, and
+during a UART START frame. Record the actual reset cause. Probe the GPIO21
+pad and one-shot B2 input separately, Q2_N/WDI, WDO, GPIO13 STOP_N, GPIO48
+permit-set clock, both permit Q pins, TCA6408A P0–P2, SDA/SCL and the
+SELV3V3 rail on a shared timebase. Include the UART final stop bit at the
+receiver and the HOT session/RUN clear pins.
+
+Force a continuous boot loop as a falsification test. If each reboot creates
+another qualifying WDI edge before WDO times out, the feed tail is
+**unbounded** and the reset candidate fails, even if a finite single-reboot
+trace appears safe. For every reset class and starting state, identify the
+last WDI falling edge after `t0`, attribute each GPIO21/B2 transition to a
+firmware write, pad pull, boot path or rail disturbance, and bound the
+maximum last-edge time with instrument uncertainty. A pad transition seen
+without a named owner or a high retained expander output that can clock a
+new permission edge is a failure to establish that bound. Check whether
+GPIO13 falls before or after the last WDI edge and whether physical PERMIT,
+RUN and EN clear without firmware service. The 10 kΩ GPIO21 pull-down is a
+typical-pull-up screen only; it is not a substitute for these captures.
+
+Only compare a finite, supported feed-tail maximum plus the installed WDO
+and downstream clear/current-cessation maxima against an independently
+derived allowable time. Do not count a reset-to-low STOP trace as proof of
+the first-START path unless the already-issued START and final UART bit are
+also accounted for.
+
 Include narrow minimum-width fault pulses, pulses during preparation while
 `HOT_SESSION_OK` is already low, a held revalidation request coincident with
 clear, and near-threshold rail ramps. Record what waveform actually reaches
