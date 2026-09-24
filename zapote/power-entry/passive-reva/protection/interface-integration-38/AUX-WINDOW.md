@@ -118,3 +118,49 @@ pickup. This determines the shunt/current-limit threshold and whether the
 IRM overload mode, buck current limit, or cutoff retries during a valid
 start. Current capacity alone cannot close either candidate's normal voltage
 window or fast-fault driver-pin peak.
+
+### HOT logic5 census from the joined netlist
+
+The generated `build/integrated.net` with SHA-256
+`a54311635a5ea1e9af3426221da8cfb961d1f39410d50890683c78d99d259908`
+has 86 pin nodes on `hot_logic5`, belonging to 60 distinct components.
+The count is a **connectivity inventory**, not a current measurement or a
+guaranteed load bound. Re-run it whenever the joined source changes.
+
+| Directly connected class | Count | What the source budget must include |
+| --- | ---: | --- |
+| AVR64DA32-E/PT | 1 | Active current at the programmed clock, enabled peripherals, I/O loads, temperature and actual 5 V rail |
+| ISO7741FDWR and ISO7742FDWR HOT sides | 1 each | `VCC2` supply current at the actual 3.3 V/5 V split, input states and switching rates; both isolators' `VCC1` inputs belong to the separate SELV budget |
+| SN74HCS21PWR / SN74HCS74PWR | 6 / 5 | Static and switching current plus loaded outputs, including retained logic during reset |
+| TLV3202IDR / TPS389001DSER | 3 / 2 | Comparator/supervisor bias and output loading over the rail/fault sequence |
+| Other logic and watchdog | 6: one each SN74LV221AQPWRQ1, SN74LVC1G08DBVR, SN74LVC1G06DBVR, TPS3431SDRBR, SN74HCS04PWR and SN74HCS00PWR | Static/switching current, output loading and watchdog service states |
+| GRM188R71H104KA93D local bypass | 25 × 0.1 µF nominal | **2.5 µF nominal** is already tied from HOT_LOGIC5 to HOT0; add converter output capacitance and effective-value corners before an inrush calculation |
+| RC0603FR-0710KL pull resistors | 9 × 10 kΩ nominal | Up to 4.5 mA in the artificial all-low, ideal-5 V/nominal-R state; determine mutually reachable states and resistor/rail corners |
+| RC0603FR-07294KL | 1 × 294 kΩ nominal | Determine its other node and state; at most 17 µA in the same ideal-5 V/grounded-end arithmetic screen |
+
+The 25 active ICs are `1 + 2 + 6 + 5 + 3 + 2 + 6`; the 25 capacitors and 10
+resistors complete the 60 components. This inventory counts only pins
+directly on the 5 V net; any load
+reached through a resistor or output, and the converter's own losses, still
+need a state-by-state tally.
+
+[Microchip's AVR64DA power table](https://onlinedocs.microchip.com/oxy/GUID-A033CDA8-8724-46BD-B29F-D830FF21A623-en-US-12/GUID-FCC6C1C6-AACB-485E-AF93-582CB4F32BA1.html)
+quotes 5.3 mA maximum at 24 MHz with peripherals disabled, I/O low and
+**3.0 V VDD**. It is not a 5 V installed-load maximum.
+[TI's ISO774x supply table](https://www.ti.com/lit/gpn/ISO7741) specifies
+separate hot-side supply currents for 5 V on *both* sides and specific DC or
+all-channel-switching fixtures. This design supplies the other side at
+SELV3V3, so those figures cannot be added as a guaranteed split-rail bound.
+The ESP adapter currently configures UART1 at 115200 baud, but the remaining
+isolator channels have independent activity and static states. Determine the
+mixed-voltage current bound or measure it in the relevant modes.
+
+Before selecting the TPS54202 output network and LTC4368 sense resistor,
+measure `I_5V(t)` with the complete receiver and isolation loads through
+power-up, reset, run, disarm and fault. Separately capture the `AUX_PROTECTED`
+input current while the converter charges the 2.5 µF nominal bypass plus
+its required output capacitor. Integrate each startup waveform and compare
+its overlapping peak with relay pickup, PFC/gate-driver startup, the cutoff
+trip threshold and the source overload/retry behavior. The 5 V capacitor
+charge is 12.5 µC at nominal values and exactly 5 V, before the converter
+output capacitor; it is not an AUX-input charge or a peak-current bound.

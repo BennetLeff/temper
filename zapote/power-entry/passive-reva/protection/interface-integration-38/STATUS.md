@@ -45,6 +45,11 @@ thermal, F2/MOV coordination, and harness/access gates remain OPEN.
 about 41.50 mA of nominal-resistance paths at 15.75 V are identifiable before
 the PFC controller, driver, logic5 converter and dynamic loads. The old
 75 mA direct-AUX allowance cannot be inherited without a new load budget.
+Its generated-netlist census identifies 25 active ICs, 25 local 100 nF
+capacitors and 10 resistors directly on HOT_LOGIC5. The 2.5 µF nominal
+local bypass is only a startup-charge inventory; mixed-voltage isolator load,
+AVR operation at 5 V, output loading, converter loss and its output capacitor
+still prevent a protected-AUX current-limit selection.
 `AUX-OVP-WINDOW.md` also records that TPS26601's default UVLO can prevent
 startup at a valid 14.625 V regulator output; the protected-AUX candidate
 needs an externally qualified UVLO threshold as well as the OVP solution.
