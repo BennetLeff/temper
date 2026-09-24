@@ -1,0 +1,66 @@
+ERC report (2026-09-23T22:15:14, Encoding UTF8)
+Report includes: Errors, Warnings
+
+***** Sheet /
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(35.56 mm, 85.88 mm): Symbol J2 Pin 1 [1, Bidirectional, Line]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Diode_SMD'
+    ; warning
+    @(50.80 mm, 50.80 mm): Symbol D1 [TPD1E05U06DYAR]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(50.80 mm, 50.80 mm): Symbol D1 [TPD1E05U06DYAR]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(50.80 mm, 80.80 mm): Symbol J2 [TSW-106-07-G-S]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(75.56 mm, 50.80 mm): Symbol D2 Pin 1 [1, Bidirectional, Line]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(75.56 mm, 80.80 mm): Symbol R1 Pin 1 [1, Bidirectional, Line]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Diode_SMD'
+    ; warning
+    @(90.80 mm, 50.80 mm): Symbol D2 [TPD1E05U06DYAR]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(90.80 mm, 50.80 mm): Symbol D2 [TPD1E05U06DYAR]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(90.80 mm, 80.80 mm): Symbol R1 [RC0603FR-07499RL]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(115.56 mm, 50.80 mm): Symbol D3 Pin 1 [1, Bidirectional, Line]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Diode_SMD'
+    ; warning
+    @(130.80 mm, 50.80 mm): Symbol D3 [TPD1E05U06DYAR]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(130.80 mm, 50.80 mm): Symbol D3 [TPD1E05U06DYAR]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(155.56 mm, 50.80 mm): Symbol D4 Pin 1 [1, Bidirectional, Line]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Diode_SMD'
+    ; warning
+    @(170.80 mm, 50.80 mm): Symbol D4 [TPD1E05U06DYAR]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(170.80 mm, 50.80 mm): Symbol D4 [TPD1E05U06DYAR]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(195.56 mm, 55.88 mm): Symbol J1 Pin 1 [1, Bidirectional, Line]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Connector'
+    ; warning
+    @(210.80 mm, 50.80 mm): Symbol J1 [TC2030-IDC-NL-FP]
+[lib_symbol_issues]: The current configuration does not include the symbol library ''
+    ; warning
+    @(210.80 mm, 50.80 mm): Symbol J1 [TC2030-IDC-NL-FP]
+
+ ** ERC messages: 18  Errors 0  Warnings 18
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters

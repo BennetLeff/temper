@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "root_sheet": "service_coupon.kicad_sch",
+  "sheets": ["ServiceCoupon"],
+  "sheet_files": {"ServiceCoupon": "service_coupon.kicad_sch"},
+  "module_to_sheet": {},
+  "title": "SELV UART0 programming evaluation coupon",
+  "sheet_description": "Mains-disconnected MCU lab fixture only; no powered-off I/O or product reset safety qualification",
+  "flat": true
+}

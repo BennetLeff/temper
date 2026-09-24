@@ -1,0 +1,6 @@
+(fp_lib_table (version 7)
+  (lib (name "Connector") (type "KiCad") (uri "${KICAD10_FOOTPRINT_DIR}/Connector.pretty") (options "") (descr "Official KiCad library"))
+  (lib (name "Connector_PinHeader_2.54mm") (type "KiCad") (uri "${KICAD10_FOOTPRINT_DIR}/Connector_PinHeader_2.54mm.pretty") (options "") (descr "Official KiCad library"))
+  (lib (name "Diode_SMD") (type "KiCad") (uri "${KICAD10_FOOTPRINT_DIR}/Diode_SMD.pretty") (options "") (descr "Official KiCad library"))
+  (lib (name "Resistor_SMD") (type "KiCad") (uri "${KICAD10_FOOTPRINT_DIR}/Resistor_SMD.pretty") (options "") (descr "Official KiCad library"))
+)

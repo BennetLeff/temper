@@ -1,0 +1,106 @@
+{
+  "board_sha256": "a937bc7283e308ca7a94129f1ba9a0102b461de15e23bf155e6c1f498eaa4366",
+  "generator_summary": {
+    "footprints": 7,
+    "layers": [
+      "F.Cu",
+      "In3.Cu",
+      "In1.Cu",
+      "In2.Cu",
+      "In4.Cu",
+      "B.Cu"
+    ],
+    "nets": 7,
+    "outline_mm": [
+      10.0,
+      10.0,
+      66.0,
+      42.0
+    ]
+  },
+  "netlist_sha256": "95ca061f2dc5bf0369ae3e49d05271bcfe213a858803f16ce57592510bdcf373",
+  "outline_mm": [
+    10.0,
+    10.0,
+    66.0,
+    42.0
+  ],
+  "pin_map": {
+    "en_n": [
+      "D3.1",
+      "J1.3",
+      "J2.3"
+    ],
+    "io0": [
+      "D4.1",
+      "J1.4",
+      "J2.4"
+    ],
+    "rxd0": [
+      "D2.1",
+      "J1.2",
+      "J2.2"
+    ],
+    "selv_return": [
+      "D1.2",
+      "D2.2",
+      "D3.2",
+      "D4.2",
+      "J1.6",
+      "J2.6"
+    ],
+    "service_txd0": [
+      "D1.1",
+      "J1.1",
+      "R1.1"
+    ],
+    "target_3v3_sense": [
+      "J1.5",
+      "J2.5"
+    ],
+    "target_txd0": [
+      "J2.1",
+      "R1.2"
+    ]
+  },
+  "placement_mm": {
+    "D1": [
+      34.0,
+      15.0,
+      0.0
+    ],
+    "D2": [
+      35.0,
+      20.0,
+      0.0
+    ],
+    "D3": [
+      36.0,
+      25.0,
+      0.0
+    ],
+    "D4": [
+      37.0,
+      30.0,
+      0.0
+    ],
+    "J1": [
+      22.0,
+      25.0,
+      0.0
+    ],
+    "J2": [
+      56.0,
+      19.0,
+      0.0
+    ],
+    "R1": [
+      44.0,
+      16.0,
+      0.0
+    ]
+  },
+  "product_service_accepted": false,
+  "source_sha256": "420220b46fce45f0814acfd509e21b05642f32c3085aa30fb8bed1c192ca9c8a",
+  "status": "placed-unrouted-coupon"
+}

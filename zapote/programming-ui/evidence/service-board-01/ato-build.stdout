@@ -1,0 +1,67 @@
+[22:30:26] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/worktrees/zapote-s
+                    ervice-board/zapote/programming-ui/source-build
+                    -01
+           INFO     Building default                                 build.py:38
+           INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /Users/bennet/Desktop/temper/worktrees/zapote-se
+                    rvice-board/zapote/programming-ui/source-build-0
+                    1/build
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment          ┃ Designator  ┃ Footprint        ┃ LCSC             ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ TC2030-IDC-NL-FP │ J1          │ Connector:Tag-C… │ TC2030-IDC-NL-FP │ 0.00  │
+│ TSW-106-07-G-S   │ J2          │ Connector_PinHe… │ TSW-106-07-G-S   │ 0.00  │
+│ RC0603FR-07499RL │ R1          │ Resistor_SMD:R_… │ RC0603FR-07499RL │ 0.00  │
+│ TPD1E05U06DYAR   │ D1,D2,D3,D4 │ Diode_SMD:D_SOD… │ TPD1E05U06DYAR   │ 0.00  │
+└──────────────────┴─────────────┴──────────────────┴──────────────────┴───────┘
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config
+           Assertions
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name       ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│           D1 │ esd_tx     │
+│           D2 │ esd_rx     │
+│           D3 │ esd_en     │
+│           D4 │ esd_io0    │
+│           J1 │ programmer │
+│           J2 │ target     │
+│           R1 │ tx_series  │
+└──────────────┴────────────┘
+┏━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓     ┃ Designator ┃
+┡━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ esd_en     │ D3         │
+│ esd_io0    │ D4         │
+│ esd_rx     │ D2         │
+│ esd_tx     │ D1         │
+│ programmer │ J1         │
+│ target     │ J2         │
+│ tx_series  │ R1         │
+└────────────┴────────────┘
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Successfully built 'layout-module-map, bom,     build.py:105
+                    clone-footprints, assertions-report,
+                    designator-map, copy-3dmodels, copy-footprints,
+                    netlist, variable-report' for 'default' config
+           INFO     Build complete!                                  build.py:59

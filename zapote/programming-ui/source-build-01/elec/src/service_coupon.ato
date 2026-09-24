@@ -1,0 +1,91 @@
+# Mains-disconnected ESP32-S3 UART0 programming coupon only.
+# No HV connection. 3V3 is intended as target reference; direct passthrough
+# cannot enforce that rule and must not be used to feed an unpowered target.
+# No product reset-to-power-stage-stop or powered-off backfeed qualification.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component ServicePads:
+    designator_prefix = "J"
+    footprint = "Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical"
+    mpn = "TC2030-IDC-NL-FP"
+    manufacturer = "Tag-Connect"
+    signal TARGET_TXD0 ~ pin 1
+    signal TARGET_RXD0 ~ pin 2
+    signal TARGET_EN_N ~ pin 3
+    signal TARGET_IO0 ~ pin 4
+    signal TARGET_3V3_SENSE ~ pin 5
+    signal SELV_RETURN ~ pin 6
+
+component TargetHarness:
+    designator_prefix = "J"
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical"
+    mpn = "TSW-106-07-G-S"
+    manufacturer = "Samtec"
+    signal TARGET_TXD0 ~ pin 1
+    signal TARGET_RXD0 ~ pin 2
+    signal TARGET_EN_N ~ pin 3
+    signal TARGET_IO0 ~ pin 4
+    signal TARGET_3V3_SENSE ~ pin 5
+    signal SELV_RETURN ~ pin 6
+
+component Series499:
+    designator_prefix = "R"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value = "499R"
+    mpn = "RC0603FR-07499RL"
+    manufacturer = "Yageo"
+    signal a ~ pin 1
+    signal b ~ pin 2
+
+component Tpd1e05u06:
+    designator_prefix = "D"
+    footprint = "Diode_SMD:D_SOD-523"
+    mpn = "TPD1E05U06DYAR"
+    manufacturer = "Texas Instruments"
+    signal io ~ pin 1
+    signal gnd ~ pin 2
+
+module ServiceCoupon:
+    signal SERVICE_TXD0
+    signal TARGET_TXD0
+    signal RXD0
+    signal EN_N
+    signal IO0
+    signal TARGET_3V3_SENSE
+    signal SELV_RETURN
+
+    programmer = new ServicePads
+    target = new TargetHarness
+    tx_series = new Series499
+    esd_tx = new Tpd1e05u06
+    esd_rx = new Tpd1e05u06
+    esd_en = new Tpd1e05u06
+    esd_io0 = new Tpd1e05u06
+
+    programmer.TARGET_TXD0 ~ SERVICE_TXD0
+    SERVICE_TXD0 ~ esd_tx.io
+    SERVICE_TXD0 ~ tx_series.a
+    tx_series.b ~ TARGET_TXD0
+    TARGET_TXD0 ~ target.TARGET_TXD0
+
+    programmer.TARGET_RXD0 ~ RXD0
+    target.TARGET_RXD0 ~ RXD0
+    esd_rx.io ~ RXD0
+
+    programmer.TARGET_EN_N ~ EN_N
+    target.TARGET_EN_N ~ EN_N
+    esd_en.io ~ EN_N
+
+    programmer.TARGET_IO0 ~ IO0
+    target.TARGET_IO0 ~ IO0
+    esd_io0.io ~ IO0
+
+    programmer.TARGET_3V3_SENSE ~ TARGET_3V3_SENSE
+    target.TARGET_3V3_SENSE ~ TARGET_3V3_SENSE
+    programmer.SELV_RETURN ~ SELV_RETURN
+    target.SELV_RETURN ~ SELV_RETURN
+    esd_tx.gnd ~ SELV_RETURN
+    esd_rx.gnd ~ SELV_RETURN
+    esd_en.gnd ~ SELV_RETURN
+    esd_io0.gnd ~ SELV_RETURN
