@@ -59,3 +59,37 @@ those references would make the static probe greener but would not close the
 assembly boundary. Whether those parts remain at all depends on the new
 composition. Keep native-product acceptance **OPEN** until the power
 interface is explicit and checked. No mains or assembled fault test has run.
+
+## Direct-bank join audit (2026-09-24)
+
+The legacy cooker's 340 V designation is a **differential** voltage across a
+split doubler, not the voltage of its positive rail to its power return.
+`Top.dc_bus_plus` is about +170 V relative to the doubler midpoint
+`Top.power_return`, while `Top.dc_bus_minus` is about −170 V. The tank-return
+CT feeds that midpoint. In `elec/src/main.ato`, `Top` also joins the active
+discharge's `mid` to `power_return`, gives its OVP comparator the positive
+half-bus, and powers `AuxSupply` from that positive half-bus to the midpoint.
+Those are circuit connections, not just comments or a stale net name.
+
+Rev38 `VB_BANK` and HOT0 form one approximately 400 V PFC output; its source
+does not export the legacy doubler midpoint. A wire from `VB_BANK` to
+`Top.dc_bus_plus` and HOT0 to `Top.dc_bus_minus` therefore leaves
+`Top.power_return` without its specified midpoint. Tying that return to
+either end of the Rev38 bank instead changes the tank-current path,
+half-bus discharge, OVP reference, and auxiliary-source input. Lowering the
+PFC setpoint alone would not create the missing midpoint.
+
+| Legacy `Top` dependency | Exact current join | Requirement for one-front-end composition |
+| --- | --- | --- |
+| Half bridge and tank | `hb.dc_bus.hv_plus` to `dc_bus_plus`; low side through `safety.ocp2_bus_in/out` to `dc_bus_minus`; `tank.out` through `ct_sense` to `power_return` | Specify one complete inverter current loop against the selected Rev38 bank, including CT placement, device stress and tank operating point. |
+| Active discharge | `discharge.hv_plus/mid/hv_minus` to positive half, midpoint and negative half | Replace or re-evaluate both half-bus discharge branches against the single bank and its stored energy. |
+| OVP and sensing | `safety.dc_bus.line` to the positive half-bus; OVP trip is declared around 390 V differential | Recalculate the sensing/reference and trip before using a 400 V nominal PFC bank; the old OVP does not measure the new full bank as wired. |
+| SELV power | `AuxSupply` input from positive half-bus to midpoint; output 15 V into `PowerManagement` 3.3 V regulator | Re-source the 15 V input from a qualified isolated supply without a HOT-to-SELV short, then qualify the retained 3.3 V regulator and total load. |
+| Precharge and relay | `PowerInput` owns the doubler, NTC and bypass; MCU relay control drives that bypass | Remove the duplicate input and map the cooker control function to Rev38's precharge/relay ownership only after a physical interlock review. |
+
+The next source revision needs separate controller/SELV and inverter-power
+interfaces, a selected bank-to-inverter topology and voltage envelope, then
+an audit that proves both the supply/return joins and absence of the old
+`PowerInput`/`AuxSupply` path. The current `cooker-mate` fixture deliberately
+retains `Top` for ESP pin-contract checking; it must not be promoted to the
+one-front-end product source or native board.
