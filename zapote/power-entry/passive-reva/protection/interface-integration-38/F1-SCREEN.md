@@ -24,6 +24,10 @@ inlet wiring are separate assembly work, not represented by a PCB footprint.
   outside this proposed envelope until the **whole assembly** is evaluated;
   the fuse's 200 kA interrupt rating alone does not assign a 200 kA rating
   to the cooker. Upstream-breaker selectivity is not assumed.
+- The single-pole F1 is in L only. Select a polarized inlet or fixed-wiring
+  arrangement that preserves L/N identity, and evaluate reversed or miswired
+  connections explicitly. The present source does not show a two-pole
+  disconnect or a fuse in N.
 
 ## Nominated F1 pair
 
@@ -86,7 +90,7 @@ and fault withstand to the qualification records below.
 | Block wiring | [Eaton Technical Data 10241](https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/data-sheets/bus-ele-ds-10241-bcm-bmm-blocks.pdf) lists the `BCM603-1P` pressure plate for 75/90 °C copper AWG 10–18, tightened to 20 lb-in (2.3 N·m). Its non-indicating `CVR-CCM` cover is the listed match; the block and cover operating range is −40 to +120 °C. | Select the actual conductor size and insulation temperature against the product wiring and 20 A protection requirements. Record torque and strain relief. The +120 °C component limit is not an acceptable enclosure or touch temperature by itself. |
 | PCB terminal | [Phoenix Contact 1714984](https://www.phoenixcontact.com/en-gb/products/printed-circuit-board-terminal-mkds-5-3-95-1714984) lists 0.2–4 mm² flexible wire and a separate AWG 24–10 range, 8 mm strip and 0.5–0.6 N·m torque. Its cULus recognition lists **300 V/30 A** for B/C use and **600 V/5 A** for D use; the separate IEC nominal entry is 32 A. Phoenix says to support this three-position terminal while tightening, because each contact has one solder pin. | The proposed 132 Vac/15 Arms use may fit the published B/C entry, but the required approval category, exact wire/termination, solder joint, copper and enclosure temperature must be decided for the end product. Do not use the 32 A IEC number as a blanket cULus 600 V/32 A approval. |
 | Fuse fault-current data | [Eaton Technical Data 1023](https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/bussmann-series-branch-circuit-fuses/class-cc/bus-ele-ds-1023-lp-cc.pdf) rates `LP-CC-20` at 200 kA RMS symmetrical AC interruption. Its current-limiting table gives **700 A apparent RMS symmetrical let-through** for a 20 A fuse at 10 kA prospective; the plotted time/current curves are **average melt**. | The 700 A figure is neither a peak-current limit nor a total-clearing I²t or clearing-time guarantee. Obtain the fault-specific peak and total-clearing data, then evaluate the wiring, terminal, PCB copper, MOV, CMC and bridge. The 200 kA fuse and block ratings do not transfer to the complete cooker. |
-| Inrush limiter | [Ametherm `SL32 10015`](https://www.ametherm.com/datasheets/sl3210015) lists 10 Ω ±20% at 25 °C, 0.05 Ω at 100% maximum current, 15 A maximum steady current, 150 J maximum recommended energy and a 232 s thermal time constant. | A cold-start calculation cannot cover a hot restart: the thermistor may have little limiting resistance. Its 15 A rating equals the required input current if the bypass relay remains open. Measure repeated starts, NTC temperature and relay-open duty; set a retry/cooldown policy from those data. |
+| Inrush limiter | [Ametherm `SL32 10015`](https://www.ametherm.com/datasheets/sl3210015) lists 10 Ω ±20% at 25 °C, 0.05 Ω and **228 °C body temperature** at its 15 A maximum steady current, 150 J maximum recommended energy and a 232 s thermal time constant. | A cold-start calculation cannot cover a hot restart: the thermistor may have little limiting resistance. Its 15 A rating equals the required input current if the bypass relay remains open. Treat stuck-open bypass at full input as a critical installed thermal case; measure NTC and adjacent-material temperatures, relay-open duty and repeated starts before setting a retry/cooldown policy. |
 | MOV | [Littelfuse `V150LA10AP`](https://www.littelfuse.com/assetdocs/littelfuse-varistor-la-datasheet?assetguid=f7c547ce-c2fa-4789-86cc-ec39a5060afb) lists 150 Vac maximum continuous voltage and 45 J for a 10×1000 µs transient. [Littelfuse's AC-line application note](https://www.littelfuse.com/~/media/electronics_technical/application_notes/varistors/littelfuse_designing_with_thermally_protected_tmov_varistors_in_spd_and_ac_line_application_note.pdf) explains that sustained abnormal overvoltage at limited current can overheat an ordinary MOV without opening a line fuse. | 132 Vac lies below the continuous nameplate, but 45 J is a specified pulse rating, not an abnormal-overvoltage or end-of-life clearance. Evaluate thermal disconnection or another demonstrated safe failure path; do not assume the 20 A F1 clears every MOV failure. |
 
 The compiled bank is four 560 µF capacitors plus 22 µF local film, or
@@ -100,7 +104,8 @@ the precharge design on this calculation alone.
 ## Qualification records to collect
 
 1. **Installation and fault boundary:** record plug/inlet and upstream
-   breaker identity, conductor path before F1, the available prospective
+   breaker identity, polarized-inlet or fixed-wiring L/N definition, reversed
+   and miswired connection behavior, conductor path before F1, the available prospective
    RMS symmetrical current and fault power factor at the equipment inlet,
    and whether the installation meets the proposed 10 kA maximum. Use the
    same source assumptions for line–neutral, line–PE and MOV faults.
