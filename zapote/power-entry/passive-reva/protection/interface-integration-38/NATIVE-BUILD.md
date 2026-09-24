@@ -7,14 +7,14 @@ existing strict source-to-KiCad bridge. It requires the frozen build, an exact
 pose for every source instance, and a reviewed rectangular outline; it refuses
 to overwrite a native output directory.
 
-The current frozen export, `source-build-03`, has a successful compiler receipt,
+The current frozen export, `source-build-04`, has a successful compiler receipt,
 295 compiled references and a per-reference BOM. Its source files match the
 current `elec/src` tree byte-for-byte. Its compiled `default.net` and
 `default.csv` are retained with the snapshot because the strict bridge reads
 those exact bytes. The duplicate ESP has been replaced by a 16-contact
 Rev38-side controller port. A separate `cooker-mate` derivative joins the
 existing cooker ESP, SELV rail and reset-good/interlock producers; these
-are not part of this frozen `source-build-03` export. That derivative
+are not part of this frozen `source-build-04` export. That derivative
 now has its own frozen `cooker-source-02` export and a two-source 16-contact
 connector audit, recorded in `COOKER-ASSEMBLY-SOURCE.md`. The native Rev38
 section has candidate 3.3 V port limits in `SELV-PORT-CONTRACT.md`; its
@@ -51,7 +51,20 @@ There are also no
 reviewed `poses.json` or `outline.json`; automatic arbitrary placement would
 not satisfy the electrical or isolation layout review.
 
-Once those inputs are closed, generate a **new** frozen source directory, then run
+`source-build-04` freezes a 10 kΩ rather than 100 kΩ GPIO21 heartbeat
+request pull-down. Its two-source assembly lock and audit pass. The native
+probe result above is historical for `source-build-03`; it has not been
+rerun on `source-build-04`. `INSULATION-BASIS.md` now identifies a second,
+independent U7 blocker: the documented 409.307 V maximum static regulation
+falls in the project's >400–500 V PD3 creepage row (16.0 mm reinforced
+screen on Group IIIa FR-4; the separate Group I package screen is 12.6 mm,
+while the selected ISO774x DW package provides only >8 mm external
+creepage. The selected product standard, clearance, worst VD/VB
+waveforms and complete barrier construction remain unresolved. No native
+rule file or board DRC result is accepted.
+
+Once those inputs are closed, use the current frozen source or generate a
+new one if the selected components or pins change, then run
 `uv run --no-sync python3 tools/build_native.py <source-build> native-01`
 after `make extensions-check` confirms a fresh `temper-design-bundle` bridge.
 The native output must then pass source/native parity, ERC, DRC, stackup and

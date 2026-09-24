@@ -4,7 +4,7 @@
 The existing cooker ESP32-S3 owns the Rev38 command protocol. That choice does
 not qualify the cooker's present 3.3 V regulator. The Rev38 section has no
 on-board SELV 3.3 V source: power enters at `source_mcu.controller_port`.
-`source-build-03` is the frozen circuit identity for this contract. A later
+`source-build-04` is the frozen circuit identity for this contract. A later
 product may use a different qualified SELV source while preserving the same
 command owner and port requirements.
 
@@ -23,7 +23,7 @@ partial data-sheet sum to a maximum. `SELV-SUPPLY-LOAD.md` identifies 9.5 mA
 for both isolator VCC1 sides at the TI 1 Mbps/15 pF example, 25.4 mA at its
 100 Mbps example, and separately lists the expander, watchdog, supervisors,
 logic, pulls and startup capacitors. The frozen netlist's 31 direct SELV
-resistors now have an intentionally overcounted **11.53 mA valid-rail screen**
+resistors now have an intentionally overcounted **11.89 mA valid-rail screen**
 in `SELV-SUPPLY-LOAD.md`; it is not a whole-port bound. Neither isolator
 example covers every operating state or coincident transient. Complete an
 output-load and switching-current sum, and physical current capture; if

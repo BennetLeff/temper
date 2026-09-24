@@ -1,6 +1,6 @@
 # Rev38 SELV 3.3 V load and startup inventory
 
-**Status:** engineering screen, 2026-09-24. The existing cooker ESP32-S3 is the selected Rev38 **command source**. Its present SELV 3.3 V rail is an unqualified supply candidate, not part of that command-source decision. The Rev38-side 16-contact header is joined in `PowerEntryIntegrated38`; a separate `cooker-mate` Atopile derivative joins its mate to the existing cooker ESP and rail. Neither native board nor harness is integrated. The `source-build-03` Rev38 export has no second ESP. This record does not establish spare capacity on the existing cooker rail. Its Rev38 inventory is the frozen `source-build-03` source and resolved export; the complete cooker load still needs a measured budget.
+**Status:** engineering screen, 2026-09-24. The existing cooker ESP32-S3 is the selected Rev38 **command source**. Its present SELV 3.3 V rail is an unqualified supply candidate, not part of that command-source decision. The Rev38-side 16-contact header is joined in `PowerEntryIntegrated38`; a separate `cooker-mate` Atopile derivative joins its mate to the existing cooker ESP and rail. Neither native board nor harness is integrated. The `source-build-04` Rev38 export has no second ESP. This record does not establish spare capacity on the existing cooker rail. Its Rev38 inventory is the frozen `source-build-04` source and resolved export; the complete cooker load still needs a measured budget.
 
 `SELV-PORT-CONTRACT.md` records the candidate 3.0–3.6 V board-input envelope
 and a **100 mA Rev38-only design allocation**. That allocation is not a
@@ -16,18 +16,18 @@ The figures below are **supply-design inputs**, not an accepted whole-board maxi
 | TCA6408AQPWRQ1 | One, `source_mcu.expander`, VCCI and VCCP both at SELV3V3 | Maximum 36 µA combined VCCI+VCCP at 400 kHz, inputs at valid rails, no P-port load; output sourcing/sinking and intermediate input voltages are additional. Its P0–P7 load depends on the joined output states and attached pull resistors. [TI TCA6408A-Q1 datasheet, §6.5](https://www.ti.com/lit/ds/symlink/tca6408a-q1.pdf) |
 | TPS3431SDRBR and TPS389001DSER | One each, `source.watchdog` and `source.rail` | TPS3431 IDD maximum 19 µA. TPS3890 IDD maximum 5.8 µA at 3.3 V over its full stated junction-temperature range with RESET unloaded. Add WDO/ENOUT and RESET pull-up currents when asserted, plus the rail divider. [TI TPS3431 datasheet, §6.5](https://www.ti.com/lit/ds/symlink/tps3431.pdf); [TI TPS3890 datasheet, §7.5](https://www.ti.com/lit/ds/symlink/tps3890.pdf) |
 | Source-retention and qualification logic | Three SN74HCS21, two SN74HCS74, one SN74HCS04, one SN74HCS00, one SN74LV221A-Q1 in `source_authority` | Each HCS package specifies at most 2 µA static ICC with rail-level inputs and no output load (seven packages = 14 µA under those **limited** conditions). LV221A-Q1 specifies 20 µA quiescent and up to 280 µA **per active timing circuit at 3 V**; two channels exist in the package. Add Schmitt-input intermediate-level current, CMOS switching power, timing-pulse current and loaded outputs. [TI HCS21](https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf), [HCS74](https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf), [HCS04](https://www.ti.com/lit/ds/symlink/sn74hcs04.pdf), [HCS00](https://www.ti.com/lit/ds/symlink/sn74hcs00.pdf), [LV221A-Q1](https://www.ti.com/lit/ds/symlink/sn74lv221a-q1.pdf) datasheets. |
-| Pulls, timing and rail sense | In `source_mcu`, `source_authority` and the two SELV feedback pulls in `receiver_isolation` | The frozen netlist has 28 × 10 kΩ, 2 × 100 kΩ and 1 × 16 kΩ resistors incident to `selv3v3` or `selv_gnd`. Their valid-rail screen is below. The two 4.7 kΩ I²C pull-ups are on the cooker board and are shared with the UI bus. |
+| Pulls, timing and rail sense | In `source_mcu`, `source_authority` and the two SELV feedback pulls in `receiver_isolation` | The frozen netlist has 29 × 10 kΩ, 1 × 100 kΩ and 1 × 16 kΩ resistors incident to `selv3v3` or `selv_gnd`. Their valid-rail screen is below. The two 4.7 kΩ I²C pull-ups are on the cooker board and are shared with the UI bus. |
 | Direct rail capacitance and startup | `source_mcu`: 2 × 100 nF; `source_authority`: 10 × 100 nF; `receiver_isolation`: 2 × 100 nF | **1.4 µF nominal** explicitly connected from SELV3V3 to SELV_GND on Rev38. Watchdog/one-shot/rail-delay timing capacitors charge on their own paths. Connector and cable capacitance, cooker-board input filtering, and capacitor tolerance/effective capacitance are not bounded here. Initial capacitive current is `C_effective × dV/dt`; for the 1.4 µF explicit direct bank alone, a linear 3.3 V rise in 1 ms would average about 4.6 mA. That illustration is not a startup-current limit. |
 
-The resistor count above comes from the actual `source-build-03/build/default.net`
+The resistor count above comes from the actual `source-build-04/build/default.net`
 pin joins, with values cross-checked against `resolved-components.json`.
 For a deliberately pessimistic **valid-rail** screen, put the full 3.6 V
 across every one of those resistors independently and reduce every nominal
 resistance by 10%:
 
 ```text
-I_resistor_screen = 3.6 V × (28 / 9.0 kΩ + 2 / 90 kΩ + 1 / 14.4 kΩ)
-                  = 11.53 mA
+I_resistor_screen = 3.6 V × (29 / 9.0 kΩ + 1 / 90 kΩ + 1 / 14.4 kΩ)
+                  = 11.89 mA
 ```
 
 This overcounts the 16 kΩ/10 kΩ series divider and mutually exclusive

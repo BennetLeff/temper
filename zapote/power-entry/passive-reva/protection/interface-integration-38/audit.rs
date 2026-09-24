@@ -289,7 +289,7 @@ fn check_cooker_rev38_harness(rev38: &Graph, cooker: &Graph) -> Result<(), Strin
         ("receiver.iso_protocol", "ISO7741FDWR"),
         ("source_mcu.start", "EVQ-P7A01P"),
         ("source.stop_pd", "RC0603FR-0710KL"),
-        ("source.heartbeat_pd", "RC0603FR-07100KL"),
+        ("source.heartbeat_pd", "RC0603FR-0710KL"),
         ("source.permit_set_pd", "RC0603FR-0710KL"),
         ("source.prewatchdog_pd", "RC0603FR-0710KL"),
         ("source.reset_good_pd", "RC0603FR-0710KL"),
@@ -595,7 +595,7 @@ fn check_source(g: &Graph) -> Result<(), String> {
         ("cwd", "GRM1885C1H102JA01D"),
         ("rail", "TPS389001DSER"),
         ("rail_top", "RC0603FR-0716KL"),
-        ("heartbeat_pd", "RC0603FR-07100KL"),
+        ("heartbeat_pd", "RC0603FR-0710KL"),
         ("wdi_pu", "RC0603FR-07100KL"),
         ("health", "SN74HCS21PWR"),
         ("prewatchdog_pd", "RC0603FR-0710KL"),
@@ -2289,6 +2289,13 @@ mod tests {
     fn compiled_source_passes() { check_source(&source_fixture()).unwrap(); }
 
     #[test]
+    fn source_weak_heartbeat_pull_down_fails() {
+        let mut g = source_fixture();
+        g.parts.insert("heartbeat_pd".into(), "RC0603FR-07100KL".into());
+        assert!(check_source(&g).is_err());
+    }
+
+    #[test]
     fn compiled_fixture_passes() { check(&fixture()).unwrap(); }
 
     #[test]
@@ -2573,10 +2580,10 @@ mod tests {
     }
 
     fn frozen_assembly() -> (Graph, Graph) {
-        let rev38 = graph(&fs::read_to_string("source-build-03/build/default.net").unwrap()).unwrap();
+        let rev38 = graph(&fs::read_to_string("source-build-04/build/default.net").unwrap()).unwrap();
         let cooker = graph(&fs::read_to_string("cooker-source-02/build/default.net").unwrap()).unwrap();
         (
-            with_bom_parts(rev38, "source-build-03/build/default.csv").unwrap(),
+            with_bom_parts(rev38, "source-build-04/build/default.csv").unwrap(),
             with_bom_parts(cooker, "cooker-source-02/build/default.csv").unwrap(),
         )
     }

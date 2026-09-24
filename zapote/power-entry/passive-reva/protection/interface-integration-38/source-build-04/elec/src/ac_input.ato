@@ -1,0 +1,179 @@
+# Rev38 fused-board AC input, EMI, NTC/precharge, PE and raw AUX topology.
+# F1, the AUX branch fuse and the inlet harness are off-board; the two AUX
+# terminal positions are a send/return boundary, not a PCB fuse bypass.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component FusedBoardInput38:
+    mpn = "1714984"
+    manufacturer = "Phoenix Contact"
+    footprint = "temper:Phoenix_1714984"
+    signal FUSED_L ~ pin 1
+    signal N ~ pin 2
+    signal PE ~ pin 3
+
+component AuxBranchLoop38:
+    mpn = "1714971"
+    manufacturer = "Phoenix Contact"
+    footprint = "temper:Phoenix_1714971"
+    signal SEND_L ~ pin 1
+    signal RETURN_L ~ pin 2
+
+component Irm20Raw24_38:
+    mpn = "IRM-20-24"
+    manufacturer = "Mean Well"
+    datasheet = "https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF"
+    footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT"
+    # KiCad 10 symbol/footprint candidate pin map; physical bottom-view
+    # orientation remains a required native and assembly review.
+    signal AC_L ~ pin 1
+    signal AC_N ~ pin 2
+    signal DC_MINUS ~ pin 3
+    signal DC_PLUS ~ pin 4
+
+component Cmc38:
+    mpn = "B82726S2163N030"
+    manufacturer = "TDK"
+    footprint = "temper:CMC_B82726S"
+    signal L1 ~ pin 1
+    signal N1 ~ pin 2
+    signal N2 ~ pin 3
+    signal L2 ~ pin 4
+
+component Ntc38:
+    mpn = "SL32 10015"
+    manufacturer = "Ametherm"
+    footprint = "temper:SL32_10015"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BypassRelay38:
+    mpn = "RT33K012"
+    manufacturer = "TE Connectivity"
+    footprint = "temper:Relay_SPST_Schrack-RT33K012"
+    signal COM ~ pin 4
+    signal NO ~ pin 3
+    signal coil1 ~ pin 1
+    signal coil2 ~ pin 2
+
+component X2Cap38:
+    mpn = "B32922C3224M289"
+    manufacturer = "TDK"
+    footprint = "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Mov38:
+    mpn = "V150LA10AP"
+    manufacturer = "Littelfuse"
+    footprint = "temper:RV_Littelfuse_V150LA10AP_D17.0mm_W5.6mm_P7.5mm"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Y1Cap38:
+    mpn = "VY1102M31Y5UQ63V0"
+    manufacturer = "Vishay"
+    footprint = "Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component RelayFet38:
+    mpn = "AO3400A"
+    manufacturer = "Alpha & Omega Semiconductor"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal G ~ pin 1
+    signal S ~ pin 2
+    signal D ~ pin 3
+
+component RelayFlyback38:
+    mpn = "SS14"
+    manufacturer = "Vishay"
+    footprint = "Diode_SMD:D_SMA"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component AcR38:
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module AcInput38:
+    signal FUSED_L
+    signal AC_N
+    signal PE
+    signal HOT0
+    signal AUX_PROTECTED
+    signal HOT_RELAY_ENABLE
+    signal AC_RECT_L
+    signal AC_RECT_N
+    signal CMC_L_OUT
+    signal AUX_FUSED_L
+    signal RAW_AUX24
+    signal RELAY_COIL_HI
+    signal RELAY_COIL_LO
+    signal RELAY_GATE
+
+    board_input = new FusedBoardInput38
+    board_input.FUSED_L ~ FUSED_L
+    board_input.N ~ AC_N
+    board_input.PE ~ PE
+    cmc = new Cmc38
+    cmc.L1 ~ FUSED_L
+    cmc.N1 ~ AC_N
+    cmc.L2 ~ CMC_L_OUT
+    cmc.N2 ~ AC_RECT_N
+    # External LP-CC-2/BCM603-1P is the only intended path between these
+    # terminal positions. Never short the send and return on PCB copper.
+    aux_branch = new AuxBranchLoop38
+    aux_branch.SEND_L ~ CMC_L_OUT
+    aux_branch.RETURN_L ~ AUX_FUSED_L
+    raw_aux = new Irm20Raw24_38
+    raw_aux.AC_L ~ AUX_FUSED_L
+    raw_aux.AC_N ~ AC_RECT_N
+    raw_aux.DC_MINUS ~ HOT0
+    raw_aux.DC_PLUS ~ RAW_AUX24
+    ntc = new Ntc38
+    ntc.p1 ~ CMC_L_OUT
+    ntc.p2 ~ AC_RECT_L
+    bypass = new BypassRelay38
+    bypass.COM ~ CMC_L_OUT
+    bypass.NO ~ AC_RECT_L
+    x2 = new X2Cap38
+    x2.p1 ~ FUSED_L
+    x2.p2 ~ AC_N
+    mov = new Mov38
+    mov.p1 ~ FUSED_L
+    mov.p2 ~ AC_N
+    y1 = new Y1Cap38
+    y1.p1 ~ HOT0
+    y1.p2 ~ PE
+
+    # The receiver's retained-RUN-qualified relay output reaches this stage.
+    # A local gate pull-down also holds the MOSFET off without HOT logic5.
+    relay_gate_r = new AcR38
+    relay_gate_r.mpn = "RC1206FR-071KL"
+    relay_gate_r.footprint = "Resistor_SMD:R_1206_3216Metric"
+    relay_gate_r.value = 1kohm
+    relay_gate_r.p1 ~ HOT_RELAY_ENABLE
+    relay_gate_r.p2 ~ RELAY_GATE
+    relay_gate_pd = new AcR38
+    relay_gate_pd.mpn = "RC1206FR-07100KL"
+    relay_gate_pd.footprint = "Resistor_SMD:R_1206_3216Metric"
+    relay_gate_pd.value = 100kohm
+    relay_gate_pd.p1 ~ RELAY_GATE
+    relay_gate_pd.p2 ~ HOT0
+    relay_fet = new RelayFet38
+    relay_fet.G ~ RELAY_GATE
+    relay_fet.S ~ HOT0
+    relay_fet.D ~ RELAY_COIL_LO
+    coil_drop = new AcR38
+    coil_drop.mpn = "RC2512FK-0791RL"
+    coil_drop.footprint = "Resistor_SMD:R_2512_6332Metric"
+    coil_drop.value = 91ohm
+    coil_drop.p1 ~ AUX_PROTECTED
+    coil_drop.p2 ~ RELAY_COIL_HI
+    bypass.coil1 ~ RELAY_COIL_HI
+    bypass.coil2 ~ RELAY_COIL_LO
+    flyback = new RelayFlyback38
+    flyback.K ~ RELAY_COIL_HI
+    flyback.A ~ RELAY_COIL_LO

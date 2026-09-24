@@ -71,7 +71,13 @@ edge in the host sequence. The former direct buffer would still have made
 a watchdog feed when a retained-high ESP pad became high impedance and its
 pull-down took over during CPU reset. The joined source candidate now uses
 the spare SN74LV221A-Q1 channel: A2 is low, B2 is the ESP request with a
-100 kΩ pull-down, and active-low Q2_N drives WDI with a 100 kΩ pull-up.
+10 kΩ pull-down, and active-low Q2_N drives WDI with a 100 kΩ pull-up.
+The earlier 100 kΩ pull-down could leave the one-shot B2 input in its
+unspecified band if the ESP pad's **typical** 45 kΩ internal pull-up were
+enabled during boot. At 3.3 V, 10 kΩ gives about 0.60 V for that typical
+divider, below TI's 0.3 × VCC low-input limit; a guaranteed worst case and
+reset-time WDI edge count remain unproved. This source revision does not
+claim a bounded feed tail.
 Only a **rising** B2 request makes the finite low WDI pulse; a B2 fall on
 reset cannot service TPS3431. The requested adapter pulse must begin low,
 rise once, and return low even if the pad was retained high. The 10 kΩ/10 nF

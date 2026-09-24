@@ -51,6 +51,20 @@ T_reset_to_off_worst + T_reset_margin
     <= min(T_allowable_first_start, T_allowable_already_running)
 ```
 
+The frozen `source-build-04` changes the GPIO21 request pull-down from
+100 kΩ to 10 kΩ. Espressif gives a **typical**, not minimum, 45 kΩ internal
+pull-up for ESP32-S3. Against that typical value at 3.3 V, the old divider
+could sit at 2.28 V, inside TI's SN74LV221A-Q1 0.3–0.7 × VCC uncertain
+input band; 10 kΩ gives about 0.60 V, below the specified low-input
+limit. Neither a guaranteed ESP pull-up minimum nor ROM/boot pad behavior
+is established, so this resistor change reduces one credible spurious-edge
+path but **does not bound the feed tail**. Capture GPIO21, LV221A B2 and
+Q2_N/WDI for CPU-only reset, `esp_restart`, panic/watchdog, brownout and
+forced boot loops; correlate STOP_N/GPIO13, GPIO48, permit Q and TCA P0–P2.
+Repeated boot-created WDI edges would make the tail unbounded. The selected
+contract permits a proven finite post-reset tail; it does not require a
+physically impossible edge.
+
 The feed-tail term is zero only after the actual ESP owner, other core,
 bootloader, reset loops, queued writes, and timer/DMA/RMT paths are proved
 incapable of another qualifying WDI edge. Otherwise it needs a finite maximum;

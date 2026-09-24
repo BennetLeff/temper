@@ -111,13 +111,16 @@ and fault withstand to the qualification records below.
 | Inrush limiter | [Ametherm `SL32 10015`](https://www.ametherm.com/datasheets/sl3210015) lists 10 Ω ±20% at 25 °C, 0.05 Ω and **228 °C body temperature** at its 15 A maximum steady current, 150 J maximum recommended energy and a 232 s thermal time constant. | A cold-start calculation cannot cover a hot restart: the thermistor may have little limiting resistance. Its 15 A rating equals the required input current if the bypass relay remains open. Treat stuck-open bypass at full input as a critical installed thermal case; measure NTC and adjacent-material temperatures, relay-open duty and repeated starts before setting a retry/cooldown policy. |
 | MOV | [Littelfuse `V150LA10AP`](https://www.littelfuse.com/assetdocs/littelfuse-varistor-la-datasheet?assetguid=f7c547ce-c2fa-4789-86cc-ec39a5060afb) lists 150 Vac maximum continuous voltage and 45 J for a 10×1000 µs transient. [Littelfuse's AC-line application note](https://www.littelfuse.com/~/media/electronics_technical/application_notes/varistors/littelfuse_designing_with_thermally_protected_tmov_varistors_in_spd_and_ac_line_application_note.pdf) explains that sustained abnormal overvoltage at limited current can overheat an ordinary MOV without opening a line fuse. | 132 Vac lies below the continuous nameplate, but 45 J is a specified pulse rating, not an abnormal-overvoltage or end-of-life clearance. Evaluate thermal disconnection or another demonstrated safe failure path; do not assume the 20 A F1 clears every MOV failure. |
 
-The compiled bank is four 560 µF capacitors plus 22 µF local film, or
-2,262 µF nominal. If all start at zero and only reach the 132 Vac crest,
-`½ C V²` is about 39.4 J. This is a **calculation**, not measured NTC
-absorption: it omits capacitor tolerances, source/inductor/diode dynamics,
-the 400 V boost trajectory, charge retained across retries, and energy
-delivered after the relay closes. The Ametherm 150 J entry cannot release
-the precharge design on this calculation alone.
+The compiled **VB bank** is four 560 µF capacitors, or 2,240 µF nominal.
+A **separate 22 µF local film reservoir on VD** sits across F2 from that
+bank. Their nominal sum is 2,262 µF only when evaluating a path that charges
+both sides with F2 closed. If both start at zero and only reach the 132 Vac
+crest, `½ C V²` for that conditional sum is about 39.4 J. This is a
+**calculation**, not measured NTC absorption: it omits capacitor tolerances,
+F2 state, source/inductor/diode dynamics, the 400 V boost trajectory, charge
+retained across retries, and energy delivered after the relay closes. The
+Ametherm 150 J entry cannot release the precharge design on this calculation
+alone.
 
 ## Fault location and coordination matrix
 

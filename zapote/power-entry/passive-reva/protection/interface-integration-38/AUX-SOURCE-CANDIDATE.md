@@ -155,18 +155,18 @@ does **not** establish a protected-rail range or fast-fault output peak.
 
 The two bench paths use the same downstream cutoff concept and must be compared at the same measured local temperatures and load waveforms. The regulated path adds converter loss, EMI, startup sequencing and a high-side-switch failure mode; its extra static margin is meaningful only if the complete source, buck and cutoff pass the normal-window and fault captures. The IRM's published overvoltage trigger is not a bound on `RAW_AUX24` peak or the buck's output under a fault. Qualify `RAW_AUX24` against the buck's input ratings at line surges, and capture buck output and protected output separately during forced high-output, buck short, loss of feedback, mains dips and cutoff recovery. Compare the measured worst-case driver-VDD peak and turn-off delay, not just nominal rail accuracy.
 
-### Source-build-03 load and startup worksheet
+### Source-build-04 load and startup worksheet
 
-The frozen [source-build-03 receipt](source-build-03/build-receipt.json) has 295
+The frozen [source-build-04 receipt](source-build-04/build-receipt.json) has 295
 resolved components; its `build/default.net` SHA-256 is
-`df6f1df0185b196b55451229720963e15f296dfb36e6f317a5ef47211025585c`.
+`b1a7a8119055b59d7786addd0be70d0cccfb1337dc851a626aa0ca6534f10bfe`.
 This is the digital candidate for the worksheet below. The earlier
 41.50 mA relay/passive screen and 75 mA historical allowances are not
 accepted maximums. Fill each `UNKNOWN` with compatible worst-case
 conditions before setting source capacity, the 50 mΩ cutoff threshold, or
 FET SOA limits.
 
-| Term | Current source-build-03 input | Missing bound or capture |
+| Term | Current source-build-04 input | Missing bound or capture |
 | --- | --- | --- |
 | `I_5V_run(t)` at `HOT_LOGIC5` | AVR, both HOT isolator sides, 22 other active logic/detector devices, pull loads and 46.5 µF nominal output bank | **UNKNOWN** maximum at actual clock, mixed-voltage isolator activity, output states, temperature and 5 V corners; capture receiver startup, run, disarm and fault. |
 | `I_5V_input(t)` at `AUX_PROTECTED` | TPS54202 and 20.1 µF nominal direct input bank | **UNKNOWN** efficiency, input peak and startup waveform while the 46.5 µF output bank charges; measure input current and 5 V voltage together. |

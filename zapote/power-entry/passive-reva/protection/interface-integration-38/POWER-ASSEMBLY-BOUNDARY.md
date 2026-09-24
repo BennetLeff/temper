@@ -5,7 +5,7 @@ The two frozen Atopile sources prove a
 16-contact SELV control interface. They do not yet describe one cooker power
 assembly. This is a source-topology finding, independent of footprint
 availability or PCB placement. The current source identities are
-`source-build-03` (Rev38 receipt `9433de53a1dd1c8dba86d2df6a47d96fc54e413702979518997c43f5591af911`)
+`source-build-04` (Rev38 receipt `ecd434f9e896cae47cadd73f955235d1c254030c46d6887461b6986b423a68cf`)
 and `cooker-source-02` (cooker receipt `21d303f769dccaaaf25049e87cd948d55de8ab19be478c9aab277f535d45baa4`).
 
 | Boundary | Rev38 source | Existing cooker `Top` in mate derivative |

@@ -1,0 +1,100 @@
+# Rev38 AUX fast-dip and overvoltage window candidate. A logic5-powered
+# comparator is separate from TPS3890 CT-delayed undervoltage supervision.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "f2_detector.ato" import F2Comparator, F2InputR22k
+from "receiver_isolation.ato" import R, C
+
+component AuxTopR430k:
+    mpn = "RC0603FR-07430KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxTopR560k:
+    mpn = "RC0603FR-07560KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxBottomR100k:
+    mpn = "RC0603FR-07100KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxWindowAnd:
+    mpn = "SN74LVC1G08DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+module AuxWindow38:
+    signal AUX_PROTECTED
+    signal HOT_LOGIC5
+    signal HOT0
+    signal REF25
+    signal AUX_WINDOW_OK
+    signal AUX_FAST_DIV
+    signal AUX_OV_DIV
+
+    fast_top = new AuxTopR430k
+    fast_top.value = 430kohm
+    fast_top.p1 ~ AUX_PROTECTED
+    fast_top.p2 ~ AUX_FAST_DIV
+    fast_bottom = new AuxBottomR100k
+    fast_bottom.value = 100kohm
+    fast_bottom.p1 ~ AUX_FAST_DIV
+    fast_bottom.p2 ~ HOT0
+    fast_iso = new F2InputR22k
+    fast_iso.value = 22kohm
+    fast_iso.p1 ~ AUX_FAST_DIV
+
+    ov_top = new AuxTopR560k
+    ov_top.value = 560kohm
+    ov_top.p1 ~ AUX_PROTECTED
+    ov_top.p2 ~ AUX_OV_DIV
+    ov_bottom = new AuxBottomR100k
+    ov_bottom.value = 100kohm
+    ov_bottom.p1 ~ AUX_OV_DIV
+    ov_bottom.p2 ~ HOT0
+    ov_iso = new F2InputR22k
+    ov_iso.value = 22kohm
+    ov_iso.p1 ~ AUX_OV_DIV
+    ov_ref = new F2InputR22k
+    ov_ref.value = 22kohm
+    ov_ref.p1 ~ REF25
+
+    comparator = new F2Comparator
+    comparator.VCC ~ HOT_LOGIC5
+    comparator.GND ~ HOT0
+    fast_iso.p2 ~ comparator.IN1_P
+    comparator.IN1_N ~ REF25
+    ov_iso.p2 ~ comparator.IN2_N
+    ov_ref.p2 ~ comparator.IN2_P
+    c_comparator = new C
+    c_comparator.value = 100nF
+    c_comparator.p1 ~ HOT_LOGIC5
+    c_comparator.p2 ~ HOT0
+
+    window = new AuxWindowAnd
+    window.VCC ~ HOT_LOGIC5
+    window.GND ~ HOT0
+    window.A ~ comparator.OUT1
+    window.B ~ comparator.OUT2
+    window.Y ~ AUX_WINDOW_OK
+    c_window = new C
+    c_window.value = 100nF
+    c_window.p1 ~ HOT_LOGIC5
+    c_window.p2 ~ HOT0

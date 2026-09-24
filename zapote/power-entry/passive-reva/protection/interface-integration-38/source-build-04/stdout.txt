@@ -1,0 +1,796 @@
+[16:25:06] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/worktrees/power-en             
+                    try/zapote/power-entry/passive-reva/protection/             
+                    interface-integration-38/source-build-04                    
+           INFO     Building default                                 build.py:38
+[16:25:13] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/worktrees/power-en             
+                    try/zapote/power-entry/passive-reva/protection/             
+                    interface-integration-38/source-build-04/elec/s             
+                    rc/pfc_controller.ato:75:4                                  
+                        Field 'mpn' not declared for                            
+                    /Users/bennet/Desktop/temper/worktrees/power-en             
+                    try/zapote/power-entry/passive-reva/protection/             
+                    interface-integration-38/source-build-04/elec/s             
+                    rc/power_entry_integrated_38.ato:PowerEntryInte             
+                    grated38::pfc_control.r_isense. Declaring                   
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/worktrees/power-en             
+                    try/zapote/power-entry/passive-reva/protection/             
+                    interface-integration-38/source-build-04/elec/s             
+                    rc/pfc_controller.ato:76:4                                  
+                        Field 'footprint' not declared for                      
+                    /Users/bennet/Desktop/temper/worktrees/power-en             
+                    try/zapote/power-entry/passive-reva/protection/             
+                    interface-integration-38/source-build-04/elec/s             
+                    rc/power_entry_integrated_38.ato:PowerEntryInte             
+                    grated38::pfc_control.r_isense. Declaring                   
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/worktrees/power-en             
+                    try/zapote/power-entry/passive-reva/protection/             
+                    interface-integration-38/source-build-04/elec/s             
+                    rc/pfc_controller.ato:81:4                                  
+                        Field 'mpn' not declared for                            
+                    /Users/bennet/Desktop/temper/worktrees/power-en             
+                    try/zapote/power-entry/passive-reva/protection/             
+                    interface-integration-38/source-build-04/elec/s             
+                    rc/power_entry_integrated_38.ato:PowerEntryInte             
+                    grated38::pfc_control.c_isense. Declaring                   
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/worktrees/power-en             
+                    try/zapote/power-entry/passive-reva/protection/             
+                    interface-integration-38/source-build-04/elec/s             
+                    rc/pfc_controller.ato:82:4                                  
+                        Field 'footprint' not declared for                      
+                    /Users/bennet/Desktop/temper/worktrees/power-en             
+                    try/zapote/power-entry/passive-reva/protection/             
+                    interface-integration-38/source-build-04/elec/s             
+                    rc/power_entry_integrated_38.ato:PowerEntryInte             
+                    grated38::pfc_control.c_isense. Declaring                   
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+[16:25:15] INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /Users/bennet/Desktop/temper/worktrees/power-ent            
+                    ry/zapote/power-entry/passive-reva/protection/in            
+                    terface-integration-38/source-build-04/build                
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint       ┃ LCSC           ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ ISO7741FDWR     │ U1              │ Package_SO:SOI… │ ISO7741FDWR    │ 0.00  │
+│ AVR64DA32-E/PT  │ U2              │ Package_QFP:TQ… │ AVR64DA32-E/PT │ 0.00  │
+│ SN74LV221AQPWR… │ U3,U84          │ Package_SO:TSS… │ SN74LV221AQPW… │ 0.00  │
+│ SN74HCS74PWR    │ U4,U6,U7,U24,U… │ Package_SO:TSS… │ SN74HCS74PWR   │ 0.00  │
+│ SN74HCS04PWR    │ U5,U83          │ Package_SO:TSS… │ SN74HCS04PWR   │ 0.00  │
+│ GRM188R71H104K… │ U8,U10,U11,U15… │ Capacitor_SMD:… │ GRM188R71H104… │ 0.00  │
+│ RC0603FR-0710KL │ U9,U12,U16,U17… │ Resistor_SMD:R… │ RC0603FR-0710… │ 0.00  │
+│ SN74HCS21PWR    │ U13,U14,U21,U2… │ Package_SO:TSS… │ SN74HCS21PWR   │ 0.00  │
+│ SN74HCS00PWR    │ U18,U87         │ Package_SO:TSS… │ SN74HCS00PWR   │ 0.00  │
+│ RC0603FR-07100… │ U36,U61,U76,U1… │ Resistor_SMD:R… │ RC0603FR-0710… │ 0.00  │
+│ GRM188R71H103K… │ U38,U40,U89,U91 │ Capacitor_SMD:… │ GRM188R71H103… │ 0.00  │
+│ ISO7742FDWR     │ U44             │ Package_SO:SOI… │ ISO7742FDWR    │ 0.00  │
+│ TPS3431SDRBR    │ U72,U137        │ Package_DFN_QF… │ TPS3431SDRBR   │ 0.00  │
+│ GRM1885C1H102J… │ U73,U138        │ Capacitor_SMD:… │ GRM1885C1H102… │ 0.00  │
+│ TPS389001DSER   │ U77,U141,U142   │ Package_SON:WS… │ TPS389001DSER  │ 0.00  │
+│ RC0603FR-0716KL │ U78             │ Resistor_SMD:R… │ RC0603FR-0716… │ 0.00  │
+│ SN74LVC1G06DBVR │ U123            │ Package_TO_SOT… │ SN74LVC1G06DB… │ 0.00  │
+│ PMBT3904        │ U125            │ Package_TO_SOT… │ PMBT3904       │ 0.00  │
+│ RC2512JK-073K3L │ U126            │ Resistor_SMD:R… │ RC2512JK-073K… │ 0.00  │
+│ RC0603FR-0747KL │ U127,U148,U152  │ Resistor_SMD:R… │ RC0603FR-0747… │ 0.00  │
+│ RC1206FR-0710KL │ U128            │ Resistor_SMD:R… │ RC1206FR-0710… │ 0.00  │
+│ UCC27624DDAR    │ U130            │ Package_SO:SOI… │ UCC27624DDAR   │ 0.00  │
+│ GCM31CC71H475K… │ U133,U272       │ Capacitor_SMD:… │ GCM31CC71H475… │ 0.00  │
+│ RC1206FR-0710RL │ U134            │ Resistor_SMD:R… │ RC1206FR-0710… │ 0.00  │
+│ STW65N65DM2AG   │ U136            │ Package_TO_SOT… │ STW65N65DM2AG  │ 0.00  │
+│ RC0603FR-07294… │ U146            │ Resistor_SMD:R… │ RC0603FR-0729… │ 0.00  │
+│ GRM1885C1H101J… │ U149,U153       │ Capacitor_SMD:… │ GRM1885C1H101… │ 0.00  │
+│ RC0603FR-071M0… │ U150            │ Resistor_SMD:R… │ RC0603FR-071M… │ 0.00  │
+│ TNPW1206200KBE… │ U154,U155,U156… │ Resistor_SMD:R… │ TNPW1206200KB… │ 0.00  │
+│ TNPW1206187KBE… │ U158,U166       │ Resistor_SMD:R… │ TNPW1206187KB… │ 0.00  │
+│ TNPW1206200RBE… │ U159,U167       │ Resistor_SMD:R… │ TNPW1206200RB… │ 0.00  │
+│ TNPW12065K62BE… │ U160,U168       │ Resistor_SMD:R… │ TNPW12065K62B… │ 0.00  │
+│ GRM1885C1H470J… │ U161,U169       │ Capacitor_SMD:… │ GRM1885C1H470… │ 0.00  │
+│ LM4040A25IDBZR  │ U170            │ Package_TO_SOT… │ LM4040A25IDBZR │ 0.00  │
+│ TLV3202IDR      │ U173,U174,U195  │ Package_SO:SOI… │ TLV3202IDR     │ 0.00  │
+│ RC0603FR-0722KL │ U177,U178,U179… │ Resistor_SMD:R… │ RC0603FR-0722… │ 0.00  │
+│ RC0603FR-07430… │ U188            │ Resistor_SMD:R… │ RC0603FR-0743… │ 0.00  │
+│ RC0603FR-07560… │ U191            │ Resistor_SMD:R… │ RC0603FR-0756… │ 0.00  │
+│ SN74LVC1G08DBVR │ U197            │ Package_TO_SOT… │ SN74LVC1G08DB… │ 0.00  │
+│ UCC28180D       │ U199            │ Package_SO:SOI… │ UCC28180D      │ 0.00  │
+│ HCSM2818FT10L0  │ U200            │ temper:HCSM281… │ HCSM2818FT10L0 │ 0.00  │
+│ RC1206FR-07220… │ U201            │ Resistor_SMD:R… │ RC1206FR-0722… │ 0.00  │
+│ C0805C102J5GAC… │ U202            │ Capacitor_SMD:… │ C0805C102J5GA… │ 0.00  │
+│ BAV23C-E3-08    │ U203            │ Package_TO_SOT… │ BAV23C-E3-08   │ 0.00  │
+│ RC1206FR-0716K… │ U204            │ Resistor_SMD:R… │ RC1206FR-0716… │ 0.00  │
+│ C0805C272J5GAC… │ U205            │ Capacitor_SMD:… │ C0805C272J5GA… │ 0.00  │
+│ RC1206FR-0740K… │ U206            │ Resistor_SMD:R… │ RC1206FR-0740… │ 0.00  │
+│ GRM32ER71H475K… │ U207            │ Capacitor_SMD:… │ GRM32ER71H475… │ 0.00  │
+│ C0805C224K5RAC… │ U208            │ Capacitor_SMD:… │ C0805C224K5RA… │ 0.00  │
+│ C0805C105K5RAC… │ U209            │ Capacitor_SMD:… │ C0805C105K5RA… │ 0.00  │
+│ CRCW2512200KFK… │ U210,U211,U212… │ Resistor_SMD:R… │ CRCW2512200KF… │ 0.00  │
+│ RC1206FR-0713KL │ U215            │ Resistor_SMD:R… │ RC1206FR-0713… │ 0.00  │
+│ C0805C681J5GAC… │ U216            │ Capacitor_SMD:… │ C0805C681J5GA… │ 0.00  │
+│ AO3400A         │ U217,U220,U248  │ Package_TO_SOT… │ AO3400A        │ 0.00  │
+│ RC1206FR-07100… │ U218,U219,U222… │ Resistor_SMD:R… │ RC1206FR-0710… │ 0.00  │
+│ RC1206FR-071KL  │ U221,U246       │ Resistor_SMD:R… │ RC1206FR-071KL │ 0.00  │
+│ GBJ2510-F       │ U223            │ Diode_THT:Diod… │ GBJ2510-F      │ 0.00  │
+│ 760800301       │ U224            │ Inductor_THT_W… │ 760800301      │ 0.00  │
+│ C3D20065D       │ U225            │ Package_TO_SOT… │ C3D20065D      │ 0.00  │
+│ A70QS50-14F     │ U226            │ TBD_REVIEW_ONL… │ A70QS50-14F    │ 0.00  │
+│ 1017526         │ U227            │ TBD_REVIEW_ONL… │ 1017526        │ 0.00  │
+│ B32776P6226K000 │ U228            │ temper:B32776P… │ B32776P6226K0… │ 0.00  │
+│ B32672P6474K000 │ U229            │ temper:B32672P… │ B32672P6474K0… │ 0.00  │
+│ LGX2W561MELC50  │ U230,U231,U232… │ Capacitor_THT:… │ LGX2W561MELC50 │ 0.00  │
+│ RC2512FR-07150… │ U234,U235,U236  │ Resistor_SMD:R… │ RC2512FR-0715… │ 0.00  │
+│ 1714984         │ U237            │ temper:Phoenix… │ 1714984        │ 0.00  │
+│ B82726S2163N030 │ U238            │ temper:CMC_B82… │ B82726S2163N0… │ 0.00  │
+│ 1714971         │ U239            │ temper:Phoenix… │ 1714971        │ 0.00  │
+│ IRM-20-24       │ U240            │ Converter_ACDC… │ IRM-20-24      │ 0.00  │
+│ SL32 10015      │ U241            │ temper:SL32_10… │ SL32 10015     │ 0.00  │
+│ RT33K012        │ U242            │ temper:Relay_S… │ RT33K012       │ 0.00  │
+│ B32922C3224M289 │ U243            │ Capacitor_THT:… │ B32922C3224M2… │ 0.00  │
+│ V150LA10AP      │ U244            │ temper:RV_Litt… │ V150LA10AP     │ 0.00  │
+│ VY1102M31Y5UQ6… │ U245            │ Capacitor_THT:… │ VY1102M31Y5UQ… │ 0.00  │
+│ RC2512FK-0791RL │ U249            │ Resistor_SMD:R… │ RC2512FK-0791… │ 0.00  │
+│ SS14            │ U250            │ Diode_SMD:D_SMA │ SS14           │ 0.00  │
+│ LMR36015BRNXT   │ U251            │ Package_DFN_QF… │ LMR36015BRNXT  │ 0.00  │
+│ C3225X7R2A106K… │ U252,U253       │ Capacitor_SMD:… │ C3225X7R2A106… │ 0.00  │
+│ C3216X7R2A224K… │ U254,U255       │ Capacitor_SMD:… │ C3216X7R2A224… │ 0.00  │
+│ C2012X7R1C105K… │ U257            │ Capacitor_SMD:… │ C2012X7R1C105… │ 0.00  │
+│ XGL6060-183MEC  │ U258            │ temper:L_Coilc… │ XGL6060-183MEC │ 0.00  │
+│ C5750X7R1H226M… │ U259,U260       │ Capacitor_SMD:… │ C5750X7R1H226… │ 0.00  │
+│ ERA3AEB104V     │ U261,U283       │ Resistor_SMD:R… │ ERA3AEB104V    │ 0.00  │
+│ ERA3AEB7151V    │ U262            │ Resistor_SMD:R… │ ERA3AEB7151V   │ 0.00  │
+│ LTC4368HMS-2#P… │ U263            │ Package_SO:MSO… │ LTC4368HMS-2#… │ 0.00  │
+│ FDS3992         │ U264            │ Package_SO:SOI… │ FDS3992        │ 0.00  │
+│ WSL2512R0500FTA │ U265            │ Resistor_SMD:R… │ WSL2512R0500F… │ 0.00  │
+│ TNPU060320K0AW… │ U266,U268       │ Resistor_SMD:R… │ TNPU060320K0A… │ 0.00  │
+│ TNPU0603806RAZ… │ U267            │ Resistor_SMD:R… │ TNPU0603806RA… │ 0.00  │
+│ TNPU0603590RAZ… │ U269            │ Resistor_SMD:R… │ TNPU0603590RA… │ 0.00  │
+│ GRM188R72A103K… │ U271            │ Capacitor_SMD:… │ GRM188R72A103… │ 0.00  │
+│ TPS54202DDCR    │ U273            │ Package_TO_SOT… │ TPS54202DDCR   │ 0.00  │
+│ C3225X7R1H106K… │ U274,U275       │ Capacitor_SMD:… │ C3225X7R1H106… │ 0.00  │
+│ CRCW0603510KJN… │ U277            │ Resistor_SMD:R… │ CRCW0603510KJ… │ 0.00  │
+│ CRCW0603105KFK… │ U278            │ Resistor_SMD:R… │ CRCW0603105KF… │ 0.00  │
+│ XGL6060-153MEC  │ U280            │ temper:L_Coilc… │ XGL6060-153MEC │ 0.00  │
+│ C3225X7R1E226M… │ U281,U282       │ Capacitor_SMD:… │ C3225X7R1E226… │ 0.00  │
+│ ERA3AEB1332V    │ U284            │ Resistor_SMD:R… │ ERA3AEB1332V   │ 0.00  │
+│ GRM1885C1H750J… │ U285            │ Capacitor_SMD:… │ GRM1885C1H750… │ 0.00  │
+│ 43045-1612      │ U286            │ Connector_Mole… │ 43045-1612     │ 0.00  │
+│ EVQ-P7A01P      │ U287            │ Button_Switch_… │ EVQ-P7A01P     │ 0.00  │
+│ TCA6408AQPWRQ1  │ U289            │ Package_SO:TSS… │ TCA6408AQPWRQ1 │ 0.00  │
+└─────────────────┴─────────────────┴─────────────────┴────────────────┴───────┘
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name                              ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│           U1 │ receiver.iso_protocol             │
+│           U2 │ receiver.rx                       │
+│           U3 │ receiver.reset_pulses             │
+│           U4 │ receiver.prep_abort_memory        │
+│           U5 │ receiver.permit_inverter          │
+│           U6 │ receiver.permit_seen_memory       │
+│           U7 │ receiver.disarm_memory            │
+│           U8 │ receiver.c_disarm_memory          │
+│           U9 │ receiver.disarm_sample_pd         │
+│          U10 │ receiver.c_permit_inverter        │
+│          U11 │ receiver.c_permit_seen_memory     │
+│          U12 │ receiver.permit_preset_pd         │
+│          U13 │ receiver.prep_trip_and            │
+│          U14 │ receiver.history_reset_and        │
+│          U15 │ receiver.c_history_reset_and      │
+│          U16 │ receiver.history_reset_allowed_pd │
+│          U17 │ receiver.history_reset_d_pu       │
+│          U18 │ receiver.permit_loss_nand         │
+│          U19 │ receiver.c_permit_loss_nand       │
+│          U20 │ receiver.permit_loss_ok_pd        │
+│          U21 │ receiver.session_and              │
+│          U22 │ receiver.c_session_and            │
+│          U23 │ receiver.revalidate_d_pd          │
+│          U24 │ receiver.session_memory           │
+│          U25 │ receiver.c_session_memory         │
+│          U26 │ receiver.run_and                  │
+│          U27 │ receiver.c_run_and                │
+│          U28 │ receiver.run_clear_pd             │
+│          U29 │ receiver.run_memory               │
+│          U30 │ receiver.c_run_memory             │
+│          U31 │ receiver.c_prep_trip_and          │
+│          U32 │ receiver.c_prep_abort_memory      │
+│          U33 │ receiver.prep_trip_ok_pd          │
+│          U34 │ receiver.prep_abort_ok_pd         │
+│          U35 │ receiver.attempt_valid_pd         │
+│          U36 │ receiver.watchdog_ok_pd           │
+│          U37 │ receiver.r_prep_timing            │
+│          U38 │ receiver.c_prep_timing            │
+│          U39 │ receiver.r_history_timing         │
+│          U40 │ receiver.c_history_timing         │
+│          U41 │ receiver.c_reset_pulses           │
+│          U42 │ receiver.prep_reset_raw_pd        │
+│          U43 │ receiver.history_reset_raw_pd     │
+│          U44 │ receiver.iso_feedback             │
+│          U45 │ receiver.c_rx                     │
+│          U46 │ receiver.c_iso1_hot               │
+│          U47 │ receiver.c_iso1_selv              │
+│          U48 │ receiver.c_iso2_hot               │
+│          U49 │ receiver.c_iso2_selv              │
+│          U50 │ receiver.permit_pd                │
+│          U51 │ receiver.relay_request_pd         │
+│          U52 │ receiver.relay_driver_pd          │
+│          U53 │ receiver.source_health_pd         │
+│          U54 │ receiver.source_stop_pd           │
+│          U55 │ receiver.session_pd               │
+│          U56 │ receiver.abort_pd                 │
+│          U57 │ receiver.session_clear_pd         │
+│          U58 │ receiver.source_permit_fb_pd      │
+│          U59 │ receiver.source_session_fb_pd     │
+│          U60 │ receiver.reset_pullup             │
+│          U61 │ receiver.rails_pd                 │
+│          U62 │ receiver.fault_n_pd               │
+│          U63 │ receiver.disarm_pd                │
+│          U64 │ receiver.run_pd                   │
+│          U65 │ receiver.prep_abort_pu            │
+│          U66 │ receiver.permit_seen_pu           │
+│          U67 │ receiver.prep_reset_pd            │
+│          U68 │ receiver.history_reset_pd         │
+│          U69 │ receiver.revalidate_pd            │
+│          U70 │ receiver.run_set_pd               │
+│          U71 │ receiver.wdi_pd                   │
+│          U72 │ source.watchdog                   │
+│          U73 │ source.cwd                        │
+│          U74 │ source.wdo_pu                     │
+│          U75 │ source.heartbeat_pd               │
+│          U76 │ source.wdi_pu                     │
+│          U77 │ source.rail                       │
+│          U78 │ source.rail_top                   │
+│          U79 │ source.rail_bottom                │
+│          U80 │ source.rail_ct                    │
+│          U81 │ source.rail_reset_pu              │
+│          U82 │ source.health                     │
+│          U83 │ source.inv                        │
+│          U84 │ source.seen_reset_pulse           │
+│          U85 │ source.seen                       │
+│          U86 │ source.seen_pu                    │
+│          U87 │ source.loss                       │
+│          U88 │ source.wdi_pulse_r                │
+│          U89 │ source.wdi_pulse_c                │
+│          U90 │ source.reset_r                    │
+│          U91 │ source.reset_c                    │
+│          U92 │ source.reset_check                │
+│          U93 │ source.permit_clear               │
+│          U94 │ source.permit                     │
+│          U95 │ source.reset_good_pd              │
+│          U96 │ source.interlock_pd               │
+│          U97 │ source.stop_pd                    │
+│          U98 │ source.session_fb_pd              │
+│          U99 │ source.permit_fb_pd               │
+│         U100 │ source.permit_set_pd              │
+│         U101 │ source.seen_reset_pd              │
+│         U102 │ source.challenge_pd               │
+│         U103 │ source.permit_q_pd                │
+│         U104 │ source.health_pd                  │
+│         U105 │ source.prewatchdog_pd             │
+│         U106 │ source.clear_pd                   │
+│         U107 │ source.loss_pd                    │
+│         U108 │ source.reset_d_pu                 │
+│         U109 │ source.seen_preset_pd             │
+│         U110 │ source.c_watchdog                 │
+│         U111 │ source.c_rail                     │
+│         U112 │ source.c_health                   │
+│         U113 │ source.c_inv                      │
+│         U114 │ source.c_seen                     │
+│         U115 │ source.c_loss                     │
+│         U116 │ source.c_pulse                    │
+│         U117 │ source.c_reset_check              │
+│         U118 │ source.c_permit_clear             │
+│         U119 │ source.c_permit                   │
+│         U120 │ driver.qualify                    │
+│         U121 │ driver.permission_pd              │
+│         U122 │ driver.c_qualify                  │
+│         U123 │ driver.release                    │
+│         U124 │ driver.c_release                  │
+│         U125 │ driver.shunt                      │
+│         U126 │ driver.base_bias                  │
+│         U127 │ driver.base_pd                    │
+│         U128 │ driver.ena_pu                     │
+│         U129 │ driver.ena_pd                     │
+│         U130 │ driver.driver                     │
+│         U131 │ driver.pwm_pd                     │
+│         U132 │ driver.c_driver_hf                │
+│         U133 │ driver.c_driver_bulk              │
+│         U134 │ driver.gate_r                     │
+│         U135 │ driver.gate_pd                    │
+│         U136 │ driver.stw                        │
+│         U137 │ hot_watchdog.watchdog             │
+│         U138 │ hot_watchdog.cwd                  │
+│         U139 │ hot_watchdog.wdo_pu               │
+│         U140 │ hot_watchdog.c_watchdog           │
+│         U141 │ hot_rails.sup_logic               │
+│         U142 │ hot_rails.sup_aux                 │
+│         U143 │ hot_rails.reset_pu                │
+│         U144 │ hot_rails.c_logic                 │
+│         U145 │ hot_rails.c_aux                   │
+│         U146 │ hot_rails.logic_top               │
+│         U147 │ hot_rails.logic_bottom            │
+│         U148 │ hot_rails.logic_iso               │
+│         U149 │ hot_rails.logic_ct                │
+│         U150 │ hot_rails.aux_top                 │
+│         U151 │ hot_rails.aux_bottom              │
+│         U152 │ hot_rails.aux_iso                 │
+│         U153 │ hot_rails.aux_ct                  │
+│         U154 │ f2_detector.vd_div.r1             │
+│         U155 │ f2_detector.vd_div.r2             │
+│         U156 │ f2_detector.vd_div.r3             │
+│         U157 │ f2_detector.vd_div.r4             │
+│         U158 │ f2_detector.vd_div.r5             │
+│         U159 │ f2_detector.vd_div.step           │
+│         U160 │ f2_detector.vd_div.bottom         │
+│         U161 │ f2_detector.vd_div.filter         │
+│         U162 │ f2_detector.vb_div.r1             │
+│         U163 │ f2_detector.vb_div.r2             │
+│         U164 │ f2_detector.vb_div.r3             │
+│         U165 │ f2_detector.vb_div.r4             │
+│         U166 │ f2_detector.vb_div.r5             │
+│         U167 │ f2_detector.vb_div.step           │
+│         U168 │ f2_detector.vb_div.bottom         │
+│         U169 │ f2_detector.vb_div.filter         │
+│         U170 │ f2_detector.reference             │
+│         U171 │ f2_detector.ref_bias              │
+│         U172 │ f2_detector.ref_bypass            │
+│         U173 │ f2_detector.cmp_vd                │
+│         U174 │ f2_detector.cmp_vb                │
+│         U175 │ f2_detector.c_vd                  │
+│         U176 │ f2_detector.c_vb                  │
+│         U177 │ f2_detector.vd_ov_ref             │
+│         U178 │ f2_detector.vd_ov                 │
+│         U179 │ f2_detector.vd_mismatch_p         │
+│         U180 │ f2_detector.vb_mismatch_n         │
+│         U181 │ f2_detector.vb_ov_ref             │
+│         U182 │ f2_detector.vb_ov                 │
+│         U183 │ f2_detector.vb_mismatch_p         │
+│         U184 │ f2_detector.vd_mismatch_n         │
+│         U185 │ f2_detector.health                │
+│         U186 │ f2_detector.aux_window_pd         │
+│         U187 │ f2_detector.c_health              │
+│         U188 │ aux_window.fast_top               │
+│         U189 │ aux_window.fast_bottom            │
+│         U190 │ aux_window.fast_iso               │
+│         U191 │ aux_window.ov_top                 │
+│         U192 │ aux_window.ov_bottom              │
+│         U193 │ aux_window.ov_iso                 │
+│         U194 │ aux_window.ov_ref                 │
+│         U195 │ aux_window.comparator             │
+│         U196 │ aux_window.c_comparator           │
+│         U197 │ aux_window.window                 │
+│         U198 │ aux_window.c_window               │
+│         U199 │ pfc_control.pfc                   │
+│         U200 │ pfc_control.shunt                 │
+│         U201 │ pfc_control.r_isense              │
+│         U202 │ pfc_control.c_isense              │
+│         U203 │ pfc_control.isense_clamp          │
+│         U204 │ pfc_control.r_freq                │
+│         U205 │ pfc_control.c_icomp               │
+│         U206 │ pfc_control.r_vcomp               │
+│         U207 │ pfc_control.c_vcomp               │
+│         U208 │ pfc_control.c_vcomp_p             │
+│         U209 │ pfc_control.c_vcc                 │
+│         U210 │ pfc_control.r_vtop1               │
+│         U211 │ pfc_control.r_vtop2               │
+│         U212 │ pfc_control.r_vtop3               │
+│         U213 │ pfc_control.r_vtop4               │
+│         U214 │ pfc_control.r_vtop5               │
+│         U215 │ pfc_control.r_vbottom             │
+│         U216 │ pfc_control.c_vfeed               │
+│         U217 │ pfc_control.q_inhibit             │
+│         U218 │ pfc_control.inhibit_pu            │
+│         U219 │ pfc_control.inhibit_pd            │
+│         U220 │ pfc_control.q_permit              │
+│         U221 │ pfc_control.permit_r              │
+│         U222 │ pfc_control.permit_pd             │
+│         U223 │ pfc_power.bridge                  │
+│         U224 │ pfc_power.l_boost                 │
+│         U225 │ pfc_power.d_boost                 │
+│         U226 │ pfc_power.f2                      │
+│         U227 │ pfc_power.f2_board                │
+│         U228 │ pfc_power.local_c                 │
+│         U229 │ pfc_power.hf_c                    │
+│         U230 │ pfc_power.bulk1                   │
+│         U231 │ pfc_power.bulk2                   │
+│         U232 │ pfc_power.bulk3                   │
+│         U233 │ pfc_power.bulk4                   │
+│         U234 │ pfc_power.bleed1                  │
+│         U235 │ pfc_power.bleed2                  │
+│         U236 │ pfc_power.bleed3                  │
+│         U237 │ ac_input.board_input              │
+│         U238 │ ac_input.cmc                      │
+│         U239 │ ac_input.aux_branch               │
+│         U240 │ ac_input.raw_aux                  │
+│         U241 │ ac_input.ntc                      │
+│         U242 │ ac_input.bypass                   │
+│         U243 │ ac_input.x2                       │
+│         U244 │ ac_input.mov                      │
+│         U245 │ ac_input.y1                       │
+│         U246 │ ac_input.relay_gate_r             │
+│         U247 │ ac_input.relay_gate_pd            │
+│         U248 │ ac_input.relay_fet                │
+│         U249 │ ac_input.coil_drop                │
+│         U250 │ ac_input.flyback                  │
+│         U251 │ hot15_converter.buck              │
+│         U252 │ hot15_converter.cin_a             │
+│         U253 │ hot15_converter.cin_b             │
+│         U254 │ hot15_converter.vin_hf_a          │
+│         U255 │ hot15_converter.vin_hf_b          │
+│         U256 │ hot15_converter.boot_c            │
+│         U257 │ hot15_converter.vcc_c             │
+│         U258 │ hot15_converter.inductor          │
+│         U259 │ hot15_converter.cout_a            │
+│         U260 │ hot15_converter.cout_b            │
+│         U261 │ hot15_converter.fb_top            │
+│         U262 │ hot15_converter.fb_bottom         │
+│         U263 │ aux_cutoff.cutoff                 │
+│         U264 │ aux_cutoff.fets                   │
+│         U265 │ aux_cutoff.sense                  │
+│         U266 │ aux_cutoff.uv_top                 │
+│         U267 │ aux_cutoff.uv_bottom              │
+│         U268 │ aux_cutoff.ov_top                 │
+│         U269 │ aux_cutoff.ov_bottom              │
+│         U270 │ aux_cutoff.r_gate                 │
+│         U271 │ aux_cutoff.c_gate                 │
+│         U272 │ aux_cutoff.c_out                  │
+│         U273 │ hot_logic5_converter.buck         │
+│         U274 │ hot_logic5_converter.cin_a        │
+│         U275 │ hot_logic5_converter.cin_b        │
+│         U276 │ hot_logic5_converter.cin_hf       │
+│         U277 │ hot_logic5_converter.en_top       │
+│         U278 │ hot_logic5_converter.en_bottom    │
+│         U279 │ hot_logic5_converter.boot_c       │
+│         U280 │ hot_logic5_converter.inductor     │
+│         U281 │ hot_logic5_converter.cout_a       │
+│         U282 │ hot_logic5_converter.cout_b       │
+│         U283 │ hot_logic5_converter.fb_top       │
+│         U284 │ hot_logic5_converter.fb_bottom    │
+│         U285 │ hot_logic5_converter.fb_ff        │
+│         U286 │ source_mcu.controller_port        │
+│         U287 │ source_mcu.start                  │
+│         U288 │ source_mcu.start_pu               │
+│         U289 │ source_mcu.expander               │
+│         U290 │ source_mcu.exp_reset_pu           │
+│         U291 │ source_mcu.challenge_pd           │
+│         U292 │ source_mcu.seen_request_pd        │
+│         U293 │ source_mcu.relay_request_pd       │
+│         U294 │ source_mcu.port_decoupling        │
+│         U295 │ source_mcu.exp_decoupling         │
+└──────────────┴───────────────────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓                            ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ ac_input.aux_branch               │ U239       │
+│ ac_input.board_input              │ U237       │
+│ ac_input.bypass                   │ U242       │
+│ ac_input.cmc                      │ U238       │
+│ ac_input.coil_drop                │ U249       │
+│ ac_input.flyback                  │ U250       │
+│ ac_input.mov                      │ U244       │
+│ ac_input.ntc                      │ U241       │
+│ ac_input.raw_aux                  │ U240       │
+│ ac_input.relay_fet                │ U248       │
+│ ac_input.relay_gate_pd            │ U247       │
+│ ac_input.relay_gate_r             │ U246       │
+│ ac_input.x2                       │ U243       │
+│ ac_input.y1                       │ U245       │
+│ aux_cutoff.c_gate                 │ U271       │
+│ aux_cutoff.c_out                  │ U272       │
+│ aux_cutoff.cutoff                 │ U263       │
+│ aux_cutoff.fets                   │ U264       │
+│ aux_cutoff.ov_bottom              │ U269       │
+│ aux_cutoff.ov_top                 │ U268       │
+│ aux_cutoff.r_gate                 │ U270       │
+│ aux_cutoff.sense                  │ U265       │
+│ aux_cutoff.uv_bottom              │ U267       │
+│ aux_cutoff.uv_top                 │ U266       │
+│ aux_window.c_comparator           │ U196       │
+│ aux_window.c_window               │ U198       │
+│ aux_window.comparator             │ U195       │
+│ aux_window.fast_bottom            │ U189       │
+│ aux_window.fast_iso               │ U190       │
+│ aux_window.fast_top               │ U188       │
+│ aux_window.ov_bottom              │ U192       │
+│ aux_window.ov_iso                 │ U193       │
+│ aux_window.ov_ref                 │ U194       │
+│ aux_window.ov_top                 │ U191       │
+│ aux_window.window                 │ U197       │
+│ driver.base_bias                  │ U126       │
+│ driver.base_pd                    │ U127       │
+│ driver.c_driver_bulk              │ U133       │
+│ driver.c_driver_hf                │ U132       │
+│ driver.c_qualify                  │ U122       │
+│ driver.c_release                  │ U124       │
+│ driver.driver                     │ U130       │
+│ driver.ena_pd                     │ U129       │
+│ driver.ena_pu                     │ U128       │
+│ driver.gate_pd                    │ U135       │
+│ driver.gate_r                     │ U134       │
+│ driver.permission_pd              │ U121       │
+│ driver.pwm_pd                     │ U131       │
+│ driver.qualify                    │ U120       │
+│ driver.release                    │ U123       │
+│ driver.shunt                      │ U125       │
+│ driver.stw                        │ U136       │
+│ f2_detector.aux_window_pd         │ U186       │
+│ f2_detector.c_health              │ U187       │
+│ f2_detector.c_vb                  │ U176       │
+│ f2_detector.c_vd                  │ U175       │
+│ f2_detector.cmp_vb                │ U174       │
+│ f2_detector.cmp_vd                │ U173       │
+│ f2_detector.health                │ U185       │
+│ f2_detector.ref_bias              │ U171       │
+│ f2_detector.ref_bypass            │ U172       │
+│ f2_detector.reference             │ U170       │
+│ f2_detector.vb_div.bottom         │ U168       │
+│ f2_detector.vb_div.filter         │ U169       │
+│ f2_detector.vb_div.r1             │ U162       │
+│ f2_detector.vb_div.r2             │ U163       │
+│ f2_detector.vb_div.r3             │ U164       │
+│ f2_detector.vb_div.r4             │ U165       │
+│ f2_detector.vb_div.r5             │ U166       │
+│ f2_detector.vb_div.step           │ U167       │
+│ f2_detector.vb_mismatch_n         │ U180       │
+│ f2_detector.vb_mismatch_p         │ U183       │
+│ f2_detector.vb_ov                 │ U182       │
+│ f2_detector.vb_ov_ref             │ U181       │
+│ f2_detector.vd_div.bottom         │ U160       │
+│ f2_detector.vd_div.filter         │ U161       │
+│ f2_detector.vd_div.r1             │ U154       │
+│ f2_detector.vd_div.r2             │ U155       │
+│ f2_detector.vd_div.r3             │ U156       │
+│ f2_detector.vd_div.r4             │ U157       │
+│ f2_detector.vd_div.r5             │ U158       │
+│ f2_detector.vd_div.step           │ U159       │
+│ f2_detector.vd_mismatch_n         │ U184       │
+│ f2_detector.vd_mismatch_p         │ U179       │
+│ f2_detector.vd_ov                 │ U178       │
+│ f2_detector.vd_ov_ref             │ U177       │
+│ hot15_converter.boot_c            │ U256       │
+│ hot15_converter.buck              │ U251       │
+│ hot15_converter.cin_a             │ U252       │
+│ hot15_converter.cin_b             │ U253       │
+│ hot15_converter.cout_a            │ U259       │
+│ hot15_converter.cout_b            │ U260       │
+│ hot15_converter.fb_bottom         │ U262       │
+│ hot15_converter.fb_top            │ U261       │
+│ hot15_converter.inductor          │ U258       │
+│ hot15_converter.vcc_c             │ U257       │
+│ hot15_converter.vin_hf_a          │ U254       │
+│ hot15_converter.vin_hf_b          │ U255       │
+│ hot_logic5_converter.boot_c       │ U279       │
+│ hot_logic5_converter.buck         │ U273       │
+│ hot_logic5_converter.cin_a        │ U274       │
+│ hot_logic5_converter.cin_b        │ U275       │
+│ hot_logic5_converter.cin_hf       │ U276       │
+│ hot_logic5_converter.cout_a       │ U281       │
+│ hot_logic5_converter.cout_b       │ U282       │
+│ hot_logic5_converter.en_bottom    │ U278       │
+│ hot_logic5_converter.en_top       │ U277       │
+│ hot_logic5_converter.fb_bottom    │ U284       │
+│ hot_logic5_converter.fb_ff        │ U285       │
+│ hot_logic5_converter.fb_top       │ U283       │
+│ hot_logic5_converter.inductor     │ U280       │
+│ hot_rails.aux_bottom              │ U151       │
+│ hot_rails.aux_ct                  │ U153       │
+│ hot_rails.aux_iso                 │ U152       │
+│ hot_rails.aux_top                 │ U150       │
+│ hot_rails.c_aux                   │ U145       │
+│ hot_rails.c_logic                 │ U144       │
+│ hot_rails.logic_bottom            │ U147       │
+│ hot_rails.logic_ct                │ U149       │
+│ hot_rails.logic_iso               │ U148       │
+│ hot_rails.logic_top               │ U146       │
+│ hot_rails.reset_pu                │ U143       │
+│ hot_rails.sup_aux                 │ U142       │
+│ hot_rails.sup_logic               │ U141       │
+│ hot_watchdog.c_watchdog           │ U140       │
+│ hot_watchdog.cwd                  │ U138       │
+│ hot_watchdog.watchdog             │ U137       │
+│ hot_watchdog.wdo_pu               │ U139       │
+│ pfc_control.c_icomp               │ U205       │
+│ pfc_control.c_isense              │ U202       │
+│ pfc_control.c_vcc                 │ U209       │
+│ pfc_control.c_vcomp               │ U207       │
+│ pfc_control.c_vcomp_p             │ U208       │
+│ pfc_control.c_vfeed               │ U216       │
+│ pfc_control.inhibit_pd            │ U219       │
+│ pfc_control.inhibit_pu            │ U218       │
+│ pfc_control.isense_clamp          │ U203       │
+│ pfc_control.permit_pd             │ U222       │
+│ pfc_control.permit_r              │ U221       │
+│ pfc_control.pfc                   │ U199       │
+│ pfc_control.q_inhibit             │ U217       │
+│ pfc_control.q_permit              │ U220       │
+│ pfc_control.r_freq                │ U204       │
+│ pfc_control.r_isense              │ U201       │
+│ pfc_control.r_vbottom             │ U215       │
+│ pfc_control.r_vcomp               │ U206       │
+│ pfc_control.r_vtop1               │ U210       │
+│ pfc_control.r_vtop2               │ U211       │
+│ pfc_control.r_vtop3               │ U212       │
+│ pfc_control.r_vtop4               │ U213       │
+│ pfc_control.r_vtop5               │ U214       │
+│ pfc_control.shunt                 │ U200       │
+│ pfc_power.bleed1                  │ U234       │
+│ pfc_power.bleed2                  │ U235       │
+│ pfc_power.bleed3                  │ U236       │
+│ pfc_power.bridge                  │ U223       │
+│ pfc_power.bulk1                   │ U230       │
+│ pfc_power.bulk2                   │ U231       │
+│ pfc_power.bulk3                   │ U232       │
+│ pfc_power.bulk4                   │ U233       │
+│ pfc_power.d_boost                 │ U225       │
+│ pfc_power.f2                      │ U226       │
+│ pfc_power.f2_board                │ U227       │
+│ pfc_power.hf_c                    │ U229       │
+│ pfc_power.l_boost                 │ U224       │
+│ pfc_power.local_c                 │ U228       │
+│ receiver.abort_pd                 │ U56        │
+│ receiver.attempt_valid_pd         │ U35        │
+│ receiver.c_disarm_memory          │ U8         │
+│ receiver.c_history_reset_and      │ U15        │
+│ receiver.c_history_timing         │ U40        │
+│ receiver.c_iso1_hot               │ U46        │
+│ receiver.c_iso1_selv              │ U47        │
+│ receiver.c_iso2_hot               │ U48        │
+│ receiver.c_iso2_selv              │ U49        │
+│ receiver.c_permit_inverter        │ U10        │
+│ receiver.c_permit_loss_nand       │ U19        │
+│ receiver.c_permit_seen_memory     │ U11        │
+│ receiver.c_prep_abort_memory      │ U32        │
+│ receiver.c_prep_timing            │ U38        │
+│ receiver.c_prep_trip_and          │ U31        │
+│ receiver.c_reset_pulses           │ U41        │
+│ receiver.c_run_and                │ U27        │
+│ receiver.c_run_memory             │ U30        │
+│ receiver.c_rx                     │ U45        │
+│ receiver.c_session_and            │ U22        │
+│ receiver.c_session_memory         │ U25        │
+│ receiver.disarm_memory            │ U7         │
+│ receiver.disarm_pd                │ U63        │
+│ receiver.disarm_sample_pd         │ U9         │
+│ receiver.fault_n_pd               │ U62        │
+│ receiver.history_reset_allowed_pd │ U16        │
+│ receiver.history_reset_and        │ U14        │
+│ receiver.history_reset_d_pu       │ U17        │
+│ receiver.history_reset_pd         │ U68        │
+│ receiver.history_reset_raw_pd     │ U43        │
+│ receiver.iso_feedback             │ U44        │
+│ receiver.iso_protocol             │ U1         │
+│ receiver.permit_inverter          │ U5         │
+│ receiver.permit_loss_nand         │ U18        │
+│ receiver.permit_loss_ok_pd        │ U20        │
+│ receiver.permit_pd                │ U50        │
+│ receiver.permit_preset_pd         │ U12        │
+│ receiver.permit_seen_memory       │ U6         │
+│ receiver.permit_seen_pu           │ U66        │
+│ receiver.prep_abort_memory        │ U4         │
+│ receiver.prep_abort_ok_pd         │ U34        │
+│ receiver.prep_abort_pu            │ U65        │
+│ receiver.prep_reset_pd            │ U67        │
+│ receiver.prep_reset_raw_pd        │ U42        │
+│ receiver.prep_trip_and            │ U13        │
+│ receiver.prep_trip_ok_pd          │ U33        │
+│ receiver.r_history_timing         │ U39        │
+│ receiver.r_prep_timing            │ U37        │
+│ receiver.rails_pd                 │ U61        │
+│ receiver.relay_driver_pd          │ U52        │
+│ receiver.relay_request_pd         │ U51        │
+│ receiver.reset_pullup             │ U60        │
+│ receiver.reset_pulses             │ U3         │
+│ receiver.revalidate_d_pd          │ U23        │
+│ receiver.revalidate_pd            │ U69        │
+│ receiver.run_and                  │ U26        │
+│ receiver.run_clear_pd             │ U28        │
+│ receiver.run_memory               │ U29        │
+│ receiver.run_pd                   │ U64        │
+│ receiver.run_set_pd               │ U70        │
+│ receiver.rx                       │ U2         │
+│ receiver.session_and              │ U21        │
+│ receiver.session_clear_pd         │ U57        │
+│ receiver.session_memory           │ U24        │
+│ receiver.session_pd               │ U55        │
+│ receiver.source_health_pd         │ U53        │
+│ receiver.source_permit_fb_pd      │ U58        │
+│ receiver.source_session_fb_pd     │ U59        │
+│ receiver.source_stop_pd           │ U54        │
+│ receiver.watchdog_ok_pd           │ U36        │
+│ receiver.wdi_pd                   │ U71        │
+│ source.c_health                   │ U112       │
+│ source.c_inv                      │ U113       │
+│ source.c_loss                     │ U115       │
+│ source.c_permit                   │ U119       │
+│ source.c_permit_clear             │ U118       │
+│ source.c_pulse                    │ U116       │
+│ source.c_rail                     │ U111       │
+│ source.c_reset_check              │ U117       │
+│ source.c_seen                     │ U114       │
+│ source.c_watchdog                 │ U110       │
+│ source.challenge_pd               │ U102       │
+│ source.clear_pd                   │ U106       │
+│ source.cwd                        │ U73        │
+│ source.health                     │ U82        │
+│ source.health_pd                  │ U104       │
+│ source.heartbeat_pd               │ U75        │
+│ source.interlock_pd               │ U96        │
+│ source.inv                        │ U83        │
+│ source.loss                       │ U87        │
+│ source.loss_pd                    │ U107       │
+│ source.permit                     │ U94        │
+│ source.permit_clear               │ U93        │
+│ source.permit_fb_pd               │ U99        │
+│ source.permit_q_pd                │ U103       │
+│ source.permit_set_pd              │ U100       │
+│ source.prewatchdog_pd             │ U105       │
+│ source.rail                       │ U77        │
+│ source.rail_bottom                │ U79        │
+│ source.rail_ct                    │ U80        │
+│ source.rail_reset_pu              │ U81        │
+│ source.rail_top                   │ U78        │
+│ source.reset_c                    │ U91        │
+│ source.reset_check                │ U92        │
+│ source.reset_d_pu                 │ U108       │
+│ source.reset_good_pd              │ U95        │
+│ source.reset_r                    │ U90        │
+│ source.seen                       │ U85        │
+│ source.seen_preset_pd             │ U109       │
+│ source.seen_pu                    │ U86        │
+│ source.seen_reset_pd              │ U101       │
+│ source.seen_reset_pulse           │ U84        │
+│ source.session_fb_pd              │ U98        │
+│ source.stop_pd                    │ U97        │
+│ source.watchdog                   │ U72        │
+│ source.wdi_pu                     │ U76        │
+│ source.wdi_pulse_c                │ U89        │
+│ source.wdi_pulse_r                │ U88        │
+│ source.wdo_pu                     │ U74        │
+│ source_mcu.challenge_pd           │ U291       │
+│ source_mcu.controller_port        │ U286       │
+│ source_mcu.exp_decoupling         │ U295       │
+│ source_mcu.exp_reset_pu           │ U290       │
+│ source_mcu.expander               │ U289       │
+│ source_mcu.port_decoupling        │ U294       │
+│ source_mcu.relay_request_pd       │ U293       │
+│ source_mcu.seen_request_pd        │ U292       │
+│ source_mcu.start                  │ U287       │
+│ source_mcu.start_pu               │ U288       │
+└───────────────────────────────────┴────────────┘
+[16:25:16] INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Successfully built 'bom, copy-footprints,       build.py:105
+                    netlist, designator-map, copy-3dmodels,                     
+                    clone-footprints, assertions-report,                        
+                    layout-module-map, variable-report' for                     
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

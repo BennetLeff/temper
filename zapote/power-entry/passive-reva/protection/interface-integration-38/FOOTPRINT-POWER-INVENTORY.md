@@ -77,6 +77,8 @@ footprint pass.
 packages, TCA6408A-Q1, and a 1206 hand-solder gate-resistor land. The
 `F2-CAP-PACKAGE-DECISION.md` four-lead capacitor correction and
 `MAINS-PACKAGE-CLOSEOUT.md` MOV/resistor decisions complete the other board
-mounted references. The latest integrated BOM has **one** physical
-placeholder: off-board F2 `U226`. The earlier 11 and 9 counts above are
-dated intermediate pass results.
+mounted references. The later frozen `source-build-04` has **two** review-only
+footprint keys: off-board F2 `U226` and the distinct on-board Phoenix 1017526
+F2 terminal `U227`. The native bridge excludes `U226` only after its exact
+assembly-only identity check; `U227` still needs a reviewed footprint. The
+earlier 11 and 9 counts above are dated intermediate pass results.
