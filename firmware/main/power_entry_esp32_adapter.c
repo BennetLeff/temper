@@ -44,6 +44,7 @@ bool pe_esp32_adapter_boot(pe_esp32_adapter_t *adapter,
     adapter->ops = ops;
     if (ops.configure_output_low == NULL || ops.configure_input == NULL ||
         ops.set_gpio == NULL || ops.read_gpio == NULL ||
+        ops.pulse_cooker_reset_open_drain == NULL ||
         ops.write_expander == NULL || ops.read_expander == NULL ||
         ops.cancel_uart_tx == NULL || ops.send_frame == NULL ||
         ops.now_ms == NULL) {
@@ -185,6 +186,18 @@ static bool adapter_pulse(void *context, pe_source_pin_t pin) {
     return true;
 }
 
+static bool adapter_pulse_cooker_reset(void *context) {
+    pe_esp32_adapter_t *adapter = context;
+    if (!adapter->booted || adapter->fault ||
+        !adapter->ops.set_gpio(adapter->ops.context,
+                               PE_ESP_GPIO_STOP_N, false) ||
+        !adapter->ops.pulse_cooker_reset_open_drain(adapter->ops.context)) {
+        fault(adapter);
+        return false;
+    }
+    return true;
+}
+
 static bool adapter_cancel_uart(void *context) {
     pe_esp32_adapter_t *adapter = context;
     return adapter->ops.cancel_uart_tx(adapter->ops.context);
@@ -211,6 +224,7 @@ pe_source_runtime_io_t pe_esp32_adapter_runtime_io(pe_esp32_adapter_t *adapter,
         .sample = adapter_sample,
         .set_level = adapter_set_level,
         .pulse = adapter_pulse,
+        .pulse_cooker_reset = adapter_pulse_cooker_reset,
         .cancel_uart_tx = adapter_cancel_uart,
         .send_frame = adapter_send_frame,
         .max_sample_to_start_end_ms = start_bound_ms,

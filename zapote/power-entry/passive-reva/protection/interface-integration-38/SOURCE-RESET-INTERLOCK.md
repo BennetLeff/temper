@@ -30,9 +30,12 @@ input before firmware owns it. The supervisor holds the latch reset request
 low while its rail/EN condition is false and through its release delay; it
 then releases the node high to retain future faults. GPIO14 must be **input
 or open-drain only**. The source adapter configures GPIO14 as a released
-input during boot; it never writes a reset level. A push-pull high can contend
+input during boot. A push-pull high can contend
 with the supervisor, and a push-pull low held during operation defeats fault
-retention. No production GPIO14 pulse owner or target pin-mode receipt exists.
+retention. The source adapter now has one candidate GPIO14 pulse operation:
+preload released, enable input/output open-drain mode, sink for 1 ms, release
+and read the physical node high. There is no production source-task caller,
+ESP32-S3 target build receipt for these changed bytes, or pin-mode capture.
 
 The current source restart API has an additional recovery dependency:
 `pe_source_disarmed_for_restart()` calls `physical_disarmed()`, which requires
@@ -47,10 +50,14 @@ be checked afresh before any new session. A held live fault must remain
 set-dominant. The source core now has a separate host-tested
 `pe_source_cooker_latch_reset_eligible()` checkpoint and the runtime takes
 a fresh physical sample for it; ordinary
-`pe_source_disarmed_for_restart()` still requires `safety_ok`. This
-checkpoint issues **no GPIO14 pulse** and cannot authorize a new session.
-The GPIO14 owner, immediately pre-edge physical sample, bounded pulse,
-post-pulse readback and target proof remain unimplemented.
+`pe_source_disarmed_for_restart()` still requires `safety_ok`. The checkpoint
+alone issues **no GPIO14 pulse** and cannot authorize a new session. The new
+runtime operation takes a fresh bounded disarm sample, calls the open-drain
+pulse at most once per deliberate restart, then requires a new healthy physical
+disarm sample. Failed pulse or
+readback latches an I/O fault and leaves STOP low. Host tests cover these
+gates; production request wiring, target edge timing and physical proof remain
+open.
 
 The nominal divider falling threshold is about 2.99 V. Using the
 [TPS3890's](https://www.ti.com/lit/ds/symlink/tps3890.pdf) 1.15 V nominal
@@ -97,11 +104,11 @@ GPIO14 reset mode, and fault-latch power-on behavior require measurements.
 
 ## Gates before crediting these producers
 
-1. Implement one firmware owner for GPIO14, configure it only as open drain,
-   and issue a deliberate low reset pulse only after the source and HOT sides
-   acknowledge physical disarm through a path that does not require an
-   already-healthy cooker interlock. Verify no other cooker or diagnostic task
-   changes its mode or level. A fault during the pulse must keep SHUTDOWN
+1. Connect the candidate GPIO14 operation to a deliberate source-task request
+   and verify that no other cooker or diagnostic task changes its mode or
+   level. Capture open-drain mode, the pre-edge sample-to-edge interval, pulse
+   width, release and post-pulse readback at the physical pin. A fault during
+   the pulse must keep SHUTDOWN
    high, and a subsequent transient fault must remain latched until another
    controlled reset.
 2. Confirm the existing GPIO15 runaway-cut task drives high for fault and

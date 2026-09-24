@@ -24,6 +24,9 @@ typedef struct {
      * First drive low even from a retained-high pad, without a boot-time
      * write. No queued, timer, DMA or ISR owner. */
     bool (*pulse)(void *context, pe_source_pin_t pin);
+    /* Synchronous open-drain GPIO14 low pulse, then release. Only the source
+     * owner calls this after a fresh disarm sample; never drive high. */
+    bool (*pulse_cooker_reset)(void *context);
     /* Stop and drain pending UART TX, including the hardware shift register.
      * Required before an abort or deliberate disarm can be acknowledged. */
     bool (*cancel_uart_tx)(void *context);
@@ -44,6 +47,7 @@ typedef struct {
     pe_stream_t stream;
     pe_source_runtime_io_t io;
     bool io_fault;
+    bool cooker_reset_attempted;
     bool progress_baselined;
     uint64_t control_observed;
     uint64_t monitor_observed;
@@ -78,5 +82,9 @@ bool pe_source_runtime_disarmed_for_restart(pe_source_runtime_t *runtime);
  * or permission to restart. A future pulse owner must resample immediately
  * before its edge and reserve a target-verified sample-to-edge bound. */
 bool pe_source_runtime_cooker_latch_reset_eligible(pe_source_runtime_t *runtime);
+/* A single-use deliberate restart operation. Rechecks disarm immediately before the
+ * GPIO14 edge and requires a new healthy physical sample afterward. A failed
+ * pulse/readback latches IO fault and keeps STOP asserted. */
+bool pe_source_runtime_reset_cooker_latch(pe_source_runtime_t *runtime);
 
 #endif

@@ -8,12 +8,16 @@ typedef struct {
     pe_source_inputs_t inputs;
     bool levels[PE_SOURCE_PIN_COUNT];
     unsigned pulses[PE_SOURCE_PIN_COUNT];
+    unsigned cooker_reset_pulses;
+    bool cooker_reset_pulse_fails;
+    bool cooker_fault_stays_latched;
     unsigned wdi_falling_edges;
     unsigned wdi_set_calls;
     unsigned cancels;
     pe_frame_t sent[8];
     unsigned sent_count;
     bool queued_tx;
+    bool slow_cancel_tx;
     bool delay_ack_apply;
     bool delay_permit_apply;
     bool fail_start_write;
@@ -90,10 +94,21 @@ static bool fake_pulse(void *context, pe_source_pin_t pin) {
     return true;
 }
 
+static bool fake_pulse_cooker_reset(void *context) {
+    fake_io_t *fake = context;
+    assert(!fake->levels[PE_SOURCE_PIN_STOP_N]);
+    assert(!fake->queued_tx);
+    ++fake->cooker_reset_pulses;
+    if (fake->cooker_reset_pulse_fails) return false;
+    if (!fake->cooker_fault_stays_latched) fake->inputs.safety_ok = true;
+    return true;
+}
+
 static bool fake_cancel_tx(void *context) {
     fake_io_t *fake = context;
     ++fake->cancels;
     fake->queued_tx = false;
+    if (fake->slow_cancel_tx) fake->now += 2;
     return true;
 }
 
@@ -126,6 +141,7 @@ static pe_source_runtime_t boot(fake_io_t *fake) {
         .sample = fake_sample,
         .set_level = fake_set,
         .pulse = fake_pulse,
+        .pulse_cooker_reset = fake_pulse_cooker_reset,
         .cancel_uart_tx = fake_cancel_tx,
         .send_frame = fake_send,
         .max_sample_to_start_end_ms = 1,
@@ -283,6 +299,85 @@ static void start_and_restart(void) {
     fake.now = 12;
     assert(pe_source_runtime_disarmed_for_restart(&runtime));
     assert(fake.pulses[PE_SOURCE_PIN_WDI_HEARTBEAT] == 0);
+}
+
+static void cooker_reset_requires_fresh_disarm_and_postcheck(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    assert(!pe_source_runtime_reset_cooker_latch(&runtime));
+    assert(fake.cooker_reset_pulses == 0);
+
+    pe_source_runtime_begin_restart(&runtime);
+    fake.inputs.local_permit_q = true;
+    fake.inputs.safety_ok = false;
+    fake.now = 1;
+    assert(!pe_source_runtime_reset_cooker_latch(&runtime));
+    assert(fake.cooker_reset_pulses == 0 && !runtime.io_fault);
+
+    fake.inputs.local_permit_q = false;
+    fake.now = 2;
+    assert(pe_source_runtime_reset_cooker_latch(&runtime));
+    assert(fake.cooker_reset_pulses == 1);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+    assert(fake.pulses[PE_SOURCE_PIN_WDI_HEARTBEAT] == 0);
+    assert(runtime.source.restart_disarm_confirmed);
+    pe_source_runtime_begin_restart(&runtime); /* cannot rearm the allowance */
+    fake.inputs.safety_ok = false; /* a new transient fault latched */
+    assert(!pe_source_runtime_reset_cooker_latch(&runtime));
+    assert(fake.cooker_reset_pulses == 1);
+}
+
+static void cooker_reset_failure_cannot_repeat_or_restart(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    pe_source_runtime_begin_restart(&runtime);
+    fake.inputs.safety_ok = false;
+    fake.cooker_fault_stays_latched = true;
+    fake.now = 1;
+    assert(!pe_source_runtime_reset_cooker_latch(&runtime));
+    assert(runtime.io_fault && fake.cooker_reset_pulses == 1);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+    assert(!pe_source_runtime_reset_cooker_latch(&runtime));
+    assert(fake.cooker_reset_pulses == 1);
+}
+
+static void cooker_reset_pulse_error_latches_stop(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    pe_source_runtime_begin_restart(&runtime);
+    fake.inputs.safety_ok = false;
+    fake.cooker_reset_pulse_fails = true;
+    fake.now = 1;
+    assert(!pe_source_runtime_reset_cooker_latch(&runtime));
+    assert(runtime.io_fault && fake.cooker_reset_pulses == 1);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+    assert(!pe_source_runtime_reset_cooker_latch(&runtime));
+    assert(fake.cooker_reset_pulses == 1);
+}
+
+static void cooker_reset_stale_sample_has_no_edge(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    pe_source_runtime_begin_restart(&runtime);
+    fake.inputs.safety_ok = false;
+    fake.now = 1;
+    fake.delay_sample_at = fake.sample_count + 1;
+    fake.delayed_sample_to_ms = 3; /* above the one-ms control edge bound */
+    assert(!pe_source_runtime_reset_cooker_latch(&runtime));
+    assert(runtime.io_fault && fake.cooker_reset_pulses == 0);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+}
+
+static void cooker_reset_slow_uart_drain_has_no_edge(void) {
+    fake_io_t fake;
+    pe_source_runtime_t runtime = boot(&fake);
+    pe_source_runtime_begin_restart(&runtime);
+    fake.inputs.safety_ok = false;
+    fake.now = 1;
+    fake.slow_cancel_tx = true; /* blocks after the final physical sample */
+    assert(!pe_source_runtime_reset_cooker_latch(&runtime));
+    assert(runtime.io_fault && fake.cooker_reset_pulses == 0);
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
 }
 
 static void late_commit_cancels_start(void) {
@@ -507,6 +602,11 @@ int main(void) {
     both_tasks_must_progress_before_wdi();
     stalled_peer_does_not_hide_counter_regression();
     start_and_restart();
+    cooker_reset_requires_fresh_disarm_and_postcheck();
+    cooker_reset_failure_cannot_repeat_or_restart();
+    cooker_reset_pulse_error_latches_stop();
+    cooker_reset_stale_sample_has_no_edge();
+    cooker_reset_slow_uart_drain_has_no_edge();
     late_commit_cancels_start();
     failed_uart_write_disarms();
     watchdog_edge_precedes_blocking_uart_write();

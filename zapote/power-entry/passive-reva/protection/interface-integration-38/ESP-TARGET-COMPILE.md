@@ -125,3 +125,9 @@ firmware CTest entries pass, but the updated RTD object and diagnostic image
 have **no new ESP32-S3 target build receipt**. Repeat the target build when
 the IDF container is available; do not transfer the earlier image receipt to
 these changed bytes.
+
+The later GPIO14 open-drain candidate also has no ESP32-S3 build receipt.
+`docker info` still cannot find the local daemon socket; launching the
+installed Docker Desktop bundle returned macOS `kLSNoExecutableErr`, and its
+direct executable exited 134. Host compilation does not establish that the
+IDF GPIO mode, release path or pulse delay builds and behaves on the target.

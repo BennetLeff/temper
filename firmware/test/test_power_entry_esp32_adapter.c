@@ -11,6 +11,7 @@ typedef struct {
     int wdi_writes;
     int cooker_reset_inputs;
     int cooker_reset_writes;
+    int cooker_reset_pulses;
     int uart_cancels;
     int operations;
     int stop_order;
@@ -19,6 +20,7 @@ typedef struct {
     bool fail_next_read;
     bool fail_next_write;
     bool fail_reset_input;
+    bool fail_reset_pulse;
 } fixture_t;
 
 static bool output_low(void *context, int gpio) {
@@ -55,6 +57,16 @@ static bool set_gpio(void *context, int gpio, bool high) {
 static bool read_gpio(void *context, int gpio, bool *high) {
     fixture_t *f = context;
     *high = f->gpio[gpio];
+    return true;
+}
+
+static bool pulse_cooker_reset_open_drain(void *context) {
+    fixture_t *f = context;
+    assert(!f->gpio[PE_ESP_GPIO_STOP_N]);
+    assert(f->cooker_reset_writes == 0);
+    ++f->cooker_reset_pulses;
+    if (f->fail_reset_pulse) return false;
+    f->gpio[PE_ESP_GPIO_COOKER_RESET_REQUEST] = true;
     return true;
 }
 
@@ -106,6 +118,7 @@ static pe_esp32_adapter_ops_t ops(fixture_t *f) {
         .configure_input = input,
         .set_gpio = set_gpio,
         .read_gpio = read_gpio,
+        .pulse_cooker_reset_open_drain = pulse_cooker_reset_open_drain,
         .write_expander = write_expander,
         .read_expander = read_expander,
         .cancel_uart_tx = cancel_uart,
@@ -226,6 +239,26 @@ static void test_source_runtime_boot_with_adapter(void) {
     assert(!f.gpio[PE_ESP_GPIO_STOP_N]);
 }
 
+static void test_cooker_reset_uses_only_open_drain_owner(void) {
+    fixture_t f = {0};
+    pe_esp32_adapter_t adapter;
+    assert(pe_esp32_adapter_boot(&adapter, ops(&f)));
+    pe_source_runtime_io_t io = pe_esp32_adapter_runtime_io(&adapter, 1, 1, 1);
+    assert(io.set_level(io.context, PE_SOURCE_PIN_STOP_N, true));
+    assert(io.pulse_cooker_reset(io.context));
+    assert(f.cooker_reset_pulses == 1 && f.cooker_reset_writes == 0);
+    assert(!f.gpio[PE_ESP_GPIO_STOP_N]);
+    assert(f.uart_cancels == 1); /* the runtime drains before final sample */
+
+    memset(&f, 0, sizeof(f));
+    f.fail_reset_pulse = true;
+    assert(pe_esp32_adapter_boot(&adapter, ops(&f)));
+    io = pe_esp32_adapter_runtime_io(&adapter, 1, 1, 1);
+    assert(!io.pulse_cooker_reset(io.context));
+    assert(adapter.fault && !f.gpio[PE_ESP_GPIO_STOP_N]);
+    assert(f.cooker_reset_pulses == 1 && f.cooker_reset_writes == 0);
+}
+
 int main(void) {
     test_retained_output_boot_order();
     test_physical_sample_and_failure_stop();
@@ -234,6 +267,7 @@ int main(void) {
     test_configuration_drift_and_interrupted_write();
     test_expander_retain_and_pulse();
     test_source_runtime_boot_with_adapter();
+    test_cooker_reset_uses_only_open_drain_owner();
     puts("power_entry_esp32_adapter: PASS");
     return 0;
 }

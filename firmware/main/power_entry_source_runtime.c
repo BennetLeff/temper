@@ -128,6 +128,7 @@ bool pe_source_runtime_boot(pe_source_runtime_t *runtime,
         }
     }
     if (io.now_ms == NULL || io.sample == NULL || io.pulse == NULL ||
+        io.pulse_cooker_reset == NULL ||
         io.cancel_uart_tx == NULL || io.send_frame == NULL ||
         io.max_sample_to_start_end_ms == 0 ||
         io.max_sample_to_wdi_ms == 0 ||
@@ -273,36 +274,79 @@ void pe_source_runtime_stop(pe_source_runtime_t *runtime) {
 }
 
 void pe_source_runtime_begin_restart(pe_source_runtime_t *runtime) {
-    if (runtime->io_fault) return;
+    if (runtime->io_fault || runtime->source.restart_requested) return;
     pe_source_actions_t actions;
     pe_source_begin_deliberate_restart(&runtime->source, &actions);
+    runtime->cooker_reset_attempted = false;
     (void)apply(runtime, actions);
 }
 
-bool pe_source_runtime_disarmed_for_restart(pe_source_runtime_t *runtime) {
+static bool sample_restart_disarm(pe_source_runtime_t *runtime,
+                                  pe_source_inputs_t *inputs,
+                                  uint64_t *started_at) {
     if (runtime->io_fault || !runtime->source.restart_requested) return false;
     pe_source_actions_t actions;
-    pe_source_inputs_t inputs;
-    if (!runtime->io.sample(runtime->io.context, &inputs)) {
+    *started_at = runtime->io.now_ms(runtime->io.context);
+    if (!runtime->io.sample(runtime->io.context, inputs)) {
         io_abort(runtime);
         return false;
     }
     uint64_t now = runtime->io.now_ms(runtime->io.context);
-    pe_source_sample(&runtime->source, now, inputs, &actions);
+    if (now < *started_at ||
+        now - *started_at > runtime->io.max_sample_to_control_pin_ms) {
+        io_abort(runtime);
+        return false;
+    }
+    pe_source_sample(&runtime->source, now, *inputs, &actions);
     if (!apply(runtime, actions)) return false;
-    return pe_source_disarmed_for_restart(&runtime->source, inputs);
+    now = runtime->io.now_ms(runtime->io.context);
+    if (now < *started_at ||
+        now - *started_at > runtime->io.max_sample_to_control_pin_ms) {
+        io_abort(runtime);
+        return false;
+    }
+    return true;
+}
+
+bool pe_source_runtime_disarmed_for_restart(pe_source_runtime_t *runtime) {
+    pe_source_inputs_t inputs;
+    uint64_t started_at;
+    return sample_restart_disarm(runtime, &inputs, &started_at) &&
+           pe_source_disarmed_for_restart(&runtime->source, inputs);
 }
 
 bool pe_source_runtime_cooker_latch_reset_eligible(pe_source_runtime_t *runtime) {
-    if (runtime->io_fault || !runtime->source.restart_requested) return false;
-    pe_source_actions_t actions;
     pe_source_inputs_t inputs;
-    if (!runtime->io.sample(runtime->io.context, &inputs)) {
+    uint64_t started_at;
+    return sample_restart_disarm(runtime, &inputs, &started_at) &&
+           pe_source_cooker_latch_reset_eligible(&runtime->source, inputs);
+}
+
+bool pe_source_runtime_reset_cooker_latch(pe_source_runtime_t *runtime) {
+    pe_source_inputs_t inputs;
+    uint64_t started_at;
+    if (runtime->cooker_reset_attempted ||
+        !sample_restart_disarm(runtime, &inputs, &started_at) ||
+        !pe_source_cooker_latch_reset_eligible(&runtime->source, inputs))
+        return false;
+    uint64_t now = runtime->io.now_ms(runtime->io.context);
+    if (now < started_at ||
+        now - started_at > runtime->io.max_sample_to_control_pin_ms) {
         io_abort(runtime);
         return false;
     }
-    uint64_t now = runtime->io.now_ms(runtime->io.context);
-    pe_source_sample(&runtime->source, now, inputs, &actions);
-    if (!apply(runtime, actions)) return false;
-    return pe_source_cooker_latch_reset_eligible(&runtime->source, inputs);
+    /* Consume the allowance before any physical edge. Retrying a failed or
+     * completed pulse could erase a newly latched cooker fault. */
+    runtime->cooker_reset_attempted = true;
+    if (!runtime->io.pulse_cooker_reset(runtime->io.context)) {
+        io_abort(runtime);
+        return false;
+    }
+    /* A low reset request also drops SOURCE_INTERLOCK_N. Only the later
+     * physical sample may establish healthy disarm, never the pulse ACK. */
+    if (!pe_source_runtime_disarmed_for_restart(runtime)) {
+        io_abort(runtime);
+        return false;
+    }
+    return true;
 }

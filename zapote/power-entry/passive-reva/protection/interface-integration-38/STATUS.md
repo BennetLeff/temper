@@ -29,16 +29,18 @@ post-reset WDI edge remain unmeasured. Their reset-to-off timing is OPEN.
 The cooker-mate derivative now has digital reset/interlock producers on
 pins 14/15. Their supervisor, LVC gates and existing NAND latch have no
 power-ramp or transient-fault capture. The source adapter releases GPIO14
-as an input during boot and never writes it, but no open-drain pulse owner
-or target pin-mode capture exists; any push-pull high can fight the
-supervisor. The current restart-disarm API also requires
+as an input during boot. Its new candidate operation sinks GPIO14 only in
+open-drain mode for one pulse per deliberate restart, with a bounded fresh
+disarm sample before the edge and healthy physical readback afterward. A slow
+UART drain, stale sample, failed pulse or second request fails closed in host
+tests. The current restart-disarm API also requires
 `safety_ok`, which contains the interlock itself, so it cannot acknowledge
 disarm while the cooker fault latch is set. The source core and runtime now
 expose a separately sampled, host-tested latch-reset eligibility predicate
-that requires physical local/HOT PERMIT and HOT session low with rail good;
-it never pulses GPIO14 or permits restart. The immediately pre-edge sample,
-GPIO14 open-drain pulse owner, post-pulse health readback and physical proof
-are still required. This path remains OPEN.
+that requires physical local/HOT PERMIT and HOT session low with rail good.
+The production source task has no deliberate reset request path; the changed
+ESP32-S3 object has no target build or pin capture, and the 1 ms candidate
+pulse has no measured maximum. Physical reset behavior remains OPEN.
 
 The 2026-09-24 `make -C zapote check-units` rerun used KiCad 10.0.4's
 `pcbnew` interpreter and reported six units INDETERMINATE and the maintained

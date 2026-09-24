@@ -27,6 +27,9 @@ typedef struct {
     bool (*configure_input)(void *context, int gpio);
     bool (*set_gpio)(void *context, int gpio, bool high);
     bool (*read_gpio)(void *context, int gpio, bool *high);
+    /* GPIO14 only: configure open drain, sink for a bounded pulse, release
+     * and read the physical node high. No push-pull GPIO14 operation. */
+    bool (*pulse_cooker_reset_open_drain)(void *context);
     /* Complete bounded I2C transactions, no deferred queue. */
     bool (*write_expander)(void *context, uint8_t reg, uint8_t value);
     bool (*read_expander)(void *context, uint8_t reg, uint8_t *value);
