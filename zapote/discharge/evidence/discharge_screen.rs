@@ -5,6 +5,8 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+mod qualification;
+
 const VD_C_NOM: f64 = 22.47e-6;
 const VD_C_MAX_INITIAL: f64 = VD_C_NOM * 1.10;
 const VB_C_NOM: f64 = 2240e-6;
@@ -111,7 +113,10 @@ fn vb_resistor_short_power_per_survivor(voltage: f64) -> f64 {
 #[cfg(not(test))]
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    if args.len() == 3 && args[1] == "--case" {
+    if (args.len() == 3 && args[1] == "--case")
+        || (args.len() == 4 && args[1] == "--qualification")
+        || (args.len() == 5 && args[1] == "--sweep")
+    {
         let source_check = std::process::Command::new("shasum")
             .args([
                 "-a",
@@ -129,7 +134,28 @@ fn main() {
         let input = std::fs::read_to_string(&args[2]).expect("read scenario file");
         match GateCase::parse(&input) {
             Ok(case) => {
-                let result = evaluate(&case);
+                if args[1] == "--sweep" {
+                    let manifest = qualification::Manifest::read(&args[3], &args[2]);
+                    if !manifest.is_source_bound() {
+                        eprintln!(
+                            "REJECT: qualification manifest source or case identity mismatch"
+                        );
+                        std::process::exit(1);
+                    }
+                    let output = qualification::sweep(&case, &manifest);
+                    std::fs::write(&args[4], output).expect("write sweep output");
+                    println!(
+                        "INDETERMINATE: digital sweep written; hardware qualification unverified"
+                    );
+                    std::process::exit(2);
+                }
+                let mut result = evaluate(&case);
+                let manifest = if args[1] == "--qualification" {
+                    Some(qualification::Manifest::read(&args[3], &args[2]))
+                } else {
+                    None
+                };
+                qualification::apply_evidence_boundary(&case, &mut result, manifest.as_ref());
                 println!("{}", result.render());
                 std::process::exit(match result.verdict {
                     Verdict::Conditional => 0,
