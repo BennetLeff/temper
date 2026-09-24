@@ -37,6 +37,18 @@ The 1017526 product page's 3D/CAD download served a **SamacSys** KiCad archive, 
 
 The similar Phoenix [1017531 push-in product](https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-tdpt-16-2-sp-1016-zb-1017531) has a published Ø2.0 mm hole and 1.2 × 1.0 mm pin, so it looked like a possible way to avoid the drill conflict. Its Phoenix-linked SamacSys KiCad archive (SHA-256 `2ae21695cfc35e40890cb5986ba02188be1ef4ca2a31b2ff18e465805f65ff81`, `part_info.txt` released 2019-06-03) shares the same four pad centers and Ø2.0 mm drills. However, that archive copies the **21.34 mm** fabrication-body width of 1017526 while Phoenix lists **17.74 mm** for 1017531. Its pad 1/2 shapes also differ from the 1017526 archive. This stale or mislabeled body outline prevents using the alternate archive as an unreviewed replacement. The selected electrical/assembly candidate remains **1017526**; no substitute has been approved.
 
+### Additional terminal study: Phoenix 1709681
+
+The current [Phoenix MKDS 10 HV/ 2-ZB-10,16 product record](https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-mkds-10-hv-2-zb-1016-1709681)
+lists order number **1709681**, two potentials, two solder pins per potential,
+76 A / 1000 V IEC III/2, and cULus B/C 60 A / 600 V. It specifies 1 × 0.9 mm
+pins and 1.5 mm PCB holes, avoiding the 1017526 catalog's hole-size conflict.
+The manufacturer page's drawing is a staggered family illustration, however,
+not a released two-position land pattern with pad diameters and explicit
+pin-to-screw continuity. This is a candidate for a controlled drawing or
+sample check, **not** a footprint substitution or a DC fault-current approval.
+The selected 1017526 source and frozen export remain unchanged.
+
 The same 2018 datasheet, page 8, records a **303 A AC** short-time withstand test with a **16 mm²** conductor under IEC 60947-7-4. It does not state the pulse duration or waveform there, and the result does not establish a DC fault-current rating for this board's solder joints, copper, or cable. Retain the fault envelope as an open qualification item.
 
 ## Circuit and assembly boundary
