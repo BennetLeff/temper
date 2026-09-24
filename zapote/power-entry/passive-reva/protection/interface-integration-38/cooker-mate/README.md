@@ -40,8 +40,12 @@ ATO_BIN=/path/to/ato ./build.sh
 
 `build.sh` stages the canonical cooker source with this derivative in a
 temporary project because Atopile 0.2.69 cannot export a netlist when a
-project imports files outside its project directory. It prints the generated
-netlist and BOM paths. In the 2026-09-24 build, the exported BOM had one
+project imports files outside its project directory. It compiles and runs the
+shared Rust exact-pin audit against the generated netlist and BOM, then prints
+their paths. The audit checks the selected cooker ESP, connector, I²C pull-ups,
+every used header pad, separation of port functions and power rails, and the
+absence of producers on reserved pads 14/15. In the 2026-09-24 build, the
+exported BOM had one
 `ESP32-S3-WROOM-1-N8R8` and one `43045-1612`; the netlist joined all listed
 signal pads to the module pads above, tied pads 1/9 to the existing `+3V3`
 net, tied pads 8/13/16 to SELV ground, and showed only one node each on pads

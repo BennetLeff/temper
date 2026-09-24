@@ -26,3 +26,5 @@ if ! (cd "$stage" && "$ato_bin" --non-interactive build > build.log 2>&1); then
 fi
 echo "Built netlist: $stage/build/cooker_mate.net"
 echo "Built BOM: $stage/build/cooker_mate.csv"
+rustc --edition=2021 "$here/../audit.rs" -o "$stage/cooker-mate-audit"
+"$stage/cooker-mate-audit" --cooker-mate "$stage/build/cooker_mate.net" "$stage/build/cooker_mate.csv"
