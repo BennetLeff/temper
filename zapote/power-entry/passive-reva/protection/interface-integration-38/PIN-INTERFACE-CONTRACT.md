@@ -93,6 +93,17 @@ does not bound that interval. No expander RESET conductor is assigned yet.
 | AUX_PROTECTED/HOT0 | Driver, PFC control, detectors and relay consumer joined; producer absent | Select/join 15 V protected chain and load budget; verify OVP/UVLO, fast-fault peak and startup. |
 | FUSED_L/N/PE | Board terminal 1714984 pins 1/2/3 and AC path joined | Off-board F1/inlet harness is a separate assembly interface. No fuse installation or interruption PASS is implied. |
 
+The existing cooker `elec/src/main.ato` connects its `AuxSupply`
+IRM-10-15 output to a **SELV** 15 V rail and a `PowerManagement`
+LMR51430 3.3 V buck, with SELV ground bonded to PE separately from the HOT
+return. That is a possible upstream source if Rev38 is integrated with that
+assembly, but the existing 3.3 V load and new ESP/expander/isolation startup
+load must be budgeted together, and the physical connector, rail limits,
+reset-good and interlock producers must be identified. If Rev38 is a separate
+board, its SELV source must instead be part of that board or a specified
+external supply interface. Neither choice permits bonding `SELV_GND` to
+`HOT0`; no 3.3 V source is credited in the current joined netlist.
+
 ## Integration gate
 
 The Atopile candidate now joins source MCU, expander, button, source authority
