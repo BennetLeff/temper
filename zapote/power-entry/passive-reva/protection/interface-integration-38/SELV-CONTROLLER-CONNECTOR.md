@@ -5,8 +5,10 @@ The selected product architecture uses the existing cooker ESP and its SELV
 3.3 V rail. `source_mcu.ato` now instantiates the Rev38-side header in place
 of a second ESP. `cooker-mate/elec/src/cooker_mate.ato` now joins a second
 header to the existing cooker source as a separate Atopile derivative. Its
-native board, rail capacity, harness and physical reset/interlock producers
-remain to be checked before claiming one joined product assembly.
+source export and the Rev38 source export pass the [two-board connector
+contract](COOKER-ASSEMBLY-SOURCE.md). Native boards, rail capacity, harness
+and physical reset/interlock behavior remain to be checked before claiming
+one joined product assembly.
 
 The screened wire-to-board family is Molex Micro-Fit 3.0:
 
@@ -45,11 +47,11 @@ installed two-row footprint.
 | 8, 13, 16 | `SELV_GND` | Return only; keep separate from `HOT0`. |
 | 10 | `SOURCE_START_N` | Normally-open Rev38 switch to GPIO42; startup pull-up is on the receiving rail. |
 | 11, 12 | `SOURCE_I2C_SDA`, `SOURCE_I2C_SCL` | GPIO38/39 shared with the existing UI header; one bus contract required. |
-| 14 | `SOURCE_RESET_GOOD` | Reserved until an actual CPU/reset-valid producer is selected. |
-| 15 | `SOURCE_INTERLOCK_N` | Reserved until a fail-low, polarity-correct producer is selected. |
+| 14 | `SOURCE_RESET_GOOD` | Cooker-mate supervisor/buffer candidate; physical reset and rail-ramp behavior unverified. |
+| 15 | `SOURCE_INTERLOCK_N` | Cooker-mate inverter/AND candidate; fail-low startup and transient-fault capture unverified. |
 
-Pins 14 and 15 are reservations, not permission to tie unproven signals to
-the cooker circuit. Molex lists no first-mate/last-break contact on this
+The digital producer joins at pins 14 and 15 are not permission to credit
+unmeasured reset or interlock behavior. Molex lists no first-mate/last-break contact on this
 header, and the housing is polarized but has no unique mating-part key.
 Verify safe-off during every single-open and partial-insertion case, and
 prevent mating this harness to another accessible 16-way Micro-Fit. Powered

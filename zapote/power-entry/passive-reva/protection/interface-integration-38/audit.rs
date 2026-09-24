@@ -281,6 +281,98 @@ fn check_cooker_mate(g: &Graph) -> Result<(), String> {
     Ok(())
 }
 
+fn check_cooker_rev38_harness(rev38: &Graph, cooker: &Graph) -> Result<(), String> {
+    check_cooker_mate(cooker)?;
+    for (id, mpn) in [
+        ("source_mcu.controller_port", "43045-1612"),
+        ("source_mcu.expander", "TCA6408AQPWRQ1"),
+        ("receiver.iso_protocol", "ISO7741FDWR"),
+        ("source_mcu.start", "EVQ-P7A01P"),
+        ("source.stop_pd", "RC0603FR-0710KL"),
+        ("source.heartbeat_pd", "RC0603FR-07100KL"),
+        ("source.permit_set_pd", "RC0603FR-0710KL"),
+        ("source.prewatchdog_pd", "RC0603FR-0710KL"),
+        ("source.reset_good_pd", "RC0603FR-0710KL"),
+        ("source.interlock_pd", "RC0603FR-0710KL"),
+    ] {
+        if rev38.parts.get(id).map(String::as_str) != Some(mpn) {
+            return Err(format!("Rev38 {id} identity differs from {mpn}"));
+        }
+    }
+    if rev38.parts.values().filter(|part| part.as_str() == "ESP32-S3-WROOM-1-N8R8").count() != 0 ||
+       rev38.parts.values().filter(|part| part.as_str() == "43045-1612").count() != 1 {
+        return Err("Rev38 board must have one port and no second cooker ESP".into());
+    }
+    let mut nets = [Vec::new(), Vec::new()];
+    for (side, (g, id)) in [(rev38, "source_mcu.controller_port"), (cooker, "rev38_mate")]
+        .into_iter().enumerate() {
+        for pad in 1..=16 {
+            let net = g.pins.get(&(id.into(), pad.to_string()))
+                .ok_or_else(|| format!("missing {id} pad {pad}"))?;
+            nets[side].push(net.as_str());
+        }
+        for left in 1..=16 {
+            for right in left + 1..=16 {
+                let group = |pad| match pad { 9 => 1, 13 | 16 => 8, _ => pad };
+                if (nets[side][left - 1] == nets[side][right - 1]) !=
+                   (group(left) == group(right)) {
+                    return Err(format!("{id} pads {left}/{right} split or shorted"));
+                }
+            }
+        }
+    }
+    // The two PCB sources have distinct net names. Each numbered contact is
+    // one proposed straight-through conductor, with only the declared supply
+    // and return contacts sharing a net on either board.
+    for (pad, id, pin) in [
+        (1, "source_mcu.expander", "1"),
+        (2, "source.stop_pd", "1"),
+        (3, "source.heartbeat_pd", "1"),
+        (4, "source.permit_set_pd", "1"),
+        (5, "source.prewatchdog_pd", "1"),
+        (6, "receiver.iso_protocol", "3"),
+        (7, "receiver.iso_protocol", "6"),
+        (8, "source_mcu.expander", "2"),
+        (9, "source_mcu.expander", "16"),
+        (10, "source_mcu.start", "1"),
+        (11, "source_mcu.expander", "15"),
+        (12, "source_mcu.expander", "14"),
+        (13, "source_mcu.expander", "8"),
+        (14, "source.reset_good_pd", "1"),
+        (15, "source.interlock_pd", "1"),
+        (16, "receiver.c_iso1_selv", "2"),
+    ] {
+        if rev38.pins.get(&(id.into(), pin.into())).map(String::as_str) !=
+           Some(nets[0][pad - 1]) {
+            return Err(format!("Rev38 port pad {pad} lost {id}.{pin}"));
+        }
+    }
+    // A required endpoint alone is insufficient: another driver could be
+    // silently joined to STOP or an authorization input. Pin all signal-net
+    // members. The shared supply/return nets are handled by the full Rev38
+    // source audit and the frozen-source receipt.
+    for (pad, expected) in [
+        (2, &[("receiver.iso_feedback", "4"), ("source.permit_clear", "2"), ("source.stop_pd", "1"), ("source_mcu.controller_port", "2")][..]),
+        (3, &[("source.heartbeat_pd", "1"), ("source.seen_reset_pulse", "10"), ("source_mcu.controller_port", "3")][..]),
+        (4, &[("source.inv", "5"), ("source.permit", "3"), ("source.permit_set_pd", "1"), ("source_mcu.controller_port", "4")][..]),
+        (5, &[("source.health", "8"), ("source.prewatchdog_pd", "1"), ("source_mcu.controller_port", "5")][..]),
+        (6, &[("receiver.iso_protocol", "3"), ("source_mcu.controller_port", "6")][..]),
+        (7, &[("receiver.iso_protocol", "6"), ("source_mcu.controller_port", "7")][..]),
+        (10, &[("source_mcu.controller_port", "10"), ("source_mcu.start", "1"), ("source_mcu.start_pu", "2")][..]),
+        (11, &[("source_mcu.controller_port", "11"), ("source_mcu.expander", "15")][..]),
+        (12, &[("source_mcu.controller_port", "12"), ("source_mcu.expander", "14")][..]),
+        (14, &[("source.health", "1"), ("source.health", "9"), ("source.reset_good_pd", "1"), ("source_mcu.controller_port", "14")][..]),
+        (15, &[("source.health", "10"), ("source.health", "4"), ("source.interlock_pd", "1"), ("source_mcu.controller_port", "15")][..]),
+    ] {
+        let wanted: BTreeSet<(String, String)> = expected.iter()
+            .map(|(id, pin)| ((*id).into(), (*pin).into())).collect();
+        if members(rev38, nets[0][pad - 1]) != wanted {
+            return Err(format!("Rev38 port pad {pad} has an extra or missing endpoint"));
+        }
+    }
+    Ok(())
+}
+
 fn domain(id: &str, pin: &str) -> &'static str {
     match id {
         "iso_protocol" | "iso_feedback" if pin.parse::<u8>().is_ok_and(|n| n <= 8) => "SELV",
@@ -1343,8 +1435,21 @@ fn check_integrated(g: &Graph, hot: &Graph, source: &Graph, driver: &Graph, hot_
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() > 1 {
+        if args.len() == 6 && args[1] == "--assembly-harness" {
+            let rev38 = with_bom_parts(
+                graph(&fs::read_to_string(&args[2]).expect("Rev38 netlist")).expect("Rev38 graph"),
+                &args[3],
+            ).expect("Rev38 BOM identity");
+            let cooker = with_bom_parts(
+                graph(&fs::read_to_string(&args[4]).expect("cooker mate netlist")).expect("cooker mate graph"),
+                &args[5],
+            ).expect("cooker mate BOM identity");
+            check_cooker_rev38_harness(&rev38, &cooker).expect("16-contact assembly harness audit");
+            println!("two-source 16-contact straight-through harness contract PASS; physical harness NOT RUN");
+            return;
+        }
         if args.len() != 4 || args[1] != "--cooker-mate" {
-            panic!("usage: audit [--cooker-mate NETLIST BOM]");
+            panic!("usage: audit [--cooker-mate NETLIST BOM | --assembly-harness REV38_NET REV38_BOM COOKER_NET COOKER_BOM]");
         }
         let netlist = fs::read_to_string(&args[2]).expect("cooker mate netlist");
         let cooker = with_bom_parts(graph(&netlist).expect("cooker mate netlist graph"), &args[3])
@@ -2465,5 +2570,59 @@ mod tests {
         g.pins.insert(("receiver.rx".into(), "19".into()),
                       g.pins.get(&("source.watchdog".into(), "4".into())).unwrap().clone());
         assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
+    }
+
+    fn frozen_assembly() -> (Graph, Graph) {
+        let rev38 = graph(&fs::read_to_string("source-build-03/build/default.net").unwrap()).unwrap();
+        let cooker = graph(&fs::read_to_string("cooker-source-01/build/default.net").unwrap()).unwrap();
+        (
+            with_bom_parts(rev38, "source-build-03/build/default.csv").unwrap(),
+            with_bom_parts(cooker, "cooker-source-01/build/default.csv").unwrap(),
+        )
+    }
+
+    #[test]
+    fn frozen_cooker_rev38_harness_contract_passes() {
+        let (rev38, cooker) = frozen_assembly();
+        assert!(check_cooker_rev38_harness(&rev38, &cooker).is_ok());
+    }
+
+    #[test]
+    fn cooker_rev38_harness_rejects_extra_stop_driver() {
+        let (mut rev38, cooker) = frozen_assembly();
+        let stop = rev38.pins[&("source_mcu.controller_port".into(), "2".into())].clone();
+        rev38.pins.insert(("source_mcu.expander".into(), "4".into()), stop);
+        assert!(check_cooker_rev38_harness(&rev38, &cooker).is_err());
+    }
+
+    #[test]
+    fn cooker_rev38_harness_rejects_wrong_protocol_part() {
+        let (mut rev38, cooker) = frozen_assembly();
+        rev38.parts.insert("receiver.iso_protocol".into(), "ISO7742FDWR".into());
+        assert!(check_cooker_rev38_harness(&rev38, &cooker).is_err());
+    }
+
+    #[test]
+    fn cooker_rev38_harness_rejects_swapped_uart_contacts() {
+        let (mut rev38, cooker) = frozen_assembly();
+        let tx = rev38.pins[&("source_mcu.controller_port".into(), "6".into())].clone();
+        let rx = rev38.pins[&("source_mcu.controller_port".into(), "7".into())].clone();
+        rev38.pins.insert(("source_mcu.controller_port".into(), "6".into()), rx);
+        rev38.pins.insert(("source_mcu.controller_port".into(), "7".into()), tx);
+        assert!(check_cooker_rev38_harness(&rev38, &cooker).is_err());
+    }
+
+    #[test]
+    fn cooker_rev38_harness_rejects_open_return_contact() {
+        let (rev38, mut cooker) = frozen_assembly();
+        cooker.pins.remove(&("rev38_mate".into(), "16".into()));
+        assert!(check_cooker_rev38_harness(&rev38, &cooker).is_err());
+    }
+
+    #[test]
+    fn cooker_rev38_harness_rejects_second_esp() {
+        let (mut rev38, cooker) = frozen_assembly();
+        rev38.parts.insert("unexpected_mcu".into(), "ESP32-S3-WROOM-1-N8R8".into());
+        assert!(check_cooker_rev38_harness(&rev38, &cooker).is_err());
     }
 }

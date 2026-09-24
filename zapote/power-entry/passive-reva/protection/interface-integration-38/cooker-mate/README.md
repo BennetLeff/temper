@@ -24,8 +24,9 @@ be made.
 The Rev38 board has local 10 kΩ pull-downs on `SOURCE_RESET_GOOD` and
 `SOURCE_INTERLOCK_N`. This derivative now joins a cooker-side supervisor,
 buffer, inverter and AND gates to pins 14/15. The reset request is shared
-with GPIO14 and must be high-Z/open-drain in firmware. The current production
-firmware has no such owner, so authorization remains locked out. See
+with GPIO14 and must be high-Z/open-drain in firmware. The source task has a
+guarded, queued one-shot reset candidate, but no operator caller or target pin
+capture; authorization remains locked out. See
 [`SOURCE-RESET-INTERLOCK.md`](../SOURCE-RESET-INTERLOCK.md) for the reset
 truth table and unmeasured startup/partial-power gates. The present cooker
 `SafetyInterlock.shutdown` is an active-high fault; the inverter and reset
@@ -56,3 +57,9 @@ signal pads to the module pads above, tied pads 1/9 to the existing `+3V3`
 net, tied pads 8/13/16 to SELV ground, and joined pads 14/15 to their
 candidate producer outputs. This is source connectivity evidence, not a native-board, rail-load,
 startup, timing, or harness qualification.
+
+`../tools/build_cooker_mate_source.py` also creates a persistent, pinned
+source snapshot. The current `../cooker-source-01` netlist, BOM, resolved
+export and hashes are linked to the Rev38 snapshot by
+[`COOKER-ASSEMBLY-SOURCE.md`](../COOKER-ASSEMBLY-SOURCE.md). This digital
+connector check does not constitute native PCB or physical cable evidence.

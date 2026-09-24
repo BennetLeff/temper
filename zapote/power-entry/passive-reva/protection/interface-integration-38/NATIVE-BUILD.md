@@ -15,8 +15,10 @@ those exact bytes. The duplicate ESP has been replaced by a 16-contact
 Rev38-side controller port. A separate `cooker-mate` derivative joins the
 existing cooker ESP, SELV rail and reset-good/interlock producers; these
 are not part of this frozen `source-build-03` export. That derivative
-still needs a frozen export and native board/harness integration, and its
-SELV rail capacity and reset/interlock pin behavior remain unqualified. The
+now has its own frozen `cooker-source-01` export and a two-source 16-contact
+connector audit, recorded in `COOKER-ASSEMBLY-SOURCE.md`. It still needs a
+native board, physical harness, SELV rail capacity and reset/interlock pin
+qualification. The
 source remains an engineering candidate. It includes two unresolved
 footprint references:
 off-board `A70QS50-14F` F2 at `U226` and the distinct Phoenix `1017526`

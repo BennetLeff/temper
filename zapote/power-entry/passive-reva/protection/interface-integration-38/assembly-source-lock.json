@@ -1,0 +1,11 @@
+{
+  "schema": "temper.power-entry.assembly-source-lock.v1",
+  "rev38": {
+    "receipt_sha256": "9433de53a1dd1c8dba86d2df6a47d96fc54e413702979518997c43f5591af911",
+    "netlist_sha256": "df6f1df0185b196b55451229720963e15f296dfb36e6f317a5ef47211025585c",
+    "bom_sha256": "ab527c957921fae813c366f0fd6ae186578993b90a962b19846450e9841e47b9"
+  },
+  "cooker": {
+    "receipt_sha256": "3d597b1de0dd8884047ee441a21b0d55ceb2f6bd84847e7a576a6576181f4429"
+  }
+}
