@@ -274,7 +274,13 @@ static void start_and_restart(void) {
     fake.inputs.local_permit_q = false;
     fake.inputs.hot_permit = false;
     fake.inputs.hot_session_q = false;
+    fake.inputs.safety_ok = false; /* cooker latch still faulted */
     fake.now = 11;
+    assert(pe_source_runtime_cooker_latch_reset_eligible(&runtime));
+    assert(!pe_source_runtime_disarmed_for_restart(&runtime));
+    assert(!fake.levels[PE_SOURCE_PIN_STOP_N]);
+    fake.inputs.safety_ok = true; /* must be observed after physical reset */
+    fake.now = 12;
     assert(pe_source_runtime_disarmed_for_restart(&runtime));
     assert(fake.pulses[PE_SOURCE_PIN_WDI_HEARTBEAT] == 0);
 }

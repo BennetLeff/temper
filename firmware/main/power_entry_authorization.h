@@ -69,6 +69,7 @@ typedef struct {
     bool clock_fault;
     bool restart_requested;
     bool restart_disarm_confirmed;
+    bool cooker_latch_reset_disarm_confirmed;
 } pe_source_t;
 
 /* Boot must configure external pins to their safe levels before this core
@@ -110,5 +111,10 @@ void pe_source_begin_deliberate_restart(pe_source_t *source,
                                         pe_source_actions_t *actions);
 bool pe_source_disarmed_for_restart(const pe_source_t *source,
                                     pe_source_inputs_t inputs);
+/* A separate pre-reset checkpoint for the cooker fault latch. The latched
+ * interlock may hold safety_ok low, so this requires a later physical
+ * disarm sample but does not itself authorize restart or drive GPIO14. */
+bool pe_source_cooker_latch_reset_eligible(const pe_source_t *source,
+                                           pe_source_inputs_t inputs);
 
 #endif

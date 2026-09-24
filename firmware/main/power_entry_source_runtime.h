@@ -73,5 +73,10 @@ bool pe_source_runtime_ping(pe_source_runtime_t *runtime);
 void pe_source_runtime_stop(pe_source_runtime_t *runtime);
 void pe_source_runtime_begin_restart(pe_source_runtime_t *runtime);
 bool pe_source_runtime_disarmed_for_restart(pe_source_runtime_t *runtime);
+/* Freshly samples the physical disarm nodes while STOP stays low. This is
+ * eligibility for a future cooker-latch reset request, not a GPIO14 pulse
+ * or permission to restart. A future pulse owner must resample immediately
+ * before its edge and reserve a target-verified sample-to-edge bound. */
+bool pe_source_runtime_cooker_latch_reset_eligible(pe_source_runtime_t *runtime);
 
 #endif

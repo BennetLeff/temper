@@ -269,6 +269,42 @@ static void deliberate_restart_waits_for_later_disarm_sample(void) {
     assert(!actions.wdi_falling_pulse && !actions.transmit);
 }
 
+static void cooker_fault_latch_reset_needs_physical_disarm(void) {
+    pe_source_t src = source();
+    pe_source_inputs_t inputs = safe_disarm();
+    pe_source_actions_t actions;
+    ready(&src, &inputs);
+    pe_source_begin_deliberate_restart(&src, &actions);
+    inputs.safety_ok = false; /* cooker interlock is latched low */
+    assert(!pe_source_cooker_latch_reset_eligible(&src, inputs));
+    inputs.hot_session_q = true;
+    pe_source_sample(&src, 6, inputs, &actions);
+    assert(!actions.stop_n);
+    assert(!pe_source_cooker_latch_reset_eligible(&src, inputs));
+    inputs.hot_session_q = false;
+    inputs.hot_permit = true;
+    pe_source_sample(&src, 7, inputs, &actions);
+    assert(!pe_source_cooker_latch_reset_eligible(&src, inputs));
+    inputs.hot_permit = false;
+    inputs.local_permit_q = true;
+    pe_source_sample(&src, 8, inputs, &actions);
+    assert(!pe_source_cooker_latch_reset_eligible(&src, inputs));
+    inputs.local_permit_q = false;
+    inputs.rail_good = false;
+    pe_source_sample(&src, 9, inputs, &actions);
+    assert(!pe_source_cooker_latch_reset_eligible(&src, inputs));
+    inputs.rail_good = true;
+    pe_source_sample(&src, 10, inputs, &actions);
+    assert(pe_source_cooker_latch_reset_eligible(&src, inputs));
+    assert(!pe_source_disarmed_for_restart(&src, inputs));
+    assert(!actions.stop_n && !actions.wdi_falling_pulse &&
+           !actions.permit_set_pulse && !actions.seen_reset_pulse);
+    inputs.safety_ok = true; /* verified only after a later physical reset */
+    assert(!pe_source_disarmed_for_restart(&src, inputs));
+    pe_source_sample(&src, 11, inputs, &actions);
+    assert(pe_source_disarmed_for_restart(&src, inputs));
+}
+
 int main(void) {
     held_button_and_reset_cannot_replay_start();
     fixed_start_deadline_and_duplicate_ack_abort();
@@ -278,6 +314,7 @@ int main(void) {
     malformed_response_aborts_authorization();
     first_wdi_waits_for_physical_disarm();
     deliberate_restart_waits_for_later_disarm_sample();
+    cooker_fault_latch_reset_needs_physical_disarm();
     delayed_or_unreadable_start_never_transmits();
     return 0;
 }

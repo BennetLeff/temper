@@ -20,6 +20,7 @@ static void abort_source(pe_source_t *source, pe_source_actions_t *actions) {
     source->local_permit_seen = false;
     source->hot_permit_seen = false;
     source->restart_disarm_confirmed = false;
+    source->cooker_latch_reset_disarm_confirmed = false;
     source->local_fed = source->local_epoch;
     source->link_fed = source->link_epoch;
     reset_actions(source, actions);
@@ -29,6 +30,15 @@ static bool physical_disarmed(pe_source_inputs_t inputs) {
     return inputs.rail_good && inputs.safety_ok &&
            !inputs.local_permit_q && !inputs.hot_permit &&
            !inputs.hot_session_q;
+}
+
+static bool physical_disarmed_before_cooker_latch_reset(
+    pe_source_inputs_t inputs) {
+    /* The cooker latch itself can hold safety_ok low. Rail supervision and
+     * all available physical authorization readbacks must already be safe;
+     * healthy safety_ok is required later, after the reset request. */
+    return inputs.rail_good && !inputs.local_permit_q &&
+           !inputs.hot_permit && !inputs.hot_session_q;
 }
 
 static bool seen_cleared(pe_source_inputs_t inputs) {
@@ -75,6 +85,9 @@ void pe_source_sample(pe_source_t *source, uint64_t now_ms,
         source->state = PE_SOURCE_RESTART_DISARM;
         source->restart_disarm_confirmed =
             !source->clock_fault && physical_disarmed(inputs);
+        source->cooker_latch_reset_disarm_confirmed =
+            !source->clock_fault &&
+            physical_disarmed_before_cooker_latch_reset(inputs);
         reset_actions(source, actions);
         return;
     }
@@ -331,6 +344,7 @@ void pe_source_begin_deliberate_restart(pe_source_t *source,
     source->restart_requested = true;
     source->state = PE_SOURCE_RESTART_DISARM;
     source->restart_disarm_confirmed = false;
+    source->cooker_latch_reset_disarm_confirmed = false;
     reset_actions(source, actions);
     if (old_session != 0) send(actions, PE_STOP, old_session, 0);
 }
@@ -340,4 +354,13 @@ bool pe_source_disarmed_for_restart(const pe_source_t *source,
     return source->restart_requested &&
            source->state == PE_SOURCE_RESTART_DISARM &&
            source->restart_disarm_confirmed && physical_disarmed(inputs);
+}
+
+bool pe_source_cooker_latch_reset_eligible(const pe_source_t *source,
+                                           pe_source_inputs_t inputs) {
+    return source->restart_requested &&
+           source->state == PE_SOURCE_RESTART_DISARM &&
+           source->cooker_latch_reset_disarm_confirmed &&
+           !source->clock_fault &&
+           physical_disarmed_before_cooker_latch_reset(inputs);
 }

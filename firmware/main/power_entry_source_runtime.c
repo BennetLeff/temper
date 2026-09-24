@@ -292,3 +292,17 @@ bool pe_source_runtime_disarmed_for_restart(pe_source_runtime_t *runtime) {
     if (!apply(runtime, actions)) return false;
     return pe_source_disarmed_for_restart(&runtime->source, inputs);
 }
+
+bool pe_source_runtime_cooker_latch_reset_eligible(pe_source_runtime_t *runtime) {
+    if (runtime->io_fault || !runtime->source.restart_requested) return false;
+    pe_source_actions_t actions;
+    pe_source_inputs_t inputs;
+    if (!runtime->io.sample(runtime->io.context, &inputs)) {
+        io_abort(runtime);
+        return false;
+    }
+    uint64_t now = runtime->io.now_ms(runtime->io.context);
+    pe_source_sample(&runtime->source, now, inputs, &actions);
+    if (!apply(runtime, actions)) return false;
+    return pe_source_cooker_latch_reset_eligible(&runtime->source, inputs);
+}

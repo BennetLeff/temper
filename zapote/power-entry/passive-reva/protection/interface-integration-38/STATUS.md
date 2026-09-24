@@ -27,9 +27,12 @@ power-ramp or transient-fault capture. GPIO14 is not yet owned as an
 open-drain reset request by production firmware; any push-pull high can
 fight the supervisor. The current restart-disarm API also requires
 `safety_ok`, which contains the interlock itself, so it cannot acknowledge
-disarm while the cooker fault latch is set. A separate physically verified
-disarm-before-reset path and post-reset health sample are required. This
-path remains OPEN.
+disarm while the cooker fault latch is set. The source core and runtime now
+expose a separately sampled, host-tested latch-reset eligibility predicate
+that requires physical local/HOT PERMIT and HOT session low with rail good;
+it never pulses GPIO14 or permits restart. The immediately pre-edge sample,
+GPIO14 open-drain pulse owner, post-pulse health readback and physical proof
+are still required. This path remains OPEN.
 
 `ESP-MONITOR-CONTRACT.md` records why an idle cooker cannot credit the
 existing unconditional `run_safety_check()` and why fault-state control

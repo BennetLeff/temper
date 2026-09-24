@@ -43,7 +43,13 @@ still faulted** from **healthy authorization after the reset pulse**. The
 reset pulse may occur only in the former state, with STOP asserted and
 physical local/HOT PERMIT and HOT session cleared; the latter state must
 be checked afresh before any new session. A held live fault must remain
-set-dominant. No such firmware path or proof is implemented.
+set-dominant. The source core now has a separate host-tested
+`pe_source_cooker_latch_reset_eligible()` checkpoint and the runtime takes
+a fresh physical sample for it; ordinary
+`pe_source_disarmed_for_restart()` still requires `safety_ok`. This
+checkpoint issues **no GPIO14 pulse** and cannot authorize a new session.
+The GPIO14 owner, immediately pre-edge physical sample, bounded pulse,
+post-pulse readback and target proof remain unimplemented.
 
 The nominal divider falling threshold is about 2.99 V. Using the
 [TPS3890's](https://www.ti.com/lit/ds/symlink/tps3890.pdf) 1.15 V nominal
