@@ -34,6 +34,8 @@ Both import spellings count, and this matters: the one correctly wired module
 found during the audit (`heuristics/structural.py`) uses a function-local
 `from temper_geometry import keepout_mask_flags_py`, which a naive
 `import temper_geometry` scan misses entirely.
+Native build adapters under `zapote/` are production callers too; excluding
+that tree would misclassify their registered Rust kernels as unwired.
 
 THE RATCHET
 -----------
@@ -819,7 +821,7 @@ def rust_production_references() -> tuple[set[str], list[str]]:
 
 def production_references() -> tuple[set[str], list[str]]:
     """Identifiers referenced by every non-test Python source, and unparseable files."""
-    roots = ["packages", "scripts", "tools"]
+    roots = ["packages", "scripts", "tools", "zapote"]
     names: set[str] = set()
     unparseable: list[str] = []
     for root in roots:
@@ -827,7 +829,9 @@ def production_references() -> tuple[set[str], list[str]]:
         if not base.is_dir():
             continue
         for py in base.rglob("*.py"):
-            p = str(py)
+            # Filter on the repository-relative path. An absolute checkout
+            # directory containing "/test_" must not hide production code.
+            p = "/" + py.relative_to(REPO_ROOT).as_posix()
             if "/tests/" in p or "/test_" in p:
                 continue
             if "phase5_" in p and p.endswith("_mutations.py"):

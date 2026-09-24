@@ -8,6 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_unwired_kernels import (  # noqa: E402
+    production_references,
     rust_code_identifiers,
     rust_production_references,
     rust_type_flow_references,
@@ -60,6 +61,25 @@ def test_real_fixed_copper_builder_lookups_are_production_references() -> None:
     names, unreadable = rust_production_references()
     assert not unreadable
     assert FIXED_COPPER_SYMBOLS <= names
+
+
+def test_zapote_native_adapter_is_a_production_caller(
+    tmp_path: Path, monkeypatch
+) -> None:
+    import check_unwired_kernels as scanner
+
+    caller = tmp_path / "zapote/current-sense/tools/build_native.py"
+    caller.parent.mkdir(parents=True)
+    caller.write_text("bundle.candidate_board_scope('{}', '[]')\n")
+    test_only = tmp_path / "zapote/current-sense/tests/test_scope.py"
+    test_only.parent.mkdir(parents=True)
+    test_only.write_text("bundle.test_only_kernel()\n")
+    monkeypatch.setattr(scanner, "REPO_ROOT", tmp_path)
+
+    names, unreadable = production_references()
+    assert not unreadable
+    assert "candidate_board_scope" in names
+    assert "test_only_kernel" not in names
 
 
 def test_rust_type_flow_follows_live_returns_and_nested_fields_only() -> None:
