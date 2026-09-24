@@ -1,0 +1,25 @@
+stage	preintegration
+frozen_board_sha256	-
+role	artifact	sha256	receipt	receipt_sha256
+power_entry_source	zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/power_entry_integrated_38.ato	1f6daf2f1a63c607a06c94e443bc6a85b13094b9005e95d3c800078c13ade311	-	-
+auxiliary_source	zapote/auxiliary/interface-contract.md	b3d89a74f17a37c3416c96c2061632dff5f019cf63257c37d9af0bbf1e818d83	-	-
+discharge_source	zapote/discharge/interface-contract.md	6ba5815ae019a4aa6da1c17a53e3e75ef5456cb0e648c34cb8c1fd52b505040e	-	-
+inverter_source	zapote/inverter/interface-contract.md	f7ea6599e1e574f202bbba6ff9405d67957ee4e68dc80ea0f3f5457bf6606830	-	-
+cooling_source	zapote/thermal/cooker-envelope/fan-fault-interface.md	b94becd8d69d4dc7a925487f3d2716007dcedc3e0f0083e959f95f4e43c37cbe	-	-
+programming_ui_source	-	-	-	-
+sensing_and_gate_sources	-	-	-	-
+integrated_source	-	-	-	-
+integrated_pcb	-	-	-	-
+firmware	-	-	-	-
+adopted_rust_suite	-	-	-	-
+native_erc	-	-	-	-
+native_drc	-	-	-	-
+exact_bom	-	-	-	-
+fab_outputs	-	-	-	-
+assembly_outputs	-	-	-	-
+isolation	-	-	-	-
+control_loss_default_off	-	-	-	-
+vd_stop_and_discharge	-	-	-	-
+vb_stop_and_discharge	-	-	-	-
+thermal	-	-	-	-
+assembled_campaign	-	-	-	-
