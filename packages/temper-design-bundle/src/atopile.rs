@@ -175,6 +175,95 @@ pub struct ConvertedCandidate {
     pub empty_reference_nets: Vec<String>,
 }
 
+/// Exact source identity for a part installed outside the PCB. An exclusion
+/// must name the instance, MPN and source footprint marker together.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AssemblyOnlyPart {
+    pub instance_path: String,
+    pub mpn: String,
+    pub footprint: String,
+}
+
+/// The reviewed board projection of a complete converted source candidate.
+/// Assembly-only parts remain visible in the receipt with their reference.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CandidateBoardScope {
+    pub board_references: Vec<String>,
+    pub assembly_only_components: Vec<ConvertedComponent>,
+}
+
+/// Select PCB parts without silently dropping any compiled source component.
+/// The caller must declare each off-board part by all three stable attributes;
+/// a missing, duplicate, or changed declaration fails before native export.
+pub fn select_board_scope(
+    candidate: &ConvertedCandidate,
+    assembly_only: &[AssemblyOnlyPart],
+) -> Result<CandidateBoardScope, DesignBundleError> {
+    let mut by_path = HashMap::new();
+    let mut references = HashSet::new();
+    for component in &candidate.components {
+        if by_path.insert(component.instance_path.as_str(), component).is_some()
+            || !references.insert(component.reference.as_str())
+        {
+            return Err(diagnostic(
+                "ambiguous_component",
+                "converted candidate has duplicate instance paths or references".to_string(),
+                vec![component.instance_path.clone(), component.reference.clone()],
+            ));
+        }
+    }
+
+    let mut declared = HashSet::new();
+    let mut excluded = Vec::new();
+    for part in assembly_only {
+        if !declared.insert(part.instance_path.as_str()) {
+            return Err(diagnostic(
+                "duplicate_assembly_part",
+                format!("assembly-only instance '{}' is declared twice", part.instance_path),
+                vec![part.instance_path.clone()],
+            ));
+        }
+        let Some(component) = by_path.get(part.instance_path.as_str()) else {
+            return Err(diagnostic(
+                "missing_assembly_part",
+                format!("assembly-only instance '{}' is absent from the source", part.instance_path),
+                vec![part.instance_path.clone()],
+            ));
+        };
+        if part.mpn.is_empty()
+            || part.footprint.is_empty()
+            || component.mpn != part.mpn
+            || component.footprint != part.footprint
+        {
+            return Err(diagnostic(
+                "assembly_identity_mismatch",
+                format!("assembly-only instance '{}' changed MPN or footprint", part.instance_path),
+                vec![part.instance_path.clone()],
+            ));
+        }
+        excluded.push((*component).clone());
+    }
+
+    let board_references: Vec<String> = candidate
+        .components
+        .iter()
+        .filter(|component| !declared.contains(component.instance_path.as_str()))
+        .map(|component| component.reference.clone())
+        .collect();
+    if board_references.is_empty() {
+        return Err(diagnostic(
+            "empty_board_scope",
+            "assembly-only declarations remove every board component".to_string(),
+            vec![],
+        ));
+    }
+    excluded.sort_by(|a, b| a.instance_path.cmp(&b.instance_path));
+    Ok(CandidateBoardScope {
+        board_references,
+        assembly_only_components: excluded,
+    })
+}
+
 /// Render a resolved `value` attribute as display text. Plain strings pass
 /// through; `{magnitude, units}` quantities render numerically; anything else
 /// is `None` (absent, e.g. buttons) rather than a fabricated string.

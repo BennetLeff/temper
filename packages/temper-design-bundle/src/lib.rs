@@ -235,7 +235,8 @@ mod sexpr;
 pub mod wasm_test_registry;
 
 pub use atopile::{
-    AtopileComponent, AtopileExport, AtopileNet, MappingEntry, NetMapping, SafetyRule,
+    AssemblyOnlyPart, AtopileComponent, AtopileExport, AtopileNet, CandidateBoardScope,
+    ConvertedCandidate, MappingEntry, NetMapping, SafetyRule, select_board_scope,
 };
 pub use error::{DesignBundleError, Diagnostic};
 pub use identity::{BoardIdentityOptions, validate_board_identity};
@@ -346,6 +347,19 @@ mod python {
             .map_err(value_error)
     }
 
+    /// Strict board projection: an assembly-only declaration must match the
+    /// already-converted source instance path, MPN and footprint exactly.
+    #[pyfunction]
+    fn candidate_board_scope(candidate_json: &str, assembly_only_json: &str) -> PyResult<String> {
+        let candidate: crate::atopile::ConvertedCandidate =
+            serde_json::from_str(candidate_json).map_err(value_error)?;
+        let assembly_only: Vec<crate::atopile::AssemblyOnlyPart> =
+            serde_json::from_str(assembly_only_json).map_err(value_error)?;
+        let scope = crate::atopile::select_board_scope(&candidate, &assembly_only)
+            .map_err(value_error)?;
+        serde_json::to_string(&scope).map_err(value_error)
+    }
+
     /// Strict P1 U2 pin map validation
     /// (`crate::identity::validate_strict_pin_map`). Each argument is JSON:
     /// the explicit reviewed map, `{reference: [pads]}` from resolved
@@ -407,6 +421,7 @@ mod python {
         module.add_function(wrap_pyfunction!(preflight_identity, module)?)?;
         module.add_function(wrap_pyfunction!(sha256_hex, module)?)?;
         module.add_function(wrap_pyfunction!(candidate_convert_bridge, module)?)?;
+        module.add_function(wrap_pyfunction!(candidate_board_scope, module)?)?;
         module.add_function(wrap_pyfunction!(candidate_validate_pin_map, module)?)?;
 
         // Wave 4 Phase 3 (formats/IO): _write_board.py's numeric kernels

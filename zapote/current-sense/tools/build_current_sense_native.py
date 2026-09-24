@@ -150,6 +150,7 @@ def build(
     entry_file: str = "elec/src/current_sense_unit.ato",
     title: str = "Standalone Current-Sensing Unit",
     local_libraries: Path | None = None,
+    assembly_only: tuple[dict[str, str], ...] = (),
 ) -> None:
     if output.exists():
         raise FileExistsError(f"refusing to overwrite native output: {output}")
@@ -203,13 +204,27 @@ def build(
         )
     )
     by_path = {component["instance_path"]: component["reference"] for component in bridge["components"]}
-    # A standalone entry owns every component emitted by its compiled source.
-    # ``modules`` controls schematic grouping only; it must never silently
-    # omit a newly added current-sense, protection or interface component.
-    owned_paths = {component["instance_path"] for component in bridge["components"]}
+    # The Rust bridge compares the full resolved source against each explicit
+    # assembly-only declaration before the PCB projection can omit it.
+    scope = (
+        json.loads(
+            bundle.candidate_board_scope(
+                json.dumps(converted, sort_keys=True),
+                json.dumps(assembly_only, sort_keys=True),
+            )
+        )
+        if assembly_only
+        else {
+            "board_references": [component["reference"] for component in converted["components"]],
+            "assembly_only_components": [],
+        }
+    )
+    owned = set(scope["board_references"])
+    owned_paths = {path for path, reference in by_path.items() if reference in owned}
+    if len(owned_paths) != len(owned):
+        raise ValueError("board scope references are not unique compiled instances")
     if not owned_paths:
         raise ValueError("compiled CurrentSenseUnit source contains no components")
-    owned = {by_path[path] for path in owned_paths}
     section = {
         "components": [
             component
@@ -304,7 +319,11 @@ def build(
         "entry": f"{entry_file}:{entry_module}",
         "source": str(source),
         "module_prefixes": list(modules),
-        "component_scope": "all components in the standalone entry",
+        "component_scope": (
+            "compiled source minus explicitly declared assembly-only parts"
+            if assembly_only else "all components in the standalone entry"
+        ),
+        "assembly_only_components": scope["assembly_only_components"],
         "strict_bridge_extension": {
             "path": str(extension.artifact),
             "sha256": extension_sha,

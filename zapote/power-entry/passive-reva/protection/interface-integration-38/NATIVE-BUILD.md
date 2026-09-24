@@ -19,13 +19,19 @@ board-terminal candidate at `U227`. The selected Mersen US141 holder is off
 board; `F2-BOARD-INTERFACE.md` records the four board pins but does not close
 their drill, fault-current, DC, thermal and geometry gates.
 
-The strict native probe on `source-build-02` again stopped at
-`vendor_candidate_libs`, this time on the explicit assembly-only F2
-placeholder `TBD_REVIEW_ONLY:PFC_F2_OFFBOARD_ASSEMBLY`. The generated partial
-directory was removed. No `section.kicad_sch` or `section.kicad_pcb` was
-emitted. The bridge needs an explicit, auditable off-board component rule and
-a released four-pin terminal footprint; neither placeholder may be promoted
-into a fabricated board. There are also no
+The strict bridge now requires an exact assembly-only declaration for F2:
+source path `pfc_power.f2`, MPN `A70QS50-14F`, and the off-board footprint
+marker. Rust checks the declaration against the full converted candidate,
+retains the excluded reference in the source manifest, and projects only PCB
+references into the board and native schematic. Six focused Rust tests cover
+the exact exclusion and stale, changed, duplicate, or overbroad declarations.
+After the extension rebuild passed its freshness gate, the native probe on
+`source-build-02` reached `vendor_candidate_libs` and stopped on the separate
+board terminal placeholder `TBD_REVIEW_ONLY:PFC_F2_BOARD_TERMINAL_1017526`.
+The generated partial directory was removed. No `section.kicad_sch` or
+`section.kicad_pcb` was emitted. The terminal needs a released four-pin
+footprint; neither placeholder may be promoted into a fabricated board.
+There are also no
 reviewed `poses.json` or `outline.json`; automatic arbitrary placement would
 not satisfy the electrical or isolation layout review.
 

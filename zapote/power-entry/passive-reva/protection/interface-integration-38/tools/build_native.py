@@ -31,6 +31,13 @@ def main() -> None:
         entry_file="elec/src/power_entry_integrated_38.ato",
         title="Rev38 source-to-PFC power-entry engineering candidate",
         local_libraries=PASSIVE / "libraries",
+        assembly_only=(
+            {
+                "instance_path": "pfc_power.f2",
+                "mpn": "A70QS50-14F",
+                "footprint": "TBD_REVIEW_ONLY:PFC_F2_OFFBOARD_ASSEMBLY",
+            },
+        ),
     )
 
 
