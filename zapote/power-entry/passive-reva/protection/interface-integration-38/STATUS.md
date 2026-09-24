@@ -113,3 +113,12 @@ The selected supply parts and pin/interface contract now need native
 schematic/PCB realization, source/native parity, ERC/DRC, and physical tests.
 U1's per-fault timing ledger must use those measured paths. Do not promote
 Atopile connectivity or host tests into U4–U7 physical acceptance.
+
+`SELV-PORT-CONTRACT.md` now sets a candidate **3.0–3.6 V at Rev38 pins**
+input envelope and **100 mA Rev38-port design allocation** for the existing
+cooker ESP command source. It names the parallel supply/return pads, direct
+startup capacitance, retained-expander and partial-power cases, and the
+measurements needed to qualify the rail. The allocation is not a measured
+port maximum, and the cooker's existing 3.3 V regulator has no accepted
+headroom or startup proof. The native Rev38 section may use this port
+contract for interface design; supply and fail-low acceptance stay OPEN.

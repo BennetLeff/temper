@@ -2,6 +2,10 @@
 
 **Status:** engineering screen, 2026-09-24. The existing cooker ESP32-S3 is the selected Rev38 **command source**. Its present SELV 3.3 V rail is an unqualified supply candidate, not part of that command-source decision. The Rev38-side 16-contact header is joined in `PowerEntryIntegrated38`; a separate `cooker-mate` Atopile derivative joins its mate to the existing cooker ESP and rail. Neither native board nor harness is integrated. The `source-build-03` Rev38 export has no second ESP. This record does not establish spare capacity on the existing cooker rail. Its Rev38 inventory is the frozen `source-build-03` source and resolved export; the complete cooker load still needs a measured budget.
 
+`SELV-PORT-CONTRACT.md` records the candidate 3.0–3.6 V board-input envelope
+and a **100 mA Rev38-only design allocation**. That allocation is not a
+measured maximum or proof of spare current on the cooker rail.
+
 ## Joined Rev38 load
 
 The figures below are **supply-design inputs**, not an accepted whole-board maximum. Device-current test conditions differ, and output pull resistors, switching capacitance, RF bursts, internal module capacitance, power sequencing and the cooker-mate reset/interlock producers still need a complete corner sum.

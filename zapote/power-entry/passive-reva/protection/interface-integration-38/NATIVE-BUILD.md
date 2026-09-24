@@ -17,8 +17,9 @@ existing cooker ESP, SELV rail and reset-good/interlock producers; these
 are not part of this frozen `source-build-03` export. That derivative
 now has its own frozen `cooker-source-02` export and a two-source 16-contact
 connector audit, recorded in `COOKER-ASSEMBLY-SOURCE.md`. The native Rev38
-section needs a defined 3.3 V port supply/load/startup/fail-low contract and
-physical connector qualification. The cooker derivative's missing canonical
+section has candidate 3.3 V port limits in `SELV-PORT-CONTRACT.md`; its
+load, startup, connector and physical fail-low acceptance remains open.
+The cooker derivative's missing canonical
 footprints, native cooker board and inverter power composition are follow-on
 product work. The separate
 [`POWER-ASSEMBLY-BOUNDARY.md`](POWER-ASSEMBLY-BOUNDARY.md) explains why the

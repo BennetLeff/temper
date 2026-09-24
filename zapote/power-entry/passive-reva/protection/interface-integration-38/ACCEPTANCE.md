@@ -66,14 +66,15 @@ current-cessation result.
 | Cooker control progress gate | **PASS: 61 focused state-machine tests; 17/17 CTest** | A completed nonfault handler permits a control epoch; deferred messages and fault ticks do not. The production call site is not target-tested; target timing and monitor freshness remain OPEN. |
 | Receiver device qualification | **OPEN** | Host and target compilation do not prove programmed fuses, reset, clock or watchdog on silicon. |
 | ESP production integration | **OPEN** | Diagnostic lockout target image is not a production image; cooker hooks and target timing/pin captures remain unresolved. |
-| F1/F2, AUX, cooker SELV rail and thermal/fault envelopes | **OPEN** | See `F1-SCREEN.md`, `F2-BOARD-INTERFACE.md`, `AUX-SOURCE-CANDIDATE.md`, `SELV-SUPPLY-LOAD.md`. |
+| F1/F2, AUX, SELV port and thermal/fault envelopes | **OPEN** | `SELV-PORT-CONTRACT.md` sets candidate board-input limits and a 100 mA Rev38 allocation, not an accepted load maximum or qualified cooker rail. See also `F1-SCREEN.md`, `F2-BOARD-INTERFACE.md`, `AUX-SOURCE-CANDIDATE.md`, `SELV-SUPPLY-LOAD.md`. |
 | Native schematic/PCB, ERC/DRC, stackup, source/native parity and maintained unit gate | **NOT RUN for Rev38** | No accepted Rev38 section-board bytes; canonical `pcb/temper.kicad_pcb` remains outside this candidate. |
 | Cooker source/footprint readiness | **Follow-on product work** | The frozen derivative proves a proposed controller interface. Its old F1/NTC footprints and product placement do not gate the Rev38 section board. The 3.3 V port supply, load, startup and fail-low contract do gate Rev38 interface acceptance. |
 | Low-voltage assembled injection, fault-to-current cessation, mains safety and passive protection/cooling milestone | **NOT RUN / OPEN** | Require a joined physical design and separately accepted measurements. |
 
 The next digital release gate is a reviewed native Rev38 section board with
 exact parts, poses, outline, source/native parity, and a defined SELV
-controller port. That port needs a 3.3 V supply/load/startup/fail-low contract
-for the existing cooker ESP command source. The F2 terminal drill/pin record
+controller port. That port has a candidate 3.3 V supply/load/startup/fail-low
+contract for the existing cooker ESP command source; qualification remains
+open. The F2 terminal drill/pin record
 remains open. Cooker inverter power joins and native cooker-board placement
 belong to a later product-integration gate.

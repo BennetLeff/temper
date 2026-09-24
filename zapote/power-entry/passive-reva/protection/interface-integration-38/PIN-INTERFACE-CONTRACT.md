@@ -80,8 +80,9 @@ request cannot bypass the AVR decision and retained HOT RUN gate.
 The Rev38 **command source** is the existing cooker ESP32-S3. Its present
 SELV rail is a supply candidate, not an accepted source for the Rev38 board;
 the 3.3 V port still needs rated current, startup, partial-power and fail-low
-qualification. A later one-front-end product may re-source the cooker rail
-without changing which ESP owns the Rev38 command protocol.
+qualification. `SELV-PORT-CONTRACT.md` specifies the candidate board-input
+limits and negative checks. A later one-front-end product may re-source the
+cooker rail without changing which ESP owns the Rev38 command protocol.
 `SELV-CONTROLLER-CONNECTOR.md` screens a 16-contact mating pair and a
 straight-through pin contract. The Rev38 header is joined and exact-pin
 audited; `cooker-mate/elec/src/cooker_mate.ato` joins the mating header and

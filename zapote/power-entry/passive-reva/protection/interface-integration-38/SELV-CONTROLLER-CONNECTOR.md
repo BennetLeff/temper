@@ -1,9 +1,11 @@
 # Shared cooker ESP connector screen
 
 Status: **Rev38-side 16-contact header joined; product harness not released**.
-The selected product architecture uses the existing cooker ESP and its SELV
-3.3 V rail. `source_mcu.ato` now instantiates the Rev38-side header in place
-of a second ESP. `cooker-mate/elec/src/cooker_mate.ato` now joins a second
+The selected command source is the existing cooker ESP; its present SELV
+3.3 V rail is an unqualified supply candidate. `SELV-PORT-CONTRACT.md` sets
+the Rev38 input envelope, preliminary current allocation, startup and
+fail-low checks. `source_mcu.ato` instantiates the Rev38-side header in
+place of a second ESP. `cooker-mate/elec/src/cooker_mate.ato` joins a second
 header to the existing cooker source as a separate Atopile derivative. Its
 source export and the Rev38 source export pass the [two-board connector
 contract](COOKER-ASSEMBLY-SOURCE.md). Native boards, rail capacity, harness
@@ -37,7 +39,7 @@ installed two-row footprint.
 
 | Pad | Conductor | Owner / default at Rev38 end |
 | ---: | --- | --- |
-| 1, 9 | `+3V3` | Existing cooker SELV rail; no HOT connection. |
+| 1, 9 | `+3V3` | Qualified SELV 3.3 V port supply required; existing cooker rail is the candidate, with no HOT connection. |
 | 2 | `SOURCE_STOP_N` | Cooker ESP GPIO13; Rev38 pull-down asserts STOP on an open contact. |
 | 3 | `SOURCE_VALIDATED_HEARTBEAT` | GPIO21; local pull-down suppresses an open-contact request. |
 | 4 | `SOURCE_PERMIT_SET_REQUEST` | GPIO48; local pull-down suppresses an open-contact clock. |
