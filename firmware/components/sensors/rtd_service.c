@@ -29,16 +29,26 @@ static bool s_fault_cycle_started;
 static bool s_conversion_armed;
 static bool s_has_sample;
 static float s_rtd_resistance_ohm;
-/* Single writer: the control task. One atomic word prevents a monitor from
- * observing a new generation with the previous readiness state. */
+/* Single writer: the control task. The sequence encloses both state and
+ * timestamp, preventing a monitor from pairing a generation with another
+ * conversion's time. */
 static uint32_t s_sample_state;
+static uint32_t s_sample_time_ms;
+static uint32_t s_sample_seq;
+
+static void publish_sample_state(uint32_t state, uint32_t time_ms)
+{
+    (void)__atomic_add_fetch(&s_sample_seq, 1u, __ATOMIC_SEQ_CST);
+    __atomic_store_n(&s_sample_time_ms, time_ms, __ATOMIC_SEQ_CST);
+    __atomic_store_n(&s_sample_state, state, __ATOMIC_SEQ_CST);
+    (void)__atomic_add_fetch(&s_sample_seq, 1u, __ATOMIC_SEQ_CST);
+}
 
 static void invalidate_sample(void)
 {
     uint32_t state = __atomic_load_n(&s_sample_state, __ATOMIC_RELAXED);
     s_ready = false;
-    __atomic_store_n(&s_sample_state, state & RTD_SAMPLE_COUNT,
-                     __ATOMIC_RELEASE);
+    publish_sample_state(state & RTD_SAMPLE_COUNT, 0u);
 }
 
 static void rtd_drdy_isr(hal_pin_t pin, void *context)
@@ -96,6 +106,8 @@ hal_status_t rtd_service_bootstrap(void)
     s_has_sample = false;
     s_rtd_resistance_ohm = RTD_OPEN_FAULT_OHM + 1.0f;
     __atomic_store_n(&s_sample_state, 0u, __ATOMIC_RELEASE);
+    __atomic_store_n(&s_sample_time_ms, 0u, __ATOMIC_RELAXED);
+    __atomic_store_n(&s_sample_seq, 0u, __ATOMIC_RELEASE);
 
     if (hal_spi == NULL || hal_gpio == NULL) {
         s_bootstrap_failed = true;
@@ -210,6 +222,11 @@ void rtd_service_control_tick(void)
         } else {
             /* Publish only the fresh conversion that was read before status.
              * MAX31865's 15-bit code is code = floor(32768*R/RREF). */
+            if (hal_timer == NULL || hal_timer->get_time_ms == NULL) {
+                invalidate_sample();
+                state_machine_report_rtd_device_fault(false, true, NULL);
+                return;
+            }
             uint32_t generation = __atomic_load_n(&s_sample_state,
                                                    __ATOMIC_RELAXED) &
                                   RTD_SAMPLE_COUNT;
@@ -221,9 +238,8 @@ void rtd_service_control_tick(void)
             s_rtd_resistance_ohm = ((float)rtd_code * 430.0f) / 32768.0f;
             s_has_sample = true;
             s_fault_cycle_wait_ticks = 0u;
-            __atomic_store_n(&s_sample_state,
-                             RTD_SAMPLE_READY | generation,
-                             __ATOMIC_RELEASE);
+            publish_sample_state(RTD_SAMPLE_READY | generation,
+                                 hal_timer->get_time_ms());
         }
     }
 }
@@ -240,19 +256,35 @@ bool rtd_service_has_sample(void)
 
 rtd_sample_status_t rtd_service_sample_status(void)
 {
-    uint32_t state = __atomic_load_n(&s_sample_state, __ATOMIC_ACQUIRE);
+    uint32_t before;
+    uint32_t after;
+    uint32_t state;
+    uint32_t sample_time_ms;
+    for (;;) {
+        before = __atomic_load_n(&s_sample_seq, __ATOMIC_SEQ_CST);
+        if (before & 1u) continue;
+        state = __atomic_load_n(&s_sample_state, __ATOMIC_SEQ_CST);
+        sample_time_ms = __atomic_load_n(&s_sample_time_ms,
+                                         __ATOMIC_SEQ_CST);
+        after = __atomic_load_n(&s_sample_seq, __ATOMIC_SEQ_CST);
+        if (before == after && !(after & 1u)) break;
+    }
+    bool ready = (state & RTD_SAMPLE_READY) != 0u &&
+                 hal_timer != NULL && hal_timer->get_time_ms != NULL;
     return (rtd_sample_status_t){
-        .ready = (state & RTD_SAMPLE_READY) != 0u,
+        .ready = ready,
         .generation = state & RTD_SAMPLE_COUNT,
+        .age_ms = ready ? hal_timer->get_time_ms() - sample_time_ms
+                        : UINT32_MAX,
     };
 }
 
 #ifdef RTD_SERVICE_TESTING
 void rtd_service_test_seed_generation(uint32_t generation)
 {
-    __atomic_store_n(&s_sample_state,
-                     RTD_SAMPLE_READY | (generation & RTD_SAMPLE_COUNT),
-                     __ATOMIC_RELEASE);
+    publish_sample_state(RTD_SAMPLE_READY | (generation & RTD_SAMPLE_COUNT),
+                         hal_timer != NULL && hal_timer->get_time_ms != NULL
+                             ? hal_timer->get_time_ms() : 0u);
 }
 #endif
 

@@ -46,11 +46,15 @@ bool rtd_service_has_sample(void);
 typedef struct {
     bool ready;
     uint32_t generation;
+    uint32_t age_ms;
 } rtd_sample_status_t;
 
 /**
  * Atomically read conversion readiness and generation across tasks. A new
  * generation is published only after a completed conversion/status transfer.
+ * age_ms is elapsed monotonic HAL time since that transfer, or UINT32_MAX
+ * when no usable sample or clock is available. A monitor must still apply
+ * its state-specific maximum age and check every other required input.
  * Zero means no conversion has been published since bootstrap. Generations
  * wrap from 0x7fffffff to one; compare for change only within a bounded
  * maximum-age window, alongside cooker-state checks.

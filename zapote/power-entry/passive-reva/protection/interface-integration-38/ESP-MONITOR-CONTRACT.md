@@ -26,18 +26,20 @@ The present `control_task` increments its epoch after every
 `state_machine_update()`, including fault states. It must gate that credit
 on a completed, healthy control tick. `read_rtd_resistance()` can return a
 cached conversion while ready; valid-looking ohms alone are not freshness
-evidence. `rtd_service_sample_status()` now atomically publishes readiness
-and a generation that advances only after a healthy completed conversion and
-status read. It clears readiness on a stalled or faulted conversion and does
-not advance for either. The nonzero generation wraps after `0x7fffffff`, so
-the monitor must compare it only within a bounded sample-age window, rather
-than treat it as a lifetime-unique identifier. Host tests cover repeated
+evidence. `rtd_service_sample_status()` now publishes readiness, a generation
+that advances only after a healthy completed conversion and status read, and
+elapsed `age_ms` from the monotonic HAL timer. The generation and timestamp
+are read under one atomic sequence. `age_ms` is `UINT32_MAX` when the sample
+or clock is unavailable. A stalled control task cannot keep a cached sample
+young. Readiness clears on a stalled or faulted conversion and does not
+advance for either. The nonzero generation wraps after `0x7fffffff`, so the
+monitor must compare it only within a bounded sample-age window, rather than
+treat it as a lifetime-unique identifier. Host tests cover repeated
 conversions, a silent DRDY and a faulted conversion after a valid sample, a
-transport failure, and the generation-wrap boundary. This is
-only an input to the future monitor: it still needs a bounded timestamp/age
-or observed-generation deadline from `rtd_service` and
-bounded age for every other sampled input. Cross-task state and result
-publication also need an explicit synchronization rule.
+transport failure, generation wrap, elapsed age, timer wrap and invalidation.
+This is only one input to the future monitor: the allowable RTD age, ages of
+every other input, state snapshot and result publication still need an
+explicit contract. A timestamp does not establish a safe age limit.
 
 Tests before enabling progress: idle-to-first-start, PREHEAT/HEATING and
 return-to-idle; each task stalled independently; frozen/replayed sensor

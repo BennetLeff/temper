@@ -62,6 +62,10 @@ gate green. U7 digital acceptance remains OPEN.
 existing unconditional `run_safety_check()` and why fault-state control
 ticks and cached RTD values need separate freshness gates before either
 progress epoch can be used for Rev38 authorization.
+The RTD service now exposes an atomic conversion generation and elapsed
+monotonic `age_ms`, with invalid samples returning `UINT32_MAX`. Host tests
+cover age growth, refresh, wrap and invalidation. The state-specific monitor
+and its accepted age bounds remain absent, so no monitor epoch is credited.
 `SELV-CONTROLLER-CONNECTOR.md` screens one 16-contact harness and pinout for
 the selected shared cooker ESP. It is not a joined conductor or a measured
 rail-budget claim.

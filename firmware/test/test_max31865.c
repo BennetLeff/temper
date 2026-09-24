@@ -25,6 +25,7 @@ extern void mock_spi_fail_next_read(hal_status_t status);
 extern void mock_spi_fail_next_write(hal_status_t status);
 extern void mock_gpio_trigger_interrupt(hal_pin_t pin);
 extern bool mock_gpio_is_initialized(hal_pin_t pin);
+extern void mock_timer_set_time(hal_time_us_t time_us);
 extern void mock_sm_reset(void);
 extern uint32_t mock_sm_get_trigger_shutdown_count(void);
 
@@ -421,6 +422,94 @@ void test_rtd_service_generation_wrap_keeps_healthy_sample_ready(void)
     TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
 }
 
+void test_rtd_service_sample_age_tracks_real_time_and_new_conversion(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    const uint8_t rtd_data[] = {0x3Bu, 0x88u};
+    mock_spi_set_register_block((hal_spi_device_t)0, MAX31865_REG_RTD_MSB,
+                                rtd_data, sizeof(rtd_data));
+
+    rtd_sample_status_t status = rtd_service_sample_status();
+    TEST_ASSERT_FALSE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, status.age_ms);
+
+    mock_timer_set_time(1000000u);
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    status = rtd_service_sample_status();
+    TEST_ASSERT_TRUE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(1u, status.generation);
+    TEST_ASSERT_EQUAL_UINT32(0u, status.age_ms);
+
+    /* A stalled control task cannot keep a cached conversion young. */
+    mock_timer_set_time(1150000u);
+    status = rtd_service_sample_status();
+    TEST_ASSERT_TRUE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(1u, status.generation);
+    TEST_ASSERT_EQUAL_UINT32(150u, status.age_ms);
+
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    status = rtd_service_sample_status();
+    TEST_ASSERT_EQUAL_UINT32(2u, status.generation);
+    TEST_ASSERT_EQUAL_UINT32(0u, status.age_ms);
+}
+
+void test_rtd_service_sample_age_handles_timer_wrap_and_invalidation(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    const uint8_t rtd_data[] = {0x3Bu, 0x88u};
+    mock_spi_set_register_block((hal_spi_device_t)0, MAX31865_REG_RTD_MSB,
+                                rtd_data, sizeof(rtd_data));
+    mock_timer_set_time((hal_time_us_t)(UINT32_MAX - 9u) * 1000u);
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+
+    mock_timer_set_time(((hal_time_us_t)UINT32_MAX + 11u) * 1000u);
+    rtd_sample_status_t status = rtd_service_sample_status();
+    TEST_ASSERT_TRUE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(20u, status.age_ms);
+
+    for (uint8_t tick = 0u; tick < RTD_DRDY_TIMEOUT_CONTROL_TICKS; tick++) {
+        rtd_service_control_tick();
+    }
+    status = rtd_service_sample_status();
+    TEST_ASSERT_FALSE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, status.age_ms);
+}
+
+void test_rtd_service_missing_clock_rejects_conversion(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    rtd_service_control_tick();
+    const uint8_t rtd_data[] = {0x3Bu, 0x88u};
+    mock_spi_set_register_block((hal_spi_device_t)0, MAX31865_REG_RTD_MSB,
+                                rtd_data, sizeof(rtd_data));
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    TEST_ASSERT_TRUE(rtd_service_sample_status().ready);
+
+    hal_timer_set_ops(NULL);
+    rtd_sample_status_t status = rtd_service_sample_status();
+    TEST_ASSERT_FALSE(status.ready);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, status.age_ms);
+
+    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    rtd_service_control_tick();
+    status = rtd_service_sample_status();
+    TEST_ASSERT_FALSE(status.ready);
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+}
+
 void test_rtd_service_silent_drdy_fails_closed_within_control_bound(void)
 {
     uint8_t tick;
@@ -457,5 +546,8 @@ void run_max31865_tests(void)
     RUN_TEST(test_rtd_service_faulted_conversion_does_not_publish_generation);
     RUN_TEST(test_rtd_service_transport_failure_invalidates_cached_sample);
     RUN_TEST(test_rtd_service_generation_wrap_keeps_healthy_sample_ready);
+    RUN_TEST(test_rtd_service_sample_age_tracks_real_time_and_new_conversion);
+    RUN_TEST(test_rtd_service_sample_age_handles_timer_wrap_and_invalidation);
+    RUN_TEST(test_rtd_service_missing_clock_rejects_conversion);
     RUN_TEST(test_rtd_service_silent_drdy_fails_closed_within_control_bound);
 }
