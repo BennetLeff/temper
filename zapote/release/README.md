@@ -9,8 +9,8 @@ rustc --edition=2021 --test zapote/release/release_gate.rs -o /private/tmp/zapot
 /private/tmp/zapote-release-tests
 ```
 
-An incomplete release returns exit 1, malformed or corrupt evidence returns
-exit 2, and only a complete release returns 0. `--replay` is required to
+An incomplete or failed release returns exit 1, a malformed manifest or
+invocation returns exit 2, and only a complete release returns 0. `--replay` is required to
 promote a runnable role to `PASS`; it executes the named tool without a shell.
 Use it only on trusted, reviewed receipts. The role set is closed in Rust and
 every role must appear exactly once in the manifest. `-` means absent evidence,
