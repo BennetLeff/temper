@@ -16,6 +16,7 @@ back to wobbling, which historically gets written off as CI flake.
 
 from __future__ import annotations
 
+import contextlib
 import subprocess
 from pathlib import Path
 
@@ -153,3 +154,27 @@ def test_run_drc_passes_the_pinned_env_to_kicad_cli(tmp_path, monkeypatch):
     assert seen["env"] is not None, "run_drc dropped the pinned environment"
     assert seen["advanced"] is not None, "KICAD_CONFIG_HOME had no kicad_advanced in it"
     assert seen["advanced"].strip().endswith("MaximumThreads=1")
+
+
+def test_strict_measurement_rejects_unpinned_fallback_before_launch(tmp_path, monkeypatch):
+    """Candidate evidence may not silently fall back to ambient settings."""
+    pcb = tmp_path / "candidate.kicad_pcb"
+    pcb.write_text("(kicad_pcb)\n")
+    pcb.with_suffix(".kicad_pro").write_text("{}\n")
+    pcb.with_suffix(".kicad_dru").write_text("(version 1)\n")
+    (tmp_path / "fp-lib-table").write_text("(fp_lib_table)\n")
+    monkeypatch.setattr(_drc_api, "is_kicad_cli_available", lambda: True)
+
+    @contextlib.contextmanager
+    def unpinned():
+        yield None
+
+    monkeypatch.setattr(_drc_api, "_single_threaded_kicad_env", unpinned)
+    monkeypatch.setattr(
+        _drc_api.subprocess,
+        "run",
+        lambda *_args, **_kwargs: pytest.fail("strict fallback must fail before kicad-cli"),
+    )
+
+    with pytest.raises(_drc_api.DrcRunnerError, match="single-thread"):
+        _drc_api.run_drc_measurement(pcb)
