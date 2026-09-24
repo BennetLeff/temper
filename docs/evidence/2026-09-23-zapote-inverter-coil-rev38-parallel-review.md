@@ -1,6 +1,6 @@
 # Inverter, cookware, and Rev38 parallel milestone review
 
-Date: 2026-09-23. Integrated branch: `codex/zapote-next-milestone-integrated-20260923`, based on `8b0a729600873c4e8e535bd614118d979cb38ec2`. This is a digital engineering review, with no purchased articles, inverter PCB, energized test, or appliance qualification.
+Date: 2026-09-23; wall-power target corrected 2026-09-24. Integrated branch: `codex/zapote-next-milestone-integrated-20260923`, based on `8b0a729600873c4e8e535bd614118d979cb38ec2`. This is a digital engineering review, with no purchased articles, inverter PCB, energized test, or appliance qualification.
 
 ## Combined decision
 
@@ -15,7 +15,7 @@ The three tracks agree on **a conditional VB_BANK/HOT0 half-bridge investigation
 ## Cross-track reconciliation
 
 - The inverter matrix's 390 V point is a nominal-intent sensitivity, and 330 V is a sag probe. Rev38 has not supplied a permissible VB maximum, minimum loaded VB, ripple, or source impedance. A 450 V capacitor nameplate is only a rating-edge screen; the conditional 500 V F2-open VD case is not a VB operating case.
-- A 120 V, 15 A input has an 1800 VA apparent-power ceiling before power factor and conversion loss. Neither the matrix's high-power stiff-bus point nor a 1.8 kW delivered cooking claim is a sustained, source-qualified condition. The installed inlet/fuse/cord/branch compatibility remains unresolved.
+- The product target is **at most 1800 W real input at the wall**, not 1800 W into the pan. A 120 V, 15 A input has an 1800 VA apparent-power ceiling; with PF below unity, actual wall watts are lower. Low line also forces derating under the provisional 15 A input limit. The matrix's high-power stiff-bus point is not a sustained, source-qualified condition. The installed inlet/fuse/cord/branch compatibility remains unresolved.
 - The Rev38 bank's nominal 2240 µF holds about 170 J at 390 V. F2 is upstream of it; inverter PERMIT and PFC gate disable do not remove its energy. The local VB commutation capacitor, any detached island, and bank-side failed-short path must be returned to discharge and cooling before layout.
 - The series tank capacitor's initial voltage is not established by steady-state VB/2 bias. In the illustrative 2 ms restart fixture, changing its initial voltage to −195 V raises modeled tank peak from about 67 A to 72 A. This is a screening result with ideal devices and source, not a validated trip or startup limit.
 - The historical 34 V within 60 s discharge target is only a feasibility scenario. The applicable product/access rule and test method have not been adopted; no discharge board is released. The three-track work cannot freeze that requirement on behalf of a product safety authority.

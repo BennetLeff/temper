@@ -3,6 +3,7 @@
 
 const VAC_CASES: [f64; 3] = [108.0, 120.0, 132.0];
 const INPUT_LIMIT_ARMS: f64 = 15.0;
+const WALL_INPUT_LIMIT_W: f64 = 1800.0;
 
 #[derive(Clone, Copy)]
 struct Scenario {
@@ -43,6 +44,7 @@ const SCENARIOS: [Scenario; 3] = [
 
 #[derive(Clone, Copy)]
 struct Boundary {
+    input_arms: f64,
     apparent_va: f64,
     real_input_w: f64,
     pfc_feed_w: f64,
@@ -52,6 +54,9 @@ struct Boundary {
 }
 
 fn calculate(vac: f64, input_arms: f64, s: Scenario) -> Boundary {
+    // The product target is a wall-input cap, while 15 Arms is a separate
+    // provisional line-current cap. The lower limit controls each case.
+    let input_arms = input_arms.min(WALL_INPUT_LIMIT_W / (vac * s.power_factor));
     let apparent_va = vac * input_arms;
     let real_input_w = apparent_va * s.power_factor;
     let pfc_feed_w = (real_input_w - s.auxiliary_ac_w).max(0.0);
@@ -59,6 +64,7 @@ fn calculate(vac: f64, input_arms: f64, s: Scenario) -> Boundary {
     let inverter_output_w = dc_bus_w * s.inverter_efficiency;
     let pan_absorbed_w = inverter_output_w * s.pan_coupling_efficiency;
     Boundary {
+        input_arms,
         apparent_va,
         real_input_w,
         pfc_feed_w,
@@ -68,19 +74,19 @@ fn calculate(vac: f64, input_arms: f64, s: Scenario) -> Boundary {
     }
 }
 
-fn required_input_arms(vac: f64, target_pan_w: f64, s: Scenario) -> f64 {
-    let electrical_to_pan = s.pfc_efficiency * s.inverter_efficiency * s.pan_coupling_efficiency;
-    (target_pan_w / electrical_to_pan + s.auxiliary_ac_w) / (vac * s.power_factor)
+fn required_input_arms_for_wall(vac: f64, target_wall_w: f64, s: Scenario) -> f64 {
+    target_wall_w / (vac * s.power_factor)
 }
 
 fn main() {
-    println!("scenario,vac_v,input_arms,apparent_va,real_input_w,auxiliary_ac_w,pfc_feed_w,dc_bus_w,inverter_output_w,pan_absorbed_w,input_arms_for_1800w_pan");
+    println!("scenario,vac_v,input_arms,apparent_va,real_input_w,auxiliary_ac_w,pfc_feed_w,dc_bus_w,inverter_output_w,pan_absorbed_w,input_arms_for_1800w_wall");
     for s in SCENARIOS {
         for vac in VAC_CASES {
             let b = calculate(vac, INPUT_LIMIT_ARMS, s);
             println!(
-                "{},{vac:.0},{INPUT_LIMIT_ARMS:.0},{:.1},{:.1},{:.1},{:.1},{:.1},{:.1},{:.1},{:.2}",
+                "{},{vac:.0},{:.2},{:.1},{:.1},{:.1},{:.1},{:.1},{:.1},{:.1},{:.2}",
                 s.name,
+                b.input_arms,
                 b.apparent_va,
                 b.real_input_w,
                 s.auxiliary_ac_w,
@@ -88,7 +94,7 @@ fn main() {
                 b.dc_bus_w,
                 b.inverter_output_w,
                 b.pan_absorbed_w,
-                required_input_arms(vac, 1800.0, s)
+                required_input_arms_for_wall(vac, WALL_INPUT_LIMIT_W, s)
             );
         }
     }
@@ -99,27 +105,38 @@ mod tests {
     use super::*;
 
     #[test]
-    fn apparent_power_at_nominal_line_is_1800_va() {
+    fn at_nominal_line_15a_is_1800_va_before_power_factor() {
         assert_eq!(calculate(120.0, 15.0, SCENARIOS[1]).apparent_va, 1800.0);
     }
 
     #[test]
-    fn delivered_pan_power_is_below_real_input_for_every_case() {
+    fn wall_power_and_current_respect_both_caps() {
         for s in SCENARIOS {
             for vac in VAC_CASES {
                 let b = calculate(vac, INPUT_LIMIT_ARMS, s);
-                assert!(b.pan_absorbed_w < b.real_input_w);
+                assert!(b.real_input_w <= WALL_INPUT_LIMIT_W + 1e-9);
+                assert!(b.input_arms <= INPUT_LIMIT_ARMS + 1e-9);
             }
         }
     }
 
     #[test]
-    fn inverse_current_recovers_target_power() {
-        for s in SCENARIOS {
-            let amps = required_input_arms(120.0, 1800.0, s);
-            let recovered = calculate(120.0, amps, s).pan_absorbed_w;
-            assert!((recovered - 1800.0).abs() < 1e-9);
-        }
+    fn high_line_reduces_current_when_wall_cap_binds() {
+        let b = calculate(132.0, INPUT_LIMIT_ARMS, SCENARIOS[1]);
+        assert!(b.input_arms < INPUT_LIMIT_ARMS);
+        assert!((b.real_input_w - WALL_INPUT_LIMIT_W).abs() < 1e-9);
+    }
+
+    #[test]
+    fn nominal_line_needs_more_than_15a_for_exact_1800w_at_nonunity_pf() {
+        let amps = required_input_arms_for_wall(120.0, WALL_INPUT_LIMIT_W, SCENARIOS[1]);
+        assert!(amps > INPUT_LIMIT_ARMS);
+    }
+
+    #[test]
+    fn pan_power_is_an_output_below_wall_input() {
+        let b = calculate(120.0, INPUT_LIMIT_ARMS, SCENARIOS[1]);
+        assert!(b.pan_absorbed_w < b.real_input_w);
     }
 
     #[test]
