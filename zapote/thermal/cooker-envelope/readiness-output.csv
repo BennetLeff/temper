@@ -1,0 +1,11 @@
+kind,id,verdict,detail
+candidate,GBU395-SUNON2,INDETERMINATE,terminal_low_v;terminal_high_v;startup_a_max;stall_a_max;fan_start_ms_max;tach_window_hz;installed_flow_cfm;installed_pressure_pa;blocked_inlet_detection_ms;sensor_error_c;sensor_lag_ms;trip_window_ms;j1_low_v;j1_high_v;j1_off_leak_ua;joined_stop_ms;evidence_id
+candidate,GBU392-SANYO1,INDETERMINATE,terminal_low_v;terminal_high_v;startup_a_max;stall_a_max;fan_start_ms_max;tach_window_hz;installed_flow_cfm;installed_pressure_pa;blocked_inlet_detection_ms;sensor_error_c;sensor_lag_ms;trip_window_ms;j1_low_v;j1_high_v;j1_off_leak_ua;joined_stop_ms;evidence_id
+candidate,GBJ392-SANYO1,INDETERMINATE,terminal_low_v;terminal_high_v;startup_a_max;stall_a_max;fan_start_ms_max;tach_window_hz;installed_flow_cfm;installed_pressure_pa;blocked_inlet_detection_ms;sensor_error_c;sensor_lag_ms;trip_window_ms;j1_low_v;j1_high_v;j1_off_leak_ua;joined_stop_ms;evidence_id
+trace,one-missing-tach,INDETERMINATE,logical stop only; trip window unmeasured
+trace,blocked-flow-plausible-tach,INDETERMINATE,logical stop only; trip window unmeasured
+trace,rail-brownout,INDETERMINATE,logical stop only; trip window unmeasured
+trace,stuck-j1-low,REJECTED,fault line stuck healthy or latch cleared
+trace,fault-held-reset,REJECTED,fault line stuck healthy or latch cleared
+trace,auto-recovery,REJECTED,fault line stuck healthy or latch cleared
+trace,one-invalid-sensor,REJECTED,invalid sensing asserted live
