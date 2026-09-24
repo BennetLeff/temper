@@ -13,6 +13,8 @@ from "pfc_controller.ato" import PfcControl38
 from "pfc_power.ato" import PfcPower38
 from "ac_input.ato" import AcInput38
 from "hot15_converter.ato" import Hot15Converter38
+from "aux_cutoff.ato" import AuxCutoff38
+from "hot_logic5_converter.ato" import HotLogic5Converter38
 from "source_mcu.ato" import SourceMcu38
 
 module PowerEntryIntegrated38:
@@ -27,6 +29,8 @@ module PowerEntryIntegrated38:
     pfc_power = new PfcPower38
     ac_input = new AcInput38
     hot15_converter = new Hot15Converter38
+    aux_cutoff = new AuxCutoff38
+    hot_logic5_converter = new HotLogic5Converter38
     source_mcu = new SourceMcu38
 
     source_mcu.SELV3V3 ~ source.SELV3V3
@@ -95,3 +99,9 @@ module PowerEntryIntegrated38:
     ac_input.AC_RECT_N ~ pfc_power.AC_RECT_N
     ac_input.RAW_AUX24 ~ hot15_converter.RAW_AUX24
     ac_input.HOT0 ~ hot15_converter.HOT0
+    hot15_converter.AUX15_PRECUT ~ aux_cutoff.AUX15_PRECUT
+    aux_cutoff.HOT0 ~ receiver.HOT0
+    aux_cutoff.AUX_PROTECTED ~ driver.AUX_PROTECTED
+    hot_logic5_converter.AUX_PROTECTED ~ driver.AUX_PROTECTED
+    hot_logic5_converter.HOT0 ~ receiver.HOT0
+    hot_logic5_converter.HOT_LOGIC5 ~ receiver.HOT_LOGIC5

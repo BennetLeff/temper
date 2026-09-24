@@ -1,0 +1,167 @@
+# Rev38 protected 15 V HOT AUX to HOT logic5 engineering candidate.
+# Follow the TPS54202 5 V reference network. The joined load, startup,
+# effective MLCC capacitance, loop response and thermal limits are open.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component HotLogic5Buck38:
+    mpn = "TPS54202DDCR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps54202.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    signal GND ~ pin 1
+    signal SW ~ pin 2
+    signal VIN ~ pin 3
+    signal FB ~ pin 4
+    signal EN ~ pin 5
+    signal BOOT ~ pin 6
+
+component HotLogic5Cin38:
+    mpn = "C3225X7R1H106K250AC"
+    manufacturer = "TDK"
+    footprint = "Capacitor_SMD:C_1210_3225Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotLogic5Cout38:
+    mpn = "C3225X7R1E226M250AB"
+    manufacturer = "TDK"
+    footprint = "Capacitor_SMD:C_1210_3225Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotLogic5C100n38:
+    mpn = "GRM188R71H104KA93D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotLogic5C75p38:
+    mpn = "GRM1885C1H750JA01D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotLogic5Inductor38:
+    mpn = "XGL6060-153MEC"
+    manufacturer = "Coilcraft"
+    datasheet = "https://www.coilcraft.com/en-us/products/power/shielded-inductors/molded-inductor/xgl/xgl6060/xgl6060-153/"
+    footprint = "TBD_REVIEW_ONLY:HOT_LOGIC5_XGL6060_15UH"
+    value: inductance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotLogic5R100k38:
+    mpn = "ERA3AEB104V"
+    manufacturer = "Panasonic"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotLogic5R13k3_38:
+    mpn = "ERA3AEB1332V"
+    manufacturer = "Panasonic"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotLogic5R510k38:
+    mpn = "CRCW0603510KJNEA"
+    manufacturer = "Vishay Dale"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotLogic5R105k38:
+    mpn = "CRCW0603105KFKEA"
+    manufacturer = "Vishay Dale"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module HotLogic5Converter38:
+    signal AUX_PROTECTED
+    signal HOT0
+    signal HOT_LOGIC5
+    signal BUCK_SW
+    signal BUCK_BOOT
+    signal BUCK_FB
+    signal BUCK_EN
+
+    buck = new HotLogic5Buck38
+    buck.VIN ~ AUX_PROTECTED
+    buck.GND ~ HOT0
+    buck.SW ~ BUCK_SW
+    buck.BOOT ~ BUCK_BOOT
+    buck.FB ~ BUCK_FB
+    buck.EN ~ BUCK_EN
+
+    # VIN decoupling remains downstream of the AUX cutoff. Two 10 uF
+    # nominal 50 V X7R parts require an effective-capacitance check at 15 V.
+    cin_a = new HotLogic5Cin38
+    cin_a.value = 10uF
+    cin_a.p1 ~ AUX_PROTECTED
+    cin_a.p2 ~ HOT0
+    cin_b = new HotLogic5Cin38
+    cin_b.value = 10uF
+    cin_b.p1 ~ AUX_PROTECTED
+    cin_b.p2 ~ HOT0
+    cin_hf = new HotLogic5C100n38
+    cin_hf.value = 100nF
+    cin_hf.p1 ~ AUX_PROTECTED
+    cin_hf.p2 ~ HOT0
+
+    # EN is rated only to 5.5 V in operation; it cannot join 15 V directly.
+    # The TI reference's 510 k/105 k external UVLO divider is a starting
+    # point, not the safety rail-good producer.
+    en_top = new HotLogic5R510k38
+    en_top.value = 510kohm
+    en_top.p1 ~ AUX_PROTECTED
+    en_top.p2 ~ BUCK_EN
+    en_bottom = new HotLogic5R105k38
+    en_bottom.value = 105kohm
+    en_bottom.p1 ~ BUCK_EN
+    en_bottom.p2 ~ HOT0
+
+    boot_c = new HotLogic5C100n38
+    boot_c.value = 100nF
+    boot_c.p1 ~ BUCK_BOOT
+    boot_c.p2 ~ BUCK_SW
+
+    inductor = new HotLogic5Inductor38
+    inductor.value = 15uH
+    inductor.p1 ~ BUCK_SW
+    inductor.p2 ~ HOT_LOGIC5
+    cout_a = new HotLogic5Cout38
+    cout_a.value = 22uF
+    cout_a.p1 ~ HOT_LOGIC5
+    cout_a.p2 ~ HOT0
+    cout_b = new HotLogic5Cout38
+    cout_b.value = 22uF
+    cout_b.p1 ~ HOT_LOGIC5
+    cout_b.p2 ~ HOT0
+
+    # Kelvin sense at the output capacitor, away from BUCK_SW. The
+    # feedforward capacitor is across the upper feedback resistor.
+    fb_top = new HotLogic5R100k38
+    fb_top.value = 100kohm
+    fb_top.p1 ~ HOT_LOGIC5
+    fb_top.p2 ~ BUCK_FB
+    fb_bottom = new HotLogic5R13k3_38
+    fb_bottom.value = 13.3kohm
+    fb_bottom.p1 ~ BUCK_FB
+    fb_bottom.p2 ~ HOT0
+    fb_ff = new HotLogic5C75p38
+    fb_ff.value = 75pF
+    fb_ff.p1 ~ HOT_LOGIC5
+    fb_ff.p2 ~ BUCK_FB

@@ -1,6 +1,10 @@
 # Rev38 TPS26601 AUX cutoff window
 
-Status: **static divider screen only; protected AUX selection OPEN**. This
+Status: **LTC4368 cutoff candidate now joined; protected AUX acceptance OPEN**. The selected
+20 kΩ/590 Ω OV and 20 kΩ/806 Ω UV divider screens, FDS3992/shunt path,
+startup accounting and remaining physical gates are in
+[AUX-CUTOFF-CANDIDATE.md](AUX-CUTOFF-CANDIDATE.md). The alternative screens
+below record why earlier choices were set aside. This
 checks the proposed TPS26601RHFT after the TPS7A4701 15 V regulator. It does
 not bound a regulator pass-through transient, the eFuse output peak, or the
 driver voltage. The historical supply and Rev38 loads have not been joined.

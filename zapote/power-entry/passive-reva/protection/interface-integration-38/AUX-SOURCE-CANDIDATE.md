@@ -1,9 +1,9 @@
 # Rev38 protected AUX source decision record
 
-Status: **regulated 24 V route selected for digital candidate; protected
-producer and U4 acceptance OPEN**. The IRM-20-24 raw source and a populated
-15 V pre-cutoff buck candidate are joined. The disconnect and 5 V converter
-are not. This is a construction choice for the digital/native candidate, not electrical
+Status: **regulated 24 V route selected and joined for a digital candidate;
+protected-output and U4 acceptance OPEN**. The IRM-20-24 raw source, 15 V
+pre-cutoff buck, LTC4368-2 cutoff and TPS54202 5 V converter are joined.
+This is a construction choice for the digital/native candidate, not electrical
 qualification. No AC/DC overvoltage trigger or controller static threshold
 is credited as a bound on the driver pin during a fault.
 
@@ -18,9 +18,9 @@ bench comparison; its conditional 50 °C voltage screen leaves only 62.5 mV
 before disconnect and wiring losses, versus 388/411 mV low/high in the
 joined regulator's illustrative feedback-only temperature screen. The
 comparison does not establish a guaranteed
-normal window or fault peak for either path. The LTC4368 is a **static-window
-candidate only** until FETs, shunt, divider, startup and dynamic behavior
-are selected and tested. The historical IRM-10-24/LDO chain is a reference,
+normal window or fault peak for either path. The [selected LTC4368 candidate](AUX-CUTOFF-CANDIDATE.md)
+has exact FET, shunt, divider and gate parts but remains a **static-window
+candidate only** until startup, SOA and dynamic behavior are tested. The historical IRM-10-24/LDO chain is a reference,
 not a parallel or fallback power path.
 
 | Proposed source boundary | Destination | Status |
@@ -28,9 +28,9 @@ not a parallel or fallback power path.
 | `ac_input.CMC_L_OUT` → off-board AUX fuse → `AUX_FUSED_L`; `ac_input.AC_RECT_N` → IRM AC/N (after CMC, before main-path NTC) | IRM-20 `AC/L`, `AC/N` | **Proposal**; two-conductor branch-loop terminal and off-board cartridge/block are nominated below; inrush, fault energy and assembly segregation remain open |
 | IRM-20-24 pad 4 `+V`, pad 3 `-V` | `RAW_AUX24`, `HOT0` | **Compiled pin candidate**; physical orientation remains unverified. Bonding its isolated DC return to the bridge/HOT return makes this rail HOT, never SELV. |
 | `RAW_AUX24`, `HOT0` | LMR36015BRNXT adjustable buck | **Joined candidate** to `AUX15_PRECUT`; exact pins and input/output passives audited, electrical window and loop stability unqualified. |
-| `AUX15_PRECUT`, `HOT0` | LTC4368 `VIN` and ground | **Proposal**; disconnect not joined, with no alternate feed around it. |
-| Disconnect output, `HOT0` | `AUX_PROTECTED`, `HOT0` | Required Rev38 driver, relay, PFC and window producer |
-| `AUX_PROTECTED`, `HOT0` | TPS54202 input; its 5 V output | Required `HOT_LOGIC5`, `HOT0` producer; buck input must be downstream of cutoff |
+| `AUX15_PRECUT`, `HOT0` | LTC4368 `VIN`/SHDN, FDS3992 upstream drain, UV/OV dividers | **Joined candidate**; exact pins audited, no alternate feed around cutoff. Fault peak and startup OPEN. |
+| FDS3992 downstream drain → 50 mΩ shunt, `HOT0` | `AUX_PROTECTED`, `HOT0` | **Joined candidate** feeding Rev38 driver, relay, PFC and window. Current/thermal acceptance OPEN. |
+| `AUX_PROTECTED`, `HOT0` | TPS54202 input; 15 µH and 44 µF nominal output network to `HOT_LOGIC5` | **Joined candidate**; exact pins audited. Load, effective capacitance, startup and output window OPEN. |
 
 The `IRM-20` data sheet's bottom-view mechanical drawing labels AC/L,
 AC/N, +V and −V but does not give a numbered pin table. The installed
@@ -99,7 +99,7 @@ The 1.4 A rating is a module output rating at the manufacturer's conditions, not
 
 ## Cutoff and startup constraints
 
-The [LTC4368 static calculation](AUX-OVP-WINDOW.md) rejected the earlier
+The [earlier LTC4368 static calculation](AUX-OVP-WINDOW.md) rejected the
 339 kΩ/10 kΩ OV illustration as a part-selection basis: its 339 kΩ top
 resistor falls outside the cited TNPU ±2 ppm/K grade. A mathematical-only
 17 kΩ/500 Ω divider fits that published resistance range. With the stated
@@ -108,14 +108,16 @@ its minimum recovery is **16.0112 V** and maximum rising trip is
 **17.8804 V**. Against the conditional `15.575 V` 25 °C source screen,
 static recovery margin is **436.2 mV**; against its `15.6875 V` 50 °C screen,
 the margin is **323.7 mV**. Against the provisional 18.0 V cutoff target,
-static rising margin is **119.6 mV**. These calculations do not select a
-stock-verified ratio network or account for board leakage, source output
-fault slew, MOSFET charge and SOA, or downstream stored charge. The
+static rising margin is **119.6 mV**. Those 17 kΩ/500 Ω calculations did not
+select a stock-verified ratio network. The joined
+[20 kΩ/590 Ω divider and cutoff candidate](AUX-CUTOFF-CANDIDATE.md)
+supersede them for Rev38. Neither calculation accounts for board leakage,
+source output fault slew, MOSFET charge and SOA, or downstream stored charge. The
 17.25–20.25 V IRM OVP figure is an internal trigger, and may occur before
 or after the LTC threshold; it is never credited as a bound on
 `AUX_PROTECTED`.
 
-The LTC4368 uses external back-to-back MOSFETs, a sense resistor and a 32 ms reconnection delay after a UV/OV fault. Its published fast GATE discharge is fixture-dependent; the output can remain high while its downstream capacitors hold charge. `RETRY` behavior for overcurrent, `SHDN` control, UV threshold, gate pull-up time, and short/restart energy must be chosen as one design. The required `VOUT` bypass is at least 1 µF per the data sheet; the Rev38 downstream capacitors and 5 V buck add unknown inrush. A sense threshold must exceed the worst startup and run current but protect the selected FETs and branch. No such mutually valid range is established yet.
+The LTC4368 uses external back-to-back MOSFETs, a sense resistor and a 32 ms **typical** reconnection delay after a UV/OV fault (22–45 ms at the specified fixture). Its published fast GATE discharge is fixture-dependent; the output can remain high while its downstream capacitors hold charge. The selected RETRY-to-GND latch, SHDN-to-VIN control, UV threshold, gate network and sense shunt now have exact circuit parts, but short/restart energy and the power-cycle reset waveform remain unverified. The required `VOUT` bypass is at least 1 µF effective per the data sheet; the joined 30.6 µF nominal protected-rail capacitance and 5 V buck add inrush. A sense threshold must exceed the worst startup and run current but protect the selected FETs and branch. No such mutually valid range is established yet.
 
 The direct AC/DC source's listed 1000 ms setup at 115 Vac/full load and typical 8 ms hold-up cannot be used as a 1 s command timeout or an 8 ms safety hold-up guarantee. During startup `HOT_RUN_Q` and the relay must remain low until both HOT rails and receiver health are proven; on source collapse the driver EN shunt and retained trip must remove gate permission before their own control limits are lost. Test that rail order with the AVR reset and ESP isolation states, including brownout, repeated mains dips, IRM overload hiccup, cutoff recovery, and an output short.
 
@@ -189,7 +191,7 @@ load-transient and loop-gain validation before production. The inductor
 footprint remains a native-review placeholder. The audit uses generated BOM
 MPNs because Atopile's netlist can alias different MPNs sharing one footprint.
 
-## Decision gates before joining
+## Decision gates before physical acceptance
 
 1. Measure or bound actual worst Rev38 AUX and logic5 steady, pulsed and startup currents, including gate-charge at the selected switching frequency, relay pickup and all capacitor effective values. Set an explicit supply current ceiling and compare both IRM thermal derating and voltage-window closure at **measured local** ambient, not the 40 °C inlet assumption. The direct source's 62.5 mV 50 °C screen may require the regulated path or a revised rail contract.
 2. Verify the candidate KiCad pin/footprint mapping against the physical
@@ -198,13 +200,11 @@ MPNs because Atopile's netlist can alias different MPNs sharing one footprint.
    creepage/clearance, installation spacing and F1/IRM inrush coordination
    on a native layout. The module's independent safety approvals do not
    certify the joined appliance.
-3. Select orderable LTC4368 variant, FETs, shunt, precision OV and UV networks, RETRY/SHDN behavior and capacitors. Prove startup without overcurrent latch/hiccup, with the source's slew and the actual load. Recompute every static divider corner from those selections.
+3. Resolve authorized procurement and physical footprints for the joined LTC4368 variant, FETs, shunt, precision OV and UV networks, RETRY/SHDN behavior and capacitors. Prove startup without overcurrent latch/hiccup, with the source's slew and the actual load. Verify the [selected static divider screen](AUX-CUTOFF-CANDIDATE.md) against measured source, PCB and temperature effects.
 4. Capture the selected raw source (`AUX15_SOURCE` or `RAW_AUX24`), the 15 V buck output if fitted, `AUX_PROTECTED`, UCC27624 `VDD`, `HOT_LOGIC5`, ENA, gate voltage and MOSFET current for slow OV ramps and fast source faults, UV/brownout, overload, cold/warm repeated starts and loss of HOT logic. Bound peak voltage, time to gate disable and recovery. Include FET SOA and capacitor energy.
 
-**Integration decision:** `RAW_AUX24` is now a joined source pin candidate
-and `AUX15_PRECUT` is a joined converter output candidate. Keep
-`AUX_PROTECTED` and `HOT_LOGIC5` as unproduced ports until gates 1–3 qualify
-the regulator's electrical behavior and define and audit the cutoff and 5 V module;
-keep fault-response acceptance OPEN until gate 4 is measured on joined
-hardware. The direct 15 V path is a comparison, not the selected digital
-route. No protected Rev38 producer is selected yet.
+**Integration decision:** `RAW_AUX24`, `AUX15_PRECUT`, `AUX_PROTECTED` and
+`HOT_LOGIC5` now have one joined source-chain candidate with exact-pin audit.
+Keep U4/U7 supply and fault-response acceptance OPEN until the gates above
+are measured on joined hardware. The direct 15 V path remains a bench
+comparison, not the selected digital route.

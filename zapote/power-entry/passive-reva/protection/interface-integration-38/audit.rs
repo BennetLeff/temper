@@ -161,6 +161,14 @@ fn with_bom_parts(mut g: Graph, csv_path: &str, prefix: &str) -> Result<Graph, S
     Ok(g)
 }
 
+fn joined_bom_graph() -> Result<Graph, String> {
+    let mut g = graph(&fs::read_to_string("build/integrated.net").map_err(|e| e.to_string())?)?;
+    for prefix in ["hot15_converter.", "aux_cutoff.", "hot_logic5_converter."] {
+        g = with_bom_parts(g, "build/integrated.csv", prefix)?;
+    }
+    Ok(g)
+}
+
 fn members(g: &Graph, net: &str) -> BTreeSet<(String, String)> {
     g.pins.iter().filter(|(_, name)| name.as_str() == net)
         .map(|(pin, _)| pin.clone()).collect()
@@ -875,6 +883,75 @@ fn check_hot15_converter(g: &Graph) -> Result<(), String> {
     Ok(())
 }
 
+fn check_aux_cutoff(g: &Graph) -> Result<(), String> {
+    if g.parts.len() != 10 { return Err(format!("expected 10 AUX cutoff parts, found {}", g.parts.len())); }
+    for (id, mpn) in [
+        ("cutoff", "LTC4368HMS-2#PBF"), ("fets", "FDS3992"),
+        ("sense", "WSL2512R0500FTA"),
+        ("uv_top", "TNPU060320K0AWEN00"), ("uv_bottom", "TNPU0603806RAZEN00"),
+        ("ov_top", "TNPU060320K0AWEN00"), ("ov_bottom", "TNPU0603590RAZEN00"),
+        ("r_gate", "RC0603FR-0722KL"), ("c_gate", "GRM188R72A103KA01D"),
+        ("c_out", "GCM31CC71H475KA03L"),
+    ] {
+        if g.parts.get(id).map(String::as_str) != Some(mpn) {
+            return Err(format!("wrong AUX cutoff part identity for {id}"));
+        }
+    }
+    for (net, expected) in [
+        ("aux15_precut", "cutoff:1 cutoff:6 fets:7 fets:8 uv_top:1 ov_top:1"),
+        ("hot0", "cutoff:4 cutoff:5 uv_bottom:2 ov_bottom:2 c_gate:2 c_out:2"),
+        ("aux_protected", "cutoff:8 sense:2 c_out:1"),
+        ("uv_node", "cutoff:2 uv_top:2 uv_bottom:1"),
+        ("ov_node", "cutoff:3 ov_top:2 ov_bottom:1"),
+        ("fet_source", "fets:2 fets:4"),
+        ("fet_gate", "cutoff:10 fets:1 fets:3 r_gate:1"),
+        ("gate_cap_top", "r_gate:2 c_gate:1"),
+        ("sense_upstream", "cutoff:9 fets:5 fets:6 sense:1"),
+        ("fault", "cutoff:7"),
+    ] {
+        let wanted: BTreeSet<(String, String)> = expected.split_whitespace().map(|pin| {
+            let (id, number) = pin.split_once(':').expect("static AUX cutoff pin mapping");
+            (id.to_owned(), number.to_owned())
+        }).collect();
+        if members(g, net) != wanted { return Err(format!("wrong AUX cutoff membership on {net}")); }
+    }
+    Ok(())
+}
+
+fn check_hot_logic5_converter(g: &Graph) -> Result<(), String> {
+    if g.parts.len() != 13 { return Err(format!("expected 13 HOT logic5 parts, found {}", g.parts.len())); }
+    for (id, mpn) in [
+        ("buck", "TPS54202DDCR"),
+        ("cin_a", "C3225X7R1H106K250AC"), ("cin_b", "C3225X7R1H106K250AC"),
+        ("cin_hf", "GRM188R71H104KA93D"),
+        ("en_top", "CRCW0603510KJNEA"), ("en_bottom", "CRCW0603105KFKEA"),
+        ("boot_c", "GRM188R71H104KA93D"), ("inductor", "XGL6060-153MEC"),
+        ("cout_a", "C3225X7R1E226M250AB"), ("cout_b", "C3225X7R1E226M250AB"),
+        ("fb_top", "ERA3AEB104V"), ("fb_bottom", "ERA3AEB1332V"),
+        ("fb_ff", "GRM1885C1H750JA01D"),
+    ] {
+        if g.parts.get(id).map(String::as_str) != Some(mpn) {
+            return Err(format!("wrong HOT logic5 part identity for {id}"));
+        }
+    }
+    for (net, expected) in [
+        ("aux_protected", "buck:3 cin_a:1 cin_b:1 cin_hf:1 en_top:1"),
+        ("hot0", "buck:1 cin_a:2 cin_b:2 cin_hf:2 en_bottom:2 cout_a:2 cout_b:2 fb_bottom:2"),
+        ("hot_logic5", "inductor:2 cout_a:1 cout_b:1 fb_top:1 fb_ff:1"),
+        ("buck_sw", "buck:2 boot_c:2 inductor:1"),
+        ("buck_boot", "buck:6 boot_c:1"),
+        ("buck_fb", "buck:4 fb_top:2 fb_bottom:1 fb_ff:2"),
+        ("buck_en", "buck:5 en_top:2 en_bottom:1"),
+    ] {
+        let wanted: BTreeSet<(String, String)> = expected.split_whitespace().map(|pin| {
+            let (id, number) = pin.split_once(':').expect("static HOT logic5 pin mapping");
+            (id.to_owned(), number.to_owned())
+        }).collect();
+        if members(g, net) != wanted { return Err(format!("wrong HOT logic5 membership on {net}")); }
+    }
+    Ok(())
+}
+
 fn preserved_joined_nets(g: &Graph, standalone: &Graph, prefix: &str) -> Result<(), String> {
     let mut joined_nets: BTreeMap<&str, &str> = BTreeMap::new();
     for net in standalone.pins.values().collect::<BTreeSet<_>>() {
@@ -924,10 +1001,20 @@ fn check_integrated_with_mcu(g: &Graph, hot: &Graph, source: &Graph, source_mcu:
         "build/hot15_converter.csv", "",
     )?;
     check_hot15_converter(&hot15)?;
-    if g.parts.len() != hot.parts.len() + source.parts.len() + source_mcu.parts.len() + driver.parts.len() + hot_wd.parts.len() + rails.parts.len() + f2.parts.len() + aux.parts.len() + pfc.parts.len() + power.parts.len() + ac.parts.len() + hot15.parts.len() {
+    let cutoff = with_bom_parts(
+        graph(&fs::read_to_string("build/aux_cutoff.net").map_err(|e| e.to_string())?)?,
+        "build/aux_cutoff.csv", "",
+    )?;
+    let logic5 = with_bom_parts(
+        graph(&fs::read_to_string("build/hot_logic5_converter.net").map_err(|e| e.to_string())?)?,
+        "build/hot_logic5_converter.csv", "",
+    )?;
+    check_aux_cutoff(&cutoff)?;
+    check_hot_logic5_converter(&logic5)?;
+    if g.parts.len() != hot.parts.len() + source.parts.len() + source_mcu.parts.len() + driver.parts.len() + hot_wd.parts.len() + rails.parts.len() + f2.parts.len() + aux.parts.len() + pfc.parts.len() + power.parts.len() + ac.parts.len() + hot15.parts.len() + cutoff.parts.len() + logic5.parts.len() {
         return Err("joined part count differs from the standalone fixtures".into());
     }
-    for (prefix, standalone) in [("receiver", hot), ("source", source), ("source_mcu", source_mcu), ("driver", driver), ("hot_watchdog", hot_wd), ("hot_rails", rails), ("f2_detector", f2), ("aux_window", aux), ("pfc_control", pfc), ("pfc_power", power), ("ac_input", ac), ("hot15_converter", &hot15)] {
+    for (prefix, standalone) in [("receiver", hot), ("source", source), ("source_mcu", source_mcu), ("driver", driver), ("hot_watchdog", hot_wd), ("hot_rails", rails), ("f2_detector", f2), ("aux_window", aux), ("pfc_control", pfc), ("pfc_power", power), ("ac_input", ac), ("hot15_converter", &hot15), ("aux_cutoff", &cutoff), ("hot_logic5_converter", &logic5)] {
         for (id, part) in &standalone.parts {
             if g.parts.get(&format!("{prefix}.{id}")) != Some(part) {
                 return Err(format!("joined part identity differs at {prefix}.{id}"));
@@ -1081,6 +1168,26 @@ fn check_integrated_with_mcu(g: &Graph, hot: &Graph, source: &Graph, source_mcu:
             return Err(format!("missing AC input join {left_id}.{left_pin} to {right_id}.{right_pin}"));
         }
     }
+    for (left_id, left_pin, right_id, right_pin) in [
+        ("hot15_converter.inductor", "2", "aux_cutoff.cutoff", "1"),
+        ("aux_cutoff.cutoff", "8", "driver.driver", "6"),
+        ("aux_cutoff.cutoff", "8", "hot_logic5_converter.buck", "3"),
+        ("hot_logic5_converter.inductor", "2", "receiver.rx", "28"),
+        ("aux_cutoff.cutoff", "5", "receiver.rx", "19"),
+        ("hot_logic5_converter.buck", "1", "receiver.rx", "19"),
+    ] {
+        let left = g.pins.get(&(left_id.into(), left_pin.into()));
+        let right = g.pins.get(&(right_id.into(), right_pin.into()));
+        if left.is_none() || left != right {
+            return Err(format!("missing AUX/logic5 join {left_id}.{left_pin} to {right_id}.{right_pin}"));
+        }
+    }
+    let precut = g.pins.get(&("aux_cutoff.cutoff".into(), "1".into()));
+    let protected = g.pins.get(&("aux_cutoff.cutoff".into(), "8".into()));
+    let logic5_out = g.pins.get(&("hot_logic5_converter.inductor".into(), "2".into()));
+    if precut.is_none() || precut == protected || protected == logic5_out || precut == logic5_out {
+        return Err("AUX cutoff or 5 V conversion bypassed".into());
+    }
     // Net names change at module boundaries. Internal conductors must stay
     // intact and two previously distinct conductors must not become one.
     preserved_joined_nets(g, source, "source")?;
@@ -1094,6 +1201,8 @@ fn check_integrated_with_mcu(g: &Graph, hot: &Graph, source: &Graph, source_mcu:
     preserved_joined_nets(g, power, "pfc_power")?;
     preserved_joined_nets(g, ac, "ac_input")?;
     preserved_joined_nets(g, &hot15, "hot15_converter")?;
+    preserved_joined_nets(g, &cutoff, "aux_cutoff")?;
+    preserved_joined_nets(g, &logic5, "hot_logic5_converter")?;
     for (left_id, left_pin, right_id, right_pin) in [
         ("receiver.iso_protocol", "13", "receiver.rx", "10"),
         ("receiver.iso_feedback", "12", "receiver.iso_protocol", "13"),
@@ -1153,10 +1262,15 @@ fn main() {
         graph(&fs::read_to_string("build/hot15_converter.net").expect("Atopile HOT 15 V netlist"))
             .expect("HOT 15 V netlist parse"), "build/hot15_converter.csv", "",
     ).expect("HOT 15 V BOM identity");
-    let integrated = with_bom_parts(
-        graph(&fs::read_to_string("build/integrated.net").expect("Atopile joined netlist"))
-            .expect("joined netlist parse"), "build/integrated.csv", "hot15_converter.",
-    ).expect("joined HOT 15 V BOM identity");
+    let cutoff = with_bom_parts(
+        graph(&fs::read_to_string("build/aux_cutoff.net").expect("Atopile AUX cutoff netlist"))
+            .expect("AUX cutoff netlist parse"), "build/aux_cutoff.csv", "",
+    ).expect("AUX cutoff BOM identity");
+    let logic5 = with_bom_parts(
+        graph(&fs::read_to_string("build/hot_logic5_converter.net").expect("Atopile HOT logic5 netlist"))
+            .expect("HOT logic5 netlist parse"), "build/hot_logic5_converter.csv", "",
+    ).expect("HOT logic5 BOM identity");
+    let integrated = joined_bom_graph().expect("joined BOM identity");
     check(&hot).expect("isolation pin audit");
     check_source(&source).expect("source pin audit");
     check_source_mcu(&source_mcu).expect("source MCU pin audit");
@@ -1169,8 +1283,10 @@ fn main() {
     check_pfc_power(&power).expect("PFC power pin audit");
     check_ac_input(&ac).expect("AC input pin audit");
     check_hot15_converter(&hot15).expect("HOT 15 V pin audit");
+    check_aux_cutoff(&cutoff).expect("AUX cutoff pin audit");
+    check_hot_logic5_converter(&logic5).expect("HOT logic5 pin audit");
     check_integrated_with_mcu(&integrated, &hot, &source, &source_mcu, &driver, &hot_wd, &rails, &f2, &aux, &pfc, &power, &ac).expect("Rev38 join audit");
-    println!("partial Rev38 joined source/receiver/AC/PFC/driver/protection pin audit PASS");
+    println!("partial Rev38 joined source/receiver/AC/PFC/driver/AUX/logic5 pin audit PASS");
 }
 
 #[cfg(test)]
@@ -1222,8 +1338,7 @@ mod tests {
     }
 
     fn integrated_fixture() -> Graph {
-        with_bom_parts(graph(&fs::read_to_string("build/integrated.net").unwrap()).unwrap(),
-            "build/integrated.csv", "hot15_converter.").unwrap()
+        joined_bom_graph().unwrap()
     }
 
     fn hot15_fixture() -> Graph {
@@ -1231,9 +1346,76 @@ mod tests {
             "build/hot15_converter.csv", "").unwrap()
     }
 
+    fn cutoff_fixture() -> Graph {
+        with_bom_parts(graph(&fs::read_to_string("build/aux_cutoff.net").unwrap()).unwrap(),
+            "build/aux_cutoff.csv", "").unwrap()
+    }
+
+    fn logic5_fixture() -> Graph {
+        with_bom_parts(graph(&fs::read_to_string("build/hot_logic5_converter.net").unwrap()).unwrap(),
+            "build/hot_logic5_converter.csv", "").unwrap()
+    }
+
     #[test]
     fn compiled_source_receiver_join_passes() {
         check_integrated(&integrated_fixture(), &fixture(), &source_fixture(), &driver_fixture(), &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(), &pfc_fixture(), &power_fixture(), &ac_fixture()).unwrap();
+    }
+
+    #[test]
+    fn compiled_aux_cutoff_and_logic5_pins_pass() {
+        check_aux_cutoff(&cutoff_fixture()).unwrap();
+        check_hot_logic5_converter(&logic5_fixture()).unwrap();
+    }
+
+    #[test]
+    fn cutoff_pre_and_post_short_is_rejected() {
+        let mut g = integrated_fixture();
+        let precut = g.pins[&("aux_cutoff.cutoff".into(), "1".into())].clone();
+        g.pins.insert(("aux_cutoff.cutoff".into(), "8".into()), precut);
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(),
+            &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(),
+            &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
+    }
+
+    #[test]
+    fn cutoff_sense_bypass_is_rejected() {
+        let mut g = cutoff_fixture();
+        let output = g.pins[&("sense".into(), "2".into())].clone();
+        g.pins.insert(("sense".into(), "1".into()), output);
+        assert!(check_aux_cutoff(&g).is_err());
+    }
+
+    #[test]
+    fn cutoff_gate_disconnect_is_rejected() {
+        let mut g = cutoff_fixture();
+        g.pins.insert(("fets".into(), "3".into()), "open_gate".into());
+        assert!(check_aux_cutoff(&g).is_err());
+    }
+
+    #[test]
+    fn cutoff_uv_ov_swap_is_rejected() {
+        let mut g = cutoff_fixture();
+        let ov = g.pins[&("cutoff".into(), "3".into())].clone();
+        g.pins.insert(("cutoff".into(), "2".into()), ov);
+        assert!(check_aux_cutoff(&g).is_err());
+    }
+
+    #[test]
+    fn logic5_switch_output_short_is_rejected() {
+        let mut g = logic5_fixture();
+        let output = g.pins[&("inductor".into(), "2".into())].clone();
+        g.pins.insert(("buck".into(), "2".into()), output);
+        assert!(check_hot_logic5_converter(&g).is_err());
+    }
+
+    #[test]
+    fn logic5_input_pre_cutoff_bypass_is_rejected() {
+        let mut g = integrated_fixture();
+        let precut = g.pins[&("aux_cutoff.cutoff".into(), "1".into())].clone();
+        g.pins.insert(("hot_logic5_converter.buck".into(), "3".into()), precut);
+        assert!(check_integrated(&g, &fixture(), &source_fixture(), &driver_fixture(),
+            &hot_watchdog_fixture(), &hot_rails_fixture(), &f2_fixture(), &aux_fixture(),
+            &pfc_fixture(), &power_fixture(), &ac_fixture()).is_err());
     }
 
     #[test]

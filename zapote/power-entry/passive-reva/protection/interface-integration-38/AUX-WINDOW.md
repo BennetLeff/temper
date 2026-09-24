@@ -2,8 +2,10 @@
 
 Status: **compiled pin topology; thresholds and response acceptance OPEN**.
 The [source decision](AUX-SOURCE-CANDIDATE.md) now joins the IRM-20-24 raw
-source and its 15 V pre-cutoff converter as the regulated-route digital
-candidate; protected AUX and HOT logic5 producers remain open. The direct 15 V comparison's conditional
+source, its 15 V pre-cutoff converter, the [AUX cutoff](AUX-CUTOFF-CANDIDATE.md)
+and the [HOT logic5 converter](HOT-LOGIC5-CONVERTER.md) as a regulated-route
+digital candidate. All supply electrical and physical acceptance remains
+open. The direct 15 V comparison's conditional
 50 °C screen leaves only 62.5 mV on each side of Rev38's assumed
 14.25–15.75 V normal window before protection-path loss. Its 25 °C
 nominal voltage is insufficient to choose it as the joined source.
@@ -38,7 +40,7 @@ current must be included in a worst-case physical response bound.
 The standalone and joined Atopile builds pass. `audit.rs` checks both
 dividers, comparator polarity, reference join, AUX supply join, separate
 push-pull outputs and the HCS21 fan-in; deliberate opens and swaps fail.
-The AUX source itself is still an external port, and no native footprint or
+The protected AUX source is joined in Atopile but no native footprint or
 powered result is approved.
 
 ## Load budget required before selecting the AUX producer
@@ -92,12 +94,14 @@ available; the 40 °C inlet requirement does not imply a 40 °C device ambient.
 
 ## Joined-load worksheet for the source decision
 
-The current joined source has exactly four direct AUX consumer classes:
-the relay/known passive paths, UCC28180 VCC, UCC27624 VDD and the still
-unjoined HOT logic5 converter input. `driver_stage.ato` also places 4.7 µF
+The current joined source has four direct AUX consumer classes:
+the relay/known passive paths, UCC28180 VCC, UCC27624 VDD and the
+joined HOT logic5 converter input. `driver_stage.ato` also places 4.7 µF
 and 0.1 µF nominal bypass on AUX; `pfc_controller.ato` adds 1 µF. Those
-**5.8 µF nominal** capacitors exclude the converter input, cutoff-required
-output bypass, wiring and effective-value tolerances. They are charge loads
+**5.8 µF nominal** capacitors plus the converter's **20.1 µF nominal** input
+and cutoff's **4.7 µF nominal** output capacitor total **30.6 µF nominal**
+directly downstream of the cutoff. Wiring and effective-value tolerances
+remain additional. These capacitors are charge loads
 during startup, not steady current. The source comparison is in
 [AUX-SOURCE-CANDIDATE.md](AUX-SOURCE-CANDIDATE.md).
 
@@ -106,8 +110,8 @@ during startup, not steady current. The source comparison is in
 | Relay plus named passive paths | About 41.50 mA at 15.75 V with nominal resistances and relay energized; zero relay current before pickup | Coil/resistor temperature and tolerance, switching state, and pickup/dropout waveform |
 | UCC28180 VCC | [TI specifies 8 mA maximum](https://www.ti.com/lit/ds/symlink/ucc28180.pdf) at its 15 V/4.7 nF gate-load fixture | Reconcile its `GATE` driving this circuit's input rather than that fixture, and the selected 16.2 kΩ FREQ resistor's switching-frequency corners |
 | UCC27624 VDD | [TI specifies 1.0 mA maximum static](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) at the stated 12 V/no-output-load fixture; switching current includes `Qg × fSW` | Bound at actual 14.25–15.75 V VDD, actual STW gate charge versus voltage/current/temperature, selected `fSW`, and gate-loop loss. The STW sheet's 120 nC at 10 V is typical only. |
-| HOT logic5 converter input | No converter is joined; old 75 mA logic5 allowance is historical | Sum every joined 5 V consumer at its qualified mode/temperature, converter quiescent current and worst-case efficiency, then measure startup and overlapping load steps |
-| Cutoff and wiring | LTC4368/FET/shunt are only candidates | Controller bias, divider currents, path drop, output capacitance, current-limit and short/retry energy |
+| HOT logic5 converter input | TPS54202 candidate is joined; old 75 mA logic5 allowance is historical | Sum every joined 5 V consumer at its qualified mode/temperature, converter quiescent current and worst-case efficiency, then measure startup and overlapping load steps |
+| Cutoff and wiring | LTC4368/FDS3992/50 mΩ shunt candidate is joined | Controller bias, divider currents, path drop, effective output capacitance, current-limit and short/latch energy |
 
 The selection equation is
 `I_AUX_run = I_relay+passive + I_PFC + I_driver_static + Qg_max × fSW_max + I_5V_input + I_cutoff + I_other`.
@@ -123,8 +127,8 @@ window or fast-fault driver-pin peak.
 ### HOT logic5 census from the joined netlist
 
 The generated `build/integrated.net` with SHA-256
-`f463446724648946bc550ea2eb608027a89e03f44475bdb447179f36ca49a890`
-has 86 pin nodes on `hot_logic5`, belonging to 60 distinct components.
+`aa7f4d8c1434bd174197d74e09b5aa9f33f04311c6736ee84fd`
+has 91 pin nodes on `hot_logic5`, belonging to 65 distinct components.
 The count is a **connectivity inventory**, not a current measurement or a
 guaranteed load bound. Re-run it whenever the joined source changes.
 
@@ -136,11 +140,13 @@ guaranteed load bound. Re-run it whenever the joined source changes.
 | TLV3202IDR / TPS389001DSER | 3 / 2 | Comparator/supervisor bias and output loading over the rail/fault sequence |
 | Other logic and watchdog | 6: one each SN74LV221AQPWRQ1, SN74LVC1G08DBVR, SN74LVC1G06DBVR, TPS3431SDRBR, SN74HCS04PWR and SN74HCS00PWR | Static/switching current, output loading and watchdog service states |
 | GRM188R71H104KA93D local bypass | 25 × 0.1 µF nominal | **2.5 µF nominal** is already tied from HOT_LOGIC5 to HOT0; add converter output capacitance and effective-value corners before an inrush calculation |
+| TPS54202 output network | 2 × 22 µF output capacitors, 1 × 15 µH inductor, 1 feedback resistor and 1 feedforward capacitor on HOT_LOGIC5 | 46.5 µF nominal rail bank including the 2.5 µF local bypass; actual effective capacitance, 5 V load and upstream charge profile OPEN |
 | RC0603FR-0710KL pull resistors | 9 × 10 kΩ nominal | Up to 4.5 mA in the artificial all-low, ideal-5 V/nominal-R state; determine mutually reachable states and resistor/rail corners |
 | RC0603FR-07294KL | 1 × 294 kΩ nominal | Determine its other node and state; at most 17 µA in the same ideal-5 V/grounded-end arithmetic screen |
 
-The 25 active ICs are `1 + 2 + 6 + 5 + 3 + 2 + 6`; the 25 capacitors and 10
-resistors complete the 60 components. This inventory counts only pins
+The 25 active ICs are `1 + 2 + 6 + 5 + 3 + 2 + 6`; the original 25 local
+capacitors and 10 resistors plus the five new converter-output components
+complete the 65 components. This inventory counts only pins
 directly on the 5 V net; any load
 reached through a resistor or output, and the converter's own losses, still
 need a state-by-state tally.
@@ -156,12 +162,12 @@ The ESP adapter currently configures UART1 at 115200 baud, but the remaining
 isolator channels have independent activity and static states. Determine the
 mixed-voltage current bound or measure it in the relevant modes.
 
-Before selecting the TPS54202 output network and LTC4368 sense resistor,
+Before qualifying the TPS54202 output network and LTC4368 sense resistor,
 measure `I_5V(t)` with the complete receiver and isolation loads through
 power-up, reset, run, disarm and fault. Separately capture the `AUX_PROTECTED`
-input current while the converter charges the 2.5 µF nominal bypass plus
-its required output capacitor. Integrate each startup waveform and compare
+input current while the converter charges the 46.5 µF nominal 5 V bank.
+Integrate each startup waveform and compare
 its overlapping peak with relay pickup, PFC/gate-driver startup, the cutoff
 trip threshold and the source overload/retry behavior. The 5 V capacitor
-charge is 12.5 µC at nominal values and exactly 5 V, before the converter
-output capacitor; it is not an AUX-input charge or a peak-current bound.
+charge is 232.5 µC at nominal values and exactly 5 V; it is not an AUX-input
+charge or a peak-current bound.

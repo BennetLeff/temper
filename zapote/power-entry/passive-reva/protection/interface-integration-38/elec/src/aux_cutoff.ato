@@ -1,0 +1,170 @@
+# Rev38 15 V pre-cutoff to protected HOT AUX engineering candidate.
+# Static UV/OV endpoints are screened separately. The FET SOA, valid-start
+# waveform, fault peak, thermal path and recovery remain physical OPEN gates.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component AuxCutoffController38:
+    mpn = "LTC4368HMS-2#PBF"
+    manufacturer = "Analog Devices"
+    datasheet = "https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf"
+    footprint = "Package_SO:MSOP-10_3x3mm_P0.5mm"
+    signal VIN ~ pin 1
+    signal UV ~ pin 2
+    signal OV ~ pin 3
+    signal RETRY ~ pin 4
+    signal GND ~ pin 5
+    signal SHDN ~ pin 6
+    signal FAULT ~ pin 7
+    signal VOUT ~ pin 8
+    signal SENSE ~ pin 9
+    signal GATE ~ pin 10
+
+component AuxCutoffFets38:
+    mpn = "FDS3992"
+    manufacturer = "onsemi"
+    datasheet = "https://www.onsemi.com/download/data-sheet/pdf/fds3992-d.pdf"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    # Onsemi's top-view pin diagram: 1/3 gates, 2/4 sources,
+    # 7+8 and 5+6 are the respective drains.
+    signal G1 ~ pin 1
+    signal S1 ~ pin 2
+    signal G2 ~ pin 3
+    signal S2 ~ pin 4
+    signal D2 ~ pin 5
+    signal D2 ~ pin 6
+    signal D1 ~ pin 7
+    signal D1 ~ pin 8
+
+component AuxCutoffSense38:
+    mpn = "WSL2512R0500FTA"
+    manufacturer = "Vishay"
+    datasheet = "https://www.vishay.com/docs/30100/wsl.pdf"
+    footprint = "Resistor_SMD:R_2512_6332Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxCutoffR20k38:
+    mpn = "TNPU060320K0AWEN00"
+    manufacturer = "Vishay"
+    datasheet = "https://www.vishay.com/docs/28779/tnpue3.pdf"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxCutoffR59038:
+    mpn = "TNPU0603590RAZEN00"
+    manufacturer = "Vishay"
+    datasheet = "https://www.vishay.com/docs/28779/tnpue3.pdf"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxCutoffR80638:
+    mpn = "TNPU0603806RAZEN00"
+    manufacturer = "Vishay"
+    datasheet = "https://www.vishay.com/docs/28779/tnpue3.pdf"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxCutoffRgate38:
+    mpn = "RC0603FR-0722KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxCutoffCgate38:
+    mpn = "GRM188R72A103KA01D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxCutoffCout38:
+    mpn = "GCM31CC71H475KA03L"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_1206_3216Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module AuxCutoff38:
+    signal AUX15_PRECUT
+    signal HOT0
+    signal AUX_PROTECTED
+    signal UV_NODE
+    signal OV_NODE
+    signal FET_SOURCE
+    signal FET_GATE
+    signal GATE_CAP_TOP
+    signal SENSE_UPSTREAM
+
+    cutoff = new AuxCutoffController38
+    cutoff.VIN ~ AUX15_PRECUT
+    cutoff.SHDN ~ AUX15_PRECUT
+    cutoff.GND ~ HOT0
+    cutoff.RETRY ~ HOT0
+    cutoff.UV ~ UV_NODE
+    cutoff.OV ~ OV_NODE
+    cutoff.GATE ~ FET_GATE
+    cutoff.SENSE ~ SENSE_UPSTREAM
+    cutoff.VOUT ~ AUX_PROTECTED
+    # FAULT is an unconnected open-drain diagnostic. The independent AUX
+    # window detector trips when the protected output leaves its window.
+
+    fets = new AuxCutoffFets38
+    fets.D1 ~ AUX15_PRECUT
+    fets.S1 ~ FET_SOURCE
+    fets.S2 ~ FET_SOURCE
+    fets.D2 ~ SENSE_UPSTREAM
+    fets.G1 ~ FET_GATE
+    fets.G2 ~ FET_GATE
+
+    # SENSE/VOUT are Kelvin-connected at opposite ends of the shunt.
+    sense = new AuxCutoffSense38
+    sense.value = 50mohm
+    sense.p1 ~ SENSE_UPSTREAM
+    sense.p2 ~ AUX_PROTECTED
+
+    uv_top = new AuxCutoffR20k38
+    uv_top.value = 20kohm
+    uv_top.p1 ~ AUX15_PRECUT
+    uv_top.p2 ~ UV_NODE
+    uv_bottom = new AuxCutoffR80638
+    uv_bottom.value = 806ohm
+    uv_bottom.p1 ~ UV_NODE
+    uv_bottom.p2 ~ HOT0
+    ov_top = new AuxCutoffR20k38
+    ov_top.value = 20kohm
+    ov_top.p1 ~ AUX15_PRECUT
+    ov_top.p2 ~ OV_NODE
+    ov_bottom = new AuxCutoffR59038
+    ov_bottom.value = 590ohm
+    ov_bottom.p1 ~ OV_NODE
+    ov_bottom.p2 ~ HOT0
+
+    # ADI's series RGATE isolates the inrush capacitor from the controller's
+    # fast GATE pull-down. The FET gates connect directly to GATE.
+    r_gate = new AuxCutoffRgate38
+    r_gate.value = 22kohm
+    r_gate.p1 ~ FET_GATE
+    r_gate.p2 ~ GATE_CAP_TOP
+    c_gate = new AuxCutoffCgate38
+    c_gate.value = 10nF
+    c_gate.p1 ~ GATE_CAP_TOP
+    c_gate.p2 ~ HOT0
+
+    # ADI requires at least 1 uF effective at VOUT. This 4.7 uF nominal
+    # capacitor is a provisional selection pending DC-bias/temperature data.
+    c_out = new AuxCutoffCout38
+    c_out.value = 4.7uF
+    c_out.p1 ~ AUX_PROTECTED
+    c_out.p2 ~ HOT0

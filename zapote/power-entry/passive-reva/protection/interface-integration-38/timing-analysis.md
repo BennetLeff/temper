@@ -80,7 +80,7 @@ numerical acceptance.
 The joined source now has a separate `SOURCE_PREWATCHDOG_OK` gate from
 reset-good, interlock and rail-good without WDO. It can support a pre-feed
 software sample without making watchdog recovery depend on WDO already being
-high. Its two external inputs and ESP sampling pin are still unproduced, and
+high. Its ESP sampling pin is joined, while the two external inputs are still unproduced, and
 this logical path does not reduce the unbounded reset-time feed tail.
 
 The two allowable reset times need system hazard analysis of continued PFC
@@ -123,6 +123,7 @@ the loaded, mixed-supply Rev38 circuit.
 | [TLV3202](https://www.ti.com/lit/ds/symlink/tlv3202.pdf) VD/VB channels | At VCC = 5 V, 20 mV input overdrive and 15 pF load, the data sheet lists 55 ns maximum propagation delay over −40 to +125 °C for each output direction. | The actual divider/filter ramp may spend time below 20 mV overdrive; the real fan-in load, valid supply and minimum captured pulse still need bounds. The 55 ns is not a fault-to-clear maximum. |
 | [ISO774xF](https://www.ti.com/lit/ds/symlink/iso7742.pdf) source/HOT paths | The 5 V/5 V table lists 17 ns maximum propagation delay; the 3.3 V/3.3 V table lists 18.5 ns. The F-device default-output delay after **input** supply falls below 1.7 V is 0.3 µs maximum at those fixtures. | Rev38 uses 3.3 V on SELV and 5 V on HOT. Neither same-supply propagation row directly bounds that mixed condition. An unpowered output-side device cannot actively drive its fail-low value; local pulls and rail-order captures are still required. |
 | [UCC27624](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) driver | The March 2026 data sheet lists 27 ns maximum disable propagation from EN low threshold to 90% of output fall, with 1.8 nF load, 12 V VDD, 0–3.3 V switching input, 500 kHz and 125 °C fixture. | Rev38 uses an AUX-biased EN shunt, 10 Ω gate resistor and actual STW gate charge. That entry does not bound shunt release, loaded gate discharge, switch-current fall or supply-collapse behavior. |
+| [LTC4368](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf) protected-AUX cutoff | UV/OV to FAULT is 1–2 µs at 50 mV overdrive and VIN = 12 V; UV/OV GATE turn-off is 2–6 µs with 2.2 nF CGATE. UV/OV-to-reconnect delay is 22–45 ms at VIN = 12 V. Overcurrent fault to GATE = 0 V is 3–18 µs with 2.2 nF CGATE and the specified sense overdrive. | Rev38 has 10 nF CGATE, a 22 kΩ series gate resistor, FDS3992 gate charge and 30.6 µF nominal downstream AUX capacitance. The published fixtures cannot bound driver VDD peak, FET turnoff, shunt current, logic5 decay or STW current cessation; measure each event under actual slew/load. |
 | [TPS3431](https://www.ti.com/lit/ds/symlink/tps3431.pdf) source/HOT watchdogs | The manufacturer's 1 nF **ideal capacitor** calculation is 119.82–144.98 ms for device timeout. | Selected CWD tolerance/effective value, pin leakage, boot/last-edge behavior and WDO-to-current-zero remain outside this calculated interval; it is not an allowable reset time. |
 
 The ISO774x supply distinction and the UCC27624 loaded-gate distinction
@@ -154,7 +155,7 @@ assign the remaining measurements and calculations.
 | Fault-response event IDs | Allowable-time input owner | Implementation-time input owner | Evidence now / needed |
 | --- | --- | --- | --- |
 | `VD_OV`, `VB_OV`, `VD_GT_VB`, `VB_GT_VD`, `F2_OPEN` | Power-stage design: separate derated VD/VB/VDS limits, effective C, `L(I,T)`, fault current and line/source envelope; F2/interconnect owner for noninterruptible paths | Analog-protection design: divider/filter and capture corners; driver design: loaded EN/gate/current fall; bench owner: coincident F2/voltage/current traces | Joined pins and a conditional F2 model; no accepted installed limits or complete path capture |
-| `AUX_UV_FAST`, `AUX_OV`, `AUX_UV_SLOW`, `LOGIC5_UV`, `SELV_RAIL_UV`, `SOURCE_HEALTH_LOSS` | Supply design: qualified AUX, logic5 and SELV operating envelopes, rail slew, hold-up and last guaranteed control voltage | Supply/protection design: selected source, regulator, cutoff, supervisors and window thresholds/delays; bench owner: rail-order and loaded-disable traces | Partial comparator/supervisor joins and manufacturer conditions; protected AUX producer and source envelope absent |
+| `AUX_UV_FAST`, `AUX_OV`, `AUX_UV_SLOW`, `LOGIC5_UV`, `SELV_RAIL_UV`, `SOURCE_HEALTH_LOSS` | Supply design: qualified AUX, logic5 and SELV operating envelopes, rail slew, hold-up and last guaranteed control voltage | Supply/protection design: joined source, regulator, cutoff, logic5 converter, supervisors and window thresholds/delays; bench owner: rail-order and loaded-disable traces | AUX/logic5 Atopile pins joined and audited; SELV producer, physical source envelope, fast-fault peak and complete current-cessation response absent |
 | `INTERLOCK_LOSS`, `HOT_PERMIT_LOSS_BEFORE_HIGH`, `HOT_PERMIT_LOSS_AFTER_HIGH`, `SOURCE_READBACK_LOSS`, `HOT_FAULT_DURING_PREP`, `REVALIDATION_RACE` | System safety owner: permitted continuation in each power-stage state | Interface-logic design: pulse/capture, retained clear, isolator and reset dominance; bench owner: adverse edge order and current trace | Pin-level joins and mutation tests; no minimum captured pulse or maximum physical response |
 | `RECEIVER_STOP_READY`, `RECEIVER_STOP_RUNNING`, `RECEIVER_RESET`, `RECEIVER_EXECUTION_LOSS`, `PROTOCOL_ABORT`, `PREPARATION_TIMEOUT`, `START_TIMEOUT`, `LINK_LOSS` | System safety owner: permitted continuation for each command/interlock state | Receiver firmware and AVR adapter owner: reset default, decoder/timer/queue-to-pin bound, WDI stop; interface/bench owner: retained clear and loaded-current response | Host logic and runtime tests; AVR pin, fuse, watchdog, and physical capture absent |
 | `SOURCE_EXECUTION_LOSS`, `ESP_CPU_RESET_RUNNING`, `ESP_CPU_RESET_FIRST_START` | System safety and power-stage owners: independently derive first-start and already-running allowable time | ESP driver owner: last post-reset WDI edge, boot/other-core/queued writes; hardware/bench owners: TPS3431 corners through source/HOT clear and current cessation | Host source core plus partial pin paths; feed tail and both allowable times unbounded |
@@ -178,7 +179,11 @@ can precede a later voltage fault without producing a mismatch now.
 
 ## AUX producer decision gate
 
-The protected AUX and HOT logic5 ports still lack an installed producer.
+The protected AUX and HOT logic5 ports now have a joined Atopile producer
+candidate, but no installed or physically qualified producer. The new
+[cutoff record](AUX-CUTOFF-CANDIDATE.md) identifies its divider, FET,
+shunt, inrush and measurement gates; its static endpoint screen cannot be
+used as a fault-to-current-cessation bound.
 The historical `controller-integration-06/supply` proposal uses
 IRM-10-24 → TPS7A4701 15 V → TPS54202 5 V. The later Rev19/20
 LT4363-1 clamp is a separate downstream proposal, not an interchangeable
@@ -196,7 +201,7 @@ with ±0.1% parts, but its leakage-inclusive example leaves only about
 divider is adopted or qualified. The [Rev38 source comparison](AUX-SOURCE-CANDIDATE.md)
 now places IRM-20-15 direct output beside the joined IRM-20-24 raw source
 and LMR36015BRNXT 15 V pre-cutoff buck candidate; the LTC4368 disconnect
-is still a proposal.
+and TPS54202 5 V converter are now joined engineering candidates.
 The direct path's conditional 50 °C screen has only 62.5 mV on each side
 of the normal window before cutoff-path loss. The regulated path has about
 388/411 mV of low/high feedback-only static margin in an illustrative

@@ -24,5 +24,9 @@ builds:
     entry: elec/src/ac_input.ato:AcInput38
   hot15_converter:
     entry: elec/src/hot15_converter.ato:Hot15Converter38
+  aux_cutoff:
+    entry: elec/src/aux_cutoff.ato:AuxCutoff38
+  hot_logic5_converter:
+    entry: elec/src/hot_logic5_converter.ato:HotLogic5Converter38
   integrated:
     entry: elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38

@@ -10,87 +10,36 @@ from the current host tests or partial netlist.
 | U1 | `response-contract.md`, `fault-response.tsv`, and `timing-analysis.md` establish the bounded-reset candidate and per-fault missing-input ledger. The event ledger identifies the Rev38 producers now joined and separates their connectivity from unproved capture. The timing companion maps every event to allowable/implementation input owners and evidence class; the AUX-source alternatives and startup-load decision gate are explicit. | Independently support allowable and worst-case implementation bounds, margin, and applicability using the joined circuit and real power-stage envelope. Numerical acceptance OPEN. |
 | U2 | `receiver-selection.md` selects AVR64DA32-E/PT and assigns physical pins; journal format and exhaustion behavior are host-tested. The default locked target image builds with official avr-gcc. | Fuse image and device NVM/BOD/boot-pin verification; measured target timing and a nonzero-window programmed-device build. |
 | U3 | `model.rs` and `protocol-tests.rs` cover the logical session, fault, deadline, and reset controls. | Recheck model against the eventual joined source and native circuit; logic tests do not prove physical pulse capture. |
-| U4 | The joined Atopile candidate includes the ESP32-S3-WROOM-1-N8R8 pad fixture, TCA6408A-Q1 expander, active-low START switch, source authority, both isolators, AVR receiver, watchdog, rail/fault detectors, driver, PFC, fused-board AC input, AUX branch loop, IRM-20-24 raw source and LMR36015BRNXT 15 V pre-cutoff converter. `hot15_converter` and `integrated` compile; `audit.rs` passes 111 exact-pin and mutation tests, including input-to-output bypass, NC/SW open and feedback miswire. `PIN-INTERFACE-CONTRACT.md` is the common map. The regulated 24 V route is the digital engineering candidate; direct IRM-20-15 remains a bench comparison. | The 3.3 V, protected AUX and HOT logic5 supply producers remain unjoined; source reset-good and interlock producers remain external. Resolve F1/inrush/thermal and AUX startup/window/OVP, expander retained-output and pulse timing, all electrical corners, then build native schematic/PCB. Physical captures are NOT RUN; U4 remains OPEN. |
+| U4 | The joined Atopile candidate includes the ESP32-S3-WROOM-1-N8R8 pad fixture, TCA6408A-Q1 expander, active-low START switch, source authority, both isolators, AVR receiver, watchdog, rail/fault detectors, driver, PFC, fused-board AC input, AUX branch loop, IRM-20-24 raw source, LMR36015BRNXT 15 V pre-cutoff converter, LTC4368/FDS3992 protected-AUX cutoff, and TPS54202 HOT logic5 converter. All three supply stage builds and `integrated` compile; `audit.rs` passes 118 exact-pin and mutation tests. `PIN-INTERFACE-CONTRACT.md` is the common map. The regulated 24 V route is the digital engineering candidate; direct IRM-20-15 remains a bench comparison. | The SELV 3.3 V, source reset-good and interlock producers remain external or unjoined. Resolve F1/inrush/thermal, AUX/logic5 load and startup, cutoff FET SOA and fast-fault peak, expander retained-output and pulse timing, then build native schematic/PCB. Physical captures are NOT RUN; U4 remains OPEN. |
 | U5 | The receiver protocol, journal, core, runtime and host pin sequence tests pass. An AVR64DA32 fuse-readback guard now rejects the default image before runtime; the internal watchdog is serviced only after completed receiver ticks. A previous target image built with Microchip avr-gcc 15.1.0, but the changed adapter has not been target-built in this environment. | Select and program exact WDTCFG/BODCFG/SYSCFG0/OSCCFG bytes, verify UPDI readback, pin/reset/rail behavior, clock accuracy and watchdog period on device; derive nonzero timing windows. U5 remains OPEN. |
 | U6 | Source core/runtime and new ESP32 adapter host tests pass. The adapter assigns direct STOP, heartbeat, permit set, safety sample, UART, START, and I²C pads, and orders expander latch/polarity/direction writes before sampling P3–P7. Runtime reserves the configured sample-to-edge bound before timed control and WDI pulses; a near-deadline negative test fails against the previous runtime. The complete firmware host build and all 16 CTest entries now pass, including the three power-entry targets. A candidate ESP-IDF GPIO/I²C0/UART1 binding exists; neither IDF target build nor `app_main` integration has run. | Prove sole UART ownership and final bit completion, target-verified expander P1 and WDI pre-edge bounds, paired task epoch ownership, I²C read age, reset/boot/partial-power default states and physical reset-to-off; test on target. U6 remains OPEN. |
 | U7 | No Rev38 native candidate exists. `bench-capture.md` now maps the joined candidate's supply, fault, reset and timing measurements to physical nodes; all captures are NOT RUN. | Native schematic and PCB, BOM and footprint review, source/native parity, ERC/DRC, stackup and unit gates, authoritative acceptance receipt. Physical captures remain NOT RUN. |
 
-The source watchdog feed now uses the spare SN74LV221A-Q1 rising-trigger
-channel. Its active-low output drives TPS3431 WDI, so an ESP heartbeat pad
-fall caused by CPU reset cannot itself service the watchdog. The standalone
-and joined Atopile builds pass, and `audit.rs` passes 101 pin/mutation tests.
-The source host runtime requests a low-high-low trigger only after disarm;
-its focused CMake test passes. A boot/other-core rising edge, one-shot rail
-collapse, and the last possible post-reset WDI edge remain unmeasured, so
-the reset-to-off time is still OPEN.
+The source watchdog feed uses the spare SN74LV221A-Q1 rising-trigger channel
+and the receiver relay gate requires both AVR PA2 and retained HOT RUN Q.
+Those default-off joins pass digital audit. A boot/other-core rising WDI edge,
+expander-retained relay request, one-shot rail collapse, and the last possible
+post-reset WDI edge remain unmeasured. Their reset-to-off timing is OPEN.
 
-`ESP-PIN-INVENTORY.md` records the N8R8 module restrictions and the
-firmware/electrical-source pin conflicts that the U4/U6 pin contract must
-resolve. It assigns no candidate GPIOs.
-`ESP-PIN-FIT.md` gives one unadopted pin-fit screen using a local I²C
-expander. It preserves direct STOP, WDI-request and PERMIT-set pins, but
-the expander's outputs can persist across an ESP CPU-only reset; the relay,
-challenge and seen-reset consequences remain open.
-The joined receiver now uses the spare second HCS21 gate to require both AVR
-PA2 relay output and retained HOT RUN Q before the relay MOSFET gate can rise.
-The audit rejects a direct PA2-to-relay bypass or a tied-high RUN gate input.
-AVR firmware still holds PA2 low. Relay timing, precharge decision, driver
-levels, contact behavior, and an expander-retained request remain open.
 `F1-SCREEN.md` nominates Eaton `LP-CC-20` with `BCM603-1P` and `CVR-CCM`
 for a proposed dedicated-20 A, 10 kA prospective-fault-current residential
-review envelope. The compiled board now has a fused-L input, but the off-board
-F1 assembly and inlet harness remain unbuilt. Whole-assembly fault, inrush,
-thermal, F2/MOV coordination, and harness/access gates remain OPEN.
-`AUX-WINDOW.md` now counts the joined relay and direct passive AUX branches;
-about 41.50 mA of nominal-resistance paths at 15.75 V are identifiable before
-the PFC controller, driver, logic5 converter and dynamic loads. The old
-75 mA direct-AUX allowance cannot be inherited without a new load budget.
-Its generated-netlist census identifies 25 active ICs, 25 local 100 nF
-capacitors and 10 resistors directly on HOT_LOGIC5. The 2.5 µF nominal
-local bypass is only a startup-charge inventory; mixed-voltage isolator load,
-AVR operation at 5 V, output loading, converter loss and its output capacitor
-still prevent a protected-AUX current-limit selection.
-`AUX-OVP-WINDOW.md` also records that TPS26601's default UVLO can prevent
-startup at a valid 14.625 V regulator output; the protected-AUX candidate
-needs an externally qualified UVLO threshold as well as the OVP solution.
-The 15.75/18.0 V screen permits at most 0.32663% independent variation per
-OVP resistor before leakage; ordinary ±0.1%, ±25 ppm/K discrete parts can
-exceed that at 125 °C before lifetime drift. No cutoff divider is selected.
-The `AUX-OVP-WINDOW.md` TPS2663x alternative uses its wider guaranteed OVP
-hysteresis and a screened ±0.02%, ±2 ppm/K TNPU divider. Even with the
-manufacturer's 225,000 h drift and OVP-pin leakage bounds, its static margins
-are only 36 mV for recovery and 42 mV for trip. Board leakage, fault input
-waveform, output peak, top-resistor temperature, and current-limit behavior
-are unqualified, so it is not yet a protected-AUX selection.
-The LTC4368 controller is a second mathematical-only OVP screen. An
-illustrative 339 kΩ/10 kΩ divider leaves 212 mV normal-high recovery and
-167 mV provisional-limit trip headroom under stated resistor and pin-leakage
-assumptions, but Vishay TNPU's ±2 ppm/K grade stops at 20 kΩ, so that
-339 kΩ top value has no matching selected part. A 17 kΩ/500 Ω scale within
-the published range screens at 16.0112 V minimum recovery and 17.8804 V
-maximum rising trip, still without a stock-verified pair. ADI's `-2`
-suffix applies to reverse sense; its forward comparator is 40–60 mV in the
-equal-voltage fixture. External FET selection, dynamic output peak, load current, and
-UV/startup behavior remain unproved; it is not a protected-AUX selection.
-`AUX-SOURCE-CANDIDATE.md` now records the KiCad 10 IRM-20 pad mapping as a
-native candidate and nominates a separate off-board `LP-CC-2` branch loop
-through a `1714971` PCB terminal after the CMC. The terminal and IRM-20-24
-raw-source pins compile; five negative audit mutations reject a copper
-bypass, disconnected return, pre-fuse feed, HOT return break and polarity
-swap. The physical module orientation, fuse inrush/clearing, fault withstand
-and native layout are unverified; the off-board fuse and protected 15 V
-source remain unjoined. The LMR36015BRNXT stage now joins RAW_AUX24 to a
-separate pre-cutoff 15 V node through its own inductor and feedback network.
-Its nominal 44 µF output bank, 20 µF raw input bank and 0.44 µF local
-high-frequency bypass add startup charge. The 15 V feedback-only screen,
-input-capacitor effective value, loop stability, transient peak and thermal
-behavior are unqualified. The exact-pin audit now reads generated BOM MPNs
-for this stage because Atopile can alias the netlist libsource identity of
-different MPNs with a shared footprint.
+review envelope. The compiled board has a fused-L input and a separate AUX
+branch loop, but neither off-board fuse assembly nor harness is built.
+Whole-assembly fault, inrush, thermal, F2/MOV coordination and access remain
+OPEN.
 
-Immediate construction order: build and qualify U4's nominated off-board
-Class CC F1/AC input and protected AUX source; bind those pins to U5's AVR
-adapter and U6's source driver;
-then export and audit U7. Update U1 with every selected component and
-measured path. Do not promote the partial `isolation` build to a joined
-Atopile PASS.
+`AUX-CUTOFF-CANDIDATE.md` records the joined LTC4368-2/FDS3992/50 mΩ
+selection. Its independent-resistor static screen gives OV recovery no lower
+than 15.95075 V and rising trip no higher than 17.84409 V under the stated
+assumptions. This does not bound a fast-fault output peak. The protected rail
+has 30.6 µF nominal direct capacitance; valid-start current, effective MLCC
+values, FET linear SOA and latch reset are OPEN. `HOT-LOGIC5-CONVERTER.md`
+records the joined TPS54202 output network and its 46.5 µF nominal 5 V bank.
+`AUX-WINDOW.md` identifies about 41.50 mA of nominal-resistance direct AUX
+paths before active switching loads, not a maximum. The old 75 mA allowances
+cannot be inherited.
+
+The selected supply parts and pin/interface contract now need native
+schematic/PCB realization, source/native parity, ERC/DRC, and physical tests.
+U1's per-fault timing ledger must use those measured paths. Do not promote
+Atopile connectivity or host tests into U4–U7 physical acceptance.
