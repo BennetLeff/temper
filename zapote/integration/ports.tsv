@@ -1,0 +1,29 @@
+id	source	needle	board	ref	pin	net	domain	return	direction	vmax_v	fault_default	stop_timing	evidence
+rev38.vb	zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/pfc_power.ato	f2.bank ~ VB_BANK	-	-	-	VB_BANK	HOT	HOT0	OUT	450	charged	UNKNOWN	source
+rev38.hot0	zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/pfc_power.ato	bulk1.minus ~ HOT0	-	-	-	HOT0	HOT	HOT0	RETURN	0	live	UNKNOWN	source
+rev38.vd	zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/pfc_power.ato	f2.diode ~ VD_LOCAL	-	-	-	VD_LOCAL	HOT	HOT0	OUT	450	charged	UNKNOWN	source
+rev38.run	zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/power_entry_integrated_38.ato	driver.HOT_RUN_Q ~ receiver.HOT_RUN_Q	-	-	-	HOT_RUN_Q	HOT	HOT0	IN	5	LOW	UNKNOWN	source
+voltage.bus	zapote/voltage-sense/source-build-04/elec/src/voltage_sense_unit.ato	input.p1 ~ bus	zapote/voltage-sense/candidate/section.kicad_pcb	J1	1	BUS_PLUS	LEGACY_HOT	BUS_RETURN	IN	250	UNKNOWN	UNKNOWN	digital
+voltage.return	zapote/voltage-sense/source-build-04/elec/src/voltage_sense_unit.ato	input.p2 ~ gnd	zapote/voltage-sense/candidate/section.kicad_pcb	J1	2	BUS_RETURN	LEGACY_COMMON	BUS_RETURN	RETURN	0	UNKNOWN	UNKNOWN	digital
+voltage.fault	zapote/voltage-sense/source-build-04/elec/src/voltage_sense_unit.ato	host.p3 ~ fault	zapote/voltage-sense/candidate/section.kicad_pcb	J2	3	OVP_FAULT	LEGACY_COMMON	BUS_RETURN	OUT	3.465	UNKNOWN	UNKNOWN	digital
+gate.permit	zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato	host.p3 ~ permit	zapote/gate-drive/candidate/section.kicad_pcb	J1	3	permit	CTRL	ctrl_gnd	IN	3.465	LOW	UNKNOWN	digital
+gate.ctrl	zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato	host.p4 ~ ctrl_gnd	zapote/gate-drive/candidate/section.kicad_pcb	J1	4	ctrl_gnd	CTRL	ctrl_gnd	RETURN	0	ISOLATED	UNKNOWN	digital
+gate.hvreturn	zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato	supply.p2 ~ hv_minus	zapote/gate-drive/candidate/section.kicad_pcb	J2	2	gate_l_kelvin	FLOATING_HOT	HV_RETURN	RETURN	0	UNKNOWN	UNKNOWN	digital
+interlock.permit	zapote/interlock/source-build-02/elec/src/interlock_unit.ato	permit ~ host.p6	zapote/interlock/candidate/section.kicad_pcb	J2	6	permit	SELV	gnd	OUT	3.465	LOW	UNKNOWN	digital
+interlock.gnd	zapote/interlock/source-build-02/elec/src/interlock_unit.ato	gnd ~ host.p2	zapote/interlock/candidate/section.kicad_pcb	J2	2	gnd	SELV	gnd	RETURN	0	ISOLATED	UNKNOWN	digital
+interlock.live	zapote/interlock/source-build-02/elec/src/interlock_unit.ato	sensor_live ~ host.p5	zapote/interlock/candidate/section.kicad_pcb	J2	5	sensor_live	SELV	gnd	IN	3.465	LOW	UNKNOWN	digital
+interlock.ocp	zapote/interlock/source-build-02/elec/src/interlock_unit.ato	ocp_fault ~ faults.p2	zapote/interlock/candidate/section.kicad_pcb	J1	2	ocp_fault	SELV	gnd	IN	3.465	HIGH	UNKNOWN	digital
+interlock.ovp	zapote/interlock/source-build-02/elec/src/interlock_unit.ato	ovp_fault ~ faults.p3	zapote/interlock/candidate/section.kicad_pcb	J1	3	ovp_fault	SELV	gnd	IN	3.465	HIGH	UNKNOWN	digital
+interlock.hs	zapote/interlock/source-build-02/elec/src/interlock_unit.ato	hs_fault ~ faults.p4	zapote/interlock/candidate/section.kicad_pcb	J1	4	hs_fault	SELV	gnd	IN	3.465	HIGH	UNKNOWN	digital
+interlock.coil	zapote/interlock/source-build-02/elec/src/interlock_unit.ato	coil_fault ~ faults.p5	zapote/interlock/candidate/section.kicad_pcb	J1	5	coil_fault	SELV	gnd	IN	3.465	HIGH	UNKNOWN	digital
+interlock.rtd	zapote/interlock/source-build-02/elec/src/interlock_unit.ato	rtd_fault ~ faults.p6	zapote/interlock/candidate/section.kicad_pcb	J1	6	rtd_fault	SELV	gnd	IN	3.465	HIGH	UNKNOWN	digital
+interlock.aux	zapote/interlock/source-build-02/elec/src/interlock_unit.ato	aux_fault ~ faults.p8	zapote/interlock/candidate/section.kicad_pcb	J1	8	aux_fault	SELV	gnd	IN	3.465	HIGH	UNKNOWN	digital
+current.fault	zapote/current-sense/source-build-04/elec/src/current_sense_unit.ato	host.p3 ~ fault.line	zapote/current-sense/candidate/section.kicad_pcb	J2	3	OCP_FAULT	SELV	gnd	OUT	3.465	UNKNOWN	UNKNOWN	digital
+thermal.hs	zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato	host.p3 ~ hs_fault	zapote/thermal-sense/candidate/section.kicad_pcb	J3	3	HS_FAULT	SELV	gnd	OUT	3.465	UNKNOWN	UNKNOWN	digital
+thermal.coil	zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato	host.p4 ~ coil_fault	zapote/thermal-sense/candidate/section.kicad_pcb	J3	4	COIL_FAULT	SELV	gnd	OUT	3.465	UNKNOWN	UNKNOWN	digital
+rtd.fault	zapote/rtd/unit/evidence/source-04/elec/src/rtd_unit.ato	unit_io.p9 ~ rtd_hw_fault.line	zapote/rtd/unit/candidate/section.kicad_pcb	J2	9	RTD_HW_FAULT	SELV	gnd	OUT	3.465	UNKNOWN	UNKNOWN	digital
+cooling.fault	-	-	-	-	-	HS_FAULT	SELV	gnd	OUT	3.465	HIGH	UNKNOWN	missing
+global.live	-	-	-	-	-	SENSOR_LIVE	SELV	gnd	OUT	3.465	LOW	UNKNOWN	missing
+discharge.fanoff	-	-	-	-	-	FAN_OFF_HEAT	THERMAL	-	EVIDENCE	0	UNKNOWN	UNKNOWN	missing
+f2.continuity	-	-	-	-	-	F2_CONTINUITY	HOT	HOT0	EVIDENCE	0	UNKNOWN	UNKNOWN	missing
+programming.ui	-	-	-	-	-	SERVICE_RESET	SELV	gnd	IN	3.465	LOW	UNKNOWN	missing

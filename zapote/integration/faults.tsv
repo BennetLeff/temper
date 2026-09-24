@@ -1,0 +1,8 @@
+id	input_port	validity_contributor	open_wire	unpowered	pfc_inhibit	inverter_inhibit	stop_timing
+rtd	interlock.rtd	MISSING	FAULT_HIGH	UNKNOWN	UNKNOWN	UNKNOWN	UNKNOWN
+current	interlock.ocp	MISSING	FAULT_HIGH	UNKNOWN	UNKNOWN	UNKNOWN	UNKNOWN
+voltage	interlock.ovp	MISSING	FAULT_HIGH	UNKNOWN	UNKNOWN	UNKNOWN	UNKNOWN
+thermal_heatsink	interlock.hs	MISSING	FAULT_HIGH	UNKNOWN	UNKNOWN	UNKNOWN	UNKNOWN
+thermal_coil	interlock.coil	MISSING	FAULT_HIGH	UNKNOWN	UNKNOWN	UNKNOWN	UNKNOWN
+cooling	interlock.hs	MISSING	FAULT_HIGH	UNKNOWN	UNKNOWN	UNKNOWN	UNKNOWN
+aux	interlock.aux	MISSING	FAULT_HIGH	UNKNOWN	UNKNOWN	UNKNOWN	UNKNOWN
