@@ -546,6 +546,26 @@ fn active_model_gap(rules: impl IntoIterator<Item = &'static str>, incompatible_
     )
 }
 
+fn passive_gbu_loss_gap() -> CheckReport {
+    let rules = crate::pfc_loss_budget::RULES.into_iter()
+        .chain(crate::model_assurance::RULES)
+        .chain(crate::pfc_candidates::RULES);
+    let message = "GBU2510A board has no matching diode loss/candidate model in this runner; GBJ2510-F source data cannot qualify its bridge";
+    CheckReport::from_findings(
+        rules.clone().map(|rule| Finding::indeterminate(rule, message, "GBU2510A")).collect(),
+        rules.map(str::to_owned).collect(),
+        vec![message.into()],
+    )
+}
+
+fn has_gbj_loss_model(bridge_mpn: &str) -> Result<bool> {
+    match bridge_mpn {
+        "GBJ2510-F" => Ok(true),
+        "GBU2510A" => Ok(false),
+        _ => Err(format!("no reviewed passive bridge identity for {bridge_mpn}")),
+    }
+}
+
 pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Result<UnitRunReport> {
     let evidence_before = evidence_hashes(spec)?;
     let (mut unit_checks, native, hashes) = evaluate(spec)?;
@@ -604,16 +624,27 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     };
     let active_rectifier = spec.unit == UnitKind::PowerEntry
         && zapote_erc::power_entry::entry(&source)? == zapote_erc::power_entry::ACTIVE_ENTRY;
+    let gbj_loss_model = if spec.unit == UnitKind::PowerEntry && !active_rectifier {
+        let circuit = zapote_erc::source_circuit::Circuit::parse(
+            &source, zapote_erc::power_entry::ENTRY)?;
+        let bridge = circuit.components.get("bridge")
+            .ok_or_else(|| "power-entry source has no bridge".to_owned())?;
+        has_gbj_loss_model(&bridge.mpn)?
+    } else {
+        false
+    };
     if active_rectifier {
         unit_checks = combine(&[&unit_checks, &active_model_gap(
             crate::pfc_loss_budget::RULES.into_iter()
                 .chain(crate::model_assurance::RULES)
                 .chain(crate::pfc_candidates::RULES), false)]);
+    } else if spec.unit == UnitKind::PowerEntry && !gbj_loss_model {
+        unit_checks = combine(&[&unit_checks, &passive_gbu_loss_gap()]);
     }
-    let loss_budget = if spec.unit == UnitKind::PowerEntry && !active_rectifier {
+    let loss_budget = if gbj_loss_model {
         Some(crate::pfc_loss_budget::run(&source)?)
     } else { None };
-    let candidates = if spec.unit == UnitKind::PowerEntry && !active_rectifier {
+    let candidates = if gbj_loss_model {
         Some(crate::pfc_candidates::run(&source)?)
     } else { None };
     let loop_checks = if spec.unit == UnitKind::PowerEntry {
@@ -813,6 +844,30 @@ mod cooling_coverage_tests {
         let reuse = active_model_gap(crate::bridge_thermal::JOINT_RULES, true);
         assert_eq!(reuse.status, zapote_core::Status::Fail);
         assert!(reuse.findings.iter().all(|f| f.message.contains("inapplicable model supplied")));
+    }
+
+    #[test]
+    fn gbu_bridge_keeps_loss_obligations_indeterminate() {
+        assert!(!has_gbj_loss_model("GBU2510A").unwrap());
+        let report = passive_gbu_loss_gap();
+        assert_eq!(report.status, zapote_core::Status::Indeterminate);
+        for rule in crate::pfc_loss_budget::RULES.into_iter()
+            .chain(crate::model_assurance::RULES)
+            .chain(crate::pfc_candidates::RULES)
+        {
+            assert!(report.findings.iter().any(|f| f.rule == rule &&
+                f.status == zapote_core::Status::Indeterminate));
+        }
+    }
+
+    #[test]
+    fn gbj_bridge_keeps_its_bound_loss_screen() {
+        assert!(has_gbj_loss_model("GBJ2510-F").unwrap());
+    }
+
+    #[test]
+    fn unreviewed_passive_bridge_still_fails_closed() {
+        assert!(has_gbj_loss_model("GBU2510").is_err());
     }
 
     #[test]

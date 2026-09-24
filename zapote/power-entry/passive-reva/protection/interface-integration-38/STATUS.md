@@ -35,12 +35,18 @@ it never pulses GPIO14 or permits restart. The immediately pre-edge sample,
 GPIO14 open-drain pulse owner, post-pulse health readback and physical proof
 are still required. This path remains OPEN.
 
-The 2026-09-24 `make -C zapote check-units` run reported six units
-INDETERMINATE and the maintained `power-entry` unit FAIL. Its loss gate is
-bound to `GBJ2510-F`, while the configured candidate manifest contains
-`GBU2510A`; both identities are already present in the committed inputs.
-This is an existing loss-evidence mismatch, not a Rev38 native-board result.
-The run is not counted as a passing U7 gate.
+The 2026-09-24 `make -C zapote check-units` rerun used KiCad 10.0.4's
+`pcbnew` interpreter and reported six units INDETERMINATE and the maintained
+`power-entry` unit FAIL. The runner now classifies the current `GBU2510A`
+bridge's GBJ-bound loss/candidate obligations as INDETERMINATE while retaining
+their required rule IDs; an unknown bridge identity still fails closed. The
+remaining maintained power-entry FAIL is substantive: `WSL2726R0100FEA` is
+an unsupported 10 mΩ/two-pad shunt identity, and four branch-copper findings
+screen 15.0000 A nominal RMS against 10.4205 A at the saved 2.5 mm/70 µm
+geometry and assumed 20 °C rise. These are findings on the separate
+maintained GBU board, not a Rev38 native-board result. The plan preserves
+the passive reference and does not authorize changing that board to make the
+gate green. U7 digital acceptance remains OPEN.
 
 `ESP-MONITOR-CONTRACT.md` records why an idle cooker cannot credit the
 existing unconditional `run_safety_check()` and why fault-state control
