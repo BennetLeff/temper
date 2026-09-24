@@ -108,3 +108,12 @@ power-on pin states before the ESP begins executing, GPIO output readback,
 physical gate and relay levels, reset-to-off latency, and Rev38 response
 timing remain unqualified. This linked diagnostic image does **not** close U6
 or change any Rev38 zero timing bound.
+
+On 2026-09-24 the same Docker command rebuilt the diagnostic image after
+`0c3093230` and `bb8be3714`. The updated source authorization, runtime,
+ESP adapter and IDF binding objects compiled; `induction_cooker.elf` linked
+and the binary remained `0x31a40` bytes. The container lacked `jinja2`, so
+the build used the committed generated config and transition-table headers;
+the independent `make regen-check` gate passed in the worktree. This is a
+compile receipt only: the diagnostic entry point does not run the source
+task or exercise GPIO14 on hardware.

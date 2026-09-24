@@ -35,6 +35,13 @@ it never pulses GPIO14 or permits restart. The immediately pre-edge sample,
 GPIO14 open-drain pulse owner, post-pulse health readback and physical proof
 are still required. This path remains OPEN.
 
+The 2026-09-24 `make -C zapote check-units` run reported six units
+INDETERMINATE and the maintained `power-entry` unit FAIL. Its loss gate is
+bound to `GBJ2510-F`, while the configured candidate manifest contains
+`GBU2510A`; both identities are already present in the committed inputs.
+This is an existing loss-evidence mismatch, not a Rev38 native-board result.
+The run is not counted as a passing U7 gate.
+
 `ESP-MONITOR-CONTRACT.md` records why an idle cooker cannot credit the
 existing unconditional `run_safety_check()` and why fault-state control
 ticks and cached RTD values need separate freshness gates before either
