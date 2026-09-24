@@ -76,6 +76,27 @@ watchdog own unexpected execution-loss shutdown. Expander reset, ESP reboot,
 or an I²C ACK cannot be counted as immediate CPU-reset detection. The relay
 request cannot bypass the AVR decision and retained HOT RUN gate.
 
+The product integration uses the **existing cooker ESP32-S3 and SELV rail**.
+This is a selected direction, not yet a joined source/native claim:
+`SourceMcu38` still instantiates another ESP in the Rev38-only fixture. The
+existing `elec/src/modules.ato::MCU` assigns IO38/39 to the UI I²C header;
+Rev38 proposes the same pins for the TCA6408A. Firmware currently creates
+I²C0 for Rev38 and no other compiled firmware call to the I²C driver was
+found, but the external UI header remains a shared electrical bus. Its
+address, pull-up, cable capacitance and transaction ownership need one bus
+contract before joining. GPIO18 is reserved as `PIN_LED_POWER` in
+`firmware/components/temper_hal/include/temper_pins.h`, but no firmware use
+or cooker schematic connection was found; that stale reservation must be
+removed or relocated before GPIO18 becomes the physical pre-watchdog input.
+GPIO13, 21, 40, 41, 42 and 48 have no conflicting connection in the inspected
+`MCU` source or firmware pin table. GPIO19/20 are cooker USB D-/D+ in the
+schematic; the firmware header's unused relay/fault aliases on those pins
+disagree with the actual cooker IO16/17 wiring. Those aliases need their own
+correction before the combined pin manifest is treated as authoritative.
+An explicit board connector and a single-ESP source projection are required;
+tying two module footprints together by net name would leave two physical
+controllers in the native BOM.
+
 `SOURCE_RESET_GOOD` and `SOURCE_INTERLOCK_N` currently have 10 kΩ local
 pull-downs and no driving components, so the pre-watchdog sample stays low
 on the compiled candidate. ESP EN is pulled high and does not report an
