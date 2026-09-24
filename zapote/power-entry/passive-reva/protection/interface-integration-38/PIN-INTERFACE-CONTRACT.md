@@ -127,8 +127,13 @@ IRM-10-15 output to a **SELV** 15 V rail and a `PowerManagement`
 LMR51430 3.3 V buck, with SELV ground bonded to PE separately from the HOT
 return. That is a possible upstream source if Rev38 is integrated with that
 assembly, but the existing 3.3 V load and new ESP/expander/isolation startup
-load must be budgeted together, and the physical connector, rail limits,
-reset-good and interlock producers must be identified. If Rev38 is a separate
+load must be budgeted together. `SELV-SUPPLY-LOAD.md` inventories the joined
+Rev38 loads and direct startup capacitance: Espressif requires at least 0.5 A
+of source capability for the ESP alone, before the isolators and other logic.
+The record does not establish spare power on the existing IRM-10-15 or its
+3.3 V buck. Resolve whether the production and Rev38 ESP instances are one
+physical device or two, and define the physical connector, rail limits,
+reset-good and interlock producers. If Rev38 is a separate
 board, its SELV source must instead be part of that board or a specified
 external supply interface. Neither choice permits bonding `SELV_GND` to
 `HOT0`; no 3.3 V source is credited in the current joined netlist.
