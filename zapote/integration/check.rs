@@ -4,34 +4,144 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-const REQUIRED_EDGES: &[&str] = &[
-    "bus_to_legacy_voltage",
-    "hot_return_to_legacy_return",
-    "hot0_to_selv",
-    "ctrl_to_selv",
-    "pfc_run_to_inverter_permit",
-    "interlock_to_inverter",
-    "interlock_to_pfc",
-    "kelvin_hot_join",
-    "voltage_fault",
-    "current_fault",
-    "thermal_hs_fault",
-    "thermal_coil_fault",
-    "rtd_fault",
-    "cooling_fault",
-    "global_sensor_live",
-    "f2_equal_voltage",
-    "fan_off_discharge_heat",
-    "programming_reset_stop",
+// IDs alone are insufficient: a renamed current-fault edge must not stand in
+// for the cross-domain voltage fault or another required connection.
+const EDGE_TOPOLOGY: &[(&str, &str, &str, &str, &str)] = &[
+    (
+        "bus_to_legacy_voltage",
+        "rev38.vb",
+        "voltage.bus",
+        "bus_sense",
+        "DIRECT",
+    ),
+    (
+        "hot_return_to_legacy_return",
+        "rev38.hot0",
+        "voltage.return",
+        "domain_join",
+        "DIRECT",
+    ),
+    (
+        "hot0_to_selv",
+        "rev38.hot0",
+        "interlock.gnd",
+        "domain_join",
+        "DIRECT",
+    ),
+    (
+        "ctrl_to_selv",
+        "gate.ctrl",
+        "interlock.gnd",
+        "control_return",
+        "UNKNOWN",
+    ),
+    (
+        "pfc_run_to_inverter_permit",
+        "rev38.run",
+        "gate.permit",
+        "pfc_as_inverter",
+        "DIRECT",
+    ),
+    (
+        "interlock_to_inverter",
+        "interlock.permit",
+        "gate.permit",
+        "stop_inverter",
+        "UNKNOWN",
+    ),
+    (
+        "interlock_to_pfc",
+        "interlock.permit",
+        "rev38.run",
+        "stop_pfc",
+        "UNKNOWN",
+    ),
+    (
+        "kelvin_hot_join",
+        "gate.hvreturn",
+        "rev38.hot0",
+        "kelvin",
+        "UNKNOWN",
+    ),
+    (
+        "voltage_fault",
+        "voltage.fault",
+        "interlock.ovp",
+        "signal",
+        "UNKNOWN",
+    ),
+    (
+        "current_fault",
+        "current.fault",
+        "interlock.ocp",
+        "signal",
+        "UNKNOWN",
+    ),
+    (
+        "thermal_hs_fault",
+        "thermal.hs",
+        "interlock.hs",
+        "signal",
+        "UNKNOWN",
+    ),
+    (
+        "thermal_coil_fault",
+        "thermal.coil",
+        "interlock.coil",
+        "signal",
+        "UNKNOWN",
+    ),
+    (
+        "rtd_fault",
+        "rtd.fault",
+        "interlock.rtd",
+        "signal",
+        "UNKNOWN",
+    ),
+    (
+        "cooling_fault",
+        "cooling.fault",
+        "interlock.hs",
+        "signal",
+        "UNKNOWN",
+    ),
+    (
+        "global_sensor_live",
+        "global.live",
+        "interlock.live",
+        "global_live",
+        "UNKNOWN",
+    ),
+    (
+        "f2_equal_voltage",
+        "f2.continuity",
+        "rev38.run",
+        "f2_equal",
+        "EQUAL_VD_VB",
+    ),
+    (
+        "fan_off_discharge_heat",
+        "discharge.fanoff",
+        "rev38.vb",
+        "heat",
+        "OMITTED",
+    ),
+    (
+        "programming_reset_stop",
+        "programming.ui",
+        "interlock.permit",
+        "service",
+        "UNKNOWN",
+    ),
 ];
-const REQUIRED_FAULTS: &[&str] = &[
-    "rtd",
-    "current",
-    "voltage",
-    "thermal_heatsink",
-    "thermal_coil",
-    "cooling",
-    "aux",
+const FAULT_INPUTS: &[(&str, &str)] = &[
+    ("rtd", "interlock.rtd"),
+    ("current", "interlock.ocp"),
+    ("voltage", "interlock.ovp"),
+    ("thermal_heatsink", "interlock.hs"),
+    ("thermal_coil", "interlock.coil"),
+    ("cooling", "interlock.hs"),
+    ("aux", "interlock.aux"),
 ];
 const REQUIRED_PORTS: &[&str] = &[
     "rev38.vb",
@@ -235,6 +345,17 @@ fn ports(root: &Path) -> Result<BTreeMap<String, Port>, String> {
             return Err(format!("required port omitted: {id}"));
         }
     }
+    let legacy = &m["voltage.bus"];
+    let legacy_source = "zapote/voltage-sense/source-build-04/elec/src/voltage_sense_unit.ato";
+    let source = fs::read_to_string(root.join(legacy_source)).map_err(|e| e.to_string())?;
+    if legacy.source != legacy_source
+        || legacy.vmax != 250.0
+        || legacy.net != "BUS_PLUS"
+        || legacy.domain != "LEGACY_HOT"
+        || !source.contains("170V nominal positive half-bus; 0-250V monitor envelope.")
+    {
+        return Err("legacy J1.1 envelope differs from pinned 0-250 V source".into());
+    }
     Ok(m)
 }
 fn edges(root: &Path) -> Result<Vec<Edge>, String> {
@@ -256,10 +377,22 @@ fn edges(root: &Path) -> Result<Vec<Edge>, String> {
             contract: f[4].clone(),
         });
     }
-    for id in REQUIRED_EDGES {
-        if !ids.contains(*id) {
+    for &(id, from, to, kind, contract) in EDGE_TOPOLOGY {
+        if !ids.contains(id) {
             return Err(format!("required edge omitted: {id}"));
         }
+        if !out.iter().any(|edge| {
+            edge.id == id
+                && edge.from == from
+                && edge.to == to
+                && edge.kind == kind
+                && edge.contract == contract
+        }) {
+            return Err(format!("required edge topology changed: {id}"));
+        }
+    }
+    if out.len() != EDGE_TOPOLOGY.len() {
+        return Err("unexpected edge outside closed topology".into());
     }
     Ok(out)
 }
@@ -270,10 +403,19 @@ fn faults(root: &Path) -> Result<Vec<Fault>, String> {
         if !ids.insert(f[0].clone()) { return Err(format!("duplicate fault: {}", f[0])); }
         out.push(Fault {id:f[0].clone(), input:f[1].clone(), validity:f[2].clone(), open:f[3].clone(), unpowered:f[4].clone(), pfc:f[5].clone(), inverter:f[6].clone(), timing:f[7].clone()});
     }
-    for id in REQUIRED_FAULTS {
-        if !ids.contains(*id) {
+    for &(id, input) in FAULT_INPUTS {
+        if !ids.contains(id) {
             return Err(format!("required fault contributor omitted: {id}"));
         }
+        if !out
+            .iter()
+            .any(|fault| fault.id == id && fault.input == input)
+        {
+            return Err(format!("required fault input changed: {id}"));
+        }
+    }
+    if out.len() != FAULT_INPUTS.len() {
+        return Err("unexpected fault outside closed contributor registry".into());
     }
     Ok(out)
 }
@@ -431,7 +573,7 @@ fn assess_edge(
         .get(&e.to)
         .ok_or_else(|| format!("{}: unknown receiver port", e.id))?;
     let (v, reason) = match e.kind.as_str() {
-        "bus_sense" if a.domain == "HOT" && a.vmax > b.vmax => (
+        "bus_sense" if e.id == "bus_to_legacy_voltage" => (
             Verdict::Blocked,
             "390 V-class bus exceeds native 0-250 V legacy sense envelope",
         ),
@@ -639,7 +781,7 @@ mod tests {
         let rows = run(&root()).unwrap();
         assert_eq!(
             rows.len(),
-            REQUIRED_EDGES.len() + REQUIRED_FAULTS.len() + REQUIRED_UNITS.len()
+            EDGE_TOPOLOGY.len() + FAULT_INPUTS.len() + REQUIRED_UNITS.len()
         );
         assert!(rows
             .iter()
@@ -696,7 +838,11 @@ mod tests {
             ("global_live", "global.live", "interlock.live"),
         ] {
             let edge = Edge {
-                id: kind.into(),
+                id: if kind == "bus_sense" {
+                    "bus_to_legacy_voltage".into()
+                } else {
+                    kind.into()
+                },
                 from: a.into(),
                 to: b.into(),
                 kind: kind.into(),
@@ -766,6 +912,48 @@ mod tests {
         assert!(units(&dir, &locks(&root()).unwrap())
             .unwrap_err()
             .contains("required unit omitted"));
+        fs::remove_dir_all(dir).unwrap();
+    }
+    #[test]
+    fn relabeled_fault_and_legacy_voltage_rating_fail_closed() {
+        let dir = std::env::temp_dir().join(format!("zapote-r6-identity-{}", std::process::id()));
+        let integration = dir.join("zapote/integration");
+        fs::create_dir_all(&integration).unwrap();
+        let edge_source = fs::read_to_string(root().join("zapote/integration/edges.tsv")).unwrap();
+        let relabeled = edge_source.replace(
+            "voltage_fault\tvoltage.fault\tinterlock.ovp\tsignal",
+            "voltage_fault\tcurrent.fault\tinterlock.ocp\tsignal",
+        );
+        fs::write(integration.join("edges.tsv"), relabeled).unwrap();
+        assert!(edges(&dir)
+            .unwrap_err()
+            .contains("required edge topology changed"));
+        let fault_source =
+            fs::read_to_string(root().join("zapote/integration/faults.tsv")).unwrap();
+        fs::write(
+            integration.join("faults.tsv"),
+            fault_source.replace("voltage\tinterlock.ovp", "voltage\tinterlock.ocp"),
+        )
+        .unwrap();
+        assert!(faults(&dir)
+            .unwrap_err()
+            .contains("required fault input changed"));
+
+        let source_path = "zapote/voltage-sense/source-build-04/elec/src/voltage_sense_unit.ato";
+        fs::create_dir_all(dir.join(source_path).parent().unwrap()).unwrap();
+        fs::copy(root().join(source_path), dir.join(source_path)).unwrap();
+        let port_source = fs::read_to_string(root().join("zapote/integration/ports.tsv")).unwrap();
+        fs::write(
+            integration.join("ports.tsv"),
+            port_source.replace(
+                "BUS_PLUS\tLEGACY_HOT\tBUS_RETURN\tIN\t250",
+                "BUS_PLUS\tLEGACY_HOT\tBUS_RETURN\tIN\t450",
+            ),
+        )
+        .unwrap();
+        assert!(ports(&dir)
+            .unwrap_err()
+            .contains("legacy J1.1 envelope differs"));
         fs::remove_dir_all(dir).unwrap();
     }
     #[test]
