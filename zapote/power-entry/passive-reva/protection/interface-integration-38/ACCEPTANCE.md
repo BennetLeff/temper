@@ -19,6 +19,7 @@ No numerical fault response, protected operation, or mains build is approved.
 | ESP source adapter | `firmware/main/power_entry_authorization.c` SHA-256 `9241602d8f193ae10a1f1fc4fc87369de6a08116b8804466910194f44d03bc50`; header SHA-256 `62e936dec957a3ae5e7bc55e1c6b9e48b06620cb26cf5d3adab8e57c0faab274` |
 | Native board, production runtime and physical capture | **No accepted artifact or hash** |
 | Cooker native readiness diagnostic | `cooker-mate/evidence/native-readiness-02.json` SHA-256 `9d441e0ae16a4ed912ff7420beb38fc2b3a8c5eed39da8589c8814811565e5ef`; static probe only |
+| Product power assembly | **OPEN**; `POWER-ASSEMBLY-BOUNDARY.md` records two unjoined front ends and no bank/inverter power contract |
 
 Each build receipt lists every copied Atopile source hash and its resolved
 export hash. The [two-board source record](COOKER-ASSEMBLY-SOURCE.md) links
@@ -59,11 +60,12 @@ current-cessation result.
 | Receiver device qualification | **OPEN** | Host and target compilation do not prove programmed fuses, reset, clock or watchdog on silicon. |
 | ESP production integration | **OPEN** | Diagnostic lockout target image is not a production image; cooker hooks and target timing/pin captures remain unresolved. |
 | F1/F2, AUX, cooker SELV rail and thermal/fault envelopes | **OPEN** | See `F1-SCREEN.md`, `F2-BOARD-INTERFACE.md`, `AUX-SOURCE-CANDIDATE.md`, `SELV-SUPPLY-LOAD.md`. |
-| Native schematic/PCB, ERC/DRC, stackup, source/native parity and maintained unit gate | **NOT RUN for Rev38** | No accepted native board bytes; canonical `pcb/temper.kicad_pcb` remains outside this candidate. |
+| Native schematic/PCB, ERC/DRC, stackup, source/native parity and maintained unit gate | **NOT RUN for Rev38** | No accepted native board bytes or single joined power path; canonical `pcb/temper.kicad_pcb` remains outside this candidate. |
 | Cooker source/footprint readiness | **OPEN** | The frozen derivative now joins ESP pads 1/40/41 to SELV return and uses the stock 41-contact footprint. Static probe still finds unresolved canonical F1/NTC footprints, no reviewed poses/outline, and a stale strict-bridge extension. |
 | Low-voltage assembled injection, fault-to-current cessation, mains safety and passive protection/cooling milestone | **NOT RUN / OPEN** | Require a joined physical design and separately accepted measurements. |
 
 The next digital release gate is a reviewed native Rev38 board plus cooker
 mate and cable contract with exact parts, poses, outline, and source/native
-parity. The F2 terminal drill/pin record and two cooker power-part footprints
-currently prevent treating a generated layout as accepted.
+parity. First the two-source assembly must have one evaluated inlet and
+explicit SELV rail and inverter power joins. The F2 terminal drill/pin record
+and the cooker native package/placement work remain open after that decision.

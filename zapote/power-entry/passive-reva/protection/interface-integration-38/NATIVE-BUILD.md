@@ -21,7 +21,12 @@ native board, physical harness, SELV rail capacity and reset/interlock pin
 qualification. Its [static native readiness probe](cooker-mate/README.md)
 identifies two missing canonical footprints. The cooker derivative now joins
 ESP module ground contacts 40/41 to SELV return on KiCad's 41-contact stock
-land pattern; no board has been generated. The
+land pattern; no board has been generated. The separate
+[`POWER-ASSEMBLY-BOUNDARY.md`](POWER-ASSEMBLY-BOUNDARY.md) finds a prior
+source-topology gate: importing the cooker `Top` intact retains its older
+inlet, doubler and auxiliary source, while the 16-contact mate carries no
+power-stage join. Resolving two legacy footprint names alone cannot create
+one native product assembly. The
 source remains an engineering candidate. It includes two unresolved
 footprint references:
 off-board `A70QS50-14F` F2 at `U226` and the distinct Phoenix `1017526`

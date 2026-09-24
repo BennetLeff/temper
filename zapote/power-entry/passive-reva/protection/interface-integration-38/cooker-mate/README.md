@@ -78,8 +78,13 @@ The cooker derivative now uses the installed `RF_Module:ESP32-S3-WROOM-1`
 land pattern. The source connects module GND pads 1, 40 and 41 to the same
 SELV return; the Rust audit rejects an open pad 41. The stock footprint's
 SHA-256 is recorded in the readiness report. The canonical cooker source and
-board remain unchanged. Two classes of input still block a credible native
-cooker board:
+board remain unchanged. The [power assembly
+boundary](../POWER-ASSEMBLY-BOUNDARY.md) is a prior gate: the current `Top`
+import retains its old inlet, doubler and auxiliary source, while this
+16-contact mate carries no Rev38 bank or inverter-power connection. A product
+native board needs a source composition with one evaluated inlet and explicit
+controller-rail and inverter-power paths. The static probe also finds two
+legacy package references and missing native geometry:
 
 - `F1` (`cooker.power_in.fuse`) references
   `Fuse:Fuse_Holder_5x20mm`, and `RT1` (`cooker.power_in.ntc`) references
