@@ -21,7 +21,7 @@ void test_profile_start(void) {
     const cooking_profile_t *simmer = profile_get_simmer();
     profile_start(&status, simmer, 1000);
     
-    TEST_ASSERT_EQUAL(simmer, status.active_profile);
+    TEST_ASSERT_TRUE(simmer == status.active_profile);
     TEST_ASSERT_TRUE(status.active);
     TEST_ASSERT_EQUAL(0, status.current_stage_idx);
     TEST_ASSERT_EQUAL(1000, status.stage_start_time_ms);

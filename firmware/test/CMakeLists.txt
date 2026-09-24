@@ -416,6 +416,9 @@ target_link_libraries(test_coil_guard_only m)
 # ============================================================================
 
 enable_testing()
+add_test(NAME power_entry_authorization_tests COMMAND test_power_entry_authorization)
+add_test(NAME power_entry_source_runtime_tests COMMAND test_power_entry_source_runtime)
+add_test(NAME power_entry_esp32_adapter_tests COMMAND test_power_entry_esp32_adapter)
 add_test(NAME all_tests COMMAND test_runner)
 add_test(NAME state_machine_tests COMMAND test_state_machine_only)
 add_test(NAME max31865_tests COMMAND test_max31865_only)
