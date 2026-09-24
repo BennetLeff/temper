@@ -1,0 +1,11 @@
+case	aux	logic5	request	arm	injection	ena_requirement	gate_requirement	verdict	events
+cold_aux_first	nominal	off	low	none	none	off_le_0p8	off_after_discharge	capture_required	RESET>AUX_ON>CHECK_OFF
+cold_logic_first	off	nominal	low	none	none	unpowered	off_after_discharge	capture_required	RESET>LOGIC5_ON>CHECK_OFF
+partial_logic	nominal	partial	high	stale	none	off_le_0p8	off_after_discharge	capture_required	RESET>AUX_ON>LOGIC5_PARTIAL>CHECK_OFF
+aux_loss	off	nominal	high	stale	none	unpowered	off_after_discharge	capture_required	RESET>RAILS_ON>ARM>AUX_LOSS>CHECK_OFF
+logic_loss	nominal	off	high	stale	none	off_le_0p8	off_after_discharge	capture_required	RESET>RAILS_ON>ARM>LOGIC5_LOSS>CHECK_OFF
+repeated_hiccup	nominal	nominal	high	stale	none	off_le_0p8	off_after_discharge	capture_required	RESET>RAILS_ON>ARM>AUX_LOSS>AUX_RECOVER>AUX_LOSS>AUX_RECOVER>CHECK_OFF
+brownout_recover	nominal	nominal	high	stale	none	off_le_0p8	off_after_discharge	capture_required	RESET>RAILS_ON>ARM>LOGIC5_BROWNOUT>LOGIC5_RECOVER>CHECK_OFF
+stuck_high_request	nominal	nominal	high	none	none	off_le_0p8	off_after_discharge	capture_required	RESET>RAILS_ON>REQUEST_HIGH>CHECK_OFF
+ena_stuck_high	nominal	off	high	stale	ena_high	off_le_0p8	off_after_discharge	reject_if_observed	RESET>RAILS_ON>ARM>LOGIC5_LOSS>INJECT_ENA_HIGH>CHECK_REJECT
+fresh_rearm	nominal	nominal	high	fresh	none	eligible_ge_2p3	conditional_on_pwm	capture_required	RESET>RAILS_ON>ARM>LOGIC5_LOSS>LOGIC5_RECOVER>CHECK_OFF>REQUEST_LOW>ARM_FRESH>REQUEST_HIGH>CHECK_ELIGIBLE

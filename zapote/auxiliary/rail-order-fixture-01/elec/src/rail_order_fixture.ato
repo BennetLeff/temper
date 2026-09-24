@@ -1,0 +1,84 @@
+# LAB ONLY. Standalone, mains-disconnected driver-stage coupon only.
+# No AC, VD, VB or PFC power connection. Never mate to an energized Rev38 board.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component RailInput:
+    designator_prefix = "J"
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+    signal positive ~ pin 1
+    signal return ~ pin 2
+
+component DutHarness:
+    designator_prefix = "J"
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical"
+    signal AUX_PROTECTED ~ pin 1
+    signal HOT_LOGIC5 ~ pin 2
+    signal HOT0 ~ pin 3
+    signal DRIVER_PERMISSION ~ pin 4
+    signal ENA_NODE ~ pin 5
+    signal EN_SHUNT_BASE ~ pin 6
+    signal PFC_PWM ~ pin 7
+    signal STW_GATE ~ pin 8
+    signal HOT_RUN_Q ~ pin 9
+    signal HOT_SESSION_Q ~ pin 10
+
+component ProbePoint:
+    designator_prefix = "TP"
+    footprint = "TestPoint:TestPoint_Pad_D1.0mm"
+    signal pad ~ pin 1
+
+module RailOrderFixture:
+    signal AUX_PROTECTED
+    signal HOT_LOGIC5
+    signal HOT0
+    signal DRIVER_PERMISSION
+    signal ENA_NODE
+    signal EN_SHUNT_BASE
+    signal PFC_PWM
+    signal STW_GATE
+    signal HOT_RUN_Q
+    signal HOT_SESSION_Q
+
+    # Two independently current-limited, isolated lab supplies share only HOT0.
+    # Their returns are never connected to SELV GND by this fixture.
+    aux_input = new RailInput
+    logic_input = new RailInput
+    aux_input.positive ~ AUX_PROTECTED
+    aux_input.return ~ HOT0
+    logic_input.positive ~ HOT_LOGIC5
+    logic_input.return ~ HOT0
+
+    dut = new DutHarness
+    dut.AUX_PROTECTED ~ AUX_PROTECTED
+    dut.HOT_LOGIC5 ~ HOT_LOGIC5
+    dut.HOT0 ~ HOT0
+    dut.DRIVER_PERMISSION ~ DRIVER_PERMISSION
+    dut.ENA_NODE ~ ENA_NODE
+    dut.EN_SHUNT_BASE ~ EN_SHUNT_BASE
+    dut.PFC_PWM ~ PFC_PWM
+    dut.STW_GATE ~ STW_GATE
+    dut.HOT_RUN_Q ~ HOT_RUN_Q
+    dut.HOT_SESSION_Q ~ HOT_SESSION_Q
+
+    # Observation pads are electrically passive: no pull-up or source feed.
+    tp_aux = new ProbePoint
+    tp_logic = new ProbePoint
+    tp_return = new ProbePoint
+    tp_permission = new ProbePoint
+    tp_ena = new ProbePoint
+    tp_base = new ProbePoint
+    tp_pwm = new ProbePoint
+    tp_gate = new ProbePoint
+    tp_run = new ProbePoint
+    tp_session = new ProbePoint
+    tp_aux.pad ~ AUX_PROTECTED
+    tp_logic.pad ~ HOT_LOGIC5
+    tp_return.pad ~ HOT0
+    tp_permission.pad ~ DRIVER_PERMISSION
+    tp_ena.pad ~ ENA_NODE
+    tp_base.pad ~ EN_SHUNT_BASE
+    tp_pwm.pad ~ PFC_PWM
+    tp_gate.pad ~ STW_GATE
+    tp_run.pad ~ HOT_RUN_Q
+    tp_session.pad ~ HOT_SESSION_Q

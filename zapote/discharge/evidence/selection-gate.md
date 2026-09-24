@@ -1,0 +1,35 @@
+# P2 discharge selection gate — digital evidence only
+
+Run from the repository root:
+
+```sh
+rustc --edition=2021 --test zapote/discharge/evidence/discharge_screen.rs -o /tmp/zapote-discharge-tests
+/tmp/zapote-discharge-tests
+rustc --edition=2021 zapote/discharge/evidence/discharge_screen.rs -o /tmp/zapote-discharge-gate
+/tmp/zapote-discharge-gate --case zapote/discharge/evidence/isolated-illustrative.case
+/tmp/zapote-discharge-gate --case zapote/discharge/evidence/mains-attached-fan-off.case
+```
+
+The `--case` command first verifies every committed Rev38 Atopile input against [source-inputs.sha256](source-inputs.sha256). A changed or missing source is `REJECT` before calculation. The active Rev38 checkout, including its uncommitted edits, is not an input. The fixture uses the **VD and VB energy islands separated by F2** identified in [energy-islands.md](../energy-islands.md). VB includes direct inverter capacitance on the bank side; detached inverter capacitance needs its own explicit path. F2 closed joins the capacitances and conductances. The return is HOT0 in both cases.
+
+## Input and verdict contract
+
+Every `key=value` in the example cases is required. No unentered value defaults to zero or to a product requirement. The gate rejects missing, duplicate, unknown, nonfinite, negative, and inconsistent bounds. `initial_v` is an illustrative starting voltage; `max_v` bounds the starting voltage of every declared energy island for deadline timing and component stress. If an F2-open VD or VB island can begin above `max_v`, this case does not cover it. `target_v` and `target_s` are scenario inputs, and `criteria_adopted=false` means that even a mathematically fast result is **INDETERMINATE**. Historical 34 V / 60 s has no gate constant.
+
+The boolean `*_verified` fields are assertions for a **specific evidence package**, not measurements performed by this program. They may be set true only with traceable part, rail, waveform, thermal, and service records from the bench protocol below. The gate does not authenticate such records. `CONDITIONAL` means only that the stated model, inputs, and asserted evidence pass the represented checks; it does not qualify a circuit or authorize a service or restart claim. `REJECT` takes precedence over unknowns; any missing evidence yields `INDETERMINATE`. No selected native Atopile circuit is emitted.
+
+`fault` selects one injected fault per case: `vd_string_open`, `vd_resistor_short`, `vb_resistor_open`, `vb_resistor_short`, `contact_stuck_open`, `contact_stuck_closed`, `coil_stuck_energized`, `vd_sense_open`, or `vb_sense_open`. Sweep each separately. `single_fault_fast_deadline` states whether the adopted deadline must hold under the injected fault; if false, a missed deadline remains indeterminate until detection, lockout, service measurement and deliberate rearm are proven. The coil recovery count, minimum period, and maximum brownout dwell represent an explicit bounding schedule, though they are not a dynamic contact simulation. A nonzero count without positive schedule bounds is rejected. Loaded pickup, hold, dropout, and release still require actual waveform evidence. `contact_pickup_max_s` is recorded and validated but cannot be promoted into a restart timing proof without that evidence.
+
+When `mains_isolated=false`, no RC completion time is calculated. A claim that the isolated RC deadline still applies is rejected. AUX loss can close the NC contact while the bridge replenishes VD and the fan is stopped. **F2 must remain closed for that source to maintain VB**; with F2 open, VB drains as its own stored-energy island while VD may be replenished. At 450 V with F2 closed, the nominal two-branch bank path draws 27 W continuously, before tolerance; one shorted 7.5 kΩ element makes 40.5 W. With the example 1% low resistance, the gate reports 27.273 W intact and 40.909 W after one short. These watts are a **cooling and chassis input**, not a temperature pass. See [topology-screen.md](../topology-screen.md) for the manufacturer limits and prior U2 arithmetic.
+
+The present candidate is two passive VD strings of four 200 kΩ [Vishay TNPW1206 e3](https://www.vishay.com/docs/28758/tnpw_e3.pdf) elements and a [Coto 5504-12-1](https://www.cotorelay.com/datasheets/Coto%20Technology%205500%20Reed%20Relay.pdf) NC contact feeding two bank branches of two 7.5 kΩ [Vishay RH50](https://www.vishay.com/docs/50013/rh.pdf) resistors. These are catalog screens, not a BOM. The gate checks the TNPW 200 V element ceiling, RH50 40 W **mounted on the specified 536 cm² chassis at 70 °C** and 1285 V RMS limit. It does not treat the 40 W as an unmounted or pulse rating. The contact's 200 W resistive rating alone does not establish DC cycle life at 390–450 V. A 15.75 V AUX rail violates the selected 12 V coil's 15 V maximum; a qualified coil rail has not been selected.
+
+At each voltage the gate prints total bank/direct-inverter stored joules and a deliberately loose upper bound that all of the connected stored energy could heat one bank element after a fault. F2 closed adds VD energy to this upper bound. This is a rejection screen, not a manufacturer pulse-rating comparison; it does not model thermal impedance, transient voltage sharing, arc energy or source-fed energy. F2-open sense faults and residual voltage cannot be hidden by a healthy other island. Restart claims require F2 continuity, both island measurements within the entered criterion, an intact sense path and deliberate rearm evidence.
+
+## Present result and decision
+
+The supplied isolated example declares 390 V illustrative and 400 V maximum, then screens 400 → 80 V by 120 s: VD 16.071 s and VB 33.771 s with the candidate paths. It returns **INDETERMINATE** because the criterion and required hardware evidence are absent. An adverse adopted 450 → 80 V by 35 s case now rejects: the VB maximum exceeds the deadline even when all evidence flags are asserted. The mains-attached, F2-closed, fan-off case returns **INDETERMINATE**, reports no decay time, and reports 27.273 W continuously at 450 V with 1% low resistance. Source lock and 21 focused tests passed on 2026-09-23. The next decision is to acquire the adopted voltage/time rule, exact orderable parts, a measured bounded coil rail, loaded contact switching/life data, installed fan-off RH50 thermal data, F2/sense fault response, and an independent service/rearm procedure. Until then, retain the candidate as a screening topology and do not construct or qualify it as the discharge stage.
+
+## Bench qualification handoff
+
+Use [bench-qualification.md](../bench-qualification.md) as the planned controlled experiment. Cooling must take the 21.33 W at 400 V / 27.0 W at 450 V nominal intact and 32.0 W / 40.5 W one-short chassis loads, with fan loss coupled to AUX loss. Any cooling model using forced airflow in that state requires proof of an independent fan supply and flow.
