@@ -25,7 +25,11 @@ The cooker-mate derivative now has digital reset/interlock producers on
 pins 14/15. Their supervisor, LVC gates and existing NAND latch have no
 power-ramp or transient-fault capture. GPIO14 is not yet owned as an
 open-drain reset request by production firmware; any push-pull high can
-fight the supervisor. This path remains OPEN.
+fight the supervisor. The current restart-disarm API also requires
+`safety_ok`, which contains the interlock itself, so it cannot acknowledge
+disarm while the cooker fault latch is set. A separate physically verified
+disarm-before-reset path and post-reset health sample are required. This
+path remains OPEN.
 
 `ESP-MONITOR-CONTRACT.md` records why an idle cooker cannot credit the
 existing unconditional `run_safety_check()` and why fault-state control

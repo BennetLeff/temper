@@ -33,6 +33,18 @@ or open-drain only**. A push-pull high can contend with the supervisor, and a
 push-pull low held during operation defeats fault retention. No production
 GPIO14 ownership implementation or target pin-mode receipt exists yet.
 
+The current source restart API has an additional recovery dependency:
+`pe_source_disarmed_for_restart()` calls `physical_disarmed()`, which requires
+`inputs.safety_ok`. That input comes from `SOURCE_PREWATCHDOG_OK`, which
+includes INTERLOCK_N. A latched cooker fault holds INTERLOCK_N low, so the
+present API cannot acknowledge disarm for a GPIO14 fault-latch reset. A
+repair must distinguish **verified physical disarm with the cooker latch
+still faulted** from **healthy authorization after the reset pulse**. The
+reset pulse may occur only in the former state, with STOP asserted and
+physical local/HOT PERMIT and HOT session cleared; the latter state must
+be checked afresh before any new session. A held live fault must remain
+set-dominant. No such firmware path or proof is implemented.
+
 The nominal divider falling threshold is about 2.99 V. Using the
 [TPS3890's](https://www.ti.com/lit/ds/symlink/tps3890.pdf) 1.15 V nominal
 threshold and ±1% threshold accuracy with ±1% independent resistor corners
@@ -80,7 +92,8 @@ GPIO14 reset mode, and fault-latch power-on behavior require measurements.
 
 1. Implement one firmware owner for GPIO14, configure it only as open drain,
    and issue a deliberate low reset pulse only after the source and HOT sides
-   acknowledge physical disarm. Verify no other cooker or diagnostic task
+   acknowledge physical disarm through a path that does not require an
+   already-healthy cooker interlock. Verify no other cooker or diagnostic task
    changes its mode or level. A fault during the pulse must keep SHUTDOWN
    high, and a subsequent transient fault must remain latched until another
    controlled reset.
