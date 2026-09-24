@@ -23,9 +23,10 @@ post-reset WDI edge remain unmeasured. Their reset-to-off timing is OPEN.
 
 The cooker-mate derivative now has digital reset/interlock producers on
 pins 14/15. Their supervisor, LVC gates and existing NAND latch have no
-power-ramp or transient-fault capture. GPIO14 is not yet owned as an
-open-drain reset request by production firmware; any push-pull high can
-fight the supervisor. The current restart-disarm API also requires
+power-ramp or transient-fault capture. The source adapter releases GPIO14
+as an input during boot and never writes it, but no open-drain pulse owner
+or target pin-mode capture exists; any push-pull high can fight the
+supervisor. The current restart-disarm API also requires
 `safety_ok`, which contains the interlock itself, so it cannot acknowledge
 disarm while the cooker fault latch is set. The source core and runtime now
 expose a separately sampled, host-tested latch-reset eligibility predicate

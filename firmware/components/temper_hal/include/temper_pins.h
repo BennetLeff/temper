@@ -91,7 +91,7 @@ extern "C" {
 /** Inrush limiter bypass relay control (ESP32-S3 IO16) */
 #define PIN_RELAY_BYPASS        16
 
-/** Master reset input from hardware safety system */
+/** Cooker fault-latch reset request, released input or open drain only */
 #define PIN_RESET_INPUT         14
 
 /* ============================================================================

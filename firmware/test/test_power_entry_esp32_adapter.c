@@ -9,6 +9,8 @@ typedef struct {
     bool gpio[49];
     int stop_writes;
     int wdi_writes;
+    int cooker_reset_inputs;
+    int cooker_reset_writes;
     int uart_cancels;
     int operations;
     int stop_order;
@@ -16,6 +18,7 @@ typedef struct {
     int config_order;
     bool fail_next_read;
     bool fail_next_write;
+    bool fail_reset_input;
 } fixture_t;
 
 static bool output_low(void *context, int gpio) {
@@ -31,7 +34,11 @@ static bool output_low(void *context, int gpio) {
 }
 
 static bool input(void *context, int gpio) {
-    (void)context;
+    fixture_t *f = context;
+    if (gpio == PE_ESP_GPIO_COOKER_RESET_REQUEST) {
+        f->cooker_reset_inputs++;
+        return !f->fail_reset_input;
+    }
     return gpio == PE_ESP_GPIO_PREWATCHDOG_OK ||
            gpio == PE_ESP_GPIO_START_BUTTON;
 }
@@ -41,6 +48,7 @@ static bool set_gpio(void *context, int gpio, bool high) {
     f->gpio[gpio] = high;
     if (gpio == PE_ESP_GPIO_STOP_N) f->stop_writes++;
     if (gpio == PE_ESP_GPIO_WDI_REQUEST) f->wdi_writes++;
+    if (gpio == PE_ESP_GPIO_COOKER_RESET_REQUEST) f->cooker_reset_writes++;
     return true;
 }
 
@@ -119,6 +127,7 @@ static void test_retained_output_boot_order(void) {
     assert(f.latch_order < f.config_order);
     assert(f.regs[1] == 0 && f.regs[2] == 0 && f.regs[3] == 0xf8);
     assert(f.wdi_writes == 0);
+    assert(f.cooker_reset_inputs == 1 && f.cooker_reset_writes == 0);
     assert(f.gpio[PE_ESP_GPIO_WDI_REQUEST]);
     assert(f.uart_cancels == 1);
 }
@@ -152,6 +161,16 @@ static void test_boot_readback_failure(void) {
     assert(f.stop_writes >= 2);
     assert(f.wdi_writes == 0);
     assert(f.config_order == 0);
+}
+
+static void test_reset_request_release_failure_stays_stopped(void) {
+    fixture_t f = {.fail_reset_input = true};
+    pe_esp32_adapter_t adapter;
+    assert(!pe_esp32_adapter_boot(&adapter, ops(&f)));
+    assert(adapter.fault && !adapter.booted);
+    assert(f.cooker_reset_inputs == 1 && f.cooker_reset_writes == 0);
+    assert(!f.gpio[PE_ESP_GPIO_STOP_N]);
+    assert(f.config_order == 0 && f.wdi_writes == 0);
 }
 
 static void test_configuration_drift_and_interrupted_write(void) {
@@ -211,6 +230,7 @@ int main(void) {
     test_retained_output_boot_order();
     test_physical_sample_and_failure_stop();
     test_boot_readback_failure();
+    test_reset_request_release_failure_stays_stopped();
     test_configuration_drift_and_interrupted_write();
     test_expander_retain_and_pulse();
     test_source_runtime_boot_with_adapter();

@@ -58,6 +58,10 @@ bool pe_esp32_adapter_boot(pe_esp32_adapter_t *adapter,
     }
     if (!ops.cancel_uart_tx(ops.context) ||
         !ops.configure_output_low(ops.context, PE_ESP_GPIO_PERMIT_SET) ||
+        /* Release GPIO14 to the external supervisor. A reset pulse needs a
+         * separate verified open-drain owner; never drive this node high. */
+        !ops.configure_input(ops.context,
+                             PE_ESP_GPIO_COOKER_RESET_REQUEST) ||
         !ops.configure_input(ops.context, PE_ESP_GPIO_PREWATCHDOG_OK) ||
         !ops.configure_input(ops.context, PE_ESP_GPIO_START_BUTTON)) {
         fault(adapter);

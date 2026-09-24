@@ -29,9 +29,10 @@ reset request. A 10 kΩ GPIO15 pull-down defines the inactive runaway-cut
 input before firmware owns it. The supervisor holds the latch reset request
 low while its rail/EN condition is false and through its release delay; it
 then releases the node high to retain future faults. GPIO14 must be **input
-or open-drain only**. A push-pull high can contend with the supervisor, and a
-push-pull low held during operation defeats fault retention. No production
-GPIO14 ownership implementation or target pin-mode receipt exists yet.
+or open-drain only**. The source adapter configures GPIO14 as a released
+input during boot; it never writes a reset level. A push-pull high can contend
+with the supervisor, and a push-pull low held during operation defeats fault
+retention. No production GPIO14 pulse owner or target pin-mode receipt exists.
 
 The current source restart API has an additional recovery dependency:
 `pe_source_disarmed_for_restart()` calls `physical_disarmed()`, which requires
