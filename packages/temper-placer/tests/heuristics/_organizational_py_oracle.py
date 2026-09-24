@@ -76,6 +76,7 @@ from numpy.typing import NDArray
 
 Array: TypeAlias = NDArray
 
+from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.heuristics.base import (
@@ -86,7 +87,6 @@ from temper_placer.heuristics.base import (
     PlacementContext,
     order_refs_by_netlist,
 )
-from temper_placer.io.config_loader import PlacementConstraints
 from temper_placer.router_v6.net_classification import (
     is_ground_net,
     is_power_net,

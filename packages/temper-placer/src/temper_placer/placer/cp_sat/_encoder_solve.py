@@ -916,7 +916,7 @@ def solve_placement(
     try:
         from pathlib import Path
 
-        from temper_placer.io.netclass_loader import load_netclass_rules
+        from temper_design_bundle_python import load_netclass_rules
 
         _config_yaml = (
             Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"

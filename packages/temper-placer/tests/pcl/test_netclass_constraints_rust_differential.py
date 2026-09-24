@@ -85,7 +85,7 @@ def _mock_netlist(components: list[_MockComp]) -> object:
 
 @pytest.fixture(scope="module")
 def rules():
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
 
     return load_netclass_rules(RULES_PATH)
 

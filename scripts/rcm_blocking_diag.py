@@ -36,8 +36,9 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    from temper_design_bundle_python import load_netclass_rules
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6 import astar_pathfinding
 
     pcb_path = REPO_ROOT / "pcb" / "temper.kicad_pcb"

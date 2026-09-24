@@ -188,7 +188,6 @@
     "packages/temper-placer/src/temper_placer/_constraint_types/config.py",
     "packages/temper-placer/src/temper_placer/core/net_classification.py",
     "packages/temper-placer/src/temper_placer/physics/gate_drive.py",
-    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
     "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py",
     "packages/temper-placer/tests/core/_priority_py_oracle.py",
@@ -395,9 +394,7 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py"
   ],
-  "compare_drc_reports.py": [
-    "scripts/sprint1_validation.sh"
-  ],
+  "compare_drc_reports.py": [],
   "component_defect_mutator.py": [],
   "constraint_mutation_gate.py": [
     ".github/workflows/python-tests.yml"
@@ -406,9 +403,7 @@
     "packages/temper-placer/tests/pcl/test_mutation_register.py"
   ],
   "deadcode-baseline.py": [],
-  "debug_diff_pair_path.py": [
-    "scripts/test_backpath_fix.sh"
-  ],
+  "debug_diff_pair_path.py": [],
   "duplicate_predicate_registry.py": [
     "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
     "packages/temper-placer/src/temper_placer/physics/thermal_fdm.py",
@@ -513,6 +508,7 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/validation/test_gate_input_registry.py"
   ],
+  "measure_isolation_binding_pairs.py": [],
   "measure_router_output_baseline.py": [
     ".github/workflows/regression.yml"
   ],
@@ -593,9 +589,7 @@
     "packages/temper-placer/tests/router_v6/test_topology_copper_audit.py",
     "packages/temper-workflow/tests/_route_and_measure_py_oracle.py"
   ],
-  "run_feedback_loop.py": [
-    "scripts/test_backpath_fix.sh"
-  ],
+  "run_feedback_loop.py": [],
   "scan_external_corpus.py": [
     ".github/workflows/corpus-batch.yml"
   ],
@@ -622,9 +616,7 @@
     "packages/temper-placer/tests/router_v6/test_temper_production_board_routing.py"
   ],
   "update_regression_cache.py": [],
-  "validate_footprints.py": [
-    "scripts/sprint1_validation.sh"
-  ],
+  "validate_footprints.py": [],
   "validate_perf_capture.py": [
     ".github/workflows/pr-perf-baseline-capture.yml",
     ".github/workflows/pr-perf-check.yml"

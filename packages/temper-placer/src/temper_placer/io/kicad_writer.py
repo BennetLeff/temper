@@ -7,6 +7,8 @@ This file exposes the public API for backward compatibility.
 
 from __future__ import annotations
 
+from temper_io_types import write_types as _write_types_rs
+
 from temper_placer.io._write_board import (
     add_isolation_slots_to_pcb,
     compute_to247_isolation_slots,
@@ -26,15 +28,14 @@ from temper_placer.io._write_tracks import (
     strip_routing_preserve_nets,
     write_routes_to_pcb,
 )
-from temper_placer.io._write_types import (
-    IsolationSlotResult,
-    PlacementUpdate,
-    StrippingResult,
-    WriteResult,
-)
 from temper_placer.io._write_zones import (
     write_zones_to_pcb,
 )
+
+IsolationSlotResult = _write_types_rs.IsolationSlotResult
+PlacementUpdate = _write_types_rs.PlacementUpdate
+StrippingResult = _write_types_rs.StrippingResult
+WriteResult = _write_types_rs.WriteResult
 
 
 def placements_to_json(placements: dict[str, PlacementUpdate]) -> dict:

@@ -77,6 +77,7 @@ import string
 import pytest
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
+from temper_design_bundle_python import load_netclass_rules
 
 from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
 from temper_placer.core.loop import Loop, LoopEvent, LoopPin, LoopPriority, LoopType
@@ -87,7 +88,6 @@ from temper_placer.io.loop_loader import (
     load_loop_template,
     save_loop_to_yaml,
 )
-from temper_placer.io.netclass_loader import load_netclass_rules
 
 MAX_EXAMPLES = 60
 SETTINGS = settings(

@@ -321,13 +321,14 @@ def profile_loaders(
         return round(total / measured, 4) if measured > 0 else 0.0
 
     try:
+        from temper_design_bundle_python import load_netclass_rules
+
         from temper_placer.io.loop_loader import load_loop_collection
-        from temper_placer.io.netclass_loader import load_netclass_rules
     except ImportError as e:
         # Was: report both loaders as 0.0 ms, indistinguishable from a real
         # (impossibly fast) measurement.
         raise ImportError(
-            "temper_placer.io.loop_loader / io.netclass_loader are required "
+            "temper_placer.io.loop_loader / temper_design_bundle_python are required "
             "to profile the loaders and could not be imported. This is a "
             "broken temper-placer install, not an optional feature -- "
             "reinstall with: uv sync"

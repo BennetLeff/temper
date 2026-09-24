@@ -125,7 +125,8 @@ def test_export_pcb_full():
 
 
 def test_export_wiring():
-    from temper_placer.io._kicad_types import TraceData
+    from temper_design_bundle_python import parse_engine as _parse_engine
+    TraceData = _parse_engine.TraceData
 
     board = Board(width=100, height=100)
     netlist = Netlist()

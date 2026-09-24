@@ -76,7 +76,7 @@ static hal_status_t esp32_timer_init(hal_timer_t timer, const hal_timer_config_t
     
     timer_instance_t *inst = &s_timers[timer];
     if (inst->initialized) {
-        ESP_LOGW(TAG, "Timer %d already initialized", timer);
+        ESP_LOGW(TAG, "Timer %d already initialized", (int)timer);
         return HAL_ERROR_BUSY;
     }
     
@@ -89,7 +89,7 @@ static hal_status_t esp32_timer_init(hal_timer_t timer, const hal_timer_config_t
     
     esp_err_t err = gptimer_new_timer(&timer_cfg, &inst->handle);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to create timer %d: %s", timer, esp_err_to_name(err));
+        ESP_LOGE(TAG, "Failed to create timer %d: %s", (int)timer, esp_err_to_name(err));
         return HAL_ERROR;
     }
     
@@ -103,7 +103,7 @@ static hal_status_t esp32_timer_init(hal_timer_t timer, const hal_timer_config_t
         
         err = gptimer_set_alarm_action(inst->handle, &alarm_cfg);
         if (err != ESP_OK) {
-            ESP_LOGE(TAG, "Failed to set alarm for timer %d: %s", timer, esp_err_to_name(err));
+            ESP_LOGE(TAG, "Failed to set alarm for timer %d: %s", (int)timer, esp_err_to_name(err));
             gptimer_del_timer(inst->handle);
             return HAL_ERROR;
         }
@@ -117,7 +117,7 @@ static hal_status_t esp32_timer_init(hal_timer_t timer, const hal_timer_config_t
             err = gptimer_register_event_callbacks(inst->handle, &cbs, inst);
             if (err != ESP_OK) {
                 ESP_LOGE(TAG, "Failed to register callback for timer %d: %s", 
-                         timer, esp_err_to_name(err));
+                         (int)timer, esp_err_to_name(err));
                 gptimer_del_timer(inst->handle);
                 return HAL_ERROR;
             }
@@ -133,13 +133,13 @@ static hal_status_t esp32_timer_init(hal_timer_t timer, const hal_timer_config_t
     /* Enable timer */
     err = gptimer_enable(inst->handle);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to enable timer %d: %s", timer, esp_err_to_name(err));
+        ESP_LOGE(TAG, "Failed to enable timer %d: %s", (int)timer, esp_err_to_name(err));
         gptimer_del_timer(inst->handle);
         inst->initialized = false;
         return HAL_ERROR;
     }
     
-    ESP_LOGI(TAG, "Timer %d initialized, period=%lu us", timer, (unsigned long)config->period_us);
+    ESP_LOGI(TAG, "Timer %d initialized, period=%lu us", (int)timer, (unsigned long)config->period_us);
     return HAL_OK;
 }
 
@@ -299,7 +299,7 @@ static hal_status_t esp32_timer_deinit(hal_timer_t timer)
     
     memset(inst, 0, sizeof(timer_instance_t));
     
-    ESP_LOGI(TAG, "Timer %d deinitialized", timer);
+    ESP_LOGI(TAG, "Timer %d deinitialized", (int)timer);
     return HAL_OK;
 }
 

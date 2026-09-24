@@ -18,6 +18,7 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_system.h"
+#include "esp_timer.h"
 #include "nvs_flash.h"
 
 #include "state_machine.h"
@@ -45,6 +46,50 @@ static const char *TAG = "main";
 #define CONTROL_LOOP_PERIOD_MS  10  /* 100 Hz */
 #define UI_LOOP_PERIOD_MS       50  /* 20 Hz */
 #define MONITOR_LOOP_PERIOD_MS  100 /* 10 Hz */
+
+/* ============================================================================
+ * Time base
+ * ============================================================================
+ *
+ * Board-side definition of the `extern uint32_t get_time_ms(void)` declared by
+ * state_machine.c:53, state_handlers.c:24 and low_temp_control.c:22. Defined
+ * here because main.c is compiled only into the ESP32-S3 image; the host test
+ * builds get their own controllable version from test/state_machine_stubs.c,
+ * so this must not move into a translation unit those builds compile.
+ *
+ * Contract, as fixed by the existing call sites rather than chosen here:
+ *
+ *   Epoch    -- microseconds since boot, from esp_timer. Every consumer forms
+ *               `now - then`; the only absolute uses are the `> 0` "have I got
+ *               a prior sample" sentinel in check_runaway_boundary()
+ *               (state_machine.c:472) and the eeprom_log_fault() timestamp.
+ *               Nothing needs a wall clock.
+ *   Width    -- uint32_t, matching both the declarations above and
+ *               hal_time_ms_t (hal_types.h:224). Wraps every ~49.7 days;
+ *               consumers subtract in unsigned arithmetic, which is correct
+ *               across the wrap.
+ *   Failure  -- none. esp_timer is brought up by the IDF startup code before
+ *               app_main and is monotonic; esp_timer_get_time() has no error
+ *               return.
+ *
+ * Deliberately NOT routed through HAL_TIME_MS() / hal_timer->get_time_ms(),
+ * which is what the obvious reading of hal_timer.h suggests. That macro
+ * (hal_timer.h:163-164) evaluates to 0 whenever `hal_timer` is NULL, so a
+ * HAL that was never initialised -- and init_peripherals() below explicitly
+ * continues past a failed hal_init() -- would freeze this counter at 0.
+ * A frozen clock does not announce itself: check_runaway_boundary() gates its
+ * rate-of-rise test on `last_pan_temp_time_ms > 0`, which never becomes true
+ * if the clock never leaves 0, so the thermal-runaway rate trip would be
+ * silently and permanently disarmed while every other check still appeared to
+ * run. esp_timer removes that coupling instead of papering over it, and is
+ * also cheaper (no indirect call). See docs/FIRMWARE_LINK_TRIAGE.md.
+ */
+uint32_t get_time_ms(void) {
+    /* esp_timer_get_time() is int64 microseconds since boot and always
+     * non-negative, so the narrowing to uint32_t is a well-defined modular
+     * reduction -- the intended wrap, not undefined behaviour. */
+    return (uint32_t)(esp_timer_get_time() / 1000);
+}
 
 /**
  * @brief Main control loop task

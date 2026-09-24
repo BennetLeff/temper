@@ -10,10 +10,13 @@ import json
 import sys
 from pathlib import Path
 
+from temper_io_types import write_types as _write_types_rs
+
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.kicad_writer import write_placements_to_pcb
-from temper_placer.io._write_types import PlacementUpdate
 from temper_placer.validation._drc_api import copy_kicad_project_sidecar
+
+PlacementUpdate = _write_types_rs.PlacementUpdate
 
 solve_json = Path(sys.argv[1])
 template = Path(sys.argv[2])

@@ -22,13 +22,15 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "packages/temper-placer/src"))
 
+import temper_thermal as _tt  # noqa: E402
+
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6  # noqa: E402
-from temper_placer.physics.thermal import (  # noqa: E402
-    FIRMWARE_TRIP_TS_C,
-    T_J_ABS_MAX_C,
-    T_J_DESIGN_MAX_C,
-    thermal_resistance_for,
-)
+
+# Rust-owned thermal constants (the former physics.thermal shim was deleted
+# 2026-09-10; these module-level bindings are read from the extension).
+FIRMWARE_TRIP_TS_C = _tt.firmware_trip_ts_c()
+T_J_DESIGN_MAX_C = _tt.tj_design_max_c()
+T_J_ABS_MAX_C = _tt.tj_abs_max_c()
 
 # Design-limit ambient (ENVIRONMENTAL_SPEC.md §1.1 derating zero-power point).
 AMBIENT_C = 60.0
@@ -71,7 +73,7 @@ def main() -> int:
         if pos is None:
             print(f"{ref:<6}  NOT ON BOARD (no position in pcb/temper.kicad_pcb)")
             continue
-        rjc, rch, rha = thermal_resistance_for(ref)
+        rjc, rch, rha = _tt.thermal_resistance_for_py(ref)[:3]
         # The edge penalty in the placement metric ("0.2 K/W per mm beyond
         # 5 mm from the board edge") is a BOARD-MOUNT heuristic: it models
         # the extra sink resistance of a component relying on board-edge
@@ -111,7 +113,7 @@ def main() -> int:
         pos = positions.get(ref)
         if pos is None:
             continue
-        rjc, rch, rha = thermal_resistance_for(ref)
+        rjc, rch, rha = _tt.thermal_resistance_for_py(ref)[:3]
         ts = AMBIENT_C + 40.0 * rha
         tc = ts + 40.0 * rch
         tj = tc + 40.0 * rjc

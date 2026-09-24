@@ -10,13 +10,13 @@ Tests cover:
 
 import pytest
 import yaml
-
-from temper_placer.core.netlist import Component
-from temper_placer.io.footprint_library import (
+from temper_io_types import (
     FootprintLibrary,
     FootprintSpec,
     load_footprint_library,
 )
+
+from temper_placer.core.netlist import Component
 
 # =============================================================================
 # Fixtures

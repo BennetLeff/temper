@@ -265,7 +265,8 @@ def test_golden_board_drc_regression_pumpkin_real_board(request: pytest.FixtureR
 
     # 1. Load netclass rules (courtyard tau + netclass separation both derive
     #    from these, same source solve_placement() itself uses).
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
+
     from temper_placer.placer.cp_sat._encoder_solve import (
         _POLARIZED_REFS,
         courtyard_clearance_mm,

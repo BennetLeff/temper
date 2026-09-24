@@ -37,7 +37,7 @@ CONSTRAINT_VALUE = _tdrc.ConstraintValue
 
 from pydantic import BaseModel  # noqa: E402, I001  (mid-file import block)
 
-from temper_placer.validation.drc_types import (  # noqa: E402, I001
+from temper_drc_rs import (  # noqa: E402, I001
     ComponentPlacement,
     Placement,
 )

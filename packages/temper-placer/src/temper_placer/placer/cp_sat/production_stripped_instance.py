@@ -87,7 +87,7 @@ class ProductionStrippedProbeReport:
 
 def _load_design_rules() -> DesignRules:
     """Load the package's authoritative class-pair rules document."""
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
 
     rules_path = Path(__file__).resolve().parents[4] / "configs" / "netclass_rules.yaml"
     if not rules_path.is_file():

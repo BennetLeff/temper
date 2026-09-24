@@ -130,7 +130,7 @@ def test_yaml_loaded_design_rules_net_classes_answer_mm_reads() -> None:
     ``_mm`` spellings off ``get_rules_for_net()`` results. Before 592cf4b29
     every such read raised ``AttributeError``.
     """
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
 
     assert _RULES_PATH.exists(), f"Rules not found: {_RULES_PATH}"
     rules = load_netclass_rules(_RULES_PATH)

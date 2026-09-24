@@ -346,7 +346,8 @@ def pair_verdict_table(pcb, positions, rotations, core_names):
     copper = _CopperModel(placement)
     nets_domain = _nets_domain_map(full, full_vd)
 
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
+
     from temper_placer.placer.cp_sat.netclass_constraints import (
         generate_netclass_separated_constraints,
     )

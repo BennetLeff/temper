@@ -252,9 +252,11 @@ def test_classification_is_exhaustive():
 
 
 def _parse_result(vias, components=(), board_size=(50.0, 50.0)):
+    from temper_design_bundle_python import parse_engine as _parse_engine
+
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
-    from temper_placer.io._kicad_types import ParseResult
+    ParseResult = _parse_engine.ParseResult
 
     return ParseResult(
         netlist=Netlist(components=list(components), nets=[]),
@@ -267,7 +269,8 @@ def _parse_result(vias, components=(), board_size=(50.0, 50.0)):
 
 
 def _via_data(net, x, y):
-    from temper_placer.io._kicad_types import ViaData
+    from temper_design_bundle_python import parse_engine as _parse_engine
+    ViaData = _parse_engine.ViaData
 
     return ViaData(position=(x, y), diameter=0.6, drill=0.3, net=net, layers=("F.Cu", "B.Cu"))
 

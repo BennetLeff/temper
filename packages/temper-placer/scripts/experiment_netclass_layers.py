@@ -335,8 +335,9 @@ def main() -> None:
     rules_path = _PROJ / "configs" / "netclass_rules.yaml"
     config_path = _PROJ / "configs" / "constraints" / "temper_induction_cooker.yaml"
 
+    from temper_design_bundle_python import load_netclass_rules
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.io.netclass_loader import load_netclass_rules
 
     rules = load_netclass_rules(rules_path)
     n_classes = len(rules.design_rules.net_classes)

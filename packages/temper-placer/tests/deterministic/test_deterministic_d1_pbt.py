@@ -171,7 +171,8 @@ def test_p4_fails_for_overwrite_mutant():
 # ---------------------------------------------------------------------------
 
 def _make_pads(n_pads):
-    from temper_placer.io._kicad_types import PadData
+    from temper_design_bundle_python import parse_engine as _parse_engine
+    PadData = _parse_engine.PadData
 
     return [
         PadData(

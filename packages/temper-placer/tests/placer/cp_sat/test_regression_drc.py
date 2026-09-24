@@ -245,7 +245,7 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: p
     assert RULES_PATH.exists(), f"Rules not found: {RULES_PATH}"
 
     # 1. Load netclass rules
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
 
     rules = load_netclass_rules(RULES_PATH)
 
@@ -518,7 +518,7 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
     assert RULES_PATH.exists(), f"Rules not found: {RULES_PATH}"
 
     # 1. Load netclass rules
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
 
     rules = load_netclass_rules(RULES_PATH)
 
@@ -1335,8 +1335,9 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     assert RULES_PATH.exists(), f"Rules not found: {RULES_PATH}"
     _assert_baseline_board_shape()
 
+    from temper_design_bundle_python import load_netclass_rules
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6.adapter import route_pcb
     from temper_placer.router_v6.net_batching import DEFAULT_BATCH_SIZE
     from tests.conftest import make_parsed_pcb_stub

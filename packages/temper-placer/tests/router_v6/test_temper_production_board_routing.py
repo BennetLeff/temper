@@ -130,8 +130,9 @@ class TestProductionBoardRouting:
         assert _PCB_PATH.exists(), f"Board not found: {_PCB_PATH}"
         assert _RULES_PATH.exists(), f"Rules not found: {_RULES_PATH}"
 
+        from temper_design_bundle_python import load_netclass_rules
+
         from temper_placer.io.kicad_parser import parse_kicad_pcb
-        from temper_placer.io.netclass_loader import load_netclass_rules
         from temper_placer.router_v6.adapter import route_pcb
 
         rules = load_netclass_rules(_RULES_PATH)

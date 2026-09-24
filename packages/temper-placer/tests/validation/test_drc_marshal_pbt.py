@@ -36,6 +36,10 @@ import pytest  # noqa: E402
 import temper_drc_rs as _tdrc  # noqa: E402
 from hypothesis import given, settings  # noqa: E402
 from hypothesis import strategies as st  # noqa: E402
+from temper_drc_rs import (  # noqa: E402
+    ComponentPlacement,
+    Placement,
+)
 
 from temper_placer.validation import drc_oracle as _oracle_mod  # noqa: E402
 from temper_placer.validation import drc_runner as _runner_mod  # noqa: E402
@@ -46,10 +50,6 @@ from temper_placer.validation.drc_result import (  # noqa: E402
     LoopAreaCheck,
 )
 from temper_placer.validation.drc_runner import CheckRunner  # noqa: E402
-from temper_placer.validation.drc_types import (  # noqa: E402
-    ComponentPlacement,
-    Placement,
-)
 
 # The verbatim pre-migration `_constraints_to_dict` (pinned in the G1
 # differential file) is the oracle reference for P3's kernel-equivalence.

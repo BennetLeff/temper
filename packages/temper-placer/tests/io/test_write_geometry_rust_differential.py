@@ -40,13 +40,15 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 import temper_io_types as _tio
+from temper_io_types import write_types as _write_types_rs
 
 from temper_placer.core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER
 from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io import _write_modules as shipped_modules
 from temper_placer.io import _write_tracks as shipped_tracks
 from temper_placer.io import _write_zones as shipped_zones
-from temper_placer.io._write_types import PlacementUpdate
+
+PlacementUpdate = _write_types_rs.PlacementUpdate
 from temper_placer.io.placement_exporter import (
     positions_to_placements as shipped_positions_to_placements,
 )

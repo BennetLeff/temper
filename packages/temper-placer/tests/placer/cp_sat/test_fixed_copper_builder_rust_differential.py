@@ -48,12 +48,13 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from temper_design_bundle_python import parse_engine as _parse_engine
 
 import tests.placer.cp_sat._fixed_copper_py_oracle as _orc
-
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.io._kicad_types import TraceData
+
+TraceData = _parse_engine.TraceData
 from temper_placer.placer.cp_sat import fixed_copper as _shim
 
 _ORACLE_BODY_DIGEST = "310c08805c0e311a2735119e42795f242a86cbf503541c6da42a4b9fe94e3e11"

@@ -80,7 +80,7 @@ def _netclass_for_net(net_name: str) -> str | None:
     use, so the result reflects the actual classification that routing
     sees at runtime.
     """
-    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_design_bundle_python import load_netclass_rules
 
     rules = load_netclass_rules(_RULES_PATH)
     dr = rules.design_rules

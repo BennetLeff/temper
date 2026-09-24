@@ -83,8 +83,9 @@ def drc(path: Path) -> tuple[int, int]:
 
 
 def route(pcb_path: Path, label: str) -> None:
+    from temper_design_bundle_python import load_netclass_rules
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6.adapter import route_pcb
 
     sys.path.insert(0, str(REPO / "packages" / "temper-placer"))
