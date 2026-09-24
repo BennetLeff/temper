@@ -1,0 +1,21 @@
+id	kind	condition
+coil_no_pan	coil	installed cold no pan
+coil_reference_cold	coil	identified reference pan cold centered
+coil_reference_hot	coil	identified reference pan hot centered
+coil_weak_pan	coil	identified weak coupling pan centered
+coil_offset	coil	identified pan at maximum permitted offset
+coil_lift	coil	identified pan at maximum permitted lift
+coil_live_removal	coil	pan removed during separately protected drive
+bus_startup	bus	VD and VB startup from discharged state
+bus_loaded_ripple	bus	VD and VB at loaded steady and load step
+bus_surge	bus	VD and VB surge and source limit
+bus_f2_open	bus	F2 open with VB charged and source separately bounded
+gate_permit	stop	PERMIT deassertion under loaded tank current
+gate_pwm	stop	PWM command loss under loaded tank current
+gate_rail15_loss	stop	isolated 15 V loss under loaded tank current
+gate_3v3_loss	stop	control 3V3 loss under loaded tank current
+fault_f2_open	fault	F2 opening with separate VD VB trajectories
+fault_direct_bank	fault	VB local bank to failed bridge short loop
+part_local_cap	part	VB to HOT0 local commutation capacitor
+part_switch	part	exact bridge switch and diode limits
+part_tank_cap	part	exact series tank capacitor limits
