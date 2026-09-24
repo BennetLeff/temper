@@ -193,9 +193,15 @@ and trip below the provisional 18.0 V screen. The suggested 130 kΩ/10 kΩ
 divider fails recovery at a healthy 15.75 V rail. A static window exists
 with ±0.1% parts, but its leakage-inclusive example leaves only about
 48 mV recovery and 68 mV trip headroom before dynamic effects. No OVP
-divider is adopted or qualified. Both records require the actual converter and relay startup
-loads and a bounded raw/regulator fault waveform before one protection
-path can be adopted. The 20 ms model outcome is not a measured failure of
+divider is adopted or qualified. The [Rev38 source comparison](AUX-SOURCE-CANDIDATE.md)
+now places IRM-20-15 direct output beside IRM-20-24 with an adjustable
+LMR36015 15 V buck, both followed by a proposed LTC4368 disconnect.
+The direct path's conditional 50 °C screen has only 62.5 mV on each side
+of the normal window before cutoff-path loss. The regulated path has about
+497 mV of feedback-only static margin on each side under stated assumptions;
+its full dynamic and fault envelope is unknown. All proposals require the
+actual converter and relay startup loads and a bounded raw/regulator fault
+waveform before one protection path can be adopted. The 20 ms model outcome is not a measured failure of
 a selected assembly.
 The divider's maximum independent resistor deviation is only 0.32663%
 before leakage. A common ±0.1%, ±25 ppm/K discrete-resistor pairing can
@@ -211,9 +217,9 @@ as an unreviewed default.
 
 Select one source chain and prove its normal and fault output envelope,
 current limit, startup ordering, and thermal behavior at the Rev38
-consumers. Then evaluate the TPS26601 cutoff delay, OVP threshold,
-downstream overshoot and restart behavior if selected, or the LT4363/FET
-sense, timer and SOA if that older candidate is selected,
+consumers. Then evaluate the selected cutoff's delay, OVP/UV threshold,
+downstream overshoot and restart behavior, plus the LTC4368 external FET
+sense, gate drive, and SOA if it is selected,
 the 13.25/16.50 V nominal AUX-window thresholds, both TPS3890 rail
 thresholds, and the driver's intermediate-supply OFF condition. The AC
 input's 15 Arms route does not independently define the low-voltage AUX
