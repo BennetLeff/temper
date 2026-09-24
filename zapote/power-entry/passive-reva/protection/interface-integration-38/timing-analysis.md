@@ -3,13 +3,13 @@
 Status: **candidate method recorded; numerical safety acceptance OPEN**. This
 document starts the authorized per-fault derivation. It does not turn Rev35/37
 fixture timing, typical data, or a simulation screen into an accepted limit.
-The complete joined Rev38 circuit, installed power-stage envelope, and
-prototype captures do not yet exist. The AVR64DA32, two ISO774xF devices,
-source and HOT TPS3431 devices, retained source/HOT memories, dual HOT TPS3890
-undervoltage supervisors, four TLV3202 VD/VB channels, two AUX window
-channels, and UCC27624/STW driver stage
-compile in a partial joined fixture; their presence does not close a
-complete response path.
+The final source/native circuit, installed power-stage envelope, and
+prototype captures do not yet exist. The joined Atopile candidate contains
+the AVR64DA32, two ISO774xF devices, source and HOT TPS3431 devices,
+retained source/HOT memories, dual HOT TPS3890 undervoltage supervisors,
+four TLV3202 VD/VB channels, two AUX window channels, the UCC27624/STW
+driver stage, and the selected AC/AUX/PFC stages. Their presence does not
+close a complete response path.
 
 ## Acceptance relationship and endpoints
 
@@ -73,14 +73,15 @@ qualifying WDI falling edge. The first deliberate request rise waits for
 physical disarm and local progress. The new `app_main` source task binds the
 adapter to candidate ESP pins and owns the intended UART/I²C/GPIO path. It
 remains locked out with zero target timing bounds and unqualified UART
-final-bit, reset feed-tail and independent monitor progress; the ESP-IDF
-target image has not been built. Reset-time pad reconfiguration, bootloader
-activity, or another owner may still create a **rising request** before this
-task runs; partial rail
-collapse may also alter the one-shot output. No bootloader,
+final-bit, reset feed-tail and independent monitor progress. Reset-time pad
+reconfiguration, bootloader activity, or another owner may still create a
+**rising request** before this task runs; partial rail collapse may also alter
+the one-shot output. No bootloader,
 other-core, GPIO-retention, queue-to-pin, or peripheral-autonomous-edge
 evidence exists, so the post-reset feed tail remains **UNBOUNDED** for
-numerical acceptance.
+numerical acceptance. The full ESP-IDF v5.3.6 target build now compiles the
+Rev38 sources but fails at image link on unresolved production cooker hooks;
+host tests and compile-only evidence do not close the reset path.
 The joined source now has a separate `SOURCE_PREWATCHDOG_OK` gate from
 reset-good, interlock and rail-good without WDO. It can support a pre-feed
 software sample without making watchdog recovery depend on WDO already being
@@ -257,7 +258,7 @@ gap is tracked in `gate-enable-corners.md`: the new AUX-biased shunt is a
 pin-level default-off candidate, but PMBT3904 hot/cold saturation, the
 UCC's internal EN pull-up maximum, and intermediate HOT-rail collapse still
 prevent an analog OFF proof.
-The compiled partial fixture also has a finite-edge preparation-abort
+The joined Atopile candidate also has a finite-edge preparation-abort
 reset, a six-input HOT trip fan-in, physical-PERMIT-loss detection, separate
 SESSION/RUN retained latches with raw request clocks, and a separate physical-PERMIT-seen
 memory. The latter's asynchronous preset is asserted by PERMIT high even
@@ -266,13 +267,13 @@ rail/logic corners. The history-reset D input now requires post-trip
 disarm Q high, RUN/PERMIT low, healthy trip fan-in and asserted receiver
 abort at the raw clock edge. ACK remains a receiver-firmware prerequisite;
 the electrical setup/hold and coincident-trip cases remain open. These paths provide no
-numerical implementation bound until their actual producers and joins
-are completed.
+numerical implementation bound until missing producers, selected-part
+corners and physical response are established.
 
 `F2-DETECTOR.md` records the four-channel VD/VB topology and its open
 threshold, pulse and power-state analysis. The VD/VB nodes now join
 `PFC-POWER.md`'s boost, F2, 22 µF local film reservoir and 450 V bulk bank.
-The fuse/clip choice, thermal path, AC input and physical response are not
+The off-board fuse/holder and terminal, thermal path and physical response are not
 qualified; the earlier F2-open screen remains conditional.
 `PFC-CONTROL.md` records the newly joined UCC28180 PWM and VSENSE inhibit
 topology. Its clamp resistance, controller open-loop-protection delay,
@@ -284,7 +285,10 @@ an allowable AUX range or qualified fault response.
 `HOT-RAILS.md` records the selected HOT undervoltage producer topology and
 an illustrative static threshold screen. Its 100 pF CT values and nominal
 trip points do not establish rail-failure detection or capture time. The
-protected AUX source remains a separate missing producer.
+IRM-20-24, LMR36015, LTC4368/FDS3992 and TPS54202 supply path is now
+joined as an engineering candidate. Effective capacitance, startup load,
+fast-fault peak, FET SOA and rail-order response remain unqualified. The
+shared cooker SELV rail and its one-ESP connector are still unjoined.
 
 ## Existing conditional F2 screen — not an accepted limit
 
