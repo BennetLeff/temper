@@ -80,7 +80,9 @@ request cannot bypass the AVR decision and retained HOT RUN gate.
 The product integration uses the **existing cooker ESP32-S3 and SELV rail**.
 `SELV-CONTROLLER-CONNECTOR.md` screens a 16-contact mating pair and a
 straight-through pin contract. The Rev38 header is joined and exact-pin
-audited; the cooker board still needs its mating header and net joins. The
+audited; `cooker-mate/elec/src/cooker_mate.ato` joins the mating header and
+existing ESP/rail in a separate source derivative. The canonical cooker PCB
+still lacks that header. The
 existing `elec/src/modules.ato::MCU` assigns IO38/39 to the UI I²C header;
 Rev38 proposes the same pins for the TCA6408A. Firmware currently creates
 I²C0 for Rev38 and no other compiled firmware call to the I²C driver was
@@ -96,8 +98,9 @@ GPIO13, 21, 40, 41, 42 and 48 have no conflicting connection in the inspected
 schematic. The compile-time pin map is now consistent for these named
 functions, while actual bus arbitration and target pin-state capture remain
 open.
-The cooker-board derivative must join these nets to its existing ESP and
-SELV rail before the two source trees can describe one product assembly.
+The cooker derivative compiles with one ESP and these net joins, but the
+native cooker board, harness and qualified rail must agree before the two
+source trees can describe one product assembly.
 
 `SOURCE_RESET_GOOD` and `SOURCE_INTERLOCK_N` currently have 10 kΩ local
 pull-downs and no driving components, so the pre-watchdog sample stays low
@@ -123,7 +126,7 @@ does not bound that interval. No expander RESET conductor is assigned yet.
 
 | Interface | Current joined status | Required producer/acceptance |
 | --- | --- | --- |
-| SELV3V3/SELV_GND | Rev38 header, source authority, isolation and expander loads joined; cooker-board 3.3 V connection absent | Join the cooker mate, rail, reset-good and interlock producers; qualify defaults during partial power. |
+| SELV3V3/SELV_GND | Rev38 header, source authority, isolation and expander loads joined; separate cooker derivative joins the mate to existing 3.3 V | Create and check the native mate/harness and rail budget; join reset-good and interlock producers; qualify defaults during partial power. |
 | HOT_LOGIC5/HOT0 | TPS54202 candidate joined after protected AUX; exact pads/net paths audited | Qualify complete load, feedback/output effective capacitance, startup, thermal, reset and rail-order behavior. |
 | AUX_PROTECTED/HOT0 | LTC4368-2/FDS3992/shunt candidate joined as sole pre-cutoff-to-protected path; exact pads/net paths audited | Qualify load budget, divider procurement, FET SOA, OVP/UVLO, fast-fault output peak, startup and latch reset. |
 | RAW_AUX24/HOT0 | IRM-20-24 pads 4/3 joined through the post-CMC AUX branch terminal to LMR36015BRNXT VIN/EN | Physical module orientation, branch cartridge and harness, raw peak, startup and thermal behavior remain unverified. The raw rail is HOT and feeds only the joined 15 V converter. |

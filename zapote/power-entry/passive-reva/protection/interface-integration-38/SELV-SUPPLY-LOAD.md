@@ -1,6 +1,6 @@
 # Rev38 SELV 3.3 V load and startup inventory
 
-**Status:** engineering screen, 2026-09-24. The integration choice is to reuse the existing cooker ESP32-S3 and SELV 3.3 V rail. The Rev38-side 16-contact header is joined in `PowerEntryIntegrated38`, but its cooker-board mate and `SELV3V3` producer are not. The `source-build-03` export has no second ESP. This record does not establish spare capacity on the existing cooker rail. Its Rev38 inventory is the frozen `source-build-03` source and resolved export; the complete cooker load still needs a measured budget.
+**Status:** engineering screen, 2026-09-24. The integration choice is to reuse the existing cooker ESP32-S3 and SELV 3.3 V rail. The Rev38-side 16-contact header is joined in `PowerEntryIntegrated38`; a separate `cooker-mate` Atopile derivative joins its mate to the existing cooker ESP and rail. Neither native board nor harness is integrated. The `source-build-03` Rev38 export has no second ESP. This record does not establish spare capacity on the existing cooker rail. Its Rev38 inventory is the frozen `source-build-03` source and resolved export; the complete cooker load still needs a measured budget.
 
 ## Joined Rev38 load
 

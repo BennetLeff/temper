@@ -1,0 +1,54 @@
+# Candidate cooker-board derivative for the existing cooker ESP and SELV rail.
+# The source circuit is imported intact; the canonical cooker source and PCB
+# are not modified by this fixture.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "../../../../../../../../elec/src/main.ato" import Top
+
+component Rev38CookerMate:
+    mpn = "43045-1612"
+    manufacturer = "Molex"
+    datasheet = "https://www.molex.com/en-us/products/part-detail/430451612"
+    footprint = "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical"
+    signal SELV3V3_A ~ pin 1
+    signal STOP_N ~ pin 2
+    signal HEARTBEAT_REQUEST ~ pin 3
+    signal PERMIT_SET_REQUEST ~ pin 4
+    signal PREWATCHDOG_OK ~ pin 5
+    signal COMMAND_TX ~ pin 6
+    signal RESPONSE_RX ~ pin 7
+    signal SELV_GND_A ~ pin 8
+    signal SELV3V3_B ~ pin 9
+    signal START_N ~ pin 10
+    signal I2C_SDA ~ pin 11
+    signal I2C_SCL ~ pin 12
+    signal SELV_GND_B ~ pin 13
+    signal RESET_GOOD_RESERVED ~ pin 14
+    signal INTERLOCK_N_RESERVED ~ pin 15
+    signal SELV_GND_C ~ pin 16
+
+module CookerMate38:
+    cooker = new Top
+    rev38_mate = new Rev38CookerMate
+
+    # The selected architecture has exactly one ESP: cooker's existing MCU.
+    rev38_mate.SELV3V3_A ~ cooker.vcc_3v3
+    rev38_mate.SELV3V3_B ~ cooker.vcc_3v3
+    rev38_mate.SELV_GND_A ~ cooker.gnd
+    rev38_mate.SELV_GND_B ~ cooker.gnd
+    rev38_mate.SELV_GND_C ~ cooker.gnd
+
+    rev38_mate.STOP_N ~ cooker.mcu.mcu.IO13
+    rev38_mate.HEARTBEAT_REQUEST ~ cooker.mcu.mcu.IO21
+    rev38_mate.PERMIT_SET_REQUEST ~ cooker.mcu.mcu.IO48
+    rev38_mate.PREWATCHDOG_OK ~ cooker.mcu.mcu.IO18
+    rev38_mate.COMMAND_TX ~ cooker.mcu.mcu.IO40
+    rev38_mate.RESPONSE_RX ~ cooker.mcu.mcu.IO41
+    rev38_mate.START_N ~ cooker.mcu.mcu.IO42
+    # Reuse the existing 4.7-kohm UI I2C pull-ups in cooker.mcu.
+    rev38_mate.I2C_SDA ~ cooker.mcu.i2c.sda
+    rev38_mate.I2C_SCL ~ cooker.mcu.i2c.scl
+
+    # Pins 14/15 are physically reserved and have no cooker-side driver.
+    # The Rev38 board's pull-downs hold both low until separate reset-good
+    # and fail-low interlock producers are selected and physically qualified.

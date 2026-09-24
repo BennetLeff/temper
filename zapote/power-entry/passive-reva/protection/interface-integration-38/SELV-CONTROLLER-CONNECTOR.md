@@ -3,8 +3,10 @@
 Status: **Rev38-side 16-contact header joined; product harness not released**.
 The selected product architecture uses the existing cooker ESP and its SELV
 3.3 V rail. `source_mcu.ato` now instantiates the Rev38-side header in place
-of a second ESP. Its cooker-board mate and rail connection remain to be
-implemented and checked before claiming one joined product assembly.
+of a second ESP. `cooker-mate/elec/src/cooker_mate.ato` now joins a second
+header to the existing cooker source as a separate Atopile derivative. Its
+native board, rail capacity, harness and physical reset/interlock producers
+remain to be checked before claiming one joined product assembly.
 
 The screened wire-to-board family is Molex Micro-Fit 3.0:
 
@@ -26,8 +28,9 @@ the Rev38 SELV logic, expander and isolator sides, so the separate-fixture
 ## Proposed straight-through pin contract
 
 The proposed harness connects the same pad number on both headers. The
-Rev38 header has these exact Atopile joins; the present cooker board lacks
-its mate. Returns at pins 8 and 13 sit beside the UART and I²C pairs in the
+Rev38 header has these exact Atopile joins; the cooker derivative joins the
+same map to its existing ESP, while the canonical PCB lacks the mate.
+Returns at pins 8 and 13 sit beside the UART and I²C pairs in the
 installed two-row footprint.
 
 | Pad | Conductor | Owner / default at Rev38 end |
