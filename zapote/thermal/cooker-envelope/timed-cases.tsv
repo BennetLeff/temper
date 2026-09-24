@@ -1,0 +1,17 @@
+case	ms	cooling_rail_good	tach_a_valid	tach_b_valid	flow_valid	sensor_a_valid	sensor_b_valid	reset_held	j1_fault_high	j2_live_high	pfc_run	inverter_permit
+one-missing-tach	0	1	1	1	1	1	1	0	0	1	1	1
+one-missing-tach	10	1	1	0	1	1	1	0	1	1	0	0
+blocked-flow-plausible-tach	0	1	1	1	1	1	1	0	0	1	1	1
+blocked-flow-plausible-tach	10	1	1	1	0	1	1	0	1	1	0	0
+rail-brownout	0	1	1	1	1	1	1	0	0	1	1	1
+rail-brownout	10	0	0	0	0	0	0	0	1	0	0	0
+stuck-j1-low	0	1	1	1	1	1	1	0	0	1	1	1
+stuck-j1-low	10	1	1	1	0	1	1	0	0	1	1	1
+fault-held-reset	0	1	1	1	1	1	1	0	0	1	1	1
+fault-held-reset	10	1	0	1	1	1	1	1	1	1	0	0
+fault-held-reset	20	1	1	1	1	1	1	1	0	1	1	1
+auto-recovery	0	1	1	1	1	1	1	0	0	1	1	1
+auto-recovery	10	1	0	1	1	1	1	0	1	1	0	0
+auto-recovery	20	1	1	1	1	1	1	0	0	1	1	1
+one-invalid-sensor	0	1	1	1	1	1	1	0	0	1	1	1
+one-invalid-sensor	10	1	1	1	1	1	0	0	1	1	1	1
