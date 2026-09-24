@@ -22,9 +22,11 @@ The **100 mA allocation** gives a concrete design target without promoting a
 partial data-sheet sum to a maximum. `SELV-SUPPLY-LOAD.md` identifies 9.5 mA
 for both isolator VCC1 sides at the TI 1 Mbps/15 pF example, 25.4 mA at its
 100 Mbps example, and separately lists the expander, watchdog, supervisors,
-logic, pulls and startup capacitors. Neither example covers every operating
-state or coincident transient. Complete a netlist-derived worst-state resistor
-sum, output-load and switching-current sum, and physical current capture; if
+logic, pulls and startup capacitors. The frozen netlist's 31 direct SELV
+resistors now have an intentionally overcounted **11.53 mA valid-rail screen**
+in `SELV-SUPPLY-LOAD.md`; it is not a whole-port bound. Neither isolator
+example covers every operating state or coincident transient. Complete an
+output-load and switching-current sum, and physical current capture; if
 the measured, temperature-corrected maximum exceeds the allocation, revise
 the source, connector and allocation before release. Evaluate the existing
 IRM-10-15 and LMR51430 **with** all cooker loads and 15 V consumers under
