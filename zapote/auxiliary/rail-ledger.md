@@ -27,3 +27,9 @@ The Rev38 PFC RUN path consumes `AUX_PROTECTED` and `HOT_LOGIC5`, so their produ
 4. Obtain selected fan, gate-drive and inverter bias operating conditions and the new SELV supply input topology before finalizing their load and insulation contributions.
 
 Source anchors: `zapote/power-entry/passive-reva/protection/interface-integration-38/AUX-WINDOW.md`, `HOT-RAILS.md`, `STATUS.md`; `elec/src/main.ato`; `elec/src/modules.ato`; `zapote/gate-drive/INTERFACES.md`; `zapote/interlock/INTERFACES.md`.
+
+## U3 readiness inventory (2026-09-23)
+
+The [machine-readable inventory](evidence/rail-readiness-inventory.tsv) makes this ledger's source and consumer rows explicit. It carries seven proposed rail producers and 22 named loads, including the six direct AUX passive branches identified in `AUX-WINDOW.md`; all missing steady, startup, pulse, dropout and fault values are literal `UNKNOWN`. The nominal passive/relay values are marked as screens and must not be summed into a guaranteed source load. [Pinned source hashes](evidence/rail-readiness-sources.tsv) bind the committed Rev38 snapshot used for this inventory. The [readiness receipt](evidence/rail-readiness-receipt.md) records the executable gate and its limits.
+
+The proposed `AC_PRE_RUN` inputs are graph obligations, not constructed AUX/SELV branches. `LS15` models an isolated low-side bias output as a separate `HV_RETURN` domain, and `FAN12` retains its own unresolved return and fan selection. None of these producer rows selects an orderable source, branch protection, installed insulation system or physical rail waveform. Changes to Rev38 or any named consumer require a new inventory and source hash replay.
