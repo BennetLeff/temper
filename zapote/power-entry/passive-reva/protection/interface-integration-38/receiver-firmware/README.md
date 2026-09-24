@@ -39,10 +39,15 @@ values unless `PE_TARGET_OFFLINE_COMPILER_EXERCISE` is explicitly defined;
 that flag is only for an offline compiler exercise. The relay output stays
 low: relay policy,
 boot/disarm behavior at real pins, and the fuse/BOD image remain open.
-The fuse-readback adapter revision has not been rebuilt with `avr-gcc` in
-this worktree because that compiler is unavailable in the current
-environment. The earlier target build receipt applies to the preceding
-register adapter only.
+The current fuse-readback adapter was compiled and linked in this worktree
+on 2026-09-23 with the official Microchip AVR 8-Bit Toolchain 4.0.0.52
+(`avr-gcc` 15.1.0, `avr-size` 2.44), using the `avr64da32.mk` defaults and
+`OUT=/private/tmp/temper-rev38-avr64da32-current.elf`. The build passed
+`-Wall -Wextra -Werror -Wpedantic` and reported 16,050 bytes of text,
+0 data and 8 BSS. The ELF SHA-256 was
+`64f62c734b44fa94af0fe01f871117ad8efd56db7bb38e6929be14fb8f588369`.
+This is a compiler/link receipt for the default locked image, not a
+programmed-device fuse, timing or pin-state verification.
 
 The GPIO map follows `../receiver-selection.md` and
 `elec/src/receiver_isolation.ato`. PC2 reads active-low `HOT_FAULT_N`, PD3 is
