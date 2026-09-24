@@ -206,7 +206,9 @@ void state_machine_start_profile(const cooking_profile_t *profile) {
     transition_to(STATE_PAN_DET);
 }
 
-void state_machine_update(void) {
+bool state_machine_update(void) {
+    const bool started_in_fault = sm_ctx.current_state == STATE_FAULT ||
+                                  sm_ctx.current_state == STATE_RUNAWAY_FAULT;
     /* Update state duration */
     uint32_t now = get_time_ms();
     sm_ctx.state_duration = now - sm_ctx.state_entry_time;
@@ -229,11 +231,11 @@ void state_machine_update(void) {
         if ((now - sm_ctx.message_start_time) >= MESSAGE_DISPLAY_TIME_MS) {
             sm_ctx.message_pending = false;
             transition_to(sm_ctx.message_next_state);
-            return;
+            return false;
         }
         /* Still displaying message - feed software watchdog but skip state logic */
         watchdog_feed();
-        return;
+        return false;
     }
     
     /* Calculate dt for timer decrement */
@@ -268,6 +270,10 @@ void state_machine_update(void) {
             transition_to(STATE_FAULT);
             break;
     }
+    return !started_in_fault && !sm_ctx.message_pending &&
+           sm_ctx.current_state != STATE_FAULT &&
+           sm_ctx.current_state != STATE_RUNAWAY_FAULT &&
+           sm_ctx.fault_code == FAULT_NONE;
 }
 
 void state_machine_set_target_temp(float temp_celsius) {

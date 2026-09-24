@@ -67,8 +67,9 @@ static void control_task(void *arg) {
         rtd_service_control_tick();
 
         /* Update state machine (handles PID, PLL internally) */
-        state_machine_update();
-        pe_esp32_source_service_control_progress();
+        if (state_machine_update()) {
+            pe_esp32_source_service_control_progress();
+        }
         
         /* Wait for next period */
         vTaskDelayUntil(&xLastWakeTime, xFrequency);

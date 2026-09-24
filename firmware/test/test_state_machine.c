@@ -16,6 +16,7 @@
 #include "unity/unity.h"
 #include "test_common.h"
 #include "../main/state_machine.h"
+#include "../main/state_handlers.h"
 #include "../config.h"
 #include <string.h>
 
@@ -172,6 +173,24 @@ void test_sm_init_to_fault_on_fan_fail(void) {
     
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_SELF_TEST_FAILED, state_machine_get_fault());
+}
+
+void test_sm_progress_requires_completed_nonfault_handler(void) {
+    setup_test();
+    TEST_ASSERT_TRUE(state_machine_update());  /* INIT -> IDLE */
+    TEST_ASSERT_TRUE(state_machine_update());  /* IDLE handler */
+
+    show_message_then_transition("WAIT", STATE_IDLE);
+    TEST_ASSERT_FALSE(state_machine_update()); /* skipped the state handler */
+
+    setup_test();
+    mock_sm_fail_selftest_adc();
+    TEST_ASSERT_FALSE(state_machine_update()); /* INIT -> FAULT */
+    TEST_ASSERT_FALSE(state_machine_update()); /* fault handler */
+
+    setup_test();
+    state_machine_force_state(STATE_RUNAWAY_FAULT);
+    TEST_ASSERT_FALSE(state_machine_update()); /* runaway fault handler */
 }
 
 /* ============================================================================
@@ -1570,6 +1589,7 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_init_to_fault_on_adc_fail);
     RUN_TEST(test_sm_init_to_fault_on_pwm_fail);
     RUN_TEST(test_sm_init_to_fault_on_fan_fail);
+    RUN_TEST(test_sm_progress_requires_completed_nonfault_handler);
     
     /* IDLE -> PAN_DET transition */
     RUN_TEST(test_sm_idle_to_pan_det_on_start);

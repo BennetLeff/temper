@@ -18,6 +18,7 @@ No numerical fault response, protected operation, or mains build is approved.
 | Reference model and protocol tests | `model.rs` SHA-256 `86165afe2bd2c80cb353aa9fdb3993d89ed9597257fe6416d8ef48d80043a567`; `protocol-tests.rs` SHA-256 `6b4e8456092fe226e649ad37eddb2ed8e424acd7327a7b162e69b67de08db49a` |
 | ESP source adapter | `firmware/main/power_entry_authorization.c` SHA-256 `9241602d8f193ae10a1f1fc4fc87369de6a08116b8804466910194f44d03bc50`; header SHA-256 `62e936dec957a3ae5e7bc55e1c6b9e48b06620cb26cf5d3adab8e57c0faab274` |
 | RTD monitor input | `firmware/components/sensors/rtd_service.c` SHA-256 `710ff12badc09420676da812b497be96107259d603fdf80e270cb22e8ade2fe5`; header SHA-256 `da0a91ec24a2cbed907274d4d26d6c128128fa663b2135ae85a1ab41a4256fdd`; host test SHA-256 `5d8d6409792cb707fb8be7ea926bf3d36b1cb39e137d8d2590bab606c7b7677f` |
+| Cooker control progress gate | `firmware/main/main.c` SHA-256 `51949728af62160b4eb1ff6b635ed0eb35fbaa5423ca762cc71f32b9a05b4a01`; `state_machine.c` SHA-256 `94cdcd3be502b277a3959f053d0b6f9927e0909609b1ded1f124130c3283dc0f`; header SHA-256 `717eb58eeed8b9553eb98417ea08ad1966080df228d75afdf7effbe949f05b6a`; host test SHA-256 `233b80ae37e4b15a3d98f2d369164d96537c1c01700e36736f6a03858d9789ed` |
 | Native board, production runtime and physical capture | **No accepted artifact or hash** |
 | Cooker native readiness diagnostic | `cooker-mate/evidence/native-readiness-02.json` SHA-256 `9d441e0ae16a4ed912ff7420beb38fc2b3a8c5eed39da8589c8814811565e5ef`; static probe only |
 | Product power assembly | **OPEN**; `POWER-ASSEMBLY-BOUNDARY.md` records two unjoined front ends and no bank/inverter power contract |
@@ -59,6 +60,7 @@ current-cessation result.
 | Rust pin audit mutation suite | **PASS: 143/143** | Includes swapped UART contacts, open return, open ESP ground pad 41, extra STOP driver and wrong Rev38 protocol-isolator identity. |
 | Import-boundary and derived-artifact checks | **PASS** | `scripts/import_linter_gate.py`: 5 kept, 0 broken; `scripts/regen_derived.py --check`: consistent. |
 | RTD sample-age input | **PASS: 19 focused host tests; 17/17 CTest** | Generation and elapsed age after real conversions, staleness, wrap, invalidation and missing clock. No monitor epoch or Rev38 authorization is credited. |
+| Cooker control progress gate | **PASS: 61 focused state-machine tests; 17/17 CTest** | A completed nonfault handler permits a control epoch; deferred messages and fault ticks do not. The production call site is not target-tested; target timing and monitor freshness remain OPEN. |
 | Receiver device qualification | **OPEN** | Host and target compilation do not prove programmed fuses, reset, clock or watchdog on silicon. |
 | ESP production integration | **OPEN** | Diagnostic lockout target image is not a production image; cooker hooks and target timing/pin captures remain unresolved. |
 | F1/F2, AUX, cooker SELV rail and thermal/fault envelopes | **OPEN** | See `F1-SCREEN.md`, `F2-BOARD-INTERFACE.md`, `AUX-SOURCE-CANDIDATE.md`, `SELV-SUPPLY-LOAD.md`. |

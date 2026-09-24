@@ -22,9 +22,14 @@ before advancing its epoch. It needs a state-specific check set:
 | PREHEAT, HEATING | Check those inputs plus PLL lock, frequency and ZVS where the measurements are valid and required. Any missing or stale active measurement suppresses progress. |
 | FAULT, RUNAWAY_FAULT or safe mode | No Rev38 progress credit; assert the owned fail-low STOP/fault path. |
 
-The present `control_task` increments its epoch after every
-`state_machine_update()`, including fault states. It must gate that credit
-on a completed, healthy control tick. `read_rtd_resistance()` can return a
+The `control_task` now increments its epoch only when
+`state_machine_update()` reports that a nonfault state handler completed.
+The update reports false while a display message defers the handler, when
+the tick starts in or enters a fault state, or when a fault remains latched.
+This narrows control progress but does not prove sensor freshness, monitor
+health, or the target execution bound. The existing TPS3823 feed at the start
+of `state_machine_update()` is independent of this return value.
+`read_rtd_resistance()` can return a
 cached conversion while ready; valid-looking ohms alone are not freshness
 evidence. `rtd_service_sample_status()` now publishes readiness, a generation
 that advances only after a healthy completed conversion and status read, and

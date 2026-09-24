@@ -179,8 +179,12 @@ void state_machine_init(void);
 
 /**
  * @brief Update state machine (call periodically)
+ *
+ * @return true only when a nonfault state handler completed without entering
+ *         a fault or deferring work behind a display message. This is control
+ *         progress only; it does not validate sensor age or monitor health.
  */
-void state_machine_update(void);
+bool state_machine_update(void);
 
 /**
  * @brief Start a cooking profile
