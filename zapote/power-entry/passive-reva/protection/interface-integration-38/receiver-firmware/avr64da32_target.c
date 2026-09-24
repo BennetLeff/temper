@@ -48,13 +48,26 @@
 #error "Expected AVR fuse bytes must fit in one byte"
 #endif
 
-/* U1 has no accepted numerical limits. This flag exists only to compile all
- * adapter paths offline; it is not a release or programming configuration. */
+/* U1 has no accepted numerical limits. Both named exceptions are offline
+ * development builds, not release or programmed-device configurations. */
 #if (PE_TARGET_PREPARE_WINDOW_MS != 0u || PE_TARGET_START_WINDOW_MS != 0u || \
      PE_TARGET_WATCHDOG_WINDOW_MS != 0u || PE_TARGET_BYTE_GAP_MS != 0u || \
      PE_TARGET_PING_PERIOD_MS != 0u || PE_TARGET_SAMPLE_TO_RUN_MS != 0u) && \
-    !defined(PE_TARGET_OFFLINE_COMPILER_EXERCISE)
+    !defined(PE_TARGET_OFFLINE_COMPILER_EXERCISE) && \
+    !defined(PE_TARGET_ENGINEERING_CANDIDATE)
 #error "Nonzero receiver timing requires a future accepted configuration"
+#endif
+#if defined(PE_TARGET_ENGINEERING_CANDIDATE) && \
+    (PE_TARGET_PREPARE_WINDOW_MS != 250u || \
+     PE_TARGET_START_WINDOW_MS != 100u || \
+     PE_TARGET_WATCHDOG_WINDOW_MS != 75u || \
+     PE_TARGET_BYTE_GAP_MS != 10u || \
+     PE_TARGET_PING_PERIOD_MS != 20u || \
+     PE_TARGET_SAMPLE_TO_RUN_MS != 5u || \
+     PE_TARGET_EXPECTED_WDTCFG != 0x05u || \
+     PE_TARGET_EXPECTED_BODCFG != 0x65u || \
+     PE_TARGET_EXPECTED_SYSCFG0 != 0xC9u)
+#error "Engineering profile must match its documented candidate window set"
 #endif
 
 #define PE_TARGET_CLOCK_HZ 24000000UL

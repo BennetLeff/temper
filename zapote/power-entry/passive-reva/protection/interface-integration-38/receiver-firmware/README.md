@@ -37,8 +37,11 @@ This checks AVR64DA32 header/linker compatibility and the C register adapter;
 it does not qualify a programmed receiver. Preparation, START, watchdog,
 USART byte-gap, ping-period, and sample-to-RUN bounds must be accepted before
 any nonzero `PE_TARGET_*` values are programmed. The source rejects nonzero
-values unless `PE_TARGET_OFFLINE_COMPILER_EXERCISE` is explicitly defined;
-that flag is only for an offline compiler exercise. The relay output stays
+values except for the explicit `PE_TARGET_OFFLINE_COMPILER_EXERCISE` and
+`PROFILE=engineering` development builds. The latter's candidate numbers,
+transport calculation, missing bounds, fuse expectations and ELF receipt
+are in [`ENGINEERING-WINDOWS.md`](ENGINEERING-WINDOWS.md). Neither profile is a
+release configuration. The relay output stays
 low: relay policy,
 boot/disarm behavior at real pins, and the fuse/BOD image remain open.
 The current fuse-readback adapter was compiled and linked in this worktree
@@ -61,6 +64,13 @@ reported 16,594 bytes of text, 0 data and 8 BSS, SHA-256
 This confirms that the conditional ping and nonzero-configuration code paths
 compile and link for AVR64DA32. The values are **not** a programmed image or
 accepted timing/fuse configuration; the default remains locked out.
+
+The separately named `PROFILE=engineering` build now compiles the same
+operational branches with documented candidate windows and exact review-only
+fuse bytes. It links on the selected AVR64DA32 toolchain; see
+`ENGINEERING-WINDOWS.md` for both current ELF hashes. It is a stronger
+target-code receipt than the earlier arbitrary offline exercise, but no
+silicon timing or safety-window acceptance is claimed.
 
 The GPIO map follows `../receiver-selection.md` and
 `elec/src/receiver_isolation.ato`. PC2 reads active-low `HOT_FAULT_N`, PD3 is
