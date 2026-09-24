@@ -60,7 +60,12 @@ are unqualified, so it is not yet a protected-AUX selection.
 The LTC4368 controller is a second mathematical-only OVP screen. An
 illustrative 339 kΩ/10 kΩ divider leaves 212 mV normal-high recovery and
 167 mV provisional-limit trip headroom under stated resistor and pin-leakage
-assumptions. External FET selection, dynamic output peak, load current, and
+assumptions, but Vishay TNPU's ±2 ppm/K grade stops at 20 kΩ, so that
+339 kΩ top value has no matching selected part. A 17 kΩ/500 Ω scale within
+the published range screens at 16.0112 V minimum recovery and 17.8804 V
+maximum rising trip, still without a stock-verified pair. ADI's `-2`
+suffix applies to reverse sense; its forward comparator is 40–60 mV in the
+equal-voltage fixture. External FET selection, dynamic output peak, load current, and
 UV/startup behavior remain unproved; it is not a protected-AUX selection.
 
 Immediate construction order: build and qualify U4's nominated off-board

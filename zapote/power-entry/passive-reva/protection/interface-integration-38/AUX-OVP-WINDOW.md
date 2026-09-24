@@ -122,6 +122,10 @@ For a **mathematical-only** 339 kΩ/10 kΩ OV divider, let each resistance
 have independently adverse fractional deviation `t = 0.0034`. This matches
 the earlier illustrative precision-film budget of ±0.02% initial,
 ±2 ppm/K over 100 K, and ±0.30% life drift; it is not a selected pair.
+In particular, [Vishay TNPU e3](https://www.vishay.com/docs/28779/tnpue3.pdf)
+offers its ±2 ppm/K grade only from 500 Ω to 20 kΩ. A 339 kΩ top resistor
+cannot inherit that grade, so the following result cannot be copied into a
+BOM merely by naming that resistor family.
 Treating the minimum falling threshold as `492.5 − 32 = 460.5 mV` and
 using adverse ±10 nA pin leakage gives:
 
@@ -143,6 +147,32 @@ SOA, sense resistor and short-circuit behavior, output effective C/ESL,
 startup/recovery analysis, and measured peak at the UCC27624 VDD pin.
 Until then LTC4368 is only a stronger **static** candidate, not a protected
 AUX source or a U4 PASS.
+
+A divider scale that fits the published TNPU ±2 ppm/K resistance range is
+17 kΩ over 500 Ω. With the same independently adverse `t = 0.0034` budget,
+the specified comparator limits, and ±10 nA OV leakage, its mathematical
+minimum recovery is **16.0112 V** and maximum rising trip is **17.8804 V**.
+That leaves 261 mV above the 15.75 V normal-high screen and 120 mV below
+the provisional 18.0 V limit. The nominal divider draws 1 mA at 17.5 V;
+the top resistor dissipates about 17 mW. Neither exact resistor is selected
+or stock-verified together, and the assumed ±0.30% life drift still has to
+match the selected parts' intended service conditions. More divider current
+also loads the 15 V source and raises local thermal and fault-energy terms.
+The smaller static margins at an orderable ratio, board contamination/leakage,
+and fast-source faults must be checked before this can become a circuit.
+
+The [ADI ordering table](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf)
+lists `LTC4368HMS-2#PBF` as an MSOP-10, −40 to 125 °C variant. Its `-2`
+suffix changes the **reverse** sense threshold to −3 mV; the forward
+threshold remains +40 to +60 mV when `VOUT = VIN`. A part database's lone
+“3 mV threshold” label must not be used as the forward current-limit value.
+The same data sheet gives +30 to +70 mV for the distinct `VIN = 12 V`,
+`VOUT = 0 V` fixture, so a shunt cannot be finalized from the steady-state
+threshold alone. For example, a provisional 100 mΩ shunt would trip at
+0.4–0.6 A in the equal-voltage fixture but could trip as low as 0.3 A with
+the shorted-output fixture. A valid-start current waveform and effective
+output capacitance are required before selecting the shunt, gate slew
+capacitor, overcurrent restart behavior, and MOSFET SOA.
 
 ## TPS26601 behavior and decision
 
