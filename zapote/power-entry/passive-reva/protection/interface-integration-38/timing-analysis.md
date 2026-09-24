@@ -306,8 +306,10 @@ terms matter at the chosen limit, expand the model or qualify them separately.
 
 ### Synchronized capture definitions for the later physical campaign
 
-The following is a measurement design, **NOT RUN**. Use an assembled,
-isolated low-voltage fault-injection fixture before any mains evaluation.
+The following is a measurement design, **NOT RUN**. Use the Rev38
+[bench-capture procedure](bench-capture.md) for article identity, fixture,
+simultaneous-channel and verdict records. Use an assembled, isolated
+low-voltage fault-injection fixture before any mains evaluation.
 The final joined schematic and native board must name accessible test points
 and injection points; a simulated node or an ESP log timestamp cannot stand
 in for a physical transition. Record the injected waveform, probe loading,
