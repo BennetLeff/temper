@@ -2,10 +2,12 @@
   "schema": "temper.power-entry.assembly-source-lock.v1",
   "rev38": {
     "receipt_sha256": "9433de53a1dd1c8dba86d2df6a47d96fc54e413702979518997c43f5591af911",
+    "ato_yaml_sha256": "bd328cab71c757e29fb9c718422a0ce753af495ea8e318b9c8a3c2220a45e835",
     "netlist_sha256": "df6f1df0185b196b55451229720963e15f296dfb36e6f317a5ef47211025585c",
     "bom_sha256": "ab527c957921fae813c366f0fd6ae186578993b90a962b19846450e9841e47b9"
   },
   "cooker": {
-    "receipt_sha256": "3d597b1de0dd8884047ee441a21b0d55ceb2f6bd84847e7a576a6576181f4429"
+    "receipt_sha256": "21d303f769dccaaaf25049e87cd948d55de8ab19be478c9aab277f535d45baa4",
+    "ato_yaml_sha256": "7948e77d79098e565091446060193228505723baf8461ea0765908039ca6dccf"
   }
 }

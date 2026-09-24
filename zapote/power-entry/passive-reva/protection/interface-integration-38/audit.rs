@@ -216,7 +216,7 @@ fn check_cooker_mate(g: &Graph) -> Result<(), String> {
 
     let groups: &[(&str, &[(&str, &str)])] = &[
         ("SELV 3.3 V", &[("rev38_mate", "1"), ("rev38_mate", "9"), ("cooker.mcu.mcu", "2"), ("cooker.mcu.r_sda_pullup", "1"), ("cooker.mcu.r_scl_pullup", "1"), ("cooker.power_mgmt.buck_3v3.l_out", "2"), ("supervisor", "4"), ("reset_buffer", "5"), ("fault_inverter", "5"), ("reset_and", "5"), ("interlock_and", "5"), ("rail_top", "1"), ("reset_pullup", "1"), ("supervisor_bypass", "1"), ("reset_buffer_bypass", "1"), ("fault_inverter_bypass", "1"), ("reset_and_bypass", "1"), ("interlock_and_bypass", "1")]),
-        ("SELV ground", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1"), ("cooker.aux_supply.psu", "4"), ("cooker.power_mgmt.buck_3v3.buck", "1"), ("supervisor", "2"), ("reset_buffer", "3"), ("fault_inverter", "3"), ("reset_and", "3"), ("interlock_and", "3"), ("rail_bottom", "2"), ("runaway_pulldown", "2"), ("reset_delay", "2"), ("supervisor_bypass", "2"), ("reset_buffer_bypass", "2"), ("fault_inverter_bypass", "2"), ("reset_and_bypass", "2"), ("interlock_and_bypass", "2")]),
+        ("SELV ground", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1"), ("cooker.mcu.mcu", "40"), ("cooker.mcu.mcu", "41"), ("cooker.aux_supply.psu", "4"), ("cooker.power_mgmt.buck_3v3.buck", "1"), ("supervisor", "2"), ("reset_buffer", "3"), ("fault_inverter", "3"), ("reset_and", "3"), ("interlock_and", "3"), ("rail_bottom", "2"), ("runaway_pulldown", "2"), ("reset_delay", "2"), ("supervisor_bypass", "2"), ("reset_buffer_bypass", "2"), ("fault_inverter_bypass", "2"), ("reset_and_bypass", "2"), ("interlock_and_bypass", "2")]),
         ("SELV 15 V source", &[("cooker.aux_supply.psu", "3"), ("cooker.power_mgmt.buck_3v3.buck", "3"), ("cooker.power_mgmt.buck_3v3.buck", "5")]),
         ("SOURCE_STOP_N", &[("rev38_mate", "2"), ("cooker.mcu.mcu", "21")]),
         ("SOURCE_VALIDATED_HEARTBEAT", &[("rev38_mate", "3"), ("cooker.mcu.mcu", "23")]),
@@ -1523,7 +1523,7 @@ mod tests {
         ] { g.parts.insert(id.into(), mpn.into()); }
         let groups: &[(&str, &[(&str, &str)])] = &[
             ("vcc", &[("rev38_mate", "1"), ("rev38_mate", "9"), ("cooker.mcu.mcu", "2"), ("cooker.mcu.r_sda_pullup", "1"), ("cooker.mcu.r_scl_pullup", "1"), ("cooker.power_mgmt.buck_3v3.l_out", "2"), ("supervisor", "4"), ("reset_buffer", "5"), ("fault_inverter", "5"), ("reset_and", "5"), ("interlock_and", "5"), ("rail_top", "1"), ("reset_pullup", "1"), ("supervisor_bypass", "1"), ("reset_buffer_bypass", "1"), ("fault_inverter_bypass", "1"), ("reset_and_bypass", "1"), ("interlock_and_bypass", "1")]),
-            ("gnd", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1"), ("cooker.aux_supply.psu", "4"), ("cooker.power_mgmt.buck_3v3.buck", "1"), ("supervisor", "2"), ("reset_buffer", "3"), ("fault_inverter", "3"), ("reset_and", "3"), ("interlock_and", "3"), ("rail_bottom", "2"), ("runaway_pulldown", "2"), ("reset_delay", "2"), ("supervisor_bypass", "2"), ("reset_buffer_bypass", "2"), ("fault_inverter_bypass", "2"), ("reset_and_bypass", "2"), ("interlock_and_bypass", "2")]),
+            ("gnd", &[("rev38_mate", "8"), ("rev38_mate", "13"), ("rev38_mate", "16"), ("cooker.mcu.mcu", "1"), ("cooker.mcu.mcu", "40"), ("cooker.mcu.mcu", "41"), ("cooker.aux_supply.psu", "4"), ("cooker.power_mgmt.buck_3v3.buck", "1"), ("supervisor", "2"), ("reset_buffer", "3"), ("fault_inverter", "3"), ("reset_and", "3"), ("interlock_and", "3"), ("rail_bottom", "2"), ("runaway_pulldown", "2"), ("reset_delay", "2"), ("supervisor_bypass", "2"), ("reset_buffer_bypass", "2"), ("fault_inverter_bypass", "2"), ("reset_and_bypass", "2"), ("interlock_and_bypass", "2")]),
             ("selv15", &[("cooker.aux_supply.psu", "3"), ("cooker.power_mgmt.buck_3v3.buck", "3"), ("cooker.power_mgmt.buck_3v3.buck", "5")]),
             ("stop", &[("rev38_mate", "2"), ("cooker.mcu.mcu", "21")]),
             ("heartbeat", &[("rev38_mate", "3"), ("cooker.mcu.mcu", "23")]),
@@ -2574,10 +2574,10 @@ mod tests {
 
     fn frozen_assembly() -> (Graph, Graph) {
         let rev38 = graph(&fs::read_to_string("source-build-03/build/default.net").unwrap()).unwrap();
-        let cooker = graph(&fs::read_to_string("cooker-source-01/build/default.net").unwrap()).unwrap();
+        let cooker = graph(&fs::read_to_string("cooker-source-02/build/default.net").unwrap()).unwrap();
         (
             with_bom_parts(rev38, "source-build-03/build/default.csv").unwrap(),
-            with_bom_parts(cooker, "cooker-source-01/build/default.csv").unwrap(),
+            with_bom_parts(cooker, "cooker-source-02/build/default.csv").unwrap(),
         )
     }
 
@@ -2616,6 +2616,13 @@ mod tests {
     fn cooker_rev38_harness_rejects_open_return_contact() {
         let (rev38, mut cooker) = frozen_assembly();
         cooker.pins.remove(&("rev38_mate".into(), "16".into()));
+        assert!(check_cooker_rev38_harness(&rev38, &cooker).is_err());
+    }
+
+    #[test]
+    fn cooker_rev38_harness_rejects_open_esp_ground_pad() {
+        let (rev38, mut cooker) = frozen_assembly();
+        cooker.pins.remove(&("cooker.mcu.mcu".into(), "41".into()));
         assert!(check_cooker_rev38_harness(&rev38, &cooker).is_err());
     }
 

@@ -59,22 +59,27 @@ candidate producer outputs. This is source connectivity evidence, not a native-b
 startup, timing, or harness qualification.
 
 `../tools/build_cooker_mate_source.py` also creates a persistent, pinned
-source snapshot. The current `../cooker-source-01` netlist, BOM, resolved
+source snapshot. The current `../cooker-source-02` netlist, BOM, resolved
 export and hashes are linked to the Rev38 snapshot by
 [`COOKER-ASSEMBLY-SOURCE.md`](../COOKER-ASSEMBLY-SOURCE.md). This digital
 connector check does not constitute native PCB or physical cable evidence.
 
 ## Native cooker-board readiness
 
-`native_probe.py` checks the frozen `cooker-source-01` receipt, resolves the
+`native_probe.py` checks the frozen `cooker-source-02` receipt, resolves the
 compiled BOM and footprint names against the same `pcb/libs` and KiCad stock
 roots used by the strict native bridge, and compares connected pin numbers to
 available footprint pad numbers. Its retained result is
-[`evidence/native-readiness-01.json`](evidence/native-readiness-01.json): 189
+[`evidence/native-readiness-02.json`](evidence/native-readiness-02.json): 189
 references, 42 resolved footprint types, and no connected pin absent from a
 resolved footprint. It is a source/footprint diagnostic, not a native export.
 
-Three package inputs block a credible native cooker board:
+The cooker derivative now uses the installed `RF_Module:ESP32-S3-WROOM-1`
+land pattern. The source connects module GND pads 1, 40 and 41 to the same
+SELV return; the Rust audit rejects an open pad 41. The stock footprint's
+SHA-256 is recorded in the readiness report. The canonical cooker source and
+board remain unchanged. Two classes of input still block a credible native
+cooker board:
 
 - `F1` (`cooker.power_in.fuse`) references
   `Fuse:Fuse_Holder_5x20mm`, and `RT1` (`cooker.power_in.ntc`) references
@@ -82,11 +87,6 @@ Three package inputs block a credible native cooker board:
   bridge's local or installed stock footprint roots. The embedded shapes in
   the canonical PCB are marked `generator stub`, so they are not released
   library footprints.
-- The local `lib:ESP32-S3-WROOM-1` footprint contains pads 1–39 only.
-  [Espressif's ESP32-S3-WROOM-1 datasheet](https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf)
-  identifies ground contacts 40 and 41, which are also absent from the
-  current Atopile component model. Reconcile both source and land pattern
-  against the selected `ESP32-S3-WROOM-1-N8R8` package before layout.
 - No reviewed 189-reference poses, board outline, or HOT/SELV spacing plan
   exists for this derivative. The `temper-design-bundle` extension currently
   fails the repository freshness gate, so strict native projection has not

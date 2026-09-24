@@ -12,18 +12,18 @@ No numerical fault response, protected operation, or mains build is approved.
 | --- | --- |
 | Git milestone | `6de13975a65a86ac7c711bf520f6c4b16faa3188` |
 | Rev38 295-reference build receipt | SHA-256 `9433de53a1dd1c8dba86d2df6a47d96fc54e413702979518997c43f5591af911` |
-| Cooker mate 189-reference build receipt | SHA-256 `3d597b1de0dd8884047ee441a21b0d55ceb2f6bd84847e7a576a6576181f4429` |
-| Two-source artifact lock | SHA-256 `9a1baeba595e2fb7fa18b88e4af1436567d7ca350263ac6fe8ed0c01ea987f03` |
-| Rust pin audit | `audit.rs` SHA-256 `d7768d6c75ccd4741c6d3c62cc4c084810107d591bdf06c9ad192d2feb7b684a` |
+| Cooker mate 189-reference build receipt | `cooker-source-02` SHA-256 `21d303f769dccaaaf25049e87cd948d55de8ab19be478c9aab277f535d45baa4` |
+| Two-source artifact lock | SHA-256 `0cfcba30db822912aa278214c631ba7eab12d69a80427d9246d7ace227d95512` |
+| Rust pin audit | `audit.rs` SHA-256 `bafb1112ee4d6f13a618a7b01c39ebc8f34997e9df078825489b8a7d99ff6ead` |
 | Reference model and protocol tests | `model.rs` SHA-256 `86165afe2bd2c80cb353aa9fdb3993d89ed9597257fe6416d8ef48d80043a567`; `protocol-tests.rs` SHA-256 `6b4e8456092fe226e649ad37eddb2ed8e424acd7327a7b162e69b67de08db49a` |
 | ESP source adapter | `firmware/main/power_entry_authorization.c` SHA-256 `9241602d8f193ae10a1f1fc4fc87369de6a08116b8804466910194f44d03bc50`; header SHA-256 `62e936dec957a3ae5e7bc55e1c6b9e48b06620cb26cf5d3adab8e57c0faab274` |
 | Native board, production runtime and physical capture | **No accepted artifact or hash** |
-| Cooker native readiness diagnostic | `cooker-mate/evidence/native-readiness-01.json` SHA-256 `65d1c05a769cbd413216b0aa32c8c2f9600a4028824edc71dfcb2917eac72cef`; static probe only |
+| Cooker native readiness diagnostic | `cooker-mate/evidence/native-readiness-02.json` SHA-256 `9d441e0ae16a4ed912ff7420beb38fc2b3a8c5eed39da8589c8814811565e5ef`; static probe only |
 
 Each build receipt lists every copied Atopile source hash and its resolved
 export hash. The [two-board source record](COOKER-ASSEMBLY-SOURCE.md) links
 the actual netlist/BOM bytes; `tools/check_assembly_source.py` verifies the
-receipts, source copies, adapters, exports and netlist/BOM lock before running
+receipts, source copies, build manifests, adapters, exports and netlist/BOM lock before running
 the Rust pin audit. Tool versions used for this local gate: Atopile **0.2.69**
 (receipt build), `rustc 1.92.0`. `kicad-cli 10.0.4` is available but has no
 Rev38 board to check. Re-run the gates and update hashes if any listed input
@@ -54,16 +54,16 @@ current-cessation result.
 | Gate | Current result | Scope |
 | --- | --- | --- |
 | Frozen two-source build and assembly audit | **PASS** | 295 Rev38 refs, 189 cooker refs, one ESP on cooker source, none on Rev38; receipt hashes and straight-through 16 contacts checked. |
-| Rust pin audit mutation suite | **PASS: 142/142** | Includes swapped UART contacts, open return, extra STOP driver and wrong Rev38 protocol-isolator identity. |
+| Rust pin audit mutation suite | **PASS: 143/143** | Includes swapped UART contacts, open return, open ESP ground pad 41, extra STOP driver and wrong Rev38 protocol-isolator identity. |
 | Import-boundary and derived-artifact checks | **PASS** | `scripts/import_linter_gate.py`: 5 kept, 0 broken; `scripts/regen_derived.py --check`: consistent. |
 | Receiver device qualification | **OPEN** | Host and target compilation do not prove programmed fuses, reset, clock or watchdog on silicon. |
 | ESP production integration | **OPEN** | Diagnostic lockout target image is not a production image; cooker hooks and target timing/pin captures remain unresolved. |
 | F1/F2, AUX, cooker SELV rail and thermal/fault envelopes | **OPEN** | See `F1-SCREEN.md`, `F2-BOARD-INTERFACE.md`, `AUX-SOURCE-CANDIDATE.md`, `SELV-SUPPLY-LOAD.md`. |
 | Native schematic/PCB, ERC/DRC, stackup, source/native parity and maintained unit gate | **NOT RUN for Rev38** | No accepted native board bytes; canonical `pcb/temper.kicad_pcb` remains outside this candidate. |
-| Cooker source/footprint readiness | **OPEN** | Static probe finds two unresolved canonical F1/NTC footprints, missing ESP ground pads 40/41 in the source/land pattern, no reviewed poses/outline, and a stale strict-bridge extension. |
+| Cooker source/footprint readiness | **OPEN** | The frozen derivative now joins ESP pads 1/40/41 to SELV return and uses the stock 41-contact footprint. Static probe still finds unresolved canonical F1/NTC footprints, no reviewed poses/outline, and a stale strict-bridge extension. |
 | Low-voltage assembled injection, fault-to-current cessation, mains safety and passive protection/cooling milestone | **NOT RUN / OPEN** | Require a joined physical design and separately accepted measurements. |
 
 The next digital release gate is a reviewed native Rev38 board plus cooker
 mate and cable contract with exact parts, poses, outline, and source/native
-parity. The F2 terminal drill/pin record and the cooker ESP package ground
-pin mapping currently prevent treating a generated layout as accepted.
+parity. The F2 terminal drill/pin record and two cooker power-part footprints
+currently prevent treating a generated layout as accepted.

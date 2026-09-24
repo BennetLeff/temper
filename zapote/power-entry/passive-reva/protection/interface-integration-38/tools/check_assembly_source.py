@@ -46,9 +46,11 @@ def verify(root: Path) -> tuple[Path, Path, Path, Path]:
     if lock["schema"] != "temper.power-entry.assembly-source-lock.v1":
         raise ValueError("unexpected assembly source lock schema")
     rev38 = root / "source-build-03"
-    cooker = root / "cooker-source-01"
+    cooker = root / "cooker-source-02"
     verify_snapshot(rev38, lock["rev38"]["receipt_sha256"], root / "tools/build_source.py")
     verify_snapshot(cooker, lock["cooker"]["receipt_sha256"], root / "tools/build_cooker_mate_source.py")
+    require_hash(rev38 / "ato.yaml", lock["rev38"]["ato_yaml_sha256"])
+    require_hash(cooker / "ato.yaml", lock["cooker"]["ato_yaml_sha256"])
     # The earlier Rev38 receipt did not record netlist and BOM digests.
     require_hash(rev38 / "build/default.net", lock["rev38"]["netlist_sha256"])
     require_hash(rev38 / "build/default.csv", lock["rev38"]["bom_sha256"])

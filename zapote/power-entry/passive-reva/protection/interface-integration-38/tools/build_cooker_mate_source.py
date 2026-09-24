@@ -44,6 +44,39 @@ def copy_cooker_sources(output: Path) -> None:
         shutil.copyfile(REPO / relative, destination)
 
 
+def apply_esp_ground_override(output: Path) -> None:
+    """Correct the ESP package in the frozen derivative, leaving Top intact."""
+    component = output / "elec/src/components.ato"
+    source = component.read_text(encoding="utf-8")
+    old = '    footprint = "ESP32-S3-WROOM-1"  # Custom footprint\n'
+    new = '    footprint = "RF_Module:ESP32-S3-WROOM-1"  # KiCad stock, 41 contacts\n'
+    ground = '    signal GND ~ pin 1\n    signal VCC3V3 ~ pin 2\n'
+    complete_ground = (
+        '    signal GND ~ pin 1\n'
+        '    signal GND_EDGE ~ pin 40\n'
+        '    signal GND_PAD ~ pin 41\n'
+        '    signal VCC3V3 ~ pin 2\n'
+    )
+    if source.count(old) != 1 or source.count(ground) != 1:
+        raise ValueError("canonical ESP component changed; re-review derivative override")
+    component.write_text(
+        source.replace(old, new, 1).replace(ground, complete_ground, 1),
+        encoding="utf-8",
+    )
+
+    modules = output / "elec/src/modules.ato"
+    source = modules.read_text(encoding="utf-8")
+    old = '    power.gnd ~ mcu.GND\n'
+    new = (
+        '    power.gnd ~ mcu.GND\n'
+        '    power.gnd ~ mcu.GND_EDGE\n'
+        '    power.gnd ~ mcu.GND_PAD\n'
+    )
+    if source.count(old) != 1:
+        raise ValueError("canonical ESP ground join changed; re-review derivative override")
+    modules.write_text(source.replace(old, new, 1), encoding="utf-8")
+
+
 def build(output: Path) -> None:
     if output.exists():
         raise FileExistsError(f"refusing to overwrite cooker source build: {output}")
@@ -51,6 +84,7 @@ def build(output: Path) -> None:
     import block_source  # type: ignore[import-not-found]
 
     copy_cooker_sources(output)
+    apply_esp_ground_override(output)
     shutil.copytree(ROOT / "cooker-mate/elec/src", output / DERIVATIVE)
     (output / "ato.yaml").write_text(
         "ato-version: 0.2.69\nbuilds:\n"

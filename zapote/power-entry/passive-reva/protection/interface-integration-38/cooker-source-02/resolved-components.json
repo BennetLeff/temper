@@ -1,0 +1,2008 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "4077b4aa0459150c4ba3d546230bb931ce0106948143874a3d7db5a52e329241",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "c5e963c449d258f61ae2edf0062979eafbdc10799f6bb6bda783b8ba9aeb67d5",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.fuse",
+      "attributes": {
+        "current_rating": "16A",
+        "designator_prefix": "F",
+        "footprint": "Fuse:Fuse_Holder_5x20mm",
+        "mpn": "0034.3129",
+        "voltage_rating": "250V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.mov",
+      "attributes": {
+        "designator_prefix": "RV",
+        "footprint": "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm",
+        "mpn": "V150LA10AP",
+        "voltage_rating": "150V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.c_x2",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X2",
+        "footprint": "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3",
+        "mpn": "B32922C3224M289",
+        "value": "0.22uF +/- 20%",
+        "voltage_rating": "310V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.cmc",
+      "attributes": {
+        "current_rating": "16A",
+        "dcr": "0.0071ohm",
+        "designator_prefix": "L",
+        "footprint": "temper:CMC_B82726S",
+        "manufacturer": "TDK (EPCOS)",
+        "mpn": "B82726S2163N030",
+        "value": "2.2mH"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.ntc",
+      "attributes": {
+        "current_rating": "15A",
+        "designator_prefix": "RT",
+        "footprint": "Resistor_THT:R_Disc_D15.0mm_W7.0mm_P7.5mm",
+        "manufacturer": "Ametherm",
+        "mpn": "SL32 10015",
+        "resistance_cold": "10ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.bypass_relay",
+      "attributes": {
+        "coil_voltage": "12V",
+        "contact_current": "20A",
+        "designator_prefix": "K",
+        "footprint": "temper:Relay_SPST_Schrack-RT33K012",
+        "mpn": "RT33K012"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.q_relay_drv",
+      "attributes": {
+        "designator_prefix": "Q",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.r_relay_drop",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal",
+        "mpn": "RSF100JB-73-91R",
+        "power_rating": "1W",
+        "value": "91ohm +/- 5%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.r_gate",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "mpn": "CRCW08051K00FKEA",
+        "power_rating": "0.125W",
+        "value": "1kohm +/- 5%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.r_gate_pd",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "mpn": "CRCW0805100KFKEA",
+        "power_rating": "0.125W",
+        "value": "100kohm +/- 5%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.d_flyback",
+      "attributes": {
+        "current_rating": "1A",
+        "designator_prefix": "D",
+        "footprint": "Diode_SMD:D_SMA",
+        "mpn": "SS14",
+        "voltage_rating": "40V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.d1",
+      "attributes": {
+        "current_rating": "15A",
+        "footprint": "Package_TO_SOT_THT:TO-220-2_Vertical",
+        "manufacturer": "ON Semiconductor",
+        "mpn": "MUR1560G",
+        "t_rr": "35ns",
+        "voltage_rating": "600V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.d2",
+      "attributes": {
+        "current_rating": "15A",
+        "footprint": "Package_TO_SOT_THT:TO-220-2_Vertical",
+        "manufacturer": "ON Semiconductor",
+        "mpn": "MUR1560G",
+        "t_rr": "35ns",
+        "voltage_rating": "600V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.c_bus1",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "EKMQ251VSN182MA50S",
+        "value": "1800uF",
+        "voltage_rating": "250V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.c_bus2",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "EKMQ251VSN182MA50S",
+        "value": "1800uF",
+        "voltage_rating": "250V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.c_bus1b",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "EKMQ251VSN182MA50S",
+        "value": "1800uF",
+        "voltage_rating": "250V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.c_bus2b",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "EKMQ251VSN182MA50S",
+        "value": "1800uF",
+        "voltage_rating": "250V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.r_bleed1",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRGP2512F22K",
+        "power_rating": "2W",
+        "value": "22kohm +/- 1%",
+        "voltage_rating": "250V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.r_bleed2",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRGP2512F22K",
+        "power_rating": "2W",
+        "value": "22kohm +/- 1%",
+        "voltage_rating": "250V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_in.y_cap_pe",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "Y1",
+        "footprint": "Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4",
+        "mpn": "B81123C1562M000",
+        "value": "5.6nF +/- 20%",
+        "voltage_rating": "250V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.k_dis1",
+      "attributes": {
+        "coil_voltage": "12V",
+        "contact_current": "10A",
+        "designator_prefix": "K",
+        "footprint": "temper:Relay_SPDT_Schrack-RT314012",
+        "mpn": "RT314012"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.k_dis2",
+      "attributes": {
+        "coil_voltage": "12V",
+        "contact_current": "10A",
+        "designator_prefix": "K",
+        "footprint": "temper:Relay_SPDT_Schrack-RT314012",
+        "mpn": "RT314012"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.r_dis1a",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal",
+        "mpn": "AC05000003901JAC00",
+        "power_rating": "5W",
+        "value": "3.9kohm +/- 5%",
+        "voltage_rating": "139V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.r_dis1b",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal",
+        "mpn": "AC05000003901JAC00",
+        "power_rating": "5W",
+        "value": "3.9kohm +/- 5%",
+        "voltage_rating": "139V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.r_dis2a",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal",
+        "mpn": "AC05000003901JAC00",
+        "power_rating": "5W",
+        "value": "3.9kohm +/- 5%",
+        "voltage_rating": "139V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.r_dis2b",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal",
+        "mpn": "AC05000003901JAC00",
+        "power_rating": "5W",
+        "value": "3.9kohm +/- 5%",
+        "voltage_rating": "139V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.r_coil1",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100RL",
+        "power_rating": "0.25W",
+        "value": "100ohm +/- 1%",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.r_coil2",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100RL",
+        "power_rating": "0.25W",
+        "value": "100ohm +/- 1%",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.q_dis_drv",
+      "attributes": {
+        "designator_prefix": "Q",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.r_gate",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "mpn": "CRCW08051K00FKEA",
+        "power_rating": "0.125W",
+        "value": "1kohm +/- 5%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.r_gate_pd",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "mpn": "CRCW0805100KFKEA",
+        "power_rating": "0.125W",
+        "value": "100kohm +/- 5%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.d_fly1",
+      "attributes": {
+        "current_rating": "1A",
+        "designator_prefix": "D",
+        "footprint": "Diode_SMD:D_SMA",
+        "mpn": "SS14",
+        "voltage_rating": "40V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.d_fly2",
+      "attributes": {
+        "current_rating": "1A",
+        "designator_prefix": "D",
+        "footprint": "Diode_SMD:D_SMA",
+        "mpn": "SS14",
+        "voltage_rating": "40V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.r_snub1",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRGP2512F100R",
+        "power_rating": "2W",
+        "value": "100ohm +/- 1%",
+        "voltage_rating": "500V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.r_snub2",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRGP2512F100R",
+        "power_rating": "2W",
+        "value": "100ohm +/- 1%",
+        "voltage_rating": "500V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.c_snub1",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "PP",
+        "footprint": "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3",
+        "mpn": "B32671L6474K000",
+        "value": "470nF +/- 10%",
+        "voltage_rating": "630V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.discharge.c_snub2",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "PP",
+        "footprint": "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3",
+        "mpn": "B32671L6474K000",
+        "value": "470nF +/- 10%",
+        "voltage_rating": "630V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_mgmt.buck_3v3.buck",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "i_out_max": "3A",
+        "manufacturer": "Texas Instruments",
+        "mpn": "LMR51430XDDCR",
+        "v_in_max": "36V",
+        "v_out_max": "28V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_mgmt.buck_3v3.c_in",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "CL32B106KBJZW6E",
+        "value": "10uF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_mgmt.buck_3v3.c_boot",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_mgmt.buck_3v3.l_out",
+      "attributes": {
+        "current_rating": "12.5A",
+        "dcr": "0.01ohm",
+        "designator_prefix": "L",
+        "footprint": "Inductor_SMD:L_Bourns_SRP1265A",
+        "mpn": "SRP1265A-5R6M",
+        "value": "5.6uH"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_mgmt.buck_3v3.c_out1",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "CL32B226KAJNNWE",
+        "value": "22uF +/- 10%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_mgmt.buck_3v3.c_out2",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "CL32B226KAJNNWE",
+        "value": "22uF +/- 10%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_mgmt.buck_3v3.c_out_hf",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_mgmt.buck_3v3.r_fb_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100KL",
+        "power_rating": null,
+        "value": "100kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.power_mgmt.buck_3v3.r_fb_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0722K1L",
+        "power_rating": null,
+        "value": "22.1kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.aux_supply.psu",
+      "attributes": {
+        "designator_prefix": "PS",
+        "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-10-xx_THT",
+        "manufacturer": "Mean Well",
+        "mpn": "IRM-10-15",
+        "voltage_rating": "430V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.aux_supply.c_in_bulk",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_2220_5750Metric",
+        "mpn": "GRM55DR72E106KW01L",
+        "value": "10uF +/- 20%",
+        "voltage_rating": "250V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.aux_supply.c_out",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "GRM32ER71E107ME15L",
+        "value": "100uF +/- 20%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.aux_supply.c_out_hf",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.power_loop.q_high",
+      "attributes": {
+        "current_rating": "40A",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "i_c_max": "40A",
+        "mpn": "IKW40N120H3",
+        "v_ce_max": "1200V",
+        "v_ce_sat": "1.8V",
+        "voltage_rating": "1200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.power_loop.q_low",
+      "attributes": {
+        "current_rating": "40A",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "i_c_max": "40A",
+        "mpn": "IKW40N120H3",
+        "v_ce_max": "1200V",
+        "v_ce_sat": "1.8V",
+        "voltage_rating": "1200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_hs.driver",
+      "attributes": {
+        "footprint": "SOIC16W_Isolated",
+        "i_sink_peak": "6A",
+        "i_source_peak": "4A",
+        "mpn": "UCC21550BDWKR",
+        "v_cc_sec_max": "25V",
+        "v_cci_max": "18V",
+        "v_iso": "5000V",
+        "voltage_rating": "5000V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_hs.rg_on",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-072R2L",
+        "power_rating": "0.5W",
+        "value": "2.2ohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_hs.rgs",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-072K2L",
+        "power_rating": "0.1W",
+        "value": "2200ohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_hs.boot_diode",
+      "attributes": {
+        "current_rating": "1A",
+        "footprint": "Diode_SMD:D_SMA",
+        "manufacturer": "ON Semiconductor",
+        "mpn": "ES1J",
+        "t_rr": "35ns",
+        "voltage_rating": "600V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_hs.boot_cap",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "GRM32ER71H106KA12L",
+        "value": "10uF +/- 20%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_hs.neg_bias_zener",
+      "attributes": {
+        "current_rating": null,
+        "designator_prefix": "D",
+        "footprint": "Diode_SMD:D_SOD-123",
+        "mpn": "BZT52C5V1-7-F",
+        "voltage_rating": "5.1V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_hs.r_filt_a",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0751RL",
+        "power_rating": null,
+        "value": "51ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_hs.c_filt_a",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "C0G",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM1885C1H221JA01D",
+        "value": "220pF +/- 5%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_hs.r_filt_b",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0751RL",
+        "power_rating": null,
+        "value": "51ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_hs.c_filt_b",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "C0G",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM1885C1H221JA01D",
+        "value": "220pF +/- 5%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_ls.rg_on",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-072R2L",
+        "power_rating": "0.5W",
+        "value": "2.2ohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.gate_ls.rgs",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-072K2L",
+        "power_rating": "0.1W",
+        "value": "2200ohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.dt_res",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0734KL",
+        "power_rating": "0.1W",
+        "value": "34kohm +/- 1%",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.c_vcci1",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "16V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.c_vcci2",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM188R71C105KA12D",
+        "value": "1uF +/- 10%",
+        "voltage_rating": "16V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.c_vdda",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.c_vddb",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.hb.c_dc_hf",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "PP",
+        "footprint": "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3",
+        "mpn": "B32671L6474K000",
+        "value": "470nF +/- 10%",
+        "voltage_rating": "630V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.tank.c_tank1",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "PP",
+        "footprint": "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal",
+        "mpn": "942C16P1K-F",
+        "value": "100nF",
+        "voltage_rating": "1600V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.tank.c_tank2",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "PP",
+        "footprint": "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal",
+        "mpn": "942C16P1K-F",
+        "value": "100nF",
+        "voltage_rating": "1600V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.tank.c_tank3",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "PP",
+        "footprint": "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal",
+        "mpn": "942C16P1K-F",
+        "value": "100nF",
+        "voltage_rating": "1600V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.tank.inductor_conn",
+      "attributes": {
+        "current_rating": "25A",
+        "dcr": "0.1ohm",
+        "designator": "R30",
+        "designator_prefix": "L",
+        "footprint": "LitzPad_15A",
+        "mpn": "CUSTOM_LITZ_COIL",
+        "value": "88uH +/- 10%"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.ct_sense.ct",
+      "attributes": {
+        "designator_prefix": "T",
+        "footprint": "temper:CST3015",
+        "manufacturer": "Coilcraft",
+        "mpn": "CST3015-100ED",
+        "ratio": "100"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.ct_sense.r_burden",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-074R99L",
+        "power_rating": "0.25W",
+        "value": "4.99ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.ct_sense.c_filter",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "C0G",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM1885C1H104JA01D",
+        "value": "100nF",
+        "voltage_rating": "16V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.ct_sense.r_bias_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.ct_sense.r_bias_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.adc",
+      "attributes": {
+        "footprint": "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm",
+        "manufacturer": "Analog Devices",
+        "mpn": "MAX31865AAP+",
+        "resolution": "15",
+        "v_supply_max": "3.6V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_ref",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "mpn": "RG2012V-431-W-T1",
+        "power_rating": null,
+        "value": "430ohm +/- 0.05%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.c_vdd",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.c_dvdd",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.c_rtd_input",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "C0G",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C102J5GACTU",
+        "value": "1nF",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_rtdin_p_bias",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603JR-071ML",
+        "power_rating": null,
+        "value": "1Mohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_rtdin_n_bias",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603JR-071ML",
+        "power_rating": null,
+        "value": "1Mohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_sclk",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0733RL",
+        "power_rating": null,
+        "value": "33ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_mosi",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0733RL",
+        "power_rating": null,
+        "value": "33ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_cs",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0733RL",
+        "power_rating": null,
+        "value": "33ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_miso",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0733RL",
+        "power_rating": null,
+        "value": "33ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.fb_power",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Inductor_SMD:L_0603_1608Metric",
+        "mpn": "BLM18AG121SN1D",
+        "power_rating": null,
+        "value": "120ohm",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.c_reference",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.c_low_window",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.c_high_window",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.c_window_and",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.c_rail_monitor",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.c_fault_nand",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.reference",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "REF2025AIDDCR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_low_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "ERA-3AEB6192V",
+        "power_rating": null,
+        "value": "61.9kohm +/- 0.1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_low_bottom",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "ERA-3AEB103V",
+        "power_rating": null,
+        "value": "10kohm +/- 0.1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_high_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "ERA-3AEB5901V",
+        "power_rating": null,
+        "value": "5.9kohm +/- 0.1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_high_bottom",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "ERA-3AEB103V",
+        "power_rating": null,
+        "value": "10kohm +/- 0.1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.low_window",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3201AIDBVR",
+        "t_pd": "40ns",
+        "v_supply_max": "5.5V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.high_window",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3201AIDBVR",
+        "t_pd": "40ns",
+        "v_supply_max": "5.5V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_window_sense_p",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100KL",
+        "power_rating": null,
+        "value": "100kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.window_and",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G08DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_window_ok_pulldown",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100KL",
+        "power_rating": null,
+        "value": "100kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.rail_monitor",
+      "attributes": {
+        "footprint": "Temper_RTD:TPS389001DSER_WSON-6_DSE",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS389001DSER"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_avdd_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "ERA-3AEB1652V",
+        "power_rating": null,
+        "value": "16.5kohm +/- 0.1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_avdd_bottom",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "ERA-3AEB103V",
+        "power_rating": null,
+        "value": "10kohm +/- 0.1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_rail_ok_pullup",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.fault_nand",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G38DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.r_fault_pullup",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.rtd_pan.j_rtd1",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+        "manufacturer": "JST Sales America Inc.",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ocp.comp",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3201AIDBVR",
+        "t_pd": "40ns",
+        "v_supply_max": "5.5V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ocp.r_ref_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-073K24L",
+        "power_rating": null,
+        "value": "3240ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ocp.r_ref_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10000ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.comp",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3201AIDBVR",
+        "t_pd": "40ns",
+        "v_supply_max": "5.5V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.r_div_top1",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07430KL",
+        "power_rating": "0.25W",
+        "value": "430kohm +/- 1%",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.r_div_top2",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07430KL",
+        "power_rating": "0.25W",
+        "value": "430kohm +/- 1%",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.r_div_top3",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07430KL",
+        "power_rating": "0.25W",
+        "value": "430kohm +/- 1%",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.r_div_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RT0603BRD0716K9L",
+        "power_rating": "0.1W",
+        "value": "16.9kohm +/- 0.1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.r_hyst",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RT0603BRD07487KL",
+        "power_rating": null,
+        "value": "487kohm +/- 0.1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.r_adc_top1",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07169KL",
+        "power_rating": "0.25W",
+        "value": "169kohm +/- 1%",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.r_adc_top2",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07169KL",
+        "power_rating": "0.25W",
+        "value": "169kohm +/- 1%",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.r_adc_top3",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07169KL",
+        "power_rating": "0.25W",
+        "value": "169kohm +/- 1%",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.r_adc_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": "0.1W",
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ovp.c_adc_filter",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.thermal.comp",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3201AIDBVR",
+        "t_pd": "40ns",
+        "v_supply_max": "5.5V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.thermal.ntc",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical",
+        "mpn": "NTCALUG01A104GA",
+        "power_rating": null,
+        "value": "100kohm",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.thermal.r_ntc_fixed",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.thermal.r_ref_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-079K09L",
+        "power_rating": null,
+        "value": "9.09kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.thermal.r_ref_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0711K5L",
+        "power_rating": null,
+        "value": "11.5kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.thermal.r_hyst",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0734K8L",
+        "power_rating": null,
+        "value": "34.8kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.coil_thermal.comp",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3201AIDBVR",
+        "t_pd": "40ns",
+        "v_supply_max": "5.5V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.coil_thermal.ntc",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal",
+        "mpn": "NTCALUG01A104GA",
+        "power_rating": null,
+        "value": "100kohm",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.coil_thermal.r_ntc_fixed",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-073K32L",
+        "power_rating": null,
+        "value": "3.32kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.coil_thermal.r_ref_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-073K16L",
+        "power_rating": null,
+        "value": "3.16kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.coil_thermal.r_ref_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-074K42L",
+        "power_rating": null,
+        "value": "4.42kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.coil_thermal.r_hyst",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0711K5L",
+        "power_rating": null,
+        "value": "11.5kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ocp2.ct",
+      "attributes": {
+        "designator_prefix": "T",
+        "footprint": "temper:CST3015",
+        "manufacturer": "Coilcraft",
+        "mpn": "CST3015-100ED",
+        "ratio": "100"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ocp2.r_burden",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-074R12L",
+        "power_rating": "0.25W",
+        "value": "4.12ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ocp2.comp",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3201AIDBVR",
+        "t_pd": "40ns",
+        "v_supply_max": "5.5V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.ocp2.c_filter",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "C0G",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM1885C1H104JA01D",
+        "value": "100nF",
+        "voltage_rating": "16V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.wdt.wdt",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS3823-33DBVR",
+        "v_threshold": "2.93V",
+        "v_threshold_hysteresis": "30mV",
+        "wdt_timeout": "1.6s"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.wdt.c_bypass",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.uvlo_logic.mon",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS3700DDCR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.uvlo_logic.r_div_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07698KL",
+        "power_rating": null,
+        "value": "698kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.uvlo_logic.r_div_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100KL",
+        "power_rating": null,
+        "value": "100kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.uvlo_logic.r_hyst",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-073M74L",
+        "power_rating": null,
+        "value": "3.74Mohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.uvlo_logic.r_outa_pullup",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.uvlo_logic.inv",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G38DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.uvlo_logic.r_fault_pullup",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.fault_or",
+      "attributes": {
+        "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HC4075DR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.fault_any_or",
+      "attributes": {
+        "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HC4075DR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.fault_or3",
+      "attributes": {
+        "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HC4075DR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.latch",
+      "attributes": {
+        "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HC00DR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.tp_shutdown",
+      "attributes": {
+        "bom_exclude": "Symbol(key='/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.tp_shutdown.true')",
+        "designator_prefix": "TP",
+        "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+        "mpn": "GENERIC_TEST_POINT"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.tp_fault",
+      "attributes": {
+        "bom_exclude": "Symbol(key='/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.tp_fault.true')",
+        "designator_prefix": "TP",
+        "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+        "mpn": "GENERIC_TEST_POINT"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.tp_ocp2_fault",
+      "attributes": {
+        "bom_exclude": "Symbol(key='/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.tp_ocp2_fault.true')",
+        "designator_prefix": "TP",
+        "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+        "mpn": "GENERIC_TEST_POINT"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.tp_uvlo2_fault",
+      "attributes": {
+        "bom_exclude": "Symbol(key='/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.safety.tp_uvlo2_fault.true')",
+        "designator_prefix": "TP",
+        "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+        "mpn": "GENERIC_TEST_POINT"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.mcu.mcu",
+      "attributes": {
+        "flash_size": "8MB",
+        "footprint": "RF_Module:ESP32-S3-WROOM-1",
+        "manufacturer": "Espressif",
+        "mpn": "ESP32-S3-WROOM-1-N8R8",
+        "psram_size": "8MB"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.mcu.c_vcc1",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.mcu.c_vcc2",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "GRM21BR71A106KE51L",
+        "value": "10uF",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.mcu.r_en",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 2%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.mcu.c_en",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM188R71A105KA61D",
+        "value": "1uF +/- 10%",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.mcu.r_boot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.mcu.btn_reset",
+      "attributes": {
+        "designator_prefix": "SW",
+        "footprint": "Button_Switch_SMD:SW_SPST_EVQP7A",
+        "manufacturer": "Panasonic",
+        "mpn": "EVQ-P7A01P"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.mcu.btn_boot",
+      "attributes": {
+        "designator_prefix": "SW",
+        "footprint": "Button_Switch_SMD:SW_SPST_EVQP7A",
+        "manufacturer": "Panasonic",
+        "mpn": "EVQ-P7A01P"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.mcu.r_sda_pullup",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-074K7L",
+        "power_rating": null,
+        "value": "4.7kohm",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.mcu.r_scl_pullup",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-074K7L",
+        "power_rating": null,
+        "value": "4.7kohm",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.thermal.j_fan",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "manufacturer": "Wurth Elektronik",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::cooker.thermal.r_fan_drop",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal",
+        "mpn": "RSF100JB-73-39R",
+        "power_rating": "1W",
+        "value": "39ohm +/- 5%",
+        "voltage_rating": "25V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::rev38_mate",
+      "attributes": {
+        "datasheet": "https://www.molex.com/en-us/products/part-detail/430451612",
+        "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
+        "manufacturer": "Molex",
+        "mpn": "43045-1612"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::rail_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0716KL",
+        "value": "16kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::rail_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::reset_pullup",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::runaway_pulldown",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::reset_delay",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::supervisor_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::supervisor",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps3890.pdf",
+        "footprint": "Temper_RTD:TPS389001DSER_WSON-6_DSE",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS389001DSER"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::reset_buffer",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G17DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::reset_buffer_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::fault_inverter",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g04.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G04DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::fault_inverter_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::reset_and",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G08DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::reset_and_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::interlock_and",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G08DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38::interlock_and_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    }
+  ],
+  "entry": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-source-02/zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato:CookerMate38",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "elec/src/components.ato": "1b86c23926ab7ee36baab282adeb20b03d7c18e43593d1d26642135d5a8917a1",
+    "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+    "elec/src/current_sense_unit.ato": "973de56249de1b18c779650e1506605ce9db574102df9f86846662519ae79898",
+    "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+    "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+    "elec/src/gate_drive_unit.ato": "6e81398feb135f9a7382033173beda50f7a9cb8b7602ccab00a032f4fe40b2b1",
+    "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+    "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+    "elec/src/interlock_unit.ato": "8e457eaa3c50c810e0877ce5b533faae4a751f966a1f9e1c39bb6b4fe067276d",
+    "elec/src/main.ato": "492faf4b04351003c859512332b91d207e234274a4b7344f86c3674477626461",
+    "elec/src/modules.ato": "aa1b7e386f10b685761e0fcec646c5213fd946faea1c80a85a277e624574a64f",
+    "elec/src/power_entry_active_unit.ato": "6f91eed643c175804209371acc004f373473e476cee88746f27c3caa5f43f80d",
+    "elec/src/power_entry_passive_reva.ato": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8",
+    "elec/src/power_entry_unit.ato": "3b1a3c893adfbe51b7e814ee0c28e3e8437ccef214e5c9963057b770d74cbed6",
+    "elec/src/rtd_unit.ato": "521d46ea86f55ecefe0e0d38e6303623dabb1e1648e5d1cd3cebd51c9d05f673",
+    "elec/src/thermal_sense_unit.ato": "0597bd4a07f31d20fb0c15961a6b907ac772c87bdd592f6d24d1be48a5fce6cd",
+    "elec/src/voltage_sense_unit.ato": "5aca80ff589ff7156cae128a66f09111730d2a59439f59cccdfbb336a1577de5",
+    "zapote/power-entry/passive-reva/protection/interface-integration-38/cooker-mate/elec/src/cooker_mate.ato": "1af56a49cde67dce94415fdc32f5ce4553c2bae7692d66e653be7dc60482acf1"
+  }
+}

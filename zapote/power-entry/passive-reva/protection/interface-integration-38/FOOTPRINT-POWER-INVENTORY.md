@@ -22,6 +22,11 @@ creepage, thermal capacity, assembly clearance, or a releasable PCB.
 | Espressif `ESP32-S3-WROOM-1-N8R8` | `RF_Module:ESP32-S3-WROOM-1` | Installed pattern has perimeter pads 1–40 and thermal/ground pad 41; all match the source module pad declaration and [Espressif module land pattern](https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf). | Use WROOM-1 antenna keepout, not WROOM-1U; verify final module orientation and variant. |
 | Stackpole `HCSM2818FT10L0` | `temper:HCSM2818FT10L0` | Repo exact-MPN two-pad shunt pattern carries the manufacturer land geometry (3.5/5.3/0.6 mm), source pins 1–2. | 5 W rating depends on copper area and surface temperature; current-sense Kelvin routing and thermal test remain open. |
 
+The ESP row applies to the frozen `cooker-source-02` derivative: its staged
+component and ground joins include pads 40/41. The tracked canonical cooker
+source and its local 1–39-pad footprint remain unchanged, so this row does
+not qualify the canonical board.
+
 The **11 remaining physical placeholders** in `build/integrated.csv` are two
 TPS3431 watchdog instances plus UCC27624, its gate resistor, F2, the local
 22 µF reservoir, MOV, relay-drop resistor, both XGL6060 inductors, and the

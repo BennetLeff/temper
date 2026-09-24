@@ -78,6 +78,7 @@ def probe(source: Path) -> dict:
     missing_connected_pads = []
     footprint_hashes = {}
     esp_pad_numbers = []
+    esp_footprint_hash = None
     for component in bridge["components"]:
         ref = component["reference"]
         path = component["instance_path"]
@@ -103,6 +104,7 @@ def probe(source: Path) -> dict:
             )
         if path == "cooker.mcu.mcu":
             esp_pad_numbers = sorted(pads, key=int)
+            esp_footprint_hash = footprint_hashes[nickname]
 
     return {
         "schema": "temper.power-entry.cooker-native-readiness.v1",
@@ -114,13 +116,14 @@ def probe(source: Path) -> dict:
         "missing_footprints": missing_footprints,
         "connected_pins_without_pads": missing_connected_pads,
         "esp_module_footprint_pad_numbers": esp_pad_numbers,
+        "esp_module_footprint_sha256": esp_footprint_hash,
         "esp_module_missing_datasheet_ground_pads": sorted({"40", "41"} - set(esp_pad_numbers)),
     }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, default=INTEGRATION / "cooker-source-01")
+    parser.add_argument("--source", type=Path, default=INTEGRATION / "cooker-source-02")
     parser.add_argument("--output", type=Path, help="Write a new JSON report; never overwrite")
     args = parser.parse_args()
     report = probe(args.source.resolve())

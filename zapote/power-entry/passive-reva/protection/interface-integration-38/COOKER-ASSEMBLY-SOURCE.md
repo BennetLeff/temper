@@ -9,13 +9,16 @@ contains a physical conductor between the boards.
 | Frozen source | Entry | References | ESP32-S3 count | Receipt SHA-256 |
 | --- | --- | ---: | ---: | --- |
 | `source-build-03` | `PowerEntryIntegrated38` | 295 | 0 | `9433de53a1dd1c8dba86d2df6a47d96fc54e413702979518997c43f5591af911` |
-| `cooker-source-01` | `CookerMate38` importing the tracked cooker `Top` | 189 | 1 | `3d597b1de0dd8884047ee441a21b0d55ceb2f6bd84847e7a576a6576181f4429` |
+| `cooker-source-02` | `CookerMate38` importing a frozen derivative of the tracked cooker `Top` | 189 | 1 | `21d303f769dccaaaf25049e87cd948d55de8ab19be478c9aab277f535d45baa4` |
 
-The cooker snapshot's [receipt](cooker-source-01/build-receipt.json) records
-the exact canonical cooker and derivative source hashes, pinned Atopile build
+The cooker snapshot's [receipt](cooker-source-02/build-receipt.json) records
+the exact staged cooker and derivative source hashes, pinned Atopile build
 result, netlist/BOM and resolved-export hashes. Its freezer copies tracked
 `.ato` files only, so unrelated untracked worktree experiments cannot enter
-this source identity. The Rev38 [receipt](source-build-03/build-receipt.json)
+this source identity. It then applies a fail-closed derivative override to
+connect ESP module GND contacts 40/41 and assign KiCad's stock 41-contact
+WROOM-1 footprint; the canonical cooker source and board are untouched.
+The previous `cooker-source-01` snapshot remains historical. The Rev38 [receipt](source-build-03/build-receipt.json)
 records its separate source identity. Both compiled netlists and BOMs are
 retained with their source snapshots.
 
@@ -32,10 +35,11 @@ adapters and exported artifacts before compiling and running the Rust audit.
 The audit compares every numbered port contact, requires the intended power
 and return groupings, checks the exact members of each Rev38 signal net and
 the cooker-side producer/consumer, and rejects a second ESP, an extra STOP
-driver, a wrong protocol part, a swapped UART contact and an open return in
+driver, a wrong protocol part, a swapped UART contact, an open return and an
+open ESP ground contact in
 tests. It checks the *design contract* for a
 straight-through cable, not cable continuity, contact heating, isolation,
 assembly keying or power-up behavior. The native cooker header, Rev38 native
-board, rail budget and cable measurements remain open. The modeled cooker ESP
-also has only one GND pad in its source component; physical WROOM-1 ground
-pads 40/41 need package review before native acceptance.
+board, rail budget and cable measurements remain open. The cooker derivative
+now models all three WROOM-1 ground contacts; physical solder, thermal pad
+and antenna-keepout review remain part of native acceptance.
