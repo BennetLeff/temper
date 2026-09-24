@@ -33,8 +33,11 @@ rail-budget claim.
 for a proposed dedicated-20 A, 10 kA prospective-fault-current residential
 review envelope. The compiled board has a fused-L input and a separate AUX
 branch loop, but neither off-board fuse assembly nor harness is built.
+The 20 A fuse remains intact for at least 12 seconds at 40 A, while the
+selected CMC, bypass contact and NTC have 15–16 A continuous ratings. Their
+transient withstand or an independent clearing path is unproved.
 Whole-assembly fault, inrush, thermal, F2/MOV coordination and access remain
-OPEN.
+OPEN; the F1 matrix's physical rows are NOT RUN.
 
 `AUX-CUTOFF-CANDIDATE.md` records the joined LTC4368-2/FDS3992/50 mΩ
 selection. Its independent-resistor static screen gives OV recovery no lower
@@ -45,7 +48,10 @@ values, FET linear SOA and latch reset are OPEN. `HOT-LOGIC5-CONVERTER.md`
 records the joined TPS54202 output network and its 46.5 µF nominal 5 V bank.
 `AUX-WINDOW.md` identifies about 41.50 mA of nominal-resistance direct AUX
 paths before active switching loads, not a maximum. The old 75 mA allowances
-cannot be inherited.
+cannot be inherited. With nominal direct-bank inrush, the cutoff's
+lowest screened startup trip threshold leaves only 0.410 A for overlapping
+active startup loads. This conditional subtraction is not a proven margin;
+the joined-load and FET-stress worksheet remains NOT RUN.
 
 The selected supply parts and pin/interface contract now need native
 schematic/PCB realization, source/native parity, ERC/DRC, and physical tests.
