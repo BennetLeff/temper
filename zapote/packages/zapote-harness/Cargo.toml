@@ -1,0 +1,24 @@
+[package]
+name = "zapote-harness"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+zapote-core = { path = "../zapote-core" }
+zapote-drc = { path = "../zapote-drc" }
+zapote-erc = { path = "../zapote-erc" }
+zapote-thermal = { path = "../zapote-thermal" }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+
+[[bin]]
+name = "zapote-rtd"
+path = "src/main.rs"
+
+[[bin]]
+name = "zapote-interlock"
+path = "src/bin/zapote-interlock.rs"
