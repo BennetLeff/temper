@@ -7,6 +7,8 @@ proposed driver is a production
 `UCC27624DDAR` (DDA 8-pin PowerPAD); its pin 1 ENA, pin 2 INA, pin 3 GND,
 pin 6 VDD, pin 7 OUTA, pin 8 ENB, and pin 4 INB follow the
 [TI UCC27624 data sheet](https://www.ti.com/lit/ds/symlink/ucc27624.pdf).
+The [replacement bakeoff](DRIVER-TOPOLOGY-BAKEOFF.md) is complete with an
+unresolved selection; it does not release this driver or U7 routing.
 The inactive channel's ENB and INB require local low connections, while
 OUTB remains unconnected. The DDA thermal pad requires its own GND land
 review.
