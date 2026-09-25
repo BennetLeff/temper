@@ -221,6 +221,22 @@ the safety clamp. Neither follow-up is an approved circuit.
   and retained-clear/rearm timing are unproved. Its 12 V leakage fixtures
   cannot be inherited as 15 V maxima.
 
+A passive clamp on INA is another candidate for bench screening, with a
+series resistor from PFC PWM to limit clamp current and a local pull-down.
+It removes the undocumented ENA pull-up current from the OFF calculation.
+It does **not** qualify HOT logic5 by itself: a diode from INA to HOT logic5
+can back-power a floating HOT5 rail from PWM, while a MOSFET that releases
+an AUX-biased transistor clamp can switch at a partial HOT5 voltage. The
+[2N7002AK-Q](https://assets.nexperia.com/documents/data-sheet/2N7002AK-Q.pdf)
+lists a 1.3 V minimum gate threshold at its 25 °C, 250 µA fixture, below
+the [SN74LVC1G06](https://www.ti.com/lit/ds/symlink/sn74lvc1g06.pdf)
+1.65 V minimum operating VCC; its hot on-resistance is not specified at a
+partial 5 V gate. The [PMBT3904](https://assets.nexperia.com/documents/data-sheet/PMBT3904.pdf)
+clamp's published saturation fixture cannot replace an all-temperature
+calculation at the actual PWM source current. This path still needs bounded
+PFC PWM amplitude/current, AUX and HOT5 rail sequences, input thresholds,
+clamp current and saturation, and loaded gate turn-off timing.
+
 **Disposition:** keep the current joined source and U7 route gate unchanged.
 The `IN−` sketch needs the missing TI source/sink current limits over the
 selected AUX range, a release device with applicable temperature and voltage
