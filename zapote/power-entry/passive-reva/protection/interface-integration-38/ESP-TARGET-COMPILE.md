@@ -295,3 +295,29 @@ test and an invalid-heatsink-sample hardware-cut regression. The ADC transfer,
 unqualified; a nominal software conversion cannot replace the analog trip.
 The normal cooker image still has no linked ELF or device capture, and Rev38
 authorization remains at zero timing lockout.
+
+## Production cooker hook audit and current-sample guard (2026-09-24)
+
+The existing cooker source does not provide a controlled fan switch or tach
+input: its fan connector is fed from the 15 V rail through a 39 Ω resistor.
+The selected MCU pin contract likewise does not assign the state machine's
+display, buzzer, indicator, or full five-button set. Rev38 GPIO42 belongs to
+the source task's fresh START input; duplicating its ownership in the cooker
+button hook would violate that contract. The proposed single-bank inverter
+still lacks its physical RUN-to-gate inhibit and recalibrated current transfer.
+Accordingly, the missing production power, current, UI, fan, storage, and POST
+hooks remain unresolved rather than acquiring link-only implementations.
+
+The state machine now takes one bus-current sample per interlock evaluation.
+A non-finite sample enters `FAULT_OVER_CURRENT` through the hardware-cut path;
+the prior two comparisons silently passed `NaN`. The host suite passes
+18/18 CTest entries, including the missing-current regression. A fresh
+`espressif/idf:release-v5.3` target build from committed defaults, with
+`IDF_TARGET=esp32s3`, `TEMPER_DIAGNOSTIC_LOCKOUT=OFF`, and
+`TEMPER_REV38_TEST_IMAGE=OFF`, compiled both the changed state machine and
+`cooker_board_io.c`, then failed at the ELF link on the same **26 distinct**
+unimplemented cooker hooks listed above. Build-log SHA-256:
+`d2d035eb296eaa38abb7ace70fd665b3b4f2a59c6125fdb7cff01ccb3ed2fe94`.
+The worktree was mounted read-only in the container and all build outputs
+were temporary. This is compiler evidence for the guard, not an application
+image, current-sensor calibration, or physical fault-response receipt.

@@ -70,7 +70,10 @@ against native component, MPN, pad-net, UUID and copper census; its
 provisional 16.0 mm SELV/live projected copper-distance result **FAIL**,
 including the unchanged 15.2 mm opposed DWW pad gap. The pin-side check
 covers 62 SELV, 183 live and one PE named nets; it is not a reviewed voltage
-or insulation schedule.
+or insulation schedule. The broad diagnostic reports 663 below-floor pad
+pairs, compared with 810 on the shelf board; these counts reflect a uniform
+provisional screen and cannot establish the required limits for individual
+net pairs.
 
 The next U7 step is a physical placement review with real cable, fastener,
 thermal, field and assembly volumes, followed by a chosen insulation

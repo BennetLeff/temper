@@ -6,6 +6,8 @@ selected a general residential installation scope for review. The Rev38
 Atopile PCB section no longer contains the old 5×20 holder. Its terminal
 pin 1 is explicitly the **post-F1** line input; the off-board fuse/block and
 inlet wiring are separate assembly work, not represented by a PCB footprint.
+The companion [F1 coordination worksheet](F1-COORDINATION.md) maps actual
+fault locations to exposed parts and the measurements required for each.
 
 ## Proposed residential installation envelope (review target)
 

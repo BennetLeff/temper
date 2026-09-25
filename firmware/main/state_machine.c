@@ -409,11 +409,16 @@ bool check_safety_interlocks(void) {
      * priority over over-current (> OVER_CURRENT_THRESHOLD). Both thresholds
      * come from config.yaml (interlocks:); see
      * docs/evidence/2026-08-15-firmware-interlock-citations.md. */
-    if (read_dc_bus_current() > IGBT_SHORT_CURRENT_THRESHOLD) {
+    const float current_a = read_dc_bus_current();
+    if (!isfinite(current_a)) {
+        enter_hardware_latched_fault(FAULT_OVER_CURRENT);
+        return true;
+    }
+    if (current_a > IGBT_SHORT_CURRENT_THRESHOLD) {
         enter_hardware_latched_fault(FAULT_IGBT_SHORT);
         return true;
     }
-    if (read_dc_bus_current() > OVER_CURRENT_THRESHOLD) {
+    if (current_a > OVER_CURRENT_THRESHOLD) {
         enter_hardware_latched_fault(FAULT_OVER_CURRENT);
         return true;
     }

@@ -578,6 +578,20 @@ void test_sm_fault_on_over_current(void) {
     TEST_ASSERT_EQUAL(FAULT_OVER_CURRENT, state_machine_get_fault());
 }
 
+void test_sm_missing_current_sample_cuts_hardware(void) {
+    setup_test();
+    state_machine_set_target_temp(100.0f);
+    state_machine_force_state(STATE_PREHEAT);
+
+    mock_sm_set_dc_bus_current(NAN);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_OVER_CURRENT, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+}
+
 /**
  * Test: IGBT short (>50A) triggers FAULT_IGBT_SHORT
  */
@@ -1634,6 +1648,7 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_fault_on_over_temperature);
     RUN_TEST(test_sm_missing_heatsink_sample_cuts_hardware);
     RUN_TEST(test_sm_fault_on_over_current);
+    RUN_TEST(test_sm_missing_current_sample_cuts_hardware);
     RUN_TEST(test_sm_fault_on_fan_failure);
     RUN_TEST(test_sm_fault_on_probe_open);
     RUN_TEST(test_sm_fault_on_probe_open_at_max31865_guard_boundary);

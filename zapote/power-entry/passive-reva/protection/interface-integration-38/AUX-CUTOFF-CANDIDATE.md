@@ -2,6 +2,11 @@
 
 Status: **joined, compiled and exact-pin audited engineering candidate; electrical acceptance OPEN**. [`AuxCutoff38`](elec/src/aux_cutoff.ato) is the sole joined route from `AUX15_PRECUT` to `AUX_PROTECTED`. Its output feeds the driver, PFC control, detectors, relay, and [`HotLogic5Converter38`](elec/src/hot_logic5_converter.ato). This file records the component and static screens; it does not certify a protected 15 V output, MOSFET SOA, or a fault-response time.
 
+The [startup and cutoff corner ledger](AUX-STARTUP-CORNER.md) adds a
+selected-shunt TCR screen, simultaneous-current feasibility inequality,
+and exact missing input owners. Its illustrative 0.386 A residual is not a
+qualified startup load allowance.
+
 ## Selected circuit and reset behavior
 
 The candidate uses [ADI LTC4368HMS-2#PBF](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf), the 10-pin MSOP `-2` reverse-current variant. VIN pin 1 and SHDN pin 6 receive `AUX15_PRECUT`. GND pin 5 and RETRY pin 4 return to `HOT0`. UV pin 2 and OV pin 3 each have an independent divider. GATE pin 10 drives the common gates of [onsemi FDS3992](https://www.onsemi.com/download/data-sheet/pdf/fds3992-d.pdf): pins 7/8 form upstream D1, pins 2/4 are the common sources, and pins 5/6 form downstream D2. The sense resistor lies between SENSE pin 9 and VOUT pin 8. FDS3992's two 100 V N-channel devices are in one SOIC-8; the cited pin assignment is from its package drawing. FAULT pin 7 is unconnected in this candidate; the separate protected-output window detector owns the HOT fault input.
