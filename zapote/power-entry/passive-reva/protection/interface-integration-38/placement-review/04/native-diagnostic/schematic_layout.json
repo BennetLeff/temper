@@ -1,0 +1,16 @@
+{
+  "flat": true,
+  "module_to_sheet": {
+    "power_entry_integrated_38": "CurrentSense"
+  },
+  "root_sheet": "section.kicad_sch",
+  "schema_version": 1,
+  "sheet_description": "Generated from PowerEntryIntegrated38 Atopile source",
+  "sheet_files": {
+    "CurrentSense": "section.kicad_sch"
+  },
+  "sheets": [
+    "CurrentSense"
+  ],
+  "title": "Rev38 source-to-PFC power-entry engineering candidate"
+}

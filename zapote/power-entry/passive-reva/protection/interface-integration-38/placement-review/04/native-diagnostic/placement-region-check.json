@@ -1,0 +1,15 @@
+{
+  "allowed_crossing_components": [
+    "receiver.iso_feedback",
+    "receiver.iso_protocol"
+  ],
+  "board_sha256": "03dfa0f74a62666215315c880f49bc2b9ce7e7b2a9b964607a58c3f104cabb79",
+  "footprints": 295,
+  "minimum_courtyard_to_board_edge_mm": 11.454,
+  "note": "Courtyard bounding boxes and arbitrary x zones are planning checks, not insulation, cable, thermal or routing acceptance.",
+  "ordinary_live_max_x_mm": 233.525,
+  "region_exceptions": 0,
+  "schema": "temper.rev38.placement-region-check.v1",
+  "selv_min_x_mm": 271.475,
+  "status": "pass-for-provisional-regions-only"
+}
