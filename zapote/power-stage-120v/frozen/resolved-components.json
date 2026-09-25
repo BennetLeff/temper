@@ -3,8 +3,9 @@
   "build_sha256": {
     "build/default.csv": "8f83aa127550526191d3025f93efd9f8d28f4b764520cc1d4fc0e0a6d2d5c7a1",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "e705f598f0fa60664f78fdbffd0fd55cbef0c5ae3ecb42d2e99a224bb4d56410",
-    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+    "build/default.net": "205b8275f7cb9deb23be7cad400580a915f53a776ced0184d5600e6b69bf58e8",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
+    "build/resolved-components.json": "7ff960e2e62c864602c249850faf1e84adb7c9027e7cfcf06ce6fa0723bfa48b"
   },
   "components": [
     {
@@ -881,7 +882,7 @@
   "entry": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/parts.ato": "2cd6619bf4ef98067f642814302e296278da5d47fd4dd61d8f88f3fcb57260f4",
+    "elec/src/parts.ato": "615977ea2a6327cf079dc8506bb6c7d464321b7873cd3478d3ef13b0cca503e4",
     "elec/src/power_stage_120v.ato": "ecfbf62dcdd027110e5e8d15af29f0f6014f5e153d55268a283a2413caa1c5fb"
   }
 }

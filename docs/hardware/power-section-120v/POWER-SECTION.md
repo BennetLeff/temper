@@ -119,7 +119,7 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | BR1 | 1 | GBJ2510-F | 25 A 1000 V bridge, ~29 W on heatsink | V; F (on power-entry branch) |
 | F1 | 1 | 0326020.MXP + Littelfuse 102071 clips | 20 A slow-blow ceramic; 15 A ÷ 0.75 | V (fuse); C (clip rating) |
 | RV1 | 1 | TMOV20RP175E | 175 Vrms thermally protected MOV, 455 V clamp | C; F |
-| L1 | 1 | B82726S2203A020 | 20 A, 1.6 mH, ~4.5 mΩ (~2 W) | C (pin numbering); F |
+| L1 | 1 | B82726S2203A020 | 20 A, 1.6 mH, ~4.5 mΩ (~2 W). Windings 1–4 and 2–3 per TDK drawing | V (pins); F |
 | C1,C2 / R1,R2 | 2 / 2 | R463R410000M1M / 120k 1206 | 1 µF X2 310 VAC; bleed to 24.7 V after 1 s (limit 34 V) | V |
 | C3,C4 | 2 | DE1E3RA222MA4BP01F | 2.2 nF Y1; ~0.2 mA leakage at 127 V | V |
 | PS1 | 1 | IRM-20-15 | SELV 15 V 1.4 A, 4.2 kVac, pin 1 = AC/L | V |
@@ -136,7 +136,7 @@ and one under the glass (rating after thermal measurement; up to 257 °C availab
 ## 6. Verification so far
 
 - Atopile 0.2.69 build: 91 components, 67 nets, no errors.
-- Rust audit (`zapote/power-stage-120v/audit.rs`): PASS; 17/17 tests, 16 deliberate miswires caught.
+- Rust audit (`zapote/power-stage-120v/audit.rs`): PASS; 18/18 tests, 17 deliberate miswires caught.
   It covers part identity against the resolved export (Atopile's netlist part field is aliased), the
   HOT/SELV barrier pin sides, shunt orientation, fail-safe DIS, the TCO-gated supply, OCP polarity,
   the tank path and the header map.

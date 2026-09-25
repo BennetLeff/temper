@@ -345,6 +345,11 @@ fn audit(m: &Model) -> Vec<String> {
         e.push(format!("ac_l_in must be exactly J1.1 and F1.1, found {:?}", l_in));
     }
     expect(&mut e, m, "j_mains", "3", "pe");
+    // Common-mode choke: TDK windings are 1-4 (line) and 2-3 (neutral).
+    expect(&mut e, m, "l1", "1", "l_f");
+    expect(&mut e, m, "l1", "4", "l_filt");
+    expect(&mut e, m, "l1", "2", "ac_n_in");
+    expect(&mut e, m, "l1", "3", "n_filt");
 
     // 4. Shoot-through shunt: every low-side source returns via LEG_RET,
     //    the bus caps and bridge minus sit on HV_RET, and the shunt is the
@@ -597,6 +602,14 @@ mod tests {
         let mut m = built();
         m.rewire("rv1", "1", "ac_l_in");
         fails(&m, "ac_l_in must be exactly");
+    }
+
+    #[test]
+    fn choke_winding_crossed_fails() {
+        let mut m = built();
+        m.rewire("l1", "2", "l_filt");
+        m.rewire("l1", "4", "ac_n_in");
+        fails(&m, "l1.4");
     }
 
     #[test]

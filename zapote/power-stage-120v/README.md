@@ -33,7 +33,7 @@ rustc --edition=2021 --test audit.rs -o /tmp/ps_audit_t && /tmp/ps_audit_t
 source paths, so a rebuild elsewhere differs only in those paths. The netlist and BOM were
 byte-identical, after path normalization, between two builds in different checkouts.
 `build-receipt.json` pins the hashes. Current result: 91 components, 67 nets. The audit
-passes, and 17/17 tests pass, 16 of them deliberate miswires that must fail.
+passes, and 18/18 tests pass, 17 of them deliberate miswires that must fail.
 
 **Part identity comes from `resolved-components.json` and the CSV, never from `default.net`.**
 Atopile 0.2.69 writes a footprint-aliased part into the netlist's libsource field. In this
@@ -93,7 +93,7 @@ rules not yet written).
 2. **Parts to confirm against manufacturer drawings:**
    - Phoenix 1711026 order code
    - Littelfuse 102071 clip current rating (≥ 20 A)
-   - TDK B82726S2203A020 pin numbering
+   - ~~TDK B82726S2203A020 pin numbering~~ (confirmed from datasheet 2026-09-25: windings 1-4, 2-3)
    - Molex 0430451612 order code
    - 942C AC voltage rating vs frequency (≈236 V rms at line crest, 35 kHz)
 3. **Footprints to draw or vendor:**

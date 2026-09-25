@@ -49,15 +49,17 @@ component Tmov175:
 
 component Cmc20A:
     """TDK B82726S2203A020 current-compensated choke, 20 A, 1.6 mH, ~4.5 mOhm.
-    Winding A = pins 1-2, winding B = pins 3-4: confirm against TDK drawing."""
+    TDK B82726S22*3A020 datasheet (5/26), "Dimensional drawing and pin
+    configuration": windings are 1-4 and 2-3 (no polarity); pins 1,2 on one
+    row and 4,3 opposite, 10 mm within a row, 25 mm between rows, 2 mm pins."""
     designator_prefix = "L"
     mpn = "B82726S2203A020"
     manufacturer = "TDK"
     footprint = "temper:B82726S2_ReviewOnly"
     signal a_in ~ pin 1
-    signal a_out ~ pin 2
-    signal b_in ~ pin 3
-    signal b_out ~ pin 4
+    signal a_out ~ pin 4
+    signal b_in ~ pin 2
+    signal b_out ~ pin 3
 
 component CapX2_1u:
     """KEMET R463R410000M1M X2 1 uF 310 VAC, 22.5 mm pitch."""
