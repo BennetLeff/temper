@@ -1,0 +1,887 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "8f83aa127550526191d3025f93efd9f8d28f4b764520cc1d4fc0e0a6d2d5c7a1",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "e705f598f0fa60664f78fdbffd0fd55cbef0c5ae3ecb42d2e99a224bb4d56410",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_mains",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal",
+        "manufacturer": "Phoenix Contact",
+        "mpn": "1711039"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::f1",
+      "attributes": {
+        "designator_prefix": "F",
+        "footprint": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal",
+        "manufacturer": "Littelfuse",
+        "mpn": "0326020.MXP"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::rv1",
+      "attributes": {
+        "designator_prefix": "RV",
+        "footprint": "temper:TMOV20RP_ReviewOnly",
+        "manufacturer": "Littelfuse",
+        "mpn": "TMOV20RP175E"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cx1",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
+        "manufacturer": "KEMET",
+        "mpn": "R463R410000M1M"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::rb1a",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-07120KL",
+        "value": "120kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::rb1b",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-07120KL",
+        "value": "120kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::l1",
+      "attributes": {
+        "designator_prefix": "L",
+        "footprint": "temper:B82726S2_ReviewOnly",
+        "manufacturer": "TDK",
+        "mpn": "B82726S2203A020"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cx2",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
+        "manufacturer": "KEMET",
+        "mpn": "R463R410000M1M"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cy1",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+        "manufacturer": "Murata",
+        "mpn": "DE1E3RA222MA4BP01F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cy2",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+        "manufacturer": "Murata",
+        "mpn": "DE1E3RA222MA4BP01F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::br1",
+      "attributes": {
+        "designator_prefix": "BR",
+        "footprint": "temper:Diode_Bridge_GBJ2510",
+        "manufacturer": "Diodes Incorporated",
+        "mpn": "GBJ2510-F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bus1",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
+        "manufacturer": "Cornell Dubilier",
+        "mpn": "942C6W2P5K-F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bus2",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
+        "manufacturer": "Cornell Dubilier",
+        "mpn": "942C6W2P5K-F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bus1",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-07220KL",
+        "value": "220kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bus2",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-07220KL",
+        "value": "220kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_shunt",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm",
+        "manufacturer": "Vishay Dale",
+        "mpn": "WSK2512R0010FEA"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.driver",
+      "attributes": {
+        "designator_prefix": "U",
+        "footprint": "lib:SOIC16W_Isolated",
+        "manufacturer": "Texas Instruments",
+        "mpn": "UCC21550BDWKR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_vcci",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.permit_fet",
+      "attributes": {
+        "designator_prefix": "Q",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Alpha & Omega Semiconductor",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-071KL",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit_pd",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_dis_pu",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_dt",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0739KL",
+        "value": "39kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls_bulk",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM32ER71H106KA12L",
+        "value": "10uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.d_boot",
+      "attributes": {
+        "designator_prefix": "D",
+        "footprint": "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal",
+        "manufacturer": "Vishay",
+        "mpn": "UF4007-E3/54"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_boot",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM32ER71H106KA12L",
+        "value": "10uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_boot_hf",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gh",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-073R9L",
+        "value": "3.9ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gh_pd",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gl",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-073R9L",
+        "value": "3.9ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gl_pd",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.q_high",
+      "attributes": {
+        "designator_prefix": "Q",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "manufacturer": "Infineon",
+        "mpn": "IPW65R018CFD7"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.q_low",
+      "attributes": {
+        "designator_prefix": "Q",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "manufacturer": "Infineon",
+        "mpn": "IPW65R018CFD7"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_snub_h",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM31A5C3A102JW01D"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_snub_l",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM31A5C3A102JW01D"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.driver",
+      "attributes": {
+        "designator_prefix": "U",
+        "footprint": "lib:SOIC16W_Isolated",
+        "manufacturer": "Texas Instruments",
+        "mpn": "UCC21550BDWKR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_vcci",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.permit_fet",
+      "attributes": {
+        "designator_prefix": "Q",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Alpha & Omega Semiconductor",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-071KL",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit_pd",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_dis_pu",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_dt",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0739KL",
+        "value": "39kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls_bulk",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM32ER71H106KA12L",
+        "value": "10uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.d_boot",
+      "attributes": {
+        "designator_prefix": "D",
+        "footprint": "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal",
+        "manufacturer": "Vishay",
+        "mpn": "UF4007-E3/54"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_boot",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM32ER71H106KA12L",
+        "value": "10uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_boot_hf",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gh",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-073R9L",
+        "value": "3.9ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gh_pd",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gl",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-073R9L",
+        "value": "3.9ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gl_pd",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.q_high",
+      "attributes": {
+        "designator_prefix": "Q",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "manufacturer": "Infineon",
+        "mpn": "IPW65R018CFD7"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.q_low",
+      "attributes": {
+        "designator_prefix": "Q",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "manufacturer": "Infineon",
+        "mpn": "IPW65R018CFD7"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_snub_h",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM31A5C3A102JW01D"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_snub_l",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM31A5C3A102JW01D"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_coil",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
+        "manufacturer": "Phoenix Contact",
+        "mpn": "1711026"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::t_ct",
+      "attributes": {
+        "designator_prefix": "T",
+        "footprint": "temper:CST3015",
+        "manufacturer": "Coilcraft",
+        "mpn": "CST3015-100ED"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res1",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
+        "manufacturer": "Cornell Dubilier",
+        "mpn": "942C12P22K-F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res2",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
+        "manufacturer": "Cornell Dubilier",
+        "mpn": "942C12P22K-F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res3",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "temper:CDE_942C_D19.0_L34.0_Axial_ReviewOnly",
+        "manufacturer": "Cornell Dubilier",
+        "mpn": "942C12P1K-F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::ps_selv",
+      "attributes": {
+        "designator_prefix": "PS",
+        "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+        "manufacturer": "MEAN WELL",
+        "mpn": "IRM-20-15"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_tco",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+        "manufacturer": "JST",
+        "mpn": "B2P-VH(LF)(SN)"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::ps_gate",
+      "attributes": {
+        "designator_prefix": "PS",
+        "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-05-xx_THT",
+        "manufacturer": "MEAN WELL",
+        "mpn": "IRM-05-15"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_v15",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM32ER71H106KA12L",
+        "value": "10uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ldo",
+      "attributes": {
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-89-3",
+        "manufacturer": "onsemi",
+        "mpn": "MC78L05ACHT1G"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ldo_in",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ldo_out",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM32ER71H106KA12L",
+        "value": "10uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div1",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-07470KL",
+        "value": "470kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div2",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-07470KL",
+        "value": "470kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div3",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-07470KL",
+        "value": "470kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div4",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-07470KL",
+        "value": "470kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD0715K8L",
+        "value": "15.8kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_div",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C102J5GACTU",
+        "value": "1nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_vsense",
+      "attributes": {
+        "designator_prefix": "U",
+        "footprint": "Package_SO:SOIC-8_7.5x5.85mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "AMC1311BDWVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs1",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs2",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_bias",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-076K8L",
+        "value": "6.8kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ref",
+      "attributes": {
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Texas Instruments",
+        "mpn": "LM4040A25IDBZR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ocp_ref",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ocp_sense",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ocp_node",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C101J5GACTU",
+        "value": "100pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_th_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD0710K5L",
+        "value": "10.5kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_th_bot",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD079K76L",
+        "value": "9.76kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_th",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C102J5GACTU",
+        "value": "1nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ocp",
+      "attributes": {
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3201AIDBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ocp_vcc",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_iso",
+      "attributes": {
+        "designator_prefix": "U",
+        "footprint": "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "ISO7710FDWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_iso1",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_iso2",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_selv",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
+        "manufacturer": "Molex",
+        "mpn": "0430451612"
+      }
+    }
+  ],
+  "entry": "/Users/bennet/Desktop/temper/worktrees/cooker-120v/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "elec/src/parts.ato": "2cd6619bf4ef98067f642814302e296278da5d47fd4dd61d8f88f3fcb57260f4",
+    "elec/src/power_stage_120v.ato": "ecfbf62dcdd027110e5e8d15af29f0f6014f5e153d55268a283a2413caa1c5fb"
+  }
+}

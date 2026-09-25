@@ -1,0 +1,460 @@
+# 120 V full-bridge induction power stage (single board).
+#
+# Design basis: docs/hardware/power-section-120v/ (POWER-SECTION.md,
+# LOSS-REFACTOR.md, COIL-MC.md). Unfiltered-bus front end, no PFC; full
+# bridge of four IPW65R018CFD7; series resonant capacitor; tank CT to the
+# SELV current-sense board; DC-bus shunt OCP for shoot-through; thermal
+# cutoffs in series with the gate-driver supply; AMC1311 bus sense.
+#
+# Domains:
+#   mains / HOT:  AC_*, L_*, N_*, BUS_P, HV_RET, LEG_RET, SW_*, tank nets.
+#                 HOT_GND is LEG_RET: gate-driver low sides, the OCP
+#                 comparator, AMC1311 side 1 and ISO7710 side 1 all return
+#                 to the leg side of the shunt (layout: star at shunt pad 2).
+#   SELV:         everything on the 16-pin controller header, isolated by
+#                 UCC21550, AMC1311, ISO7710F, CST3015 and the IRM-20-15.
+#
+# Coil-dependent values (resonant capacitance, CT burden on the
+# current-sense board) are provisional for the 70 uH / 32 kHz nominal coil
+# until the coil and pan measurements in COIL-MC.md are taken.
+
+from "parts.ato" import MainsTerminal3, CoilTerminal2, MainsFuse20A, Tmov175, Cmc20A
+from "parts.ato" import CapX2_1u, CapY1_2n2, R120k1206, BridgeGbj2510, BusFilm2u5
+from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK
+from "parts.ato" import BootDiode, PermitFet, R3R9Gate, R39kDt, R10k0603, R100k0603
+from "parts.ato" import R1k0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
+from "parts.ato" import CST3015_100E, Irm05_15, Irm20_15, TcoLoopHeader, Ldo78L05
+from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
+from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k5Thin, R9k76Thin, R6k8Bias
+from "parts.ato" import Iso7710F, SelvHeader16
+
+module BridgeLeg:
+    """One half-bridge leg: UCC21550 (A = high side, B = low side), fail-safe
+    DIS receiver, dead time, bootstrap, gate networks, two MOSFETs, snubbers.
+    PERMIT low, floating or unpowered leaves DIS high (outputs disabled)."""
+    signal v3v3
+    signal selv_gnd
+    signal pwm_h
+    signal pwm_l
+    signal permit
+    signal v15_ls
+    signal hot_gnd
+    signal bus_p
+    signal sw
+    signal dis
+    signal boot
+    signal gate_h
+    signal gate_l
+    signal out_h
+    signal out_l
+    signal permit_gate
+
+    driver = new UCC21550BDWK
+    driver.VCCI_1 ~ v3v3
+    driver.VCCI_2 ~ v3v3
+    driver.GNDI ~ selv_gnd
+    driver.INA ~ pwm_h
+    driver.INB ~ pwm_l
+    c_vcci = new C100n0603
+    c_vcci.value = 100nF
+    c_vcci.p1 ~ v3v3
+    c_vcci.p2 ~ selv_gnd
+
+    # DIS is active-high. PERMIT high turns the FET on and pulls DIS low.
+    permit_fet = new PermitFet
+    r_permit = new R1k0603
+    r_permit.value = 1kohm
+    r_permit_pd = new R100k0603
+    r_permit_pd.value = 100kohm
+    r_dis_pu = new R10k0603
+    r_dis_pu.value = 10kohm
+    permit ~ r_permit.p1
+    r_permit.p2 ~ permit_gate
+    permit_gate ~ permit_fet.G
+    permit_gate ~ r_permit_pd.p1
+    r_permit_pd.p2 ~ selv_gnd
+    permit_fet.S ~ selv_gnd
+    permit_fet.D ~ dis
+    dis ~ driver.DIS
+    dis ~ r_dis_pu.p1
+    r_dis_pu.p2 ~ v3v3
+
+    # TI: tDT ~= 8.6 * RDT[kohm] + 13 ns -> ~348 ns nominal; bench-tune.
+    r_dt = new R39kDt
+    r_dt.value = 39kohm
+    r_dt.p1 ~ driver.DT
+    r_dt.p2 ~ selv_gnd
+
+    # Low side (channel B) on the floating 15 V referenced to HOT_GND.
+    driver.VDDB ~ v15_ls
+    driver.VSSB ~ hot_gnd
+    c_ls = new C100n0603
+    c_ls.value = 100nF
+    c_ls.p1 ~ v15_ls
+    c_ls.p2 ~ hot_gnd
+    c_ls_bulk = new C10u1210
+    c_ls_bulk.value = 10uF
+    c_ls_bulk.p1 ~ v15_ls
+    c_ls_bulk.p2 ~ hot_gnd
+
+    # High side (channel A) bootstrapped from the low-side rail.
+    d_boot = new BootDiode
+    d_boot.A ~ v15_ls
+    d_boot.K ~ boot
+    driver.VDDA ~ boot
+    driver.VSSA ~ sw
+    c_boot = new C10u1210
+    c_boot.value = 10uF
+    c_boot.p1 ~ boot
+    c_boot.p2 ~ sw
+    c_boot_hf = new C100n0603
+    c_boot_hf.value = 100nF
+    c_boot_hf.p1 ~ boot
+    c_boot_hf.p2 ~ sw
+
+    # Gate networks: series 3.9 ohm, 10 k gate-source hold-off.
+    driver.OUTA ~ out_h
+    r_gh = new R3R9Gate
+    r_gh.value = 3.9ohm
+    r_gh.p1 ~ out_h
+    r_gh.p2 ~ gate_h
+    r_gh_pd = new R10k0603
+    r_gh_pd.value = 10kohm
+    r_gh_pd.p1 ~ gate_h
+    r_gh_pd.p2 ~ sw
+    driver.OUTB ~ out_l
+    r_gl = new R3R9Gate
+    r_gl.value = 3.9ohm
+    r_gl.p1 ~ out_l
+    r_gl.p2 ~ gate_l
+    r_gl_pd = new R10k0603
+    r_gl_pd.value = 10kohm
+    r_gl_pd.p1 ~ gate_l
+    r_gl_pd.p2 ~ hot_gnd
+
+    q_high = new MosfetCfd7
+    q_high.G ~ gate_h
+    q_high.D ~ bus_p
+    q_high.S ~ sw
+    q_low = new MosfetCfd7
+    q_low.G ~ gate_l
+    q_low.D ~ sw
+    q_low.S ~ hot_gnd
+
+    c_snub_h = new Snubber1n1kV
+    c_snub_h.p1 ~ bus_p
+    c_snub_h.p2 ~ sw
+    c_snub_l = new Snubber1n1kV
+    c_snub_l.p1 ~ sw
+    c_snub_l.p2 ~ hot_gnd
+
+
+module PowerStage120V:
+    # ---------------- nets
+    signal AC_L_IN
+    signal AC_N_IN
+    signal PE
+    signal L_F
+    signal XBLEED_MID
+    signal L_FILT
+    signal N_FILT
+    signal BUS_P
+    signal HV_RET
+    signal BUSBLEED_MID
+    signal LEG_RET
+    signal SW_A
+    signal SW_B
+    signal COIL_RET
+    signal RES_A
+    signal TCO_L
+    signal V15_LS
+    signal HOT5
+    signal VDIV_1
+    signal VDIV_2
+    signal VDIV_3
+    signal VSENSE_IN
+    signal REF25
+    signal OCP_KELVIN_N
+    signal OCP_NODE
+    signal OCP_THRESH
+    signal OCP_OK_HOT
+    # SELV
+    signal V15_SELV
+    signal SELV_GND
+    signal V3V3
+    signal PWM_HA
+    signal PWM_LA
+    signal PWM_HB
+    signal PWM_LB
+    signal PERMIT
+    signal BUS_OCP_OK
+    signal VBUS_P
+    signal VBUS_N
+    signal CT_S1
+    signal CT_S2
+
+    # ---------------- mains entry and EMI filter
+    j_mains = new MainsTerminal3
+    j_mains.p1 ~ AC_L_IN
+    j_mains.p2 ~ AC_N_IN
+    j_mains.p3 ~ PE
+    f1 = new MainsFuse20A
+    f1.p1 ~ AC_L_IN
+    f1.p2 ~ L_F
+    rv1 = new Tmov175
+    rv1.p1 ~ L_F
+    rv1.p2 ~ AC_N_IN
+    cx1 = new CapX2_1u
+    cx1.p1 ~ L_F
+    cx1.p2 ~ AC_N_IN
+    rb1a = new R120k1206
+    rb1a.value = 120kohm
+    rb1a.p1 ~ L_F
+    rb1a.p2 ~ XBLEED_MID
+    rb1b = new R120k1206
+    rb1b.value = 120kohm
+    rb1b.p1 ~ XBLEED_MID
+    rb1b.p2 ~ AC_N_IN
+    l1 = new Cmc20A
+    l1.a_in ~ L_F
+    l1.a_out ~ L_FILT
+    l1.b_in ~ AC_N_IN
+    l1.b_out ~ N_FILT
+    cx2 = new CapX2_1u
+    cx2.p1 ~ L_FILT
+    cx2.p2 ~ N_FILT
+    cy1 = new CapY1_2n2
+    cy1.p1 ~ L_FILT
+    cy1.p2 ~ PE
+    cy2 = new CapY1_2n2
+    cy2.p1 ~ N_FILT
+    cy2.p2 ~ PE
+
+    # ---------------- rectifier, film bus, bleed, DC shunt
+    br1 = new BridgeGbj2510
+    br1.AC1 ~ L_FILT
+    br1.AC2 ~ N_FILT
+    br1.PLUS ~ BUS_P
+    br1.MINUS ~ HV_RET
+    c_bus1 = new BusFilm2u5
+    c_bus1.p1 ~ BUS_P
+    c_bus1.p2 ~ HV_RET
+    c_bus2 = new BusFilm2u5
+    c_bus2.p1 ~ BUS_P
+    c_bus2.p2 ~ HV_RET
+    r_bus1 = new R220k1206
+    r_bus1.value = 220kohm
+    r_bus1.p1 ~ BUS_P
+    r_bus1.p2 ~ BUSBLEED_MID
+    r_bus2 = new R220k1206
+    r_bus2.value = 220kohm
+    r_bus2.p1 ~ BUSBLEED_MID
+    r_bus2.p2 ~ HV_RET
+    # Legs return through the shunt to the bus capacitors, so shoot-through
+    # current (which never enters the tank CT) is measured here.
+    r_shunt = new Shunt1m
+    r_shunt.I1 ~ LEG_RET
+    r_shunt.S1 ~ LEG_RET
+    r_shunt.S2 ~ OCP_KELVIN_N
+    r_shunt.I2 ~ HV_RET
+
+    # ---------------- full bridge
+    leg_a = new BridgeLeg
+    leg_a.v3v3 ~ V3V3
+    leg_a.selv_gnd ~ SELV_GND
+    leg_a.pwm_h ~ PWM_HA
+    leg_a.pwm_l ~ PWM_LA
+    leg_a.permit ~ PERMIT
+    leg_a.v15_ls ~ V15_LS
+    leg_a.hot_gnd ~ LEG_RET
+    leg_a.bus_p ~ BUS_P
+    leg_a.sw ~ SW_A
+    leg_b = new BridgeLeg
+    leg_b.v3v3 ~ V3V3
+    leg_b.selv_gnd ~ SELV_GND
+    leg_b.pwm_h ~ PWM_HB
+    leg_b.pwm_l ~ PWM_LB
+    leg_b.permit ~ PERMIT
+    leg_b.v15_ls ~ V15_LS
+    leg_b.hot_gnd ~ LEG_RET
+    leg_b.bus_p ~ BUS_P
+    leg_b.sw ~ SW_B
+
+    # ---------------- resonant tank: SW_A -> coil -> CT -> C_res -> SW_B
+    j_coil = new CoilTerminal2
+    j_coil.p1 ~ SW_A
+    j_coil.p2 ~ COIL_RET
+    t_ct = new CST3015_100E
+    t_ct.P1 ~ COIL_RET
+    t_ct.P2 ~ RES_A
+    t_ct.S1 ~ CT_S1
+    t_ct.S2 ~ CT_S2
+    # 0.22 + 0.22 + 0.10 = 0.54 uF for the nominal 70 uH / 32 kHz coil.
+    c_res1 = new Res942C12P22
+    c_res1.p1 ~ RES_A
+    c_res1.p2 ~ SW_B
+    c_res2 = new Res942C12P22
+    c_res2.p1 ~ RES_A
+    c_res2.p2 ~ SW_B
+    c_res3 = new Res942C12P1
+    c_res3.p1 ~ RES_A
+    c_res3.p2 ~ SW_B
+
+    # ---------------- supplies
+    # SELV 15 V for the controller, fan and sensor boards.
+    ps_selv = new Irm20_15
+    ps_selv.ACL ~ L_FILT
+    ps_selv.ACN ~ N_FILT
+    ps_selv.VP ~ V15_SELV
+    ps_selv.VN ~ SELV_GND
+    # Gate-driver supply through the off-board thermal-cutoff loop: an open
+    # TCO removes all gate drive, the HOT 5 V rail and the OCP "OK" signal.
+    j_tco = new TcoLoopHeader
+    j_tco.p1 ~ L_FILT
+    j_tco.p2 ~ TCO_L
+    ps_gate = new Irm05_15
+    ps_gate.ACL ~ TCO_L
+    ps_gate.ACN ~ N_FILT
+    ps_gate.VP ~ V15_LS
+    ps_gate.VN ~ LEG_RET
+    c_v15 = new C10u1210
+    c_v15.value = 10uF
+    c_v15.p1 ~ V15_LS
+    c_v15.p2 ~ LEG_RET
+    u_ldo = new Ldo78L05
+    u_ldo.IN ~ V15_LS
+    u_ldo.GND ~ LEG_RET
+    u_ldo.OUT ~ HOT5
+    c_ldo_in = new C100n0603
+    c_ldo_in.value = 100nF
+    c_ldo_in.p1 ~ V15_LS
+    c_ldo_in.p2 ~ LEG_RET
+    c_ldo_out = new C10u1210
+    c_ldo_out.value = 10uF
+    c_ldo_out.p1 ~ HOT5
+    c_ldo_out.p2 ~ LEG_RET
+
+    # ---------------- bus voltage sense: 1.88 M / 15.8 k = 1/120
+    r_div1 = new R470k1206
+    r_div1.value = 470kohm
+    r_div1.p1 ~ BUS_P
+    r_div1.p2 ~ VDIV_1
+    r_div2 = new R470k1206
+    r_div2.value = 470kohm
+    r_div2.p1 ~ VDIV_1
+    r_div2.p2 ~ VDIV_2
+    r_div3 = new R470k1206
+    r_div3.value = 470kohm
+    r_div3.p1 ~ VDIV_2
+    r_div3.p2 ~ VDIV_3
+    r_div4 = new R470k1206
+    r_div4.value = 470kohm
+    r_div4.p1 ~ VDIV_3
+    r_div4.p2 ~ VSENSE_IN
+    r_div_bot = new R15k8Thin
+    r_div_bot.value = 15.8kohm
+    r_div_bot.p1 ~ VSENSE_IN
+    r_div_bot.p2 ~ LEG_RET
+    c_div = new C1nC0G0603
+    c_div.value = 1nF
+    c_div.p1 ~ VSENSE_IN
+    c_div.p2 ~ LEG_RET
+    u_vsense = new Amc1311
+    u_vsense.VDD1 ~ HOT5
+    u_vsense.GND1 ~ LEG_RET
+    u_vsense.VINP ~ VSENSE_IN
+    u_vsense.SHTDN ~ LEG_RET
+    u_vsense.VDD2 ~ V3V3
+    u_vsense.GND2 ~ SELV_GND
+    u_vsense.VOUTP ~ VBUS_P
+    u_vsense.VOUTN ~ VBUS_N
+    c_vs1 = new C100n0603
+    c_vs1.value = 100nF
+    c_vs1.p1 ~ HOT5
+    c_vs1.p2 ~ LEG_RET
+    c_vs2 = new C100n0603
+    c_vs2.value = 100nF
+    c_vs2.p1 ~ V3V3
+    c_vs2.p2 ~ SELV_GND
+
+    # ---------------- DC-bus OCP (shoot-through), referenced to LEG_RET.
+    # V(OCP_KELVIN_N) = -I*1 mohm. OCP_NODE = 1.25 V + 0.5 * V(KELVIN_N);
+    # OCP_THRESH = 2.5 * 9.76/(10.5+9.76) = 1.2043 V -> trip at ~91 A.
+    # Output high = OK; low (trip) or unpowered side 1 -> BUS_OCP_OK low.
+    r_ref_bias = new R6k8Bias
+    r_ref_bias.value = 6.8kohm
+    r_ref_bias.p1 ~ HOT5
+    r_ref_bias.p2 ~ REF25
+    u_ref = new Ref2V5
+    u_ref.K ~ REF25
+    u_ref.A ~ LEG_RET
+    r_ocp_ref = new R10kThin
+    r_ocp_ref.value = 10kohm
+    r_ocp_ref.p1 ~ REF25
+    r_ocp_ref.p2 ~ OCP_NODE
+    r_ocp_sense = new R10kThin
+    r_ocp_sense.value = 10kohm
+    r_ocp_sense.p1 ~ OCP_NODE
+    r_ocp_sense.p2 ~ OCP_KELVIN_N
+    c_ocp_node = new C100pC0G0603
+    c_ocp_node.value = 100pF
+    c_ocp_node.p1 ~ OCP_NODE
+    c_ocp_node.p2 ~ LEG_RET
+    r_th_top = new R10k5Thin
+    r_th_top.value = 10.5kohm
+    r_th_top.p1 ~ REF25
+    r_th_top.p2 ~ OCP_THRESH
+    r_th_bot = new R9k76Thin
+    r_th_bot.value = 9.76kohm
+    r_th_bot.p1 ~ OCP_THRESH
+    r_th_bot.p2 ~ LEG_RET
+    c_th = new C1nC0G0603
+    c_th.value = 1nF
+    c_th.p1 ~ OCP_THRESH
+    c_th.p2 ~ LEG_RET
+    u_ocp = new Tlv3201
+    u_ocp.VCC ~ HOT5
+    u_ocp.GND ~ LEG_RET
+    u_ocp.INP ~ OCP_NODE
+    u_ocp.INN ~ OCP_THRESH
+    u_ocp.OUT ~ OCP_OK_HOT
+    c_ocp_vcc = new C100n0603
+    c_ocp_vcc.value = 100nF
+    c_ocp_vcc.p1 ~ HOT5
+    c_ocp_vcc.p2 ~ LEG_RET
+    u_iso = new Iso7710F
+    u_iso.VCC1 ~ HOT5
+    u_iso.GND1 ~ LEG_RET
+    u_iso.GND1B ~ LEG_RET
+    u_iso.IN ~ OCP_OK_HOT
+    u_iso.VCC2 ~ V3V3
+    u_iso.GND2 ~ SELV_GND
+    u_iso.GND2B ~ SELV_GND
+    u_iso.OUT ~ BUS_OCP_OK
+    c_iso1 = new C100n0603
+    c_iso1.value = 100nF
+    c_iso1.p1 ~ HOT5
+    c_iso1.p2 ~ LEG_RET
+    c_iso2 = new C100n0603
+    c_iso2.value = 100nF
+    c_iso2.p1 ~ V3V3
+    c_iso2.p2 ~ SELV_GND
+
+    # ---------------- SELV controller header (Micro-Fit 2x8)
+    j_selv = new SelvHeader16
+    j_selv.p1 ~ V15_SELV
+    j_selv.p2 ~ SELV_GND
+    j_selv.p3 ~ V3V3
+    j_selv.p4 ~ SELV_GND
+    j_selv.p5 ~ PWM_HA
+    j_selv.p6 ~ PWM_LA
+    j_selv.p7 ~ PWM_HB
+    j_selv.p8 ~ PWM_LB
+    j_selv.p9 ~ PERMIT
+    j_selv.p10 ~ BUS_OCP_OK
+    j_selv.p11 ~ VBUS_P
+    j_selv.p12 ~ VBUS_N
+    j_selv.p13 ~ CT_S1
+    j_selv.p14 ~ CT_S2
+    j_selv.p15 ~ SELV_GND
+    j_selv.p16 ~ SELV_GND
