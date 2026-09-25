@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -15,6 +16,7 @@ REPO = Path(__file__).parents[3]
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO / "scripts"))
 
+import gen_pcb_skeleton as skeleton  # noqa: E402
 import gen_schematics as schematics  # noqa: E402
 from native_report import load_kicad_report, require_success  # noqa: E402
 
@@ -197,3 +199,81 @@ def test_selected_symbol_identity_fails_on_missing_or_mismatched_mpn(
         build_native._apply_selected_symbol_identity(
             _aliased_symbol_netlist(), selected, bom, schematics
         )
+
+
+def test_board_value_uses_selected_mpn_over_nominal_value() -> None:
+    netlist = skeleton.Netlist(
+        components={
+            "U224": skeleton.Component(
+                ref="U224",
+                value="180uH",
+                footprint="Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75",
+                tstamp="u224",
+                sheetpath="pfc_power.l_boost",
+            )
+        },
+        nets={},
+    )
+    build_native._apply_selected_board_values(netlist, {"U224": "760800301"})
+    assert netlist.components["U224"].value == "760800301"
+    with pytest.raises(ValueError, match="cover exactly"):
+        build_native._apply_selected_board_values(netlist, {})
+
+
+def test_candidate_board_rekeys_legacy_footprint_text_without_changing_pads(
+    tmp_path: Path,
+) -> None:
+    library = tmp_path / "Inductor_THT_Wurth.pretty"
+    library.mkdir()
+    footprint_name = "L_Wurth_WE-TORPFC-T75.kicad_mod"
+    source_footprint = (
+        REPO / "zapote" / "power-entry" / "passive-reva" / "libraries"
+        / "Inductor_THT_Wurth.pretty" / footprint_name
+    )
+    assert '(fp_text reference "REF**"' in source_footprint.read_text(encoding="utf-8")
+    shutil.copy2(source_footprint, library / footprint_name)
+    table = tmp_path / "fp-lib-table"
+    table.write_text(
+        f'(fp_lib_table (lib (name "Inductor_THT_Wurth") (type "KiCad") '
+        f'(uri "{library}") (options "") (descr "")))\n',
+        encoding="utf-8",
+    )
+    netlist = skeleton.Netlist(
+        components={
+            "U224": skeleton.Component(
+                ref="U224", value="?",
+                footprint="Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75",
+                tstamp="u224", sheetpath="pfc_power.l_boost",
+            )
+        },
+        nets={
+            "1": skeleton.Net("1", "VD", [("U224", "1")]),
+            "2": skeleton.Net("2", "SW", [("U224", "2")]),
+        },
+    )
+    pin_map = {("U224", "1"): "1", ("U224", "2"): "2"}
+    selected_mpn = "760800301"
+    build_native._apply_selected_board_values(netlist, {"U224": selected_mpn})
+    board_path = tmp_path / "section.kicad_pcb"
+    skeleton.generate_candidate_board(
+        netlist, pin_map, set(), table, (0, 0, 360, 250),
+        {"U224": (150, 120, 0)}, board_path,
+        values={"U224": selected_mpn},
+    )
+    from kiutils.board import Board
+    from kiutils.items.fpitems import FpText
+
+    footprint = Board.from_file(str(board_path)).footprints[0]
+    assert footprint.properties["Reference"] == "U224"
+    assert footprint.properties["Value"] == selected_mpn
+    assert {
+        item.type: item.text
+        for item in footprint.graphicItems
+        if isinstance(item, FpText) and item.type in {"reference", "value"}
+    } == {"reference": "U224", "value": selected_mpn}
+    assert {pad.number: pad.net.name for pad in footprint.pads if pad.number} == {
+        "1": "VD", "2": "SW",
+    }
+    assert skeleton.candidate_oracle_verify(
+        board_path, netlist, pin_map, (0, 0, 360, 250)
+    )

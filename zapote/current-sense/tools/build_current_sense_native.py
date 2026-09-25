@@ -97,6 +97,24 @@ def _filter_netlist(netlist: Any, refs: set[str]) -> Any:
     return netlist
 
 
+def _apply_selected_board_values(
+    netlist: Any, selected_mpn_by_ref: dict[str, str]
+) -> None:
+    """Give board footprints the same selected identity as schematic symbols.
+
+    Nominal electrical values remain in the resolved source attributes; the
+    KiCad ``Value`` field must agree with the schematic and selected BOM MPN.
+    """
+    refs = set(netlist.components)
+    if refs != set(selected_mpn_by_ref):
+        raise ValueError("board values must cover exactly the selected references")
+    for ref, component in netlist.components.items():
+        mpn = selected_mpn_by_ref[ref]
+        if not isinstance(mpn, str) or not mpn.strip():
+            raise ValueError(f"{ref}: missing selected board MPN")
+        component.value = mpn
+
+
 def _apply_selected_symbol_identity(
     netlist: Any,
     selected_mpn_by_ref: dict[str, str],
@@ -369,8 +387,7 @@ def build(
     poses = _require_poses(poses_path, by_path, owned_paths)
     outline_mm = _outline(outline_path)
     netlist = _filter_netlist(skeleton.parse_netlist(net_path), owned)
-    for component in netlist.components.values():
-        component.value = attrs[component.sheetpath].get("value") or attrs[component.sheetpath]["mpn"]
+    _apply_selected_board_values(netlist, selected_mpn_by_ref)
     pin_map = {(entry["reference"], entry["pin"]): entry["pad"] for entry in entries}
     board_path = output / "section.kicad_pcb"
     board_summary = skeleton.generate_candidate_board(

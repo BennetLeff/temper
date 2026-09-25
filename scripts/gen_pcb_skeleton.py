@@ -266,6 +266,13 @@ def resolve_footprint(
     return fp_file
 
 
+def _is_copper_pad(pad: Any) -> bool:
+    """Exclude paste/mask-only pad apertures from electrical pin checks."""
+    return getattr(pad, "type", "") in ("smd", "thru_hole") and any(
+        str(layer).endswith(".Cu") for layer in getattr(pad, "layers", ())
+    )
+
+
 # ---------------------------------------------------------------------------
 # Board construction
 # ---------------------------------------------------------------------------
@@ -547,6 +554,24 @@ def _restore_candidate_property_geometry(output_path: Path) -> None:
         output_path.write_text(restored, encoding="utf-8")
 
 
+def _set_candidate_legacy_text_identity(fp: Any, ref: str, value: str) -> None:
+    """Keep old ``fp_text`` identity in step with modern KiCad properties.
+
+    Some vendored footprints carry legacy reference/value text nodes. KiCad
+    still reads those nodes during schematic parity, even when a new
+    ``property`` with the selected identity is also present.
+    """
+    from kiutils.items.fpitems import FpText
+
+    for item in fp.graphicItems:
+        if not isinstance(item, FpText):
+            continue
+        if item.type == "reference":
+            item.text = ref
+        elif item.type == "value":
+            item.text = value
+
+
 def generate_candidate_board(
     netlist: Netlist,
     pin_map: dict[tuple[str, str], str],
@@ -619,12 +644,14 @@ def generate_candidate_board(
         fp.libId = comp.footprint  # type: ignore[attr-defined]
         fp.tstamp = _uuid_from_seed(f"fp:{comp.tstamp}")  # type: ignore[attr-defined]
         fp.tedit = _uuid_from_seed(f"tedit:{comp.tstamp}")[:8]  # type: ignore[attr-defined]
+        value = (values or {}).get(comp.ref) or comp.value or "?"
         fp.properties = {  # type: ignore[attr-defined]
             "Reference": comp.ref,
-            "Value": (values or {}).get(comp.ref) or comp.value or "?",
+            "Value": value,
             "Footprint": comp.footprint,
             "Sheetpath": comp.sheetpath,
         }
+        _set_candidate_legacy_text_identity(fp, comp.ref, value)
         x, y, rot = staging[comp.ref]
         fp.position = Position(x, y, rot if rot else None)  # type: ignore[attr-defined]
 
@@ -637,8 +664,15 @@ def generate_candidate_board(
                         f"pins '{claimed[pad_no][1]}' and '{pin}'"
                     )
                 claimed[pad_no] = (ref, pin)
+        copper_pad_numbers = {pad.number for pad in fp.pads if _is_copper_pad(pad)}
+        for pad_no in claimed:
+            if pad_no not in copper_pad_numbers:
+                raise ValueError(
+                    f"candidate board: mapped pad '{pad_no}' on {comp.ref} "
+                    "has no copper pad in the resolved footprint"
+                )
         for pad in fp.pads:
-            if getattr(pad, "type", "") not in ("smd", "thru_hole"):
+            if not _is_copper_pad(pad):
                 continue
             if pad.number in claimed:
                 ref, pin = claimed[pad.number]
@@ -731,9 +765,11 @@ def candidate_oracle_verify(
                 != netlist.components[ref].sheetpath):
             print(f"CANDIDATE ORACLE FAILURE: Sheetpath drift on {ref}")
             ok = False
+        seen_copper_pads: set[str] = set()
         for pad in fp.pads:
-            if getattr(pad, "type", "") not in ("smd", "thru_hole"):
+            if not _is_copper_pad(pad):
                 continue
+            seen_copper_pads.add(pad.number)
             net = getattr(pad, "net", None)
             net_name = getattr(net, "name", "") if net else ""
             pin = pad_to_pin.get((ref, pad.number))
@@ -750,6 +786,13 @@ def candidate_oracle_verify(
                 print(
                     f"CANDIDATE ORACLE FAILURE: pad '{pad.number}' on {ref} "
                     f"carries '{net_name}', compiled pin {pin} is on '{expected}'"
+                )
+                ok = False
+        for pad_no in {pad for mapped_ref, pad in pad_to_pin if mapped_ref == ref}:
+            if pad_no not in seen_copper_pads:
+                print(
+                    f"CANDIDATE ORACLE FAILURE: mapped pad '{pad_no}' on {ref} "
+                    "has no copper pad"
                 )
                 ok = False
     if board_refs != set(netlist.components):

@@ -938,6 +938,69 @@ class CandidateDeterminismContract(unittest.TestCase):
             )
 
 
+class TestCandidateFabricationOnlyPads(unittest.TestCase):
+    """UCC27624DDAR EP footprint has separate mask and paste apertures."""
+
+    @requires_kiutils
+    def test_apertures_survive_while_exposed_pad_requires_copper_mapping(self) -> None:
+        from kiutils.board import Board
+
+        sys.path.insert(0, str(REPO / "scripts"))
+        import gen_pcb_skeleton as skeleton
+
+        # Minimal form of KiCad's SOIC-8-1EP Mask2.71x3.4mm footprint:
+        # five unnumbered fabrication apertures and a numbered copper EP.
+        footprint = '''(footprint "UCC27624_EP"
+  (version 20241229) (generator "pcbnew") (layer "F.Cu")
+  (property "Reference" "REF**" (at 0 -3) (layer "F.SilkS"))
+  (property "Value" "UCC27624_EP" (at 0 3) (layer "F.Fab"))
+  (pad "" smd rect (at -0.68 -0.85) (size 1.09 1.37) (layers "F.Paste"))
+  (pad "" smd rect (at -0.68 0.85) (size 1.09 1.37) (layers "F.Paste"))
+  (pad "" smd rect (at 0 0) (size 2.71 3.4) (layers "F.Mask"))
+  (pad "" smd rect (at 0.68 -0.85) (size 1.09 1.37) (layers "F.Paste"))
+  (pad "" smd rect (at 0.68 0.85) (size 1.09 1.37) (layers "F.Paste"))
+  (pad "1" smd rect (at -2.56 -1.9) (size 1.775 0.6)
+    (layers "F.Cu" "F.Mask" "F.Paste"))
+  (pad "9" smd rect (at 0 0) (size 2.95 4.9) (layers "F.Cu"))
+)'''
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            library = root / "Test.pretty"
+            library.mkdir()
+            module = library / "UCC27624_EP.kicad_mod"
+            module.write_text(footprint)
+            table = root / "fp-lib-table"
+            table.write_text(
+                '(fp_lib_table (lib (name "Test") (type "KiCad") '
+                '(uri "${KIPRJMOD}/Test.pretty") (options "") (descr "")))'
+            )
+            netlist = skeleton.Netlist(
+                components={"U130": skeleton.Component(
+                    "U130", "UCC27624DDAR", "Test:UCC27624_EP", "u130", "driver.driver"
+                )},
+                nets={"1": skeleton.Net("1", "HOT0", [("U130", "9")])},
+            )
+            pin_map = {("U130", "9"): "9"}
+            outline = (0.0, 0.0, 20.0, 20.0)
+            board_path = root / "candidate.kicad_pcb"
+            args = (netlist, pin_map, {("U130", "1")}, table, outline,
+                    {"U130": (10.0, 10.0, 0.0)}, board_path)
+            skeleton.generate_candidate_board(*args)
+            pads = Board.from_file(str(board_path)).footprints[0].pads
+            self.assertEqual(sum(p.number == "" for p in pads), 5)
+            self.assertEqual(next(p.net.name for p in pads if p.number == "9"), "HOT0")
+            self.assertTrue(skeleton.candidate_oracle_verify(
+                board_path, netlist, pin_map, outline
+            ))
+
+            module.write_text(footprint.replace(
+                '  (pad "9" smd rect (at 0 0) (size 2.95 4.9) (layers "F.Cu"))\n',
+                "",
+            ))
+            with self.assertRaisesRegex(ValueError, "mapped pad '9'.*no copper pad"):
+                skeleton.generate_candidate_board(*args)
+
+
 if __name__ == "__main__":
     sys.path.insert(0, str(ROOT))
     unittest.main()

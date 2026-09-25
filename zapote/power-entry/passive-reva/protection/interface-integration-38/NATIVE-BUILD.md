@@ -65,6 +65,17 @@ exports **296 references, 246 nets and 1,054 numeric pin edges**, matching
 the compiled source projection. It is a connectivity diagnostic, not the
 native section schematic or a full functional pin-name audit.
 
+A separate [temporary native generation diagnostic](NATIVE-DIAGNOSTIC-05.md)
+used unreviewed courtyard shelf poses with that planning outline. After
+preserving fabrication-only mask/paste apertures and aligning selected board
+Values and legacy footprint text, the bridge emitted **295 board references,
+246 nets and 1,052 mapped numeric edges** (the off-board F2 is excluded).
+Its raw-pad oracle and KiCad schematic-parity comparison pass on those
+temporary bytes. Board DRC still reports 36 violations and capped 499
+unconnected items; schematic ERC reports 677 warnings. The diagnostic is not
+the reviewed `native/section.kicad_pcb` deliverable, a DRC/ERC pass, or a
+functional pin-name audit.
+
 `INSULATION-BASIS.md` identifies another independent U7 blocker: the documented 409.307 V maximum static regulation
 falls in the project's >400–500 V PD3 creepage row (16.0 mm reinforced
 screen on Group IIIa FR-4; the separate Group I package screen is 12.6 mm).
