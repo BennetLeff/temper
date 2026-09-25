@@ -49,7 +49,8 @@ the stackup update changes CAD construction fields, not footprint positions.
 
 The native generator now projects the audited `SourceInstance` and `MPN`
 values from its source manifest into every one of the 295 board footprints.
-It also stamps all 1,089 physical pads with stable UUIDs; two independent
+It also stamps all 1,089 KiCad pad objects with stable UUIDs (including
+16 mask/paste-only objects and three non-plated holes); two independent
 regenerations produced byte-identical PCB and manifest files. The strict
 Rust native binder checks the saved document's component MPNs, pad numbers,
 net names and UUIDs against the KiCad export. Its real-board test passes.
