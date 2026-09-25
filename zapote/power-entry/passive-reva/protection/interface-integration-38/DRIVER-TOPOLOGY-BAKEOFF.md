@@ -353,6 +353,45 @@ default shunt. The 2N7002AK-Q has a ±20 V gate rating, so an unqualified
 AUX peak also requires a selected gate clamp. The short-AUX-dip retained
 clear and loaded STW current-cessation proofs remain open.
 
+### HOT5-powered PWM logic screen
+
+A further bench candidate avoids both the ENA shunt and the AUX-powered
+PWM clamp. Tie UCC27624 ENA to its VDD and retain the local 10 kΩ INA
+pull-down. Translate UCC28180 GATE with a MOSFET whose gate is driven from
+PWM, source is HOT0, and drain is pulled up **only to HOT_LOGIC5**; invert
+that signal with HOT5-powered logic. A HOT5-powered
+[SN74LVC1G11](https://www.ti.com/lit/ds/symlink/sn74lvc1g11.pdf) then ANDs
+translated PWM, retained `DRIVER_PERMISSION`, and existing `HOT_RAILS_OK`,
+and alone drives INA. No resistor or logic input may feed INA or the HOT5
+logic from AUX. This is a topology for a pin-level specimen, not a source
+revision.
+
+The three-input gate operates from 1.65 V, while
+[UCC27624](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) specifies a
+1.8 V **minimum** INA high threshold. At HOT5 = 0, the LVC gate's
+powered-off `Ioff` specification and the INA pull-down give a useful OFF
+screen. At HOT5 ≥ 1.65 V the `HOT_RAILS_OK` input should remain low until
+its [TPS3890](https://www.ti.com/lit/ds/symlink/tps3890.pdf) logic-rail
+supervisor releases: that supervisor specifies RESET low with VDD ≥ 1.5 V
+at a 0.4 mA sink fixture. The joined 10 kΩ RESET pull-up draws at most
+0.165 mA at the 1.65 V crossover before other loads. These numbers make
+the **static rail-order case worth prototyping**, but they do not prove the
+0–1.65 V interval. The LVC data sheet does not specify a maximum driven
+output relative to VCC there; its zero-supply `Ioff` is not an
+intermediate-supply guarantee. Nor does this screen bound stored output
+charge during HOT5 collapse, the PWM MOSFET's gate stress at an unqualified
+AUX peak, or PWM edge translation at the switching frequency.
+
+This path also needs a worst-case INA input-current and loaded logic-high
+check, qualified logic-low margins through local supply opens, maximum
+fault/rail-to-INA propagation and rearm behavior, and a native route that
+keeps PWM from injecting into HOT5. The TPS3890 SENSE-fall timing table
+gives 8–18 µs **typical** at its stated fixtures, not a worst-case
+fault-to-inhibit bound. If a separate TPS3890 uses MR for permission, its
+sheet specifies a 1 µs MR pulse duration to assert RESET; short trips must
+therefore be retained or measured at MR. This screen is **not selected**
+for U4 or U7.
+
 **Disposition:** keep the current joined source and U7 route gate unchanged.
 The `IN−` sketch needs the missing TI source/sink current limits over the
 selected AUX range, a release device with applicable temperature and voltage
