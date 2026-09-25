@@ -44,6 +44,7 @@ the stackup update changes CAD construction fields, not footprint positions.
 | `native-stackup-diagnostic/source-manifest.json` | `c5a7d59bcbedc109df0cc4d14df673b31b2edfb1ff49751b77e0d30cbabddc7f` |
 | `native-stackup-diagnostic/drc-parity.json` | `e5cb27b8d200e62cb8121620d2a0f9b79ddd8e1491d246f118fcbd7822fe4427` |
 | `native-stackup-diagnostic/stackup-report.json` | `a770ff1c7676463f5ea0c1aecc5f2200e3dffea1a04806543d36e5b251e6ec67` |
+| `native-stackup-diagnostic/identity-report.json` | `517f81dc59a03fbf790c504d4245e25d9288a09397d70837a4722880eac3811f` |
 
 The updated native generator's source and raw-pad checks passed, and the
 manifest's board and stackup hashes match the saved inputs. KiCad 10.0.4 ERC
@@ -65,6 +66,14 @@ Changing only the board's general thickness to 1.7 mm in a temporary copy
 made the same Rust gate fail: the 1.800000 mm stackup sum differed from the
 1.700000 mm declaration. That negative control checks the gate's response to
 an invalid stackup; it does not qualify the selected materials.
+
+The Rust `zapote-board` identity mode reports **PASS** for these exact PCB
+bytes and all six source-manifest inputs (`default.csv`, `default.net`,
+`outline.json`, `poses.json`, `resolved-components.json`, `stackup.json`).
+Its focused CLI tests verify that changed PCB bytes with a valid stackup
+and a stale compiled netlist both fail. The manifest itself is separately
+pinned by the SHA-256 above. This gate does not establish electrical
+correctness or detect a copper-domain bridge in an unrouted board.
 
 An independent export of the saved schematic compared named numeric
 `(net, reference, pin)` edges against the frozen compiled source after
