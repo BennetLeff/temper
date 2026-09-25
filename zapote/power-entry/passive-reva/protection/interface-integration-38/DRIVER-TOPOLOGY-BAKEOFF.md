@@ -237,6 +237,17 @@ calculation at the actual PWM source current. This path still needs bounded
 PFC PWM amplitude/current, AUX and HOT5 rail sequences, input thresholds,
 clamp current and saturation, and loaded gate turn-off timing.
 
+An AUX-powered [TLV1701](https://www.ti.com/lit/ds/symlink/tlv1701.pdf)
+qualifier is a possible way to establish a HOT5-valid threshold before
+releasing that clamp: its 2.2–36 V operating range overlaps a live
+UCC27624. Its open-collector output requires the **sink** state to mean
+release; an external pull-up that means release would enable the path if
+the comparator supply pin opened while AUX remained live. Even with sink
+polarity, the comparator's output and input-clamp behavior under an opened
+V+ pin, the upstream HOT5/permission signals, and short AUX dips need a
+source-backed failure analysis. This is an investigation direction, not a
+selected U4 circuit.
+
 **Disposition:** keep the current joined source and U7 route gate unchanged.
 The `IN−` sketch needs the missing TI source/sink current limits over the
 selected AUX range, a release device with applicable temperature and voltage
