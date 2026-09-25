@@ -16,7 +16,7 @@ from build_current_sense_native import build  # noqa: E402
 
 
 def apply_planning_stackup(output: Path, stackup_path: Path) -> None:
-    """Bind the provisional Rev38 CAD stackup to the generated board receipt."""
+    """Bind source identity and provisional CAD stackup to the generated board."""
     config = json.loads(stackup_path.read_text(encoding="utf-8"))
     if config.get("schema") != "temper.rev38.planning-stackup.v1":
         raise ValueError("unexpected Rev38 stackup schema")
@@ -46,6 +46,25 @@ def apply_planning_stackup(output: Path, stackup_path: Path) -> None:
 
     board_path = output / "section.kicad_pcb"
     board = board_path.read_text(encoding="utf-8")
+    manifest_path = output / "source-manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    components = manifest["bridge"]["components"]
+    if (board.count('(property "Sheetpath" ') != len(components)
+            or '(property "SourceInstance" ' in board
+            or '(property "MPN" ' in board):
+        raise ValueError("generated Rev38 footprint source fields differ from manifest")
+    for component in components:
+        instance = component["instance_path"]
+        mpn = manifest["source_attributes"][instance]["mpn"]
+        sheetpath = f'    (property "Sheetpath" {json.dumps(instance)})'
+        if board.count(sheetpath) != 1 or not mpn:
+            raise ValueError(f"missing unique native source identity for {instance}")
+        board = board.replace(
+            sheetpath,
+            sheetpath + f'\n    (property "SourceInstance" {json.dumps(instance)})'
+            + f'\n    (property "MPN" {json.dumps(mpn)})',
+            1,
+        )
     thickness_old = "(thickness 1.6)"
     setup_old = "  (setup\n    (pad_to_mask_clearance 0.0)"
     if board.count(thickness_old) != 1 or board.count(setup_old) != 1:
@@ -55,8 +74,6 @@ def apply_planning_stackup(output: Path, stackup_path: Path) -> None:
                           "  (setup\n" + "\n".join(records) + "\n    (pad_to_mask_clearance 0.0)", 1)
     board_path.write_text(board, encoding="utf-8")
 
-    manifest_path = output / "source-manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest["input_hashes"]["stackup.json"] = hashlib.sha256(stackup_path.read_bytes()).hexdigest()
     manifest["board_sha256"] = hashlib.sha256(board_path.read_bytes()).hexdigest()
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")

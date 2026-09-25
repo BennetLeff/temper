@@ -31,7 +31,7 @@
       250.0
     ]
   },
-  "board_sha256": "df9b02e9cb33a71ad58fa01295a22b4b6613744a06e1c060ef042c0adb080857",
+  "board_sha256": "bbecb4e20277235564c86f691f17f23218a8b0790cd1177a5b60fa3f95d7396d",
   "bridge": {
     "components": [
       {
@@ -22143,7 +22143,7 @@
     }
   },
   "strict_bridge_extension": {
-    "detail": "temper_design_bundle_python: /Users/bennet/Desktop/temper/worktrees/power-entry/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so (built 2026-09-24T17:27:08) is fresh (no build stamp; mtime comparison)",
+    "detail": "temper_design_bundle_python: /Users/bennet/Desktop/temper/worktrees/power-entry/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so (built 2026-09-24T19:53:41) is fresh (no build stamp; mtime comparison)",
     "freshness_method": "mtime",
     "path": "/Users/bennet/Desktop/temper/worktrees/power-entry/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so",
     "sha256": "98326b1a35f2924fe3a7975c08f0de6f2d495af7286f37b18e39ce28176db460"

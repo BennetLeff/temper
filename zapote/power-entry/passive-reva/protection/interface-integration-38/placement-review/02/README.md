@@ -39,14 +39,20 @@ the stackup update changes CAD construction fields, not footprint positions.
 | Artifact | SHA-256 |
 | --- | --- |
 | `poses.json` | `ae0177b9adb8dc7540d27955cfacf502ce281a53404e0627770635ee394f47ab` |
-| `native-stackup-diagnostic/section.kicad_pcb` | `df9b02e9cb33a71ad58fa01295a22b4b6613744a06e1c060ef042c0adb080857` |
+| `native-stackup-diagnostic/section.kicad_pcb` | `bbecb4e20277235564c86f691f17f23218a8b0790cd1177a5b60fa3f95d7396d` |
 | `native-stackup-diagnostic/section.kicad_sch` | `339154c9e3809782da312c8d85053ee9cfea2d87196b3b20652d25be9261201c` |
-| `native-stackup-diagnostic/source-manifest.json` | `c5a7d59bcbedc109df0cc4d14df673b31b2edfb1ff49751b77e0d30cbabddc7f` |
-| `native-stackup-diagnostic/drc-parity.json` | `e5cb27b8d200e62cb8121620d2a0f9b79ddd8e1491d246f118fcbd7822fe4427` |
+| `native-stackup-diagnostic/source-manifest.json` | `10694075f4c57e6a66473686c844aefea91b422a1cbaa3f339e062190b525a24` |
+| `native-stackup-diagnostic/drc-parity.json` | `7badda2118ba710433750694fa224cce846d1455442170ec4704bc9ebdccebe7` |
 | `native-stackup-diagnostic/stackup-report.json` | `a770ff1c7676463f5ea0c1aecc5f2200e3dffea1a04806543d36e5b251e6ec67` |
-| `native-stackup-diagnostic/identity-report.json` | `517f81dc59a03fbf790c504d4245e25d9288a09397d70837a4722880eac3811f` |
+| `native-stackup-diagnostic/identity-report.json` | `a4092e6023bc31d49a216b284d44d70b357e858c5f58827a9aadd18c8a27f1b2` |
+| `native-stackup-diagnostic/native-export.json` | `c90fcc1f34e0a4219b477f44ceceb8366db5fd0f98c8dfa00bbcf66abdd5c690` |
 
-The updated native generator's source and raw-pad checks passed, and the
+The native generator now projects the audited `SourceInstance` and `MPN`
+values from its source manifest into every one of the 295 board footprints.
+The shared KiCad extractor reads the saved board as 295 components, 1,070
+pad connections and 1,052 native connectivity clusters, with zero tracks,
+vias or zones. This transport export is an input for later copper-domain
+checks, not such a check itself. The generator's source and raw-pad checks passed, and the
 manifest's board and stackup hashes match the saved inputs. KiCad 10.0.4 ERC
 with all severities reported **0 violations**. KiCad DRC with schematic
 parity and all severities reported **0 non-routing violations** and **0
