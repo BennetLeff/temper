@@ -14,13 +14,35 @@ bytes; the test separately compares those bytes with the saved board.
 Every physical pad now has a deterministic UUID, and two independent
 source/pose rebuilds produced byte-identical PCB and manifest outputs.
 
-The focused `domain_clearance::validate` test compares only `selv3v3` and
-`selv_gnd` against `hot0` and `hot_logic5` at a **provisional 16.0 mm**
-board-surface spacing screen. It reports a **15.200000 mm** opposed-pad
-clearance at `receiver.iso_protocol.1 / receiver.iso_protocol.16`, with
-other DWW and arbitrary shelf-placement findings. Every other native net
-is reported as unclassified, including PE and unassigned pads, so this
-screen cannot pass as whole-board HOT/SELV coverage.
+The focused `domain_clearance::validate` anchor test compares only
+`selv3v3` and `selv_gnd` against `hot0` and `hot_logic5` at a
+**provisional 16.0 mm** projected copper-distance screen. It reports a
+**15.200000 mm** opposed-pad gap at
+`receiver.iso_protocol.1 / receiver.iso_protocol.16`, with other DWW and
+arbitrary shelf-placement findings.
+
+A second test assigns physical pad sides from source/connector ownership,
+the exact 1–8 / 9–16 pins of both DWW isolators, the SELV-side local parts,
+and the two PE terminals. The saved native export has **62 SELV, 183 live,
+and one PE named nets**; no named net has pads on conflicting sides. A
+mutation putting an isolator HOT pad on `selv3v3`, and another putting the
+inlet PE terminal on `hot0`, both fail the ownership check. The broader
+provisional copper-distance screen includes all 245 assigned SELV/live
+nets and remains **FAIL**, including the same 15.2 mm DWW gap. It does not
+assign a uniform insulation requirement to every AC, HOT, and SELV pair;
+the 16 mm run is diagnostic only and does not measure creepage, air
+clearance, package surfaces, solder, or slots.
+
+The PE net is excluded from that two-side spacing projection. **Nineteen
+KiCad pad objects have no assigned net**. Board inspection identifies
+16 paste/mask-only objects (five each on `driver.driver`,
+`hot_watchdog.watchdog`, and `source.watchdog`, one on
+`hot15_converter.buck`) and three non-plated locating holes (one on
+`pfc_power.l_boost`, two on `source_mcu.controller_port`). They are not
+19 unexplained copper pads. The holes and any installed hardware still
+need a constructed-path review. The board also remains unrouted; this
+test cannot be transferred to future traces, vias, zones, or copper pours
+without a fresh exact-board export and review.
 
 The mutation test adds a synthetic SELV trace from the selected isolator's
 SELV pad across its HOT pad. The domain rule identifies the injected trace
@@ -30,8 +52,9 @@ response to a copper bridge without misrepresenting the mutated export as
 saved-board evidence. The test is
 `zapote/packages/zapote-drc/tests/rev38_native_domains.rs`.
 
-The remaining U7 work is a reviewed classification of every relevant
-native net and exposed conductor, rule coverage for board surface and air
-paths, package/slot/laminate construction, placement and routing, then a
-fresh native extraction and fault-path review. The current DWW pad geometry
-does not meet the provisional 16.0 mm board-surface screen by itself.
+The remaining U7 work is a reviewed voltage/insulation class for each
+crossing, including PE and exposed metal, with rule coverage
+for board surface and air paths, package/slot/laminate construction,
+placement and routing, then a fresh native extraction and fault-path
+review. The current DWW pad geometry does not meet the provisional
+16.0 mm FR-4 surface-path screen by itself.
