@@ -13,6 +13,12 @@ board. A default KiCad DRC pass cannot close this gate.
   portable cookers, hotplates and induction wok hotplates in its scope.
   IEC 60335-2-6 is the stationary-appliance alternative if the intended
   installation changes. IEC 60335-1 supplies the general requirements.
+  The IEC 60335-2-9:2019 publication says it was established on
+  IEC 60335-1 edition 5, while the IEC 60335-1:2020 edition 6 publication
+  says edition 6 is only used with parts 2 established on its basis. Thus
+  the part-1/part-2 edition pairing cannot be chosen by simply taking the
+  latest title of each; the reviewer must specify the applicable pairing,
+  amendments and national adoption.
   A product-safety review must still select the exact edition, national
   adoption and applicable clauses; scope fit alone does not approve the
   insulation table or a Rev38 construction.

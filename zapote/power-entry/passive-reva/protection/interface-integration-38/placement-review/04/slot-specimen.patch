@@ -1,0 +1,11 @@
+--- a/section.kicad_pcb
++++ b/section.kicad_pcb
+@@ -13545,0 +13546,8 @@
++  (gr_line (start 251.5 55.5) (end 251.5 74.5) (stroke (width 0.05) (type default)) (layer "Edge.Cuts") (uuid "c94af7ae-2300-5881-8eda-36438ea52be9"))
++  (gr_arc (start 251.5 74.5) (mid 252 75.0) (end 252.5 74.5) (stroke (width 0.05) (type default)) (layer "Edge.Cuts") (uuid "a98fcd2b-246b-5427-b73f-1a2e1ab49085"))
++  (gr_line (start 252.5 74.5) (end 252.5 55.5) (stroke (width 0.05) (type default)) (layer "Edge.Cuts") (uuid "b94b3d7c-433e-52be-9294-0006f07f00c3"))
++  (gr_arc (start 252.5 55.5) (mid 252 55.0) (end 251.5 55.5) (stroke (width 0.05) (type default)) (layer "Edge.Cuts") (uuid "70c48182-811d-5597-be1d-2a78c6ecee7e"))
++  (gr_line (start 251.5 95.5) (end 251.5 114.5) (stroke (width 0.05) (type default)) (layer "Edge.Cuts") (uuid "fce59022-72bb-5c51-8b9d-599827ce7f56"))
++  (gr_arc (start 251.5 114.5) (mid 252 115.0) (end 252.5 114.5) (stroke (width 0.05) (type default)) (layer "Edge.Cuts") (uuid "e70bfd49-6588-539a-bba9-a7136afe885b"))
++  (gr_line (start 252.5 114.5) (end 252.5 95.5) (stroke (width 0.05) (type default)) (layer "Edge.Cuts") (uuid "74934bba-fe96-544c-8dd8-3b91bd958035"))
++  (gr_arc (start 252.5 95.5) (mid 252 95.0) (end 251.5 95.5) (stroke (width 0.05) (type default)) (layer "Edge.Cuts") (uuid "7d985af5-c77a-5e32-9e6c-d08c0d6919be"))

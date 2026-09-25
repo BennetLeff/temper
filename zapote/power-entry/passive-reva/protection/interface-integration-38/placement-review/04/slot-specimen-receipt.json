@@ -1,0 +1,17 @@
+{
+  "schema": "temper.rev38.slot-specimen.v1",
+  "status": "geometry-probe-only",
+  "input_board_sha256": "03dfa0f74a62666215315c880f49bc2b9ce7e7b2a9b964607a58c3f104cabb79",
+  "patch_sha256": "05ac1153b802342f9e228268913b5660a0626e8261996ae1ab43b851e60fe0e1",
+  "patched_board_sha256": "22e28cff9341b395632d8ec23864ed53e9bdd9844f72e6c95795ff65c9cd4e55",
+  "slots": [
+    { "center_x_mm": 252, "y_min_mm": 55, "y_max_mm": 75, "width_mm": 1, "end_radius_mm": 0.5 },
+    { "center_x_mm": 252, "y_min_mm": 95, "y_max_mm": 115, "width_mm": 1, "end_radius_mm": 0.5 }
+  ],
+  "tool": "kicad-cli 10.0.4 pcb drc --all-track-errors --schematic-parity --severity-all --format json",
+  "drc_violations": { "silk_edge_clearance": 2 },
+  "schematic_parity_issues": 0,
+  "unconnected_items_reported": 499,
+  "unconnected_count_is_capped": true,
+  "interpretation": "Temporary Edge.Cuts measurement specimen. Both violations are DWW silkscreen-to-slot warnings; no copper, air-clearance, creepage, slot-wall, tolerance or PD3 acceptance is claimed."
+}

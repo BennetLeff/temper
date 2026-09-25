@@ -6,6 +6,9 @@ cooker ESP command-source architecture. The source connector contract passed,
 but there is no accepted Rev38 native section board or assembled SELV harness.
 No numerical fault response, protected operation, or mains build is approved.
 
+`PRODUCT-SAFETY-REVIEW-PACKAGE.md` packages the open insulation decisions
+for a future reviewer; no reviewer or release schedule has been selected.
+
 ## Evidence identity
 
 | Item | Frozen identity or current candidate byte hash |

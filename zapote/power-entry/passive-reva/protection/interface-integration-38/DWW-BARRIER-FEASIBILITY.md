@@ -86,6 +86,16 @@ registration tolerances, solder, component shadow, slot walls, back-side
 surfaces, any contamination path, and all added copper must be measured in
 the manufactured assembly. The direct air and molded-package paths remain.
 
+The [replayable Edge.Cuts specimen](placement-review/04/slot-specimen.patch)
+adds those two slots to a temporary copy of the frozen `/04` board. Its
+[compact receipt](placement-review/04/slot-specimen-receipt.json) pins input,
+patch and output hashes. KiCad 10.0.4 loads the patched board and reports
+two DWW silkscreen-to-slot warnings, zero schematic-parity issues and 499
+capped unconnected items. This only establishes that the opening can be
+represented as a native outline and exposes silkscreen changes needed for
+the specimen. The saved `/04` candidate remains slot-free and source-bound;
+the patched board has no updated source manifest or insulation-rule file.
+
 Before promoting even this specimen to a candidate board, obtain the
 fabricator's controlled slot-width and end-radius capability, slot-to-copper
 and copper-registration tolerances, finished thickness and CTI evidence,

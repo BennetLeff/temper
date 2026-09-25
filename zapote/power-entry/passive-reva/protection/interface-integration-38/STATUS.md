@@ -14,6 +14,10 @@ but PD3 application and board land-to-land construction remain open. The
 product-standard/voltage/construction decision remains open; no native
 rule-file or DRC PASS is claimed.
 
+`PRODUCT-SAFETY-REVIEW-PACKAGE.md` consolidates the frozen `/04` board
+identity, exact DWW crossing, edition-pairing question and requested
+net-pair schedule for a future reviewer. No reviewer has been selected.
+
 | Unit | Current evidence | Remaining gate |
 | --- | --- | --- |
 | U1 | `response-contract.md`, `fault-response.tsv`, and `timing-analysis.md` establish the bounded-reset candidate and per-fault missing-input ledger. The event ledger identifies the Rev38 producers now joined and separates their connectivity from unproved capture. The timing companion maps every event to allowable/implementation input owners and evidence class; the AUX-source alternatives and startup-load decision gate are explicit. | Independently support allowable and worst-case implementation bounds, margin, and applicability using the joined circuit and real power-stage envelope. Numerical acceptance OPEN. |
