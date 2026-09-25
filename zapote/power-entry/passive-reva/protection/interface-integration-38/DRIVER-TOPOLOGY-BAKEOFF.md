@@ -274,6 +274,44 @@ V+ pin, the upstream HOT5/permission signals, and short AUX dips need a
 source-backed failure analysis. This is an investigation direction, not a
 selected U4 circuit.
 
+### AUX-powered positive-release PWM switch screen
+
+A further read-only screen keeps the UCC27624 on protected AUX, ties ENA to
+VDD, and inserts a normally-off P-channel switch between UCC28180 GATE and
+INA. INA retains its local 10 kΩ pull-down. The switch's source is at PFC
+PWM, drain at INA, and gate returns to its source. An AUX-powered comparator
+would sink that gate only after the retained `DRIVER_PERMISSION` and HOT5
+level are qualified. This changes the OFF argument from the unbounded ENA
+pull-up to switch leakage, the INA pull-down, and PWM-edge behavior.
+
+[TI's TLV1821DBVR open-drain comparator](https://www.ti.com/lit/ds/symlink/tlv1821.pdf)
+operates at 2.4–40 V and holds its output high impedance during power-on
+reset, including for up to 200 µs after crossing 2.4 V. A pull-up that keeps
+the P-channel gate at its **own PWM source** therefore has the right static
+polarity when comparator power or permission is missing. Its input has an
+ESD clamp to V+, so retained HOT5 with AUX absent needs a back-power limit.
+The exact reference, divider, input common mode, comparator output load and
+rearm behavior are not specified by this sketch.
+
+The [Nexperia NX3008PBKMB](https://assets.nexperia.com/documents/data-sheet/NX3008PBKMB.pdf)
+lists at most 10 µA off leakage at 30 V and 150 °C with VGS = 0, and at
+most 7.8 Ω on resistance at VGS = −4.5 V, 200 mA and 150 °C. At the
+specified off-leakage fixture, 10 µA alone would make 0.1 V across the
+nominal 10 kΩ INA pull-down, below the [UCC27624](https://www.ti.com/lit/ds/symlink/ucc27624.pdf)
+0.8 V guaranteed-low target. That calculation excludes pull-down tolerance,
+other leakage and transients. The part's **±8 V gate limit** is violated by
+directly sinking its gate whenever the PWM source exceeds 8 V; a selected
+source-to-gate clamp or different switch is required.
+Although the oriented body diode blocks a steady PWM-high/INA-low state, a
+fast PWM rise can leave the gate below the source through its capacitances
+and briefly turn the switch on before the gate pull-up catches up. A
+retained-high INA can also discharge through the diode into a falling PWM
+source. Neither a static off-leakage calculation nor the comparator's safe
+POR polarity bounds those edges. This circuit is **not selected**. A next
+specimen must bound PWM amplitude/slew and gate tracking, supply/input
+backfeed, INA retention, switch voltage and leakage at temperature, and
+loaded OUTA/STW shutdown before replacing the joined source.
+
 **Disposition:** keep the current joined source and U7 route gate unchanged.
 The `IN−` sketch needs the missing TI source/sink current limits over the
 selected AUX range, a release device with applicable temperature and voltage
