@@ -4,7 +4,7 @@
 The existing cooker ESP32-S3 owns the Rev38 command protocol. That choice does
 not qualify the cooker's present 3.3 V regulator. The Rev38 section has no
 on-board SELV 3.3 V source: power enters at `source_mcu.controller_port`.
-`source-build-05` is the frozen Rev38 circuit identity for this contract. A later
+`source-build-06` is the frozen Rev38 circuit identity for this contract. A later
 product may use a different qualified SELV source while preserving the same
 command owner and port requirements.
 

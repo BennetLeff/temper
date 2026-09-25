@@ -187,7 +187,7 @@ guaranteed maximum at the installed condition, obtain a supported bound or
 leave `T_implementation,worst` OPEN. A prototype capture can test a design
 but cannot by itself manufacture a missing production-corner guarantee.
 
-The wider-package pair now joined in the `source-build-05` BOM is
+The wider-package pair retained in the current `source-build-06` BOM is
 `ISO7741FQDWWRQ1` plus `ISO6742FQDWWRQ1`. This is a source candidate, not
 a physical timing or PD3 insulation qualification. The latter specifies up to
 0.3 µs after its input VCC falls below **1.2 V**, whereas ISO7741F uses

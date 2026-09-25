@@ -1495,6 +1495,75 @@ fn main() {
 mod tests {
     use super::*;
 
+    fn footprint(name: &str) -> Sexp {
+        parse(&fs::read_to_string(format!("../../libraries/temper.pretty/{name}.kicad_mod"))
+            .expect("review footprint file"))
+        .expect("valid review footprint S-expression")
+    }
+
+    fn pad_tokens(pad: &Sexp, key: &str) -> Vec<String> {
+        let item = children(pad, key).next().expect("pad field");
+        let Sexp::List(values) = item else { unreachable!() };
+        values.iter().skip(1).map(|value| match value {
+            Sexp::Atom(atom) => atom.clone(),
+            _ => panic!("nested pad field {key}"),
+        }).collect()
+    }
+
+    fn pad_number(pad: &Sexp) -> &str {
+        let Sexp::List(values) = pad else { unreachable!() };
+        let Some(Sexp::Atom(number)) = values.get(1) else { panic!("missing pad number") };
+        number
+    }
+
+    #[test]
+    fn tps3431_review_footprint_preserves_ep_without_undersize_drills() {
+        let fp = footprint("TPS3431SDRBR_DRB0008A_NoVia_ReviewOnly");
+        let pads: Vec<_> = children(&fp, "pad").collect();
+        assert_eq!(pads.len(), 18); // Eight signals, five EP9 lands, five paste apertures.
+        assert!(pads.iter().all(|pad| children(pad, "drill").next().is_none()));
+        assert_eq!(pads.iter().filter(|pad| pad_number(pad).is_empty()
+            && pad_tokens(pad, "layers") == ["F.Paste"]).count(), 5);
+        for pin in 1..=8 {
+            let signal_pad = pads.iter().find(|pad| pad_number(pad) == pin.to_string())
+                .expect("numbered TPS3431 signal pad");
+            assert_eq!(pad_tokens(signal_pad, "at"), [
+                if pin <= 4 { "-1.4" } else { "1.4" },
+                ["-0.975", "-0.325", "0.325", "0.975", "0.975", "0.325", "-0.325", "-0.975"][pin - 1],
+            ]);
+            assert_eq!(pad_tokens(signal_pad, "size"), ["0.6", "0.31"]);
+            assert_eq!(pad_tokens(signal_pad, "layers"), ["F.Cu", "F.Mask", "F.Paste"]);
+        }
+        let ep: Vec<_> = pads.iter().filter(|pad| pad_number(pad) == "9").collect();
+        assert_eq!(ep.len(), 5);
+        assert!(ep.iter().all(|pad| pad_tokens(pad, "layers").contains(&"F.Cu".into())
+            && !pad_tokens(pad, "layers").contains(&"B.Cu".into())));
+        assert_eq!(ep.iter().filter(|pad| pad_tokens(pad, "at") == ["0", "0"]
+            && pad_tokens(pad, "size") == ["1.5", "1.75"]
+            && pad_tokens(pad, "layers") == ["F.Cu", "F.Mask"]).count(), 1);
+        let source = fs::read_to_string("elec/src/source_authority.ato").unwrap();
+        assert!(source.contains("footprint = \"temper:TPS3431SDRBR_DRB0008A_NoVia_ReviewOnly\""));
+    }
+
+    #[test]
+    fn ltc4368_review_footprint_matches_narrow_adi_lands() {
+        let fp = footprint("LTC4368HMS-2_MSOP10_ReviewOnly");
+        let pads: Vec<_> = children(&fp, "pad").collect();
+        assert_eq!(pads.len(), 10);
+        let expected_y = ["-1", "-0.5", "0", "0.5", "1"];
+        for (index, pad) in pads.iter().enumerate() {
+            assert_eq!(pad_number(pad), (index + 1).to_string());
+            assert_eq!(pad_tokens(pad, "size"), ["0.9", "0.29"]);
+            assert_eq!(pad_tokens(pad, "layers"), ["F.Cu", "F.Mask", "F.Paste"]);
+            let at = pad_tokens(pad, "at");
+            assert_eq!(at[0], if index < 5 { "-2.1" } else { "2.1" });
+            assert_eq!(at[1], if index < 5 { expected_y[index] } else { expected_y[9 - index] });
+        }
+        assert!(0.5_f64 - 0.29_f64 >= 0.2_f64); // 0.21 mm nominal adjacent-pad gap.
+        let source = fs::read_to_string("elec/src/aux_cutoff.ato").unwrap();
+        assert!(source.contains("footprint = \"temper:LTC4368HMS-2_MSOP10_ReviewOnly\""));
+    }
+
     fn cooker_mate_fixture() -> Graph {
         let mut g = Graph { parts: BTreeMap::new(), pins: BTreeMap::new(), references: BTreeMap::new() };
         g.parts.insert("rev38_mate".into(), "43045-1612".into());

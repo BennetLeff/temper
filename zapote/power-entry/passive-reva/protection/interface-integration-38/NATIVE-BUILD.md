@@ -7,7 +7,7 @@ existing strict source-to-KiCad bridge. It requires the frozen build, an exact
 pose for every source instance, and a reviewed rectangular outline; it refuses
 to overwrite a native output directory.
 
-The current frozen export, `source-build-05`, has a successful pinned
+The current frozen export, `source-build-06`, has a successful pinned
 Atopile **0.2.69** compile/export receipt, **296 compiled references** and a
 per-reference BOM. Its copied `default.net` and `default.csv` are retained
 because the strict bridge reads those exact bytes. The Rev38 source has a
@@ -16,7 +16,9 @@ because the strict bridge reads those exact bytes. The Rev38 source has a
 reset-good/interlock producers. The receipt-bound two-source 16-contact
 connector audit passes. `COOKER-ASSEMBLY-SOURCE.md` records that narrow
 digital join; the 3.3 V supply/load/startup/fail-low and physical harness
-gates remain open. Cooker native placement and inverter power composition
+gates remain open. The current source selects review-only TPS3431 no-via and
+LTC4368 narrow-pad footprints; manufacturer, fabrication, thermal and
+assembly qualification remains open. Cooker native placement and inverter power composition
 are follow-on product work; the
 [`POWER-ASSEMBLY-BOUNDARY.md`](POWER-ASSEMBLY-BOUNDARY.md) records that
 boundary without blocking this section-board deliverable.
@@ -48,19 +50,19 @@ snapshot. Its receipt SHA-256 is
 its netlist and resolved-export hashes are
 `b1a7a8119055b59d7786addd0be70d0cccfb1337dc851a626aa0ca6534f10bfe`
 and `6b41cb7304a93a5eefdcd71c91831fedbaa6a8aa2c5e50955c65a0a7f0997b7c`.
-The 2026-09-24 pyo3 rebuild/freshness gate passed **10/10**. A current
+The 2026-09-24 pyo3 rebuild/freshness gate passed **10/10**. An earlier
 `tools/build_native.py source-build-05` probe passed source validation,
 footprint vendoring and strict pin-map conversion, then stopped at the
 missing reviewed `poses.json`. The user-approved 360 × 250 mm planning
 `outline.json` now exists; it is not a released mechanical or insulation
 drawing.
 The command emitted no section schematic or PCB, and this is a preflight
-receipt only. Exact current SHA-256 inputs: build receipt
+receipt only. Exact historical SHA-256 inputs: build receipt
 `4f07f1177fbe39eef940e665892c40285e77925ce4f4622ddbf21cd38672a7f5`,
 netlist `c221b3048527eccbb3c9574ff35124f071c96d2b5031c19d81752c4159db13ea`,
 resolved export `ef3f899e279843928e63464066378055bca704123ef9081e406c639c5a4c15a2`.
 Automatic arbitrary placement would not satisfy electrical or isolation
-layout review. A temporary flat KiCad schematic from the current source
+layout review. A temporary flat KiCad schematic from `source-build-05`
 exports **296 references, 246 nets and 1,054 numeric pin edges**, matching
 the compiled source projection. It is a connectivity diagnostic, not the
 native section schematic or a full functional pin-name audit.
@@ -78,6 +80,20 @@ schematic ERC reports 63 single-node-label warnings after local symbol
 and footprint library registration (`NATIVE-DIAGNOSTIC-08.md`). The diagnostic is not
 the reviewed `native/section.kicad_pcb` deliverable, a DRC/ERC pass, or a
 functional pin-name audit.
+
+The [current `source-build-06` diagnostic](NATIVE-DIAGNOSTIC-09.md) uses the
+same unreviewed poses with the newly selected review-only footprints and
+singleton-net schematic encoding. Its frozen receipt SHA-256 is
+`a164f33463b42748eefd4474be5f225077e191eae2378448eccad69b932b3d36`;
+the compiled netlist and resolved export hashes are
+`913a0bf51726cb756af2384aea3ac2c949c405f612b345aedbae7ef4c0d79796`
+and `b75d376c9cf2eb5a14619d200f89600b6e93c72a963044cd0048f6a8ce1bf3c0`.
+The temporary 295-footprint board passes exact numeric source/native and
+KiCad schematic parity. KiCad ERC has **zero violations**; DRC has seven
+placement/silkscreen violations and a 499 unconnected-item report cap.
+All 295 placed footprints match their vendored library definitions. This
+is a diagnostic result, not the reviewed, routed native deliverable or a
+functional pin-name, insulation, thermal or assembly approval.
 
 `INSULATION-BASIS.md` identifies another independent U7 blocker: the documented 409.307 V maximum static regulation
 falls in the project's >400–500 V PD3 creepage row (16.0 mm reinforced

@@ -1,0 +1,147 @@
+# Rev38 boost/F2/reservoir/bank power-path candidate. Input F1/EMI/NTC,
+# AUX source, output connector and thermal/mechanical design remain external.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component PfcBridge38:
+    mpn = "GBJ2510-F"
+    manufacturer = "Diodes Incorporated"
+    footprint = "Diode_THT:Diode_Bridge_GBJ2510"
+    signal PLUS ~ pin 1
+    signal AC1 ~ pin 2
+    signal AC2 ~ pin 3
+    signal MINUS ~ pin 4
+
+component PfcInductor38:
+    mpn = "760800301"
+    manufacturer = "Wurth Elektronik"
+    datasheet = "https://www.we-online.com/components/products/datasheet/760800301.pdf"
+    footprint = "Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcBoostDiode38:
+    mpn = "C3D20065D"
+    manufacturer = "Wolfspeed"
+    datasheet = "https://assets.wolfspeed.com/uploads/2023/12/Wolfspeed_C3D20065D_data_sheet.pdf"
+    # TO-247-3 cathode tab still requires mechanical and thermal review.
+    footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
+    signal A1 ~ pin 1
+    signal K ~ pin 2
+    signal A2 ~ pin 3
+
+component PfcBankFuse38:
+    mpn = "A70QS50-14F"
+    manufacturer = "Mersen"
+    datasheet = "https://www.mersen.com/en/products/amp-trap-a70qs-700vac-700vdc"
+    # F2 is in the off-board US141 holder. No PCB clips are selected.
+    footprint = "TBD_REVIEW_ONLY:PFC_F2_OFFBOARD_ASSEMBLY"
+    signal diode ~ pin 1
+    signal bank ~ pin 2
+
+component PfcF2BoardStud38:
+    mpn = "74651173R"
+    manufacturer = "Wurth Elektronik"
+    datasheet = "https://www.we-online.com/components/products/datasheet/74651173R.pdf"
+    # Engineering layout candidate only. Four physical posts share logical
+    # pad 1; the review-only land pattern and installed F2 path are unqualified.
+    footprint = "temper:Wurth_74651173R_ReviewOnly"
+    signal terminal ~ pin 1
+
+component PfcLocalReservoir38:
+    mpn = "B32776P6226K000"
+    manufacturer = "TDK"
+    datasheet = "https://product.tdk.com/system/files/dam/doc/product/capacitor/film/mkp_mfp/data_sheet/20/20/db/fc_2009/b3277xp.pdf"
+    # Four physical leads: pins 1/4 share one electrode, pins 2/3 the other.
+    footprint = "temper:B32776P6226K000"
+    signal plus ~ pin 1
+    signal minus ~ pin 2
+    signal minus2 ~ pin 3
+    signal plus2 ~ pin 4
+
+component PfcHfCap38:
+    mpn = "B32672P6474K000"
+    manufacturer = "TDK"
+    footprint = "temper:B32672P6474K000"
+    signal plus ~ pin 1
+    signal minus ~ pin 2
+
+component PfcBulkCap38:
+    mpn = "LGX2W561MELC50"
+    manufacturer = "Nichicon"
+    footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+    signal plus ~ pin 1
+    signal minus ~ pin 2
+
+component PfcBleeder38:
+    mpn = "RC2512FR-07150KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_2512_6332Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module PfcPower38:
+    signal AC_RECT_L
+    signal AC_RECT_N
+    signal HOT0
+    signal RECT_MINUS
+    signal BOOST_SWITCH
+    signal VD_LOCAL
+    signal VB_BANK
+    signal BLEED1
+    signal BLEED2
+
+    bridge = new PfcBridge38
+    bridge.AC1 ~ AC_RECT_L
+    bridge.AC2 ~ AC_RECT_N
+    bridge.MINUS ~ RECT_MINUS
+    l_boost = new PfcInductor38
+    bridge.PLUS ~ l_boost.p1
+    l_boost.p2 ~ BOOST_SWITCH
+    d_boost = new PfcBoostDiode38
+    d_boost.A1 ~ BOOST_SWITCH
+    d_boost.A2 ~ BOOST_SWITCH
+    d_boost.K ~ VD_LOCAL
+
+    # F2 separates local diode-side VD from bank-side VB. The local film
+    # capacitor stays on VD when F2 opens; bank capacitance remains on VB.
+    f2 = new PfcBankFuse38
+    f2.diode ~ VD_LOCAL
+    f2.bank ~ VB_BANK
+    # Separate board studs terminate the diode and bank leads of the off-board
+    # F2 holder. Each stud's four same-potential posts use one logical pin.
+    f2_vd_stud = new PfcF2BoardStud38
+    f2_vb_stud = new PfcF2BoardStud38
+    f2_vd_stud.terminal ~ VD_LOCAL
+    f2_vb_stud.terminal ~ VB_BANK
+    local_c = new PfcLocalReservoir38
+    local_c.plus ~ VD_LOCAL
+    local_c.plus2 ~ VD_LOCAL
+    local_c.minus ~ HOT0
+    local_c.minus2 ~ HOT0
+    hf_c = new PfcHfCap38
+    hf_c.plus ~ VD_LOCAL
+    hf_c.minus ~ HOT0
+    bulk1 = new PfcBulkCap38
+    bulk2 = new PfcBulkCap38
+    bulk3 = new PfcBulkCap38
+    bulk4 = new PfcBulkCap38
+    bulk1.plus ~ VB_BANK
+    bulk2.plus ~ VB_BANK
+    bulk3.plus ~ VB_BANK
+    bulk4.plus ~ VB_BANK
+    bulk1.minus ~ HOT0
+    bulk2.minus ~ HOT0
+    bulk3.minus ~ HOT0
+    bulk4.minus ~ HOT0
+    # Three 150k devices share bank bleeder voltage; discharge-time and
+    # single-open behavior remain to be calculated for the actual assembly.
+    bleed1 = new PfcBleeder38
+    bleed2 = new PfcBleeder38
+    bleed3 = new PfcBleeder38
+    bleed1.p1 ~ VB_BANK
+    bleed1.p2 ~ BLEED1
+    bleed2.p1 ~ BLEED1
+    bleed2.p2 ~ BLEED2
+    bleed3.p1 ~ BLEED2
+    bleed3.p2 ~ HOT0

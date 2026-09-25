@@ -1,6 +1,6 @@
 # Rev38 small-package footprint inventory
 
-**Historical 2026-09-23 package pass.** The current `source-build-05`
+**Historical 2026-09-23 package pass.** The later `source-build-06`
 replaces the DW `ISO7742FDWR` row below with DWW
 `ISO6742FQDWWRQ1` and also selects DWW `ISO7741FQDWWRQ1`; their joined
 review-only footprints and remaining insulation gates are recorded in

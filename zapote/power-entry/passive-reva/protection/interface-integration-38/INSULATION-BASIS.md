@@ -70,7 +70,7 @@ The historical `source-build-04` selected `ISO7741FDWR` and
 package creepage and clearance**, and Group I package material. The
 project's provisional PD3 >400–500 V Group I reinforced-creepage screen
 is **12.6 mm**, so that DW package had no demonstrated margin. The
-current `source-build-05` joins wider DWW parts as described below. A
+current `source-build-06` retains the wider DWW parts as described below. A
 PCB rule cannot make an intrinsic package path longer, and the new
 parts do not by themselves make native insulation PASS.
 
@@ -86,7 +86,7 @@ signal pin positions as the selected ISO7742FDWR, Group I package material
 and >14.5 mm external package creepage and clearance. It supports the
 candidate 3.3 V SELV / 5 V HOT rails. `ISO7741FQDWWRQ1` plus
 `ISO6742FQDWWRQ1` is the exact wider-package pair now joined in
-`source-build-05` with separate `ReviewOnly` footprint identities. This
+`source-build-06` with separate `ReviewOnly` footprint identities. This
 is a source/BOM change for native layout exploration, **not** a drop-in
 insulation approval.
 Both TI insulation tables state **pollution degree 2** for their component

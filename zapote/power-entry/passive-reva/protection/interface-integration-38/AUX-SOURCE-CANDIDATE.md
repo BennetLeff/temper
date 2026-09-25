@@ -181,7 +181,7 @@ accepted maximums. Fill each `UNKNOWN` with compatible worst-case
 conditions before setting source capacity, the 50 mΩ cutoff threshold, or
 FET SOA limits.
 
-| Term | Current source-build-05 input | Missing bound or capture |
+| Term | Pinned source-build-05 input, retained electrically in source-build-06 | Missing bound or capture |
 | --- | --- | --- |
 | `I_5V_run(t)` at `HOT_LOGIC5` | AVR, both HOT isolator sides, 22 other active logic/detector devices, pull loads and 46.5 µF nominal output bank | **UNKNOWN** maximum at actual clock, mixed-voltage isolator activity, output states, temperature and 5 V corners; capture receiver startup, run, disarm and fault. |
 | `I_5V_input(t)` at `AUX_PROTECTED` | TPS54202 and 20.1 µF nominal direct input bank | **UNKNOWN** efficiency, input peak and startup waveform while the 46.5 µF output bank charges; measure input current and 5 V voltage together. |

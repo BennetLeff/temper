@@ -8,7 +8,7 @@ contains a physical conductor between the boards.
 
 | Frozen source | Entry | References | ESP32-S3 count | Receipt SHA-256 |
 | --- | --- | ---: | ---: | --- |
-| `source-build-05` | `PowerEntryIntegrated38` | 296 | 0 | `4f07f1177fbe39eef940e665892c40285e77925ce4f4622ddbf21cd38672a7f5` |
+| `source-build-06` | `PowerEntryIntegrated38` | 296 | 0 | `a164f33463b42748eefd4474be5f225077e191eae2378448eccad69b932b3d36` |
 | `cooker-source-02` | `CookerMate38` importing a frozen derivative of the tracked cooker `Top` | 189 | 1 | `21d303f769dccaaaf25049e87cd948d55de8ab19be478c9aab277f535d45baa4` |
 
 The cooker snapshot's [receipt](cooker-source-02/build-receipt.json) records
@@ -19,9 +19,10 @@ this source identity. It then applies a fail-closed derivative override to
 connect ESP module GND contacts 40/41 and assign KiCad's stock 41-contact
 WROOM-1 footprint; the canonical cooker source and board are untouched.
 The previous `cooker-source-01` and Rev38 `source-build-04` snapshots remain
-historical. The current Rev38 [receipt](source-build-05/build-receipt.json)
+historical. The current Rev38 [receipt](source-build-06/build-receipt.json)
 records its separate source identity, including the two F2 board studs and
-DWW isolator pair. Both compiled netlists and BOMs are
+DWW isolator pair and the review-only TPS3431/LTC4368 footprint selections.
+`source-build-05` remains the earlier footprint snapshot. Both compiled netlists and BOMs are
 retained with their source snapshots.
 
 Run the receipt-bound, shared exact-pin check from this directory:

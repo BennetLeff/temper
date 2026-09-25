@@ -45,7 +45,7 @@ def verify(root: Path) -> tuple[Path, Path, Path, Path]:
     lock = json.loads((root / "assembly-source-lock.json").read_text(encoding="utf-8"))
     if lock["schema"] != "temper.power-entry.assembly-source-lock.v1":
         raise ValueError("unexpected assembly source lock schema")
-    rev38 = root / "source-build-05"
+    rev38 = root / "source-build-06"
     cooker = root / "cooker-source-02"
     verify_snapshot(rev38, lock["rev38"]["receipt_sha256"], root / "tools/build_source.py")
     verify_snapshot(cooker, lock["cooker"]["receipt_sha256"], root / "tools/build_cooker_mate_source.py")

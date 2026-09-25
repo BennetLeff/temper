@@ -1,9 +1,9 @@
 # Würth 74651173R stud footprint screen
 
-Status: **selected in source-build-05 as a review-only engineering footprint;
+Status: **selected in source-build-06 as a review-only engineering footprint;
 native board and physical acceptance OPEN** (2026-09-24).
 
-The frozen `source-build-05` candidate uses **two separate**
+The frozen `source-build-06` candidate uses **two separate**
 [Würth 74651173R REDCUBE THR studs](https://www.we-online.com/components/products/datasheet/74651173R.pdf),
 one for `VD_LOCAL` and one for `VB_BANK`. Historical `source-build-04`
 used one Phoenix 1017526 four-pin terminal. The
@@ -13,7 +13,7 @@ fabrication footprint or physical F2 assembly approval.
 
 ## Manufacturer land pattern and representation
 
-The Würth datasheet, page 1, specifies four holes on a **5.87 × 5.87 mm square** with **Ø1.85 mm holes** and **Ø3.2 mm solder lands**. Relative to the center of the grid, the footprint places the four centers at `(±2.935, ±2.935)` mm. All four physical posts are one electrical potential, so all four KiCad pads use logical pad number `1`. `source-build-05` has two one-pin instances; the 145-test Rust audit and strict native preflight check their exact VD/VB assignment and repeated-pad mapping. The historical four-pin Phoenix export cannot be silently rebound to these pads.
+The Würth datasheet, page 1, specifies four holes on a **5.87 × 5.87 mm square** with **Ø1.85 mm holes** and **Ø3.2 mm solder lands**. Relative to the center of the grid, the footprint places the four centers at `(±2.935, ±2.935)` mm. All four physical posts are one electrical potential, so all four KiCad pads use logical pad number `1`. `source-build-06` has two one-pin instances; the 147-test Rust audit and strict native preflight check their exact VD/VB assignment and repeated-pad mapping. The historical four-pin Phoenix export cannot be silently rebound to these pads.
 
 The nominal land annulus is `(3.2 − 1.85)/2 = 0.675 mm`. The furthest land edge is at `±4.535 mm` on both axes. The `F.Fab` square is 7.0 mm on each side, following the nominal square body dimension in the page-1 drawing. The `F.CrtYd` square extends to `±5.1 mm`, leaving a **0.565 mm nominal margin** beyond the copper land extrema. That courtyard is only a board-placement screen: it does not include a washer, lug, insulation boot, tool swing, wire bend, or strain relief. No 3D model or physical fit has been checked.
 

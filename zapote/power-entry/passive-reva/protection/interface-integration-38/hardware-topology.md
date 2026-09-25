@@ -8,7 +8,7 @@ none of their typical delays establish a fault allowance.
 
 ## Two isolated devices, eight assigned channels
 
-The current `source-build-05` selects `ISO7741FQDWWRQ1` at U1 and
+The current `source-build-06` selects `ISO7741FQDWWRQ1` at U1 and
 `ISO6742FQDWWRQ1` at U44 in separate review-only DWW-16 footprints. `F`
 means the isolator output defaults low when its input power or signal is lost,
 **not** that an unpowered

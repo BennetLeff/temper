@@ -13,7 +13,7 @@ supervisors, gate driver, PFC stage, and reservoir are not present here.
 Many named signals terminate at fixture pins or pull resistors; they are not
 real producers yet.
 
-The current `source-build-05` selects `ISO7741FQDWWRQ1` and
+The current `source-build-06` selects `ISO7741FQDWWRQ1` and
 `ISO6742FQDWWRQ1` with distinct exact-MPN DWW `ReviewOnly` footprint keys;
 its generated BOM and netlist preserve both identities. The 10 nF timing
 capacitors and HCS21/HCS04/HCS00 logic packages also retain distinct

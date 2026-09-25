@@ -1,6 +1,6 @@
 # Rev38 F2 board-to-holder interface candidate
 
-Status: **two separate board studs joined in `source-build-05`; layout and fault-current acceptance OPEN**. F2 remains the off-board Mersen `A70QS50-14F` in `US141/Z331153`; this note selects no alternate holder or fuse. The Phoenix studies below are historical screens, not the current board termination.
+Status: **two separate board studs joined in `source-build-06`; layout and fault-current acceptance OPEN**. F2 remains the off-board Mersen `A70QS50-14F` in `US141/Z331153`; this note selects no alternate holder or fuse. The Phoenix studies below are historical screens, not the current board termination.
 
 ## Historical candidate: Phoenix Contact 1017526
 
@@ -35,7 +35,7 @@ The 2018 drawing calls out **Ø2.0 mm** holes, while that same datasheet's page 
 
 The 1017526 product page's 3D/CAD download served a **SamacSys** KiCad archive, not a controlled Phoenix drilling revision. Archive SHA-256: `d41db8f3ae569c3f1caae4a4b74dbbb552ac77875e8a4ae2b5aab78135b75446`; its `part_info.txt` says released 2018-11-29. The enclosed `1017526.kicad_mod` has four Ø2.0 mm drills, 3.0 mm circular lands and pad centers `(0, 0)`, `(3.60, 0)`, `(10.16, 10.16)`, `(13.76, 10.16)` mm. Its 21.34 × 31.9 mm fabrication outline agrees with Phoenix's current 1017526 body size. The centers independently corroborate the drawing-derived stagger and candidate pin grouping; the Ø2.0 mm drill **does not resolve** the current 1.85 mm Phoenix product-data callout. A file offered from the product page is not evidence that Phoenix approved this third-party land pattern for the current part revision.
 
-The similar Phoenix [1017531 push-in product](https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-tdpt-16-2-sp-1016-zb-1017531) has a published Ø2.0 mm hole and 1.2 × 1.0 mm pin, so it looked like a possible way to avoid the drill conflict. Its Phoenix-linked SamacSys KiCad archive (SHA-256 `2ae21695cfc35e40890cb5986ba02188be1ef4ca2a31b2ff18e465805f65ff81`, `part_info.txt` released 2019-06-03) shares the same four pad centers and Ø2.0 mm drills. However, that archive copies the **21.34 mm** fabrication-body width of 1017526 while Phoenix lists **17.74 mm** for 1017531. Its pad 1/2 shapes also differ from the 1017526 archive. This stale or mislabeled body outline prevented its use as an unreviewed replacement for the then-selected 1017526. Both Phoenix candidates are historical relative to `source-build-05`.
+The similar Phoenix [1017531 push-in product](https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-tdpt-16-2-sp-1016-zb-1017531) has a published Ø2.0 mm hole and 1.2 × 1.0 mm pin, so it looked like a possible way to avoid the drill conflict. Its Phoenix-linked SamacSys KiCad archive (SHA-256 `2ae21695cfc35e40890cb5986ba02188be1ef4ca2a31b2ff18e465805f65ff81`, `part_info.txt` released 2019-06-03) shares the same four pad centers and Ø2.0 mm drills. However, that archive copies the **21.34 mm** fabrication-body width of 1017526 while Phoenix lists **17.74 mm** for 1017531. Its pad 1/2 shapes also differ from the 1017526 archive. This stale or mislabeled body outline prevented its use as an unreviewed replacement for the then-selected 1017526. Both Phoenix candidates are historical relative to `source-build-06`.
 
 ### Additional terminal study: Phoenix 1709681
 
@@ -66,7 +66,7 @@ The same 2018 datasheet, page 8, records a **303 A AC** short-time withstand tes
 
 Two [Würth 74651173R REDCUBE THR studs](https://www.we-online.com/components/products/datasheet/74651173R.pdf),
 one wholly on `VD_LOCAL` and one wholly on `VB_BANK`, are now joined in
-`source-build-05`. They let the native board set the distance between F2
+`source-build-06`. They let the native board set the distance between F2
 potentials independently. Würth marks the
 part active and publishes a four-hole 5.87 mm square land pattern with
 Ø1.85 mm holes and Ø3.2 mm lands. All four pins of one stud are the same
@@ -97,7 +97,7 @@ The joined Atopile source contains `f2`, the two-contact off-board series
 fuse, and separate `f2_vd_stud` and `f2_vb_stud` board instances. The first
 joins `VD_LOCAL` and the second `VB_BANK`; neither short-circuits F2. The
 Rust audit checks exact stud identity and distinct potential assignment.
-`source-build-05` is the current frozen **296-reference** export of this
+`source-build-06` is the current frozen **296-reference** export of this
 topology. The off-board F2 stays in the assembly schematic/BOM; a board-only
 netlist may terminate at the two distinct stud potentials, but its evidence
 must trace the external holder path back to the joined circuit. Putting

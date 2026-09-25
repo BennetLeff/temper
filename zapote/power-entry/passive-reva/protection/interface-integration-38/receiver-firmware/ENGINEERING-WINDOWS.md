@@ -67,8 +67,8 @@ mappings agree with the named AVR pads and physical TQFP-32 pin table in
 `../receiver-selection.md`: PA0/PA1 USART0; PA2 relay; PA4 prep reset;
 PA6 attempt valid; PC3 seen reset; PD3 abort; PD4 revalidate; PD5 RUN;
 PD6 WDI; PF1 disarm sample; PD0/1/2/7, PC0/1/2, PA3 and PF0 feedback.
-The compiled `source-build-05` receiver net and BOM are checked by the
-145-case Rust pin audit, including deliberate pin/net mutations. This is
+The compiled `source-build-06` receiver net and BOM are checked by the
+147-case Rust pin audit, including deliberate pin/net mutations. This is
 a source/netlist review, not a PCB land, device pin-state, or reset capture.
 
 U5 remains **OPEN** until the timing inputs, exact programmed fuse

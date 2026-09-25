@@ -79,7 +79,7 @@ packages, TCA6408A-Q1, and a 1206 hand-solder gate-resistor land. The
 `MAINS-PACKAGE-CLOSEOUT.md` MOV/resistor decisions complete the other board
 mounted references. The historical `source-build-04` had **two** review-only
 footprint keys: off-board F2 `U226` and the on-board Phoenix 1017526
-terminal `U227`. Current `source-build-05` keeps off-board F2 `U226` and
+terminal `U227`. Current `source-build-06` keeps off-board F2 `U226` and
 instead selects two separate Würth 74651173R studs `U227` and `U228`, each
 with a review-only footprint. The native bridge excludes `U226` only after
 its exact assembly-only identity check; both board studs pass footprint and
