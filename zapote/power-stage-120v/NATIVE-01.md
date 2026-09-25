@@ -1,5 +1,9 @@
 # First native projection — shelf, unrouted
 
+> **Superseded by [NATIVE-02.md](NATIVE-02.md)** (102-part source, approved
+> stackup). native-01 reflects the 91-part source before the ORACLE-ANSWER.md
+> changes and is kept only as the pre-stackup test fixture.
+
 Generated and independently checked on 2026-09-25 in
 `worktrees/ps-build`, branch `codex/power-stage-120v-build`, from the audited
 source at `ad51823308f3a65d7bfe86351a128af5f237b31e`. No electrical source

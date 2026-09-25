@@ -1,4 +1,5 @@
-"""Native serialization contract, using the committed shelf as a real fixture."""
+"""Native serialization contract, using the committed pre-stackup native-01
+shelf as a real fixture (native-02 already carries the stackup)."""
 
 import importlib.util
 import json
@@ -23,12 +24,13 @@ def fixture(tmp_path):
 
 def test_stackup_projection_retains_source_identity_and_stable_pad_uuids(tmp_path):
     board = fixture(tmp_path)
+    parts = len(json.loads((tmp_path / "source-manifest.json").read_text())["bridge"]["components"])
     MODULE.apply_planning_stackup(tmp_path, UNIT / "stackup.json")
     first = board.read_bytes()
     manifest = json.loads((tmp_path / "source-manifest.json").read_text())
     assert b'"In1.Cu"' not in first
-    assert first.count(b'(property "SourceInstance" ') == 91
-    assert first.count(b'(property "MPN" ') == 91
+    assert first.count(b'(property "SourceInstance" ') == parts
+    assert first.count(b'(property "MPN" ') == parts
     assert first.count(b'(uuid ') == first.count(b'(pad ')
     assert manifest['board_sha256'] == MODULE.sha256(board)
     assert manifest['input_hashes']['stackup.json'] == MODULE.sha256(UNIT / 'stackup.json')
@@ -52,5 +54,10 @@ def test_unsupported_layer_order_leaves_board_and_manifest_untouched(tmp_path):
 def test_existing_copper_is_not_rewritten(tmp_path):
     board = fixture(tmp_path)
     board.write_text(board.read_text().replace('(setup', '(segment (start 1 1) (end 2 2))\n  (setup', 1))
+    # Rebind the manifest so the routed-copper guard, not the hash check, fires.
+    manifest_path = tmp_path / 'source-manifest.json'
+    manifest = json.loads(manifest_path.read_text())
+    manifest['board_sha256'] = MODULE.sha256(board)
+    manifest_path.write_text(json.dumps(manifest))
     with pytest.raises(ValueError, match='unrouted'):
         MODULE.apply_planning_stackup(tmp_path, UNIT / 'stackup.json')
