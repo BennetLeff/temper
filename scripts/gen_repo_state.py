@@ -65,6 +65,7 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     "scripts": "CI gates, generators, and one-off analysis tooling",
     "simulation": "ngspice models and protection-gate simulation harnesses",
     "tools": "Developer utilities not wired into CI gates",
+    "zapote": "Standalone PCB units (Atopile source, exact-pin Rust audits, frozen builds) -- starting with the 120 V full-bridge power stage",
 }
 
 MARKER_BEGIN = (

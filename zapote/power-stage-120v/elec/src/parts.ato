@@ -1,0 +1,499 @@
+# Exact parts for the 120 V full-bridge power stage.
+# Selection and justification: docs/hardware/power-section-120v/POWER-SECTION.md.
+# Each distinct MPN is its own component type: Atopile 0.2.69 can alias
+# unlike MPNs that share a footprint, and the Rust audit checks every
+# reference's MPN in the built BOM.
+# Footprints named temper:*_ReviewOnly do not exist yet and must be drawn
+# from the manufacturer drawing before native board work.
+
+# ---------------------------------------------------------------- mains entry
+
+component MainsTerminal3:
+    """Phoenix Contact MKDS 3/3-5,08 (1711039), 24 A, 400 V: L, N, PE."""
+    designator_prefix = "J"
+    mpn = "1711039"
+    manufacturer = "Phoenix Contact"
+    footprint = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+
+component CoilTerminal2:
+    """Phoenix Contact MKDS 3/2-5,08, 24 A, 400 V: coil leads. Order number
+    to confirm; the litz termination may replace it once the coil exists."""
+    designator_prefix = "J"
+    mpn = "1711026"
+    manufacturer = "Phoenix Contact"
+    footprint = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component MainsFuse20A:
+    """Littelfuse 0326020.MXP 20 A 250 V slo-blo ceramic 6.3x32 mm, in a
+    102071 clip pair (clip current rating to confirm >= 20 A)."""
+    designator_prefix = "F"
+    mpn = "0326020.MXP"
+    manufacturer = "Littelfuse"
+    footprint = "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Tmov175:
+    """Littelfuse TMOV20RP175E thermally protected MOV, 175 Vrms, Vc 455 V."""
+    designator_prefix = "RV"
+    mpn = "TMOV20RP175E"
+    manufacturer = "Littelfuse"
+    footprint = "temper:TMOV20RP_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Cmc20A:
+    """TDK B82726S2203A020 current-compensated choke, 20 A, 1.6 mH, ~4.5 mOhm.
+    TDK B82726S22*3A020 datasheet (5/26), "Dimensional drawing and pin
+    configuration": windings are 1-4 and 2-3 (no polarity); pins 1,2 on one
+    row and 4,3 opposite, 10 mm within a row, 25 mm between rows, 2 mm pins."""
+    designator_prefix = "L"
+    mpn = "B82726S2203A020"
+    manufacturer = "TDK"
+    footprint = "temper:B82726S2_ReviewOnly"
+    signal a_in ~ pin 1
+    signal a_out ~ pin 4
+    signal b_in ~ pin 2
+    signal b_out ~ pin 3
+
+component CapX2_1u:
+    """KEMET R463R410000M1M X2 1 uF 310 VAC, 22.5 mm pitch."""
+    designator_prefix = "C"
+    mpn = "R463R410000M1M"
+    manufacturer = "KEMET"
+    footprint = "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component CapY1_2n2:
+    """Murata DE1E3RA222MA4BP01F X1/Y1 2.2 nF disc, 10 mm pitch."""
+    designator_prefix = "C"
+    mpn = "DE1E3RA222MA4BP01F"
+    manufacturer = "Murata"
+    footprint = "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R120k1206:
+    """X-capacitor bleed, 2 in series (tau 0.48 s with 2 uF)."""
+    designator_prefix = "R"
+    mpn = "RC1206FR-07120KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+# ---------------------------------------------------------- rectifier + bus
+
+component BridgeGbj2510:
+    """Diodes Inc. GBJ2510-F, 25 A 1000 V bridge (same part as Rev38)."""
+    designator_prefix = "BR"
+    mpn = "GBJ2510-F"
+    manufacturer = "Diodes Incorporated"
+    footprint = "temper:Diode_Bridge_GBJ2510"
+    signal PLUS ~ pin 1
+    signal AC1 ~ pin 2
+    signal AC2 ~ pin 3
+    signal MINUS ~ pin 4
+
+component BusFilm2u5:
+    """CDE 942C6W2P5K-F 2.5 uF 600 Vdc PP film, 19.5 A rms (70 C, 100 kHz)."""
+    designator_prefix = "C"
+    mpn = "942C6W2P5K-F"
+    manufacturer = "Cornell Dubilier"
+    footprint = "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R220k1206:
+    """Bus bleed, 2 in series."""
+    designator_prefix = "R"
+    mpn = "RC1206FR-07220KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Shunt1m:
+    """Vishay WSK2512R0010FEA 1 mOhm 4-terminal. Pads 1/4 current, 2/3 sense."""
+    designator_prefix = "R"
+    mpn = "WSK2512R0010FEA"
+    manufacturer = "Vishay Dale"
+    footprint = "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm"
+    signal I1 ~ pin 1
+    signal S1 ~ pin 2
+    signal S2 ~ pin 3
+    signal I2 ~ pin 4
+
+# ---------------------------------------------------------------- full bridge
+
+component MosfetCfd7:
+    """Infineon IPW65R018CFD7, 650 V 18 mOhm CoolMOS CFD7, TO-247-3."""
+    designator_prefix = "Q"
+    mpn = "IPW65R018CFD7"
+    manufacturer = "Infineon"
+    footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
+    signal G ~ pin 1
+    signal D ~ pin 2
+    signal S ~ pin 3
+
+component Snubber1n1kV:
+    """Murata GRM31A5C3A102JW01D 1 nF 1 kV C0G 1206, drain-source."""
+    designator_prefix = "C"
+    mpn = "GRM31A5C3A102JW01D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_1206_3216Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component UCC21550BDWK:
+    """TI isolated dual gate driver, DWK (14 of 16 positions; 12/13 absent).
+    Pin map from the repo's verified gate-drive source (TI SLUSE89C)."""
+    designator_prefix = "U"
+    footprint = "lib:SOIC16W_Isolated"
+    mpn = "UCC21550BDWKR"
+    manufacturer = "Texas Instruments"
+    signal INA ~ pin 1
+    signal INB ~ pin 2
+    signal VCCI_1 ~ pin 3
+    signal GNDI ~ pin 4
+    signal DIS ~ pin 5
+    signal DT ~ pin 6
+    signal NC_7 ~ pin 7
+    signal VCCI_2 ~ pin 8
+    signal VSSB ~ pin 9
+    signal OUTB ~ pin 10
+    signal VDDB ~ pin 11
+    signal VSSA ~ pin 14
+    signal OUTA ~ pin 15
+    signal VDDA ~ pin 16
+
+component BootDiode:
+    """Vishay UF4007-E3/54 1000 V 1 A ultrafast, bootstrap."""
+    designator_prefix = "D"
+    mpn = "UF4007-E3/54"
+    manufacturer = "Vishay"
+    footprint = "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component PermitFet:
+    """AOS AO3400A, SOT-23; 1=G, 2=S, 3=D (gate-drive board pattern)."""
+    designator_prefix = "Q"
+    mpn = "AO3400A"
+    manufacturer = "Alpha & Omega Semiconductor"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal G ~ pin 1
+    signal S ~ pin 2
+    signal D ~ pin 3
+
+component R3R9Gate:
+    designator_prefix = "R"
+    mpn = "RC1206FR-073R9L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R39kDt:
+    designator_prefix = "R"
+    mpn = "RC0603FR-0739KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R10k0603:
+    designator_prefix = "R"
+    mpn = "RC0603FR-0710KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R100k0603:
+    designator_prefix = "R"
+    mpn = "RC0603FR-07100KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R1k0603:
+    designator_prefix = "R"
+    mpn = "RC0603FR-071KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C100n0603:
+    designator_prefix = "C"
+    mpn = "C0603C104K5RACTU"
+    manufacturer = "KEMET"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C10u1210:
+    designator_prefix = "C"
+    mpn = "GRM32ER71H106KA12L"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_1210_3225Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+# ----------------------------------------------------------------- resonant tank
+
+component Res942C12P22:
+    """CDE 942C12P22K-F 0.22 uF 1200 Vdc, 10.3 A rms (70 C, 100 kHz)."""
+    designator_prefix = "C"
+    mpn = "942C12P22K-F"
+    manufacturer = "Cornell Dubilier"
+    footprint = "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Res942C12P1:
+    """CDE 942C12P1K-F 0.10 uF 1200 Vdc, 9.2 A rms (70 C, 100 kHz)."""
+    designator_prefix = "C"
+    mpn = "942C12P1K-F"
+    manufacturer = "Cornell Dubilier"
+    footprint = "temper:CDE_942C_D19.0_L34.0_Axial_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component CST3015_100E:
+    """Coilcraft CST3015-100ED 1:100 CT, 88 A, 5 kVrms reinforced.
+    Pads P1/P2/S1/S2 = 1/2/3/4 (repo footprint temper:CST3015)."""
+    designator_prefix = "T"
+    footprint = "temper:CST3015"
+    mpn = "CST3015-100ED"
+    manufacturer = "Coilcraft"
+    signal P1 ~ pin 1
+    signal P2 ~ pin 2
+    signal S1 ~ pin 3
+    signal S2 ~ pin 4
+
+# --------------------------------------------------------- supplies and cutoffs
+
+component Irm05_15:
+    """MEAN WELL IRM-05-15, 15 V 0.33 A, 4.2 kVac I/O. NOTE pin 1 = AC/N,
+    pin 2 = AC/L (differs from IRM-20; KiCad Converter_ACDC symbol)."""
+    designator_prefix = "PS"
+    mpn = "IRM-05-15"
+    manufacturer = "MEAN WELL"
+    footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-05-xx_THT"
+    signal ACN ~ pin 1
+    signal ACL ~ pin 2
+    signal VN ~ pin 3
+    signal VP ~ pin 4
+
+component Irm20_15:
+    """MEAN WELL IRM-20-15, 15 V 1.4 A, 4.2 kVac I/O. Pin 1 = AC/L, 2 = AC/N."""
+    designator_prefix = "PS"
+    mpn = "IRM-20-15"
+    manufacturer = "MEAN WELL"
+    footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT"
+    signal ACL ~ pin 1
+    signal ACN ~ pin 2
+    signal VN ~ pin 3
+    signal VP ~ pin 4
+
+component TcoLoopHeader:
+    """JST B2P-VH(LF)(SN), 3.96 mm, 250 V 10 A: series loop through the
+    off-board heatsink and under-glass Microtemp G4A thermal cutoffs."""
+    designator_prefix = "J"
+    mpn = "B2P-VH(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Ldo78L05:
+    """onsemi MC78L05ACHT1G, SOT-89: 1 OUT, 2 GND, 3 IN."""
+    designator_prefix = "U"
+    mpn = "MC78L05ACHT1G"
+    manufacturer = "onsemi"
+    footprint = "Package_TO_SOT_SMD:SOT-89-3"
+    signal OUT ~ pin 1
+    signal GND ~ pin 2
+    signal IN ~ pin 3
+
+# ------------------------------------------------------------ HOT-side sensing
+
+component Amc1311:
+    """TI AMC1311BDWVR reinforced isolated amplifier, 2 V input."""
+    designator_prefix = "U"
+    mpn = "AMC1311BDWVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:SOIC-8_7.5x5.85mm_P1.27mm"
+    signal VDD1 ~ pin 1
+    signal VINP ~ pin 2
+    signal SHTDN ~ pin 3
+    signal GND1 ~ pin 4
+    signal GND2 ~ pin 5
+    signal VOUTN ~ pin 6
+    signal VOUTP ~ pin 7
+    signal VDD2 ~ pin 8
+
+component R470k1206:
+    """Bus divider string element (4 in series, <= 50 V each at 198 V)."""
+    designator_prefix = "R"
+    mpn = "RC1206FR-07470KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R15k8Thin:
+    """Bus divider bottom, 0.1 %: 1.88 M / 15.8 k = 1/120."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD0715K8L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C1nC0G0603:
+    designator_prefix = "C"
+    mpn = "C0603C102J5GACTU"
+    manufacturer = "KEMET"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C100pC0G0603:
+    designator_prefix = "C"
+    mpn = "C0603C101J5GACTU"
+    manufacturer = "KEMET"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Tlv3201:
+    """TI TLV3201AIDBVR 40 ns comparator (repo pin map)."""
+    designator_prefix = "U"
+    mpn = "TLV3201AIDBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal OUT ~ pin 1
+    signal GND ~ pin 2
+    signal INP ~ pin 3
+    signal INN ~ pin 4
+    signal VCC ~ pin 5
+
+component Ref2V5:
+    """TI LM4040A25IDBZR 2.5 V shunt reference, SOT-23: 1 K, 2 A, 3 NC."""
+    designator_prefix = "U"
+    mpn = "LM4040A25IDBZR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal K ~ pin 1
+    signal A ~ pin 2
+    signal NC ~ pin 3
+
+component R10kThin:
+    """0.1 % thin film for the OCP offset/threshold network."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD0710KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R10k5Thin:
+    designator_prefix = "R"
+    mpn = "RT0603BRD0710K5L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R9k76Thin:
+    designator_prefix = "R"
+    mpn = "RT0603BRD079K76L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R6k8Bias:
+    """LM4040 bias: (5.0-2.5)/6.8k = 368 uA vs ~250 uA network + 60 uA min."""
+    designator_prefix = "R"
+    mpn = "RC0603FR-076K8L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Iso7710F:
+    """TI ISO7710FDWR, reinforced 5 kVrms, default-LOW output on input-side
+    power loss. DW: 1/7 GND1, 3 VCC1, 4 IN, 9/16 GND2, 13 OUT, 14 VCC2."""
+    designator_prefix = "U"
+    mpn = "ISO7710FDWR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm"
+    signal GND1 ~ pin 1
+    signal NC2 ~ pin 2
+    signal VCC1 ~ pin 3
+    signal IN ~ pin 4
+    signal NC5 ~ pin 5
+    signal NC6 ~ pin 6
+    signal GND1B ~ pin 7
+    signal NC8 ~ pin 8
+    signal GND2 ~ pin 9
+    signal NC10 ~ pin 10
+    signal NC11 ~ pin 11
+    signal NC12 ~ pin 12
+    signal OUT ~ pin 13
+    signal VCC2 ~ pin 14
+    signal NC15 ~ pin 15
+    signal GND2B ~ pin 16
+
+# ------------------------------------------------------------------ SELV port
+
+component SelvHeader16:
+    """Molex Micro-Fit 3.0 43045-1612, 2x8 vertical. Order code to confirm."""
+    designator_prefix = "J"
+    mpn = "0430451612"
+    manufacturer = "Molex"
+    footprint = "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+    signal p13 ~ pin 13
+    signal p14 ~ pin 14
+    signal p15 ~ pin 15
+    signal p16 ~ pin 16
