@@ -20,4 +20,6 @@ if __name__ == "__main__":
         entry_file="elec/src/power_stage_120v.ato",
         title="120 V Full-Bridge Induction Power Stage",
         local_libraries=u / "libraries",
+        sheet_name="PowerStage120V",
+        manifest_schema="zapote.power-stage-120v.native-source-manifest.v1",
     )

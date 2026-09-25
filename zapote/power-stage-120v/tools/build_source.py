@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import shutil
 import sys
@@ -15,10 +14,6 @@ ENTRY_FILE = "elec/src/power_stage_120v.ato"
 ENTRY_MODULE = "PowerStage120V"
 
 
-def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
 def build(output: Path) -> None:
     if output.exists():
         raise FileExistsError(f"refusing to overwrite source build: {output}")
@@ -28,7 +23,7 @@ def build(output: Path) -> None:
     (output / "elec").mkdir(parents=True)
     shutil.copytree(ROOT / "elec" / "src", output / "elec" / "src")
     (output / "ato.yaml").write_text(
-        "ato-version: 0.2.69\nbuilds:\n"
+        f"ato-version: {block_source.PINNED_ATOPILE}\nbuilds:\n"
         f"  default:\n    entry: {ENTRY_FILE}:{ENTRY_MODULE}\n",
         encoding="utf-8",
     )
@@ -42,7 +37,7 @@ def build(output: Path) -> None:
         "returncode": proc.returncode,
         "build_report_failed": "FAILED" in proc.stdout,
         "source_hashes": block_source.workspace_hashes(output),
-        "adapter_sha256": sha256(Path(__file__).resolve()),
+        "adapter_sha256": block_source.sha256_file(Path(__file__).resolve()),
     }
     receipt_path = output / "build-receipt.json"
     receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -50,7 +45,7 @@ def build(output: Path) -> None:
     export_path = output / "resolved-components.json"
     block_source.run_resolved_export(output, ENTRY_FILE, ENTRY_MODULE, export_path)
     receipt["status"] = "compiled-and-exported"
-    receipt["export_sha256"] = sha256(export_path)
+    receipt["export_sha256"] = block_source.sha256_file(export_path)
     receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({"status": receipt["status"], "output": str(output)}))
 

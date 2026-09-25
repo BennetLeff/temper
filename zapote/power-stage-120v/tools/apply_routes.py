@@ -1,6 +1,7 @@
 """Gate-drive route replay with KiCad 10 compatibility for skeleton fields."""
 import sys
 from pathlib import Path
+
 import pcbnew
 
 _get_field = pcbnew.FOOTPRINT.GetFieldText

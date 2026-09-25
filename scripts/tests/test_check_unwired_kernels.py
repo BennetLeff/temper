@@ -14,7 +14,6 @@ from check_unwired_kernels import (  # noqa: E402
     write_inventory,
 )
 
-
 FIXED_COPPER_SYMBOLS = {
     "fixed_copper_local_pad_half_py",
     "fixed_copper_other_pad_item_geom_py",

@@ -1,0 +1,27 @@
+{
+  "board": "native-01/section.kicad_pcb",
+  "board_sha256": "ace40079ee7f9dbde98810a250079714d4f102bb9cd4a0925ba589233281414d",
+  "checks": [
+    {
+      "checked_rules": [
+        "DRC.BOARD.STACKUP"
+      ],
+      "coverage_gaps": [],
+      "findings": [
+        {
+          "actual": null,
+          "message": "requires exactly one stackup field; found 0",
+          "object": "board.setup.stackup",
+          "required": null,
+          "rule": "DRC.BOARD.STACKUP",
+          "severity": "error",
+          "status": "fail"
+        }
+      ],
+      "status": "fail"
+    }
+  ],
+  "schema": "zapote.board-checks.v1",
+  "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+  "status": "fail"
+}

@@ -1,6 +1,7 @@
 # power-stage-120v: full-bridge induction power stage
 
-Status: **source compiled and audited; native schematic/PCB not started; physical NOT RUN.**
+Status: **source compiled and audited; native shelf generated and checked;
+placement and routing pending; physical NOT RUN.**
 Design basis and justification: `docs/hardware/power-section-120v/` (POWER-SECTION.md,
 LOSS-REFACTOR.md, COIL-MC.md). Front-end decision: `docs/adr/2026-09-25-front-end-architecture-brief.md`.
 
@@ -9,6 +10,14 @@ bridge with both UCC21550 drivers next to the MOSFETs, the resonant capacitor ba
 current transformer, the DC-bus shoot-through OCP, isolated bus-voltage sense, the
 thermal-cutoff-gated gate supply, and the SELV 15 V supply. The ESP32 controller, current-sense,
 thermal, interlock and RTD boards connect through one SELV header.
+
+Native construction records: [progress](BUILD-PROGRESS.md),
+[toolchain](TOOLCHAIN.md), [local footprints](FOOTPRINTS.md),
+[native results](NATIVE-01.md), [oracle assessment](ORACLE-REVIEW.md),
+[placement decisions](DECISIONS.md), and
+[insulation preflight](RULES-PREFLIGHT.md). The shelf outline is provisional;
+the insulation basis and mechanical decisions must be resolved before the
+corresponding placement work.
 
 ## Build and verify
 
@@ -72,8 +81,10 @@ Only these parts may cross HOT↔SELV, and the audit enforces each pin's side:
 - CST3015 (T1)
 - IRM-20-15 (PS1)
 
-Creepage and clearance for the ~200 V bus and ~430 V-peak tank nodes are layout work (PCB
-rules not yet written).
+Creepage and clearance rules are not yet written. The full-bridge differential
+RMS and peak voltages across each barrier remain unverified; the historical
+tank peak is not a sufficient basis for selecting creepage bands. See
+[RULES-PREFLIGHT.md](RULES-PREFLIGHT.md).
 
 ## Safety chain implemented in hardware
 
@@ -96,12 +107,9 @@ rules not yet written).
    - ~~TDK B82726S2203A020 pin numbering~~ (confirmed from datasheet 2026-09-25: windings 1-4, 2-3)
    - Molex 0430451612 order code
    - 942C AC voltage rating vs frequency (≈236 V rms at line crest, 35 kHz)
-3. **Footprints to draw or vendor:**
-   - `temper:TMOV20RP_ReviewOnly`
-   - `temper:B82726S2_ReviewOnly`
-   - three `temper:CDE_942C_*_Axial_ReviewOnly`
-   - `temper:Diode_Bridge_GBJ2510` (exists on the power-entry branch)
-   - `lib:SOIC16W_Isolated`, `temper:CST3015` (in `pcb/libs`)
+3. **Footprint qualification:** all eight required local footprints are now
+   in `libraries/`. [FOOTPRINTS.md](FOOTPRINTS.md) records their drawing
+   references and provisional formed-lead, retention and assembly limits.
 4. **Under-glass cutoff rating:** needs a glass-underside temperature measurement at the 482 °F setpoint; heatsink cutoff about 120 °C, from available G4A ratings.
 5. **Bench:** dead time (39 kΩ ≈ 348 ns nominal), gate resistors, snubber value, OCP trip calibration, ZVS at light load.
 
