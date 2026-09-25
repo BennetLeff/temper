@@ -111,6 +111,73 @@ timing plan against independently derived allowable limits. Only then revise
 the joined source, exact-pin mutation audit and native parity. [U4/U7
 acceptance](ACCEPTANCE.md) remains OPEN; physical injections remain NOT RUN.
 
+## Follow-up positive-release part screen (2026-09-24)
+
+The [UCC27614DSGR data sheet](https://www.ti.com/lit/ds/symlink/ucc27614.pdf)
+supports C's useful polarity with a wider 4.5–26 V recommended VDD range:
+`IN+ = high, IN− = high` commands OUT low; `IN− = low` releases `IN+` to
+command OUT. This is the **DSG** dual-input package, not the SOIC `D` part
+with an EN pin. Its rising/falling VDD UVLO limits are 3.8–4.4 V and
+3.5–4.1 V. The driver still requires an actual protected-AUX pin peak and
+thermal/gate-loop review before selection.
+
+An external AUX pull-up on `IN−`, with series release MOSFETs driven by
+retained permission and qualified HOT logic5, is a **screening sketch**.
+The following limits must both hold at the driver pin through every rail
+sequence; `0.8 V` is the guaranteed-low target and `2.3 V` the
+guaranteed-high target from TI's input threshold table:
+
+```text
+released: I_release,max = I_external_pullup,max
+                          + I_internal_pullup,max + I_other_source,max
+          V_IN−,max = I_release,max × (R_DS1,max + R_DS2,max)
+                       + V_return,max <= 0.8 V
+inhibited: V_IN−,min = V_AUX,pin,min
+                       - R_pullup,max × (I_switch_off,max
+                           + I_IN−_sink,max + I_board_leak,max) >= 2.3 V
+```
+
+These are necessary static screens, not a transient proof. TI lists the
+`IN−` internal pull-up as **200 kΩ typical only**; it does not specify a
+minimum resistance or maximum sourced current at the actual 15 V-class
+VDD. Thus `I_internal_pullup,max` in the released inequality is not bounded
+by the driver sheet. Its published 12 V current fixtures do not turn into
+a maximum `IN−` pull-up current at the selected AUX range. Replacing the
+ENA shunt with a low-resistance `IN−` sink does not, by itself, close the
+same kind of missing-limit proof.
+
+The MOSFET screen also has a clear tradeoff. The
+[Nexperia PMV30XN](https://assets.nexperia.com/documents/data-sheet/PMV30XN.pdf)
+specifies 10 µA maximum drain leakage at 150 °C and 51 mΩ maximum on
+resistance at 4.5 V gate drive, 3.2 A and 150 °C, but its 20 V drain rating is
+not yet supported by a protected-AUX transient bound. The
+[Nexperia 2N7002AK-Q](https://assets.nexperia.com/documents/data-sheet/2N7002AK-Q.pdf)
+has 60 V drain rating and 5 µA maximum leakage at 125 °C, but its
+published 5 V-gate on-resistance limit is at 25 °C; the high-temperature
+on-resistance limit uses 10 V gate drive. The
+[Nexperia NX6008NBK](https://assets.nexperia.com/documents/data-sheet/NX6008NBK.pdf)
+has a 60 V rating and 5.7 Ω maximum on-resistance at 4.5 V, 300 mA and
+150 °C, but no specified high-temperature drain-leakage maximum. None is an
+approved release switch on the present evidence.
+
+The existing [TPS3890](https://www.ti.com/lit/ds/symlink/tps3890.pdf)
+`HOT_RAILS_OK` producer guarantees asserted-low RESET through undervoltage
+only while its VDD exceeds power-on reset; below POR its open-drain output is
+undefined. Its pull-up uses HOT logic5, but intermediate HOT5 and
+output-charge behavior still need a pin-level bound. A short AUX
+dip can stop the driver through UVLO without clearing retained RUN/session;
+recovery is then a possible restart unless the actual fast-dip/retained-clear
+path captures the pulse. Test the shortest dip and every rail-order
+transition at the pin and at sustained PFC current, not just the static
+driver truth table.
+
+**Disposition:** keep the current joined source and U7 route gate unchanged.
+To make this sketch selectable, obtain the missing TI `IN−` source/sink
+current limits over the selected AUX range, a release device with applicable
+temperature and voltage bounds, a qualified AUX peak and minimum pulse
+capture, and loaded gate/retained-clear timing. An alternative circuit may
+instead avoid relying on the unbounded internal pull-up current.
+
 Participation: three independent `gpt-6-sol` high candidates (one native,
 two read-only CLI) and one fresh read-only `gpt-6-astra` high `ce-pov` judge.
 No production files were changed by candidate or judge work. The CLI did
