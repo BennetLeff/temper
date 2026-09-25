@@ -1001,6 +1001,84 @@ class TestCandidateFabricationOnlyPads(unittest.TestCase):
                 skeleton.generate_candidate_board(*args)
 
 
+class TestCandidateFootprintLibraryParity(unittest.TestCase):
+    """Placed pad flags and angles retain KiCad library semantics."""
+
+    @requires_kiutils
+    def test_explicit_no_does_not_become_remove_unused_layers_yes(self) -> None:
+        from kiutils.board import Board
+
+        sys.path.insert(0, str(REPO / "scripts"))
+        import gen_pcb_skeleton as skeleton
+
+        footprint = '''(footprint "ThroughHole"
+  (version 20240108) (generator "pcbnew") (layer "F.Cu")
+  (pad "1" thru_hole circle (at 0 0) (size 2 2) (drill 1)
+    (layers *.Cu *.Mask) (remove_unused_layers no))
+)'''
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            library = root / "Test.pretty"
+            library.mkdir()
+            (library / "ThroughHole.kicad_mod").write_text(footprint)
+            table = root / "fp-lib-table"
+            table.write_text(
+                '(fp_lib_table (lib (name "Test") (type "KiCad") '
+                '(uri "${KIPRJMOD}/Test.pretty") (options "") (descr "")))'
+            )
+            netlist = skeleton.Netlist(
+                components={"U1": skeleton.Component(
+                    "U1", "Part", "Test:ThroughHole", "u1"
+                )},
+                nets={"1": skeleton.Net("1", "N", [("U1", "1")])},
+            )
+            board_path = root / "candidate.kicad_pcb"
+            skeleton.generate_candidate_board(
+                netlist, {("U1", "1"): "1"}, set(), table,
+                (0.0, 0.0, 20.0, 20.0), {"U1": (10.0, 10.0, 0.0)}, board_path,
+            )
+            pad = Board.from_file(str(board_path)).footprints[0].pads[0]
+            self.assertFalse(pad.removeUnusedLayers)
+            self.assertNotIn("(remove_unused_layers)", board_path.read_text())
+
+    @requires_kiutils
+    def test_rotated_footprint_serializes_absolute_pad_angle(self) -> None:
+        from kiutils.board import Board
+
+        sys.path.insert(0, str(REPO / "scripts"))
+        import gen_pcb_skeleton as skeleton
+
+        footprint = '''(footprint "Asymmetric"
+  (version 20240108) (generator "pcbnew") (layer "F.Cu")
+  (pad "1" smd rect (at -3 -1) (size 1 2) (layers "F.Cu"))
+  (pad "2" smd rect (at 3 1 45) (size 1 2) (layers "F.Cu"))
+)'''
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            library = root / "Test.pretty"
+            library.mkdir()
+            (library / "Asymmetric.kicad_mod").write_text(footprint)
+            table = root / "fp-lib-table"
+            table.write_text(
+                '(fp_lib_table (lib (name "Test") (type "KiCad") '
+                '(uri "${KIPRJMOD}/Test.pretty") (options "") (descr "")))'
+            )
+            netlist = skeleton.Netlist(
+                components={"U1": skeleton.Component(
+                    "U1", "Part", "Test:Asymmetric", "u1"
+                )},
+                nets={"1": skeleton.Net("1", "N", [("U1", "1"), ("U1", "2")])},
+            )
+            board_path = root / "candidate.kicad_pcb"
+            skeleton.generate_candidate_board(
+                netlist, {("U1", "1"): "1", ("U1", "2"): "2"}, set(), table,
+                (0.0, 0.0, 20.0, 20.0), {"U1": (10.0, 10.0, 180.0)}, board_path,
+            )
+            fp = Board.from_file(str(board_path)).footprints[0]
+            self.assertEqual(fp.position.angle, 180.0)
+            self.assertEqual([pad.position.angle for pad in fp.pads], [180.0, 225.0])
+
+
 if __name__ == "__main__":
     sys.path.insert(0, str(ROOT))
     unittest.main()

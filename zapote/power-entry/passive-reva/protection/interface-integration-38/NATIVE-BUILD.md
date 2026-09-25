@@ -71,9 +71,10 @@ preserving fabrication-only mask/paste apertures and aligning selected board
 Values and legacy footprint text, the bridge emitted **295 board references,
 246 nets and 1,052 mapped numeric edges** (the off-board F2 is excluded).
 Its raw-pad oracle and KiCad schematic-parity comparison pass on those
-temporary bytes. Board DRC still reports 36 violations and capped 499
-unconnected items; the grid-corrected schematic ERC reports 383 warnings (see
-`NATIVE-DIAGNOSTIC-06.md`). The diagnostic is not
+temporary bytes. After the library-footprint serialization repair, board
+DRC reports 22 violations and capped 499 unconnected items, with zero
+library-footprint mismatches (`NATIVE-DIAGNOSTIC-07.md`); the grid-corrected
+schematic ERC reports 383 warnings (`NATIVE-DIAGNOSTIC-06.md`). The diagnostic is not
 the reviewed `native/section.kicad_pcb` deliverable, a DRC/ERC pass, or a
 functional pin-name audit.
 

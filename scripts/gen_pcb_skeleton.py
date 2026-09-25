@@ -572,6 +572,41 @@ def _set_candidate_legacy_text_identity(fp: Any, ref: str, value: str) -> None:
             item.text = value
 
 
+def _preserve_candidate_pad_flags(fp: Any, source_path: Path) -> None:
+    """Correct kiutils' interpretation of explicit ``remove_unused_layers no``.
+
+    Kiutils reads any ``remove_unused_layers`` child as true, including the
+    explicit ``no`` found in several stock through-hole footprints. KiCad
+    compares the placed pad flag against the library, so preserve that false
+    value before the board is serialized.
+    """
+    source = _sexp(source_path.read_text(encoding="utf-8"))
+    footprint = next(
+        (node for node in source if isinstance(node, list) and node[:1] == ["footprint"]),
+        None,
+    )
+    if footprint is None:
+        raise ValueError(f"footprint has no root node: {source_path}")
+    pad_nodes = _children(footprint, "pad")
+    if len(pad_nodes) != len(fp.pads):
+        raise ValueError(f"footprint pad count changed during parse: {source_path}")
+    for pad, node in zip(fp.pads, pad_nodes, strict=True):
+        flags = _children(node, "remove_unused_layers")
+        if len(flags) > 1:
+            raise ValueError(f"duplicate remove_unused_layers on {source_path}")
+        if flags and flags[0] == ["remove_unused_layers", "no"]:
+            pad.removeUnusedLayers = False
+
+
+def _set_candidate_pad_angles(fp: Any, rotation_deg: float) -> None:
+    """Store absolute pad angles as KiCad does for a rotated board footprint."""
+    if not rotation_deg:
+        return
+    for pad in fp.pads:
+        local_angle = pad.position.angle or 0.0
+        pad.position.angle = (local_angle + rotation_deg) % 360.0
+
+
 def generate_candidate_board(
     netlist: Netlist,
     pin_map: dict[tuple[str, str], str],
@@ -641,6 +676,7 @@ def generate_candidate_board(
             )
         fp_path = resolve_footprint(comp.footprint, fp_lib_table_path)
         fp = Footprint.from_file(str(fp_path))
+        _preserve_candidate_pad_flags(fp, fp_path)
         fp.libId = comp.footprint  # type: ignore[attr-defined]
         fp.tstamp = _uuid_from_seed(f"fp:{comp.tstamp}")  # type: ignore[attr-defined]
         fp.tedit = _uuid_from_seed(f"tedit:{comp.tstamp}")[:8]  # type: ignore[attr-defined]
@@ -654,6 +690,7 @@ def generate_candidate_board(
         _set_candidate_legacy_text_identity(fp, comp.ref, value)
         x, y, rot = staging[comp.ref]
         fp.position = Position(x, y, rot if rot else None)  # type: ignore[attr-defined]
+        _set_candidate_pad_angles(fp, rot)
 
         claimed: dict[str, tuple[str, str]] = {}
         for (ref, pin), pad_no in pin_map.items():
