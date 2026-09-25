@@ -39,16 +39,20 @@ the stackup update changes CAD construction fields, not footprint positions.
 | Artifact | SHA-256 |
 | --- | --- |
 | `poses.json` | `ae0177b9adb8dc7540d27955cfacf502ce281a53404e0627770635ee394f47ab` |
-| `native-stackup-diagnostic/section.kicad_pcb` | `bbecb4e20277235564c86f691f17f23218a8b0790cd1177a5b60fa3f95d7396d` |
+| `native-stackup-diagnostic/section.kicad_pcb` | `957ca67ada9338d91f9384695d3b3bf9d0f4a87263b471391700faf60760542d` |
 | `native-stackup-diagnostic/section.kicad_sch` | `339154c9e3809782da312c8d85053ee9cfea2d87196b3b20652d25be9261201c` |
-| `native-stackup-diagnostic/source-manifest.json` | `10694075f4c57e6a66473686c844aefea91b422a1cbaa3f339e062190b525a24` |
-| `native-stackup-diagnostic/drc-parity.json` | `7badda2118ba710433750694fa224cce846d1455442170ec4704bc9ebdccebe7` |
+| `native-stackup-diagnostic/source-manifest.json` | `a20fcf73531417dc140bb3b9ce3c1fb309d7b7a0f909992839edeeba845c6051` |
+| `native-stackup-diagnostic/drc-parity.json` | `f6da18e3ac625f7f04c91e3bedde5bd3f18d0b9bafaa189688f6c76c6297080b` |
 | `native-stackup-diagnostic/stackup-report.json` | `a770ff1c7676463f5ea0c1aecc5f2200e3dffea1a04806543d36e5b251e6ec67` |
-| `native-stackup-diagnostic/identity-report.json` | `a4092e6023bc31d49a216b284d44d70b357e858c5f58827a9aadd18c8a27f1b2` |
-| `native-stackup-diagnostic/native-export.json` | `c90fcc1f34e0a4219b477f44ceceb8366db5fd0f98c8dfa00bbcf66abdd5c690` |
+| `native-stackup-diagnostic/identity-report.json` | `f022b0ab703b9535de45d9e3af41a5ead61e7eafa22c7aed07d6ba7018263a0e` |
+| `native-stackup-diagnostic/native-export.json` | `8a13ca76432e6f9d78c22153ccb138f9bb295b3efb55f10a893cd60dcb57e1a4` |
 
 The native generator now projects the audited `SourceInstance` and `MPN`
 values from its source manifest into every one of the 295 board footprints.
+It also stamps all 1,089 physical pads with stable UUIDs; two independent
+regenerations produced byte-identical PCB and manifest files. The strict
+Rust native binder checks the saved document's component MPNs, pad numbers,
+net names and UUIDs against the KiCad export. Its real-board test passes.
 The shared KiCad extractor reads the saved board as 295 components, 1,070
 pad connections and 1,052 native connectivity clusters, with zero tracks,
 vias or zones. This transport export is an input for later copper-domain
@@ -95,3 +99,12 @@ screen, the final air/creepage construction, current carrying copper, or the
 physical fault-response behavior. Reviewed placement and routing should
 follow U4 electrical review and the open fabricator stackup, supply,
 connector, and insulation decisions.
+
+The focused Rust native-domain test currently classifies only `selv3v3` and
+`selv_gnd` against `hot0` and `hot_logic5`, with a provisional 16.0 mm
+board-surface screen. It **fails** on a measured 15.2 mm DWW opposed-pad
+gap and other shelf-placement conflicts. All remaining native nets are
+reported as a coverage gap. A synthetic SELV trace across a HOT pad fails
+the domain rule, and the mutated export fails saved-board binding. This is
+negative evidence and a rule-plumbing check, not a complete insulation
+assessment. See `zapote/packages/zapote-drc/tests/rev38_native_domains.rs`.

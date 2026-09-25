@@ -14,6 +14,38 @@ fn evidence() -> serde_json::Value {
         {"pad":"4","net":"COM","uuid":"c"},{"pad":"4","net":"COM","uuid":"d"}]}],
       "traces":[],"vias":[]})
 }
+
+#[test]
+fn declared_kicad_net_ids_bind_pads_and_tracks_by_name() {
+    let board = r#"(kicad_pcb
+      (net 1 "SELV") (net 2 "HOT")
+      (footprint "test" (property "SourceInstance" "part") (property "MPN" "P")
+        (pad "1" smd rect (net 1 "SELV") (uuid "pad-1"))
+        (pad "2" smd rect (net 2 "HOT") (uuid "pad-2")))
+      (segment (start 0 0) (end 1 0) (width 0.2) (layer "F.Cu")
+        (net 1) (uuid "trace-1")))"#;
+    let native = json!({
+        "board_file_utf8": board,
+        "components": [{"id":"part","mpn":"P","footprint_pads":[
+            {"pad":"1","net":"SELV","uuid":"pad-1"},
+            {"pad":"2","net":"HOT","uuid":"pad-2"}]}],
+        "traces":[{"uuid":"trace-1","net":"SELV","layer":"F.Cu",
+                   "width_mm":0.2,"points_mm":[[0.0,0.0],[1.0,0.0]]}],
+        "vias":[]
+    });
+    assert_eq!(validate(&native.to_string()).status, Status::Pass);
+    for changed in [
+        board.replace(
+            "(net 1 \"SELV\") (uuid \"pad-1\")",
+            "(net 1 \"HOT\") (uuid \"pad-1\")",
+        ),
+        board.replace("(net 1) (uuid \"trace-1\")", "(net 2) (uuid \"trace-1\")"),
+    ] {
+        let mut mutated = native.clone();
+        mutated["board_file_utf8"] = json!(changed);
+        assert_eq!(validate(&mutated.to_string()).status, Status::Fail);
+    }
+}
 #[test]
 fn physical_relay_contacts_bind_to_their_saved_uuids() {
     assert_eq!(validate(&evidence().to_string()).status, Status::Pass);

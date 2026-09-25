@@ -5,7 +5,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
+import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +15,62 @@ PASSIVE = ROOT.parents[1]
 REPO = ROOT.parents[4]
 sys.path.insert(0, str(REPO / "zapote/current-sense/tools"))
 from build_current_sense_native import build  # noqa: E402
+
+
+def sexpr_end(text: str, start: int) -> int:
+    """Find one generated KiCad S-expression without interpreting its content."""
+    depth = 0
+    quoted = False
+    escaped = False
+    for index in range(start, len(text)):
+        char = text[index]
+        if quoted:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                quoted = False
+        elif char == '"':
+            quoted = True
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return index + 1
+    raise ValueError("unterminated generated KiCad S-expression")
+
+
+def stamp_pad_uuids(board: str, expected_footprints: int) -> str:
+    """Give repeated physical pads stable identities for strict native binding."""
+    footprints = list(re.finditer(r"\n  \(footprint ", board))
+    if len(footprints) != expected_footprints:
+        raise ValueError("generated Rev38 footprint count differs from manifest")
+    output = board
+    seen_refs: set[str] = set()
+    for footprint in reversed(footprints):
+        start = footprint.start() + 3
+        end = sexpr_end(output, start)
+        block = output[start:end]
+        reference = re.search(r'\(property "Reference" "(U\d+)"', block)
+        if reference is None or reference.group(1) in seen_refs:
+            raise ValueError("generated Rev38 footprint reference is missing or repeated")
+        ref = reference.group(1)
+        seen_refs.add(ref)
+        pads = list(re.finditer(r"\n    \(pad ", block))
+        if not pads:
+            raise ValueError(f"generated Rev38 footprint has no physical pads: {ref}")
+        for index, pad in reversed(list(enumerate(pads))):
+            pad_start = pad.start() + 5
+            pad_end = sexpr_end(block, pad_start)
+            pad_text = block[pad_start:pad_end]
+            if "(uuid " in pad_text:
+                raise ValueError(f"generated Rev38 pad already has a UUID: {ref}/{index}")
+            identity = uuid.uuid5(uuid.NAMESPACE_URL, f"temper/rev38/{ref}/pad/{index}")
+            block = block[:pad_end - 1] + f' (uuid "{identity}")' + block[pad_end - 1:]
+        output = output[:start] + block + output[end:]
+    return output
 
 
 def apply_planning_stackup(output: Path, stackup_path: Path) -> None:
@@ -65,6 +123,7 @@ def apply_planning_stackup(output: Path, stackup_path: Path) -> None:
             + f'\n    (property "MPN" {json.dumps(mpn)})',
             1,
         )
+    board = stamp_pad_uuids(board, len(components))
     thickness_old = "(thickness 1.6)"
     setup_old = "  (setup\n    (pad_to_mask_clearance 0.0)"
     if board.count(thickness_old) != 1 or board.count(setup_old) != 1:

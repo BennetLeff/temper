@@ -62,6 +62,45 @@ fn property(n: &Sexpr, name: &str) -> Result<String, String> {
     }
     atom(items(found[0])?.get(2))
 }
+fn board_nets(board: &Sexpr) -> Result<BTreeMap<String, String>, String> {
+    let mut nets = BTreeMap::new();
+    let mut names = BTreeSet::new();
+    for entry in children(board, "net")? {
+        let fields = items(entry)?;
+        if fields.len() != 3 {
+            return Err("board net declaration requires numeric ID and name".into());
+        }
+        let id = atom(fields.get(1))?;
+        let name = atom(fields.get(2))?;
+        if id.parse::<u32>().is_err()
+            || nets.insert(id.clone(), name.clone()).is_some()
+            || !names.insert(name)
+        {
+            return Err(format!("invalid or duplicate board net {id}"));
+        }
+    }
+    Ok(nets)
+}
+fn net_name(n: &Sexpr, board_nets: &BTreeMap<String, String>) -> Result<String, String> {
+    let values = field(n, "net")?;
+    match values.as_slice() {
+        [single] => match board_nets.get(single) {
+            Some(name) => Ok(name.clone()),
+            None if single.parse::<u32>().is_ok() => Err(format!("unmapped board net ID {single}")),
+            None => Ok(single.clone()), // legacy name-only fixture
+        },
+        [id, name] if id.parse::<u32>().is_ok() => {
+            if board_nets.get(id) == Some(name) {
+                Ok(name.clone())
+            } else {
+                Err(format!(
+                    "pad net {id}/{name} differs from board declaration"
+                ))
+            }
+        }
+        _ => Err("net requires a name or declared numeric ID".into()),
+    }
+}
 fn put(m: &mut BTreeMap<String, Value>, id: String, v: Value) -> Result<(), String> {
     if m.insert(id.clone(), v).is_some() {
         return Err(format!("duplicate {id}"));
@@ -76,6 +115,7 @@ fn inspect(n: &Value) -> Result<(), String> {
     if atom(items(&board)?.first())? != "kicad_pcb" {
         return Err("not a board".into());
     }
+    let board_nets = board_nets(&board)?;
     let mut saved = BTreeMap::new();
     let mut exported = BTreeMap::new();
     let mut saved_holes = BTreeMap::new();
@@ -131,7 +171,7 @@ fn inspect(n: &Value) -> Result<(), String> {
             let net = if children(pad, "net")?.is_empty() {
                 String::new()
             } else {
-                scalar(pad, "net")?
+                net_name(pad, &board_nets)?
             };
             let value = if counts[&pin] > 1 {
                 json!({"pin":pin,"net":net})
@@ -203,13 +243,16 @@ fn inspect(n: &Value) -> Result<(), String> {
     if saved != exported || saved_holes != exported_holes {
         return Err("exported component/MPN/pad nets differ from saved board".into());
     }
+    if !saved_uuids.is_empty() && saved_uuids != exported_uuids {
+        return Err("exported pad UUID census differs from saved board".into());
+    }
     saved.clear();
     exported.clear();
     for t in children(&board, "segment")? {
         put(
             &mut saved,
             scalar(t, "uuid")?,
-            json!({"net":scalar(t,"net")?,"layer":scalar(t,"layer")?,"width":numbers(t,"width")?,"points":[numbers(t,"start")?,numbers(t,"end")?]}),
+            json!({"net":net_name(t,&board_nets)?,"layer":scalar(t,"layer")?,"width":numbers(t,"width")?,"points":[numbers(t,"start")?,numbers(t,"end")?]}),
         )?;
     }
     if !children(&board, "arc")?.is_empty() {
@@ -231,7 +274,7 @@ fn inspect(n: &Value) -> Result<(), String> {
         put(
             &mut saved,
             scalar(v, "uuid")?,
-            json!({"net":scalar(v,"net")?,"position":numbers(v,"at")?,"size":numbers(v,"size")?,"drill":numbers(v,"drill")?,"layers":field(v,"layers")?}),
+            json!({"net":net_name(v,&board_nets)?,"position":numbers(v,"at")?,"size":numbers(v,"size")?,"drill":numbers(v,"drill")?,"layers":field(v,"layers")?}),
         )?;
     }
     for v in n["vias"].as_array().ok_or("missing vias")? {
@@ -511,7 +554,8 @@ mod bridge_tests {
     use serde_json::{json, Value};
     use zapote_core::Status;
 
-    const ACTIVE_NATIVE: &str = include_str!("../../../power-entry/active-rectifier/evidence/native.json");
+    const ACTIVE_NATIVE: &str =
+        include_str!("../../../power-entry/active-rectifier/evidence/native.json");
 
     #[test]
     fn active_board_empty_net_pads_bind_without_omitting_pad_identity() {
@@ -521,10 +565,18 @@ mod bridge_tests {
     #[test]
     fn assigning_an_export_net_to_a_saved_unassigned_pad_is_rejected() {
         let mut n: Value = serde_json::from_str(ACTIVE_NATIVE).unwrap();
-        let controller = n["components"].as_array_mut().unwrap().iter_mut()
-            .find(|c| c["id"] == "bridge").unwrap();
-        let pad = controller["footprint_pads"].as_array_mut().unwrap().iter_mut()
-            .find(|p| p["pad"] == "4").unwrap();
+        let controller = n["components"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|c| c["id"] == "bridge")
+            .unwrap();
+        let pad = controller["footprint_pads"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|p| p["pad"] == "4")
+            .unwrap();
         pad["net"] = json!("RECTIFIER_NEGATIVE");
         assert_eq!(validate(&n.to_string()).status, Status::Fail);
     }
@@ -532,9 +584,16 @@ mod bridge_tests {
     #[test]
     fn omitting_an_unassigned_physical_pad_is_rejected() {
         let mut n: Value = serde_json::from_str(ACTIVE_NATIVE).unwrap();
-        let controller = n["components"].as_array_mut().unwrap().iter_mut()
-            .find(|c| c["id"] == "bridge").unwrap();
-        controller["footprint_pads"].as_array_mut().unwrap().retain(|p| p["pad"] != "4");
+        let controller = n["components"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|c| c["id"] == "bridge")
+            .unwrap();
+        controller["footprint_pads"]
+            .as_array_mut()
+            .unwrap()
+            .retain(|p| p["pad"] != "4");
         assert_eq!(validate(&n.to_string()).status, Status::Fail);
     }
 
