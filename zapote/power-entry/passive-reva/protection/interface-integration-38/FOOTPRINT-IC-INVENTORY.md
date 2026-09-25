@@ -1,6 +1,10 @@
 # Rev38 small-package footprint inventory
 
-2026-09-23. The exact selected MPN, top-view pin numbers, body and pad count
+**Historical 2026-09-23 package pass.** The current `source-build-05`
+replaces the DW `ISO7742FDWR` row below with DWW
+`ISO6742FQDWWRQ1` and also selects DWW `ISO7741FQDWWRQ1`; their joined
+review-only footprints and remaining insulation gates are recorded in
+`INSULATION-BASIS.md`. The historical exact selected MPN, top-view pin numbers, body and pad count
 were compared with manufacturer data and installed KiCad 10 standard
 footprints. The 12 source component declarations below now use a real
 footprint. Because some modules repeat, joined `TBD_REVIEW_ONLY` netlist
@@ -36,7 +40,8 @@ The primary package and pin references are [TI HCS04](https://www.ti.com/lit/ds/
 [Vishay BAV23C](https://www.vishay.com/docs/86374/bav23c.pdf), and
 [AOS AO3400A](https://www.aosmd.com/sites/default/files/res/datasheets/AO3400A.pdf).
 
-`TPS3431SDRBR` retains `TBD_REVIEW_ONLY:TPS3431SDRBR_DRB0008A`. The
+At the time of this pass, `TPS3431SDRBR` retained
+`TBD_REVIEW_ONLY:TPS3431SDRBR_DRB0008A`. The
 [TI DRB0008A drawing](https://www.ti.com/lit/ds/symlink/tps3431.pdf)
 requires a 1.5 × 1.75 mm exposed thermal pad (pin 9, connected to GND).
 The installed generic 3 × 3 mm VSON footprints use different exposed-pad
@@ -44,8 +49,8 @@ dimensions, so none is an exact match. It needs a reviewed native footprint.
 
 Atopile 0.2.69 may alias different MPNs when they share the same footprint;
 the generated CSV BOM carries the per-reference part identity. All eleven
-unique selected MPNs above are present in the regenerated joined CSV BOM. Joined
+unique selected MPNs above were present in that pass's joined CSV BOM. Joined
 connectivity still comes from the netlist. The native review must also
-verify ISO7742 barrier spacing, solder lands, thermal behavior, and physical
+verify current DWW barrier spacing, solder lands, thermal behavior, and physical
 pin-1 orientation. Power, mains, magnetics, fuse, connector and other
 special-package placeholders were outside this pass.

@@ -1,0 +1,152 @@
+# Rev38 SELV controller-port/expander fixture. The one physical ESP and 3.3 V
+# producer are on the selected cooker board; their mating header is not yet
+# joined there. Reset-good and interlock producers remain open. The TCA
+# outputs may retain their state through an ESP-only CPU reset.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "receiver_isolation.ato" import R, C
+
+component CookerSelvPort38:
+    mpn = "43045-1612"
+    manufacturer = "Molex"
+    datasheet = "https://www.molex.com/en-us/products/part-detail/430451612"
+    footprint = "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical"
+    signal SELV3V3_A ~ pin 1
+    signal STOP_N ~ pin 2
+    signal HEARTBEAT_REQUEST ~ pin 3
+    signal PERMIT_SET_REQUEST ~ pin 4
+    signal PREWATCHDOG_OK ~ pin 5
+    signal COMMAND_TX ~ pin 6
+    signal RESPONSE_RX ~ pin 7
+    signal SELV_GND_A ~ pin 8
+    signal SELV3V3_B ~ pin 9
+    signal START_N ~ pin 10
+    signal I2C_SDA ~ pin 11
+    signal I2C_SCL ~ pin 12
+    signal SELV_GND_B ~ pin 13
+    signal RESET_GOOD ~ pin 14
+    signal INTERLOCK_N ~ pin 15
+    signal SELV_GND_C ~ pin 16
+
+component SourceIoExpander:
+    mpn = "TCA6408AQPWRQ1"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tca6408a-q1.pdf"
+    footprint = "Package_SO:TSSOP-16_4.4x5mm_P0.65mm"
+    signal VCCI ~ pin 1
+    signal ADDR ~ pin 2
+    signal RESET_N ~ pin 3
+    signal P0 ~ pin 4
+    signal P1 ~ pin 5
+    signal P2 ~ pin 6
+    signal P3 ~ pin 7
+    signal GND ~ pin 8
+    signal P4 ~ pin 9
+    signal P5 ~ pin 10
+    signal P6 ~ pin 11
+    signal P7 ~ pin 12
+    signal INT_N ~ pin 13
+    signal SCL ~ pin 14
+    signal SDA ~ pin 15
+    signal VCCP ~ pin 16
+
+component StartButtonNo:
+    # Candidate normally open START; ergonomic placement remains open.
+    mpn = "EVQ-P7A01P"
+    manufacturer = "Panasonic"
+    footprint = "Button_Switch_SMD:SW_SPST_EVQP7A"
+    signal A ~ pin 1
+    signal B ~ pin 2
+
+module SourceMcu38:
+    signal SELV3V3
+    signal SELV_GND
+    signal SOURCE_COMMAND_TX
+    signal SOURCE_RESPONSE_RX
+    signal SOURCE_RELAY_REQUEST
+    signal SOURCE_STOP_N
+    signal SOURCE_VALIDATED_HEARTBEAT
+    signal SOURCE_PERMIT_SET_REQUEST
+    signal SOURCE_PREWATCHDOG_OK
+    signal SOURCE_CHALLENGE_ACTIVE
+    signal SOURCE_SEEN_RESET_REQUEST
+    signal SOURCE_RAIL_RESET_N
+    signal SOURCE_PERMIT_Q
+    signal SOURCE_HOT_PERMIT_FB
+    signal SOURCE_HOT_SESSION_FB
+    signal SOURCE_PERMIT_SEEN_Q
+    signal SOURCE_START_N
+    signal SOURCE_I2C_SDA
+    signal SOURCE_I2C_SCL
+    signal SOURCE_RESET_GOOD
+    signal SOURCE_INTERLOCK_N
+
+    controller_port = new CookerSelvPort38
+    controller_port.SELV3V3_A ~ SELV3V3
+    controller_port.SELV3V3_B ~ SELV3V3
+    controller_port.SELV_GND_A ~ SELV_GND
+    controller_port.SELV_GND_B ~ SELV_GND
+    controller_port.SELV_GND_C ~ SELV_GND
+    controller_port.STOP_N ~ SOURCE_STOP_N
+    controller_port.HEARTBEAT_REQUEST ~ SOURCE_VALIDATED_HEARTBEAT
+    controller_port.PERMIT_SET_REQUEST ~ SOURCE_PERMIT_SET_REQUEST
+    controller_port.PREWATCHDOG_OK ~ SOURCE_PREWATCHDOG_OK
+    controller_port.COMMAND_TX ~ SOURCE_COMMAND_TX
+    controller_port.RESPONSE_RX ~ SOURCE_RESPONSE_RX
+    controller_port.START_N ~ SOURCE_START_N
+    controller_port.I2C_SDA ~ SOURCE_I2C_SDA
+    controller_port.I2C_SCL ~ SOURCE_I2C_SCL
+    controller_port.RESET_GOOD ~ SOURCE_RESET_GOOD
+    controller_port.INTERLOCK_N ~ SOURCE_INTERLOCK_N
+
+    start = new StartButtonNo
+    start.A ~ SOURCE_START_N
+    start.B ~ SELV_GND
+    start_pu = new R
+    start_pu.value = 10kohm
+    start_pu.p1 ~ SELV3V3
+    start_pu.p2 ~ SOURCE_START_N
+
+    expander = new SourceIoExpander
+    expander.VCCI ~ SELV3V3
+    expander.VCCP ~ SELV3V3
+    expander.GND ~ SELV_GND
+    expander.ADDR ~ SELV_GND
+    expander.SDA ~ SOURCE_I2C_SDA
+    expander.SCL ~ SOURCE_I2C_SCL
+    expander.P0 ~ SOURCE_CHALLENGE_ACTIVE
+    expander.P1 ~ SOURCE_SEEN_RESET_REQUEST
+    expander.P2 ~ SOURCE_RELAY_REQUEST
+    expander.P3 ~ SOURCE_RAIL_RESET_N
+    expander.P4 ~ SOURCE_PERMIT_Q
+    expander.P5 ~ SOURCE_HOT_PERMIT_FB
+    expander.P6 ~ SOURCE_HOT_SESSION_FB
+    expander.P7 ~ SOURCE_PERMIT_SEEN_Q
+    # The existing cooker MCU module owns the GPIO38/39 4.7 kΩ pull-ups.
+    # The shared bus, connector cable and UI header still need qualification.
+    # The reset input has a passive default; do not wire it to WDO because
+    # readbacks must remain available while the source re-establishes disarm.
+    exp_reset_pu = new R
+    exp_reset_pu.value = 10kohm
+    exp_reset_pu.p1 ~ SELV3V3
+    exp_reset_pu.p2 ~ expander.RESET_N
+    challenge_pd = new R
+    challenge_pd.value = 10kohm
+    challenge_pd.p1 ~ SOURCE_CHALLENGE_ACTIVE
+    challenge_pd.p2 ~ SELV_GND
+    seen_request_pd = new R
+    seen_request_pd.value = 10kohm
+    seen_request_pd.p1 ~ SOURCE_SEEN_RESET_REQUEST
+    seen_request_pd.p2 ~ SELV_GND
+    relay_request_pd = new R
+    relay_request_pd.value = 10kohm
+    relay_request_pd.p1 ~ SOURCE_RELAY_REQUEST
+    relay_request_pd.p2 ~ SELV_GND
+    port_decoupling = new C
+    port_decoupling.value = 100nF
+    port_decoupling.p1 ~ SELV3V3
+    port_decoupling.p2 ~ SELV_GND
+    exp_decoupling = new C
+    exp_decoupling.value = 100nF
+    exp_decoupling.p1 ~ SELV3V3
+    exp_decoupling.p2 ~ SELV_GND

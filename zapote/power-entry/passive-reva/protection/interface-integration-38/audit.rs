@@ -286,7 +286,7 @@ fn check_cooker_rev38_harness(rev38: &Graph, cooker: &Graph) -> Result<(), Strin
     for (id, mpn) in [
         ("source_mcu.controller_port", "43045-1612"),
         ("source_mcu.expander", "TCA6408AQPWRQ1"),
-        ("receiver.iso_protocol", "ISO7741FDWR"),
+        ("receiver.iso_protocol", "ISO7741FQDWWRQ1"),
         ("source_mcu.start", "EVQ-P7A01P"),
         ("source.stop_pd", "RC0603FR-0710KL"),
         ("source.heartbeat_pd", "RC0603FR-0710KL"),
@@ -386,8 +386,8 @@ fn check(g: &Graph) -> Result<(), String> {
     if g.parts.len() != 71 { return Err(format!("expected 71 parts, found {}", g.parts.len())); }
     for (id, part) in [
         ("rx", "AVR64DA32-E/PT"),
-        ("iso_protocol", "ISO7741FDWR"),
-        ("iso_feedback", "ISO7742FDWR"),
+        ("iso_protocol", "ISO7741FQDWWRQ1"),
+        ("iso_feedback", "ISO6742FQDWWRQ1"),
         ("reset_pulses", "SN74LV221AQPWRQ1"),
         ("prep_abort_memory", "SN74HCS74PWR"),
         ("permit_seen_memory", "SN74HCS74PWR"),
@@ -972,11 +972,11 @@ fn check_pfc_control(g: &Graph) -> Result<(), String> {
 }
 
 fn check_pfc_power(g: &Graph) -> Result<(), String> {
-    if g.parts.len() != 14 { return Err(format!("expected 14 PFC power parts, found {}", g.parts.len())); }
+    if g.parts.len() != 15 { return Err(format!("expected 15 PFC power parts, found {}", g.parts.len())); }
     for (id, mpn) in [
         ("bridge", "GBJ2510-F"), ("l_boost", "760800301"),
         ("d_boost", "C3D20065D"), ("f2", "A70QS50-14F"),
-        ("f2_board", "1017526"),
+        ("f2_vd_stud", "74651173R"), ("f2_vb_stud", "74651173R"),
         ("local_c", "B32776P6226K000"), ("hf_c", "B32672P6474K000"),
         ("bulk1", "LGX2W561MELC50"), ("bulk2", "LGX2W561MELC50"),
         ("bulk3", "LGX2W561MELC50"), ("bulk4", "LGX2W561MELC50"),
@@ -992,8 +992,8 @@ fn check_pfc_power(g: &Graph) -> Result<(), String> {
         ("hot0", "local_c:2 local_c:3 hf_c:2 bulk1:2 bulk2:2 bulk3:2 bulk4:2 bleed3:2"),
         ("rect_minus", "bridge:4"),
         ("boost_switch", "l_boost:2 d_boost:1 d_boost:3"),
-        ("vd_local", "d_boost:2 f2:1 f2_board:1 f2_board:2 local_c:1 local_c:4 hf_c:1"),
-        ("vb_bank", "f2:2 f2_board:3 f2_board:4 bulk1:1 bulk2:1 bulk3:1 bulk4:1 bleed1:1"),
+        ("vd_local", "d_boost:2 f2:1 f2_vd_stud:1 local_c:1 local_c:4 hf_c:1"),
+        ("vb_bank", "f2:2 f2_vb_stud:1 bulk1:1 bulk2:1 bulk3:1 bulk4:1 bleed1:1"),
         ("bleed1", "bleed1:2 bleed2:1"),
         ("bleed2", "bleed2:2 bleed3:1"),
         ("plus", "bridge:1 l_boost:1"),
@@ -1994,16 +1994,27 @@ mod tests {
     }
 
     #[test]
-    fn pfc_power_f2_board_terminal_split_potential_fails() {
+    fn pfc_power_f2_vd_stud_missing_pin_fails() {
         let mut g = power_fixture();
-        g.pins.insert(("f2_board".into(), "2".into()), "terminal_split".into());
+        check_pfc_power(&g).unwrap();
+        g.pins.remove(&("f2_vd_stud".into(), "1".into()));
         assert!(check_pfc_power(&g).is_err());
     }
 
     #[test]
-    fn pfc_power_f2_board_terminal_cross_potential_fails() {
+    fn pfc_power_f2_vb_stud_missing_part_fails() {
         let mut g = power_fixture();
-        g.pins.insert(("f2_board".into(), "3".into()), "vd_local".into());
+        check_pfc_power(&g).unwrap();
+        g.parts.remove("f2_vb_stud");
+        assert!(check_pfc_power(&g).is_err());
+    }
+
+    #[test]
+    fn pfc_power_f2_studs_cross_potential_fails() {
+        let mut g = power_fixture();
+        check_pfc_power(&g).unwrap();
+        g.pins.insert(("f2_vd_stud".into(), "1".into()), "vb_bank".into());
+        g.pins.insert(("f2_vb_stud".into(), "1".into()), "vd_local".into());
         assert!(check_pfc_power(&g).is_err());
     }
 
@@ -2336,7 +2347,7 @@ mod tests {
     #[test]
     fn wrong_feedback_part_fails() {
         let mut g = fixture();
-        g.parts.insert("iso_feedback".into(), "ISO7741FDWR".into());
+        g.parts.insert("iso_feedback".into(), "ISO7741FQDWWRQ1".into());
         assert!(check(&g).is_err());
     }
 
@@ -2580,10 +2591,10 @@ mod tests {
     }
 
     fn frozen_assembly() -> (Graph, Graph) {
-        let rev38 = graph(&fs::read_to_string("source-build-04/build/default.net").unwrap()).unwrap();
+        let rev38 = graph(&fs::read_to_string("source-build-05/build/default.net").unwrap()).unwrap();
         let cooker = graph(&fs::read_to_string("cooker-source-02/build/default.net").unwrap()).unwrap();
         (
-            with_bom_parts(rev38, "source-build-04/build/default.csv").unwrap(),
+            with_bom_parts(rev38, "source-build-05/build/default.csv").unwrap(),
             with_bom_parts(cooker, "cooker-source-02/build/default.csv").unwrap(),
         )
     }
@@ -2605,7 +2616,7 @@ mod tests {
     #[test]
     fn cooker_rev38_harness_rejects_wrong_protocol_part() {
         let (mut rev38, cooker) = frozen_assembly();
-        rev38.parts.insert("receiver.iso_protocol".into(), "ISO7742FDWR".into());
+        rev38.parts.insert("receiver.iso_protocol".into(), "ISO6742FQDWWRQ1".into());
         assert!(check_cooker_rev38_harness(&rev38, &cooker).is_err());
     }
 

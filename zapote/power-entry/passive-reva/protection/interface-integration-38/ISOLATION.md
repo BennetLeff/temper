@@ -13,13 +13,15 @@ supervisors, gate driver, PFC stage, and reservoir are not present here.
 Many named signals terminate at fixture pins or pull resistors; they are not
 real producers yet.
 
-The ISO7742FDWR, 10 nF timing capacitor, and HCS21/HCS04/HCS00 logic packages
-use distinct provisional footprint keys. Atopile 0.2.69 merged MPNs when
-different parts used the same stock footprint key: ISO7742F became
-ISO7741F, and the 10 nF
-capacitors became 100 nF after a new bypass capacitor was added. The
-generated BOM and netlist now preserve their separate MPNs. None of these
-provisional keys is a validated physical footprint.
+The current `source-build-05` selects `ISO7741FQDWWRQ1` and
+`ISO6742FQDWWRQ1` with distinct exact-MPN DWW `ReviewOnly` footprint keys;
+its generated BOM and netlist preserve both identities. The 10 nF timing
+capacitors and HCS21/HCS04/HCS00 logic packages also retain distinct
+footprint keys. In an earlier DW source build, Atopile 0.2.69 merged MPNs
+when different parts used one stock footprint key: ISO7742F became
+ISO7741F, and 10 nF capacitors became 100 nF after a bypass capacitor was
+added. That alias is historical. These identity checks do not validate the
+physical DWW insulation construction or timing-capacitor behavior.
 
 From this directory, build `-b isolation` separately before the audit in
 `SOURCE.md`, which also builds the source and partial joined targets:
@@ -107,6 +109,7 @@ clock, or F2 fault fan-in,
 or disarm-memory clear/clock, the history-reset D qualification, physical
 PERMIT-loss path, SESSION abort/clock path, or RUN permit/clock path,
 short the relay request to the driver or bypass the relay's retained-RUN gate,
-swap reverse feedback or reset channels, change the ISO7742F MPN, and add a
+swap reverse feedback or reset channels, change the selected ISO6742F MPN,
+and add a
 copper boundary crossing. It does not establish pin electrical levels,
 fault-pulse capture, component timing, or fault-to-current cessation.

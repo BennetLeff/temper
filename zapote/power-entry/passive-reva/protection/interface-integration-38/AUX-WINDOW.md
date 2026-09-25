@@ -180,8 +180,8 @@ driver-pin peak. See the [separate-port worksheet](AUX-SOURCE-CANDIDATE.md#sourc
 
 ### HOT logic5 census from the joined netlist
 
-The generated `build/integrated.net` with SHA-256
-`aa7f4d8c1434bd174197d74e09b5aa9f33f04311c6736ee84fd`
+The frozen `source-build-05/build/default.net` with SHA-256
+`c221b3048527eccbb3c9574ff35124f071c96d2b5031c19d81752c4159db13ea`
 has 91 pin nodes on `hot_logic5`, belonging to 65 distinct components.
 The count is a **connectivity inventory**, not a current measurement or a
 guaranteed load bound. Re-run it whenever the joined source changes.
@@ -189,7 +189,7 @@ guaranteed load bound. Re-run it whenever the joined source changes.
 | Directly connected class | Count | What the source budget must include |
 | --- | ---: | --- |
 | AVR64DA32-E/PT | 1 | Active current at the programmed clock, enabled peripherals, I/O loads, temperature and actual 5 V rail |
-| ISO7741FDWR and ISO7742FDWR HOT sides | 1 each | `VCC2` supply current at the actual 3.3 V/5 V split, input states and switching rates; both isolators' `VCC1` inputs belong to the separate SELV budget |
+| ISO7741FQDWWRQ1 and ISO6742FQDWWRQ1 HOT sides | 1 each | `VCC2` supply current at the actual 3.3 V/5 V split, input states and switching rates; both isolators' `VCC1` inputs belong to the separate SELV budget |
 | SN74HCS21PWR / SN74HCS74PWR | 6 / 5 | Static and switching current plus loaded outputs, including retained logic during reset |
 | TLV3202IDR / TPS389001DSER | 3 / 2 | Comparator/supervisor bias and output loading over the rail/fault sequence |
 | Other logic and watchdog | 6: one each SN74LV221AQPWRQ1, SN74LVC1G08DBVR, SN74LVC1G06DBVR, TPS3431SDRBR, SN74HCS04PWR and SN74HCS00PWR | Static/switching current, output loading and watchdog service states |
@@ -208,10 +208,12 @@ need a state-by-state tally.
 [Microchip's AVR64DA power table](https://onlinedocs.microchip.com/oxy/GUID-A033CDA8-8724-46BD-B29F-D830FF21A623-en-US-12/GUID-FCC6C1C6-AACB-485E-AF93-582CB4F32BA1.html)
 quotes 5.3 mA maximum at 24 MHz with peripherals disabled, I/O low and
 **3.0 V VDD**. It is not a 5 V installed-load maximum.
-[TI's ISO774x supply table](https://www.ti.com/lit/gpn/ISO7741) specifies
-separate hot-side supply currents for 5 V on *both* sides and specific DC or
-all-channel-switching fixtures. This design supplies the other side at
-SELV3V3, so those figures cannot be added as a guaranteed split-rail bound.
+[TI's ISO774x-Q1](https://www.ti.com/lit/gpn/ISO7742-Q1) and
+[ISO6742-Q1](https://www.ti.com/lit/gpn/iso6742-q1) supply tables use
+specified rail combinations and input-switching fixtures. The actual
+3.3 V SELV / 5 V HOT split and channel activity need a matching bound or
+measurement; figures from unmatched fixtures cannot be summed as a
+guaranteed installed-load maximum.
 The ESP adapter currently configures UART1 at 115200 baud, but the remaining
 isolator channels have independent activity and static states. Determine the
 mixed-voltage current bound or measure it in the relevant modes.

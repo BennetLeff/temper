@@ -8,35 +8,39 @@ none of their typical delays establish a fault allowance.
 
 ## Two isolated devices, eight assigned channels
 
-Both devices use the 16-pin wide SOIC package. `F` means the isolator output
-defaults low when its input power or signal is lost, **not** that an unpowered
+The current `source-build-05` selects `ISO7741FQDWWRQ1` at U1 and
+`ISO6742FQDWWRQ1` at U44 in separate review-only DWW-16 footprints. `F`
+means the isolator output defaults low when its input power or signal is lost,
+**not** that an unpowered
 output can sink current. Fit a local pull-down at every safety-significant
 output and check partial-power and leakage corners. Side 1 is SELV3V3/GND;
 side 2 is HOT logic5/HOT0. No connector, resistor, or probe may join those
-grounds directly. TI's [ISO774x data sheet](https://www.ti.com/lit/ds/symlink/iso7742.pdf)
-gives the direction and physical pin map, and lists both selected ordering
-codes as active production.
+grounds directly. TI's [ISO774x-Q1](https://www.ti.com/lit/gpn/ISO7742-Q1)
+and [ISO6742-Q1](https://www.ti.com/lit/gpn/iso6742-q1) data sheets give the
+respective direction and physical pin maps. The DWW package, board path and
+power-loss behavior remain qualification candidates; see
+[INSULATION-BASIS.md](INSULATION-BASIS.md).
 
 | Device/channel | SELV pin and producer/consumer | HOT pin and producer/consumer | Failure meaning |
 | --- | --- | --- | --- |
-| ISO7741FDWR A | 3 INA, source UART TX | 14 OUTA, AVR PA1/31 RX | Corrupt or absent traffic cannot count as liveness. |
-| ISO7741FDWR B | 4 INB, source retained PERMIT Q | 13 OUTB, physical HOT PERMIT | Low clears RUN; loss after observed high also clears SESSION. |
-| ISO7741FDWR C | 5 INC, source relay request | 12 OUTC, AVR PA5/3 input | AVR PA2/32 owns the firmware output; retained HOT RUN Q gates it before the relay stage. The request alone cannot energize the coil. |
-| ISO7741FDWR D | 6 OUTD, source UART RX | 11 IND, AVR PA0/30 TX | Protocol response only. |
-| ISO7742FDWR A | 3 INA, source hardware-health Q | 14 OUTA, HOT source-health clear | Low clears both HOT memories independently of receiver UART. |
-| ISO7742FDWR B | 4 INB, source STOP_N | 13 OUTB, HOT STOP clear | Low clears both HOT memories; source GPIO default low. |
-| ISO7742FDWR C | 5 OUTC, source physical-PERMIT readback | 12 INC, physical HOT PERMIT after isolator | A distinct reverse conductor, captured by source seen memory. |
-| ISO7742FDWR D | 6 OUTD, source HOT validity readback | 11 IND, retained HOT_SESSION_OK Q | A distinct reverse conductor; low also inhibits source PERMIT. |
+| ISO7741FQDWWRQ1 A | 3 INA, source UART TX | 14 OUTA, AVR PA1/31 RX | Corrupt or absent traffic cannot count as liveness. |
+| ISO7741FQDWWRQ1 B | 4 INB, source retained PERMIT Q | 13 OUTB, physical HOT PERMIT | Low clears RUN; loss after observed high also clears SESSION. |
+| ISO7741FQDWWRQ1 C | 5 INC, source relay request | 12 OUTC, AVR PA5/3 input | AVR PA2/32 owns the firmware output; retained HOT RUN Q gates it before the relay stage. The request alone cannot energize the coil. |
+| ISO7741FQDWWRQ1 D | 6 OUTD, source UART RX | 11 IND, AVR PA0/30 TX | Protocol response only. |
+| ISO6742FQDWWRQ1 A | 3 INA, source hardware-health Q | 14 OUTA, HOT source-health clear | Low clears both HOT memories independently of receiver UART. |
+| ISO6742FQDWWRQ1 B | 4 INB, source STOP_N | 13 OUTB, HOT STOP clear | Low clears both HOT memories; source GPIO default low. |
+| ISO6742FQDWWRQ1 C | 5 OUTC, source physical-PERMIT readback | 12 INC, physical HOT PERMIT after isolator | A distinct reverse conductor, captured by source seen memory. |
+| ISO6742FQDWWRQ1 D | 6 OUTD, source HOT validity readback | 11 IND, retained HOT_SESSION_OK Q | A distinct reverse conductor; low also inhibits source PERMIT. |
 
 For each device pin 1/2/8 are SELV supply/returns, pin 16/9/15 are HOT
 supply/returns, pin 7 EN1 is tied to the SELV supply, and pin 10 EN2 to the
 HOT supply. The audit must check these physical pins rather than only net
-names. The ISO7741F uses
-`Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm`. The ISO7742F currently uses a
-distinct provisional footprint key: Atopile 0.2.69 otherwise exports both
-same-footprint parts with ISO7741F metadata. Bind that key to reviewed DW
-package pads and verify dimensions against the TI drawing before a board
-claim.
+names. The current frozen source assigns separate exact-MPN
+`temper:ISO7741FQDWWRQ1_DWW0016A_ReviewOnly` and
+`temper:ISO6742FQDWWRQ1_DWW0016A_ReviewOnly` footprint keys, avoiding the
+Atopile 0.2.69 same-footprint identity alias seen in the older DW build.
+Verify the DWW pad geometry and assembled insulation path before native
+insulation acceptance.
 
 Rev35's fixture tied an isolator relay output to an MCU output. Rev38 must
 place the isolator channel on AVR PA5/3 **input** and use PA2/32 as the sole
@@ -129,15 +133,18 @@ HOT_PREP_TRIP_OK = HOT_ATTEMPT_VALID & HOT_SOURCE_HEALTH
                    & HOT_FAULT_N & HOT_WATCHDOG_OK
 ```
 
-The HCS21's output and every unproduced safety input have local low
-defaults. The partial fixture now has a HOT TPS3431 WDO producer and two
+The HCS21's output and safety inputs have local low defaults. The joined
+source has a HOT TPS3431 WDO producer and two
 TPS3890 undervoltage supervisors with open-drain RESET outputs wire-ANDed
 on `HOT_RAILS_OK`. Four VD/VB TLV3202 channels and two AUX window channels
 now feed `HOT_FAULT_N` through HCS21 fan-in. VD and VB now join the candidate
-boost/F2/reservoir/bank path. The fused-board-terminal/CMC/NTC/relay AC section
-joins the bridge. An installed off-board F1 assembly, protected AUX source, and source-side
-health/STOP GPIO logic remain unselected or external. The compiled fan-in
-does not prove fault capture. The provisional logic5 and AUX falling
+boost/F2/reservoir/bank path, with two separate review-only Würth
+`74651173R` board studs on `VD_LOCAL` and `VB_BANK`; the Mersen F2 assembly
+remains off board. The fused-board-terminal/CMC/NTC/relay AC section
+joins the bridge. IRM-20-24, the regulated 15 V route, protected AUX and
+HOT logic5 are joined as digital candidates. The off-board F1 assembly,
+source ESP target behavior and supply electrical/physical acceptance remain
+open. The compiled fan-in does not prove fault capture. The provisional logic5 and AUX falling
 thresholds are 4.531 V and 12.88 V nominal; see [HOT-RAILS.md](HOT-RAILS.md)
 for the unclosed corners, [F2-DETECTOR.md](F2-DETECTOR.md) for the VD/VB
 window topology, [AUX-WINDOW.md](AUX-WINDOW.md) for the fast-dip/OV

@@ -10,11 +10,12 @@ No numerical fault response, protected operation, or mains build is approved.
 
 | Item | Frozen identity or current candidate byte hash |
 | --- | --- |
-| Git milestone | `6de13975a65a86ac7c711bf520f6c4b16faa3188` |
-| Rev38 295-reference build receipt | `source-build-04` SHA-256 `ecd434f9e896cae47cadd73f955235d1c254030c46d6887461b6986b423a68cf` |
+| Earlier Git milestone | `6de13975a65a86ac7c711bf520f6c4b16faa3188` |
+| Rev38 296-reference build receipt | `source-build-05` SHA-256 `4f07f1177fbe39eef940e665892c40285e77925ce4f4622ddbf21cd38672a7f5` (Atopile 0.2.69, compiled-and-exported) |
+| Rev38 compiled netlist and resolved export | `source-build-05/build/default.net` SHA-256 `c221b3048527eccbb3c9574ff35124f071c96d2b5031c19d81752c4159db13ea`; `source-build-05/resolved-components.json` SHA-256 `ef3f899e279843928e63464066378055bca704123ef9081e406c639c5a4c15a2` |
 | Cooker mate 189-reference build receipt | `cooker-source-02` SHA-256 `21d303f769dccaaaf25049e87cd948d55de8ab19be478c9aab277f535d45baa4` |
-| Two-source artifact lock | SHA-256 `72c3d6252567b0a0ab1c3c8353c6e878a9dfc029f032529a934f9b4b754ade8c` |
-| Rust pin audit | `audit.rs` SHA-256 `1e6b0ae3edc257f7a12fc82614be38a1e809cad6d1c9e359360932c8f60c5a8f` |
+| Two-source artifact lock | SHA-256 `ad87651d3eaf40cd9fef7a9aed6f9227c0115e604ccf2494f1b5a7f8b4505706` |
+| Rust pin audit | `audit.rs` SHA-256 `1ccb5e0edc8954a14deca259732098d3c21d466de5a1d1a6f163f64e310ed621` |
 | AVR64DA32 target and profiles | `receiver-firmware/avr64da32_target.c` SHA-256 `0e8e4240bb2398c5caa02fb6d7d66b3582edb104b39c25e885eafc4f1594f758`; `avr64da32.mk` SHA-256 `32e391a3871c95f97886d719e29975fdddebf9d3572b0ed8ba5e1f153b7603ef`; locked ELF `4e5f8cdc72b749e41dd348de25343a01dcb833825e81b3586eeb9f60da916596`; engineering ELF `f7b13f821114a661ef2a83b50cab1c896e63a8f46030022626fa13113e1925bf` (temporary local files, Microchip AVR toolchain 4.0.0.52) |
 | Reference model and protocol tests | `model.rs` SHA-256 `86165afe2bd2c80cb353aa9fdb3993d89ed9597257fe6416d8ef48d80043a567`; `protocol-tests.rs` SHA-256 `6b4e8456092fe226e649ad37eddb2ed8e424acd7327a7b162e69b67de08db49a` |
 | ESP source adapter | `firmware/main/power_entry_authorization.c` SHA-256 `9241602d8f193ae10a1f1fc4fc87369de6a08116b8804466910194f44d03bc50`; header SHA-256 `62e936dec957a3ae5e7bc55e1c6b9e48b06620cb26cf5d3adab8e57c0faab274` |
@@ -27,7 +28,9 @@ No numerical fault response, protected operation, or mains build is approved.
 | Cooker native readiness diagnostic | `cooker-mate/evidence/native-readiness-02.json` SHA-256 `9d441e0ae16a4ed912ff7420beb38fc2b3a8c5eed39da8589c8814811565e5ef`; static probe only |
 | Follow-on cooker power assembly | **Outside this plan's U7 gate**; `docs/superpowers/specs/2026-09-24-rev38-single-bank-cooker-design.md` explores a single-bank half bridge, and `POWER-ASSEMBLY-BOUNDARY.md` records the unjoined product source |
 
-Each build receipt lists every copied Atopile source hash and its resolved
+The previous 295-reference `source-build-04` receipt remains historical;
+its hashes are retained in `NATIVE-BUILD.md`. Each build receipt lists
+every copied Atopile source hash and its resolved
 export hash. The [two-board source record](COOKER-ASSEMBLY-SOURCE.md) links
 the actual netlist/BOM bytes; `tools/check_assembly_source.py` verifies the
 receipts, source copies, build manifests, adapters, exports and netlist/BOM lock before running
@@ -60,8 +63,8 @@ current-cessation result.
 
 | Gate | Current result | Scope |
 | --- | --- | --- |
-| Frozen two-source build and assembly audit | **PASS** | 295 Rev38 refs, 189 cooker refs, one ESP on cooker source, none on Rev38; receipt hashes and straight-through 16 contacts checked. |
-| Rust pin audit mutation suite | **PASS: 144/144** | Includes swapped UART contacts, open return, open ESP ground pad 41, extra STOP driver, weak heartbeat pull-down and wrong Rev38 protocol-isolator identity. |
+| Frozen two-source build and assembly audit | **PASS** | 296 Rev38 refs, 189 cooker refs, one ESP on cooker source, none on Rev38; receipt hashes and straight-through 16 contacts checked. |
+| Rust pin audit mutation suite | **PASS: 145/145** | Includes swapped UART contacts, open return, open ESP ground pad 41, extra STOP driver, weak heartbeat pull-down and wrong Rev38 protocol-isolator identity. |
 | Import-boundary and derived-artifact checks | **PASS** | `scripts/import_linter_gate.py`: 5 kept, 0 broken; `scripts/regen_derived.py --check`: consistent. |
 | RTD sample-age and cooker temperature input | **PASS: 22 focused host tests; 17/17 CTest** | Conversion age, wrap and invalidation; PT100 manufacturer-table values; INIT wait and preserved probe-fault diagnosis. The 100 ms control sample rejection is not an accepted monitor deadline. No monitor epoch or Rev38 authorization is credited. |
 | Heatsink NTC host conversion | **PASS: 9 focused host tests; 17/17 CTest** | Matches the selected 100 kΩ/B4190 Vishay part and 10 kΩ top resistor at cold, 25 °C, and 85 °C points; rejects open, short, over-range and implausible rate. ESP ADC transfer/calibration, production read hook, board divider and target behavior remain OPEN. |
@@ -69,8 +72,8 @@ current-cessation result.
 | Receiver engineering target profiles | **PASS: two offline AVR64DA32 links** | The locked default and separately named nonzero-window engineering profile build with the official Microchip toolchain. `receiver-firmware/ENGINEERING-WINDOWS.md` states transport arithmetic and unmeasured processing hypotheses. This is target-code evidence, not numerical or device acceptance. |
 | Receiver device qualification | **OPEN** | Target compilation does not prove programmed fuses, reset, clock, watchdog, pin levels or deadline behavior on silicon. The candidate windows and installed-device maximums are unaccepted. |
 | ESP target integration | **Target link PASS; physical and production integration OPEN** | The full ESP-IDF v5.3 `TEMPER_REV38_TEST_IMAGE=ON` image linked with the actual source task and retains zero timing lockout; see `ESP-TARGET-COMPILE.md` for input and output hashes. The diagnostic image never runs the task; the cooker production image still has unresolved hooks. Target pin/reset captures remain NOT RUN. |
-| F1/F2, AUX, SELV port and thermal/fault envelopes | **OPEN** | `SELV-PORT-CONTRACT.md` sets candidate board-input limits and a 100 mA Rev38 allocation, not an accepted load maximum or qualified cooker rail. `F1-SCREEN.md` shows the 15 A NTC at its steady-state nameplate while the candidate 20 A fuse cannot establish slow-overload protection. `F2-BOARD-INTERFACE.md` keeps the selected 1017526 without a released footprint and the 1709681 review-only alternate unqualified. `AUX-SOURCE-CANDIDATE.md` and `AUX-WINDOW.md` separate pre-cutoff and shunt load/startup budgets; normal voltage-window and fast-fault peaks remain OPEN. The 10 kΩ GPIO21 pull-down reduces one typical boot pull-up risk but does not bound WDI feed tail. |
-| Native schematic/PCB, ERC/DRC, stackup, source/native parity and maintained unit gate | **NOT RUN for Rev38** | No accepted Rev38 section-board bytes; canonical `pcb/temper.kicad_pcb` remains outside this candidate. `INSULATION-BASIS.md` identifies a 16.0 mm provisional Group IIIa board creepage screen and a separate 12.6 mm Group I package screen; selected ISO774x DW only specifies >8 mm external path. Product standard, voltage envelope and construction are unresolved. |
+| F1/F2, AUX, SELV port and thermal/fault envelopes | **OPEN** | `SELV-PORT-CONTRACT.md` sets candidate board-input limits and a 100 mA Rev38 allocation, not an accepted load maximum or qualified cooker rail. `F1-SCREEN.md` keeps the inlet fuse/NTC thermal and slow-overload gates open. Current `source-build-05` joins separate `74651173R` VD/VB studs with review-only footprints; their lug, PTH, copper, fault-current, DC and thermal application remains unqualified. The Phoenix studies are historical. AUX normal voltage-window and fast-fault peaks remain OPEN. The 10 kΩ GPIO21 pull-down does not bound WDI feed tail. |
+| Native schematic/PCB, ERC/DRC, stackup, source/native parity and maintained unit gate | **NOT RUN for Rev38** | The `source-build-05` preflight passes vendoring and strict pin-map conversion, then stops at missing reviewed `poses.json`; no section schematic/PCB exists. A temporary flat KiCad schematic preserves 296 references, 246 nets and 1,054 numeric pin edges, but it is not the native section or functional pin-name proof. The user-approved 360 × 250 mm planning `outline.json` exists; reviewed poses, physical fit and complete layout/rules remain open. Canonical `pcb/temper.kicad_pcb` is outside this candidate. `INSULATION-BASIS.md` has provisional 16.0 mm Group IIIa board and 12.6 mm Group I package creepage screens. The joined DWW pair specifies >14.5 mm external package path, but PD3 component certification, opposed copper, product standard, voltage envelope and construction are unresolved. |
 | Cooker source/footprint readiness | **Follow-on product work** | The frozen derivative proves a proposed controller interface. Its old F1/NTC footprints and product placement do not gate the Rev38 section board. The 3.3 V port supply, load, startup and fail-low contract do gate Rev38 interface acceptance. |
 | Low-voltage assembled injection, fault-to-current cessation, mains safety and passive protection/cooling milestone | **NOT RUN / OPEN** | Require a joined physical design and separately accepted measurements. |
 
@@ -78,6 +81,6 @@ The next digital release gate is a reviewed native Rev38 section board with
 exact parts, poses, outline, source/native parity, and a defined SELV
 controller port. That port has a candidate 3.3 V supply/load/startup/fail-low
 contract for the existing cooker ESP command source; qualification remains
-open. The F2 terminal drill/pin record
-remains open. Cooker inverter power joins and native cooker-board placement
+open. The current F2 stud land pattern, installed fault and thermal envelope,
+and exposed-metal spacing remain open. Cooker inverter power joins and native cooker-board placement
 belong to a later product-integration gate.

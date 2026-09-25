@@ -4,7 +4,7 @@
 The existing cooker ESP32-S3 owns the Rev38 command protocol. That choice does
 not qualify the cooker's present 3.3 V regulator. The Rev38 section has no
 on-board SELV 3.3 V source: power enters at `source_mcu.controller_port`.
-`source-build-04` is the frozen circuit identity for this contract. A later
+`source-build-05` is the frozen Rev38 circuit identity for this contract. A later
 product may use a different qualified SELV source while preserving the same
 command owner and port requirements.
 
@@ -19,10 +19,11 @@ command owner and port requirements.
 | Connector and harness | The screened 43045-1612 board header, 43025-1608 receptacles and 43030-0007 crimp contacts are identified in `SELV-CONTROLLER-CONNECTOR.md`. Define length, wire gauge, current/temperature derating, contact resistance, retention, strain relief and mis-mate prevention. Do not infer equal current sharing between the parallel supply or return contacts. Measure the case with one contact open as well as the case with both supply or all return contacts open. |
 
 The **100 mA allocation** gives a concrete design target without promoting a
-partial data-sheet sum to a maximum. `SELV-SUPPLY-LOAD.md` identifies 9.5 mA
-for both isolator VCC1 sides at the TI 1 Mbps/15 pF example, 25.4 mA at its
-100 Mbps example, and separately lists the expander, watchdog, supervisors,
-logic, pulls and startup capacitors. The frozen netlist's 31 direct SELV
+partial data-sheet sum to a maximum. `SELV-SUPPLY-LOAD.md` identifies 9.6 mA
+for both selected isolator VCC1 sides at their TI 1 Mbps/15 pF examples
+(4.8 mA each), and separately lists the expander, watchdog, supervisors,
+logic, pulls and startup capacitors. ISO6742-Q1 is rated only to 50 Mbps;
+there is no applicable 100 Mbps two-device example. The frozen netlist's 31 direct SELV
 resistors now have an intentionally overcounted **11.89 mA valid-rail screen**
 in `SELV-SUPPLY-LOAD.md`; it is not a whole-port bound. Neither isolator
 example covers every operating state or coincident transient. Complete an
@@ -41,7 +42,7 @@ do not establish headroom.
    software state. Check the two isolators with VCC1 absent and VCC2 present,
    and the reverse rail order; their F variants specify a low default when
    input power or signal is lost, but the actual partial-power circuit still
-   needs measurement. [TI ISO774x datasheet](https://www.ti.com/lit/ds/symlink/iso7742.pdf).
+   needs measurement. [TI ISO774x-Q1 datasheet](https://www.ti.com/lit/ds/symlink/iso7742-q1.pdf); [TI ISO674x-Q1 datasheet](https://www.ti.com/lit/ds/symlink/iso6742-q1.pdf).
 2. The TCA6408A-Q1 has both VCCI and VCCP connected to this same rail, but
    equal net names do not guarantee identical pin ramps. TI recommends VCCP
    ramp before VCCI to avoid SDA remaining low. Verify rail order and POR on

@@ -1,0 +1,2658 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "f0cc213b48413503d1a8af1f2cb0d18a6289f5f45ea6dbcfe8bb1e83cb117476",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "c221b3048527eccbb3c9574ff35124f071c96d2b5031c19d81752c4159db13ea",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.iso_protocol",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/gpn/ISO7742-Q1",
+        "footprint": "temper:ISO7741FQDWWRQ1_DWW0016A_ReviewOnly",
+        "manufacturer": "Texas Instruments",
+        "mpn": "ISO7741FQDWWRQ1"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.rx",
+      "attributes": {
+        "datasheet": "https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/AVR64DA28-32-48-64-DataSheet-DS40002233.pdf",
+        "footprint": "Package_QFP:TQFP-32_7x7mm_P0.8mm",
+        "manufacturer": "Microchip",
+        "mpn": "AVR64DA32-E/PT"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.reset_pulses",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lv221a-q1.pdf",
+        "footprint": "Package_SO:TSSOP-16_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LV221AQPWRQ1"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.prep_abort_memory",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS74PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.permit_inverter",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs04.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS04PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.permit_seen_memory",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS74PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.disarm_memory",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS74PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_disarm_memory",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.disarm_sample_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_permit_inverter",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_permit_seen_memory",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.permit_preset_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.prep_trip_and",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.history_reset_and",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_history_reset_and",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.history_reset_allowed_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.history_reset_d_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.permit_loss_nand",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs00.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS00PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_permit_loss_nand",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.permit_loss_ok_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.session_and",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_session_and",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.revalidate_d_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.session_memory",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS74PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_session_memory",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.run_and",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_run_and",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.run_clear_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.run_memory",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS74PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_run_memory",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_prep_trip_and",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_prep_abort_memory",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.prep_trip_ok_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.prep_abort_ok_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.attempt_valid_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.watchdog_ok_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.r_prep_timing",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_prep_timing",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H103KA01D",
+        "value": "10nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.r_history_timing",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_history_timing",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H103KA01D",
+        "value": "10nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_reset_pulses",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.prep_reset_raw_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.history_reset_raw_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.iso_feedback",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/gpn/iso6742-q1",
+        "footprint": "temper:ISO6742FQDWWRQ1_DWW0016A_ReviewOnly",
+        "manufacturer": "Texas Instruments",
+        "mpn": "ISO6742FQDWWRQ1"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_rx",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_iso1_hot",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_iso1_selv",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_iso2_hot",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.c_iso2_selv",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.permit_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.relay_request_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.relay_driver_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.source_health_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.source_stop_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.session_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.abort_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.session_clear_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.source_permit_fb_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.source_session_fb_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.reset_pullup",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.rails_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.fault_n_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.disarm_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.run_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.prep_abort_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.permit_seen_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.prep_reset_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.history_reset_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.revalidate_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.run_set_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::receiver.wdi_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.watchdog",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps3431.pdf",
+        "footprint": "Package_DFN_QFN:Texas_DRB0008A",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS3431SDRBR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.cwd",
+      "attributes": {
+        "datasheet": "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM1885C1H102JA01-01A.pdf",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H102JA01D",
+        "value": "1nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.wdo_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.heartbeat_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.wdi_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.rail",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps3890.pdf",
+        "footprint": "Package_SON:WSON-6_1.5x1.5mm_P0.5mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS389001DSER"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.rail_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0716KL",
+        "value": "16kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.rail_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.rail_ct",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.rail_reset_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.health",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.inv",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs04.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS04PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.seen_reset_pulse",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lv221a-q1.pdf",
+        "footprint": "Package_SO:TSSOP-16_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LV221AQPWRQ1"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.seen",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS74PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.seen_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.loss",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs00.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS00PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.wdi_pulse_r",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.wdi_pulse_c",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H103KA01D",
+        "value": "10nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.reset_r",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.reset_c",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H103KA01D",
+        "value": "10nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.reset_check",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.permit_clear",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.permit",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS74PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.reset_good_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.interlock_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.stop_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.session_fb_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.permit_fb_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.permit_set_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.seen_reset_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.challenge_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.permit_q_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.health_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.prewatchdog_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.clear_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.loss_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.reset_d_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.seen_preset_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.c_watchdog",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.c_rail",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.c_health",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.c_inv",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.c_seen",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.c_loss",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.c_pulse",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.c_reset_check",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.c_permit_clear",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source.c_permit",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.qualify",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.permission_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.c_qualify",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.release",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g06.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G06DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.c_release",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.shunt",
+      "attributes": {
+        "datasheet": "https://assets.nexperia.com/documents/data-sheet/PMBT3904.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Nexperia",
+        "mpn": "PMBT3904"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.base_bias",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC2512JK-073K3L",
+        "value": "3.3kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.base_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0747KL",
+        "value": "47kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.ena_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.ena_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.driver",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/ucc27624.pdf",
+        "footprint": "Package_SO:SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.95x4.9mm_Mask2.71x3.4mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "UCC27624DDAR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.pwm_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.c_driver_hf",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.c_driver_bulk",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "manufacturer": "Murata",
+        "mpn": "GCM31CC71H475KA03L",
+        "value": "4.7uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.gate_r",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-0710RL",
+        "value": "10ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.gate_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::driver.stw",
+      "attributes": {
+        "datasheet": "https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "manufacturer": "STMicroelectronics",
+        "mpn": "STW65N65DM2AG"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_watchdog.watchdog",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps3431.pdf",
+        "footprint": "Package_DFN_QFN:Texas_DRB0008A",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS3431SDRBR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_watchdog.cwd",
+      "attributes": {
+        "datasheet": "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM1885C1H102JA01-01A.pdf",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H102JA01D",
+        "value": "1nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_watchdog.wdo_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_watchdog.c_watchdog",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.sup_logic",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps3890.pdf",
+        "footprint": "Package_SON:WSON-6_1.5x1.5mm_P0.5mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS389001DSER"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.sup_aux",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps3890.pdf",
+        "footprint": "Package_SON:WSON-6_1.5x1.5mm_P0.5mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS389001DSER"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.reset_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.c_logic",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.c_aux",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.logic_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07294KL",
+        "value": "294kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.logic_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.logic_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0747KL",
+        "value": "47kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.logic_ct",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H101JA01D",
+        "value": "100pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.aux_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-071M02L",
+        "value": "1.02Mohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.aux_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.aux_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0747KL",
+        "value": "47kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_rails.aux_ct",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H101JA01D",
+        "value": "100pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_div.r1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_div.r2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_div.r3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_div.r4",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_div.r5",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206187KBEEA",
+        "value": "187kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_div.step",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206200RBEEA",
+        "value": "200ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_div.bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW12065K62BEEA",
+        "value": "5.62kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_div.filter",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H470JA01D",
+        "value": "47pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_div.r1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_div.r2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_div.r3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_div.r4",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_div.r5",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206187KBEEA",
+        "value": "187kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_div.step",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW1206200RBEEA",
+        "value": "200ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_div.bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPW12065K62BEEA",
+        "value": "5.62kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_div.filter",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H470JA01D",
+        "value": "47pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.reference",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/lm4040.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Texas Instruments",
+        "mpn": "LM4040A25IDBZR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.ref_bias",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.ref_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.cmp_vd",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3202.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3202IDR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.cmp_vb",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3202.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3202IDR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.c_vd",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.c_vb",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_ov_ref",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_ov",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_mismatch_p",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_mismatch_n",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_ov_ref",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_ov",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vb_mismatch_p",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.vd_mismatch_n",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.health",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.aux_window_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::f2_detector.c_health",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.fast_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07430KL",
+        "value": "430kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.fast_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.fast_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.ov_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07560KL",
+        "value": "560kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.ov_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.ov_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.ov_ref",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.comparator",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3202.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3202IDR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.c_comparator",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.window",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G08DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_window.c_window",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.pfc",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/ucc28180.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "UCC28180D"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.shunt",
+      "attributes": {
+        "footprint": "temper:HCSM2818FT10L0",
+        "manufacturer": "Stackpole",
+        "mpn": "HCSM2818FT10L0"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.r_isense",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07220RL",
+        "value": "220ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.c_isense",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C102J5GACTU",
+        "value": "1nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.isense_clamp",
+      "attributes": {
+        "datasheet": "https://www.vishay.com/docs/86374/bav23c.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Vishay",
+        "mpn": "BAV23C-E3-08"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.r_freq",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0716K2L",
+        "value": "16.2kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.c_icomp",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C272J5GACTU",
+        "value": "2.7nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.r_vcomp",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0740K2L",
+        "value": "40.2kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.c_vcomp",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "GRM32ER71H475KA88L",
+        "value": "4.7uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.c_vcomp_p",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C224K5RACTU",
+        "value": "220nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.c_vcc",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C105K5RACTU",
+        "value": "1uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.r_vtop1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.r_vtop2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.r_vtop3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.r_vtop4",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.r_vtop5",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.r_vbottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0713KL",
+        "value": "13kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.c_vfeed",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C681J5GACTU",
+        "value": "680pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.q_inhibit",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Alpha & Omega Semiconductor",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.inhibit_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.inhibit_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.q_permit",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Alpha & Omega Semiconductor",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.permit_r",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-071KL",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_control.permit_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.bridge",
+      "attributes": {
+        "footprint": "Diode_THT:Diode_Bridge_GBJ2510",
+        "manufacturer": "Diodes Incorporated",
+        "mpn": "GBJ2510-F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.l_boost",
+      "attributes": {
+        "datasheet": "https://www.we-online.com/components/products/datasheet/760800301.pdf",
+        "footprint": "Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75",
+        "manufacturer": "Wurth Elektronik",
+        "mpn": "760800301"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.d_boost",
+      "attributes": {
+        "datasheet": "https://assets.wolfspeed.com/uploads/2023/12/Wolfspeed_C3D20065D_data_sheet.pdf",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "manufacturer": "Wolfspeed",
+        "mpn": "C3D20065D"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.f2",
+      "attributes": {
+        "datasheet": "https://www.mersen.com/en/products/amp-trap-a70qs-700vac-700vdc",
+        "footprint": "TBD_REVIEW_ONLY:PFC_F2_OFFBOARD_ASSEMBLY",
+        "manufacturer": "Mersen",
+        "mpn": "A70QS50-14F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.f2_vd_stud",
+      "attributes": {
+        "datasheet": "https://www.we-online.com/components/products/datasheet/74651173R.pdf",
+        "footprint": "temper:Wurth_74651173R_ReviewOnly",
+        "manufacturer": "Wurth Elektronik",
+        "mpn": "74651173R"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.f2_vb_stud",
+      "attributes": {
+        "datasheet": "https://www.we-online.com/components/products/datasheet/74651173R.pdf",
+        "footprint": "temper:Wurth_74651173R_ReviewOnly",
+        "manufacturer": "Wurth Elektronik",
+        "mpn": "74651173R"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.local_c",
+      "attributes": {
+        "datasheet": "https://product.tdk.com/system/files/dam/doc/product/capacitor/film/mkp_mfp/data_sheet/20/20/db/fc_2009/b3277xp.pdf",
+        "footprint": "temper:B32776P6226K000",
+        "manufacturer": "TDK",
+        "mpn": "B32776P6226K000"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.hf_c",
+      "attributes": {
+        "footprint": "temper:B32672P6474K000",
+        "manufacturer": "TDK",
+        "mpn": "B32672P6474K000"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.bulk1",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "manufacturer": "Nichicon",
+        "mpn": "LGX2W561MELC50"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.bulk2",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "manufacturer": "Nichicon",
+        "mpn": "LGX2W561MELC50"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.bulk3",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "manufacturer": "Nichicon",
+        "mpn": "LGX2W561MELC50"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.bulk4",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "manufacturer": "Nichicon",
+        "mpn": "LGX2W561MELC50"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.bleed1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC2512FR-07150KL"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.bleed2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC2512FR-07150KL"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::pfc_power.bleed3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC2512FR-07150KL"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.board_input",
+      "attributes": {
+        "footprint": "temper:Phoenix_1714984",
+        "manufacturer": "Phoenix Contact",
+        "mpn": "1714984"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.cmc",
+      "attributes": {
+        "footprint": "temper:CMC_B82726S",
+        "manufacturer": "TDK",
+        "mpn": "B82726S2163N030"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.aux_branch",
+      "attributes": {
+        "footprint": "temper:Phoenix_1714971",
+        "manufacturer": "Phoenix Contact",
+        "mpn": "1714971"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.raw_aux",
+      "attributes": {
+        "datasheet": "https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF",
+        "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+        "manufacturer": "Mean Well",
+        "mpn": "IRM-20-24"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.ntc",
+      "attributes": {
+        "footprint": "temper:SL32_10015",
+        "manufacturer": "Ametherm",
+        "mpn": "SL32 10015"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.bypass",
+      "attributes": {
+        "footprint": "temper:Relay_SPST_Schrack-RT33K012",
+        "manufacturer": "TE Connectivity",
+        "mpn": "RT33K012"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.x2",
+      "attributes": {
+        "footprint": "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3",
+        "manufacturer": "TDK",
+        "mpn": "B32922C3224M289"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.mov",
+      "attributes": {
+        "footprint": "temper:RV_Littelfuse_V150LA10AP_D17.0mm_W5.6mm_P7.5mm",
+        "manufacturer": "Littelfuse",
+        "mpn": "V150LA10AP"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.y1",
+      "attributes": {
+        "footprint": "Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0",
+        "manufacturer": "Vishay",
+        "mpn": "VY1102M31Y5UQ63V0"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.relay_gate_r",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-071KL",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.relay_gate_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.relay_fet",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Alpha & Omega Semiconductor",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.coil_drop",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "RC2512FK-0791RL",
+        "value": "91ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::ac_input.flyback",
+      "attributes": {
+        "footprint": "Diode_SMD:D_SMA",
+        "manufacturer": "Vishay",
+        "mpn": "SS14"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.buck",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/lmr36015.pdf",
+        "footprint": "Package_DFN_QFN:Texas_RNX0012C_VQFN-14-11-1EP_2x3mm_P0.5mm_EP0.25x1.825mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "LMR36015BRNXT"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.cin_a",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "TDK",
+        "mpn": "C3225X7R2A106K250AC",
+        "value": "10uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.cin_b",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "TDK",
+        "mpn": "C3225X7R2A106K250AC",
+        "value": "10uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.vin_hf_a",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "manufacturer": "TDK",
+        "mpn": "C3216X7R2A224K115AA",
+        "value": "220nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.vin_hf_b",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "manufacturer": "TDK",
+        "mpn": "C3216X7R2A224K115AA",
+        "value": "220nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.boot_c",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.vcc_c",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "manufacturer": "TDK",
+        "mpn": "C2012X7R1C105K125AA",
+        "value": "1uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.inductor",
+      "attributes": {
+        "datasheet": "https://www.coilcraft.com/en-us/products/power/shielded-inductors/molded-inductor/xgl/xgl6060/xgl6060-183/",
+        "footprint": "temper:L_Coilcraft_XGL6060-XXX",
+        "manufacturer": "Coilcraft",
+        "mpn": "XGL6060-183MEC",
+        "value": "18uH"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.cout_a",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_2220_5750Metric",
+        "manufacturer": "TDK",
+        "mpn": "C5750X7R1H226M250KB",
+        "value": "22uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.cout_b",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_2220_5750Metric",
+        "manufacturer": "TDK",
+        "mpn": "C5750X7R1H226M250KB",
+        "value": "22uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.fb_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Panasonic",
+        "mpn": "ERA3AEB104V",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot15_converter.fb_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Panasonic",
+        "mpn": "ERA3AEB7151V",
+        "value": "7.15kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_cutoff.cutoff",
+      "attributes": {
+        "datasheet": "https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf",
+        "footprint": "Package_SO:MSOP-10_3x3mm_P0.5mm",
+        "manufacturer": "Analog Devices",
+        "mpn": "LTC4368HMS-2#PBF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_cutoff.fets",
+      "attributes": {
+        "datasheet": "https://www.onsemi.com/download/data-sheet/pdf/fds3992-d.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "manufacturer": "onsemi",
+        "mpn": "FDS3992"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_cutoff.sense",
+      "attributes": {
+        "datasheet": "https://www.vishay.com/docs/30100/wsl.pdf",
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "Vishay",
+        "mpn": "WSL2512R0500FTA",
+        "value": "50mohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_cutoff.uv_top",
+      "attributes": {
+        "datasheet": "https://www.vishay.com/docs/28779/tnpue3.pdf",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPU060320K0AWEN00",
+        "value": "20kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_cutoff.uv_bottom",
+      "attributes": {
+        "datasheet": "https://www.vishay.com/docs/28779/tnpue3.pdf",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPU0603806RAZEN00",
+        "value": "806ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_cutoff.ov_top",
+      "attributes": {
+        "datasheet": "https://www.vishay.com/docs/28779/tnpue3.pdf",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPU060320K0AWEN00",
+        "value": "20kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_cutoff.ov_bottom",
+      "attributes": {
+        "datasheet": "https://www.vishay.com/docs/28779/tnpue3.pdf",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Vishay",
+        "mpn": "TNPU0603590RAZEN00",
+        "value": "590ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_cutoff.r_gate",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0722KL",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_cutoff.c_gate",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R72A103KA01D",
+        "value": "10nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::aux_cutoff.c_out",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "manufacturer": "Murata",
+        "mpn": "GCM31CC71H475KA03L",
+        "value": "4.7uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.buck",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps54202.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS54202DDCR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.cin_a",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "TDK",
+        "mpn": "C3225X7R1H106K250AC",
+        "value": "10uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.cin_b",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "TDK",
+        "mpn": "C3225X7R1H106K250AC",
+        "value": "10uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.cin_hf",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.en_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Vishay Dale",
+        "mpn": "CRCW0603510KJNEA",
+        "value": "510kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.en_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Vishay Dale",
+        "mpn": "CRCW0603105KFKEA",
+        "value": "105kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.boot_c",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.inductor",
+      "attributes": {
+        "datasheet": "https://www.coilcraft.com/en-us/products/power/shielded-inductors/molded-inductor/xgl/xgl6060/xgl6060-153/",
+        "footprint": "temper:L_Coilcraft_XGL6060-XXX",
+        "manufacturer": "Coilcraft",
+        "mpn": "XGL6060-153MEC",
+        "value": "15uH"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.cout_a",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "TDK",
+        "mpn": "C3225X7R1E226M250AB",
+        "value": "22uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.cout_b",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "manufacturer": "TDK",
+        "mpn": "C3225X7R1E226M250AB",
+        "value": "22uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.fb_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Panasonic",
+        "mpn": "ERA3AEB104V",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.fb_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Panasonic",
+        "mpn": "ERA3AEB1332V",
+        "value": "13.3kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::hot_logic5_converter.fb_ff",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H750JA01D",
+        "value": "75pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source_mcu.controller_port",
+      "attributes": {
+        "datasheet": "https://www.molex.com/en-us/products/part-detail/430451612",
+        "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
+        "manufacturer": "Molex",
+        "mpn": "43045-1612"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source_mcu.start",
+      "attributes": {
+        "footprint": "Button_Switch_SMD:SW_SPST_EVQP7A",
+        "manufacturer": "Panasonic",
+        "mpn": "EVQ-P7A01P"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source_mcu.start_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source_mcu.expander",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tca6408a-q1.pdf",
+        "footprint": "Package_SO:TSSOP-16_4.4x5mm_P0.65mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TCA6408AQPWRQ1"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source_mcu.exp_reset_pu",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source_mcu.challenge_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source_mcu.seen_request_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source_mcu.relay_request_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source_mcu.port_decoupling",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38::source_mcu.exp_decoupling",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM188R71H104KA93D",
+        "value": "100nF"
+      }
+    }
+  ],
+  "entry": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-integration-38/source-build-05/elec/src/power_entry_integrated_38.ato:PowerEntryIntegrated38",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "elec/src/ac_input.ato": "c129484e6cd0b3609876a8ac95766800926a6114be1c939b9d49e063f4ce8131",
+    "elec/src/aux_cutoff.ato": "cf9464d01f630c93317b1d6a9958a10d568ea05e556203bc786aafd5835cb545",
+    "elec/src/aux_window.ato": "394dfa33947c76f1c2b3d31abbc28416b7d39b606c2e6e14dc59fa89419ded66",
+    "elec/src/driver_stage.ato": "4e704870e45f461358f347ddbc9d3b1e3eced83ebf17127e15e6d4d3c0cd5077",
+    "elec/src/f2_detector.ato": "211331f3d65d2d247296b7920643561ce3cc38c55fb3d99316cfb284c7a9fbfe",
+    "elec/src/hot15_converter.ato": "3d9519e7b8a7f5ca1d7eef2cafd34dc5f4aabe55fe0043b459810756f46a35b2",
+    "elec/src/hot_logic5_converter.ato": "0eab29825101ac7d970fdfaf5c8c67faca131adc4286185b20fd7a9cab8f9790",
+    "elec/src/hot_rails.ato": "c5b9b8f93945c59156bc38661077167d7aa68c0389f14484fa449ba3cc7dafab",
+    "elec/src/hot_watchdog.ato": "1aa100167245bb4a505bf13814c2925daaffbc539e2d70386063bef93ec98a77",
+    "elec/src/pfc_controller.ato": "89b23d663258300d03d9c7989d5ffba80e30676f164628647e44ce52b604cf36",
+    "elec/src/pfc_power.ato": "07913515ba224aa59d21a9d25ee4798aab4d32f6c7a7d8b58fcbf6975ea331fa",
+    "elec/src/power_entry_integrated_38.ato": "69d1b456d9d1e0d93747fc5826939c9329c95247fb831a05855d7164446499d5",
+    "elec/src/receiver_isolation.ato": "a269f079eb9aeeffd16a967aaf2cbfcaebcf5f71b324409de0309230b869ba9f",
+    "elec/src/source_authority.ato": "fd4e0690d47772f1fc5551ccc2b37c7df8527d66e6a646a831fd6243923302c6",
+    "elec/src/source_mcu.ato": "8c7dbe83d58a24671d53e0e05aa4bc94cd416920eeafe9f999754ef3ede24698"
+  }
+}

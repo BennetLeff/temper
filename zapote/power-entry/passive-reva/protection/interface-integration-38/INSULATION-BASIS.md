@@ -59,22 +59,22 @@ of F2.
 | AC L/N to SELV or accessible SELV-connected copper | Reinforced candidate | 132 V ac input plus installation transients; use the applicable appliance table's RMS/impulse method | Numeric creepage and clearance pending selected product standard and surge basis. Do not borrow the bank's DC row without analysis. |
 | VB_BANK or VD_LOCAL to SELV | Reinforced candidate | At least 409.307 V dc static on the controlled bank; VD fault/ripple ceiling unaccepted | 16.0 mm PD3 creepage on Group IIIa/IIIb FR-4; 12.6 mm on a separately qualified Group I package surface in the same row. Air clearance, solid insulation and overshoot require separate derivation. |
 | HOT logic/AUX/gate nets to SELV | Reinforced candidate | Common-mode potential follows HOT0 and AC/DC stage state | Apply the worst crossing voltage, including the bank where coupled or reachable. Pin-group and conductive-path review pending. |
-| VD_LOCAL to VB_BANK across F2 | Functional / fault separation candidate | F2 open-circuit voltage and transient not yet bounded | No released creepage/clearance. The 1017526 terminal's own rating does not prove PCB solder-land spacing. |
+| VD_LOCAL to VB_BANK across F2 | Functional / fault separation candidate | F2 open-circuit voltage and transient not yet bounded | No released creepage/clearance. The two joined Würth studs permit board-level spacing, but their exposed metal, lugs, cable and neighboring copper need a complete constructed-path review. |
 | AC L/N to HOT0, rectified nodes, or other HOT conductors | Functional/basic classification pending fault and accessible-part analysis | 132 V ac and rectified/surge states | Numeric rules pending; 15 A copper, fault current, and F1 coordination are separate gates. |
 | Within SELV or within one HOT control group | Functional candidate | Actual maximum differential per net pair | Normal electrical clearance and manufacturability still required; no blanket safety-barrier exemption. |
 
 ## Component obstruction and release condition
 
-The joined source selects `ISO7741FDWR` and `ISO7742FDWR`. TI's ISO774x
-DW datasheet specifies **>8 mm external package creepage and clearance**,
-and Group I package material. The project's provisional PD3 >400–500 V
-Group I reinforced-creepage screen is **12.6 mm**, so the selected DW
-package has no demonstrated margin even before solder lands and nearby
-copper are checked. A PCB rule cannot make an intrinsic package path
-longer. Do not mark U7 native DRC or insulation PASS merely by spacing the
-rest of the board.
+The historical `source-build-04` selected `ISO7741FDWR` and
+`ISO7742FDWR`. TI's ISO774x DW datasheet specifies **>8 mm external
+package creepage and clearance**, and Group I package material. The
+project's provisional PD3 >400–500 V Group I reinforced-creepage screen
+is **12.6 mm**, so that DW package had no demonstrated margin. The
+current `source-build-05` joins wider DWW parts as described below. A
+PCB rule cannot make an intrinsic package path longer, and the new
+parts do not by themselves make native insulation PASS.
 
-### Exact wider-package screen (not a source substitution)
+### Joined exact wider-package candidates
 
 TI's 2026-02 package-option addendum lists the active, production
 `ISO7741FQDWWRQ1` (3 forward / 1 reverse, fail-low) in DWW-16. It lists
@@ -85,8 +85,10 @@ For the second 2/2 device, TI lists active, production
 signal pin positions as the selected ISO7742FDWR, Group I package material
 and >14.5 mm external package creepage and clearance. It supports the
 candidate 3.3 V SELV / 5 V HOT rails. `ISO7741FQDWWRQ1` plus
-`ISO6742FQDWWRQ1` is an exact wider-package pair for review, **not** a
-drop-in insulation approval or a changed Rev38 BOM.
+`ISO6742FQDWWRQ1` is the exact wider-package pair now joined in
+`source-build-05` with separate `ReviewOnly` footprint identities. This
+is a source/BOM change for native layout exploration, **not** a drop-in
+insulation approval.
 Both TI insulation tables state **pollution degree 2** for their component
 certifications. Their >14.5 mm physical path and Group I CTI do not by
 themselves certify use in the proposed PD3 appliance construction. That
@@ -112,12 +114,14 @@ default-low loads and qualify the actual rail sequence. The alternate
 `ISO7841FDWWR`/`ISO7842FDWWR` pair has a 9 µs maximum input-power-loss
 default delay at its specified threshold, so it is not a timing-equivalent
 substitution. The provisional `ISO7741_DWW16.kicad_mod` under
-`elec/qualification` has unsuitable candidate pad geometry; a native DWW
-footprint needs a new official-land-pattern and assembled-copper review.
-Before changing the source, compare both candidates' enable/power-loss
-behavior, input/output drive, supply budget, timing, pad-to-pad path, exact
-footprint and certification scope on the joined circuit. The product safety
-review must still establish the applicable appliance requirement.
+`elec/qualification` has unsuitable candidate pad geometry. The joined
+review-only DWW footprints require official-land-pattern and assembled-
+copper review. Before native acceptance, compare both selected devices'
+enable/power-loss behavior, input/output drive, supply budget, timing,
+pad-to-pad path, exact footprint and certification scope on the joined
+circuit. The product safety review must still establish the applicable
+appliance requirement. ISO6742's 1.2 V input-rail decay region remains a
+specific unbounded fault-path interval.
 
 The Y1 capacitor, relay, AUX supply, controller connector, and any other
 crossing require the same path-by-path check.

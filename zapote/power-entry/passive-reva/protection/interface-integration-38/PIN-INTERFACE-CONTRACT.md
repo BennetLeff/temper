@@ -6,9 +6,9 @@ interfaces. The HOT MCU and isolation endpoints below are selected in the
 Rev38 Atopile fixture. The Rev38-side 16-contact controller port and local
 expander are joined as `SourceMcu38` and exact-pin audited. The module/GPIO
 allocation is a contract for the existing cooker board. A single source task is now
-wired into `app_main`, but remains locked out; CPU-reset behavior and the
-ESP-IDF target image are unverified. Rev38 sources compile for ESP32-S3, while
-the full image fails link on unresolved production cooker hooks.
+wired into `app_main`, but remains locked out; CPU-reset behavior on hardware remains unverified. The ESP-IDF v5.3
+Rev38 test image links with the actual source task; the production cooker
+image still fails link on unresolved hooks.
 The approved plan and `receiver-selection.md` govern behavior; a pin listed
 here is not an electrical, boot-state, or timing acceptance.
 
@@ -20,14 +20,14 @@ isolator output requires its local fail-low network and partial-power check.
 
 | Channel | SELV endpoint | HOT endpoint | Meaning and failure behavior |
 | --- | --- | --- | --- |
-| ISO7741FDWR A, forward | pin 3 INA, source command TX | pin 14 OUTA, AVR PA1/31 USART0 RX | Frames are identity/sequence input; absent traffic gives no liveness credit. |
-| ISO7741FDWR B, forward | pin 4 INB, retained source PERMIT Q | pin 13 OUTB, physical HOT PERMIT | Low clears RUN; loss after a prior high also invalidates SESSION. |
-| ISO7741FDWR C, forward | pin 5 INC, source relay request | pin 12 OUTC, AVR PA5/3 input | AVR PA2 alone owns the relay output, and retained HOT RUN Q qualifies its MOSFET gate. |
-| ISO7741FDWR D, reverse | pin 6 OUTD, source response RX | pin 11 IND, AVR PA0/30 USART0 TX | Response bytes carry protocol progress only. |
-| ISO7742FDWR A, forward | pin 3 INA, source hardware-health Q | pin 14 OUTA, HOT source-health clear input | Loss clears both HOT retained memories independently of UART. |
-| ISO7742FDWR B, forward | pin 4 INB, source STOP_N | pin 13 OUTB, HOT STOP clear input | Low asserts the physical abort path, including READY before PERMIT high. |
-| ISO7742FDWR C, reverse | pin 5 OUTC, source HOT PERMIT readback | pin 12 INC, physical HOT PERMIT | Source sees the actual isolated conductor and records loss after high. |
-| ISO7742FDWR D, reverse | pin 6 OUTD, source HOT SESSION readback | pin 11 IND, retained HOT_SESSION_OK Q | Source permit depends on this distinct feedback. |
+| ISO7741FQDWWRQ1 A, forward | pin 3 INA, source command TX | pin 14 OUTA, AVR PA1/31 USART0 RX | Frames are identity/sequence input; absent traffic gives no liveness credit. |
+| ISO7741FQDWWRQ1 B, forward | pin 4 INB, retained source PERMIT Q | pin 13 OUTB, physical HOT PERMIT | Low clears RUN; loss after a prior high also invalidates SESSION. |
+| ISO7741FQDWWRQ1 C, forward | pin 5 INC, source relay request | pin 12 OUTC, AVR PA5/3 input | AVR PA2 alone owns the relay output, and retained HOT RUN Q qualifies its MOSFET gate. |
+| ISO7741FQDWWRQ1 D, reverse | pin 6 OUTD, source response RX | pin 11 IND, AVR PA0/30 USART0 TX | Response bytes carry protocol progress only. |
+| ISO6742FQDWWRQ1 A, forward | pin 3 INA, source hardware-health Q | pin 14 OUTA, HOT source-health clear input | Loss clears both HOT retained memories independently of UART. |
+| ISO6742FQDWWRQ1 B, forward | pin 4 INB, source STOP_N | pin 13 OUTB, HOT STOP clear input | Low asserts the physical abort path, including READY before PERMIT high. |
+| ISO6742FQDWWRQ1 C, reverse | pin 5 OUTC, source HOT PERMIT readback | pin 12 INC, physical HOT PERMIT | Source sees the actual isolated conductor and records loss after high. |
+| ISO6742FQDWWRQ1 D, reverse | pin 6 OUTD, source HOT SESSION readback | pin 11 IND, retained HOT_SESSION_OK Q | Source permit depends on this distinct feedback. |
 
 Each isolator uses pins 1/2/8 for SELV supply/returns and pins 16/9/15 for
 HOT supply/returns. Pin 7 EN1 and pin 10 EN2 are tied to their respective
@@ -187,8 +187,8 @@ OPEN despite exact-pin connectivity PASS.
 
 The Atopile candidate now joins the source controller port, expander, button, source authority
 and both isolation channels. The ESP adapter is host-tested and wired to one
-`app_main` task. Its application objects compile for ESP32-S3 with IDF v5.3;
-the complete cooker image still fails to link on unresolved production hooks.
+`app_main` task. The Rev38 test image links for ESP32-S3 with IDF v5.3;
+the production cooker image still fails to link on unresolved hooks.
 Zero target timing bounds and unqualified UART final-bit, reset feed-tail,
 and monitor progress
 conditions keep the task locked out. The expander P1 history-reset pulse

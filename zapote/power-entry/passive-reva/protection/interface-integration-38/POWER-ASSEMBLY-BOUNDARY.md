@@ -5,13 +5,17 @@ The two frozen Atopile sources prove a
 16-contact SELV control interface. They do not yet describe one cooker power
 assembly. This is a source-topology finding, independent of footprint
 availability or PCB placement. The current source identities are
-`source-build-04` (Rev38 receipt `ecd434f9e896cae47cadd73f955235d1c254030c46d6887461b6986b423a68cf`)
+`source-build-05` (Rev38 build-receipt SHA-256
+`4f07f1177fbe39eef940e665892c40285e77925ce4f4622ddbf21cd38672a7f5`)
 and `cooker-source-02` (cooker receipt `21d303f769dccaaaf25049e87cd948d55de8ab19be478c9aab277f535d45baa4`).
+The earlier `source-build-04` Rev38 receipt was
+`ecd434f9e896cae47cadd73f955235d1c254030c46d6887461b6986b423a68cf`;
+it remains historical.
 
 | Boundary | Rev38 source | Existing cooker `Top` in mate derivative |
 | --- | --- | --- |
 | Inlet and protection | `AcInput38` receives already fused L, N and PE on `1714984`; F1 is the proposed off-board `LP-CC-20` assembly. | `PowerInput` retains its own `0034.3129` 5×20 F1, MOV, CMC, NTC and bypass relay. The fuse link/holder remains unqualified under the Rev38 F1 screen. |
-| DC power | `PfcPower38` has its own rectifier, boost switch, F2 and bank nodes `VD_LOCAL`/`VB_BANK`; `PFC-POWER.md` uses 400 V nominal for the local reservoir. | `Top.power_in` makes a separate AC doubler and `dc_bus_plus`/`dc_bus_minus`; `Top.hb` and tank use that bus. `Top.v_bus_max` is 340 V. |
+| DC power | `PfcPower38` has its own rectifier, boost switch, off-board F2 and bank nodes `VD_LOCAL`/`VB_BANK`; two separate on-board Würth `74651173R` studs terminate the F2 conductors in the current frozen source. `PFC-POWER.md` uses 400 V nominal for the local reservoir. Stud footprint and installed fault-current acceptance remain open. | `Top.power_in` makes a separate AC doubler and `dc_bus_plus`/`dc_bus_minus`; `Top.hb` and tank use that bus. `Top.v_bus_max` is 340 V. |
 | Controller rail | Rev38 takes SELV 3.3 V through the 16-contact header. | `Top.aux_supply` derives isolated 15 V from its existing half bus, and `Top.power_mgmt` derives the ESP 3.3 V rail. |
 | Between boards | The 16 contacts carry 3.3 V, return, GPIO, UART, I²C, reset-good and interlock. | The mate has the matching 16 contacts. There are no AC, DC bank, power-return or inverter bus contacts in this contract. |
 
@@ -61,7 +65,7 @@ assembly boundary. Whether those parts remain at all depends on the new
 composition. Keep native-product acceptance **OPEN** until the power
 interface is explicit and checked. This product gate does not delay the Rev38
 source-to-PFC `native/section.kicad_pcb` deliverable; that section retains
-its own F2 footprint, SELV-port, parts, pose, outline and source/native
+its own review-only F2 stud footprints, SELV-port, parts, pose, outline and source/native
 checks. No mains or assembled fault test has run.
 
 ## Direct-bank join audit (2026-09-24)

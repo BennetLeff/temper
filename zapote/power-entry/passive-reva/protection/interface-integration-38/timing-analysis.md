@@ -5,7 +5,7 @@ document starts the authorized per-fault derivation. It does not turn Rev35/37
 fixture timing, typical data, or a simulation screen into an accepted limit.
 The final source/native circuit, installed power-stage envelope, and
 prototype captures do not yet exist. The joined Atopile candidate contains
-the AVR64DA32, two ISO774xF devices, source and HOT TPS3431 devices,
+the AVR64DA32, the joined ISO7741FQ/ISO6742FQ DWW isolator pair, source and HOT TPS3431 devices,
 retained source/HOT memories, dual HOT TPS3890 undervoltage supervisors,
 four TLV3202 VD/VB channels, two AUX window channels, the UCC27624/STW
 driver stage, and the selected AC/AUX/PFC stages. Their presence does not
@@ -51,7 +51,7 @@ T_reset_to_off_worst + T_reset_margin
     <= min(T_allowable_first_start, T_allowable_already_running)
 ```
 
-The frozen `source-build-04` changes the GPIO21 request pull-down from
+The historical `source-build-04` changed the GPIO21 request pull-down from
 100 kΩ to 10 kΩ. Espressif gives a **typical**, not minimum, 45 kΩ internal
 pull-up for ESP32-S3. Against that typical value at 3.3 V, the old divider
 could sit at 2.28 V, inside TI's SN74LV221A-Q1 0.3–0.7 × VCC uncertain
@@ -174,7 +174,7 @@ the loaded, mixed-supply Rev38 circuit.
 | Selected part | Published conditional entry | Gap to Rev38 response bound |
 | --- | --- | --- |
 | [TLV3202](https://www.ti.com/lit/ds/symlink/tlv3202.pdf) VD/VB channels | At VCC = 5 V, 20 mV input overdrive and 15 pF load, the data sheet lists 55 ns maximum propagation delay over −40 to +125 °C for each output direction. | The actual divider/filter ramp may spend time below 20 mV overdrive; the real fan-in load, valid supply and minimum captured pulse still need bounds. The 55 ns is not a fault-to-clear maximum. |
-| [ISO774xF](https://www.ti.com/lit/ds/symlink/iso7742.pdf) source/HOT paths | The 5 V/5 V table lists 17 ns maximum propagation delay; the 3.3 V/3.3 V table lists 18.5 ns. The F-device default-output delay after **input** supply falls below 1.7 V is 0.3 µs maximum at those fixtures. | Rev38 uses 3.3 V on SELV and 5 V on HOT. Neither same-supply propagation row directly bounds that mixed condition. An unpowered output-side device cannot actively drive its fail-low value; local pulls and rail-order captures are still required. |
+| [ISO7741FQ](https://www.ti.com/lit/gpn/ISO7742-Q1) / [ISO6742FQ](https://www.ti.com/lit/gpn/iso6742-q1) DWW source/HOT paths | The ISO774x 5 V/5 V table lists 17 ns maximum propagation delay; the 3.3 V/3.3 V table lists 18.5 ns. ISO7741F default-output timing begins after **input** supply falls below 1.7 V; ISO6742F uses a **1.2 V** threshold and has a separate valid-data startup condition. | Rev38 uses 3.3 V on SELV and 5 V on HOT. Same-supply rows do not directly bound that mixed condition. The intermediate rail-decay interval to 1.2 V, output-side loss of drive, local pulls, startup and rail-order captures are unbounded. |
 | [UCC27624](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) driver | The March 2026 data sheet lists 27 ns maximum disable propagation from EN low threshold to 90% of output fall, with 1.8 nF load, 12 V VDD, 0–3.3 V switching input, 500 kHz and 125 °C fixture. | Rev38 uses an AUX-biased EN shunt, 10 Ω gate resistor and actual STW gate charge. That entry does not bound shunt release, loaded gate discharge, switch-current fall or supply-collapse behavior. |
 | [LTC4368](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4368.pdf) protected-AUX cutoff | UV/OV to FAULT is 1–2 µs at 50 mV overdrive and VIN = 12 V; UV/OV GATE turn-off is 2–6 µs with 2.2 nF CGATE. UV/OV-to-reconnect delay is 22–45 ms at VIN = 12 V. Overcurrent fault to GATE = 0 V is 3–18 µs with 2.2 nF CGATE and the specified sense overdrive. | Rev38 has 10 nF CGATE, a 22 kΩ series gate resistor, FDS3992 gate charge and 30.6 µF nominal downstream AUX capacitance. The published fixtures cannot bound driver VDD peak, FET turnoff, shunt current, logic5 decay or STW current cessation; measure each event under actual slew/load. |
 | [TPS3431](https://www.ti.com/lit/ds/symlink/tps3431.pdf) source/HOT watchdogs | The manufacturer's 1 nF **ideal capacitor** calculation is 119.82–144.98 ms for device timeout. | Selected CWD tolerance/effective value, pin leakage, boot/last-edge behavior and WDO-to-current-zero remain outside this calculated interval; it is not an allowable reset time. |
@@ -187,8 +187,9 @@ guaranteed maximum at the installed condition, obtain a supported bound or
 leave `T_implementation,worst` OPEN. A prototype capture can test a design
 but cannot by itself manufacture a missing production-corner guarantee.
 
-The wider-package **review candidate**, not the selected BOM, is
-`ISO7741FQDWWRQ1` plus `ISO6742FQDWWRQ1`. The latter specifies up to
+The wider-package pair now joined in the `source-build-05` BOM is
+`ISO7741FQDWWRQ1` plus `ISO6742FQDWWRQ1`. This is a source candidate, not
+a physical timing or PD3 insulation qualification. The latter specifies up to
 0.3 µs after its input VCC falls below **1.2 V**, whereas ISO7741F uses
 **1.7 V**. The rail-decay time between those thresholds and the actual HOT
 output defaults are unbounded; no 0.3 µs figure can be inserted directly

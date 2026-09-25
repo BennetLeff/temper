@@ -77,8 +77,12 @@ footprint pass.
 packages, TCA6408A-Q1, and a 1206 hand-solder gate-resistor land. The
 `F2-CAP-PACKAGE-DECISION.md` four-lead capacitor correction and
 `MAINS-PACKAGE-CLOSEOUT.md` MOV/resistor decisions complete the other board
-mounted references. The later frozen `source-build-04` has **two** review-only
-footprint keys: off-board F2 `U226` and the distinct on-board Phoenix 1017526
-F2 terminal `U227`. The native bridge excludes `U226` only after its exact
-assembly-only identity check; `U227` still needs a reviewed footprint. The
-earlier 11 and 9 counts above are dated intermediate pass results.
+mounted references. The historical `source-build-04` had **two** review-only
+footprint keys: off-board F2 `U226` and the on-board Phoenix 1017526
+terminal `U227`. Current `source-build-05` keeps off-board F2 `U226` and
+instead selects two separate Würth 74651173R studs `U227` and `U228`, each
+with a review-only footprint. The native bridge excludes `U226` only after
+its exact assembly-only identity check; both board studs pass footprint and
+pin-map preflight, but their installed geometry and ratings remain
+unqualified. The earlier 11 and 9 counts above are dated intermediate pass
+results.
