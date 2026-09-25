@@ -120,6 +120,13 @@ command OUT. This is the **DSG** dual-input package, not the SOIC `D` part
 with an EN pin. Its rising/falling VDD UVLO limits are 3.8–4.4 V and
 3.5–4.1 V. The driver still requires an actual protected-AUX pin peak and
 thermal/gate-loop review before selection.
+The joined [UCC28180 PFC controller](https://www.ti.com/lit/ds/symlink/ucc28180.pdf)
+shares `AUX_PROTECTED` and lists **21 V maximum recommended VCC**. Therefore
+the new driver's 26 V headroom cannot make an AUX excursion above 21 V
+acceptable for the joined circuit. Its GATE high limits, 10.8–12 V at
+VCC = 12.2 V and 14.5–16.1 V at VCC = 20 V, are specified with a 4.7 nF
+load; they are not a bound for the actual driver-input load or fast AUX
+overshoot.
 
 An external AUX pull-up on `IN−`, with series release MOSFETs driven by
 retained permission and qualified HOT logic5, is a **screening sketch**.
@@ -171,12 +178,56 @@ path captures the pulse. Test the shortest dip and every rail-order
 transition at the pin and at sustained PFC current, not just the static
 driver truth table.
 
+### PWM-input alternatives screened in parallel
+
+Two read-only follow-ups tested the opposite direction: leave the
+[UCC27624](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) ENA tied to
+its VDD and interrupt PWM before INA, whose floating-input state is
+specified as output low. This avoids using ENA's typical-only pull-up as
+the safety clamp. Neither follow-up is an approved circuit.
+
+* A [SN74LVC1G08](https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf)
+  AND gate could combine level-shifted PFC PWM and retained permission, with
+  a local INA pull-down. TI bounds its output `Ioff` at ±10 µA with VCC = 0,
+  so a 10 kΩ pull-down has a conditional 0.1 V leakage screen. But `Ioff`
+  does not specify its output while HOT logic5 is between 0 and the gate's
+  1.65 V minimum operating supply. The [UCC28180](https://www.ti.com/lit/ds/symlink/ucc28180.pdf)
+  GATE output's stated 10.8–12 V at VCC = 12.2 V and 14.5–16.1 V at
+  VCC = 20 V are 4.7 nF fixtures; a fixed divider must also keep the LVC
+  input at or below 5.5 V in every actual AUX transient while meeting its
+  HOT5-dependent high threshold. The direct AND path has no established
+  partial-HOT5 OFF or full-range PWM-level proof.
+* A corrected version of B could use the
+  [TMUX7413F](https://www.ti.com/lit/ds/symlink/tmux7413f.pdf) fault-protected
+  switch with an AUX-powered [TPS38](https://www.ti.com/lit/ds/symlink/tps38.pdf)
+  dual undervoltage qualifier. Wire-AND its active-low open-drain outputs
+  for HOT5 and retained permission, pull select up **only from the same
+  local supply** and add a local select pull-down. This repairs B's
+  permission-buffer Ioff counterexample in the common-supply case. It does
+  not cover a qualifier VDD pin or bond opening while its external pull-up
+  remains powered. TPS38 specifies reset low from its 1.4 V POR level to
+  2.7 V UVLO at a stated 15 µA sink fixture; below POR its output is
+  undefined. TMUX powered-off source protection is specified, but its
+  intermediate-supply leakage, select transition, charge injection and
+  PFC/driver rail-order behavior still require bounds at the installed
+  voltages and load.
+* [TMUX7212](https://www.ti.com/lit/ds/symlink/tmux7212.pdf) is not a
+  substitute: its analog S/D absolute range ends at VDD + 0.5 V. PFC PWM
+  present while the mux supply collapses can exceed that rating. The
+  [ADI MAX313F](https://www.analog.com/media/en/technical-documentation/data-sheets/MAX312F-MAX314F.pdf)
+  explicitly keeps its switches off with power removed and tolerates
+  powered-off analog pins to ±40 V, but its single-supply functional minimum
+  is 9 V. A driver can remain active below that value; the 0–9 V crossover
+  and retained-clear/rearm timing are unproved. Its 12 V leakage fixtures
+  cannot be inherited as 15 V maxima.
+
 **Disposition:** keep the current joined source and U7 route gate unchanged.
-To make this sketch selectable, obtain the missing TI `IN−` source/sink
-current limits over the selected AUX range, a release device with applicable
-temperature and voltage bounds, a qualified AUX peak and minimum pulse
-capture, and loaded gate/retained-clear timing. An alternative circuit may
-instead avoid relying on the unbounded internal pull-up current.
+The `IN−` sketch needs the missing TI source/sink current limits over the
+selected AUX range, a release device with applicable temperature and voltage
+bounds, a qualified AUX peak and minimum pulse capture, and loaded
+gate/retained-clear timing. The PWM-input alternatives need their own
+partial-supply, input-rating, and rail-order proofs before selection. None
+presently closes U4's default-off requirement.
 
 Participation: three independent `gpt-6-sol` high candidates (one native,
 two read-only CLI) and one fresh read-only `gpt-6-astra` high `ce-pov` judge.
