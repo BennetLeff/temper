@@ -72,7 +72,8 @@ Values and legacy footprint text, the bridge emitted **295 board references,
 246 nets and 1,052 mapped numeric edges** (the off-board F2 is excluded).
 Its raw-pad oracle and KiCad schematic-parity comparison pass on those
 temporary bytes. Board DRC still reports 36 violations and capped 499
-unconnected items; schematic ERC reports 677 warnings. The diagnostic is not
+unconnected items; the grid-corrected schematic ERC reports 383 warnings (see
+`NATIVE-DIAGNOSTIC-06.md`). The diagnostic is not
 the reviewed `native/section.kicad_pcb` deliverable, a DRC/ERC pass, or a
 functional pin-name audit.
 

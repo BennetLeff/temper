@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -277,3 +278,62 @@ def test_candidate_board_rekeys_legacy_footprint_text_without_changing_pads(
     assert skeleton.candidate_oracle_verify(
         board_path, netlist, pin_map, (0, 0, 360, 250)
     )
+
+
+def test_flat_candidate_pin_endpoints_stay_on_kicad_connection_grid() -> None:
+    part = schematics.LibPart("TwoPin", "grid probe", [("1", "A"), ("2", "B")])
+    components = {
+        f"U{index}": schematics.Component(
+            ref=f"U{index}", value="probe", footprint="Test:TwoPin",
+            part_name="TwoPin", description="grid probe", sheet_module="test",
+            tstamp=f"grid-{index}", display_value="Probe MPN",
+        )
+        for index in range(1, 8)
+    }
+    netlist = schematics.Netlist(
+        components=components,
+        nets={"1": schematics.Net("1", "GRID_NET", [("U1", "1"), ("U7", "2")])},
+        libparts={"TwoPin": part},
+    )
+    text = schematics.generate_flat_root_sheet(netlist, schematics.mcu_candidate_layout())
+    # Seven refs span a second row and five columns. Read the generated
+    # connection points, including global labels and no-connect markers.
+    endpoints = re.findall(
+        r'\((?:no_connect|global_label)\b.*?\(at ([\d.]+) ([\d.]+)',
+        text,
+        flags=re.S,
+    )
+    assert len(endpoints) == 14
+    for x_text, y_text in endpoints:
+        for coordinate in (float(x_text), float(y_text)):
+            assert abs(coordinate / 1.27 - round(coordinate / 1.27)) < 1e-8
+
+
+def test_flat_candidate_rows_clear_large_synthesized_symbols() -> None:
+    part = schematics.LibPart(
+        "Tall", "32-pin row probe", [(str(pin), str(pin)) for pin in range(1, 33)]
+    )
+    components = {
+        f"U{index}": schematics.Component(
+            ref=f"U{index}", value="probe", footprint="Test:Tall",
+            part_name="Tall", description="row probe", sheet_module="test",
+            tstamp=f"tall-{index}", display_value="Tall MPN",
+        )
+        for index in range(1, 7)
+    }
+    text = schematics.generate_flat_root_sheet(
+        schematics.Netlist(components, {}, {"Tall": part}),
+        schematics.mcu_candidate_layout(),
+    )
+    origins = [
+        (float(x), float(y)) for x, y in re.findall(
+            r'\(symbol\s+\(lib_id "Tall"\)\s+\(at ([\d.]+) ([\d.]+) 0\)',
+            text,
+        )
+    ]
+    assert len(origins) == 6
+    first_row_y = {y for _, y in origins[:5]}
+    assert len(first_row_y) == 1
+    # KiCad's generated body extends pin_count * 5.08 mm above and below
+    # each origin. Distinct rows need a gap beyond both body extents.
+    assert origins[5][1] - origins[0][1] > 2 * 32 * 5.08

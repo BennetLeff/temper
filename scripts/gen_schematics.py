@@ -1021,14 +1021,37 @@ def generate_flat_root_sheet(netlist: Netlist, layout: SchematicLayout) -> str:
     parts.append("")
 
     # Same column/grid contract as generate_sheet, so widths do not collide.
-    GRID_X = 40.0
-    GRID_Y = 30.0
+    # KiCad's electrical connection grid is 1.27 mm. The old 40/30 mm
+    # strides left nearly every symbol after the first off-grid, which ERC
+    # reported at the pin endpoints despite numerically correct labels.
+    GRID_X = 40.64  # 32 grid steps; clears the 30.48 mm pin span
     COLS = 5
+    # A fixed 30 mm row stride let large synthesized symbols overlap and
+    # connect unrelated global labels. Each row clears both symbol bodies,
+    # whose half-heights scale with their compiled pin counts.
+    def half_height(comp: Component) -> float:
+        libpart = netlist.libparts.get(comp.part_name)
+        return max(len(libpart.pins) * 5.08, 5.08) if libpart else 5.08
+
+    row_half_heights = [
+        max(half_height(comp) for comp in comps[start:start + COLS])
+        for start in range(0, len(comps), COLS)
+    ]
+    row_centers: list[float] = []
+    previous_half_height: float | None = None
+    current_y = 0.0
+    for half_height in row_half_heights:
+        if previous_half_height is None:
+            current_y = 76.2 + half_height
+        else:
+            current_y += previous_half_height + half_height + 20.32
+        row_centers.append(current_y)
+        previous_half_height = half_height
     for idx, comp in enumerate(comps):
         col = idx % COLS
         row = idx // COLS
         sx = 50.8 + col * GRID_X
-        sy = 50.8 + row * GRID_Y
+        sy = row_centers[row]
 
         symbol_id = _sanitize_name(comp.part_name)
         instance_uuid = _uuid_from_seed(f"flatinst:{comp.tstamp}")
