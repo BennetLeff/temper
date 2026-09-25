@@ -312,6 +312,47 @@ specimen must bound PWM amplitude/slew and gate tracking, supply/input
 backfeed, INA retention, switch voltage and leakage at temperature, and
 loaded OUTA/STW shutdown before replacing the joined source.
 
+### AUX-biased PWM clamp screen
+
+Another read-only direction puts a current-limiting resistor between
+UCC28180 GATE and UCC27624 INA, then shunts INA to HOT0 with an N-channel
+MOSFET. AUX biases the shunt **on**; a comparator may sink its gate only
+after the retained `DRIVER_PERMISSION` output reaches a qualified HOT5
+level. ENA would be tied to VDD. This avoids ENA's undocumented pull-up
+current in the OFF calculation, but transfers the proof to the PWM resistor,
+shunt and comparator pins.
+
+The [2N7002AK-Q](https://assets.nexperia.com/documents/data-sheet/2N7002AK-Q.pdf)
+has a 60 V drain rating and 6.7 Ω maximum on resistance at **10 V VGS,
+100 mA and 175 °C**. Its 5 V on-resistance maximum is specified at 25 °C
+only. The [UCC27624](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) can
+leave UVLO as low as 3.8 V on a rising rail, while the
+[UCC28180](https://www.ti.com/lit/ds/symlink/ucc28180.pdf) can still have
+GATE active near its falling UVLO. The MOSFET sheet therefore does not
+bound the shunt voltage through the relevant lower-AUX overlap. Its 25 °C
+gate threshold at 250 µA is not a substitute for hot on resistance. A
+source-backed minimum PWM high level at the **actual series-resistor and
+INA load** is also missing, so the chosen current-limiting resistor cannot
+yet be shown both to protect the shunt and to deliver a valid INA high.
+
+The fast [TLV1821](https://www.ti.com/lit/ds/symlink/tlv1821.pdf) has a
+useful open-drain, high-impedance POR state, but retained HOT5 or reference
+voltage at its inputs while AUX is absent can feed its V+ input clamp. Its
+recommended input range ends at V+ + 0.2 V. Replacing it with the
+[TLV1861DBVR](https://www.ti.com/lit/ds/symlink/tlv1861.pdf) removes that
+specific input-backfeed gap: TI specifies high-impedance inputs up to 40 V
+independent of V+, including with V+ unpowered, and an open-drain output
+held high impedance during POR. This does **not** select the circuit.
+TLV1861's trip-direction low-to-high output delay is only a **typical**
+35–57 µs at its stated overdrive and 1 MΩ pull-up fixtures; it has no
+maximum usable as fault-to-inhibit evidence. Its 100 mV maximum output low
+is specified at only 50 µA and a 12 V/half-supply input fixture. A weak
+AUX gate pull-up sized for that sink fixture needs a hot leakage,
+gate-charge and clamp-current analysis before it can establish prompt
+default shunt. The 2N7002AK-Q has a ±20 V gate rating, so an unqualified
+AUX peak also requires a selected gate clamp. The short-AUX-dip retained
+clear and loaded STW current-cessation proofs remain open.
+
 **Disposition:** keep the current joined source and U7 route gate unchanged.
 The `IN−` sketch needs the missing TI source/sink current limits over the
 selected AUX range, a release device with applicable temperature and voltage
