@@ -5,8 +5,8 @@ sketches and a separate `ce-pov` assessment found no replacement ready for
 U4 electrical selection. This is a circuit-selection result, not an assembled
 fault-response or product-safety verdict. The joined source still uses the
 [UCC27624 ENA shunt](gate-enable-corners.md), whose worst-case OFF proof is
-blocked by an unspecified internal pull-up current. Do not route U7 from any
-of the sketches below.
+blocked by an unspecified internal pull-up current over the joined AUX range.
+Do not route U7 from any of the sketches below.
 
 ## Common brief and evidence
 
@@ -25,6 +25,17 @@ The frozen [driver source](source-build-06/elec/src/driver_stage.ato) and
 inspected along with [AUX-WINDOW](AUX-WINDOW.md), the acceptance ledger and
 primary manufacturer data. The sketches are proposals; no Atopile, pin audit,
 native PCB or physical capture was produced for them.
+
+One narrower datum should remain visible: the [UCC27624 Rev. E electrical
+table](https://www.ti.com/lit/ds/symlink/ucc27624.pdf) gives a **1.1 mA
+maximum total disabled VDD current** with `VINx = 3.3 V`, `ENx = 0 V`
+and the table's default `VDD = 12 V`, over its stated temperature range.
+That total includes internal circuitry and any enable pull-up current in
+that fixture, so it bounds the enable contribution there. It does **not**
+specify ENA source current at the joined 15 V-class AUX rail or through an
+AUX excursion. A separately regulated and qualified 12 V driver rail, or a
+written full-range TI limit, would change the calculation; neither exists
+in the joined source.
 
 ## Candidate comparison
 

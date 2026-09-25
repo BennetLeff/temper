@@ -30,6 +30,14 @@ V_ENA(max) = V_AUX(max) * R_PD(max) / (R_PD(max) + R_EN_internal(min))
 `R_EN_internal(min)` is not specified. The joined design needs a separate
 source-backed low clamp or verified bounded current over the actual AUX
 range, including HOT logic5 absent or between guaranteed operating levels.
+The [UCC27624 Rev. E electrical table](https://www.ti.com/lit/ds/symlink/ucc27624.pdf)
+does bound **total disabled VDD current to 1.1 mA** with `ENx = 0 V`,
+`VINx = 3.3 V` and its default `VDD = 12 V` fixture over the specified
+temperature range. This includes the internal EN pull-up contribution at
+that fixture, but it is not an EN-source-current maximum for the joined
+15 V-class AUX rail or its transients. A separately regulated 12 V-class
+driver rail would require a new joined source and a limit covering its
+whole tolerance range; the current circuit does not have one.
 This is a **driver-selection blocker before U7 routing**, rather than a
 resistor value that can be finalized from a typical curve. TI's March 2026
 Rev. E electrical table still has only a typical 200 kΩ `RENx` entry and
