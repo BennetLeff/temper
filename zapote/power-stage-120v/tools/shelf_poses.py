@@ -19,6 +19,8 @@ KICAD_PYTHON = Path(
     "/Applications/KiCad/KiCad.app/Contents/Frameworks/"
     "Python.framework/Versions/Current/bin/python3"
 )
+# Must match the audited source (build-receipt.json "components").
+EXPECTED_COMPONENTS = 102
 STOCK = Path("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints")
 
 
@@ -79,8 +81,10 @@ def generate(source: Path, libraries: Path, outline: Path, output: Path) -> None
         raise FileExistsError(f"refusing to overwrite shelf poses: {output}")
     export = json.loads(source.read_text(encoding="utf-8"))
     components = export["components"]
-    if len(components) != 91:
-        raise ValueError(f"expected 91 source components, found {len(components)}")
+    if len(components) != EXPECTED_COMPONENTS:
+        raise ValueError(
+            f"expected {EXPECTED_COMPONENTS} source components, found {len(components)}"
+        )
     outline_mm = json.loads(outline.read_text(encoding="utf-8"))["outline_mm"]
     paths: set[str] = set()
     request = []

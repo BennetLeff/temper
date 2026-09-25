@@ -4,7 +4,8 @@
 # LOSS-REFACTOR.md, COIL-MC.md). Unfiltered-bus front end, no PFC; full
 # bridge of four IPW65R018CFD7; series resonant capacitor; tank CT to the
 # SELV current-sense board; DC-bus shunt OCP for shoot-through; thermal
-# cutoffs in series with the gate-driver supply; AMC1311 bus sense.
+# cutoffs in series with the gate-driver supply; AMC1311 bus sense; bus
+# over-voltage comparator ANDed with the OCP into the same isolated OK line.
 #
 # Domains:
 #   mains / HOT:  AC_*, L_*, N_*, BUS_P, HV_RET, LEG_RET, SW_*, tank nets.
@@ -25,8 +26,8 @@ from "parts.ato" import BootDiode, PermitFet, R3R9Gate, R39kDt, R10k0603, R100k0
 from "parts.ato" import R1k0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
 from "parts.ato" import CST3015_100E, Irm05_15, Irm20_15, TcoLoopHeader, Ldo78L05
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
-from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k5Thin, R9k76Thin, R6k8Bias
-from "parts.ato" import Iso7710F, SelvHeader16
+from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k5Thin, R140kThin, R6k8Bias
+from "parts.ato" import Iso7710F, SelvHeader16, And2Lvc1g08
 
 module BridgeLeg:
     """One half-bridge leg: UCC21550 (A = high side, B = low side), fail-safe
@@ -164,8 +165,11 @@ module PowerStage120V:
     signal LEG_RET
     signal SW_A
     signal SW_B
-    signal COIL_RET
+    signal COIL_FEED
     signal RES_A
+    signal CRBLEED_1
+    signal CRBLEED_2
+    signal CRBLEED_3
     signal TCO_L
     signal V15_LS
     signal HOT5
@@ -178,6 +182,9 @@ module PowerStage120V:
     signal OCP_NODE
     signal OCP_THRESH
     signal OCP_OK_HOT
+    signal OVP_THRESH
+    signal OVP_OK_HOT
+    signal BUS_OK_HOT
     # SELV
     signal V15_SELV
     signal SELV_GND
@@ -280,15 +287,18 @@ module PowerStage120V:
     leg_b.bus_p ~ BUS_P
     leg_b.sw ~ SW_B
 
-    # ---------------- resonant tank: SW_A -> coil -> CT -> C_res -> SW_B
-    j_coil = new CoilTerminal2
-    j_coil.p1 ~ SW_A
-    j_coil.p2 ~ COIL_RET
+    # ---------------- resonant tank: SW_A -> CT -> coil -> C_res -> SW_B
+    # The CT primary sits on the switch node (<= Vbus to PE, ~99 V rms), not
+    # the resonant node (up to ~640 V pk at 33-60 kHz): see ORACLE-ANSWER.md
+    # Q4. Tank current still enters P1, so the CT sign is unchanged.
     t_ct = new CST3015_100E
-    t_ct.P1 ~ COIL_RET
-    t_ct.P2 ~ RES_A
+    t_ct.P1 ~ SW_A
+    t_ct.P2 ~ COIL_FEED
     t_ct.S1 ~ CT_S1
     t_ct.S2 ~ CT_S2
+    j_coil = new CoilTerminal2
+    j_coil.p1 ~ COIL_FEED
+    j_coil.p2 ~ RES_A
     # 0.22 + 0.22 + 0.10 = 0.54 uF for the nominal 70 uH / 32 kHz coil.
     c_res1 = new Res942C12P22
     c_res1.p1 ~ RES_A
@@ -299,6 +309,24 @@ module PowerStage120V:
     c_res3 = new Res942C12P1
     c_res3.p1 ~ RES_A
     c_res3.p2 ~ SW_B
+    # Bleed: an OCP trip can leave C_res holding ~250 V with no discharge
+    # path. 4 x 470 k = 1.88 M, tau ~1 s, ~26 mW in operation.
+    r_crb1 = new R470k1206
+    r_crb1.value = 470kohm
+    r_crb1.p1 ~ RES_A
+    r_crb1.p2 ~ CRBLEED_1
+    r_crb2 = new R470k1206
+    r_crb2.value = 470kohm
+    r_crb2.p1 ~ CRBLEED_1
+    r_crb2.p2 ~ CRBLEED_2
+    r_crb3 = new R470k1206
+    r_crb3.value = 470kohm
+    r_crb3.p1 ~ CRBLEED_2
+    r_crb3.p2 ~ CRBLEED_3
+    r_crb4 = new R470k1206
+    r_crb4.value = 470kohm
+    r_crb4.p1 ~ CRBLEED_3
+    r_crb4.p2 ~ SW_B
 
     # ---------------- supplies
     # SELV 15 V for the controller, fan and sensor boards.
@@ -379,7 +407,9 @@ module PowerStage120V:
 
     # ---------------- DC-bus OCP (shoot-through), referenced to LEG_RET.
     # V(OCP_KELVIN_N) = -I*1 mohm. OCP_NODE = 1.25 V + 0.5 * V(KELVIN_N);
-    # OCP_THRESH = 2.5 * 9.76/(10.5+9.76) = 1.2043 V -> trip at ~91 A.
+    # OCP_THRESH = 2.5 * 10.0/(10.5+10.0) = 1.2195 V -> trip at ~61 A
+    # (TLV3201 offset +/-5 mV max = +/-10 A; normal peak <= 45 A). The lower
+    # trip bounds returned tank energy: ORACLE-ANSWER.md Q1.
     # Output high = OK; low (trip) or unpowered side 1 -> BUS_OCP_OK low.
     r_ref_bias = new R6k8Bias
     r_ref_bias.value = 6.8kohm
@@ -404,8 +434,8 @@ module PowerStage120V:
     r_th_top.value = 10.5kohm
     r_th_top.p1 ~ REF25
     r_th_top.p2 ~ OCP_THRESH
-    r_th_bot = new R9k76Thin
-    r_th_bot.value = 9.76kohm
+    r_th_bot = new R10kThin
+    r_th_bot.value = 10kohm
     r_th_bot.p1 ~ OCP_THRESH
     r_th_bot.p2 ~ LEG_RET
     c_th = new C1nC0G0603
@@ -422,11 +452,46 @@ module PowerStage120V:
     c_ocp_vcc.value = 100nF
     c_ocp_vcc.p1 ~ HOT5
     c_ocp_vcc.p2 ~ LEG_RET
+    # Bus OVP: VSENSE_IN = Vbus/120 vs 2.5 * 140/150 = 2.333 V -> ~280 V.
+    # Output high = OK. Hardware restart inhibit through the controller latch.
+    r_ovp_top = new R10kThin
+    r_ovp_top.value = 10kohm
+    r_ovp_top.p1 ~ REF25
+    r_ovp_top.p2 ~ OVP_THRESH
+    r_ovp_bot = new R140kThin
+    r_ovp_bot.value = 140kohm
+    r_ovp_bot.p1 ~ OVP_THRESH
+    r_ovp_bot.p2 ~ LEG_RET
+    c_ovp_th = new C1nC0G0603
+    c_ovp_th.value = 1nF
+    c_ovp_th.p1 ~ OVP_THRESH
+    c_ovp_th.p2 ~ LEG_RET
+    u_ovp = new Tlv3201
+    u_ovp.VCC ~ HOT5
+    u_ovp.GND ~ LEG_RET
+    u_ovp.INP ~ OVP_THRESH
+    u_ovp.INN ~ VSENSE_IN
+    u_ovp.OUT ~ OVP_OK_HOT
+    c_ovp_vcc = new C100n0603
+    c_ovp_vcc.value = 100nF
+    c_ovp_vcc.p1 ~ HOT5
+    c_ovp_vcc.p2 ~ LEG_RET
+    # BUS_OK_HOT = OCP OK AND OVP OK; either fault drives BUS_OCP_OK low.
+    u_and = new And2Lvc1g08
+    u_and.A ~ OCP_OK_HOT
+    u_and.B ~ OVP_OK_HOT
+    u_and.Y ~ BUS_OK_HOT
+    u_and.VCC ~ HOT5
+    u_and.GND ~ LEG_RET
+    c_and_vcc = new C100n0603
+    c_and_vcc.value = 100nF
+    c_and_vcc.p1 ~ HOT5
+    c_and_vcc.p2 ~ LEG_RET
     u_iso = new Iso7710F
     u_iso.VCC1 ~ HOT5
     u_iso.GND1 ~ LEG_RET
     u_iso.GND1B ~ LEG_RET
-    u_iso.IN ~ OCP_OK_HOT
+    u_iso.IN ~ BUS_OK_HOT
     u_iso.VCC2 ~ V3V3
     u_iso.GND2 ~ SELV_GND
     u_iso.GND2B ~ SELV_GND

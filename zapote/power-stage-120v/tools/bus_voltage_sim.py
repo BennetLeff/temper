@@ -73,6 +73,14 @@ def trip_state(L: float, R: float, vb: float, itrip: float, latency: float = 300
     raise RuntimeError("current never reached trip")
 
 
+def envelope_bound(L: float, itrip: float, vb: float) -> float:
+    """Conservative bus bound: the at-resonance envelope can exceed the trip
+    by one half-cycle step 2*Vbus/Z0, and all of 1/2 L I^2 returns to Cbus."""
+    z0 = math.sqrt(L / CR)
+    env = itrip + 2 * vb / z0
+    return math.sqrt(vb * vb + L * env * env / CBUS)
+
+
 def node_rms(vrms: float, vcr_crest: float, fsw: float = 33e3, fl: float = 60, n: int = 200_000):
     vpk = vrms * math.sqrt(2)
     acc: dict[str, float] = {}
@@ -104,11 +112,14 @@ def main() -> None:
         states, ipk = steady_states(L, 5.3, 33e3, vb0)
         worst = max(ringdown(i, v, vb0, L, 5.3) for i, v in states)
         print(f"normal shutdown {label}: Ipk {ipk:.0f} A -> Vbus {worst[0]:.0f} V, Cr left {worst[1]:.0f} V")
-    for itrip in (91, 60):
+    for itrip in (91, 61):
         for L in (48e-6, 70e-6, 100e-6):
             i, vc = trip_state(L, 0.3, vb0, itrip)
             vb, vcr = ringdown(i, vc, vb0, L, 0.3)
-            print(f"OCP {itrip} A at resonance, L {L * 1e6:.0f} uH: Vbus {vb:.0f} V, Cr left {vcr:.0f} V")
+            print(
+                f"OCP {itrip} A at resonance, L {L * 1e6:.0f} uH: one trajectory {vb:.0f} V, "
+                f"Cr left {vcr:.0f} V; envelope bound {envelope_bound(L, itrip, vb0):.0f} V"
+            )
     for label, vrms, vcr in (
         ("rated 127 V, 70 uH", 127, 277),
         ("rated 127 V, 48 uH", 127, 402),

@@ -41,8 +41,8 @@ rustc --edition=2021 --test audit.rs -o /tmp/ps_audit_t && /tmp/ps_audit_t
 `frozen/` holds the reviewed build outputs. The netlist and resolved export embed absolute
 source paths, so a rebuild elsewhere differs only in those paths. The netlist and BOM were
 byte-identical, after path normalization, between two builds in different checkouts.
-`build-receipt.json` pins the hashes. Current result: 91 components, 67 nets. The audit
-passes, and 18/18 tests pass, 17 of them deliberate miswires that must fail.
+`build-receipt.json` pins the hashes. Current result: 102 components, 73 nets. The audit
+passes, and 23/23 tests pass, 22 of them deliberate miswires that must fail.
 
 **Part identity comes from `resolved-components.json` and the CSV, never from `default.net`.**
 Atopile 0.2.69 writes a footprint-aliased part into the netlist's libsource field. In this

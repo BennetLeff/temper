@@ -28,12 +28,25 @@ Physical overshoot, touch-current, CT injection, hipot and emissions tests:
 Assumptions: 127 V + 10 % line (198 V crest), bus 4.5 µF (5 µF − 10 %),
 Cr = 0.54 µF, turn-off at the worst switching phase, trip latency 300 ns.
 
-| Case | Worst Vbus |
-| --- | ---: |
-| Normal shutdown at full power (70 µH / 48 µH loaded) | 222 / 234 V |
-| OCP trip at 91 A, driven at resonance (48 / 70 / 100 µH) | 358 / 451 / **469 V** |
-| OCP trip at 60 A, driven at resonance (48 / 70 / 100 µH) | 280 / 339 / 356 V |
-| Differential surge, limited by RV1 (TMOV20RP175E) clamp | ≈ 460 V |
+**Bound.** Driven at resonance, the tank current envelope grows by about
+ΔI ≈ 2·Vbus/Z₀ per half cycle (Z₀ = √(L/Cr): 29 A at 100 µH, 42 A at 48 µH).
+The comparator sees the instantaneous current, so when it trips the
+envelope can already be up to one step above the threshold. Returning all
+of ½·L·(I_trip + ΔI)² to the bus gives
+
+  Vbus,max ≤ √(Vcrest² + L·(I_trip + 2·Vcrest/Z₀)² / Cbus)
+
+This is conservative: it ignores the energy left in Cr and dissipated in the
+pan. Simulated trajectories (`tools/bus_voltage_sim.py`, scanned over pan
+damping and 100–800 ns trip latency) stay below it.
+
+| Case | 48 µH | 100 µH |
+| --- | ---: | ---: |
+| Normal shutdown at full power (simulated, worst phase) | 234 V | 222 V (70 µH) |
+| OCP trip at 91 A, driven at resonance: bound (simulated worst) | 477 V (389 V) | **599 V** (521 V) |
+| OCP trip at 61 A, driven at resonance: bound (simulated worst) | 390 V (333 V) | **468 V** (376 V) |
+| OCP trip at 71 A (top of the comparator-offset spread): bound | — | 511 V |
+| Differential surge, limited by RV1 (TMOV20RP175E) clamp | ≈ 460 V | ≈ 460 V |
 
 - Fixed-frequency drive above resonance cannot reach 91 A (53–78 A even with
   the pan removed). The trip is reached only by driving at or near resonance:
@@ -41,19 +54,22 @@ Cr = 0.54 µF, turn-off at the worst switching phase, trip latency 300 ns.
 - Line phase: the worst case is turn-off at the line crest. Turn-off near the
   line zero returns little energy, since tank current scales with the bus.
 - The film bus is rated 600 VDC and the MOSFETs 650 V. At a 91 A trip the
-  469 V estimate plus commutation ringing leaves too little margin.
+  bound reaches the capacitor rating before any ringing.
 
 **Missing controls (recommended source changes):**
 
 | # | Control | Effect |
 | --- | --- | --- |
-| S1 | Lower the OCP trip from ≈ 91 A to ≈ 60 A (retune R30/R31) | Worst trip return 469 → 356 V. Still 33 % above the 45 A worst normal peak (48 µH, high line). |
+| S1 | Lower the OCP trip from ≈ 91 A to ≈ 61 A (retune the threshold divider) | Worst-case bound 599 → 468 V (511 V at the top of the offset spread). Still above the 45 A worst normal peak (48 µH, high line) by the full offset spread. |
 | S2 | Add a HOT-side bus over-voltage comparator on the bus divider into the existing fault latch, ≈ 280 V | Hardware restart inhibit. The bus bleed takes seconds, so firmware must not restart into a pumped bus. |
-| S3 | Add a bleed resistor across the resonant bank C21–C23 | After a trip Cr can hold up to ≈ ±190 V with no discharge path: a service-shock hazard. |
+| S3 | Add a bleed resistor across the resonant bank C21–C23 | After a trip Cr can hold up to ≈ ±250 V with no discharge path: a service-shock hazard. |
+| S4 (controller) | Never drive at or below the highest possible tank resonance: enforce a minimum switching frequency, and detect pan lift from the CT phase before sweeping | Makes the at-resonance trip a double fault. Controller-board firmware and hardware, not this board. |
 
-A bus TVS clamp is not required once S1 is in; the surge case (≈ 460 V) is
-the governing transient and is within component ratings. Measure the actual
-overshoot on the bench before accepting that.
+A bus TVS clamp is not required once S1 is in: the S1 bound (≤ 511 V) and the
+surge case (≈ 460 V) are within the 600 V / 650 V ratings. The margin to the
+capacitor is small, so **measure the actual overshoot on the bench** (trip at
+resonance with the pan lifted, worst line phase) before accepting that. If it
+exceeds ≈ 520 V, add a bus clamp.
 
 **Controller ground ↔ PE: keep the single-point bond.** It defines the
 controller potential. The externally earthed controller case produces
@@ -67,7 +83,7 @@ unpolarized Mexican outlets) gives the same numbers.
 
 | Node | Crossing | Rated 127 V | 127 V + 10 % | Band (rms) |
 | --- | --- | --- | --- | --- |
-| BUS_P, HV_RET, SW_A, SW_B | U1, U2 (UCC21550), U4 (AMC1311), U7 (ISO7710) | 90 V rms, 180 V pk | 99 V rms, 198 V pk | >50–125 |
+| BUS_P, HV_RET, SW_A, SW_B | U1, U2 (UCC21550), U4 (AMC1311), U9 (ISO7710; U7 before the source change) | 90 V rms, 180 V pk | 99 V rms, 198 V pk | >50–125 |
 | RES_A / coil_ret (T1 primary today) | T1 | 165–220 V rms, 457–582 V pk at 33–60 kHz | up to 242 V rms, 640 V pk | >125–250, plus HF |
 | PS1 (IRM-20-15) mains input, kept separate from the DC rails | PS1 | 127 V rms, 180 V pk | 140 V rms, 198 V pk | >125–250 (127 V is just above 125) |
 
@@ -102,7 +118,7 @@ The RES_A range spans the 70 µH and 48 µH loaded coils.
   (PD3, IIIa/IIIb, reinforced). That meets the >125–250 band everywhere, so
   the per-node band argument above never has to be defended to a lab. The
   band results are retained as conditional justification only.
-- **Current exception:** U7 (ISO7710FDWR) uses KiCad's stock
+- **Current exception (now fixed, see below):** U7 (ISO7710FDWR, now U9) uses KiCad's stock
   `SOIC-16W_7.5x10.3mm_P1.27mm`, which gives **7.25 mm** copper across the
   barrier. It meets 4.8 mm for its rail crossing but not the uniform 8.0 mm
   basis. Replace it with TI's high-voltage DW land pattern, as was done for
@@ -150,3 +166,27 @@ Each requires re-audit, re-freeze and a new native build (Parts 1 and 3).
 
 Then Part 4 proceeds with D5 set to "uniform ≥ 8.0 mm reinforced, PD3,
 IIIa/IIIb", conditional on the Coilcraft evidence.
+
+## Implementation status (2026-09-25)
+
+All five source changes are made on `feat/ps-oracle-source-changes`:
+
+| Change | Source | Evidence |
+| --- | --- | --- |
+| T1 on the switch node | SW_A → T1 → `coil_feed` → J2 → `res_a` → C21–C23 → SW_B | Audit asserts it; `ct_on_resonant_node_fails` mutation test |
+| OCP ≈ 61 A | `r_th_bot` 9.76 k → 10.0 k (R35); threshold 1.2195 V | Audit pins the threshold MPNs; `old_91a_threshold_fails` |
+| Bus OVP ≈ 280 V | U7 TLV3201 on the `vsense_in` tap vs 2.333 V (R36 10 k / R37 140 k); U8 SN74LVC1G08 ANDs OCP-OK and OVP-OK into U9 | `swapped_ovp_comparator_inputs_fail`, `ovp_bypassing_isolator_path_fails` |
+| Resonant-bank bleed | R22–R25, 4 × 470 k from `res_a` to SW_B | `missing_resonant_bleed_fails` |
+| U9 HV land pattern | `lib:SOIC16W_DW0016B_HV`, TI DW0016B HV option (SLLSER9E p. 33) | 8.1 mm measured across the barrier on the generated board |
+
+Result: 102 components, 73 nets; audit PASS; 23/23 audit tests. A native
+projection generated from this source has 102 footprints, 292/292 source
+pin connections on the right pad and net, schematic parity 0, DRC
+18 `lib_footprint_mismatch` warnings only, ERC warnings only. Designators
+after `u_ocp` moved (for example `u_iso` U7 → U9); the placement and routing
+plans and POWER-SECTION.md are updated to match.
+
+The OCP comparator's ±5 mV offset gives a 51–71 A trip spread. At 71 A the
+conservative bound is 511 V, still below the 600 V bus capacitors and 650 V
+MOSFETs (Q1). The OVP threshold is a restart inhibit: it acts through the
+controller latch, like the OCP.

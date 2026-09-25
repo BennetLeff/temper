@@ -244,6 +244,13 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_b.q_low", "IPW65R018CFD7"),
     ("u_iso", "ISO7710FDWR"),
     ("u_ocp", "TLV3201AIDBVR"),
+    ("u_ovp", "TLV3201AIDBVR"),
+    ("u_and", "SN74LVC1G08DBVR"),
+    // Trip thresholds: ~61 A OCP (10.5 k / 10.0 k) and ~280 V OVP (10 k / 140 k).
+    ("r_th_top", "RT0603BRD0710K5L"),
+    ("r_th_bot", "RT0603BRD0710KL"),
+    ("r_ovp_top", "RT0603BRD0710KL"),
+    ("r_ovp_bot", "RT0603BRD07140KL"),
     ("ps_gate", "IRM-05-15"),
     ("ps_selv", "IRM-20-15"),
     ("t_ct", "CST3015-100ED"),
@@ -423,32 +430,65 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "u_ldo", "3", "v15_ls");
     expect(&mut e, m, "u_ldo", "1", "hot5");
 
-    // 7. OCP: node = offset + shunt Kelvin, comparator OK-high into the
-    //    default-low isolator, isolator output on header pin 10.
+    // 7. OCP and OVP: node = offset + shunt Kelvin; bus-sense node vs the
+    //    OVP threshold; both OK-high comparators ANDed into the default-low
+    //    isolator, isolator output on header pin 10.
     expect(&mut e, m, "r_ocp_sense", "2", "ocp_kelvin_n");
     expect(&mut e, m, "r_ocp_ref", "1", "ref25");
     expect(&mut e, m, "u_ocp", "3", "ocp_node");
     expect(&mut e, m, "u_ocp", "4", "ocp_thresh");
     expect(&mut e, m, "u_ocp", "1", "ocp_ok_hot");
     expect(&mut e, m, "u_ocp", "2", "leg_ret");
-    expect(&mut e, m, "u_iso", "4", "ocp_ok_hot");
+    expect(&mut e, m, "u_ovp", "3", "ovp_thresh");
+    expect(&mut e, m, "u_ovp", "4", "vsense_in");
+    expect(&mut e, m, "u_ovp", "1", "ovp_ok_hot");
+    expect(&mut e, m, "u_ovp", "2", "leg_ret");
+    expect(&mut e, m, "u_ovp", "5", "hot5");
+    expect(&mut e, m, "r_ovp_top", "1", "ref25");
+    expect(&mut e, m, "r_ovp_top", "2", "ovp_thresh");
+    expect(&mut e, m, "r_ovp_bot", "2", "leg_ret");
+    expect(&mut e, m, "r_th_top", "1", "ref25");
+    expect(&mut e, m, "r_th_bot", "2", "leg_ret");
+    expect(&mut e, m, "u_and", "1", "ocp_ok_hot");
+    expect(&mut e, m, "u_and", "2", "ovp_ok_hot");
+    expect(&mut e, m, "u_and", "4", "bus_ok_hot");
+    expect(&mut e, m, "u_and", "3", "leg_ret");
+    expect(&mut e, m, "u_and", "5", "hot5");
+    expect(&mut e, m, "u_iso", "4", "bus_ok_hot");
+    let bus_ok: BTreeSet<(String, String)> = members(m, "bus_ok_hot");
+    let want: BTreeSet<(String, String)> = [("u_and", "4"), ("u_iso", "4")].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if bus_ok != want {
+        e.push(format!("bus_ok_hot must join only the AND output and the isolator input, found {:?}", bus_ok));
+    }
     expect(&mut e, m, "u_iso", "13", "bus_ocp_ok");
     expect(&mut e, m, "u_iso", "3", "hot5");
     expect(&mut e, m, "u_ref", "1", "ref25");
     expect(&mut e, m, "u_ref", "2", "leg_ret");
 
-    // 8. Tank: SW_A -> coil terminal -> CT primary -> C_res bank -> SW_B.
-    expect(&mut e, m, "j_coil", "1", "sw_a");
-    expect(&mut e, m, "j_coil", "2", "coil_ret");
-    expect(&mut e, m, "t_ct", "1", "coil_ret");
-    expect(&mut e, m, "t_ct", "2", "res_a");
+    // 8. Tank: SW_A -> CT primary -> coil terminal -> C_res bank -> SW_B.
+    //    The CT primary must sit on the switch node, not the resonant node.
+    expect(&mut e, m, "t_ct", "1", "sw_a");
+    expect(&mut e, m, "t_ct", "2", "coil_feed");
+    expect(&mut e, m, "j_coil", "1", "coil_feed");
+    expect(&mut e, m, "j_coil", "2", "res_a");
     for c in ["c_res1", "c_res2", "c_res3"] {
         expect(&mut e, m, c, "1", "res_a");
         expect(&mut e, m, c, "2", "sw_b");
     }
+    let feed: BTreeSet<(String, String)> = members(m, "coil_feed");
+    let want: BTreeSet<(String, String)> = [("t_ct", "2"), ("j_coil", "1")].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if feed != want {
+        e.push(format!("coil_feed must join only CT P2 and the coil terminal, found {:?}", feed));
+    }
     let res_a: BTreeSet<String> = members(m, "res_a").into_iter().map(|(p, _)| p).collect();
-    if res_a != ["t_ct", "c_res1", "c_res2", "c_res3"].iter().map(|s| s.to_string()).collect() {
-        e.push(format!("res_a must join only CT P2 and the resonant bank, found {:?}", res_a));
+    if res_a != ["j_coil", "c_res1", "c_res2", "c_res3", "r_crb1"].iter().map(|s| s.to_string()).collect() {
+        e.push(format!("res_a must join only the coil return, the resonant bank and its bleed, found {:?}", res_a));
+    }
+    // Resonant-bank bleed: four series resistors from RES_A to SW_B.
+    let chain = ["res_a", "crbleed_1", "crbleed_2", "crbleed_3", "sw_b"];
+    for (i, r) in ["r_crb1", "r_crb2", "r_crb3", "r_crb4"].iter().enumerate() {
+        expect(&mut e, m, r, "1", chain[i]);
+        expect(&mut e, m, r, "2", chain[i + 1]);
     }
 
     // 9. Bus sense.
@@ -593,8 +633,45 @@ mod tests {
     #[test]
     fn resonant_capacitor_bypass_fails() {
         let mut m = built();
-        m.rewire("t_ct", "2", "sw_b");
-        fails(&m, "t_ct.2");
+        m.rewire("j_coil", "2", "sw_b");
+        fails(&m, "j_coil.2");
+    }
+
+    #[test]
+    fn ct_on_resonant_node_fails() {
+        let mut m = built();
+        m.rewire("t_ct", "1", "res_a");
+        m.rewire("j_coil", "2", "sw_a");
+        fails(&m, "t_ct.1");
+    }
+
+    #[test]
+    fn missing_resonant_bleed_fails() {
+        let mut m = built();
+        m.rewire("r_crb4", "2", "floating");
+        fails(&m, "r_crb4.2");
+    }
+
+    #[test]
+    fn swapped_ovp_comparator_inputs_fail() {
+        let mut m = built();
+        m.rewire("u_ovp", "3", "vsense_in");
+        m.rewire("u_ovp", "4", "ovp_thresh");
+        fails(&m, "u_ovp.3");
+    }
+
+    #[test]
+    fn ovp_bypassing_isolator_path_fails() {
+        let mut m = built();
+        m.rewire("u_iso", "4", "ocp_ok_hot");
+        fails(&m, "u_iso.4");
+    }
+
+    #[test]
+    fn old_91a_threshold_fails() {
+        let mut m = built();
+        m.set_part("r_th_bot", "RT0603BRD079K76L");
+        fails(&m, "r_th_bot is RT0603BRD079K76L");
     }
 
     #[test]

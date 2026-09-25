@@ -352,7 +352,8 @@ component Amc1311:
     signal VDD2 ~ pin 8
 
 component R470k1206:
-    """Bus divider string element (4 in series, <= 50 V each at 198 V)."""
+    """Bus divider and resonant-bank bleed string element (4 in series:
+    <= 50 V each at 198 V bus; <= 160 V peak each at 640 V peak across C_res)."""
     designator_prefix = "R"
     mpn = "RC1206FR-07470KL"
     manufacturer = "Yageo"
@@ -430,17 +431,31 @@ component R10k5Thin:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R9k76Thin:
+component R140kThin:
+    """0.1 % thin film, bus OVP threshold bottom: 2.5 V * 140/150 = 2.333 V."""
     designator_prefix = "R"
-    mpn = "RT0603BRD079K76L"
+    mpn = "RT0603BRD07140KL"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component And2Lvc1g08:
+    """TI SN74LVC1G08DBVR single 2-input AND. DBV: 1 A, 2 B, 3 GND, 4 Y,
+    5 VCC (SCES217AA, Pin Functions table)."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G08DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
 component R6k8Bias:
-    """LM4040 bias: (5.0-2.5)/6.8k = 368 uA vs ~250 uA network + 60 uA min."""
+    """LM4040 bias: (5.0-2.5)/6.8k = 368 uA vs ~270 uA OCP+OVP networks + 60 uA min."""
     designator_prefix = "R"
     mpn = "RC0603FR-076K8L"
     manufacturer = "Yageo"
@@ -455,7 +470,9 @@ component Iso7710F:
     designator_prefix = "U"
     mpn = "ISO7710FDWR"
     manufacturer = "Texas Instruments"
-    footprint = "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm"
+    # TI DW0016B HV / isolation land pattern: 8.1 mm across the barrier
+    # (SLLSER9E p. 33); the IPC-7351 nominal pattern gives only 7.3 mm.
+    footprint = "lib:SOIC16W_DW0016B_HV"
     signal GND1 ~ pin 1
     signal NC2 ~ pin 2
     signal VCC1 ~ pin 3

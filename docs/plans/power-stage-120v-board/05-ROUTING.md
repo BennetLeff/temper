@@ -81,11 +81,11 @@ you used per net in `ROUTING.md`.
 | --- | --- | --- | --- |
 | Mains in | `ac_l_in`, `l_f`, `l_filt`, `ac_n_in`, `n_filt` | 15 A rms | ≥ 4.1 mm, better 6 mm, or a zone |
 | Bus + legs | `bus_p`, `hv_ret`, `leg_ret`, `sw_a`, `sw_b` | ~19 A rms line-average (HF, bidirectional) | zones on both layers, via-stitched |
-| Tank | `coil_ret`, `res_a` | 18.7 A rms average, 26 A rms at line crest | zones, or ≥ 8.8 mm |
+| Tank | `coil_feed`, `res_a` | 18.7 A rms average, 26 A rms at line crest | zones, or ≥ 8.8 mm |
 | PE | `pe` | fault current until F1 clears | ≥ 4.1 mm, direct from J1 PE to the Y capacitors and the heatsink bond point |
 | Gate drive | `leg_*-out_h/out_l/gate_h/gate_l`, and the source/Kelvin returns | 4 A source / 6 A sink peak, µs pulses | 0.8–1.0 mm, gate and return on adjacent paths, same layer, shortest possible |
 | 15 V gate supply, bootstrap | `v15_ls`, `leg_*-boot` | < 0.5 A | 0.5–0.8 mm |
-| Shunt Kelvin | R5 pad 3 (`ocp_kelvin_n`) and R5 pad 2 (`leg_ret`, used as the sense reference) | µA | **Separate 0.3 mm traces**, routed as a tight pair from R5's pads to R29 and U6's ground. Never share the power path |
+| Shunt Kelvin | R5 pad 3 (`ocp_kelvin_n`) and R5 pad 2 (`leg_ret`, used as the sense reference) | µA | **Separate 0.3 mm traces**, routed as a tight pair from R5's pads to R33 and U6's ground. Never share the power path |
 | Bus sense string | `bus_p` → R22 → … → R26 | µA | 0.3 mm; keep the string straight to spread voltage; creepage rules apply between string nodes |
 | Logic HOT and SELV | everything else | < 0.1 A | 0.3 mm |
 
@@ -98,7 +98,7 @@ you used per net in `ROUTING.md`.
 2. **Commutation loop:** `bus_p`, `hv_ret`, `leg_ret`, `sw_a`, `sw_b` as zones.
    Keep the C5/C6 → high-side → low-side → R5 → C5/C6 loop tight, with top and bottom
    copper overlapping (opposite current) where possible.
-3. **Tank:** `sw_a` → J2 → T1 → `res_a` → C21–C23 → `sw_b`.
+3. **Tank:** `sw_a` → T1 → `coil_feed` → J2 → `res_a` → C21–C23 → `sw_b`; the R22–R25 bleed string from `res_a` to `sw_b` at 0.3 mm.
 4. **Mains entry:** J1 → F1 → RV1 → L1 → C2 → BR1, plus PE to C3, C4 and the
    heatsink bond.
 5. **Gate loops**, per leg: driver OUTA/OUTB → gate resistor → gate, and each
@@ -107,9 +107,9 @@ you used per net in `ROUTING.md`.
    pin of that MOSFET**, not to a shared plane in the middle of the commutation current.
 6. **Driver supplies and bootstrap:** `v15_ls`, the D1/D2 anodes, boot capacitors
    right at U1/U2's VDDA/VSSA pins (16/14).
-7. **HOT auxiliary:** PS2 → U3 → `hot5` to U4, U6 and U7 side 1; the OCP network; the Kelvin pair.
-8. **SELV:** J4 to the SELV pins of U1, U2, U4, U7 and T1's secondary, plus the SELV
-   bypass capacitors (C7, C14, C29, C34).
+7. **HOT auxiliary:** PS2 → U3 → `hot5` to U4, U6, U7, U8 and U9 side 1; the OCP and OVP networks; U6/U7 outputs → U8 → U9 pin 4; the Kelvin pair.
+8. **SELV:** J4 to the SELV pins of U1, U2, U4, U9 and T1's secondary, plus the SELV
+   bypass capacitors (C7, C14, C29, C37).
 
 After each step, the unconnected count must fall and the violation count must
 stay 0. If it doesn't, fix it before the next step.
@@ -120,7 +120,7 @@ stay 0. If it doesn't, fix it before the next step.
   from the source (`00-INDEX.md`, rule 4).
 - **Never route copper through the SELV/HOT barrier** other than inside the
   barrier parts' own footprints.
-- **No vias under the isolator bodies** (U1, U2, U4, U7, T1) in the barrier region.
+- **No vias under the isolator bodies** (U1, U2, U4, U9, T1) in the barrier region.
 - **Don't place a zone of one domain over the other domain's area on either
   layer.** Only a board edge or the barrier gap may separate the domains.
 - **Thermal relief:** for power zones to TO-247 and GBJ pads, prefer solid

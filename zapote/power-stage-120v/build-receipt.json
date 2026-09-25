@@ -4,20 +4,20 @@
   "atopile": "0.2.69 (uv tool run --offline)",
   "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
   "status": "compiled-and-exported",
-  "components": 91,
-  "nets": 67,
-  "audit": "PASS on frozen/; 18/18 tests (17 deliberate miswires fail)",
-  "reproducibility": "netlist and CSV byte-identical across two checkouts after absolute-path normalization",
+  "components": 102,
+  "nets": 73,
+  "audit": "PASS on frozen/; 23/23 tests (22 deliberate miswires fail)",
+  "reproducibility": "netlist and CSV byte-identical after absolute-path normalization between builds in worktrees/ps-build and worktrees/ps-oracle (2026-09-25, 102-part source)",
   "identity_authority": "frozen/resolved-components.json + frozen/default.csv (default.net libsource is footprint-aliased)",
   "sha256": {
     "ato.yaml": "ccb72f82cfe51d8002ba3333bce202f587971ea7eb439ec18d1693371139dd80",
-    "elec/src/parts.ato": "615977ea2a6327cf079dc8506bb6c7d464321b7873cd3478d3ef13b0cca503e4",
-    "elec/src/power_stage_120v.ato": "ecfbf62dcdd027110e5e8d15af29f0f6014f5e153d55268a283a2413caa1c5fb",
-    "audit.rs": "936e052d98e16d5139b22b5e51540486d1b0c12c6bcde9ac75f43ff3ffbf206d",
+    "elec/src/parts.ato": "31059251578e5d9ace14e5017c8c683c5c4a8e8b34f0fd2ee0669012b7563b16",
+    "elec/src/power_stage_120v.ato": "150f4cd07257318b7100f2582c874d1090cd08e6d407e30c5fe3040cc26e66e9",
+    "audit.rs": "9326380d8d65422b8262a6243d17eb8371b67403ac47659e65aa9955d3b94a37",
     "tools/circuit_export.py": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
-    "frozen/default.net": "205b8275f7cb9deb23be7cad400580a915f53a776ced0184d5600e6b69bf58e8",
-    "frozen/default.csv": "8f83aa127550526191d3025f93efd9f8d28f4b764520cc1d4fc0e0a6d2d5c7a1",
-    "frozen/resolved-components.json": "1b194b4211bf3943197bfa0fe3d4babb1c6d8322c9b211c4e7d15f6bc44057a1"
+    "frozen/default.net": "6c4532582f0bd82f5cd64cc5918a3e71b5dd8363fa630489a2b9d53d2e563e22",
+    "frozen/default.csv": "45c2651dd5e8cb32210a1df61b4641456589dc227c2864eeca3ca693e7d4ba21",
+    "frozen/resolved-components.json": "8b6642a23ae33c20ef10c788c36ffec4fadcf1d84a584599f53d3567386dca69"
   },
   "physical": "NOT RUN"
 }

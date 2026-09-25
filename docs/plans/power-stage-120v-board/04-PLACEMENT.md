@@ -69,10 +69,10 @@ worst-case working voltage below, and record every lookup result in `RULES.md`.
 
 | Boundary | Nets (A ↔ B) | Worst working voltage (from the design docs) | Insulation | Rule |
 | --- | --- | --- | --- | --- |
-| SELV ↔ HOT | A in the audit's `SELV_NETS` list; B any other net except PE | Tank nodes up to ~430–560 V peak vs HV_RET; mains 140 V rms | **Reinforced**: basic × 2 at the band for the highest HOT net that can face SELV | clearance and creepage |
+| SELV ↔ HOT | A in the audit's `SELV_NETS` list; B any other net except PE | Rails and switch nodes 99 V rms / 198 V peak; mains 140 V rms (T1 now on `sw_a`, so no SELV part faces the resonant node) | **Reinforced, uniform ≥ 8.0 mm** (PD3, IIIa/IIIb, >125–250 band), per D5 proposal in `zapote/power-stage-120v/ORACLE-ANSWER.md` | clearance and creepage |
 | HOT ↔ PE | any HOT net ↔ `pe` | 140 V rms mains; tank nodes higher | Basic, at the matching band | clearance and creepage |
 | Line ↔ neutral before the bridge | `ac_l_in`, `l_f`, `l_filt` ↔ `ac_n_in`, `n_filt` | 140 V rms | Functional (table 17 value) | clearance |
-| Tank nodes ↔ other HOT | `sw_a`, `sw_b`, `coil_ret`, `res_a` ↔ other HOT nets | up to ~560 V peak (`res_a`) | Functional, table 18 `>500-800` | creepage |
+| Tank nodes ↔ other HOT | `sw_a`, `sw_b`, `coil_feed`, `res_a`, `crbleed_*` ↔ other HOT nets | up to ~640 V peak (`res_a`) | Functional, table 18 `>500-800` | creepage |
 | Bus ↔ low-voltage HOT | `bus_p` ↔ `hot5`, `v15_ls`, gate nets | ~200 V peak | Functional | clearance |
 | Everything else | — | ≤ 15 V | Default | 0.2 mm |
 
@@ -82,7 +82,7 @@ datasheet value for each part and fill this table in `RULES.md`:
 | Part | Package | Datasheet external creepage (fill in) |
 | --- | --- | --- |
 | U1, U2 UCC21550BDWKR | SOIC-14 DWK | ___ mm |
-| U7 ISO7710FDWR | SOIC-16 DW | ___ mm |
+| U9 ISO7710FDWR | SOIC-16 DW, TI HV land pattern (8.1 mm pad gap) | ___ mm |
 | U4 AMC1311BDWVR | SOIC-8 DWV | ___ mm |
 | T1 CST3015-100ED | — | ≥ 8 mm (Coilcraft datasheet) |
 | PS1 IRM-20-15 | module | input/output pin distance from the MEAN WELL drawing |
@@ -131,9 +131,9 @@ Always place by instance path, and confirm the designator in
 | Z3 Bridge legs | `leg_a.q_high` Q2, `leg_a.q_low` Q3, `leg_b.q_high` Q5, `leg_b.q_low` Q6; snubbers `leg_a.c_snub_h` C12, `leg_a.c_snub_l` C13, `leg_b.c_snub_h` C19, `leg_b.c_snub_l` C20; gate networks `leg_a.r_gh` R10, `leg_a.r_gh_pd` R11, `leg_a.r_gl` R12, `leg_a.r_gl_pd` R13, `leg_b.r_gh` R18, `leg_b.r_gh_pd` R19, `leg_b.r_gl` R20, `leg_b.r_gl_pd` R21 | MOSFETs standing on the heatsink edge. Each snubber **directly across its MOSFET's drain/source pins**. Gate resistors at the gate pins |
 | Z3b Leg-A driver | `leg_a.driver` U1, `leg_a.d_boot` D1, `leg_a.c_vcci` C7, `leg_a.c_ls` C8, `leg_a.c_ls_bulk` C9, `leg_a.c_boot` C10, `leg_a.c_boot_hf` C11, `leg_a.permit_fet` Q1, `leg_a.r_permit` R6, `leg_a.r_permit_pd` R7, `leg_a.r_dis_pu` R8, `leg_a.r_dt` R9 | U1 ≤ ~25 mm from Q2 and Q3 gates, output pins (9–16) facing the MOSFETs. **C7, Q1 and R6–R9 are on U1's SELV side (pins 1–8)** and belong in or at the edge of Z6 |
 | Z3c Leg-B driver | `leg_b.driver` U2, `leg_b.d_boot` D2, `leg_b.c_vcci` C14, `leg_b.c_ls` C15, `leg_b.c_ls_bulk` C16, `leg_b.c_boot` C17, `leg_b.c_boot_hf` C18, `leg_b.permit_fet` Q4, `leg_b.r_permit` R14, `leg_b.r_permit_pd` R15, `leg_b.r_dis_pu` R16, `leg_b.r_dt` R17 | Same as Z3b for Q5 and Q6. **C14, Q4 and R14–R17 are SELV-side** |
-| Z4 Tank | `c_res1` C21, `c_res2` C22, `c_res3` C23, `t_ct` T1, `j_coil` J2 | Between the legs and J2 (coil-exit edge, D6). T1's primary (pins 1, 2) in the tank path; its secondary (pins 3, 4) faces the SELV zone |
-| Z5 HOT auxiliary | `ps_gate` PS2, `j_tco` J3, `u_ldo` U3, `c_v15` C24, `c_ldo_in` C25, `c_ldo_out` C26, `u_vsense` U4 (HOT side), `r_div1..4` R22–R25, `r_div_bot` R26, `c_div` C27, `c_vs1` C28, `u_ref` U5, `r_ref_bias` R27, `r_ocp_ref` R28, `r_ocp_sense` R29, `r_th_top` R30, `r_th_bot` R31, `c_ocp_node` C30, `c_th` C31, `u_ocp` U6, `c_ocp_vcc` C32, `u_iso` U7 (HOT side), `c_iso1` C33 | Near R5: the OCP Kelvin sense (R5 pad 3) and the `leg_ret` star (R5 pad 2). The R22–R25 string runs from `bus_p` toward U4, spreading the voltage along its length. PS2 away from the heatsink's hot air |
-| Z6 SELV | `j_selv` J4, `ps_selv` PS1 (output pins 3, 4), `c_vs2` C29, `c_iso2` C34, plus the SELV-side parts of Z3b/Z3c, and the SELV pins of U1, U2, U4, U7 and T1 | A strip along one edge, separated from all HOT copper by the reinforced distance from 4.2. **C29 and C34 are SELV bypass capacitors** for U4 and U7's side 2; don't place them with Z5 |
+| Z4 Tank | `c_res1` C21, `c_res2` C22, `c_res3` C23, `r_crb1..4` R22–R25, `t_ct` T1, `j_coil` J2 | Between the legs and J2 (coil-exit edge, D6). T1's primary (pins 1, 2) sits between `sw_a` and J2 pin 1 (`coil_feed`); its secondary (pins 3, 4) faces the SELV zone. The R22–R25 bleed string runs from `res_a` to `sw_b` alongside the C21–C23 bank, spreading ~640 V peak along its length |
+| Z5 HOT auxiliary | `ps_gate` PS2, `j_tco` J3, `u_ldo` U3, `c_v15` C24, `c_ldo_in` C25, `c_ldo_out` C26, `u_vsense` U4 (HOT side), `r_div1..4` R26–R29, `r_div_bot` R30, `c_div` C27, `c_vs1` C28, `u_ref` U5, `r_ref_bias` R31, `r_ocp_ref` R32, `r_ocp_sense` R33, `r_th_top` R34, `r_th_bot` R35, `c_ocp_node` C30, `c_th` C31, `u_ocp` U6, `c_ocp_vcc` C32, `r_ovp_top` R36, `r_ovp_bot` R37, `c_ovp_th` C33, `u_ovp` U7, `c_ovp_vcc` C34, `u_and` U8, `c_and_vcc` C35, `u_iso` U9 (HOT side), `c_iso1` C36 | Near R5: the OCP Kelvin sense (R5 pad 3) and the `leg_ret` star (R5 pad 2). U7 (OVP) reads `vsense_in` at R30/C27, so keep it next to U4. The R26–R29 string runs from `bus_p` toward U4, spreading the voltage along its length. PS2 away from the heatsink's hot air |
+| Z6 SELV | `j_selv` J4, `ps_selv` PS1 (output pins 3, 4), `c_vs2` C29, `c_iso2` C37, plus the SELV-side parts of Z3b/Z3c, and the SELV pins of U1, U2, U4, U9 and T1 | A strip along one edge, separated from all HOT copper by the reinforced distance from 4.2. **C29 and C37 are SELV bypass capacitors** for U4 and U9's side 2; don't place them with Z5 |
 
 Placement rules (check each one; list the outcome in `PLACEMENT-REVIEW.md`):
 

@@ -27,7 +27,7 @@ temperature upward. Revision history:
 | Inverter | **Full bridge**, series resonant capacitor | Twice the drive voltage lets the coil have 4× impedance at half the current. Robust across cast iron to clad pans (COIL-MC.md: ~100 % of intended cookware at 114 V and 127 V vs ≤ 73 % for any half bridge). Same switch count and loss as the paralleled half bridge (LOSS-REFACTOR.md, B1 = A6). Cost: one more gate driver. |
 | Switch | 4 × Infineon **IPW65R018CFD7** (650 V, 18 mΩ, fast body diode) | ZVS resonant use. 650 V instead of 600 V for surge margin against the MOV's 455 V clamp. Paralleled superjunction beats single SiC here; IGBT tail loss is avoided. Must never run capacitive (body-diode hard recovery): the controller needs a phase inhibit. |
 | Gate drive | 2 × UCC21550B, per-leg bootstrap, fail-safe DIS | Circuit reused from the repo's verified gate-drive unit, moved onto the power board so the gate loops stay short. |
-| Bus current | 1 mΩ Kelvin shunt in the leg return + TLV3201 + ISO7710F | Shoot-through never passes the tank CT. The ~91 A trip reaches the SELV latch through a default-low isolator. |
+| Bus current and voltage | 1 mΩ Kelvin shunt in the leg return + TLV3201; bus OVP TLV3201; AND; ISO7710F | Shoot-through never passes the tank CT. The ~61 A trip and the ~280 V bus OVP reach the SELV latch on one default-low isolated line. |
 | Thermal backstop | Heatsink and under-glass Microtemp cutoffs in series with the gate-supply input | A non-electronic stop that removes all gate drive, so firmware is not relied on for over-temperature (IEC 60335-1 cl. 19 / Annex R burden). |
 | Supplies | IRM-20-15 (SELV) + IRM-05-15 (gate/HOT 5 V) | Certified modules (IEC/UL 62368-1, IEC 61558, 4.2 kVac I/O). HOT loads stay off the SELV supply. |
 
@@ -65,19 +65,22 @@ PE─J1.3─┐        ├─ CX1 1µF X2 ────┤ ═══════�
    Q3 low : D=SW_A   S=LEG_RET                         Q6 low : D=SW_B   S=LEG_RET
    3.9Ω gate R, 10k G-S, 1nF/1kV D-S snubbers, UF4007 bootstrap, 10µF+100n per rail, 39k dead time
 
-   Tank:  SW_A ── J2 (coil 70 µH nom.) ── T1 CST3015 primary ── RES_A ── C21∥C22∥C23 (0.22+0.22+0.10 µF 942C12) ── SW_B
+   Tank:  SW_A ── T1 CST3015 primary ── COIL_FEED ── J2 (coil 70 µH nom.) ── RES_A ── C21∥C22∥C23 (0.22+0.22+0.10 µF 942C12) ── SW_B
+          R22–R25 4×470k bleed across C21–C23 (τ ≈ 1 s); T1 primary on the switch node (ORACLE-ANSWER.md Q4)
           T1 secondary ── J4.13/14 → current-sense board (burden, tank OCP, phase comparator)
 
    Gate supply: L_FILT ── J3 (loop through heatsink + under-glass Microtemp TCOs) ── PS2 IRM-05-15 ── V15_LS / LEG_RET
-                V15_LS ── U3 78L05 ── HOT5 (U4, U6, U7 side 1)
+                V15_LS ── U3 78L05 ── HOT5 (U4, U6–U8, U9 side 1)
    SELV supply: L_FILT/N_FILT ── PS1 IRM-20-15 ── V15_SELV / SELV_GND ── J4.1/2
 
-   Bus sense:   BUS_P ── 4×470k ── VSENSE_IN ── 15.8k 0.1 % ── LEG_RET ;  U4 AMC1311 → VBUS_P/N (J4.11/12)
-   Shoot-through OCP (all ref. LEG_RET):
+   Bus sense:   BUS_P ── R26–R29 4×470k ── VSENSE_IN ── 15.8k 0.1 % ── LEG_RET ;  U4 AMC1311 → VBUS_P/N (J4.11/12)
+   Shoot-through OCP and bus OVP (all ref. LEG_RET):
                 REF25 (U5 LM4040, 6.8k bias) ─10k─ OCP_NODE ─10k─ OCP_KELVIN_N ;  100 pF node filter
-                REF25 ─10.5k─ OCP_THRESH ─9.76k─ LEG_RET    (0.1 % thin film; trip ≈ 91 A)
-                U6 TLV3201: + = OCP_NODE, − = OCP_THRESH → OCP_OK_HOT → U7 ISO7710F → BUS_OCP_OK (J4.10)
- - - - - - - - - - - - - - reinforced barrier: U1/U2 (primary side), U4, U7, T1, PS1 - - - - - - - - - - - - - - - -
+                REF25 ─10.5k─ OCP_THRESH ─10.0k─ LEG_RET    (0.1 % thin film; trip ≈ 61 A)
+                REF25 ─10k─ OVP_THRESH ─140k─ LEG_RET       (2.333 V = VSENSE_IN at ≈ 280 V bus)
+                U6 TLV3201: + = OCP_NODE, − = OCP_THRESH → OCP_OK_HOT ─┐
+                U7 TLV3201: + = OVP_THRESH, − = VSENSE_IN → OVP_OK_HOT ─┴ U8 LVC1G08 AND → BUS_OK_HOT → U9 ISO7710F → BUS_OCP_OK (J4.10)
+ - - - - - - - - - - - - - reinforced barrier: U1/U2 (primary side), U4, U9, T1, PS1 - - - - - - - - - - - - - - - -
    J4 Micro-Fit 2×8: V15_SELV, SELV_GND×4, V3V3 in, PWM_HA/LA/HB/LB, PERMIT, BUS_OCP_OK, VBUS_P/N, CT_S1/S2
 ```
 
@@ -98,7 +101,7 @@ Status: **V** = the rating that decides the choice was checked against the datas
 
 | Ref | Qty | MPN | Why | Status |
 | --- | ---: | --- | --- | --- |
-| Q2,Q3,Q5,Q6 | 4 | IPW65R018CFD7 | 650 V vs ~200 V bus + 455 V surge clamp; 18 mΩ max at 25 °C; fast body diode for ZVS | V |
+| Q2,Q3,Q5,Q6 | 4 | IPW65R018CFD7 | 650 V vs ~200 V bus; ≤ ~460 V on a surge (MOV clamp) or ~356 V on a 61 A trip return (ORACLE-ANSWER.md); 18 mΩ max at 25 °C; fast body diode for ZVS | V |
 | U1,U2 | 2 | UCC21550BDWKR | Reinforced 5 kVrms dual driver, 4 A/6 A, UVLO outputs low; repo-verified DWK pin map | V |
 | D1,D2 | 2 | UF4007-E3/54 | Bootstrap, 1000 V, same as gate-drive unit | V |
 | R10,R12,R18,R20 | 4 | RC1206FR-073R9L | Gate series 3.9 Ω (bench-tune) | V |
@@ -107,15 +110,18 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | R11,R13,R19,R21 | 4 | RC0603FR-0710KL | Gate-source hold-off | V |
 | C12,C13,C19,C20 | 4 | GRM31A5C3A102JW01D | 1 nF 1 kV C0G drain-source snubbers | C |
 | C21,C22 / C23 | 2 / 1 | 942C12P22K-F / 942C12P1K-F | 0.54 µF series resonant bank for 70 µH / 32 kHz; 10.3 + 10.3 + 9.2 A vs ~18.7 A | V (current); C (AC V vs f); F |
+| R22–R25 | 4 | RC1206FR-07470KL | Resonant-bank bleed: an OCP trip can leave ~250 V on C_res; 1.88 M, τ ≈ 1 s, ≤ 160 V peak and ~7 mW each | V |
 | T1 | 1 | CST3015-100ED | 1:100, 88 A, 5 kVrms reinforced; ~37 A peak tank | V |
 | C5,C6 | 2 | 942C6W2P5K-F | 5 µF film bus, 2 × 19.5 A rms rating vs ~23 A | V; F |
 | R3,R4 | 2 | RC1206FR-07220KL | Bus bleed, τ ≈ 2.2 s | V |
 | R5 | 1 | WSK2512R0010FEA | 1 mΩ 4-terminal shunt, ~0.35 W | C (power at temperature) |
-| U6 / U5 / R27 | 1 each | TLV3201AIDBVR / LM4040A25IDBZR / 6.8k | 40 ns comparator; 2.5 V reference, 368 µA bias | V |
-| R28,R29 / R30 / R31 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 9K76 (0.1 %) | Offset and threshold network, trip ≈ 91 A (normal bus peak ~37–42 A) | V |
+| U6 / U5 / R31 | 1 each | TLV3201AIDBVR / LM4040A25IDBZR / 6.8k | 40 ns comparator; 2.5 V reference, 368 µA bias | V |
+| R32,R33 / R34 / R35 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 10K (0.1 %) | Offset and threshold network, trip ≈ 61 A (TLV3201 ±5 mV → ±10 A; normal peak ≤ 45 A). Lowered from 91 A to bound returned tank energy: ORACLE-ANSWER.md Q1 | V |
+| U7 / R36 / R37 / C33 | 1 each | TLV3201AIDBVR / RT0603BRD0710KL / RT0603BRD07140KL / 1 nF C0G | Bus OVP ≈ 280 V from the VSENSE_IN tap; hardware restart inhibit | V |
+| U8 | 1 | SN74LVC1G08DBVR | ANDs OCP-OK and OVP-OK into U9; either fault drives BUS_OCP_OK low | V |
 | C30 / C31 | 1 / 1 | 100 pF / 1 nF C0G | ~0.5 µs node filter; threshold decoupling | V |
-| U7 | 1 | ISO7710FDWR | Reinforced 5 kVrms; **F = output low if side 1 unpowered** | V |
-| U4 / R22–R25 / R26 / C27 | 1 / 4 / 1 / 1 | AMC1311BDWVR / 470k 1206 / 15.8k 0.1 % / 1 nF | Bus sense 1/120 (198 V → 1.65 V of 2 V range); ≤ 50 V per 1206 | V |
+| U9 | 1 | ISO7710FDWR | Reinforced 5 kVrms; **F = output low if side 1 unpowered**. TI DW0016B HV land pattern, 8.1 mm across the barrier | V |
+| U4 / R26–R29 / R30 / C27 | 1 / 4 / 1 / 1 | AMC1311BDWVR / 470k 1206 / 15.8k 0.1 % / 1 nF | Bus sense 1/120 (198 V → 1.65 V of 2 V range); ≤ 50 V per 1206 | V |
 | BR1 | 1 | GBJ2510-F | 25 A 1000 V bridge, ~29 W on heatsink | V; F (on power-entry branch) |
 | F1 | 1 | 0326020.MXP + Littelfuse 102071 clips | 20 A slow-blow ceramic; 15 A ÷ 0.75 | V (fuse); C (clip rating) |
 | RV1 | 1 | TMOV20RP175E | 175 Vrms thermally protected MOV, 455 V clamp | C; F |
@@ -128,7 +134,7 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | J1 / J2 | 1 / 1 | Phoenix 1711039 / 1711026 | 24 A 400 V screw terminals: mains / coil | V / C (order code) |
 | J3 | 1 | B2P-VH(LF)(SN) | TCO loop, 250 V 10 A | V |
 | J4 | 1 | Molex 0430451612 | SELV 2×8 header | C (order code) |
-| C7,C8,…(12) / C9,C10,…(6) | 12 / 6 | C0603C104K5RACTU / GRM32ER71H106KA12L | Bypass and bootstrap | V |
+| C7,C8,…(14) / C9,C10,…(6) | 14 / 6 | C0603C104K5RACTU / GRM32ER71H106KA12L | Bypass and bootstrap | V |
 
 Off-board, in the J3 loop: two Microtemp G4A thermal cutoffs, one at the heatsink (~120 °C)
 and one under the glass (rating after thermal measurement; up to 257 °C available).
