@@ -1,13 +1,18 @@
 # Rev38 native domain screen
 
 **Status: FAIL and incomplete coverage, 2026-09-24. U7 remains OPEN.** This
-is a bounded diagnostic on the unrouted `placement-review/02/` board. It
+is a bounded diagnostic on the unrouted `placement-review/02/` board, with
+the same ownership and spacing checks repeated on the saved `/03` candidate. It
 does not set an accepted insulation limit or qualify a board construction.
 
 The saved KiCad 10.0.4 board SHA-256 is
 `957ca67ada9338d91f9384695d3b3bf9d0f4a87263b471391700faf60760542d`.
 The native pad/copper export SHA-256 is
 `8a13ca76432e6f9d78c22153ccb138f9bb295b3efb55f10a893cd60dcb57e1a4`.
+The later `/03` board SHA-256 is
+`c277e9cae08213557f8bed43253253966229c695a9e754474d229babcf786ff5`,
+and its export SHA-256 is
+`3c539845b5e6e7b841d2450732d9ac6bc25b8b64d0abe9d24637ce9fd651b56e`.
 The strict Rust document binder verifies its component/MPN, pad number,
 net-name, pad-UUID, trace and via census against the embedded exact board
 bytes; the test separately compares those bytes with the saved board.
@@ -32,6 +37,11 @@ nets and remains **FAIL**, including the same 15.2 mm DWW gap. It does not
 assign a uniform insulation requirement to every AC, HOT, and SELV pair;
 the 16 mm run is diagnostic only and does not measure creepage, air
 clearance, package surfaces, solder, or slots.
+
+The `/03` Rust test binds the saved exact PCB to the KiCad pad/copper export,
+checks 295 source components and 1,052 numeric pad edges, and rejects a
+wrong-net mutation. It confirms the same 62/183/one net-side census and the
+same 15.2 mm DWW failure. Moving the small parts does not clear this gate.
 
 The PE net is excluded from that two-side spacing projection. **Nineteen
 KiCad pad objects have no assigned net**. Board inspection identifies

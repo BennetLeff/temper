@@ -1,0 +1,99 @@
+{
+  "board": "zapote/power-entry/passive-reva/protection/interface-integration-38/placement-review/03/native-diagnostic/section.kicad_pcb",
+  "board_sha256": "c277e9cae08213557f8bed43253253966229c695a9e754474d229babcf786ff5",
+  "checks": [
+    {
+      "checked_rules": [
+        "DRC.BOARD.STACKUP"
+      ],
+      "coverage_gaps": [],
+      "findings": [
+        {
+          "actual": null,
+          "message": "6 copper layers; copper + dielectric + mask = 1.800000 mm, declared 1.800000 mm",
+          "object": "board.setup.stackup",
+          "required": null,
+          "rule": "DRC.BOARD.STACKUP",
+          "severity": "info",
+          "status": "pass"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "checked_rules": [
+        "DRC.BOARD.SOURCE_IDENTITY"
+      ],
+      "coverage_gaps": [],
+      "findings": [
+        {
+          "actual": null,
+          "message": "saved PCB bytes match source manifest",
+          "object": "board",
+          "required": null,
+          "rule": "DRC.BOARD.SOURCE_IDENTITY",
+          "severity": "info",
+          "status": "pass"
+        },
+        {
+          "actual": null,
+          "message": "default.csv bytes match source manifest",
+          "object": "default.csv",
+          "required": null,
+          "rule": "DRC.BOARD.SOURCE_IDENTITY",
+          "severity": "info",
+          "status": "pass"
+        },
+        {
+          "actual": null,
+          "message": "default.net bytes match source manifest",
+          "object": "default.net",
+          "required": null,
+          "rule": "DRC.BOARD.SOURCE_IDENTITY",
+          "severity": "info",
+          "status": "pass"
+        },
+        {
+          "actual": null,
+          "message": "outline.json bytes match source manifest",
+          "object": "outline.json",
+          "required": null,
+          "rule": "DRC.BOARD.SOURCE_IDENTITY",
+          "severity": "info",
+          "status": "pass"
+        },
+        {
+          "actual": null,
+          "message": "poses.json bytes match source manifest",
+          "object": "poses.json",
+          "required": null,
+          "rule": "DRC.BOARD.SOURCE_IDENTITY",
+          "severity": "info",
+          "status": "pass"
+        },
+        {
+          "actual": null,
+          "message": "resolved-components.json bytes match source manifest",
+          "object": "resolved-components.json",
+          "required": null,
+          "rule": "DRC.BOARD.SOURCE_IDENTITY",
+          "severity": "info",
+          "status": "pass"
+        },
+        {
+          "actual": null,
+          "message": "stackup.json bytes match source manifest",
+          "object": "stackup.json",
+          "required": null,
+          "rule": "DRC.BOARD.SOURCE_IDENTITY",
+          "severity": "info",
+          "status": "pass"
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "schema": "zapote.board-checks.v1",
+  "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+  "status": "pass"
+}

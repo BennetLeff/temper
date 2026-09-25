@@ -9,6 +9,15 @@ const EXPORT: &str = include_str!(
 const BOARD: &str = include_str!(
     "../../../power-entry/passive-reva/protection/interface-integration-38/placement-review/02/native-stackup-diagnostic/section.kicad_pcb"
 );
+const PLACEMENT_03_EXPORT: &str = include_str!(
+    "../../../power-entry/passive-reva/protection/interface-integration-38/placement-review/03/native-diagnostic/native-export.json"
+);
+const PLACEMENT_03_BOARD: &str = include_str!(
+    "../../../power-entry/passive-reva/protection/interface-integration-38/placement-review/03/native-diagnostic/section.kicad_pcb"
+);
+const PLACEMENT_03_MANIFEST: &str = include_str!(
+    "../../../power-entry/passive-reva/protection/interface-integration-38/placement-review/03/native-diagnostic/source-manifest.json"
+);
 
 fn native() -> UnitNativeEvidence {
     serde_json::from_str(EXPORT).expect("saved Rev38 KiCad export parses")
@@ -91,6 +100,70 @@ fn native_net_sides(evidence: &UnitNativeEvidence) -> (BTreeSet<String>, BTreeSe
     (selv, live, unassigned_pads)
 }
 
+fn assert_exact_source_native_parity(manifest: &str, export: &str) {
+    let manifest: serde_json::Value = serde_json::from_str(manifest).unwrap();
+    let export: serde_json::Value = serde_json::from_str(export).unwrap();
+    assert_eq!(manifest["board_sha256"], export["board_sha256"]);
+
+    let source_components = manifest["bridge"]["components"].as_array().unwrap();
+    let mut references = BTreeMap::new();
+    for component in source_components {
+        let instance = component["instance_path"].as_str().unwrap();
+        let reference = component["reference"].as_str().unwrap();
+        assert!(references.insert(instance, reference).is_none());
+    }
+    let native_components = export["components"].as_array().unwrap();
+    assert_eq!(references.len(), native_components.len());
+    let mut seen_instances = BTreeSet::new();
+    for component in native_components {
+        let instance = component["id"].as_str().unwrap();
+        assert!(
+            seen_instances.insert(instance),
+            "duplicate native component {instance}"
+        );
+        assert!(
+            references.contains_key(instance),
+            "extra native component {instance}"
+        );
+        assert_eq!(
+            component["mpn"],
+            manifest["source_attributes"][instance]["mpn"]
+        );
+    }
+
+    let source_nets = manifest["bridge"]["nets"].as_array().unwrap();
+    let mut source_edges = BTreeSet::new();
+    for net in source_nets {
+        let name = net["name"].as_str().unwrap();
+        for node in net["nodes"].as_array().unwrap() {
+            let pair = node.as_array().unwrap();
+            assert!(source_edges.insert((
+                name,
+                pair[0].as_str().unwrap(),
+                pair[1].as_str().unwrap()
+            )));
+        }
+    }
+    let native_connections = export["connections"].as_array().unwrap();
+    let mut native_edges = BTreeSet::new();
+    for connection in native_connections {
+        let name = connection["net"].as_str().unwrap();
+        let instance = connection["component"].as_str().unwrap();
+        let pin = connection["pin"].as_str().unwrap();
+        let reference = references[instance];
+        native_edges.insert((name, reference, pin));
+    }
+    // KiCad exposes several physical lands under one numeric pad. Preserve
+    // their UUID census in the binder; parity compares electrical pin edges.
+    assert_eq!(native_connections.len(), 1_070);
+    assert_eq!(source_edges.len(), 1_052);
+    assert_eq!(source_nets.len(), 246);
+    assert_eq!(
+        source_edges, native_edges,
+        "source/native numeric pad edges differ"
+    );
+}
+
 #[test]
 fn saved_native_export_matches_board_pads_and_copper() {
     let export: serde_json::Value = serde_json::from_str(EXPORT).unwrap();
@@ -159,6 +232,34 @@ fn all_assigned_pad_nets_have_one_side_and_broad_screen_stays_failed() {
             && finding.message.contains("15.200000 mm")
     }));
     assert!(report.coverage_gaps.iter().any(|gap| gap.contains("pe")));
+}
+
+#[test]
+fn saved_placement_03_binds_all_pads_but_does_not_pass_the_provisional_barrier() {
+    let export: serde_json::Value = serde_json::from_str(PLACEMENT_03_EXPORT).unwrap();
+    assert_eq!(export["board_file_utf8"], PLACEMENT_03_BOARD);
+    let binding = native_binding::validate(PLACEMENT_03_EXPORT);
+    assert_eq!(binding.status, Status::Pass, "{binding:?}");
+    assert_exact_source_native_parity(PLACEMENT_03_MANIFEST, PLACEMENT_03_EXPORT);
+
+    let evidence: UnitNativeEvidence = serde_json::from_str(PLACEMENT_03_EXPORT).unwrap();
+    let (selv, live, unassigned_pads) = native_net_sides(&evidence);
+    assert_eq!((selv.len(), live.len(), unassigned_pads), (62, 183, 19));
+    let report = domain_clearance::validate(&evidence, &selv, &live, 16.0);
+    assert_eq!(report.status, Status::Fail);
+    assert!(report.findings.iter().any(|finding| {
+        finding.status == Status::Fail
+            && finding.object.contains("receiver.iso_protocol")
+            && finding.message.contains("15.200000 mm")
+    }));
+}
+
+#[test]
+#[should_panic(expected = "source/native numeric pad edges differ")]
+fn placement_03_source_native_parity_rejects_one_wrong_net() {
+    let mut export: serde_json::Value = serde_json::from_str(PLACEMENT_03_EXPORT).unwrap();
+    export["connections"][0]["net"] = "wrong_net".into();
+    assert_exact_source_native_parity(PLACEMENT_03_MANIFEST, &export.to_string());
 }
 
 #[test]

@@ -1,0 +1,14 @@
+{
+  "board_sha256": "c277e9cae08213557f8bed43253253966229c695a9e754474d229babcf786ff5",
+  "extra_numeric_edges": 0,
+  "missing_numeric_edges": 0,
+  "native_components": 295,
+  "native_export_sha256": "3c539845b5e6e7b841d2450732d9ac6bc25b8b64d0abe9d24637ce9fd651b56e",
+  "native_physical_pad_connections": 1070,
+  "numeric_pad_edges": 1052,
+  "schema": "temper.rev38.source-native-parity.v1",
+  "source_components": 295,
+  "source_manifest_sha256": "46bd18598f2717da1891d0398639a60bebc798e13bfecb529ac60cbe05de4798",
+  "source_nets": 246,
+  "status": "pass-exact-numeric-parity"
+}

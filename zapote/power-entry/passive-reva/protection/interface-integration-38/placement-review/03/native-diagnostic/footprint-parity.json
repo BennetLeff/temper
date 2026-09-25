@@ -1,0 +1,16 @@
+{
+  "board_sha256": "c277e9cae08213557f8bed43253253966229c695a9e754474d229babcf786ff5",
+  "footprints_loaded": 295,
+  "footprints_needing_update": 0,
+  "kicad_version": "10.0.4",
+  "method": "pcbnew.FootprintLoad(candidate-libs/<nickname>.pretty, item) and FOOTPRINT.FootprintNeedsUpdate",
+  "missing_library_footprints": 0,
+  "native_library_sha256": {
+    "fp-lib-table": "d6c29a2f882ba352bd82ebe0398d4c880ab2e2370529d9019c3c92bfb161c516",
+    "rev38-numeric.kicad_sym": "1c9af0e3904b2527427570ba61e8cf31365f8d16bbedf3811a0f682cc558e8f9",
+    "section.kicad_pro": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "sym-lib-table": "393fba00707f527cec187a10c12f9c43305160d4dd5cb18e52cc9ee324f12968"
+  },
+  "schema": "temper.rev38.footprint-parity.v1",
+  "status": "pass-as-generated-footprint-parity-only"
+}

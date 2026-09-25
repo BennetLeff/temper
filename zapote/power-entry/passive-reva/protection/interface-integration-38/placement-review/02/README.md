@@ -101,11 +101,13 @@ physical fault-response behavior. Reviewed placement and routing should
 follow U4 electrical review and the open fabricator stackup, supply,
 connector, and insulation decisions.
 
-The focused Rust native-domain test currently classifies only `selv3v3` and
-`selv_gnd` against `hot0` and `hot_logic5`, with a provisional 16.0 mm
-board-surface screen. It **fails** on a measured 15.2 mm DWW opposed-pad
-gap and other shelf-placement conflicts. All remaining native nets are
-reported as a coverage gap. A synthetic SELV trace across a HOT pad fails
-the domain rule, and the mutated export fails saved-board binding. This is
-negative evidence and a rule-plumbing check, not a complete insulation
-assessment. See `zapote/packages/zapote-drc/tests/rev38_native_domains.rs`.
+The original four-net Rust anchor test classified `selv3v3` and `selv_gnd`
+against `hot0` and `hot_logic5` at a provisional 16.0 mm projected
+copper-distance screen. It fails on the 15.2 mm DWW opposed-pad gap and
+other shelf-placement conflicts. The later `rev38_native_domains` test
+also inventories all 246 named nets by pad-side ownership, with PE and
+non-copper/no-net footprint features kept explicit; the broader screen
+still fails. A synthetic SELV trace across a HOT pad fails the domain rule,
+and the mutated export fails saved-board binding. This is negative evidence
+and a rule-plumbing check, not a complete insulation assessment. The
+subsequent functional-region diagnostic is in `placement-review/03/`.
