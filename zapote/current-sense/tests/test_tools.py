@@ -359,6 +359,45 @@ def test_flat_candidate_pin_endpoints_stay_on_kicad_connection_grid() -> None:
             assert abs(coordinate / 1.27 - round(coordinate / 1.27)) < 1e-8
 
 
+def test_flat_candidate_marks_source_singleton_without_losing_its_label() -> None:
+    part = schematics.LibPart("TwoPin", "source probe", [("1", "A"), ("2", "B")])
+    components = {
+        ref: schematics.Component(
+            ref=ref, value="probe", footprint="Test:TwoPin",
+            part_name="TwoPin", description="source probe", sheet_module="test",
+            tstamp=ref, display_value="Probe MPN",
+        )
+        for ref in ("U1", "U2")
+    }
+    netlist = schematics.Netlist(
+        components=components,
+        nets={
+            "1": schematics.Net("1", "SOURCE_SINGLETON", [("U1", "1")]),
+            "2": schematics.Net("2", "SOURCE_SHARED", [("U1", "2"), ("U2", "1")]),
+        },
+        libparts={"TwoPin": part},
+    )
+    text = schematics.generate_flat_root_sheet(netlist, schematics.mcu_candidate_layout())
+
+    labels = re.findall(
+        r'\(global_label "([^"]+)"\s+\(shape [^)]+\)\s+\(at ([\d.]+) ([\d.]+) 0\)',
+        text,
+    )
+    no_connects = set(re.findall(
+        r'\(no_connect\s+\(at ([\d.]+) ([\d.]+)\)', text,
+    ))
+
+    singleton_points = [(x, y) for name, x, y in labels if name == "SOURCE_SINGLETON"]
+    shared_points = [(x, y) for name, x, y in labels if name == "SOURCE_SHARED"]
+    assert len(singleton_points) == 1
+    assert singleton_points[0] in no_connects
+    assert len(shared_points) == 2
+    assert no_connects.isdisjoint(shared_points)
+    # U2.2 is source-absent and still has no label, only no_connect.
+    assert len(no_connects) == 2
+    assert len(labels) == 3
+
+
 def test_flat_candidate_rows_clear_large_synthesized_symbols() -> None:
     part = schematics.LibPart(
         "Tall", "32-pin row probe", [(str(pin), str(pin)) for pin in range(1, 33)]
