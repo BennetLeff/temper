@@ -28,6 +28,17 @@ V_ENA(max) = V_AUX(max) * R_PD(max) / (R_PD(max) + R_EN_internal(min))
 `R_EN_internal(min)` is not specified. The joined design needs a separate
 source-backed low clamp or verified bounded current over the actual AUX
 range, including HOT logic5 absent or between guaranteed operating levels.
+This is a **driver-selection blocker before U7 routing**, rather than a
+resistor value that can be finalized from a typical curve. TI's March 2026
+Rev. E electrical table still has only a typical 200 kΩ `RENx` entry and
+explicitly says a floating ENx enables the output. In a [TI support exchange
+about the UCC27524 and UCC27624](https://e2e.ti.com/support/power-management-group/power-management/f/power-management-forum/1168261/ucc27524-input-voltage-specifications),
+a TI engineer first described UCC27624 characterization, then clarified that
+TI could not provide the requested guaranteed EN sink-current statement. The
+characterization and suggested 100 µA estimate are not a minimum resistance
+or maximum input current for the selected orderable part. Do not use them as
+`I_EN,internal,max` in the inequality below.
+
 The installed candidate uses a [Nexperia PMBT3904](https://assets.nexperia.com/documents/data-sheet/PMBT3904.pdf)
 NPN shunt (collector to ENA, emitter to HOT0) biased from `AUX_PROTECTED`
 through a 3.3 kΩ, 1 W 2512 resistor. An [SN74LVC1G06](https://www.ti.com/lit/ds/symlink/sn74lvc1g06.pdf)
@@ -86,3 +97,12 @@ logic-power backfeed, and a gate short to AUX. These are connectivity tests,
 not analog OFF proof. Native board approval needs the exact pin and
 footprint implementation, then low-voltage captures with AUX present and
 HOT logic absent, present, falling, and recovering.
+
+**Disposition to close U4:** obtain a written, applicable guaranteed ENA
+current/voltage limit from TI and qualified shunt limits across the installed
+temperature and AUX range, or select a driver/inhibit topology with published
+guaranteed off-state limits and re-run the joined source, pin audit, native
+parity and rail-order analysis. Either route must also address the
+base-open 5.5 V exposure and intermediate HOT_LOGIC5 crossover above. A
+bench sample showing ENA low is required physical evidence, but cannot by
+itself replace the missing worst-case component limit.
