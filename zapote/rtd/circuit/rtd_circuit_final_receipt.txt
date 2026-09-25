@@ -1,0 +1,45 @@
+RTD circuit bounded-model/source checkpoint receipt
+Date: 2026-09-10
+Checkout: /private/tmp/temper-rtd-circuit
+
+Source proposal checks (read-only against authoritative current WIP):
+  patch -p0 --dry-run < rtd_window_protection.patch: PASS (already applied in current WIP; reverse dry-run PASS)
+  patch -p0 --dry-run < rtd_analog_source.patch: current WIP differs because parent integration is in progress; no canonical mutation
+  patch -p0 --dry-run < fault_nand_upstream_power_and_bypass.patch: current WIP reports reversed/already applied; pre-integration forward dry-run PASS
+  fault_nand_upstream_power_and_bypass.patch SHA256:
+    09f0c4c455227b383f9b01aeaa1eec298cb8008beb2b03f73dd691a58e2d2c6b
+
+Executable model commands:
+  /opt/homebrew/bin/python3 zapote/rtd/circuit/rtdin_comparator_model.py > /tmp/static_final_receipt.out: PASS
+  /opt/homebrew/bin/python3 zapote/rtd/circuit/rtdin_transient_model.py > /tmp/transient_final_short_receipt.out: PASS
+  Generated stdout matches retained result suffix byte-for-byte: PASS (65536 static corners; corrected RTDIN-pin transient nodes)
+  rtdin_comparator_model.py SHA256:
+    46df61023950e23949d73d0dec78417b5b4decc0f934879091f4fabbc41d992a
+  rtdin_comparator_model_results.txt SHA256:
+    8f028402bc5bbc3c58c175ba7b415ac2e05ff74f589dc75c3a91445b60a8666d
+  rtdin_transient_model.py SHA256:
+    1cab91630f8d1b4229b5f15a34ffd1b88a4a0d04e07299c4811b76e18db7429f
+  rtdin_transient_model_results.txt SHA256:
+    43907ccb35f72d2d07ae506881198a052aaf6327cf2f760355e111d03d458d74
+  /opt/homebrew/bin/python3 zapote/rtd/circuit/rtd_observed_faults.py > zapote/rtd/circuit/rtd_observed_faults.json: PASS
+  rtd_observed_faults.py SHA256:
+    e754081f93921c53f333492bdc8fc29071d89f17d198baafc28e1e8f4929d0b9
+  rtd_observed_faults.json SHA256:
+    74e1187aabcd2f85e615866358f673a60e230f19d74d0bcfff5a0e6ee681fed8
+
+Runtime model verdict: 8/8 individual conductor opens from healthy RTD=100.0/194.1 ohm and 1 ohm harness cross within 0.329 ms at 20 mV comparator overdrive, including 55 ns TLV3201 propagation and 10 ns conservative logic delay. The dynamic capacitor nodes are the MAX RTDIN pins; the 20 mV criterion is below the static 166.7 mV minimum open-fault margin. The analytic maximum-RC monotonic envelope (Rdiag 1.057 Mohm, Rwindow 102 kohm, Cbound 1.30 nF, 15 pF output-load assumption) bounds total detector time at 1.323576 ms. No MAX ADC/SINC assumption is used.
+
+The same transient solver starts at healthy 100.0 and 194.1 ohm and steps the RTD to 10.0 and 0.0 ohm. All four short transitions cross the LOW comparator at 0.001065 ms (20 mV overdrive criterion), with final margins -0.132380 V (10 ohm) or -0.179027 V (0 ohm); the 1.323576 ms passive envelope remains the conservative short timing bound.
+
+Other checks:
+  python3 -m py_compile rtdin_comparator_model.py rtdin_transient_model.py rtd_observed_faults.py: PASS
+  python3 -m json.tool rtd_contract.json: PASS
+  ngspice -b rtdin_comparator_window.cir (ngspice 45.2): PASS / exit 0
+  8/8 runtime opens and 4/4 healthy-to-short transitions < 100 ms: PASS
+  Rounded standalone hardware detector budget: 2 ms (1.323576 ms analytic bound): PASS
+  All-state RTD short supply bound: 8.448898 mA total, 1.551102 mA margin to 10 mA: PASS
+  SHARED_REF_2V5 external boundary: <=100 uA and <=10 nF; internal VBIAS divider load 96.242 uA: PASS (bounded contract)
+  RTD_HW_FAULT 10 kohm pullup with <=100 pF host load: 1.205 us rise to 70% VCC; 15 ms sink handoff allocation: PASS (boundary contract)
+  Producer mutation tests (positive FORCE+ and short margins): PASS (generation rejects altered verdicts)
+
+Accepted passive probe transient contract: each conductor -0.2..+2.5 V relative to unit ground, source impedance >=1 kohm, edge >=10 us, pulse <=1 ms, repetition <=1 Hz. Span is 2.7 V, equal to TLV3201 minimum supply; bounded clamp current is zero. Device-only MAX31865 +/-45 V RTDIN absolute maximum is not a unit immunity rating. Local-off external source drive is forbidden; upstream-powered SN74LVC1G38 fault sink and TPS389001 rail monitor own the fault.

@@ -1,0 +1,245 @@
+# Standalone thermal detectors; sensors are external lug assemblies.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+import TLV3201 from "components.ato"
+
+component ThermalProbeConnector:
+    designator_prefix = "J"
+    footprint = "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"
+    mpn = "B2B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component ThermalHostConnector:
+    designator_prefix = "J"
+    footprint = "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical"
+    mpn = "B6B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+
+component ThermalOpenComparator:
+    designator_prefix = "U"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "TLV9031DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tlv9031.pdf"
+    signal OUT ~ pin 1
+    signal GND ~ pin 2
+    signal INP ~ pin 3
+    signal INN ~ pin 4
+    signal VCC ~ pin 5
+
+component ThermalFaultOr:
+    designator_prefix = "U"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "SN74LVC1G32DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g32.pdf"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+module ThermalSenseUnit:
+    """Independent heatsink and coil hot detectors; no latch or shutdown actuator.
+    External sensors: Vishay NTCALUG01A104GA. Hot or open asserts FAULT.
+    Full protection and thermal qualification remain separate obligations.
+    """
+    signal vcc
+    signal gnd
+    signal hs_sense
+    signal hs_ref
+    signal hs_fault
+    signal coil_sense
+    signal coil_ref
+    signal coil_fault
+    signal hs_hot
+    signal coil_hot
+    signal hs_open
+    signal coil_open
+    signal open_ref
+    heatsink_probe = new ThermalProbeConnector
+    coil_probe = new ThermalProbeConnector
+    host = new ThermalHostConnector
+    hs_comp = new TLV3201
+    coil_comp = new TLV3201
+    hs_fixed = new Resistor
+    hs_fixed.value = 10kohm +/- 1%
+    hs_fixed.mpn = "RC0603FR-0710KL"
+    hs_fixed.footprint = "Resistor_SMD:R_0603_1608Metric"
+    hs_top = new Resistor
+    hs_top.value = 9.09kohm +/- 1%
+    hs_top.mpn = "RC0603FR-079K09L"
+    hs_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    hs_bottom = new Resistor
+    hs_bottom.value = 11.5kohm +/- 1%
+    hs_bottom.mpn = "RC0603FR-0711K5L"
+    hs_bottom.footprint = "Resistor_SMD:R_0603_1608Metric"
+    hs_hyst = new Resistor
+    hs_hyst.value = 34.8kohm +/- 1%
+    hs_hyst.mpn = "RC0603FR-0734K8L"
+    hs_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+    coil_fixed = new Resistor
+    coil_fixed.value = 10kohm +/- 1%
+    coil_fixed.mpn = "RC0603FR-0710KL"
+    coil_fixed.footprint = "Resistor_SMD:R_0603_1608Metric"
+    coil_top = new Resistor
+    coil_top.value = 20kohm +/- 1%
+    coil_top.mpn = "RC0603FR-0720KL"
+    coil_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    coil_bottom = new Resistor
+    coil_bottom.value = 8.06kohm +/- 1%
+    coil_bottom.mpn = "RC0603FR-078K06L"
+    coil_bottom.footprint = "Resistor_SMD:R_0603_1608Metric"
+    coil_hyst = new Resistor
+    coil_hyst.value = 42.2kohm +/- 1%
+    coil_hyst.mpn = "RC0603FR-0742K2L"
+    coil_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+    hs_filter = new Capacitor
+    hs_filter.value = 100nF +/- 10%
+    hs_filter.mpn = "C0603C104K5RACTU"
+    hs_filter.voltage_rating = 50V
+    hs_bypass = new Capacitor
+    hs_bypass.value = 100nF +/- 10%
+    hs_bypass.mpn = "C0603C104K5RACTU"
+    hs_bypass.voltage_rating = 50V
+    coil_filter = new Capacitor
+    coil_filter.value = 100nF +/- 10%
+    coil_filter.mpn = "C0603C104K5RACTU"
+    coil_filter.voltage_rating = 50V
+    coil_bypass = new Capacitor
+    coil_bypass.value = 100nF +/- 10%
+    coil_bypass.mpn = "C0603C104K5RACTU"
+    coil_bypass.voltage_rating = 50V
+
+    hs_open_comp = new ThermalOpenComparator
+    coil_open_comp = new ThermalOpenComparator
+    hs_or = new ThermalFaultOr
+    coil_or = new ThermalFaultOr
+    open_top = new Resistor
+    open_top.value = 1.21kohm +/- 1%
+    open_top.mpn = "RC0603FR-071K21L"
+    open_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    open_bottom = new Resistor
+    open_bottom.value = 100kohm +/- 1%
+    open_bottom.mpn = "RC0603FR-07100KL"
+    open_bottom.footprint = "Resistor_SMD:R_0603_1608Metric"
+    hs_open_bypass = new Capacitor
+    hs_open_bypass.value = 100nF +/- 10%
+    hs_open_bypass.mpn = "C0603C104K5RACTU"
+    hs_open_bypass.voltage_rating = 50V
+    coil_open_bypass = new Capacitor
+    coil_open_bypass.value = 100nF +/- 10%
+    coil_open_bypass.mpn = "C0603C104K5RACTU"
+    coil_open_bypass.voltage_rating = 50V
+    hs_or_bypass = new Capacitor
+    hs_or_bypass.value = 100nF +/- 10%
+    hs_or_bypass.mpn = "C0603C104K5RACTU"
+    hs_or_bypass.voltage_rating = 50V
+    coil_or_bypass = new Capacitor
+    coil_or_bypass.value = 100nF +/- 10%
+    coil_or_bypass.mpn = "C0603C104K5RACTU"
+    coil_or_bypass.voltage_rating = 50V
+
+    host.p1 ~ vcc
+    host.p2 ~ gnd
+    host.p3 ~ hs_fault
+    host.p4 ~ coil_fault
+    host.p5 ~ hs_sense
+    host.p6 ~ coil_sense
+    heatsink_probe.p1 ~ hs_sense
+    heatsink_probe.p2 ~ gnd
+    coil_probe.p1 ~ coil_sense
+    coil_probe.p2 ~ gnd
+    hs_fixed.p1 ~ vcc
+    hs_fixed.p2 ~ hs_sense
+    hs_top.p1 ~ vcc
+    hs_top.p2 ~ hs_ref
+    hs_bottom.p1 ~ hs_ref
+    hs_bottom.p2 ~ gnd
+    hs_hyst.p1 ~ hs_ref
+    hs_hyst.p2 ~ hs_hot
+    hs_filter.p1 ~ hs_sense
+    hs_filter.p2 ~ gnd
+    hs_bypass.p1 ~ vcc
+    hs_bypass.p2 ~ gnd
+    hs_comp.VCC ~ vcc
+    hs_comp.GND ~ gnd
+    hs_comp.INP ~ hs_ref
+    hs_comp.INN ~ hs_sense
+    hs_comp.OUT ~ hs_hot
+    coil_fixed.p1 ~ vcc
+    coil_fixed.p2 ~ coil_sense
+    coil_top.p1 ~ vcc
+    coil_top.p2 ~ coil_ref
+    coil_bottom.p1 ~ coil_ref
+    coil_bottom.p2 ~ gnd
+    coil_hyst.p1 ~ coil_ref
+    coil_hyst.p2 ~ coil_hot
+    coil_filter.p1 ~ coil_sense
+    coil_filter.p2 ~ gnd
+    coil_bypass.p1 ~ vcc
+    coil_bypass.p2 ~ gnd
+    coil_comp.VCC ~ vcc
+    coil_comp.GND ~ gnd
+    coil_comp.INP ~ coil_ref
+    coil_comp.INN ~ coil_sense
+    coil_comp.OUT ~ coil_hot
+
+    hs_open_comp.VCC ~ vcc
+    hs_open_comp.GND ~ gnd
+    hs_open_comp.INP ~ hs_sense
+    hs_open_comp.INN ~ open_ref
+    hs_open_comp.OUT ~ hs_open
+    hs_or.VCC ~ vcc
+    hs_or.GND ~ gnd
+    hs_or.A ~ hs_hot
+    hs_or.B ~ hs_open
+    hs_or.Y ~ hs_fault
+    hs_open_bypass.p1 ~ vcc
+    hs_open_bypass.p2 ~ gnd
+    hs_or_bypass.p1 ~ vcc
+    hs_or_bypass.p2 ~ gnd
+
+    coil_open_comp.VCC ~ vcc
+    coil_open_comp.GND ~ gnd
+    coil_open_comp.INP ~ coil_sense
+    coil_open_comp.INN ~ open_ref
+    coil_open_comp.OUT ~ coil_open
+    coil_or.VCC ~ vcc
+    coil_or.GND ~ gnd
+    coil_or.A ~ coil_hot
+    coil_or.B ~ coil_open
+    coil_or.Y ~ coil_fault
+    coil_open_bypass.p1 ~ vcc
+    coil_open_bypass.p2 ~ gnd
+    coil_or_bypass.p1 ~ vcc
+    coil_or_bypass.p2 ~ gnd
+
+    open_top.p1 ~ vcc
+    open_top.p2 ~ open_ref
+    open_bottom.p1 ~ open_ref
+    open_bottom.p2 ~ gnd
+
+    vcc.override_net_name = "+3V3"
+    gnd.override_net_name = "gnd"
+    hs_sense.override_net_name = "HS_SENSE"
+    hs_ref.override_net_name = "HS_REF"
+    hs_fault.override_net_name = "HS_FAULT"
+    coil_sense.override_net_name = "COIL_SENSE"
+    coil_ref.override_net_name = "COIL_REF"
+    coil_fault.override_net_name = "COIL_FAULT"
+    hs_hot.override_net_name = "HS_HOT"
+    coil_hot.override_net_name = "COIL_HOT"
+    hs_open.override_net_name = "HS_OPEN"
+    coil_open.override_net_name = "COIL_OPEN"
+    open_ref.override_net_name = "OPEN_REF"

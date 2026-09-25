@@ -1,0 +1,148 @@
+{
+  "schema": "rtd_ref2025_model_envelope_regression.v1",
+  "old_model": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/circuit/rtdin_comparator_model.py",
+  "revised_model": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/model-correctness/revised/rtdin_comparator_model.py",
+  "datasheet_inputs": {
+    "nominal_v": 1.25,
+    "initial_accuracy_fraction": 0.0005,
+    "initial_accuracy_test_vin": 5.0,
+    "vin_contract_v": [
+      3.135,
+      3.465
+    ],
+    "line_regulation_max_ppm_per_v": 35.0,
+    "load_regulation_max_ppm_per_ma": 20.0,
+    "temperature_drift_ppm_per_c": 8.0,
+    "temperature_delta_c": 60.0,
+    "declared_vbias_load_ma": 0.09635,
+    "self_consistent_vbias_load_ma": 0.09634684014512276,
+    "self_consistency_margin_ua": 0.0031598548772410195,
+    "self_consistency_assumption": "sensem >= 0 V; minimum divider resistances; +5 nA at each comparator input"
+  },
+  "required_vref_v": [
+    1.2486909975,
+    1.2513090025000002
+  ],
+  "old_vref_v": [
+    1.2487734188300001,
+    1.25122658117
+  ],
+  "revised_vref_v": [
+    1.2486909975,
+    1.2513090025000002
+  ],
+  "old_underbound_lower_v": true,
+  "old_underbound_upper_v": true,
+  "revised_meets_lower_v": true,
+  "revised_meets_upper_v": true,
+  "representative_classification": {
+    "old_low": {
+      "healthy": {
+        "low_margin_v": 0.4469560038006066,
+        "high_margin_v": 0.16196719057518083,
+        "fault_polarity_matches": true
+      },
+      "FORCE+": {
+        "low_margin_v": -0.1733055566239552,
+        "high_margin_v": 0.7849805786638535,
+        "fault_polarity_matches": true
+      },
+      "SENSE+": {
+        "low_margin_v": 1.8235305469123626,
+        "high_margin_v": -1.2146065359255478,
+        "fault_polarity_matches": true
+      },
+      "SENSE-": {
+        "low_margin_v": -0.6687435340510599,
+        "high_margin_v": 0.161980501673325,
+        "fault_polarity_matches": true
+      },
+      "FORCE-": {
+        "low_margin_v": 0.10560060075336475,
+        "high_margin_v": -1.2101482900553084,
+        "fault_polarity_matches": true
+      }
+    },
+    "old_high": {
+      "healthy": {
+        "low_margin_v": 0.44661477771141966,
+        "high_margin_v": 0.16351003646465423,
+        "fault_polarity_matches": true
+      },
+      "FORCE+": {
+        "low_margin_v": -0.17364677212139504,
+        "high_margin_v": 0.7865234139145888,
+        "fault_polarity_matches": true
+      },
+      "SENSE+": {
+        "low_margin_v": 1.8231892973164319,
+        "high_margin_v": -1.2130636665293448,
+        "fault_polarity_matches": true
+      },
+      "SENSE-": {
+        "low_margin_v": -0.6710550312259204,
+        "high_margin_v": 0.16352337106954973,
+        "fault_polarity_matches": true
+      },
+      "FORCE-": {
+        "low_margin_v": 0.10525575750257765,
+        "high_margin_v": -1.2086199837435994,
+        "fault_polarity_matches": true
+      }
+    },
+    "revised_low": {
+      "healthy": {
+        "low_margin_v": 0.4469674683122057,
+        "high_margin_v": 0.16191535405049517,
+        "fault_polarity_matches": true
+      },
+      "FORCE+": {
+        "low_margin_v": -0.17329409246821748,
+        "high_margin_v": 0.784928742496608,
+        "fault_polarity_matches": true
+      },
+      "SENSE+": {
+        "low_margin_v": 1.823542012213741,
+        "high_margin_v": -1.2146583732400125,
+        "fault_polarity_matches": true
+      },
+      "SENSE-": {
+        "low_margin_v": -0.6686658723862215,
+        "high_margin_v": 0.16192866435885955,
+        "fault_polarity_matches": true
+      },
+      "FORCE-": {
+        "low_margin_v": 0.10561218679433271,
+        "high_margin_v": -1.210199638079369,
+        "fault_polarity_matches": true
+      }
+    },
+    "revised_high": {
+      "healthy": {
+        "low_margin_v": 0.44660331319982055,
+        "high_margin_v": 0.16356187298934,
+        "fault_polarity_matches": true
+      },
+      "FORCE+": {
+        "low_margin_v": -0.17365823627713275,
+        "high_margin_v": 0.7865752500818344,
+        "fault_polarity_matches": true
+      },
+      "SENSE+": {
+        "low_margin_v": 1.8231778320150533,
+        "high_margin_v": -1.2130118292148802,
+        "fault_polarity_matches": true
+      },
+      "SENSE-": {
+        "low_margin_v": -0.6711326928907592,
+        "high_margin_v": 0.1635752083840153,
+        "fault_polarity_matches": true
+      },
+      "FORCE-": {
+        "low_margin_v": 0.10524417146160991,
+        "high_margin_v": -1.2085686357195389,
+        "fault_polarity_matches": true
+      }
+    }
+  }
+}

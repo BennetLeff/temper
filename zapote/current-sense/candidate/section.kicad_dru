@@ -1,0 +1,8 @@
+(version 1)
+(rule "Primary to secondary board barrier"
+ (condition "(A.NetName == 'PRIMARY_IN' || A.NetName == 'PRIMARY_OUT') && B.NetName != '' && B.NetName != 'PRIMARY_IN' && B.NetName != 'PRIMARY_OUT'")
+ (constraint clearance (min 12.6mm))
+ (constraint creepage (min 12.6mm)))
+(rule "Primary conductor width"
+ (condition "A.NetName == 'PRIMARY_IN' || A.NetName == 'PRIMARY_OUT'")
+ (constraint track_width (min 8mm)))

@@ -1,0 +1,53 @@
+.PHONY: setup build check check-boards board-check check-thermal-oracle
+
+CARGO ?= cargo
+KICAD_CLI ?= kicad-cli
+KICAD_PYTHON ?= python3
+# Paths here are relative to zapote/ (or absolute). Override for a maintained variant.
+UNIT_MANIFEST ?= validation/units.json
+RUN_DIR ?= validation/runs/$(shell date -u +%Y%m%dT%H%M%SZ)
+# Register each maintained Zapote unit here. Missing files fail closed.
+UNIT_BOARDS := rtd/unit/candidate/section.kicad_pcb current-sense/candidate/section.kicad_pcb thermal-sense/candidate/section.kicad_pcb interlock/candidate/section.kicad_pcb gate-drive/candidate/section.kicad_pcb
+
+setup:
+	$(CARGO) metadata --locked --offline --no-deps --format-version 1 > /dev/null
+	@echo "Zapote Rust workspace ready. Native editing also requires KiCad and the existing Python adapters."
+
+build:
+	$(CARGO) build --locked --workspace --bins --examples
+
+check:
+	$(CARGO) test --locked --workspace
+	$(MAKE) check-units
+
+# Run the costly retained FEM replay in release; focused cargo tests stay debug.
+# The runner's exit 2 means incomplete evidence. Make maps any recipe failure
+# to its own nonzero status; inspect summary.json for fail vs indeterminate.
+.PHONY: check-units check-native-oracle
+check-units:
+	@test -f "$(UNIT_MANIFEST)" || { echo 'UNIT_MANIFEST must name an existing unit manifest (relative to zapote/ or absolute).' >&2; exit 1; }
+	@printf 'Unit manifest: %s (base: %s; release profile)\n' "$(UNIT_MANIFEST)" "$(CURDIR)"
+	@mkdir -p "$$(dirname "$(RUN_DIR)")"
+	$(CARGO) run --release --quiet --locked --bin zapote-unit-run -- "$(UNIT_MANIFEST)" "$(RUN_DIR)" "$(KICAD_CLI)" "$(KICAD_PYTHON)" --all
+
+check-native-oracle:
+	$(KICAD_PYTHON) validation/p2/test_extract.py
+
+# Explicit live reference verification. Uses the bundled bar templates.
+GMSH ?= gmsh
+ELMERGRID ?= ElmerGrid
+ELMERSOLVER ?= ElmerSolver
+THERMAL_ORACLE_RUN_DIR ?= $(CURDIR)/validation/runs/thermal-oracle-$(shell date -u +%Y%m%dT%H%M%SZ)
+.PHONY: check-thermal-oracle
+check-thermal-oracle:
+	@mkdir -p "$(dir $(THERMAL_ORACLE_RUN_DIR))"
+	$(CARGO) run --locked -p zapote-thermal --bin zapote-thermal-reference -- "$(GMSH)" "$(ELMERGRID)" "$(ELMERSOLVER)" "$(THERMAL_ORACLE_RUN_DIR)"
+
+check-boards:
+	@set -e; for board in $(UNIT_BOARDS); do \
+		$(CARGO) run --quiet --locked --bin zapote-board -- "$$board"; \
+	done
+
+board-check:
+	@test -n "$(BOARD)" || { echo 'Usage: make -C zapote board-check BOARD=/absolute/path/to/board.kicad_pcb' >&2; exit 2; }
+	$(CARGO) run --quiet --locked --bin zapote-board -- "$(BOARD)"

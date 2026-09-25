@@ -1,0 +1,177 @@
+{
+  "rtd_pan.adc": [
+    20,
+    20,
+    0
+  ],
+  "rtd_pan.j_rtd1": [
+    16.25,
+    31,
+    0
+  ],
+  "rtd_pan.r_ref": [
+    14.5,
+    20.5,
+    270
+  ],
+  "rtd_pan.c_vdd": [
+    14.5,
+    16.7,
+    180
+  ],
+  "rtd_pan.c_rtd_input": [
+    20,
+    25.5,
+    0
+  ],
+  "rtd_pan.r_rtdin_p_bias": [
+    15.7,
+    27,
+    90
+  ],
+  "rtd_pan.r_rtdin_n_bias": [
+    24.3,
+    27,
+    90
+  ],
+  "rtd_pan.r_sclk": [
+    27,
+    20.3,
+    180
+  ],
+  "rtd_pan.r_mosi": [
+    27,
+    22,
+    180
+  ],
+  "rtd_pan.r_cs": [
+    27,
+    18.6,
+    180
+  ],
+  "rtd_pan.r_miso": [
+    27,
+    16.9,
+    0
+  ],
+  "rtd_pan.fb_power": [
+    36,
+    12,
+    0
+  ],
+  "rtd_pan.reference": [
+    20,
+    41,
+    180
+  ],
+  "rtd_pan.c_reference": [
+    20,
+    38.35,
+    0
+  ],
+  "rtd_pan.low_window": [
+    30,
+    40,
+    0
+  ],
+  "rtd_pan.c_low_window": [
+    30,
+    37.35,
+    180
+  ],
+  "rtd_pan.high_window": [
+    30,
+    49,
+    0
+  ],
+  "rtd_pan.c_high_window": [
+    30,
+    46.35,
+    180
+  ],
+  "rtd_pan.r_low_top": [
+    25.5,
+    39,
+    270
+  ],
+  "rtd_pan.r_low_bottom": [
+    25.5,
+    42.5,
+    270
+  ],
+  "rtd_pan.r_high_top": [
+    25.5,
+    48,
+    270
+  ],
+  "rtd_pan.r_high_bottom": [
+    25.5,
+    51.5,
+    270
+  ],
+  "rtd_pan.window_and": [
+    40,
+    42,
+    0
+  ],
+  "rtd_pan.c_window_and": [
+    40,
+    39.35,
+    180
+  ],
+  "rtd_pan.r_window_ok_pulldown": [
+    42.5,
+    45.5,
+    90
+  ],
+  "rtd_pan.rail_monitor": [
+    43,
+    28,
+    0
+  ],
+  "rtd_pan.c_rail_monitor": [
+    43,
+    30.5,
+    180
+  ],
+  "rtd_pan.r_avdd_top": [
+    39.5,
+    26,
+    270
+  ],
+  "rtd_pan.r_avdd_bottom": [
+    39.5,
+    29.5,
+    270
+  ],
+  "rtd_pan.r_rail_ok_pullup": [
+    46,
+    31,
+    0
+  ],
+  "rtd_pan.fault_nand": [
+    49,
+    42,
+    0
+  ],
+  "rtd_pan.c_fault_nand": [
+    49,
+    39.35,
+    180
+  ],
+  "rtd_pan.r_fault_pullup": [
+    52.5,
+    44.5,
+    90
+  ],
+  "unit_io": [
+    48,
+    12,
+    0
+  ],
+  "rtd_pan.c_dvdd": [
+    14.5,
+    14.5,
+    180
+  ]
+}

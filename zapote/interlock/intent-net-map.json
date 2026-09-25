@@ -1,0 +1,164 @@
+{
+  "vcc": [
+    "host.p1",
+    "fault_inv_bypass.p1",
+    "fault_inv.VCC",
+    "control_inv_bypass.p1",
+    "control_inv.VCC",
+    "aggregate_bypass.p1",
+    "aggregate.VCC",
+    "latch_bypass.p1",
+    "latch.VCC",
+    "watchdog_bypass.p1",
+    "watchdog.VDD",
+    "common_bypass.p1",
+    "common.VCC",
+    "ocp_pullup.p1",
+    "ovp_pullup.p1",
+    "hs_pullup.p1",
+    "coil_pullup.p1",
+    "rtd_pullup.p1",
+    "runaway_pullup.p1",
+    "aux_pullup.p1",
+    "latch.D",
+    "latch.PRE_N",
+    "watchdog.MR_N",
+    "reset_pullup.p1"
+  ],
+  "gnd": [
+    "host.p2",
+    "faults.p1",
+    "fault_inv_bypass.p2",
+    "fault_inv.GND",
+    "control_inv_bypass.p2",
+    "control_inv.GND",
+    "aggregate_bypass.p2",
+    "aggregate.GND",
+    "latch_bypass.p2",
+    "latch.GND",
+    "watchdog_bypass.p2",
+    "watchdog.GND",
+    "common_bypass.p2",
+    "common.GND",
+    "wdi_pulldown.p2",
+    "live_pulldown.p2",
+    "permit_pulldown.p2",
+    "control_inv.A6"
+  ],
+  "ocp_fault": [
+    "faults.p2",
+    "fault_inv.A1",
+    "ocp_pullup.p2"
+  ],
+  "ocp_healthy": [
+    "fault_inv.Y1",
+    "aggregate.A"
+  ],
+  "ovp_fault": [
+    "faults.p3",
+    "fault_inv.A2",
+    "ovp_pullup.p2"
+  ],
+  "ovp_healthy": [
+    "fault_inv.Y2",
+    "aggregate.B"
+  ],
+  "hs_fault": [
+    "faults.p4",
+    "fault_inv.A3",
+    "hs_pullup.p2"
+  ],
+  "hs_healthy": [
+    "fault_inv.Y3",
+    "aggregate.C"
+  ],
+  "coil_fault": [
+    "faults.p5",
+    "fault_inv.A4",
+    "coil_pullup.p2"
+  ],
+  "coil_healthy": [
+    "fault_inv.Y4",
+    "aggregate.D"
+  ],
+  "rtd_fault": [
+    "faults.p6",
+    "fault_inv.A5",
+    "rtd_pullup.p2"
+  ],
+  "rtd_healthy": [
+    "fault_inv.Y5",
+    "aggregate.E"
+  ],
+  "runaway_fault": [
+    "faults.p7",
+    "fault_inv.A6",
+    "runaway_pullup.p2"
+  ],
+  "runaway_healthy": [
+    "fault_inv.Y6",
+    "aggregate.F"
+  ],
+  "aux_fault": [
+    "faults.p8",
+    "control_inv.A1",
+    "aux_pullup.p2"
+  ],
+  "aux_healthy": [
+    "control_inv.Y1",
+    "aggregate.G"
+  ],
+  "wdi": [
+    "host.p3",
+    "watchdog.WDI",
+    "wdi_pulldown.p1"
+  ],
+  "reset_n": [
+    "host.p4",
+    "reset_pullup.p2",
+    "control_inv.A3"
+  ],
+  "sensor_live": [
+    "host.p5",
+    "live_pulldown.p1",
+    "control_inv.A4"
+  ],
+  "live_n": [
+    "control_inv.Y4",
+    "control_inv.A5"
+  ],
+  "live_buf": [
+    "control_inv.Y5",
+    "common.B"
+  ],
+  "permit": [
+    "host.p6",
+    "latch.Q",
+    "permit_pulldown.p1"
+  ],
+  "latched_fault": [
+    "host.p7",
+    "latch.QBAR"
+  ],
+  "wdt_good": [
+    "host.p8",
+    "watchdog.RESET_N",
+    "common.A"
+  ],
+  "common_good": [
+    "common.Y",
+    "aggregate.H"
+  ],
+  "any_fault": [
+    "aggregate.Y",
+    "control_inv.A2"
+  ],
+  "all_good": [
+    "control_inv.Y2",
+    "latch.CLR_N"
+  ],
+  "reset_clock": [
+    "control_inv.Y3",
+    "latch.CLK"
+  ]
+}

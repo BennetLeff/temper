@@ -1,0 +1,78 @@
+{
+  "reason": "Astra correction of actual Rust return-plane findings: host CS moved from In2 toF; SENSE+ B branch goes around BIAS endpoint, preserving ground beneath B clock/sense paths",
+  "nets": [
+    {
+      "net": "RTD_CS_N",
+      "paths": [
+        {
+          "layer": "F.Cu",
+          "width_mm": 0.2,
+          "points": [
+            [
+              27.825,
+              18.6
+            ],
+            [
+              33,
+              18.6
+            ],
+            [
+              33,
+              9
+            ],
+            [
+              44,
+              9
+            ],
+            [
+              44,
+              13.27
+            ],
+            [
+              47.365,
+              13.27
+            ]
+          ]
+        }
+      ],
+      "vias": []
+    },
+    {
+      "net": "rtd_sense_p",
+      "mode": "append",
+      "paths": [
+        {
+          "layer": "B.Cu",
+          "width_mm": 0.2,
+          "points": [
+            [
+              18.1,
+              25.5
+            ],
+            [
+              18.1,
+              24.9
+            ],
+            [
+              26.8,
+              24.9
+            ],
+            [
+              26.8,
+              28
+            ],
+            [
+              31.8,
+              28
+            ],
+            [
+              31.8,
+              32
+            ]
+          ]
+        }
+      ],
+      "vias": []
+    }
+  ]
+}

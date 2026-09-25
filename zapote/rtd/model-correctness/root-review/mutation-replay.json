@@ -1,0 +1,279 @@
+{
+  "binary_sha256": "ae3cf66666e0067179797a9047229da65687d021944142213ba2b12d7f7739a9",
+  "input_sha256": "eb8bda7ff794bdec30b36098a143e37c51febe5a3ad2925e058c454b88505427",
+  "cases": [
+    {
+      "case": "valid",
+      "expected": "pass",
+      "observed": [
+        "pass"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "missing_model_source_artifact_utf8",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "missing_model_artifact_utf8",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "missing_cases",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "missing_receipt",
+      "expected": "indeterminate",
+      "observed": [
+        "indeterminate"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "wrong_schema",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "raw_model_drift",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "raw_source_drift",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "forged_device_pass",
+      "expected": "pass",
+      "observed": [
+        "pass"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "over_budget_observation",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "not_detected",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "zero_bound",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "zero_energy",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "zero_c_matrix",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "negative_budget",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "smaller_declared_budget",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "inconsistent_reference_voltage",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "larger_reference_drift",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_cdiff_f_[0, 0]",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_cdiff_f_[9.4e-10, 1e-09]",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_cground_p_f_[0, 0]",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_cground_m_f_[0, 0]",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_i_max_p_a_0",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_i_window_a_0",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_offset_v_0",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_rref_ohm_[-1, 430.3440645]",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_rref_ohm_[400, 500]",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_rtd_short_ohm_[1, 10]",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_lead_sp_ohm_[1, 1]",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "envelope_rref_ohm_malformed",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "missing_case",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "duplicate_case",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "coordinated_source_change",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    },
+    {
+      "case": "rehash_wrong_runtime_model",
+      "expected": "fail",
+      "observed": [
+        "fail"
+      ],
+      "exit_code": 1
+    }
+  ],
+  "all_expectations_met": true
+}

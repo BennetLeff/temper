@@ -1,0 +1,147 @@
+# Standalone thermal detectors; sensors are external lug assemblies.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+import TLV3201 from "components.ato"
+
+component ThermalProbeConnector:
+    designator_prefix = "J"
+    footprint = "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"
+    mpn = "B2B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component ThermalHostConnector:
+    designator_prefix = "J"
+    footprint = "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical"
+    mpn = "B6B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+
+module ThermalSenseUnit:
+    """Independent heatsink and coil hot detectors; no latch or shutdown actuator.
+    External sensors: Vishay NTCALUG01A104GA. Open sensor reads cold.
+    Full protection and thermal qualification remain separate obligations.
+    """
+    signal vcc
+    signal gnd
+    signal hs_sense
+    signal hs_ref
+    signal hs_fault
+    signal coil_sense
+    signal coil_ref
+    signal coil_fault
+    heatsink_probe = new ThermalProbeConnector
+    coil_probe = new ThermalProbeConnector
+    host = new ThermalHostConnector
+    hs_comp = new TLV3201
+    coil_comp = new TLV3201
+    hs_fixed = new Resistor
+    hs_fixed.value = 10kohm +/- 1%
+    hs_fixed.mpn = "RC0603FR-0710KL"
+    hs_fixed.footprint = "Resistor_SMD:R_0603_1608Metric"
+    hs_top = new Resistor
+    hs_top.value = 9.09kohm +/- 1%
+    hs_top.mpn = "RC0603FR-079K09L"
+    hs_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    hs_bottom = new Resistor
+    hs_bottom.value = 11.5kohm +/- 1%
+    hs_bottom.mpn = "RC0603FR-0711K5L"
+    hs_bottom.footprint = "Resistor_SMD:R_0603_1608Metric"
+    hs_hyst = new Resistor
+    hs_hyst.value = 34.8kohm +/- 1%
+    hs_hyst.mpn = "RC0603FR-0734K8L"
+    hs_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+    coil_fixed = new Resistor
+    coil_fixed.value = 3.32kohm +/- 1%
+    coil_fixed.mpn = "RC0603FR-073K32L"
+    coil_fixed.footprint = "Resistor_SMD:R_0603_1608Metric"
+    coil_top = new Resistor
+    coil_top.value = 3.16kohm +/- 1%
+    coil_top.mpn = "RC0603FR-073K16L"
+    coil_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    coil_bottom = new Resistor
+    coil_bottom.value = 4.42kohm +/- 1%
+    coil_bottom.mpn = "RC0603FR-074K42L"
+    coil_bottom.footprint = "Resistor_SMD:R_0603_1608Metric"
+    coil_hyst = new Resistor
+    coil_hyst.value = 11.5kohm +/- 1%
+    coil_hyst.mpn = "RC0603FR-0711K5L"
+    coil_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+    hs_filter = new Capacitor
+    hs_filter.value = 100nF +/- 10%
+    hs_filter.mpn = "C0603C104K5RACTU"
+    hs_filter.voltage_rating = 50V
+    hs_bypass = new Capacitor
+    hs_bypass.value = 100nF +/- 10%
+    hs_bypass.mpn = "C0603C104K5RACTU"
+    hs_bypass.voltage_rating = 50V
+    coil_filter = new Capacitor
+    coil_filter.value = 100nF +/- 10%
+    coil_filter.mpn = "C0603C104K5RACTU"
+    coil_filter.voltage_rating = 50V
+    coil_bypass = new Capacitor
+    coil_bypass.value = 100nF +/- 10%
+    coil_bypass.mpn = "C0603C104K5RACTU"
+    coil_bypass.voltage_rating = 50V
+
+    host.p1 ~ vcc
+    host.p2 ~ gnd
+    host.p3 ~ hs_fault
+    host.p4 ~ coil_fault
+    host.p5 ~ hs_sense
+    host.p6 ~ coil_sense
+    heatsink_probe.p1 ~ hs_sense
+    heatsink_probe.p2 ~ gnd
+    coil_probe.p1 ~ coil_sense
+    coil_probe.p2 ~ gnd
+    hs_fixed.p1 ~ vcc
+    hs_fixed.p2 ~ hs_sense
+    hs_top.p1 ~ vcc
+    hs_top.p2 ~ hs_ref
+    hs_bottom.p1 ~ hs_ref
+    hs_bottom.p2 ~ gnd
+    hs_hyst.p1 ~ hs_ref
+    hs_hyst.p2 ~ hs_fault
+    hs_filter.p1 ~ hs_sense
+    hs_filter.p2 ~ gnd
+    hs_bypass.p1 ~ vcc
+    hs_bypass.p2 ~ gnd
+    hs_comp.VCC ~ vcc
+    hs_comp.GND ~ gnd
+    hs_comp.INP ~ hs_ref
+    hs_comp.INN ~ hs_sense
+    hs_comp.OUT ~ hs_fault
+    coil_fixed.p1 ~ vcc
+    coil_fixed.p2 ~ coil_sense
+    coil_top.p1 ~ vcc
+    coil_top.p2 ~ coil_ref
+    coil_bottom.p1 ~ coil_ref
+    coil_bottom.p2 ~ gnd
+    coil_hyst.p1 ~ coil_ref
+    coil_hyst.p2 ~ coil_fault
+    coil_filter.p1 ~ coil_sense
+    coil_filter.p2 ~ gnd
+    coil_bypass.p1 ~ vcc
+    coil_bypass.p2 ~ gnd
+    coil_comp.VCC ~ vcc
+    coil_comp.GND ~ gnd
+    coil_comp.INP ~ coil_ref
+    coil_comp.INN ~ coil_sense
+    coil_comp.OUT ~ coil_fault
+
+    vcc.override_net_name = "+3V3"
+    gnd.override_net_name = "gnd"
+    hs_sense.override_net_name = "HS_SENSE"
+    hs_ref.override_net_name = "HS_REF"
+    hs_fault.override_net_name = "HS_FAULT"
+    coil_sense.override_net_name = "COIL_SENSE"
+    coil_ref.override_net_name = "COIL_REF"
+    coil_fault.override_net_name = "COIL_FAULT"

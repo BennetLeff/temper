@@ -1,0 +1,44 @@
+{
+  "schema": "zapote.rtd.unit-manufacturing.v1",
+  "status": "qualified-for-standalone-layout-with-declared-model-assumptions",
+  "outline_mm": [
+    0,
+    0,
+    60,
+    60
+  ],
+  "copper_layers": [
+    "F.Cu",
+    "In1.Cu",
+    "In2.Cu",
+    "B.Cu"
+  ],
+  "minimum_finished_copper_um": 35,
+  "nominal_board_thickness_mm": 1.6,
+  "minimum_copper_clearance_mm": 0.2,
+  "minimum_track_width_mm": 0.2,
+  "authored_power_return_width_mm": 0.3,
+  "through_via_diameter_mm": 0.7,
+  "through_via_drill_mm": 0.3,
+  "minimum_annular_ring_mm": 0.15,
+  "copper_edge_clearance_mm": 0.5,
+  "local_supply_current_budget_ma": 10,
+  "current_budget_status": "all-state datasheet/model sum 8.448898mA <= 10mA; physical NOT RUN",
+  "domains": [
+    "SELV_3V3"
+  ],
+  "layer_roles": {
+    "F.Cu": "short analog/local branches, host CS route, filtered RTD_AVDD pour",
+    "In1.Cu": "continuous ground return",
+    "In2.Cu": "second ground return with explicit BIAS/VBIAS segments; actual adjacent-layer corridor coverage required",
+    "B.Cu": "host SPI/interface routes and upstream3V3 pour"
+  },
+  "basis": "Agent-authored conservative low-voltage carrier constraints, not a selected fabricator capability certificate. No high-current cooker power paths or mains domains exist on this unit.",
+  "physical_tests": "NOT RUN",
+  "minimum_power_return_width_mm": 0.2,
+  "power_trace_basis": "0.20mm minimum for this <=10mA standalone unit; most authored power/return branches use0.30mm. No buck or high-current path is in scope.",
+  "all_state_current_ma": 8.448898,
+  "external_reference_load_max_ua": 100,
+  "external_reference_load_max_nf": 10,
+  "native_polygon_max_error_mm": 0.005
+}

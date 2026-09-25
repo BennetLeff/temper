@@ -1,0 +1,127 @@
+{
+  "faults": [
+    8,
+    32,
+    90
+  ],
+  "host": [
+    92,
+    32,
+    270
+  ],
+  "fault_inv": [
+    31,
+    25,
+    0
+  ],
+  "control_inv": [
+    31,
+    43,
+    0
+  ],
+  "aggregate": [
+    49,
+    25,
+    0
+  ],
+  "latch": [
+    66,
+    43,
+    0
+  ],
+  "watchdog": [
+    66,
+    16,
+    0
+  ],
+  "common": [
+    49,
+    43,
+    0
+  ],
+  "ocp_pullup": [
+    18,
+    17,
+    0
+  ],
+  "ovp_pullup": [
+    18,
+    21,
+    0
+  ],
+  "hs_pullup": [
+    18,
+    25,
+    0
+  ],
+  "coil_pullup": [
+    18,
+    29,
+    0
+  ],
+  "rtd_pullup": [
+    18,
+    33,
+    0
+  ],
+  "runaway_pullup": [
+    18,
+    37,
+    0
+  ],
+  "aux_pullup": [
+    18,
+    41,
+    0
+  ],
+  "reset_pullup": [
+    40,
+    51,
+    90
+  ],
+  "wdi_pulldown": [
+    58,
+    10,
+    90
+  ],
+  "live_pulldown": [
+    43,
+    51,
+    90
+  ],
+  "permit_pulldown": [
+    76,
+    43,
+    90
+  ],
+  "fault_inv_bypass": [
+    36.5,
+    21.2,
+    0
+  ],
+  "control_inv_bypass": [
+    36.5,
+    39.2,
+    0
+  ],
+  "aggregate_bypass": [
+    55.0,
+    23.05,
+    0
+  ],
+  "latch_bypass": [
+    70,
+    40,
+    0
+  ],
+  "watchdog_bypass": [
+    70,
+    14,
+    0
+  ],
+  "common_bypass": [
+    53.0,
+    42.05,
+    0
+  ]
+}
