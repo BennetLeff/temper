@@ -1,0 +1,19 @@
+#VRML V2.0 utf8
+# UCC21550 DWK14 low-fidelity mechanical visualization. Coordinates in mm;
+# KiCad footprint model scale should be 0.3937008 for VRML unit conversion.
+WorldInfo { title "UCC21550 DWK14" info [ "14 leads: 1-11 and 14-16; pins 12/13 intentionally omitted" ] }
+Transform { translation 0 -0 1.25 children [ Shape { appearance Appearance { material Material { diffuseColor 0.08 0.08 0.1 } } geometry Box { size 7.5 10.3 2.5 } } ] }
+Transform { translation -4.485 4.445 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation -4.485 3.175 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation -4.485 1.905 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation -4.485 0.635 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation -4.485 -0.635 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation -4.485 -1.905 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation -4.485 -3.175 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation -4.485 -4.445 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation 4.485 -4.445 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation 4.485 -3.175 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation 4.485 -1.905 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation 4.485 1.905 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation 4.485 3.175 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }
+Transform { translation 4.485 4.445 0.15 children [ Shape { appearance Appearance { material Material { diffuseColor 0.72 0.45 0.12 } } geometry Box { size 1.65 0.6 0.3 } } ] }

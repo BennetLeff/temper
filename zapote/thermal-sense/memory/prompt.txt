@@ -1,0 +1,1 @@
+Construct only the standalone thermal-sensing unit. Verify exact sensor identity and source-derived thresholds, keep qualification limits explicit, use native KiCad editing and Rust validators, preserve failed attempts. Do not implement a placer or router.

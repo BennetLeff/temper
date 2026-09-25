@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+runs/
+target/
+# Campaign evidence is retained output, not runtime scratch: the PFC experiment
+# campaign's required artifacts live under a `runs/` directory (see
+# docs/plans/2026-09-17-1342-pfc-experiment-campaign-plan.md). Re-include that
+# path so reviewed evidence can be committed; other `runs/` trees stay ignored.
+!power-entry/loss-budget/campaign/runs/
+!power-entry/loss-budget/campaign/runs/**
+*.log

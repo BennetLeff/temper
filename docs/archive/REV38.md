@@ -46,9 +46,18 @@ Full comparison: the ADR and `docs/hardware/power-section-120v/`.
 | --- | --- |
 | `harness-lab/circuit_export.py` (per-instance part identity) | `zapote/power-stage-120v/tools/` (landed with the new unit) |
 | Exact-pin Rust audit and mutation-test method; hashed build receipts | `zapote/power-stage-120v/audit.rs`, `build-receipt.json` |
-| Zapote Rust crates (generic ERC/DRC/harness/thermal checks), five standalone boards, GBJ2510 package thermal model | Next PR: pruned of PFC-only modules, with a differential check that kept unit results are unchanged |
+| Zapote Rust crates, the five standalone boards (RTD, current-sense, thermal-sense, interlock, gate-drive) with fabrication packages, GBJ2510 package thermal model, inverter measurement framework | Landed, pruned of PFC-only modules. A differential check against the archive tag shows all 370 findings of the five kept units identical |
 | Generic cooker firmware: RTD sample age, NTC guard, control-progress epoch, board I/O hooks, diagnostic lockout | Later firmware PR |
 | F1 inlet/fuse coordination; insulation-basis method; SELV port contract | To be rewritten for the 20 A fuse and ~200 V bus as the native board proceeds |
+
+Archived with the prune (not on `main`):
+- the voltage-sense unit (390 V bank interface; replaced by the power stage's AMC1311)
+- `zapote-thermal` cooker envelope (Rev38 product: PFC heat, `pfc_run_allowed`)
+- GBJ cooling-options study
+- bridge neck/joint FEM and shunt models
+- Rev38 board-identity CLI mode
+- the doubler simulation
+- the frozen RTD debug executable
 
 ## Lessons carried forward
 

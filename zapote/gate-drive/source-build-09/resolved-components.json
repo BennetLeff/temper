@@ -1,0 +1,238 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "66756034574330c1ec941b41c52ea4e29571bad39134e4e40e8bbc408341d688",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "30691aa4b45076d41fbf77153d4b52c79922838e0de0bddf2fc6e01ea000b3f7",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::host",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+        "manufacturer": "JST Sales America Inc.",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::supply",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "manufacturer": "Wurth Elektronik",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::gate_h",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "manufacturer": "Wurth Elektronik",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::gate_l",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "manufacturer": "Wurth Elektronik",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::driver",
+      "attributes": {
+        "footprint": "SOIC16W_Isolated",
+        "i_sink_peak": "6A",
+        "i_source_peak": "4A",
+        "mpn": "UCC21550BDWKR",
+        "v_cc_sec_max": "25V",
+        "v_cci_max": "18V",
+        "v_iso": "5000V",
+        "voltage_rating": "5000V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::vcc_3v3",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "manufacturer": "Wurth Elektronik",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::c_vcci",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::permit_sw",
+      "attributes": {
+        "designator_prefix": "Q",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Alpha & Omega Semiconductor",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::r_permit_series",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-071KL",
+        "power_rating": null,
+        "value": "1kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::r_permit_pd",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100KL",
+        "power_rating": null,
+        "value": "100kohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::r_dis_pu",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::dt",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0739KL",
+        "power_rating": "0.1W",
+        "value": "39kohm +/- 1%",
+        "voltage_rating": "10V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::c_ls",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::c_ls_bulk",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "GRM32ER71H106KA12L",
+        "value": "10uF +/- 20%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::d_boot",
+      "attributes": {
+        "current_rating": "1A",
+        "designator_prefix": "D",
+        "footprint": "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal",
+        "mpn": "UF4007-E3/54",
+        "voltage_rating": "1000V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::c_boot",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "X7R",
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "GRM32ER71H106KA12L",
+        "value": "10uF +/- 20%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::rg_h",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-073R9L",
+        "power_rating": "0.25W",
+        "value": "3.9ohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::rgs_h",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-072K2L",
+        "power_rating": null,
+        "value": "2.2kohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::rg_l",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-073R9L",
+        "power_rating": "0.25W",
+        "value": "3.9ohm +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit::rgs_l",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-072K2L",
+        "power_rating": null,
+        "value": "2.2kohm +/- 5%",
+        "voltage_rating": null
+      }
+    }
+  ],
+  "entry": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato:GateDriveUnit",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
+    "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+    "elec/src/current_sense_unit.ato": "973de56249de1b18c779650e1506605ce9db574102df9f86846662519ae79898",
+    "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+    "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+    "elec/src/gate_drive_unit.ato": "6e81398feb135f9a7382033173beda50f7a9cb8b7602ccab00a032f4fe40b2b1",
+    "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+    "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+    "elec/src/interlock_unit.ato": "8e457eaa3c50c810e0877ce5b533faae4a751f966a1f9e1c39bb6b4fe067276d",
+    "elec/src/main.ato": "492faf4b04351003c859512332b91d207e234274a4b7344f86c3674477626461",
+    "elec/src/modules.ato": "1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d",
+    "elec/src/rtd_unit.ato": "521d46ea86f55ecefe0e0d38e6303623dabb1e1648e5d1cd3cebd51c9d05f673",
+    "elec/src/thermal_sense_unit.ato": "0597bd4a07f31d20fb0c15961a6b907ac772c87bdd592f6d24d1be48a5fce6cd",
+    "elec/src/voltage_sense_unit.ato": "5aca80ff589ff7156cae128a66f09111730d2a59439f59cccdfbb336a1577de5"
+  }
+}

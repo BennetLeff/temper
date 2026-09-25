@@ -1,0 +1,25 @@
+# ngspice topology receipt for protected RTDIN comparator window
+
+Date: 2026-09-10
+Command family: ngspice-45.2 batch runs generated from
+`rtdin_comparator_window.cir`, with one `.param` override for each case.
+Every run exited 0. The table below is copied from the first `.op` result of
+six separate case-specific decks; this is a topology execution check, not a
+corner sweep or physical proof.
+
+```text
+healthy  window=3.300000e+00 lowok=3.300000e+00 highok=3.300000e+00 sensorp=3.798478e-01 sensem=3.803088e-03 windowp=3.778493e-01 lowth=1.770406e-01 highth=7.861264e-01
+FORCE+   window=0.000000e+00 lowok=0.000000e+00 highok=3.300000e+00 sensorp=2.179554e-04 sensem=4.076722e-05 windowp=-1.78008e-03 lowth=1.738016e-01 highth=7.861264e-01
+SENSE+   window=0.000000e+00 lowok=3.300000e+00 highok=0.000000e+00 sensorp=3.797180e-01 sensem=3.801802e-03 windowp=1.963998e+00 lowth=1.770395e-01 highth=7.861264e-01
+SENSE-   window=0.000000e+00 lowok=0.000000e+00 highok=3.300000e+00 sensorp=3.798321e-01 sensem=1.300669e+00 windowp=3.778337e-01 lowth=1.293536e+00 highth=7.861264e-01
+FORCE-   window=0.000000e+00 lowok=3.300000e+00 highok=0.000000e+00 sensorp=1.995529e+00 sensem=1.994485e+00 windowp=1.993529e+00 lowth=1.890854e+00 highth=7.861264e-01
+local_off window=0.000000e+00 lowok=0.000000e+00 highok=3.300000e+00 sensorp=1.131968e-05 sensem=3.473732e-05 windowp=-1.98871e-03 lowth=1.737964e-01 highth=7.861264e-01
+```
+
+Cases use RTD=100 ohm, VBIAS=2 V, 1 ohm conductor resistance unless noted:
+healthy; one-at-a-time FORCE+, SENSE+, SENSE-, FORCE- open represented by
+1 Tohm; and post-ferrite local-off with VBIAS=0. The protected shared branch
+is RWINP=100 kohm. Healthy gives `window=3.3`; each conductor open and local
+off gives `window=0`. The local-off run is only the passive collapse model:
+MAX conversion is invalid with VDD absent and shutdown is owned by the rail
+monitor/HW fault path.

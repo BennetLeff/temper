@@ -1,0 +1,14 @@
+{
+  "task": "Implement Rust checks for standalone InterlockUnit in isolated /private/tmp/temper-interlock-rust-20260912 HEAD02e0842ee",
+  "initial_request": "Build graph-derived Rust ERC truth evaluator and thin harness for the seven-fault standalone safety interlock. Use exact SN74LVC14ADR, CD74HC30PWR, SN74LVC1G08DBVR, SN74LVC1G74DCUR (Q pin 5, QBAR pin 3), and TPS3823 RESET_N pin 1/GND pin 2. Cover exhaustive fault/live/watchdog/prior-state/reset-edge behavior, source/native graph and strict pin checks, pulls, NCs, and explicit physical applicability indeterminacy.",
+  "followups_received": [
+    "Source contract and intent net map are now present under zapote/interlock; source compile/native fixture will arrive.",
+    "Require timing evidence to remain separate from condensed digital RESET_N oracle; SENSOR_LIVE producer is an integration obligation.",
+    "Use exact source pull values and input leakage budget; reject 100k mutation; preserve independent source graph and intent map checks."
+  ],
+  "memory_use": {
+    "prepared_context": "not present at dispatch time in assigned checkout; canonical plan and Zapote AGENTS guidance were read",
+    "provider_forwarding_claimed": false,
+    "used": ["fault-dominant latch", "source/native truth boundary", "fail-closed applicability", "independent external graph evidence"]
+  }
+}

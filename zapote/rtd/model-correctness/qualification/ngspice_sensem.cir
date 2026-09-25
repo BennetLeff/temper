@@ -1,0 +1,30 @@
+* independent full external RTDIN network; open assertion at 10 us
+VBIAS bias 0 2.06
+VREFSRC refsrc 0 1.25
+VCTRL ctrl 0 PULSE(5 0 10u 1n 1n 10m 20m)
+.model SWOPEN SW(Ron=1 Roff=1e12 Vt=2 Vh=0)
+RREF bias forcep_i 430
+RFPATH forcep_i sensorp 1
+RFNATH sensorn forcen_i 1
+RSPATH sensorp sensep 1
+RRTD sensorp sensorn 100
+RRETURN forcen_i 0 1m
+RDIAGP bias sensep 1Meg
+RDIAGN bias sensem 1Meg
+RWINP sensep windowp 100k
+CDIFF sensep sensem 1.1n
+CGP sensep 0 100p
+CGN sensem 0 100p
+RLOWTOPX refsrc lowth 61900
+RLOWBOTX lowth sensem 10000
+RHIGHTOPX refsrc highth 5900
+RHIGHBOTX highth 0 10000
+SOPEN sensorn sensem ctrl 0 SWOPEN
+.tran 1u 3m
+.control
+run
+let high_margin=v(highth)-v(windowp)-0.004
+let low_margin=v(windowp)-v(lowth)-0.004
+meas tran cross WHEN low_margin=-0.020 FALL=1
+.endc
+.end

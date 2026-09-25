@@ -1,0 +1,176 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-24T00:39:04",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "section.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1900 mm)",
+            "items": [
+                {
+                    "description": "Track [vcc] on B.Cu, length 32.7750 mm",
+                    "pos": {
+                        "x": 52.225,
+                        "y": 41.1
+                    },
+                    "uuid": "574498db-7765-49f3-b01b-fe0e3edb8c50"
+                },
+                {
+                    "description": "Via [aux_healthy] on F.Cu - B.Cu",
+                    "pos": {
+                        "x": 56.0,
+                        "y": 40.46
+                    },
+                    "uuid": "64b8f47e-94a5-417d-9bf4-2dfee7ae70e6"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Pad 1 [reset_clock] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 42.25
+                    },
+                    "uuid": "4c6afa77-1fdb-4b29-9cd4-ab0c753bcd42"
+                },
+                {
+                    "description": "Pad 2 [vcc] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 42.75
+                    },
+                    "uuid": "ffa3605a-ee15-4be1-8be2-ea6344834947"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Pad 2 [vcc] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 42.75
+                    },
+                    "uuid": "ffa3605a-ee15-4be1-8be2-ea6344834947"
+                },
+                {
+                    "description": "Pad 3 [latched_fault] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 43.25
+                    },
+                    "uuid": "3fff6553-4122-41ff-9411-b34ef6d3861d"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Pad 3 [latched_fault] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 43.25
+                    },
+                    "uuid": "3fff6553-4122-41ff-9411-b34ef6d3861d"
+                },
+                {
+                    "description": "Pad 4 [gnd] of U4 on F.Cu",
+                    "pos": {
+                        "x": 64.6,
+                        "y": 43.75
+                    },
+                    "uuid": "0c3c4338-22a8-469e-9085-9452b72160e1"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Pad 5 [permit] of U4 on F.Cu",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 43.75
+                    },
+                    "uuid": "f4ae48da-bd97-4328-ac81-8436ffc2b249"
+                },
+                {
+                    "description": "Pad 6 [all_good] of U4 on F.Cu",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 43.25
+                    },
+                    "uuid": "43b70cfc-8415-4818-973e-fc29e07b7f44"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation ( clearance 0.2000 mm; actual 0.1500 mm)",
+            "items": [
+                {
+                    "description": "Pad 6 [all_good] of U4 on F.Cu",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 43.25
+                    },
+                    "uuid": "43b70cfc-8415-4818-973e-fc29e07b7f44"
+                },
+                {
+                    "description": "Pad 7 [vcc] of U4 on F.Cu",
+                    "pos": {
+                        "x": 67.4,
+                        "y": 42.75
+                    },
+                    "uuid": "6e536c6e-367c-4ae3-afec-4d75ad056d25"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        }
+    ]
+}

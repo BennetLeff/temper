@@ -1,0 +1,182 @@
+{
+  "rtd_pan.r_fault_pullup": [
+    52.5,
+    44.5,
+    90.0
+  ],
+  "rtd_pan.c_vdd": [
+    14.4,
+    18.0,
+    180.0
+  ],
+  "rtd_pan.c_window_and": [
+    40.0,
+    39.35,
+    180.0
+  ],
+  "rtd_pan.c_high_window": [
+    30.0,
+    46.35,
+    180.0
+  ],
+  "rtd_pan.r_rtdin_n_bias": [
+    24.3,
+    27.0,
+    90.0
+  ],
+  "rtd_pan.rail_monitor": [
+    43.0,
+    28.0,
+    0.0
+  ],
+  "rtd_pan.window_and": [
+    40.0,
+    42.0,
+    0.0
+  ],
+  "rtd_pan.fb_power": [
+    36.0,
+    12.0,
+    0.0
+  ],
+  "rtd_pan.r_avdd_bottom": [
+    39.5,
+    29.5,
+    -90.0
+  ],
+  "rtd_pan.r_high_bottom": [
+    25.5,
+    51.5,
+    -90.0
+  ],
+  "rtd_pan.c_low_window": [
+    30.0,
+    37.35,
+    180.0
+  ],
+  "rtd_pan.r_low_bottom": [
+    25.5,
+    42.5,
+    -90.0
+  ],
+  "rtd_pan.high_window": [
+    30.0,
+    49.0,
+    0.0
+  ],
+  "rtd_pan.c_fault_nand": [
+    49.0,
+    39.35,
+    180.0
+  ],
+  "rtd_pan.fault_nand": [
+    49.0,
+    42.0,
+    0.0
+  ],
+  "rtd_pan.low_window": [
+    30.0,
+    40.0,
+    0.0
+  ],
+  "rtd_pan.r_cs": [
+    27.0,
+    18.6,
+    180.0
+  ],
+  "rtd_pan.r_rail_ok_pullup": [
+    46.0,
+    31.0,
+    0.0
+  ],
+  "rtd_pan.j_rtd1": [
+    16.25,
+    33.0,
+    0.0
+  ],
+  "unit_io": [
+    48.0,
+    12.0,
+    0.0
+  ],
+  "rtd_pan.r_mosi": [
+    27.0,
+    22.0,
+    180.0
+  ],
+  "rtd_pan.r_rtdin_p_bias": [
+    15.7,
+    27.0,
+    90.0
+  ],
+  "rtd_pan.c_rtd_input": [
+    20.0,
+    25.5,
+    0.0
+  ],
+  "rtd_pan.r_low_top": [
+    25.5,
+    39.0,
+    -90.0
+  ],
+  "rtd_pan.c_rail_monitor": [
+    43.0,
+    30.5,
+    180.0
+  ],
+  "rtd_pan.r_miso": [
+    27.0,
+    16.9,
+    0.0
+  ],
+  "rtd_pan.r_avdd_top": [
+    39.5,
+    26.0,
+    -90.0
+  ],
+  "rtd_pan.c_dvdd": [
+    14.5,
+    15.8,
+    180.0
+  ],
+  "rtd_pan.r_high_top": [
+    25.5,
+    48.0,
+    -90.0
+  ],
+  "rtd_pan.r_ref": [
+    14.5,
+    20.5,
+    -90.0
+  ],
+  "rtd_pan.reference": [
+    20.0,
+    41.0,
+    180.0
+  ],
+  "rtd_pan.r_sclk": [
+    27.0,
+    20.3,
+    180.0
+  ],
+  "rtd_pan.adc": [
+    20.0,
+    20.0,
+    0.0
+  ],
+  "rtd_pan.r_window_ok_pulldown": [
+    42.5,
+    45.5,
+    -90.0
+  ],
+  "rtd_pan.c_reference": [
+    20.0,
+    38.35,
+    0.0
+  ],
+  "rtd_pan.r_window_sense_p": [
+    33.5,
+    32,
+    0
+  ]
+}

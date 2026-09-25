@@ -1,0 +1,2488 @@
+{
+  "board": {
+    "footprints": 27,
+    "layers": [
+      "F.Cu",
+      "In3.Cu",
+      "In1.Cu",
+      "In2.Cu",
+      "In4.Cu",
+      "B.Cu"
+    ],
+    "nets": 13,
+    "outline_mm": [
+      0.0,
+      0.0,
+      100.0,
+      45.0
+    ]
+  },
+  "board_sha256": "6a1f173949c1a25f5a646802b9a8fbece8b8b20cc7b0b01f6f1980421bc5728f",
+  "bridge": {
+    "components": [
+      {
+        "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+        "instance_path": "heatsink_probe",
+        "reference": "J1",
+        "tstamp": "663927d5-43c4-0655-b47d-33f46c368a3a"
+      },
+      {
+        "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+        "instance_path": "coil_probe",
+        "reference": "J2",
+        "tstamp": "91cac77c-ea1c-5d2f-6b2c-8f5c08507de6"
+      },
+      {
+        "footprint": "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical",
+        "instance_path": "host",
+        "reference": "J3",
+        "tstamp": "40bcdc6f-6bef-dede-7813-e6017ef8354f"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "hs_comp",
+        "reference": "U1",
+        "tstamp": "35c65efd-5173-2d92-0d45-0d03ceccc746"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "coil_comp",
+        "reference": "U2",
+        "tstamp": "b371e801-219a-70e9-c5a5-9621d4c0a46f"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "hs_open_comp",
+        "reference": "U3",
+        "tstamp": "08dfafdd-53aa-6051-d6cb-8b25113f02ec"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "coil_open_comp",
+        "reference": "U4",
+        "tstamp": "7fe3abbe-9303-8977-3234-00685b825863"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "hs_or",
+        "reference": "U5",
+        "tstamp": "5592d448-fb57-6e1d-6e32-7b2bfc762275"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "coil_or",
+        "reference": "U6",
+        "tstamp": "6cbd9208-e6ec-00f5-c4da-10554acc3ed4"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "hs_fixed",
+        "reference": "R1",
+        "tstamp": "5f1a3dfa-c6a4-e3b5-e9b3-a0526487414e"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "hs_top",
+        "reference": "R2",
+        "tstamp": "fb819463-ed3a-7d35-538d-0e876cad2242"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "hs_bottom",
+        "reference": "R3",
+        "tstamp": "f9774586-e282-6ba4-40a4-8bd88ca7ee51"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "hs_hyst",
+        "reference": "R4",
+        "tstamp": "550f3594-142c-7bd3-8951-3f2aa4d68624"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "coil_fixed",
+        "reference": "R5",
+        "tstamp": "35537c0a-100d-c181-99cb-136008d45d5f"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "coil_top",
+        "reference": "R6",
+        "tstamp": "075d2c50-08a6-a2c1-afdd-364aa8949123"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "coil_bottom",
+        "reference": "R7",
+        "tstamp": "ff166a08-e7e5-5fe7-9455-711b654a7536"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "coil_hyst",
+        "reference": "R8",
+        "tstamp": "a6351cb4-c54e-909b-1d6b-399e83376488"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "open_top",
+        "reference": "R9",
+        "tstamp": "912e670f-03c4-33ca-5a61-e4792f4c530f"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "open_bottom",
+        "reference": "R10",
+        "tstamp": "40c6bd4b-8657-f499-921a-71bfee8aabaa"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "hs_filter",
+        "reference": "C1",
+        "tstamp": "35888bdc-45db-ca4d-3d54-45a16506f51f"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "hs_bypass",
+        "reference": "C2",
+        "tstamp": "644bb445-3500-bc5d-d6b0-0a58722e8d7e"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "coil_filter",
+        "reference": "C3",
+        "tstamp": "d88f193a-28e8-c0c6-be8a-076d34640f59"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "coil_bypass",
+        "reference": "C4",
+        "tstamp": "ce62af42-a0a8-3928-d5cf-3f082d362bf5"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "hs_open_bypass",
+        "reference": "C5",
+        "tstamp": "8c17fa75-1223-b1a5-3502-fd6e4a3b06a7"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "coil_open_bypass",
+        "reference": "C6",
+        "tstamp": "51176cd4-5c83-4d3c-729b-a9ef7842776d"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "hs_or_bypass",
+        "reference": "C7",
+        "tstamp": "3fa4d171-0866-75c7-9b6e-ab528d41bc75"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "coil_or_bypass",
+        "reference": "C8",
+        "tstamp": "59948747-a0cc-d180-e7be-4392a88ecbc3"
+      }
+    ],
+    "nets": [
+      {
+        "name": "+3V3",
+        "nodes": [
+          [
+            "J3",
+            "1"
+          ],
+          [
+            "R1",
+            "1"
+          ],
+          [
+            "R2",
+            "1"
+          ],
+          [
+            "C2",
+            "1"
+          ],
+          [
+            "U1",
+            "5"
+          ],
+          [
+            "R5",
+            "1"
+          ],
+          [
+            "R6",
+            "1"
+          ],
+          [
+            "C4",
+            "1"
+          ],
+          [
+            "U2",
+            "5"
+          ],
+          [
+            "U3",
+            "5"
+          ],
+          [
+            "U5",
+            "5"
+          ],
+          [
+            "C5",
+            "1"
+          ],
+          [
+            "C7",
+            "1"
+          ],
+          [
+            "U4",
+            "5"
+          ],
+          [
+            "U6",
+            "5"
+          ],
+          [
+            "C6",
+            "1"
+          ],
+          [
+            "C8",
+            "1"
+          ],
+          [
+            "R9",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "gnd",
+        "nodes": [
+          [
+            "J3",
+            "2"
+          ],
+          [
+            "J1",
+            "2"
+          ],
+          [
+            "J2",
+            "2"
+          ],
+          [
+            "R3",
+            "2"
+          ],
+          [
+            "C1",
+            "2"
+          ],
+          [
+            "C2",
+            "2"
+          ],
+          [
+            "U1",
+            "2"
+          ],
+          [
+            "R7",
+            "2"
+          ],
+          [
+            "C3",
+            "2"
+          ],
+          [
+            "C4",
+            "2"
+          ],
+          [
+            "U2",
+            "2"
+          ],
+          [
+            "U3",
+            "2"
+          ],
+          [
+            "U5",
+            "3"
+          ],
+          [
+            "C5",
+            "2"
+          ],
+          [
+            "C7",
+            "2"
+          ],
+          [
+            "U4",
+            "2"
+          ],
+          [
+            "U6",
+            "3"
+          ],
+          [
+            "C6",
+            "2"
+          ],
+          [
+            "C8",
+            "2"
+          ],
+          [
+            "R10",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "HS_SENSE",
+        "nodes": [
+          [
+            "J3",
+            "5"
+          ],
+          [
+            "J1",
+            "1"
+          ],
+          [
+            "R1",
+            "2"
+          ],
+          [
+            "C1",
+            "1"
+          ],
+          [
+            "U1",
+            "4"
+          ],
+          [
+            "U3",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "HS_REF",
+        "nodes": [
+          [
+            "R2",
+            "2"
+          ],
+          [
+            "R3",
+            "1"
+          ],
+          [
+            "R4",
+            "1"
+          ],
+          [
+            "U1",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "HS_FAULT",
+        "nodes": [
+          [
+            "J3",
+            "3"
+          ],
+          [
+            "U5",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "COIL_SENSE",
+        "nodes": [
+          [
+            "J3",
+            "6"
+          ],
+          [
+            "J2",
+            "1"
+          ],
+          [
+            "R5",
+            "2"
+          ],
+          [
+            "C3",
+            "1"
+          ],
+          [
+            "U2",
+            "4"
+          ],
+          [
+            "U4",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "COIL_REF",
+        "nodes": [
+          [
+            "R6",
+            "2"
+          ],
+          [
+            "R7",
+            "1"
+          ],
+          [
+            "R8",
+            "1"
+          ],
+          [
+            "U2",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "COIL_FAULT",
+        "nodes": [
+          [
+            "J3",
+            "4"
+          ],
+          [
+            "U6",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "HS_HOT",
+        "nodes": [
+          [
+            "R4",
+            "2"
+          ],
+          [
+            "U1",
+            "1"
+          ],
+          [
+            "U5",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "COIL_HOT",
+        "nodes": [
+          [
+            "R8",
+            "2"
+          ],
+          [
+            "U2",
+            "1"
+          ],
+          [
+            "U6",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "HS_OPEN",
+        "nodes": [
+          [
+            "U3",
+            "1"
+          ],
+          [
+            "U5",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "COIL_OPEN",
+        "nodes": [
+          [
+            "U4",
+            "1"
+          ],
+          [
+            "U6",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "OPEN_REF",
+        "nodes": [
+          [
+            "U3",
+            "4"
+          ],
+          [
+            "U4",
+            "4"
+          ],
+          [
+            "R9",
+            "2"
+          ],
+          [
+            "R10",
+            "1"
+          ]
+        ]
+      }
+    ]
+  },
+  "component_scope": "all components in the standalone entry",
+  "components": [
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "hs_filter",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C1",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "hs_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C2",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "coil_filter",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C3",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "coil_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C4",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "hs_open_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C5",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "coil_open_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C6",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "hs_or_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C7",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "coil_or_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C8",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "instance_path": "heatsink_probe",
+      "mpn": "B2B-XH-A(LF)(SN)",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J1",
+      "value": null
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "instance_path": "coil_probe",
+      "mpn": "B2B-XH-A(LF)(SN)",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J2",
+      "value": null
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical",
+      "instance_path": "host",
+      "mpn": "B6B-XH-A(LF)(SN)",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J3",
+      "value": null
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "hs_fixed",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R1",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "open_bottom",
+      "mpn": "RC0603FR-07100KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R10",
+      "value": "100kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "hs_top",
+      "mpn": "RC0603FR-079K09L",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R2",
+      "value": "9.09kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "hs_bottom",
+      "mpn": "RC0603FR-0711K5L",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R3",
+      "value": "11.5kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "hs_hyst",
+      "mpn": "RC0603FR-0734K8L",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R4",
+      "value": "34.8kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "coil_fixed",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R5",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "coil_top",
+      "mpn": "RC0603FR-0720KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R6",
+      "value": "20kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "coil_bottom",
+      "mpn": "RC0603FR-078K06L",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R7",
+      "value": "8.06kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "coil_hyst",
+      "mpn": "RC0603FR-0742K2L",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R8",
+      "value": "42.2kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "open_top",
+      "mpn": "RC0603FR-071K21L",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R9",
+      "value": "1.21kohm +/- 1%"
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "hs_comp",
+      "mpn": "TLV3201AIDBVR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U1",
+      "value": null
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "coil_comp",
+      "mpn": "TLV3201AIDBVR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U2",
+      "value": null
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "hs_open_comp",
+      "mpn": "TLV9031DBVR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U3",
+      "value": null
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "coil_open_comp",
+      "mpn": "TLV9031DBVR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U4",
+      "value": null
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "hs_or",
+      "mpn": "SN74LVC1G32DBVR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U5",
+      "value": null
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "coil_or",
+      "mpn": "SN74LVC1G32DBVR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U6",
+      "value": null
+    }
+  ],
+  "entry": "elec/src/thermal_sense_unit.ato:ThermalSenseUnit",
+  "footprint_census": {
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405"
+    },
+    "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c"
+    },
+    "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "sha256": "58598e38057ca81d58c6734ac37bb065506aa8a5bf443868be9520527c6a8635"
+    },
+    "Package_TO_SOT_SMD:SOT-23-5": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23"
+    }
+  },
+  "full_bridge": {
+    "components": [
+      {
+        "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+        "instance_path": "heatsink_probe",
+        "reference": "J1",
+        "tstamp": "663927d5-43c4-0655-b47d-33f46c368a3a"
+      },
+      {
+        "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+        "instance_path": "coil_probe",
+        "reference": "J2",
+        "tstamp": "91cac77c-ea1c-5d2f-6b2c-8f5c08507de6"
+      },
+      {
+        "footprint": "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical",
+        "instance_path": "host",
+        "reference": "J3",
+        "tstamp": "40bcdc6f-6bef-dede-7813-e6017ef8354f"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "hs_comp",
+        "reference": "U1",
+        "tstamp": "35c65efd-5173-2d92-0d45-0d03ceccc746"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "coil_comp",
+        "reference": "U2",
+        "tstamp": "b371e801-219a-70e9-c5a5-9621d4c0a46f"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "hs_open_comp",
+        "reference": "U3",
+        "tstamp": "08dfafdd-53aa-6051-d6cb-8b25113f02ec"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "coil_open_comp",
+        "reference": "U4",
+        "tstamp": "7fe3abbe-9303-8977-3234-00685b825863"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "hs_or",
+        "reference": "U5",
+        "tstamp": "5592d448-fb57-6e1d-6e32-7b2bfc762275"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "coil_or",
+        "reference": "U6",
+        "tstamp": "6cbd9208-e6ec-00f5-c4da-10554acc3ed4"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "hs_fixed",
+        "reference": "R1",
+        "tstamp": "5f1a3dfa-c6a4-e3b5-e9b3-a0526487414e"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "hs_top",
+        "reference": "R2",
+        "tstamp": "fb819463-ed3a-7d35-538d-0e876cad2242"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "hs_bottom",
+        "reference": "R3",
+        "tstamp": "f9774586-e282-6ba4-40a4-8bd88ca7ee51"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "hs_hyst",
+        "reference": "R4",
+        "tstamp": "550f3594-142c-7bd3-8951-3f2aa4d68624"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "coil_fixed",
+        "reference": "R5",
+        "tstamp": "35537c0a-100d-c181-99cb-136008d45d5f"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "coil_top",
+        "reference": "R6",
+        "tstamp": "075d2c50-08a6-a2c1-afdd-364aa8949123"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "coil_bottom",
+        "reference": "R7",
+        "tstamp": "ff166a08-e7e5-5fe7-9455-711b654a7536"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "coil_hyst",
+        "reference": "R8",
+        "tstamp": "a6351cb4-c54e-909b-1d6b-399e83376488"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "open_top",
+        "reference": "R9",
+        "tstamp": "912e670f-03c4-33ca-5a61-e4792f4c530f"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "open_bottom",
+        "reference": "R10",
+        "tstamp": "40c6bd4b-8657-f499-921a-71bfee8aabaa"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "hs_filter",
+        "reference": "C1",
+        "tstamp": "35888bdc-45db-ca4d-3d54-45a16506f51f"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "hs_bypass",
+        "reference": "C2",
+        "tstamp": "644bb445-3500-bc5d-d6b0-0a58722e8d7e"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "coil_filter",
+        "reference": "C3",
+        "tstamp": "d88f193a-28e8-c0c6-be8a-076d34640f59"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "coil_bypass",
+        "reference": "C4",
+        "tstamp": "ce62af42-a0a8-3928-d5cf-3f082d362bf5"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "hs_open_bypass",
+        "reference": "C5",
+        "tstamp": "8c17fa75-1223-b1a5-3502-fd6e4a3b06a7"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "coil_open_bypass",
+        "reference": "C6",
+        "tstamp": "51176cd4-5c83-4d3c-729b-a9ef7842776d"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "hs_or_bypass",
+        "reference": "C7",
+        "tstamp": "3fa4d171-0866-75c7-9b6e-ab528d41bc75"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "coil_or_bypass",
+        "reference": "C8",
+        "tstamp": "59948747-a0cc-d180-e7be-4392a88ecbc3"
+      }
+    ],
+    "nets": [
+      {
+        "name": "+3V3",
+        "nodes": [
+          [
+            "J3",
+            "1"
+          ],
+          [
+            "R1",
+            "1"
+          ],
+          [
+            "R2",
+            "1"
+          ],
+          [
+            "C2",
+            "1"
+          ],
+          [
+            "U1",
+            "5"
+          ],
+          [
+            "R5",
+            "1"
+          ],
+          [
+            "R6",
+            "1"
+          ],
+          [
+            "C4",
+            "1"
+          ],
+          [
+            "U2",
+            "5"
+          ],
+          [
+            "U3",
+            "5"
+          ],
+          [
+            "U5",
+            "5"
+          ],
+          [
+            "C5",
+            "1"
+          ],
+          [
+            "C7",
+            "1"
+          ],
+          [
+            "U4",
+            "5"
+          ],
+          [
+            "U6",
+            "5"
+          ],
+          [
+            "C6",
+            "1"
+          ],
+          [
+            "C8",
+            "1"
+          ],
+          [
+            "R9",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "gnd",
+        "nodes": [
+          [
+            "J3",
+            "2"
+          ],
+          [
+            "J1",
+            "2"
+          ],
+          [
+            "J2",
+            "2"
+          ],
+          [
+            "R3",
+            "2"
+          ],
+          [
+            "C1",
+            "2"
+          ],
+          [
+            "C2",
+            "2"
+          ],
+          [
+            "U1",
+            "2"
+          ],
+          [
+            "R7",
+            "2"
+          ],
+          [
+            "C3",
+            "2"
+          ],
+          [
+            "C4",
+            "2"
+          ],
+          [
+            "U2",
+            "2"
+          ],
+          [
+            "U3",
+            "2"
+          ],
+          [
+            "U5",
+            "3"
+          ],
+          [
+            "C5",
+            "2"
+          ],
+          [
+            "C7",
+            "2"
+          ],
+          [
+            "U4",
+            "2"
+          ],
+          [
+            "U6",
+            "3"
+          ],
+          [
+            "C6",
+            "2"
+          ],
+          [
+            "C8",
+            "2"
+          ],
+          [
+            "R10",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "HS_SENSE",
+        "nodes": [
+          [
+            "J3",
+            "5"
+          ],
+          [
+            "J1",
+            "1"
+          ],
+          [
+            "R1",
+            "2"
+          ],
+          [
+            "C1",
+            "1"
+          ],
+          [
+            "U1",
+            "4"
+          ],
+          [
+            "U3",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "HS_REF",
+        "nodes": [
+          [
+            "R2",
+            "2"
+          ],
+          [
+            "R3",
+            "1"
+          ],
+          [
+            "R4",
+            "1"
+          ],
+          [
+            "U1",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "HS_FAULT",
+        "nodes": [
+          [
+            "J3",
+            "3"
+          ],
+          [
+            "U5",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "COIL_SENSE",
+        "nodes": [
+          [
+            "J3",
+            "6"
+          ],
+          [
+            "J2",
+            "1"
+          ],
+          [
+            "R5",
+            "2"
+          ],
+          [
+            "C3",
+            "1"
+          ],
+          [
+            "U2",
+            "4"
+          ],
+          [
+            "U4",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "COIL_REF",
+        "nodes": [
+          [
+            "R6",
+            "2"
+          ],
+          [
+            "R7",
+            "1"
+          ],
+          [
+            "R8",
+            "1"
+          ],
+          [
+            "U2",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "COIL_FAULT",
+        "nodes": [
+          [
+            "J3",
+            "4"
+          ],
+          [
+            "U6",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "HS_HOT",
+        "nodes": [
+          [
+            "R4",
+            "2"
+          ],
+          [
+            "U1",
+            "1"
+          ],
+          [
+            "U5",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "COIL_HOT",
+        "nodes": [
+          [
+            "R8",
+            "2"
+          ],
+          [
+            "U2",
+            "1"
+          ],
+          [
+            "U6",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "HS_OPEN",
+        "nodes": [
+          [
+            "U3",
+            "1"
+          ],
+          [
+            "U5",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "COIL_OPEN",
+        "nodes": [
+          [
+            "U4",
+            "1"
+          ],
+          [
+            "U6",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "OPEN_REF",
+        "nodes": [
+          [
+            "U3",
+            "4"
+          ],
+          [
+            "U4",
+            "4"
+          ],
+          [
+            "R9",
+            "2"
+          ],
+          [
+            "R10",
+            "1"
+          ]
+        ]
+      }
+    ]
+  },
+  "input_hashes": {
+    "default.csv": "8a43163f06a9cf8545791623f1735ba74960d60d60cdbd774ce15bdc561fe611",
+    "default.net": "fc4ce8928595157470d027fbf9aa318e46a95d7f621a81ecf856ffe561f74ced",
+    "outline.json": "c473d4854f12817bed22e6460e087c88107573b2ad4b53e923b0d24ddb13c293",
+    "poses.json": "d88abe2eb013e620f45ce70b8d18afbb55c7281d31659c947960376bb32a706e",
+    "resolved-components.json": "4d9b27b8029cb64925e1e309c46d76605aaaff2deef70856599d35316e7bb297"
+  },
+  "libraries": {
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod"
+    },
+    "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical": {
+      "sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Connector_JST.pretty/JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical.kicad_mod"
+    },
+    "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical": {
+      "sha256": "58598e38057ca81d58c6734ac37bb065506aa8a5bf443868be9520527c6a8635",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Connector_JST.pretty/JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical.kicad_mod"
+    },
+    "Package_TO_SOT_SMD:SOT-23-5": {
+      "sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod"
+    }
+  },
+  "module_prefixes": [
+    "ThermalSenseUnit"
+  ],
+  "outline_mm": [
+    0.0,
+    0.0,
+    100.0,
+    45.0
+  ],
+  "poses": {
+    "coil_bottom": [
+      23.0,
+      31.0,
+      90.0
+    ],
+    "coil_bypass": [
+      41.0,
+      28.0,
+      90.0
+    ],
+    "coil_comp": [
+      36.0,
+      30.0,
+      0.0
+    ],
+    "coil_filter": [
+      15.0,
+      32.0,
+      90.0
+    ],
+    "coil_fixed": [
+      15.0,
+      26.0,
+      0.0
+    ],
+    "coil_hyst": [
+      32.0,
+      24.0,
+      0.0
+    ],
+    "coil_open_bypass": [
+      60.0,
+      32.0,
+      90.0
+    ],
+    "coil_open_comp": [
+      55.0,
+      30.0,
+      0.0
+    ],
+    "coil_or": [
+      75.0,
+      30.0,
+      0.0
+    ],
+    "coil_or_bypass": [
+      80.0,
+      28.0,
+      90.0
+    ],
+    "coil_probe": [
+      6.0,
+      28.0,
+      270.0
+    ],
+    "coil_top": [
+      27.0,
+      24.0,
+      90.0
+    ],
+    "heatsink_probe": [
+      6.0,
+      10.0,
+      270.0
+    ],
+    "host": [
+      91.0,
+      6.0,
+      270.0
+    ],
+    "hs_bottom": [
+      23.0,
+      13.0,
+      90.0
+    ],
+    "hs_bypass": [
+      41.0,
+      10.0,
+      90.0
+    ],
+    "hs_comp": [
+      36.0,
+      12.0,
+      0.0
+    ],
+    "hs_filter": [
+      15.0,
+      14.0,
+      90.0
+    ],
+    "hs_fixed": [
+      15.0,
+      8.0,
+      0.0
+    ],
+    "hs_hyst": [
+      32.0,
+      6.0,
+      0.0
+    ],
+    "hs_open_bypass": [
+      60.0,
+      14.0,
+      90.0
+    ],
+    "hs_open_comp": [
+      55.0,
+      12.0,
+      0.0
+    ],
+    "hs_or": [
+      75.0,
+      12.0,
+      0.0
+    ],
+    "hs_or_bypass": [
+      80.0,
+      10.0,
+      90.0
+    ],
+    "hs_top": [
+      27.0,
+      6.0,
+      90.0
+    ],
+    "open_bottom": [
+      64.0,
+      23.0,
+      90.0
+    ],
+    "open_top": [
+      64.0,
+      17.0,
+      90.0
+    ]
+  },
+  "schema": "zapote.current-sense.native-source-manifest.v1",
+  "schematic_files": [
+    "section.kicad_sch"
+  ],
+  "source": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02",
+  "source_attributes": {
+    "coil_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-078K06L",
+      "power_rating": null,
+      "value": "8.06kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "coil_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "coil_comp": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "t_pd": "40ns",
+      "v_supply_max": "5.5V"
+    },
+    "coil_filter": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "coil_fixed": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "coil_hyst": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0742K2L",
+      "power_rating": null,
+      "value": "42.2kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "coil_open_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "coil_open_comp": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/tlv9031.pdf",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV9031DBVR"
+    },
+    "coil_or": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g32.pdf",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G32DBVR"
+    },
+    "coil_or_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "coil_probe": {
+      "designator_prefix": "J",
+      "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "manufacturer": "JST",
+      "mpn": "B2B-XH-A(LF)(SN)"
+    },
+    "coil_top": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0720KL",
+      "power_rating": null,
+      "value": "20kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "heatsink_probe": {
+      "designator_prefix": "J",
+      "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "manufacturer": "JST",
+      "mpn": "B2B-XH-A(LF)(SN)"
+    },
+    "host": {
+      "designator_prefix": "J",
+      "footprint": "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical",
+      "manufacturer": "JST",
+      "mpn": "B6B-XH-A(LF)(SN)"
+    },
+    "hs_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0711K5L",
+      "power_rating": null,
+      "value": "11.5kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "hs_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "hs_comp": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "t_pd": "40ns",
+      "v_supply_max": "5.5V"
+    },
+    "hs_filter": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "hs_fixed": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "hs_hyst": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0734K8L",
+      "power_rating": null,
+      "value": "34.8kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "hs_open_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "hs_open_comp": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/tlv9031.pdf",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV9031DBVR"
+    },
+    "hs_or": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g32.pdf",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G32DBVR"
+    },
+    "hs_or_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "hs_top": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-079K09L",
+      "power_rating": null,
+      "value": "9.09kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "open_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-07100KL",
+      "power_rating": null,
+      "value": "100kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "open_top": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-071K21L",
+      "power_rating": null,
+      "value": "1.21kohm +/- 1%",
+      "voltage_rating": null
+    }
+  },
+  "strict_bridge_extension": {
+    "detail": "temper_design_bundle_python: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so (built 2026-09-10T16:55:48) is fresh (no build stamp; mtime comparison)",
+    "freshness_method": "mtime",
+    "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so",
+    "sha256": "cf484372789b29926beadcc9a45d93254caa3a9941d333c3d370f2f6deca8fd7"
+  },
+  "strict_pin_map": [
+    {
+      "alias_note": "",
+      "instance_path": "hs_filter",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_filter",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_filter",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_filter",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_open_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_open_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_open_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_open_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_or_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_or_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_or_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_or_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "heatsink_probe",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "heatsink_probe",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_probe",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_probe",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "J3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "J3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "J3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "J3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "6",
+      "pin": "6",
+      "positional": false,
+      "reference": "J3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_fixed",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_fixed",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "open_bottom",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R10"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "open_bottom",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R10"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_top",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_top",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_bottom",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_bottom",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_hyst",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_hyst",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_fixed",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_fixed",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_top",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_top",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_bottom",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_bottom",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_hyst",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_hyst",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "open_top",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R9"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "open_top",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R9"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_comp",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_comp",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_comp",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_comp",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_comp",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_comp",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_comp",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_comp",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_comp",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_comp",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_open_comp",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_open_comp",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_open_comp",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_open_comp",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_open_comp",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_open_comp",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_open_comp",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_open_comp",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_open_comp",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_open_comp",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_or",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_or",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_or",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_or",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_or",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_or",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_or",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_or",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_or",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_or",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U6"
+    }
+  ],
+  "unconnected_pads": []
+}

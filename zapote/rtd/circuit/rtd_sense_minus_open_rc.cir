@@ -1,0 +1,41 @@
+* RTDIN- diagnostic pull-up timing bound with intact 100 ohm force loop.
+* Selected source values: 1 Mohm pullup and 1 nF C0G differential capacitor;
+* 0/200 pF parasitic and +/-14 nA MAX input-leakage corners are swept.
+* RTDIN+ is held at the nominal 100 ohm sense endpoint (0.377 V); an open
+* RTDIN- is biased from BIAS. The predicted negative differential drives the
+* MAX conversion below the low (short) threshold.
+* Validity limits: ideal endpoint source and isolated R-C only; MAX ADC
+* common-mode/internal-switch behavior and cable/EMC remain unmodeled. The
+* MAX31865 datasheet says a negative ADC input produces output code 0.
+.param VBIAS=2.0 RDIAG=1Meg CDIFF=1n CPAR=0 ILEAK=14n
+VBIAS bias 0 {VBIAS}
+VRTDP sensep 0 0.3773585
+RDIAG bias sensem {RDIAG}
+CDIFF sensep sensem {CDIFF} ic=0
+CPAR sensep sensem {CPAR} ic=0
+Ileak sensem 0 {ILEAK}
+BDIFF diff 0 V=V(sensep)-V(sensem)
+.tran 10u 100m uic
+.control
+set noaskquit
+foreach r 950k 1Meg 1.05Meg
+  foreach c 950p 1n 1.05n
+    foreach p 0 200p
+      foreach l -14n 14n
+        alterparam RDIAG=$r
+        alterparam CDIFF=$c
+        alterparam CPAR=$p
+        alterparam ILEAK=$l
+        reset
+        run
+        echo RDIAG=$r CDIFF=$c CPAR=$p ILEAK=$l
+        meas tran v_diff_30ms find v(diff) at=30m
+        meas tran v_diff_85ms find v(diff) at=85m
+        meas tran v_diff_95ms find v(diff) at=95m
+      end
+    end
+  end
+end
+quit
+.endc
+.end
