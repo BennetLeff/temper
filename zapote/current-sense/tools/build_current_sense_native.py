@@ -19,6 +19,8 @@ from typing import Any
 
 ENTRY_MODULE = "CurrentSenseUnit"
 DEFAULT_MODULES = ("current_sense", "ocp", "unit_io")
+NUMERIC_SYMBOL_LIBRARY = "Rev38Numeric"
+NUMERIC_SYMBOL_FILE = "rev38-numeric.kicad_sym"
 
 
 def sha256(path: Path) -> str:
@@ -196,6 +198,40 @@ def _apply_selected_symbol_identity(
     netlist.libparts = selected_libparts
 
 
+def _write_candidate_symbol_library(
+    netlist: Any, output: Path, schematics: Any
+) -> tuple[Path, Path]:
+    """Publish the same numeric symbols embedded in the flat candidate sheet.
+
+    These symbols establish only compiled pin-number connectivity. They do
+    not certify functional pin names or the selected devices' pin functions.
+    """
+    selected_parts = {component.part_name for component in netlist.components.values()}
+    if selected_parts != set(netlist.libparts):
+        raise ValueError("candidate symbol library must cover exactly selected parts")
+    symbols = [
+        schematics.synthesize_symbol(netlist.libparts[name])
+        for name in sorted(selected_parts)
+    ]
+    library_path = output / NUMERIC_SYMBOL_FILE
+    library_path.write_text(
+        '(kicad_symbol_lib (version 20231120) '
+        '(generator "build_current_sense_native")\n'
+        + "\n".join(symbols)
+        + "\n)\n",
+        encoding="utf-8",
+    )
+    table_path = output / "sym-lib-table"
+    table_path.write_text(
+        '(sym_lib_table (version 7)\n'
+        f' (lib (name "{NUMERIC_SYMBOL_LIBRARY}")(type "KiCad")'
+        f'(uri "${{KIPRJMOD}}/{NUMERIC_SYMBOL_FILE}")'
+        '(options "")(descr "Generated candidate numeric-pin symbols")))\n',
+        encoding="utf-8",
+    )
+    return library_path, table_path
+
+
 def _require_source_hashes(repo: Path, source: Path, export: Any) -> dict[str, str]:
     """Require source provenance and keep every hashed path inside ``source``."""
     repo_root = repo.resolve()
@@ -360,6 +396,11 @@ def build(
     table, libraries = block_source.vendor_candidate_libs(
         section, bridge, repo, output / "candidate-libs", local_libraries=local_libraries
     )
+    (output / "fp-lib-table").write_text(table.read_text(encoding="utf-8"), encoding="utf-8")
+    # KiCad resolves the project-local fp-lib-table during ERC only when a
+    # project file exists alongside section.kicad_sch.
+    project_path = output / "section.kicad_pro"
+    project_path.write_text("{}\n", encoding="utf-8")
     nicknames = {component["reference"]: component["footprint"] for component in section_bridge["components"]}
     census = block_source.footprint_pad_census(table, set(nicknames.values()))
     entries, unconnected = block_source.build_strict_pin_map(
@@ -410,8 +451,13 @@ def build(
         sheet_description=f"Generated from {entry_module} Atopile source",
         flat=True,
     )
-    files = schematics._generate_all_sheets(sch, output, layout)
+    files = schematics._generate_all_sheets(
+        sch, output, layout, symbol_library=NUMERIC_SYMBOL_LIBRARY
+    )
     schematics._write_schematics(files, output)
+    symbol_path, symbol_table_path = _write_candidate_symbol_library(
+        sch, output, schematics
+    )
     schematics.write_candidate_layout_config(layout, output / "schematic_layout.json")
 
     if sha256(extension.artifact) != extension_sha:
@@ -452,6 +498,12 @@ def build(
         "board": board_summary,
         "board_sha256": sha256(board_path),
         "schematic_files": sorted(files),
+        "native_library_sha256": {
+            "fp-lib-table": sha256(output / "fp-lib-table"),
+            "sym-lib-table": sha256(symbol_table_path),
+            NUMERIC_SYMBOL_FILE: sha256(symbol_path),
+            "section.kicad_pro": sha256(project_path),
+        },
     }
     (output / "source-manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"

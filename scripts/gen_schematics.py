@@ -969,7 +969,11 @@ def generate_sheet(
     return "\n".join(parts)
 
 
-def generate_flat_root_sheet(netlist: Netlist, layout: SchematicLayout) -> str:
+def generate_flat_root_sheet(
+    netlist: Netlist,
+    layout: SchematicLayout,
+    symbol_library: str | None = None,
+) -> str:
     """Generate one flat root schematic holding every component.
 
     Strict-candidate only (``layout.flat``). A hierarchical sub-sheet scopes
@@ -1016,7 +1020,15 @@ def generate_flat_root_sheet(netlist: Netlist, layout: SchematicLayout) -> str:
         "  (lib_symbols",
     ]
     for _part_name, libpart in sorted(seen_parts.items()):
-        parts.append(synthesize_symbol(libpart))
+        symbol = synthesize_symbol(libpart)
+        if symbol_library is not None:
+            symbol_id = _sanitize_name(libpart.part_name)
+            symbol = symbol.replace(
+                f'(symbol "{symbol_id}"',
+                f'(symbol "{symbol_library}:{symbol_id}"',
+                1,
+            )
+        parts.append(symbol)
     parts.append("  )")
     parts.append("")
 
@@ -1054,6 +1066,8 @@ def generate_flat_root_sheet(netlist: Netlist, layout: SchematicLayout) -> str:
         sy = row_centers[row]
 
         symbol_id = _sanitize_name(comp.part_name)
+        if symbol_library is not None:
+            symbol_id = f"{symbol_library}:{symbol_id}"
         instance_uuid = _uuid_from_seed(f"flatinst:{comp.tstamp}")
         libpart = netlist.libparts.get(comp.part_name)
         parts.append(
@@ -1165,7 +1179,10 @@ def generate_root_sheet(
 
 
 def _generate_all_sheets(
-    netlist: Netlist, output_dir: Path, layout: SchematicLayout | None = None
+    netlist: Netlist,
+    output_dir: Path,
+    layout: SchematicLayout | None = None,
+    symbol_library: str | None = None,
 ) -> dict[str, str]:
     """Generate all schematic files and return {filename: content}."""
     layout = _layout_or_default(layout)
@@ -1188,8 +1205,13 @@ def _generate_all_sheets(
     # Strict-candidate flat envelope: one root sheet, no sub-sheet. See
     # generate_flat_root_sheet for why the hierarchy cannot satisfy parity.
     if layout.flat:
-        files[layout.root_sheet] = generate_flat_root_sheet(netlist, layout)
+        files[layout.root_sheet] = generate_flat_root_sheet(
+            netlist, layout, symbol_library=symbol_library
+        )
         return files
+
+    if symbol_library is not None:
+        raise ValueError("symbol library is supported only for flat candidates")
 
     # Generate sub-sheets
     for sheet_name in layout.sheets:

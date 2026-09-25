@@ -74,7 +74,8 @@ Its raw-pad oracle and KiCad schematic-parity comparison pass on those
 temporary bytes. After the library-footprint serialization repair, board
 DRC reports 22 violations and capped 499 unconnected items, with zero
 library-footprint mismatches (`NATIVE-DIAGNOSTIC-07.md`); the grid-corrected
-schematic ERC reports 383 warnings (`NATIVE-DIAGNOSTIC-06.md`). The diagnostic is not
+schematic ERC reports 63 single-node-label warnings after local symbol
+and footprint library registration (`NATIVE-DIAGNOSTIC-08.md`). The diagnostic is not
 the reviewed `native/section.kicad_pcb` deliverable, a DRC/ERC pass, or a
 functional pin-name audit.
 

@@ -178,6 +178,56 @@ def test_selected_mpn_rekeys_aliased_symbols_without_changing_numeric_pins() -> 
     assert '(global_label "RETURN"' in generated
 
 
+def test_candidate_symbol_library_matches_embedded_numeric_definitions(
+    tmp_path: Path,
+) -> None:
+    netlist = _aliased_symbol_netlist()
+    selected = {"U1": "SN74LV221AQPWRQ1", "U2": "TCA6408AQPWRQ1"}
+    build_native._apply_selected_symbol_identity(netlist, selected, selected, schematics)
+    schematics.apply_bom_values(netlist, selected)
+    layout = schematics.SchematicLayout(
+        root_sheet="section.kicad_sch",
+        sheets=("CurrentSense",),
+        sheet_files={"CurrentSense": "section.kicad_sch"},
+        module_to_sheet={"source_mcu": "CurrentSense"},
+        title="Library parity test", sheet_description="Numeric pins", flat=True,
+    )
+    generated = schematics._generate_all_sheets(
+        netlist, tmp_path, layout,
+        symbol_library=build_native.NUMERIC_SYMBOL_LIBRARY,
+    )["section.kicad_sch"]
+    library_path, table_path = build_native._write_candidate_symbol_library(
+        netlist, tmp_path, schematics
+    )
+    library = library_path.read_text(encoding="utf-8")
+    table = table_path.read_text(encoding="utf-8")
+    for mpn in selected.values():
+        symbol_id = schematics._sanitize_name(mpn)
+        definition = schematics.synthesize_symbol(netlist.libparts[mpn])
+        embedded = definition.replace(
+            f'(symbol "{symbol_id}"',
+            f'(symbol "{build_native.NUMERIC_SYMBOL_LIBRARY}:{symbol_id}"', 1,
+        )
+        assert definition in library
+        assert embedded in generated
+        assert f'(lib_id "{build_native.NUMERIC_SYMBOL_LIBRARY}:{symbol_id}")' in generated
+    assert 'functional pin names unverified' in library
+    assert 'ALIAS_A' not in library and 'ALIAS_B' not in library
+    assert '${KIPRJMOD}/rev38-numeric.kicad_sym' in table
+
+    with pytest.raises(ValueError, match="only for flat candidates"):
+        schematics._generate_all_sheets(
+            netlist, tmp_path,
+            schematics.SchematicLayout(
+                root_sheet="section.kicad_sch", sheets=("CurrentSense",),
+                sheet_files={"CurrentSense": "current.kicad_sch"},
+                module_to_sheet={"source_mcu": "CurrentSense"},
+                title="Hierarchy", sheet_description="Hierarchy", flat=False,
+            ),
+            symbol_library=build_native.NUMERIC_SYMBOL_LIBRARY,
+        )
+
+
 @pytest.mark.parametrize(
     ("selected", "bom", "message"),
     [
