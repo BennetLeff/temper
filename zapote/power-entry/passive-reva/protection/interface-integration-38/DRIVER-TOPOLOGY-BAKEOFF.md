@@ -248,6 +248,21 @@ calculation at the actual PWM source current. This path still needs bounded
 PFC PWM amplitude/current, AUX and HOT5 rail sequences, input thresholds,
 clamp current and saturation, and loaded gate turn-off timing.
 
+The [TMUX6202](https://www.ti.com/lit/ds/symlink/tmux6202.pdf) is a more
+direct PWM switch to examine than the 8 V-minimum TMUX7413F: it operates
+from 4.5–36 V, connects S to D only when SEL is high, and has an internal
+SEL pull-down (approximately 4 MΩ). A separate local pull-down would hold
+SEL low when the qualifier is absent, and INA would need its own pull-down
+while S/D are open. This part has **no powered-off protection on S/D**:
+their recommended range is VSS–VDD and absolute range ends at VDD + 0.5 V.
+The UCC28180 GATE pin can therefore violate the mux rating if its local
+VCC remains charged while the mux VDD pin falls. Its specified off-leakage
+and switching fixtures are at 12 V ±10% and 36 V ±10%, not the whole
+joined AUX trajectory. SEL's guaranteed high threshold is as low as 1.3 V,
+so direct partial-HOT5 logic could close the switch early. This remains a
+candidate for a rail-coupled, AUX-qualified circuit and pin-level test, not
+a selected default-off design.
+
 An AUX-powered [TLV1701](https://www.ti.com/lit/ds/symlink/tlv1701.pdf)
 qualifier is a possible way to establish a HOT5-valid threshold before
 releasing that clamp: its 2.2–36 V operating range overlaps a live
