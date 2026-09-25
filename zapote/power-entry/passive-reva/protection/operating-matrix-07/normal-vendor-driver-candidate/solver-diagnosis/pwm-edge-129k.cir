@@ -1,0 +1,23 @@
+* Repeated-edge reduced test at the full-plant controller's observed PWM
+* period (~129.1 kHz), retaining the unchanged UCC27511A model and split load.
+.include ../vendor/UCC27511A.lib
+Vaux aux15 0 15
+Vdisable disable 0 0
+Vpwm pwm 0 PULSE(0 5 1u 1n 1n 4u 7.75u)
+Xdriver disable pwm aux15 0 outh outl UCC27511A
+Rgon outh gate 10
+Rgoff outl gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.tran 10n 1m 0 10n
+.control
+set ngbehavior=ps
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+wrdata pwm-edge-129k.tsv v(pwm) v(outh) v(outl) v(gate)
+quit
+.endc
+.end

@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/opt/homebrew/opt/libngspice/lib/libngspice.0.dylib",
+    "exists": true,
+    "sha256": "3950a98c5b7b674fecbd78fdb4f68501f52f8b0f5f70472db77f3245e7353ba0"
+  },
+  {
+    "path": "/opt/homebrew/bin/ngspice",
+    "exists": true,
+    "sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560"
+  },
+  {
+    "path": "/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts/spinit",
+    "exists": true,
+    "sha256": "b2e0359f8b549f6e27bc86f1bb9b7847b7f376c3758bf8297084807a45af2390"
+  },
+  {
+    "path": "/Users/bennet/.spiceinit",
+    "exists": false,
+    "sha256": null
+  }
+]

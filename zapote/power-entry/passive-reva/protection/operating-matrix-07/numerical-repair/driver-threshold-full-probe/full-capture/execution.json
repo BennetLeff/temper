@@ -1,0 +1,8 @@
+{
+  "status": "PREPARED_NOT_LAUNCHED_PENDING_DRIVER_FIDELITY",
+  "accepted": false,
+  "recorded_at_utc": "2026-09-20T21:28:08.622689+00:00",
+  "host_review": "Electrical includes match prior finiteprobe byte-for-byte, onlysaved vectors expanded; original first-invalid source and unique binary hashes independentlyverified.",
+  "reason": "Separate source-bound vendor comparison confirms missing1V input hysteresis and162ns gate4 falling-time difference undertested slowramp. Correct andcheck statefuldriver before nextfullstartup.",
+  "full_simulation_launched": false
+}

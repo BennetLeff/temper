@@ -1,0 +1,6 @@
+{
+  "status": "INTERRUPTED_BY_HOST_BEFORE_ENDPOINT",
+  "reason": "Measured rate predicted the configured 1800s timeout before 1s completion; restart with the originally planned 500ms endpoint and the unchanged three-cycle acceptance criteria.",
+  "simulator_exit": "interrupted",
+  "trace_status": "NO_COMPLETED_EXPORT"
+}

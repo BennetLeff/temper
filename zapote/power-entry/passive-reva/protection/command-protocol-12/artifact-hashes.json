@@ -1,0 +1,81 @@
+{
+  "algorithm": "SHA-256",
+  "scope": "all regular artifacts except manifest itself",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 4674,
+      "sha256": "553e053e85b46a8266eb048c9e8051f5d239965a12f19fc563678676df5e4540"
+    },
+    {
+      "path": "aux-budget.csv",
+      "bytes": 769,
+      "sha256": "a432aa3b19dc03c0f2ef230568b71d9494c8cec14802de5603fb46a73fff59db"
+    },
+    {
+      "path": "aux-budget.md",
+      "bytes": 4183,
+      "sha256": "1d58533ccba14ebcb37a2ee46e593776e7113eac5156f5278096145165cad02f"
+    },
+    {
+      "path": "aux_budget",
+      "bytes": 480520,
+      "sha256": "296598f2ce92d68670481cd3146223906aa73737a11a6f98afc3435357565f70"
+    },
+    {
+      "path": "aux_budget.rs",
+      "bytes": 1542,
+      "sha256": "9701a26672eb3eb61bae920a5018e2786b78efa14847da893cdd90b4097fa5f8"
+    },
+    {
+      "path": "b_open_during_prepare.tsv",
+      "bytes": 210,
+      "sha256": "271b2eb82d5cc19acbb44a6606a46d5f4947ebddc6914867a5f0f421bb34435e"
+    },
+    {
+      "path": "held_active_reconnect.tsv",
+      "bytes": 182,
+      "sha256": "55d215ec2a71736d9cefe00cca0986eee0c95f5fb19508626b79c54e0f480af2"
+    },
+    {
+      "path": "held_prepare_power_return.tsv",
+      "bytes": 182,
+      "sha256": "058c06f8f1afb235ab4acdfbccea4fc3e51430106f377ecaf128814b48306267"
+    },
+    {
+      "path": "input-identity.json",
+      "bytes": 2967,
+      "sha256": "5558ddf2d20aa0b2987a381e08c737ba878e7787f66753d1698d9ef2fa7c88d6"
+    },
+    {
+      "path": "one_bit_indistinguishability.tsv",
+      "bytes": 209,
+      "sha256": "0b5f0bf08e92651bc28d0ef7c352302d2ce82c37d1ca0a8ce233cb99f81e35f7"
+    },
+    {
+      "path": "protocol_witness",
+      "bytes": 493072,
+      "sha256": "658f27cc976ef8941cec5621233f407c0a8052ffc3679f130ada8ce7b1ff4948"
+    },
+    {
+      "path": "protocol_witness.rs",
+      "bytes": 4312,
+      "sha256": "10b8c69c40b25353372e7f91616e606c5792ae097146738dd16920acf57ecb71"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 2507,
+      "sha256": "1c25c732cb84db7bffd7a022e0ebaf2107fb07d030e6cf8f2ff20be49f949021"
+    },
+    {
+      "path": "results.csv",
+      "bytes": 327,
+      "sha256": "8a3e5fbc51a48b3126307aa70cb919f879235df603caea15479c4b7392db1090"
+    },
+    {
+      "path": "valid_sequence.tsv",
+      "bytes": 242,
+      "sha256": "0d939e29dba2b20df1f56cc44f13022b853b9d4d177cefa396eea2ef024bea01"
+    }
+  ]
+}

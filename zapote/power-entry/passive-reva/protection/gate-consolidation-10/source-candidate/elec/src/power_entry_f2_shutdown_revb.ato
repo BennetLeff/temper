@@ -1,0 +1,543 @@
+# F2 default-off shutdown revision B.
+#
+# The detector and retained ARM latch are HOT-referenced.  The gate-driver
+# enable is intentionally not connected to the latch Q: an aux-powered UCC
+# has an internal EN pull-up and therefore a floating/unpowered logic domain
+# must actively disable the gate driver.  The UCC27511A's second input gives
+# a specified fail-off interface instead of relying on a typical EN pull-up.
+#
+# TI primary sources:
+#   TLV3202: https://www.ti.com/lit/ds/symlink/tlv3202.pdf
+#   SN74HCS21: https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf
+#   SN74HCS74: https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf
+#   TPS3890: https://www.ti.com/lit/ds/symlink/tps3890.pdf
+#   SN74LVC1G08: https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf
+#   UCC27511A: https://www.ti.com/lit/ds/symlink/ucc27511a.pdf
+
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component F2Comparator:
+    mpn = "TLV3202IDR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tlv3202.pdf"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal OUT1 ~ pin 1
+    signal IN1_N ~ pin 2
+    signal IN1_P ~ pin 3
+    signal GND ~ pin 4
+    signal IN2_P ~ pin 5
+    signal IN2_N ~ pin 6
+    signal OUT2 ~ pin 7
+    signal VCC ~ pin 8
+
+component F2Reference:
+    mpn = "LM4040A25IDBZR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/lm4040.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal K ~ pin 1
+    signal A ~ pin 2
+    signal NC ~ pin 3
+
+component F2And4:
+    mpn = "SN74HCS21PWR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal NC1 ~ pin 3
+    signal C1 ~ pin 4
+    signal D1 ~ pin 5
+    signal Y1 ~ pin 6
+    signal GND ~ pin 7
+    signal Y2 ~ pin 8
+    signal A2 ~ pin 9
+    signal B2 ~ pin 10
+    signal NC2 ~ pin 11
+    signal C2 ~ pin 12
+    signal D2 ~ pin 13
+    signal VCC ~ pin 14
+
+component F2Dff:
+    mpn = "SN74HCS74PWR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal CLR1 ~ pin 1
+    signal D1 ~ pin 2
+    signal CLK1 ~ pin 3
+    signal PRE1 ~ pin 4
+    signal Q1 ~ pin 5
+    signal QN1 ~ pin 6
+    signal GND ~ pin 7
+    signal QN2 ~ pin 8
+    signal Q2 ~ pin 9
+    signal PRE2 ~ pin 10
+    signal CLK2 ~ pin 11
+    signal D2 ~ pin 12
+    signal CLR2 ~ pin 13
+    signal VCC ~ pin 14
+
+component F2Supervisor:
+    mpn = "TPS389001DSER"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps3890.pdf"
+    footprint = "Package_DFN_QFN:WSON-6-1EP_1.5x1.5mm_P0.5mm_EP0.9x0.9mm"
+    signal SENSE ~ pin 1
+    signal GND ~ pin 2
+    signal MR ~ pin 3
+    signal VDD ~ pin 4
+    signal CT ~ pin 5
+    signal RESET ~ pin 6
+
+component F2IsoAnd:
+    # Ioff-rated partial-power-down input/output; no output source exists
+    # while VCC5=0, so it cannot back-power the dead logic rail.
+    mpn = "SN74LVC1G08DBVR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component F2IsoBuf:
+    # Ioff-rated Schmitt buffer; output is high impedance while VCC5=0.
+    mpn = "SN74LVC1G17DBVR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component F2GateDriver:
+    # IN- has an internal VDD pull-up; floating/unpowered control defaults
+    # OFF. Pulling IN- low enables the non-inverting IN+ path.
+    mpn = "UCC27511ADBVR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/ucc27511a.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    signal VDD ~ pin 1
+    signal OUTH ~ pin 2
+    signal OUTL ~ pin 3
+    signal GND ~ pin 4
+    signal INN ~ pin 5
+    signal INP ~ pin 6
+
+component F2Nmos:
+    mpn = "BSS138"
+    datasheet = "https://assets.nexperia.com/documents/data-sheet/BSS138.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    # Nexperia SOT-23 pinout: 1=G, 2=S, 3=D; RDS(on) is specified at 4.5 V.
+    signal G ~ pin 1
+    signal S ~ pin 2
+    signal D ~ pin 3
+
+component F2R:
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component F2C:
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module F2Divider:
+    signal bus
+    signal high
+    signal low
+    signal gnd
+    r1 = new F2R
+    r1.mpn = "TNPW1206200KBEEA"
+    r1.value = 200kohm
+    r1.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r2 = new F2R
+    r2.mpn = "TNPW1206200KBEEA"
+    r2.value = 200kohm
+    r2.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r3 = new F2R
+    r3.mpn = "TNPW1206200KBEEA"
+    r3.value = 200kohm
+    r3.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r4 = new F2R
+    r4.mpn = "TNPW1206200KBEEA"
+    r4.value = 200kohm
+    r4.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r5 = new F2R
+    r5.mpn = "TNPW1206187KBEEA"
+    r5.value = 187kohm
+    r5.footprint = "Resistor_SMD:R_1206_3216Metric"
+    step = new F2R
+    step.mpn = "TNPW1206200RBEEA"
+    step.value = 200ohm
+    step.footprint = "Resistor_SMD:R_1206_3216Metric"
+    bottom = new F2R
+    bottom.mpn = "TNPW12065K62BEEA"
+    bottom.value = 5620ohm
+    bottom.footprint = "Resistor_SMD:R_1206_3216Metric"
+    filter = new F2C
+    filter.value = 47pF
+    bus ~ r1.p1
+    r1.p2 ~ r2.p1
+    r2.p2 ~ r3.p1
+    r3.p2 ~ r4.p1
+    r4.p2 ~ r5.p1
+    r5.p2 ~ high
+    high ~ step.p1
+    step.p2 ~ low
+    low ~ bottom.p1
+    bottom.p2 ~ gnd
+    filter.p1 ~ high
+    filter.p2 ~ gnd
+
+module PowerEntryF2ShutdownRevB:
+    """Fault-dominant F2 detector with a specified power-off default.
+
+    The TPS3890 pair is powered by logic5.  `sup_aux` monitors aux15 through
+    a 1.03 Mohm/100 kohm divider (12.9 V nominal trip); `sup_logic` monitors
+    logic5 through 294 kohm/100 kohm (4.53 V nominal trip).  Their active-low
+    open-drain RESET pins share rails_ok with one logic5 pullup. A 100 kohm
+    pulldown makes rails_ok low while logic5 is absent; 100 pF CT capacitors
+    provide a documented ~132 us reset-release hold and brownout debounce.
+
+    The UCC27511A IN- hardware-disable pin has an internal VDD pull-up.  A
+    single BSS138 pulls IN- low only while RUN is high; a 1 kohm aux15
+    pullup makes the disabled state explicit.  If logic5 is absent the FET is
+    off and IN- is high, so AUX15 cannot produce a gate pulse.  This is a
+    specified interface property, not an assumption about a typical pull-up.
+    """
+    signal vd
+    signal vb
+    signal logic5
+    signal aux
+    signal gnd
+    signal permit
+    signal arm
+    signal pwm
+    signal gate
+    signal health_ok
+    signal rails_ok
+    signal clear_ok
+    signal run
+    signal fault_clear_n
+    signal enable_good
+    signal permit_safe
+    signal ref25
+
+    vd_div = new F2Divider
+    vb_div = new F2Divider
+    vd_div.bus ~ vd
+    vb_div.bus ~ vb
+    vd_div.gnd ~ gnd
+    vb_div.gnd ~ gnd
+
+    reference = new F2Reference
+    ref_bias = new F2R
+    ref_bias.mpn = "TNPW120610K0BEEA"
+    ref_bias.value = 10kohm
+    ref_bias.footprint = "Resistor_SMD:R_1206_3216Metric"
+    # Logic5 powers the reference so it remains valid during an aux15
+    # dropout; this prevents the reference node from collapsing into the
+    # detector inputs while the fast rail-loss comparator is active.
+    ref_bias.p1 ~ logic5
+    ref_bias.p2 ~ reference.K
+    reference.A ~ gnd
+    reference.K ~ ref25
+
+    cmp_vd = new F2Comparator
+    cmp_vb = new F2Comparator
+    cmp_vd.VCC ~ logic5
+    cmp_vb.VCC ~ logic5
+    cmp_vd.GND ~ gnd
+    cmp_vb.GND ~ gnd
+    # 22 kohm input isolation limits charged-bus injection into dead TLV3202
+    # clamps.  The 1 kohm logic5 bleeder keeps VCC5 below a false-enable
+    # level when all external supplies are absent.
+    vd_ov_ref = new F2R
+    vd_ov_ref.value = 22kohm
+    vd_ov_ref.p1 ~ ref25
+    vd_ov_ref.p2 ~ cmp_vd.IN1_P
+    vd_ov = new F2R
+    vd_ov.value = 22kohm
+    vd_ov.p1 ~ vd_div.high
+    vd_ov.p2 ~ cmp_vd.IN1_N
+    vd_mismatch_p = new F2R
+    vd_mismatch_p.value = 22kohm
+    vd_mismatch_p.p1 ~ vd_div.high
+    vd_mismatch_p.p2 ~ cmp_vd.IN2_P
+    vb_mismatch_n = new F2R
+    vb_mismatch_n.value = 22kohm
+    vb_mismatch_n.p1 ~ vb_div.low
+    vb_mismatch_n.p2 ~ cmp_vd.IN2_N
+    vb_ov_ref = new F2R
+    vb_ov_ref.value = 22kohm
+    vb_ov_ref.p1 ~ ref25
+    vb_ov_ref.p2 ~ cmp_vb.IN1_P
+    vb_ov = new F2R
+    vb_ov.value = 22kohm
+    vb_ov.p1 ~ vb_div.high
+    vb_ov.p2 ~ cmp_vb.IN1_N
+    vb_mismatch_p = new F2R
+    vb_mismatch_p.value = 22kohm
+    vb_mismatch_p.p1 ~ vb_div.high
+    vb_mismatch_p.p2 ~ cmp_vb.IN2_P
+    vd_mismatch_n = new F2R
+    vd_mismatch_n.value = 22kohm
+    vd_mismatch_n.p1 ~ vd_div.low
+    vd_mismatch_n.p2 ~ cmp_vb.IN2_N
+
+    health = new F2And4
+    health.VCC ~ logic5
+    health.GND ~ gnd
+    health.A1 ~ cmp_vd.OUT1
+    health.B1 ~ cmp_vd.OUT2
+    health.C1 ~ cmp_vb.OUT1
+    health.D1 ~ cmp_vb.OUT2
+    health.Y1 ~ health_ok
+
+    cmp_vd_bypass = new F2C
+    cmp_vd_bypass.value = 100nF
+    cmp_vd_bypass.p1 ~ cmp_vd.VCC
+    cmp_vd_bypass.p2 ~ gnd
+    cmp_vb_bypass = new F2C
+    cmp_vb_bypass.value = 100nF
+    cmp_vb_bypass.p1 ~ cmp_vb.VCC
+    cmp_vb_bypass.p2 ~ gnd
+    health_bypass = new F2C
+    health_bypass.value = 100nF
+    health_bypass.p1 ~ health.VCC
+    health_bypass.p2 ~ gnd
+
+    sup_logic = new F2Supervisor
+    sup_aux = new F2Supervisor
+    sup_logic.VDD ~ logic5
+    sup_aux.VDD ~ logic5
+    sup_logic.GND ~ gnd
+    sup_aux.GND ~ gnd
+    sup_logic_bypass = new F2C
+    sup_logic_bypass.value = 100nF
+    sup_logic_bypass.p1 ~ sup_logic.VDD
+    sup_logic_bypass.p2 ~ gnd
+    sup_aux_bypass = new F2C
+    sup_aux_bypass.value = 100nF
+    sup_aux_bypass.p1 ~ sup_aux.VDD
+    sup_aux_bypass.p2 ~ gnd
+    sup_logic.MR ~ logic5
+    sup_aux.MR ~ logic5
+    sup_logic_ct = new F2C
+    sup_logic_ct.value = 100pF
+    sup_logic_ct.p1 ~ sup_logic.CT
+    sup_logic_ct.p2 ~ gnd
+    sup_aux_ct = new F2C
+    sup_aux_ct.value = 100pF
+    sup_aux_ct.p1 ~ sup_aux.CT
+    sup_aux_ct.p2 ~ gnd
+    # Dedicated 294k/100k and 1.03M/100k sense dividers; 47k SENSE series
+    # resistors bound input-clamp current during the reverse rail order.
+    r_logic_top = new F2R
+    r_logic_top.value = 294kohm
+    r_logic_bottom = new F2R
+    r_logic_bottom.value = 100kohm
+    r_logic_iso = new F2R
+    r_logic_iso.value = 47kohm
+    # The 100 kohm bottom resistor is the only lower-leg element; the 47 kohm
+    # part is series isolation into SENSE and does not alter the ratio.
+    logic5 ~ r_logic_top.p1
+    r_logic_top.p2 ~ r_logic_iso.p1
+    r_logic_iso.p2 ~ sup_logic.SENSE
+    r_logic_top.p2 ~ r_logic_bottom.p1
+    r_logic_bottom.p2 ~ gnd
+    r_aux_top = new F2R
+    r_aux_top.value = 1.03Mohm
+    r_aux_bottom = new F2R
+    r_aux_bottom.value = 100kohm
+    r_aux_iso = new F2R
+    r_aux_iso.value = 47kohm
+    aux ~ r_aux_top.p1
+    r_aux_top.p2 ~ r_aux_iso.p1
+    r_aux_iso.p2 ~ sup_aux.SENSE
+    r_aux_top.p2 ~ r_aux_bottom.p1
+    r_aux_bottom.p2 ~ gnd
+
+    # Experimental shared open-drain supervisor aggregation.
+    # Both supervisors, pullup and consumer use logic5; this is not an AUX pullup.
+    # Removed reset_and, reset_and_bypass and reset_pull_logic only.
+    reset_pull_aux = new F2R
+    reset_pull_aux.value = 10kohm
+    reset_pull_aux.p1 ~ logic5
+    reset_pull_aux.p2 ~ rails_ok
+    sup_logic.RESET ~ rails_ok
+    sup_aux.RESET ~ rails_ok
+    rail_pd = new F2R
+    rail_pd.value = 100kohm
+    rails_ok ~ rail_pd.p1
+    rail_pd.p2 ~ gnd
+
+    # Ioff-rated buffer boundaries prevent externally driven ARM/PERMIT from
+    # back-powering the HCS devices while logic5=0.
+    permit_buf = new F2IsoBuf
+    permit_buf.VCC ~ logic5
+    permit_buf.GND ~ gnd
+    permit_buf.A ~ permit
+    permit_buf.Y ~ permit_safe
+    permit_buf_bypass = new F2C
+    permit_buf_bypass.value = 100nF
+    permit_buf_bypass.p1 ~ permit_buf.VCC
+    permit_buf_bypass.p2 ~ gnd
+    permit_pd = new F2R
+    permit_pd.value = 10kohm
+    permit_pd.p1 ~ permit_safe
+    permit_pd.p2 ~ gnd
+    health.A2 ~ health_ok
+    health.B2 ~ rails_ok
+    health.C2 ~ permit_safe
+    health.Y2 ~ clear_ok
+
+    # Fast auxiliary-loss path: unlike the 13 V TPS3890 qualification path,
+    # this comparator is powered from logic5 and has no CT delay.  430k/100k
+    # against the logic-powered 2.5 V reference trips at 13.25 V nominal,
+    # ahead of the UCC27511A UVLO. A sub-microsecond aux dip therefore clears
+    # the retained latch; aux return cannot create a new ARM edge.
+    aux_fast_cmp = new F2Comparator
+    aux_fast_cmp.VCC ~ logic5
+    aux_fast_cmp.GND ~ gnd
+    aux_fast_bypass = new F2C
+    aux_fast_bypass.value = 100nF
+    aux_fast_bypass.p1 ~ aux_fast_cmp.VCC
+    aux_fast_bypass.p2 ~ gnd
+    aux_fast_top = new F2R
+    aux_fast_top.value = 430kohm
+    aux_fast_bottom = new F2R
+    aux_fast_bottom.value = 100kohm
+    aux_fast_iso = new F2R
+    aux_fast_iso.value = 22kohm
+    aux_fast_top.p1 ~ aux
+    aux_fast_top.p2 ~ aux_fast_bottom.p1
+    aux_fast_bottom.p2 ~ gnd
+    aux_fast_bottom.p1 ~ aux_fast_iso.p1
+    aux_fast_iso.p2 ~ aux_fast_cmp.IN1_P
+    aux_fast_cmp.IN1_N ~ ref25
+    aux_fast_cmp.IN2_P ~ gnd
+    aux_fast_cmp.IN2_N ~ gnd
+    health.D2 ~ aux_fast_cmp.OUT1
+    latch = new F2Dff
+    latch.VCC ~ logic5
+    latch.GND ~ gnd
+    latch_bypass = new F2C
+    latch_bypass.value = 100nF
+    latch_bypass.p1 ~ latch.VCC
+    latch_bypass.p2 ~ gnd
+    latch.D1 ~ logic5
+    arm_buf = new F2IsoBuf
+    arm_buf.VCC ~ logic5
+    arm_buf.GND ~ gnd
+    arm_buf.A ~ arm
+    arm_buf.Y ~ latch.CLK1
+    arm_buf_bypass = new F2C
+    arm_buf_bypass.value = 100nF
+    arm_buf_bypass.p1 ~ arm_buf.VCC
+    arm_buf_bypass.p2 ~ gnd
+    arm_pd = new F2R
+    arm_pd.value = 10kohm
+    arm_pd.p1 ~ latch.CLK1
+    arm_pd.p2 ~ gnd
+    latch.CLR1 ~ clear_ok
+    latch.PRE1 ~ logic5
+    latch.Q1 ~ run
+    latch.QN1 ~ fault_clear_n
+    latch.D2 ~ gnd
+    latch.CLK2 ~ gnd
+    latch.PRE2 ~ logic5
+    latch.CLR2 ~ gnd
+
+    # Qualify retained RUN at the driver boundary as well as clearing the
+    # latch. This gives faults a direct disable path during valid logic power.
+    # Ioff describes VCC=0; operation below the LVC minimum supply is not
+    # promoted to a guaranteed brownout timing bound.
+    enable_and = new F2IsoAnd
+    enable_and.VCC ~ logic5
+    enable_and.GND ~ gnd
+    enable_and.A ~ run
+    enable_and.B ~ clear_ok
+    enable_and.Y ~ enable_good
+    enable_pd_bypass = new F2C
+    enable_pd_bypass.value = 100nF
+    enable_pd_bypass.p1 ~ logic5
+    enable_pd_bypass.p2 ~ gnd
+    enable_pd = new F2R
+    enable_pd.value = 10kohm
+    enable_good ~ enable_pd.p1
+    enable_pd.p2 ~ gnd
+
+    driver = new F2GateDriver
+    driver.VDD ~ aux
+    driver.GND ~ gnd
+    pwm_iso = new F2R
+    pwm_iso.value = 1kohm
+    pwm_iso.p1 ~ pwm
+    pwm_iso.p2 ~ driver.INP
+    pwm_pd = new F2R
+    pwm_pd.value = 10kohm
+    pwm_pd.p1 ~ driver.INP
+    pwm_pd.p2 ~ gnd
+    # IN- is explicitly pulled high to AUX15 and clamped low only while the
+    # retained RUN state is high.  BSS138 RDS(on) is specified at VGS=4.5 V;
+    # the 1 kohm gate resistor limits edge current and the 100 kohm pulldown
+    # makes the FET off with logic5 absent.
+    disable_nmos = new F2Nmos
+    disable_nmos.S ~ gnd
+    disable_nmos.D ~ driver.INN
+    disable_gate = new F2R
+    disable_gate.value = 1kohm
+    disable_gate.p1 ~ enable_good
+    disable_gate.p2 ~ disable_nmos.G
+    disable_gate_pd = new F2R
+    disable_gate_pd.value = 100kohm
+    disable_gate_pd.p1 ~ disable_nmos.G
+    disable_gate_pd.p2 ~ gnd
+    in_n_pullup = new F2R
+    # Strong pullup makes IN- follow VDD during startup despite node C.
+    # 18 V / 1 kohm = 18 mA; maximum resistor loss is 0.324 W.
+    in_n_pullup.value = 1kohm
+    in_n_pullup.mpn = "RC1210FR-071KL"
+    in_n_pullup.footprint = "Resistor_SMD:R_1210_3225Metric"
+    in_n_pullup.p1 ~ aux
+    in_n_pullup.p2 ~ driver.INN
+
+    gate_r = new F2R
+    gate_r.mpn = "RC1206FR-0710RL"
+    gate_r.value = 10ohm
+    gate_r.footprint = "Resistor_SMD:R_1206_3216Metric"
+    gate_pd = new F2R
+    gate_pd.mpn = "RC0603FR-0710KL"
+    gate_pd.value = 10kohm
+    driver.OUTH ~ gate_r.p1
+    gate_r.p2 ~ gate
+    gate_off_r = new F2R
+    gate_off_r.mpn = "RC1206FR-0710RL"
+    gate_off_r.value = 10ohm
+    gate_off_r.footprint = "Resistor_SMD:R_1206_3216Metric"
+    driver.OUTL ~ gate_off_r.p1
+    gate_off_r.p2 ~ gate
+    gate_pd.p1 ~ gate
+    gate_pd.p2 ~ gnd
+
+    logic_bleed = new F2R
+    logic_bleed.value = 220ohm
+    logic_bleed.mpn = "RC1206FR-07220RL"
+    logic_bleed.footprint = "Resistor_SMD:R_1206_3216Metric"
+    logic_bleed.p1 ~ logic5
+    logic_bleed.p2 ~ gnd
+    cmp_bypass = new F2C
+    cmp_bypass.value = 100nF
+    cmp_bypass.p1 ~ logic5
+    cmp_bypass.p2 ~ gnd
+    drv_bypass_hf = new F2C
+    drv_bypass_hf.value = 100nF
+    drv_bypass_hf.p1 ~ aux
+    drv_bypass_hf.p2 ~ gnd
+    drv_bypass_bulk = new F2C
+    drv_bypass_bulk.value = 1uF
+    drv_bypass_bulk.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    drv_bypass_bulk.p1 ~ aux
+    drv_bypass_bulk.p2 ~ gnd

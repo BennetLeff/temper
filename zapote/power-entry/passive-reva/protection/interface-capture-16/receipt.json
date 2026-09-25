@@ -1,0 +1,99 @@
+{
+  "revision": 16,
+  "date": "2026-09-22",
+  "status": "isolated-native-schematic-capture-verified-with-open-interfaces",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "branch": "codex/power-entry-pkgs-1-4",
+  "full_compiled_candidate": {
+    "revision": 11,
+    "components": 136,
+    "unchanged": true
+  },
+  "fixtures": {
+    "clamp": {
+      "components": 14,
+      "pins": 39
+    },
+    "reset": {
+      "components": 28,
+      "pins": 106,
+      "includes_existing_circuits": true
+    }
+  },
+  "tools": {
+    "kicad_cli": "10.0.4",
+    "rustc": "1.92.0",
+    "node": "26.4.0"
+  },
+  "verification": {
+    "native_export": "PASS",
+    "all_pin_net_audit": "PASS:145 pins",
+    "selected_pin_function_audit": "PASS:81 IC/FET/diode pins",
+    "independent_graph_contracts": "PASS",
+    "parser_and_pin_function_negative_checks": "PASS",
+    "graph_mutations": [
+      "D1.1 to Q_GATE rejected",
+      "U6.2 to HOT_LOGIC5 rejected"
+    ],
+    "native_schematic_mutations": [
+      {
+        "case": "clamp-sense-shorted-to-input",
+        "export_exit": 0,
+        "audit_exit": 1,
+        "rejection": "AUDIT FAILED: clamp: U1.3 expected SNS, exported AUX_RAW"
+      },
+      {
+        "case": "hot-run-data-fixed-high",
+        "export_exit": 0,
+        "audit_exit": 1,
+        "rejection": "AUDIT FAILED: reset: U6.2 expected ARM_AUTHORIZED, exported HOT_LOGIC5"
+      }
+    ],
+    "capacitance_screen_tests": 3,
+    "erc": {
+      "clamp": {
+        "findings": 7,
+        "types": {
+          "pin_not_driven": 1,
+          "power_pin_not_driven": 3,
+          "isolated_pin_label": 3
+        },
+        "disposition": "open external boundaries; no exclusions; see erc-review.json"
+      },
+      "reset": {
+        "findings": 10,
+        "types": {
+          "pin_not_driven": 2,
+          "power_pin_not_driven": 4,
+          "isolated_pin_label": 4
+        },
+        "disposition": "open external boundaries; no exclusions; see erc-review.json"
+      }
+    },
+    "visual_review": "Native KiCad SVG/PDF export; whole-sheet iterations and detailed latch/gate crops inspected; final graph audited after drawing changes",
+    "frozen_inputs_verified": 13,
+    "revision15_artifacts_verified": 31
+  },
+  "value_changes": {
+    "C3": "470nF -> 1.5uF /63V target, +/-10% total effective acceptance",
+    "C4": "47uF -> 220uF /50V low-ESR target; effective floor and ceramic ratio required",
+    "total_output_capacitance": "<=300uF effective acceptance allocation"
+  },
+  "limitations": [
+    "Not adopted into full source or production PCB",
+    "Exact passive MPNs and footprints not qualified",
+    "External supervisors, watchdogs, decoder, framing, persistence and level translation unimplemented",
+    "Conditional startup arithmetic only; output peak, SOA, stability and reset propagation require physical evidence",
+    "17 ERC findings remain; no clean-ERC or complete-circuit claim",
+    "No hardware measurements, purchasing, commit, push or manufacturing export"
+  ],
+  "delegation": {
+    "model": "gpt-5.6-luna",
+    "scope": [
+      "independent primary-source capture review",
+      "native netlist auditor"
+    ],
+    "parent_corrections": "review-resolution.md",
+    "children_stopped": true
+  }
+}

@@ -1,0 +1,110 @@
+[18:59:54] INFO     Using project                                   common.py:72
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-open-01/source-02               
+           INFO     Building default                                 build.py:38
+[18:59:55] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-open-01/source-02/e             
+                    lec/src/power_entry_f2_sense.ato:130:4                      
+                        Field 'override_net_name' not declared for              
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-open-01/source-02/e             
+                    lec/src/power_entry_f2_sense.ato:PowerEntryF2Se             
+                    nse::fault_n. Declaring implicitly for now, but             
+                    in the future this may become an error...                   
+           INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry/            
+                    passive-reva/protection/f2-open-01/source-02/bui            
+                    ld                                                          
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name         ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│           U1 │ diode.r1     │
+│           U2 │ diode.r2     │
+│           U3 │ diode.r3     │
+│           U4 │ diode.r4     │
+│           U5 │ diode.r5     │
+│           U6 │ diode.step   │
+│           U7 │ diode.bottom │
+│           U8 │ diode.filter │
+│           U9 │ bank.r1      │
+│          U10 │ bank.r2      │
+│          U11 │ bank.r3      │
+│          U12 │ bank.r4      │
+│          U13 │ bank.r5      │
+│          U14 │ bank.step    │
+│          U15 │ bank.bottom  │
+│          U16 │ bank.filter  │
+│          U17 │ comparator   │
+│          U18 │ reference    │
+│          U19 │ ref_bias     │
+│          U20 │ pullup       │
+│          U21 │ bypass       │
+└──────────────┴──────────────┘
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓       ┃ Designator ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ bank.bottom  │ U15        │
+│ bank.filter  │ U16        │
+│ bank.r1      │ U9         │
+│ bank.r2      │ U10        │
+│ bank.r3      │ U11        │
+│ bank.r4      │ U12        │
+│ bank.r5      │ U13        │
+│ bank.step    │ U14        │
+│ bypass       │ U21        │
+│ comparator   │ U17        │
+│ diode.bottom │ U7         │
+│ diode.filter │ U8         │
+│ diode.r1     │ U1         │
+│ diode.r2     │ U2         │
+│ diode.r3     │ U3         │
+│ diode.r4     │ U4         │
+│ diode.r5     │ U5         │
+│ diode.step   │ U6         │
+│ pullup       │ U20        │
+│ ref_bias     │ U19        │
+│ reference    │ U18        │
+└──────────────┴────────────┘
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint      ┃ LCSC            ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ TNPW1206200KBE… │ U1,U2,U3,U4,U9… │ Resistor_SMD:… │ TNPW1206200KBE… │ 0.00  │
+│ TNPW1206187KBE… │ U5,U13          │ Resistor_SMD:… │ TNPW1206187KBE… │ 0.00  │
+│ TNPW1206200RBE… │ U6,U14          │ Resistor_SMD:… │ TNPW1206200RBE… │ 0.00  │
+│ TNPW12065K62BE… │ U7,U15          │ Resistor_SMD:… │ TNPW12065K62BE… │ 0.00  │
+│ C0805C101J5GAC… │ U8,U16          │ Capacitor_SMD… │ C0805C101J5GAC… │ 0.00  │
+│ TLV1704PWR      │ U17             │ Package_SO:TS… │ TLV1704PWR      │ 0.00  │
+│ LM4040A25IDBZR  │ U18             │ Package_TO_SO… │ LM4040A25IDBZR  │ 0.00  │
+│ TNPW120610K0BE… │ U19,U20         │ Resistor_SMD:… │ TNPW120610K0BE… │ 0.00  │
+│ C0805C104K5RAC… │ U21             │ Capacitor_SMD… │ C0805C104K5RAC… │ 0.00  │
+└─────────────────┴─────────────────┴────────────────┴─────────────────┴───────┘
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Successfully built 'designator-map, netlist,    build.py:105
+                    variable-report, clone-footprints,                          
+                    layout-module-map, bom, assertions-report,                  
+                    copy-footprints, copy-3dmodels' for 'default'               
+                    config                                                      
+           INFO     Build complete!                                  build.py:59

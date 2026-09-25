@@ -1,0 +1,29 @@
+{
+  "status": "PREPARED_NOT_LAUNCHED",
+  "utc": "2026-09-21T17:04:42.715728+00:00",
+  "source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/prepared/F2-CREST",
+  "source_manifest_sha256": "a034475e9dadb5470fed1f31e195acc2b609b73f641d3267dfb17f8270809416",
+  "exact_source_hashes": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "case.cir": "2f506027a93c89e136d7cb637fe2d4d234aca5ffd4e2ab7009a29384c73eed7e"
+  },
+  "same_sources_as_failed_capture32": true,
+  "export_review": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/host/direct-native-export-parent-37/parent-review.json",
+  "export_review_sha256": "99564cf8bda7bc86be574913e6bca6962426b95927c345a45858606ac1b52afd",
+  "free_bytes": 20277768192,
+  "free_gib": 18.885143280029297,
+  "disk_floor_gib": 10,
+  "forecast_archive_gib": 6.6,
+  "forecast_is_unmeasured": true,
+  "remaining_above_floor_and_forecast_gib": 2.2851432800292955,
+  "full_solver_limit": 1,
+  "rationale": "Fault full retained plot is larger than normal and exposes resource envelope; use one solver and avoid former full write-copy. Actual archive and peak swap remain unmeasured; 10GiB guard remains authoritative.",
+  "resource_sampler": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/host/resource-monitor-37.sh",
+  "resource_sampler_sha256": "8007038cbdfb309398fbd887882ac3570c090989dc37364c111a030fe1e6a8d0",
+  "electrical_acceptance": false
+}

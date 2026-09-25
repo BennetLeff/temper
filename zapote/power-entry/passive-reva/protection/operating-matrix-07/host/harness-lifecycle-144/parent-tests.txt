@@ -1,0 +1,19 @@
+test_existing_receipt_refusal (test_command_guard.GuardTests.test_existing_receipt_refusal) ... ok
+test_external_term_cleanup (test_command_guard.GuardTests.test_external_term_cleanup) ... ok
+test_failing_blocked_producer_is_killed (test_command_guard.GuardTests.test_failing_blocked_producer_is_killed) ... ok
+test_fifo_hash_rejects_without_writer (test_command_guard.GuardTests.test_fifo_hash_rejects_without_writer) ... ok
+test_infinite_timeout_refused_before_execution (test_command_guard.GuardTests.test_infinite_timeout_refused_before_execution) ... ok
+test_known_hash (test_command_guard.GuardTests.test_known_hash) ... ok
+test_leader_failure_reaps_blocked_reader (test_command_guard.GuardTests.test_leader_failure_reaps_blocked_reader) ... ok
+test_missing_executable_preflight (test_command_guard.GuardTests.test_missing_executable_preflight) ... ok
+test_normal_completion_kills_background_child (test_command_guard.GuardTests.test_normal_completion_kills_background_child) ... ok
+test_old_sha256sum_control_would_block_then_is_forcibly_cleaned (test_command_guard.GuardTests.test_old_sha256sum_control_would_block_then_is_forcibly_cleaned) ... ok
+test_orchestration_exception_still_cleans_child_and_records_failure (test_command_guard.GuardTests.test_orchestration_exception_still_cleans_child_and_records_failure) ... ok
+test_symlink_and_directory_hash_refused (test_command_guard.GuardTests.test_symlink_and_directory_hash_refused) ... ok
+test_term_ignoring_descendant_is_killed_after_leader_exits (test_command_guard.GuardTests.test_term_ignoring_descendant_is_killed_after_leader_exits) ... ok
+test_timeout_cleanup (test_command_guard.GuardTests.test_timeout_cleanup) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 2.856s
+
+OK

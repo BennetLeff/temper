@@ -1,0 +1,12 @@
+{
+  "status": "CORRECTION_TO_AUDIT_114",
+  "supersedes_claim": "The 1.8 kW arithmetic in audit114 incorrectly imported PMP10948 efficiency into the stated target.",
+  "correct_target_interpretation": "The Control Freak target is 1,800 W nominal mains input. At 120 VAC and ideal PF=1 this is exactly 15.0 A; at 108 VAC the unchanged 15 A screen permits at most 1,620 W input at ideal PF=1. Any PF below one increases current. No TI efficiency is inherited.",
+  "sw_status": {
+    "disposition": "INDETERMINATE",
+    "reason": "The saved run stopped before .662 s, so no complete fault envelope or endpoint disposition exists. Its pre-fault rows may support a separately bounded prefix-only audit, but no prefix result is accepted yet and it cannot convert the overall attempt into a completed fault case.",
+    "smallest_useful_next_evidence": "Use the existing parent-reviewed prefix selector/audit on the immutable partial archive through the last sample at or before .650 s, if the parent chooses to run that read-only analysis. Preserve source/tool hashes and report its own endpoint, row, finite/nondecreasing, electrical, drift, phase, and ARM/PERMIT/q/en results. Do not rerun the solver or waive the missing post-fault endpoint."
+  },
+  "audit114_other_findings": "No other material mismatch found: normal matrix remains modeled-only; DIODE event-window FAIL, BOTH node-screen FAIL/pending prefix-parent closure, BYPASS pending; final report/index and model/hardware bounds remain open.",
+  "accepted": false
+}

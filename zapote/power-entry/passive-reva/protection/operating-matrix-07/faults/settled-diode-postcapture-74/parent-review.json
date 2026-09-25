@@ -1,0 +1,27 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_NOT_EXECUTED",
+  "accepted": false,
+  "case": "DIODE-SHORT",
+  "recorded_at_utc": "2026-09-21T23:49:02.318562+00:00",
+  "source_sha256": {
+    "manifest.json": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9",
+    "case.cir": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78"
+  },
+  "checks": [
+    "Exact mechanical transform of parent-corrected69 verified byte-for-byte",
+    "Bash syntax and ShellCheck passed for both scripts",
+    "All eight pinned tools verified and pin list identical",
+    "Early refusal exit1 before output creation; no raw scan or solver"
+  ],
+  "corrections": [
+    "README corrected: separate legacy witness prepared, not executed. Diode checker may return model-level Pass, not hardware qualification."
+  ],
+  "files_sha256": {
+    "run.sh": "763a88a2b0b462da46f1f0dc827353acc16efd081157a53d0a45d242f12e39b1",
+    "legacy-strict.sh": "b09aba48f098a6e3c7df65eced79ac0ddba248cf03afa5097f169b995e478db6",
+    "tools-parent.sha256": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+    "README.md": "ebf2f5573dee7f95c287f9647a6bab2a6c7d20856bc95aea61330fc2d166da99",
+    "preparation.json": "fbf6c9d2ded71c1defc57fbbda4f3b8f7ab394cfe36abda1ce6982fc1d3ecf3b"
+  },
+  "pending": "Complete own capture, five-pass diagnostics, legacy witness, and parent electrical review."
+}

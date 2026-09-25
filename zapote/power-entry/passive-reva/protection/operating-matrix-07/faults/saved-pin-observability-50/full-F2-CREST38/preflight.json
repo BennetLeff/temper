@@ -1,0 +1,33 @@
+{
+  "raw_path": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/raw.trace.raw.gz",
+  "raw_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "raw_bytes": 5297726667,
+  "commands": [
+    [
+      "/opt/homebrew/bin/pigz",
+      "-dc",
+      "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/raw.trace.raw.gz"
+    ],
+    [
+      "/private/tmp/matrix07-fault-native-decoder-parent",
+      "--schema",
+      "fault42",
+      "--byte-order",
+      "little"
+    ],
+    [
+      "/private/tmp/matrix07-saved-pin50-parent",
+      "-",
+      "faults/saved-pin-observability-50/full-F2-CREST38/observability.json"
+    ]
+  ],
+  "tools_sha256": {
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-saved-pin50-parent": "25d20aa032b56e5ed544d69f57206e60a5b6c36adfb52ce97a1b53bcae8edb87"
+  },
+  "source_sha256": "59f01e7985fff860a5f04ef48246d493bbaf5f54134dedd76d4aafb93ba930fc",
+  "started_at_utc": "2026-09-21T19:14:59.474211+00:00",
+  "free_bytes": 12346580992,
+  "accepted": false
+}

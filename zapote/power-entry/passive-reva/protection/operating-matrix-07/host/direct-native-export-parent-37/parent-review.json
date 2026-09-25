@@ -1,0 +1,38 @@
+{
+  "status": "PARENT_VERIFIED_DIRECT_EXPORT_FOR_SERIALIZED_FULL_RESOURCE_TRIAL",
+  "utc": "2026-09-21T17:04:42.710125+00:00",
+  "files_sha256": {
+    "normal.rs": "33e5f973c9a38da9df40917a3e3d668cd3fac67773cbfcec37bd6ffa8bc30819",
+    "fault.rs": "18dccdb61dac9050a21ccb7f97a47458306e73de0ea541d5636691f4161765c4",
+    "native_export.rs": "2eebc6e7c08a77381d42b09b00355d4a4ab8398e3f3ec4a4d1260578a221e4d1",
+    "normal-sameplot.rs": "7d777dcffe92b78f6502c7ab0b206427b5409622876ccefb676c9bce4050c39c",
+    "fault-sameplot.rs": "b098edcfa643af53d9505ac709c36ed86a3c5d6d0791563bbb7518ca65608a37",
+    "sameplot-verification.json": "05ddbf25537bdb50694199fd4c4821194fde03da5a774de520e5ed629960d831",
+    "anonymous-pipe-verification.json": "10f210cfb81b2412a9afff9f7644c3577ce5712fc6c09725269d7051b49ea00c",
+    "fixture-preparation.json": "c6cbb9c34fa2462fec1978fa8278d6988af22bba77609fa266eb7b4cae362ae7",
+    "normal-parent-tests.txt": "d93021b81d12a0fbe9c437961fdd30c84541611d3ff2a9a02089cc4065090875",
+    "fault-parent-tests.txt": "6809137315031cd42d1e3f2bc467440925e1557db13e7af5da08cf6f9e9d6c26"
+  },
+  "binaries_sha256": {
+    "/private/tmp/matrix07-direct-normal37-parent": "be6b73451f111636a2f0dbf67a4ce135c3ae8302b4dc50ee81da2386b124fc15",
+    "/private/tmp/matrix07-direct-fault37-parent": "dcd72ea758b7a9ac3d60f6b35f249afad756fb63b02e584ca3ad937e7edc42a9"
+  },
+  "unit_tests": {
+    "normal": 11,
+    "fault": 10,
+    "failures": 0
+  },
+  "same_stopped_plot_values_compared": 99366,
+  "bit_mismatches": 0,
+  "unchanged_decoders_accepted_both_formats": true,
+  "anonymous_pipe_payload_and_header_identical": true,
+  "api_review": "../direct-native-export-api-review-37-parent.json",
+  "api_review_sha256": "f8ac448711ba4861d11eb0ed7bddc58048922605ea6e7faf4dbcc00cb74244ab",
+  "scope": "Frozen ordinary real analog normal15/fault42 vectors, completed idle solver, exclusive single-thread ngspice API ownership. Header ABI and linked library bound by API review.",
+  "comment_clarification": "The module opening comment overstates no API calls while pointers are borrowed. Exact ordinary-vector metadata lookups continue during setup; copied metadata points into permanent retained arrays. No ngspice API calls occur during the subsequent read/export pass. No event/wildcard vectors or concurrent reset/free supported.",
+  "resource_scope": "Eliminates full selected-vector copies in ngspice write; retained full simulation arrays remain. Short probes do not establish full-run memory or disk peak.",
+  "solver_circuit_signals_tolerances_unchanged": true,
+  "first_full_trial_max_solvers": 1,
+  "disk_floor_gib": 10,
+  "electrical_acceptance": false
+}

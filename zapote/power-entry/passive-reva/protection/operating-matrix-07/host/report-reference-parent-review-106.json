@@ -1,0 +1,26 @@
+{
+  "status": "PARENT_REVIEWED_INTERIM_REPORT_AND_REFERENCE_INVENTORY",
+  "at_utc": "2026-09-22T01:31:06.677785+00:00",
+  "corrections": [
+    "RFREQ16.2k is resistance and modelFSW129107Hz, not16.2kHz",
+    "EVM covers85\u2013265VACat360W; no claim it lacks120VACoperation",
+    "Breville document manufacturer-authored/distributor-hosted; electrical nameplate supports workinginput benchmark, not literalpan/DCoutput",
+    "Earlier1800WDCoutput arithmetic retained onlyasconditional, not product requirement",
+    "Added missing componentmodel-limit links and exactDIODEverdict link; original workerreport preserved",
+    "Updated BOTH transport status without claiming electricalpass"
+  ],
+  "all_four_baseline_source_hashes_verified": true,
+  "local_markdown_links_exist": true,
+  "limits": [
+    "First-pass reference inventory, not schematic-by-schematic completedcomparison",
+    "Campaignreport104 remainsinterim; finalindex not updated; BOTH/BYPASS stillneeddisposition",
+    "No deck, thresholds, or historicalacceptances changed"
+  ],
+  "evidence_sha256": {
+    "host/reference-baseline-review-102.md": "c4a0ac43c4f1c6aa2f27b085f69d2afe6b73e2e7d329e86e927fed6e971ff87a",
+    "host/reference-baseline-review-102.json": "4f1bc332f1a0251a4ac348311039a84dd2538af6fdb4cf0f1f98e6828d8a5a23",
+    "host/campaign-report-104.md": "96ccc0b8a4b5a248cc861e59d966febf0927681824c231d49c1f945e62df41b0",
+    "host/power-target-105.md": "162f64f44eaee9c6bad7efac2463a2aeba3dd9b3c95bf8aaad494cdc570d2dcc",
+    "faults/coincident-stress-observability-99/parent-result-review-103.json": "411cb44570eae6161eca1f3b261aa7fad6c454d613edb53b524103f3f455809e"
+  }
+}

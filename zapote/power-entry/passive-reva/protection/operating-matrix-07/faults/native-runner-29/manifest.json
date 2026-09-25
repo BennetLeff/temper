@@ -1,0 +1,37 @@
+{
+  "status": "PREPARED_DIAGNOSTIC_CANDIDATE_NO_CAMPAIGN",
+  "purpose": "native fault42 anonymous-pipe capture transport fork with runner-19 drain semantics",
+  "lineage": "../native-runner-19",
+  "source": "supervisor.rs",
+  "source_sha256": "36cdf646133cfa893dee0440ee905e130e9e46ce62a23763bea7a7623dacc93d",
+  "binary": "/tmp/native-runner29",
+  "binary_sha256": "899653efbc7751778b10826e0ba09f6ded34ec778c347d73ad19542c97d1a2c7",
+  "transport": {
+    "capture": "direct pigz stdin ChildStdin passed as dynamic /dev/fd/N",
+    "pre_exec": "clear FD_CLOEXEC on actual owned descriptor via fcntl",
+    "capture_shell_or_fifo": false,
+    "stage2_adapter_validator_fifos": true
+  },
+  "fixture_source": "fixture/synthetic-native-host.rs",
+  "fixture_source_sha256": "f7aadafae5275786c00d01f518fae98a7e5a9055dbe1085982db04648e41b641",
+  "delayed_footer_fixture_source": "fixture/slow-gzip.rs",
+  "delayed_footer_fixture_source_sha256": "0c4b16ff24f13fc3de3c32d4f96752b35739c463938800ba1a38a703dd7595cf",
+  "protocol": {
+    "positive_points_invalid_metadata": "drain compressor, record statuses/hash/bytes, then reject",
+    "zero_or_missing_metadata": "kill blocked compressor promptly and reject",
+    "receipt_failures": "propagate stage-1 filesystem/hash errors; never claim receipt success",
+    "disk_floor_bytes": 10737418240,
+    "known_sandbox_probe": "dynamic /dev/fd/N test is ignored locally because sandbox returns EPERM; approved environment must pass it"
+  },
+  "tests": {
+    "command": "rustc --edition=2021 -D warnings --test supervisor.rs -o /tmp/native-runner29-tests && /tmp/native-runner29-tests",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 1,
+    "anonymous_eof_roundtrip": true,
+    "dynamic_fd_requires_approved_success": true,
+    "startup_failure_reaps_compressor": true,
+    "old_ordering_truncation_regression": true
+  },
+  "acceptance": "none; transport/evidence only"
+}

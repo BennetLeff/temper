@@ -1,0 +1,64 @@
+{
+  "status": "bounded delegated experiment finished; command proposal rejected; AUX transient qualification open",
+  "requested_model": "gpt-5.6-luna",
+  "served_model_independently_attested": false,
+  "worker_roles": {
+    "gate_restart": "read-only two-wire command design",
+    "supply_interfaces": "read-only AUX static and transient-budget research",
+    "pfc_stage": "independent read-only review of parent logical witness"
+  },
+  "workers_interrupted_after_handback": true,
+  "parent_owned": "protocol model, budget calculation, final evidence",
+  "candidate_proposal": "healthy01 qualifies READY;11PREPARE;10START;00reset",
+  "decisive_counterexample": "Producer remains11 inPREPARE; Bwire opens; receiver sees10 and entersRUN without transmittedSTART",
+  "protocol_result": "REJECT",
+  "one_bit_low_first_result": "REJECT: commanded low and wire-open low indistinguishable",
+  "specific_held10_reconnect": "blocked by2bitproposal, insufficient for acceptance",
+  "commands": [
+    {
+      "command": "rustc --edition=2021 protocol_witness.rs -o protocol_witness",
+      "exit": 0
+    },
+    {
+      "command": "./protocol_witness > results.csv",
+      "exit": 0,
+      "meaning": "reproduced expected controls and unsafe counterexamples"
+    },
+    {
+      "command": "rustc --edition=2021 aux_budget.rs -o aux_budget",
+      "exit": 0
+    },
+    {
+      "command": "./aux_budget > aux-budget.csv",
+      "exit": 0,
+      "meaning": "conditional static arithmetic only"
+    }
+  ],
+  "aux": {
+    "resistors_ohm": [
+      130000,
+      10000
+    ],
+    "total_resistance_deviation_assumed": 0.01,
+    "ovp_leakage_bound_a": 1e-7,
+    "conditional_trip_min_v": 16.065942,
+    "conditional_trip_max_v": 17.484847,
+    "current_limit_120k": "rejected for existing conditional load",
+    "current_conditional_load_ma": 111.630037,
+    "raw_source_fault_bound": "missing",
+    "effective_downstream_capacitance": "not selected or qualified",
+    "fet_turnoff_charge_bound": "missing",
+    "voltage_peak_acceptance": "not established"
+  },
+  "parent_additional_findings": [
+    "LDO47uFnominal cap becomes upstream of insertedcutoff; cannotcreditdownstream",
+    "factoryUVLO mayrequire15.75Vstartup; externalUVLObudgetrequired",
+    "recomputed historicalconditional downstreamload111.630037mA instead111.74prose"
+  ],
+  "frozen_source_unchanged": true,
+  "compiled_count_unchanged": 136,
+  "hardware_test": false,
+  "circuit_or_pcb_edits": false,
+  "vendor_contact": false,
+  "commit_or_push": false
+}

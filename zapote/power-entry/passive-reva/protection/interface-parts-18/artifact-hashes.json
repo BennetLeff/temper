@@ -1,0 +1,188 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "bef65812a14f99a3f552d8b6b86738e258c29a672909740418ab5d839d2fe82b"
+    },
+    {
+      "path": "Temper16.kicad_sym",
+      "sha256": "cd145eb1a5df6699b3c6a3bda1161232679ecdf2d9e8782e1f3e875143bd7868"
+    },
+    {
+      "path": "audit-tests.log",
+      "sha256": "b1a601e151946372286d79d3d1126403bf44f1985212b5b34f9e2e7b2856cf7d"
+    },
+    {
+      "path": "clamp-erc.json",
+      "sha256": "8c7e47983ce3eb5a622a721e85ffe86c85b8642252b41be10c79d5094d91682a"
+    },
+    {
+      "path": "clamp-expected.tsv",
+      "sha256": "f2b25e223ec96a7ad11747a36b6e9ca7ae0db42c95d39263be4d99a6cd40a1d0"
+    },
+    {
+      "path": "clamp-review-bom.csv",
+      "sha256": "915ba76433357909adec2dd83cbc48189ba294c9ed3d2711f4503f9c27ea4f7b"
+    },
+    {
+      "path": "clamp.kicad_prl",
+      "sha256": "1601476e6cba68bd8cd6487ebc86a4605e6287d051c71b86027ed32e70b57f3f"
+    },
+    {
+      "path": "clamp.kicad_pro",
+      "sha256": "35125d16e651564b8867a7ffb75ef1cf84f273c398287a6ed7ad07c728aeed8c"
+    },
+    {
+      "path": "clamp.kicad_sch",
+      "sha256": "b48680aa0462caf4bc0977e8a12fc3160a91df1201277e8431dce9deb82f5dee"
+    },
+    {
+      "path": "clamp.net",
+      "sha256": "3ad50c134513bd786e43e1c6badc4a1be428de83c462f64194575d54230851e9"
+    },
+    {
+      "path": "clamp.pdf",
+      "sha256": "f956421b8a0b0824ea12392db946fd3126179a1b0ff7878b13124000ad048583"
+    },
+    {
+      "path": "clamp.png",
+      "sha256": "5ba5471f2b43198eb6e9e1a953f7d1ef737966380ef14e4a468a163f985b20a8"
+    },
+    {
+      "path": "export.log",
+      "sha256": "c527e89133341216889ec7664e40d108391d41758efda0a51b8e2cf0e0da3da4"
+    },
+    {
+      "path": "fp-lib-table",
+      "sha256": "95dfaddd198ef18b6624a464713889dc8aee82f08fd9e0215fc660f5979948cf"
+    },
+    {
+      "path": "handbacks/bulk/handback.md",
+      "sha256": "838f8ed6d4425fcd92437a3fd407b7fab859b7e16607810d7a6e8408020dcd51"
+    },
+    {
+      "path": "handbacks/bulk/raw-mcp.json",
+      "sha256": "d5351bd902a7cb09757a43929e05d4d532e3fd5a7382b3a80e86d40c42391d89"
+    },
+    {
+      "path": "handbacks/bypass/handback.md",
+      "sha256": "d92673341c644a0a9562edf50516316a0e5f9cf42d497962ba7907eaf79a9f69"
+    },
+    {
+      "path": "handbacks/bypass/pcbparts-raw.md",
+      "sha256": "911399f2023fa26f556e8d1b96c004d88868a70734ac2a2b246495ca44393518"
+    },
+    {
+      "path": "handbacks/gate-refine/handback.md",
+      "sha256": "a2f7220d08a6688cbd07ee71dccc6fd534f7f54af49e539feef991c0f2a0a084"
+    },
+    {
+      "path": "handbacks/timing/handback.md",
+      "sha256": "0b4566c0f143b3c8088da109716654128b528558e12a1c3b2413c574961d7928"
+    },
+    {
+      "path": "handbacks/timing/pcbparts-results.json",
+      "sha256": "b331364123236fce2863e4014eae9e618aee96e41d05d0d7f8221368e6010dfc"
+    },
+    {
+      "path": "handbacks/timing/sources.md",
+      "sha256": "3ae65b6471b96e11e32557832351f73afd5cca5e854e1a05fe6583a294221558"
+    },
+    {
+      "path": "input-identity.json",
+      "sha256": "750aec8b12beb292a381d6c013bff4dab1756bdc37cb61f7990520e58832544d"
+    },
+    {
+      "path": "native-audit.log",
+      "sha256": "57d061efcf1190d3d57f7c400a88f153799171f669c3a875c6f4822202e1b431"
+    },
+    {
+      "path": "parts-screen.csv",
+      "sha256": "31e50d7e20d52a766123e38cf91ef92168eb0a7a83c5f034d520659e17a3185b"
+    },
+    {
+      "path": "parts-screen.rs",
+      "sha256": "c1f443329cd64fcac18a82f2b8c1a08e3028daf3432e3468bad32abc0ca64ce7"
+    },
+    {
+      "path": "parts-tests.log",
+      "sha256": "6e6e5c54a923d6861dd3e07e2fedf75dfea3deff5746456372a874d86ee33878"
+    },
+    {
+      "path": "pcbparts-selected.json",
+      "sha256": "e51f8beb9573651de77da5468718cf86adb00fc48755eb22fb34b77dab71db2f"
+    },
+    {
+      "path": "preservation-check.json",
+      "sha256": "7598c452a89421c9f1a989d60d35ce73f52d69f4e6283c5c19d707b07b2105ba"
+    },
+    {
+      "path": "receipt.json",
+      "sha256": "87d55ac529bec5c9a0a8fa5fdb262eb8946ff213decdc188915bbfbb2dc9f0bf"
+    },
+    {
+      "path": "renders/clamp.svg",
+      "sha256": "c885d72babef6f83ce2fe22874c73485976040e5c7a8267230e6983176559e81"
+    },
+    {
+      "path": "review-handback.md",
+      "sha256": "96372ff1b53f535372716e2d67b2d09c0dd14227c9f532ab6aa5d4760856a54f"
+    },
+    {
+      "path": "review-resolution.md",
+      "sha256": "74d0d95ba5429a90ea99371836bf08e2f121f3dae272bdc928c455cce11eeec5"
+    },
+    {
+      "path": "source-bindings/buck.diff",
+      "sha256": "77c46927c6e40d44ac37f3cfc0d4d20ee35e52afe9044cd1f0ed9274a3d7880e"
+    },
+    {
+      "path": "source-bindings/driver.diff",
+      "sha256": "e011776dfe3cd6ce9decd3e743d03512434095e09d5a77a0d42079b50eaa15ab"
+    },
+    {
+      "path": "source-bindings/hot15_logic5_supply.ato",
+      "sha256": "84f10cce00d75042dc7d7fcf1b652d2e29d7d74c50a4a7b751ef95a7c52c9fd9"
+    },
+    {
+      "path": "source-bindings/power_entry_f2_shutdown_revb.ato",
+      "sha256": "8d1c40d3017903735965359bcbda2b2e0043ab1e4f5972adeea78ab52829c0f4"
+    },
+    {
+      "path": "sources/kemet-r75h-page12.png",
+      "sha256": "7e514467c06d934efdc959a05a65ec51434e845e63c59377f1e0a027cf0667b0"
+    },
+    {
+      "path": "sources/kemet-r75h-page5.png",
+      "sha256": "508f7648e111405621493453979481d175efe0c732a4259d3201aae748f2dfa4"
+    },
+    {
+      "path": "sources/kemet-r75h.pdf",
+      "sha256": "b27e101d8c4d022b0637d62eb967dfc038976290a9fcd63cf93974ffd62be008"
+    },
+    {
+      "path": "sources/kemet-r82-rejected.pdf",
+      "sha256": "97a54bde6e188f7ccfd17701e47376180f91b4170cd7580cfc9752fcabecd12b"
+    },
+    {
+      "path": "sources/rubycon-zlj-page1.png",
+      "sha256": "112c9da11df1d7be61684ca57ce4bc39b9ecb365080f4769565b1254ea3974eb"
+    },
+    {
+      "path": "sources/rubycon-zlj-page2.png",
+      "sha256": "a80624cc5ba234eb3fe9a08d2241cc69c982306a0e7e4725a3b0badb5966c745"
+    },
+    {
+      "path": "sources/rubycon-zlj-page3.png",
+      "sha256": "f017155ac15c961b1f48c55e722049efb5babf57c5ecd3e3670cf72ac79abd7c"
+    },
+    {
+      "path": "sources/rubycon-zlj.pdf",
+      "sha256": "05f8a580b5a700adb8b93a0a4f4b98d5bd144548819fc0d52788ae8f9df2adf8"
+    },
+    {
+      "path": "sym-lib-table",
+      "sha256": "f13564df36c1725b8a8d14977f716ed674624c264678102d3be113cd3db4a836"
+    }
+  ]
+}

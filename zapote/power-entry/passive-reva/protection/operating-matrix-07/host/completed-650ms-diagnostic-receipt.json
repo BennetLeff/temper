@@ -1,0 +1,64 @@
+{
+  "status": "COMPLETE_DIAGNOSTIC_ONLY",
+  "accepted": false,
+  "scope": "650 ms native-switch full cold trace; duplicate-continuing diagnostic only",
+  "run_directory": "../numerical-repair/nonstopping-first-invalid/run",
+  "command_receipt": "../numerical-repair/nonstopping-first-invalid/run/execution.json",
+  "simulator": {
+    "ngspice_version": "45.2 shared",
+    "host_binary": "/private/tmp/matrix07-nonstopping-host-reviewed",
+    "host_binary_sha256": "0725c08fc6c234ea9594f3bb597cefda30d17aacb8449572c13163e1902f5c84",
+    "compressor": "/opt/homebrew/bin/pigz -p4 -c",
+    "compressor_sha256": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"
+  },
+  "trace": {
+    "path": "../numerical-repair/nonstopping-first-invalid/run/trace.tsv.gz",
+    "bytes": 5356097124,
+    "sha256": "90e1f2c013e965a99d10053b074127bbddf2c73d5b1403e9e872e3de6933a3b5",
+    "columns": 31,
+    "finite_rows": 30108912,
+    "endpoint_s": 0.650000000000000022,
+    "backwards_count": 0,
+    "equal_timestamp_groups": 45,
+    "equal_group_rows": 111,
+    "equal_repeats": 66,
+    "max_equal_group_rows": 3,
+    "min_positive_dt_s": 5.20417042793042128e-18,
+    "max_positive_dt_s": 5.00000000014377832e-7
+  },
+  "strict_result": {
+    "status": "REJECTED",
+    "checker_report": "../numerical-repair/nonstopping-first-invalid/run/checker-report.txt",
+    "checker_report_sha256": "2079afac9eb0f39337ca5103621c4c37a6afe49fcf365d21eb41adf6277e3305",
+    "first_failure": "line 22757958: time not strictly increasing"
+  },
+  "diagnostic_result": {
+    "event_audit": "../numerical-repair/nonstopping-first-invalid/run/event-audit.txt",
+    "event_audit_sha256": "19d3bfcfe391bbdd678240297d02e9678802d134f627856601f839b927fa406b",
+    "cycle_diagnostic": "../numerical-repair/nonstopping-first-invalid/run/cycle-diagnostic.txt",
+    "cycle_diagnostic_sha256": "04d4b917a7b7ae62d026b9c6cfd86a1e91ba0f9dca8cc82f88e03ee6f87d5f8e",
+    "cycle_mean_range_over_first_mean": 0.002730860843038937589,
+    "qualification": "No normal-operation or stress qualification is claimed."
+  },
+  "source_closure": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "progress.rs": "7e3d5bfd33c27f0b0c3eacc8eb8ce5d896dc92d706878af8c788984a547c543c"
+  },
+  "retained_artifacts": {
+    "stop": "../numerical-repair/nonstopping-first-invalid/run/stop.txt",
+    "stop_sha256": "35edf06b290ddef142aee34c337b5a6071cabc56e762befb914fc473e7503e6c",
+    "inspection": "../numerical-repair/nonstopping-first-invalid/run/inspection.txt",
+    "inspection_sha256": "4f04692eb40d1049df530c772407c76109ef35d5e92960066161d2a3034e5b65",
+    "trace_sha256_file": "../numerical-repair/nonstopping-first-invalid/run/trace.sha256",
+    "trace_sha256_file_sha256": "274a0b6cdf2ba8778f9904858a29733336f59dfac48383ae11b0be637dc36d9c"
+  },
+  "storage_observation_utc": "2026-09-21T01:11:43Z",
+  "storage_available_kib": 33828192,
+  "storage_available_gib": 32.26,
+  "matrix_tree_du_gib_approx": 21.0
+}

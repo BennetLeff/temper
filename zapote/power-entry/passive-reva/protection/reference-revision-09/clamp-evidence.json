@@ -1,0 +1,130 @@
+{
+  "status": "SOURCE_CORRECTION_AND_ISOLATED_CANDIDATE_ONLY",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "canonical_source": {
+    "component_count": 54,
+    "feedback": "VB",
+    "clamp_mpn": "BAT54H,115",
+    "package": "Diode_SMD:D_SOD-123F",
+    "pinout": {
+      "pin_1": "K",
+      "pin_2": "A"
+    },
+    "connections": {
+      "pin_2_A": "shunt.p2",
+      "pin_1_K": "control_gnd",
+      "location": "before the 220 ohm ISENSE resistor"
+    },
+    "source_sha256": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8"
+  },
+  "historical_experiment": {
+    "name": "source-build-07",
+    "component_count": 133,
+    "status": "REJECTED",
+    "reason": "not the restored source and not evidence for the retained candidate"
+  },
+  "revision_08": {
+    "feedback_delta": "VB -> VD",
+    "clamp_model": "BAV23C_ASSUMED_V2",
+    "clamp_status": "assumed model; does not represent physical BAT54H",
+    "candidate_clamp_inc_sha256": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde"
+  },
+  "ti_requirements": {
+    "pcl_v_min": -0.345,
+    "pcl_v_typ": -0.4,
+    "pcl_v_max": -0.438,
+    "isense_functional_window_v": [
+      -1.1,
+      0.0
+    ],
+    "external_diode_vf_magnitude_window_v": [
+      0.438,
+      1.1
+    ],
+    "electrical_temperature_range_c": [
+      -40,
+      125
+    ],
+    "series_resistor_ohm": 220,
+    "pin_abs_voltage_v": [
+      -24,
+      7
+    ],
+    "pin_abs_current_a": [
+      -0.001,
+      0.001
+    ],
+    "source": "UCC28180 Rev D, section 8.3.14 and pages 5-6, 18, 27"
+  },
+  "polarity_correction": {
+    "canonical_negative_excursion": "A=shunt.p2, K=control_gnd is reverse biased",
+    "required_post_220_topology": "A=control_gnd, K=pfc.ISENSE",
+    "bat54h_pin_mapping": {
+      "pin_2_A": "control_gnd",
+      "pin_1_K": "pfc.ISENSE"
+    },
+    "filter": "1 nF from pfc.ISENSE to control_gnd"
+  },
+  "vendor_data": {
+    "bat54h": {
+      "manufacturer": "Nexperia",
+      "part": "BAT54H,115",
+      "package": "SOD123F",
+      "vf_max_v_at_10ma_25c": 0.4,
+      "operating_range_c": null,
+      "low_current_temperature_lot_envelope": "MISSING",
+      "qualification_conclusion": "corrected polarity is topology-valid but cannot establish non-loading of the -0.438 V PCL",
+      "vf_max_v_at_0_1ma_25c": 0.24,
+      "vf_max_v_at_1ma_25c": 0.32,
+      "vf_conditions": "Tamb25C; pulse<=300us; duty<=.02; Nexperia Table7"
+    },
+    "bav23c": {
+      "manufacturer": "Vishay",
+      "part": "BAV23C-E3-08",
+      "package": "SOT-23, common cathode",
+      "vf_max_v_at_100ma_25c": 1.0,
+      "vf_max_v_at_200ma_25c": 1.25,
+      "operating_range_c": [
+        -55,
+        150
+      ],
+      "low_current_temperature_lot_envelope": "MISSING",
+      "qualification_conclusion": "typical curve cannot guarantee the 0.438-1.1 V window across temperature and variation"
+    }
+  },
+  "existing_isolated_candidate": {
+    "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp",
+    "source_sha256": "4d63a25896e3bd3ed9cb242c2d074a225de71acdb3351bfcbae24b2f73c6fdbb",
+    "graph_sha256": "8b7f452b8a92f410140dfb75476115455f894aba550ea5541976a325cfa6da55",
+    "pin_graph": {
+      "pin_1": "control_gnd / A",
+      "pin_3": "pfc.ISENSE / K",
+      "pin_2": "a_unused / explicit NC"
+    },
+    "reuse": true,
+    "scope": "polarity, PCL loading, temperature sensitivity, and resistor-current model screens only"
+  },
+  "f2": {
+    "role": "proposed fuse/open-fault element",
+    "is_actuator": false
+  },
+  "remaining_data": [
+    "production VF(min)/VF(max) versus clamp current, temperature, and lot for the selected diode",
+    "reverse leakage, capacitance, recovery, and pulse/SOA in the assembled topology",
+    "bounded shunt transient and resistor/diode pulse energy",
+    "silicon-anchored controller-side PCL loading and transient input behavior",
+    "assembled temperature/pulse characterization if the vendor envelope is unavailable"
+  ],
+  "can_advance": {
+    "isolated_model_test": true,
+    "source_faithful_converter_claim": false,
+    "hardware_qualification": false
+  },
+  "sources": {
+    "ti_ucc28180": "https://www.ti.com/lit/ds/symlink/ucc28180.pdf",
+    "nexperia_bat54h": "https://assets.nexperia.com/documents/data-sheet/BAT54H.pdf",
+    "nexperia_product": "https://www.nexperia.com/product/BAT54H",
+    "vishay_bav23c": "https://www.vishay.com/docs/86374/bav23c.pdf",
+    "ti_e2e": "https://e2e.ti.com/support/power-management-group/power-management/f/power-management-forum/877587/ucc28180-isense-pin-diode-requirement"
+  }
+}

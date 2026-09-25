@@ -1,0 +1,38 @@
+{
+  "status": "READ_ONLY_DIAGNOSIS",
+  "subject": "faults/startup-klu-candidate-17/case.cir",
+  "simulator": "ngspice-45.2",
+  "pwl_source": {
+    "name": "Vschedule",
+    "point_count": 960002,
+    "interval_count": 960001,
+    "start_s": 0.064999975,
+    "end_s": 0.089,
+    "step_s": 2.5e-8,
+    "resistor_ohms": 1000000000.0
+  },
+  "exact_source_files": {
+    "vsrcload.c": {
+      "path": "/private/tmp/ngspice-45.2-src/src/spicelib/devices/vsrc/vsrcload.c",
+      "sha256": "6f4baccc6bd523a8ac979593b762e90900787840bd7611cb19fdd81671828ff7",
+      "lines": "318-362"
+    },
+    "vsrcacct.c": {
+      "path": "/private/tmp/ngspice-45.2-src/src/spicelib/devices/vsrc/vsrcacct.c",
+      "sha256": "36927a98f13fcff1678ca4531c4f55305b72e61f7a702b1600bd444da7516a7c",
+      "lines": "48-145,170-218"
+    },
+    "vsrcpar.c": {
+      "path": "/private/tmp/ngspice-45.2-src/src/spicelib/devices/vsrc/vsrcpar.c",
+      "sha256": "107953459a693221e86cb69db206a3b1369647fc0b2b48918300611aeb361959",
+      "lines": "103-159"
+    }
+  },
+  "retained_excerpt": {
+    "path": "ngspice-45.2-vsrc-excerpt.txt",
+    "sha256": "e9c2ef99e06c47494085a91881150d22ae26d5cb4a2338634ac1decf884fc508"
+  },
+  "finding": "ngspice-45.2 linearly scans the finite PWL array in source loading and breakpoint scheduling; the observed slowdown is consistent with this O(N) cost but is not proven to be the only cost",
+  "candidate": "PWL(0 0 25n 1 50n 0) r=0 td=64.999975m",
+  "execution": "none; live run not interrupted and no deck was modified"
+}

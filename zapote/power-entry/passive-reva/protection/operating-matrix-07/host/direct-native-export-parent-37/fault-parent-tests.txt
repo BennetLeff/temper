@@ -1,0 +1,15 @@
+
+running 10 tests
+test native_export::tests::schemas_have_expected_width_and_units ... ok
+test native_export::tests::header_is_canonical_and_bounded ... ok
+test native_export::tests::type_and_pointer_checks_are_explicit ... ok
+test native_export::tests::vector_info_abi_matches_external_oracle ... ok
+test tests::backward_time_is_counted_for_main_loop_stop ... ok
+test tests::detects_first_nonincreasing_sample ... ok
+test tests::maps_only_declared_diagnostics ... ok
+test tests::callback_captures_named_values_only_on_first_bad_time ... ok
+test tests::selects_fault_save_and_rejects_ambiguous_inventory ... ok
+test native_export::tests::existing_regular_output_is_refused_without_truncation ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

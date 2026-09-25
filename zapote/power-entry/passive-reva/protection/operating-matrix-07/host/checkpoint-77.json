@@ -1,0 +1,32 @@
+{
+  "at_utc": "2026-09-21T23:50:09.808053+00:00",
+  "status": "SW_SHORT_RUNNING_FOLLOWING_PACKETS_REVIEWED_MAGNETIC_MODEL_LIMIT_EXPLICIT",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: own SW postcapture69/legacy prepared, frozen observability applicability reviewed",
+  "this_goal_turn": "progress: exact selected inductor vendor PDF/model retrieved and reviewed, no nonlinear saturation coverage found; parent corrected and verified later postcapture packets74/75/76",
+  "live_session": 76829,
+  "runner_pid": 28932,
+  "monitor_pid": 28933,
+  "host_pid": 29166,
+  "latest_progress": "1951.168541\t5.91184060190307670e-1\t89.302728\t2.931100513307e-4\t27203330\ttrue\t49\t0\tfalse",
+  "free_bytes": 48186003456,
+  "new_fault_acceptance": false,
+  "artifacts_sha256": {
+    "host/inductor-model-inventory-72.json": "6af14a0bc903f1a2c9c1f38d717e6c429b4d0500712e017ad390f88a114eabf8",
+    "host/inductor-manufacturer-audit-72/parent-review.json": "5f8741e2289b7e5a3e4c4ec47caecd09047e3b6ee7d1fe1d07cfb4a32d2e9f44",
+    "host/inductor-manufacturer-audit-72/parent-disposition.md": "2afa39331f67fc2129ed9642e7cfd80a1fb04a45098f4841e8748969acb8f0a0",
+    "host/inductor-manufacturer-audit-72/host-retrieval-73/acquisition.json": "462da06a58e0660074b80041c3dbb239eadcc1e417b373fd9d14b810c1d67782",
+    "host/inductor-manufacturer-audit-72/vendor-model-parent-review-73.json": "5df042c490a425505e905e958f64f4c346d471a5e60661d1a5399e620dc77ce9",
+    "host/inductor-manufacturer-audit-72/vendor-model-parent-review-73.md": "86baf5c84bb7a4457a3ad7894a8c2980d536c0bafcfa6726f7ac21cde9389b83",
+    "host/model-gap-closeout-12.md": "8261430d45db1db9861b02eaf5d37a75dd14065ed1a7fc0ee9f191c34602fa63",
+    "host/campaign-evidence-register-28.md": "e4eed4fba165eae343855c73981f59c51568b7300c3eef3d1edbb21bddbc13c4",
+    "host/simulation-to-prototype-decisions.md": "4554024fd34262a7eb6feb4c3c3377508eab34ea5ec6cd558090179234849fe4",
+    "faults/terminal-branch-gate-55.md": "b37b8d7154bb50a88d6e2f450f3e8a8d126f89166cfe4f28afff9169e71f4227",
+    "faults/settled-diode-postcapture-74/parent-review.json": "9bbfc2c5a769ad2fc4ef5e770e6f93cc70d2dca1a536d0bb7d9eea661016447a",
+    "faults/settled-both-postcapture-75/parent-review.json": "e71a597d3ea754204a4adf0aa74617ed556537d9053afbb7ee67f92cd178950a",
+    "faults/settled-bypass-postcapture-76/parent-review.json": "08b4d08477721a59f17e12602cba925475a9360db4cff3bc673874b58c20f89d"
+  },
+  "active_children": "none; completed Luna workers interrupted",
+  "blocked_turn_count": 0,
+  "next": "Same live76829, complete SW capture then reviewed69 diagnostics/legacy, parent review and source-bound fault disposition. If initial stage2 fails but stage1 complete, frozen recovery40 fresh output. Then DIODE64/74, BOTH65/75, BYPASS66/76 sequentially. Preserve all raw and frozen evidence."
+}

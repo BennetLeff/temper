@@ -1,0 +1,14 @@
+{
+  "source": "first-invalid-capture",
+  "electrical_inputs_equal_normal_tracked": true,
+  "only_deck_change": "expanded .save",
+  "sha256": {
+    "cold.cir": "1a47c772e20c4584bbfe38df7e93fad612e45dcd303b95347e4d64d41e57277b",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "protection.inc": "b57b854883ee992dad036fd49c5a249b457e200873a3408652186de59122ea1c",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "progress.rs": "043ba98e52b0c91e4902fe83510098902d565bdff67815eddd1c36bb49f7381d"
+  },
+  "binary_sha256": "654aa91c47c0307590804021af46445e48753a62be89a8f272a71bf40c92f5e5"
+}

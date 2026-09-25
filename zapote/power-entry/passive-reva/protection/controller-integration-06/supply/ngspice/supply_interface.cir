@@ -1,0 +1,63 @@
+* A5 supply screening surrogate -- not a vendor transient model.
+* The TPS54202 is powered from AUX15 (regulated 15 V), never the raw IRM
+* output.  This deck deliberately exercises 24 V normal, 32.4 V OVP-trigger,
+* 35 V raw-contract maximum, collapse/recovery, a 15 V dropout negative case,
+* cold startup, and a 75 mA LOGIC5 load step.
+*
+* Outputs are vectors written by ngspice itself to supply_interface.tsv.  The
+* Rust trace checker consumes the actual wrdata column names; no values or
+* headers are manufactured by a wrapper.
+
+.title A5 IRM-10-24 TPS7A4701 TPS54202 rail screen
+.param AUX_LOAD=0.075
+.param LOGIC_LOAD_LOW=0.025
+.param LOGIC_LOAD_HIGH=0.075
+.param D15=0.30
+
+* Source contract waveform: 24 V normal; OVP trigger and assumed input edge;
+* collapse/recovery; 15 V deliberately below the LDO headroom contract.
+VRAW raw 0 PWL(0 0 1m 24 3m 24 5m 32.4 7m 32.4 9m 35 11m 35 13m 0 15m 0 17m 24 19m 24 21m 15 23m 15 25m 24 30m 24)
+Rsource raw raw_i 0.10
+
+* Reduced-order LDO: 15 V is available only once raw input has positive
+* headroom.  The 15 V raw segment is explicitly marked non-RUN below so this
+* deck cannot turn a dropout negative control into a passing rail.
+B15 aux15_pre 0 V={ (V(raw_i)>15.3) ? ((V(raw_i)-D15<15) ? (V(raw_i)-D15) : 15) : 0 }
+R15series aux15_pre aux15 0.05
+C15 aux15 0 47u
+R15load aux15 0 {15/AUX_LOAD}
+
+* Reduced-order buck with VIN=aux15.  Its output is disabled when the
+* regulated input disappears; no raw 24/32.4/35 V path exists in this model.
+B5 logic5_pre 0 V={ (V(aux15)>13.8) ? 5 : 0 }
+R5series logic5_pre logic5 1.0
+C5 logic5 0 22u
+I5 logic5 0 PWL(0 {LOGIC_LOAD_LOW} 24m {LOGIC_LOAD_LOW} 24.001m {LOGIC_LOAD_HIGH} 30m {LOGIC_LOAD_HIGH})
+* Mirror the declared load in mA as a generated trace vector.  This avoids
+* relying on a simulator-specific current-branch accessor.
+BLOAD load_ma 0 V={ (time<24m) ? 1000*LOGIC_LOAD_LOW : 1000*LOGIC_LOAD_HIGH }
+
+* RUN is a declared contract state, not a claim that this surrogate qualifies
+* the physical supervisor.  A 15 V source segment and all collapse samples
+* are explicitly non-RUN.
+BRun run_declared 0 V={ (V(raw_i)>15.3 && V(aux15)>14.25 && V(aux15)<15.75 && V(logic5)>4.75 && V(logic5)<5.25) ? 1 : 0 }
+
+.control
+  set filetype=ascii
+  set wr_singlescale
+  set wr_vecnames
+  set numdgt=17
+  tran 10u 30m
+  * Required measurements are available in the log for quick screening.
+  meas tran aux15_24 FIND v(aux15) AT=2m
+  meas tran aux15_32p4 FIND v(aux15) AT=6m
+  meas tran aux15_35 FIND v(aux15) AT=10m
+  meas tran aux15_collapse FIND v(aux15) AT=14m
+  meas tran aux15_dropout FIND v(aux15) AT=22m
+  meas tran aux15_recover FIND v(aux15) AT=27m
+  meas tran logic5_step FIND v(logic5) AT=26m
+  meas tran run_dropout FIND v(run_declared) AT=22m
+  wrdata supply_interface.tsv v(raw) v(aux15) v(logic5) v(load_ma) v(run_declared)
+  quit
+.endc
+.end

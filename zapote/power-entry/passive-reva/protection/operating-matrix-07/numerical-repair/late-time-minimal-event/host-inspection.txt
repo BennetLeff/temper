@@ -1,0 +1,6 @@
+native-comphys-late.tsv
+  rows=1071 first=5.00000000000000041e-6 last=5.01557999999999948e-1 late_rows=51
+  min_dt=3.00056646196367183e-11 max_dt=5.00000000000000444e-4 equal_pairs=0 negative_steps=0 equal_then_positive=false
+native-sw-late.tsv
+  rows=1057 first=5.00000000000000041e-6 last=5.01557999999999948e-1 late_rows=44
+  min_dt=8.79200046099981591e-11 max_dt=5.00000000000000444e-4 equal_pairs=0 negative_steps=0 equal_then_positive=false

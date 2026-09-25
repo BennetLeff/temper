@@ -1,0 +1,18 @@
+quantity,value,unit,interpretation
+clamp_min,15.941088530,V,conditional screen only
+clamp_max,16.760572738,V,conditional screen only
+normal_high_margin,0.191088530,V,conditional screen only
+dynamic_headroom,1.239427262,V,conditional screen only
+current_min,0.202520252,A,conditional screen only
+current_max,0.266299357,A,conditional screen only
+foldback_min,0.067506751,A,conditional screen only
+foldback_max,0.165289256,A,conditional screen only
+normal_sense_drop,0.025609719,V,conditional screen only
+ramp_current_screen,0.015366430,A,conditional screen only
+startup_current_screen,0.130621690,A,conditional screen only
+remaining_current_screen,0.071898562,A,conditional screen only
+fault_full_rectangle_power,9.320477502,W,conditional screen only
+ov_regulation_power_upper_screen,5.075375874,W,conditional screen only
+charge_after_max_static_at_35uF,0.000043380,C,conditional screen only
+ov_timer_at_10Vds_typ,0.011354167,s,conditional screen only
+oc_timer_at_10Vds_typ,0.002500000,s,conditional screen only

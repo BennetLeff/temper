@@ -1,0 +1,134 @@
+{
+  "status": "ACCEPTED_EXACT_MODELED_FAULT_CASE_NORMAL_PREFIX",
+  "accepted": true,
+  "utc": "2026-09-21T23:17:13.523368+00:00",
+  "scope": "Own F2ZERO51 cold-start/normal prefix only. Event-aware-normal-v1, no fault/hardware/thermal acceptance.",
+  "raw": {
+    "path": "faults/settled-direct-capture-51/full-F2-ZERO/raw.trace.raw.gz",
+    "sha256": "7deb639fb05f7f63d2444e2d163aee4eb06b45349bc9cee120b9e112407b1bec",
+    "bytes": 5928407777,
+    "full_rows": 36625031,
+    "fields": 42
+  },
+  "selected_rows": 30387314,
+  "last_selected_s": 0.6499999983055141,
+  "requested_cutoff_s": 0.65,
+  "selection": "All original samples through actual last sample at or before650ms; no interpolation or deduplication.",
+  "source_sha256": {
+    "faults/settled-direct-capture-51/full-F2-ZERO/case.cir": "b704ebd646dce1da7cf03518478ac1956e3a0bffbae804bd28ff383f4a6fb6c1",
+    "faults/settled-direct-capture-51/full-F2-ZERO/manifest.json": "c569392b818e638c59b4787353803c094ae552cbd1409b08e184da6eacf8c3a6",
+    "faults/settled-direct-capture-51/full-F2-ZERO/source-identity.json": "d8605976d9d6ad098c070f02af65fc2883453c762c837ad6ca5f17f5a85cf420",
+    "faults/settled-direct-capture-51/full-F2-ZERO/run-parameters.json": "ee498bca6a982cdb5566eefc4e158f641fd5ef9bf09a558134095d81c83537b7",
+    "faults/settled-direct-capture-51/full-F2-ZERO/cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "faults/settled-direct-capture-51/full-F2-ZERO/protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "faults/settled-direct-capture-51/full-F2-ZERO/standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "faults/settled-direct-capture-51/full-F2-ZERO/clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "faults/settled-direct-capture-51/full-F2-ZERO/ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "faults/settled-direct-capture-51/full-F2-ZERO/authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "metrics": {
+    "vrms": 120.0,
+    "irms": 7.319917,
+    "real_input_power_w": 868.421306,
+    "pf": 0.988651,
+    "load_power_w": 773.464306,
+    "vb_mean_v": 383.380033,
+    "vb_min_v": 381.306416,
+    "vb_max_v": 385.371115,
+    "vd_v": 385.481126,
+    "vb_v": 385.371115,
+    "vds_v": 386.7781,
+    "vgs_abs_v": 14.982193,
+    "il_a": 30.653818,
+    "armed_fraction": 1.0,
+    "on_fraction": 1.0,
+    "three_state_energy_change_j": 1.3419957411442358,
+    "energy_residual_pin_pout_de_w": 68.11708477193176,
+    "cycle_means_v": [
+      382.8518777674912,
+      383.3994059697499,
+      383.88881545183125
+    ],
+    "cycle_drift_exact": 0.0027084565717339537
+  },
+  "screen_margins": {
+    "mains_lower_v": 12.001000000000005,
+    "mains_upper_v": 12.001000000000005,
+    "input_rms_a": 7.680083,
+    "bus_lower_v": 11.172166000000004,
+    "bus_upper_v": 23.724635000000035,
+    "cycle_drift": 0.0022915434282660464,
+    "VD_peak_v": 114.51887399999998,
+    "VB_peak_v": 64.62888500000003,
+    "VDS_peak_v": 263.2219,
+    "VGS_peak_v": 10.017807,
+    "energy_residual_w": 72.45919130193175
+  },
+  "event_effect_review": "All-choice duplicate group integral bounds in completed audit; E3sumabs/.05 is much less than positive residual margin. No logic/boundary ambiguity. Not a bound on total simulation or component-model error.",
+  "parent_corrections": [
+    "Worker divided cycle range by average; frozen metrics.rs:274 divides by absolute first cycle mean. Correct drift recomputed here.",
+    "Worker VB explanation checked only mean; parent checks actual settled VBmin and VBmax against voltage interval.",
+    "Electrical worker said local-crest pending; this case is zero crossing and parent-phase-acceptance.json covers it."
+  ],
+  "legacy": {
+    "status": "EXPECTED_STRICT_REJECTION",
+    "accepted": false,
+    "classification_reason": "REPEATED_TIMESTAMP",
+    "raw_before_sha256": "7deb639fb05f7f63d2444e2d163aee4eb06b45349bc9cee120b9e112407b1bec",
+    "raw_after_sha256": "7deb639fb05f7f63d2444e2d163aee4eb06b45349bc9cee120b9e112407b1bec",
+    "pipeline_status_order": [
+      "pigz",
+      "decoder",
+      "selector",
+      "normalizer",
+      "checker"
+    ],
+    "pipeline_statuses": [
+      141,
+      1,
+      1,
+      1,
+      1
+    ],
+    "checker_stderr": "checker.stderr",
+    "prefix_end_s": "0.649999998305514137",
+    "runner_exit": 1,
+    "transport_failures_are_not_acceptance": true
+  },
+  "evidence_sha256": {
+    "faults/settled-postcapture-58/full-F2-ZERO/normal-parent-review-67.json": "6ca88383781c18d8147b84fb0d5400c34c3b9a2f93317b12b1d205f703f13d05",
+    "faults/settled-postcapture-58/full-F2-ZERO/analysis-receipt.json": "d749df691f54a9d43e92f47baafb3af38221baac96b0c0ad2d2d3d09b343ebec",
+    "faults/settled-postcapture-58/full-F2-ZERO/normal15-audit.txt": "31de8f883232c6d552d945c9f70f10d9e7de77f1ff18b4e6921d09298d4f523e",
+    "faults/settled-postcapture-58/full-F2-ZERO/normal15-events.tsv": "7ce3741367ece9121646e4bf48ea323c0659ead3e87667b2195764c852f8db27",
+    "faults/settled-postcapture-58/full-F2-ZERO/normal-metrics.txt": "e6614c38b29f557fa2066a647d738f17a735414acb08d015371c7ad71c83f481",
+    "faults/settled-postcapture-58/full-F2-ZERO/prefault-scan.json": "2614e04d2f1fe7c42cf897382d6b8c78391a5c84232921c3e23ec6cc9df21fea",
+    "faults/settled-postcapture-58/full-F2-ZERO/legacy-strict/receipt.json": "2497bc4ead7a764acec107979b153aa3d9032c8ffb96d45a96cbf13b905edc7b",
+    "faults/settled-postcapture-58/full-F2-ZERO/legacy-strict/checker.stderr": "5a97157c212f752de04187df6fe9bbb89b34639ffcacf1af35203354d1ff6dd6",
+    "faults/settled-postcapture-58/full-F2-ZERO/legacy-strict/pipeline.exit": "175bdbc71706c903e524dd6d875c3ab6ac16c186bae6a09d895464d0e9d9e9f2"
+  },
+  "pipeline_exits": {
+    "scan": [
+      0,
+      0,
+      0
+    ],
+    "audit": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "metrics": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "phase": [
+      0,
+      0,
+      0
+    ]
+  }
+}

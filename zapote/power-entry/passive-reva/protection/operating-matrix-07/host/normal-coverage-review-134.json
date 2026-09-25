@@ -1,0 +1,176 @@
+{
+  "status": "NORMAL_COVERAGE_REVIEW_COMPLETE",
+  "policy_version": "event-aware-normal-v1",
+  "parent_final_acceptance_owner": true,
+  "objective_complete": false,
+  "identity_matrix": {
+    "required_shape": "108/120/132 Vrms x 3 declared resistive loads",
+    "required_case_count": 9,
+    "observed_case_count": 9,
+    "cases": [
+      {
+        "case": "LL01",
+        "line_v_rms": 108,
+        "rload_ohm": 416.460488957,
+        "load_power_w": 359.070534,
+        "input_power_w": 405.389658,
+        "irms_a": 3.869202,
+        "cycle_drift_fraction": 0.0014985231183201424,
+        "acceptance": "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json",
+        "acceptance_sha256": "a4e09215acac4b80920257ceebfa96e4a9f7f618732cd24c778cca34f24105c7"
+      },
+      {
+        "case": "LL02",
+        "line_v_rms": 108,
+        "rload_ohm": 208.230244479,
+        "load_power_w": 705.399729,
+        "input_power_w": 802.223598,
+        "irms_a": 7.509729,
+        "cycle_drift_fraction": 0.002726077553707517,
+        "acceptance": "line-load-native-runner-12/full-LL02-initialized/LL02/acceptance.json",
+        "acceptance_sha256": "542318b9fa0a061fa05af1616844320441f1ba59ac4a70275b14266c69c82eb2"
+      },
+      {
+        "case": "LL03",
+        "line_v_rms": 108,
+        "rload_ohm": 115.683469155,
+        "load_power_w": 1242.516057,
+        "input_power_w": 1438.88004,
+        "irms_a": 13.412054,
+        "cycle_drift_fraction": 0.004155816804530984,
+        "acceptance": "line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json",
+        "acceptance_sha256": "224ac1a30d64b05b9b06d3319bb2a6dfaa3ce45330277fb97f8f50e82385041d"
+      },
+      {
+        "case": "LL04",
+        "line_v_rms": 120,
+        "rload_ohm": 374.814440062,
+        "load_power_w": 398.199053,
+        "input_power_w": 445.943798,
+        "irms_a": 3.843647,
+        "cycle_drift_fraction": 0.0016527920840997289,
+        "acceptance": "line-load-native-runner-12/full-LL04-initialized/LL04/acceptance.json",
+        "acceptance_sha256": "f4a6ba5435add8b2946712b957d6f222cbc0384e28ccdd32980863249acdddfc"
+      },
+      {
+        "case": "LL05",
+        "line_v_rms": 120,
+        "rload_ohm": 187.407220031,
+        "load_power_w": 783.847484,
+        "input_power_w": 880.53998,
+        "irms_a": 7.420222,
+        "cycle_drift_fraction": 0.0027487461221968558,
+        "acceptance": "line-load-native-runner-27/full-LL05-retry/LL05/acceptance.json",
+        "acceptance_sha256": "44859f112de35192015ace76a4c1d0619c4689533eaceea62b8834b04c8f4206"
+      },
+      {
+        "case": "LL06",
+        "line_v_rms": 120,
+        "rload_ohm": 104.115122239,
+        "load_power_w": 1383.936186,
+        "input_power_w": 1574.420283,
+        "irms_a": 13.198676,
+        "cycle_drift_fraction": 0.0038727265958028788,
+        "acceptance": "line-load-native-runner-27/full-LL06/LL06/acceptance.json",
+        "acceptance_sha256": "6eb356547ab348e16353cc9ec86cc3c520835f45ace8b5c8b6f1fddc921221a9"
+      },
+      {
+        "case": "LL07",
+        "line_v_rms": 132,
+        "rload_ohm": 374.814440062,
+        "load_power_w": 398.384114,
+        "input_power_w": 442.290077,
+        "irms_a": 3.505044,
+        "cycle_drift_fraction": 0.001562650118357812,
+        "acceptance": "line-load-native-runner-27/full-LL07/LL07/acceptance.json",
+        "acceptance_sha256": "b87c23441b4e55a5e46ec4ec19bfba3bd8fa02a456a9bbdb4aed0c41a0cc7b69"
+      },
+      {
+        "case": "LL08",
+        "line_v_rms": 132,
+        "rload_ohm": 187.407220031,
+        "load_power_w": 785.858708,
+        "input_power_w": 872.226383,
+        "irms_a": 6.698508,
+        "cycle_drift_fraction": 0.002508127779727223,
+        "acceptance": "line-load-direct-retry-41/full-LL08/LL08/acceptance.json",
+        "acceptance_sha256": "8c6f8fb701395ecb95cbdfd980fc9a2f94ca1417a456542a18d39e460c3e8fdd"
+      },
+      {
+        "case": "LL09",
+        "line_v_rms": 132,
+        "rload_ohm": 104.115122239,
+        "load_power_w": 1392.349522,
+        "input_power_w": 1559.826045,
+        "irms_a": 11.88983,
+        "cycle_drift_fraction": 0.003550875232966398,
+        "acceptance": "line-load-direct-retry-47/full-LL09/LL09/acceptance.json",
+        "acceptance_sha256": "30ce810b146331f8db0cf0e2c0a1bc22032062d529773039dd62aeeaa5075737"
+      }
+    ],
+    "all_case_statuses": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+    "all_case_policies": "event-aware-normal-v1",
+    "all_have_three_cycle_means": true,
+    "all_screen_counts_zero": true,
+    "all_original_rows_retained": true,
+    "all_strict_statuses": "REJECTED_NONINCREASING_TIME"
+  },
+  "baseline": {
+    "receipt": "accepted-baseline-11/acceptance.json",
+    "receipt_sha256": "18ce2902682b4cedb2880e260c15e731e599df4224dc842a70c85e9cadb6cf22",
+    "status": "ACCEPTED_MODELED_NORMAL_SCREEN_BASELINE",
+    "policy_version": "event-aware-normal-v1",
+    "line_v_rms": 120,
+    "rload_ohm": 190,
+    "all_have_three_cycle_means": true,
+    "strict_status": "REJECTED_NONINCREASING_TIME"
+  },
+  "evidence_receipts": {
+    "parent_checkpoint": {
+      "path": "host/operating-envelope-checkpoint-53.json",
+      "sha256": "b8cf5f50b73b8ae0c0fb9cd7d0bcacaddcd0f9099a450f680d85eafa2a345f5d"
+    },
+    "margins": {
+      "path": "host/normal-screen-margins-89.json",
+      "sha256": "ecead4663829d22fc0b365cc2c7fe285c3b8829760aca8d7cfbcbc5a0d737ea7"
+    },
+    "goal": {
+      "path": "GOAL.md",
+      "sha256": "7f5063df36367cc8bbeccbcd9be76aa46f40d5d66c03fffe0a078c0da8e91263"
+    },
+    "fault_matrix": {
+      "path": "faults/fault-matrix.md",
+      "sha256": "df55bba086af019213f28302cdd6534d964e4b07f54aed5d52b65d1bf27a737b"
+    }
+  },
+  "source_hash_check": {
+    "baseline_and_all_nine_case_sources": "PASS",
+    "mismatches": [],
+    "method": "sha256 of each receipt-declared small .cir/.inc against its acceptance-directory file",
+    "raw_rehash": false
+  },
+  "negative_evidence": [
+    "No required 108/120/132 x three-load normal point is missing or duplicated.",
+    "Legacy strict checker rejects duplicate timestamps in every reviewed receipt; event-aware-v1 retains all rows and evaluates equal-time groups.",
+    "The nine points are discrete source-bound screens; they do not establish interpolation or a continuous operating envelope.",
+    "The 1800 W statement is a mains-input working target; these receipts test resistive modeled load power only and do not qualify a whole 1800 W appliance, inverter, thermal system, or hardware protection behavior."
+  ],
+  "tested_scope": {
+    "resistive_load_power_w_min": 359.070534,
+    "resistive_load_power_w_max": 1392.349522,
+    "input_power_w_min": 405.389658,
+    "input_power_w_max": 1574.420283,
+    "irms_screen_max_a": 15.0,
+    "interpretation": "The 15 A value is a model-screen threshold; it is not a hardware rating or whole-appliance qualification."
+  },
+  "reviewed_at_utc_worker_label": "2026-09-21",
+  "parent_verified_at_utc": "2026-09-22T02:33:06.796008+00:00",
+  "parent_verification": {
+    "case_receipts": 9,
+    "baseline_receipts": 1,
+    "source_files": 60,
+    "hash_mismatches": 0,
+    "scope": "Metadata/source verification of frozenacceptedRustreceipts; no rawreplay ornew numerical oracle.",
+    "goal_hash_note": "GOAL hash identifies source atreviewtime; its checkpointheader remains mutable. Completionrequirements813\u2013835 reviewed separately."
+  }
+}

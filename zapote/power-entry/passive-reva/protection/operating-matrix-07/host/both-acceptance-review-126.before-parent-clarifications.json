@@ -1,0 +1,78 @@
+{
+  "status": "PARENT_RECEIPT_REVIEW_COMPLETE",
+  "case": "BOTH-SHORT",
+  "accepted_protection": false,
+  "scope": "Audit of normal-prefix acceptance75, phase acceptance75, campaign verdict118, coincident diagnostic parent review120, source/deck identity and pinned tools.",
+  "receipt_hashes_measured_now": {
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/normal-prefix-acceptance.json": "d035c11c0a1673aa0c577eda34bc81dffb1b708f71ad435085b719797f06d94c",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/parent-phase-acceptance.json": "034353e4a73312fbdd9f6599453272e3995eb6d9589700b90002275e38fbc615",
+    "faults/settled-both-short-65/full-BOTH-SHORT/campaign-verdict-118.json": "2db4cf5d912d5d232444a50247a6ea3ca1b04b3308dd8c5fac73176b7e9a3ca9",
+    "faults/coincident-stress-observability-99/parent-both-result-review-120.json": "f9a0421329ffc784c990066730eaec29e72822ab240f1cb93e59e7d9247970a3",
+    "faults/settled-both-short-65/full-BOTH-SHORT/result.json": "8d1e992a9303bbc0b3a2161c842456d970b2426fd14c9d723ca2d8d9a948b48d",
+    "faults/settled-both-short-65/full-BOTH-SHORT/validator.stderr": "1cd4b79f169a76fedb640bfa8fefcdde88707b949e70c3f4fb3ae0977939c7f0",
+    "faults/settled-both-short-65/full-BOTH-SHORT/case.cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+    "faults/settled-both-short-65/full-BOTH-SHORT/manifest.json": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b",
+    "faults/settled-both-short-65/full-BOTH-SHORT/source-identity.json": "be38a818489323be8de3396c44a73378d800bb8ed308e32e4389b42cbc9a0dd8"
+  },
+  "raw_receipt_chain": {
+    "sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+    "bytes": 5286116925,
+    "rows": 32036953,
+    "raw_rehashed_now": false,
+    "binding": "preflight.json capture-stage1, analysis-receipt before/after, normal-prefix acceptance75, phase acceptance75, verdict118 and parent120 all agree"
+  },
+  "normal_prefix": {
+    "accepted": true,
+    "endpoint_s": 0.6619999999999999,
+    "cutoff_s": 0.65,
+    "last_selected_time_s": 0.6499999876940904,
+    "cutoff_gap_s": 1.2305909624643618e-08,
+    "max_cutoff_gap_s": 1e-06,
+    "fault_edge_s": 0.6541666661706754,
+    "screen_count": 0,
+    "equal_groups": 47,
+    "repeated_intervals": 64,
+    "backwards": 0,
+    "boundary_groups": 0
+  },
+  "phase": {
+    "accepted": true,
+    "interval_s": [0.65,0.6583333333333],
+    "expected_event_s": 0.6541666666667,
+    "edge_time_s": 0.6541666661706754,
+    "edge_count": 1,
+    "peak_tie_groups": 1,
+    "criterion": "Frozen phase43 outward-rounded all-choice criterion with unchanged 1% crest contract",
+    "sufficient_bound_pass": true,
+    "criterion_error_using_representatives": 1.7585035537258274e-14
+  },
+  "campaign_verdict": {
+    "verdict": "FAIL",
+    "formal_checker_verdict": null,
+    "validator_error": "REJECTED: all-row node screen Lboost: 435.79078242060086 > 100",
+    "precedence": "event-aware-validation-22 all-row node screen precedes fault_checks ProtectionGap",
+    "complete_trace": true,
+    "stage2": "adapter_rc=0 validator_rc=1 decoder_rc=0 decompressor_rc=0"
+  },
+  "coincident_parent120": {
+    "status": "PARENT_VERIFIED_SAMPLED_COINCIDENT_DIAGNOSIS",
+    "accepted_protection": false,
+    "same_raw_binding": true,
+    "endpoint_off_state": {"q":0.0,"en":4.4408920985006214e-15,"gate":8.794387711807868e-08,"i_Lboost_A":435.79078242060086,"i_Vchannel_A":435.63563944632625},
+    "scope": "Sampled rows only; no continuous retention, causality, physical die allocation, protection or hardware qualification"
+  },
+  "topology_verified_from_case": {
+    "diode_short": "Sdiodeshort sw d1_path; one boost leg shorted",
+    "failed_mos_short": "Sswfail sw channel_source; gate-independent failed branch",
+    "f2": "Sf2 vd f2_path with Vf2ctl held at 5 V; F2 remains closed",
+    "meaning": "i(Vchannel) includes the failed parallel branch; gate-off cannot be credited with interrupting that path"
+  },
+  "source_and_tool_pins": {
+    "source_identity_checked_against_small_files": true,
+    "source_identity": "faults/settled-both-short-65/full-BOTH-SHORT/source-identity.json",
+    "tool_pin_manifest": "faults/settled-both-postcapture-75/tools-parent.sha256",
+    "pinned_checker_source": "faults/event-aware-validation-22/audit.rs",
+    "no_new_tools": true
+  },
+  "finding": "No concrete receipt, hash, unit, threshold, endpoint, equal-time, or topology inconsistency was found within the reviewed scope. The narrow verified result is a complete modeled BOTH-SHORT trace with accepted own normal prefix and crest phase, followed by an all-row Lboost screen failure; it is not a physical survival or general protection claim."
+}

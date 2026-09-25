@@ -1,0 +1,7 @@
+scenario,ceramic_max_uF,other_output_max_uF,bulk_factor_min,bulk_factor_max,bulk_nominal_min_uF,bulk_nominal_max_uF,220uF_screen,scope
+rev16_example_initial_only,12.000,12.000,0.800,1.200,150.000000,240.000000,220_FITS_ASSUMED_WINDOW,hypothetical factors; exact MPN and full envelope still required
+rev16_example_separate_20pct_endurance,12.000,12.000,0.640,1.440,187.500000,200.000000,220_DOES_NOT_FIT,hypothetical factors; exact MPN and full envelope still required
+larger_ceramic_example_initial_only,24.000,24.000,0.800,1.200,300.000000,230.000000,NO_VALUE_FITS,hypothetical factors; exact MPN and full envelope still required
+known_12p1_nominal_plus20pct_initial,14.520,14.520,0.800,1.200,181.500000,237.900000,220_FITS_ASSUMED_WINDOW,hypothetical factors; exact MPN and full envelope still required
+known_12p1_plus20pct_and_separate_bulk_endurance,14.520,14.520,0.640,1.440,226.875000,198.250000,NO_VALUE_FITS,hypothetical factors; exact MPN and full envelope still required
+larger_ceramic_example_separate_endurance,24.000,24.000,0.640,1.440,375.000000,191.666667,NO_VALUE_FITS,hypothetical factors; exact MPN and full envelope still required

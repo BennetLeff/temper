@@ -1,0 +1,13 @@
+{
+  "status": "PREPARED_UNLAUNCHED",
+  "base": "../native-runner-29/supervisor.rs",
+  "source_sha256": "b131c153db6a67f3da961bda0b2a5a7c417271f68c0141c7af664059c87219a3",
+  "binary_sha256": "6347467d4178b6656ea868df426e29f3d067b41920da9cbc95e7a9e73b1c0f54",
+  "fixture_sha256": "0c4b16ff24f13fc3de3c32d4f96752b35739c463938800ba1a38a703dd7595cf",
+  "tests": "12 passed, 1 ignored, 0 failed",
+  "outer_global_gap_s": 1e-06,
+  "required_capture_local_gap_s": 2.5e-08,
+  "frozen_inner_checker_gap_s": 2.5e-08,
+  "runtime": "none",
+  "acceptance": false
+}

@@ -1,0 +1,99 @@
+{
+  "status": "PARENT_REVIEW_PENDING",
+  "accepted": false,
+  "case": "BOTH-SHORT",
+  "scope": "Normal prefix and crest phase evidence only; no fault or hardware acceptance",
+  "raw": {
+    "path": "faults/settled-both-short-65/full-BOTH-SHORT/raw.trace.raw.gz",
+    "sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+    "bytes": 5286116925,
+    "full_rows": 32036953,
+    "fields": 42,
+    "endpoint_s": 0.6619999999999999
+  },
+  "source_hashes": {
+    "case.cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+    "manifest.json": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b",
+    "source-identity.json": "be38a818489323be8de3396c44a73378d800bb8ed308e32e4389b42cbc9a0dd8",
+    "run-parameters.json": "d3c287517c7c2d8deb7793ab96654355d1e02ae0be2781be2fcb9455d65fb3cb"
+  },
+  "normal_prefix": {
+    "cutoff_s": 0.65,
+    "selected_rows": 30109591,
+    "last_selected_time_s": 0.6499999876940904,
+    "cutoff_gap_s": 1.2305909624643618e-8,
+    "max_cutoff_gap_s": 1e-6,
+    "metrics_window_s": [0.5999999876940904, 0.6499999876940904],
+    "fault_rising_edge_s": 0.6541666661706754,
+    "metrics": {
+      "vrms_v": 120.0,
+      "irms_a": 7.318003,
+      "input_power_w": 868.144984,
+      "load_power_w": 773.452906,
+      "pf": 0.988595,
+      "vb_mean_v": 383.377214,
+      "vb_min_v": 381.322638,
+      "vb_max_v": 385.378685,
+      "cycle_means_v": [382.8587798497746, 383.38766725877025, 383.8851947230978],
+      "cycle_drift_fraction_derived": 0.0026809229077258616,
+      "cycle_drift_reported": 0.002681,
+      "il_peak_a_report_only": 30.649183,
+      "vd_peak_v": 385.488063,
+      "vds_peak_v": 386.786740,
+      "vgs_abs_peak_v": 14.982193,
+      "armed_fraction": 1.0,
+      "on_fraction": 1.0,
+      "three_state_energy_change_j": 1.3304262134956737,
+      "energy_delta_rate_w": 26.608524269913474,
+      "energy_residual_pin_pout_de_w": 68.0835529376178,
+      "selected_storage_sumabs_delta_j": 3.1543725307558174e-12
+    },
+    "screen_count": 0,
+    "repeated_time_audit": {
+      "rows": 30109591,
+      "equal_groups": 47,
+      "repeated_intervals": 64,
+      "max_group_rows": 3,
+      "missing_right": 0,
+      "backwards": 0,
+      "logic_changes": 0,
+      "boundary_groups": 0,
+      "e3_spread_j": 1.7009003384814868e-13,
+      "e3_sumabs_j": 2.6323037478888208e-12,
+      "all_original_rows_retained": true
+    }
+  },
+  "phase": {
+    "kind": "crest",
+    "interval_s": [0.65, 0.6583333333333],
+    "tolerance": 0.01,
+    "rows": 32036953,
+    "edge_count": 1,
+    "local_equal_group_raw_rows": 6,
+    "local_equal_groups": 2,
+    "peak_tie_groups": 1,
+    "endpoint_s": 0.6619999999999999,
+    "edge_time_s": 0.6541666661706754,
+    "initial_marker_low": true,
+    "strict_before_after_neighbors": true,
+    "positive_peak_observed": true,
+    "max_source_spread_v_D_observed": 1.4210854715202004e-14,
+    "max_source_spread_v_D_bound": 1.4210854715202007e-14,
+    "criterion_error_using_representatives": 1.7585035537258274e-14,
+    "sufficient_bound_pass": true
+  },
+  "evidence_hashes": {
+    "preflight.json": "ad985fc303e8a58b0d403dc2451ae9514780db387e924481c9b65d65427fa592",
+    "prefault-scan.json": "dcf2ea6c5023f399b9a2b04c6f6a56fa67f0395473053c73355af40f5e915a33",
+    "normal15-audit.txt": "22f3baee808a6992ee25af4e93bd7f0a3d580f8c55f4cfc1d12ad342f6c254f8",
+    "normal15-events.tsv": "7aef7655e046c588987c3f2e14902eb39938dece386bd24a6cd090afa26acf8e",
+    "normal-metrics.txt": "0ad55c521bc9e8c561c1319a7b70847418823aa01fd1b4090d8ceee3a3b54131",
+    "phase.json": "c75105e19f901694f24b557e399c5e596cad4908b20f06d0a251d262bbcd4337"
+  },
+  "pending": [
+    "full analysis receipt and parent review",
+    "legacy strict-checker receipt",
+    "fault verdict and any parent electrical review"
+  ],
+  "scope_note": "Zero normal screens and a passing phase bound remain diagnostic; they do not accept BOTH-SHORT or waive validator failure."
+}

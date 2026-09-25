@@ -1,0 +1,23 @@
+Two-FET source standby topology exercise
+.include standby.inc
+Vaux aux15 0 PWL(0 0 1u 15)
+Vbus vb 0 389.615384615
+Rtop vb vsense 1meg
+Rbottom vsense 0 13k
+Cfb vsense 0 680p IC=0
+Vpermit permit_src 0 PWL(0 0 99u 0 100u 5 249u 5 250u 0 399u 0 400u 5)
+Vconnect connected 0 PWL(0 5 499u 5 500u 0)
+Spermit permit_src permit connected 0 LINK
+.model LINK SW(Ron=.01 Roff=1e12 Vt=2.5 Vh=.1)
+Xstandby aux15 permit vsense 0 PFC_STANDBY
+.options method=gear reltol=1e-5 abstol=1e-12
+.tran 100n 800u 0 100n uic
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+wrdata standby.tsv v(aux15) v(permit) v(vsense) v(xstandby.inhibit_gate) v(xstandby.permit_gate)
+quit
+.endc
+.end

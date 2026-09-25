@@ -1,0 +1,14 @@
+[package]
+name = "a5-rail-contract"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "a5_rail_contract"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rail-trace"
+path = "src/bin/rail_trace.rs"
+
+[workspace]

@@ -1,0 +1,14 @@
+{
+  "status": "PARENT_VERIFIED_COMPLETE_RAW_CAPTURE_ANALYSIS_REJECTED",
+  "utc": "2026-09-21T17:46:23.715613+00:00",
+  "raw_bytes": 5297726667,
+  "raw_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "gzip_test_exit": 0,
+  "native_rows": 32237324,
+  "native_columns": 42,
+  "host_rc": 0,
+  "pigz_rc": 0,
+  "analysis_status": "Adapter rejected row165 with globalgap argument25ns; investigate separate global/local gap contracts. No electrical acceptance.",
+  "raw_must_be_preserved": true,
+  "electrical_acceptance": false
+}

@@ -1,0 +1,59 @@
+{
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "compiled_candidate": "interface-defaults-11",
+  "compiled_count": 136,
+  "inputs": [
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/README.md",
+      "sha256": "6ad05d3c015ac5673dd0992037144e2ce24acc6b9945cc2da07d17005dec6c2e"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/INTERFACE-CONTRACT.md",
+      "sha256": "7baf259559b3bf6755ad911bf68229cc35615861ff331560b852899d4bb9801e"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/receipt.json",
+      "sha256": "d30a812648e29bceaf24608196b66d051e9174c9d62ab9841ebbdb77670efb75"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/resolved-components.json",
+      "sha256": "95826bc62507150af8774f5b2ae836f24c11e4fb6e480bf9e0c194e41b84bd39"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_f2_shutdown_revb.ato",
+      "sha256": "88c634936bcd850df8b0f7d8b7964ce771ec60e94066ac524dca0518e5a73831"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato",
+      "sha256": "8491fb2fba480bcfa45713a0c2d9f67563bc6f197b727528c570d4939c345006"
+    },
+    {
+      "path": "elec/src/power_entry_f2_shutdown_revb.ato",
+      "sha256": "050818ac162a1aa93ecd63325588adb2102504c8148ecbcbf0898abce2377f68"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/INTERFACE-DESIGN.md",
+      "sha256": "cff4e2f38b773ada83c5d9f0e0739e8da71aa3d7308e5a0fef106c16754bb852"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/README.md",
+      "sha256": "d6b754ea64d23839e811674355641ee52a3b66dbc4746de37527de4aade69273"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-handshake-13/command/handshake.rs",
+      "sha256": "f4d41bad394e107480b5d926945098383abd73095682d57e01a2503aafd6f377"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-handshake-13/README.md",
+      "sha256": "c764cbbd7a28c2ecc4a8fcd5c28de3dfe536433c2bc2a0d1046554667d8b6677"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-handshake-13/aux-decision.md",
+      "sha256": "e5f4b95c4cfc89496d48ab8dc0a3db4f7e0237f789931c4f6a210e29f4b39b59"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/supply/README.md",
+      "sha256": "7b75847483736043de275d02938b57aad763bd79895f5d5d5e5849950b41ad05"
+    }
+  ]
+}

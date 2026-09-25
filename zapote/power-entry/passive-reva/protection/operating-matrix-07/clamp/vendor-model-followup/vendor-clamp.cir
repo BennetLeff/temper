@@ -1,0 +1,17 @@
+* Bounded DC clamp screen using the Diodes Inc. BAV23C model.
+* This is an alternative manufacturer model, not the selected Vishay part.
+.title Diodes Inc BAV23C, 220 ohm UCC28180 ISENSE clamp
+.include diodes-bav23c.spice.txt
+VSHUNT shunt 0 DC -0.438
+RIN shunt isense 220
+* Common-cathode die used as an anode-at-ground, cathode-at-ISENSE clamp.
+DCLAMP 0 isense DI_BAV23C
+.control
+set noaskquit
+op
+print v(shunt) v(isense) @dclamp[id] i(vshunt)
+dc VSHUNT -0.10 -1.50 -0.005
+set filetype=ascii
+wrdata vendor-clamp-dc.tsv v(shunt) v(isense) @dclamp[id] i(vshunt)
+.endc
+.end

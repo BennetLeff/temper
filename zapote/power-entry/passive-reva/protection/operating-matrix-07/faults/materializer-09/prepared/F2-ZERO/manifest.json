@@ -1,0 +1,29 @@
+{
+  "status": "PREPARED_UNEXECUTED",
+  "case": "F2-ZERO",
+  "t_fault_s": 1.20000000000000003e-5,
+  "tstop_s": 2.00000000000000016e-5,
+  "prefault_window_s": 9.99999999999999955e-7,
+  "pacing_step_s": 2.49999999999999989e-8,
+  "pacing_points": 362,
+  "fault_schema_columns": 17,
+  "branch_marker_extra_columns": 4,
+  "source_closure_sha256": {
+    "cold.cir": "24a3b8399dcab107d2d5c2c1df03584908e57ccb24aec9f9b554f6db3b397967",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "output_sha256": {
+    "cold.cir": "24a3b8399dcab107d2d5c2c1df03584908e57ccb24aec9f9b554f6db3b397967",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "case.cir": "e805855ba2f8b6f11d75dc3e0d54dad21b586faa493c2eea2d250f669c4c03dc"
+  },
+  "execution": "blocked until accepted source, event selection, and prefix instrumentation review"
+}

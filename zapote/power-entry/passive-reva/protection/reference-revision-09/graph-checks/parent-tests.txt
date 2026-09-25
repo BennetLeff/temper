@@ -1,0 +1,14 @@
+
+running 9 tests
+test tests::parser_rejects_unbalanced_sexpr ... ok
+test tests::candidate_fixture_proves_expected_graph ... ok
+test tests::parser_rejects_missing_endpoint ... ok
+test tests::parser_rejects_duplicate_component_ref ... ok
+test tests::parser_rejects_duplicate_pin_endpoint ... ok
+test tests::checker_rejects_reversed_clamp_pins ... ok
+test tests::checker_rejects_feedback_tied_to_bulk_bank ... ok
+test tests::checker_rejects_direct_gate_bypass ... ok
+test tests::checker_rejects_standby_external_bypass ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

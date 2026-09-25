@@ -1,0 +1,34 @@
+{
+  "status": "COMPLETE_DIAGNOSTICS_PARENT_REVIEW_REQUIRED",
+  "accepted": false,
+  "raw_sha256_before_after": "7deb639fb05f7f63d2444e2d163aee4eb06b45349bc9cee120b9e112407b1bec",
+  "raw_bytes": 5928407777,
+  "full_rows": 36625031,
+  "selected_rows": 30387314,
+  "prefix_endpoint_s": 0.6499999983055141,
+  "pipeline_exits": {
+    "scan": [
+      0,
+      0,
+      0
+    ],
+    "audit": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "metrics": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "phase": [
+      0,
+      0,
+      0
+    ]
+  }
+}

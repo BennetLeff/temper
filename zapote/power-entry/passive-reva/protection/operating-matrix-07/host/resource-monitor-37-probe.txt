@@ -1,0 +1,14 @@
+sample_utc=2026-09-21T16:42:22Z elapsed_s=0 runner_pid=12235
+Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on
+/dev/disk3s5   482797652 423310460  20105620    96% 2906274 201056200    1%   /System/Volumes/Data
+vm.swapusage: total = 16384.00M  used = 15562.56M  free = 821.44M  (encrypted)
+owned_process_columns=pid,ppid,rss_kib,pcpu
+12235 12223   1152   0.0
+owned_rss_sum_kib=1152 runner_present=1
+sample_utc=2026-09-21T16:42:27Z elapsed_s=5 runner_pid=12235
+Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on
+/dev/disk3s5   482797652 423310208  20105872    96% 2906274 201058720    1%   /System/Volumes/Data
+vm.swapusage: total = 16384.00M  used = 15546.56M  free = 837.44M  (encrypted)
+owned_process_columns=pid,ppid,rss_kib,pcpu
+owned_rss_sum_kib=0 runner_present=0
+monitor_stop=runner_absent

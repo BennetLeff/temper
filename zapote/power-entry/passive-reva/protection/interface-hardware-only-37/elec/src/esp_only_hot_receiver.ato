@@ -1,0 +1,402 @@
+# Small compiled connectivity fixture for the ESP-only HOT authorization path.
+# This is an experiment, not a product schematic or safety-qualified design.
+
+component Hcs74:
+    mpn = "SN74HCS74PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal CLR1_N ~ pin 1
+    signal D1 ~ pin 2
+    signal CLK1 ~ pin 3
+    signal PRE1_N ~ pin 4
+    signal Q1 ~ pin 5
+    signal Q1_N ~ pin 6
+    signal GND ~ pin 7
+    signal Q2_N ~ pin 8
+    signal Q2 ~ pin 9
+    signal PRE2_N ~ pin 10
+    signal CLK2 ~ pin 11
+    signal D2 ~ pin 12
+    signal CLR2_N ~ pin 13
+    signal VCC ~ pin 14
+
+component RailSupervisor:
+    mpn = "TPS389001DSER"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps3890.pdf"
+    footprint = "TBD_REVIEW_ONLY:TI_DSE0006A_1.5x1.5mm"
+    signal SENSE ~ pin 1
+    signal GND ~ pin 2
+    signal MR ~ pin 3
+    signal VDD ~ pin 4
+    signal CT ~ pin 5
+    signal RESET_N ~ pin 6
+
+component LvcAnd:
+    mpn = "SN74LVC1G08DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component LvcOr:
+    mpn = "SN74LVC1G32DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g32.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component Iso7741F:
+    mpn = "ISO7741FDWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/iso7741.pdf"
+    # Unique review-only key avoids Atopile 0.2.69 same-footprint metadata
+    # collision with ISO7741F. Package geometry is SOIC-16 wide body; assign
+    # the library footprint during schematic/board integration.
+    footprint = "TBD_REVIEW_ONLY:ISO7721FDR_SOIC16W"
+    signal VCC1 ~ pin 1
+    signal GND1 ~ pin 2
+    signal INA ~ pin 3
+    signal INB ~ pin 4
+    signal INC ~ pin 5
+    signal OUTD ~ pin 6
+    signal EN1 ~ pin 7
+    signal GND1B ~ pin 8
+    signal GND2 ~ pin 9
+    signal EN2 ~ pin 10
+    signal IND ~ pin 11
+    signal OUTC ~ pin 12
+    signal OUTB ~ pin 13
+    signal OUTA ~ pin 14
+    signal GND2B ~ pin 15
+    signal VCC2 ~ pin 16
+
+# ISO7721F DW-16 mapping: channel A is HOT->SELV; channel B is SELV->HOT.
+# Pin names/numbers follow TI datasheet Rev. G, Figure 5-2, Table 5-1.
+component Iso7721F:
+    mpn = "ISO7721FDR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/iso7721.pdf"
+    footprint = "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm"
+    signal GND1A ~ pin 1
+    signal NC2 ~ pin 2
+    signal VCC1 ~ pin 3
+    signal OUTA ~ pin 4
+    signal INB ~ pin 5
+    signal NC6 ~ pin 6
+    signal GND1B ~ pin 7
+    signal NC8 ~ pin 8
+    signal GND2A ~ pin 9
+    signal NC10 ~ pin 10
+    signal NC11 ~ pin 11
+    signal OUTB ~ pin 12
+    signal INA ~ pin 13
+    signal VCC2 ~ pin 14
+    signal NC15 ~ pin 15
+    signal GND2B ~ pin 16
+
+component Resistor:
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Capacitor:
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module EspOnlyHotReceiver:
+    signal SELV3V3
+    signal SELV_GND
+    signal HOT5V
+    signal HOT_GND
+    # External intent and health inputs. SOURCE_PERMIT is the local hardware
+    # latch output that drives the isolator.
+    signal SOURCE_PERMIT_SET
+    signal SOURCE_SESSION_RESET_N
+    signal SOURCE_HEALTH
+    signal SOURCE_PERMIT
+    signal SOURCE_HOT_REARM
+    signal SOURCE_ARM
+    signal HOT_FAULT_N
+    signal HOT_RAILS_OK
+    # Feedback signals cross back through isolated channels.
+    signal SOURCE_HOT_HEALTH
+    signal SOURCE_EFFECTIVE_HEALTH
+    signal SOURCE_PERMIT_READBACK
+    signal SOURCE_PERMIT_SEEN
+    signal SOURCE_PERMIT_NOT_SEEN
+    signal SOURCE_CLEAR_ALLOW
+    signal SOURCE_PERMIT_CLEAR_N
+    signal SOURCE_SEEN_CLEAR_N
+    signal SOURCE_RESET_HEALTH_OK
+    signal SOURCE_SET_PD_NODE
+    signal SOURCE_REARM_PD_NODE
+    signal SOURCE_ARM_PD_NODE
+    signal HOT_FAULT_PD_NODE
+    signal HOT_RAILS_PD_NODE
+    signal HOT_RAW_HEALTH
+    signal HOT_RUN
+    signal HOT_READY
+    signal HOT_PERMIT_RX
+    signal HOT_REARM_RX
+    signal HOT_ARM_RX
+    signal HOT_TIMER_MR
+    signal HOT_TIMER_CT
+    signal HOT_TIMER_RESET_N
+    signal PERMIT_FAULT_OK
+    signal READY_CLEAR_A
+    signal READY_CLEAR_N
+    signal RUN_CLEAR_A
+    signal RUN_CLEAR_FAULT_OK
+    signal RUN_CLEAR_N
+
+    # Source -> HOT: permit, fresh rearm intent, and run ARM. Reverse channel D
+    # reports raw HOT rail/fault health independently of PERMIT and blanking.
+    ctrl_iso = new Iso7741F
+    ctrl_iso.VCC1 ~ SELV3V3
+    ctrl_iso.GND1 ~ SELV_GND
+    ctrl_iso.INA ~ SOURCE_PERMIT
+    ctrl_iso.INB ~ SOURCE_HOT_REARM
+    ctrl_iso.INC ~ SOURCE_ARM
+    ctrl_iso.OUTD ~ SOURCE_HOT_HEALTH
+    ctrl_iso.EN1 ~ SELV3V3
+    ctrl_iso.GND1B ~ SELV_GND
+    ctrl_iso.GND2 ~ HOT_GND
+    ctrl_iso.EN2 ~ HOT5V
+    ctrl_iso.IND ~ HOT_RAW_HEALTH
+    ctrl_iso.OUTC ~ HOT_ARM_RX
+    ctrl_iso.OUTB ~ HOT_REARM_RX
+    ctrl_iso.OUTA ~ HOT_PERMIT_RX
+    ctrl_iso.GND2B ~ HOT_GND
+    ctrl_iso.VCC2 ~ HOT5V
+
+    # Return the physical HOT-side PERMIT through one reverse-channel isolator.
+    permit_feedback_iso = new Iso7721F
+    permit_feedback_iso.VCC1 ~ SELV3V3
+    permit_feedback_iso.GND1A ~ SELV_GND
+    permit_feedback_iso.GND1B ~ SELV_GND
+    permit_feedback_iso.OUTA ~ SOURCE_PERMIT_READBACK
+    permit_feedback_iso.INB ~ SELV_GND
+    permit_feedback_iso.GND2A ~ HOT_GND
+    permit_feedback_iso.GND2B ~ HOT_GND
+    permit_feedback_iso.INA ~ HOT_PERMIT_RX
+    permit_feedback_iso.VCC2 ~ HOT5V
+    # NC pins are intentionally left unconnected.
+
+    # Hardware latch sets source PERMIT on a fresh set edge. Once physical
+    # receiver PERMIT is observed, the second flop remembers that observation.
+    # Loss of readback asynchronously clears source PERMIT. The seen bit stays
+    # set until explicit SOURCE_SESSION_RESET_N or source-health loss, so
+    # clearing Q1 cannot release its own clear through a combinational feedback
+    # pulse. RESET_N also clears Q1 while asserted, so a retained-low ESP pin
+    # cannot permit energization. A timeout for PERMIT that never arrives and
+    # a power-on-reset timing proof are still missing.
+    permit_clear_allow = new LvcOr
+    permit_clear_allow.A ~ SOURCE_PERMIT_NOT_SEEN
+    permit_clear_allow.B ~ SOURCE_PERMIT_READBACK
+    permit_clear_allow.GND ~ SELV_GND
+    permit_clear_allow.VCC ~ SELV3V3
+    permit_clear_allow.Y ~ SOURCE_CLEAR_ALLOW
+
+    # A returned HOT fault must directly clear the source permit latch,
+    # independently of ESP sampling or the external source-health producer.
+    effective_health_gate = new LvcAnd
+    effective_health_gate.A ~ SOURCE_HEALTH
+    effective_health_gate.B ~ SOURCE_HOT_HEALTH
+    effective_health_gate.GND ~ SELV_GND
+    effective_health_gate.VCC ~ SELV3V3
+    effective_health_gate.Y ~ SOURCE_EFFECTIVE_HEALTH
+
+    source_reset_health_gate = new LvcAnd
+    source_reset_health_gate.A ~ SOURCE_EFFECTIVE_HEALTH
+    source_reset_health_gate.B ~ SOURCE_SESSION_RESET_N
+    source_reset_health_gate.GND ~ SELV_GND
+    source_reset_health_gate.VCC ~ SELV3V3
+    source_reset_health_gate.Y ~ SOURCE_RESET_HEALTH_OK
+
+    permit_clear_gate = new LvcAnd
+    permit_clear_gate.A ~ SOURCE_RESET_HEALTH_OK
+    permit_clear_gate.B ~ SOURCE_CLEAR_ALLOW
+    permit_clear_gate.GND ~ SELV_GND
+    permit_clear_gate.VCC ~ SELV3V3
+    permit_clear_gate.Y ~ SOURCE_PERMIT_CLEAR_N
+
+    seen_clear_gate = new LvcAnd
+    seen_clear_gate.A ~ SOURCE_EFFECTIVE_HEALTH
+    seen_clear_gate.B ~ SOURCE_SESSION_RESET_N
+    seen_clear_gate.GND ~ SELV_GND
+    seen_clear_gate.VCC ~ SELV3V3
+    seen_clear_gate.Y ~ SOURCE_SEEN_CLEAR_N
+
+    source_latch = new Hcs74
+    source_latch.VCC ~ SELV3V3
+    source_latch.GND ~ SELV_GND
+    source_latch.PRE1_N ~ SELV3V3
+    source_latch.D1 ~ SELV3V3
+    source_latch.CLK1 ~ SOURCE_PERMIT_SET
+    source_latch.CLR1_N ~ SOURCE_PERMIT_CLEAR_N
+    source_latch.Q1 ~ SOURCE_PERMIT
+    source_latch.PRE2_N ~ SELV3V3
+    source_latch.D2 ~ SELV3V3
+    source_latch.CLK2 ~ SOURCE_PERMIT_READBACK
+    source_latch.CLR2_N ~ SOURCE_SEEN_CLEAR_N
+    source_latch.Q2 ~ SOURCE_PERMIT_SEEN
+    source_latch.Q2_N ~ SOURCE_PERMIT_NOT_SEEN
+
+    source_health_pd = new Resistor
+    source_health_pd.value = 10kohm
+    source_health_pd.p1 ~ SOURCE_HEALTH
+    source_health_pd.p2 ~ SELV_GND
+
+    source_permit_pd = new Resistor
+    source_permit_pd.value = 10kohm
+    source_permit_pd.p1 ~ SOURCE_PERMIT
+    source_permit_pd.p2 ~ SELV_GND
+
+    source_session_reset_pullup = new Resistor
+    source_session_reset_pullup.value = 10kohm
+    source_session_reset_pullup.p1 ~ SOURCE_SESSION_RESET_N
+    source_session_reset_pullup.p2 ~ SELV3V3
+
+    source_set_pd = new Resistor
+    source_set_pd.value = 10kohm
+    source_set_pd.p1 ~ SOURCE_PERMIT_SET
+    source_set_pd.p2 ~ SELV_GND
+
+    source_rearm_pd = new Resistor
+    source_rearm_pd.value = 10kohm
+    source_rearm_pd.p1 ~ SOURCE_HOT_REARM
+    source_rearm_pd.p2 ~ SELV_GND
+
+    source_arm_pd = new Resistor
+    source_arm_pd.value = 10kohm
+    source_arm_pd.p1 ~ SOURCE_ARM
+    source_arm_pd.p2 ~ SELV_GND
+
+    hot_fault_pd = new Resistor
+    hot_fault_pd.value = 10kohm
+    hot_fault_pd.p1 ~ HOT_FAULT_N
+    hot_fault_pd.p2 ~ HOT_GND
+
+    hot_rails_pd = new Resistor
+    hot_rails_pd.value = 10kohm
+    hot_rails_pd.p1 ~ HOT_RAILS_OK
+    hot_rails_pd.p2 ~ HOT_GND
+
+    # MR is released only when PERMIT is physically present, rails are good,
+    # and no active-low fault is present. Any low input restarts CT timing.
+    permit_fault_gate = new LvcAnd
+    permit_fault_gate.A ~ HOT_PERMIT_RX
+    permit_fault_gate.B ~ HOT_FAULT_N
+    permit_fault_gate.GND ~ HOT_GND
+    permit_fault_gate.VCC ~ HOT5V
+    permit_fault_gate.Y ~ PERMIT_FAULT_OK
+
+    timer_mr_gate = new LvcAnd
+    timer_mr_gate.A ~ PERMIT_FAULT_OK
+    timer_mr_gate.B ~ HOT_RAILS_OK
+    timer_mr_gate.GND ~ HOT_GND
+    timer_mr_gate.VCC ~ HOT5V
+    timer_mr_gate.Y ~ HOT_TIMER_MR
+
+    raw_health_gate = new LvcAnd
+    raw_health_gate.A ~ HOT_RAILS_OK
+    raw_health_gate.B ~ HOT_FAULT_N
+    raw_health_gate.GND ~ HOT_GND
+    raw_health_gate.VCC ~ HOT5V
+    raw_health_gate.Y ~ HOT_RAW_HEALTH
+
+    blanking = new RailSupervisor
+    blanking.SENSE ~ HOT5V
+    blanking.GND ~ HOT_GND
+    blanking.MR ~ HOT_TIMER_MR
+    blanking.VDD ~ HOT5V
+    blanking.CT ~ HOT_TIMER_CT
+    blanking.RESET_N ~ HOT_TIMER_RESET_N
+
+    # TPS3890 RESET_N is open drain; provide its high level explicitly.
+    timer_reset_pullup = new Resistor
+    timer_reset_pullup.value = 10kohm
+    timer_reset_pullup.p1 ~ HOT_TIMER_RESET_N
+    timer_reset_pullup.p2 ~ HOT5V
+
+    # HOT_READY is asynchronously cleared by every inhibit and by the timer.
+    ready_permit_gate = new LvcAnd
+    ready_permit_gate.A ~ HOT_PERMIT_RX
+    ready_permit_gate.B ~ HOT_FAULT_N
+    ready_permit_gate.GND ~ HOT_GND
+    ready_permit_gate.VCC ~ HOT5V
+    ready_permit_gate.Y ~ READY_CLEAR_A
+
+    ready_timer_gate = new LvcAnd
+    ready_timer_gate.A ~ READY_CLEAR_A
+    ready_timer_gate.B ~ HOT_TIMER_RESET_N
+    ready_timer_gate.GND ~ HOT_GND
+    ready_timer_gate.VCC ~ HOT5V
+    ready_timer_gate.Y ~ READY_CLEAR_N
+
+    latch = new Hcs74
+    latch.VCC ~ HOT5V
+    latch.GND ~ HOT_GND
+    latch.PRE2_N ~ HOT5V
+    latch.D2 ~ HOT5V
+    latch.CLK2 ~ HOT_REARM_RX
+    latch.CLR2_N ~ READY_CLEAR_N
+    latch.Q2 ~ HOT_READY
+
+    # RUN is separately cleared by PERMIT, fault, rails, or HOT_READY low.
+    run_ready_gate = new LvcAnd
+    run_ready_gate.A ~ HOT_READY
+    run_ready_gate.B ~ HOT_PERMIT_RX
+    run_ready_gate.GND ~ HOT_GND
+    run_ready_gate.VCC ~ HOT5V
+    run_ready_gate.Y ~ RUN_CLEAR_A
+
+    run_fault_gate = new LvcAnd
+    run_fault_gate.A ~ RUN_CLEAR_A
+    run_fault_gate.B ~ HOT_FAULT_N
+    run_fault_gate.GND ~ HOT_GND
+    run_fault_gate.VCC ~ HOT5V
+    run_fault_gate.Y ~ RUN_CLEAR_FAULT_OK
+
+    run_rail_gate = new LvcAnd
+    run_rail_gate.A ~ RUN_CLEAR_FAULT_OK
+    run_rail_gate.B ~ HOT_RAILS_OK
+    run_rail_gate.GND ~ HOT_GND
+    run_rail_gate.VCC ~ HOT5V
+    run_rail_gate.Y ~ RUN_CLEAR_N
+
+    latch.PRE1_N ~ HOT5V
+    latch.D1 ~ HOT5V
+    latch.CLK1 ~ HOT_ARM_RX
+    latch.CLR1_N ~ RUN_CLEAR_N
+    latch.Q1 ~ HOT_RUN
+
+    # Passive component placeholders make the required CT and bypass nodes
+    # explicit in the compiled graph. Values are experimental, unqualified.
+    timer_ct = new Capacitor
+    timer_ct.value = 330nF
+    timer_ct.p1 ~ HOT_TIMER_CT
+    timer_ct.p2 ~ HOT_GND
+
+    timer_bypass = new Capacitor
+    timer_bypass.value = 100nF
+    timer_bypass.p1 ~ HOT5V
+    timer_bypass.p2 ~ HOT_GND
+
+    hot_pd = new Resistor
+    hot_pd.value = 10kohm
+    hot_pd.p1 ~ HOT_PERMIT_RX
+    hot_pd.p2 ~ HOT_GND

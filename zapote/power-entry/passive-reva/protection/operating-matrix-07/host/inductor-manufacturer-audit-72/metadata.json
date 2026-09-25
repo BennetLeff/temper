@@ -1,0 +1,31 @@
+{
+  "part": "760800301",
+  "manufacturer": "Würth Elektronik Midcom",
+  "series": "WE-TORPFC Toroidal PFC Choke",
+  "size_type": "T75",
+  "official_product_url": "https://www.we-online.com/en/components/products/WE-TORPFC",
+  "official_datasheet_url": "https://www.we-online.com/components/products/datasheet/760800301.pdf",
+  "datasheet_revision": "001.001",
+  "datasheet_date": "2023-12-11",
+  "datasheet_status": "Valid",
+  "retrieved_utc": "2026-09-21",
+  "source_identity": {
+    "retained_ato": "../f2-open-01/source-01/elec/src/power_entry_passive_reva.ato",
+    "mpn": "760800301",
+    "declared_inductance_uH": 180,
+    "declared_current_rating_A": 24.5,
+    "declared_voltage_rating_V": 1000
+  },
+  "manufacturer_values": {
+    "inductance": {"nominal_uH": 180, "tolerance": "±20%", "test": "100 kHz / 100 mV", "classification": "specified"},
+    "rated_current": {"A": 24.5, "condition": "ΔT = 40 K", "classification": "maximum"},
+    "rated_current_forced_air": {"A": 48, "condition": "ΔT = 40 K, 4 m/s fan", "classification": "maximum"},
+    "saturation_current": {"A": 43, "condition": "|ΔL/L| < 30%", "classification": "typical"},
+    "dc_resistance": {"ohm": 0.020, "condition": "20 °C", "classification": "maximum"},
+    "operating_voltage": {"Vdc": 1000, "classification": "maximum"},
+    "operating_temperature": {"min_C": -40, "max_C": 155, "classification": "manufacturer operating range"}
+  },
+  "general_electrical_test_condition": "+20 °C, 33% RH when not specified differently",
+  "thermal_curve_note": "Temperature-rise curves are typical; airflow tests used a 115 mm diameter fan with air velocity measured directly in front of the part.",
+  "pdf_saved_locally": false
+}

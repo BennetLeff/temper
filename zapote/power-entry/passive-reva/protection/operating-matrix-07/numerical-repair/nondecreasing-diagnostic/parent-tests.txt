@@ -1,0 +1,11 @@
+
+running 6 tests
+test backward_time_is_rejected ... ok
+test duplicate_group_at_eof_is_rejected ... ok
+test widely_spaced_groups_keep_positive_progress ... ok
+test nonfinite_field_is_rejected ... ok
+test exact_equal_groups_and_per_column_deltas ... ok
+test duplicate_rows_participate_in_peaks_and_minima ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

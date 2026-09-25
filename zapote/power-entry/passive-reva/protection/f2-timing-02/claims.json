@@ -1,0 +1,165 @@
+{
+  "status": "illustrative audit; no protection qualification or promotion",
+  "claims": [
+    {
+      "id": "pcl-source",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "Input-referred PCL magnitude max0.438V; ISENSE bias magnitude max2.95uA",
+      "part": "UCC28180D",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "UCC28180 electrical characteristics and stated conditions; ISENSE bias tested at ISENSE=0V, not at negative trip; no complete dynamic current bound",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "sources/ucc28180.pdf",
+          "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+        }
+      ]
+    },
+    {
+      "id": "shunt-source",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "Initial resistance tolerance1%; TCR magnitude75ppm/K",
+      "part": "HCSM2818FT10L0",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "Retained Stackpole HCSM datasheet; component specification, not installed shunt temperature",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "sources/Stackpole-HCSM-2019.pdf",
+          "sha256": "3b7f5335006da93130dab4c0bff5195a8561a76e3ce292e8aa07ec0871a8c3aa"
+        }
+      ]
+    },
+    {
+      "id": "screen-assumptions",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "132Vac crest,19.8uF,50A at evaluation threshold,L100..216uH,500V screen; shunt-40..100C,220ohm1%,1nF10%;20mV comparator reserve; assumes 2.95uA ISENSE bias magnitude also applies at negative trip voltage",
+      "part": "F2-open healthy-switch and healthy-diode model",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Simulation-only assumptions; no hardware or manufacturer bounds on full trajectory",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "constraints.json",
+          "sha256": "b990c7afc12e9f697ecf1b7845bccc60d3bf55eb745851d567ca655f626128e0"
+        },
+        {
+          "path": "budget.rs",
+          "sha256": "6b88eebd4c9390578398b851eaa9007b110f09c9e948410497b452d241a8eed1"
+        }
+      ]
+    },
+    {
+      "id": "previous-static-trip",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "Conditional static trip432.085945V at bank410V from prior2048-corner screen",
+      "part": "F2 tapped divider with authored bias and offset allowances",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Retained prior illustrative screen; not a qualified replacement-comparator threshold",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "../f2-open-01/window_screen.rs",
+          "sha256": "161996028cd9713de4b0bd281b4ec11e0493e3157145e4c3582e3eb3d637b1ef"
+        },
+        {
+          "path": "../f2-open-01/screen.txt",
+          "sha256": "692e33bf2314cb816658faed6200b48ed16c5786d7e76179469a81ee9f469a3d"
+        }
+      ]
+    },
+    {
+      "id": "conditional-current",
+      "origin": "derivation",
+      "inputs": [
+        "pcl-source",
+        "shunt-source",
+        "screen-assumptions"
+      ],
+      "quantity": "44.561828A steady-state detection threshold under assumed shunt temperature and filter resistor tolerance; instantaneous current remains unknown",
+      "part": "UCC28180D with HCSM2818FT10L0",
+      "value_kind": "assumed",
+      "bound_kind": "upper",
+      "source_condition": "Conditional temperature and bias calculation; no blanking/propagation or gate-off maximum included; bias specification at ISENSE0V is assumed applicable at negative trip",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "budget.rs",
+          "sha256": "6b88eebd4c9390578398b851eaa9007b110f09c9e948410497b452d241a8eed1"
+        },
+        {
+          "path": "budget.txt",
+          "sha256": "04b36efea5a87c94d16db02625a56b22cde24c7e808afaade7072f456711ac20"
+        }
+      ],
+      "condition_transformation": "Conditional calculation under explicitly assumed plant and temperature inputs; source conditions are not asserted to hold on hardware. See README.md and budget.rs.",
+      "part_transformation": "Combine named component source limits and assumptions for the isolated F2-open circuit calculation, without transferring a component guarantee to the assembly.",
+      "justification": "Conservative steady-state threshold ceiling conditional on the assumed temperature envelope: maximize input-referred threshold and bias shift, minimize shunt resistance. This is not a point estimate or an upper bound on instantaneous current."
+    },
+    {
+      "id": "conditional-shutdown",
+      "origin": "derivation",
+      "inputs": [
+        "screen-assumptions",
+        "previous-static-trip"
+      ],
+      "quantity": "50A assumed:3.004125us from static threshold;2.526807us after3.557846V overdrive reserve;2us envelope496.861069V",
+      "part": "F2-open healthy-switch and healthy-diode model",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Assumed L100..216uH,C19.8uF,Vin132Vac crest,500V ceiling; current50A at chosen start voltage; filter lag inside residual delay",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "budget.rs",
+          "sha256": "6b88eebd4c9390578398b851eaa9007b110f09c9e948410497b452d241a8eed1"
+        },
+        {
+          "path": "budget.txt",
+          "sha256": "04b36efea5a87c94d16db02625a56b22cde24c7e808afaade7072f456711ac20"
+        },
+        {
+          "path": "README.md",
+          "sha256": "f97d4f67c6455aedadd84728e1ccf86ed32adb7ad6089d044330291d770aea1a"
+        }
+      ],
+      "condition_transformation": "Conditional calculation under explicitly assumed plant and temperature inputs; source conditions are not asserted to hold on hardware. See README.md and budget.rs.",
+      "part_transformation": "Combine named component source limits and assumptions for the isolated F2-open circuit calculation, without transferring a component guarantee to the assembly."
+    },
+    {
+      "id": "candidate-comparator-source",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "TLV3202 propagation55ns maximum in5V switching table at stated overdrive/load and fulltemperature",
+      "part": "TLV3202",
+      "value_kind": "maximum",
+      "bound_kind": "upper",
+      "source_condition": "5V,CL15pF,manufacturer waveform and stated overdrive,TA-40..125C; not an installed-circuit guarantee",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "sources/tlv3202.pdf",
+          "sha256": "1777bba814c74772bb54c6f1f56702985039043ce2fb2affaf996a83eaf1076e"
+        }
+      ]
+    }
+  ],
+  "protection_claims": [],
+  "promotions": []
+}

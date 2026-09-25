@@ -1,0 +1,40 @@
+{
+  "at_utc": "2026-09-22T00:42:06.164155+00:00",
+  "status": "DIODE_COMPLETE_CAPTURE_VALIDATION_LIVE_NORMAL_MARGINS_VERIFIED",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: canonical interim report/index independently verified",
+  "this_goal_turn": "progress: DIODE reached required662ms and exported complete32,309,024rows; saved archive/source receipts inspected; normal model-screen margins sourced and parent-corrected",
+  "live_session": 52815,
+  "latest_progress": "2316.224720\t6.61999999999999922e-1\t100.000000\t1.220966827236e-5\t32309024\ttrue\t62\t0\tfalse",
+  "capture_stage1": {
+    "host_success": true,
+    "pigz_success": true,
+    "host_rc": 0,
+    "pigz_rc": 0,
+    "metadata_status": "valid",
+    "raw_trace_bytes": 5340687952,
+    "raw_trace_sha256": "19f8068d73fb4b2379b3111504fd92efbf769984eb4e3775d5b6378294a6c02c"
+  },
+  "native_export": {
+    "status": "complete",
+    "schema": "fault42",
+    "rows": 32309024,
+    "columns": 42,
+    "bytes_written": 10855833183,
+    "borrowed_data_bytes": 10597359872,
+    "buffer_bytes": 65536,
+    "export_elapsed_ms": 63936,
+    "copy_avoidance_only": true,
+    "accepted": false
+  },
+  "free_bytes": 35259297792,
+  "artifacts_sha256": {
+    "host/normal-screen-margins-89.json": "ecead4663829d22fc0b365cc2c7fe285c3b8829760aca8d7cfbcbc5a0d737ea7",
+    "host/normal-screen-margins-89.md": "22b46d924d235ac6da4565643ac5d672a2939dfa9dfc1c47111d294b95629ad7"
+  },
+  "source_closure_check": "All8 captured input files identical to frozen prepared24; no model changes",
+  "new_fault_acceptance": false,
+  "active_children": "none; completed Luna margin reviewer interrupted",
+  "blocked_turn_count": 0,
+  "next": "Poll same52815 through stage2 terminal. Required662ms reached. Then run reviewed74/run.sh and74/legacy-strict.sh and parent accept/disposition. Only afterwards BOTH65/75 and BYPASS66/76. Add parent-verified margin89 to final report/index after fault dispositions; current87/88 remain historical interim."
+}

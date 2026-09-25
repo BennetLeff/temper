@@ -1,0 +1,30 @@
+{
+  "status": "PARENT_REVIEWED_FUTURE_GRID_EXPORT_ONLY",
+  "purpose": "post-stop normal-export storage reduction",
+  "electrical_source": "../normal-hysteretic-driver-candidate",
+  "deck_change": "TSTOP 500m -> 50u smoke endpoint only; .save unchanged",
+  "source_cold_sha256": "0917cc859c4bc98d0595457ba68cd9c1d73febb68cb15b43982a176b4efe1073",
+  "reduced_host_source_sha256": "a8056fcc15a006a4842656678178bdd5e78d7fb6bc1c7f208881fd76fd4ba646",
+  "source_diff_sha256": "020a831eaf1d75d8d8115931bf963b3bf61e839dc2cbbb5c561272e650d40308",
+  "reduced_host_binary": "/private/tmp/matrix07-normal-reduced-export-host-07",
+  "reduced_host_binary_sha256": "6247dcda28997f33184f48c24c4464858332ec1ade2d8a46c53e83f53c902bb5",
+  "full_reference_host": "/private/tmp/matrix07-hysteretic-driver-host",
+  "full_reference_host_sha256": "b677365a49ef6c24a32b9291ff86561a4a7a26a6a8d199528ca684af890d5367",
+  "full_reference_source_sha256": "f5c60b4c49116a52b7808474da3828a98715e957b6af171fe57f824c2382eda8",
+  "normal_export_signals": 14,
+  "normal_header_columns": 15,
+  "saved_signal_inventory": 30,
+  "callback_diagnostics": 16,
+  "smoke": {
+    "tstop_s": 5e-05,
+    "full_rows": 497,
+    "reduced_rows": 497,
+    "full_trace_sha256": "b76565ffedadfd6e68e34631995416961faf6050227cb8ece2897606bb4502de",
+    "reduced_trace_sha256": "ed33eaf7970e50ea7e1dbf8a906deafa6126b858a943d202d9036cbd833affd8",
+    "normalized12_sha256": "c5a27b627722b6ae18894e42179fe302d63de583550f5d0bbe7cdd9ce8195d87",
+    "comparison": "normal15_prefix_equal=true normalized12_equal=true finite=true monotonic=true endpoint=50us snapshot_mask=65535 all_saved_finite=true export_mode=normal14_poststop",
+    "nonfinite_guard": "callback latches any saved real nonfinite and selects full_saved_fallback_nonfinite; synthetic unit test PASS",
+    "campaign": "UNSTARTED"
+  },
+  "host_review": "host-review.json"
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "worker_file": "/private/tmp/temper07-normal/output/ucc28180-pwm-latch.inc",
+    "reviewed_file": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched-explicit/ucc28180.inc",
+    "sha256": "d98f3890f1a8e8296669c8c541ecbd0762015f95993c0ec8509bdabf4ce02db8",
+    "matches_reviewed": true
+  },
+  {
+    "worker_file": "/private/tmp/temper07-normal/output/clamp.inc",
+    "reviewed_file": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/clamp.inc",
+    "sha256": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "matches_reviewed": true
+  },
+  {
+    "worker_file": "/private/tmp/temper07-normal/output/standby.inc",
+    "reviewed_file": "zapote/power-entry/passive-reva/protection/operating-matrix-07/standby/standby.inc",
+    "sha256": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "matches_reviewed": true
+  },
+  {
+    "worker_file": "/private/tmp/temper07-normal/output/protection.inc",
+    "reviewed_file": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/protection.inc",
+    "sha256": "b57b854883ee992dad036fd49c5a249b457e200873a3408652186de59122ea1c",
+    "matches_reviewed": true
+  }
+]

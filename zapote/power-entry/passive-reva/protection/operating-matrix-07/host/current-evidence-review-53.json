@@ -1,0 +1,28 @@
+{
+  "status": "PARENT_VERIFIED_CURRENT_CAMPAIGN_REPORT_53",
+  "at_utc": "2026-09-21T19:32:03.176698+00:00",
+  "artifacts_sha256": {
+    "host/campaign-evidence-register-28.md": "5319241c29dfa920921e91371ff0f73c2bac2e7aab228608225fc7afc52a08a6",
+    "host/simulation-to-prototype-decisions.md": "b1820613431b99e70aa88945411c7e51905581e953cf455681a1a80a6226753a",
+    "host/operating-envelope-checkpoint-53.md": "d12c72ca7e02442ea8ae71ca83835abfe0843e3d74511367eb8924de9bf56d8c",
+    "host/operating-envelope-checkpoint-53.json": "b8cf5f50b73b8ae0c0fb9cd7d0bcacaddcd0f9099a450f680d85eafa2a345f5d",
+    "line-load-direct-retry-47/full-LL09/LL09/acceptance.json": "30ce810b146331f8db0cf0e2c0a1bc22032062d529773039dd62aeeaa5075737",
+    "line-load-direct-retry-47/resource-summary-parent.json": "a5e97cf9bebc1c03d0b2400557809d35f95543a190f2d8a25c00886fa672279a",
+    "faults/saved-pin-observability-50/full-F2-CREST38/parent-observability-review.json": "06527697f74dd151eaeff106b0e8213f30af62eeb475e5d05e67789dc0206c0b",
+    "faults/settled-direct-capture-51/parent-review.json": "34bf08806d8a4abc29da6ff08c275698c9b44da2ad097a25f9ccf111ea63fe6e",
+    "host/storage-options-52.md": "6c33b4ff934f670e7be0f80809a94c8ffc86837eb0a1e404157618dd5e909593"
+  },
+  "checks": [
+    "Nine acceptance/evidence chains match current consolidation.",
+    "Current narrative local links resolve; LL09 accepted and no live solver claim remains.",
+    "F2-CREST acceptance remains exact modeled scope with current-before-detection and ideal-fuse caveats.",
+    "Saved-pin diagnostic does not prove current limiting/clamping or selected part behavior.",
+    "F2-ZERO launch remains gated by16GiB/no-other-solver; no new capture launched.",
+    "Prior checkpoint48 narrative versions retained; resource correction and original worker summary both retained."
+  ],
+  "goal_complete": false,
+  "unresolved": [
+    "Five settled fault captures require more available storage.",
+    "Selected diode lowcurrentVF/temp/lot envelope and other model/device limitations remain unresolved or outside established evidence; goal cannot be marked complete."
+  ]
+}

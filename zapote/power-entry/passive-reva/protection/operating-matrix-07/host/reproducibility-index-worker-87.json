@@ -1,0 +1,81 @@
+{
+  "status": "REPRODUCIBILITY_INDEX",
+  "campaign_root": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+  "objective_complete": false,
+  "hash_authority": "SHA-256 of small regular files measured at index creation; large raw archives use the hash and byte count recorded by their acceptance/diagnostic receipt and are explicitly not reread.",
+  "source_hash_authority": "Source/include hashes recorded in each source-bound receipt; repository/worktree/base identity is contextual and is not used alone to identify uncommitted model files.",
+  "small_files": [
+    {"path":"accepted-baseline-11/acceptance.json","bytes":4747,"sha256":"18ce2902682b4cedb2880e260c15e731e599df4224dc842a70c85e9cadb6cf22"},
+    {"path":"host/operating-envelope-checkpoint-53.json","bytes":56991,"sha256":"b8cf5f50b73b8ae0c0fb9cd7d0bcacaddcd0f9099a450f680d85eafa2a345f5d"},
+    {"path":"faults/startup-compact-analysis-23/acceptance.json","bytes":5455,"sha256":"6b39b3c2d453a0abce17932736654f07aae0a88c4c7b12f0daaa1a5d2e594f0e"},
+    {"path":"faults/settled-reanalysis-40/F2-CREST38/acceptance.json","bytes":5434,"sha256":"bc00f63b08b5218d74f7fa673e60ab6f976194d32a871c776432547130ccfa7e"},
+    {"path":"faults/settled-prefix-analysis-42/normal-prefix/acceptance.json","bytes":8506,"sha256":"3585309fbe21460d5c3002ff41fb7f104ad09fe7f748e291328a4d268116c8eb"},
+    {"path":"faults/phase-audit-43/full-F2-CREST38/parent-phase-acceptance.json","bytes":2136,"sha256":"0608fc8197f4ed663ff28e01c54ff0fc7c8df051ccd8bd822a15c0a9d87e30e8"},
+    {"path":"faults/settled-recovery-63/full-F2-ZERO/acceptance.json","bytes":5791,"sha256":"42c3bac2b9cad3051268fa6c2be59581d2bd2dfb03c0b9bc6574ef1e4276b760"},
+    {"path":"faults/settled-postcapture-58/full-F2-ZERO/normal-prefix-acceptance.json","bytes":6086,"sha256":"cb045acd44eaf90a00fa7633c9ae34d11f750caefcc9344aed495eadd44336c3"},
+    {"path":"faults/settled-postcapture-58/full-F2-ZERO/parent-phase-acceptance.json","bytes":1449,"sha256":"1e8856c57185f93076c5fbbe73d468a377ad833fc14ba44d1490f377d33a3d48"},
+    {"path":"faults/settled-postcapture-58/full-F2-ZERO/analysis-receipt.json","bytes":550,"sha256":"d749df691f54a9d43e92f47baafb3af38221baac96b0c0ad2d2d3d09b343ebec"},
+    {"path":"faults/settled-sw-short-59/full-SW-SHORT/campaign-verdict-86.json","bytes":1266,"sha256":"30f05795f68b50fae1c6e6b1c977cb43eaf93e44a5d92950cbadbd962f00f635"},
+    {"path":"faults/sw-short-tail-parent-review-85.json","bytes":4240,"sha256":"5d63d95bc17be7bed977c7a1a9146cf8cbbc0af7702361ebe6f06ea08925ab47"},
+    {"path":"faults/sw-short-tail-review-82.json","bytes":3694,"sha256":"adfc3567d841a0c87aa171357915ff3e27f4b2f51f783feaf5dd7a829c155793"},
+    {"path":"faults/settled-sw-short-59/full-SW-SHORT/parent-disposition-80.json","bytes":3067,"sha256":"d895d1824ca8fe356ea7fb9a3704e64b242566442684736ee5ef0cefdba01a52"},
+    {"path":"host/accepted-controller-test-binding-54.md","bytes":4946,"sha256":"a8f58749c2f4e8c2750316efa3a5dabf23330bf659c0bd7ddeb6bb9ee8300d63"},
+    {"path":"host/controller-corner-coverage-54.md","bytes":2800,"sha256":"183e78942b49f7663061c938a7f50377fffb8f85c1374272aa276a5b54d847a4"},
+    {"path":"host/inductor-manufacturer-audit-72/parent-disposition.md","bytes":2689,"sha256":"2afa39331f67fc2129ed9642e7cfd80a1fb04a45098f4841e8748969acb8f0a0"},
+    {"path":"host/inductor-manufacturer-audit-72/vendor-model-parent-review-73.md","bytes":1420,"sha256":"86baf5c84bb7a4457a3ad7894a8c2980d536c0bafcfa6726f7ac21cde9389b83"},
+    {"path":"clamp/datasheet-audit/report.md","sha256":"29a286eb68503ed6df81ddf1c8be3d0125ef6ec529b01d4855c3ad1bf1ea423b"},
+    {"path":"host/ucc28180-vendor-model-availability.md","sha256":"cc1b619e6611253d03689859caf1e9df2c7a04b0489b1ab7e396c638d7b082bd"},
+    {"path":"host/simulation-to-prototype-decisions.md","bytes":19013,"sha256":"2e4d5952ad3b3830d3706f3da455ce568fea3861b701d027b96230590bdaacc5"},
+    {"path":"faults/fault-matrix.md","bytes":8651,"sha256":"df55bba086af019213f28302cdd6534d964e4b07f54aed5d52b65d1bf27a737b"}
+  ],
+  "normal_points_checkpoint53": {
+    "table": "host/operating-envelope-checkpoint-53.json",
+    "count": 9,
+    "acceptance_paths": [
+      ["LL01","line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json","a4e09215acac4b80920257ceebfa96e4a9f7f618732cd24c778cca34f24105c7"],
+      ["LL02","line-load-native-runner-12/full-LL02-initialized/LL02/acceptance.json","542318b9fa0a061fa05af1616844320441f1ba59ac4a70275b14266c69c82eb2"],
+      ["LL03","line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json","224ac1a30d64b05b9b06d3319bb2a6dfaa3ce45330277fb97f8f50e82385041d"],
+      ["LL04","line-load-native-runner-12/full-LL04-initialized/LL04/acceptance.json","f4a6ba5435add8b2946712b957d6f222cbc0384e28ccdd32980863249acdddfc"],
+      ["LL05","line-load-native-runner-27/full-LL05-retry/LL05/acceptance.json","44859f112de35192015ace76a4c1d0619c4689533eaceea62b8834b04c8f4206"],
+      ["LL06","line-load-native-runner-27/full-LL06/LL06/acceptance.json","6eb356547ab348e16353cc9ec86cc3c520835f45ace8b5c8b6f1fddc921221a9"],
+      ["LL07","line-load-native-runner-27/full-LL07/LL07/acceptance.json","b87c23441b4e55a5e46ec4ec19bfba3bd8fa02a456a9bbdb4aed0c41a0cc7b69"],
+      ["LL08","line-load-direct-retry-41/full-LL08/LL08/acceptance.json","8c6f8fb701395ecb95cbdfd980fc9a2f94ca1417a456542a18d39e460c3e8fdd"],
+      ["LL09","line-load-direct-retry-47/full-LL09/LL09/acceptance.json","30ce810b146331f8db0cf0e2c0a1bc22032062d529773039dd62aeeaa5075737"]
+    ]
+  },
+  "large_raw_recorded_only": [
+    {"path":"accepted-baseline-11/raw.trace.raw.gz","status":"missing_path_in_worktree; receipt-only identity must be obtained from acceptance.json"},
+    {"path":"faults/settled-recovery-63/full-F2-ZERO/raw.trace.raw.gz","status":"missing_path_in_worktree; receipt reports SHA/bytes in acceptance.json"},
+    {"path":"faults/settled-reanalysis-40/F2-CREST38/raw.trace.raw.gz","status":"missing_path_in_worktree; receipt reports SHA/bytes in acceptance.json"},
+    {"path":"faults/settled-sw-short-59/full-SW-SHORT/raw.trace.raw.gz","status":"present but not read; use parent-disposition-80 recorded SHA 726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa and 5088782620 bytes","hash_mode":"receipt-reported"}
+  ],
+  "source_and_tool_pins": [
+    "accepted-baseline-11/acceptance.json",
+    "faults/settled-prefix-analysis-42/preflight.json",
+    "faults/settled-postcapture-58/tools-parent.sha256",
+    "faults/settled-postcapture-58/run.sh",
+    "faults/settled-postcapture-58/legacy-strict.sh",
+    "faults/settled-reanalysis-40/candidate-receipt.json",
+    "faults/phase-audit-43/parent-review.json"
+  ],
+  "fault_case_packets": [
+    {"case":"DIODE-SHORT","status":"live/prepared not completed","launch_receipt":"faults/settled-diode-short-64/launch-review-80.json","postcapture_parent_review":"faults/settled-diode-postcapture-74/parent-review.json","launch_sha256":"c6120fafec27f6a8ec6cef6ff1dc5b19cdcbdc7509d2abb24e7173c54ee94f86"},
+    {"case":"BOTH-SHORT","status":"prepared not completed","postcapture_parent_review":"faults/settled-both-postcapture-75/parent-review.json","parent_review_sha256":"e71a597d3ea754204a4adf0aa74617ed556537d9053afbb7ee67f92cd178950a"},
+    {"case":"BYPASS-NEG","status":"prepared not completed","postcapture_parent_review":"faults/settled-bypass-postcapture-76/parent-review.json","parent_review_sha256":"08b4d08477721a59f17e12602cba925475a9360db4cff3bc673874b58c20f89d"}
+  ],
+  "entrypoints": [
+    {"case":"F2-ZERO","command":"bash faults/settled-postcapture-58/run.sh","source_pins":["faults/settled-direct-capture-51/full-F2-ZERO/source-identity.json","faults/settled-postcapture-58/tools-parent.sha256"],"run":false},
+    {"case":"F2-ZERO legacy witness","command":"bash faults/settled-postcapture-58/legacy-strict.sh","source_pins":["faults/settled-postcapture-58/full-F2-ZERO/preflight.json","faults/settled-postcapture-58/tools-parent.sha256"],"run":false},
+    {"case":"F2-CREST reanalysis build","command":"rustc --edition=2021 -D warnings -O supervisor.rs -o reanalysis40-supervisor","cwd":"faults/settled-reanalysis-40","run":false},
+    {"case":"F2-CREST prefix scan","command":"bash scan.sh","cwd":"faults/settled-prefix-analysis-42","run":false},
+    {"case":"F2-CREST phase tests","command":"rustc --edition=2021 -D warnings --test phase_audit.rs -o /private/tmp/matrix07-phase-audit43-tests","cwd":"faults/phase-audit-43","run":false}
+  ],
+  "case_status": {"F2-START":"accepted modeled screen","F2-CREST":"accepted modeled screen with prefix/phase receipts","F2-ZERO":"accepted modeled screen with prefix/phase receipts","SW-SHORT":"INDETERMINATE incomplete endpoint; campaign verdict86 and tail review85","DIODE-SHORT":"live/prepared, not completed","BOTH-SHORT":"prepared, not completed","BYPASS-NEG":"prepared, not completed"},
+  "broken_or_missing_refs": [
+    "F2-CREST raw archive path is not present in this worktree; acceptance receipt remains the hash authority.",
+    "F2-ZERO raw archive path is not present in this worktree; recovery acceptance receipt remains the hash authority.",
+    "Accepted baseline raw path is not present in this worktree; baseline acceptance receipt remains the hash authority.",
+    "DIODE-SHORT is live/prepared and has no completed postcapture acceptance; BOTH-SHORT and BYPASS-NEG are prepared only."
+  ],
+  "repo_identity": {"git_head": "5dde29ab3e2f1223c2d33c129ced2cf647238307", "git_head_role": "context only; not source identity", "worktree": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07"}
+}

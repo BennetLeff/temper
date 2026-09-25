@@ -1,0 +1,26 @@
+{
+  "status": "PARENT_REVIEWED_DRAFT_CONSOLIDATION_NOT_FINAL",
+  "utc": "2026-09-22T02:22:38.118049+00:00",
+  "accepted_protection": false,
+  "objective_complete": false,
+  "reviewed_files_sha256": {
+    "host/campaign-report-124.md": "3743f9fcc815d3def96663fef5cbb9cdb2b5932843c70f865f23dd12112da12e",
+    "host/final-completion-checklist-125.md": "94fa113aec63905dbe3adbedaa7c36036ef94a4505a2175b49eb8bb24ef2c62a",
+    "host/final-completion-checklist-125.json": "9e22d4d46192cd481ed046e5d5aeff1a0e65606303e3bfbd92c9cc07ff3dde09",
+    "host/both-acceptance-review-126.md": "6636ae4ab4c1a49c15718aefce022ad6d47d539289f5b4e644bfddb83e4311df",
+    "host/both-acceptance-review-126.json": "aa6b186d4c0a77ecf093c4bf8144867d6f622b0aadc22667305de337308145ca"
+  },
+  "checks": [
+    "Originalgoal/fault-matrix explicitlyallows retainedbounded INDETERMINATE attempts; assessedFAIL/INDETERMINATE not protectionPASS, and notbythemselves blockers to completinganassessment.",
+    "VerifiedF2START/CREST/ZERO numericaltable against authoritativeacceptances andbaseline actualmetrics.",
+    "Parentcorrected worker processIDs mislabeledasrowcounts,inductormodeladoptionambiguity,TIclampconstraintattribution,normal-prefixversusfulltraceacceptancewording.",
+    "Corrected125 prose:117doesnotindependentlyqualify ARM/PERMITorfullphase.",
+    "All124localMarkdownlinks resolve.",
+    "SWsourceboundownprefixaccepted129, fullfaultINDETERMINATEretained. BYPASScapture130 completewithVDscreenFAIL; independentanalysis76037notyetaccepted."
+  ],
+  "remaining": [
+    "BYPASS76037fullpostcapture then76legacy, ownprefix/phase andnegativecontrolwaveformparentreview",
+    "Finalreport and fullreproducibilityindex includinglatestartifacts",
+    "Finalrequirement-by-requirement audit from actualevidence"
+  ]
+}

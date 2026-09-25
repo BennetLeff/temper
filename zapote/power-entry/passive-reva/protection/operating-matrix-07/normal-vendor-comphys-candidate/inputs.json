@@ -1,0 +1,35 @@
+{
+  "status": "PREPARED_UNLAUNCHED",
+  "accepted": false,
+  "launch_performed": false,
+  "baseline_source": "../normal-hysteretic-settling-extension",
+  "baseline_target_end_s": 0.65,
+  "candidate_source": "../numerical-repair/driver-vendor-comphys-candidate/authored_logic_vendor_comphys.inc",
+  "copied_unchanged": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "progress.rs": "f5c60b4c49116a52b7808474da3828a98715e957b6af171fe57f824c2382eda8"
+  },
+  "candidate_source_sha256": "9df45215d576dae8b29b3aab0e2289c7034b948091fa8b073b37628729159bc3",
+  "staged_driver_sha256": "e26f888bb183812883a73e4e43f983b2345ee1d7778a82d57579f6e4d196207e",
+  "substitutions": [
+    {
+      "source": ".subckt AUTH_UCC27511A_HV",
+      "replacement": ".subckt AUTH_UCC27511A_H",
+      "count": 1
+    },
+    {
+      "source": ".ends AUTH_UCC27511A_HV",
+      "replacement": ".ends AUTH_UCC27511A_H",
+      "count": 1
+    }
+  ],
+  "primitive_body": "COMPHYS_BASIC_GEN copied verbatim; no primitive-line substitutions",
+  "notes": [
+    "No simulation, trace, long run, or acceptance checker was launched for this candidate.",
+    "No source outside this new candidate directory was modified during staging."
+  ]
+}

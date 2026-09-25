@@ -1,0 +1,43 @@
+{
+  "source": {
+    "url": "https://www.diodes.com/spice/download/1530/BAV23C.spice.txt",
+    "local_path": "diodes-bav23c.spice.txt",
+    "sha256": "aa03e4db0360c580a2ab13f1a9054ae32ca9739b31d8653d37e3d8376c732c6d",
+    "manufacturer": "Diodes Incorporated",
+    "part": "BAV23C",
+    "alternative_to_selected": "Vishay BAV23C-E3-08"
+  },
+  "simulator": "ngspice-45.2",
+  "fixtures": {
+    "vendor-clamp.cir": "02f7bed16ed1be6d322bfb6babbdbb7d78ab30295ca25cd00da1e9f3d4583dbc",
+    "vendor-clamp-temp-control.cir": "e3195d080ff3798b27a668d6a3d2d4d0d0251c85e525ebe55e1cbcaef2fc20c3",
+    "vendor-clamp-fault-temp.cir": "ebaef9001d2af33214ba9282054f952fde960cfc26a466583607afd2aee85253",
+    "vendor-clamp-reversed.cir": "797d584697c2ebc56c035f26a0183a9d3b2ab02146ccc23e3d5f780e2c929ef2",
+    "vendor-clamp-thresholds.cir": "32f4ff789b2b88d0121f98c1c68c8ed5fddb40c37a4f92b2ed8b0c9b846f9a55"
+  },
+  "checker": {
+    "path": "vendor_clamp_checks.rs",
+    "sha256": "4eaabb2a687e11a5fa72bfd98fccc32d9b0a6b37f99704850f1ec83450d40a7d",
+    "tests": 2
+  },
+  "threshold_checker": {
+    "path": "vendor_threshold_checks.rs",
+    "sha256": "26c4c838bc98cc6664f96006cf10a31388d14ffb997d0033da5c8e929c1ecc9c",
+    "tests": 2,
+    "sweep_sha256": {
+      "threshold_m40.tsv": "a72a04ecd7e797a7753e9a3850f49cdd93af8657c40f9e6dc1e4fc7cb48dd96f",
+      "threshold_m20.tsv": "622dcc0c52ad797f6198f248805ccf96cdd58a3fd318340b0d5aeae621a143d5",
+      "threshold_25.tsv": "8c4af2088d5c03bb846c7ce898db3135a2ec842d1a9bec3b888b8bd9bca51480",
+      "threshold_85.tsv": "f6e14dfb48bd6331d5648c07d3eb4fc31ed51c458fbd3b1de1b9ba5e43cd4e2c",
+      "threshold_125.tsv": "39af5a65ef877dd2a621b3a81f7107d2025edb17e82720eb258beedbfc08e8f4"
+    }
+  },
+  "screen": {
+    "pcl_shunt_v": -0.438,
+    "fault_shunt_v": -5.0,
+    "series_resistance_ohm": 220.0,
+    "chosen_current_limit_a": 0.000001,
+    "chosen_shift_limit_v": 0.002,
+    "limits_are_datasheet_requirements": false
+  }
+}

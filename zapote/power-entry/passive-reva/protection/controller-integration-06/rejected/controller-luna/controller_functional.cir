@@ -1,0 +1,30 @@
+* UCC28180 behavioral functional checks: startup, regulation, OVP/standby and
+* explicit stop/retry.  This is an independent controller test, not plant proof.
+.title UCC28180 conditional functional checks
+.param RUN=1
+Vcc vcc 0 15
+* Equivalent VSENSE ramp: 0 -> regulation (5.0 V), an OVP step, then recovery.
+Vvs vsense 0 PWL(0 0 20u 0 2m 4.2 8m 5.0 10m 5.6 12m 5.0 16m 0.5 32m 0.5 34m 5.0 50m 5.0)
+Vis isense 0 0
+Vrun run 0 PWL(0 0 200u 0 220u 5 9m 5 9.2m 0 33m 0 33.2m 5 50m 5)
+Vfreq freq 0 1.5
+Rgateout gate 0 10k
+.include ucc28180_behavioral.inc
+.tran 2u 50m
+.control
+set filetype=ascii
+set wr_singlescale
+set wr_vecnames
+run
+meas tran gate_on FIND v(gate) AT=5m
+meas tran gate_ovp FIND v(gate) AT=10.5m
+meas tran gate_standby FIND v(gate) AT=16.5m
+meas tran gate_retry FIND v(gate) AT=36m
+meas tran gate_retry_max MAX v(gate) FROM=34m TO=48m
+meas tran comp_ovp FIND v(vcomp) AT=10.5m
+meas tran comp_standby FIND v(vcomp) AT=30m
+wrdata controller_functional.tsv time v(vsense) v(vcomp) v(gate) v(ucc_standby) v(ucc_ovp) v(ucc_pcl)
+write controller_functional.raw all
+quit
+.endc
+.end

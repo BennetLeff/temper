@@ -1,0 +1,18 @@
+Pre-fix retained evidence (read-only canonical source)
+========================================================
+Revision checked in isolated worktree: 5dde29ab3e2f1223c2d33c129ced2cf647238307
+Canonical source: /private/tmp/temper-pkgs-1-4/elec/src/power_entry_passive_reva.ato
+Canonical source SHA-256: dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8
+Retained successful source export: zapote/power-entry/passive-reva/source-build-01
+
+Original declaration:
+  PfcIsenseClamp: BAT54H,115, pin 2 = A, pin 1 = K
+Original wiring:
+  isense_clamp.A ~ shunt.p2
+  isense_clamp.K ~ control_gnd
+
+Thus the diode anode was on the bridge-return shunt node and its cathode on
+control ground.  The negative ISENSE excursion is reverse-biased; the retained
+source provides only the opposite-polarity clamp.  The source-build-01 export
+compiled and exported successfully (Atopile 0.2.69), but that success does not
+qualify the wrong polarity.

@@ -1,0 +1,42 @@
+* A/B feedback-isolation fixture for reference revision 08.
+* The only changing stimulus is which 1M/13k/680p divider feeds VSENSE.
+* VB (old) and VD (candidate) each drive an otherwise identical UCC copy.
+.include ucc28180-pwm-latch.inc
+
+* Both banks start at 390 V.  VD rises first; after recovery VB rises.
+VVB vb 0 PWL(0 390 250u 390 251u 450 301u 450 302u 390 500u 390)
+VVD vd 0 PWL(0 390 100u 390 101u 450 151u 450 152u 390 500u 390)
+
+* Exact forced controller pins for this isolated OVP behavior test.
+VCC vcc 0 15
+VCOMP0 vcomp0 0 3
+VCOMP1 vcomp1 0 3
+VICOMP0 icomp0 0 1
+VICOMP1 icomp1 0 1
+VISENSE0 isense0 0 -0.1
+VISENSE1 isense1 0 -0.1
+
+* Old VB-fed divider and candidate VD-fed divider: 1 Mohm / 13 kohm / 680 pF.
+RVB_TOP vb vb_sense 1meg
+RVB_BOT vb_sense 0 13k
+CVB vb_sense 0 680p IC=5.0
+RVD_TOP vd vd_sense 1meg
+RVD_BOT vd_sense 0 13k
+CVD vd_sense 0 680p IC=5.0
+
+XOLD vcc vb_sense isense0 icomp0 vcomp0 gate_old 0 UCC28180_FN
+XCAND vcc vd_sense isense1 icomp1 vcomp1 gate_cand 0 UCC28180_FN
+RGO gate_old 0 10k
+RGC gate_cand 0 10k
+
+.options method=gear reltol=1e-4
+.tran 20n 500u 0 20n
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+wrdata feedback.tsv v(vb) v(vd) v(vb_sense) v(vd_sense) v(gate_old) v(gate_cand) v(xold.ov) v(xcand.ov) v(xold.pwm_hold) v(xcand.pwm_hold) v(xold.raw) v(xcand.raw)
+quit
+.endc
+.end

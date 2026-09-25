@@ -1,0 +1,39 @@
+{
+  "schema": "power-entry-interface-contract/v1",
+  "completed_date": "2026-09-22",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "status": "Proposed contract documented; circuit, supply and timing acceptance remain open",
+  "delegation": {
+    "agent": "/root/supply_interfaces",
+    "requested_model": "gpt-5.6-luna",
+    "route": "collaboration.followup_task reusing Luna worker",
+    "scope": "read-only contract draft",
+    "result": "completed and parent-edited",
+    "interrupt_called_after_handback": true,
+    "served_model_independently_attested": false
+  },
+  "verification": {
+    "source_hashes_checked": 7,
+    "source_hashes_match": true,
+    "declared_ports": 13,
+    "all_ports_documented": true,
+    "nominal_terms_calculated": 4,
+    "local_links_checked": 8
+  },
+  "parent_corrections": [
+    "Five physical connectors including mains; four owned by E.",
+    "Enumerate all thirteen external ports; keep internal PWM and observation nets separate.",
+    "Raw input bias must cover a disconnected cable; producer-only defaults are insufficient.",
+    "Nominal IC range intersection is not a valid RUN envelope.",
+    "Upper rail excursion handling unresolved; no AUX OV channel presently installed.",
+    "Fresh-arm/no-restart is required behavior, not proof across all supply orders and brownout.",
+    "Relay data and frequency have nominal evidence; physical tolerance and loaded behavior remain open.",
+    "No automatic assumption of one added connector or isolator per external port."
+  ],
+  "circuit_edits": 0,
+  "new_simulations": 0,
+  "hardware_tests": 0,
+  "component_reduction": 0,
+  "committed": false,
+  "published": false
+}

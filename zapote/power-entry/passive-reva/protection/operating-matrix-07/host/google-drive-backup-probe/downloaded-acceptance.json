@@ -1,0 +1,80 @@
+{
+  "status": "ACCEPTED_MODELED_NORMAL_SCREEN_BASELINE",
+  "policy_version": "event-aware-normal-v1",
+  "accepted_for_operating_matrix_baseline": true,
+  "accepted_at_utc": "2026-09-21T01:41:05.256161+00:00",
+  "scope": "This exact 120 VAC, 190 ohm, cold-start 650 ms model and retained trace meet the original numerical/electrical normal screens under explicit nondecreasing-time observable validation. Not hardware, thermal, protection/fuse or total-energy qualification.",
+  "source_sha256": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "trace": {
+    "path": "../numerical-repair/nonstopping-first-invalid/run/trace.tsv.gz",
+    "sha256": "90e1f2c013e965a99d10053b074127bbddf2c73d5b1403e9e872e3de6933a3b5",
+    "bytes": 5356097124,
+    "rows": 30108912,
+    "fields": 31,
+    "start_s": 2e-10,
+    "end_s": 0.65
+  },
+  "legacy_strict_result": {
+    "status": "REJECTED_NONINCREASING_TIME",
+    "unchanged": true,
+    "report": "../numerical-repair/nonstopping-first-invalid/run/checker-report.txt"
+  },
+  "event_checks": {
+    "equal_intervals": 66,
+    "groups": 45,
+    "max_group_rows": 3,
+    "all_groups_have_following_positive_time": true,
+    "backwards": 0,
+    "nonfinite_rows": 0,
+    "max_positive_gap_s": 5.000000000143778e-07,
+    "saved_logic_changes_within_equal_groups": 0,
+    "cycle_boundary_groups": 0,
+    "selected_E3_sum_absolute_change_j": 5.362997856570117e-12,
+    "selected_E3_settled_componentwise_sum_absolute_change_j": 1.4890321112994453e-12,
+    "integral_choice_bound_scope": "Full neighboring-state interval hull over every group; all rows retained for extrema. Bounds cover representative-choice quadrature sensitivity, not global solver error or unsaved-state energy."
+  },
+  "metrics": {
+    "mains_vrms_v": 120.0,
+    "mains_irms_a": 7.321738,
+    "input_power_w": 868.631623,
+    "load_power_w": 773.454404,
+    "pf": 0.988645,
+    "vb_mean_v": 383.377572,
+    "vb_min_v": 381.305435,
+    "vb_max_v": 385.386372,
+    "cycle_means_v": [
+      382.847104781098,
+      383.39300540370664,
+      383.8926069484155
+    ],
+    "cycle_drift_fraction": 0.002730860843,
+    "energy_residual_w": 68.1334026367113,
+    "armed_fraction": 1.0,
+    "on_fraction": 1.0,
+    "electrical_screen_violations": 0
+  },
+  "validation_rules": "Exact timestamps retained. Complete startup/endpoint, finite fields, no backwards time, original positive-gap limits, all-row peaks, final-three-cycle current/power/bus/state screens unchanged. Every finite equal-time group is explicitly audited; no blanket duplicate waiver. Original strict rejection always retained.",
+  "evidence_sha256": {
+    "numerical-repair/event-aware-normal-metrics/metrics.rs": "e686b4d29d0cede142c9050dfcc738feb21f47bd1b8999c764ce1a756b94692e",
+    "numerical-repair/event-aware-normal-metrics/parent-review.json": "f39f33b6d86648a71be21311dae6a26e8f28cf2d01abcece9df821b57b75ee20",
+    "numerical-repair/event-aware-normal-metrics/full-650ms-metrics.txt": "aae2b59407898158bf3f89d3df17d84416754e42aec4b29100a618760dd47646",
+    "numerical-repair/equal-time-error-budget/parent-bounds-review.json": "7751a5ef100489ef805ab5f1c36b4b87227b3c452a38e4084be9dc62efacc768",
+    "numerical-repair/equal-time-error-budget/parent-bounds-report.txt": "7cf1be0cb7b6ee2f3591eb11c735d8b5d227fab4023223af923269dd0cfd3e94",
+    "numerical-repair/equal-time-error-budget/full-650ms-events.tsv": "ed4d7c2e12fd3da9d7ebc09cd4a96a5c8daa7b5dea05f07c282e08520ca0cc36",
+    "numerical-repair/nonstopping-first-invalid/run/event-audit.txt": "19d3bfcfe391bbdd678240297d02e9678802d134f627856601f839b927fa406b",
+    "numerical-repair/timestamp-validity-audit/parent-review.json": "0119b2a82cd68a75250d4696f3671d077ccbdd280fbfe4e01d0a674cf4adfe26"
+  },
+  "parent_tested_metric_binary": {
+    "path": "/private/tmp/matrix07-event-metrics-host",
+    "sha256": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c"
+  },
+  "independent_luna_review": "No remaining numerical blocker to this scoped decision; required stale source/binary manifests were corrected before this receipt.",
+  "future_cases": "Require their own complete trace, normal screens, all-row event/error audit and source-bound receipts; this decision applies to no other case automatically."
+}

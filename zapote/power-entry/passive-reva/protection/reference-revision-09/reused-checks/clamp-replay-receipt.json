@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/reused-checks/clamp-check",
+    "build/default.net",
+    "build/default.csv",
+    "clamp_pcl.log",
+    "clamp_negative.log",
+    "clamp_reversed.log",
+    "clamp_temperature.log",
+    "clamp_temperature_negative.log"
+  ],
+  "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp",
+  "dedicated_process_group": 53193,
+  "ended_unix": 1790049304.1716921,
+  "error": null,
+  "interrupted_signal": null,
+  "resolved_command": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/reused-checks/clamp-check",
+  "returncode": 1,
+  "started_unix": 1790049303.858807,
+  "status": "failed",
+  "termination": "leader/group already exited",
+  "timeout_seconds": 60.0
+}

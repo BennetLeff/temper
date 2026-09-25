@@ -1,0 +1,66 @@
+{
+  "status": "PARENT_VERIFIED_COMPLETE_SOURCE_BOUND_NORMAL_CASE",
+  "utc": "2026-09-21T18:41:18.065157+00:00",
+  "case": "LL08",
+  "raw_sha256": "dfd490459db468fd235d17a2c4d973ecac0624b9ac331fe42c89c41dc7efe8de",
+  "raw_bytes": 2192811017,
+  "raw_independent_verification": "Parent session42622: independent shasum SHA256 plus pigz -t both0 after terminal runner65352exit0.",
+  "source_sha256": {
+    "cold.cir": "cca34e1517db547f335a0ba9ff278fb5e80bcb8186158d98f19d303928421063",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "tools_sha256": {
+    "/private/tmp/matrix07-direct-normal37-parent": "be6b73451f111636a2f0dbf67a4ce135c3ae8302b4dc50ee81da2386b124fc15",
+    "/private/tmp/matrix07-normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "/private/tmp/matrix07-checker": "24c95bea81b44a3d5038a32552297afed17547fcd1b3ddcfd99434e84638b85c",
+    "/private/tmp/matrix07-native-stream-host": "23008f5bba4c560d87c97fde0822949fba5bccab7223af0b64fd49c6b221aea0",
+    "/private/tmp/matrix07-event-metrics-host": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "/private/tmp/matrix07-normal15-event-audit-host": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6"
+  },
+  "source_identity_sha256": "21efd20fee3f42095068edbe2db064baf456d70b8c9ce990836c003875bf349d",
+  "pipeline": {
+    "event_audit_exit": 0,
+    "checker_exit": 1,
+    "checker_normalizer_exit": 1,
+    "checker_decoder_exit": 1,
+    "checker_gzip_exit": -1,
+    "metrics_exit": 0,
+    "metrics_normalizer_exit": 0,
+    "metrics_decoder_exit": 0,
+    "metrics_gzip_exit": 0
+  },
+  "report_sha256": {
+    "raw15-event-audit.txt": "2ae7fb479830dd92567461642557162c9022f7d63165b0df43b88d3168f306ae",
+    "raw15-event-audit.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "owned-events.tsv": "19299fa4023a11f76dd8aca68236c333f1c1a94d737a6d2e287d9fb2c3670edb",
+    "event-metrics.txt": "78cb5d87fc3a0366513861eaed7e0221dabab6c7f892435cd6210733002f2a8f",
+    "event-metrics.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-pipeline.json": "6dce3872882366574b198cd36ae33cee98f40fff42c3cb96b1eab197ec2b93f0",
+    "result.json": "51bf34d4087fc90b22dd9b739126650aa4a2bf7f262444fa8b9905247e57f3ae",
+    "checker-report.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checker.stderr": "d4a57aa71476a347abbe4f8146f460a302955d8a9094994610a9d61e2cf6b0d8",
+    "capture-metadata.json": "c8d6e13bbc2fcd4b0ea44eca7898fd37fdeefea95b68511e0a33939afef766bf",
+    "stop.txt": "fa8f340e4d0da64d566e779757c445bce5454fa4ceedae52aa55067507e07566",
+    "case.json": "c8690d0c6f0087aadf64bf29e17ab794ff3e62bfcb03426290ceb45b14b523d7",
+    "first-invalid.tsv": "2406c96f89b3ebe03573e2038ffc14584e9ea09f9522346813058666a6d33860",
+    "transport-identity.json": "2806ba531945433844e038ef0698626b2eba3b907bc5ff06dbf6ab421f50eca2",
+    "native-export-receipt.json": "6da2f95d811c11a4cd189377a232faac336e7396241b5141a9d30416302cec48",
+    "parent-launch-source-verification.json": "b006b8c8717305deb4086274372cad0c8c8b63722386be475610f3af5032feda",
+    "raw.trace.raw.gz": "dfd490459db468fd235d17a2c4d973ecac0624b9ac331fe42c89c41dc7efe8de"
+  },
+  "independent_review_sha256": "735ecceacb169573263541452856a4382cad8f1d623c712a72d9d152c0ff3d9b",
+  "resource_review_sha256": "e4c82c250d553fabf6d8df7b61b732272ab4a94bb34f73d0d2c606cd9c139e1a",
+  "parent_checks": [
+    "Exact two source substitutions; five includes unchanged.",
+    "Full capture/export/audit/metrics counts30447163 and650msendpoint agree.",
+    "All complete event/metrics child exits0, finite/order/endpoint/gap checks retained by frozen tools.",
+    "Legacy strict rejection preserved; first-invalid points to repeated time, no backward rows.",
+    "All original rows checked for extrema; no equal-time logic or boundary ambiguity.",
+    "Recomputed threecycle drift from fullprecision means and checked each screen margin."
+  ],
+  "acceptance_decision_in": "acceptance.json"
+}

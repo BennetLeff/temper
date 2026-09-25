@@ -1,0 +1,84 @@
+{
+  "status": "bounded design experiment complete; electrical integration still blocked",
+  "date": "2026-09-22",
+  "requested_model": "gpt-5.6-luna",
+  "served_model_independently_attested": false,
+  "workers": {
+    "reset_transport": {
+      "ownership": "/tmp/temper-interface14-reset",
+      "result": "parent corrected after two worker versions",
+      "interrupted_after_handback": true
+    },
+    "aux_envelope": {
+      "ownership": "/tmp/temper-interface14-aux",
+      "result": "arithmetic accepted; parent corrected evidence wording and LDO typical/max interpretation",
+      "interrupted_after_handback": true
+    }
+  },
+  "runtime": {
+    "rustc": "1.92.0 (ded5c06cf 2025-12-08)",
+    "ngspice": "45.2",
+    "node": "26.4.0"
+  },
+  "verification": [
+    {
+      "name": "reset final plus independent parent tests",
+      "exit": 0,
+      "tests_passed": 21,
+      "source_sha256": "da770d9a4affd30a68bef14d46f871fe5779fa7c6b74222a6910267c8a144eb8",
+      "includes_expected_limitations": [
+        "failed-high conductor",
+        "finite and coincident START/inhibit ordering"
+      ]
+    },
+    {
+      "name": "AUX arithmetic",
+      "exit": 0,
+      "tests_passed": 3
+    },
+    {
+      "name": "ngspice ideal RC oracle",
+      "exit": 0,
+      "t18_35_seconds": 0.00000407182,
+      "t18_24_seconds": 0.00000960967,
+      "meaning": "matches Rust closed-form at recorded precision; not physical qualification"
+    },
+    {
+      "name": "v1 known-bad witness",
+      "exit": 0,
+      "tests_passed": 2,
+      "meaning": "reproduced postponed reset and missed short pulse"
+    },
+    {
+      "name": "parent tests on worker v2",
+      "exit": 101,
+      "tests_failed": 2,
+      "meaning": "independent tests caught default-low open and invalid-command deadline defects before parent fixes"
+    }
+  ],
+  "decisions": {
+    "reset": "hardware capture/default-low permission independent of decoder; arm authorization clears asynchronously",
+    "transport": "proposed3forward1return allocation with hardware-combined PERMIT_TX; direction budget only, no selected pin map",
+    "aux_passive_low_current_barrier": "rejected under stated envelope",
+    "conditional_load_ma": 114.473684,
+    "max_total_series_resistance_ohm": 3.275862,
+    "tps2660_6us": "visually confirmed nominal only, endpoint FLT, MAX blank",
+    "tps7a47_dropout": "worker307mV maximum corrected to307typical/450maximum at1A"
+  },
+  "unresolved": [
+    "physical reset recognition/pulse-width/propagation and gate-off limits",
+    "failed-high shared permission path not tolerated by this single path",
+    "full decoded handshake not physically integrated and persistent storage not implemented",
+    "complete75mA load budgets plus newreceiver/isolation",
+    "active limiter exact device/C/timer/compensation and source transient/SOA proof"
+  ],
+  "frozen_inputs_unchanged": 9,
+  "additional_inputs_unchanged": 4,
+  "compiled_candidate": "interface-defaults-11",
+  "compiled_component_count": 136,
+  "production_edits": false,
+  "pcb_edits": false,
+  "hardware_test": false,
+  "commit_or_push": false,
+  "vendor_contact": false
+}

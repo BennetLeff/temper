@@ -1,0 +1,34 @@
+{
+  "status": "EXPECTED_STRICT_REJECTION",
+  "accepted": false,
+  "raw_before_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "raw_after_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "tool_sha256": {
+    "pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "decoder": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "selector": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+    "normalizer": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "checker": "24c95bea81b44a3d5038a32552297afed17547fcd1b3ddcfd99434e84638b85c"
+  },
+  "pipeline_status_order": [
+    "pigz",
+    "decoder",
+    "selector",
+    "normalizer",
+    "checker"
+  ],
+  "pipeline_statuses": [
+    141,
+    1,
+    1,
+    1,
+    1
+  ],
+  "wrapper_returncode": 1,
+  "checker_rejected_duplicate_time": true,
+  "timed_out": false,
+  "resource_stop": null,
+  "max_seconds": 900.0,
+  "minimum_free_bytes": 10737418240,
+  "prefix_end_s": "6.49999987987940120e-1"
+}

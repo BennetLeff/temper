@@ -1,0 +1,31 @@
+{
+  "status": "dispatched",
+  "requested_model": "gpt-5.6-luna",
+  "served_model_independently_attested": false,
+  "engine": "native collaboration; resumed existing Luna agents",
+  "worktree": "/Users/bennet/Desktop/temper/worktrees/power-entry",
+  "deadline_utc": "2026-09-22 14:39:00",
+  "ownership": "read-only research; parent owns integration and all writes",
+  "units": [
+    {
+      "agent": "/root/gate_restart",
+      "scope": "command crossing and reset/reconnection behavior"
+    },
+    {
+      "agent": "/root/supply_interfaces",
+      "scope": "AUX15 and HOT5 producer/limiter candidates"
+    },
+    {
+      "agent": "/root/pfc_stage",
+      "scope": "current-sense clamp selection and missing guaranteed bounds"
+    }
+  ],
+  "constraints": [
+    "no source/CAD edits",
+    "no vendor contact",
+    "no procurement",
+    "no long simulation",
+    "no production adoption"
+  ],
+  "parent_work": "cross-interface acceptance matrix and decision synthesis"
+}

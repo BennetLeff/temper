@@ -1,0 +1,28 @@
+{
+  "status": "REJECTED_WALL_LIMIT_INCOMPLETE_FAULT_OBSERVATION",
+  "accepted": false,
+  "utc": "2026-09-21T03:41:27.084878+00:00",
+  "target_end_s": 0.089,
+  "actual_end_s": 0.07635855591512783,
+  "solver_wall_s": 600.030998,
+  "rows": 3749174,
+  "fields": 42,
+  "raw_path": "raw.trace.raw.gz",
+  "raw_bytes": 583086825,
+  "raw_sha256": "88c6f8a495c0e36be83650bb96014f5bb8d4f8199ebf1dd55f26f875f4432ef2",
+  "source_manifest_hashes_reverified": true,
+  "full_raw_decode_scan_exit": 0,
+  "partial_scan": "parent-partial-scan.json",
+  "native_row_count_matches_scan": true,
+  "actual_injection_edges": [
+    {
+      "time_s": 0.07499999950397539,
+      "v_acsrc_acn": 3.1734422175161425e-05
+    }
+  ],
+  "fault_behavior_verdict": "NOT_ESTABLISHED: incomplete89ms endpoint; only1.3586ms captured after75msmutation, less than minimum2ms required observation; original supervisor metadata rejects wall_limit before faultcheckpipeline",
+  "supervisor_exit": 1,
+  "supervisor_rejection": "capture metadata failed typed schema/mask/point validation",
+  "performance_diagnosis": "Read-only exactngspice45.2source shows largePWL perload/perstep linear scans; compactpacer benchunderreview",
+  "supervisor_followup": "native-runner-19 review toguarantee gzipdrain forpartialpositive-pointcapture evenifmetadatarejects; thisrunrawdecodedall3749174points successfully"
+}

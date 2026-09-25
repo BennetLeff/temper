@@ -1,0 +1,30 @@
+{
+  "status": "PREPARED_UNLAUNCHED",
+  "case": "DIODE-SHORT",
+  "case_source": "../settled-compact-prep-24/prepared/DIODE-SHORT",
+  "case_sha256": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78",
+  "manifest_sha256": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9",
+  "source_closure_sha256": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "timing": {"t_fault_s": 0.6541666666667, "tstop_s": 0.662, "prefault_window_s": 0.002, "event_window_s": 0.002, "observation_window_s": 0.002, "turnoff_s": 0.000002, "capture_max_gap_s": 0.000000025, "outer_adapter_validator_max_gap_s": 0.000001, "wall_seconds": 3600, "export_timeout_s": 900},
+  "tools": {
+    "runner45": {"path": "/private/tmp/matrix07-fault-runner45-parent", "sha256": "98a8c07622dcd257a919107c366775009dfd918b45c4bb72e8fb603d7dc92abb"},
+    "runner45_source": {"path": "../native-runner-45/supervisor.rs", "sha256": "b131c153db6a67f3da961bda0b2a5a7c417271f68c0141c7af664059c87219a3"},
+    "direct_fault37": {"path": "/private/tmp/matrix07-direct-fault37-parent", "sha256": "dcd72ea758b7a9ac3d60f6b35f249afad756fb63b02e584ca3ad937e7edc42a9"},
+    "fault42_decoder13": {"path": "/private/tmp/matrix07-fault-native-decoder-parent", "sha256": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658"},
+    "event_adapter13": {"path": "/private/tmp/matrix07-fault-adapter-parent", "sha256": "53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae"},
+    "event_validator22": {"path": "/private/tmp/matrix07-fault-validation22-parent", "sha256": "63f6d17b123acd696c1f30fa546e7546ae43cf45cfb660cda44086bab3afb12f"},
+    "pigz": {"path": "/opt/homebrew/bin/pigz", "sha256": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"},
+    "spinit": {"path": "/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts/spinit", "sha256": "b2e0359f8b549f6e27bc86f1bb9b7847b7f376c3758bf8297084807a45af2390"},
+    "resource_monitor": {"path": "../../host/resource-monitor-37.sh", "sampling_interval_s": 5}
+  },
+  "checker_contract": {"validator_kind": "diode-short", "runner_kind": "diode-short", "local_gap_is_immutable_25ns": true, "outer_gap_is_reviewed_1us": true, "bypass": false, "acceptance": false},
+  "interpretation": "Graph experiment only: the failed switch spans sw to vd (common diode terminals). F2 is held closed at constant 5 V. Shared common-cathode branches are instrument paths, not independent die currents; no die allocation, package sharing, thermal, or SOA claim is reachable. Node/detector failures take precedence.",
+  "source_identity_note": "Materialize this exact prepared closure into fresh full-DIODE-SHORT output. Never run the prepared directory itself or inherit other fault evidence. Parent must review and explicitly launch."
+}

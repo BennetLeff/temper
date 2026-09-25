@@ -1,0 +1,104 @@
+{
+  "scope": "Read-only value/topology comparison; no adoption or simulation claim.",
+  "official_sources": {
+    "evm_guide": "https://www.ti.com/lit/pdf/sluuat3",
+    "tida_design_guide": "https://www.ti.com/lit/pdf/tidube1",
+    "evm_page": "https://www.ti.com/tool/UCC28180EVM-573",
+    "tida_page": "https://www.ti.com/tool/TIDA-00779",
+    "tida_schematic": "https://www.ti.com/lit/pdf/tidrka5"
+  },
+  "local_hashes": {
+    "accepted-baseline-11/cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "accepted-baseline-11/ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  },
+  "comparisons": [
+    {
+      "topic": "current sense/shunt",
+      "local": "Rshunt=10 mOhm; Risense=220 ohm from bridge_minus to isense; Cisense=1 nF",
+      "evm": "Schematic p6: R4=0.032 ohm shunt; R2=221 ohm series ISENSE; C8=1000 pF. R3=17.8 kOhm is FREQ, not current sense",
+      "tida": "Rev D sheet 2: R4/R5/R45=10 mOhm each in parallel (~3.33 mOhm), R11=220 ohm, C15=2.7 nF, D4 BAT54T1G clamp",
+      "status": "Shunts differ; localfilter close toEVM220vs221ohm,both1nF. Scaling rationale stillrequirescalculation."
+    },
+    {
+      "topic": "ISENSE negative clamp",
+      "local": "DCLAMP 0 to isense using BAV23C_ASSUMED_V2 in cold.cir",
+      "evm": "No external ISENSE clamp shown on schematic p6",
+      "tida": "Rev D sheet 2: D4 BAT54T1G with R11/C15 ISENSE network",
+      "status": "EVMomits clamp; TIDAshares negative-clamp topology withdifferentdevice/filter; no localclampqualification."
+    },
+    {
+      "topic": "voltage feedback",
+      "local": "Rfb1=1 Mohm, Rfb2=13 kOhm, Cvsense=680 pF",
+      "evm": "Schematic p6: upper R9=332 kOhm, R10=332 kOhm, R11=340 kOhm, R12=0; R8=49.9 ohm series; lower R13=13.3 kOhm; C15=820 pF",
+      "tida": "Rev D sheet 2: R6/R7/R8=332 kOhm, R9=18 kOhm, C11=820 pF, plus Q4/R14=16.2 kOhm feed-forward/follower path",
+      "status": "confirmed EVM and TIDA network/value mismatches; TIDA not a fixed-divider equivalent"
+    },
+    {
+      "topic": "ICOMP/VCOMP",
+      "local": "Cicomp=2.7 nF; Rvcomp=40.2 kOhm, Cvcomp_s=4.7 uF, Cvcomp_p=220 nF",
+      "evm": "C7=2.7nF ICOMP; VCOMPseriesR6=22.6kOhm/C13=4.7uF branch parallelC14=.47uF; R7=10kOhmgatepulldown.",
+      "tida": "C10=3.3nF ICOMP; VCOMPseriesR10=10kOhm/C14=8.2uF branch parallelC13=390nF.",
+      "status": "local ICOMP matches EVM but not TIDA; VCOMP networks differ"
+    },
+    {
+      "topic": "frequency",
+      "local": "RFREQ=16.2 kOhm; surrogate FSW=2.0915334e9/RFREQ ~=129.107 kHz",
+      "evm": "120 kHz nominal with single FREQ resistor (guide p2\u20135)",
+      "tida": "R12=47kOhm; schematic45kHznominal, guide prose44kHz and calculations45kHz; no extra precision assumed.",
+      "status": "confirmed frequency/value mismatch"
+    },
+    {
+      "topic": "startup/VCC bias",
+      "local": "Vaux PWL 0 to 15 V at 5 ms; logic5 PWL; permit/arm/standby PWL",
+      "evm": "External regulated 12 V bias, at least 10 mA; startup procedure turns bias on before load (guide p7\u20139)",
+      "tida": "Rev D sheets 1\u20132: onboard UCC28881 bias supply feeds the 15 V controller/driver rail; no external 12 V/55 mA claim retained",
+      "status": "confirmed local scripted rails differ; startup equivalence unresolved"
+    },
+    {
+      "topic": "gate drive",
+      "local": "Host surrogate Bgate behavioral output plus authored behavioral Xdriver AUTH_UCC27511A_H in protection.inc",
+      "evm": "UCC28180 integrated gate output (guide p1; schematic p6)",
+      "tida": "Rev D sheet 2: UCC27524DR drives parallel MOSFETs Q1/Q6; R44 DNP for UCC27524 and 0 ohm for UCC27531 variant",
+      "status": "confirmed implementation/model mismatch; local path includes an authored behavioral driver"
+    },
+    {
+      "topic": "magnetics/output/inrush",
+      "local": "Lboost=180 uH; Clocal=19.8 uF; Cbank=2240 uF; generic MOS/diode; no D2 inrush-bypass path in cold.cir",
+      "evm": "L2=327 uH, 270 uF output capacitor, SPP20N60C3 and C3D04060A; D2=1N5406 bypasses inductor+boost diode during inrush",
+      "tida": "Rev D sheet 2: 180 uH choke, C4/C5/C18=680 uF each (2040 uF), 3.5 kW; D2=1N5406 likewise bypasses inductor+boost diode during inrush",
+      "status": "confirmed value/device/connectivity differences; no performance conclusion"
+    }
+  ],
+  "working_benchmark": "Breville Control Freak CMC850 is 1800 W mains input at 120 V/60 Hz; this is not a DC-output requirement. Local 15 A screen remains unchanged and low-line derating is unresolved.",
+  "source_artifacts": {
+    "evm_pdf": {
+      "path": "host/reference-sources-107/sluuat3.pdf",
+      "sha256": "4060ba9b2d4d6bd0c06540d9fae91894ee472b93169efc7f05dcfefaa9435911"
+    },
+    "tida_pdf": {
+      "path": "host/reference-sources-107/tidrka5.pdf",
+      "revision": "D",
+      "date": "2024-08-22",
+      "sha256": "8b91f9402e1fd36dd71b2af6b465d300c5af5ec7488f9290bdb9b58bf5c57f05"
+    },
+    "rendered_tida_sheets": [
+      {
+        "path": "host/reference-sources-107/tida-1.png",
+        "sha256": "01f0abb0ce0a83ef50c2a932e50727c9072f2ed45d61d46edd3e166c7d37f634"
+      },
+      {
+        "path": "host/reference-sources-107/tida-2.png",
+        "sha256": "4502f66237c33320405a641513b9a71ffe5b77b4faa84ff8ac07eb97528fe2e8"
+      }
+    ],
+    "rendered_evm_schematic": {
+      "path": "host/reference-sources-107/evm-schematic.png",
+      "sha256": "700015167a9cd555e1ba116ae2ec137f92eaaadaa65423503ed61da6db5b0335"
+    }
+  },
+  "next_comparisons": [
+    "Correlate startup/UVLO/OVP/OCP thresholds and gate timing against actual UCC28180 behavior.",
+    "Resolve inductor ripple/saturation, capacitor ripple current, thermal, and inrush behavior before any scaling claim."
+  ],
+  "operating_range_caveat": "Current guide RevD full-load range190\u2013270VAC; schematic note156\u2013265VRMS is not evidence of full-power156V operation. No108/120V fullpower qualification inherited."
+}

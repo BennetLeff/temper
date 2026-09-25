@@ -1,0 +1,20 @@
+{
+  "status": "REJECTED_INCOMPLETE_EXPORT",
+  "case": "LL05",
+  "line_v_rms": 120,
+  "rload_ohm": 187.407220031,
+  "target_end_s": 0.65,
+  "solver_wall_limit_s": 3600,
+  "minimum_free_bytes": 10737418240,
+  "tool_session": 49865,
+  "source_review": "../parent-review.json",
+  "observed_utc": "2026-09-21T03:51:05.525059+00:00",
+  "progress_line": "221.776307\t1.18537567284599923e-1\t18.236549\t2.958678406245e-4\t3769786\tfalse\t0\t0",
+  "parallel_decision": "LL04solverreleasedbeforelaunch; candidate20startupfaultmayoccupysecondslot afterparentreview;16.26GiBfree atLL05launch",
+  "launch_environment": {
+    "SPICE_SCRIPTS": "/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts"
+  },
+  "completed_utc": "2026-09-21T04:29:39.359609+00:00",
+  "session_exit": 1,
+  "parent_disposition": "LL05/parent-disposition.json"
+}

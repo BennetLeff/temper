@@ -1,0 +1,22 @@
+* Late absolute-time screen near 0.257 s. This is a numerical finite-trace
+* probe of the authored state machine, not a vendor-model reproduction.
+.include authored_logic_hysteretic.inc
+Vaux aux15 0 15
+Vdisable disable 0 0
+* Hold PWM high through a long static prehistory, then apply an approximately
+* 1 ns falling edge near 0.257 s to exercise the known precision regime.
+Vpwm pwm_input 0 PWL(0 5 0.2569900 5 0.2569905 0 0.2570200 0)
+Xdriver disable pwm_input aux15 0 driver_out AUTH_UCC27511A_H
+Rgate driver_out gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.tran 500n 0.25702
+.control
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+wrdata authored-late.tsv v(pwm_input) v(driver_out) v(gate) v(xdriver.pwm_state) v(xdriver.inm_state) v(xdriver.aux_state) v(xdriver.driver_req)
+quit
+.endc
+.end

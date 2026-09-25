@@ -1,0 +1,1729 @@
+Analysis of sampling ngspice (pid 93754) every 1 millisecond
+Process:         ngspice [93754]
+Path:            /opt/homebrew/*/ngspice
+Load Address:    0x102708000
+Identifier:      ngspice
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  codex [21562]
+Target Type:     live task
+
+Date/Time:       2026-09-20 11:03:17.741 -0600
+Launch Time:     2026-09-20 10:23:44.816 -0600
+OS Version:      macOS 26.6.2 (25G83)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         786.7M
+Physical footprint (peak):  1.3G
+Idle exit:                  untracked
+----
+
+Call graph:
+    840 Thread_23856277   DispatchQueue_1: com.apple.main-thread  (serial)
+      840 start  (in dyld) + 6992  [0x18ddb04e4]
+        840 main  (in ngspice) + 3452  [0x10270f608]
+          840 inp_spsource  (in ngspice) + 5008  [0x10272d0f8]
+            840 cp_evloop  (in ngspice) + 1776  [0x10271ab6c]
+              840 doblock  (in ngspice) + 1120  [0x10271b29c]
+                840 dosim  (in ngspice) + 932  [0x1027598e8]
+                  840 if_run  (in ngspice) + 1264  [0x10275c6c0]
+                    840 CKTdoJob  (in ngspice) + 812  [0x102a31f38]
+                      813 DCtran  (in ngspice) + 3120  [0x102a39d74]
+                      + 390 NIiter  (in ngspice) + 1316  [0x102ab4d94]
+                      + ! 372 CKTload  (in ngspice) + 180  [0x102a32874]
+                      + ! : 301 ASRCload  (in ngspice) + 312  [0x10277d184]
+                      + ! : | 143 IFeval  (in ngspice) + 240  [0x102a5e624]
+                      + ! : | + 112 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! 70 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : 38 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | 15 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + 5 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! 4 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | + 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : | + !   1 PTeval  (in ngspice) + 584  [0x102a5e94c]
+                      + ! : | + ! : | + ! : | + 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |     1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :       1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + 5 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |     2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |       1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |       + 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |       +   1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : |       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |         1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : |           1 PTeval  (in ngspice) + 0  [0x102a5e704]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 228  [0x102a5e7e8]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + !   2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !     | 1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + !     |   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !     |     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !     |       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !     |         1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !     |           1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !     |             1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + !   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   : | 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   : |   1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + !   : |     1 PTuminus  (in ngspice) + 0  [0x102a70134]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   :   1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + !   :     1 PTeval  (in ngspice) + 584  [0x102a5e94c]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 104,440  [0x102a5e76c,0x102a5e8bc]
+                      + ! : | + ! : | 13 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + 7 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! 6 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : 4 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | 4 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   + 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |   + ! 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   + !   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   + !     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |   + !       1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : |   + 1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | + ! : |   + ! 1 PTplus  (in ngspice) + 0  [0x102a6fd68]
+                      + ! : | + ! : | + ! : |   + 1 PTeval  (in ngspice) + 12  [0x102a5e710]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :   + 1 PTeval  (in ngspice) + 236  [0x102a5e7f0]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 636  [0x102a5e980]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 636  [0x102a5e980]
+                      + ! : | + ! : | + 6 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | +   4 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | +   : 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   : | 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   : |   2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | +   : |   + 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   : |   + ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +   : |   + !   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +   : |   + !     1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | +   : |   + 1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | +   : |   +   1 PTtimes  (in ngspice) + 0  [0x102a6fd78]
+                      + ! : | + ! : | +   : |   1 PTeval  (in ngspice) + 296  [0x102a5e82c]
+                      + ! : | + ! : | +   : |     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   : |       1 PTeval  (in ngspice) + 4  [0x102a5e708]
+                      + ! : | + ! : | +   : 1 PTeval  (in ngspice) + 636  [0x102a5e980]
+                      + ! : | + ! : | +   2 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | +     2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | +       2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +         2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +           2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +             2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +               2 PTeval  (in ngspice) + 164,600  [0x102a5e7a8,0x102a5e95c]
+                      + ! : | + ! : | 5 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + 5 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   ! 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   !   3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   !     2 PTeval  (in ngspice) + 16,156  [0x102a5e714,0x102a5e7a0]
+                      + ! : | + ! : | +   !     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +   !       1 PTeval  (in ngspice) + 32  [0x102a5e724]
+                      + ! : | + ! : | +   2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +     : 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | +     1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 316  [0x102a5e840]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 588  [0x102a5e950]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 52,376  [0x102a5e738,0x102a5e87c]
+                      + ! : | + ! : 26 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | 25 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + 20 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! 12 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : 12 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   10 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! :   | 9 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! :   | + 7 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :   | + ! 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   | + ! : 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :   | + ! :   2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :   | + ! :   | 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   | + ! :   | + 1 PTeval  (in ngspice) + 0  [0x102a5e704]
+                      + ! : | + ! : | + ! :   | + ! :   | 1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | + ! :   | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   | + ! :     1 PTeval  (in ngspice) + 668  [0x102a5e9a0]
+                      + ! : | + ! : | + ! :   | + ! 3 PTeval  (in ngspice) + 52,92,...  [0x102a5e738,0x102a5e760,...]
+                      + ! : | + ! : | + ! :   | + ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :   | + !   1 PTeval  (in ngspice) + 32  [0x102a5e724]
+                      + ! : | + ! : | + ! :   | + 1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | + ! :   | + ! 1 PTplus  (in ngspice) + 0  [0x102a6fd68]
+                      + ! : | + ! : | + ! :   | + 1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + ! :   | 1 PTeval  (in ngspice) + 304  [0x102a5e834]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 296  [0x102a5e82c]
+                      + ! : | + ! : | + ! :   | 1 PTeval  (in ngspice) + 56  [0x102a5e73c]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 320  [0x102a5e844]
+                      + ! : | + ! : | + ! 6 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 180  [0x102a5e7b8]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 52,600  [0x102a5e738,0x102a5e95c]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | + ! :   1 PTdivide  (in ngspice) + 40  [0x102a6fda8]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 168,600  [0x102a5e7ac,0x102a5e95c]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   | 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 604  [0x102a5e960]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + !   1 PTeq0  (in ngspice) + 0  [0x102a6ff88]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 156,600  [0x102a5e7a0,0x102a5e95c]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : |   1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : 5 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 92,236  [0x102a5e760,0x102a5e7f0]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 376  [0x102a5e87c]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |   2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |     ! 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : |       1 PTminus  (in ngspice) + 0  [0x102a6fd70]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! 33 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : 29 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | 27 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + 15 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! 9 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : 6 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | 6 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : |   5 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : |   + 3 PTeval  (in ngspice) + 32,52,...  [0x102a5e724,0x102a5e738,...]
+                      + ! : | + ! : | + ! : |   + 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |   +   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |   +   : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |   +   :   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |   +   :     1 PTeval  (in ngspice) + 60  [0x102a5e740]
+                      + ! : | + ! : | + ! : |   +   1 PTeval  (in ngspice) + 48  [0x102a5e734]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 296  [0x102a5e82c]
+                      + ! : | + ! : | + ! : |     1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 40,92  [0x102a5e72c,0x102a5e760]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | + 1 PTeval  (in ngspice) + 584  [0x102a5e94c]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 104,180,...  [0x102a5e76c,0x102a5e7b8,...]
+                      + ! : | + ! : | + 6 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 92,636  [0x102a5e760,0x102a5e980]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 296  [0x102a5e82c]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 92,584  [0x102a5e760,0x102a5e94c]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 236  [0x102a5e7f0]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |   2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |     2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |       ! 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |       !   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : |       1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : 4 PTeval  (in ngspice) + 600,636  [0x102a5e95c,0x102a5e980]
+                      + ! : | + ! 4 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : 3 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : |   1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! :   1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! 4 PTeval  (in ngspice) + 104,376,...  [0x102a5e76c,0x102a5e87c,...]
+                      + ! : | + ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + !   1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + !     1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + !       1 PTeval  (in ngspice) + 180  [0x102a5e7b8]
+                      + ! : | + 22 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! 20 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : 13 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | 9 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + 8 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 4 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | +   1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + ! : | + 1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 52,156,...  [0x102a5e738,0x102a5e7a0,...]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | 4 PTeval  (in ngspice) + 0,16,...  [0x102a5e704,0x102a5e714,...]
+                      + ! : | + ! : 5 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | 4 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   2 PTeval  (in ngspice) + 64,584  [0x102a5e744,0x102a5e94c]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + ! 1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | 1 PTplus  (in ngspice) + 0  [0x102a6fd68]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! 2 PTeval  (in ngspice) + 28,660  [0x102a5e720,0x102a5e998]
+                      + ! : | + 6 PTeval  (in ngspice) + 52,92,...  [0x102a5e738,0x102a5e760,...]
+                      + ! : | + 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | +   3 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | +     2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | +     : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | +     : | 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | +     : 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | +     1 PTeval  (in ngspice) + 0  [0x102a5e704]
+                      + ! : | 137 IFeval  (in ngspice) + 64  [0x102a5e574]
+                      + ! : | + 78 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! 72 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : 50 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | 46 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + 41 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 23 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : 18 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | 12 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + 6 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | + ! 5 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + ! : 4 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | + ! : | + 2 PTeval  (in ngspice) + 52,236  [0x102a5e738,0x102a5e7f0]
+                      + ! : | + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | + ! : | + 1 PTeval  (in ngspice) + 48  [0x102a5e734]
+                      + ! : | + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | + ! : | + ! : |   1 PTminus  (in ngspice) + 0  [0x102a6fd70]
+                      + ! : | + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | + !   1 PTeval  (in ngspice) + 32  [0x102a5e724]
+                      + ! : | + ! : | + ! : | + 6 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | +   5 PTeval  (in ngspice) + 600,52,...  [0x102a5e95c,0x102a5e738,...]
+                      + ! : | + ! : | + ! : | +   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | +     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | +       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | +         1 PTeval  (in ngspice) + 380  [0x102a5e880]
+                      + ! : | + ! : | + ! : | 4 PTeval  (in ngspice) + 16,236,...  [0x102a5e714,0x102a5e7f0,...]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + ! : |   1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : | + ! : |   1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : | + ! : 5 PTeval  (in ngspice) + 52,92,...  [0x102a5e738,0x102a5e760,...]
+                      + ! : | + ! : | + ! 12 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : 7 PTeval  (in ngspice) + 376,32,...  [0x102a5e87c,0x102a5e724,...]
+                      + ! : | + ! : | + ! : 4 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : | + ! : | + 1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | + ! : | +   1 PTminus  (in ngspice) + 0  [0x102a6fd70]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + ! : | + 1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 668  [0x102a5e9a0]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! 6 PTeval  (in ngspice) + 600,52  [0x102a5e95c,0x102a5e738]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + ! 1 PTeq0  (in ngspice) + 0  [0x102a6ff88]
+                      + ! : | + ! : | + ! 1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : | + ! 1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 636  [0x102a5e980]
+                      + ! : | + ! : | 4 PTeval  (in ngspice) + 52,156,...  [0x102a5e738,0x102a5e7a0,...]
+                      + ! : | + ! : 18 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | 13 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + 10 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 6 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 32,156  [0x102a5e724,0x102a5e7a0]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 52,600  [0x102a5e738,0x102a5e95c]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 52,92,...  [0x102a5e738,0x102a5e760,...]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | + !   1 PTminus  (in ngspice) + 0  [0x102a6fd70]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 92,612,...  [0x102a5e760,0x102a5e968,...]
+                      + ! : | + ! : | 5 PTeval  (in ngspice) + 52,60,...  [0x102a5e738,0x102a5e740,...]
+                      + ! : | + ! : 2 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | 1 PTminus  (in ngspice) + 0  [0x102a6fd70]
+                      + ! : | + ! : | 1 PTplus  (in ngspice) + 0  [0x102a6fd68]
+                      + ! : | + ! : 2 PTeval  (in ngspice) + 156,600  [0x102a5e7a0,0x102a5e95c]
+                      + ! : | + ! 6 PTeval  (in ngspice) + 52,92,...  [0x102a5e738,0x102a5e760,...]
+                      + ! : | + 50 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! 24 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : 13 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | 8 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + 6 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! 6 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   4 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   : 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   : | 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   : |   2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   : |   + 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   : |   + ! 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   : |   + !   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   : |   + !     1 PTeval  (in ngspice) + 376  [0x102a5e87c]
+                      + ! : | + ! : | + !   : |   + 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + !   : |   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   : |     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   : |       1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + !   : |         1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + !   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !     2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !       1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + !       | 1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : | + !       1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | +   : 1 PTeval  (in ngspice) + 48  [0x102a5e734]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 228  [0x102a5e7e8]
+                      + ! : | + ! : | 3 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   ! 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   ! : 1 PTeval  (in ngspice) + 636  [0x102a5e980]
+                      + ! : | + ! : | +   ! 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 588  [0x102a5e950]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |     2 PTeval  (in ngspice) + 376  [0x102a5e87c]
+                      + ! : | + ! : 5 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | 5 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |   4 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |   + 3 PTeval  (in ngspice) + 600,636  [0x102a5e95c,0x102a5e980]
+                      + ! : | + ! : |   + 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |   +   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : |   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |         1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : 5 PTeval  (in ngspice) + 440  [0x102a5e8bc]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! :       1 PTeval  (in ngspice) + 28  [0x102a5e720]
+                      + ! : | + ! 14 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : 12 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | 9 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + 8 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 7 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |     2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |     + 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |     + ! 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |     + !   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |     + !     1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + ! : |     + 1 PTeval  (in ngspice) + 588  [0x102a5e950]
+                      + ! : | + ! : | + ! : |     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |         1 PTeval  (in ngspice) + 12  [0x102a5e710]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   + 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 636  [0x102a5e980]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |   2 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : |   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : 2 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! 9 PTeval  (in ngspice) + 388,104,...  [0x102a5e888,0x102a5e76c,...]
+                      + ! : | + ! 2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : |       1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : |         1 PTeval  (in ngspice) + 64  [0x102a5e744]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + !   1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + !     1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + !       1 PTeval  (in ngspice) + 0  [0x102a5e704]
+                      + ! : | + 8 PTeval  (in ngspice) + 600,16,...  [0x102a5e95c,0x102a5e714,...]
+                      + ! : | + 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | +   1 PTeval  (in ngspice) + 236  [0x102a5e7f0]
+                      + ! : | 13 ASRCload  (in ngspice) + 284,512,...  [0x10277d168,0x10277d24c,...]
+                      + ! : | 4 IFeval  (in ngspice) + 24,260  [0x102a5e54c,0x102a5e638]
+                      + ! : | 4 PTeval  (in ngspice) + 600,596  [0x102a5e95c,0x102a5e958]
+                      + ! : 15 MIFload  (in ngspice) + 1252  [0x102a4a1b8]
+                      + ! : | 12 MIFload  (in ngspice) + 2316,536,...  [0x102a4a5e0,0x102a49eec,...]
+                      + ! : | 1 ???  (in digital.cm)  load address 0x103050000 + 0x4ca4  [0x103054ca4]
+                      + ! : | + 1 cm_analog_get_ptr  (in ngspice) + 36  [0x102a46ad4]
+                      + ! : | 1 ???  (in digital.cm)  load address 0x103050000 + 0x4cb4  [0x103054cb4]
+                      + ! : | + 1 ???  (in digital.cm)  load address 0x103050000 + 0x4fcc  [0x103054fcc]
+                      + ! : | 1 ???  (in digital.cm)  load address 0x103050000 + 0x48bc  [0x1030548bc]
+                      + ! : 10 CAPload  (in ngspice) + 260  [0x10286cc20]
+                      + ! : | 10 NIintegrate  (in ngspice) + 528,28,...  [0x102ab4868,0x102ab4674,...]
+                      + ! : 10 CAPload  (in ngspice) + 424,132,...  [0x10286ccc4,0x10286cba0,...]
+                      + ! : 9 RESload  (in ngspice) + 112,84,...  [0x1029eda70,0x1029eda54,...]
+                      + ! : 7 DIOload  (in ngspice) + 2312  [0x1028ea1e0]
+                      + ! : | 7 DIOload  (in ngspice) + 1944,1948,...  [0x1028ea070,0x1028ea074,...]
+                      + ! : 4 CKTload  (in ngspice) + 180  [0x102a32874]
+                      + ! : | 2 MIFload  (in ngspice) + 516,1200  [0x102a49ed8,0x102a4a184]
+                      + ! : | 2 VSRCload  (in ngspice) + 208,2292  [0x102a1e5ac,0x102a1edd0]
+                      + ! : 3 MOS1load  (in ngspice) + 4080  [0x1029c0bac]
+                      + ! : | 3 MOS1load  (in ngspice) + 1064,4464,...  [0x1029bffe4,0x1029c0d2c,...]
+                      + ! : 2 DIOload  (in ngspice) + 1748  [0x1028e9fac]
+                      + ! : | 1 DIOload  (in ngspice) + 1932  [0x1028ea064]
+                      + ! : | 1 exp  (in libsystem_m.dylib) + 104  [0x19df30428]
+                      + ! : 2 INDload  (in ngspice) + 404  [0x1028ee8f0]
+                      + ! : | 1 CKTtypelook  (in ngspice) + 76  [0x102a38e9c]
+                      + ! : | + 1 _platform_strcmp$VARIANT$Base  (in libsystem_platform.dylib) + 12  [0x18e18673c]
+                      + ! : | 1 CKTtypelook  (in ngspice) + 56  [0x102a38e88]
+                      + ! : 1 ???  (in digital.cm)  load address 0x103050000 + 0x4ae0  [0x103054ae0]
+                      + ! : 1 DIOload  (in ngspice) + 1740  [0x1028e9fa4]
+                      + ! : | 1 DIOload  (in ngspice) + 1740  [0x1028e9fa4]
+                      + ! : 1 IFeval  (in ngspice) + 300  [0x102a5e660]
+                      + ! : 1 INDload  (in ngspice) + 160  [0x1028ee7fc]
+                      + ! : 1 MIFload  (in ngspice) + 3156  [0x102a4a928]
+                      + ! : 1 MOS1load  (in ngspice) + 3148  [0x1029c0808]
+                      + ! : | 1 NIintegrate  (in ngspice) + 528  [0x102ab4868]
+                      + ! : 1 MOS1load  (in ngspice) + 3236  [0x1029c0860]
+                      + ! : | 1 NIintegrate  (in ngspice) + 8  [0x102ab4660]
+                      + ! : 1 VSRCload  (in ngspice) + 1368  [0x102a1ea34]
+                      + ! : | 1 sin  (in libsystem_m.dylib) + 312  [0x19df2faa0]
+                      + ! : 1 exp  (in libsystem_m.dylib) + 152  [0x19df30458]
+                      + ! 6 CKTload  (in ngspice) + 108  [0x102a3282c]
+                      + ! : 6 spClear  (in ngspice) + 148,136,...  [0x102ac72b0,0x102ac72a4,...]
+                      + ! 5 CKTload  (in ngspice) + 144,152,...  [0x102a32850,0x102a32858,...]
+                      + ! 4 CKTload  (in ngspice) + 52  [0x102a327f4]
+                      + ! : 4 seconds  (in ngspice) + 24  [0x102acf4a0]
+                      + ! :   4 clock_gettime  (in libsystem_c.dylib) + 296  [0x18e017e4c]
+                      + ! :     4 _mach_boottime_usec  (in libsystem_c.dylib) + 64  [0x18e03d4b0]
+                      + ! :       4 gettimeofday  (in libsystem_c.dylib) + 56  [0x18e00fdc0]
+                      + ! :         4 __commpage_gettimeofday_internal  (in libsystem_kernel.dylib) + 44  [0x18e139c24]
+                      + ! :           4 mach_absolute_time  (in libsystem_kernel.dylib) + 108,112  [0x18e13810c,0x18e138110]
+                      + ! 2 CKTload  (in ngspice) + 568  [0x102a329f8]
+                      + ! : 2 seconds  (in ngspice) + 24  [0x102acf4a0]
+                      + ! :   2 clock_gettime  (in libsystem_c.dylib) + 296  [0x18e017e4c]
+                      + ! :     2 _mach_boottime_usec  (in libsystem_c.dylib) + 64  [0x18e03d4b0]
+                      + ! :       2 gettimeofday  (in libsystem_c.dylib) + 56  [0x18e00fdc0]
+                      + ! :         2 __commpage_gettimeofday_internal  (in libsystem_kernel.dylib) + 44  [0x18e139c24]
+                      + ! :           2 mach_absolute_time  (in libsystem_kernel.dylib) + 108  [0x18e13810c]
+                      + ! 1 CKTload  (in ngspice) + 100  [0x102a32824]
+                      + !   1 _platform_memset  (in libsystem_platform.dylib) + 140  [0x18e18511c]
+                      + 199 NIiter  (in ngspice) + 176  [0x102ab4920]
+                      + ! 189 CKTload  (in ngspice) + 180  [0x102a32874]
+                      + ! : 146 ASRCload  (in ngspice) + 312  [0x10277d184]
+                      + ! : | 77 IFeval  (in ngspice) + 240  [0x102a5e624]
+                      + ! : | + 60 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! 36 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : 24 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | 14 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + 5 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |   2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |     + 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |     +   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |     +     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : |     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |       1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! : |         1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :         1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :           1 PTeval  (in ngspice) + 128  [0x102a5e784]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! :       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :         1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :           1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :             1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :               1 PTeval  (in ngspice) + 28  [0x102a5e720]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 60  [0x102a5e740]
+                      + ! : | + ! : | + 4 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :     2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :       2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :         2 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + !   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !     | 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + !   2 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   : | 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   : |   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   : |     1 PTeval  (in ngspice) + 104  [0x102a5e76c]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   :   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   :     1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !       1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !         1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !           1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !             1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | +   2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +     2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +       2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | +         2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +           2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +             2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +               2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +                 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +                 : 1 PTeval  (in ngspice) + 64  [0x102a5e744]
+                      + ! : | + ! : | +                 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +                   1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : | 5 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :     2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! :       2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :         2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :           2 PTeval  (in ngspice) + 52,600  [0x102a5e738,0x102a5e95c]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !       1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !         1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !           1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +   :   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   :     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   :       1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | +   :         1 PTplus  (in ngspice) + 0  [0x102a6fd68]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | 4 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + 4 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   ! 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   !   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   !   : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   !   :   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | +   !   1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | +   !   : 1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : | +   !   1 PTeval  (in ngspice) + 236  [0x102a5e7f0]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 180  [0x102a5e7b8]
+                      + ! : | + ! : 6 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | 6 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |   4 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |   + 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |   + ! 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |   + !   2 PTeval  (in ngspice) + 92,328  [0x102a5e760,0x102a5e84c]
+                      + ! : | + ! : |   + !   1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : |   + !     1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : |   + !       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |   + !         1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |   + !           1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : |   + 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |   +   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |   +     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |   +       1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : |   2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |     2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |       ! 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |       !   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |       !     1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : |       1 PTeval  (in ngspice) + 64  [0x102a5e744]
+                      + ! : | + ! : 3 PTeval  (in ngspice) + 52,440,...  [0x102a5e738,0x102a5e8bc,...]
+                      + ! : | + ! : 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |   + 1 PTeval  (in ngspice) + 376  [0x102a5e87c]
+                      + ! : | + ! : |   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :     1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! :       1 PTdivide  (in ngspice) + 40  [0x102a6fda8]
+                      + ! : | + ! 14 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : 13 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | 10 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + 7 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! 4 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | 3 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : |   2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : |   + 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |   + ! 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |   + !   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |   + !     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : |   + 1 PTeval  (in ngspice) + 604  [0x102a5e960]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 0  [0x102a5e704]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 56  [0x102a5e73c]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |   2 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : |   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |         1 PTeval  (in ngspice) + 656  [0x102a5e994]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 636  [0x102a5e980]
+                      + ! : | + ! 4 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : 3 PTeval  (in ngspice) + 16,92,...  [0x102a5e714,0x102a5e760,...]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! :   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |     2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : |       2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |         2 PTeval  (in ngspice) + 32,52  [0x102a5e724,0x102a5e738]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! :   1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! :     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :       1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! 3 PTeval  (in ngspice) + 104,172,...  [0x102a5e76c,0x102a5e7b0,...]
+                      + ! : | + 14 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! 14 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + !   6 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + !   : 6 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + !   :   6 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + !   :     3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + !   :     | 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + !   :     |   2 PTeval  (in ngspice) + 16,668  [0x102a5e714,0x102a5e9a0]
+                      + ! : | + !   :     |   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + !   :     |     1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + !   :     2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + !   :     | 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + !   :     |   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + !   :     |   + 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + !   :     |   1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + !   :     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + !   6 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + !   : 6 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + !   :   3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + !   :   | 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + !   :   | + 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + !   :   | 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + !   :   | + 1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + !   :   | 1 PTeval  (in ngspice) + 64  [0x102a5e744]
+                      + ! : | + !   :   2 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + !   :   | 1 PTge0  (in ngspice) + 0  [0x102a6ffd8]
+                      + ! : | + !   :   | 1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + !   :   1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + !   1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + !   : 1 PTplus  (in ngspice) + 0  [0x102a6fd68]
+                      + ! : | + !   1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + 2 PTeval  (in ngspice) + 92,600  [0x102a5e760,0x102a5e95c]
+                      + ! : | + 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | +   1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | +     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | +       1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | +         1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | 60 IFeval  (in ngspice) + 64  [0x102a5e574]
+                      + ! : | + 36 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! 34 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : 18 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | 14 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + 13 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 7 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |     3 PTeval  (in ngspice) + 56,128,...  [0x102a5e73c,0x102a5e784,...]
+                      + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 376,52  [0x102a5e87c,0x102a5e738]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 128  [0x102a5e784]
+                      + ! : | + ! : | + ! 4 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : 4 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :   2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :   | 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   | + 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :   | +   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :   | +     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   | +       1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! :   | 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :   |   1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + ! :   2 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + ! :     1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : | + ! :     1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | 4 PTeval  (in ngspice) + 600,236,...  [0x102a5e95c,0x102a5e7f0,...]
+                      + ! : | + ! : 14 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | 8 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + 7 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 4 PTeval  (in ngspice) + 52,92,...  [0x102a5e738,0x102a5e760,...]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 52,104  [0x102a5e738,0x102a5e76c]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 4  [0x102a5e708]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 668  [0x102a5e9a0]
+                      + ! : | + ! : | 6 PTeval  (in ngspice) + 60,28,...  [0x102a5e740,0x102a5e720,...]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | 1 PTplus  (in ngspice) + 0  [0x102a6fd68]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 180  [0x102a5e7b8]
+                      + ! : | + ! 2 PTeval  (in ngspice) + 60,636  [0x102a5e740,0x102a5e980]
+                      + ! : | + 21 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! 11 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : 9 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | 5 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + 4 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 296  [0x102a5e82c]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 52,92  [0x102a5e738,0x102a5e760]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 156  [0x102a5e7a0]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 228  [0x102a5e7e8]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +         1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +           1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +             1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +               1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +                 1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   ! 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   !   1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | +   !     1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +         1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 376  [0x102a5e87c]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |       1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 440  [0x102a5e8bc]
+                      + ! : | + ! 6 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : 5 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | 4 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   :       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :         1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :           1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !         1 PTeval  (in ngspice) + 180  [0x102a5e7b8]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 0,636  [0x102a5e704,0x102a5e980]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 180  [0x102a5e7b8]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! 2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : 2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! :   2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! :     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :     | 1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! :     |   1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! :     |     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! :     |       1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :     |         1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! :     |           1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :     |             1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! :     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! 2 PTeval  (in ngspice) + 104,440  [0x102a5e76c,0x102a5e8bc]
+                      + ! : | + 3 PTeval  (in ngspice) + 600,92  [0x102a5e95c,0x102a5e760]
+                      + ! : | 5 ASRCload  (in ngspice) + 180,440,...  [0x10277d100,0x10277d204,...]
+                      + ! : | 3 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | 1 IFeval  (in ngspice) + 28  [0x102a5e550]
+                      + ! : 11 MIFload  (in ngspice) + 1252  [0x102a4a1b8]
+                      + ! : | 8 MIFload  (in ngspice) + 384,476,...  [0x102a49e54,0x102a49eb0,...]
+                      + ! : | 1 ???  (in digital.cm)  load address 0x103050000 + 0x4c84  [0x103054c84]
+                      + ! : | + 1 cm_event_get_ptr  (in ngspice) + 96  [0x102a47640]
+                      + ! : | 1 ???  (in digital.cm)  load address 0x103050000 + 0x4a84  [0x103054a84]
+                      + ! : | 1 MIFload  (in ngspice) + 1252  [0x102a4a1b8]
+                      + ! : |   1 ???  (in digital.cm)  load address 0x103050000 + 0x4b50  [0x103054b50]
+                      + ! : 9 RESload  (in ngspice) + 84,112,...  [0x1029eda54,0x1029eda70,...]
+                      + ! : 6 CKTload  (in ngspice) + 180  [0x102a32874]
+                      + ! : | 3 VSRCload  (in ngspice) + 200,296,...  [0x102a1e5a4,0x102a1e604,...]
+                      + ! : | 2 SWload  (in ngspice) + 244  [0x1029fb460]
+                      + ! : | 1 MIFload  (in ngspice) + 612  [0x102a49f38]
+                      + ! : 3 CAPload  (in ngspice) + 344,364,...  [0x10286cc74,0x10286cc88,...]
+                      + ! : 3 DIOload  (in ngspice) + 3576  [0x1028ea6d0]
+                      + ! : | 2 DEVpnjlim  (in ngspice) + 44  [0x102a45208]
+                      + ! : | 1 DIOload  (in ngspice) + 476  [0x1028e9ab4]
+                      + ! : 2 MOS1load  (in ngspice) + 4080  [0x1029c0bac]
+                      + ! : | 2 MOS1load  (in ngspice) + 284,4632  [0x1029bfcd8,0x1029c0dd4]
+                      + ! : 1 ???  (in digital.cm)  load address 0x103050000 + 0x4ad8  [0x103054ad8]
+                      + ! : 1 CAPload  (in ngspice) + 260  [0x10286cc20]
+                      + ! : | 1 NIintegrate  (in ngspice) + 528  [0x102ab4868]
+                      + ! : 1 DIOload  (in ngspice) + 496  [0x1028e9ac8]
+                      + ! : | 1 DIOload  (in ngspice) + 520  [0x1028e9ae0]
+                      + ! : 1 DIOload  (in ngspice) + 2312  [0x1028ea1e0]
+                      + ! : | 1 DIOload  (in ngspice) + 228  [0x1028e99bc]
+                      + ! : 1 DIOload  (in ngspice) + 2656  [0x1028ea338]
+                      + ! : | 1 DEVpred  (in ngspice) + 28  [0x102a45edc]
+                      + ! : 1 MOS1load  (in ngspice) + 1024  [0x1029bffbc]
+                      + ! : | 1 DEVfetlim  (in ngspice) + 44  [0x102a452e8]
+                      + ! : 1 MOS1load  (in ngspice) + 1748  [0x1029c0290]
+                      + ! : | 1 exp  (in libsystem_m.dylib) + 104  [0x19df30428]
+                      + ! : 1 MOS1load  (in ngspice) + 3148  [0x1029c0808]
+                      + ! : | 1 NIintegrate  (in ngspice) + 496  [0x102ab4848]
+                      + ! : 1 SWload  (in ngspice) + 0  [0x1029fb36c]
+                      + ! 6 CKTload  (in ngspice) + 108  [0x102a3282c]
+                      + ! : 6 spClear  (in ngspice) + 136,148,...  [0x102ac72a4,0x102ac72b0,...]
+                      + ! 2 CKTload  (in ngspice) + 64  [0x102a32800]
+                      + ! : 2 seconds  (in ngspice) + 24  [0x102acf4a0]
+                      + ! :   2 clock_gettime  (in libsystem_c.dylib) + 296  [0x18e017e4c]
+                      + ! :     2 _mach_boottime_usec  (in libsystem_c.dylib) + 64  [0x18e03d4b0]
+                      + ! :       2 gettimeofday  (in libsystem_c.dylib) + 56  [0x18e00fdc0]
+                      + ! :         2 __commpage_gettimeofday_internal  (in libsystem_kernel.dylib) + 44  [0x18e139c24]
+                      + ! :           2 mach_absolute_time  (in libsystem_kernel.dylib) + 108,112  [0x18e13810c,0x18e138110]
+                      + ! 1 CKTload  (in ngspice) + 100  [0x102a32824]
+                      + ! : 1 _platform_memset  (in libsystem_platform.dylib) + 140  [0x18e18511c]
+                      + ! 1 CKTload  (in ngspice) + 144  [0x102a32850]
+                      + 140 NIiter  (in ngspice) + 872  [0x102ab4bd8]
+                      + ! 127 NIconvTest  (in ngspice) + 156  [0x102ab43c0]
+                      + ! : 122 CKTconvTest  (in ngspice) + 92  [0x102a346c0]
+                      + ! : | 118 ASRCconvTest  (in ngspice) + 224  [0x10277ce68]
+                      + ! : | + 59 IFeval  (in ngspice) + 240  [0x102a5e624]
+                      + ! : | + ! 45 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : 28 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | 19 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + 12 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! 4 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |   + 1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : |   +   1 PTeval  (in ngspice) + 156  [0x102a5e7a0]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |     1 PTeval  (in ngspice) + 32  [0x102a5e724]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! :   2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! :     2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :       1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :       + 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :       +   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :       +     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :       +       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :       +         1 PTeval  (in ngspice) + 172  [0x102a5e7b0]
+                      + ! : | + ! : | + ! :       +           1 PTminus  (in ngspice) + 0  [0x102a6fd70]
+                      + ! : | + ! : | + ! :       1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |     2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : |       2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |         2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |           1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |           + 1 PTeval  (in ngspice) + 48  [0x102a5e734]
+                      + ! : | + ! : | + ! : |           1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! :         1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :           1 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! :             1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | + 1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : | +   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | +     1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! : | 1 PTeval  (in ngspice) + 180  [0x102a5e7b8]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :         1 PTeval  (in ngspice) + 228  [0x102a5e7e8]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 104  [0x102a5e76c]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! :       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :         1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :           1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! :             1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + !   2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + !   : 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   :     2 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + !   :       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   :       | 1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + !   :       1 PTeval  (in ngspice) + 92  [0x102a5e760]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + !       1 PTeval  (in ngspice) + 236  [0x102a5e7f0]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +         1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   2 PTeval  (in ngspice) + 376  [0x102a5e87c]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +     1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | +       1 PTeval  (in ngspice) + 48  [0x102a5e734]
+                      + ! : | + ! : | 3 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   ! 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   ! : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   ! :   1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | +   ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +   !   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   !     1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | +   !       1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | +   !         1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +   !           1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +   !             1 PTeval  (in ngspice) + 296  [0x102a5e82c]
+                      + ! : | + ! : | +   !               1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +         1 PTeval  (in ngspice) + 64  [0x102a5e744]
+                      + ! : | + ! : | 3 PTeval  (in ngspice) + 440,12  [0x102a5e8bc,0x102a5e710]
+                      + ! : | + ! : 12 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | 10 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + 9 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! 6 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : 5 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | 5 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |   5 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : |     4 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! : | + ! : |     + 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |     + ! 2 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |     + !   2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |     + !     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |     + !     : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : |     + !     :   1 PTeval  (in ngspice) + 60  [0x102a5e740]
+                      + ! : | + ! : | + ! : |     + !     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : |     + 2 PTeval  (in ngspice) + 16,180  [0x102a5e714,0x102a5e7b8]
+                      + ! : | + ! : | + ! : |     1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! :     1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !     2 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !       1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 64  [0x102a5e744]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + 1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : 4 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +   !   1 PTeval  (in ngspice) + 584  [0x102a5e94c]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | +     1 PTeval  (in ngspice) + 32  [0x102a5e724]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 440,600  [0x102a5e8bc,0x102a5e95c]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! :   1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! :     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! :       1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :         1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! 8 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : 7 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | 5 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   : 2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :   | 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   :   |   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + !   :   1 PTeval  (in ngspice) + 236  [0x102a5e7f0]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !       1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + !         1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : | + 2 PTeval  (in ngspice) + 0,600  [0x102a5e704,0x102a5e95c]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : |   2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : |     ! 1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : |     1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! 6 PTeval  (in ngspice) + 52,16,...  [0x102a5e738,0x102a5e714,...]
+                      + ! : | + 52 IFeval  (in ngspice) + 64  [0x102a5e574]
+                      + ! : | + ! 34 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : 30 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | 22 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + 19 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 18 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : 12 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | 10 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + 8 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + ! 5 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + ! : | 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | + ! : |   + 1 PTeval  (in ngspice) + 104  [0x102a5e76c]
+                      + ! : | + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | + ! : |   + 1 PTeval  (in ngspice) + 60  [0x102a5e740]
+                      + ! : | + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! : | + ! : | + ! : 2 PTeval  (in ngspice) + 52,92  [0x102a5e738,0x102a5e760]
+                      + ! : | + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | + !   2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + !   | 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : | + !   | + 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! : | + !   | +   1 PTeval  (in ngspice) + 32  [0x102a5e724]
+                      + ! : | + ! : | + ! : | + !   | 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + ! : | + !   |   1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : | + ! : | + !   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + ! : | + 2 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + ! : | +   1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : | + ! : | +   1 PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+                      + ! : | + ! : | + ! : | 2 PTeval  (in ngspice) + 52,388  [0x102a5e738,0x102a5e888]
+                      + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : | 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! : |   + 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + ! : |   +   1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + ! : |   + 1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : | + ! : |   1 PTeval  (in ngspice) + 236  [0x102a5e7f0]
+                      + ! : | + ! : | + ! : 3 PTeval  (in ngspice) + 52,128,...  [0x102a5e738,0x102a5e784,...]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | + !   1 PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 388,600  [0x102a5e888,0x102a5e95c]
+                      + ! : | + ! : | 4 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   :   1 PTeval  (in ngspice) + 156  [0x102a5e7a0]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 60  [0x102a5e740]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 660  [0x102a5e998]
+                      + ! : | + ! : | +   1 PTeq0  (in ngspice) + 0  [0x102a6ff88]
+                      + ! : | + ! : | 4 PTeval  (in ngspice) + 180,92,...  [0x102a5e7b8,0x102a5e760,...]
+                      + ! : | + ! : 4 PTeval  (in ngspice) + 52,60,...  [0x102a5e738,0x102a5e740,...]
+                      + ! : | + ! 15 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : 7 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | 5 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + 3 PTeval  (in ngspice) + 496  [0x102a5e8f4]
+                      + ! : | + ! : | + ! 3 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | + !   2 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !   : | 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   : |   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   : |     1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + !   : 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   :   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :     1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :       1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   :         1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :           1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + !   :             1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   :               1 PTeval  (in ngspice) + 376  [0x102a5e87c]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 236  [0x102a5e7f0]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! : | + !   1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | + !     1 PTeval  (in ngspice) + 52  [0x102a5e738]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +     1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +       1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +         1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | 2 PTeval  (in ngspice) + 104  [0x102a5e76c]
+                      + ! : | + ! : 4 PTeval  (in ngspice) + 16,104,...  [0x102a5e714,0x102a5e76c,...]
+                      + ! : | + ! : 2 PTeval  (in ngspice) + 464  [0x102a5e8d4]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | + 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | +   1 PTeval  (in ngspice) + 628  [0x102a5e978]
+                      + ! : | + ! : | +     1 PTeval  (in ngspice) + 668  [0x102a5e9a0]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 636  [0x102a5e980]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! : | 1 PTeval  (in ngspice) + 16  [0x102a5e714]
+                      + ! : | + ! : 1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! :   1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! :     1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + ! :       1 PTeval  (in ngspice) + 124  [0x102a5e780]
+                      + ! : | + ! :         1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! :           1 PTeval  (in ngspice) + 268  [0x102a5e810]
+                      + ! : | + ! :             1 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + ! 2 PTeval  (in ngspice) + 24,52  [0x102a5e71c,0x102a5e738]
+                      + ! : | + ! 1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + !   1 PTeval  (in ngspice) + 148  [0x102a5e798]
+                      + ! : | + !     1 PTeval  (in ngspice) + 636  [0x102a5e980]
+                      + ! : | + 4 PTeval  (in ngspice) + 600  [0x102a5e95c]
+                      + ! : | + 3 IFeval  (in ngspice) + 248,16  [0x102a5e62c,0x102a5e544]
+                      + ! : | 3 ASRCconvTest  (in ngspice) + 196,204,...  [0x10277ce4c,0x10277ce54,...]
+                      + ! : | 1 ???  (in digital.cm)  load address 0x103050000 + 0xc14  [0x103050c14]
+                      + ! : 5 CKTconvTest  (in ngspice) + 64,56,...  [0x102a346a4,0x102a3469c,...]
+                      + ! 13 NIconvTest  (in ngspice) + 104,112,...  [0x102ab438c,0x102ab4394,...]
+                      + 51 NIiter  (in ngspice) + 372  [0x102ab49e4]
+                      + ! 51 spFactor  (in ngspice) + 1252,1176,...  [0x102ac8ed0,0x102ac8e84,...]
+                      + 24 NIiter  (in ngspice) + 792  [0x102ab4b88]
+                      + ! 24 spSolve  (in ngspice) + 576,476,...  [0x102aca650,0x102aca5ec,...]
+                      + 3 NIiter  (in ngspice) + 772  [0x102ab4b74]
+                      + ! 3 seconds  (in ngspice) + 24  [0x102acf4a0]
+                      + !   3 clock_gettime  (in libsystem_c.dylib) + 296  [0x18e017e4c]
+                      + !     3 _mach_boottime_usec  (in libsystem_c.dylib) + 64  [0x18e03d4b0]
+                      + !       2 gettimeofday  (in libsystem_c.dylib) + 56  [0x18e00fdc0]
+                      + !       : 2 __commpage_gettimeofday_internal  (in libsystem_kernel.dylib) + 44  [0x18e139c24]
+                      + !       :   2 mach_absolute_time  (in libsystem_kernel.dylib) + 108  [0x18e13810c]
+                      + !       1 gettimeofday  (in libsystem_c.dylib) + 16  [0x18e00fd98]
+                      + 2 NIiter  (in ngspice) + 388  [0x102ab49f4]
+                      + ! 2 seconds  (in ngspice) + 24  [0x102acf4a0]
+                      + !   1 clock_gettime  (in libsystem_c.dylib) + 296  [0x18e017e4c]
+                      + !   : 1 _mach_boottime_usec  (in libsystem_c.dylib) + 64  [0x18e03d4b0]
+                      + !   :   1 gettimeofday  (in libsystem_c.dylib) + 56  [0x18e00fdc0]
+                      + !   :     1 __commpage_gettimeofday_internal  (in libsystem_kernel.dylib) + 44  [0x18e139c24]
+                      + !   :       1 mach_absolute_time  (in libsystem_kernel.dylib) + 108  [0x18e13810c]
+                      + !   1 clock_gettime  (in libsystem_c.dylib) + 12  [0x18e017d30]
+                      + 2 NIiter  (in ngspice) + 732  [0x102ab4b4c]
+                      + ! 2 tmalloc  (in ngspice) + 32  [0x102acb42c]
+                      + !   1 _platform_memset  (in libsystem_platform.dylib) + 140  [0x18e18511c]
+                      + !   1 _xzm_xzone_malloc  (in libsystem_malloc.dylib) + 0  [0x18df97950]
+                      + 1 DCtran  (in ngspice) + 3120  [0x102a39d74]
+                      + ! 1 NIiter  (in ngspice) + 56  [0x102ab48a8]
+                      + 1 NIiter  (in ngspice) + 760  [0x102ab4b68]
+                      +   1 _platform_memmove  (in libsystem_platform.dylib) + 180  [0x18e185414]
+                      21 DCtran  (in ngspice) + 3396  [0x102a39e88]
+                      + 18 CKTtrunc  (in ngspice) + 152  [0x102a38dc4]
+                      + ! 10 CAPtrunc  (in ngspice) + 56  [0x10286da48]
+                      + ! : 9 CKTterr  (in ngspice) + 196,184,...  [0x102a388cc,0x102a388c0,...]
+                      + ! : 1 CKTterr  (in ngspice) + 232  [0x102a388f0]
+                      + ! :   1 _platform_memmove  (in libsystem_platform.dylib) + 428  [0x18e18550c]
+                      + ! 4 DIOtrunc  (in ngspice) + 60  [0x1028edaa4]
+                      + ! : 4 CKTterr  (in ngspice) + 188,196,...  [0x102a388c4,0x102a388cc,...]
+                      + ! 2 MOS1trunc  (in ngspice) + 100  [0x1029c52bc]
+                      + ! : 2 CKTterr  (in ngspice) + 196  [0x102a388cc]
+                      + ! 1 MOS1trunc  (in ngspice) + 60  [0x1029c5294]
+                      + ! : 1 CKTterr  (in ngspice) + 300  [0x102a38934]
+                      + ! 1 MOS1trunc  (in ngspice) + 80  [0x1029c52a8]
+                      + !   1 CKTterr  (in ngspice) + 196  [0x102a388cc]
+                      + 3 CKTtrunc  (in ngspice) + 84,112,...  [0x102a38d80,0x102a38d9c,...]
+                      3 DCtran  (in ngspice) + 3452  [0x102a39ec0]
+                      + 3 EVTcall_hybrids  (in ngspice) + 68  [0x102a4e5e0]
+                      +   2 EVTload_with_event  (in ngspice) + 488,532  [0x102a52c74,0x102a52ca0]
+                      +   1 EVTload_with_event  (in ngspice) + 772  [0x102a52d90]
+                      +     1 ???  (in digital.cm)  load address 0x103050000 + 0x4994  [0x103054994]
+                      2 DCtran  (in ngspice) + 1876  [0x102a39898]
+                      + 2 CKTaccept  (in ngspice) + 56,96  [0x102a45fc0,0x102a45fe8]
+                      1 DCtran  (in ngspice) + 2028  [0x102a39930]
+                        1 CKTdump  (in ngspice) + 88  [0x102a32030]
+                          1 OUTpData  (in ngspice) + 3352  [0x10274fb24]
+                            1 ft_bpcheck  (in ngspice) + 136  [0x1027209a8]
+
+Total number in stack (recursive counted multiple, when >=5):
+        313       PTeval  (in ngspice) + 0  [0x102a5e704]
+        187       PTeval  (in ngspice) + 628  [0x102a5e978]
+        176       PTeval  (in ngspice) + 124  [0x102a5e780]
+        167       PTeval  (in ngspice) + 148  [0x102a5e798]
+        55       PTeval  (in ngspice) + 268  [0x102a5e810]
+        55       PTeval  (in ngspice) + 464  [0x102a5e8d4]
+        50       PTeval  (in ngspice) + 496  [0x102a5e8f4]
+        23       PTeval  (in ngspice) + 660  [0x102a5e998]
+        15       PTeval  (in ngspice) + 172  [0x102a5e7b0]
+        13       PTlt0  (in ngspice) + 0  [0x102a6ffc4]
+        11       PTgt0  (in ngspice) + 0  [0x102a6ffb0]
+        7       PTplus  (in ngspice) + 0  [0x102a6fd68]
+        6       DIOload  (in ngspice) + 0  [0x1028e98d8]
+        6       PTeval  (in ngspice) + 296  [0x102a5e82c]
+        6       PTminus  (in ngspice) + 0  [0x102a6fd70]
+        5       CKTterr  (in ngspice) + 0  [0x102a38808]
+        5       MIFload  (in ngspice) + 0  [0x102a49cd4]
+        5       NIintegrate  (in ngspice) + 0  [0x102ab4658]
+        5       __commpage_gettimeofday_internal  (in libsystem_kernel.dylib) + 44  [0x18e139c24]
+        5       _mach_boottime_usec  (in libsystem_c.dylib) + 64  [0x18e03d4b0]
+        5       clock_gettime  (in libsystem_c.dylib) + 296  [0x18e017e4c]
+        5       gettimeofday  (in libsystem_c.dylib) + 56  [0x18e00fdc0]
+        5       mach_absolute_time  (in libsystem_kernel.dylib) + 0  [0x18e1380a0]
+        5       seconds  (in ngspice) + 24  [0x102acf4a0]
+
+Sort by top of stack, same collapsed (when >= 5):
+        PTeval  (in ngspice)        494
+        spFactor  (in ngspice)        51
+        MIFload  (in ngspice)        24
+        spSolve  (in ngspice)        24
+        ASRCload  (in ngspice)        18
+        RESload  (in ngspice)        18
+        CKTterr  (in ngspice)        17
+        NIintegrate  (in ngspice)        14
+        CAPload  (in ngspice)        13
+        NIconvTest  (in ngspice)        13
+        PTlt0  (in ngspice)        13
+        DIOload  (in ngspice)        12
+        spClear  (in ngspice)        12
+        PTgt0  (in ngspice)        11
+        mach_absolute_time  (in libsystem_kernel.dylib)        11
+        IFeval  (in ngspice)        9
+        PTplus  (in ngspice)        7
+        CKTload  (in ngspice)        6
+        PTminus  (in ngspice)        6
+        CKTconvTest  (in ngspice)        5
+        MOS1load  (in ngspice)        5
+        VSRCload  (in ngspice)        5
+
+Binary Images:
+       0x102708000 -        0x102b3bfff +ngspice (0) <4D4846D3-D052-3849-AF9E-05CE3B8F1069> /opt/homebrew/*/ngspice
+       0x102c38000 -        0x102c3bfff +libXau.6.dylib (0) <9B7EAEE8-5FAB-32E4-9FE0-879B8B410E70> /opt/homebrew/*/libXau.6.dylib
+       0x102c4c000 -        0x102c5bffb +libXmu.6.2.0.dylib (0) <3342430C-15CC-3B95-9161-9A8A5F377846> /opt/homebrew/*/libXmu.6.2.0.dylib
+       0x102c78000 -        0x102ca3ff7 +libreadline.8.3.dylib (0) <07C334C2-E179-343B-AC8D-1717D73CE368> /opt/homebrew/*/libreadline.8.3.dylib
+       0x102cd4000 -        0x102d5bfff +libfftw3.3.dylib (0) <70AD3CB7-9198-325F-A855-7006EFB279D7> /opt/homebrew/*/libfftw3.3.dylib
+       0x102d80000 -        0x102d8aab7 +libXext.6.dylib (0) <0CC59520-51EA-3396-92B0-E86ABAD0350C> /opt/homebrew/*/libXext.6.dylib
+       0x102d9c000 -        0x102da3fff +libSM.6.dylib (0) <A0E2498B-8B50-3C04-A09C-DEC20201C376> /opt/homebrew/*/libSM.6.dylib
+       0x102db4000 -        0x102dc3fff +libICE.6.dylib (0) <0A232BE7-A7D9-35F4-BB83-49BBDD6A58F6> /opt/homebrew/*/libICE.6.dylib
+       0x102dd8000 -        0x102ddbfff +libXdmcp.6.dylib (0) <11368A67-E3A3-3D6F-AE03-78456881A92E> /opt/homebrew/*/libXdmcp.6.dylib
+       0x102de8000 -        0x102e27fff +libXaw7.7.dylib (0) <F684AA34-315A-354D-A208-B1CF45E030E6> /opt/homebrew/*/libXaw7.7.dylib
+       0x102e50000 -        0x102e8bffb +libXt.6.0.0.dylib (0) <BB5F8A31-416B-3DE6-9517-FF4E2C90F2F5> /opt/homebrew/*/libXt.6.0.0.dylib
+       0x102eac000 -        0x102eb7fff +libXpm.4.dylib (0) <ADE61164-DE1D-36C5-93EA-3CDDF05E3977> /opt/homebrew/*/libXpm.4.dylib
+       0x102edc000 -        0x102ee3fff +spice2poly.cm (0) <8C66C89A-6503-33BF-98CA-B4C22CE057FE> /opt/homebrew/*/spice2poly.cm
+       0x102ef8000 -        0x102f0bfff +libxcb.1.1.0.dylib (0) <BB09F47B-6879-3BF0-B967-5F0C570FE3F9> /opt/homebrew/*/libxcb.1.1.0.dylib
+       0x102f28000 -        0x102f2ffff +xtraevt.cm (0) <67CA381D-1DB0-30A8-888F-37C7380A01A9> /opt/homebrew/*/xtraevt.cm
+       0x102f4c000 -        0x102f5bff7 +analog.cm (0) <D7B323DC-EE0F-35AB-8D37-4E5720410391> /opt/homebrew/*/analog.cm
+       0x102fec000 -        0x10301175f +libintl.8.dylib (0) <685F7630-FFC2-340B-B015-A7EE74C4D830> /opt/homebrew/*/libintl.8.dylib
+       0x103024000 -        0x10302ffff +xtradev.cm (0) <F4DCA4EE-1745-3E95-9754-F4FCFAAB8640> /opt/homebrew/*/xtradev.cm
+       0x103050000 -        0x103063ff3 +digital.cm (0) <29D9E1A5-6160-3754-9C32-FF8E316C26B9> /opt/homebrew/*/digital.cm
+       0x10307c000 -        0x103083fff +tlines.cm (0) <17FE225D-4F78-3C1D-B7FE-76D4413588E1> /opt/homebrew/*/tlines.cm
+       0x103094000 -        0x10309ffff +table.cm (0) <F7DACBC0-4EF6-3519-AF9C-33BC1E53D33C> /opt/homebrew/*/table.cm
+       0x1030e4000 -        0x1031b650f +libX11.6.dylib (0) <ED9AD407-9E33-3DE1-BF0D-40FE23DF876E> /opt/homebrew/*/libX11.6.dylib
+       0x18dd08000 -        0x18dd5ab4b  libobjc.A.dylib (951.7) <03BD9E32-CF0A-37B0-898A-3CE8DE06D842> /usr/lib/libobjc.A.dylib
+       0x18dd5b000 -        0x18dd8fd58  libdyld.dylib (1387) <957F93B3-8805-39C7-9C51-EDD1715F550E> /usr/lib/system/libdyld.dylib
+       0x18dd90000 -        0x18de434ff  dyld (1.0.0 - 1387) <74E52480-C2BD-3C8D-812D-95FE2B74A096> /usr/lib/dyld
+       0x18de44000 -        0x18de47228  libsystem_blocks.dylib (96) <E0AC1231-27AA-3A13-8FAC-41D5802B1F3C> /usr/lib/system/libsystem_blocks.dylib
+       0x18de48000 -        0x18de9c55f  libxpc.dylib (3102.160.5) <33E44C2D-D65E-37A6-B85F-1A4CF524A050> /usr/lib/system/libxpc.dylib
+       0x18de9d000 -        0x18debd9ff  libsystem_trace.dylib (1861.160.4) <93F1DD8C-6CD9-32B9-B222-D23DA5D161B4> /usr/lib/system/libsystem_trace.dylib
+       0x18debe000 -        0x18df6c5f7  libcorecrypto.dylib (1922.160.10) <0642DDAD-4771-3C82-805C-E7C6701C1461> /usr/lib/system/libcorecrypto.dylib
+       0x18df6d000 -        0x18dfbd257  libsystem_malloc.dylib (812.160.5) <D969A907-3E43-3951-9365-8C2DB3812E9D> /usr/lib/system/libsystem_malloc.dylib
+       0x18dfbe000 -        0x18e00523f  libdispatch.dylib (1542.160.2) <B2000CD5-F580-314A-A141-E036719D854E> /usr/lib/system/libdispatch.dylib
+       0x18e006000 -        0x18e008ffb  libsystem_featureflags.dylib (103) <FEE12F9C-344B-33B3-8EDD-283580EF1C67> /usr/lib/system/libsystem_featureflags.dylib
+       0x18e009000 -        0x18e08a1e7  libsystem_c.dylib (1752.160.4) <D77CEB62-AFF6-3CEC-BA9B-4F057FBE2EB5> /usr/lib/system/libsystem_c.dylib
+       0x18e08b000 -        0x18e11bae7  libc++.1.dylib (2100.43) <F0FD393C-15BC-3C75-A19D-897F7B225C78> /usr/lib/libc++.1.dylib
+       0x18e11c000 -        0x18e13675f  libc++abi.dylib (2100.43) <F38A9C58-22AB-3798-BBAE-8DCD9CC0CE27> /usr/lib/libc++abi.dylib
+       0x18e137000 -        0x18e1742e7  libsystem_kernel.dylib (12377.161.14) <C6A4A4CB-92E6-3BAF-AAE0-E8306259209A> /usr/lib/system/libsystem_kernel.dylib
+       0x18e175000 -        0x18e181b3b  libsystem_pthread.dylib (539.100.4) <A373F0B0-9880-326A-88B4-DD8BE4E33072> /usr/lib/system/libsystem_pthread.dylib
+       0x18e182000 -        0x18e18a963  libsystem_platform.dylib (375.120.2) <EDB83A19-EC17-32DE-9350-6145970A85D6> /usr/lib/system/libsystem_platform.dylib
+       0x18e18b000 -        0x18e1ba6eb  libsystem_info.dylib (600) <9B5FB84B-31AD-3EA7-8F89-8C700D369DC8> /usr/lib/system/libsystem_info.dylib
+       0x18e1bb000 -        0x18e7195bf  com.apple.CoreFoundation (6.9 - 5026.6.7) <9B672762-7B1F-30BC-96DE-F176B372D66D> /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+       0x18e71a000 -        0x18ea34fbf  com.apple.LaunchServices (1141.1 - 1141.1) <01579E0C-9D85-3521-8916-4DDC990CD064> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/LaunchServices
+       0x18ea35000 -        0x18ec1d95f  com.apple.gpusw.MetalTools (1.0 - 1) <9C416BB2-0882-315C-AF23-F476E34983BC> /System/Library/PrivateFrameworks/MetalTools.framework/Versions/A/MetalTools
+       0x18ec1e000 -        0x18f4184bf  libBLAS.dylib (1551.160.2) <23402175-D2CF-3B08-88D0-AFBBCF775FEF> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+       0x18f419000 -        0x18f52835f  com.apple.Lexicon-framework (1.0 - 195.12) <946B1484-B180-3451-A452-B54BF5A6D392> /System/Library/PrivateFrameworks/Lexicon.framework/Versions/A/Lexicon
+       0x18f529000 -        0x18f69838f  libSparse.dylib (184.160.6) <EBF55041-4C12-323B-BD40-51A0E57C0AE1> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libSparse.dylib
+       0x18f699000 -        0x18f72c0ff  com.apple.SystemConfiguration (1.21 - 1.21) <1479C415-3678-3968-AC77-06373490860E> /System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration
+       0x18f72d000 -        0x18f76157b  libCRFSuite.dylib (55) <1CA9048E-57DD-30F4-A3E6-FE6E97D5BF82> /usr/lib/libCRFSuite.dylib
+       0x18fa2a000 -        0x190a0da9f  com.apple.Foundation (6.9 - 5026.6.7) <91DACE39-FA28-3191-818D-1FCC6A0E615A> /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation
+       0x190bbe000 -        0x190cdecbf  com.apple.CoreDisplay (291.4 - 291.4) <D8E7E31A-7D3E-3742-A3EE-469C6237FAF4> /System/Library/Frameworks/CoreDisplay.framework/Versions/A/CoreDisplay
+       0x190cdf000 -        0x1910a1fdf  com.apple.audio.AudioToolboxCore (1.0 - 1556.704) <8AF1606D-5C93-3B80-BC81-60C5688628E2> /System/Library/PrivateFrameworks/AudioToolboxCore.framework/Versions/A/AudioToolboxCore
+       0x1910a2000 -        0x1912cbd9f  com.apple.CoreText (877.6.0.2 - 877.6.0.2) <B00FAD17-3AB0-343A-8CD8-F188911D898A> /System/Library/Frameworks/CoreText.framework/Versions/A/CoreText
+       0x1912cc000 -        0x191a61e1f  com.apple.audio.CoreAudio (5.0 - 5.0) <D13AB14D-2B45-34D0-86DE-38DF75BF48E5> /System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio
+       0x191a62000 -        0x191e8121f  com.apple.security (7.0 - 61901.160.44) <9D0387FC-E8F6-3004-9C95-CA68EA715C8B> /System/Library/Frameworks/Security.framework/Versions/A/Security
+       0x191e82000 -        0x192157d53  libicucore.A.dylib (76142.5.2.1) <53A3E31E-06A8-325E-B5A8-316B88AA3C92> /usr/lib/libicucore.A.dylib
+       0x192158000 -        0x192161e5f  libsystem_darwin.dylib (1752.160.4) <8E07D22E-CE5A-38A0-B091-5B0338C326F5> /usr/lib/system/libsystem_darwin.dylib
+       0x192162000 -        0x192459cbf  com.apple.CoreServices.CarbonCore (1333 - 1333) <D884AF5B-23F7-313A-97ED-DD54518BA922> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/CarbonCore
+       0x19245a000 -        0x192499f17  com.apple.CoreServicesInternal (505 - 505) <7D56DA94-31EB-35F0-B886-4010C075E035> /System/Library/PrivateFrameworks/CoreServicesInternal.framework/Versions/A/CoreServicesInternal
+       0x19249a000 -        0x1924d91bf  com.apple.CSStore (1141.1 - 1141.1) <12479A32-B72F-3A09-BB03-BA56C37853B5> /System/Library/PrivateFrameworks/CoreServicesStore.framework/Versions/A/CoreServicesStore
+       0x1924da000 -        0x1925c225f  com.apple.framework.IOKit (2.0.2 - 100231.120.3) <12372585-DF92-33EF-B632-714FAA13260A> /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit
+       0x1925c3000 -        0x1925d51b6  libsystem_notify.dylib (348.160.3) <15799128-6CBD-30D6-A2BB-B9D02B4470C0> /usr/lib/system/libsystem_notify.dylib
+       0x193f12000 -        0x193f283ff  com.apple.UniformTypeIdentifiers (709 - 709) <B57F62F5-1581-3CE6-8782-6072B970FDF2> /System/Library/Frameworks/UniformTypeIdentifiers.framework/Versions/A/UniformTypeIdentifiers
+       0x194405000 -        0x1944dd95f  libboringssl.dylib (532.120.8) <5BF55637-F306-3D79-B5A1-DB8A871DAD4B> /usr/lib/libboringssl.dylib
+       0x1944de000 -        0x1948931df  com.apple.CFNetwork (1.0 - 3860.700.1) <4A3B95C5-AA2E-338C-9398-56895AF82D97> /System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork
+       0x194894000 -        0x1948aef7b  libsystem_networkextension.dylib (2226.161.1) <9C7B1EEB-47BE-3791-93A9-CFC693CB9417> /usr/lib/system/libsystem_networkextension.dylib
+       0x1948af000 -        0x1948b0067  libenergytrace.dylib (23) <8E04C57D-3651-386E-83D5-4728B732F214> /usr/lib/libenergytrace.dylib
+       0x1948b1000 -        0x194930eff  libMobileGestalt.dylib (1484.120.3) <D614ADAF-EEDD-3492-AEEB-7D03558D419C> /usr/lib/libMobileGestalt.dylib
+       0x194931000 -        0x194948fdf  libsystem_asl.dylib (406) <54439739-33EE-3273-839F-CBA67D7F5CB1> /usr/lib/system/libsystem_asl.dylib
+       0x194949000 -        0x19496c797  com.apple.TCC (1.0 - 1) <A160698F-BE34-323D-B5BE-56D7371B1230> /System/Library/PrivateFrameworks/TCC.framework/Versions/A/TCC
+       0x19496d000 -        0x194f23a1f  com.apple.SkyLight (1.600.0 - 922.13.1) <0C8F41C6-6D93-3DB3-B522-CA8CFF5C3B33> /System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/SkyLight
+       0x194f24000 -        0x1956795ff  com.apple.CoreGraphics (2.0 - 1965.6.3) <38C8FBEC-DE88-33FE-B742-A192F22CC754> /System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics
+       0x19567a000 -        0x195821b8b  com.apple.ColorSync (4.13.0 - 3813.5.1) <873404F1-CC9D-30F9-AE06-8EA58D292005> /System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync
+       0x195c76000 -        0x196063f5f  com.apple.CoreData (120 - 1526) <712AD9C1-44D2-36F4-BA8E-15038521462B> /System/Library/Frameworks/CoreData.framework/Versions/A/CoreData
+       0x196064000 -        0x19607fddf  com.apple.ProtocolBuffer (1 - 310.26.4.23.2) <C73EE6D7-FE28-30E3-BA6A-012DC32FA22F> /System/Library/PrivateFrameworks/ProtocolBuffer.framework/Versions/A/ProtocolBuffer
+       0x196080000 -        0x196268a2f  libsqlite3.dylib (382) <B67E4205-32B5-3FF3-9FB5-9186C0B32A90> /usr/lib/libsqlite3.dylib
+       0x196306000 -        0x1963f749f  com.apple.BaseBoard (732.1.1 - 732.1.1) <959C748F-8851-3A25-BFFA-5FEA80296965> /System/Library/PrivateFrameworks/BaseBoard.framework/Versions/A/BaseBoard
+       0x1963f8000 -        0x196463d5f  com.apple.RunningBoardServices (1.0 - 1015.160.2.0.1) <F7CC7754-0B25-302A-BFD4-5D16E9F666AD> /System/Library/PrivateFrameworks/RunningBoardServices.framework/Versions/A/RunningBoardServices
+       0x196464000 -        0x1964d7c37  com.apple.AE (944 - 944) <435D6243-695B-3543-A722-10106F5696BD> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/AE.framework/Versions/A/AE
+       0x1964d8000 -        0x1964e9d87  libdns_services.dylib (2881.160.4) <88925A0C-4960-3F6D-AF3A-B1983F7B3D18> /usr/lib/libdns_services.dylib
+       0x1964ea000 -        0x1964f2387  libsystem_symptoms.dylib (2169.160.3) <229122B9-B8B1-3F2F-870E-8650AE3C4FB5> /usr/lib/system/libsystem_symptoms.dylib
+       0x1964f3000 -        0x197d1029f  com.apple.Network (1.0 - 5812.160.9) <1C7E652B-6B94-3180-93A6-EF8DBA3A5448> /System/Library/Frameworks/Network.framework/Versions/A/Network
+       0x197d11000 -        0x197d40ddf  com.apple.analyticsd (1.0 - 1) <FAE24228-7E19-3F30-9872-3B25749ADAF8> /System/Library/PrivateFrameworks/CoreAnalytics.framework/Versions/A/CoreAnalytics
+       0x197d41000 -        0x197d428bb  libDiagnosticMessagesClient.dylib (113) <6CD959AA-4825-306A-864A-BD69EC5F2DC0> /usr/lib/libDiagnosticMessagesClient.dylib
+       0x197d43000 -        0x197daf37f  com.apple.spotlight.metadata.utilities (1.0 - 2418.6.3.9.400) <29AA0F7F-26F4-35B3-96DF-8A67B00A58AB> /System/Library/PrivateFrameworks/MetadataUtilities.framework/Versions/A/MetadataUtilities
+       0x197db0000 -        0x197e3bb5f  com.apple.Metadata (26.6 - 2418.6.3.9.400) <DEFC137A-C15D-35CB-AF08-E4D06B6CF8B9> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Metadata
+       0x197e3c000 -        0x197e451eb  com.apple.DiskArbitration (2.7 - 2.7) <332C4B80-5B3C-34E7-AD1F-F6131E607F95> /System/Library/Frameworks/DiskArbitration.framework/Versions/A/DiskArbitration
+       0x197e46000 -        0x19826a063  com.apple.vImage (8.1 - 632.120.2) <2B16DF37-A596-3D8A-AE47-33E580EB1354> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vImage.framework/Versions/A/vImage
+       0x19826b000 -        0x198680e3f  com.apple.QuartzCore (1195.17 - 1195.17) <98CB7012-30E5-3BDD-8C84-CDBDA9DB3017> /System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore
+       0x198681000 -        0x1986d1cdf  libFontRegistry.dylib (408.6.0.3) <49E7449E-1385-3B53-94CC-36EFC31E98FE> /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/libFontRegistry.dylib
+       0x198998000 -        0x1989a5aff  com.apple.OpenDirectory (26.6 - 666.100.1) <F53E8087-7A50-37C7-811E-3D84A07325F6> /System/Library/Frameworks/OpenDirectory.framework/Versions/A/OpenDirectory
+       0x1989a6000 -        0x1989cf27f  com.apple.CFOpenDirectory (26.6 - 666.100.1) <3B7FD4C1-D1D4-3DA9-B2F8-3D4094679D76> /System/Library/Frameworks/OpenDirectory.framework/Versions/A/Frameworks/CFOpenDirectory.framework/Versions/A/CFOpenDirectory
+       0x1989d0000 -        0x1989dc91b  com.apple.CoreServices.FSEvents (1413.160.2 - 1413.160.2) <F1A7246D-30C0-345F-8138-266094EC8315> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/FSEvents
+       0x1989dd000 -        0x198a060df  com.apple.coreservices.SharedFileList (225 - 225) <297AC970-E432-3BBD-986C-36782634062E> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SharedFileList.framework/Versions/A/SharedFileList
+       0x198a07000 -        0x198a0a08f  libapp_launch_measurement.dylib (17) <E992D070-4D50-3292-855F-1B0055739F5E> /usr/lib/libapp_launch_measurement.dylib
+       0x198a0b000 -        0x198a539bf  com.apple.CoreAutoLayout (1.0 - 34) <54AD73AF-852E-3CD6-8B7D-E73BE79857D3> /System/Library/PrivateFrameworks/CoreAutoLayout.framework/Versions/A/CoreAutoLayout
+       0x198a54000 -        0x198b3a3c3  libxml2.2.dylib (39.10.3) <1E8A4F9E-3954-3458-B3BB-BE97F961C105> /usr/lib/libxml2.2.dylib
+       0x198b3b000 -        0x198bbbbbf  com.apple.CoreVideo (1.8 - 0.0) <0616AF41-149E-3F4A-906E-56E2642457BE> /System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo
+       0x198bbc000 -        0x198bbef5f  com.apple.loginsupport (3.0 - 264.4.2) <87907862-52FF-3F24-AC29-7C1678BCD277> /System/Library/PrivateFrameworks/login.framework/Versions/A/Frameworks/loginsupport.framework/Versions/A/loginsupport
+       0x198bfd000 -        0x198c2965f  com.apple.UserManagement (1.0 - 1) <4A78C569-FF0D-398B-9C25-33453F0CEC40> /System/Library/PrivateFrameworks/UserManagement.framework/Versions/A/UserManagement
+       0x19a78f000 -        0x19a7c75b7  libsystem_containermanager.dylib (725.160.3) <14B2A47F-19C8-392F-8FDB-FE8AE375DD41> /usr/lib/system/libsystem_containermanager.dylib
+       0x19a7c8000 -        0x19a7e425f  com.apple.IOSurface (393.5.8 - 393.5.8) <5556FD64-9D47-3547-961E-3A27681F3C51> /System/Library/Frameworks/IOSurface.framework/Versions/A/IOSurface
+       0x19a7e5000 -        0x19a7ef05f  com.apple.IOAccelerator (487.4.3 - 487.4.3) <A0C21253-9F8C-3E9A-B9D9-02517BDAE43B> /System/Library/PrivateFrameworks/IOAccelerator.framework/Versions/A/IOAccelerator
+       0x19a7f0000 -        0x19aac9e1f  com.apple.Metal (373.7 - 373.7) <493E76D9-74D4-333B-A3B2-E5F9BC86429D> /System/Library/Frameworks/Metal.framework/Versions/A/Metal
+       0x19aaca000 -        0x19aaf307f  com.apple.audio.caulk (1.0 - 214.701) <AD0B0769-76D4-3613-BAE4-DBBBE05F7E3E> /System/Library/PrivateFrameworks/caulk.framework/Versions/A/caulk
+       0x19aaf4000 -        0x19ac953ff  com.apple.CoreMedia (1.0 - 3330.13.2) <DB8BA2C9-C144-310E-AD6B-EB623FB3C7FB> /System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia
+       0x19ac96000 -        0x19af6543f  libFontParser.dylib (435.6.0.2) <9E126CE0-FBB2-3B15-953F-CCDC758E34FB> /System/Library/PrivateFrameworks/FontServices.framework/libFontParser.dylib
+       0x19b2bb000 -        0x19b5fbf1f  com.apple.ImageIO (3.3.0 - 2784.6.4) <C9CF487D-E759-3F94-ABEB-7AE5EB39AF7D> /System/Library/Frameworks/ImageIO.framework/Versions/A/ImageIO
+       0x19b5fc000 -        0x19bae6f9f  com.apple.CoreImage (19.0.0 - 1592.120.2) <0943679D-FF88-3F18-BE4B-D8B4827AB0B5> /System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage
+       0x19bae7000 -        0x19bba0ddf  com.apple.MetalPerformanceShaders.MPSCore (1.0 - 1) <DBB5F038-E085-39C8-A9BF-C3B3CB3F6FD5> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSCore.framework/Versions/A/MPSCore
+       0x19bba1000 -        0x19bba55d7  libsystem_configuration.dylib (1405.160.3) <D8D6280B-783D-3550-BDBA-2861AE40604F> /usr/lib/system/libsystem_configuration.dylib
+       0x19bba6000 -        0x19bbac99f  libsystem_sandbox.dylib (2680.160.6) <54688162-B50D-3D31-A1E8-7B9766D3530D> /usr/lib/system/libsystem_sandbox.dylib
+       0x19bbad000 -        0x19bbae17f  com.apple.AggregateDictionary (1.0 - 1) <91BDD1F8-831B-3B01-86BA-6BBCB43373C4> /System/Library/PrivateFrameworks/AggregateDictionary.framework/Versions/A/AggregateDictionary
+       0x19bbaf000 -        0x19bbb34d3  com.apple.AppleSystemInfo (3.1.5 - 3.1.5) <4C6139EE-BF87-37A6-B226-830A6FDC36F8> /System/Library/PrivateFrameworks/AppleSystemInfo.framework/Versions/A/AppleSystemInfo
+       0x19bbb4000 -        0x19bbb546b  liblangid.dylib (140) <D201B12C-5258-3C03-89ED-B35FBFAEFA0C> /usr/lib/liblangid.dylib
+       0x19bbb6000 -        0x19bcd545f  com.apple.CoreNLP (1.0 - 313) <B75F1F25-3C33-3983-B546-71588C610ED5> /System/Library/PrivateFrameworks/CoreNLP.framework/Versions/A/CoreNLP
+       0x19bcd6000 -        0x19bcdc91f  com.apple.LinguisticData (1.0 - 483.10) <FDD446CF-5D67-341F-8247-DAE855305379> /System/Library/PrivateFrameworks/LinguisticData.framework/Versions/A/LinguisticData
+       0x19bcdd000 -        0x19cd6541f  libBNNS.dylib (1961.160.8) <54A103BA-7D04-32DB-B204-179E2E0290CA> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBNNS.dylib
+       0x19cd66000 -        0x19cea346f  libvDSP.dylib (1126.160.2) <4C851329-A9F4-3E9E-9E48-07FF4120DCF9> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvDSP.dylib
+       0x19ced8000 -        0x19cf11267  com.apple.IOMobileFramebuffer (343.0.0 - 343.0.0) <2BC48182-F354-3AB0-8F18-0C60CAAFE398> /System/Library/PrivateFrameworks/IOMobileFramebuffer.framework/Versions/A/IOMobileFramebuffer
+       0x19d10a000 -        0x19d1216df  com.apple.MobileKeyBag (2.0 - 1.0) <D3DECDE5-FA90-35FB-861D-8148E963D8B1> /System/Library/PrivateFrameworks/MobileKeyBag.framework/Versions/A/MobileKeyBag
+       0x19d122000 -        0x19d1300ff  com.apple.AssertionServices (1.0 - 1015.160.2.0.1) <1946F8FE-0ABC-3F8F-9116-5451ECABD14C> /System/Library/PrivateFrameworks/AssertionServices.framework/Versions/A/AssertionServices
+       0x19d131000 -        0x19d1c3a9f  com.apple.securityfoundation (6.0 - 55293) <9A86DB3F-CC62-3E89-B872-35D04CFFBE42> /System/Library/Frameworks/SecurityFoundation.framework/Versions/A/SecurityFoundation
+       0x19d1c4000 -        0x19d1f52ff  com.apple.coreservices.BackgroundTaskManagement (1.0 - 104) <A2F5EE78-A281-35AF-8EA6-5BC6567F2ECC> /System/Library/PrivateFrameworks/BackgroundTaskManagement.framework/Versions/A/BackgroundTaskManagement
+       0x19d201000 -        0x19d2041fb  libquarantine.dylib (196.160.2) <EEE5AADB-52E1-3C4C-881A-70405770B1F1> /usr/lib/system/libquarantine.dylib
+       0x19d205000 -        0x19d2102bf  libCheckFix.dylib (33) <6508C698-D587-3B5A-B95B-A3A3F78CE122> /usr/lib/libCheckFix.dylib
+       0x19d211000 -        0x19d2287ab  libcoretls.dylib (187.100.3) <0EAB1F4A-9275-3FED-8EA6-E962ACDDEE5D> /usr/lib/libcoretls.dylib
+       0x19d229000 -        0x19d23a273  libbsm.0.dylib (90) <633BCB5F-F063-3D5A-B52A-F72AE236824B> /usr/lib/libbsm.0.dylib
+       0x19d23b000 -        0x19d299c6b  libmecab.dylib (1121.5.1) <C02D85F6-947A-3B3E-8AE9-7BC8D0F35204> /usr/lib/libmecab.dylib
+       0x19d29a000 -        0x19d29c41b  libgermantok.dylib (31) <74E55DD6-720D-39E4-897E-EB4328E1946D> /usr/lib/libgermantok.dylib
+       0x19d29d000 -        0x19d2b0e3f  libLinearAlgebra.dylib (1551.160.2) <407BCF3E-A91F-3A7F-8B8C-DBB8E807990F> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLinearAlgebra.dylib
+       0x19d2b1000 -        0x19d50717f  com.apple.MetalPerformanceShaders.MPSNeuralNetwork (1.0 - 1) <199F6401-91D0-36E9-9EA9-D4B44ED1CE3A> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSNeuralNetwork.framework/Versions/A/MPSNeuralNetwork
+       0x19d508000 -        0x19d55c19f  com.apple.MetalPerformanceShaders.MPSRayIntersector (1.0 - 1) <2E7E2722-3821-3DBF-B25A-6EA45D1A8FD4> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSRayIntersector.framework/Versions/A/MPSRayIntersector
+       0x19d6f0000 -        0x19d72157f  com.apple.MetalPerformanceShaders.MPSMatrix (1.0 - 1) <4D134FE3-50EE-39D5-9699-04B4B673DD35> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSMatrix.framework/Versions/A/MPSMatrix
+       0x19d722000 -        0x19d8f1cdf  com.apple.MetalPerformanceShaders.MPSNDArray (1.0 - 1) <3E1FE9EA-34A2-3545-B639-48B1FE1FD3D4> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSNDArray.framework/Versions/A/MPSNDArray
+       0x19d8f2000 -        0x19d9861df  com.apple.MetalPerformanceShaders.MPSImage (1.0 - 1) <A0BE8307-7ECF-3AB8-B382-3E4059C85778> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSImage.framework/Versions/A/MPSImage
+       0x19d987000 -        0x19d9924c3  com.apple.AppleFSCompression (174.160.2 - 1.0) <DA611209-7AA6-37C4-B4EC-7B7A7020A607> /System/Library/PrivateFrameworks/AppleFSCompression.framework/Versions/A/AppleFSCompression
+       0x19d993000 -        0x19d99f0a3  libbz2.1.0.dylib (49) <5FFE1FFA-6BD0-32AF-A815-7543731CA763> /usr/lib/libbz2.1.0.dylib
+       0x19d9a0000 -        0x19d9a6d03  libsystem_coreservices.dylib (191.5.1) <D4ACD2AC-5702-3C45-85A0-300B2C2D19E1> /usr/lib/system/libsystem_coreservices.dylib
+       0x19d9a7000 -        0x19d9d8adf  com.apple.CoreServices.OSServices (1141.1 - 1141.1) <61677289-93B7-382F-86CA-B856361D293F> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/OSServices.framework/Versions/A/OSServices
+       0x19df20000 -        0x19df2ed97  libz.1.dylib (100.120.1) <13EDE3A5-A7D9-3FB8-B0C2-2FB7F7272B34> /usr/lib/libz.1.dylib
+       0x19df2f000 -        0x19df6ca77  libsystem_m.dylib (3312.100.1) <B54FBE99-DB0B-32C7-ABDD-C2206DF606A4> /usr/lib/system/libsystem_m.dylib
+       0x19df6d000 -        0x19df6dc9b  libcharset.1.dylib (115.120.2) <1940124C-0D73-35D2-9D94-A75F116088A0> /usr/lib/libcharset.1.dylib
+       0x19df6e000 -        0x19df71527  libmacho.dylib (1387) <949131E5-BDA2-39BA-AA50-62651BB51802> /usr/lib/system/libmacho.dylib
+       0x19df72000 -        0x19df8adc3  libkxld.dylib (12377.161.14) <A3E386E1-042A-33E3-9121-78457115AAD9> /usr/lib/system/libkxld.dylib
+       0x19df8b000 -        0x19df983a7  libcommonCrypto.dylib (600035) <3B110564-5278-3CB0-85F1-2CE8431FF935> /usr/lib/system/libcommonCrypto.dylib
+       0x19df99000 -        0x19dfa2ca3  libunwind.dylib (2100.2) <05FD0014-55B1-3B8A-A6BA-6C7A389C4123> /usr/lib/system/libunwind.dylib
+       0x19dfa3000 -        0x19dfaa349  liboah.dylib (367.9) <0C7397C6-D747-31F2-8BC1-4096213BDE5C> /usr/lib/liboah.dylib
+       0x19dfab000 -        0x19dfb5bef  libcopyfile.dylib (240.160.2.0.1) <D0009B8A-8ECC-3D56-9206-7E1839707F93> /usr/lib/system/libcopyfile.dylib
+       0x19dfb6000 -        0x19dfb9987  libcompiler_rt.dylib (103.3) <6FB345CA-7F5C-3263-A23F-143F7539FD8A> /usr/lib/system/libcompiler_rt.dylib
+       0x19dfba000 -        0x19dfbe78b  libsystem_collections.dylib (1752.160.4) <C8160BD2-5941-3DC0-BB40-F8C2B8156EC4> /usr/lib/system/libsystem_collections.dylib
+       0x19dfbf000 -        0x19dfc24cf  libsystem_secinit.dylib (168.100.7) <ECABC024-8F02-374A-BB7E-29437CEA2ABD> /usr/lib/system/libsystem_secinit.dylib
+       0x19dfc3000 -        0x19dfc5bf7  libremovefile.dylib (85.100.6) <7460B5AE-469A-36A0-A7EC-6C7D69628E86> /usr/lib/system/libremovefile.dylib
+       0x19dfc6000 -        0x19dfc6f27  libkeymgr.dylib (31) <7E863FCA-F3FF-32C7-8A8C-F983E946AFC3> /usr/lib/system/libkeymgr.dylib
+       0x19dfc7000 -        0x19dfcfe37  libsystem_dnssd.dylib (2881.160.4) <305F4398-E688-3384-B351-02D865EC8A04> /usr/lib/system/libsystem_dnssd.dylib
+       0x19dfd0000 -        0x19dfd509b  libcache.dylib (95) <9CD7B1E1-3E47-339C-A193-2392E3E0ED23> /usr/lib/system/libcache.dylib
+       0x19dfd6000 -        0x19dfd7ce3  libSystem.B.dylib (1356) <4FED5EE2-5D3E-35B1-A170-9859C4B683BB> /usr/lib/libSystem.B.dylib
+       0x19dfd8000 -        0x19dfd9fcf  libfakelink.dylib (5) <820D290D-51A0-3064-A1F2-4F0AAF7E6BF4> /usr/lib/libfakelink.dylib
+       0x19dfda000 -        0x19dfdaa33  com.apple.SoftLinking (1.0 - 71) <4109E8DD-0A81-310C-B1B3-23B87186D0D8> /System/Library/PrivateFrameworks/SoftLinking.framework/Versions/A/SoftLinking
+       0x19e010000 -        0x19e0172bb  libiconv.2.dylib (115.120.2) <4646F780-1D5E-3EE7-B00A-64619293CC18> /usr/lib/libiconv.2.dylib
+       0x19e02b000 -        0x19e122f3f  libarchive.2.dylib (167.160.4) <0048DB96-1737-3FC5-AF0C-AF784FA24A03> /usr/lib/libarchive.2.dylib
+       0x19e123000 -        0x19e18885b  com.apple.SearchKit (1.4.2 - 1.4.2) <B352D2B5-7115-3FF6-8805-7B49151BF5A2> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SearchKit.framework/Versions/A/SearchKit
+       0x19e189000 -        0x19e19118f  libThaiTokenizer.dylib (28) <92FAD15C-EEA5-34E9-B309-75A1CD1B620B> /usr/lib/libThaiTokenizer.dylib
+       0x19e192000 -        0x19e1b5f37  com.apple.applesauce (1.0 - 17.7) <B739BAFB-BA9A-3F08-A480-EA4D41808899> /System/Library/PrivateFrameworks/AppleSauce.framework/Versions/A/AppleSauce
+       0x19e1b6000 -        0x19e1ce4ab  libapple_nghttp2.dylib (37.120.3) <C3B4633A-F17D-3054-95C0-5A21B916A1B3> /usr/lib/libapple_nghttp2.dylib
+       0x19e1cf000 -        0x19e27838f  libSparseBLAS.dylib (184.160.6) <669ABE12-838F-3F14-8456-D60DE5DF8EB8> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libSparseBLAS.dylib
+       0x19e279000 -        0x19e27a63f  com.apple.MetalPerformanceShaders.MetalPerformanceShaders (1.0 - 1) <D5C759F9-A533-3E0B-8916-07CA63760A80> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/MetalPerformanceShaders
+       0x19e27b000 -        0x19e280ff7  libpam.2.dylib (35) <7E84FD3B-E90E-317E-AC19-17B70AC809E5> /usr/lib/libpam.2.dylib
+       0x19e281000 -        0x19e355d97  libcompression.dylib (193.120.2) <BAEEB84F-03FE-3B78-8799-316258DF893E> /usr/lib/libcompression.dylib
+       0x19e356000 -        0x19e35a267  libQuadrature.dylib (8) <C99B83FD-C865-36F7-B4D2-34018D34AF5D> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libQuadrature.dylib
+       0x19e35b000 -        0x19f52b94f  libLAPACK.dylib (1551.160.2) <5015CD96-C046-364D-AAE3-1F439044468B> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib
+       0x19f52c000 -        0x19f5824ff  com.apple.DictionaryServices (1.2 - 382.0.1) <6A26D479-5926-330B-9FB8-9B7A6BE8E239> /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/DictionaryServices.framework/Versions/A/DictionaryServices
+       0x19f583000 -        0x19f5a14f7  liblzma.5.dylib (21) <A758BC2B-EB48-3590-9B22-C2E0FAC3521E> /usr/lib/liblzma.5.dylib
+       0x19f5a2000 -        0x19f5a385f  libcoretls_cfhelpers.dylib (187.100.3) <6937D729-7EF4-3972-9E12-694C17C1C1AB> /usr/lib/libcoretls_cfhelpers.dylib
+       0x19f5a4000 -        0x19f61785f  com.apple.APFS (2811.160.7 - 2811.160.7) <E7595D59-4FA7-3A8E-9E9A-D1B22225B571> /System/Library/PrivateFrameworks/APFS.framework/Versions/A/APFS
+       0x19f618000 -        0x19f626833  libxar.1.dylib (503.160.5) <B48CA8E1-C7EF-38BF-B8C0-91355EE685DC> /usr/lib/libxar.1.dylib
+       0x19f627000 -        0x19f62a79b  libutil.dylib (73) <D4EB86A9-2784-3D15-A72E-29832C211348> /usr/lib/libutil.dylib
+       0x19f62b000 -        0x19f655cbf  libxslt.1.dylib (21.13.2) <6C426EA5-7F1E-333E-BB5D-74465EFED12B> /usr/lib/libxslt.1.dylib
+       0x19f65e000 -        0x19f6d7587  libvMisc.dylib (1126.160.2) <F6878ABB-05CB-3A50-964F-4D772670BAEB> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvMisc.dylib
+       0x19f6d8000 -        0x19f76745f  libate.dylib (3.0.9) <01AAD3B4-D6BA-36D9-BA6F-D494D2AC161D> /usr/lib/libate.dylib
+       0x19f771000 -        0x19f7841bf  com.apple.CrashReporterSupport (10.13 - 15140) <F963C33F-6026-336E-AE74-2ABA6F2322EF> /System/Library/PrivateFrameworks/CrashReporterSupport.framework/Versions/A/CrashReporterSupport
+       0x19f8c8000 -        0x19f908f9f  com.apple.pluginkit.framework (1.0 - 1) <F362C1C4-8E0B-37E3-943D-D3D2C7A6DD63> /System/Library/PrivateFrameworks/PlugInKit.framework/Versions/A/PlugInKit
+       0x19f97f000 -        0x19f9c79ff  com.apple.AppleVAFramework (6.2.10 - 6.2.10) <7CF84496-675C-3241-B0EF-E83C95F188FA> /System/Library/PrivateFrameworks/AppleVA.framework/Versions/A/AppleVA
+       0x19f9c8000 -        0x19f9e2ccf  libexpat.1.dylib (47) <FA9B7355-899F-371F-9293-21A94BAE956F> /usr/lib/libexpat.1.dylib
+       0x19f9e3000 -        0x19f9ecbf3  libheimdal-asn1.dylib (710.160.4) <6A4A85F4-3D12-3C4C-85EC-D53D61379F28> /usr/lib/libheimdal-asn1.dylib
+       0x19fb0d000 -        0x19fbceedf  com.apple.MediaExperience (1.0 - 1) <52A7AD42-9DE0-393B-A6FB-A7CB6FF8F3A5> /System/Library/PrivateFrameworks/MediaExperience.framework/Versions/A/MediaExperience
+       0x19fbfc000 -        0x19fc0b7ff  com.apple.GraphVisualizer (1.0 - 307) <77D85BA0-FE1C-3B5A-92DB-70A30202C990> /System/Library/PrivateFrameworks/GraphVisualizer.framework/Versions/A/GraphVisualizer
+       0x19fc0c000 -        0x19fc4b51f  com.apple.OTSVG (1.0 - 877.6.0.2) <5D3E7FFF-AC8E-3D6F-8E99-B199E593D270> /System/Library/PrivateFrameworks/OTSVG.framework/Versions/A/OTSVG
+       0x19fc4c000 -        0x19fc58c7f  com.apple.xpc.AppServerSupport (1.0 - 3102.160.5) <2B5FB7B0-844C-3D84-9EFD-020B285B0F8D> /System/Library/PrivateFrameworks/AppServerSupport.framework/Versions/A/AppServerSupport
+       0x19fc59000 -        0x19fc5fabf  libspindump.dylib (419.11) <04DC06C1-2BFA-3FEE-9429-A33E41721A3E> /usr/lib/libspindump.dylib
+       0x19fc60000 -        0x19fd20e9f  com.apple.Heimdal (4.0 - 2.0) <B1BA9495-0199-3630-8C92-45D4E5EE944F> /System/Library/PrivateFrameworks/Heimdal.framework/Versions/A/Heimdal
+       0x19ffef000 -        0x1a00336ef  com.apple.AppleJPEG (1.0 - 1) <7F00413A-4D40-3DBF-8FD5-859B23E6DC03> /System/Library/PrivateFrameworks/AppleJPEG.framework/Versions/A/AppleJPEG
+       0x1a0034000 -        0x1a01f492f  libJP2.dylib (2784.6.6) <7304F8B3-8E0F-3813-BFAF-9A565CEA0A11> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libJP2.dylib
+       0x1a01f5000 -        0x1a01f6e1f  com.apple.WatchdogClient.framework (1.0 - 333) <A062966A-1DD7-3BC4-83DB-42E820054727> /System/Library/PrivateFrameworks/WatchdogClient.framework/Versions/A/WatchdogClient
+       0x1a01f7000 -        0x1a023cd7f  com.apple.MultitouchSupport.framework (9460.1 - 9460.1) <57F7BB9C-649D-3360-AA86-A502815D77FA> /System/Library/PrivateFrameworks/MultitouchSupport.framework/Versions/A/MultitouchSupport
+       0x1a023d000 -        0x1a079337f  com.apple.VideoToolbox (1.0 - 3330.13.2) <C287CF1D-67F4-3798-99A3-221052B70A22> /System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox
+       0x1a0794000 -        0x1a07b920f  libAudioToolboxUtility.dylib (1556.704) <75F77FEC-BE14-3C97-93DA-403C3B529D3B> /usr/lib/libAudioToolboxUtility.dylib
+       0x1a07ba000 -        0x1a07e401f  libPng.dylib (2784.6.6) <C880ABD1-01CC-39F9-9144-E5DE22D0595F> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib
+       0x1a07e5000 -        0x1a0845b63  libTIFF.dylib (2784.6.6) <CA3AB1CA-DC97-328C-83E8-7CD89BC7FFBE> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libTIFF.dylib
+       0x1a0846000 -        0x1a0865257  com.apple.IOPresentment (67 - 67) <BD01EBB2-341A-38E7-89D5-450025B67415> /System/Library/PrivateFrameworks/IOPresentment.framework/Versions/A/IOPresentment
+       0x1a0866000 -        0x1a086a7d3  com.apple.GPUWrangler (8.1.12 - 8.1.12) <C1AB9351-81C2-3B9F-B237-D8560B16A134> /System/Library/PrivateFrameworks/GPUWrangler.framework/Versions/A/GPUWrangler
+       0x1a086b000 -        0x1a086d913  libRadiance.dylib (2784.6.6) <CA79D637-1D80-3C62-8820-EE4CE6961A5A> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libRadiance.dylib
+       0x1a086e000 -        0x1a08732f3  com.apple.DSExternalDisplay (3.1 - 380) <CFE441E7-0BAC-3894-862D-9F914D9E6D40> /System/Library/PrivateFrameworks/DSExternalDisplay.framework/Versions/A/DSExternalDisplay
+       0x1a0874000 -        0x1a089ebaf  libJPEG.dylib (2784.6.6) <8EA6CA42-AA01-3C0F-9672-4917481BAAAE> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib
+       0x1a08cd000 -        0x1a08d29fb  libGIF.dylib (2784.6.6) <A4885DA3-9B44-3026-89DF-8161510F2F5C> /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libGIF.dylib
+       0x1a08d3000 -        0x1a08e319f  com.apple.CMCaptureCore (1.0 - 665.140.6) <E35A60EE-A0A9-36CA-824C-0DC01FDD6658> /System/Library/PrivateFrameworks/CMCaptureCore.framework/Versions/A/CMCaptureCore
+       0x1a185c000 -        0x1a18ca86f  libusrtcp.dylib (5812.160.9) <D2F997AA-2E08-3035-9D11-B2DF5D1552E9> /usr/lib/libusrtcp.dylib
+       0x1a18cb000 -        0x1a1e6d7ff  libswiftCore.dylib (6.3.2 - 6.3.2.1.11) <83794FB3-DE9B-3D23-AB5E-2C1D5D30F134> /usr/lib/swift/libswiftCore.dylib
+       0x1a1f21000 -        0x1a1f7631f  libSessionUtility.dylib (398.701) <1A63E9E1-2D64-3AF4-9CCD-6EF042397F84> /System/Library/PrivateFrameworks/AudioSession.framework/libSessionUtility.dylib
+       0x1a1f77000 -        0x1a214c05f  com.apple.audio.toolbox.AudioToolbox (1.14 - 1.14) <E8618176-515C-39A6-9F9C-3887A723C463> /System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox
+       0x1a214d000 -        0x1a21cdb7f  com.apple.audio.AudioSession (1.0 - 398.701) <DC26AFB1-EFAD-3BB8-9446-0FB18DDFE476> /System/Library/PrivateFrameworks/AudioSession.framework/Versions/A/AudioSession
+       0x1a21ce000 -        0x1a21e739f  libAudioStatistics.dylib (262.601) <3FF99846-E48C-3C9A-814C-35B45E5F60EC> /usr/lib/libAudioStatistics.dylib
+       0x1a2264000 -        0x1a228019b  libresolv.9.dylib (96) <4AB71911-9300-30D4-88CF-D20EFD75ACE6> /usr/lib/libresolv.9.dylib
+       0x1a2281000 -        0x1a22937e7  libsasl2.2.dylib (215) <7CF2A32E-72DD-34F7-B179-A17ED3D7DD75> /usr/lib/libsasl2.2.dylib
+       0x1a247c000 -        0x1a255c337  libSMC.dylib (38) <655F6374-6CE8-3D0E-994E-4D7C37F78E89> /usr/lib/libSMC.dylib
+       0x1a25bc000 -        0x1a25c9257  com.apple.NetAuth (6.2 - 6.2) <024DBF34-DF66-3164-825E-F77F85462E66> /System/Library/PrivateFrameworks/NetAuth.framework/Versions/A/NetAuth
+       0x1a25d8000 -        0x1a25e5b1f  com.apple.perfdata (1.0 - 130) <D3AAB65F-8C3C-399C-927F-20DC2DD769F2> /System/Library/PrivateFrameworks/perfdata.framework/Versions/A/perfdata
+       0x1a25e6000 -        0x1a25f3c9f  libperfcheck.dylib (46) <912BFF10-FB8F-3D52-9941-ACDCE1CAE36A> /usr/lib/libperfcheck.dylib
+       0x1a25f4000 -        0x1a2605187  com.apple.Kerberos (3.0 - 1) <D4CB91E4-2ACB-332D-8FA0-8154F7B48D20> /System/Library/Frameworks/Kerberos.framework/Versions/A/Kerberos
+       0x1a2606000 -        0x1a2657aaf  com.apple.GSS (4.0 - 2.0) <277D18EF-39E4-3F72-99E8-8D3DF65ED1D0> /System/Library/Frameworks/GSS.framework/Versions/A/GSS
+       0x1a2658000 -        0x1a2668d6f  com.apple.CommonAuth (4.0 - 2.0) <097F7235-CA53-3644-BB95-F6F912B4F2C7> /System/Library/PrivateFrameworks/CommonAuth.framework/Versions/A/CommonAuth
+       0x1a2669000 -        0x1a274d05f  com.apple.MobileAssets (1.0 - 1837.160.15) <91A461DE-C8E8-3868-B393-BA6E5A17DF2A> /System/Library/PrivateFrameworks/MobileAsset.framework/Versions/A/MobileAsset
+       0x1a27e0000 -        0x1a27ef160  com.apple.CorePhoneNumbers (1.0 - 1) <79000980-1797-3115-B74B-60FA1E9C3C73> /System/Library/PrivateFrameworks/CorePhoneNumbers.framework/Versions/A/CorePhoneNumbers
+       0x1a43cc000 -        0x1a44bfa36  com.apple.combine (1.0 - 3023) <F088ACC1-374F-3E9D-86DA-29310F8431B1> /System/Library/Frameworks/Combine.framework/Versions/A/Combine
+       0x1a6735000 -        0x1a673586f  com.apple.Accelerate.vecLib (3.11 - vecLib 3.11) <8203944D-B53E-3D7E-A481-3C676CAE1B6A> /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/vecLib
+       0x1a675a000 -        0x1a675a98f  com.apple.CoreServices (1226 - 1226) <56AE2857-29E0-34E9-B2C3-EE8E951EEFC5> /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
+       0x1a69d9000 -        0x1a69d9417  com.apple.Accelerate (1.11 - Accelerate 1.11) <9171DD7D-3994-3963-9A28-BC163BF97DE6> /System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate
+       0x1a78e0000 -        0x1a78ef5df  com.apple.SymptomDiagnosticReporter (1.0 - 411.160.2) <737479F2-7B20-3DB6-B9F4-0DAA1B73E9D0> /System/Library/PrivateFrameworks/SymptomDiagnosticReporter.framework/Versions/A/SymptomDiagnosticReporter
+       0x1a78f0000 -        0x1a791e25f  com.apple.PowerLog (1.0 - 1) <E86905A9-1519-3027-9182-C85F9EC8A6C0> /System/Library/PrivateFrameworks/PowerLog.framework/Versions/A/PowerLog
+       0x1a792c000 -        0x1a79dd6df  com.apple.DiscRecording (9.0.3 - 9030.4.5) <B38F9602-2DFD-33EB-9B69-867D46CF602A> /System/Library/Frameworks/DiscRecording.framework/Versions/A/DiscRecording
+       0x1a79de000 -        0x1a7a0f137  com.apple.MediaKit (16 - 938) <46DD93AF-BACD-309B-AD51-9CC47C78CA2C> /System/Library/PrivateFrameworks/MediaKit.framework/Versions/A/MediaKit
+       0x1a84d1000 -        0x1a84e7950  libswiftDispatch.dylib (1542.160.2) <F0B9A36E-CE82-3B73-B644-E9C05DF0AF71> /usr/lib/swift/libswiftDispatch.dylib
+       0x1a8832000 -        0x1a88bec3f  com.apple.BoardServices (1.0 - 732.1.1) <BF23D7B4-4992-3663-BBEC-A55EE7D351DE> /System/Library/PrivateFrameworks/BoardServices.framework/Versions/A/BoardServices
+       0x1a88ff000 -        0x1a890c53f  com.apple.GraphicsServices (1.0 - 1.0) <757FEDFF-841C-3D62-B703-CDE79E929363> /System/Library/PrivateFrameworks/GraphicsServices.framework/Versions/A/GraphicsServices
+       0x1a8c29000 -        0x1a8c4ae9f  com.apple.DebugSymbols (216 - 217) <7C923545-F3BB-3215-9720-85196358D9F1> /System/Library/PrivateFrameworks/DebugSymbols.framework/Versions/A/DebugSymbols
+       0x1a8c4b000 -        0x1a8da649f  com.apple.CoreSymbolication (16.0 - 64575.55.1) <59136324-34E6-3367-92BB-659346907A04> /System/Library/PrivateFrameworks/CoreSymbolication.framework/Versions/A/CoreSymbolication
+       0x1a8da7000 -        0x1a8db109f  com.apple.CoreTime (334.0.16.3 - 334.0.16.3) <A41A3592-8BDB-3BE5-BBF4-DC196D669C1D> /System/Library/PrivateFrameworks/CoreTime.framework/Versions/A/CoreTime
+       0x1aa701000 -        0x1aa7737ff  com.apple.BackBoardServices (1.0 - 1.0) <E1DAB2C4-0470-35D4-914C-1F38DE3D9EBB> /System/Library/PrivateFrameworks/BackBoardServices.framework/Versions/A/BackBoardServices
+       0x1aa774000 -        0x1aa7af4ef  com.apple.LDAPFramework (2.4.28 - 194.5) <8CABDD64-E6C6-3B77-B839-2E2B875CE0FE> /System/Library/Frameworks/LDAP.framework/Versions/A/LDAP
+       0x1aa7b0000 -        0x1aa7b17b7  com.apple.TrustEvaluationAgent (2.0 - 38) <96C0BAAA-7FE6-3277-AFBC-31926F5935EE> /System/Library/PrivateFrameworks/TrustEvaluationAgent.framework/Versions/A/TrustEvaluationAgent
+       0x1aa8df000 -        0x1aa99859f  com.apple.DiskImagesFramework (683.160.3 - 683.160.3) <E318744C-06A0-39A4-A55B-1245016B42CE> /System/Library/PrivateFrameworks/DiskImages.framework/Versions/A/DiskImages
+       0x1aa9d9000 -        0x1aa9ef59f  com.apple.RemoteServiceDiscovery (1.0 - 219.160.4) <823F3D1A-65F1-3CC5-96B1-750263B8DB36> /System/Library/PrivateFrameworks/RemoteServiceDiscovery.framework/Versions/A/RemoteServiceDiscovery
+       0x1aa9f0000 -        0x1aaa05c3f  com.apple.xpc.RemoteXPC (1.0 - 3102.160.5) <885F9C72-1018-368B-AD36-E8A42E87FD91> /System/Library/PrivateFrameworks/RemoteXPC.framework/Versions/A/RemoteXPC
+       0x1aaa9a000 -        0x1aab1af4b  libcurl.4.dylib (168) <2E99AD96-DC1C-3643-9988-273AB6844EFC> /usr/lib/libcurl.4.dylib
+       0x1aab21000 -        0x1aab6425f  com.apple.AppSupport (1.0.0 - 29) <61B2B917-D14A-38AD-A439-16E1C635441A> /System/Library/PrivateFrameworks/AppSupport.framework/Versions/A/AppSupport
+       0x1aae35000 -        0x1aae37f3f  com.apple.InternationalTextSearch (1.0 - 1) <858910C5-1D4A-37B7-BF0E-EE02E24A2ACD> /System/Library/PrivateFrameworks/InternationalTextSearch.framework/Versions/A/InternationalTextSearch
+       0x1ab408000 -        0x1ab4083f7  libHeimdalProxy.dylib (88) <0CB2E7E3-E96F-343B-A4E7-545E74AF0255> /System/Library/Frameworks/Kerberos.framework/Versions/A/Libraries/libHeimdalProxy.dylib
+       0x1ab433000 -        0x1ab451b9f  com.apple.StreamingZip (1.0 - 1) <1F2EDC7B-8F28-3721-8A60-F6E1BCFC29A3> /System/Library/PrivateFrameworks/StreamingZip.framework/Versions/A/StreamingZip
+       0x1ab4ab000 -        0x1ab4ae6bf  libswiftObjectiveC.dylib (951.7) <4FD234EA-2C18-3C25-8BD0-B1F4805C6675> /usr/lib/swift/libswiftObjectiveC.dylib
+       0x1ab4af000 -        0x1ab4cc6ff  libswiftos.dylib (1082) <C7A04322-C1B4-39A6-9E88-1C8CEDB97264> /usr/lib/swift/libswiftos.dylib
+       0x1ac416000 -        0x1ac4a485f  com.apple.proactive.support.ProactiveSupport (1.0 - 418.1) <73EE1A0A-0D29-3104-98CB-BEFEDA53F7C0> /System/Library/PrivateFrameworks/ProactiveSupport.framework/Versions/A/ProactiveSupport
+       0x1ac5a1000 -        0x1ac5c529f  com.apple.ASEProcessing (1.55.0 - 1.55.0) <4D8F39C6-B221-3AF1-BB40-CAEB0A174D61> /System/Library/PrivateFrameworks/ASEProcessing.framework/Versions/A/ASEProcessing
+       0x1ad825000 -        0x1ad8f3c1f  com.apple.audio.midi.CoreMIDI (2.0 - 88) <52BD9E26-B356-3EAA-9AD7-7FF700C61A91> /System/Library/Frameworks/CoreMIDI.framework/Versions/A/CoreMIDI
+       0x1ae536000 -        0x1ae53a75f  com.apple.IOSurfaceAccelerator (1.0.0 - 1.0.0) <1E529C1A-B09C-3EB7-A286-CE00E292D561> /System/Library/PrivateFrameworks/IOSurfaceAccelerator.framework/Versions/A/IOSurfaceAccelerator
+       0x1b3806000 -        0x1b38199ff  com.apple.HID (1.0 - 1) <C61C2A64-EA55-3732-A51A-FD2F9740B76B> /System/Library/PrivateFrameworks/HID.framework/Versions/A/HID
+       0x1b83fb000 -        0x1b840a29f  com.apple.NetFS (6.0 - 4.0) <49121861-2603-3B0A-B664-BAD9E729BE5D> /System/Library/Frameworks/NetFS.framework/Versions/A/NetFS
+       0x1b8957000 -        0x1b8959707  libswiftDarwin.dylib (377.160.5) <1DB56DA9-CF6B-3023-ABDF-5A37CB79223C> /usr/lib/swift/libswiftDarwin.dylib
+       0x1baa7a000 -        0x1bab634df  libquic.dylib (5812.160.9) <5E89267F-C684-348D-8356-F9DAD8B4CB13> /usr/lib/libquic.dylib
+       0x1bab6f000 -        0x1bab97edf  com.apple.private.SystemPolicy (1.0 - 1) <6108A12D-286B-3CF2-B848-B0E7A0189DCC> /System/Library/PrivateFrameworks/SystemPolicy.framework/Versions/A/SystemPolicy
+       0x1bba54000 -        0x1bbae2bff  com.apple.LoggingSupport (1.0 - 1861.160.4) <DAB7DFDC-BE61-3164-B741-A753F6CD2E7E> /System/Library/PrivateFrameworks/LoggingSupport.framework/Versions/A/LoggingSupport
+       0x1bbae3000 -        0x1bbaefacb  com.apple.MallocStackLogging (1.0 - 65000) <566F2D7D-0F3B-3290-A739-7A40A151F0BE> /System/Library/PrivateFrameworks/MallocStackLogging.framework/Versions/A/MallocStackLogging
+       0x1bbb15000 -        0x1bbb6fd9f  libmis.dylib (463.160.2) <173A632F-20F3-30C1-BC55-EFFE977BBB8E> /usr/lib/libmis.dylib
+       0x1bbb70000 -        0x1bbb73c5f  com.apple.gpusw.GPURawCounter (34 - 34) <03470B3A-A004-39A0-B6A4-F2A4AFFFCDD3> /System/Library/PrivateFrameworks/GPURawCounter.framework/Versions/A/GPURawCounter
+       0x1bbb74000 -        0x1bbb9387f  libswiftCoreAudio.dylib (411.701) <CAFCB013-F154-361D-8A8C-062C63BBA8FC> /usr/lib/swift/libswiftCoreAudio.dylib
+       0x1bbb94000 -        0x1bbb9a327  libswiftCoreFoundation.dylib (2411) <4975D13C-2AC5-3473-85C0-98054A81D7C6> /usr/lib/swift/libswiftCoreFoundation.dylib
+       0x1bbba7000 -        0x1bbbf3843  libswiftXPC.dylib (128.120.2) <24AEDAC1-C1EE-30F4-8818-72EBF8969D0C> /usr/lib/swift/libswiftXPC.dylib
+       0x1bbbf5000 -        0x1bbbf58a3  libswiftIOKit.dylib (1) <06A92787-4440-3757-AF32-F2B331C753A2> /usr/lib/swift/libswiftIOKit.dylib
+       0x1bdc27000 -        0x1bdc602c7  libbootpolicy.dylib (289.160.2) <B5133C2D-C0A5-34C3-BF53-A59FBDDCEEDA> /usr/lib/libbootpolicy.dylib
+       0x1bf6ee000 -        0x1bf70588b  libswiftsimd.dylib (23) <CB6EF41A-C18E-3EDA-B68C-CCB0E36EE662> /usr/lib/swift/libswiftsimd.dylib
+       0x1c0dd8000 -        0x1c0e142af  libncurses.5.4.dylib (79) <9EB04E94-EE2D-38A5-A214-00AF73DBE4E9> /usr/lib/libncurses.5.4.dylib
+       0x1c0e15000 -        0x1c0e1e37f  com.apple.IOAccelMemoryInfo (1.0 - 1) <E6505525-75F4-380E-A9D7-7C5721260925> /System/Library/PrivateFrameworks/IOAccelMemoryInfo.framework/Versions/A/IOAccelMemoryInfo
+       0x1c24e5000 -        0x1c24ee0be  libswiftCoreMIDI.dylib (6) <7AE04E20-83FD-3B1B-8846-E9869AD98DB5> /usr/lib/swift/libswiftCoreMIDI.dylib
+       0x1c2cd6000 -        0x1c2cdcbbf  com.apple.MSUDataAccessor (1.0 - 1) <FC49965D-D149-30F8-A403-EED6A2ED8C1D> /System/Library/PrivateFrameworks/MSUDataAccessor.framework/Versions/A/MSUDataAccessor
+       0x1c30ff000 -        0x1c3161ddf  com.apple.SoftwareUpdateCoreSupport (1.0 - 1) <13271AA6-33EA-369B-B2D1-6EC528C820E7> /System/Library/PrivateFrameworks/SoftwareUpdateCoreSupport.framework/Versions/A/SoftwareUpdateCoreSupport
+       0x1c6c2c000 -        0x1c6c8325f  com.apple.biome.BiomeFoundation (1.0 - 209.21) <455A5553-E683-30B4-A906-1F14E75F6E61> /System/Library/PrivateFrameworks/BiomeFoundation.framework/Versions/A/BiomeFoundation
+       0x1c9b6a000 -        0x1c9b77a1f  libswiftMetal.dylib (373.7) <7235A6A9-49B2-3B94-9DD6-C987019CDBF2> /usr/lib/swift/libswiftMetal.dylib
+       0x1c9b78000 -        0x1c9b7ee05  libswiftCompression.dylib (11) <856ACB2A-3334-3BA6-AAC8-8F344E7CDB83> /usr/lib/swift/libswiftCompression.dylib
+       0x1caab1000 -        0x1cab5bd7f  libFDR.dylib (1499.160.2) <BA9D87B5-421B-37B2-BEF3-F3E359C22B18> /usr/lib/libFDR.dylib
+       0x1cabdd000 -        0x1cb1a833f  com.apple.biome.BiomeStreams (1.0 - 209.21) <2110407D-EFB4-373E-B963-9C92E26594B2> /System/Library/PrivateFrameworks/BiomeStreams.framework/Versions/A/BiomeStreams
+       0x1cb67c000 -        0x1cb6908ff  com.apple.SoftwareUpdateCoreConnect (1.0 - 1) <2CA857AF-D999-34DC-94A1-3AC0E5B80416> /System/Library/PrivateFrameworks/SoftwareUpdateCoreConnect.framework/Versions/A/SoftwareUpdateCoreConnect
+       0x1cdad4000 -        0x1cdb3ec1f  com.apple.osanalytics.OSAnalytics (1.0 - 1) <06728C4D-5750-308F-8290-EAF7BE91F4BB> /System/Library/PrivateFrameworks/OSAnalytics.framework/Versions/A/OSAnalytics
+       0x1cef90000 -        0x1cef91f9f  libswiftQuartzCore.dylib (5) <63444A8C-9E8C-3778-820D-1E0C88CA2DF7> /usr/lib/swift/libswiftQuartzCore.dylib
+       0x1cf383000 -        0x1cf3888e7  com.apple.kperf (1.0 - 1) <F2E7C7C4-03B4-3341-91ED-DD5472BF3F3B> /System/Library/PrivateFrameworks/kperf.framework/Versions/A/kperf
+       0x1cf49a000 -        0x1cf49f63f  com.apple.MobileSystemServices (1.0 - 1) <4F3BEA3B-A363-3D04-B903-9B613C993CA1> /System/Library/PrivateFrameworks/MobileSystemServices.framework/Versions/A/MobileSystemServices
+       0x1d0a8c000 -        0x1d0aae29f  libamsupport.dylib (434.160.4) <24D28E7F-A1AE-3031-8679-A0D6C6D68A86> /usr/lib/libamsupport.dylib
+       0x1d0e8a000 -        0x1d0eea0ff  com.apple.biome.BiomePubSub (1.0 - 209.21) <0F03104F-FC8B-3ADD-8850-4B7029E2B56E> /System/Library/PrivateFrameworks/BiomePubSub.framework/Versions/A/BiomePubSub
+       0x1d0eeb000 -        0x1d0f2e19f  com.apple.biome.BiomeStorage (1.0 - 209.21) <D393CCA0-5E20-31D3-8E1A-70476551724B> /System/Library/PrivateFrameworks/BiomeStorage.framework/Versions/A/BiomeStorage
+       0x1d3a28000 -        0x1d3a3713f  libswiftUniformTypeIdentifiers.dylib (877.5.1) <A83236CA-4417-3C27-B252-72923DB09F88> /usr/lib/swift/libswiftUniformTypeIdentifiers.dylib
+       0x1d3a38000 -        0x1d3afda9b  libswiftAccelerate.dylib (77.100.2) <625F222D-6394-39B9-A1F2-12B9EA56DD85> /usr/lib/swift/libswiftAccelerate.dylib
+       0x1d3c56000 -        0x1d3c6711f  libpartition2_dynamic.dylib (3476.160.2) <BA13DE06-6320-345A-A2E3-CC3C4EB06574> /usr/lib/libpartition2_dynamic.dylib
+       0x1d41c5000 -        0x1d41cffdf  com.apple.AFKUser (1.0 - 1) <E638FBE2-2BB6-3A8E-A1DF-D7B5AC9BE7B0> /System/Library/PrivateFrameworks/AFKUser.framework/Versions/A/AFKUser
+       0x1d7bc9000 -        0x1d7c2a75f  libswiftCoreMedia.dylib (3330.13.2) <BE970706-7E22-3C17-A8C1-BF3CDF685F21> /usr/lib/swift/libswiftCoreMedia.dylib
+       0x1d937c000 -        0x1d937dbbf  libswiftOSLog.dylib (10) <9670AE5C-271A-3DCB-9A0A-8E3A7CCC2726> /usr/lib/swift/libswiftOSLog.dylib
+       0x1dd492000 -        0x1dd59ed5f  com.apple.Symbolication (16.0 - 64575.70.1) <724D42FC-F4FD-39C7-A1BF-D0AD086231F4> /System/Library/PrivateFrameworks/Symbolication.framework/Versions/A/Symbolication
+       0x1e1b26000 -        0x1e1b363df  com.apple.OSLog (1.0 - 1861.160.4) <869F0693-0E82-38C1-8920-C782E71735CA> /System/Library/Frameworks/OSLog.framework/Versions/A/OSLog
+       0x1e1e3a000 -        0x1e1f4b75f  com.apple.InternalSwiftProtobuf (1.0 - 1.26.0) <41F66F01-A342-3091-A832-0B2B645C922B> /System/Library/PrivateFrameworks/InternalSwiftProtobuf.framework/Versions/A/InternalSwiftProtobuf
+       0x1e2011000 -        0x1e201c0bf  com.apple.HIDDisplay (1.0 - 1) <0368EA7D-01B2-3AA9-A6D6-A2A0850AC800> /System/Library/PrivateFrameworks/HIDDisplay.framework/Versions/A/HIDDisplay
+       0x1ea045000 -        0x1ea045af3  com.apple.FeatureFlags (1.0 - 103) <F8F78EEC-A28C-3AAF-A7F2-7EFD5B839EDB> /System/Library/PrivateFrameworks/FeatureFlags.framework/Versions/A/FeatureFlags
+       0x1f3799000 -        0x1f379b5bf  com.apple.ConfigProfileHelper (18.0 - 1800) <2D1B971F-6A7F-32D0-8B0F-F8FA3A13E8F1> /System/Library/PrivateFrameworks/ConfigProfileHelper.framework/Versions/A/ConfigProfileHelper
+       0x233ebb000 -        0x233ec22c3  libCoreFSCache.dylib (352.2) <2C410B78-B9A5-30DC-8D83-FFEC1277F34C> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreFSCache.dylib
+       0x233ec3000 -        0x233ec8947  libCoreVMClient.dylib (352.2) <07CB5D41-C2F3-3C33-951F-67B2C8B8B662> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreVMClient.dylib
+       0x233ec9000 -        0x233ed92b7  com.apple.opengl (23.1.1 - 23.1.1) <B4B82439-1E7E-33FB-A08D-6B0C20608AE3> /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL
+       0x233eda000 -        0x233edc7bf  libCVMSPluginSupport.dylib (23.1.1) <D02BDBB2-FBA6-3050-9076-08D94E904E3A> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCVMSPluginSupport.dylib
+       0x233edd000 -        0x233ee54ff  libGFXShared.dylib (23.1.1) <6CEF3932-AAC9-3F8E-905D-A826F2884C9A> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGFXShared.dylib
+       0x233ee6000 -        0x233f1954b  libGLImage.dylib (23.1.1) <CD28CE41-30BB-3743-88BC-22FD9D24D908> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLImage.dylib
+       0x233f1a000 -        0x233f535bf  libGLU.dylib (23.1.1) <B48D9786-7BF0-308B-A82B-4590632E71D4> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLU.dylib
+       0x2340aa000 -        0x2340b3bc7  libGL.dylib (23.1.1) <DED25257-919A-3D90-A2A1-9C61DC783FE8> /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
+       0x235f46000 -        0x2360b9f1f  com.apple.ExtensionFoundation (97 - 97) <3D533C35-3A2A-3672-92EF-5FEE9EE739AC> /System/Library/Frameworks/ExtensionFoundation.framework/Versions/A/ExtensionFoundation
+       0x23732d000 -        0x23736fa1f  com.apple.LightweightCodeRequirements (1.0 - 1) <8EF56F82-8CCE-3811-AD16-6D0939187B45> /System/Library/Frameworks/LightweightCodeRequirements.framework/Versions/A/LightweightCodeRequirements
+       0x238193000 -        0x2381b11ff  com.apple.MPSBenchmarkLoop (1.0 - 1) <CE33B5A6-25BA-3202-BDFE-0D59EFE2199A> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSBenchmarkLoop.framework/Versions/A/MPSBenchmarkLoop
+       0x2381b2000 -        0x2381c5e7f  com.apple.MPSFunctions (1.0 - 1) <3103E210-FF5C-3677-BDD3-59FF17A6ACEC> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSFunctions.framework/Versions/A/MPSFunctions
+       0x2381c6000 -        0x2381cb53f  com.apple.MPSHost (1.0 - 1) <31F90368-23A5-39BB-822B-C8470C4479AE> /System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSHost.framework/Versions/A/MPSHost
+       0x23b476000 -        0x23b5e24bf  com.apple.SwiftData (1.0 - 135) <9F52706C-75BD-34AF-A29E-C26608124ACC> /System/Library/Frameworks/SwiftData.framework/Versions/A/SwiftData
+       0x24213b000 -        0x24214fabf  com.apple.AppleDeviceQuerySupport (1.0 - 408.120.3) <9594FBFB-D49D-3DF6-8820-564633EAEC2B> /System/Library/PrivateFrameworks/AppleDeviceQuerySupport.framework/Versions/A/AppleDeviceQuerySupport
+       0x2428cd000 -        0x242948b46  com.apple.AppleKeyStore (1.0 - 1.0) <E444621A-C72D-36A2-AA52-9E9FAFA7B42D> /System/Library/PrivateFrameworks/AppleKeyStore.framework/Versions/A/AppleKeyStore
+       0x243275000 -        0x24328d9df  com.apple.private.AppleMobileFileIntegrity-fmk (1.0 - 1) <FFB902E7-2984-3F17-B43D-2DDA2C5683F9> /System/Library/PrivateFrameworks/AppleMobileFileIntegrity.framework/Versions/A/AppleMobileFileIntegrity
+       0x243787000 -        0x243799799  com.apple.AtomicsInternal (1.1.0 - 5026.6.1) <1617DBB1-2BFF-3619-903C-2FBB31348FB6> /System/Library/PrivateFrameworks/AtomicsInternal.framework/Versions/A/AtomicsInternal
+       0x243856000 -        0x243878dff  com.apple.imgaudio.AudioAnalytics (1.0 - 1) <C4EF9A70-A6B4-3F21-B3D8-A0C740406419> /System/Library/PrivateFrameworks/AudioAnalytics.framework/Versions/A/AudioAnalytics
+       0x243ebc000 -        0x243f0485f  com.apple.BackBoardHIDEventFoundation (1.0 - 1) <7F763DF9-EA7F-3938-B599-DCCF4605E610> /System/Library/PrivateFrameworks/BackBoardHIDEventFoundation.framework/Versions/A/BackBoardHIDEventFoundation
+       0x243f9d000 -        0x243fb68df  com.apple.biome.BiomeDSL (1.0 - 209.21) <FE87FF48-AB89-3D65-ABC3-EFE50A81355F> /System/Library/PrivateFrameworks/BiomeDSL.framework/Versions/A/BiomeDSL
+       0x243fb7000 -        0x244871f7f  com.apple.BiomeLibrary (274.60) <07CF779F-8F51-3764-B486-23D76868FF91> /System/Library/PrivateFrameworks/BiomeLibrary.framework/Versions/A/BiomeLibrary
+       0x244872000 -        0x244877b5f  com.apple.biome.BiomeSync (1.0 - 209.21) <2362E209-EC61-3FFC-9486-1244BB29BE82> /System/Library/PrivateFrameworks/BiomeSync.framework/Versions/A/BiomeSync
+       0x245ea8000 -        0x245f408bf  com.apple.biome.CascadeSets (1.0 - 209.21) <2091B02D-8D55-3DC4-8097-60C193D03C85> /System/Library/PrivateFrameworks/CascadeSets.framework/Versions/A/CascadeSets
+       0x2472fb000 -        0x2474394ee  com.apple.CollectionsInternal (1.2.0 - 5026.6.1) <6098453F-4D7E-38B4-8ADC-02C9FF51E14A> /System/Library/PrivateFrameworks/CollectionsInternal.framework/Versions/A/CollectionsInternal
+       0x24ea11000 -        0x24ea2449f  com.apple.DeviceRecovery (1.0 - 1) <2FA711C7-F764-363A-BF03-295E0DA88B79> /System/Library/PrivateFrameworks/DeviceRecovery.framework/Versions/A/DeviceRecovery
+       0x250cb6000 -        0x250cb92ff  com.apple.FontServices (1.0 - 1) <A9851D45-161F-3722-BC68-5B3B3FBFC956> /System/Library/PrivateFrameworks/FontServices.framework/Versions/A/FontServices
+       0x250cba000 -        0x250da9e2f  libXTFontStaticRegistryData.dylib (335.4.0.6) <B3DBACFE-8DA6-3E2D-92F1-F82E010A2225> /System/Library/PrivateFrameworks/FontServices.framework/libXTFontStaticRegistryData.dylib
+       0x250dab000 -        0x250db7c9f  com.apple.FramePacing (1.0 - 1) <1FDD3B19-C04A-3EE7-B7DF-E1F89954A696> /System/Library/PrivateFrameworks/FramePacing.framework/Versions/A/FramePacing
+       0x251ed9000 -        0x251edef07  libGPUCompilerUtils.dylib (32023.886.1) <F5DD2A61-CD1B-32B0-A8E6-7CB5B4BABFF1> /System/Library/PrivateFrameworks/GPUCompiler.framework/Versions/32023/Libraries/libGPUCompilerUtils.dylib
+       0x25634c000 -        0x25638b797  libllvm-flatbuffers.dylib (32023.886.1) <526C249F-FF2E-3DC4-A639-B41A032E8CCE> /System/Library/PrivateFrameworks/GPUCompiler.framework/Versions/32023/Libraries/libllvm-flatbuffers.dylib
+       0x25dccf000 -        0x25ddd82bf  com.apple.InstalledContentLibrary (1.0 - 1.0) <1ACDAA8A-EB43-37C7-B661-39B1C0E05290> /System/Library/PrivateFrameworks/InstalledContentLibrary.framework/Versions/A/InstalledContentLibrary
+       0x2606fc000 -        0x260ecad3f  com.apple.IntelligencePlatformLibrary (274.60) <D5DD1ABA-3697-3A32-A10F-FC7B7954CFB6> /System/Library/PrivateFrameworks/IntelligencePlatformLibrary.framework/Versions/A/IntelligencePlatformLibrary
+       0x2627ac000 -        0x262e42923  com.apple.MIL (3520.4 - 3520.4.1) <97C5C585-F5EE-323A-B949-69EAE9080871> /System/Library/PrivateFrameworks/MIL.framework/Versions/A/MIL
+       0x267a0d000 -        0x267a6eabf  com.apple.MessageSecurity (1.0 - 195.160.36) <A287A9A4-5DFD-331D-93A8-696DBE94592C> /System/Library/PrivateFrameworks/MessageSecurity.framework/Versions/A/MessageSecurity
+       0x26ca7f000 -        0x26caa91bf  com.apple.OSEligibility (319.160.17) <62740FDD-2B16-3319-B5C9-022D45C6B03A> /System/Library/PrivateFrameworks/OSEligibility.framework/Versions/A/OSEligibility
+       0x26d70c000 -        0x26d82485f  com.apple.ParsingInternal (0.0.1 - 5026.6.1) <11E757EC-72FB-3C53-8ED7-641428AB6169> /System/Library/PrivateFrameworks/ParsingInternal.framework/Versions/A/ParsingInternal
+       0x270bbd000 -        0x270bdee1f  com.apple.accessibility.PhotosensitivityProcessing (1.0 - 1) <FBE7AAD0-E0FC-3573-9D62-EB6948FE95FF> /System/Library/PrivateFrameworks/PhotosensitivityProcessing.framework/Versions/A/PhotosensitivityProcessing
+       0x270fd2000 -        0x27100ea3c  com.apple.PoirotSQLite (1.0 - 1) <24779350-BC29-3465-AAB3-F7CD0DA5844A> /System/Library/PrivateFrameworks/PoirotSQLite.framework/Versions/A/PoirotSQLite
+       0x27100f000 -        0x27107c25f  com.apple.PoirotSchematizer (1.0 - 1) <42CDC0E6-51BA-3804-BD3E-EDF87FC74034> /System/Library/PrivateFrameworks/PoirotSchematizer.framework/Versions/A/PoirotSchematizer
+       0x27107d000 -        0x2710b2bff  com.apple.PoirotUDFs (1.0 - 1) <D085FE4F-65AA-3A17-8F24-156DD9814882> /System/Library/PrivateFrameworks/PoirotUDFs.framework/Versions/A/PoirotUDFs
+       0x27224b000 -        0x272386ddf  com.apple.ProDisplayLibrary (10.6.1 - 10.6.1) <D495C457-EECC-3D57-B449-EC8F324214EC> /System/Library/PrivateFrameworks/ProDisplayLibrary.framework/Versions/A/ProDisplayLibrary
+       0x273341000 -        0x2733494df  com.apple.ReflectionInternal (1.0.0 - 5026.6.1) <9A1279D4-575A-3E48-A460-A631A3F82D18> /System/Library/PrivateFrameworks/ReflectionInternal.framework/Versions/A/ReflectionInternal
+       0x274295000 -        0x2742a89d7  com.apple.RuntimeInternal (1.0.0 - 5026.6.1) <6D89CD71-A86D-3D78-A64B-96AB79550F79> /System/Library/PrivateFrameworks/RuntimeInternal.framework/Versions/A/RuntimeInternal
+       0x274500000 -        0x27456dabf  com.apple.SILManager (53.19 - 53.19) <1B4C0154-843C-3CEE-9628-22978082DD2D> /System/Library/PrivateFrameworks/SILManager.framework/Versions/A/SILManager
+       0x27fa1b000 -        0x27fa474a1  com.apple.security.SwiftASN1Internal (1.0 - 1) <EDCDD822-AA64-3EB9-B0C3-9CEF1A4E0B36> /System/Library/PrivateFrameworks/SwiftASN1Internal.framework/Versions/A/SwiftASN1Internal
+       0x283159000 -        0x2831951df  com.apple.tightbeam (1.0 - 483.100.88) <D817A379-80E9-3A4B-A361-DDEF1B7EFB28> /System/Library/PrivateFrameworks/Tightbeam.framework/Versions/A/Tightbeam
+       0x2878d1000 -        0x2878d22cf  com.apple.VideoToolboxParavirtualizationSupport (64.4.7 - 64.4.7) <825E8416-E246-338E-A5CF-AA81A1B01DD9> /System/Library/PrivateFrameworks/VideoToolboxParavirtualizationSupport.framework/Versions/A/VideoToolboxParavirtualizationSupport
+       0x291b46000 -        0x291be071f  libAppleArchive.dylib (450.160.2) <9A8926C8-36A6-3DB4-A485-059C1F630984> /usr/lib/libAppleArchive.dylib
+       0x291c9b000 -        0x291ca545f  libCoreEntitlements.dylib (80.100.6) <A0DF7E4F-890F-320B-90BF-60CBAC3AFF8B> /usr/lib/libCoreEntitlements.dylib
+       0x291f91000 -        0x291f9887f  libReverseProxyDevice.dylib (104.120.2) <29367004-5D60-38DB-831F-9E5EE9364B21> /usr/lib/libReverseProxyDevice.dylib
+       0x291f99000 -        0x291fa0349  libRosetta.dylib (367.9) <0C7397C6-D747-31F2-8BC1-4096213BDE5C> /usr/lib/libRosetta.dylib
+       0x292009000 -        0x2920123ff  libTLE.dylib (80.100.6) <90E600A3-0A27-348A-AA57-D1DF4FB305E8> /usr/lib/libTLE.dylib
+       0x29281f000 -        0x292930b17  libcrypto.46.dylib (109.100.2) <46D13DA8-E7BD-37DC-91DD-D5E6CE00C2B8> /usr/lib/libcrypto.46.dylib
+       0x292a6b000 -        0x292a87762  libhvf.dylib (11) <23C577A8-DB0B-3A0A-9058-1289483C262A> /usr/lib/libhvf.dylib
+       0x2933a2000 -        0x2933da527  libssl.48.dylib (109.100.2) <07D5F4C6-1A13-344C-882B-0B0A08048DE5> /usr/lib/libssl.48.dylib
+       0x293415000 -        0x29344336f  libswiftPrespecialized.dylib (0) <9E3C7597-446F-3C50-9930-2425D9252C0C> /usr/lib/libswiftPrespecialized.dylib
+       0x2936df000 -        0x2936f1043  libswiftDistributed.dylib (6.3.2 - 6.3.2.1.11) <2EDB2E62-942F-3AB5-82AF-8E1328544E17> /usr/lib/swift/libswiftDistributed.dylib
+       0x293708000 -        0x293717ebc  libswiftObservation.dylib (6.3.2 - 6.3.2.1.11) <CD141C3F-F1A3-3AD8-B190-0A78FB3BB4E5> /usr/lib/swift/libswiftObservation.dylib
+       0x293844000 -        0x2938578ef  libswiftSynchronization.dylib (6.3.2 - 6.3.2.1.11) <FDFD191A-CA23-3D4A-9875-C7748238830A> /usr/lib/swift/libswiftSynchronization.dylib
+       0x293858000 -        0x293870e60  libswiftSystem.dylib (75) <7CD9BDE7-F36B-3471-9295-38E181D6D9E5> /usr/lib/swift/libswiftSystem.dylib
+       0x293872000 -        0x29388879f  libswiftVideoToolbox.dylib (3330.13.2) <9247A5B6-A883-3A07-BEE7-A223840317A4> /usr/lib/swift/libswiftVideoToolbox.dylib
+       0x29388a000 -        0x29388a669  libswift_Builtin_float.dylib (6.3.2.1.11) <52F59382-A6A6-3F55-8A85-D9FB822D370F> /usr/lib/swift/libswift_Builtin_float.dylib
+       0x29388b000 -        0x293916095  libswift_Concurrency.dylib (6.3.2 - 6.3.2.1.11) <8E168857-47F4-349F-A718-A18DB144FCB0> /usr/lib/swift/libswift_Concurrency.dylib
+       0x293917000 -        0x293919f83  libswift_DarwinFoundation1.dylib (377.160.5) <85246B9A-A757-3F67-B792-3A2F7BB2BB25> /usr/lib/swift/libswift_DarwinFoundation1.dylib
+       0x29391a000 -        0x29391aeeb  libswift_DarwinFoundation2.dylib (377.160.5) <AF5AF4DC-D24A-3073-BD23-4CEAD8C3AEE4> /usr/lib/swift/libswift_DarwinFoundation2.dylib
+       0x29391b000 -        0x29391b7a7  libswift_DarwinFoundation3.dylib (377.160.5) <8D2C31B5-FB10-3BF6-8566-F0DCD56C8582> /usr/lib/swift/libswift_DarwinFoundation3.dylib
+       0x29391c000 -        0x2939ba49f  libswift_RegexParser.dylib (6.3.2 - 6.3.2.1.11) <7B63C2BF-8C7C-3ECA-ACD9-F1B75DBE018C> /usr/lib/swift/libswift_RegexParser.dylib
+       0x2939bb000 -        0x293a470cd  libswift_StringProcessing.dylib (6.3.2 - 6.3.2.1.11) <8DF0116D-DFC9-3906-9DF6-F1DBC47E324B> /usr/lib/swift/libswift_StringProcessing.dylib
+       0x293bac000 -        0x293bafa4b  libsystem_darwindirectory.dylib (122) <971A4F65-493D-39F3-846D-0D33FA2769FD> /usr/lib/system/libsystem_darwindirectory.dylib
+       0x293bb0000 -        0x293bba39b  libsystem_eligibility.dylib (319.160.17) <750CA446-92EA-3A56-9A7B-CC0841686C50> /usr/lib/system/libsystem_eligibility.dylib
+       0x293bbb000 -        0x293bc288b  libsystem_sanitizers.dylib (26.1) <D88EC709-9AA8-3083-B22B-D3CB39678D71> /usr/lib/system/libsystem_sanitizers.dylib
+       0x293bc3000 -        0x293bc3bb7  libsystem_trial.dylib (474.2.18.2) <7194FF5B-A6C5-3D67-B00A-90209F10D603> /usr/lib/system/libsystem_trial.dylib

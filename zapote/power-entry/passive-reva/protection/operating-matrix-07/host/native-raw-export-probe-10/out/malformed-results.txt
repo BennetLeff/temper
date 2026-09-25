@@ -1,0 +1,8 @@
+truncated_rc=1
+Error: "truncated or trailing binary payload"
+renamed_rc=1
+Error: "unexpected vector (missing/extra contract mismatch)"
+duplicate_rc=1
+Error: "duplicate vector name"
+complex_rc=1
+Error: "only Flags: real is supported"

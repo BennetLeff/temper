@@ -1,0 +1,6 @@
+PASS q_after_arm: 5.000000V
+PASS q_during_fault: 0.000000V
+PASS q_after_clear_with_arm_held: 0.000000V
+PASS q_after_fresh_arm: 5.000000V
+OBSERVED driver EN0.8V→OUT13.5V 0.193464us; EN0.8V→gate4V 0.360851us
+Illustrative 12nF load; actual MOSFET current-turnoff bound=null

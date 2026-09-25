@@ -1,0 +1,57 @@
+* Revision 20 exploratory LTspice run from the revision 19 clamp graph.
+* Model: LT4363-1 and FDB33N25 from ADI LTspice 26.0.2 library.
+* D1 uses the bundled 1N4148 model as a surrogate for 1N4148W.
+* A 130 ohm resistive load and 0.5 ohm source are declared test inputs,
+* not the converter startup model or qualified source envelope.
+* Investigative source step: 15 to 35 V in 1 ms, hold 50 ms, return in 1 ms.
+Vsrc SOURCE 0 PWL(0 0 1m 0 1.01m 15 4 15 4.001 35 4.051 35 4.052 15 8.5 15)
+Rsrc SOURCE AUX_RAW 0.5
+* Service SHDN low for 120 ms after cooldown, then release at 10 V/ms.
+Vshdn SERVICE_RESET_N 0 PWL(0 0 1m 0 1.01m 15 5.1 15 5.10001 0 5.22001 0 5.22151 15 8.5 15)
+R1 SNS AUX_PROTECTED 0.22
+R2 AUX_PROTECTED FB 59k
+R3 FB 0 4.99k
+R4 AUX_RAW UV 91k
+R5 UV 0 10k
+R6 GATE_DRV Q_GATE 10
+R7 GATE_DRV CG 100
+C1 AUX_RAW 0 100n
+C2 TMR 0 100n
+C3 CG 0 1.5u
+C4 AUX_PROTECTED 0 330u
+D1 GATE_DRV CG 1N4148
+M1 AUX_RAW Q_GATE SNS SNS FDB33N25
+Rload AUX_PROTECTED 0 130
+XU1 FB AUX_PROTECTED SNS GATE_DRV AUX_RAW SERVICE_RESET_N UV 0 FLT ENOUT TMR LT4363-1
+.lib C:\users\crossover\AppData\Local\LTspice\lib\cmp\standard.dio
+.lib C:\users\crossover\AppData\Local\LTspice\lib\cmp\standard.mos
+.lib LT4363-1.sub
+.tran 0 8.5 0 100u startup
+.meas TRAN driver_peak_surge MAX V(AUX_PROTECTED) FROM 4 TO 4.052
+.meas TRAN output_at_4s FIND V(AUX_PROTECTED) AT 4
+.meas TRAN output_at_4050ms FIND V(AUX_PROTECTED) AT 4.05
+.meas TRAN output_at_4200ms FIND V(AUX_PROTECTED) AT 4.2
+.meas TRAN raw_peak_surge MAX V(AUX_RAW) FROM 4 TO 4.052
+.meas TRAN vds_peak_surge MAX V(AUX_RAW,SNS) FROM 4 TO 4.052
+.meas TRAN vgs_peak_surge MAX V(Q_GATE,SNS) FROM 4 TO 4.052
+.meas TRAN fet_current_peak MAX Id(M1) FROM 4 TO 4.052
+.meas TRAN fet_power_peak MAX (V(AUX_RAW,SNS)*Id(M1)) FROM 4 TO 4.052
+.meas TRAN fet_energy INTEG (V(AUX_RAW,SNS)*Id(M1)) FROM 4 TO 4.052
+.meas TRAN tmr_peak_surge MAX V(TMR) FROM 4 TO 4.052
+.meas TRAN output_at_5s FIND V(AUX_PROTECTED) AT 5
+.meas TRAN output_at_6s FIND V(AUX_PROTECTED) AT 6
+.meas TRAN tmr_at_5s FIND V(TMR) AT 5
+.meas TRAN tmr_at_6s FIND V(TMR) AT 6
+.meas TRAN gate_at_5s FIND V(Q_GATE) AT 5
+.meas TRAN gate_at_6s FIND V(Q_GATE) AT 6
+.meas TRAN source_at_6s FIND V(SNS) AT 6
+.meas TRAN current_at_6s FIND Id(M1) AT 6
+.meas TRAN output_at_7s FIND V(AUX_PROTECTED) AT 7
+.meas TRAN output_at_8s FIND V(AUX_PROTECTED) AT 8
+.meas TRAN output_at_8500ms FIND V(AUX_PROTECTED) AT 8.5
+.meas TRAN gate_at_8500ms FIND V(Q_GATE) AT 8.5
+.meas TRAN tmr_at_8500ms FIND V(TMR) AT 8.5
+.meas TRAN shdn_during_hold FIND V(SERVICE_RESET_N) AT 5.2
+.meas TRAN shdn_after_release FIND V(SERVICE_RESET_N) AT 5.222
+.backanno
+.end

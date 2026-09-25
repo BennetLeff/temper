@@ -1,0 +1,29 @@
+{
+  "source": "line-load-direct-retry-47/resource-samples.txt",
+  "sample_count": 419,
+  "sampling_interval_s": 5,
+  "owned_rss_kib": {
+    "first": 2992,
+    "maximum": 4273536,
+    "last": 0,
+    "maximum_at_elapsed_s": 1375,
+    "maximum_at_utc": "2026-09-21T19:06:06Z",
+    "last_sample_elapsed_s": 2146
+  },
+  "filesystem_available_1024_blocks": {
+    "first": 13147424,
+    "minimum": 10962272,
+    "last": 10962272,
+    "minimum_gib": 10.454437255859375,
+    "floor_gib": 10.0,
+    "floor_1024_blocks": 10485760,
+    "floor_respected": true
+  },
+  "swap_used_mib": {
+    "first": 13874.56,
+    "maximum": 13874.56,
+    "last": 13682.56,
+    "note": "host-wide telemetry, not attributable to LL09"
+  },
+  "interpretation": "Owned RSS peaked at 4,273,536 KiB while the resource sampler still saw the runner; the final zero is after runner exit. Available space stayed above the 10 GiB guard, with a minimum of 10.454437 GiB. This is telemetry, not an acceptance or a process-RSS bound."
+}

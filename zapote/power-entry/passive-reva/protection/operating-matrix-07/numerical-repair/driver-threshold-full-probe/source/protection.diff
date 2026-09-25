@@ -1,0 +1,11 @@
+--- /private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-tracked/protection.inc	2026-09-20 11:38:55
++++ /private/tmp/matrix07-tracked-finite/protection.inc	2026-09-20 14:38:31
+@@ -114,7 +114,7 @@
+ Rpwm pwm pwm_input 1k
+ Rpwmpd pwm_input 0 10k
+ * UCC27511A functional surrogate; actual unchanged TI model checked separately.
+-Bdriver_req drv_req 0 V=(V(disable)<1.2 && V(pwm_input)>2.2 && V(aux15)>4.5) ? V(aux15) : 0
++Bdriver_req drv_req 0 V=(V(disable)<1.2 && V(aux15)>4.5) ? V(aux15)*min(max((V(pwm_input)-2.1)/.2,0),1) : 0
+ Rdriver_delay drv_req drv 1
+ Cdriver_delay drv 0 {EN_TAU}
+ Ben en 0 V=(V(disable)<1.2 && V(aux15)>4.5) ? 5 : 0

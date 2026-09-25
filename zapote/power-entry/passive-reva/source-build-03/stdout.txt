@@ -1,0 +1,90 @@
+[18:14:33] INFO     Using project                                   common.py:72
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03                               
+           INFO     Building default                                 build.py:38
+[18:14:37] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:230:4                                    
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_passive_reva.ato:PowerEntryPassiveReva::pro             
+                    tection.r_vd1. Declaring implicitly for now,                
+                    but in the future this may become an error...               
+           ERROR    KeyError                                        errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:232:15                                   
+                        Couldn't find protection.r_vd2.p1                       
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:235:4                                    
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_passive_reva.ato:PowerEntryPassiveReva::pro             
+                    tection.r_vd2. Declaring implicitly for now,                
+                    but in the future this may become an error...               
+           ERROR    KeyError                                        errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:237:15                                   
+                        Couldn't find protection.r_vd3.p1                       
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:240:4                                    
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_passive_reva.ato:PowerEntryPassiveReva::pro             
+                    tection.r_vd3. Declaring implicitly for now,                
+                    but in the future this may become an error...               
+           ERROR    KeyError                                        errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:242:15                                   
+                        Couldn't find protection.r_vd4.p1                       
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:245:4                                    
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_passive_reva.ato:PowerEntryPassiveReva::pro             
+                    tection.r_vd4. Declaring implicitly for now,                
+                    but in the future this may become an error...               
+           ERROR    KeyError                                        errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:247:15                                   
+                        Couldn't find protection.r_vd5.p1                       
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           ERROR    KeyError                                        errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:267:15                                   
+                        Couldn't find protection.r_vb2.p1                       
+           ERROR    KeyError                                        errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:272:15                                   
+                        Couldn't find protection.r_vb3.p1                       
+           ERROR    KeyError                                        errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:277:15                                   
+                        Couldn't find protection.r_vb4.p1                       
+           ERROR    KeyError                                        errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-03/elec/src/power_en             
+                    try_protection.ato:282:15                                   
+                        Couldn't find protection.r_vb5.p1                       
+
+
+Unfortunately errors ^^^ stopped the build. If you need a hand jump on Discord! 
+https://discord.gg/mjtxARsr9V 👋

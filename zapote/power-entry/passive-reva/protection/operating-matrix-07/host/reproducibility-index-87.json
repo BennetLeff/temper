@@ -1,0 +1,1807 @@
+{
+  "status": "PARENT_CORRECTED_INTERIM_REPRODUCIBILITY_INDEX",
+  "created_at_utc": "2026-09-22T00:22:59.570544+00:00",
+  "campaign_root": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+  "objective_complete": false,
+  "repo_identity": {
+    "worktree_root": "/private/tmp/temper-pkgs-1-4",
+    "git_head": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+    "branch": "codex/power-entry-pkgs-1-4",
+    "role": "Context only. Actual source closure hashes identify uncommitted models."
+  },
+  "small_file_hash_mode": "Each listed regular file SHA256 measured during this indexing pass; no large archive bytes read.",
+  "small_files": [
+    {
+      "path": "accepted-baseline-11/acceptance.json",
+      "bytes": 4747,
+      "sha256_measured_now": "18ce2902682b4cedb2880e260c15e731e599df4224dc842a70c85e9cadb6cf22",
+      "role": "source/tool evidence; historical entries are not necessarily runnable"
+    },
+    {
+      "path": "host/operating-envelope-checkpoint-53.json",
+      "bytes": 56991,
+      "sha256_measured_now": "b8cf5f50b73b8ae0c0fb9cd7d0bcacaddcd0f9099a450f680d85eafa2a345f5d",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/startup-compact-analysis-23/acceptance.json",
+      "bytes": 5455,
+      "sha256_measured_now": "6b39b3c2d453a0abce17932736654f07aae0a88c4c7b12f0daaa1a5d2e594f0e",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-reanalysis-40/F2-CREST38/acceptance.json",
+      "bytes": 5434,
+      "sha256_measured_now": "bc00f63b08b5218d74f7fa673e60ab6f976194d32a871c776432547130ccfa7e",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-prefix-analysis-42/normal-prefix/acceptance.json",
+      "bytes": 8506,
+      "sha256_measured_now": "3585309fbe21460d5c3002ff41fb7f104ad09fe7f748e291328a4d268116c8eb",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/phase-audit-43/full-F2-CREST38/parent-phase-acceptance.json",
+      "bytes": 2136,
+      "sha256_measured_now": "0608fc8197f4ed663ff28e01c54ff0fc7c8df051ccd8bd822a15c0a9d87e30e8",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-recovery-63/full-F2-ZERO/acceptance.json",
+      "bytes": 5791,
+      "sha256_measured_now": "42c3bac2b9cad3051268fa6c2be59581d2bd2dfb03c0b9bc6574ef1e4276b760",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-postcapture-58/full-F2-ZERO/normal-prefix-acceptance.json",
+      "bytes": 6086,
+      "sha256_measured_now": "cb045acd44eaf90a00fa7633c9ae34d11f750caefcc9344aed495eadd44336c3",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-postcapture-58/full-F2-ZERO/parent-phase-acceptance.json",
+      "bytes": 1449,
+      "sha256_measured_now": "1e8856c57185f93076c5fbbe73d468a377ad833fc14ba44d1490f377d33a3d48",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-postcapture-58/full-F2-ZERO/analysis-receipt.json",
+      "bytes": 550,
+      "sha256_measured_now": "d749df691f54a9d43e92f47baafb3af38221baac96b0c0ad2d2d3d09b343ebec",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/campaign-verdict-86.json",
+      "bytes": 1266,
+      "sha256_measured_now": "30f05795f68b50fae1c6e6b1c977cb43eaf93e44a5d92950cbadbd962f00f635",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/sw-short-tail-parent-review-85.json",
+      "bytes": 4240,
+      "sha256_measured_now": "5d63d95bc17be7bed977c7a1a9146cf8cbbc0af7702361ebe6f06ea08925ab47",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/sw-short-tail-review-82.json",
+      "bytes": 3694,
+      "sha256_measured_now": "adfc3567d841a0c87aa171357915ff3e27f4b2f51f783feaf5dd7a829c155793",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/parent-disposition-80.json",
+      "bytes": 3067,
+      "sha256_measured_now": "d895d1824ca8fe356ea7fb9a3704e64b242566442684736ee5ef0cefdba01a52",
+      "role": "evidence"
+    },
+    {
+      "path": "host/accepted-controller-test-binding-54.md",
+      "bytes": 4946,
+      "sha256_measured_now": "a8f58749c2f4e8c2750316efa3a5dabf23330bf659c0bd7ddeb6bb9ee8300d63",
+      "role": "evidence"
+    },
+    {
+      "path": "host/controller-corner-coverage-54.md",
+      "bytes": 2800,
+      "sha256_measured_now": "183e78942b49f7663061c938a7f50377fffb8f85c1374272aa276a5b54d847a4",
+      "role": "evidence"
+    },
+    {
+      "path": "host/inductor-manufacturer-audit-72/parent-disposition.md",
+      "bytes": 2689,
+      "sha256_measured_now": "2afa39331f67fc2129ed9642e7cfd80a1fb04a45098f4841e8748969acb8f0a0",
+      "role": "evidence"
+    },
+    {
+      "path": "host/inductor-manufacturer-audit-72/vendor-model-parent-review-73.md",
+      "bytes": 1420,
+      "sha256_measured_now": "86baf5c84bb7a4457a3ad7894a8c2980d536c0bafcfa6726f7ac21cde9389b83",
+      "role": "evidence"
+    },
+    {
+      "path": "clamp/datasheet-audit/report.md",
+      "bytes": 7435,
+      "sha256_measured_now": "29a286eb68503ed6df81ddf1c8be3d0125ef6ec529b01d4855c3ad1bf1ea423b",
+      "role": "evidence"
+    },
+    {
+      "path": "host/ucc28180-vendor-model-availability.md",
+      "bytes": 4359,
+      "sha256_measured_now": "cc1b619e6611253d03689859caf1e9df2c7a04b0489b1ab7e396c638d7b082bd",
+      "role": "evidence"
+    },
+    {
+      "path": "host/simulation-to-prototype-decisions.md",
+      "bytes": 19013,
+      "sha256_measured_now": "2e4d5952ad3b3830d3706f3da455ce568fea3861b701d027b96230590bdaacc5",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/fault-matrix.md",
+      "bytes": 8651,
+      "sha256_measured_now": "df55bba086af019213f28302cdd6534d964e4b07f54aed5d52b65d1bf27a737b",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-prefix-analysis-42/preflight.json",
+      "bytes": 2073,
+      "sha256_measured_now": "4ed24df14e941a63c655afe9f26687f4f5ae600ccf8f5c54b67d0490b60538a2",
+      "role": "historical runner/interface documentation"
+    },
+    {
+      "path": "faults/settled-postcapture-58/tools-parent.sha256",
+      "bytes": 740,
+      "sha256_measured_now": "734fd0f39d1e5a94ed2898a1e10a566f1551c9bcde2d5b120305077b0168f4e5",
+      "role": "source/tool evidence; historical entries are not necessarily runnable"
+    },
+    {
+      "path": "faults/settled-postcapture-58/run.sh",
+      "bytes": 6893,
+      "sha256_measured_now": "bfef1e7021c78d52552a51c3bbc9fe50b7d6e4dd5ebbbd964cb238c3361879c6",
+      "role": "entrypoint"
+    },
+    {
+      "path": "faults/settled-postcapture-58/legacy-strict.sh",
+      "bytes": 5491,
+      "sha256_measured_now": "79f5f0f52d882c0242111eedab33bf3e478cdc0af6cbe032a59adc2cd69ffc82",
+      "role": "source/tool evidence; historical entries are not necessarily runnable"
+    },
+    {
+      "path": "faults/settled-reanalysis-40/candidate-receipt.json",
+      "bytes": 641,
+      "sha256_measured_now": "a63e8706a0c875d43a430969b6feee2222e3657757f93659423a7415d4918d60",
+      "role": "source/tool evidence; historical entries are not necessarily runnable"
+    },
+    {
+      "path": "faults/phase-audit-43/parent-review.json",
+      "bytes": 1671,
+      "sha256_measured_now": "abbfa4483e436bc8bf164bc2f8c083f3dda79c2c5621ae33bf0240815c3d8071",
+      "role": "source/tool evidence; historical entries are not necessarily runnable"
+    },
+    {
+      "path": "accepted-baseline-11/cold.cir",
+      "bytes": 3597,
+      "sha256_measured_now": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+      "role": "exact source closure"
+    },
+    {
+      "path": "accepted-baseline-11/protection.inc",
+      "bytes": 5311,
+      "sha256_measured_now": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "role": "exact source closure"
+    },
+    {
+      "path": "accepted-baseline-11/standby.inc",
+      "bytes": 960,
+      "sha256_measured_now": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "role": "exact source closure"
+    },
+    {
+      "path": "accepted-baseline-11/clamp.inc",
+      "bytes": 567,
+      "sha256_measured_now": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "role": "exact source closure"
+    },
+    {
+      "path": "accepted-baseline-11/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256_measured_now": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "role": "exact source closure"
+    },
+    {
+      "path": "accepted-baseline-11/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256_measured_now": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json",
+      "bytes": 4916,
+      "sha256_measured_now": "a4e09215acac4b80920257ceebfa96e4a9f7f618732cd24c778cca34f24105c7",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL01-initialized/LL01/cold.cir",
+      "bytes": 3620,
+      "sha256_measured_now": "c34da98852dae5980029eb0949ce30a42997d0f3dd2f7f1cfe31b4cedc8870b6",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL01-initialized/LL01/protection.inc",
+      "bytes": 5311,
+      "sha256_measured_now": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL01-initialized/LL01/standby.inc",
+      "bytes": 960,
+      "sha256_measured_now": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL01-initialized/LL01/clamp.inc",
+      "bytes": 567,
+      "sha256_measured_now": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL01-initialized/LL01/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256_measured_now": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL01-initialized/LL01/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256_measured_now": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL01-initialized/LL01/parent-evidence.json",
+      "bytes": 2167,
+      "sha256_measured_now": "095a25d663966afa53a9b2791275a3d7b1f566e9e103ab7b9c9a4d5dd6ade00f",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL02-initialized/LL02/acceptance.json",
+      "bytes": 4828,
+      "sha256_measured_now": "542318b9fa0a061fa05af1616844320441f1ba59ac4a70275b14266c69c82eb2",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL02-initialized/LL02/cold.cir",
+      "bytes": 3620,
+      "sha256_measured_now": "664cf804ea82c0554c1e58cc69e23a4a881c533f46718d83f831bb87c6dadc2a",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL02-initialized/LL02/protection.inc",
+      "bytes": 5311,
+      "sha256_measured_now": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL02-initialized/LL02/standby.inc",
+      "bytes": 960,
+      "sha256_measured_now": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL02-initialized/LL02/clamp.inc",
+      "bytes": 567,
+      "sha256_measured_now": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL02-initialized/LL02/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256_measured_now": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL02-initialized/LL02/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256_measured_now": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL02-initialized/LL02/parent-evidence.json",
+      "bytes": 2167,
+      "sha256_measured_now": "a1a206357464554938c0e7ef0b476574e078f53b1b10839aa18dcb9efd05b341",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json",
+      "bytes": 4912,
+      "sha256_measured_now": "224ac1a30d64b05b9b06d3319bb2a6dfaa3ce45330277fb97f8f50e82385041d",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL03-initialized/LL03/cold.cir",
+      "bytes": 3620,
+      "sha256_measured_now": "4dec9f9c2d98b5b08403d985a5f2660b8d0c71f64ecf26fbee33d292ad9e5e8f",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL03-initialized/LL03/protection.inc",
+      "bytes": 5311,
+      "sha256_measured_now": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL03-initialized/LL03/standby.inc",
+      "bytes": 960,
+      "sha256_measured_now": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL03-initialized/LL03/clamp.inc",
+      "bytes": 567,
+      "sha256_measured_now": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL03-initialized/LL03/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256_measured_now": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL03-initialized/LL03/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256_measured_now": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL03-initialized/LL03/parent-evidence.json",
+      "bytes": 2167,
+      "sha256_measured_now": "fcd2d43a5031f8507bcf872e9b5f8100476f7ed32a616ccc13de122dc1a7ea3e",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL04-initialized/LL04/acceptance.json",
+      "bytes": 4917,
+      "sha256_measured_now": "f4a6ba5435add8b2946712b957d6f222cbc0384e28ccdd32980863249acdddfc",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL04-initialized/LL04/cold.cir",
+      "bytes": 3620,
+      "sha256_measured_now": "b5b9374c9eefac777dac5199e9ce1066bfa2c064da3985ad8d9dc8baa739cfa3",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL04-initialized/LL04/protection.inc",
+      "bytes": 5311,
+      "sha256_measured_now": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL04-initialized/LL04/standby.inc",
+      "bytes": 960,
+      "sha256_measured_now": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL04-initialized/LL04/clamp.inc",
+      "bytes": 567,
+      "sha256_measured_now": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL04-initialized/LL04/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256_measured_now": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL04-initialized/LL04/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256_measured_now": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-12/full-LL04-initialized/LL04/parent-evidence.json",
+      "bytes": 2167,
+      "sha256_measured_now": "0e5f9d0bf84a64ab0b3ec307fa8432ee78981e5156b2a14fd7cb91ea95d2c4e0",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL05-retry/LL05/acceptance.json",
+      "bytes": 5325,
+      "sha256_measured_now": "44859f112de35192015ace76a4c1d0619c4689533eaceea62b8834b04c8f4206",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL05-retry/LL05/cold.cir",
+      "bytes": 3620,
+      "sha256_measured_now": "f85b4a622d8bf303e3f2f1646bb2cc977b03d24b655d4b48a14abadb8677528f",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL05-retry/LL05/protection.inc",
+      "bytes": 5311,
+      "sha256_measured_now": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL05-retry/LL05/standby.inc",
+      "bytes": 960,
+      "sha256_measured_now": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL05-retry/LL05/clamp.inc",
+      "bytes": 567,
+      "sha256_measured_now": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL05-retry/LL05/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256_measured_now": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL05-retry/LL05/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256_measured_now": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL05-retry/LL05/parent-evidence.json",
+      "bytes": 2413,
+      "sha256_measured_now": "07af7ef9cd10c6dcd1455a9ea1aecb1600a449c4d35bd536e03752b0bf26586d",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL06/LL06/acceptance.json",
+      "bytes": 5227,
+      "sha256_measured_now": "6eb356547ab348e16353cc9ec86cc3c520835f45ace8b5c8b6f1fddc921221a9",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL06/LL06/cold.cir",
+      "bytes": 3620,
+      "sha256_measured_now": "27abc73a6c10c653441d3861885617dce6f1dfba1bc509e8ef6af03c9afcdaab",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL06/LL06/protection.inc",
+      "bytes": 5311,
+      "sha256_measured_now": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL06/LL06/standby.inc",
+      "bytes": 960,
+      "sha256_measured_now": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL06/LL06/clamp.inc",
+      "bytes": 567,
+      "sha256_measured_now": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL06/LL06/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256_measured_now": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL06/LL06/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256_measured_now": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL06/LL06/parent-evidence.json",
+      "bytes": 2412,
+      "sha256_measured_now": "7792df142e38a7b156e2b24306108b1c52aa55ea6e22780c17112fa73dbe6298",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL07/LL07/acceptance.json",
+      "bytes": 5292,
+      "sha256_measured_now": "b87c23441b4e55a5e46ec4ec19bfba3bd8fa02a456a9bbdb4aed0c41a0cc7b69",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL07/LL07/cold.cir",
+      "bytes": 3620,
+      "sha256_measured_now": "4b00042daf2b0bedab0725e07d6d0af35b2bf8fe856af8a4b49e6f0aab78f4f7",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL07/LL07/protection.inc",
+      "bytes": 5311,
+      "sha256_measured_now": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL07/LL07/standby.inc",
+      "bytes": 960,
+      "sha256_measured_now": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL07/LL07/clamp.inc",
+      "bytes": 567,
+      "sha256_measured_now": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL07/LL07/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256_measured_now": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL07/LL07/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256_measured_now": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-native-runner-27/full-LL07/LL07/parent-evidence.json",
+      "bytes": 2413,
+      "sha256_measured_now": "b6a4be20e03bd20d751e9df4bc32dec1fd8767f7d032a565f9cbea9d2fd501dd",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-direct-retry-41/full-LL08/LL08/acceptance.json",
+      "bytes": 5619,
+      "sha256_measured_now": "8c6f8fb701395ecb95cbdfd980fc9a2f94ca1417a456542a18d39e460c3e8fdd",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-direct-retry-41/full-LL08/LL08/cold.cir",
+      "bytes": 3620,
+      "sha256_measured_now": "cca34e1517db547f335a0ba9ff278fb5e80bcb8186158d98f19d303928421063",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-41/full-LL08/LL08/protection.inc",
+      "bytes": 5311,
+      "sha256_measured_now": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-41/full-LL08/LL08/standby.inc",
+      "bytes": 960,
+      "sha256_measured_now": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-41/full-LL08/LL08/clamp.inc",
+      "bytes": 567,
+      "sha256_measured_now": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-41/full-LL08/LL08/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256_measured_now": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-41/full-LL08/LL08/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256_measured_now": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-41/full-LL08/LL08/parent-evidence.json",
+      "bytes": 4473,
+      "sha256_measured_now": "ab0821a4acf365b6a460e3066c5873a56d94dc343f3b93645c0afb8833e83ac6",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-direct-retry-47/full-LL09/LL09/acceptance.json",
+      "bytes": 5617,
+      "sha256_measured_now": "30ce810b146331f8db0cf0e2c0a1bc22032062d529773039dd62aeeaa5075737",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-direct-retry-47/full-LL09/LL09/cold.cir",
+      "bytes": 3620,
+      "sha256_measured_now": "4a34122626d8732c8377eb7c59f39fd2bf5c8922e11cfa76eb77e4e61921e4e4",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-47/full-LL09/LL09/protection.inc",
+      "bytes": 5311,
+      "sha256_measured_now": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-47/full-LL09/LL09/standby.inc",
+      "bytes": 960,
+      "sha256_measured_now": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-47/full-LL09/LL09/clamp.inc",
+      "bytes": 567,
+      "sha256_measured_now": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-47/full-LL09/LL09/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256_measured_now": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-47/full-LL09/LL09/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256_measured_now": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "role": "exact source closure"
+    },
+    {
+      "path": "line-load-direct-retry-47/full-LL09/LL09/parent-evidence.json",
+      "bytes": 4682,
+      "sha256_measured_now": "22f29e1ddcdb6ec8ca7332a30c60e3e97258f52beb410954b935f257a0e5515f",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/startup-compact-candidate-20/case.cir",
+      "bytes": 4847,
+      "sha256_measured_now": "bb589229f13e337430e91dd430c78f25a7943ef3055685ccd57b066567283060",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/startup-compact-candidate-20/manifest.json",
+      "bytes": 2044,
+      "sha256_measured_now": "4c09c16fcafd99ecfc9a391e05d6899346f2dafc544e555e879c2bc54c5b1b29",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/startup-compact-candidate-20/source-identity.json",
+      "bytes": 1545,
+      "sha256_measured_now": "4b4218292748ef00b758c84d47890ce3bd20872dbda4a3605758e1080bd779f1",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/startup-compact-candidate-20/run-parameters.json",
+      "bytes": 268,
+      "sha256_measured_now": "65229b338c8672ce21850ef694a7077118e44b3481a30312ee2bf1fdf292cb09",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/startup-compact-candidate-20/capture-stage1.json",
+      "bytes": 235,
+      "sha256_measured_now": "65543eda5c2aa8083f81d2ba39cb7a6268fa5bc88fc3c3bc32c7eba84d24ec2e",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/startup-compact-candidate-20/capture-metadata.json",
+      "bytes": 635,
+      "sha256_measured_now": "6557b869ab5ab2a916e43d5cc45de8736d6505cc751c9b1549f862837aefde02",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/startup-compact-candidate-20/result.json",
+      "bytes": 321,
+      "sha256_measured_now": "b22c15c67fc82b0c994734b92779f3ac60b0260649494e85f96e0076c7a895d5",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/startup-compact-candidate-20/stage1.exit",
+      "bytes": 20,
+      "sha256_measured_now": "4a8655ac901279353cebdd7c34b9cfdf5e888ffeb36898bd3fdbab907ce8207f",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/startup-compact-candidate-20/stage2.exit",
+      "bytes": 60,
+      "sha256_measured_now": "dfa93e93935a6702eb6a113584ddf03931217dc36bb2b7889408dc144d570f57",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/startup-compact-analysis-23/source-binding.json",
+      "bytes": 3751,
+      "sha256_measured_now": "150e9ac514879bf6868f5148863e798a6fce12ea435f097b54017a654ce25912",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/startup-compact-analysis-23/reanalysis-receipt.json",
+      "bytes": 523,
+      "sha256_measured_now": "038f90e620c1952fbde3d981a6485cf98e5d4b0f59245a42a2ed1b5b5e045367",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/startup-compact-candidate-20/execution.json",
+      "bytes": 952,
+      "sha256_measured_now": "3aecad8e1b2ebf33b04e187c5ff7a3aec15dac6a914218d41ea85d56ef4dc110",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/case.cir",
+      "bytes": 4853,
+      "sha256_measured_now": "2f506027a93c89e136d7cb637fe2d4d234aca5ffd4e2ab7009a29384c73eed7e",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/manifest.json",
+      "bytes": 3590,
+      "sha256_measured_now": "a034475e9dadb5470fed1f31e195acc2b609b73f641d3267dfb17f8270809416",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/source-identity.json",
+      "bytes": 1544,
+      "sha256_measured_now": "bf12cf1c0108ce75a3323cc07aed0bcd798474b427581f5149db120a0f012a6d",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/run-parameters.json",
+      "bytes": 293,
+      "sha256_measured_now": "dcc9758cf1601cce443166c4c03319f90ee515749a5b79cc0dd09eee203ce256",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/transport-identity.json",
+      "bytes": 138,
+      "sha256_measured_now": "3249d30743cdbec69f7d21bef5489039b157318ab276a9453c9d033e3a48c137",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/capture-stage1.json",
+      "bytes": 236,
+      "sha256_measured_now": "6866e6e23f577eee4f7db3c82b104116ed7cb1205202ddbb641d136855732dd8",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/capture-metadata.json",
+      "bytes": 636,
+      "sha256_measured_now": "b524c8a5436ac88ee552adad85142bc4eeb29d9a1876793168c55a517ea2ce73",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/native-export-receipt.json",
+      "bytes": 264,
+      "sha256_measured_now": "ae4efb4490a9a49403db90c314701ebfed05f7e61b53bbcaa4508d2a5e117e9b",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/result.json",
+      "bytes": 322,
+      "sha256_measured_now": "b65ffcb06c21bc17342f775b695bbf0100fb64c8f3b401146531ef0e624c32df",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/stage1.exit",
+      "bytes": 20,
+      "sha256_measured_now": "4a8655ac901279353cebdd7c34b9cfdf5e888ffeb36898bd3fdbab907ce8207f",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/F2-CREST/stage2.exit",
+      "bytes": 60,
+      "sha256_measured_now": "a623d975906efe56837623d5249cc82100f230d4ba4e60eb24d4e657b5766d2f",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/case.cir",
+      "bytes": 4852,
+      "sha256_measured_now": "b704ebd646dce1da7cf03518478ac1956e3a0bffbae804bd28ff383f4a6fb6c1",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/manifest.json",
+      "bytes": 3588,
+      "sha256_measured_now": "c569392b818e638c59b4787353803c094ae552cbd1409b08e184da6eacf8c3a6",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/source-identity.json",
+      "bytes": 1544,
+      "sha256_measured_now": "d8605976d9d6ad098c070f02af65fc2883453c762c837ad6ca5f17f5a85cf420",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/run-parameters.json",
+      "bytes": 290,
+      "sha256_measured_now": "ee498bca6a982cdb5566eefc4e158f641fd5ef9bf09a558134095d81c83537b7",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/gap-policy.json",
+      "bytes": 180,
+      "sha256_measured_now": "671fab69ced7afbdf2bdc299208aef2745a628d894b695227dbb4fc216aba78d",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/transport-identity.json",
+      "bytes": 138,
+      "sha256_measured_now": "3249d30743cdbec69f7d21bef5489039b157318ab276a9453c9d033e3a48c137",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/capture-stage1.json",
+      "bytes": 236,
+      "sha256_measured_now": "9621f5c38eea869e6c6a595659d9fcfcd277e5181aec5df3ad18bd609289fdc2",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/capture-metadata.json",
+      "bytes": 636,
+      "sha256_measured_now": "84194706b80af931f943080e80fdac95ee53ae8af7557dcac20b805b224dde51",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/native-export-receipt.json",
+      "bytes": 264,
+      "sha256_measured_now": "3d4bc1d90a99bbde9df197b98cca7a73b3b746042d52b166f768af765b6e32ab",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/result.json",
+      "bytes": 322,
+      "sha256_measured_now": "72175559f3b2b796b73cb3519cf97591b5c4d0c926236053df147dd4e6b2b579",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/stage1.exit",
+      "bytes": 20,
+      "sha256_measured_now": "4a8655ac901279353cebdd7c34b9cfdf5e888ffeb36898bd3fdbab907ce8207f",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/stage2.exit",
+      "bytes": 60,
+      "sha256_measured_now": "a623d975906efe56837623d5249cc82100f230d4ba4e60eb24d4e657b5766d2f",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/case.cir",
+      "bytes": 5051,
+      "sha256_measured_now": "3ba13389962a9550edcc7ca5486109f4793c6082e94a50fe18f0bc1f6f889ace",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/manifest.json",
+      "bytes": 3599,
+      "sha256_measured_now": "840b9fbbf83bc91a8138bfd18101b55306146e21445968ccbbaa3864068679ad",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/source-identity.json",
+      "bytes": 1544,
+      "sha256_measured_now": "985e7fb51f27442f1f3d1fc554062836ee10650cc5b019833e27951462508ef7",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/run-parameters.json",
+      "bytes": 297,
+      "sha256_measured_now": "04aeb255073af29f535a450f87135502e5e9b8bbc3e8c4c19d8416daa45fb220",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/gap-policy.json",
+      "bytes": 180,
+      "sha256_measured_now": "671fab69ced7afbdf2bdc299208aef2745a628d894b695227dbb4fc216aba78d",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/transport-identity.json",
+      "bytes": 138,
+      "sha256_measured_now": "3249d30743cdbec69f7d21bef5489039b157318ab276a9453c9d033e3a48c137",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/capture-stage1.json",
+      "bytes": 236,
+      "sha256_measured_now": "1f48eca42ce6f67be9a08cf4650ea50b1c5c8d9fa2f8456dc9eec21ff3a22b7b",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/capture-metadata.json",
+      "bytes": 637,
+      "sha256_measured_now": "b0f5cf58cdfd7a42b68ceb755d6985bc1f3737d728ec0527ac78a4f690e808ea",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/native-export-receipt.json",
+      "bytes": 264,
+      "sha256_measured_now": "fe88874f78489ad670f823895d6f2dca6f31e0b90d39f411a64412690ee20635",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/result.json",
+      "bytes": 322,
+      "sha256_measured_now": "499a78d3bfa41bf891b92167b73a5e9b184a89de27fd7b8f033fd9aefdae0123",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/stage1.exit",
+      "bytes": 20,
+      "sha256_measured_now": "4a8655ac901279353cebdd7c34b9cfdf5e888ffeb36898bd3fdbab907ce8207f",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/stage2.exit",
+      "bytes": 59,
+      "sha256_measured_now": "b9074c080951798524d7ae57d5b84b218a4977baef971b9621b3f88ae3bee258",
+      "role": "capture provenance"
+    },
+    {
+      "path": "faults/sw-short-abort-diagnostic-79/receipt.json",
+      "bytes": 573,
+      "sha256_measured_now": "46c13b6bbb04776bd2ab9f3f0f7e5097751e9316f980594c824bd9cb6895e35c",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/sw-short-abort-diagnostic-79/header.tsv",
+      "bytes": 452,
+      "sha256_measured_now": "9ef6fed55770cb8c02127cef7843e314ea073b56a67c0d2dc383b95a8127c9ff",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/sw-short-abort-diagnostic-79/last256-data.tsv",
+      "bytes": 241819,
+      "sha256_measured_now": "1592af8297bc049c334a54019229c16dffc31818b109070209ab3e865da1c3dd",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/sw-short-abort-diagnostic-79/extract-tail.sh",
+      "bytes": 2747,
+      "sha256_measured_now": "7403f773147d5d833908c1104bbc3ad3baae3e81924eda2d1ab4b9849d5d604a",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-postcapture-58/legacy-strict-67.sh",
+      "bytes": 5746,
+      "sha256_measured_now": "9ebe2212e21458176f7011495cb1e65e1b7cc39bc23554b06c229c79e33b1d0d",
+      "role": "entrypoint"
+    },
+    {
+      "path": "faults/settled-postcapture-58/legacy-strict-parent-review-67.json",
+      "bytes": 1007,
+      "sha256_measured_now": "69d1d3951bade3a6df6881dd83184242db6c9d6c1e8ca5ee48e87be4125654c6",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-postcapture-58/full-F2-ZERO/legacy-strict/receipt.json",
+      "bytes": 619,
+      "sha256_measured_now": "2497bc4ead7a764acec107979b153aa3d9032c8ffb96d45a96cbf13b905edc7b",
+      "role": "evidence"
+    },
+    {
+      "path": "host/inductor-manufacturer-audit-72/parent-review.json",
+      "bytes": 1277,
+      "sha256_measured_now": "5f8741e2289b7e5a3e4c4ec47caecd09047e3b6ee7d1fe1d07cfb4a32d2e9f44",
+      "role": "evidence"
+    },
+    {
+      "path": "host/inductor-manufacturer-audit-72/vendor-model-parent-review-73.json",
+      "bytes": 2154,
+      "sha256_measured_now": "5df042c490a425505e905e958f64f4c346d471a5e60661d1a5399e620dc77ce9",
+      "role": "evidence"
+    },
+    {
+      "path": "host/inductor-manufacturer-audit-72/host-retrieval-73/acquisition.json",
+      "bytes": 1309,
+      "sha256_measured_now": "462da06a58e0660074b80041c3dbb239eadcc1e417b373fd9d14b810c1d67782",
+      "role": "evidence"
+    },
+    {
+      "path": "clamp/README.md",
+      "bytes": 5245,
+      "sha256_measured_now": "140b7f578e8bda294843aa6d39c96f9386d4084ec4e7dfda4fe3bb62e481bd40",
+      "role": "evidence"
+    },
+    {
+      "path": "clamp/limiting-envelope-13/parent-review.json",
+      "bytes": 1810,
+      "sha256_measured_now": "47c0466122fe7416948d76b009ec2ae5a15d4e047d064ef4ebe587d0211299b0",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/saved-pin-observability-50/full-F2-CREST38/parent-observability-review.json",
+      "bytes": 1821,
+      "sha256_measured_now": "06527697f74dd151eaeff106b0e8213f30af62eeb475e5d05e67789dc0206c0b",
+      "role": "evidence"
+    },
+    {
+      "path": "host/completion-requirements-parent-review-86.json",
+      "bytes": 1452,
+      "sha256_measured_now": "79c11e211828e6ba419447f3e0461f9880879f1ca4f33bf266f582800f1c26fc",
+      "role": "evidence"
+    },
+    {
+      "path": "host/switch-short-strategy-review-83.md",
+      "bytes": 2981,
+      "sha256_measured_now": "1f1d41435d31736390190ed335e13ddeff4c3ea273a184c25847b65f70a981e8",
+      "role": "evidence"
+    },
+    {
+      "path": "host/campaign-report-87.md",
+      "bytes": 9343,
+      "sha256_measured_now": "88afec1fd4325453a969c343a42717d375456fadeee26c61a3324823130710f4",
+      "role": "evidence"
+    },
+    {
+      "path": "checker/hardware-validation-spec.md",
+      "bytes": 3395,
+      "sha256_measured_now": "12417aec8beddde5ba37b85e7612e55f3c793e054d291378c35053ce7d41d4c1",
+      "role": "evidence"
+    },
+    {
+      "path": "numerical-repair/event-aware-normal-metrics/metrics.rs",
+      "bytes": 24697,
+      "sha256_measured_now": "e686b4d29d0cede142c9050dfcc738feb21f47bd1b8999c764ce1a756b94692e",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/fault_checks.rs",
+      "bytes": 19483,
+      "sha256_measured_now": "a94f3a7e5ac5bcae67d94a53afacf8338567eaf8b1870b2bf8db12121f25bc66",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/native-capture-13/fault_native_adapter.rs",
+      "bytes": 20171,
+      "sha256_measured_now": "57aaea85a978b82395088b3e81434e937e952070bd3d4fab8a251b3c26938bad",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/event-aware-adapter-13/fault_normalize.rs",
+      "bytes": 41066,
+      "sha256_measured_now": "d534f0483abb576773a57acf7e78d2055f56d561f1a3f3a67cb0fa362edb79ef",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/native-runner-45/supervisor.rs",
+      "bytes": 45307,
+      "sha256_measured_now": "b131c153db6a67f3da961bda0b2a5a7c417271f68c0141c7af664059c87219a3",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/settled-reanalysis-40/supervisor.rs",
+      "bytes": 29485,
+      "sha256_measured_now": "d21f3db2b3d17ac3fd7f13f7751a317df56b3c35559a1867169bc78fda453b91",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/phase-audit-43/phase_audit.rs",
+      "bytes": 31376,
+      "sha256_measured_now": "c4640136e0ecb53d179b5702cc59779155a6ea6a90289ca4e8eaef75432f447d",
+      "role": "evidence"
+    },
+    {
+      "path": "faults/bypass-observability-55/main.rs",
+      "bytes": 19040,
+      "sha256_measured_now": "e14d67e007466f087d71e0d933ac6d985f80efb7c6926058ff781bc67e3b081a",
+      "role": "evidence"
+    },
+    {
+      "path": "host/direct-native-export-parent-37/fault.rs",
+      "bytes": 23189,
+      "sha256_measured_now": "18dccdb61dac9050a21ccb7f97a47458306e73de0ea541d5636691f4161765c4",
+      "role": "evidence"
+    },
+    {
+      "path": "host/direct-native-export-parent-37/normal.rs",
+      "bytes": 21613,
+      "sha256_measured_now": "33e5f973c9a38da9df40917a3e3d668cd3fac67773cbfcec37bd6ffa8bc30819",
+      "role": "evidence"
+    },
+    {
+      "path": "host/direct-native-export-parent-37/native_export.rs",
+      "bytes": 12559,
+      "sha256_measured_now": "2eebc6e7c08a77381d42b09b00355d4a4ab8398e3f3ec4a4d1260578a221e4d1",
+      "role": "evidence"
+    },
+    {
+      "path": "line-load-direct-retry-41/launch.sh",
+      "bytes": 1634,
+      "sha256_measured_now": "ac31662c803e533e597e2451d6f51704a407a936587ac32abe733e02b6a47ed1",
+      "role": "entrypoint"
+    },
+    {
+      "path": "line-load-direct-retry-47/launch.sh",
+      "bytes": 3304,
+      "sha256_measured_now": "bec5722936f9b20389a76b7179a71ff1a5fabccded72dd65dcfadfd3bd8ced30",
+      "role": "entrypoint"
+    },
+    {
+      "path": "faults/settled-direct-capture-38/launch.sh",
+      "bytes": 1336,
+      "sha256_measured_now": "ab9d80fb3fc8d43bd226a43457533a65841f5d7c38d4fcb17a7d7d2291e7b326",
+      "role": "entrypoint"
+    },
+    {
+      "path": "faults/settled-direct-capture-51/launch.sh",
+      "bytes": 5566,
+      "sha256_measured_now": "f2e8be7bc80b7e2835a035fd2a53db3e01b481d7c9d36fd63191034d2755736f",
+      "role": "entrypoint"
+    },
+    {
+      "path": "faults/settled-sw-short-59/launch.sh",
+      "bytes": 5807,
+      "sha256_measured_now": "998d6b7b83683dd2e818339128049ddaa4ac9631f0baa01f9ceaaa585cda8683",
+      "role": "entrypoint"
+    },
+    {
+      "path": "faults/settled-diode-short-64/parent-review.json",
+      "bytes": 1788,
+      "sha256_measured_now": "fe0e953cc143e51aa4fcca5b06496681e4d4cb99e4686182865bd939925b7e34",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-diode-short-64/tools-parent.sha256",
+      "bytes": 1277,
+      "sha256_measured_now": "082dd1572b3abd3f5e26562bb4945583cfae9633394692a46e881ee7dafa76f5",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-diode-short-64/source-tool-binding.json",
+      "bytes": 3287,
+      "sha256_measured_now": "f89448f115898cecc9f4a1135c249b2a86167258d6e72ef0570b569642c7188c",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-diode-short-64/launch-review-80.json",
+      "bytes": 1346,
+      "sha256_measured_now": "c6120fafec27f6a8ec6cef6ff1dc5b19cdcbdc7509d2abb24e7173c54ee94f86",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-diode-short-64/live-parent-review-80.json",
+      "bytes": 1296,
+      "sha256_measured_now": "dbc93c3342dce759da63541a730282badd5c0a38455972ee01085c60658f0fdb",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-diode-short-64/launch.sh",
+      "bytes": 5830,
+      "sha256_measured_now": "585f1c2bd124b185f910dea0ebe08d73c74c973126f2d4647126789d0aeb987f",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-diode-postcapture-74/parent-review.json",
+      "bytes": 1391,
+      "sha256_measured_now": "9bbfc2c5a769ad2fc4ef5e770e6f93cc70d2dca1a536d0bb7d9eea661016447a",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-diode-postcapture-74/tools-parent.sha256",
+      "bytes": 844,
+      "sha256_measured_now": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-diode-postcapture-74/run.sh",
+      "bytes": 8093,
+      "sha256_measured_now": "763a88a2b0b462da46f1f0dc827353acc16efd081157a53d0a45d242f12e39b1",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-diode-postcapture-74/legacy-strict.sh",
+      "bytes": 5767,
+      "sha256_measured_now": "b09aba48f098a6e3c7df65eced79ac0ddba248cf03afa5097f169b995e478db6",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-both-short-65/parent-review.json",
+      "bytes": 1787,
+      "sha256_measured_now": "03ae1a26dfd79694b8b584e4353156323a65f215292e1e3dbdbe085dcdc0976e",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-both-short-65/tools-parent.sha256",
+      "bytes": 1277,
+      "sha256_measured_now": "082dd1572b3abd3f5e26562bb4945583cfae9633394692a46e881ee7dafa76f5",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-both-short-65/source-tool-binding.json",
+      "bytes": 3358,
+      "sha256_measured_now": "fdda07ff051d94a4a4048f8dfe179a73c8969af23d49be1b19ded1b9a584feba",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-both-short-65/launch.sh",
+      "bytes": 5821,
+      "sha256_measured_now": "397e2cd93780ed739c7fece461cfaf5eadafefa00d8c8047c35f3420df4de007",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-both-postcapture-75/parent-review.json",
+      "bytes": 1319,
+      "sha256_measured_now": "e71a597d3ea754204a4adf0aa74617ed556537d9053afbb7ee67f92cd178950a",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-both-postcapture-75/tools-parent.sha256",
+      "bytes": 844,
+      "sha256_measured_now": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-both-postcapture-75/run.sh",
+      "bytes": 8068,
+      "sha256_measured_now": "6d3908ee9f3edf3e2ab1872c7a6f312bb94198da3c23f8842930a41cd8f06f97",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-both-postcapture-75/legacy-strict.sh",
+      "bytes": 5761,
+      "sha256_measured_now": "2dfddff9588501b30fb6f6cb5c4632a9a65f7da474c5a47dce3ca41f0172c255",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-bypass-neg-66/parent-review.json",
+      "bytes": 2308,
+      "sha256_measured_now": "a86130db9f2b3b153c216b32e3d24f46dfca4dbef69c04d8196ac5602c6897f9",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-bypass-neg-66/tools-parent.sha256",
+      "bytes": 1277,
+      "sha256_measured_now": "082dd1572b3abd3f5e26562bb4945583cfae9633394692a46e881ee7dafa76f5",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-bypass-neg-66/source-tool-binding.json",
+      "bytes": 3577,
+      "sha256_measured_now": "6d6a38afa3da9f86c7f83fc8857a79006e4e9af7fbee5d16ea2182ea17b5a583",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-bypass-neg-66/launch.sh",
+      "bytes": 5830,
+      "sha256_measured_now": "5f5bb6c782a7dec819fcf44a2606e91146756f35c2859ed916b904cae0ddc16c",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-bypass-postcapture-76/parent-review.json",
+      "bytes": 1418,
+      "sha256_measured_now": "08b4d08477721a59f17e12602cba925475a9360db4cff3bc673874b58c20f89d",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-bypass-postcapture-76/tools-parent.sha256",
+      "bytes": 844,
+      "sha256_measured_now": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-bypass-postcapture-76/run.sh",
+      "bytes": 8082,
+      "sha256_measured_now": "c20a250f513bb8d36a32749bd7118cf4cdaf9b64a6050a5e0730900e8044d455",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "faults/settled-bypass-postcapture-76/legacy-strict.sh",
+      "bytes": 5765,
+      "sha256_measured_now": "852462b711e10dcd790a81032dbaabdff738f047954589ca0ecfabe33a6ee02e",
+      "role": "prepared/live packet"
+    },
+    {
+      "path": "line-load-native-runner-12/runner.rs",
+      "bytes": 66783,
+      "sha256_measured_now": "745df038d0f4142b8a2322580e7aea493561ddf4e7737e83466ba3e5e9b50b9f",
+      "role": "historical runner/interface documentation"
+    },
+    {
+      "path": "line-load-native-runner-12/README.md",
+      "bytes": 3451,
+      "sha256_measured_now": "c570c7aab27cac90a3730d15e498fe49bd2b2bb8a6438dc486d6a6873aa4463f",
+      "role": "historical runner/interface documentation"
+    },
+    {
+      "path": "line-load-native-runner-12/manifest.json",
+      "bytes": 1934,
+      "sha256_measured_now": "64c61d0a7cb05643dcc3d1485529f2733a54e85f801b67b6be621323aab7864b",
+      "role": "historical runner/interface documentation"
+    },
+    {
+      "path": "line-load-native-runner-27/runner.rs",
+      "bytes": 78624,
+      "sha256_measured_now": "aff8223a1a99de96e1ec532c43c71c7eec33693629090898a2c013ee6470c6ae",
+      "role": "historical runner/interface documentation"
+    },
+    {
+      "path": "line-load-native-runner-27/README.md",
+      "bytes": 1534,
+      "sha256_measured_now": "7c1ab3bb1f46560522d584f2addb2f864bba8747fd30467f0eabdc1e447d77f7",
+      "role": "historical runner/interface documentation"
+    },
+    {
+      "path": "faults/reanalysis-23/supervisor.rs",
+      "bytes": 27902,
+      "sha256_measured_now": "b254feee1ff8b8356a09c81fe03d8807c7411f0accf2457ed149322c3e79a738",
+      "role": "historical runner/interface documentation"
+    },
+    {
+      "path": "faults/reanalysis-23/README.md",
+      "bytes": 3677,
+      "sha256_measured_now": "b3adf809782d4bd3ea644b95d234fa219dcce40a8f2383ce9067e1b9bb59965f",
+      "role": "historical runner/interface documentation"
+    },
+    {
+      "path": "faults/reanalysis-23/manifest.json",
+      "bytes": 1755,
+      "sha256_measured_now": "113d4eacea1fda1aea9347292290fb8d12cead239011774ec9b8e52c55c0b0e0",
+      "role": "historical runner/interface documentation"
+    },
+    {
+      "path": "faults/phase-audit-43/README.md",
+      "bytes": 4181,
+      "sha256_measured_now": "5b07fa735d608201d033450321b6a52b46825ad3e5655ab00540309366af693e",
+      "role": "historical runner/interface documentation"
+    },
+    {
+      "path": "faults/settled-prefix-analysis-42/scan.sh",
+      "bytes": 818,
+      "sha256_measured_now": "b6cd61b46a0da107d8d4e494c52591d1672bbac7eb2d1a249c2b41c5f0c1772e",
+      "role": "historical runner/interface documentation"
+    }
+  ],
+  "large_raw_recorded_only": [
+    {
+      "case": "BASELINE",
+      "path": "numerical-repair/nonstopping-first-invalid/run/trace.tsv.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 5356097124,
+      "expected_bytes_receipt": 5356097124,
+      "expected_sha256_receipt": "90e1f2c013e965a99d10053b074127bbddf2c73d5b1403e9e872e3de6933a3b5",
+      "expected_rows_receipt": 30108912,
+      "recorded_by": "accepted-baseline-11/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "LL01",
+      "path": "line-load-native-runner-12/full-LL01-initialized/LL01/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 2151465343,
+      "expected_bytes_receipt": 2151465343,
+      "expected_sha256_receipt": "734239f1c5f8ef65ea7ce356560931155a7bb3e0f6f96d91470513482739d29d",
+      "expected_rows_receipt": 29955738,
+      "recorded_by": "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "LL02",
+      "path": "line-load-native-runner-12/full-LL02-initialized/LL02/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 2132735226,
+      "expected_bytes_receipt": 2132735226,
+      "expected_sha256_receipt": "dda21485b1b83e8bd19be8c6401e77f13e067e5744f70d5c725d9ffb5a9249c7",
+      "expected_rows_receipt": 29682485,
+      "recorded_by": "line-load-native-runner-12/full-LL02-initialized/LL02/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "LL03",
+      "path": "line-load-native-runner-12/full-LL03-initialized/LL03/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 2114596110,
+      "expected_bytes_receipt": 2114596110,
+      "expected_sha256_receipt": "c02cc9ede0e1bfe0c1aacbc5beabc025a8ab160d200a138a0acd52858a0e400c",
+      "expected_rows_receipt": 29479028,
+      "recorded_by": "line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "LL04",
+      "path": "line-load-native-runner-12/full-LL04-initialized/LL04/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 2189160539,
+      "expected_bytes_receipt": 2189160539,
+      "expected_sha256_receipt": "a29f82eb7733ddb69a218dc6ba0299ff33c08b4e215d73f4efdcce842086f84b",
+      "expected_rows_receipt": 30400545,
+      "recorded_by": "line-load-native-runner-12/full-LL04-initialized/LL04/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "LL05",
+      "path": "line-load-native-runner-27/full-LL05-retry/LL05/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 2167895869,
+      "expected_bytes_receipt": 2167895869,
+      "expected_sha256_receipt": "7b1c540e3bdfd6f1741d13f872311ff92a12ceb84e2aaa42aeff3e77dd8642df",
+      "expected_rows_receipt": 30103973,
+      "recorded_by": "line-load-native-runner-27/full-LL05-retry/LL05/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "LL06",
+      "path": "line-load-native-runner-27/full-LL06/LL06/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 2145942203,
+      "expected_bytes_receipt": 2145942203,
+      "expected_sha256_receipt": "eb1f88c49a5a6ef3d66f5c3853d35200430b5c765c55ce183403aab76d7bfd67",
+      "expected_rows_receipt": 29845886,
+      "recorded_by": "line-load-native-runner-27/full-LL06/LL06/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "LL07",
+      "path": "line-load-native-runner-27/full-LL07/LL07/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 2220002011,
+      "expected_bytes_receipt": 2220002011,
+      "expected_sha256_receipt": "5a507b1753deae083b438cd813dbdc3baac0bf90d123afab075218669ff72284",
+      "expected_rows_receipt": 30812694,
+      "recorded_by": "line-load-native-runner-27/full-LL07/LL07/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "LL08",
+      "path": "line-load-direct-retry-41/full-LL08/LL08/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 2192811017,
+      "expected_bytes_receipt": 2192811017,
+      "expected_sha256_receipt": "dfd490459db468fd235d17a2c4d973ecac0624b9ac331fe42c89c41dc7efe8de",
+      "expected_rows_receipt": 30447163,
+      "recorded_by": "line-load-direct-retry-41/full-LL08/LL08/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "LL09",
+      "path": "line-load-direct-retry-47/full-LL09/LL09/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 2168688596,
+      "expected_bytes_receipt": 2168688596,
+      "expected_sha256_receipt": "84812ef89e0c987d28343078c9fd17a5468a019a71505595023f74d4e064e2ba",
+      "expected_rows_receipt": 30141001,
+      "recorded_by": "line-load-direct-retry-47/full-LL09/LL09/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "F2-START",
+      "path": "faults/startup-compact-candidate-20/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 877149765,
+      "expected_bytes_receipt": 877149765,
+      "expected_sha256_receipt": "9be2bbe73cd0aee5c6751566bfa818968deeb24d68d6b76d323f56f76cbfd05e",
+      "expected_rows_receipt": 6025180,
+      "recorded_by": "faults/startup-compact-analysis-23/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "F2-CREST",
+      "path": "faults/settled-direct-capture-38/F2-CREST/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 5297726667,
+      "expected_bytes_receipt": 5297726667,
+      "expected_sha256_receipt": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+      "expected_rows_receipt": 32237324,
+      "recorded_by": "faults/settled-reanalysis-40/F2-CREST38/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "F2-ZERO",
+      "path": "faults/settled-direct-capture-51/full-F2-ZERO/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 5928407777,
+      "expected_bytes_receipt": 5928407777,
+      "expected_sha256_receipt": "7deb639fb05f7f63d2444e2d163aee4eb06b45349bc9cee120b9e112407b1bec",
+      "expected_rows_receipt": 36625031,
+      "recorded_by": "faults/settled-recovery-63/full-F2-ZERO/acceptance.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    },
+    {
+      "case": "SW-SHORT",
+      "path": "faults/settled-sw-short-59/full-SW-SHORT/raw.trace.raw.gz",
+      "exists_as_regular_file": true,
+      "bytes_measured_now": 5088782620,
+      "expected_bytes_receipt": 5088782620,
+      "expected_sha256_receipt": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+      "expected_rows_receipt": 30686230,
+      "recorded_by": "faults/settled-sw-short-59/full-SW-SHORT/parent-disposition-80.json",
+      "hash_mode": "RECEIPT_REPORTED_NOT_REHASHED_IN_THIS_INDEX"
+    }
+  ],
+  "case_status": [
+    {
+      "case": "BASELINE",
+      "status": "ACCEPTED_MODELED_NORMAL_SCREEN_BASELINE",
+      "acceptance_path": "accepted-baseline-11/acceptance.json"
+    },
+    {
+      "case": "LL01",
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "acceptance_path": "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json"
+    },
+    {
+      "case": "LL02",
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "acceptance_path": "line-load-native-runner-12/full-LL02-initialized/LL02/acceptance.json"
+    },
+    {
+      "case": "LL03",
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "acceptance_path": "line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json"
+    },
+    {
+      "case": "LL04",
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "acceptance_path": "line-load-native-runner-12/full-LL04-initialized/LL04/acceptance.json"
+    },
+    {
+      "case": "LL05",
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "acceptance_path": "line-load-native-runner-27/full-LL05-retry/LL05/acceptance.json"
+    },
+    {
+      "case": "LL06",
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "acceptance_path": "line-load-native-runner-27/full-LL06/LL06/acceptance.json"
+    },
+    {
+      "case": "LL07",
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "acceptance_path": "line-load-native-runner-27/full-LL07/LL07/acceptance.json"
+    },
+    {
+      "case": "LL08",
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "acceptance_path": "line-load-direct-retry-41/full-LL08/LL08/acceptance.json"
+    },
+    {
+      "case": "LL09",
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "acceptance_path": "line-load-direct-retry-47/full-LL09/LL09/acceptance.json"
+    },
+    {
+      "case": "F2-START",
+      "status": "ACCEPTED_EXACT_MODELED_STARTUP_FAULT_SCREENS",
+      "acceptance_path": "faults/startup-compact-analysis-23/acceptance.json"
+    },
+    {
+      "case": "F2-CREST",
+      "status": "ACCEPTED_EXACT_MODELED_SETTLED_F2_CREST_SCREENS",
+      "acceptance_path": "faults/settled-reanalysis-40/F2-CREST38/acceptance.json",
+      "normal_prefix_acceptance": "faults/settled-prefix-analysis-42/normal-prefix/acceptance.json",
+      "phase_acceptance": "faults/phase-audit-43/full-F2-CREST38/parent-phase-acceptance.json"
+    },
+    {
+      "case": "F2-ZERO",
+      "status": "ACCEPTED_EXACT_MODELED_SETTLED_F2_ZERO_SCREENS",
+      "acceptance_path": "faults/settled-recovery-63/full-F2-ZERO/acceptance.json",
+      "normal_prefix_acceptance": "faults/settled-postcapture-58/full-F2-ZERO/normal-prefix-acceptance.json",
+      "phase_acceptance": "faults/settled-postcapture-58/full-F2-ZERO/parent-phase-acceptance.json"
+    },
+    {
+      "case": "SW-SHORT",
+      "status": "INDETERMINATE",
+      "verdict_path": "faults/settled-sw-short-59/full-SW-SHORT/campaign-verdict-86.json"
+    },
+    {
+      "case": "DIODE-SHORT",
+      "status": "RUNNING session52815",
+      "launch_root": "faults/settled-diode-short-64",
+      "postcapture_root": "faults/settled-diode-postcapture-74"
+    },
+    {
+      "case": "BOTH-SHORT",
+      "status": "PREPARED_UNEXECUTED",
+      "launch_root": "faults/settled-both-short-65",
+      "postcapture_root": "faults/settled-both-postcapture-75"
+    },
+    {
+      "case": "BYPASS-NEG",
+      "status": "PREPARED_UNEXECUTED",
+      "launch_root": "faults/settled-bypass-neg-66",
+      "postcapture_root": "faults/settled-bypass-postcapture-76"
+    }
+  ],
+  "entrypoints": [
+    {
+      "case": "LL08",
+      "command": [
+        "bash",
+        "line-load-direct-retry-41/launch.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "status": "historical capture",
+      "execution_in_this_index": false,
+      "rerun_constraint": "Existing output must never be overwritten. These fixed-output historical wrappers are documented, not instructed to rerun in place."
+    },
+    {
+      "case": "LL09",
+      "command": [
+        "bash",
+        "line-load-direct-retry-47/launch.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "status": "historical capture",
+      "execution_in_this_index": false,
+      "rerun_constraint": "Existing output must never be overwritten. These fixed-output historical wrappers are documented, not instructed to rerun in place."
+    },
+    {
+      "case": "F2-CREST",
+      "command": [
+        "bash",
+        "faults/settled-direct-capture-38/launch.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "status": "historical capture",
+      "execution_in_this_index": false,
+      "rerun_constraint": "Existing output must never be overwritten. These fixed-output historical wrappers are documented, not instructed to rerun in place."
+    },
+    {
+      "case": "F2-ZERO",
+      "command": [
+        "bash",
+        "faults/settled-direct-capture-51/launch.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "status": "historical capture",
+      "execution_in_this_index": false,
+      "rerun_constraint": "Existing output must never be overwritten. These fixed-output historical wrappers are documented, not instructed to rerun in place."
+    },
+    {
+      "case": "F2-ZERO postcapture",
+      "command": [
+        "bash",
+        "faults/settled-postcapture-58/run.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "status": "historical completed analysis",
+      "execution_in_this_index": false,
+      "rerun_constraint": "Existing output must never be overwritten. These fixed-output historical wrappers are documented, not instructed to rerun in place."
+    },
+    {
+      "case": "F2-ZERO legacy",
+      "command": [
+        "bash",
+        "faults/settled-postcapture-58/legacy-strict-67.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "status": "historical corrected completed legacy witness",
+      "execution_in_this_index": false,
+      "rerun_constraint": "Existing output must never be overwritten. These fixed-output historical wrappers are documented, not instructed to rerun in place."
+    },
+    {
+      "case": "SW-SHORT",
+      "command": [
+        "bash",
+        "faults/settled-sw-short-59/launch.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "status": "historical incomplete capture",
+      "execution_in_this_index": false,
+      "rerun_constraint": "Existing output must never be overwritten. These fixed-output historical wrappers are documented, not instructed to rerun in place."
+    },
+    {
+      "case": "DIODE-SHORT",
+      "action": "launch",
+      "command": [
+        "bash",
+        "faults/settled-diode-short-64/launch.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "execution_in_this_index": false,
+      "gate": "Single full solver + fresh output + storage for launch; complete capture and source/raw/tool checks for analysis. Legacy only after full postcapture. Never rerun live or completed directories."
+    },
+    {
+      "case": "DIODE-SHORT",
+      "action": "postcapture",
+      "command": [
+        "bash",
+        "faults/settled-diode-postcapture-74/run.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "execution_in_this_index": false,
+      "gate": "Single full solver + fresh output + storage for launch; complete capture and source/raw/tool checks for analysis. Legacy only after full postcapture. Never rerun live or completed directories."
+    },
+    {
+      "case": "DIODE-SHORT",
+      "action": "legacy",
+      "command": [
+        "bash",
+        "faults/settled-diode-postcapture-74/legacy-strict.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "execution_in_this_index": false,
+      "gate": "Single full solver + fresh output + storage for launch; complete capture and source/raw/tool checks for analysis. Legacy only after full postcapture. Never rerun live or completed directories."
+    },
+    {
+      "case": "BOTH-SHORT",
+      "action": "launch",
+      "command": [
+        "bash",
+        "faults/settled-both-short-65/launch.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "execution_in_this_index": false,
+      "gate": "Single full solver + fresh output + storage for launch; complete capture and source/raw/tool checks for analysis. Legacy only after full postcapture. Never rerun live or completed directories."
+    },
+    {
+      "case": "BOTH-SHORT",
+      "action": "postcapture",
+      "command": [
+        "bash",
+        "faults/settled-both-postcapture-75/run.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "execution_in_this_index": false,
+      "gate": "Single full solver + fresh output + storage for launch; complete capture and source/raw/tool checks for analysis. Legacy only after full postcapture. Never rerun live or completed directories."
+    },
+    {
+      "case": "BOTH-SHORT",
+      "action": "legacy",
+      "command": [
+        "bash",
+        "faults/settled-both-postcapture-75/legacy-strict.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "execution_in_this_index": false,
+      "gate": "Single full solver + fresh output + storage for launch; complete capture and source/raw/tool checks for analysis. Legacy only after full postcapture. Never rerun live or completed directories."
+    },
+    {
+      "case": "BYPASS-NEG",
+      "action": "launch",
+      "command": [
+        "bash",
+        "faults/settled-bypass-neg-66/launch.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "execution_in_this_index": false,
+      "gate": "Single full solver + fresh output + storage for launch; complete capture and source/raw/tool checks for analysis. Legacy only after full postcapture. Never rerun live or completed directories."
+    },
+    {
+      "case": "BYPASS-NEG",
+      "action": "postcapture",
+      "command": [
+        "bash",
+        "faults/settled-bypass-postcapture-76/run.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "execution_in_this_index": false,
+      "gate": "Single full solver + fresh output + storage for launch; complete capture and source/raw/tool checks for analysis. Legacy only after full postcapture. Never rerun live or completed directories."
+    },
+    {
+      "case": "BYPASS-NEG",
+      "action": "legacy",
+      "command": [
+        "bash",
+        "faults/settled-bypass-postcapture-76/legacy-strict.sh"
+      ],
+      "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+      "execution_in_this_index": false,
+      "gate": "Single full solver + fresh output + storage for launch; complete capture and source/raw/tool checks for analysis. Legacy only after full postcapture. Never rerun live or completed directories."
+    },
+    {
+      "case": "F2-CREST phase43",
+      "recipe_status": "RECONSTRUCTED_FROM_FROZEN_INTERFACE_AND_PHASE_RECEIPT_NOT_EXECUTED",
+      "executable": "/private/tmp/matrix07-phase43-parent",
+      "args": [
+        "--end-s",
+        ".662",
+        "--expected-event-s",
+        ".6541666666667",
+        "--local-start-s",
+        ".65",
+        "--local-end-s",
+        ".6583333333333",
+        "--kind",
+        "crest",
+        "--tolerance",
+        ".01"
+      ],
+      "stdin": "Complete canonical fault42 stream from the recorded F2-CREST archive through pinned pigz and decoder13",
+      "output": "Fresh caller-owned output; original receipts remain immutable",
+      "source": "faults/phase-audit-43/phase_audit.rs",
+      "authority": "faults/phase-audit-43/full-F2-CREST38/parent-phase-acceptance.json"
+    }
+  ],
+  "issues": [],
+  "parent_corrections": [
+    "Worker guessed raw archive colocations and incorrectly reported baseline/F2CREST/F2ZERO missing. Resolved their actual recorded paths; all14 indexed archives exist and byte counts match receipts.",
+    "Replaced obsolete F2ZERO legacy-strict.sh with the corrected legacy-strict-67.sh actually used.",
+    "Bare prefix scan command omitted CASE/OUT environment; it remains indexed as historical interface, not presented as a standalone ready-to-run command.",
+    "Phase43 recipe is explicitly reconstructed and unexecuted, not confused with historical phase35 script.",
+    "Added complete normal/fault raw identities, exact small source closure checks, prepared packet scripts and missing manufacturer/diagnostic evidence."
+  ],
+  "safety_note": "Indexing does not establish new electrical acceptance, copy archives to Drive, or authorize overwriting recorded output."
+}

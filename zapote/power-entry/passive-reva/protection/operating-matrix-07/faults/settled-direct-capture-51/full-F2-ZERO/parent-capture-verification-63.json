@@ -1,0 +1,25 @@
+{
+  "status": "COMPLETE_CAPTURE_INDEPENDENT_FULL_DECODE_VERIFIED",
+  "utc": "2026-09-21T23:06:16.609662+00:00",
+  "accepted_electrical": false,
+  "raw_sha256": "7deb639fb05f7f63d2444e2d163aee4eb06b45349bc9cee120b9e112407b1bec",
+  "bytes": 5928407777,
+  "rows": 36625031,
+  "fields": 42,
+  "first_time_s": 2e-10,
+  "last_time_s": 0.682,
+  "source_and_hash_validation": "Completed postcapture58 preflight validates manifest, sources and full raw SHA against capture-stage1. Independent gzip and full decoder-selector pipeline completed0.",
+  "original_pipeline_failure": "Adapter received noncanonical first line. Independent fulldecode succeeded; cause of original FIFO-stage failure remains unknown. Do not classify whole archive as corrupt. Original outputs retained.",
+  "evidence_sha256": {
+    "faults/settled-direct-capture-51/full-F2-ZERO/capture-stage1.json": "9621f5c38eea869e6c6a595659d9fcfcd277e5181aec5df3ad18bd609289fdc2",
+    "faults/settled-direct-capture-51/full-F2-ZERO/native-export-receipt.json": "3d4bc1d90a99bbde9df197b98cca7a73b3b746042d52b166f768af765b6e32ab",
+    "faults/settled-direct-capture-51/full-F2-ZERO/capture-metadata.json": "84194706b80af931f943080e80fdac95ee53ae8af7557dcac20b805b224dde51",
+    "faults/settled-direct-capture-51/full-F2-ZERO/result.json": "72175559f3b2b796b73cb3519cf97591b5c4d0c926236053df147dd4e6b2b579",
+    "faults/settled-direct-capture-51/full-F2-ZERO/stage1.exit": "4a8655ac901279353cebdd7c34b9cfdf5e888ffeb36898bd3fdbab907ce8207f",
+    "faults/settled-direct-capture-51/full-F2-ZERO/stage2.exit": "a623d975906efe56837623d5249cc82100f230d4ba4e60eb24d4e657b5766d2f",
+    "faults/settled-postcapture-58/full-F2-ZERO/preflight.json": "1d26793cc7b84767d4d8217a1a2986d2cf90ef95465a8b14cd8c568e8d8e4b11",
+    "faults/settled-postcapture-58/full-F2-ZERO/prefault-scan.json": "2614e04d2f1fe7c42cf897382d6b8c78391a5c84232921c3e23ec6cc9df21fea",
+    "faults/settled-postcapture-58/full-F2-ZERO/scan.exit": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e",
+    "faults/settled-postcapture-58/full-F2-ZERO/gzip-integrity.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  }
+}

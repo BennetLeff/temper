@@ -1,0 +1,26 @@
+{
+  "status": "DIAGNOSTIC_ONLY_PARENT_REVIEWED",
+  "tests_passed": 6,
+  "binary": "/private/tmp/matrix07-nondecreasing-audit-host",
+  "binary_sha256": "008100b75f4886d6e45e1d69f46e868325b2cedaa3e34c62d3489b5cd93c10cc",
+  "scope": "Finite raw31 fields, backward-time rejection, bounded exact-equal group statistics and all-row extrema. No integral, acceptance or engineering verdict.",
+  "completed_traces": {
+    "native_comphys": {
+      "rows": 11176288,
+      "groups": 1,
+      "group_rows": 3,
+      "repeats": 2,
+      "followed_by_positive_time": true,
+      "pipeline_exit": 0
+    },
+    "hysteretic_extension": {
+      "rows": 22759008,
+      "groups": 2,
+      "group_rows": 5,
+      "max_group_rows": 3,
+      "repeats": 3,
+      "followed_by_positive_time": true,
+      "pipeline_exit": 0
+    }
+  }
+}

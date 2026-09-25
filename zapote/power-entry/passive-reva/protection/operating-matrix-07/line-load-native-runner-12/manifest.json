@@ -1,0 +1,38 @@
+{
+  "status": "PREPARED_PRODUCTION_CANDIDATE_NO_CAMPAIGN",
+  "purpose": "bounded native raw line/load orchestration with event-aware diagnostics",
+  "source": "runner.rs",
+  "source_sha256": "745df038d0f4142b8a2322580e7aea493561ddf4e7737e83466ba3e5e9b50b9f",
+  "binary": "/private/tmp/matrix07-line-load-native-runner-host",
+  "binary_sha256": "09551942c747b3ff1aded2a8d399930914fd02fc53b732a5a6effc0af760b625",
+  "baseline": "../accepted-baseline-11/acceptance.json",
+  "baseline_policy": "event-aware-normal-v1",
+  "baseline_source": "../accepted-baseline-11 (six exact files)",
+  "native_protocol": "progress DECK WALL_SECONDS TARGET_SECONDS EXPORT_PATH SNAPSHOT_PATH; export is little-endian ngspice real native raw",
+  "pipeline": "raw FIFO -> pigz raw.trace.raw.gz -> native decoder/audit -> decoder/normalizer/checker and decoder/normalizer/event-metrics",
+  "limits": {
+    "workers": 2,
+    "default_workers": 2,
+    "producer_wall_s": 3600,
+    "export_scan_s": 900,
+    "free_disk_floor_bytes": 10737418240
+  },
+  "outputs": "raw.trace.raw.gz plus bounded reports; no uncompressed TSV; per-case status complete_review_pending",
+  "tool_contracts": {
+    "decoder": "--schema normal15 --byte-order little",
+    "event_audit": "stdin normal15 text; --end-s T --rload R --events OWNED_EVENTS_PATH",
+    "event_metrics": "stdin normalized 12-column trace; --end-s T",
+    "checker": "stdin normalized 12-column trace; --end-s T"
+  },
+  "validation": [
+    "exact accepted baseline policy/hash map",
+    "full manifest before optional cases selection",
+    "VAC_RMS/RLOAD-only deck diff",
+    "source and materialized-case pre/post hash",
+    "native metadata schema/mask/solver stop",
+    "bounded child kill/reap",
+    "10 GiB disk floor before and during pipeline"
+  ],
+  "acceptance": "none; checker, metrics, and audit outputs require parent review and never auto-promote a case",
+  "parent_review": "parent-review.json"
+}

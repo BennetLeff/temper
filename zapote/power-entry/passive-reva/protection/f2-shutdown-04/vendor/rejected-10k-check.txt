@@ -1,0 +1,6 @@
+PASS default_off: 0.000000000V
+PASS disarmed_low: 0.006448188V
+PASS absent_aux: -0.000000002V
+PASS returned_aux_disarmed: 0.000005565V
+PASS positive enable: 14.964030V; observed RUNfall to gate4V: 0.211801us
+Error: "startup gate peak 3.725702V: driver-aux-first.log"

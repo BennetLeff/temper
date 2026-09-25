@@ -1,0 +1,21 @@
+{
+  "status": "PARENT_VERIFIED_INTERIM_CONSOLIDATION",
+  "utc": "2026-09-21T16:19:58.441680+00:00",
+  "documents": {
+    "host/operating-envelope-checkpoint-35.json": "cf1a67c4bfc9e1841f64fed8ec996f37badc1b90e3afda6b74a38e45c11c6a72",
+    "host/operating-envelope-checkpoint-35.md": "7bc725dee85ad5556c4b0867b69722eae2e8e513029a83276c6b35a6cd91006c"
+  },
+  "verified": [
+    "All seven receipt hashes and parent-evidence hashes",
+    "Every copied metric, raw identity and screen margin equals authoritative receipt",
+    "Minimum margins recomputed across allseven points; sourceboundary ties explicit",
+    "Baseline receipt hash and metrics",
+    "Original planning manifest hash; historicalstatus distinguished from actualcurrentexecution"
+  ],
+  "parent_corrections": [
+    "Source lower screen107.999V, not108V",
+    "LL08live excludedfromaccepted; notlabelledunrun",
+    "Tiedlower-source margins forLL01/02/03"
+  ],
+  "scope": "Interim discrete modeled normal points only; no new simulation, acceptance or qualification."
+}

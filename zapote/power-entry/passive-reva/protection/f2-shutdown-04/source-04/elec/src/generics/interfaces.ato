@@ -1,0 +1,35 @@
+# Local structural interfaces used by the Temper Atopile sources.
+#
+# Atopile interfaces are instantiated.  Their electrical members therefore
+# need to be Electrical instances rather than bare signal declarations.  This
+# file intentionally carries no board-specific behavior; voltage limits and
+# safety policy stay in the consuming modules and the UCC21550 contract.
+
+interface Electrical: pass
+
+interface ElectricPower:
+    signal vcc
+    signal gnd
+    voltage: voltage
+    current: current
+
+interface ElectricLogic:
+    signal line
+    signal reference
+
+interface ElectricSignal:
+    signal line
+    signal reference
+
+interface SPI:
+    signal sclk
+    signal miso
+    signal mosi
+
+interface I2C:
+    signal scl
+    signal sda
+
+interface UART:
+    signal tx
+    signal rx

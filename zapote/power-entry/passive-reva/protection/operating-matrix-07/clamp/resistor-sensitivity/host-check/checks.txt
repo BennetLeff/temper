@@ -1,0 +1,86 @@
+RIN 220 ohm
+  TEMP -40 C
+    SOC      pin=-0.285 V: shunt=-0.285078 V, shunt_I=28.508 A, ideal10mR=28.500 A, extra=0.03%, shift=-0.08 mV, diode=3.542e-7 A
+    PCL_typ  pin=-0.400 V: shunt=-0.400657 V, shunt_I=40.066 A, ideal10mR=40.000 A, extra=0.16%, shift=-0.66 mV, diode=2.988e-6 A
+    PCL_max  pin=-0.438 V: shunt=-0.439328 V, shunt_I=43.933 A, ideal10mR=43.800 A, extra=0.30%, shift=-1.33 mV, diode=6.038e-6 A
+  TEMP 25 C
+    SOC      pin=-0.285 V: shunt=-0.287826 V, shunt_I=28.783 A, ideal10mR=28.500 A, extra=0.99%, shift=-2.83 mV, diode=1.285e-5 A
+    PCL_typ  pin=-0.400 V: shunt=-0.415120 V, shunt_I=41.512 A, ideal10mR=40.000 A, extra=3.78%, shift=-15.12 mV, diode=6.873e-5 A
+    PCL_max  pin=-0.438 V: shunt=-0.464231 V, shunt_I=46.423 A, ideal10mR=43.800 A, extra=5.99%, shift=-26.23 mV, diode=1.192e-4 A
+  TEMP 85 C
+    SOC      pin=-0.285 V: shunt=-0.310190 V, shunt_I=31.019 A, ideal10mR=28.500 A, extra=8.84%, shift=-25.19 mV, diode=1.145e-4 A
+    PCL_typ  pin=-0.400 V: shunt=-0.503052 V, shunt_I=50.305 A, ideal10mR=40.000 A, extra=25.76%, shift=-103.05 mV, diode=4.684e-4 A
+    PCL_max  pin=-0.438 V: shunt=-0.601217 V, shunt_I=60.122 A, ideal10mR=43.800 A, extra=37.26%, shift=-163.22 mV, diode=7.419e-4 A
+  TEMP 125 C
+    SOC      pin=-0.285 V: shunt=-0.360821 V, shunt_I=36.082 A, ideal10mR=28.500 A, extra=26.60%, shift=-75.82 mV, diode=3.446e-4 A
+    PCL_typ  pin=-0.400 V: shunt=-0.671877 V, shunt_I=67.188 A, ideal10mR=40.000 A, extra=67.97%, shift=-271.88 mV, diode=1.236e-3 A
+    PCL_max  pin=-0.438 V: shunt=-0.849483 V, shunt_I=84.948 A, ideal10mR=43.800 A, extra=93.95%, shift=-411.48 mV, diode=1.870e-3 A
+RIN 100 ohm
+  TEMP -40 C
+    SOC      pin=-0.285 V: shunt=-0.285035 V, shunt_I=28.504 A, ideal10mR=28.500 A, extra=0.01%, shift=-0.04 mV, diode=3.542e-7 A
+    PCL_typ  pin=-0.400 V: shunt=-0.400299 V, shunt_I=40.030 A, ideal10mR=40.000 A, extra=0.07%, shift=-0.30 mV, diode=2.988e-6 A
+    PCL_max  pin=-0.438 V: shunt=-0.438604 V, shunt_I=43.860 A, ideal10mR=43.800 A, extra=0.14%, shift=-0.60 mV, diode=6.038e-6 A
+  TEMP 25 C
+    SOC      pin=-0.285 V: shunt=-0.286285 V, shunt_I=28.628 A, ideal10mR=28.500 A, extra=0.45%, shift=-1.28 mV, diode=1.285e-5 A
+    PCL_typ  pin=-0.400 V: shunt=-0.406873 V, shunt_I=40.687 A, ideal10mR=40.000 A, extra=1.72%, shift=-6.87 mV, diode=6.873e-5 A
+    PCL_max  pin=-0.438 V: shunt=-0.449923 V, shunt_I=44.992 A, ideal10mR=43.800 A, extra=2.72%, shift=-11.92 mV, diode=1.192e-4 A
+  TEMP 85 C
+    SOC      pin=-0.285 V: shunt=-0.296450 V, shunt_I=29.645 A, ideal10mR=28.500 A, extra=4.02%, shift=-11.45 mV, diode=1.145e-4 A
+    PCL_typ  pin=-0.400 V: shunt=-0.446842 V, shunt_I=44.684 A, ideal10mR=40.000 A, extra=11.71%, shift=-46.84 mV, diode=4.684e-4 A
+    PCL_max  pin=-0.438 V: shunt=-0.512190 V, shunt_I=51.219 A, ideal10mR=43.800 A, extra=16.94%, shift=-74.19 mV, diode=7.419e-4 A
+  TEMP 125 C
+    SOC      pin=-0.285 V: shunt=-0.319464 V, shunt_I=31.946 A, ideal10mR=28.500 A, extra=12.09%, shift=-34.46 mV, diode=3.446e-4 A
+    PCL_typ  pin=-0.400 V: shunt=-0.523581 V, shunt_I=52.358 A, ideal10mR=40.000 A, extra=30.90%, shift=-123.58 mV, diode=1.236e-3 A
+    PCL_max  pin=-0.438 V: shunt=-0.625038 V, shunt_I=62.504 A, ideal10mR=43.800 A, extra=42.70%, shift=-187.04 mV, diode=1.870e-3 A
+RIN 47 ohm
+  TEMP -40 C
+    SOC      pin=-0.285 V: shunt=-0.285017 V, shunt_I=28.502 A, ideal10mR=28.500 A, extra=0.01%, shift=-0.02 mV, diode=3.542e-7 A
+    PCL_typ  pin=-0.400 V: shunt=-0.400140 V, shunt_I=40.014 A, ideal10mR=40.000 A, extra=0.04%, shift=-0.14 mV, diode=2.988e-6 A
+    PCL_max  pin=-0.438 V: shunt=-0.438284 V, shunt_I=43.828 A, ideal10mR=43.800 A, extra=0.06%, shift=-0.28 mV, diode=6.037e-6 A
+  TEMP 25 C
+    SOC      pin=-0.285 V: shunt=-0.285604 V, shunt_I=28.560 A, ideal10mR=28.500 A, extra=0.21%, shift=-0.60 mV, diode=1.285e-5 A
+    PCL_typ  pin=-0.400 V: shunt=-0.403230 V, shunt_I=40.323 A, ideal10mR=40.000 A, extra=0.81%, shift=-3.23 mV, diode=6.873e-5 A
+    PCL_max  pin=-0.438 V: shunt=-0.443604 V, shunt_I=44.360 A, ideal10mR=43.800 A, extra=1.28%, shift=-5.60 mV, diode=1.192e-4 A
+  TEMP 85 C
+    SOC      pin=-0.285 V: shunt=-0.290382 V, shunt_I=29.038 A, ideal10mR=28.500 A, extra=1.89%, shift=-5.38 mV, diode=1.145e-4 A
+    PCL_typ  pin=-0.400 V: shunt=-0.422016 V, shunt_I=42.202 A, ideal10mR=40.000 A, extra=5.50%, shift=-22.02 mV, diode=4.684e-4 A
+    PCL_max  pin=-0.438 V: shunt=-0.472869 V, shunt_I=47.287 A, ideal10mR=43.800 A, extra=7.96%, shift=-34.87 mV, diode=7.419e-4 A
+  TEMP 125 C
+    SOC      pin=-0.285 V: shunt=-0.301198 V, shunt_I=30.120 A, ideal10mR=28.500 A, extra=5.68%, shift=-16.20 mV, diode=3.446e-4 A
+    PCL_typ  pin=-0.400 V: shunt=-0.458083 V, shunt_I=45.808 A, ideal10mR=40.000 A, extra=14.52%, shift=-58.08 mV, diode=1.236e-3 A
+    PCL_max  pin=-0.438 V: shunt=-0.525908 V, shunt_I=52.591 A, ideal10mR=43.800 A, extra=20.07%, shift=-87.91 mV, diode=1.870e-3 A
+RIN 22 ohm
+  TEMP -40 C
+    SOC      pin=-0.285 V: shunt=-0.285008 V, shunt_I=28.501 A, ideal10mR=28.500 A, extra=0.00%, shift=-0.01 mV, diode=3.542e-7 A
+    PCL_typ  pin=-0.400 V: shunt=-0.400066 V, shunt_I=40.007 A, ideal10mR=40.000 A, extra=0.02%, shift=-0.07 mV, diode=2.988e-6 A
+    PCL_max  pin=-0.438 V: shunt=-0.438133 V, shunt_I=43.813 A, ideal10mR=43.800 A, extra=0.03%, shift=-0.13 mV, diode=6.037e-6 A
+  TEMP 25 C
+    SOC      pin=-0.285 V: shunt=-0.285283 V, shunt_I=28.528 A, ideal10mR=28.500 A, extra=0.10%, shift=-0.28 mV, diode=1.285e-5 A
+    PCL_typ  pin=-0.400 V: shunt=-0.401512 V, shunt_I=40.151 A, ideal10mR=40.000 A, extra=0.38%, shift=-1.51 mV, diode=6.873e-5 A
+    PCL_max  pin=-0.438 V: shunt=-0.440623 V, shunt_I=44.062 A, ideal10mR=43.800 A, extra=0.60%, shift=-2.62 mV, diode=1.192e-4 A
+  TEMP 85 C
+    SOC      pin=-0.285 V: shunt=-0.287519 V, shunt_I=28.752 A, ideal10mR=28.500 A, extra=0.88%, shift=-2.52 mV, diode=1.145e-4 A
+    PCL_typ  pin=-0.400 V: shunt=-0.410305 V, shunt_I=41.031 A, ideal10mR=40.000 A, extra=2.58%, shift=-10.31 mV, diode=4.684e-4 A
+    PCL_max  pin=-0.438 V: shunt=-0.454322 V, shunt_I=45.432 A, ideal10mR=43.800 A, extra=3.73%, shift=-16.32 mV, diode=7.419e-4 A
+  TEMP 125 C
+    SOC      pin=-0.285 V: shunt=-0.292582 V, shunt_I=29.258 A, ideal10mR=28.500 A, extra=2.66%, shift=-7.58 mV, diode=3.446e-4 A
+    PCL_typ  pin=-0.400 V: shunt=-0.427188 V, shunt_I=42.719 A, ideal10mR=40.000 A, extra=6.80%, shift=-27.19 mV, diode=1.236e-3 A
+    PCL_max  pin=-0.438 V: shunt=-0.479148 V, shunt_I=47.915 A, ideal10mR=43.800 A, extra=9.39%, shift=-41.15 mV, diode=1.870e-3 A
+FAULT VSHUNT=-5 V (Diodes Inc. model only)
+  RIN=220 ohm TEMP=-40 C: ISENSE=-0.877403 V, diode=0.018739 A, KCL=0.018739 A
+  RIN=220 ohm TEMP=25 C: ISENSE=-0.793733 V, diode=0.019119 A, KCL=0.019119 A
+  RIN=220 ohm TEMP=85 C: ISENSE=-0.713783 V, diode=0.019483 A, KCL=0.019483 A
+  RIN=220 ohm TEMP=125 C: ISENSE=-0.659357 V, diode=0.019730 A, KCL=0.019730 A
+  RIN=100 ohm TEMP=-40 C: ISENSE=-0.925109 V, diode=0.040749 A, KCL=0.040749 A
+  RIN=100 ohm TEMP=25 C: ISENSE=-0.853055 V, diode=0.041469 A, KCL=0.041469 A
+  RIN=100 ohm TEMP=85 C: ISENSE=-0.783763 V, diode=0.042162 A, KCL=0.042162 A
+  RIN=100 ohm TEMP=125 C: ISENSE=-0.736387 V, diode=0.042636 A, KCL=0.042636 A
+  RIN=47 ohm TEMP=-40 C: ISENSE=-0.976885 V, diode=0.085599 A, KCL=0.085598 A
+  RIN=47 ohm TEMP=25 C: ISENSE=-0.915990 V, diode=0.086894 A, KCL=0.086894 A
+  RIN=47 ohm TEMP=85 C: ISENSE=-0.856946 V, diode=0.088151 A, KCL=0.088150 A
+  RIN=47 ohm TEMP=125 C: ISENSE=-0.816363 V, diode=0.089014 A, KCL=0.089014 A
+  RIN=22 ohm TEMP=-40 C: ISENSE=-1.041560 V, diode=0.179929 A, KCL=0.179929 A
+  RIN=22 ohm TEMP=25 C: ISENSE=-0.991932 V, diode=0.182185 A, KCL=0.182185 A
+  RIN=22 ohm TEMP=85 C: ISENSE=-0.943242 V, diode=0.184398 A, KCL=0.184398 A
+  RIN=22 ohm TEMP=125 C: ISENSE=-0.909534 V, diode=0.185930 A, KCL=0.185930 A
+PASS finite, complete, monotone sweeps; fault-log order/KCL validated

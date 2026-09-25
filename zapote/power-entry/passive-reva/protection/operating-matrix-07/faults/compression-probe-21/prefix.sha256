@@ -1,0 +1,4 @@
+size_bytes=33554432
+sha256=0f85b67b09c9c90e599f1fa0d74cedc41ae13d84e69b3b517157d5fb1f7e8e04
+prefix_pipeline_status=141
+prefix_pipeline_note=SIGPIPE from gzip after head consumed exactly 33554432 bytes; output verified by roundtrip equality

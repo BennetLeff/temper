@@ -1,0 +1,74 @@
+{
+  "status": "completed bounded model experiment; electrical integration blocked",
+  "requested_model": "gpt-5.6-luna",
+  "served_model_independently_attested": false,
+  "worker_roles": {
+    "gate_restart": "standalone Rust handshake and tests; v1 defect corrected",
+    "supply_interfaces": "read-only AUX current/startup/transient review",
+    "pfc_stage": "independent read-only command review"
+  },
+  "workers_interrupted_after_handback": true,
+  "parent_owned": [
+    "independent v1 failure witness",
+    "independent final behavior checks and boundary witness",
+    "mutation check",
+    "AUX alternative static screen and integration decision",
+    "final evidence and document corrections"
+  ],
+  "command_result": {
+    "scope": "decoded frames and caller-supplied fault/tick events; no hardware",
+    "worker_tests_passed": 17,
+    "parent_behavior_tests_passed": 4,
+    "parent_boundary_witness_tests": 1,
+    "total_test_results_passed": 22,
+    "unsafe_boundary": "START in flight before source reset remains acceptable until receiver observes fault or deadline",
+    "rejected_v1": "actual PERMIT loss preserved session; old Request plus Start restarted after qualification",
+    "mutation": "retaining session in invalidate triggers 2 expected independent-test failures",
+    "tested_source_sha256": "f4d41bad394e107480b5d926945098383abd73095682d57e01a2503aafd6f377"
+  },
+  "aux_result": {
+    "status": "BLOCK",
+    "tps26601_static_trip_v": [
+      16.065942,
+      17.484847
+    ],
+    "current_limit_120k": "insufficient",
+    "conditional_load_ma": 111.630037,
+    "alternative": "LT4363-1 architecture static screen only; not selected",
+    "alternative_conditional_static_clamp_v": [
+      16.020855,
+      17.414363
+    ],
+    "missing_acceptance": "bounded output peak below18V, source fault envelope, effective downstream capacitance, transient device behavior and parasitics; selected ILIM/UVLO/thermal/SOA"
+  },
+  "commands": [
+    {
+      "command": "rustc --edition=2021 --test combined candidate plus parent-tests; run all",
+      "exit": 0,
+      "result": "22 passed:21 behavior checks and1 boundary witness"
+    },
+    {
+      "command": "rustc --edition=2021 --test parent-v1-witness.rs; run parent_witness",
+      "exit": 0,
+      "result": "unsafe v1 restart reproduced"
+    },
+    {
+      "command": "compile mutation retaining old session; run parent_review",
+      "exit": 101,
+      "result": "expected failure;2 tests detect retained session"
+    },
+    {
+      "command": "rustc --edition=2021 aux-clamp-screen.rs; run",
+      "exit": 0,
+      "result": "conditional static arithmetic only"
+    }
+  ],
+  "frozen_source_unchanged": true,
+  "frozen_inputs_verified": 9,
+  "compiled_candidate": "interface-defaults-11",
+  "compiled_count_unchanged": 136,
+  "circuit_or_pcb_edits": false,
+  "hardware_test": false,
+  "vendor_contact": false,
+  "commit_or_push": false
+}

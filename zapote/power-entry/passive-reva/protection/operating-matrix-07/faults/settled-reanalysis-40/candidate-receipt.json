@@ -1,0 +1,15 @@
+{
+  "status": "PREPARED_GLOBAL_GAP_CORRECTION",
+  "accepted": false,
+  "source_sha256": "bde1746291192b7e0426d167a981666b8623cab4f9925adde25481693e0c1777",
+  "binary_sha256": "8d7c0ab020749c7a59b61417c0869c46590f8b7c9909e947ecc1e504e5dcc37c",
+  "unit_tests": 5,
+  "capture_raw_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "capture_rows": 32237324,
+  "capture_bytes": 5297726667,
+  "capture_gap_s": 2.5e-8,
+  "analysis_global_gap_s": 1e-6,
+  "correction": "pass global 1 us to adapter and validator; retain 25 ns capture pacing provenance",
+  "reanalysis_launched": false,
+  "electrical_acceptance": false
+}

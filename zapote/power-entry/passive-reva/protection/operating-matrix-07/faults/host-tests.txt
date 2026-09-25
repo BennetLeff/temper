@@ -1,0 +1,16 @@
+
+running 11 tests
+test tests::bypass_is_rejected_even_with_fault ... ok
+test tests::latch_rearm_is_rejected ... ok
+test tests::no_energized_history_is_rejected ... ok
+test tests::ngspice_header_padding_is_token_checked ... ok
+test tests::no_fault_event_is_rejected ... ok
+test tests::passive_current_is_reported_separately_after_channel_ceases ... ok
+test tests::low_gate_with_sustained_channel_current_is_gap_for_switch_short ... ok
+test tests::preexisting_fault_is_rejected ... ok
+test tests::truncated_trace_is_rejected ... ok
+test tests::startup_transient_before_declared_event_is_ignored ... ok
+test tests::too_short_post_event_window_is_rejected ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

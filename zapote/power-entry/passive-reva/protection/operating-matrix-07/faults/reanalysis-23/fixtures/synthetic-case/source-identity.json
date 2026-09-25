@@ -1,0 +1,14 @@
+{
+  "input_files": [
+    {"path":"case.cir","sha256":"e040ef5d894da651d00508f191104cdd2e2985770b81fdacca9ae84745992638"},
+    {"path":"fixture.inc","sha256":"1364f6ce5b41b7ed89e03cf5014778318251ad093d94e628a62eaefd4e7b70c2"},
+    {"path":"manifest.json","sha256":"3ec8bcb79824464f2b525bc4affad9e0aff564ab0ed38b9d2677d5ea88b2c283"}
+  ],
+  "tools": {
+    "native_host": {"path":"/private/tmp/matrix07-native-runner14-synthetic-parent","sha256":"265eb5678b7b765d247ba2108ec3463f8f48355629de10d57a628101d0aaf6ca"},
+    "pigz": {"path":"/opt/homebrew/Cellar/pigz/2.8_1/bin/pigz","sha256":"a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"},
+    "decoder": {"path":"/private/tmp/matrix07-fault-native-decoder-parent","sha256":"af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658"},
+    "adapter": {"path":"/private/tmp/matrix07-fault-adapter-parent","sha256":"53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae"},
+    "validator": {"path":"/private/tmp/matrix07-fault-validation-parent","sha256":"8522199d98dbb2196ae7486048daadb4316fc53fec20d345835c0a76df322b57"}
+  }
+}

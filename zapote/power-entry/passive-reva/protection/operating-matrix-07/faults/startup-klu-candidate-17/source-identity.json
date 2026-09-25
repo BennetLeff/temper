@@ -1,0 +1,18 @@
+{
+  "input_files": [
+    {"path":"authored_logic_hysteretic.inc","sha256":"95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"},
+    {"path":"case.cir","sha256":"e8ddff3bec89f42568dd85e2e7a33e12e538fb9d3cccef915c036240388cb01c"},
+    {"path":"clamp.inc","sha256":"96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde"},
+    {"path":"manifest.json","sha256":"c303b02f818bdc52346ccb1197fc38c95ca4939828a2e7cacbf178603f766cdf"},
+    {"path":"protection.inc","sha256":"61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8"},
+    {"path":"standby.inc","sha256":"94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb"},
+    {"path":"ucc28180-pwm-latch.inc","sha256":"2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"}
+  ],
+  "tools": {
+    "native_host": {"path":"/private/tmp/matrix07-fault-native-host-parent","sha256":"785c2d8eccd973995b96b10fddedfd975ef82ebecbececa6e5d0bc4e9d720d39"},
+    "pigz": {"path":"/opt/homebrew/Cellar/pigz/2.8_1/bin/pigz","sha256":"a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"},
+    "decoder": {"path":"/private/tmp/matrix07-fault-native-decoder-parent","sha256":"af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658"},
+    "adapter": {"path":"/private/tmp/matrix07-fault-adapter-parent","sha256":"53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae"},
+    "validator": {"path":"/private/tmp/matrix07-fault-validation-parent","sha256":"8522199d98dbb2196ae7486048daadb4316fc53fec20d345835c0a76df322b57"}
+  }
+}

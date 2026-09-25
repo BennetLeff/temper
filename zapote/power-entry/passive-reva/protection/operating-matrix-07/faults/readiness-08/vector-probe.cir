@@ -1,0 +1,26 @@
+* Short ngspice vector-name probe for the fault trace contract.
+* This is a transport smoke deck only; it is not a power-stage result.
+Vctl ctl 0 PULSE(0 5 1n 1p 1p 5n 20n)
+Vsrc n1 0 PULSE(0 10 1n 1p 1p 5n 20n)
+Rsrc n1 n2 1
+Lprobe n2 sw 1u IC=0
+Dboost1 sw d1_path DTEST
+Vdboost1sense d1_path vd 0
+Dboost2 sw d2_path DTEST
+Vdboost2sense d2_path vd 0
+Ssf2 vd f2_path ctl 0 SWTEST
+Vf2sense f2_path vb 0
+Vchannel ch 0 0
+Vbody 0 body 0
+Cvd vd 0 1n IC=0
+Cvb vb 0 1n IC=0
+.model DTEST D(IS=1e-14 RS=1m)
+.model SWTEST SW(Ron=1m Roff=1e12 Vt=2.5 Vh=.1)
+.save time v(n1) v(vd) v(vb) i(Lprobe) i(Vchannel) i(Vbody) i(Vf2sense) i(Vdboost1sense) i(Vdboost2sense)
+.tran 100p 20n 0 100p uic
+.control
+run
+display
+print i(Vchannel) i(Vbody) i(Vf2sense) i(Vdboost1sense) i(Vdboost2sense)
+.endc
+.end

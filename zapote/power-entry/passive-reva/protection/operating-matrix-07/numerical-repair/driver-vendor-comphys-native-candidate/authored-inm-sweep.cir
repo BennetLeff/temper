@@ -1,0 +1,21 @@
+* Slow active-high INM sweep: AUX 15 V, PWM high, INM 0 -> 3 -> 0 V.
+* This checks the TI-derived 2.2/1.2 V disable hysteresis independently of
+* the PWM input.
+.include authored_logic_vendor_comphys_native.inc
+Vaux aux15 0 15
+Vdisable disable 0 PWL(0 0 1u 0 3u 3 5u 3 7u 0 8u 0)
+Vpwm pwm_input 0 5
+Xdriver disable pwm_input aux15 0 driver_out AUTH_UCC27511A_HV
+Rgate driver_out gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.tran 1n 8u
+.control
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+wrdata authored-inm-sweep.tsv v(disable) v(driver_out) v(gate) v(xdriver.inm_state) v(xdriver.pwm_state) v(xdriver.aux_state) v(xdriver.driver_req)
+quit
+.endc
+.end

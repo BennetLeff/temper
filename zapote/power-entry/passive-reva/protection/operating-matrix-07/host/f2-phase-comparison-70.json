@@ -1,0 +1,11 @@
+{
+  "status": "PARENT_COMPARISON_OF_TWO_ACCEPTED_MODELED_CASES",
+  "inputs_sha256": {
+    "faults/settled-reanalysis-40/F2-CREST38/acceptance.json": "bc00f63b08b5218d74f7fa673e60ab6f976194d32a871c776432547130ccfa7e",
+    "faults/settled-recovery-63/full-F2-ZERO/acceptance.json": "42c3bac2b9cad3051268fa6c2be59581d2bd2dfb03c0b9bc6574ef1e4276b760"
+  },
+  "document_sha256": "0724d347ca1e4aecddc069bcc2f0e559c7519f274648ea7448fb3d085ebfbe42",
+  "detection_delay_ratio_zero_over_crest": 20.708431407189405,
+  "scope": "Two exact source-bound samples; no worst-case phase coverage or physical-interruption qualification",
+  "accepted_new_case": false
+}

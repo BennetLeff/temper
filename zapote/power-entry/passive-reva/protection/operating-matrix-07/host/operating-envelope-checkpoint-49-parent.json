@@ -1,0 +1,52 @@
+{
+  "status": "PARENT_VERIFIED_EIGHT_POINT_CONSOLIDATION",
+  "checked_at_utc": "2026-09-21T19:04:06.581421+00:00",
+  "artifacts": {
+    "host/operating-envelope-checkpoint-49.json": "2b785439938a14a55a8b099f5467dbd660ef46b91fe6f125e9f8176360b64923",
+    "host/operating-envelope-checkpoint-49.md": "5de1d2f489d32a6264a2e9b82e193d0259e8f7f594ee73cef7d59fae31e6688a"
+  },
+  "cases": [
+    {
+      "case": "LL01",
+      "acceptance_sha256": "a4e09215acac4b80920257ceebfa96e4a9f7f618732cd24c778cca34f24105c7",
+      "source_and_copied_fields_match": true
+    },
+    {
+      "case": "LL02",
+      "acceptance_sha256": "542318b9fa0a061fa05af1616844320441f1ba59ac4a70275b14266c69c82eb2",
+      "source_and_copied_fields_match": true
+    },
+    {
+      "case": "LL03",
+      "acceptance_sha256": "224ac1a30d64b05b9b06d3319bb2a6dfaa3ce45330277fb97f8f50e82385041d",
+      "source_and_copied_fields_match": true
+    },
+    {
+      "case": "LL04",
+      "acceptance_sha256": "f4a6ba5435add8b2946712b957d6f222cbc0384e28ccdd32980863249acdddfc",
+      "source_and_copied_fields_match": true
+    },
+    {
+      "case": "LL05",
+      "acceptance_sha256": "44859f112de35192015ace76a4c1d0619c4689533eaceea62b8834b04c8f4206",
+      "source_and_copied_fields_match": true
+    },
+    {
+      "case": "LL06",
+      "acceptance_sha256": "6eb356547ab348e16353cc9ec86cc3c520835f45ace8b5c8b6f1fddc921221a9",
+      "source_and_copied_fields_match": true
+    },
+    {
+      "case": "LL07",
+      "acceptance_sha256": "b87c23441b4e55a5e46ec4ec19bfba3bd8fa02a456a9bbdb4aed0c41a0cc7b69",
+      "source_and_copied_fields_match": true
+    },
+    {
+      "case": "LL08",
+      "acceptance_sha256": "8c6f8fb701395ecb95cbdfd980fc9a2f94ca1417a456542a18d39e460c3e8fdd",
+      "source_and_copied_fields_match": true
+    }
+  ],
+  "raw_archives_reread": false,
+  "scope": "Consolidation of existing scoped acceptances; no new point or continuous-envelope acceptance."
+}

@@ -1,0 +1,8 @@
+* SCRIPT: load the exact pure circuit and restore its 10 us snapshot.
+.control
+set noaskquit
+snload pwm-hold-capture.cir pwm-hold-10us.snap
+resume
+wrdata resumed-fresh-process.tsv time v(gate)
+quit
+.endc

@@ -1,0 +1,14 @@
+[
+  {
+    "name": "wrong-pole",
+    "simulator_exit": 0,
+    "checker_exit": 1,
+    "output": "FAIL current pole mismatch: fraction0.9999977686578092\n"
+  },
+  {
+    "name": "wrong-ramp",
+    "simulator_exit": 0,
+    "checker_exit": 1,
+    "output": "PASS PWM crossing 0: measured=5.700037919609e-7s expected=5.700000000000e-7s\nFAIL PWM crossing 1: 1.132888690833e-6 != 1.228653634326e-6\n"
+  }
+]

@@ -1,0 +1,16 @@
+
+running 11 tests
+test native_export::tests::vector_info_abi_matches_external_oracle ... ok
+test native_export::tests::header_is_canonical_and_bounded ... ok
+test tests::detects_first_nonincreasing_sample ... ok
+test native_export::tests::schemas_have_expected_width_and_units ... ok
+test tests::maps_only_declared_diagnostics ... ok
+test tests::backwards_time_sets_separate_stop_flag ... ok
+test native_export::tests::type_and_pointer_checks_are_explicit ... ok
+test tests::stall_watchdog_threshold_is_unchanged ... ok
+test tests::callback_captures_named_values_only_on_first_bad_time ... ok
+test tests::nonfinite_time_sets_finite_guard_without_counting_as_backwards ... ok
+test native_export::tests::existing_regular_output_is_refused_without_truncation ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

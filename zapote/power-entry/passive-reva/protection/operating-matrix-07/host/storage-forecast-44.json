@@ -1,0 +1,18 @@
+{
+  "utc": "2026-09-21T18:17:02.100650+00:00",
+  "observed_free_gib": 14.615951538085938,
+  "keep_free_gib": 10,
+  "pending_full_archives": {
+    "LL08_live": 2.2,
+    "LL09": 2.2,
+    "F2-ZERO": 6,
+    "SW-SHORT": 6,
+    "DIODE-SHORT": 6,
+    "BOTH-SHORT": 6,
+    "BYPASS-NEG": 6
+  },
+  "forecast_note": "Prospective planning reserves, not measured bounds. Normal prior captures about2.0-2.1GiB; completed fault38 archive4.934GiB. Reserve6GiB per remaining fault including longer zero case. Existing archives and swap already reflected in observedfree; do not subtract them twice. Temporary swap may still increase. Recheck each launch with measured free space; 10GiB guard remains authoritative. No deletion or recompression authorized/performed.",
+  "concurrency": 1,
+  "forecast_additional_archive_gib": 34.4,
+  "additional_free_space_needed_for_forecast_gib": 29.78404846191406
+}

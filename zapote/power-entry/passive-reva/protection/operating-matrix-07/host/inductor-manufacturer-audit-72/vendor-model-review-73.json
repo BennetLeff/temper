@@ -1,0 +1,37 @@
+{
+  "vendor": "Würth Elektronik",
+  "package": "LTSpice_WE-TORPFC-rev25a.zip",
+  "package_sha256": "bb43843ce5c69b99ae0f6686ad8d9467859f4075ea6a537101bd6ced903280b6",
+  "entries": {
+    "Disclaimer_READ_ME.txt": {"bytes": 756, "sha256": "a06eec7c421b098883721ce285ad569b1e3dbc0cfeeb9d78e1d58595ee2a086c"},
+    "WE-TORPFC.asy": {"bytes": 722, "sha256": "2c29b699a4a3f44bc7434b0a8366ebf4f82c2527d0ec2b3c4693ac7a61179d94"},
+    "WE-TORPFC.lib": {"bytes": 3729, "sha256": "81776ae67b004da39ff5f6c5d1568d150aa1a92772e44837bd8c033c6a7dd3e"}
+  },
+  "exact_subckt": "TOR75_760800301_180u",
+  "model": {
+    "topology": "parallel Rp and Cp across a series Rs plus ideal linear L",
+    "Rp_ohm": 46900,
+    "Cp_pF": 11.58,
+    "Rs_ohm": 0.018,
+    "L_uH": 180,
+    "Rser_ohm": 0.00001,
+    "nonlinear_dc_bias": false,
+    "temperature_dependence": false,
+    "core_loss_element": false,
+    "frequency_dependent_core_loss": false,
+    "saturation_limit": null
+  },
+  "syntax": {
+    "style": "LTspice .asy/.lib; .subckt with Rser parameter on L element",
+    "ngspice_compatibility": "possible by syntax inspection only; not run or compiled",
+    "default_symbol_model": "TOR37_760800401_118u",
+    "default_is_not_exact_part": true
+  },
+  "limitations": [
+    "Vendor disclaimer says model accuracy/currentness are not guaranteed.",
+    "Model does not encode datasheet ±20% inductance tolerance.",
+    "Model does not encode the datasheet 43 A typical saturation criterion (|ΔL/L| < 30%).",
+    "Model does not encode thermal current limits or operating-temperature behavior."
+  ],
+  "inspected_without_execution": true
+}

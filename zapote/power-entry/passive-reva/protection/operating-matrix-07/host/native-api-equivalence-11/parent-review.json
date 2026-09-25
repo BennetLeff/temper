@@ -1,0 +1,17 @@
+{
+  "status": "PARENT_VERIFIED_CURRENT_HOST_WRDATA_VS_NATIVE",
+  "rows": 5905,
+  "fields_compared": 183055,
+  "bit_mismatches": 0,
+  "production_adopted": false,
+  "correction": "The actual current host exports with ngSpice_Command(wrdata...), not ngGet_Vec_Info. Original probe source comments/report API_NGGET labels were inaccurate and are superseded by this receipt; no direct ngGet_Vec_Info export exists in the current host or is required to replace it. This proves equivalence to the actual current-host text export on this tiny plot.",
+  "files_sha256": {
+    "deck/progress.rs": "56fdc2c11e4fb70b0b19e743d619eb25ec22d36489205a216681d82b3c994d15",
+    "out/progress-diff.patch": "30efc7197b78f319a8b03c48e9d5f043ba81c6a1350ba8d4a0d3bfbfde2c03a5",
+    "out/api.tsv.gz": "8fe7b457e2d2df1119b7d1e85f423627a229b89c1719720d53347ac6b919a775",
+    "out/native.raw.gz": "1eac8eb2dc9b6582c9d6514a03b3f930b0de830893b8688bd433f51bdc4df65a",
+    "out/api-native-comparison.txt": "6e3f665dbf1496109a6b77455f52ec5f4c8605185e590696f275866f1b7fe0b5",
+    "out/run-status.txt": "d5f9b8ea068a4293d75f57e2c97dd79c3198c7375faa7bffda1100675dcba31f"
+  },
+  "adapter_sha256": "d39e43eb716f676c78b4b06d8def62a4bd24e3fbfb6a7edb5d86d592a095f021"
+}

@@ -1,0 +1,38 @@
+{
+  "status": "REJECTED_INCOMPLETE_EXPORT",
+  "utc": "2026-09-21T04:29:39.359609+00:00",
+  "acceptance": false,
+  "session": 49865,
+  "session_exit": 1,
+  "solver_callback_endpoint_s": 0.65,
+  "solver_callbacks": 30103973,
+  "solver_wall_s": 1943.844043,
+  "tracked_exit": 0,
+  "raw_bytes": 783985070,
+  "raw_sha256": "9613208d7ea7c0369167e6c2fb93c6fe3915e07be59671fe3e46d57a5cf0b5bd",
+  "gzip_integrity_check": {
+    "exit": 1,
+    "stderr": "corrupted -- incomplete deflate data"
+  },
+  "decompressed_prefix_hex": "26c08014bccad6e2123e366499d6b27617409a428c72c3a126407d1f4bc4f8221840",
+  "native_header_present": false,
+  "observations": [
+    "Native producer exited0 after write command; compressor83013waiting0CPU atfixedfilelength",
+    "One-second stack sample shows mainthread blockedinreadn/read andworkerswaiting",
+    "lsof showscompressorFIFOreadhandle; no livewriterobserved",
+    "No eventaudit/metricspipeline ran;650mscallbackmetadata alone isnotretainedendpointproof"
+  ],
+  "termination": {
+    "pid": 83013,
+    "signal": "SIGTERM",
+    "reason": "Confirmedinvalidexport andproducerexited; preservepartialfile andlet supervisorrecordfailure",
+    "supervisor_elapsed_s": 2447.306
+  },
+  "cause": "UNRESOLVED; no proven second FIFO reader/writer or compression/OS cause",
+  "independent_review": "../../LL05-independent-review-25.md",
+  "next": "Bounded >4GiB compressible FIFOtransportprobe26 beforechoosingretry; no currentfullsolver",
+  "limitations": [
+    "This rejectsexportintegrity, not electricalbehavior",
+    "Do not deletepartialarchive or relabelasfullcapture"
+  ]
+}

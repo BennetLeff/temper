@@ -1,0 +1,15 @@
+* Temperature sensitivity screen at the chosen PCL and fault points.
+* .TEMP produces one operating-point row for each requested junction
+* temperature in ngspice.  These are model sensitivities, not guarantees.
+.include clamp.inc
+VSHUNT shunt 0 DC -0.438
+R_ISENSE shunt isense 220
+DCLAMP 0 isense BAV23C_ASSUMED_V2
+.control
+foreach t -20 25 85 125
+  set temp = $t
+  op
+  print v(shunt) v(isense) @dclamp[id]
+end
+.endc
+.end

@@ -1,0 +1,45 @@
+{
+  "at_utc": "2026-09-22T02:25:40.173159+00:00",
+  "status": "ALL_SOLVERS_TERMINAL_SW_PREFIX_ACCEPTED_BYPASS_POSTCAPTURE_LIVE",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: BOTHprefix/phase/faultdisposition118 andcoincident120; SWprefix117launched; corrected116requirements and119indexreviewed122",
+  "this_goal_turn": "progress: SWprefix33018terminal0,parent129acceptsownprefix whilefullfaultINDETERMINATEretained; finalBYPASS28321terminal1/fullcapturecomplete/VD651.173>500screenFAIL; parent130 sourcebound and76postcapturelaunched76037. Luna124reportcorrected/parentreview128,125completionchecklist,126independentreview completed.",
+  "completed_sessions": {
+    "33018": 0,
+    "28321": 1
+  },
+  "live_sessions": {
+    "76037": "faults/settled-bypass-postcapture-76/run.sh; lastpolledlive, scan underway; ONEarchiveanalysis"
+  },
+  "full_solvers_live": 0,
+  "sw_disposition": "Ownnormalprefix30,112,476rows to.6499999879903595 accepted129; full30,686,230rowfault stops.6544026486296868<.662 remainsINDETERMINATE. Legacystrictline23027060retained. No rerunrequiredbyboundedattemptcontract.",
+  "bypass_capture": {
+    "raw_sha256": "75f444f8e422e445c2e5d65f21760af1658f0b14f05dcd088d1c80cd2b87b0a1",
+    "raw_bytes": 5351164676,
+    "rows": 32287070,
+    "end_s": 0.662,
+    "stage1": [
+      0,
+      0
+    ],
+    "stage2": "adapter_rc=0 validator_rc=1 decoder_rc=0 decompressor_rc=0",
+    "failure": "REJECTED: all-row node screen vd: 651.1730124191079 > 500",
+    "formal_checker_verdict": null,
+    "negative_control_waveform_accepted": false,
+    "initial_adapter": "detectornone,latchoffnone,channelabove0.1throughendpoint. Frozenbypassflagrejectionnotreached duepriornode-screenfailure."
+  },
+  "free_bytes": 23079374848,
+  "artifacts_sha256": {
+    "host/campaign-report-124.md": "3743f9fcc815d3def96663fef5cbb9cdb2b5932843c70f865f23dd12112da12e",
+    "host/draft-report-parent-review-128.json": "85da43c4b122fe5e45cd124ff3003375e19c79910c96c48faccde8724d1322a5",
+    "host/final-completion-checklist-125.md": "94fa113aec63905dbe3adbedaa7c36036ef94a4505a2175b49eb8bb24ef2c62a",
+    "host/both-acceptance-review-126.json": "aa6b186d4c0a77ecf093c4bf8144867d6f622b0aadc22667305de337308145ca",
+    "faults/sw-prefix-only-117/full-SW-SHORT/normal-prefix-acceptance-129.json": "cbd23c71bb5cb0a9a357d4a5b30f0f9a17bcd7e03cc9c713b23cc81de7c64e71",
+    "faults/settled-sw-short-59/full-SW-SHORT/campaign-verdict-addendum-129.json": "625cc35458cb0ed9f1905aa726e22b3f64191a98dc657c0cc4b21abd0237e834",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/parent-capture-review-130.json": "a921f3cc6ca1a5532ceac537f91569b9d2174862532f2ee05e321aae23f5a770"
+  },
+  "active_children": "none; finishedchildreninterrupted",
+  "blocked_turn_count": 0,
+  "topology_observation_for_final_review": "ActualBYPASS caseRfb1 connectsVBtoVSENSE; Clocal19.8uVD;F2VD-toVBopens; Bfault=0whenBYPASS1. FeedbackdoesnotdirectlysenseVDacrossopenF2. Sourceconnectivity inference only, not a validatedcausalwaveformexplanation. Includeinfinalprotectionimplications ifrelevant.",
+  "next": "Pollsame76037; uponterminal0 inspect5pipelineoutputs/receipt, thenrun alreadyreviewed76/legacy-strict.sh once. Ownprefix/phaseacceptance anddetector-independent55observations mandatorybeforefinalBYPASSdisposition. RetainVDscreenFAILregardless. Finalize124ornewreport andcompleteindexincludinglatest129/130+BYPASSfinal. Fullrequirementaudit125/GOAL/faultmatrix (boundedINDETERMINATEpermitted; failassessmentnotprotectionPASS) thenonlymarkgoalcompleteifactualrequirementsverified. No morefullsolversplanned."
+}

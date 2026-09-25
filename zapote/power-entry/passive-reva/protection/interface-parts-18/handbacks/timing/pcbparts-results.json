@@ -1,0 +1,28 @@
+{
+  "source": "PCBParts MCP jlc_search",
+  "queries": [
+    {
+      "query": "1.5uF 63V film capacitor +/-5%",
+      "results": [
+        {"lcsc":"C6262911","model":"R82DC4150AA60J","manufacturer":"KEMET","package":"Plugin,P=5mm","stock":40,"description":"1.5uF 63V metallized PET +/-5%, -55C to +105C"},
+        {"lcsc":"C280291","model":"C241J155J2SC000","manufacturer":"XIAMEN FARATRONIC","package":"Plugin,P=5mm","stock":29,"description":"1.5uF 63V metallized polyester +/-5%, -55C to +125C"},
+        {"lcsc":"C434137","model":"MEB155J063D01","manufacturer":"Jimson","package":"Plugin,P=5mm","stock":53,"description":"1.5uF 63V polyester +/-5%, -40C to +85C"}
+      ]
+    },
+    {
+      "query": "1.5uF 100V X7R",
+      "results": [
+        {"lcsc":"C342711","model":"C3225X7R2A155KT0L0U","manufacturer":"TDK","package":"1210","stock":938,"description":"1.5uF 100V X7R +/-10%"},
+        {"lcsc":"C342664","model":"C4532X7R2A155KT0L0U","manufacturer":"TDK","package":"1812","stock":116,"description":"1.5uF 100V X7R +/-10%"}
+      ]
+    },
+    {
+      "query": "100nF 100V C0G",
+      "results": [
+        {"lcsc":"C405303","model":"GRM31C5C2A104JA01L","manufacturer":"Murata Electronics","package":"1206","stock":21520,"description":"100nF 100V C0G +/-5%"},
+        {"lcsc":"C3216C0G2A104JT000E","model":"C3216C0G2A104JT000E","manufacturer":"TDK","package":"1206","stock":2983,"description":"100nF 100V C0G +/-5%"},
+        {"lcsc":"C3906406","model":"GRM3195C2A104GA01D","manufacturer":"Murata Electronics","package":"1206","stock":2258,"description":"100nF 100V C0G +/-2%"}
+      ]
+    }
+  ]
+}

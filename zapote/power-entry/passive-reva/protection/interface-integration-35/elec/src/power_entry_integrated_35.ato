@@ -1,0 +1,48 @@
+# Review-only join of the Rev29 AUX/PFC protection, Rev33 HOT receiver, and
+# Rev34 SELV source-health latch. One ISO7741F belongs to HotReceiverCore.
+# Source GPIOs, firmware, upstream supplies, and physical F2/reservoir remain
+# external and are not qualified by this connectivity fixture.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "power_entry_pfc_control_candidate.ato" import PowerEntryPfcLinkClearCandidate
+from "hot_receiver_core.ato" import HotReceiverCore
+from "source_health_core.ato" import SourceHealthCore
+
+module PowerEntryIntegrated35:
+    signal SELV3V3
+    signal SELV_GND
+    signal SOURCE_COMMAND_TX
+    signal SOURCE_RELAY_CMD
+    signal SOURCE_RESPONSE_RX
+    signal SOURCE_RESET_GOOD
+    signal SOURCE_VALIDATED_HEARTBEAT
+    signal INTERLOCK_PERMIT
+    signal SOURCE_REARM_PULSE
+
+    pfc = new PowerEntryPfcLinkClearCandidate
+    receiver = new HotReceiverCore
+    source = new SourceHealthCore
+
+    receiver.HOT_LOGIC5 ~ pfc.logic5
+    receiver.HOT_GND ~ pfc.control_gnd
+    receiver.HOT_RAILS_OK ~ pfc.protection.rails_ok
+    receiver.RECEIVER_SESSION_ACTIVE ~ pfc.receiver_session_active
+    receiver.VALIDATED_HEARTBEAT_5V ~ pfc.validated_heartbeat_5v
+    receiver.SESSION_QUALIFIED_PULSE_5V ~ pfc.session_qualified_pulse_5v
+    receiver.ARM ~ pfc.hot_arm
+    receiver.HOT_LINK_GOOD_OBSERVED ~ pfc.qualified_link_good
+    receiver.HOT_PERMIT_RX ~ pfc.hot_permit
+
+    receiver.SELV3V3 ~ SELV3V3
+    receiver.SELV_GND ~ SELV_GND
+    receiver.SOURCE_COMMAND_TX ~ SOURCE_COMMAND_TX
+    receiver.SOURCE_RELAY_CMD ~ SOURCE_RELAY_CMD
+    receiver.SOURCE_RESPONSE_RX ~ SOURCE_RESPONSE_RX
+
+    source.SELV3V3 ~ SELV3V3
+    source.SELV_GND ~ SELV_GND
+    source.SOURCE_RESET_GOOD ~ SOURCE_RESET_GOOD
+    source.SOURCE_VALIDATED_HEARTBEAT ~ SOURCE_VALIDATED_HEARTBEAT
+    source.INTERLOCK_PERMIT ~ INTERLOCK_PERMIT
+    source.SOURCE_REARM_PULSE ~ SOURCE_REARM_PULSE
+    source.PERMIT_TX ~ receiver.SOURCE_PERMIT

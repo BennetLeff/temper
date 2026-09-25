@@ -1,0 +1,80 @@
+{
+  "at_utc": "2026-09-22T01:49:16.850908+00:00",
+  "status": "BOTH_FIVEPASS_COMPLETE_LEGACY_LIVE_BYPASS_LIVE_REFERENCE_INVENTORY_VERIFIED",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: DIODE same-rowreview, referenceinventory, ControlFreakinputbenchmark andBOTHcapture recorded",
+  "this_goal_turn": "progress: BOTHterminalscreenfailure verified and75analysis launched; BYPASSlaunched after measuredresourcecheck andsourceclosure; actualTIcomponentinventory correctedusingvisualEVM/TIDAschematics; BOTHcandidateprefix/phase prepared and99wrapperreviewed",
+  "completed_sessions": {
+    "57766": 1,
+    "54690": 0
+  },
+  "live_sessions": {
+    "28321": "BYPASS66fullsolver runner10586 monitor10587",
+    "50106": "BOTH75legacy strict witness running aftercompletefivepassanalysis"
+  },
+  "both_verdict": "All-rowLboost435.79078242060086A>100screenFAIL; formalProtectionGap not reached; ownprefix/phase acceptancependinganalysis+legacy. Seeparent110.",
+  "both_prefix_candidate": {
+    "accepted": false,
+    "selected_rows": 30109591,
+    "end_s": 0.6499999876940904,
+    "screens": 0,
+    "phase_sufficient_bound_pass": true,
+    "candidate": "faults/settled-both-postcapture-75/normal-phase-candidate-112.json"
+  },
+  "bypass_progress_last": "885.975169\t2.89232965420763766e-1\t43.690780\t2.768971709397e-4\t12229968\tfalse\t0\t0\tfalse",
+  "free_bytes": 28590002176,
+  "artifacts_sha256": {
+    "host/ucc28180-reference-deviations-107.md": "2a0619c66d1824ddbc1ae593e9650253db9fde13fa5444fad7128d353eca104f",
+    "host/ucc28180-reference-deviations-107.json": "1796264a041349d500e4b5fcb9b19f213f0408c2c167756c7275a87ba8dedf99",
+    "host/reference-parent-review-111.json": "6788e8bb6acf507a94be4caf3dacb4863d31eb652c589150b805692b934dbcad",
+    "faults/both-short-parent-review-110.json": "b3345900c80dde72675dcf0a9b8a2478e5696f88816a70757f6cb4e14473af74",
+    "faults/settled-bypass-neg-66/live-parent-review-110.json": "881de55e0ab070e2b9848bf69f2dff9b769248ff7c80ff75200d9348104a4430",
+    "faults/coincident-stress-observability-99/parent-both-preparation-110.json": "65c14c92af298a25c1aaab682251bc6568565fa8c91358898dd4b645411f743c",
+    "faults/settled-both-postcapture-75/normal-phase-candidate-112.json": "a45bfa9518ee1432ce4228c05715d827d3e524831b667c9f628d9e98d3d3e889",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/analysis-receipt.json": "de28683287ccb024c71d1fcb473c5f782616b326fe7dd9eebfe29877c1cd8ec4"
+  },
+  "reference_findings": "Visually verifiedEVMp6/TIDARevDsheets1,2. SameICOMP asEVM, near-identicalISENSEfilter butdifferentshunt; compensation differs. TIDARevD usesonboard28881bias,27524driver,linefollower. BothrefsD2inrushbypass absentlocal. OldRevCexternal12Vclaims corrected; fullpowerTIDArange190\u2013270V distinctschematic156\u2013265note. Noadoption/modelcorrelation.",
+  "active_children": "none; finishedchildreninterrupted",
+  "blocked_turn_count": 0,
+  "next": "Poll50106 legacy witness toterminal; inspectexpectedrejection/rawhash andparentverifycandidate112; issueownprefix/phaseacceptance andcaseFAIL preserving100Ascreen. Then99/run-both-109.sh reviewed110 forsame-rowstress, ONEarchiveanalysis. Poll28321BYPASS; aftercompletecapture76analysis/legacy/negativecontrolwaveformreview. Finalreport/indexstillpending.",
+  "both_completed_analysis": {
+    "status": "COMPLETE_DIAGNOSTICS_PARENT_REVIEW_REQUIRED",
+    "accepted": false,
+    "raw_sha256_before_after": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+    "raw_bytes": 5286116925,
+    "full_rows": 32036953,
+    "selected_rows": 30109591,
+    "prefix_endpoint_s": 0.6499999876940904,
+    "pipeline_exits": {
+      "scan": [
+        0,
+        0,
+        0
+      ],
+      "audit": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "metrics": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "phase": [
+        0,
+        0,
+        0
+      ],
+      "observe": [
+        0,
+        0,
+        0
+      ]
+    },
+    "observability_scope": "Post-injection sampled controller/current observations; failed switch branch included in i(Vchannel). No causal or continuous interruption conclusion."
+  }
+}

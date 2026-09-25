@@ -1,0 +1,43 @@
+* Revision 20 exploratory LTspice run from the revision 19 clamp graph.
+* Model: LT4363-1 and FDB33N25 from ADI LTspice 26.0.2 library.
+* D1 uses the bundled 1N4148 model as a surrogate for 1N4148W.
+* A 130 ohm resistive load and 0.5 ohm source are declared test inputs,
+* not the converter startup model or qualified source envelope.
+Vsrc SOURCE 0 PWL(0 0 1m 0 1.01m 15 4.5 15)
+Rsrc SOURCE AUX_RAW 0.5
+* SHDN held low 120 ms during normal operation; release at 10 V/ms.
+Vshdn SERVICE_RESET_N 0 PWL(0 0 1m 0 1.01m 15 4 15 4.00001 0 4.12001 0 4.12151 15 4.5 15)
+R1 SNS AUX_PROTECTED 0.22
+R2 AUX_PROTECTED FB 59k
+R3 FB 0 4.99k
+R4 AUX_RAW UV 91k
+R5 UV 0 10k
+R6 GATE_DRV Q_GATE 10
+R7 GATE_DRV CG 100
+C1 AUX_RAW 0 100n
+C2 TMR 0 100n
+C3 CG 0 1.5u
+C4 AUX_PROTECTED 0 330u
+D1 GATE_DRV CG 1N4148
+M1 AUX_RAW Q_GATE SNS SNS FDB33N25
+Rload AUX_PROTECTED 0 130
+XU1 FB AUX_PROTECTED SNS GATE_DRV AUX_RAW SERVICE_RESET_N UV 0 FLT ENOUT TMR LT4363-1
+.lib C:\users\crossover\AppData\Local\LTspice\lib\cmp\standard.dio
+.lib C:\users\crossover\AppData\Local\LTspice\lib\cmp\standard.mos
+.lib LT4363-1.sub
+.tran 0 4.5 0 20u startup
+.meas TRAN output_at_4s FIND V(AUX_PROTECTED) AT 4
+.meas TRAN output_at_4010ms FIND V(AUX_PROTECTED) AT 4.01
+.meas TRAN output_at_4120ms FIND V(AUX_PROTECTED) AT 4.12
+.meas TRAN output_at_4500ms FIND V(AUX_PROTECTED) AT 4.5
+.meas TRAN output_min_hold MIN V(AUX_PROTECTED) FROM 4 TO 4.12
+.meas TRAN vgs_at_4s FIND V(Q_GATE,SNS) AT 4
+.meas TRAN vgs_at_4010ms FIND V(Q_GATE,SNS) AT 4.01
+.meas TRAN vgs_at_4120ms FIND V(Q_GATE,SNS) AT 4.12
+.meas TRAN fet_current_at_4s FIND Id(M1) AT 4
+.meas TRAN fet_current_at_4120ms FIND Id(M1) AT 4.12
+.meas TRAN fet_current_min_hold MIN Id(M1) FROM 4 TO 4.12
+.meas TRAN tmr_at_4120ms FIND V(TMR) AT 4.12
+.meas TRAN shdn_at_4120ms FIND V(SERVICE_RESET_N) AT 4.12
+.backanno
+.end

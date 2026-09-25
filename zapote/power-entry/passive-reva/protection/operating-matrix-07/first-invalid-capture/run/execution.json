@@ -1,0 +1,30 @@
+{
+  "status": "CAPTURED_FIRST_NONINCREASING_TIME",
+  "recorded_at_utc": "2026-09-20T19:59:24.974802+00:00",
+  "producer_session": 84326,
+  "compressor_session": 14563,
+  "wall_limit_s": 1200,
+  "target_end_s": 0.5,
+  "accepted": false,
+  "purpose": "Capture first nonincreasing accepted timestamp and controller/driver signals without electrical model changes",
+  "host_smoke": {
+    "wall_limit_s": 2,
+    "last_sim_s": 0.00802021758514744,
+    "callbacks": 61162,
+    "all_16_diagnostic_names_seen": true
+  },
+  "host_tests_passed": 3,
+  "export": "trace.tsv.gz via FIFO; wait for producer and compressor before inspection",
+  "completed_at_utc": "2026-09-20T20:37:52.327691+00:00",
+  "producer_exit": 0,
+  "compressor_exit": 0,
+  "inspector_exit": 1,
+  "first_bad_data_row": 9736224,
+  "first_bad_time_s": 0.2569903622128055,
+  "last_sim_s": 0.2570117948684942,
+  "rows": 9737177,
+  "nonincreasing_intervals": 1,
+  "trace_sha256": "700fef7c7a91a14b7f2d839587441d2701f3612665be8033f6c5750c1970651d",
+  "all_16_diagnostic_values_captured": true,
+  "solver_wall_s": 531.868818
+}

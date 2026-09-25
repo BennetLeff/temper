@@ -1,0 +1,12 @@
+* SCRIPT: save a controlled 10 us breakpoint snapshot.
+.control
+set noaskquit
+source pwm-hold-capture.cir
+stop when time = 10u
+tran 1n 20u 0 1n uic
+meas tran saved_time FIND time AT=10u
+snsave pwm-hold-10us.snap
+resume
+wrdata resumed-same-process.tsv time v(gate)
+quit
+.endc

@@ -1,0 +1,18 @@
+{
+  "status": "PARENT_REVIEWED_KLU_NATIVE_10MS_TRANSPORT",
+  "accepted_fault": false,
+  "source_changes": "TSTOP89ms->10ms, single.options klu only; five includes identical",
+  "rows": 142428,
+  "fields": 42,
+  "first_s": 2e-10,
+  "end_s": 0.01,
+  "max_gap_s": 5.000000000005e-07,
+  "equal_intervals": 0,
+  "finite": true,
+  "nondecreasing": true,
+  "source_case_sha256": "6294260c2aeeb86fac7b3cfbabdb7b135d7e9ae60fe66693fd1e01d6c9e09db4",
+  "raw_sha256": "250763f516237f94be803cfac9b097e4010e4368c7d11ded94ed7587be997ec4",
+  "artifacts_and_tools_rehashed": true,
+  "parent_correction": "Validator first-gap initialized with Option; old inf report retained; rerun no resimulation",
+  "scope": "Allows bounded longer source-bound candidate investigation, no fault verdict or wholesale KLU adoption"
+}

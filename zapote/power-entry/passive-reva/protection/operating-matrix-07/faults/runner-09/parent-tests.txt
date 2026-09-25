@@ -1,0 +1,12 @@
+
+running 7 tests
+test tests::positive_rejects_nan_zero_and_negative ... ok
+test tests::unsupported_include_forms_fail_closed ... ok
+test tests::include_escape_is_rejected_and_json_controls_are_escaped ... ok
+test tests::fifo_is_real_fifo ... ok
+test tests::child_guard_reaps_failed_child ... ok
+test tests::ordinary_early_checker_failure_reaps_upstream_promptly ... ok
+test tests::categorical_gap_waits_for_upstream_reaping ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+

@@ -1,0 +1,19 @@
+{
+  "status": "DIAGNOSTIC_PREPARED_UNEXECUTED",
+  "base": "../tracked/run/cold.cir",
+  "base_cold_sha256": "88f8972a957d6bb2600523cf7aaece46d226b2c8c5bcd96a08f4a7b3e923746c",
+  "candidate_cold_sha256": "8d3238f6e7d4fd6a96a95c02ede772d6a22acb315c47782cdcbb3eaf16be17b2",
+  "include_sha256": {
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "protection.inc": "cc323514dfc8211cd8c3ae51eb86301844be18899b78271daf5c5257ef2b61d0",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "vendor/UCC27511A.lib": "eb78c0ce0d9cf2dd5bbc5f937bbfc6cc38c95215e035feaeb3950672e8c05c6d"
+  },
+  "tracked_host": "/tmp/matrix07-vendor-tracked-host",
+  "tracked_host_sha256": "dc027ab6965a2e7fe9ad912e5cb7e85bc73aa19813eabcfa2fca6f35067cf9bd",
+  "progress_source": "../tracked/run/progress.rs",
+  "progress_source_sha256": "55725d46044991df13ccb651b48a6874db111e2b6005f9f82087f903f84af40d",
+  "changes_only": [".options method=trap -> method=gear maxord=2", ".param TSTOP=500m -> 110m"],
+  "launch": "UNSTARTED"
+}

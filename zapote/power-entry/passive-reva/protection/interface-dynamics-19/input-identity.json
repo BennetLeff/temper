@@ -1,0 +1,33 @@
+{
+  "date": "2026-09-22",
+  "branch": "codex/power-entry-pkgs-1-4",
+  "commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "dirty": true,
+  "scope": "isolated prototype reference correction and bounded dynamic investigation",
+  "inputs": [
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/clamp.kicad_sch",
+      "sha256": "b48680aa0462caf4bc0977e8a12fc3160a91df1201277e8431dce9deb82f5dee"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/clamp-expected.tsv",
+      "sha256": "f2b25e223ec96a7ad11747a36b6e9ca7ae0db42c95d39263be4d99a6cd40a1d0"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/README.md",
+      "sha256": "bef65812a14f99a3f552d8b6b86738e258c29a672909740418ab5d839d2fe82b"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/parts-screen.rs",
+      "sha256": "c1f443329cd64fcac18a82f2b8c1a08e3028daf3432e3468bad32abc0ca64ce7"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/auditor.rs",
+      "sha256": "3b94a081f519b966cdbd995cd55e776ff2926260411e867e49c48c5a9940e0ef"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-active-15/clamp/design.md",
+      "sha256": "66a2ffd863e4d1258f1a6d460e7a515a61fc566170dc648e8d85b9148f322643"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+* bounded native ngspice raw-file probe; no campaign model
+V1 in 0 PULSE(0 5 0 1n 1n 200u 400u)
+R1 in out 1k
+C1 out 0 1u
+.tran 1u 1m
+.control
+set filetype=ascii
+run
+write native-probe-ascii.raw all
+.endc
+.end

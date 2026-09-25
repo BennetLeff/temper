@@ -1,0 +1,140 @@
+* F2 shutdown transient model. Behavioral surrogates are explicit; this is
+* an engineering experiment, not a manufacturer-qualified macro-model.
+* Placeholders are substituted by run_cases.sh for each scenario.
+.title F2 shutdown full signal path
+.param VLINE=186.6761902
+.param LBOOST=180u
+.param IINIT=40
+.param PW_ON=5.5u
+.param PWM_DELAY=3u
+.param CLOCAL=19.8u
+.param VB_INIT=410
+.param VD_INIT=410
+.param DIV_INIT=2.403456820
+.param T_OPEN=300u
+.param T_CLOSE=500u
+.param T_ARM=1u
+.param ARM_HOLD=1.5u
+.param T_ARM2=1u
+.param ARM2=0
+.param PERMIT_DROP=400u
+.param PERMIT_RETURN=410u
+.param RAIL_DROP=80u
+.param RAIL_RETURN=100u
+.param GATE_TAU=120n
+.param EN_TAU=39n
+.param TSTOP=240u
+.param TSTEP=2n
+
+* HOT supply and healthy boost plant. F2 opens between VD and VB.
+Vline line 0 DC {VLINE}
+Lboost line sw {LBOOST} IC={IINIT}
+Dboost sw vd DBOOST
+.model DBOOST D(IS=1e-12 N=1.06 RS=25m CJO=80p TT=20n)
+Clocal vd 0 {CLOCAL} IC={VD_INIT}
+Rlocal vd 0 450k
+Cbank vb 0 2240u IC={VB_INIT}
+Rbank vb 0 10meg
+VfuseCtl f2ctl 0 PWL(0 5 {T_OPEN-1n} 5 {T_OPEN} 0 {T_CLOSE} 0 {T_CLOSE+1n} 5)
+Sfuse vd vb f2ctl 0 SWF2
+.model SWF2 SW(Ron=15m Roff=1e12 Vt=2.5 Vh=.1)
+
+* PWM/current switch. Gate load is an explicit STW-like Qg surrogate:
+* 120 nC typical at 10 V -> 12 nF; doubled-Q sensitivity changes GATE_TAU.
+Vpwm pwm 0 PULSE(0 5 {PWM_DELAY} 20n 20n {PW_ON} 10u)
+Varm arm 0 PWL(0 0 {T_ARM-20n} 0 {T_ARM} 5 {ARM_HOLD} 5 {ARM_HOLD+1n} 0)
+Varm2 arm2 0 PWL(0 0 {T_ARM2-20n} 0 {T_ARM2} 5 {T_ARM2+500n} 0)
+Vpermit permit 0 PWL(0 5 {PERMIT_DROP-1n} 5 {PERMIT_DROP} 0 {PERMIT_RETURN-1n} 0 {PERMIT_RETURN} 5)
+Vrails rails_ok 0 PWL(0 5 {RAIL_DROP-1n} 5 {RAIL_DROP} 0 {RAIL_RETURN-1n} 0 {RAIL_RETURN} 5)
+* Driver output is EN/Q/PWM AND; UCC27624 output is a typical 15 V push-pull
+* behavioral source. The source has a2.2k EN pulldown; ideal EN drive omits unpowered behavior.
+Ben en_req 0 V=(V(q)>2.5) ? 5 : 0
+Ren en_req en 1
+Cen en 0 {EN_TAU}
+Bdriver drv 0 V=((V(en)>2.5) && (V(pwm)>2.5)) ? 15 : 0
+Rdriver drv gate_cmd 1
+Rgate gate_cmd gate 10
+Cgate gate 0 {GATE_TAU/10}
+Rgs gate 0 10k
+Ssw sw sw_mid gate 0 SWMOS
+Rsw_sense sw_mid sw_sense 1m
+Vsw_sense sw_sense 0 0
+.model SWMOS SW(Ron=10m Roff=1e9 Vt=4 Vh=.25)
+
+* Actual 987 k / 200 R / 5.62 k tapped dividers and 100 pF high-tap filters.
+Rdt vd dh 987k
+Rds dh dl 200
+Rdb dl 0 5.62k
+Cdf dh 0 100p IC={DIV_INIT}
+Rbt vb bh 987k
+Rbs bh bl 200
+Rbb bl 0 5.62k
+Cbf bh 0 100p IC={VB_INIT*5820/992820}
+Vref ref 0 2.5
+
+* TLV3202 channels are represented by a 55 ns 50%-crossing RC response
+* (tau=79.3 ns; 5 V datasheet maximum at specified overdrive/load condition; not a max
+* slow-ramp guarantee).
+Bovd ovd 0 V=(V(dh)>V(ref)) ? 0 : 5
+Rovd ovd ovd_f 1
+Covd ovd_f 0 79.3n
+Bovb ovb 0 V=(V(bh)>V(ref)) ? 0 : 5
+Rovb ovb ovb_f 1
+Covb ovb_f 0 79.3n
+* DL > BH is forward mismatch; BL > DH is reverse mismatch.
+Bfwd fwd 0 V=(V(dl)>V(bh)) ? 0 : 5
+Rfwd fwd fwd_f 1
+Cfwd fwd_f 0 79.3n
+Brev rev 0 V=(V(bl)>V(dh)) ? 0 : 5
+Rrev rev rev_f 1
+Crev rev_f 0 79.3n
+Bfault fault_agg 0 V=((V(ovd_f)>2.5) && (V(ovb_f)>2.5) && (V(fwd_f)>2.5) && (V(rev_f)>2.5)) ? 5 : 0
+Rfault fault_agg fault 1
+Cfault fault 0 5p
+
+* SN74HCS21 health AND + SN74HCS74 retained fault latch surrogate. The latch
+* clears asynchronously on fault/rails/permit; q does not set until a fresh
+* ARM pulse while the health AND is true. Q stays low after faults until a new valid edge.
+Bhealth_stage1_raw health_stage1_raw 0 V=(V(fault)>2.5) ? 5 : 0
+Rhealth1 health_stage1_raw health_gate1 1
+Chealth1 health_gate1 0 31.74n
+Bhealth_stage2_raw health_stage2_raw 0 V=((V(health_gate1)>2.5) && (V(rails_ok)>2.5) && (V(permit)>2.5) && (V(logic5)>2.5)) ? 5 : 0
+Rhealth2 health_stage2_raw health_gate2 1
+Chealth2 health_gate2 0 31.74n
+Bhealth health 0 V=(V(health_gate2)>2.5) ? 5 : 0
+* ARM is the raw clock port.  A held high ARM is one edge; the d_dff below
+* does not turn health recovery into a new clock.
+Barming arming 0 V=((V(arm)>2.5) || (V(arm2)>2.5 && {ARM2}>0.5)) ? 5 : 0
+* SN74HCS74 retained latch: XSPICE d_dff gives a real clock edge and
+* asynchronous clear.  The adc/dac bridges are explicit 5 V logic interfaces;
+* clk_delay/reset_delay=19 ns is the HCS74 datasheet fixture maximum used as a surrogate.
+Breset reset_l 0 V=(V(health)<2.5) ? 5 : 0
+Ainput [health arming reset_l] [data_d clk_d reset_d] adc
+.model adc adc_bridge(in_low=2.5 in_high=2.5)
+Alatch data_d clk_d NULL reset_d q_d qn_d latch
+.model latch d_dff(clk_delay=19n reset_delay=19n set_delay=19n rise_delay=1p fall_delay=1p ic=0)
+Aoutput [q_d qn_d] [q qn] dac
+.model dac dac_bridge(out_low=0 out_high=5 out_undef=2.5)
+Rq q 0 10k
+Rqn qn 0 10k
+
+* Keep named HOT interface nets in the saved trace for source/graph binding.
+* aux and logic5 are supplied externally here; they are not power-tree models.
+Vlogic5 logic5 0 5
+Vaux aux 0 15
+Rgnd gnd 0 1m
+
+.tran {TSTEP} {TSTOP} uic
+.save time v(vd) v(vb) v(dh) v(dl) v(bh) v(bl) v(fault) v(health) v(q) v(en) v(drv) v(gate) v(pwm) v(arming) v(permit) v(rails_ok) v(f2ctl) i(lboost) v(sw_mid) v(sw_sense)
+.control
+set filetype=ascii
+set wr_singlescale
+set wr_vecnames
+run
+wrdata /private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/rails_invalid_return.tsv time v(vd) v(vb) v(dh) v(dl) v(bh) v(bl) v(fault) v(health) v(q) v(en) v(drv) v(gate) v(pwm) v(arming) v(permit) v(rails_ok) v(f2ctl) i(lboost) v(sw_mid) v(sw_sense)
+meas tran peak_vd MAX v(vd)
+meas tran peak_i MAX i(lboost)
+write /private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/rails_invalid_return.raw all
+quit
+.endc
+.end

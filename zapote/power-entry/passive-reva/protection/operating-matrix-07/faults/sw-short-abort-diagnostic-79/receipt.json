@@ -1,0 +1,17 @@
+{
+  "status": "DIAGNOSTIC_TAIL_EXTRACTED",
+  "accepted": false,
+  "raw_sha256_before_after": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+  "native_rows": 30686230,
+  "tail_rows": 256,
+  "pipeline_exits": [
+    0,
+    0,
+    0
+  ],
+  "files_sha256": {
+    "header.tsv": "9ef6fed55770cb8c02127cef7843e314ea073b56a67c0d2dc383b95a8127c9ff",
+    "last256-data.tsv": "1592af8297bc049c334a54019229c16dffc31818b109070209ab3e865da1c3dd"
+  },
+  "scope": "Exact original rows for root-cause inspection; truncated simulation cannot establish fault response."
+}

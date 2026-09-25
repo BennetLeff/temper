@@ -1,0 +1,816 @@
+{
+  "components": [
+    {
+      "reference": "U1",
+      "instance_path": "vd_div.r1",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "c8f48a77-8f76-a25a-9b6a-b225d8ec6152"
+    },
+    {
+      "reference": "U2",
+      "instance_path": "vd_div.r2",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "46743615-0605-7b84-e16d-772c72a557b0"
+    },
+    {
+      "reference": "U3",
+      "instance_path": "vd_div.r3",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "6145fcb0-0f12-da48-dda0-6d7f3c4fade7"
+    },
+    {
+      "reference": "U4",
+      "instance_path": "vd_div.r4",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "fcd83451-65cf-4865-f0a7-9ac8b1bb73e6"
+    },
+    {
+      "reference": "U5",
+      "instance_path": "vd_div.r5",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "89dd00d3-4c26-e6e7-7389-f8e6e9a80bf9"
+    },
+    {
+      "reference": "U6",
+      "instance_path": "vd_div.step",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "61845604-9aaf-957e-9310-32d35576c397"
+    },
+    {
+      "reference": "U7",
+      "instance_path": "vd_div.bottom",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "3d5320cf-2fea-c402-11c3-5a359bb4d9a4"
+    },
+    {
+      "reference": "U9",
+      "instance_path": "vb_div.r1",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "ec0cae14-29cb-b951-7c91-fcd54eabb09a"
+    },
+    {
+      "reference": "U10",
+      "instance_path": "vb_div.r2",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "ea3a2227-a0c5-25cb-9232-f6a20a4866d5"
+    },
+    {
+      "reference": "U11",
+      "instance_path": "vb_div.r3",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "3034cb89-2e95-02f8-e802-f660c8e2ac64"
+    },
+    {
+      "reference": "U12",
+      "instance_path": "vb_div.r4",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "b1061f46-199d-226b-0bf9-1b2bf6659f26"
+    },
+    {
+      "reference": "U13",
+      "instance_path": "vb_div.r5",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "2715dd8f-72d4-806b-f179-1558810cd8ca"
+    },
+    {
+      "reference": "U14",
+      "instance_path": "vb_div.step",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "045833bc-2cda-9acf-0546-bb58fbfa178b"
+    },
+    {
+      "reference": "U15",
+      "instance_path": "vb_div.bottom",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "4aac3cfe-d6ba-aa36-0a66-6dd6009842a2"
+    },
+    {
+      "reference": "U18",
+      "instance_path": "ref_bias",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "d8bcdc54-3f8b-d2ec-0b0b-fe92caec7c7e"
+    },
+    {
+      "reference": "U25",
+      "instance_path": "gate_r",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "tstamp": "c2f8609b-2c98-0bb7-54c3-9273f19a6e4f"
+    },
+    {
+      "reference": "U8",
+      "instance_path": "vd_div.filter",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "tstamp": "7d9e7050-5a34-ac41-8f75-ff9daee25dcf"
+    },
+    {
+      "reference": "U16",
+      "instance_path": "vb_div.filter",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "tstamp": "3873aad2-76ee-8d22-2f6b-dc8bfdcb963a"
+    },
+    {
+      "reference": "U27",
+      "instance_path": "cmp_vd_bypass",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "tstamp": "f3b308df-2ee6-af1b-0604-d195611ff730"
+    },
+    {
+      "reference": "U28",
+      "instance_path": "cmp_vb_bypass",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "tstamp": "01b2d1ac-20a4-f369-bec0-c627fde672d8"
+    },
+    {
+      "reference": "U29",
+      "instance_path": "health_bypass",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "tstamp": "ceddbcb2-b8a1-91c8-f970-b441d22f5663"
+    },
+    {
+      "reference": "U30",
+      "instance_path": "latch_bypass",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "tstamp": "f3108017-f01e-a25f-7561-092512eb46b1"
+    },
+    {
+      "reference": "U31",
+      "instance_path": "drv_bypass_hf",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "tstamp": "4d951c05-cfa1-a708-cc36-f10c3a9e23a2"
+    },
+    {
+      "reference": "U17",
+      "instance_path": "reference",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "tstamp": "9145650f-b285-e442-3e02-db0a995253aa"
+    },
+    {
+      "reference": "U19",
+      "instance_path": "cmp_vd",
+      "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+      "tstamp": "020cab4c-fee4-8e59-b5d4-c4f067365768"
+    },
+    {
+      "reference": "U20",
+      "instance_path": "cmp_vb",
+      "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+      "tstamp": "7234bf50-a57f-7b62-6e0f-d8d2d31cdfb1"
+    },
+    {
+      "reference": "U23",
+      "instance_path": "driver",
+      "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+      "tstamp": "87ffb234-e7c6-a295-e6dd-0d725fab0c53"
+    },
+    {
+      "reference": "U21",
+      "instance_path": "health",
+      "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+      "tstamp": "650af33d-3268-217b-47d0-3dbbf9757119"
+    },
+    {
+      "reference": "U22",
+      "instance_path": "latch",
+      "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+      "tstamp": "717e683a-42f3-2285-59a4-38d9d82dc628"
+    },
+    {
+      "reference": "U24",
+      "instance_path": "en_pd",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "tstamp": "024c399d-ffe2-e1ba-0388-2392b29c3f74"
+    },
+    {
+      "reference": "U26",
+      "instance_path": "gate_pd",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "tstamp": "b477a02b-ac96-e292-a696-ad7fb6bbce06"
+    },
+    {
+      "reference": "U32",
+      "instance_path": "drv_bypass_bulk",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "tstamp": "9c8b971d-7ced-b869-d8fd-23d11cd3a152"
+    }
+  ],
+  "nets": [
+    {
+      "name": "vd",
+      "nodes": [
+        [
+          "U1",
+          "1"
+        ]
+      ]
+    },
+    {
+      "name": "vb",
+      "nodes": [
+        [
+          "U9",
+          "1"
+        ]
+      ]
+    },
+    {
+      "name": "logic5",
+      "nodes": [
+        [
+          "U19",
+          "8"
+        ],
+        [
+          "U20",
+          "8"
+        ],
+        [
+          "U21",
+          "14"
+        ],
+        [
+          "U21",
+          "13"
+        ],
+        [
+          "U22",
+          "14"
+        ],
+        [
+          "U22",
+          "4"
+        ],
+        [
+          "U22",
+          "10"
+        ],
+        [
+          "U27",
+          "1"
+        ],
+        [
+          "U28",
+          "1"
+        ],
+        [
+          "U29",
+          "1"
+        ],
+        [
+          "U30",
+          "1"
+        ]
+      ]
+    },
+    {
+      "name": "aux",
+      "nodes": [
+        [
+          "U18",
+          "1"
+        ],
+        [
+          "U23",
+          "6"
+        ],
+        [
+          "U31",
+          "1"
+        ],
+        [
+          "U32",
+          "1"
+        ]
+      ]
+    },
+    {
+      "name": "gnd",
+      "nodes": [
+        [
+          "U7",
+          "2"
+        ],
+        [
+          "U8",
+          "2"
+        ],
+        [
+          "U15",
+          "2"
+        ],
+        [
+          "U16",
+          "2"
+        ],
+        [
+          "U17",
+          "2"
+        ],
+        [
+          "U19",
+          "4"
+        ],
+        [
+          "U20",
+          "4"
+        ],
+        [
+          "U21",
+          "7"
+        ],
+        [
+          "U22",
+          "7"
+        ],
+        [
+          "U22",
+          "12"
+        ],
+        [
+          "U22",
+          "11"
+        ],
+        [
+          "U22",
+          "13"
+        ],
+        [
+          "U23",
+          "3"
+        ],
+        [
+          "U24",
+          "2"
+        ],
+        [
+          "U23",
+          "4"
+        ],
+        [
+          "U23",
+          "8"
+        ],
+        [
+          "U26",
+          "2"
+        ],
+        [
+          "U27",
+          "2"
+        ],
+        [
+          "U28",
+          "2"
+        ],
+        [
+          "U29",
+          "2"
+        ],
+        [
+          "U30",
+          "2"
+        ],
+        [
+          "U31",
+          "2"
+        ],
+        [
+          "U32",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "rails_ok",
+      "nodes": [
+        [
+          "U21",
+          "10"
+        ]
+      ]
+    },
+    {
+      "name": "permit",
+      "nodes": [
+        [
+          "U21",
+          "12"
+        ]
+      ]
+    },
+    {
+      "name": "arm",
+      "nodes": [
+        [
+          "U22",
+          "3"
+        ]
+      ]
+    },
+    {
+      "name": "pwm",
+      "nodes": [
+        [
+          "U23",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "gate",
+      "nodes": [
+        [
+          "U25",
+          "2"
+        ],
+        [
+          "U26",
+          "1"
+        ]
+      ]
+    },
+    {
+      "name": "health_ok",
+      "nodes": [
+        [
+          "U21",
+          "6"
+        ],
+        [
+          "U21",
+          "9"
+        ]
+      ]
+    },
+    {
+      "name": "ready",
+      "nodes": [
+        [
+          "U21",
+          "8"
+        ],
+        [
+          "U22",
+          "2"
+        ],
+        [
+          "U22",
+          "1"
+        ]
+      ]
+    },
+    {
+      "name": "run",
+      "nodes": [
+        [
+          "U22",
+          "5"
+        ],
+        [
+          "U23",
+          "1"
+        ],
+        [
+          "U24",
+          "1"
+        ]
+      ]
+    },
+    {
+      "name": "fault_clear_n",
+      "nodes": [
+        [
+          "U22",
+          "6"
+        ]
+      ]
+    },
+    {
+      "name": "vd_div-high",
+      "nodes": [
+        [
+          "U6",
+          "1"
+        ],
+        [
+          "U5",
+          "2"
+        ],
+        [
+          "U8",
+          "1"
+        ],
+        [
+          "U19",
+          "2"
+        ],
+        [
+          "U19",
+          "5"
+        ]
+      ]
+    },
+    {
+      "name": "vd_div-low",
+      "nodes": [
+        [
+          "U7",
+          "1"
+        ],
+        [
+          "U6",
+          "2"
+        ],
+        [
+          "U20",
+          "6"
+        ]
+      ]
+    },
+    {
+      "name": "vd_div.r1-p2",
+      "nodes": [
+        [
+          "U2",
+          "1"
+        ],
+        [
+          "U1",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "vd_div.r2-p2",
+      "nodes": [
+        [
+          "U3",
+          "1"
+        ],
+        [
+          "U2",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "vd_div.r3-p2",
+      "nodes": [
+        [
+          "U4",
+          "1"
+        ],
+        [
+          "U3",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "vd_div.r4-p2",
+      "nodes": [
+        [
+          "U5",
+          "1"
+        ],
+        [
+          "U4",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "vb_div-high",
+      "nodes": [
+        [
+          "U14",
+          "1"
+        ],
+        [
+          "U13",
+          "2"
+        ],
+        [
+          "U16",
+          "1"
+        ],
+        [
+          "U20",
+          "2"
+        ],
+        [
+          "U20",
+          "5"
+        ]
+      ]
+    },
+    {
+      "name": "vb_div-low",
+      "nodes": [
+        [
+          "U15",
+          "1"
+        ],
+        [
+          "U14",
+          "2"
+        ],
+        [
+          "U19",
+          "6"
+        ]
+      ]
+    },
+    {
+      "name": "vb_div.r1-p2",
+      "nodes": [
+        [
+          "U10",
+          "1"
+        ],
+        [
+          "U9",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "vb_div.r2-p2",
+      "nodes": [
+        [
+          "U11",
+          "1"
+        ],
+        [
+          "U10",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "vb_div.r3-p2",
+      "nodes": [
+        [
+          "U12",
+          "1"
+        ],
+        [
+          "U11",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "vb_div.r4-p2",
+      "nodes": [
+        [
+          "U13",
+          "1"
+        ],
+        [
+          "U12",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "ref25",
+      "nodes": [
+        [
+          "U19",
+          "3"
+        ],
+        [
+          "U20",
+          "3"
+        ],
+        [
+          "U17",
+          "1"
+        ],
+        [
+          "U18",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "nc",
+      "nodes": [
+        [
+          "U17",
+          "3"
+        ]
+      ]
+    },
+    {
+      "name": "cmp_vd-out1",
+      "nodes": [
+        [
+          "U19",
+          "1"
+        ],
+        [
+          "U21",
+          "1"
+        ]
+      ]
+    },
+    {
+      "name": "cmp_vd-out2",
+      "nodes": [
+        [
+          "U19",
+          "7"
+        ],
+        [
+          "U21",
+          "2"
+        ]
+      ]
+    },
+    {
+      "name": "cmp_vb-out1",
+      "nodes": [
+        [
+          "U20",
+          "1"
+        ],
+        [
+          "U21",
+          "4"
+        ]
+      ]
+    },
+    {
+      "name": "cmp_vb-out2",
+      "nodes": [
+        [
+          "U20",
+          "7"
+        ],
+        [
+          "U21",
+          "5"
+        ]
+      ]
+    },
+    {
+      "name": "nc1",
+      "nodes": [
+        [
+          "U21",
+          "3"
+        ]
+      ]
+    },
+    {
+      "name": "nc2",
+      "nodes": [
+        [
+          "U21",
+          "11"
+        ]
+      ]
+    },
+    {
+      "name": "qn2",
+      "nodes": [
+        [
+          "U22",
+          "8"
+        ]
+      ]
+    },
+    {
+      "name": "q2",
+      "nodes": [
+        [
+          "U22",
+          "9"
+        ]
+      ]
+    },
+    {
+      "name": "outb",
+      "nodes": [
+        [
+          "U23",
+          "5"
+        ]
+      ]
+    },
+    {
+      "name": "outa",
+      "nodes": [
+        [
+          "U25",
+          "1"
+        ],
+        [
+          "U23",
+          "7"
+        ]
+      ]
+    }
+  ]
+}

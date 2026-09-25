@@ -1,0 +1,16 @@
+{
+  "status": "PARENT_VERIFIED_READ_ONLY_RESOURCE_SAMPLER",
+  "utc": "2026-09-21T16:43:54.941488+00:00",
+  "source_sha256": "8007038cbdfb309398fbd887882ac3570c090989dc37364c111a030fe1e6a8d0",
+  "probe_sha256": "78bc3310a4aeac7d8478a675e071f2bf08610931fb915135e587a94f38cef59d",
+  "probe_monitor_exit": 0,
+  "sample_interval_s": 5,
+  "records": [
+    "df available blocks",
+    "systemswap total/used/free",
+    "runneranddescendant numericalPID/PPID/RSSKiB/CPU",
+    "sum of reportedprocessRSS"
+  ],
+  "scope": "Read-only sampler; no processcontrol. Runnerexit and artifactchecksremainauthoritative. RSSsum can double-countsharedpages and isnot totalphysicalfootprint; swap is systemwide, not attributabletooneprocess byitself.",
+  "lifecycle": "Newlogonly; exitsafterrunnerabsent or observationdeadline; neverkillsrunner."
+}

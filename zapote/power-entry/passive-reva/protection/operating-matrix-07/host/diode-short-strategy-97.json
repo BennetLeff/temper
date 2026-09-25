@@ -1,0 +1,31 @@
+{
+  "status": "SOURCE_GROUNDED_DIODE_SHORT_STRATEGY_REVIEW",
+  "accepted": false,
+  "functional_reading": {
+    "detector_event": "The observed detector rise was 3.121260831 ms after injection, outside the declared 2 ms window. The run therefore does not establish detector timing or causal fault recognition; the late edge mechanism is unproven.",
+    "healthy_mos_scope": "DIODE-SHORT leaves Msw gate-controlled. It shorts one modeled diode-side terminal path sw to vd; this is distinct from SW-SHORT/BOTH-SHORT, where a gate-independent sw-to-channel_source branch defeats gate control.",
+    "source_and_storage": "Bridge/source -> Lboost -> sw is the source-fed path. VD has 19.8 uF Clocal. VB has 2240 uF Cbank and connects to VD through normally closed modeled F2 (Vf2ctl=5 V). F2 is held closed in this case. These are connectivity facts, not measured physical energy or interruption claims."
+  },
+  "detector_model": {
+    "sensed_nodes": "protection.inc forms VD/VB divider comparisons (ch_vd and ch_vb), plus forward/reverse divider comparisons, then ORs them into fault_raw.",
+    "qualification": "fault_raw is RC-filtered, health requires fault below threshold plus rails/permit/fast-good/logic conditions, and clear resets the latch when health or logic5 is low.",
+    "limits": "The model does not prove that the late detector edge was caused by a particular divider, diode current, or bank discharge. A future strategy needs per-comparator timing and node-voltage evidence in the declared event window."
+  },
+  "isense": {
+    "path": "Risense is between bridge_minus and isense; UCC28180 receives isense. It is source/bridge-side current-loop instrumentation in this deck.",
+    "bank_discharge": "ISENSE does not necessarily see all Cbank/Clocal discharge current. A local VB->F2->VD/diode/short loop can circulate without traversing bridge_minus; whether any portion returns through the mains path depends on instantaneous switch states and network impedances. The deck does not justify assuming equivalence."
+  },
+  "future_requirements": [
+    "Align detector timing to the actual fault edge and retain each VD/VB/fwd/rev comparator input and fault_raw transition with sub-window timing.",
+    "Measure source/bridge current, VDS/switch-node current, VD current, VB/F2 current, and local capacitor voltages as separate channels; do not use ISENSE as a bank-discharge proxy.",
+    "Bound stored energy and residual discharge paths for Cbank, Clocal, and any modeled diode/short path before selecting or qualifying an interrupter.",
+    "Keep DIODE-SHORT healthy-MOS conclusions separate from failed-MOS SW-SHORT/BOTH-SHORT requirements for a gate-independent source-fed branch and restart behavior.",
+    "Use the same source/tool hashes and independent prefix/phase/endpoint/event receipts; do not infer a causal mechanism from this late detector edge."
+  ],
+  "source_hashes": {
+    "case_cir": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78",
+    "protection_inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "manifest": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9",
+    "prior_strategy83": "1f1d41435d31736390190ed335e13ddeff4c3ea273a184c25847b65f70a981e8"
+  }
+}

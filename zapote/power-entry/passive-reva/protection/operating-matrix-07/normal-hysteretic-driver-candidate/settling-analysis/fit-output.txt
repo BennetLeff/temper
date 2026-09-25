@@ -1,0 +1,24 @@
+input_cycles=15 measured_last_cycle=29
+late_increment_table
+end_cycle=20 delta_vb=2.175181003800e0 increment_ratio=NA	ripple_ratio=9.030115177404e-1
+end_cycle=21 delta_vb=1.903904502400e0 increment_ratio=8.752855505238e-1	ripple_ratio=9.732803518980e-1
+end_cycle=22 delta_vb=1.763401912300e0 increment_ratio=9.262029214580e-1	ripple_ratio=9.759811765119e-1
+end_cycle=23 delta_vb=1.650540440300e0 increment_ratio=9.359978736482e-1	ripple_ratio=9.737606478052e-1
+end_cycle=24 delta_vb=1.536473626200e0 increment_ratio=9.308912333713e-1	ripple_ratio=9.806154909073e-1
+end_cycle=25 delta_vb=1.436521131700e0 increment_ratio=9.349468205665e-1	ripple_ratio=9.767870565361e-1
+end_cycle=26 delta_vb=1.319289444700e0 increment_ratio=9.183919509341e-1	ripple_ratio=9.737698825105e-1
+end_cycle=27 delta_vb=1.225367818500e0 increment_ratio=9.288089307640e-1	ripple_ratio=9.807862283849e-1
+end_cycle=28 delta_vb=1.134992514400e0 increment_ratio=9.262463868109e-1	ripple_ratio=9.772995865855e-1
+end_cycle=29 delta_vb=1.028244317100e0 increment_ratio=9.059481045508e-1	ripple_ratio=9.735316252085e-1
+fit=19..29 intercept=2.702107062513e0 ratio_per_cycle=9.108429317113e-1 tau_s=1.784729950344e-1 log_rms=8.380534770734e-2
+  endpoint_s=0.600 cycle=35 mean_vb=381.911329544 last3_first=380.720597828 last3_last=381.911329544 last3_span=1.190731715 checker_drift=3.127573664781e-3
+  endpoint_s=0.650 cycle=38 mean_vb=383.328108837 last3_first=382.428312131 last3_last=383.328108837 last3_span=0.899796706 checker_drift=2.352850657342e-3
+fit=20..29 intercept=2.310549616705e0 ratio_per_cycle=9.246639471336e-1 tau_s=2.127888448102e-1 log_rms=1.553218527003e-2
+  endpoint_s=0.600 cycle=35 mean_vb=382.341299226 last3_first=380.988394231 last3_last=382.341299226 last3_span=1.352904995 checker_drift=3.551039914241e-3
+  endpoint_s=0.650 cycle=38 mean_vb=384.011901492 last3_first=382.942307206 last3_last=384.011901492 last3_span=1.069594286 checker_drift=2.793095111679e-3
+fit=21..29 intercept=2.238000357277e0 ratio_per_cycle=9.272149412524e-1 tau_s=2.205464435707e-1 log_rms=9.083805256931e-3
+  endpoint_s=0.600 cycle=35 mean_vb=382.420305731 last3_first=381.036689387 last3_last=382.420305731 last3_span=1.383616344 checker_drift=3.631189284624e-3
+  endpoint_s=0.650 cycle=38 mean_vb=384.140487651 last3_first=383.037534801 last3_last=384.140487651 last3_span=1.102952850 checker_drift=2.879490258024e-3
+fit=22..29 intercept=2.258361076183e0 ratio_per_cycle=9.265072578501e-1 tau_s=2.183404216182e-1 log_rms=9.089990257986e-3
+  endpoint_s=0.600 cycle=35 mean_vb=382.399502330 last3_first=381.024116714 last3_last=382.399502330 last3_span=1.375385616 checker_drift=3.609707511738e-3
+  endpoint_s=0.650 cycle=38 mean_vb=384.106231713 last3_first=383.012348506 last3_last=384.106231713 last3_span=1.093883207 checker_drift=2.855999843784e-3

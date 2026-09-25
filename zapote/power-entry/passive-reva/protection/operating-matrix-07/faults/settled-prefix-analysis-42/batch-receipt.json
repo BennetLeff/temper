@@ -1,0 +1,13 @@
+{
+  "status": "COMPLETE_DIAGNOSTICS_REVIEW_PENDING",
+  "utc": "2026-09-21T17:54:37.003961+00:00",
+  "raw_before_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "raw_after_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "process_exits": {
+    "scan": 0,
+    "phase": 1
+  },
+  "minimum_observed_free_bytes": 15872659456,
+  "resource_stop": null,
+  "accepted": false
+}

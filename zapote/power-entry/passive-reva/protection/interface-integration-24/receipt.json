@@ -1,0 +1,31 @@
+{
+  "revision": 24,
+  "date": "2026-09-22",
+  "status": "review-and-protocol-only",
+  "latest_compiled_full_candidate": "revision-11",
+  "files_sha256": {
+    "README.md": "099dfa8aaf2857fb72ed4b4daeacadfbd6358539f9f8aef2f849fcff4c6df762",
+    "source-decision.md": "758b9cf8cf1f7a2f17b235a20e91433caee416c7f3f49843e132f1d160274fa8",
+    "bench-capture.md": "75152987f38742f01e870d944c4334903950c8c54052ad26859c359203147349",
+    "control-audit.md": "4189f9b6ed0256536910650f970d6f3fbc6b230b7ca7ea915d5d1d51cf5e8846",
+    "wider-pfc-gates.md": "d5fa3cffcb6304894880736a776b8a30dc29f3263bbb333700e1951c3a95b762"
+  },
+  "checks": {
+    "local_markdown_links": {
+      "status": "pass",
+      "count": 37
+    },
+    "corrected_revision19_gate_branch": {
+      "status": "pass",
+      "source": "zapote/power-entry/passive-reva/protection/interface-dynamics-19/clamp-expected.tsv",
+      "sha256": "ca709e6d2a86c269ef830df8bbfe3f61563c3488be2a46ca495393a930b7b8e7"
+    }
+  },
+  "not_performed": [
+    "physical bench capture",
+    "new full-candidate build",
+    "new ERC",
+    "hardware qualification",
+    "supplier contact"
+  ]
+}

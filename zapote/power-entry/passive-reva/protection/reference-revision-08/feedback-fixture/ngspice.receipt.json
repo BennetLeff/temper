@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/opt/homebrew/bin/ngspice",
+    "-b",
+    "feedback.cir"
+  ],
+  "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture",
+  "dedicated_process_group": 48041,
+  "ended_unix": 1790048127.921608,
+  "error": null,
+  "interrupted_signal": null,
+  "resolved_command": "/opt/homebrew/bin/ngspice",
+  "returncode": 0,
+  "started_unix": 1790048126.600863,
+  "status": "completed",
+  "termination": "leader/group already exited",
+  "timeout_seconds": 60.0
+}

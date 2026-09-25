@@ -1,0 +1,14 @@
+{
+  "status": "REJECTED_INCOMPLETE_RESOURCE_GUARD_ABORT",
+  "case": "F2-CREST",
+  "session": 44256,
+  "runner_exit": 1,
+  "utc": "2026-09-21T16:32:24.876824+00:00",
+  "detail": "Solver reached.662s/32237324callbacks; diskguardstoppedexport; gziptest1 incomplete deflate; no faultverdict.",
+  "raw_bytes": 3458089930,
+  "raw_sha256": "f0dcd489bf2017de97e9c085b995213156bb8ea285bdbc8077517a50a4c6d853",
+  "raw_preserved": true,
+  "electrical_acceptance": false,
+  "free_gib_after": 18.16181182861328,
+  "resource_note": "Both runners reportedfree<10GiB. Later vm.swapusage16,761.94MiBused; contributionto transientdiskdrop underinvestigation, notproven."
+}

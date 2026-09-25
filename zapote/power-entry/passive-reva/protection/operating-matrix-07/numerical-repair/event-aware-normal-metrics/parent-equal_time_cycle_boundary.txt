@@ -1,0 +1,7 @@
+window_s=0.000000000e0..5.000000000e-2 vrms=120.208153 irms=3.535534 real_input_power_w=425.000000 pf=1.000000
+load_power_w=425.000000 vb_mean_v=389.615051 vb_min_v=389.615000 vb_max_v=405.000000 vb_drift=0.000000 cycle_means_v=[389.6149999997869, 389.61499999975524, 389.6149999997208]
+three_state_energy_change_j=0.00000000000000000e0 energy_delta_rate_w=0.00000000000000000e0 energy_residual_pin_pout_de_w=4.18424406234407797e-10 selected3_storage_sumabs_delta_j=1.38102274879999918e1
+whole_prefix_peaks il_a=4.000000 vd_v=405.000000 vb_v=405.000000 vds_v=20.000000 vgs_abs_v=15.000000
+armed_fraction=1.000000 on_fraction=1.000000 settled_rows=100003 total_rows=100003 duplicate_rows=1 arm_transitions=0 on_transitions=0 duplicate_arm_transitions=0 duplicate_on_transitions=0 max_delta_12col=[5.000000000074389e-7, 0.03204424500353624, 0.0009424777942216541, 0.0, 0.0, 15.384999999999991, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0] equal_time_max_delta_12col=[0.0, 0.0, 0.0, 0.0, 0.0, 15.384999999999991, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0] boundary_duplicate_ambiguity=true
+engineering_screen=REPORTED_NOT_ACCEPTED screens=0
+qualification=NOT_CLAIMED

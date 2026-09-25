@@ -1,0 +1,155 @@
+{
+  "date": "2026-09-22",
+  "simulator": "ADI LTspice 26.0.2 for MacOS",
+  "ltspice_package_sha256": "f3bf528b1df1b32d2fecf8e20b92bc17fe6f1723f42b527543c6c309c9739ff2",
+  "lt4363_1_sub_sha256": "1348def925e80126ed0e1b78aae0370ff1e7cafbc729030de1990acd97db2bce",
+  "standard_mos_sha256": "f39c5119538391e01130560f9e303c260a8fd05e882a0518b261ad00431d0d5c",
+  "revision19_clamp_net_sha256": "9cf36611b0d0539c714af83846bc26a41574b8d0c7ca63741972850cede8125a",
+  "source_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "execution": "<LTspice.app>/Contents/SharedSupport/ltspice/LTspice/run_ltspice -b <deck>.cir; each host process bounded by a 30 s watchdog; exit code 0",
+  "all_decompressed_raw_hashes_verified": true,
+  "decompressed_raw_count": 42,
+  "cases": [
+    {
+      "deck": "reset-after-latch.cir",
+      "log": "reset-after-latch.log",
+      "elapsed_seconds_reported_by_ltspice": 3.332,
+      "completed": true,
+      "compressed_trace": "reset-after-latch.raw.zst"
+    },
+    {
+      "deck": "shdn-120ms.cir",
+      "log": "shdn-120ms.log",
+      "elapsed_seconds_reported_by_ltspice": 4.989,
+      "completed": true,
+      "compressed_trace": "shdn-120ms.raw.zst"
+    },
+    {
+      "deck": "shdn-500ms.cir",
+      "log": "shdn-500ms.log",
+      "elapsed_seconds_reported_by_ltspice": 1.585,
+      "completed": true,
+      "compressed_trace": "shdn-500ms.raw.zst"
+    },
+    {
+      "deck": "short-50ms.cir",
+      "log": "short-50ms.log",
+      "elapsed_seconds_reported_by_ltspice": 7.133,
+      "completed": true,
+      "compressed_trace": "short-50ms.raw.zst"
+    },
+    {
+      "deck": "short-refined.cir",
+      "log": "short-refined.log",
+      "elapsed_seconds_reported_by_ltspice": 12.535,
+      "completed": true,
+      "compressed_trace": "short-refined.raw.zst"
+    },
+    {
+      "deck": "startup-2s.cir",
+      "log": "startup-2s.log",
+      "elapsed_seconds_reported_by_ltspice": 0.986,
+      "completed": true,
+      "compressed_trace": "startup-2s.raw.zst"
+    },
+    {
+      "deck": "startup-6s.cir",
+      "log": "startup-6s.log",
+      "elapsed_seconds_reported_by_ltspice": 1.829,
+      "completed": true,
+      "compressed_trace": "startup-6s.raw.zst"
+    },
+    {
+      "deck": "startup-corners.cir",
+      "log": "startup-corners.log",
+      "elapsed_seconds_reported_by_ltspice": 6.346,
+      "completed": true,
+      "compressed_trace": "startup-corners.raw.zst"
+    },
+    {
+      "deck": "startup-nominal.cir",
+      "log": "startup-nominal.log",
+      "elapsed_seconds_reported_by_ltspice": 0.731,
+      "completed": true,
+      "compressed_trace": "startup-nominal.raw.zst"
+    },
+    {
+      "deck": "startup-source-endpoints.cir",
+      "log": "startup-source-endpoints.log",
+      "elapsed_seconds_reported_by_ltspice": 34.266,
+      "completed": true,
+      "compressed_trace": "startup-source-endpoints.raw.zst"
+    },
+    {
+      "deck": "startup-upper-refined.cir",
+      "log": "startup-upper-refined.log",
+      "elapsed_seconds_reported_by_ltspice": 6.735,
+      "completed": true,
+      "compressed_trace": "startup-upper-refined.raw.zst"
+    },
+    {
+      "deck": "surge-hold-10ms.cir",
+      "log": "surge-hold-10ms.log",
+      "elapsed_seconds_reported_by_ltspice": 6.701,
+      "completed": true,
+      "compressed_trace": "surge-hold-10ms.raw.zst"
+    },
+    {
+      "deck": "surge-hold-25ms.cir",
+      "log": "surge-hold-25ms.log",
+      "elapsed_seconds_reported_by_ltspice": 6.63,
+      "completed": true,
+      "compressed_trace": "surge-hold-25ms.raw.zst"
+    },
+    {
+      "deck": "surge-hold-40ms.cir",
+      "log": "surge-hold-40ms.log",
+      "elapsed_seconds_reported_by_ltspice": 6.63,
+      "completed": true,
+      "compressed_trace": "surge-hold-40ms.raw.zst"
+    },
+    {
+      "deck": "surge-hold-50ms.cir",
+      "log": "surge-hold-50ms.log",
+      "elapsed_seconds_reported_by_ltspice": 6.647,
+      "completed": true,
+      "compressed_trace": "surge-hold-50ms.raw.zst"
+    },
+    {
+      "deck": "surge-nominal.cir",
+      "log": "surge-nominal.log",
+      "elapsed_seconds_reported_by_ltspice": 2.546,
+      "completed": true,
+      "compressed_trace": "surge-nominal.raw.zst"
+    },
+    {
+      "deck": "surge-postfault.cir",
+      "log": "surge-postfault.log",
+      "elapsed_seconds_reported_by_ltspice": 2.617,
+      "completed": true,
+      "compressed_trace": "surge-postfault.raw.zst"
+    },
+    {
+      "deck": "surge-refined.cir",
+      "log": "surge-refined.log",
+      "elapsed_seconds_reported_by_ltspice": 5.374,
+      "completed": true,
+      "compressed_trace": "surge-refined.raw.zst"
+    },
+    {
+      "deck": "uv-fast.cir",
+      "log": "uv-fast.log",
+      "elapsed_seconds_reported_by_ltspice": 5.304,
+      "completed": true,
+      "compressed_trace": "uv-fast.raw.zst"
+    },
+    {
+      "deck": "uv-slow.cir",
+      "log": "uv-slow.log",
+      "elapsed_seconds_reported_by_ltspice": 5.671,
+      "completed": true,
+      "compressed_trace": "uv-slow.raw.zst"
+    }
+  ],
+  "acceptance": "exploratory simulation only; no product qualification"
+}

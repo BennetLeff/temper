@@ -1,0 +1,7 @@
+
+running 2 tests
+test tests::rejects_absent_nonfinite_and_duplicate_results ... ok
+test tests::failed_positive_control_cannot_pass ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

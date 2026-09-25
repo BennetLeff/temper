@@ -1,0 +1,187 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-22T10:44:15",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning"
+    ],
+    "kicad_version": "10.0.4",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/16000000-0000-4000-8000-000000000002",
+            "violations": [
+                {
+                    "description": "Input pin not driven by any Output pins",
+                    "items": [
+                        {
+                            "description": "Symbol U5 Pin 1 [A, Input, Line]",
+                            "pos": {
+                                "x": 0.5461,
+                                "y": 2.0193
+                            },
+                            "uuid": "2d961e69-7774-435a-b433-8b999cd7a2ba"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "pin_not_driven"
+                },
+                {
+                    "description": "Input Power pin not driven by any Output Power pins",
+                    "items": [
+                        {
+                            "description": "Symbol #PWR27 Pin 1 [SELV3V3, Power input, Line]",
+                            "pos": {
+                                "x": 0.6477,
+                                "y": 0.381
+                            },
+                            "uuid": "664cb171-d6e0-4476-bac6-122bfbb5502b"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "power_pin_not_driven"
+                },
+                {
+                    "description": "Input Power pin not driven by any Output Power pins",
+                    "items": [
+                        {
+                            "description": "Symbol #PWR23 Pin 1 [SELV_GND, Power input, Line]",
+                            "pos": {
+                                "x": 0.6477,
+                                "y": 0.6858
+                            },
+                            "uuid": "ecb7a35d-3dcf-497a-b6af-e1962f376a16"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "power_pin_not_driven"
+                },
+                {
+                    "description": "Input Power pin not driven by any Output Power pins",
+                    "items": [
+                        {
+                            "description": "Symbol #PWR84 Pin 1 [HOT_GND, Power input, Line]",
+                            "pos": {
+                                "x": 0.6477,
+                                "y": 2.1971
+                            },
+                            "uuid": "20983a53-22ee-41de-aaea-b6c8b2762c89"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "power_pin_not_driven"
+                },
+                {
+                    "description": "Input pin not driven by any Output pins",
+                    "items": [
+                        {
+                            "description": "Symbol U4 Pin 11 [IND, Input, Line]",
+                            "pos": {
+                                "x": 3.1496,
+                                "y": 0.9779
+                            },
+                            "uuid": "21cc7ef2-f7e0-4008-967a-cf1899050b99"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "pin_not_driven"
+                },
+                {
+                    "description": "Input Power pin not driven by any Output Power pins",
+                    "items": [
+                        {
+                            "description": "Symbol #PWR67 Pin 1 [HOT_LOGIC5, Power input, Line]",
+                            "pos": {
+                                "x": 3.2258,
+                                "y": 0.5715
+                            },
+                            "uuid": "7048c822-b5ca-4f77-92f5-35520965091f"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "power_pin_not_driven"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'CLEAR_OK_EXISTING'",
+                            "pos": {
+                                "x": 0.4699,
+                                "y": 2.0193
+                            },
+                            "uuid": "16000000-0000-4000-8000-000000000080"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'HOT_COMMAND_RX'",
+                            "pos": {
+                                "x": 3.2258,
+                                "y": 0.6731
+                            },
+                            "uuid": "16000000-0000-4000-8000-000000000075"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'HOT_RESPONSE_TX'",
+                            "pos": {
+                                "x": 3.2258,
+                                "y": 0.9779
+                            },
+                            "uuid": "16000000-0000-4000-8000-000000000069"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'ENABLE_GOOD'",
+                            "pos": {
+                                "x": 3.4798,
+                                "y": 2.0447
+                            },
+                            "uuid": "16000000-0000-4000-8000-000000000118"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                }
+            ]
+        }
+    ],
+    "source": "reset.kicad_sch"
+}

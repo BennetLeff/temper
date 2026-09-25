@@ -1,0 +1,89 @@
+{
+  "status": "PARENT_REVIEWED_SAMPLED_DIAGNOSTIC",
+  "at_utc": "2026-09-22T01:23:43.080568+00:00",
+  "protection_accepted": false,
+  "campaign_verdict_98_unchanged": "FAIL: detector outside fixed 2ms window",
+  "verification": [
+    "Terminal analysis and all three pipeline exits zero",
+    "Report hash matches receipt; every original55 report field independently compared and identical",
+    "All materialized source identity hashes match",
+    "Raw size matches; before/after full raw hash verification is recorded by completed run-diode.sh, not redundantly repeated in this parent metadata review"
+  ],
+  "evidence_sha256": {
+    "faults/coincident-stress-observability-99/full-DIODE-SHORT/receipt.json": "8721a2a32c99e46bd90d1579ef5d9198f26fed334fa98625a9cd3165d8d7fc40",
+    "faults/coincident-stress-observability-99/full-DIODE-SHORT/observations.json": "05ee665d1f347d7f4839faad1c291fb26a1e2a46eecd6ab34953431ce3120091",
+    "faults/coincident-stress-observability-99/parent-review-100.json": "b737c4687b7315599da5ec9df406b3ecad9f106ab549347baabc0886e20dfe2d",
+    "faults/coincident-stress-observability-99/run-diode.sh": "e6d032b3928c062ba974c49bf8c6d64ab89805dd58d719f126d72a76c08bb02c",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/campaign-verdict-98.json": "7c5fa0e0b29c7de591f99e043019eee5f831488f10b92cc58486b2e7a526e03a",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/case.cir": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78"
+  },
+  "raw_sha256_recorded_before_after": "19f8068d73fb4b2379b3111504fd92efbf769984eb4e3775d5b6378294a6c02c",
+  "direct_sample_witnesses": {
+    "inductor_current_with_latch_enable_gate_off": {
+      "row": 32253453,
+      "time_s": 0.6616890806673804,
+      "value": 78.51576190008149,
+      "abs_value": 78.51576190008149,
+      "q": 0.0,
+      "en": 4.4408920985006214e-15,
+      "gate": 4.623099791876549e-05,
+      "fault": 0.0,
+      "currents": {
+        "i(Lboost)": 78.51576190008149,
+        "i(Vchannel)": 1.3242937880900385e-10,
+        "i(Vbody)": -4.113873049293662e-09,
+        "i(Vf2sense)": 77.83342388762549,
+        "i(Vdboost1sense)": 78.51574619156622,
+        "i(Vdboost2sense)": 1.6413822228411806e-13
+      }
+    },
+    "reverse_bank_current_while_channel_conducts": {
+      "row": 31421630,
+      "time_s": 0.6572840091698243,
+      "value": -229.1266755241414,
+      "abs_value": 229.1266755241414,
+      "q": 5.0,
+      "en": 4.999999999999994,
+      "gate": 14.9818839361696,
+      "fault": 0.0,
+      "currents": {
+        "i(Lboost)": -8.144710765833996e-05,
+        "i(Vchannel)": 231.15628985074935,
+        "i(Vbody)": 9.28643442994915e-09,
+        "i(Vf2sense)": -229.1266755241414,
+        "i(Vdboost1sense)": -231.1563245425762,
+        "i(Vdboost2sense)": 4.142898030996246e-10
+      }
+    },
+    "largest_diode1_sense_branch_sample": {
+      "row": 30640121,
+      "time_s": 0.6541666661868537,
+      "value": -326500.48086068407,
+      "abs_value": 326500.48086068407,
+      "q": 5.0,
+      "en": 4.999999999999994,
+      "gate": 14.621818408048362,
+      "fault": 0.0,
+      "currents": {
+        "i(Lboost)": 9.445291011972087,
+        "i(Vchannel)": 216.53965198289563,
+        "i(Vbody)": -162.0542547215006,
+        "i(Vf2sense)": 2.2197288691775916,
+        "i(Vdboost1sense)": -326500.48086068407,
+        "i(Vdboost2sense)": 2537.398894659047
+      }
+    }
+  },
+  "parent_interpretation": [
+    "At 0.6616890806673804s, modeled inductor current is +78.51576190008149A with q=0, en approximately0, gate approximately46.23uV, and channel current approximately1.32e-10A. Gate-off and negligible MOS channel current coexist with substantial passive-path current at this recorded sample.",
+    "At 0.6572840091698243s, F2 sense is -229.1266755241414A (positive defined VD toward VB), channel +231.15628985074935A, inductor approximately -81.45uA. Together with source connectivity this supports bank discharge toward the conducting MOS path in the model. It does not establish physical current magnitude.",
+    "Diode1 sense includes the terminal-short branch. Its -326500.48086068407A extreme is an idealized-model branch observation, not a physical diode die-current prediction. The mechanism producing that extreme has not been established."
+  ],
+  "limitations": [
+    "Finite sampled witnesses do not prove continuous retention or duration.",
+    "Repeated timestamps remain separate rows; counts are not time.",
+    "No physical component survival, thermal, SOA, fuse interruption or hardware correlation.",
+    "No acceptance criteria, frozen sources or prior failure verdict changed."
+  ],
+  "independent_review": "Luna59 confirmed same-row and sign interpretation; parent rejects any definitive causal attribution of the extreme branch peak."
+}

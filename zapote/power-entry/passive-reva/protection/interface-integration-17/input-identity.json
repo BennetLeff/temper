@@ -1,0 +1,57 @@
+{
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "compiled_candidate": "interface-defaults-11",
+  "compiled_count": 136,
+  "revision16_artifacts_verified": 56,
+  "inherited_inputs_verified": 20,
+  "inputs": [
+    {
+      "path": "elec/src/interlock_unit.ato",
+      "sha256": "8e457eaa3c50c810e0877ce5b533faae4a751f966a1f9e1c39bb6b4fe067276d"
+    },
+    {
+      "path": "elec/src/components.ato",
+      "sha256": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b"
+    },
+    {
+      "path": "components/TPS3823/TPS3823.kicad_sym",
+      "sha256": "b0b2f15a8fdc02b0795cc80c3a6b51c197b3fc72bc6c94ae0b059ae3a3ace010"
+    },
+    {
+      "path": "zapote/interlock/INTERFACES.md",
+      "sha256": "5155e7d34ed58b4fae9fd4731a9e11730a6082c99c191e2518d20bb0f850b508"
+    },
+    {
+      "path": "zapote/interlock/MODEL.md",
+      "sha256": "b3b3a6cdd4d00e79c8b670cfba9741592c47d0296eb0eea4b0ab999e97666adb"
+    },
+    {
+      "path": "zapote/interlock/BOM.md",
+      "sha256": "66b7d78f68a360ed5e0759a2a8171d5b6cd6b0cf46955b539de50122724a5051"
+    },
+    {
+      "path": "firmware/components/safety/safety.c",
+      "sha256": "dc7d10e42b364e8c2559e831362e121844cf812364405e7726bfa6cfd0e29982"
+    },
+    {
+      "path": "firmware/components/safety/safety.h",
+      "sha256": "5b84bf3147dff76d5655cfb5eeab7c58bf0e110aa972f98cb89e2c8af4772874"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/supply/source/hot15_logic5_supply.ato",
+      "sha256": "60f7015722c519b0bbc583628b0d8202a96408a5efff53048313168f9382b8fd"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato",
+      "sha256": "8491fb2fba480bcfa45713a0c2d9f67563bc6f197b727528c570d4939c345006"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_f2_shutdown_revb.ato",
+      "sha256": "88c634936bcd850df8b0f7d8b7964ce771ec60e94066ac524dca0518e5a73831"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/artifact-hashes.json",
+      "sha256": "707ee2b8a43d89ba74b60b01bd6d8bb01082135030fcb145fbafd59cd81a27ea"
+    }
+  ]
+}

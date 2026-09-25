@@ -1,0 +1,40 @@
+{
+  "status": "DISPOSITIONED_MODELED_FAULT_CASE",
+  "campaign_verdict": "FAIL",
+  "accepted_protection": false,
+  "utc": "2026-09-22T01:04:11.655712+00:00",
+  "case": "DIODE-SHORT",
+  "cause": "Detector fault rising edge outside unchanged2ms event window.",
+  "checker_verdict_verbatim": "Some(\"Fail(\\\"no detector fault rising edge in event window\\\")\")",
+  "raw": {
+    "path": "faults/settled-diode-short-64/full-DIODE-SHORT/raw.trace.raw.gz",
+    "sha256": "19f8068d73fb4b2379b3111504fd92efbf769984eb4e3775d5b6378294a6c02c",
+    "bytes": 5340687952,
+    "full_rows": 32309024,
+    "fields": 42
+  },
+  "own_normal_prefix_accepted": true,
+  "own_phase_accepted": true,
+  "complete_trace": true,
+  "required_endpoint_s": 0.662,
+  "observed_injection_s": 0.6541666661706754,
+  "observed_detector_s": 0.65728792700183,
+  "declared_event_window_s": 0.002,
+  "diagnostic_exit_is_not_electrical_pass": true,
+  "stage2_exits": "adapter_rc=0 validator_rc=0 decoder_rc=0 decompressor_rc=0",
+  "evidence_sha256": {
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/normal-prefix-acceptance.json": "63537bdc5afdafb2c4e9f5bebd98dfc3940ff8a91fca2505cbee0fd51112d466",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/parent-phase-acceptance.json": "cbead20549405c95730416d870a4e4c48295568abd7d3ad6b180949d55a08fab",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/analysis-receipt.json": "ed05b4284165730fc42b96db44614fad9077b39be8d519e9f4a8611bee4be7bd",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/post-injection-observations.json": "ee0cd9462946833dcf6b5e5319dc1fe6d8816a9712961522ad15d89c8a244e71",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/validator.stdout": "518556a44076b126974dcbb4f2e9d1e3ce97bf358a328a4fbd36f437f1e4625c",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/adapter-report.txt": "c4264011421d9897951259c46dc16763adcd929bba208bb98345e89ea245fa77",
+    "faults/diode-short-parent-review-93.json": "2e470cd8bc426a06ef2a48622b5e663d65964805cbfeb30089cb41d06554896f"
+  },
+  "stress_assessment": "Existing adapter/obs55 currents retained; coincident current/state refinement99 pending. This additional diagnosis cannot change failed detector timing intoPass.",
+  "limitations": [
+    "Exact idealized terminal-short graph, healthy modeledMOS, F2heldclosed. No selected diode die current allocation.",
+    "No component survival, thermal, SOA, actual interruption or hardware qualification.",
+    "No criteria widened and no new solver run performed."
+  ]
+}

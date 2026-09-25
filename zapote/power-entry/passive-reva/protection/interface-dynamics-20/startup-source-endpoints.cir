@@ -1,0 +1,35 @@
+* Revision 20 provisional normal-source endpoints, isolated LT4363/FDB fixture.
+* 14.625/15.75 V are prior-work provisional endpoints, not guaranteed bounds.
+* Cg and Cbulk endpoints are allocations; Cdown is an ideal 18 uF.
+Vsrc SOURCE 0 PWL(0 0 1m 0 1.01m {Vin} 6 {Vin})
+Rsrc SOURCE AUX_RAW 0.5
+Rshdn AUX_RAW SERVICE_RESET_N 1
+R1 SNS AUX_PROTECTED 0.22
+R2 AUX_PROTECTED FB 59k
+R3 FB 0 4.99k
+R4 AUX_RAW UV 91k
+R5 UV 0 10k
+R6 GATE_DRV Q_GATE 10
+R7 GATE_DRV CG 100
+C1 AUX_RAW 0 100n
+C2 TMR 0 100n
+C3 CG 0 {Cg}
+C4 AUX_PROTECTED 0 {Cbulk}
+Cdown AUX_PROTECTED 0 18u
+D1 GATE_DRV CG 1N4148
+M1 AUX_RAW Q_GATE SNS SNS FDB33N25
+Rload AUX_PROTECTED 0 130
+XU1 FB AUX_PROTECTED SNS GATE_DRV AUX_RAW SERVICE_RESET_N UV 0 FLT ENOUT TMR LT4363-1
+.lib C:\users\crossover\AppData\Local\LTspice\lib\cmp\standard.dio
+.lib C:\users\crossover\AppData\Local\LTspice\lib\cmp\standard.mos
+.lib LT4363-1.sub
+.step param Vin list 14.625 15.75
+.step param Cg list 1.3u 1.7u
+.step param Cbulk list 198u 495u
+.tran 0 6 0 100u startup
+.meas TRAN driver_peak MAX V(AUX_PROTECTED) FROM 0 TO 6
+.meas TRAN tmr_peak MAX V(TMR) FROM 0 TO 6
+.meas TRAN output_at_6s FIND V(AUX_PROTECTED) AT 6
+.meas TRAN output_13p5_cross WHEN V(AUX_PROTECTED)=13.5 RISE=1
+.backanno
+.end

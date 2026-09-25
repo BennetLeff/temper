@@ -1,0 +1,7 @@
+{
+  "status": "DIAGNOSTIC_ONLY_NOT_ACCEPTANCE",
+  "source_sha256": "9925f3da8b8891ca0348b540831be2a1b33a2f86814570a3fd283b031d9d469d",
+  "diagnostic_deck_sha256": "e9a9cb849b92513665ad7852ccafcea867a1094b664d4e48458f4ff5f8f4257b",
+  "electrical_changes": "none; absolute paths resolve frozen includes",
+  "analysis_changes": "400ms endpoint, stored output from340ms, stop/export351.49ms, extra diagnostic nodes"
+}

@@ -1,0 +1,18 @@
+{
+  "status": "PARENT_REVIEWED_INTERIM_DECISION_AID",
+  "observed_utc": "2026-09-21T18:03:07.412767+00:00",
+  "document_sha256": "77ab6527a8a31089c925ebb845c272c12c1f2b9fa18c1c16cf13dc05558e9071",
+  "authoritative_ato_sha256": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8",
+  "parent_verified": [
+    "ATO lines355-403:commonhv_plus bulk/HF/output/bleeders; F1ACpath; no F2/VDVBsplit",
+    "Baseline andLL01 modeled scopes and retainedstrictreject",
+    "Added SWshort healthy-diode line-fed failure and explicit local/source energy outsideF2",
+    "LL03 exactsource/raw/pipeline/metrics acceptance added; LL04 plus separatelyreviewed KLUstartupcandidate running"
+  ],
+  "limitations": "Seven ofnine gridpoints accepted; exactstartupfault only. Resourcefailure prevents LL08/F2-CREST verdicts. No hardwarequalification.",
+  "prior_document_sha256": "45e7d6efae6d7ffb045e8ca1d146eb9fb4ad1de0143a2ba0466f15c755734d90",
+  "current_review": "Parent verified38 fullcapture/raw/hash/gzip and sampledresource receipts. Reanalysis40global/local separation preservesfrozen25ns and all4children0; checkerPass diagnostic, pending ownprefix+phase. LL08retry41live; sevenacceptedpointsunchanged.",
+  "remaining": "LL08retry,LL09,sixsettledfault dispositions including active F2-CREST38,finalconsolidation.",
+  "current_parent_correction": "Distinguished inability to remove diode short from healthy U9 potentially interrupting its series bank-current path; original absolute statement contradicted topology table.",
+  "fault_runner_update": "Matched faults/native-runner-29/parent-review.json:12/12 bounded tests, no electrical acceptance."
+}

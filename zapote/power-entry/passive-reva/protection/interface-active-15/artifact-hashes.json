@@ -1,0 +1,128 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "507b5479d11982fca4f09cd789e54b8f5ad364aab9c60f7cf291deaf192cb92a"
+    },
+    {
+      "path": "bench-plan.md",
+      "sha256": "ca55aa69097f065b50918fa80a30e4ee3ff84e9c73013226ea30cb81037abd56"
+    },
+    {
+      "path": "clamp/corners.rs",
+      "sha256": "c85328427f5af524484b5afb4d6e11a896b248f1f44a33938dc64a6f7829f442"
+    },
+    {
+      "path": "clamp/design.md",
+      "sha256": "66a2ffd863e4d1258f1a6d460e7a515a61fc566170dc648e8d85b9148f322643"
+    },
+    {
+      "path": "clamp/results.csv",
+      "sha256": "0f6b97c09724144072b809fdb5aed318b83764dbb5a78adb73c041a482d01842"
+    },
+    {
+      "path": "clamp/tests.log",
+      "sha256": "eb00884b7bbb471afe7989d74f83f26ed66f4a9f815189e5e879b99671db5ddd"
+    },
+    {
+      "path": "input-identity.json",
+      "sha256": "b546339cb0f251146c0c5433e0df114b563c3373b4eaf3a53eb296c00765af96"
+    },
+    {
+      "path": "receipt.json",
+      "sha256": "35ebdef226b2a2d1c3c417c5d603860769b05d327e4f5c1b153b99ab1a477b8d"
+    },
+    {
+      "path": "reset/design.md",
+      "sha256": "3d0986bce48b14f65fbbbc29da7aa28f01c9ff12f08fa2d6e1677532db3ead15"
+    },
+    {
+      "path": "sources/temper-interface15-fdb-soa.png",
+      "sha256": "8e977b2412c86a6e507f08544c74a861bb067d4e73d86de711a0ce920ce0a92b"
+    },
+    {
+      "path": "sources/temper-interface15-fdb33n25.pdf",
+      "sha256": "ca8ece5f3de0c24dfda7a98a67919d04572de3a31fe29408809635d10bb3f4ab"
+    },
+    {
+      "path": "vendor-check/README.md",
+      "sha256": "7d2b4166b3f51389f3e9fe68eeeee4d7ff4477b2c8a98eba9177ce0d0ae147f3"
+    },
+    {
+      "path": "vendor-check/SN74HCS74.CIR",
+      "sha256": "302980315bc7b7530ba1f3ae3592f2ceb7a2d52c35791770e0ca9c1f6f27cad1"
+    },
+    {
+      "path": "vendor-check/accepted-two-latch.tsv",
+      "sha256": "69c5cc9adb1531ab162e2ec2755845e27baa8a38dcaa591cabe60b36bf581a42"
+    },
+    {
+      "path": "vendor-check/check.rs",
+      "sha256": "a79506df6a1dbfd4ed704adbc0d3cf870cec75bbaa0a5ce254bf4424cc7bc871"
+    },
+    {
+      "path": "vendor-check/checks.log",
+      "sha256": "917d24fb8691228ca1daf602ae9d92b24c40582b0ab13aab22e658e8e03bfb14"
+    },
+    {
+      "path": "vendor-check/initial-unbuffered.log",
+      "sha256": "56889e9ad4f3942e951f89bbd2a68ca4b3da4580e93e5178436a5598ee3620e4"
+    },
+    {
+      "path": "vendor-check/rejected-checks.log",
+      "sha256": "978a5ffacfc84f3cfcf2c742a2f79b17d0df38a9f756d0cc16b6c9d575f54e36"
+    },
+    {
+      "path": "vendor-check/rejected-fixed-d1.cir",
+      "sha256": "18de73744a4658219d21fb361ffd77cc9195dc93f5ae6072d0a73f40820501d4"
+    },
+    {
+      "path": "vendor-check/rejected-fixed-d1.log",
+      "sha256": "76cd4db7e9bec1b8d920362134e97ec514ac0843603cd15dc7fb38ba16dde793"
+    },
+    {
+      "path": "vendor-check/rejected-fixed-d1.tsv",
+      "sha256": "fe6e62a5f6654d2d03f89a9fa08988e0db8c6942563c1f9587c8e7dc8d372df4"
+    },
+    {
+      "path": "vendor-check/two-latch.cir",
+      "sha256": "1d512bc56ac9dadc18affde110eb501e88499946975ea6f55dda2a48761417bb"
+    },
+    {
+      "path": "vendor-check/two-latch.log",
+      "sha256": "8420ef0a13883ed4b1bc2126ed264559e7fefcc6f0c3705da558268fdc4e6e6c"
+    },
+    {
+      "path": "worker-handbacks/clamp/README.md",
+      "sha256": "293ba00f5e12ea1f7b9be5d317734c4a55a76a0f56cb15aeb5a1134bbb22c70d"
+    },
+    {
+      "path": "worker-handbacks/clamp/clamp_calc.rs",
+      "sha256": "48fd2c44b248a08ede9b999988dd0e6f7afa03b5390f74466e02f6abc3774321"
+    },
+    {
+      "path": "worker-handbacks/clamp/design.md",
+      "sha256": "04b55d1c30d2d79c97bc77c07b078470f8e50873a9fa401f10bb6a9e92739dc7"
+    },
+    {
+      "path": "worker-handbacks/clamp/results.csv",
+      "sha256": "c1a8483c6b72250d782278fd9beea587d350ccf79a6dfad5ac01781a68e0cb2d"
+    },
+    {
+      "path": "worker-handbacks/clamp/sources.md",
+      "sha256": "f97eee15466895fae4d0311255814bd71d420808f64e4e79e0391e0ddf7b4b91"
+    },
+    {
+      "path": "worker-handbacks/reset/README.md",
+      "sha256": "d1bb202cacd32df6551a481dda7079c8f1337d77d8d462d770f22d9cabc2eb78"
+    },
+    {
+      "path": "worker-handbacks/reset/bench-matrix.csv",
+      "sha256": "d398a766930e86ecf6779ccf797b9be2447669d1b111bf3825e772a0862820e0"
+    },
+    {
+      "path": "worker-handbacks/reset/design.md",
+      "sha256": "b15dc4de65af46208fb4607d5a669ef9cbb8742ea0ba6ac026bad4ea63ef9ad7"
+    }
+  ]
+}

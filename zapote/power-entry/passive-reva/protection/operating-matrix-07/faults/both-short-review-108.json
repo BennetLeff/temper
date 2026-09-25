@@ -1,0 +1,15 @@
+{
+  "status": "POSTCAPTURE_BOTH_SHORT_REVIEW",
+  "accepted": false,
+  "transport_complete": true,
+  "capture": {"rows": 32036953, "tstop_s": 0.662, "pipeline_exits": {"host": 0, "pigz": 0, "adapter": 0, "validator": 1, "decoder": 0, "decompressor": 0}, "validator_error": "all-row node screen Lboost: 435.79078242060086 > 100 A"},
+  "event": {"declared_mutation_s": 0.6541666666667, "observed_injection_s": 0.6541666661706754, "detector_rise_s": 0.6541667817225999, "latch_off_s": 0.6541675414086254, "event_window_s": 0.002},
+  "adapter_peaks_model_only": {"channel_after_injection_a": 192309.35115714965, "channel_after_detector_a": 28784.23177753722, "channel_after_latch_a": 22147.266150352625, "body_after_injection_a": 149.75195995753828, "lboost_after_injection_a": 435.79078242060086, "f2_after_injection_a": 22475.549259329153, "dboost1_after_injection_a": 333781.36119646404, "dboost2_after_injection_a": 5798.290295113795},
+  "interpretation": {
+    "screen_precedence": "Transport and adapter completion do not override the validator's all-row Lboost screen. Because the node screen fails first, the frozen checker does not yield a formal ProtectionGap category for BOTH-SHORT, even though the requested kind is a failed-short case.",
+    "starting_condition": "The own healthy-prefix and phase analyses remain pending; this fault cannot yet be described as starting from an accepted normal operating condition.",
+    "current_limits": "The very large channel and sense-source peaks are idealized model currents and are not physical MOS, diode-die, package, thermal, SOA, or hardware claims. i(Vchannel) includes the gate-independent failed parallel branch.",
+    "remaining": "Retain this complete rejected capture. After the pending prefix/phase review, reuse existing coincident-stress observability on the immutable archive if needed; no new diagnostic framework is required."
+  },
+  "source_hashes": {"case_cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51", "protection_inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8", "manifest": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b"}
+}

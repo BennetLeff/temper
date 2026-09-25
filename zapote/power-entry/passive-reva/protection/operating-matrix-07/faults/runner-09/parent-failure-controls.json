@@ -1,0 +1,42 @@
+{
+  "compressor": {
+    "exit": 1,
+    "wall_s": 0.1351793750654906,
+    "result": {
+      "classification": "stage1_transport_failure",
+      "detail": "raw compressor failed: exit status: 1",
+      "transport_complete": false
+    },
+    "fifos_remaining": false
+  },
+  "adapter": {
+    "exit": 1,
+    "wall_s": 0.1411222079768777,
+    "result": {
+      "classification": "stage2_transport_failure",
+      "detail": "adapter rejected trace: exit status: 1",
+      "transport_complete": false
+    },
+    "fifos_remaining": false
+  },
+  "timeout": {
+    "exit": 1,
+    "wall_s": 0.3471818750258535,
+    "result": {
+      "classification": "stage2_transport_failure",
+      "detail": "pipeline children exceeded bounded timeout",
+      "transport_complete": false
+    },
+    "fifos_remaining": false
+  },
+  "source-change": {
+    "exit": 1,
+    "wall_s": 0.6188233750872314,
+    "result": {
+      "classification": "source_mutated_during_run",
+      "detail": "source/include closure changed during transport",
+      "transport_complete": false
+    },
+    "fifos_remaining": false
+  }
+}

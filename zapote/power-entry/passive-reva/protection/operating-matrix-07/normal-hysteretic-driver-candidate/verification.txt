@@ -1,0 +1,6 @@
+rustc --edition=2021 -D warnings -O verify.rs -o /tmp/matrix07-hysteretic-verify
+/tmp/matrix07-hysteretic-verify
+inverse-cold-and-progress-proof PASS
+inverse-protection-block-proof PASS
+unchanged-includes-and-authored-logic-byte-proof PASS
+diagnostic-mask=16/16; full-run=UNSTARTED

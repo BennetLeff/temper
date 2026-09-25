@@ -1,0 +1,9 @@
+
+running 4 tests
+test tests::absolute_and_mismatch_thresholds_are_distinct ... ok
+test tests::fresh_rearm_rejects_q_rise_before_fresh_arm_edge ... ok
+test tests::parser_contract_has_exact_width ... ok
+test tests::parser_rejects_truncated_gapped_and_nonfinite_traces ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

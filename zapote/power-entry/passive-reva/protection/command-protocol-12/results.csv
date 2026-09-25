@@ -1,0 +1,6 @@
+case,observation,interpretation
+one_bit_low_first,true,REJECT_identical_receiver_history
+two_bit_valid,true,positive_control_starts
+two_bit_b_open_prepare,true,REJECT_single_wire_false_start
+two_bit_held_active_reconnect,false,specific_old_counterexample_blocked
+two_bit_held_prepare_return,false,static_prepare_does_not_start

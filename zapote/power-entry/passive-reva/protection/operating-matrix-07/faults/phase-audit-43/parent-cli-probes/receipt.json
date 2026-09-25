@@ -1,0 +1,98 @@
+{
+  "binary_sha256": "e546ddfb84c53b73303e465574fa29fdff7753768c3a71efda1f8b5f185be965",
+  "source_sha256": "c4640136e0ecb53d179b5702cc59779155a6ea6a90289ca4e8eaef75432f447d",
+  "tests": [
+    {
+      "case": "clean_crest",
+      "expected_phase_evidence_success": true,
+      "exit": 0,
+      "input_sha256": "f97f7e8cae42e3afeb92b95f333bba7603381351b44375075b9a3a2aa1ee62e1"
+    },
+    {
+      "case": "tiny_source_group",
+      "expected_phase_evidence_success": true,
+      "exit": 0,
+      "input_sha256": "ad9f943121c660048417c4270c8903a096245913ed984312e20b20c4977e239c"
+    },
+    {
+      "case": "material_source_group",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "0795882428534cb4f3636122cd8d63957a8c9bcf1f70dbcfb12f120eae513814"
+    },
+    {
+      "case": "same_time_marker_crossing",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "5b597a6505ae69b819a1409fc8a6f9e8816d9e9c233a61bf0743380eb2500bdb"
+    },
+    {
+      "case": "last_tied_peak_on_boundary",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "2f4c7e75641bb9f48f2e535a6f8fdc5ddc9897d7815d1d25d7e3c9e44ac59718"
+    },
+    {
+      "case": "nonfinite_unused_column",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "975956ca4e005880af82d913938d0519a607bc9553917089e1aa3ed4d54c17a0"
+    },
+    {
+      "case": "duplicate_header",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "1360cab6e5ad0b28812a925f7cd2cb47fbdb075b5baa92d80aefd7d467a24626"
+    },
+    {
+      "case": "backwards",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "1779bb9c797b73a7b027c337405a9d167ae688c988a4e0122b5ee006a96c5f60"
+    },
+    {
+      "case": "endpoint_short",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "0ff9c2330c9f20e29d30e6abb76a08f2fdc48960fe123bea4f24ac63e84faea6"
+    },
+    {
+      "case": "starts_high",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "3a00343dff02e3baa44c5d2d35eca71a97ca6c820112cf2b40b2994bea460ce3"
+    },
+    {
+      "case": "two_rising_edges",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "95d237cbdf34471f5606b84e5a81aa23b57d3b541854f373db8b6047b880c2c3"
+    },
+    {
+      "case": "near_one_percent_inside",
+      "expected_phase_evidence_success": true,
+      "exit": 0,
+      "input_sha256": "3295d2a159225190fc9d5a6465f6153e81a9778276ca7a1e490487e4f117796d"
+    },
+    {
+      "case": "near_one_percent_outside",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "fa477a34bcc5abce9b76768aa4f1a39fdf3726792bc117e781b62a495a6fc515"
+    },
+    {
+      "case": "zero_small_edge",
+      "expected_phase_evidence_success": true,
+      "exit": 0,
+      "input_sha256": "f3b36ca5dabce618f7b863cab736843aef6e59e021b620e2bcb9019d3bdbd890"
+    },
+    {
+      "case": "zero_outside",
+      "expected_phase_evidence_success": false,
+      "exit": 1,
+      "input_sha256": "34920b68864c96dd4fe2a708430edb4a8d3276066f66da8f72561ca1fcf12a8e"
+    }
+  ],
+  "scope": "Independent black-box CLI probes; numerical fixture data only, no campaign acceptance.",
+  "passed": 15
+}

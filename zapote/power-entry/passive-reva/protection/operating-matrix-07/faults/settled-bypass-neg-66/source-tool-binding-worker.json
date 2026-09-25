@@ -1,0 +1,30 @@
+{
+  "status": "PREPARED_UNLAUNCHED",
+  "case": "BYPASS-NEG",
+  "case_source": "../settled-compact-prep-24/prepared/BYPASS-NEG",
+  "case_sha256": "c6ea3dca688918137282ed3fd3dffa17c2b740d68ab52bab306ee3e8b228180",
+  "manifest_sha256": "4066ac5bf595b4aaca1b99c79035b5729d20bb217ffe1e5f3a4b6ca6a0003e01",
+  "source_closure_sha256": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "d9b499bbba3f2636ac926a3c8782943d3144798cfe4faa765ceaf7774628a025",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "timing": {"t_fault_s": 0.6541666666667, "tstop_s": 0.662, "prefault_window_s": 0.002, "event_window_s": 0.002, "observation_window_s": 0.002, "turnoff_s": 0.000002, "capture_max_gap_s": 0.000000025, "outer_adapter_validator_max_gap_s": 0.000001, "wall_seconds": 3600, "export_timeout_s": 900},
+  "tools": {
+    "runner45": {"path": "/private/tmp/matrix07-fault-runner45-parent", "sha256": "98a8c07622dcd257a919107c366775009dfd918b45c4bb72e8fb603d7dc92abb"},
+    "runner45_source": {"path": "../native-runner-45/supervisor.rs", "sha256": "b131c153db6a67f3da961bda0b2a5a7c417271f68c0141c7af664059c87219a3"},
+    "direct_fault37": {"path": "/private/tmp/matrix07-direct-fault37-parent", "sha256": "dcd72ea758b7a9ac3d60f6b35f249afad756fb63b02e584ca3ad937e7edc42a9"},
+    "fault42_decoder13": {"path": "/private/tmp/matrix07-fault-native-decoder-parent", "sha256": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658"},
+    "event_adapter13": {"path": "/private/tmp/matrix07-fault-adapter-parent", "sha256": "53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae"},
+    "event_validator22": {"path": "/private/tmp/matrix07-fault-validation22-parent", "sha256": "63f6d17b123acd696c1f30fa546e7546ae43cf45cfb660cda44086bab3afb12f"},
+    "pigz": {"path": "/opt/homebrew/bin/pigz", "sha256": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"},
+    "spinit": {"path": "/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts/spinit", "sha256": "b2e0359f8b549f6e27bc86f1bb9b7847b7f376c3758bf8297084807a45af2390"},
+    "resource_monitor": {"path": "../../host/resource-monitor-37.sh", "sampling_interval_s": 5}
+  },
+  "checker_contract": {"validator_kind": "f2-open", "runner_kind": "bypass-neg", "local_gap_is_immutable_25ns": true, "outer_gap_is_reviewed_1us": true, "bypass": true, "acceptance": false},
+  "interpretation": "Expected frozen checker rejection for bypassed detector; this is never a protection pass. The --bypass rejection occurs before waveform evaluation, so retain and separately review the full raw capture, own prefix/phase, detector/fault markers, q/en/gate/channel rows, and any counterfactual waveform-only audit. Adapter detector-dependent latch fields may remain absent by construction.",
+  "source_identity_note": "Materialize this exact prepared closure into fresh full-BYPASS-NEG output. Never run the prepared directory itself or inherit other fault evidence. Parent must review and explicitly launch."
+}

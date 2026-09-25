@@ -1,0 +1,21 @@
+* Exact TI HCS74 behavioral model: clear must dominate and held CLK not rearm.
+.include SN74HCS74.CIR
+Vlogic vcc 0 5
+Vready ready 0 PWL(0 0 .5u 0 .501u 5 2u 5 2.001u 0 3u 0 3.001u 5 6u 5)
+Varm arm 0 PWL(0 0 1u 0 1.001u 5 4u 5 4.001u 0 5u 0 5.001u 5 6u 5)
+Xlatch ready arm ready vcc q qn vcc 0 SN74HCS74
+Cq q 0 50p
+Cqn qn 0 50p
+.tran 1n 6u
+.control
+set wr_singlescale
+set wr_vecnames
+run
+meas tran q_after_arm FIND v(q) AT=1.5u
+meas tran q_during_fault FIND v(q) AT=2.5u
+meas tran q_after_clear_with_arm_held FIND v(q) AT=3.5u
+meas tran q_after_fresh_arm FIND v(q) AT=5.5u
+wrdata latch-behavior-check.tsv v(ready) v(arm) v(q) v(qn)
+quit
+.endc
+.end

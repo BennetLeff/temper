@@ -1,0 +1,39 @@
+{
+  "gap": {
+    "exit": 0,
+    "wall_s": 0.19156087515875697,
+    "stderr": "",
+    "fifos_remaining": [],
+    "result": {
+      "classification": "expected_checker_protection_gap",
+      "checker_success": false,
+      "transport_complete": true,
+      "raw_trace": "raw.trace.tsv.gz",
+      "raw_trace_sha256": "6e9e8c8d1869824b9e0a6cb2f8623d1c2d449b7e3e6b169f1bf02e381a84762a",
+      "supplemental": "not-retained; raw trace is authoritative",
+      "tstop_s": 2e-05,
+      "mutation_s": 1e-05,
+      "event_window_s": 2e-06,
+      "observation_s": 2e-06,
+      "max_gap_s": 2.5e-08
+    }
+  },
+  "rerun": {
+    "exit": 1,
+    "wall_s": 0.003269749926403165,
+    "stderr": "SUPERVISOR_REJECTED refusing existing output /private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/runner-09/parent-smoke/source-identity.json\n",
+    "fifos_remaining": []
+  },
+  "missing": {
+    "exit": 1,
+    "wall_s": 0.0028813332319259644,
+    "stderr": "SUPERVISOR_REJECTED tracker /nonexistent-matrix07-tracker: No such file or directory (os error 2)\n",
+    "fifos_remaining": []
+  },
+  "synthetic_schema": {
+    "columns": 42,
+    "rows": 1001,
+    "all_widths_match": true,
+    "scope": "transport only"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "matrix_id": "operating-matrix-07-faults",
+  "status": "prepared_execution_gated",
+  "prepared_at": "2026-09-20",
+  "base_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "normal_prefix_required": true,
+  "execution_owner": "host",
+  "validator": "fault_checks.rs",
+  "cases": [
+    {
+      "id": "F2-CREST",
+      "fault": "f2_open",
+      "event": "settled_normal_mains_crest",
+      "switch_state": "healthy",
+      "expected": "latch_and_separate_channel_from_passive_current"
+    },
+    {
+      "id": "F2-ZERO",
+      "fault": "f2_open",
+      "event": "settled_normal_mains_zero",
+      "switch_state": "healthy",
+      "expected": "latch_and_separate_channel_from_passive_current"
+    },
+    {
+      "id": "F2-START",
+      "fault": "f2_open",
+      "event": "contiguous_cold_start_before_normal",
+      "switch_state": "healthy",
+      "expected": "complete_startup_fault_witness_or_unexecuted"
+    },
+    {
+      "id": "SW-SHORT",
+      "fault": "switch_failed_short",
+      "event": "accepted_settled_normal_then_mutate",
+      "switch_state": "failed_short",
+      "expected": "no_gate_interruption_credit"
+    },
+    {
+      "id": "DIODE-SHORT",
+      "fault": "boost_diode_short",
+      "event": "accepted_settled_normal_then_mutate",
+      "switch_state": "healthy",
+      "expected": "healthy_switch_only_may_interrupt"
+    },
+    {
+      "id": "BOTH-SHORT",
+      "fault": "switch_and_boost_diode_failed_short",
+      "event": "accepted_settled_normal_then_mutate",
+      "switch_state": "failed_short",
+      "expected": "no_gate_interruption_credit"
+    },
+    {
+      "id": "BYPASS-NEG",
+      "fault": "protection_bypassed_with_declared_fault",
+      "event": "same_as_f2_crest",
+      "switch_state": "declared_by_source",
+      "expected": "validator_rejects_bypass"
+    }
+  ],
+  "required_result_states": [
+    "PASS",
+    "FAIL",
+    "PROTECTION_GAP",
+    "INDETERMINATE",
+    "UNEXECUTED"
+  ],
+  "required_invariants": [
+    "strict_finite_complete_trace",
+    "node_specific_screens",
+    "channel_vs_passive_current",
+    "retained_latch_no_auto_rearm"
+  ],
+  "graph_boundary": {
+    "ac1_only": [
+      "ntc",
+      "relay"
+    ],
+    "boost_bank_feed": [
+      "Lboost",
+      "boost_diode",
+      "F2"
+    ],
+    "forbid_gate_credit_when": [
+      "switch_failed_short"
+    ]
+  },
+  "historical_reference_sources": [
+    {
+      "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/integrated.cir",
+      "sha256": "02e5535242bf3d8c696ea9748dbf02406b85f233d9a9442e7500ac1a5d9ed611"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/protection.inc",
+      "sha256": "b57b854883ee992dad036fd49c5a249b457e200873a3408652186de59122ea1c"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/checks.rs",
+      "sha256": "fa3d9938f6c87bb88d8998daf366c9e43292c1af1778316c8fe21e30d8c55195"
+    }
+  ],
+  "accepted_campaign_source": null,
+  "source_note": "Experiment06 files are historical references, not an accepted normal prefix. Bind the accepted matrix07 cold-start deck and include hashes in an execution receipt before running faults."
+}

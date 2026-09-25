@@ -1,0 +1,26 @@
+* Bounded late-501 ms PWM-threshold reproduction using the captured boundary.
+.include authored_logic_hysteretic_smooth.inc
+.param EDGE=501.554914485680681m
+Vaux aux15 0 15
+Vdisable disable 0 104.086126m
+* One fresh PWM rise through the authored 2.2 V input threshold.
+Vpwm pwm_input 0 PWL(0 0 {EDGE-1u} 0 {EDGE} 2.199989140991965 {EDGE+1n} 2.2002 {EDGE+200n} 2.2002)
+Xdriver disable pwm_input aux15 0 driver_out AUTH_UCC27511A_HS
+Rgate driver_out gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+Cgd gate 0 112p
+Csw gate 0 344p
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.save time v(pwm_input) v(driver_out) v(gate) v(xdriver.pwm_state) v(xdriver.inm_state) v(xdriver.aux_state) v(xdriver.driver_req) v(xdriver.drv_delay)
+.tran 1n {EDGE+200n} {EDGE-20n} 1m
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+rusage tranpoints traniter rejected
+wrdata recorded-smooth-rise.tsv v(pwm_input) v(driver_out) v(gate) v(xdriver.pwm_state) v(xdriver.inm_state) v(xdriver.aux_state) v(xdriver.driver_req) v(xdriver.drv_delay)
+quit
+.endc
+.end

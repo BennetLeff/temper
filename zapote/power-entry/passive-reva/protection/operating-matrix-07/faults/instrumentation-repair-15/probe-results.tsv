@@ -1,0 +1,11 @@
+probe	final_transformation	return_code	rows_before_abort	outcome	observed_failure
+baseline10ms	accepted-baseline topology; TSTOP=10ms	0	142459	completed 10ms	 none
+originalfault10ms	fault case as prepared; TSTOP=10ms, T_FAULT=75ms	1	24712	aborted	4.41687ms node vbody#branch, dt=6.25e-19
+no-diode-sense	FINAL COMBINED: restore Dboost1/2 direct sw vd; remove both zero-V sense sources and their saved branch fields	0	142410	completed 10ms	 none
+no-f2-sense	FINAL COMBINED: same diode restoration/removal; change Vf2sense 0V->1mV; remove diode sense fields	0	142492	completed 10ms	 none
+no-schedule	remove only Vschedule/Rschedule isolated 1G timing instrument	1	24709	aborted	4.41687ms node vbody#branch, dt=6.25e-19
+no-marker (directory label; final Vbody-1mV)	change Vbody 0V->1mV; fault marker retained	1	24781	aborted	4.41687ms node vbody#branch, dt=6.25e-19
+
+# Historical parent observations before in-place overwrite (no retained hashes):
+# no-diode-sense with 1mV diode sources: failed after 24920 rows.
+# no-f2-sense with zero-V diode sources plus F2 1mV: failed after 24758 rows.

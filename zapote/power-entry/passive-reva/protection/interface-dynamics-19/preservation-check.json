@@ -1,0 +1,21 @@
+{
+  "frozen": [
+    {
+      "revision": "interface-capture-16",
+      "verified_files": 56
+    },
+    {
+      "revision": "interface-integration-17",
+      "verified_files": 12
+    },
+    {
+      "revision": "interface-parts-18",
+      "verified_files": 46
+    }
+  ],
+  "inputs_verified": 6,
+  "bom_identical": true,
+  "erc_findings_identical": true,
+  "erc_count": 7,
+  "corrupted_real_log_rejected": true
+}

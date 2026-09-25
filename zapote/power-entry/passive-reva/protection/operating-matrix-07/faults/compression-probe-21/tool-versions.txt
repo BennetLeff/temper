@@ -1,0 +1,11 @@
+# Tool versions and exact commands
+pigz 2.8
+*** Zstandard CLI (64-bit) v1.5.7, by Yann Collet ***
+xz (XZ Utils) 5.8.3
+pigz command: pigz -c -p 2 prefix.raw
+gzip command: gzip -c -6 prefix.raw
+zstd command: zstd -q -3 -c prefix.raw
+xz command: xz -T2 -6 -c prefix.raw
+roundtrip commands: pigz/gzip/zstd/xz -dc
+timeout: 30 seconds via perl alarm wrapper
+memory: unavailable; macOS /usr/bin/time -l could not read kern.clockrate under sandbox

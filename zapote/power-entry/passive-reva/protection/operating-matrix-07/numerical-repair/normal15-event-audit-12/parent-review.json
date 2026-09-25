@@ -1,0 +1,27 @@
+{
+  "status": "PARENT_REVIEWED_DIAGNOSTIC_AUDITOR",
+  "accepted_operating_point": false,
+  "timestamp_utc": "2026-09-21T02:01:52.905450+00:00",
+  "source_sha256": {
+    "audit.rs": "782bfec8a96835e435585c922c22a553a29513fd5cece0de482911a05b524420",
+    "tests.rs": "962371848cbd303f327162ba783fe987e03f092062f8d3273b2bd1a99f8c1294",
+    "README.md": "c985be3cff90a01d3409b51bd60d1122ec066b042aa3d7892837243502318420",
+    "parent-tests.txt": "b31ed2b5dcfc322a3d29c54e2b00f6b7c578fe35ba0992206ab43d0dd95942f7",
+    "parent-tiny-report.txt": "7253ad00806401ab64894d2759f7af2d1717173b4d7fc31102d82a3153c00e4b",
+    "parent-tiny-events.tsv": "892c01171dec4d907b114f49a12f37764cd47ae11e05285395d5df16e064673f"
+  },
+  "binary": {
+    "path": "/private/tmp/matrix07-normal15-event-audit-host",
+    "sha256": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6"
+  },
+  "verification": [
+    "7 tests pass including explicit parent numeric AC\u00b2 and loadP hull/area assertions",
+    "5905-row real native host smoke stream decoded and audited; no full plant scan repeated",
+    "configurable endpoint-derived cycle boundaries; distinct same-time deltas; finite derived bounds; terminal event explicitly incomplete; flushed event artifact"
+  ],
+  "limits": [
+    "diagnostic only; per-case acceptance requires electrical metrics and parent event review",
+    "floating-point hull bounds are not directed rounding proof or hidden-state energy closure",
+    "first native point tolerance 1ns; this is tighter than legacy 1us startup allowance"
+  ]
+}

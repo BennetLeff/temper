@@ -1,0 +1,21 @@
+WARN Fixing invalid version specifier by removing star after comparison operator other than equal and not equal (before: `>=3.6.*`; after: `>=3.6`)
+WARN Fixing invalid version specifier by removing star after comparison operator other than equal and not equal (before: `>=3.7.*`; after: `>=3.7`)
+Downloading pygments (1.2MiB)
+Downloading pydantic-core (1.8MiB)
+Downloading networkx (2.0MiB)
+Downloading scipy (19.5MiB)
+Downloading pandas (9.6MiB)
+Downloading numpy (5.2MiB)
+Downloading uvloop (1.3MiB)
+Downloading igraph (2.0MiB)
+   Building docopt==0.6.2
+      Built docopt==0.6.2
+ Downloaded pygments
+ Downloaded uvloop
+ Downloaded pydantic-core
+ Downloaded igraph
+ Downloaded networkx
+ Downloaded numpy
+ Downloaded pandas
+ Downloaded scipy
+Installed 80 packages in 154ms

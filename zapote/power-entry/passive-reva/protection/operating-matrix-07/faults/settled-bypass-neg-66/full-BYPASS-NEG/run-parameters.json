@@ -1,0 +1,13 @@
+{
+  "tstop_s": 0.662,
+  "kind": "bypass-neg",
+  "mutation_s": 0.6541666666667,
+  "event_window_s": 0.002,
+  "expected_fault_s": 0.6541666666667,
+  "observation_s": 0.002,
+  "turnoff_s": 0.000002,
+  "max_gap_s": 0.000000025,
+  "wall_seconds": 3600,
+  "export_timeout_s": 900,
+  "bypass": true
+}

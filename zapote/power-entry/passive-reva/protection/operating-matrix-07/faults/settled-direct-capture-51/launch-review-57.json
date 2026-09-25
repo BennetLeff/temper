@@ -1,0 +1,28 @@
+{
+  "at_utc": "2026-09-21T21:45:14.659252+00:00",
+  "status": "RUNNING_F2_ZERO_STORAGE_BLOCK_CLEARED",
+  "session_id": 35178,
+  "runner_pid": 96922,
+  "monitor_pid": 96923,
+  "host_pid_observed": 97155,
+  "last_progress_tsv": "171.198379\t9.75082705395166477e-2\t14.297400\t2.916068370638e-4\t2824992\tfalse\t0\t0\tfalse",
+  "free_bytes": 53408555008,
+  "launch_minimum_bytes": 17179869184,
+  "runtime_floor_bytes": 10737418240,
+  "source_review_sha256": "579146d4db79923a2b1c7f9d728b493189c092477154e331780a1ae8c9d6ae96",
+  "source_review_path": "faults/settled-direct-capture-51/live-source-review-57.json",
+  "launch_sha256": "f2e8be7bc80b7e2835a035fd2a53db3e01b481d7c9d36fd63191034d2755736f",
+  "run_parameters_sha256": "ee498bca6a982cdb5566eefc4e158f641fd5ef9bf09a558134095d81c83537b7",
+  "source_identity_sha256": "d8605976d9d6ad098c070f02af65fc2883453c762c837ad6ca5f17f5a85cf420",
+  "transport_identity_sha256": "3249d30743cdbec69f7d21bef5489039b157318ab276a9453c9d033e3a48c137",
+  "verified_live_handle": "write_stdin35178 returned ongoing same session; resource monitor repeatedly observes runner and nativehost",
+  "accepted": false,
+  "remaining_gates": [
+    "terminal solver/export/all pipeline statuses",
+    "own healthy-prefix acceptance",
+    "source-phase/endpoint check",
+    "fault electrical outcome and retained raw/tool/source hashes"
+  ],
+  "active_children": "none; Luna source reviewer interrupted after completion",
+  "goal_api_status_at_resume": "blocked; goal tool does not expose an active/resume update. User resumed execution by requesting recheck after freeing disk."
+}

@@ -1,0 +1,26 @@
+{
+  "status": "PARENT_REVIEWED_RESOURCE_CAP_ONLY_VARIANT",
+  "accepted_fault": false,
+  "utc": "2026-09-21T04:00:07.702759+00:00",
+  "sources": {
+    "faults/event-aware-validation-22/audit.rs": "542af0dcc845f099b0329b3c6fdf092583b1b074aa12d9d5dc684e1e6d361119",
+    "faults/event-aware-validation-22/tests.rs": "2f5ac16cb024c6268e84b53c8b7e3977a8787f17b6f597b1badf605617689401",
+    "faults/fault_checks.rs": "a94f3a7e5ac5bcae67d94a53afacf8338567eaf8b1870b2bf8db12121f25bc66"
+  },
+  "parent_binary": "/private/tmp/matrix07-fault-validation22-parent",
+  "parent_binary_sha256": "63f6d17b123acd696c1f30fa546e7546ae43cf45cfb660cda44086bab3afb12f",
+  "tests": 22,
+  "change": "4million->8million retainedrows only; exactcomparison verified asidefromcomment/errorstring/testmessage",
+  "all_frozen_electrical_time_event_predicates_unchanged": true,
+  "triggering_evidence": "../startup-compact-candidate-20/validator.stderr: actual four-million-row cap rejection; raw6025180rows complete at89ms",
+  "retained_Row_sizeof_bytes": 136,
+  "eight_million_payload_bytes": 1088000000,
+  "geometric_capacity_rows": 8388608,
+  "geometric_capacity_bytes": 1140850688,
+  "parent_correction": "Worker memory explanation used outer numberedRow144B; actual retainedfault_checks::Row is136B; old13copiedparentreceipt savedaslineage",
+  "limits": [
+    "8million failsclosed; no rowdropping/timeediting",
+    "Use boundednative decoder/adapter because lineguard isafterreadallocation",
+    "Exit0/Fail/ProtectionGap/None arenotacceptance; pairraw42healthymutationreceipt+allpipelinestatuses+parentreview"
+  ]
+}

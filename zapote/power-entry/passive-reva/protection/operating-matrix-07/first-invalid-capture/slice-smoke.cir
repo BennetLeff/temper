@@ -1,0 +1,15 @@
+* Verify vector slicing before using bounded export in the shared harness.
+V1 in 0 PWL(0 0 1u 1 20u 2)
+R1 in out 1k
+C1 out 0 1n
+.save time v(out)
+.control
+set noaskquit
+set wr_vecnames
+set numdgt=17
+tran 100n 20u
+let lo = length(time)-10
+let hi = length(time)-1
+wrdata slice-smoke.tsv time[lo,hi] v(out)[lo,hi]
+.endc
+.end

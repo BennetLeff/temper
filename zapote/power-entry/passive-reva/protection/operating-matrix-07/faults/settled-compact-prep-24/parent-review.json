@@ -1,0 +1,66 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_CANDIDATES_UNEXECUTED",
+  "utc": "2026-09-21T04:23:15.781606+00:00",
+  "fault_acceptance": false,
+  "cases": [
+    {
+      "case": "BOTH-SHORT",
+      "case_sha256": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+      "first_corner_literal": "6.521666416667e-1",
+      "exact_two_transformations_including_pacer_comments_verified": true,
+      "manifest_sha256": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b"
+    },
+    {
+      "case": "BYPASS-NEG",
+      "case_sha256": "c6ea3dca688918137282ed3fd3d0ffa17c2b740d68ab52bab306ee3e8b228180",
+      "first_corner_literal": "6.521666416667e-1",
+      "exact_two_transformations_including_pacer_comments_verified": true,
+      "manifest_sha256": "4066ac5bf595b4aaca1b99c79035b5729d20bb217ffe1e5f3a4b6ca6a0003e01"
+    },
+    {
+      "case": "DIODE-SHORT",
+      "case_sha256": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78",
+      "first_corner_literal": "6.521666416667e-1",
+      "exact_two_transformations_including_pacer_comments_verified": true,
+      "manifest_sha256": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9"
+    },
+    {
+      "case": "F2-CREST",
+      "case_sha256": "2f506027a93c89e136d7cb637fe2d4d234aca5ffd4e2ab7009a29384c73eed7e",
+      "first_corner_literal": "6.521666416667e-1",
+      "exact_two_transformations_including_pacer_comments_verified": true,
+      "manifest_sha256": "a034475e9dadb5470fed1f31e195acc2b609b73f641d3267dfb17f8270809416"
+    },
+    {
+      "case": "F2-ZERO",
+      "case_sha256": "b704ebd646dce1da7cf03518478ac1956e3a0bffbae804bd28ff383f4a6fb6c1",
+      "first_corner_literal": "6.483333083333e-1",
+      "exact_two_transformations_including_pacer_comments_verified": true,
+      "manifest_sha256": "c569392b818e638c59b4787353803c094ae552cbd1409b08e184da6eacf8c3a6"
+    },
+    {
+      "case": "SW-SHORT",
+      "case_sha256": "3ba13389962a9550edcc7ca5486109f4793c6082e94a50fe18f0bc1f6f889ace",
+      "first_corner_literal": "6.521666416667e-1",
+      "exact_two_transformations_including_pacer_comments_verified": true,
+      "manifest_sha256": "840b9fbbf83bc91a8138bfd18101b55306146e21445968ccbbaa3864068679ad"
+    }
+  ],
+  "parent_corrections": [
+    "Restore exact first expanded25ns-leading corner (worker initially omitted25ns)",
+    "Set compactpacing_points3; retainexpandedcounts"
+  ],
+  "verified": [
+    "Every output/sourceclosure hash matches",
+    "Remove exactlyKLUline+replaceexacttimingblockINCLUDINGtwoadjacentcomments andallremainingbytes equalexpandedmaterializer",
+    "Native19alreadymaps switch-short CLI toSW-SHORT manifest"
+  ],
+  "limits": [
+    "PacercommentstillshortensstarttoT_FAULT-PREF; actualtdliteral isauthoritativeandcorrectlyincludes25nsleadingcorner",
+    "Isolatedpacer endpointvoltage differs fromfiniteforcedfinalcorner; no electricalwaveformequivalenceclaim",
+    "Fullraw mustmeet unchanged actualendpoint,gap,prefix,phase,finite,nodecriteria",
+    "Eachsettledcase own650msnormalprefix mustpass; do notinheritbaselineacceptance",
+    "Capacity not yetadequate underconservativeforecast; nofullsettledlaunch",
+    "Analysis-only23 wouldneed SW-SHORT manifest mappingiflaterusedforthatcase; notusedhere"
+  ]
+}

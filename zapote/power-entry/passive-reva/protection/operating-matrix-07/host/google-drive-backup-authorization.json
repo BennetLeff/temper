@@ -1,0 +1,13 @@
+{
+  "recorded_at_utc": "2026-09-21T21:46:50.688275+00:00",
+  "user_authorization": "Use my Google Drive as backup space if needed.",
+  "scope": "Backup Temper campaign evidence and associated manifests/receipts. No public sharing or deletion of local/frozen evidence authorized.",
+  "access_state": "Google Drive connected and profile read succeeded; private folder created.",
+  "upload_capability": "Local-path upload and full readback verified for a4747-byte JSON. Multi-gigabyte path untested; streamed signed reference download returned403.",
+  "backup_completed": "Small baseline acceptance receipt only",
+  "next_action": "If storage needs it and Drive becomes available, upload completed immutable evidence with source hashes and verify retained bytes/integrity. Do not treat pending sync or upload acknowledgment alone as independently verified backup.",
+  "current_execution": "F2-ZERO remains running locally, session35178; about49.7GiB free. No change to solver, reserve, or source.",
+  "folder_id": "1U9H4LuM49n3UmKkh-mTxPXqJQKjGsRWx",
+  "folder_url": "https://drive.google.com/drive/folders/1U9H4LuM49n3UmKkh-mTxPXqJQKjGsRWx",
+  "verified_backup_receipt": "host/google-drive-backup-probe/receipt.json"
+}

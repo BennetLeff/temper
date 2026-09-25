@@ -1,0 +1,45 @@
+* Revision 23 synthetic 150mA added-current pulse from the revision 19 clamp graph.
+* Model: LT4363-1 and FDB33N25 from ADI LTspice 26.0.2 library.
+* D1 uses the bundled 1N4148 model as a surrogate for 1N4148W.
+* 130 ohm baseline, 0.5 ohm source, 150mA pulse at 2.4891s are synthetic.
+* Pulse time comes from the zero-extra-load output crossing 10.6V.
+* This is not a converter startup model or qualified source envelope.
+Vsrc SOURCE 0 PWL(0 0 1m 0 1.01m 15 6 15)
+Rsrc SOURCE AUX_RAW 0.5
+Rshdn AUX_RAW SERVICE_RESET_N 1
+R1 SNS AUX_PROTECTED 0.22
+R2 AUX_PROTECTED FB 59k
+R3 FB 0 4.99k
+R4 AUX_RAW UV 91k
+R5 UV 0 10k
+R6 GATE_DRV Q_GATE 10
+R7 GATE_DRV CG 100
+C1 AUX_RAW 0 100n
+C2 TMR 0 100n
+C3 CG 0 1.5u
+C4 AUX_PROTECTED 0 330u
+D1 GATE_DRV CG 1N4148
+M1 AUX_RAW Q_GATE SNS SNS FDB33N25
+Rload AUX_PROTECTED 0 130
+Bextra AUX_PROTECTED 0 I={0.15*(u(time-2.4891)-u(time-2.4891-DUR))}
+XU1 FB AUX_PROTECTED SNS GATE_DRV AUX_RAW SERVICE_RESET_N UV 0 FLT ENOUT TMR LT4363-1
+.lib C:\users\crossover\AppData\Local\LTspice\lib\cmp\standard.dio
+.lib C:\users\crossover\AppData\Local\LTspice\lib\cmp\standard.mos
+.lib LT4363-1.sub
+.step param DUR list 5m 20m 100m 500m
+.tran 0 6 0 100u startup
+.meas TRAN driver_peak MAX V(AUX_PROTECTED) FROM 0 TO 6
+.meas TRAN gate_peak MAX V(Q_GATE) FROM 0 TO 6
+.meas TRAN tmr_peak MAX V(TMR) FROM 0 TO 6
+.meas TRAN pass_current_peak MAX Id(M1) FROM 0 TO 6
+.meas TRAN reaches_10v6 WHEN V(AUX_PROTECTED)=10.6 RISE=1
+.meas TRAN reaches_13v5 WHEN V(AUX_PROTECTED)=13.5 RISE=1
+.meas TRAN output_at_3s FIND V(AUX_PROTECTED) AT 3
+.meas TRAN output_at_2p7s FIND V(AUX_PROTECTED) AT 2.7
+.meas TRAN output_at_4s FIND V(AUX_PROTECTED) AT 4
+.meas TRAN output_at_5s FIND V(AUX_PROTECTED) AT 5
+.meas TRAN output_at_6s FIND V(AUX_PROTECTED) AT 6
+.meas TRAN gate_at_6s FIND V(Q_GATE) AT 6
+.meas TRAN sense_at_6s FIND V(SNS) AT 6
+.backanno
+.end

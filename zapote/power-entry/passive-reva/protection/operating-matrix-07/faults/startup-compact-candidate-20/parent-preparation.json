@@ -1,0 +1,19 @@
+{
+  "status": "PARENT_SOURCE_VERIFIED_COMPACT_PACER_CANDIDATE",
+  "accepted": false,
+  "source_deck_sha256": "bb589229f13e337430e91dd430c78f25a7943ef3055685ccd57b066567283060",
+  "previous_case_sha256": "e8ddff3bec89f42568dd85e2e7a33e12e538fb9d3cccef915c036240388cb01c",
+  "exactly_one_pacer_block_replaced": true,
+  "all_other_source_bytes_identical": true,
+  "isolated_pacer_review": "../compact-pacer-bench-18/parent-review.json",
+  "end_s": 0.089,
+  "mutation_s": 0.075,
+  "healthy_window_s": 0.01,
+  "required_local_gap_s": 2.5e-08,
+  "required_global_gap_s": 1e-06,
+  "turnoff_s": 2e-06,
+  "observation_s": 0.002,
+  "wall_limit_s": 600,
+  "awaiting": "Fullsource-bound capture andfaultchecks",
+  "runner_review": "../native-runner-19/parent-review.json"
+}

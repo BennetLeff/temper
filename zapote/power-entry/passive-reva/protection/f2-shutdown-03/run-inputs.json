@@ -1,0 +1,32 @@
+{
+  "base_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "branch": "codex/power-entry-pkgs-1-4",
+  "dirty": true,
+  "user_scope": "Implement four steps with Luna delegation; simulation only",
+  "host_model": "gpt-6-astra",
+  "workers": [
+    {
+      "unit": "circuit",
+      "model": "gpt-5.6-luna",
+      "workspace": "/private/tmp/temper-f2-circuit-luna"
+    },
+    {
+      "unit": "simulation",
+      "model": "gpt-5.6-luna",
+      "workspace": "/private/tmp/temper-f2-sim-luna"
+    },
+    {
+      "unit": "device_audit",
+      "model": "gpt-5.6-luna",
+      "mode": "read-only"
+    }
+  ],
+  "input_hashes": {
+    "elec/src/power_entry_passive_reva.ato": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8",
+    "zapote/power-entry/passive-reva/candidate/section.kicad_pcb": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+    "elec/src/power_entry_f2_sense.ato": "3edee56bf33cf70fdef466174be025c8f7b4632b46e74cd0a4b7aaf455770871",
+    "zapote/power-entry/passive-reva/protection/f2-open-01/receipt.json": "b021a09bd3f85ea9ec84ce03de8dfe328798dbcb13a0cb87425b86ee2d044a50",
+    "zapote/power-entry/passive-reva/protection/f2-timing-02/receipt.json": "9b27d3a8060e3aacdf67b89a2989ee57abd24baa0fc7c27e7387b56f2fe7bee5",
+    "docs/plans/2026-09-19-f2-shutdown-circuit-and-simulation-plan.md": "e1fc4ec22290cc2bbc7ec18b6fe39c3416a2601bd8420b86c3a768a42d58c55b"
+  }
+}

@@ -1,0 +1,20 @@
+* Slow 5 V/us PWM edge using the unchanged TI UCC27511A transient model.
+.include ../../../f2-shutdown-04/vendor/UCC27511A_TINA_TRANS/UCC27511A.lib
+Vaux aux15 0 15
+Vdisable disable 0 0
+Vpwm pwm_input 0 PWL(0 0 2u 0 3u 5 5u 5 6u 0 8u 0)
+Xdriver disable pwm_input aux15 0 outh outl UCC27511A
+Rgon outh gate 10
+Rgoff outl gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.tran 1n 8u
+.control
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+wrdata vendor-threshold.tsv v(pwm_input) v(outh) v(outl) v(gate) v(aux15) v(disable)
+quit
+.endc
+.end

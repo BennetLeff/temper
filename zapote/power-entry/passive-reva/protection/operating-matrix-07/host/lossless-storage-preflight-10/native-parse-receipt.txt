@@ -1,0 +1,22 @@
+file_bytes= 35199
+binary_offset= 287
+payload_bytes= 34912
+payload_doubles= 4364
+payload_length_multiple_of_8= True
+No. Variables: 4
+No. Points: 1091
+Variables:
+	0	time	time
+	1	v(in)	voltage
+	2	v(out)	voltage
+	3	i(v1)	current
+finite_doubles= True
+first_row_le_f64= (0.0, 0.0, 0.0, 0.0)
+second_row_le_f64= (1.0000000000000001e-11, 0.05, 4.999999950000001e-10, -4.9999999500000004e-05)
+raw_sha256= 8aade1253da609ee1eba4ebe7ce62a09673eec1736782accbf929b6dc9b6f007
+gzip_roundtrip_byte_equal= True
+zstd_roundtrip_byte_equal= True
+xz_roundtrip_byte_equal= True
+ascii_rows= 1091
+ascii_values_exact_f64_equal= 3161 / 4364
+ascii_values_max_ulp_difference= 3

@@ -1,0 +1,92 @@
+{
+  "revision": 26,
+  "date": "2026-09-22",
+  "status": "compiled-AUX-only-review-candidate",
+  "inputs_sha256": {
+    "revision11_netlist": "c9971a9475191749a6d67c50c6ae2425b468e64b0c23b1d2e412ca866887ad92",
+    "revision19_clamp_expected": "ca709e6d2a86c269ef830df8bbfe3f61563c3488be2a46ca495393a930b7b8e7",
+    "revision16_reset_expected": "e911835bddfc85383619bf3711cb6f3c43c1a8d317b67e3daae604f63d30e23c"
+  },
+  "files_sha256": {
+    "README.md": "c2e169a29a8ea2506750c09a05e670126d36c81570254caaf32384e5f6569ef0",
+    "control-binding.md": "aef88fe5b6742160a1832e7ae71068a4221ce40e97e95aa7be27d10b9f8e8825",
+    "build-environment.md": "1f7487718c02ced6eff108b4b60f8e5a2b520dc370cd7b3863396c06be786861",
+    "audit_aux.rs": "24b013a22ec2adf8ac6ded32adf23dff6f7d9fc5cf43371ec89c2e07c552c6b6",
+    "layout.json": "243f757bb37f03696edfdc1c030f5c1da8c72a9b0f59255bc4a5305244d7d234",
+    "source-candidate/ato.yaml": "1c5ebea0f4582cd25776c50f076a987f17c1c707182edd4f0a44a9c95391b956",
+    "source-candidate/elec/src/aux_clamp_rev19.ato": "23c702b327db429c24ce01d4063bc7e611bfc6a6ca95aa46ca456f5559967f73",
+    "source-candidate/elec/src/power_entry_f2_shutdown_revb.ato": "88c634936bcd850df8b0f7d8b7964ce771ec60e94066ac524dca0518e5a73831",
+    "source-candidate/elec/src/power_entry_pfc_control_candidate.ato": "f05d9a00239a0ffd3551ae9722cf5ad742377b26db2be9d10c33c1ba840813fb",
+    "source-candidate/build/default.net": "b0000d79011f25b9b6bac3818f20d5d0cffac74759a8b2063e83e005f72af535",
+    "source-candidate/build/default.csv": "17ba693a6e7c4b705c3b143e6723ac8b2d65e1699cab4bf716df4cd5adab58a3",
+    "source-candidate/build.log": "c569cdeee23e021288a0c66173b0fb3272a34990368d14f650625f7023798887",
+    "native/power_entry_clamped.kicad_sch": "d9fdb1abe8b4fb29d0281353f24ca234c53af290bcb07b29af4e3c8a3381c5c4",
+    "native/erc.json": "13803dc46577fa2e91341cbb12a293f770d5d259395aea831843501b05c5e9c4",
+    "native/erc-rev11-flat-baseline.json": "3ae5c5588a7b66bc664459c2f3d6abbb4e604e1759183100b300ae6ebdc45fa7",
+    "native/renders/a0/power_entry_clamped_a0.pdf": "fa31343a89d1a16b509bf40d35dff2ac1673e4a2e940b80cf4b537086917ec2e"
+  },
+  "checks": {
+    "atopile_0_2_69_offline_build": {
+      "status": "pass",
+      "instance_count": 150,
+      "repeat_build_outputs_identical": true
+    },
+    "rust_compiled_netlist_audit": {
+      "status": "pass",
+      "preserved_rev11_instances": 136,
+      "new_clamp_instances": 14,
+      "clamp_pins": 39
+    },
+    "negative_controls": {
+      "status": "pass",
+      "old_gate_branch_rejected": true,
+      "changed_aux_header_rejected": true,
+      "wrong_hot_return_rejected": true
+    },
+    "native_export_oracle": {
+      "status": "pass",
+      "pin_assignments": 398,
+      "net_groups": 95
+    },
+    "native_regeneration_check": {
+      "status": "pass"
+    },
+    "kicad_erc_observation": {
+      "rev11": {
+        "total": 295,
+        "by_type": {
+          "endpoint_off_grid": 135,
+          "footprint_link_issues": 15,
+          "isolated_pin_label": 9,
+          "lib_symbol_issues": 136
+        }
+      },
+      "rev26": {
+        "total": 327,
+        "by_type": {
+          "endpoint_off_grid": 149,
+          "footprint_link_issues": 16,
+          "isolated_pin_label": 12,
+          "lib_symbol_issues": 150
+        }
+      }
+    },
+    "local_markdown_links": {
+      "status": "pass",
+      "count": 29
+    },
+    "visual_inspection": {
+      "status": "reviewed-with-limitation",
+      "note": "A0 page contains all placed symbols but generated labels overlap; not a release schematic"
+    }
+  },
+  "open_boundaries": [
+    "AUX producer and fault envelope",
+    "service reset driver",
+    "FLT/ENOUT observation wiring",
+    "5 V buck and real loads",
+    "HOT command receiver/isolation/protocol",
+    "part MPNs and BOM",
+    "physical startup, SOA, rail peak, turnoff and restart tests"
+  ]
+}

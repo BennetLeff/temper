@@ -1,0 +1,23 @@
+{
+  "status": "COMPLETE_COINCIDENT_DIAGNOSTIC_PARENT_REVIEW_REQUIRED",
+  "accepted": false,
+  "raw_sha256_before_after": "19f8068d73fb4b2379b3111504fd92efbf769984eb4e3775d5b6378294a6c02c",
+  "raw_bytes": 5340687952,
+  "rows": 32309024,
+  "pipeline_exits": [
+    0,
+    0,
+    0
+  ],
+  "all_original55_fields_identical": true,
+  "current_channels": [
+    "i(Lboost)",
+    "i(Vchannel)",
+    "i(Vbody)",
+    "i(Vf2sense)",
+    "i(Vdboost1sense)",
+    "i(Vdboost2sense)"
+  ],
+  "report_sha256": "05ee665d1f347d7f4839faad1c291fb26a1e2a46eecd6ab34953431ce3120091",
+  "limitations": "Same-row sampled observations only, not continuous retention, causality, physical die allocation, protection or hardware qualification."
+}

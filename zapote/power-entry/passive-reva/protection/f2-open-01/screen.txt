@@ -1,0 +1,25 @@
+status=CONDITIONAL_DESIGN_SCREEN; protection_qualified=false
+divider_ohm=987000/200/5620; nominal_ratio_trip=1.035587189
+resistor_fraction_budget=0.0035; offset_V_budget=0.008; input_bias_per_pin_A=20e-9
+bank_V,earliest_diode_trip_V,latest_diode_trip_V,latest_ratio,static_Vbank_over_Vreg_limit_for_107pct_OVP
+120.000,121.030198,127.556156,1.062967965,1.006615472
+150.000,151.668367,159.059238,1.060394917,1.009058025
+187.000,189.455441,197.913038,1.058358493,1.010999587
+350.000,355.922825,369.079782,1.054513663,1.014685763
+390.000,396.773717,411.083891,1.054061259,1.015121267
+410.000,417.199163,432.085945,1.053868159,1.015307267
+bank0_trip_range_V=(-1.5438317126738648, 1.5438317126738648); bank0_ratio=undefined; fuse_continuity=unknown
+nominal_400V_high=2.344835922; low=2.264257368; nominal_2p5_reference_OV=426.469072
+bank410_latest_trip_with_extra_0p1pct_resistor_drift=433.804702
+bank_V,assumed_current_at_static_trip_A,peak_0us_V,peak_5us_V,peak_10us_V,conditional_max_total_delay_us
+150,20,253.001598,265.532299,279.067368,57.282464
+150,40,310.402302,323.875991,338.565770,45.305529
+150,60,369.678837,383.534076,399.000346,33.204934
+390,20,419.044819,429.616801,443.315588,24.741005
+390,40,441.439356,459.020354,479.062069,14.692025
+390,60,474.922767,497.556053,522.223523,5.514355
+410,20,439.386126,449.648464,463.036836,20.375394
+410,40,460.119790,477.395577,497.200283,10.660794
+410,60,491.558496,514.097706,538.744374,1.928492
+current_at_trip_bound=null; total_delay_bound=null; passive_component_fault_coverage=null
+missing=controller transient model, comparator slow-ramp max delay, gate cessation delay, inductor L(I,T), parasitics, installed thermal/pulse qualification

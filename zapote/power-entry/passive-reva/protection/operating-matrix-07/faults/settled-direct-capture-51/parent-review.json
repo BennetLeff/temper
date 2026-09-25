@@ -1,0 +1,23 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_NOT_LAUNCHED",
+  "at_utc": "2026-09-21T19:10:59.627038+00:00",
+  "files_sha256": {
+    "parent-launch-gates.json": "e3358e97b63d984edb0417e734eb96fa2c94a2c22c7a37dfc5470330da598d0a",
+    "launch.sh": "f2e8be7bc80b7e2835a035fd2a53db3e01b481d7c9d36fd63191034d2755736f",
+    "tools-parent.sha256": "082dd1572b3abd3f5e26562bb4945583cfae9633394692a46e881ee7dafa76f5",
+    "README.md": "82ff3fe2176aefe54ac1711b167102743708ad2ea5c07d2ee03657ec5595ec61",
+    "source-tool-binding.json": "9a5d004c5632ae2d64962e49757b0270ecf3304e10b5184415147c815ca0fb80",
+    "SHA256SUMS": "0fcebc6eff76318afba4150c606eb1917da103561269d0c59245122949f8f9e9",
+    "launch-worker.sh": "9f63f864f65605dc606fbf26e61fb6008657c3e83aeb429454731e145c9a6548"
+  },
+  "verified": "Prepared source closure and manifest match exact case24; all pinned tool/script bytes verified. Exact runner45 timing/kind checked. bash-n and shellcheck pass.",
+  "parent_change": "Added immediate prelaunch check of all tool/script hashes using tools-parent.sha256; original launch retained as launch-worker.sh. SHA256SUMS is worker snapshot, current hashes are here.",
+  "launch_gates": "Require >=16GiB available, no known full solver/campaign runner, fresh output and exact source/tool hashes. LL09 remains running and free space is below16GiB. Do not launch until gates pass.",
+  "scope": "No new source/model changes, simulation or acceptance. Full own-prefix/phase/endpoint and electrical reviews required after future capture.",
+  "runtime_library": {
+    "linked_path": "/opt/homebrew/opt/libngspice/lib/libngspice.0.dylib",
+    "resolved_path": "/opt/homebrew/Cellar/libngspice/45.2/lib/libngspice.0.dylib",
+    "sha256": "3950a98c5b7b674fecbd78fdb4f68501f52f8b0f5f70472db77f3245e7353ba0",
+    "verified": "otool-L confirms direct-fault37 links this path; matches previously reviewed native-export37 library identity; included in prelaunch hash gate."
+  }
+}

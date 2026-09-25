@@ -1,0 +1,23 @@
+* Actual controller-finite-edge-safe model with PWM data forced undefined.
+.include ucc28180.inc
+Vcc vcc 0 15
+Vvs vsense 0 3
+Vis isense 0 0
+Vic icomp 0 .72
+Vvc vcomp 0 3
+XU vcc vsense isense icomp vcomp gate 0 UCC28180_FN
+Rgate gate 0 10k
+.options method=gear reltol=1e-5 abstol=1e-12 vntol=1e-9
+.save time v(gate) v(xu.pwm_hold) v(xu.raw) v(xu.fault) v(xu.ov) v(xu.pcl_hold)
+.tran 1n 20u 0 1n uic
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+print v(gate) v(xu.pwm_hold) v(xu.raw) v(xu.fault) v(xu.ov) v(xu.pcl_hold)
+eprint xu.pwm_q
+wrdata unknown-analog.tsv v(gate) v(xu.pwm_hold) v(xu.raw) v(xu.fault) v(xu.ov) v(xu.pcl_hold)
+quit
+.endc
+.end

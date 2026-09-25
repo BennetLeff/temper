@@ -1,0 +1,20 @@
+{
+  "status": "DIAGNOSTIC_ONLY",
+  "probes": {
+    "baseline10ms": {"exit": 0, "rows": 142459, "run_log_sha256": "d7659a7a229248a85ad5e293d34b7fcf1f52bd2beea4076533756b4bc4970664"},
+    "originalfault10ms": {"exit": 1, "rows_before_abort": 24712, "failure_time_s": 0.00441687, "failure_timestep_s": 6.25e-19, "failure_node": "vbody#branch", "run_log_sha256": "b370b8544c1f683855401023a230aa8449f0b1281a58d0936899a614a2786b3b"},
+    "no-diode-sense": {"exit": 0, "rows": 142410, "run_log_sha256": "9eae5e3897d27f6d50904879e03fcf6681356693dfa200b7799ccf73b5257086"},
+    "no-f2-sense": {"exit": 0, "rows": 142492, "run_log_sha256": "9718f44dba480314481226dbd7015e43c3e3e8f829276a6e1e6d0fb0a42de701"},
+    "no-schedule": {"exit": 1, "rows_before_abort": 24709, "failure_time_s": 0.00441687, "failure_timestep_s": 6.25e-19, "failure_node": "vbody#branch", "run_log_sha256": "651e7f9955884b2d0f0996e567fdc34c29dee94951c583b120ad78ac4d2f6310"},
+    "no-marker": {"label": "Vbody-1mV (directory name no-marker is historical/misleading; marker retained)", "exit": 1, "rows_before_abort": 24781, "failure_time_s": 0.00441687, "failure_timestep_s": 6.25e-19, "failure_node": "vbody#branch", "run_log_sha256": "4f516c2f291bd4ed161b5dcd1da2bd8f86ea2dccd8149710d98d0b777d29ab14"}
+  },
+  "conclusion": "The two retained passing cases apply combined transformations: direct Dboost1/2 reconnection, removal of both zero-volt diode sense sources and saved fields, and (for no-f2-sense) a 1 mV F2 source. They establish that those combined final cases avoid the observed failure, but do not isolate any individual change. Retained failing controls show that removing the isolated schedule alone or changing Vbody to 1 mV alone did not avoid the failure. No marker-removal probe was run.",
+  "provenance": {
+    "retained_cases_are_final_in_place_rewrites": true,
+    "overwritten_intermediate_observations": [
+      {"probe": "no-diode-sense", "description": "Earlier 1 mV diode-source variant observed by parent before overwrite", "rows_before_abort": 24920, "reproducible_artifact": false},
+      {"probe": "no-f2-sense", "description": "Earlier zero-V diode-source plus F2 1 mV variant observed by parent before overwrite", "rows_before_abort": 24758, "reproducible_artifact": false}
+    ]
+  },
+  "acceptance": "none; no fault, protection, thermal, or hardware qualification"
+}

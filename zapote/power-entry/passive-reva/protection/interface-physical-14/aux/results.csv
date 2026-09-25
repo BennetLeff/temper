@@ -1,0 +1,28 @@
+quantity,value,unit,interpretation
+old_conditional_load,0.111630037,A,75mA direct + 5V/75mA buck at 70% and 14.625V (retained for comparison)
+revised_load_bound,0.114473684,A,75mA direct + 5.25V/75mA buck at 70% and protected 14.25V
+series_R_max_normal,3.275862069,ohm,14.625V producer to 14.25V protected at revised load bound
+fault_24.6V_R_min_at_load,90.413793103,ohm,source-to-protected current no more than conditional load
+fault_24.6V_current_at_Rmax,2.014736842,A,at an 18V clamp boundary
+fault_24.6V_current_needed_for_any_R_interval,2.014736842,A,minimum clamp/current capability for R<=Rmax
+fault_24.6V_resistor_power_at_Rmax,13.297263158,W,instantaneous at 18V clamp boundary
+fault_35.0V_R_min_at_load,181.264367816,ohm,source-to-protected current no more than conditional load
+fault_35.0V_current_at_Rmax,5.189473684,A,at an 18V clamp boundary
+fault_35.0V_current_needed_for_any_R_interval,5.189473684,A,minimum clamp/current capability for R<=Rmax
+fault_35.0V_resistor_power_at_Rmax,88.221052632,W,instantaneous at 18V clamp boundary
+Rmin_35V_Ibound_0.120A,172.916666667,ohm,requires R>=Rmin to bound steady source current
+normal_drop_with_Rmin_35V_Ibound_0.120A,19.794407895,V,compared to 0.375V available dropout
+Rmin_35V_Ibound_0.200A,103.750000000,ohm,requires R>=Rmin to bound steady source current
+normal_drop_with_Rmin_35V_Ibound_0.200A,11.876644737,V,compared to 0.375V available dropout
+Rmin_35V_Ibound_1.000A,20.750000000,ohm,requires R>=Rmin to bound steady source current
+normal_drop_with_Rmin_35V_Ibound_1.000A,2.375328947,V,compared to 0.375V available dropout
+C_for_120mA_1us_start_15.75V,0.053333333,uF,equality_at_18V_requires_extra_C_for_strict_margin
+C_for_120mA_10us_start_15.75V,0.533333333,uF,equality_at_18V_requires_extra_C_for_strict_margin
+C_for_120mA_100us_start_15.75V,5.333333333,uF,equality_at_18V_requires_extra_C_for_strict_margin
+C_for_120mA_1000us_start_15.75V,53.333333333,uF,equality_at_18V_requires_extra_C_for_strict_margin
+C_for_120mA_10000us_start_15.75V,533.333333333,uF,equality_at_18V_requires_extra_C_for_strict_margin
+C_for_120mA_1us_start_14.25V,0.032000000,uF,equality_at_18V_requires_extra_C_for_strict_margin
+C_for_120mA_10us_start_14.25V,0.320000000,uF,equality_at_18V_requires_extra_C_for_strict_margin
+C_for_120mA_100us_start_14.25V,3.200000000,uF,equality_at_18V_requires_extra_C_for_strict_margin
+C_for_120mA_1000us_start_14.25V,32.000000000,uF,equality_at_18V_requires_extra_C_for_strict_margin
+C_for_120mA_10000us_start_14.25V,320.000000000,uF,equality_at_18V_requires_extra_C_for_strict_margin

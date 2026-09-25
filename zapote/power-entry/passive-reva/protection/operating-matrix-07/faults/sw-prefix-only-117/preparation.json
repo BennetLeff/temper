@@ -1,0 +1,50 @@
+{
+  "status": "PREPARED_PARENT_REVIEW_REQUIRED",
+  "case": "SW-SHORT",
+  "purpose": "Own cold-start normal prefix through .650 s from a complete partial capture; full fault remains incomplete",
+  "source_root": "faults/settled-sw-short-59/full-SW-SHORT",
+  "output_root": "faults/sw-prefix-only-117/full-SW-SHORT",
+  "raw_sha256": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+  "raw_bytes": 5088782620,
+  "raw_rows": 30686230,
+  "observed_stop_s": 0.6544026486296868,
+  "declared_endpoint_s": 0.662,
+  "source_hashes": {
+    "case.cir": "3ba13389962a9550edcc7ca5486109f4793c6082e94a50fe18f0bc1f6f889ace",
+    "manifest.json": "840b9fbbf83bc91a8138bfd18101b55306146e21445968ccbbaa3864068679ad",
+    "source-identity.json": "985e7fb51f27442f1f3d1fc554062836ee10650cc5b019833e27951462508ef7",
+    "run-parameters.json": "04aeb255073af29f535a450f87135502e5e9b8bbc3e8c4c19d8416daa45fb220",
+    "parent-disposition-80.json": "d895d1824ca8fe356ea7fb9a3704e64b242566442684736ee5ef0cefdba01a52",
+    "capture-metadata.json": "b0f5cf58cdfd7a42b68ceb755d6985bc1f3737d728ec0527ac78a4f690e808ea",
+    "capture-stage1.json": "1f48eca42ce6f67be9a08cf4650ea50b1c5c8d9fa2f8456dc9eec21ff3a22b7b",
+    "native-export-receipt.json": "fe88874f78489ad670f823895d6f2dca6f31e0b90d39f411a64412690ee20635",
+    "result.json": "499a78d3bfa41bf891b92167b73a5e9b184a89de27fd7b8f033fd9aefdae0123",
+    "campaign-verdict-86.json": "30f05795f68b50fae1c6e6b1c977cb43eaf93e44a5d92950cbadbd962f00f635"
+  },
+  "tool_pins": {
+    "pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "decoder": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "selector": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+    "audit": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6",
+    "normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "metrics": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "checker": "24c95bea81b44a3d5038a32552297afed17547fcd1b3ddcfd99434e84638b85c"
+  },
+  "frozen_instruments": {
+    "selector": "settled-sw-postcapture-69/run.sh selector invocation",
+    "audit": "settled-sw-postcapture-69/run.sh normal15 event audit invocation",
+    "metrics": "settled-sw-postcapture-69/run.sh event metrics invocation",
+    "legacy": "settled-sw-postcapture-69/legacy-strict.sh pipeline shape, adapted only for partial endpoint"
+  },
+  "guards": [
+    "runner exit numeric and monitor exit 0",
+    "stage1 host/pigz success and valid metadata",
+    "partial stop disposition and endpoint preserved",
+    "raw hash/bytes and before-after identity",
+    "all scan/audit/metrics/legacy pipeline statuses retained",
+    "10 GiB free-space floor and no-clobber output",
+    "accepted=false; no full-fault, phase, observation, or hardware claim"
+  ],
+  "run_sha256": "b6c65ef09467ab7cc78af37e4a9fc4c96d9c41eb70fb0d577d72cd80f28de3a4",
+  "execution": "NOT RUN; parent approval required"
+}

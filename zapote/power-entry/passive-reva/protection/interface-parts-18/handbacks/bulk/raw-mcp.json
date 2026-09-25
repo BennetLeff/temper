@@ -1,0 +1,24 @@
+{
+  "pcbparts_jlc_search": {
+    "query": "220uF 50V electrolytic low ESR",
+    "filters": {"subcategory_id": 2931, "capacitance": "220uF", "voltage_rating": ">=50V", "min_stock": 10},
+    "representative_results": [
+      {"lcsc":"C106560","mpn":"ERJ1HM221G16OT","manufacturer":"AISHI(Aihua Group)","package":"Plugin,D10xL16mm","stock":42098,"specs":{"voltage":"50V","tolerance":"±20%","life":"10000hrs@105℃","esr":"53mΩ@100kHz","ripple":"1.65A@100kHz"}},
+      {"lcsc":"C432436","mpn":"50ZLJ220M10X16","manufacturer":"Rubycon","package":"Plugin,D10xL16mm","stock":39305,"specs":{"voltage":"50V","tolerance":"±20%"}},
+      {"lcsc":"C88723","mpn":"50PX220MEFC10X12.5","manufacturer":"Rubycon","package":"Plugin,D10xL12.5mm","stock":34776,"specs":{"voltage":"50V","tolerance":"±20%","life":"2000hrs@105℃"}}
+    ],
+    "note": "JLC database has many 220uF/50V leaded parts; several omit ESR/ripple. The Rubycon 50ZLJ candidate was cross-referenced at DigiKey/Mouser."
+  },
+  "digikey_50ZLJ220M10X16": {
+    "part_number":"1189-1433-ND", "mfr_part_number":"50ZLJ220M10X16", "manufacturer":"Rubycon", "stock":2049,
+    "datasheet_url":"https://www.rubycon.co.jp/wp-content/uploads/catalog-aluminum/ZLJ.pdf",
+    "product_url":"https://www.digikey.com/en/products/detail/rubycon/50ZLJ220M10X16/3134389",
+    "parameters":{"Capacitance":"220 µF","Tolerance":"±20%","Voltage - Rated":"50 V","Lifetime @ Temp.":"10000 Hrs @ 105°C","Operating Temperature":"-40°C ~ 105°C","Ripple Current @ Low Frequency":"825 mA @ 120 Hz","Ripple Current @ High Frequency":"1.65 A @ 100 kHz","Impedance":"53 mOhms","Lead Spacing":"0.197\" (5.00mm)","Size / Dimension":"0.394\" Dia (10.00mm)","Height - Seated (Max)":"0.689\" (17.50mm)"}
+  },
+  "mouser_50ZLJ220M10X16": {
+    "part_number":"232-50ZLJ220M10X16", "manufacturer":"Rubycon", "stock":2621,
+    "datasheet_url":"https://www.mouser.com/datasheet/3/3655/1/ZLJ.pdf",
+    "product_url":"https://www.mouser.ca/en/ProductDetail/Rubycon/50ZLJ220M10X16",
+    "description":"LOW IMPEDANCE ELECTROLYTIC CAPACITORS", "lifecycle":"Active"
+  }
+}

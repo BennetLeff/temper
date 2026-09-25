@@ -1,0 +1,58 @@
+{
+  "revision": 33,
+  "status": "offline-compiled HOT receiver connectivity fixture; no firmware, PCB, or bench qualification",
+  "scope": "Standalone Atopile fixture for Rev31 ATmega328P-AU and ISO7741F receiver pin plan. Adds four 5 V Schmitt output buffers and a HOT rail supervisor on the ISP-compatible reset node. No edits to earlier revision folders or product PCB.",
+  "build": {
+    "tool": "Atopile 0.2.69",
+    "mode": "offline cached uv tool",
+    "result": "PASS",
+    "compiled_net_count": 41,
+    "compiled_instance_count": 41,
+    "netlist": "compiled/default.net",
+    "compiled_bom": "compiled/default.csv",
+    "rebuild_and_audit": "README.md"
+  },
+  "audit": {
+    "script": "audit_netlist.py",
+    "result": "PASS",
+    "assertions": [
+      "all 32 ATmega pins appear exactly once in the compiled graph",
+      "ISO7741F command, response, permit, and relay channel direction/pin mapping",
+      "all four MCU GPIO-to-LVC1G17 inputs are distinct from buffered outputs",
+      "HOT rails_ok to TPS3890 MR, TPS3890 RESET to MCU and ISP shared node",
+      "compiled BOM MPN identity for MCU, isolator, four output buffers, and reset supervisor"
+    ]
+  },
+  "reset": {
+    "supervisor": "TPS389001DSER",
+    "topology": "SENSE=HOT_LOGIC5; active-low MR=Rev29 HOT_RAILS_OK; open-drain RESET_N shared with ATmega PC6/RESET and ISP; 10 kohm pullup, 1 Mohm weak pulldown",
+    "sink_current_bound": "<0.75 mA at 5.5 V using 10 kohm -1%, ATmega internal RESET pullup 30 kohm minimum, and 1 Mohm -1% pulldown; <0.37 mA at 2.7 V",
+    "margin": "At VCC>=4.5 V, TPS3890 VOL<=0.30 V at 3 mA versus ATmega RESET VIL<=0.1*VCC (0.45 V at 4.5 V), >=0.15 V margin. At VCC=2.7 V, VOL<=0.25 V at 2 mA versus VIL<=0.27 V, 0.02 V margin. RESET high divider bound >=0.989*VCC versus VIH=0.9*VCC, excluding the MCU internal pullup which improves it.",
+    "integration_limit": "Depends on Rev29 shared HOT_RAILS_OK behavior, threshold tolerance, and release delay. No low-level reset guarantee is claimed below ATmega specified VCC=2.7 V; full startup below that point and BOD fuse programming remain unverified."
+  },
+  "logic_levels": {
+    "mcu_to_buffer": "Approximately 60 uA maximum load per MCU output from 100 kohm pulldown at 5.5 V plus TI LVC1G17 input leakage. ATmega VOH and LVC1G17 threshold published points do not form a complete same-corner min/max proof.",
+    "buffer_to_rev29": "The Rev29 10 kohm pulldowns load each LVC1G17 output by about 0.55 mA at 5.5 V. TI gives VOH>=3.8 V at VCC=4.5 V under a heavier 32 mA load; WDI VIH is 0.8*VDD. The full maximum-rail output-high guarantee at VDD=5.5 V remains open. ARM full-corner receiver threshold also remains open."
+  },
+  "limitations": [
+    "No receiver firmware, framing/CRC/baud definition, persistent session journal, or protocol tests",
+    "No physical source reset/abort producer",
+    "No prototype, bench measurements, or total shutdown latency bound",
+    "ATmega and TPS3890 footprints remain review-only; crystal and assembly BOM are not selected",
+    "No full-corner proof for LVC1G17 input/output levels or power-ramp behavior"
+  ],
+  "primary_sources": {
+    "atmega328p": "https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf",
+    "iso7741": "https://www.ti.com/lit/ds/symlink/iso7741.pdf",
+    "sn74lvc1g17": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf",
+    "tps3890": "https://www.ti.com/lit/ds/symlink/tps3890.pdf"
+  },
+  "sha256": {
+    "elec/src/hot_receiver_fixture.ato": "4998bc6f766cd855375214a8524c66b3ff0986cb23e73c8be7e967f0cff6387d",
+    "compiled/default.net": "913568b03edc5e96d8c2d35a67ffc7d53a1c6773f33e380fc5fb9dad712a8997",
+    "compiled/default.csv": "42b8bbdca29a7990942600743bb02ac8e109940455a5daf5ea550d5642df6f2b",
+    "audit_netlist.py": "131c1c497b18b700798f69395b911586cf6bf6197f743a5c688e31c1df3b6a80",
+    "README.md": "f19a3a8671ee24871b38ca62e021abe77a15b5917508cadff4b698fc9fd46cb7",
+    "ato.yaml": "ead74f403361062af4673ccdc9e651652919ca727c132885f7468d3face6cd1a"
+  }
+}

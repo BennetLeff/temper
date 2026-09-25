@@ -1,0 +1,1446 @@
+Film Capacitors
+
+Metallized Polypropylene Film Capacitors (MKP)
+
+
+
+Series/Type:          B32674 ... B32678
+Date:                 March 2015
+
+
+
+
+© EPCOS AG 2015. Reproduction, publication and dissemination of this publication, enclosures hereto and the
+information contained therein without EPCOS' prior express consent is prohibited.
+Metallized polypropylene film capacitors (MKP)                B32674 ... B32678
+MKP DC link  high power series
+
+
+Recommended applications
+   Frequency converters
+   Industrial and high-end power supplies
+   Solar inverters
+
+Climatic
+  Max. operating temperature: 105 °C (case)
+  Climatic category (IEC 60068-1): 40/105/56
+
+Construction
+  Dielectric: Polypropylene (MKP)
+  Plastic case (UL 94 V-0)
+  Epoxy resin sealing (UL 94 V-0)
+
+Features
+  Capacitance value up to 270 µF
+  High CV product, compact
+  Good self-healing properties
+  Over-voltage capability
+  Low losses with high current capability
+  High reliability
+  Long useful life
+
+Terminals
+  Parallel wire leads, lead-free tinned
+  2-pin, 4-pin and 12-pin versions
+  Standard lead lengths: 6 1 mm
+
+Marking
+Manufacturer's logo and lot number,
+date code, rated capacitance (coded),
+capacitance tolerance (code letter),
+rated DC voltage
+
+Delivery mode
+Bulk (untaped, lead length 6 1 mm)
+
+
+
+
+Please read Cautions and warnings and          Page 2 of 40
+Important notes at the end of this document.
+                                                                            B32674 ... B32678
+                                                              MKP DC link  high power series
+
+
+Dimensional drawings
+
+Dimensions in mm
+Number of wires  Lead spacing                        ±0.4    Lead diameter d1 ±0.05 Type
+2-pin                       27.5                             0.8                   B32674D
+2-pin                       37.5                             1.0                   B32676T
+4-pin                       37.5                             1.2                   B32676G
+4-pin                       37.5                             1.2                   B32676T
+4-pin                       52.5                             1.2                   B32678G
+4-pin                       52.5                             1.2                   B32678T
+12-pin                      52.5                             1.2                   B32678J
+
+Dimensional drawings 2-pin versions
+
+B32674D
+
+
+
+
+Lead spacing             ±0.4:            27.5
+Lead diameter d1:                              0.8
+(Dimensions in mm)
+
+
+B32676T (low profile)
+
+
+
+
+Lead spacing             ±0.4:            37.5
+Lead diameter d1:                              1.0
+(Dimensions in mm)
+
+
+
+
+Please read Cautions and warnings and                       Page 3 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Dimensional drawings 4-pin versions
+
+B32676G, B32678G
+
+
+
+
+                        B32676G B32678G
+Lead spacing      ±0.4: 37.5    52.5
+Lead diameter d1:        1.2     1.2
+(Dimensions in mm)
+
+B32676T, B32678T (low profile)
+
+
+
+
+                        B32676T B32678T
+Lead spacing      ±0.4: 37.5    52.5
+Lead diameter d1:        1.2     1.2
+(Dimensions in mm)
+
+Dimensional drawing 12-pin version
+
+B32678J
+
+
+
+
+Lead spacing             ±0.4:            52.5
+Lead diameter d1:                              1.2
+(Dimensions in mm)
+
+Please read Cautions and warnings and                Page 4 of 40
+Important notes at the end of this document.
+                                                                            B32674 ... B32678
+                                                         MKP DC link  high power series
+
+
+Overview of available types
+
+Lead spacing 27.5 mm                                                  37.5 mm
+Type                B32674                                            B32676
+Page                7                                                 9
+VR (V DC)           300        450         630   750      875         300      450   630    750   875
+CR (µF)
+ 0.47
+ 0.68
+ 1.0
+ 1.5
+ 2.0
+ 2.2
+ 2.7
+ 3.0
+ 3.3
+ 3.5
+ 4.0
+ 4.7
+ 5.0
+ 5.6
+ 6.0
+ 6.2
+ 6.8
+ 7.5
+ 8.0
+ 8.2
+ 9.0
+10
+12
+13
+14
+15
+20
+22
+25
+30
+35
+
+
+
+Please read Cautions and warnings and                  Page 5 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Lead spacing 52.5 mm
+Type                B32678
+Page                11
+VR (V DC)           300                    450      630         750   875
+CR (µF)
+   7.0
+   9.0
+ 13
+ 15
+ 20
+ 22
+ 24
+ 25
+ 28
+ 30
+ 35
+ 38
+ 40
+ 45
+ 47
+ 60
+ 65
+ 80
+ 85
+100
+120
+180
+270
+
+
+
+
+Please read Cautions and warnings and            Page 6 of 40
+Important notes at the end of this document.
+                                                                                                   B32674
+                                                                 MKP DC link  high power series
+
+
+Ordering codes and packing units (lead spacing 27.5 mm)
+
+CR1) Max. dimensions               P1      Ordering code                IRMS,max2) ESRtyp ESLtyp3) tan δ tan δ MOQ
+     w×h×l                                 (composition see             70 °C 70 °C
+                                           below)                       10 kHz 10 kHz              1 kHz 10 kHz
+µF     mm                          mm                                   A          mΩ     nH       10-3 10-3    pcs.
+VR,85 °C = 300 V DC, Vop,70 °C = 450 V DC
+ 2.2 11.0 × 19.0 × 31.5         B32674D3225+000                          5.0        18.1   16.0     0.7    4.1   1280
+ 3.3 12.5 × 21.5 × 31.5         B32674D3335+000                          7.0        12.2   19.0     0.7    4.1   1120
+ 4.7 14.0 × 24.5 × 31.5         B32674D3475+000                          8.5         8.9   21.0     0.7    4.2   1040
+ 5.0 15.0 × 24.5 × 31.5         B32674D3505+000                          9.0         8.4   21.0     0.7    4.2    960
+ 6.8 18.0 × 27.5 × 31.5         B32674D3685+000                         11.5         6.3   24.0     0.7    4.4    800
+ 8.0 16.0 × 32.0 × 31.5         B32674D3805+000                         12.5         5.6   27.0     0.7    4.5    880
+ 8.2 18.0 × 33.0 × 31.5         B32674D3825+000                         13.0         5.5   27.0     0.7    4.5    800
+10.0 21.0 × 31.0 × 31.5         B32674D3106+000                         14.5         4.6   27.0     0.8    4.6    720
+12.0 22.0 × 36.5 × 31.5         B32674D3126+000                         17.0         4.0   31.0     0.8    4.9    640
+VR,85 °C = 450 V DC, Vop,70 °C = 630 V DC
+ 1.5 11.0 × 19.0 × 31.5         B32674D4155+000                          4.5        22.1   16.0     0.6    3.3   1280
+ 2.2 12.5 × 21.5 × 31.5         B32674D4225+000                          6.0        14.9   19.0     0.6    3.3   1120
+ 3.3 15.0 × 24.5 × 31.5         B32674D4335+000                          8.0        10.3   22.0     0.6    3.4    960
+ 4.7 18.0 × 27.5 × 31.5         B32674D4475+000                         10.5         7.5   24.0     0.6    3.5    800
+ 5.0 16.0 × 32.0 × 31.5         B32674D4505+000                         11.0         7.1   28.0     0.7    3.6    880
+ 5.6 18.0 × 33.0 × 31.5         B32674D4565+000                         12.0         6.3   29.0     0.7    3.6    800
+ 6.0 21.0 × 31.0 × 31.5         B32674D4605+000                         13.0         5.9   28.0     0.7    3.6    720
+ 6.8 22.0 × 36.5 × 31.5         B32674D4685+000                         14.5         5.4   29.0     0.7    3.7    640
+ 7.5 22.0 × 36.5 × 31.5         B32674D4755+000                         15.0         5.0   32.0     0.7    3.8    640
+VR,85 °C = 630 V DC, Vop,70 °C = 800 V DC
+ 1.0 11.0 × 19.0 × 31.5         B32674D6105+000                          4.0        26.1   17.0     0.6    2.7   1280
+ 1.5 12.5 × 21.5 × 31.5         B32674D6155+000                          5.5        17.9   19.0     0.6    2.7   1120
+ 2.2 15.0 × 24.5 × 31.5         B32674D6225+000                          7.5        12.4   21.0     0.6    2.7    960
+ 3.3 16.0 × 32.0 × 31.5         B32674D6335+000                         10.0         8.5   28.0     0.6    2.8    880
+ 4.7 22.0 × 36.5 × 31.5         B32674D6475+000                         13.5         6.0   31.0     0.6    3.0    640
+ 5.0 22.0 × 36.5 × 31.5         B32674D6505+000                         14.5         5.8   31.0     0.6    3.0    640
+
+MOQ = Minimum Order Quantity, consisting of 4 packing units.
+Intermediate capacitance values are available on request.
+Composition of ordering code
++ = Capacitance tolerance code:
+    K = ±10%
+    J = ±5%
+
+
+
+
+1) Capacitance value measured at 1 kHz
+2) Max. ripple current IRMS at 70 °C at 10 kHz for a ∆T ≤ 20 °C when ∆ESRtyp ≤ ±5%
+3) ESL value measured at resonance frequency (see specific graphs of Z vs freq)
+
+
+Please read Cautions and warnings and                         Page 7 of 40
+Important notes at the end of this document.
+                    B32674
+                    MKP DC link  high power series
+
+
+Ordering codes and packing units (lead spacing 27.5 mm)
+
+CR4) Max. dimensions               P1      Ordering code                IRMS,max5) ESRtyp ESLtyp6) tan δ tan δ MOQ
+     w×h×l                                 (composition see             70 °C 70 °C
+                                           below)                       10 kHz 10 kHz              1 kHz 10 kHz
+µF     mm                          mm                                   A          mΩ     nH       10-3 10-3    pcs.
+VR,85 °C = 750 V DC, Vop,70 °C = 900 V DC
+ 0.6811.0 × 19.0 × 31.5          B32674D1684+000 3.5                                34.7   17.0   0.5   2.4   1280
+ 1.0 12.5 × 21.5 × 31.5          B32674D1105+000 4.5                                24.2   18.0   0.5   2.5   1120
+ 1.5 14.0 × 24.5 × 31.5          B32674D1155+000 6.5                                16.3   22.0   0.6   2.5   1040
+ 2.2 18.0 × 27.5 × 31.5          B32674D1225+000 8.5                                11.3   24.0   0.6   2.5    800
+ 3.3 21.0 × 31.0 × 31.5          B32674D1335+000 11.0                                7.9   28.0   0.6   2.6    720
+ 4.0 22.0 × 36.5 × 31.5          B32674D1405+000 13.0                                6.7   32.0   0.6   2.7    640
+VR,85 °C = 875 V DC, Vop,70 °C = 1050 V DC
+ 0.4711.0 × 19.0 × 31.5          B32674D8474+000 3.0                                45.2   16.0   0.5   2.2   1280
+ 0.6811.0 × 21.0 × 31.5          B32674D8684+000 4.0                                31.5   19.0   0.5   2.2   1280
+ 1.0 13.5 × 23.0 × 31.5          B32674D8105+000 5.0                                22.2   20.0   0.5   2.2   1040
+ 1.5 18.0 × 27.5 × 31.5          B32674D8155+000 7.5                                14.7   23.0   0.5   2.2    800
+ 2.2 18.0 × 33.0 × 31.5          B32674D8225+000 9.5                                10.3   29.0   0.5   2.3    800
+ 3.0 22.0 × 36.5 × 31.5          B32674D8305+000 12.0                                7.8   31.0   0.5   2.4    640
+
+MOQ = Minimum Order Quantity, consisting of 4 packing units.
+Intermediate capacitance values are available on request.
+Composition of ordering code
++ = Capacitance tolerance code:
+    K = ±10%
+    J = ±5%
+
+
+
+
+4) Capacitance value measured at 1 kHz
+5) Max. ripple current IRMS at 70 °C at 10 kHz for a ∆T ≤ 20 °C when ∆ESRtyp ≤ ±5%
+6) ESL value measured at resonance frequency (see specific graphs of Z vs freq)
+
+
+Please read Cautions and warnings and                         Page 8 of 40
+Important notes at the end of this document.
+                                                                                                   B32676
+                                                                 MKP DC link  high power series
+
+
+Ordering codes and packing units (lead spacing 37.5 mm)
+
+CR1) Max. dimensions               P1      Ordering code                IRMS,max2) ESRtyp ESLtyp3) tan δ tan δ MOQ
+     w×h×l                                 (composition see             70 °C 70 °C
+                                           below)                       10 kHz 10 kHz              1 kHz 10 kHz
+µF     mm                          mm                                   A          mΩ     nH       10-3 10-3    pcs.
+VR,85 °C = 300 V DC, Vop,70 °C = 450 V DC
+ 6.2 24.0 × 15.0 × 41.5         B32676T3625+000                          8.0        12.6   18.0     1.1    8.2   1040
+ 9.0 24.0 × 19.0 × 41.5         B32676T3905+000                         10.0         9.1   19.0     1.1    8.3    780
+15.0 20.0 × 39.5 × 42.0 10.2 B32676G3156+000                             16.0         5.4   10.0     1.1    8.3    640
+20.0 28.0 × 37.0 × 42.0 10.2 B32676G3206+000                             20.0         4.0   11.0     1.1    8.4    440
+20.0 43.0 × 22.0 × 41.5 20.3 B32676T3206+000                             19.5         4.0   13.0     1.1    8.3    280
+22.0 28.0 × 42.5 × 42.0 10.2 B32676G3226+000                             21.5         3.8   11.0     1.2    8.5    440
+25.0 28.0 × 42.5 × 42.0 10.2 B32676G3256+000                             22.5         3.4   12.0     1.2    8.6    440
+30.0 30.0 × 45.0 × 42.0 20.3 B32676G3306+000                             26.0         2.8   12.0     1.2    8.7    400
+35.0 33.0 × 48.0 × 42.0 20.3 B32676G3356+000                             29.5         2.5   13.0     1.2    8.8    180
+VR,85 °C = 450 V DC, Vop,70 °C = 630 V DC
+ 4.0 24.0 × 15.0 × 41.5         B32676T4405+000                          7.0        15.5   19.0     1.0    6.6   1040
+ 4.7 24.0 × 19.0 × 41.5         B32676T4475+000                          8.0        13.2   18.0     1.0    6.6    780
+ 8.2 20.0 × 39.5 × 42.0 10.2 B32676G4825+000                             13.5         7.8    9.0     1.0    6.7    640
+10.0 20.0 × 39.5 × 42.0 10.2 B32676G4106+000                             14.5         6.4   11.0     1.0    6.7    640
+13.0 43.0 × 22.0 × 41.5 20.3 B32676T4136+000                             17.5         5.0   13.0     1.0    6.6    280
+15.0 28.0 × 42.5 × 42.0 10.2 B32676G4156+000                             20.0         4.4   11.0     1.0    6.8    440
+20.0 30.0 × 45.0 × 42.0 20.3 B32676G4206K000                             24.0         3.3   13.0     1.0    6.9    400
+25.0 33.0 × 48.0 × 42.0 20.3 B32676G4256K000                             28.0         2.8   14.0     1.0    7.1    180
+VR,85 °C = 630 V DC, Vop,70 °C = 800 V DC
+ 2.7 24.0 × 15.0 × 41.5         B32676T6275+000                          7.0        17.7   20.0     0.8    5.1   1040
+ 3.5 24.0 × 19.0 × 41.5         B32676T6355+000                          8.0        14.1   19.0     0.8    5.1    780
+ 6.8 20.0 × 39.5 × 42.0 10.2 B32676G6685+000                             13.5         7.4   10.0     0.8    5.2    640
+ 7.5 20.0 × 39.5 × 42.0 10.2 B32676G6755+000                             14.5         6.6   12.0     0.8    5.2    640
+ 8.2 28.0 × 37.0 × 42.0 10.2 B32676G6825+000                             16.0         6.1   11.0     0.8    5.2    440
+ 9.0 43.0 × 22.0 × 41.5 20.3 B32676T6905K000                             16.5         5.7   13.0     0.8    5.1    280
+10.0 28.0 × 42.5 × 42.0 10.2 B32676G6106+000                             18.5         5.1   11.0     0.8    5.2    440
+12.0 28.0 × 42.5 × 42.0 10.2 B32676G6126+000                             20.0         4.4   12.0     0.8    5.3    440
+14.0 30.0 × 45.0 × 42.0 20.3 B32676G6146+000                             23.0         3.7   14.0     0.8    5.3    400
+15.0 33.0 × 48.0 × 42.0 20.3 B32676G6156+000                             25.0         3.5   14.0     0.8    5.4    180
+
+MOQ = Minimum Order Quantity, consisting of 4 packing units.
+Intermediate capacitance values are available on request.
+Composition of ordering code
++ = Capacitance tolerance code:
+    K = ±10%
+    J = ±5%
+
+1) Capacitance value measured at 1 kHz
+2) Max. ripple current IRMS at 70 °C at 10 kHz for a ∆T ≤ 20 °C when ∆ESRtyp ≤ ±5%
+3) ESL value measured at resonance frequency (see specific graphs of Z vs freq)
+
+
+Please read Cautions and warnings and                         Page 9 of 40
+Important notes at the end of this document.
+                    B32676
+                    MKP DC link  high power series
+
+
+Ordering codes and packing units (lead spacing 37.5 mm)
+
+CR4) Max. dimensions               P1      Ordering code                IRMS,max5) ESRtyp ESLtyp6) tan δ tan δ MOQ
+     w×h×l                                 (composition see             70 °C 70 °C
+                                           below)                       10 kHz 10 kHz              1 kHz 10 kHz
+µF     mm                          mm                                   A          mΩ     nH       10-3 10-3    pcs.
+VR,85 °C = 750 V DC, Vop,70 °C = 900 V DC
+ 2.0 24.0 × 15.0 × 41.5          B32676T1205+000                         6.0        22.7   18.0   0.8   4.6   1040
+ 2.7 24.0 × 19.0 × 41.5          B32676T1275+000                         7.5        16.7   19.0   0.8   4.6    780
+ 4.7 20.0 × 39.5 × 42.0 10.2 B32676G1475+000                             12.0         9.5   10.0   0.8   4.6    640
+ 5.6 20.0 × 39.5 × 42.0 10.2 B32676G1565+000                             13.0         8.2   11.0   0.8   4.7    640
+ 6.8 28.0 × 37.0 × 42.0 10.2 B32676G1685+000                             15.5         6.7   11.0   0.8   4.7    440
+ 9.0 30.0 × 45.0 × 42.0 20.3 B32676G1905+000                             19.5         5.1   12.0   0.8   4.7    440
+10.0 30.0 × 45.0 × 42.0 20.3 B32676G1106+000                             20.5         4.7   13.0   0.8   4.8    400
+12.0 33.0 × 48.0 × 42.0 20.3 B32676G1126+000                             23.0         4.0   14.0   0.8   4.8    180
+VR,85 °C = 875 V DC, Vop,70 °C = 1050 V DC
+ 1.5 24.0 × 15.0 × 41.5          B32676T8155+000                         5.5        26.2   18.0   0.7   4.1   1040
+ 2.0 24.0 × 19.0 × 41.5          B32676T8205+000                         7.0        19.6   19.0   0.7   4.1    780
+ 3.3 20.0 × 39.5 × 42.0 10.2 B32676G8335+000                             10.5        12.0    9.0   0.7   4.1    640
+ 4.0 20.0 × 39.5 × 42.0 10.2 B32676G8405+000                             12.0         9.9   11.0   0.7   4.1    640
+ 4.7 28.0 × 37.0 × 42.0 10.2 B32676G8475+000                             13.5         8.6   10.0   0.7   4.1    440
+ 6.8 28.0 × 42.5 × 42.0 10.2 B32676G8685+000                             17.0         6.0   12.0   0.7   4.2    440
+ 7.5 30.0 × 45.0 × 42.0 20.3 B32676G8755+000                             19.0         5.4   13.0   0.7   4.2    400
+10.0 33.0 × 48.0 × 42.0 20.3 B32676G8106K000                             22.5         4.3   14.0   0.7   4.3    180
+
+MOQ = Minimum Order Quantity, consisting of 4 packing units.
+Intermediate capacitance values are available on request.
+Composition of ordering code
++ = Capacitance tolerance code:
+    K = ±10%
+    J = ±5%
+
+
+
+
+4) Capacitance value measured at 1 kHz
+5) Max. ripple current IRMS at 70 °C at 10 kHz for a ∆T ≤ 20 °C when ∆ESRtyp ≤ ±5%
+6) ESL value measured at resonance frequency (see specific graphs of Z vs freq)
+
+
+Please read Cautions and warnings and                        Page 10 of 40
+Important notes at the end of this document.
+                                                                                               B32678
+                                                                 MKP DC link  high power series
+
+
+Ordering codes and packing units (lead spacing 52.5 mm)
+
+CR1)     Max. dimensions             P1        Ordering code              IRMS,max2) ESRtyp ESLtyp3) tan δ tan δ MOQ
+         w×h×l                                 (composition see           70 °C 70 °C
+                                               below)                     10 kHz 10 kHz              1 kHz 10 kHz
+µF       mm                          mm                                   A          mΩ     nH       10-3 10-3    pcs.
+VR,85 °C = 300 V DC, Vop,70 °C = 450 V DC
+ 30.0 43.0 × 22.0 × 57.5 20.3 B32678T3306+000 22.5                                   3.9   13.0   1.5    11.8    420
+ 40.0 30.0 × 45.0 × 57.5 20.3 B32678G3406+000 28.0                                   3.0   12.0   1.5    12.3    280
+ 47.0 35.0 × 50.0 × 57.5 20.3 B32678G3476+000 33.0                                   2.6   13.0   1.5    12.5    108
+ 60.0 35.0 × 50.0 × 57.5 20.3 B32678G3606K000 37.0                                   2.1   15.0   1.6    12.9    108
+ 80.0 45.0 × 57.0 × 57.5 20.3 B32678G3806+000 47.0                                   1.6   18.0   1.6    13.5    140
+ 80.0 130.0 × 22.0 × 57.5 20.3 B32678J3806K000 51.0                                  1.4    4.0   1.5    11.7     80
+100.0 60.0 × 45.0 × 57.5 20.3 B32678G3107+000 48.0                                   1.4   19.0   1.6    13.5    200
+270.0 130.0 × 58.0 × 57.5 20.3 B32678J3277K000 108.0                                 0.5    6.0   1.6    13.8     40
+VR,85 °C = 450 V DC, Vop,70 °C = 630 V DC
+ 20.0 43.0 × 22.0 × 57.5 20.3 B32678T4206+000 20.0                                   4.9   13.0   1.3     9.8    420
+ 30.0 35.0 × 50.0 × 57.5 20.3 B32678G4306+000 28.0                                   3.2   14.0   1.3     9.9    108
+ 35.0 35.0 × 50.0 × 57.5 20.3 B32678G4356+000 31.5                                   2.8   14.0   1.3    10.0    108
+ 40.0 35.0 × 50.0 × 57.5 20.3 B32678G4406K000 34.0                                   2.5   15.0   1.3    10.2    108
+ 60.0 45.0 × 57.0 × 57.5 20.3 B32678G4606+000 45.0                                   1.8   18.0   1.4    11.2    140
+ 60.0 130.0 × 22.0 × 57.5 20.3 B32678J4606K000 49.5                                  1.6    4.0   1.2     9.5     80
+ 65.0 60.0 × 45.0 × 57.5 20.3 B32678G4656+000 48.0                                   1.6   19.0   1.3    10.6    200
+180.0 130.0 × 58.0 × 57.5 20.3 B32678J4187K000 97.5                                  0.6    6.0   1.4    11.2     40
+VR,85 °C = 630 V DC, Vop,70 °C = 800 V DC
+ 13.0 43.0 × 22.0 × 57.5 20.3 B32678T6136+000 18.0                                   5.9   13.0   1.1     7.9    420
+ 20.0 35.0 × 50.0 × 57.5 20.3 B32678G6206+000 26.5                                   4.0   13.0   1.1     8.2    108
+ 25.0 35.0 × 50.0 × 57.5 20.3 B32678G6256+000 29.5                                   3.3   15.0   1.1     8.3    108
+ 38.0 130.0 × 22.0 × 57.5 20.3 B32678J6386K000 43.5                                  2.1    4.0   1.1     7.9     80
+ 40.0 45.0 × 57.0 × 57.5 20.3 B32678G6406+000 41.0                                   2.1   18.0   1.2     8.8    140
+ 45.0 60.0 × 45.0 × 57.5 20.3 B32678G6456+000 43.0                                   1.9   19.0   1.2     8.7    200
+120.0 130.0 × 58.0 × 57.5 20.3 B32678J6127K000 90.0                                  0.7    6.0   1.2     8.8     40
+
+MOQ = Minimum Order Quantity, consisting of 4 packing units.
+Intermediate capacitance values are available on request.
+Composition of ordering code
++ = Capacitance tolerance code:
+    K = ±10%
+    J = ±5%
+
+
+
+
+1) Capacitance value measured at 1 kHz
+2) Max. ripple current IRMS at 70 °C at 10 kHz for a ∆T ≤ 20 °C when ∆ESRtyp ≤ ±5%
+3) ESL value measured at resonance frequency (see specific graphs of Z vs freq)
+
+
+Please read Cautions and warnings and                        Page 11 of 40
+Important notes at the end of this document.
+                    B32678
+                    MKP DC link  high power series
+
+
+Ordering codes and packing units (lead spacing 52.5 mm)
+
+CR4)     Max. dimensions             P1        Ordering code              IRMS,max5) ESRtyp ESLtyp6) tan δ tan δ MOQ
+         w×h×l                                 (composition see           70 °C 70 °C
+                                               below)                     10 kHz 10 kHz              1 kHz 10 kHz
+µF       mm                          mm                                   A          mΩ     nH       10-3 10-3    pcs.
+VR,85 °C = 750 V DC, Vop,70 °C = 900 V DC
+  9.0 43.0 × 22.0 × 57.5 20.3 B32678T1905+000                               16.5     7.2   13.0   1.0     6.8    420
+ 15.0 30.0 × 45.0 × 57.5 20.3 B32678G1156K000                               23.0     4.5   14.0   1.0     7.0    280
+ 20.0 35.0 × 50.0 × 57.5 20.3 B32678G1206K000                               28.0     3.5   15.0   1.0     7.2    108
+ 28.0 45.0 × 57.0 × 57.5 20.3 B32678G1286+000                               37.5     2.5   18.0   1.0     7.4    140
+ 30.0 60.0 × 45.0 × 57.5 20.3 B32678G1306+000                               39.5     2.4   19.0   1.0     7.3    200
+ 30.0 130.0 × 22.0 × 57.5 20.3 B32678J1306K000                              40.5     2.3    4.0   1.0     6.8     80
+ 85.0 130.0 × 58.0 × 57.5 20.3 B32678J1856K000                              82.5     0.9    6.0   1.0     7.4     40
+VR,85 °C = 875 V DC, Vop,70 °C = 1050 V DC
+  7.0 43.0 × 22.0 × 57.5 20.3 B32678T8705+000                               15.5     8.2   13.0   0.9     6.0    420
+ 15.0 35.0 × 50.0 × 57.5 20.3 B32678G8156K000                               26.5     4.0   15.0   0.9     6.3    108
+ 22.0 45.0 × 57.0 × 57.5 20.3 B32678G8226+000                               35.0     2.9   17.0   1.0     6.5    140
+ 22.0 130.0 × 22.0 × 57.5 20.3 B32678J8226K000                              39.0     2.6    5.0   0.9     6.0     80
+ 24.0 60.0 × 45.0 × 57.5 20.3 B32678G8246+000                               38.0     2.6   19.0   0.9     6.4    200
+ 65.0 130.0 × 58.0 × 57.5 20.3 B32678J8656K000                              78.0     1.0    6.0   1.0     6.5     40
+
+MOQ = Minimum Order Quantity, consisting of 4 packing units.
+Intermediate capacitance values are available on request.
+Composition of ordering code
++ = Capacitance tolerance code:
+    K = ±10%
+    J = ±5%
+
+
+
+
+4) Capacitance value measured at 1 kHz
+5) Max. ripple current IRMS at 70 °C at 10 kHz for a ∆T ≤ 20 °C when ∆ESRtyp ≤ ±5%
+6) ESL value measured at resonance frequency (see specific graphs of Z vs freq)
+
+
+Please read Cautions and warnings and                        Page 12 of 40
+Important notes at the end of this document.
+                                                                   B32674 ... B32678
+                                                 MKP DC link  high power series
+
+
+Technical data
+
+Reference standard: IEC 61071. All data given at T = 20 °C, unless otherwise specified.
+Operating temperature range (case)          Max. operating temperature, Top,max +105 °C
+                                            Upper category temperature Tmax           +105 °C
+                                            Lower category temperature Tmin             40 °C
+Insulation Resistance Rins                  τ > 10000 s (after 1 min)
+given as time constant                      For VR ≥ 500 V measured at 500 V
+τ = CR  Rins, rel. humidity ≤ 65%          For VR < 500 V measured at VR
+(minimum as-delivered values)
+DC voltage test between terminals (10 s) 1.5  VR
+Voltage test terminal to case (10 s)        2110 V AC, 50 Hz
+Pulse Handling Capability (V/µs)            IP (A) / C (µF)
+Damp heat test                              56 days/40 °C/93% relative humidity
+Limit values after damp heat test           Capacitance change |∆C/C|              ≤ 5%
+                                            Dissipation factor change ∆tan δ ≤ 0.005 (at 1 kHz)
+                                            Insulation resistance Rins             ≥ 50% of minimum
+                                                                                   as-delivered values
+Reliability:               Failure rate λ   1 fit (≤ 1  10-9/h) at 0.5  VR, 40 °C
+                           Service life tSL 200 000 h at VR, 85 °C
+                                            For conversion to other operating conditions and
+                                            temperatures, refer to chapter "Quality, 2 Reliability".
+VR (V DC)                                   300           450         630           750       875
+Continuous operation voltage
+Vop (V DC) at 70 °C                         450           630         800           900      1050
+Continuous operation voltage
+Vop (V DC) at 85 °C                         300           450         630           750       875
+For temperatures between
+                                            1.2%/°C of Vop de-rating compared to Vop at 85 °C
+85 °C and 100 °C
+
+
+
+
+Please read Cautions and warnings and          Page 13 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Typical waveforms
+
+
+
+
+Restrictions:
+VR: Maximum operating peak voltage of either polarity but of a non-reversing waveform, for which
+the capacitor has been designed for continuous operation.
+ûAC ≤ 0.2  VR
+Vp, max:
+
+Overvoltage                              Maximum duration within one day   Observation
+   1.1  VR                                    30% of on-load duration     System regulation
+  1.15  VR                                            30 min.             System regulation
+   1.2  VR                                             5 min.             System regulation
+   1.3  VR                                             1 min.             System regulation
+
+NOTE 1 An overvoltage equal to 1.5  VR for 30 ms is permitted 1000 times during the life of the
+capacitor.
+The amplitudes of the overvoltages that may be tolerated without significant reduction in the life
+time of the capacitor depend on their duration, the number of application and the capacitor
+temperature.
+In addition these values assume that the overvoltages may appear when the internal temperature
+of the capacitor is less than 0 °C but within the temperature category.
+
+NOTE 2        The average applied voltage must not be higher than the specified voltage.
+
+Pulse handling capability
+
+"dV/dt" represents the maximum permissible voltage change per unit of time for non-sinusoidal
+voltages, expressed in V/µs.
+Note:
+The values of dV/dt and k0 provided below must not be exceeded in order to avoid damaging the
+capacitor. These parameters are given for isolated pulses in such a way that the heat generated
+by one pulse will be completely dissipated before applying the next pulse. For a train of pulses,
+please refer to the curves of permissible AC voltage-current versus frequency.
+
+dV/dt values
+Lead spacing            27.5 mm             37.5 mm             52.5 mm
+Type                    B32674              B32676              B32678
+VR (V DC)               300 450 630 750 875 300 450 630 750 875 300 450 630 750 875
+dV/dt in V/µs            40 75 100 125 150 22 54 73 85 100 15 35 50 60 70
+
+Please read Cautions and warnings and                 Page 14 of 40
+Important notes at the end of this document.
+                                                                B32674 ... B32678
+                                                 MKP DC link  high power series
+
+
+Characteristics curves
+Additional technical information can be found under "Design support" on www.epcos.com
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 27.5 mm / B32674D3x /                   Lead spacing 27.5 mm / B32674D3x /
+300 V DC                                             300 V DC
+
+
+
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 27.5 mm / B32674D4x /                   Lead spacing 27.5 mm / B32674D4x /
+450 V DC                                             450 V DC
+
+
+
+
+Please read Cautions and warnings and          Page 15 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Characteristics curves
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 27.5 mm / B32674D6x /                   Lead spacing 27.5 mm / B32674D6x /
+630 V DC                                             630 V DC
+
+
+
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 27.5 mm / B32674D1x /                   Lead spacing 27.5 mm / B32674D1x /
+750 V DC                                             750 V DC
+
+
+
+
+Please read Cautions and warnings and          Page 16 of 40
+Important notes at the end of this document.
+                                                                B32674 ... B32678
+                                                 MKP DC link  high power series
+
+
+Characteristics curves
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 27.5 mm / B32674D8x /                   Lead spacing 27.5 mm / B32674D8x /
+875 V DC                                             875 VDC
+
+
+
+
+Please read Cautions and warnings and          Page 17 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Characteristics curves
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 37.5 mm / B32676G/T3x /                 Lead spacing 37.5 mm / B32676G/T3x /
+300 V DC                                             300 V DC
+
+
+
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 37.5 mm / B32676G/T4x /                 Lead spacing 37.5 mm / B32676G/T4x /
+450 V DC                                             450 V DC
+
+
+
+
+Please read Cautions and warnings and          Page 18 of 40
+Important notes at the end of this document.
+                                                                B32674 ... B32678
+                                                 MKP DC link  high power series
+
+
+Characteristics curves
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 37.5 mm / B32676G/T6x /                 Lead spacing 37.5 mm / B32676G/T6x /
+630 V DC                                             630 V DC
+
+
+
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 37.5 mm / B32676G/T1x /                 Lead spacing 37.5 mm / B32676G/T1x /
+750 V DC                                             750 V DC
+
+
+
+
+Please read Cautions and warnings and          Page 19 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Characteristics curves
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 37.5 mm / B32676G/T8x /                 Lead spacing 37.5 mm / B32676G/T8x /
+875 V DC                                             875 V DC
+
+
+
+
+Please read Cautions and warnings and          Page 20 of 40
+Important notes at the end of this document.
+                                                                B32674 ... B32678
+                                                 MKP DC link  high power series
+
+
+Characteristics curves
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 52.5 mm / B32678G/T3x /                 Lead spacing 52.5 mm / B32678G/T3x /
+300 V DC                                             300 V DC
+
+
+
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 52.5 mm / B32678G/T4x /                 Lead spacing 52.5 mm / B32678G/T4x /
+450 V DC                                             450 V DC
+
+
+
+
+Please read Cautions and warnings and          Page 21 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Characteristics curves
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 52.5 mm / B32678G/T6x /                 Lead spacing 52.5 mm / B32678G/T6x /
+630 V DC                                             630 V DC
+
+
+
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 52.5 mm / B32678G/T1x /                 Lead spacing 52.5 mm / B32678G/T1x /
+750 V DC                                             750 V DC
+
+
+
+
+Please read Cautions and warnings and          Page 22 of 40
+Important notes at the end of this document.
+                                                                B32674 ... B32678
+                                                 MKP DC link  high power series
+
+
+Characteristics curves
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 52.5 mm / B32678G/T8x /                 Lead spacing 52.5 mm / B32678G/T8x /
+875 V DC                                             875 V DC
+
+
+
+
+Impedance Z versus frequency f                       ESR versus frequency f
+(typical values)                                     (typical values)
+Lead spacing 52.5 mm / B32678Jx /                    Lead spacing 52.5 mm / B32678Jx /
+300 V DC, 450 V DC, 630 V DC, 750 V DC,              300 V DC, 450 V DC, 630 V DC, 750 V DC,
+875 V DC                                             875 V DC
+
+
+
+
+Please read Cautions and warnings and          Page 23 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Characteristics curves
+
+Permissible current IRMS versus frequency f at 70 °C
+
+Lead spacing 27.5 mm
+
+B32674-Dx
+
+
+
+
+Permissible current IRMS versus frequency f at 70 °C
+
+Lead spacing 37.5 mm
+
+B32676-G/Tx
+
+
+
+
+Please read Cautions and warnings and          Page 24 of 40
+Important notes at the end of this document.
+                                                               B32674 ... B32678
+                                                 MKP DC link  high power series
+
+
+Characteristics curves
+
+Permissible current IRMS versus frequency f at 70 °C
+
+Lead spacing 52.5 mm
+
+B32678-G/Tx
+
+
+
+
+Permissible current IRMS versus frequency f at 70 °C
+
+Lead spacing 52.5 mm
+
+B32678-Jx
+
+
+
+
+Please read Cautions and warnings and          Page 25 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Curves Characteristics (IRMS derating vs temperature)
+
+
+
+
+Maximum IRMS current as function of the ambient temperature: IRMS (Tamb) = Factor x IRMS (70 ºC)
+
+
+
+
+Please read Cautions and warnings and          Page 26 of 40
+Important notes at the end of this document.
+                                                                  B32674 ... B32678
+                                                 MKP DC link  high power series
+
+
+Heat transference for self heating calculation
+
+                                                      Box dimensions              Equivalent heat
+                                                                                  coefficient
+                                                       w (mm) h (mm) l (mm)       G (mW/°C)
+                                                           11.0    19.0    31.5                 25
+                                                           11.0    21.0    31.5                 28
+                                                           12.5    21.5    31.5                 30
+                                                           13.5    23.0    31.5                 32
+Figure 1 (2-pin, 4-pin)                                    14.0    24.5    31.5                 35
+                                                           15.0    24.5    31.5                 36
+                                                           16.0    32.0    31.5                 45
+                                                           18.0    27.5    31.5                 44
+                                                           18.0    33.0    31.5                 48
+                                                           19.0    30.0    31.5                 48
+                                                           20.0    11.0    31.5                 65
+                                                           21.0    31.0    31.5                 51
+                                                           22.0    36.5    31.5                 58
+                                                          12.0     22.0    41.5                70
+                                                          14.0     25.0    41.5                43
+                                                          16.0     28.5    41.5                50
+                                                          18.0     32.5    41.5                59
+Figure 2 (12-pin)
+                                                          20.0     39.5    41.5                72
+                                                          24.0     19.0    41.5                50
+                                                          24.0     15.0    41.5                44
+                                                          28.0     37.0    42.0                83
+                                                          28.0     42.5    41.5                90
+                                                          30.0     45.0    42.0               100
+                                                          33.0     48.0    42.0               110
+                                                          43.0     22.0    41.5                80
+                                                          30.0     45.0    57.5               125
+                                                          35.0     50.0    57.5               145
+                                                          43.0     22.0    57.5               103
+                                                          45.0     57.0    57.5               185
+                                                          60.0     45.0    57.5               192
+                                                         130.0     22.0    57.5               200
+                                                         130.0     58.0    57.5               300
+
+The equivalent heat coefficient "G (mW/ºC)" is given for measuring the temperature on the lateral
+surface of the plastic box as figure 1 shows. By using a thermocouple and avoiding effect of radia-
+tion and convection the temperature measured during operation conditions should be a result of
+the dissipated power divided by the equivalent heat coefficient.
+
+
+
+
+Please read Cautions and warnings and          Page 27 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Self Heating by power dissipation and equivalent heat coefficient
+The IRMS and consequently the power dissipation must be limited during operation in order to not
+exceed the maximum limit of ∆T allowed for this series. ∆Tmax given for this series is equal or low-
+er than 20 °C at rated temperature (70 °C), for higher ambient temperatures ∆Tmax (T) will have
+the same derating factor than IRMS vs temperature and then an equivalent derating as per:
+                             ∆Tmax (T) = (Factor)2 x ∆T (70 °C).
+
+For any particular IRMS the ∆T may be calculated by:
+                              ∆T (°C) = Pdis (mW) / G(mW/°C)
+
+Where ∆T (°C) is the difference between the temperature measured on the box (see figure 1) and
+the ambient temperature when capacitor is working during normal operation;
+                             ∆T (°C) = Top(°C)  Tamb (°C).
+
+It represents the increasing of temperature provoked by the IRMS during operation.
+G (mW/°C) is the equivalent heat coefficient described above and Pdis (mW) is the dissipated
+power defined by:           Pdis (mW) = ESRtyp (mΩ) × IRMS2 (ARMS).
+
+Example for thermal calculation:
+
+We will take as reference B32678G8156K (15 µF/875 V) type for thermal calculation.
+Considering the following load and capacitor characteristics:
+
+IRMS: 15 ARMS at 20 kHz
+Tamb: 85 ºC
+35 × 50 × 57.5 box
+G (mW/ºC): 145
+
+Then we have to find the ESRtyp at 20 kHz what is approximately 4.0 mΩ.
+
+So according to                         Pdis (mW) = ESRtyp (mΩ) × IRMS 2 (ARMS)
+we have the following:                  Pdis (mW) = 4.0 mΩ ×15 ARMS2 = 900 mW.
+And as per                              ∆T (°C) = Pdis (mW) / G (mW/°C)
+we have the following:                  ∆T (°C) = 900 (mW) / 145 (mW/°C) = 6.2 °C.
+What is below of the                    ∆Tmax (85 °C) = (Factor)2 x ∆T (70 °C) = (0.7)2 × 20 °C = 9.8 °C.
+
+On the other hand we may confirm that max IRMS at 20 kHz at 70 °C = 26.5 ARMS.
+And then max IRMS for 85 °C of ambient temperature is defined as follows:
+                             IRMS (85 °C) = Factor x IRMS (70 °C) = 0.7 × 26.5 ARMS = 18.55 ARMS
+
+What confirms once again that IRMS (15 ARMS at 20 kHz at 85 °C) is below the max specified for
+such frequency and ambient temperature.
+
+
+
+
+Please read Cautions and warnings and                  Page 28 of 40
+Important notes at the end of this document.
+                                                               B32674 ... B32678
+                                                 MKP DC link  high power series
+
+
+Life time expectancy - typical curve
+(300 V DC / 450 V DC / 630 V DC / 750 V DC / 875 V DC / B3267X-3/4/6/1/8)
+
+
+
+
+Note: Confidence level of 98%
+
+
+
+
+Please read Cautions and warnings and          Page 29 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Testing and Standards
+
+Test                     Reference             Conditions of test                  Performance
+                                                                                   requirements
+Electrical               IEC 61071-11    Voltage between terminals,                Within specified limits
+Parameters                               1.5 VR, during 10 s
+(Routine test)                           Insulation resistance, RINS at VR if
+                                         VR < 500 V or 500 V if VR ≥ 500 V
+                                         Capacitance, C at 1 kHz
+                                         (room temperature)
+                                         Dissipation factor, tan δ at
+                                         1/10 kHz (room temperature)
+Robustness of            IEC 60068-2-21 Tensile strength (test Ua1)                Capacitance and tan δ
+terminations                             Wire diameter          Tensile            within specified limits
+(Type test)                                                     force
+                                         0.5 < d1 ≤ 0.8 mm      10 N
+                                         0.8 < d1 ≤ 1.25 mm 20 N
+Resistance to            IEC 60068-2-20, Solder bath temperature at                ∆C/C0 ≤ 2%
+soldering heat           test Tb,        260 ± 5 °C, immersion for                 I∆ tan δ l ≤ 0.002
+(Type test)              method 1A       10 seconds
+Rapid change of IEC 60384-16                   TA = lower category temperature     I∆C/C0 I ≤ 2%
+temperature                                    TB = upper category temperature     I∆ tan δ I ≤ 0.002
+(Type test)                                    Five cycles, duration t = 30 min.   RINS ≥ 50% of initial limit
+Vibration                IEC 60384-16          Test FC: vibration sinusoidal     No visible damage
+(Type test)                                    Displacement: 0.75 mm
+                                               Accleration: 98 m/s2
+                                               Frequency: 10 Hz ... 500 Hz
+                                               Test duration: 3 orthogonal axes,
+                                               2 hours each axe
+Bump                     IEC 60384-16          Test Eb: Total 4000 bumps with No visible damage
+(Type test)                                    390 m/s2 mounted on PCB           I∆C/C0 I ≤ 2%
+                                               6 ms duration                     I∆ tan δ I ≤ 0.002
+                                                                                 RINS ≥ 50% of initial limit
+Climatic                 IEC 60384-16          Dry heat Tb / 16 h.               No visible damage
+sequence                                       Damp heat cyclic, 1st cycle       I∆C/C0 I ≤ 3%
+(Type test)                                    + 55 °C / 24h / 95% ... 100% RH I∆ tan δ I ≤ 0.001
+                                               Cold Ta / 2h                      RINS ≥ 50% of initial limit
+                                               Damp heat cyclic, 5 cycles
+                                               + 55 °C / 24h / 95% ... 100% RH
+Damp Heat                IEC 60384-16          Test Ca                           No visible damage
+Steady State                                   40 °C / 93% RH / 56 days          I∆C/C0 I ≤ 5%
+(Type test)                                                                      I∆ tan δ I ≤ 0.005
+                                                                                 RINS ≥ 50% of initial limit
+
+
+Please read Cautions and warnings and                 Page 30 of 40
+Important notes at the end of this document.
+                                                                              B32674 ... B32678
+                                                              MKP DC link  high power series
+
+
+Test                     Reference                 Conditions of test                 Performance
+                                                                                      requirements
+Endurance                IEC 61071-11              70 °C / 1.4 VR / 250 hours or      No visible damage
+(Type test)                                        Top / 1.4 Vop / 250 hours          I∆C/C0 I ≤ 3% at 1 kHz
+                                                   + 1000 discharges at 1.4 IR        I∆ tan δ I ≤ 0.015 at
+                                                   + 70 °C / 1.4 VR / 250 hours or    10 kHz
+                                                   Top / 1.4 Vop / 250 hours
+Endurance                IEC 60384-16              70 °C / 1.25 VR / 1000 hours or    No visible damage
+(Type test)                                        85 °C / 1.25 Vop / 1000 hours or   I∆C/C0 I ≤ 5% at 1 kHz
+                                                   100 °C / 1.25 Vop / 1000 hours     I∆ tan δ I ≤ 0.005
+                                                                                      RINS ≥ 50% of initial limit
+
+
+
+Mounting guidelines
+
+1          Soldering
+
+1.1        Solderability of leads
+The solderability of terminal leads is tested to IEC 60068-2-20, test Ta, method 1.
+
+Before a solderability test is carried out, terminals are subjected to accelerated ageing (to
+IEC 60068-2-2, test Ba: 4 h exposure to dry heat at 155 °C). Since the ageing temperature is far
+higher than the upper category temperature of the capacitors, the terminal wires should be cut off
+from the capacitor before the ageing procedure to prevent the solderability being impaired by the
+products of any capacitor decomposition that might occur.
+
+Solder bath temperature                        235 ±5 °C
+Soldering time                                 2.0 ±0.5 s
+Immersion depth                                2.0 +0/0.5 mm from capacitor body or seating plane
+Evaluation criteria:
+Visual inspection                              Wetting of wire surface by new solder ≥90%, free-flowing solder
+
+
+
+
+Please read Cautions and warnings and                       Page 31 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+
+1.2        Resistance to soldering heat
+Resistance to soldering heat is tested to IEC 60068-2-20, test Tb, method 1A.
+Conditions:
+Series                                      Solder bath temperature Soldering time
+MKT boxed (except 2.5 × 6.5 × 7.2 mm) 260 ±5 °C                                      10 ±1 s
+    coated
+    uncoated (lead spacing > 10 mm)
+MFP
+MKP (lead spacing > 7.5 mm)
+MKT boxed (case 2.5 × 6.5 × 7.2 mm)                                                  5 ±1 s
+MKP (lead spacing ≤ 7.5 mm)                                                          <4s
+MKT uncoated (lead spacing ≤ 10 mm)                                                  recommended soldering
+    insulated (B32559)                                                               profile for MKT uncoated
+                                                                                     (lead spacing ≤ 10 mm) and
+                                                                                     insulated (B32559)
+
+
+
+
+Immersion depth                                2.0 +0/0.5 mm from capacitor body or seating plane
+Shield                                         Heat-absorbing board, (1.5 ±0.5) mm thick, between capacitor
+                                               body and liquid solder
+Evaluation criteria:
+Visual inspection                              No visible damage
+                                               2% for MKT/MKP/MFP
+∆C/C0
+                                               5% for EMI suppression capacitors
+tan δ                                          As specified in sectional specification
+
+Please read Cautions and warnings and                      Page 32 of 40
+Important notes at the end of this document.
+                                                                 B32674 ... B32678
+                                                 MKP DC link  high power series
+
+
+
+1.3        General notes on soldering
+Permissible heat exposure loads on film capacitors are primarily characterized by the upper cate-
+gory temperature Tmax. Long exposure to temperatures above this type-related temperature limit
+can lead to changes in the plastic dielectric and thus change irreversibly a capacitor's electrical
+characteristics. For short exposures (as in practical soldering processes) the heat load (and thus
+the possible effects on a capacitor) will also depend on other factors like:
+   Pre-heating temperature and time
+   Forced cooling immediately after soldering
+   Terminal characteristics:
+   diameter, length, thermal resistance, special configurations (e.g. crimping)
+   Height of capacitor above solder bath
+   Shadowing by neighboring components
+   Additional heating due to heat dissipation by neighboring components
+   Use of solder-resist coatings
+
+The overheating associated with some of these factors can usually be reduced by suitable coun-
+termeasures. For example, if a pre-heating step cannot be avoided, an additional or reinforced
+cooling process may possibly have to be included.
+EPCOS recommends the following conditions:
+  Pre-heating with a maximum temperature of 110 °C
+  Temperature inside the capacitor should not exceed the following limits:
+   MKP/MFP 110 °C
+   MKT 160 °C
+   When SMD components are used together with leaded ones, the leaded film capacitors should
+   not pass into the SMD adhesive curing oven. The leaded components should be assembled af-
+   ter the SMD curing step.
+   Leaded film capacitors are not suitable for reflow soldering.
+
+Uncoated capacitors
+For uncoated MKT capacitors with lead spacings ≤10 mm (B32560/B32561) the following mea-
+sures are recommended:
+   pre-heating to not more than 110 °C in the preheater phase
+   rapid cooling after soldering
+
+
+
+
+Please read Cautions and warnings and          Page 33 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Cautions and warnings
+
+    Do not exceed the upper category temperature (UCT).
+    Do not apply any mechanical stress to the capacitor terminals.
+    Avoid any compressive, tensile or flexural stress.
+    Do not move the capacitor after it has been soldered to the PC board.
+    Do not pick up the PC board by the soldered capacitor.
+    Do not place the capacitor on a PC board whose PTH hole spacing differs from the specified
+    lead spacing.
+    Do not exceed the specified time or temperature limits during soldering.
+    Avoid external energy inputs, such as fire or electricity.
+    Avoid overload of the capacitors.
+
+
+The table below summarizes the safety instructions that must always be observed. A detailed de-
+scription can be found in the relevant sections of the chapters "General technical information" and
+"Mounting guidelines".
+
+Topic                        Safety information                                 Reference chapter
+                                                                                "General technical
+                                                                                information"
+Storage conditions           Make sure that capacitors are stored within the    4.5
+                             specified range of time, temperature and humidity "Storage conditions"
+                             conditions.
+Flammability                 Avoid external energy, such as fire or electricity 5.3
+                             (passive flammability), avoid overload of the      "Flammability"
+                             capacitors (active flammability) and consider the
+                             flammability of materials.
+
+
+
+
+Please read Cautions and warnings and              Page 34 of 40
+Important notes at the end of this document.
+                                                                  B32674 ... B32678
+                                                    MKP DC link  high power series
+
+
+Topic                        Safety information                           Reference chapter
+                                                                          "Mounting guidelines"
+Resistance to       Do not exceed the tested ability to withstand         5.2
+vibration           vibration. The capacitors are tested to               "Resistance to vibration"
+                    IEC 60068-2-6.
+                    EPCOS offers film capacitors specially designed
+                    for operation under more severe vibration regimes
+                    such as those found in automotive applications.
+                    Consult our catalog "Film Capacitors for
+                    Automotive Electronics".
+Soldering           Do not exceed the specified time or temperature 1 "Soldering"
+                    limits during soldering.
+Cleaning            Use only suitable solvents for cleaning capacitors. 2 "Cleaning"
+Embedding of        When embedding finished circuit assemblies in       3 "Embedding of
+capacitors in       plastic resins, chemical and thermal influences     capacitors in finished
+finished assemblies must be taken into account.                         assemblies"
+                    Caution: Consult us first, if you also wish to
+                    embed other uncoated component types!
+
+
+Display of ordering codes for EPCOS products
+
+The ordering code for one and the same product can be represented differently in data sheets,
+data books, other publications and the website of EPCOS, or in order-related documents such as
+shipping notes, order confirmations and product labels. The varying representations of the or-
+dering codes are due to different processes employed and do not affect the specifications
+of the respective products. Detailed information can be found on the Internet under
+www.epcos.com/orderingcodes.
+
+
+
+
+Please read Cautions and warnings and             Page 35 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Symbols and terms
+
+Symbol              English                                     German
+α                   Heat transfer coefficient                   Wärmeübergangszahl
+αC                  Temperature coefficient of capacitance Temperaturkoeffizient der Kapazität
+A                   Capacitor surface area                      Kondensatoroberfläche
+βC                  Humidity coefficient of capacitance         Feuchtekoeffizient der Kapazität
+C                   Capacitance                                 Kapazität
+CR                  Rated capacitance                           Nennkapazität
+∆C                  Absolute capacitance change                 Absolute Kapazitätsänderung
+∆C/C                Relative capacitance change (relative       Relative Kapazitätsänderung (relative
+                    deviation of actual value)                  Abweichung vom Ist-Wert)
+∆C/CR               Capacitance tolerance (relative deviation Kapazitätstoleranz (relative Abweichung
+                    from rated capacitance)                     vom Nennwert)
+dt                  Time differential                           Differentielle Zeit
+∆t                  Time interval                               Zeitintervall
+∆T                  Absolute temperature change                 Absolute Temperaturänderung
+                    (self-heating)                              (Selbsterwärmung)
+∆tan δ              Absolute change of dissipation factor       Absolute Änderung des Verlustfaktors
+∆V                  Absolute voltage change                     Absolute Spannungsänderung
+dV/dt               Time differential of voltage function (rate Differentielle Spannungsänderung
+                    of voltage rise)                            (Spannungsflankensteilheit)
+∆V/∆t               Voltage change per time interval            Spannungsänderung pro Zeitintervall
+E                   Activation energy for diffusion             Aktivierungsenergie zur Diffusion
+ESL                 Self-inductance                             Eigeninduktivität
+ESR                 Equivalent series resistance                Ersatz-Serienwiderstand
+f                   Frequency                                   Frequenz
+f1                  Frequency limit for reducing permissible Grenzfrequenz für thermisch bedingte
+                    AC voltage due to thermal limits            Reduzierung der zulässigen
+                                                                Wechselspannung
+f2                  Frequency limit for reducing permissible Grenzfrequenz für strombedingte
+                    AC voltage due to current limit             Reduzierung der zulässigen
+                                                                Wechselspannung
+fr                  Resonant frequency                          Resonanzfrequenz
+FD                  Thermal acceleration factor for diffusion Therm. Beschleunigungsfaktor zur
+                                                                Diffusion
+FT                  Derating factor                             Deratingfaktor
+i                   Current (peak)                              Stromspitze
+IC                  Category current (max. continuous           Kategoriestrom (max. Dauerstrom)
+                    current)
+
+
+
+Please read Cautions and warnings and            Page 36 of 40
+Important notes at the end of this document.
+                                                                      B32674 ... B32678
+                                                    MKP DC link  high power series
+
+
+Symbol              English                                    German
+IRMS                (Sinusoidal) alternating current,          (Sinusförmiger) Wechselstrom
+                    root-mean-square value
+iz                  Capacitance drift                          Inkonstanz der Kapazität
+k0                  Pulse characteristic                       Impulskennwert
+LS                  Series inductance                          Serieninduktivität
+λ                   Failure rate                               Ausfallrate
+λ0                  Constant failure rate during useful        Konstante Ausfallrate in der
+                    service life                               Nutzungsphase
+λtest               Failure rate, determined by tests          Experimentell ermittelte Ausfallrate
+Pdiss               Dissipated power                           Abgegebene Verlustleistung
+Pgen                Generated power                            Erzeugte Verlustleistung
+Q                   Heat energy                                Wärmeenergie
+ρ                   Density of water vapor in air              Dichte von Wasserdampf in Luft
+R                   Universal molar constant for gases         Allg. Molarkonstante für Gas
+R                   Ohmic resistance of discharge circuit      Ohmscher Widerstand des
+                                                               Entladekreises
+Ri                  Internal resistance                        Innenwiderstand
+Rins                Insulation resistance                      Isolationswiderstand
+RP                  Parallel resistance                        Parallelwiderstand
+RS                  Series resistance                          Serienwiderstand
+S                   severity (humidity test)                   Schärfegrad (Feuchtetest)
+t                   Time                                       Zeit
+T                   Temperature                                Temperatur
+τ                   Time constant                              Zeitkonstante
+tan δ               Dissipation factor                         Verlustfaktor
+tan δD              Dielectric component of dissipation        Dielektrischer Anteil des Verlustfaktors
+                    factor
+tan δP              Parallel component of dissipation factor   Parallelanteil des Verlfustfaktors
+tan δS              Series component of dissipation factor     Serienanteil des Verlustfaktors
+TA                  Temperature of the air surrounding the     Temperatur der Luft, die das Bauteil
+                    component                                  umgibt
+Tmax                Upper category temperature                 Obere Kategorietemperatur
+Tmin                Lower category temperature                 Untere Kategorietemperatur
+tOL                 Operating life at operating temperature    Betriebszeit bei Betriebstemperatur und
+                    and voltage                                -spannung
+Top                 Operating temperature                      Beriebstemperatur
+TR                  Rated temperature                          Nenntemperatur
+Tref                Reference temperature                      Referenztemperatur
+tSL                 Reference service life                     Referenz-Lebensdauer
+
+
+Please read Cautions and warnings and             Page 37 of 40
+Important notes at the end of this document.
+                    B32674 ... B32678
+                    MKP DC link  high power series
+
+
+Symbol              English                                    German
+VAC                 AC voltage                                 Wechselspannung
+VC                  Category voltage                           Kategoriespannung
+VC,RMS              Category AC voltage                        (Sinusförmige)
+                                                               Kategorie-Wechselspannung
+VCD                 Corona-discharge onset voltage             Teilentlade-Einsatzspannung
+Vch                 Charging voltage                           Ladespannung
+VDC                 DC voltage                                 Gleichspannung
+VFB                 Fly-back capacitor voltage                 Spannung (Flyback)
+Vi                  Input voltage                              Eingangsspannung
+Vo                  Output voltage                             Ausgangssspannung
+Vop                 Operating voltage                          Betriebsspannung
+Vp                  Peak pulse voltage                         Impuls-Spitzenspannung
+Vpp                 Peak-to-peak voltage Impedance             Spannungshub
+VR                  Rated voltage                              Nennspannung
+ R                  Amplitude of rated AC voltage              Amplitude der Nenn-Wechselspannung
+VRMS                (Sinusoidal) alternating voltage,          (Sinusförmige) Wechselspannung
+                    root-mean-square value
+VSC                 S-correction voltage                       Spannung bei Anwendung "S-correction"
+Vsn                 Snubber capacitor voltage                  Spannung bei Anwendung
+                                                               "Beschaltung"
+Z                   Impedance                                  Scheinwiderstand
+                    Lead spacing                               Rastermaß
+
+
+
+
+Please read Cautions and warnings and              Page 38 of 40
+Important notes at the end of this document.
+Important notes
+
+
+
+
+The following applies to all products named in this publication:
+1. Some parts of this publication contain statements about the suitability of our products for
+   certain areas of application. These statements are based on our knowledge of typical re-
+   quirements that are often placed on our products in the areas of application concerned. We
+   nevertheless expressly point out that such statements cannot be regarded as binding
+   statements about the suitability of our products for a particular customer application.
+   As a rule, EPCOS is either unfamiliar with individual customer applications or less familiar
+   with them than the customers themselves. For these reasons, it is always ultimately incum-
+   bent on the customer to check and decide whether an EPCOS product with the properties de-
+   scribed in the product specification is suitable for use in a particular customer application.
+2. We also point out that in individual cases, a malfunction of electronic components or
+   failure before the end of their usual service life cannot be completely ruled out in the
+   current state of the art, even if they are operated as specified. In customer applications
+   requiring a very high level of operational safety and especially in customer applications in
+   which the malfunction or failure of an electronic component could endanger human life or
+   health (e.g. in accident prevention or lifesaving systems), it must therefore be ensured by
+   means of suitable design of the customer application or other action taken by the customer
+   (e.g. installation of protective circuitry or redundancy) that no injury or damage is sustained by
+   third parties in the event of malfunction or failure of an electronic component.
+3. The warnings, cautions and product-specific notes must be observed.
+4. In order to satisfy certain technical requirements, some of the products described in this
+   publication may contain substances subject to restrictions in certain jurisdictions (e.g.
+   because they are classed as hazardous). Useful information on this will be found in our Ma-
+   terial Data Sheets on the Internet (www.epcos.com/material). Should you have any more de-
+   tailed questions, please contact our sales offices.
+5. We constantly strive to improve our products. Consequently, the products described in this
+   publication may change from time to time. The same is true of the corresponding product
+   specifications. Please check therefore to what extent product descriptions and specifications
+   contained in this publication are still applicable before or when you place an order. We also
+   reserve the right to discontinue production and delivery of products. Consequently, we
+   cannot guarantee that all products named in this publication will always be available. The
+   aforementioned does not apply in the case of individual agreements deviating from the fore-
+   going for customer-specific products.
+6. Unless otherwise agreed in individual contracts, all orders are subject to the current ver-
+   sion of the "General Terms of Delivery for Products and Services in the Electrical In-
+   dustry" published by the German Electrical and Electronics Industry Association
+   (ZVEI).
+
+
+
+
+                                             Page 39 of 40
+Important notes
+
+
+
+
+7. The trade names EPCOS, Alu-X, CeraDiode, CeraLink, CeraPad, CeraPlas, CSMP, CSSP,
+   CTVS, DeltaCap, DigiSiMic, DSSP, ExoCore, FilterCap, FormFit, LeaXield, MiniBlue,
+   MiniCell, MKD, MKK, MotorCap, PCC, PhaseCap, PhaseCube, PhaseMod, PhiCap, PQSine,
+   SIFERRIT, SIFI, SIKOREL, SilverCap, SIMDAD, SiMic, SIMID, SineFormer, SIOV, SIP5D,
+   SIP5K, TFAP, ThermoFuse, WindCap are trademarks registered or pending in Europe and
+   in other countries. Further information will be found on the Internet at
+   www.epcos.com/trademarks.
+
+
+
+
+                                       Page 40 of 40
+

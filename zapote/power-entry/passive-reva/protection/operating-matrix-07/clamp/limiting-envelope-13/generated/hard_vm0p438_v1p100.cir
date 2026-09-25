@@ -1,0 +1,35 @@
+* limiting-envelope-13 hard_vm0p438_v1p100
+* Finite shunt pulse: 1 us delay, 10 ns edges, 4 us flat width.
+.param VAMP=-0.438 RSH=220.0
+VSHUNT shunt 0 PULSE(0 {VAMP} 1u 10n 10n 4u 8u)
+VMEAS shunt shunt_m 0
+R_ISENSE shunt_m isense {RSH}
+CISENSE isense 0 1n
+* PIECEWISE HARD CLAMP: I=0 for -V(isense)<=VF; I=(-V(isense)-VF)/RCL otherwise.
+.param VF=1.100 RCL=0.001000000
+BCLAMP 0 clamp_m I={((-V(isense)>VF) ? ((-V(isense)-VF)/RCL) : 0)}
+VCLAMP clamp_m isense 0
+.options method=trap reltol=1e-6 abstol=1e-12 vntol=1e-9
+.save time v(shunt) v(shunt_m) v(isense) i(VMEAS) i(VCLAMP)
+.tran 1n 8u 0 1n
+.control
+run
+let resistor_power=(v(shunt_m)-v(isense))*i(VMEAS)
+let clamp_power=-v(isense)*i(VCLAMP)
+meas tran isense_max MAX v(isense) FROM=0 TO=8u
+meas tran isense_min MIN v(isense) FROM=0 TO=8u
+meas tran isense_flat AVG v(isense) FROM=4u TO=4.8u
+meas tran resistor_i_max MAX i(VMEAS) FROM=0 TO=8u
+meas tran resistor_i_min MIN i(VMEAS) FROM=0 TO=8u
+meas tran resistor_i_flat AVG i(VMEAS) FROM=4u TO=4.8u
+meas tran resistor_energy INTEG resistor_power FROM=1u TO=5.02u
+meas tran resistor_energy_total INTEG resistor_power FROM=0 TO=8u
+meas tran clamp_i_max MAX i(VCLAMP) FROM=0 TO=8u
+meas tran clamp_i_min MIN i(VCLAMP) FROM=0 TO=8u
+meas tran clamp_i_flat AVG i(VCLAMP) FROM=4u TO=4.8u
+meas tran clamp_energy INTEG clamp_power FROM=1u TO=5.02u
+meas tran clamp_energy_total INTEG clamp_power FROM=0 TO=8u
+write hard_vm0p438_v1p100.raw time v(shunt) v(shunt_m) v(isense) i(VMEAS) i(VCLAMP)
+quit
+.endc
+.end

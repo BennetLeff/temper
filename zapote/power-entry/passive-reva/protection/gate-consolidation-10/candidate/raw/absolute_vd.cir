@@ -1,0 +1,44 @@
+* F2 shutdown-04 independent running-fault and supply-state fixture.
+* The plant is intentionally a loaded gate metric only; no energy or current
+* stress claim is made by these cases.
+.title F2 shutdown independent detector and supply state
+.param TSTOP=650u
+.param TSTEP=10n
+.include /Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/controller.inc
+.param BYPASS=0
+.param FAULT_TAU=79.3n
+.param GATE_C=12n
+.param EN_TAU=18.75n
+
+* Independent VD/VB fault sources. Values remain below the absolute threshold
+* for mismatch cases and only the requested absolute bus crosses VABS.
+Vvd vd 0 PWL(0 410 150u 410 219.999u 410 220u 435 300u 435 300.1u 410 360u 410)
+Vvb vb 0 PWL(0 410 150u 410 219.999u 410 220u 426 300u 426 300.1u 410 360u 410)
+
+* Real input rails, independently ordered or dropped by each case.
+Vlogic5 logic5 0 PWL(0 0 20u 5 700u 5 701u 0 702u 0 703u 5 )
+Vaux15 aux15 0 PWL(0 0 20u 15 700u 15 701u 0 702u 0 703u 15)
+Vpermit permit 0 5
+Rpwm pwm 0 1Meg
+Rarm arm 0 1Meg
+
+* ARM is high through fault/recovery in held-arm cases; a fresh independent
+* edge is always provided after health has returned. PWM remains high around
+* every fault to exercise the actual loaded gate path.
+Varm arm 0 PWL(0 0 190u 0 200u 5 550u 5 551u 0 560u 0 560.1u 5 561u 5 561.1u 0 {TSTOP} 0)
+Vpwm pwm 0 PWL(0 0 160u 0 170u 5 )
+
+.tran {TSTEP} {TSTOP} uic
+.save all
+.control
+set filetype=ascii
+set wr_singlescale
+set wr_vecnames
+run
+meas tran arm_at_180 FIND v(arm) AT=180u
+meas tran pwm_at_180 FIND v(pwm) AT=180u
+wrdata /Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/absolute_vd.tsv v(vd) v(vb) v(ch_vd_raw) v(ch_vb_raw) v(ch_fwd_raw) v(ch_rev_raw) v(ch_vd) v(ch_vb) v(ch_fwd) v(ch_rev) v(detector_pair) v(health) v(ready) v(rails_ok) v(logic_good) v(aux_good) v(q) v(en) v(enable_good) v(drv) v(gate) v(pwm) v(arm) v(permit)
+wrdata /Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/absolute_vd.raw.debug.tsv v(logic5) v(aux15) v(logic_reset) v(aux_reset) v(fast_good) v(disable) v(dh) v(dl) v(bh) v(bl) v(lsense) v(asense) v(ltimer) v(atimer)
+quit
+.endc
+.end

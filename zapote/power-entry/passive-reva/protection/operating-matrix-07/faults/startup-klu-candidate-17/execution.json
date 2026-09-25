@@ -1,0 +1,19 @@
+{
+  "status": "REJECTED_WALL_LIMIT_INCOMPLETE_FAULT_OBSERVATION",
+  "tool_session": 32661,
+  "kind": "F2-START",
+  "target_end_s": 0.089,
+  "mutation_s": 0.075,
+  "solver_wall_limit_s": 600,
+  "minimum_free_bytes": 10737418240,
+  "observed_utc": "2026-09-21T03:35:03.158348+00:00",
+  "progress_line": "600.018283\t7.63585525350547745e-2\t85.796126\t1.090404579426e-5\t3749173\tfalse\t0\t0\tfalse",
+  "source_review": "parent-preparation.json",
+  "native_probe_review": "../klu-native-16/parent-review.json",
+  "parallel_decision": "LL04 only other fullsolver; LL03 solverfinished beforelaunch; about19GiB free atlaunch",
+  "canonical_raw": "raw.trace.raw.gz",
+  "all_pipeline_statuses_and_fault_verdict_required": true,
+  "completed_at_utc": "2026-09-21T03:41:27.084878+00:00",
+  "full_runner_exit": 1,
+  "disposition": "parent-disposition.json"
+}

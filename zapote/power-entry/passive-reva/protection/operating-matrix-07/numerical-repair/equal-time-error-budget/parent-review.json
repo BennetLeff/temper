@@ -1,0 +1,23 @@
+{
+  "status": "COMPLETE_PARENT_DIAGNOSTIC_SCAN",
+  "accepted": false,
+  "pipeline_exit": 0,
+  "tests_passed": 9,
+  "source_used_sha256": "10018dbbb57abf2ed71a9517ec45d1c49d179615cee94b9717884f8408c3b800",
+  "source_used": "audit-used-fullscan.rs",
+  "binary_sha256": "afaa8e268817b88b347c64ffab12e612c35879333af4557178cb3129170b3df8",
+  "trace_sha256": "90e1f2c013e965a99d10053b074127bbddf2c73d5b1403e9e872e3de6933a3b5",
+  "files_sha256": {
+    "full-650ms-events.tsv": "ed4d7c2e12fd3da9d7ebc09cd4a96a5c8daa7b5dea05f07c282e08520ca0cc36",
+    "full-650ms-report.txt": "9ee37d31689057a2f62e53843c07f4155e19a45f337ecc94b54baa459d4b1af9",
+    "parameter-spec.txt": "3195dd698608326019ceff6dbd371a60f4feaaf8add7b91e7cab99245e46e24a",
+    "parent-tests.txt": "3b100ef0d046942461e8bc72b7a45d90ab585ab6f13b48fa63ecfe2f674d0c4c"
+  },
+  "rows": 30108912,
+  "equal_groups": 45,
+  "equal_intervals": 66,
+  "missing_right_context": 0,
+  "selected_state_sum_absolute_energy_change_j": 6.870630110290268e-12,
+  "scope": "11 explicit saved C/L states only; not total hidden energy closure. All discrete saved columns unchanged across equal pairs.",
+  "formatting_note": "Last printed column name includes trailing newline in original report; current audit.rs trims it. No numeric result changed or raw report rewritten. N/A normalized entries have boolean false meaning not evaluated, not a failed analog screen."
+}

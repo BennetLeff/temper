@@ -1,0 +1,5 @@
+quantity,value,unit,scope
+static_clamp_min,16.020855,V,conditional_total_resistor_tolerance_1percent
+static_clamp_max,17.414363,V,conditional_total_resistor_tolerance_1percent
+dynamic_headroom,0.585637,V,not_guaranteed_peak
+normal_margin,0.270855,V,not_drop_or_transient_budget

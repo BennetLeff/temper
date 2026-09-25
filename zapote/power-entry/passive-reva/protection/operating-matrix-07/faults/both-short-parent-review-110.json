@@ -1,0 +1,22 @@
+{
+  "status": "PARENT_VERIFIED_SCREEN_FAILURE_PREFIX_PHASE_PENDING",
+  "accepted_protection": false,
+  "formal_checker_verdict": null,
+  "all_row_screen": "FAIL Lboost 435.79078242060086A >100A",
+  "source_precedence": "event-aware-validation-22/audit.rs lines124\u2013136 screens precede fault_checks::check; ProtectionGap not reached",
+  "verification": [
+    "Worker source hashes matched frozen case",
+    "Exact validatorstderr/stage2exits checked; completecapture retained",
+    "Sswfail terminates channel_source then Vchannel to0, hence gate-independent failed branch included",
+    "BOTH75analysis launched54690; do notclaimownnormalprefix orphase accepted yet"
+  ],
+  "evidence_sha256": {
+    "faults/both-short-review-108.json": "cb53b638bb2115e82d8bd33708345eb465e4d313f73c679f3e0b0cc59f374b3f",
+    "faults/both-short-review-108.md": "b24d80ac0bcd86b0bddfe83ea79d088e8c2b985ed3975430f7b3a9a39c7230c2",
+    "faults/settled-both-short-65/full-BOTH-SHORT/validator.stderr": "1cd4b79f169a76fedb640bfa8fefcdde88707b949e70c3f4fb3ae0977939c7f0",
+    "faults/settled-both-short-65/full-BOTH-SHORT/adapter-report.txt": "38ee016b4ffdcba1b61e5fd76c389483c66e2c300cd55d1e33855c35c5eade2f",
+    "faults/settled-both-short-65/full-BOTH-SHORT/result.json": "8d1e992a9303bbc0b3a2161c842456d970b2426fd14c9d723ca2d8d9a948b48d",
+    "faults/event-aware-validation-22/audit.rs": "542af0dcc845f099b0329b3c6fdf092583b1b074aa12d9d5dc684e1e6d361119"
+  },
+  "remaining": "Full75diagnostics/legacy, caseprefix/phase parentreview, existing99same-rowstressobservations. Do not rerun solver or widencriteria."
+}

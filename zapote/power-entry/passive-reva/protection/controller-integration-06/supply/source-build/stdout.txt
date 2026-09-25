@@ -1,0 +1,131 @@
+[23:19:40] INFO     Using project                                   common.py:72
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/controller-integration             
+                    -06/supply/source-build                                     
+           INFO     Building default                                 build.py:38
+[23:19:41] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/controller-integration             
+                    -06/supply/source-build/hot15_logic5_supply.ato             
+                    :111:4                                                      
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/controller-integration             
+                    -06/supply/source-build/hot15_logic5_supply.ato             
+                    :Hot15Logic5Supply::ldo_nr_c. Declaring                     
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/controller-integration             
+                    -06/supply/source-build/hot15_logic5_supply.ato             
+                    :116:4                                                      
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/controller-integration             
+                    -06/supply/source-build/hot15_logic5_supply.ato             
+                    :Hot15Logic5Supply::ldo_cin. Declaring                      
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/controller-integration             
+                    -06/supply/source-build/hot15_logic5_supply.ato             
+                    :120:4                                                      
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/controller-integration             
+                    -06/supply/source-build/hot15_logic5_supply.ato             
+                    :Hot15Logic5Supply::ldo_cout. Declaring                     
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/controller-integration             
+                    -06/supply/source-build/hot15_logic5_supply.ato             
+                    :137:4                                                      
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/controller-integration             
+                    -06/supply/source-build/hot15_logic5_supply.ato             
+                    :Hot15Logic5Supply::buck_en_top. Declaring                  
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry/            
+                    passive-reva/protection/controller-integration-0            
+                    6/supply/source-build/build                                 
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint       ┃ LCSC           ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ TPS7A4701RGWR   │ U1              │ Package_DFN_QF… │ TPS7A4701RGWR  │ 0.00  │
+│ GENERIC_CAPACI… │ U2,U3,U4,U8,U9… │ Capacitor_SMD:… │ GENERIC_CAPAC… │ 0.00  │
+│ TPS54202DDCR    │ U5              │ Package_TO_SOT… │ TPS54202DDCR   │ 0.00  │
+│ GENERIC_RESIST… │ U6,U7,U12,U13   │ Resistor_SMD:R… │ GENERIC_RESIS… │ 0.00  │
+│ GENERIC_INDUCT… │ U10             │ Inductor_SMD:L… │ GENERIC_INDUC… │ 0.00  │
+└─────────────────┴─────────────────┴─────────────────┴────────────────┴───────┘
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name           ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│           U1 │ ldo            │
+│           U2 │ ldo_nr_c       │
+│           U3 │ ldo_cin        │
+│           U4 │ ldo_cout       │
+│           U5 │ buck           │
+│           U6 │ buck_en_top    │
+│           U7 │ buck_en_bottom │
+│           U8 │ buck_cin       │
+│           U9 │ buck_boot_c    │
+│          U10 │ buck_l         │
+│          U11 │ buck_cout      │
+│          U12 │ buck_rtop      │
+│          U13 │ buck_rbottom   │
+└──────────────┴────────────────┘
+┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓         ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ buck           │ U5         │
+│ buck_boot_c    │ U9         │
+│ buck_cin       │ U8         │
+│ buck_cout      │ U11        │
+│ buck_en_bottom │ U7         │
+│ buck_en_top    │ U6         │
+│ buck_l         │ U10        │
+│ buck_rbottom   │ U13        │
+│ buck_rtop      │ U12        │
+│ ldo            │ U1         │
+│ ldo_cin        │ U3         │
+│ ldo_cout       │ U4         │
+│ ldo_nr_c       │ U2         │
+└────────────────┴────────────┘
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Successfully built 'assertions-report, bom,     build.py:105
+                    designator-map, netlist, copy-3dmodels,                     
+                    clone-footprints, variable-report,                          
+                    copy-footprints, layout-module-map' for                     
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

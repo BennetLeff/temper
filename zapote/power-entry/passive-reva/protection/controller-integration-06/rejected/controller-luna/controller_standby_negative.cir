@@ -1,0 +1,28 @@
+* Negative control: VSENSE standby clears VCOMP and stops GATE; RUN remains
+* asserted so a model that only hides a fixed PWM behind ENABLE fails here.
+.title UCC28180 VSENSE standby negative control
+Vcc vcc 0 15
+Vvs vsense 0 PWL(0 5 20u 5 30u 0.5 80u 0.5 90u 5 150u 5)
+Vis isense 0 0
+Vrun run 0 5
+Vfreq freq 0 1.5
+Rgateout gate 0 10k
+.include ucc28180_behavioral.inc
+.tran 20n 150u
+.control
+set filetype=ascii
+set wr_singlescale
+set wr_vecnames
+run
+meas tran gate_before FIND v(gate) AT=15u
+meas tran gate_standby FIND v(gate) AT=50u
+meas tran gate_before_max MAX v(gate) FROM=0u TO=25u
+meas tran gate_standby_max MAX v(gate) FROM=35u TO=80u
+meas tran comp_standby FIND v(vcomp) AT=80u
+meas tran gate_return FIND v(gate) AT=110u
+meas tran gate_return_max MAX v(gate) FROM=95u TO=145u
+wrdata controller_standby_negative.tsv time v(vsense) v(vcomp) v(gate) v(ucc_standby)
+write controller_standby_negative.raw all
+quit
+.endc
+.end

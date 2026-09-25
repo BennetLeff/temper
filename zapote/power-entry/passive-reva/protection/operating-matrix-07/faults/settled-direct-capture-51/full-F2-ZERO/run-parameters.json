@@ -1,0 +1,13 @@
+{
+  "tstop_s": 0.682,
+  "kind": "f2-zero",
+  "mutation_s": 0.6583333333333,
+  "event_window_s": 0.01,
+  "expected_fault_s": 0.6583333333333,
+  "observation_s": 0.01,
+  "turnoff_s": 0.000002,
+  "max_gap_s": 0.000000025,
+  "wall_seconds": 3600,
+  "export_timeout_s": 900,
+  "bypass": false
+}

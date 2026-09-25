@@ -1,0 +1,21 @@
+{
+  "status": "PARENT_REVIEWED_DIAGNOSTIC_ONLY",
+  "at_utc": "2026-09-21T19:14:22.309265+00:00",
+  "source_sha256": "59f01e7985fff860a5f04ef48246d493bbaf5f54134dedd76d4aafb93ba930fc",
+  "binary_path": "/private/tmp/matrix07-saved-pin50-parent",
+  "binary_sha256": "25d20aa032b56e5ed544d69f57206e60a5b6c36adfb52ce97a1b53bcae8edb87",
+  "tests": "10 warning-clean standalone Rust unit tests and6 independent CLI probes passed",
+  "cli_receipt_sha256": "be8ca6f2d8bd7fd327bd23c5738c6b38e9e016b204bcf2edb9ef9de76d63a74e",
+  "parent_changes": [
+    "Corrected child external/internal fault-index ambiguity before finalization",
+    "Required bounded line allocation before finalization",
+    "Actual marker determines post window; tolerated endpoint included",
+    "Added direct stdin support, create_new output and injection-after-prefault guard"
+  ],
+  "limitations": [
+    "No full-gap/phase/healthy-state proof in this scanner; rely on separately accepted exact F2-CREST38 trace/prefix/phase",
+    "Rows outside windows are counts, not durations or independent observations",
+    "TI voltage comparisons are authored-model observability only; no selected diode current/VF/temp/lot guarantee or controller input current guarantee"
+  ],
+  "accepted": false
+}

@@ -1,0 +1,34 @@
+{
+  "status": "PARENT_SOURCE_AND_ARTIFACT_HASHES_VERIFIED",
+  "case": "LL03",
+  "observed_utc": "2026-09-21T03:30:17.950969+00:00",
+  "case_source_sha256": {
+    "cold.cir": "4dec9f9c2d98b5b08403d985a5f2660b8d0c71f64ecf26fbee33d292ad9e5e8f",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "baseline_recovered_by_exact_two_parameter_reversal": true,
+  "runtime_tools_still_match_source_identity": true,
+  "artifact_sha256": {
+    "raw.trace.raw.gz": "c02cc9ede0e1bfe0c1aacbc5beabc025a8ab160d200a138a0acd52858a0e400c",
+    "raw15-event-audit.txt": "f0b4705760118627ae2c34237def9b857a3e6060f2d352f7013f9ceba53885c5",
+    "owned-events.tsv": "096c31d9c6e9b71c94541ad3e0dd4d674eb78803e8f25c8a3ef7ad09b16d14a3",
+    "event-metrics.txt": "0b42a8791f56b13b2533d64cd3e0d1ac4f011b9be31a5ab28bc1ab5b79b3ed6e",
+    "event-metrics.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-pipeline.json": "6dce3872882366574b198cd36ae33cee98f40fff42c3cb96b1eab197ec2b93f0",
+    "result.json": "55bc3822478019751ffd0884af760c26814ad1482bea3716e7c8540557ebd03f",
+    "checker-report.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checker.stderr": "c9d4f7d3cfcc5b831f95b235dedb8006f03100f31fef4f719b8bd91ffd606a0d",
+    "capture-metadata.json": "3e39843deb53d4a340c9f36929a3c65b29964f0fed2258a6cc0ac6e28bce3701",
+    "stop.txt": "e7d6f7c02dc8236c956d0bcad0d7fc2267bbcbe392a8e01eb54fd6f3d1c44e3f",
+    "case.json": "497032e7558a15d4c724f9f5fac6599c03bca533e5623ddf95ab137cfbc5f90b",
+    "first-invalid.tsv": "d9dc4af8828c41accff038725b623007ea4b564f83e2a0ed790394bda26f8655"
+  },
+  "raw_bytes": 2114596110,
+  "solver_wall_s": 1905.947143,
+  "total_case_wall_s": 2114.948,
+  "full_runner_exit": 0
+}

@@ -1,0 +1,667 @@
+{
+  "aux": [
+    215,
+    200,
+    0
+  ],
+  "bleeder1": [
+    203.0,
+    126.0,
+    270.0
+  ],
+  "bleeder2": [
+    203.0,
+    139.0,
+    270.0
+  ],
+  "bridge": [
+    52.5,
+    115.0,
+    180.0
+  ],
+  "bypass": [
+    160.0,
+    179.0,
+    180.0
+  ],
+  "c1": [
+    135.0,
+    50.0,
+    0.0
+  ],
+  "c2": [
+    177.0,
+    50.0,
+    0.0
+  ],
+  "c3": [
+    135.0,
+    93.0,
+    0.0
+  ],
+  "c4": [
+    177.0,
+    93.0,
+    0.0
+  ],
+  "c_hf": [
+    180,
+    152,
+    180
+  ],
+  "c_icomp": [
+    92.0,
+    137.0,
+    90.0
+  ],
+  "c_isense": [
+    88.0,
+    141.0,
+    90.0
+  ],
+  "c_vcc": [
+    105.0,
+    136.0,
+    0.0
+  ],
+  "c_vcomp": [
+    111.0,
+    148.0,
+    270.0
+  ],
+  "c_vcomp_p": [
+    104.0,
+    149.0,
+    270.0
+  ],
+  "c_vfeed": [
+    109.0,
+    140.0,
+    90.0
+  ],
+  "cmc": [
+    45.0,
+    165.0,
+    180.0
+  ],
+  "control": [
+    215,
+    210,
+    0
+  ],
+  "d_boost": [
+    115.0,
+    122.0,
+    0.0
+  ],
+  "holder": [
+    10.0,
+    135.0,
+    270.0
+  ],
+  "isense_clamp": [
+    78.0,
+    137.0,
+    180.0
+  ],
+  "l_boost": [
+    58.0,
+    58.0,
+    270.0
+  ],
+  "mains": [
+    30.0,
+    180.0,
+    0.0
+  ],
+  "mov": [
+    66.0,
+    115.0,
+    0.0
+  ],
+  "ntc": [
+    91.0,
+    173.0,
+    0.0
+  ],
+  "output": [
+    205.0,
+    176.0,
+    0.0
+  ],
+  "permit": [
+    215,
+    220,
+    0
+  ],
+  "pfc": [
+    97.0,
+    140.0,
+    0.0
+  ],
+  "q_boost": [
+    90.0,
+    122.0,
+    0.0
+  ],
+  "q_inhibit": [
+    119.0,
+    140.0,
+    180.0
+  ],
+  "q_permit": [
+    127.0,
+    144.0,
+    0.0
+  ],
+  "r_freq": [
+    92.0,
+    145.0,
+    0.0
+  ],
+  "r_gate": [
+    89.0,
+    132.0,
+    90.0
+  ],
+  "r_gate_pd": [
+    95.0,
+    127.5,
+    0.0
+  ],
+  "r_inhibit_pulldown": [
+    120.0,
+    147.0,
+    180.0
+  ],
+  "r_inhibit_pullup": [
+    122.0,
+    135.0,
+    0.0
+  ],
+  "r_isense": [
+    86.0,
+    146.0,
+    270.0
+  ],
+  "r_permit_gate": [
+    135.0,
+    143.0,
+    180.0
+  ],
+  "r_permit_pd": [
+    132.0,
+    149.0,
+    270.0
+  ],
+  "r_relay_drop": [
+    166.0,
+    172.0,
+    270.0
+  ],
+  "r_relay_gate": [
+    174.0,
+    178.0,
+    0.0
+  ],
+  "r_relay_pd": [
+    178.0,
+    183.0,
+    270.0
+  ],
+  "r_vbottom": [
+    114.0,
+    141.0,
+    90.0
+  ],
+  "r_vcomp": [
+    105.0,
+    146.0,
+    0.0
+  ],
+  "r_vtop": [
+    165.0,
+    126.0,
+    180.0
+  ],
+  "r_vtop2": [
+    155.0,
+    126.0,
+    180.0
+  ],
+  "r_vtop3": [
+    145.0,
+    126.0,
+    180.0
+  ],
+  "r_vtop4": [
+    135.0,
+    126.0,
+    180.0
+  ],
+  "r_vtop5": [
+    125.0,
+    129.5,
+    180.0
+  ],
+  "relay_driver": [
+    182.0,
+    179.0,
+    0.0
+  ],
+  "relay_flyback": [
+    166.0,
+    180.0,
+    270.0
+  ],
+  "shunt": [
+    78.0,
+    132.0,
+    180.0
+  ],
+  "x2": [
+    44.0,
+    130.0,
+    0.0
+  ],
+  "y1": [
+    49.0,
+    197.0,
+    180.0
+  ],
+  "gate_driver": [
+    90,
+    155,
+    0
+  ],
+  "f2_port": [
+    205,
+    150,
+    0
+  ],
+  "local_bleeder1": [
+    205,
+    210,
+    0
+  ],
+  "local_bleeder2": [
+    190,
+    210,
+    0
+  ],
+  "local_bleeder3": [
+    175,
+    210,
+    0
+  ],
+  "gate_input": [
+    98,
+    153,
+    0
+  ],
+  "gate_enable_pd": [
+    84,
+    155,
+    90
+  ],
+  "driver_bypass": [
+    93,
+    160,
+    0
+  ],
+  "driver_bulk": [
+    93,
+    164,
+    0
+  ],
+  "protection.compare_bus": [
+    110,
+    235,
+    0
+  ],
+  "protection.compare_aux": [
+    140,
+    235,
+    0
+  ],
+  "protection.buffer": [
+    95,
+    257,
+    0
+  ],
+  "protection.ldo": [
+    170,
+    230,
+    0
+  ],
+  "protection.por": [
+    185,
+    230,
+    0
+  ],
+  "protection.reference": [
+    150,
+    250,
+    0
+  ],
+  "protection.schmitt1": [
+    110,
+    285,
+    0
+  ],
+  "protection.schmitt2": [
+    135,
+    285,
+    0
+  ],
+  "protection.gates1": [
+    160,
+    285,
+    0
+  ],
+  "protection.gates2": [
+    185,
+    285,
+    0
+  ],
+  "protection.latch": [
+    160,
+    305,
+    0
+  ],
+  "protection.timer": [
+    200,
+    305,
+    0
+  ],
+  "protection.service": [
+    220,
+    300,
+    0
+  ],
+  "protection.r_vd1": [
+    20,
+    225,
+    0
+  ],
+  "protection.r_vd2": [
+    35,
+    225,
+    0
+  ],
+  "protection.r_vd3": [
+    50,
+    225,
+    0
+  ],
+  "protection.r_vd4": [
+    65,
+    225,
+    0
+  ],
+  "protection.r_vd5": [
+    80,
+    225,
+    0
+  ],
+  "protection.r_vd_low": [
+    90,
+    230,
+    90
+  ],
+  "protection.c_vd_filter": [
+    94,
+    230,
+    90
+  ],
+  "protection.r_vb1": [
+    20,
+    245,
+    0
+  ],
+  "protection.r_vb2": [
+    35,
+    245,
+    0
+  ],
+  "protection.r_vb3": [
+    50,
+    245,
+    0
+  ],
+  "protection.r_vb4": [
+    65,
+    245,
+    0
+  ],
+  "protection.r_vb5": [
+    80,
+    245,
+    0
+  ],
+  "protection.r_vb_low": [
+    85,
+    250,
+    90
+  ],
+  "protection.c_vb_filter": [
+    89,
+    250,
+    90
+  ],
+  "protection.r_ref": [
+    151,
+    243,
+    90
+  ],
+  "protection.r_delta_top": [
+    111,
+    254,
+    0
+  ],
+  "protection.r_delta_low": [
+    111,
+    259,
+    0
+  ],
+  "protection.r_pre_top": [
+    140,
+    257,
+    0
+  ],
+  "protection.r_pre_low": [
+    150,
+    257,
+    0
+  ],
+  "protection.r_ready_top": [
+    140,
+    262,
+    0
+  ],
+  "protection.r_ready_low": [
+    150,
+    262,
+    0
+  ],
+  "protection.r_uv_top": [
+    132,
+    220,
+    0
+  ],
+  "protection.r_uv_low": [
+    143,
+    220,
+    0
+  ],
+  "protection.r_ov_top": [
+    132,
+    225,
+    0
+  ],
+  "protection.r_ov_low": [
+    143,
+    225,
+    0
+  ],
+  "protection.r_vd_half_a": [
+    105,
+    245,
+    0
+  ],
+  "protection.r_vd_half_b": [
+    116,
+    245,
+    0
+  ],
+  "protection.r_vd_offset_a": [
+    105,
+    250,
+    0
+  ],
+  "protection.r_vd_offset_b": [
+    116,
+    250,
+    0
+  ],
+  "protection.r_vb_half_a": [
+    124,
+    249,
+    90
+  ],
+  "protection.r_vb_half_b": [
+    128,
+    249,
+    90
+  ],
+  "protection.r_vb_offset_a": [
+    124,
+    260,
+    90
+  ],
+  "protection.r_vb_offset_b": [
+    128,
+    260,
+    90
+  ],
+  "protection.pull_fast_ok_n": [
+    107,
+    225,
+    0
+  ],
+  "protection.pull_pre_ok": [
+    135,
+    247,
+    0
+  ],
+  "protection.pull_ready": [
+    145,
+    247,
+    0
+  ],
+  "protection.pull_por_n": [
+    190,
+    236,
+    0
+  ],
+  "protection.r_arm_input": [
+    111,
+    272,
+    0
+  ],
+  "protection.r_arm_pd": [
+    122,
+    272,
+    0
+  ],
+  "protection.c_arm": [
+    111,
+    277,
+    0
+  ],
+  "protection.r_permit_pd": [
+    110,
+    297,
+    0
+  ],
+  "protection.r_timer_set": [
+    198,
+    312,
+    0
+  ],
+  "protection.r_timer_div_top": [
+    210,
+    310,
+    90
+  ],
+  "protection.r_timer_div_low": [
+    210,
+    320,
+    90
+  ],
+  "protection.dec_compare_bus": [
+    110,
+    241,
+    0
+  ],
+  "protection.dec_compare_aux": [
+    140,
+    241,
+    0
+  ],
+  "protection.dec_buffer": [
+    95,
+    263,
+    0
+  ],
+  "protection.dec_por": [
+    185,
+    225,
+    0
+  ],
+  "protection.dec_schmitt1": [
+    110,
+    291,
+    0
+  ],
+  "protection.dec_schmitt2": [
+    135,
+    291,
+    0
+  ],
+  "protection.dec_gates1": [
+    160,
+    291,
+    0
+  ],
+  "protection.dec_gates2": [
+    185,
+    291,
+    0
+  ],
+  "protection.dec_latch": [
+    160,
+    311,
+    0
+  ],
+  "protection.dec_timer": [
+    200,
+    300,
+    0
+  ],
+  "protection.ldo_in": [
+    174,
+    223,
+    0
+  ],
+  "protection.ldo_out": [
+    166,
+    223,
+    0
+  ],
+  "protection.por_delay": [
+    190,
+    230,
+    0
+  ]
+}

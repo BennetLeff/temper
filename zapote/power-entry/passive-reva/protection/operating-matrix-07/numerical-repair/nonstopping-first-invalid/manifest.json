@@ -1,0 +1,40 @@
+{
+  "status": "PREPARED_DIAGNOSTIC_ONLY_NOT_RUN",
+  "purpose": "continue after duplicate first-invalid callback for bounded diagnosis",
+  "electrical_source": "../../normal-hysteretic-settling-extension/cold.cir",
+  "electrical_source_sha256": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+  "source_parent_sha256": "f5c60b4c49116a52b7808474da3828a98715e957b6af171fe57f824c2382eda8",
+  "deck_changes": "none; copied 650ms electrical deck and local include closure",
+  "protocol": "progress DECK WALL_SECONDS TARGET_SECONDS EXPORT_PATH SNAPSHOT_PATH",
+  "diagnostic_only": true,
+  "continue_after_duplicate": true,
+  "duplicate_policy": "capture first duplicate once, count all duplicates, continue",
+  "backwards_policy": "count separately and stop promptly",
+  "nonfinite_policy": "retain finite guard, capture first invalid, stop promptly",
+  "watchdogs": {
+    "wall_seconds": "caller supplied",
+    "sim_time_stall_seconds": 120,
+    "stall_definition": "less than 1us accepted simulation-time progress"
+  },
+  "saved_inventory": {
+    "full_save_export": true,
+    "diagnostic_names": 16,
+    "first_invalid_snapshot": true
+  },
+  "host_source": {
+    "path": "progress.rs",
+    "sha256": "7e3d5bfd33c27f0b0c3eacc8eb8ce5d896dc92d706878af8c788984a547c543c",
+    "diff_from_parent": "source-diff.patch",
+    "diff_sha256": "e8899a70eaa8c06a4efbc6f895b6bdf6b47be06b81dc83295772d29e3bcf7044"
+  },
+  "host_binary": {
+    "path": "/private/tmp/matrix07-nonstopping-diagnostic-host",
+    "sha256": "552877ba35c2ba690e122702587ef991655f8a351b0990820cd09821aef14698"
+  },
+  "unit_tests": {
+    "command": "rustc --edition=2021 -D warnings --test progress.rs -o /tmp/matrix07-nonstopping-tests && /tmp/matrix07-nonstopping-tests",
+    "result": "6 passed, 0 failed"
+  },
+  "campaign": "UNSTARTED",
+  "acceptance": "none; no baseline promotion or checker receipt"
+}

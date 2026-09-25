@@ -1,0 +1,23 @@
+{
+  "status": "PREPARED_DIAGNOSTIC_ONLY",
+  "accepted": false,
+  "only_change": "Bdriver_req finite PWM transfer over2.1..2.3V; original disable/aux masks",
+  "source_sha256": {
+    "cold.cir": "eaa5c20900fd8a5d577e629e3f678378690b6e427098303cffe6aa41d54447d2",
+    "protection.inc": "b57b854883ee992dad036fd49c5a249b457e200873a3408652186de59122ea1c",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "progress.rs": "f063aad3972d184853d49d6240419221117f8eba4a69d811dbdd53b89caaf672"
+  },
+  "run_sha256": {
+    "cold.cir": "eaa5c20900fd8a5d577e629e3f678378690b6e427098303cffe6aa41d54447d2",
+    "protection.inc": "96d4f97bd4fd8cda8e09048e3549d08c347e8e33459d4c44fdb84252a7d31cb0",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "progress.rs": "f063aad3972d184853d49d6240419221117f8eba4a69d811dbdd53b89caaf672"
+  },
+  "binary": "/private/tmp/matrix07-normal-tracker-host-20260920",
+  "binary_sha256": "9828d20cabd952315f597857703cdee504dd90e60c429e40348a555acaf5a872"
+}

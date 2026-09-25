@@ -1,0 +1,42 @@
+{
+  "case": "BOTH-SHORT",
+  "materialized": "faults/settled-both-short-65/full-BOTH-SHORT",
+  "prepared_source": "faults/settled-compact-prep-24/prepared/BOTH-SHORT",
+  "source_match": true,
+  "acceptance": false,
+  "hashes": {
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "case.cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "manifest.json": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  },
+  "parameters": {
+    "kind": "both-short",
+    "runner_kind": "both-short",
+    "validator_kind": "both-short",
+    "t_fault_s": 0.6541666666667,
+    "expected_fault_s": 0.6541666666667,
+    "tstop_s": 0.662,
+    "event_window_s": 0.002,
+    "observation_s": 0.002,
+    "turnoff_s": 0.000002,
+    "local_max_gap_s": 0.000000025,
+    "outer_max_gap_s": 0.000001,
+    "wall_seconds": 3600,
+    "export_timeout_s": 900,
+    "bypass": false
+  },
+  "topology": {
+    "f2_control": "Vf2ctl f2ctl 0 5",
+    "f2_state": "held closed",
+    "switch_fault": "Sswfail sw channel_source swfail_ctl 0 SWFAIL",
+    "diode_fault": "Sdiodeshort sw d1_path dshort_ctl 0 SWDIODESHORT",
+    "switch_and_diode_ron_ohm": 0.001,
+    "fault_marker": "max(V(swfail_ctl),V(dshort_ctl))"
+  },
+  "read_boundary": "Explicit regular source, metadata, and case deck only; no raw/FIFO/solver/restart access."
+}

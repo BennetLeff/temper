@@ -1,0 +1,26 @@
+{
+  "path_inspection": [
+    {
+      "path": "normal-hysteretic-driver-candidate/trace.fifo",
+      "mode": "prw-r--r--",
+      "fifo": true,
+      "bytes": 0
+    },
+    {
+      "path": "normal-hysteretic-settling-extension/trace.fifo",
+      "mode": "prw-r--r--",
+      "fifo": true,
+      "bytes": 0
+    },
+    {
+      "path": "host/native-raw-export-probe-10/out/api.tsv.fifo",
+      "exists": false
+    },
+    {
+      "path": "host/native-raw-export-probe-10/out/native.raw.fifo",
+      "exists": false
+    }
+  ],
+  "bad_executable": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-raw-export-probe-10/deck/host/native-raw-export-probe-10/native-host",
+  "bad_executable_exists": false
+}

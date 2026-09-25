@@ -1,0 +1,12 @@
+{
+  "electrical_identity_verified": true,
+  "original_deck_sha256": "17df19a6792bfefeb0fb5ff53b629eddc84e3e11010b90883f8d36f19943692d",
+  "files": {
+    "cold.cir": "eaa5c20900fd8a5d577e629e3f678378690b6e427098303cffe6aa41d54447d2",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "progress.rs": "f063aad3972d184853d49d6240419221117f8eba4a69d811dbdd53b89caaf672",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "b57b854883ee992dad036fd49c5a249b457e200873a3408652186de59122ea1c"
+  }
+}

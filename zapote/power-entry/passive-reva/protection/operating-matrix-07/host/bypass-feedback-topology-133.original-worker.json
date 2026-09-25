@@ -1,0 +1,44 @@
+{
+  "status": "BOUNDED_TOPOLOGY_REVIEW_ONLY",
+  "accepted": false,
+  "case": "BYPASS-NEG",
+  "source_hashes": {
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/case.cir": "c6ea3dca688918137282ed3fd3d0ffa17c2b740d68ab52bab306ee3e8b228180",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/protection.inc": "d9b499bbba3f2636ac926a3c8782943d3144798cfe4faa765ceaf7774628a025",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/manifest.json": "4066ac5bf595b4aaca1b99c79035b5729d20bb217ffe1e5f3a4b6ca6a0003e01",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/run-parameters.json": "01ea97089a40842d1e5ac38dd1f5f53f58cc3e71cea110051be638acba9782e5",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/parent-capture-review-130.json": "a921f3cc6ca1a5532ceac537f91569b9d2174862532f2ee05e321aae23f5a770",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/result.json": "1155dbbaf4d9994404fe8a5ad8f8c122cb8254226856d371cea3a84cacc55692",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/adapter-report.txt": "ab797a28a30ef27ad4a2831dbfdea112e4041082adff80709cb7857323c21af4"
+  },
+  "topology": {
+    "feedback": "Rfb1 VB->VSENSE 1 Mohm; Rfb2 VSENSE->0 13 kohm",
+    "local_capacitor": "Clocal VD->0 19.8 uF",
+    "bank_capacitor": "Cbank VB->0 2240 uF",
+    "f2": "Sf2 VD->f2_path opens at declared fault; Vf2sense f2_path->VB",
+    "bypass": "BYPASS=1 forces fault_raw low in protection.inc"
+  },
+  "capture": {
+    "rows": 32287070,
+    "endpoint_s": 0.662,
+    "raw_sha256": "75f444f8e422e445c2e5d65f21760af1658f0b14f05dcd088d1c80cd2b87b0a1",
+    "vd_screen_v": 651.1730124191079,
+    "vd_limit_v": 500.0,
+    "detector_rise": "none",
+    "latch_off": "none",
+    "channel_above_0_1a_through_endpoint": true,
+    "formal_bypass_rejection_reached": false,
+    "disposition": "screen failure; not accepted"
+  },
+  "requirements": [
+    "Keep local-VD protection active and independently verified when VB feedback is disconnected",
+    "Define an energy-interruption path for VD local capacitance and source-fed inductor current independent of VB regulation and failed MOS gate command",
+    "Verify F2 indication and restart across charged, discharged, and residual VD/VB states",
+    "Ensure bypass negative controls are rejected before any electrical result can be mistaken for pass"
+  ],
+  "limits": [
+    "Static connectivity does not prove dynamic causality",
+    "VD screen excursion and missing detector/latch transitions do not establish physical failure mode",
+    "No component selection, threshold change, circuit edit, hardware guarantee, or acceptance claim"
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "status": "PARENT_MODEL_AND_OBSERVED_CURRENT_INVENTORY",
+  "accepted_hardware": false,
+  "model": {
+    "inductance_H": 0.00018,
+    "series_winding_resistance_ohm": 0.02,
+    "type": "linear constant inductor and constant series resistor",
+    "current_dependence": false,
+    "temperature_dependence": false,
+    "core_loss_model": false,
+    "source_path": "faults/settled-sw-short-59/full-SW-SHORT/cold.cir",
+    "source_sha256": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94"
+  },
+  "retained_schematic": {
+    "path": "../f2-open-01/source-01/elec/src/power_entry_passive_reva.ato",
+    "sha256": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8",
+    "mpn": "760800301",
+    "declared_inductance_H": 0.00018,
+    "declared_current_rating_A": 24.5,
+    "declared_voltage_rating_V": 1000,
+    "manufacturer_definition_verified": false,
+    "note": "These are authored schematic attributes pending exact manufacturer verification, not established hardware limits."
+  },
+  "normal_grid_peak_observations": [
+    {
+      "case": "LL01",
+      "line_v_rms": 108,
+      "rload_ohm": 416.460488957,
+      "whole_cold_start_prefix_peak_Lboost_A_report_only": 25.067335,
+      "acceptance_path": "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json",
+      "acceptance_sha256": "a4e09215acac4b80920257ceebfa96e4a9f7f618732cd24c778cca34f24105c7"
+    },
+    {
+      "case": "LL02",
+      "line_v_rms": 108,
+      "rload_ohm": 208.230244479,
+      "whole_cold_start_prefix_peak_Lboost_A_report_only": 25.777695,
+      "acceptance_path": "line-load-native-runner-12/full-LL02-initialized/LL02/acceptance.json",
+      "acceptance_sha256": "542318b9fa0a061fa05af1616844320441f1ba59ac4a70275b14266c69c82eb2"
+    },
+    {
+      "case": "LL03",
+      "line_v_rms": 108,
+      "rload_ohm": 115.683469155,
+      "whole_cold_start_prefix_peak_Lboost_A_report_only": 30.039218,
+      "acceptance_path": "line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json",
+      "acceptance_sha256": "224ac1a30d64b05b9b06d3319bb2a6dfaa3ce45330277fb97f8f50e82385041d"
+    },
+    {
+      "case": "LL04",
+      "line_v_rms": 120,
+      "rload_ohm": 374.814440062,
+      "whole_cold_start_prefix_peak_Lboost_A_report_only": 29.777999,
+      "acceptance_path": "line-load-native-runner-12/full-LL04-initialized/LL04/acceptance.json",
+      "acceptance_sha256": "f4a6ba5435add8b2946712b957d6f222cbc0384e28ccdd32980863249acdddfc"
+    },
+    {
+      "case": "LL05",
+      "line_v_rms": 120,
+      "rload_ohm": 187.407220031,
+      "whole_cold_start_prefix_peak_Lboost_A_report_only": 30.704239,
+      "acceptance_path": "line-load-native-runner-27/full-LL05-retry/LL05/acceptance.json",
+      "acceptance_sha256": "44859f112de35192015ace76a4c1d0619c4689533eaceea62b8834b04c8f4206"
+    },
+    {
+      "case": "LL06",
+      "line_v_rms": 120,
+      "rload_ohm": 104.115122239,
+      "whole_cold_start_prefix_peak_Lboost_A_report_only": 32.104756,
+      "acceptance_path": "line-load-native-runner-27/full-LL06/LL06/acceptance.json",
+      "acceptance_sha256": "6eb356547ab348e16353cc9ec86cc3c520835f45ace8b5c8b6f1fddc921221a9"
+    },
+    {
+      "case": "LL07",
+      "line_v_rms": 132,
+      "rload_ohm": 374.814440062,
+      "whole_cold_start_prefix_peak_Lboost_A_report_only": 34.36407,
+      "acceptance_path": "line-load-native-runner-27/full-LL07/LL07/acceptance.json",
+      "acceptance_sha256": "b87c23441b4e55a5e46ec4ec19bfba3bd8fa02a456a9bbdb4aed0c41a0cc7b69"
+    },
+    {
+      "case": "LL08",
+      "line_v_rms": 132,
+      "rload_ohm": 187.407220031,
+      "whole_cold_start_prefix_peak_Lboost_A_report_only": 35.376249,
+      "acceptance_path": "line-load-direct-retry-41/full-LL08/LL08/acceptance.json",
+      "acceptance_sha256": "8c6f8fb701395ecb95cbdfd980fc9a2f94ca1417a456542a18d39e460c3e8fdd"
+    },
+    {
+      "case": "LL09",
+      "line_v_rms": 132,
+      "rload_ohm": 104.115122239,
+      "whole_cold_start_prefix_peak_Lboost_A_report_only": 36.870698,
+      "acceptance_path": "line-load-direct-retry-47/full-LL09/LL09/acceptance.json",
+      "acceptance_sha256": "30ce810b146331f8db0cf0e2c0a1bc22032062d529773039dd62aeeaa5075737"
+    }
+  ],
+  "peak_scope": "Reported maxima over each whole cold-start650ms trace, not settled inductor RMS, not a duration or temperature measurement. IL peak is report-only in accepted normal policy. Input source RMS is not inductor RMS.",
+  "consequence": "Normal-screen acceptance does not establish magnetic saturation, winding temperature, core loss, inductance under DC bias, or short-circuit stress. Do not compare wholetrace peak directly with a thermal rated current as a failure criterion.",
+  "pending": "Manufacturer current definitions and DC-bias/temperature data for exact MPN; no linear-model or frozen acceptance changes."
+}

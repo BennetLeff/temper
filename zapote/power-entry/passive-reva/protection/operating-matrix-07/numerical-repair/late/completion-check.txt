@@ -1,0 +1,8 @@
+DIAGNOSTIC_ONLY rows=38 nonincreasing=0 min_positive_dt_s=9.99200722162640886e-15 max_dt_s=6.90089041466279696e-10
+last time 3.51508835332467851e-1
+last v(raw) 5.00000000000000000e0
+last v(pwm_hold) 2.49997411660984881e0
+last v(blank) -1.13600289749833579e-39
+last v(pwm) 0.00000000000000000e0
+last v(gate) -7.21758798634529069e-22
+Error: "incomplete diagnostic: end=3.51508835332467851e-1, required=3.51509032830773005e-1"

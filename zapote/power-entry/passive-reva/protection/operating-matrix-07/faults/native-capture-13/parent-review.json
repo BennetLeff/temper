@@ -1,0 +1,32 @@
+{
+  "status": "PARENT_REVIEWED_BOUNDED_TRANSPORT",
+  "accepted_fault": false,
+  "observed_utc": "2026-09-21T02:43:56.420434+00:00",
+  "source_artifacts": {
+    "deck/progress.rs": "fd880b8773275a31dbb6b2b050583100192f8b845817e9352ce42f477d2fda1e",
+    "fault_native_adapter.rs": "57aaea85a978b82395088b3e81434e937e952070bd3d4fab8a251b3c26938bad",
+    "out/capture-metadata.json": "2c40a40117289303d5022aa8cc25c4f4bb6c466cf0ac6026528cba1587aa6277",
+    "out/fault42.raw.gz": "16af6e212aa5f58d6b0f89c6219485e2a54bd3b8a879f370ea6bde5d7382df58",
+    "out/parent-decoded.tsv": "090996b7755d6cf0dad5303a366750e23bd44c34a20b20ac4fa8e59be96c8ca0",
+    "out/test-api-native-comparison.txt": "29370bc52549f4160597ea311f5936a2c8b5492685e4ed43a2bbd936736b91ba"
+  },
+  "parent_binaries": {
+    "/private/tmp/matrix07-fault-native-host-parent": "785c2d8eccd973995b96b10fddedfd975ef82ebecbececa6e5d0bc4e9d720d39",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658"
+  },
+  "verification": {
+    "host_tests": 5,
+    "decoder_tests": 10,
+    "warnings_denied": true,
+    "actual_native_trace_rows": 2253,
+    "parent_decode_matches_worker_tsv_bytes": true,
+    "same_plot_text_binary_compared_values": 94626,
+    "same_plot_bit_mismatches": 0
+  },
+  "policy": "Preserve equal timestamps, stop backward/nonfinite/stall/wall; never accept from host exit alone. fault42 raw retained, all pipeline completion and independent fault evidence needed.",
+  "limits": [
+    "Tiny 20us zero-IC transport fixture only, not healthy-prefault or fault performance evidence.",
+    "Callback mask is diagnostic16; full native fault42 schema independently checked by decoder.",
+    "Live campaign source, metadata endpoint, raw rows and hashes must be separately bound."
+  ]
+}

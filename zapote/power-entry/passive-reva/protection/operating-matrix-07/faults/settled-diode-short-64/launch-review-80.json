@@ -1,0 +1,20 @@
+{
+  "status": "PARENT_SOURCE_AND_WRAPPER_VERIFIED_FOR_LAUNCH",
+  "at_utc": "2026-09-22T00:01:11.821096+00:00",
+  "previous_case_disposition": "faults/settled-sw-short-59/full-SW-SHORT/parent-disposition-80.json",
+  "prior_solver_terminal": true,
+  "source_sha256": {
+    "case.cir": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78",
+    "manifest.json": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9",
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "wrapper_sha256": "585f1c2bd124b185f910dea0ebe08d73c74c973126f2d4647126789d0aeb987f",
+  "free_bytes": 42809270272,
+  "constraints": "One full solver, 16GiB launch and10GiB runtime floors; exact original source; complete own prefix/phase/fault gates before modeled acceptance. Unrelated SW tail archive processing may continue.",
+  "accepted": false
+}

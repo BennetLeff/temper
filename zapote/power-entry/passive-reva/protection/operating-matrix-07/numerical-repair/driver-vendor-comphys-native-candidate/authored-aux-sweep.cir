@@ -1,0 +1,21 @@
+* Slow AUX partial-rail sweep: PWM high, INM low, AUX 0 -> 6 -> 0 V.
+* This distinguishes the TI-derived 4.2/3.9 V AUX qualification from a
+* discarded 7 V threshold approximation.
+.include authored_logic_vendor_comphys_native.inc
+Vaux aux15 0 PWL(0 0 1u 0 3u 6 5u 6 7u 0 8u 0)
+Vdisable disable 0 0
+Vpwm pwm_input 0 5
+Xdriver disable pwm_input aux15 0 driver_out AUTH_UCC27511A_HV
+Rgate driver_out gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.tran 1n 8u
+.control
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+wrdata authored-aux-sweep.tsv v(aux15) v(driver_out) v(gate) v(xdriver.aux_state) v(xdriver.pwm_state) v(xdriver.inm_state) v(xdriver.driver_req)
+quit
+.endc
+.end

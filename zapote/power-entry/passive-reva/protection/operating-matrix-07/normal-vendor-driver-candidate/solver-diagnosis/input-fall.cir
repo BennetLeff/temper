@@ -1,0 +1,23 @@
+* Reduced vendor model boundary replay: a fast PWM-input fall through the
+* full-plant value seen immediately before the reported E1 branch stall.
+.include ../vendor/UCC27511A.lib
+Vaux aux15 0 15
+Vdisable disable 0 0.104086117
+Vpwm pwm 0 PWL(0 13.5826772 10u 13.5826772 10.001u 0 20u 0)
+Xdriver disable pwm aux15 0 outh outl UCC27511A
+Rgon outh gate 10
+Rgoff outl gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.tran 1n 20u 0 1n
+.control
+set ngbehavior=ps
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+wrdata input-fall.tsv v(pwm) v(outh) v(outl) v(gate)
+quit
+.endc
+.end

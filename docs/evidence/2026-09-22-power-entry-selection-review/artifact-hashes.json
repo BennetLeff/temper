@@ -1,0 +1,61 @@
+{
+  "algorithm": "SHA-256",
+  "scope": "all regular files except manifest itself",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 5217,
+      "sha256": "a87c90d3f6f19697425e6135c043dc290c106675877c05f05622dc301b950b0f"
+    },
+    {
+      "path": "clamp.md",
+      "bytes": 2414,
+      "sha256": "17dd7348fde5ff990586cac27af08c3cdcf4d05403805f9c7356b05fb2398c67"
+    },
+    {
+      "path": "commands.md",
+      "bytes": 4193,
+      "sha256": "ef25fba46bce6aacbfe46cf896e459ca16f3c841e8217239b67c93b94967a86a"
+    },
+    {
+      "path": "dispatch.json",
+      "bytes": 968,
+      "sha256": "ea3293bd38731cd0300278db02724b594135fb7550bba78416f7b9e97f497c4f"
+    },
+    {
+      "path": "input-identity.json",
+      "bytes": 1961,
+      "sha256": "26ad72b9ded82549ec56814f04bd71240c2043f173d3a7b9926b175df9e7ef94"
+    },
+    {
+      "path": "input-verification.json",
+      "bytes": 2864,
+      "sha256": "48d3910ea01cc0e49aa0fc18ef10aaed8661cd5f50b80d7a3225a213f9d64c45"
+    },
+    {
+      "path": "ovp-screen",
+      "bytes": 480744,
+      "sha256": "ff11b6ff1d8fca3735f5e86d78ff3612777caa088eec1af73afb4f9210ec81e6"
+    },
+    {
+      "path": "ovp-screen.csv",
+      "bytes": 274,
+      "sha256": "97d36027f8a7746b403aa1552aadf5f175679da3d3d23560a50826797d9b2c3f"
+    },
+    {
+      "path": "ovp-screen.rs",
+      "bytes": 905,
+      "sha256": "fc79b6ad545d5249f1610d4d742bdd4c3e99e5a9680921a66519e3ab3bb1f95d"
+    },
+    {
+      "path": "review-receipt.json",
+      "bytes": 2529,
+      "sha256": "9edfce03e225d4793896fe870d4fd64fd99326e411879926e7bd2e0a18e55d51"
+    },
+    {
+      "path": "supplies.md",
+      "bytes": 4578,
+      "sha256": "4c79fe71885cc1d3bb55425457ce75d05c0e08bf935d1c8f657787c6c1d6bfca"
+    }
+  ]
+}

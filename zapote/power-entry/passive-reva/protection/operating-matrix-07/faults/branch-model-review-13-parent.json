@@ -1,0 +1,22 @@
+{
+  "status": "PARENT_REVIEWED_TERMINAL_TOPOLOGY",
+  "utc": "2026-09-21T02:27:06.429207+00:00",
+  "review_sha256": "5c2a8103517da652101e0285c7c6115d84e1998a4c07bbb3dd3bd984502ed789",
+  "model_experiment_disposition": {
+    "DIODE-SHORT": "GO terminal sw-vd short; branch allocation not package/die evidence",
+    "BOTH-SHORT": "GO topology stress; no protection PASS for failed switch",
+    "SW-SHORT": "GO topology stress; no protection PASS for failed switch"
+  },
+  "execution_status": "UNEXECUTED",
+  "remaining_dependencies": [
+    "accepted full prefault conditions in each case",
+    "source-phase and numerical time validation",
+    "capacity and bounded runner",
+    "fault42 canonical trace plus supplemental currents"
+  ],
+  "parent_corrections": [
+    "Ideal zero-volt sense source does not physically isolate parallel diode legs; one short bypasses whole terminal pair",
+    "20us zero-IC examples are deliberate transport smoke, not wrong full campaign stimuli",
+    "Node stress FAIL precedes categorical failed-short gap in original checker; source phase is separately checked"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "status": "PARENT_REVIEWED_ANALYSIS_ONLY_GLOBAL_LOCAL_GAP_SEPARATION",
+  "utc": "2026-09-21T17:56:16.939151+00:00",
+  "source_sha256": "d21f3db2b3d17ac3fd7f13f7751a317df56b3c35559a1867169bc78fda453b91",
+  "binary": "/private/tmp/matrix07-reanalysis40-parent",
+  "binary_sha256": "c71ff3be26bd88eeb0d66555b876cb3f870d3fad96fa553bd745cd1ef3f2edf0",
+  "parent_tests": 6,
+  "parent_tests_sha256": "3730983a676b95006d091b1acb051350aabae14341baf2c321400ba3dc73bf41",
+  "outer_global_gap_s": 1e-06,
+  "frozen_inner_event_gap_s": 2.5e-08,
+  "capture_params_unchanged": true,
+  "frozen_checker_sha256": "a94f3a7e5ac5bcae67d94a53afacf8338567eaf8b1870b2bf8db12121f25bc66",
+  "contract_sources": [
+    "faults/event-aware-adapter-13/README.md:12",
+    "faults/event-aware-validation-22/audit.rs:84",
+    "faults/fault_checks.rs:281",
+    "faults/fault_checks.rs:334"
+  ],
+  "actual_trigger": "first positivegap above25ns at fileline165 / data row164:25.806568466ns, roughly1usafterstartup, far beforefault. The documented1us global contract permits it.",
+  "bounded_probe_exit_note": "first170 probe deliberately stopped athead; upstreamEPIPE32/1 expected. It is not a fulltraceacceptance. Independentcompletegziptest passed.",
+  "parent_corrections": [
+    "Require exact prepared25ns local parameter rather thanallowarbitrarytighterlocalvalues notenforcedbyfrozenchecker",
+    "Fix inherited SW-SHORT manifest spelling mismatch"
+  ],
+  "scope": "Same immutable raw/source/tools as capture; changed only outer gap wiring and manifest alias. Existingtimeout/disk/drain/hash/rowscreen logic retained. No solver.",
+  "accepted": false
+}

@@ -1,0 +1,21 @@
+{
+  "status": "LIVE_SOURCE_VERIFIED_NO_ELECTRICAL_VERDICT",
+  "accepted": false,
+  "at_utc": "2026-09-22T00:05:15.937174+00:00",
+  "session": 52815,
+  "runner_pid": 54751,
+  "monitor_pid": 54752,
+  "review_sha256": "59643d4d28031a5428c8a9d3a094d9238fc66653befb56d19aa3c13ee0702bf8",
+  "source_sha256": {
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "case.cir": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "manifest.json": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  },
+  "run_parameters_sha256": "96620d8d5303f07c417907526dfb4b6ed6a8e9fc84b1ab729156aa759e63372e",
+  "scope": "F2 held closed; Sdiodeshort spans common sw-to-vd terminals through0V probe, not independently accessible physical die. Source/parameter verification only."
+}

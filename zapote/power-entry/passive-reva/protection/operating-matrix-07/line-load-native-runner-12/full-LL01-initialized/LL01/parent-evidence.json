@@ -1,0 +1,34 @@
+{
+  "status": "PARENT_SOURCE_AND_ARTIFACT_HASHES_VERIFIED",
+  "case": "LL01",
+  "observed_utc": "2026-09-21T02:53:55.986121+00:00",
+  "case_source_sha256": {
+    "cold.cir": "c34da98852dae5980029eb0949ce30a42997d0f3dd2f7f1cfe31b4cedc8870b6",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "baseline_recovered_by_exact_two_parameter_reversal": true,
+  "runtime_tools_still_match_source_identity": true,
+  "artifact_sha256": {
+    "raw.trace.raw.gz": "734239f1c5f8ef65ea7ce356560931155a7bb3e0f6f96d91470513482739d29d",
+    "raw15-event-audit.txt": "53ad7c5299bd67b5a21586ebc08404acce78a9f0b6db8ac6cefc7cacb8eb9349",
+    "owned-events.tsv": "e9cb85bf8bef2bc5e8802bde8cfef1fb62fd78761d8e384bedab06851d6d2766",
+    "event-metrics.txt": "0c7375bb5b095f5bb804c34071f9020461f1e7bffa49b610b7fad772374bce74",
+    "event-metrics.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-pipeline.json": "6dce3872882366574b198cd36ae33cee98f40fff42c3cb96b1eab197ec2b93f0",
+    "result.json": "4766466abd3ecaa94ae184cdaca138b7379cf8db9445e7c50e6fe8cae8cd0351",
+    "checker-report.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checker.stderr": "38c67877d12bb70f22abac3110d7ae62ecbeca13cc6e9cefd23e1ab5e6df2cc5",
+    "capture-metadata.json": "4959d9cc4ebcb4c2de1c7bf1b427b6d449920555b3653da72ef2c5c84e6637f8",
+    "stop.txt": "ea472baceadfe59011b6d9fc2ea830225df6aabc91d2374adbfc303a02d9286a",
+    "case.json": "1bc6fd29487aa62a5209fd71699b7e9ac8e207996afba45039dd1ab49a50eda9",
+    "first-invalid.tsv": "6761076fd7120c75eb05f5740875c5b428edd1b1105c89ae63d2370dae440fec"
+  },
+  "raw_bytes": 2151465343,
+  "solver_wall_s": 1984.421591,
+  "total_case_wall_s": 2195.772,
+  "full_runner_exit": 0
+}

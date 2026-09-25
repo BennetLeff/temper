@@ -1,0 +1,29 @@
+{
+  "status": "PREPARED_UNEXECUTED_KLU_CANDIDATE",
+  "case": "F2-START",
+  "lineage": "../startup-candidate-13",
+  "t_fault_s": 0.075,
+  "tstop_s": 0.089,
+  "prefault_window_s": 0.01,
+  "pacing_step_s": 2.5e-08,
+  "pacing_points": 960002,
+  "mutation": "one inserted line `.options klu` after the title in case.cir",
+  "source_closure_sha256": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "output_sha256": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "case.cir": "e8ddff3bec89f42568dd85e2e7a33e12e538fb9d3cccef915c036240388cb01c"
+  },
+  "execution": "Parent-reviewed bounded89ms candidate; native10ms KLU/fault42 passed; launching with existing native supervisor14; no acceptance implied"
+}

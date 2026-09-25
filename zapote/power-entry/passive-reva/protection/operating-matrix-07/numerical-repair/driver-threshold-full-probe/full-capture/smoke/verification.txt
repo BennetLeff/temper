@@ -1,0 +1,8 @@
+host: /private/tmp/matrix07-finite-driver-capture-host
+protocol: cold.cir 2 0.5 trace.fifo first-invalid.tsv
+host_exit: 0
+stop_reason: wall_limit
+sim_s: 7.99751768651186558e-3
+first_invalid: false
+diagnostic_names_in_trace_header: 16/16
+full_capture: UNSTARTED

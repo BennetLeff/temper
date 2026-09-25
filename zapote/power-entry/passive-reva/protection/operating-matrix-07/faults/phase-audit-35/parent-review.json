@@ -1,0 +1,36 @@
+{
+  "status": "PARENT_REVIEWED_PHASE_ONLY_AUDITOR",
+  "source_sha256": "fe572c19646b55e26b9f7bf17e8e4086f7ceb49af08a799a455a7d7fc82ce28b",
+  "binary": {
+    "path": "/private/tmp/matrix07-phase-audit35-parent",
+    "sha256": "53a32a13ac6acbfe1daf944ff47871a976f0a37a5a0298e4f7d342c2da8ba0a3"
+  },
+  "unit_tests": 11,
+  "independent_cli_fixtures": 6,
+  "parent_cli_receipt_sha256": "d9221b354be6bae0c2de46e928bbc5950020da025327fd7f6fd3d7952984d22b",
+  "limits": [
+    "Conservative rejection for tied finalpeak or conflicting equal-time local source; never remove rows",
+    "No healthywindow/numerical-gap/normalprefix/faultacceptance; independent fullchain stillrequired",
+    "Expectedevent2ns,endpoint1ns,tolerance.01; declarelocalwindowcontainingcrest"
+  ],
+  "corrections": [
+    "Complete42header uniqueness",
+    "Initial-low and equal-time marker ambiguity",
+    "Actualbounded line input",
+    "Tie state reset after largerpeak",
+    "Zero criterion normalizederror",
+    "Strict-time edge/peak neighborinterval enforcement"
+  ],
+  "planned_F2_CREST_args": [
+    "--end-s",
+    ".662",
+    "--expected-event-s",
+    ".6541666666667",
+    "--local-start-s",
+    ".65",
+    "--local-end-s",
+    ".6583333333333",
+    "--kind",
+    "crest"
+  ]
+}

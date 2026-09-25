@@ -1,0 +1,298 @@
+# Isolated F2 emergency-shutdown experiment.
+#
+# This module is deliberately not instantiated by the production Top module.
+# It models the detector -> retained permission -> gate-driver path only.  The
+# HOT-referenced rails and ARM/PWM/gate ports are integration boundaries; the
+# supply sequencer, isolation and precharge logic remain external.
+#
+# Pin numbers below are transcribed from the retained manufacturer PDFs in
+# zapote/power-entry/passive-reva/protection/f2-timing-02/sources/:
+# TLV3202 (D/DGK), SN74HCS21 (D/PW), SN74HCS74 (D/PW), and UCC27624 (D/DGN).
+
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component F2Comparator:
+    mpn = "TLV3202IDR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tlv3202.pdf"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal OUT1 ~ pin 1
+    signal IN1_N ~ pin 2
+    signal IN1_P ~ pin 3
+    signal GND ~ pin 4
+    signal IN2_P ~ pin 5
+    signal IN2_N ~ pin 6
+    signal OUT2 ~ pin 7
+    signal VCC ~ pin 8
+
+component F2Reference:
+    mpn = "LM4040A25IDBZR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/lm4040.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal K ~ pin 1
+    signal A ~ pin 2
+    signal NC ~ pin 3
+
+component F2And4:
+    mpn = "SN74HCS21PWR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal NC1 ~ pin 3
+    signal C1 ~ pin 4
+    signal D1 ~ pin 5
+    signal Y1 ~ pin 6
+    signal GND ~ pin 7
+    signal Y2 ~ pin 8
+    signal A2 ~ pin 9
+    signal B2 ~ pin 10
+    signal NC2 ~ pin 11
+    signal C2 ~ pin 12
+    signal D2 ~ pin 13
+    signal VCC ~ pin 14
+
+component F2Dff:
+    mpn = "SN74HCS74PWR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal CLR1 ~ pin 1
+    signal D1 ~ pin 2
+    signal CLK1 ~ pin 3
+    signal PRE1 ~ pin 4
+    signal Q1 ~ pin 5
+    signal QN1 ~ pin 6
+    signal GND ~ pin 7
+    signal QN2 ~ pin 8
+    signal Q2 ~ pin 9
+    signal PRE2 ~ pin 10
+    signal CLK2 ~ pin 11
+    signal D2 ~ pin 12
+    signal CLR2 ~ pin 13
+    signal VCC ~ pin 14
+
+component F2GateDriver:
+    mpn = "UCC27624D"
+    datasheet = "https://www.ti.com/lit/ds/symlink/ucc27624.pdf"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal ENA ~ pin 1
+    signal INA ~ pin 2
+    signal GND ~ pin 3
+    signal INB ~ pin 4
+    signal OUTB ~ pin 5
+    signal VDD ~ pin 6
+    signal OUTA ~ pin 7
+    signal ENB ~ pin 8
+
+component F2R:
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component F2C:
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module F2Divider:
+    signal bus
+    signal high
+    signal low
+    signal gnd
+    r1 = new F2R
+    r1.mpn = "TNPW1206200KBEEA"
+    r1.value = 200kohm
+    r2 = new F2R
+    r2.mpn = "TNPW1206200KBEEA"
+    r2.value = 200kohm
+    r3 = new F2R
+    r3.mpn = "TNPW1206200KBEEA"
+    r3.value = 200kohm
+    r4 = new F2R
+    r4.mpn = "TNPW1206200KBEEA"
+    r4.value = 200kohm
+    r5 = new F2R
+    r5.mpn = "TNPW1206187KBEEA"
+    r5.value = 187kohm
+    step = new F2R
+    step.mpn = "TNPW1206200RBEEA"
+    step.value = 200ohm
+    bottom = new F2R
+    bottom.mpn = "TNPW12065K62BEEA"
+    bottom.value = 5620ohm
+    filter = new F2C
+    filter.mpn = "C0805C101J5GACTU"
+    filter.value = 100pF
+    bus ~ r1.p1
+    r1.p2 ~ r2.p1
+    r2.p2 ~ r3.p1
+    r3.p2 ~ r4.p1
+    r4.p2 ~ r5.p1
+    r5.p2 ~ high
+    high ~ step.p1
+    step.p2 ~ low
+    low ~ bottom.p1
+    bottom.p2 ~ gnd
+    filter.p1 ~ high
+    filter.p2 ~ gnd
+
+module PowerEntryF2Shutdown:
+    """Two-channel F2 detector with a retained, default-off gate permission.
+
+    `ready` is the only latch data/clear condition.  ARM is deliberately not
+    included in that combinational path: a held ARM cannot turn a returning
+    health/rail condition into a new clock edge.  A fresh ARM rising edge is
+    required after every asynchronous clear.
+    """
+    # HOT-referenced external interfaces.
+    signal vd
+    signal vb
+    signal logic5
+    signal aux
+    signal gnd
+    signal rails_ok
+    signal permit
+    signal arm
+    signal pwm
+    signal gate
+
+    # Observation nets retained in the compiled graph for test and simulation.
+    signal health_ok
+    signal ready
+    signal run
+    signal fault_clear_n
+
+    vd_div = new F2Divider
+    vb_div = new F2Divider
+    vd_div.bus ~ vd
+    vb_div.bus ~ vb
+    vd_div.gnd ~ gnd
+    vb_div.gnd ~ gnd
+
+    reference = new F2Reference
+    ref_bias = new F2R
+    ref_bias.mpn = "TNPW120610K0BEEA"
+    ref_bias.value = 10kohm
+    ref_bias.p1 ~ aux
+    ref_bias.p2 ~ reference.K
+    reference.A ~ gnd
+    signal ref25
+    reference.K ~ ref25
+    # F2Reference.NC (pin 3) is intentionally left unconnected per its PDF.
+
+    cmp_vd = new F2Comparator
+    cmp_vb = new F2Comparator
+    cmp_vd.VCC ~ logic5
+    cmp_vb.VCC ~ logic5
+    cmp_vd.GND ~ gnd
+    cmp_vb.GND ~ gnd
+
+    # Each comparator has one absolute OV channel and one directional mismatch
+    # channel.  The two directional channels are independent push-pull outputs;
+    # they are never wired together as an open-collector fault bus.
+    cmp_vd.IN1_P ~ ref25
+    cmp_vd.IN1_N ~ vd_div.high
+    cmp_vd.IN2_P ~ vd_div.high
+    cmp_vd.IN2_N ~ vb_div.low
+    cmp_vb.IN1_P ~ ref25
+    cmp_vb.IN1_N ~ vb_div.high
+    cmp_vb.IN2_P ~ vb_div.high
+    cmp_vb.IN2_N ~ vd_div.low
+
+    health = new F2And4
+    health.VCC ~ logic5
+    health.GND ~ gnd
+    health.A1 ~ cmp_vd.OUT1
+    health.B1 ~ cmp_vd.OUT2
+    health.C1 ~ cmp_vb.OUT1
+    health.D1 ~ cmp_vb.OUT2
+    health.Y1 ~ health_ok
+
+    # The second 4-input gate makes a rail/permit-qualified latch condition.
+    # logic5 is a defined fourth input; the external rails_ok contract remains
+    # responsible for holding the latch clear throughout supply return.
+    health.A2 ~ health_ok
+    health.B2 ~ rails_ok
+    health.C2 ~ permit
+    health.D2 ~ logic5
+    health.Y2 ~ ready
+
+    latch = new F2Dff
+    latch.VCC ~ logic5
+    latch.GND ~ gnd
+    latch.D1 ~ ready
+    latch.CLK1 ~ arm
+    latch.CLR1 ~ ready
+    latch.PRE1 ~ logic5
+    latch.Q1 ~ run
+    latch.QN1 ~ fault_clear_n
+
+    # Unused flip-flop half: every input is defined; its outputs are not used.
+    latch.D2 ~ gnd
+    latch.CLK2 ~ gnd
+    latch.PRE2 ~ logic5
+    latch.CLR2 ~ gnd
+
+    driver = new F2GateDriver
+    driver.VDD ~ aux
+    driver.GND ~ gnd
+    driver.INA ~ pwm
+    driver.ENA ~ run
+    en_pd = new F2R
+    # UCC27624 EN has an internal pull-up.  This 2.2 kohm external pulldown is
+    # an explicit default-low component; its VIL margin against the internal
+    # pull-up remains a datasheet/application condition, not a rail-off proof.
+    en_pd.mpn = "RC0603FR-072K2L"
+    en_pd.value = 2.2kohm
+    en_pd.footprint = "Resistor_SMD:R_0603_1608Metric"
+    en_pd.p1 ~ driver.ENA
+    en_pd.p2 ~ gnd
+    driver.INB ~ gnd
+    driver.ENB ~ gnd
+
+    gate_r = new F2R
+    # Preserve the baseline 1206 gate resistor; do not downsize its pulse load.
+    gate_r.mpn = "RC1206FR-0710RL"
+    gate_r.value = 10ohm
+    gate_r.footprint = "Resistor_SMD:R_1206_3216Metric"
+    gate_pd = new F2R
+    gate_pd.mpn = "RC0603FR-0710KL"
+    gate_pd.value = 10kohm
+    gate_pd.footprint = "Resistor_SMD:R_0603_1608Metric"
+    driver.OUTA ~ gate_r.p1
+    gate_r.p2 ~ gate
+    gate_pd.p1 ~ gate
+    gate_pd.p2 ~ gnd
+
+    # Explicit local bypasses for both independently supplied domains.
+    cmp_vd_bypass = new F2C
+    cmp_vd_bypass.mpn = "C0805C104K5RACTU"
+    cmp_vd_bypass.value = 100nF
+    cmp_vd_bypass.p1 ~ logic5
+    cmp_vd_bypass.p2 ~ gnd
+    cmp_vb_bypass = new F2C
+    cmp_vb_bypass.mpn = "C0805C104K5RACTU"
+    cmp_vb_bypass.value = 100nF
+    cmp_vb_bypass.p1 ~ logic5
+    cmp_vb_bypass.p2 ~ gnd
+    health_bypass = new F2C
+    health_bypass.mpn = "C0805C104K5RACTU"
+    health_bypass.value = 100nF
+    health_bypass.p1 ~ logic5
+    health_bypass.p2 ~ gnd
+    latch_bypass = new F2C
+    latch_bypass.mpn = "C0805C104K5RACTU"
+    latch_bypass.value = 100nF
+    latch_bypass.p1 ~ logic5
+    latch_bypass.p2 ~ gnd
+    drv_bypass_hf = new F2C
+    drv_bypass_hf.mpn = "C0805C104K5RACTU"
+    drv_bypass_hf.value = 100nF
+    drv_bypass_hf.p1 ~ aux
+    drv_bypass_hf.p2 ~ gnd
+    drv_bypass_bulk = new F2C
+    drv_bypass_bulk.mpn = "C1210C105K1RACTU"
+    drv_bypass_bulk.value = 1uF
+    drv_bypass_bulk.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    drv_bypass_bulk.p1 ~ aux
+    drv_bypass_bulk.p2 ~ gnd

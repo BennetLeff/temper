@@ -1,0 +1,15 @@
+
+running 10 tests
+test tests::capacitor_tolerance_matters ... ok
+test tests::equal_discharged_nodes_are_not_a_continuity_measurement ... ok
+test tests::disconnected_charged_sides_trip_in_either_direction ... ok
+test tests::healthy_off_commutation_agrees_with_independent_ngspice ... ok
+test tests::divider_filter_response_agrees_with_ngspice ... ok
+test tests::divider_agrees_with_independent_ngspice_node_solution ... ok
+test tests::passive_node_solution_matches_kirchhoff_with_input_loading ... ok
+test tests::zero_delay_matches_ideal_commutation_energy ... ok
+test tests::uncertainty_and_delay_reduce_voltage_headroom ... ok
+test tests::equal_precharged_nodes_do_not_trip_with_declared_static_budgets ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

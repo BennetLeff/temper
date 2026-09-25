@@ -1,0 +1,33 @@
+{
+  "experiment": "clamp-resistor-sensitivity",
+  "scope": "bounded DC model comparison; no circuit adoption",
+  "source": {
+    "manufacturer": "Diodes Inc.",
+    "part": "BAV23C",
+    "url": "https://www.diodes.com/spice/download/1530/BAV23C.spice.txt",
+    "local_file": "diodes-bav23c.spice.txt",
+    "sha256": "aa03e4db0360c580a2ab13f1a9054ae32ca9739b31d8653d37e3d8376c732c6d",
+    "selected_part": false,
+    "model_disclaimer": "Diodes Inc. model retained as an alternative, as-is source; it does not qualify the selected Vishay device."
+  },
+  "inputs": {
+    "deck": {"file": "sensitivity.cir", "sha256": "cbe8bb04176ad8eae212eb996963e2fd44fc5562b7af027563986feaece6efd2"},
+    "checker": {"file": "resistor_sensitivity_checks.rs", "sha256": "0959c13eb018c2f1a5e82cc3aed25e9ad3c9bf0dcd42b3d13ce4a41e7a5d9d3c"},
+    "simulator": "ngspice-45.2"
+  },
+  "outputs": {
+    "log": {"file": "sensitivity.log", "sha256": "1f348feabc50d57673f80e3d11ff93b2eadcbaa13b833430216d796e49727ab9"},
+    "results": {"file": "sensitivity-results.txt", "sha256": "10b4b2c3c9f1b4c2d45fe209999950d8f0388b6bcc7211d630eadbd2c1ad41a1"}
+  },
+  "fixture": {
+    "temperatures_c": [-40, 25, 85, 125],
+    "resistors_ohm": [220, 100, 47, 22],
+    "source_shunt_ohm": 0.01,
+    "fault_shunt_v": -5.0,
+    "threshold_anchors_v": {"soc": -0.285, "pcl_typ": -0.4, "pcl_max": -0.438},
+    "filter_cap_f": 1e-9,
+    "dynamic_equivalence": false
+  },
+  "status": "measured-and-checked",
+  "adoption": "candidate remains unadopted; selected-part VF/pulse evidence and transient characterization are required"
+}

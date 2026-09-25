@@ -1,0 +1,13 @@
+{
+  "classification": "checker_pass",
+  "checker_success": true,
+  "transport_complete": true,
+  "raw_trace": "raw.trace.tsv.gz",
+  "raw_trace_sha256": "6e9e8c8d1869824b9e0a6cb2f8623d1c2d449b7e3e6b169f1bf02e381a84762a",
+  "supplemental": "not-retained; raw trace is authoritative",
+  "tstop_s": 2.00000000000000016e-5,
+  "mutation_s": 1.00000000000000008e-5,
+  "event_window_s": 1.99999999999999991e-6,
+  "observation_s": 1.99999999999999991e-6,
+  "max_gap_s": 2.49999999999999989e-8
+}

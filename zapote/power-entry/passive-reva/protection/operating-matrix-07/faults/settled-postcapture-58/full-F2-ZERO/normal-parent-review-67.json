@@ -1,0 +1,59 @@
+{
+  "status": "PARENT_VERIFIED_NORMAL_PREFIX_SCREENS",
+  "accepted": false,
+  "scope": "Ready for normal-prefix acceptance after retaining own legacy strict result; not wholefault acceptance",
+  "metrics": {
+    "vrms": 120.0,
+    "irms": 7.319917,
+    "real_input_power_w": 868.421306,
+    "pf": 0.988651,
+    "load_power_w": 773.464306,
+    "vb_mean_v": 383.380033,
+    "vb_min_v": 381.306416,
+    "vb_max_v": 385.371115,
+    "vd_v": 385.481126,
+    "vb_v": 385.371115,
+    "vds_v": 386.7781,
+    "vgs_abs_v": 14.982193,
+    "il_a": 30.653818,
+    "armed_fraction": 1.0,
+    "on_fraction": 1.0,
+    "three_state_energy_change_j": 1.3419957411442358,
+    "energy_residual_pin_pout_de_w": 68.11708477193176,
+    "cycle_means_v": [
+      382.8518777674912,
+      383.3994059697499,
+      383.88881545183125
+    ],
+    "cycle_drift_exact": 0.0027084565717339537
+  },
+  "screen_margins": {
+    "mains_lower_v": 12.001000000000005,
+    "mains_upper_v": 12.001000000000005,
+    "input_rms_a": 7.680083,
+    "bus_lower_v": 11.172166000000004,
+    "bus_upper_v": 23.724635000000035,
+    "cycle_drift": 0.0022915434282660464,
+    "VD_peak_v": 114.51887399999998,
+    "VB_peak_v": 64.62888500000003,
+    "VDS_peak_v": 263.2219,
+    "VGS_peak_v": 10.017807,
+    "energy_residual_w": 72.45919130193175
+  },
+  "parent_corrections": [
+    "Worker divided cycle range by average; frozen metrics.rs:274 divides by absolute first cycle mean. Correct drift recomputed here.",
+    "Worker VB explanation checked only mean; parent checks actual settled VBmin and VBmax against voltage interval.",
+    "Electrical worker said local-crest pending; this case is zero crossing and parent-phase-acceptance.json covers it."
+  ],
+  "event_effects": "All-choice duplicate group integral bounds in completed audit; E3sumabs/.05 is much less than positive residual margin. No logic/boundary ambiguity. Not a bound on total simulation or component-model error.",
+  "event_E3_sumabs_over_50ms_W": 4.921393982109984e-11,
+  "reports_sha256": {
+    "normal-metrics.txt": "e6614c38b29f557fa2066a647d738f17a735414acb08d015371c7ad71c83f481",
+    "normal15-audit.txt": "31de8f883232c6d552d945c9f70f10d9e7de77f1ff18b4e6921d09298d4f523e",
+    "normal15-events.tsv": "7ce3741367ece9121646e4bf48ea323c0659ead3e87667b2195764c852f8db27",
+    "analysis-receipt.json": "d749df691f54a9d43e92f47baafb3af38221baac96b0c0ad2d2d3d09b343ebec",
+    "normal-audit-worker-review-63.json": "60ab275306a924f0f76858801a48e457c9820f7aa99f74cab43fc108a4c14911",
+    "phase-metrics-worker-review-63.json": "9762765fb069bc45d113d65ccaa154e80aa201ba9eb720910fd1cba3a1e5c088",
+    "parent-phase-acceptance.json": "1e8856c57185f93076c5fbbe73d468a377ad833fc14ba44d1490f377d33a3d48"
+  }
+}

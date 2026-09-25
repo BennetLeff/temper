@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/Users/bennet/.local/bin/uv",
+    "tool",
+    "run",
+    "--offline",
+    "--from",
+    "atopile==0.2.69",
+    "ato",
+    "--non-interactive",
+    "build",
+    "elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate"
+  ],
+  "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/source-candidate",
+  "dedicated_process_group": 52052,
+  "ended_unix": 1790048967.3241868,
+  "error": null,
+  "interrupted_signal": null,
+  "resolved_command": "/Users/bennet/.local/bin/uv",
+  "returncode": 1,
+  "started_unix": 1790048967.205654,
+  "status": "failed",
+  "termination": "leader/group already exited",
+  "timeout_seconds": 60.0
+}

@@ -1,0 +1,25 @@
+{
+  "status": "NUMERICAL_ABORT_CONFIRMED_CAUSE_UNRESOLVED",
+  "accepted": false,
+  "required_end_s": 0.662,
+  "observed_stop_s": 0.6544026486296868,
+  "simulated_post_fault_duration_s": 0.00023598196298679763,
+  "corrections_to_worker78": [
+    "The solver passed the 1ns failed-switch command edge and continued about236us. The abort is not shown to coincide with that edge.",
+    "The presence of mixed-signal edges and ideal probes is a hypothesis source, not measured temporal coincidence or a proven causal chain.",
+    "A zero-state tens-of-nanoseconds microfixture cannot distinguish this delayed/stressed failure unless its relevant state and local transitions are first established and the same symptom reproduced. No fixture launch approved by this review."
+  ],
+  "next": "Await exact original tail extraction79, inspect local voltages/currents/control transitions. Retain original failed run. Do not modify complete-case69 guards or treat successful export as endpoint success. Remaining frozen prepared fault cases may be executed sequentially after this runner terminates; any retry requires a discriminating experiment or new evidence.",
+  "live_stage2_session": 76829,
+  "live_tail_extraction_session": 3321,
+  "at_utc": "2026-09-21T23:58:56.267642+00:00",
+  "evidence_sha256": {
+    "faults/sw-short-abort-review-78.md": "73d3dcdb6a83a5b90a1870a1f45948c94d5a557c8fbbd9d2c075996f00fbbf99",
+    "faults/sw-short-abort-review-78.json": "e96c80308c0c2faf9bb0f85fa7c28fd315abedb987e7f655c5c15bb274722437",
+    "faults/settled-sw-short-59/full-SW-SHORT/stop.txt": "f73d4625c00f60776f4ce08c0c18caecacf38e6725f22536383db2bad1415875",
+    "faults/settled-sw-short-59/full-SW-SHORT/capture-metadata.json": "b0f5cf58cdfd7a42b68ceb755d6985bc1f3737d728ec0527ac78a4f690e808ea",
+    "faults/settled-sw-short-59/full-SW-SHORT/native-export-receipt.json": "fe88874f78489ad670f823895d6f2dca6f31e0b90d39f411a64412690ee20635",
+    "faults/settled-sw-short-59/full-SW-SHORT/capture-stage1.json": "1f48eca42ce6f67be9a08cf4650ea50b1c5c8d9fa2f8456dc9eec21ff3a22b7b",
+    "faults/settled-sw-short-59/full-SW-SHORT/host.stderr": "d4557071eb08c9042092c6a915dc2aba38e5191c95c0f2409a37a0f8358cce52"
+  }
+}

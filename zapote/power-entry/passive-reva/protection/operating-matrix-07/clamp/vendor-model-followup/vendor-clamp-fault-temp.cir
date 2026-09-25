@@ -1,0 +1,23 @@
+* Fixed -5 V shunt excursion through the original 220 ohm path.
+.title Diodes Inc BAV23C negative excursion temperature screen
+.include diodes-bav23c.spice.txt
+VSHUNT shunt 0 DC -5
+RIN shunt isense 220
+DCLAMP 0 isense DI_BAV23C
+.control
+set noaskquit
+set temp=-40
+op
+print v(isense) @dclamp[id]
+set temp=25
+op
+print v(isense) @dclamp[id]
+set temp=85
+op
+op
+print v(isense) @dclamp[id]
+set temp=125
+op
+print v(isense) @dclamp[id]
+.endc
+.end

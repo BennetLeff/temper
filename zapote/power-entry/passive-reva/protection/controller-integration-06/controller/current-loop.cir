@@ -1,0 +1,21 @@
+TI worked-example current-loop small-signal check
+.include ucc28180.inc
+Vcc vcc 0 15
+Vvs vsense 0 5
+Vvc vcomp 0 3
+* TI eq100 atM1=.538, K1=7, GMI=.95mS, CICOMP=2.7nF.
+Vis isense 0 PWL(0 -.0922285714285714 100u -.0922285714285714 100.001u -.0932285714285714)
+Cic icomp 0 2.7n IC=3
+Xu vcc vsense isense icomp vcomp gate 0 UCC28180_FN RFREQ=17724.859322
+Rgate gate 0 10k
+.options method=gear reltol=1e-5
+.tran 10n 500u 0 10n uic
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+wrdata current-loop.tsv v(icomp) v(xu.m1) v(xu.m2) v(gate) v(isense)
+quit
+.endc
+.end

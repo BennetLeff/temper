@@ -1,0 +1,46 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: f2 result plots
+
+Loading raw data file ("/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/f2_phase_1u_refined.raw") ...
+done.
+Title:  F2 shutdown full signal path
+Name: Transient Analysis
+Date: Sat Sep 19 20:21:54  2026
+
+Here are the vectors currently active:
+
+Title: F2 shutdown full signal path
+Name: tran1 (Transient Analysis)
+Date: Sat Sep 19 20:21:54  2026
+
+    i(lboost)           : current, real, 221479 long
+    peak_i              : notype, real, 221479 long
+    peak_vd             : notype, real, 221479 long
+    time                : time, real, 221479 long [default scale]
+    v(arming)           : voltage, real, 221479 long
+    v(bh)               : voltage, real, 221479 long
+    v(bl)               : voltage, real, 221479 long
+    v(dh)               : voltage, real, 221479 long
+    v(dl)               : voltage, real, 221479 long
+    v(drv)              : voltage, real, 221479 long
+    v(en)               : voltage, real, 221479 long
+    v(f2ctl)            : voltage, real, 221479 long
+    v(fault)            : voltage, real, 221479 long
+    v(gate)             : voltage, real, 221479 long
+    v(health)           : voltage, real, 221479 long
+    v(permit)           : voltage, real, 221479 long
+    v(pwm)              : voltage, real, 221479 long
+    v(q)                : voltage, real, 221479 long
+    v(rails_ok)         : voltage, real, 221479 long
+    v(sw_mid)           : voltage, real, 221479 long
+    v(sw_sense)         : voltage, real, 221479 long
+    v(vb)               : voltage, real, 221479 long
+    v(vd)               : voltage, real, 221479 long
+
+The file "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/voltage.svg" has the Scalable Vector Graphics format.
+
+The file "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/shutdown.svg" has the Scalable Vector Graphics format.
+ngspice-45.2 done

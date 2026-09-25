@@ -1,0 +1,218 @@
+{
+  "schema": "temper.power_entry.reference_choice.v1",
+  "revision": "reference-revision-08",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "decision": {
+    "recommended": "retain_ucc28180_single_phase_ccm",
+    "alternative": "ucc28063_two_phase_natural_interleaved_tm",
+    "scope": "next_simulation_revision_only",
+    "hardware_qualification": false,
+    "recommendation_reason": "The existing authored model and evidence are UCC28180-based; TI provides same-controller wiring anchors at 360 W (EVM-573) and 3.5 kW-class CCM (TIDA-00779), while PMP10948 is two separate 750 W and 550 W UCC28063 stages and does not establish a single 1800 W, 390 V, 108 VAC bus."
+  },
+  "target": {
+    "nominal_input_vac": 120,
+    "line_range_vac": [
+      108,
+      132
+    ],
+    "nominal_appliance_input_w": 1800,
+    "bus_nominal_vdc": 390,
+    "input_screen_arms": 15,
+    "ideal_pf_screen_bounds_w": {
+      "108_vac": 1620,
+      "120_vac": 1800,
+      "132_vac": 1980
+    },
+    "bounds_note": "Unity-PF input bounds for 15 Arms; independent 1800 W cap still applies. Nonunity PF reduces real-input ceiling; conversion/auxiliary losses reduce downstream power, not that input ceiling."
+  },
+  "comparison": {
+    "ucc28180": {
+      "mode": "single_phase_ccm_average_current",
+      "references": [
+        {
+          "name": "UCC28180EVM-573",
+          "power_w": 360,
+          "vout_v": 390,
+          "input_vac": [
+            85,
+            265
+          ],
+          "frequency_khz": 120,
+          "source": "SLUUAT3 Rev B, pp. 1-2, 4, 6"
+        },
+        {
+          "name": "TIDA-00779 Rev D",
+          "power_kw": 3.5,
+          "vout_v": 390,
+          "full_load_input_vac": [
+            190,
+            270
+          ],
+          "frequency_khz": 45,
+          "choke_uh": 180,
+          "source": "TIDUBE1D Rev D, pp. 1-6; TIDRKA5 Rev D schematic sheets 1-2"
+        }
+      ],
+      "model_status": "existing local UCC28180 surrogate and fixtures; reference deviations inventoried in operating-matrix-07/host/ucc28180-reference-deviations-107.md",
+      "main_new_work": [
+        "low-line loss/current budget",
+        "magnetic saturation and thermal closure",
+        "bias/startup and inrush path",
+        "feedback/driver/reference delta binding",
+        "gate-independent failed-switch and local-VD protection"
+      ]
+    },
+    "ucc28063": {
+      "mode": "two_phase_natural_interleaved_transition_mode",
+      "pmp10948": {
+        "stage_1_w": 750,
+        "stage_2_w": 550,
+        "sum_w": 1300,
+        "vin_vac": [
+          90,
+          264
+        ],
+        "vout_v": 380,
+        "reported_efficiency": {
+          "120_vac": 0.956,
+          "220_vac": 0.98
+        },
+        "source": "TI PMP10948 tool page; TIDUBC5 test report p. 8"
+      },
+      "model_status": "TI lists UCC28063 PSpice transient model SLUM207, but no validated local UCC28063 binding exists",
+      "main_new_work": [
+        "shared-bus and power-split definition",
+        "two-phase ZCD/current balance",
+        "per-phase magnetics and thermal limits",
+        "controller-model correlation",
+        "two-channel startup/fault/restart graph"
+      ]
+    }
+  },
+  "inherited_requirements": [
+    "120 VAC nominal",
+    "108-132 VAC study range",
+    "1800 W appliance-input benchmark",
+    "390 V nominal bus",
+    "15 Arms modeled screen",
+    "existing modeled voltage/current/drift screens",
+    "protection requirements and no hardware-qualification claims"
+  ],
+  "new_ucc28180_requirements": [
+    "explicit low-line loss/current allocation",
+    "magnetic and thermal re-sizing",
+    "reference-deviation binding",
+    "D2 inrush-path decision and graph update",
+    "non-ideal bias/startup budget"
+  ],
+  "sources": [
+    {
+      "id": "ucc28180-product",
+      "url": "https://www.ti.com/product/UCC28180",
+      "claims": [
+        "single-phase CCM",
+        "average-current mode",
+        "18-250 kHz programmable",
+        "integrated gate drive",
+        "EVM-573 360 W/390 V/120 kHz"
+      ],
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "ucc28180-evm",
+      "path": "operating-matrix-07/host/reference-sources-107/sluuat3.pdf",
+      "pages": [
+        1,
+        2,
+        4,
+        6,
+        8,
+        9
+      ],
+      "sha256": "4060ba9b2d4d6bd0c06540d9fae91894ee472b93169efc7f05dcfefaa9435911"
+    },
+    {
+      "id": "tida-guide",
+      "url": "https://www.ti.com/lit/pdf/TIDUBE1",
+      "pages": [
+        1,
+        3,
+        5,
+        6,
+        8
+      ],
+      "claims": [
+        "UCC28180 CCM 3.5 kW appliance PFC",
+        "190-270 VAC full-load",
+        "180 uH/45 kHz/40% ripple design",
+        "onboard bias and inrush relay"
+      ],
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "tida-schematic",
+      "path": "operating-matrix-07/host/reference-sources-107/tidrka5.pdf",
+      "pages": [
+        1,
+        2
+      ],
+      "sha256": "8b91f9402e1fd36dd71b2af6b465d300c5af5ec7488f9290bdb9b58bf5c57f05"
+    },
+    {
+      "id": "pmp10948",
+      "url": "https://www.ti.com/tool/PMP10948",
+      "claims": [
+        "two stages 750 W and 550 W",
+        "90-264 VAC",
+        "380 V nominal",
+        "95.6% at 120 VAC/1300 W"
+      ],
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "ucc28063-product",
+      "url": "https://www.ti.com/product/UCC28063",
+      "claims": [
+        "natural interleaving transition mode",
+        "two synchronized master channels",
+        "PSpice transient model SLUM207",
+        "300 W universal-input EVM"
+      ],
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "ucc28063-datasheet",
+      "url": "https://www.ti.com/lit/ds/symlink/ucc28063.pdf",
+      "pages": [
+        14
+      ],
+      "claims": [
+        "natural interleaving",
+        "ripple cancellation",
+        "phase management",
+        "inrush-safe limiting",
+        "dual-path OVP"
+      ],
+      "accessed": "2026-09-21"
+    }
+  ],
+  "limits": [
+    "no solver run",
+    "no raw archive changed",
+    "no code or CAD changed",
+    "reference values and efficiency are not Temper qualification",
+    "PMP10948 two-stage outputs are not evidence of one shared 1300 W or 1800 W bus"
+  ],
+  "adoption_evidence": [
+    "prove a single shared 390 V bus at the required Temper power; PMP10948's 750 W + 550 W split is not sufficient",
+    "close 108 VAC input current and thermal budget under 15 Arms including all allocated losses, or explicitly revise that requirement",
+    "bind UCC28063 transient model and reproduce TI reference behavior without inheriting efficiency",
+    "close per-phase magnetics, current sharing, device/capacitor stress, startup and one-phase-failed behavior",
+    "rerun the protection campaign for both channels and shared inrush/stored-energy paths"
+  ],
+  "reconsideration_triggers": [
+    "single-phase low-line current/ripple/magnetic/thermal budget fails",
+    "concrete interleaved comparison demonstrates material advantage"
+  ],
+  "immediate_next_step": "source/model reconciliation and bounded feedback fixture before broad power sweep"
+}

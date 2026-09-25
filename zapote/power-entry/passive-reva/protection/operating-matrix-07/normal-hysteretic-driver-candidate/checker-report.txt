@@ -1,0 +1,7 @@
+window_s=4.500000000e-1..5.000000000e-1 vrms=120.000000 irms=7.316098 real_input_power_w=868.152011 pf=0.988860
+load_power_w=745.923721 vb_mean_v=376.491547 vb_min_v=373.591027 vb_max_v=379.256432 vb_ripple_pp_v=5.665405 vb_cycle_means_v=[375.39213754804405, 376.5271300623589, 377.5553743794956] vb_cycle_drift=0.005763
+energy_delta_rate_w=55.126437 energy_balance_pin_pout_de_w=67.101853
+il_peak_a=30.679251 vd_peak_v=379.364697 vb_peak_v=379.256432 vds_peak_v=380.659464 vgs_abs_peak_v=14.982214 armed_fraction=1.000000 on_fraction=1.000000
+engineering_screen=STOP
+STOP: bus cycle drift 0.005763 >= 0.005000
+qualification=NOT_CLAIMED (loss estimate/screen do not establish thermal qualification or product compliance)

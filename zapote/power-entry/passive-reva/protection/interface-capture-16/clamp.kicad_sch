@@ -1,0 +1,1081 @@
+(kicad_sch (version 20250114) (generator "eeschema") (uuid 16000000-0000-4000-8000-000000000001) (paper "A3") (title_block (title "Temper / clamp interface fixture") (date "2026-09-22") (rev "16-prototype") (comment 1 "Review fixture - not production or hardware qualification")) (lib_symbols (symbol "Device:C"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0.254)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "C"
+			(at 0.635 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "C"
+			(at 0.635 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 0.9652 -3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "cap capacitor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "C_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "C_0_1"
+			(polyline
+				(pts
+					(xy -2.032 0.762) (xy 2.032 0.762)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.032 -0.762) (xy 2.032 -0.762)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "C_1_1"
+			(pin passive line
+				(at 0 3.81 270)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -3.81 90)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Device:C_Polarized"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0.254)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "C"
+			(at 0.635 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "C_Polarized"
+			(at 0.635 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 0.9652 -3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Polarized capacitor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "cap capacitor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "CP_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "C_Polarized_0_1"
+			(rectangle
+				(start -2.286 0.508)
+				(end 2.286 1.016)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.778 2.286) (xy -0.762 2.286)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.27 2.794) (xy -1.27 1.778)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(rectangle
+				(start 2.286 -0.508)
+				(end -2.286 -1.016)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+		)
+		(symbol "C_Polarized_1_1"
+			(pin passive line
+				(at 0 3.81 270)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -3.81 90)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Device:D"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 1.016)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "D"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "D"
+			(at 0 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Diode"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "diode"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "D_0_1"
+			(polyline
+				(pts
+					(xy -1.27 1.27) (xy -1.27 -1.27)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 0) (xy -1.27 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "D_1_1"
+			(pin passive line
+				(at -3.81 0 0)
+				(length 2.54)
+				(name "K"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 3.81 0 180)
+				(length 2.54)
+				(name "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Device:R_Small_US"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0.254)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "R"
+			(at 0.762 0.508 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "R_Small_US"
+			(at 0.762 -1.016 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small US symbol"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "r resistor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "R_Small_US_1_1"
+			(polyline
+				(pts
+					(xy 0 1.524) (xy 1.016 1.143) (xy 0 0.762) (xy -1.016 0.381) (xy 0 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 0) (xy 1.016 -0.381) (xy 0 -0.762) (xy -1.016 -1.143) (xy 0 -1.524)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(pin passive line
+				(at 0 2.54 270)
+				(length 1.016)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -2.54 90)
+				(length 1.016)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Temper16:LT4363HMS_1_PBF" (pin_names (offset 0.8)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 0 0) (effects (font (size 1.27 1.27)))) (property "Value" "LT4363HMS_1_PBF" (at 0 0 0) (effects (font (size 1.27 1.27)))) (symbol "LT4363HMS_1_PBF_0_1" (rectangle (start -15.24 22.86) (end 15.24 -22.86) (stroke (width 0.254) (type default)) (fill (type background)))) (symbol "LT4363HMS_1_PBF_1_1"(pin input line (at -17.78 10.16 0) (length 2.54) (name "FB" (effects (font (size 1.0 1.0)))) (number "1" (effects (font (size 1.0 1.0)))))(pin input line (at 17.78 10.16 180) (length 2.54) (name "OUT" (effects (font (size 1.0 1.0)))) (number "2" (effects (font (size 1.0 1.0)))))(pin input line (at 17.78 15.24 180) (length 2.54) (name "SNS" (effects (font (size 1.0 1.0)))) (number "3" (effects (font (size 1.0 1.0)))))(pin output line (at 17.78 0 180) (length 2.54) (name "GATE" (effects (font (size 1.0 1.0)))) (number "4" (effects (font (size 1.0 1.0)))))(pin power_in line (at 0 25.4 270) (length 2.54) (name "VCC" (effects (font (size 1.0 1.0)))) (number "5" (effects (font (size 1.0 1.0)))))(pin input line (at -17.78 0 0) (length 2.54) (name "/SHDN" (effects (font (size 1.0 1.0)))) (number "6" (effects (font (size 1.0 1.0)))))(pin power_in line (at -5.08 -25.4 90) (length 2.54) (name "GND" (effects (font (size 1.0 1.0)))) (number "7" (effects (font (size 1.0 1.0)))))(pin input line (at -17.78 15.24 0) (length 2.54) (name "UV" (effects (font (size 1.0 1.0)))) (number "8" (effects (font (size 1.0 1.0)))))(pin power_in line (at 5.08 -25.4 90) (length 2.54) (name "GND" (effects (font (size 1.0 1.0)))) (number "9" (effects (font (size 1.0 1.0)))))(pin open_collector line (at 17.78 -10.16 180) (length 2.54) (name "/FLT" (effects (font (size 1.0 1.0)))) (number "10" (effects (font (size 1.0 1.0)))))(pin open_collector line (at 17.78 -15.24 180) (length 2.54) (name "ENOUT" (effects (font (size 1.0 1.0)))) (number "11" (effects (font (size 1.0 1.0)))))(pin passive line (at -17.78 -15.24 0) (length 2.54) (name "TMR" (effects (font (size 1.0 1.0)))) (number "12" (effects (font (size 1.0 1.0)))))))
+(symbol "Temper16:PWR_AUX_PROTECTED" (power) (pin_names (offset 0) hide) (pin_numbers hide) (in_bom no) (on_board no) (property "Reference" "#PWR" (at 0 0 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "AUX_PROTECTED" (at 0 0 0) (effects (font (size 1.27 1.27)))) (symbol "PWR_AUX_PROTECTED_0_1" (polyline (pts (xy 0 0) (xy 0 2.54) (xy -1.27 1.27) (xy 0 2.54) (xy 1.27 1.27)) (stroke (width 0.254) (type default)) (fill (type none)))) (symbol "PWR_AUX_PROTECTED_1_1" (pin power_in line (at 0 0 90) (length 0) (name "AUX_PROTECTED" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))))
+(symbol "Temper16:PWR_AUX_RAW" (power) (pin_names (offset 0) hide) (pin_numbers hide) (in_bom no) (on_board no) (property "Reference" "#PWR" (at 0 0 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "AUX_RAW" (at 0 0 0) (effects (font (size 1.27 1.27)))) (symbol "PWR_AUX_RAW_0_1" (polyline (pts (xy 0 0) (xy 0 2.54) (xy -1.27 1.27) (xy 0 2.54) (xy 1.27 1.27)) (stroke (width 0.254) (type default)) (fill (type none)))) (symbol "PWR_AUX_RAW_1_1" (pin power_in line (at 0 0 90) (length 0) (name "AUX_RAW" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))))
+(symbol "Temper16:PWR_HOT_GND" (power) (pin_names (offset 0) hide) (pin_numbers hide) (in_bom no) (on_board no) (property "Reference" "#PWR" (at 0 0 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "HOT_GND" (at 0 0 0) (effects (font (size 1.27 1.27)))) (symbol "PWR_HOT_GND_0_1" (polyline (pts (xy -1.27 0) (xy 1.27 0) (xy 0 -1.27) (xy -1.27 0)) (stroke (width 0.254) (type default)) (fill (type none)))) (symbol "PWR_HOT_GND_1_1" (pin power_in line (at 0 0 90) (length 0) (name "HOT_GND" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))))
+(symbol "Transistor_FET:Q_NMOS_GDS"
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "Q"
+			(at 5.08 1.905 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Q_NMOS_GDS"
+			(at 5.08 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 5.08 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "N-MOSFET transistor, gate/drain/source"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "transistor NMOS N-MOS N-MOSFET"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "Q_NMOS_GDS_0_1"
+			(polyline
+				(pts
+					(xy 0.254 1.905) (xy 0.254 -1.905)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.254 0) (xy -2.54 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.762 2.286) (xy 0.762 1.27)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.762 0.508) (xy 0.762 -0.508)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.762 -1.27) (xy 0.762 -2.286)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.762 -1.778) (xy 3.302 -1.778) (xy 3.302 1.778) (xy 0.762 1.778)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.016 0) (xy 2.032 0.381) (xy 2.032 -0.381) (xy 1.016 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+			(circle
+				(center 1.651 0)
+				(radius 2.794)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 2.54 2.54) (xy 2.54 1.778)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 2.54 1.778)
+				(radius 0.254)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+			(circle
+				(center 2.54 -1.778)
+				(radius 0.254)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+			(polyline
+				(pts
+					(xy 2.54 -2.54) (xy 2.54 0) (xy 0.762 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 2.921 0.381) (xy 3.683 0.381)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 3.302 0.381) (xy 2.921 -0.254) (xy 3.683 -0.254) (xy 3.302 0.381)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "Q_NMOS_GDS_1_1"
+			(pin input line
+				(at -5.08 0 0)
+				(length 2.54)
+				(name "G"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 2.54 5.08 270)
+				(length 2.54)
+				(name "D"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 2.54 -5.08 90)
+				(length 2.54)
+				(name "S"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	) )
+(rectangle (start 15.2400 15.2400) (end 400.0500 250.1900) (stroke (width 0.3) (type default) (color 40 95 130 1)) (fill (type none)) (uuid 16000000-0000-4000-8000-000000000011))
+(text "AUX ACTIVE CLAMP / ALL NETS HOT-REFERENCED" (at 17.7800 19.0500 0) (effects (font (size 1.8 1.8)) (justify left)) (uuid 16000000-0000-4000-8000-000000000012))
+(symbol (lib_id "Temper16:LT4363HMS_1_PBF") (at 129.5400 105.4100 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000013) (property "Reference" "U1" (at 153.6700 76.2000 0) (effects (font (size 1.27 1.27)))) (property "Value" "LT4363HMS-1#PBF" (at 153.6700 78.7400 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Package_SO:MSOP-12_3x4.039mm_P0.65mm" (at 129.5400 105.4100 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "U1") (unit 1)))))
+(wire (pts (xy 147.3200 95.2500) (xy 170.1800 95.2500)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000014))
+(symbol (lib_id "Temper16:PWR_AUX_PROTECTED") (at 170.1800 95.2500 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000015) (property "Reference" "#PWR15" (at 170.1800 95.2500 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "AUX_PROTECTED" (at 170.1800 91.4400 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR15") (unit 1)))))
+(wire (pts (xy 147.3200 90.1700) (xy 154.9400 90.1700)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000016))
+(label "SNS" (at 154.9400 90.1700 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000017))
+(wire (pts (xy 111.7600 105.4100) (xy 104.1400 105.4100)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000018))
+(label "SERVICE_RESET_N" (at 104.1400 105.4100 180) (effects (font (size 1.27 1.27)) (justify right bottom)) (uuid 16000000-0000-4000-8000-000000000019))
+(wire (pts (xy 147.3200 115.5700) (xy 154.9400 115.5700)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000020))
+(label "FLT_TP" (at 154.9400 115.5700 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000021))
+(wire (pts (xy 147.3200 120.6500) (xy 154.9400 120.6500)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000022))
+(label "ENOUT_TP" (at 154.9400 120.6500 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000023))
+(symbol (lib_id "Transistor_FET:Q_NMOS_GDS") (at 245.1100 64.7700 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000024) (property "Reference" "Q1" (at 269.2400 53.3400 0) (effects (font (size 1.27 1.27)))) (property "Value" "FDB33N25" (at 269.2400 55.8800 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Package_TO_SOT_SMD:TO-263-2" (at 245.1100 64.7700 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "Q1") (unit 1)))))
+(symbol (lib_id "Device:R_Small_US") (at 247.6500 100.3300 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000025) (property "Reference" "R1" (at 261.6200 99.0600 0) (effects (font (size 1.27 1.27)))) (property "Value" "0.22R / 1% total" (at 261.6200 101.6000 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 247.6500 100.3300 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "R1") (unit 1)))))
+(symbol (lib_id "Device:R_Small_US") (at 54.6100 85.0900 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000026) (property "Reference" "R2" (at 68.5800 83.8200 0) (effects (font (size 1.27 1.27)))) (property "Value" "59.0kR / 0.1% total" (at 68.5800 86.3600 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 54.6100 85.0900 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "R2") (unit 1)))))
+(symbol (lib_id "Device:R_Small_US") (at 54.6100 115.5700 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000027) (property "Reference" "R3" (at 68.5800 114.3000 0) (effects (font (size 1.27 1.27)))) (property "Value" "4.99kR / 0.1% total" (at 68.5800 116.8400 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 54.6100 115.5700 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "R3") (unit 1)))))
+(symbol (lib_id "Device:R_Small_US") (at 54.6100 165.1000 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000028) (property "Reference" "R4" (at 68.5800 163.8300 0) (effects (font (size 1.27 1.27)))) (property "Value" "91.0kR / 1% total" (at 68.5800 166.3700 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 54.6100 165.1000 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "R4") (unit 1)))))
+(symbol (lib_id "Device:R_Small_US") (at 54.6100 195.5800 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000029) (property "Reference" "R5" (at 68.5800 194.3100 0) (effects (font (size 1.27 1.27)))) (property "Value" "10.0kR / 1% total" (at 68.5800 196.8500 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 54.6100 195.5800 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "R5") (unit 1)))))
+(symbol (lib_id "Device:R_Small_US") (at 199.3900 95.2500 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000030) (property "Reference" "R6" (at 214.6300 93.9800 0) (effects (font (size 1.27 1.27)))) (property "Value" "10R" (at 214.6300 96.5200 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 199.3900 95.2500 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "R6") (unit 1)))))
+(symbol (lib_id "Device:R_Small_US") (at 245.1100 149.8600 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000031) (property "Reference" "R7" (at 259.0800 148.5900 0) (effects (font (size 1.27 1.27)))) (property "Value" "100R" (at 259.0800 151.1300 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 245.1100 149.8600 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "R7") (unit 1)))))
+(symbol (lib_id "Device:C") (at 100.3300 54.6100 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000032) (property "Reference" "C1" (at 114.3000 53.3400 0) (effects (font (size 1.27 1.27)))) (property "Value" "100nF / 50V" (at 114.3000 55.8800 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (at 100.3300 54.6100 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "C1") (unit 1)))))
+(symbol (lib_id "Device:C") (at 105.4100 185.4200 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000033) (property "Reference" "C2" (at 119.3800 184.1500 0) (effects (font (size 1.27 1.27)))) (property "Value" "100nF / +/-10% eff" (at 119.3800 186.6900 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (at 105.4100 185.4200 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "C2") (unit 1)))))
+(symbol (lib_id "Device:C") (at 245.1100 195.5800 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000034) (property "Reference" "C3" (at 259.0800 194.3100 0) (effects (font (size 1.27 1.27)))) (property "Value" "1.5uF / 63V target" (at 259.0800 196.8500 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (at 245.1100 195.5800 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "C3") (unit 1)))))
+(symbol (lib_id "Device:C_Polarized") (at 330.2000 139.7000 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000035) (property "Reference" "C4" (at 344.1700 138.4300 0) (effects (font (size 1.27 1.27)))) (property "Value" "220uF / 50V target" (at 344.1700 140.9700 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm" (at 330.2000 139.7000 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "C4") (unit 1)))))
+(symbol (lib_id "Device:D") (at 299.7200 149.8600 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 16000000-0000-4000-8000-000000000036) (property "Reference" "D1" (at 299.7200 142.2400 0) (effects (font (size 1.27 1.27)))) (property "Value" "1N4148W" (at 299.7200 144.7800 0) (effects (font (size 1.27 1.27)))) (property "Footprint" "Diode_SMD:D_SOD-123" (at 299.7200 149.8600 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "D1") (unit 1)))))
+(text "Input: regulated 15V; 35V fault envelope remains conditional." (at 25.4000 30.4800 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 16000000-0000-4000-8000-000000000037))
+(text "C4: low ESR bulk at protected pass-device output.\nRequire Cbulk,min >= max(22uF, 10 x Cceramic,max).\nTotal downstream C <=300uF for startup screen.\nC3 changed from470nF to1.5uF with larger bulk." (at 289.5600 190.5000 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 16000000-0000-4000-8000-000000000038))
+(text "SERVICE_RESET_N: local contact to HOT_GND only; normally open.\nDoes not follow source PERMIT. Hold >=120ms; verify release slew.\nFLT_TP / ENOUT_TP are observation only; no fault-net pullup fitted." (at 105.4100 224.7900 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 16000000-0000-4000-8000-000000000039))
+(text "Capacitor MPN/ESR/temperature limits remain unselected; footprints are placeholders.\nNo output-peak, startup, SOA or single-pass-FET-short qualification is claimed." (at 25.4000 242.5700 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 16000000-0000-4000-8000-000000000040))
+(wire (pts (xy 247.6500 59.6900) (xy 247.6500 44.4500)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000041))
+(symbol (lib_id "Temper16:PWR_AUX_RAW") (at 247.6500 44.4500 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000042) (property "Reference" "#PWR42" (at 247.6500 44.4500 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "AUX_RAW" (at 247.6500 40.6400 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR42") (unit 1)))))
+(wire (pts (xy 247.6500 69.8500) (xy 247.6500 85.0900)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000043))
+(wire (pts (xy 247.6500 85.0900) (xy 247.6500 97.7900)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000044))
+(label "SNS" (at 247.6500 85.0900 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000045))
+(wire (pts (xy 247.6500 102.8700) (xy 247.6500 124.4600)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000046))
+(wire (pts (xy 247.6500 124.4600) (xy 330.2000 124.4600)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000047))
+(wire (pts (xy 330.2000 124.4600) (xy 330.2000 135.8900)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000048))
+(label "AUX_PROTECTED" (at 275.5900 124.4600 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000049))
+(junction (at 275.5900 124.4600) (diameter 0) (color 0 0 0 0) (uuid 16000000-0000-4000-8000-000000000050))
+(wire (pts (xy 330.2000 143.5100) (xy 330.2000 152.4000)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000051))
+(symbol (lib_id "Temper16:PWR_HOT_GND") (at 330.2000 152.4000 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000052) (property "Reference" "#PWR52" (at 330.2000 152.4000 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "HOT_GND" (at 330.2000 154.9400 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR52") (unit 1)))))
+(wire (pts (xy 54.6100 82.5500) (xy 54.6100 72.3900)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000053))
+(symbol (lib_id "Temper16:PWR_AUX_PROTECTED") (at 54.6100 72.3900 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000054) (property "Reference" "#PWR54" (at 54.6100 72.3900 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "AUX_PROTECTED" (at 54.6100 68.5800 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR54") (unit 1)))))
+(wire (pts (xy 54.6100 87.6300) (xy 54.6100 100.3300)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000055))
+(wire (pts (xy 54.6100 100.3300) (xy 54.6100 113.0300)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000056))
+(wire (pts (xy 54.6100 100.3300) (xy 85.0900 100.3300)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000057))
+(wire (pts (xy 85.0900 100.3300) (xy 85.0900 95.2500)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000058))
+(wire (pts (xy 85.0900 95.2500) (xy 111.7600 95.2500)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000059))
+(junction (at 54.6100 100.3300) (diameter 0) (color 0 0 0 0) (uuid 16000000-0000-4000-8000-000000000060))
+(label "FB" (at 85.0900 95.2500 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000061))
+(wire (pts (xy 54.6100 118.1100) (xy 54.6100 124.4600)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000062))
+(symbol (lib_id "Temper16:PWR_HOT_GND") (at 54.6100 124.4600 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000063) (property "Reference" "#PWR63" (at 54.6100 124.4600 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "HOT_GND" (at 54.6100 128.2700 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR63") (unit 1)))))
+(wire (pts (xy 54.6100 162.5600) (xy 54.6100 152.4000)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000064))
+(symbol (lib_id "Temper16:PWR_AUX_RAW") (at 54.6100 152.4000 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000065) (property "Reference" "#PWR65" (at 54.6100 152.4000 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "AUX_RAW" (at 54.6100 148.5900 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR65") (unit 1)))))
+(wire (pts (xy 54.6100 167.6400) (xy 54.6100 180.3400)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000066))
+(wire (pts (xy 54.6100 180.3400) (xy 54.6100 193.0400)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000067))
+(label "UV" (at 54.6100 180.3400 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000068))
+(wire (pts (xy 54.6100 198.1200) (xy 54.6100 207.0100)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000069))
+(symbol (lib_id "Temper16:PWR_HOT_GND") (at 54.6100 207.0100 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000070) (property "Reference" "#PWR70" (at 54.6100 207.0100 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "HOT_GND" (at 54.6100 210.8200 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR70") (unit 1)))))
+(wire (pts (xy 111.7600 90.1700) (xy 101.6000 90.1700)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000071))
+(label "UV" (at 101.6000 90.1700 180) (effects (font (size 1.27 1.27)) (justify right bottom)) (uuid 16000000-0000-4000-8000-000000000072))
+(wire (pts (xy 147.3200 105.4100) (xy 180.3400 105.4100)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000073))
+(wire (pts (xy 180.3400 105.4100) (xy 180.3400 92.7100)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000074))
+(wire (pts (xy 180.3400 92.7100) (xy 199.3900 92.7100)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000075))
+(label "GATE_DRV" (at 163.8300 105.4100 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000076))
+(wire (pts (xy 199.3900 97.7900) (xy 209.5500 97.7900)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000077))
+(wire (pts (xy 209.5500 97.7900) (xy 209.5500 64.7700)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000078))
+(wire (pts (xy 209.5500 64.7700) (xy 240.0300 64.7700)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000079))
+(label "Q_GATE" (at 214.6300 64.7700 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000080))
+(wire (pts (xy 245.1100 147.3200) (xy 245.1100 139.7000)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000081))
+(wire (pts (xy 245.1100 139.7000) (xy 314.9600 139.7000)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000082))
+(wire (pts (xy 314.9600 139.7000) (xy 314.9600 149.8600)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000083))
+(wire (pts (xy 314.9600 149.8600) (xy 303.5300 149.8600)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000084))
+(label "Q_GATE" (at 245.1100 139.7000 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000085))
+(wire (pts (xy 245.1100 152.4000) (xy 245.1100 175.2600)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000086))
+(wire (pts (xy 245.1100 175.2600) (xy 245.1100 191.7700)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000087))
+(wire (pts (xy 245.1100 175.2600) (xy 279.4000 175.2600)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000088))
+(wire (pts (xy 279.4000 175.2600) (xy 279.4000 149.8600)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000089))
+(wire (pts (xy 279.4000 149.8600) (xy 295.9100 149.8600)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000090))
+(junction (at 245.1100 175.2600) (diameter 0) (color 0 0 0 0) (uuid 16000000-0000-4000-8000-000000000091))
+(label "CG" (at 245.1100 175.2600 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000092))
+(wire (pts (xy 245.1100 199.3900) (xy 245.1100 207.0100)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000093))
+(symbol (lib_id "Temper16:PWR_HOT_GND") (at 245.1100 207.0100 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000094) (property "Reference" "#PWR94" (at 245.1100 207.0100 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "HOT_GND" (at 245.1100 210.8200 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR94") (unit 1)))))
+(wire (pts (xy 100.3300 50.8000) (xy 129.5400 50.8000)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000095))
+(wire (pts (xy 129.5400 50.8000) (xy 129.5400 80.0100)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000096))
+(symbol (lib_id "Temper16:PWR_AUX_RAW") (at 129.5400 50.8000 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000097) (property "Reference" "#PWR97" (at 129.5400 50.8000 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "AUX_RAW" (at 129.5400 46.9900 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR97") (unit 1)))))
+(wire (pts (xy 100.3300 58.4200) (xy 100.3300 66.0400)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000098))
+(symbol (lib_id "Temper16:PWR_HOT_GND") (at 100.3300 66.0400 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000099) (property "Reference" "#PWR99" (at 100.3300 66.0400 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "HOT_GND" (at 100.3300 68.5800 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR99") (unit 1)))))
+(wire (pts (xy 124.4600 130.8100) (xy 124.4600 139.7000)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000100))
+(wire (pts (xy 124.4600 139.7000) (xy 134.6200 139.7000)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000101))
+(wire (pts (xy 134.6200 139.7000) (xy 134.6200 130.8100)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000102))
+(symbol (lib_id "Temper16:PWR_HOT_GND") (at 129.5400 139.7000 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000103) (property "Reference" "#PWR103" (at 129.5400 139.7000 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "HOT_GND" (at 129.5400 143.5100 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR103") (unit 1)))))
+(junction (at 129.5400 139.7000) (diameter 0) (color 0 0 0 0) (uuid 16000000-0000-4000-8000-000000000104))
+(wire (pts (xy 111.7600 120.6500) (xy 90.1700 120.6500)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000105))
+(wire (pts (xy 90.1700 120.6500) (xy 90.1700 170.1800)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000106))
+(wire (pts (xy 90.1700 170.1800) (xy 105.4100 170.1800)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000107))
+(wire (pts (xy 105.4100 170.1800) (xy 105.4100 181.6100)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000108))
+(label "TMR" (at 90.1700 170.1800 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid 16000000-0000-4000-8000-000000000109))
+(wire (pts (xy 105.4100 189.2300) (xy 105.4100 198.1200)) (stroke (width 0) (type default)) (uuid 16000000-0000-4000-8000-000000000110))
+(symbol (lib_id "Temper16:PWR_HOT_GND") (at 105.4100 198.1200 0) (unit 1) (in_bom no) (on_board no) (uuid 16000000-0000-4000-8000-000000000111) (property "Reference" "#PWR111" (at 105.4100 198.1200 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "HOT_GND" (at 105.4100 200.6600 0) (effects (font (size 1.27 1.27)))) (instances (project "clamp" (path "/16000000-0000-4000-8000-000000000001" (reference "#PWR111") (unit 1)))))
+)

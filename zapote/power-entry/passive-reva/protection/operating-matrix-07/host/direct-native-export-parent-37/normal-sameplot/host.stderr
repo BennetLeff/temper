@@ -1,0 +1,18 @@
+stdout ******
+stdout ** ngspice-45.2 shared library
+stdout ******
+stdout Note: No compatibility mode selected!
+stdout Circuit: * temper passive-reva cold-start / settled-normal switching witness.
+stdout Reducing trtol to 1 for xspice 'A' devices
+stdout Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+stdout Using SPARSE 1.3 as Direct Linear Solver
+stdout Operating point simulation skipped by 'uic',
+stdout now using transient initial conditions.
+stdout No. of Data Rows : 316
+stdout Background thread stopped with timeout = 0
+stdout Transient timepoints = 380
+stdout Transient iterations = 859
+stdout Rejected timepoints = 63
+stdout Transient iterations for the last time point = 0
+stdout Transient analysis time = 0.014964
+stdout binary raw file "reference.raw"

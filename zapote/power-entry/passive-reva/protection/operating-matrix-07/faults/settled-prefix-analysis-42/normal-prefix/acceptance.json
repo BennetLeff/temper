@@ -1,0 +1,147 @@
+{
+  "status": "ACCEPTED_EXACT_MODELED_FAULT_CASE_NORMAL_PREFIX",
+  "utc": "2026-09-21T18:21:44.095704+00:00",
+  "policy_version": "event-aware-normal-v1",
+  "scope": "Own cold-start normal prefix of F2-CREST38 only. Does not accept fault phase or post-fault outcome. No hardware, thermal, SOA, fuse or certification claim.",
+  "raw": {
+    "path": "faults/settled-direct-capture-38/F2-CREST/raw.trace.raw.gz",
+    "sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+    "bytes": 5297726667,
+    "full_rows": 32237324,
+    "fields": 42
+  },
+  "selected_rows": 30113786,
+  "first_time_s": 2e-10,
+  "last_selected_s": 0.6499999879879401,
+  "requested_cutoff_s": 0.65,
+  "cutoff_gap_s": 1.2012059902311023e-08,
+  "selection": "All original samples through last available sample at or before650ms; no interpolation, deletion, deduplication or timestamp shift.",
+  "rload_ohm": 190,
+  "source_rms_v": 120,
+  "source_sha256": {
+    "faults/settled-direct-capture-38/F2-CREST/authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "faults/settled-direct-capture-38/F2-CREST/capture-metadata.json": "b524c8a5436ac88ee552adad85142bc4eeb29d9a1876793168c55a517ea2ce73",
+    "faults/settled-direct-capture-38/F2-CREST/capture-stage1.json": "6866e6e23f577eee4f7db3c82b104116ed7cb1205202ddbb641d136855732dd8",
+    "faults/settled-direct-capture-38/F2-CREST/case.cir": "2f506027a93c89e136d7cb637fe2d4d234aca5ffd4e2ab7009a29384c73eed7e",
+    "faults/settled-direct-capture-38/F2-CREST/clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "faults/settled-direct-capture-38/F2-CREST/manifest.json": "a034475e9dadb5470fed1f31e195acc2b609b73f641d3267dfb17f8270809416",
+    "faults/settled-direct-capture-38/F2-CREST/protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "faults/settled-direct-capture-38/F2-CREST/run-parameters.json": "dcc9758cf1601cce443166c4c03319f90ee515749a5b79cc0dd09eee203ce256",
+    "faults/settled-direct-capture-38/F2-CREST/source-identity.json": "bf12cf1c0108ce75a3323cc07aed0bcd798474b427581f5149db120a0f012a6d",
+    "faults/settled-direct-capture-38/F2-CREST/standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "faults/settled-direct-capture-38/F2-CREST/ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  },
+  "tools_sha256": {
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-prefault-selector-parent": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+    "/private/tmp/matrix07-normal15-event-audit-host": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6",
+    "/private/tmp/matrix07-normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "/private/tmp/matrix07-event-metrics-host": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "/private/tmp/matrix07-checker": "24c95bea81b44a3d5038a32552297afed17547fcd1b3ddcfd99434e84638b85c",
+    "/private/tmp/matrix07-phase-audit35-parent": "53a32a13ac6acbfe1daf944ff47871a976f0a37a5a0298e4f7d342c2da8ba0a3"
+  },
+  "metrics": {
+    "vrms_v": 120,
+    "irms_a": 7.31949,
+    "input_w": 868.353172,
+    "load_w": 773.463986,
+    "pf": 0.988631,
+    "vb_mean_v": 383.379954,
+    "vb_min_v": 381.306416,
+    "vb_max_v": 385.371115,
+    "cycle_means_v": [
+      382.85187741665146,
+      383.3994056419117,
+      383.8885787400866
+    ],
+    "cycle_drift": 0.002707839205152701,
+    "residual_w": 68.10797060933595,
+    "energy_delta_j": 1.3390607992999577,
+    "armed_fraction": 1,
+    "on_fraction": 1,
+    "screen_count": 0,
+    "whole_prefix_IL_peak_A_report_only": 30.653818,
+    "whole_prefix_VD_peak_V": 385.481126,
+    "whole_prefix_VB_peak_V": 385.371115,
+    "whole_prefix_VDS_peak_V": 386.7781,
+    "whole_prefix_abs_VGS_peak_V": 14.982193
+  },
+  "screen_margins_from_reported_values": {
+    "mains_lower_v": 12.001000000000005,
+    "mains_upper_v": 12.001000000000005,
+    "cycle_drift": 0.002292160794847299,
+    "bus_lower_v": 11.172166000000004,
+    "bus_upper_v": 23.724635000000035,
+    "input_rms_a": 7.68051,
+    "VD_peak_v": 114.51887399999998,
+    "VB_peak_v": 64.62888500000003,
+    "VDS_peak_v": 263.2219,
+    "VGS_peak_v": 10.017807,
+    "energy_residual_w": 72.44973646933595
+  },
+  "events": {
+    "groups": 37,
+    "equal_intervals": 57,
+    "max_group_rows": 3,
+    "logic_changes": 0,
+    "boundary_groups": 0,
+    "missing_right": 0,
+    "max_positive_gap_s": 5.000000000143778e-07,
+    "E3_sumabs_J": 2.5818011596911447e-12,
+    "E3_spread_J": 2.730999642781292e-13
+  },
+  "event_effect_review": "Complete frozen audit validates finite/nondecreasing rows, endpoint1ns and maxstep1/(8*130k). All-row extrema retained; no logic/boundary ambiguity. Neighbor-hull inputP integral uncertainty3.98e-22J, ac\u00b24.41e-21V\u00b2s, i\u00b22.60e-23A\u00b2s, VB3.27e-27Vs. E3sumabs/.05 <5.17e-11W vs72.449736W residual margin. Same-time current spread2.42e-10A vs7.680510A RMS margin. Representative-choice effects only, not total solver error.",
+  "parent_review_correction": "Corrected independent review integral units and clarified existing complete passes need verification, not automatic rerunning.",
+  "legacy": {
+    "path": "legacy-strict/run",
+    "verdict": "REJECTED_NONINCREASING_TIME",
+    "line": 22760505,
+    "pipeline_statuses": [
+      141,
+      1,
+      1,
+      1,
+      1
+    ],
+    "upstream_errors": "EPIPE after strict checker exits; independent full audit and metrics pipelines all0."
+  },
+  "complete_pipeline_exits": {
+    "audit": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "metrics": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "reports_sha256": {
+    "faults/settled-prefix-analysis-42/normal-prefix/normal15-audit.txt": "91e333040de7894d8dcfb5f0d01a05c7f0af883c2295f9390c3e112e8acffda1",
+    "faults/settled-prefix-analysis-42/normal-prefix/normal15-events.tsv": "dd30d42d2f1c3579e319aa80f586b1c93782d3429631a0437970c4233c1c735d",
+    "faults/settled-prefix-analysis-42/normal-prefix/normal-metrics.txt": "f24cce324ea25d95af9b005744a47fd21e2e44d44dea927eee8891f7e8de2099",
+    "faults/settled-prefix-analysis-42/normal-prefix/audit-selector.json": "03a1f3d13eb2e2cef99a50fe3cb5294e7cc7ab01f4631faa8f6abf8305b13d39",
+    "faults/settled-prefix-analysis-42/normal-prefix/metrics-selector.json": "03a1f3d13eb2e2cef99a50fe3cb5294e7cc7ab01f4631faa8f6abf8305b13d39",
+    "faults/settled-prefix-analysis-42/normal-prefix/audit.exit": "c5bea6d5172950ed3fc3f0433afd51fc1913e545f5dd34c849c65dc166209a00",
+    "faults/settled-prefix-analysis-42/normal-prefix/metrics.exit": "ac3b2ba16115668f6162cec888617fa6622221fa8ab914a47ef2dac269786408",
+    "faults/settled-prefix-analysis-42/normal-prefix/batch-receipt.json": "e11b7c27002e40c2b1cbfb9fa190459c9020879d9ab15ae76ac32e26970b948f",
+    "faults/settled-prefix-analysis-42/normal-prefix/independent-review.md": "1e0b4083712874491a82d94f974322efdbbd27bac8e8cc237d4d1c4e572b7d33",
+    "faults/settled-prefix-analysis-42/normal-prefix/audit.sh": "e588a68758fcee5623bf4b3b8b385c15ff4286ecc8e684b020e6d8bf9dd43675",
+    "faults/settled-prefix-analysis-42/normal-prefix/metrics.sh": "8120889cbd8bc1c6162abcff8bf8493ba13155be823ee5154b18f0698ea45422",
+    "faults/settled-prefix-analysis-42/prefault-scan.json": "03a1f3d13eb2e2cef99a50fe3cb5294e7cc7ab01f4631faa8f6abf8305b13d39",
+    "faults/settled-prefix-analysis-42/preflight.json": "4ed24df14e941a63c655afe9f26687f4f5ae600ccf8f5c54b67d0490b60538a2",
+    "faults/settled-prefix-analysis-42/batch-receipt.json": "828cea632bc78be005e34d84bf6860103ddf7a47af212c14b250ed4fbc4e38f9",
+    "faults/settled-reanalysis-40/F2-CREST38/source-binding.json": "a8c7429eeb1b0df6a854e20403271e9d4a0746d1dc234eef1608eb78f11ea7d1",
+    "legacy-strict/run/receipt.json": "e6907269e1d546820e5e8ca5ad308c1214c64bcae215489e2ca590454e40ac5b",
+    "legacy-strict/run/command.sh": "88c3b8a4a881e58cbad2566ac74b99b838e29c8158c8ffc4ae226d024a9fe2c0",
+    "legacy-strict/run/pipeline.exit": "175bdbc71706c903e524dd6d875c3ab6ac16c186bae6a09d895464d0e9d9e9f2",
+    "legacy-strict/run/checker.stderr": "5a97157c212f752de04187df6fe9bbb89b34639ffcacf1af35203354d1ff6dd6"
+  },
+  "accepted": true,
+  "fault_acceptance": false
+}

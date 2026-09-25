@@ -1,0 +1,25 @@
+* Official UCC27624 model loaded by illustrative STW gate capacitance.
+* This is a vendor-driver check, not an exact MOSFET current-turnoff model.
+.include ucc27624.lib
+Vaux aux 0 15
+Ven en 0 PWL(0 0 1u 0 1.001u 5 3u 5 3.001u 0 5u 0)
+Vpwm pwm 0 5
+Ren en 0 2.2k
+Xdriver en pwm 0 0 unused aux out 0 UCC27624
+Cbulk aux 0 1u
+Chf aux 0 100n
+Rg out gate 10
+Rgs gate 0 10k
+* 120nC/10V lumped surrogate; no Miller/drain-current claim.
+Cgate gate 0 12n
+.tran 1n 5u
+.control
+set wr_singlescale
+set wr_vecnames
+run
+meas tran output_disable TRIG v(en) VAL=0.8 FALL=1 TARG v(out) VAL=13.5 FALL=1
+meas tran loaded_gate_to4V TRIG v(en) VAL=0.8 FALL=1 TARG v(gate) VAL=4 FALL=1
+wrdata driver-load-check.tsv v(en) v(out) v(gate)
+quit
+.endc
+.end

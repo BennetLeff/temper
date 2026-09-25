@@ -1,0 +1,11 @@
+{
+  "case_dir": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/runner-09/parent-fail-compressor",
+  "input_files": [
+    {"path": "case.cir", "sha256": "367dde2ae11f31efad852771650d3427ddee5dca725f403d49f57ef341a0eb0e"},
+    {"path": "manifest.json", "sha256": "214a9e1de94226d014e68fa1a306a8711332556f20c64ae443ec85346059a230"}
+  ],
+  "tracker": {"path": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/runner-09/fixture/synthetic-tracker.py", "sha256": "531d19848436ab243283502406835a355c5614cba86444fc4bdc30e27731ce60"},
+  "adapter": {"path": "/private/tmp/matrix07-fault-runner-adapter-09", "sha256": "1ce1f5f3ab637271112297ac2b5a353e8692bb147560d4f29639415524977f1d"},
+  "checker": {"path": "/private/tmp/matrix07-fault-runner-checker-09", "sha256": "fb349ebe4ddd9930238ec487a3e4b04d2f661f8e9d64b461b53042737e945259"},
+  "pigz": {"path": "/usr/bin/false", "sha256": "3f23eaf182a6d49e9f41b627944b05678faa20377f223cbf5927b90fcb9f2047"}
+}

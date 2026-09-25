@@ -1,0 +1,10 @@
+{
+  "status": "PARENT_VERIFIED_EXACT_TARBALL_AND_EXCERPTS",
+  "blocks": 16,
+  "source_lines_verified": 489,
+  "source_files": 7,
+  "archive_sha256": "ba8345f4c3774714c10f33d7da850d361cec7d14b3a295d0dc9fd96f7423812d",
+  "excerpt_sha256": "3e0ebe5e8b6017329095c1b6f466ebf11d045396cfd4d7c814b2bf4709a50014",
+  "review_correction": "Rejected earlier manually reconstructed conflicting excerpt; all current numbered lines and contiguous ranges independently compared directly with archive members.",
+  "scope": "Supports accepted-output callback semantics and possible sub-ULP time increments; not proof of actual failing-step delta or engineering acceptance."
+}

@@ -1,0 +1,20 @@
+ref,mpn,package,pin,pin_name,net,direction,notes
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,30,PD0/RXD,HOT_COMMAND_RX,input,3.3V/5V-safe HOT output from ISO7741F pin 14
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,31,PD1/TXD,HOT_RESPONSE_TX,output,To ISO7741F pin 11; challenge and ACK transport
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,32,PD2,HOT_PERMIT_RX,input,Maintained permit input from ISO7741F pin 13; independent hardware permission path remains required
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,1,PD3,HOT_RELAY_CMD,input,Digital input from ISO7741F pin 12
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,23,PC0,RECEIVER_SESSION_ACTIVE,output,10k pulldown; Rev29 watchdog EN; verify MCU VOH vs downstream VIH/load at rail corners
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,24,PC1,VALIDATED_HEARTBEAT_5V,output,10k pulldown; edge only after validated peer frame; Rev29 TPS3431 WDI requires VIH=0.8*VDD; full-corner VOH proof open
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,25,PC2,SESSION_QUALIFIED_PULSE_5V,output,10k pulldown; fresh edge after persistent qualified_link_good low then fresh-session qualification; verify HCS74 VIH
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,26,PC3,ARM,output,10k pulldown; edge only for matching accepted START; downstream VIH/load proof open
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,27,PC4,HOT_LINK_GOOD_OBSERVED,input,Rev29 retained HCS74 Q2 qualified_link_good; persistent low survives missed watchdog-clear pulse
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,29,PC6/RESET,RESET_N,input_active_low,Shared open-drain rails_ok node + ISP; existing 10k/100k gives only 0.909*VCC nominal vs AVR VIH=0.9*VCC; candidate extra 20k pullup unapproved pending shared TPS3890 sink current/tolerance/leakage proof
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,7,PB6/XTAL1,MCU_XTAL1,input,16MHz crystal; load caps per crystal specification and final parasitics
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,8,PB7/XTAL2,MCU_XTAL2,output,16MHz crystal; load caps per crystal specification and final parasitics
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,4;6,VCC,logic5,power,Both VCC pins connected and locally bypassed
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,3;5,GND,HOT_GND,power,Both ground pins connected
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,18,AVCC,logic5,power,Connect and locally bypass even when ADC unused
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,20,AREF,AREF_BYPASS,passive,100nF to HOT_GND when internal reference selected; never drive externally
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,15,PB3/MOSI,ISP_MOSI,programming,6-pin HOT-domain ISP header
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,16,PB4/MISO,ISP_MISO,programming,6-pin HOT-domain ISP header
+U_RX,ATMEGA328P-AU,TQFP-32-7x7,17,PB5/SCK,ISP_SCK,programming,6-pin HOT-domain ISP header

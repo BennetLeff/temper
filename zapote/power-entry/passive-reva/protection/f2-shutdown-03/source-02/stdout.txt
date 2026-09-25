@@ -1,0 +1,176 @@
+[19:51:33] INFO     Using project                                   common.py:72
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-shutdown-03/source-             
+                    02                                                          
+           INFO     Building default                                 build.py:38
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-shutdown-03/source-             
+                    02/elec/src/power_entry_f2_shutdown.ato:103:4               
+                        Field 'mpn' not declared for                            
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-shutdown-03/source-             
+                    02/elec/src/power_entry_f2_shutdown.ato:PowerEn             
+                    tryF2Shutdown::vd_div.r1. Declaring implicitly              
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-shutdown-03/source-             
+                    02/elec/src/power_entry_f2_shutdown.ato:104:4               
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-shutdown-03/source-             
+                    02/elec/src/power_entry_f2_shutdown.ato:PowerEn             
+                    tryF2Shutdown::vd_div.r1. Declaring implicitly              
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-shutdown-03/source-             
+                    02/elec/src/power_entry_f2_shutdown.ato:106:4               
+                        Field 'mpn' not declared for                            
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-shutdown-03/source-             
+                    02/elec/src/power_entry_f2_shutdown.ato:PowerEn             
+                    tryF2Shutdown::vd_div.r2. Declaring implicitly              
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-shutdown-03/source-             
+                    02/elec/src/power_entry_f2_shutdown.ato:107:4               
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/f2-shutdown-03/source-             
+                    02/elec/src/power_entry_f2_shutdown.ato:PowerEn             
+                    tryF2Shutdown::vd_div.r2. Declaring implicitly              
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry/            
+                    passive-reva/protection/f2-shutdown-03/source-02            
+                    /build                                                      
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name            ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
+│           U1 │ vd_div.r1       │
+│           U2 │ vd_div.r2       │
+│           U3 │ vd_div.r3       │
+│           U4 │ vd_div.r4       │
+│           U5 │ vd_div.r5       │
+│           U6 │ vd_div.step     │
+│           U7 │ vd_div.bottom   │
+│           U8 │ vd_div.filter   │
+│           U9 │ vb_div.r1       │
+│          U10 │ vb_div.r2       │
+│          U11 │ vb_div.r3       │
+│          U12 │ vb_div.r4       │
+│          U13 │ vb_div.r5       │
+│          U14 │ vb_div.step     │
+│          U15 │ vb_div.bottom   │
+│          U16 │ vb_div.filter   │
+│          U17 │ reference       │
+│          U18 │ ref_bias        │
+│          U19 │ cmp_vd          │
+│          U20 │ cmp_vb          │
+│          U21 │ health          │
+│          U22 │ latch           │
+│          U23 │ driver          │
+│          U24 │ en_pd           │
+│          U25 │ gate_r          │
+│          U26 │ gate_pd         │
+│          U27 │ cmp_vd_bypass   │
+│          U28 │ cmp_vb_bypass   │
+│          U29 │ health_bypass   │
+│          U30 │ latch_bypass    │
+│          U31 │ drv_bypass_hf   │
+│          U32 │ drv_bypass_bulk │
+└──────────────┴─────────────────┘
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓          ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ cmp_vb          │ U20        │
+│ cmp_vb_bypass   │ U28        │
+│ cmp_vd          │ U19        │
+│ cmp_vd_bypass   │ U27        │
+│ driver          │ U23        │
+│ drv_bypass_bulk │ U32        │
+│ drv_bypass_hf   │ U31        │
+│ en_pd           │ U24        │
+│ gate_pd         │ U26        │
+│ gate_r          │ U25        │
+│ health          │ U21        │
+│ health_bypass   │ U29        │
+│ latch           │ U22        │
+│ latch_bypass    │ U30        │
+│ ref_bias        │ U18        │
+│ reference       │ U17        │
+│ vb_div.bottom   │ U15        │
+│ vb_div.filter   │ U16        │
+│ vb_div.r1       │ U9         │
+│ vb_div.r2       │ U10        │
+│ vb_div.r3       │ U11        │
+│ vb_div.r4       │ U12        │
+│ vb_div.r5       │ U13        │
+│ vb_div.step     │ U14        │
+│ vd_div.bottom   │ U7         │
+│ vd_div.filter   │ U8         │
+│ vd_div.r1       │ U1         │
+│ vd_div.r2       │ U2         │
+│ vd_div.r3       │ U3         │
+│ vd_div.r4       │ U4         │
+│ vd_div.r5       │ U5         │
+│ vd_div.step     │ U6         │
+└─────────────────┴────────────┘
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint      ┃ LCSC            ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ TNPW1206200KBE… │ U1,U2,U3,U4,U9… │ Resistor_SMD:… │ TNPW1206200KBE… │ 0.00  │
+│ TNPW1206187KBE… │ U5,U13          │ Resistor_SMD:… │ TNPW1206187KBE… │ 0.00  │
+│ TNPW1206200RBE… │ U6,U14          │ Resistor_SMD:… │ TNPW1206200RBE… │ 0.00  │
+│ TNPW12065K62BE… │ U7,U15          │ Resistor_SMD:… │ TNPW12065K62BE… │ 0.00  │
+│ C0805C101J5GAC… │ U8,U16          │ Capacitor_SMD… │ C0805C101J5GAC… │ 0.00  │
+│ LM4040A25IDBZR  │ U17             │ Package_TO_SO… │ LM4040A25IDBZR  │ 0.00  │
+│ TNPW120610K0BE… │ U18             │ Resistor_SMD:… │ TNPW120610K0BE… │ 0.00  │
+│ TLV3202IDR      │ U19,U20         │ Package_SO:SO… │ TLV3202IDR      │ 0.00  │
+│ SN74HCS21PWR    │ U21             │ Package_SO:TS… │ SN74HCS21PWR    │ 0.00  │
+│ SN74HCS74PWR    │ U22             │ Package_SO:TS… │ SN74HCS74PWR    │ 0.00  │
+│ UCC27624D       │ U23             │ Package_SO:SO… │ UCC27624D       │ 0.00  │
+│ RC0603FR-072K2L │ U24             │ Resistor_SMD:… │ RC0603FR-072K2L │ 0.00  │
+│ RC1206FR-0710RL │ U25             │ Resistor_SMD:… │ RC1206FR-0710RL │ 0.00  │
+│ RC0603FR-0710KL │ U26             │ Resistor_SMD:… │ RC0603FR-0710KL │ 0.00  │
+│ C0805C104K5RAC… │ U27,U28,U29,U3… │ Capacitor_SMD… │ C0805C104K5RAC… │ 0.00  │
+│ C1210C105K1RAC… │ U32             │ Capacitor_SMD… │ C1210C105K1RAC… │ 0.00  │
+└─────────────────┴─────────────────┴────────────────┴─────────────────┴───────┘
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Successfully built 'clone-footprints, netlist,  build.py:105
+                    assertions-report, variable-report,                         
+                    copy-footprints, designator-map,                            
+                    layout-module-map, bom, copy-3dmodels' for                  
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

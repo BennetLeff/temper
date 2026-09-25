@@ -1,0 +1,848 @@
+{
+  "schema": "power-entry-review-census/v1",
+  "status": "review accounting only; no electrical acceptance",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "manifest": "zapote/power-entry/passive-reva/protection/reference-revision-09/source-candidate/resolved-components.json",
+  "manifest_sha256": "bd6c155583d3efa8055b3ac07416887fce61325f461af57294cb80d3cd4f700d",
+  "total": 131,
+  "rule": "Each compiled instance has exactly one primary review owner. Shared functional dependencies remain explicit. These blocks are not separate physical PCB commitments.",
+  "blocks": [
+    {
+      "id": "A",
+      "name": "Mains entry and source-fed fault interruption",
+      "count": 14,
+      "components": [
+        {
+          "address": "bridge",
+          "mpn": "GBJ2510-F",
+          "value": null,
+          "footprint": "Diode_THT:Diode_Bridge_GBJ2510"
+        },
+        {
+          "address": "holder",
+          "mpn": "0031.2510",
+          "value": null,
+          "footprint": "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed"
+        },
+        {
+          "address": "cmc",
+          "mpn": "B82726S2163N030",
+          "value": null,
+          "footprint": "temper:CMC_B82726S"
+        },
+        {
+          "address": "ntc",
+          "mpn": "SL32 10015",
+          "value": null,
+          "footprint": "temper:SL32_10015"
+        },
+        {
+          "address": "bypass",
+          "mpn": "RT33K012",
+          "value": null,
+          "footprint": "temper:Relay_SPST_Schrack-RT33K012"
+        },
+        {
+          "address": "x2",
+          "mpn": "B32922C3224M289",
+          "value": "0.22uF",
+          "footprint": "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
+        },
+        {
+          "address": "mov",
+          "mpn": "V150LA10AP",
+          "value": null,
+          "footprint": "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm"
+        },
+        {
+          "address": "r_relay_gate",
+          "mpn": "RC1206FR-071KL",
+          "value": "1kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "r_relay_pd",
+          "mpn": "RC1206FR-07100KL",
+          "value": "100kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "r_relay_drop",
+          "mpn": "RC2512FR-0791RL",
+          "value": "91ohm",
+          "footprint": "Resistor_SMD:R_2512_6332Metric"
+        },
+        {
+          "address": "relay_driver",
+          "mpn": "AO3400A",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23"
+        },
+        {
+          "address": "relay_flyback",
+          "mpn": "SS14",
+          "value": null,
+          "footprint": "Diode_SMD:D_SMA"
+        },
+        {
+          "address": "y1",
+          "mpn": "VY1102M31Y5UQ63V0",
+          "value": "1nF",
+          "footprint": "Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0"
+        },
+        {
+          "address": "mains",
+          "mpn": "1714984",
+          "value": null,
+          "footprint": "temper:Phoenix_1714984"
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "name": "PFC power stage and controller",
+      "count": 21,
+      "components": [
+        {
+          "address": "l_boost",
+          "mpn": "760800301",
+          "value": null,
+          "footprint": "Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75"
+        },
+        {
+          "address": "q_boost",
+          "mpn": "STW65N65DM2AG",
+          "value": null,
+          "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical"
+        },
+        {
+          "address": "d_boost",
+          "mpn": "C3D20065D",
+          "value": null,
+          "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical"
+        },
+        {
+          "address": "pfc",
+          "mpn": "UCC28180D",
+          "value": null,
+          "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+        },
+        {
+          "address": "shunt",
+          "mpn": "HCSM2818FT10L0",
+          "value": "10mohm",
+          "footprint": "temper:HCSM2818FT10L0"
+        },
+        {
+          "address": "r_isense",
+          "mpn": "RC1206FR-07220RL",
+          "value": "220ohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "r_freq",
+          "mpn": "RC1206FR-0716K2L",
+          "value": "16.2kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "r_vtop",
+          "mpn": "CRCW2512200KFKEG",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_2512_6332Metric"
+        },
+        {
+          "address": "r_vtop2",
+          "mpn": "CRCW2512200KFKEG",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_2512_6332Metric"
+        },
+        {
+          "address": "r_vtop3",
+          "mpn": "CRCW2512200KFKEG",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_2512_6332Metric"
+        },
+        {
+          "address": "r_vtop4",
+          "mpn": "CRCW2512200KFKEG",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_2512_6332Metric"
+        },
+        {
+          "address": "r_vtop5",
+          "mpn": "CRCW2512200KFKEG",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_2512_6332Metric"
+        },
+        {
+          "address": "r_vbottom",
+          "mpn": "RC1206FR-0713KL",
+          "value": "13kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "r_vcomp",
+          "mpn": "RC1206FR-0740K2L",
+          "value": "40.2kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "c_vcc",
+          "mpn": "C0805C105K5RACTU",
+          "value": "1uF",
+          "footprint": "Capacitor_SMD:C_0805_2012Metric"
+        },
+        {
+          "address": "c_icomp",
+          "mpn": "C0805C272J5GACTU",
+          "value": "2.7nF",
+          "footprint": "Capacitor_SMD:C_0805_2012Metric"
+        },
+        {
+          "address": "c_vcomp",
+          "mpn": "GRM32ER71H475KA88L",
+          "value": "4.7uF",
+          "footprint": "Capacitor_SMD:C_1210_3225Metric"
+        },
+        {
+          "address": "c_vcomp_p",
+          "mpn": "C0805C224K5RACTU",
+          "value": "220nF",
+          "footprint": "Capacitor_SMD:C_0805_2012Metric"
+        },
+        {
+          "address": "c_isense",
+          "mpn": "C0805C102J5GACTU",
+          "value": "1nF",
+          "footprint": "Capacitor_SMD:C_0805_2012Metric"
+        },
+        {
+          "address": "c_vfeed",
+          "mpn": "C0805C681J5GACTU",
+          "value": "680pF",
+          "footprint": "Capacitor_SMD:C_0805_2012Metric"
+        },
+        {
+          "address": "isense_clamp",
+          "mpn": "BAV23C-E3-08",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23"
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "name": "Bus protection and stored energy",
+      "count": 37,
+      "components": [
+        {
+          "address": "c1",
+          "mpn": "LGX2W561MELC50",
+          "value": "560uF",
+          "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+        },
+        {
+          "address": "c2",
+          "mpn": "LGX2W561MELC50",
+          "value": "560uF",
+          "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+        },
+        {
+          "address": "c3",
+          "mpn": "LGX2W561MELC50",
+          "value": "560uF",
+          "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+        },
+        {
+          "address": "c4",
+          "mpn": "LGX2W561MELC50",
+          "value": "560uF",
+          "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+        },
+        {
+          "address": "c_hf",
+          "mpn": "B32672P6474K000",
+          "value": "470nF",
+          "footprint": "temper:B32672P6474K000"
+        },
+        {
+          "address": "bleeder1",
+          "mpn": "RC2512FR-07150KL",
+          "value": "150kohm",
+          "footprint": "Resistor_SMD:R_2512_6332Metric"
+        },
+        {
+          "address": "bleeder2",
+          "mpn": "RC2512FR-07150KL",
+          "value": "150kohm",
+          "footprint": "Resistor_SMD:R_2512_6332Metric"
+        },
+        {
+          "address": "protection.vd_div.r1",
+          "mpn": "TNPW1206200KBEEA",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vd_div.r2",
+          "mpn": "TNPW1206200KBEEA",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vd_div.r3",
+          "mpn": "TNPW1206200KBEEA",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vd_div.r4",
+          "mpn": "TNPW1206200KBEEA",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vd_div.r5",
+          "mpn": "TNPW1206187KBEEA",
+          "value": "187kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vd_div.step",
+          "mpn": "TNPW1206200RBEEA",
+          "value": "200ohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vd_div.bottom",
+          "mpn": "TNPW12065K62BEEA",
+          "value": "5620ohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vd_div.filter",
+          "mpn": null,
+          "value": "47pF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.vb_div.r1",
+          "mpn": "TNPW1206200KBEEA",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vb_div.r2",
+          "mpn": "TNPW1206200KBEEA",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vb_div.r3",
+          "mpn": "TNPW1206200KBEEA",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vb_div.r4",
+          "mpn": "TNPW1206200KBEEA",
+          "value": "200kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vb_div.r5",
+          "mpn": "TNPW1206187KBEEA",
+          "value": "187kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vb_div.step",
+          "mpn": "TNPW1206200RBEEA",
+          "value": "200ohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vb_div.bottom",
+          "mpn": "TNPW12065K62BEEA",
+          "value": "5620ohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.vb_div.filter",
+          "mpn": null,
+          "value": "47pF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.reference",
+          "mpn": "LM4040A25IDBZR",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23"
+        },
+        {
+          "address": "protection.ref_bias",
+          "mpn": "TNPW120610K0BEEA",
+          "value": "10kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.cmp_vd",
+          "mpn": "TLV3202IDR",
+          "value": null,
+          "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+        },
+        {
+          "address": "protection.cmp_vb",
+          "mpn": "TLV3202IDR",
+          "value": null,
+          "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+        },
+        {
+          "address": "protection.vd_ov_ref",
+          "mpn": null,
+          "value": "22kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.vd_ov",
+          "mpn": null,
+          "value": "22kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.vd_mismatch_p",
+          "mpn": null,
+          "value": "22kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.vb_mismatch_n",
+          "mpn": null,
+          "value": "22kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.vb_ov_ref",
+          "mpn": null,
+          "value": "22kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.vb_ov",
+          "mpn": null,
+          "value": "22kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.vb_mismatch_p",
+          "mpn": null,
+          "value": "22kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.vd_mismatch_n",
+          "mpn": null,
+          "value": "22kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.cmp_vd_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.cmp_vb_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        }
+      ]
+    },
+    {
+      "id": "D",
+      "name": "Gate permission and restart",
+      "count": 53,
+      "components": [
+        {
+          "address": "q_inhibit",
+          "mpn": "AO3400A",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23"
+        },
+        {
+          "address": "q_permit",
+          "mpn": "AO3400A",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23"
+        },
+        {
+          "address": "r_inhibit_pulldown",
+          "mpn": "RC1206FR-07100KL",
+          "value": "100kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "r_inhibit_pullup",
+          "mpn": "RC1206FR-07100KL",
+          "value": "100kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "r_permit_gate",
+          "mpn": "RC1206FR-071KL",
+          "value": "1kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "r_permit_pd",
+          "mpn": "RC1206FR-07100KL",
+          "value": "100kohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.health",
+          "mpn": "SN74HCS21PWR",
+          "value": null,
+          "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+        },
+        {
+          "address": "protection.health_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.sup_logic",
+          "mpn": "TPS389001DSER",
+          "value": null,
+          "footprint": "Package_DFN_QFN:WSON-6-1EP_1.5x1.5mm_P0.5mm_EP0.9x0.9mm"
+        },
+        {
+          "address": "protection.sup_aux",
+          "mpn": "TPS389001DSER",
+          "value": null,
+          "footprint": "Package_DFN_QFN:WSON-6-1EP_1.5x1.5mm_P0.5mm_EP0.9x0.9mm"
+        },
+        {
+          "address": "protection.sup_logic_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.sup_aux_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.sup_logic_ct",
+          "mpn": null,
+          "value": "100pF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.sup_aux_ct",
+          "mpn": null,
+          "value": "100pF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.r_logic_top",
+          "mpn": null,
+          "value": "294kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.r_logic_bottom",
+          "mpn": null,
+          "value": "100kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.r_logic_iso",
+          "mpn": null,
+          "value": "47kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.r_aux_top",
+          "mpn": null,
+          "value": "1.03Mohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.r_aux_bottom",
+          "mpn": null,
+          "value": "100kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.r_aux_iso",
+          "mpn": null,
+          "value": "47kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.reset_and",
+          "mpn": "SN74LVC1G08DBVR",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23-5"
+        },
+        {
+          "address": "protection.reset_and_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.reset_pull_logic",
+          "mpn": null,
+          "value": "10kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.reset_pull_aux",
+          "mpn": null,
+          "value": "10kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.rail_pd",
+          "mpn": null,
+          "value": "100kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.permit_buf",
+          "mpn": "SN74LVC1G17DBVR",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23-5"
+        },
+        {
+          "address": "protection.permit_buf_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.permit_pd",
+          "mpn": null,
+          "value": "10kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.aux_fast_cmp",
+          "mpn": "TLV3202IDR",
+          "value": null,
+          "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+        },
+        {
+          "address": "protection.aux_fast_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.aux_fast_top",
+          "mpn": null,
+          "value": "430kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.aux_fast_bottom",
+          "mpn": null,
+          "value": "100kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.aux_fast_iso",
+          "mpn": null,
+          "value": "22kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.latch",
+          "mpn": "SN74HCS74PWR",
+          "value": null,
+          "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+        },
+        {
+          "address": "protection.latch_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.arm_buf",
+          "mpn": "SN74LVC1G17DBVR",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23-5"
+        },
+        {
+          "address": "protection.arm_buf_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.arm_pd",
+          "mpn": null,
+          "value": "10kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.enable_and",
+          "mpn": "SN74LVC1G08DBVR",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23-5"
+        },
+        {
+          "address": "protection.enable_pd_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.enable_pd",
+          "mpn": null,
+          "value": "10kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.driver",
+          "mpn": "UCC27511ADBVR",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23-6"
+        },
+        {
+          "address": "protection.pwm_iso",
+          "mpn": null,
+          "value": "1kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.pwm_pd",
+          "mpn": null,
+          "value": "10kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.disable_nmos",
+          "mpn": "BSS138",
+          "value": null,
+          "footprint": "Package_TO_SOT_SMD:SOT-23"
+        },
+        {
+          "address": "protection.disable_gate",
+          "mpn": null,
+          "value": "1kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.disable_gate_pd",
+          "mpn": null,
+          "value": "100kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.in_n_pullup",
+          "mpn": "RC1210FR-071KL",
+          "value": "1kohm",
+          "footprint": "Resistor_SMD:R_1210_3225Metric"
+        },
+        {
+          "address": "protection.gate_r",
+          "mpn": "RC1206FR-0710RL",
+          "value": "10ohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.gate_pd",
+          "mpn": "RC0603FR-0710KL",
+          "value": "10kohm",
+          "footprint": "Resistor_SMD:R_0603_1608Metric"
+        },
+        {
+          "address": "protection.gate_off_r",
+          "mpn": "RC1206FR-0710RL",
+          "value": "10ohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.drv_bypass_hf",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        },
+        {
+          "address": "protection.drv_bypass_bulk",
+          "mpn": null,
+          "value": "1uF",
+          "footprint": "Capacitor_SMD:C_1210_3225Metric"
+        }
+      ]
+    },
+    {
+      "id": "E",
+      "name": "Supplies and system interfaces",
+      "count": 6,
+      "components": [
+        {
+          "address": "aux",
+          "mpn": "61300211121",
+          "value": null,
+          "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+        },
+        {
+          "address": "control",
+          "mpn": "61300211121",
+          "value": null,
+          "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+        },
+        {
+          "address": "permit",
+          "mpn": "61300211121",
+          "value": null,
+          "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+        },
+        {
+          "address": "output",
+          "mpn": "1714971",
+          "value": null,
+          "footprint": "temper:Phoenix_1714971"
+        },
+        {
+          "address": "protection.logic_bleed",
+          "mpn": "RC1206FR-07220RL",
+          "value": "220ohm",
+          "footprint": "Resistor_SMD:R_1206_3216Metric"
+        },
+        {
+          "address": "protection.cmp_bypass",
+          "mpn": null,
+          "value": "100nF",
+          "footprint": "Capacitor_SMD:C_0603_1608Metric"
+        }
+      ]
+    }
+  ],
+  "shared_dependencies": [
+    "protection.health and health_bypass are accounted to D; the first AND aggregates C's four detector outputs and the second qualifies D's rails/permit.",
+    "protection.reference and ref_bias are accounted to C; D's fast aux comparator also uses ref25.",
+    "protection.logic_bleed and cmp_bypass are accounted to E, with D/C consumers.",
+    "Controller VSENSE standby clamp is accounted to D; B owns controller feedback and compensation.",
+    "E owns output connector; C owns bank. A owns mains connector and relay driver; E owns external relay command producer."
+  ],
+  "excluded_from_compiled_count": [
+    "Replaceable F1 fuse link (holder is counted)",
+    "Proposed F2 fuse/holder and interconnect",
+    "Local VD reservoir and any added discharge/energy treatment",
+    "External HOT 5 V and AUX15 producers",
+    "ARM/PERMIT/relay control and isolation producers",
+    "Any additional connectors",
+    "Heatsinks, cooling, enclosure and assembly items not represented in this export"
+  ]
+}

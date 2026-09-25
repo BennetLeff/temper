@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/reused-checks/standby-check",
+    "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/standby/standby-cap2.tsv"
+  ],
+  "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/reused-checks",
+  "dedicated_process_group": 53348,
+  "ended_unix": 1790049336.027911,
+  "error": null,
+  "interrupted_signal": null,
+  "resolved_command": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/reused-checks/standby-check",
+  "returncode": 0,
+  "started_unix": 1790049335.977875,
+  "status": "completed",
+  "termination": "leader/group already exited",
+  "timeout_seconds": 60.0
+}

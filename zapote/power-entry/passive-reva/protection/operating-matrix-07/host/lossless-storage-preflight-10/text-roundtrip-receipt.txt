@@ -1,0 +1,4 @@
+gzip default byte_equal=true
+pigz p4 byte_equal=true
+zstd3 byte_equal=true
+xz3 byte_equal=true

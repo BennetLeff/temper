@@ -1,0 +1,19 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_UNEXECUTED",
+  "source_sha256": "40b638968bcf2b10d1ab7ace1a5ae3f2202c8b0791a5a8ee10d5c1307721d8b8",
+  "binary": "/private/tmp/matrix07-line-load-runner-host",
+  "binary_sha256": "b97e3edeeb18c3eaf32f62c6cbd62e3a0b28bdb7f147dcda211985317ca80aea",
+  "self_test": "host-self-test.txt",
+  "reviewed_behavior": [
+    "Validates all nine manifest points before selection",
+    "Rejects unknown/empty/duplicate selected IDs",
+    "Executes and records selected IDs in manifest order",
+    "Explicit selection success does not claim all-nine success",
+    "Original gzip/pigz failure propagation and accepted-source gate retained"
+  ],
+  "parent_corrections": [
+    "Record actual manifest order rather than CLI selection order",
+    "Correct jq filter quoting in runbook"
+  ],
+  "current_blocker": "No accepted normal baseline;650ms extension repeated timestamp at501.554914ms; no grid launched"
+}

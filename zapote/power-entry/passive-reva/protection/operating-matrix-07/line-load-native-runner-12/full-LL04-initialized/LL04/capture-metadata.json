@@ -1,0 +1,19 @@
+{
+  "stop_reason": "solver_stopped",
+  "points": 30400545,
+  "first_invalid": true,
+  "seen_names_mask": 65535,
+  "expected_names_mask": 65535,
+  "duplicate_count": 44,
+  "backwards_count": 0,
+  "continue_after_duplicate": true,
+  "diagnostic_only": true,
+  "accepted": false,
+  "export_format": "ngspice-real-native",
+  "byte_order": "little",
+  "writer_platform": "aarch64-macos",
+  "schema": "normal15",
+  "validation_policy": "event-aware-normal-v1",
+  "export_mode": "full_trace_path_or_fifo",
+  "vector_slicing_smoke": "rejected_full_length"
+}

@@ -1,0 +1,36 @@
+{
+  "status": "PREPARED_READ_ONLY_PHASE_AUDITOR",
+  "source": "phase_audit.rs",
+  "source_sha256": "e05caa1e3e9d1b187de3dcee17a786f7c5993bb478adbc713115548f32b46772",
+  "binary": {
+    "path": "/private/tmp/matrix07-phase-audit35-worker",
+    "sha256": "5f5dd1ed99939b5ad740e79f4d26b2f7716b612c8a594f834127b4aaaea5209a"
+  },
+  "test_binary": {
+    "path": "/private/tmp/matrix07-phase-audit35-worker-tests",
+    "sha256": "d9d5aecdcfa67394e302ec887439f70bb792a174e1ec68699e82f1cd22dc5f2f"
+  },
+  "tests": {
+    "passed": 11,
+    "failed": 0,
+    "command": "rustc --edition=2021 -D warnings --test phase_audit.rs -o /private/tmp/matrix07-phase-audit35-worker-tests && /private/tmp/matrix07-phase-audit35-worker-tests"
+  },
+  "invocation": "decoder --schema fault42 --byte-order little | phase-audit --end-s END --expected-event-s EVENT --local-start-s START --local-end-s END --kind crest|zero [--tolerance T]",
+  "schema_columns": 42,
+  "defaults": {
+    "tolerance": 0.01,
+    "endpoint_tolerance_s": 1e-09,
+    "event_time_tolerance_s": 2e-09,
+    "max_header_bytes": 16384,
+    "max_row_bytes": 16384
+  },
+  "memory": "O(1) plus one 42-field row and bounded before/after samples",
+  "limits": [
+    "phase evidence only; no healthy-window, checker, protection, thermal, or hardware acceptance",
+    "zero case requires caller-selected local interval containing an adjacent positive crest",
+    "equal-time source conflict at event/local interval rejects indeterminate evidence"
+  ],
+  "created_unix": 1790007695,
+  "simulation_launched": false,
+  "live_raw_read": false
+}

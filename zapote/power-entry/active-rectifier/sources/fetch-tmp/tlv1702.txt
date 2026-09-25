@@ -1,0 +1,2349 @@
+                                          Product             Sample &   Technical                                Tools &             Support &              Reference
+                                          Folder              Buy        Documents                                Software            Community              Design
+
+
+
+                                                                                                                                      TLV1701, TLV1702, TLV1704
+                                                                                                                        SBOS589D – DECEMBER 2013 – REVISED JUNE 2015
+
+                                           TLV170x 2.2-V to 36-V, microPower Comparator
+1 Features                                                                     3 Description
+1•         Supply Range:                                                       The TLV170x family of devices offers a wide supply
+           +2.2 V to +36 V or ±1.1 V to ±18 V                                  range, rail-to-rail inputs, low quiescent current, and
+                                                                               low propagation delay. All these features come in
+•          Low Quiescent Current:                                              industry-standard, extremely-small packages, making
+           55 µA per Comparator                                                these devices the best general-purpose comparators
+•          Input Common-Mode Range Includes Both Rails                         available.
+•          Low Propagation Delay: 560 ns                                       The open collector output offers the advantage of
+•          Low Input Offset Voltage: 300 µV                                    allowing the output to be pulled to any voltage rail up
+•          Open Collector Outputs:                                             to +36 V above the negative power supply,
+                                                                               regardless of the TLV170x supply voltage.
+           – Up to 36 V Above Negative Supply Regardless
+              of Supply Voltage                                                These devices are available in single (TLV1701), dual
+                                                                               (TLV1702), and quad (TLV1704) channel versions.
+•          Industrial Temperature Range:
+                                                                               Low input offset voltage, low input bias currents, low
+           –40°C to +125°C                                                     supply current, and open-collector configuration make
+•          Small Packages:                                                     the TLV170x family flexible enough to handle almost
+           – Single: SC70-5, SOT-23-5, SOT553-5                                any application, from simple voltage detection to
+                                                                               driving a single relay.
+           – Dual: VSSOP-8, X2QFN-8
+           – Quad: TSSOP-14                                                    All devices are specified for operation across the
+                                                                               expanded industrial temperature range of –40°C to
+                                                                               +125°C.
+2 Applications
+•          Overvoltage and Undervoltage Detectors                                                                            Device Information(1)
+•          Window Comparators                                                             PART NUMBER                                PACKAGE               BODY SIZE (NOM)
+•          Overcurrent Detectors                                                                                               SOT553 (5)                1.20 mm × 1.60 mm
+•          Zero-Crossing Detectors                                              TLV1701                                        SC-70 (5)                 1.25 mm × 2.00 mm
+
+•          System Monitoring for:                                                                                              SOT-23 (5)                1.60 mm × 2.90 mm
+                                                                                                                               X2QFN (8)                 1.50 mm × 1.50 mm
+           – Power Supplies                                                     TLV1702
+                                                                                                                               VSSOP (8)(2)              3.00 mm × 3.00 mm
+           – White Goods
+                                                                                TLV1704                                        TSSOP (14)                4.40 mm × 5.00 mm
+           – Industrial Sensors
+                                                                                (1) For all available packages, see the package option addendum
+           – Automotive                                                             at the end of the datasheet.
+           – Medical                                                            (2) The VSSOP package is the same as the MSOP package.
+
+
+                TLV1702 as a Window Comparator                                                           Stable Propagation Delay vs Temperature
+                         VPULLUP                                                                         1200n
+                                                      VIN                                                                    18 V Low-to-High
+                    VS
+                             RPULLUP                                                                                         18 V High-to-Low
+                                                      VTH+                                               1000n
+VTH+           +½
+                                                                                 Propagation Delay (s)
+
+
+
+
+               TLV1702             VOUT                                                                                      2.2 V Low-to-High
+                                                      VTH-
+               _
+                                                                                                          800n               2.2 V High-to-Low
+                                                                         t
+VIN                GND                              VOUT
+                    VS
+                                                                                                          600n
+                                                    VPULLUP
+               +½
+               TLV1702
+    VTH-       _                                                                                          400n
+                                                                         t
+                   GND                                                                                                                                       VOD = 100 mV
+                                                                                                          200n
+                                                                                                                 -40 -25 -10     5    20   35    50   65    80   95   110 125
+                                                                                                                                      Temperature (C)                      C020
+
+
+
+
+1
+
+
+
+
+             An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+             intellectual property matters and other important disclaimers. PRODUCTION DATA.
+TLV1701, TLV1702, TLV1704
+SBOS589D – DECEMBER 2013 – REVISED JUNE 2015                                                                                                                                     www.ti.com
+
+
+                                                                           Table of Contents
+    1    Features .................................................................. 1                        8.3 Feature Description................................................. 12
+    2    Applications ........................................................... 1                           8.4 Device Functional Modes........................................ 12
+    3    Description ............................................................. 1                   9     Applications and Implementation ...................... 13
+    4    Revision History..................................................... 2                              9.1 Application Information............................................ 13
+                                                                                                              9.2 Typical Application ................................................. 13
+    5    Device Comparison ............................................... 4
+    6    Pin Configuration and Functions ......................... 5                                   10 Power Supply Recommendations ..................... 14
+    7    Specifications......................................................... 6                     11 Layout................................................................... 15
+                                                                                                              11.1 Layout Guidelines ................................................. 15
+         7.1    Absolute Maximum Ratings ...................................... 6
+                                                                                                              11.2 Layout Example .................................................... 15
+         7.2    ESD Ratings.............................................................. 6
+         7.3    Recommended Operating Conditions....................... 6                              12 Device and Documentation Support ................. 16
+         7.4    Thermal Information: TLV1701 ................................. 6                              12.1     Documentation Support ........................................ 16
+         7.5    Thermal Information: TLV1702 and TLV1704........... 7                                         12.2     Related Links ........................................................ 16
+         7.6    Electrical Characteristics........................................... 7                       12.3     Community Resources.......................................... 16
+         7.7    Switching Characteristics .......................................... 7                        12.4     Trademarks ........................................................... 16
+         7.8    Typical Characteristics .............................................. 8                      12.5     Electrostatic Discharge Caution ............................ 16
+                                                                                                              12.6     Glossary ................................................................ 16
+    8    Detailed Description ............................................ 11
+         8.1 Overview ................................................................. 11             13 Mechanical, Packaging, and Orderable
+         8.2 Functional Block Diagram ....................................... 11
+                                                                                                          Information ........................................................... 16
+
+
+
+4 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+
+Changes from Revision C (December 2014) to Revision D                                                                                                                                     Page
+
+•   Changed document status to Production Data from Mixed Status ........................................................................................ 1
+•   Changed status of TLV1702 RUG package to Production Data ............................................................................................ 1
+
+
+Changes from Revision B (October 2014) to Revision C                                                                                                                                      Page
+
+•   Changed TLV1701 DCK package from preview to production data ...................................................................................... 1
+•   Changed Handling Ratings table to ESD Ratings table, and moved storage temperature to Absolute Maximum
+    Ratings table........................................................................................................................................................................... 6
+
+
+Changes from Revision A (September 2014) to Revision B                                                                                                                                    Page
+
+•   Changed footnote 2 in Device Information table: added TLV1701 to list of available devices .............................................. 1
+•   Added TLV1701 to list of production data packages in footnote for the Pin Configuration and Functions section .............. 5
+•   Added TLV1701 row to V(ESD) parameter in Handling Ratings table ...................................................................................... 6
+
+
+
+
+2        Submit Documentation Feedback                                                                                    Copyright © 2013–2015, Texas Instruments Incorporated
+
+                                                           Product Folder Links: TLV1701 TLV1702 TLV1704
+                                                                                                                                        TLV1701, TLV1702, TLV1704
+www.ti.com                                                                                                              SBOS589D – DECEMBER 2013 – REVISED JUNE 2015
+
+
+
+Changes from Original (December 2013) to Revision A                                                                                                                              Page
+
+•   Changed document format to latest data sheet standards; added new sections and moved existing sections .................... 1
+•   Changed TLV1704 PW (TSSOP-14) package from preview to production data ................................................................... 1
+•   Added sub-bullet to the Open Collector Outputs feature ....................................................................................................... 1
+•   Added second paragraph to the Description section.............................................................................................................. 1
+•   Deleted package information from Description section; redundant information ..................................................................... 1
+•   Changed Related Products table to Device Comparison table, moved from page 1, and added TLV370x family................ 4
+•   Added TLV1701, TLV1702 RUG, and TLV704 package drawings ........................................................................................ 5
+•   Added thermal information for TLV1702 RUG, TLV1704 PW, and all TLV1701 packages ................................................... 6
+•   Moved switching characteristics parameters from Electrical Characteristics table to new Switching Characteristics table .. 7
+•   Changed all typical values in Switching Characteristics table................................................................................................ 7
+•   Changed title for Figure 1 ....................................................................................................................................................... 8
+•   Changed Figure 8................................................................................................................................................................... 8
+•   Changed Figure 9 .................................................................................................................................................................. 8
+•   Changed Figure 10................................................................................................................................................................. 8
+•   Changed Figure 11................................................................................................................................................................. 8
+•   Changed Figure 12................................................................................................................................................................. 8
+•   Changed Figure 13................................................................................................................................................................. 9
+•   Changed Figure 14................................................................................................................................................................. 9
+•   Changed Application Information and moved section ......................................................................................................... 13
+•   Deleted Application Examples section ................................................................................................................................. 13
+
+
+
+
+Copyright © 2013–2015, Texas Instruments Incorporated                                                                             Submit Documentation Feedback                        3
+                                                         Product Folder Links: TLV1701 TLV1702 TLV1704
+TLV1701, TLV1702, TLV1704
+SBOS589D – DECEMBER 2013 – REVISED JUNE 2015                                                                                    www.ti.com
+
+
+5 Device Comparison
+
+               DEVICE                                                              FEATURES
+               TLV3201
+                                        40-ns, 40-µA, push-pull comparator
+               TLV3202
+               TLV3501
+                                        4.5-ns, rail-to-rail, push-pull, high-speed comparator
+               TLV3502
+               TLV3401
+               TLV3402                  Nanopower open-drain output comparator
+               TLV3404
+               TLV3701
+               TLV3702                  Nanopower push-pull output comparator
+               TLV3704
+               REF3325
+               REF3330                  3.9-µA, SC70-3 voltage reference
+               REF3333
+
+
+
+
+4      Submit Documentation Feedback                                                    Copyright © 2013–2015, Texas Instruments Incorporated
+
+                                        Product Folder Links: TLV1701 TLV1702 TLV1704
+                                                                                                                     TLV1701, TLV1702, TLV1704
+www.ti.com                                                                                            SBOS589D – DECEMBER 2013 – REVISED JUNE 2015
+
+
+6 Pin Configuration and Functions
+
+                        TLV1701                                                                                  TLV1702
+  DBV (SOT-23-5), DCK (SC70-5), DRL (SOT553-5) Packages                                                   RUG (X2QFN-8) Package
+                        Top View                                                                                Top View
+                                                                                                                      V+
+                    IN+       1               5   V+
+                                                                                                                       8
+                     V-       2                                                                      1OUT    1                 7   2OUT
+
+                    IN±       3               4   OUT                                                1IN±    2                 6   2IN±
+
+                                                                                                     1IN+    3                 5   2IN+
+                                                                                                                       4
+
+                            TLV1702                                                                                    V-
+                     DGK (VSSOP-8) Package
+                           Top View
+                                                                                                                TLV1704
+                                                                                                          PW (TSSOP-14) Package
+                1OUT      1                       8    V+                                                       Top View
+                 1IN±     2                       7    2OUT
+                                                                                           2OUT       1                             14 3OUT
+                 1IN+     3                       6    2IN±
+                                                                                           1OUT       2                             13 4OUT
+                   V-     4                       5    2IN+
+                                                                                                V+    3                             12 V-
+
+                                                                                            1IN±      4                             11 4IN+
+
+                                                                                            1IN+      5                             10 4IN±
+
+                                                                                            2IN±      6                              9    3IN+
+
+                                                                                            2IN+      7                              8    3IN±
+
+
+
+
+                                                                       Pin Functions
+                                   PIN
+                                         NO.
+              TLV1701                TLV1702                   TLV1704
+ NAME       DBV, DCK, DRL           DGK, RUG                     PW            I/O                                 DESCRIPTION
+IN+                 1                    —                        —             I      Noninverting input
+1IN+                —                     3                       5             I      Noninverting input, channel 1
+2IN+                —                     5                       7             I      Noninverting input, channel 2
+3IN+                —                    —                        9             I      Noninverting input, channel 3
+4IN+                —                    —                        11            I      Noninverting input, channel 4
+IN–                 3                    —                        —             I      Inverting input
+1IN–                —                     2                       4             I      Inverting input, channel 1
+2IN–                —                     6                       6             I      Inverting input, channel 2
+3IN–                —                    —                        8             I      Inverting input, channel 3
+4IN–                —                    —                        10            I      Inverting input, channel 4
+OUT                 4                    —                        —            O       Output
+1OUT                —                     1                       2            O       Output, channel 1
+2OUT                —                     7                       1            O       Output, channel 2
+3OUT                —                    —                        14           O       Output, channel 3
+4OUT                —                    —                        13           O       Output, channel 4
+V+                  5                     8                       3            —       Positive (highest) power supply
+V–                  2                     4                       12           —       Negative (lowest) power supply
+
+
+
+Copyright © 2013–2015, Texas Instruments Incorporated                                                            Submit Documentation Feedback   5
+                                                      Product Folder Links: TLV1701 TLV1702 TLV1704
+TLV1701, TLV1702, TLV1704
+SBOS589D – DECEMBER 2013 – REVISED JUNE 2015                                                                                           www.ti.com
+
+
+7 Specifications
+7.1 Absolute Maximum Ratings (1)
+over operating free-air temperature range (unless otherwise noted)
+                                                                                                  MIN                 MAX              UNIT
+Supply voltage                                                                                                     +40 (±20)             V
+                                     (2)
+                           Voltage                                                            (VS–) – 0.5          (VS+) + 0.5           V
+Signal input pins
+                           Current (2)                                                                                ±10               mA
+Output short-circuit (3)                                                                                Continuous                      mA
+Operating temperature range                                                                       –55                 +150              °C
+Junction temperature, TJ                                                                                              150               °C
+Storage temperature, Tstg                                                                         –65                 +150              °C
+
+(1)   Stresses beyond those listed under absolute maximum ratings may cause permanent damage to the device. These are stress ratings
+      only, and functional operation of the device at these or any other conditions beyond those indicated under recommended operating
+      conditions is not implied. Exposure to absolute-maximum-rated conditions for extended periods may affect device reliability.
+(2)   Input pins are diode-clamped to the power-supply rails. Input signals that can swing more than 0.5 V beyond the supply rails must be
+      current limited to 10 mA or less.
+(3)   Short-circuit to ground; one comparator per package.
+
+7.2 ESD Ratings
+                                                                                                                            VALUE        UNIT
+TLV1701 and TLV1702
+                                           Human-body model (HBM), per ANSI/ESDA/JEDEC JS-001 (1)                           ±2000
+V(ESD)     Electrostatic discharge                                                                           (2)
+                                                                                                                                             V
+                                           Charged-device model (CDM), per JEDEC specification JESD22-C101                  ±1500
+TLV1704
+                                           Human-body model (HBM), per ANSI/ESDA/JEDEC JS-001 (1)                           ±1000
+V(ESD)     Electrostatic discharge                                                                           (2)
+                                                                                                                                             V
+                                           Charged-device model (CDM), per JEDEC specification JESD22-C101                  ±1500
+
+(1)   JEDEC document JEP155 states that 500-V HBM allows safe manufacturing with a standard ESD control process.
+(2)   JEDEC document JEP157 states that 250-V CDM allows safe manufacturing with a standard ESD control process.
+
+7.3 Recommended Operating Conditions
+over operating free-air temperature range (unless otherwise noted)
+                                                                                              MIN            NOM               MAX      UNIT
+Supply voltage VS = (VS+) – (VS–)                                                        2.2 (±1.1)                         36 (±18)      V
+Specified temperature                                                                          –40                               125      °C
+
+
+7.4 Thermal Information: TLV1701
+                                                                                              TLV1701
+                           THERMAL METRIC (1)                               DRL (SOT553)    DCK (SC70)         DBV (SOT23)             UNIT
+                                                                               5 PINS          5 PINS               5 PINS
+RθJA       Junction-to-ambient thermal resistance                               271.5           283.6                233.1             °C/W
+RθJC(top) Junction-to-case (top) thermal resistance                             115.6            94.1                156.4             °C/W
+RθJB       Junction-to-board thermal resistance                                  89.7            61.3                60.6              °C/W
+ψJT        Junction-to-top characterization parameter                            17.6             1.9                35.7              °C/W
+ψJB        Junction-to-board characterization parameter                          89.2            60.5                59.7              °C/W
+RθJC(bot) Junction-to-case (bottom) thermal resistance                           N/A             N/A                  N/A              °C/W
+
+(1)   For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+      report, SPRA953.
+
+
+
+
+6        Submit Documentation Feedback                                                      Copyright © 2013–2015, Texas Instruments Incorporated
+
+                                                  Product Folder Links: TLV1701 TLV1702 TLV1704
+                                                                                                                 TLV1701, TLV1702, TLV1704
+www.ti.com                                                                                         SBOS589D – DECEMBER 2013 – REVISED JUNE 2015
+
+
+7.5 Thermal Information: TLV1702 and TLV1704
+                                                                                             TLV1702                   TLV1704
+                             THERMAL METRIC (1)                                    RUG (QFN)      DGK (VSSOP)        PW (TSSOP)               UNIT
+                                                                                    8 PINS             8 PINS           14 PINS
+θJA         Junction-to-ambient thermal resistance                                   205.6              199              128.1                °C/W
+θJCtop      Junction-to-case (top) thermal resistance                                77.1               89.5              56.5                °C/W
+θJB         Junction-to-board thermal resistance                                     107.0             120.4              69.9                °C/W
+ψJT         Junction-to-top characterization parameter                                2.0               22.0               9.1                °C/W
+ψJB         Junction-to-board characterization parameter                             107.0             118.7              69.3                °C/W
+θJCbot      Junction-to-case (bottom) thermal resistance                              N/A               N/A               N/A                 °C/W
+
+(1)    For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+       report, SPRA953.
+
+7.6 Electrical Characteristics
+at TA = +25°C, VS = +2.2 V to +36 V, CL = 15 pF, RPULLUP = 5.1 kΩ, VCM = VS / 2, and VS = VPULLUP (unless otherwise noted)
+                        PARAMETER                                     TEST CONDITIONS                     MIN           TYP            MAX     UNIT
+OFFSET VOLTAGE
+                                                           TA = 25°C, VS = 2.2 V                                        ±0.5           ±3.5     mV
+VOS            Input offset voltage                        TA = 25°C, VS = 36 V                                         ±0.3           ±2.5     mV
+                                                           TA = –40°C to +125°C                                                        ±5.5     mV
+dVOS/dT        Input offset voltage drift                  TA = –40°C to +125°C                                           ±4            ±20    μV/°C
+                                                                                                                          15            100     μV/V
+PSRR           Power-supply rejection ratio
+                                                           TA = –40°C to +125°C                                           20                    μV/V
+INPUT VOLTAGE RANGE
+VCM            Common-mode voltage range                   TA = –40°C to +125°C                           (V–)                         (V+)      V
+INPUT BIAS CURRENT
+                                                                                                                           5             15     nA
+IB             Input bias current
+                                                           TA = –40°C to +125°C                                                          20     nA
+IOS            Input offset current                                                                                      0.5                    nA
+CLOAD          Capacitive load drive                                                                     See Typical Characteristics
+OUTPUT
+                                                           IO ≤ 4 mA, input overdrive = 100 mV,
+                                                                                                                                        900     mV
+                                                           VS = 36 V
+VO             Voltage output swing from rail
+                                                           IO = 0 mA, input overdrive = 100 mV,
+                                                                                                                                        600     mV
+                                                           VS = 36 V
+ISC            Short circuit sink current                                                                                 20                    mA
+               Output leakage current                      VIN+ > VIN–                                                    70                    nA
+POWER SUPPLY
+VS             Specified voltage range                                                                     2.2                           36      V
+                                                           IO = 0 A                                                       55             75     μA
+IQ             Quiescent current (per channel)
+                                                           IO = 0 A, TA = –40°C to +125°C                                               100     μA
+
+
+7.7 Switching Characteristics
+at TA = +25°C, VS = +2.2 V to +36 V, CL = 15 pF, RPULLUP = 5.1 kΩ, VCM = VS / 2, and VS = VPULLUP (unless otherwise noted)
+                       PARAMETER                                      TEST CONDITIONS                     MIN          TYP             MAX     UNIT
+tpHL           Propagation delay time, high-to-low         Input overdrive = 100 mV                                     460                     ns
+tpLH           Propagation delay time, low-to-high         Input overdrive = 100 mV                                     560                     ns
+tR             Rise time                                   Input overdrive = 100 mV                                     365                     ns
+tF             Fall time                                   Input overdrive = 100 mV                                     240                     ns
+
+
+
+
+Copyright © 2013–2015, Texas Instruments Incorporated                                                      Submit Documentation Feedback               7
+                                                 Product Folder Links: TLV1701 TLV1702 TLV1704
+TLV1701, TLV1702, TLV1704
+SBOS589D – DECEMBER 2013 – REVISED JUNE 2015                                                                                                                                                                                                           www.ti.com
+
+
+7.8 Typical Characteristics
+at TA = +25°C, VS = +5 V, RPULLUP = 5.1 kΩ, and input overdrive = 100 mV (unless otherwise noted)
+
+                                                    75                                                                                                                                  6
+
+                                                    70                                                                                                                                                                                         VS = 2.2 V
+                           Quiescent Current (A)
+
+
+
+
+                                                                                                                                                              Input Bias Current (nA)
+                                                    65
+                                                                         VS = ±18 V
+                                                                                                                                                                                        4                                             VS = ±18 V
+                                                    60
+
+                                                    55
+
+                                                    50
+                                                                                                                                                                                        2
+                                                                                        VS = 2.2 V
+                                                    45
+                                                                                                                                                                                                                                                          Ibn
+                                                    40
+                                                                                                                                                                                                                                                          Ibp
+                                                    35                                                                                                                                  0
+                                                          ±40 ±25 ±10       5     20     35        50    65     80   95    110 125                                                          ±50     ±25        0       25        50       75        100         125
+                                                                                  Temperature (C)                                C028                                                                              Temperature (C)                            C007
+
+
+
+
+                                                              Figure 1. Quiescent Current vs Temperature                                                                                        Figure 2. Input Bias Current vs Temperature
+                                                     1                                                                                                                                  0
+
+                                                                                                                                                                                  ±2                 VS = ±1.1 V
+     Input Offset Current (nA)
+
+
+
+
+                                                                                                                                                                                  ±4
+                                       0.75
+                                                                                                                                         Output Voltage (V)
+
+
+                                                                                                                                                                                  ±6
+                                                                                                           VS = ±18 V
+                                                                                                                                                                                  ±8
+                                                    0.5
+                                                                                                                                                                    ±10
+
+                                                                                                                                                                    ±12
+                                       0.25                                           VS = 2.2 V
+                                                                                                                                                                    ±14
+
+                                                                                                                                                                    ±16                                        VS = ±18 V
+                                                     0                                                                                                              ±18
+                                                          ±50     ±25        0         25           50          75     100        125                                                       0              5                10              15                  20
+                                                                                  Temperature (C)                                C007                                                                             Output Current (mA)                          C011
+
+
+
+
+                                                           Figure 3. Input Offset Current vs Temperature                                                                                        Figure 4. Output Voltage vs Output Current
+                                                     3                                                                                                                                  3
+                                                              14 Typical Units Shown                                                                                                            13 Typical Units Shown
+                                                     2                                                                                                                                  2
+                           Offset Voltage (mV)
+
+
+
+
+                                                                                                                                                   Offset Voltage (mV)
+
+
+
+
+                                                     1                                                                                                                                  1
+
+
+                                                     0                                                                                                                                  0
+
+
+                                                    ±1                                                                                                                            ±1
+
+
+                                                    ±2                                                                                                                            ±2
+                                                                                                                     VS = ±18 V                                                                                                                    VS = 2.2 V
+                                                    ±3                                                                                                                            ±3
+                                                          0          6           12           18           24         30          36                                                        0              0.5              1               1.5                 2
+                                                                            Common-Mode Voltage (V)                               C027                                                                         Common-Mode Voltage (V)                          C028
+
+
+
+
+                                                     Figure 5. Offset Voltage vs Common-Mode Voltage                                                                                    Figure 6. Offset Voltage vs Common-Mode Voltage
+
+
+
+8                                    Submit Documentation Feedback                                                                                                                                    Copyright © 2013–2015, Texas Instruments Incorporated
+
+                                                                                                         Product Folder Links: TLV1701 TLV1702 TLV1704
+                                                                                                                                                                                                                                                        TLV1701, TLV1702, TLV1704
+www.ti.com                                                                                                                                                                                                                               SBOS589D – DECEMBER 2013 – REVISED JUNE 2015
+
+
+Typical Characteristics (continued)
+at TA = +25°C, VS = +5 V, RPULLUP = 5.1 kΩ, and input overdrive = 100 mV (unless otherwise noted)
+                                                3                                                                                                                                                1000n
+                                                                            16 Typical Units Shown                                                                                                                                        18 V Low-to-High
+                                                2                                                                                                                                                                                         18 V High-to-Low
+                                                                                                                                                                                                  800n
+
+
+
+
+                                                                                                                                                                         Propagation Delay (s)
+                         Offset Voltage (mV)
+
+
+
+
+                                                                                                                                                                                                                                          2.2 V Low-to-High
+                                                1
+                                                                                                                                                                                                                                          2.2 V High-to-Low
+                                                0                                                                                                                                                 600n
+
+
+                                               ±1
+                                                                                                                                                                                                  400n
+                                               ±2
+
+
+                                               ±3                                                                                                                                                 200n
+                                                                       0           6        12          18           24         30         36                                                                               0             200          400             600           800      1000
+                                                                                             Supply Voltage (V)                            C028                                                                                                      Input Overdrive (mV)                        C020
+
+
+
+
+                                                                            Figure 7. Offset Voltage vs Supply Voltage                                                                                                 Figure 8. Propagation Delay vs Input Overdrive
+                                                                                                                                                                                             1200n
+                                                                                  2.2 V Supply                                                                                                                                            18 V Low-to-High
+                                   
+                                                                                  18 V Supply                                                                                                   1000n                                    18 V High-to-Low
+                                   
+      Propagation Delay (s)
+
+
+
+
+                                                                                                                                                                         Propagation Delay (s)
+
+
+
+                                                                                                                                                                                                                                          2.2 V Low-to-High
+                                                                                                                     tPLH
+                                                                                                                                                                                              800n                                    2.2 V High-to-Low
+                                   
+
+                                                                                                                                                                                              600n
+
+                                   
+                                                                                                                                                                                                  400n
+                                   
+                                                                                                                             tPHL                                                                                                                                                 VOD = 100 mV
+                                                                                                                                                                                              200n
+                                                        20p                                            200p                                2n                                                                   -40 -25 -10                     5     20     35   50     65     80    95   110 125
+                                                                                         Output Capacitive Load (F)                        C020                                                                                                       Temperature (C)                           C020
+
+
+
+
+                                                              Figure 9. Propagation Delay vs Capacitive Load                                                                                                                     Figure 10. Propagation Delay vs Temperature
+
+
+
+                                                                                                                  Input Voltage
+                                                Input Voltage (50 mV/div)
+
+
+
+
+                                                                                                                                                                                                     Input Voltage (50 mV/div)
+                                                                                                                                             Output Voltage (10 V/div)
+
+
+
+
+                                                                                                                                                                                                                                                                                                   Output Voltage (10 V/div)
+                                                                                                                                                                                                                                                                         Output Voltage
+
+
+                                                                                                  tPLH = 440 ns
+
+
+
+                                                                                                                                                                                                                                                        tPLH = 400 ns
+                                                                                                                          Output Voltage
+
+                                                                                                                                                                                                                                                                              Input Voltage
+
+                                                                            VS = 36 V, Overdrive = 100 mV                                                                                                                         VS = 36 V, Overdrive = 100 mV
+                                                                                                 Time (150 ns/div)                                                                                                                                    Time (150 ns/div)
+
+                                                                                                                                           C021                                                                                                                                                  C021
+
+
+
+
+                                                                                Figure 11. Propagation Delay (TpLH)                                                                                                                   Figure 12. Propagation Delay (TpHL)
+
+
+
+Copyright © 2013–2015, Texas Instruments Incorporated                                                                                                                                                                                               Submit Documentation Feedback                                              9
+                                                                                                               Product Folder Links: TLV1701 TLV1702 TLV1704
+TLV1701, TLV1702, TLV1704
+SBOS589D – DECEMBER 2013 – REVISED JUNE 2015                                                                                                                                                                                                                                                                                                          www.ti.com
+
+
+Typical Characteristics (continued)
+at TA = +25°C, VS = +5 V, RPULLUP = 5.1 kΩ, and input overdrive = 100 mV (unless otherwise noted)
+
+
+                                                                                                                                                                                                                                                                                                                                          Output Voltage
+
+
+
+
+                                                                                                                                                             Output Voltage (500 mV/div)
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                                                      Output Voltage (500 mV/div)
+                                                                                                                                 Input Voltage
+                                       Input Voltage (50 mV/div)
+
+
+
+
+                                                                                                                                                                                                                                 Input Voltage (50 mV/div)
+                                                                                        tPLH = 560 ns
+
+
+                                                                                                                                                                                                                                                                                                        tPLH = 460 ns
+
+
+                                                                                                                                          Output Voltage                                                                                                                                                                                  Input Voltage
+
+                                                                   VS = 2.2 V, Overdrive = 100 mV                                                                                                                                                             VS = 2.2 V, Overdrive = 100 mV
+                                                                                     Time (150 ns/div)                                                                                                                                                                                                Time (150 ns/div)
+
+                                                                                                                                                           C021                                                                                                                                                                                                   C021
+
+
+
+
+                                                                       Figure 13. Propagation Delay (TpLH)                                                                                                                                                             Figure 14. Propagation Delay (TpHL)
+                                      30                                                                                                                                                                                        35
+                                                                   VS = ±18 V                                                                                                                                                                                 VS = 2.2 V
+                                                                   Distribution Taken from 2524 Comparators                                                                                                                                                   Distribution Taken from 2524 Comparators
+      Percentage of Comparators (%)
+
+
+
+
+                                                                                                                                                                                                Percentage of Comparators (%)
+                                      25                                                                                                                                                                                        30
+
+                                                                                                                                                                                                                                25
+                                      20
+                                                                                                                                                                                                                                20
+                                      15
+                                                                                                                                                                                                                                15
+                                      10
+                                                                                                                                                                                                                                10
+
+                                       5                                                                                                                                                                                         5
+
+                                       0                                                                                                                                                                                         0
+                                                                      0
+
+
+
+
+                                                                      1
+
+
+
+
+                                                                                                                                                                                                                                                                                                                    0
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                                2
+                                                                    0.2
+                                                                    0.4
+                                                                    0.6
+                                                                    0.8
+
+                                                                    1.2
+                                                                    1.4
+                                                                    1.6
+                                                                    1.8
+                                                                    2.5
+
+
+
+
+                                                                                                                                                                                                                                                                                                                        0.4
+                                                                                                                                                                                                                                                                                                                              0.8
+                                                                                                                                                                                                                                                                                                                                    1.2
+                                                                                                                                                                                                                                                                                                                                          1.6
+
+
+                                                                                                                                                                                                                                                                                                                                                    2.4
+                                                                                                                                                                                                                                                                                                                                                          2.8
+                                                                                                                                                                                                                                                                                                                                                                3.5
+                                                                     -1
+
+
+
+
+                                                                                                                                                                                                                                                                                  -2
+                                                                   -2.5
+                                                                   -1.8
+                                                                   -1.6
+                                                                   -1.4
+                                                                   -1.2
+
+                                                                   -0.8
+                                                                   -0.6
+                                                                   -0.4
+                                                                   -0.2
+
+
+
+
+                                                                                                                                                                                                                                                             -3.5
+                                                                                                                                                                                                                                                                    -2.8
+                                                                                                                                                                                                                                                                           -2.4
+
+
+                                                                                                                                                                                                                                                                                       -1.6
+                                                                                                                                                                                                                                                                                               -1.2
+                                                                                                                                                                                                                                                                                                      -0.8
+                                                                                                                                                                                                                                                                                                             -0.4
+
+                                                                                    Offset Voltage (mV)                                                                                                                                                                                            Offset Voltage (mV)
+                                                                                                                                                           C019                                                                                                                                                                                                   C019
+
+
+
+
+                                           Figure 15. Offset Voltage Production Distribution                                                                                                                                         Figure 16. Offset Voltage Production Distribution
+                                                                                                                                 30
+
+                                                                                                                                                      VS = 2.2 V
+                                                                                                                                 25
+                                                                                                    Short Circuit Current (mA)
+
+
+
+
+                                                                                                                                 20
+
+
+                                                                                                                                 15
+
+
+                                                                                                                                 10
+
+
+                                                                                                                                  5
+                                                                                                                                                                                                                                                                    Sink Current
+                                                                                                                                  0
+                                                                                                                                      0           6          12                            18                                    24                                        30                 36
+                                                                                                                                                                               Supply Voltage (V)                                                                                             C002
+
+
+
+
+                                                                                                                                  Figure 17. Short-Circuit Current vs Supply Voltage
+
+
+
+10                 Submit Documentation Feedback                                                                                                                                                                                                                           Copyright © 2013–2015, Texas Instruments Incorporated
+
+                                                                                                                             Product Folder Links: TLV1701 TLV1702 TLV1704
+                                                                                                     TLV1701, TLV1702, TLV1704
+www.ti.com                                                                                SBOS589D – DECEMBER 2013 – REVISED JUNE 2015
+
+
+8 Detailed Description
+
+8.1 Overview
+The TLV170x comparators features rail-to-rail input and output on supply voltages as high as 36 V. The rail-to-
+rail input stage enables detection of signals close to the supply and ground. The open collector configuration
+allows the device to be used in wired-OR configurations, such as a window comparator. A low supply current of
+55 μA per channel with small, space-saving packages, makes these comparators versatile for use in a wide
+range of applications, from portable to industrial.
+
+8.2 Functional Block Diagram
+
+                                                                     V+
+
+
+
+
+                                                                                                                                 OUT
+
+
+IN+                                        IN-
+
+
+
+
+                                           IN+                                   IN-
+
+
+
+
+                                                                          V-
+
+
+
+
+Copyright © 2013–2015, Texas Instruments Incorporated                                            Submit Documentation Feedback     11
+                                                 Product Folder Links: TLV1701 TLV1702 TLV1704
+TLV1701, TLV1702, TLV1704
+SBOS589D – DECEMBER 2013 – REVISED JUNE 2015                                                                                                         www.ti.com
+
+
+8.3 Feature Description
+8.3.1 Comparator Inputs
+The TLV170x are rail-to-rail input comparators, with an input common-mode range that includes the supply rails.
+The TLV170x is designed to prevent phase inversion when the input pins exceed the supply voltage. Figure 18
+shows the TLV170x response when input voltages exceed the supply, resulting in no phase inversion.
+
+
+
+
+                                            Voltage (5 V/div)
+
+
+
+
+                                                                                                    Output Voltage
+                                                                                                    Input Voltage
+                                                                                Time (5 ms/div)
+
+                                                                                                                      C030
+
+
+
+                    Figure 18. No Phase Inversion: Comparator Response to Input Voltage
+                                       (Propagation Delay Included)
+
+
+8.4 Device Functional Modes
+8.4.1 Setting Reference Voltage
+Using a stable reference is important when setting the transition point for the TLV170x. The REF3333, as shown
+in Figure 19, provides a 3.3-V reference voltage with low drift and only 3.9 μA of quiescent current.
+                                       VS
+
+                                                                      REF3333                      VPULLUP
+
+                                                                                            VS+
+                                                                                                       RPULLUP
+                                                                       GND
+                                                                                       +
+                                                                                      TLV1701                 VOUT
+                                                                                       _
+                                                                                            VS -
+                                                                VIN
+
+                                   Figure 19. Reference Voltage for the TLV170x
+
+
+
+
+12     Submit Documentation Feedback                                                                         Copyright © 2013–2015, Texas Instruments Incorporated
+
+                                        Product Folder Links: TLV1701 TLV1702 TLV1704
+                                                                                                        TLV1701, TLV1702, TLV1704
+www.ti.com                                                                               SBOS589D – DECEMBER 2013 – REVISED JUNE 2015
+
+
+9 Applications and Implementation
+
+                                                           NOTE
+               Information in the following applications sections is not part of the TI component
+               specification, and TI does not warrant its accuracy or completeness. TI’s customers are
+               responsible for determining suitability of components for their purposes. Customers should
+               validate and test their design implementation to confirm system functionality.
+
+
+9.1 Application Information
+The TLV170x can be used in a wide variety of applications, such as zero crossing detectors, window
+comparators, over and undervoltage detectors, and high-side voltage sense circuits.
+
+9.2 Typical Application
+Comparators are used to differentiate between two different signal levels. For example, a comparator
+differentiates between an overtemperature and normal-temperature condition. However, noise or signal variation
+at the comparison threshold causes multiple transitions. This application example sets upper and lower
+hysteresis thresholds to eliminate the multiple transitions caused by noise.
+                                                                                 5V
+
+
+                                                                                       Rp
+                                                                   -                  5 k
+
+                                                                       +V
+                                               +
+
+
+
+
+                                                             5V    +                         Vout
+                                                   Vin
+                                                                    5V
+                                                      Rx
+                                                    100 k
+
+                                                                      Rh
+                                                      Ry            576 k
+                                                    100 k
+
+
+
+                                       Figure 20. Comparator Schematic with Hysteresis
+
+9.2.1 Design Requirements
+The design requirements are as follows:
+• Supply voltage: 5 V
+• Input: 0 V to 5 V
+• Lower threshold (VL) = 2.3 V ±0.1 V
+• Upper threshold (VH) = 2.7 V ±0.1 V
+• VH – VL = 2.4 V ±0.1 V
+• Low power consumption
+
+
+
+
+Copyright © 2013–2015, Texas Instruments Incorporated                                               Submit Documentation Feedback   13
+                                               Product Folder Links: TLV1701 TLV1702 TLV1704
+TLV1701, TLV1702, TLV1704
+SBOS589D – DECEMBER 2013 – REVISED JUNE 2015                                                                            www.ti.com
+
+
+Typical Application (continued)
+9.2.2 Detailed Design Procedure
+Make a small change to the comparator circuit to add hysteresis. Hysteresis uses two different threshold voltages
+to avoid the multiple transitions introduced in the previous circuit. The input signal must exceed the upper
+threshold (VH) to transition low, or below the lower threshold (VL) to transition high.
+Figure 20 illustrates hysteresis on a comparator. Resistor Rh sets the hysteresis level. An open-collector output
+stage requires a pullup resistor (Rp). The pullup resistor creates a voltage divider at the comparator output that
+introduces an error when the output is at logic high. This error can be minimized if Rh > 100Rp.
+When the output is at a logic high (5 V), Rh is in parallel with Rx (ignoring Rp). This configuration drives more
+current into Ry, and raises the threshold voltage (VH) to 2.7 V. The input signal must drive above VH = 2.7 V to
+cause the output to transition to logic low (0 V).
+When the output is at logic low (0 V), Rh is in parallel with Ry. This configuration reduces the current into Ry, and
+reduces the threshold voltage to 2.3 V. The input signal must drive below VL = 2.3 V to cause the output to
+transition to logic high (5 V).
+For more details on this design and other alternative devices that can be used in place of the TLV1702, refer to
+Precision Design TIPD144, Comparator with Hysteresis Reference Design.
+
+9.2.3 Application Curve
+Figure 21 shows the upper and lower thresholds for hysteresis. The upper threshold is 2.76 V and the lower
+threshold is 2.34 V, both of which are close to the design target.
+
+
+
+
+                         Figure 21. TLV1701 Upper and Lower Threshold with Hysteresis
+
+10 Power Supply Recommendations
+The TLV170x is specified for operation from 2.2 V to 36 V (±1.1 to ±18 V); many specifications apply from –40°C
+to +125°C. Parameters that can exhibit significant variance with regard to operating voltage or temperature are
+presented in the Typical Characteristics section.
+
+                                                         CAUTION
+               Supply voltages larger than 40 V can permanently damage the device; see the
+               Absolute Maximum Ratings.
+
+
+Place 0.1-μF bypass capacitors close to the power-supply pins to reduce errors coupling in from noisy or high-
+impedance power supplies. For more detailed information on bypass capacitor placement; see the Layout
+Guidelines section.
+
+
+
+
+14     Submit Documentation Feedback                                            Copyright © 2013–2015, Texas Instruments Incorporated
+
+                                        Product Folder Links: TLV1701 TLV1702 TLV1704
+                                                                                                                    TLV1701, TLV1702, TLV1704
+www.ti.com                                                                                                SBOS589D – DECEMBER 2013 – REVISED JUNE 2015
+
+
+11 Layout
+
+11.1 Layout Guidelines
+Comparators are very sensitive to input noise. For best results, maintain the following layout guidelines:
+• Use a printed circuit board (PCB) with a good, unbroken low-inductance ground plane. Proper grounding (use
+  of ground plane) helps maintain specified performance of the TLV170x.
+• To minimize supply noise, place a decoupling capacitor (0.1-μF ceramic, surface-mount capacitor) as close
+  as possible to VS as shown in Figure 22.
+• On the inputs and the output, keep lead lengths as short as possible to avoid unwanted parasitic feedback
+  around the comparator. Keep inputs away from the output.
+• Solder the device directly to the PCB rather than using a socket.
+• For slow-moving input signals, take care to prevent parasitic feedback. A small capacitor (1000 pF or less)
+  placed between the inputs can help eliminate oscillations in the transition region. This capacitor causes some
+  degradation to propagation delay when the impedance is low. Run the topside ground plane between the
+  output and inputs.
+• Run the ground pin ground trace under the device up to the bypass capacitor, shielding the inputs from the
+  outputs.
+
+11.2 Layout Example
+                                                                                          V+
+                                                                 IN+                 +
+                                                                                                    OUT
+                                                                 IN-
+
+                                                                                          V-
+
+
+                                                                       (Schematic Representation)
+
+
+
+                               Run the input traces
+                                as far away from
+                                 the supply lines                                                                                    Use low-ESR, ceramic
+                                   as possible                                                                                         bypass capacitor
+                                                                                                                           VS+
+
+
+                        IN+                                IN+
+                                                                                                          V+                                    GND
+                  VS± or GND
+                                                           V±
+
+                                                                                                          OUT          OUT
+
+                         IN-                               IN-
+
+                 GND
+
+    Only needed for
+     dual-supply
+       operation
+
+
+
+
+                                                      Figure 22. Comparator Board Layout
+
+
+
+
+Copyright © 2013–2015, Texas Instruments Incorporated                                                           Submit Documentation Feedback               15
+                                                      Product Folder Links: TLV1701 TLV1702 TLV1704
+TLV1701, TLV1702, TLV1704
+SBOS589D – DECEMBER 2013 – REVISED JUNE 2015                                                                                  www.ti.com
+
+
+12 Device and Documentation Support
+
+12.1 Documentation Support
+12.1.1 Related Documentation
+TIDU020 — Precision Design, Comparator with Hysteresis Reference Design.
+SBOS392 — REF3333 Data Sheet
+
+12.2 Related Links
+Table 1 lists quick access links. Categories include technical documents, support and community resources,
+tools and software, and quick access to sample or buy.
+
+                                                     Table 1. Related Links
+                                                                      TECHNICAL                TOOLS &                 SUPPORT &
+       PARTS          PRODUCT FOLDER           SAMPLE & BUY
+                                                                      DOCUMENTS               SOFTWARE                 COMMUNITY
+      TLV1701              Click here             Click here            Click here              Click here               Click here
+      TLV1702              Click here             Click here            Click here              Click here               Click here
+      TLV1704              Click here             Click here            Click here              Click here               Click here
+
+
+12.3 Community Resources
+The following links connect to TI community resources. Linked contents are provided "AS IS" by the respective
+contributors. They do not constitute TI specifications and do not necessarily reflect TI's views; see TI's Terms of
+Use.
+TI E2E™ Online Community TI's Engineer-to-Engineer (E2E) Community. Created to foster collaboration
+           among engineers. At e2e.ti.com, you can ask questions, share knowledge, explore ideas and help
+           solve problems with fellow engineers.
+Design Support TI's Design Support Quickly find helpful E2E forums along with design support tools and
+           contact information for technical support.
+
+12.4 Trademarks
+E2E is a trademark of Texas Instruments.
+All other trademarks are the property of their respective owners.
+12.5 Electrostatic Discharge Caution
+        This integrated circuit can be damaged by ESD. Texas Instruments recommends that all integrated circuits be handled with
+        appropriate precautions. Failure to observe proper handling and installation procedures can cause damage.
+        ESD damage can range from subtle performance degradation to complete device failure. Precision integrated circuits may be more
+        susceptible to damage because very small parametric changes could cause the device not to meet its published specifications.
+
+12.6 Glossary
+SLYZ022 — TI Glossary.
+   This glossary lists and explains terms, acronyms, and definitions.
+
+13 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical packaging and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+16     Submit Documentation Feedback                                                  Copyright © 2013–2015, Texas Instruments Incorporated
+
+                                         Product Folder Links: TLV1701 TLV1702 TLV1704
+                                                                                                                                         PACKAGE OPTION ADDENDUM
+
+  www.ti.com                                                                                                                                                            20-Aug-2026
+
+
+
+
+PACKAGING INFORMATION
+
+ Orderable part number   Status   Material type    Package | Pins     Package qty | Carrier    RoHS          Lead finish/          MSL rating/        Op temp (°C)   Part marking
+                           (1)         (2)                                                      (3)          Ball material         Peak reflow                            (6)
+                                                                                                                  (4)                   (5)
+
+     TLV1701AIDBVR       Active    Production     SOT-23 (DBV) | 5     3000 | LARGE T&R         Yes          NIPDAU | SN        Level-1-260C-UNLIM     -40 to 125       ZAYF
+    TLV1701AIDBVR.B      Active    Production     SOT-23 (DBV) | 5     3000 | LARGE T&R         Yes            NIPDAU           Level-1-260C-UNLIM     -40 to 125       ZAYF
+  TLV1701AIDBVRG4.B      Active    Production     SOT-23 (DBV) | 5     3000 | LARGE T&R          -              Call TI               Call TI          -40 to 125       ZAYF
+     TLV1701AIDBVT       Active    Production     SOT-23 (DBV) | 5      250 | SMALL T&R         Yes          NIPDAU | SN        Level-1-260C-UNLIM     -40 to 125       ZAYF
+    TLV1701AIDBVT.B      Active    Production     SOT-23 (DBV) | 5      250 | SMALL T&R         Yes            NIPDAU           Level-1-260C-UNLIM     -40 to 125       ZAYF
+     TLV1701AIDCKR       Active    Production      SC70 (DCK) | 5      3000 | LARGE T&R         Yes      NIPDAU | SN | POST- Level-2-260C-1 YEAR       -40 to 125     (CD5, SIR)
+                                                                                                            PLAT AG SPOT
+    TLV1701AIDCKR.B      Active    Production      SC70 (DCK) | 5      3000 | LARGE T&R         Yes            NIPDAU           Level-2-260C-1 YEAR    -40 to 125     (CD5, SIR)
+   TLV1701AIDCKRG4       Active    Production      SC70 (DCK) | 5      3000 | LARGE T&R         Yes            NIPDAU           Level-2-260C-1 YEAR    -40 to 125        SIR
+  TLV1701AIDCKRG4.B      Active    Production      SC70 (DCK) | 5      3000 | LARGE T&R         Yes            NIPDAU           Level-2-260C-1 YEAR    -40 to 125        SIR
+     TLV1701AIDCKT       Active    Production      SC70 (DCK) | 5       250 | SMALL T&R         Yes      NIPDAU | SN | POST- Level-2-260C-1 YEAR       -40 to 125        SIR
+                                                                                                            PLAT AG SPOT
+    TLV1701AIDCKT.B      Active    Production      SC70 (DCK) | 5       250 | SMALL T&R         Yes            NIPDAU           Level-2-260C-1 YEAR    -40 to 125        SIR
+     TLV1701AIDRLR       Active    Production     SOT-5X3 (DRL) | 5    4000 | LARGE T&R         Yes           NIPDAUAG          Level-1-260C-UNLIM     -40 to 125        SIS
+    TLV1701AIDRLR.B      Active    Production     SOT-5X3 (DRL) | 5    4000 | LARGE T&R         Yes           NIPDAUAG          Level-1-260C-UNLIM     -40 to 125        SIS
+     TLV1701AIDRLT       Active    Production     SOT-5X3 (DRL) | 5     250 | SMALL T&R         Yes           NIPDAUAG          Level-1-260C-UNLIM     -40 to 125        SIS
+    TLV1701AIDRLT.B      Active    Production     SOT-5X3 (DRL) | 5     250 | SMALL T&R         Yes           NIPDAUAG          Level-1-260C-UNLIM     -40 to 125        SIS
+     TLV1702AIDGK        Active    Production     VSSOP (DGK) | 8          80 | TUBE            Yes           NIPDAUAG          Level-1-260C-UNLIM     -40 to 125       1702
+    TLV1702AIDGK.B       Active    Production     VSSOP (DGK) | 8          80 | TUBE            Yes           NIPDAUAG          Level-1-260C-UNLIM     -40 to 125       1702
+     TLV1702AIDGKR       Active    Production     VSSOP (DGK) | 8      2500 | LARGE T&R         Yes          NIPDAU | SN        Level-1-260C-UNLIM     -40 to 125       1702
+                                                                                                             | NIPDAUAG
+    TLV1702AIDGKR.B      Active    Production     VSSOP (DGK) | 8      2500 | LARGE T&R         Yes            NIPDAU           Level-1-260C-UNLIM     -40 to 125       1702
+   TLV1702AIDGKRG4       Active    Production     VSSOP (DGK) | 8      2500 | LARGE T&R         Yes            NIPDAU           Level-1-260C-UNLIM     -40 to 125       1702
+  TLV1702AIDGKRG4.B      Active    Production     VSSOP (DGK) | 8      2500 | LARGE T&R         Yes            NIPDAU           Level-1-260C-UNLIM     -40 to 125       1702
+     TLV1702AIRUGR       Active    Production     X2QFN (RUG) | 8      3000 | LARGE T&R         Yes        Call TI | Nipdauag   Level-1-260C-UNLIM     -40 to 125        FC
+   TLV1702AIRUGR.B       Active    Production     X2QFN (RUG) | 8      3000 | LARGE T&R         Yes           NIPDAUAG          Level-1-260C-UNLIM     -40 to 125        FC
+      TLV1704AIPW        Active    Production     TSSOP (PW) | 14          90 | TUBE            Yes            NIPDAU           Level-2-260C-1 YEAR    -40 to 125      TL1704
+     TLV1704AIPW.B       Active    Production     TSSOP (PW) | 14          90 | TUBE            Yes            NIPDAU           Level-2-260C-1 YEAR    -40 to 125      TL1704
+     TLV1704AIPWR        Active    Production     TSSOP (PW) | 14      2000 | LARGE T&R         Yes            NIPDAU           Level-2-260C-1 YEAR    -40 to 125      TL1704
+    TLV1704AIPWR.B       Active    Production     TSSOP (PW) | 14      2000 | LARGE T&R         Yes            NIPDAU           Level-2-260C-1 YEAR    -40 to 125      TL1704
+
+
+                                                                                       Addendum-Page 1
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                   20-Aug-2026
+
+
+
+
+       Orderable part number          Status     Material type      Package | Pins      Package qty | Carrier        RoHS             Lead finish/              MSL rating/               Op temp (°C)          Part marking
+                                        (1)            (2)                                                             (3)            Ball material             Peak reflow                                           (6)
+                                                                                                                                            (4)                      (5)
+
+         TLV1704AIPWRG4               Active      Production       TSSOP (PW) | 14       2000 | LARGE T&R             Yes                NIPDAU           Level-2-260C-1 YEAR              -40 to 125              TL1704
+        TLV1704AIPWRG4.B              Active      Production       TSSOP (PW) | 14       2000 | LARGE T&R             Yes                NIPDAU           Level-2-260C-1 YEAR              -40 to 125              TL1704
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+OTHER QUALIFIED VERSIONS OF TLV1701, TLV1702, TLV1704 :
+
+• Automotive : TLV1701-Q1, TLV1702-Q1, TLV1704-Q1
+
+NOTE: Qualified Version Definitions:
+
+
+
+
+                                                                                                          Addendum-Page 2
+                                                                                                                      PACKAGE OPTION ADDENDUM
+
+www.ti.com                                                                                                                              20-Aug-2026
+
+
+
+
+   • Automotive - Q100 devices qualified for high-reliability automotive applications targeting zero defects
+
+
+
+
+                                                                                                    Addendum-Page 3
+                                                                                 PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                                                         10-Aug-2026
+
+
+
+TAPE AND REEL INFORMATION
+
+       REEL DIMENSIONS                                                                        TAPE DIMENSIONS
+                                                                                         K0         P1
+
+
+
+                                                                                                                           B0 W
+                                          Reel
+                                        Diameter
+                                                                                      Cavity             A0
+                                                                  A0   Dimension designed to accommodate the component width
+                                                                  B0   Dimension designed to accommodate the component length
+                                                                  K0   Dimension designed to accommodate the component thickness
+                                                                  W    Overall width of the carrier tape
+                                                                  P1   Pitch between successive cavity centers
+
+
+                                         Reel Width (W1)
+                              QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                          Sprocket Holes
+
+
+                                                   Q1        Q2          Q1    Q2
+
+                                                   Q3        Q4          Q3    Q4                    User Direction of Feed
+
+
+
+                                                              Pocket Quadrants
+
+
+*All dimensions are nominal
+             Device           Package Package Pins                SPQ        Reel   Reel   A0                    B0         K0     P1     W     Pin1
+                               Type Drawing                                Diameter Width (mm)                  (mm)       (mm)   (mm)   (mm) Quadrant
+                                                                             (mm) W1 (mm)
+     TLV1701AIDBVR            SOT-23      DBV           5         3000        178.0           8.4        3.2     3.2       1.4    4.0    8.0     Q3
+     TLV1701AIDBVT            SOT-23      DBV           5          250        180.0           8.4        3.2     3.2       1.4    4.0    8.0     Q3
+     TLV1701AIDCKR             SC70       DCK           5         3000        178.0           8.4        2.25   2.45       1.2    4.0    8.0     Q3
+   TLV1701AIDCKRG4             SC70       DCK           5         3000        178.0           9.0        2.4     2.5       1.2    4.0    8.0     Q3
+     TLV1701AIDCKT             SC70       DCK           5          250        180.0           8.4        2.3    2.55       1.2    4.0    8.0     Q3
+     TLV1701AIDRLR            SOT-5X3     DRL           5         4000        180.0           8.4        1.98   1.78       0.69   4.0    8.0     Q3
+     TLV1701AIDRLT            SOT-5X3     DRL           5          250        180.0           8.4        1.98   1.78       0.69   4.0    8.0     Q3
+    TLV1702AIDGKR             VSSOP       DGK           8         2500        330.0        12.4          5.3     3.4       1.4    8.0    12.0    Q1
+   TLV1702AIDGKRG4            VSSOP       DGK           8         2500        330.0        12.4          5.3     3.4       1.4    8.0    12.0    Q1
+    TLV1702AIRUGR             X2QFN       RUG           8         3000        180.0           8.4        1.6     1.6       0.66   4.0    8.0     Q2
+     TLV1704AIPWR             TSSOP        PW           14        2000        330.0        12.4          6.9     5.6       1.6    8.0    12.0    Q1
+    TLV1704AIPWRG4            TSSOP        PW           14        2000        330.0        12.4          6.9     5.6       1.6    8.0    12.0    Q1
+
+
+
+
+                                                                         Pack Materials-Page 1
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                              10-Aug-2026
+
+
+
+ TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                               Width (mm)
+                                                                              H
+                      W
+
+
+
+
+                                                          L
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins         SPQ    Length (mm)   Width (mm)   Height (mm)
+     TLV1701AIDBVR              SOT-23            DBV           5           3000      208.0        191.0         35.0
+     TLV1701AIDBVT              SOT-23            DBV           5           250       210.0        185.0         35.0
+     TLV1701AIDCKR               SC70             DCK           5           3000      208.0        191.0         35.0
+   TLV1701AIDCKRG4               SC70             DCK           5           3000      190.0        190.0         30.0
+     TLV1701AIDCKT               SC70             DCK           5           250       210.0        185.0         35.0
+     TLV1701AIDRLR              SOT-5X3           DRL           5           4000      202.0        201.0         28.0
+     TLV1701AIDRLT              SOT-5X3           DRL           5           250       202.0        201.0         28.0
+     TLV1702AIDGKR              VSSOP             DGK           8           2500      353.0        353.0         32.0
+   TLV1702AIDGKRG4              VSSOP             DGK           8           2500      353.0        353.0         32.0
+     TLV1702AIRUGR               X2QFN            RUG           8           3000      202.0        201.0         28.0
+      TLV1704AIPWR              TSSOP              PW           14          2000      353.0        353.0         32.0
+    TLV1704AIPWRG4              TSSOP              PW           14          2000      353.0        353.0         32.0
+
+
+
+
+                                                        Pack Materials-Page 2
+                                                                 PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                   10-Aug-2026
+
+
+
+TUBE
+
+       T - Tube
+        height                                                     L - Tube length
+
+
+                      W - Tube
+                       width
+
+
+         B - Alignment groove width
+
+*All dimensions are nominal
+             Device           Package Name   Package Type   Pins       SPQ     L (mm)   W (mm)   T (µm)   B (mm)
+      TLV1702AIDGK                DGK          VSSOP         8          80      330      6.55     500      2.88
+     TLV1702AIDGK.B               DGK          VSSOP         8          80      330      6.55     500      2.88
+      TLV1704AIPW                 PW           TSSOP         14         90      530      10.2    3600      3.5
+     TLV1704AIPW.B                PW           TSSOP         14         90      530      10.2    3600      3.5
+
+
+
+
+                                                       Pack Materials-Page 3
+                                                                                                            PACKAGE OUTLINE
+DBV0005A                                                          SCALE 4.000
+                                                                                                     SOT-23 - 1.45 mm max height
+                                                                                                              SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                            3.0                                                                       C
+                                            2.6
+                                          1.75                                                                0.1 C
+                                                           B                               A
+                                          1.45
+            PIN 1
+      INDEX AREA
+
+                        1                                        5
+
+
+              2X 0.95                                            (0.1)
+                                                                                          3.05
+                                                                                          2.75
+        1.9                                                                         1.9
+                        2
+                                                                 (0.15)
+
+
+
+                                                                 4
+                            3
+              0.5
+           5X
+              0.3
+                                                                                                                             0.15
+               0.2      C A B                                                   NOTE 5           4X 0 -15      (1.1)              TYP
+                                                                                                                             0.00
+                                                                                                                1.45
+                                                                                                                0.90
+                                                               4X 4 -15
+
+
+
+          0.25
+ GAGE PLANE                                                                          0.22
+                                                                                          TYP
+                                                                                     0.08
+
+
+
+   8
+     TYP                          0.6
+   0                                  TYP            SEATING PLANE
+                                  0.3
+
+
+
+
+                                                                                                                          4214839/K 08/2024
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. Refernce JEDEC MO-178.
+4. Body dimensions do not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.25 mm per side.
+5. Support pin may differ or may not be present.
+
+
+
+
+                                                                                www.ti.com
+                                                                               EXAMPLE BOARD LAYOUT
+DBV0005A                                                                             SOT-23 - 1.45 mm max height
+                                                                                                     SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 5X (1.1)
+                                             1
+                                                                                         5
+                                  5X (0.6)
+
+
+                                                                                             SYMM
+                                                                                                     (1.9)
+                                             2
+                              2X (0.95)
+
+
+                                             3                                           4
+
+                             (R0.05) TYP                         (2.6)
+
+
+                                                     LAND PATTERN EXAMPLE
+                                                       EXPOSED METAL SHOWN
+                                                            SCALE:15X
+
+
+
+
+                                                                                                         SOLDER MASK
+                 SOLDER MASK                     METAL                   METAL UNDER                     OPENING
+                 OPENING                                                 SOLDER MASK
+
+
+
+
+         EXPOSED METAL                                        EXPOSED METAL
+
+                                          0.07 MAX                                           0.07 MIN
+                                          ARROUND                                            ARROUND
+
+                                NON SOLDER MASK                                        SOLDER MASK
+                                    DEFINED                                              DEFINED
+                                  (PREFERRED)
+
+                                                      SOLDER MASK DETAILS
+
+
+
+
+                                                                                                               4214839/K 08/2024
+
+NOTES: (continued)
+
+6. Publication IPC-7351 may have alternate designs.
+7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+ DBV0005A                                                                              SOT-23 - 1.45 mm max height
+                                                                                                       SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 5X (1.1)
+                                             1
+                                                                                         5
+                                  5X (0.6)
+
+
+
+                                                                                             SYMM
+                                             2                                                      (1.9)
+                             2X(0.95)
+
+
+                                             3                                           4
+
+                            (R0.05) TYP
+                                                                (2.6)
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                 BASED ON 0.125 mm THICK STENCIL
+                                                            SCALE:15X
+
+
+
+
+                                                                                                                   4214839/K 08/2024
+
+NOTES: (continued)
+
+8. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+9. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                                                                                                PACKAGE OUTLINE
+DCK0005A                                                           SCALE 5.600
+                                                                                                                    SOT - 1.1 max height
+                                                                                                                     SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                                                                             C
+                                                2.4
+                                                1.8                                                                          0.1 C
+                                                1.4
+                                                               B                                     A                  1.1 MAX
+                       PIN 1                    1.1
+                 INDEX AREA
+
+                                  1                                              5
+
+
+                        2X 0.65                                                  NOTE 4
+
+                                                                                                 2.15
+                  1.3                                         (0.15)                       1.3
+                                  2                                                              1.85
+
+                                                                          (0.1)
+
+                                                                                 4
+                      0.33            3
+                   5X
+                      0.15
+           0.1      C A B                                                                                4X 0 -12                        0.1
+                                                                                                                         (0.9)               TYP
+                   NOTE 5                                                                                                                0.0
+
+
+
+
+                                                                     4X 4 -15
+
+
+
+                    0.15
+          GAGE PLANE                                                                      0.22
+                                                                                               TYP
+                                                                                          0.08
+
+
+
+            8                              0.46
+              TYP                               TYP
+            0                              0.26
+                                                             SEATING PLANE
+
+
+
+
+                                                                                                                                 4214834/G 11/2024
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. Refernce JEDEC MO-203.
+4. Support pin may differ or may not be present.
+5. Lead width does not comply with JEDEC.
+6. Body dimensions do not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not exceed
+   0.25mm per side
+
+
+
+
+                                                                                 www.ti.com
+                                                                               EXAMPLE BOARD LAYOUT
+DCK0005A                                                                                             SOT - 1.1 max height
+                                                                                                      SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 5X (0.95)
+
+                                             1
+                                                                                         5
+                                  5X (0.4)
+
+
+                                                                                          SYMM
+                                                                                                     (1.3)
+                                             2
+                             2X (0.65)
+
+                                             3                                           4
+
+                            (R0.05) TYP                          (2.2)
+
+
+                                                    LAND PATTERN EXAMPLE
+                                                        EXPOSED METAL SHOWN
+                                                             SCALE:18X
+
+
+
+
+                                                                                                             SOLDER MASK
+                 SOLDER MASK                      METAL                  METAL UNDER                         OPENING
+                 OPENING                                                 SOLDER MASK
+
+
+
+           EXPOSED METAL                                       EXPOSED METAL
+
+
+                                         0.07 MAX                                            0.07 MIN
+                                         ARROUND                                             ARROUND
+
+                                NON SOLDER MASK                                        SOLDER MASK
+                                    DEFINED                                              DEFINED
+                                  (PREFERRED)
+
+                                                      SOLDER MASK DETAILS
+
+
+
+
+                                                                                                                   4214834/G 11/2024
+
+NOTES: (continued)
+
+7. Publication IPC-7351 may have alternate designs.
+8. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+ DCK0005A                                                                                            SOT - 1.1 max height
+                                                                                                       SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                5X (0.95)
+                                            1
+                                                                                         5
+                                 5X (0.4)
+
+
+                                                                                             SYMM
+                                                                                                    (1.3)
+                                            2
+                             2X(0.65)
+
+                                            3                                            4
+
+                           (R0.05) TYP
+                                                                (2.2)
+
+                                                  SOLDER PASTE EXAMPLE
+                                                  BASED ON 0.125 THICK STENCIL
+                                                          SCALE:18X
+
+
+
+
+                                                                                                                   4214834/G 11/2024
+
+NOTES: (continued)
+
+9. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+10. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                                                                                        PACKAGE OUTLINE
+DGK0008A                                                 SCALE 4.000
+                                                                                                VSSOP - 1.1 mm max height
+                                                                                                                 SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                                                                   C
+                                          5.05
+                                               TYP
+          A                               4.75
+                                                                                                               0.1 C
+                                               PIN 1 INDEX AREA
+                                                                                                                                      SEATING
+                                                                                                                                      PLANE
+                                                                                         6X 0.65
+                                                                              8
+                1
+
+
+                                                                                            2X
+        3.1
+                                                                                           1.95
+        2.9
+       NOTE 3
+
+
+                4
+                                                                              5                 0.38
+                                                                                           8X
+                                                                                                0.25
+                                            3.1                                                  0.13   C A B
+                     B
+                                            2.9
+                                           NOTE 4
+
+
+
+
+                                                                                         0.23
+                                                                                         0.13
+
+
+
+
+                                          SEE DETAIL A
+                                                                                                   0.25
+                                                                                                   GAGE PLANE
+
+                                                                                                                                        1.1 MAX
+
+
+
+
+                                                                                                         0.7                              0.15
+                                                                                  0 -8                   0.4                              0.05
+                                                                                                                   DETAIL A
+                                                                                                                         A 20
+
+
+
+
+                                                                                                                       TYPICAL
+
+                                                                                                                                4214862/A 04/2023
+                                                                                                PowerPAD is a trademark of Texas Instruments.
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+4. This dimension does not include interlead flash. Interlead flash shall not exceed 0.25 mm per side.
+5. Reference JEDEC registration MO-187.
+
+
+
+
+                                                                       www.ti.com
+                                                                                          EXAMPLE BOARD LAYOUT
+                                                                                             TM
+DGK0008A                                                                                          VSSOP - 1.1 mm max height
+                                                                                                                  SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                            SYMM
+                                        8X (1.4)                                                                    (R0.05) TYP
+
+
+
+                    8X (0.45)    1                                                                          8
+
+
+
+                                                                                                                 SYMM
+
+
+
+                       6X (0.65)
+                                                                                                            5
+                                   4
+
+
+                                                                                                                SEE DETAILS
+
+                                                                            (4.4)
+
+                                                       LAND PATTERN EXAMPLE
+                                                          EXPOSED METAL SHOWN
+                                                               SCALE: 15X
+
+
+
+
+                   SOLDER MASK                                                      METAL UNDER                   SOLDER MASK
+                                                      METAL
+                       OPENING                                                      SOLDER MASK                   OPENING
+
+
+          EXPOSED METAL                                                                                                  EXPOSED METAL
+
+                                        0.05 MAX                                                        0.05 MIN
+                                        ALL AROUND                                                      ALL AROUND
+
+                                NON-SOLDER MASK                                                    SOLDER MASK
+                                    DEFINED                                                          DEFINED
+                                  (PREFERRED)
+                                                           SOLDER MASK DETAILS
+                                                                   15.000
+
+
+
+
+                                                                                                                            4214862/A 04/2023
+NOTES: (continued)
+
+ 6. Publication IPC-7351 may have alternate designs.
+ 7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+ 8. Vias are optional depending on application, refer to device data sheet. If any vias are implemented, refer to their locations shown
+    on this view. It is recommended that vias under paste be filled, plugged or tented.
+ 9. Size of metal pad may vary due to creepage requirement.
+
+
+
+
+                                                                             www.ti.com
+                                                                              EXAMPLE STENCIL DESIGN
+                                                                                     TM
+DGK0008A                                                                                  VSSOP - 1.1 mm max height
+                                                                                                         SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                SYMM
+
+                                        8X (1.4)                                                            (R0.05) TYP
+
+
+                     8X (0.45)      1                                                                8
+
+
+
+                                                                                                         SYMM
+
+
+
+                        6X (0.65)
+                                                                                                     5
+                                    4
+
+
+
+
+                                                                 (4.4)
+
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                              SCALE: 15X
+
+
+
+
+                                                                                                                  4214862/A 04/2023
+NOTES: (continued)
+
+11. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+12. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                 www.ti.com
+                                                                                                                PACKAGE OUTLINE
+ DRL0005A                                                         SCALE 8.000
+                                                                                                                SOT - 0.6 mm max height
+                                                                                                                        PLASTIC SMALL OUTLINE
+
+
+
+
+                                               1.7
+                                               1.5
+                                                     PIN 1                          A
+                                                     ID AREA
+
+
+                            1
+                                                                                5
+
+                   2X 0.5
+
+                                                                                  1.7
+           2X 1
+                                                                                  1.5
+                                                                                 NOTE 3
+
+
+                                                                                4                           2X 0 -10
+                            3
+
+
+
+                                               1.3                                       0.3                           0.05
+                                B                                                   5X                                      TYP
+                                               1.1                                       0.1                           0.00
+
+                                                                                2X 4 -15
+
+
+
+               0.6 MAX                                                                         C
+
+                                                                                                   SEATING PLANE
+                 0.18
+              5X                                                                                   0.05 C
+                 0.08
+                                             SYMM
+
+
+
+
+                   SYMM
+
+
+
+
+                                                                                               0.27
+                                                                                         5X
+                                                                                               0.15
+                                                          0.4                                    0.1    C A B
+                                                     5X
+                                                          0.2                                    0.05    C
+                                                                                                                                  4220753/E 11/2024
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+4. Reference JEDEC registration MO-293 Variation UAAD-1
+
+
+
+
+                                                                                www.ti.com
+                                                                                EXAMPLE BOARD LAYOUT
+DRL0005A                                                                                    SOT - 0.6 mm max height
+                                                                                                             PLASTIC SMALL OUTLINE
+
+
+
+
+                                                5X (0.67)       SYMM
+                                            1
+                                                                                            5
+                                 5X (0.3)
+
+
+
+                                                                                                SYMM
+                                                                                                       (1)
+
+                               2X (0.5)
+
+
+                                            3                                               4
+
+                          (R0.05) TYP
+                                                                 (1.48)
+
+
+                                                    LAND PATTERN EXAMPLE
+                                                              SCALE:30X
+
+
+
+
+                   0.05 MAX                                               0.05 MIN
+                   AROUND                                                 AROUND
+
+
+
+
+                 SOLDER MASK                        METAL                 METAL UNDER                    SOLDER MASK
+                 OPENING                                                  SOLDER MASK                    OPENING
+                               NON SOLDER MASK                                          SOLDER MASK
+                                   DEFINED                                                DEFINED
+                                 (PREFERRED)
+
+                                                       SOLDERMASK DETAILS
+
+
+
+
+                                                                                                                  4220753/E 11/2024
+
+NOTES: (continued)
+
+5. Publication IPC-7351 may have alternate designs.
+6. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                 www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+ DRL0005A                                                                                    SOT - 0.6 mm max height
+                                                                                                            PLASTIC SMALL OUTLINE
+
+
+
+
+                                                  5X (0.67)
+                                                                   SYMM
+                                              1
+                                                                                                5
+                                   5X (0.3)
+
+
+
+                                                                                                    SYMM
+                                                                                                           (1)
+
+                                2X (0.5)
+
+
+                                              3                                                4
+
+                           (R0.05) TYP
+                                                                   (1.48)
+
+
+                                                      SOLDER PASTE EXAMPLE
+                                                     BASED ON 0.1 mm THICK STENCIL
+                                                              SCALE:30X
+
+
+
+
+                                                                                                                   4220753/E 11/2024
+
+NOTES: (continued)
+
+7. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+8. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                                                                                           PACKAGE OUTLINE
+PW0014A                                                        SCALE 2.500
+                                                                                                    TSSOP - 1.2 mm max height
+                                                                                                                         SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                                                                                        SEATING
+                                                                                                                                        PLANE
+                                       6.6                                                                                C
+                                           TYP
+          A                            6.2
+                                                                                                                                          0.1 C
+                                          PIN 1 INDEX AREA
+                                                                                      12X 0.65
+                                                                              14
+                1
+
+
+
+
+                                                                                      2X
+        5.1                                                                           3.9
+        4.9
+       NOTE 3
+
+
+                                                                                                           4X (0 -12 )
+                7
+                                                                              8
+                                                                                            0.30
+                                                                                      14X
+                                                                                            0.17
+                                        4.5                                                                              1.2 MAX
+                    B                                                                     0.1      C A B
+                                        4.3
+                                       NOTE 4
+
+
+
+
+                                                          (0.15) TYP
+                                     SEE DETAIL A
+
+                                                                                    0.25
+                                                                             GAGE PLANE
+                                                                                                                                          0.15
+                                                                                                                                          0.05
+
+
+
+                                                                                                      0.75
+                                                                                                      0.50
+                                                                                      0 -8
+                                                                                                                    DETAIL A
+                                                                                                                          A 20
+
+
+
+
+                                                                                                                     TYPICAL
+
+                                                                                                                                   4220202/B 12/2023
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+4. This dimension does not include interlead flash. Interlead flash shall not exceed 0.25 mm per side.
+5. Reference JEDEC registration MO-153.
+
+
+
+
+                                                                             www.ti.com
+                                                                                    EXAMPLE BOARD LAYOUT
+PW0014A                                                                                 TSSOP - 1.2 mm max height
+                                                                                                        SMALL OUTLINE PACKAGE
+
+
+
+
+                                            14X (1.5)                  SYMM
+                                                                                                     (R0.05) TYP
+                                       1
+                           14X (0.45)                                                          14
+
+
+
+
+                                                                                                     SYMM
+
+
+
+                          12X (0.65)
+
+
+                                        7                                                      8
+
+
+
+                                                                       (5.8)
+
+
+                                                        LAND PATTERN EXAMPLE
+                                                          EXPOSED METAL SHOWN
+                                                               SCALE: 10X
+
+
+
+
+             SOLDER MASK                                                       METAL UNDER                  SOLDER MASK
+                                METAL                                          SOLDER MASK                  OPENING
+                 OPENING
+
+
+
+     EXPOSED METAL                                                                                                 EXPOSED METAL
+
+                                0.05 MAX                                                       0.05 MIN
+                                ALL AROUND                                                     ALL AROUND
+
+                          NON-SOLDER MASK                                                    SOLDER MASK
+                              DEFINED                                                          DEFINED
+                            (PREFERRED)                  SOLDER MASK DETAILS
+                                                              15.000
+
+
+
+
+                                                                                                                   4220202/B 12/2023
+NOTES: (continued)
+
+6. Publication IPC-7351 may have alternate designs.
+7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                       www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+PW0014A                                                                                 TSSOP - 1.2 mm max height
+                                                                                                           SMALL OUTLINE PACKAGE
+
+
+
+
+                                            14X (1.5)           SYMM
+                                                                                                      (R0.05) TYP
+                                       1
+                           14X (0.45)                                                           14
+
+
+
+
+                                                                                                    SYMM
+
+
+
+                          12X (0.65)
+
+
+                                        7                                                       8
+
+
+
+                                                                 (5.8)
+
+
+
+                                                        SOLDER PASTE EXAMPLE
+                                                    BASED ON 0.125 mm THICK STENCIL
+                                                              SCALE: 10X
+
+
+
+
+                                                                                                                    4220202/B 12/2023
+NOTES: (continued)
+
+8. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+9. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                 www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2026, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

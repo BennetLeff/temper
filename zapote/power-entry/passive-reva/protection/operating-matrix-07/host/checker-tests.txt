@@ -1,0 +1,16 @@
+
+running 11 tests
+test tests::malformed_nonfinite_rejected ... ok
+test tests::malformed_truncated ... ok
+test tests::mostly_off_healthy_is_stop ... ok
+test tests::oscillating_bus_mean_flat_is_stop ... ok
+test tests::startup_stress_is_not_hidden_by_settled_window ... ok
+test tests::flat_off ... ok
+test tests::truncated_but_three_cycle_trace_is_rejected ... ok
+test tests::wrong_sign ... ok
+test tests::sine_nonuniform ... ok
+test tests::derived_energy_overflow_is_rejected ... ok
+test tests::output_above_input_beyond_storage_is_stop ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

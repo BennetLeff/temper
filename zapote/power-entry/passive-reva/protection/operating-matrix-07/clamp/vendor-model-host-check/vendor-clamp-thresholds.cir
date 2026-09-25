@@ -1,0 +1,27 @@
+* Temperature-indexed shunt sweep for effective controller-side SOC/PCL trips.
+* The sweep is a model fixture, not a silicon threshold measurement.
+.title Diodes Inc BAV23C effective current-limit threshold sweep
+.include diodes-bav23c.spice.txt
+VSHUNT shunt 0 DC -0.438
+RIN shunt isense 220
+DCLAMP 0 isense DI_BAV23C
+.control
+set noaskquit
+set filetype=ascii
+set temp=-40
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata threshold_m40.tsv v(shunt) v(isense)
+set temp=-20
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata threshold_m20.tsv v(shunt) v(isense)
+set temp=25
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata threshold_25.tsv v(shunt) v(isense)
+set temp=85
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata threshold_85.tsv v(shunt) v(isense)
+set temp=125
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata threshold_125.tsv v(shunt) v(isense)
+.endc
+.end

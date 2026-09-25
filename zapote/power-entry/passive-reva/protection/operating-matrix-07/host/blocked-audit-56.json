@@ -1,0 +1,45 @@
+{
+  "at_utc": "2026-09-21T20:11:33.632854+00:00",
+  "status": "BLOCKED_AUDIT_THRESHOLD_SATISFIED",
+  "goal_complete": false,
+  "previous_turn_classification": "progress: bounded bypass diagnostic and terminal-graph readiness",
+  "same_condition_consecutive_goal_turns": 3,
+  "history": [
+    "faults/settled-direct-capture-51/gate-attempt-54.json",
+    "faults/settled-direct-capture-51/gate-attempt-55.json",
+    "faults/settled-direct-capture-51/gate-attempt-56.json"
+  ],
+  "current_free_bytes": 12212097024,
+  "required_total_free_bytes": 17179869184,
+  "additional_free_bytes_needed_now": 4967772160,
+  "runtime_reserve_bytes": 10737418240,
+  "known_solver_process_inventory": "Host ps numericpid/comm filtered known campaign binaries and ngspice: exit0, no matching processes.",
+  "independent_luna_audit": "Inspected named current readiness, storage, and model records; found no authorized nonduplicative independent action to advance objective now. Worker used historical10.4GiB observation; parent current df/free gate is authoritative.",
+  "parent_corrections": [
+    "16GiB is total free capacity required, not an additional16GiB. Current shortage is about4.6GiB.",
+    "Model-gap reviews are complete, but material selected-part fidelity guarantees remain unresolved. They are not accepted merely because documented."
+  ],
+  "completed": [
+    "Source-bound cold-start/settled baseline",
+    "Nine discrete normal grid cases",
+    "Startup fault and settled F2-CREST modeled screens",
+    "Reviewed remaining fault sources/runners/diagnostics and interpretation limits"
+  ],
+  "incomplete": [
+    "Five settled fault captures with own prefix/phase/endpoint/stress evidence",
+    "Material manufacturer-selected component-model bounds beyond current limitations",
+    "Final full-campaign consolidation depends on pending results"
+  ],
+  "why_no_other_safe_action": "Controller/clamp diagnostics and readiness tools already completed; no hardware available; retained vendor/data attempts did not supply missing bounds. Existing storage triage found no authorized safe large cleanup target. Repeating completed runs/reviews, inventing extra tooling, deleting evidence, or lowering the reserve would not complete the objective.",
+  "unblock": "Provide at least16GiB total free on current volume (currently about4.6GiB more) or usable alternate archive storage; resume reviewed F2-ZERO launch51 with source/tool/inventory/free-space gates rechecked. Manufacturer data/model fidelity gaps remain separate.",
+  "evidence_sha256": {
+    "faults/settled-direct-capture-51/gate-attempt-54.json": "5341733f8c3873933be43b43172247dfb37f238def5c798178f15ee67ff96cba",
+    "faults/settled-direct-capture-51/gate-attempt-55.json": "39af7bacf6d41140e1c5d7f5c6d6b1b4ea28c785509da8493abe06b1f53d846b",
+    "faults/settled-direct-capture-51/gate-attempt-56.json": "36d970eb2cdcf485aa1c708af17f83d1509f7038add50807def34523d71de3ad",
+    "host/storage-options-52.md": "6c33b4ff934f670e7be0f80809a94c8ffc86837eb0a1e404157618dd5e909593",
+    "host/model-gap-parent-review-54.json": "a5a88f92a9d01f77f53e5cec18bc5243eed3663628317981906424da6357fd35",
+    "faults/terminal-branch-gate-55-parent.json": "7c52b0db3d9713b4e72f609fac5c9b27223e1ccfa1a5976aa6919cf83cceeea1",
+    "faults/bypass-observability-55/parent-review.json": "c559175bb6db3763f6811ceb22c86f4fe32f77bdb30b6b05d303160316edf953"
+  },
+  "active_children": "none; independent audit worker interrupted"
+}

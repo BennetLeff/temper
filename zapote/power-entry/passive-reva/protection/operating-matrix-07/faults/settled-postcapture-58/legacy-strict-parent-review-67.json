@@ -1,0 +1,19 @@
+{
+  "status": "PARENT_REVIEWED_CORRECTED_METADATA_COMPARISON",
+  "previous_session": 58897,
+  "previous_exit": 1,
+  "previous_output_created": false,
+  "cause": "jq decimal equality rejected round-trip f64 rendering of exactly the declared cutoff and gap. Confirmed cutoff_equal=false and gap_equal=false; binary64 parsing matches original CLI values exactly.",
+  "change": "Only selector parameter guard uses binary64 JSON decoding, preserving exact equality and same inequalities; no tolerance or scientific criteria change.",
+  "checks": [
+    "bash -n passed",
+    "shellcheck passed",
+    "Actual metadata equality passes; adjacent higher cutoff rejected"
+  ],
+  "files_sha256": {
+    "legacy-strict.sh": "79f5f0f52d882c0242111eedab33bf3e478cdc0af6cbe032a59adc2cd69ffc82",
+    "legacy-strict-67.sh": "9ebe2212e21458176f7011495cb1e65e1b7cc39bc23554b06c229c79e33b1d0d",
+    "legacy-strict-parent-review.json": "51109c6a2ea5e1516bbf3af021824af36d6ff0bf95c4ad2d03019f3170dee24e"
+  },
+  "accepted": false
+}

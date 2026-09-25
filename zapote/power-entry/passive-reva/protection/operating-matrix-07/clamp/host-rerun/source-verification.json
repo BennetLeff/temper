@@ -1,0 +1,14 @@
+{
+  "compiler": "atopile0.2.69",
+  "host_build_exit_code": 0,
+  "failed_assertion_marker": false,
+  "resolved_component_attributes_match_worker": true,
+  "note": "Absolute source address differs between isolated worker and canonical host; netlist bytes differ and are both retained. Engineering graph rechecked on host netlist.",
+  "sha256": {
+    "elec/src/power_entry_passive_reva.ato": "4d63a25896e3bd3ed9cb242c2d074a225de71acdb3351bfcbae24b2f73c6fdbb",
+    "build/default.net": "47a8db990d2aec1b338dea39f31fde9b58fac57014c52e198a183c1646767b33",
+    "build/default.csv": "8a03053637e9debff46a2c97004d0ea161decd78b5c85735cbf2a11a64beb69c",
+    "resolved-components.json": "36003710a325be26382815cc8c9c44bffd3171412772a9ec4f510045a5bc3c93",
+    "host-rerun/resolved-components.json": "a071903ee8b83da7e77130dd1cfe8ff56b92f5309a446a13ffc9829e2d5fe567"
+  }
+}

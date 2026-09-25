@@ -1,0 +1,25 @@
+{
+  "status": "EXPECTED_STRICT_REJECTION",
+  "accepted": false,
+  "classification_reason": "REPEATED_TIMESTAMP",
+  "raw_before_sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+  "raw_after_sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+  "pipeline_status_order": [
+    "pigz",
+    "decoder",
+    "selector",
+    "normalizer",
+    "checker"
+  ],
+  "pipeline_statuses": [
+    141,
+    1,
+    1,
+    1,
+    1
+  ],
+  "checker_stderr": "checker.stderr",
+  "prefix_end_s": "0.649999987694090398",
+  "runner_exit": 1,
+  "transport_failures_are_not_acceptance": true
+}

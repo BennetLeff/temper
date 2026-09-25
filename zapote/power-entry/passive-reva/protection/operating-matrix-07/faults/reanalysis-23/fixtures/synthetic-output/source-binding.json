@@ -1,0 +1,21 @@
+{
+  "source_case":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/reanalysis-23/fixtures/synthetic-case",
+  "raw_trace_sha256":"8f21555eb330d13f30d77cc79465cefca39f3adbdc95a03697e3e7e85f6bf06e",
+  "capture_points":5,
+  "input_files":[
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/reanalysis-23/fixtures/synthetic-case/capture-metadata.json","sha256":"c047af07c2bab58472906f7542659104b1c06800c850a0e5950e75c193e704a7"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/reanalysis-23/fixtures/synthetic-case/capture-stage1.json","sha256":"6eec0d87461cf42a972dc064b250885b1810df82ba1f0f8b3dc729bb8d18f06e"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/reanalysis-23/fixtures/synthetic-case/case.cir","sha256":"e040ef5d894da651d00508f191104cdd2e2985770b81fdacca9ae84745992638"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/reanalysis-23/fixtures/synthetic-case/fixture.inc","sha256":"1364f6ce5b41b7ed89e03cf5014778318251ad093d94e628a62eaefd4e7b70c2"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/reanalysis-23/fixtures/synthetic-case/manifest.json","sha256":"3ec8bcb79824464f2b525bc4affad9e0aff564ab0ed38b9d2677d5ea88b2c283"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/reanalysis-23/fixtures/synthetic-case/raw.trace.raw.gz","sha256":"8f21555eb330d13f30d77cc79465cefca39f3adbdc95a03697e3e7e85f6bf06e"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/reanalysis-23/fixtures/synthetic-case/run-parameters.json","sha256":"b1fcf14a4ebfc4c244d730c5c620c4d65aea76e9c3be6fb45954e9e6df9030ed"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/reanalysis-23/fixtures/synthetic-case/source-identity.json","sha256":"6c7e6cca1c9cc674906dd6b4cba3e1e653673401634533a5ff709de660f3963e"}
+  ],
+  "tools":{
+    "pigz": {"path":"/opt/homebrew/Cellar/pigz/2.8_1/bin/pigz","sha256":"a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"},
+    "decoder": {"path":"/private/tmp/matrix07-fault-native-decoder-parent","sha256":"af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658"},
+    "adapter": {"path":"/private/tmp/matrix07-fault-adapter-parent","sha256":"53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae"},
+    "validator": {"path":"/private/tmp/matrix07-fault-validation22-parent","sha256":"63f6d17b123acd696c1f30fa546e7546ae43cf45cfb660cda44086bab3afb12f"}
+  }
+}

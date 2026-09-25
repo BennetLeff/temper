@@ -1,0 +1,38 @@
+{
+  "part": "760800301",
+  "vendor": "Würth Elektronik",
+  "catalog_page": "https://www.we-online.com/en/components/products/WE-TORPFC",
+  "official_model_entries": [
+    {
+      "format": "LTspice",
+      "listed_name": "LTSpice_WE-TORPFC (rev25a).zip",
+      "url": "https://www.we-online.com/components/products/download/LTSpice_WE-TORPFC%20%28rev25a%29.zip",
+      "catalog_revision": "25a"
+    },
+    {
+      "format": "PSpice",
+      "listed_name": "PSpice_WE-TORPFC (rev25a).zip",
+      "url": "https://www.we-online.com/components/products/download/PSpice_WE-TORPFC%20%28rev25a%29.zip",
+      "catalog_revision": "25a"
+    }
+  ],
+  "retrieval": {
+    "attempted_utc": "2026-09-21",
+    "result": "INACCESSIBLE_FROM_SANDBOX",
+    "attempts": [
+      {"url": "https://www.we-online.com/components/products/download/LTSpice_WE-TORPFC%20%28rev25a%29.zip", "error": "curl: (6) Could not resolve host: www.we-online.com"},
+      {"url": "https://www.we-online.com/components/products/download/PSpice_WE-TORPFC%20%28rev25a%29.zip", "error": "not attempted after first network failure"},
+      {"url": "https://www.we-online.com/components/products/datasheet/760800301.pdf", "error": "curl: (6) Could not resolve host: www.we-online.com"}
+    ],
+    "files_saved": false
+  },
+  "model_inspection": {
+    "exact_part_model_confirmed": false,
+    "equations_inspected": false,
+    "nonlinear_dc_bias_inspected": false,
+    "winding_resistance_temperature_core_loss_inspected": false,
+    "ngspice_compatibility_inspected": false,
+    "reason": "Official ZIP payloads were not retrievable in the current sandbox; catalog listing alone does not establish model contents or limits."
+  },
+  "no_model_claim": true
+}

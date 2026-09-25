@@ -1,0 +1,86 @@
+* B1/B2 source-bound controller-coupled reduced-order PFC witness.
+* Scope: rectified 120-VAC/60-Hz source, 1.2-ohm source impedance, 180-uH
+* boost, C3D-like diode, 22-uF (19.8-uF minimum) VD reservoir, F2, 2240-uF
+* VB bank, load, 10-mOhm return shunt/ISENSE filter and live UCC feedback.
+* The UCC model is conditional; see README.md and model-retrieval.log.
+.title UCC28180 closed-loop F2 integration witness
+.param VAC=120
+.param VPK={VAC*sqrt(2)}
+.param LBOOST=180u
+.param CLOCAL=19.8u
+.param CBANK=2240u
+.param RLOAD=220
+.param F2_OPEN=450u
+.param F2_CLOSE=800u
+
+* Rectified AC source and source impedance.  HOT0 is controller/MOS source.
+Vhot hot0 0 0
+Vline acp acn SINE(0 {VPK} 60 0 0 90)
+Rsourcep acp acp_r 600m
+Rsourcen acn acn_r 600m
+Dbr1 acp_r rect DBRIDGE
+Dbr2 bridge_minus acn_r DBRIDGE
+Dbr3 acn_r rect DBRIDGE
+Dbr4 bridge_minus acp_r DBRIDGE
+.model DBRIDGE D(IS=1e-12 N=1.2 RS=50m CJO=20p TT=50n BV=800 IBV=1u)
+
+* Rectifier-minus -> HOT0 return is the sole 10-mOhm shunt path.
+Rshunt bridge_minus hot0 10m
+Risense isense bridge_minus 220
+Cisense isense hot0 1n
+
+* CCM boost plant and finite-conductance switch/diode surrogates.
+Lboost rect sw {LBOOST} IC=0
+Dboost sw vd DBOOST
+.model DBOOST D(IS=1e-14 N=1.4 RS=20m CJO=45p M=0 VJ=1 TT=0 BV=650 IBV=1u)
+Sboost sw hot0 gate_int 0 SWMOS
+.model SWMOS SW(Ron=30m Roff=1G Vt=5 Vh=0.2)
+
+* Separate VD/VB energy domains and F2 between them.
+Clocal vd hot0 {CLOCAL} IC=390
+Rlocal vd hot0 450k
+Cbank vb hot0 {CBANK} IC=390
+Rbank vb hot0 10meg
+Rload vb hot0 {RLOAD}
+Vf2ctl f2ctl hot0 PWL(0 5 {F2_OPEN-1n} 5 {F2_OPEN} 0 {F2_CLOSE} 0)
+Sf2 vd vb f2ctl hot0 SWF2
+.model SWF2 SW(Ron=15m Roff=1G Vt=2.5 Vh=.1)
+
+* Actual UCC28180 feedback interfaces: 5x200k + 13k VB divider, 680-pF
+* VSENSE filter; 220-ohm + 1-nF ISENSE filter from the bridge-return shunt.
+Rfb1 vb vsense 1meg
+Rfb2 vsense hot0 13k
+Cvsense vsense hot0 680p
+Vcc vcc hot0 15
+Vfreq freq hot0 1.5
+
+* Independent VD/VB protection run permit is deliberately explicit, not a
+* PWM enable hiding a fixed source.  It trips when the F2 split becomes unsafe.
+Ctrip trip hot0 1u IC=0
+Btrip trip hot0 I={(V(vd)>430 || abs(V(vd)-V(vb))>25) ? -5m : ((V(trip)>0.1) ? 5m : 0)}
+Bprotect run hot0 V={(V(trip)>2.5) ? 0 : 5}
+
+.include ucc28180_behavioral.inc
+.save all
+.options method=gear reltol=2e-3 abstol=1e-9 vntol=1e-6
+.tran 100n 800u uic
+.control
+set filetype=ascii
+set wr_singlescale
+set wr_vecnames
+run
+meas tran vb_start FIND v(vb) AT=100u
+meas tran vb_preopen FIND v(vb) AT=440u
+meas tran vd_preopen FIND v(vd) AT=440u
+meas tran vb_end FIND v(vb) AT=790u
+meas tran vd_max MAX v(vd) FROM=450u TO=800u
+meas tran iin_rms RMS i(Vline) FROM=250u TO=440u
+meas tran gate_preopen AVG v(gate) FROM=400u TO=440u
+meas tran gate_postopen AVG v(gate) FROM=500u TO=700u
+meas tran run_postopen AVG v(run) FROM=500u TO=700u
+meas tran pcl_events MAX v(ucc_pcl) FROM=250u TO=440u
+wrdata integrated_closed_loop.tsv time v(acp) v(rect) v(sw) v(vd) v(vb) v(vsense) v(isense) v(vcomp) v(gate) v(gate_int) v(run) v(ucc_pcl) i(Lboost) i(Vline)
+write integrated_closed_loop.raw all
+quit
+.endc
+.end

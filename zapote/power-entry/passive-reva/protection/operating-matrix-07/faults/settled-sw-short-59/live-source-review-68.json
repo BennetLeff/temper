@@ -1,0 +1,45 @@
+{
+  "review": "live-source-review-68",
+  "case": "SW-SHORT",
+  "source_reference": "../settled-compact-prep-24/prepared/SW-SHORT",
+  "source_consistency": "PASS",
+  "hashes": {
+    "case_sha256": "3ba13389962a9550edcc7ca5486109f4793c6082e94a50fe18f0bc1f6f889ace",
+    "manifest_sha256": "840b9fbbf83bc91a8138bfd18101b55306146e21445968ccbbaa3864068679ad",
+    "closure_files": 6,
+    "closure_sha256_match": true,
+    "materialized_case_manifest_match": true
+  },
+  "parameters": {
+    "t_fault_s": 0.6541666666667,
+    "tstop_s": 0.662,
+    "mutation_s": 0.6541666666667,
+    "event_window_s": 0.002,
+    "observation_window_s": 0.002,
+    "turnoff_s": 0.000002,
+    "capture_max_gap_s": 0.000000025,
+    "outer_adapter_validator_max_gap_s": 0.000001,
+    "wall_seconds": 3600,
+    "export_timeout_s": 900,
+    "bypass": false,
+    "runner_kind": "switch-short",
+    "validator_kind": "switch-short"
+  },
+  "topology_checks": {
+    "f2_control": "Vf2ctl f2ctl 0 5; F2 held closed",
+    "failed_short_branch": "Sswfail sw channel_source swfail_ctl 0 SWFAIL",
+    "channel_source_instrumentation": "Vchannel channel_source 0 0",
+    "f2_opening_commanded": false
+  },
+  "live_progress": {
+    "wall_s": 30.210840,
+    "sim_s": 0.03254134531526526,
+    "percent": 4.915611,
+    "first_invalid": false,
+    "duplicate_count": 0,
+    "backwards_count": 0,
+    "nonfinite_time": false
+  },
+  "execution_status": "INCOMPLETE_LIVE_RUN",
+  "acceptance": false
+}

@@ -1,0 +1,32 @@
+--- a/elec/src/power_entry_passive_reva.ato
++++ b/elec/src/power_entry_passive_reva.ato
+@@ -120,10 +120,13 @@
+     signal A ~ pin 2
+ 
+ component PfcIsenseClamp:
+-    footprint = "Diode_SMD:D_SOD-123F"
+-    mpn = "BAT54H,115"
+-    signal A ~ pin 2
+-    signal K ~ pin 1
++    # Candidate only: qualify VF/current/temperature before release.
++    footprint = "Package_TO_SOT_SMD:SOT-23"
++    mpn = "BAV23C-E3-08"
++    datasheet = "https://www.vishay.com/docs/86374/bav23c.pdf"
++    signal A ~ pin 1
++    signal A_unused ~ pin 2  # Intentionally NC; use one die only.
++    signal K ~ pin 3
+ 
+ component PfcBridge:
+     footprint = "Diode_THT:Diode_Bridge_GBJ2510"
+@@ -427,8 +430,9 @@
+     r_isense.p2 ~ shunt.p2
+     pfc.ISENSE ~ c_isense.p1
+     c_isense.p2 ~ control_gnd
+-    isense_clamp.A ~ shunt.p2
+-    isense_clamp.K ~ control_gnd
++    # Negative ISENSE clamp AFTER the 220 ohm filter resistor.
++    isense_clamp.A ~ control_gnd
++    isense_clamp.K ~ pfc.ISENSE
+     pfc.GND ~ control_gnd
+     pfc.VCC ~ aux_15v
+     # AUX return is intentionally the HOT HV-minus reference.  The external

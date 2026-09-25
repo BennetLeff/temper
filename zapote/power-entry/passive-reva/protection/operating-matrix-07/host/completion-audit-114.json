@@ -1,0 +1,15 @@
+{
+  "status": "GOAL_COMPLETION_AUDIT_INCOMPLETE",
+  "objective_complete": false,
+  "requirements": {
+    "normal_matrix": {"status": "met_for_modeled_scope", "evidence": "operating-envelope-checkpoint-53.md and accepted receipts", "gap": "discrete authored model only; not continuous or hardware qualification"},
+    "fault_campaign": {"status": "incomplete", "evidence": {"sw": "bounded INDETERMINATE endpoint abort", "diode": "complete capture but detector-window FAIL; own prefix/phase accepted separately", "both": "complete capture/node-screen FAIL; prefix/phase candidate pending parent/legacy closure", "bypass": "live/unexecuted at audit time"}, "gap": "BOTH legacy/parent disposition and BYPASS full negative-control waveform review remain"},
+    "reproducibility": {"status": "interim", "evidence": "campaign-report-104.md, reproducibility-index-87.md, source/tool receipts", "gap": "final report/index must incorporate BOTH/BYPASS receipts, hashes, commands, margins, and failure reasons"},
+    "protection_implications": {"status": "partially evidenced", "evidence": "completion-requirements-parent-review-86.json, strategy-review-83, diode-short-strategy-parent-review-100, both-short-review-108", "gap": "failed-MOS interruption/restart and residual-energy requirements remain functional only"},
+    "model_bounds": {"status": "documented_not_closed", "evidence": "model-gap closeout, inductor audits72/73, clamp review, reference-parent-review-111", "gap": "no SOA/saturation/thermal/fuse/physical-controller qualification"}
+  },
+  "sw_short": {"disposition": "INDETERMINATE", "reason": "saved capture stopped at 0.6544026486296868 s before .662; prepared69 postcapture cannot manufacture missing endpoint evidence", "next": "retain; do not rerun without a parent-reviewed discriminating cause"},
+  "closure_checklist": ["terminate BOTH legacy witness and issue parent prefix/phase + FAIL disposition", "complete BYPASS capture, own prefix/phase, legacy witness, and waveform negative-control review", "run one final reproducibility/report/index audit with all source/tool/raw/report hashes", "retain model/reference/thermal/clamp/controller limits explicitly", "only then reassess objective completion"],
+  "power_gap": "The 1.8 kW nominal mains-input benchmark remains incompatible with the unchanged 15 A screen at low line by arithmetic; this is a design-scaling gap, not a hardware rating.",
+  "accepted": false
+}

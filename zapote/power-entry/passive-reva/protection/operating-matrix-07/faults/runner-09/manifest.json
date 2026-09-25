@@ -1,0 +1,54 @@
+{
+  "status": "PREPARED_TRANSPORT_ONLY_NOT_CAMPAIGN",
+  "purpose": "bounded supervisor for one materialized fault case",
+  "source": {
+    "supervisor_rs_sha256": "b8dd6add9259f8400177ff777231b91978cc65edeb4076a27c07d3435bc22c3d",
+    "binary": "/tmp/matrix07-fault-supervisor-09",
+    "binary_sha256": "6c0e6954e6d6d8ebf0fe9e35ed59503c55f3895ef7e3efbbf6ddc756bcdf116e",
+    "parent_tested_binary": "/private/tmp/matrix07-fault-supervisor-host",
+    "parent_tested_binary_sha256": "7f5819427007b22a8d57fd9943dca0ff871f95b8995f8ab9a3e7716dc9e93856"
+  },
+  "maintained_tools": {
+    "adapter_source_sha256": "2aa0efa4638724f1f02e413f66ba01c04d97f4e73a44a47991eac4d656553d0b",
+    "checker_source_sha256": "a94f3a7e5ac5bcae67d94a53afacf8338567eaf8b1870b2bf8db12121f25bc66",
+    "pigz": "/opt/homebrew/bin/pigz",
+    "pigz_sha256": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"
+  },
+  "protocol": {
+    "tracker_args": "DECK WALL_SECONDS TSTOP EXPORT_FIFO FIRST_INVALID_SNAPSHOT",
+    "adapter_args": "RAW CHECKED SUPPLEMENT REPORT TSTOP KIND MUTATION_S EVENT_WINDOW MAX_GAP",
+    "checker_args": "TRACE TSTOP KIND EXPECTED_FAULT DETECTOR_WINDOW TURNOFF_BUDGET OBSERVATION MAX_GAP",
+    "turnoff_budget_s": 2e-06,
+    "observation_s": "caller supplied; no fixed default"
+  },
+  "storage": {
+    "retained_raw": "raw.trace.tsv.gz",
+    "retained_normalized": false,
+    "supplemental": "/dev/null",
+    "fifo_cleanup": "all owned FIFOs removed on success and error"
+  },
+  "synthetic_smoke": {
+    "fixture": "42-column, 1001-row, 20us physical-shaped trace",
+    "classification": "checker_pass",
+    "adapter_report": "SCHEMA_AND_EVIDENCE_OK",
+    "raw_trace_sha256": "6e9e8c8d1869824b9e0a6cb2f8623d1c2d449b7e3e6b169f1bf02e381a84762a",
+    "result_sha256": "1fe549c179d478926949673b4d2d63fc4d7c0ea551de278b7c69e39ef5e95238",
+    "failing_adapter_fixture": "Parent /usr/bin/false exit1, stage2_transport_failure, no FIFO remained",
+    "failing_compressor_fixture": "Parent /usr/bin/false exit1, stage1_transport_failure, no FIFO remained",
+    "expected_gap_fixture": "switch-short synthetic42 classified expected_checker_protection_gap",
+    "early_checker_fixture": "Parent unit test confirms early checker failure reaps upstream promptly",
+    "missing_executable_fixture": "Parent missing tracker fails preflight exit1 with stderr; no result JSON and no FIFO"
+  },
+  "parent_verification": {
+    "unit_tests": "parent-tests.txt: 7 passed, 0 failed",
+    "integration": "parent-integration.json",
+    "failure_controls": "parent-failure-controls.json",
+    "early_checker_reap": true,
+    "categorical_gap_waits_for_upstream_reap": true,
+    "source_mutation_detected": true,
+    "unsupported_include_forms_fail_closed": true,
+    "unicode_json_controls_escaped": true
+  },
+  "campaign": "UNSTARTED",
+  "acceptance": "none; transport proof only"
+}

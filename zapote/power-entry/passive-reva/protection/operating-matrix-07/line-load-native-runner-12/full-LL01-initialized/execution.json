@@ -1,0 +1,48 @@
+{
+  "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+  "case": "LL01",
+  "line_v_rms": 108,
+  "rload_ohm": 416.460488957,
+  "target_end_s": 0.65,
+  "solver_wall_limit_s": 3600,
+  "minimum_free_bytes": 10737418240,
+  "tool_session": 38222,
+  "runner_pid": 98622,
+  "solver_pid": 98934,
+  "source_review": "../parent-review.json",
+  "runner_sha256": "09551942c747b3ff1aded2a8d399930914fd02fc53b732a5a6effc0af760b625",
+  "source_sha256": "745df038d0f4142b8a2322580e7aea493561ddf4e7737e83466ba3e5e9b50b9f",
+  "launch_environment": {
+    "SPICE_SCRIPTS": "/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts",
+    "spinit_sha256": "b2e0359f8b549f6e27bc86f1bb9b7847b7f376c3758bf8297084807a45af2390"
+  },
+  "observed_utc": "2026-09-21T02:49:22.526048+00:00",
+  "progress_line": "1789.138939\t5.92655878565934602e-1\t91.177827\t3.067580274259e-4\t27095479\ttrue\t30\t0",
+  "free_bytes": 27546951680,
+  "hardware_sample": {
+    "solver_cpu_percent": 99.6,
+    "solver_rss_kib": 498400,
+    "solver_elapsed_s": 1756,
+    "swap_used_mib": 7912.56
+  },
+  "parallel_decision": "Two staggered independent single-worker runners; after1min both~100percent CPU, LL01 speedroughlyunchanged, swapunchanged7.77GiB; keepboth andcontinuechecking. No third solver.",
+  "evidence_files": {
+    "cold.cir": "c34da98852dae5980029eb0949ce30a42997d0f3dd2f7f1cfe31b4cedc8870b6",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "case.json": "1bc6fd29487aa62a5209fd71699b7e9ac8e207996afba45039dd1ab49a50eda9"
+  },
+  "solver_result": {
+    "wall_s": 1984.421591,
+    "end_s": 0.65,
+    "rows": 29955738,
+    "duplicate_intervals": 56,
+    "backwards": 0
+  },
+  "acceptance": "LL01/acceptance.json",
+  "runner_exit": 0,
+  "completed_at_utc": "2026-09-21T02:55:24.366233+00:00"
+}

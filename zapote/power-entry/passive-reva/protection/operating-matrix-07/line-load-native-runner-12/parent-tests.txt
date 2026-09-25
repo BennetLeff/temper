@@ -1,0 +1,8 @@
+
+running 3 tests
+test parent_tests::unreadable_disk_capacity_reaps_every_child ... ok
+test parent_tests::real_native_metadata_contract_is_readable ... ok
+test parent_tests::timed_out_pipeline_reaps_every_child ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+

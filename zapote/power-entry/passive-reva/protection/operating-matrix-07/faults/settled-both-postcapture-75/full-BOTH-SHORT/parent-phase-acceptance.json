@@ -1,0 +1,64 @@
+{
+  "status": "ACCEPTED_EXACT_MODELED_CREST_PHASE_BOUND",
+  "accepted": true,
+  "utc": "2026-09-22T02:01:50.706063+00:00",
+  "scope": "Own BOTH-SHORT65 sampled crest phase only; no fault/hardware qualification.",
+  "raw_sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+  "rows": 32036953,
+  "parameters": {
+    "end_s": 0.662,
+    "expected_event_s": 0.6541666666667,
+    "local_start_s": 0.65,
+    "local_end_s": 0.6583333333333,
+    "tolerance": 0.01
+  },
+  "counts": {
+    "rows": 32036953,
+    "local_equal_group_raw_rows": 6,
+    "local_equal_groups": 2,
+    "edge_count": 1,
+    "peak_tie_groups": 1
+  },
+  "edge_time_s": 0.6541666661706754,
+  "bounds": {
+    "max_source_spread_v_D_observed": 1.4210854715202004e-14,
+    "max_source_spread_v_D_bound": 1.4210854715202007e-14,
+    "local_peak_abs_v_P": 169.70562748477147,
+    "edge_abs_lower_v": 169.70562748476843,
+    "edge_abs_upper_v": 169.70562748476854,
+    "peak_abs_lower_v": 169.7056274847714,
+    "criterion_error_using_representatives": 1.7585035537258274e-14,
+    "sufficient_bound_pass": true,
+    "peak_tie_first_s": 0.6541666666667028,
+    "peak_tie_last_s": 0.6541666666667028
+  },
+  "decision_authority": "Frozen phase43 outward-rounded all-choice criterion, unchanged1% local crest contract.",
+  "evidence_sha256": {
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/analysis-receipt.json": "de28683287ccb024c71d1fcb473c5f782616b326fe7dd9eebfe29877c1cd8ec4",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/preflight.json": "ad985fc303e8a58b0d403dc2451ae9514780db387e924481c9b65d65427fa592",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/prefault-scan.json": "dcf2ea6c5023f399b9a2b04c6f6a56fa67f0395473053c73355af40f5e915a33",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/normal15-audit.txt": "22f3baee808a6992ee25af4e93bd7f0a3d580f8c55f4cfc1d12ad342f6c254f8",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/normal15-events.tsv": "7aef7655e046c588987c3f2e14902eb39938dece386bd24a6cd090afa26acf8e",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/normal-metrics.txt": "0ad55c521bc9e8c561c1319a7b70847418823aa01fd1b4090d8ceee3a3b54131",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/legacy-strict/receipt.json": "fe16d9c877d34acc0ffd49fcb65c568c621f01ae0e869f4594c7d39108deb3fa",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/legacy-strict/checker.stderr": "7397a65dc28be1374bc8df822ac4b84693a821ccf2544f614ff0b25a19c39814",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/legacy-strict/pipeline.exit": "175bdbc71706c903e524dd6d875c3ab6ac16c186bae6a09d895464d0e9d9e9f2",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/phase.json": "c75105e19f901694f24b557e399c5e596cad4908b20f06d0a251d262bbcd4337",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/phase.exit": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e",
+    "faults/settled-both-postcapture-75/run.sh": "6d3908ee9f3edf3e2ab1872c7a6f312bb94198da3c23f8842930a41cd8f06f97",
+    "faults/settled-both-postcapture-75/legacy-strict.sh": "2dfddff9588501b30fb6f6cb5c4632a9a65f7da474c5a47dce3ca41f0172c255",
+    "faults/settled-both-postcapture-75/tools-parent.sha256": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+    "faults/settled-both-postcapture-75/parent-review.json": "e71a597d3ea754204a4adf0aa74617ed556537d9053afbb7ee67f92cd178950a",
+    "faults/settled-both-postcapture-75/normal-phase-candidate-112.json": "a45bfa9518ee1432ce4228c05715d827d3e524831b667c9f628d9e98d3d3e889"
+  },
+  "tool_sha256_verified": {
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-prefault-selector-parent": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+    "/private/tmp/matrix07-normal15-event-audit-host": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6",
+    "/private/tmp/matrix07-normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "/private/tmp/matrix07-event-metrics-host": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "/private/tmp/matrix07-phase43-parent": "e546ddfb84c53b73303e465574fa29fdff7753768c3a71efda1f8b5f185be965",
+    "/private/tmp/matrix07-bypass55-parent": "3bff9b4312cf9bb3c2118219e0f3bc5406482d8c2b83b728ad851b663bb40f6c"
+  }
+}

@@ -1,0 +1,223 @@
+# Standalone current-sensing and primary OCP unit.
+# Build independently from the legacy full-cooker circuit.
+
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+import CST3015_100E from "components.ato"
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+import Diode from "components.ato"
+import TLV3201 from "components.ato"
+import SN74HC4075 from "components.ato"
+import JST_XH_B4B_XH_A from "components.ato"
+import ElectricPower from "generics/interfaces.ato"
+import ElectricLogic from "generics/interfaces.ato"
+import ElectricSignal from "generics/interfaces.ato"
+
+component PrimaryWireLands:
+    """Two-pad bare wire/busbar solder interface; no ampacity claim."""
+    designator_prefix = "J"
+    footprint = "lib:LitzPad_15A"
+    mpn = "NON_PURCHASED_BARE_LANDS"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module CurrentSenseUnit:
+    """Independent transformer current sense with bipolar primary OCP.
+
+    The legacy 10k/10k divider was wired directly across a 4.99R burden and
+    could not create the claimed 1.65V bias. This proposal instead puts the
+    CT secondary/burden around a separately bypassed bias midpoint.
+    """
+    primary_in = new ElectricSignal
+    primary_out = new ElectricSignal
+    power = new ElectricPower
+    power.voltage = 3.3V
+    assert power.voltage within 3.3V +/- 5%
+    sense_mon = new ElectricSignal
+    sense_mon.reference ~ power.gnd
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
+
+    ct = new CST3015_100E
+    # The corrected local footprint follows the official CST3015 land
+    # pattern; the legacy temper:CST3015 footprint is not accepted here.
+    ct.footprint = "temper:CST3015_Datasheet2025"
+
+    # One two-pad bare solder land is the primary boundary. It is not a
+    # purchased connector and carries no production ampacity claim here.
+    primary_lands = new PrimaryWireLands
+    burden = new Resistor
+    burden.value = 1.50ohm +/- 1%
+    burden.power_rating = 0.25W
+    burden.mpn = "RC1206FR-071R5L"
+    burden.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    c_burden = new Capacitor
+    c_burden.value = 100nF +/- 5%
+    c_burden.dielectric = "C0G"
+    c_burden.voltage_rating = 50V
+    c_burden.mpn = "GRM31C5C1H104JA01L"
+    c_burden.footprint = "Capacitor_SMD:C_1206_3216Metric"
+
+    c_bias_bypass = new Capacitor
+    c_bias_bypass.value = 100nF +/- 5%
+    c_bias_bypass.dielectric = "C0G"
+    c_bias_bypass.voltage_rating = 50V
+    c_bias_bypass.mpn = "GRM31C5C1H104JA01L"
+    c_bias_bypass.footprint = "Capacitor_SMD:C_1206_3216Metric"
+
+    r_bias_top = new Resistor
+    r_bias_top.value = 1kohm +/- 0.1%
+    r_bias_top.mpn = "ERA3AEB102V"
+    r_bias_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    r_bias_bottom = new Resistor
+    r_bias_bottom.value = 1kohm +/- 0.1%
+    r_bias_bottom.mpn = "ERA3AEB102V"
+    r_bias_bottom.footprint = "Resistor_SMD:R_0603_1608Metric"
+    signal v_bias
+
+    r_sense_series = new Resistor
+    r_sense_series.value = 1kohm +/- 1%
+    r_sense_series.mpn = "RC1206FR-071KL"
+    r_sense_series.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    r_ref_hi_top = new Resistor
+    r_ref_hi_top.value = 3.74kohm +/- 0.1%
+    r_ref_hi_top.mpn = "ERA3AEB3741V"
+    r_ref_hi_bottom = new Resistor
+    r_ref_hi_bottom.value = 10kohm +/- 0.1%
+    r_ref_hi_bottom.mpn = "ERA3AEB103V"
+    signal ref_hi
+
+    r_ref_lo_top = new Resistor
+    r_ref_lo_top.value = 10kohm +/- 0.1%
+    r_ref_lo_top.mpn = "ERA3AEB103V"
+    r_ref_lo_bottom = new Resistor
+    r_ref_lo_bottom.value = 3.74kohm +/- 0.1%
+    r_ref_lo_bottom.mpn = "ERA3AEB3741V"
+    signal ref_lo
+
+    d_clamp_hi = new Diode
+    d_clamp_hi.mpn = "BAT54H,115"
+    d_clamp_hi.voltage_rating = 30V
+    d_clamp_hi.current_rating = 200mA
+    d_clamp_hi.footprint = "Diode_SMD:D_SOD-123F"
+    d_clamp_lo = new Diode
+    d_clamp_lo.mpn = "BAT54H,115"
+    d_clamp_lo.voltage_rating = 30V
+    d_clamp_lo.current_rating = 200mA
+    d_clamp_lo.footprint = "Diode_SMD:D_SOD-123F"
+
+    comp_pos = new TLV3201
+    comp_neg = new TLV3201
+    output_or = new SN74HC4075
+    # Verified SOIC-14 implementation of the inherited 4075 pin interface.
+    output_or.mpn = "CD74HC4075M96"
+    c_comp_pos = new Capacitor
+    c_comp_pos.value = 100nF +/- 10%
+    c_comp_pos.voltage_rating = 50V
+    c_comp_pos.dielectric = "X7R"
+    c_comp_pos.mpn = "C0603C104K5RACTU"
+    c_comp_neg = new Capacitor
+    c_comp_neg.value = 100nF +/- 10%
+    c_comp_neg.voltage_rating = 50V
+    c_comp_neg.dielectric = "X7R"
+    c_comp_neg.mpn = "C0603C104K5RACTU"
+    c_or_bypass = new Capacitor
+    c_or_bypass.value = 100nF +/- 10%
+    c_or_bypass.voltage_rating = 50V
+    c_or_bypass.dielectric = "X7R"
+    c_or_bypass.mpn = "C0603C104K5RACTU"
+    host = new JST_XH_B4B_XH_A
+
+    # HV primary is only a two-terminal series splice; no current-rating
+    # claim is encoded here. Root owns its conductor/terminal construction.
+    primary_in.line ~ primary_lands.p1
+    primary_lands.p1 ~ ct.P1
+    ct.P2 ~ primary_lands.p2
+    primary_lands.p2 ~ primary_out.line
+
+    # Floating burden around the biased midpoint. C_bias_bypass makes the
+    # midpoint an AC reference while preserving the CT secondary's DC bias.
+    ct.S1 ~ burden.p1
+    burden.p2 ~ ct.S2
+    ct.S1 ~ c_burden.p1
+    c_burden.p2 ~ ct.S2
+    ct.S2 ~ v_bias
+    v_bias ~ c_bias_bypass.p1
+    c_bias_bypass.p2 ~ power.gnd
+    power.vcc ~ r_bias_top.p1
+    r_bias_top.p2 ~ v_bias
+    v_bias ~ r_bias_bottom.p1
+    r_bias_bottom.p2 ~ power.gnd
+
+    # Input resistor and rail clamps protect the comparator input during an
+    # off-nominal secondary transient. They do not qualify surge energy.
+    ct.S1 ~ r_sense_series.p1
+    r_sense_series.p2 ~ sense_mon.line
+    d_clamp_hi.A ~ sense_mon.line
+    d_clamp_hi.K ~ power.vcc
+    d_clamp_lo.A ~ power.gnd
+    d_clamp_lo.K ~ sense_mon.line
+
+    power.vcc ~ r_ref_hi_top.p1
+    r_ref_hi_top.p2 ~ ref_hi
+    ref_hi ~ r_ref_hi_bottom.p1
+    r_ref_hi_bottom.p2 ~ power.gnd
+    power.vcc ~ r_ref_lo_top.p1
+    r_ref_lo_top.p2 ~ ref_lo
+    ref_lo ~ r_ref_lo_bottom.p1
+    r_ref_lo_bottom.p2 ~ power.gnd
+
+    power.vcc ~ comp_pos.VCC
+    power.gnd ~ comp_pos.GND
+    power.vcc ~ c_comp_pos.p1
+    c_comp_pos.p2 ~ power.gnd
+    sense_mon.line ~ comp_pos.INP
+    comp_pos.INN ~ ref_hi
+    power.vcc ~ comp_neg.VCC
+    power.gnd ~ comp_neg.GND
+    power.vcc ~ c_comp_neg.p1
+    c_comp_neg.p2 ~ power.gnd
+    comp_neg.INP ~ ref_lo
+    comp_neg.INN ~ sense_mon.line
+
+    power.vcc ~ output_or.VCC
+    power.gnd ~ output_or.GND
+    power.vcc ~ c_or_bypass.p1
+    c_or_bypass.p2 ~ power.gnd
+    comp_pos.OUT ~ output_or.A1
+    comp_neg.OUT ~ output_or.B1
+    output_or.C1 ~ power.gnd
+    output_or.Y1 ~ fault.line
+    output_or.A2 ~ power.gnd
+    output_or.B2 ~ power.gnd
+    output_or.C2 ~ power.gnd
+    output_or.A3 ~ power.gnd
+    output_or.B3 ~ power.gnd
+    output_or.C3 ~ power.gnd
+
+    # Low-voltage host boundary: +3V3, GND, active-high OCP_FAULT, and the
+    # biased analog monitor. PRIMARY_IN/OUT remain bare high-current lands;
+    # this JST connector is not used for the primary conductor.
+    host.p1 ~ power.vcc
+    host.p2 ~ power.gnd
+    host.p3 ~ fault.line
+    host.p4 ~ sense_mon.line
+
+    # Stable physical interface/net identities.
+    primary_in.line.override_net_name = "PRIMARY_IN"
+    primary_out.line.override_net_name = "PRIMARY_OUT"
+    power.vcc.override_net_name = "+3V3"
+    power.gnd.override_net_name = "gnd"
+    v_bias.override_net_name = "VBIAS"
+    ct.S1.override_net_name = "CT_SENSE"
+    sense_mon.line.override_net_name = "SENSE_MON"
+    ref_hi.override_net_name = "REF_HI"
+    ref_lo.override_net_name = "REF_LO"
+    comp_pos.OUT.override_net_name = "OCP_POS"
+    comp_neg.OUT.override_net_name = "OCP_NEG"
+    fault.line.override_net_name = "OCP_FAULT"

@@ -1,0 +1,9 @@
+{
+  "status": "compiled-and-exported; wiring candidate only",
+  "compiler": "atopile 0.2.69",
+  "returncode": 0,
+  "command": "uv tool run --offline --from atopile==0.2.69 ato --non-interactive build hot15_logic5_supply.ato:Hot15Logic5Supply",
+  "component_count": 13,
+  "graph_assertions": "PASS input/output pins, EP, 15V buck VIN, independent NC pins",
+  "source_sha256": "60f7015722c519b0bbc583628b0d8202a96408a5efff53048313168f9382b8fd"
+}

@@ -1,0 +1,43 @@
+{
+  "status": "POSTCAPTURE_DIODE_SHORT_REVIEW",
+  "accepted": false,
+  "case": "DIODE-SHORT",
+  "capture": {
+    "rows": 32309024,
+    "tstop_s": 0.662,
+    "declared_mutation_s": 0.6541666666667,
+    "observed_injection_s": 0.6541666661706754,
+    "detector_rise_s": 0.65728792700183,
+    "detector_minus_injection_s": 0.003121260831154604,
+    "event_window_s": 0.002,
+    "pipeline_exits": "all zero",
+    "validator_verdict": "Fail(no detector fault rising edge in event window)"
+  },
+  "adapter_observations": {
+    "latch_off_s": 0.6572886916667,
+    "channel_peak_after_injection_a": 354.141942233256,
+    "channel_peak_after_detector_a": 231.15621046148317,
+    "channel_peak_after_latch_a": 1.4289475814926681e-10,
+    "channel_last_above_0_10a_after_detector_s": 0.6572882374739012,
+    "body_peak_after_injection_a": 162.0542547215006,
+    "lboost_peak_after_injection_a": 78.51576190008149,
+    "f2_branch_peak_after_injection_a": 229.1266755241414,
+    "dboost1_branch_peak_after_injection_a": 326500.48086068407,
+    "dboost2_branch_peak_after_injection_a": 9095.846402698408
+  },
+  "interpretation": {
+    "detector_timing": "The injected fault edge is about 3.121 ms before the observed detector rise, outside the declared 2 ms event window. The validator failure is therefore a timing/event-contract failure, independent of the zero exit status of the transport pipeline.",
+    "latch_and_channel": "Adapter latch_off_s is a sampled first row where q<=2.5 V, en<=2.5 V, and abs(gate)<=0.20 V after a detected fault edge. The near-zero post-latch channel peak is an adapter observation, not an accepted protection or continuous-current-cessation claim. The pre-detector/post-injection channel peak remains separate.",
+    "topology": "Dboost1 is sw to d1_path, Vdboost1sense forces d1_path=vd, and Sdiodeshort connects sw to d1_path through a 1 mOhm idealized switch. Vdboost1sense therefore carries a modeled terminal/KCL branch current in a shorted ideal network; its 326.5 kA peak is not a physical die current, package current, or safe operating result. Dboost2 and its sense source remain the other modeled branch; neither sense current allocates current between physical dies.",
+    "claims_excluded": [
+      "protection acceptance",
+      "physical diode-die current or sharing",
+      "package short-circuit withstand, thermal, SOA, fuse clearing, or arc behavior",
+      "causal attribution from the detector/latch timing"
+    ]
+  },
+  "source_hashes": {
+    "case_sha256": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78",
+    "manifest_sha256": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9"
+  }
+}

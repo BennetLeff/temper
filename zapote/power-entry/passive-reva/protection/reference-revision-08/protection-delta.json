@@ -1,0 +1,104 @@
+{
+  "revision": "reference-revision-08",
+  "kind": "documentation-only-next-candidate",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "canonical_identity": {
+    "source": "zapote/power-entry/passive-reva/source/power_entry_passive_reva.ato",
+    "status": "restored 54-part baseline",
+    "feedback": "VSENSE divider sourced from hv_plus/VB",
+    "protection": "F1 and NTC bypass are present; F2 and independent VD/VB detector are not installed"
+  },
+  "rejected_identity": {
+    "source": "zapote/power-entry/passive-reva/source-build-07/elec/src/power_entry_passive_reva.ato",
+    "status": "rejected historical 133-part source-build-07/native-05 experiment",
+    "feedback": "VSENSE divider sourced from diode_positive/VD",
+    "boundary": "not canonical source, hardware evidence, or acceptance baseline"
+  },
+  "accepted_model_identity": {
+    "source": "zapote/power-entry/passive-reva/protection/operating-matrix-07/accepted-baseline-11/cold.cir",
+    "feedback": "Rfb1 vb vsense 1meg; Rfb2 vsense 0 13k",
+    "boundary": "authored behavioral model; VD feedback is a new simulation candidate, not a physical-source correction"
+  },
+  "existing_protection": {
+    "f1": {
+      "physical": "PfcFuseHolder 0031.2510 with replaceable 0034.3129 link in AC_L before the CMC",
+      "model": "no fuse time-current, arc, or clearing model",
+      "boundary": "F1 line-fault coordination remains open"
+    },
+    "k1_ntc_bypass": {
+      "physical": "RT33K012 COM/NO bypasses the NTC; opening it does not disconnect mains",
+      "model": "Sbypass shorts Rntc",
+      "boundary": "not a source-current interruptor"
+    },
+    "f2": {
+      "physical": "INTERFACE-DESIGN retains normally healthy/closed offboard Mersen A70QS50-14F plus US141/Z331153 candidate between VD and VB",
+      "model": "healthy accepted graph uses ideal closed path; F2 is not a resettable actuator",
+      "boundary": "not installed in canonical CAD/BOM; clearing, interconnect withstand, and continuity diagnostics remain open"
+    },
+    "overvoltage": {
+      "canonical": "independent VD/VB observation is not installed on the 54-part baseline",
+      "historical_model": "Bch_vd_raw and Bch_vb_raw are independent; BYPASS-NEG intentionally suppresses aggregate fault",
+      "boundary": "BYPASS-NEG VD overvoltage is negative-control evidence, not justification for duplicate unbypassed comparator"
+    },
+    "gate_reset": {
+      "canonical": "VSENSE standby/inhibit exists; fresh-arm/gate-disable block remains a candidate reduction",
+      "boundary": "default-off/reset applies gate permission, not F2; gate inhibition does not clear failed-MOS source current"
+    },
+    "isense_clamp": {
+      "canonical": "BAT54H A at shunt-side node upstream of 220 ohm and K at controller ground",
+      "model": "BAV23C_ASSUMED_V2 from ground to post-220-ohm isense, negative-clamp orientation",
+      "boundary": "node, polarity, device, and VF/leakage qualification unresolved"
+    }
+  },
+  "candidate_netlist_changes": [
+    {
+      "id": "vd-feedback-ab-fixture",
+      "scope": "new simulation candidate only",
+      "change": "A/B fixture changes only the accepted model's VSENSE divider source from vb to named local vd",
+      "preserve": ["existing VB feedback case", "independent VBOV observation", "existing divider values"],
+      "hardware_change": false,
+      "boundary": "aligned with prior F2-open ECO direction; does not alter canonical root source"
+    },
+    {
+      "id": "f2-healthy-closed",
+      "scope": "topology contract",
+      "change": "retain normally closed VD-to-VB Mersen/US141 fuse candidate",
+      "hardware_change": false,
+      "open_items": ["clearing", "loop withstand", "offboard interconnect", "continuity/open-state diagnostics"]
+    },
+    {
+      "id": "source-fed-path-unresolved",
+      "scope": "fault-analysis boundary",
+      "change": "do not add ideal SRC_TRIP; retain F1 dynamic clearing/coordination and failed-MOS source current as missing coverage",
+      "future_witness": "reduced fixture may compare source current with F2 healthy/open while MOS is held failed; no hardware pass follows"
+    }
+  ],
+  "tests": [
+    {
+      "id": "clamp-fidelity",
+      "input": "short diode fixture with shunt-side node, 220 ohm path, and both polarity mappings",
+      "pass": "one explicit source/model node-polarity mapping is recorded and SPICE matches it",
+      "cannot_prove": ["VF over temperature/lot", "PCL interaction", "surge energy", "production survival"]
+    },
+    {
+      "id": "gate-reset-requalification",
+      "input": "short logic/aux/permit/fault/reset pulses; fault then rail return without a new arm edge",
+      "pass": "gate permission low at reset/rail loss; fault removes permission; rail return does not auto-run; deliberate arm required",
+      "cannot_prove": ["driver delay", "failed-MOS interruption", "F2 clearing", "physical restart energy"]
+    },
+    {
+      "id": "passive-source-fed-witness",
+      "input": "reduced Lboost/Clocal/Cbank fixture, MOS held on, F2 healthy/open, source current plus VD/VB/energy traces",
+      "pass": "F2 opening affects bank-side path while remaining source current/local energy is reported unresolved",
+      "cannot_prove": ["F1 I2t", "arc", "clearing time", "SOA", "thermal survival", "hardware protection"]
+    }
+  ],
+  "unresolved_part_qualification": [
+    "F1 line-fault clearing and coordination",
+    "Mersen A70QS50-14F and US141/Z331153 F2 clearing/loop withstand",
+    "offboard VD/VB interconnect and continuity/open-state diagnostics",
+    "MOS/diode SOA and capacitor ESR/ESL/ripple under failed-short energy",
+    "ISENSE clamp node/polarity, device identity, VF and leakage",
+    "real gate-driver timing and any adopted D2 inrush-bypass graph"
+  ]
+}

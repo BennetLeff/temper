@@ -1,0 +1,120 @@
+{
+  "schema": "power-entry-block-review/v1",
+  "completed_date": "2026-09-22",
+  "status": "functional decomposition and architecture review complete; circuit selection and validation remain open",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "branch": "codex/power-entry-pkgs-1-4",
+  "source_identity": "source-identity.json",
+  "delegation": {
+    "route": "native collaboration.spawn_agent",
+    "requested_model": "gpt-5.6-luna",
+    "served_model_independently_attested": false,
+    "independent_model_family_corroboration_claimed": false,
+    "tasks": [
+      {
+        "id": "/root/mains_entry",
+        "block": "A",
+        "report": "block-a-mains.md",
+        "scope": "read-only bounded research",
+        "result": "completed and parent-reviewed",
+        "interrupt_called_after_completion": true
+      },
+      {
+        "id": "/root/pfc_stage",
+        "block": "B",
+        "report": "block-b-pfc.md",
+        "scope": "read-only bounded research",
+        "result": "completed and parent-reviewed",
+        "interrupt_called_after_completion": true
+      },
+      {
+        "id": "/root/bus_protection",
+        "block": "C",
+        "report": "block-c-bus.md",
+        "scope": "read-only bounded research",
+        "result": "completed and parent-reviewed",
+        "interrupt_called_after_completion": true
+      },
+      {
+        "id": "/root/gate_restart",
+        "block": "D",
+        "report": "block-d-gate-restart.md",
+        "scope": "read-only bounded research",
+        "result": "completed and parent-reviewed",
+        "interrupt_called_after_completion": true
+      },
+      {
+        "id": "/root/supply_interfaces",
+        "block": "E",
+        "report": "block-e-interfaces.md",
+        "scope": "read-only bounded research",
+        "result": "completed and parent-reviewed",
+        "interrupt_called_after_completion": true
+      }
+    ],
+    "prompt_scope_summary": "Inspect actual Rev09 source/manifest, relevant history and primary manufacturer sources. Establish component ownership, functional inputs/outputs/fail states, justified functions, conditional simplifications, focused next checks and unknown bounds. No edits, builds, simulations, git changes or vendor messages by workers.",
+    "reported_use_not_execution": "Workers reported reading relevant AGENTS and precedent; no preconstruction memory transport was claimed for this read-only review."
+  },
+  "verification": {
+    "component_address_partition": {
+      "assigned": 131,
+      "unique": 131,
+      "manifest": 131,
+      "protection": 79,
+      "same_addresses": true,
+      "block_counts_match": true
+    },
+    "candidate_hashes_rechecked": 5,
+    "hashes_match": true,
+    "tracked_source_changes_by_this_review": false,
+    "tests_run": false
+  },
+  "parent_corrections": [
+    "Correct line-fed shunt return ordering and state positive-half-cycle scope.",
+    "Bank discharge can occur with a healthy MOS still conducting after diode failure; it does not require both devices failed-short.",
+    "Use actual revision09 candidate as source, not donor power_entry_unit.",
+    "Historical21-part TLV1704 experiment is superseded, not proven applicable savings.",
+    "Historical1796W output/126W modeled overlap figures excluded from current power target.",
+    "Historical fault-extractor LATE_FAULT/truncation/ARM-window findings verified resolved in current Rust source.",
+    "Rail pulse sweep values are exploratory until a physical/selected supply envelope defines requirements.",
+    "One producer authority, multiple named consumers; diagnostic crossings optional and multichannel control isolation allowed.",
+    "Power-off Ioff and driver UVLO not promoted to guaranteed complete brownout/retained-restart behavior."
+  ],
+  "confirmed_documentation_drift": [
+    {
+      "path": "elec/src/power_entry_f2_shutdown_revb.ato",
+      "finding": "Comment describes 1kohm bleeder; actual source/BOM is220ohm.",
+      "source_changed": false
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/INTERFACE-DESIGN.md",
+      "finding": "Older UCC27624 interface differs from actual revision09 UCC27511A; do not transfer behavior.",
+      "source_changed": false
+    }
+  ],
+  "outcome": {
+    "component_count": 131,
+    "component_reduction_achieved": false,
+    "complete_assembly_count_known": false,
+    "block_counts": {
+      "A": 14,
+      "B": 21,
+      "C": 37,
+      "D": 53,
+      "E": 6
+    },
+    "priority": "Resolve E interface/rail contract; develop B/A bounds and C comparison; evaluate one D consolidation and C mismatch alternative before full-converter/PCB adoption."
+  },
+  "new_simulations": 0,
+  "new_pcb_changes": 0,
+  "hardware_available": false,
+  "hardware_qualification_claimed": false,
+  "manufacturer_messages_sent": false,
+  "committed": false,
+  "published": false,
+  "existing_dirty_tracked_files_preserved": [
+    "zapote/power-entry/passive-reva/INTERFACE-DESIGN.md",
+    "zapote/power-entry/passive-reva/README.md"
+  ],
+  "artifact_description": "Parent-edited block research summaries, complete instance inventory, integrated review and identity/verification receipt. Not raw worker transcripts or a hardware acceptance certificate."
+}

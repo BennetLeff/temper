@@ -1,0 +1,16 @@
+wrdata_header_fields= 31
+raw_variables= 31
+wrdata_rows= 5905
+raw_points= 5905
+header_token_sets_equal= True
+case_alias_i_Vac_to_i_vac= i(Vac) => i(vac)
+wrdata_finite= True
+raw_finite= True
+wrdata_endpoint_s= 1.00000000000000002e-03
+raw_endpoint_s= 1.00000000000000002e-03
+row_order_and_count_equal= True
+f64_comparisons= 183055
+f64_bit_mismatches= 0
+max_ulp_difference= 0
+max_abs_difference= 0.0
+WRDATA_PARSED_F64_BIT_IDENTICAL_TO_NATIVE= True

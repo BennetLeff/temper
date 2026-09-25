@@ -1,0 +1,24 @@
+{
+  "status": "DIAGNOSTIC_FAILURE_RETAINED_NO_ACCEPTED_BASELINE",
+  "extension_trace_sha256": "6f5fdb484723d24cc4b8cf69604cbfd629979b9523f8384f699b619f0847a80c",
+  "first_repeated_time_s": 0.5015549144856807,
+  "finite_rows": 22759008,
+  "nonincreasing_intervals": 3,
+  "endpoint_s": 0.5015763492902741,
+  "parent_checks": [
+    "Full trace inspector and unchanged normal checker reject",
+    "Driver fixtures finite/strict but do not reproduce full-model failure",
+    "Corrected power-stage fixture independently rerun:20,046rows,200ns,byte-identicaltrace; captured capacitor and inductor ICs; MOS turn-on observed",
+    "Binary64 spacing independently reproduced; sub-ULP mechanism remains causal hypothesis",
+    "Finite-state-output-pole candidate passes bounded interface screens but adds~5ns delay and is not adopted"
+  ],
+  "parent_corrections": [
+    "Corrected power-stage fixture initially unused drain-voltage parameter and wrong ICs",
+    "Vendor COMPHYS5nsRC is internal hysteresis feedback, not exported output filter",
+    "Two accidentally oversized diagnostic processes stopped by exactPID; both verified absent",
+    "Fault runbook still requires tested bounded child supervision before execution"
+  ],
+  "next_work": "Vendor COMPHYS input-state construction with existing authored output surrogate; bounded fidelity checks before any fullcoldrun",
+  "live_long_simulations": 0,
+  "goal_complete": false
+}

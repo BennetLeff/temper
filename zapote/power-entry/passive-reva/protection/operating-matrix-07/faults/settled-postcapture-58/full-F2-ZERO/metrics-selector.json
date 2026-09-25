@@ -1,0 +1,12 @@
+{
+  "status":"OK",
+  "cutoff_s":6.50000000000000022e-1,
+  "max_cutoff_gap_s":9.99999999999999955e-7,
+  "full_rows":36625031,
+  "selected_rows":30387314,
+  "first_time_s":2.00000000000000007e-10,
+  "last_time_s":6.82000000000000051e-1,
+  "last_selected_time_s":6.49999998305514137e-1,
+  "cutoff_gap_s":1.69448588493992247e-9,
+  "fault_inject_rising_edges":[{"time_s":6.58333332837275353e-1,"v_acsrc_acn":3.17365555391885268e-5}]
+}

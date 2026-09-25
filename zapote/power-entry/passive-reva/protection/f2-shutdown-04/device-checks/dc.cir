@@ -1,0 +1,19 @@
+* Independent operating-point checks of the actual ngspice device equations.
+Vgs g 0 10
+Iload 0 d 30
+M1 d g s s STWMOS
+Vsense s 0 0
+.model STWMOS NMOS(VTO=4 KP=4.0 RD=1m RS=1m L=1u W=1u IS=1e-40)
+Idiode 0 da 10
+D1 da 0 DBOOST
+.model DBOOST D(IS=1e-14 N=1.4 RS=20m CJO=45p M=0 VJ=1 TT=0 BV=650 IBV=1u)
+* Reverse branch check at approximately the externally clamped body voltage.
+Vr dr 0 -0.8
+M2 dr 0 sr sr STWMOS
+Vrs sr 0 0
+.control
+op
+print v(d) i(vsense) v(da) i(vrs)
+quit
+.endc
+.end

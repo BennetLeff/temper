@@ -1,0 +1,23 @@
+{
+  "status": "PARENT_REVIEWED_DIAGNOSTIC_OUTER_VALIDATOR",
+  "accepted_fault": false,
+  "sources": {
+    "faults/event-aware-validation-13/audit.rs": "6a0f553ffcfd47b46644154160f53f8c5c809efdfb5c4bc9de532a0a4411bc47",
+    "faults/event-aware-validation-13/tests.rs": "b95944c7166725fdf99b4f56563e23ac68ef4fa90c47c799c73336bba1ce2907",
+    "faults/fault_checks.rs": "a94f3a7e5ac5bcae67d94a53afacf8338567eaf8b1870b2bf8db12121f25bc66"
+  },
+  "parent_binary_sha256": "8522199d98dbb2196ae7486048daadb4316fc53fec20d345835c0a76df322b57",
+  "tests": 22,
+  "parent_added_tests": [
+    "dense complete checked17 passes frozen decision with unchanged verdict after benign duplicate; all201rows retained in audit",
+    "early501V excursion cannot be hidden by suffix",
+    "explicit bypass fails"
+  ],
+  "limits": [
+    "Must pair with raw42 adapter mutation/armed/permit/schema receipt and complete producer/decoder statuses.",
+    "Exit0 reports diagnostic result, not acceptance; Fail/ProtectionGap/None are not Pass.",
+    "4million retained-row cap; group cap1million. Line cap is checked after read allocation, so bounded native-decoder/adapter input is required.",
+    "Terminal equal group needs contextual parent review; identical predicates and all-row extrema alone do not qualify hardware."
+  ],
+  "policy": "No deduplication/time editing. Complete prefix time and node screens; frozen decision applied to sufficient retained event suffix; crossing equal groups/boundaries/earlier F2 edge suppress decision."
+}

@@ -1,0 +1,92 @@
+{
+  "status": "PARENT_VERIFIED_SAMPLED_COINCIDENT_DIAGNOSIS",
+  "accepted_protection": false,
+  "case": "BOTH-SHORT",
+  "utc": "2026-09-22T02:04:00.819400+00:00",
+  "campaign_verdict_unchanged": "FAIL all-row Lboost screen, formal ProtectionGap not reached",
+  "raw": {
+    "status": "COMPLETE_COINCIDENT_DIAGNOSTIC_PARENT_REVIEW_REQUIRED",
+    "accepted": false,
+    "raw_sha256_before_after": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+    "raw_bytes": 5286116925,
+    "rows": 32036953,
+    "pipeline_exits": [
+      0,
+      0,
+      0
+    ],
+    "all_original55_fields_identical": true,
+    "current_channels": [
+      "i(Lboost)",
+      "i(Vchannel)",
+      "i(Vbody)",
+      "i(Vf2sense)",
+      "i(Vdboost1sense)",
+      "i(Vdboost2sense)"
+    ],
+    "report_sha256": "329624c9279e0e5ba99064d1a1c1ed69ee8aa371999561b195cf2af567d24e67",
+    "limitations": "Same-row sampled observations only, not continuous retention, causality, physical die allocation, protection or hardware qualification."
+  },
+  "direct_witnesses": {
+    "endpoint_inductor_and_failed_branch_current_while_off": {
+      "row": 32036953,
+      "time_s": 0.6619999999999999,
+      "value": 435.79078242060086,
+      "abs_value": 435.79078242060086,
+      "q": 0.0,
+      "en": 4.4408920985006214e-15,
+      "gate": 8.794387711807868e-08,
+      "fault": 0.0,
+      "currents": {
+        "i(Lboost)": 435.79078242060086,
+        "i(Vchannel)": 435.63563944632625,
+        "i(Vbody)": -1.0546190707832826e-09,
+        "i(Vf2sense)": 0.1538418652092403,
+        "i(Vdboost1sense)": 0.15514294335678117,
+        "i(Vdboost2sense)": -6.117872326052116e-12
+      }
+    },
+    "largest_channel_current_at_sampled_off_state": {
+      "row": 30636503,
+      "time_s": 0.6541675414086254,
+      "value": 22147.266150352625,
+      "abs_value": 22147.266150352625,
+      "q": 0.0,
+      "en": 4.4408920985006214e-15,
+      "gate": 0.19466063860249805,
+      "fault": 4.999999999999999,
+      "currents": {
+        "i(Lboost)": 10.101129818874742,
+        "i(Vchannel)": 22147.266150352625,
+        "i(Vbody)": 1.1965048123416312e-07,
+        "i(Vf2sense)": -22114.158834818973,
+        "i(Vdboost1sense)": -22137.16493080601,
+        "i(Vdboost2sense)": 2.616120443578907e-05
+      }
+    }
+  },
+  "interpretation": [
+    "At the final .662s sample, q=0, en~0 and gate~88nV coexist with 435.791A in Lboost and435.636A through Vchannel. In this topology Vchannel includes the gate-independent failed-switch branch. This directly demonstrates modeled gate-off does not interrupt that path.",
+    "At .6541675414s the sampled off thresholds coexist with modeled22.147kA channel-path current and -22.114kA F2 current. With Vf2sense positive VD-to-VB, negative current is towardVD frombank.",
+    "Both Lboost and Vchannel exceed0.1A in all1,400,451 sampled off rows. Counts are not elapsed durations or continuous-time proofs.",
+    "Extreme modeled currents are not physical die current allocation, selected-part ratings, survival, or reliable peak predictions. Saturation/parasitics/thermal/short model gaps remain."
+  ],
+  "limitations": [
+    "No complete physical interruption or safety qualification.",
+    "Overall333.781kA d1sense extreme is a modeled branch observation; its causal mechanism is not established.",
+    "No further solver, changes to criteria, or changes to frozen55fields."
+  ],
+  "evidence_sha256": {
+    "faults/coincident-stress-observability-99/full-BOTH-SHORT/receipt.json": "bb7ca723df712388dceb55d13efbcdc971a6f99a14ec1783b094540fa206c44d",
+    "faults/coincident-stress-observability-99/full-BOTH-SHORT/observations.json": "329624c9279e0e5ba99064d1a1c1ed69ee8aa371999561b195cf2af567d24e67",
+    "faults/coincident-stress-observability-99/full-BOTH-SHORT/pipeline.exit": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e",
+    "faults/coincident-stress-observability-99/full-BOTH-SHORT/analysis.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "faults/coincident-stress-observability-99/run-both-109.sh": "ea68afe0eb70b4ef9070e744ecbd133fcd9f5238b5403b16fd51f44bdd8fb4dc",
+    "faults/coincident-stress-observability-99/parent-both-preparation-110.json": "65c14c92af298a25c1aaab682251bc6568565fa8c91358898dd4b645411f743c",
+    "faults/coincident-stress-observability-99/main.rs": "159db79ad627bd8ad7d37e252c697909b3130ef9bc9c5c2b11e8e3c04bdaf9b0",
+    "faults/coincident-stress-observability-99/tools-parent.sha256": "402c3254a2d516e5aee7389e24bf0eefd944bbfb50df2d4c91dde45421252375",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/post-injection-observations.json": "342fb23a5c55ac2518a5e96c64472627f2f6973f8fc7a22f9e4ae458aaa864a4",
+    "faults/settled-both-short-65/full-BOTH-SHORT/case.cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+    "faults/settled-both-short-65/full-BOTH-SHORT/campaign-verdict-118.json": "2db4cf5d912d5d232444a50247a6ea3ca1b04b3308dd8c5fac73176b7e9a3ca9"
+  }
+}

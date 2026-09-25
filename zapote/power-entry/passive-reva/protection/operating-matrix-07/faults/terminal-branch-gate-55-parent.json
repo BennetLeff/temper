@@ -1,0 +1,28 @@
+{
+  "status": "PARENT_REVIEWED_TERMINAL_GRAPH_READINESS",
+  "fault_accepted": false,
+  "launched": false,
+  "sha256": {
+    "faults/terminal-branch-gate-55.md": "522825d59251f4ff25727355a01bf848f933ccecfb81862a5c63b9834f6266ab",
+    "faults/terminal-branch-gate-55-worker.md": "be788dfe7810e979682a0b196074698b6580df5b3ef33f7a3777cc8192569ce9",
+    "faults/fault_checks.rs": "a94f3a7e5ac5bcae67d94a53afacf8338567eaf8b1870b2bf8db12121f25bc66",
+    "faults/event-aware-validation-22/audit.rs": "542af0dcc845f099b0329b3c6fdf092583b1b074aa12d9d5dc684e1e6d361119",
+    "faults/event-aware-adapter-13/fault_normalize.rs": "d534f0483abb576773a57acf7e78d2055f56d561f1a3f3a67cb0fa362edb79ef",
+    "../f2-open-01/source-01/elec/src/power_entry_passive_reva.ato": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8",
+    "faults/settled-compact-prep-24/prepared/DIODE-SHORT/case.cir": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78",
+    "faults/settled-compact-prep-24/prepared/DIODE-SHORT/manifest.json": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9",
+    "faults/settled-compact-prep-24/prepared/BOTH-SHORT/case.cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+    "faults/settled-compact-prep-24/prepared/BOTH-SHORT/manifest.json": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b"
+  },
+  "gates_remaining": [
+    "runtime single-solver and storage",
+    "each actual full cold-start healthy prefix",
+    "own complete capture, phase, endpoint, events and electrical outcome"
+  ],
+  "corrections": [
+    "Prepared decks must execute full cold start to late fault; no contrary cold-start prohibition.",
+    "Actual current event-aware pipeline distinct from legacy strict parser.",
+    "F2 held closed in both cases.",
+    "Frozen categorical failed-short message after-latch actually measures after detector, before latch check."
+  ]
+}

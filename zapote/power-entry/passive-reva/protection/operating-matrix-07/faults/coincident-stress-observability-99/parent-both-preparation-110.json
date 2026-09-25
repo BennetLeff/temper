@@ -1,0 +1,15 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_NOT_EXECUTED",
+  "case": "BOTH-SHORT",
+  "diagnostic_only": true,
+  "script_sha256": "ea68afe0eb70b4ef9070e744ecbd133fcd9f5238b5403b16fd51f44bdd8fb4dc",
+  "worker_preparation_sha256": "171044aac361f4d199fdea84b3f5643823a0c1e60c74092be4eab78e02fbfd55",
+  "base_run_diode_sha256": "e6d032b3928c062ba974c49bf8c6d64ab89805dd58d719f126d72a76c08bb02c",
+  "checks": [
+    "Diff limited to case paths/rawidentity/rowcount plus explicitreceiptstatus,acceptedfalse androwcountpreconditions",
+    "bash-n andshellcheck passed afterparentaddition",
+    "No numericaltoolchange; original55 parsedJSONfieldsequality retained, not byte-identical serialization",
+    "Rawbeforeafterhash, sourceidentity, no-clobber,10GiB andlegacyguardsretained"
+  ],
+  "pending": "Run only after75analysis andlegacyterminal, then inspectreport/receipt; sourcecasealreadybound110. Existing99binarydiagnosticnotprotectionacceptance."
+}

@@ -1,0 +1,81 @@
+* Temper passive-reva cold-start / settled-normal switching witness.
+.include ucc28180-pwm-latch.inc
+.param RFREQ=16.2k VAC_RMS=120 FLINE=60 VB_INIT=0 VD_INIT=0
+.param RLOAD=190 TSTOP=20u STEP=500n
+.param DIV_INIT={VD_INIT*5820/992820}
+.param VCC_INIT=0
+* Full bridge: the source delivers the measured current; no behavioral rectifier.
+Vac acsrc acn SIN(0 {VAC_RMS*1.4142135623730951} {FLINE} 0 0 0)
+* Source impedance follows the retained graph: 0.25-ohm source resistance,
+* then the 10-ohm NTC in the AC1 leg.  The bypass relay shorts only the NTC.
+Rsource acsrc acsrc_r .25
+Rntc acsrc_r acp 10
+Vbypass bypass_ctl 0 PWL(0 0 100m 0 100.001m 5 200m 5)
+Sbypass acsrc_r acp bypass_ctl 0 SWBYP
+.model SWBYP SW(Ron=50m Roff=1e12 Vt=2.5 Vh=.1)
+Rreference acn 0 1e12
+Dbr1 acp rectp DBRIDGE
+Dbr2 acn rectp DBRIDGE
+Dbr3 bridge_minus acp DBRIDGE
+Dbr4 bridge_minus acn DBRIDGE
+.model DBRIDGE D(IS=1n N=1.5 RS=10m TT=0 CJO=100p)
+Rshunt bridge_minus 0 10m
+Rwind rectp lint 20m
+Lboost lint sw 180u IC=0
+Risense bridge_minus isense 220
+Cisense isense 0 1n IC=0
+* Parallel SiC legs and finite MOS/channel/body paths copied from04.
+Dboost1 sw vd DBOOST
+Dboost2 sw vd DBOOST
+.model DBOOST D(IS=1e-14 N=1.4 RS=20m CJO=45p M=0 VJ=1 TT=0 BV=650 IBV=1u)
+Msw sw gate channel_source channel_source STWMOS
+Vchannel channel_source 0 0
+.model STWMOS NMOS(VTO=4 KP=4 RD=1m RS=1m L=1u W=1u IS=1e-40)
+Vbody 0 body_anode 0
+Dbody body_anode sw DBODY
+.model DBODY D(IS=1n N=1.2 RS=10m CJO=1p TT=8n)
+Cds sw 0 344p
+Cgd gate sw 112p
+Cgs gate 0 12n
+Clocal vd 0 19.8u IC={VD_INIT}
+Rlocal vd 0 450k
+Cbank vb 0 2240u IC={VB_INIT}
+Rload load 0 {RLOAD}
+Vloadctl loadctl 0 PWL(0 0 100m 0 100.001m 5 500m 5)
+Sload vb load loadctl 0 SWLOAD
+.model SWLOAD SW(Ron=15m Roff=1e12 Vt=2.5 Vh=.1)
+* F2 is the healthy VD-to-VB fuse path and remains closed throughout cold
+* start and normal operation; it is not a precharge-control element.
+Vf2ctl f2ctl 0 5
+Sf2 vd vb f2ctl 0 SWF2
+.model SWF2 SW(Ron=15m Roff=1e12 Vt=2.5 Vh=.1)
+* Retained actual controller compensation and sensing values.
+Rfb1 vb vsense 1meg
+Rfb2 vsense 0 13k
+Cvsense vsense 0 680p IC=0
+Cicomp icomp 0 2.7n IC=0
+Rvcomp vcomp vcomp_s 40.2k
+Cvcomp_s vcomp_s 0 4.7u IC={VCC_INIT}
+Cvcomp_p vcomp 0 220n IC={VCC_INIT}
+Xu aux15 vsense isense icomp vcomp pwm 0 UCC28180_FN RFREQ={RFREQ}
+* Explicit bounded external rails and sequencing inputs.  They stand in for
+* the external auxiliary converter/supervisor until native source integration.
+Vaux aux15 0 PWL(0 0 5m 15 200m 15)
+Vlogic logic5 0 PWL(0 0 5m 5 200m 5)
+Vpermit permit 0 PWL(0 0 8m 0 9m 5 200m 5)
+Varm arm 0 PWL(0 0 46m 0 60m 5 200m 5)
+Vstandby_cmd standby_req 0 PWL(0 5 60m 5 61m 0 200m 0)
+* Physical protection dividers, timer, fresh-edge latch and default-off driver.
+.include protection.inc
+.include standby.inc
+.include clamp.inc
+* Negative ISENSE clamp from the selected BAV23C die.  The model is
+* explicitly assumed/nominal; no temperature or production tolerance claim.
+DCLAMP 0 isense BAV23C_ASSUMED_V2
+* Standby worker consumes the physical enable_good/permit interface from the
+* protection include.  No q/time-forced standby clamp is present here.
+Xstandby aux15 enable_good vsense 0 PFC_STANDBY
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.save time v(acsrc) v(acn) i(Vac) v(load) v(vb) i(Lboost) v(vd) v(sw) v(gate) v(q) v(en) v(fault) v(vcomp) v(icomp) v(xu.raw) v(xu.pwm_hold) v(pwm) v(pwm_input) v(xdriver.driver_req) v(xdriver.drv_delay) v(xu.phase) v(xu.blank) v(isense) v(xu.ov) v(xu.fault) v(xu.pcl_hold) v(xu.pcl_request) v(disable) v(xu.m1) v(xu.m2)
+.tran {STEP} {TSTOP} 0 {STEP} uic
+.end

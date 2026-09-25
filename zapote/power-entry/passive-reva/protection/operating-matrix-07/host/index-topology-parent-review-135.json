@@ -1,0 +1,22 @@
+{
+  "status": "PARENT_VERIFIED_INTERIM_INDEX_AND_TOPOLOGY",
+  "objective_complete": false,
+  "utc": "2026-09-22T02:31:19.363846+00:00",
+  "index_verification": {
+    "small_files": 293,
+    "raw_archives_stat_only": 17,
+    "small_hash_mismatches": 0,
+    "missing_worker_receipt_references_corrected": [
+      "faults/settled-diode-short-64/full-DIODE-SHORT/receipt.json",
+      "faults/settled-both-short-65/full-BOTH-SHORT/receipt.json"
+    ]
+  },
+  "topology_review": "MaterializedRfb1VBtoVSENSE/F2VD-to-VB/localcap andBYPASSsourceverified. Staticconnectivitynotcausality; currentlastsampledoesnotprovecontinuouscurrent; no checkerprioritychangerequired.",
+  "files_sha256": {
+    "host/reproducibility-candidate-132.md": "1b120e7b72e75e1fe846768662335cc80ea776b74209014c22a5f5dcc3ff7657",
+    "host/reproducibility-candidate-132.json": "e53e06ebc7220e70924555bcc3df2d8ac9620048db2beb38eddaa6463ee7038d",
+    "host/bypass-feedback-topology-133.md": "8f520099cc85d915fcdf622d4ae56a5058b298a9df2f09ac91d291fea4f1e459",
+    "host/bypass-feedback-topology-133.json": "34070db5fcde78a466b458224c351e749e21fe75061690bd143823c88a79ac27"
+  },
+  "remaining": "76037analysis/legacy/ownprefixphase andBYPASSnegativecontrolreview; finalreport/index andfullgoalaudit."
+}

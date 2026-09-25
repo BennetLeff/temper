@@ -1,0 +1,38 @@
+{
+  "at_utc": "2026-09-22T00:49:15.982025+00:00",
+  "status": "LIVE_SOURCE_BOUND_NOT_ACCEPTED",
+  "session": 57766,
+  "runner_pid": 82739,
+  "monitor_pid": 82740,
+  "source_sha256": {
+    "case.cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+    "manifest.json": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b",
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "run_parameters": {
+    "tstop_s": 0.662,
+    "kind": "both-short",
+    "mutation_s": 0.6541666666667,
+    "event_window_s": 0.002,
+    "expected_fault_s": 0.6541666666667,
+    "observation_s": 0.002,
+    "turnoff_s": 2e-06,
+    "max_gap_s": 2.5e-08,
+    "wall_seconds": 3600,
+    "export_timeout_s": 900,
+    "bypass": false
+  },
+  "checks": [
+    "All8 materialized files exactprepared24 and parent65 pins",
+    "Source identity entries match actual bytes",
+    "Exact source topology reviewed: failedMOS1mOhm plus diode-terminal1mOhm; F2closed; no added precharged initialconditions",
+    "Launch guard tool hashes and one-full-solver/storage checks passed"
+  ],
+  "concurrency": "One full solver plus sequential archive-only postcapture74 session88208",
+  "accepted": false
+}

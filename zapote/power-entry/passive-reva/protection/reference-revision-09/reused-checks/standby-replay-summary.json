@@ -1,0 +1,26 @@
+{
+  "scope": "replay of historical modeled standby fixtures; not a new solver or integrated dynamics result",
+  "checks": [
+    {
+      "name": "standby",
+      "returncode": 0,
+      "expected": 0,
+      "trace": "zapote/power-entry/passive-reva/protection/operating-matrix-07/standby/standby.tsv",
+      "sha256": "2607029db6c38a49bec1f07b02faa3ad5e4cd73c1ac25583f1cf8f9a70844e94"
+    },
+    {
+      "name": "standby-cap2",
+      "returncode": 0,
+      "expected": 0,
+      "trace": "zapote/power-entry/passive-reva/protection/operating-matrix-07/standby/standby-cap2.tsv",
+      "sha256": "7fafd2bd4a7e6b44d19f8ed985b69ddec2c26683e1bbf366e7f8faa62317d984"
+    },
+    {
+      "name": "standby-broken",
+      "returncode": 1,
+      "expected": 1,
+      "trace": "zapote/power-entry/passive-reva/protection/operating-matrix-07/standby/standby-broken.tsv",
+      "sha256": "a10e1ea178bdc72f8c31930b99ef49737acdbc9fe307d2c1d44dc08c87041c82"
+    }
+  ]
+}

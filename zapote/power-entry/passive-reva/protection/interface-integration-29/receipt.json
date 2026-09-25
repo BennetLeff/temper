@@ -1,0 +1,66 @@
+{
+  "revision": 29,
+  "status": "compiled-connectivity-candidate; footprint and receiver interfaces unresolved",
+  "scope": "Copy Rev28 source candidate; add TPS3431 HOT watchdog, second SN74HCS74 latch half, and TPS3890-qualified asynchronous clear through an LVC AND gate. No PCB changes.",
+  "build": {
+    "tool": "Atopile 0.2.69",
+    "mode": "offline cached uv tool",
+    "result": "PASS",
+    "netlist": "source-candidate/build/default.net",
+    "other_generated_outputs": [
+      "source-candidate/build/default.csv",
+      "source-candidate/build/default.bom.csv"
+    ],
+    "log": "source-candidate/build.log"
+  },
+  "checks": {
+    "rev28_to_rev29_compiled_netlist_audit": "PASS (1 Rust test); seven watchdog/latch components plus three rail-qualified clear components and pin-level wiring",
+    "latch_sequence_model": "PASS (8 Rust tests); starts Q2 unknown/high, rejects held-high pulse at clear release, and qualifies clear only within valid logic5 range; lower partial-power range explicitly unmodeled",
+    "native_kicad_schematic": "not regenerated; Rev28 native artifacts intentionally excluded"
+  },
+  "parts": {
+    "watchdog": {
+      "mpn": "TPS3431SDRBR",
+      "datasheet": "https://www.ti.com/lit/ds/symlink/tps3431.pdf",
+      "pin_map": "TI DRB0008A top-view pins 1-8; modeled exposed pad pin 9 tied to HOT ground",
+      "footprint": "TBD_REVIEW_ONLY:TPS3431SDRBR_DRB0008A",
+      "footprint_reason": "Local DRB0008A land-pattern candidate is in footprint-review/ and parses/renders in KiCad; source field remains review-only pending library registration and a successful Atopile rebuild.",
+      "supplier_cross_reference": "DigiKey 296-51909-2-ND, 0 stock, minimum quantity 3000 in lookup; JLCPCB exact MPN not found. This is an MPN identification, not procurement approval."
+    },
+    "cwd_capacitor": {
+      "mpn": "GRM1885C1H102JA01D",
+      "jlc": "C77026; Murata 1 nF 50 V C0G \u00b15%, 0603; extended library; lookup stock 147786"
+    },
+    "watchdog_bypass": {
+      "mpn": "GRM188R71H104KA93D",
+      "jlc": "C77055; Murata 100 nF 50 V X7R \u00b110%, 0603; extended library; lookup stock 1400382"
+    },
+    "new_10k_resistors": {
+      "mpn": "CRCW060310K0FKEA",
+      "jlc": "C844918; Vishay 10 k\u03a9 \u00b11%, 0603; extended library; lookup stock 828547"
+    }
+  },
+  "timing": {
+    "cwd": "1 nF gives 132.4 ms typical, ideal capacitor bounds 119.82..144.98 ms; not product-qualified",
+    "reset_pulse": "WDO tRST 170..230 ms",
+    "system_maximum_disable_latency": "unspecified"
+  },
+  "external_interfaces_still_required": [
+    "RECEIVER_SESSION_ACTIVE must be default-low and drop on receiver/session invalidation",
+    "VALIDATED_HEARTBEAT_5V must carry validated peer traffic and meet WDI VIH at HOT 5 V; 3.3 V direct drive is not guaranteed",
+    "SESSION_QUALIFIED_PULSE_5V must be a fresh qualified edge and meet SN74HCS74 CLK VIH at HOT 5 V; 3.3 V direct drive is not guaranteed",
+    "source reset/abort capture remains separate; receiver, protocol, isolation, level translation, and hardware fault response are unimplemented"
+  ],
+  "sha256": {
+    "power_entry_f2_shutdown_revb.ato": "bf6fcc92f785bd9eaf3426221da8cfb961d1f39410d50890683c78d99d259908",
+    "power_entry_pfc_control_candidate.ato": "4364b87dd7ac237c4eee8d4784826d77fa03a421144c2d8cb2f468b2cb72de1d",
+    "default.net": "503b24b654994fecb7d75763fb17391505a2fad649e19a8167a9385fbdf4a4d4",
+    "audit-rev28-rev29.rs": "2284c3defccb3a6ee8732dc5f1aacec916e14aa20b76941c4325116a1a6129f6",
+    "latch-sequence-tests.rs": "f217045a4509f088890621484a08e8c54c284f2f6248eac752189b36245aba28"
+  },
+  "startup_clear": {
+    "valid_logic5_region": "TPS3890 is specified for VDD >= 1.5 V; SN74HCS74 operation begins at VCC >= 2 V. In that latch operating range, the TPS3890s hold shared rails_ok low until monitored logic5/aux rails cross their thresholds and release timing completes, keeping CLR2 asserted regardless of TPS3431 below-POR ENOUT/WDO state.",
+    "electrical_topology": "WDO and ENOUT share only their permitted open-drain pull-up node. rails_ok is a separate AND input, so there is no push-pull/open-drain contention. AND output has 100 nF local bypass and 10 kohm pulldown.",
+    "limit": "Below TPS3890 VDD=1.5 V, no output/reset-state guarantee is claimed. The 10 kohm output pulldown biases the AND output but does not guarantee behavior of unpowered silicon. Full partial-power ramp and gate-driver default-off behavior in that interval remain unverified."
+  }
+}

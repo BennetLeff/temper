@@ -1,0 +1,23 @@
+{
+  "status": "PARENT_REVIEWED_SINGLE_CASE_NATIVE_FAULT_TRANSPORT",
+  "accepted_fault": false,
+  "utc": "2026-09-21T03:51:57.538039+00:00",
+  "source_sha256": "571d449ed74eeddd6476f7ba2e0f32b9470334801d6917212f800c5eb0e6c7fb",
+  "binary": "/private/tmp/matrix07-fault-native-supervisor19-parent",
+  "binary_sha256": "e957c54a1b5405de14c70cf8e9676b556569d1d558309e1cf68f0a087046ace3",
+  "tests_passed": 9,
+  "warnings_denied": true,
+  "lineage": "../native-runner-14/parent-review.json",
+  "parent_corrections": [
+    "Delay compressor afterEOF beforegzip emission so regression actually breaksoldordering",
+    "Use singleexec blockedconsumer, noorphanedcat/gzip testpipelines",
+    "Propagate stage1receipt andhash writeerrors",
+    "Drain evenone positivepoint beforesemanticreject; unchangedvalidschema stillrequiresatleasttwo"
+  ],
+  "verified": "Old immediatekill fixture loses delayedoutput; fixedwaitdrainsgzipandroundtripbytes; zero/missingmetadata stillpromptcleanup;9parenttests pass",
+  "limits": [
+    "Exit0/review_pending isnotprotectionacceptance",
+    "Partialtrace semanticreject precedesfullfaultchecks; separatepartialinspection required",
+    "Knowntrustednativehost returns0onboundedwall capture; unexpectednonzero hoststillkillscompressor"
+  ]
+}

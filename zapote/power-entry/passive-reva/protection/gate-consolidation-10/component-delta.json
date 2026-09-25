@@ -1,0 +1,12 @@
+{
+  "baseline_count": 131,
+  "candidate_count": 128,
+  "removed": [
+    "protection.reset_and",
+    "protection.reset_and_bypass",
+    "protection.reset_pull_logic"
+  ],
+  "added": [],
+  "attribute_changed": [],
+  "scope": "compiled instance inventory, not finished assembly count"
+}

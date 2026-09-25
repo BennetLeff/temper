@@ -1,0 +1,41 @@
+* Bounded late-edge load probe: recorded switch-node/current state with the
+* authored hysteretic driver and the normal candidate's explicit Msw network.
+* This is not a replay of the full controller history or a qualification deck.
+.include authored_logic_hysteretic.inc
+.param VDD=15 VSW0=378.1957698276312 VGATE0=-9.40581777e-6 VVD=376.9613847991483 IBOOST=4.1047796553663
+Vaux aux15 0 {VDD}
+Vdisable disable 0 0.1040861167645
+Vpwm pwm_input 0 PWL(0 2.199989140991965 1n 2.199989140991965 1.001n 2.2002)
+* Preserve the measured late-edge inductor current direction (lint -> sw).
+Iboost 0 lint DC {IBOOST}
+Lboost lint sw 180u IC={IBOOST}
+Vvd vd 0 {VVD}
+Rvd vd 0 1meg
+Dboost1 sw vd DBOOST
+Dboost2 sw vd DBOOST
+.model DBOOST D(IS=1e-14 N=1.4 RS=20m CJO=45p M=0 VJ=1 TT=0 BV=650 IBV=1u)
+Msw sw gate channel_source channel_source STWMOS
+Vchannel channel_source 0 0
+.model STWMOS NMOS(VTO=4 KP=4 RD=1m RS=1m L=1u W=1u IS=1e-40)
+Vbody 0 body_anode 0
+Dbody body_anode sw DBODY
+.model DBODY D(IS=1n N=1.2 RS=10m CJO=1p TT=8n)
+Cds sw 0 344p IC={VSW0}
+Cgd gate sw 112p IC={VGATE0-VSW0}
+Cgs gate 0 12n IC={VGATE0}
+Xdriver disable pwm_input aux15 0 gate_cmd AUTH_UCC27511A_H
+Rgate gate_cmd gate 10
+Rgs gate 0 10k
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.save time v(pwm_input) v(gate_cmd) v(gate) v(sw) v(vd) i(Lboost) v(xdriver.driver_req) v(xdriver.drv_delay)
+.tran 1p 200n 0 10p uic
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+rusage tranpoints traniter rejected
+wrdata recorded-power-stage.tsv v(pwm_input) v(gate_cmd) v(gate) v(sw) v(vd) i(Lboost) v(xdriver.driver_req) v(xdriver.drv_delay)
+quit
+.endc
+.end

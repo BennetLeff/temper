@@ -1,0 +1,19 @@
+{
+  "status": "NO_CONCRETE_BLOCKER_WITHIN_DECLARED_SCOPE",
+  "utc": "2026-09-21T17:08:09.111652+00:00",
+  "reviewer": "Luna /root/fault_readiness",
+  "parent_review": "parent-review.json",
+  "parent_review_sha256": "99564cf8bda7bc86be574913e6bca6962426b95927c345a45858606ac1b52afd",
+  "checks": [
+    "Same-stopped-plot normal15/fault42 equality and anonymouspipe proof",
+    "Source identity binds parent direct fault host and reviewed fault decoder/adapter/validator",
+    "Launch38 numeric arguments coherent with prepared F2-CREST",
+    "No ngspice API call during readpass; exclusive completed idle plot ownership required"
+  ],
+  "limitations": [
+    "Fault42 needs the reviewed fault decoder: intentional v(acsrc,acn) notype unit is not accepted by generic normal decoder",
+    "Exporter can leave partial output on late row failure; all full transport child exits and receipts required",
+    "Full retained plot memory remains; tiny equality tests do not prove full resource envelope",
+    "No electrical acceptance"
+  ]
+}

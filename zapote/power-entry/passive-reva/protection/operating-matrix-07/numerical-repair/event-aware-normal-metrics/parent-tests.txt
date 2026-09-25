@@ -1,0 +1,13 @@
+
+running 8 tests
+test tests::duplicate_rows_are_retained_and_zero_area ... ok
+test tests::backwards_nonfinite_gap_and_endpoint_fail_closed ... ok
+test tests::linear_interpolation_matches_positive_interval_area ... ok
+test tests::parent_rising_cycles_are_chronological ... ok
+test tests::constant_fixture_has_expected_power_and_finite_metrics ... ok
+test tests::parent_near_boundary_is_not_snapped_and_start_group_is_counted ... ok
+test tests::gap_endpoint_and_bad_power_fail_closed ... ok
+test tests::negative_load_and_nonfinite_derived_metric_fail_closed ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+

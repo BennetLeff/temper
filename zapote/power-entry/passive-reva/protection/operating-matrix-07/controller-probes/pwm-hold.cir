@@ -1,0 +1,20 @@
+TI block diagram PWM latch holds pulse after comparator recrossing
+.include ucc28180.inc
+Vcc vcc 0 15
+Vvs vsense 0 3
+Vvc vcomp 0 3
+Vis isense 0 0
+Vic icomp 0 PWL(0 .72 2u .72 2.001u 6 20u 6)
+Xu vcc vsense isense icomp vcomp gate 0 UCC28180_FN
+.options method=gear reltol=1e-5
+.save v(gate)
+.tran 1n 20u 0 1n uic
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+wrdata pwm-hold.tsv v(gate)
+quit
+.endc
+.end

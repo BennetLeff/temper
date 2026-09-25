@@ -1,0 +1,56 @@
+{
+  "revision": 17,
+  "date": "2026-09-22",
+  "status": "integration_requirements_reconciled; exact_part_selection_waiting_for_user_connector",
+  "scope": "protected-AUX capacitance census and existing source-watchdog binding; no new part selection or candidate adoption",
+  "tools": {
+    "rustc": "1.92.0",
+    "node": "26.4.0"
+  },
+  "verification": {
+    "rust_tests": 8,
+    "source_census_nominal_uF": 12.1,
+    "total_with_220uF_target_nominal_uF": 232.1,
+    "capacitance_sensitivity_rows": 6,
+    "all_rows_conditional": true,
+    "revision16_artifacts_unchanged": 56,
+    "inherited_inputs_unchanged": 20,
+    "TI_TPS54202_revc_page5": "downloaded and visually reviewed; EN1.21V and current0.7uA are typical"
+  },
+  "decisions": [
+    "use standalone interlock as producer reference; legacy watchdog pin reversal is known and excluded",
+    "reject direct TPS3823 diagnostic-to-10k health input as unsupported by its30uA VOH datum",
+    "consider already watchdog-qualified interlock PERMIT before adding duplicate watchdog circuitry",
+    "SOURCE_RESET_GOOD must detect MCU reset; supply supervision alone is insufficient",
+    "require complete min/max capacitor window;12uF historical example is not complete integration bound",
+    "do not add buck sequencing based on the rejected below3V switching claim"
+  ],
+  "pending": [
+    "PCBParts or Zenode connection chosen by user",
+    "capacitor package flexibility answer",
+    "exact capacitor limits and MPN selections",
+    "source MCU reset observer; HOT watchdog/decoder/level translation",
+    "integrated timing/startup/fault qualification"
+  ],
+  "full_compiled_candidate": {
+    "revision": 11,
+    "components": 136,
+    "unchanged": true
+  },
+  "delegation": {
+    "model": "gpt-5.6-luna",
+    "workers": [
+      "existing_watchdog_audit",
+      "downstream_cap_census"
+    ],
+    "handbacks_parent_corrected": true,
+    "workers_stopped": true
+  },
+  "changes": {
+    "production_source": false,
+    "pcb": false,
+    "revision16_schematics": false,
+    "commit": false,
+    "push": false
+  }
+}

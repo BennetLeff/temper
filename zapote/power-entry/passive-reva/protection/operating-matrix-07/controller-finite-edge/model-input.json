@@ -1,0 +1,5 @@
+{
+  "sha256": "1aa5065f4054a0b80ccca85e26765edb65f6e738481263aefdb392151897d5c6",
+  "parent": "../controller-latched-explicit/ucc28180.inc",
+  "change": "Preserve finite PWM DAC edge in Bgate; all fault/PCL/OVP masks retained."
+}

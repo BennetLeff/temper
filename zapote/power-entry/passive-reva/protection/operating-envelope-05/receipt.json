@@ -1,0 +1,51 @@
+{
+  "status": "Research and detailed delegation plan complete; integrated-model and consolidation implementation pending",
+  "date": "2026-09-19",
+  "base_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "dirty": true,
+  "hardware_available": false,
+  "host_model": "gpt-6-astra",
+  "delegated_models": {
+    "requirements": "gpt-5.6-luna",
+    "component_limits": "gpt-5.6-luna",
+    "simulation_coverage": "gpt-5.6-luna",
+    "plan_review": "gpt-5.6-luna"
+  },
+  "delegation": "Three Luna research agents in parallel; host integration; subsequent Luna plan review. Agent limit prevented a fourth parallel worker.",
+  "implemented_this_pass": [
+    "source-backed requirements audit",
+    "component/source-condition audit",
+    "simulation gap audit",
+    "integration interface/census review",
+    "operating-envelope evidence contract",
+    "detailed sequenced work plan",
+    "Luna plan review"
+  ],
+  "not_implemented_this_pass": [
+    "new current or voltage hardware bounds",
+    "new controller-coupled simulation",
+    "schematic consolidation",
+    "PCB or firmware changes",
+    "hardware qualification"
+  ],
+  "checks": {
+    "frozen_experiment_artifact_hashes_unchanged": 457,
+    "frozen_external_source_plan_test_hashes_unchanged": 3,
+    "plan_review": "ACCEPT; no must-fix",
+    "numerical_tests": "not run; research/documents only"
+  },
+  "external_artifacts": {
+    "docs/plans/2026-09-19-power-stage-operating-envelope-plan.md": "398089dd198100c3560251eeed0111dbc31c886d5efade6b7a7c5aaec3bf83b0",
+    "elec/src/power_entry_passive_reva.ato": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8",
+    "elec/src/power_entry_f2_shutdown_revb.ato": "050818ac162a1aa93ecd63325588adb2102504c8148ecbcbf0898abce2377f68"
+  },
+  "artifacts": {
+    "README.md": "4d6d2d50eb5d660c4c6a30111631fa03764bc169706ab9217c52539a284c807f",
+    "envelope-contract.md": "ac907be9940bdb928dd5586224db79ed6b4413ec723eb84ac64241a3512ed0b1",
+    "research/components.md": "aa76b61ca7c962102521e7281373c591a5233de840d8aadabbd02211fda042c1",
+    "research/integration.md": "c16b4a106ecd0c110d2c3a4816e05e9e5a8bbf9d2ee30b26d8bd0b20c4bff3cd",
+    "research/plan-review.md": "62dd5073bf82e056512c7b696bd072ba9c07fd5b8f1f290b9a23a68494e4593d",
+    "research/requirements.md": "8d4c65df36a1b7797f42cefc48658232f6d15c374b402e87e1d2583d386633f7",
+    "research/sweeps.md": "405b00b26f9f501272a884fb58aa4f8e96be02615bcbd9cdfb010b6e782cf2a7"
+  }
+}

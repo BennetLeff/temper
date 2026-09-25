@@ -1,0 +1,30 @@
+{
+  "status": "PARENT_VISUALLY_REVIEWED_REFERENCE_COMPONENT_INVENTORY",
+  "at_utc": "2026-09-22T01:45:20.324627+00:00",
+  "evidence_sha256": {
+    "host/ucc28180-reference-deviations-107.md": "2a0619c66d1824ddbc1ae593e9650253db9fde13fa5444fad7128d353eca104f",
+    "host/ucc28180-reference-deviations-107.json": "1796264a041349d500e4b5fcb9b19f213f0408c2c167756c7275a87ba8dedf99",
+    "host/reference-sources-107/sluuat3.pdf": "4060ba9b2d4d6bd0c06540d9fae91894ee472b93169efc7f05dcfefaa9435911",
+    "host/reference-sources-107/tidrka5.pdf": "8b91f9402e1fd36dd71b2af6b465d300c5af5ec7488f9290bdb9b58bf5c57f05"
+  },
+  "checks": [
+    "ParentviewedEVMp6andTIDAsheets1,2 usingpdftoppm+view_image; verifiedpins/connectivity",
+    "EVM shunt/filter/FREQ/feedback/compensation corrected fromPDFtext-adjacencyerrors",
+    "TIDARevC external12V/UCC27531 claims replaced byactualRevD onboard28881/27524 andvariantnote",
+    "TIDAfullpower190\u2013270V guide range distinguishedfrom156\u2013265Vschematicnote",
+    "Localbaseline sourcehashes anddownloadedPDF/renderhashes verified",
+    "EVMbias12V>=10mAandstartuploadsequence verified inPDFtextpp8\u20139"
+  ],
+  "next_design_implications": [
+    "UseEVMcontroller-stagebaselinewithdocumenteddeviations; lowlinepowerbudgetmustincludeauxiliarylosses",
+    "Evaluatephysicalstartup/inrushbypassdiode/bias/drivercircuitsfromreference ratherthanassumingidealrails",
+    "Do notcopyTIDAline-follower or3.33mOhmshuntblindly intofixed390Vlowlineapplication",
+    "Circuitreferenceisnotvalidationofhostcontrollerorselectedclampmodel",
+    "If adopting the reference D2 inrush diode, update the fault-current graph: it provides a rectifier-to-bus path bypassing the boost inductor and MOS-controlled conversion path when forward biased. Existing frozen fault evidence cannot be transferred unchanged to that revised graph. This is connectivity inference, not predicted current or interruption performance."
+  ],
+  "limits": [
+    "No componentvalues orfrozenmodels changed",
+    "No loopstabilitycalculation orvendor-model/hardwarecorrelation completed",
+    "Referencepart doesnotguarantee localfaultinterruption/thermal/SOA"
+  ]
+}

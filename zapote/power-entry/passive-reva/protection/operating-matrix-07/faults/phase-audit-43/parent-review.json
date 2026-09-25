@@ -1,0 +1,28 @@
+{
+  "status": "PARENT_REVIEWED_PHASE_SUCCESSOR_FOR_FULL_RAW_SCAN",
+  "utc": "2026-09-21T18:33:29.365810+00:00",
+  "source_sha256": "c4640136e0ecb53d179b5702cc59779155a6ea6a90289ca4e8eaef75432f447d",
+  "binary": "/private/tmp/matrix07-phase43-parent",
+  "binary_sha256": "e546ddfb84c53b73303e465574fa29fdff7753768c3a71efda1f8b5f185be965",
+  "unit_tests_passed": 10,
+  "independent_CLI_tests_passed": 15,
+  "independent_CLI_receipt_sha256": "da932b632b9738fb750370279c9de946dce59419ed7a18845ec6f7d1d22e2f47",
+  "parent_corrections": [
+    "Outward-bound signed spread D before using it.",
+    "Outward-bound crest factor before multiplying.",
+    "Require and report last maximalgroup strictneighbors aswellfirst, reject tiedmaxatlocalboundary.",
+    "Name local equal-group counts explicitly.",
+    "Rewrite stale proposed-bound prose: selected localpeak includesedge, so no uppercrestcondition; separatedties are not a plateau. Phase tool alone does not certify startupcoverage."
+  ],
+  "proof": "For every equal-time representative choice: max(0,|E|-D)<=A<=|E|+D and max(0,P-D)<=M<=P, with A<=M. Crest lowerbound >=(1-tol)*P implies A>=(1-tol)*M. Zero upperbound <=tol*max(0,P-D) implies A<=tol*M. Finite binary64 bounds rounded outward.",
+  "unchanged_tolerance": 0.01,
+  "unchanged_local_interval_s": [
+    0.65,
+    0.6583333333333
+  ],
+  "frozen_phase35_sha256": "fe572c19646b55e26b9f7bf17e8e4086f7ceb49af08a799a455a7d7fc82ce28b",
+  "frozen_checker_sha256": "a94f3a7e5ac5bcae67d94a53afacf8338567eaf8b1870b2bf8db12121f25bc66",
+  "README_sha256": "5b07fa735d608201d033450321b6a52b46825ad3e5655ab00540309366af693e",
+  "raw_scan_session": 43352,
+  "acceptance": false
+}

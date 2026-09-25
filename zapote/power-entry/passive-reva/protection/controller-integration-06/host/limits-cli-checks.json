@@ -1,0 +1,43 @@
+{
+  "invalid_cases_rejected": [
+    [
+      "garbage"
+    ],
+    [
+      "--current-a"
+    ],
+    [
+      "--current-a",
+      "NaN"
+    ],
+    [
+      "--current-a",
+      "-1"
+    ],
+    [
+      "--current-a",
+      "50",
+      "--current-a",
+      "60"
+    ],
+    [
+      "--cmin-uf",
+      "0"
+    ],
+    [
+      "--vd-start-v",
+      "10"
+    ],
+    [
+      "--delay-us",
+      "inf"
+    ],
+    [
+      "--lmin-uh",
+      "217",
+      "--lmax-uh",
+      "216"
+    ]
+  ],
+  "alternate_screen_semantics": "PASS"
+}

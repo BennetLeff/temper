@@ -1,0 +1,11 @@
+
+running 6 tests
+test malformed_event_schema_is_rejected ... ok
+test linear_vb_bound_uses_both_adjacent_widths ... ok
+test ac2_uses_differential_ac_voltage_not_raw_source ... ok
+test cross_product_bound_covers_negative_intervals_and_boundary ... ok
+test group_range_keeps_internal_return_peak ... ok
+test parent_energy_overflow_and_source_adjacency_fail_closed ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

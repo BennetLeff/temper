@@ -1,0 +1,11 @@
+{
+  "status": "PARENT_VERIFIED_RESOURCE_SUMMARY",
+  "accepted_electrical": false,
+  "sample_count": 516,
+  "minimum_free_GiB": 44.94217300415039,
+  "maximum_owned_RSS_GiB": 6.4427337646484375,
+  "worker_receipt_sha256": "4ffe90db248abe202d6de9f32cf89b69e2694c9aac41fdfb5cca8badb849c2cd",
+  "source_sha256": "9188962a701df4876eb4d0c3d26fd687654c2f1b91b5cc26edc9fc7377e11190",
+  "clock_correction": "Worker compares monitor UTC against monitor elapsed only. It does not compare native host Instant. Native stop wall_s2402.725629 excludes substantial monitor gaps; cause of clock difference is not established by this receipt. Do not infer solver hang or ETA from mixed clocks.",
+  "global_swap_not_attributable": true
+}

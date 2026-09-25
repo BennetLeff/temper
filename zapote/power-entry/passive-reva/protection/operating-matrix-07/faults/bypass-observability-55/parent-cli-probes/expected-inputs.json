@@ -1,0 +1,28 @@
+{
+  "schema_source": "faults/saved-pin-observability-50/main.rs",
+  "off_then_on": {
+    "rows": 6,
+    "post_rows_including_edge": 4,
+    "qen_gate_off_rows": 2,
+    "first_off_s": 0.655,
+    "last_off_s": 0.662,
+    "abs_channel_above_0_1_rows": 2,
+    "channel_first_above_s": 0.654,
+    "channel_last_above_s": 0.66,
+    "channel_min_a": -2,
+    "channel_max_a": 1,
+    "detector_external_all_zero": true
+  },
+  "always_on": {
+    "off_rows": 0,
+    "off_times": null
+  },
+  "equal_logic_rows": "Preserve both same-time rows as observations; no inferred continuous state.",
+  "invalid": [
+    "marker_same_time",
+    "nonfinite_unused",
+    "missing_endpoint",
+    "missing_start",
+    "marker_fall_rerise"
+  ]
+}

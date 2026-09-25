@@ -1,0 +1,18 @@
+{
+  "input_files": [
+    {"path":"authored_logic_hysteretic.inc","sha256":"95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"},
+    {"path":"case.cir","sha256":"d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78"},
+    {"path":"clamp.inc","sha256":"96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde"},
+    {"path":"manifest.json","sha256":"fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9"},
+    {"path":"protection.inc","sha256":"61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8"},
+    {"path":"standby.inc","sha256":"94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb"},
+    {"path":"ucc28180-pwm-latch.inc","sha256":"2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"}
+  ],
+  "tools": {
+    "native_host": {"path":"/private/tmp/matrix07-direct-fault37-parent","sha256":"dcd72ea758b7a9ac3d60f6b35f249afad756fb63b02e584ca3ad937e7edc42a9"},
+    "pigz": {"path":"/opt/homebrew/Cellar/pigz/2.8_1/bin/pigz","sha256":"a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"},
+    "decoder": {"path":"/private/tmp/matrix07-fault-native-decoder-parent","sha256":"af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658"},
+    "adapter": {"path":"/private/tmp/matrix07-fault-adapter-parent","sha256":"53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae"},
+    "validator": {"path":"/private/tmp/matrix07-fault-validation22-parent","sha256":"63f6d17b123acd696c1f30fa546e7546ae43cf45cfb660cda44086bab3afb12f"}
+  }
+}

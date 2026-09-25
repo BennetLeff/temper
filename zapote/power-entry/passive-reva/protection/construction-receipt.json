@@ -1,0 +1,133 @@
+{
+  "status": "ECO placed; affected nets and supervisor remain unrouted",
+  "base_sha256": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9",
+  "pcb_sha256": "ae47d43a4c65e30fac5d54f52422d57bc8338a5b90e60f4c4c810041316913cb",
+  "removed_tracks": [
+    {
+      "uuid": "01f2afa4-06a4-4159-868d-78d63750b7d1",
+      "old_net": "HOT_PERMIT_EXTERNAL"
+    },
+    {
+      "uuid": "581b22bc-e574-4496-9758-ad48e57cad01",
+      "old_net": "HOT_PERMIT_EXTERNAL"
+    },
+    {
+      "uuid": "77f53a88-4c67-4c1d-8e5a-1b79daaed2aa",
+      "old_net": "HOT_PERMIT_EXTERNAL"
+    },
+    {
+      "uuid": "9fb9efaa-6e5c-4153-a70f-4b4e57d77d5c",
+      "old_net": "HOT_PERMIT_EXTERNAL"
+    },
+    {
+      "uuid": "11b499aa-39e6-480e-8d8f-482455854b27",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "1f4e445f-f988-4e76-abd8-425c2d61ef77",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "202890cb-ccb5-414a-9112-7c229129e7a9",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "2d1e2fc8-943b-4320-baf2-429d438a2ef4",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "3a2c3b0a-fce5-47df-9e47-5b0cd2e438e2",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "55553750-e894-47a2-965d-7021888ec758",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "6261cffd-707a-41ca-bec7-2b71739f4fac",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "738a698a-629c-4aaa-93dc-b407ea767509",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "7a9c939c-c925-47c8-987e-b8c3510edc69",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "94a68cb6-95da-4d2a-8387-e71301a15a6a",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "9d3ad607-082b-44bb-89be-cf6b4686bd8a",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "ca0c12d9-be69-4ece-af96-c026fd271dc2",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "cb0f1d09-178f-46c7-b9d0-8caf86c0e45f",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "df320985-7c91-4c6e-a672-6377eace752a",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "f98a1626-1fd2-40b6-a2d7-ac36935daa4a",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "fa43fa01-b660-4e42-b53c-49894606bd7f",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "6d2b41e7-43c2-4ff8-9319-787da2aa60f4",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "954a68d8-8c29-4706-8ddb-251c8518a7a2",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "c45d59b8-60e9-487c-8932-56c32cb7c63e",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "ff4fe944-8cd7-4b47-abb1-6eea457d35a0",
+      "old_net": "PFC_BUS_PLUS_390V"
+    },
+    {
+      "uuid": "251db3a3-f1b0-4144-b018-11f9635f3ee2",
+      "old_net": "gate"
+    },
+    {
+      "uuid": "8762ebf9-9834-474b-a0ce-af3dd3b98ab7",
+      "old_net": "gate"
+    },
+    {
+      "uuid": "9c25bba1-a847-48b6-8aee-1450aec16926",
+      "old_net": "gate"
+    },
+    {
+      "uuid": "d5fe5516-1bc2-4869-8d62-e76a33da626c",
+      "old_net": "gate"
+    },
+    {
+      "uuid": "2d651d26-8dad-4e8d-851e-e0edb2bdad58",
+      "old_net": "gate"
+    },
+    {
+      "uuid": "64a5af0d-a45c-44d6-9d1c-b10590ae1d98",
+      "old_net": "gate"
+    },
+    {
+      "uuid": "67451920-c783-44e0-8135-c62644273e70",
+      "old_net": "gate"
+    }
+  ],
+  "footprints": 133,
+  "remaining_tracks": 269
+}

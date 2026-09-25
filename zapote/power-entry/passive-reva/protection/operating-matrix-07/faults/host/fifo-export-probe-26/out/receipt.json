@@ -1,0 +1,15 @@
+{
+  "status": "PASS_TRANSPORT_ONLY",
+  "synthetic_only": true,
+  "producer_exit": 0,
+  "pigz_exit": 0,
+  "compressed_bytes": 4872093,
+  "compressed_sha256": "bd4ac61e8b126c81ab7a80377aed3f38584fd2300763c1e99dfb8bb629949cda",
+  "decompressed_expected_bytes": 4404086473,
+  "verify": true,
+  "verify_detail": "verifier_rc=0 decompressor_rc=0",
+  "elapsed_s": 7.764,
+  "failure": None,
+  "limits": {"compressed_cap_bytes": 104857600, "disk_floor_bytes": 10737418240, "timeout_s": 120},
+  "interpretation": "Success bounds this FIFO/pigz transport path only; failure does not identify the LL05 stall cause."
+}

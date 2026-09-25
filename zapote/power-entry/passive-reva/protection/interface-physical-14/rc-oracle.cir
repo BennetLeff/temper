@@ -1,0 +1,11 @@
+* Independent RC arithmetic oracle. Ideal stiff sources; no actual protection device.
+V35 in35 0 DC 35
+R35 in35 out35 3.275862069
+C35 out35 0 10u IC=15.75
+V24 in24 0 DC 24.6
+R24 in24 out24 3.275862069
+C24 out24 0 10u IC=15.75
+.tran 1n 12u uic
+.measure tran t18_35 WHEN v(out35)=18 RISE=1
+.measure tran t18_24 WHEN v(out24)=18 RISE=1
+.end

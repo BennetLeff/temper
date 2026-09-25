@@ -1,0 +1,613 @@
+{
+  "retrieved": "2026-09-22",
+  "indexed_stock_not_order_reservation": true,
+  "records": [
+    {
+      "query": {
+        "lcsc": "C338111"
+      },
+      "result": {
+        "lcsc": "C338111",
+        "model": "C3216C0G2A104JT000E",
+        "manufacturer": "TDK",
+        "package": "1206",
+        "stock": 1383,
+        "price": 0.5047,
+        "price_10": 0.4185,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "specs": {
+          "Voltage Rating": "100V",
+          "Tolerance": "±5%",
+          "Capacitance": "100nF",
+          "Temperature Coefficient": "C0G"
+        },
+        "description": "100V 100nF C0G ±5% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "min_order": 1,
+        "reel_qty": 2000,
+        "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410121618_TDK-C3216C0G2A104JT000E_C338111.pdf",
+        "lcsc_url": "https://www.lcsc.com/product-detail/multilayer-ceramic-capacitors-mlcc-smd-smt_tdk-c3216c0g2a104jt000e_C338111.html",
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.5047
+          },
+          {
+            "qty": "10+",
+            "price": 0.4185
+          },
+          {
+            "qty": "30+",
+            "price": 0.381
+          },
+          {
+            "qty": "100+",
+            "price": 0.3354
+          },
+          {
+            "qty": "500+",
+            "price": 0.2768
+          },
+          {
+            "qty": "1000+",
+            "price": 0.2654
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Voltage Rating",
+            "value": "100V"
+          },
+          {
+            "name": "Tolerance",
+            "value": "±5%"
+          },
+          {
+            "name": "Capacitance",
+            "value": "100nF"
+          },
+          {
+            "name": "Temperature Coefficient",
+            "value": "C0G"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "38bd85ac55304016be5b5d0de7b1c9df",
+        "easyeda_footprint_uuid": "7bdec8012728462a85919a4d0d033579"
+      }
+    },
+    {
+      "query": {
+        "lcsc": "C437643"
+      },
+      "result": {
+        "lcsc": "C437643",
+        "model": "63ZLJ330M10X20",
+        "manufacturer": "Rubycon",
+        "package": "Plugin,D10xL20mm",
+        "stock": 14574,
+        "price": 0.3431,
+        "price_10": 0.2788,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Aluminum Electrolytic Capacitors - Leaded",
+        "subcategory_id": 2931,
+        "mounting_type": "through_hole",
+        "specs": {
+          "Operating Temperature": "-40℃~+105℃",
+          "Lifetime": "10000hrs@105℃",
+          "Pin Spacing": "5mm",
+          "Voltage Rating": "63V",
+          "Height - Seated (Max)": "20mm",
+          "Tolerance": "±20%",
+          "Capacitance": "330uF",
+          "Diameter": "10mm"
+        },
+        "description": "-40℃~+105℃ 10000hrs@105℃ 10mm 20mm 330uF 5mm 63V ±20% 插件,D10xL20mm Aluminum Electrolytic Capacitors - Leaded ROHS",
+        "min_order": 1,
+        "reel_qty": 200,
+        "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_1912111437_Rubycon-63ZLJ330M10X20_C437643.pdf",
+        "lcsc_url": "https://www.lcsc.com/product-detail/aluminum-electrolytic-capacitors-leaded_rubycon-63zlj330m10x20_C437643.html",
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.3431
+          },
+          {
+            "qty": "50+",
+            "price": 0.2788
+          },
+          {
+            "qty": "150+",
+            "price": 0.2513
+          },
+          {
+            "qty": "500+",
+            "price": 0.1778
+          },
+          {
+            "qty": "2500+",
+            "price": 0.1625
+          },
+          {
+            "qty": "5000+",
+            "price": 0.1533
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Operating Temperature",
+            "value": "-40℃~+105℃"
+          },
+          {
+            "name": "Lifetime",
+            "value": "10000hrs@105℃"
+          },
+          {
+            "name": "Pin Spacing",
+            "value": "5mm"
+          },
+          {
+            "name": "Voltage Rating",
+            "value": "63V"
+          },
+          {
+            "name": "Height - Seated (Max)",
+            "value": "20mm"
+          },
+          {
+            "name": "Tolerance",
+            "value": "±20%"
+          },
+          {
+            "name": "Capacitance",
+            "value": "330uF"
+          },
+          {
+            "name": "Diameter",
+            "value": "10mm"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "db9e708fa13d44d39f9fbeecaf4f55f8",
+        "easyeda_footprint_uuid": "10740f144756421793e1ecc7520b3129"
+      }
+    },
+    {
+      "query": {
+        "lcsc": "C49296968"
+      },
+      "result": {
+        "lcsc": "C49296968",
+        "model": "C3225X7R2A106KT000E",
+        "manufacturer": "TDK",
+        "package": "1210",
+        "stock": 1939,
+        "price": 0.692,
+        "price_10": 0.5536,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "specs": {
+          "Voltage Rating": "100V",
+          "Tolerance": "±10%",
+          "Capacitance": "10uF",
+          "Temperature Coefficient": "X7R"
+        },
+        "description": "1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "min_order": 1,
+        "reel_qty": 1000,
+        "datasheet": null,
+        "lcsc_url": null,
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.692
+          },
+          {
+            "qty": "10+",
+            "price": 0.5536
+          },
+          {
+            "qty": "30+",
+            "price": 0.4852
+          },
+          {
+            "qty": "100+",
+            "price": 0.4168
+          },
+          {
+            "qty": "500+",
+            "price": 0.3761
+          },
+          {
+            "qty": "1000+",
+            "price": 0.355
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Voltage Rating",
+            "value": "100V"
+          },
+          {
+            "name": "Tolerance",
+            "value": "±10%"
+          },
+          {
+            "name": "Capacitance",
+            "value": "10uF"
+          },
+          {
+            "name": "Temperature Coefficient",
+            "value": "X7R"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "65656c1b157d4c41a231bf31efa2367b",
+        "easyeda_footprint_uuid": "2ff699914e4849dc8fa1384e78f43943"
+      }
+    },
+    {
+      "query": {
+        "lcsc": "C40708"
+      },
+      "result": {
+        "lcsc": "C40708",
+        "model": "CL32B105KBHNNNE",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "package": "1210",
+        "stock": 14286,
+        "price": 0.13,
+        "price_10": 0.1085,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Tolerance": "±10%",
+          "Capacitance": "1uF",
+          "Temperature Coefficient": "X7R"
+        },
+        "description": "1uF 50V X7R ±10% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "min_order": 1,
+        "reel_qty": 2000,
+        "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL32B105KBHNNNE_C40708.pdf",
+        "lcsc_url": "https://www.lcsc.com/product-detail/multilayer-ceramic-capacitors-mlcc-smd-smt_samsung-electro-mechanics-cl32b105kbhnnne_C40708.html",
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.13
+          },
+          {
+            "qty": "50+",
+            "price": 0.1085
+          },
+          {
+            "qty": "150+",
+            "price": 0.0979
+          },
+          {
+            "qty": "500+",
+            "price": 0.0898
+          },
+          {
+            "qty": "2000+",
+            "price": 0.0834
+          },
+          {
+            "qty": "4000+",
+            "price": 0.0802
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Voltage Rating",
+            "value": "50V"
+          },
+          {
+            "name": "Tolerance",
+            "value": "±10%"
+          },
+          {
+            "name": "Capacitance",
+            "value": "1uF"
+          },
+          {
+            "name": "Temperature Coefficient",
+            "value": "X7R"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "9f74b6e92be040e9678227d963281059",
+        "easyeda_footprint_uuid": "2ff699914e4849dc8fa1384e78f43943"
+      }
+    },
+    {
+      "query": {
+        "lcsc": "C24497"
+      },
+      "result": {
+        "lcsc": "C24497",
+        "model": "CL31B104KBCNNNC",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "package": "1206",
+        "stock": 1952583,
+        "price": 0.0232,
+        "price_10": 0.0178,
+        "library_type": "basic",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Tolerance": "±10%",
+          "Capacitance": "100nF",
+          "Temperature Coefficient": "X7R"
+        },
+        "description": "100nF 50V X7R ±10% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "min_order": 1,
+        "reel_qty": 4000,
+        "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL31B104KBCNNNC_C24497.pdf",
+        "lcsc_url": "https://www.lcsc.com/product-detail/multilayer-ceramic-capacitors-mlcc-smd-smt_samsung-electro-mechanics-cl31b104kbcnnnc_C24497.html",
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.0232
+          },
+          {
+            "qty": "200+",
+            "price": 0.0178
+          },
+          {
+            "qty": "600+",
+            "price": 0.0155
+          },
+          {
+            "qty": "4000+",
+            "price": 0.0127
+          },
+          {
+            "qty": "8000+",
+            "price": 0.012
+          },
+          {
+            "qty": "20000+",
+            "price": 0.0115
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Voltage Rating",
+            "value": "50V"
+          },
+          {
+            "name": "Tolerance",
+            "value": "±10%"
+          },
+          {
+            "name": "Capacitance",
+            "value": "100nF"
+          },
+          {
+            "name": "Temperature Coefficient",
+            "value": "X7R"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "d21e3caf4d6f43942da08115ecf3f03d",
+        "easyeda_footprint_uuid": "7bdec8012728462a85919a4d0d033579"
+      }
+    },
+    {
+      "query": {
+        "lcsc": "C3018567"
+      },
+      "result": {
+        "lcsc": "C3018567",
+        "model": "C0805C105K5RACTU",
+        "manufacturer": "KEMET",
+        "package": "0805",
+        "stock": 1928,
+        "price": 0.1546,
+        "price_10": 0.1275,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Tolerance": "±10%",
+          "Capacitance": "1uF",
+          "Temperature Coefficient": "X7R"
+        },
+        "description": "1uF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "min_order": 1,
+        "reel_qty": 2500,
+        "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410010102_KEMET-C0805C105K5RACTU_C3018567.pdf",
+        "lcsc_url": "https://www.lcsc.com/product-detail/multilayer-ceramic-capacitors-mlcc-smd-smt_kemet-c0805c105k5ractu_C3018567.html",
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.1546
+          },
+          {
+            "qty": "50+",
+            "price": 0.1275
+          },
+          {
+            "qty": "150+",
+            "price": 0.114
+          },
+          {
+            "qty": "500+",
+            "price": 0.1038
+          },
+          {
+            "qty": "2500+",
+            "price": 0.0956
+          },
+          {
+            "qty": "5000+",
+            "price": 0.0915
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Voltage Rating",
+            "value": "50V"
+          },
+          {
+            "name": "Tolerance",
+            "value": "±10%"
+          },
+          {
+            "name": "Capacitance",
+            "value": "1uF"
+          },
+          {
+            "name": "Temperature Coefficient",
+            "value": "X7R"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "7e16acdf5c234324bd9d460e81d310ac",
+        "easyeda_footprint_uuid": "2ee8eb13a0124a108e622ce40c0c25a8"
+      }
+    }
+  ],
+  "film": {
+    "results": [
+      {
+        "source": "mouser",
+        "part_number": "80-R75GN415050H0J",
+        "mfr_part_number": "R75GN415050H0J",
+        "manufacturer": "KEMET",
+        "description": "Film Capacitors 160V 1.5 uF 125C 5% 2 Pin LS=22.5 mm AEC-Q200",
+        "category": "Film Capacitors",
+        "stock": 260,
+        "price": 2.36,
+        "price_breaks": [
+          {
+            "qty": 1,
+            "price": 2.36,
+            "currency": "USD"
+          },
+          {
+            "qty": 10,
+            "price": 1.66,
+            "currency": "USD"
+          },
+          {
+            "qty": 50,
+            "price": 1.42,
+            "currency": "USD"
+          },
+          {
+            "qty": 100,
+            "price": 1.25,
+            "currency": "USD"
+          },
+          {
+            "qty": 600,
+            "price": 1.07,
+            "currency": "USD"
+          },
+          {
+            "qty": 1200,
+            "price": 0.983,
+            "currency": "USD"
+          },
+          {
+            "qty": 10200,
+            "price": 0.91,
+            "currency": "USD"
+          }
+        ],
+        "datasheet_url": "https://www.mouser.com/datasheet/3/508/1/KEM_F3121_R75H.pdf",
+        "product_url": "https://www.mouser.ca/en/ProductDetail/KEMET/R75GN415050H0J?qs=vmHwEFxEFR9dZZbpP4rv0g%3D%3D",
+        "rohs": "RoHS Compliant",
+        "lifecycle": "Active",
+        "parameters": {
+          "Packaging": "Bulk",
+          "Standard Pack Qty": "300"
+        },
+        "min_qty": 1,
+        "currency": "USD"
+      },
+      {
+        "source": "mouser",
+        "part_number": "80-R76IR415050H3J",
+        "mfr_part_number": "R76IR415050H3J",
+        "manufacturer": "KEMET",
+        "description": "Film Capacitors 250V 1.5uF 5% LS=27.5mm",
+        "category": "Film Capacitors",
+        "stock": 1156,
+        "price": 4.38,
+        "price_breaks": [
+          {
+            "qty": 1,
+            "price": 4.38,
+            "currency": "USD"
+          },
+          {
+            "qty": 10,
+            "price": 2.8,
+            "currency": "USD"
+          },
+          {
+            "qty": 50,
+            "price": 2.52,
+            "currency": "USD"
+          },
+          {
+            "qty": 100,
+            "price": 2.16,
+            "currency": "USD"
+          },
+          {
+            "qty": 576,
+            "price": 2,
+            "currency": "USD"
+          },
+          {
+            "qty": 1152,
+            "price": 1.99,
+            "currency": "USD"
+          },
+          {
+            "qty": 2016,
+            "price": 1.94,
+            "currency": "USD"
+          }
+        ],
+        "datasheet_url": "https://www.mouser.com/datasheet/3/508/1/KEM_F3118_R76H.pdf",
+        "product_url": "https://www.mouser.ca/en/ProductDetail/KEMET/R76IR415050H3J?qs=%252B6g0mu59x7LF%2FlQljPOMdw%3D%3D",
+        "rohs": "RoHS Compliant",
+        "lifecycle": "Active",
+        "parameters": {
+          "Packaging": "Bulk",
+          "Standard Pack Qty": "288"
+        },
+        "min_qty": 1,
+        "currency": "USD"
+      }
+    ],
+    "total": 2
+  }
+}

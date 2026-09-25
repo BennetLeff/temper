@@ -1,0 +1,44 @@
+[
+  {
+    "fixture": "current-loop",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 1.55960529204458,
+    "trace_identical_to_finite_edge": true
+  },
+  {
+    "fixture": "functional",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 1.2030859580263495,
+    "trace_identical_to_finite_edge": true
+  },
+  {
+    "fixture": "soft-start",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 16.595664374995977,
+    "trace_identical_to_finite_edge": true
+  },
+  {
+    "fixture": "pwm-ramp",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 1.5643683751113713,
+    "trace_identical_to_finite_edge": true
+  },
+  {
+    "fixture": "pwm-hold",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 0.41942708287388086,
+    "trace_identical_to_finite_edge": true
+  },
+  {
+    "fixture": "integrated",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 8.676966791972518,
+    "trace_identical_to_finite_edge": true
+  }
+]

@@ -1,0 +1,16 @@
+
+running 11 tests
+test independent_checks::delay_search_is_not_silently_capped_at_one_millisecond ... ok
+test independent_checks::rejects_start_below_source_where_inverse_monotonicity_is_not_established ... ok
+test tests::highline_ramp_is_reported_separately_from_start_current ... ok
+test tests::local_cap_energy_is_positive_and_scales_with_delay ... ok
+test tests::inverse_current_boundary_matches_forward_screen ... ok
+test tests::rejects_nonfinite_and_invalid_geometry ... ok
+test tests::revb_anchor_calculation_is_not_confused_with_a_physical_limit ... ok
+test tests::zero_delay_does_not_turn_threshold_into_a_physical_current_limit ... ok
+test tests::lower_lmin_increases_current_and_reduces_delay_budget ... ok
+test tests::default_json_is_machine_readable_shape ... ok
+test independent_checks::commutation_peak_agrees_with_independent_rk4_circuit_equations ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

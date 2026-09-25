@@ -1,0 +1,28 @@
+{
+  "utc": "2026-09-21T07:24:20.097886+00:00",
+  "normal_accepted": [
+    "LL01",
+    "LL02",
+    "LL03",
+    "LL04",
+    "LL05"
+  ],
+  "normal_live": [
+    {
+      "case": "LL06",
+      "session": 15787,
+      "path": "line-load-native-runner-27/full-LL06/LL06"
+    },
+    {
+      "case": "LL07",
+      "session": 48096,
+      "path": "line-load-native-runner-27/full-LL07/LL07"
+    }
+  ],
+  "fault_live": null,
+  "first_settled_preparation": "faults/settled-native-capture-32 pending parentreview",
+  "free_gib": 27.99468994140625,
+  "reserve_gib": 10,
+  "concurrency_limit": 2,
+  "capacity_note": "Observed free space increased from14.2 to28.0GiB; cause not inferred. Memory-pressure query74%, one owned solver beforeLL07launch; CPU/memory permit second solver."
+}

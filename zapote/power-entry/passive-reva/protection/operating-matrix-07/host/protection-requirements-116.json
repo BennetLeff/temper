@@ -1,0 +1,33 @@
+{
+  "status": "FUNCTIONAL_REQUIREMENTS_SYNTHESIS_ONLY",
+  "accepted": false,
+  "scope": "Protection functions and model-vs-hardware verification; no component selection, ECO, solver run, or hardware qualification",
+  "working_power_interpretation": "1800 W is the Control Freak mains-input benchmark; no PMP efficiency is inherited and no DC-output requirement is asserted",
+  "source_hashes": {
+    "host/reference-parent-review-111.json": "6788e8bb6acf507a94be4caf3dacb4863d31eb652c589150b805692b934dbcad",
+    "host/diode-short-strategy-parent-review-100.json": "3680d28c26afdb73bd7563823fcb53cb291cc60d105f78bb55494d722d3ddd67",
+    "host/power-target-105.md": "162f64f44eaee9c6bad7efac2463a2aeba3dd9b3c95bf8aaad494cdc570d2dcc",
+    "faults/both-short-parent-review-110.json": "b3345900c80dde72675dcf0a9b8a2478e5696f88816a70757f6cb4e14473af74",
+    "faults/coincident-stress-observability-99/parent-result-review-103.md": "f91d1a11163af9ca02e6d810d7cd8cc2a0c64dee620251384a92f72aa9bedbe9",
+    "faults/coincident-stress-observability-99/parent-result-review-103.json": "411cb44570eae6161eca1f3b261aa7fad6c454d613edb53b524103f3f455809e",
+    "checker/hardware-validation-spec.md": "12417aec8beddde5ba37b85e7612e55f3c793e054d291378c35053ce7d41d4c1",
+    "faults/fault_checks.rs": "a94f3a7e5ac5bcae67d94a53afacf8338567eaf8b1870b2bf8db12121f25bc66",
+    "accepted-baseline-11/cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "accepted-baseline-11/protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "accepted-baseline-11/clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde"
+  },
+  "requirements": [
+    {"id":"f2_energy_isolation","must":"Verify explicit F2 open during established run, startup, and charged/discharged/residual restart states; do not assume command equals energy removal","model":"fault_checks requires F2 transition before detector event, prefault health, event timing, and retained-off observation; this is a modeled fault-opening witness, not proof of a controlled product disconnect","hardware":"Measure F2 voltage/current and VD/VB energy separately; control signal is not isolation proof"},
+    {"id":"failed_mos_interruption","must":"Do not credit q/en/gate low as interruption for switch-short or both-short while current persists; define a gate-independent, F2-independent source-current interrupting path with clearing time, interrupted energy, safe-failure, and restart requirements in a later hardware study","model":"switch-short/both-short channel current over frozen limit yields ProtectionGap in the post-detector slice rows[fault_idx..], beginning at the detector rising edge; source-fed and bank paths remain distinct","hardware":"Measure VDS/VGS and line, inductor, F2, diode/body, channel currents; prove source interruption, stored-energy handling, clearing time, and survival; no part or existing trace proves this"},
+    {"id":"separate_energy_reservoirs","must":"Treat VD local capacitor and VB bank as separate reservoirs and verify F2-closed discharge loop","model":"bank path Cbank→F2→VD→shorted terminal→MOS→node0; detector reports voltage conditions, not current allocation","hardware":"Measure capacitor voltages, ESR/ESL, currents, and temperatures independently"},
+    {"id":"detector_isense_coverage","must":"Show detector coverage for each credited mode; qualify any negative ISENSE clamp","model":"local BAV23C_ASSUMED_V2 clamp is an assumption; EVM no external clamp shown; TIDA D4 BAT54T1G network is not an automatic substitute","hardware":"Characterize clamp Vf/leakage/dynamics/PCL and correlate detector timing with direct currents"},
+    {"id":"restart_interlock","must":"Require fault, gate, latch, enable, rails, ARM and PERMIT requalification before restart","model":"verify q/en/gate/fault/ARM/PERMIT/f2ctl/rails and reject rearm or unstable prefault","hardware":"Exercise rail faults, ARM/PERMIT loss, standby, repeated mains and residual-energy restart"},
+    {"id":"inrush_bypass_graph","must":"Requalify any graph containing reference D2 inrush bypass","model":"local graph lacks D2; EVM/TIDA D2 can bypass inductor and MOS path; prior traces do not transfer","hardware":"Verify D2 current/voltage, inrush, relay sequence, thermal stress and interruption"}
+  ],
+  "known_disposition": {
+    "diode_short": "FAIL timing window; passive-path and bank-discharge witnesses do not qualify physical survival",
+    "both_short": "Screen failure prefix Lboost 435.79078242060086 A; protection not accepted",
+    "model_limits": "fault_checks limits are frozen model screens, not hardware ratings",
+    "hardware_evidence_boundary": "checker/hardware-validation-spec.md is an observation/comparison specification; later hardware evidence is needed and it does not authorize energization or establish acceptance"
+  }
+}

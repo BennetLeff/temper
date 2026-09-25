@@ -1,0 +1,27 @@
+
+running 22 tests
+test audit::fault_checks::tests::startup_transient_before_declared_event_is_ignored ... ok
+test audit::fault_checks::tests::preexisting_fault_is_rejected ... ok
+test audit::fault_checks::tests::no_energized_history_is_rejected ... ok
+test audit::fault_checks::tests::bypass_is_rejected_even_with_fault ... ok
+test audit::fault_checks::tests::too_short_post_event_window_is_rejected ... ok
+test audit::fault_checks::tests::ngspice_header_padding_is_token_checked ... ok
+test audit::fault_checks::tests::low_gate_with_sustained_channel_current_is_gap_for_switch_short ... ok
+test all_row_node_screen_cannot_be_hidden_before_retained_window ... ok
+test benign_equal_group_is_retained_without_indeterminate_flag ... ok
+test exact_event_window_boundary_is_flagged_and_earlier_f2_is_preserved ... ok
+test global_one_microsecond_gap_is_not_replaced_by_local_pacing_rule ... ok
+test retained_suffix_cap_fails_closed_without_allocating_the_cap ... ok
+test predicate_crossing_equal_group_is_indeterminate ... ok
+test audit::fault_checks::tests::no_fault_event_is_rejected ... ok
+test terminal_equal_group_is_reported_as_missing_right_context ... ok
+test audit::fault_checks::tests::latch_rearm_is_rejected ... ok
+test oversized_input_line_is_rejected_before_parsing_fields ... ok
+test audit::fault_checks::tests::truncated_trace_is_rejected ... ok
+test audit::fault_checks::tests::passive_current_is_reported_separately_after_channel_ceases ... ok
+test parent_bypass_cannot_earn_pass ... ok
+test parent_prefix_excursion_cannot_earn_suffix_pass ... ok
+test parent_full_pipeline_retains_benign_duplicate_and_same_frozen_verdict ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

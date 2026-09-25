@@ -1,0 +1,59 @@
+{
+  "status": "Incomplete nominal arithmetic only; no guaranteed maximum or supply acceptance",
+  "source": "zapote/power-entry/passive-reva/protection/reference-revision-09/source-candidate/elec/src/power_entry_pfc_control_candidate.ato",
+  "ports": [
+    "ac_l",
+    "ac_n",
+    "pe",
+    "relay_ctrl",
+    "hot_permit",
+    "control_gnd",
+    "aux_15v",
+    "aux_15v_return",
+    "hv_plus",
+    "hv_minus",
+    "local_vd",
+    "logic5",
+    "hot_arm"
+  ],
+  "terms": [
+    {
+      "rail": "logic5",
+      "load": "logic_bleed",
+      "condition": "rail present",
+      "voltage_v": 5,
+      "resistance_ohm": 220,
+      "current_ma": 22.727272727272727,
+      "power_w": 0.11363636363636363
+    },
+    {
+      "rail": "logic5",
+      "load": "ref_bias",
+      "condition": "2.5 V reference established",
+      "voltage_v": 5,
+      "resistance_ohm": 10000,
+      "current_ma": 0.25,
+      "power_w": 0.000625
+    },
+    {
+      "rail": "aux_15v",
+      "load": "driver IN-minus pullup",
+      "condition": "enable_good high; pull-down transistor approximated as zero volts",
+      "voltage_v": 15,
+      "resistance_ohm": 1000,
+      "current_ma": 15,
+      "power_w": 0.225
+    },
+    {
+      "rail": "aux_15v",
+      "load": "relay coil plus drop resistor",
+      "condition": "relay energized; nominal 360 ohm coil at reference temperature; negligible transistor drop",
+      "voltage_v": 15,
+      "resistance_ohm": 451,
+      "current_ma": 33.25942350332594,
+      "drop_resistor_power_w": 0.10066322191139668,
+      "coil_voltage_v": 11.973392461197339
+    }
+  ],
+  "excluded": "Device corner currents, switching charge, tolerance, temperature, regulator losses, startup charging and external loads; see README contract"
+}

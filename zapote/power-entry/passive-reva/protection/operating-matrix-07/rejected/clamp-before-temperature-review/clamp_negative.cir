@@ -1,0 +1,8 @@
+* Negative shunt fault probe: -5 V excursion through the real 220 ohm path.
+.include clamp.inc
+VSHUNT shunt 0 DC -5
+R_ISENSE shunt isense 220
+DCLAMP 0 isense BAV23C_TYP
+.op
+.print op v(shunt) v(isense) i(R_ISENSE) i(DCLAMP)
+.end

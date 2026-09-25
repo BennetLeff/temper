@@ -1,0 +1,42 @@
+{
+  "status": "PREPARED_SMOKE_EXPORT_ONLY",
+  "case": "F2-START",
+  "source_case": "../materializer-09/prepared/F2-START/case.cir",
+  "host_protocol": "DECK WALL_SECONDS TARGET_SECONDS EXPORT_PATH SNAPSHOT_PATH",
+  "host_binary": "/private/tmp/matrix07-fault-tracked-host-09",
+  "host_binary_sha256": "2250c532161b11018721b2cb37ac5626a1a54189f13ed4b3c7260a91faefc258",
+  "host_source_sha256": "37ce6413974000814f7c7a092d268c8c483ae99bd1a28ec0b635cc8fd535cc12",
+  "materializer_manifest_sha256": "385d2bde7db4e0368146fb107db65eb99c7851321f951033eea48044742eee8e",
+  "normal_save_signals": 30,
+  "fault_schema_signals": 17,
+  "fault_evidence_signals": 4,
+  "export_union_signals": 41,
+  "snapshot_diagnostics": 16,
+  "input_case_sha256": "8f2500cf7706dd1bef9134306813c210c42a4951b9fa5487eb799534f43ae76a",
+  "smoke": {
+    "status": "PASS_EXPORT_ONLY",
+    "command": "SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts /private/tmp/matrix07-fault-tracked-host-09 case.cir 2 0.5 trace.tsv first-invalid.tsv",
+    "wall_s": 0.27,
+    "sim_s": 2.0e-5,
+    "rows": 3582,
+    "header_columns": 42,
+    "trace_sha256": "6091e2fde3dcf1100848699443bf73f273aaf2685590774d8c57bc3a245f039a",
+    "metadata_sha256": "99c02b964550675b5da1d7fa59e2cfee21bbc5b14304ea254aa605603a9c62e8",
+    "verification_binary_sha256": "69a869e4c64d791ac4e5c85bcdaa4bd94b02a396b6071818bd79c76a2ea162ff",
+    "verification_source_sha256": "111485287e19850cc52506b96fc9514f9179bb19af567ccbb92ed3e2ccc68fc4",
+    "schedule_verification_binary_sha256": "df226181afda28fc7257fec11b7ae135870d65edd01cdcb67d5656314feb3d8a",
+    "schedule_verification_source_sha256": "c523f065cc91f9e7ddfd441a94ee84f23c2a5c359aec5436cfda98e307984bd2",
+    "verification": "header_columns=42 rows=3582 unique=true finite=true monotonic=true endpoint_checked=true actual_gap_checked=true actual_max_gap_s=1.32968317049791550e-8 actual_gap_le_25ns=true normal30=true fault17=true extras4=true diagnostics16=true; required_window_start=1e-6",
+    "all_prepared_cases": {
+      "F2-CREST": {"rows": 2253, "wall_s": 0.106120, "trace_sha256": "2f4138b213f82822429f7bdb44244d3aa8fbe0b629237809df36bc04425b0dc2", "schedule_first_s": 8.975e-6, "required_window_start_s": 9e-6, "actual_max_gap_s": 1.32968607101689252e-8, "schedule_pairs": 442},
+      "F2-ZERO": {"rows": 1906, "wall_s": 0.110159, "trace_sha256": "bda3650feb134a7bae142f5889c6a2528e3d1bd07128eb01392ea272ecaeae7b", "schedule_first_s": 1.0975e-5, "required_window_start_s": 1.1e-5, "actual_max_gap_s": 1.32968607101689252e-8, "schedule_pairs": 362},
+      "F2-START": {"rows": 3582, "wall_s": 0.209503, "trace_sha256": "6091e2fde3dcf1100848699443bf73f273aaf2685590774d8c57bc3a245f039a", "schedule_first_s": 9.75e-7, "required_window_start_s": 1e-6, "actual_max_gap_s": 1.32968317049791550e-8, "schedule_pairs": 762},
+      "SW-SHORT": {"rows": 2492, "wall_s": 0.110238, "trace_sha256": "e362c9a96f07297be08bb8e6bce47fa389c530d09367746160303c3a511a1cd5", "schedule_first_s": 8.975e-6, "required_window_start_s": 9e-6, "actual_max_gap_s": 1.32968317302512300e-8, "schedule_pairs": 442},
+      "DIODE-SHORT": {"rows": 2330, "wall_s": 0.106812, "trace_sha256": "1bd590064df89e56fa1553b99eb1784b760b4a16fa8add01297de50ebf3094bf", "schedule_first_s": 8.975e-6, "required_window_start_s": 9e-6, "actual_max_gap_s": 1.32968607101689252e-8, "schedule_pairs": 442},
+      "BOTH-SHORT": {"rows": 2345, "wall_s": 0.105305, "trace_sha256": "bd2057ec068d457fa4d34b77f6d31d416b2c9d92b9e8975cf31806e68bfb5558", "schedule_first_s": 8.975e-6, "required_window_start_s": 9e-6, "actual_max_gap_s": 1.32968607101689252e-8, "schedule_pairs": 442},
+      "BYPASS-NEG": {"rows": 2234, "wall_s": 0.106567, "trace_sha256": "03b7204ed6d9ea73a8d048a458c745be82cd7bd249947d16d282696037618cd7", "schedule_first_s": 8.975e-6, "required_window_start_s": 9e-6, "actual_max_gap_s": 1.32968607101689252e-8, "schedule_pairs": 442}
+    },
+    "schedule_contract": "all cases strictly increasing to 20us; nominal max gap 25ns including boundary bracket (first crest/start 8.975us, zero 10.975us, F2-START 0.975us)",
+    "full_campaign": "UNSTARTED"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "case": "SW-SHORT",
+  "source": "faults/settled-sw-short-59/full-SW-SHORT",
+  "status": "INCOMPLETE_NUMERICAL_ABORT",
+  "acceptance": false,
+  "root_cause": "UNKNOWN",
+  "confirmed": {
+    "stop_reason": "solver_stopped",
+    "sim_stop_s": 0.6544026486296868,
+    "expected_fault_s": 0.6541666666667,
+    "required_end_s": 0.662,
+    "points": 30686230,
+    "timestep_s": 6.25e-19,
+    "trouble_location": "vdboost2sense#branch",
+    "first_invalid": true,
+    "duplicate_count": 143,
+    "backwards_count": 0,
+    "nonfinite_time": false,
+    "abort_after_expected_fault_s": 0.00023598196298679763,
+    "remaining_to_required_end_s": 0.0075973513703132545
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "The 1 mOhm gate-independent Sswfail branch switching on near the fault creates a hard topology/conductance transition that the ideal zero-volt diode sense branch cannot converge through.",
+      "evidence": "Sswfail is in parallel with Msw; Vdboost2sense is an ideal 0 V branch probe.",
+      "status": "TESTABLE_NOT_PROVEN"
+    },
+    {
+      "id": "H2",
+      "statement": "The failed-short edge coincides with mixed-signal protection/PWM transitions and ideal zero-volt source probes, producing a locally stiff algebraic event independent of the physical branch current.",
+      "evidence": "The deck uses 1 ns PWL fault/control edges, ideal probes, and mixed-signal bridge elements.",
+      "status": "TESTABLE_NOT_PROVEN"
+    }
+  ],
+  "minimal_discriminating_fixture": "Construct a standalone micro-deck from the retained switch, diode, Vdboost2sense, and Vchannel topology with the same SWFAIL model and solver options, but a normalized event at t=0 over a tens-of-nanoseconds window. Run two static variants in a future experiment: remove Sswfail (H1 control) and retain Sswfail while suppressing the controller/PWL edge (H2 control). Compare convergence and timestep collapse at the Vdboost2sense branch; this distinguishes the candidates without replaying the 0.65 s campaign, but cannot establish full-deck behavior.",
+  "evidence_boundary": "Only regular stop.txt, host.stderr, host.stdout, case.cir, and prior review documents were read. No FIFO, raw trace, solver, process control, or source mutation was performed."
+}

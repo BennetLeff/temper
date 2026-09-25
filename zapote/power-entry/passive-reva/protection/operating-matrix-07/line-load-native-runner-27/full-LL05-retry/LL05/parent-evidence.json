@@ -1,0 +1,37 @@
+{
+  "status": "PARENT_SOURCE_AND_ARTIFACT_HASHES_VERIFIED",
+  "case": "LL05",
+  "observed_utc": "2026-09-21T05:39:36.703141+00:00",
+  "case_source_sha256": {
+    "cold.cir": "f85b4a622d8bf303e3f2f1646bb2cc977b03d24b655d4b48a14abadb8677528f",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "baseline_recovered_by_exact_two_parameter_reversal": true,
+  "runtime_tools_still_match_source_identity": true,
+  "runner_binary_matches_parent_review": true,
+  "artifact_sha256": {
+    "raw.trace.raw.gz": "7b1c540e3bdfd6f1741d13f872311ff92a12ceb84e2aaa42aeff3e77dd8642df",
+    "raw15-event-audit.txt": "d13be88199cc01a2fc7c47a70a9cdb6cd4f3c373a12ae7d67c5a945f661620bf",
+    "raw15-event-audit.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "owned-events.tsv": "1459d2254d3acfdba512c7a73cbb4e0ac8d9cc33e2dbe4b730b82a2af8510b4c",
+    "event-metrics.txt": "8e4046c050f645182b15c0e0b18235ec5602f5f0c6e87942120724f49a71c668",
+    "event-metrics.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-pipeline.json": "6dce3872882366574b198cd36ae33cee98f40fff42c3cb96b1eab197ec2b93f0",
+    "result.json": "0a19c3378228b4051e3bdcbbae334a120f668dd635410dcaaae59131f859c436",
+    "checker-report.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checker.stderr": "59d86307031dc69c1d7fc77092523a2f0f99c8b0ffde20188529afe614a9e1f3",
+    "capture-metadata.json": "f9b2063ee1ef06a245eb6962af780908bfa3ce97de9e9f83bcea5664b9a0aadd",
+    "stop.txt": "216aa718529c8f057a83948fdb3673cc8e5c8740dcbff171336b7e64ec6eeb3d",
+    "case.json": "3a5424f1b8f2d1e68bdea08bfe42670ffa8890f1e387abe24197fe10033ce3ce",
+    "first-invalid.tsv": "08008596173fef07ebd4591638f8b7b63825b7729001e93c26a51dea1d9c02b6",
+    "transport-identity.json": "2806ba531945433844e038ef0698626b2eba3b907bc5ff06dbf6ab421f50eca2"
+  },
+  "raw_bytes": 2167895869,
+  "full_runner_exit": 0,
+  "solver_wall_s": 1937.836478,
+  "total_case_wall_s": 2151.077
+}

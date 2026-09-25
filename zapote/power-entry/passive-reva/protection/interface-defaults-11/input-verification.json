@@ -1,0 +1,46 @@
+{
+  "all_eight_inputs_unchanged": true,
+  "compiled_outputs_match_export_hashes": true,
+  "inputs": [
+    {
+      "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/source-candidate/elec/src/power_entry_f2_shutdown_revb.ato",
+      "sha256": "09d66130c7811d744358a69cf0f9be7fdc3265645bdfed05b9551e53a285e0c7",
+      "current_sha256": "09d66130c7811d744358a69cf0f9be7fdc3265645bdfed05b9551e53a285e0c7"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/source-candidate/elec/src/power_entry_pfc_control_candidate.ato",
+      "sha256": "8491fb2fba480bcfa45713a0c2d9f67563bc6f197b727528c570d4939c345006",
+      "current_sha256": "8491fb2fba480bcfa45713a0c2d9f67563bc6f197b727528c570d4939c345006"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/source-candidate/resolved-components.json",
+      "sha256": "ab03814e4a712d4915da28a80b5fc08dc1bada86cb92dab69cf7efabe2a66e02",
+      "current_sha256": "ab03814e4a712d4915da28a80b5fc08dc1bada86cb92dab69cf7efabe2a66e02"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/controller.inc",
+      "sha256": "d912674a036b03af2b47058642354cadc6a434e79eeeeda27725bcad6aa5520f",
+      "current_sha256": "d912674a036b03af2b47058642354cadc6a434e79eeeeda27725bcad6aa5520f"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/extract.rs",
+      "sha256": "3f24669f4c734f0ca2f26824c8e1e02ce20d008cb5cceff8d8f4a5de2253c2aa",
+      "current_sha256": "3f24669f4c734f0ca2f26824c8e1e02ce20d008cb5cceff8d8f4a5de2253c2aa"
+    },
+    {
+      "path": "elec/src/power_entry_f2_shutdown_revb.ato",
+      "sha256": "050818ac162a1aa93ecd63325588adb2102504c8148ecbcbf0898abce2377f68",
+      "current_sha256": "050818ac162a1aa93ecd63325588adb2102504c8148ecbcbf0898abce2377f68"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/INTERFACE-DESIGN.md",
+      "sha256": "cff4e2f38b773ada83c5d9f0e0739e8da71aa3d7308e5a0fef106c16754bb852",
+      "current_sha256": "cff4e2f38b773ada83c5d9f0e0739e8da71aa3d7308e5a0fef106c16754bb852"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/README.md",
+      "sha256": "d6b754ea64d23839e811674355641ee52a3b66dbc4746de37527de4aade69273",
+      "current_sha256": "d6b754ea64d23839e811674355641ee52a3b66dbc4746de37527de4aade69273"
+    }
+  ]
+}

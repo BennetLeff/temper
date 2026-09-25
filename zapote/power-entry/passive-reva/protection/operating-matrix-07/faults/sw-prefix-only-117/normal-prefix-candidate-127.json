@@ -1,0 +1,87 @@
+{
+  "status": "PARENT_REVIEW_PENDING",
+  "accepted": false,
+  "case": "SW-SHORT",
+  "scope": "Own cold-start normal prefix through .650 s only; no phase or full-fault upgrade",
+  "campaign_status": "INDETERMINATE",
+  "raw": {
+    "path": "faults/settled-sw-short-59/full-SW-SHORT/raw.trace.raw.gz",
+    "sha256": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+    "bytes": 5088782620,
+    "full_rows": 30686230,
+    "observed_stop_s": 0.6544026486296868,
+    "declared_endpoint_s": 0.662
+  },
+  "source_hashes": {
+    "case.cir": "3ba13389962a9550edcc7ca5486109f4793c6082e94a50fe18f0bc1f6f889ace",
+    "manifest.json": "840b9fbbf83bc91a8138bfd18101b55306146e21445968ccbbaa3864068679ad",
+    "source-identity.json": "985e7fb51f27442f1f3d1fc554062836ee10650cc5b019833e27951462508ef7",
+    "run-parameters.json": "04aeb255073af29f535a450f87135502e5e9b8bbc3e8c4c19d8416daa45fb220"
+  },
+  "normal_prefix": {
+    "cutoff_s": 0.65,
+    "selected_rows": 30112476,
+    "last_selected_time_s": 0.6499999879903595,
+    "cutoff_gap_s": 1.200964050429576e-8,
+    "max_cutoff_gap_s": 1e-6,
+    "metrics_window_s": [0.5999999880, 0.6499999879903595],
+    "fault_rising_edge_s": 0.6541666661706754,
+    "metrics": {
+      "vrms_v": 120.0,
+      "irms_a": 7.317915,
+      "input_power_w": 868.156800,
+      "load_power_w": 773.407641,
+      "pf": 0.988620,
+      "vb_mean_v": 383.365993,
+      "vb_min_v": 381.307046,
+      "vb_max_v": 385.364828,
+      "cycle_means_v": [382.8415289859337, 383.38277578251075, 383.8736752876638],
+      "cycle_drift_fraction_derived": 0.002696014469652877,
+      "cycle_drift_reported": 0.002696,
+      "il_peak_a_report_only": 30.628569,
+      "vd_peak_v": 385.474781,
+      "vds_peak_v": 386.771411,
+      "vgs_abs_peak_v": 14.982193,
+      "armed_fraction": 1.0,
+      "on_fraction": 1.0,
+      "three_state_energy_change_j": 1.3329809015133407,
+      "energy_delta_rate_w": 26.659618030266813,
+      "energy_residual_pin_pout_de_w": 68.08954118493551,
+      "selected_storage_sumabs_delta_j": 1.6059973794587938e-12
+    },
+    "screen_count": 0,
+    "repeated_time_audit": {
+      "rows": 30112476,
+      "equal_groups": 42,
+      "repeated_intervals": 66,
+      "max_group_rows": 3,
+      "missing_right": 0,
+      "backwards": 0,
+      "logic_changes": 0,
+      "boundary_groups": 0,
+      "e3_spread_j": 1.7834979248562619e-13,
+      "e3_sumabs_j": 2.6436687128546568e-12,
+      "all_original_rows_retained": true
+    }
+  },
+  "legacy": {
+    "status": "PENDING",
+    "note": "Legacy pipeline directory exists but terminal receipt/pipeline status was not yet available when this candidate was prepared."
+  },
+  "evidence_hashes": {
+    "preflight.json": "5cb3a52b96ec73dd1e976e3fe03c4564fc684551323be99cdd05d70faf7c90ed",
+    "prefault-scan.json": "64e04aa2b7f4396dfc1a52ba1d00017552860e430a4fe485d711085acbd44ae8",
+    "normal15-audit.txt": "a2be8d722663e714de9a4a24b6f1690dd55cf9390622fb95f6627cce09345cc8",
+    "normal15-events.tsv": "b900c98af46cad6d5cd25f26d8718700b903ad56c188c10facfa340cc9be4b44",
+    "normal-metrics.txt": "93df81409754823338f6ade9160b04d840e7224ff84cd25897b33bdf6d6dfe5a",
+    "scan.exit": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e",
+    "audit.exit": "c5bea6d5172950ed3fc3f0433afd51fc1913e545f5dd34c849c65dc166209a00",
+    "metrics.exit": "ac3b2ba16115668f6162cec888617fa6622221fa8ab914a47ef2dac269786408"
+  },
+  "pending": [
+    "legacy strict-checker terminal receipt",
+    "parent prefix review",
+    "full fault endpoint remains incomplete and cannot be accepted"
+  ],
+  "scope_note": "Normal screens=0 is diagnostic only; SW-SHORT remains INDETERMINATE and no phase43/full-fault claim is made."
+}

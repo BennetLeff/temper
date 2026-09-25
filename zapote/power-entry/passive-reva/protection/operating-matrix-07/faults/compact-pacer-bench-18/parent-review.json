@@ -1,0 +1,27 @@
+{
+  "status": "PARENT_REVIEWED_ISOLATED_COMPACT_PACER",
+  "full_plant_adopted": false,
+  "ngspice_version": "45.2",
+  "rows": 4365703,
+  "end_s": 0.089,
+  "first_s": 5e-09,
+  "first_corner_incoming_gap_s": 4.949999453246479e-07,
+  "required_window_s": [
+    0.065,
+    0.089
+  ],
+  "required_max_gap_s": 1.2859033476919635e-08,
+  "oversized_required_gaps": 0,
+  "expected_corners": 960002,
+  "missing_corners": 0,
+  "analytic_max_error_v": 2.0880264184341968e-10,
+  "parent_checker_exit": 0,
+  "raw_sha256": "1fba7f0137b8da83e45845ae458f415f64f87321c104759c7f13b336d49f982d",
+  "checker_source_sha256": "fe811bdbd95ae321cdea0898aace4655f385d631e7f198ce17ff066e66940566",
+  "parent_report_sha256": "4b36b9a4233572dd14b0be53fa7956a772e1a863468c1a471444f7fd858f0311",
+  "limitations": [
+    "Isolated1G load only; fullplant mustmeetallfaultsampling/screens",
+    "Incoming495ns gap before64.999975ms isoutside65..89ms densewindow",
+    "Formula/valueerror relatesisolatedpacer, notpowerstagesolvererror"
+  ]
+}

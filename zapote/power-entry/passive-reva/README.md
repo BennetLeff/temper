@@ -7,6 +7,19 @@ in this CAD or BOM**. Active-bridge construction remains paused.
 
 The user-directed objective and completion criteria are in [MILESTONE.md](MILESTONE.md).
 
+The subsequent 133-part supervisor attempt was rejected and archived; this
+candidate is again the original 54-part baseline. The
+[architecture reduction](protection/ARCHITECTURE-REDUCTION.md) records the
+component audit, retained fault requirements and next circuit decision.
+The [F2-open sensing experiment](protection/f2-open-01/README.md) now provides
+a compiled smaller detector and a conditional shutdown timing budget; it is
+not installed in this baseline board.
+The [current and timing audit](protection/f2-timing-02/README.md) supersedes
+using that experiment's 40 A / 10.66 µs example as a design limit: 40 A is
+nominal, and actual peak current and complete shutdown-time bounds remain
+unknown. A conditional 50 A screening case leaves about 3 µs. Work is
+simulation-only; no physical protection verification has been performed.
+
 The [2026-09-19 follow-up review](REVIEW-2026-09-19.md) records the exact-part
 loss and F2-open findings, remaining design dependencies, and the limited
 verification performed after this checkpoint.
@@ -58,6 +71,13 @@ tolerance/pulse rating, or failed-short protection. It also adds 2.75 J at
 500 V outside the bulk-bank fuse. It is a design lead, not an accepted ECO.
 
 ## Minimum remaining path
+
+The separate [F2 shutdown experiment](protection/f2-shutdown-03/README.md)
+implements the faster detector, retained fault latch and gate-driver disable
+as a32-component Atopile subcircuit, with compiled-pin checks and transient
+simulations. It is a simulation candidate; it does not change this retained
+board or close the physical qualification items below. Its report distinguishes
+observed timing from the still-unknown hardware current and turn-off bounds.
 
 1. **Close the actual drive/loss basis.** Establish the STW gate-drive operating
    point and switching loss on the retained circuit, or obtain independent

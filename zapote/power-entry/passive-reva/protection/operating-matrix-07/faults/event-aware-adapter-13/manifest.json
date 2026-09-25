@@ -1,0 +1,26 @@
+{
+  "status": "PREPARED_DIAGNOSTIC_CANDIDATE_NO_CAMPAIGN",
+  "purpose": "nondecreasing fault-trace adapter with exact equal-time event audit",
+  "source": "fault_normalize.rs",
+  "source_sha256": "d534f0483abb576773a57acf7e78d2055f56d561f1a3f3a67cb0fa362edb79ef",
+  "binary": "/tmp/matrix07-fault-adapter13",
+  "binary_sha256": "16ed7b341c11b3ad6420fbfab8d3bb960ed87655f49851d471300578cb52df47",
+  "frozen_parent": "../adapter-09/fault_normalize.rs",
+  "time_policy": "backwards rejected; exact equal timestamps retained; positive max gap supplied by CLI (campaign 1e-6)",
+  "equal_group_policy": {
+    "cap": 1024,
+    "per_group_raw_row_cap": 4096,
+    "total_context_raw_row_cap": 100000,
+    "retained": "left/group/right all raw fields with zero-based source row indices",
+    "threshold_predicate": "inject/f2/fault high iff >=2.5 V; q/en/arm/permit health iff >2.5 V; gate-off iff <=0.20 V; channel retention iff >0.10 A",
+    "thresholds": "fault_inject/f2ctl/fault inclusive >=2.5 V; q/en/arm/permit strict >2.5 V; abs gate inclusive <=0.20 V; abs channel strict >0.10 A",
+    "threshold_crossing_status": "INDETERMINATE_EQUAL_TIME_THRESHOLD_CROSSING",
+    "benign_status": "SCHEMA_AND_EVIDENCE_OK"
+  },
+  "tests": {
+    "command": "rustc --edition=2021 -D warnings --test fault_normalize.rs -o /tmp/matrix07-fault-adapter13-tests && /tmp/matrix07-fault-adapter13-tests",
+    "passed": 22,
+    "failed": 0
+  },
+  "acceptance": "none; transport/evidence only, no protection or hardware qualification"
+}

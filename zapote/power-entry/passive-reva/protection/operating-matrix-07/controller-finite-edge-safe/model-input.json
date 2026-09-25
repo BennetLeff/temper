@@ -1,0 +1,5 @@
+{
+  "sha256": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+  "parent": "../controller-finite-edge/ucc28180.inc",
+  "change": "PWM DAC undefined state maps to zero to preserve fail-off behavior."
+}

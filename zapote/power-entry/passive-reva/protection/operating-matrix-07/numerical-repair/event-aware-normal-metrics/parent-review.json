@@ -1,0 +1,21 @@
+{
+  "status": "PARENT_REVIEWED_COMPLETE_FULL_TRACE_DIAGNOSTIC",
+  "accepted": false,
+  "unit_tests_passed": 8,
+  "parent_corrections": [
+    "Remove timestamp snap; exact duplicate boundary only",
+    "Chronological cycle means and original first-cycle drift denominator",
+    "Include duplicate group at settled-window start in energy-impulse accounting",
+    "Retain whole-prefix peaks and all equal-time rows"
+  ],
+  "binary_sha256": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+  "files_sha256": {
+    "metrics.rs": "e686b4d29d0cede142c9050dfcc738feb21f47bd1b8999c764ce1a756b94692e",
+    "parent-tests.txt": "a072a1cd3f11650282c616f3a8df836a758e57116f2df56ae9a8205c395b7d31",
+    "parent-oracle-results.json": "27ee68650eb064612fb09624b85fd202def010f6e9a8f2da1a121dc34c7bea10",
+    "full-650ms-metrics.txt": "aae2b59407898158bf3f89d3df17d84416754e42aec4b29100a618760dd47646"
+  },
+  "full_scan_session": 24139,
+  "trace_sha256": "90e1f2c013e965a99d10053b074127bbddf2c73d5b1403e9e872e3de6933a3b5",
+  "full_scan_pipeline_exit": 0
+}

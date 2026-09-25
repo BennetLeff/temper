@@ -1,0 +1,19 @@
+{
+  "status": "PREPARED_DIAGNOSTIC_CANDIDATE_NO_CAMPAIGN",
+  "source_sha256": "d534f0483abb576773a57acf7e78d2055f56d561f1a3f3a67cb0fa362edb79ef",
+  "binary": "/tmp/matrix07-fault-adapter13",
+  "binary_sha256": "16ed7b341c11b3ad6420fbfab8d3bb960ed87655f49851d471300578cb52df47",
+  "test_command": "rustc --edition=2021 -D warnings --test fault_normalize.rs -o /tmp/matrix07-fault-adapter13-tests && /tmp/matrix07-fault-adapter13-tests",
+  "tests_passed": 22,
+  "tests_failed": 0,
+  "checks": {
+    "nondecreasing_exact_equal_time": true,
+    "backwards_rejected": true,
+    "all_raw_fields_finite": true,
+    "equal_group_context_row_indices": true,
+    "equal_group_context_bounded": true,
+    "exact_threshold_crossing_indeterminate": true,
+    "flush_failure_propagates": true
+  },
+  "acceptance": "none; transport/evidence only, no protection or hardware qualification"
+}

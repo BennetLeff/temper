@@ -1,0 +1,17 @@
+# compiled net name | expected reference.pin nodes (all critical connections)
+source_reset_good | U1.1,U7.1
+source_watchdog_good | U1.2,U8.1
+interlock_permit | U2.2,U9.1
+source_rearm_pulse | U5.3,U14.1
+permit_tx | U5.5,U6.4,U15.1
+hot_permit_rx | U6.13,U16.1
+y | U1.4,U2.1
+source_health | U2.4,U4.1
+source_clear_n | U4.4,U5.1,U11.1
+selv_rail_sense | U3.1,U12.2,U13.1
+selv_rail_ct | U3.5,U24.1
+selv_rail_reset_n | U3.6,U4.2,U10.1
+selv3v3 | U1.5,U2.5,U3.3,U3.4,U4.5,U5.2,U5.4,U5.10,U5.14,U6.1,U6.7,U10.2,U12.1,U20.1,U21.1,U22.1,U23.1
+selv_gnd | U1.3,U2.3,U3.2,U4.3,U5.7,U5.11,U5.12,U5.13,U6.2,U6.3,U6.5,U6.8,U7.2,U8.2,U9.2,U11.2,U13.2,U14.2,U15.2,U19.2,U20.2,U21.2,U22.2,U23.2,U24.2
+hot_logic5 | U6.10,U6.16,U25.1
+hot_gnd | U6.9,U6.11,U6.15,U16.2,U17.2,U18.2,U25.2

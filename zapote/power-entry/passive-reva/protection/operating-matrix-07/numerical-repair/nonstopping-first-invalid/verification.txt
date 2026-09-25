@@ -1,0 +1,37 @@
+Nonstopping first-invalid diagnostic host verification
+=======================================================
+
+Scope: bounded preparation only. No ngspice process, FIFO, or simulation was
+launched from this directory.
+
+Source binding
+--------------
+* Electrical deck: cold.cir
+* Electrical deck SHA256: db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94
+* Parent progress.rs SHA256: f5c60b4c49116a52b7808474da3828a98715e957b6af171fe57f824c2382eda8
+* Diagnostic progress.rs SHA256: 7e3d5bfd33c27f0b0c3eacc8eb8ce5d896dc92d706878af8c788984a547c543c
+* Unified diff SHA256: e8899a70eaa8c06a4efbc6f895b6bdf6b47be06b81dc83295772d29e3bcf7044
+* Host binary SHA256: 552877ba35c2ba690e122702587ef991655f8a351b0990820cd09821aef14698
+
+Behavioral changes are limited to callback bookkeeping and the loop stop
+condition. The first-invalid snapshot is still captured once. A duplicate
+timestamp increments duplicate_count and no longer ends the loop, allowing
+later callbacks to be observed. A negative step increments backwards_count and
+ends with negative_time_step. NaN or infinite callback time sets the finite
+guard and ends with nonfinite_time. The wall watchdog and 120-second
+less-than-1us-progress watchdog remain main-loop conditions; the latter is
+unit-tested at 119/120 seconds.
+
+Checks
+------
+```
+rustc --edition=2021 -D warnings --test progress.rs \
+  -o /tmp/matrix07-nonstopping-tests
+/tmp/matrix07-nonstopping-tests
+```
+Result: 6 passed, 0 failed.
+
+Tests cover first-invalid capture and later progress, duplicate/backwards
+separation, NaN finite-guard behavior, name filtering, and unchanged stall
+watchdog threshold. This artifact is diagnostic-only and carries no accepted
+baseline, checker result, or campaign claim.

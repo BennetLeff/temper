@@ -1,0 +1,107 @@
+{
+  "schema": "gate-consolidation-comparison/v1",
+  "completed_utc": "2026-09-22T06:24:30.966Z",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "status": "Compiled 128-instance isolated candidate retained for comparison; no production adoption",
+  "scope": "Three-component supervisor aggregation reduction; nominal experiments only",
+  "delegation": {
+    "agent": "/root/gate_restart",
+    "requested_model": "gpt-5.6-luna",
+    "served_model_independently_attested": false,
+    "route": "native collaboration.followup_task",
+    "work": "read-only topology proposal and final artifact review",
+    "parent_owns": "source experiment, build/export, simulator runs and interpretation",
+    "interrupt_called_after_each_handback": true
+  },
+  "authoritative_results": {
+    "baseline_cases": 15,
+    "candidate_cases": 15,
+    "ordinary_pass_each": 13,
+    "expected_negative_fail_each": 2,
+    "extractor_self_tests_passed": 4,
+    "extractor_unchanged_from_donor": true,
+    "added_permit_observations_each": 1,
+    "reset_bench_nominal_runs": 2,
+    "compiled_instances_before": 131,
+    "compiled_instances_after": 128,
+    "only_removed_instances": [
+      "protection.reset_and",
+      "protection.reset_and_bypass",
+      "protection.reset_pull_logic"
+    ],
+    "retained_component_attributes_unchanged": true,
+    "canonical_source_and_donor_hashes_unchanged": true
+  },
+  "verification_boundaries": [
+    "Inherited ideal/nominal partial-power behavior; no device guarantees derived from model",
+    "Added PERMIT and output-node observations are parent-inspected ngspice measurements, outside existing Rust15-case set",
+    "Broken AUX wire produces an unsafe high shared node; bench detects observation, circuit does not diagnose wiring failure",
+    "No standby circuit, actual command receiver/isolation, converter plant, SOA or hardware qualification in fixture",
+    "Atopile library metadata and generic passive warnings prevent treating export as manufacturing BOM"
+  ],
+  "parent_review_corrections": [
+    "Old rails_ok was a driven logic output, not a5k equivalent pullup",
+    "TPSlogic monitor asserts at low VDD within its specified operation; arbitrary intermediate-rail behavior still unresolved",
+    "HCS21 threshold numbers are cited at their actual4.5V test point, not transferred to5V as guaranteed",
+    "Summaries have matching verdicts, not identical bytes: one nominal fault timestamp differs0.000013us",
+    "Open-interconnect negative is a bench detection, not a circuit diagnostic"
+  ],
+  "operations": [
+    {
+      "operation": "assert-base",
+      "exit": 0
+    },
+    {
+      "operation": "baseline15-case run and Rust extraction",
+      "exit": 0
+    },
+    {
+      "operation": "candidate15-case run and Rust extraction",
+      "exit": 0
+    },
+    {
+      "operation": "first Atopile launch from incorrect worktree-root cwd",
+      "exit": 1,
+      "result": "entry absent; not accepted as build"
+    },
+    {
+      "operation": "Atopile build from source-candidate",
+      "exit": 0
+    },
+    {
+      "operation": "resolved component export",
+      "exit": 0
+    },
+    {
+      "operation": "Rust extractor self-tests",
+      "exit": 0
+    },
+    {
+      "operation": "two PERMIT observations",
+      "exit_codes": [
+        0,
+        0
+      ]
+    },
+    {
+      "operation": "positive and open-wire RESET bench",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "note": "simulator exit0 does not mean circuit passes"
+    }
+  ],
+  "preservation": {
+    "canonical_circuit_modified": false,
+    "pcb_modified": false,
+    "existing_dirty_tracked_documents_edited": false,
+    "committed": false,
+    "pushed": false,
+    "published": false
+  },
+  "inputs": "input-identity.json",
+  "artifacts": "artifact-hashes.json",
+  "runtime": "runtime.txt",
+  "commands": "commands.md"
+}

@@ -1,0 +1,24 @@
+{
+  "status": "PREPARED_UNLAUNCHED",
+  "accepted": false,
+  "target_end_s": 0.65,
+  "source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-hysteretic-settling-extension",
+  "electrical_files_changed": [
+    "authored_logic_hysteretic.inc"
+  ],
+  "inputs_sha256": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "7fb65346835a46d508468cf97101615d52435459c82476c0b81b1fd32ee9d206",
+    "progress.rs": "f5c60b4c49116a52b7808474da3828a98715e957b6af171fe57f824c2382eda8"
+  },
+  "mode": "strict first-invalid candidate",
+  "candidate_source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/authored_logic_vendor_comphys_native.inc",
+  "candidate_source_sha256": "d4ca097746830488fdf0336767829ecb442f1b95a039728587777fc11b22ba6b",
+  "wrapper_rename": "AUTH_UCC27511A_HV to AUTH_UCC27511A_H in subckt/ends only",
+  "parser_mode": "default; no .spiceinit",
+  "integration_aliases": "Unity behavioral aliases pwm_state->pwm_logic,inm_state->inm_logic,aux_state->aux_logic preserve protection.inc Ben hierarchy contract."
+}

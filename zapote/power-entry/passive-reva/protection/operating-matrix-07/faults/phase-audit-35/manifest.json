@@ -1,0 +1,37 @@
+{
+  "status": "PREPARED_READ_ONLY_PHASE_AUDITOR",
+  "source": "phase_audit.rs",
+  "source_sha256": "fe572c19646b55e26b9f7bf17e8e4086f7ceb49af08a799a455a7d7fc82ce28b",
+  "binary": {
+    "path": "/private/tmp/matrix07-phase-audit35-parent",
+    "sha256": "53a32a13ac6acbfe1daf944ff47871a976f0a37a5a0298e4f7d342c2da8ba0a3"
+  },
+  "test_binary": {
+    "path": "/private/tmp/matrix07-phase-audit35-parent-tests",
+    "sha256": "109ace599a90a6b7f5bfe1014b462e47c7fcf678e7c82caf7af42c614cf6a51d"
+  },
+  "tests": {
+    "passed": 11,
+    "failed": 0,
+    "command": "rustc --edition=2021 -D warnings --test phase_audit.rs -o /private/tmp/matrix07-phase-audit35-worker-tests && /private/tmp/matrix07-phase-audit35-worker-tests"
+  },
+  "invocation": "decoder --schema fault42 --byte-order little | phase-audit --end-s END --expected-event-s EVENT --local-start-s START --local-end-s END --kind crest|zero [--tolerance T]",
+  "schema_columns": 42,
+  "defaults": {
+    "tolerance": 0.01,
+    "endpoint_tolerance_s": 1e-09,
+    "event_time_tolerance_s": 2e-09,
+    "max_header_bytes": 16384,
+    "max_row_bytes": 16384
+  },
+  "memory": "O(1) plus one 42-field row and bounded before/after samples",
+  "limits": [
+    "phase evidence only; no healthy-window, checker, protection, thermal, or hardware acceptance",
+    "zero case requires caller-selected local interval containing an adjacent positive crest",
+    "equal-time source conflict at event/local interval rejects indeterminate evidence"
+  ],
+  "created_unix": 1790007695,
+  "simulation_launched": false,
+  "live_raw_read": false,
+  "parent_correction": "Require edge and peak neighbors themselves inside localinterval, not merely center sample."
+}

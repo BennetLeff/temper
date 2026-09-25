@@ -1,0 +1,293 @@
+{
+  "schema": "temper.passive-reva.reference-revision-09.integration-map.v1",
+  "status": "review_only_source_integration_candidate",
+  "claims": {
+    "compiled_component_instances": 131,
+    "hardware_installed": false,
+    "hardware_qualified": false,
+    "f2_installed": false,
+    "local_vd_film_installed": false,
+    "ideal_f2_actuator_allowed_in_source": false
+  },
+  "authority": {
+    "base_revision": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+    "baseline_source": {
+      "path": "elec/src/power_entry_passive_reva.ato",
+      "sha256": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8",
+      "compiled_components": 54,
+      "role": "canonical_passive_rev_a_baseline"
+    },
+    "revb_source": {
+      "path": "elec/src/power_entry_f2_shutdown_revb.ato",
+      "entry": "PowerEntryF2ShutdownRevB",
+      "sha256": "050818ac162a1aa93ecd63325588adb2102504c8148ecbcbf0898abce2377f68",
+      "compiled_components": 79,
+      "role": "existing_79_part_gate_protection_experiment_not_an_accepted_minimal_design"
+    },
+    "revb_export": {
+      "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-07/resolved-components.json",
+      "sha256": "54d4842ac60e403a8963ab7d49ec2905ee66d176ce1974e77ac31652dd160543",
+      "compiled_bridge_path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/compiled-bridge.json",
+      "compiled_bridge_sha256": "cd05e8facb6e90ca058ae9edb877d707150dfe7c228c24c35babfcc92823bad2",
+      "receipt_sha256": "af4f1dc039e93ce449213a35a6c0535b15092a53712338d540643bb9e4eb1664"
+    },
+    "integrated_source_candidate": {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-09/source-candidate/resolved-components.json",
+      "entry": "PowerEntryPfcControlCandidate",
+      "compiled_component_instances": 131,
+      "sha256": "bd6c155583d3efa8055b3ac07416887fce61325f461af57294cb80d3cd4f700d",
+      "candidate_source_sha256": "8491fb2fba480bcfa45713a0c2d9f67563bc6f197b727528c570d4939c345006"
+    },
+    "superseded_or_rejected": [
+      {
+        "label": "f2-shutdown-03",
+        "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/source-02/resolved-components.json",
+        "sha256": "95bb86417e586dea239ee7c6314d3d6d8c1aac866f7190657b76b8058561102b",
+        "compiled_components": 32,
+        "source_sha256": "dcd9d65f77fad557b46a8bee92915782abec24cd5478c1a0583ade9927a40c69",
+        "disposition": "superseded_by_revb"
+      },
+      {
+        "label": "source-build-06",
+        "path": "zapote/power-entry/passive-reva/source-build-06/resolved-components.json",
+        "sha256": "f8614dcde77610515c599116f391342b45126b38accc6acf4051f7039e03fe51",
+        "compiled_components": 133,
+        "disposition": "rejected_133_part_construction"
+      },
+      {
+        "label": "source-build-07",
+        "path": "zapote/power-entry/passive-reva/source-build-07/resolved-components.json",
+        "sha256": "0b29d45ccb966a0f4abf381860d388f3b552efab16fc4346debc237f3b6120d2",
+        "compiled_components": 133,
+        "disposition": "rejected_133_part_construction"
+      }
+    ]
+  },
+  "count_reconciliation": {
+    "baseline": 54,
+    "revb": 79,
+    "replaced_baseline_parts": [
+      {
+        "name": "r_gate",
+        "value": "10ohm",
+        "replacement": "gate_r + gate_off_r"
+      },
+      {
+        "name": "r_gate_pd",
+        "value": "10kohm",
+        "replacement": "gate_pd"
+      }
+    ],
+    "overlap_subtraction": 2,
+    "offboard_exclusions": [
+      "normally_closed_F2_and_holder",
+      "LOCAL_VD_film_reservoir",
+      "new_external_headers"
+    ],
+    "expected_compiled_component_instances": 131
+  },
+  "ports": [
+    {
+      "revb": "vd",
+      "candidate_net": "local_vd",
+      "producer": "d_boost.K",
+      "consumer": "RevB vd divider and detector",
+      "required": true
+    },
+    {
+      "revb": "vb",
+      "candidate_net": "PFC_BUS_PLUS_390V",
+      "producer": "bulk bank positive downstream of F2",
+      "consumer": "RevB independent bank detector; controller feedback is now local_vd",
+      "required": true
+    },
+    {
+      "revb": "aux",
+      "candidate_net": "AUX_15V_IN",
+      "producer": "external HOT auxiliary source",
+      "consumer": "driver VDD, pullup and supervisors",
+      "required": true
+    },
+    {
+      "revb": "gnd",
+      "candidate_net": "PFC_BUS_MINUS",
+      "producer": "HOT return / hv_minus",
+      "consumer": "all RevB grounds",
+      "required": true
+    },
+    {
+      "revb": "logic5",
+      "candidate_net": "logic5",
+      "producer": "external 5V HOT logic source",
+      "consumer": "detector, HCS, supervisors, buffers",
+      "required": true
+    },
+    {
+      "revb": "permit",
+      "candidate_net": "HOT_PERMIT_EXTERNAL",
+      "producer": "external sequencing authority",
+      "consumer": "RevB permit buffer",
+      "required": true
+    },
+    {
+      "revb": "arm",
+      "candidate_net": "hot_arm",
+      "producer": "fresh-arm external controller",
+      "consumer": "RevB arm buffer",
+      "required": true
+    },
+    {
+      "revb": "pwm",
+      "candidate_net": "pwm",
+      "producer": "pfc.GATE",
+      "consumer": "RevB pwm isolation / driver INP",
+      "required": true
+    },
+    {
+      "revb": "gate",
+      "candidate_net": "gate",
+      "producer": "RevB gate_r and gate_off_r",
+      "consumer": "q_boost.G",
+      "required": true
+    },
+    {
+      "revb": "enable_good",
+      "candidate_net": "enable_good",
+      "producer": "RevB enable AND",
+      "consumer": "retained q_permit gate through r_permit_gate",
+      "required": true
+    },
+    {
+      "revb": "health_ok",
+      "candidate_net": "health_ok",
+      "producer": "RevB HCS21 gate1",
+      "consumer": "RevB gate2 / observation",
+      "required": false
+    },
+    {
+      "revb": "rails_ok",
+      "candidate_net": "rails_ok",
+      "producer": "RevB supervisor AND",
+      "consumer": "RevB gate2 / observation",
+      "required": false
+    },
+    {
+      "revb": "clear_ok",
+      "candidate_net": "clear_ok",
+      "producer": "RevB HCS21 gate2",
+      "consumer": "RevB latch CLR and enable AND",
+      "required": false
+    },
+    {
+      "revb": "run",
+      "candidate_net": "run",
+      "producer": "RevB HCS74 Q",
+      "consumer": "RevB enable AND / observation",
+      "required": false
+    },
+    {
+      "revb": "fault_clear_n",
+      "candidate_net": "fault_clear_n",
+      "producer": "RevB HCS74 QN",
+      "consumer": "observation",
+      "required": false
+    }
+  ],
+  "physical_boundaries": {
+    "f2": {
+      "type": "offboard_normally_closed_series_element",
+      "from": "local_vd",
+      "to": "PFC_BUS_PLUS_390V",
+      "healthy_fixture": "closed_boundary_only",
+      "source_component": false,
+      "actuation": "none_in_source_candidate",
+      "open_items": [
+        "fuse_arc_and_clearing",
+        "interconnect_withstand",
+        "continuity_diagnostics",
+        "residual_charge_restart"
+      ]
+    },
+    "local_vd_reservoir": {
+      "type": "offboard_or_future_local_film_capacitor",
+      "node": "local_vd",
+      "source_component": false,
+      "spice_fixture_model": "Clocal 19.8uF in accepted-baseline-11/cold.cir",
+      "open_items": [
+        "exact_part",
+        "ESL_ESR",
+        "pulse_energy",
+        "placement_and_clearance"
+      ]
+    },
+    "aux_logic_and_arm": {
+      "producer_status": "external_unimplemented_ports",
+      "selv_translation": "required_before_hardware_claim"
+    }
+  },
+  "spice_divergence": [
+    {
+      "artifact": "accepted-baseline-11/cold.cir",
+      "difference": "ideal Sf2 joins vd and vb and can be toggled; no such actuator exists in RevB graph",
+      "disposition": "fixture boundary only"
+    },
+    {
+      "artifact": "accepted-baseline-11/cold.cir",
+      "difference": "Clocal 19.8uF models a VD reservoir absent from source graph",
+      "disposition": "fixture boundary only"
+    },
+    {
+      "artifact": "accepted-baseline-11/protection.inc",
+      "difference": "split RevB OUTH/OUTL and two 10ohm outputs collapse to one authored Xdriver/gate_cmd/Rgate",
+      "disposition": "functional model; no physical pin parity"
+    },
+    {
+      "artifact": "accepted-baseline-11/protection.inc",
+      "difference": "behavioral health/clear/enable equations include explicit logic5 thresholds rather than named HCS/LVC devices",
+      "disposition": "nominal model assumption"
+    },
+    {
+      "artifact": "accepted-baseline-11/standby.inc",
+      "difference": "retained AO3400 standby is a separate nominal subcircuit, not a RevB component",
+      "disposition": "reuse with enable_good mapping only"
+    },
+    {
+      "artifact": "accepted-baseline-11/cold.cir",
+      "difference": "PWL sources drive aux15, logic5, permit and arm",
+      "disposition": "stimulus, not installed producers"
+    }
+  ],
+  "bounded_static_contract": {
+    "new_fixture_needed": true,
+    "owner": "parent-integrated standalone Rust checker",
+    "purpose": "bind the integrated 54+79 source export to exact ports and count",
+    "assertions": [
+      "export compiled component-instance count is 131",
+      "d_boost.K and r_vtop.p1 map to LOCAL_VD/vd",
+      "bulk hv_plus maps to vb",
+      "pfc.GATE maps to pwm and RevB gate maps to q_boost.G",
+      "enable_good drives retained q_permit gate path",
+      "no ideal F2 actuator, local film component, or new header is counted",
+      "baseline r_gate and r_gate_pd are absent while RevB gate resistors remain",
+      "standalone RevB source/export hashes match authority"
+    ],
+    "not_a_claim_of": [
+      "SPICE qualification",
+      "DRC",
+      "thermal margin",
+      "fuse clearing",
+      "hardware pass"
+    ]
+  },
+  "evidence_hashes": {
+    "controller_integration_06_readme": "c09344e8ab5531d312123f28033dc2f55d80876532a1ef2743a4d8c8a1025948",
+    "controller_integration_06_receipt": "0a7bb5564eb0f47dc29bc22518de751490c46302b089bb64a4ad160fb24dc90c",
+    "accepted_baseline_readme": "7049b88185b1d387443fd0341e3411534b59156d685be307c1b0bb01ce398784",
+    "accepted_baseline_acceptance": "18ce2902682b4cedb2880e260c15e731e599df4224dc842a70c85e9cadb6cf22",
+    "protection_inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby_inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "corrected_clamp_donor_source": "4d63a25896e3bd3ed9cb242c2d074a225de71acdb3351bfcbae24b2f73c6fdbb",
+    "corrected_clamp_worker_export": "8b7f452b8a92f410140dfb75476115455f894aba550ea5541976a325cfa6da55",
+    "cold_cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94"
+  }
+}

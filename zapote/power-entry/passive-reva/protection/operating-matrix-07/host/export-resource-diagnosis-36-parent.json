@@ -1,0 +1,20 @@
+{
+  "status": "PARENT_REVIEWED_RESOURCE_DIAGNOSIS",
+  "utc": "2026-09-21T16:37:27.387942+00:00",
+  "document_sha256": "0d9e79f761829cb926f3a3050c1537086ac4f0d5c32997782b580da81eee2354",
+  "verified_sources": [
+    "postcoms.c:write copies each selectedvector before raw_write",
+    "vectors.c:vec_copy allocates andmemcpy realdata",
+    "sharedspice.c:ngGet_Vec_Info returns borrowed simulatorarrays; returnedmetadata reused percall",
+    "outitf.c:AddRealValueToVector retains/growsarrays; vlength2delta capacityforecast",
+    "Fault host42export union andnormal31saved/15exported"
+  ],
+  "corrections": [
+    "Threepayloadheuristic isnotmemoryupperbound",
+    "Normalretention31fieldsnot15",
+    "Diskguardknownstopcause; transientconsumptionnotfullyattributed",
+    "Swapdynamicnotfixedcapacity",
+    "Directpoststopborrowedexport minimalcandidatebeforemoreinvasiverowstreaming"
+  ],
+  "next": "Bounded direct-vector export candidate, real-payload equivalence, single-solver resource-measured retry onlyafterreview."
+}

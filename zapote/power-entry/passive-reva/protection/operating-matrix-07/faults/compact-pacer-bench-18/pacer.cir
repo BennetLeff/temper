@@ -1,0 +1,8 @@
+* Isolated ngspice 45.2 PWL repeat/delay parser and breakpoint probe.
+.param STEP=500n TSTOP=89m
+Vschedule_probe schedule_probe 0 PWL(0 0 25n 1 50n 0) r=0 td=64.999975m
+Rschedule_probe schedule_probe 0 1G
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.save time v(schedule_probe)
+.tran {STEP} {TSTOP} 0 {STEP} uic
+.end

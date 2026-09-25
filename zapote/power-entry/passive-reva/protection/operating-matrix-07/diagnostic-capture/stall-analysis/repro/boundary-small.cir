@@ -1,0 +1,30 @@
+* Isolated hard 2.5-V boundary fixture; not a production model.
+.options numdgt=17
+.param EDGE=1u TSTOP=1.2u
+Vhold pwm_hold 0 PWL(0 2.4 {EDGE-5n} 2.4 {EDGE+5n} 2.6 {TSTOP} 2.6)
+* Controller latch and blank equations copied from stalled-351ms surrogate.
+Bgate pwm 0 V=(V(pwm_hold)>2.5) ? 15 : 0
+Cblank blank 0 1p IC=0
+Bblank 0 blank I=(V(pwm_hold)>2.5) ? 1u : -V(blank)/1
+* Actual gate R/C path from protection.inc plus power-stage gate capacitances.
+Rpwm pwm pwm_input 1k
+Rpwmpd pwm_input 0 10k
+Bdriver_req drv_req 0 V=(V(pwm_input)>2.2) ? 15 : 0
+Rdriver_delay drv_req drv 1
+Cdriver_delay drv 0 18.75n
+Rdriver drv gate_cmd 1
+Rgate gate_cmd gate 10
+Rgs gate 0 10k
+Cgd gate sw 112p
+Cgs gate 0 12n
+Csw sw 0 344p
+.save time v(pwm_hold) v(pwm) v(blank) v(pwm_input) v(drv_req) v(drv) v(gate)
+.tran 1n {TSTOP} 0 1n
+.control
+run
+set numdgt=17
+set wr_singlescale
+wrdata boundary-small.raw time v(pwm_hold) v(pwm) v(blank) v(pwm_input) v(drv_req) v(drv) v(gate)
+quit
+.endc
+.end

@@ -1,0 +1,22 @@
+* Same loaded gate and PWM ramps as vendor-threshold.cir, using the authored
+* finite-width 2.1--2.3 V transfer under review.
+Vaux aux15 0 15
+Vdisable disable 0 0
+Vpwm pwm_input 0 PWL(0 0 2u 0 3u 5 5u 5 6u 0 8u 0)
+Bdriver_req drv_req 0 V=(V(disable)<1.2 && V(aux15)>4.5) ? V(aux15)*min(max((V(pwm_input)-2.1)/.2,0),1) : 0
+Rdriver_delay drv_req drv 1
+Cdriver_delay drv 0 18.75n
+Rdriver drv gate_cmd 1
+Rgate gate_cmd gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.tran 1n 8u
+.control
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+wrdata authored-threshold.tsv v(pwm_input) v(drv_req) v(drv) v(gate)
+quit
+.endc
+.end

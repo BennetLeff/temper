@@ -1,0 +1,21 @@
+{
+  "utc": "2026-09-21T05:01:27.240058+00:00",
+  "normal_accepted": [
+    "LL01",
+    "LL02",
+    "LL03",
+    "LL04"
+  ],
+  "normal_live": null,
+  "transport_review": "line-load-native-runner-27/parent-review.json",
+  "fault_startup_acceptance": "faults/startup-compact-analysis-23/acceptance.json",
+  "fault_live": null,
+  "fault_runner_candidate": "faults/native-runner-29 Luna preparation",
+  "free_gib_at_launch": 17.19756317138672,
+  "keep_free_gib": 10,
+  "full_run_acceptance": true,
+  "result": "LL05 terminal0; parent accepted exact modeled normal grid point under event-aware-normal-v1",
+  "completed_at_utc": "2026-09-21T05:40:38.900471+00:00",
+  "acceptance": "line-load-native-runner-27/full-LL05-retry/LL05/acceptance.json",
+  "acceptance_sha256": "44859f112de35192015ace76a4c1d0619c4689533eaceea62b8834b04c8f4206"
+}

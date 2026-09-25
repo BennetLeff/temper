@@ -1,0 +1,13 @@
+case,stimulus,expected_source_latch,expected_hot_permit,required_measurements,status
+normal,all health high + rearm pulse,high,high,steady-state levels and PWM gate,planned
+source_reset_loss,SOURCE_RESET_GOOD low while RUN,low,low,low-to-permit and VGS fall,planned
+watchdog_loss,SOURCE_WATCHDOG_GOOD low while RUN,low,low,low-to-permit and VGS fall,planned
+short_health_fault,health low for minimum supervisor-clear pulse,low,low,capture width and latency,planned
+source_power_loss,SELV rail removed,low/default,low,isolator default-low and HOT clear,planned
+reconnect,health returns high without rearm,low,low,no automatic rearm,planned
+valid_rearm,new session + reset observed + one rearm edge,high,high,rearm edge qualification,planned
+interlock_loss,INTERLOCK_PERMIT low while RUN,unchanged,low,permit merge and VGS fall,planned
+hot_watchdog_loss,HOT_WATCHDOG_GOOD low while RUN,unchanged,low,clear_ok_hw and VGS fall,planned
+stale_start,START without SESSION_ARM after fault,low,low,no RUN or gate pulse,planned
+stuck_high_health,input forced high during source fault,high-risk,high-risk,explicit single-fault boundary,open
+permit_stuck_high,HOT_PERMIT_RX forced high,unknown,high-risk,independent local trip,open

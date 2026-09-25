@@ -1,0 +1,32 @@
+{
+  "status": "BOUNDED_PREFIX_BENCHMARK_COMPLETE",
+  "source": {
+    "path": "faults/startup-klu-candidate-17/raw.trace.raw.gz",
+    "sha256": "88c6f8a495c0e36be83650bb96014f5bb8d4f8199ebf1dd55f26f875f4432ef2",
+    "sample": "first 33554432 decompressed bytes",
+    "sample_bytes": 33554432,
+    "sample_sha256": "0f85b67b09c9c90e599f1fa0d74cedc41ae13d84e69b3b517157d5fb1f7e8e04",
+    "source_prefix_pipeline_status": 141,
+    "source_prefix_pipeline_note": "gzip received SIGPIPE after head consumed the exact bounded prefix; every codec round trip matched the prefix"
+  },
+  "limits": {
+    "per_operation_wall_seconds": 30,
+    "free_space_reserve_bytes": 10737418240,
+    "free_space_after_bytes": 17273491456,
+    "free_space_check": "df -k reported 16868644 KiB free after the bounded benchmark; reserve remained above 10 GiB",
+    "memory_measurement": "unavailable: /usr/bin/time -l could not read kern.clockrate in sandbox"
+  },
+  "tools": {
+    "pigz": "2.8",
+    "gzip": "Apple gzip 479",
+    "zstd": "1.5.7",
+    "xz": "5.8.3"
+  },
+  "results": {
+    "pigz": {"command": "pigz -c -p 2 prefix.raw", "compressed_bytes": 14771463, "compressed_sha256": "442601668c46250f9c0e8087ecfe76b51596d132a24e4a017b80921d769053f6", "compress_wall_seconds": 0.31, "decompress_wall_seconds": 0.05, "roundtrip_sha256": "0f85b67b09c9c90e599f1fa0d74cedc41ae13d84e69b3b517157d5fb1f7e8e04", "roundtrip_bytes": 33554432, "byte_equal": true},
+    "gzip": {"command": "gzip -c -6 prefix.raw", "compressed_bytes": 14761714, "compressed_sha256": "b10bfc34ba06c586ae32d96daf6b7294878c538074bb0c6d42ef0b87434e0d82", "compress_wall_seconds": 0.62, "decompress_wall_seconds": 0.05, "roundtrip_sha256": "0f85b67b09c9c90e599f1fa0d74cedc41ae13d84e69b3b517157d5fb1f7e8e04", "roundtrip_bytes": 33554432, "byte_equal": true},
+    "zstd": {"command": "zstd -q -3 -c prefix.raw", "compressed_bytes": 14440301, "compressed_sha256": "5cf786456700bf8bdf43a06d2cd5a7ed73ad7b9b0785385bbd5b1383c9e81491", "compress_wall_seconds": 0.04, "decompress_wall_seconds": 0.03, "roundtrip_sha256": "0f85b67b09c9c90e599f1fa0d74cedc41ae13d84e69b3b517157d5fb1f7e8e04", "roundtrip_bytes": 33554432, "byte_equal": true},
+    "xz": {"command": "xz -T2 -6 -c prefix.raw", "compressed_bytes": 11736868, "compressed_sha256": "c34d70a347e78b263158313b81b99a8b62df9ea794434362cb1f5b2d370a2eb0", "compress_wall_seconds": 7.86, "decompress_wall_seconds": 0.36, "roundtrip_sha256": "0f85b67b09c9c90e599f1fa0d74cedc41ae13d84e69b3b517157d5fb1f7e8e04", "roundtrip_bytes": 33554432, "byte_equal": true}
+  },
+  "interpretation": "Prefix-only storage evidence; not representative proof for settled/fault regions and no campaign codec adoption"
+}

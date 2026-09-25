@@ -1,0 +1,58 @@
+{
+  "status": "PARENT_CORRECTED_TOPOLOGY_REQUIREMENTS_ONLY",
+  "accepted": false,
+  "topology": {
+    "f2_path": "SWF2 is the normally closed modeled VD-to-VB bank path; opening it can isolate the 2240 uF bank.",
+    "failed_branch": "Sswfail connects sw to channel_source independently of Msw gate control, so a failed-MOS path is gate-independent and bypasses F2.",
+    "local_storage": "The 19.8 uF Clocal is on VD and remains outside the F2-isolated bank path.",
+    "source_path": "Bridge/source -> Lboost -> sw feeds the failed branch; F2 opening does not interrupt this mains-fed route."
+  },
+  "partial_model_evidence": {
+    "raw_sha256": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+    "observed_stop_s": 0.6544026486296868,
+    "required_end_s": 0.662,
+    "tail_rows": 256,
+    "tail_observations": {
+      "q": 5,
+      "en": 5,
+      "arm": 5,
+      "permit": 5,
+      "f2ctl": 5,
+      "gate_sample_v": 7.697733080488251e-07,
+      "iL_sample_a": 181.9944039,
+      "sw_sample_v": 0.1819944035111649
+    },
+    "interpretation": "q/en high and a low gate sample is ordinary PWM behavior, not external-latch shutdown; iL is a fixed-model sample only, not physical 182 A.",
+    "abort": "Numerical abort before endpoint; root cause remains unresolved."
+  },
+  "future_functional_requirements": [
+    "Independent interruption of source-fed failed branch with actuation/clearing and restart behavior defined; active or passive implementation not selected.",
+    "Coordinate actual interrupting voltage/current/energy and residual VD/VB stored energy; bank isolation alone is insufficient.",
+    "Observe source/failed branch current independently of gate/q/en and VD/VB/bank current."
+  ],
+  "scope_boundaries": {
+    "future_test": "A complete endpoint-resolved fault run is unrun; no retry or causal mechanism is established here.",
+    "hardware": "Part selection, DC clearing, arc/restrike, thermal/SOA, and production protection remain hardware/manufacturer work.",
+    "inductor": "The 180 uH model is linear and lacks DC-bias/saturation/thermal laws; 43 A is typical saturation, not a guarantee."
+  },
+  "sha256": {
+    "case.cir": "3ba13389962a9550edcc7ca5486109f4793c6082e94a50fe18f0bc1f6f889ace",
+    "parent-disposition-80.json": "d895d1824ca8fe356ea7fb9a3704e64b242566442684736ee5ef0cefdba01a52",
+    "tail-preflight.json": "b133d775321bb22b18f609dc6ad8d1b51a44d844b69c7182f0e2eaffa0bf61bb",
+    "tail-receipt.json": "46c13b6bbb04776bd2ab9f3f0f7e5097751e9316f980594c824bd9cb6895e35c",
+    "header.tsv": "9ef6fed55770cb8c02127cef7843e314ea073b56a67c0d2dc383b95a8127c9ff",
+    "last256-data.tsv": "1592af8297bc049c334a54019229c16dffc31818b109070209ab3e865da1c3dd",
+    "vendor-model-parent-review-73.json": "5df042c490a425505e905e958f64f4c346d471a5e60661d1a5399e620dc77ce9",
+    "vendor-model-parent-review-73.md": "86baf5c84bb7a4457a3ad7894a8c2980d536c0bafcfa6726f7ac21cde9389b83",
+    "simulation-to-prototype-decisions.md": "c7ca46813c93c41dee9083f18897ec9c875d431ba670c0ec3b61b2ae6d2201d7"
+  },
+  "method": "Read-only review of the frozen deck, parent disposition, exact 256-row tail receipt, authoritative inductor review, and current prototype decision aid; no solver, raw scan, code, schematic, or part selection.",
+  "parent_authority": "faults/sw-short-tail-parent-review-85.json",
+  "parent_corrections": [
+    "Gate column was confused with switch-node column. v(sw)=0.181994403511164887V; v(gate)=7.69773308048825069e-7V at last row. The actual header is authoritative.",
+    "Low gate here is not a retained external shutdown witness: q/en remain high and fault is low; PWM begins rising in final rows.",
+    "A protective strategy need not require an electronic detector/latch if a suitably qualified independent passive interrupting device provides the required behavior. Specify function, not implementation."
+  ],
+  "corrected_document_sha256": "1f1d41435d31736390190ed335e13ddeff4c3ea273a184c25847b65f70a981e8",
+  "worker_version_preserved": "switch-short-strategy-worker-83.json"
+}

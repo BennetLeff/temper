@@ -1,0 +1,10 @@
+
+running 5 tests
+test tests::detects_first_nonincreasing_sample ... ok
+test tests::maps_only_declared_diagnostics ... ok
+test tests::callback_captures_named_values_only_on_first_bad_time ... ok
+test tests::finite_time_with_nonfinite_internal_value_forces_full_export ... ok
+test tests::reduced_export_requires_normal_and_all_diagnostics ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

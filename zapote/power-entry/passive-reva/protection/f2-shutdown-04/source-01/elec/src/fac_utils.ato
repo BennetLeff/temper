@@ -1,0 +1,26 @@
+# Footprint-as-Code Utilities for Temper
+
+module ThermalViaArray:
+    """Generates a grid of thermal vias."""
+    via_drill = 0.3mm
+    via_pad = 0.6mm
+    pitch = 1.0mm
+    rows: int
+    cols: int
+    
+    # Primitives will be instantiated here using loop logic when supported
+    # or explicit instantiation for common sizes.
+
+module HighCurrentPad:
+    """Through-hole pad with sizing based on current requirements."""
+    drill_size: length
+    annular_ring: length
+    current_rating: current
+    
+    # Heuristic: 0.5mm annular ring per 10A
+    # assert annular_ring >= (current_rating / 10A) * 0.5mm
+
+module CreepageSlot:
+    """Logic for generating internal PCB cutouts for safety."""
+    width = 1.0mm
+    length: length

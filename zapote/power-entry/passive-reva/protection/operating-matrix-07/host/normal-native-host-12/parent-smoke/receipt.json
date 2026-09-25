@@ -1,0 +1,32 @@
+{
+  "status": "PARENT_VERIFIED_TINY_NATIVE_HOST",
+  "rows": 5905,
+  "fields": 15,
+  "producer_exit": 0,
+  "compressor_exit": 0,
+  "decoder_exit": 0,
+  "trace_bytes": 461341,
+  "source_sha256": "d87231b69a3eb62569f57a6c676b867a7fc5a13f1f34e4be014b93b50425965f",
+  "binary_sha256": "be4e56d6d071391ddd4f88b14faf4aef3363e2fc089f1c44205366dbe88fe4cd",
+  "trace_sha256": "5a664b7ed26524595de486c58bf9072226edf881d164e0d4e9de74546a5f6ed4",
+  "metadata": {
+    "stop_reason": "solver_stopped",
+    "points": 5905,
+    "first_invalid": false,
+    "seen_names_mask": 65535,
+    "expected_names_mask": 65535,
+    "duplicate_count": 0,
+    "backwards_count": 0,
+    "continue_after_duplicate": true,
+    "diagnostic_only": true,
+    "accepted": false,
+    "export_format": "ngspice-real-native",
+    "byte_order": "little",
+    "writer_platform": "aarch64-macos",
+    "schema": "normal15",
+    "validation_policy": "event-aware-normal-v1",
+    "export_mode": "full_trace_path_or_fifo",
+    "vector_slicing_smoke": "rejected_full_length"
+  },
+  "engineering_accepted": false
+}

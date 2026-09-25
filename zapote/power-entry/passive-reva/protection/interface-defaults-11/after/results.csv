@@ -1,0 +1,7 @@
+ov_running,PASS
+ov_startup,PASS
+permit_open,PASS
+producer_reset,PASS
+arm_open_running,PASS
+normal_upper,PASS
+arm_reconnect_high,FAIL

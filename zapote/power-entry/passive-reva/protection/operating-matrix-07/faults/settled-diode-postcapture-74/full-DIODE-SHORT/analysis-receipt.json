@@ -1,0 +1,40 @@
+{
+  "status": "COMPLETE_DIAGNOSTICS_PARENT_REVIEW_REQUIRED",
+  "accepted": false,
+  "raw_sha256_before_after": "19f8068d73fb4b2379b3111504fd92efbf769984eb4e3775d5b6378294a6c02c",
+  "raw_bytes": 5340687952,
+  "full_rows": 32309024,
+  "selected_rows": 30113471,
+  "prefix_endpoint_s": 0.6499999878048587,
+  "pipeline_exits": {
+    "scan": [
+      0,
+      0,
+      0
+    ],
+    "audit": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "metrics": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "phase": [
+      0,
+      0,
+      0
+    ],
+    "observe": [
+      0,
+      0,
+      0
+    ]
+  },
+  "observability_scope": "Post-injection sampled controller/current observations; i(Vchannel) is MOS-channel current, not diode-branch current. No causal or continuous interruption conclusion."
+}

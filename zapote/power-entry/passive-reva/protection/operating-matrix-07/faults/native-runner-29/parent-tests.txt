@@ -1,0 +1,17 @@
+
+running 12 tests
+test capture_drain_tests::missing_or_zero_metadata_kills_blocked_compressor_promptly ... ok
+test capture_drain_tests::positive_wall_limited_capture_drains_and_keeps_readable_gzip ... ok
+test inherited_fd_tests::anonymous_stdin_pipe_reaches_eof_and_roundtrips ... ok
+test inherited_fd_tests::dynamic_fd_host_roundtrip_requires_success ... ok
+test inherited_fd_tests::dynamic_fd_host_start_failure_reaps_compressor ... ok
+test parent_tests::all_independent_row_counts_must_agree ... ok
+test parent_tests::empty_manifest_hash_map_cannot_authorize_executed_source ... ok
+test parent_tests::metadata_is_typed_and_rejects_nonfinite_and_zero_points ... ok
+test parent_tests::timeout_reaps_all_owned_children ... ok
+test tests::fifo_is_real ... ok
+test tests::json_controls ... ok
+test tests::positive_rejects_invalid ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.00s
+

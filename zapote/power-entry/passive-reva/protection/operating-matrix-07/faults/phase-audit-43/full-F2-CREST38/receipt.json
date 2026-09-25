@@ -1,0 +1,16 @@
+{
+  "status": "COMPLETE_PHASE_DIAGNOSTIC",
+  "exit": 0,
+  "raw_before_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "raw_after_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "minimum_observed_free_bytes": 13461159936,
+  "resource_stop": null,
+  "wall_s": 173.33250933303498,
+  "tools_sha256": {
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-phase43-parent": "e546ddfb84c53b73303e465574fa29fdff7753768c3a71efda1f8b5f185be965"
+  },
+  "source_sha256": "c4640136e0ecb53d179b5702cc59779155a6ea6a90289ca4e8eaef75432f447d",
+  "accepted": false
+}

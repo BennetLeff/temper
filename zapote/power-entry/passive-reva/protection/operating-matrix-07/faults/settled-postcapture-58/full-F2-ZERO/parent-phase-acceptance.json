@@ -1,0 +1,28 @@
+{
+  "status": "ACCEPTED_EXACT_MODELED_ZERO_PHASE_BOUND",
+  "accepted": true,
+  "scope": "Own F2ZERO51 sampled zero-crossing phase only; no fault/normal/hardware acceptance",
+  "raw_sha256": "7deb639fb05f7f63d2444e2d163aee4eb06b45349bc9cee120b9e112407b1bec",
+  "rows": 36625031,
+  "parameters": {
+    "end_s": 0.682,
+    "expected_event_s": 0.6583333333333,
+    "local_start_s": 0.6483333333333,
+    "local_end_s": 0.6683333333333,
+    "tolerance": 0.01
+  },
+  "edge_time_s": 0.6583333328372754,
+  "edge_abs_upper_v": 3.173655556761024e-05,
+  "local_peak_abs_lower_v": 169.70562748467225,
+  "zero_phase_margin_v": 1.697024538291155,
+  "maximum_local_equal_group_source_spread_v": 2.8421709430404014e-14,
+  "local_equal_groups": 1,
+  "local_equal_raw_rows": 3,
+  "all_choice_criterion": "edge_abs_upper <= tolerance * positive peak_abs_lower; outward-rounded bounds from frozen phase43",
+  "evidence_sha256": {
+    "faults/settled-postcapture-58/full-F2-ZERO/phase.json": "2bf6ad3f5fa3e4f3af38ca83f8e2638da3908f4600682a98e21b2582a537955e",
+    "faults/settled-postcapture-58/full-F2-ZERO/phase.exit": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e",
+    "faults/settled-postcapture-58/full-F2-ZERO/analysis-receipt.json": "d749df691f54a9d43e92f47baafb3af38221baac96b0c0ad2d2d3d09b343ebec",
+    "faults/settled-postcapture-58/full-F2-ZERO/prefault-scan.json": "2614e04d2f1fe7c42cf897382d6b8c78391a5c84232921c3e23ec6cc9df21fea"
+  }
+}

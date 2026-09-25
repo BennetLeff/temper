@@ -1,0 +1,94 @@
+{
+  "status": "PASS",
+  "at_utc": "2026-09-22T01:07:43.701018+00:00",
+  "frozen55_parity_cases": [
+    {
+      "case": "always_on.tsv",
+      "exit": 0,
+      "original_fields_equal": true,
+      "input_sha256": "52a70a543334f8fb7a0c2f5a6f32524e0e1075071e89237b737198ec56b50078"
+    },
+    {
+      "case": "equal_logic_rows.tsv",
+      "exit": 0,
+      "original_fields_equal": true,
+      "input_sha256": "6fdc0e3797a979abf58df862d3c9a0125a67650dd068828688c1f9861c92b8d5"
+    },
+    {
+      "case": "injection_at_endpoint.tsv",
+      "exit": 1,
+      "original_fields_equal": false,
+      "input_sha256": "9b81faad1e440db815cf567745c78671e18d7ba16a49912ca50bcb0d07be4e00"
+    },
+    {
+      "case": "marker_fall_rerise.tsv",
+      "exit": 1,
+      "original_fields_equal": false,
+      "input_sha256": "15a16b976b03b61ee9e219a8583bba357a01cb8b06f84a24b91593a5474c3e20"
+    },
+    {
+      "case": "marker_falls_once.tsv",
+      "exit": 1,
+      "original_fields_equal": false,
+      "input_sha256": "9fedfe7ad9c72b6ed9f086aba7cf89cfc06d937f19622b55913a91e343732bfc"
+    },
+    {
+      "case": "marker_same_time.tsv",
+      "exit": 1,
+      "original_fields_equal": false,
+      "input_sha256": "4cc04683deae101d30bb854329c7e3eca60e443a681e9e26663727d461ba464a"
+    },
+    {
+      "case": "missing_endpoint.tsv",
+      "exit": 1,
+      "original_fields_equal": false,
+      "input_sha256": "0ea972b574579ea671943f1b01624e1aeed5bb1c6167b0ea2687b9da90dd7ca8"
+    },
+    {
+      "case": "missing_start.tsv",
+      "exit": 1,
+      "original_fields_equal": false,
+      "input_sha256": "3a37a8d37b752b15126e085c68ac30a96ab92653b27db3fda9b499151dd29816"
+    },
+    {
+      "case": "negative_start.tsv",
+      "exit": 1,
+      "original_fields_equal": false,
+      "input_sha256": "9e8852aa62c23ae6a982b43060e91bb17418c1c5dabf3a51d6962aa71c26c265"
+    },
+    {
+      "case": "nonfinite_unused.tsv",
+      "exit": 1,
+      "original_fields_equal": false,
+      "input_sha256": "2757333216f73ab09bf766069f193061db5a385bb26c1faa42db5ec85e7b0e0d"
+    },
+    {
+      "case": "off_then_on.tsv",
+      "exit": 0,
+      "original_fields_equal": true,
+      "input_sha256": "f3690556c475ecf1c7e989504fdec8033034e3b72dec5e4f5a56ea454a401757"
+    },
+    {
+      "case": "oversize.tsv",
+      "exit": 1,
+      "original_fields_equal": false,
+      "input_sha256": "0e8d3f5ff063250f5fa45fba1ed7d3660f9c88d18768fee16bc2e94dd86f88f8"
+    },
+    {
+      "case": "reordered.tsv",
+      "exit": 0,
+      "original_fields_equal": true,
+      "input_sha256": "b91aaa97f0a21744f6102f9e8a56d037377e88598df9db8f32b9d955a33742bd"
+    }
+  ],
+  "additional_checks": [
+    "Six distinct signed current channels preserve named same-row context and counts",
+    "Reordered header plus stdin produce identical parsed report",
+    "Existing output refused and preserved"
+  ],
+  "unit_tests_passed": 10,
+  "source_sha256": "159db79ad627bd8ad7d37e252c697909b3130ef9bc9c5c2b11e8e3c04bdaf9b0",
+  "binary_sha256": "8fb3482d5390a977cdb18e47381bdd09bb71f0b0752a02fd4bfb98b0fc534b08",
+  "build": "rustc --edition=2021 -O -D warnings; standalone, no cargo/pyo3",
+  "campaign_raw_read": false
+}

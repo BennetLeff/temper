@@ -1,0 +1,48 @@
+{
+  "status": "REJECTED_NONINCREASING_TIME_DIAGNOSTIC_ONLY",
+  "files": [
+    {
+      "path": "src.rs",
+      "sha256": "5184bb96b052b3bfe1454a0201713bdd1f3258249b5b555decd83de0fdecd8c8",
+      "bytes": 9450
+    },
+    {
+      "path": "before-stall-canonical.cir",
+      "sha256": "e9a9cb849b92513665ad7852ccafcea867a1094b664d4e48458f4ff5f8f4257b",
+      "bytes": 5030
+    },
+    {
+      "path": "before-stall-shared.cir",
+      "sha256": "4bd17284fbcd8e0ccfacaacf38b9be3d47fc5ef8d191e655a8bf1e2b0f46d3b7",
+      "bytes": 4245
+    },
+    {
+      "path": "run.log",
+      "sha256": "4a34ce4aa069480b4cdd84b80a1cce669755409144b40c66bebe6a0d634cab17",
+      "bytes": 33270
+    },
+    {
+      "path": "receipt.md",
+      "sha256": "bdcb6c9741b62aef564b50a7004ab49dbb1ce110dd4aa92e557277b07c803368",
+      "bytes": 2439
+    },
+    {
+      "path": "post-stall-halt.tsv.gz",
+      "sha256": "c714eb50c9f671522216e0ffd7c61a78f7a1ed95f00a7578e8c1ed00bb158ce5",
+      "bytes": 372259214
+    },
+    {
+      "path": "post-stall-inspection.txt",
+      "sha256": "a753d8526637b4f7f9d6a1712cbbebf4db1d577b3c074c343b96aa623230e037",
+      "bytes": 3242
+    },
+    {
+      "path": "post-stall-tail.tsv",
+      "sha256": "75ef4cc7738a2b1772a0aad3ac0c515e2a14fd0bc1ecd7229e7fff8bc5264b04",
+      "bytes": 11261126
+    }
+  ],
+  "pre_checkpoint_trace": "../before-stall.tsv.gz",
+  "pre_checkpoint_uncompressed_sha256": "86e39b93761aa9143b4c83bfec0c2949b59eed098ad91b473d8dc91e683c8c85",
+  "note": "CLI and shared pre-checkpoint exports have identical uncompressed SHA256; one canonical copy retained."
+}

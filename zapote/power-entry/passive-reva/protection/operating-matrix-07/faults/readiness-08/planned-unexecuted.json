@@ -1,0 +1,127 @@
+{
+  "readiness_id": "operating-matrix-07-fault-readiness-08",
+  "status": "planned_unexecuted",
+  "prepared_at": "2026-09-20",
+  "base_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "normal_acceptance_required": true,
+  "blocking_receipt": "normal-tracked/execution.json",
+  "blocking_reason": "No accepted contiguous cold-start normal trace yet; do not run a fault deck from a hand-written operating point.",
+  "validator": {
+    "source": "../fault_checks.rs",
+    "binary": "/private/tmp/matrix07-fault-checks",
+    "unit_test_command": "rustc --edition=2021 --test faults/fault_checks.rs -o /tmp/temper07_fault_readiness_checks && /tmp/temper07_fault_readiness_checks",
+    "unit_tests_last_result": "11 passed, 0 failed",
+    "exact_prefix_columns": [
+      "time",
+      "v(acsrc,acn)",
+      "v(vd)",
+      "v(vb)",
+      "v(sw)",
+      "v(gate)",
+      "i(Lboost)",
+      "i(Vchannel)",
+      "i(Vbody)",
+      "i(Vac)",
+      "v(q)",
+      "v(en)",
+      "v(fault)",
+      "v(f2ctl)",
+      "v(standby_req)",
+      "v(arm)",
+      "v(permit)"
+    ],
+    "required_campaign_additions": [
+      "i(Vf2sense)",
+      "i(Vdboost1sense)",
+      "i(Vdboost2sense)",
+      "v(fault_inject)"
+    ],
+    "normalizer": {
+      "existing_normalizer_not_compatible": "/private/tmp/matrix07-normalize emits 12 normal fields and cannot feed this 17-column checker",
+      "required_binary": "/private/tmp/matrix07-fault-normalize",
+      "source": "fault_normalize.rs",
+      "status": "built_unit_tested_host_review_pending",
+      "unit_test_result": "9 passed, 0 failed",
+      "checker_consumes": "trace file path"
+    }
+  },
+  "source_hashes": {
+    "normal-tracked/cold.cir": "eaa5c20900fd8a5d577e629e3f678378690b6e427098303cffe6aa41d54447d2",
+    "normal-tracked/ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "normal-tracked/protection.inc": "b57b854883ee992dad036fd49c5a249b457e200873a3408652186de59122ea1c",
+    "normal-tracked/standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "normal-tracked/clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "readiness-08/fault_normalize.rs": "ad8d8bcdf0ff7a654f21c188574da835b56064cb173f3e8dfe91004468a9f288",
+    "readiness-08/vector-probe.cir": "60958e6eb1893b1bf73ea32eae2cac9bda02176ad42858db13172d5166e8c135"
+  },
+  "first_batch": [
+    {
+      "id": "F2-CREST",
+      "kind": "f2-open",
+      "status": "unexecuted",
+      "starting_state": "accepted_settled_normal_cold_prefix",
+      "mutation": "existing Sf2 path opens through f2ctl at receipted T_FAULT",
+      "event_selection": "first accepted settled interval with abs(v(acsrc,acn)) within 1 percent of local crest",
+      "expected_fault_time": "receipt.T_FAULT",
+      "required_trace_marker": "v(fault_inject) rising at T_FAULT; v(f2ctl) falling at T_FAULT; i(Vf2sense) retained as branch-current evidence",
+      "checker_kind": "f2-open",
+      "command_template": "/private/tmp/matrix07-fault-checks TRACE.tsv TSTOP f2-open T_FAULT DETECTOR_WINDOW TURNOFF_BUDGET OBSERVATION MAX_GAP"
+    },
+    {
+      "id": "F2-ZERO",
+      "kind": "f2-open",
+      "status": "unexecuted",
+      "starting_state": "accepted_settled_normal_cold_prefix",
+      "mutation": "existing Sf2 path opens through f2ctl at receipted T_FAULT",
+      "event_selection": "first accepted settled interval with abs(v(acsrc,acn)) within 1 percent of local zero crossing",
+      "expected_fault_time": "receipt.T_FAULT",
+      "required_trace_marker": "v(fault_inject) rising at T_FAULT; v(f2ctl) falling at T_FAULT; i(Vf2sense) retained as branch-current evidence",
+      "checker_kind": "f2-open",
+      "command_template": "/private/tmp/matrix07-fault-checks TRACE.tsv TSTOP f2-open T_FAULT DETECTOR_WINDOW TURNOFF_BUDGET OBSERVATION MAX_GAP"
+    },
+    {
+      "id": "SW-SHORT",
+      "kind": "switch-short",
+      "status": "unexecuted",
+      "starting_state": "accepted_settled_normal_cold_prefix",
+      "mutation": "parallel event-controlled SWFAIL branch sw-to-channel_source; RFAIL and branch hash receipted",
+      "event_selection": "same accepted settled operating interval as F2-CREST unless the normal receipt rejects it",
+      "expected_fault_time": "receipt.T_FAULT",
+      "required_trace_marker": "v(fault_inject) rising at T_FAULT; i(Vchannel) includes healthy and failed-short returns through channel_source",
+      "checker_kind": "switch-short",
+      "expected_result_class": "negative_control_no_pass; report measured channel-current peak/duration separately; sustained current is a protection gap",
+      "command_template": "/private/tmp/matrix07-fault-checks TRACE.tsv TSTOP switch-short T_FAULT DETECTOR_WINDOW TURNOFF_BUDGET OBSERVATION MAX_GAP"
+    }
+  ],
+  "deferred_cases": [
+    {
+      "id": "F2-START",
+      "status": "deferred",
+      "reason": "Needs startup-event receipt and a complete cold-start prefix; not part of first settled batch."
+    },
+    {
+      "id": "DIODE-SHORT",
+      "status": "deferred",
+      "reason": "Needs explicit one-leg diode mutation and verified diode branch-current instrumentation."
+    },
+    {
+      "id": "BOTH-SHORT",
+      "status": "deferred",
+      "reason": "Needs both mutation identities and capacitor/inductor fault-energy interpretation; never credit gate interruption."
+    },
+    {
+      "id": "BYPASS-NEG",
+      "status": "deferred_negative_control",
+      "reason": "Run only after one positive-path deck is mechanically validated; validator must reject bypass."
+    }
+  ],
+  "unresolved_before_host_execution": [
+    "Accept normal-tracked cold-start trace through the existing operating-point checker.",
+    "Use named zero-volt sense sources for F2 and each boost-diode branch; ngspice 45.2 exposes their i(V...) currents but not direct i(S...) or i(D...) vectors.",
+    "Build and review a fault-specific Rust normalizer; matrix07-normalize emits only the 12-column normal schema.",
+    "Bind switch/diode mutation identity to v(fault_inject), a source hash, and a numeric event time.",
+    "Require arm, permit, and path-control signals high in the prefault healthy window.",
+    "Record the selected detector window, turnoff budget, retained-off observation, and local max-gap before each run.",
+    "Preserve simulator output and partial traces for every failure or timeout; never treat simulator exit code as acceptance."
+  ]
+}

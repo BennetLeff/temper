@@ -1,0 +1,9 @@
+case,result,detail
+valid_start,PASS,decoder_and_latch
+source_loss_latency,PASS,2_ticks
+inflight_pulse_bound,PASS,1_tick_example
+same_tick_inflight_start,PASS,start_then_inhibit
+held_stuck_start,PASS,new_session_required
+reset_conductor_fails_high,PASS,known_single_fault_gap
+hot_health_independent,PASS,immediate_trip_decoder_frozen
+valid_run_function,PASS,positive_control

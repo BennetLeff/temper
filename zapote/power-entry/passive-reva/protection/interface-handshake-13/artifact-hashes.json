@@ -1,0 +1,84 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "c764cbbd7a28c2ecc4a8fcd5c28de3dfe536433c2bc2a0d1046554667d8b6677"
+    },
+    {
+      "path": "aux-clamp-screen.csv",
+      "sha256": "740d7a51a57597342823ed40bd229e03e8074ac5d5c49b9ec52701d654817150"
+    },
+    {
+      "path": "aux-clamp-screen.rs",
+      "sha256": "d09260a0dc4051f5f1c9df91bea7174e6e3dad68928144e9adff3fb31fe2d772"
+    },
+    {
+      "path": "aux-decision.md",
+      "sha256": "e5f4b95c4cfc89496d48ab8dc0a3db4f7e0237f789931c4f6a210e29f4b39b59"
+    },
+    {
+      "path": "command/design.md",
+      "sha256": "a2b16f7e7e3f47c85c7908c5e99015fc32ea7679b5df5369f61959a438b306ff"
+    },
+    {
+      "path": "command/handshake",
+      "sha256": "9e98aa007ae3a227b355aa0765d5756575583365cac6462752ba6ddcf2a44d40"
+    },
+    {
+      "path": "command/handshake-v1.rs",
+      "sha256": "7ac6c9c6d7c8c62e80ac1c0f08994d0627d88252628298638b5b5eedfc6bebe0"
+    },
+    {
+      "path": "command/handshake.rs",
+      "sha256": "f4d41bad394e107480b5d926945098383abd73095682d57e01a2503aafd6f377"
+    },
+    {
+      "path": "command/handshake_tests",
+      "sha256": "a41ffe7a144f315e1a9736d70178e048c6e37ccf137c713b85332db8cd98f661"
+    },
+    {
+      "path": "command/results.csv",
+      "sha256": "137ef82dd438f12ac0ec4eae1167e012a017eb698c6f0dd34ed00c4631f731ff"
+    },
+    {
+      "path": "command/test.log",
+      "sha256": "8b64f9c5fbabfc6de3a73b9c0385528f40b49e6d4e7de1688b329762135e94b0"
+    },
+    {
+      "path": "input-identity.json",
+      "sha256": "25ec8b018444a589d892e04b4d4db3b6f0f064db044039c7941233f476dcc9c8"
+    },
+    {
+      "path": "parent-final-tests.log",
+      "sha256": "1bf1fb240aeee996385de3d43bc7992514aea49054d6116a51bb48a8edae666b"
+    },
+    {
+      "path": "parent-mutation.log",
+      "sha256": "694a6ee143f7207643b7b8a6c1f1eed1f68cb694262c08a168dce0ef1482ae54"
+    },
+    {
+      "path": "parent-tested-source.json",
+      "sha256": "26fe8aec14078c349ef763ffcc64489cc0b306d90455bf5e62a9ac03e533dfee"
+    },
+    {
+      "path": "parent-tests.rs",
+      "sha256": "b91f104f5bbf18c95e58d76ac87657b508b5c66a0af0a0625fa8f7312e54dc4a"
+    },
+    {
+      "path": "parent-v1-witness.log",
+      "sha256": "ca9a4716bfe258c140beab69a7089d0eeb095a57b50420804694d217050b58ab"
+    },
+    {
+      "path": "parent-v1-witness.rs",
+      "sha256": "9d2e88fe63c9f3c07785c79033d527884b454676ab0070fcb6d2d66ed7c972be"
+    },
+    {
+      "path": "receipt.json",
+      "sha256": "05ba978361b858217025c126fd2ccc03e131995d2771ebd2a7c5c1c703e7d5be"
+    },
+    {
+      "path": "review.md",
+      "sha256": "bf39118a30027e81cd933316e9ef4d6b278d7c61a3e822e7c45cdb1667bd15be"
+    }
+  ]
+}

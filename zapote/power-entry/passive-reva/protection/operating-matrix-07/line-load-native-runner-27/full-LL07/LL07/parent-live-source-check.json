@@ -1,0 +1,15 @@
+{
+  "status": "LIVE_SOURCE_VERIFIED_NOT_ACCEPTED",
+  "utc": "2026-09-21T07:24:20.097886+00:00",
+  "session": 48096,
+  "source_hashes": {
+    "cold.cir": "4b00042daf2b0bedab0725e07d6d0af35b2bf8fe856af8a4b49e6f0aab78f4f7",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "baseline_recovered_by_exact_two_parameter_reversal": true,
+  "acceptance": false
+}

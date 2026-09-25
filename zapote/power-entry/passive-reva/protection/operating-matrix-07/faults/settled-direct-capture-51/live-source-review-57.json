@@ -1,0 +1,32 @@
+{
+  "review": "live-source-review-57",
+  "case": "F2-ZERO",
+  "at_utc": "2026-09-21T21:44:00Z",
+  "source_consistency": "PASS",
+  "reference": "../settled-compact-prep-24/prepared/F2-ZERO",
+  "closure_sha256_match": true,
+  "case_sha256": "b704ebd646dce1da7cf03518478ac1956e3a0bffbae804bd28ff383f4a6fb6c1",
+  "manifest_sha256": "c569392b818e638c59b4787353803c094ae552cbd1409b08e184da6eacf8c3a6",
+  "parameters": {
+    "t_fault_s": 0.6583333333333,
+    "tstop_s": 0.682,
+    "rload_ohm": 190,
+    "vac_rms_v": 120,
+    "runner_kind": "f2-zero",
+    "validator_kind": "f2-open"
+  },
+  "live_progress": {
+    "wall_s": 90.569396,
+    "sim_s": 0.07272762541922592,
+    "percent": 10.663142,
+    "first_invalid": false,
+    "duplicate_count": 0,
+    "backwards_count": 0,
+    "nonfinite_time": false
+  },
+  "phase": "PENDING_FAULT_PREFIX",
+  "actual_prefix": "pre-fault only; simulated time is before t_fault",
+  "endpoint": "PENDING",
+  "outcome": "PENDING_INCOMPLETE_RUN",
+  "acceptance": false
+}

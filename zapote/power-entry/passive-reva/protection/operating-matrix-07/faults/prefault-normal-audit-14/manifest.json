@@ -1,0 +1,13 @@
+{
+  "status": "PREPARED_DIAGNOSTIC_CANDIDATE_NO_CAMPAIGN",
+  "purpose": "select exact normal15 prefix from validated fault42 trace",
+  "source": "fault_normal_audit.rs",
+  "source_sha256": "b425ee9f565bc2f8ddf3c02e92c9cdb0536ec2cd9f93d5f729ef752c70352b77",
+  "binary": "/private/tmp/matrix07-prefault-selector-parent",
+  "binary_sha256": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+  "time_policy": "nondecreasing input; equal rows retained; selected rows preserve original tokens",
+  "cutoff_policy": "full input must reach cutoff; last selected sample gap <= supplied bound",
+  "fault_edge_policy": "record up to 16 observed fault_inject rising edges with original time and v(acsrc,acn)",
+  "acceptance": "none; transport/audit only",
+  "parent_review": "parent-review.json"
+}

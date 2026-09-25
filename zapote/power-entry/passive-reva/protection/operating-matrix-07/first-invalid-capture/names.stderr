@@ -1,0 +1,53 @@
+stdout ******
+stdout ** ngspice-45.2 shared library
+stdout ******
+stdout Note: No compatibility mode selected!
+stdout Circuit: * short callback-name smoke: prove ngspice exposes the saved subcircuit names
+stdout Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+stdout Using SPARSE 1.3 as Direct Linear Solver
+stdout Initial Transient Solution
+stdout --------------------------
+stdout Node                                   Voltage
+stdout ----                                   -------
+stdout in                                           0
+stdout out                                          0
+stdout xu.raw                                     0.1
+stdout xu.pwm_hold                                0.2
+stdout xu.m1                                      0.3
+stdout xu.m2                                      0.4
+stdout xu.phase                                   0.5
+stdout xu.blank                                   0.6
+stdout xu.fault                                     0
+stdout xu.ov                                        0
+stdout xu.pcl_hold                                  0
+stdout xu.pcl_request                               0
+stdout pwm                                        0.7
+stdout pwm_input                                  0.8
+stdout drv_req                                    0.9
+stdout drv                                          1
+stdout isense                                    -0.1
+stdout disable                                      0
+stdout bdisable#branch                              0
+stdout bisense#branch                               0
+stdout bdrv#branch                                  0
+stdout bdrvreq#branch                               0
+stdout binput#branch                                0
+stdout bpwm#branch                                  0
+stdout b.xu.brequest#branch                         0
+stdout b.xu.bpcl#branch                             0
+stdout b.xu.bov#branch                              0
+stdout b.xu.bfault#branch                           0
+stdout b.xu.bblank#branch                           0
+stdout b.xu.bphase#branch                           0
+stdout b.xu.bm2#branch                              0
+stdout b.xu.bm1#branch                              0
+stdout b.xu.bhold#branch                            0
+stdout b.xu.braw#branch                             0
+stdout v1#branch                                    0
+stdout No. of Data Rows : 213
+stdout Background thread stopped with timeout = 0
+stdout Transient timepoints = 214
+stdout Transient iterations = 426
+stdout Rejected timepoints = 1
+stdout Transient iterations for the last time point = 0
+stdout Transient analysis time = 0.000471

@@ -1,0 +1,18 @@
+slow: vendor 13.5 V rise 2452.732 ns @ 2.2637 V, fall 5783.987 ns @ 1.0801 V; authored rise 2543.754 ns @ 2.7188 V, fall 5762.203 ns @ 1.1890 V
+slow gate4: vendor rise 2490.995 ns @ 2.4550 V, fall 5932.935 ns @ 0.3353 V, peak 14.986900 V; authored rise 2502.621 ns @ 2.5131 V, fall 5970.322 ns @ 0.1484 V, peak 14.982022 V
+1 ns: vendor 13.5 V rise 3012.621 ns @ 5.0000 V, fall 5024.725 ns @ 0.0000 V; authored rise 3103.450 ns @ 5.0000 V, fall 5003.083 ns @ 0.0000 V
+1 ns gate4: vendor rise 3050.884 ns @ 5.0000 V, fall 5173.673 ns @ 0.0000 V, peak 14.986898 V; authored rise 3062.318 ns @ 5.0000 V, fall 5211.211 ns @ 0.0000 V, peak 14.982003 V
+sequence default-off: vendor 0.000000 V, authored 0.000000 V
+sequence pwm-high: vendor 14.973332 V, authored 14.949844 V
+sequence pwm-off: vendor 0.004691 V, authored 0.017721 V
+sequence pwm-reenabled: vendor 14.978989 V, authored 14.964419 V
+sequence run-off: vendor 0.008722 V, authored 0.029632 V
+sequence aux-high: vendor 14.984420 V, authored 14.981988 V
+sequence aux-drop: vendor 0.001379 V, authored 0.017700 V
+sequence aux-return-disarmed: vendor 0.000005 V, authored 0.000482 V
+sequence rearmed: vendor 14.984420 V, authored 14.981988 V
+sequence gate4 fall: RUN event vendor 12249.301 ns / authored 12286.022 ns; AUX event vendor 20091.158 ns / authored 20210.817 ns
+late screen: 514094 rows, PWM 5.000->0.000 V; gate pre-min 14.982022 V, post-max(abs) 0.000000 V
+AUX sweep: state rise 4.200000 V at 2.400 us, fall 3.900000 V at 5.700 us; 6 V gate min 5.992225 V
+INM sweep: state rise 2.200500 V at 2.467 us, fall 1.200000 V at 6.200 us; enabled peaks 14.982022/14.964440 V
+hysteretic-driver: PASS (strict finite traces; authored interface remains an explicitly approximate candidate)

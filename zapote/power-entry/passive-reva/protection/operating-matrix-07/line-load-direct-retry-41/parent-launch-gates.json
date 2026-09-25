@@ -1,0 +1,42 @@
+{
+  "status": "PARENT_CORRECTED_READY_NOT_LAUNCHED",
+  "utc": "2026-09-21T17:52:56.207420+00:00",
+  "case": "LL08",
+  "endpoint_s": 0.65,
+  "wall_limit_s": 3600,
+  "maximum_full_solvers": 1,
+  "free_gib": 14.786979675292969,
+  "forecast_new_archive_gib": 2.2,
+  "floor_gib": 10,
+  "headroom_after_forecast_gib": 2.5869796752929695,
+  "tools_sha256": {
+    "/private/tmp/matrix07-line-load-native-runner27-parent": "0926abe3852774f9bf06cd16f071c85134502059082d55c84e4a691898ee54c1",
+    "/private/tmp/matrix07-direct-normal37-parent": "be6b73451f111636a2f0dbf67a4ce135c3ae8302b4dc50ee81da2386b124fc15",
+    "/private/tmp/matrix07-normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "/private/tmp/matrix07-checker": "24c95bea81b44a3d5038a32552297afed17547fcd1b3ddcfd99434e84638b85c",
+    "/private/tmp/matrix07-native-stream-host": "23008f5bba4c560d87c97fde0822949fba5bccab7223af0b64fd49c6b221aea0",
+    "/private/tmp/matrix07-event-metrics-host": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "/private/tmp/matrix07-normal15-event-audit-host": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6",
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"
+  },
+  "source_sha256": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "baseline_acceptance_sha256": "18ce2902682b4cedb2880e260c15e731e599df4224dc842a70c85e9cadb6cf22",
+  "manifest_sha256": "51fffd081f36f43f4283c66dc5890ae9b025b7ef39926174c84b790bdd4ee0cc",
+  "spinit_sha256": "b2e0359f8b549f6e27bc86f1bb9b7847b7f376c3758bf8297084807a45af2390",
+  "parent_corrections": [
+    "Worker packet incorrectly selected old copyinghost12: changed to reviewed directnormal37",
+    "Changed nonparent runner27 path to verified parent runner27",
+    "Restored authorized3600s walllimit",
+    "Aligned output absentcheck with full-LL08 path passed to runner",
+    "Removed double counting of archives already subtracted from free space"
+  ],
+  "resource_basis": "faults/settled-direct-capture-38/resource-summary-parent.json",
+  "accepted": false
+}

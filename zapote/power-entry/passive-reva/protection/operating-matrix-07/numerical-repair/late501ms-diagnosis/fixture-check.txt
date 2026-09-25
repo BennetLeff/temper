@@ -1,0 +1,5 @@
+recorded-rise.tsv: rows=29 final=5.015551144856806864e-1 min_dt=1.058e-11 max_dt=5.096e-8 col2_abs_peak=1.420864e1 col3_abs_peak=1.051256e1
+recorded-steep-rise.tsv: rows=34 final=5.015551144856806864e-1 min_dt=7.994e-14 max_dt=5.715e-8 col2_abs_peak=1.420981e1 col3_abs_peak=1.051993e1
+recorded-smooth-rise.tsv: rows=38 final=5.015551144856806864e-1 min_dt=1.058e-11 max_dt=4.310e-8 col2_abs_peak=1.418088e1 col3_abs_peak=1.035534e1
+recorded-held-high.tsv: rows=7 final=5.015551144856806864e-1 min_dt=1.600e-9 max_dt=1.024e-7 col2_abs_peak=1.499768e1 col3_abs_peak=1.498584e1
+controller-edge.tsv: rows=73 final=5.015551144856806864e-1 min_dt=5.274e-14 max_dt=3.394e-8 col2_abs_peak=5.000000e0 col3_abs_peak=1.974750e-1

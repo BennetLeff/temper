@@ -1,0 +1,16 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_NOT_EXECUTED",
+  "accepted": false,
+  "base_source": "faults/settled-postcapture-58/legacy-strict-67.sh",
+  "base_sha256": "9ebe2212e21458176f7011495cb1e65e1b7cc39bc23554b06c229c79e33b1d0d",
+  "adaptation": "Only case and source/postcapture folder substitutions. Inherits corrected exactbinary64 metadata checks, strictobservedmessage classification and allchildstatuses.",
+  "files_sha256": {
+    "legacy-strict.sh": "7ab72ba4eae9686a4fbea51bec3e6c7cf15b35752febfb32f145d5c5bb16ce4b"
+  },
+  "checks": [
+    "bash -n",
+    "shellcheck",
+    "Actual live refusal exit1 beforeoutput/rawaccess"
+  ],
+  "pending": "Only run after postcapture69 analysis.exit0 and full analysis receipt; strictresultalone never electricalacceptance."
+}

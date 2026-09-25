@@ -1,0 +1,15 @@
+case,raw_us,fault_us,q_clear_us,fresh_q_us,target_raw_V,other_raw_max_V,ready_before_V,q_before_V,gate_before_V,screen,note
+absolute_vb,220.704261,220.761033,220.816400,560.075504,5.000000,0.000000,5.000000,5.000000,14.982022,PASS,criteria met; gate current is a loaded metric only
+absolute_vd,220.704261,220.761033,220.816400,560.075504,5.000000,0.000000,5.000000,5.000000,14.982022,PASS,criteria met; gate current is a loaded metric only
+aux_absent,null,null,null,null,0.000000,0.000000,0.000000,0.000000,0.000000,PASS,criteria met; gate current is a loaded metric only
+aux_dropout_return,null,null,240.179860,560.075504,0.000000,0.000000,5.000000,5.000000,14.982022,PASS,criteria met; gate current is a loaded metric only
+aux_fast_dip,null,null,240.133932,560.075504,0.000000,0.000000,5.000000,5.000000,14.982022,PASS,criteria met; gate current is a loaded metric only
+aux_first,null,null,null,560.000000,0.000000,0.000000,5.000000,5.000000,14.982022,PASS,criteria met; gate current is a loaded metric only
+bypass_negative,222.258199,222.315431,null,560.000000,5.000000,0.000000,5.000000,5.000000,14.982022,FAIL,missing filtered fault or retained-Q clear; Q/EN/gate restarted while ARM was held after health return
+forward_mismatch,222.258199,222.312969,222.370207,560.075504,5.000000,0.000000,5.000000,5.000000,14.982022,PASS,criteria met; gate current is a loaded metric only
+late_fault_negative,222.258199,229.190793,229.242110,560.075504,5.000000,0.000000,5.000000,5.000000,14.982022,FAIL,fault propagation exceeded 2 us screen
+logic_absent,null,220.000000,null,null,0.000000,0.000000,0.000000,0.000000,0.000000,PASS,criteria met; gate current is a loaded metric only
+logic_dropout_return,null,240.100961,240.051646,560.075504,0.000000,0.000000,5.000000,5.000000,14.982022,PASS,criteria met; gate current is a loaded metric only
+logic_first,null,null,null,560.000000,0.000000,0.000000,5.000000,5.000000,14.982022,PASS,criteria met; gate current is a loaded metric only
+reverse_mismatch,222.258199,222.312969,222.370207,560.075504,5.000000,0.000000,5.000000,5.000000,14.982022,PASS,criteria met; gate current is a loaded metric only
+slow_ramps,null,null,null,560.000000,0.000000,0.000000,5.000000,5.000000,14.982022,PASS,criteria met; gate current is a loaded metric only

@@ -1,0 +1,27 @@
+{
+  "status": "DIAGNOSTIC_PROBE_COMPLETE_NO_ADOPTED_FIX",
+  "purpose": "isolate startup timestep failure from added fault instrumentation",
+  "simulator": "ngspice-45.2 -a",
+  "environment": "SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts",
+  "wall_cap_seconds_per_probe": 15,
+  "tstop_seconds": 0.01,
+  "baseline_case_sha256": "2660ce93f57c8e884a9c70f19b2f2c2ef844e94059692aae86cc7705b3efef3a",
+  "fault_case_sha256": "e5c37864de5b2c9e902cf27c336e18fa1b54937a4dc24ef30da33a98a7ad996f",
+  "source_closure_sha256_common": {
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "probe_case_sha256": {
+    "no-diode-sense": "56cf97669788e4497c79396ba2618deb6702ca9e1220fd4c559468f9be2df60f",
+    "no-f2-sense": "b9d3008c0c98c4f07d495202348d85ed77eadf0c8d2727b5bd0861649cb7a1de",
+    "no-schedule": "d03f2ecbf052996e414c8d2028cfadd0754372c74ddcbb8729372f9307f8d29e",
+    "no-marker": "79907c39c17cfb8aa06b2e18ca2e7bc5f87c06bc9a47d16ad33713be664f5050"
+  },
+  "result": "The retained passing cases are combined transformations: direct Dboost1/2 reconnection plus removal of both zero-volt diode sense sources/fields, with no-f2-sense also changing Vf2sense to 1 mV. They complete 10 ms, while the retained schedule-only and Vbody-1mV controls still fail at the same point. No individual causal change is isolated and no marker-removal case was run.",
+  "provenance_note": "no-diode-sense and no-f2-sense were rewritten in place; parent observed earlier intermediate failures at 24920 and 24758 rows respectively, but those cases/logs have no retained hashes and are not reproducible evidence",
+  "directory_label_correction": "no-marker is a historical directory name; the retained case is Vbody 0 V -> 1 mV and retains the marker",
+  "acceptance": "none; diagnostic topology probes only"
+}

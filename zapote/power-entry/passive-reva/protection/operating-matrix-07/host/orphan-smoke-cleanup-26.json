@@ -1,0 +1,11 @@
+{
+  "utc": "2026-09-21T04:40:18.784654+00:00",
+  "stopped_pids": [
+    4072,
+    4086
+  ],
+  "scope": "superseded faults/native-capture-13 smoke-test shell and its blocked FIFO-opening child",
+  "identity_verified_by": "lsof cwd and exactcommand; producerabsent, idleover2hours",
+  "action": "SIGTERM to bothshells; preserveexistingfiles",
+  "relation_to_LL05": "No observedhandletoLL05FIFO; notidentifiedasLL05cause"
+}

@@ -1,0 +1,12 @@
+quantity,value,unit,scope
+trip_min,16.065942,V,conditional_static
+trip_max,17.484847,V,conditional_static
+normal_pin_max,1.147010,V,at_AUX15.75
+normal_pin_margin,0.022990,V,against_min_OVP1.17
+trip_to_18_margin,0.515153,V,not_a_transient_bound
+net_charge_allowance_at_1uF,2.250000,uC,hypothetical_effective_downstream_C_start15.75V_no_parasitics
+net_charge_allowance_at_10uF,22.500000,uC,hypothetical_effective_downstream_C_start15.75V_no_parasitics
+net_charge_allowance_at_47uF,105.750000,uC,hypothetical_effective_downstream_C_start15.75V_no_parasitics
+legacy_conditional_downstream_load,111.630037,mA,excludes_new_isolator_and_unbounded_startup
+ilim120k_active_limit_min,85,mA,less_than_conditional_load
+ilim120k_circuit_breaker_min,45,mA,less_than_conditional_load

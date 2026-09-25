@@ -1,0 +1,10 @@
+run_deck=final-cold-continuation.cir
+run_deck_sha256=9925f3da8b8891ca0348b540831be2a1b33a2f86814570a3fd283b031d9d469d
+ngspice_session=3827
+stop_flow=stop when time = 500m; run; checkpoint meas; resume
+termination=SIGINT via session stdin after >3 minutes with no simulated-time advancement
+last_logged_sim_time=3.51501e-01 s
+stall_log_sha256=1f7b07b66c65fb4c37127d4579686c4d335d5c0e8e968fb608bb6bbdfefaed84
+waveform_export=not reached (wrdata runs only after resume completion); FIFO had no committed rows
+checkpoint_meas=not reached
+status=INDETERMINATE numerical stall; no normal operating-point acceptance

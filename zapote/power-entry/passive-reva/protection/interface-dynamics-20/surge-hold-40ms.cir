@@ -1,0 +1,38 @@
+* Revision 20 exploratory LTspice run from the revision 19 clamp graph.
+* Model: LT4363-1 and FDB33N25 from ADI LTspice 26.0.2 library.
+* D1 uses the bundled 1N4148 model as a surrogate for 1N4148W.
+* A 130 ohm resistive load and 0.5 ohm source are declared test inputs,
+* not the converter startup model or qualified source envelope.
+* Investigative source step: 15 to 35 V in 1 ms, hold 40 ms, return in 1 ms.
+Vsrc SOURCE 0 PWL(0 0 1m 0 1.01m 15 4 15 4.001 35 4.041 35 4.042 15 6 15)
+Rsrc SOURCE AUX_RAW 0.5
+Rshdn AUX_RAW SERVICE_RESET_N 1
+R1 SNS AUX_PROTECTED 0.22
+R2 AUX_PROTECTED FB 59k
+R3 FB 0 4.99k
+R4 AUX_RAW UV 91k
+R5 UV 0 10k
+R6 GATE_DRV Q_GATE 10
+R7 GATE_DRV CG 100
+C1 AUX_RAW 0 100n
+C2 TMR 0 100n
+C3 CG 0 1.5u
+C4 AUX_PROTECTED 0 330u
+D1 GATE_DRV CG 1N4148
+M1 AUX_RAW Q_GATE SNS SNS FDB33N25
+Rload AUX_PROTECTED 0 130
+XU1 FB AUX_PROTECTED SNS GATE_DRV AUX_RAW SERVICE_RESET_N UV 0 FLT ENOUT TMR LT4363-1
+.lib C:\users\crossover\AppData\Local\LTspice\lib\cmp\standard.dio
+.lib C:\users\crossover\AppData\Local\LTspice\lib\cmp\standard.mos
+.lib LT4363-1.sub
+.tran 0 6 0 20u startup
+*.meas values measure only the declared stimulus and recovery state.
+.meas TRAN output_peak MAX V(AUX_PROTECTED) FROM 4 TO 4.2
+.meas TRAN tmr_peak MAX V(TMR) FROM 4 TO 4.2
+.meas TRAN output_at_42 FIND V(AUX_PROTECTED) AT 4.2
+.meas TRAN output_at_5 FIND V(AUX_PROTECTED) AT 5
+.meas TRAN output_at_6 FIND V(AUX_PROTECTED) AT 6
+.meas TRAN gate_at_6 FIND V(Q_GATE) AT 6
+.meas TRAN current_at_6 FIND Id(M1) AT 6
+.backanno
+.end

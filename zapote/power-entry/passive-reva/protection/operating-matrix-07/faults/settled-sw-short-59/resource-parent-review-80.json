@@ -1,0 +1,16 @@
+{
+  "status": "PARENT_VERIFIED_RESOURCE_REVIEW",
+  "accepted": false,
+  "sample_count": 499,
+  "min_free_bytes": 42812321792,
+  "max_sampled_owned_rss_kib": 4534496,
+  "ownership": "Each logged process chain verified to runner28932; each per-sample RSS sum recomputed. Sampled RSS is not peak total allocated memory.",
+  "clock_caveat": "Simulator transient-time4398.88, native wall2199.544551, monitor elapsed2510 are distinct; no equality or drift explanation assumed.",
+  "global_swap": "Host-global; cannot attribute usage or lack of pressure to this run.",
+  "source_sha256": {
+    "faults/settled-sw-short-59/resource-samples.txt": "d0987ace0767a378779f548f14a302607dea14d63293215bbad37380e19ff198",
+    "faults/settled-sw-short-59/resource-worker-review-80.json": "5e5f2197582b7d8cda3454e894ad724f3ed00126111f8e7ddc8892ca40261ecd",
+    "faults/settled-sw-short-59/resource-worker-review-80.md": "daa587936e509491f80bd151158d563be8129b01e0afaa4a64b21da7e27264e9"
+  },
+  "at_utc": "2026-09-22T00:05:15.937174+00:00"
+}

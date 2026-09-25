@@ -1,0 +1,30 @@
+{
+  "status": "isolated sensing compiled; conditional numerical checks pass; full protection INDETERMINATE",
+  "base_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "dirty": true,
+  "model": "GPT-6 Codex",
+  "source_entry": "elec/src/power_entry_f2_sense.ato:PowerEntryF2Sense",
+  "compiled_components": 21,
+  "canonical_board_unchanged": true,
+  "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+  "ngspice": "45.2",
+  "atopile": "0.2.69",
+  "source_sha256": "3edee56bf33cf70fdef466174be025c8f7b4632b46e74cd0a4b7aaf455770871",
+  "artifacts": {
+    "window_screen.rs": "161996028cd9713de4b0bd281b4ec11e0493e3157145e4c3582e3eb3d637b1ef",
+    "screen.txt": "692e33bf2314cb816658faed6200b48ed16c5786d7e76179469a81ee9f469a3d",
+    "tests.txt": "9bc0c659e738fc50c96353992644ea2d2bc44f9babd78043fb4a36bca510b930",
+    "compiled-tests.txt": "541c53cd9ca4c96fbc631f901b6432c13c950095cb35ecb1d9c075a377004627",
+    "compiled-bridge.json": "cf3261b1ee5de85948686541a140fc54b81a07dd416659832584fb5d38a6ab92",
+    "divider.cir": "bbd47b666f7b09f3a906dce2376bb2241504e6798a35f18e583ab8e4e2e1e56b",
+    "divider.log": "9e563bf40b91414a8e7f3b314ce4582b36732e4684f791cb8ff549aeb916c85c",
+    "divider-trace.tsv": "653c338766d13405d3037135f2b5170ddc49083ec6ea52d955a55e9c10eb8584",
+    "commutation.cir": "9c8475de19b49649cd69be563348f5d2994f3dcf5f51c6e82edb7a075d5d0fb8",
+    "commutation.log": "0344f64a38f25b36f5b0880b7099133c5a7e34894feed97c5f1e7c94e2a187e9",
+    "commutation-trace.tsv": "de2566805a754880aaabd415c899738c07f1c8c730d754b2a45f9a7d6598639c",
+    "source-02/build-receipt.json": "71f6cd6b5c99c980ed14d95798455273ed597e47bd38640494821a6849a20ba2",
+    "source-02/resolved-components.json": "b8d47d1815c162bcbfd8ac7a4561bfa253a24a040f8e4dd951d77c0369154435",
+    "README.md": "d2360c629d035c06620a47820c86c5c16d4056fc6423d962795f3a7f1d2e7226",
+    "claims.json": "d8ec3ebdd1088a976a6d7c6f76ad16adb0867f9f0d57a41e623f5f7d5b630717"
+  }
+}

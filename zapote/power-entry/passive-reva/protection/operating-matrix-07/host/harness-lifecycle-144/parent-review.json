@@ -1,0 +1,51 @@
+{
+  "status": "PARENT_VERIFIED_STALE_JOB_CLEANUP_AND_FUTURE_COMMAND_GUARD",
+  "at_utc": "2026-09-22T03:05:44.562549+00:00",
+  "branch": "codex/power-entry-pkgs-1-4",
+  "head": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "preexisting_work_preserved": true,
+  "scope": "Only new host/harness-lifecycle-144 artifacts and mutable GOAL/receipt follow-up metadata; no frozen electrical or runner edits",
+  "stale_groups_terminated": [
+    61540,
+    92154,
+    92326
+  ],
+  "stale_process_count": 11,
+  "tests": {
+    "command": "python3 -m unittest -v test_command_guard.py",
+    "result": "14 passed",
+    "elapsed_s": 2.856,
+    "fixtures_only": true
+  },
+  "parent_corrections": [
+    "Propagate command exit codes, preserve original child return code in receipt and map signals separately.",
+    "Resolve executable before cwd change and actually execute the resolved path.",
+    "Reserve output receipt exclusively before launch; reject infinite timeout.",
+    "Cleanup whole process group even after leader exit and on orchestration exceptions, with TERM-to-KILL escalation.",
+    "Require process-table tests to reject permission errors; verify target PIDs are gone rather than relying on absent marker files."
+  ],
+  "frozen_evidence_verified": 361,
+  "frozen_evidence_mismatches": [],
+  "new_circuit_runs": 0,
+  "raw_files_deleted": 0,
+  "dedicated_review": "Targeted parent code and test review due unrelated branch work; Luna supplied lifecycle audit and initial implementation. Parent corrected final code.",
+  "future_rule": "Wrap future launch/archive commands with command_guard run using explicit timeout, cwd, and new receipt. Use command_guard hash only on explicit file lists. Do not rerun historical frozen output scripts.",
+  "limitations": [
+    "Guard cannot survive its own SIGKILL or host failure.",
+    "Children that deliberately escape the dedicated process group are outside its cleanup contract.",
+    "No change to timestamp acceptance policy or electrical criteria; selected model gaps remain."
+  ],
+  "artifacts_sha256": {
+    "command_guard.py": "c87a777ee264f56d649c1cb8da8a9776c0f5ebf91cadb3b9815e3a1e9460b545",
+    "test_command_guard.py": "2126c56781fc7cb40cec3278c92abff0af5d1b368a7b3c8cda2a925ea57971f2",
+    "usage.md": "79a39395b724ade597d03a21543c283ca1626b0c7d184f47463bcde05bf11f97",
+    "luna-audit.md": "56edcf79bc803e2b2c9faa95ca4b64b4122fdb5b681db6439412afd002799417",
+    "incident.md": "5d054ddbac30594fc6d1de56595e8835b044920643195e77e28ba1ec59ee78b6",
+    "cleanup-receipt.json": "d79a99592cf7ad45d7df1b7896bb9b6e90514b9eedc31df3f4b949bab6a4c868",
+    "runtime-after-cleanup.json": "0cad4e534c438fc355a474d98684eb00479d15334739e6541d08f27076ebb578",
+    "path-inspection.json": "dfc39fcd78fbd46d47eaaae6b88ef721dac6a4fa48cac011737d9bafc7920be0",
+    "processes-before.json": "b77f5b062958433c1482f621a37314d5abf87c26a8b0d168cf0c49ad129c0657",
+    "parent-tests.txt": "c63f8ef47b16034f187d3abc02c296cca4052a0bec441a0b13ea2c0c3476c0e4",
+    "frozen-evidence-check.json": "e3d56fc20357b595df11bb80854cec56bc7ac80c7775d23beaf720631db0c9f3"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "status": "CANDIDATE_WORKER_REVIEW",
+  "purpose": "bounded stage-2 reanalysis of immutable fault42 capture",
+  "simulation_launched": false,
+  "acceptance": false,
+  "supervisor_source": "supervisor.rs",
+  "supervisor_sha256": "b254feee1ff8b8356a09c81fe03d8807c7411f0accf2457ed149322c3e79a738",
+  "supervisor_binary": "/tmp/matrix07-reanalysis23",
+  "supervisor_binary_sha256": "4f0e39a71fe6dc62d58a09c480e8b66388f55d150162551253acb6c1218f9c82",
+  "production_source_case": "faults/startup-compact-candidate-20",
+  "production_raw_trace_sha256": "9be2bbe73cd0aee5c6751566bfa818968deeb24d68d6b76d323f56f76cbfd05e",
+  "production_capture_points": 6025180,
+  "production_validator_override": "/private/tmp/matrix07-fault-validation22-parent",
+  "production_validator_override_sha256": "63f6d17b123acd696c1f30fa546e7546ae43cf45cfb660cda44086bab3afb12f",
+  "synthetic_fixture": "fixtures/synthetic-case",
+  "synthetic_output": "fixtures/synthetic-output",
+  "synthetic_receipt_classification": "COMPLETE_REVIEW_PENDING",
+  "synthetic_child_exit_codes": [0, 0, 0, 0],
+  "synthetic_capture_points": 5,
+  "synthetic_raw_trace_sha256": "8f21555eb330d13f30d77cc79465cefca39f3adbdc95a03697e3e7e85f6bf06e",
+  "synthetic_run_parameters_sha256": "b1fcf14a4ebfc4c244d730c5c620c4d65aea76e9c3be6fb45954e9e6df9030ed",
+  "tests": {
+    "command": "rustc --edition=2021 -D warnings --test supervisor.rs -o /tmp/matrix07-reanalysis23-tests && /tmp/matrix07-reanalysis23-tests",
+    "passed": 4
+  },
+  "review_limitations": [
+    "No production reanalysis was launched by this worker.",
+    "The supervisor retains raw gzip only; decoded and normalized streams are not archived.",
+    "A successful pipeline remains diagnostic and cannot establish fault acceptance."
+  ]
+}

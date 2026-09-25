@@ -1,0 +1,41 @@
+{
+  "at_utc": "2026-09-22T01:32:07.682772+00:00",
+  "status": "DIODE_STRESS_REVIEWED_REFERENCE_POWER_TARGET_CLARIFIED_BOTH_CHECKER_LIVE",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: verified TI reference architecture mismatch and live57766wait",
+  "this_goal_turn": "progress: reviewed completed99same-row stress evidence; Luna reference comparison102 corrected and accepted as inventory; interimreport104 parentreviewed; user clarified ControlFreak target and105records1800Winput interpretation; BOTHcompletecapture confirmed",
+  "completed_sessions": {
+    "84299": 0
+  },
+  "live_sessions": {
+    "57766": "BOTH-SHORT full capture/export complete; stage2 checker pipeline running, no terminal disposition yet"
+  },
+  "both_raw": {
+    "host_success": true,
+    "pigz_success": true,
+    "host_rc": 0,
+    "pigz_rc": 0,
+    "metadata_status": "valid",
+    "raw_trace_bytes": 5286116925,
+    "raw_trace_sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166"
+  },
+  "both_rows": 32036953,
+  "both_export_elapsed_ms": 64022,
+  "both_progress_last": "2351.764067\t6.61999999999999922e-1\t100.000000\t1.367884429998e-4\t32036953\ttrue\t68\t0\tfalse",
+  "free_bytes": 28609183744,
+  "artifacts_sha256": {
+    "host/report-reference-parent-review-106.json": "3afb1d04a50d766c020f6dc32fdfb5a4633df6c76c417c76438d995909dd68e6",
+    "host/reference-baseline-review-102.md": "c4a0ac43c4f1c6aa2f27b085f69d2afe6b73e2e7d329e86e927fed6e971ff87a",
+    "host/reference-baseline-review-102.json": "4f1bc332f1a0251a4ac348311039a84dd2538af6fdb4cf0f1f98e6828d8a5a23",
+    "host/campaign-report-104.md": "96ccc0b8a4b5a248cc861e59d966febf0927681824c231d49c1f945e62df41b0",
+    "host/power-target-105.md": "162f64f44eaee9c6bad7efac2463a2aeba3dd9b3c95bf8aaad494cdc570d2dcc",
+    "faults/coincident-stress-observability-99/parent-result-review-103.json": "411cb44570eae6161eca1f3b261aa7fad6c454d613edb53b524103f3f455809e",
+    "faults/settled-both-short-65/full-BOTH-SHORT/capture-stage1.json": "86d6a1a6f4509ad13b7ba0bc6321a2739e524997accd8f74893e64ec6cc9ac4f",
+    "faults/settled-both-short-65/full-BOTH-SHORT/capture-metadata.json": "1d4cfa5149624070f5a5c5c3c4748f306cb01ed450d1354a3f088f820cb2e1fe",
+    "faults/settled-both-short-65/full-BOTH-SHORT/native-export-receipt.json": "cf1ffaffec4467550f33892a36318976786e0854a50f1b928972fc69fecaab43"
+  },
+  "power_target": "Working1800Wnominalmainsinput benchmark basedControlFreakmanufacturer-authoredspecsheet; not1800WDC/panrequirement. FifteenAmodel screen unchanged; lowlinederating/auxlossallocationneeded. See105.",
+  "active_children": "none; all finishedchildren interrupted",
+  "blocked_turn_count": 0,
+  "next": "Poll57766samehandle toterminal; inspect actualchecker_verdict, stage2exits, result and adapter. If fullcapture run75analysis thenlegacy/ownprefix/phaseparentacceptance. BYPASS66/76remaining, do not overlapanotherfullsolver. Onearchiveanalysis only; lowglobalswapheadroom favors sequentialanalysis/solver if memorypressureactive. Finalreport/indexupdateafter remainingcases. Reference102onlyfirstpass: exactTIcompensation/sensing/startupcomparisonstillneeded; controllercorrelationunestablished."
+}

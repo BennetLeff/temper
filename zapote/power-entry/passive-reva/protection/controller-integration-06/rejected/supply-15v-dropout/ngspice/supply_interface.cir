@@ -1,0 +1,50 @@
+* A5 supply screening deck, not a vendor regulator model.
+* The B sources encode only the published rail boundaries and a conservative
+* 0.30 V low-line dropout assumption for TPS7A4701.  They are intentionally
+* simple so failures are visible; this deck is not physical clamp proof.
+*
+* Cases exercised in one transient:
+*   0-1 ms producer ramp, 15 V nominal, 20.25 V OVP plateau,
+*   raw collapse to 0 V, and recovery to 15 V.
+* .step repeats the run at 30 mA and 200 mA 5-V loads.
+
+.title A5 IRM-10-15 TPS7A4701 TPS54202 rail screen
+.param I15=0.075
+.param I5=0.200
+.param D15=0.30
+
+* IRM output ramp / OVP / dropout / recovery stimulus.
+VRAW raw 0 PWL(0 0 1m 15 4m 15 6m 20.25 8m 20.25 10m 0 12m 0 14m 15 20m 15)
+Rsource raw raw_i 0.10
+
+* TPS7A4701: 15-V ANY-OUT rail with bounded dropout screen.
+B15 aux15_pre 0 V={ (V(raw_i)>3) ? ((V(raw_i)-D15<15) ? (V(raw_i)-D15) : 15) : 0 }
+R15series aux15_pre aux15 0.05
+C15 aux15 0 47u
+R15load aux15 0 {15/I15}
+
+* TPS54202: idealized 5-V closed-loop output with its 4.2-V UVLO rising
+* boundary represented.  Its datasheet 5 ms soft-start is represented by the
+* output capacitor and source resistance only; timing must be characterized.
+B5 logic5_pre 0 V={ (V(raw_i)>4.2) ? 5 : 0 }
+R5series logic5_pre logic5 0.08
+C5 logic5 0 22u
+R5load logic5 0 {5/I5}
+
+* Rail checks: UCC27511A recommended 4.5..18 V; interface run window is
+* 14.25..15.75 V for AUX15 and 4.75..5.25 V for LOGIC5.
+.control
+  set filetype=ascii
+  tran 1u 20m
+  meas tran aux15_nom FIND v(aux15) AT=4m
+  meas tran aux15_ov FIND v(aux15) AT=7m
+  meas tran aux15_drop FIND v(aux15) AT=11m
+  meas tran aux15_recover FIND v(aux15) AT=16m
+  meas tran logic5_nom FIND v(logic5) AT=4m
+  meas tran logic5_ov FIND v(logic5) AT=7m
+  meas tran logic5_drop FIND v(logic5) AT=11m
+  meas tran logic5_recover FIND v(logic5) AT=16m
+  write supply_interface.raw v(raw) v(aux15) v(logic5)
+  quit
+.endc
+.end

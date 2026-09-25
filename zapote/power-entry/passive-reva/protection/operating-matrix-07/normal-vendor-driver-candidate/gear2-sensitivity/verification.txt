@@ -1,0 +1,9 @@
+rustc --edition=2021 -D warnings -O verify.rs -o /tmp/matrix07-gear2-verify
+/tmp/matrix07-gear2-verify
+include-byte-identical clamp.inc
+include-byte-identical protection.inc
+include-byte-identical standby.inc
+include-byte-identical ucc28180-pwm-latch.inc
+include-byte-identical vendor/UCC27511A.lib
+inverse-cold-deck-byte-identical
+launch=UNSTARTED

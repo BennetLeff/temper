@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/bin/bash",
+    "-o",
+    "pipefail",
+    "-c",
+    "/usr/bin/gzip -dc feedback.tsv.gz | ./parent-check --self-test -"
+  ],
+  "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture",
+  "dedicated_process_group": 49332,
+  "ended_unix": 1790048545.482655,
+  "error": null,
+  "interrupted_signal": null,
+  "resolved_command": "/bin/bash",
+  "returncode": 0,
+  "started_unix": 1790048545.15642,
+  "status": "completed",
+  "termination": "leader/group already exited",
+  "timeout_seconds": 60.0
+}

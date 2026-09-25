@@ -1,0 +1,19 @@
+{
+  "status": "VENDOR_DRIVER_CANDIDATE",
+  "accepted": false,
+  "source": "normal-vendor-driver-candidate/tracked",
+  "sha256": {
+    "cold.cir": "88f8972a957d6bb2600523cf7aaece46d226b2c8c5bcd96a08f4a7b3e923746c",
+    "protection.inc": "cc323514dfc8211cd8c3ae51eb86301844be18899b78271daf5c5257ef2b61d0",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "progress.rs": "55725d46044991df13ccb651b48a6874db111e2b6005f9f82087f903f84af40d",
+    "vendor/UCC27511A.lib": "eb78c0ce0d9cf2dd5bbc5f937bbfc6cc38c95215e035feaeb3950672e8c05c6d"
+  },
+  "binary": "/private/tmp/matrix07-vendor-tracked-host",
+  "binary_sha256": "dc027ab6965a2e7fe9ad912e5cb7e85bc73aa19813eabcfa2fca6f35067cf9bd",
+  "physical_model_change": "unchanged TI UCC27511A plus source-matching split10ohm gate outputs; otherpowerstage/controller/clamp unchanged",
+  "compatibility": "set ngbehavior=ps before circuit load",
+  "instrumentation": "additionalsavedinternalnodes; stopfirstnonincreasingtime; standard4-argumentCLI"
+}

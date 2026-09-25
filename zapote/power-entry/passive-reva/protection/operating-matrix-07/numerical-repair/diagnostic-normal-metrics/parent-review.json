@@ -1,0 +1,14 @@
+{
+  "status": "PARENT_REVIEWED_DIAGNOSTIC_ONLY",
+  "accepted": false,
+  "tests_passed": 7,
+  "source_sha256": "67ef2eb058a687f42131c1423d9c9cf8eaf2a36a674c9113df1340fbfb792f09",
+  "tests_sha256": "0449a9f67bc3e44de579adcf3a2f63f7090700ddd683d415f5709bea61f9840e",
+  "parent_tests_sha256": "d79c77235cf3bfd8b81fe73481774ae3c0567452bfad95dc1427d88bd5bd79a8",
+  "binary": "/private/tmp/matrix07-normal-diagnostic-host",
+  "binary_sha256": "e3311cfc2b579d085cd18ffd8a3c5e50ea7acea664678e82a9480dd269bdc781",
+  "trace_sha256": "90e1f2c013e965a99d10053b074127bbddf2c73d5b1403e9e872e3de6933a3b5",
+  "report_sha256": "04d4b917a7b7ae62d026b9c6cfd86a1e91ba0f9dca8cc82f88e03ee6f87d5f8e",
+  "corrections": "Explicit cycle boundaries, positive-dt clipped integration, all rows including internal duplicate peaks for extrema, ratio undefined if first mean nonpositive.",
+  "limitations": "VB-only settling diagnostic, not full normal metrics or accepted timestamp policy."
+}

@@ -1,0 +1,40 @@
+{
+  "status": "COMPLETE_PREFIX_DIAGNOSTIC_PARENT_REVIEW_REQUIRED",
+  "accepted": false,
+  "incomplete_full_endpoint_preserved": true,
+  "raw_sha256_before_after": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+  "raw_bytes": 5088782620,
+  "full_rows": 30686230,
+  "selected_rows": 30112476,
+  "prefix_endpoint_s": 0.6499999879903595,
+  "partial_stop_s": 0.6544026486296868,
+  "pipeline_exits": {
+    "scan": [
+      0,
+      0,
+      0
+    ],
+    "audit": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "metrics": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "legacy": [
+      141,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "legacy_status": "EXPECTED_STRICT_REJECTION",
+  "scope": "Own cold-start normal prefix only; no full-fault endpoint, phase43, observation55, protection acceptance, or hardware claim."
+}

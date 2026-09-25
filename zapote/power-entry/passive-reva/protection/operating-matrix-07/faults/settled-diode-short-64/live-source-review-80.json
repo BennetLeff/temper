@@ -1,0 +1,42 @@
+{
+  "case": "DIODE-SHORT",
+  "materialized": "faults/settled-diode-short-64/full-DIODE-SHORT",
+  "source_reference": "faults/settled-compact-prep-24/prepared/DIODE-SHORT",
+  "source_match": true,
+  "acceptance": false,
+  "hashes": {
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "case.cir": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "manifest.json": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  },
+  "parameters": {
+    "kind": "diode-short",
+    "runner_kind": "diode-short",
+    "validator_kind": "diode-short",
+    "t_fault_s": 0.6541666666667,
+    "expected_fault_s": 0.6541666666667,
+    "tstop_s": 0.662,
+    "event_window_s": 0.002,
+    "observation_s": 0.002,
+    "turnoff_s": 0.000002,
+    "local_max_gap_s": 0.000000025,
+    "outer_max_gap_s": 0.000001,
+    "wall_seconds": 3600,
+    "export_timeout_s": 900,
+    "bypass": false
+  },
+  "deck_checks": {
+    "f2_control": "Vf2ctl f2ctl 0 5",
+    "f2_state": "held closed",
+    "fault_element": "Sdiodeshort sw d1_path dshort_ctl 0 SWDIODESHORT",
+    "fault_model": "SW(Ron=1m Roff=1e12 Vt=2.5 Vh=.1)",
+    "fault_edge": "1 ns finite PWL edge"
+  },
+  "tool_binding_verified": true,
+  "read_boundary": "Explicit regular source, manifest, binding, parameter, and gap-policy files only; no FIFO/raw/solver/restart access."
+}

@@ -1,0 +1,31 @@
+F2 split-divider nominal DC and illustrative RC response; no comparator macro-model
+Vd vd 0 DC 400 PWL(0 390 10u 390 30u 450 50u 450)
+Vb vb 0 390
+RD1 vd d1 200k
+RD2 d1 d2 200k
+RD3 d2 d3 200k
+RD4 d3 d4 200k
+RD5 d4 dh 187k
+RDSTEP dh dl 200
+RDBOT dl 0 5.62k
+CD dh 0 100p
+RB1 vb b1 200k
+RB2 b1 b2 200k
+RB3 b2 b3 200k
+RB4 b3 b4 200k
+RB5 b4 bh 187k
+RBSTEP bh bl 200
+RBBOT bl 0 5.62k
+CB bh 0 100p
+BERR err 0 V=V(dl)-V(bh)-0.008
+.control
+set wr_singlescale
+set wr_vecnames
+op
+print v(dh) v(dl) v(bh) v(bl)
+tran 10n 50u
+meas tran input_cross WHEN v(err)=0 RISE=1
+wrdata divider-trace.tsv v(vd) v(vb) v(dh) v(dl) v(bh) v(bl) v(err)
+quit
+.endc
+.end

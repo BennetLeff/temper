@@ -1,0 +1,24 @@
+* Bounded late-time minimal event: native SW hysteretic authored reference.
+.include ../driver-hysteresis-candidate/authored_logic_hysteretic.inc
+Vaux aux15 0 15
+Vdisable disable 0 0
+Vpwm pwm_input 0 PWL(0 0 0.501554000 2.199000000 0.501554800 2.19998914099 0.501554900 2.19998914099 0.501554914 2.200200000 0.501555000 2.200200000 0.501558000 2.200200000)
+Xdriver disable pwm_input aux15 0 driver_out AUTH_UCC27511A_H
+Rgate driver_out gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+Cgd gate sw 112p
+Csw sw 0 344p
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.save time v(pwm_input) v(xdriver.pwm_state) v(xdriver.inm_state) v(xdriver.aux_state) v(xdriver.driver_req) v(xdriver.drv_delay) v(driver_out) v(gate)
+.tran 500u 0.501558 0 500u uic
+.control
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+rusage tranpoints traniter rejected trantime
+wrdata native-sw-late.tsv v(pwm_input) v(xdriver.pwm_state) v(xdriver.inm_state) v(xdriver.aux_state) v(xdriver.driver_req) v(xdriver.drv_delay) v(driver_out) v(gate)
+quit
+.endc
+.end

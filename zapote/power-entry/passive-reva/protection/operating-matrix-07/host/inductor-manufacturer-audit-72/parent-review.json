@@ -1,0 +1,24 @@
+{
+  "status": "MANUFACTURER_RATINGS_VERIFIED_MODEL_LIMIT_EXPLICIT",
+  "accepted_hardware": false,
+  "official_url": "https://www.we-online.com/components/products/datasheet/760800301.pdf",
+  "revision": "001.001",
+  "parent_web_verified_pages": [
+    1,
+    2,
+    7
+  ],
+  "model_nominal_L_matches": true,
+  "model_Rwind_matches_20C_max_DCR": true,
+  "guaranteed_saturation_floor_available": false,
+  "wholetrace_normal_peak_min_A": 25.067335,
+  "wholetrace_normal_peak_max_A": 36.870698,
+  "interpretation": "Neither peak>thermalratedcurrent nor peak<typicalsaturationcurrent alone is a hardware verdict. FixedL excludesDCbias/coreloss/temp; allnormalreceipts unchanged.",
+  "files_sha256": {
+    "host/inductor-manufacturer-audit-72/metadata.json": "da20ea62754046691bb014744517ff389a9bb6f76326c6ec076eae0159602cf5",
+    "host/inductor-manufacturer-audit-72/review.md": "d10638999d57c08574ad31b999bbf2723f2927c45222f3e42593c79467b20a10",
+    "host/inductor-manufacturer-audit-72/parent-disposition.md": "2afa39331f67fc2129ed9642e7cfd80a1fb04a45098f4841e8748969acb8f0a0",
+    "host/inductor-model-inventory-72.json": "6af14a0bc903f1a2c9c1f38d717e6c429b4d0500712e017ad390f88a114eabf8"
+  },
+  "vendor_model_investigation": "separate retrieval/inventory pending; no adoption"
+}

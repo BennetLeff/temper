@@ -1,0 +1,21 @@
+{
+  "status": "PREPARED_UNEXECUTED_PREFIX_MUST_BE_MEASURED",
+  "utc": "2026-09-21T02:34:40.764016+00:00",
+  "accepted_source": "../../accepted-baseline-11/acceptance.json",
+  "source_receipt_sha256": "18ce2902682b4cedb2880e260c15e731e599df4224dc842a70c85e9cadb6cf22",
+  "candidate_event_s": 0.075,
+  "required_healthy_prefix_s": [
+    0.065,
+    0.075
+  ],
+  "observation_contract": {
+    "detector_window_s": 0.01,
+    "turnoff_budget_s": 2e-06,
+    "retained_off_observation_s": 0.002,
+    "end_s": 0.089,
+    "global_max_gap_s": 1e-06,
+    "local_event_max_gap_s": 2.5e-08
+  },
+  "basis": "Accepted baseline reported only one q/en rise; earlier startup inspection located enable near53.67ms. 75ms is a candidate with margin, not an inferred pass of the newly materialized prefix. Recheck raw ARM/PERMIT/q/en/fault and source identity on the actual fault trace.",
+  "launch_order": "After a current solver slot frees and native42 capture/adapter/checker are reviewed; max two fullsolvers. No fault simulation launched."
+}

@@ -1,0 +1,30 @@
+{
+  "at_utc": "2026-09-22T00:31:41.495195+00:00",
+  "status": "ACCEPTED_INTERIM_REPORT_AND_INDEX",
+  "objective_complete": false,
+  "artifacts_sha256": {
+    "host/campaign-report-87.md": "88afec1fd4325453a969c343a42717d375456fadeee26c61a3324823130710f4",
+    "host/reproducibility-index-87.json": "4e3316b2f6da51ec6f5b9a566963662136e3204f924ed0ad8373002b68de5af7",
+    "host/reproducibility-index-87.md": "11b991ae586047f070023b7b2b3d19dbe70ad41dcb5795b51747bd608971ab01"
+  },
+  "checks": {
+    "small_regular_files_hashed_and_matched": 222,
+    "large_archives_stat_only_receipt_sizes_matched": 14,
+    "large_archives_rehashed": false,
+    "missing_report_or_index_local_links": 0,
+    "independent_luna_review": "222 hashes and 26 report links verified; case statuses and quantitative small-receipt claims agree; no substantive overclaims found"
+  },
+  "parent_corrections": [
+    "Fixed receipt-relative links and archive locations; archives were not missing.",
+    "Reconstructed nine-point display from exact accepted receipts.",
+    "Separated detector-to-off delay from subsequent observation interval.",
+    "Removed mistaken state-of-charge terminology and bounded selected-part/vendor-model claims.",
+    "Corrected historical versus prepared versus reconstructed command classifications; preserved original worker drafts."
+  ],
+  "limits": [
+    "Interim only: DIODE running, BOTH and BYPASS unexecuted.",
+    "SW-SHORT endpoint-aborted and INDETERMINATE; no accepted own prefix/phase/full fault window.",
+    "Numerical model evidence is not hardware, thermal, fuse, SOA or certification qualification."
+  ],
+  "new_fault_acceptance": false
+}

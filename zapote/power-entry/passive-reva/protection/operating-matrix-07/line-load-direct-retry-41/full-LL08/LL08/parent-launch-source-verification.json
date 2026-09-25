@@ -1,0 +1,22 @@
+{
+  "status": "PARENT_VERIFIED_EXACT_TWO_PARAMETER_TRANSFORM",
+  "utc": "2026-09-21T18:00:10.912056+00:00",
+  "session": 65352,
+  "runner_pid": 39972,
+  "host_pid": 40351,
+  "monitor_pid": 39973,
+  "changes": {
+    "VAC_RMS": 132,
+    "RLOAD": 187.407220031
+  },
+  "cold_sha256": "cca34e1517db547f335a0ba9ff278fb5e80bcb8186158d98f19d303928421063",
+  "include_sha256": {
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "launch_script_sha256": "ac31662c803e533e597e2451d6f51704a407a936587ac32abe733e02b6a47ed1",
+  "accepted": false
+}

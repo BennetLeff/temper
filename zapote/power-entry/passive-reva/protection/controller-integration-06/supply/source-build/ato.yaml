@@ -1,0 +1,4 @@
+ato-version: 0.2.69
+builds:
+  default:
+    entry: hot15_logic5_supply.ato:Hot15Logic5Supply

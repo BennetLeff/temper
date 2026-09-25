@@ -1,0 +1,315 @@
+# Bounded SELV source-fault capture and ISO7741F permit channel fixture.
+# The TPS3431 heartbeat producer is joined here; reset-good and interlock are
+# still external ports. No MCU GPIO stands in for a physical reset detector.
+
+component LvcAnd:
+    mpn = "SN74LVC1G08DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component Hcs74:
+    mpn = "SN74HCS74PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal CLR1_N ~ pin 1
+    signal D1 ~ pin 2
+    signal CLK1 ~ pin 3
+    signal PRE1_N ~ pin 4
+    signal Q1 ~ pin 5
+    signal Q1_N ~ pin 6
+    signal GND ~ pin 7
+    signal Q2_N ~ pin 8
+    signal Q2 ~ pin 9
+    signal PRE2_N ~ pin 10
+    signal CLK2 ~ pin 11
+    signal D2 ~ pin 12
+    signal CLR2_N ~ pin 13
+    signal VCC ~ pin 14
+
+component RailSupervisor:
+    mpn = "TPS389001DSER"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps3890.pdf"
+    footprint = "TBD_REVIEW_ONLY:TI_DSE0006A_1.5x1.5mm"
+    signal SENSE ~ pin 1
+    signal GND ~ pin 2
+    signal MR ~ pin 3
+    signal VDD ~ pin 4
+    signal CT ~ pin 5
+    signal RESET_N ~ pin 6
+
+component Iso7741F:
+    mpn = "ISO7741FDWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/iso7741.pdf"
+    footprint = "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm"
+    signal VCC1 ~ pin 1
+    signal GND1 ~ pin 2
+    signal INA ~ pin 3
+    signal INB ~ pin 4
+    signal INC ~ pin 5
+    signal OUTD ~ pin 6
+    signal EN1 ~ pin 7
+    signal GND1B ~ pin 8
+    signal GND2 ~ pin 9
+    signal EN2 ~ pin 10
+    signal IND ~ pin 11
+    signal OUTC ~ pin 12
+    signal OUTB ~ pin 13
+    signal OUTA ~ pin 14
+    signal GND2B ~ pin 15
+    signal VCC2 ~ pin 16
+
+component Resistor:
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Capacitor:
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Watchdog:
+    mpn = "TPS3431SDRBR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps3431.pdf"
+    footprint = "TBD_REVIEW_ONLY:TPS3431SDRBR_DRB0008A"
+    signal VDD ~ pin 1
+    signal CWD ~ pin 2
+    signal EN ~ pin 3
+    signal GND ~ pin 4
+    signal SET1 ~ pin 5
+    signal WDI ~ pin 6
+    signal WDO ~ pin 7
+    signal ENOUT ~ pin 8
+    signal EP ~ pin 9
+
+component WatchdogInputBuffer:
+    mpn = "SN74LVC1G17DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf"
+    # Distinct review-only key prevents Atopile 0.2.69's same-footprint MPN
+    # metadata collision with SN74LVC1G08 in the compiled export. Geometry is
+    # still the standard SOT-23-5 and must be bound/verified before layout.
+    footprint = "TBD_REVIEW_ONLY:SN74LVC1G17DBVR_SOT23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+module SourceHealthJoin:
+
+    signal SELV3V3
+    signal SOURCE_VALIDATED_HEARTBEAT
+    signal wd_wdi
+    signal wd_cwd
+    signal SELV_GND
+    signal HOT_LOGIC5
+    signal HOT_GND
+    signal SOURCE_RESET_GOOD
+    signal SOURCE_WATCHDOG_GOOD
+    signal INTERLOCK_PERMIT
+    signal SOURCE_REARM_PULSE
+    signal SELV_RAIL_SENSE
+    signal SELV_RAIL_CT
+    signal SELV_RAIL_RESET_N
+    signal SOURCE_HEALTH
+    signal SOURCE_CLEAR_N
+    signal PERMIT_TX
+    signal HOT_PERMIT_RX
+    signal HOT_UNUSED_OUTA
+    signal HOT_UNUSED_OUTC
+    signal SELV_UNUSED_OUTD
+
+    and_reset_wd = new LvcAnd
+    and_reset_wd.A ~ SOURCE_RESET_GOOD
+    and_reset_wd.B ~ SOURCE_WATCHDOG_GOOD
+    and_reset_wd.GND ~ SELV_GND
+    and_reset_wd.VCC ~ SELV3V3
+
+    and_interlock = new LvcAnd
+    and_interlock.A ~ and_reset_wd.Y
+    and_interlock.B ~ INTERLOCK_PERMIT
+    and_interlock.GND ~ SELV_GND
+    and_interlock.VCC ~ SELV3V3
+    and_interlock.Y ~ SOURCE_HEALTH
+
+    rail_supervisor = new RailSupervisor
+    rail_supervisor.SENSE ~ SELV_RAIL_SENSE
+    rail_supervisor.GND ~ SELV_GND
+    rail_supervisor.MR ~ SELV3V3
+    rail_supervisor.VDD ~ SELV3V3
+    rail_supervisor.CT ~ SELV_RAIL_CT
+    rail_supervisor.RESET_N ~ SELV_RAIL_RESET_N
+
+    and_rail_health = new LvcAnd
+    and_rail_health.A ~ SOURCE_HEALTH
+    and_rail_health.B ~ SELV_RAIL_RESET_N
+    and_rail_health.GND ~ SELV_GND
+    and_rail_health.VCC ~ SELV3V3
+    and_rail_health.Y ~ SOURCE_CLEAR_N
+
+    source_latch = new Hcs74
+    source_latch.CLR1_N ~ SOURCE_CLEAR_N
+    source_latch.D1 ~ SELV3V3
+    source_latch.CLK1 ~ SOURCE_REARM_PULSE
+    source_latch.PRE1_N ~ SELV3V3
+    source_latch.Q1 ~ PERMIT_TX
+    source_latch.PRE2_N ~ SELV3V3
+    source_latch.CLK2 ~ SELV_GND
+    source_latch.D2 ~ SELV_GND
+    source_latch.CLR2_N ~ SELV_GND
+    source_latch.GND ~ SELV_GND
+    source_latch.VCC ~ SELV3V3
+
+    isolator = new Iso7741F
+    isolator.VCC1 ~ SELV3V3
+    isolator.GND1 ~ SELV_GND
+    isolator.INA ~ SELV_GND
+    isolator.INB ~ PERMIT_TX
+    isolator.INC ~ SELV_GND
+    isolator.OUTD ~ SELV_UNUSED_OUTD
+    isolator.EN1 ~ SELV3V3
+    isolator.GND1B ~ SELV_GND
+    isolator.GND2 ~ HOT_GND
+    isolator.EN2 ~ HOT_LOGIC5
+    isolator.IND ~ HOT_GND
+    isolator.OUTC ~ HOT_UNUSED_OUTC
+    isolator.OUTB ~ HOT_PERMIT_RX
+    isolator.OUTA ~ HOT_UNUSED_OUTA
+    isolator.GND2B ~ HOT_GND
+    isolator.VCC2 ~ HOT_LOGIC5
+
+    # Reset-good and interlock default low; the watchdog-good node is instead
+    # pulled up once and actively sunk by TPS3431's open-drain outputs.
+    reset_pd = new Resistor
+    reset_pd.value = 10kohm
+    reset_pd.p1 ~ SOURCE_RESET_GOOD
+    reset_pd.p2 ~ SELV_GND
+    interlock_pd = new Resistor
+    interlock_pd.value = 10kohm
+    interlock_pd.p1 ~ INTERLOCK_PERMIT
+    interlock_pd.p2 ~ SELV_GND
+    rail_reset_pullup = new Resistor
+    rail_reset_pullup.value = 10kohm
+    rail_reset_pullup.p1 ~ SELV_RAIL_RESET_N
+    rail_reset_pullup.p2 ~ SELV3V3
+    source_clear_pd = new Resistor
+    source_clear_pd.value = 10kohm
+    source_clear_pd.p1 ~ SOURCE_CLEAR_N
+    source_clear_pd.p2 ~ SELV_GND
+    rail_sense_top = new Resistor
+    rail_sense_top.value = 16kohm
+    rail_sense_top.p1 ~ SELV3V3
+    rail_sense_top.p2 ~ SELV_RAIL_SENSE
+    rail_sense_bottom = new Resistor
+    rail_sense_bottom.value = 10kohm
+    rail_sense_bottom.p1 ~ SELV_RAIL_SENSE
+    rail_sense_bottom.p2 ~ SELV_GND
+    rearm_pd = new Resistor
+    rearm_pd.value = 10kohm
+    rearm_pd.p1 ~ SOURCE_REARM_PULSE
+    rearm_pd.p2 ~ SELV_GND
+    permit_tx_pd = new Resistor
+    permit_tx_pd.value = 10kohm
+    permit_tx_pd.p1 ~ PERMIT_TX
+    permit_tx_pd.p2 ~ SELV_GND
+    permit_rx_pd = new Resistor
+    permit_rx_pd.value = 10kohm
+    permit_rx_pd.p1 ~ HOT_PERMIT_RX
+    permit_rx_pd.p2 ~ HOT_GND
+    unused_a_pd = new Resistor
+    unused_a_pd.value = 10kohm
+    unused_a_pd.p1 ~ HOT_UNUSED_OUTA
+    unused_a_pd.p2 ~ HOT_GND
+    unused_c_pd = new Resistor
+    unused_c_pd.value = 10kohm
+    unused_c_pd.p1 ~ HOT_UNUSED_OUTC
+    unused_c_pd.p2 ~ HOT_GND
+    unused_d_pd = new Resistor
+    unused_d_pd.value = 10kohm
+    unused_d_pd.p1 ~ SELV_UNUSED_OUTD
+    unused_d_pd.p2 ~ SELV_GND
+
+    u1_bypass = new Capacitor
+    u1_bypass.value = 100nF
+    u1_bypass.p1 ~ SELV3V3
+    u1_bypass.p2 ~ SELV_GND
+    u2_bypass = new Capacitor
+    u2_bypass.value = 100nF
+    u2_bypass.p1 ~ SELV3V3
+    u2_bypass.p2 ~ SELV_GND
+    u3_bypass = new Capacitor
+    u3_bypass.value = 100nF
+    u3_bypass.p1 ~ SELV3V3
+    u3_bypass.p2 ~ SELV_GND
+    supervisor_bypass = new Capacitor
+    supervisor_bypass.value = 100nF
+    supervisor_bypass.p1 ~ SELV3V3
+    supervisor_bypass.p2 ~ SELV_GND
+    supervisor_ct = new Capacitor
+    supervisor_ct.value = 100nF
+    supervisor_ct.p1 ~ SELV_RAIL_CT
+    supervisor_ct.p2 ~ SELV_GND
+    u4_bypass = new Capacitor
+    u4_bypass.value = 100nF
+    u4_bypass.p1 ~ HOT_LOGIC5
+    u4_bypass.p2 ~ HOT_GND
+
+    watchdog = new Watchdog
+    watchdog.VDD ~ SELV3V3
+    watchdog.CWD ~ wd_cwd
+    watchdog.EN ~ SELV3V3
+    watchdog.GND ~ SELV_GND
+    watchdog.SET1 ~ SELV3V3
+    watchdog.WDI ~ wd_wdi
+    watchdog.WDO ~ SOURCE_WATCHDOG_GOOD
+    watchdog.ENOUT ~ SOURCE_WATCHDOG_GOOD
+    watchdog.EP ~ SELV_GND
+
+    wdi_buffer = new WatchdogInputBuffer
+    wdi_buffer.A ~ SOURCE_VALIDATED_HEARTBEAT
+    wdi_buffer.GND ~ SELV_GND
+    wdi_buffer.Y ~ wd_wdi
+    wdi_buffer.VCC ~ SELV3V3
+
+    cwd_cap = new Capacitor
+    cwd_cap.value = 1nF
+    cwd_cap.p1 ~ wd_cwd
+    cwd_cap.p2 ~ SELV_GND
+
+    watchdog_bypass = new Capacitor
+    watchdog_bypass.value = 100nF
+    watchdog_bypass.p1 ~ SELV3V3
+    watchdog_bypass.p2 ~ SELV_GND
+
+    wdi_buffer_bypass = new Capacitor
+    wdi_buffer_bypass.value = 100nF
+    wdi_buffer_bypass.p1 ~ SELV3V3
+    wdi_buffer_bypass.p2 ~ SELV_GND
+
+    watchdog_good_pullup = new Resistor
+    watchdog_good_pullup.value = 10kohm
+    watchdog_good_pullup.p1 ~ SELV3V3
+    watchdog_good_pullup.p2 ~ SOURCE_WATCHDOG_GOOD
+
+    heartbeat_pd = new Resistor
+    heartbeat_pd.value = 100kohm
+    heartbeat_pd.p1 ~ SOURCE_VALIDATED_HEARTBEAT
+    heartbeat_pd.p2 ~ SELV_GND
+
+    wdi_pd = new Resistor
+    wdi_pd.value = 100kohm
+    wdi_pd.p1 ~ wd_wdi
+    wdi_pd.p2 ~ SELV_GND

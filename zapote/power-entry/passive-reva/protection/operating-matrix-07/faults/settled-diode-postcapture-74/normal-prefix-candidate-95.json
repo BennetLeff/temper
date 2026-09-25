@@ -1,0 +1,24 @@
+{
+  "status": "PARENT_REVIEW_PENDING",
+  "accepted": false,
+  "case": "DIODE-SHORT",
+  "source_case": "faults/settled-diode-short-64/full-DIODE-SHORT",
+  "raw": {"path": "full-DIODE-SHORT/raw.trace.raw.gz", "sha256": "19f8068d73fb4b2379b3111504fd92efbf769984eb4e3775d5b6378294a6c02c", "bytes": 5340687952, "full_rows": 32309024, "endpoint_s": 0.662},
+  "tools": {"preparation": "preparation.json", "tool_pin": "tools-parent.sha256", "source_binding": "../settled-diode-short-64/live-source-review-80.json"},
+  "source_hashes": {"case.cir": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78", "manifest.json": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9"},
+  "normal_prefix": {
+    "cutoff_s": 0.65,
+    "selected_rows": 30113471,
+    "last_selected_time_s": 0.6499999878048587,
+    "cutoff_gap_s": 1.2195141341209137e-8,
+    "max_cutoff_gap_s": 1e-6,
+    "metrics_window_s": [0.5999999878, 0.6499999878048587],
+    "fault_rising_edge_s": 0.6541666661706754,
+    "metrics": {"vrms_v": 120.0, "irms_a": 7.316235, "input_power_w": 867.951112, "load_power_w": 773.412291, "pf": 0.988613, "vb_mean_v": 383.367154, "vb_min_v": 381.316730, "vb_max_v": 385.364541, "cycle_drift_fraction": 0.002658, "il_peak_a_report_only": 30.639630, "vd_peak_v": 385.475199, "vds_peak_v": 386.774078, "vgs_abs_peak_v": 14.982192, "armed_fraction": 1.0, "on_fraction": 1.0},
+    "screen_count": 0,
+    "repeated_time_audit": {"rows": 30113471, "equal_groups": 41, "repeated_intervals": 54, "max_group_rows": 3, "missing_right": 0, "backwards": 0, "logic_changes": 0, "boundary_groups": 0, "e3_spread_j": 1.7415469999695023e-13, "e3_sumabs_j": 2.3522398841417582e-12, "all_original_rows_retained": true}
+  },
+  "pending": ["phase/observation review", "legacy terminal witness", "parent electrical review"],
+  "timing_window_failure": true,
+  "scope": "Normal prefix metrics are diagnostic and do not make the DIODE-SHORT case accepted or establish a fault verdict."
+}

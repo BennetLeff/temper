@@ -1,0 +1,13 @@
+{
+  "stop_reason": "solver_stopped",
+  "points": 30108912,
+  "first_invalid": true,
+  "seen_names_mask": 65535,
+  "expected_names_mask": 65535,
+  "duplicate_count": 66,
+  "backwards_count": 0,
+  "continue_after_duplicate": true,
+  "diagnostic_only": true,
+  "export_mode": "full_trace_path_or_fifo",
+  "vector_slicing_smoke": "rejected_full_length"
+}

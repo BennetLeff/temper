@@ -1,0 +1,242 @@
+{
+  "status": "Steps1\u20133 implemented and evaluated in simulation; no hardware qualification",
+  "claims": [
+    {
+      "id": "model-boundary",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "Simulation only; surrogate power devices; provisional2us/500V screen; partial-power behavior and physical fault envelope unqualified",
+      "part": "F2 revisionB",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Local nominal simulation/compiled-graph observations only; no physical or worst-case protection guarantee",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "source-model-binding.md",
+          "sha256": "661462fbc39b51b4b2822ecd3955ab92efcc405286ce5a61062e06f7b6a02ea3"
+        },
+        {
+          "path": "plant/models.md",
+          "sha256": "31b8eae9eb69756e14103ee331b7921ebde6bec799206348cb59fb5ebc660cb1"
+        }
+      ]
+    },
+    {
+      "id": "compiled-circuit",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "79-component source-07 export;15 compiled/regression checks pass",
+      "part": "PowerEntryF2ShutdownRevB",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Local nominal simulation/compiled-graph observations only; no physical or worst-case protection guarantee",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "source-07/build-receipt.json",
+          "sha256": "c3f20d979c4361b3e9e5b4051b1e6ed6f6146caddc0256d4f388a757b6070164"
+        },
+        {
+          "path": "source-07/resolved-components.json",
+          "sha256": "54d4842ac60e403a8963ab7d49ec2905ee66d176ce1974e77ac31652dd160543"
+        },
+        {
+          "path": "compiled-bridge.json",
+          "sha256": "cd05e8facb6e90ca058ae9edb877d707150dfe7c228c24c35babfcc92823bad2"
+        },
+        {
+          "path": "compiled-tests.txt",
+          "sha256": "c61a550921a772f6dc09df8d44d4a31a48ff35f1e8adaf06efe658632953a87b"
+        }
+      ]
+    },
+    {
+      "id": "running-fault-supply",
+      "origin": "derivation",
+      "inputs": [
+        "compiled-circuit",
+        "model-boundary"
+      ],
+      "quantity": "13 positive cases pass; bypass and slow controls fail; isolated OV0.748899us and mismatch1.535580us to loaded gate off",
+      "part": "F2 detector/latch/default-off interface",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Local nominal simulation/compiled-graph observations only; no physical or worst-case protection guarantee",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "fault-tests/controller.inc",
+          "sha256": "f1b68309cd22b9f9a704fe39bfbf99965a637ac572677b1306bac684bd46c1e0"
+        },
+        {
+          "path": "fault-tests/fault_template.cir",
+          "sha256": "7581b0fa7fb9422073e645fbf2cccca280b1d31ed6eaa7dbb213dad7e9aca026"
+        },
+        {
+          "path": "fault-tests/run_cases.sh",
+          "sha256": "308b988c1156f8e5f352eeda4baed0d3a2f1e8fa209875f91928f5ca16444dfa"
+        },
+        {
+          "path": "fault-tests/extract.rs",
+          "sha256": "3f24669f4c734f0ca2f26824c8e1e02ce20d008cb5cceff8d8f4a5de2253c2aa"
+        },
+        {
+          "path": "fault-tests/traces/summary.csv",
+          "sha256": "cddca3d738ead48f0d5f5de96fdea5a44890baf4e73ce71eec79638965033bf3"
+        },
+        {
+          "path": "fault-tests/tests.txt",
+          "sha256": "85a9aaa880a7e5bc14db982747f314c73195bf47d09aaa2c25a956063a121ffb"
+        }
+      ],
+      "condition_transformation": "Evaluate the declared source-bound models and strict extractors; retain nominal conditions and all explicit limitations.",
+      "part_transformation": "Use declared circuit equivalents and physical device surrogates without exact-device or assembly equivalence."
+    },
+    {
+      "id": "independent-driver",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "Five state observations plus two startup-ramp checks pass; loaded RUN-to-gate4V0.211801us",
+      "part": "Official TI UCC27511A model with authored discrete interface",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Local nominal simulation/compiled-graph observations only; no physical or worst-case protection guarantee",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "vendor/slvmcj6.zip",
+          "sha256": "0fff6030808779ac2456c1a72d7bf0701efa07c0c38d78a4a2d368d9d04c5676"
+        },
+        {
+          "path": "vendor/UCC27511A_TINA_TRANS/UCC27511A.lib",
+          "sha256": "eb78c0ce0d9cf2dd5bbc5f937bbfc6cc38c95215e035feaeb3950672e8c05c6d"
+        },
+        {
+          "path": "vendor/checks.txt",
+          "sha256": "aa956439bed0f6e28b4af9a299d58d5d0f4242d252f472d13ba30a9f54ef5183"
+        },
+        {
+          "path": "vendor/check_driver.rs",
+          "sha256": "3aee056a9e5fb1eab49c720e71bd6b225f8f0f987c93400deeaa354a0bd8be17"
+        },
+        {
+          "path": "vendor/README.md",
+          "sha256": "390f43e61e466bbaa53560162ce71e891de5b3ad06449e2ad4827558bbc97cb6"
+        }
+      ]
+    },
+    {
+      "id": "dc-anchors",
+      "origin": "derivation",
+      "inputs": [
+        "model-boundary"
+      ],
+      "quantity": "Actual ngspice MOS49.559mohm at30A/VGS10V; SiC1.45068V at10A/27C; intrinsicbodyreverse0.8pA",
+      "part": "STW65N65DM2AG/C3D20065D surrogates",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Local nominal simulation/compiled-graph observations only; no physical or worst-case protection guarantee",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "device-checks/dc.cir",
+          "sha256": "533c5e50bacf9d31b44d628c0261e57889dec03b5b518127a6aadc41a8650cb8"
+        },
+        {
+          "path": "device-checks/dc.log",
+          "sha256": "a06d749cf78cf299a3bfc649a823e63ab88ea53cba64fcd54a9a111736ec851e"
+        },
+        {
+          "path": "device-checks/check.rs",
+          "sha256": "cacc375bc993fb50cf355516bd9d22315341841dede54a67bf26be1e418923b5"
+        },
+        {
+          "path": "device-checks/checks.txt",
+          "sha256": "8d004a4fd10f35d903cabf39d92452010b801d622fcbc6da6b81629f41bc327b"
+        },
+        {
+          "path": "device-checks/README.md",
+          "sha256": "30a39a268091b53c95f3b6dd1e88b0245bcb25aadf3d3f3fc551b1cc13d666e0"
+        }
+      ],
+      "condition_transformation": "Evaluate the declared source-bound models and strict extractors; retain nominal conditions and all explicit limitations.",
+      "part_transformation": "Use declared circuit equivalents and physical device surrogates without exact-device or assembly equivalence."
+    },
+    {
+      "id": "power-stage",
+      "origin": "derivation",
+      "inputs": [
+        "compiled-circuit",
+        "model-boundary",
+        "dc-anchors"
+      ],
+      "quantity": "13cases:12PASS plus slow-driver expectedFAIL5.074us; actualopening41.658/46.228/51.095A; doubledgate0.870361us; acceptedbuspeaksbelow478V; passive terminalsettling remainsnull in fault windows",
+      "part": "Declared finite MOS/SiC boost plant",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Local nominal simulation/compiled-graph observations only; no physical or worst-case protection guarantee",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "plant/f2_shutdown_template.cir",
+          "sha256": "9d1389060c00260d107a63b54b6689e0c706baa091edc247dce5c2dc3ab2a3e7"
+        },
+        {
+          "path": "plant/controller.inc",
+          "sha256": "b57b854883ee992dad036fd49c5a249b457e200873a3408652186de59122ea1c"
+        },
+        {
+          "path": "plant/extract.rs",
+          "sha256": "27eb11911aaee689c9a3d02e030c8d0dc6153b74532319ae6f7fae8890d180ec"
+        },
+        {
+          "path": "plant/check_inputs.rs",
+          "sha256": "21282f32415a0fef9f07b562f4eec9b8ccec7d5c43cfda9d8f261c3bd677f08c"
+        },
+        {
+          "path": "plant/input-check.txt",
+          "sha256": "323f8ad01af6a2ac5bcfb08b55cb12b3ee5ee8fee3d29cc7739ac2491e387d9f"
+        },
+        {
+          "path": "plant/run_cases.sh",
+          "sha256": "e377dec051ca9806be70b8395a82ba89c2265518f14977b6a1417ae73aaf905c"
+        },
+        {
+          "path": "plant/traces/summary.csv",
+          "sha256": "5b1c52163c1a93c20222e18e0650634546633aaf74aacc482251ea0ae6309fce"
+        },
+        {
+          "path": "plant/refinement.txt",
+          "sha256": "2caf2b974babb0155869758f7d90ac022b299ed9b15ec86e74fbf86e87e6a329"
+        },
+        {
+          "path": "plant/tests.txt",
+          "sha256": "4f3e822426fa843c6141ce35aeaa0db75d88d5882bdbf8510dc32b9a86321025"
+        },
+        {
+          "path": "plant/README.md",
+          "sha256": "034cfc3218689ca89bdbe128b8df328513691eb52e9554a8f451567c5acc8a5f"
+        },
+        {
+          "path": "circuit/plant-final-review.md",
+          "sha256": "17b432a77edf4a94c11924cb588e2a3b3faab905a71a5592e5c00fced94533b2"
+        },
+        {
+          "path": "review-resolution.md",
+          "sha256": "a5231ec0a25ec5e0a05debb68edc0e3f2581a502d3cc0893116e876eebcb5748"
+        }
+      ],
+      "condition_transformation": "Evaluate the declared source-bound models and strict extractors; retain nominal conditions and all explicit limitations.",
+      "part_transformation": "Use declared circuit equivalents and physical device surrogates without exact-device or assembly equivalence."
+    }
+  ],
+  "protection_claims": [],
+  "promotions": []
+}

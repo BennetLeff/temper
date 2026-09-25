@@ -1,0 +1,612 @@
+[21:51:35] INFO     Using project                                   common.py:72
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate                                            
+           INFO     Building default                                 build.py:38
+[21:51:38] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_f2_shutdo             
+                    wn_revb.ato:151:4                                           
+                        Field 'mpn' not declared for                            
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_pfc_contr             
+                    ol_candidate.ato:PowerEntryPfcControlCandidate:             
+                    :protection.vd_div.r1. Declaring implicitly for             
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_f2_shutdo             
+                    wn_revb.ato:152:4                                           
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_pfc_contr             
+                    ol_candidate.ato:PowerEntryPfcControlCandidate:             
+                    :protection.vd_div.r1. Declaring implicitly for             
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_f2_shutdo             
+                    wn_revb.ato:155:4                                           
+                        Field 'mpn' not declared for                            
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_pfc_contr             
+                    ol_candidate.ato:PowerEntryPfcControlCandidate:             
+                    :protection.vd_div.r2. Declaring implicitly for             
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_f2_shutdo             
+                    wn_revb.ato:156:4                                           
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_pfc_contr             
+                    ol_candidate.ato:PowerEntryPfcControlCandidate:             
+                    :protection.vd_div.r2. Declaring implicitly for             
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry/            
+                    passive-reva/protection/reference-revision-09/so            
+                    urce-candidate/build                                        
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vd_div.fil             
+                    ter has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vd_ov_ref              
+                    has no MPN                                                  
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.drv_bypass             
+                    _bulk has no MPN                                            
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name                         ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│           U1 │ protection.vd_div.r1         │
+│           U2 │ protection.vd_div.r2         │
+│           U3 │ protection.vd_div.r3         │
+│           U4 │ protection.vd_div.r4         │
+│           U5 │ protection.vd_div.r5         │
+│           U6 │ protection.vd_div.step       │
+│           U7 │ protection.vd_div.bottom     │
+│           U8 │ protection.vd_div.filter     │
+│           U9 │ protection.vb_div.r1         │
+│          U10 │ protection.vb_div.r2         │
+│          U11 │ protection.vb_div.r3         │
+│          U12 │ protection.vb_div.r4         │
+│          U13 │ protection.vb_div.r5         │
+│          U14 │ protection.vb_div.step       │
+│          U15 │ protection.vb_div.bottom     │
+│          U16 │ protection.vb_div.filter     │
+│          U17 │ protection.reference         │
+│          U18 │ protection.ref_bias          │
+│          U19 │ protection.cmp_vd            │
+│          U20 │ protection.cmp_vb            │
+│          U21 │ protection.vd_ov_ref         │
+│          U22 │ protection.vd_ov             │
+│          U23 │ protection.vd_mismatch_p     │
+│          U24 │ protection.vb_mismatch_n     │
+│          U25 │ protection.vb_ov_ref         │
+│          U26 │ protection.vb_ov             │
+│          U27 │ protection.vb_mismatch_p     │
+│          U28 │ protection.vd_mismatch_n     │
+│          U29 │ protection.health            │
+│          U30 │ protection.cmp_vd_bypass     │
+│          U31 │ protection.cmp_vb_bypass     │
+│          U32 │ protection.health_bypass     │
+│          U33 │ protection.sup_logic         │
+│          U34 │ protection.sup_aux           │
+│          U35 │ protection.sup_logic_bypass  │
+│          U36 │ protection.sup_aux_bypass    │
+│          U37 │ protection.sup_logic_ct      │
+│          U38 │ protection.sup_aux_ct        │
+│          U39 │ protection.r_logic_top       │
+│          U40 │ protection.r_logic_bottom    │
+│          U41 │ protection.r_logic_iso       │
+│          U42 │ protection.r_aux_top         │
+│          U43 │ protection.r_aux_bottom      │
+│          U44 │ protection.r_aux_iso         │
+│          U45 │ protection.reset_and         │
+│          U46 │ protection.reset_and_bypass  │
+│          U47 │ protection.reset_pull_logic  │
+│          U48 │ protection.reset_pull_aux    │
+│          U49 │ protection.rail_pd           │
+│          U50 │ protection.permit_buf        │
+│          U51 │ protection.permit_buf_bypass │
+│          U52 │ protection.permit_pd         │
+│          U53 │ protection.aux_fast_cmp      │
+│          U54 │ protection.aux_fast_bypass   │
+│          U55 │ protection.aux_fast_top      │
+│          U56 │ protection.aux_fast_bottom   │
+│          U57 │ protection.aux_fast_iso      │
+│          U58 │ protection.latch             │
+│          U59 │ protection.latch_bypass      │
+│          U60 │ protection.arm_buf           │
+│          U61 │ protection.arm_buf_bypass    │
+│          U62 │ protection.arm_pd            │
+│          U63 │ protection.enable_and        │
+│          U64 │ protection.enable_pd_bypass  │
+│          U65 │ protection.enable_pd         │
+│          U66 │ protection.driver            │
+│          U67 │ protection.pwm_iso           │
+│          U68 │ protection.pwm_pd            │
+│          U69 │ protection.disable_nmos      │
+│          U70 │ protection.disable_gate      │
+│          U71 │ protection.disable_gate_pd   │
+│          U72 │ protection.in_n_pullup       │
+│          U73 │ protection.gate_r            │
+│          U74 │ protection.gate_pd           │
+│          U75 │ protection.gate_off_r        │
+│          U76 │ protection.logic_bleed       │
+│          U77 │ protection.cmp_bypass        │
+│          U78 │ protection.drv_bypass_hf     │
+│          U79 │ protection.drv_bypass_bulk   │
+│          U80 │ bridge                       │
+│          U81 │ holder                       │
+│          U82 │ cmc                          │
+│          U83 │ ntc                          │
+│          U84 │ bypass                       │
+│          U85 │ x2                           │
+│          U86 │ mov                          │
+│          U87 │ l_boost                      │
+│          U88 │ q_boost                      │
+│          U89 │ d_boost                      │
+│          U90 │ pfc                          │
+│          U91 │ shunt                        │
+│          U92 │ r_relay_gate                 │
+│          U93 │ r_relay_pd                   │
+│          U94 │ r_relay_drop                 │
+│          U95 │ r_isense                     │
+│          U96 │ r_freq                       │
+│          U97 │ r_vtop                       │
+│          U98 │ r_vtop2                      │
+│          U99 │ r_vtop3                      │
+│         U100 │ r_vtop4                      │
+│         U101 │ r_vtop5                      │
+│         U102 │ r_vbottom                    │
+│         U103 │ r_vcomp                      │
+│         U104 │ c_vcc                        │
+│         U105 │ c_icomp                      │
+│         U106 │ c_vcomp                      │
+│         U107 │ c_vcomp_p                    │
+│         U108 │ c_isense                     │
+│         U109 │ c_vfeed                      │
+│         U110 │ relay_driver                 │
+│         U111 │ relay_flyback                │
+│         U112 │ isense_clamp                 │
+│         U113 │ c1                           │
+│         U114 │ c2                           │
+│         U115 │ c3                           │
+│         U116 │ c4                           │
+│         U117 │ c_hf                         │
+│         U118 │ y1                           │
+│         U119 │ mains                        │
+│         U120 │ aux                          │
+│         U121 │ control                      │
+│         U122 │ permit                       │
+│         U123 │ q_inhibit                    │
+│         U124 │ q_permit                     │
+│         U125 │ r_inhibit_pulldown           │
+│         U126 │ r_inhibit_pullup             │
+│         U127 │ r_permit_gate                │
+│         U128 │ r_permit_pd                  │
+│         U129 │ output                       │
+│         U130 │ bleeder1                     │
+│         U131 │ bleeder2                     │
+└──────────────┴──────────────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓                       ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ aux                          │ U120       │
+│ bleeder1                     │ U130       │
+│ bleeder2                     │ U131       │
+│ bridge                       │ U80        │
+│ bypass                       │ U84        │
+│ c1                           │ U113       │
+│ c2                           │ U114       │
+│ c3                           │ U115       │
+│ c4                           │ U116       │
+│ c_hf                         │ U117       │
+│ c_icomp                      │ U105       │
+│ c_isense                     │ U108       │
+│ c_vcc                        │ U104       │
+│ c_vcomp                      │ U106       │
+│ c_vcomp_p                    │ U107       │
+│ c_vfeed                      │ U109       │
+│ cmc                          │ U82        │
+│ control                      │ U121       │
+│ d_boost                      │ U89        │
+│ holder                       │ U81        │
+│ isense_clamp                 │ U112       │
+│ l_boost                      │ U87        │
+│ mains                        │ U119       │
+│ mov                          │ U86        │
+│ ntc                          │ U83        │
+│ output                       │ U129       │
+│ permit                       │ U122       │
+│ pfc                          │ U90        │
+│ protection.arm_buf           │ U60        │
+│ protection.arm_buf_bypass    │ U61        │
+│ protection.arm_pd            │ U62        │
+│ protection.aux_fast_bottom   │ U56        │
+│ protection.aux_fast_bypass   │ U54        │
+│ protection.aux_fast_cmp      │ U53        │
+│ protection.aux_fast_iso      │ U57        │
+│ protection.aux_fast_top      │ U55        │
+│ protection.cmp_bypass        │ U77        │
+│ protection.cmp_vb            │ U20        │
+│ protection.cmp_vb_bypass     │ U31        │
+│ protection.cmp_vd            │ U19        │
+│ protection.cmp_vd_bypass     │ U30        │
+│ protection.disable_gate      │ U70        │
+│ protection.disable_gate_pd   │ U71        │
+│ protection.disable_nmos      │ U69        │
+│ protection.driver            │ U66        │
+│ protection.drv_bypass_bulk   │ U79        │
+│ protection.drv_bypass_hf     │ U78        │
+│ protection.enable_and        │ U63        │
+│ protection.enable_pd         │ U65        │
+│ protection.enable_pd_bypass  │ U64        │
+│ protection.gate_off_r        │ U75        │
+│ protection.gate_pd           │ U74        │
+│ protection.gate_r            │ U73        │
+│ protection.health            │ U29        │
+│ protection.health_bypass     │ U32        │
+│ protection.in_n_pullup       │ U72        │
+│ protection.latch             │ U58        │
+│ protection.latch_bypass      │ U59        │
+│ protection.logic_bleed       │ U76        │
+│ protection.permit_buf        │ U50        │
+│ protection.permit_buf_bypass │ U51        │
+│ protection.permit_pd         │ U52        │
+│ protection.pwm_iso           │ U67        │
+│ protection.pwm_pd            │ U68        │
+│ protection.r_aux_bottom      │ U43        │
+│ protection.r_aux_iso         │ U44        │
+│ protection.r_aux_top         │ U42        │
+│ protection.r_logic_bottom    │ U40        │
+│ protection.r_logic_iso       │ U41        │
+│ protection.r_logic_top       │ U39        │
+│ protection.rail_pd           │ U49        │
+│ protection.ref_bias          │ U18        │
+│ protection.reference         │ U17        │
+│ protection.reset_and         │ U45        │
+│ protection.reset_and_bypass  │ U46        │
+│ protection.reset_pull_aux    │ U48        │
+│ protection.reset_pull_logic  │ U47        │
+│ protection.sup_aux           │ U34        │
+│ protection.sup_aux_bypass    │ U36        │
+│ protection.sup_aux_ct        │ U38        │
+│ protection.sup_logic         │ U33        │
+│ protection.sup_logic_bypass  │ U35        │
+│ protection.sup_logic_ct      │ U37        │
+│ protection.vb_div.bottom     │ U15        │
+│ protection.vb_div.filter     │ U16        │
+│ protection.vb_div.r1         │ U9         │
+│ protection.vb_div.r2         │ U10        │
+│ protection.vb_div.r3         │ U11        │
+│ protection.vb_div.r4         │ U12        │
+│ protection.vb_div.r5         │ U13        │
+│ protection.vb_div.step       │ U14        │
+│ protection.vb_mismatch_n     │ U24        │
+│ protection.vb_mismatch_p     │ U27        │
+│ protection.vb_ov             │ U26        │
+│ protection.vb_ov_ref         │ U25        │
+│ protection.vd_div.bottom     │ U7         │
+│ protection.vd_div.filter     │ U8         │
+│ protection.vd_div.r1         │ U1         │
+│ protection.vd_div.r2         │ U2         │
+│ protection.vd_div.r3         │ U3         │
+│ protection.vd_div.r4         │ U4         │
+│ protection.vd_div.r5         │ U5         │
+│ protection.vd_div.step       │ U6         │
+│ protection.vd_mismatch_n     │ U28        │
+│ protection.vd_mismatch_p     │ U23        │
+│ protection.vd_ov             │ U22        │
+│ protection.vd_ov_ref         │ U21        │
+│ q_boost                      │ U88        │
+│ q_inhibit                    │ U123       │
+│ q_permit                     │ U124       │
+│ r_freq                       │ U96        │
+│ r_inhibit_pulldown           │ U125       │
+│ r_inhibit_pullup             │ U126       │
+│ r_isense                     │ U95        │
+│ r_permit_gate                │ U127       │
+│ r_permit_pd                  │ U128       │
+│ r_relay_drop                 │ U94        │
+│ r_relay_gate                 │ U92        │
+│ r_relay_pd                   │ U93        │
+│ r_vbottom                    │ U102       │
+│ r_vcomp                      │ U103       │
+│ r_vtop                       │ U97        │
+│ r_vtop2                      │ U98        │
+│ r_vtop3                      │ U99        │
+│ r_vtop4                      │ U100       │
+│ r_vtop5                      │ U101       │
+│ relay_driver                 │ U110       │
+│ relay_flyback                │ U111       │
+│ shunt                        │ U91        │
+│ x2                           │ U85        │
+│ y1                           │ U118       │
+└──────────────────────────────┴────────────┘
+           INFO     Building 'bom' for 'default' config             build.py:100
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vd_div.fil             
+                    ter has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vb_div.fil             
+                    ter has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vd_ov_ref              
+                    has no MPN                                                  
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vd_ov has              
+                    no MPN                                                      
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vd_mismatc             
+                    h_p has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vb_mismatc             
+                    h_n has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vb_ov_ref              
+                    has no MPN                                                  
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vb_ov has              
+                    no MPN                                                      
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vb_mismatc             
+                    h_p has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.vd_mismatc             
+                    h_n has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.cmp_vd_byp             
+                    ass has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.cmp_vb_byp             
+                    ass has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.health_byp             
+                    ass has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.sup_logic_             
+                    bypass has no MPN                                           
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.sup_aux_by             
+                    pass has no MPN                                             
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.sup_logic_             
+                    ct has no MPN                                               
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.sup_aux_ct             
+                     has no MPN                                                 
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.r_logic_to             
+                    p has no MPN                                                
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.r_logic_bo             
+                    ttom has no MPN                                             
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.r_logic_is             
+                    o has no MPN                                                
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.r_aux_top              
+                    has no MPN                                                  
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.r_aux_bott             
+                    om has no MPN                                               
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.r_aux_iso              
+                    has no MPN                                                  
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.reset_and_             
+                    bypass has no MPN                                           
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.reset_pull             
+                    _logic has no MPN                                           
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.reset_pull             
+                    _aux has no MPN                                             
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.rail_pd                
+                    has no MPN                                                  
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.permit_buf             
+                    _bypass has no MPN                                          
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.permit_pd              
+                    has no MPN                                                  
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.aux_fast_b             
+                    ypass has no MPN                                            
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.aux_fast_t             
+                    op has no MPN                                               
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.aux_fast_b             
+                    ottom has no MPN                                            
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.aux_fast_i             
+                    so has no MPN                                               
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.latch_bypa             
+                    ss has no MPN                                               
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.arm_buf_by             
+                    pass has no MPN                                             
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.arm_pd has             
+                    no MPN                                                      
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.enable_pd_             
+                    bypass has no MPN                                           
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.enable_pd              
+                    has no MPN                                                  
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.pwm_iso                
+                    has no MPN                                                  
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.pwm_pd has             
+                    no MPN                                                      
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.disable_ga             
+                    te has no MPN                                               
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.disable_ga             
+                    te_pd has no MPN                                            
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.cmp_bypass             
+                     has no MPN                                                 
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.drv_bypass             
+                    _hf has no MPN                                              
+           WARNING  No MPN                                          errors.py:81
+                        power_entry_pfc_control_candidate.ato:Power             
+                    EntryPfcControlCandidate::protection.drv_bypass             
+                    _bulk has no MPN                                            
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint      ┃ LCSC            ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ TNPW1206200KBE… │ U1,U2,U3,U4,U9… │ Resistor_SMD:… │ TNPW1206200KBE… │ 0.00  │
+│ TNPW1206187KBE… │ U5,U13          │ Resistor_SMD:… │ TNPW1206187KBE… │ 0.00  │
+│ TNPW1206200RBE… │ U6,U14          │ Resistor_SMD:… │ TNPW1206200RBE… │ 0.00  │
+│ TNPW12065K62BE… │ U7,U15          │ Resistor_SMD:… │ TNPW12065K62BE… │ 0.00  │
+│ ?               │ U8,U16,U21,U22… │ Capacitor_SMD… │ ?               │ 0.00  │
+│ LM4040A25IDBZR  │ U17             │ Package_TO_SO… │ LM4040A25IDBZR  │ 0.00  │
+│ TNPW120610K0BE… │ U18             │ Resistor_SMD:… │ TNPW120610K0BE… │ 0.00  │
+│ TLV3202IDR      │ U19,U20,U53     │ Package_SO:SO… │ TLV3202IDR      │ 0.00  │
+│ SN74HCS21PWR    │ U29             │ Package_SO:TS… │ SN74HCS21PWR    │ 0.00  │
+│ TPS389001DSER   │ U33,U34         │ Package_DFN_Q… │ TPS389001DSER   │ 0.00  │
+│ SN74LVC1G08DBVR │ U45,U63         │ Package_TO_SO… │ SN74LVC1G08DBVR │ 0.00  │
+│ SN74LVC1G17DBVR │ U50,U60         │ Package_TO_SO… │ SN74LVC1G17DBVR │ 0.00  │
+│ SN74HCS74PWR    │ U58             │ Package_SO:TS… │ SN74HCS74PWR    │ 0.00  │
+│ UCC27511ADBVR   │ U66             │ Package_TO_SO… │ UCC27511ADBVR   │ 0.00  │
+│ BSS138          │ U69             │ Package_TO_SO… │ BSS138          │ 0.00  │
+│ RC1210FR-071KL  │ U72             │ Resistor_SMD:… │ RC1210FR-071KL  │ 0.00  │
+│ RC1206FR-0710RL │ U73,U75         │ Resistor_SMD:… │ RC1206FR-0710RL │ 0.00  │
+│ RC0603FR-0710KL │ U74             │ Resistor_SMD:… │ RC0603FR-0710KL │ 0.00  │
+│ RC1206FR-07220… │ U76,U95         │ Resistor_SMD:… │ RC1206FR-07220… │ 0.00  │
+│ GBJ2510-F       │ U80             │ Diode_THT:Dio… │ GBJ2510-F       │ 0.00  │
+│ 0031.2510       │ U81             │ Fuse:Fusehold… │ 0031.2510       │ 0.00  │
+│ B82726S2163N030 │ U82             │ temper:CMC_B8… │ B82726S2163N030 │ 0.00  │
+│ SL32 10015      │ U83             │ temper:SL32_1… │ SL32 10015      │ 0.00  │
+│ RT33K012        │ U84             │ temper:Relay_… │ RT33K012        │ 0.00  │
+│ B32922C3224M289 │ U85             │ Capacitor_THT… │ B32922C3224M289 │ 0.00  │
+│ V150LA10AP      │ U86             │ Varistor:RV_D… │ V150LA10AP      │ 0.00  │
+│ 760800301       │ U87             │ Inductor_THT_… │ 760800301       │ 0.00  │
+│ STW65N65DM2AG   │ U88             │ Package_TO_SO… │ STW65N65DM2AG   │ 0.00  │
+│ C3D20065D       │ U89             │ Package_TO_SO… │ C3D20065D       │ 0.00  │
+│ UCC28180D       │ U90             │ Package_SO:SO… │ UCC28180D       │ 0.00  │
+│ HCSM2818FT10L0  │ U91             │ temper:HCSM28… │ HCSM2818FT10L0  │ 0.00  │
+│ RC1206FR-071KL  │ U92,U127        │ Resistor_SMD:… │ RC1206FR-071KL  │ 0.00  │
+│ RC1206FR-07100… │ U93,U125,U126,… │ Resistor_SMD:… │ RC1206FR-07100… │ 0.00  │
+│ RC2512FR-0791RL │ U94             │ Resistor_SMD:… │ RC2512FR-0791RL │ 0.00  │
+│ RC1206FR-0716K… │ U96             │ Resistor_SMD:… │ RC1206FR-0716K… │ 0.00  │
+│ CRCW2512200KFK… │ U97,U98,U99,U1… │ Resistor_SMD:… │ CRCW2512200KFK… │ 0.00  │
+│ RC1206FR-0713KL │ U102            │ Resistor_SMD:… │ RC1206FR-0713KL │ 0.00  │
+│ RC1206FR-0740K… │ U103            │ Resistor_SMD:… │ RC1206FR-0740K… │ 0.00  │
+│ C0805C105K5RAC… │ U104            │ Capacitor_SMD… │ C0805C105K5RAC… │ 0.00  │
+│ C0805C272J5GAC… │ U105            │ Capacitor_SMD… │ C0805C272J5GAC… │ 0.00  │
+│ GRM32ER71H475K… │ U106            │ Capacitor_SMD… │ GRM32ER71H475K… │ 0.00  │
+│ C0805C224K5RAC… │ U107            │ Capacitor_SMD… │ C0805C224K5RAC… │ 0.00  │
+│ C0805C102J5GAC… │ U108            │ Capacitor_SMD… │ C0805C102J5GAC… │ 0.00  │
+│ C0805C681J5GAC… │ U109            │ Capacitor_SMD… │ C0805C681J5GAC… │ 0.00  │
+│ AO3400A         │ U110,U123,U124  │ Package_TO_SO… │ AO3400A         │ 0.00  │
+│ SS14            │ U111            │ Diode_SMD:D_S… │ SS14            │ 0.00  │
+│ BAV23C-E3-08    │ U112            │ Package_TO_SO… │ BAV23C-E3-08    │ 0.00  │
+│ LGX2W561MELC50  │ U113,U114,U115… │ Capacitor_THT… │ LGX2W561MELC50  │ 0.00  │
+│ B32672P6474K000 │ U117            │ temper:B32672… │ B32672P6474K000 │ 0.00  │
+│ VY1102M31Y5UQ6… │ U118            │ Capacitor_THT… │ VY1102M31Y5UQ6… │ 0.00  │
+│ 1714984         │ U119            │ temper:Phoeni… │ 1714984         │ 0.00  │
+│ 61300211121     │ U120,U121,U122  │ Connector_Pin… │ 61300211121     │ 0.00  │
+│ 1714971         │ U129            │ temper:Phoeni… │ 1714971         │ 0.00  │
+│ RC2512FR-07150… │ U130,U131       │ Resistor_SMD:… │ RC2512FR-07150… │ 0.00  │
+└─────────────────┴─────────────────┴────────────────┴─────────────────┴───────┘
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Successfully built 'variable-report,            build.py:105
+                    layout-module-map, clone-footprints, netlist,               
+                    assertions-report, copy-footprints,                         
+                    designator-map, bom, copy-3dmodels' for                     
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

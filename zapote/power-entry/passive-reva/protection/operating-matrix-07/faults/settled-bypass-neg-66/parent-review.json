@@ -1,0 +1,37 @@
+{
+  "status": "PARENT_REVIEWED_CORRECTED_PREPARED_NOT_EXECUTED",
+  "accepted": false,
+  "case": "BYPASS-NEG",
+  "source_sha256": {
+    "case.cir": "c6ea3dca688918137282ed3fd3d0ffa17c2b740d68ab52bab306ee3e8b228180",
+    "manifest.json": "4066ac5bf595b4aaca1b99c79035b5729d20bb217ffe1e5f3a4b6ca6a0003e01",
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "d9b499bbba3f2636ac926a3c8782943d3144798cfe4faa765ceaf7774628a025",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "corrections": [
+    "Worker transcribed 63-character case digest missing a zero; corrected against actual source and exact manifest digests in script/binding",
+    "README wrong F2-heldclosed claim corrected from actual Vf2ctl PWL: F2 opens at fault",
+    "README runner bypass-neg maps to validator f2-open; required --bypass retained",
+    "Frozen early bypass rejection alone proves no waveform negativecontrol behavior"
+  ],
+  "checks": [
+    "Exact source and pinnedtool hashes verified",
+    "Diff vs SW59 only intended case/hash/protectionmutation/kind/bypassflag changes",
+    "bash -n passed",
+    "shellcheck passed"
+  ],
+  "files_sha256": {
+    "launch.sh": "5f5bb6c782a7dec819fcf44a2606e91146756f35c2859ed916b904cae0ddc16c",
+    "launch-worker.sh": "e1b9d77ec58c2ac8b2e5c9581e31b69e4d9b14373b5a06c5064cec53f5bb6347",
+    "README.md": "325cc5dc4ea76cd631364de22aa001ffab2637ee35516bc4f446031a457606e6",
+    "README-worker.md": "003bde9da2f677523cfdb6ecbbcde7501819beb0127a09a2f1d90bdd34c8e0e7",
+    "source-tool-binding.json": "6d6a38afa3da9f86c7f83fc8857a79006e4e9af7fbee5d16ea2182ea17b5a583",
+    "source-tool-binding-worker.json": "06cea3aba7af1b7c3ddae4ac6d57eee3b213e5c8b1aa97c4cfaa37aebbce6ed0",
+    "tools-parent.sha256": "082dd1572b3abd3f5e26562bb4945583cfae9633394692a46e881ee7dafa76f5"
+  },
+  "pending": "Parent launch after prior cases; complete own prefix/phase and separate waveform-only bypass55 observability required."
+}

@@ -1,0 +1,12 @@
+
+running 7 tests
+test backward_time_is_rejected ... ok
+test duplicate_peak_is_retained_but_has_zero_duration ... ok
+test exact_cycle_boundaries_are_fully_covered ... ok
+test one_positive_segment_can_span_all_three_cycles ... ok
+test nonfinite_data_is_rejected ... ok
+test missing_endpoint_is_rejected_without_partial_cycle_means ... ok
+test linear_ramp_has_known_cycle_means_and_exact_boundaries ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

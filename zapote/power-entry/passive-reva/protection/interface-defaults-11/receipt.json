@@ -1,0 +1,117 @@
+{
+  "status": "isolated nominal experiment complete; not adopted or hardware qualified",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "source_identity": "input-identity.json; includes untracked source content",
+  "component_count": {
+    "before": 128,
+    "after": 136,
+    "protection": 84,
+    "other": 52,
+    "added": 8,
+    "removed": 0,
+    "existing_attribute_changes": 0
+  },
+  "build": {
+    "atopile": "0.2.69",
+    "build_exit": 0,
+    "export_exit": 0,
+    "export_hashes_match": true,
+    "netlist_part_metadata": "footprint aliases; resolved instance attributes are authoritative"
+  },
+  "new_scenarios": {
+    "before": {
+      "pass": [
+        "normal_upper"
+      ],
+      "fail": [
+        "ov_running",
+        "ov_startup",
+        "permit_open",
+        "producer_reset",
+        "arm_open_running",
+        "arm_reconnect_high"
+      ]
+    },
+    "after": {
+      "pass": [
+        "ov_running",
+        "ov_startup",
+        "permit_open",
+        "producer_reset",
+        "arm_open_running",
+        "normal_upper"
+      ],
+      "expected_failure": [
+        "arm_reconnect_high"
+      ]
+    }
+  },
+  "inherited_scenarios": {
+    "ordinary_pass": 13,
+    "expected_negative_fail": 2,
+    "negative_names": [
+      "bypass_negative",
+      "slow_detector_negative"
+    ],
+    "extractor_unchanged": true,
+    "wrapper_exit": 0
+  },
+  "additional_negative_controls": {
+    "missing_permit_pd": {
+      "case": "permit_open",
+      "checker_exit": 1
+    },
+    "ov_bypassed": {
+      "case": "ov_running",
+      "checker_exit": 1
+    }
+  },
+  "checker_self_tests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "topology_audit": {
+    "exit": 0,
+    "instances": 136,
+    "connectivity_groups": 13,
+    "separate_outputs_checked": true,
+    "scope": "focused fixture audit, not full ERC"
+  },
+  "static_screen": {
+    "artifact": "corners.json",
+    "status": "conditional DC arithmetic; no complete threshold or timing guarantee"
+  },
+  "review": {
+    "requested_model": "gpt-5.6-luna",
+    "served_model_independently_attested": false,
+    "agents": [
+      "/root/supply_interfaces",
+      "/root/gate_restart"
+    ],
+    "scope": [
+      "producer defaults and AUX OV options",
+      "read-only final source, checker, trace and static-budget review"
+    ],
+    "follow_up": [
+      "require measured 15.75V for normal_upper",
+      "require raw ARM low before deliberate rearm for producer_reset",
+      "recheck all retained traces after checker changes",
+      "verify compiled output hashes and investigate known libsource aliases",
+      "audit compiled pin connectivity in Rust"
+    ],
+    "final_outcomes_unchanged": true
+  },
+  "preserved_inputs": 8,
+  "limits": [
+    "ARM-only loss does not clear RUN",
+    "ARM reconnection with producer high can rearm; explicit counterexample retained",
+    "AUX shutdown does not clamp supply; producer/limiter must bound rail",
+    "nominal authored delays and capacitances; no hardware timing guarantee",
+    "exact new passive MPNs not selected",
+    "no complete command producer, isolation or physical PFC standby qualification",
+    "no PCB edits or hardware testing"
+  ],
+  "production_adopted": false,
+  "committed": false,
+  "pushed": false
+}

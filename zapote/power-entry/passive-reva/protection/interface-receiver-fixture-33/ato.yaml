@@ -1,0 +1,4 @@
+ato-version: 0.2.69
+builds:
+  default:
+    entry: elec/src/hot_receiver_fixture.ato:HotReceiverFixture

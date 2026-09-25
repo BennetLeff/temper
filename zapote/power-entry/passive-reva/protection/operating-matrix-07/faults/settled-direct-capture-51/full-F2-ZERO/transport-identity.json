@@ -1,0 +1,6 @@
+{
+  "transport": "anonymous-pipe-dynamic-fd",
+  "native_export_path": "/dev/fd/6",
+  "compressor_stdin_fd": 6,
+  "shell_or_fifo": false
+}

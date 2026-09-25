@@ -1,0 +1,24 @@
+stdout ******
+stdout ** ngspice-45.2 shared library
+stdout ******
+stdout Note: No compatibility mode selected!
+stdout Circuit: * temper passive-reva cold-start / settled-normal switching witness.
+stdout Reducing trtol to 1 for xspice 'A' devices
+stdout Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+stdout Using SPARSE 1.3 as Direct Linear Solver
+stdout Operating point simulation skipped by 'uic',
+stdout now using transient initial conditions.
+ Reference value :  2.00000e-10
+ Reference value :  1.09989e-03
+ Reference value :  2.31221e-03
+ Reference value :  3.48548e-03
+stdout No. of Data Rows : 24712
+stderr doAnalyses: TRAN:  Timestep too small; time = 0.00441687, timestep = 6.25e-19: trouble with node "vbody#branch"
+stderr run simulation(s) aborted
+stdout Background thread stopped with timeout = 0
+stdout Transient timepoints = 24862
+stdout Transient iterations = 127628
+stdout Rejected timepoints = 148
+stdout Transient iterations for the last time point = 303
+stdout Transient analysis time = 1.91917
+stdout binary raw file "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/startup-candidate-13/host.raw.fifo"

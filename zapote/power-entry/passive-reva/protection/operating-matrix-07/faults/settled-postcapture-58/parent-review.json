@@ -1,0 +1,24 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_NOT_EXECUTED",
+  "accepted": false,
+  "validation": [
+    "/bin/bash -n passed",
+    "shellcheck passed",
+    "Exact7analysis binaries hashed against previous approved identities",
+    "Live-source refusal exitedbeforeoutput/rawaccess"
+  ],
+  "files_sha256": {
+    "run.sh": "bfef1e7021c78d52552a51c3bbc9fe50b7d6e4dd5ebbbd964cb238c3361879c6",
+    "README.md": "8a67b4535fe84bc7a7e7adb188d64652d67c0130ac39ef97da52721879843ce8",
+    "tools-parent.sha256": "734fd0f39d1e5a94ed2898a1e10a566f1551c9bcde2d5b120305077b0168f4e5",
+    "live-refusal-test.json": "a4e70bcd69a182d6ea169c160234cb754fb4392630a6bc0cd4e387f2ed01d1fd",
+    "run-worker.sh": "961d436a91df323dc11d08e2445a051fa7b50e6c4c5580dde1e26951c0c595c7",
+    "README-worker.md": "6b6a94860c758c3269e8dd25fe451089f1aa1626731bd596606092c9c4600117"
+  },
+  "phase_interval_s": [
+    0.6483333333333,
+    0.6683333333333
+  ],
+  "unchanged_criterion": ".01 source-phase tolerance; existing local/global numerical policy unchanged",
+  "pending": "Actual full trace scan and all electrical/source acceptance gates"
+}

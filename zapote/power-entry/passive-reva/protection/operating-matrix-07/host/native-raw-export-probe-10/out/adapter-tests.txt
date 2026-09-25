@@ -1,0 +1,14 @@
+
+running 9 tests
+test tests::complex_flags_rejected ... ok
+test tests::duplicate_vector_rejected ... ok
+test tests::canonical_names_parse_and_reorder ... ok
+test tests::extra_vector_rejected ... ok
+test tests::duplicate_header_vector_table_and_unit_rejected ... ok
+test tests::equal_time_is_preserved_but_backward_time_rejected ... ok
+test tests::renamed_vector_rejected ... ok
+test tests::nonfinite_value_rejected ... ok
+test tests::truncated_payload_rejected ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

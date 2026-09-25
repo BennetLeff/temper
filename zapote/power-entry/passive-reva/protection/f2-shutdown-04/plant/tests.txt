@@ -1,0 +1,9 @@
+
+running 4 tests
+test tests::causal_chain_rejects_missing_or_early_fault ... ok
+test tests::threshold_uses_absolute_and_both_mismatch_polarities ... ok
+test tests::cessation_ignores_pwm_off_phase_before_final_on_pulse ... ok
+test tests::passive_reverse_pulse_is_separate_from_channel_turnoff ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,36 @@
+{
+  "utc": "2026-09-21T16:12:18.812935+00:00",
+  "normal_accepted": [
+    "LL01",
+    "LL02",
+    "LL03",
+    "LL04",
+    "LL05",
+    "LL06",
+    "LL07"
+  ],
+  "normal_live": [
+    {
+      "case": "LL08",
+      "session": 50666,
+      "path": "line-load-native-runner-27/full-LL08/LL08"
+    }
+  ],
+  "normal_unrun": [
+    "LL09"
+  ],
+  "fault_live": {
+    "case": "F2-CREST",
+    "session": 44256,
+    "path": "faults/settled-native-capture-32/F2-CREST",
+    "target_s": 0.662,
+    "acceptance": false
+  },
+  "LL07_acceptance": {
+    "path": "line-load-native-runner-27/full-LL07/LL07/acceptance.json",
+    "sha256": "b87c23441b4e55a5e46ec4ec19bfba3bd8fa02a456a9bbdb4aed0c41a0cc7b69"
+  },
+  "capacity_gate": "line-load-native-runner-27/LL08-launch-gates.json",
+  "concurrency_limit": 2,
+  "keep_free_gib": 10
+}

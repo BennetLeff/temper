@@ -1,0 +1,30 @@
+{
+  "status": "BOUNDED_PROGRESS_PROBE_COMPLETE_DIAGNOSTIC_ONLY",
+  "wall_limit_s": 60,
+  "target_simulation_s": 0.5,
+  "last_report_wall_s": 60.040848,
+  "last_report_sim_s": 0.06616456578432149,
+  "halted_export_sim_s": 0.06616456597578449,
+  "export_rows": 1412803,
+  "nonincreasing_intervals": 0,
+  "original_simulation_untouched": true,
+  "files": {
+    "README.md": "a4e9c0c8c33863ef03a016603f774cb3b9f070100dc62d42d2113de993c990e1",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "cold.cir": "eaa5c20900fd8a5d577e629e3f678378690b6e427098303cffe6aa41d54447d2",
+    "inputs.json": "a0b3be64cdb29a6f88b412b95f8857641d9e324142812d94ec9d0e9f98f55161",
+    "inspection.txt": "76815ab34722212ccf839173dc76605d093395e9fcf60325e20ead0dd7bc6641",
+    "partial.tsv.gz": "adae09720d0138824aba8ca8c0eebe08d38ca26a5da0c3181ea443e71357060b",
+    "progress.rs": "208891028f4e80df35100cc7c66dffe05932b402792b37159ae7f669af03041d",
+    "progress.tsv": "0810fa50c3e393f8d96624f9f0e798da26ebcef4a835a32da830209ac7134f37",
+    "protection.inc": "b57b854883ee992dad036fd49c5a249b457e200873a3408652186de59122ea1c",
+    "run.log": "d3babee2b9cbfd25407cd222178eda6013576474b314fe1cfd8ca1b4f34fe6e4",
+    "smoke/partial.tsv": "7892d4cb32451f60c2dd2b13e819ad6df0801cd9fd08f815c4e8921186b44f7c",
+    "smoke/progress.tsv": "3305e623b3efd06e7f0bafc2aa5a53c496fc9142db51e4dcbafe257bc8761c43",
+    "smoke/run.log": "39ec349fd7b0483a20797ae8aa5a1b61c8cf73c790f2b567730b8f5b7840b7d6",
+    "smoke.cir": "46a38879486eb98bac9f3762e2408ff09eaceed6009a232f88162c608d0d7204",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "tail.tsv": "905faeed5cb5442839de15bface4d85f196dec634c0997d39748a52fdf09e377",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  }
+}

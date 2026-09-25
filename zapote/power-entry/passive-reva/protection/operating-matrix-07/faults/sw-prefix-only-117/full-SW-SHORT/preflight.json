@@ -1,0 +1,13 @@
+{
+  "status": "COMPLETE_PARTIAL_CAPTURE_BOUND_PREFIX_ONLY",
+  "accepted": false,
+  "runner_exit": 1,
+  "monitor_exit": 0,
+  "raw_sha256": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+  "raw_bytes": 5088782620,
+  "full_rows": 30686230,
+  "observed_stop_s": 0.6544026486296868,
+  "required_end_s": 0.662,
+  "normal_prefix_cutoff_s": 0.65,
+  "note": "Incomplete full endpoint is preserved; this packet diagnoses only the complete prefix through .65 s."
+}

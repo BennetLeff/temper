@@ -1,0 +1,116 @@
+{
+  "status": "PARENT_REVIEW_PENDING",
+  "accepted": false,
+  "case": "BYPASS-NEG",
+  "scope": "Own normal prefix and crest phase diagnostics only; no protection or hardware acceptance",
+  "campaign_status": "PARENT_NODE_SCREEN_FAILURE_ANALYSIS_PENDING",
+  "raw": {
+    "path": "faults/settled-bypass-neg-66/full-BYPASS-NEG/raw.trace.raw.gz",
+    "sha256": "75f444f8e422e445c2e5d65f21760af1658f0b14f05dcd088d1c80cd2b87b0a1",
+    "bytes": 5351164676,
+    "full_rows": 32287070,
+    "endpoint_s": 0.662
+  },
+  "source_hashes": {
+    "case.cir": "c6ea3dca688918137282ed3fd3d0ffa17c2b740d68ab52bab306ee3e8b228180",
+    "manifest.json": "4066ac5bf595b4aaca1b99c79035b5729d20bb217ffe1e5f3a4b6ca6a0003e01",
+    "source-identity.json": "f11633e95b0aea9ede61ff48ef2dcecda8af114330e54fe9bba30209761b9bed",
+    "run-parameters.json": "01ea97089a40842d1e5ac38dd1f5f53f58cc3e71cea110051be638acba9782e5",
+    "parent-capture-review-130.json": "a921f3cc6ca1a5532ceac537f91569b9d2174862532f2ee05e321aae23f5a770"
+  },
+  "normal_prefix": {
+    "cutoff_s": 0.65,
+    "selected_rows": 30111244,
+    "last_selected_time_s": 0.6499999880006718,
+    "cutoff_gap_s": 1.1999328197731529e-8,
+    "max_cutoff_gap_s": 1e-6,
+    "metrics_window_s": [0.5999999880006718, 0.6499999880006718],
+    "fault_rising_edge_s": 0.6541666661706754,
+    "metrics": {
+      "vrms_v": 120.0,
+      "irms_a": 7.320158,
+      "input_power_w": 868.399907,
+      "load_power_w": 773.441525,
+      "pf": 0.988594,
+      "vb_mean_v": 383.374390,
+      "vb_min_v": 381.315709,
+      "vb_max_v": 385.385643,
+      "cycle_means_v": [382.85286228546477, 383.38794733963704, 383.88235976317304],
+      "cycle_drift_fraction_derived": 0.0026890160140442057,
+      "cycle_drift_reported": 0.002689,
+      "il_peak_a_report_only": 30.636523,
+      "vd_peak_v": 385.495782,
+      "vds_peak_v": 386.793596,
+      "vgs_abs_peak_v": 14.982193,
+      "armed_fraction": 1.0,
+      "on_fraction": 1.0,
+      "three_state_energy_change_j": 1.342383341433403,
+      "energy_delta_rate_w": 26.847666828668057,
+      "energy_residual_pin_pout_de_w": 68.11071522362781,
+      "selected_storage_sumabs_delta_j": 1.3378135697642791e-12
+    },
+    "screen_count": 0,
+    "repeated_time_audit": {
+      "rows": 30111244,
+      "equal_groups": 42,
+      "repeated_intervals": 57,
+      "max_group_rows": 3,
+      "missing_right": 0,
+      "backwards": 0,
+      "backwards_interpretation": "Rust audit completed without a backwards-time rejection; this is not an independent counter claim",
+      "logic_changes": 0,
+      "boundary_groups": 0,
+      "e3_spread_j": 1.7645557759647234e-13,
+      "e3_sumabs_j": 2.2058463986989684e-12,
+      "all_original_rows_retained": true
+    }
+  },
+  "phase": {
+    "kind": "crest",
+    "interval_s": [0.65, 0.6583333333333],
+    "tolerance": 0.01,
+    "rows": 32287070,
+    "edge_count": 1,
+    "local_equal_group_raw_rows": 7,
+    "local_equal_groups": 2,
+    "peak_tie_groups": 2,
+    "endpoint_s": 0.6619999999999999,
+    "edge_time_s": 0.6541666661706754,
+    "initial_marker_low": true,
+    "strict_before_after_neighbors": true,
+    "positive_peak_observed": true,
+    "max_source_spread_v_D_observed": 2.8421709430404007e-14,
+    "max_source_spread_v_D_bound": 2.8421709430404014e-14,
+    "criterion_error_using_representatives": 1.7585035537258278e-14,
+    "sufficient_bound_pass": true
+  },
+  "prior_node_screen": {
+    "status": "FAILURE_RETAINED",
+    "vd_peak_v": 651.1730124191079,
+    "limit_v": 500.0,
+    "source": "parent-capture-review-130.json",
+    "interpretation": "All-row VD screen failure precedes formal checker; this prefix/phase diagnostic does not override it."
+  },
+  "legacy": {
+    "status": "UNRUN",
+    "accepted": false
+  },
+  "evidence_hashes": {
+    "preflight.json": "4d52178a30c643c1676d51b47f5734b47bc85d4477f688214e27cf5cc52a2229",
+    "prefault-scan.json": "0c84f56e643b12b6eaaf8ff38a2289bc47ab502a705107246b18cf6649c31936",
+    "normal15-audit.txt": "283fc2d9b73353951a1a1a8646cca6d17df1e337185c3bcbdc717947d28f13fc",
+    "normal15-events.tsv": "f25cbf655f530ec4ab0258d8f51a1f62f8aded6ad8045808d504dcf62c223e9d",
+    "normal-metrics.txt": "de1d0856e6a3b663810a528d60b884154bf2b260bb3fae66122694a0a856a447",
+    "phase.json": "cfd669490016392fb309218232e387b2d243f3fefc4e1910bb94794428aaa343",
+    "scan.exit": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e",
+    "audit.exit": "c5bea6d5172950ed3fc3f0433afd51fc1913e545f5dd34c849c65dc166209a00",
+    "metrics.exit": "ac3b2ba16115668f6162cec888617fa6622221fa8ab914a47ef2dac269786408",
+    "phase.exit": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e"
+  },
+  "pending": [
+    "parent normal-prefix review",
+    "legacy remains unrun",
+    "overall observation and fault disposition",
+    "prior VD 651.173 V screen failure remains authoritative"
+  ]
+}

@@ -1,0 +1,4 @@
+ato-version: 0.2.69
+builds:
+  default:
+    entry: elec/src/esp_only_hot_receiver.ato:EspOnlyHotReceiver

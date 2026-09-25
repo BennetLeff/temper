@@ -1,0 +1,23 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_NOT_EXECUTED",
+  "accepted": false,
+  "utc": "2026-09-21T22:58:06.874909+00:00",
+  "files_sha256": {
+    "legacy-strict.sh": "79f5f0f52d882c0242111eedab33bf3e478cdc0af6cbe032a59adc2cd69ffc82",
+    "legacy-strict-README.md": "ea6b4deb6ded617077ccae0b9da1be0c622c4f286cc8b3a30817166aa12553e6",
+    "tools-parent.sha256": "734fd0f39d1e5a94ed2898a1e10a566f1551c9bcde2d5b120305077b0168f4e5"
+  },
+  "checker_sha256": "24c95bea81b44a3d5038a32552297afed17547fcd1b3ddcfd99434e84638b85c",
+  "corrections": [
+    "Require completed postcapture before opening archive",
+    "Fresh source manifest and input hashes",
+    "10GiB storage guard",
+    "Only checker exit1 and anchored repeated timestamp message classify expected rejection; row number is observed, not copied from previous case",
+    "All five pipeline statuses retained; unexpected result remains review pending"
+  ],
+  "checks": [
+    "bash -n passed",
+    "shellcheck passed"
+  ],
+  "pending": "Execute only after postcapture analysis completes; no electrical acceptance from legacy witness"
+}

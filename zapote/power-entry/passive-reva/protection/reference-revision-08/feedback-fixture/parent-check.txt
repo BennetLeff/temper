@@ -1,0 +1,7 @@
+PASS negative mutations: nonfinite, duplicate time, incomplete end, missing OVP, and gate-off failure rejected
+PASS trace shape: 35138 rows, end=500.000 us
+PASS baseline PWM: old=10 candidate=10 rising gate pulses
+PASS VD-only 450 V: candidate OVP asserted and candidate gate off; old gate remained active
+PASS recovery after VD restore: candidate gate resumed
+PASS VB-only 450 V: old OVP asserted and old gate off; candidate OVP stayed clear and candidate gate remained active
+PASS final recovery: both controllers resumed PWM

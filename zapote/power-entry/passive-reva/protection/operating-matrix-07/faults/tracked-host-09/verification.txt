@@ -1,0 +1,17 @@
+rustc --edition=2021 -D warnings --test progress.rs -o /tmp/matrix07-fault-tracked-tests
+/tmp/matrix07-fault-tracked-tests
+# 4 passed
+rustc --edition=2021 -D warnings -O progress.rs -L /opt/homebrew/opt/libngspice/lib -l ngspice -o /private/tmp/matrix07-fault-tracked-host-09
+sha256(progress.rs)=37ce6413974000814f7c7a092d268c8c483ae99bd1a28ec0b635cc8fd535cc12
+sha256(host)=2250c532161b11018721b2cb37ac5626a1a54189f13ed4b3c7260a91faefc258
+schema=normal30+fault17+evidence4, ordered_unique_union=41, snapshot_diagnostics=16
+rustc --edition=2021 -D warnings -O verify_trace.rs -o /tmp/matrix07-fault-trace-verify-09
+SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts /private/tmp/matrix07-fault-tracked-host-09 case.cir 2 0.5 trace.tsv first-invalid.tsv
+smoke=PASS_EXPORT_ONLY; wall_s=0.27; sim_s=2.0e-5; rows=3582
+verify=header_columns=42 rows=3582 unique=true finite=true monotonic=true endpoint_checked=true actual_gap_checked=true actual_max_gap_s=1.32968317049791550e-8 actual_gap_le_25ns=true normal30=true fault17=true extras4=true diagnostics16=true; required_window_start=1e-6
+rustc --edition=2021 -D warnings -O verify_schedule.rs -o /tmp/matrix07-fault-schedule-verify-09
+schedule=all7_pass; lead_first_s={crest/short=8.975e-6,zero=10.975e-6,start=0.975e-6}; required_window_start={crest/short=9e-6,zero=11e-6,start=1e-6}; actual_trace_max_gap<=25ns; last_s=20e-6; nominal_input_max_gap=25ns_including_boundary
+case_rows={F2-CREST:2253,F2-ZERO:1906,F2-START:3582,SW-SHORT:2492,DIODE-SHORT:2330,BOTH-SHORT:2345,BYPASS-NEG:2234}
+sha256(case.cir)=8f2500cf7706dd1bef9134306813c210c42a4951b9fa5487eb799534f43ae76a
+sha256(trace.tsv)=6091e2fde3dcf1100848699443bf73f273aaf2685590774d8c57bc3a245f039a
+campaign=UNSTARTED

@@ -1,0 +1,8 @@
+* SCRIPT: separate snapshot restore probe; not an active-run operation.
+.control
+set noaskquit
+snload snapshot_probe.cir probe.snap
+resume
+wrdata resumed.tsv time v(in) v(out)
+quit
+.endc

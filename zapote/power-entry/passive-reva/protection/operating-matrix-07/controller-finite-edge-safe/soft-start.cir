@@ -1,0 +1,22 @@
+UCC28180 external VCOMP soft-start and standby check (pin stimulus)
+.include ucc28180.inc
+Vcc vcc 0 PWL(0 0 1m 15)
+Vvs vsense 0 PWL(0 2 30m 2 30.001m .5 32m .5 32.001m 2)
+Vis isense 0 PWL(0 -.1 20m -.1 20.001m -.30 25m -.30 25.001m -.1)
+Vic icomp 0 3
+Rv vcomp cs 40.2k
+Cv cs 0 4.7u IC=0
+Cp vcomp 0 220n IC=0
+Xu vcc vsense isense icomp vcomp gate 0 UCC28180_FN
+Rgate gate 0 10k
+.options method=gear reltol=1e-4
+.tran 100n 50m 0 100n uic
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+wrdata soft-start.tsv v(vcc) v(vsense) v(vcomp) v(cs) v(gate)
+quit
+.endc
+.end

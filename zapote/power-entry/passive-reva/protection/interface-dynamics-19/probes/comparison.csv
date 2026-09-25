@@ -1,0 +1,17 @@
+case,measurement,simulated_V,closed_form_V
+fast,old_lo_q,2.256974000,2.256968430
+fast,ref_lo_q,0.000000000,0.000000000
+fast,old_hi_q,2.260670000,2.260666535
+fast,ref_hi_q,0.000000000,0.000000000
+fast-refined,old_lo_q,2.256971000,2.256968430
+fast-refined,ref_lo_q,0.000000000,0.000000000
+fast-refined,old_hi_q,2.260668000,2.260666535
+fast-refined,ref_hi_q,0.000000000,0.000000000
+weak,old_lo_q,5.379615000,5.379615385
+weak,ref_lo_q,5.379615000,5.379615385
+weak,old_hi_q,6.465588000,6.465588235
+weak,ref_hi_q,6.465588000,6.465588235
+weak-refined,old_lo_q,5.379615000,5.379615385
+weak-refined,ref_lo_q,5.379615000,5.379615385
+weak-refined,old_hi_q,6.465588000,6.465588235
+weak-refined,ref_hi_q,6.465588000,6.465588235

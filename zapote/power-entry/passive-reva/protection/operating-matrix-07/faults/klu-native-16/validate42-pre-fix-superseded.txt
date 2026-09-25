@@ -1,0 +1,2 @@
+SUPSERSEDED: first implementation initialized previous time to -inf and reported max_positive_gap=inf; this was a validator-reporting defect only, not a simulation result.
+rows=142428 fields=42 endpoint=1.00000000000000002e-2 max_positive_gap=inf finite=true nondecreasing=true

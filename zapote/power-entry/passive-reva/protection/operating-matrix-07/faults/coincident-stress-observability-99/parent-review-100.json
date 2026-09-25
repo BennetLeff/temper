@@ -1,0 +1,19 @@
+{
+  "status": "PARENT_REVIEWED_DIAGNOSTIC_TOOL",
+  "at_utc": "2026-09-22T01:08:53.740607+00:00",
+  "source_sha256": "159db79ad627bd8ad7d37e252c697909b3130ef9bc9c5c2b11e8e3c04bdaf9b0",
+  "binary_sha256": "8fb3482d5390a977cdb18e47381bdd09bb71f0b0752a02fd4bfb98b0fc534b08",
+  "original55_unchanged": true,
+  "review": [
+    "Diff only adds same-row witnesses/counters to original55 validation and report",
+    "Named indices checked for all6 currents; signed abs-peak retains fullsame-row state; strict >0.1 counter, inclusiveoffthresholds",
+    "First maximum tie retained; duplicate timestamps remain separate rows and not durations",
+    "10 unit tests and13 frozen CLI parity fixtures pass; six distinct-current fixture, reorderedheader/stdin parity, no-clobber pass",
+    "Optimized standalone rustc -O build, no cargo/shared extension changes",
+    "Bash syntax and ShellCheck pass after explicit EXIT handler function; original pigz/decoder pins verified against frozen identities."
+  ],
+  "cli_receipt_sha256": "ffce65baa5f5a52d4804dafc1c5c89560759e6987339c389ac660086ed9d37cb",
+  "run_script_sha256": "e6d032b3928c062ba974c49bf8c6d64ab89805dd58d719f126d72a76c08bb02c",
+  "campaign_raw_read_yet": false,
+  "limits": "Diagnostic only. Peak tied samples select first; no continuous-state/causal interpretation. Diode1sense includes modeledshortbranch."
+}

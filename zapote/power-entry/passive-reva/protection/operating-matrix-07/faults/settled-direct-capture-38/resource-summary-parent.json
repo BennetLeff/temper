@@ -1,0 +1,36 @@
+{
+  "status": "FULL_DIRECT_EXPORT_COMPLETED_WITHIN_RESOURCE_GUARDS",
+  "utc": "2026-09-21T17:46:49.547223+00:00",
+  "samples": 468,
+  "sampling_interval_s": 5,
+  "initial": {
+    "stamp": "2026-09-21T17:05:50Z elapsed_s=0 runner_pid=14569",
+    "free_bytes": 20279341056,
+    "swap_used_mib": 14842.56,
+    "rss_sum_bytes": 32768
+  },
+  "final": {
+    "stamp": "2026-09-21T17:45:02Z elapsed_s=2352 runner_pid=14569",
+    "free_bytes": 14922772480,
+    "swap_used_mib": 14666.56,
+    "rss_sum_bytes": 0
+  },
+  "minimum_observed_free_gib": 13.89791488647461,
+  "maximum_observed_owned_rss_sum_gib": 10.000213623046875,
+  "initial_system_swap_used_mib": 14842.56,
+  "maximum_system_swap_used_mib": 14842.56,
+  "final_system_swap_used_mib": 14666.56,
+  "export_elapsed_ms": 61643,
+  "native_rows": 32237324,
+  "raw_gzip_bytes": 5297726667,
+  "monitor_exit": 0,
+  "runner_exit": 1,
+  "analysis_limitation": "Capture host/pigz succeeded; stage2 normalizer rejected a globalgap check atrow165. This is not electrical acceptance.",
+  "measurement_limits": [
+    "5s samples do not bound instantaneous peaks or troughs",
+    "RSSsum may doublecount shared pages and excludes compressed/swapped memory",
+    "Systemwide swap changes are not attributable exclusively to this run",
+    "Priorfailedrun lacked comparable resource samples; no measured before/after peak reduction claim"
+  ],
+  "resource_log_sha256": "244ac6291cd892655e9c30aca1c3403a7cc22aaa625507a3b9d9d452a24017ba"
+}

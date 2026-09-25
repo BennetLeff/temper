@@ -1,0 +1,15 @@
+# TI reference-baseline comparison
+
+This is a first-pass inventory from TI primary sources and the frozen local baseline. It does not recommend adopting a reference design, alter the circuit, or qualify hardware.
+
+PMP10948 is a 1,300 W design with two interleaved transition-mode UCC28063 PFC stages, described as approximately 750 W plus 550 W, with 90–264 VAC input and 380 V nominal outputs. TI reports 95.6% at 120 VAC and 98% at 220 VAC. Its test report measured 1,348 W input, PF 0.999, and approximately 386–387 V rails at 120 VAC full load. The BOM identifies 160 µH inductors, 600 V Infineon MOSFETs, MUR860G 600 V/8 A diodes, and 450 V bulk capacitors. Sources: [PMP10948](https://www.ti.com/tool/PMP10948), [test report TIDUBC5](https://www.ti.com/lit/pdf/TIDUBC5), and [BOM TIDRJZ9](https://www.ti.com/lit/pdf/TIDRJZ9).
+
+The frozen local deck at `accepted-baseline-11/cold.cir` uses one 180 µH boost inductor, generic diode/MOS models, ideal zero-volt branch probes, a 2240 µF bank, a 19.8 µF local capacitor, and an ideal closed F2 model. `ucc28180-pwm-latch.inc` explicitly labels `UCC28180_FN` as a host-authored nominal functional surrogate, not a TI macro-model. Its modeled control includes behavioral current/voltage loops, digital bridges/latches, and authored UVLO/OVP/fault/PCL logic. These are confirmed topology and implementation mismatches against PMP10948's two-stage UCC28063 architecture; compensation and protection equivalence is not established.
+
+For same-controller context, [UCC28180EVM-573](https://www.ti.com/tool/UCC28180EVM-573) is a 360 W, 390 V CCM boost at 85–265 VAC with 120 kHz average-current-mode control and external compensation. Its guide ([SLUUAT3](https://www.ti.com/lit/pdf/sluuat3)) documents soft-start, cycle-by-cycle/soft over-current, UVLO, open-loop and OVP protections. [TIDA-00779](https://www.ti.com/tool/TIDA-00779) is a same-controller 3.5 kW CCM design for 190–270 VAC, 390 V, >98% efficiency and appliance surge/EFT testing. Those references are useful for controller behavior and high-power CCM context, but neither proves operation at 108/120 VAC or with an induction load.
+
+The local deck's prescribed 15 V auxiliary rail, 5 V logic rail, permit/arm/standby PWL sequence, 16.2 kHz frequency parameter, and authored compensation/sensing network have not been correlated against TI schematics. Exact startup/bias, current-sense scaling, gate-drive timing, magnetic saturation/core loss, thermal paths, EMI, and protection thresholds remain un compared. The official PMP10948 schematic link is listed on the TI page, but this review does not treat an uninspected schematic as evidence.
+
+At 1.8 kW DC output from 120 VAC, assuming PMP10948's 95.6% efficiency and near-unity PF only for arithmetic, input power is about 1.88 kW and RMS current about 15.7 A. That exceeds the local 15 A modeled screen. It is a conditional scaling gap, not a hardware limit or a reason to change the model.
+
+Local file hashes are recorded in `reference-baseline-review-102.json`. No solver, raw trace, or frozen case was modified.

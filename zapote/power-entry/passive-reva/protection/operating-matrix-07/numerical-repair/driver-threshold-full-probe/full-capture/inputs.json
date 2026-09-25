@@ -1,0 +1,19 @@
+{
+  "status": "DIAGNOSTIC_PREPARED_UNEXECUTED",
+  "electrical_source": "../host-run",
+  "source_host_run_cold_sha256": "eaa5c20900fd8a5d577e629e3f678378690b6e427098303cffe6aa41d54447d2",
+  "cold_cir_sha256": "1a47c772e20c4584bbfe38df7e93fad612e45dcd303b95347e4d64d41e57277b",
+  "progress_source": "../../../first-invalid-capture/run/progress.rs",
+  "progress_source_sha256": "043ba98e52b0c91e4902fe83510098902d565bdff67815eddd1c36bb49f7381d",
+  "include_sha256": {
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "protection.inc": "96d4f97bd4fd8cda8e09048e3549d08c347e8e33459d4c44fdb84252a7d31cb0",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  },
+  "host_binary": "/private/tmp/matrix07-finite-driver-capture-host",
+  "host_binary_sha256": "ff9495882db24f0b2cc69bdd0d0d672bbaeca062b418dd9b14fd685cbb26bf41",
+  "cli": "cold.cir WALL_SECONDS TARGET_SECONDS trace.fifo first-invalid.tsv",
+  "full_run": {"wall_seconds": 600, "target_seconds": 0.5, "status": "UNSTARTED"},
+  "smoke": {"wall_seconds": 2, "host_exit": 0, "sim_s": 0.007997517686511866, "first_invalid": false, "saved_names": 16}
+}

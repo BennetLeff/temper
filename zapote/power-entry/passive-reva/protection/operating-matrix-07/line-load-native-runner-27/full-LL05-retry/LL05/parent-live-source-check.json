@@ -1,0 +1,25 @@
+{
+  "status": "LIVE_SOURCE_VERIFIED_NOT_ACCEPTED",
+  "utc": "2026-09-21T05:02:12.961616+00:00",
+  "session": 81053,
+  "source_comparison": "All six circuit files byte-identical to first LL05 attempt; only export transport changed.",
+  "source_hashes": {
+    "cold.cir": "f85b4a622d8bf303e3f2f1646bb2cc977b03d24b655d4b48a14abadb8677528f",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "observed_processes": {
+    "runner_pid": 35502,
+    "producer_pid": 35757,
+    "compressor_pid": 35756,
+    "producer_cpu_percent": 100.0,
+    "producer_rss_kib": 294544,
+    "elapsed_s": 52
+  },
+  "hardware_note": "Producer consumes one full core during solve; pigz awaits end-of-solve export and then uses four workers. One full simulation selected to preserve disk reserve.",
+  "free_gib": 17.24566650390625,
+  "acceptance": false
+}

@@ -1,0 +1,34 @@
+{
+  "status": "PARENT_VERIFIED_COMPLETE_CAPTURE_NODE_SCREEN_FAILURE_ANALYSIS_PENDING",
+  "utc": "2026-09-22T02:20:48.653036+00:00",
+  "case": "BYPASS-NEG",
+  "accepted_protection": false,
+  "runner_session": 28321,
+  "runner_exit": 1,
+  "monitor_exit": 0,
+  "raw": {
+    "host_success": true,
+    "pigz_success": true,
+    "host_rc": 0,
+    "pigz_rc": 0,
+    "metadata_status": "valid",
+    "raw_trace_bytes": 5351164676,
+    "raw_trace_sha256": "75f444f8e422e445c2e5d65f21760af1658f0b14f05dcd088d1c80cd2b87b0a1"
+  },
+  "rows": 32287070,
+  "endpoint_s": 0.662,
+  "screen_failure": "VD651.1730124191079V>500V; all-row screen precedes formalchecker, so bypassflagrejection NOTreached.",
+  "initial_observations": "Adapter reports detector_rise=none,latch_off=none, channelabove0.1Athroughendpoint. Ownprefix/phase and detector-independent55waveforms stillpending.",
+  "verified": "All8live materializedsourcehashes and unchanged76parentpreparedscripts verified; SWprefix33018terminal0 archive lane free.",
+  "evidence_sha256": {
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/capture-stage1.json": "85e4f65160f9b29d2e6050c642738903d4c280c16c5d3eb71fded021d0726d84",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/capture-metadata.json": "a3e683982f951ed6f5c4acabe6e40c83444cbd61762cba8ca152ec85269c08f1",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/native-export-receipt.json": "68ed1eba57bec18081ab6fad5242ee39e597dfcadceef7edf65631c8ca00cb2e",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/result.json": "1155dbbaf4d9994404fe8a5ad8f8c122cb8254226856d371cea3a84cacc55692",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/stage2.exit": "e04dd0d19c086597aa1fce10ddb4777f497eaeb2cf2491303bb5595c9061ed26",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/validator.stderr": "2ff09318ff4b5662ace91ac3b4d35819e4504a5012c70e63b2b2fd7411d1be8c",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/adapter-report.txt": "ab797a28a30ef27ad4a2831dbfdea112e4041082adff80709cb7857323c21af4",
+    "faults/settled-bypass-postcapture-76/parent-review.json": "08b4d08477721a59f17e12602cba925475a9360db4cff3bc673874b58c20f89d",
+    "faults/settled-bypass-postcapture-76/run.sh": "c20a250f513bb8d36a32749bd7118cf4cdaf9b64a6050a5e0730900e8044d455"
+  }
+}

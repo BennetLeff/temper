@@ -1,0 +1,11 @@
+
+running 6 tests
+test tests::detects_first_nonincreasing_sample ... ok
+test tests::stall_watchdog_threshold_is_unchanged ... ok
+test tests::maps_only_declared_diagnostics ... ok
+test tests::backwards_time_sets_separate_stop_flag ... ok
+test tests::callback_captures_named_values_only_on_first_bad_time ... ok
+test tests::nonfinite_time_sets_finite_guard_without_counting_as_backwards ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

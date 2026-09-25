@@ -1,0 +1,21 @@
+{
+  "status": "PARENT_VERIFIED_SYNTHETIC_TRANSPORT_ONLY",
+  "utc": "2026-09-21T04:35:17.560758+00:00",
+  "source_sha256": "fbd036304a9bef765b58ec83a224a57830be5a088e509a0590a34bf88298b915",
+  "compressed_bytes": 4872093,
+  "compressed_sha256": "bd4ac61e8b126c81ab7a80377aed3f38584fd2300763c1e99dfb8bb629949cda",
+  "uncompressed_bytes": 4404086473,
+  "parent_verify_pipeline_exit_codes": [
+    0,
+    0
+  ],
+  "parent_binary": "/private/tmp/matrix07-fifo-probe26-parent",
+  "parent_binary_sha256": "ff3cd30d4879af0fd8f2e9dc0f1cf305fecba1d0fbe0b3f364566a56d3223442",
+  "verification": "Parent compiled warning-clean and re-read full retained gzip; checks uniqueheader,index,size,eachpayloadbyte,exactEOF. No additionaluncompressedcopy.",
+  "interpretation": "Exact FIFO+pigz synthetic >4GiB stream succeeds; file size alone does not reproduce LL05failure. Does not diagnose cause or recoverlostexport.",
+  "harness_not_adopted": true,
+  "worker_receipt_limitations": [
+    "out/receipt.json is invalidJSON becauseRust Debug formats Option as None; retainoriginal ratherthan treatingasparsedreceipt",
+    "Verifier wait isunbounded and someearlyerrorpaths lackchildcleanup; observed7.764scomplete run andindependentparentfullverification remainvalid, butnotproductionharness"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "path": "runner.rs",
+      "purpose": "Fail-closed hash-bound nine-point line/load scheduler",
+      "owner": "matrix-07",
+      "category": "keep",
+      "disposition": "shell-invoked",
+      "imports": []
+    },
+    {
+      "path": "README.md",
+      "purpose": "Runner contract, baseline receipt schema, and host command",
+      "owner": "matrix-07",
+      "category": "keep",
+      "disposition": "utility",
+      "imports": []
+    },
+    {
+      "path": "self-test-results.md",
+      "purpose": "Bounded runner regression receipt",
+      "owner": "matrix-07",
+      "category": "keep",
+      "disposition": "utility",
+      "imports": []
+    }
+  ]
+}

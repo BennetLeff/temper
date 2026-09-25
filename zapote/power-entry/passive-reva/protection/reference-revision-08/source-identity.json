@@ -1,0 +1,114 @@
+{
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "dirty": true,
+  "status": "candidate_only_not_full_converter_tested",
+  "electrical_delta": "Rfb1 vb vsense 1meg -> Rfb1 vd vsense 1meg",
+  "files": [
+    {
+      "path": "elec/src/power_entry_passive_reva.ato",
+      "bytes": 15031,
+      "sha256": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/source-build-07/elec/src/power_entry_passive_reva.ato",
+      "bytes": 16932,
+      "sha256": "54cb44cd40fc711dc69cf6a07b07bb7e7a4281621bee1ca8597d8f5055cd6757"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/source-build-07/build-receipt.json",
+      "bytes": 2525,
+      "sha256": "b692528ce76a28b92e92da40a17566e02797b34e8fbfa4cce92a8a1a6ba63cc1"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/source-build-07/build/default.net",
+      "bytes": 104514,
+      "sha256": "ed8bfed1f0c69276371774a774163a8a5aa2b01e061fba3d8bbe4fb8d56efa80"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/IMPLEMENTATION.md",
+      "bytes": 1408,
+      "sha256": "5d074aff244eb981c62f8abcd697baf6f7bbeda9b09f3a760fe1c923fd4a19de"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/REDUCTION-VERIFICATION.md",
+      "bytes": 1429,
+      "sha256": "16e358491d1f59739c36d4e35f6f41ba021571a064e949568deb6972ed134e4b"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/README.md",
+      "bytes": 7565,
+      "sha256": "d6b754ea64d23839e811674355641ee52a3b66dbc4746de37527de4aade69273"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/INTERFACE-DESIGN.md",
+      "bytes": 18437,
+      "sha256": "cff4e2f38b773ada83c5d9f0e0739e8da71aa3d7308e5a0fef106c16754bb852"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/accepted-baseline-11/cold.cir",
+      "bytes": 3597,
+      "sha256": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/accepted-baseline-11/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/accepted-baseline-11/protection.inc",
+      "bytes": 5311,
+      "sha256": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/accepted-baseline-11/standby.inc",
+      "bytes": 960,
+      "sha256": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/accepted-baseline-11/clamp.inc",
+      "bytes": 567,
+      "sha256": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/accepted-baseline-11/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/candidate/cold.cir",
+      "bytes": 3597,
+      "sha256": "7de2d49caa58b8f055cd462c19fe4ba21a193551cf09419d46a8c339f89323d9"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/candidate/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/candidate/protection.inc",
+      "bytes": 5311,
+      "sha256": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/candidate/standby.inc",
+      "bytes": 960,
+      "sha256": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/candidate/clamp.inc",
+      "bytes": 567,
+      "sha256": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/candidate/authored_logic_hysteretic.inc",
+      "bytes": 2143,
+      "sha256": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/source/power_entry_passive_reva.ato",
+      "bytes": 15031,
+      "sha256": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8"
+    }
+  ],
+  "retained_source_snapshot_equals_root": true
+}

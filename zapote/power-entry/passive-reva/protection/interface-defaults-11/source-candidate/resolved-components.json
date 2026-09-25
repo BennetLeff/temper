@@ -1,0 +1,1069 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "8ef00b90bd65f7ac9a6c26aff8b5fe5002665a2814717a2469186e9f42d8f105",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "c9971a9475191749a6d67c50c6ae2425b468e64b0c23b1d2e412ca866887ad92",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_div.r1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_div.r2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_div.r3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_div.r4",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_div.r5",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206187KBEEA",
+        "value": "187kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_div.step",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200RBEEA",
+        "value": "200ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_div.bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW12065K62BEEA",
+        "value": "5620ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_div.filter",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "47pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_div.r1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_div.r2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_div.r3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_div.r4",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_div.r5",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206187KBEEA",
+        "value": "187kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_div.step",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200RBEEA",
+        "value": "200ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_div.bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW12065K62BEEA",
+        "value": "5620ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_div.filter",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "47pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.reference",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/lm4040.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "LM4040A25IDBZR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.ref_bias",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW120610K0BEEA",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.cmp_vd",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3202.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "mpn": "TLV3202IDR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.cmp_vb",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3202.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "mpn": "TLV3202IDR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_ov_ref",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_ov",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_mismatch_p",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_mismatch_n",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_ov_ref",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_ov",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vb_mismatch_p",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.vd_mismatch_n",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.health",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.cmp_vd_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.cmp_vb_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.health_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.sup_logic",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps3890.pdf",
+        "footprint": "Package_DFN_QFN:WSON-6-1EP_1.5x1.5mm_P0.5mm_EP0.9x0.9mm",
+        "mpn": "TPS389001DSER"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.sup_aux",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps3890.pdf",
+        "footprint": "Package_DFN_QFN:WSON-6-1EP_1.5x1.5mm_P0.5mm_EP0.9x0.9mm",
+        "mpn": "TPS389001DSER"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.sup_logic_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.sup_aux_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.sup_logic_ct",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.sup_aux_ct",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.r_logic_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "294kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.r_logic_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.r_logic_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "47kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.r_aux_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "1.03Mohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.r_aux_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.r_aux_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "47kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.reset_pull_aux",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.rail_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.permit_buf",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "mpn": "SN74LVC1G17DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.permit_input_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.permit_buf_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.permit_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_fast_cmp",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3202.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "mpn": "TLV3202IDR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_fast_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_fast_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "430kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_fast_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_fast_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_ov_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "560kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_ov_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_ov_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_ov_ref",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_window_and",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "mpn": "SN74LVC1G08DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.aux_window_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.latch",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "mpn": "SN74HCS74PWR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.latch_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.arm_buf",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "mpn": "SN74LVC1G17DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.arm_input_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.arm_buf_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.arm_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.enable_and",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "mpn": "SN74LVC1G08DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.enable_pd_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.enable_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.driver",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/ucc27511a.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "mpn": "UCC27511ADBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.pwm_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.pwm_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.disable_nmos",
+      "attributes": {
+        "datasheet": "https://assets.nexperia.com/documents/data-sheet/BSS138.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "BSS138"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.disable_gate",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.disable_gate_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.in_n_pullup",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1210_3225Metric",
+        "mpn": "RC1210FR-071KL",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.gate_r",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0710RL",
+        "value": "10ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.gate_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.gate_off_r",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0710RL",
+        "value": "10ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.logic_bleed",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07220RL",
+        "value": "220ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.cmp_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.drv_bypass_hf",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::protection.drv_bypass_bulk",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "value": "1uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::bridge",
+      "attributes": {
+        "current_rating": "25A",
+        "footprint": "Diode_THT:Diode_Bridge_GBJ2510",
+        "mpn": "GBJ2510-F",
+        "voltage_rating": "1000V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::holder",
+      "attributes": {
+        "current_rating": "16A",
+        "footprint": "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed",
+        "mpn": "0031.2510"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::cmc",
+      "attributes": {
+        "current_rating": "16A",
+        "footprint": "temper:CMC_B82726S",
+        "mpn": "B82726S2163N030"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::ntc",
+      "attributes": {
+        "current_rating": "15A",
+        "footprint": "temper:SL32_10015",
+        "mpn": "SL32 10015"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::bypass",
+      "attributes": {
+        "contact_current": "16A",
+        "footprint": "temper:Relay_SPST_Schrack-RT33K012",
+        "mpn": "RT33K012"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::x2",
+      "attributes": {
+        "footprint": "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3",
+        "mpn": "B32922C3224M289",
+        "value": "0.22uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::mov",
+      "attributes": {
+        "footprint": "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm",
+        "mpn": "V150LA10AP"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::l_boost",
+      "attributes": {
+        "current_rating": "24.5A",
+        "datasheet": "https://www.we-online.com/components/products/datasheet/760800301.pdf",
+        "footprint": "Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75",
+        "inductance": "180uH",
+        "mpn": "760800301",
+        "voltage_rating": "1000V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::q_boost",
+      "attributes": {
+        "current_rating": "65A",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "mpn": "STW65N65DM2AG",
+        "voltage_rating": "650V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::d_boost",
+      "attributes": {
+        "current_rating": "20A",
+        "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+        "mpn": "C3D20065D",
+        "voltage_rating": "650V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::pfc",
+      "attributes": {
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "mpn": "UCC28180D"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::shunt",
+      "attributes": {
+        "footprint": "temper:HCSM2818FT10L0",
+        "mpn": "HCSM2818FT10L0",
+        "power_rating": "5W",
+        "value": "10mohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_relay_gate",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-071KL",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_relay_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_relay_drop",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "RC2512FR-0791RL",
+        "value": "91ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_isense",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07220RL",
+        "value": "220ohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_freq",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0716K2L",
+        "value": "16.2kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_vtop",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_vtop2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_vtop3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_vtop4",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_vtop5",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "CRCW2512200KFKEG",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_vbottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0713KL",
+        "value": "13kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_vcomp",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0740K2L",
+        "value": "40.2kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c_vcc",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C105K5RACTU",
+        "value": "1uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c_icomp",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C272J5GACTU",
+        "value": "2.7nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c_vcomp",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "mpn": "GRM32ER71H475KA88L",
+        "value": "4.7uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c_vcomp_p",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C224K5RACTU",
+        "value": "220nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c_isense",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C102J5GACTU",
+        "value": "1nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c_vfeed",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "C0805C681J5GACTU",
+        "value": "680pF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::relay_driver",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::relay_flyback",
+      "attributes": {
+        "footprint": "Diode_SMD:D_SMA",
+        "mpn": "SS14"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::isense_clamp",
+      "attributes": {
+        "datasheet": "https://www.vishay.com/docs/86374/bav23c.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "BAV23C-E3-08"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c1",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "LGX2W561MELC50",
+        "ripple_current": "1.98A",
+        "value": "560uF",
+        "voltage_rating": "450V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c2",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "LGX2W561MELC50",
+        "ripple_current": "1.98A",
+        "value": "560uF",
+        "voltage_rating": "450V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c3",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "LGX2W561MELC50",
+        "ripple_current": "1.98A",
+        "value": "560uF",
+        "voltage_rating": "450V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c4",
+      "attributes": {
+        "footprint": "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn",
+        "mpn": "LGX2W561MELC50",
+        "ripple_current": "1.98A",
+        "value": "560uF",
+        "voltage_rating": "450V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::c_hf",
+      "attributes": {
+        "dielectric": "PP",
+        "footprint": "temper:B32672P6474K000",
+        "mpn": "B32672P6474K000",
+        "value": "470nF",
+        "voltage_rating": "630V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::y1",
+      "attributes": {
+        "dielectric": "Y1",
+        "footprint": "Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0",
+        "mpn": "VY1102M31Y5UQ63V0",
+        "value": "1nF",
+        "voltage_rating": "500V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::mains",
+      "attributes": {
+        "footprint": "temper:Phoenix_1714984",
+        "mpn": "1714984"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::aux",
+      "attributes": {
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::control",
+      "attributes": {
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::permit",
+      "attributes": {
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+        "mpn": "61300211121"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::q_inhibit",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::q_permit",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_inhibit_pulldown",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_inhibit_pullup",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_permit_gate",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-071KL",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::r_permit_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100KL",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::output",
+      "attributes": {
+        "current_rating": "32A",
+        "footprint": "temper:Phoenix_1714971",
+        "mpn": "1714971",
+        "voltage_rating": "1000V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::bleeder1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "RC2512FR-07150KL",
+        "power_rating": "1W",
+        "value": "150kohm",
+        "voltage_rating": "200V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate::bleeder2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "mpn": "RC2512FR-07150KL",
+        "power_rating": "1W",
+        "value": "150kohm",
+        "voltage_rating": "200V"
+      }
+    }
+  ],
+  "entry": "/Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato:PowerEntryPfcControlCandidate",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "elec/src/power_entry_f2_shutdown_revb.ato": "88c634936bcd850df8b0f7d8b7964ce771ec60e94066ac524dca0518e5a73831",
+    "elec/src/power_entry_pfc_control_candidate.ato": "8491fb2fba480bcfa45713a0c2d9f67563bc6f197b727528c570d4939c345006"
+  }
+}

@@ -1,0 +1,12 @@
+[current]
+../driver-hysteresis-candidate/authored-threshold-hysteretic.tsv gate4_rise_ns=2502.621 gate4_fall_ns=5970.322 peak_v=14.982022 state_rise_input_v=2.200000 state_fall_input_v=1.200000
+../driver-hysteresis-candidate/authored-fast.tsv gate4_rise_ns=3062.338 gate4_fall_ns=5211.195 peak_v=14.982003 state_rise_input_v=2.175904 state_fall_input_v=1.265910
+../driver-hysteresis-candidate/authored-sequence.tsv pwm_high=14.949873 pwm_off=0.017616 run_off=0.029435 aux_drop=0.017626 rearmed=14.981988 run_fall_ns=12285.768 aux_fall_ns=20210.782
+[slew]
+./authored-threshold-hysteretic.tsv gate4_rise_ns=2507.675 gate4_fall_ns=5975.410 peak_v=14.982022 state_rise_input_v=2.200000 state_fall_input_v=1.200000
+./authored-fast.tsv gate4_rise_ns=3067.392 gate4_fall_ns=5216.283 peak_v=14.982003 state_rise_input_v=2.175904 state_fall_input_v=1.265910
+./authored-sequence.tsv pwm_high=14.948867 pwm_off=0.018243 run_off=0.030506 aux_drop=0.017630 rearmed=14.981987 run_fall_ns=12290.856 aux_fall_ns=20210.816
+[ti-oracle]
+./vendor-threshold.tsv gate4_rise_ns=2490.995 gate4_fall_ns=5932.935 peak_v=14.986900
+./vendor-fast.tsv gate4_rise_ns=3050.884 gate4_fall_ns=5173.673 peak_v=14.986898
+./vendor-sequence.tsv pwm_high=14.973332 pwm_off=0.004691 run_off=0.008722 aux_drop=0.001379 rearmed=14.984420 run_fall_ns=12249.301 aux_fall_ns=20091.158

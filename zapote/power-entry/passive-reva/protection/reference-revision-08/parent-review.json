@@ -1,0 +1,145 @@
+{
+  "status": "bounded_revision_unit_complete",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "dirty": true,
+  "source_identities_verified": 21,
+  "candidate_delta": "one electrical line: VB to VD feedback; five include files unchanged",
+  "delegation": "Luna budget, reference, protection, feedback fixture and independent review; parent corrections and final verification",
+  "parent_compile_command": "/Users/bennet/.cargo/bin/rustc -D warnings check.rs -O -o parent-check",
+  "parent_validation_receipt": "feedback-fixture/parent-check.receipt.json",
+  "negative_mutations_rejected": [
+    "nonfinite",
+    "duplicate timestamp",
+    "incomplete endpoint",
+    "missing OVP",
+    "failed gate inhibition"
+  ],
+  "solver_seconds": 1.3207449913024902,
+  "simulated_seconds": 0.0005,
+  "trace_rows": 35138,
+  "compressed_trace_bytes": 827734,
+  "uncompressed_trace_bytes": 11455314,
+  "full_candidate_simulated": false,
+  "hardware_qualified": false,
+  "remaining_gates": [
+    "physical/model clamp reconciliation",
+    "reduced protection source integration",
+    "fuse clearing and fault-path model coverage",
+    "closed-loop startup and power/load tests",
+    "thermal and hardware qualification"
+  ],
+  "review_findings_resolved": [
+    "rejected133 source misidentified as canonical",
+    "F2 incorrectly proposed as controllable actuator",
+    "DC vs AC auxiliary allocation and sensitivity arithmetic",
+    "fixture checker stimulus/state coverage",
+    "missing README link and stale checker hash"
+  ],
+  "artifacts": [
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/README.md",
+      "bytes": 4196,
+      "sha256": "f04f3f05743e29abf8a37980a6da4a2f27baee18ffa81d17e3d0569365405eb2"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/power-budget.md",
+      "bytes": 7905,
+      "sha256": "273089a853641cfbd54ab498d6cd8cc24a16b494b7ce94978128515b3949e7f0"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/power-budget.json",
+      "bytes": 5167,
+      "sha256": "d89eb86fde40a8189adfdafe488258e74e15e7574b2abb55efbac1da0c179582"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/reference-choice.md",
+      "bytes": 10372,
+      "sha256": "ab2da9dc9cd5be3704ffc4365500afe86d5f280c4ee07771fa30891e560cbe67"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/reference-evidence.json",
+      "bytes": 7105,
+      "sha256": "31196b7925b74edc2a8d2d2223c7594a324b4072de294f9680bb8319c8a05310"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/protection-revision.md",
+      "bytes": 6689,
+      "sha256": "f4095cafa597982c415afefa04379b6e960037469090cd9343028933496dc58d"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/protection-delta.json",
+      "bytes": 5779,
+      "sha256": "2446b658c491bbffe92d1a42b991dd2347f7e3984c74fa11b62f968041e0ac14"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/source-identity.md",
+      "bytes": 3939,
+      "sha256": "bea3ae0f3203f6d8e323f330caf91dd17953ccb4d874148c96d6b7f5a8d17383"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/source-identity.json",
+      "bytes": 4788,
+      "sha256": "24599c4b8d190e4bb3e927e7beb43121744616fb09e878fd5ad875e9799f21ee"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/candidate/README.md",
+      "bytes": 1259,
+      "sha256": "88e1c00213b0af8b2827e1c0e8675cf42b4815db275993f6f150643aa47dd9e5"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/candidate/cold.cir",
+      "bytes": 3597,
+      "sha256": "7de2d49caa58b8f055cd462c19fe4ba21a193551cf09419d46a8c339f89323d9"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/README.md",
+      "bytes": 3450,
+      "sha256": "72204bdd39e1de5be732e2540c28eeab6ca3e0b54c63e7bf8603e802dfbbb847"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/feedback.cir",
+      "bytes": 1338,
+      "sha256": "caa87dda7e61e319fd5f9fbf02b0a9304224b244e846061fda68ea9280a35d6e"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/check.rs",
+      "bytes": 11682,
+      "sha256": "d8fe820918f498b9af1298cad0d10d980a5d123e610e6a8d487200759573dbaf"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/ucc28180-pwm-latch.inc",
+      "bytes": 5221,
+      "sha256": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/feedback.tsv.gz",
+      "bytes": 827734,
+      "sha256": "537c04a96aefdd9c59bf30341c7ec1755c30ff12253c3313f728dcc3a111c888"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/ngspice.receipt.json",
+      "bytes": 533,
+      "sha256": "c67fb1e33e0a4331c4580cea3e14eff026f00dd34d39cdc0be9e4aaf82bbc9ae"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/parent-check.txt",
+      "bytes": 528,
+      "sha256": "437de21bc478d6fbba4c0ff56abe0fab05315f7e3e2c81538ca01b27510ef8f4"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/parent-check.receipt.json",
+      "bytes": 578,
+      "sha256": "dcf2e227ac23214973ad10d0fabd3881f28407e6779c810e6ead70ad7a4a0063"
+    },
+    {
+      "path": "docs/plans/2026-09-21-pfc-reference-revision-plan.md",
+      "bytes": 3591,
+      "sha256": "919fc1c87ebfe3ad2673a1b5e387e6dec265752426f7a8962c0164787a65b999"
+    },
+    {
+      "path": "docs/evidence/2026-09-21-pfc-campaign-closeout-and-next-revision.md",
+      "bytes": 9057,
+      "sha256": "0565256147cea1e0b57481c7210c06f51e58921e0f9f0276955359512724e298"
+    }
+  ]
+}

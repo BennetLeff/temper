@@ -1,0 +1,153 @@
+{
+  "status": "ACCEPTED_EXACT_MODELED_FAULT_CASE_NORMAL_PREFIX",
+  "accepted": true,
+  "utc": "2026-09-22T01:04:11.655712+00:00",
+  "scope": "Own DIODE-SHORT64 cold-start/normal prefix only under event-aware-normal-v1. This does not accept fault protection or hardware.",
+  "path_base": "campaign root",
+  "raw": {
+    "path": "faults/settled-diode-short-64/full-DIODE-SHORT/raw.trace.raw.gz",
+    "sha256": "19f8068d73fb4b2379b3111504fd92efbf769984eb4e3775d5b6378294a6c02c",
+    "bytes": 5340687952,
+    "full_rows": 32309024,
+    "fields": 42
+  },
+  "selected_rows": 30113471,
+  "last_selected_s": 0.6499999878048587,
+  "requested_cutoff_s": 0.65,
+  "cutoff_gap_s": 1.2195141341209137e-08,
+  "selection": "All original rows through last sample at or before650ms, no interpolation/deduplication.",
+  "source_sha256": {
+    "faults/settled-diode-short-64/full-DIODE-SHORT/case.cir": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/manifest.json": "fd5c7f9e9703a5d0004bcd523798644068d0b378081361580bcda5c29b67baa9",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/source-identity.json": "9777e9191e332401d5d00c8d6419997ff030dbfd7e687b6150b66e84069a67a4",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/run-parameters.json": "96620d8d5303f07c417907526dfb4b6ed6a8e9fc84b1ab729156aa759e63372e",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "metrics": {
+    "vrms": 120.0,
+    "irms": 7.316235,
+    "real_input_power_w": 867.951112,
+    "pf": 0.988613,
+    "load_power_w": 773.412291,
+    "vb_mean_v": 383.367154,
+    "vb_min_v": 381.31673,
+    "vb_max_v": 385.364541,
+    "vd_v": 385.475199,
+    "vb_v": 385.364541,
+    "vds_v": 386.774078,
+    "vgs_abs_v": 14.982192,
+    "il_a": 30.63963,
+    "armed_fraction": 1.0,
+    "on_fraction": 1.0,
+    "three_state_energy_change_j": 1.3235621312072074,
+    "energy_residual_pin_pout_de_w": 68.06757852931932,
+    "cycle_means_v": [
+      382.8519190357221,
+      383.38006295689314,
+      383.8694805654137
+    ],
+    "cycle_drift_displayed": 0.002658,
+    "cycle_drift_from_reported_cycle_means": 0.0026578462300894117,
+    "drift_reconstruction_role": "Presentation arithmetic matching frozen Rust definition; numerical acceptance comes from screens=0, not this recomputation."
+  },
+  "event_audit": {
+    "equal_groups": 41,
+    "repeated_intervals": 54,
+    "max_group_rows": 3,
+    "missing_right": 0,
+    "logic_changes": 0,
+    "boundary_groups": 0,
+    "E3_sumabs_J": 2.3522398841417582e-12,
+    "inputP_prefix_choice_bound_J": 4.358221988776186e-22,
+    "scope": "Representative-choice sensitivity only; no bound on total solver or component-model error."
+  },
+  "legacy": {
+    "status": "EXPECTED_STRICT_REJECTION",
+    "accepted": false,
+    "classification_reason": "REPEATED_TIMESTAMP",
+    "raw_before_sha256": "19f8068d73fb4b2379b3111504fd92efbf769984eb4e3775d5b6378294a6c02c",
+    "raw_after_sha256": "19f8068d73fb4b2379b3111504fd92efbf769984eb4e3775d5b6378294a6c02c",
+    "pipeline_status_order": [
+      "pigz",
+      "decoder",
+      "selector",
+      "normalizer",
+      "checker"
+    ],
+    "pipeline_statuses": [
+      141,
+      1,
+      1,
+      1,
+      1
+    ],
+    "checker_stderr": "checker.stderr",
+    "prefix_end_s": "0.649999987804858681",
+    "runner_exit": 0,
+    "transport_failures_are_not_acceptance": true
+  },
+  "pipeline_exits": {
+    "scan": [
+      0,
+      0,
+      0
+    ],
+    "audit": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "metrics": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "phase": [
+      0,
+      0,
+      0
+    ],
+    "observe": [
+      0,
+      0,
+      0
+    ]
+  },
+  "parent_corrections_to_candidate95": [
+    "Raw path resolved against campaign root to actual capture directory, not analysis directory.",
+    "Six-decimal displayed drift separated from reconstruction using exact reported cycle means; first-cycle denominator retained.",
+    "Actual completed phase/observability/legacy receipts and all source hashes bound here."
+  ],
+  "evidence_sha256": {
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/analysis-receipt.json": "ed05b4284165730fc42b96db44614fad9077b39be8d519e9f4a8611bee4be7bd",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/preflight.json": "41a0f390a78ce79ae0240765a6cf4d7af5e7308e3d8a740cab4115e159e5314b",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/prefault-scan.json": "d029c26b781f67def746296641dead9cb6586f9d1f604aa4f9b1a396f78759be",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/normal15-audit.txt": "b7a7acae30012ed19ff118b9085af7b0198f53dac00c7e417b3dd8bc5702b6ac",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/normal15-events.tsv": "b215fdfd01102665c45ba7682d1715567f40d3dfaf7fbf2f7f0a593770f95b86",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/normal-metrics.txt": "c34fe9c8f8dea3d2f129a8e023f2315302e697724470a6da71f7729a2c78852c",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/legacy-strict/receipt.json": "5d92fd970746f540a9596bc7d04443575d7733a2960ad3230f78238d737731f0",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/legacy-strict/checker.stderr": "b69b7878fb1de5e0c5c4c63c0699a3a0305ad01c786f3b9cd439034db90402df",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/legacy-strict/pipeline.exit": "175bdbc71706c903e524dd6d875c3ab6ac16c186bae6a09d895464d0e9d9e9f2",
+    "faults/settled-diode-postcapture-74/run.sh": "763a88a2b0b462da46f1f0dc827353acc16efd081157a53d0a45d242f12e39b1",
+    "faults/settled-diode-postcapture-74/tools-parent.sha256": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+    "faults/settled-diode-postcapture-74/parent-review.json": "9bbfc2c5a769ad2fc4ef5e770e6f93cc70d2dca1a536d0bb7d9eea661016447a"
+  },
+  "tool_sha256_verified": {
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-prefault-selector-parent": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+    "/private/tmp/matrix07-normal15-event-audit-host": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6",
+    "/private/tmp/matrix07-normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "/private/tmp/matrix07-event-metrics-host": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "/private/tmp/matrix07-phase43-parent": "e546ddfb84c53b73303e465574fa29fdff7753768c3a71efda1f8b5f185be965",
+    "/private/tmp/matrix07-bypass55-parent": "3bff9b4312cf9bb3c2118219e0f3bc5406482d8c2b83b728ad851b663bb40f6c"
+  }
+}

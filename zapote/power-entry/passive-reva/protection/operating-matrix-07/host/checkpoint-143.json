@@ -1,0 +1,36 @@
+{
+  "at_utc": "2026-09-22T02:52:50.664276+00:00",
+  "status": "COMPLETED_BOUNDED_SIMULATION_ASSESSMENT",
+  "goal_status": "complete",
+  "hardware_signoff": false,
+  "protection_adequacy_established": false,
+  "live_sessions": {},
+  "completed_sessions": {
+    "76037": 0,
+    "6202": 0,
+    "28321": 1,
+    "33018": 0
+  },
+  "dispositions": {
+    "normal": "Baseline plus all nine discrete line/load points accepted under event-aware-normal-v1; strict legacy rejections retained",
+    "F2": "START, CREST, ZERO pass their exact authored-model screens only",
+    "SW-SHORT": "INDETERMINATE; own normal prefix accepted, incomplete fault window retained",
+    "DIODE-SHORT": "FAIL detector timing",
+    "BOTH-SHORT": "FAIL all-row current screen; continuing sampled failed-branch current despite gate off",
+    "BYPASS-NEG": "FAIL VD screen; own prefix and phase accepted; absent external shutdown demonstrated in sampled negative-control window"
+  },
+  "coverage_limits": [
+    "Faults exercised at selected conditions, not the whole nine-point grid",
+    "Physically unbounded selected clamp characteristics remain named gaps",
+    "No physical controller correlation, nonlinear magnetic, thermal/SOA, fuse-clearing or hardware validation",
+    "No established full 1800W appliance input or pan-heating performance"
+  ],
+  "artifacts_sha256": {
+    "host/campaign-report-139.md": "6f7a66ac30751e38efe8739ba9fd2a647f88ff76ef19953d69b9bb04bc09407b",
+    "host/reproducibility-index-140.json": "4544c545e59b523ab472788290bb091014b86a740b94d13a32ce4733472f2af2",
+    "host/final-goal-audit-141.json": "e93c546432ae0f8d7b1f02c609da707d1c49facd9de1fd04d07df3a27bcba821",
+    "host/final-goal-audit-141.md": "216621e036e57a0d02419a4937e6626bdd8827a5dccd25f11bedcfdc0e5d6ad7",
+    "host/final-assessment-review-142.json": "658cf319fba14e38ed95b4d34dc9225891fa0ef685197d179ad2e0126794f250"
+  },
+  "next": "Separate reference-anchored design revision and input-power budget, followed by renewed simulation and hardware correlation. See report139 and audit141."
+}

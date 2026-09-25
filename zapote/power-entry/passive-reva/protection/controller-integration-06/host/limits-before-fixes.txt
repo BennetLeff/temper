@@ -1,0 +1,34 @@
+
+running 11 tests
+test tests::highline_ramp_is_reported_separately_from_start_current ... ok
+test tests::local_cap_energy_is_positive_and_scales_with_delay ... ok
+test tests::inverse_current_boundary_matches_forward_screen ... ok
+test tests::revb_anchor_calculation_is_not_confused_with_a_physical_limit ... ok
+test independent_checks::delay_search_is_not_silently_capped_at_one_millisecond ... FAILED
+test tests::rejects_nonfinite_and_invalid_geometry ... ok
+test independent_checks::rejects_start_below_source_where_inverse_monotonicity_is_not_established ... FAILED
+test tests::zero_delay_does_not_turn_threshold_into_a_physical_current_limit ... ok
+test tests::lower_lmin_increases_current_and_reduces_delay_budget ... ok
+test tests::default_json_is_machine_readable_shape ... ok
+test independent_checks::commutation_peak_agrees_with_independent_rk4_circuit_equations ... ok
+
+failures:
+
+---- independent_checks::delay_search_is_not_silently_capped_at_one_millisecond stdout ----
+
+thread 'independent_checks::delay_search_is_not_silently_capped_at_one_millisecond' (23461743) panicked at zapote/power-entry/passive-reva/protection/controller-integration-06/limits/envelope.rs:509:9:
+assertion failed: boundary > 0.001
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- independent_checks::rejects_start_below_source_where_inverse_monotonicity_is_not_established stdout ----
+
+thread 'independent_checks::rejects_start_below_source_where_inverse_monotonicity_is_not_established' (23461744) panicked at zapote/power-entry/passive-reva/protection/controller-integration-06/limits/envelope.rs:501:9:
+assertion failed: p.validate().is_err()
+
+
+failures:
+    independent_checks::delay_search_is_not_silently_capped_at_one_millisecond
+    independent_checks::rejects_start_below_source_where_inverse_monotonicity_is_not_established
+
+test result: FAILED. 9 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

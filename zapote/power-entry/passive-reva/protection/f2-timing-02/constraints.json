@@ -1,0 +1,47 @@
+{
+  "status": "INDETERMINATE",
+  "hardware_available": false,
+  "actual_fault_current_bound_A": null,
+  "actual_end_to_end_shutdown_bound_us": null,
+  "actual_inductance_min_over_trajectory_H": null,
+  "actual_inductance_max_over_trajectory_H": null,
+  "actual_installed_voltage_ceiling_V": null,
+  "UCC28180_PCL_to_gate_delay_max_us": null,
+  "loaded_STW65N65DM2AG_turnoff_max_us": null,
+  "conditional_screen_inputs": {
+    "value_kind": "assumed",
+    "switch_state": "healthy and controllable",
+    "boost_diode_state": "healthy",
+    "F2_state": "open; arcing transient excluded",
+    "line_rms_max_V": 132,
+    "bank_voltage_V": 410,
+    "local_capacitance_min_F": 0.0000198,
+    "static_trip_V": 432.085945,
+    "inductance_min_H": 0.000100,
+    "inductance_max_H": 0.000216,
+    "current_at_evaluation_threshold_A": 50,
+    "provisional_voltage_ceiling_V": 500,
+    "shunt_body_temperature_C": [-40, 100],
+    "comparator_overdrive_reserve_V": 0.020,
+    "ISENSE_bias_at_negative_trip_assumed_A": 0.00000295,
+    "ISENSE_bias_source_condition": "Published 2.95uA magnitude limit tested at ISENSE=0V; applicability at negative trip is assumed"
+  },
+  "conditional_results": {
+    "assertion": "illustrative",
+    "dc_current_detection_threshold_A": 44.561828,
+    "delay_allowance_from_static_threshold_us": 3.004125,
+    "bus_voltage_reserve_for_overdrive_V": 3.557846,
+    "delay_allowance_after_overdrive_voltage_reserve_us": 2.526807,
+    "provisional_design_target_us": 2,
+    "envelope_peak_at_target_V": 496.861069,
+    "note": "Current must be bounded at the chosen evaluation threshold. Filter lag remains inside the residual delay. None of these results establishes a physical bound."
+  },
+  "implemented_this_audit": ["Rust conditional envelope", "source audit", "evidence ledger"],
+  "not_implemented": ["replacement comparator circuit", "fault latch and driver integration", "full transient circuit model", "hardware verification"],
+  "closure_evidence": [
+    "Manufacturer L(I,T) limits over the entire trajectory",
+    "Effective capacitance and installed voltage acceptance over temperature",
+    "Controller blanking/detection and loaded current turnoff upper bounds",
+    "Actual detector-filter/logic/driver corner and rail-sequence analysis"
+  ]
+}

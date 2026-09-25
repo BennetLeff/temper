@@ -1,0 +1,23 @@
+{
+  "at_utc": "2026-09-22T00:31:41.495195+00:00",
+  "status": "INTERIM_REPORT_INDEX_REVIEWED_DIODE_RUNNING",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: SW tail and topology reviewed; requirements audited; DIODE continued",
+  "this_goal_turn": "progress: canonical interim report and reproducibility index corrected and independently verified; storage checked; no new solver started",
+  "live_session": 52815,
+  "runner_pid": 54751,
+  "monitor_pid": 54752,
+  "latest_progress": "1828.761988\t5.47104578192137647e-1\t82.644196\t2.678597667766e-4\t25023955\ttrue\t14\t0\tfalse",
+  "free_bytes": 42788151296,
+  "artifacts_sha256": {
+    "host/campaign-report-87.md": "88afec1fd4325453a969c343a42717d375456fadeee26c61a3324823130710f4",
+    "host/reproducibility-index-87.json": "4e3316b2f6da51ec6f5b9a566963662136e3204f924ed0ad8373002b68de5af7",
+    "host/reproducibility-index-87.md": "11b991ae586047f070023b7b2b3d19dbe70ad41dcb5795b51747bd608971ab01",
+    "host/report-index-parent-review-88.json": "410c4ad9155d2790de912ee90f3a3916990a3c13f40c21bfb79335e52b99346c"
+  },
+  "new_fault_acceptance": false,
+  "active_children": "none; completed Luna reviewer interrupted",
+  "blocked_turn_count": 0,
+  "drive_backup": "User authorized. Prior two small metadata backups verified; no large raw backup/restore or local deletion. About40GiB free; not currently a blocker.",
+  "next": "Follow same52815 to terminal; no restart solely on observation timeout. Complete capture requires74/run.sh, then74/legacy-strict.sh, then parent disposition; incomplete capture retained INDETERMINATE. Afterwards BOTH65/75 and BYPASS66/76 sequentially. Final report/index must be updated for actual results."
+}

@@ -1,0 +1,21 @@
+{
+  "at_utc": "2026-09-22T01:11:19.774584+00:00",
+  "status": "PARENT_REVIEWED_FUNCTIONAL_IMPLICATIONS",
+  "reviewed_sha256": {
+    "host/diode-short-strategy-97.json": "f8de240127c5d6d7ef9947c54ab1cefe92f076319d1d6fa174476889d1bc8523",
+    "host/diode-short-strategy-97.md": "e555a7050f9b389ce4c86a947dff01bb5a1d2cead3f627f918c6e257193fa5c0",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/case.cir": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78",
+    "faults/settled-diode-short-64/full-DIODE-SHORT/protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8"
+  },
+  "findings": [
+    "Voltage detector reads VD/VB overvoltage and divider mismatch, not direct diode or bank current. The3.121ms observed edge is established in this model; timely detection and its causal comparator mechanism are not.",
+    "Explicit local discharge path: Cbank positiveVB -> closedF2 -> VD -> shorted diode terminal -> healthyMOS channel -> node0 -> Cbank negative. Clocal discharges fromVD through same short/MOS/node0. Neither connectivity loop requires bridge_minus/Rshunt, so source-return ISENSE is not a complete storage-discharge current measurement.",
+    "Source-fed Lboost->sw path remains distinct from stored-energy paths. HealthyMOS gate control is not available to a failedMOS parallel branch in SW/BOTH.",
+    "Future observations should separate VDS voltage from MOS-channel/diode/F2 currents; worker phrase VDS/switch-node current should not conflate voltage and current. Record comparator timing across the full fault interval including late transition, not only inside2ms."
+  ],
+  "limits": [
+    "Topology connectivity is not measured current allocation or interrupter qualification.",
+    "326.5kA modeled sense-branch peak is not a physical diode rating/current; peak mechanism unproven.",
+    "No schematic/PCB/firmware or acceptance criterion changed. Same-row stress refinement99 pending."
+  ]
+}

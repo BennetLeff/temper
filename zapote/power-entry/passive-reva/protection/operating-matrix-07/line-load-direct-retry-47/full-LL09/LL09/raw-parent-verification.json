@@ -1,0 +1,9 @@
+{
+  "status": "PARENT_VERIFIED_NATIVE_ARCHIVE_INTEGRITY",
+  "at_utc": "2026-09-21T19:17:52.499784+00:00",
+  "sha256": "84812ef89e0c987d28343078c9fd17a5468a019a71505595023f74d4e064e2ba",
+  "bytes": 2168688596,
+  "verification": "Independent shasum -a256 and pigz -t completed0 in parent session10064 after export receipt complete; no circuit acceptance implied.",
+  "source": "raw.trace.raw.gz",
+  "accepted": false
+}

@@ -1,0 +1,21 @@
+{
+  "status": "PARENT_REVIEWED_APPLICABILITY_ONLY",
+  "accepted": false,
+  "applies_to": [
+    "SW-SHORT",
+    "BOTH-SHORT",
+    "DIODE-SHORT"
+  ],
+  "endpoint_s": 0.662,
+  "binary_sha256": "3bff9b4312cf9bb3c2118219e0f3bc5406482d8c2b83b728ad851b663bb40f6c",
+  "source_sha256": "e14d67e007466f087d71e0d933ac6d985f80efb7c6926058ff781bc67e3b081a",
+  "review_sha256": "0561277fd1679f973fc59492bce0d8ea0c7be495715fd2431e9e45efe353e692",
+  "worker_review_sha256": "2efa13eee1bffa19f5e3e2bb93372ccabb97311f2160e8f6c54cf175f6bc4771",
+  "corrections": [
+    "At least2 postrows and laterfinalsample required; no dense gap policy",
+    "Independent off/current extrema do not locate current after off",
+    "Samepopulation inclusion-exclusion lower bound can establish sample-row coexistence without new scanner; zero bound inconclusive"
+  ],
+  "proof": "For O,C subsets of same N post-injection rows, |O intersection C|=|O|+|C|-|O union C| >= O+C-N; cardinality nonnegative. Post::observe increments every count on identical input row population.",
+  "pending": "No actual archive observed; require own immutable complete capture and every pipeline status. No electrical acceptance."
+}

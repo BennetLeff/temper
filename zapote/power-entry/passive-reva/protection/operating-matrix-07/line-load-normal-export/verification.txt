@@ -1,0 +1,20 @@
+rustc --edition=2021 -D warnings --test progress.rs -o /tmp/matrix07-normal-export-tests
+/tmp/matrix07-normal-export-tests # 5 passed (including nonfinite callback -> full-export fallback)
+rustc --edition=2021 -D warnings -O progress.rs -L /opt/homebrew/opt/libngspice/lib -l ngspice -o /tmp/matrix07-normal-reduced-export-host-07
+rustc --edition=2021 -D warnings -O ../checker/normalize.rs -o /tmp/matrix07-normalizer-07
+rustc --edition=2021 -D warnings -O compare.rs -o /tmp/matrix07-normal-export-compare-07
+SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts /tmp/matrix07-hysteretic-driver-host cold.cir 2 0.5 trace.tsv first-invalid.tsv
+SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts /tmp/matrix07-normal-reduced-export-host-07 cold.cir 2 0.5 trace.tsv first-invalid.tsv
+stop=solver_stopped; sim_s=4.99999999999999956e-5; rows=497; first_invalid=false; seen_names_mask=65535 (both hosts)
+reduced_metadata=all_saved_finite=true; export_mode=normal14_poststop
+/tmp/matrix07-normalizer-07 190 < smoke/full/trace.tsv > smoke/full/normalized.tsv
+/tmp/matrix07-normalizer-07 190 < smoke/reduced/trace.tsv > smoke/reduced/normalized.tsv
+/tmp/matrix07-normal-export-compare-07 smoke/full/trace.tsv smoke/reduced/trace.tsv smoke/full/capture-metadata.json smoke/reduced/capture-metadata.json smoke/full/normalized.tsv smoke/reduced/normalized.tsv
+rows=497 normal_columns=15 raw_prefix_equal=true normalized12_equal=true finite=true monotonic=true endpoint=50us snapshot_mask=65535
+source/cold.cir == both smoke/cold.cir byte-for-byte
+full_trace_sha256=b76565ffedadfd6e68e34631995416961faf6050227cb8ece2897606bb4502de
+reduced_trace_sha256=ed33eaf7970e50ea7e1dbf8a906deafa6126b858a943d202d9036cbd833affd8
+normalized_sha256=c5a27b627722b6ae18894e42179fe302d63de583550f5d0bbe7cdd9ce8195d87 (full == reduced)
+reduced_host_source_sha256=a8056fcc15a006a4842656678178bdd5e78d7fb6bc1c7f208881fd76fd4ba646
+reduced_host_binary_sha256=6247dcda28997f33184f48c24c4464858332ec1ade2d8a46c53e83f53c902bb5
+campaign=UNSTARTED

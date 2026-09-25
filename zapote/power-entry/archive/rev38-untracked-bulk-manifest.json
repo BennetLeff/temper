@@ -1,0 +1,3455 @@
+{
+ "schema": "temper.archive.rev38-untracked-bulk.v1",
+ "created": "2026-09-25",
+ "note": "Files >256 KiB left out of git (simulation traces, raw captures). They remain on disk at these worktree-relative paths under worktrees/power-entry until moved to a local archive; this manifest is the integrity record.",
+ "cutoff_bytes": 262144,
+ "count": 689,
+ "total_bytes": 28970623052,
+ "files": [
+  {
+   "path": "docs/evidence/2026-09-22-power-entry-selection-review/ovp-screen",
+   "bytes": 480744,
+   "sha256": "ff11b6ff1d8fca3735f5e86d78ff3612777caa088eec1af73afb4f9210ec81e6"
+  },
+  {
+   "path": "zapote/power-entry/active-rectifier/native-bridge-01/section.kicad_pcb",
+   "bytes": 510999,
+   "sha256": "d0a896d19d640b7d89ffd698099594c25e2211d0b819b35bfe053023477a9ad6"
+  },
+  {
+   "path": "zapote/power-entry/active-rectifier/sources/fetch-tmp/cd40106b.pdf",
+   "bytes": 1207002,
+   "sha256": "353407f22e66d14bd0d5c2aefc798601b4a917e802bab7c31340ee550bf167c1"
+  },
+  {
+   "path": "zapote/power-entry/active-rectifier/sources/fetch-tmp/cd4013b.pdf",
+   "bytes": 1437689,
+   "sha256": "dea158db743cc96dad15b52cf7b5b6dc015624d624a22c85858ded922e5fa5c7"
+  },
+  {
+   "path": "zapote/power-entry/active-rectifier/sources/fetch-tmp/farnell-2793524.pdf",
+   "bytes": 1104398,
+   "sha256": "5f7411e3a00bcca131a06392b2343de3a9380437a1e6144659c1c18393358525"
+  },
+  {
+   "path": "zapote/power-entry/active-rectifier/sources/fetch-tmp/lm4040.pdf",
+   "bytes": 1882717,
+   "sha256": "f43b6b6d3ecd51c8c90b70a7c4630c7e3140822b0073953ed2459df81b251c1c"
+  },
+  {
+   "path": "zapote/power-entry/active-rectifier/sources/fetch-tmp/lm4040.txt",
+   "bytes": 294684,
+   "sha256": "b8f786f8fae1cd9bfbd4795e5799a6a7cdc312bc28e30b1ae15720aedbe9f195"
+  },
+  {
+   "path": "zapote/power-entry/active-rectifier/sources/fetch-tmp/tdk-b32674.pdf",
+   "bytes": 2529268,
+   "sha256": "a47024364dca01a7169d0bb31a50bd90ed913a313502786fc9990335aead20c2"
+  },
+  {
+   "path": "zapote/power-entry/active-rectifier/sources/fetch-tmp/thinking-tvr.pdf",
+   "bytes": 1055913,
+   "sha256": "727695736d6ea88f0098113d693cbe357230212d5b19d5ba3c1d9e698713c080"
+  },
+  {
+   "path": "zapote/power-entry/active-rectifier/sources/fetch-tmp/tlv1702.pdf",
+   "bytes": 1946071,
+   "sha256": "b971c8ca9ae7da43d67fa3486f202e6e688d8f5cc4b220268473fc0b4904c42b"
+  },
+  {
+   "path": "zapote/power-entry/active-rectifier/sources/fetch-tmp/try.pdf",
+   "bytes": 1104398,
+   "sha256": "5f7411e3a00bcca131a06392b2343de3a9380437a1e6144659c1c18393358525"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/native-04/section.kicad_pcb",
+   "bytes": 553792,
+   "sha256": "7793a56f560824b27396c894ada37429e91be3aa945f81ad9e17adc2658f7143"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/native-04/source-manifest.json",
+   "bytes": 276523,
+   "sha256": "1a77850b84cdccc4d0455ac929c57c0e97542ddfcff926a99266ff49fce97895"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/native-05/section.kicad_pcb",
+   "bytes": 553797,
+   "sha256": "5f8f0e70ec80fe721011e0423a511cd68b77d01ed50095ee6544d226de0fe2f6"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/native-05/source-manifest.json",
+   "bytes": 276429,
+   "sha256": "2a7d75f0f60e9fb00ab55ac30f7e19cfbb7da693c82000f489313f826bac6c0f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/command-protocol-12/aux_budget",
+   "bytes": 480520,
+   "sha256": "296598f2ce92d68670481cd3146223906aa73737a11a6f98afc3435357565f70"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/command-protocol-12/protocol_witness",
+   "bytes": 493072,
+   "sha256": "658f27cc976ef8941cec5621233f407c0a8052ffc3679f130ada8ce7b1ff4948"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/current-loop.tsv",
+   "bytes": 9643766,
+   "sha256": "3b988ea75008b69fd41249e4a31d158da8c25c579503ab9794df537af6856ae2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/functional.tsv",
+   "bytes": 16334177,
+   "sha256": "b8c37ad0b84358611edc459b164c5e5f0a9f156cf918bd125bbb033adfe97d60"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/integrated-refined.tsv",
+   "bytes": 131123776,
+   "sha256": "8a9c72c33b3b59918d3f2d4b1a88f2bbe6ad0485ccd2b39db49dbe60a6003765"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/integrated.tsv",
+   "bytes": 93222913,
+   "sha256": "0de930543f2a0fefb7f1bb891a467ad3c732f9be456076154f05f1c39fcc0a63"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/pcl-disabled.tsv",
+   "bytes": 16329757,
+   "sha256": "572dc2ff6505c6f5571c94d0fb385b84914db2cca58ef0595451bfee74f40029"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/protection-bypassed.tsv",
+   "bytes": 77141956,
+   "sha256": "64a83a1114b8a4d06401d45229d2fd94d75ca74cb5deb51d7fa68ba3c48764f2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/soft-start.tsv",
+   "bytes": 110986467,
+   "sha256": "0e1c4e2e0479e602775c38bbb3af6d997d5f3d9d64a6f31ea2ec207e341f626e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/sources/UCC28180.pdf",
+   "bytes": 1665665,
+   "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/controller/sources/slum423.zip",
+   "bytes": 324363,
+   "sha256": "a1d95663f87595b2c03acac3871c0de57f627f7af21dc38889893a46e9cecfe2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/rejected/controller-luna/.checks",
+   "bytes": 503272,
+   "sha256": "cb90d394d19776be61c125371d51b85defcbfeac13d823e31a445529bd3c97b8"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/rejected/controller-luna/controller_functional.tsv",
+   "bytes": 3396312,
+   "sha256": "5f9299b27e363e31a4b183b2c9ab7c31feb69f0c837d4564bca449599dcdb6ee"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/rejected/controller-luna/controller_pcl_negative.tsv",
+   "bytes": 419499,
+   "sha256": "053e485220e3de913e3f54a8be8594bc74c198e9c890f3d83b238ab2afd5bf54"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/rejected/controller-luna/controller_standby_negative.tsv",
+   "bytes": 744669,
+   "sha256": "016222ac9b3bd4ff63c65a368f86940d914cc51d1cb8c47be2224b6108d03b2b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/rejected/controller-luna/integrated_closed_loop.tsv",
+   "bytes": 2076560,
+   "sha256": "d988fa04e5b485913095a76e32e3f4a3ba7887bf33a1dd38fe2ba332596c4e80"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/rejected/host-coupled-attempt1/integrated.tsv",
+   "bytes": 14680026,
+   "sha256": "1d4f3a9a3d61381fcb4448cebe21e77cd2408cb9111875363002b8ca7eff471c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/rejected/host-coupled-attempt2/integrated.tsv",
+   "bytes": 119301505,
+   "sha256": "d37a585eb3685144cc2de0573f1d2350bc82bc4a903db8de2c941c18f5d53ee5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/controller-integration-06/supply/supply_interface.tsv",
+   "bytes": 471511,
+   "sha256": "7b34b4ad374e28d29fe7e66c9e9e67b1539f3332c61466c272b5fe94fc036241"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-open-01/commutation-trace.tsv",
+   "bytes": 2031001,
+   "sha256": "de2566805a754880aaabd415c899738c07f1c8c730d754b2a45f9a7d6598639c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-open-01/divider-trace.tsv",
+   "bytes": 646935,
+   "sha256": "653c338766d13405d3037135f2b5170ddc49083ec6ea52d955a55e9c10eb8584"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/absolute_vb_ov.raw.gz",
+   "bytes": 9883293,
+   "sha256": "8e04078bd7d5c6bb4284e41744f60dda0541f407e45db086932940963b9d3869"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/absolute_vd_ov.raw.gz",
+   "bytes": 10084127,
+   "sha256": "dfe04012b6b29904ca860a7ff64b839bde7e4fa3855ff1af619fe276c92be89b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/doubled_gate_charge.raw.gz",
+   "bytes": 11474872,
+   "sha256": "2f2d123974248cb847d455837de8ce13febc89140e46412d72e7bda5b71ce7fd"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/f2_open_40_adverse.raw.gz",
+   "bytes": 11554392,
+   "sha256": "2aa7e7e4db8f9c3fce30595446f0d02354db13b79618a9c888d87b0e0c6ada1c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/f2_open_45_adverse.raw.gz",
+   "bytes": 11369843,
+   "sha256": "77fa0fadf0a0afcf2b81813af17c2ae0f56c9804e1cd27fe974a01706435a648"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/f2_open_50_adverse.raw.gz",
+   "bytes": 11329528,
+   "sha256": "b7ac48ed6f3741cd7a7e51805e74ab95222b0d0a8adc6ab7bea5f46a3d597bb4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/f2_open_50_refined.raw.gz",
+   "bytes": 20980812,
+   "sha256": "e3732dd8c3da20e3000aa154fdab8a4cc68fa9d145a3bcb11ea415dcc6ed93ca"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/f2_phase_1u.raw.gz",
+   "bytes": 11368716,
+   "sha256": "15bd4b9f39857f00a4848b4e5d49920bea04c0e102dc08ab22f6e92822bc47fb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/f2_phase_1u_refined.raw.gz",
+   "bytes": 20996352,
+   "sha256": "86d04147835a6e8be1461d2c21f53bd7248bb2d583b90a4a08018f5c126014c3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/f2_phase_2u.raw.gz",
+   "bytes": 11361752,
+   "sha256": "7b6fda35ab8be4062da3eeae9930ae87b7ff81947ac748678ed0155d302db66c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/f2_phase_4u.raw.gz",
+   "bytes": 11340092,
+   "sha256": "8c185c10b7adcddac0f4e0dc1ece9e2f02e6b3e893a82851a1fdbb8a618a97f3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/f2_phase_5u.raw.gz",
+   "bytes": 11326115,
+   "sha256": "f3c94cca33c5877a3a1a181601d236e1ffdbb0f0df1bf174bb8cfdab21566a56"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/fault_clear_held_arm.raw.gz",
+   "bytes": 11988991,
+   "sha256": "dbb44a9701ed67dca1b01b154bbcff69d4de8c59cf0769fb9f6d1c4372d85dc8"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/fresh_rearm.raw.gz",
+   "bytes": 14842572,
+   "sha256": "12823193bc12d87aa5604f4636fc1ebcb557738bab7ae05b5b7bfdf8312c7bfe"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/normal_arm.raw.gz",
+   "bytes": 10440377,
+   "sha256": "5b7d2c68a27c769d675ebb1cf17e38377aa8784441a2d9317ffb250fd1d201b0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/permit_loss_return.raw.gz",
+   "bytes": 11799269,
+   "sha256": "8f021491eb55a092ab6bc2a2904c8e27f0f2915333292483ffd02be1c0e605b4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/rails_invalid_return.raw.gz",
+   "bytes": 11799197,
+   "sha256": "61300a95dce1af76a20a3c51d0471ff1a3bd274d6a9a1ccb06601226675cd525"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/reverse_mismatch.raw.gz",
+   "bytes": 11443708,
+   "sha256": "2b71d20ca4306702cb9a4330253dbdd1256de0aaa487ddbea1d9b5bb15440a18"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/raw/slowed_gate_negative.raw.gz",
+   "bytes": 14692114,
+   "sha256": "4b6f9d4eda042747d2dbac9bbd27df27a4fd1e3be201f53bcc381c5278e97519"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/absolute_vb_ov.tsv.gz",
+   "bytes": 4140491,
+   "sha256": "01cfbf91e8ec09639f186e10b4de00d6b5761428e2f531fcec7823792f1e976a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/absolute_vd_ov.tsv.gz",
+   "bytes": 4147899,
+   "sha256": "169372ec11ba5c79086419214caa996cc1ccf2008605b0866b7fded41879a868"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/doubled_gate_charge.tsv.gz",
+   "bytes": 5924825,
+   "sha256": "2fa90155693a17d72f0ef6e7de7290cbf3f1039695a0fa4fb80bae49f7a21bc5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/f2_open_40_adverse.tsv.gz",
+   "bytes": 5935742,
+   "sha256": "4580ee3af27cd25b58b060279e29d50a986f8c25a5261ca14445c0d38f1fa90f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/f2_open_45_adverse.tsv.gz",
+   "bytes": 5878484,
+   "sha256": "e6e9fc7c1ca342e4f7cc87607384d8e9d8d18c9acd56d34156a87e744924f01c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/f2_open_50_adverse.tsv.gz",
+   "bytes": 5843642,
+   "sha256": "fde23f5b97c44c8bfb0b1238668196987d18a95e7729b78af512508424ed8aae"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/f2_open_50_refined.tsv.gz",
+   "bytes": 10421148,
+   "sha256": "6d4d40c20d01592bf6cfc73e9e275687f93566d47acffccfd38e8c6590ed2702"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/f2_phase_1u.tsv.gz",
+   "bytes": 5861314,
+   "sha256": "779f0353bee69129b255cefd74947823d2e4043b99b875d16bb3e6d6ad808244"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/f2_phase_1u_refined.tsv.gz",
+   "bytes": 10375873,
+   "sha256": "9852b50f186ba56ba637b33c305ef1e17cd5648c9a21c55c10ff8636024a5971"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/f2_phase_2u.tsv.gz",
+   "bytes": 5861379,
+   "sha256": "f5c0e856d9ec9f6d96d5e7bbe8139946b6ecbd2870e01a316e26ecb06fea4ed7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/f2_phase_4u.tsv.gz",
+   "bytes": 5882041,
+   "sha256": "926aa5ebd19d1514c93642831f452f20463ad7b9eec28eef24df7bd3109fce24"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/f2_phase_5u.tsv.gz",
+   "bytes": 5882244,
+   "sha256": "022499c9bea4c9aac8a67eec446ca456ffc1e85ffed76f91a93b288c2736c4c6"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/fault_clear_held_arm.tsv.gz",
+   "bytes": 5993694,
+   "sha256": "15d288039d0658d73a9fd22a6737bb3735e499127110876926208c5300749959"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/fresh_rearm.tsv.gz",
+   "bytes": 7247574,
+   "sha256": "8793a911eb463c205583ebb00ed9d87ac1dfd4fe2ce034efe2fecd660c955182"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/normal_arm.tsv.gz",
+   "bytes": 5548593,
+   "sha256": "f003d2d17c3bdc5a9f5fa053f20ce12cd3b98b2bc50126d0e2a56a2bcc4f8c78"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/permit_loss_return.tsv.gz",
+   "bytes": 5715238,
+   "sha256": "0d5e223f6e96e9bfb509a53e53831a1e89033bc618e6b5b25b4a826235d8ab13"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/rails_invalid_return.tsv.gz",
+   "bytes": 5714709,
+   "sha256": "f197e240ba51525814d44719f364a1744a8c21ad6591b3c0b6a33019cb04b0a7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/reverse_mismatch.tsv.gz",
+   "bytes": 5892128,
+   "sha256": "e8588cefe6aa358db62d0b2bffe2bb604d489f0da20742fb61894de565dffc1f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/traces/slowed_gate_negative.tsv.gz",
+   "bytes": 7531885,
+   "sha256": "cedcf660aaaf064803cc1961d42baac5c0b48e42a099ddabf5292fde1cdf62fb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/vendor/driver-load-check.tsv",
+   "bytes": 327600,
+   "sha256": "40a67fc20683d778d79350397f016d4147adef4cbd03f0affe67e1f1e1225a98"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-03/vendor/latch-behavior-check.tsv",
+   "bytes": 526057,
+   "sha256": "3d505f7c3685eac8768808174b0b08c1f42264403bbbc1204cc7cff8836c7735"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/attempt-100p/forward_mismatch.tsv.gz",
+   "bytes": 582876,
+   "sha256": "5646bcbb1978b20bd2f0ebd7ea6cf1bfa8701406077efbf09d32070178ef3740"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/absolute_vb.raw.debug.tsv",
+   "bytes": 15734408,
+   "sha256": "4f50743da3a5b9d5d255bd1aa28215f9257ac81739233ca80a72c0999d77ef53"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/absolute_vd.raw.debug.tsv",
+   "bytes": 15734408,
+   "sha256": "c1ed9bc9e9443439a0bab7813ed4232b9e8dda86ecec35e64b7d1c1fee409c80"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/aux_absent.raw.debug.tsv",
+   "bytes": 15691510,
+   "sha256": "97484d70d17ca9282aa66967e716f252ca6f04e43fa5e094f1bfdcec04ccafff"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/aux_dropout_return.raw.debug.tsv",
+   "bytes": 15752510,
+   "sha256": "7fdc72df9f0bf8ccf3462a497bd3374b395953e64742eca19dd0ec213db641ca"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/aux_fast_dip.raw.debug.tsv",
+   "bytes": 15746217,
+   "sha256": "898ca13951258f9ed6eb99776c251461aa15e7a5d129e591d6fc2fc9b5eea822"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/aux_first.raw.debug.tsv",
+   "bytes": 15706693,
+   "sha256": "e3f28ab2844837b1ecd8c3babe11788dc198b5f5226d454897ada648895f4d70"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/bypass_negative.raw.debug.tsv",
+   "bytes": 15702355,
+   "sha256": "1482a93d00c737734d2679501cf9b61b2d18a8c5044475bb62c301b169757a06"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/forward_mismatch.raw.debug.tsv",
+   "bytes": 15729829,
+   "sha256": "43d9409035548957c4df58e323ec07c65dc506730393a21c81eaa2c1179291a2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/forward_mismatch.raw.gz",
+   "bytes": 6160512,
+   "sha256": "6b79beeac9ced68fd71451ee36893f8708f83eb2464c590131de86252224f013"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/logic_absent.raw.debug.tsv",
+   "bytes": 15685244,
+   "sha256": "f08a0743bef639a758a32327ce52899de21b0ba1a966a2a2a2f8a36108eb6840"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/logic_dropout_return.raw.debug.tsv",
+   "bytes": 15763784,
+   "sha256": "0b664b5f56df7f435a338e96fcc0b0fe302af90c859fca51aef09a5fcf2d3ce4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/logic_first.raw.debug.tsv",
+   "bytes": 15708139,
+   "sha256": "fa4b5a5870daa33f16a0afc515201f420d30012813c86c68171fb86aa8f5c274"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/reverse_mismatch.raw.debug.tsv",
+   "bytes": 15729829,
+   "sha256": "4ff89ada5408df952b87c2286773233c8f2788b0c1c57774f8f1eeaa3d0c6803"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/slow_detector_negative.raw.debug.tsv",
+   "bytes": 15724286,
+   "sha256": "9241fed242f9572e8378dbbeb9be4e91cafa72ae51d7fdbdaf06ec7c83907ba7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/slow_ramps.raw.debug.tsv",
+   "bytes": 15709585,
+   "sha256": "16026410b82152ac0965b16db12a1af3a3fbb458d3fbbed5b7c56a7b0041a92b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/raw/startup_held_arm.raw.debug.tsv",
+   "bytes": 15689341,
+   "sha256": "63cf9cc5b0417d546f6cf301fc03a4f0e71a77174d3ff5ca98cb6329c85de3a4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/absolute_vb.tsv",
+   "bytes": 26320432,
+   "sha256": "341dc3fdb7fd75e54353cf827bd2adb4c4d606b47d94215ed04e17da3ef745e9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/absolute_vd.tsv",
+   "bytes": 26363522,
+   "sha256": "5b5401248a6bfb1c692fe81a9696e9896ff1858602b014d96f2e6aa4fe1d489f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/aux_absent.tsv",
+   "bytes": 26233311,
+   "sha256": "33c8d1bfb5ae26420365c64b751ec7a700e193317311400ca695f57240c94a80"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/aux_dropout_return.tsv",
+   "bytes": 26359443,
+   "sha256": "af86e5e3abcfcc08f7879c0c303d720c903fd3cdaf5c250dee0b18857f5bde1a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/aux_fast_dip.tsv",
+   "bytes": 26331851,
+   "sha256": "783286a178fffa5d6f4ac888a886105fa97e95dfd1ab05218a8e787f961627c2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/aux_first.tsv",
+   "bytes": 26256432,
+   "sha256": "a000256d4fcda35f8f33772239a1062af5a57286996f9914c2438afee181c8cb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/bypass_negative.tsv",
+   "bytes": 26284669,
+   "sha256": "ad0399d618edc3553eeda7a20d0e31e951f74cbfe4eb66c53c9647170a1e34f2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/forward_mismatch.tsv",
+   "bytes": 26355553,
+   "sha256": "ec51e82e08b32778efd35ed1172499daa894917adefe06dc17847116f91b0e69"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/logic_absent.tsv",
+   "bytes": 26098685,
+   "sha256": "4e9c9a0986e40ffb7c1c98fd661200a955671fc7b25ff0ea9e585511992974b4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/logic_dropout_return.tsv",
+   "bytes": 26365866,
+   "sha256": "de80255c654e3c8d2d67f6a0311fa65e7bbebf74bbd91a11fdc5f14efc410a6e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/logic_first.tsv",
+   "bytes": 26261112,
+   "sha256": "f4f772d37503015205837d5b83f9d57f85944da05c0b73aa1257ea9f3b432a65"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/reverse_mismatch.tsv",
+   "bytes": 26355553,
+   "sha256": "23a7fe2ed5ba7d291d74f2a978621dd44e9fc4a0c90b732bf8f6cce9405016cb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/slow_detector_negative.tsv",
+   "bytes": 26237436,
+   "sha256": "8dc6f350803222b0d1ff5b3fead1c490bca703461bab404736d8cc1ca04f8e59"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/slow_ramps.tsv",
+   "bytes": 26259092,
+   "sha256": "d0b0d29c3bb647cde1674b780a29e04ad8870fcea2ab471d77afa07dedad4a24"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/traces/startup_held_arm.tsv",
+   "bytes": 26227416,
+   "sha256": "fb1060e2c681238673e27dd713a479c5d645de3828877d11b5532a32a0733c49"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/doubled_gate_charge.raw.gz",
+   "bytes": 29913849,
+   "sha256": "a5cd8121d60e6e81139cedf567dcecec1dc29653c3722f19e10bffe219f16171"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/f2_open_40_adverse.raw.gz",
+   "bytes": 29673425,
+   "sha256": "2ec62a458460ef9c938fb9e59f6a9a776f253e74acce65fe8d5c5021addd7ba3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/f2_open_45_adverse.raw.gz",
+   "bytes": 29623193,
+   "sha256": "a63cac150f3e0e2f5499b9fd46bd075ed64065ea6a8477bd7efdd158ece611bd"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/f2_open_50_active.raw.gz",
+   "bytes": 29705489,
+   "sha256": "7dd9c9b769fc6015503fb7a8b6ae1a2a50f19ea849b591e3e26d30bc0620ed81"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/f2_open_50_adverse.raw.gz",
+   "bytes": 29710636,
+   "sha256": "9021070f92a715403ae05847e9b28ead4fefbdfb47987f5409d6b48cb7b1facb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/f2_open_50_refined.raw.gz",
+   "bytes": 58176893,
+   "sha256": "f0d04fadd2ddd481f220dc928ef8daade354dc2df985066fae31d144c7b5d2c7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/f2_phase_1u.raw.gz",
+   "bytes": 29689673,
+   "sha256": "3acb7c90d5b8783fb474806b01363eb9917377d153cfbc7ee5549e91cad6bcbf"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/f2_phase_1u_refined.raw.gz",
+   "bytes": 58112992,
+   "sha256": "47362ebbaa1a4d9a3f9f78596ef7789683a4dbb3fb9ae51a96ad3c38892f7217"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/f2_phase_2u.raw.gz",
+   "bytes": 29700642,
+   "sha256": "dceefcbed21158c36caa0436bcbc1ec4ab44128b6d1ce7fa06c6fbb1c27fcd38"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/f2_phase_4u.raw.gz",
+   "bytes": 29674807,
+   "sha256": "eb67e39eef54fa79363144374a310dcf98e5f92f7a63e3b4372e7873debd0a6b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/f2_phase_5u.raw.gz",
+   "bytes": 29661885,
+   "sha256": "c1dc710b3a27c433c36fb71c2b73135fbd2f1674311f0255a176262d1dd268c0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/normal_arm.raw.gz",
+   "bytes": 20201631,
+   "sha256": "2c05713c975ca8311451c9d3b4eeecb45a655cc65ac320f62258d8409eccc04c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/raw/slowed_gate_negative.raw.gz",
+   "bytes": 33967308,
+   "sha256": "5efb329c47e500fa1b8bc39f99e9de486930af4494c6fcff8b9f94e6806b3111"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/doubled_gate_charge.tsv.gz",
+   "bytes": 16623436,
+   "sha256": "f3708e58e93d09806988bc855608d4f14048fa1b6d07ceff2e7e678e073eef45"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/f2_open_40_adverse.tsv.gz",
+   "bytes": 16167450,
+   "sha256": "c8edded1564e96a41762efd42bcc1a552fc0bf2c08050def8d24938bb97d8d25"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/f2_open_45_adverse.tsv.gz",
+   "bytes": 16177992,
+   "sha256": "f14a97cc18f42f1ac35b5f0b00988ec2b18267a462ac604d43dc59a7d339de03"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/f2_open_50_active.tsv.gz",
+   "bytes": 16251609,
+   "sha256": "1de66675581d13211bb96bea17407833da02b3edbc46285beee2ab8290a1f85f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/f2_open_50_adverse.tsv.gz",
+   "bytes": 16224820,
+   "sha256": "0a105d5ac219d032b4160533017a6e7537d21a8385625d3d02473d8eb6a63673"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/f2_open_50_refined.tsv.gz",
+   "bytes": 31378637,
+   "sha256": "5f923e45e6a5c2cb935bb70fcc2fb5b17e89146daa57b393f990d37191214d9e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/f2_phase_1u.tsv.gz",
+   "bytes": 16266553,
+   "sha256": "6b88f75605d324b43a3e8b682938d1235d4a9cc6957e039a39ab99596f1a963e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/f2_phase_1u_refined.tsv.gz",
+   "bytes": 31395792,
+   "sha256": "636e11370bfd5053014373b4c601f353ee779d69215f13934bb06292c4451ac3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/f2_phase_2u.tsv.gz",
+   "bytes": 16244038,
+   "sha256": "76dadd1ada395252e0a71d601d53822f5a630cf913036f2a253bfca078ced181"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/f2_phase_4u.tsv.gz",
+   "bytes": 16202995,
+   "sha256": "18130c956d1cf48cff8adc0aff7891e5b1bd9c40e913330772827f6ea6f3bcac"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/f2_phase_5u.tsv.gz",
+   "bytes": 16209400,
+   "sha256": "910763f9e81d52d272401291b5bee1666d2deda8728e2ce6ec30751984bf6173"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/normal_arm.tsv.gz",
+   "bytes": 10984595,
+   "sha256": "58fe028272c32eb1dcf1ccf8c0a6ab731c1d6523c954f7cbf408eb8d91eb4573"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/attempt-initial-model/traces/slowed_gate_negative.tsv.gz",
+   "bytes": 19054740,
+   "sha256": "20c7947179f4a96ae8e89ba8cd6690b7d1119d13c7ab9546cafb86a2f2761497"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/doubled_gate_charge.raw.gz",
+   "bytes": 29937376,
+   "sha256": "0e79e56b39d964d5f4b3d412a5bb87cdd551e663a4f33a82b29ffebba0a5fadf"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/f2_open_40_adverse.raw.gz",
+   "bytes": 29906416,
+   "sha256": "1c1df73b4f487c7109865d9e5474013331cd49199fef7101b37a355449964a5c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/f2_open_45_adverse.raw.gz",
+   "bytes": 29692430,
+   "sha256": "3eb764c7db9c1fd0b41790a79f2ea5bdc555471cb2891b31807924139b0fd8ab"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/f2_open_50_active.raw.gz",
+   "bytes": 29725802,
+   "sha256": "125af2a3170c47bb58ea6d57417600d29136433b0393e16fe59d8dde5600a56c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/f2_open_50_adverse.raw.gz",
+   "bytes": 29748801,
+   "sha256": "baf30158574ff5f9af3514d8036637840246dabc2c10ead48c24db9cfbfe1959"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/f2_open_50_refined.raw.gz",
+   "bytes": 58240709,
+   "sha256": "43bd9939adea669529cdb9b64a0bd510954305fe45e95a965f7b20f7a95b5900"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/f2_phase_1u.raw.gz",
+   "bytes": 29751424,
+   "sha256": "b0eb4cfabb82e53ac3d533478c33a1983c9a9bccee96e6c66884a922e4bf26b3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/f2_phase_1u_refined.raw.gz",
+   "bytes": 58184749,
+   "sha256": "10e3bada711ff52c9619d22edf6c4b44d8863606d4b776b636cd597523c5f3f3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/f2_phase_2u.raw.gz",
+   "bytes": 29663352,
+   "sha256": "67990f2c1eab6fe298b351fbfa4b8acd63a70cbf8e6782663f5f2bdf9870319c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/f2_phase_4u.raw.gz",
+   "bytes": 29698361,
+   "sha256": "472319d6f7f8e4e30474fc4865af17f6821e9bce47a726ecd2f249ad472de08c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/f2_phase_5u.raw.gz",
+   "bytes": 29794594,
+   "sha256": "e29011f4727b274e474ca543f8afd46afeb2fbdabe5e36752cfee515a7a4fb0a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/normal_arm.raw.gz",
+   "bytes": 20201631,
+   "sha256": "8fbbb0d3424883c04c679171730ccbad8281e24d3b418cc3c015127e613d3fd1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/raw/slowed_gate_negative.raw.gz",
+   "bytes": 34027950,
+   "sha256": "c37fdedf174a696d71b21a2c10efa883f9e8b0d98b6c4f84832243dc35fd8f9a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/doubled_gate_charge.tsv",
+   "bytes": 77808439,
+   "sha256": "742457fa7ae018e44a2cc6e5c58e120206cc0c31a6f0ac14a0883c63e333d26b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/f2_open_40_adverse.tsv",
+   "bytes": 77677056,
+   "sha256": "18c33b72e6f7c23dab66bc47e3cc230dbeb39b71f4f505277377fcab39366602"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/f2_open_45_adverse.tsv",
+   "bytes": 77672974,
+   "sha256": "a3ac86186939b26601b6b7c04526b9d129d1911f9f40be462f9f8a4badd6df59"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/f2_open_50_active.tsv",
+   "bytes": 77719376,
+   "sha256": "ef5b58f584073030d281ef7e852629989c711ff4ffa54c51f85ec5ba72f28448"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/f2_open_50_adverse.tsv",
+   "bytes": 77733940,
+   "sha256": "7683298e264591dc7477eba5632155538abbf98397ab93276966e76bd981cf16"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/f2_open_50_refined.tsv",
+   "bytes": 154500465,
+   "sha256": "37a08107daa15b1649aeebe87372cfb0e71fb21191b59254fe44f5c40b92524d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/f2_phase_1u.tsv",
+   "bytes": 77774441,
+   "sha256": "3fdf3b92711ed7eb4a127f7f83e507a52e29215574b1db58094496c88fb8893f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/f2_phase_1u_refined.tsv",
+   "bytes": 154682949,
+   "sha256": "08984174c0c6bcc6882c98bf9ef9087d32e5b19ae91a2d95d7bfe39f0b251182"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/f2_phase_2u.tsv",
+   "bytes": 77624331,
+   "sha256": "d895b56f28a9e3f9d348a1555adcfad9d238f48124cee414cab2ef48b1cd2787"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/f2_phase_4u.tsv",
+   "bytes": 77582125,
+   "sha256": "29f2b488e34df43110eb44096ec5ca1a2120d3dacac87ca174ab5fcc147c52b1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/f2_phase_5u.tsv",
+   "bytes": 77922355,
+   "sha256": "3ba91fb2f48f852b9894925d15bd20a64329c1187a100369a9feda204db98a75"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/normal_arm.tsv",
+   "bytes": 53401582,
+   "sha256": "43603848e502e29847010cb6bf8ecc55847fa59acca8a09a4ed89536e446e17f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/plant/traces/slowed_gate_negative.tsv",
+   "bytes": 87427332,
+   "sha256": "0d31088a235147ad5da3ab7f6994c9fb6ddbad1ee6004221c7c43e90bfa22719"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/sources/C3D20065D.pdf",
+   "bytes": 1797738,
+   "sha256": "c0809a7771293470cb77f62ddcffafb086ab96cc650717ec679ac2301127add4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/driver-aux-first-1k.tsv",
+   "bytes": 1167201,
+   "sha256": "fe56e3608c4cf6a7dec1f077f939ce91f24036e3f46e456c7fc449598734be58"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/driver-aux-first-1us-1k.tsv",
+   "bytes": 1166425,
+   "sha256": "d9da9a49594a6f91241e77d95dfdd078ac3bec81a9014af56754513c48279446"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/driver-aux-first-1us.tsv",
+   "bytes": 1168947,
+   "sha256": "000b0cb4df728595b845667860676574c5f1ce5b94fcc2abb1d5ab22eade88ef"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/driver-aux-first.tsv",
+   "bytes": 1168947,
+   "sha256": "d381cb89935e5c45a11c1788e14c4d1712b1a77fa1214f57bf1a8eb98678de9e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/driver-bounded-interface.tsv",
+   "bytes": 1178647,
+   "sha256": "711313f41c2129109b0bef96beac797e27db305128f22e40a2793a9dd121f344"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/driver-default-check.tsv",
+   "bytes": 1177677,
+   "sha256": "8c927bbd0f02e24d6320989850d797b5657551e6641fab52dfb3bc608e103993"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/driver-final-interface.tsv",
+   "bytes": 1176513,
+   "sha256": "4a59f45b52ddebeed79ad5212fff07ab7237bf65944688657da977169a1e908c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/driver-nmos-check.tsv",
+   "bytes": 1179714,
+   "sha256": "c22268406b3d3744b27d156ab9b2ade8bbd15943191358bbef94aa4e1e546cf2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/startup-fast.tsv",
+   "bytes": 1167201,
+   "sha256": "fe56e3608c4cf6a7dec1f077f939ce91f24036e3f46e456c7fc449598734be58"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/startup-ramp.tsv",
+   "bytes": 1166425,
+   "sha256": "d9da9a49594a6f91241e77d95dfdd078ac3bec81a9014af56754513c48279446"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-timing-02/sources/760800301.pdf",
+   "bytes": 661997,
+   "sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-timing-02/sources/Stackpole-HCSM-2019.pdf",
+   "bytes": 284334,
+   "sha256": "3b7f5335006da93130dab4c0bff5195a8561a76e3ce292e8aa07ec0871a8c3aa"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-timing-02/sources/sn74hcs21.pdf",
+   "bytes": 693909,
+   "sha256": "c9fb5982e902b54d877ac8b3a33fe7bb4bcf890e579a9294f0543e7473ee6295"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-timing-02/sources/sn74hcs74.pdf",
+   "bytes": 2486653,
+   "sha256": "3ea07ee8f5550bb882e323bfe71378210c7cadb19539d9cf1917f701ca7b3ca9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-timing-02/sources/stw65n65dm2ag.pdf",
+   "bytes": 399076,
+   "sha256": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-timing-02/sources/tlv1704.pdf",
+   "bytes": 1946071,
+   "sha256": "b971c8ca9ae7da43d67fa3486f202e6e688d8f5cc4b220268473fc0b4904c42b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-timing-02/sources/tlv3202.pdf",
+   "bytes": 1756192,
+   "sha256": "1777bba814c74772bb54c6f1f56702985039043ce2fb2affaf996a83eaf1076e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-timing-02/sources/ucc27624.pdf",
+   "bytes": 4487062,
+   "sha256": "b42590ddafb28a608aae30f5a2c333851cf11ded63daa03fbdef6df93ecb8a51"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/f2-timing-02/sources/ucc28180.pdf",
+   "bytes": 1665665,
+   "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/f2b-fault-extract",
+   "bytes": 565312,
+   "sha256": "ec64c3156c09c189a749354027861c5748a10c050c321ee00345038941fb6f6d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/permit-loss/trace.raw.debug.tsv",
+   "bytes": 15729829,
+   "sha256": "b9ceb8dea2aca3f1e1fbd6d110114e44edce07b3c71d1ab9105583de0998cdb7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/permit-loss/trace.tsv",
+   "bytes": 26365035,
+   "sha256": "7c4da5bfea2a96b247b0807190d1aff7e0758d186d9c250007802628f79312b5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/absolute_vb.raw.debug.tsv",
+   "bytes": 15734408,
+   "sha256": "4f50743da3a5b9d5d255bd1aa28215f9257ac81739233ca80a72c0999d77ef53"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/absolute_vd.raw.debug.tsv",
+   "bytes": 15734408,
+   "sha256": "c1ed9bc9e9443439a0bab7813ed4232b9e8dda86ecec35e64b7d1c1fee409c80"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/aux_absent.raw.debug.tsv",
+   "bytes": 15691510,
+   "sha256": "97484d70d17ca9282aa66967e716f252ca6f04e43fa5e094f1bfdcec04ccafff"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/aux_dropout_return.raw.debug.tsv",
+   "bytes": 15752510,
+   "sha256": "7fdc72df9f0bf8ccf3462a497bd3374b395953e64742eca19dd0ec213db641ca"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/aux_fast_dip.raw.debug.tsv",
+   "bytes": 15746217,
+   "sha256": "898ca13951258f9ed6eb99776c251461aa15e7a5d129e591d6fc2fc9b5eea822"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/aux_first.raw.debug.tsv",
+   "bytes": 15706693,
+   "sha256": "e3f28ab2844837b1ecd8c3babe11788dc198b5f5226d454897ada648895f4d70"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/bypass_negative.raw.debug.tsv",
+   "bytes": 15702355,
+   "sha256": "1482a93d00c737734d2679501cf9b61b2d18a8c5044475bb62c301b169757a06"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/forward_mismatch.raw.debug.tsv",
+   "bytes": 15729829,
+   "sha256": "43d9409035548957c4df58e323ec07c65dc506730393a21c81eaa2c1179291a2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/logic_absent.raw.debug.tsv",
+   "bytes": 15685244,
+   "sha256": "f08a0743bef639a758a32327ce52899de21b0ba1a966a2a2a2f8a36108eb6840"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/logic_dropout_return.raw.debug.tsv",
+   "bytes": 15763784,
+   "sha256": "0b664b5f56df7f435a338e96fcc0b0fe302af90c859fca51aef09a5fcf2d3ce4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/logic_first.raw.debug.tsv",
+   "bytes": 15708139,
+   "sha256": "fa4b5a5870daa33f16a0afc515201f420d30012813c86c68171fb86aa8f5c274"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/reverse_mismatch.raw.debug.tsv",
+   "bytes": 15729829,
+   "sha256": "4ff89ada5408df952b87c2286773233c8f2788b0c1c57774f8f1eeaa3d0c6803"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/slow_detector_negative.raw.debug.tsv",
+   "bytes": 15724286,
+   "sha256": "9241fed242f9572e8378dbbeb9be4e91cafa72ae51d7fdbdaf06ec7c83907ba7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/slow_ramps.raw.debug.tsv",
+   "bytes": 15709585,
+   "sha256": "16026410b82152ac0965b16db12a1af3a3fbb458d3fbbed5b7c56a7b0041a92b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/raw/startup_held_arm.raw.debug.tsv",
+   "bytes": 15689341,
+   "sha256": "63cf9cc5b0417d546f6cf301fc03a4f0e71a77174d3ff5ca98cb6329c85de3a4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/absolute_vb.tsv",
+   "bytes": 26320432,
+   "sha256": "341dc3fdb7fd75e54353cf827bd2adb4c4d606b47d94215ed04e17da3ef745e9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/absolute_vd.tsv",
+   "bytes": 26363522,
+   "sha256": "5b5401248a6bfb1c692fe81a9696e9896ff1858602b014d96f2e6aa4fe1d489f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/aux_absent.tsv",
+   "bytes": 26233311,
+   "sha256": "33c8d1bfb5ae26420365c64b751ec7a700e193317311400ca695f57240c94a80"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/aux_dropout_return.tsv",
+   "bytes": 26359443,
+   "sha256": "af86e5e3abcfcc08f7879c0c303d720c903fd3cdaf5c250dee0b18857f5bde1a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/aux_fast_dip.tsv",
+   "bytes": 26331851,
+   "sha256": "783286a178fffa5d6f4ac888a886105fa97e95dfd1ab05218a8e787f961627c2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/aux_first.tsv",
+   "bytes": 26256432,
+   "sha256": "a000256d4fcda35f8f33772239a1062af5a57286996f9914c2438afee181c8cb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/bypass_negative.tsv",
+   "bytes": 26284669,
+   "sha256": "ad0399d618edc3553eeda7a20d0e31e951f74cbfe4eb66c53c9647170a1e34f2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/forward_mismatch.tsv",
+   "bytes": 26355553,
+   "sha256": "ec51e82e08b32778efd35ed1172499daa894917adefe06dc17847116f91b0e69"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/logic_absent.tsv",
+   "bytes": 26098685,
+   "sha256": "4e9c9a0986e40ffb7c1c98fd661200a955671fc7b25ff0ea9e585511992974b4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/logic_dropout_return.tsv",
+   "bytes": 26365866,
+   "sha256": "de80255c654e3c8d2d67f6a0311fa65e7bbebf74bbd91a11fdc5f14efc410a6e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/logic_first.tsv",
+   "bytes": 26261112,
+   "sha256": "f4f772d37503015205837d5b83f9d57f85944da05c0b73aa1257ea9f3b432a65"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/reverse_mismatch.tsv",
+   "bytes": 26355553,
+   "sha256": "23a7fe2ed5ba7d291d74f2a978621dd44e9fc4a0c90b732bf8f6cce9405016cb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/slow_detector_negative.tsv",
+   "bytes": 26237436,
+   "sha256": "8dc6f350803222b0d1ff5b3fead1c490bca703461bab404736d8cc1ca04f8e59"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/slow_ramps.tsv",
+   "bytes": 26259092,
+   "sha256": "d0b0d29c3bb647cde1674b780a29e04ad8870fcea2ab471d77afa07dedad4a24"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/baseline/traces/startup_held_arm.tsv",
+   "bytes": 26227416,
+   "sha256": "fb1060e2c681238673e27dd713a479c5d645de3828877d11b5532a32a0733c49"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/f2b-fault-extract",
+   "bytes": 565312,
+   "sha256": "ec64c3156c09c189a749354027861c5748a10c050c321ee00345038941fb6f6d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/permit-loss/trace.raw.debug.tsv",
+   "bytes": 15732480,
+   "sha256": "6425590f103406ea589c519952b42faa7fa05c9b027eaaf5145c2af4027671b6"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/permit-loss/trace.tsv",
+   "bytes": 26369468,
+   "sha256": "df5bd370ddecf61404714f0a27097f280adeef27b1394971f4bebc976d0addde"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/absolute_vb.raw.debug.tsv",
+   "bytes": 15738505,
+   "sha256": "8be968e8d1d9d912b362698c814e7629517c71ad81480345d8d0339ea843d932"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/absolute_vd.raw.debug.tsv",
+   "bytes": 15738505,
+   "sha256": "32b32b862cea075a60323b4035b56d0130c35af1be399e3b6fe48cddaede12d1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/aux_absent.raw.debug.tsv",
+   "bytes": 15692715,
+   "sha256": "fca5adc4b2b9c247261e7b6de1f19198910c108a97f7f5a26f244ae750b4fb50"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/aux_dropout_return.raw.debug.tsv",
+   "bytes": 15762321,
+   "sha256": "1e8ac2eee2563c7211ce89ac016987708e1e9d8b20bba25a6c426a949d384a36"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/aux_fast_dip.raw.debug.tsv",
+   "bytes": 15750314,
+   "sha256": "9a9ae65e05d38963d4f366c0be0c8c37aadea36b66e086d5d316376ef9cfad1a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/aux_first.raw.debug.tsv",
+   "bytes": 15708862,
+   "sha256": "160ee71d9822b66f7acc844fe483cfee1ad9e1761ecc0eda06fdbeeff455fb2b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/bypass_negative.raw.debug.tsv",
+   "bytes": 15705006,
+   "sha256": "5dd0b985380ae9b619f43a85931ec74ddb976958667d96f91ea988411335bcbb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/forward_mismatch.raw.debug.tsv",
+   "bytes": 15733926,
+   "sha256": "70e5c33d49bfaa26559c4cd7fdde808f61aebb794f76698d9bf20a9e445b394a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/logic_absent.raw.debug.tsv",
+   "bytes": 15685244,
+   "sha256": "f08a0743bef639a758a32327ce52899de21b0ba1a966a2a2a2f8a36108eb6840"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/logic_dropout_return.raw.debug.tsv",
+   "bytes": 15777990,
+   "sha256": "f507285421dc5ce1d250aead528581b1003b100c21b479600bb991df8f8c5060"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/logic_first.raw.debug.tsv",
+   "bytes": 15710790,
+   "sha256": "b49cf8b1890289eb3c7c0cda429478a0b81a6a07f7b97ba8c9a3716015dea216"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/reverse_mismatch.raw.debug.tsv",
+   "bytes": 15733926,
+   "sha256": "deb553bd5c6e08c8531dfa0b006433f248c6e432853640a08fac0c7acf46d606"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/slow_detector_negative.raw.debug.tsv",
+   "bytes": 15727901,
+   "sha256": "105a56642572b731591c344ad1a757d056262e5d47a821503fc91c2c6f6269c2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/slow_ramps.raw.debug.tsv",
+   "bytes": 15711995,
+   "sha256": "3ff0fa4c57b21a4587e41ccf39199b0ea38aee01e7b074f9a6e3be3bcc8175c6"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/raw/startup_held_arm.raw.debug.tsv",
+   "bytes": 15691510,
+   "sha256": "ff72ece24f507073f66573b6667a605cd2cb08dd33817007547c9c161d041b70"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/absolute_vb.tsv",
+   "bytes": 26327273,
+   "sha256": "ac56b46d2073fdf06b7c1cc5c4f9796bd3c4be9602025fa0e24a5fa451393f40"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/absolute_vd.tsv",
+   "bytes": 26370363,
+   "sha256": "d8436bcc5da52019563148e433aa22061083982c237483e301d14109da3eb214"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/aux_absent.tsv",
+   "bytes": 26235326,
+   "sha256": "2aafcba564e32e0aa356ea9351fda16d895f794979ec4ee938c2e98cd6819072"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/aux_dropout_return.tsv",
+   "bytes": 26375968,
+   "sha256": "f68927d9298ff519b42e0a4c6672ce4640ae64bd76dec99b933ce68f97152290"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/aux_fast_dip.tsv",
+   "bytes": 26338692,
+   "sha256": "9c44cff792bedae3dbaded377f2d1a0e78eb5d02c17593a40f8e5b394f73be05"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/aux_first.tsv",
+   "bytes": 26260059,
+   "sha256": "fa1e310f959d1ed7b29f9cb31f5425b68f5587f6ee38434b55c6e9b09309f25f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/bypass_negative.tsv",
+   "bytes": 26289102,
+   "sha256": "cc9cfab11ebf190b73e19a64d9f9fe51518997eff1bdad73d711f44e2cd961a9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/forward_mismatch.tsv",
+   "bytes": 26362394,
+   "sha256": "2377eb357f21c5ff5e33a4bd32e99bed45d6ba69f7158fdc63955fbd7bdfeb0a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/logic_absent.tsv",
+   "bytes": 26098685,
+   "sha256": "4e9c9a0986e40ffb7c1c98fd661200a955671fc7b25ff0ea9e585511992974b4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/logic_dropout_return.tsv",
+   "bytes": 26394602,
+   "sha256": "b853199d843ec564515456086207c01310af5897699091a310f9509f549671d5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/logic_first.tsv",
+   "bytes": 26265545,
+   "sha256": "bb5c94a7760cad85160ee22e24e01ef65a23a8f9310e7d6199209ef4f8cc5399"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/reverse_mismatch.tsv",
+   "bytes": 26362394,
+   "sha256": "e685a6861a596ba9306c7d36bf9d5f7d12b0b225ac43d5c3fc0183024ea21e06"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/slow_detector_negative.tsv",
+   "bytes": 26243451,
+   "sha256": "a774d4690b873af54bdec9ca8d3c2566a528c5d3ac33734f684cb4c70ce2e1d0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/slow_ramps.tsv",
+   "bytes": 26263122,
+   "sha256": "0d0b13d00b54ef7f715eb3d89197a64fe6b3c5ca6fa0c21d151959618b6377b4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/candidate/traces/startup_held_arm.tsv",
+   "bytes": 26231043,
+   "sha256": "453d309215629d9c048422fa20991bce138b9c32915aab207af8fc9df3370edc"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/extractor-tests",
+   "bytes": 1158896,
+   "sha256": "4865a713f6451a095b76a152f65f94947aa1a13348952fdca531ff568c0efebe"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/reset-bench/open-aux-negative.tsv",
+   "bytes": 494019,
+   "sha256": "7d61fd987b8f6c647082cdcbf886e27d545f739748d0e0e1626171cd6e6e857f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/gate-consolidation-10/reset-bench/shared-reset.tsv",
+   "bytes": 496449,
+   "sha256": "f40a4d5c0b9caaa14ad7f246ef85db75457bfa64ea762502a9ec62ec7f69f279"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-active-15/sources/temper-interface15-fdb-soa.png",
+   "bytes": 280369,
+   "sha256": "8e977b2412c86a6e507f08544c74a861bb067d4e73d86de711a0ce920ce0a92b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-active-15/vendor-check/accepted-two-latch.tsv",
+   "bytes": 963537,
+   "sha256": "69c5cc9adb1531ab162e2ec2755845e27baa8a38dcaa591cabe60b36bf581a42"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-active-15/vendor-check/rejected-fixed-d1.tsv",
+   "bytes": 956715,
+   "sha256": "fe6e62a5f6654d2d03f89a9fa08988e0db8c6942563c1f9587c8e7dc8d372df4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/renders/clamp.svg",
+   "bytes": 637521,
+   "sha256": "156828793db5b75b83e8dbad5f067e494478632bb326cf49f18a96f7e359f0dd"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/renders/reset.svg",
+   "bytes": 1275945,
+   "sha256": "7e8671ce18e938dccf96054731eec11fc8b306451419925b798287985dbc4dfd"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/arm_open_running/detail.tsv",
+   "bytes": 4746430,
+   "sha256": "d9f48563f4fa012a61d88570c93e131659ce07c86948c072c97271595367d2a5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/arm_open_running/trace.tsv",
+   "bytes": 4222686,
+   "sha256": "c380b61a3068f90adc8b857b29117ff7c9b28916a717f85b4919a919696dde25"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/arm_reconnect_high/detail.tsv",
+   "bytes": 4796728,
+   "sha256": "9cbe8e8b8e04d67200f18f0794a156001ec02dc7a50db0ed426783ca1f0b807d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/arm_reconnect_high/trace.tsv",
+   "bytes": 4272135,
+   "sha256": "b83ad36d5555be2e0ce7879ba0d3da1ccdd1b1c460f636bf40f25b68a73ba892"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/normal_upper/detail.tsv",
+   "bytes": 4753680,
+   "sha256": "014ab8e8eaca4b1e36ffa51df6b4046c46afb8dbd48fa187cadee20bd1af88be"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/normal_upper/trace.tsv",
+   "bytes": 4233962,
+   "sha256": "f621f397ce2818c93768ae6e8a0cb0229e8e93f7a09a55f3c4aa16ffc2e06c79"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/ov_running/detail.tsv",
+   "bytes": 4786399,
+   "sha256": "cc129245f9b6abaa354508862a9bfcf8b4211b26616a9ab4d574421c8244ee6e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/ov_running/trace.tsv",
+   "bytes": 4270982,
+   "sha256": "f6424dac68a2380e21687d686c5958255dda55d7b60fa62a20a72e20aac2ed46"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/ov_startup/detail.tsv",
+   "bytes": 4786465,
+   "sha256": "89567fb962f00b645684f5b03088eb30e35a6b38c1ac2c2f1264323711916e9a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/ov_startup/trace.tsv",
+   "bytes": 4245443,
+   "sha256": "2d42d8976fc6ffe44d3fece0143053f35481d1d8fa4c48cc5e32b520443811f4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/permit_open/detail.tsv",
+   "bytes": 4774056,
+   "sha256": "b4be5f85465fe7be66a22744e9decc73a8c75aa57bb8131f16a03226155ea321"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/permit_open/trace.tsv",
+   "bytes": 4263643,
+   "sha256": "e2caa6ed54934e42e5e91649202a8749a6b03ba881a3f143fa9f6a2169b3bf1e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/producer_reset/detail.tsv",
+   "bytes": 4774201,
+   "sha256": "10e4b7600525186108eb3232100369f28a70b5b198ce9bd62ecb1998f0b604a5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/after/producer_reset/trace.tsv",
+   "bytes": 4276838,
+   "sha256": "15bc93c9eb4900edc5ffb77cf71dcc6ecc2d1230d958f0b276f252d117f99d59"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/audit-net",
+   "bytes": 646360,
+   "sha256": "8352f35e82403edaeabe51151d18b970aaa0b95b63d3bfff753089266de2cf00"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/before/arm_open_running/trace.tsv",
+   "bytes": 4219977,
+   "sha256": "2c1a69920390d68667f470354c2af6c8f1f32729b823a0fce77610422bf79b7e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/before/arm_reconnect_high/trace.tsv",
+   "bytes": 4237350,
+   "sha256": "56ec1484a1b2e9e4e7f067862a5e06751857f1ebb7b510c0865d1ec2bbf9f3b1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/before/normal_upper/trace.tsv",
+   "bytes": 4233093,
+   "sha256": "8407a98b7bde1f3aff9eb938a409d2ffd30415d29f330f4c2315f990db3febff"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/before/ov_running/trace.tsv",
+   "bytes": 4232061,
+   "sha256": "082a2149925d1ecb3b105600746807a684b214e94407cd2b9a814d410a624219"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/before/ov_startup/trace.tsv",
+   "bytes": 4232448,
+   "sha256": "1a3123d73f99f8934a5bd26d57d998d16fc0e3ad1c50842b59482436d7ce2482"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/before/permit_open/trace.tsv",
+   "bytes": 4236189,
+   "sha256": "ff153e9455976e9d1a6529de67489759ff8647370a4afe53275ad67b447a0188"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/before/producer_reset/trace.tsv",
+   "bytes": 4248994,
+   "sha256": "2ec9188919817e30e5c150acd085a68f3e1fae113449aad1643144b33d417881"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/check",
+   "bytes": 599272,
+   "sha256": "9995a1f559fbd47c8e38fb5cf88312031f58f5e149ed18bbdf50899581cd96e6"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/check-tests",
+   "bytes": 1130840,
+   "sha256": "38918e074a2ea217b52079131730896e1ec59bf4b39104c0da27b5acef69d0b3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/corners",
+   "bytes": 463000,
+   "sha256": "c9ab65679bd319c2d001e0bb2524fa3c801eab71f81334f862de9b8ef7bf6232"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/missing_permit_pd/detail.tsv",
+   "bytes": 4759190,
+   "sha256": "54feaf3fee7e5ebd2c3cd3a116ed6ab3f74f473a4982f65e3bbd823aaefe8adf"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/missing_permit_pd/trace.tsv",
+   "bytes": 4238864,
+   "sha256": "805935903289a76f408ee90a789e75871bee235315b97dcfc87c1da1993ce918"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/ov_bypassed/detail.tsv",
+   "bytes": 4770454,
+   "sha256": "4cc62de863f7ca5ef4d30763ce44fb3c5786f5d1af0567df0bc2b3a47bb788e0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/ov_bypassed/trace.tsv",
+   "bytes": 4244669,
+   "sha256": "10de80fe528e350aaebf5c723a2dbaf454f2a0897e4db1e959c35afd20bbc500"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/f2b-fault-extract",
+   "bytes": 565312,
+   "sha256": "ec64c3156c09c189a749354027861c5748a10c050c321ee00345038941fb6f6d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/absolute_vb.raw.debug.tsv",
+   "bytes": 15744289,
+   "sha256": "e45ed76da21c0bed51cb9d0c07cc2ab6a0d69c5d41cd59c6b5adf660d815efb2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/absolute_vd.raw.debug.tsv",
+   "bytes": 15744289,
+   "sha256": "cf46f392bfa16a849c7e42b02b11eab27d431e758ad76d6d02305e86cc917844"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/aux_absent.raw.debug.tsv",
+   "bytes": 15692715,
+   "sha256": "ff8afe74da0b9f50ac2aae39a101e45f93275a4811150a62325f3261dc7e60be"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/aux_dropout_return.raw.debug.tsv",
+   "bytes": 15778782,
+   "sha256": "f7f8d3f6e7395c1b32df1a841e3ca06bb04da73e4ec82dff0ec39ceae14e32c7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/aux_fast_dip.raw.debug.tsv",
+   "bytes": 15764774,
+   "sha256": "fcc951c5178a9b285f0172274a458ebf92cdbf9091ec6db275fccb4a62e8c77a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/aux_first.raw.debug.tsv",
+   "bytes": 15722840,
+   "sha256": "5dd925eecf26b028b636486f862e229997b2984d1604e22ae9b1c8b9613bc41b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/bypass_negative.raw.debug.tsv",
+   "bytes": 15709585,
+   "sha256": "8afdf48774d7a095e927b698fb68a278616901ba62059ed4cfbdc3d444ee9b71"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/forward_mismatch.raw.debug.tsv",
+   "bytes": 15739710,
+   "sha256": "26abefebe6e107f2a48236ac2a0171ef742838a157e685cd8881067dfb46c0ac"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/logic_absent.raw.debug.tsv",
+   "bytes": 15685244,
+   "sha256": "f08a0743bef639a758a32327ce52899de21b0ba1a966a2a2a2f8a36108eb6840"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/logic_dropout_return.raw.debug.tsv",
+   "bytes": 15797634,
+   "sha256": "9dc705b7191e26f2fc469a12ca6c5566ed086f5d39559ba1641d976d76aa27b9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/logic_first.raw.debug.tsv",
+   "bytes": 15722117,
+   "sha256": "d4884472315ed8d048f28d2f1af778a2c10e94e08d0b44a9c86fc0f5440eb29a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/reverse_mismatch.raw.debug.tsv",
+   "bytes": 15739710,
+   "sha256": "bf6874384faec4d7b57f08e29c399b41d3fa5e2a9d3fc8727216b2dc5f79c854"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/slow_detector_negative.raw.debug.tsv",
+   "bytes": 15732239,
+   "sha256": "ee5e5e33bc72c24b28a9cf51bccbc60c7b345b364467ff7505709ee502d88d30"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/slow_ramps.raw.debug.tsv",
+   "bytes": 15714405,
+   "sha256": "e31a0f79520215d30ae7902bab3a5f2f467f483cd1bbc078025b52338a76a802"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/raw/startup_held_arm.raw.debug.tsv",
+   "bytes": 15705488,
+   "sha256": "c180e98000ddb2ee2cc7efb474618922f7b3901518da70e660b5bb8e1e350adc"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/absolute_vb.tsv",
+   "bytes": 26387095,
+   "sha256": "864aac9e42558af0fe2f54e19c81c3003e0a3f3936fc409e9a57b3a0be7da5e6"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/absolute_vd.tsv",
+   "bytes": 26387095,
+   "sha256": "92f2c5fa11835883c313254c2567f4cdd0bfd3016d8d565939f4cd3acffce405"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/aux_absent.tsv",
+   "bytes": 26235326,
+   "sha256": "84050ddd2475e315e9d3f7b1ef4367c0fb335b2903d5bc05569dbeb62a83d0b0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/aux_dropout_return.tsv",
+   "bytes": 26453596,
+   "sha256": "8abe100652a89fb091fd2346108ba89096827a5dc4a8a1acdd988b04c46d61db"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/aux_fast_dip.tsv",
+   "bytes": 26413075,
+   "sha256": "4946850da245f984cdcb4aeb4d9c81abf3ac41189d59a7f91942e3aa5f6454fc"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/aux_first.tsv",
+   "bytes": 26283339,
+   "sha256": "6ab948fb9757c66482b163ef69d1df70240c9ca77ccc221dc08213f0b6414816"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/bypass_negative.tsv",
+   "bytes": 26296705,
+   "sha256": "14bffcde7add246c2def4d3998f4ad69b06e9c9220c2b7484c1e99a4560c1a78"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/forward_mismatch.tsv",
+   "bytes": 26422197,
+   "sha256": "8ac864696c79b6e5a9cdc791cd91fab5457267a166809ea73524c5d857021d0f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/logic_absent.tsv",
+   "bytes": 26098685,
+   "sha256": "ebf9ced957796a184f33208f3f5836e0680b339ba61a634fc709edc636c4567d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/logic_dropout_return.tsv",
+   "bytes": 26436293,
+   "sha256": "3c5053955e59d402f937f18a5000b33c0b06516664087ec9aca4c6ca4030a797"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/logic_first.tsv",
+   "bytes": 26284440,
+   "sha256": "d686ce4e010cb906c0c23c5c660f5bc5b5ca14d01c74a332e35a4b1e41a1430d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/reverse_mismatch.tsv",
+   "bytes": 26422197,
+   "sha256": "326412e912c4adb28a46351d0c3b579959f44e3a8c28634065d9c0db57c2785d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/slow_detector_negative.tsv",
+   "bytes": 26250669,
+   "sha256": "22465f56ad36f8a1b3f385f38965aa15c48ba9a214719c3a7426802daea14993"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/slow_ramps.tsv",
+   "bytes": 26267144,
+   "sha256": "b0240d6d36f8a0b4de3f35597ee9d2eea2a6f2c35ee9a4b3aad85bcab5eb0e7f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/regression/traces/startup_held_arm.tsv",
+   "bytes": 26254323,
+   "sha256": "56c2eb90e1393c44adbbef3afc29a06f9780b46e28b0b86cb06dba45cdff6382"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-19/probes/weak-refined.tsv",
+   "bytes": 311148,
+   "sha256": "b90ac8f6afabfb4fc0a863549afb167fd44e2d21600556a309cff9d5f04857ab"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-19/renders/clamp.svg",
+   "bytes": 679944,
+   "sha256": "896ba6a6d2a437da7662c96e0804fb953c00c67efb01821861834937d8d39986"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-19/sources/lt4363-revb-figure5-page.png",
+   "bytes": 646292,
+   "sha256": "643618420f828422e1218defe3e66a0a831badf6675d4dc427bc04aa232a0c0e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/reset-after-latch.raw.zst",
+   "bytes": 11355100,
+   "sha256": "64de8d8344237ee31b78928ba76af519aad8cf5abe2e591cfdd6e970f7d347b1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/shdn-120ms.raw.zst",
+   "bytes": 18880879,
+   "sha256": "a5b766044ed30a950ef6dde67fb0f3b58e883ab70a1d45ac25a86cb46dd719e9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/shdn-500ms.raw.zst",
+   "bytes": 4581116,
+   "sha256": "be2a6d7ee83370bd03b2ce4669a645aa417ba014e0fffc63cb1422112a66316c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/short-50ms.raw.zst",
+   "bytes": 26546584,
+   "sha256": "3962af7425d41f6e5773e6f4481c50e57a8ee5a806ff471b8919f1845a53ecc6"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/short-refined.raw.zst",
+   "bytes": 43255591,
+   "sha256": "3416cc07b5608d0beb7d173d572c5e4eea6b31621295486993e3f37702df3b7b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/startup-2s.raw.zst",
+   "bytes": 2362219,
+   "sha256": "1dcb6c62047dcb3a1716845606419aa4064657cacbc85d8d203d54bde0deeba0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/startup-6s.raw.zst",
+   "bytes": 4781934,
+   "sha256": "cfde562b01daaba634b20006ee2f99bfdd8d0888691ffb57cb33f54c260fb72b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/startup-corners.raw.zst",
+   "bytes": 19893526,
+   "sha256": "8222d2279f84b86797c29adc842d1089fce38ec749383006b100fa68d8975cc1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/startup-nominal.raw.zst",
+   "bytes": 591342,
+   "sha256": "87241c644a59d46fdda81f4a9a397ac4884a2673c7584d8d06163028e2e674ad"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/startup-source-endpoints.raw.zst",
+   "bytes": 39669137,
+   "sha256": "790dbc78fc0a89f0763145b8a4a71b743407111d22637f7fc68e2a08c5c86413"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/startup-upper-refined.raw.zst",
+   "bytes": 22379098,
+   "sha256": "910a153fc09e99d11cb0c8f441ff58473128ff4749506ee533f80212f377d0a9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/surge-hold-10ms.raw.zst",
+   "bytes": 24546387,
+   "sha256": "8364ca1fc6f93111bc8b6d208360e97fdf4a9d7422badc325fa96b1d31b67766"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/surge-hold-25ms.raw.zst",
+   "bytes": 24383062,
+   "sha256": "2c60645a2ac39bfe4621db5aba08910064f09a00319e7649d337128352768421"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/surge-hold-40ms.raw.zst",
+   "bytes": 24653075,
+   "sha256": "6d70ae332cbda5f0ef89a7487134a883752f90fa41df2389f38cd3e65a19a8cc"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/surge-hold-50ms.raw.zst",
+   "bytes": 24954533,
+   "sha256": "75d874c6ca484019f8ffdb82fbe2c57af93c17bf8c30876fe65a907b28172bf0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/surge-nominal.raw.zst",
+   "bytes": 7471203,
+   "sha256": "fd7fcb14c6da76e67ff6569af3f44f39129fabb630a7f466fb66faa052dc8f52"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/surge-postfault.raw.zst",
+   "bytes": 8297060,
+   "sha256": "5b6cb138bd89ccd3df6ec634b685f3248df8db97d808a6ccdfa64a1d9a509185"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/surge-refined.raw.zst",
+   "bytes": 21214847,
+   "sha256": "183aaa402858b9848ce99ab9a707556baff428d5e98fc221b7af0dde7f2dd690"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/uv-fast.raw.zst",
+   "bytes": 22134748,
+   "sha256": "c039077325363622f156f738249de9a5b74aadad7878324186cf8e9d49fb2b34"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-20/uv-slow.raw.zst",
+   "bytes": 22141937,
+   "sha256": "be49da138239db1ddf9b6f51b3011317ace18c083f3531982d6ffb65c08f4319"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-22/load-step-convergence.raw.zst",
+   "bytes": 38767403,
+   "sha256": "f7a46792940085939cbfb55b4164ddaf095ff5bb855b08f9aedfecd697b7509d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-22/load-step-refined.raw.zst",
+   "bytes": 18314774,
+   "sha256": "5c00d17edd33e20bee3303920a870a533d8da11d3b6b0c6abaaf2e86577ec020"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-22/load-step-screen.raw.zst",
+   "bytes": 18713288,
+   "sha256": "ff0428f2b8ce0424028b9aeeaadeb630382b73271c2464e9b3d958cb057c1b66"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-23/baseline-enable-time.raw.zst",
+   "bytes": 4781978,
+   "sha256": "e581fee603b8f62d477e833eb8bf56364f08cfa71e49eda3c6d7e1522416bc9c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-23/pulse-150mA-convergence.raw.zst",
+   "bytes": 37919010,
+   "sha256": "6d4a23511fb379a60fc150fb10e840095b1db943122ec9dc8edde089186b6c18"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-23/pulse-150mA-vin-gated.raw.zst",
+   "bytes": 18006992,
+   "sha256": "6d2b45f7feb6c2dbddb1d1433cd08ec5936b5a9ff42a820369391bce8724cb05"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-23/pulse-150mA.raw.zst",
+   "bytes": 18505711,
+   "sha256": "c35e9464b83b805078f116e313abcd1db320a662fc5ed5beb4f06e90ecc964da"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-handshake-13/command/handshake",
+   "bytes": 463032,
+   "sha256": "9e98aa007ae3a227b355aa0765d5756575583365cac6462752ba6ddcf2a44d40"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-handshake-13/command/handshake_tests",
+   "bytes": 1047824,
+   "sha256": "a41ffe7a144f315e1a9736d70178e048c6e37ccf137c713b85332db8cd98f661"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-integration-17/sources/tps54202-revc-p5.png",
+   "bytes": 274688,
+   "sha256": "e6adde4d1506d7df604e7f5b06d8c34bb8102a5c832aaac6673d55fc8b276e6c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-integration-17/sources/tps54202-revc.pdf",
+   "bytes": 1880179,
+   "sha256": "8bace250f495154744777f7d3b392f641ff3b776c7e01085759571aae446373b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-integration-26/native/renders/a0/power_entry_clamped_a0.png",
+   "bytes": 375040,
+   "sha256": "8499c3a116eb2ac6e1baf2dc78fda3fa176c86f97097f13086f50dba3c0a28b7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-integration-26/native/renders/power_entry_clamped.svg",
+   "bytes": 5092105,
+   "sha256": "4bcfaf57fb7bcf5cbd97f27bfcc406c8807cae0ad7be48e8a2e6aa15773d0898"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-integration-28/native/renders/a0/power_entry_link_clear_a0.pdf",
+   "bytes": 266880,
+   "sha256": "08da40f6fb6ae95aaa8b6e59f421543c5c906016ceec6c3fa7bbfbda0cef2a69"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-integration-28/native/renders/a0/power_entry_link_clear_a0.png",
+   "bytes": 426382,
+   "sha256": "64cbdc9186e5c50564080fc3e0816d23f5211393d0c2bfdbf6d72efe01d79043"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/renders/clamp.svg",
+   "bytes": 650497,
+   "sha256": "c885d72babef6f83ce2fe22874c73485976040e5c7a8267230e6983176559e81"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/sources/kemet-r75h-page12.png",
+   "bytes": 609406,
+   "sha256": "7e514467c06d934efdc959a05a65ec51434e845e63c59377f1e0a027cf0667b0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/sources/kemet-r75h-page5.png",
+   "bytes": 290861,
+   "sha256": "508f7648e111405621493453979481d175efe0c732a4259d3201aae748f2dfa4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/sources/kemet-r75h.pdf",
+   "bytes": 1374058,
+   "sha256": "b27e101d8c4d022b0637d62eb967dfc038976290a9fcd63cf93974ffd62be008"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/sources/kemet-r82-rejected.pdf",
+   "bytes": 2651233,
+   "sha256": "97a54bde6e188f7ccfd17701e47376180f91b4170cd7580cfc9752fcabecd12b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/sources/rubycon-zlj-page1.png",
+   "bytes": 451495,
+   "sha256": "112c9da11df1d7be61684ca57ce4bc39b9ecb365080f4769565b1254ea3974eb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/sources/rubycon-zlj-page2.png",
+   "bytes": 443918,
+   "sha256": "a80624cc5ba234eb3fe9a08d2241cc69c982306a0e7e4725a3b0badb5966c745"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/sources/rubycon-zlj-page3.png",
+   "bytes": 461959,
+   "sha256": "f017155ac15c961b1f48c55e722049efb5babf57c5ecd3e3670cf72ac79abd7c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-physical-14/sources/temper-interface14-IRM10-page2.png",
+   "bytes": 523105,
+   "sha256": "acb9928e29995387090825940c3425afb12b5f920e3a275275ee4a5f6665766d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-physical-14/sources/temper-interface14-tps2660-page9.png",
+   "bytes": 291773,
+   "sha256": "732b09edac9052a72c36844380ac2cfac2388efbb3c4dbc6ae8846d821cb0b7e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/interface-physical-14/sources/temper-interface14-tps2660.pdf",
+   "bytes": 4118722,
+   "sha256": "b781cbce51984715771bde540df2b36404b4fae4b41e27166c84c19b6598e1de"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/native-evidence.json",
+   "bytes": 1706440,
+   "sha256": "669823c11da3b2769db4fdcbe285967b81de0c5464b821de85124808f6cdae8e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/bav23c.pdf",
+   "bytes": 502806,
+   "sha256": "b05e055b9bddac73647119b108d61535c80f89b2ad12087d4cee28bb18106d96"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/clamp_checks",
+   "bytes": 522256,
+   "sha256": "3335bf3bf07f29a11372830de11a7a9f3f8f2f0804f75e3e46b4c3bddeba01a3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/datasheet-audit/UCC28180.pdf",
+   "bytes": 1665665,
+   "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/datasheet-audit/bav23c.pdf",
+   "bytes": 502806,
+   "sha256": "b05e055b9bddac73647119b108d61535c80f89b2ad12087d4cee28bb18106d96"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/limiting-envelope-13/check",
+   "bytes": 520920,
+   "sha256": "d329396f28d87edeca96bb5d2f1e4f4f863c89d53f48f7e181d853d5d1f520c3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/limiting-envelope-13/check_tests",
+   "bytes": 998040,
+   "sha256": "b8905114c7990f5cdcb2eccd9ec11fecb12195bfbbf85e7577337f3951686272"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/limiting-envelope-13/generate",
+   "bytes": 482184,
+   "sha256": "6a2adcf583c481c3efb66dc3fddecbba3839662372ea4626b523dc0f94d24719"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/limiting-envelope-13/peak-diagnostic/check",
+   "bytes": 520632,
+   "sha256": "c635543aa9bfc842d79ce7e6f3ac8374726376fe6d42e196451917b187568d27"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/limiting-envelope-13/peak-diagnostic/generate",
+   "bytes": 481784,
+   "sha256": "e8303b5bcc845cf569726fd19555c64ddde6c1bbeda78f63798d3718772a4034"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/resistor-sensitivity/resistor_sensitivity_checks",
+   "bytes": 521800,
+   "sha256": "99eaed586ba352e3f913520482e87a9db43a7aca9c876e6360b96443f6200e06"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/resistor-sensitivity/resistor_sensitivity_checks_tests",
+   "bytes": 1069904,
+   "sha256": "8559085458861e88fd1cc08185d0d540c4e9ede2c2b3bb2093b4a161d99db589"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/source_graph_negative",
+   "bytes": 463496,
+   "sha256": "057b1ec98ab39bebb61ec5128df4dfae7c7369481f0053178d3c0647dc73c09b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/vendor-model-followup/vendor_clamp_checks",
+   "bytes": 520096,
+   "sha256": "c92d17723bf800820cb544d5e542e86b6aedb7e68ca29f14122df4bb2fc3ccd1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/vendor-model-followup/vendor_clamp_checks_tests",
+   "bytes": 1065688,
+   "sha256": "0ee9f40fbe3e15a2c4500932e6494a99c84a4b2265273f3a3bc081d188b883ff"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/vendor-model-followup/vendor_threshold_checks",
+   "bytes": 503832,
+   "sha256": "0f3ce54ba822929f98d2cb8a227784f80f2c66da6772d5a920ab829a3ea0a19d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/vendor-model-followup/vendor_threshold_checks_tests",
+   "bytes": 1069760,
+   "sha256": "a5ae82c7239cb9e7933798cd412d8dec473cc14baf602187c74f73c6fc212c90"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge-safe/current-loop.tsv",
+   "bytes": 9664000,
+   "sha256": "7ac29851245212eb74c6fab93f474f9dcb3f1301a3a29e72201f67533ae97d77"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge-safe/functional.tsv",
+   "bytes": 16587131,
+   "sha256": "79bc7f9b18e3fe360ff478cd1bc28f786349559183d4ed125fe90f2e2fde4d5c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge-safe/integrated.tsv",
+   "bytes": 94196533,
+   "sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge-safe/pwm-hold.tsv",
+   "bytes": 1046010,
+   "sha256": "6fc619fec2d9dae57beaeb8644eda8c697103922a9581878d09d12f26b7fdaf5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge-safe/pwm-ramp.tsv",
+   "bytes": 3119358,
+   "sha256": "f21ec36115559a4eb8b117172ac96783d5fc86f501b74a8fbb585a7d9aa94c94"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge-safe/soft-start.tsv",
+   "bytes": 138336040,
+   "sha256": "ba35699dd68f30b5417bcf177238553d4ab8d19abd41b4bf98aee0bd1cc6cec8"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge/current-loop.tsv",
+   "bytes": 9664000,
+   "sha256": "7ac29851245212eb74c6fab93f474f9dcb3f1301a3a29e72201f67533ae97d77"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge/functional.tsv",
+   "bytes": 16587131,
+   "sha256": "79bc7f9b18e3fe360ff478cd1bc28f786349559183d4ed125fe90f2e2fde4d5c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge/integrated.tsv",
+   "bytes": 94196533,
+   "sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge/pwm-hold.tsv",
+   "bytes": 1046010,
+   "sha256": "6fc619fec2d9dae57beaeb8644eda8c697103922a9581878d09d12f26b7fdaf5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge/pwm-ramp.tsv",
+   "bytes": 3119358,
+   "sha256": "f21ec36115559a4eb8b117172ac96783d5fc86f501b74a8fbb585a7d9aa94c94"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-finite-edge/soft-start.tsv",
+   "bytes": 138336040,
+   "sha256": "ba35699dd68f30b5417bcf177238553d4ab8d19abd41b4bf98aee0bd1cc6cec8"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched-explicit/current-loop.tsv",
+   "bytes": 9654336,
+   "sha256": "47b5d8cc650e90c215a299274ca10e35dd9622293d2a1855af1deee92ba24897"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched-explicit/functional.tsv",
+   "bytes": 16587131,
+   "sha256": "467ab1120d5ff5ae56640c46bcd8d30e88181e45f22385f3ed8d76b69c425570"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched-explicit/integrated.tsv.gz",
+   "bytes": 20536627,
+   "sha256": "79c0f3531e90de5a08be67ace3a8cb03c1d1d8e2a19f90463689a87919470f01"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched-explicit/pwm-hold.tsv",
+   "bytes": 1046010,
+   "sha256": "9c27b1930322e09b59b49a26622e33ff6a04f311acf21e5a8859abf9d3863285"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched-explicit/pwm-ramp.tsv",
+   "bytes": 3119358,
+   "sha256": "bbdbbd8624f50e30e1bdb10622a61e237853d70bffa352a71660c176982aff34"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched-explicit/soft-start.tsv.gz",
+   "bytes": 22209510,
+   "sha256": "e44b58995db7903f0b794c39516326482d256d4e0fa0acf83b0dff0d696cfb47"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched/current-loop.tsv",
+   "bytes": 9707186,
+   "sha256": "13b51b36068a9111218d3d2f9fdbe175fbb94f59e71fd3721cbc9b151e8ff251"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched/functional.tsv",
+   "bytes": 16340445,
+   "sha256": "cd7bbbcea74643a88069cc554d394bb73e672cbfbc59ddf07bd4642656823561"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched/pwm-hold.tsv",
+   "bytes": 1046163,
+   "sha256": "54427f4568ed923d841cfa72f321da440b6d3f8626d95d9d33b61d4df6b1ec07"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched/pwm-ramp.tsv",
+   "bytes": 3116791,
+   "sha256": "0ea2cb3d8b25c08a42575d0de50bd5fd7347551a10367e6cc5ad10193ed6fd01"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-latched/soft-start.tsv.gz",
+   "bytes": 21508857,
+   "sha256": "d269db2426fb18af54e83cdb733b7364c8dd8b2e7e0ca461fc3f4a1c76ea1f2d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-probes/current-loop.tsv",
+   "bytes": 9620663,
+   "sha256": "dcb41f09e5d7cce7906c7c6d6718877604afcf30ed856be2253dd9898ad430b8"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-probes/functional.tsv",
+   "bytes": 16382546,
+   "sha256": "4764861936f0e4c81ff1366a4846ffdbbb410625646cc85de957d359fa882286"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-probes/negative-controls/wrong-pole/current-loop.tsv",
+   "bytes": 9646333,
+   "sha256": "8cf20dcc9ed43874469e92bba846ea0e500d6cc5e4e19700d095f49acb07a3e9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-probes/negative-controls/wrong-ramp/pwm-ramp.tsv",
+   "bytes": 3108637,
+   "sha256": "28f2afd5c6ba00b535d6b77b2410c57778ffbd8f850551ffabee336b5e3ca641"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-probes/pwm-hold.tsv",
+   "bytes": 1054068,
+   "sha256": "26b9e21b39d214f82729e537b8b60eda42e4ac29f1d0661f1e1a939fa5287a6e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-probes/pwm-ramp.tsv",
+   "bytes": 3114073,
+   "sha256": "be848642095560f96fc106eb696e66e16a4676ab7c8cc515333804f16262c3d2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/controller-probes/soft-start.tsv.gz",
+   "bytes": 21881173,
+   "sha256": "1e74912a2bf01a84f8506695b0848153e1c76fa7cb3c5e3a44abdf096c191579"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/diagnostic-capture/before-stall-tail.tsv",
+   "bytes": 11261126,
+   "sha256": "38d061cfa5ff8af65cea8e936cb77a6a9bda9220484411b3e66f911bfc68326c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/diagnostic-capture/before-stall.tsv.gz",
+   "bytes": 113301528,
+   "sha256": "218c67779113a1ef361c62bbba84df3296354873b18d05283f0d395605818f71"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/diagnostic-capture/shared-replay/post-stall-halt.tsv.gz",
+   "bytes": 372259214,
+   "sha256": "c714eb50c9f671522216e0ffd7c61a78f7a1ed95f00a7578e8c1ed00bb158ce5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/diagnostic-capture/shared-replay/post-stall-tail.tsv",
+   "bytes": 11261126,
+   "sha256": "75ef4cc7738a2b1772a0aad3ac0c515e2a14fd0bc1ecd7229e7fff8bc5264b04"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/diagnostic-capture/stall-analysis/repro/boundary-warm.raw.gz",
+   "bytes": 2699348,
+   "sha256": "0ba13925341104d4d6fb67a386524e01e6a5ff800edaa2b0873301783bb4e1fa"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/diagnostic-capture/stall-analysis/repro/boundary.raw.gz",
+   "bytes": 2702356,
+   "sha256": "b2e7e5649294b4be2999d42e2512bb46a1862ab5a5d18df6c86bc91298ed4e8e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/diagnostic-capture/stall-analysis/repro/host-matched-tolerances/large.raw.gz",
+   "bytes": 2704161,
+   "sha256": "ccdd08c449a074575a6034a8c83e77151177f0ad40c2bb691be00c866d6a4a6a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/diagnostic-capture/stall-analysis/repro/host-matched-tolerances/warm.raw.gz",
+   "bytes": 2701053,
+   "sha256": "e73a5f9f7eb377aa76cb590f436373c715b6ec33563f7d6951254393082f6f9f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/compact-pacer-bench-18/check_pacer",
+   "bytes": 563336,
+   "sha256": "11f6d0151697ebdb2701fcbcecb053ed0d7016702fa645c8bbda390c66bbcccb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/compact-pacer-bench-18/pacer.raw.gz",
+   "bytes": 44776221,
+   "sha256": "053893621e656b91099dba892f2c553edb7eada2ee8bcd27f3d097bca71abd31"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/compression-probe-21/gzip.roundtrip",
+   "bytes": 33554432,
+   "sha256": "0f85b67b09c9c90e599f1fa0d74cedc41ae13d84e69b3b517157d5fb1f7e8e04"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/compression-probe-21/pigz.roundtrip",
+   "bytes": 33554432,
+   "sha256": "0f85b67b09c9c90e599f1fa0d74cedc41ae13d84e69b3b517157d5fb1f7e8e04"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/compression-probe-21/prefix.raw.gzip",
+   "bytes": 14761714,
+   "sha256": "b10bfc34ba06c586ae32d96daf6b7294878c538074bb0c6d42ef0b87434e0d82"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/compression-probe-21/prefix.raw.pigz",
+   "bytes": 14771463,
+   "sha256": "442601668c46250f9c0e8087ecfe76b51596d132a24e4a017b80921d769053f6"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/compression-probe-21/prefix.raw.xz",
+   "bytes": 11736868,
+   "sha256": "c34d70a347e78b263158313b81b99a8b62df9ea794434362cb1f5b2d370a2eb0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/compression-probe-21/prefix.raw.zstd",
+   "bytes": 14440301,
+   "sha256": "5cf786456700bf8bdf43a06d2cd5a7ed73ad7b9b0785385bbd5b1383c9e81491"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/compression-probe-21/xz.roundtrip",
+   "bytes": 33554432,
+   "sha256": "0f85b67b09c9c90e599f1fa0d74cedc41ae13d84e69b3b517157d5fb1f7e8e04"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/compression-probe-21/zstd.roundtrip",
+   "bytes": 33554432,
+   "sha256": "0f85b67b09c9c90e599f1fa0d74cedc41ae13d84e69b3b517157d5fb1f7e8e04"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/host/fifo-export-probe-26/out/stream.raw.gz",
+   "bytes": 4872093,
+   "sha256": "bd4ac61e8b126c81ab7a80377aed3f38584fd2300763c1e99dfb8bb629949cda"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/instrumentation-repair-15/no-diode-sense/case.cir",
+   "bytes": 21124750,
+   "sha256": "56cf97669788e4497c79396ba2618deb6702ca9e1220fd4c559468f9be2df60f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/instrumentation-repair-15/no-f2-sense/case.cir",
+   "bytes": 21124751,
+   "sha256": "b9d3008c0c98c4f07d495202348d85ed77eadf0c8d2727b5bd0861649cb7a1de"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/instrumentation-repair-15/no-marker/case.cir",
+   "bytes": 21124849,
+   "sha256": "79907c39c17cfb8aa06b2e18ca2e7bc5f87c06bc9a47d16ad33713be664f5050"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/instrumentation-repair-15/originalfault10ms/case.cir",
+   "bytes": 21124848,
+   "sha256": "e5c37864de5b2c9e902cf27c336e18fa1b54937a4dc24ef30da33a98a7ad996f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/klu-native-16/case.cir",
+   "bytes": 21124861,
+   "sha256": "6294260c2aeeb86fac7b3cfbabdb7b135d7e9ae60fe66693fd1e01d6c9e09db4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/klu-native-16/decoded.tsv",
+   "bytes": 135578803,
+   "sha256": "a28852ff3515698b0f18d19f89b06e8d2287d615d6f2fb302813d9dfedefb7ce"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/klu-native-16/raw.trace.raw.gz",
+   "bytes": 21162061,
+   "sha256": "250763f516237f94be803cfac9b097e4010e4368c7d11ded94ed7587be997ec4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/klu-native-16/validate42",
+   "bytes": 586232,
+   "sha256": "52c5029b9154b82f9f35b7f8dc7494d6d95fe8e43759a21348437979668d403f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/linear-solver-probe-15/inspect_raw",
+   "bytes": 536136,
+   "sha256": "8eca57622f1fa22b02060de45d9d9df2584a3b07d1f7f74dbf0388b208938ade"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/linear-solver-probe-15/klu/case.cir",
+   "bytes": 21124861,
+   "sha256": "6294260c2aeeb86fac7b3cfbabdb7b135d7e9ae60fe66693fd1e01d6c9e09db4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/linear-solver-probe-15/sparse/case.cir",
+   "bytes": 21124848,
+   "sha256": "2f78f28b80b0c89a577940165f9786eb17b44c2326459a08ba2c9ca51cca1951"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/native-capture-13/out/adapter.tsv",
+   "bytes": 2168198,
+   "sha256": "090996b7755d6cf0dad5303a366750e23bd44c34a20b20ac4fa8e59be96c8ca0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/native-capture-13/out/fault42.raw.gz",
+   "bytes": 383029,
+   "sha256": "16af6e212aa5f58d6b0f89c6219485e2a54bd3b8a879f370ea6bde5d7382df58"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/native-capture-13/out/parent-decoded.tsv",
+   "bytes": 2168198,
+   "sha256": "090996b7755d6cf0dad5303a366750e23bd44c34a20b20ac4fa8e59be96c8ca0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/native-capture-13/out/test-adapter.tsv",
+   "bytes": 2168198,
+   "sha256": "090996b7755d6cf0dad5303a366750e23bd44c34a20b20ac4fa8e59be96c8ca0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/native-capture-13/out/test-api.tsv",
+   "bytes": 2371207,
+   "sha256": "2f4138b213f82822429f7bdb44244d3aa8fbe0b629237809df36bc04425b0dc2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/native-capture-13/out/test.raw.gz",
+   "bytes": 383024,
+   "sha256": "5e121c401c685727eb53ea4fd7a40e0d49a72b7cda44a74a8efcac4cdb3ca5bf"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/native-capture-13/out/test.tsv.gz",
+   "bytes": 528155,
+   "sha256": "3a6206d6a1585f840e75b2d7b70ed33a38428c9edafc5f76e3d8755718842267"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/native-runner-45/native-runner45-supervisor",
+   "bytes": 670632,
+   "sha256": "6347467d4178b6656ea868df426e29f3d067b41920da9cbc95e7a9e73b1c0f54"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/readiness-08/event-sampling/host-check/results/scheduled.tsv",
+   "bytes": 12349384,
+   "sha256": "a5034c8d2803fe5ef7a0250a850dcdeb286922496639214bc2c97dddee62cfed"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/readiness-08/event-sampling/host-check/results/unscheduled.tsv",
+   "bytes": 12087550,
+   "sha256": "595fbe9dfaec315881af5c015f690718067f419fdccbd96097fadbe78b729215"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/readiness-08/event-sampling/results/scheduled.tsv",
+   "bytes": 12349384,
+   "sha256": "a5034c8d2803fe5ef7a0250a850dcdeb286922496639214bc2c97dddee62cfed"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/readiness-08/event-sampling/results/unscheduled.tsv",
+   "bytes": 12087550,
+   "sha256": "595fbe9dfaec315881af5c015f690718067f419fdccbd96097fadbe78b729215"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-both-short-65/full-BOTH-SHORT/host.stderr",
+   "bytes": 308373,
+   "sha256": "d488e580de5166b438d584a15ac22f790fd9b770d39d141c97e8da4b066d0afe"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-both-short-65/full-BOTH-SHORT/host.stdout",
+   "bytes": 546041,
+   "sha256": "711d6ed0d9f5247a5f4d85384faba6e3848d8dfda04a4db4d12eb6e3453a62eb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-both-short-65/full-BOTH-SHORT/progress.tsv",
+   "bytes": 546075,
+   "sha256": "1fe88d6964076675f31c0e600c3180e25f79403260d9108f7a74650734550be8"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-both-short-65/resource-samples.txt",
+   "bytes": 263573,
+   "sha256": "f340acc6818679c07b5b99de4511ad950b41038f844d797911f5461a18b291f5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-bypass-neg-66/full-BYPASS-NEG/host.stderr",
+   "bytes": 311013,
+   "sha256": "bb0319fcf6a7732850d48e121b2b3ac2310478a02c85e37bf38b5628279b4ffa"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-bypass-neg-66/full-BYPASS-NEG/host.stdout",
+   "bytes": 612853,
+   "sha256": "b6d74459620e57d123bf69429f702cfd2039c1d9a74063b068277ac60cee206a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-bypass-neg-66/full-BYPASS-NEG/progress.tsv",
+   "bytes": 612887,
+   "sha256": "8253f43f8af27ba332505c145ad7a1ef59168b973a978f5f06c01ca823932eb0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-bypass-neg-66/resource-samples.txt",
+   "bytes": 267688,
+   "sha256": "8264360fab81f50705c1066731bf9c24f9fc709f53a5d653caedcf0720937bec"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/expanded-materialized/BOTH-SHORT/case.cir",
+   "bytes": 8658708,
+   "sha256": "e6a52489240cdddf53884050ecbf530e9f65867241095760da891823b44e13f5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/expanded-materialized/BYPASS-NEG/case.cir",
+   "bytes": 8658198,
+   "sha256": "9ecbc260c85c887b67cc36da947d3ce41093a09f3047e58bfa28ae6ecddfdb44"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/expanded-materialized/DIODE-SHORT/case.cir",
+   "bytes": 8658422,
+   "sha256": "6fc19525c8c5a2efe1a2fd05be1665182eb5078dc370cf7ca5e0d57ff199bb45"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/expanded-materialized/F2-CREST/case.cir",
+   "bytes": 8658196,
+   "sha256": "c314183c130e7b2a30b2a41ab66b994f25a83dd3624973bdf6f0a1b86b485eee"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/expanded-materialized/F2-ZERO/case.cir",
+   "bytes": 29631521,
+   "sha256": "7c7ffe9954a1c370dfa21329df187ad61fde9ae09725153efd0a2942c07a140b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/expanded-materialized/SW-SHORT/case.cir",
+   "bytes": 8658394,
+   "sha256": "58d4574b9a48cd9e8b09e799a4a77fa8d12a9945cf0c6adc2bd4c295d6e5fa7d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-diode-short-64/full-DIODE-SHORT/host.stderr",
+   "bytes": 302268,
+   "sha256": "2661e924ea15fb2df65762a1a2938bcdb0fa43446f1c178f57c11f5ff998e0d3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-diode-short-64/full-DIODE-SHORT/host.stdout",
+   "bytes": 541213,
+   "sha256": "dde6c0c5d423eb6dac3ac1e849c9ad43880de04f91f918b8369ffb24bb593318"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-diode-short-64/full-DIODE-SHORT/progress.tsv",
+   "bytes": 541247,
+   "sha256": "9a3a8e42b66f09b441de9b5b9eb1a8807a0e6e02fe7433e05dea784e8b28e5ea"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/host.stderr",
+   "bytes": 296658,
+   "sha256": "1db9a168be908bd56c7b7a350ee625c2755411e5579bde6abc1d1fdbad17f9a1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/host.stdout",
+   "bytes": 535315,
+   "sha256": "bae78e52821f838c838ebfd46154672e8ad723c934d9d1ad3d4a69b16d327ad0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/progress.tsv",
+   "bytes": 535349,
+   "sha256": "c37c6c26e1e4106d5ed748b0128edefbbdc3d6930a47359c074a5d2cdb407cb9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-51/full-F2-ZERO/host.stderr",
+   "bytes": 316755,
+   "sha256": "e76ba0f31828127c7d8178c547fd78f40f00956f8e58325b71ff51b7483f72ed"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-51/full-F2-ZERO/host.stdout",
+   "bytes": 704562,
+   "sha256": "6366699627c95233a3998aceaf317c7755c6cf8969ca320e1e9450e6e560402f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-51/full-F2-ZERO/progress.tsv",
+   "bytes": 704596,
+   "sha256": "9be4ee42f96624e8f28dab9bbd809077ddeef115b1d636e8d74258cf5290abc3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/host.stderr",
+   "bytes": 297518,
+   "sha256": "199f68fde538b3233de0cb8125eb568af80d22aeb3a907768f6afa8d450c2e56"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/host.stdout",
+   "bytes": 559034,
+   "sha256": "51bc61187cf3de4ce6a62bfd16164a72fd25120328ae8ce976e8d21eca13d453"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/progress.tsv",
+   "bytes": 559150,
+   "sha256": "c7fecee93e36fbf09d46540178cfea99579d060e0e2029bca62ded98c415e591"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/raw.trace.raw.gz",
+   "bytes": 3458089930,
+   "sha256": "f0dcd489bf2017de97e9c085b995213156bb8ea285bdbc8077517a50a4c6d853"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-reanalysis-40/reanalysis40-supervisor",
+   "bytes": 666744,
+   "sha256": "8d7c0ab020749c7a59b61417c0869c46590f8b7c9909e947ecc1e504e5dcc37c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-sw-short-59/full-SW-SHORT/host.stderr",
+   "bytes": 288139,
+   "sha256": "d4557071eb08c9042092c6a915dc2aba38e5191c95c0f2409a37a0f8358cce52"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-sw-short-59/full-SW-SHORT/host.stdout",
+   "bytes": 484981,
+   "sha256": "08ed89a5f22486b1966e6707e3e4718bf118398f87628c4aa01bbffd098b3352"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-sw-short-59/full-SW-SHORT/progress.tsv",
+   "bytes": 485015,
+   "sha256": "87285e7aa9066ab7c09b844c7c202b64ea81624f42ccaa890cd0bfa46fd803f7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/startup-candidate-13/case.cir",
+   "bytes": 21124848,
+   "sha256": "42d8e284cdef229e5e305fb49d2dea43c81d7fcb1dfe0fa01a2cb14ead9effda"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/startup-candidate-13/raw.trace.raw.gz",
+   "bytes": 3727894,
+   "sha256": "5fb16da3229eae36cb7933fed9ceb3685d8e6fba0ceb92cbb2225e8c2ae82328"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/startup-klu-candidate-17/case.cir",
+   "bytes": 21124861,
+   "sha256": "e8ddff3bec89f42568dd85e2e7a33e12e538fb9d3cccef915c036240388cb01c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/startup-klu-candidate-17/raw.trace.raw.gz",
+   "bytes": 583086825,
+   "sha256": "88c6f8a495c0e36be83650bb96014f5bb8d4f8199ebf1dd55f26f875f4432ef2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/tracked-host-09/smoke/BOTH-SHORT/trace.tsv",
+   "bytes": 2467991,
+   "sha256": "bd2057ec068d457fa4d34b77f6d31d416b2c9d92b9e8975cf31806e68bfb5558"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/tracked-host-09/smoke/BYPASS-NEG/trace.tsv",
+   "bytes": 2351219,
+   "sha256": "03b7204ed6d9ea73a8d048a458c745be82cd7bd249947d16d282696037618cd7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/tracked-host-09/smoke/DIODE-SHORT/trace.tsv",
+   "bytes": 2452211,
+   "sha256": "1bd590064df89e56fa1553b99eb1784b760b4a16fa8add01297de50ebf3094bf"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/tracked-host-09/smoke/F2-CREST/trace.tsv",
+   "bytes": 2371207,
+   "sha256": "2f4138b213f82822429f7bdb44244d3aa8fbe0b629237809df36bc04425b0dc2"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/tracked-host-09/smoke/F2-START/trace.tsv",
+   "bytes": 3769315,
+   "sha256": "6091e2fde3dcf1100848699443bf73f273aaf2685590774d8c57bc3a245f039a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/tracked-host-09/smoke/F2-ZERO/trace.tsv",
+   "bytes": 2006163,
+   "sha256": "bda3650feb134a7bae142f5889c6a2528e3d1bd07128eb01392ea272ecaeae7b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/tracked-host-09/smoke/SW-SHORT/trace.tsv",
+   "bytes": 2622635,
+   "sha256": "e362c9a96f07297be08bb8e6bce47fa389c530d09367746160303c3a511a1cd5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/tracked-host-09/smoke/trace.tsv",
+   "bytes": 3769315,
+   "sha256": "6091e2fde3dcf1100848699443bf73f273aaf2685590774d8c57bc3a245f039a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/first-invalid-capture/first-invalid-progress",
+   "bytes": 549992,
+   "sha256": "b4bdda876db3a056238d23af8578f45279c6595a6a5b5fd588c9d002dfdd8fb9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/first-invalid-capture/host-smoke/trace.tsv",
+   "bytes": 47524834,
+   "sha256": "cd3e20cb16289b4787e19a93b32ddb0af5cd825ac75c36f117e565e3611d1f9d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/first-invalid-capture/progress-tests",
+   "bytes": 1081040,
+   "sha256": "9c0a18ef579ff053893fce6766a620cb71e9556c3ac72f6af5bb0e9451525a6a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/first-invalid-capture/run/tail.tsv",
+   "bytes": 7760776,
+   "sha256": "db447d804c790816da26d5bebb588cf43eb8e9e6bae869caf021964d422567fe"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/first-invalid-capture/run/trace.tsv.gz",
+   "bytes": 1709478195,
+   "sha256": "700fef7c7a91a14b7f2d839587441d2701f3612665be8033f6c5750c1970651d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/compression-preflight/project_prefix",
+   "bytes": 483232,
+   "sha256": "d51d99db03a84d8caa81b8ba5bc4fd406b097bdc4546e0344fb302f47ed87de0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/compression-preflight/projected-normal.default.gz",
+   "bytes": 3885885,
+   "sha256": "479ea7538ba46bbf5ccace1ffa60587232d60fd984f7bc3e4f440a8c2e812bae"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/compression-preflight/projected-normal.tsv",
+   "bytes": 14055126,
+   "sha256": "f9c915b523a50f685b3edd06c60408b33aa81d2458ad63ac4d22480881988476"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/compression-preflight/sample.default.gz",
+   "bytes": 5855432,
+   "sha256": "ce337823f9cd6a2cd0273151659883c2af7c0f9b6c58e236009cf61c9b0520e9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/compression-preflight/sample.pigz-p4.gz",
+   "bytes": 5857651,
+   "sha256": "ba0207bcbeb89635079afc32246bee755f041000e58005a56bd6dca8cc6f3d33"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/compression-preflight/sample.tsv",
+   "bytes": 30000000,
+   "sha256": "29a45c8e87e39e58f3dd46446dee4d58ab03f71e3c18cdaebfdd036d9b5c9860"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/compression-preflight/sample.xz3",
+   "bytes": 5128180,
+   "sha256": "f64c6b16325ffc79be3a1e4ba0325aea11cd43e17c3a061ab7d40cfa466feed4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/compression-preflight/sample.zstd3",
+   "bytes": 6195765,
+   "sha256": "018e9d65b97ac0c70b0567559e671896b510086c205b439b84276a2bc83786d1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/direct-native-export-37/direct-fault-worker",
+   "bytes": 588912,
+   "sha256": "0d605851f494cbbc3961b66f1e6ea436e959196f49469a2403044c3eb6675d74"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/direct-native-export-37/direct-normal-worker",
+   "bytes": 569680,
+   "sha256": "fbd0ef2ed66851bb292b7af5130110ce96862be4db876227113b7336279371e7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/direct-native-export-parent-37/fault-pipe/decoded.tsv",
+   "bytes": 2168198,
+   "sha256": "090996b7755d6cf0dad5303a366750e23bd44c34a20b20ac4fa8e59be96c8ca0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/direct-native-export-parent-37/fault-pipe/raw.trace.raw.gz",
+   "bytes": 382942,
+   "sha256": "c5f8cc47f6ccb08f6d909bfeaaf62818acce6e82ddf3e136ef6ccfaa17b5fd68"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/direct-native-export-parent-37/fault-sameplot/direct.tsv",
+   "bytes": 2168198,
+   "sha256": "090996b7755d6cf0dad5303a366750e23bd44c34a20b20ac4fa8e59be96c8ca0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/direct-native-export-parent-37/fault-sameplot/reference.tsv",
+   "bytes": 2168198,
+   "sha256": "090996b7755d6cf0dad5303a366750e23bd44c34a20b20ac4fa8e59be96c8ca0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/inductor-manufacturer-audit-72/host-retrieval-73/760800301.pdf",
+   "bytes": 661997,
+   "sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/lossless-storage-preflight-10/sample-normal15-le.bin",
+   "bytes": 4632840,
+   "sha256": "b9e4a00da5c9656df7099c63010c02975940de4dce18a052d715bfe62f5baaa7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/lossless-storage-preflight-10/sample-normal15-le.bin.gz",
+   "bytes": 2818820,
+   "sha256": "452e6eaac8130ef007a0b3504de890a38ed48645014980a280068b71c179b225"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/lossless-storage-preflight-10/sample-normal15-le.bin.pigz.gz",
+   "bytes": 2820065,
+   "sha256": "89a0f78f893d1a5981bc135eee7fc4f82985c72b844e14511aef07d47892871c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/lossless-storage-preflight-10/sample-normal15-le.bin.xz",
+   "bytes": 2356544,
+   "sha256": "27300247f89eef482d7bbf7b61527b49b62a35d9b0bb06c87013ed2568102aa1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/lossless-storage-preflight-10/sample-normal15-le.bin.zst",
+   "bytes": 2953546,
+   "sha256": "e00e03eaad30d3e1c2d2c6fe24baa0f25ed1300460cc6f1d3c514ff3e64f23c9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/lossless-storage-preflight-10/sample-values-le.bin",
+   "bytes": 9574536,
+   "sha256": "f53fd63553b87b8d8dde39ee31f40fe2ed22474952249aace59ee3c59d5e8fce"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/lossless-storage-preflight-10/sample-values-le.bin.gz",
+   "bytes": 4007982,
+   "sha256": "f51fc51ea9260c7624a970cc2f36f02df489945f48e71d9e0fa63a055b3fa7f9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/lossless-storage-preflight-10/sample-values-le.bin.pigz.gz",
+   "bytes": 4010251,
+   "sha256": "745b3116385e128d3e989a31c1e70eb2d1836ddcd5e3d3326abcaa1d2c41d12c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/lossless-storage-preflight-10/sample-values-le.bin.xz",
+   "bytes": 3315908,
+   "sha256": "781086e2a6ff591b32b1fa89a8baf6a1764fb1c93d58daeb4cf201168c267cbf"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/lossless-storage-preflight-10/sample-values-le.bin.zst",
+   "bytes": 3894313,
+   "sha256": "35c77c2378f1834e593d5fc406b27960514b9c87c5e23758ce0a039f9634d600"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-api-equivalence-11/api-host",
+   "bytes": 714536,
+   "sha256": "f8521b8c8acaeabecde74da40f4065b0f6401399a9571e72c660c27c24b75757"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-api-equivalence-11/out/api.tsv",
+   "bytes": 4588961,
+   "sha256": "e5806328d19a0dfa11fe43b50a1630a0b0e26bf17e82761dd82c38fa59a09bad"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-api-equivalence-11/out/api.tsv.gz",
+   "bytes": 962794,
+   "sha256": "8fe7b457e2d2df1119b7d1e85f423627a229b89c1719720d53347ac6b919a775"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-api-equivalence-11/out/native-adapted.tsv",
+   "bytes": 4169504,
+   "sha256": "4d42107e446a338858f6a57f035baab84e57a74b6729f562d9f59e862042346d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-api-equivalence-11/out/native.raw.gz",
+   "bytes": 668527,
+   "sha256": "1eac8eb2dc9b6582c9d6514a03b3f930b0de830893b8688bd433f51bdc4df65a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-api-equivalence-11/progress_tests",
+   "bytes": 1084112,
+   "sha256": "2c0ed9e9fa5f623c8a4da9fa211d634963a95a8ed19c5572f67d044a8c1b5af5"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-raw-export-probe-10/native-host",
+   "bytes": 546504,
+   "sha256": "9cc6decb4c8eec21ee1b29a3bf0aee97dc67b78cf3dcecc50edd949732d99003"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-raw-export-probe-10/native_to_tsv",
+   "bytes": 524384,
+   "sha256": "fbec6c859d7cb5c8c44f6976e3985f3178fb500d0f18e58b93d4edb0b628af85"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-raw-export-probe-10/native_to_tsv_tests",
+   "bytes": 1211712,
+   "sha256": "487894875e99ffd071e3a717921e7db70da21f35ee8779708702ce9937b9ba79"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-raw-export-probe-10/out/native-adapted.tsv",
+   "bytes": 4169504,
+   "sha256": "4d42107e446a338858f6a57f035baab84e57a74b6729f562d9f59e862042346d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-raw-export-probe-10/out/native-adapted.tsv.gz",
+   "bytes": 922036,
+   "sha256": "661597b6a23ac32fbbb5061bdbec4e1d7b840fe37084149b9d64d30b7749175a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-raw-export-probe-10/out/native.raw.gz",
+   "bytes": 668014,
+   "sha256": "d65e955aefdd472329fb4a3146e309f5437a40d45c8e8e8ba288157a1231aa2f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-raw-export-probe-10/out/wrdata.tsv.gz",
+   "bytes": 962447,
+   "sha256": "37234c6b2761f4b5920af88aedf15c8ec08be10390937f3056425c5e5da68994"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-raw-export-probe-10/tracked-host",
+   "bytes": 546512,
+   "sha256": "d3ab62585661bff6ecb23e80b6842fae00cb4c2af3a4462abe7949f89700f21c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-stream-adapter-11/native_stream_adapter",
+   "bytes": 693720,
+   "sha256": "8c01c167095a65fda3ffa59e15398bbffc328d22269ecf31ec6d666377e062de"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-stream-adapter-11/native_stream_adapter_tests",
+   "bytes": 1280184,
+   "sha256": "0f88b242d53c5dc01c3dcfb87e54b2686da2607745ea32c177b981b562244149"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-stream-adapter-11/out/diagnostic31.tsv",
+   "bytes": 4169504,
+   "sha256": "4d42107e446a338858f6a57f035baab84e57a74b6729f562d9f59e862042346d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-stream-adapter-11/out/normalized.tsv",
+   "bytes": 1609597,
+   "sha256": "f75c6b0037ac1b672054e5bf553c026bae6fa78ff5fa81acdd0a0907c4e04efb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-stream-adapter-11/out/tiny15-adapted.tsv",
+   "bytes": 2040800,
+   "sha256": "9137703f2b757f34644fa8b418baef2097b7c5c0e72a382250a14d1f7cf96b5a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-stream-adapter-11/out/tiny15.raw.gz",
+   "bytes": 461294,
+   "sha256": "e30012dd7a9f135bba576eed8d70e47a8ed573f723534d144ce2181721d42519"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/native-stream-adapter-11/tiny15/tiny15.tsv",
+   "bytes": 4440560,
+   "sha256": "108b42b28338cacea500e38b40a5f280d4587641369ca312fddf91c8c34292d1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/normal-native-host-12/normal-native-host",
+   "bytes": 714544,
+   "sha256": "57a29b1904c804a60bbd401fa7e1277b57b995fea6cf8c8df1e0bd1b2a13a02a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/normal-native-host-12/out/normal15-adapted.tsv",
+   "bytes": 2040800,
+   "sha256": "9137703f2b757f34644fa8b418baef2097b7c5c0e72a382250a14d1f7cf96b5a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/normal-native-host-12/out/normal15.raw.gz",
+   "bytes": 461340,
+   "sha256": "c876f4479ec06230930405bbddca7f9193db6178696d58f480c71fbdd90c2190"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/normal-native-host-12/parent-smoke/trace.raw.gz",
+   "bytes": 461341,
+   "sha256": "5a664b7ed26524595de486c58bf9072226edf881d164e0d4e9de74546a5f6ed4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/normal-native-host-12/progress_tests",
+   "bytes": 1084112,
+   "sha256": "a3dacc07d6e64c711d717b204db692b258ba57a36ee007241e01e314863b1ab4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/reference-sources-107/sluuat3.pdf",
+   "bytes": 1172329,
+   "sha256": "4060ba9b2d4d6bd0c06540d9fae91894ee472b93169efc7f05dcfefaa9435911"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/reference-sources-107/tida-1.png",
+   "bytes": 460395,
+   "sha256": "01f0abb0ce0a83ef50c2a932e50727c9072f2ed45d61d46edd3e166c7d37f634"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/reference-sources-107/tida-2.png",
+   "bytes": 549318,
+   "sha256": "4502f66237c33320405a641513b9a71ffe5b77b4faa84ff8ac07eb97528fe2e8"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/reference-sources-107/tidrka5.pdf",
+   "bytes": 725820,
+   "sha256": "8b91f9402e1fd36dd71b2af6b465d300c5af5ec7488f9290bdb9b58bf5c57f05"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/snapshot-restore/resumed-same-process.tsv",
+   "bytes": 1333215,
+   "sha256": "9b52f8b55c0d79909d6f7d10cafe2b76c2442b920a015b5b513ce8a0abe736f1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/snapshot-restore/uninterrupted.tsv",
+   "bytes": 1333085,
+   "sha256": "373fe3ca8fb0b17f15a82b1d8c7b98445289f89badac30a0dfd5762bdefb308a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/host/tracker-protocol-check/trace.tsv",
+   "bytes": 22180093,
+   "sha256": "e80e8260302cc970b154fbecf1ce93178191a0fd490636b59580d51064a2e068"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/line-load-native-runner-12/full-LL05-initialized/LL05/raw.trace.raw.gz",
+   "bytes": 783985070,
+   "sha256": "9613208d7ea7c0369167e6c2fb93c6fe3915e07be59671fe3e46d57a5cf0b5bd"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/line-load-native-runner-12/synthetic-parent-01/LL01/raw.trace.raw.gz",
+   "bytes": 28268703,
+   "sha256": "171a383a558effd5f0e02fae90dc245be1e0138039267b6947a95e28908bdd7c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/line-load-native-runner-12/synthetic-parent-02/LL01/raw.trace.raw.gz",
+   "bytes": 28268703,
+   "sha256": "171a383a558effd5f0e02fae90dc245be1e0138039267b6947a95e28908bdd7c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/line-load-normal-export/smoke/full/trace.tsv",
+   "bytes": 386945,
+   "sha256": "b76565ffedadfd6e68e34631995416961faf6050227cb8ece2897606bb4502de"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-hysteretic-driver-candidate/host-smoke/tail.tsv",
+   "bytes": 7770776,
+   "sha256": "1c7dfd8ed8d0f23ce7a54cd11fd630d85f6b0ac95f103e22758bfb66ca21e44d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-hysteretic-driver-candidate/host-smoke/trace.tsv",
+   "bytes": 39687235,
+   "sha256": "0b6cd581056881718c7266acfeb956e7ff52a084cc6ab73e4ab0766109990092"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-hysteretic-driver-candidate/smoke/trace.tsv.gz",
+   "bytes": 7675736,
+   "sha256": "ed29bf8e1cdfce4ccfb09ea77e2a81bbcfbb5604df44ad8441271167dea4b776"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-hysteretic-driver-candidate/tail.tsv",
+   "bytes": 7760776,
+   "sha256": "e7e427d471a5e9ccbe6d6991c5810f3f4d69d55c97a6e50d46b8d6a6032e47a0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-hysteretic-driver-candidate/trace.tsv.gz",
+   "bytes": 4024370873,
+   "sha256": "dd20b2bb827a0fc876fa95f83fcb023e66e3207fcab854c13982e5ab3469d032"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-hysteretic-settling-extension/tail.tsv",
+   "bytes": 7760776,
+   "sha256": "a8ebd2d3fc220e6d72ab30614fe1ab5ea9ec1ba74b67a27b6b56809683a4e3f1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-hysteretic-settling-extension/trace.tsv.gz",
+   "bytes": 4037304639,
+   "sha256": "6f5fdb484723d24cc4b8cf69604cbfd629979b9523f8384f699b619f0847a80c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-tracked/tail.tsv",
+   "bytes": 3760376,
+   "sha256": "aa83cba9106d4be3e0cdb1cec9332ea5c20e7fab2f01977a419767e7dae7fd16"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-tracked/trace.tsv.gz",
+   "bytes": 1519646185,
+   "sha256": "c49298503c9f41b47724bd373e534ece5906b02a68eeab334325f8cec3686aa3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-comphys-native-candidate/host-smoke/tail.tsv",
+   "bytes": 4598285,
+   "sha256": "34a225e5fee861911e6a12396a0531dee04ce4aa6635a62b3f43eb632a4eedf4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-comphys-native-candidate/host-smoke/trace.tsv",
+   "bytes": 4598285,
+   "sha256": "34a225e5fee861911e6a12396a0531dee04ce4aa6635a62b3f43eb632a4eedf4"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-comphys-native-candidate/tail.tsv",
+   "bytes": 7760776,
+   "sha256": "aec3fb44bc26f4bd0f36a8cc8c48bb486109a7a065b674a87a63daf12a6cea51"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-comphys-native-candidate/trace.tsv.gz",
+   "bytes": 1962876932,
+   "sha256": "49578ec2419cbf517bebc94a3b8c7527c7eb56099a4ed8b90ac55bb76e9bf41f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/gear2-sensitivity/tail.tsv",
+   "bytes": 7762873,
+   "sha256": "a6756d2c118ffe7611172dd264348a796d4202155fdab8933c2b7d574962cd54"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/gear2-sensitivity/trace.tsv.gz",
+   "bytes": 104344358,
+   "sha256": "bc8befd67955e8a7586d8179ce8b9971dfcffaf99bd618b366ef9a7f7d7905b0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/host-smoke-tail.tsv",
+   "bytes": 3770376,
+   "sha256": "12e58b60148896d65531593a1db6d9da6b2c9a36ca4c7c465a208ec9bc9aff18"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/progress-vendor-driver",
+   "bytes": 546456,
+   "sha256": "27d77a57d338fd80d44151f900aa8c16f2561d9dbd94ccea1015b72283cfbefe"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/solver-diagnosis/host-check/late-gear-tail.tsv",
+   "bytes": 1510151,
+   "sha256": "64e9bb30f46518657bc1e77043ed7f158c7e1d5d3cfc0770d5386a31fafd0016"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/solver-diagnosis/host-check/late-trap-tail.tsv",
+   "bytes": 1510151,
+   "sha256": "8f73af964addfd9646d4dd94cdb145cc49b6204befa333820b3f05c519381756"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/solver-diagnosis/input-fall-100r.tsv",
+   "bytes": 2529576,
+   "sha256": "efba669e2adac2756a181831ac03a5453b2343729c3cc8d1266474df6358612c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/solver-diagnosis/input-fall-gear2.tsv",
+   "bytes": 2535498,
+   "sha256": "c53605e04c469db511f0e4b07bec35cf87397d27ec5ef272bd2a5efd4e351156"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/solver-diagnosis/input-fall-plantload.tsv",
+   "bytes": 3030872,
+   "sha256": "c1510011dfcab023cdafbb1ce2ebf193bc034fd8a2590c9109630b8ccadd2e0a"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/solver-diagnosis/input-fall.tsv",
+   "bytes": 2529072,
+   "sha256": "27de64d04e121e3bb81b2fa34a39974078298a40835a88e5704833158cb390e6"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/solver-diagnosis/late-edge-gear2.tsv",
+   "bytes": 30240166,
+   "sha256": "a60fab1c431d35d270fd0b42a4a90deb2f63a246659742e97ab953e671a03076"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/solver-diagnosis/late-edge-trap.tsv",
+   "bytes": 30227180,
+   "sha256": "5e04fda15526c8ffbe3045bcea872c0770abc84f20d97542cdc6126cb3271092"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/solver-diagnosis/pwm-edge-129k.tsv",
+   "bytes": 15948702,
+   "sha256": "6117fe67a47704d78cdb8de14c5d181607c28ea10dbbcb4df77aa66ef02dc214"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/solver-diagnosis/pwm-edge.tsv",
+   "bytes": 1724814,
+   "sha256": "c0bb44dd5e5f880d5184586b28afd03bead98237190603d063034ad7b54eabc8"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/trace.tsv",
+   "bytes": 17222920,
+   "sha256": "e5abdf012e6bc0595a0a195ed36f919f5e982224e4e463a9acd86da4a8ad8b56"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/tracked/run/tail.tsv",
+   "bytes": 7760776,
+   "sha256": "f28e805d0fdaede1d637ce0c5747e760e98558b3f4012bf938b8184486c864df"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/tracked/run/trace.tsv.gz",
+   "bytes": 755075646,
+   "sha256": "810f44521e93f1b84101b12bef55a84e58624cc43e11cbffb00440799863ac7e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/tracked/smoke-tail.tsv",
+   "bytes": 7770776,
+   "sha256": "b432f99fe1d82cf1a36f1932324e27621b422b3f66471e6e77e3744a3a981973"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/normal-vendor-driver-candidate/tracked/trace.tsv",
+   "bytes": 35331373,
+   "sha256": "027b733c38d81f8751f9283e3c2e97db683eeb5d444f7248040eb7324a962b86"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-candidate/authored-aux-sweep.tsv",
+   "bytes": 1612221,
+   "sha256": "87a201f1409a3f269ac2fc43156998b8d7032a6e7f2c6f2454ad6255ea9180de"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-candidate/authored-fast.tsv",
+   "bytes": 2021554,
+   "sha256": "cbb6a8dac8cc279ccc490a416e2a5db01d30a4d27066c8d854b655eeafc6dbb1"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-candidate/authored-inm-sweep.tsv",
+   "bytes": 1612221,
+   "sha256": "ac39526eff6b9bb5c6438a313b8803c18da5e837b48e37204f21d4a8ffe35a32"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-candidate/authored-late.tsv",
+   "bytes": 103332894,
+   "sha256": "d66df6f2153bad0731316d4108a3f99cf78a603f65971513488607e4376d181b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-candidate/authored-sequence.tsv",
+   "bytes": 9704988,
+   "sha256": "b27d1319379b71242ac3c0fec5f5a7bb4e972518c75abef48b61a2f595e15c61"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-candidate/authored-threshold-hysteretic.tsv",
+   "bytes": 2013271,
+   "sha256": "2edf8fc761ece268baf74bd1ddf83f723d6d30ed98273077cdd035355304c192"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-candidate/vendor-fast.tsv",
+   "bytes": 1419440,
+   "sha256": "0591ca5a088f59a9a73a404fb8df8521bcb8db6cd5082a561069bfbc9d925a81"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-candidate/vendor-sequence.tsv",
+   "bytes": 7075602,
+   "sha256": "67225984f7f01782914e0f44849d91a54151d522b5ac0d2b61a252cef4a29fad"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-candidate/vendor-threshold.tsv",
+   "bytes": 1416624,
+   "sha256": "71f7805368708e9a020491a928dc807bee8b7a9ed41a4a0c3efa46006865dd2d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-slew-candidate/authored-aux-sweep.tsv",
+   "bytes": 1612221,
+   "sha256": "2bd505bb262c0bbca068be1c997d0ed6707beca729f3368cd05787b982f33431"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-slew-candidate/authored-fast.tsv",
+   "bytes": 2022056,
+   "sha256": "76c99888c41fd7f19224865b43ec38411f8d43441295b07928a8ca30f626115c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-slew-candidate/authored-inm-sweep.tsv",
+   "bytes": 1612221,
+   "sha256": "fbe0c1aab58378408f91ef867a93171d34034c116c6229471c1aeb8f2d4a6287"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-slew-candidate/authored-late.tsv",
+   "bytes": 103336110,
+   "sha256": "4afeeb76bf723f0264e328844b1c01b3a4267ecedb2a3656b7b32eeee9d54a96"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-slew-candidate/authored-sequence.tsv",
+   "bytes": 9707748,
+   "sha256": "b6702fdce95de4e54dc4ca49b05c489759647f4d355ca69bbe3952d6f315125d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-slew-candidate/authored-threshold-hysteretic.tsv",
+   "bytes": 2013271,
+   "sha256": "482035e37fe74fc4435be0ff33c824932ed20e431b6ec030fa056f7e6811ce88"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-slew-candidate/vendor-fast.tsv",
+   "bytes": 1419440,
+   "sha256": "0591ca5a088f59a9a73a404fb8df8521bcb8db6cd5082a561069bfbc9d925a81"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-slew-candidate/vendor-sequence.tsv",
+   "bytes": 7075602,
+   "sha256": "67225984f7f01782914e0f44849d91a54151d522b5ac0d2b61a252cef4a29fad"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-hysteresis-slew-candidate/vendor-threshold.tsv",
+   "bytes": 1416624,
+   "sha256": "71f7805368708e9a020491a928dc807bee8b7a9ed41a4a0c3efa46006865dd2d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-threshold-full-probe/fidelity-review/authored-threshold.tsv",
+   "bytes": 1010646,
+   "sha256": "8fa79348c68bea5b24e2b51a38c2c9a237a38d629e0abc71376c375b14e526ee"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-threshold-full-probe/fidelity-review/vendor-threshold.tsv",
+   "bytes": 1014174,
+   "sha256": "47894b78125c5ec006951e4bf6c2399c87916889e1e31b85df5ada903da5e393"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-threshold-full-probe/full-capture/smoke/finite-driver-capture-host",
+   "bytes": 550000,
+   "sha256": "ff9495882db24f0b2cc69bdd0d0d672bbaeca062b418dd9b14fd685cbb26bf41"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-threshold-full-probe/full-capture/smoke/trace.tsv.gz",
+   "bytes": 8604927,
+   "sha256": "e3bc660560cc66451bdc890d6d9ee0006805b4333e17917a720f23d4229dd540"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-threshold-full-probe/host-run/tail.tsv",
+   "bytes": 3760376,
+   "sha256": "bd7747139175b2b3381ed67f3fff5d20577794f874a78ad5a212ac4caa2e9eed"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-threshold-full-probe/host-run/trace.tsv.gz",
+   "bytes": 144652788,
+   "sha256": "11a7d27fe907923c6b24bf1f396132a09532551ca38d57283c9583de74046762"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-threshold-full-probe/source/progress-tracker",
+   "bytes": 528512,
+   "sha256": "d456f04b5eff04f1fc9fec6a9ab4b0ee98f96c265bdc3534f4bcd008e096c626"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-threshold-repro/check",
+   "bytes": 503080,
+   "sha256": "84c0374ac7e29097fac8031eb95332768583cd048762f8683c0931672b3a8277"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-candidate/authored-aux-sweep.tsv",
+   "bytes": 1612221,
+   "sha256": "43001e8ba4f2355160a2af0b4b66507164f740ade9dfe951f100aed48d2a790b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-candidate/authored-fast.tsv",
+   "bytes": 2016785,
+   "sha256": "08358fa9ff151440e55207b7ac2b0d4f32f2d4522c38b4b18de200b38ba9fa41"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-candidate/authored-inm-sweep.tsv",
+   "bytes": 1612221,
+   "sha256": "c118e05ca8bfb8e0f5919a7da498530cd327e78e6c03738ed4f8631d0fe71e60"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-candidate/authored-late.tsv",
+   "bytes": 103333095,
+   "sha256": "67668931692668b6190ab5a25ffb13a4484c06b5b5f25e4a606c6147e503f553"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-candidate/authored-sequence.tsv",
+   "bytes": 9688152,
+   "sha256": "5d69e03d0cbd7490e0d09cf7a806577f3837eb74dc2f2bd7e3b3c34a7f799763"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-candidate/authored-threshold-hysteretic.tsv",
+   "bytes": 2013271,
+   "sha256": "8936985d002c76b0e77384976a32c8a3d59af051cc083668afc199398fddceb9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-candidate/vendor-fast.tsv",
+   "bytes": 1419440,
+   "sha256": "0591ca5a088f59a9a73a404fb8df8521bcb8db6cd5082a561069bfbc9d925a81"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-candidate/vendor-sequence.tsv",
+   "bytes": 7075602,
+   "sha256": "67225984f7f01782914e0f44849d91a54151d522b5ac0d2b61a252cef4a29fad"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-candidate/vendor-threshold.tsv",
+   "bytes": 1416624,
+   "sha256": "71f7805368708e9a020491a928dc807bee8b7a9ed41a4a0c3efa46006865dd2d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/authored-aux-sweep.tsv",
+   "bytes": 1612221,
+   "sha256": "43001e8ba4f2355160a2af0b4b66507164f740ade9dfe951f100aed48d2a790b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/authored-fast.tsv",
+   "bytes": 2016785,
+   "sha256": "08358fa9ff151440e55207b7ac2b0d4f32f2d4522c38b4b18de200b38ba9fa41"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/authored-inm-sweep.tsv",
+   "bytes": 1612221,
+   "sha256": "c118e05ca8bfb8e0f5919a7da498530cd327e78e6c03738ed4f8631d0fe71e60"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/authored-late.tsv",
+   "bytes": 103333095,
+   "sha256": "67668931692668b6190ab5a25ffb13a4484c06b5b5f25e4a606c6147e503f553"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/authored-sequence.tsv",
+   "bytes": 9688152,
+   "sha256": "5d69e03d0cbd7490e0d09cf7a806577f3837eb74dc2f2bd7e3b3c34a7f799763"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/authored-threshold-hysteretic.tsv",
+   "bytes": 2013271,
+   "sha256": "8936985d002c76b0e77384976a32c8a3d59af051cc083668afc199398fddceb9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/host-fast/authored-fast.tsv",
+   "bytes": 2016785,
+   "sha256": "08358fa9ff151440e55207b7ac2b0d4f32f2d4522c38b4b18de200b38ba9fa41"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/vendor-fast.tsv",
+   "bytes": 1419440,
+   "sha256": "0591ca5a088f59a9a73a404fb8df8521bcb8db6cd5082a561069bfbc9d925a81"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/vendor-sequence.tsv",
+   "bytes": 7075602,
+   "sha256": "67225984f7f01782914e0f44849d91a54151d522b5ac0d2b61a252cef4a29fad"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/driver-vendor-comphys-native-candidate/vendor-threshold.tsv",
+   "bytes": 1416624,
+   "sha256": "71f7805368708e9a020491a928dc807bee8b7a9ed41a4a0c3efa46006865dd2d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/event-aware-normal-metrics-oracle/assert",
+   "bytes": 551832,
+   "sha256": "0d6c56853ed7fc0217ff104837b70c8fd4645ebf26f68b557b3b1a4182718191"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/event-aware-normal-metrics-oracle/base.tsv.gz",
+   "bytes": 2568361,
+   "sha256": "12464db4de421606aceeab6e14e7afc06d6695d7cdaf4dc23c92f28f98db4fd0"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/event-aware-normal-metrics-oracle/equal_time_cycle_boundary.tsv.gz",
+   "bytes": 2568408,
+   "sha256": "9ebb4a4ce92920cb1d00a5683fb24fd17ef18a3f9c3399897a3b4cb1d87b3c38"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/event-aware-normal-metrics-oracle/equal_time_exact.tsv.gz",
+   "bytes": 2568365,
+   "sha256": "af1c5f9eeb1f456dc60503ca445115517bf8d5a9f345387a3f864c4a57062072"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/event-aware-normal-metrics-oracle/equal_time_stress_peak.tsv.gz",
+   "bytes": 2568387,
+   "sha256": "7087060ff107334337c5066c421c25339daac15688ffeacbaa146b6279719f98"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/event-aware-normal-metrics-oracle/generate",
+   "bytes": 511416,
+   "sha256": "eb543a2f1297a5356a71d0e4aeb1ecbd77670e68132d87e659de07f709ed2863"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/first-time-spacing/analyze",
+   "bytes": 525016,
+   "sha256": "1d7d643796ec803e146d8edfd4707108357a437c48f97cc8ed55db78b0ef5a45"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/first-time-spacing/summarize",
+   "bytes": 505288,
+   "sha256": "94541dfef71f4d96c9e9fdbc64dacd5180446d66d60c34551b3102cd15dd4bca"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/full-unknown/bad/unknown-analog.tsv",
+   "bytes": 3533904,
+   "sha256": "5c4687d9b1590d4af4b21f0f71798dd0ca8e0845dd065a7a42354aacf013525b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/full-unknown/check",
+   "bytes": 522344,
+   "sha256": "d9d6c40b2d5aea6d3c4361686ee2559a403658b4f668bb25f6db5757c4d3cc50"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/full-unknown/safe/unknown-analog.tsv",
+   "bytes": 3533904,
+   "sha256": "3ac0c6886c298e1a35abcd6078622d7d92eb9132b3b1f8aefe9c34c18352e15c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/late-time-minimal-event/inspect",
+   "bytes": 505160,
+   "sha256": "63d9f19fbcd82969d9eb6cba00dd0cdd77f1ce23bdf69a72e115c626088c0eb9"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/late501ms-diagnosis/host-check/recorded-power-stage.tsv",
+   "bytes": 4530622,
+   "sha256": "f927bdb6f9aa724f2c8f57291605d5ef0ea78a20ae049a5cdf84d0b34a96fa3d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/late501ms-diagnosis/recorded-power-stage.tsv",
+   "bytes": 4530622,
+   "sha256": "f927bdb6f9aa724f2c8f57291605d5ef0ea78a20ae049a5cdf84d0b34a96fa3d"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/late501ms-timebase/spacing",
+   "bytes": 462312,
+   "sha256": "b543a3dda7698fb6c103ac03cad7f0333c30b07369ae92e00b5413f54f5e609e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/nonstopping-first-invalid/run/host-smoke/tail.tsv",
+   "bytes": 4588961,
+   "sha256": "e5806328d19a0dfa11fe43b50a1630a0b0e26bf17e82761dd82c38fa59a09bad"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/nonstopping-first-invalid/run/host-smoke/trace.tsv",
+   "bytes": 4588961,
+   "sha256": "e5806328d19a0dfa11fe43b50a1630a0b0e26bf17e82761dd82c38fa59a09bad"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/numerical-repair/nonstopping-first-invalid/run/tail.tsv",
+   "bytes": 7760776,
+   "sha256": "019379cab4fe42f0465c1a98c98be2678df8f7c35df4ab4ef292385d76cb7645"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/progress-probe/partial.tsv.gz",
+   "bytes": 20541810,
+   "sha256": "adae09720d0138824aba8ca8c0eebe08d38ca26a5da0c3181ea443e71357060b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/progress-probe/tail.tsv",
+   "bytes": 510051,
+   "sha256": "905faeed5cb5442839de15bface4d85f196dec634c0997d39748a52fdf09e377"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/rejected/clamp-before-temperature-review/bav23c.pdf",
+   "bytes": 502806,
+   "sha256": "b05e055b9bddac73647119b108d61535c80f89b2ad12087d4cee28bb18106d96"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/rejected/clamp-before-temperature-review/clamp_checks",
+   "bytes": 521888,
+   "sha256": "760b0b3da351cb07d6e2dba1f51d892d3088e50a3ec3caefdd651a689b2e10cf"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/runtime-experiment/baseline/integrated.tsv.gz",
+   "bytes": 20430691,
+   "sha256": "8ba39f913f302ca7bd1fd091e1321ca4d46fcb3eb4fb25fc5a44ae15e6f04ed7"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/runtime-experiment/digital-blank/integrated.tsv.gz",
+   "bytes": 19722455,
+   "sha256": "35421870cc024a7a01bbb34e9fa3226fdc10b7ee0968eb1a5fbc2efb728a936c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/runtime-experiment/klu/integrated.tsv.gz",
+   "bytes": 20415029,
+   "sha256": "74fd9ddc8d79d7cddf34bdba9f17c47891f277a2760333307dbfd781a9d8fc56"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/standby/standby-broken.tsv",
+   "bytes": 1288181,
+   "sha256": "a10e1ea178bdc72f8c31930b99ef49737acdbc9fe307d2c1d44dc08c87041c82"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/standby/standby-cap2.tsv",
+   "bytes": 1338313,
+   "sha256": "7fafd2bd4a7e6b44d19f8ed985b69ddec2c26683e1bbf366e7f8faa62317d984"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/standby/standby.tsv",
+   "bytes": 1355074,
+   "sha256": "2607029db6c38a49bec1f07b02faa3ad5e4cd73c1ac25583f1cf8f9a70844e94"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/transport-capture/hold-paused.tsv",
+   "bytes": 523260,
+   "sha256": "5dcbbd0abbe2b14592e01ec03e25db6cf7f15658fd049c37a23ba10e3235b4bf"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/transport-capture/hold-resumed.tsv",
+   "bytes": 1046112,
+   "sha256": "e2cf0eaf9e3b0ed10b29a82497e8f7c0c53fba2ca0030c88f9c4ebf79889cf0b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/transport-capture/rc-resumed.tsv.gz",
+   "bytes": 53064803,
+   "sha256": "14264b6fbcc967964e67dc29e8c23d28c68e80205ef4ceb9fab93a375449c93c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/vendor-driver-integration/host-check/vendor-driver-interface.tsv",
+   "bytes": 5315502,
+   "sha256": "8d5800203be3d912a71a79c0e31a053c466c02cb7412facba615464357ba0c30"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/vendor-driver-integration/vendor-driver-interface.tsv",
+   "bytes": 5315502,
+   "sha256": "8d5800203be3d912a71a79c0e31a053c466c02cb7412facba615464357ba0c30"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/check",
+   "bytes": 567480,
+   "sha256": "c1820bdfbb260c64fbdb5fade78585a97637574402706d2508ec996b096c1bb3"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/feedback.tsv.gz",
+   "bytes": 827734,
+   "sha256": "537c04a96aefdd9c59bf30341c7ec1755c30ff12253c3313f728dcc3a111c888"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/reference-revision-08/feedback-fixture/parent-check",
+   "bytes": 567488,
+   "sha256": "d0e2a090e02f00919c5638c8366dac34d37eaa141f6bf7cbead9662ce49c7cbb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/reference-revision-09/graph-checks/parent-check",
+   "bytes": 682320,
+   "sha256": "55868868e268ba2c8d6675ce1926bb08e053214e545240e989581f4202913b0b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/reference-revision-09/graph-checks/parent-tests",
+   "bytes": 1261888,
+   "sha256": "e7a655c99716f186bd402213579696f647f80563cc62cdd57d02d4df8a59a2cf"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/reference-revision-09/reused-checks/clamp-check",
+   "bytes": 522248,
+   "sha256": "9363ed90c5ed83ef5d55d06d474a61d21d94c177f388e3ce59c4f0ac13c80c9e"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/reference-revision-09/reused-checks/standby-check",
+   "bytes": 502912,
+   "sha256": "221b8f087873386e7a12ff069a622647771cdab78e27e9c53c23438e40ca8a99"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/rejected-133/snapshot/zapote/power-entry/passive-reva/candidate/section.kicad_pcb",
+   "bytes": 992451,
+   "sha256": "ae47d43a4c65e30fac5d54f52422d57bc8338a5b90e60f4c4c810041316913cb"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/rejected-133/snapshot/zapote/power-entry/passive-reva/candidate/source-manifest.json",
+   "bytes": 276429,
+   "sha256": "2a7d75f0f60e9fb00ab55ac30f7e19cfbb7da693c82000f489313f826bac6c0f"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/sources/lm4040.pdf",
+   "bytes": 1882717,
+   "sha256": "f43b6b6d3ecd51c8c90b70a7c4630c7e3140822b0073953ed2459df81b251c1c"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/sources/opa4197.pdf",
+   "bytes": 2174683,
+   "sha256": "27653a7d5e965cbb2d23f7998919ebd774efd5cd3e126b8f0881469ae91166fd"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/sources/sn74hct08.pdf",
+   "bytes": 1266669,
+   "sha256": "3adc75237d6fc34eb152334eb89ac18b329d102631912fe4d76b73a34ae6b772"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/sources/sn74hct14.pdf",
+   "bytes": 1663286,
+   "sha256": "9ac546dd432920ecc8e41545168a4a6459c5e298002f19f9bcb8ece78100e728"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/sources/sn74hct74.pdf",
+   "bytes": 2054815,
+   "sha256": "765777ce03ebdd00dc933bd0a2767d52fcb9d381106cc5022d3cd748552c92dc"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/sources/tlv1704.pdf",
+   "bytes": 1946071,
+   "sha256": "b971c8ca9ae7da43d67fa3486f202e6e688d8f5cc4b220268473fc0b4904c42b"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/sources/tps3808.pdf",
+   "bytes": 2046179,
+   "sha256": "74d889c0f68af88032f1633c26381817cc03e10d9fd3b4c177a044ad3ed86eed"
+  },
+  {
+   "path": "zapote/power-entry/passive-reva/protection/sources/tps7a16.pdf",
+   "bytes": 1633416,
+   "sha256": "4e05cfdef8f64684f9f24b7d1f86e83badb7784c09c96f2ddbcbdbc0a3b48f80"
+  }
+ ]
+}

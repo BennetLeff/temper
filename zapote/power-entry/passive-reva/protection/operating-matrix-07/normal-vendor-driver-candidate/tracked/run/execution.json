@@ -1,0 +1,32 @@
+{
+  "status": "REJECTED_SOLVER_TIMESTEP_FAILURE",
+  "accepted": false,
+  "recorded_at_utc": "2026-09-20T20:55:25.858764+00:00",
+  "producer_session": 61024,
+  "compressor_session": 48865,
+  "wall_limit_s": 1200,
+  "target_end_s": 0.5,
+  "stop_on_first_nonincreasing_time": true,
+  "host_validation": {
+    "vendor_interface_trace_rows": 35201,
+    "vendor_interface_independent_checker": "PASS",
+    "instrument_callback_tests": 3,
+    "full_source_smoke_rows": 45469,
+    "smoke_nonincreasing": 0,
+    "all_16_diagnostic_nodes_seen": true
+  },
+  "remaining": "Diagnose numerical failure. No accepted startup, line/load or fault operating point.",
+  "completed_at_utc": "2026-09-20T21:06:46.999132+00:00",
+  "producer_exit": 0,
+  "compressor_exit": 0,
+  "inspector_exit": 1,
+  "normal_checker_exit": 1,
+  "solver_wall_s": 292.259623,
+  "last_sim_s": 0.09734562521390089,
+  "trace_rows": 4353208,
+  "nonincreasing_intervals": 0,
+  "min_positive_dt_s": 6.938893903907228e-18,
+  "max_dt_s": 5.000000000005e-07,
+  "solver_error": "Timestep too small; timestep=6.25e-19; node e.xdriver.e_u1_u1_e1#branch",
+  "trace_gzip_sha256": "810f44521e93f1b84101b12bef55a84e58624cc43e11cbffb00440799863ac7e"
+}

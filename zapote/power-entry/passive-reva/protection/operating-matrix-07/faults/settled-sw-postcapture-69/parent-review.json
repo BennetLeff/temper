@@ -1,0 +1,30 @@
+{
+  "status": "PARENT_CORRECTED_REVIEWED_PREPARED_NOT_EXECUTED",
+  "accepted": false,
+  "checks": [
+    "bash -n passed",
+    "shellcheck passed",
+    "All8 pinned analysis tools verified",
+    "Actual live-run refusal exit1 before output/raw access"
+  ],
+  "files_sha256": {
+    "run.sh": "6d697294d4aa710c1b7cb87f20fc54a81af7f59fa745b6dc072a3e7091d88a73",
+    "README.md": "2150128a11b9138b87fceac9704c6e399b5895c7cc5fcddbbae9e6443ed9ce1f",
+    "tools-parent.sha256": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+    "run-worker.sh": "3394eb14876c1b313babee95e99cddbfe1a77d655e03d6f98514e200b890e3b9",
+    "README-worker.md": "8e68bcba236f94c60d9b448a45a1bdde923c5e1fe4c6668350f618ea2ef5c0b2",
+    "live-refusal-test.json": "242e021a53b622f1d44a9219afde0f63e641382b8e7a36234ccb4e1604b77f69"
+  },
+  "phase_interval_s": [
+    0.65,
+    0.6583333333333
+  ],
+  "phase_tolerance": 0.01,
+  "corrections": [
+    "Restored exact postcapture58 guards removed by worker: sourcehashes,rowcounts/endpoints/selectoragreement,10GiB,terminalreceipt,gzipintegrity",
+    "Complete stage1 remains diagnosable despite stage2 rejection; no false requirement transport_complete true",
+    "Added pinned unchanged tool55 post-injection observations with full row/endpoint/marker binding",
+    "README raw hash checked before/after packet, not falsely aftereverypass"
+  ],
+  "pending": "Run only on terminal complete capture; no new circuit/protection acceptance"
+}

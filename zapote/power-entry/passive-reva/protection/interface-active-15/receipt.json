@@ -1,0 +1,61 @@
+{
+  "date": "2026-09-22",
+  "status": "parent-corrected pin/value proposals; schematic and physical qualification incomplete",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "compiled_candidate": "interface-defaults-11",
+  "compiled_components": 136,
+  "requested_model": "gpt-5.6-luna",
+  "served_model_independently_attested": false,
+  "workers": [
+    {
+      "name": "active_clamp",
+      "isolated_tmp": true,
+      "parent_corrections": true,
+      "stopped_after_handback": true
+    },
+    {
+      "name": "reset_hardware",
+      "isolated_tmp": true,
+      "parent_corrections": true,
+      "stopped_after_handback": true
+    }
+  ],
+  "verification": {
+    "arithmetic_tests": 4,
+    "vendor_model_functional_assertions": 10,
+    "rejected_fixed_d1_mutation": {
+      "exit": 101,
+      "failed_assertions": 3
+    },
+    "source_inputs_unchanged": 13,
+    "vendor_model_sha256": "302980315bc7b7530ba1f3ae3592f2ceb7a2d52c35791770e0ca9c1f6f27cad1",
+    "physical_measurements": 0,
+    "transient_clamp_model": false
+  },
+  "runtime": {
+    "rustc": "1.92.0",
+    "ngspice": "45.2"
+  },
+  "decisions": {
+    "clamp": "LT4363HMS-1#PBF + FDB33N25 reference prototype",
+    "clamp_static_range_v": [
+      15.94108853,
+      16.760572738
+    ],
+    "sense_resistance_ohm": 0.22,
+    "gate_capacitance_nf": 470,
+    "timer_capacitance_nf": 100,
+    "hardware_reset": "capture all three SELV health inputs before isolation; reuse HOT spare latch as authorization"
+  },
+  "remaining": [
+    "isolated schematic capture and exact capacitor identities",
+    "complete load/startup and producer-fault envelopes",
+    "supervisor/watchdog/decoder and level translation",
+    "application charge/voltage-peak bound and hot-case MOSFET SOA",
+    "physical reset recognition and full stop-time/energy allowance",
+    "single-path failed-high and pass-MOSFET-short limitations"
+  ],
+  "production_or_pcb_edits": false,
+  "commit_or_push": false,
+  "notes": "Worker handbacks are superseded and not build authority. Parent documents are authoritative proposals."
+}

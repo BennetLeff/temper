@@ -1,0 +1,20 @@
+quantity,value,unit,scope
+ceramic_tolerance_only,13.310000000,uF,conditional screen only
+ceramic_tolerance_and_X7R_TCC_only,15.306500000,uF,conditional screen only
+downstream_acceptance_allocation,18.000000000,uF,conditional screen only
+bulk_post_endurance_screen_min,198.000000000,uF,conditional screen only
+bulk_post_endurance_screen_max,495.000000000,uF,conditional screen only
+bulk_plus_downstream_allocation,513.000000000,uF,conditional screen only
+output_capacitance_allocation,520.000000000,uF,conditional screen only
+film_test_stack_min,1.340267612,uF,conditional screen only
+film_test_stack_max,1.659707753,uF,conditional screen only
+gate_min_allocation,1.300000000,uF,conditional screen only
+gate_max_allocation,1.700000000,uF,conditional screen only
+R82_PET_hot_before_drift,1.655325000,uF,conditional screen only
+timer_initial_plus_TCC_min,94.757750000,nF,conditional screen only
+timer_initial_plus_TCC_max,105.267750000,nF,conditional screen only
+ramp_current,26.000000000,mA,conditional screen only
+operating_load_support_C4_leakage_and_ramp,141.463259528,mA,conditional screen only
+nonfoldback_current_min,202.520252025,mA,conditional screen only
+foldback_current_min,67.506750675,mA,conditional screen only
+foldback_remaining_before_other_loads,41.298750675,mA,conditional screen only

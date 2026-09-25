@@ -1,0 +1,14 @@
+{
+  "utc": "2026-09-21T16:38:24.351558+00:00",
+  "status": "DIAGNOSED_WITH_REMEDY_PENDING_VALIDATION",
+  "live_full_solvers": 0,
+  "normal_accepted": 7,
+  "goal_complete": false,
+  "failure_cases": [
+    "LL08",
+    "F2-CREST"
+  ],
+  "phase_auditor": "faults/phase-audit-35/parent-review.json",
+  "diagnosis": "host/export-resource-diagnosis-36-parent.json",
+  "next_action": "Implement bounded post-stop borrowed-vector export candidate without ngspice write-copy; compare complete nativepayload againstoldexport onshortreal probes, measurememory, then onefullsolver retry ifdiskgatepermits. Keep all circuit/checker/signal/timestep settings."
+}

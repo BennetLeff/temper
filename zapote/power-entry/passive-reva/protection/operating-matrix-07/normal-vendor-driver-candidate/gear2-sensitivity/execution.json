@@ -1,0 +1,23 @@
+{
+  "status": "REJECTED_SOLVER_TIMESTEP_FAILURE",
+  "accepted": false,
+  "recorded_at_utc": "2026-09-20T21:17:32.857447+00:00",
+  "producer_session": 97282,
+  "compressor_session": 52463,
+  "wall_limit_s": 600,
+  "target_end_s": 0.11,
+  "purpose": "One full-cold numerical-method sensitivity comparison past prior vendor-driver97.345625ms failure; not settled-operation acceptance.",
+  "host_review": "Inverse deck changes reproduce original; five included files byte-identical; runtime binary/source hashes independently verified.",
+  "next_check": "Method change did not escape failure. No adoption. Compare controller/driver threshold behavior in targeted follow-up.",
+  "completed_at_utc": "2026-09-20T21:19:37.284762+00:00",
+  "producer_exit": 0,
+  "compressor_exit": 0,
+  "inspector_exit": 1,
+  "solver_wall_s": 36.625509,
+  "last_sim_s": 0.057498293288103366,
+  "trace_rows": 658685,
+  "nonincreasing_intervals": 0,
+  "min_positive_dt_s": 6.938893903907228e-18,
+  "solver_error": "Timestep too small; timestep6.25e-19; node vac#branch",
+  "trace_gzip_sha256": "bc8befd67955e8a7586d8179ce8b9971dfcffaf99bd618b366ef9a7f7d7905b0"
+}

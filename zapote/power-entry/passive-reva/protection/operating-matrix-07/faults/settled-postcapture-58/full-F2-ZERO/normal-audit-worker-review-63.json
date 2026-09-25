@@ -1,0 +1,75 @@
+{
+  "status": "DIAGNOSTIC_NORMAL_PREFIX_REVIEW_ONLY",
+  "case": "F2-ZERO",
+  "source_policy": "Reviewed against settled-prefix-analysis-42 normal15 event-aware policy; this receipt does not promote acceptance and does not explain the independent stage-2 format failure.",
+  "pipeline": {
+    "scan_exit": [0, 0, 0],
+    "audit_exit": [0, 0, 0, 0],
+    "selector_status": "OK",
+    "full_rows": 36625031,
+    "selected_rows": 30387314,
+    "first_time_s": 2.0e-10,
+    "last_time_s": 0.682000000000000051,
+    "selected_endpoint_s": 0.649999998305514137,
+    "cutoff_s": 0.650000000000000022,
+    "cutoff_gap_s": 1.69448588493992247e-9,
+    "fault_rising_edge_s": 0.658333332837275353,
+    "fault_rising_edge_v_acsrc_acn": 3.17365555391885268e-5
+  },
+  "normal15_equal_time_review": {
+    "rows": 30387314,
+    "equal_time_groups": 37,
+    "repeated_rows": 57,
+    "max_group_rows": 3,
+    "missing_right_neighbors": 0,
+    "logic_changes": 0,
+    "boundary_groups": 0,
+    "E3_spread_J": 2.730999642781291806e-13,
+    "E3_sumabs_J": 2.460696991054992136e-12,
+    "same_time_max_delta": {
+      "v(acsrc)": 2.865358172954302063e-9,
+      "v(acn)": 2.865348847080895212e-9,
+      "i(Vac)": 2.412434696452692151e-10,
+      "v(load)": 2.273736754432320595e-13,
+      "v(vb)": 2.273736754432320595e-13,
+      "i(Lboost)": 8.845191246109607164e-11,
+      "v(vd)": 1.250555214937776327e-12,
+      "v(sw)": 3.126388037344440818e-12,
+      "v(gate)": 2.603819090408240194e-14,
+      "v(vcomp)": 1.332267629550187849e-15,
+      "v(icomp)": 5.533351554731780197e-13
+    },
+    "largest_normalized_same_time_delta": {
+      "column": "v(acn)",
+      "value": 1.45086236698069832e-5
+    },
+    "all_choice_integral_hulls": {
+      "vac": {"max_hull_range": 5.730711905016505625e-9, "prefix_bound": 2.303861962810723210e-23},
+      "iin": {"max_hull_range": 5.142712922179271118e-10, "prefix_bound": 3.198527653653145392e-24},
+      "inputP": {"max_hull_range": 6.239918093342566863e-8, "prefix_bound": 3.966723069507226335e-22},
+      "loadP": {"max_hull_range": 3.829451375886013421e-12, "prefix_bound": 1.329883303898987436e-26},
+      "ac2": {"max_hull_range": 1.072599843610078096e-6, "prefix_bound": 4.372999764289902029e-21},
+      "i2": {"max_hull_range": 4.056058600099277101e-9, "prefix_bound": 2.588009897529603228e-23},
+      "VB": {"max_hull_range": 9.663381206337362528e-13, "prefix_bound": 3.344770238137090055e-27}
+    }
+  },
+  "interpretation": {
+    "endpoint": "The exact selected endpoint is 1.6945 ns before the .65 cutoff and is the endpoint passed to the audit; .65 was not forced.",
+    "ambiguity": "Equal-time groups have strict neighbors, no marker/logic/boundary ambiguity, and small representative-choice integral hulls. These are diagnostic numerical observations, not electrical acceptance.",
+    "phase_scope": "The recorded fault edge is after the selected normal prefix; phase and post-fault conclusions require the separate phase report.",
+    "acceptance": false
+  },
+  "report_sha256": {
+    "prefault-scan.json": "2614e04d2f1fe7c42cf897382d6b8c78391a5c84232921c3e23ec6cc9df21fea",
+    "scan.exit": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e",
+    "audit-selector.json": "2614e04d2f1fe7c42cf897382d6b8c78391a5c84232921c3e23ec6cc9df21fea",
+    "audit.exit": "c5bea6d5172950ed3fc3f0433afd51fc1913e545f5dd34c849c65dc166209a00",
+    "normal15-audit.txt": "31de8f883232c6d552d945c9f70f10d9e7de77f1ff18b4e6921d09298d4f523e",
+    "normal15-events.tsv": "7ce3741367ece9121646e4bf48ea323c0659ead3e87667b2195764c852f8db27"
+  },
+  "source_receipts": {
+    "source-identity.json": "d8605976d9d6ad098c070f02af65fc2883453c762c837ad6ca5f17f5a85cf420",
+    "manifest.json": "c569392b818e638c59b4787353803c094ae552cbd1409b08e184da6eacf8c3a6"
+  },
+  "method": "Read only the six named small audit artifacts; compared selector endpoint, row counts, exit arrays, equal-time groups, same-time deltas, E3 spread, and integral hulls with the settled-prefix-analysis-42 policy. No raw gzip, metric output, solver, or other case artifact was read or modified."
+}

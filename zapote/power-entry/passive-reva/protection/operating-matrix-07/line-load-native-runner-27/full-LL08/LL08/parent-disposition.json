@@ -1,0 +1,14 @@
+{
+  "status": "REJECTED_INCOMPLETE_RESOURCE_GUARD_ABORT",
+  "case": "LL08",
+  "session": 50666,
+  "runner_exit": 1,
+  "utc": "2026-09-21T16:32:26.413717+00:00",
+  "detail": "Diskguardstoppedmidrun; no complete solvermetadata/normalmetrics; 10bytegzipheaderonly; no electricalverdict.",
+  "raw_bytes": 10,
+  "raw_sha256": "9d1011ce9a9221ec2cbde2cc63ce50401fda24a6ffbf96a97b55552cc9e035e3",
+  "raw_preserved": true,
+  "electrical_acceptance": false,
+  "free_gib_after": 18.16179656982422,
+  "resource_note": "Both runners reportedfree<10GiB. Later vm.swapusage16,761.94MiBused; contributionto transientdiskdrop underinvestigation, notproven."
+}

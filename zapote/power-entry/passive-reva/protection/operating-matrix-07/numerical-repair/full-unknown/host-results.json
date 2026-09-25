@@ -1,0 +1,30 @@
+[
+  {
+    "variant": "safe",
+    "mode": "safe",
+    "exit": 0,
+    "expected_exit": 0,
+    "output": "PASS safe unknown-state gate max=0.000000000 V rows=20078\n"
+  },
+  {
+    "variant": "bad",
+    "mode": "safe",
+    "exit": 1,
+    "expected_exit": 1,
+    "output": "FAIL safe candidate gate reached 7.500000000 V\n"
+  },
+  {
+    "variant": "bad",
+    "mode": "unsafe",
+    "exit": 0,
+    "expected_exit": 0,
+    "output": "PASS negative unknown-state witness gate=7.500000000 V hold=2.500000000 V rows=20078\n"
+  },
+  {
+    "variant": "safe",
+    "mode": "typo",
+    "exit": 2,
+    "expected_exit": 2,
+    "output": "unknown mode\n"
+  }
+]

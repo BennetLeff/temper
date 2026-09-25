@@ -1,0 +1,65 @@
+{
+  "status": "bounded research completed; no new circuit adopted",
+  "requested_model": "gpt-5.6-luna",
+  "served_model_independently_attested": false,
+  "completed_workers": [
+    "/root/gate_restart",
+    "/root/supply_interfaces",
+    "/root/pfc_stage"
+  ],
+  "workers_read_only": true,
+  "workers_interrupted_after_handback": true,
+  "parent_owned_files": "docs/evidence/2026-09-22-power-entry-selection-review",
+  "unchanged_compiled_count": 136,
+  "results": {
+    "command": "ISO7740FDWR conditional evaluation candidate; restart qualifier remains unresolved",
+    "supply": "TPS26601RHFT downstream of15Vregulator conditional evaluation candidate; response bound and recovery unresolved",
+    "clamp": "BAV23C-E3-08 retained provisional; no newly supported replacement"
+  },
+  "parent_corrections": [
+    {
+      "worker": "supply_interfaces",
+      "initial": "upstream29Vcutoff",
+      "disposition": "cannot protect AUX from downstream15Vregulator pass-through; corrected to downstream evaluation"
+    },
+    {
+      "worker": "supply_interfaces",
+      "initial": "17.5Vnominal cutoff with137k/10k",
+      "disposition": "rejected:18.0075Vmax with exact R;18.346540V at1%R; see ovp-screen.csv"
+    },
+    {
+      "worker": "gate_restart",
+      "initial": "requires newSELV5Vrail because HOTcommand high>=4V",
+      "disposition": "rejected inference; device supports3.3-to5Vtranslation; source and receiver contracts are distinct"
+    },
+    {
+      "worker": "gate_restart",
+      "initial": "proposed <=0.3V acceptance case without an actual-load guarantee",
+      "disposition": "additional parent qualification: 0.4VmaxVOL at4mA does not establish the stricter contract; actual load/spec reconciliation remains"
+    }
+  ],
+  "verification": {
+    "base_assertion": "PASS",
+    "preserved_input_count": 9,
+    "rust_screen_compile_exit": 0,
+    "screen_run_exit": 0,
+    "scope": "divider-only arithmetic, not hardware qualification",
+    "isolator_primary_datasheet": "TI ISO774x RevK August2026",
+    "cutoff_primary_datasheet": "TI TPS2660 RevG December2019",
+    "clamp_primary_datasheets": [
+      "TI UCC28180 RevD",
+      "Vishay BAV23C 86374"
+    ],
+    "simulations_run": 0
+  },
+  "failed_attempts": [
+    {
+      "action": "shell download of TPS2660 datasheet",
+      "result": "DNS resolution failed; no downloaded PDF evidence used; primary source inspected with web tool"
+    }
+  ],
+  "production_changes": false,
+  "pcb_changes": false,
+  "vendor_messages_sent": false,
+  "commit_or_push": false
+}

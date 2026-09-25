@@ -1,0 +1,48 @@
+{
+  "status": "PARENT_REVIEWED_FOR_SINGLE_WORKER_LL01",
+  "timestamp_utc": "2026-09-21T02:09:57.018691+00:00",
+  "source_sha256": "745df038d0f4142b8a2322580e7aea493561ddf4e7737e83466ba3e5e9b50b9f",
+  "binary": {
+    "path": "/private/tmp/matrix07-line-load-native-runner-host",
+    "sha256": "09551942c747b3ff1aded2a8d399930914fd02fc53b732a5a6effc0af760b625"
+  },
+  "parent_fixes": [
+    "Receipt duplicate-key guard scoped to unique policy keys; nested legacy status is legitimate",
+    "Corrected jq mask/point predicates to preserve root context",
+    "Expected legacy early-rejection branch requires exit1 and exact nonincreasing-time diagnostic; full independent audit and metrics pipelines still required",
+    "Reject invalid/zero-point capture metadata before waiting for FIFO drain; an ngspice parse failure can return command exit0."
+  ],
+  "tests": {
+    "unit": "3 parent tests including child reap on timeout and disk-probe failure",
+    "self_test": "PASS",
+    "synthetic": "synthetic-parent-02/LL01",
+    "synthetic_rows": 1300002,
+    "intentional_duplicate_rows": 1,
+    "legacy_checker_exit": 1,
+    "full_audit_and_metrics_pipelines_exit": 0,
+    "engineering_screens": 0,
+    "electrical_evidence": false
+  },
+  "limits": [
+    "single solver per runner invocation for initial campaign",
+    "complete_review_pending is not operating acceptance",
+    "disk floor10GiB, solver3600s, export/eachscan900s; no resampling or time nudges"
+  ],
+  "evidence_sha256": {
+    "parent-tests.txt": "9b6ffb7e13fd3251d535bb5354d11336e312666b521650c94252f65ae133d5ed",
+    "parent-self-tests.txt": "fb416ccb2c87511c9ed1cd6e42f5b7735c89300c37a1cddbbcbb85044a19ee27",
+    "synthetic-parent-02/LL01/native-pipeline.json": "6dce3872882366574b198cd36ae33cee98f40fff42c3cb96b1eab197ec2b93f0",
+    "synthetic-parent-02/LL01/raw15-event-audit.txt": "2434ea394438d83fe645c165a03362533acd85987923361c8c9077203211e703",
+    "synthetic-parent-02/LL01/event-metrics.txt": "50aa77ddc04b794799c8e0b8daec1b5e74f5b655248fc2db8f9ba5de19581298",
+    "synthetic-parent-02/LL01/capture-metadata.json": "653aea3228bf33302f6927f9442110f881a102fc47c2b43008d4dd9b2ecdd0dd",
+    "synthetic-parent-02/LL01/raw.trace.raw.gz": "171a383a558effd5f0e02fae90dc245be1e0138039267b6947a95e28908bdd7c"
+  },
+  "launch_environment": {
+    "SPICE_SCRIPTS": "/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts",
+    "spinit_sha256": "b2e0359f8b549f6e27bc86f1bb9b7847b7f376c3758bf8297084807a45af2390"
+  },
+  "failed_launch": {
+    "path": "full-LL01",
+    "reason": "Missing SPICE_SCRIPTS; UADC model unavailable; zero simulated points; compressor terminated and reaped; evidence retained"
+  }
+}

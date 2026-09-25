@@ -1,0 +1,376 @@
+# HOT-side receiver fixture for Rev31's pin contract. Connectivity candidate;
+# no firmware, PCB, protocol, or product-level startup qualification is implied.
+
+component Atmega328PAu:
+    mpn = "ATMEGA328P-AU"
+    manufacturer = "Microchip"
+    datasheet = "https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf"
+    footprint = "TBD_REVIEW_ONLY:ATMEGA328P-AU_TQFP32"
+    signal PD3 ~ pin 1
+    signal PD4 ~ pin 2
+    signal GND3 ~ pin 3
+    signal VCC4 ~ pin 4
+    signal GND5 ~ pin 5
+    signal VCC6 ~ pin 6
+    signal XTAL1 ~ pin 7
+    signal XTAL2 ~ pin 8
+    signal PD5 ~ pin 9
+    signal PD6 ~ pin 10
+    signal PD7 ~ pin 11
+    signal PB0 ~ pin 12
+    signal PB1 ~ pin 13
+    signal PB2 ~ pin 14
+    signal MOSI ~ pin 15
+    signal MISO ~ pin 16
+    signal SCK ~ pin 17
+    signal AVCC ~ pin 18
+    signal ADC6 ~ pin 19
+    signal AREF ~ pin 20
+    signal GND21 ~ pin 21
+    signal ADC7 ~ pin 22
+    signal PC0 ~ pin 23
+    signal PC1 ~ pin 24
+    signal PC2 ~ pin 25
+    signal PC3 ~ pin 26
+    signal PC4 ~ pin 27
+    signal PC5 ~ pin 28
+    signal RESET_N ~ pin 29
+    signal RXD ~ pin 30
+    signal TXD ~ pin 31
+    signal PD2 ~ pin 32
+
+component Iso7741F:
+    mpn = "ISO7741FDWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/iso7741.pdf"
+    footprint = "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm"
+    signal VCC1 ~ pin 1
+    signal GND1 ~ pin 2
+    signal INA ~ pin 3
+    signal INB ~ pin 4
+    signal INC ~ pin 5
+    signal OUTD ~ pin 6
+    signal EN1 ~ pin 7
+    signal GND1B ~ pin 8
+    signal GND2 ~ pin 9
+    signal EN2 ~ pin 10
+    signal IND ~ pin 11
+    signal OUTC ~ pin 12
+    signal OUTB ~ pin 13
+    signal OUTA ~ pin 14
+    signal GND2B ~ pin 15
+    signal VCC2 ~ pin 16
+
+component LvcSchmittBuffer:
+    mpn = "SN74LVC1G17DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component HotRailSupervisor:
+    mpn = "TPS389001DSER"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps3890.pdf"
+    footprint = "TBD_REVIEW_ONLY:TPS3890DSE0006A"
+    signal SENSE ~ pin 1
+    signal GND ~ pin 2
+    signal MR ~ pin 3
+    signal VDD ~ pin 4
+    signal CT ~ pin 5
+    signal RESET_N ~ pin 6
+
+component Resistor:
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Capacitor:
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Crystal:
+    mpn = "TBD_REVIEW_ONLY:8MHz_XTAL"
+    footprint = "TBD_REVIEW_ONLY:8MHz_crystal_package"
+    signal X1 ~ pin 1
+    signal X2 ~ pin 2
+
+component IspHeader:
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical"
+    signal MISO ~ pin 1
+    signal VCC ~ pin 2
+    signal SCK ~ pin 3
+    signal MOSI ~ pin 4
+    signal RESET_N ~ pin 5
+    signal GND ~ pin 6
+
+module HotReceiverCore:
+    signal SELV3V3
+    signal SELV_GND
+    signal HOT_LOGIC5
+    signal HOT_GND
+    signal HOT_RAILS_OK
+    signal SOURCE_COMMAND_TX
+    signal SOURCE_PERMIT
+    signal SOURCE_RELAY_CMD
+    signal SOURCE_RESPONSE_RX
+    signal HOT_COMMAND_RX
+    signal HOT_RESPONSE_TX
+    signal HOT_PERMIT_RX
+    signal HOT_RELAY_CMD
+    signal RECEIVER_SESSION_ACTIVE
+    signal VALIDATED_HEARTBEAT_5V
+    signal SESSION_QUALIFIED_PULSE_5V
+    signal ARM
+    signal HOT_LINK_GOOD_OBSERVED
+    signal RESET_CT
+    signal MCU_SESSION_ACTIVE
+    signal MCU_HEARTBEAT
+    signal MCU_SESSION_PULSE
+    signal MCU_ARM
+    signal UNUSED_PD4
+    signal UNUSED_PD5
+    signal UNUSED_PD6
+    signal UNUSED_PD7
+    signal UNUSED_PB0
+    signal UNUSED_PB1
+    signal UNUSED_PB2
+    signal UNUSED_PC5
+    signal RESET_N
+    signal MCU_XTAL1
+    signal MCU_XTAL2
+    signal AREF_BYPASS
+    signal ISP_MOSI
+    signal ISP_MISO
+    signal ISP_SCK
+
+    rx = new Atmega328PAu
+    rx.VCC4 ~ HOT_LOGIC5
+    rx.VCC6 ~ HOT_LOGIC5
+    rx.AVCC ~ HOT_LOGIC5
+    rx.GND3 ~ HOT_GND
+    rx.GND5 ~ HOT_GND
+    rx.GND21 ~ HOT_GND
+    rx.XTAL1 ~ MCU_XTAL1
+    rx.XTAL2 ~ MCU_XTAL2
+    rx.PD3 ~ HOT_RELAY_CMD
+    rx.PD4 ~ UNUSED_PD4
+    rx.PD5 ~ UNUSED_PD5
+    rx.PD6 ~ UNUSED_PD6
+    rx.PD7 ~ UNUSED_PD7
+    rx.PB0 ~ UNUSED_PB0
+    rx.PB1 ~ UNUSED_PB1
+    rx.PB2 ~ UNUSED_PB2
+    rx.MOSI ~ ISP_MOSI
+    rx.MISO ~ ISP_MISO
+    rx.SCK ~ ISP_SCK
+    rx.ADC6 ~ HOT_GND
+    rx.AREF ~ AREF_BYPASS
+    rx.ADC7 ~ HOT_GND
+    rx.PC0 ~ MCU_SESSION_ACTIVE
+    rx.PC1 ~ MCU_HEARTBEAT
+    rx.PC2 ~ MCU_SESSION_PULSE
+    rx.PC3 ~ MCU_ARM
+    rx.PC4 ~ HOT_LINK_GOOD_OBSERVED
+    rx.PC5 ~ UNUSED_PC5
+    rx.RESET_N ~ RESET_N
+    rx.RXD ~ HOT_COMMAND_RX
+    rx.TXD ~ HOT_RESPONSE_TX
+    rx.PD2 ~ HOT_PERMIT_RX
+
+    iso = new Iso7741F
+    iso.VCC1 ~ SELV3V3
+    iso.GND1 ~ SELV_GND
+    iso.INA ~ SOURCE_COMMAND_TX
+    iso.INB ~ SOURCE_PERMIT
+    iso.INC ~ SOURCE_RELAY_CMD
+    iso.OUTD ~ SOURCE_RESPONSE_RX
+    iso.EN1 ~ SELV3V3
+    iso.GND1B ~ SELV_GND
+    iso.GND2 ~ HOT_GND
+    iso.EN2 ~ HOT_LOGIC5
+    iso.IND ~ HOT_RESPONSE_TX
+    iso.OUTC ~ HOT_RELAY_CMD
+    iso.OUTB ~ HOT_PERMIT_RX
+    iso.OUTA ~ HOT_COMMAND_RX
+    iso.GND2B ~ HOT_GND
+    iso.VCC2 ~ HOT_LOGIC5
+
+    # Each output gate is HOT-powered. The joined Rev29 protection module
+    # owns the 10 kohm fail-low loads on these four signals.
+    session_buf = new LvcSchmittBuffer
+    session_buf.A ~ MCU_SESSION_ACTIVE
+    session_buf.GND ~ HOT_GND
+    session_buf.VCC ~ HOT_LOGIC5
+    session_buf.Y ~ RECEIVER_SESSION_ACTIVE
+    heartbeat_buf = new LvcSchmittBuffer
+    heartbeat_buf.A ~ MCU_HEARTBEAT
+    heartbeat_buf.GND ~ HOT_GND
+    heartbeat_buf.VCC ~ HOT_LOGIC5
+    heartbeat_buf.Y ~ VALIDATED_HEARTBEAT_5V
+    session_pulse_buf = new LvcSchmittBuffer
+    session_pulse_buf.A ~ MCU_SESSION_PULSE
+    session_pulse_buf.GND ~ HOT_GND
+    session_pulse_buf.VCC ~ HOT_LOGIC5
+    session_pulse_buf.Y ~ SESSION_QUALIFIED_PULSE_5V
+    arm_buf = new LvcSchmittBuffer
+    arm_buf.A ~ MCU_ARM
+    arm_buf.GND ~ HOT_GND
+    arm_buf.VCC ~ HOT_LOGIC5
+    arm_buf.Y ~ ARM
+
+    # A local TPS3890 watches the receiver rail and accepts Rev29 RAILS_OK as
+    # active-low manual-reset input. Its own open-drain RESET_N can share the
+    # ISP wired-low node without push-pull contention.
+    reset_supervisor = new HotRailSupervisor
+    reset_supervisor.SENSE ~ HOT_LOGIC5
+    reset_supervisor.GND ~ HOT_GND
+    reset_supervisor.MR ~ HOT_RAILS_OK
+    reset_supervisor.VDD ~ HOT_LOGIC5
+    reset_supervisor.CT ~ RESET_CT
+    reset_supervisor.RESET_N ~ RESET_N
+
+    isp = new IspHeader
+    isp.MISO ~ ISP_MISO
+    isp.VCC ~ HOT_LOGIC5
+    isp.SCK ~ ISP_SCK
+    isp.MOSI ~ ISP_MOSI
+    isp.RESET_N ~ RESET_N
+    isp.GND ~ HOT_GND
+
+    # 8 MHz keeps the ATmega inside its specified clock/rail area from 2.7 V.
+    # The crystal package and capacitive load still require exact selection.
+    crystal = new Crystal
+    crystal.X1 ~ MCU_XTAL1
+    crystal.X2 ~ MCU_XTAL2
+
+    c_x1 = new Capacitor
+    c_x1.value = 18pF
+    c_x1.p1 ~ MCU_XTAL1
+    c_x1.p2 ~ HOT_GND
+    c_x2 = new Capacitor
+    c_x2.value = 18pF
+    c_x2.p1 ~ MCU_XTAL2
+    c_x2.p2 ~ HOT_GND
+
+    # Keep AVCC and both VCC pairs locally decoupled; AREF is not externally driven.
+    c_vcc4 = new Capacitor
+    c_vcc4.value = 100nF
+    c_vcc4.p1 ~ HOT_LOGIC5
+    c_vcc4.p2 ~ HOT_GND
+    c_vcc6 = new Capacitor
+    c_vcc6.value = 100nF
+    c_vcc6.p1 ~ HOT_LOGIC5
+    c_vcc6.p2 ~ HOT_GND
+    c_avcc = new Capacitor
+    c_avcc.value = 100nF
+    c_avcc.p1 ~ HOT_LOGIC5
+    c_avcc.p2 ~ HOT_GND
+    c_bulk = new Capacitor
+    c_bulk.value = 1uF
+    c_bulk.p1 ~ HOT_LOGIC5
+    c_bulk.p2 ~ HOT_GND
+    c_aref = new Capacitor
+    c_aref.value = 100nF
+    c_aref.p1 ~ AREF_BYPASS
+    c_aref.p2 ~ HOT_GND
+
+    session_pd = new Resistor
+    session_pd.value = 100kohm
+    session_pd.p1 ~ MCU_SESSION_ACTIVE
+    session_pd.p2 ~ HOT_GND
+    heartbeat_pd = new Resistor
+    heartbeat_pd.value = 100kohm
+    heartbeat_pd.p1 ~ MCU_HEARTBEAT
+    heartbeat_pd.p2 ~ HOT_GND
+    session_pulse_pd = new Resistor
+    session_pulse_pd.value = 100kohm
+    session_pulse_pd.p1 ~ MCU_SESSION_PULSE
+    session_pulse_pd.p2 ~ HOT_GND
+    arm_pd = new Resistor
+    arm_pd.value = 100kohm
+    arm_pd.p1 ~ MCU_ARM
+    arm_pd.p2 ~ HOT_GND
+    link_good_pd = new Resistor
+    link_good_pd.value = 100kohm
+    link_good_pd.p1 ~ HOT_LINK_GOOD_OBSERVED
+    link_good_pd.p2 ~ HOT_GND
+    unused_pd4_pd = new Resistor
+    unused_pd4_pd.value = 100kohm
+    unused_pd4_pd.p1 ~ UNUSED_PD4
+    unused_pd4_pd.p2 ~ HOT_GND
+    unused_pd5_pd = new Resistor
+    unused_pd5_pd.value = 100kohm
+    unused_pd5_pd.p1 ~ UNUSED_PD5
+    unused_pd5_pd.p2 ~ HOT_GND
+    unused_pd6_pd = new Resistor
+    unused_pd6_pd.value = 100kohm
+    unused_pd6_pd.p1 ~ UNUSED_PD6
+    unused_pd6_pd.p2 ~ HOT_GND
+    unused_pd7_pd = new Resistor
+    unused_pd7_pd.value = 100kohm
+    unused_pd7_pd.p1 ~ UNUSED_PD7
+    unused_pd7_pd.p2 ~ HOT_GND
+    unused_pb0_pd = new Resistor
+    unused_pb0_pd.value = 100kohm
+    unused_pb0_pd.p1 ~ UNUSED_PB0
+    unused_pb0_pd.p2 ~ HOT_GND
+    unused_pb1_pd = new Resistor
+    unused_pb1_pd.value = 100kohm
+    unused_pb1_pd.p1 ~ UNUSED_PB1
+    unused_pb1_pd.p2 ~ HOT_GND
+    unused_pb2_pd = new Resistor
+    unused_pb2_pd.value = 100kohm
+    unused_pb2_pd.p1 ~ UNUSED_PB2
+    unused_pb2_pd.p2 ~ HOT_GND
+    unused_pc5_pd = new Resistor
+    unused_pc5_pd.value = 100kohm
+    unused_pc5_pd.p1 ~ UNUSED_PC5
+    unused_pc5_pd.p2 ~ HOT_GND
+
+    # TPS3890 is open-drain. At 5.5 V the 10 kohm pullup, AVR internal RESET
+    # pullup (minimum 30 kohm), and 1 Mohm external pulldown load RESET_N by
+    # <0.75 mA, below TI's 3 mA VOL test point for VDD >= 4.5 V. ISP only sinks
+    # this same node.
+    reset_pullup = new Resistor
+    reset_pullup.value = 10kohm
+    reset_pullup.p1 ~ HOT_LOGIC5
+    reset_pullup.p2 ~ RESET_N
+    reset_pd = new Resistor
+    reset_pd.value = 1Mohm
+    reset_pd.p1 ~ RESET_N
+    reset_pd.p2 ~ HOT_GND
+
+    reset_ct_cap = new Capacitor
+    reset_ct_cap.value = 100nF
+    reset_ct_cap.p1 ~ RESET_CT
+    reset_ct_cap.p2 ~ HOT_GND
+
+    # Per-gate local decoupling.
+    session_buf_bypass = new Capacitor
+    session_buf_bypass.value = 100nF
+    session_buf_bypass.p1 ~ session_buf.VCC
+    session_buf_bypass.p2 ~ HOT_GND
+    heartbeat_buf_bypass = new Capacitor
+    heartbeat_buf_bypass.value = 100nF
+    heartbeat_buf_bypass.p1 ~ heartbeat_buf.VCC
+    heartbeat_buf_bypass.p2 ~ HOT_GND
+    pulse_buf_bypass = new Capacitor
+    pulse_buf_bypass.value = 100nF
+    pulse_buf_bypass.p1 ~ session_pulse_buf.VCC
+    pulse_buf_bypass.p2 ~ HOT_GND
+    arm_buf_bypass = new Capacitor
+    arm_buf_bypass.value = 100nF
+    arm_buf_bypass.p1 ~ arm_buf.VCC
+    arm_buf_bypass.p2 ~ HOT_GND
+    reset_buf_bypass = new Capacitor
+    reset_buf_bypass.value = 100nF
+    reset_buf_bypass.p1 ~ reset_supervisor.VDD
+    reset_buf_bypass.p2 ~ HOT_GND

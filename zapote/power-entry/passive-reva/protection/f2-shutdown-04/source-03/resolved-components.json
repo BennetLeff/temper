@@ -1,0 +1,612 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "788b1f6b595b6ba3c0ab54e143f522f8fe9fa0774fd17afa46ae02caba8e3e85",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "ed5f7ac6c6532620ce49f8adb5437797d13dffe76c901895ef58c7e45d895050",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_div.r1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_div.r2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_div.r3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_div.r4",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_div.r5",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206187KBEEA",
+        "value": "187kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_div.step",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200RBEEA",
+        "value": "200ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_div.bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW12065K62BEEA",
+        "value": "5620ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_div.filter",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100pF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_div.r1",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_div.r2",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_div.r3",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_div.r4",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200KBEEA",
+        "value": "200kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_div.r5",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206187KBEEA",
+        "value": "187kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_div.step",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW1206200RBEEA",
+        "value": "200ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_div.bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "TNPW12065K62BEEA",
+        "value": "5620ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_div.filter",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100pF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::reference",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/lm4040.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "LM4040A25IDBZR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::ref_bias",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "TNPW120610K0BEEA",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::cmp_vd",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3202.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "mpn": "TLV3202IDR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::cmp_vb",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3202.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "mpn": "TLV3202IDR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_ov_ref",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_ov",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_mismatch_p",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_mismatch_n",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_ov_ref",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_ov",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vb_mismatch_p",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::vd_mismatch_n",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::health",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "mpn": "SN74HCS21PWR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::cmp_vd_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::cmp_vb_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::health_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::sup_logic",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps3890.pdf",
+        "footprint": "Package_DFN_QFN:WSON-6-1EP_1.5x1.5mm_P0.5mm_EP0.9x0.9mm",
+        "mpn": "TPS389001DSER"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::sup_aux",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tps3890.pdf",
+        "footprint": "Package_DFN_QFN:WSON-6-1EP_1.5x1.5mm_P0.5mm_EP0.9x0.9mm",
+        "mpn": "TPS389001DSER"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::sup_logic_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::sup_aux_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::sup_logic_ct",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100pF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::sup_aux_ct",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100pF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::r_logic_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "294kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::r_logic_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::r_logic_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "47kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::r_aux_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "1.03Mohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::r_aux_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::r_aux_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "47kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::reset_and",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "mpn": "SN74LVC1G08DBVR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::reset_and_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::reset_pull_logic",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::reset_pull_aux",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::rail_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::permit_buf",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "mpn": "SN74LVC1G17DBVR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::permit_buf_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::permit_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::aux_fast_cmp",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3202.pdf",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "mpn": "TLV3202IDR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::aux_fast_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::aux_fast_top",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "430kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::aux_fast_bottom",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::aux_fast_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "22kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::latch",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf",
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "mpn": "SN74HCS74PWR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::latch_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::arm_buf",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "mpn": "SN74LVC1G17DBVR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::arm_buf_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::arm_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::enable_pd_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::enable_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::driver",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/ucc27511a.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "mpn": "UCC27511ADBVR"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::pwm_iso",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::pwm_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::disable_nmos",
+      "attributes": {
+        "datasheet": "https://assets.nexperia.com/documents/data-sheet/BSS138.pdf",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "mpn": "BSS138"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::disable_gate",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "1kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::disable_gate_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::in_n_pullup",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::gate_r",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0710RL",
+        "value": "10ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::gate_pd",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "value": "10kohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::gate_off_r",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-0710RL",
+        "value": "10ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::logic_bleed",
+      "attributes": {
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "value": "220ohm"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::cmp_bypass",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::drv_bypass_hf",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB::drv_bypass_bulk",
+      "attributes": {
+        "footprint": "Capacitor_SMD:C_1210_3225Metric",
+        "value": "1uF"
+      }
+    }
+  ],
+  "entry": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/source-03/elec/src/power_entry_f2_shutdown_revb.ato:PowerEntryF2ShutdownRevB",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
+    "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+    "elec/src/current_sense_unit.ato": "973de56249de1b18c779650e1506605ce9db574102df9f86846662519ae79898",
+    "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+    "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+    "elec/src/gate_drive_unit.ato": "6e81398feb135f9a7382033173beda50f7a9cb8b7602ccab00a032f4fe40b2b1",
+    "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+    "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+    "elec/src/interlock_unit.ato": "8e457eaa3c50c810e0877ce5b533faae4a751f966a1f9e1c39bb6b4fe067276d",
+    "elec/src/main.ato": "492faf4b04351003c859512332b91d207e234274a4b7344f86c3674477626461",
+    "elec/src/modules.ato": "1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d",
+    "elec/src/power_entry_active_unit.ato": "6f91eed643c175804209371acc004f373473e476cee88746f27c3caa5f43f80d",
+    "elec/src/power_entry_f2_sense.ato": "3edee56bf33cf70fdef466174be025c8f7b4632b46e74cd0a4b7aaf455770871",
+    "elec/src/power_entry_f2_shutdown.ato": "dcd9d65f77fad557b46a8bee92915782abec24cd5478c1a0583ade9927a40c69",
+    "elec/src/power_entry_f2_shutdown_revb.ato": "8dd5271c070493a5cfdbbda92810cda7b72ff976bbed563baf9e5bf37f14cf5a",
+    "elec/src/power_entry_passive_reva.ato": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8",
+    "elec/src/power_entry_unit.ato": "3b1a3c893adfbe51b7e814ee0c28e3e8437ccef214e5c9963057b770d74cbed6",
+    "elec/src/rtd_unit.ato": "521d46ea86f55ecefe0e0d38e6303623dabb1e1648e5d1cd3cebd51c9d05f673",
+    "elec/src/thermal_sense_unit.ato": "0597bd4a07f31d20fb0c15961a6b907ac772c87bdd592f6d24d1be48a5fce6cd",
+    "elec/src/voltage_sense_unit.ato": "5aca80ff589ff7156cae128a66f09111730d2a59439f59cccdfbb336a1577de5"
+  }
+}

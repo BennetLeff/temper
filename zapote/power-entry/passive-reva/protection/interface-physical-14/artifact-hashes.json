@@ -1,0 +1,116 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "8e42182d36b8d147f28d75fab3958e68bf6ec4e7dcccb7835765ada51fe761ea"
+    },
+    {
+      "path": "aux/aux_envelope.rs",
+      "sha256": "105c980a39affed1106d01b307392c122af2050dfddb95b4483e9856e769547e"
+    },
+    {
+      "path": "aux/report.md",
+      "sha256": "05070470a33ef04179ed5d5f1a7cc89f86cc34405c1564a1d5f4d77b13bc4efc"
+    },
+    {
+      "path": "aux/results.csv",
+      "sha256": "b8c3e3d61837a6b7780bcb432551508fa6495c120a85ffa1e7d1645ffad09f59"
+    },
+    {
+      "path": "aux/test.log",
+      "sha256": "8fbf2383bfcc146b88ddce14512d1fd5149eb52d103cefc41da780601b68acf5"
+    },
+    {
+      "path": "input-identity.json",
+      "sha256": "ba23f608fea3943c6d11386037c65d14794f78b413161684f2d7a136ae2ecd5f"
+    },
+    {
+      "path": "load-audit.csv",
+      "sha256": "751d07179fe7e034c7a2182bd3b27bc46e63c68ef3ff24b30e74003d6d5583d1"
+    },
+    {
+      "path": "load-audit.md",
+      "sha256": "8c333826cb385d57bcce48a0740cbc7f79201fa852c6fcfd6ee41d7c20571955"
+    },
+    {
+      "path": "load_audit.rs",
+      "sha256": "6aa35d40f495c69aa6d2e1e85e52ff1f135f1976735410516e4ecb84a7a1f612"
+    },
+    {
+      "path": "rc-oracle.cir",
+      "sha256": "75b349f5c46fbc870dedd3c5b7c0a3ff94652f3166a29ce8ce517d8de607f090"
+    },
+    {
+      "path": "rc-oracle.log",
+      "sha256": "7030f6fa801ddcc5c9dd199263dd5f65373741cfae845f37b9662648d0e85d9e"
+    },
+    {
+      "path": "receipt.json",
+      "sha256": "31492df54916596ad700aaba0990c582ede1a269833e18fe491a40cdf01c57ae"
+    },
+    {
+      "path": "reset/design.md",
+      "sha256": "f1ec4e09f66a60dee597bdf707e8d3aba3f92b118fcc23ebe9dc114cb0be2a2c"
+    },
+    {
+      "path": "reset/parent-final-tests.log",
+      "sha256": "a2ae11097f59ff35f212f88f871bf338cddc24b21b349a6026443ef9d208f98c"
+    },
+    {
+      "path": "reset/parent-tests.rs",
+      "sha256": "f38be58305dc8981ccddd777a40c8b67e1ea05099cc5e5d941d0148035ff5161"
+    },
+    {
+      "path": "reset/parent-v1-witness.log",
+      "sha256": "3c960db2b131dcb442d929c51b18f25f8971b940eac1e02e4807deea6680e373"
+    },
+    {
+      "path": "reset/parent-v1-witness.rs",
+      "sha256": "2c798fc11307519901c48e4e45fe382cdc6a0ce562d18ceafeaa7fbba06b578c"
+    },
+    {
+      "path": "reset/parent-worker-v2-failures.log",
+      "sha256": "9829a16565050761c0764fbcb1498508dbdd9858bbc701c99e7472783ab59acb"
+    },
+    {
+      "path": "reset/reset_timing-worker-v2.rs",
+      "sha256": "73c05649819be27f55f1462cb8158b58ebac4c5410a3b2a8005ab620f8726ce9"
+    },
+    {
+      "path": "reset/reset_timing.rs",
+      "sha256": "da770d9a4affd30a68bef14d46f871fe5779fa7c6b74222a6910267c8a144eb8"
+    },
+    {
+      "path": "reset/results.csv",
+      "sha256": "fee68e1e248786b26f089557c5b2824479b33e04242efe184812e6d6c29de70d"
+    },
+    {
+      "path": "sources/README.md",
+      "sha256": "7244a39d87bcb5b42fd44e8017bf3d8d7e423aeab8206c99dfbda22b7390e919"
+    },
+    {
+      "path": "sources/temper-interface14-IRM10-page2.png",
+      "sha256": "acb9928e29995387090825940c3425afb12b5f920e3a275275ee4a5f6665766d"
+    },
+    {
+      "path": "sources/temper-interface14-IRM10.pdf",
+      "sha256": "1aab6b30492328818e4d0900416676891eeb1076f409d56dc2277d7119ed208a"
+    },
+    {
+      "path": "sources/temper-interface14-tps2660-page9.png",
+      "sha256": "732b09edac9052a72c36844380ac2cfac2388efbb3c4dbc6ae8846d821cb0b7e"
+    },
+    {
+      "path": "sources/temper-interface14-tps2660.pdf",
+      "sha256": "b781cbce51984715771bde540df2b36404b4fae4b41e27166c84c19b6598e1de"
+    },
+    {
+      "path": "transient-window.csv",
+      "sha256": "abaaabc8af7531ba24f17cee0a69aa18efe0d278f82f1bbea180b05e01fcef74"
+    },
+    {
+      "path": "transient_window.rs",
+      "sha256": "71f50afe399c7e15cba65aad1b686cccbb47c9689c1ddc38367115d2a2a9b42b"
+    }
+  ]
+}

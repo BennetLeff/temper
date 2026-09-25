@@ -1,0 +1,26 @@
+{
+  "status": "PREPARED_INDEPENDENT_RAW_CHECKS",
+  "utc": "2026-09-21T17:51:05.417481+00:00",
+  "case": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST",
+  "raw_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "raw_bytes": 5297726667,
+  "capture_verified": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/parent-capture-verification.json",
+  "tools": {
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-prefault-selector-parent": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+    "/private/tmp/matrix07-normal15-event-audit-host": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6",
+    "/private/tmp/matrix07-normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "/private/tmp/matrix07-event-metrics-host": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "/private/tmp/matrix07-checker": "24c95bea81b44a3d5038a32552297afed17547fcd1b3ddcfd99434e84638b85c",
+    "/private/tmp/matrix07-phase-audit35-parent": "53a32a13ac6acbfe1daf944ff47871a976f0a37a5a0298e4f7d342c2da8ba0a3"
+  },
+  "scripts_sha256": {
+    "scan.sh": "b6cd61b46a0da107d8d4e494c52591d1672bbac7eb2d1a249c2b41c5f0c1772e",
+    "phase.sh": "7db175f7a4646688c92c6da3c5f0c70954cea0b9a0daf41f149e2042a16e811d"
+  },
+  "preflight_scope": "Complete captured raw independently gzip/hash verified and original runner terminal. Original downstream fault pipeline rejected due global/local gap miswire; it is not a prerequisite for independent full raw prefix/phase scans. Their own all-child exits, full rowcounts and endpoints remain mandatory.",
+  "accepted": false,
+  "deadline_per_pass_s": 900,
+  "minimum_free_gib": 10
+}

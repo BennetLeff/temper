@@ -1,0 +1,25 @@
+{
+  "status": "PARENT_VERIFIED_BOUNDED_DIAGNOSTIC_TOOL",
+  "accepted": false,
+  "simulation_launched": false,
+  "campaign_archive_scanned": false,
+  "unit_test_count": 7,
+  "unit_exit": 0,
+  "cli_test_count": 15,
+  "cli_receipt": "faults/bypass-observability-55/parent-cli-probes/receipt.json",
+  "decoder_schema_exact_match": true,
+  "sha256": {
+    "faults/bypass-observability-55/main.rs": "e14d67e007466f087d71e0d933ac6d985f80efb7c6926058ff781bc67e3b081a",
+    "faults/bypass-observability-55/worker-candidate.rs": "a9cde8df45061bf5ef226c769e31df33ddb56108fd3c12d685792de0c68db426",
+    "faults/bypass-observability-55/README.md": "32cda38932b38e660b42275f6a45b8ed3e32716a364e0e8731af3d338034bbe6",
+    "faults/bypass-observability-55/parent-cli-probes/receipt.json": "6c4c226300ce6a7da044e51eb5c4d78d2070789794714d313207140be79bfaac",
+    "faults/native-capture-13/fault_native_adapter.rs": "57aaea85a978b82395088b3e81434e937e952070bd3d4fab8a251b3c26938bad",
+    "/private/tmp/matrix07-bypass55-parent": "3bff9b4312cf9bb3c2118219e0f3bc5406482d8c2b83b728ad851b663bb40f6c",
+    "/private/tmp/matrix07-bypass55-tests-parent": "59e82e343cf9de0cf7aaa8cc636da9876cff073f2e2a788c766794ca9b2966eb"
+  },
+  "limitations": [
+    "Sampled observations only; no continuous retention/phase/healthy-prefix/causality acceptance",
+    "Future BYPASS capture must independently bind raw/source/tool hashes and all pipeline exits"
+  ],
+  "worker": "Luna drafted candidate; parent interrupted worker and finished explicit review corrections"
+}

@@ -1,0 +1,12 @@
+* Negative topology control: active die polarity deliberately reversed.
+.title Diodes Inc BAV23C reversed topology control
+.include diodes-bav23c.spice.txt
+VSHUNT shunt 0 DC -1.500
+RIN shunt isense 220
+DCLAMP isense 0 DI_BAV23C
+.control
+set noaskquit
+op
+print v(shunt) v(isense) @dclamp[id] i(vshunt)
+.endc
+.end

@@ -1,0 +1,71 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_F2_CREST_UNEXECUTED",
+  "utc": "2026-09-21T11:31:13.792070+00:00",
+  "case_sha256": "2f506027a93c89e136d7cb637fe2d4d234aca5ffd4e2ab7009a29384c73eed7e",
+  "manifest_sha256": "a034475e9dadb5470fed1f31e195acc2b609b73f641d3267dfb17f8270809416",
+  "readme_sha256": "a9881cea80e8c6b50a694ef382ebfaa4f1dc90d30885037cabb1b28695c2d6a8",
+  "source_and_manifest_exact_copy_verified": true,
+  "tools_verified": {
+    "runner29": {
+      "path": "/private/tmp/matrix07-fault-runner29-parent",
+      "exists": true,
+      "sha256": "d48731f7ac3fc2deeb53aa2926cf4d4e28c7ec1dcc1ac93d398b3180e5cf3dc7"
+    },
+    "native_host": {
+      "path": "/private/tmp/matrix07-fault-native-host-parent",
+      "exists": true,
+      "sha256": "785c2d8eccd973995b96b10fddedfd975ef82ebecbececa6e5d0bc4e9d720d39"
+    },
+    "pigz": {
+      "path": "/opt/homebrew/bin/pigz",
+      "exists": true,
+      "sha256": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"
+    },
+    "decoder": {
+      "path": "/private/tmp/matrix07-fault-native-decoder-parent",
+      "exists": true,
+      "sha256": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658"
+    },
+    "adapter": {
+      "path": "/private/tmp/matrix07-fault-adapter-parent",
+      "exists": true,
+      "sha256": "53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae"
+    },
+    "validator": {
+      "path": "/private/tmp/matrix07-fault-validation22-parent",
+      "exists": true,
+      "sha256": "63f6d17b123acd696c1f30fa546e7546ae43cf45cfb660cda44086bab3afb12f"
+    },
+    "prefault_selector": {
+      "path": "/private/tmp/matrix07-prefault-selector-parent",
+      "exists": true,
+      "sha256": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884"
+    }
+  },
+  "launch_parameters": {
+    "tstop_s": 0.662,
+    "kind": "f2-crest",
+    "mutation_s": 0.6541666666667,
+    "event_window_s": 0.002,
+    "expected_fault_s": 0.6541666666667,
+    "observation_s": 0.002,
+    "turnoff_s": 2e-06,
+    "max_gap_s": 2.5e-08,
+    "wall_seconds": 3600,
+    "export_timeout_seconds": 900,
+    "spice_scripts": "/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts"
+  },
+  "accepted_reference": "accepted-baseline-11/acceptance.json",
+  "parent_corrections": [
+    "Stream selected prefix instead of writing multi-gigabyte temporary TSV.",
+    "Use actual last-selected endpoint from complete scan for both event and electrical normal audits.",
+    "Require separate metrics/screens plus row-count/source/phase agreement; no inherited normal-prefix pass.",
+    "Clarify reserve plus pending exports, no two-stage equivalence inference from endpoint and phase alone."
+  ],
+  "remaining_launch_gates": [
+    "At most2 fullsolvers: wait for an existing normal session to finish.",
+    "Recheck actual free space against pending exports, conservative6.6GiB firstsettled forecast and10GiBreserve.",
+    "Host requires approved execution outside sandbox for inherited /dev/fd reopening."
+  ],
+  "fault_acceptance": false
+}

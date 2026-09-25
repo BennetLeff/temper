@@ -1,0 +1,13 @@
+{
+  "at_utc": "2026-09-21T19:34:50.569009+00:00",
+  "command": "bash faults/settled-direct-capture-51/launch.sh",
+  "exit": 77,
+  "stderr": "free-space gate failed: 10900124 KiB < 16777216 KiB (16 GiB)",
+  "observed_gate_free_kib": 10900124,
+  "required_free_kib": 16777216,
+  "solver_launched": false,
+  "fresh_output_exists": false,
+  "status": "BLOCKED_BY_CAPACITY",
+  "previous_goal_turn": "progress: LL09 accepted, savedpin50 completed, current reports53 verified",
+  "storage_blocked_audit_turn": 1
+}

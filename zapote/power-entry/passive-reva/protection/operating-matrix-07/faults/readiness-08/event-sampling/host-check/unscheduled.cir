@@ -1,0 +1,18 @@
+* Negative control: sparse schedule has no interior 25 ns corners.
+Vdrive in 0 PWL(0 0 0.4 0 0.400005 5 0.400005001 5 0.401 5)
+R1 in out 1k
+C1 out 0 1u
+Vschedule schedule 0 PWL(0 0 0.399999975 0 0.40001 1)
+Rschedule schedule 0 1G
+Vevent event 0 PWL(0 0 0.400005 0 0.400005001 1 0.401 1)
+Revent event 0 1G
+.control
+set noaskquit
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+tran 5u 0.40001 0 5u uic
+wrdata results/unscheduled.tsv time v(in) v(out) v(schedule) v(event)
+quit
+.endc
+.end

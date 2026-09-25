@@ -1,0 +1,22 @@
+{
+  "status": "PARENT_VERIFIED_SAVED_PIN_OBSERVATIONS",
+  "at_utc": "2026-09-21T19:19:22.211785+00:00",
+  "artifacts_sha256": {
+    "preflight.json": "7809990321681d7d903615b463651e72c62996ad768df3bb30302145e550aacf",
+    "receipt.json": "93a1640072bced26f4534ccb77d0e3f3038fda031fcfe0d482231e9e89217dfb",
+    "observability.json": "e12b5b2ba0e1b16cbd96d07d58d500287ff4ac01e868ce3fdfd9bd549b49b1cc",
+    "pigz.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "decoder.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scanner.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_bound_fault_acceptance_sha256": "bc00f63b08b5218d74f7fa673e60ab6f976194d32a871c776432547130ccfa7e",
+  "scope": "Existing exact authored F2-CREST38 model only; no new circuit/clamp acceptance. Counts include all equal-time rows and are not durations.",
+  "findings": [
+    "All full32,237,324 rows scanned;61 repeated intervals retained. Row counts/edge/endpoint match existing accepted trace and prefix.",
+    "ISENSE full range -0.306537566527285366 V to +0.000116320638798318100 V; no samples outside cited TI absolute voltage range. Does not establish controller input-current compliance.",
+    "Strict recommended voltage comparison does not pass:1,241,371 rows above0V, peak0.116321mV. Do not introduce an after-the-fact epsilon or infer a physical-device failure from this authored model.",
+    "PCL request and hold both remain zero for every saved row; this case does not exercise modeled peak-current limiting or a large negative clamp excursion.",
+    "No diodecurrent/bridge_minus signals saved; no selected Vishay VF/temp/lot guarantee, controller silicon fidelity or hardware qualification follows."
+  ],
+  "accepted": false
+}

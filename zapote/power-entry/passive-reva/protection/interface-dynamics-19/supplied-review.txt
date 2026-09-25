@@ -1,0 +1,257 @@
+**With Revision 18 included, this looks like a reasonable prototype of a conventional surge-stopper circuit—not an excessive component count. However, I found one specific wiring difference from the manufacturer’s reference circuit that deserves review, and the large gate capacitor makes shutdown timing particularly important.**
+
+The screenshot still shows revision 16’s **220 µF / 300 µF-total** values. Below, I am reviewing its topology using Revision 18’s proposed **330 µF bulk, 520 µF total maximum, and 1.30–1.70 µF gate-capacitance range**.
+
+## 1. The overall implementation is conventional
+
+This is an **active series overvoltage protector**: under normal conditions, Q1 passes the nominal 15 V supply through; during an overvoltage, the controller partially turns Q1 off to limit the protected voltage. A sufficiently persistent overvoltage or overcurrent causes the selected LT4363-1 to latch off. That is the intended application of this IC. ([Analog Devices][1])
+
+The component count is quite understandable:
+
+| Components           | Purpose                                                  |
+| -------------------- | -------------------------------------------------------- |
+| **U1 — LT4363HMS-1** | Protection controller                                    |
+| **Q1 — FDB33N25**    | Series pass MOSFET                                       |
+| **R1**               | Current sensing                                          |
+| **R2–R3**            | Output clamp-voltage setting                             |
+| **R4–R5**            | Input undervoltage threshold                             |
+| **C2**               | Fault timer                                              |
+| **R6, R7, D1, C3**   | Gate drive, startup slew, and transient-response shaping |
+| **C1, C4**           | Input bypass and protected-output bulk capacitance       |
+
+That is **one IC, one MOSFET, one diode, seven resistors, and four capacitors: 14 components**. There is no obvious collection of gratuitous parts here.
+
+Using the shown resistor values and nominal controller parameters, I calculate approximately:
+
+| Function                             | Nominal setting |
+| ------------------------------------ | --------------: |
+| Output overvoltage clamp             |     **16.35 V** |
+| Input undervoltage turn-on threshold |     **12.88 V** |
+| Non-foldback current limit           |      **227 mA** |
+
+These are nominal calculations, not guaranteed operating bounds. The clamp setting is a ceiling during an overvoltage; it does **not** boost a normal 15 V input to 16.35 V. ([Analog Devices][2])
+
+**My assessment: the architecture and basic component count make sense. The questions are now about the exact connections, sizing, and dynamics.**
+
+## 2. A concrete finding: the C3 network connects to a different node than ADI’s reference
+
+This is the first thing I would send back for review.
+
+In your screenshot, the connections are:
+
+```text
+LT4363 GATE pin ── R6 ── Q_GATE ── MOSFET gate
+                           │
+                       R7 ∥ D1
+                           │
+                          C3
+                           │
+                        HOT_GND
+```
+
+But in **Figure 5 on printed page 15 of the LT4363 datasheet**, the resistor/diode/capacitor branch connects on the **controller side** of the series gate resistor, not the MOSFET side. 
+
+Translated into your net names:
+
+```text
+Shown capacitor-branch connection:     Q_GATE
+ADI reference branch connection:      GATE_DRV
+```
+
+**The diode’s cathode-to-capacitor orientation matches the reference. The question is the branch’s connection point—not whether the diode should be reversed.**
+
+Why this matters: when the controller pulls its GATE pin down, stored charge in C3 can feed the MOSFET-gate node through R7 in the shown arrangement. That discharge current must then pass through R6 to reach the controller. Consequently, the actual MOSFET gate can remain above the controller’s GATE-pin voltage during the transient.
+
+In the reference arrangement, that capacitor discharge is returned directly to the controller-side node, with the MOSFET gate on the other side of the gate resistor.
+
+This is **not proof that your arrangement fails**. It is, however, an electrically meaningful departure from the reference—not merely a different drawing layout.
+
+**I would use the manufacturer’s connection as the baseline unless there is a deliberate reason, backed by transient analysis, to put the branch on `Q_GATE`.** Revision 18 says connectivity is unchanged, so this is worth checking in the actual KiCad graph.
+
+The graph auditor can establish that the circuit was captured consistently. It does not establish that this particular connection is the intended one.
+
+## 3. The 120 ms service-reset note needs reconciliation with C3
+
+The screenshot says to hold `SERVICE_RESET_N` for at least 120 ms.
+
+There are two different questions here:
+
+**Did the controller recognize a reset?**
+**Did the external gate network discharge sufficiently to produce the intended restart?**
+
+Those are not equivalent.
+
+The LT4363 table specifies a **50 µA minimum shutdown-mode gate pull-down current at its stated test point of SHDN = 0 V and GATE = 10 V**. That is a different operating mode from its much stronger fault-response pull-down. 
+
+For an illustrative constant-current calculation using your revised maximum C3:
+
+$$
+t=\frac{C\Delta V}{I}
+=\frac{1.70\,\mu\mathrm F \times 10\,\mathrm V}{50\,\mu\mathrm A}
+=340\,\mathrm{ms}
+$$
+
+Conversely, 120 ms at that current removes enough charge for only:
+
+$$
+\Delta V=\frac{It}{C}\approx3.53\,\mathrm V
+$$
+
+**This is a sensitivity calculation, not a guaranteed discharge waveform:** the tabulated current is specified at a particular operating point, and the actual voltages and discharge paths matter.
+
+But it demonstrates why **120 ms cannot simply be carried forward as proof of complete gate discharge**. It might be entirely sufficient for resetting an already-latched-off controller. It is not automatically sufficient to establish a fresh, fully discharged startup condition from every initial state.
+
+Also, calculating `R7 × C3` alone would not settle this: R7 is not a resistor directly to ground. The controller’s available sink current and operating state are part of the discharge path.
+
+This is one of the most consequential effects of the large C3—not its voltage rating or pulse-current capability.
+
+## 4. Revision 18’s capacitor choices are defensible, but they reveal where the design is becoming bulky
+
+### C2: an understandable selection
+
+A defined C0G timer capacitor is a straightforward way to make this particular timing element less ambiguous. Your revised screen fits within the earlier ±10% effective allocation.
+
+I would not spend much optimization effort here yet. The more consequential timing uncertainties lie elsewhere in the circuit.
+
+### C3: electrically understandable, mechanically expensive
+
+The selected KEMET part is approximately **26.5 × 10 × 18.5 mm**, with 22.5 mm lead spacing. That is a substantial component for a gate-slew function. Its published dimensions agree with the size described in Revision 18. 
+
+I understand the reasoning behind selecting it: you are buying a relatively predictable capacitance rather than accepting an inadequately bounded generic ceramic.
+
+But this is where I would distinguish:
+
+> **A part that satisfies the current prototype assumptions**
+> from
+> **the most efficient implementation of the required function.**
+
+The film capacitor may be appropriate for this prototype. Its size does not prove otherwise. But I would not conclude that the final cooker needs this particular large, 160 V film part until the required inrush limit and allowable shutdown/restart timing are established together.
+
+Using Revision 18’s stated screening assumptions:
+
+$$
+\frac{dV}{dt}\approx\frac{65\,\mu\mathrm A}{1.30\,\mu\mathrm F}
+=50\,\mathrm{V/s}
+$$
+
+and:
+
+$$
+I_{\text{capacitive}}\approx520\,\mu\mathrm F\times50\,\mathrm{V/s}
+=26\,\mathrm{mA}
+$$
+
+Those calculations reproduce your result. In that simplified model, a 15 V rise alone takes about **300 ms**, excluding additional gate-charging and converter interactions.
+
+That may be perfectly acceptable. The point is that you are deliberately choosing a relatively slow supply transition, and the rest of the system must be designed around it.
+
+### C4: the revised arithmetic works, but the allocation is tight at the upper end
+
+Using the Rubycon test factors reported in your note:
+
+$$
+330\times0.8\times0.75=198\,\mu\mathrm F
+$$
+
+$$
+330\times1.2\times1.25=495\,\mu\mathrm F
+$$
+
+The revised screen therefore gives:
+
+| Check                                            |                Result |
+| ------------------------------------------------ | --------------------: |
+| Minimum bulk versus 10 × 18 µF bypass allocation |      **198 ≥ 180 µF** |
+| Maximum total capacitance                        | **495 + 18 = 513 µF** |
+| Remaining room below the 520 µF allocation       |              **7 µF** |
+
+So **the proposal is internally consistent under those assumptions**. But it leaves only 7 µF of room at the upper end—not much flexibility for subsequently adding downstream capacitance.
+
+More importantly, as your note correctly recognizes, those initial/post-endurance test factors do not establish the capacitor’s complete in-operation temperature-and-life behavior.
+
+There is a coupled design problem here:
+
+```text
+Downstream capacitance
+    → required bulk allocation
+    → startup charging demand
+    → chosen gate capacitance
+    → shutdown and restart behavior
+```
+
+I would optimize that complete relationship rather than keep enlarging individual parts whenever a local test becomes uncomfortable.
+
+The buck-input capacitor also has two competing acceptance questions: sufficiently small maximum capacitance for the clamp allocation, and sufficiently large effective capacitance for the buck. TI recommends a ceramic input decoupler over 10 µF and also calls for checking ripple current and layout-dependent input ripple. Passing the clamp’s maximum-capacitance screen does not establish the buck’s minimum-capacitance requirement. 
+
+## 5. The 18 V protection objective remains more important than the capacitance arithmetic
+
+The nominal clamp calculation is:
+
+$$
+V_{\text{clamp}}
+=1.275\left(1+\frac{59.0\,\mathrm{k\Omega}}{4.99\,\mathrm{k\Omega}}\right)
+\approx16.35\,\mathrm V
+$$
+
+Using the tabulated feedback-reference limits, feedback input-current limit, and your stated ±0.1% total resistor bounds, I get a **preliminary static screen of approximately 15.94–16.76 V**. This is not a transient maximum or a complete qualification across operating conditions. 
+
+At the upper end, that leaves approximately:
+
+$$
+18-16.76=1.24\,\mathrm V
+$$
+
+for dynamic overshoot and other effects before reaching the stated 18 V objective.
+
+For context, TI specifies **18 V as the UCC27511A’s maximum recommended supply voltage and 20 V as its absolute maximum**. The absolute maximum is not a substitute for meeting the chosen operating-voltage limit. 
+
+Therefore, the decisive question is:
+
+> **With the actual input surge, source impedance, load, PCB parasitics, and C3/C4 corners, what voltage appears at the driver’s supply pins?**
+
+A satisfactory bulk-capacitance ratio does not answer that. Neither does a satisfactory startup-ramp calculation.
+
+I would also review Q1 and C2 together. For example, at an illustrative 35 V input, 16.35 V output, and 0.23 A current:
+
+$$
+P_{Q1}\approx(35-16.35)\times0.23\approx4.3\,\mathrm W
+$$
+
+That is not automatically excessive for a transient, but its acceptability depends on duration and thermal conditions. A linear surge stopper deliberately dissipates surge energy in its MOSFET; its fault timer must be selected around that burden. ([Analog Devices][3])
+
+The FDB33N25’s headline voltage/current ratings alone do not settle this. Its published safe-operating-area plot carries specific case-temperature and pulse assumptions that must be reconciled with the actual installation. 
+
+**The relevant acceptance object is the complete voltage/current/time trajectory—not “the MOSFET is rated for much more than 35 V.”**
+
+## 6. The architectural question behind “is this overengineered?”
+
+There is one requirement worth making explicit:
+
+> **Must the auxiliary electronics remain powered through a brief upstream overvoltage, or is disconnecting the rail an acceptable response?**
+
+Your circuit chooses the first behavior for a limited interval: regulate through the event, then shut down if it persists.
+
+That is a legitimate choice. But it creates the linear-regulation, capacitor, and MOSFET-energy requirements you are now working through. An overvoltage-disconnect controller instead opens the supply path rather than maintaining a regulated output through the surge; ADI explicitly distinguishes these two approaches. ([Analog Devices][4])
+
+I am **not** recommending an immediate architecture change or claiming a disconnect design would automatically be smaller. It would still need suitable startup behavior, voltage margins, fault response, and system integration.
+
+However, that requirement should be settled before investing heavily in optimizing this particular implementation. Otherwise, you could end up carefully qualifying a ride-through capability the cooker never needed.
+
+Separately, a hypothetical drain-to-source short in Q1 would bypass this clamp. Whether that failure must be tolerated is a system-level safety requirement; the single pass device does not establish that tolerance by itself.
+
+## My updated verdict
+
+**The circuit is not component-heavy for what it is doing. Revision 18 improves the specificity of the proposal, but the design is still a conservative prototype rather than an optimized, validated appliance implementation.**
+
+The immediate priorities I would give it are:
+
+1. **Reconcile the C3/R7/D1 connection point with ADI Figure 5.** This is a concrete schematic-level question, not another speculative component addition.
+2. **Separate controller-reset recognition from gate discharge and restart timing.** In particular, qualify what the visible 120 ms instruction actually guarantees.
+3. **Validate the coupled startup and surge behavior with the revised capacitor corners**, especially the driver-pin voltage peak and Q1’s voltage/current/time exposure.
+
+I would **not add more protection parts or enlarge the capacitors again by default**. First settle those three issues. The most useful next revision is one that demonstrates the intended dynamic behavior—not merely one that passes a larger set of capacitance inequalities.
+
+[1]: https://www.analog.com/en/products/lt4363.html "LT4363 Datasheet and Product Info | Analog Devices"
+[2]: https://www.analog.com/media/en/technical-documentation/data-sheets/4363fb.pdf "LT4363 DS –  High Voltage Surge Stopper with Current Limit"
+[3]: https://www.analog.com/en/resources/technical-articles/how-to-easily-neutralize-overvoltages.html "How to Easily Neutralize Overvoltages with a Protective Circuit | Analog Devices"
+[4]: https://www.analog.com/en/resources/analog-dialogue/raqs/raq-issue-187.html "How to Choose the Right Protection for Your Circuit | Analog Devices"

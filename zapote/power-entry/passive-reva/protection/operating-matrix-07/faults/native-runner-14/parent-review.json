@@ -1,0 +1,29 @@
+{
+  "status": "PARENT_REVIEWED_SINGLE_CASE_NATIVE_FAULT_TRANSPORT",
+  "accepted_fault": false,
+  "utc": "2026-09-21T03:07:00.164538+00:00",
+  "source_sha256": "33ca143a9f83ae9ac3db3d45040cdad51123e8778f7c4532004d2711bd276363",
+  "binary": "/private/tmp/matrix07-fault-native-supervisor-parent",
+  "binary_sha256": "3bb74216e7650f3b09707c9e9fb778488ad42522250264f1ccebcaa8057f9000",
+  "tests_passed": 7,
+  "warnings_denied": true,
+  "parent_corrections": [
+    "Manifest must cover every executed source/include; pre/post checks",
+    "Native count must equal full adapter and validator counts",
+    "Typed metadata, zero/nonfinite/backwards rejection",
+    "Disk guard during compression drain;1s processpoll",
+    "Explicitplannedkind/bypassmapping",
+    "Required spinit fingerprint pre/post",
+    "FIFO opening confined to supervised child processes; RAII kill/reap",
+    "Canonical numeric CLI rendering and decoder stderr"
+  ],
+  "pipeline_test": "parent-synthetic-01:all6processesexit0,5rowsmatched;validatorNone explicitly nofaultclaim",
+  "negative_test": "parent-early-exit-01:truehost no metadata rejects promptly; noFIFOleft",
+  "limitations": [
+    "Synthetic5rowfixture istransportonly; actual protection decision notproven bythissmoke",
+    "Exit0/COMPLETE_REVIEW_PENDING neveracceptance",
+    "Parent separately verifies sourcebaseline, actualhealthy/prefaultnormal/phase andfaultdecision",
+    "Expectedfault/observation/turnoff/localpacing contracts independently reviewed in case preparation"
+  ],
+  "required_initialization": "SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts"
+}

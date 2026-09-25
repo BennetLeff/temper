@@ -1,0 +1,23 @@
+{
+  "status": "PARENT_REVIEWED_ANALYSIS_ONLY_TRANSPORT",
+  "acceptance": false,
+  "utc": "2026-09-21T04:14:37.221603+00:00",
+  "source_sha256": "b254feee1ff8b8356a09c81fe03d8807c7411f0accf2457ed149322c3e79a738",
+  "binary": "/private/tmp/matrix07-reanalysis23-parent",
+  "binary_sha256": "e41eba5f5447841463d66f925f6df708a68131a8ea5eab0964c4742d3ece9425",
+  "tests_passed": 4,
+  "warnings_denied": true,
+  "reviewed": [
+    "No simulation; existing gzip streamed through reviewed decoder/adapter and validator22",
+    "Original capture-stage1 hash/size, manifest and immutable run parameter binding",
+    "Typed bypass false preserved; exact timing unchanged",
+    "Explicit validator override separately pinned; other tool identities unchanged",
+    "Pre/post source/raw/tool hashes and successful pipeline row-count equality",
+    "New output only; 10GiB floor; 300..900s timeout; child/FIFO cleanup"
+  ],
+  "limitations": [
+    "Transport success does not imply fault acceptance",
+    "Early stage failure may wait for bounded timeout; all child outcomes retained",
+    "Some preflight failures can leave an empty output folder without a receipt; reject process exit remains visible"
+  ]
+}

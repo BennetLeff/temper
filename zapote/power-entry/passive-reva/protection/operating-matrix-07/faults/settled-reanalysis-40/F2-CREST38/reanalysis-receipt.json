@@ -1,0 +1,12 @@
+{
+  "status":"REVIEW_PENDING",
+  "classification":"COMPLETE_REVIEW_PENDING",
+  "detail":"transport complete; validator result remains diagnostic",
+  "source_case":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST",
+  "raw_trace_sha256":"d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "capture_points":32237324,
+  "child_exit_codes":[0,0,0,0],
+  "transport_complete":true,
+  "validator_success":true,
+  "acceptance":false
+}

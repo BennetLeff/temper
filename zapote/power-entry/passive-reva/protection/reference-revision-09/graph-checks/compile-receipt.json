@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/Users/bennet/.cargo/bin/rustc",
+    "--edition=2021",
+    "-D",
+    "warnings",
+    "check.rs",
+    "-o",
+    "parent-check"
+  ],
+  "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/graph-checks",
+  "dedicated_process_group": 55665,
+  "ended_unix": 1790050071.026363,
+  "error": null,
+  "interrupted_signal": null,
+  "resolved_command": "/Users/bennet/.cargo/bin/rustc",
+  "returncode": 0,
+  "started_unix": 1790050070.8497229,
+  "status": "completed",
+  "termination": "leader/group already exited",
+  "timeout_seconds": 60.0
+}

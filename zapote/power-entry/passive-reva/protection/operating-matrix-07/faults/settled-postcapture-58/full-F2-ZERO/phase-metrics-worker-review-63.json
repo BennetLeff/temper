@@ -1,0 +1,90 @@
+{
+  "status": "DIAGNOSTIC_PHASE_AND_NORMAL_METRICS_REVIEW",
+  "accepted": false,
+  "scope": "Bounded review of completed phase.json, normal-metrics.txt, and analysis-receipt.json only; no legacy checker, raw scan, solver, or hardware/model qualification claim.",
+  "raw_identity": {
+    "sha256_before_after": "7deb639fb05f7f63d2444e2d163aee4eb06b45349bc9cee120b9e112407b1bec",
+    "bytes": 5928407777,
+    "full_rows": 36625031,
+    "selected_rows": 30387314,
+    "prefix_endpoint_s": 0.6499999983055141
+  },
+  "phase_zero": {
+    "status": "PHASE_BOUNDS_REPORTED",
+    "declared_interval_s": [0.6483333333333, 0.6683333333333],
+    "end_s": 0.682000000000000051,
+    "expected_event_s": 0.658333333333300019,
+    "tolerance": 0.01,
+    "rows": 36625031,
+    "edge_count": 1,
+    "edge_time_s": 0.658333332837275353,
+    "edge_source_abs_bounds_v": [0.0000317365555107668106, 0.0000317365555676102430],
+    "local_peak_abs_v": 169.705627484672306,
+    "positive_peak": true,
+    "peak_tie_groups": 1,
+    "edge_source_spread_v": 0,
+    "D_observed_v": 2.84217094304040074e-14,
+    "D_bound_v": 2.84217094304040137e-14,
+    "criterion_error_using_representatives": 1.87009446943973334e-7,
+    "sufficient_bound_pass": true,
+    "strict_neighbors": {
+      "edge_before_s": 0.658333332817387817,
+      "edge_after_s": 0.658333332859293852,
+      "peak_before_s": 0.654166663133299964,
+      "peak_after_s": 0.654166682333299443
+    },
+    "initial_low": "The phase43 report completed its initial-low guard and reports one unique edge; it does not serialize a separate initial_low boolean, so this review records the guard as report-internal rather than inventing a numeric field."
+  },
+  "normal_metrics": {
+    "vrms_v": 120.0,
+    "vrms_screen": "PASS: 107.999 < 120.0 < 132.001",
+    "irms_a": 7.319917,
+    "irms_screen": "PASS: 7.319917 <= 15",
+    "real_input_power_w": 868.421306,
+    "load_power_w": 773.464306,
+    "vb_mean_v": 383.380033,
+    "vb_min_v": 381.306416,
+    "vb_max_v": 385.371115,
+    "vb_screen": "PASS: 370.13425 <= 383.380033 <= 409.09575",
+    "cycle_means_v": [382.8518777674912, 383.3994059697499, 383.88881545183125],
+    "cycle_mean_range_v": 1.036937684340046,
+    "cycle_mean_average_v": 383.38003306302414,
+    "three_cycle_drift_range_over_mean": 0.0027047253245178343,
+    "three_cycle_drift_screen": "PASS: 0.0027047253 < 0.005",
+    "reported_vb_drift": 0.002708,
+    "whole_prefix_peaks": {
+      "vd_v": 385.481126,
+      "vb_v": 385.371115,
+      "vds_v": 386.7781,
+      "vgs_abs_v": 14.982193
+    },
+    "peak_screens": "PASS: VD<500, VB<450, VDS<650, |VGS|<25",
+    "armed_fraction": 1.0,
+    "on_fraction": 1.0,
+    "armed_on_screen": "PASS: both >= 0.99",
+    "energy_residual_pin_pout_de_w": 68.11708477193176,
+    "energy_residual_screen": "PASS: 68.1170848 >= -max(1, 0.005*868.421306) = -4.34210653",
+    "boundary_duplicate_ambiguity": false,
+    "metrics_qualification": "NOT_CLAIMED"
+  },
+  "all_choice_uncertainty": {
+    "source": "normal-audit-worker-review-63",
+    "largest_normalized_same_time_delta": "v(acn)=1.45086236698069832e-5",
+    "integral_hull_prefix_bounds": {
+      "vac": 2.303861962810723210e-23,
+      "iin": 3.198527653653145392e-24,
+      "inputP": 3.966723069507226335e-22,
+      "loadP": 1.329883303898987436e-26,
+      "ac2": 4.372999764289902029e-21,
+      "i2": 2.588009897529603228e-23,
+      "VB": 3.344770238137090055e-27
+    },
+    "interpretation": "Representative-choice bounds are tiny compared with the reported normal-screen margins; this does not establish model or hardware validity."
+  },
+  "report_sha256": {
+    "phase.json": "2bf6ad3f5fa3e4f3af38ca83f8e2638da3908f4600682a98e21b2582a537955e",
+    "normal-metrics.txt": "e6614c38b29f557fa2066a647d738f17a735414acb08d015371c7ad71c83f481",
+    "analysis-receipt.json": "d749df691f54a9d43e92f47baafb3af38221baac96b0c0ad2d2d3d09b343ebec"
+  },
+  "method": "Verified phase43 bounds and strict-neighbor records from phase.json; recomputed cycle-mean range/mean and each declared normal screen from normal-metrics.txt; retained raw identity and small-report hashes. The live legacy checker was not inspected."
+}

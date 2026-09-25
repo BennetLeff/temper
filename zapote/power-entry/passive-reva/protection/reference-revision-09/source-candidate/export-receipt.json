@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/Users/bennet/.local/bin/uv",
+    "tool",
+    "run",
+    "--offline",
+    "--python",
+    "/opt/homebrew/opt/python@3.12/bin/python3.12",
+    "--from",
+    "atopile==0.2.69",
+    "python",
+    "/private/tmp/temper-pkgs-1-4/harness-lab/circuit_export.py",
+    "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/source-candidate",
+    "resolved-components.json",
+    "--entry-file",
+    "elec/src/power_entry_pfc_control_candidate.ato",
+    "--entry",
+    "PowerEntryPfcControlCandidate"
+  ],
+  "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/source-candidate",
+  "dedicated_process_group": 52846,
+  "ended_unix": 1790049184.95035,
+  "error": null,
+  "interrupted_signal": null,
+  "resolved_command": "/Users/bennet/.local/bin/uv",
+  "returncode": 0,
+  "started_unix": 1790049180.864089,
+  "status": "completed",
+  "termination": "leader/group already exited",
+  "timeout_seconds": 60.0
+}

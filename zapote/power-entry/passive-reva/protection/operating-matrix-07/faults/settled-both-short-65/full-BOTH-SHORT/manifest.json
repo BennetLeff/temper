@@ -1,0 +1,61 @@
+{
+  "status": "PREPARED_UNEXECUTED_COMPACT_PACER_CANDIDATE",
+  "case": "BOTH-SHORT",
+  "t_fault_s": 0.6541666666667,
+  "tstop_s": 0.662,
+  "prefault_window_s": 0.002,
+  "pacing_step_s": 2.5e-08,
+  "pacing_points": 3,
+  "fault_schema_columns": 17,
+  "branch_marker_extra_columns": 4,
+  "source_closure_sha256": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "output_sha256": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "case.cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51"
+  },
+  "execution": "PREPARED_UNEXECUTED; no simulation/raw trace/acceptance; parent must verify endpoint and fault prefix",
+  "lineage": "../../accepted-baseline-11 via ../materializer-09",
+  "source_case": "accepted-baseline-11",
+  "expanded_materialized_case_sha256": "e6a52489240cdddf53884050ecbf530e9f65867241095760da891823b44e13f5",
+  "expanded_pacing_points": 393336,
+  "compact_pacer": {
+    "replacement": "exactly one materializer Vschedule/Rschedule block replaced; electrical graph and fault controls unchanged",
+    "pwl": "PWL(0 0 25n 1 50n 0) r=0",
+    "delay_s": 0.6521666416667,
+    "period_s": 5e-08,
+    "corner_step_s": 2.5e-08,
+    "pacing_start_s": 0.6521666416667,
+    "tstop_s": 0.662,
+    "finite_materializer_endpoint_value": 1,
+    "compact_predicted_endpoint_value": 0.333332,
+    "endpoint_equal": false,
+    "endpoint_contract": "must verify actual accepted ngspice final sample; compact phase differs from finite forced endpoint for this candidate",
+    "isolated_benchmark": "../compact-pacer-bench-18 parent review only; no full-deck equivalence claim",
+    "solver_line": "exact `.options klu` line added after deck title, matching startup-klu-candidate-17; no other solver/tolerance change",
+    "solver_reference": "../../startup-klu-candidate-17/case.cir",
+    "source_transformations": [
+      "materializer mechanical case graph/control/sense/save additions from accepted-baseline-11",
+      "replace exactly one finite Vschedule/Rschedule timing block with compact repeating PWL",
+      "add exactly one `.options klu` line as startup-klu-candidate-17"
+    ],
+    "exact_delay_literal": "6.521666416667e-1",
+    "expanded_first_pwl_time_literal": "6.521666416667e-1",
+    "first_corner_matches_expanded": true
+  },
+  "compact_case_sha256": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+  "runner_kind": "both-short",
+  "validator_kind": "both-short",
+  "kind_mapping_note": "Materializer uppercase case name is mapped to native supervisor/adapter CLI spelling; manifest case remains unchanged for source identity."
+}

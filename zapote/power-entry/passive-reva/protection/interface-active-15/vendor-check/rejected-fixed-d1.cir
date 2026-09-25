@@ -1,0 +1,35 @@
+* Existing TI SN74HCS74 model; two physical halves, ideal 5V supplies/inputs.
+* Checks proposed Q2->D1 session authorization and asynchronous common clear.
+.include SN74HCS74.CIR
+Vlogic vcc 0 5
+Vclear clear 0 PWL(0 0 .5u 0 .501u 5 3u 5 3.001u 0 3.1u 0 3.101u 5 9u 5)
+Vsession session 0 PWL(0 0 1u 0 1.001u 5 5u 5 5.001u 0 6u 0 6.001u 5 9u 5)
+Vstart start 0 PWL(0 0 .7u 0 .701u 5 .8u 5 .801u 0 2u 0 2.001u 5 4u 5 4.001u 0 4.5u 0 4.501u 5 7u 5 7.001u 0 8u 0 8.001u 5 9u 5)
+Xauth vcc session clear vcc auth auth_n vcc 0 SN74HCS74
+* TI macro-model D input contains internal 10nF capacitance, not real pin C.
+* Ideal unity transport removes that artificial inter-model load. Not hardware.
+Edata auth_data 0 auth 0 1
+Xrun vcc start clear vcc run run_n vcc 0 SN74HCS74
+Cauth auth 0 50p
+Cauthn auth_n 0 50p
+Crun run 0 50p
+Crunn run_n 0 50p
+.tran 1n 9u
+.control
+set wr_singlescale
+set wr_vecnames
+run
+meas tran premature_start FIND v(run) AT=.9u
+meas tran authorized FIND v(auth) AT=1.5u
+meas tran first_start FIND v(run) AT=2.5u
+meas tran fault_auth FIND v(auth) AT=3.08u
+meas tran fault_run FIND v(run) AT=3.08u
+meas tran held_session_recovery FIND v(auth) AT=3.5u
+meas tran stale_start FIND v(run) AT=4.8u
+meas tran fresh_session FIND v(auth) AT=6.5u
+meas tran held_start_no_enable FIND v(run) AT=6.5u
+meas tran fresh_start FIND v(run) AT=8.5u
+wrdata rejected-fixed-d1.tsv v(clear) v(session) v(start) v(auth) v(run)
+quit
+.endc
+.end

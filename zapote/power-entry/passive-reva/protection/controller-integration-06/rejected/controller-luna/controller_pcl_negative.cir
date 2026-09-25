@@ -1,0 +1,26 @@
+* Negative control: live ISENSE crosses TI nominal PCL threshold.  It must
+* inhibit a pulse after 300 ns; a fixed-PWM/enable-only model would fail this.
+.title UCC28180 cycle-by-cycle PCL negative control
+Vcc vcc 0 15
+Vvs vsense 0 5
+Vis isense 0 PWL(0 0 30u 0 31u -0.5 45u -0.5 46u 0 100u 0)
+Vrun run 0 5
+Vfreq freq 0 1.5
+Rgateout gate 0 10k
+.include ucc28180_behavioral.inc
+.tran 20n 100u
+.control
+set filetype=ascii
+set wr_singlescale
+set wr_vecnames
+run
+meas tran gate_before FIND v(gate) AT=29.5u
+meas tran gate_pcl FIND v(gate) AT=33u
+meas tran gate_before_max MAX v(gate) FROM=20u TO=30u
+meas tran gate_pcl_after_blank FIND v(gate) AT=40u
+meas tran pcl_flag FIND v(ucc_pcl) AT=33u
+wrdata controller_pcl_negative.tsv time v(isense) v(gate) v(ucc_pcl)
+write controller_pcl_negative.raw all
+quit
+.endc
+.end

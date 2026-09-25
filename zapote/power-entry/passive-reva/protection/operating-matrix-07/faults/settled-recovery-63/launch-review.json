@@ -1,0 +1,21 @@
+{
+  "status": "PREPARED_SAVED_ARCHIVE_REANALYSIS",
+  "accepted": false,
+  "tools_sha256": {
+    "/private/tmp/matrix07-reanalysis40-parent": "c71ff3be26bd88eeb0d66555b876cb3f870d3fad96fa553bd745cd1ef3f2edf0",
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-fault-adapter-parent": "53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae",
+    "/private/tmp/matrix07-fault-validation22-parent": "63f6d17b123acd696c1f30fa546e7546ae43cf45cfb660cda44086bab3afb12f"
+  },
+  "source": "faults/settled-direct-capture-51/full-F2-ZERO",
+  "output": "faults/settled-recovery-63/full-F2-ZERO",
+  "prior_failure_preserved": true,
+  "independent_selector_full_rows": 36625031,
+  "scan_exit": [
+    0,
+    0,
+    0
+  ],
+  "root_cause": "Initial stage2 header loss unestablished. Successful complete independent scan contradicts claim of undecodable archive. No changes to frozen tools/circuit/criteria."
+}

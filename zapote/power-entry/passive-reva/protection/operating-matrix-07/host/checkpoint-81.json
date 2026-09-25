@@ -1,0 +1,34 @@
+{
+  "at_utc": "2026-09-22T00:05:15.937174+00:00",
+  "status": "SW_SHORT_NUMERICAL_ABORT_DIODE_SHORT_RUNNING",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: SW postcapture and later fault packets prepared; selected inductor evidence reviewed",
+  "this_goal_turn": "progress: SW abort captured and rejected without loosening criteria; exported archive preserved; bounded tail diagnostic started; source-verified DIODE launched; resource and worker-causality reviews corrected/verified",
+  "completed_sessions": {
+    "76829": 1
+  },
+  "live_sessions": {
+    "52815": "DIODE-SHORT64 full solver",
+    "3321": "SW partial archive79 last256 original-row extraction; no acceptance"
+  },
+  "runner_pid": 54751,
+  "monitor_pid": 54752,
+  "latest_progress": "241.451612\t1.15114053778725731e-1\t17.388830\t3.613371085064e-4\t3594887\tfalse\t0\t0\tfalse",
+  "free_bytes": 42827735040,
+  "new_fault_acceptance": false,
+  "artifacts_sha256": {
+    "faults/settled-sw-short-59/full-SW-SHORT/parent-disposition-80.json": "d895d1824ca8fe356ea7fb9a3704e64b242566442684736ee5ef0cefdba01a52",
+    "faults/sw-short-abort-parent-review-80.json": "dd41fbe27c2707991cf7b4b66cef92b7bca5039e7e5da484f59d95835cd37a7c",
+    "faults/sw-short-abort-diagnostic-79/extract-tail.sh": "7403f773147d5d833908c1104bbc3ad3baae3e81924eda2d1ab4b9849d5d604a",
+    "faults/settled-sw-short-59/resource-parent-review-80.json": "a268f3f4d7de60e33f69b32ef09805bdf717b2eb3ffdcf857c14d062420efb5f",
+    "faults/settled-diode-short-64/launch-review-80.json": "c6120fafec27f6a8ec6cef6ff1dc5b19cdcbdc7509d2abb24e7173c54ee94f86",
+    "faults/settled-diode-short-64/live-parent-review-80.json": "dbc93c3342dce759da63541a730282badd5c0a38455972ee01085c60658f0fdb",
+    "host/google-drive-backup-checkpoint-77.json": "8ce3e2ac3cf7c856d6185953386b18d0c8d7e4b045053233543635a01fee8fab",
+    "host/campaign-evidence-register-28.md": "4947eb2d82914a72b89415d648a15168acd516893a59faf0f3e41dcc19a80905",
+    "host/simulation-to-prototype-decisions.md": "c7ca46813c93c41dee9083f18897ec9c875d431ba670c0ec3b61b2ae6d2201d7",
+    "host/model-gap-closeout-12.md": "be3c43880127d2a1a879fb7edc60d6bd0d4582f1477b95ae2bd98ba578545e78"
+  },
+  "blocked_turn_count": 0,
+  "active_children": "none; finished workers interrupted",
+  "next": "Poll same3321 and inspect bound tail without upgrading partial simulation. Follow same52815, do not restart. If complete DIODE capture, run74 full diagnostics and legacy, then parent electrical assessment. Then BOTH65/75 and BYPASS66/76 sequentially. Investigate SW retry only with measured, state-relevant discriminating evidence."
+}

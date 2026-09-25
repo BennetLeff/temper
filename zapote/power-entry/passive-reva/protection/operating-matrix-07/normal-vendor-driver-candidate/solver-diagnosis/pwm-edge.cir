@@ -1,0 +1,24 @@
+* Reduced reproduction candidate for the full-plant UCC27511A stall.
+* Keep the retained model and split output load; only the controller boundary
+* is reduced to a periodic PWM source and fixed qualified supplies.
+.include ../vendor/UCC27511A.lib
+Vaux aux15 0 15
+Vdisable disable 0 0
+Vpwm pwm 0 PULSE(0 5 100u 1n 1n 30u 61.728395u)
+Xdriver disable pwm aux15 0 outh outl UCC27511A
+Rgon outh gate 10
+Rgoff outl gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.tran 100n 1m 0 100n
+.control
+set ngbehavior=ps
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+wrdata pwm-edge.tsv v(pwm) v(outh) v(outl) v(gate)
+quit
+.endc
+.end

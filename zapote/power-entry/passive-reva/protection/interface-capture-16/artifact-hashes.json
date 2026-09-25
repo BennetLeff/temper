@@ -1,0 +1,228 @@
+{
+  "files": [
+    {
+      "path": "audit-tests.log",
+      "sha256": "b1a601e151946372286d79d3d1126403bf44f1985212b5b34f9e2e7b2856cf7d"
+    },
+    {
+      "path": "auditor.rs",
+      "sha256": "3b94a081f519b966cdbd995cd55e776ff2926260411e867e49c48c5a9940e0ef"
+    },
+    {
+      "path": "bench-addendum.md",
+      "sha256": "b2193b5bc24393870d0bfecc2beb354c64ff7d2d7568fe1607fbb68703dd9e60"
+    },
+    {
+      "path": "capture-screen.csv",
+      "sha256": "441f80d5b5ee7dca4b6a32fa5d9c9e96c6cd3f6665e814032a677d12002e52d8"
+    },
+    {
+      "path": "capture-screen.rs",
+      "sha256": "ed3bbefbcde4e6860ca3851a62c50bed3ab8206621f500d515ac706736402ae8"
+    },
+    {
+      "path": "capture.rs",
+      "sha256": "61f8bdb6deea1d8501b94c6d2c19ad11e18556af23b9393c8e63a2bece57a4f1"
+    },
+    {
+      "path": "clamp-erc.json",
+      "sha256": "0ca5e05ac834fcd9301513a04265e6557c39d8c92ad78ea445e7acc30ca38a31"
+    },
+    {
+      "path": "clamp-expected.tsv",
+      "sha256": "f2b25e223ec96a7ad11747a36b6e9ca7ae0db42c95d39263be4d99a6cd40a1d0"
+    },
+    {
+      "path": "clamp-gate-detail.png",
+      "sha256": "536ab32ad9f7f3c12a3b74b03b06b50737390f151fe4659ff9d79db696fc9a7b"
+    },
+    {
+      "path": "clamp-symbols.kicad_sym",
+      "sha256": "e0da4d1d6795ba14f6c9cd1d46734632d127c1cf2583c5aa806674b8a73e53be"
+    },
+    {
+      "path": "clamp.kicad_pro",
+      "sha256": "35125d16e651564b8867a7ffb75ef1cf84f273c398287a6ed7ad07c728aeed8c"
+    },
+    {
+      "path": "clamp.kicad_sch",
+      "sha256": "6d66b259b03e1efddb9aed6200246679cf5c8f4ede4e026c49129757aa0c2793"
+    },
+    {
+      "path": "clamp.net",
+      "sha256": "fcb977c0c6ec65f02e44332a34ee4a487f556577199bb9a3d5788554e73370f9"
+    },
+    {
+      "path": "clamp.pdf",
+      "sha256": "66e3d2f49ff8722f9ace3c06fa15f0815dff3694bf7965032a352ddc276d0f9e"
+    },
+    {
+      "path": "clamp.png",
+      "sha256": "dfc59f70832b1ae9011e144cd9669d95927bd4d439cc23138b85e7510c077a03"
+    },
+    {
+      "path": "erc-review.json",
+      "sha256": "e4ea653165e377e88faedb6194f08d437559e2730bbf888bf016045fc4814b68"
+    },
+    {
+      "path": "export.log",
+      "sha256": "477ee28186dd0c6415e505cccbad8a961c5971d82ca5cfbcc48802cff8ae005f"
+    },
+    {
+      "path": "fp-lib-table",
+      "sha256": "95dfaddd198ef18b6624a464713889dc8aee82f08fd9e0215fc660f5979948cf"
+    },
+    {
+      "path": "input-identity.json",
+      "sha256": "57b382f5ef5430b584d1fab54d5260ae723080da60f34f3eaa2b8230de6bbaf8"
+    },
+    {
+      "path": "native-audit.log",
+      "sha256": "57d061efcf1190d3d57f7c400a88f153799171f669c3a875c6f4822202e1b431"
+    },
+    {
+      "path": "negative-control-run.log",
+      "sha256": "a4cf772cbe2350c11266c2b9012bb40facb0bd3b6bcf4b4336e20db55ba3f8c0"
+    },
+    {
+      "path": "negative-controls.json",
+      "sha256": "a4cf772cbe2350c11266c2b9012bb40facb0bd3b6bcf4b4336e20db55ba3f8c0"
+    },
+    {
+      "path": "negative-controls.mjs",
+      "sha256": "70e57ce5871553ba912cdff25a465b140aae9e289436a3f999b9958cf412458e"
+    },
+    {
+      "path": "negative-controls/clamp-sense-shorted-to-input/clamp-expected.tsv",
+      "sha256": "f2b25e223ec96a7ad11747a36b6e9ca7ae0db42c95d39263be4d99a6cd40a1d0"
+    },
+    {
+      "path": "negative-controls/clamp-sense-shorted-to-input/clamp.kicad_sch",
+      "sha256": "e602a4263d5abef0f84fad1f5758daa3301888caad724863c586ec91ed4213ff"
+    },
+    {
+      "path": "negative-controls/clamp-sense-shorted-to-input/clamp.net",
+      "sha256": "5a45828b5d963e8417b5290c14784b84c6841e822ef781a121f378e11b43a9e1"
+    },
+    {
+      "path": "negative-controls/clamp-sense-shorted-to-input/export.log",
+      "sha256": "ab0c2a8aec9bf3f0b80c9efdeff9eee52c377a6d3a4b37632e89621ce1015cec"
+    },
+    {
+      "path": "negative-controls/clamp-sense-shorted-to-input/rejection.log",
+      "sha256": "657295f9c0843c17c53224470b12b78c0e9ae3c9f42db5e188f48cb09d8055d8"
+    },
+    {
+      "path": "negative-controls/clamp-sense-shorted-to-input/reset-expected.tsv",
+      "sha256": "e911835bddfc85383619bf3711cb6f3c43c1a8d317b67e3daae604f63d30e23c"
+    },
+    {
+      "path": "negative-controls/clamp-sense-shorted-to-input/reset.net",
+      "sha256": "ca79215a6556c08db725cd82b4f4182f397ab3996cbb56e824efde95f4157945"
+    },
+    {
+      "path": "negative-controls/hot-run-data-fixed-high/clamp-expected.tsv",
+      "sha256": "f2b25e223ec96a7ad11747a36b6e9ca7ae0db42c95d39263be4d99a6cd40a1d0"
+    },
+    {
+      "path": "negative-controls/hot-run-data-fixed-high/clamp.net",
+      "sha256": "fcb977c0c6ec65f02e44332a34ee4a487f556577199bb9a3d5788554e73370f9"
+    },
+    {
+      "path": "negative-controls/hot-run-data-fixed-high/export.log",
+      "sha256": "ab0c2a8aec9bf3f0b80c9efdeff9eee52c377a6d3a4b37632e89621ce1015cec"
+    },
+    {
+      "path": "negative-controls/hot-run-data-fixed-high/rejection.log",
+      "sha256": "a0f46f0f98547dc9497fa32531cf883c22af3b5b21ac6e7041fac893b5b4cb17"
+    },
+    {
+      "path": "negative-controls/hot-run-data-fixed-high/reset-expected.tsv",
+      "sha256": "e911835bddfc85383619bf3711cb6f3c43c1a8d317b67e3daae604f63d30e23c"
+    },
+    {
+      "path": "negative-controls/hot-run-data-fixed-high/reset.kicad_sch",
+      "sha256": "938e209a7aa1d84ee77513bee6e264cbb7102e7176137dda9ed8992419ba5a37"
+    },
+    {
+      "path": "negative-controls/hot-run-data-fixed-high/reset.net",
+      "sha256": "493cf1463e22279234148ae5666e2e595e0ad78442c37fbcd7b434a07569289b"
+    },
+    {
+      "path": "README.md",
+      "sha256": "df4b310756eb0a6c23e82f32a25c60877a09d27a7830348a8617ba76572dad12"
+    },
+    {
+      "path": "receipt.json",
+      "sha256": "2ebccddc44405159e18f2ddabc01a0a9c3d3d6f64c3223bb778c81c9a1ddd4b9"
+    },
+    {
+      "path": "renders/clamp.svg",
+      "sha256": "156828793db5b75b83e8dbad5f067e494478632bb326cf49f18a96f7e359f0dd"
+    },
+    {
+      "path": "renders/reset.svg",
+      "sha256": "7e8671ce18e938dccf96054731eec11fc8b306451419925b798287985dbc4dfd"
+    },
+    {
+      "path": "reset-erc.json",
+      "sha256": "640e602a61489bf956ce8378ebeafd2cd368c798c40541bba2b56b06f058fb41"
+    },
+    {
+      "path": "reset-expected.tsv",
+      "sha256": "e911835bddfc85383619bf3711cb6f3c43c1a8d317b67e3daae604f63d30e23c"
+    },
+    {
+      "path": "reset-latch-detail.png",
+      "sha256": "657ca150cc99abff0ca0197b37041d74537ffb7afb2d9da56f4992b350c471df"
+    },
+    {
+      "path": "reset-symbols.kicad_sym",
+      "sha256": "a7b3160ab550e46ae857cf50cc780d786f0a1173c463486b848d0289758fc1f4"
+    },
+    {
+      "path": "reset.kicad_pro",
+      "sha256": "35125d16e651564b8867a7ffb75ef1cf84f273c398287a6ed7ad07c728aeed8c"
+    },
+    {
+      "path": "reset.kicad_sch",
+      "sha256": "a87bdb095b994cbe36ef89918bdea7deb6b0ca51d955e69acdf40b937526d0cc"
+    },
+    {
+      "path": "reset.net",
+      "sha256": "ca79215a6556c08db725cd82b4f4182f397ab3996cbb56e824efde95f4157945"
+    },
+    {
+      "path": "reset.pdf",
+      "sha256": "4c1e2c4150a8b1800ccf30d8d28797611ec78af77be5e740093409864774adf5"
+    },
+    {
+      "path": "reset.png",
+      "sha256": "459c92751a00c841a992612341460f4c9bd8fd87a0b76509974edcb5aee6d146"
+    },
+    {
+      "path": "review-handback-unaccepted.md",
+      "sha256": "2ad406969efe9c4d2dae0847512246f2fa9761fd0ee11b388dad2af84df34436"
+    },
+    {
+      "path": "review-resolution.md",
+      "sha256": "ec9dd0599d038aac1f1f557a32fe8037694349f9618a02c809ee38e558974cb6"
+    },
+    {
+      "path": "screen-tests.log",
+      "sha256": "15e54ce5ebf99926af038e329a2a4f678f7c9e55ae81cb30fef7b2a940c7332a"
+    },
+    {
+      "path": "sym-lib-table",
+      "sha256": "f13564df36c1725b8a8d14977f716ed674624c264678102d3be113cd3db4a836"
+    },
+    {
+      "path": "Temper16.kicad_sym",
+      "sha256": "cd145eb1a5df6699b3c6a3bda1161232679ecdf2d9e8782e1f3e875143bd7868"
+    },
+    {
+      "path": "verify.sh",
+      "sha256": "f067bc6750c89bd9b2ed4689d74deb37c4aa1da449e9f8286883b785f50e40f6"
+    }
+  ]
+}

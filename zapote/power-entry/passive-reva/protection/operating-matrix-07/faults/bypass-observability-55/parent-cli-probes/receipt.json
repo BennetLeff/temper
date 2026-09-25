@@ -1,0 +1,96 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "off_then_on",
+      "exit": 0,
+      "stderr": "",
+      "input_sha256": "f3690556c475ecf1c7e989504fdec8033034e3b72dec5e4f5a56ea454a401757"
+    },
+    {
+      "case": "always_on",
+      "exit": 0,
+      "stderr": "",
+      "input_sha256": "52a70a543334f8fb7a0c2f5a6f32524e0e1075071e89237b737198ec56b50078"
+    },
+    {
+      "case": "reordered",
+      "exit": 0,
+      "stderr": "",
+      "input_sha256": "b91aaa97f0a21744f6102f9e8a56d037377e88598df9db8f32b9d955a33742bd"
+    },
+    {
+      "case": "equal_logic_rows",
+      "exit": 0,
+      "stderr": "",
+      "input_sha256": "6fdc0e3797a979abf58df862d3c9a0125a67650dd068828688c1f9861c92b8d5"
+    },
+    {
+      "case": "marker_same_time",
+      "exit": 1,
+      "stderr": "diagnostic rejected: row 4: equal-time fault_inject threshold transition is ambiguous\n",
+      "input_sha256": "4cc04683deae101d30bb854329c7e3eca60e443a681e9e26663727d461ba464a"
+    },
+    {
+      "case": "nonfinite_unused",
+      "exit": 1,
+      "stderr": "diagnostic rejected: row 5: nonfinite field 30\n",
+      "input_sha256": "2757333216f73ab09bf766069f193061db5a385bb26c1faa42db5ec85e7b0e0d"
+    },
+    {
+      "case": "missing_endpoint",
+      "exit": 1,
+      "stderr": "diagnostic rejected: trace endpoint differs from .662 s\n",
+      "input_sha256": "0ea972b574579ea671943f1b01624e1aeed5bb1c6167b0ea2687b9da90dd7ca8"
+    },
+    {
+      "case": "missing_start",
+      "exit": 1,
+      "stderr": "diagnostic rejected: trace does not start at zero\n",
+      "input_sha256": "3a37a8d37b752b15126e085c68ac30a96ab92653b27db3fda9b499151dd29816"
+    },
+    {
+      "case": "marker_fall_rerise",
+      "exit": 1,
+      "stderr": "diagnostic rejected: fault_inject fell after injection\n",
+      "input_sha256": "15a16b976b03b61ee9e219a8583bba357a01cb8b06f84a24b91593a5474c3e20"
+    },
+    {
+      "case": "negative_start",
+      "exit": 1,
+      "stderr": "diagnostic rejected: trace does not start at zero\n",
+      "input_sha256": "9e8852aa62c23ae6a982b43060e91bb17418c1c5dabf3a51d6962aa71c26c265"
+    },
+    {
+      "case": "injection_at_endpoint",
+      "exit": 1,
+      "stderr": "diagnostic rejected: fault_inject rising edge must be after healthy cutoff and before endpoint\n",
+      "input_sha256": "9b81faad1e440db815cf567745c78671e18d7ba16a49912ca50bcb0d07be4e00"
+    },
+    {
+      "case": "marker_falls_once",
+      "exit": 1,
+      "stderr": "diagnostic rejected: fault_inject fell after injection\n",
+      "input_sha256": "9fedfe7ad9c72b6ed9f086aba7cf89cfc06d937f19622b55913a91e343732bfc"
+    },
+    {
+      "case": "oversize",
+      "exit": 1,
+      "stderr": "diagnostic rejected: input line exceeds 16384 bytes\n",
+      "input_sha256": "0e8d3f5ff063250f5fa45fba1ed7d3660f9c88d18768fee16bc2e94dd86f88f8"
+    },
+    {
+      "case": "no_clobber",
+      "exit": 1,
+      "stderr": "diagnostic rejected: create output: File exists (os error 17)\n"
+    },
+    {
+      "case": "stdin_stdout",
+      "exit": 0
+    }
+  ],
+  "schema_matches_parent_reviewed_savedpin50": true,
+  "source_sha256": "e14d67e007466f087d71e0d933ac6d985f80efb7c6926058ff781bc67e3b081a",
+  "binary_sha256": "3bff9b4312cf9bb3c2118219e0f3bc5406482d8c2b83b728ad851b663bb40f6c",
+  "assertions": "Named-column mapping, inclusive thresholds, independent no-detector off/on observation, later renewed current, no-clobber, stdin, reordered headers, equal rows retained; malformed/absent endpoints/injection ambiguity reject."
+}

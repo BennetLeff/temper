@@ -1,0 +1,27 @@
+{
+  "status": "PARENT_CONFIRMED_RECORDED_EQUAL_GROUP_RANGES",
+  "adapter_report_sha256": "ad417f046342e450a6f5d028611d80b412391abd42486b36e1ca00268ef62338",
+  "measured_note_sha256": "eace21e625fac5223225b594d0b578dacf12bb4cd56602c90dc5302dbd171523",
+  "groups": [
+    {
+      "time_s": 0.651585501386003,
+      "rows": [
+        30186531,
+        30186532
+      ],
+      "source_spread_v": 1.4210854715202004e-14
+    },
+    {
+      "time_s": 0.6541666666667,
+      "rows": [
+        30640147,
+        30640148,
+        30640149,
+        30640150
+      ],
+      "source_spread_v": 2.842170943040401e-14
+    }
+  ],
+  "phase_acceptance": false,
+  "scope": "Independent extraction from complete adapter report, not another raw scan. Global local peak and conservative criterion still require successor audit."
+}

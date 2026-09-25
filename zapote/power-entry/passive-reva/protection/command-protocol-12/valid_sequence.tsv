@@ -1,0 +1,7 @@
+sample	healthy	source_ab	open_mask	received_ab	state	run
+0	false	00	00	00	WaitIdle	false
+1	true	01	00	01	Qualify	false
+2	true	01	00	01	Ready	false
+3	true	11	00	11	Prepared(0)	false
+4	true	10	00	10	Running	true
+5	false	10	00	10	WaitIdle	false

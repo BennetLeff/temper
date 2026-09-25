@@ -1,0 +1,20 @@
+{
+  "status": "RUNNING_NO_ELECTRICAL_VERDICT",
+  "observed_utc": "2026-09-21T17:10:36.430094+00:00",
+  "session": 99582,
+  "latest_progress": {
+    "wall_s": "282.078054",
+    "sim_s": "1.28474852514169791e-1",
+    "percent": "19.407077",
+    "recent_sim_s_per_wall_s": "2.675731177187e-4",
+    "callbacks": "4261110",
+    "first_invalid": "false",
+    "duplicate_count": "0",
+    "backwards_count": "0",
+    "nonfinite_time": "false"
+  },
+  "sample_count": 57,
+  "latest_resource_sample": "sample_utc=2026-09-21T17:10:32Z elapsed_s=282 runner_pid=14569\nFilesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 423610316  19805764    96% 2909344 198057640    1%   /System/Volumes/Data\nvm.swapusage: total = 16384.00M  used = 14794.56M  free = 1589.44M  (encrypted)\nowned_process_columns=pid,ppid,rss_kib,pcpu\n14569 14556   1968   0.0\n14801 14569   1504   0.0\n14802 14569 904016  99.1\nowned_rss_sum_kib=907488 runner_present=1\n",
+  "resource_scope": "Early run only; export and peak retained plot resource envelope remain unmeasured. Systemwide swap is not attributable solely to this run. RSSsum may doublecount shared pages.",
+  "pending_postcapture_preparation": "Luna /root/matrix_runner preparing a minimal runbook under faults/settled-postcapture-39; parent review required before execution."
+}

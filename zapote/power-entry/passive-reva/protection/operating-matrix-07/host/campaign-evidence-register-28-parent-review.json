@@ -1,0 +1,22 @@
+{
+  "status": "PARENT_REVIEWED_INTERIM_REQUIREMENT_REGISTER",
+  "utc": "2026-09-21T04:47:47.430862+00:00",
+  "document_sha256": "589d28c9c826d8c03baa3ceb4477f2478ed221a3fcd540ab8dc5a72bd3b2da11",
+  "goal_complete": false,
+  "parent_corrections": [
+    "Diode terminal-topology model gate already reviewed; full waveform gates stillpending",
+    "Parentpreparedreceiptstatus differsfromindividualcandidate manifests",
+    "Linkedkeyauthoritative sources"
+  ],
+  "verified": [
+    "Allninegridstatuses matchcurrentreceipts; LL05exportfailure isnot electricalacceptance",
+    "Startupfaulttimings/127Vlimit andcausalcurrentcaveat matchactualsame-rawreceipt",
+    "Manufacturer document86374 andlowcurrentVF guarantee limits matchretainedaudit",
+    "Allsevenfaultstatuses remainexplicit; sixsettledunexecuted"
+  ],
+  "remaining": "LL08retry,LL09,sixsettledfault dispositions including active F2-CREST38,finalconsolidation.",
+  "prior_document_sha256": "3e7beeea72cb0a7437f5948da66d416d8c64e5937f7c4d9009094ab24bd40b02",
+  "observed_utc": "2026-09-21T18:03:07.411826+00:00",
+  "current_review": "Parent verified38 fullcapture/raw/hash/gzip and sampledresource receipts. Reanalysis40global/local separation preservesfrozen25ns and all4children0; checkerPass diagnostic, pending ownprefix+phase. LL08retry41live; sevenacceptedpointsunchanged.",
+  "fault_runner_update": "Matched faults/native-runner-29/parent-review.json:12/12 bounded tests, no electrical acceptance."
+}

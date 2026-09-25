@@ -1,0 +1,22 @@
+[
+  {
+    "case": "no_blank",
+    "exit": 0,
+    "log": "\nNote: No compatibility mode selected!\n\n\nCircuit: isolated actual pwm bridges and hard analog consumers\n\nReducing trtol to 1 for xspice 'A' devices\nDoing analysis at TEMP = 27.000000 and TNOM = 27.000000\n\nUsing SPARSE 1.3 as Direct Linear Solver\nOperating point simulation skipped by 'uic',\n  now using transient initial conditions.\ndoAnalyses: TRAN:  Timestep too small; time = 0.351509, timestep = 1.69706e-15: trouble with node \"drv_req\"\n\n\nrun simulation(s) aborted\n\nNo. of Data Rows : 38\nTransient timepoints = 435\n\nTransient iterations = 1882\n\nRejected timepoints = 14\nngspice-45.2 done\n"
+  },
+  {
+    "case": "no_gate",
+    "exit": 0,
+    "log": "\nNote: No compatibility mode selected!\n\n\nCircuit: isolated actual pwm bridges and hard analog consumers\n\nReducing trtol to 1 for xspice 'A' devices\nDoing analysis at TEMP = 27.000000 and TNOM = 27.000000\n\nUsing SPARSE 1.3 as Direct Linear Solver\nOperating point simulation skipped by 'uic',\n  now using transient initial conditions.\n\nNo. of Data Rows : 35\nTransient timepoints = 420\n\nTransient iterations = 866\n\nRejected timepoints = 2\nngspice-45.2 done\n"
+  },
+  {
+    "case": "linear_gate",
+    "exit": 0,
+    "log": "\nNote: No compatibility mode selected!\n\n\nCircuit: isolated actual pwm bridges and hard analog consumers\n\nReducing trtol to 1 for xspice 'A' devices\nDoing analysis at TEMP = 27.000000 and TNOM = 27.000000\n\nUsing SPARSE 1.3 as Direct Linear Solver\nOperating point simulation skipped by 'uic',\n  now using transient initial conditions.\n\nNo. of Data Rows : 60\nTransient timepoints = 451\n\nTransient iterations = 931\n\nRejected timepoints = 8\nngspice-45.2 done\n"
+  },
+  {
+    "case": "linear_driver",
+    "exit": 0,
+    "log": "\nNote: No compatibility mode selected!\n\n\nCircuit: isolated actual pwm bridges and hard analog consumers\n\nReducing trtol to 1 for xspice 'A' devices\nDoing analysis at TEMP = 27.000000 and TNOM = 27.000000\n\nUsing SPARSE 1.3 as Direct Linear Solver\nOperating point simulation skipped by 'uic',\n  now using transient initial conditions.\ndoAnalyses: TRAN:  Timestep too small; time = 0.351509, timestep = 1.69706e-15: trouble with node \"pwm\"\n\n\nrun simulation(s) aborted\n\nNo. of Data Rows : 38\nTransient timepoints = 435\n\nTransient iterations = 1836\n\nRejected timepoints = 14\nngspice-45.2 done\n"
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_NOT_EXECUTED",
+  "accepted": false,
+  "case": "BOTH-SHORT",
+  "exact_source_hashes_verified": {
+    "case.cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+    "manifest.json": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b",
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "checks": [
+    "Diff vs reviewed SW-SHORT59: only case directory/names/hashes/kind substitutions",
+    "bash -n passed",
+    "shellcheck passed",
+    "All inherited pinned tools verified"
+  ],
+  "files_sha256": {
+    "launch.sh": "397e2cd93780ed739c7fece461cfaf5eadafefa00d8c8047c35f3420df4de007",
+    "source-tool-binding.json": "fdda07ff051d94a4a4048f8dfe179a73c8969af23d49be1b19ded1b9a584feba",
+    "README.md": "8c39b2f7391a17af1091304b566c0e33826f3e9eb4a747cb5f6283b8d4986e63",
+    "tools-parent.sha256": "082dd1572b3abd3f5e26562bb4945583cfae9633394692a46e881ee7dafa76f5"
+  },
+  "hold": "No launch until F2ZERO completed review and preceding fault assessed. Original stage2 header failure root cause unresolved; archive recovery pending.",
+  "limitations": "F2 held closed. Shared diode terminals, not independent die allocation. Model graph evidence only; node and detector failures precede short classification."
+}

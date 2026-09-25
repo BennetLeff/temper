@@ -1,0 +1,14 @@
+[
+  {
+    "case": "clamp-sense-shorted-to-input",
+    "export_exit": 0,
+    "audit_exit": 1,
+    "rejection": "AUDIT FAILED: clamp: U1.3 expected SNS, exported AUX_RAW"
+  },
+  {
+    "case": "hot-run-data-fixed-high",
+    "export_exit": 0,
+    "audit_exit": 1,
+    "rejection": "AUDIT FAILED: reset: U6.2 expected ARM_AUTHORIZED, exported HOT_LOGIC5"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "status": "COMPLETED_NORMAL_DIRECT_EXPORT_RESOURCE_TRIAL",
+  "samples": 455,
+  "first_utc": "2026-09-21T17:57:14Z",
+  "last_utc": "2026-09-21T18:35:22Z",
+  "last_elapsed_s": 2288,
+  "minimum_observed_free_gib": 12.533557891845703,
+  "maximum_owned_rss_sum_gib": 3.7943115234375,
+  "swap_used_MiB": {
+    "first": 14178.56,
+    "last": 13986.56,
+    "maximum": 14178.56
+  },
+  "runner_exit": 0,
+  "monitor_exit": 0,
+  "export_elapsed_s": 29.933,
+  "full_case_wall_s": 2288.238,
+  "resource_samples_sha256": "bdbec76dc8da9cf8ee84e94d804f0d301ffdea287f38b648d08b2ac81d692c94",
+  "limits": "Five-second samples do not bound instantaneous peaks. RSS sum can double-count sharedmemory and excludes compressed/swappedpages. Systemwide swap is not attributable tooneprocess. No comparable oldrunpeak record exists for claimed numeric before/after reduction.",
+  "electrical_acceptance": false
+}

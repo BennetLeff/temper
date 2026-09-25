@@ -1,0 +1,29 @@
+{
+  "normal": {
+    "source_directory": "accepted-baseline-11",
+    "deck": "cold.cir",
+    "changes": "TSTOP650m->20u only",
+    "files_sha256": {
+      "cold.cir": "beac03848fab180441a0407a0332388f6cc64c64c187abdee782d3b9298b9292",
+      "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8"
+    }
+  },
+  "fault": {
+    "source_directory": "faults/native-capture-13/deck",
+    "deck": "case.cir",
+    "changes": "Exact archived20us fault transportfixture, no changes",
+    "files_sha256": {
+      "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+      "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "case.cir": "aae54891e1c217541c43f65e2b49b84b43a3e7cb8eb01f15fca881ff2e390dc4",
+      "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8"
+    }
+  }
+}

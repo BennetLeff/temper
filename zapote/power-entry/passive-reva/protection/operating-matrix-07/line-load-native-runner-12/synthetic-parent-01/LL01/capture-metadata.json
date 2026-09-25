@@ -1,0 +1,19 @@
+{
+  "stop_reason": "solver_stopped",
+  "points": 1300002,
+  "first_invalid": true,
+  "seen_names_mask": 65535,
+  "expected_names_mask": 65535,
+  "duplicate_count": 1,
+  "backwards_count": 0,
+  "continue_after_duplicate": true,
+  "diagnostic_only": true,
+  "accepted": false,
+  "export_format": "ngspice-real-native",
+  "byte_order": "little",
+  "writer_platform": "synthetic-fixture",
+  "schema": "normal15",
+  "validation_policy": "event-aware-normal-v1",
+  "synthetic_fixture": true,
+  "synthetic_fixture_note": "not ngspice and not electrical evidence"
+}

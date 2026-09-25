@@ -1,0 +1,43 @@
+{
+  "status": "PREPARED_NOT_LAUNCHED_BLOCKED_LL09_AND_CAPACITY",
+  "case": "F2-ZERO",
+  "output": "full-F2-ZERO",
+  "maximum_full_solvers": 1,
+  "required_free_gib": 16,
+  "runtime_floor_gib": 10,
+  "prospective_archive_reserve_gib": 6,
+  "gate_policy": {
+    "free_space_command": "df -Pk campaign-root",
+    "process_inventory_command": "ps -axo pid=,comm=",
+    "known_full_solver_names": [
+      "ngspice",
+      "matrix07-direct-normal37-parent",
+      "matrix07-direct-fault37-parent",
+      "matrix07-fault-native-host-parent",
+      "matrix07-fault-runner45-parent",
+      "matrix07-line-load-native-runner27-parent"
+    ],
+    "inventory_failure_is_blocking": true,
+    "empty_inventory_is_blocking": true,
+    "no_errexit_status_receipts": true
+  },
+  "observed_preparation_gate": {
+    "free_kib": 11992440,
+    "free_gib": 11.436386108398438,
+    "required_kib": 16777216,
+    "storage_gate": "BLOCKED",
+    "process_inventory": "UNAVAILABLE_IN_PREPARATION_SANDBOX_FAIL_CLOSED",
+    "ll09": "DO_NOT_LAUNCH_WHILE_LL09_IS_RUNNING"
+  },
+  "timing": {
+    "t_fault_s": 0.6583333333333,
+    "tstop_s": 0.682,
+    "prefault_window_s": 0.01,
+    "event_window_s": 0.01,
+    "observation_window_s": 0.01,
+    "turnoff_s": 0.000002,
+    "capture_max_gap_s": 0.000000025,
+    "outer_adapter_validator_max_gap_s": 0.000001
+  },
+  "launch_authority": "Parent must rerun both gates in the host environment and decide when LL09 has terminated; this packet itself never launches a solver."
+}

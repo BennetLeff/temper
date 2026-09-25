@@ -1,0 +1,27 @@
+{
+  "utc": "2026-09-21T05:14:49.972218+00:00",
+  "physical_memory_bytes": 34359738368,
+  "memory_pressure_query_free_percent": 77,
+  "producer_observed_cpu_percent": 99.1,
+  "producer_observed_rss_kib": 850544,
+  "free_bytes": 18534817792,
+  "reserve_bytes": 10737418240,
+  "observed_prior_archive_gib_range": [
+    1.969,
+    2.039
+  ],
+  "decision": "Do not launch another case until runner27 completes a full-size export and validation. If free space still covers two observed-size normal archives plus10GiB reserve and memory remains healthy, launch LL06 and LL07 concurrently (maximum2 full solvers). Reassess before each launch; forecasts are not bounds.",
+  "fault_capacity": "First settled42-column capture has no measured full-run size; do not replace its conservative forecast with normal15 archive size.",
+  "post_LL05_recheck": {
+    "utc": "2026-09-21T05:40:18.753652+00:00",
+    "free_bytes": 15244890112,
+    "actual_LL05_archive_bytes": 2167895869,
+    "decision": "Launch only LL06: free space about14.18GiB gives just0.1GiB beyond reserve plus two prior-size archives, too little forecast margin. Reconsider concurrent LL07 only if capacity improves. Do not infer cause of other disk usage."
+  },
+  "capacity_improved_32": {
+    "utc": "2026-09-21T07:24:20.097886+00:00",
+    "free_gib": 27.994674682617188,
+    "memory_pressure_query_free_percent": 74,
+    "decision": "LL07 launched alongsideLL06; at most2fullsolvers. Pending two normal archives~4GiB plus10GiBreserve fits28GiB. A firstsettledcase forecast6.6GiB also fits after a slot frees, subject freshprelaunchcheck; remainingfullcampaign notyetstorageguaranteed."
+  }
+}

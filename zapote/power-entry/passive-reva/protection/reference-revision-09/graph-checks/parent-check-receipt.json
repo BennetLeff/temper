@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/graph-checks/parent-check",
+    "../source-candidate/build/default.net"
+  ],
+  "cwd": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/graph-checks",
+  "dedicated_process_group": 55731,
+  "ended_unix": 1790050098.704651,
+  "error": null,
+  "interrupted_signal": null,
+  "resolved_command": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/reference-revision-09/graph-checks/parent-check",
+  "returncode": 0,
+  "started_unix": 1790050098.4090629,
+  "status": "completed",
+  "termination": "leader/group already exited",
+  "timeout_seconds": 30.0
+}

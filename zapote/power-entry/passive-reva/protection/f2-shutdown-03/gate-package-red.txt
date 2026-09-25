@@ -1,0 +1,24 @@
+   Compiling zapote-erc v0.1.0 (/private/tmp/temper-pkgs-1-4/zapote/packages/zapote-erc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.60s
+     Running tests/f2_shutdown.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/f2_shutdown-e31bd08faf624165)
+
+running 1 test
+test compiled_values_retain_screened_dividers_reference_and_gate_parts ... FAILED
+
+failures:
+
+---- compiled_values_retain_screened_dividers_reference_and_gate_parts stdout ----
+
+thread 'compiled_values_retain_screened_dividers_reference_and_gate_parts' (23261929) panicked at packages/zapote-erc/tests/f2_shutdown.rs:181:5:
+assertion `left == right` failed
+  left: String("RC0603FR-0710RL")
+ right: "RC1206FR-0710RL"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    compiled_values_retain_screened_dividers_reference_and_gate_parts
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p zapote-erc --test f2_shutdown`

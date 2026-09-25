@@ -1,0 +1,11 @@
+{
+  "status": "conditional static screen; no timing or noise bound",
+  "nominal_ov_trip_v": 16.5,
+  "trip_min_v": 16.049833,
+  "trip_max_v": 16.961738,
+  "normal_upper_margin_v": 0.299833,
+  "driver_18v_margin_v": 1.038262,
+  "raw_low_at_25ua_v": 0.252500,
+  "decay_to_1v51_at_1nf_us": 14.429124,
+  "minimum_reference_bias_ua": 220.772079
+}

@@ -1,0 +1,18 @@
+Prepared without launching a process.
+Source: accepted-baseline-11; baseline acceptance receipt: accepted-baseline-11/acceptance.json.
+Target: LL08, 132 VAC RMS, RLOAD 187.407220031 ohm, endpoint 0.65 s.
+Runner: /private/tmp/matrix07-line-load-native-runner27
+Runner SHA256: b8efe45b9ce4f12b31e3a1bd8928584ad63feaa29cc18bd31945c28c2e725a38
+Tracked host: /private/tmp/matrix07-normal-native-host-12
+Tracked SHA256: be4e56d6d071391ddd4f88b14faf4aef3363e2fc089f1c44205366dbe88fe4cd
+Normalizer SHA256: 37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff
+Checker SHA256: 24c95bea81b44a3d5038a32552297afed17547fcd1b3ddcfd99434e84638b85c
+Decoder SHA256: 23008f5bba4c560d87c97fde0822949fba5bccab7223af0b64fd49c6b221aea0
+Event metrics SHA256: 85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c
+Event audit SHA256: be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6
+Pigz SHA256: a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80
+Baseline cold.cir SHA256: db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94
+Baseline include hashes: protection.inc 61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8; standby.inc 94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb; clamp.inc 96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde; ucc28180-pwm-latch.inc 2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251; authored_logic_hysteretic.inc 95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b.
+Manifest SHA256: 51fffd081f36f43f4283c66dc5890ae9b025b7ef39926174c84b790bdd4ee0cc
+Preflight df available: 15511764 KiB (14.793 GiB); parent launch-gate receipt previously recorded 18.885 GiB. Recheck before launch.
+Reserve: 10 GiB floor + 2.2 GiB LL08 archive + approximately 2.0 GiB other archives. One worker only.

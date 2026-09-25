@@ -1,0 +1,33 @@
+{
+  "status": "OFFICIAL_VENDOR_FILES_RETRIEVED_AND_INVENTORIED",
+  "utc": "2026-09-21T23:34:38.230790+00:00",
+  "retrieval": "Host-approved HTTPS curl with fail-on-HTTP-error, redirects,45s timeout and filesizecap; both exited0. No downloadedcode executed. Earlier sandbox DNS failure retained.",
+  "model_url": "https://www.we-online.com/components/products/download/LTSpice_WE-TORPFC%20%28rev25a%29.zip",
+  "datasheet_url": "https://www.we-online.com/components/products/datasheet/760800301.pdf",
+  "files": {
+    "LTSpice_WE-TORPFC-rev25a.zip": {
+      "bytes": 2091,
+      "sha256": "bb43843ce5c69b99ae0f6686ad8d9467859f4075ea6a537101bd6ced903280b6"
+    },
+    "760800301.pdf": {
+      "bytes": 661997,
+      "sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8"
+    }
+  },
+  "zip_entries": {
+    "Disclaimer_READ_ME.txt": {
+      "bytes": 756,
+      "sha256": "a06eec7c421b098883721ce285ad569b1e3dbc0cfeeb9d78e1d58595ee2a086c"
+    },
+    "WE-TORPFC.asy": {
+      "bytes": 722,
+      "sha256": "2c29b699a4a3f44bc7434b0a8366ebf4f82c2527d0ec2b3c4693ac7a61179d94"
+    },
+    "WE-TORPFC.lib": {
+      "bytes": 3729,
+      "sha256": "81776ae67b004da39ff5f6c5d1568d1502aa1a92772e44837bd8c033c6a7dd3e"
+    }
+  },
+  "adopted_into_campaign": false,
+  "ngspice_compatibility_tested": false
+}

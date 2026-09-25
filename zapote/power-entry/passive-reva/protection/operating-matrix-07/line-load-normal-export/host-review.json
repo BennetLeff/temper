@@ -1,0 +1,17 @@
+{
+  "status": "ACCEPTED_FOR_FUTURE_GRID_EXPORT_ONLY",
+  "adopted_for_live650ms": false,
+  "host_binary": "/private/tmp/matrix07-normal-grid-host",
+  "host_binary_sha256": "0de0a88c44b4e0be3767dea2eee65547e1e8a80e0fd0b6507982c6082e354caf",
+  "host_source_sha256": "a8056fcc15a006a4842656678178bdd5e78d7fb6bc1c7f208881fd76fd4ba646",
+  "host_tests_passed": 5,
+  "paired_complete_smoke_rows": 497,
+  "paired_endpoint_s": 5e-05,
+  "electrical_source_equality": true,
+  "normal_export_numeric_tokens_identical": true,
+  "normalizer12_output_byte_identical": true,
+  "diagnostic_callback_mask": 65535,
+  "design_boundary": "All30savedvectors unchanged; only poststopwrdataexports14normalvectors,timeimplicit. Internal16continuouswaveformsnotexported forgrid; firstinvalidsnapshotretains16.",
+  "all_saved_nonfinite_guard": "Atomic callback latch selects full saved export on nonfinite real values; synthetic callback test passed.",
+  "normalized_rows_including_header": 498
+}

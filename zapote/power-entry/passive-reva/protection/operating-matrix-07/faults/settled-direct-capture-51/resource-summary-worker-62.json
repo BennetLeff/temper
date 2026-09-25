@@ -1,0 +1,45 @@
+{
+  "status": "READ_ONLY_RESOURCE_SUMMARY",
+  "source": "faults/settled-direct-capture-51/resource-samples.txt",
+  "sample_count": 516,
+  "sample_timestamp_start_utc": "2026-09-21T21:42:21Z",
+  "sample_timestamp_end_utc": "2026-09-21T22:57:02Z",
+  "elapsed_s_start": 0,
+  "elapsed_s_end": 4481,
+  "wall_elapsed_s": 4481,
+  "elapsed_wall_discrepancy_s": 0,
+  "sampling_intervals_s": {
+    "minimum": 5,
+    "maximum": 930,
+    "long_gaps": [
+      {"from_elapsed_s": 793, "to_elapsed_s": 1723, "gap_s": 930},
+      {"from_elapsed_s": 1773, "to_elapsed_s": 2686, "gap_s": 913}
+    ],
+    "interpretation": "The two long gaps are present identically in wall timestamps and elapsed_s; no suspend-clock discrepancy is measurable from this receipt."
+  },
+  "disk_available_kib": {
+    "minimum": 47125284,
+    "maximum": 52142708,
+    "minimum_at_utc": "2026-09-21T22:55:26Z"
+  },
+  "owned_rss_sum_kib": {
+    "maximum": 6755696,
+    "maximum_at_utc": "2026-09-21T22:54:36Z",
+    "final": 0
+  },
+  "owned_cpu_recorded": {
+    "qualitative": "Recorded per-process pcpu values are observable for owned descendants only; they are not a whole-system CPU measurement.",
+    "max_pcpu_percent_any_owned_pid": 404.9,
+    "max_by_pid": {
+      "96922": 0.4,
+      "97154": 404.9,
+      "97155": 100.0,
+      "22266": 100.0,
+      "22405": 14.5,
+      "22412": 95.1,
+      "23449": 99.9
+    },
+    "global_swap": "The vm.swapusage lines are retained in the source but are global host state and are not attributable to this run."
+  },
+  "parser_method": "Count sample_utc records; pair each with the following filesystem Available field and owned_rss_sum_kib field; compare UTC timestamp deltas with elapsed_s deltas; scan owned process rows for pcpu maxima. No raw trace, solver, or other artifact was opened or changed."
+}

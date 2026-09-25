@@ -1,0 +1,54 @@
+{
+  "prior_revision08_artifacts_unchanged": 21,
+  "candidate_source_and_build_hashes": [
+    {
+      "path": "elec/src/power_entry_f2_shutdown_revb.ato",
+      "sha256": "050818ac162a1aa93ecd63325588adb2102504c8148ecbcbf0898abce2377f68"
+    },
+    {
+      "path": "elec/src/power_entry_pfc_control_candidate.ato",
+      "sha256": "8491fb2fba480bcfa45713a0c2d9f67563bc6f197b727528c570d4939c345006"
+    },
+    {
+      "path": "build/default.csv",
+      "sha256": "9d5ec5e674291ce445509f3b634022bdc85d6c9d136878cfdbf68ffd5aa68168"
+    },
+    {
+      "path": "build/default.layouts.json",
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "build/default.net",
+      "sha256": "ad3dfc5edf66b28f2de13ccb2e90c27f28ef1c5e93e0d8303fb1be325c48eb33"
+    },
+    {
+      "path": "build/manifest.json",
+      "sha256": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+    }
+  ],
+  "revb_donor_byte_identical": true,
+  "compiled_component_count": 131,
+  "selected_instance_identity_checks": {
+    "isense_clamp": {
+      "datasheet": "https://www.vishay.com/docs/86374/bav23c.pdf",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "mpn": "BAV23C-E3-08"
+    },
+    "d_boost": {
+      "current_rating": "20A",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "mpn": "C3D20065D",
+      "voltage_rating": "650V"
+    },
+    "pfc": {
+      "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+      "mpn": "UCC28180D"
+    },
+    "protection.driver": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/ucc27511a.pdf",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "mpn": "UCC27511ADBVR"
+    }
+  },
+  "atopile_netlist_py_sha256": "29e9e2cd40c8ed96b34b496e6b2d0e62286af6fc20d65204fd0adcfb649a945b"
+}

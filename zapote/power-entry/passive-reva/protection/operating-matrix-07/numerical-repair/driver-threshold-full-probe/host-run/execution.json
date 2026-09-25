@@ -1,0 +1,18 @@
+{
+  "status": "DIAGNOSTIC_PARTIAL_NO_ADOPTION",
+  "accepted": false,
+  "producer_session": 96917,
+  "compressor_session": 13377,
+  "producer_exit": 0,
+  "compressor_exit": 0,
+  "inspector_exit": 0,
+  "wall_limit_s": 60,
+  "halt_wall_s": 60.017916,
+  "last_sim_s": 0.06632677284319667,
+  "rows": 1420780,
+  "nonincreasing": 0,
+  "min_positive_dt_s": 5.0306980803327406e-17,
+  "trace_sha256": "11a7d27fe907923c6b24bf1f396132a09532551ca38d57283c9583de74046762",
+  "source_receipt": "inputs.json",
+  "runtime_source": "progress.rs"
+}

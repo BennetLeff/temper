@@ -1,0 +1,57 @@
+rows=30108912
+equal_groups=45
+equal_repeats=66
+first_equal_time_s=Some(0.5015549144856807)
+last_equal_time_s=Some(0.6484408267086987)
+max_group_rows=3
+right_context_missing_groups=0
+solver_options=reltol:2.0e-4,vntol:1.0e-7,abstol:1.0e-10
+parameter_spec_sha256=3195dd698608326019ceff6dbd371a60f4feaaf8add7b91e7cab99245e46e24a
+max_adjacent_delta_by_column:
+  column=0 name=time max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=1 name=v(acsrc) max_abs=6.160220777928770985e-9 max_normalized=9.688407374113671108e-6 exact_changes=66 group=28 row=26325864 within_solver_tolerance=true
+  column=2 name=v(acn) max_abs=6.160220777928770985e-9 max_normalized=3.300618830314204282e-5 exact_changes=66 group=28 row=26325864 within_solver_tolerance=true
+  column=3 name=i(Vac) max_abs=8.954151153872658142e-8 max_normalized=1.185315851154886200e-4 exact_changes=66 group=29 row=26326267 within_solver_tolerance=true
+  column=4 name=v(load) max_abs=1.705302565824240446e-13 max_normalized=2.249781689912178519e-12 exact_changes=40 group=13 row=24821456 within_solver_tolerance=true
+  column=5 name=v(vb) max_abs=1.705302565824240446e-13 max_normalized=2.249604089823603618e-12 exact_changes=40 group=13 row=24821456 within_solver_tolerance=true
+  column=6 name=i(Lboost) max_abs=9.068257256217293616e-11 max_normalized=1.189168217794274009e-7 exact_changes=66 group=41 row=28799876 within_solver_tolerance=true
+  column=7 name=v(vd) max_abs=1.421085471520200372e-12 max_normalized=1.868902901061288297e-11 exact_changes=66 group=24 row=26058197 within_solver_tolerance=true
+  column=8 name=v(sw) max_abs=3.069544618483632803e-12 max_normalized=4.023745925834555450e-11 exact_changes=66 group=24 row=26058197 within_solver_tolerance=true
+  column=9 name=v(gate) max_abs=2.529108582174748043e-14 max_normalized=2.505552727298491054e-7 exact_changes=66 group=3 row=23027418 within_solver_tolerance=true
+  column=10 name=v(q) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=11 name=v(en) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=12 name=v(fault) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=13 name=v(vcomp) max_abs=1.332267629550187849e-15 max_normalized=2.309487488706979955e-12 exact_changes=38 group=29 row=26326266 within_solver_tolerance=true
+  column=14 name=v(icomp) max_abs=5.724309914967307122e-13 max_normalized=1.108386671642684939e-9 exact_changes=66 group=41 row=28799876 within_solver_tolerance=true
+  column=15 name=v(xu.raw) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=16 name=v(xu.pwm_hold) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=17 name=v(pwm) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=18 name=v(pwm_input) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=19 name=v(xdriver.driver_req) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=20 name=v(xdriver.drv_delay) max_abs=4.431854583230474355e-8 max_normalized=4.431404708999069353e-1 exact_changes=66 group=41 row=28799876 within_solver_tolerance=true
+  column=21 name=v(xu.phase) max_abs=0.000000000000000000e0 max_normalized=0.000000000000000000e0 exact_changes=0 group=0 row=0 within_solver_tolerance=true
+  column=22 name=v(xu.blank) max_abs=3.020466474078578161e-26 max_normalized=3.020466474078578401e-19 exact_changes=66 group=19 row=25644691 within_solver_tolerance=true
+  column=23 name=v(isense) max_abs=9.067607775747887899e-13 max_normalized=1.073418851874211694e-7 exact_changes=66 group=41 row=28799876 within_solver_tolerance=true
+  column=24 name=v(xu.ov) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=25 name=v(xu.fault) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=26 name=v(xu.pcl_hold) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=27 name=v(xu.pcl_request) max_abs=0.000000000000000000e0 max_normalized=N/A exact_changes=0 group=0 row=0 within_solver_tolerance=false
+  column=28 name=v(disable) max_abs=9.992007221626408864e-16 max_normalized=4.776928109936082407e-11 exact_changes=65 group=7 row=23851793 within_solver_tolerance=true
+  column=29 name=v(xu.m1) max_abs=4.440892098500626162e-16 max_normalized=4.421959911651787090e-12 exact_changes=46 group=29 row=26326266 within_solver_tolerance=true
+  column=30 name=v(xu.m2)
+ max_abs=1.554312234475219157e-15 max_normalized=5.627756757973075164e-12 exact_changes=53 group=29 row=26326266 within_solver_tolerance=true
+selected_state_energy_changes:
+  state=Cbank_vb coefficient=2.239999999999999804e-3 signed_sum_j=-8.710102790594694321e-13 absolute_sum_j=2.716364935446670716e-12 max_absolute_j=1.452011394438009581e-13 pairs=66
+  state=Clocal_vd coefficient=1.980000000000000016e-5 signed_sum_j=-4.909711228353380296e-13 absolute_sum_j=4.909711228353380296e-13 max_absolute_j=1.083648338341058797e-14 pairs=66
+  state=Lboost_current coefficient=1.800000000000000113e-4 signed_sum_j=-3.663265355094559088e-12 absolute_sum_j=3.663265355094559088e-12 max_absolute_j=6.718747349470687517e-14 pairs=66
+  state=Cds_sw_ground coefficient=3.440000000000000012e-10 signed_sum_j=-2.153258978082476348e-17 absolute_sum_j=2.153258978082476348e-17 max_absolute_j=4.027589767951034632e-19 pairs=66
+  state=Cgd_gate_sw coefficient=1.120000000000000010e-10 signed_sum_j=-6.949713946393299412e-18 absolute_sum_j=6.949713946393299412e-18 max_absolute_j=1.311308334382334939e-19 pairs=66
+  state=Cgs_gate_ground coefficient=1.199999999999999992e-8 signed_sum_j=1.427582574828926000e-25 absolute_sum_j=1.427582574828926000e-25 max_absolute_j=3.590408892741245245e-27 pairs=66
+  state=Cisense_ground coefficient=1.000000000000000062e-9 signed_sum_j=-2.214945990285527905e-21 absolute_sum_j=2.214945990285527905e-21 max_absolute_j=4.046933792931168849e-23 pairs=66
+  state=Cicomp_ground coefficient=2.700000000000000189e-9 signed_sum_j=-1.862557762611876534e-19 absolute_sum_j=1.862557762611876534e-19 max_absolute_j=3.990291756851309517e-21 pairs=66
+  state=Cvcomp_p_ground coefficient=2.200000000000000112e-7 signed_sum_j=-1.122646247793163874e-21 absolute_sum_j=1.465220888674331650e-20 max_absolute_j=8.452491281598163999e-22 pairs=66
+  state=Cdriver_delay_ground coefficient=1.874999999999999915e-8 signed_sum_j=9.736544058729038445e-22 absolute_sum_j=1.148689905328114354e-20 max_absolute_j=4.508734725978669519e-22 pairs=66
+  state=Cblank_ground coefficient=9.999999999999999799e-13 signed_sum_j=-4.432793191884053500e-59 absolute_sum_j=4.432793191884053500e-59 max_absolute_j=1.885857379036687186e-59 pairs=66
+selected_states_sum_absolute_j=6.870630110290268017e-12 (upper contribution bound for selected pairs only)
+diagnostic_only=within_solver_tolerance_is_not_acceptance_or_physical_proof
+event_artifact=numerical-repair/equal-time-error-budget/full-650ms-events.tsv

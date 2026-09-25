@@ -1,0 +1,137 @@
+{
+  "status": "PREPARED_UNEXECUTED_F2_CREST",
+  "case": "F2-CREST",
+  "source_prepared_from": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/prepared/F2-CREST",
+  "destination": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST",
+  "copied_files": {
+    "authored_logic_hysteretic.inc": {
+      "source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/prepared/F2-CREST/authored_logic_hysteretic.inc",
+      "destination": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/authored_logic_hysteretic.inc",
+      "source_sha256": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "destination_sha256": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+      "byte_equal": true
+    },
+    "case.cir": {
+      "source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/prepared/F2-CREST/case.cir",
+      "destination": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/case.cir",
+      "source_sha256": "2f506027a93c89e136d7cb637fe2d4d234aca5ffd4e2ab7009a29384c73eed7e",
+      "destination_sha256": "2f506027a93c89e136d7cb637fe2d4d234aca5ffd4e2ab7009a29384c73eed7e",
+      "byte_equal": true
+    },
+    "clamp.inc": {
+      "source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/prepared/F2-CREST/clamp.inc",
+      "destination": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/clamp.inc",
+      "source_sha256": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "destination_sha256": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "byte_equal": true
+    },
+    "cold.cir": {
+      "source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/prepared/F2-CREST/cold.cir",
+      "destination": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/cold.cir",
+      "source_sha256": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+      "destination_sha256": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+      "byte_equal": true
+    },
+    "manifest.json": {
+      "source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/prepared/F2-CREST/manifest.json",
+      "destination": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/manifest.json",
+      "source_sha256": "a034475e9dadb5470fed1f31e195acc2b609b73f641d3267dfb17f8270809416",
+      "destination_sha256": "a034475e9dadb5470fed1f31e195acc2b609b73f641d3267dfb17f8270809416",
+      "byte_equal": true
+    },
+    "protection.inc": {
+      "source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/prepared/F2-CREST/protection.inc",
+      "destination": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/protection.inc",
+      "source_sha256": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "destination_sha256": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "byte_equal": true
+    },
+    "standby.inc": {
+      "source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/prepared/F2-CREST/standby.inc",
+      "destination": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/standby.inc",
+      "source_sha256": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "destination_sha256": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "byte_equal": true
+    },
+    "ucc28180-pwm-latch.inc": {
+      "source": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-compact-prep-24/prepared/F2-CREST/ucc28180-pwm-latch.inc",
+      "destination": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-native-capture-32/F2-CREST/ucc28180-pwm-latch.inc",
+      "source_sha256": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "destination_sha256": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "byte_equal": true
+    }
+  },
+  "all_copied_files_byte_equal": true,
+  "manifest_expected_parameters": {
+    "t_fault_s": 0.6541666666667,
+    "tstop_s": 0.662,
+    "prefault_window_s": 0.002,
+    "pacing_step_s": 2.5e-08,
+    "pacing_points": 3,
+    "fault_schema_columns": 17,
+    "branch_marker_extra_columns": 4
+  },
+  "launch_parameters": {
+    "tstop_s": 0.662,
+    "kind": "f2-crest",
+    "mutation_s": 0.6541666666667,
+    "event_window_s": 0.002,
+    "expected_fault_s": 0.6541666666667,
+    "observation_s": 0.002,
+    "turnoff_s": 2e-06,
+    "max_gap_s": 2.5e-08,
+    "wall_seconds": 3600,
+    "export_timeout_seconds": 900,
+    "spice_scripts": "/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts"
+  },
+  "tools": {
+    "runner29": {
+      "path": "/private/tmp/matrix07-fault-runner29-parent",
+      "exists": true,
+      "sha256": "d48731f7ac3fc2deeb53aa2926cf4d4e28c7ec1dcc1ac93d398b3180e5cf3dc7"
+    },
+    "native_host": {
+      "path": "/private/tmp/matrix07-fault-native-host-parent",
+      "exists": true,
+      "sha256": "785c2d8eccd973995b96b10fddedfd975ef82ebecbececa6e5d0bc4e9d720d39"
+    },
+    "pigz": {
+      "path": "/opt/homebrew/bin/pigz",
+      "exists": true,
+      "sha256": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"
+    },
+    "decoder": {
+      "path": "/private/tmp/matrix07-fault-native-decoder-parent",
+      "exists": true,
+      "sha256": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658"
+    },
+    "adapter": {
+      "path": "/private/tmp/matrix07-fault-adapter-parent",
+      "exists": true,
+      "sha256": "53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae"
+    },
+    "validator": {
+      "path": "/private/tmp/matrix07-fault-validation22-parent",
+      "exists": true,
+      "sha256": "63f6d17b123acd696c1f30fa546e7546ae43cf45cfb660cda44086bab3afb12f"
+    },
+    "prefault_selector": {
+      "path": "/private/tmp/matrix07-prefault-selector-parent",
+      "exists": true,
+      "sha256": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884"
+    }
+  },
+  "prelaunch_gates": [
+    "Parent confirms at least one currently live normal solver has finished and storage is sufficient; do not consume a second solver slot while both normal jobs remain live.",
+    "Parent verifies this copied closure and manifest hashes before execution.",
+    "Parent confirms the accepted 650 ms normal-prefix artifact/source decision; this F2-CREST run is not accepted merely because the baseline manifest says prepared.",
+    "After capture, run the full fault42 decode and prefault selector scan to prove full input reaches 0.65 s, selected endpoint gap <=1e-6 s, status=OK, and record the observed fault_inject edge with v(acsrc,acn).",
+    "Run normal auditor/normalizer on exact selected normal15 prefix and separately check actual crest phase (abs(v(acsrc,acn)) within 1% local crest) before interpreting fault output.",
+    "Require every runner/decoder/adapter/validator process and report to complete successfully; preserve raw.trace.raw.gz and all generated receipts. No acceptance from process exit alone.",
+    "Review compact endpoint against TSTOP: manifest records endpoint_equal=false; actual final sample and gap must be reviewed before any checker classification.",
+    "Never convert a hard-short result into interruption credit; F2-CREST is an F2-open case and channel/residual branch currents remain separate evidence."
+  ],
+  "execution": "No ngspice, native host, decoder, adapter, validator, or full fault simulation was launched by this preparation.",
+  "acceptance": false,
+  "created_unix": 1789983008
+}

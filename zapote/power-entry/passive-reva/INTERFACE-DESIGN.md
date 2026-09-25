@@ -1,6 +1,14 @@
 # Passive Rev A: auxiliary, gate drive and F2-open interface proposal
 
 Status: **REVIEW DRAFT — architecture proposal, not an implemented ECO.**
+The [architecture reduction](protection/ARCHITECTURE-REDUCTION.md) supersedes
+the discrete sequencing partition below. The rejected 133-part implementation
+is archived, and the canonical candidate is restored to the baseline described
+in section 1. Fault coverage and qualification requirements remain open.
+The [current and timing audit](protection/f2-timing-02/README.md) records why
+40 A is not a maximum and why the complete shutdown delay remains unbounded
+by the available evidence. Its faster detector/latch proposal is not yet wired
+into this interface or the baseline.
 Prepared 2026-09-19 from `12c09c5fac551cf5ac70e2a13bd35e2995db12e0`.
 The [milestone](MILESTONE.md) remains NOT MET. This document makes the next
 circuit decision reviewable; it does not authorize or describe a powered test.

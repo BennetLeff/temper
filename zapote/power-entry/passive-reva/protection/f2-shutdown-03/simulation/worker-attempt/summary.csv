@@ -1,0 +1,14 @@
+case,open_us,threshold_us,fault_us,q_clear_us,cessation_us,threshold_to_cessation_us,open_to_cessation_us,iL_at_open_A,iL_at_threshold_A,peak_vd_V,late_rearm_current_A,screen,note
+absolute_vb_ov,119.999504,0.001230,5.001000,25.001000,0.001230,0.000000,-119.998274,-0.046547,39.998360,430.542698,0.000000,PASS,criteria met
+absolute_vd_ov,119.999504,0.001230,null,25.001000,0.001230,0.000000,-119.998274,-0.058745,39.998326,429.999704,0.000000,FAIL,filtered fault did not assert
+f2_open_40_adverse,119.999504,131.561623,132.201632,132.266946,132.295593,0.733970,12.296089,48.561654,45.285392,446.233016,0.000000,PASS,criteria met
+f2_open_45_adverse,119.999503,131.327622,131.961631,132.026945,132.055592,0.727970,12.056089,49.680946,48.159008,466.093324,0.000000,PASS,criteria met
+f2_open_50_adverse,119.999504,130.846636,131.478645,131.543959,131.572606,0.725970,11.573102,53.827085,53.074681,482.827036,0.000000,PASS,criteria met
+f2_open_50_refined,119.999504,130.856842,131.487377,131.552331,131.579843,0.723001,11.580339,53.825878,53.060459,482.798535,0.000000,PASS,criteria met
+fault_clear_held_arm,119.999504,132.003954,132.639963,132.705277,132.733924,0.729970,12.734420,44.774757,42.384196,457.361805,0.000000,PASS,criteria met
+fresh_rearm,119.999504,132.003954,132.639963,132.705277,null,null,null,44.774757,42.384196,457.361805,11448.744100,PASS,no post-threshold sustained switch-current cessation; switch current returned after first low sample; fresh ARM edge after rail/permit recovery produced a later switch-current pulse (expected)
+normal_arm,119.999504,132.003954,132.639963,132.705277,132.733924,0.729970,12.734420,44.774757,42.384196,457.415413,0.000000,PASS,criteria met
+permit_loss_return,119.999504,null,null,80.042991,119.999504,null,0.000000,0.028709,null,411.260828,0.000000,PASS,unfiltered threshold did not cross; filtered fault did not assert; qualification-input loss/return: Q and EN remained low after 100 us return; no analog supply/POR model
+rails_invalid_return,119.999504,null,null,80.042991,119.999504,null,0.000000,0.028709,null,411.260828,0.000000,PASS,unfiltered threshold did not cross; filtered fault did not assert; qualification-input loss/return: Q and EN remained low after 100 us return; no analog supply/POR model
+reverse_mismatch,119.999504,0.001230,120.402228,120.467542,120.496189,120.494959,0.496685,40.535853,39.998462,455.555538,11889.916500,FAIL,switch current returned after first low sample; provisional 2 us threshold-to-cessation target exceeded
+slowed_gate_negative,119.999506,131.404195,132.036204,132.101518,136.293233,4.889038,16.293727,52.857867,52.210202,477.607834,0.000000,FAIL,provisional 2 us threshold-to-cessation target exceeded

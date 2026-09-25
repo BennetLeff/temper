@@ -1,0 +1,110 @@
+{
+  "status": "DISPOSITIONED_MODELED_FAULT_CASE",
+  "campaign_verdict": "FAIL",
+  "accepted_protection": false,
+  "utc": "2026-09-22T02:39:54.911275+00:00",
+  "case": "BYPASS-NEG",
+  "raw": {
+    "path": "faults/settled-bypass-neg-66/full-BYPASS-NEG/raw.trace.raw.gz",
+    "sha256": "75f444f8e422e445c2e5d65f21760af1658f0b14f05dcd088d1c80cd2b87b0a1",
+    "bytes": 5351164676,
+    "full_rows": 32287070,
+    "endpoint_s": 0.662
+  },
+  "complete_trace": true,
+  "own_normal_prefix_accepted": true,
+  "own_phase_accepted": true,
+  "cause": "VD651.1730124191079V exceeds unchanged500V all-row screen.",
+  "validator_error_verbatim": "REJECTED: all-row node screen vd: 651.1730124191079 > 500",
+  "formal_checker_verdict": null,
+  "checker_precedence": "All-row VD failure precedes fault_checks::check; bypassflagrejection was NOTreached.",
+  "negative_control_assessment": "DEMONSTRATED_FOR_EXACT_AUTHORED_MODEL_AND_SAMPLED_WINDOW",
+  "negative_control_is_protection_pass": false,
+  "sampled_evidence": {
+    "injection": {
+      "row": 30637940,
+      "time_s": 0.6541666661706754
+    },
+    "endpoint_s": 0.6619999999999999,
+    "post_injection": {
+      "includes_injection_row": true,
+      "rows": 1649131,
+      "external_fault": {
+        "min": 0.0,
+        "min_time_s": 0.6541666661706754,
+        "max": 0.0,
+        "max_time_s": 0.6541666661706754
+      },
+      "q": {
+        "min": 5.0,
+        "min_time_s": 0.6541666661706754,
+        "max": 5.0,
+        "max_time_s": 0.6541666661706754
+      },
+      "en": {
+        "min": 4.999999999999994,
+        "min_time_s": 0.6541666661706754,
+        "max": 4.999999999999994,
+        "max_time_s": 0.6541666661706754
+      },
+      "gate": {
+        "min": 0.00025713215658682963,
+        "min_time_s": 0.6555977913271563,
+        "max": 14.982052533038155,
+        "max_time_s": 0.6541697666667
+      },
+      "channel_a": {
+        "min": -0.04781700849081874,
+        "min_time_s": 0.6586095363189546,
+        "max": 14.038160693444622,
+        "max_time_s": 0.6619960060027684
+      },
+      "body_a": {
+        "min": -0.0008095636032152731,
+        "min_time_s": 0.6541707186574443,
+        "max": 0.004736126996760445,
+        "max_time_s": 0.6591364367792717
+      },
+      "lboost_a": {
+        "min": -0.15647223375381847,
+        "min_time_s": 0.6586947199822998,
+        "max": 13.154115963231083,
+        "max_time_s": 0.6541707512681108
+      },
+      "samples": {
+        "abs_channel_above_0.1_a": 1324003,
+        "abs_gate_above_0.2_v": 1480367,
+        "q_above_2.5_v": 1649131,
+        "en_above_2.5_v": 1649131,
+        "simultaneous_q_en_gate_off": 0
+      },
+      "simultaneous_off_first_s": null,
+      "simultaneous_off_last_s": null,
+      "channel_above_0.1_first_s": 0.6541666661706754,
+      "channel_above_0.1_last_s": 0.6619999999999999
+    }
+  },
+  "interpretation": [
+    "AfterF2openingmarker, every1,649,131postinjectionrow hasexternalfault0,q5,en~5; nosimultaneousq/en/gateoffsample.",
+    "Gateexceeds0.2V in1,480,367samples; channelmagnitudeexceeds0.1A in1,324,003samples,includingatendpoint. PWMintervalsandbetween-samplebehaviornotcontinuousconductionclaims.",
+    "Thisprovidesdetector-independentwaveformevidenceofabsentexternallatchedshutdownwithdetectorbypassed, not merelyaflagrefusal.",
+    "FirstreportednodefailureisVD; do notinferthatallothernodevoltagesscreenspassedbecausevalidatorstoppedthere."
+  ],
+  "evidence_sha256": {
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/normal-prefix-acceptance-138.json": "8bd72fbdd5596ff39c4807560d0090843882edb6fdbae7bfff7f54f9bddaaba0",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/parent-phase-acceptance-138.json": "333188e9d9db0a72a571820315923934878e5254bfdcdc5e19d3f3bb9217a407",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/analysis-receipt.json": "244b2210a3a339096ff3476cf49e3c04c6c5e2b8224627fd6566acafdbdac98c",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/post-injection-observations.json": "50ee632cc89a02439ea447a3225e3864b365df7317f3488b1b7e7f34bcb73573",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/legacy-strict/receipt.json": "a106c40232251911d77102e6101c041ae8243655962b277e4f1d84d954e66cbb",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/validator.stderr": "2ff09318ff4b5662ace91ac3b4d35819e4504a5012c70e63b2b2fd7411d1be8c",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/adapter-report.txt": "ab797a28a30ef27ad4a2831dbfdea112e4041082adff80709cb7857323c21af4",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/parent-capture-review-130.json": "a921f3cc6ca1a5532ceac537f91569b9d2174862532f2ee05e321aae23f5a770",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/case.cir": "c6ea3dca688918137282ed3fd3d0ffa17c2b740d68ab52bab306ee3e8b228180",
+    "faults/settled-bypass-neg-66/full-BYPASS-NEG/protection.inc": "d9b499bbba3f2636ac926a3c8782943d3144798cfe4faa765ceaf7774628a025"
+  },
+  "limitations": [
+    "No physicaldiereallocation,survival,thermal,fuseclearing,controller-siliconcorrelationorsafetyqualification.",
+    "StaticVBfeedbackconnectivitydoesnotestablishuniquedynamiccauseoftheVDexcursion.",
+    "Onlyexact120VAC/190ohm/crestfaulttested; notfaultcoverageofthewholeline/loadgrid."
+  ]
+}

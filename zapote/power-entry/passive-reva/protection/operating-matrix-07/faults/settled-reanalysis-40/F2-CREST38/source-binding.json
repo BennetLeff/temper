@@ -1,0 +1,25 @@
+{
+  "source_case":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST",
+  "raw_trace_sha256":"d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "capture_points":32237324,
+  "input_files":[
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/authored_logic_hysteretic.inc","sha256":"95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/capture-metadata.json","sha256":"b524c8a5436ac88ee552adad85142bc4eeb29d9a1876793168c55a517ea2ce73"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/capture-stage1.json","sha256":"6866e6e23f577eee4f7db3c82b104116ed7cb1205202ddbb641d136855732dd8"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/case.cir","sha256":"2f506027a93c89e136d7cb637fe2d4d234aca5ffd4e2ab7009a29384c73eed7e"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/clamp.inc","sha256":"96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/manifest.json","sha256":"a034475e9dadb5470fed1f31e195acc2b609b73f641d3267dfb17f8270809416"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/protection.inc","sha256":"61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/raw.trace.raw.gz","sha256":"d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/run-parameters.json","sha256":"dcc9758cf1601cce443166c4c03319f90ee515749a5b79cc0dd09eee203ce256"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/source-identity.json","sha256":"bf12cf1c0108ce75a3323cc07aed0bcd798474b427581f5149db120a0f012a6d"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/standby.inc","sha256":"94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb"},
+    {"path":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/settled-direct-capture-38/F2-CREST/ucc28180-pwm-latch.inc","sha256":"2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"}
+  ],
+  "tools":{
+    "pigz": {"path":"/opt/homebrew/Cellar/pigz/2.8_1/bin/pigz","sha256":"a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80"},
+    "decoder": {"path":"/private/tmp/matrix07-fault-native-decoder-parent","sha256":"af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658"},
+    "adapter": {"path":"/private/tmp/matrix07-fault-adapter-parent","sha256":"53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae"},
+    "validator": {"path":"/private/tmp/matrix07-fault-validation22-parent","sha256":"63f6d17b123acd696c1f30fa546e7546ae43cf45cfb660cda44086bab3afb12f"}
+  }
+}

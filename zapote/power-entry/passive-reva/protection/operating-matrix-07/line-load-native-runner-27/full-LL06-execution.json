@@ -1,0 +1,19 @@
+{
+  "utc": "2026-09-21T05:40:38.900471+00:00",
+  "normal_accepted": [
+    "LL01",
+    "LL02",
+    "LL03",
+    "LL04"
+  ],
+  "LL05": "runner27 retry terminal0; full pipeline complete, screens0, parent hashes verified; independent review pending",
+  "normal_live": null,
+  "fault_live": null,
+  "free_gib": 14.198226928710938,
+  "keep_free_gib": 10,
+  "concurrency": "One solver; two normal archives leave too little forecast margin above reserve at current capacity.",
+  "result": "Session15787 terminal0; parentacceptedLL06 under event-aware-normal-v1",
+  "acceptance": "line-load-native-runner-27/full-LL06/LL06/acceptance.json",
+  "acceptance_sha256": "6eb356547ab348e16353cc9ec86cc3c520835f45ace8b5c8b6f1fddc921221a9",
+  "completed_at_utc": "2026-09-21T15:25:55.764237+00:00"
+}

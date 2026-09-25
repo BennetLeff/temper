@@ -1,0 +1,27 @@
+
+running 4 tests
+test tests::cessation_ignores_pwm_off_phase_before_final_on_pulse ... ok
+test tests::threshold_uses_absolute_and_both_mismatch_polarities ... ok
+test tests::loss_return_requires_real_loss_and_prior_switching ... FAILED
+test tests::fresh_rearm_rejects_early_restart_and_missing_post_edge_switching ... FAILED
+
+failures:
+
+---- tests::loss_return_requires_real_loss_and_prior_switching stdout ----
+
+thread 'tests::loss_return_requires_real_loss_and_prior_switching' (23299130) panicked at zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/extract.rs:493:9:
+assertion failed: !loss_return_ok(&samples, false)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tests::fresh_rearm_rejects_early_restart_and_missing_post_edge_switching stdout ----
+
+thread 'tests::fresh_rearm_rejects_early_restart_and_missing_post_edge_switching' (23299129) panicked at zapote/power-entry/passive-reva/protection/f2-shutdown-03/simulation/extract.rs:515:9:
+assertion failed: rearm_ok(&samples, true)
+
+
+failures:
+    tests::fresh_rearm_rejects_early_restart_and_missing_post_edge_switching
+    tests::loss_return_requires_real_loss_and_prior_switching
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

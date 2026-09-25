@@ -1,0 +1,21 @@
+{
+  "status": "PARENT_REVIEWED_OBSERVABLE_BOUND",
+  "accepted": false,
+  "tests_passed": 6,
+  "binary_sha256": "dcb1d89ee5682de7177d3e9b714642a51e75dfe61b3701b402bc03a39210bf12",
+  "files_sha256": {
+    "bounds.rs": "beafe06f41aac819b3764cd3d87e6aa2655724a03523fde20c1c87b730d8dd9d",
+    "bounds-tests.rs": "ce4f6739788893e025f4559576fa91c5befb649ed3c1c0e54f23ac84fa13a6c3",
+    "full-650ms-events.tsv": "ed4d7c2e12fd3da9d7ebc09cd4a96a5c8daa7b5dea05f07c282e08520ca0cc36",
+    "parent-bounds-tests.txt": "4a8305b9609084ce180188650b6cce87fa3c413746392b089494de8796bc6305",
+    "parent-bounds-report.txt": "7cf1be0cb7b6ee2f3591eb11c735d8b5d227fab4023223af923269dd0cfd3e94"
+  },
+  "corrections": [
+    "Use differential AC voltage for Vrms bounds",
+    "Use full LEFT/GROUP/RIGHT interval hull and full adjacent widths to cover nonlinear clipped interpolation",
+    "Enforce exact source-row adjacency and allow overlapping event contexts",
+    "Stable bank/local/inductor energy differences",
+    "Reject nonfinite derived contributions and accumulation"
+  ],
+  "scope": "Conservative floating-point quadrature-choice bound on saved observables only; not directed-rounding interval certification, solver-global error, hidden-state physical energy closure or numerical acceptance policy."
+}

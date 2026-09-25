@@ -1,0 +1,11 @@
+TEMP_SCREEN PCL -20C: PASS (isense=-0.437999 V, id=2.283e-9 A, delta=0.001 mV)
+TEMP_SCREEN PCL 25C: PASS (isense=-0.437985 V, id=7.022e-8 A, delta=0.015 mV)
+TEMP_SCREEN PCL 85C: FAIL (isense=-0.437590 V, id=1.865e-6 A, delta=0.410 mV)
+TEMP_SCREEN PCL 125C: FAIL (isense=-0.435890 V, id=9.590e-6 A, delta=2.110 mV)
+TEMP_SCREEN NEGATIVE -20C: PASS (isense=-0.994447 V, id=0.018213 A)
+TEMP_SCREEN NEGATIVE 25C: PASS (isense=-0.955536 V, id=0.018384 A)
+TEMP_SCREEN NEGATIVE 85C: PASS (isense=-0.901189 V, id=0.018632 A)
+TEMP_SCREEN NEGATIVE 125C: PASS (isense=-0.863623 V, id=0.018804 A)
+PASS graph; pcl_isense=-0.437982 V pcl_diode=7.993e-8 A; negative_isense=-0.953767 V negative_diode=0.018392 A; reversed_isense=-5.000 V (expected fail)
+
+exit_code=1

@@ -1,0 +1,22 @@
+{
+  "status": "COMPLETE_CAPTURE_REJECTED_CHECKER_RESOURCE_CAP",
+  "tool_session": 40304,
+  "kind": "F2-START",
+  "target_end_s": 0.089,
+  "mutation_s": 0.075,
+  "solver_wall_limit_s": 600,
+  "minimum_free_bytes": 10737418240,
+  "observed_utc": "2026-09-21T03:55:38.400799+00:00",
+  "progress_line": "276.325836\t8.90000000000000097e-2\t100.000000\t1.511598740538e-4\t6025180\tfalse\t0\t0\tfalse",
+  "source_review": "parent-preparation.json",
+  "runner_review": "../native-runner-19/parent-review.json",
+  "parallel_decision": "LL05 only otherfullsolver; LL04finished0; about16GiBavailablebeforelaunch",
+  "canonical_raw": "raw.trace.raw.gz",
+  "all_pipeline_statuses_and_fault_verdict_required": true,
+  "completed_at_utc": "2026-09-21T04:01:36.475572+00:00",
+  "full_runner_exit": 1,
+  "solver_wall_s": 276.325984,
+  "rows": 6025180,
+  "actual_end_s": 0.089,
+  "reanalysis": "Pendingseparateanalysis23withparentreviewedvalidator22; noresimulation"
+}

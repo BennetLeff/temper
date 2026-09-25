@@ -1,0 +1,52 @@
+{
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "source_files": [
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-09/source-candidate/resolved-components.json",
+      "sha256": "bd6c155583d3efa8055b3ac07416887fce61325f461af57294cb80d3cd4f700d"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-09/source-candidate/elec/src/power_entry_pfc_control_candidate.ato",
+      "sha256": "8491fb2fba480bcfa45713a0c2d9f67563bc6f197b727528c570d4939c345006"
+    },
+    {
+      "path": "elec/src/power_entry_f2_shutdown_revb.ato",
+      "sha256": "050818ac162a1aa93ecd63325588adb2102504c8148ecbcbf0898abce2377f68"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-09/source-candidate/elec/src/power_entry_f2_shutdown_revb.ato",
+      "sha256": "050818ac162a1aa93ecd63325588adb2102504c8148ecbcbf0898abce2377f68"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/reference-revision-09/source-candidate/build/default.net",
+      "sha256": "ad3dfc5edf66b28f2de13ccb2e90c27f28ef1c5e93e0d8303fb1be325c48eb33"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/INTERFACE-DESIGN.md",
+      "sha256": "cff4e2f38b773ada83c5d9f0e0739e8da71aa3d7308e5a0fef106c16754bb852"
+    },
+    {
+      "path": "zapote/interlock/INTERFACES.md",
+      "sha256": "5155e7d34ed58b4fae9fd4731a9e11730a6082c99c191e2518d20bb0f850b508"
+    }
+  ],
+  "fixture_inputs": [
+    {
+      "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/controller.inc",
+      "sha256": "f1b68309cd22b9f9a704fe39bfbf99965a637ac572677b1306bac684bd46c1e0"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/extract.rs",
+      "sha256": "3f24669f4c734f0ca2f26824c8e1e02ce20d008cb5cceff8d8f4a5de2253c2aa"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/fault_template.cir",
+      "sha256": "7581b0fa7fb9422073e645fbf2cccca280b1d31ed6eaa7dbb213dad7e9aca026"
+    },
+    {
+      "path": "zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/run_cases.sh",
+      "sha256": "308b988c1156f8e5f352eeda4baed0d3a2f1e8fa209875f91928f5ca16444dfa"
+    }
+  ],
+  "scope": "isolated design comparison; no production adoption"
+}

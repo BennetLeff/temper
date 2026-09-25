@@ -1,0 +1,194 @@
+[
+  {
+    "case": "valid_complete_crest",
+    "input_sha256": "a5524bee7dc7003f4989ea088a383de3043c56791b45b9d3802620dfd12d56bc",
+    "exit": 0,
+    "report": {
+      "status": "PHASE_EVIDENCE_OK",
+      "acceptance": false,
+      "qualification": "NOT_CLAIMED",
+      "kind": "crest",
+      "parameters": {
+        "end_s": 5.0,
+        "expected_event_s": 2.0,
+        "local_start_s": 1.0,
+        "local_end_s": 4.0,
+        "tolerance": 0.01
+      },
+      "counts": {
+        "rows": 6,
+        "equal_time_rows": 0,
+        "edge_count": 1,
+        "equal_source_conflicts": 0
+      },
+      "endpoint": {
+        "first_time_s": 0.0,
+        "last_time_s": 5.0,
+        "end_error_s": 0.0
+      },
+      "event": {
+        "before": {
+          "time_s": 1.0,
+          "v_acsrc_acn": 90.0,
+          "fault_inject": 0.0,
+          "row": 3
+        },
+        "sample": {
+          "time_s": 2.0,
+          "v_acsrc_acn": 100.0,
+          "fault_inject": 5.0,
+          "row": 4
+        },
+        "after": {
+          "time_s": 3.0,
+          "v_acsrc_acn": 90.0,
+          "fault_inject": 5.0,
+          "row": 5
+        }
+      },
+      "local_peak": {
+        "before": {
+          "time_s": 1.0,
+          "v_acsrc_acn": 90.0,
+          "fault_inject": 0.0,
+          "row": 3
+        },
+        "sample": {
+          "time_s": 2.0,
+          "v_acsrc_acn": 100.0,
+          "fault_inject": 5.0,
+          "row": 4
+        },
+        "after": {
+          "time_s": 3.0,
+          "v_acsrc_acn": 90.0,
+          "fault_inject": 5.0,
+          "row": 5
+        }
+      },
+      "criterion": {
+        "edge_abs_v": 100.0,
+        "local_peak_abs_v": 100.0,
+        "relative_error": 0.0,
+        "criterion_error": 0.0,
+        "pass": true
+      }
+    }
+  },
+  {
+    "case": "header_reordered",
+    "input_sha256": "1018a47fa741062cbc5f3177ac5259fec4256f553c6af7f4d3801d894af52524",
+    "exit": 0,
+    "report": {
+      "status": "PHASE_EVIDENCE_OK",
+      "acceptance": false,
+      "qualification": "NOT_CLAIMED",
+      "kind": "crest",
+      "parameters": {
+        "end_s": 5.0,
+        "expected_event_s": 2.0,
+        "local_start_s": 1.0,
+        "local_end_s": 4.0,
+        "tolerance": 0.01
+      },
+      "counts": {
+        "rows": 6,
+        "equal_time_rows": 0,
+        "edge_count": 1,
+        "equal_source_conflicts": 0
+      },
+      "endpoint": {
+        "first_time_s": 0.0,
+        "last_time_s": 5.0,
+        "end_error_s": 0.0
+      },
+      "event": {
+        "before": {
+          "time_s": 1.0,
+          "v_acsrc_acn": 90.0,
+          "fault_inject": 0.0,
+          "row": 3
+        },
+        "sample": {
+          "time_s": 2.0,
+          "v_acsrc_acn": 100.0,
+          "fault_inject": 5.0,
+          "row": 4
+        },
+        "after": {
+          "time_s": 3.0,
+          "v_acsrc_acn": 90.0,
+          "fault_inject": 5.0,
+          "row": 5
+        }
+      },
+      "local_peak": {
+        "before": {
+          "time_s": 1.0,
+          "v_acsrc_acn": 90.0,
+          "fault_inject": 0.0,
+          "row": 3
+        },
+        "sample": {
+          "time_s": 2.0,
+          "v_acsrc_acn": 100.0,
+          "fault_inject": 5.0,
+          "row": 4
+        },
+        "after": {
+          "time_s": 3.0,
+          "v_acsrc_acn": 90.0,
+          "fault_inject": 5.0,
+          "row": 5
+        }
+      },
+      "criterion": {
+        "edge_abs_v": 100.0,
+        "local_peak_abs_v": 100.0,
+        "relative_error": 0.0,
+        "criterion_error": 0.0,
+        "pass": true
+      }
+    }
+  },
+  {
+    "case": "duplicate_unselected_column",
+    "input_sha256": "fdf6caddbc65a8dac4f41aca997980901e245b3b3fb8829deb28c5eb8e61d646",
+    "exit": 1,
+    "report": {
+      "status": "REJECTED",
+      "acceptance": false,
+      "error": "missing fault42 column i(vac)"
+    }
+  },
+  {
+    "case": "neighbor_before_local_interval",
+    "input_sha256": "6703470cd38f04ed33df31fd369ed5e0c21889e20164e685b1e30a3b7763c95f",
+    "exit": 1,
+    "report": {
+      "status": "REJECTED",
+      "acceptance": false,
+      "error": "fault_inject rising edge lacks strict-time neighbors inside the local interval"
+    }
+  },
+  {
+    "case": "neighbor_after_local_interval",
+    "input_sha256": "d448f7764c05e94eba3481eace75cccb7cc6d79c3bba2013ddc782fdac12db48",
+    "exit": 1,
+    "report": {
+      "status": "REJECTED",
+      "acceptance": false,
+      "error": "fault_inject rising edge lacks strict-time neighbors inside the local interval"
+    }
+  },
+  {
+    "case": "nonfinite_unselected_field",
+    "input_sha256": "489f7dda5c258540149f98a4751d4d84a58838f452acef6bbab10bd40f809662",
+    "exit": 1,
+    "report": {
+      "status": "REJECTED",
+      "acceptance": false,
+      "error": "row 3: nonfinite field 5"
+    }
+  }
+]

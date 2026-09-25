@@ -1,0 +1,1201 @@
+# Experimental synchronous-rectifier + fused-bank power-entry revision.
+# Architecture reference: TI SLUP348, pp. 9-13 (2 kW-class CCM PFC review).
+# Bridge/gate-drive architecture: Infineon KIT-ACT-BRD-60R022S7 reference
+# (UCC21530-Q1 isolated driver + IR11688S SR controller + BSP300 800 V sense
+# extensions + IPW60R017C7 legs + retained GBJ2510-F passive path), selected
+# per experiments/infineon-schematic (STARTUP-SELECTION.md) and integrated
+# here per its DECISION.md/DOMAIN-TABLE.md intent.
+# F2-open protection is an INCOMPLETE construction candidate. The rejected
+# TVR14561 clamp is absent. Do not route/freeze or energize this variant as
+# protected: full gate-off latency and first-peak energy handling are open.
+# See decisions/f2-open/PROTECTION-SELECTION.md and REVIEW-FIXES.md.
+# Structural prototype only: the 15 A RMS input ceiling and 1,800 W nominal
+# class require low-line foldback and live thermal/ripple evidence.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component PfcController:
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    mpn = "UCC28180D"
+    signal GND ~ pin 1
+    signal ICOMP ~ pin 2
+    signal ISENSE ~ pin 3
+    signal FREQ ~ pin 4
+    signal VCOMP ~ pin 5
+    signal VSENSE ~ pin 6
+    signal VCC ~ pin 7
+    signal GATE ~ pin 8
+
+component PfcFuseHolder:
+    footprint = "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed"
+    mpn = "0031.2510"
+    current_rating = 16A
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcEmiChoke:
+    footprint = "temper:CMC_B82726S"
+    mpn = "B82726S2163N030"
+    current_rating = 16A
+    signal L1 ~ pin 1
+    signal N1 ~ pin 2
+    signal N2 ~ pin 3
+    signal L2 ~ pin 4
+
+component PfcNtc:
+    footprint = "temper:SL32_10015"
+    mpn = "SL32 10015"
+    current_rating = 15A
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcBypassRelay:
+    footprint = "temper:Relay_SPST_Schrack-RT33K012"
+    mpn = "RT33K012"
+    contact_current = 16A
+    signal COM ~ pin 4
+    signal NO ~ pin 3
+    signal coil1 ~ pin 1
+    signal coil2 ~ pin 2
+
+component PfcX2:
+    footprint = "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
+    mpn = "B32922C3224M289"
+    value = 0.22uF
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcMov:
+    footprint = "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm"
+    mpn = "V150LA10AP"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcBoostInductor:
+    footprint = "Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75"
+    mpn = "760800301"
+    inductance = 180uH
+    current_rating = 24.5A
+    voltage_rating = 1000V
+    datasheet = "https://www.we-online.com/components/products/datasheet/760800301.pdf"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcMosfet:
+    footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
+    mpn = "STW65N65DM2AG"
+    voltage_rating = 650V
+    current_rating = 65A
+    signal G ~ pin 1
+    signal D ~ pin 2
+    signal S ~ pin 3
+
+component PfcSiCDiode:
+    footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
+    mpn = "C3D20065D"
+    voltage_rating = 650V
+    current_rating = 20A
+    # C3D20065D is the 3-lead dual-die common-cathode package: A1/A2 are
+    # separate anodes and K is the common cathode.
+    signal A1 ~ pin 1
+    signal K ~ pin 2
+    signal A2 ~ pin 3
+
+component PfcResistor:
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    mpn = "Vishay-TNPW1206-192K-200V"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcCapacitor:
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    mpn = "Murata-GRM21-50V-0805"
+    value: farad
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcRelayDriver:
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    mpn = "AO3400A"
+    signal G ~ pin 1
+    signal S ~ pin 2
+    signal D ~ pin 3
+
+component PfcFlyback:
+    footprint = "Diode_SMD:D_SMA"
+    mpn = "SS14"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component PfcIsenseClamp:
+    footprint = "Diode_SMD:D_SOD-123F"
+    mpn = "BAT54H,115"
+    signal A ~ pin 2
+    signal K ~ pin 1
+
+component PfcBridge:
+    footprint = "temper:Diode_Bridge_GBJ2510"
+    mpn = "GBJ2510-F"
+    voltage_rating = 1000V
+    current_rating = 25A
+    signal PLUS ~ pin 1
+    signal AC1 ~ pin 2
+    signal AC2 ~ pin 3
+    signal MINUS ~ pin 4
+
+component PfcBulkCap:
+    footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+    mpn = "LGX2W561MELC50"
+    value = 560uF
+    voltage_rating = 450V
+    ripple_current = 1.98A
+    # Nichicon LGX2W561MELC50 data: https://www.nichicon.co.jp/english/products/pdfs/e-lgx.pdf
+    signal plus ~ pin 1
+    signal minus ~ pin 2
+
+component PfcBusHfCap:
+    # LOCAL-C COMPLEMENT (QR-CAP pending candidate, NOT qualified):
+    # 470 nF -> 1.5 uF film per decisions/f2-open/PROTECTION-SELECTION.md
+    # section 3.1.5. TDK B32674D6155K000 MKP DC-link series, 1.5 uF +/-10%,
+    # VR,85C = 630 V DC (Vop,70C = 800 V DC), max body 12.5 x 21.5 x 31.5 mm,
+    # 27.5 mm pitch, IRMS,max 5.5 A at 70C/10kHz, ESR typ 17.9 mOhm
+    # (retained datasheet, see sources table). Unfused stored energy at
+    # 400 V rises 0.0376 J -> 0.120 J (stated consequence). Pulse/dv/dt,
+    # effective capacitance and tolerance remain QR-CAP output; this part
+    # is the pending-verification candidate, never a qualified selection.
+    footprint = "temper:B32674D6155K000"
+    mpn = "B32674D6155K000"
+    dielectric = "PP"
+    voltage_rating = 630V
+    value = 1.5uF
+    signal plus ~ pin 1
+    signal minus ~ pin 2
+
+component PfcY1:
+    footprint = "Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0"
+    mpn = "VY1102M31Y5UQ63V0"
+    dielectric = "Y1"
+    voltage_rating = 500V
+    value = 1nF
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcMainsConnector:
+    footprint = "temper:Phoenix_1714984"
+    mpn = "1714984"
+    signal L ~ pin 1
+    signal N ~ pin 2
+    signal PE ~ pin 3
+
+component PfcAuxConnector:
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+    mpn = "61300211121"
+    signal V15 ~ pin 1
+    signal RTN ~ pin 2
+
+component PfcControlConnector:
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+    mpn = "61300211121"
+    signal CTRL ~ pin 1
+    signal GND ~ pin 2
+
+component PfcShunt:
+    footprint = "temper:HCSM2818FT10L0"
+    mpn = "HCSM2818FT10L0"
+    value = 10mohm
+    # 5 W is conditional: 500 mm2 pad/trace copper and body below 100 C.
+    # https://www.seielect.com/catalog/SEI-HCSM.pdf
+    power_rating = 5W
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcOutputConnector:
+    footprint = "temper:Phoenix_1714971"
+    mpn = "1714971"
+    current_rating = 32A
+    voltage_rating = 1000V
+    signal plus ~ pin 1
+    signal minus ~ pin 2
+
+component PfcBusBleeder:
+    footprint = "Resistor_SMD:R_2512_6332Metric"
+    mpn = "RC2512FR-07150KL"
+    value = 150kohm
+    power_rating = 1W
+    voltage_rating = 200V
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+# --- Infineon-architecture active bridge (Package 1 selection) ---
+
+component UCC21530Q1:
+    # TI UCC21530BQDWKRQ1 DWK, active 8-V UVLO dual isolated gate driver.
+    # DWK has pads 1-11 and 14-16; pads 12/13 do not exist. The BQ 8-V UVLO
+    # grade accepts the 15-V auxiliary rail tolerance with margin.
+    footprint = "temper:SOIC16W_Isolated"
+    mpn = "UCC21530BQDWKRQ1"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/ucc21530-q1.pdf"
+    signal INA ~ pin 1
+    signal INB ~ pin 2
+    signal VCCI ~ pin 3
+    signal GNDI ~ pin 4
+    signal EN ~ pin 5
+    signal DT ~ pin 6
+    signal NC ~ pin 7
+    signal VCCI2 ~ pin 8
+    signal VSSB ~ pin 9
+    signal OUTB ~ pin 10
+    signal VDDB ~ pin 11
+    signal VSSA ~ pin 14
+    signal OUTA ~ pin 15
+    signal VDDA ~ pin 16
+
+component IR11688S:
+    # Infineon dual synchronous-rectification controller; pin map per the
+    # retained KIT-ACT-BRD-60R022S7 application note. Datasheet capture was
+    # attempted and remains an open source-capture task (JS-gated pages);
+    # distributor listings mark the part EOL/obsolete - procurement risk
+    # recorded in the BOM, selection unchanged per Package 1.
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    mpn = "IR11688S"
+    manufacturer = "Infineon"
+    datasheet = "https://www.infineon.com/dgdl/Infineon-IR11688S-DS-v01_00-EN.pdf"
+    signal Gate1 ~ pin 1
+    signal VCC ~ pin 2
+    signal MOT ~ pin 3
+    signal VD1 ~ pin 4
+    signal VD2 ~ pin 5
+    signal VS ~ pin 6
+    signal GND ~ pin 7
+    signal Gate2 ~ pin 8
+
+component BSP300:
+    # Infineon BSP300H6327XUSA1, 800-V sense-extension MOSFET used by the
+    # Infineon reference. Same open source-capture/EOL status as IR11688S.
+    footprint = "temper:BSP300_PG-SOT223-4-21"
+    mpn = "BSP300H6327XUSA1"
+    manufacturer = "Infineon"
+    datasheet = "https://www.infineon.com/dgdl/Infineon-BSP300-DS-v01_01-EN.pdf"
+    signal G ~ pin 1
+    signal D2 ~ pin 2
+    signal S ~ pin 3
+    signal D ~ pin 4
+
+component ActiveBridgeMosfet:
+    footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
+    mpn = "IPW60R017C7"
+    voltage_rating = 600V
+    datasheet = "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw60r017c7-datasheet-en.pdf"
+    signal G ~ pin 1
+    signal D ~ pin 2
+    signal S ~ pin 3
+
+component IRM1015:
+    # Mean Well IRM-10-15, 10 W encapsulated AC/DC, 85-305 Vac input,
+    # 15 V output. Standard package mapping is 1=AC/N, 2=AC/L, 3=-Vout,
+    # 4=+Vout (intentionally not the intuitive L/N order).
+    footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-10-xx_THT"
+    mpn = "IRM-10-15"
+    manufacturer = "Mean Well"
+    datasheet = "https://www.meanwell.com/Upload/PDF/IRM-10/IRM-10-SPEC.PDF"
+    signal ACN ~ pin 1
+    signal ACL ~ pin 2
+    signal VN ~ pin 3
+    signal VP ~ pin 4
+
+component BridgeResistor0603:
+    designator_prefix = "R"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    mpn: str
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BridgeCapacitor0603:
+    designator_prefix = "C"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: farad
+    mpn: str
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BootstrapCeramic:
+    designator_prefix = "C"
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    mpn: str
+    value: farad
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BootstrapDiode:
+    # ES1J superfast rectifier, SMA: VRRM 600 V, pads 1=K, 2=A.
+    footprint = "Diode_SMD:D_SMA"
+    mpn: str
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component BootstrapResistor:
+    designator_prefix = "R"
+    # Selected ERJ-P08J221V (220 ohm, 1206 anti-surge, 0.66 W @70C,
+    # limiting element 500 V, overload-test 2xRCWV 5 s, AEC-Q200) per
+    # STARTUP-SELECTION.md section 3; single-pulse life remains bench item
+    # B-4 (no single-pulse curve in the retained datasheet).
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    mpn: str
+    value: ohm
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BootstrapBulk:
+    designator_prefix = "C"
+    # Selected EEU-FC1E101 (100 uF/25 V): radial dia 6.3 mm, P2.50 mm
+    # (FC-A datasheet retained). L11.2 nominal vs H11.0 courtyard is a
+    # 0.2 mm height-clearance note for layout, not a fit risk.
+    footprint = "Capacitor_THT:C_Radial_D6.3mm_H11.0mm_P2.50mm"
+    mpn: str
+    value: farad
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+# --- F2-open protection (Package 2 arrangement, concrete parts) ---
+
+component PfcShuntVoltageRef:
+    # TI LM4040AIM3-5.0 precision 5.000 V shunt reference, SOT-23-3
+    # (DBZ: pin 1 cathode, pin 2 anode, pin 3 no connect). A grade
+    # 0.1% initial, 100 ppm/C. Feeds the detector comparator references;
+    # a collapsed reference drives the OV channel low-asserting (fails
+    # toward inhibit) by construction.
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    mpn = "LM4040AIM3-5.0"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/lm4040.pdf"
+    signal K ~ pin 1
+    signal A ~ pin 2
+    signal NC ~ pin 3
+
+component PfcOvComparator:
+    # TI LM393ADR dual open-collector comparator, SOIC-8. Channel A =
+    # diode-side OV detector (asserts LOW when the detector tap exceeds
+    # the 5 V reference); channel B = AUX bias supervisor (asserts LOW
+    # when the AUX tap falls below the reference, threshold ~13.1 V).
+    # Open-collector outputs wire-OR on the active-low fault line.
+    # Propagation delay typ ~1.3 us; trip-to-inhibit <= 5 us remains a
+    # QR-DET measured bound, not a datasheet claim.
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    mpn = "LM393ADR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/lm393.pdf"
+    signal OUTA ~ pin 1
+    signal INA_N ~ pin 2
+    signal INA_P ~ pin 3
+    signal GND ~ pin 4
+    signal INB_P ~ pin 5
+    signal INB_N ~ pin 6
+    signal OUTB ~ pin 7
+    signal VCC ~ pin 8
+
+component PfcLatchFF:
+    # TI CD4013BM dual D flip-flop, SOIC-14, used as the latched fault
+    # state stores permission, not the fault edge: D1 high, CLK1 = delayed
+    # startup-ready, RESET1 = persistent active-high fault, SET1 low.
+    # QN1 inhibits. A fault present at startup-ready holds Q1 low; clearing
+    # that fault cannot rearm without another startup-ready rising edge.
+    # Separate q_startup inhibits during the startup delay, independent of
+    # the flip-flop's unspecified initial state. Analog rail/reset timing
+    # remains qualification work; the RC is not a specified power supervisor.
+    # CD4000B supply range 3-18 V covers the 15 V AUX rail.
+    footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+    mpn = "CD4013BM"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/cd4013b.pdf"
+    signal Q1 ~ pin 1
+    signal QN1 ~ pin 2
+    signal CLK1 ~ pin 3
+    signal R1 ~ pin 4
+    signal D1 ~ pin 5
+    signal S1 ~ pin 6
+    signal VSS ~ pin 7
+    signal S2 ~ pin 8
+    signal D2 ~ pin 9
+    signal R2 ~ pin 10
+    signal CLK2 ~ pin 11
+    signal QN2 ~ pin 12
+    signal Q2 ~ pin 13
+    signal VDD ~ pin 14
+
+component PfcPorSchmitt:
+    # TI CD40106BM hex Schmitt inverter, SOIC-14. Inverter 1 conditions
+    # the RC into startup inhibit; inverter 2 inverts the active-low fault
+    # into asynchronous RESET; inverter 3 creates startup-ready CLOCK.
+    # Schmitt inputs
+    # are required because both networks are slow RC ramps. Unused
+    # inverters: inputs grounded, outputs open.
+    footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+    mpn = "CD40106BM"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/cd40106b.pdf"
+    signal A1 ~ pin 1
+    signal Y1 ~ pin 2
+    signal A2 ~ pin 3
+    signal Y2 ~ pin 4
+    signal A3 ~ pin 5
+    signal Y3 ~ pin 6
+    signal VSS ~ pin 7
+    signal Y4 ~ pin 8
+    signal A4 ~ pin 9
+    signal Y5 ~ pin 10
+    signal A5 ~ pin 11
+    signal Y6 ~ pin 12
+    signal A6 ~ pin 13
+    signal VDD ~ pin 14
+
+component PfcDetResistor:
+    # Detector-divider resistor (QR-DIV pending): same MPN class as the
+    # regulation divider for commonality (CRCW2512200KFKEG 200k 2512).
+    # Per-resistor stress at the 700 V single event across the 5+1 string
+    # is ~138 V; working-voltage rating evidence is the same open NULL
+    # as the existing regulation divider and stays with QR-DIV.
+    footprint = "Resistor_SMD:R_2512_6332Metric"
+    mpn = "CRCW2512200KFKEG"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BankFuse:
+    # Assembly includes two ETI 006710340 clips; exact fit/thermal
+    # compatibility with the Mersen cartridge requires physical review.
+    footprint = "temper:A70QS50_ETI_CH14_Prototype"
+    mpn = "A70QS50-14F"
+    datasheet = "https://www.mersen.com/en/products/a70qs-amp-trap-form-101-semiconductor-protection-fuses"
+    signal diode ~ pin 1
+    signal bank ~ pin 2
+
+module PowerEntryActiveUnit:
+    signal ac_l
+    signal ac_n
+    signal pe
+    signal relay_ctrl
+    signal hot_permit
+    signal control_gnd
+    signal aux_15v
+    signal aux_15v_return
+    signal hv_plus
+    signal hv_minus
+
+    holder = new PfcFuseHolder
+    cmc = new PfcEmiChoke
+    ntc = new PfcNtc
+    bypass = new PfcBypassRelay
+    x2 = new PfcX2
+    mov = new PfcMov
+    l_boost = new PfcBoostInductor
+    q_boost = new PfcMosfet
+    d_boost = new PfcSiCDiode
+    pfc = new PfcController
+    shunt = new PfcShunt
+    r_gate = new PfcResistor
+    r_gate_pd = new PfcResistor
+    r_relay_gate = new PfcResistor
+    r_relay_pd = new PfcResistor
+    r_relay_drop = new PfcResistor
+    r_isense = new PfcResistor
+    r_freq = new PfcResistor
+    r_vtop = new PfcResistor
+    r_vtop2 = new PfcResistor
+    r_vtop3 = new PfcResistor
+    r_vtop4 = new PfcResistor
+    r_vtop5 = new PfcResistor
+    r_vbottom = new PfcResistor
+    r_vcomp = new PfcResistor
+    c_vcc = new PfcCapacitor
+    c_icomp = new PfcCapacitor
+    c_vcomp = new PfcCapacitor
+    c_vcomp_p = new PfcCapacitor
+    c_isense = new PfcCapacitor
+    c_vfeed = new PfcCapacitor
+    relay_driver = new PfcRelayDriver
+    relay_flyback = new PfcFlyback
+    isense_clamp = new PfcIsenseClamp
+    c1 = new PfcBulkCap
+    c2 = new PfcBulkCap
+    c3 = new PfcBulkCap
+    c4 = new PfcBulkCap
+    c_hf = new PfcBusHfCap
+    y1 = new PfcY1
+    mains = new PfcMainsConnector
+    aux = new PfcAuxConnector
+    control = new PfcControlConnector
+    permit = new PfcControlConnector
+    q_inhibit = new PfcRelayDriver
+    q_permit = new PfcRelayDriver
+    r_inhibit_pulldown = new PfcResistor
+    r_inhibit_pullup = new PfcResistor
+    r_permit_gate = new PfcResistor
+    r_permit_pd = new PfcResistor
+    output = new PfcOutputConnector
+    bleeder1 = new PfcBusBleeder
+    bleeder2 = new PfcBusBleeder
+
+    # Active bridge: four IPW60R017C7 legs, same part as before.
+    q_hl = new ActiveBridgeMosfet
+    q_ll = new ActiveBridgeMosfet
+    q_hr = new ActiveBridgeMosfet
+    q_lr = new ActiveBridgeMosfet
+    bus_fuse = new BankFuse
+
+    # Infineon-architecture bridge section (Package 1).
+    hs_driver = new UCC21530Q1
+    sr = new IR11688S
+    sense_a = new BSP300
+    sense_b = new BSP300
+    passive_bridge = new PfcBridge
+    irm = new IRM1015
+    r_mot = new BridgeResistor0603
+    r_vs_top = new BridgeResistor0603
+    r_vs_bottom = new BridgeResistor0603
+    r_sense_a = new BridgeResistor0603
+    r_sense_b = new BridgeResistor0603
+    r_hl = new BridgeResistor0603
+    r_hr = new BridgeResistor0603
+    r_ll = new BridgeResistor0603
+    r_lr = new BridgeResistor0603
+    r_pd_hl = new BridgeResistor0603
+    r_pd_hr = new BridgeResistor0603
+    r_pd_ll = new BridgeResistor0603
+    r_pd_lr = new BridgeResistor0603
+    r_en = new BridgeResistor0603
+    r_en_pd = new BridgeResistor0603
+    r_dt = new BridgeResistor0603
+    r_boot_a = new BootstrapResistor
+    r_boot_b = new BootstrapResistor
+    d_boot_a = new BootstrapDiode
+    d_boot_b = new BootstrapDiode
+    c_boot_a = new BootstrapCeramic
+    c_boot_b = new BootstrapCeramic
+    c_bulk_a = new BootstrapBulk
+    c_bulk_b = new BootstrapBulk
+    c_vdda = new BridgeCapacitor0603
+    c_vddb = new BridgeCapacitor0603
+    c_sr_vcc = new BootstrapCeramic
+    c_vcci = new BridgeCapacitor0603
+    c_sense_a = new BridgeCapacitor0603
+    c_sense_b = new BridgeCapacitor0603
+    c_dt = new BridgeCapacitor0603
+
+    # F2-open protection section (Package 2 arrangement).
+    det_top1 = new PfcDetResistor
+    det_top2 = new PfcDetResistor
+    det_top3 = new PfcDetResistor
+    det_top4 = new PfcDetResistor
+    det_top5 = new PfcDetResistor
+    det_bot = new PfcResistor
+    vref = new PfcShuntVoltageRef
+    r_vref = new PfcResistor
+    c_vref = new PfcCapacitor
+    r_aux_tap = new PfcResistor
+    r_aux_tap_bot = new PfcResistor
+    r_fault_pullup = new PfcResistor
+    det_cmp = new PfcOvComparator
+    det_latch = new PfcLatchFF
+    por_gate = new PfcPorSchmitt
+    r_por = new PfcResistor
+    r_por_bleed = new PfcResistor
+    c_por = new PfcCapacitor
+    q_inhibit2 = new PfcRelayDriver
+    r_inh2_gate = new PfcResistor
+    r_inh2_pd = new PfcResistor
+    q_startup = new PfcRelayDriver
+    r_start_gate = new PfcResistor
+    r_start_pd = new PfcResistor
+
+    # Bridge-section nets. HS_L/HS_N of the experiment ARE the AC legs
+    # here: the unit's preserved boundary nets RECTIFIER_L/RECTIFIER_R are
+    # the same nodes (the experiment named them separately only because
+    # its section had port boundaries). PREBOOST_POS is RECTIFIER_POSITIVE.
+    signal rectifier_l
+    signal rectifier_r
+    signal rectifier_pos
+    signal rectifier_neg
+    signal boost_output
+    boost_output.override_net_name = "BOOST_DIODE_POSITIVE"
+    signal gate_q1
+    signal gate_q2
+    signal gate_q3
+    signal gate_q4
+    signal boot_a
+    signal boot_b
+    signal sr_sense_a
+    signal sr_sense_b
+    signal cmd_a
+    signal cmd_b
+    # Protection nets.
+    signal det_tap
+    signal ref_5v
+    signal aux_tap
+    signal fault_n
+    signal por_node
+
+    # --- Bridge section values (Package 1 selections, exact MPNs) ---
+    r_mot.value = 100kohm
+    r_mot.mpn = "RC0603FR-07100KL"
+    r_vs_top.value = 47kohm
+    r_vs_top.mpn = "RC0603FR-0747KL"
+    r_vs_bottom.value = 150ohm
+    r_vs_bottom.mpn = "RC0603FR-07150RL"
+    r_sense_a.value = 100ohm
+    r_sense_a.mpn = "RC0603FR-07100RL"
+    r_sense_b.value = 100ohm
+    r_sense_b.mpn = "RC0603FR-07100RL"
+    r_hl.value = 10ohm
+    r_hl.mpn = "RC0603FR-0710RL"
+    r_hr.value = 10ohm
+    r_hr.mpn = "RC0603FR-0710RL"
+    r_ll.value = 10ohm
+    r_ll.mpn = "RC0603FR-0710RL"
+    r_lr.value = 10ohm
+    r_lr.mpn = "RC0603FR-0710RL"
+    r_pd_hl.value = 10kohm
+    r_pd_hl.mpn = "RC0603FR-0710KL"
+    r_pd_hr.value = 10kohm
+    r_pd_hr.mpn = "RC0603FR-0710KL"
+    r_pd_ll.value = 10kohm
+    r_pd_ll.mpn = "RC0603FR-0710KL"
+    r_pd_lr.value = 10kohm
+    r_pd_lr.mpn = "RC0603FR-0710KL"
+    r_en.value = 10kohm
+    r_en.mpn = "RC0603FR-0710KL"
+    r_en_pd.value = 100kohm
+    r_en_pd.mpn = "RC0603FR-07100KL"
+    r_dt.value = 10kohm
+    r_dt.mpn = "RC0603FR-0710KL"
+    r_boot_a.value = 220ohm
+    r_boot_a.mpn = "ERJ-P08J221V"
+    r_boot_b.value = 220ohm
+    r_boot_b.mpn = "ERJ-P08J221V"
+    c_boot_a.value = 220nF
+    c_boot_a.mpn = "C0805C224K5RACTU"
+    c_boot_b.value = 220nF
+    c_boot_b.mpn = "C0805C224K5RACTU"
+    c_bulk_a.value = 100uF
+    c_bulk_a.mpn = "EEU-FC1E101"
+    c_bulk_b.value = 100uF
+    c_bulk_b.mpn = "EEU-FC1E101"
+    c_vdda.value = 1uF
+    c_vdda.mpn = "GRM188R71H105KA12D"
+    c_vddb.value = 1uF
+    c_vddb.mpn = "GRM188R71H105KA12D"
+    c_sr_vcc.value = 4.7uF
+    c_sr_vcc.mpn = "GRM21BR61H475KA12L"
+    c_vcci.value = 100nF
+    c_vcci.mpn = "C0603C104K5RACTU"
+    c_sense_a.value = 470pF
+    c_sense_a.mpn = "C0603C471K5RACTU"
+    c_sense_b.value = 470pF
+    c_sense_b.mpn = "C0603C471K5RACTU"
+    c_dt.value = 1nF
+    c_dt.mpn = "C0603C102K5RACTU"
+    d_boot_a.mpn = "ES1J"
+    d_boot_b.mpn = "ES1J"
+
+    # --- Protection section values ---
+    det_top1.value = 200kohm
+    det_top2.value = 200kohm
+    det_top3.value = 200kohm
+    det_top4.value = 200kohm
+    det_top5.value = 200kohm
+    det_bot.mpn = "RC1206FR-0710KL"
+    det_bot.value = 10kohm
+    # Detector setpoint: 5.000 V reference, 10.0k/1010k -> 505.0 V nominal.
+    # Comparator offset, reference/divider tolerances and TOTAL time from
+    # node crossing to U9 turn-off need evaluation at this threshold. No
+    # margin may be transferred from the earlier controller-OVP rows.
+    r_vref.mpn = "RC1206FR-074K7L"
+    r_vref.value = 4.7kohm
+    c_vref.mpn = "C0805C104K5RACTU"
+    c_vref.value = 100nF
+    r_aux_tap.mpn = "RC1206FR-07100KL"
+    r_aux_tap.value = 100kohm
+    r_aux_tap_bot.mpn = "RC1206FR-0762KL"
+    r_aux_tap_bot.value = 62kohm
+    r_fault_pullup.mpn = "RC1206FR-0710KL"
+    r_fault_pullup.value = 10kohm
+    r_por.mpn = "RC1206FR-07100KL"
+    r_por.value = 100kohm
+    r_por_bleed.mpn = "RC1206FR-07301KL"
+    r_por_bleed.value = 300kohm
+    c_por.mpn = "C0805C105K5RACTU"
+    c_por.value = 1uF
+    # Divider prevents the 15 V logic rail from directly overdriving the
+    # AO3400A gate. Its charging time is part of the UNESTABLISHED total
+    # gate-off budget, never a claim of a 5-us response.
+    r_inh2_gate.mpn = "RC1206FR-07100KL"
+    r_inh2_gate.value = 100kohm
+    r_inh2_pd.mpn = "RC1206FR-07100KL"
+    r_inh2_pd.value = 100kohm
+    r_start_gate.mpn = "RC1206FR-07100KL"
+    r_start_gate.value = 100kohm
+    r_start_pd.mpn = "RC1206FR-07100KL"
+    r_start_pd.value = 100kohm
+
+    # --- Bridge section connectivity (per experiment src/main.ato) ---
+    # Four-MOSFET synchronous rectifier: q_hl/q_hr drain to
+    # RECTIFIER_POSITIVE and source to the AC legs; q_ll/q_lr drain to
+    # the AC legs and source to RECTIFIER_NEGATIVE. This orientation
+    # preserves the passive body-diode rectifier when gates are off and
+    # prevents an active-device DC short.
+    rectifier_pos ~ q_hl.D
+    rectifier_pos ~ q_hr.D
+    q_hl.S ~ rectifier_l
+    q_hr.S ~ rectifier_r
+    q_ll.D ~ rectifier_l
+    q_lr.D ~ rectifier_r
+    q_ll.S ~ rectifier_neg
+    q_lr.S ~ rectifier_neg
+    gate_q1 ~ q_hl.G
+    gate_q2 ~ q_hr.G
+    gate_q3 ~ q_ll.G
+    gate_q4 ~ q_lr.G
+    # Retained passive bridge in parallel for the surge path.
+    passive_bridge.PLUS ~ rectifier_pos
+    passive_bridge.MINUS ~ rectifier_neg
+    passive_bridge.AC1 ~ rectifier_l
+    passive_bridge.AC2 ~ rectifier_r
+    # Boundary preserved: bridge output feeds the boost inductor; the
+    # shunt remains between controller return and rectifier negative.
+    rectifier_pos ~ l_boost.p1
+    shunt.p2 ~ rectifier_neg
+    # F2 (fused bank output) is unchanged: diode-side of the fuse is the
+    # boost output node, bank-side is PFC_BUS_PLUS_390V.
+    boost_output ~ bus_fuse.diode
+    bus_fuse.bank ~ hv_plus
+
+    # IR11688S low-side sensing; 800-V extensions keep the 200-V
+    # controller pins off the AC legs. Its ground and the driver input
+    # ground are RECTIFIER_NEGATIVE (the bridge section's own HOT
+    # return), so their few-mA supply returns cross the 10 mOhm shunt
+    # instead of the controller return - see the deviation notes for the
+    # chosen IRM reference.
+    sr.VCC ~ aux_15v
+    sr.GND ~ rectifier_neg
+    sr.MOT ~ r_mot.p1
+    r_mot.p2 ~ rectifier_neg
+    sr.VS ~ r_vs_bottom.p1
+    r_vs_top.p1 ~ aux_15v
+    r_vs_top.p2 ~ r_vs_bottom.p1
+    r_vs_bottom.p2 ~ rectifier_neg
+    sense_a.D ~ rectifier_l
+    sense_a.D2 ~ rectifier_l
+    sense_a.G ~ aux_15v
+    sense_a.S ~ r_sense_a.p1
+    r_sense_a.p2 ~ sr_sense_a
+    sr.VD1 ~ sr_sense_a
+    sense_b.D ~ rectifier_r
+    sense_b.D2 ~ rectifier_r
+    sense_b.G ~ aux_15v
+    sense_b.S ~ r_sense_b.p1
+    r_sense_b.p2 ~ sr_sense_b
+    sr.VD2 ~ sr_sense_b
+    c_sense_a.p1 ~ sr_sense_a
+    c_sense_a.p2 ~ rectifier_neg
+    c_sense_b.p1 ~ sr_sense_b
+    c_sense_b.p2 ~ rectifier_neg
+    sr.Gate1 ~ r_ll.p1
+    r_ll.p2 ~ gate_q3
+    sr.Gate2 ~ r_lr.p1
+    r_lr.p2 ~ gate_q4
+    r_pd_ll.p1 ~ gate_q3
+    r_pd_ll.p2 ~ rectifier_neg
+    r_pd_lr.p1 ~ gate_q4
+    r_pd_lr.p2 ~ rectifier_neg
+
+    # UCC21530 input side is bridge-HOT referenced (commands come from
+    # IR11688S). IR11688S is the internal command producer, matching the
+    # reference card: Gate2 drives high-side INA, Gate1 drives INB.
+    hs_driver.VCCI ~ aux_15v
+    hs_driver.VCCI2 ~ aux_15v
+    hs_driver.GNDI ~ rectifier_neg
+    hs_driver.EN ~ r_en.p1
+    r_en.p2 ~ aux_15v
+    r_en_pd.p1 ~ r_en.p1
+    r_en_pd.p2 ~ rectifier_neg
+    hs_driver.DT ~ c_dt.p1
+    c_dt.p2 ~ rectifier_neg
+    r_dt.p1 ~ c_dt.p1
+    r_dt.p2 ~ rectifier_neg
+    hs_driver.NC ~ rectifier_neg
+    sr.Gate2 ~ cmd_a
+    sr.Gate1 ~ cmd_b
+    hs_driver.INA ~ cmd_a
+    hs_driver.INB ~ cmd_b
+    hs_driver.VSSA ~ rectifier_l
+    hs_driver.VSSB ~ rectifier_r
+    hs_driver.VDDA ~ boot_a
+    hs_driver.VDDB ~ boot_b
+    hs_driver.OUTA ~ r_hl.p1
+    r_hl.p2 ~ gate_q1
+    hs_driver.OUTB ~ r_hr.p1
+    r_hr.p2 ~ gate_q2
+    r_pd_hl.p1 ~ gate_q1
+    r_pd_hl.p2 ~ rectifier_l
+    r_pd_hr.p1 ~ gate_q2
+    r_pd_hr.p2 ~ rectifier_r
+    c_vcci.p1 ~ aux_15v
+    c_vcci.p2 ~ rectifier_neg
+    c_sr_vcc.p1 ~ aux_15v
+    c_sr_vcc.p2 ~ rectifier_neg
+    c_vdda.p1 ~ boot_a
+    c_vdda.p2 ~ rectifier_l
+    c_vddb.p1 ~ boot_b
+    c_vddb.p2 ~ rectifier_r
+    c_boot_a.p1 ~ boot_a
+    c_boot_a.p2 ~ rectifier_l
+    c_boot_b.p1 ~ boot_b
+    c_boot_b.p2 ~ rectifier_r
+    c_bulk_a.p1 ~ boot_a
+    c_bulk_a.p2 ~ rectifier_l
+    c_bulk_b.p1 ~ boot_b
+    c_bulk_b.p2 ~ rectifier_r
+    r_boot_a.p1 ~ aux_15v
+    r_boot_a.p2 ~ d_boot_a.A
+    d_boot_a.K ~ boot_a
+    r_boot_b.p1 ~ aux_15v
+    r_boot_b.p2 ~ d_boot_b.A
+    d_boot_b.K ~ boot_b
+
+    # --- Onboard IRM-10-15 auxiliary source ---
+    # Line-fed from the post-CMC, post-F1 AC legs (l2 = line after the
+    # choke and before the NTC; RECTIFIER_R = neutral after the choke) so
+    # the module is fuse- and X2/MOV-protected and independent of the
+    # NTC/bypass-relay state. Deviation from the experiment's connector-
+    # side tap, documented. IRM negative ties to CONTROL_GND (the
+    # controller/AUX-return reference, same node the external AUX return
+    # used before) so the UCC28180/protection/relay supply returns do
+    # NOT cross the 10 mOhm sense shunt; the bridge-section loads
+    # (IR11688S, UCC21530 inputs, bootstraps) ground locally to
+    # RECTIFIER_NEGATIVE and their few-mA returns do cross the shunt
+    # (~30 uV class offset on ISENSE, bounded and documented). The
+    # experiment's HOT_GND tie is documented as a deviation with this
+    # shunt-return analysis.
+    irm.ACL ~ cmc.L2
+    irm.ACN ~ rectifier_r
+    irm.VP ~ aux_15v
+    irm.VN ~ control_gnd
+
+    # --- F2-open protection connectivity ---
+    # Independent diode-side detector divider (not shared with the
+    # regulation divider): 5 x 200k + 10k from BOOST_DIODE_POSITIVE to
+    # CONTROL_GND. Comparator A asserts LOW when the tap exceeds the
+    # 5.000 V reference (OV). Comparator B asserts LOW when the AUX tap
+    # (100k/62k, threshold ~13.06 V) falls below the reference (bias
+    # fault). Both open-collector outputs wire-OR on fault_n (active
+    # LOW, 10k pull-up to AUX_15V).
+    boost_output ~ det_top1.p1
+    det_top1.p2 ~ det_top2.p1
+    det_top2.p2 ~ det_top3.p1
+    det_top3.p2 ~ det_top4.p1
+    det_top4.p2 ~ det_top5.p1
+    det_top5.p2 ~ det_tap
+    det_bot.p1 ~ det_tap
+    det_bot.p2 ~ control_gnd
+    det_cmp.INA_N ~ det_tap
+    det_cmp.INA_P ~ ref_5v
+    r_aux_tap.p1 ~ aux_15v
+    r_aux_tap.p2 ~ aux_tap
+    r_aux_tap_bot.p1 ~ aux_tap
+    r_aux_tap_bot.p2 ~ control_gnd
+    det_cmp.INB_P ~ aux_tap
+    det_cmp.INB_N ~ ref_5v
+    det_cmp.VCC ~ aux_15v
+    det_cmp.GND ~ control_gnd
+    r_fault_pullup.p1 ~ aux_15v
+    r_fault_pullup.p2 ~ fault_n
+    det_cmp.OUTA ~ fault_n
+    det_cmp.OUTB ~ fault_n
+    # 5 V shunt reference: 4.7k bias from AUX (2.1 mA >> Iz,min) with a
+    # 100nF decoupler; LM4040 is stable with any capacitive load.
+    vref.K ~ ref_5v
+    vref.A ~ control_gnd
+    r_vref.p1 ~ aux_15v
+    r_vref.p2 ~ ref_5v
+    c_vref.p1 ~ ref_5v
+    c_vref.p2 ~ control_gnd
+    # Permission latch: startup-ready supplies the sole arming edge;
+    # persistent fault asynchronously RESETS permission. QN1 therefore
+    # remains high on a fault already present when startup-ready rises.
+    # POR directly drives a separate inhibit FET, so an unknown initial Q
+    # cannot allow startup. A partial AUX dip/reset-recovery remains an
+    # analog timing qualification question, not a once-per-mains guarantee.
+    det_latch.VDD ~ aux_15v
+    det_latch.VSS ~ control_gnd
+    det_latch.D1 ~ aux_15v
+    det_latch.S1 ~ control_gnd
+    por_gate.VDD ~ aux_15v
+    por_gate.VSS ~ control_gnd
+    r_por.p1 ~ aux_15v
+    r_por.p2 ~ por_node
+    r_por_bleed.p1 ~ por_node
+    r_por_bleed.p2 ~ control_gnd
+    c_por.p1 ~ por_node
+    c_por.p2 ~ control_gnd
+    por_gate.A1 ~ por_node
+    por_gate.Y1 ~ por_gate.A3
+    por_gate.Y3 ~ det_latch.CLK1
+    por_gate.A2 ~ fault_n
+    por_gate.Y2 ~ det_latch.R1
+    # Unused CMOS sections: inputs grounded, outputs left open (handled
+    # as no-connects by the native binding contract).
+    det_latch.D2 ~ control_gnd
+    det_latch.R2 ~ control_gnd
+    det_latch.S2 ~ control_gnd
+    det_latch.CLK2 ~ control_gnd
+    por_gate.A4 ~ control_gnd
+    por_gate.A5 ~ control_gnd
+    por_gate.A6 ~ control_gnd
+    # Inhibit when NOT permitted; no fault edge is needed. This commands
+    # controller standby, not a timed direct gate clamp or short interrupter.
+    r_inh2_gate.p1 ~ det_latch.QN1
+    r_inh2_gate.p2 ~ q_inhibit2.G
+    r_inh2_pd.p1 ~ q_inhibit2.G
+    r_inh2_pd.p2 ~ control_gnd
+    q_inhibit2.D ~ pfc.VSENSE
+    q_inhibit2.S ~ control_gnd
+    por_gate.Y1 ~ r_start_gate.p1
+    r_start_gate.p2 ~ q_startup.G
+    r_start_pd.p1 ~ q_startup.G
+    r_start_pd.p2 ~ control_gnd
+    q_startup.D ~ pfc.VSENSE
+    q_startup.S ~ control_gnd
+    # No diode-side clamp is selected. QR-CLAMP / total turn-off response
+    # must be resolved before this experimental integration can be accepted.
+
+    # TI-style starting values; compensation and current limit require the
+    # controller datasheet/design calculation before qualification.
+    r_gate.mpn = "RC1206FR-0710RL"
+    r_gate.value = 10ohm
+    r_gate_pd.mpn = "RC1206FR-0710KL"
+    r_gate_pd.value = 10kohm
+    r_relay_gate.mpn = "RC1206FR-071KL"
+    r_relay_gate.value = 1kohm
+    r_relay_pd.mpn = "RC1206FR-07100KL"
+    r_relay_pd.value = 100kohm
+    r_relay_drop.mpn = "RC2512FR-0791RL"
+    r_relay_drop.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_relay_drop.value = 91ohm
+    # Yageo RC-series 2512 1W coil drop; nominal dissipation approximately 0.1W.8/tnpw.pdf
+    r_isense.mpn = "RC1206FR-07220RL"
+    r_isense.value = 220ohm
+    r_freq.mpn = "RC1206FR-0716K2L"
+    r_freq.value = 16.2kohm
+    r_vtop.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_vtop.mpn = "CRCW2512200KFKEG"
+    r_vtop.value = 200kohm
+    r_vtop2.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_vtop2.mpn = "CRCW2512200KFKEG"
+    r_vtop2.value = 200kohm
+    r_vtop3.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_vtop3.mpn = "CRCW2512200KFKEG"
+    r_vtop3.value = 200kohm
+    r_vtop4.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_vtop4.mpn = "CRCW2512200KFKEG"
+    r_vtop4.value = 200kohm
+    r_vtop5.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_vtop5.mpn = "CRCW2512200KFKEG"
+    r_vtop5.value = 200kohm
+    r_vbottom.mpn = "RC1206FR-0713KL"
+    r_vbottom.value = 13kohm
+    r_vcomp.mpn = "RC1206FR-0740K2L"
+    r_vcomp.value = 40.2kohm
+    r_inhibit_pullup.mpn = "RC1206FR-07100KL"
+    r_inhibit_pullup.value = 100kohm
+    r_inhibit_pulldown.mpn = "RC1206FR-07100KL"
+    r_inhibit_pulldown.value = 100kohm
+    r_permit_gate.mpn = "RC1206FR-071KL"
+    r_permit_gate.value = 1kohm
+    r_permit_pd.mpn = "RC1206FR-07100KL"
+    r_permit_pd.value = 100kohm
+    c_vcc.mpn = "C0805C105K5RACTU"
+    c_vcc.value = 1uF
+    c_icomp.mpn = "C0805C272J5GACTU"
+    c_icomp.value = 2.7nF
+    c_vcomp.mpn = "GRM32ER71H475KA88L"
+    c_vcomp.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    c_vcomp.value = 4.7uF
+    c_vcomp_p.mpn = "C0805C224K5RACTU"
+    c_vcomp_p.value = 220nF
+    c_isense.mpn = "C0805C102J5GACTU"
+    c_isense.value = 1nF
+    c_vfeed.mpn = "C0805C681J5GACTU"
+    c_vfeed.value = 680pF
+    # Kemet C0G/X7R data: https://www.kemet.com/en/us/capacitors/ceramic.html
+    # Murata GRM32ER71H475KA88L data: https://www.murata.com/en-us/products/productdetail?partno=GRM32ER71H475KA88L
+
+    # Fused EMI/NTC/bypass input stage precedes the active PFC bridge.
+    mains.L ~ ac_l
+    mains.N ~ ac_n
+    mains.PE ~ pe
+    # AUX header intent change (documented): the rail is now produced
+    # onboard by the IRM-10-15. This connector is an OUTPUT/monitor tap
+    # for the external HOT-referenced supervisor (the source of
+    # relay_ctrl/hot_permit), not an input. Connecting any external
+    # source here would put two undefined sources on AUX_15V and is
+    # prohibited by this design.
+    aux.V15 ~ aux_15v
+    aux.RTN ~ aux_15v_return
+    control.CTRL ~ relay_ctrl
+    control.GND ~ control_gnd
+    # External HOT permit is the sequencing authority; it must only release
+    # the controller after precharge and bypass are independently proven.
+    permit.CTRL ~ hot_permit
+    permit.GND ~ control_gnd
+    ac_l ~ holder.p1
+    # F1 is the replaceable 0034.3129 link installed in the single PCB
+    # holder; it is represented in the holder BOM, so no second footprint is
+    # emitted for the consumable.
+    holder.p2 ~ cmc.L1
+    holder.p2 ~ x2.p1
+    x2.p2 ~ ac_n
+    holder.p2 ~ mov.p1
+    mov.p2 ~ ac_n
+    cmc.L2 ~ ntc.p1
+    ntc.p2 ~ rectifier_l
+    cmc.N1 ~ ac_n
+    cmc.N2 ~ rectifier_r
+    cmc.L2 ~ bypass.COM
+    bypass.NO ~ rectifier_l
+    l_boost.p2 ~ q_boost.D
+    q_boost.S ~ control_gnd
+    control_gnd ~ shunt.p1
+    d_boost.K ~ boost_output
+    d_boost.A1 ~ q_boost.D
+    d_boost.A2 ~ q_boost.D
+    # Bus negative is the controller-side return and must not bypass the
+    # 10 mOhm shunt; RECTIFIER_NEGATIVE is the shunt's rectifier-side
+    # terminal.
+    hv_minus ~ control_gnd
+    # Functional-earth noise return with reinforced spacing; this capacitor
+    # is the explicit chassis boundary, never a DC bond to PE.
+    hv_minus ~ y1.p1
+    y1.p2 ~ pe
+    # Bus negative is the controller-side HOT return; AUX is a HOT header,
+    # not an MCU/SELV interface.
+    c1.plus ~ hv_plus
+    c1.minus ~ control_gnd
+    c2.plus ~ hv_plus
+    c2.minus ~ control_gnd
+    c3.plus ~ hv_plus
+    c3.minus ~ control_gnd
+    c4.plus ~ hv_plus
+    c4.minus ~ control_gnd
+    # HF bypass and regulation stay diode-side of F2. Opening F2 must not
+    # remove the boost feedback. The local-C complement is now 1.5 uF
+    # (QR-CAP pending), leaving 0.120 J unfused at 400 V; opening
+    # transients/control stability remain qualification work.
+    # Local HF commutation bypass across the MOSFET/boost-diode switching
+    # loop, placed beside the bulk bank.
+    c_hf.plus ~ boost_output
+    c_hf.minus ~ control_gnd
+    output.plus ~ hv_plus
+    output.minus ~ control_gnd
+    bleeder1.p1 ~ hv_plus
+    bleeder1.p2 ~ bleeder2.p1
+    bleeder2.p2 ~ control_gnd
+
+    # TI UCC28180 §8.3.5: VSENSE below 0.82 V disables PWM and discharges
+    # VCOMP. Default-on q_inhibit clamps VSENSE low; high external HOT_PERMIT
+    # turns q_permit on, pulling q_inhibit's gate low and releasing VSENSE.
+    # q_inhibit2 wire-ORs at the same node: either FET inhibits.
+    q_inhibit.D ~ pfc.VSENSE
+    q_inhibit.S ~ control_gnd
+    aux_15v ~ r_inhibit_pullup.p1
+    r_inhibit_pullup.p2 ~ q_inhibit.G
+    # 100k/100k divider limits AO3400A gate to 7.5V at 15V bias (<12V abs max).
+    r_inhibit_pulldown.p1 ~ q_inhibit.G
+    r_inhibit_pulldown.p2 ~ control_gnd
+    q_permit.D ~ q_inhibit.G
+    q_permit.S ~ control_gnd
+    hot_permit ~ r_permit_gate.p1
+    r_permit_gate.p2 ~ q_permit.G
+    r_permit_pd.p1 ~ q_permit.G
+    r_permit_pd.p2 ~ control_gnd
+
+    pfc.GATE ~ r_gate.p1
+    r_gate.p2 ~ q_boost.G
+    r_gate_pd.p1 ~ q_boost.G
+    r_gate_pd.p2 ~ control_gnd
+    pfc.ISENSE ~ r_isense.p1
+    r_isense.p2 ~ shunt.p2
+    pfc.ISENSE ~ c_isense.p1
+    c_isense.p2 ~ control_gnd
+    isense_clamp.A ~ shunt.p2
+    isense_clamp.K ~ control_gnd
+    pfc.GND ~ control_gnd
+    pfc.VCC ~ aux_15v
+    # AUX return is intentionally the controller-side HV-minus reference
+    # (CONTROL_GND); the onboard IRM output negative ties to the same
+    # node, replacing the retired external isolated bias feed.
+    aux_15v_return ~ hv_minus
+    pfc.FREQ ~ r_freq.p1
+    r_freq.p2 ~ control_gnd
+    pfc.ICOMP ~ c_icomp.p1
+    c_icomp.p2 ~ control_gnd
+    pfc.VCOMP ~ r_vcomp.p1
+    r_vcomp.p2 ~ c_vcomp.p1
+    c_vcomp.p2 ~ control_gnd
+    pfc.VCOMP ~ c_vcomp_p.p1
+    c_vcomp_p.p2 ~ control_gnd
+    pfc.VSENSE ~ r_vbottom.p1
+    r_vbottom.p2 ~ control_gnd
+    boost_output ~ r_vtop.p1
+    r_vtop.p2 ~ r_vtop2.p1
+    r_vtop2.p2 ~ r_vtop3.p1
+    r_vtop3.p2 ~ r_vtop4.p1
+    r_vtop4.p2 ~ r_vtop5.p1
+    r_vtop5.p2 ~ pfc.VSENSE
+    pfc.VCC ~ c_vcc.p1
+    c_vcc.p2 ~ control_gnd
+    pfc.VSENSE ~ c_vfeed.p1
+    c_vfeed.p2 ~ control_gnd
+
+    # NTC bypass relay is HOT-side driven; external relay_ctrl must be treated
+    # as hazardous-referenced control until an interlock/isolation design is
+    # added.
+    aux_15v ~ r_relay_drop.p1
+    r_relay_drop.p2 ~ bypass.coil1
+    bypass.coil2 ~ relay_driver.D
+    relay_driver.S ~ control_gnd
+    relay_ctrl ~ r_relay_gate.p1
+    r_relay_gate.p2 ~ relay_driver.G
+    r_relay_pd.p1 ~ relay_driver.G
+    r_relay_pd.p2 ~ control_gnd
+    relay_flyback.K ~ bypass.coil1
+    relay_flyback.A ~ relay_driver.D
+
+    ac_l.override_net_name = "AC_L_RECTIFIED_INPUT"
+    ac_n.override_net_name = "AC_N_RECTIFIED_INPUT"
+    pe.override_net_name = "PE_CHASSIS"
+    relay_ctrl.override_net_name = "RELAY_BYPASS_CTRL"
+    hot_permit.override_net_name = "HOT_PERMIT_EXTERNAL"
+    control_gnd.override_net_name = "CONTROL_GND"
+    # Renamed from AUX_15V_IN: the rail is now generated onboard by the
+    # IRM-10-15; the header is an output/monitor tap.
+    aux_15v.override_net_name = "AUX_15V"
+    aux_15v_return.override_net_name = "AUX_15V_RETURN"
+    hv_plus.override_net_name = "PFC_BUS_PLUS_390V"
+    hv_minus.override_net_name = "PFC_BUS_MINUS"
+
+    rectifier_l.override_net_name = "RECTIFIER_L"
+    rectifier_r.override_net_name = "RECTIFIER_R"
+    rectifier_pos.override_net_name = "RECTIFIER_POSITIVE"
+    rectifier_neg.override_net_name = "RECTIFIER_NEGATIVE"
+    gate_q1.override_net_name = "GATE_Q1"
+    gate_q2.override_net_name = "GATE_Q2"
+    gate_q3.override_net_name = "GATE_Q3"
+    gate_q4.override_net_name = "GATE_Q4"
+    boot_a.override_net_name = "BOOT_A"
+    boot_b.override_net_name = "BOOT_B"
+    sr_sense_a.override_net_name = "SENSE_A"
+    sr_sense_b.override_net_name = "SENSE_B"
+    cmd_a.override_net_name = "CMD_A"
+    cmd_b.override_net_name = "CMD_B"

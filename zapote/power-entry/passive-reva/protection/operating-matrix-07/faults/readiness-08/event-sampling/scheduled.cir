@@ -1,0 +1,15 @@
+* Timing-only cold-start scheduling probe. This is not a power-stage or fault case.
+Vdrive in 0 PWL(0 0 0.4 0 0.400005 5 0.400005001 5 0.401 5)
+R1 in out 1k
+C1 out 0 1u
+.include observation-window.inc
+.control
+set noaskquit
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+tran 5u 0.40001 0 5u uic
+wrdata results/scheduled.tsv time v(in) v(out) v(schedule) v(event)
+quit
+.endc
+.end

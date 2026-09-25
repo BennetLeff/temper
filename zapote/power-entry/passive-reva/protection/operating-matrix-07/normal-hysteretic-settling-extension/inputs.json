@@ -1,0 +1,31 @@
+{
+  "status": "LAUNCHED_SOURCE_BOUND_ENDPOINT_EXTENSION",
+  "accepted": false,
+  "source": "../normal-hysteretic-driver-candidate",
+  "source_trace_sha256": "dd20b2bb827a0fc876fa95f83fcb023e66e3207fcab854c13982e5ab3469d032",
+  "change": "TSTOP=500m to650m only; all electrical values,initialconditions,solver options,driver model and acceptance criteria unchanged",
+  "inverse_cold_equality": true,
+  "inputs_sha256": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "progress.rs": "f5c60b4c49116a52b7808474da3828a98715e957b6af171fe57f824c2382eda8"
+  },
+  "source_inputs_sha256": {
+    "cold.cir": "24a3b8399dcab107d2d5c2c1df03584908e57ccb24aec9f9b554f6db3b397967",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "progress.rs": "f5c60b4c49116a52b7808474da3828a98715e957b6af171fe57f824c2382eda8"
+  },
+  "host_binary": "/private/tmp/matrix07-hysteretic-driver-host",
+  "host_binary_sha256": "b677365a49ef6c24a32b9291ff86561a4a7a26a6a8d199528ca684af890d5367",
+  "target_end_s": 0.65,
+  "planned_wall_limit_s": 2700,
+  "recorded_at_utc": "2026-09-20T22:41:23.735943+00:00"
+}

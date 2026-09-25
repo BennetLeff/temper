@@ -1,0 +1,18 @@
+{
+  "status": "PARENT_REVIEWED_TRANSPORT_ADOPTED_FOR_LL05_RETRY",
+  "utc": "2026-09-21T05:00:33.421309+00:00",
+  "source_sha256": "aff8223a1a99de96e1ec532c43c71c7eec33693629090898a2c013ee6470c6ae",
+  "binary": "/private/tmp/matrix07-line-load-native-runner27-parent",
+  "binary_sha256": "0926abe3852774f9bf06cd16f071c85134502059082d55c84e4a691898ee54c1",
+  "parent_tests": {
+    "passed": 3,
+    "receipt": "line-load-native-runner-27/parent-tests.txt"
+  },
+  "probe_verification": "line-load-native-runner-27/parent-probe-verification.json",
+  "review": "Production diff replaces named FIFO with owned dynamic anonymous export descriptor, directly spawned compressor, close-on-exec cleared only for intended host, parent writer dropped after spawn or on failure. Original checks, source constraints, timeouts and reserve unchanged. Simulator stdout/stderr stay separate. Tiny real native payload byte-equal to regular-file reference; 316 normal15 rows, complete 20us endpoint. Parent decoder exit0. No circuit or checker modifications.",
+  "limits": [
+    "Tiny probe does not establish full-size successful export; retry must complete all existing validation.",
+    "LL05 initial export root cause unproven.",
+    "/dev/fd reopening requires execution outside filesystem sandbox on this host."
+  ]
+}

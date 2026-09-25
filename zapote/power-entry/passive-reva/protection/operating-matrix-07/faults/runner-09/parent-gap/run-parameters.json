@@ -1,0 +1,12 @@
+{
+  "tstop_s": 2.00000000000000016e-5,
+  "adapter_kind": "sw-short",
+  "checker_kind": "switch-short",
+  "mutation_s": 1.00000000000000008e-5,
+  "event_window_s": 1.99999999999999991e-6,
+  "observation_s": 1.99999999999999991e-6,
+  "max_gap_s": 2.49999999999999989e-8,
+  "wall_seconds": 2.00000000000000000e0,
+  "export_timeout_s": 5.00000000000000000e0,
+  "argv_tail": ["20e-6", "sw-short", "switch-short", "10e-6", "2e-6", "2e-6", "25e-9", "2", "5"]
+}

@@ -1,0 +1,7 @@
+# ref,value,net,contract
+C_LDO_IN,10uF,aux_raw,effective value per TPS7A4701 data sheet
+C_LDO_OUT,47uF,aux15,nominal 47uF and effective >=10uF after tolerance/DC-bias/temperature
+C_LDO_NR,1uF,ldo_nr,per TPS7A4701 data sheet
+C_BUCK_IN,10uF,aux15,per TPS54202 data sheet
+C_BUCK_OUT,22uF,logic5,per TPS54202 data sheet
+C_BOOT,100nF,buck_boot,per TPS54202 data sheet

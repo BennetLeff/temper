@@ -1,0 +1,461 @@
+* Temper passive-reva cold-start / settled-normal switching witness.
+.include ucc28180-pwm-latch.inc
+.param RFREQ=16.2k VAC_RMS=120 FLINE=60 VB_INIT=0 VD_INIT=0
+.param RLOAD=190 TSTOP=2.000000000000e-5 STEP=500n
+.param T_FAULT=1.200000000000e-5
+.param DIV_INIT={VD_INIT*5820/992820}
+.param VCC_INIT=0
+* Full bridge: the source delivers the measured current; no behavioral rectifier.
+Vac acsrc acn SIN(0 {VAC_RMS*1.4142135623730951} {FLINE} 0 0 0)
+* Source impedance follows the retained graph: 0.25-ohm source resistance,
+* then the 10-ohm NTC in the AC1 leg.  The bypass relay shorts only the NTC.
+Rsource acsrc acsrc_r .25
+Rntc acsrc_r acp 10
+Vbypass bypass_ctl 0 PWL(0 0 100m 0 100.001m 5 200m 5)
+Sbypass acsrc_r acp bypass_ctl 0 SWBYP
+.model SWBYP SW(Ron=50m Roff=1e12 Vt=2.5 Vh=.1)
+Rreference acn 0 1e12
+Dbr1 acp rectp DBRIDGE
+Dbr2 acn rectp DBRIDGE
+Dbr3 bridge_minus acp DBRIDGE
+Dbr4 bridge_minus acn DBRIDGE
+.model DBRIDGE D(IS=1n N=1.5 RS=10m TT=0 CJO=100p)
+Rshunt bridge_minus 0 10m
+Rwind rectp lint 20m
+Lboost lint sw 180u IC=0
+Risense bridge_minus isense 220
+Cisense isense 0 1n IC=0
+* Parallel SiC legs and finite MOS/channel/body paths copied from04.
+Dboost1 sw d1_path DBOOST
+Vdboost1sense d1_path vd 0
+Dboost2 sw d2_path DBOOST
+Vdboost2sense d2_path vd 0
+.model DBOOST D(IS=1e-14 N=1.4 RS=20m CJO=45p M=0 VJ=1 TT=0 BV=650 IBV=1u)
+Msw sw gate channel_source channel_source STWMOS
+Vchannel channel_source 0 0
+.model STWMOS NMOS(VTO=4 KP=4 RD=1m RS=1m L=1u W=1u IS=1e-40)
+Vbody 0 body_anode 0
+Dbody body_anode sw DBODY
+.model DBODY D(IS=1n N=1.2 RS=10m CJO=1p TT=8n)
+Cds sw 0 344p
+Cgd gate sw 112p
+Cgs gate 0 12n
+Clocal vd 0 19.8u IC={VD_INIT}
+Rlocal vd 0 450k
+Cbank vb 0 2240u IC={VB_INIT}
+Rload load 0 {RLOAD}
+Vloadctl loadctl 0 PWL(0 0 100m 0 100.001m 5 500m 5)
+Sload vb load loadctl 0 SWLOAD
+.model SWLOAD SW(Ron=15m Roff=1e12 Vt=2.5 Vh=.1)
+* F2 is the healthy VD-to-VB fuse path and remains closed throughout cold
+* start and normal operation; it is not a precharge-control element.
+Vf2ctl f2ctl 0 PWL(0 5 {1.199900000000e-5} 5 {1.200000000000e-5} 0 {2.000000000000e-5} 0)
+Sf2 vd f2_path f2ctl 0 SWF2
+Vf2sense f2_path vb 0
+.model SWF2 SW(Ron=15m Roff=1e12 Vt=2.5 Vh=.1)
+* Retained actual controller compensation and sensing values.
+Rfb1 vb vsense 1meg
+Rfb2 vsense 0 13k
+Cvsense vsense 0 680p IC=0
+Cicomp icomp 0 2.7n IC=0
+Rvcomp vcomp vcomp_s 40.2k
+Cvcomp_s vcomp_s 0 4.7u IC={VCC_INIT}
+Cvcomp_p vcomp 0 220n IC={VCC_INIT}
+Xu aux15 vsense isense icomp vcomp pwm 0 UCC28180_FN RFREQ={RFREQ}
+* Explicit bounded external rails and sequencing inputs.  They stand in for
+* the external auxiliary converter/supervisor until native source integration.
+Vaux aux15 0 PWL(0 0 5m 15 200m 15)
+Vlogic logic5 0 PWL(0 0 5m 5 200m 5)
+Vpermit permit 0 PWL(0 0 8m 0 9m 5 200m 5)
+Varm arm 0 PWL(0 0 46m 0 60m 5 200m 5)
+Vstandby_cmd standby_req 0 PWL(0 5 60m 5 61m 0 200m 0)
+* Physical protection dividers, timer, fresh-edge latch and default-off driver.
+.include protection.inc
+.include standby.inc
+.include clamp.inc
+* Negative ISENSE clamp from the selected BAV23C die.  The model is
+* explicitly assumed/nominal; no temperature or production tolerance claim.
+DCLAMP 0 isense BAV23C_ASSUMED_V2
+* Standby worker consumes the physical enable_good/permit interface from the
+* protection include.  No q/time-forced standby clamp is present here.
+Xstandby aux15 enable_good vsense 0 PFC_STANDBY
+* Prepared case F2-ZERO at T_FAULT=1.200000000000e-5 TSTOP=2.000000000000e-5.
+* The marker is derived from the actual control waveform, never from hard time.
+* SW Vt=2.5 V with Vh=.1 V means nominal rising/falling thresholds are about 2.6/2.4 V; the marker threshold is 2.5 V.
+* The 1 ns finite PWL edge bounds source-command ambiguity to 1 ns plus accepted solver sampling.
+Bfault_inject fault_inject 0 V=5-V(f2ctl)
+* Isolated timing instrument: alternating 25 ns corners from T_FAULT-PREFAULT_WINDOW-25ns to TSTOP.
+* This source is not a fault marker and its 1 Gohm load requires production revalidation.
+Vschedule schedule_probe 0 PWL(
++ 1.097500000000e-5 0
++ 1.100000000000e-5 1
++ 1.102500000000e-5 0
++ 1.105000000000e-5 1
++ 1.107500000000e-5 0
++ 1.110000000000e-5 1
++ 1.112500000000e-5 0
++ 1.115000000000e-5 1
++ 1.117500000000e-5 0
++ 1.120000000000e-5 1
++ 1.122500000000e-5 0
++ 1.125000000000e-5 1
++ 1.127500000000e-5 0
++ 1.130000000000e-5 1
++ 1.132500000000e-5 0
++ 1.135000000000e-5 1
++ 1.137500000000e-5 0
++ 1.140000000000e-5 1
++ 1.142500000000e-5 0
++ 1.145000000000e-5 1
++ 1.147500000000e-5 0
++ 1.150000000000e-5 1
++ 1.152500000000e-5 0
++ 1.155000000000e-5 1
++ 1.157500000000e-5 0
++ 1.160000000000e-5 1
++ 1.162500000000e-5 0
++ 1.165000000000e-5 1
++ 1.167500000000e-5 0
++ 1.170000000000e-5 1
++ 1.172500000000e-5 0
++ 1.175000000000e-5 1
++ 1.177500000000e-5 0
++ 1.180000000000e-5 1
++ 1.182500000000e-5 0
++ 1.185000000000e-5 1
++ 1.187500000000e-5 0
++ 1.190000000000e-5 1
++ 1.192500000000e-5 0
++ 1.195000000000e-5 1
++ 1.197500000000e-5 0
++ 1.200000000000e-5 1
++ 1.202500000000e-5 0
++ 1.205000000000e-5 1
++ 1.207500000000e-5 0
++ 1.210000000000e-5 1
++ 1.212500000000e-5 0
++ 1.215000000000e-5 1
++ 1.217500000000e-5 0
++ 1.220000000000e-5 1
++ 1.222500000000e-5 0
++ 1.225000000000e-5 1
++ 1.227500000000e-5 0
++ 1.230000000000e-5 1
++ 1.232500000000e-5 0
++ 1.235000000000e-5 1
++ 1.237500000000e-5 0
++ 1.240000000000e-5 1
++ 1.242500000000e-5 0
++ 1.245000000000e-5 1
++ 1.247500000000e-5 0
++ 1.250000000000e-5 1
++ 1.252500000000e-5 0
++ 1.255000000000e-5 1
++ 1.257500000000e-5 0
++ 1.260000000000e-5 1
++ 1.262500000000e-5 0
++ 1.265000000000e-5 1
++ 1.267500000000e-5 0
++ 1.270000000000e-5 1
++ 1.272500000000e-5 0
++ 1.275000000000e-5 1
++ 1.277500000000e-5 0
++ 1.280000000000e-5 1
++ 1.282500000000e-5 0
++ 1.285000000000e-5 1
++ 1.287500000000e-5 0
++ 1.290000000000e-5 1
++ 1.292500000000e-5 0
++ 1.295000000000e-5 1
++ 1.297500000000e-5 0
++ 1.300000000000e-5 1
++ 1.302500000000e-5 0
++ 1.305000000000e-5 1
++ 1.307500000000e-5 0
++ 1.310000000000e-5 1
++ 1.312500000000e-5 0
++ 1.315000000000e-5 1
++ 1.317500000000e-5 0
++ 1.320000000000e-5 1
++ 1.322500000000e-5 0
++ 1.325000000000e-5 1
++ 1.327500000000e-5 0
++ 1.330000000000e-5 1
++ 1.332500000000e-5 0
++ 1.335000000000e-5 1
++ 1.337500000000e-5 0
++ 1.340000000000e-5 1
++ 1.342500000000e-5 0
++ 1.345000000000e-5 1
++ 1.347500000000e-5 0
++ 1.350000000000e-5 1
++ 1.352500000000e-5 0
++ 1.355000000000e-5 1
++ 1.357500000000e-5 0
++ 1.360000000000e-5 1
++ 1.362500000000e-5 0
++ 1.365000000000e-5 1
++ 1.367500000000e-5 0
++ 1.370000000000e-5 1
++ 1.372500000000e-5 0
++ 1.375000000000e-5 1
++ 1.377500000000e-5 0
++ 1.380000000000e-5 1
++ 1.382500000000e-5 0
++ 1.385000000000e-5 1
++ 1.387500000000e-5 0
++ 1.390000000000e-5 1
++ 1.392500000000e-5 0
++ 1.395000000000e-5 1
++ 1.397500000000e-5 0
++ 1.400000000000e-5 1
++ 1.402500000000e-5 0
++ 1.405000000000e-5 1
++ 1.407500000000e-5 0
++ 1.410000000000e-5 1
++ 1.412500000000e-5 0
++ 1.415000000000e-5 1
++ 1.417500000000e-5 0
++ 1.420000000000e-5 1
++ 1.422500000000e-5 0
++ 1.425000000000e-5 1
++ 1.427500000000e-5 0
++ 1.430000000000e-5 1
++ 1.432500000000e-5 0
++ 1.435000000000e-5 1
++ 1.437500000000e-5 0
++ 1.440000000000e-5 1
++ 1.442500000000e-5 0
++ 1.445000000000e-5 1
++ 1.447500000000e-5 0
++ 1.450000000000e-5 1
++ 1.452500000000e-5 0
++ 1.455000000000e-5 1
++ 1.457500000000e-5 0
++ 1.460000000000e-5 1
++ 1.462500000000e-5 0
++ 1.465000000000e-5 1
++ 1.467500000000e-5 0
++ 1.470000000000e-5 1
++ 1.472500000000e-5 0
++ 1.475000000000e-5 1
++ 1.477500000000e-5 0
++ 1.480000000000e-5 1
++ 1.482500000000e-5 0
++ 1.485000000000e-5 1
++ 1.487500000000e-5 0
++ 1.490000000000e-5 1
++ 1.492500000000e-5 0
++ 1.495000000000e-5 1
++ 1.497500000000e-5 0
++ 1.500000000000e-5 1
++ 1.502500000000e-5 0
++ 1.505000000000e-5 1
++ 1.507500000000e-5 0
++ 1.510000000000e-5 1
++ 1.512500000000e-5 0
++ 1.515000000000e-5 1
++ 1.517500000000e-5 0
++ 1.520000000000e-5 1
++ 1.522500000000e-5 0
++ 1.525000000000e-5 1
++ 1.527500000000e-5 0
++ 1.530000000000e-5 1
++ 1.532500000000e-5 0
++ 1.535000000000e-5 1
++ 1.537500000000e-5 0
++ 1.540000000000e-5 1
++ 1.542500000000e-5 0
++ 1.545000000000e-5 1
++ 1.547500000000e-5 0
++ 1.550000000000e-5 1
++ 1.552500000000e-5 0
++ 1.555000000000e-5 1
++ 1.557500000000e-5 0
++ 1.560000000000e-5 1
++ 1.562500000000e-5 0
++ 1.565000000000e-5 1
++ 1.567500000000e-5 0
++ 1.570000000000e-5 1
++ 1.572500000000e-5 0
++ 1.575000000000e-5 1
++ 1.577500000000e-5 0
++ 1.580000000000e-5 1
++ 1.582500000000e-5 0
++ 1.585000000000e-5 1
++ 1.587500000000e-5 0
++ 1.590000000000e-5 1
++ 1.592500000000e-5 0
++ 1.595000000000e-5 1
++ 1.597500000000e-5 0
++ 1.600000000000e-5 1
++ 1.602500000000e-5 0
++ 1.605000000000e-5 1
++ 1.607500000000e-5 0
++ 1.610000000000e-5 1
++ 1.612500000000e-5 0
++ 1.615000000000e-5 1
++ 1.617500000000e-5 0
++ 1.620000000000e-5 1
++ 1.622500000000e-5 0
++ 1.625000000000e-5 1
++ 1.627500000000e-5 0
++ 1.630000000000e-5 1
++ 1.632500000000e-5 0
++ 1.635000000000e-5 1
++ 1.637500000000e-5 0
++ 1.640000000000e-5 1
++ 1.642500000000e-5 0
++ 1.645000000000e-5 1
++ 1.647500000000e-5 0
++ 1.650000000000e-5 1
++ 1.652500000000e-5 0
++ 1.655000000000e-5 1
++ 1.657500000000e-5 0
++ 1.660000000000e-5 1
++ 1.662500000000e-5 0
++ 1.665000000000e-5 1
++ 1.667500000000e-5 0
++ 1.670000000000e-5 1
++ 1.672500000000e-5 0
++ 1.675000000000e-5 1
++ 1.677500000000e-5 0
++ 1.680000000000e-5 1
++ 1.682500000000e-5 0
++ 1.685000000000e-5 1
++ 1.687500000000e-5 0
++ 1.690000000000e-5 1
++ 1.692500000000e-5 0
++ 1.695000000000e-5 1
++ 1.697500000000e-5 0
++ 1.700000000000e-5 1
++ 1.702500000000e-5 0
++ 1.705000000000e-5 1
++ 1.707500000000e-5 0
++ 1.710000000000e-5 1
++ 1.712500000000e-5 0
++ 1.715000000000e-5 1
++ 1.717500000000e-5 0
++ 1.720000000000e-5 1
++ 1.722500000000e-5 0
++ 1.725000000000e-5 1
++ 1.727500000000e-5 0
++ 1.730000000000e-5 1
++ 1.732500000000e-5 0
++ 1.735000000000e-5 1
++ 1.737500000000e-5 0
++ 1.740000000000e-5 1
++ 1.742500000000e-5 0
++ 1.745000000000e-5 1
++ 1.747500000000e-5 0
++ 1.750000000000e-5 1
++ 1.752500000000e-5 0
++ 1.755000000000e-5 1
++ 1.757500000000e-5 0
++ 1.760000000000e-5 1
++ 1.762500000000e-5 0
++ 1.765000000000e-5 1
++ 1.767500000000e-5 0
++ 1.770000000000e-5 1
++ 1.772500000000e-5 0
++ 1.775000000000e-5 1
++ 1.777500000000e-5 0
++ 1.780000000000e-5 1
++ 1.782500000000e-5 0
++ 1.785000000000e-5 1
++ 1.787500000000e-5 0
++ 1.790000000000e-5 1
++ 1.792500000000e-5 0
++ 1.795000000000e-5 1
++ 1.797500000000e-5 0
++ 1.800000000000e-5 1
++ 1.802500000000e-5 0
++ 1.805000000000e-5 1
++ 1.807500000000e-5 0
++ 1.810000000000e-5 1
++ 1.812500000000e-5 0
++ 1.815000000000e-5 1
++ 1.817500000000e-5 0
++ 1.820000000000e-5 1
++ 1.822500000000e-5 0
++ 1.825000000000e-5 1
++ 1.827500000000e-5 0
++ 1.830000000000e-5 1
++ 1.832500000000e-5 0
++ 1.835000000000e-5 1
++ 1.837500000000e-5 0
++ 1.840000000000e-5 1
++ 1.842500000000e-5 0
++ 1.845000000000e-5 1
++ 1.847500000000e-5 0
++ 1.850000000000e-5 1
++ 1.852500000000e-5 0
++ 1.855000000000e-5 1
++ 1.857500000000e-5 0
++ 1.860000000000e-5 1
++ 1.862500000000e-5 0
++ 1.865000000000e-5 1
++ 1.867500000000e-5 0
++ 1.870000000000e-5 1
++ 1.872500000000e-5 0
++ 1.875000000000e-5 1
++ 1.877500000000e-5 0
++ 1.880000000000e-5 1
++ 1.882500000000e-5 0
++ 1.885000000000e-5 1
++ 1.887500000000e-5 0
++ 1.890000000000e-5 1
++ 1.892500000000e-5 0
++ 1.895000000000e-5 1
++ 1.897500000000e-5 0
++ 1.900000000000e-5 1
++ 1.902500000000e-5 0
++ 1.905000000000e-5 1
++ 1.907500000000e-5 0
++ 1.910000000000e-5 1
++ 1.912500000000e-5 0
++ 1.915000000000e-5 1
++ 1.917500000000e-5 0
++ 1.920000000000e-5 1
++ 1.922500000000e-5 0
++ 1.925000000000e-5 1
++ 1.927500000000e-5 0
++ 1.930000000000e-5 1
++ 1.932500000000e-5 0
++ 1.935000000000e-5 1
++ 1.937500000000e-5 0
++ 1.940000000000e-5 1
++ 1.942500000000e-5 0
++ 1.945000000000e-5 1
++ 1.947500000000e-5 0
++ 1.950000000000e-5 1
++ 1.952500000000e-5 0
++ 1.955000000000e-5 1
++ 1.957500000000e-5 0
++ 1.960000000000e-5 1
++ 1.962500000000e-5 0
++ 1.965000000000e-5 1
++ 1.967500000000e-5 0
++ 1.970000000000e-5 1
++ 1.972500000000e-5 0
++ 1.975000000000e-5 1
++ 1.977500000000e-5 0
++ 1.980000000000e-5 1
++ 1.982500000000e-5 0
++ 1.985000000000e-5 1
++ 1.987500000000e-5 0
++ 1.990000000000e-5 1
++ 1.992500000000e-5 0
++ 1.995000000000e-5 1
++ 1.997500000000e-5 0
++ 2.000000000000e-5 1
++ )
+Rschedule_probe schedule_probe 0 1G
+
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.save time v(acsrc) v(acn) i(Vac) v(load) v(vb) i(Lboost) v(vd) v(sw) v(gate) v(q) v(en) v(fault) v(vcomp) v(icomp) v(xu.raw) v(xu.pwm_hold) v(pwm) v(pwm_input) v(xdriver.driver_req) v(xdriver.drv_delay) v(xu.phase) v(xu.blank) v(isense) v(xu.ov) v(xu.fault) v(xu.pcl_hold) v(xu.pcl_request) v(disable) v(xu.m1) v(xu.m2)
+* Original normal diagnostics remain above. Fault checker schema plus four branch/marker extras follow.
+.save time v(acsrc,acn) v(vd) v(vb) v(sw) v(gate) i(Lboost) i(Vchannel) i(Vbody) i(Vac) v(q) v(en) v(fault) v(f2ctl) v(standby_req) v(arm) v(permit) i(Vf2sense) i(Vdboost1sense) i(Vdboost2sense) v(fault_inject)
+
+.tran {STEP} {TSTOP} 0 {STEP} uic
+.end

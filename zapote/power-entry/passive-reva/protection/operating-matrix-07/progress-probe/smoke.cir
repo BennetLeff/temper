@@ -1,0 +1,7 @@
+Progress callback smoke
+V1 in 0 1
+R1 in vb 1k
+C1 vb 0 1u
+.save time v(vb)
+.tran 1u 1m uic
+.end

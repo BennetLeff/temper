@@ -1,0 +1,20 @@
+{
+  "status": "PARENT_VERIFIED_TINY_SAME_PLOT_TRANSPORT",
+  "campaign_ready": false,
+  "rows": 5905,
+  "columns": 31,
+  "numeric_values": 183055,
+  "ieee64_bit_mismatches": 0,
+  "source_closure_match_except_TSTOP": true,
+  "wrdata_gzip_bytes": 962447,
+  "native_gzip_bytes": 668014,
+  "files_sha256": {
+    "native_to_tsv.rs": "0d2dd3f1438556ceba0d5b9c077c9d9c115a1f8f93466b23455bf772314ef2e6",
+    "native-progress.rs": "abd311eaba68261cb6186ec952130268f0fa9e3ff433352be0a953ef7cd20d93",
+    "README.md": "80e05b61b1da8d6af562d99dc1646d0334130a44a9a6f9659a3c5d4f937b7255",
+    "parent-tests.txt": "fcedb69a38ca3967c051b36380a7b2a429a1a263c0cbc9cf9a5e1a9c4729ff0e",
+    "out/wrdata.tsv.gz": "37234c6b2761f4b5920af88aedf15c8ec08be10390937f3056425c5e5da68994",
+    "out/native.raw.gz": "d65e955aefdd472329fb4a3146e309f5437a40d45c8e8e8ba288157a1231aa2f"
+  },
+  "limitations": "Tiny in-memory decoder only; wrdata/native tiny numeric equality verified. Current-host equivalence is separately verified in native-api-equivalence-11; current host has no ngGet_Vec_Info export. No full campaign adoption or size forecast."
+}

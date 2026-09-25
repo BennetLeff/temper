@@ -1,0 +1,18 @@
+{
+  "status": "PARENT_EXACT_SOURCE_AND_ARTIFACT_BINDING_VERIFIED",
+  "adopted": false,
+  "fault_exercised": false,
+  "original_case_sha256": "42d8e284cdef229e5e305fb49d2dea43c81d7fcb1dfe0fa01a2cb14ead9effda",
+  "sparse_case_sha256": "2f78f28b80b0c89a577940165f9786eb17b44c2326459a08ba2c9ca51cca1951",
+  "klu_case_sha256": "6294260c2aeeb86fac7b3cfbabdb7b135d7e9ae60fe66693fd1e01d6c9e09db4",
+  "changes": [
+    "SPARSE: exact .param TSTOP89ms->10ms only; original89ms descriptive comment retained",
+    "KLU: one .options klu line only relative to SPARSE; all five includes unchanged"
+  ],
+  "artifact_hashes_verified": true,
+  "limits": [
+    "CLI native export41fields differs from host42; shared-library validation is separate",
+    "Existing raw inspector checks endpoint only, not every field/time",
+    "10ms completion establishes no actual75ms fault performance"
+  ]
+}

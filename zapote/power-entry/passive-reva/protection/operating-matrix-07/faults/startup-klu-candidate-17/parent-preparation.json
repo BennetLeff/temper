@@ -1,0 +1,17 @@
+{
+  "status": "PARENT_VERIFIED_FOR_BOUNDED_EXECUTION",
+  "source_deck_exact_except_one_klu_option": true,
+  "all_includes_and_baseline_unchanged": true,
+  "original_case_sha256": "42d8e284cdef229e5e305fb49d2dea43c81d7fcb1dfe0fa01a2cb14ead9effda",
+  "new_case_sha256": "e8ddff3bec89f42568dd85e2e7a33e12e538fb9d3cccef915c036240388cb01c",
+  "native_probe": "../klu-native-16/parent-review.json",
+  "kind": "f2-start",
+  "mutation_s": 0.075,
+  "tstop_s": 0.089,
+  "healthy_window_s": 0.01,
+  "turnoff_s": 2e-06,
+  "observation_s": 0.002,
+  "max_gap_s": 1e-06,
+  "wall_limit_s": 600,
+  "accepted": false
+}

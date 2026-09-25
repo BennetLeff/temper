@@ -1,0 +1,179 @@
+{
+  "status": "PARENT_REVIEWED_REPRODUCIBILITY_ADDENDUM",
+  "supplements": "host/reproducibility-index-87.json",
+  "objective_complete": false,
+  "small_file_hash_mode": "Regular files hashed during this addendum; no FIFO or raw archive bytes read or rehashed.",
+  "index87_verification": {
+    "listed_small_files": 222,
+    "drift": 0,
+    "index_rewritten": false
+  },
+  "new_evidence": [
+    {
+      "path": "host/normal-screen-margins-89.md",
+      "bytes": 3091,
+      "sha256": "22b46d924d235ac6da4565643ac5d672a2939dfa9dfc1c47111d294b95629ad"
+    },
+    {
+      "path": "host/normal-screen-margins-89.json",
+      "bytes": 7403,
+      "sha256": "ecead4663829d22fc0b365cc2c7fe285c3b8829760aca8d7cfbcbc5a0d737ea7"
+    },
+    {
+      "path": "faults/settled-diode-short-64/full-DIODE-SHORT/campaign-verdict-98.json",
+      "bytes": 2521,
+      "sha256": "7c5fa0e0b29c7de591f99e043019eee5f831488f10b92cc58486b2e7a526e03a"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/full-DIODE-SHORT/receipt.json",
+      "bytes": 717,
+      "sha256": "8721a2a32c99e46bd90d1579ef5d9198f26fed334fa98625a9cd3165d8d7fc40"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/full-DIODE-SHORT/observations.json",
+      "bytes": 7995,
+      "sha256": "05ee665d1f347d7f4839faad1c291fb26a1e2a46eecd6ab34953431ce3120091"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/parent-result-review-103.json",
+      "bytes": 4775,
+      "sha256": "411cb44570eae6161eca1f3b261aa7fad6c454d613edb53b524103f3f455809e"
+    },
+    {
+      "path": "faults/settled-both-short-65/full-BOTH-SHORT/campaign-verdict-118.json",
+      "bytes": 2709,
+      "sha256": "2db4cf5d912d5d232444a50247a6ea3ca1b04b3308dd8c5fac73176b7e9a3ca9"
+    },
+    {
+      "path": "faults/settled-both-postcapture-75/full-BOTH-SHORT/normal-prefix-acceptance.json",
+      "bytes": 8524,
+      "sha256": "d035c11c0a1673aa0c577eda34bc81dffb1b708f71ad435085b719797f06d94c"
+    },
+    {
+      "path": "faults/settled-both-postcapture-75/full-BOTH-SHORT/parent-phase-acceptance.json",
+      "bytes": 4524,
+      "sha256": "034353e4a73312fbdd9f6599453272e3995eb6d9589700b90002275e38fbc615"
+    },
+    {
+      "path": "faults/settled-both-postcapture-75/full-BOTH-SHORT/analysis-receipt.json",
+      "bytes": 779,
+      "sha256": "de28683287ccb024c71d1fcb473c5f782616b326fe7dd9eebfe29877c1cd8ec4"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/preparation-both-109.json",
+      "bytes": 2342,
+      "sha256": "171044aac361f4d199fdea84b3f5643823a0c1e60c74092be4eab78e02fbfd55"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/parent-both-preparation-110.json",
+      "bytes": 942,
+      "sha256": "65c14c92af298a25c1aaab682251bc6568565fa8c91358898dd4b645411f743c"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/parent-both-result-review-120.md",
+      "bytes": 1430,
+      "sha256": "1826a5180bccac983e094f921b8bc8d4a407370e57349a78807d972c4aec9bc5"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/parent-both-result-review-120.json",
+      "bytes": 4985,
+      "sha256": "f9a0421329ffc784c990066730eaec29e72822ab240f1cb93e59e7d9247970a3"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/full-BOTH-SHORT/receipt.json",
+      "bytes": 717,
+      "sha256": "bb7ca723df712388dceb55d13efbcdc971a6f99a14ec1783b094540fa206c44d"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/full-BOTH-SHORT/observations.json",
+      "bytes": 7980,
+      "sha256": "329624c9279e0e5ba99064d1a1c1ed69ee8aa371999561b195cf2af567d24e67"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/full-BOTH-SHORT/pipeline.exit",
+      "bytes": 6,
+      "sha256": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/full-BOTH-SHORT/analysis.exit",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "faults/coincident-stress-observability-99/full-BOTH-SHORT/preflight.json",
+      "bytes": 155,
+      "sha256": "d7c3853b80b28bfb4a40ec2591a5b15bc3e90ba57a111ee525b26f768eda029e"
+    },
+    {
+      "path": "host/reference-baseline-review-102.md",
+      "bytes": 3932,
+      "sha256": "c4a0ac43c4f1c6aa2f27b085f69d2afe6b73e2e7d329e86e927fed6e971ff87a"
+    },
+    {
+      "path": "host/reference-baseline-review-102.json",
+      "bytes": 3226,
+      "sha256": "4f1bc332f1a0251a4ac348311039a84dd2538af6fdb4cf0f1f98e6828d8a5a23"
+    },
+    {
+      "path": "host/power-target-105.md",
+      "bytes": 2492,
+      "sha256": "162f64f44eaee9c6bad7efac2463a2aeba3dd9b3c95bf8aaad494cdc570d2dcc"
+    },
+    {
+      "path": "host/ucc28180-reference-deviations-107.md",
+      "bytes": 5082,
+      "sha256": "2a0619c66d1824ddbc1ae593e9650253db9fde13fa5444fad7128d353eca104f"
+    },
+    {
+      "path": "host/ucc28180-reference-deviations-107.json",
+      "bytes": 5948,
+      "sha256": "1796264a041349d500e4b5fcb9b19f213f0408c2c167756c7275a87ba8dedf99"
+    },
+    {
+      "path": "host/reference-parent-review-111.json",
+      "bytes": 2162,
+      "sha256": "6788e8bb6acf507a94be4caf3dacb4863d31eb652c589150b805692b934dbcad"
+    },
+    {
+      "path": "host/reference-sources-107/sluuat3.pdf",
+      "bytes": 1172329,
+      "sha256": "4060ba9b2d4d6bd0c06540d9fae91894ee472b93169efc7f05dcfefaa9435911"
+    },
+    {
+      "path": "host/reference-sources-107/tidrka5.pdf",
+      "bytes": 725820,
+      "sha256": "8b91f9402e1fd36dd71b2af6b465d300c5af5ec7488f9290bdb9b58bf5c57f05"
+    },
+    {
+      "path": "host/completion-audit-114.md",
+      "bytes": 3914,
+      "sha256": "c405ad1a0240d66e9faa30bfb5c132853fcd3571eb2514177f25ab6ec3b430fb"
+    },
+    {
+      "path": "host/completion-audit-correction-115.md",
+      "bytes": 1712,
+      "sha256": "5796fbc41741236204e457712cc5265d2f8d3d82843cca6431d927dd41faaa9c"
+    }
+  ],
+  "archive_identity": {
+    "diode_raw": {
+      "path": "faults/settled-diode-short-64/full-DIODE-SHORT/raw.trace.raw.gz",
+      "sha256_from_completed_receipts": "19f8068d73fb4b2379b3111504fd92efbf769984eb4e3775d5b6378294a6c02c",
+      "bytes_from_receipt": 5340687952,
+      "rehashed": false
+    },
+    "both_raw": {
+      "path": "faults/settled-both-short-65/full-BOTH-SHORT/raw.trace.raw.gz",
+      "sha256_from_completed_receipts": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+      "bytes_from_receipt": 5286116925,
+      "rehashed": false
+    }
+  },
+  "pending_or_excluded": [
+    "host/changing-116*",
+    "host/changing-117*",
+    "live BYPASS output",
+    "live coincident/BOTH output"
+  ],
+  "goal_note": "BOTH and BYPASS final reporting/closure remain pending; this addendum is not a final index."
+}

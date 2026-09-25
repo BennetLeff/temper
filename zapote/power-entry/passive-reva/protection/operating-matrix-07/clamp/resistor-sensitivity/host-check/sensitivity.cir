@@ -1,0 +1,123 @@
+* Bounded resistor sensitivity using the Diodes Inc. BAV23C alternative model.
+* Source shunt is the retained 10 mOhm PFC shunt. No dynamic equivalence is
+* claimed: changing RIN also changes the existing 1 nF ISENSE pole.
+.title BAV23C clamp resistor sensitivity
+.param R_SENSE=220
+.include /private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/resistor-sensitivity/diodes-bav23c.spice.txt
+VSHUNT shunt 0 DC -0.438
+RIN shunt isense {R_SENSE}
+DCLAMP 0 isense DI_BAV23C
+.control
+set noaskquit
+set filetype=ascii
+* Each block resets the parameterized resistor and sweeps the shunt.
+alterparam R_SENSE=220
+reset
+set temp=-40
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r220_m40.tsv v(shunt) v(isense)
+set temp=25
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r220_25.tsv v(shunt) v(isense)
+set temp=85
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r220_85.tsv v(shunt) v(isense)
+set temp=125
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r220_125.tsv v(shunt) v(isense)
+set temp=-40
+alter VSHUNT=-5
+op
+print v(isense) @dclamp[id]
+set temp=25
+op
+print v(isense) @dclamp[id]
+set temp=85
+op
+print v(isense) @dclamp[id]
+set temp=125
+op
+print v(isense) @dclamp[id]
+alterparam R_SENSE=100
+reset
+set temp=-40
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r100_m40.tsv v(shunt) v(isense)
+set temp=25
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r100_25.tsv v(shunt) v(isense)
+set temp=85
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r100_85.tsv v(shunt) v(isense)
+set temp=125
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r100_125.tsv v(shunt) v(isense)
+set temp=-40
+alter VSHUNT=-5
+op
+print v(isense) @dclamp[id]
+set temp=25
+op
+print v(isense) @dclamp[id]
+set temp=85
+op
+print v(isense) @dclamp[id]
+set temp=125
+op
+print v(isense) @dclamp[id]
+alterparam R_SENSE=47
+reset
+set temp=-40
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r47_m40.tsv v(shunt) v(isense)
+set temp=25
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r47_25.tsv v(shunt) v(isense)
+set temp=85
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r47_85.tsv v(shunt) v(isense)
+set temp=125
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r47_125.tsv v(shunt) v(isense)
+set temp=-40
+alter VSHUNT=-5
+op
+print v(isense) @dclamp[id]
+set temp=25
+op
+print v(isense) @dclamp[id]
+set temp=85
+op
+print v(isense) @dclamp[id]
+set temp=125
+op
+print v(isense) @dclamp[id]
+alterparam R_SENSE=22
+reset
+set temp=-40
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r22_m40.tsv v(shunt) v(isense)
+set temp=25
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r22_25.tsv v(shunt) v(isense)
+set temp=85
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r22_85.tsv v(shunt) v(isense)
+set temp=125
+dc VSHUNT -0.05 -1.50 -0.001
+wrdata r22_125.tsv v(shunt) v(isense)
+set temp=-40
+alter VSHUNT=-5
+op
+print v(isense) @dclamp[id]
+set temp=25
+op
+print v(isense) @dclamp[id]
+set temp=85
+op
+print v(isense) @dclamp[id]
+set temp=125
+op
+print v(isense) @dclamp[id]
+.endc
+.end

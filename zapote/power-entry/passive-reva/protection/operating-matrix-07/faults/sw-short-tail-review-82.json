@@ -1,0 +1,59 @@
+{
+  "case": "SW-SHORT",
+  "source": "faults/settled-sw-short-59/full-SW-SHORT",
+  "tail_source": "faults/sw-short-abort-diagnostic-79/last256-data.tsv",
+  "accepted": false,
+  "rows": 256,
+  "columns": 42,
+  "all_values_finite": true,
+  "hashes": {
+    "header.tsv": "9ef6fed55770cb8c02127cef7843e314ea073b56a67c0d2dc383b95a8127c9ff",
+    "last256-data.tsv": "1592af8297bc049c334a54019229c16dffc31818b109070209ab3e865da1c3dd"
+  },
+  "time": {
+    "first_s": 0.6544014666667,
+    "last_s": 0.6544026486296868,
+    "span_s": 0.0000011819629868181636,
+    "repeated_groups": 2,
+    "repeated_timestamps": [
+      {"time_s": 0.6544026486296867, "multiplicity": 5},
+      {"time_s": 0.6544026486296868, "multiplicity": 3}
+    ]
+  },
+  "ranges_first_last_min_max": {
+    "v(gate)": [7.716004570919803e-7, 7.697733080488251e-7, 7.697733080324086e-7, 7.716004570919803e-7],
+    "v(q)": [5.0, 5.0, 5.0, 5.0],
+    "v(en)": [4.999999999999994, 4.999999999999994, 4.999999999999994, 4.999999999999994],
+    "v(fault)": [0.0, 0.0, 0.0, 0.0],
+    "v(xu.phase)": [6.275081425699547e-6, 7.4570444125177104e-6, 6.275081425699547e-6, 7.4570444125177104e-6],
+    "v(pwm)": [0.0, 2.429564882611146, 0.0, 2.429564882611146],
+    "v(xdriver.driver_req)": [2.0331026941743737e-19, 14.999999999999972, 2.0331026941743294e-19, 14.999999999999972],
+    "v(xu.pcl_hold)": [0.0, 0.0, 0.0, 0.0],
+    "i(Lboost)": [181.316020323988, 181.99440390550896, 181.316020323988, 181.99440390550896],
+    "i(Vchannel)": [181.3160199288869, 181.99440351116507, 181.3160199288869, 181.99440351116507],
+    "i(Vdboost1sense)": [6.577431575211148e-8, 7.339422491487763e-8, -7.915192891210007e-8, 7.339422491487763e-8],
+    "i(Vdboost2sense)": [6.57743217873752e-8, 6.762798614315408e-8, 1.6677732269312216e-8, 1.7576223159479008e-7],
+    "v(vd)": [384.16751096470387, 384.1664524500678, 384.1664524500674, 384.16751096470387],
+    "v(vb)": [384.1672635918558, 384.1662050779034, 384.1662050779032, 384.1672635918558],
+    "v(sw)": [0.1813160199288867, 0.1819944035111649, 0.1813160199288867, 0.1819944035111649],
+    "v(isense)": [-0.8690857633090413, -0.8694092207431693, -0.8694092207431693, -0.8690857633090413]
+  },
+  "state_interpretation": {
+    "controller_transition": "xdriver.driver_req changes from ~0 to 15 V within the final repeated-time group; pwm is already 2.42956 V, while gate, q, en, fault, and pcl_hold remain effectively unchanged.",
+    "electrical_paths": "i(Lboost) and i(Vchannel) rise smoothly together around 181.3 to 182.0 A; vd/vb remain near 384.17 V and diode-sense currents remain sub-microampere.",
+    "root_cause": "UNKNOWN"
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "The late xdriver.driver_req bridge transition at the final repeated timestamps triggers a hidden mixed-signal algebraic event even though gate, q, en, fault, and pcl_hold do not change.",
+      "disproof_experiment": "Repeat from the same saved endpoint state with only the driver-request transition held at its pre-transition value; unchanged collapse timing would disprove H1."
+    },
+    {
+      "id": "H2",
+      "statement": "The near-DC ~182 A channel path with ~384 V reservoir nodes and ideal zero-volt sense probes is already numerically stiff; the branch label identifies the Newton failure location rather than a controller cause.",
+      "disproof_experiment": "Repeat from the same saved endpoint state with the sense-probe topology given a controlled small finite impedance while preserving the electrical state; unchanged collapse timing would disprove H2."
+    }
+  ],
+  "scope": "Exact 256-row endpoint tail only; not whole-run maxima, fault-response evidence, or normal-prefix acceptance."
+}

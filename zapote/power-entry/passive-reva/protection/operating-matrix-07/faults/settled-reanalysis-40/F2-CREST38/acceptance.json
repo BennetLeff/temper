@@ -1,0 +1,110 @@
+{
+  "status": "ACCEPTED_EXACT_MODELED_SETTLED_F2_CREST_SCREENS",
+  "utc": "2026-09-21T18:37:05.396996+00:00",
+  "scope": "Exact source-bound120VAC/190ohm settled-prefix model with scripted idealF2 opening at sampled mainscrest. This is one of six settledfaultcases, not a hardware or generalinterruption qualification.",
+  "raw": {
+    "path": "faults/settled-direct-capture-38/F2-CREST/raw.trace.raw.gz",
+    "sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+    "bytes": 5297726667,
+    "rows": 32237324,
+    "fields": 42,
+    "first_time_s": 2e-10,
+    "end_s": 0.6619999999999999
+  },
+  "normal_prefix_acceptance": "faults/settled-prefix-analysis-42/normal-prefix/acceptance.json",
+  "phase_acceptance": "faults/phase-audit-43/full-F2-CREST38/parent-phase-acceptance.json",
+  "injection_s": 0.6541666661706754,
+  "detector_s": 0.6542278943483889,
+  "retained_off_s": 0.654228000976866,
+  "injection_to_detector_s": 6.122817771347933e-05,
+  "detector_to_retained_off_s": 1.0662847704789868e-07,
+  "last_channel_above_0_1_A_s": 0.6542250757244226,
+  "channel_low_before_detector_s": 2.818623966338585e-06,
+  "retained_off_observation_to_end_s": 0.007771999023133969,
+  "channel_peak_after_injection_A": 13.0982615772131,
+  "channel_peak_after_detector_A": 4.008566817125341e-10,
+  "passive_peak_after_detector_A": 8.878714291526551,
+  "max_abs_fulltrace_nodes": {
+    "max_vd": 399.7235762917169,
+    "max_vb": 385.3711153032868,
+    "max_sw": 400.8566817125345,
+    "max_gate": 14.982192728642518,
+    "max_il": 30.653817977920625
+  },
+  "branch_peaks_after_injection_A": {
+    "body_peak_after_injection_a": 0.0034036433430997123,
+    "lboost_peak_after_injection_a": 13.153488121216943,
+    "f2_branch_peak_after_injection_a": 2.3064799184567164,
+    "dboost1_branch_peak_after_injection_a": 6.518772245041368,
+    "dboost2_branch_peak_after_injection_a": 6.518772245058602
+  },
+  "frozen_checker_verdict": "Pass",
+  "gap_contract_s": {
+    "global_outer": 1e-06,
+    "local_frozen_inner": 2.5e-08
+  },
+  "complete_pipeline_exit_codes": {
+    "fault": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal_audit": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal_metrics": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "phase": [
+      0,
+      0,
+      0
+    ]
+  },
+  "equal_time": {
+    "full_groups": 39,
+    "full_equal_intervals": 61,
+    "crossing_groups": 0,
+    "boundary_groups": 0,
+    "phase_local_groups": 2,
+    "phase_local_raw_rows": 6
+  },
+  "evidence_sha256": {
+    "faults/settled-reanalysis-40/F2-CREST38/reanalysis-receipt.json": "8e20f5bc8901a928875725e726bf43831f31d47d3b46f65a3a9f5329004ce8d1",
+    "faults/settled-reanalysis-40/F2-CREST38/source-binding.json": "a8c7429eeb1b0df6a854e20403271e9d4a0746d1dc234eef1608eb78f11ea7d1",
+    "faults/settled-reanalysis-40/F2-CREST38/gap-policy.json": "21c2c55110d562955cea3d9ab5239921e69a22eaacf6f24fed4caf8544dad981",
+    "faults/settled-reanalysis-40/F2-CREST38/pipeline-status.txt": "8831320de04732fd3d02bb92936da598ff16bf5782e1ca276dbf5e41b0348065",
+    "faults/settled-reanalysis-40/F2-CREST38/adapter-report.txt": "ad417f046342e450a6f5d028611d80b412391abd42486b36e1ca00268ef62338",
+    "faults/settled-reanalysis-40/F2-CREST38/validator.stdout": "390dd6674207c05cd48a91c92a79d0352130e8617416aca1f4825ba06d35230a",
+    "faults/settled-reanalysis-40/F2-CREST38/validator-events.tsv": "b9bd8d4b01a8bb8659c98d66aa3352c7ec6d877adfd1bc2a10827931c0444598",
+    "faults/settled-reanalysis-40/F2-CREST38/parent-stage-review.json": "2a44a80271eb8e13d5859636c7dd7ed3ceccfec89b88a8674f0134600f2fe4ae",
+    "faults/phase-audit-43/full-F2-CREST38/parent-phase-acceptance.json": "0608fc8197f4ed663ff28e01c54ff0fc7c8df051ccd8bd822a15c0a9d87e30e8",
+    "faults/settled-prefix-analysis-42/normal-prefix/acceptance.json": "3585309fbe21460d5c3002ff41fb7f104ad09fe7f748e291328a4d268116c8eb",
+    "faults/settled-direct-capture-38/F2-CREST/parent-capture-verification.json": "5ef29137a3acd8a3050c2b8da2a124ef84ccfd9729e0d481f84e44dac9e0b16b",
+    "faults/settled-direct-capture-38/resource-summary-parent.json": "fb3d08b776576327f4e4ce51d45d81f136774d6c234f06518ae972bce52c0229",
+    "faults/settled-reanalysis-40/parent-review.json": "36dd74bb5308cb9d9ef0b5862098d3a8b5f93f5dade50d844153acf1dacec322",
+    "faults/settled-prefix-analysis-42/phase-audit.json": "1c2898d977af4f2766b7982fe63468b87e4ea6315448a8613cb769cf50d6abbc"
+  },
+  "original_rejections_preserved": [
+    "faults/settled-direct-capture-38/F2-CREST/result.json",
+    "faults/settled-prefix-analysis-42/phase-audit.json",
+    "legacy-strict/run/receipt.json",
+    "faults/settled-native-capture-32/F2-CREST/parent-disposition.json"
+  ],
+  "limitations": [
+    "Channel current was alreadybelow0.1A about2.819us beforedetector. The106.628ns retained-off witness doesnot demonstrate causalinterruption of flowingchannelcurrent.",
+    "Passive current continues afterdetector, with8.879A modeledpeak. Gate-off is not complete energyinterruption.",
+    "Ideal scriptedF2 disconnect is bank-only; source/local energy canremain. No physicalfuse arc/clearing/DCinterrupt rating proof.",
+    "Authored controller and genericdevice models, nominalpassives andboundedclamp assumptions remain. No thermal/SOA/hardwarecorrelation or certification.",
+    "Otherfive settledfaultcases andremainingnormalgridpoint(s) needtheir own sourcebound evidence."
+  ],
+  "accepted": true
+}

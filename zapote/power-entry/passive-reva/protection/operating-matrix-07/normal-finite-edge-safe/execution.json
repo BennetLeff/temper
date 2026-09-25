@@ -1,0 +1,11 @@
+{
+  "status": "HOST_TERMINATED_NO_EXPORTED_TRACE",
+  "requested_end_s": 0.5,
+  "ngspice_tool_session": 77672,
+  "gzip_tool_session": 92421,
+  "acceptance": "Unchanged checker --end-s 0.5 on complete cold trace; original 500ms checkpoint, final three complete 60Hz cycles.",
+  "cold_initial_conditions": true,
+  "parent_deck": "../normal-startup/stalled-351ms/final-cold-continuation.cir",
+  "stopped_at": "2026-09-20T17:39:52.789480+00:00",
+  "reason": "Over75min with no observable simulation time; replaced by identical electrical model in tracked shared transport. No circuit pass/fail inferred."
+}

@@ -1,0 +1,19 @@
+{
+  "status": "PARENT_REVIEWED_PREFIX_ONLY_PREPARATION",
+  "accepted": false,
+  "utc": "2026-09-22T02:05:29.971038+00:00",
+  "files_sha256": {
+    "faults/sw-prefix-only-117/run.sh": "b6c65ef09467ab7cc78af37e4a9fc4c96d9c41eb70fb0d577d72cd80f28de3a4",
+    "faults/sw-prefix-only-117/README.md": "5a1cc01cd2814252c0ac7982065cf9d072ae08e8b4522ebdbefcfc81796495b0",
+    "faults/sw-prefix-only-117/preparation.json": "91d375b2dce020cf116e75acecddbc0464cce8e325aa16be506e8ab2d7e2b7f6",
+    "faults/sw-prefix-only-117/tools-parent.sha256": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e"
+  },
+  "checks": [
+    "Reviewed all wrapper stages; scan/audit/metrics and legacy only, no phase43/obs55/fullfaultendpoint relaxation.",
+    "Current metadata, manifest, source assumptions and native export fields agree with preflight.",
+    "Bash syntax, ShellCheck and all frozen tool pins passed.",
+    "No-clobber,10GiBfloor, pipeline exit capture and fullraw before/after hash closure retained.",
+    "BOTH coincident34449 terminal0; archive lane available."
+  ],
+  "scope": "Own SW-SHORT normal prefix before650ms may be accepted separately after output review; overall fault staysINDETERMINATE because .662 endpoint absent. No solver rerun."
+}

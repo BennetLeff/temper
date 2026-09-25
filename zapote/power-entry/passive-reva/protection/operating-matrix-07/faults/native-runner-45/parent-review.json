@@ -1,0 +1,25 @@
+{
+  "status": "PARENT_REVIEWED_SUCCESSOR_RUNNER",
+  "utc": "2026-09-21T18:24:27.889955+00:00",
+  "source_sha256": "b131c153db6a67f3da961bda0b2a5a7c417271f68c0141c7af664059c87219a3",
+  "binary": "/private/tmp/matrix07-fault-runner45-parent",
+  "binary_sha256": "98a8c07622dcd257a919107c366775009dfd918b45c4bb72e8fb603d7dc92abb",
+  "tests": {
+    "default_passed": 12,
+    "ignored": 1,
+    "separate_approved_inherited_fd_passed": 1,
+    "failed": 0
+  },
+  "parent_correction": "Removed unnecessary manifest alias normalization: original29 already converts CLI switch-short to SW-SHORT. Manifest binding unchanged.",
+  "scope": "Reviewed minimal outergap propagation correction. Both actual command construction sites inspected by parent; helpertest covers exact25ns input constraint and1us map, not complete argv. Capture/killreap/source/endpoint/rowcount guards unchanged.",
+  "gap_policy": {
+    "capture_and_frozen_local_s": 2.5e-08,
+    "adapter_and_outer_validator_global_s": 1e-06
+  },
+  "frozen_checker_sha256": "a94f3a7e5ac5bcae67d94a53afacf8338567eaf8b1870b2bf8db12121f25bc66",
+  "related_real_analysis_proof": "faults/settled-reanalysis-40/F2-CREST38/reanalysis-receipt.json",
+  "real_analysis_scope": "Same global/local contract passed all4stages on complete32,237,324row fault38 trace. New runner45 itself has no full-case execution yet.",
+  "fixture_warning": "Inherited fixture/README.md is historical, references oldrunner14 and maxgap1us; do not use as45 launch command. Production45 requires25ns local parameter.",
+  "next_launch": "User goal authorizes campaign execution. Before launch: fresh outputdirectory, direct-fault37parent, pinneddecoder/adapter/validator, measured space for newarchive+10GiBfloor, singlefullsolver. Candidate receipt alone does not satisfy these launchchecks.",
+  "acceptance": false
+}

@@ -1,0 +1,60 @@
+Fault runner 09 verification
+============================
+
+No real fault deck or ngspice simulation was launched. This is transport and
+process-lifecycle evidence only.
+
+Build
+-----
+
+```
+rustc --edition=2021 -D warnings --test supervisor.rs -o /tmp/matrix07-fault-supervisor-tests
+/tmp/matrix07-fault-supervisor-tests
+rustc --edition=2021 -D warnings -O supervisor.rs -o /tmp/matrix07-fault-supervisor-09
+```
+
+Result: 7 unit tests passed, 0 failed. The tests cover finite positive bounds,
+nonzero child exit/reaping, actual FIFO file type validation, unsupported and
+escaping include rejection, JSON control escaping, prompt early-checker
+cleanup, and delayed categorical-gap classification after upstream reaping.
+
+Source SHA256: b8dd6add9259f8400177ff777231b91978cc65edeb4076a27c07d3435bc22c3d
+Binary SHA256: 6c0e6954e6d6d8ebf0fe9e35ed59503c55f3895ef7e3efbbf6ddc756bcdf116e
+
+Actual CLI smoke
+----------------
+
+An external synthetic tracker emitted a 42-column trace with 1001 points at
+20 ns spacing through the five-argument tracker contract. The real adapter
+and real checker binaries were used, not test doubles. The 20 us case returned
+`SCHEMA_AND_EVIDENCE_OK` and `checker_pass`; stage1 and stage2 statuses were
+all zero. The sole retained trace was 12 KiB `raw.trace.tsv.gz`; all FIFOs
+were removed.
+
+Failure controls
+----------------
+
+An adapter fixture that exits 19 before opening output FIFOs was rejected as
+`adapter rejected trace` within the bounded timeout, and its downstream
+decoder/checker were killed and reaped. A compressor fixture that exits 17 was
+rejected before stage 2. Neither left FIFO paths behind. These controls verify
+cleanup behavior, not electrical correctness.
+
+A second 42-column fixture retained a channel current after a switch-short;
+the real checker returned `PROTECTION_GAP`, and the supervisor classified it
+as `expected_checker_protection_gap` with transport complete. A checker fixture
+that exits 23 before opening its FIFO was rejected in about 0.4 seconds, with
+downstream children killed/reaped and a structured stage-2 failure receipt. A
+missing tracker executable produced a `missing_executable` receipt without
+creating any FIFO.
+
+Before launch, the supervisor refuses every expected output path if it already
+exists. `source-identity.json` records the sorted supported local `.include`
+closure (including nested include bytes) and SHA-256 for tracker, adapter,
+checker and pigz. Unsupported `.inc`/`.lib` forms and root escapes fail closed;
+the closure is rehashed after transport. The raw gzip SHA-256 is recorded in
+`result.json` after a completed transport.
+
+Checker status is deliberately distinguished: an explicit `PROTECTION_GAP`
+is recorded as expected gap, while an ordinary checker rejection or parse
+failure is returned as an error. There is no unconditional PASS path.

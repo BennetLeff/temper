@@ -1,0 +1,10 @@
+* test
+V1 foo 0 5
+Rfoo foo 0 1k
+.tran 10n 2u
+.control
+run
+wrdata /private/tmp/temper-integration06-controller/output/_test.tsv time v(foo)
+quit
+.endc
+.end

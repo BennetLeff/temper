@@ -1,0 +1,130 @@
+# Isolated sensing experiment; not instantiated in the canonical power board.
+# See passive-reva/protection/f2-open-01/README.md for scope and missing guarantees.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component F2Comparator:
+    mpn = "TLV1704PWR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tlv1704.pdf"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal OB ~ pin 1
+    signal OA ~ pin 2
+    signal VCC ~ pin 3
+    signal NA ~ pin 4
+    signal PA ~ pin 5
+    signal NB ~ pin 6
+    signal PB ~ pin 7
+    signal NC ~ pin 8
+    signal PC ~ pin 9
+    signal ND ~ pin 10
+    signal PD ~ pin 11
+    signal GND ~ pin 12
+    signal OD ~ pin 13
+    signal OC ~ pin 14
+
+component F2Reference:
+    mpn = "LM4040A25IDBZR"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal K ~ pin 1
+    signal A ~ pin 2
+    signal NC ~ pin 3
+
+component F2R:
+    mpn = "TNPW1206200KBEEA"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value = 200kohm
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component F2C:
+    mpn = "C0805C101J5GACTU"
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    value = 100pF
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module F2Divider:
+    signal bus
+    signal high
+    signal low
+    signal gnd
+    r1 = new F2R
+    r2 = new F2R
+    r3 = new F2R
+    r4 = new F2R
+    r5 = new F2R
+    r5.mpn = "TNPW1206187KBEEA"
+    r5.value = 187kohm
+    step = new F2R
+    step.mpn = "TNPW1206200RBEEA"
+    step.value = 200ohm
+    bottom = new F2R
+    bottom.mpn = "TNPW12065K62BEEA"
+    bottom.value = 5620ohm
+    filter = new F2C
+    bus ~ r1.p1
+    r1.p2 ~ r2.p1
+    r2.p2 ~ r3.p1
+    r3.p2 ~ r4.p1
+    r4.p2 ~ r5.p1
+    r5.p2 ~ high
+    high ~ step.p1
+    step.p2 ~ low
+    low ~ bottom.p1
+    bottom.p2 ~ gnd
+    filter.p1 ~ high
+    filter.p2 ~ gnd
+
+module PowerEntryF2Sense:
+    # All ports HOT-referenced; logic5 is externally regulated.
+    # fault_n is only a raw detector output, never RUN permission.
+    # The caller must supply rail supervision, a default-off driver and latch.
+    signal vd
+    signal vb
+    signal aux
+    signal logic5
+    signal gnd
+    signal fault_n
+    signal ref25
+    diode = new F2Divider
+    bank = new F2Divider
+    comparator = new F2Comparator
+    reference = new F2Reference
+    ref_bias = new F2R
+    ref_bias.mpn = "TNPW120610K0BEEA"
+    ref_bias.value = 10kohm
+    pullup = new F2R
+    pullup.mpn = "TNPW120610K0BEEA"
+    pullup.value = 10kohm
+    bypass = new F2C
+    bypass.mpn = "C0805C104K5RACTU"
+    bypass.value = 100nF
+    diode.bus ~ vd
+    bank.bus ~ vb
+    diode.gnd ~ gnd
+    bank.gnd ~ gnd
+    comparator.VCC ~ aux
+    comparator.GND ~ gnd
+    bypass.p1 ~ aux
+    bypass.p2 ~ gnd
+    ref_bias.p1 ~ aux
+    ref_bias.p2 ~ ref25
+    reference.K ~ ref25
+    reference.A ~ gnd
+    # Two absolute OV channels, independent of the UCC regulation divider.
+    comparator.PA ~ ref25
+    comparator.NA ~ diode.high
+    comparator.PB ~ ref25
+    comparator.NB ~ bank.high
+    # Passive relative window: no op-amp or reference-offset network.
+    comparator.PC ~ bank.high
+    comparator.NC ~ diode.low
+    comparator.PD ~ diode.high
+    comparator.ND ~ bank.low
+    comparator.OA ~ fault_n
+    comparator.OB ~ fault_n
+    comparator.OC ~ fault_n
+    comparator.OD ~ fault_n
+    pullup.p1 ~ logic5
+    pullup.p2 ~ fault_n
+    fault_n.override_net_name = "F2_SENSE_FAULT_N_RAW"

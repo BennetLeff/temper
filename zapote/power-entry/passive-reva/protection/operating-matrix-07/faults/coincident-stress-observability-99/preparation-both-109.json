@@ -1,0 +1,47 @@
+{
+  "status": "PREPARED_PARENT_REVIEW_REQUIRED",
+  "packet": "coincident-stress-observability-99",
+  "case": "BOTH-SHORT",
+  "source_root": "faults/settled-both-short-65/full-BOTH-SHORT",
+  "postcapture_root": "faults/settled-both-postcapture-75/full-BOTH-SHORT",
+  "output_root": "faults/coincident-stress-observability-99/full-BOTH-SHORT",
+  "raw_bytes": 5286116925,
+  "raw_sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+  "rows": 32036953,
+  "expected_endpoint_s": 0.662,
+  "expected_prefix_cutoff_s": 0.65,
+  "required_postcapture": [
+    "analysis.exit == 0",
+    "analysis-receipt.json complete and accepted=false",
+    "legacy-strict/receipt.json status EXPECTED_STRICT_REJECTION",
+    "legacy raw_after_sha256 equals expected raw identity"
+  ],
+  "source_and_tool_pins": {
+    "decoder": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "coincident99_parent": "8fb3482d5390a977cdb18e47381bdd09bb71f0b0752a02fd4bfb98b0fc534b08",
+    "pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "source_case_sha256": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+    "source_manifest_sha256": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b"
+  },
+  "mechanical_diff": [
+    "run-diode.sh -> run-both-109.sh",
+    "settled-diode-short-64/full-DIODE-SHORT -> settled-both-short-65/full-BOTH-SHORT",
+    "settled-diode-postcapture-74/full-DIODE-SHORT -> settled-both-postcapture-75/full-BOTH-SHORT",
+    "expected raw identity and row count replaced with completed BOTH receipt values",
+    "coincident99 parent binary retained; no numerical source changes"
+  ],
+  "guards": [
+    "10 GiB available-space floor",
+    "fresh output/no-clobber and EXIT record",
+    "raw before/after hash and byte identity",
+    "original55 report fields byte-equivalent after removing new coincident block",
+    "diagnostic-only; no acceptance or physical-current claim"
+  ],
+  "static_validation": {
+    "bash_n": "PASS",
+    "shellcheck": "PASS",
+    "run_sha256": "c0cd5712f72a5b3004b4b8711889e3e53f25efd6261690aa61ef233adb5f04a3",
+    "base_run_diode_sha256": "e6d032b3928c062ba974c49bf8c6d64ab89805dd58d719f126d72a76c08bb02c"
+  },
+  "execution": "NOT RUN; parent must launch only after BOTH postcapture and legacy receipts are complete"
+}

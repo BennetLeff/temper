@@ -1,0 +1,47 @@
+{
+  "status": "GOAL_INCOMPLETE_REQUIREMENTS_AUDIT",
+  "objective_complete": false,
+  "audit_scope": "GOAL.md checkpoint81, campaign-evidence-register-28.md checkpoint81, faults/fault-matrix.md, normal-operation checkpoint53, SW disposition80 and prepared/live case receipts",
+  "receipt_sha256": {
+    "GOAL.md": "43e68f94c0cc6657ef2ce4f49366106a246baeabf62d933ca1f05fafe425761a",
+    "host/campaign-evidence-register-28.md": "4947eb2d82914a72b89415d648a15168acd516893a59faf0f3e41dcc19a80905",
+    "faults/fault-matrix.md": "df55bba086af019213f28302cdd6534d964e4b07f54aed5d52b65d1bf27a737b",
+    "host/operating-envelope-checkpoint-53.json": "b8cf5f50b73b8ae0c0fb9cd7d0bcacaddcd0f9099a450f680d85eafa2a345f5d",
+    "faults/settled-sw-short-59/full-SW-SHORT/parent-disposition-80.json": "d895d1824ca8fe356ea7fb9a3704e64b242566442684736ee5ef0cefdba01a52"
+  },
+  "current_state": {
+    "normal_grid": "Nine source-bound modeled normal points accepted under event-aware-normal-v1; discrete points only.",
+    "f2_start_crest_zero": "Existing modeled receipts retained; their bounds do not establish physical interruption or hardware qualification.",
+    "sw_short": "INDETERMINATE bounded attempt: endpoint 0.6544026486296868 s is short of 0.662 s, adapter/validator reject, root cause unknown; retain partial archive and diagnostic tail.",
+    "diode_short": "LIVE/prepared launch receipt verified; no capture or acceptance yet.",
+    "both_short": "Prepared and unexecuted.",
+    "bypass_negative": "Prepared and unexecuted; validator rejection remains required."
+  },
+  "required_actions": {
+    "finish_existing_prepared_cases": [
+      "Complete the active DIODE-SHORT capture under its existing handle, then run its reviewed postcapture passes, legacy witness, and parent electrical review.",
+      "After dispositioning DIODE-SHORT, execute BOTH-SHORT as its own source-bound case and complete its prefix, phase, fault/current split, legacy, and parent checks.",
+      "Execute BYPASS-NEG as a separate negative control and retain the validator rejection; a clean simulator exit is not a pass.",
+      "For every complete capture, require the fault-matrix strict finite complete trace, exact endpoint, accepted own normal prefix, event window, phase/neighbor checks, current-channel split, and no-rearm observation before any modeled verdict."
+    ],
+    "sw_short_disposition": "The bounded timestep-abort attempt is allowed by the fault matrix to remain INDETERMINATE with its failed evidence retained. A retry is not required merely to turn an inconclusive run into PASS; a new retry is justified only by a parent-reviewed discriminating cause/change. The active goal still requires an explicit SW-SHORT disposition before final reporting, and no protective PASS may be inferred from the partial archive.",
+    "model_claim_bounds_and_report": [
+      "Produce the final reproducible report only after the remaining fault rows are explicitly dispositioned, binding source/deck hashes, commands, tool pins, raw/report hashes, screen margins, and failure/indeterminate reasons.",
+      "State strategy implications at the model boundary: failed-short and combined-short paths receive no gate-interruption credit; a healthy switch can only interrupt the path it owns; BYPASS-NEG must fail closed.",
+      "Carry forward unresolved selected-part/model limits (diode low-current VF envelope, controller surrogate, MOS/diode and F2 idealizations, inductor saturation/thermal behavior) as explicit bounds rather than silently converting authored screens into ratings."
+    ],
+    "out_of_scope": [
+      "Do not add unrequested hardware design or ECO work.",
+      "Do not claim thermal, SOA, fuse-clearing, mains-safety, production, or hardware qualification from these modeled receipts.",
+      "Prototype instrumentation and physical correlation remain future implications, not substitutes for the pending simulation dispositions."
+    ]
+  },
+  "evidence_presence": {
+    "diode_postcapture_packet": true,
+    "both_postcapture_packet": true,
+    "bypass_postcapture_packet": true,
+    "sw_parent_disposition": true,
+    "normal_checkpoint53": true,
+    "fault_matrix": true
+  }
+}

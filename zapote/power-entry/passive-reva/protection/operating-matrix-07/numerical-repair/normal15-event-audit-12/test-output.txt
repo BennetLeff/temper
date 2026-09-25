@@ -1,0 +1,12 @@
+
+running 7 tests
+test exact_header_and_max_step_are_enforced ... ok
+test event_flush_failure_cannot_report_success ... ok
+test cycle_boundaries_follow_shifted_end_time ... ok
+test boundary_flag_and_differential_ac2_use_standard_resistance ... ok
+test event_rows_context_and_stable_e3_are_retained ... ok
+test terminal_duplicate_is_reported_and_invalid_rows_fail_closed ... ok
+test nonfinite_configuration_and_derived_overflow_fail_closed ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

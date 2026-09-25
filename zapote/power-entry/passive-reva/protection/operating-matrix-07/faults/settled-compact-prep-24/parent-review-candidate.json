@@ -1,0 +1,96 @@
+{
+  "status": "PREPARED_UNEXECUTED_COMPACT_PACER_REVIEW_CANDIDATE",
+  "accepted": false,
+  "scope": "six settled fault decks only; no ngspice launch/raw trace/fault verdict",
+  "source": "accepted-baseline-11",
+  "solver_line": "one .options klu line exactly as startup-klu-candidate-17",
+  "pacer_check": "Compact delay literal equals first finite PWL timestamp parsed from each expanded materializer deck; all cases preserve 25 ns first corner and use 3-point repeating source.",
+  "endpoint_policy": "Finite materializer forced an endpoint value while compact source interpolates phase; all endpoint_equal false. Parent must verify actual compact endpoint against endpoint/sampling contract before launch.",
+  "runner_kind_mapping": "SW-SHORT source case name maps to native switch-short CLI; manifests record mapping.",
+  "cases": [
+    {
+      "case": "BOTH-SHORT",
+      "expanded_case_sha256": "e6a52489240cdddf53884050ecbf530e9f65867241095760da891823b44e13f5",
+      "expanded_first_pwl_time_literal": "6.521666416667e-1",
+      "compact_delay_literal": "6.521666416667e-1",
+      "first_corner_matches": true,
+      "expanded_pacing_points": 393336,
+      "compact_pacing_points": 3,
+      "finite_endpoint_value": 1,
+      "compact_predicted_endpoint_value": 0.333332,
+      "endpoint_equal": false,
+      "compact_case_sha256": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51"
+    },
+    {
+      "case": "BYPASS-NEG",
+      "expanded_case_sha256": "9ecbc260c85c887b67cc36da947d3ce41093a09f3047e58bfa28ae6ecddfdb44",
+      "expanded_first_pwl_time_literal": "6.521666416667e-1",
+      "compact_delay_literal": "6.521666416667e-1",
+      "first_corner_matches": true,
+      "expanded_pacing_points": 393336,
+      "compact_pacing_points": 3,
+      "finite_endpoint_value": 1,
+      "compact_predicted_endpoint_value": 0.333332,
+      "endpoint_equal": false,
+      "compact_case_sha256": "c6ea3dca688918137282ed3fd3d0ffa17c2b740d68ab52bab306ee3e8b228180"
+    },
+    {
+      "case": "DIODE-SHORT",
+      "expanded_case_sha256": "6fc19525c8c5a2efe1a2fd05be1665182eb5078dc370cf7ca5e0d57ff199bb45",
+      "expanded_first_pwl_time_literal": "6.521666416667e-1",
+      "compact_delay_literal": "6.521666416667e-1",
+      "first_corner_matches": true,
+      "expanded_pacing_points": 393336,
+      "compact_pacing_points": 3,
+      "finite_endpoint_value": 1,
+      "compact_predicted_endpoint_value": 0.333332,
+      "endpoint_equal": false,
+      "compact_case_sha256": "d5a78e2c878447110a13c54cc3052b3dff7e862dc3e79a5fbd8e973257ac5f78"
+    },
+    {
+      "case": "F2-CREST",
+      "expanded_case_sha256": "c314183c130e7b2a30b2a41ab66b994f25a83dd3624973bdf6f0a1b86b485eee",
+      "expanded_first_pwl_time_literal": "6.521666416667e-1",
+      "compact_delay_literal": "6.521666416667e-1",
+      "first_corner_matches": true,
+      "expanded_pacing_points": 393336,
+      "compact_pacing_points": 3,
+      "finite_endpoint_value": 1,
+      "compact_predicted_endpoint_value": 0.333332,
+      "endpoint_equal": false,
+      "compact_case_sha256": "2f506027a93c89e136d7cb637fe2d4d234aca5ffd4e2ab7009a29384c73eed7e"
+    },
+    {
+      "case": "F2-ZERO",
+      "expanded_case_sha256": "7c7ffe9954a1c370dfa21329df187ad61fde9ae09725153efd0a2942c07a140b",
+      "expanded_first_pwl_time_literal": "6.483333083333e-1",
+      "compact_delay_literal": "6.483333083333e-1",
+      "first_corner_matches": true,
+      "expanded_pacing_points": 1346669,
+      "compact_pacing_points": 3,
+      "finite_endpoint_value": 0,
+      "compact_predicted_endpoint_value": 0.333332,
+      "endpoint_equal": false,
+      "compact_case_sha256": "b704ebd646dce1da7cf03518478ac1956e3a0bffbae804bd28ff383f4a6fb6c1"
+    },
+    {
+      "case": "SW-SHORT",
+      "expanded_case_sha256": "58d4574b9a48cd9e8b09e799a4a77fa8d12a9945cf0c6adc2bd4c295d6e5fa7d",
+      "expanded_first_pwl_time_literal": "6.521666416667e-1",
+      "compact_delay_literal": "6.521666416667e-1",
+      "first_corner_matches": true,
+      "expanded_pacing_points": 393336,
+      "compact_pacing_points": 3,
+      "finite_endpoint_value": 1,
+      "compact_predicted_endpoint_value": 0.333332,
+      "endpoint_equal": false,
+      "compact_case_sha256": "3ba13389962a9550edcc7ca5486109f4793c6082e94a50fe18f0bc1f6f889ace"
+    }
+  ],
+  "tests": {
+    "materializer_tests": "8/8 pass",
+    "source_diff": "prefix/suffix identical after removing exactly one KLU line and one pacing block per case",
+    "expanded_intermediates_retained": true,
+    "raw_traces_generated": false
+  }
+}

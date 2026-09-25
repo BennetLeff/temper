@@ -1,0 +1,32 @@
+* 35 us integration sequence: independent PWM edges, active RUN disable,
+* AUX collapse while the gate is active, RUN low during AUX absence, AUX
+* return while disarmed, then a fresh RUN/PWM enable.
+.include authored_logic_vendor_comphys.inc
+Vaux aux15 0 PWL(0 15 20u 15 20.001u 0 27u 0 27.001u 15 35u 15)
+Vpwm pwm 0 PWL(0 0 1u 0 1.001u 5 5u 5 5.001u 0 8u 0 8.001u 5 35u 5)
+Vrun run 0 PWL(0 0 1u 0 1.001u 5 12u 5 12.001u 0 15u 0 15.001u 5 24u 5 24.001u 0 30u 0 30.001u 5 35u 5)
+* Current matrix disable FET and PWM isolation, retained for interface shape.
+Rsmallgate run smallgate 1k
+Rsmallpd smallgate 0 100k
+Rdisable aux15 disable 1k
+Mdisable disable smallgate 0 0 DISABLE_FET
+.model DISABLE_FET NMOS(VTO=1.5 KP=.1 RD=2 RS=2)
+Csmallgs smallgate 0 60p
+Csmallgd smallgate disable 10p
+Csmallds disable 0 15p
+Rpwm pwm pwm_input 1k
+Rpwmpd pwm_input 0 10k
+Xdriver disable pwm_input aux15 0 driver_out AUTH_UCC27511A_HV
+Rgate driver_out gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.tran 1n 35u
+.control
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+wrdata authored-sequence.tsv v(run) v(disable) v(pwm_input) v(aux15) v(driver_out) v(gate) v(xdriver.pwm_state) v(xdriver.inm_state) v(xdriver.aux_state) v(xdriver.driver_req)
+quit
+.endc
+.end

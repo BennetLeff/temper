@@ -1,0 +1,282 @@
+{
+  "schema": "temper.passive_reva.fuse_coordination.v1",
+  "revision": "reference-revision-09",
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "status": "selected_parts_coordination_open_hardware_unverified",
+  "topology": {
+    "f1": {
+      "part": "Schurter 0034.3129",
+      "holder": "Schurter FUP 0031.2510",
+      "location": "AC_L before CMC",
+      "source": "line-fed"
+    },
+    "f2": {
+      "part": "Mersen A70QS50-14F",
+      "holder": "Mersen US141 / Z331153",
+      "location": "VD to VB, proposed off-board series link",
+      "source": "bulk-bank discharge"
+    }
+  },
+  "sources": [
+    {
+      "id": "schurter-fst-5x20",
+      "url": "https://www.schurter.com/en/datasheet/typ_FST_5x20.pdf",
+      "local_path": null,
+      "sha256": null,
+      "pages": [
+        1,
+        3,
+        4
+      ],
+      "parameters": {
+        "part": "0034.3129",
+        "rated_current_a": 16,
+        "rated_voltage_vac": 250,
+        "characteristic": "time-lag T, low breaking capacity glass",
+        "breaking_condition": "10 x In at 250 Vac (footnote 2; 160 A for this link)",
+        "melting_i2t_typ_a2s_at_10in": 1638,
+        "pre_arcing_8_to_20a": {
+          "1.5x_in_min": "30 min",
+          "2.1x_in_max": "120 s",
+          "2.75x_in_min_max": "600 ms to 10 s",
+          "4x_in_min_max": "150 ms to 3 s",
+          "10x_in_min_max": "20 ms to 300 ms"
+        },
+        "total_clearing_i2t": null,
+        "dc_rating": null
+      },
+      "status": "web_primary_not_locally_retained"
+    },
+    {
+      "id": "schurter-fup-0031-2510",
+      "url": "https://www.schurter.com/en/part/0031.2510",
+      "local_path": null,
+      "sha256": null,
+      "pages": null,
+      "parameters": {
+        "fuse_size": "5 x 20 mm",
+        "mounting": "PCB, solder THT",
+        "rated_voltage_vde_vac": 500,
+        "rated_voltage_ul_csa_v": 600,
+        "rated_current_vde_a": 16,
+        "rated_current_ul_csa_a": 30,
+        "power_acceptance_iec_w_at_16a_ta23c": 4,
+        "protection": "IP40"
+      },
+      "status": "web_primary_not_locally_retained"
+    },
+    {
+      "id": "mersen-a70qs-french-cylindrical",
+      "url": "https://www.mersen.com/sites/default/files/medias/files/2024-12/HS-High-Speed-Fuses-Mersen-EN.pdf",
+      "local_path": "zapote/power-entry/loss-budget/campaign/runs/2026-09-17-pfc-campaign/AR-MERSEN/attempt-001/raw/mersen-hs-high-speed-fuses.pdf",
+      "sha256": "e0e5b788fcc883650ff771c4fa006986fec4238293856ab200b56e2cf44e9789",
+      "pages": [
+        20,
+        21
+      ],
+      "parameters": {
+        "part": "A70QS50-14F",
+        "body": "14 x 51 mm",
+        "rated_current_a": 50,
+        "general_ac_voltage_v": 700,
+        "general_dc_voltage_v": 700,
+        "general_dc_interrupting_a": 100000,
+        "general_dc_time_constant": "L/R <= 10 ms (catalogue text also says 10 ms time constant)",
+        "capacitor_discharge_voltage_vdc": 890,
+        "capacitor_discharge_time_constant": "up to 2.5 ms; definition and test circuit are unpublished",
+        "capacitor_discharge_time_constant_kind": null,
+        "melting_i2t_max_a2s": 280,
+        "max_clearing_i2t_700vac_a2s": 1500,
+        "watts_loss_at_rated_current_w": 11.6,
+        "capacitor_discharge_total_clearing_i2t": null,
+        "minimum_breaking_current_a": null,
+        "capacitor_discharge_peak_limit_a": null
+      },
+      "status": "retained_primary_catalogue"
+    },
+    {
+      "id": "mersen-us141",
+      "url": "https://us.mersen.com/en/products/ultrasafe-us14-modular-fuse-holders/z331153-us141",
+      "local_path": "zapote/power-entry/passive-reva/protection/sources/Mersen-US14.pdf",
+      "sha256": "776c47a6781b1d82d762a827d2ceed9d7e17b15439217b9fb5dc259aa9884562",
+      "pages": [
+        2,
+        3,
+        4
+      ],
+      "parameters": {
+        "catalog_number": "US141",
+        "item_number": "Z331153",
+        "poles": 1,
+        "fuse_size": "14 x 51 mm",
+        "ul_rated_voltage_ac_v": 800,
+        "ul_rated_voltage_dc_v": 1000,
+        "ul_rated_current_a": 50,
+        "ul_interrupt_rating_a": 50000,
+        "free_air_thermal_current_a": 50,
+        "power_dissipation_at_ith_w": 5,
+        "impulse_withstand_kv": 8,
+        "operation": "AC20B/DC20B; no-load operation",
+        "temperature_c": [
+          -25,
+          60
+        ]
+      },
+      "status": "retained_primary_holder_sheet_and_web_identity"
+    }
+  ],
+  "paths": [
+    {
+      "id": "source_fed_mos_short",
+      "nodes": [
+        "AC_L",
+        "F1",
+        "CMC",
+        "bridge",
+        "Lboost",
+        "U9_failed_short",
+        "PFC_BUS_MINUS"
+      ],
+      "source": "mains_line",
+      "interrupter": "F1",
+      "f2_coverage": false,
+      "selected": true,
+      "modeled": "source/inductor traces and failed-switch diagnostics; no fuse element or arc",
+      "verified": false,
+      "missing": [
+        "validated physical source prospective impedance/current (campaign SPICE assumes 0.25 ohm)",
+        "F1 total clearing I2t/arc",
+        "U9/bridge SOA"
+      ]
+    },
+    {
+      "id": "bank_fed_diode_mos_short",
+      "nodes": [
+        "Cbank_plus",
+        "F2",
+        "U10_failed_short",
+        "a1",
+        "U9_failed_short",
+        "bank_minus"
+      ],
+      "source": "bulk_capacitor_bank",
+      "interrupter": "F2",
+      "f1_coverage": false,
+      "selected": true,
+      "modeled": "healthy F2 and ideal scripted F2 opening",
+      "verified": false,
+      "missing": [
+        "890 Vdc capacitor-discharge clearing data",
+        "MBC",
+        "peak/arc limit",
+        "bank/copper/device withstand"
+      ]
+    },
+    {
+      "id": "bank_fed_healthy_u9_delay",
+      "nodes": [
+        "Cbank_plus",
+        "F2",
+        "U10_failed_short",
+        "a1",
+        "U9_healthy_conducting",
+        "bank_minus"
+      ],
+      "source": "bulk_capacitor_bank",
+      "interrupter": "F2_backup_plus_detector_gate_path",
+      "selected": true,
+      "modeled": "detector timing only; F2 opening remains ideal; DIODE-SHORT is 3.121 ms after injection, outside the unchanged 2 ms window",
+      "verified": false,
+      "missing": [
+        "detector/driver latency and healthy-U9 turn-off SOA",
+        "F2 clearing"
+      ]
+    },
+    {
+      "id": "local_cap_outside_f2_with_diode_and_mos_short",
+      "nodes": [
+        "Clocal_VD_plus",
+        "U10_failed_short_or_proven_reverse_conduction",
+        "U9_conducting_or_failed_short",
+        "HOT0"
+      ],
+      "source": "local_diode_side_reservoir",
+      "interrupter": null,
+      "f2_coverage": false,
+      "selected": false,
+      "modeled": "separate reservoir and VD observations; BYPASS-NEG negative control; requires both diode-short/reverse-conduction and conducting MOS states",
+      "verified": false,
+      "missing": [
+        "bounded local-energy treatment (withstand, discharge/clamp, or qualified interrupter)",
+        "Clocal ESR/ESL bound",
+        "device/arc/SOA withstand"
+      ]
+    },
+    {
+      "id": "local_cap_healthy_diode_blocks",
+      "nodes": [
+        "Clocal_VD_plus",
+        "U10_healthy_reverse_block",
+        "switch_node"
+      ],
+      "source": "local_diode_side_reservoir",
+      "interrupter": null,
+      "f2_coverage": false,
+      "selected": false,
+      "modeled": "healthy boost diode blocks VD-to-SW discharge; MOS-short-alone is insufficient",
+      "verified": false,
+      "missing": []
+    },
+    {
+      "id": "residual_bank_after_f2_open",
+      "nodes": [
+        "Cbank",
+        "F2_open",
+        "VB_residual"
+      ],
+      "source": "stored_bank_energy",
+      "interrupter": null,
+      "selected": true,
+      "modeled": "open/restart requirement only",
+      "verified": false,
+      "missing": [
+        "rated discharge path",
+        "residual-voltage interlock",
+        "safe service state"
+      ]
+    }
+  ],
+  "next_small_test": {
+    "priority": "manufacturer_application_confirmation_then_reduced_three_path_witness",
+    "vendor_questions": [
+      "peak-current limit for Temper's nominal 390 V bank and still-unbounded fault waveform under the 890 Vdc capacitor-discharge rating",
+      "MBC at the applicable capacitor-discharge test condition",
+      "total clearing I2t or let-through curve",
+      "waveform/test-circuit and time-constant definition of the 2.5 ms condition"
+    ],
+    "model_inputs": [
+      "validated physical source prospective impedance",
+      "actual Cbank/Clocal values with ESR/ESL and waveform",
+      "separate U9/U10 failed states",
+      "F2 healthy/open topology",
+      "line/F2/local current traces"
+    ],
+    "cannot_claim": [
+      "fuse clearing time",
+      "ideal disconnect",
+      "SOA",
+      "arc energy",
+      "hardware coordination"
+    ],
+    "hardware_gate": "HardwareVerified requires controlled testing of the exact assembly; analytical coordination separately requires applicable manufacturer limits and bounded fault/withstand envelopes."
+  },
+  "claims_not_made": [
+    "F1 protects the passive bridge",
+    "F2 clears a 400 V bank fault",
+    "the 700 Vac 1500 A2s clearing value applies to 890 Vdc capacitor discharge",
+    "F2 opening discharges or makes the bank safe",
+    "detector timing proves fuse coordination",
+    "the source or bank current is within semiconductor SOA"
+  ],
+  "voltage_boundary": "Bulk capacitor rating450V; authored500Vscreen is neither permitted bank operation nor established maximum fault voltage."
+}

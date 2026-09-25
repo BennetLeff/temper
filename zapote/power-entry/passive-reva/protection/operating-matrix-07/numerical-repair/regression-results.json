@@ -1,0 +1,38 @@
+[
+  {
+    "case": "early",
+    "expected_end_s": "0.0000012",
+    "completion_checker_exit": 1,
+    "deck_sha256": "8f11e9cd84eeaef5d157ca62de23ac63d6e17395042d91febec030b7a82e97a3"
+  },
+  {
+    "case": "late",
+    "expected_end_s": "0.351509032830773",
+    "completion_checker_exit": 1,
+    "deck_sha256": "5cd871462a9011401ddb326cfdd860ea7b40353bd23b7f8820085f2ae38b3dee"
+  },
+  {
+    "case": "no_blank",
+    "expected_end_s": "0.351509032830773",
+    "completion_checker_exit": 1,
+    "deck_sha256": "a772845b3e1574ec7a26f5771c6bdb02b18f6819fb3ffe5a8a3d1b76fee68c29"
+  },
+  {
+    "case": "no_gate",
+    "expected_end_s": "0.351509032830773",
+    "completion_checker_exit": 0,
+    "deck_sha256": "8a2a9b7e718a0dbb978dd4e9c3e4dc4dc3be0fd43b00ab987cd281dc734ee9c4"
+  },
+  {
+    "case": "linear_gate",
+    "expected_end_s": "0.351509032830773",
+    "completion_checker_exit": 0,
+    "deck_sha256": "f87f4e4ddd503dcfc6cf00c1032ba826860977564ec10f4c6f9335dbd62fa141"
+  },
+  {
+    "case": "linear_driver",
+    "expected_end_s": "0.351509032830773",
+    "completion_checker_exit": 1,
+    "deck_sha256": "4da2c453b5bb19a3d6665eac5a98c11a21d40aae29b5d26c268fe9a00327ee09"
+  }
+]

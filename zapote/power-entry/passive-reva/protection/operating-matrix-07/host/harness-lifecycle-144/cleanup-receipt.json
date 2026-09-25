@@ -1,0 +1,25 @@
+{
+  "at_utc": "2026-09-22T02:55:21.466021+00:00",
+  "action": "SIGTERM only to freshly identity-and-cwd-verified abandoned process groups",
+  "groups": [
+    61540,
+    92154,
+    92326
+  ],
+  "before_pids": [
+    61540,
+    61554,
+    61555,
+    61556,
+    61558,
+    92154,
+    92202,
+    92203,
+    92326,
+    92344,
+    92345
+  ],
+  "after": [],
+  "all_targeted_processes_gone": true,
+  "raw_or_source_files_deleted": false
+}

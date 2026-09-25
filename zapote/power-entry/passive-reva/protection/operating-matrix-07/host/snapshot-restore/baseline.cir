@@ -1,0 +1,8 @@
+* SCRIPT: uninterrupted control run for waveform comparison.
+.control
+set noaskquit
+source pwm-hold-capture.cir
+tran 1n 20u 0 1n uic
+wrdata uninterrupted.tsv time v(gate)
+quit
+.endc

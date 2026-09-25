@@ -1,0 +1,24 @@
+{
+  "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "dirty": true,
+  "scope": "review-only compiled control integration; not a full physical power stage or PCB adoption",
+  "inputs": [
+    {
+      "path": "zapote/power-entry/passive-reva/protection/operating-matrix-07/clamp/elec/src/power_entry_passive_reva.ato",
+      "sha256": "4d63a25896e3bd3ed9cb242c2d074a225de71acdb3351bfcbae24b2f73c6fdbb"
+    },
+    {
+      "path": "elec/src/power_entry_f2_shutdown_revb.ato",
+      "sha256": "050818ac162a1aa93ecd63325588adb2102504c8148ecbcbf0898abce2377f68"
+    }
+  ],
+  "external_requirements": [
+    "F2 VD-to-VB fuse assembly",
+    "local VD-to-HOT0 reservoir and discharge",
+    "5V HOT supply",
+    "isolated HOT ARM/PERMIT producers",
+    "regulated HOT AUX_15V supply producer",
+    "relay-control producer with appropriate domain boundary"
+  ],
+  "canonical_source_unchanged": true
+}

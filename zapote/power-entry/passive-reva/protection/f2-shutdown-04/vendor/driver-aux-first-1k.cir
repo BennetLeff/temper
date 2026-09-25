@@ -1,0 +1,35 @@
+* Unmodified TI SLVMCJ6 driver, split outputs tied before common gate resistor.
+.include UCC27511A_TINA_TRANS/UCC27511A.lib
+Vaux aux 0 PWL(0 0 100n 0 101n 15 12u 15)
+Vpwm pwm 0 5
+Rlogic_off run 0 10k
+Rbase run base 1k
+Rbe base 0 100k
+Csmall_gs base 0 60p
+Csmall_gd base disable 10p
+Csmall_ds disable 0 15p
+Menable disable base 0 0 NMOS_CHECK
+* Conservative explicit external pull-up bounds release RC independently of internal200k.
+Rdisable aux disable 1k
+.model NMOS_CHECK NMOS(VTO=2.5 KP=0.04 RD=2 RS=2 CGSO=0 CGDO=0)
+Xdriver disable pwm aux 0 outh outl UCC27511A
+Rgon outh gate 10
+Rgoff outl gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.tran 1n 12u
+.control
+set wr_singlescale
+set wr_vecnames
+run
+meas tran default_off MAX v(gate) FROM=0 TO=12u
+meas tran armed_high MIN v(gate) FROM=2u TO=2.9u
+meas tran disarmed_low MAX v(gate) FROM=4u TO=4.9u
+meas tran absent_aux MAX v(gate) FROM=8u TO=8.9u
+meas tran returned_aux_disarmed MAX v(gate) FROM=10u TO=12u
+meas tran output_disable TRIG v(disable) VAL=2.2 RISE=1 TARG v(outl) VAL=13.5 FALL=1
+meas tran loaded_gate_to4V TRIG v(run) VAL=2.5 FALL=1 TARG v(gate) VAL=4 FALL=1
+wrdata driver-aux-first-1k.tsv v(run) v(disable) v(outl) v(gate) v(aux)
+quit
+.endc
+.end

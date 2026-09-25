@@ -1,0 +1,4 @@
+PASS PWM crossing 0: measured=5.729703812210e-7s expected=5.700000000000e-7s
+FAIL PWM crossing 1: 1.232091493445e-6 != 1.228653634326e-6
+
+exit_code=1

@@ -1,0 +1,101 @@
+[
+  {
+    "pid": 61540,
+    "ppid": 21562,
+    "pgid": 61540,
+    "elapsed": "01-01:47:29",
+    "cpu_time": "0:00.02",
+    "state": "Ss",
+    "command": "/bin/zsh -lc set -e\\012OUT=\"$PWD/host/native-raw-export-probe-10/out\"\\012DECK=\"$PWD/host/native-raw-export-probe-10/deck\"\\012rm -f \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\" \"$OUT/api.tsv.gz\" \"$OUT/native.raw.gz\" \"$OUT/host.log\" \"$OUT/api-reader.log\" \"$OUT/native-reader.log\"\\012mkfifo \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\"\\012( gzip -c < \"$OUT/api.tsv.fifo\" > \"$OUT/api.tsv.gz\" 2> \"$OUT/api-reader.log\"; echo $? > \"$OUT/api-reader.rc\" ) & API_READER=$!\\012( gzip -c < \"$OUT/native.raw.fifo\" > \"$OUT/native.raw.gz\" 2> \"$OUT/native-reader.log\"; echo $? > \"$OUT/native-reader.rc\" ) & RAW_READER=$!\\012set +e\\012(cd \"$DECK\" && SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts /usr/bin/time -p \"$PWD/host/native-raw-export-probe-10/native-host\" cold.cir 20 0.001 \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\" > \"$OUT/host.log\" 2>&1)\\012HOST_RC=$?\\012set -e\\012wait \"$API_READER\"; API_RC=$?; wait \"$RAW_READER\"; RAW_RC=$?\\012printf 'host_rc=%s api_reader_rc=%s raw_reader_rc=%s\\n' \"$HOST_RC\" \"$API_RC\" \"$RAW_RC\" > \"$OUT/status.txt\"\\012rm -f \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\"\\012cat \"$OUT/status.txt\"\\012tail -50 \"$OUT/host.log\"\\012ls -lh \"$OUT\"/*.gz\\012"
+  },
+  {
+    "pid": 61554,
+    "ppid": 61540,
+    "pgid": 61540,
+    "elapsed": "01-01:47:29",
+    "cpu_time": "0:00.00",
+    "state": "S",
+    "command": "/bin/zsh -lc set -e\\012OUT=\"$PWD/host/native-raw-export-probe-10/out\"\\012DECK=\"$PWD/host/native-raw-export-probe-10/deck\"\\012rm -f \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\" \"$OUT/api.tsv.gz\" \"$OUT/native.raw.gz\" \"$OUT/host.log\" \"$OUT/api-reader.log\" \"$OUT/native-reader.log\"\\012mkfifo \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\"\\012( gzip -c < \"$OUT/api.tsv.fifo\" > \"$OUT/api.tsv.gz\" 2> \"$OUT/api-reader.log\"; echo $? > \"$OUT/api-reader.rc\" ) & API_READER=$!\\012( gzip -c < \"$OUT/native.raw.fifo\" > \"$OUT/native.raw.gz\" 2> \"$OUT/native-reader.log\"; echo $? > \"$OUT/native-reader.rc\" ) & RAW_READER=$!\\012set +e\\012(cd \"$DECK\" && SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts /usr/bin/time -p \"$PWD/host/native-raw-export-probe-10/native-host\" cold.cir 20 0.001 \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\" > \"$OUT/host.log\" 2>&1)\\012HOST_RC=$?\\012set -e\\012wait \"$API_READER\"; API_RC=$?; wait \"$RAW_READER\"; RAW_RC=$?\\012printf 'host_rc=%s api_reader_rc=%s raw_reader_rc=%s\\n' \"$HOST_RC\" \"$API_RC\" \"$RAW_RC\" > \"$OUT/status.txt\"\\012rm -f \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\"\\012cat \"$OUT/status.txt\"\\012tail -50 \"$OUT/host.log\"\\012ls -lh \"$OUT\"/*.gz\\012"
+  },
+  {
+    "pid": 61555,
+    "ppid": 61540,
+    "pgid": 61540,
+    "elapsed": "01-01:47:29",
+    "cpu_time": "0:00.00",
+    "state": "S",
+    "command": "/bin/zsh -lc set -e\\012OUT=\"$PWD/host/native-raw-export-probe-10/out\"\\012DECK=\"$PWD/host/native-raw-export-probe-10/deck\"\\012rm -f \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\" \"$OUT/api.tsv.gz\" \"$OUT/native.raw.gz\" \"$OUT/host.log\" \"$OUT/api-reader.log\" \"$OUT/native-reader.log\"\\012mkfifo \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\"\\012( gzip -c < \"$OUT/api.tsv.fifo\" > \"$OUT/api.tsv.gz\" 2> \"$OUT/api-reader.log\"; echo $? > \"$OUT/api-reader.rc\" ) & API_READER=$!\\012( gzip -c < \"$OUT/native.raw.fifo\" > \"$OUT/native.raw.gz\" 2> \"$OUT/native-reader.log\"; echo $? > \"$OUT/native-reader.rc\" ) & RAW_READER=$!\\012set +e\\012(cd \"$DECK\" && SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts /usr/bin/time -p \"$PWD/host/native-raw-export-probe-10/native-host\" cold.cir 20 0.001 \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\" > \"$OUT/host.log\" 2>&1)\\012HOST_RC=$?\\012set -e\\012wait \"$API_READER\"; API_RC=$?; wait \"$RAW_READER\"; RAW_RC=$?\\012printf 'host_rc=%s api_reader_rc=%s raw_reader_rc=%s\\n' \"$HOST_RC\" \"$API_RC\" \"$RAW_RC\" > \"$OUT/status.txt\"\\012rm -f \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\"\\012cat \"$OUT/status.txt\"\\012tail -50 \"$OUT/host.log\"\\012ls -lh \"$OUT\"/*.gz\\012"
+  },
+  {
+    "pid": 61556,
+    "ppid": 61554,
+    "pgid": 61540,
+    "elapsed": "01-01:47:29",
+    "cpu_time": "0:00.00",
+    "state": "S",
+    "command": "/bin/zsh -lc set -e\\012OUT=\"$PWD/host/native-raw-export-probe-10/out\"\\012DECK=\"$PWD/host/native-raw-export-probe-10/deck\"\\012rm -f \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\" \"$OUT/api.tsv.gz\" \"$OUT/native.raw.gz\" \"$OUT/host.log\" \"$OUT/api-reader.log\" \"$OUT/native-reader.log\"\\012mkfifo \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\"\\012( gzip -c < \"$OUT/api.tsv.fifo\" > \"$OUT/api.tsv.gz\" 2> \"$OUT/api-reader.log\"; echo $? > \"$OUT/api-reader.rc\" ) & API_READER=$!\\012( gzip -c < \"$OUT/native.raw.fifo\" > \"$OUT/native.raw.gz\" 2> \"$OUT/native-reader.log\"; echo $? > \"$OUT/native-reader.rc\" ) & RAW_READER=$!\\012set +e\\012(cd \"$DECK\" && SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts /usr/bin/time -p \"$PWD/host/native-raw-export-probe-10/native-host\" cold.cir 20 0.001 \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\" > \"$OUT/host.log\" 2>&1)\\012HOST_RC=$?\\012set -e\\012wait \"$API_READER\"; API_RC=$?; wait \"$RAW_READER\"; RAW_RC=$?\\012printf 'host_rc=%s api_reader_rc=%s raw_reader_rc=%s\\n' \"$HOST_RC\" \"$API_RC\" \"$RAW_RC\" > \"$OUT/status.txt\"\\012rm -f \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\"\\012cat \"$OUT/status.txt\"\\012tail -50 \"$OUT/host.log\"\\012ls -lh \"$OUT\"/*.gz\\012"
+  },
+  {
+    "pid": 61558,
+    "ppid": 61555,
+    "pgid": 61540,
+    "elapsed": "01-01:47:29",
+    "cpu_time": "0:00.00",
+    "state": "S",
+    "command": "/bin/zsh -lc set -e\\012OUT=\"$PWD/host/native-raw-export-probe-10/out\"\\012DECK=\"$PWD/host/native-raw-export-probe-10/deck\"\\012rm -f \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\" \"$OUT/api.tsv.gz\" \"$OUT/native.raw.gz\" \"$OUT/host.log\" \"$OUT/api-reader.log\" \"$OUT/native-reader.log\"\\012mkfifo \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\"\\012( gzip -c < \"$OUT/api.tsv.fifo\" > \"$OUT/api.tsv.gz\" 2> \"$OUT/api-reader.log\"; echo $? > \"$OUT/api-reader.rc\" ) & API_READER=$!\\012( gzip -c < \"$OUT/native.raw.fifo\" > \"$OUT/native.raw.gz\" 2> \"$OUT/native-reader.log\"; echo $? > \"$OUT/native-reader.rc\" ) & RAW_READER=$!\\012set +e\\012(cd \"$DECK\" && SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts /usr/bin/time -p \"$PWD/host/native-raw-export-probe-10/native-host\" cold.cir 20 0.001 \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\" > \"$OUT/host.log\" 2>&1)\\012HOST_RC=$?\\012set -e\\012wait \"$API_READER\"; API_RC=$?; wait \"$RAW_READER\"; RAW_RC=$?\\012printf 'host_rc=%s api_reader_rc=%s raw_reader_rc=%s\\n' \"$HOST_RC\" \"$API_RC\" \"$RAW_RC\" > \"$OUT/status.txt\"\\012rm -f \"$OUT/api.tsv.fifo\" \"$OUT/native.raw.fifo\"\\012cat \"$OUT/status.txt\"\\012tail -50 \"$OUT/host.log\"\\012ls -lh \"$OUT\"/*.gz\\012"
+  },
+  {
+    "pid": 92154,
+    "ppid": 21562,
+    "pgid": 92154,
+    "elapsed": "22:43:00",
+    "cpu_time": "0:00.02",
+    "state": "Ss",
+    "command": "/bin/zsh -lc find accepted-baseline-11 -maxdepth 2 -type f -printf '%P\\n' | sort; find normal-hysteretic-driver-candidate -maxdepth 1 -type f -printf '%f\\n' | sort; find normal-hysteretic-settling-extension -maxdepth 1 -type f -printf '%f\\n' | sort; sha256sum normal-hysteretic-driver-candidate/* normal-hysteretic-settling-extension/* 2>/dev/null | head -40"
+  },
+  {
+    "pid": 92202,
+    "ppid": 92154,
+    "pgid": 92154,
+    "elapsed": "22:43:00",
+    "cpu_time": "0:00.01",
+    "state": "S",
+    "command": "sha256sum normal-hysteretic-driver-candidate/README.md normal-hysteretic-driver-candidate/authored_logic_hysteretic.inc normal-hysteretic-driver-candidate/capture-metadata.json normal-hysteretic-driver-candidate/checker-report.txt normal-hysteretic-driver-candidate/clamp.inc normal-hysteretic-driver-candidate/cold.cir normal-hysteretic-driver-candidate/execution.json normal-hysteretic-driver-candidate/first-invalid.tsv normal-hysteretic-driver-candidate/host-smoke normal-hysteretic-driver-candidate/host-verification.txt normal-hysteretic-driver-candidate/inputs.json normal-hysteretic-driver-candidate/inspection.txt normal-hysteretic-driver-candidate/pre-host-review-inputs.json normal-hysteretic-driver-candidate/progress.rs normal-hysteretic-driver-candidate/progress.tsv normal-hysteretic-driver-candidate/protection.inc normal-hysteretic-driver-candidate/run.log normal-hysteretic-driver-candidate/settling-analysis normal-hysteretic-driver-candidate/smoke normal-hysteretic-driver-candidate/standby.inc normal-hysteretic-driver-candidate/stop.txt normal-hysteretic-driver-candidate/tail.tsv normal-hysteretic-driver-candidate/trace.fifo normal-hysteretic-driver-candidate/trace.sha256 normal-hysteretic-driver-candidate/trace.tsv.gz normal-hysteretic-driver-candidate/ucc28180-pwm-latch.inc normal-hysteretic-driver-candidate/verification.txt normal-hysteretic-driver-candidate/verify.rs normal-hysteretic-settling-extension/authored_logic_hysteretic.inc normal-hysteretic-settling-extension/capture-metadata.json normal-hysteretic-settling-extension/checker-report.txt normal-hysteretic-settling-extension/clamp.inc normal-hysteretic-settling-extension/cold.cir normal-hysteretic-settling-extension/execution.json normal-hysteretic-settling-extension/first-invalid.tsv normal-hysteretic-settling-extension/inputs.json normal-hysteretic-settling-extension/inspection.txt normal-hysteretic-settling-extension/progress.rs normal-hysteretic-settling-extension/progress.tsv normal-hysteretic-settling-extension/protection.inc normal-hysteretic-settling-extension/run.log normal-hysteretic-settling-extension/standby.inc normal-hysteretic-settling-extension/stop.txt normal-hysteretic-settling-extension/tail.tsv normal-hysteretic-settling-extension/trace.fifo normal-hysteretic-settling-extension/trace.sha256 normal-hysteretic-settling-extension/trace.tsv.gz normal-hysteretic-settling-extension/ucc28180-pwm-latch.inc"
+  },
+  {
+    "pid": 92203,
+    "ppid": 92154,
+    "pgid": 92154,
+    "elapsed": "22:43:00",
+    "cpu_time": "0:00.00",
+    "state": "S",
+    "command": "head -40"
+  },
+  {
+    "pid": 92326,
+    "ppid": 21562,
+    "pgid": 92326,
+    "elapsed": "22:42:45",
+    "cpu_time": "0:00.02",
+    "state": "Ss",
+    "command": "/bin/zsh -lc find accepted-baseline-11 -maxdepth 2 -type f | sort; find normal-hysteretic-driver-candidate -maxdepth 1 -type f | sort; find normal-hysteretic-settling-extension -maxdepth 1 -type f | sort; sha256sum normal-hysteretic-driver-candidate/* normal-hysteretic-settling-extension/* 2>/dev/null | head -40"
+  },
+  {
+    "pid": 92344,
+    "ppid": 92326,
+    "pgid": 92326,
+    "elapsed": "22:42:45",
+    "cpu_time": "0:00.01",
+    "state": "S",
+    "command": "sha256sum normal-hysteretic-driver-candidate/README.md normal-hysteretic-driver-candidate/authored_logic_hysteretic.inc normal-hysteretic-driver-candidate/capture-metadata.json normal-hysteretic-driver-candidate/checker-report.txt normal-hysteretic-driver-candidate/clamp.inc normal-hysteretic-driver-candidate/cold.cir normal-hysteretic-driver-candidate/execution.json normal-hysteretic-driver-candidate/first-invalid.tsv normal-hysteretic-driver-candidate/host-smoke normal-hysteretic-driver-candidate/host-verification.txt normal-hysteretic-driver-candidate/inputs.json normal-hysteretic-driver-candidate/inspection.txt normal-hysteretic-driver-candidate/pre-host-review-inputs.json normal-hysteretic-driver-candidate/progress.rs normal-hysteretic-driver-candidate/progress.tsv normal-hysteretic-driver-candidate/protection.inc normal-hysteretic-driver-candidate/run.log normal-hysteretic-driver-candidate/settling-analysis normal-hysteretic-driver-candidate/smoke normal-hysteretic-driver-candidate/standby.inc normal-hysteretic-driver-candidate/stop.txt normal-hysteretic-driver-candidate/tail.tsv normal-hysteretic-driver-candidate/trace.fifo normal-hysteretic-driver-candidate/trace.sha256 normal-hysteretic-driver-candidate/trace.tsv.gz normal-hysteretic-driver-candidate/ucc28180-pwm-latch.inc normal-hysteretic-driver-candidate/verification.txt normal-hysteretic-driver-candidate/verify.rs normal-hysteretic-settling-extension/authored_logic_hysteretic.inc normal-hysteretic-settling-extension/capture-metadata.json normal-hysteretic-settling-extension/checker-report.txt normal-hysteretic-settling-extension/clamp.inc normal-hysteretic-settling-extension/cold.cir normal-hysteretic-settling-extension/execution.json normal-hysteretic-settling-extension/first-invalid.tsv normal-hysteretic-settling-extension/inputs.json normal-hysteretic-settling-extension/inspection.txt normal-hysteretic-settling-extension/progress.rs normal-hysteretic-settling-extension/progress.tsv normal-hysteretic-settling-extension/protection.inc normal-hysteretic-settling-extension/run.log normal-hysteretic-settling-extension/standby.inc normal-hysteretic-settling-extension/stop.txt normal-hysteretic-settling-extension/tail.tsv normal-hysteretic-settling-extension/trace.fifo normal-hysteretic-settling-extension/trace.sha256 normal-hysteretic-settling-extension/trace.tsv.gz normal-hysteretic-settling-extension/ucc28180-pwm-latch.inc"
+  },
+  {
+    "pid": 92345,
+    "ppid": 92326,
+    "pgid": 92326,
+    "elapsed": "22:42:45",
+    "cpu_time": "0:00.00",
+    "state": "S",
+    "command": "head -40"
+  }
+]

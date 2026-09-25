@@ -1,0 +1,36 @@
+{
+  "status": "PREPARED_UNLAUNCHED_NOT_ADOPTED",
+  "accepted": false,
+  "launch_performed": false,
+  "baseline_source": "../normal-hysteretic-settling-extension",
+  "baseline_target_end_s": 0.65,
+  "candidate_source": "../numerical-repair/driver-hysteresis-slew-candidate/authored_logic_hysteretic_slew.inc",
+  "copied_unchanged": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "progress.rs": "f5c60b4c49116a52b7808474da3828a98715e957b6af171fe57f824c2382eda8"
+  },
+  "candidate_source_sha256": "f775edfb2b187f820499df5c1ffbea8923df4fef0049b474ba1df0eb2a9c6a81",
+  "staged_driver_sha256": "2b995c288ff9a28c5a55a639e20f6b9166c82e0fad2941007baafe1cc1ee2845",
+  "substitutions": [
+    {
+      "source": ".subckt AUTH_UCC27511A_HS",
+      "replacement": ".subckt AUTH_UCC27511A_H",
+      "count": 1
+    },
+    {
+      "source": ".ends AUTH_UCC27511A_HS",
+      "replacement": ".ends AUTH_UCC27511A_H",
+      "count": 1
+    }
+  ],
+  "notes": [
+    "No simulation, trace, long run, or acceptance checker was launched for this candidate.",
+    "No source outside this new candidate directory was modified during staging."
+  ],
+  "candidate_source_snapshot": "candidate-source-at-staging.txt",
+  "parent_disposition": "Extra output pole adds about5ns and moves benchmark edges farther fromTI. Vendor5nsRC is hysteresis feedback, not exported output filtering. Hold unlaunched; investigate exact vendor COMPHYS input-state construction separately."
+}

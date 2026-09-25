@@ -1,0 +1,20 @@
+.include /private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/f2-shutdown-04/vendor/UCC27511A_TINA_TRANS/UCC27511A.lib
+VDD vdd 0 15
+VINM inm 0 0
+VINP inp 0 PULSE(0 5 1u 1n 1n 3u 6u)
+XU inm inp vdd 0 outh outl UCC27511A
+Rout outl gate 10
+Cgate gate 0 12n
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.save time v(inp) v(outh) v(outl) v(gate)
+.tran 1n 12u 0 1n uic
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+rusage tranpoints traniter rejected
+wrdata /private/tmp/om07-stall-probes2/vendor-test.tsv v(inp) v(outh) v(outl) v(gate)
+quit
+.endc
+.end

@@ -1,0 +1,195 @@
+{
+  "scope": "Accepted modeled baseline plus nine accepted normal grid receipts; presentation arithmetic only.",
+  "threshold_source": "numerical-repair/event-aware-normal-metrics/metrics.rs lines 294-307 (frozen predicates); host/campaign-report-87.md is secondary presentation",
+  "thresholds": {
+    "mains_vrms_v": [
+      107.999,
+      132.001
+    ],
+    "settled_bus_v": [
+      370.13425,
+      409.09575
+    ],
+    "irms_a_max": 15.0,
+    "cycle_drift_fraction_max_exclusive": 0.005,
+    "vd_peak_v_max": 500.0,
+    "vb_peak_v_max": 450.0,
+    "vds_abs_peak_v_max": 650.0,
+    "vgs_abs_peak_v_max": 25.0
+  },
+  "baseline": {
+    "receipt": "accepted-baseline-11/acceptance.json",
+    "inputs": {
+      "line_v_rms": 120.0,
+      "rload_ohm": 190.0
+    },
+    "observed": {
+      "mains_irms_a": 7.321738,
+      "vb_min_v": 381.305435,
+      "vb_max_v": 385.386372,
+      "cycle_drift_fraction": 0.002730860843
+    },
+    "margins": {
+      "mains_lower_v": 12.001,
+      "mains_upper_v": 12.001,
+      "bus_lower_v": 11.171185,
+      "bus_upper_v": 23.709378,
+      "irms_a": 7.678262,
+      "cycle_drift": 0.002269139157
+    },
+    "fulltrace_node_screens": {
+      "metrics_source": "numerical-repair/event-aware-normal-metrics/full-650ms-metrics.txt",
+      "observed": {
+        "vd_peak_v": 385.496772,
+        "vb_peak_v": 385.386372,
+        "vds_peak_v": 386.79385,
+        "vgs_abs_peak_v": 14.982214
+      },
+      "margins": {
+        "vd_peak_v": 114.503228,
+        "vb_peak_v": 64.613628,
+        "vds_abs_peak_v": 263.20615,
+        "vgs_abs_peak_v": 10.017786
+      }
+    }
+  },
+  "nine_grid_minimums": {
+    "mains_lower_v": {
+      "observed_v": 108.0,
+      "margin": 0.001,
+      "limiting_case": "LL01/LL02/LL03",
+      "field": "acceptance.metrics.vrms_v",
+      "receipt_checkpoint": "host/operating-envelope-checkpoint-53.json"
+    },
+    "mains_upper_v": {
+      "observed_v": 132.0,
+      "margin": 0.0010000000000047748,
+      "limiting_case": "LL07/LL08/LL09",
+      "field": "acceptance.metrics.vrms_v",
+      "receipt_checkpoint": "host/operating-envelope-checkpoint-53.json"
+    },
+    "bus_lower_v": {
+      "observed_v": 375.85787,
+      "margin": 5.723619999999983,
+      "limiting_case": "LL03",
+      "field": "acceptance.metrics.vb_min_v",
+      "receipt": "line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json"
+    },
+    "bus_upper_v": {
+      "observed_v": 387.71614,
+      "margin": 21.379610000000014,
+      "limiting_case": "LL01",
+      "field": "acceptance.metrics.vb_max_v",
+      "receipt": "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json"
+    },
+    "irms_a": {
+      "observed_a": 13.412054,
+      "margin": 1.5879460000000005,
+      "limiting_case": "LL03",
+      "field": "acceptance.metrics.irms_a",
+      "receipt": "line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json"
+    },
+    "cycle_drift": {
+      "observed_fraction": 0.004155816804530984,
+      "margin": 0.0008441831954690161,
+      "limiting_case": "LL03",
+      "field": "acceptance.metrics.cycle_drift_fraction",
+      "receipt": "line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json"
+    },
+    "vd_peak_v": {
+      "observed_v": 387.776829,
+      "margin": 112.22317099999998,
+      "limiting_case": "LL01",
+      "field": "acceptance.metrics.vd_peak_v",
+      "receipt": "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json"
+    },
+    "vb_peak_v": {
+      "observed_v": 387.71614,
+      "margin": 62.283860000000004,
+      "limiting_case": "LL01",
+      "field": "acceptance.metrics.vb_peak_v",
+      "receipt": "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json"
+    },
+    "vds_abs_peak_v": {
+      "observed_v": 389.02254,
+      "margin": 260.97746,
+      "limiting_case": "LL01",
+      "field": "acceptance.metrics.vds_peak_v",
+      "receipt": "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json"
+    },
+    "vgs_abs_peak_v": {
+      "observed_v": 14.982226,
+      "margin": 10.017774,
+      "limiting_case": "LL07",
+      "field": "acceptance.metrics.vgs_abs_peak_v",
+      "receipt": "line-load-native-runner-27/full-LL07/LL07/acceptance.json"
+    }
+  },
+  "caveat": "Margins are to authored model screens, not component ratings, thermal limits, SOA, fuse behavior, or hardware qualification.",
+  "additional_screens_all_ten": {
+    "energy_residual": {
+      "margin_w": 30.259155082942403,
+      "limiting_case": "LL07",
+      "observed_w": 28.047704697942404,
+      "lower_screen_w": -2.211450385,
+      "receipt": "line-load-native-runner-27/full-LL07/LL07/acceptance.json",
+      "equation": "observed - (-max(1,0.005*abs(input_power_w)))",
+      "not_thermal_loss_margin": true
+    },
+    "armed_fraction": {
+      "margin_fraction": 0.010000000000000009,
+      "observed": 1,
+      "lower_screen": 0.99,
+      "limiting_cases": [
+        "LL01",
+        "LL02",
+        "LL03",
+        "LL04",
+        "LL05",
+        "LL06",
+        "LL07",
+        "LL08",
+        "LL09",
+        "baseline"
+      ],
+      "interpretation": "Fraction of evaluated window, not response-time guarantee"
+    },
+    "on_fraction": {
+      "margin_fraction": 0.010000000000000009,
+      "observed": 1,
+      "lower_screen": 0.99,
+      "limiting_cases": [
+        "LL01",
+        "LL02",
+        "LL03",
+        "LL04",
+        "LL05",
+        "LL06",
+        "LL07",
+        "LL08",
+        "LL09",
+        "baseline"
+      ],
+      "interpretation": "Fraction of evaluated window, not response-time guarantee"
+    }
+  },
+  "status": "PARENT_VERIFIED_PRESENTATION_ARITHMETIC",
+  "parent_review_at_utc": "2026-09-22T00:38:38.895698+00:00",
+  "parent_corrections": [
+    "Copied exact bus-lower observed value from receipt instead of inverse subtraction rounding.",
+    "Source-tolerance values bound to measured metrics.vrms_v, not input declaration.",
+    "Added energy-residual and armed/on fraction margins; not thermal or timing qualification."
+  ],
+  "source_receipt_sha256": {
+    "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json": "a4e09215acac4b80920257ceebfa96e4a9f7f618732cd24c778cca34f24105c7",
+    "line-load-native-runner-12/full-LL02-initialized/LL02/acceptance.json": "542318b9fa0a061fa05af1616844320441f1ba59ac4a70275b14266c69c82eb2",
+    "line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json": "224ac1a30d64b05b9b06d3319bb2a6dfaa3ce45330277fb97f8f50e82385041d",
+    "line-load-native-runner-12/full-LL04-initialized/LL04/acceptance.json": "f4a6ba5435add8b2946712b957d6f222cbc0384e28ccdd32980863249acdddfc",
+    "line-load-native-runner-27/full-LL05-retry/LL05/acceptance.json": "44859f112de35192015ace76a4c1d0619c4689533eaceea62b8834b04c8f4206",
+    "line-load-native-runner-27/full-LL06/LL06/acceptance.json": "6eb356547ab348e16353cc9ec86cc3c520835f45ace8b5c8b6f1fddc921221a9",
+    "line-load-native-runner-27/full-LL07/LL07/acceptance.json": "b87c23441b4e55a5e46ec4ec19bfba3bd8fa02a456a9bbdb4aed0c41a0cc7b69",
+    "line-load-direct-retry-41/full-LL08/LL08/acceptance.json": "8c6f8fb701395ecb95cbdfd980fc9a2f94ca1417a456542a18d39e460c3e8fdd",
+    "line-load-direct-retry-47/full-LL09/LL09/acceptance.json": "30ce810b146331f8db0cf0e2c0a1bc22032062d529773039dd62aeeaa5075737",
+    "accepted-baseline-11/acceptance.json": "18ce2902682b4cedb2880e260c15e731e599df4224dc842a70c85e9cadb6cf22"
+  }
+}

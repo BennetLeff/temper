@@ -1,0 +1,75 @@
+[21:50:59] INFO     Using project                                   common.py:72
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate                                            
+           INFO     Building default                                 build.py:38
+[21:51:02] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_f2_shutdo             
+                    wn_revb.ato:151:4                                           
+                        Field 'mpn' not declared for                            
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_pfc_contr             
+                    ol_candidate.ato:PowerEntryPfcControlCandidate:             
+                    :protection.vd_div.r1. Declaring implicitly for             
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_f2_shutdo             
+                    wn_revb.ato:152:4                                           
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_pfc_contr             
+                    ol_candidate.ato:PowerEntryPfcControlCandidate:             
+                    :protection.vd_div.r1. Declaring implicitly for             
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_f2_shutdo             
+                    wn_revb.ato:155:4                                           
+                        Field 'mpn' not declared for                            
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_pfc_contr             
+                    ol_candidate.ato:PowerEntryPfcControlCandidate:             
+                    :protection.vd_div.r2. Declaring implicitly for             
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_f2_shutdo             
+                    wn_revb.ato:156:4                                           
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_pfc_contr             
+                    ol_candidate.ato:PowerEntryPfcControlCandidate:             
+                    :protection.vd_div.r2. Declaring implicitly for             
+                    now, but in the future this may become an                   
+                    error...                                                    
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           ERROR    KeyError                                        errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_pfc_contr             
+                    ol_candidate.ato:246:21                                     
+                        Couldn't find pfc.GATE                                  
+           ERROR    KeyError                                        errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/protection/reference-revision-09/             
+                    source-candidate/elec/src/power_entry_pfc_contr             
+                    ol_candidate.ato:247:22                                     
+                        Couldn't find q_boost.G                                 
+
+
+Unfortunately errors ^^^ stopped the build. If you need a hand jump on Discord! 
+https://discord.gg/mjtxARsr9V 👋

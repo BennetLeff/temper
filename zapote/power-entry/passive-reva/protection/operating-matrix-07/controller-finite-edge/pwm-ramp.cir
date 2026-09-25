@@ -1,0 +1,26 @@
+PWM positive plateau, minimum-off time and ICOMP-short probe
+.include ucc28180.inc
+Vcc vcc 0 15
+Vvs vsense 0 3
+Vvc vcomp 0 3
+Vis isense 0 0
+Vic0 ic0 0 .72
+Vic1 ic1 0 1.72
+Vic3 ic3 0 3.72
+Vshort ish 0 .1
+Xu0 vcc vsense isense ic0 vcomp gate0 0 UCC28180_FN
+Xu1 vcc vsense isense ic1 vcomp gate1 0 UCC28180_FN
+Xu3 vcc vsense isense ic3 vcomp gate3 0 UCC28180_FN
+Xush vcc vsense isense ish vcomp gatesh 0 UCC28180_FN
+.options method=gear reltol=1e-5
+.save v(gate0) v(gate1) v(gate3) v(gatesh) v(xush.icomp_reset)
+.tran 1n 20u 0 1n uic
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+wrdata pwm-ramp.tsv v(gate0) v(gate1) v(gate3) v(gatesh) v(xush.icomp_reset)
+quit
+.endc
+.end

@@ -1,0 +1,48 @@
+[
+  {
+    "case": "normal",
+    "host_exit": 0,
+    "compressor_exit": 0,
+    "decoder_exit": 0,
+    "export_descriptor": "/dev/fd/8",
+    "raw_bytes": 29500,
+    "raw_sha256": "360e2560de283ebc3c1388d0a3610bf517da6be71fadfe5a27e8cb987f937a08",
+    "decompressed_native_sha256": "8633bd1f1261eda0549dbd373519868a38be6c6dd9d23079a505f7cfbc549360",
+    "same_payload_and_header_as_regularfile_probe": true,
+    "export_receipt": {
+      "status": "complete",
+      "schema": "normal15",
+      "rows": 316,
+      "columns": 15,
+      "bytes_written": 38369,
+      "borrowed_data_bytes": 37920,
+      "buffer_bytes": 65536,
+      "export_elapsed_ms": 0,
+      "copy_avoidance_only": true,
+      "accepted": false
+    }
+  },
+  {
+    "case": "fault",
+    "host_exit": 0,
+    "compressor_exit": 0,
+    "decoder_exit": 0,
+    "export_descriptor": "/dev/fd/8",
+    "raw_bytes": 382942,
+    "raw_sha256": "c5f8cc47f6ccb08f6d909bfeaaf62818acce6e82ddf3e136ef6ccfaa17b5fd68",
+    "decompressed_native_sha256": "214ab92dcd3999b7a6cc38e74c3decd8973f670e225ffb6a1e137b7d2caadcd8",
+    "same_payload_and_header_as_regularfile_probe": true,
+    "export_receipt": {
+      "status": "complete",
+      "schema": "fault42",
+      "rows": 2253,
+      "columns": 42,
+      "bytes_written": 758123,
+      "borrowed_data_bytes": 738984,
+      "buffer_bytes": 65536,
+      "export_elapsed_ms": 0,
+      "copy_avoidance_only": true,
+      "accepted": false
+    }
+  }
+]

@@ -1,0 +1,170 @@
+{
+  "status": "Local simulation experiment; no physical qualification",
+  "claims": [
+    {
+      "id": "compiled-circuit",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "32 compiled components; detector, retained latch and gate-driver connections checked",
+      "part": "PowerEntryF2Shutdown",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Current source-02 Atopile0.2.69 export; connectivity is not electrical qualification",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "source-02/build-receipt.json",
+          "sha256": "63d44df1d47fef0a10c82bb1aa1040d2b4636424c7bbec99ad85241ea46d8960"
+        },
+        {
+          "path": "compiled-bridge.json",
+          "sha256": "ea159aa5c5bf8b911d7012a7fe3af33c879ef7ec1984a5fa1e1a8e58821e3e9e"
+        },
+        {
+          "path": "compiled-tests.txt",
+          "sha256": "2265aafc31620d53e15b81d315040af3b34e5a28d009bcf61f8096315cd50a77"
+        }
+      ]
+    },
+    {
+      "id": "model-boundary",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "Fixed5V/15V; nominal dividers; ideal reference; behavioral timing and external healthy plant; provisional2us/500V screen",
+      "part": "F2 experiment",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Simulation-only candidate; current maximum, L(I,T), complete physical turnoff maximum unknown",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "source-model-binding.md",
+          "sha256": "2ce4b179a2a39bc81fcb5e285140d98765d3f3a8bafbfc99d6951e74459af759"
+        }
+      ]
+    },
+    {
+      "id": "vendor-fixtures",
+      "origin": "source",
+      "inputs": [],
+      "quantity": "Held ARM does not restart TI latch model; fresh edge sets output. TI driver model gate4V delay0.360851us at authored12nF load",
+      "part": "SN74HCS74 and UCC27624",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Unchanged official TI models in ngspice PSpice compatibility; fixed supplies; zero-TD warnings retained; not MOS current-cessation evidence",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "vendor/ucc27624_pspice.zip",
+          "sha256": "d933bc5e2e1db3e68b56487286c689846a53613688b11e60ceb8d404803eddee"
+        },
+        {
+          "path": "vendor/sn74hcs74_pspice.zip",
+          "sha256": "b2bda1e76811512fe2b71da4f56501b55354d3dcf5e58fe3a97508135803fc02"
+        },
+        {
+          "path": "vendor/ucc27624.lib",
+          "sha256": "f141c1ffbd89aa3f2a10d78f16da32a8f1699f21b1d0123abb859fac99cc04c4"
+        },
+        {
+          "path": "vendor/SN74HCS74.CIR",
+          "sha256": "302980315bc7b7530ba1f3ae3592f2ceb7a2d52c35791770e0ca9c1f6f27cad1"
+        },
+        {
+          "path": "vendor/checks.txt",
+          "sha256": "c366401cf7ff2766561643e3a1bd62a5f5fccf36e08078b8c38de7c02e3d38e6"
+        },
+        {
+          "path": "vendor/driver-load-check.log",
+          "sha256": "509aecb0c995b97d94a05a4b217e9ad762596f5b582d043106fc9107c97a15d7"
+        },
+        {
+          "path": "vendor/latch-behavior-check.log",
+          "sha256": "c50e2ca6dad33e2d6864bf2aed190c188349128d63bc88cca142f593bc185243"
+        }
+      ]
+    },
+    {
+      "id": "static-screen",
+      "origin": "derivation",
+      "inputs": [
+        "model-boundary"
+      ],
+      "quantity": "Conditional VB410V relative-trip range417.199163..432.085945V",
+      "part": "Tapped divider with authored error allowances",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Prior2048-corner assumptions retained; not a new TLV3202 assembly guarantee",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "static-screen.txt",
+          "sha256": "692e33bf2314cb816658faed6200b48ed16c5786d7e76179469a81ee9f469a3d"
+        },
+        {
+          "path": "../f2-open-01/window_screen.rs",
+          "sha256": "161996028cd9713de4b0bd281b4ec11e0493e3157145e4c3582e3eb3d637b1ef"
+        }
+      ],
+      "condition_transformation": "Apply explicit experiment assumptions only; no transfer to physical assembly.",
+      "part_transformation": "Combine source circuit and stated surrogate models; no exact-device equivalence claimed."
+    },
+    {
+      "id": "full-path-experiment",
+      "origin": "derivation",
+      "inputs": [
+        "compiled-circuit",
+        "model-boundary"
+      ],
+      "quantity": "19 scenarios:15 model-check passes; deliberate slow-EN failure4.889038us;3 startup fault cases indeterminate. Overlapping gate-pulse refined shutdown0.976114us and peak483.965316V; doubled gate charge peak490.760455V.",
+      "part": "F2 behavioral detector/latch/driver/boost plant",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Fixed ideal supplies; nominal divider/reference; authored delay and device surrogates; measured branch current; no physical stress or turnoff bound; invalid startup stimuli retained as indeterminate",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "condition_transformation": "Run the explicitly assumed transient model and extract observed values; no guarantee transfers from a datasheet fixture or simulation to hardware.",
+      "part_transformation": "The32-part compiled subcircuit is represented by stated behavioral equivalents and an external surrogate boost plant; exact ST transistor model is absent.",
+      "evidence": [
+        {
+          "path": "simulation/extract.rs",
+          "sha256": "2456f5e44de5749e374e8674a10793d5f0cfad4b6e8f119d6d989d13e25bbe0b"
+        },
+        {
+          "path": "simulation/f2_shutdown_template.cir",
+          "sha256": "e8aed5434aa22b79ea5c782ec4ed228a38c9af38631c846ffa8a25e1492b47b4"
+        },
+        {
+          "path": "simulation/run_cases.sh",
+          "sha256": "9e4fc2c44675a99538b3f3b7c36b837fc7422ad1f123da57ced5c9a2f593ec5f"
+        },
+        {
+          "path": "simulation/traces/summary.csv",
+          "sha256": "f72440415ffb78b7e9979a10ab2a0eeffe0909588633552c670abd49205a2d5c"
+        },
+        {
+          "path": "simulation/tests.txt",
+          "sha256": "cec169481293ff31f4318a0b26cd8c27df6aafde2e5b385f43225c6cffcb3147"
+        },
+        {
+          "path": "simulation/refinement.txt",
+          "sha256": "9646d2bfe8ce7e7382b823f174dd4089030f32583bdb53d74ae30b5c437546a5"
+        },
+        {
+          "path": "README.md",
+          "sha256": "df949b19433108e6255264754a3ca37c3646ceec88ba48f8c8166b5f19e2b304"
+        },
+        {
+          "path": "review-resolution.md",
+          "sha256": "8bc86d4f57567f025eedb08c6520090fb849aa60f0381c27e4b28c2cdb044a96"
+        }
+      ]
+    }
+  ],
+  "protection_claims": [],
+  "promotions": []
+}

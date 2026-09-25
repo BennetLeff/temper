@@ -1,0 +1,21 @@
+# copied deck closure
+ba236c1bac11bb3b52f863524eebccb4daf7cd8995da7f61dd8c8dd487a8ac4e  deck/cold.cir
+95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b  deck/authored_logic_hysteretic.inc
+96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde  deck/clamp.inc
+61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8  deck/protection.inc
+94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb  deck/standby.inc
+2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251  deck/ucc28180-pwm-latch.inc
+56fdc2c11e4fb70b0b19e743d619eb25ec22d36489205a216681d82b3c994d15  deck/progress.rs
+# source numerical-repair originals
+db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94  ../../numerical-repair/nonstopping-first-invalid/cold.cir
+61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8  ../../numerical-repair/nonstopping-first-invalid/protection.inc
+94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb  ../../numerical-repair/nonstopping-first-invalid/standby.inc
+96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde  ../../numerical-repair/nonstopping-first-invalid/clamp.inc
+2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251  ../../numerical-repair/nonstopping-first-invalid/ucc28180-pwm-latch.inc
+95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b  ../../numerical-repair/nonstopping-first-invalid/authored_logic_hysteretic.inc
+7e3d5bfd33c27f0b0c3eacc8eb8ce5d896dc92d706878af8c788984a547c543c  ../../numerical-repair/nonstopping-first-invalid/progress.rs
+# reviewed adapter
+d39e43eb716f676c78b4b06d8def62a4bd24e3fbfb6a7edb5d86d592a095f021  ../native-stream-adapter-11/native_stream_adapter.rs
+# receipts
+6e3f665dbf1496109a6b77455f52ec5f4c8605185e590696f275866f1b7fe0b5  out/api-native-comparison.txt
+d5f9b8ea068a4293d75f57e2c97dd79c3198c7375faa7bffda1100675dcba31f  out/run-status.txt

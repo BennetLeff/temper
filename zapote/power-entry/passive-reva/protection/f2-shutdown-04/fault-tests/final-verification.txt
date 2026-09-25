@@ -1,0 +1,69 @@
+warning: fields `detector_pair`, `health`, `drv`, and `permit` are never read
+  --> zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/extract.rs:21:5
+   |
+15 | struct Sample {
+   |        ------ fields in this struct
+...
+21 |     detector_pair: f64,
+   |     ^^^^^^^^^^^^^
+22 |     health: f64,
+   |     ^^^^^^
+...
+30 |     drv: f64,
+   |     ^^^
+...
+34 |     permit: f64,
+   |     ^^^^^^
+   |
+   = note: `Sample` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: 1 warning emitted
+
+
+running 4 tests
+test tests::absolute_and_mismatch_thresholds_are_distinct ... ok
+test tests::fresh_rearm_rejects_q_rise_before_fresh_arm_edge ... ok
+test tests::parser_contract_has_exact_width ... ok
+test tests::parser_rejects_truncated_gapped_and_nonfinite_traces ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+warning: fields `detector_pair`, `health`, `drv`, and `permit` are never read
+  --> zapote/power-entry/passive-reva/protection/f2-shutdown-04/fault-tests/extract.rs:21:5
+   |
+15 | struct Sample {
+   |        ------ fields in this struct
+...
+21 |     detector_pair: f64,
+   |     ^^^^^^^^^^^^^
+22 |     health: f64,
+   |     ^^^^^^
+...
+30 |     drv: f64,
+   |     ^^^
+...
+34 |     permit: f64,
+   |     ^^^^^^
+   |
+   = note: `Sample` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: 1 warning emitted
+
+case,raw_us,fault_us,q_clear_us,fresh_q_us,target_raw_V,other_raw_max_V,ready_before_V,q_before_V,gate_before_V,voltage_to_gate_off_us,screen,note
+absolute_vb,220.375509,220.429709,220.486947,560.075504,5.000000,0.000000,5.000000,5.000000,14.982022,0.748899,PASS,criteria met; gate current is a loaded metric only
+absolute_vd,220.375509,220.429709,220.486947,560.075504,5.000000,0.000000,5.000000,5.000000,14.982022,0.748899,PASS,criteria met; gate current is a loaded metric only
+aux_absent,null,null,null,null,0.000000,0.000000,0.000000,0.000000,0.000000,null,PASS,criteria met; gate current is a loaded metric only
+aux_dropout_return,null,null,240.179860,560.075504,0.000000,0.000000,5.000000,5.000000,14.982022,null,PASS,criteria met; gate current is a loaded metric only
+aux_fast_dip,null,null,240.133932,560.075504,0.000000,0.000000,5.000000,5.000000,14.982022,null,PASS,criteria met; gate current is a loaded metric only
+aux_first,null,null,null,null,0.000000,0.000000,5.000000,5.000000,14.982022,null,PASS,criteria met; gate current is a loaded metric only
+bypass_negative,221.162967,221.218498,null,null,5.000000,0.000000,5.000000,5.000000,14.982022,null,FAIL,restart was not tied to a fresh ARM rising edge; missing or over-2us unfiltered bus threshold to loaded gate-off; missing filtered fault or retained-Q clear; Q/EN/gate restarted while ARM was held after health return; fresh ARM edge did not rearm
+forward_mismatch,221.162967,221.216536,221.273569,560.075504,5.000000,0.000000,5.000000,5.000000,14.982022,1.535580,PASS,criteria met; gate current is a loaded metric only
+logic_absent,null,220.000000,null,null,0.000000,0.000000,0.000000,0.000000,0.000000,null,PASS,criteria met; gate current is a loaded metric only
+logic_dropout_return,null,240.100961,240.051646,560.075504,0.000000,0.000000,5.000000,5.000000,14.982022,null,PASS,criteria met; gate current is a loaded metric only
+logic_first,null,null,null,null,0.000000,0.000000,5.000000,5.000000,14.982022,null,PASS,criteria met; gate current is a loaded metric only
+reverse_mismatch,221.162967,221.216536,221.273569,560.075504,5.000000,0.000000,5.000000,5.000000,14.982022,1.535580,PASS,criteria met; gate current is a loaded metric only
+slow_detector_negative,221.162967,228.093893,228.145210,560.075504,5.000000,0.000000,5.000000,5.000000,14.982022,8.407105,FAIL,missing or over-2us unfiltered bus threshold to loaded gate-off; fault propagation exceeded 2 us screen
+slow_ramps,null,null,null,null,0.000000,0.000000,5.000000,5.000000,14.982022,null,PASS,criteria met; gate current is a loaded metric only
+startup_held_arm,null,null,null,null,0.000000,0.000000,5.000000,0.000000,0.000000,null,PASS,criteria met; gate current is a loaded metric only

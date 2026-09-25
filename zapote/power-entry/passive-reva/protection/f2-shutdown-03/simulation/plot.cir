@@ -1,0 +1,9 @@
+F2 result plots
+.control
+set hcopydevtype=svg
+load raw/f2_phase_1u_refined.raw
+hardcopy voltage.svg v(vd) v(vb) xlimit 0.00012 0.00022
+hardcopy shutdown.svg v(gate) v(q) v(en) xlimit 0.000130 0.000133
+quit
+.endc
+.end

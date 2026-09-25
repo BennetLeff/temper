@@ -1,0 +1,33 @@
+{
+  "at_utc": "2026-09-22T01:11:19.774584+00:00",
+  "status": "DIODE_FAIL_DISPOSITIONED_COINCIDENT_DIAGNOSTIC_LIVE_BOTH_RUNNING",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: DIODE complete timingfailure inspected; postcapture launched; BOTH started",
+  "this_goal_turn": "progress: DIODE five-pass analysis and strict witness complete, ownprefix/phase accepted and finalFAIL disposition independently reviewed; source strategy assessed; bounded tested same-row current/state instrument99 launched on savedarchive",
+  "completed_sessions": {
+    "88208": 0,
+    "20391": 0
+  },
+  "live_sessions": {
+    "57766": "BOTH-SHORT65 full solver",
+    "84299": "DIODE archive-only coincident99 diagnostic"
+  },
+  "both_runner_pid": 82739,
+  "both_monitor_pid": 82740,
+  "both_latest_progress": "1448.649677\t4.34546598503394721e-1\t65.641480\t2.701707361068e-4\t19432319\tfalse\t0\t0\tfalse",
+  "free_bytes": 33948250112,
+  "artifacts_sha256": {
+    "faults/settled-diode-short-64/full-DIODE-SHORT/campaign-verdict-98.json": "7c5fa0e0b29c7de591f99e043019eee5f831488f10b92cc58486b2e7a526e03a",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/normal-prefix-acceptance.json": "63537bdc5afdafb2c4e9f5bebd98dfc3940ff8a91fca2505cbee0fd51112d466",
+    "faults/settled-diode-postcapture-74/full-DIODE-SHORT/parent-phase-acceptance.json": "cbead20549405c95730416d870a4e4c48295568abd7d3ad6b180949d55a08fab",
+    "faults/coincident-stress-observability-99/parent-review-100.json": "b737c4687b7315599da5ec9df406b3ecad9f106ab549347baabc0886e20dfe2d",
+    "host/diode-short-strategy-parent-review-100.json": "3680d28c26afdb73bd7563823fcb53cb291cc60d105f78bb55494d722d3ddd67",
+    "host/archive-analysis-progress-96.md": "42ef3f5e5ed721fed2686781dc7a464e40ca053e0c164c169abcbdfc1de85d8c"
+  },
+  "diode_verdict": "FAIL: detector3.121260831ms afterinjection exceeds2ms; normalprefix andcrestphase accepted under exactevent-aware policies; source-bound campaign-verdict98",
+  "independent_diode_review": "Luna57 verified prefix/phase/source/tool/legacy receipts and verdict scope; no actionable issue; worker interrupted",
+  "new_tool99": "Preserves frozen55 validation/output fields, adds six named current peaks with same-row q/en/gate/fault/current context and off-row counts.10 unit tests,13 frozenCLI parity probes and six-current/reordered/stdin/no-clobber probes pass. Parent optimized standalonebinary SHA8fb3482d5390a977cdb18e47381bdd09bb71f0b0752a02fd4bfb98b0fc534b08. No waveform outcome yet.",
+  "active_children": "none; all completed Luna workers interrupted",
+  "blocked_turn_count": 0,
+  "next": "Follow84299 to terminal, verify receipt alloriginal55fieldsidentical/rawhashsame, inspect same-row current witnesses and parent disposition. Follow57766 terminal then75analysis/legacy if complete; incomplete retainedINDETERMINATE. BYPASS66/76 remains unexecuted. Final report/index incorporate margins89,DIODE98,currentstrategy100,stress99 and remaining cases."
+}

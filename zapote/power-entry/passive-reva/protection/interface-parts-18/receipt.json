@@ -1,0 +1,114 @@
+{
+  "date": "2026-09-22",
+  "scope": "Revision18 prototype capacitor selection and native clamp update",
+  "status": "bounded review complete; physical and integration qualification open",
+  "basis": {
+    "basis_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+    "branch": "codex/power-entry-pkgs-1-4",
+    "dirty": true,
+    "scope": "isolated part-selection review; production PCB unchanged",
+    "package_authority": "User: do that, ideally with luna subagents; accepts packages chosen to meet electrical limits",
+    "inputs": [
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/clamp.kicad_sch",
+        "sha256": "6d66b259b03e1efddb9aed6200246679cf5c8f4ede4e026c49129757aa0c2793"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/reset.kicad_sch",
+        "sha256": "a87bdb095b994cbe36ef89918bdea7deb6b0ca51d955e69acdf40b937526d0cc"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/auditor.rs",
+        "sha256": "3b94a081f519b966cdbd995cd55e776ff2926260411e867e49c48c5a9940e0ef"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/capture-screen.rs",
+        "sha256": "ed3bbefbcde4e6860ca3851a62c50bed3ab8206621f500d515ac706736402ae8"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-integration-17/selection_screen.rs",
+        "sha256": "e27508edc2ef8d106b0fb0d2db06df37d29221b46ef577e8a7235aa4d8a135a6"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-integration-17/selection-requirements.md",
+        "sha256": "459b3daf9980d91c1ce33a72d87ab1e177c9da5d691427f3d8b79fda07ebcdd1"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-integration-17/README.md",
+        "sha256": "6b9fb0b64c616df526e753a277f9c4d509276cdf622bd7b8560037b86a24de20"
+      }
+    ]
+  },
+  "delegation": {
+    "model": "gpt-5.6-luna",
+    "assignments": [
+      "bulk_cap_selection",
+      "timing_cap_selection",
+      "bypass_cap_selection",
+      "gate_cap_refinement",
+      "parts18_review"
+    ],
+    "handbacks_retained": true,
+    "parent_reviewed": true,
+    "interrupt_called_on_all_finished_children": true
+  },
+  "verification": {
+    "rust_checks_passed": 9,
+    "clamp": {
+      "pins": 39,
+      "components": 14,
+      "connectivity": "pass",
+      "erc_findings": 7,
+      "erc_unchanged": true,
+      "visual_review": "final PNG inspected; values and allocation notes legible"
+    },
+    "reset": {
+      "pins": 106,
+      "components": 28,
+      "scope": "unchanged revision16 reference checked by same auditor"
+    },
+    "mutation_controls": "pass",
+    "schematic_bom": "KiCad-generated; exact C2/C3/C4 identities verified",
+    "source_bindings": "diff inspected; uncompiled",
+    "preservation": {
+      "inputs_verified": 7,
+      "frozen": [
+        {
+          "revision": "interface-capture-16",
+          "verified_files": 56
+        },
+        {
+          "revision": "interface-integration-17",
+          "verified_files": 12
+        }
+      ],
+      "erc_findings_identical": true,
+      "erc_count": 7
+    }
+  },
+  "proposed_allocations": {
+    "bulk_nominal_uF": 330,
+    "downstream_max_uF": 18,
+    "total_output_max_uF": 520,
+    "gate_min_uF": 1.3,
+    "gate_max_uF": 1.7,
+    "ramp_screen_mA": 26
+  },
+  "full_compiled_candidate": {
+    "revision": 11,
+    "components": 136,
+    "changed": false
+  },
+  "open": [
+    "biased ceramic capacitance and effective minimum",
+    "converter startup and foldback load",
+    "gate discharge, fault peak and MOSFET SOA",
+    "actual environment, service life and combined drift bounds",
+    "mechanical height, footprint and enclosure clearance",
+    "producer/decoder integration and complete compiled candidate"
+  ],
+  "pcb_changed": false,
+  "parts_ordered": false,
+  "committed": false,
+  "pushed": false
+}

@@ -1,0 +1,11 @@
+{
+  "event_audit_exit": 0,
+  "checker_exit": 1,
+  "checker_normalizer_exit": 1,
+  "checker_decoder_exit": 1,
+  "checker_gzip_exit": -1,
+  "metrics_exit": 0,
+  "metrics_normalizer_exit": 0,
+  "metrics_decoder_exit": 0,
+  "metrics_gzip_exit": 0
+}

@@ -1,0 +1,16 @@
+{
+  "status": "PARENT_REVIEWED_CURRENT_CAMPAIGN_NARRATIVE",
+  "utc": "2026-09-21T18:48:51.262857+00:00",
+  "docs_sha256": {
+    "host/campaign-evidence-register-28.md": "86a0eca686ff5e769443d7274f708d219624888aed1080c000cadb547ff2f5be",
+    "host/simulation-to-prototype-decisions.md": "3032c88a042eb721a7aac711244cc461e4eaa6970ecd2e6d729f0e45ca2eefbb"
+  },
+  "latest_normal_acceptance": "line-load-direct-retry-41/full-LL08/LL08/acceptance.json",
+  "latest_normal_acceptance_sha256": "8c6f8fb701395ecb95cbdfd980fc9a2f94ca1417a456542a18d39e460c3e8fdd",
+  "first_settled_fault_acceptance": "faults/settled-reanalysis-40/F2-CREST38/acceptance.json",
+  "first_settled_fault_acceptance_sha256": "bc00f63b08b5218d74f7fa673e60ab6f976194d32a871c776432547130ccfa7e",
+  "normal_accepted_count": 8,
+  "LL09": "live session33042",
+  "other_settled_faults_unrun": 5,
+  "scope": "Reviewed current statuses, sourcebound acceptedscopes, retainedhistoricalrejections, physicalinterruptionlimitations andresourceforecast. No goalcompletion."
+}

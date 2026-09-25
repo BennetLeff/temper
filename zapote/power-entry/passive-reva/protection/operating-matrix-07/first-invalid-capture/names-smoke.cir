@@ -1,0 +1,27 @@
+* Short callback-name smoke: prove ngspice exposes the saved subcircuit names
+* exactly as xu.raw/xu.pwm_hold/etc. before a long cold replay is attempted.
+.subckt UCCSMOKE 0
+Braw raw 0 V=0.1
+Bhold pwm_hold 0 V=0.2
+Bm1 m1 0 V=0.3
+Bm2 m2 0 V=0.4
+Bphase phase 0 V=0.5
+Bblank blank 0 V=0.6
+Bfault fault 0 V=0
+Bov ov 0 V=0
+Bpcl pcl_hold 0 V=0
+Brequest pcl_request 0 V=0
+.ends UCCSMOKE
+V1 in 0 PWL(0 0 1u 1 20u 2)
+R1 in out 1k
+C1 out 0 1n
+XU 0 UCCSMOKE
+Bpwm pwm 0 V=0.7
+Binput pwm_input 0 V=0.8
+Bdrvreq drv_req 0 V=0.9
+Bdrv drv 0 V=1.0
+Bisense isense 0 V=-0.1
+Bdisable disable 0 V=0
+.save time v(xu.raw) v(xu.pwm_hold) v(pwm) v(pwm_input) v(drv_req) v(drv) v(xu.phase) v(xu.blank) v(isense) v(xu.ov) v(xu.fault) v(xu.pcl_hold) v(xu.pcl_request) v(disable) v(xu.m1) v(xu.m2)
+.tran 100n 20u
+.end

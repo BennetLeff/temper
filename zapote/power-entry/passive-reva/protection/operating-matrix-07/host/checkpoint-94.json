@@ -1,0 +1,46 @@
+{
+  "at_utc": "2026-09-22T00:50:58.347385+00:00",
+  "status": "DIODE_DETECTOR_WINDOW_FAILED_POSTCAPTURE_LIVE_BOTH_RUNNING",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: complete DIODE capture and normal margins verified",
+  "this_goal_turn": "progress: terminal DIODE validation inspected, actual checker failure distinguished from process0; independent postcapture74 started; BOTH launched with single-solver guard and actual source binding verified",
+  "completed_sessions": {
+    "52815": 0
+  },
+  "live_sessions": {
+    "88208": "DIODE postcapture74 five-pass archive audit",
+    "57766": "BOTH-SHORT65 full solver"
+  },
+  "both_runner_pid": 82739,
+  "both_monitor_pid": 82740,
+  "both_latest_progress": "231.588093\t1.10208383701376797e-1\t16.647792\t2.358238791515e-4\t3386834\tfalse\t0\t0\tfalse",
+  "diode_postcapture_files": [
+    "prefault-scan.json",
+    "scan-pigz.stderr",
+    "scan-decoder.stderr",
+    "audit-decoder.stderr",
+    "audit.stderr",
+    "scan-selector.stderr",
+    "audit-selector.stderr",
+    "normal15-events.tsv",
+    "gzip-integrity.exit",
+    "audit-pigz.stderr",
+    "normal15-audit.txt",
+    "preflight.json",
+    "scan.exit",
+    "gzip-integrity.stderr"
+  ],
+  "free_bytes": 34232475648,
+  "artifacts_sha256": {
+    "faults/diode-short-parent-review-93.json": "2e470cd8bc426a06ef2a48622b5e663d65964805cbfeb30089cb41d06554896f",
+    "faults/diode-short-review-91.json": "15a0ae2a3477b348ea8e3e34fef461c555d0131860fc91a51d4fdec3fb2d267e",
+    "faults/settled-both-short-65/live-parent-review-93.json": "639cb75f3616a55c0e23c383ad155c006fa631e7faad59ab6713173e8b2690ad",
+    "faults/settled-both-short-65/live-source-review-92.json": "e72a8273ba7908f9a7996bcd204fdfa6ad5278a0c3fd1568457d40ab11328760"
+  },
+  "new_fault_acceptance": false,
+  "diode_status": "Complete raw archive, frozen checker FAIL detector outside2ms window (observed3.121260831ms); own-prefix/phase/observability pending, final disposition not yet written",
+  "active_children": "none; all completed Luna workers interrupted",
+  "concurrency_decision": "One full solver plus one sequential archive analysis. No multiple wrappers: Luna source review estimates metrics3cycle tail/clones ~0.75GiB before overhead at prior row density; swap already high, so no speculative fan-out or frozen script changes.",
+  "blocked_turn_count": 0,
+  "next": "Poll88208 to terminal; if analysis0 run74/legacy-strict.sh and parent normal-prefix/phase/failure disposition. Follow57766 to terminal; full archive ->75/run.sh +legacy; incomplete->retained INDETERMINATE. Then launchBYPASS66 (only after previous solver terminal) and audit76. Carry margins89 and DIODE failure into final report/index."
+}

@@ -1,0 +1,14 @@
+solver.reltol=2e-4
+solver.vntol=1e-7
+solver.abstol=1e-10
+Cbank_vb=2240e-6 F; normal-hysteretic-settling-extension/cold.cir:42
+Clocal_vd=19.8e-6 F; normal-hysteretic-settling-extension/cold.cir:40
+Lboost_current=180e-6 H; normal-hysteretic-settling-extension/cold.cir:24
+Cds_sw_ground=344e-12 F; normal-hysteretic-settling-extension/cold.cir:37
+Cgd_gate_sw=112e-12 F; normal-hysteretic-settling-extension/cold.cir:38 (v(gate)-v(sw))
+Cgs_gate_ground=12e-9 F; normal-hysteretic-settling-extension/cold.cir:39
+Cisense_ground=1e-9 F; normal-hysteretic-settling-extension/cold.cir:26
+Cicomp_ground=2.7e-9 F; normal-hysteretic-settling-extension/cold.cir:56
+Cvcomp_p_ground=220e-9 F; normal-hysteretic-settling-extension/cold.cir:59
+Cdriver_delay_ground=18.75e-9 F; normal-hysteretic-settling-extension/authored_logic_hysteretic.inc:37-38
+Cblank_ground=1e-12 F; normal-hysteretic-settling-extension/ucc28180-pwm-latch.inc:57

@@ -1,0 +1,18 @@
+{
+  "status": "PARENT_CORRECTED_RUNBOOK_ONLY_EXTERNAL_SUPERVISION_REQUIRED",
+  "utc": "2026-09-21T17:15:05.474201+00:00",
+  "document_sha256": "5cb59bb2d7feaddf2c6f4d62b3b4202faa34bf3f3181c696a6fd0936b5bfefb3",
+  "tool_hashes_verified": true,
+  "upstream_receipt_sha256": "10540f8cc0ffa84bf339d8436fb24efe3fd48fff7714b1779e30ca4deb63f648",
+  "parent_corrections": [
+    "Use actual retry38 instead of rejected capture32",
+    "Stage1 success is host/compressor metadata, not transport_complete; require both receipt classes",
+    "Explicit current native export completion receipt and exact case numeric parameters",
+    "Require terminal runner; compare raw/source/tool hashes and full rowcounts",
+    "Preserve stderr for every pipeline child and exact PIPESTATUS count",
+    "Clarify snippets require external900s/10GiB supervision, not executable guards"
+  ],
+  "electrical_acceptance": false,
+  "bash_syntax_blocks_passed": 4,
+  "previous_incomplete_capture32_transport_filter_exit": 1
+}

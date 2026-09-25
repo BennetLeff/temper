@@ -1,0 +1,167 @@
+{
+  "status": "ACCEPTED_EXACT_MODELED_NORMAL_PREFIX_FROM_PARTIAL_FAULT_CAPTURE",
+  "accepted_normal_prefix": true,
+  "accepted_protection": false,
+  "utc": "2026-09-22T02:19:44.702809+00:00",
+  "case": "SW-SHORT",
+  "raw": {
+    "path": "faults/settled-sw-short-59/full-SW-SHORT/raw.trace.raw.gz",
+    "sha256": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+    "bytes": 5088782620,
+    "full_rows": 30686230,
+    "observed_stop_s": 0.6544026486296868,
+    "declared_endpoint_s": 0.662
+  },
+  "normal_prefix": {
+    "cutoff_s": 0.65,
+    "selected_rows": 30112476,
+    "last_selected_time_s": 0.6499999879903595,
+    "cutoff_gap_s": 1.200964050429576e-08,
+    "max_cutoff_gap_s": 1e-06,
+    "metrics_window_s": [
+      0.5999999879903595,
+      0.6499999879903595
+    ],
+    "fault_rising_edge_s": 0.6541666661706754,
+    "metrics": {
+      "vrms_v": 120.0,
+      "irms_a": 7.317915,
+      "input_power_w": 868.1568,
+      "load_power_w": 773.407641,
+      "pf": 0.98862,
+      "vb_mean_v": 383.365993,
+      "vb_min_v": 381.307046,
+      "vb_max_v": 385.364828,
+      "cycle_means_v": [
+        382.8415289859337,
+        383.38277578251075,
+        383.8736752876638
+      ],
+      "cycle_drift_fraction_derived": 0.002696014469652877,
+      "cycle_drift_reported": 0.002696,
+      "il_peak_a_report_only": 30.628569,
+      "vd_peak_v": 385.474781,
+      "vds_peak_v": 386.771411,
+      "vgs_abs_peak_v": 14.982193,
+      "armed_fraction": 1.0,
+      "on_fraction": 1.0,
+      "three_state_energy_change_j": 1.3329809015133407,
+      "energy_delta_rate_w": 26.659618030266813,
+      "energy_residual_pin_pout_de_w": 68.08954118493551,
+      "selected_storage_sumabs_delta_j": 1.6059973794587938e-12
+    },
+    "screen_count": 0,
+    "repeated_time_audit": {
+      "rows": 30112476,
+      "equal_groups": 42,
+      "repeated_intervals": 66,
+      "max_group_rows": 3,
+      "missing_right": 0,
+      "backwards": 0,
+      "logic_changes": 0,
+      "boundary_groups": 0,
+      "e3_spread_j": 1.7834979248562619e-13,
+      "e3_sumabs_j": 2.6436687128546568e-12,
+      "all_original_rows_retained": true
+    }
+  },
+  "campaign_verdict_unchanged": "INDETERMINATE",
+  "full_fault_endpoint_accepted": false,
+  "phase_accepted": false,
+  "legacy": {
+    "status": "EXPECTED_STRICT_REJECTION",
+    "accepted": false,
+    "classification_reason": "REPEATED_TIMESTAMP",
+    "raw_before_sha256": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+    "raw_after_sha256": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+    "pipeline_status_order": [
+      "pigz",
+      "decoder",
+      "selector",
+      "normalizer",
+      "checker"
+    ],
+    "pipeline_statuses": [
+      141,
+      1,
+      1,
+      1,
+      1
+    ],
+    "prefix_end_s": "0.649999987990359518",
+    "transport_failures_are_not_acceptance": true
+  },
+  "pipeline_exits": {
+    "scan": [
+      0,
+      0,
+      0
+    ],
+    "audit": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "metrics": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "legacy": [
+      141,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "source_sha256": {
+    "faults/settled-sw-short-59/full-SW-SHORT/authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "faults/settled-sw-short-59/full-SW-SHORT/case.cir": "3ba13389962a9550edcc7ca5486109f4793c6082e94a50fe18f0bc1f6f889ace",
+    "faults/settled-sw-short-59/full-SW-SHORT/clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "faults/settled-sw-short-59/full-SW-SHORT/cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "faults/settled-sw-short-59/full-SW-SHORT/manifest.json": "840b9fbbf83bc91a8138bfd18101b55306146e21445968ccbbaa3864068679ad",
+    "faults/settled-sw-short-59/full-SW-SHORT/protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "faults/settled-sw-short-59/full-SW-SHORT/run-parameters.json": "04aeb255073af29f535a450f87135502e5e9b8bbc3e8c4c19d8416daa45fb220",
+    "faults/settled-sw-short-59/full-SW-SHORT/source-identity.json": "985e7fb51f27442f1f3d1fc554062836ee10650cc5b019833e27951462508ef7",
+    "faults/settled-sw-short-59/full-SW-SHORT/standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "faults/settled-sw-short-59/full-SW-SHORT/ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  },
+  "evidence_sha256": {
+    "faults/sw-prefix-only-117/full-SW-SHORT/analysis-receipt.json": "ab3273d7e41d64f47de0fc2eba7f1c6f18ff32977ae1178a1e3ef98dfec4ec4f",
+    "faults/sw-prefix-only-117/full-SW-SHORT/prefault-scan.json": "64e04aa2b7f4396dfc1a52ba1d00017552860e430a4fe485d711085acbd44ae8",
+    "faults/sw-prefix-only-117/full-SW-SHORT/normal15-audit.txt": "a2be8d722663e714de9a4a24b6f1690dd55cf9390622fb95f6627cce09345cc8",
+    "faults/sw-prefix-only-117/full-SW-SHORT/normal15-events.tsv": "b900c98af46cad6d5cd25f26d8718700b903ad56c188c10facfa340cc9be4b44",
+    "faults/sw-prefix-only-117/full-SW-SHORT/normal-metrics.txt": "93df81409754823338f6ade9160b04d840e7224ff84cd25897b33bdf6d6dfe5a",
+    "faults/sw-prefix-only-117/full-SW-SHORT/legacy-strict/receipt.json": "5a4c6fb0a2ec7be5046fcd74be5bee3a1b070012c346329d7667c42719cd0371",
+    "faults/sw-prefix-only-117/full-SW-SHORT/legacy-strict/pipeline.exit": "175bdbc71706c903e524dd6d875c3ab6ac16c186bae6a09d895464d0e9d9e9f2",
+    "faults/sw-prefix-only-117/full-SW-SHORT/legacy-strict/checker.stderr": "920b5ae626040ff79753e37c5f52d28d0944ee069a40588de9380014e06d441f",
+    "faults/sw-prefix-only-117/full-SW-SHORT/analysis.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "faults/sw-prefix-only-117/run.sh": "b6c65ef09467ab7cc78af37e4a9fc4c96d9c41eb70fb0d577d72cd80f28de3a4",
+    "faults/sw-prefix-only-117/tools-parent.sha256": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+    "faults/sw-prefix-only-117/parent-preparation-121.json": "888fd12a55ead5667f942a879cf23523f00686b8c7f664a48bda14719bb9c022",
+    "faults/sw-prefix-only-117/normal-prefix-candidate-127.json": "7ff05753df1d323dd69c59556c9c349e323f89b662e0dcdf944d2b05381cfa99"
+  },
+  "tool_sha256_verified": {
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-prefault-selector-parent": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+    "/private/tmp/matrix07-normal15-event-audit-host": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6",
+    "/private/tmp/matrix07-normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "/private/tmp/matrix07-event-metrics-host": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "/private/tmp/matrix07-phase43-parent": "e546ddfb84c53b73303e465574fa29fdff7753768c3a71efda1f8b5f185be965",
+    "/private/tmp/matrix07-bypass55-parent": "3bff9b4312cf9bb3c2118219e0f3bc5406482d8c2b83b728ad851b663bb40f6c"
+  },
+  "review_notes": [
+    "Actual metrics/audit values checked by parent; frozen Rust zero screens and finite/nondecreasing validation authority.",
+    "Own prefix selectedalloriginalrows through650ms cutoff, gap12.0096405ns<=1us; repeatedtimeaudit42groups66repeats,no missingright,logicchanges,boundaryambiguity.",
+    "Candidate backwards=0 meanssuccessfulRustnondecreasingvalidation, not a separatelyemittedcounter.",
+    "Window start and driftratio are presentation arithmetic, not new numerical acceptance checks.",
+    "Model q/en settled fractions1; no separate ARM/PERMIT waveform or full faultphase qualification.",
+    "Full archivebefore/afterhash retainedbycompletedwrapper; currentpresence/size andsmallsource/toolhashes verifiedwithoutredundantrawrehash.",
+    "Missing .662fullfaultendpoint remains; prefixacceptance does not imply completedfaultwindow, no rearm or currentinterruption."
+  ]
+}

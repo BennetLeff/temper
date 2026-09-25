@@ -1,0 +1,26 @@
+{
+  "base": {
+    "exit": 0,
+    "has_700_peak": false,
+    "boundary_ambiguity": false,
+    "screen_lines": 0
+  },
+  "equal_time_exact": {
+    "exit": 0,
+    "has_700_peak": false,
+    "boundary_ambiguity": false,
+    "screen_lines": 0
+  },
+  "equal_time_stress_peak": {
+    "exit": 0,
+    "has_700_peak": true,
+    "boundary_ambiguity": false,
+    "screen_lines": 1
+  },
+  "equal_time_cycle_boundary": {
+    "exit": 0,
+    "has_700_peak": false,
+    "boundary_ambiguity": true,
+    "screen_lines": 0
+  }
+}

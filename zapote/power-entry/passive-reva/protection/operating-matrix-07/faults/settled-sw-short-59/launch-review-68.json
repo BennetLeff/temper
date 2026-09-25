@@ -1,0 +1,44 @@
+{
+  "status": "SOURCE_BOUND_SW_SHORT_LIVE",
+  "accepted": false,
+  "session": 76829,
+  "runner_pid": 28932,
+  "monitor_pid": 28933,
+  "source_sha256": {
+    "case.cir": "3ba13389962a9550edcc7ca5486109f4793c6082e94a50fe18f0bc1f6f889ace",
+    "manifest.json": "840b9fbbf83bc91a8138bfd18101b55306146e21445968ccbbaa3864068679ad",
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "parameters": {
+    "tstop_s": 0.662,
+    "kind": "switch-short",
+    "mutation_s": 0.6541666666667,
+    "event_window_s": 0.002,
+    "expected_fault_s": 0.6541666666667,
+    "observation_s": 0.002,
+    "turnoff_s": 2e-06,
+    "max_gap_s": 2.5e-08,
+    "wall_seconds": 3600,
+    "export_timeout_s": 900,
+    "bypass": false
+  },
+  "gap_policy": {
+    "capture_pacing_max_gap_s": 2.5e-08,
+    "outer_adapter_validator_max_gap_s": 1e-06,
+    "frozen_inner_checker_max_gap_s": 2.5e-08
+  },
+  "latest_progress": "161.063070\t9.24293813874429715e-2\t13.962142\t2.700522516493e-4\t2567520\tfalse\t0\t0\tfalse",
+  "free_bytes": 48255377408,
+  "worker_review_sha256": "995959c2e2144e3fe07da357993e819bd7d1ceb5a6f7202818a1e720ed07255d",
+  "prior_case_acceptance_sha256": "42c3bac2b9cad3051268fa6c2be59581d2bd2dfb03c0b9bc6574ef1e4276b760",
+  "notes": [
+    "Parent launch ran approved script59 with hostpermissions; toolsource and sourceclosure checks passed, disk and single-solver guards passed.",
+    "All output reads use explicit regularfiles; never read live FIFOs.",
+    "No electrical verdict before own accepted prefix/phase/completefaultanalysis."
+  ]
+}

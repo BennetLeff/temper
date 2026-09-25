@@ -1,0 +1,29 @@
+* Interface revision11: before arm_open_running. Authored nominal loaded-gate model.
+.include /Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/before/controller.inc
+Vvd vd 0 410
+Vvb vb 0 410
+Vlogic5 logic5 0 PWL(0 0 20u 5 650u 5)
+Vaux15 aux15 0 PWL(0 0 20u 15 650u 15)
+Vpermit_src permit_src 0 5
+Varm_src arm_src 0 PWL(0 0 190u 0 200u 5 550u 5 551u 0 560u 0 560.1u 5 561u 5 561.1u 0 650u 0)
+Vpermit_connect permit_connect 0 5
+Varm_connect arm_connect 0 PWL(0 5 240u 5 240.001u 0 650u 0)
+Spermit permit_src permit permit_connect 0 CABLE
+Sarm arm_src arm arm_connect 0 CABLE
+.model CABLE SW(Ron=10 Roff=1e12 Vt=2.5 Vh=0.01)
+* 1nF input/cable capacitance is a declared experiment value, not measured assembly.
+Cpermit permit 0 1n
+Carm arm 0 1n
+* Numerical leakage10G; no artificial input1Meg pulldown in the baseline.
+Rpermit_numerical permit 0 10G
+Rarm_numerical arm 0 10G
+Vpwm pwm 0 PWL(0 0 160u 0 170u 5 650u 5)
+.tran 20n 650u uic
+.control
+set wr_singlescale
+set wr_vecnames
+run
+wrdata /Users/bennet/Desktop/temper/worktrees/power-entry/zapote/power-entry/passive-reva/protection/interface-defaults-11/before/arm_open_running/trace.tsv v(aux15) v(arm) v(permit) v(q) v(enable_good) v(gate) v(disable)
+quit
+.endc
+.end

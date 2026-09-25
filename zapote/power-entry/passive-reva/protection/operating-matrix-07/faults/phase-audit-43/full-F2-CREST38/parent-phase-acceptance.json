@@ -1,0 +1,41 @@
+{
+  "status": "ACCEPTED_SAMPLED_CREST_PHASE_EVIDENCE",
+  "utc": "2026-09-21T18:37:05.396996+00:00",
+  "raw_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "raw_rows": 32237324,
+  "scope": "Phase only for exactF2-CREST38 savedtrace. Does not establish continuous-time/model error, operating-point acceptance or hardware behavior.",
+  "tolerance": 0.01,
+  "local_interval_s": [
+    0.65,
+    0.6583333333333
+  ],
+  "edge_s": 0.6541666661706754,
+  "equal_groups": 2,
+  "equal_group_raw_rows": 6,
+  "max_source_spread_v": 2.842170943040401e-14,
+  "peak_abs_v": 169.70562748477144,
+  "all_choice_crest_margin_v_decimal": "1.69705627484464489620453204010113735017294163102591107682894501322568014956005",
+  "maximal_time_groups": 4,
+  "maximal_span_s": [
+    0.6541666666667,
+    0.6541666666674275
+  ],
+  "row_number_convention": "Phase sample row numbers are one-based data rows; adapter-report row_index values are zero-based. Measured peak group phasefirst30640148 matches adapterindex30640147.",
+  "pipeline_exit_codes": [
+    0,
+    0,
+    0
+  ],
+  "original_phase35_rejection_retained": "faults/settled-prefix-analysis-42/phase-audit.json",
+  "artifacts_sha256": {
+    "faults/phase-audit-43/full-F2-CREST38/phase.json": "b7ffa754714be6eb922e4294b7e2b71208bdc5e115e16d2db0c138a6f81c85d6",
+    "faults/phase-audit-43/full-F2-CREST38/receipt.json": "ecad8fc8b8d503c9bbe369ede5229abd82d7bc48df2f4c3b5cb1527d495ed4ae",
+    "faults/phase-audit-43/full-F2-CREST38/preflight.json": "9c4d32201811e29c5c856479af7c1d65dce1be720a6437d44ed79462da290766",
+    "faults/phase-audit-43/full-F2-CREST38/pipeline.exit": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e",
+    "faults/phase-audit-43/parent-review.json": "abbfa4483e436bc8bf164bc2f8c083f3dda79c2c5621ae33bf0240815c3d8071",
+    "faults/phase-audit-43/measured-groups-parent-verification.json": "0a4a5b094efc59f13f78dffaaa091f13c0735492e39dc763426da037502a18cd",
+    "faults/settled-prefix-analysis-42/phase-audit.json": "1c2898d977af4f2766b7982fe63468b87e4ea6315448a8613cb769cf50d6abbc"
+  },
+  "accepted": true,
+  "fault_acceptance": false
+}

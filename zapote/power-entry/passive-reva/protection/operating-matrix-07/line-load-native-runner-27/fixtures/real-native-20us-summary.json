@@ -1,0 +1,20 @@
+{
+  "status":"PROBE_ONLY",
+  "temporary_artifacts_dir":"/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/matrix07-line-load-selftest-34190",
+  "target_s":0.00002,
+  "pipe_host_exit":0,
+  "pipe_compressor_exit":0,
+  "reference_host_exit":0,
+  "pipe_compressed_sha256":"897fcda9bf5ed7cdbadb18906beb58547e8dc07adafec02c18e410b81011c663",
+  "pipe_header_sha256":"01bde5cb29fa02871f7d94203f4c1f1f8d5ad1792621d66ef212fead57b592f7",
+  "reference_header_sha256":"28693fff89c1efe7374868417933d57760614115cb8eaa219bdb6994bc7e10a3",
+  "pipe_payload_bytes":37920,
+  "reference_payload_bytes":37920,
+  "decoded_rows":316,
+  "first_time_s":2.00000000000000007e-10,
+  "last_time_s":1.99999999999999982e-5,
+  "pipe_native_sha256":"e439c129a609a565e5f82430062e11ebbc4acd63ac5da34f6ab48bbbf8bf374e",
+  "reference_native_sha256":"95abaed12f18007fbf9a8f47d2d0c59f83d04fbbcda69cf6ffecb19cf14fa82c",
+  "payload_equal":true,
+  "acceptance":false
+}

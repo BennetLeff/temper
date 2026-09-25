@@ -1,0 +1,22 @@
+{
+  "status": "DIAGNOSTIC_PREPARED_UNEXECUTED",
+  "base_cold": "../first-invalid-capture/run/cold.cir",
+  "base_cold_sha256": "1a47c772e20c4584bbfe38df7e93fad612e45dcd303b95347e4d64d41e57277b",
+  "candidate_cold_sha256": "24a3b8399dcab107d2d5c2c1df03584908e57ccb24aec9f9b554f6db3b397967",
+  "base_progress_sha256": "043ba98e52b0c91e4902fe83510098902d565bdff67815eddd1c36bb49f7381d",
+  "candidate_progress_sha256": "f5c60b4c49116a52b7808474da3828a98715e957b6af171fe57f824c2382eda8",
+  "base_protection_sha256": "b57b854883ee992dad036fd49c5a249b457e200873a3408652186de59122ea1c",
+  "candidate_protection_sha256": "653c6330dad4849cbcc0e3b7a44c21707f1f81f8495df9a604b2ce635bf74058",
+  "authored_logic_sha256": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+  "unchanged_include_sha256": {
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  },
+  "host_binary": "/private/tmp/matrix07-hysteretic-driver-host",
+  "host_binary_sha256": "b677365a49ef6c24a32b9291ff86561a4a7a26a6a8d199528ca684af890d5367",
+  "cli": "cold.cir WALL_SECONDS TARGET_SECONDS trace.fifo first-invalid.tsv",
+  "diagnostic_mask": ["xdriver.driver_req", "xdriver.drv_delay"],
+  "full_run": "UNSTARTED",
+  "smoke": {"wall_seconds": 2, "host_exit": 0, "sim_s": 0.007903384780085066, "first_invalid": false, "diagnostic_names": 16, "finite_first_1000": true}
+}

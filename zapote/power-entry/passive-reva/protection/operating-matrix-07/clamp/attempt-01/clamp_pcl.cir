@@ -1,0 +1,8 @@
+* Retained first-pass ASSUMED model, nominal PCL loading probe.
+.include ../models/bav23c-assumed-v1.inc
+VSHUNT shunt 0 DC -0.438
+R_ISENSE shunt isense 220
+DCLAMP 0 isense BAV23C_ASSUMED_V1
+.op
+.print op v(shunt) v(isense) i(R_ISENSE) i(DCLAMP)
+.end

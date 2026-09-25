@@ -1,0 +1,25 @@
+{
+  "status": "PARENT_VERIFIED_COMPLETE_REANALYSIS_PENDING_PREFIX_AND_PHASE",
+  "utc": "2026-09-21T18:03:07.412901+00:00",
+  "session_exit": 0,
+  "source_raw_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "rows": 32237324,
+  "pipeline_exit_codes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "frozen_checker_reported_pass": true,
+  "artifacts_sha256": {
+    "reanalysis-receipt.json": "8e20f5bc8901a928875725e726bf43831f31d47d3b46f65a3a9f5329004ce8d1",
+    "pipeline-status.txt": "8831320de04732fd3d02bb92936da598ff16bf5782e1ca276dbf5e41b0348065",
+    "source-binding.json": "a8c7429eeb1b0df6a854e20403271e9d4a0746d1dc234eef1608eb78f11ea7d1",
+    "gap-policy.json": "21c2c55110d562955cea3d9ab5239921e69a22eaacf6f24fed4caf8544dad981",
+    "adapter-report.txt": "ad417f046342e450a6f5d028611d80b412391abd42486b36e1ca00268ef62338",
+    "validator.stdout": "390dd6674207c05cd48a91c92a79d0352130e8617416aca1f4825ba06d35230a",
+    "validator-events.tsv": "b9bd8d4b01a8bb8659c98d66aa3352c7ec6d877adfd1bc2a10827931c0444598"
+  },
+  "acceptance": false,
+  "remaining": "Independent normal-prefix metrics/equal-time sensitivity and actual-phase ambiguity resolution; no hardware/fuse/thermal claim."
+}

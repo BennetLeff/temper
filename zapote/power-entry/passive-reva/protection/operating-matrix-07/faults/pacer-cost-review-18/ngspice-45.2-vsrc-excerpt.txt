@@ -1,0 +1,243 @@
+# ngspice-45.2 source excerpt (retained for review)
+# Source root: /private/tmp/ngspice-45.2-src
+# Original files are not modified.
+
+## src/spicelib/devices/vsrc/vsrcload.c lines 318-362
+   318	                    case PWL: {
+   319	                        int    i;
+   320	                        double end_time, itime;
+   321	
+   322	                        time -= here->VSRCrdelay;
+   323	                        if (time <= here->VSRCcoeffs[0]) {
+   324	                            value = here->VSRCcoeffs[1];
+   325	                            break;
+   326	                        }
+   327	
+   328	                        end_time =
+   329	                            here->VSRCcoeffs[here->VSRCfunctionOrder - 2];
+   330	                        if (time > end_time) {
+   331	                            double period;
+   332	
+   333	                            if (here->VSRCrGiven) {
+   334	                                /* Repeating. */
+   335	
+   336	                                period = end_time -
+   337	                                    here->VSRCcoeffs[here->VSRCrBreakpt];
+   338	                                time -= here->VSRCcoeffs[here->VSRCrBreakpt];
+   339	                                time -= period * floor(time / period);
+   340	                                time += here->VSRCcoeffs[here->VSRCrBreakpt];
+   341	                            } else {
+   342	                                value =
+   343	                                    here->VSRCcoeffs[here->VSRCfunctionOrder - 1];
+   344	                                break;
+   345	                            }
+   346	                        }
+   347	
+   348	                        for (i = 2;  i < here->VSRCfunctionOrder; i += 2) {
+   349	                            itime = here->VSRCcoeffs[i];
+   350	                            if (itime >= time) {
+   351	                                time -= here->VSRCcoeffs[i - 2];
+   352	                                time /=  here->VSRCcoeffs[i] -
+   353	                                             here->VSRCcoeffs[i - 2];
+   354	                                value = here->VSRCcoeffs[i - 1];
+   355	                                value += time *
+   356	                                    ( here->VSRCcoeffs[i + 1] -
+   357	                                      here->VSRCcoeffs[i - 1]);
+   358	                                break;
+   359	                            }
+   360	                        }
+   361	                        break;
+   362	                    }
+
+## src/spicelib/devices/vsrc/vsrcacct.c lines 170-218
+   170	                    case PWL:
+   171	                        if (ckt->CKTtime >= here->VSRCbreak_time) {
+   172	                            double time, atime, end, period;
+   173	                            int    i;
+   174	
+   175	                            time = ckt->CKTtime - here->VSRCrdelay;
+   176	                            end =
+   177	                                here->VSRCcoeffs[here->VSRCfunctionOrder - 2];
+   178	                            if (time > end) {
+   179	                                if (here->VSRCrGiven) {
+   180	                                    /* Repeating. */
+   181	
+   182	                                    period = end -
+   183	                                        here->VSRCcoeffs[here->VSRCrBreakpt];
+   184	                                    time -=
+   185	                                        here->VSRCcoeffs[here->VSRCrBreakpt];
+   186	                                    time -= period * floor(time / period);
+   187	                                    time +=
+   188	                                        here->VSRCcoeffs[here->VSRCrBreakpt];
+   189	                                } else {
+   190	                                     here->VSRCbreak_time = ckt->CKTfinalTime;
+   191	                                     break;
+   192	                                }
+   193	                            }
+   194	
+   195	                            /* A request for a breakpoint very close
+   196	                             * to the current time will be ignored.
+   197	                             * Adjust so the next corner will be
+   198	                             * selected.
+   199	                             */
+   200	
+   201	                            atime = time + ckt->CKTminBreak;
+   202	
+   203	                            for (i = 0;
+   204	                                 i < here->VSRCfunctionOrder;
+   205	                                 i += 2) {
+   206	                                if (here->VSRCcoeffs[i] > atime) {
+   207	                                    here->VSRCbreak_time =
+   208	                                        ckt->CKTtime +
+   209	                                            here->VSRCcoeffs[i] - time;
+   210	                                    error = CKTsetBreak(ckt,
+   211	                                                        here->VSRCbreak_time);
+   212	                                    if (error)
+   213	                                        return error;
+   214	                                    here->VSRCbreak_time -= ckt->CKTminBreak;
+   215	                                    break;
+   216	                                }
+   217	                            }
+   218	                        }
+
+## src/spicelib/devices/vsrc/vsrcpar.c lines 120-159
+   120	        case VSRC_TD:
+   121	            here->VSRCrdelay = value->rValue;
+   122	            break;
+   123	
+   124	        case VSRC_R: {
+   125	            double end_time;
+   126	            /* Parameter r of pwl may now be parameterized:
+   127	               if r == -1, no repetition done.
+   128	               if r == 0, repeat forever.
+   129	               if r == xx, repeat from time xx to last time point given. */
+   130	            if (value->rValue < -0.5) {
+   131	                here->VSRCrGiven = FALSE;
+   132	                break;
+   133	            }
+   134	
+   135	            /* buggy input? r is not a repetition coefficient */
+   136	            if (!here->VSRCcoeffs || here->VSRCfunctionOrder < 2) {
+   137	                here->VSRCrGiven = FALSE;
+   138	                break;
+   139	            }
+   140	
+   141	            here->VSRCr = value->rValue;
+   142	            here->VSRCrGiven = TRUE;
+   143	
+   144	            for ( i = 0; i < here->VSRCfunctionOrder; i += 2 ) {
+   145	              here->VSRCrBreakpt = i;
+   146	                  if ( here->VSRCr == *(here->VSRCcoeffs+i) ) break;
+   147	            }
+   148	
+   149	            end_time     = *(here->VSRCcoeffs + here->VSRCfunctionOrder-2);
+   150	            if ( here->VSRCr >= end_time ) {
+   151	              fprintf(stderr, "ERROR: repeat start time value %g for pwl voltage source must be smaller than final time point given!\n", here->VSRCr );
+   152	              return ( E_PARMVAL );
+   153	            }
+   154	
+   155	            if ( here->VSRCr != *(here->VSRCcoeffs+here->VSRCrBreakpt) ) {
+   156	              fprintf(stderr, "ERROR: repeat start time value %g for pwl voltage source does not match any time point given!\n", here->VSRCr );
+   157	              return ( E_PARMVAL );
+   158	            }
+   159	
+
+## src/spicelib/devices/vsrc/vsrcacct.c lines 48-145 (PULSE; zero-width default)
+    48	                    case PULSE: {
+    49	
+    50	                        double TD, TR, TF, PW, PER;
+    51	                        double time = 0.;
+    52	                        double basetime = 0;
+    53	                        double tmax = 1e99;
+    54	
+    55	                        double PHASE;
+    56	                        double phase;
+    57	                        double deltat;
+    58	
+    59	                        TD = here->VSRCfunctionOrder > 2
+    60	                            ? here->VSRCcoeffs[2] : 0.0;
+    61	                        TR = here->VSRCfunctionOrder > 3
+    62	                            && here->VSRCcoeffs[3] != 0.0
+    63	                            ? here->VSRCcoeffs[3] : ckt->CKTstep;
+    64	                        TF = here->VSRCfunctionOrder > 4
+    65	                            && here->VSRCcoeffs[4] != 0.0
+    66	                            ? here->VSRCcoeffs[4] : ckt->CKTstep;
+    67	                        PW = here->VSRCfunctionOrder > 5
+    68	                            && here->VSRCcoeffs[5] != 0.0
+    69	                            ? here->VSRCcoeffs[5] : ckt->CKTfinalTime;
+    70	                        PER = here->VSRCfunctionOrder > 6
+    71	                            && here->VSRCcoeffs[6] != 0.0
+    72	                            ? here->VSRCcoeffs[6] : ckt->CKTfinalTime;
+    73	                        PHASE = here->VSRCfunctionOrder > 7
+    74	                            ? here->VSRCcoeffs[7] : 0.0;
+    75	
+    76	                        /* offset time by delay */
+    77	                        time = ckt->CKTtime - TD;
+    78	
+    79	                        if (newcompat.xs) {
+    80	                            /* normalize phase to 0 - 360° */
+    81	                            /* normalize phase to cycles */
+    82	                            phase = PHASE / 360.0;
+    83	                            phase = fmod(phase, 1.0);
+    84	                            deltat = phase * PER;
+    85	                            while (deltat > 0)
+    86	                                deltat -= PER;
+    87	                            time += deltat;
+    88	                        } else if (PHASE > 0.0) {
+    89	                            tmax = PHASE * PER;
+    90	                            if (time > tmax)
+    91	                                break;
+    92	                        }
+    93	
+    94	                        if (ckt->CKTtime >= here->VSRCbreak_time) {
+    95	                            double wait, atime;
+    96	
+    97	                            if (time >= PER) {
+    98	                                /* Repeating signal: where in period are we? */
+    99	
+   100	                                basetime = PER * floor(time / PER);
+   101	                                time -= basetime;
+   102	                            }
+   103	
+   104	                            /* A request for a breakpoint very close
+   105	                             * to the current time will be ignored.
+   106	                             * Adjust so the next corner will be
+   107	                             * selected.
+   108	                             */
+   109	
+   110	                            atime = time + ckt->CKTminBreak;
+   111	
+   112	                            /* Set next breakpoint. */
+   113	
+   114	                            if (atime < 0.0) {
+   115	                                /* Await first pulse */
+   116	
+   117	                                wait = -time;
+   118	                            } else if (atime < TR) {
+   119	                                /* Wait for end of rise. */
+   120	
+   121	                                wait = TR - time;
+   122	                            } else if (atime < TR + PW) {
+   123	                                /* Wait for fall. */
+   124	
+   125	                                wait = TR + PW - time;
+   126	                            } else if (atime < TR + PW + TF) {
+   127	                                /* Wait for end of fall. */
+   128	
+   129	                                wait = TR + PW + TF - time;
+   130	                            } else {
+   131	                                /* Wait for next pulse. */
+   132	
+   133	                                wait = PER - time;
+   134	                            }
+   135	                            here->VSRCbreak_time = ckt->CKTtime + wait;
+   136	                            error = CKTsetBreak(ckt, here->VSRCbreak_time);
+   137	                            if (error)
+   138	                                return error;
+   139	
+   140	                            /* If a timestep ends just before the break time,
+   141	                             * the break request may be ignored.
+   142	                             * Set threshold for requesting following break.
+   143	                             */
+   144	
+   145	                            here->VSRCbreak_time -= ckt->CKTminBreak;

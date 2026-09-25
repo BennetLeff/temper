@@ -1,0 +1,995 @@
+{
+  "status": "OPERATING_ENVELOPE_CHECKPOINT_49",
+  "policy_version": "event-aware-normal-v1",
+  "created_from_existing_parent_accepted_receipts_only": true,
+  "acceptance_authority": "Per-case acceptance.json and parent-evidence.json are authoritative; this is a consolidation aid and does not mutate them.",
+  "scope": "Eight discrete parent-accepted modeled normal grid points LL01..LL08; LL09 is excluded because it is live or not accepted at checkpoint time.",
+  "baseline": {
+    "acceptance_path": "accepted-baseline-11/acceptance.json",
+    "acceptance_sha256": "18ce2902682b4cedb2880e260c15e731e599df4224dc842a70c85e9cadb6cf22",
+    "status": "ACCEPTED_MODELED_NORMAL_SCREEN_BASELINE",
+    "policy_version": "event-aware-normal-v1",
+    "line_v_rms": 120,
+    "rload_ohm": 190,
+    "source_sha256": {
+      "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+      "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+      "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+      "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+      "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+      "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+    },
+    "trace": {
+      "path": "../numerical-repair/nonstopping-first-invalid/run/trace.tsv.gz",
+      "sha256": "90e1f2c013e965a99d10053b074127bbddf2c73d5b1403e9e872e3de6933a3b5",
+      "bytes": 5356097124,
+      "rows": 30108912,
+      "fields": 31,
+      "start_s": 2E-10,
+      "end_s": 0.65
+    },
+    "metrics": {
+      "mains_vrms_v": 120.0,
+      "mains_irms_a": 7.321738,
+      "input_power_w": 868.631623,
+      "load_power_w": 773.454404,
+      "pf": 0.988645,
+      "vb_mean_v": 383.377572,
+      "vb_min_v": 381.305435,
+      "vb_max_v": 385.386372,
+      "cycle_means_v": [
+        382.847104781098,
+        383.39300540370664,
+        383.8926069484155
+      ],
+      "cycle_drift_fraction": 0.002730860843,
+      "energy_residual_w": 68.1334026367113,
+      "armed_fraction": 1.0,
+      "on_fraction": 1.0,
+      "electrical_screen_violations": 0
+    },
+    "cycle_drift_recomputed_from_cycle_means": 0.002730860843038929,
+    "drift_matches_receipt": true
+  },
+  "declared_manifest": {
+    "path": "line-load-prep/manifest.json",
+    "sha256": "51fffd081f36f43f4283c66dc5890ae9b025b7ef39926174c84b790bdd4ee0cc",
+    "status": "planned_unexecuted",
+    "points": [
+      {
+        "id": "LL01",
+        "line_v_rms": 108.000,
+        "load_fraction": 0.25,
+        "conditional_cap_w": 1458.000000,
+        "target_load_w": 364.500000,
+        "rload_ohm": 416.460488957,
+        "status": "planned_unexecuted"
+      },
+      {
+        "id": "LL02",
+        "line_v_rms": 108.000,
+        "load_fraction": 0.50,
+        "conditional_cap_w": 1458.000000,
+        "target_load_w": 729.000000,
+        "rload_ohm": 208.230244479,
+        "status": "planned_unexecuted"
+      },
+      {
+        "id": "LL03",
+        "line_v_rms": 108.000,
+        "load_fraction": 0.90,
+        "conditional_cap_w": 1458.000000,
+        "target_load_w": 1312.200000,
+        "rload_ohm": 115.683469155,
+        "status": "planned_unexecuted"
+      },
+      {
+        "id": "LL04",
+        "line_v_rms": 120.000,
+        "load_fraction": 0.25,
+        "conditional_cap_w": 1620.000000,
+        "target_load_w": 405.000000,
+        "rload_ohm": 374.814440062,
+        "status": "planned_unexecuted"
+      },
+      {
+        "id": "LL05",
+        "line_v_rms": 120.000,
+        "load_fraction": 0.50,
+        "conditional_cap_w": 1620.000000,
+        "target_load_w": 810.000000,
+        "rload_ohm": 187.407220031,
+        "status": "planned_unexecuted"
+      },
+      {
+        "id": "LL06",
+        "line_v_rms": 120.000,
+        "load_fraction": 0.90,
+        "conditional_cap_w": 1620.000000,
+        "target_load_w": 1458.000000,
+        "rload_ohm": 104.115122239,
+        "status": "planned_unexecuted"
+      },
+      {
+        "id": "LL07",
+        "line_v_rms": 132.000,
+        "load_fraction": 0.25,
+        "conditional_cap_w": 1620.000000,
+        "target_load_w": 405.000000,
+        "rload_ohm": 374.814440062,
+        "status": "planned_unexecuted"
+      },
+      {
+        "id": "LL08",
+        "line_v_rms": 132.000,
+        "load_fraction": 0.50,
+        "conditional_cap_w": 1620.000000,
+        "target_load_w": 810.000000,
+        "rload_ohm": 187.407220031,
+        "status": "planned_unexecuted"
+      },
+      {
+        "id": "LL09",
+        "line_v_rms": 132.000,
+        "load_fraction": 0.90,
+        "conditional_cap_w": 1620.000000,
+        "target_load_w": 1458.000000,
+        "rload_ohm": 104.115122239,
+        "status": "planned_unexecuted"
+      }
+    ]
+  },
+  "accepted_cases": [
+    {
+      "case": "LL01",
+      "acceptance_path": "line-load-native-runner-12/full-LL01-initialized/LL01/acceptance.json",
+      "acceptance_sha256": "a4e09215acac4b80920257ceebfa96e4a9f7f618732cd24c778cca34f24105c7",
+      "parent_evidence_path": "line-load-native-runner-12/full-LL01-initialized/LL01/parent-evidence.json",
+      "parent_evidence_sha256": "095a25d663966afa53a9b2791275a3d7b1f566e9e103ab7b9c9a4d5dd6ade00f",
+      "parent_evidence_sha256_computed": "095a25d663966afa53a9b2791275a3d7b1f566e9e103ab7b9c9a4d5dd6ade00f",
+      "drift_recomputed_from_cycle_means": 0.0014985231183201424,
+      "drift_matches_receipt": true,
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "policy_version": "event-aware-normal-v1",
+      "line_v_rms": 108,
+      "rload_ohm": 416.460488957,
+      "metrics": {
+        "vrms_v": 108,
+        "irms_a": 3.869202,
+        "input_power_w": 405.389658,
+        "load_power_w": 359.070534,
+        "pf": 0.970125,
+        "vb_mean_v": 386.715892,
+        "vb_min_v": 385.675669,
+        "vb_max_v": 387.71614,
+        "cycle_means_v": [
+          386.42167125159705,
+          386.7252726017146,
+          387.00073305938747
+        ],
+        "cycle_drift_fraction": 0.0014985231183201424,
+        "energy_delta_j": 0.7606600445105788,
+        "energy_residual_w": 31.10592253664844,
+        "armed_fraction": 1,
+        "on_fraction": 1,
+        "screens": 0,
+        "il_peak_a_report_only": 25.067335,
+        "vd_peak_v": 387.776829,
+        "vb_peak_v": 387.71614,
+        "vds_peak_v": 389.02254,
+        "vgs_abs_peak_v": 14.982205
+      },
+      "screen_margins": {
+        "mains_lower_v": 0.001,
+        "mains_upper_v": 24.001,
+        "bus_lower_v": 15.541419000000019,
+        "bus_upper_v": 21.379610000000014,
+        "cycle_drift": 0.0035014768816798575,
+        "rms_current_a": 11.130798,
+        "vd_peak_v": 112.22317099999998,
+        "vb_peak_v": 62.283860000000004,
+        "vds_peak_v": 260.97746,
+        "vgs_abs_peak_v": 10.017795,
+        "energy_residual_above_lower_screen_w": 33.13287082664844
+      },
+      "raw": {
+        "path": "raw.trace.raw.gz",
+        "sha256": "734239f1c5f8ef65ea7ce356560931155a7bb3e0f6f96d91470513482739d29d",
+        "bytes": 2151465343,
+        "rows": 29955738,
+        "fields": 15,
+        "end_s": 0.65
+      },
+      "case_source_sha256": {
+        "cold.cir": "c34da98852dae5980029eb0949ce30a42997d0f3dd2f7f1cfe31b4cedc8870b6",
+        "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+        "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+        "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+        "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+        "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+      },
+      "source_changes": "OnlyVAC_RMS120->108 andRLOAD190->416.460488957; reversing exact substitutions recovers baseline byte-for-byte. Allfiveincludes unchanged.",
+      "legacy_strict_result": {
+        "status": "REJECTED_NONINCREASING_TIME",
+        "stderr": "checker.stderr",
+        "first_rejected_line": 22564667,
+        "pipeline_result_retained": "native-pipeline.json",
+        "upstream_epipe": "Expected only in legacy early-exit branch; independent complete audit/metrics all0."
+      },
+      "events": {
+        "groups": 41,
+        "equal_intervals": 56,
+        "max_group_rows": 3,
+        "missing_right": 0,
+        "backwards": 0,
+        "nonfinite_rows": 0,
+        "logic_changes": 0,
+        "cycle_boundary_groups": 0,
+        "max_positive_gap_s": 5.000000000143778E-7,
+        "E3_sumabs_j": 1.979933529598177E-12,
+        "E3_max_spread_j": 2.1141625092487802E-13,
+        "all_original_rows_retained": true
+      },
+      "includes_match_baseline": true
+    },
+    {
+      "case": "LL02",
+      "acceptance_path": "line-load-native-runner-12/full-LL02-initialized/LL02/acceptance.json",
+      "acceptance_sha256": "542318b9fa0a061fa05af1616844320441f1ba59ac4a70275b14266c69c82eb2",
+      "parent_evidence_path": "line-load-native-runner-12/full-LL02-initialized/LL02/parent-evidence.json",
+      "parent_evidence_sha256": "a1a206357464554938c0e7ef0b476574e078f53b1b10839aa18dcb9efd05b341",
+      "parent_evidence_sha256_computed": "a1a206357464554938c0e7ef0b476574e078f53b1b10839aa18dcb9efd05b341",
+      "drift_recomputed_from_cycle_means": 0.002726077553707517,
+      "drift_matches_receipt": true,
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "policy_version": "event-aware-normal-v1",
+      "line_v_rms": 108,
+      "rload_ohm": 208.230244479,
+      "metrics": {
+        "vrms_v": 108,
+        "irms_a": 7.509729,
+        "input_power_w": 802.223598,
+        "load_power_w": 705.399729,
+        "pf": 0.989116,
+        "vb_mean_v": 383.28276,
+        "vb_min_v": 381.307658,
+        "vb_max_v": 385.188525,
+        "cycle_means_v": [
+          382.7540017171616,
+          383.29686014752167,
+          383.7974188098345
+        ],
+        "cycle_drift_fraction": 0.002726077553707517,
+        "energy_delta_j": 1.3458427409724545,
+        "energy_residual_w": 69.9070138785478,
+        "armed_fraction": 1,
+        "on_fraction": 1,
+        "screens": 0,
+        "il_peak_a_report_only": 25.777695,
+        "vd_peak_v": 385.299212,
+        "vb_peak_v": 385.188525,
+        "vds_peak_v": 386.595233,
+        "vgs_abs_peak_v": 14.982208
+      },
+      "screen_margins": {
+        "mains_lower_v": 0.001,
+        "mains_upper_v": 24.001,
+        "bus_lower_v": 11.173407999999995,
+        "bus_upper_v": 23.907224999999983,
+        "cycle_drift": 0.0022739224462924833,
+        "rms_current_a": 7.490271,
+        "vd_peak_v": 114.70078799999999,
+        "vb_peak_v": 64.81147499999997,
+        "vds_peak_v": 263.404767,
+        "vgs_abs_peak_v": 10.017792,
+        "energy_residual_above_lower_screen_w": 73.9181318685478
+      },
+      "raw": {
+        "path": "raw.trace.raw.gz",
+        "sha256": "dda21485b1b83e8bd19be8c6401e77f13e067e5744f70d5c725d9ffb5a9249c7",
+        "bytes": 2132735226,
+        "rows": 29682485,
+        "fields": 15,
+        "end_s": 0.65
+      },
+      "case_source_sha256": {
+        "cold.cir": "664cf804ea82c0554c1e58cc69e23a4a881c533f46718d83f831bb87c6dadc2a",
+        "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+        "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+        "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+        "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+        "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+      },
+      "source_changes": "OnlyVAC_RMS120->108 andRLOAD190->208.230244479; reversing exact substitutions recovers baseline byte-for-byte. Allfiveincludes unchanged.",
+      "legacy_strict_result": {
+        "status": "REJECTED_NONINCREASING_TIME",
+        "stderr": "checker.stderr",
+        "first_rejected_line": 22417826,
+        "pipeline_result_retained": "native-pipeline.json",
+        "upstream_epipe": "Expected only in legacy early-exit branch; independent complete audit/metrics all0."
+      },
+      "events": {
+        "groups": 55,
+        "equal_intervals": 80,
+        "max_group_rows": 3,
+        "missing_right": 0,
+        "backwards": 0,
+        "nonfinite_rows": 0,
+        "logic_changes": 0,
+        "cycle_boundary_groups": 0,
+        "max_positive_gap_s": 5.000000000143778E-7,
+        "E3_sumabs_j": 5.953503755320004E-12,
+        "E3_max_spread_j": 3.402977198174139E-13,
+        "all_original_rows_retained": true
+      },
+      "includes_match_baseline": true
+    },
+    {
+      "case": "LL03",
+      "acceptance_path": "line-load-native-runner-12/full-LL03-initialized/LL03/acceptance.json",
+      "acceptance_sha256": "224ac1a30d64b05b9b06d3319bb2a6dfaa3ce45330277fb97f8f50e82385041d",
+      "parent_evidence_path": "line-load-native-runner-12/full-LL03-initialized/LL03/parent-evidence.json",
+      "parent_evidence_sha256": "fcd2d43a5031f8507bcf872e9b5f8100476f7ed32a616ccc13de122dc1a7ea3e",
+      "parent_evidence_sha256_computed": "fcd2d43a5031f8507bcf872e9b5f8100476f7ed32a616ccc13de122dc1a7ea3e",
+      "drift_recomputed_from_cycle_means": 0.004155816804530984,
+      "drift_matches_receipt": true,
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "policy_version": "event-aware-normal-v1",
+      "line_v_rms": 108,
+      "rload_ohm": 115.683469155,
+      "metrics": {
+        "vrms_v": 108.0,
+        "irms_a": 13.412054,
+        "input_power_w": 1438.88004,
+        "load_power_w": 1242.516057,
+        "pf": 0.993357,
+        "vb_mean_v": 379.173791,
+        "vb_min_v": 375.85787,
+        "vb_max_v": 382.392349,
+        "cycle_means_v": [
+          378.3731588513144,
+          379.2026056973957,
+          379.94560838325214
+        ],
+        "cycle_drift_fraction": 0.004155816804530984,
+        "energy_delta_j": 2.0307013145805968,
+        "energy_residual_w": 155.7499570377879,
+        "armed_fraction": 1,
+        "on_fraction": 1,
+        "screens": 0,
+        "il_peak_a_report_only": 30.039218,
+        "vd_peak_v": 382.584396,
+        "vb_peak_v": 382.392349,
+        "vds_peak_v": 383.958912,
+        "vgs_abs_peak_v": 14.982208
+      },
+      "screen_margins": {
+        "mains_lower_v": 0.001,
+        "mains_upper_v": 24.001,
+        "bus_lower_v": 5.723619999999983,
+        "bus_upper_v": 26.703400999999985,
+        "cycle_drift": 0.0008441831954690161,
+        "rms_current_a": 1.5879460000000005,
+        "vd_peak_v": 117.41560399999997,
+        "vb_peak_v": 67.60765099999998,
+        "vds_peak_v": 266.041088,
+        "vgs_abs_peak_v": 10.017792,
+        "energy_residual_above_lower_screen_w": 162.9443572377879
+      },
+      "raw": {
+        "path": "raw.trace.raw.gz",
+        "sha256": "c02cc9ede0e1bfe0c1aacbc5beabc025a8ab160d200a138a0acd52858a0e400c",
+        "bytes": 2114596110,
+        "rows": 29479028,
+        "fields": 15,
+        "end_s": 0.65
+      },
+      "case_source_sha256": {
+        "cold.cir": "4dec9f9c2d98b5b08403d985a5f2660b8d0c71f64ecf26fbee33d292ad9e5e8f",
+        "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+        "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+        "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+        "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+        "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+      },
+      "source_changes": "OnlyVAC_RMS120->108 andRLOAD190->115.683469155; reversing exact two substitutions recovers baseline byte-for-byte; five includes unchanged.",
+      "legacy_strict_result": {
+        "status": "REJECTED_NONINCREASING_TIME",
+        "stderr": "checker.stderr",
+        "first_rejected_line": 22307586,
+        "pipeline_result_retained": "native-pipeline.json",
+        "upstream_epipe": "Expected only in legacy early-exit branch; independent complete audit/metrics all0."
+      },
+      "events": {
+        "groups": 70,
+        "equal_intervals": 101,
+        "max_group_rows": 3,
+        "missing_right": 0,
+        "backwards": 0,
+        "nonfinite_rows": 0,
+        "logic_changes": 0,
+        "cycle_boundary_groups": 0,
+        "max_positive_gap_s": 5.000000000143778E-7,
+        "E3_sumabs_j": 5.906381440834878E-12,
+        "E3_max_spread_j": 2.468859021614997E-13,
+        "all_original_rows_retained": true
+      },
+      "includes_match_baseline": true
+    },
+    {
+      "case": "LL04",
+      "acceptance_path": "line-load-native-runner-12/full-LL04-initialized/LL04/acceptance.json",
+      "acceptance_sha256": "f4a6ba5435add8b2946712b957d6f222cbc0384e28ccdd32980863249acdddfc",
+      "parent_evidence_path": "line-load-native-runner-12/full-LL04-initialized/LL04/parent-evidence.json",
+      "parent_evidence_sha256": "0e5f9d0bf84a64ab0b3ec307fa8432ee78981e5156b2a14fd7cb91ea95d2c4e0",
+      "parent_evidence_sha256_computed": "0e5f9d0bf84a64ab0b3ec307fa8432ee78981e5156b2a14fd7cb91ea95d2c4e0",
+      "drift_recomputed_from_cycle_means": 0.0016527920840997289,
+      "drift_matches_receipt": true,
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "policy_version": "event-aware-normal-v1",
+      "line_v_rms": 120,
+      "rload_ohm": 374.814440062,
+      "metrics": {
+        "vrms_v": 120.0,
+        "irms_a": 3.843647,
+        "input_power_w": 445.943798,
+        "load_power_w": 398.199053,
+        "pf": 0.966842,
+        "vb_mean_v": 386.344874,
+        "vb_min_v": 385.201839,
+        "vb_max_v": 387.442138,
+        "cycle_means_v": [
+          386.02031620308014,
+          386.3559790714722,
+          386.65832752600227
+        ],
+        "cycle_drift_fraction": 0.0016527920840997289,
+        "energy_delta_j": 0.8354603744541269,
+        "energy_residual_w": 31.035537354240596,
+        "armed_fraction": 1,
+        "on_fraction": 1,
+        "screens": 0,
+        "il_peak_a_report_only": 29.777999,
+        "vd_peak_v": 387.506047,
+        "vb_peak_v": 387.442138,
+        "vds_peak_v": 388.75146,
+        "vgs_abs_peak_v": 14.982215
+      },
+      "screen_margins": {
+        "mains_lower_v": 12.001,
+        "mains_upper_v": 12.001,
+        "bus_lower_v": 15.067588999999998,
+        "bus_upper_v": 21.65361200000001,
+        "cycle_drift": 0.003347207915900271,
+        "rms_current_a": 11.156353,
+        "vd_peak_v": 112.49395299999998,
+        "vb_peak_v": 62.557862,
+        "vds_peak_v": 261.24854,
+        "vgs_abs_peak_v": 10.017785,
+        "energy_residual_above_lower_screen_w": 33.2652563442406
+      },
+      "raw": {
+        "path": "raw.trace.raw.gz",
+        "sha256": "a29f82eb7733ddb69a218dc6ba0299ff33c08b4e215d73f4efdcce842086f84b",
+        "bytes": 2189160539,
+        "rows": 30400545,
+        "fields": 15,
+        "end_s": 0.65
+      },
+      "case_source_sha256": {
+        "cold.cir": "b5b9374c9eefac777dac5199e9ce1066bfa2c064da3985ad8d9dc8baa739cfa3",
+        "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+        "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+        "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+        "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+        "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+      },
+      "source_changes": "VAC_RMS120 unchanged numerically (formatted120.000000000), RLOAD190->374.814440062; reversing exact two textual substitutions recovers baseline; five includes unchanged.",
+      "legacy_strict_result": {
+        "status": "REJECTED_NONINCREASING_TIME",
+        "stderr": "checker.stderr",
+        "first_rejected_line": 22932243,
+        "pipeline_result_retained": "native-pipeline.json",
+        "upstream_epipe": "Expected only in legacy early-exit branch; independent complete audit/metrics all0."
+      },
+      "events": {
+        "groups": 32,
+        "equal_intervals": 44,
+        "max_group_rows": 3,
+        "missing_right": 0,
+        "backwards": 0,
+        "nonfinite_rows": 0,
+        "logic_changes": 0,
+        "cycle_boundary_groups": 0,
+        "max_positive_gap_s": 5.000000000143778E-7,
+        "E3_sumabs_j": 3.363569381531599E-12,
+        "E3_max_spread_j": 3.011412260748743E-13,
+        "all_original_rows_retained": true
+      },
+      "includes_match_baseline": true
+    },
+    {
+      "case": "LL05",
+      "acceptance_path": "line-load-native-runner-27/full-LL05-retry/LL05/acceptance.json",
+      "acceptance_sha256": "44859f112de35192015ace76a4c1d0619c4689533eaceea62b8834b04c8f4206",
+      "parent_evidence_path": "line-load-native-runner-27/full-LL05-retry/LL05/parent-evidence.json",
+      "parent_evidence_sha256": "07af7ef9cd10c6dcd1455a9ea1aecb1600a449c4d35bd536e03752b0bf26586d",
+      "parent_evidence_sha256_computed": "07af7ef9cd10c6dcd1455a9ea1aecb1600a449c4d35bd536e03752b0bf26586d",
+      "drift_recomputed_from_cycle_means": 0.0027487461221968558,
+      "drift_matches_receipt": true,
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "policy_version": "event-aware-normal-v1",
+      "line_v_rms": 120,
+      "rload_ohm": 187.407220031,
+      "metrics": {
+        "vrms_v": 120.0,
+        "irms_a": 7.420222,
+        "input_power_w": 880.53998,
+        "load_power_w": 783.847484,
+        "pf": 0.988897,
+        "vb_mean_v": 383.302734,
+        "vb_min_v": 381.211753,
+        "vb_max_v": 385.347086,
+        "cycle_means_v": [
+          382.77340632557184,
+          383.30924272662327,
+          383.82555324188934
+        ],
+        "energy_delta_j": 1.3684266945135186,
+        "energy_residual_w": 69.323962214097,
+        "armed_fraction": 1,
+        "on_fraction": 1,
+        "screens": 0,
+        "il_peak_a_report_only": 30.704239,
+        "vd_peak_v": 385.458665,
+        "vb_peak_v": 385.347086,
+        "vds_peak_v": 386.758245,
+        "vgs_abs_peak_v": 14.982213,
+        "cycle_drift_fraction": 0.0027487461221968558
+      },
+      "screen_margins": {
+        "mains_lower_v": 12.001000000000005,
+        "mains_upper_v": 12.001000000000005,
+        "bus_lower_v": 11.077502999999979,
+        "bus_upper_v": 23.74866400000002,
+        "cycle_drift": 0.0022512538778031443,
+        "rms_current_a": 7.579778,
+        "vd_peak_v": 114.541335,
+        "vb_peak_v": 64.65291400000001,
+        "vds_peak_v": 263.241755,
+        "vgs_abs_peak_v": 10.017787,
+        "energy_residual_above_lower_screen_w": 73.726662114097
+      },
+      "raw": {
+        "path": "raw.trace.raw.gz",
+        "sha256": "7b1c540e3bdfd6f1741d13f872311ff92a12ceb84e2aaa42aeff3e77dd8642df",
+        "bytes": 2167895869,
+        "rows": 30103973,
+        "fields": 15,
+        "end_s": 0.65
+      },
+      "case_source_sha256": {
+        "cold.cir": "f85b4a622d8bf303e3f2f1646bb2cc977b03d24b655d4b48a14abadb8677528f",
+        "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+        "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+        "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+        "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+        "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+      },
+      "source_changes": "VAC_RMS120 unchanged numerically (formatted120.000000000), RLOAD190->187.407220031; reversing exact two textual substitutions recovers baseline; five includes unchanged.",
+      "legacy_strict_result": {
+        "status": "REJECTED_NONINCREASING_TIME",
+        "stderr": "checker.stderr",
+        "first_rejected_line": 22754979,
+        "pipeline_result_retained": "native-pipeline.json",
+        "upstream_epipe": "Expected only in legacy early-exit branch; independent complete audit/metrics all0."
+      },
+      "events": {
+        "groups": 43,
+        "equal_intervals": 58,
+        "max_group_rows": 3,
+        "missing_right": 0,
+        "backwards": 0,
+        "nonfinite_rows": 0,
+        "logic_changes": 0,
+        "cycle_boundary_groups": 0,
+        "max_positive_gap_s": 5.000000000143778E-7,
+        "E3_sumabs_j": 3.883286165680153E-12,
+        "E3_max_spread_j": 2.6800126185975634E-13,
+        "all_original_rows_retained": true
+      },
+      "includes_match_baseline": true
+    },
+    {
+      "case": "LL06",
+      "acceptance_path": "line-load-native-runner-27/full-LL06/LL06/acceptance.json",
+      "acceptance_sha256": "6eb356547ab348e16353cc9ec86cc3c520835f45ace8b5c8b6f1fddc921221a9",
+      "parent_evidence_path": "line-load-native-runner-27/full-LL06/LL06/parent-evidence.json",
+      "parent_evidence_sha256": "7792df142e38a7b156e2b24306108b1c52aa55ea6e22780c17112fa73dbe6298",
+      "parent_evidence_sha256_computed": "7792df142e38a7b156e2b24306108b1c52aa55ea6e22780c17112fa73dbe6298",
+      "drift_recomputed_from_cycle_means": 0.0038727265958028788,
+      "drift_matches_receipt": true,
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "policy_version": "event-aware-normal-v1",
+      "line_v_rms": 120,
+      "rload_ohm": 104.115122239,
+      "metrics": {
+        "vrms_v": 120.0,
+        "irms_a": 13.198676,
+        "input_power_w": 1574.420283,
+        "load_power_w": 1383.936186,
+        "pf": 0.994052,
+        "vb_mean_v": 379.64027,
+        "vb_min_v": 376.244081,
+        "vb_max_v": 382.998346,
+        "cycle_means_v": [
+          378.90566709738425,
+          379.64207848798276,
+          380.3730651516527
+        ],
+        "energy_delta_j": 1.863497966137346,
+        "energy_residual_w": 153.21413727650835,
+        "armed_fraction": 1,
+        "on_fraction": 1,
+        "screens": 0,
+        "il_peak_a_report_only": 32.104756,
+        "vd_peak_v": 383.190576,
+        "vb_peak_v": 382.998346,
+        "vds_peak_v": 384.563792,
+        "vgs_abs_peak_v": 14.982199,
+        "cycle_drift_fraction": 0.0038727265958028788
+      },
+      "screen_margins": {
+        "mains_lower_v": 12.001000000000005,
+        "mains_upper_v": 12.001000000000005,
+        "bus_lower_v": 6.109830999999986,
+        "bus_upper_v": 26.097403999999983,
+        "cycle_drift": 0.0011272734041971213,
+        "rms_current_a": 1.8013239999999993,
+        "vd_peak_v": 116.80942399999998,
+        "vb_peak_v": 67.00165399999997,
+        "vds_peak_v": 265.436208,
+        "vgs_abs_peak_v": 10.017801,
+        "energy_residual_above_lower_screen_w": 161.08623869150836
+      },
+      "raw": {
+        "path": "raw.trace.raw.gz",
+        "sha256": "eb1f88c49a5a6ef3d66f5c3853d35200430b5c765c55ce183403aab76d7bfd67",
+        "bytes": 2145942203,
+        "rows": 29845886,
+        "fields": 15,
+        "end_s": 0.65
+      },
+      "case_source_sha256": {
+        "cold.cir": "27abc73a6c10c653441d3861885617dce6f1dfba1bc509e8ef6af03c9afcdaab",
+        "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+        "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+        "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+        "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+        "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+      },
+      "source_changes": "VAC_RMS120 unchanged numerically (formatted120.000000000), RLOAD190->104.115122239; reversing exact two textual substitutions recovers baseline; five includes unchanged.",
+      "legacy_strict_result": {
+        "status": "REJECTED_NONINCREASING_TIME",
+        "stderr": "checker.stderr",
+        "first_rejected_line": 22589747,
+        "pipeline_result_retained": "native-pipeline.json",
+        "upstream_epipe": "Expected only in legacy early-exit branch; independent complete audit/metrics all0."
+      },
+      "events": {
+        "groups": 47,
+        "equal_intervals": 64,
+        "max_group_rows": 3,
+        "missing_right": 0,
+        "backwards": 0,
+        "nonfinite_rows": 0,
+        "logic_changes": 0,
+        "cycle_boundary_groups": 0,
+        "max_positive_gap_s": 5.000000000143778E-7,
+        "E3_sumabs_j": 3.964557354365183E-12,
+        "E3_max_spread_j": 2.68537474292157E-13,
+        "all_original_rows_retained": true
+      },
+      "includes_match_baseline": true
+    },
+    {
+      "case": "LL07",
+      "acceptance_path": "line-load-native-runner-27/full-LL07/LL07/acceptance.json",
+      "acceptance_sha256": "b87c23441b4e55a5e46ec4ec19bfba3bd8fa02a456a9bbdb4aed0c41a0cc7b69",
+      "parent_evidence_path": "line-load-native-runner-27/full-LL07/LL07/parent-evidence.json",
+      "parent_evidence_sha256": "b6a4be20e03bd20d751e9df4bc32dec1fd8767f7d032a565f9cbea9d2fd501dd",
+      "parent_evidence_sha256_computed": "b6a4be20e03bd20d751e9df4bc32dec1fd8767f7d032a565f9cbea9d2fd501dd",
+      "drift_recomputed_from_cycle_means": 0.001562650118357812,
+      "drift_matches_receipt": true,
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "policy_version": "event-aware-normal-v1",
+      "line_v_rms": 132,
+      "rload_ohm": 374.814440062,
+      "metrics": {
+        "vrms_v": 132.0,
+        "irms_a": 3.505044,
+        "input_power_w": 442.290077,
+        "load_power_w": 398.384114,
+        "pf": 0.95596,
+        "vb_mean_v": 386.434659,
+        "vb_min_v": 385.328039,
+        "vb_max_v": 387.506868,
+        "cycle_means_v": [
+          386.1289740848743,
+          386.4426456991535,
+          386.7323585719294
+        ],
+        "energy_delta_j": 0.7929129062963954,
+        "energy_residual_w": 28.047704697942404,
+        "armed_fraction": 1.0,
+        "on_fraction": 1.0,
+        "screens": 0,
+        "il_peak_a_report_only": 34.36407,
+        "vd_peak_v": 387.566527,
+        "vb_peak_v": 387.506868,
+        "vds_peak_v": 388.809757,
+        "vgs_abs_peak_v": 14.982226,
+        "cycle_drift_fraction": 0.001562650118357812
+      },
+      "screen_margins": {
+        "mains_lower_v": 24.001000000000005,
+        "mains_upper_v": 0.0010000000000047748,
+        "bus_lower_v": 15.193788999999981,
+        "bus_upper_v": 21.588882000000012,
+        "cycle_drift": 0.003437349881642188,
+        "rms_current_a": 11.494956,
+        "vd_peak_v": 112.43347299999999,
+        "vb_peak_v": 62.493132,
+        "vds_peak_v": 261.190243,
+        "vgs_abs_peak_v": 10.017774,
+        "energy_residual_above_lower_screen_w": 30.259155082942403
+      },
+      "raw": {
+        "path": "raw.trace.raw.gz",
+        "sha256": "5a507b1753deae083b438cd813dbdc3baac0bf90d123afab075218669ff72284",
+        "bytes": 2220002011,
+        "rows": 30812694,
+        "fields": 15,
+        "end_s": 0.65
+      },
+      "case_source_sha256": {
+        "cold.cir": "4b00042daf2b0bedab0725e07d6d0af35b2bf8fe856af8a4b49e6f0aab78f4f7",
+        "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+        "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+        "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+        "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+        "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+      },
+      "source_changes": "VAC_RMS120->132.000000000, RLOAD190->374.814440062000; reversing exact two textual substitutions recovers baseline; five includes unchanged.",
+      "legacy_strict_result": {
+        "status": "REJECTED_NONINCREASING_TIME",
+        "stderr": "checker.stderr",
+        "first_rejected_line": 24394494,
+        "pipeline_result_retained": "native-pipeline.json",
+        "upstream_epipe": "Expected only in legacy early-exit branch; independent complete audit/metrics all0."
+      },
+      "events": {
+        "groups": 21,
+        "equal_intervals": 28,
+        "max_group_rows": 3,
+        "missing_right": 0,
+        "backwards": 0,
+        "nonfinite_rows": 0,
+        "logic_changes": 0,
+        "cycle_boundary_groups": 0,
+        "max_positive_gap_s": 5.000000000143778E-7,
+        "E3_sumabs_j": 2.2206780130924736E-12,
+        "E3_max_spread_j": 2.856949272030378E-13,
+        "all_original_rows_retained": true
+      },
+      "includes_match_baseline": true
+    },
+    {
+      "case": "LL08",
+      "acceptance_path": "line-load-direct-retry-41/full-LL08/LL08/acceptance.json",
+      "acceptance_sha256": "8c6f8fb701395ecb95cbdfd980fc9a2f94ca1417a456542a18d39e460c3e8fdd",
+      "parent_evidence_path": "line-load-direct-retry-41/full-LL08/LL08/parent-evidence.json",
+      "parent_evidence_sha256": "ab0821a4acf365b6a460e3066c5873a56d94dc343f3b93645c0afb8833e83ac6",
+      "parent_evidence_sha256_computed": "ab0821a4acf365b6a460e3066c5873a56d94dc343f3b93645c0afb8833e83ac6",
+      "drift_recomputed_from_cycle_means": 0.002508127779727223,
+      "drift_matches_receipt": true,
+      "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+      "policy_version": "event-aware-normal-v1",
+      "line_v_rms": 132,
+      "rload_ohm": 187.407220031,
+      "metrics": {
+        "vrms_v": 132,
+        "irms_a": 6.698508,
+        "input_power_w": 872.226383,
+        "load_power_w": 785.858708,
+        "pf": 0.986455,
+        "vb_mean_v": 383.794262,
+        "vb_min_v": 381.77248,
+        "vb_max_v": 385.749283,
+        "cycle_means_v": [
+          383.3053144387268,
+          383.81077886370883,
+          384.26669314598763
+        ],
+        "cycle_drift_fraction": 0.002508127779727223,
+        "energy_delta_j": 1.2582876102732607,
+        "energy_residual_w": 61.20192312976597,
+        "armed_fraction": 1,
+        "on_fraction": 1,
+        "screens": 0,
+        "il_peak_a_report_only": 35.376249,
+        "vd_peak_v": 385.852732,
+        "vb_peak_v": 385.749283,
+        "vds_peak_v": 387.146217,
+        "vgs_abs_peak_v": 14.98222
+      },
+      "screen_margins": {
+        "mains_lower_v": 24.001000000000005,
+        "mains_upper_v": 0.0010000000000047748,
+        "bus_lower_v": 11.638229999999965,
+        "bus_upper_v": 23.34646700000002,
+        "cycle_drift": 0.002491872220272777,
+        "rms_current_a": 8.301492,
+        "vd_peak_v": 114.147268,
+        "vb_peak_v": 64.25071700000001,
+        "vds_peak_v": 262.853783,
+        "vgs_abs_peak_v": 10.01778,
+        "energy_residual_above_lower_screen_w": 65.56305504476597
+      },
+      "raw": {
+        "path": "raw.trace.raw.gz",
+        "sha256": "dfd490459db468fd235d17a2c4d973ecac0624b9ac331fe42c89c41dc7efe8de",
+        "bytes": 2192811017,
+        "rows": 30447163,
+        "fields": 15,
+        "end_s": 0.65
+      },
+      "case_source_sha256": {
+        "cold.cir": "cca34e1517db547f335a0ba9ff278fb5e80bcb8186158d98f19d303928421063",
+        "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+        "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+        "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+        "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+        "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+      },
+      "source_changes": "VAC_RMS120->132.000000000,RLOAD190->187.407220031000; reversing exact two textual substitutions recoversbaseline; fiveincludes unchanged.",
+      "legacy_strict_result": {
+        "status": "REJECTED_NONINCREASING_TIME",
+        "stderr": "checker.stderr",
+        "first_rejected_line": 23024534,
+        "pipeline_result_retained": "native-pipeline.json",
+        "upstream_epipe": "Expected only in legacy earlyexitbranch; independent complete audit/metrics all0."
+      },
+      "events": {
+        "groups": 44,
+        "equal_intervals": 71,
+        "max_group_rows": 3,
+        "missing_right": 0,
+        "backwards": 0,
+        "nonfinite_rows": 0,
+        "logic_changes": 0,
+        "cycle_boundary_groups": 0,
+        "max_positive_gap_s": 5.000000000143778E-7,
+        "E3_sumabs_j": 5.319893721057595E-12,
+        "E3_max_spread_j": 3.8359649775210124E-13,
+        "all_original_rows_retained": true
+      },
+      "includes_match_baseline": true
+    }
+  ],
+  "narrowest_observed_margins": {
+    "mains_lower_v": {
+      "margin": 0.001,
+      "case": "LL01",
+      "cases_at_same_margin": [
+        "LL01",
+        "LL02",
+        "LL03"
+      ]
+    },
+    "mains_upper_v": {
+      "margin": 0.0010000000000047748,
+      "case": "LL07",
+      "cases_at_same_margin": [
+        "LL07",
+        "LL08"
+      ]
+    },
+    "bus_lower_v": {
+      "margin": 5.723619999999983,
+      "case": "LL03",
+      "cases_at_same_margin": [
+        "LL03"
+      ]
+    },
+    "bus_upper_v": {
+      "margin": 21.379610000000014,
+      "case": "LL01",
+      "cases_at_same_margin": [
+        "LL01"
+      ]
+    },
+    "cycle_drift": {
+      "margin": 0.0008441831954690161,
+      "case": "LL03",
+      "cases_at_same_margin": [
+        "LL03"
+      ]
+    },
+    "rms_current_a": {
+      "margin": 1.5879460000000005,
+      "case": "LL03",
+      "cases_at_same_margin": [
+        "LL03"
+      ]
+    },
+    "vd_peak_v": {
+      "margin": 112.22317099999998,
+      "case": "LL01",
+      "cases_at_same_margin": [
+        "LL01"
+      ]
+    },
+    "vb_peak_v": {
+      "margin": 62.283860000000004,
+      "case": "LL01",
+      "cases_at_same_margin": [
+        "LL01"
+      ]
+    },
+    "vds_peak_v": {
+      "margin": 260.97746,
+      "case": "LL01",
+      "cases_at_same_margin": [
+        "LL01"
+      ]
+    },
+    "vgs_abs_peak_v": {
+      "margin": 10.017774,
+      "case": "LL07",
+      "cases_at_same_margin": [
+        "LL07"
+      ]
+    },
+    "energy_residual_above_lower_screen_w": {
+      "margin": 30.259155082942403,
+      "case": "LL07",
+      "cases_at_same_margin": [
+        "LL07"
+      ]
+    }
+  },
+  "limits": {
+    "source_contract_vrms": "107.999 <= Vrms <= 132.001",
+    "bus_envelope_v": "370.13425 <= settled min/max <= 409.09575",
+    "cycle_drift_fraction": "< 0.005",
+    "input_irms_a": "<= 15",
+    "vd_peak_v": "<= 500",
+    "vb_peak_v": "<= 450",
+    "vds_peak_v": "<= 650",
+    "vgs_abs_peak_v": "<= 25",
+    "armed_fraction": ">= 0.99",
+    "on_fraction": ">= 0.99",
+    "energy_balance": "Pin-Pload-dE/dt >= -max(1 W, 0.005 Pin)"
+  },
+  "ll09": {
+    "status": "EXCLUDED_NOT_ACCEPTED",
+    "declared_point": {
+      "id": "LL09",
+      "line_v_rms": 132.000,
+      "load_fraction": 0.90,
+      "conditional_cap_w": 1620.000000,
+      "target_load_w": 1458.000000,
+      "rload_ohm": 104.115122239,
+      "status": "planned_unexecuted"
+    },
+    "included_in_narrowest_margins": false
+  },
+  "limitations": [
+    "Eight points are discrete samples, not a continuous operating envelope or interpolation proof.",
+    "Inductor peak is reported modeled stress only; no automatic current-rating or SOA screen is claimed.",
+    "Energy residual is a modeled accounting screen, not measured loss, thermal qualification, or total-energy closure.",
+    "The unchanged strict checker rejects repeated timestamps; each receipt retains that rejection and its upstream broken-pipe branch while complete event audit/metrics support modeled screens.",
+    "This normal-grid checkpoint says nothing about hardware, faults, protection, fuse clearing, or thermal behavior."
+  ]
+}

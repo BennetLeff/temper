@@ -1,0 +1,10 @@
+{
+  "at_utc": "2026-09-21T20:10:02.259662+00:00",
+  "exit": 77,
+  "stdout": "",
+  "stderr": "free-space gate failed: 11929304 KiB < 16777216 KiB (16 GiB)\n",
+  "same_capacity_block_audit_turn": 3,
+  "previous_turn_classification": "progress: terminal graph review and verified bypass diagnostic",
+  "output_directory_exists": false,
+  "launch_script_sha256": "f2e8be7bc80b7e2835a035fd2a53db3e01b481d7c9d36fd63191034d2755736f"
+}

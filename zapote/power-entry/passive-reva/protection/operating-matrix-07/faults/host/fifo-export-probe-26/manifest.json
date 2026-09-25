@@ -1,0 +1,27 @@
+{
+  "status": "PASS_TRANSPORT_ONLY",
+  "synthetic_only": true,
+  "source": "probe.rs",
+  "source_sha256": "fbd036304a9bef765b58ec83a224a57830be5a088e509a0590a34bf88298b915",
+  "binary": "/tmp/matrix07-fifo-export-probe26",
+  "binary_sha256": "a750b66309a87e1c415922f8020bab0471bddd31472d3b25787d9b8f80c351b6",
+  "pigz": "/opt/homebrew/bin/pigz",
+  "command": "exec pigz -p 4 -c < FIFO > OUT",
+  "blocks": 4200,
+  "payload_bytes_per_block": 1048576,
+  "expected_decompressed_bytes": 4404086473,
+  "compressed_bytes": 4872093,
+  "compressed_sha256": "bd4ac61e8b126c81ab7a80377aed3f38584fd2300763c1e99dfb8bb629949cda",
+  "producer_exit": 0,
+  "pigz_exit": 0,
+  "verifier": "streaming title/index/payload/EOF check",
+  "verifier_exit": 0,
+  "decompressor_exit": 0,
+  "elapsed_s": 7.764,
+  "limits": {
+    "compressed_cap_bytes": 104857600,
+    "disk_floor_bytes": 10737418240,
+    "timeout_s": 120
+  },
+  "interpretation": "Synthetic transport bound only; no LL05 cause or campaign acceptance claim"
+}

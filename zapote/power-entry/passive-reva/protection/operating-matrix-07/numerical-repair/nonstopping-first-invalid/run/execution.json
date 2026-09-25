@@ -1,0 +1,64 @@
+{
+  "status": "COMPLETE_DIAGNOSTIC_ONLY",
+  "accepted": false,
+  "diagnostic_only": true,
+  "producer_session": 30817,
+  "compressor_session": 83044,
+  "target_end_s": 0.65,
+  "actual_end_s": 0.65,
+  "rows": 30108912,
+  "finite_rows": 30108912,
+  "backwards_count": 0,
+  "duplicate_count": 66,
+  "equal_timestamp_groups": 45,
+  "equal_group_rows": 111,
+  "max_equal_group_rows": 3,
+  "host_binary": "/private/tmp/matrix07-nonstopping-host-reviewed",
+  "host_binary_sha256": "0725c08fc6c234ea9594f3bb597cefda30d17aacb8449572c13163e1902f5c84",
+  "compressor": "/opt/homebrew/bin/pigz -p4 -c",
+  "compressor_sha256": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+  "started_at_utc": "2026-09-20T23:44:21.394765+00:00",
+  "completed_at_utc": "2026-09-21T00:55:03Z",
+  "command": "SPICE_SCRIPTS=/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts /usr/bin/time -p /private/tmp/matrix07-nonstopping-host-reviewed cold.cir 2700 0.65 trace.fifo first-invalid.tsv",
+  "producer_wall_s": 2005.845952,
+  "process_real_s": 4292.25,
+  "trace_gzip": {
+    "path": "trace.tsv.gz",
+    "bytes": 5356097124,
+    "sha256": "90e1f2c013e965a99d10053b074127bbddf2c73d5b1403e9e872e3de6933a3b5"
+  },
+  "strict_checker": {
+    "status": "REJECTED",
+    "reason": "line 22757958: time not strictly increasing",
+    "report_sha256": "2079afac9eb0f39337ca5103621c4c37a6afe49fcf365d21eb41adf6277e3305"
+  },
+  "diagnostic_cycle": {
+    "cycle_mean_range_over_first_mean": 0.0027308608430389376,
+    "status": "DIAGNOSTIC_ONLY",
+    "report_sha256": "04d4b917a7b7ae62d026b9c6cfd86a1e91ba0f9dca8cc82f88e03ee6f87d5f8e"
+  },
+  "source_closure": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "progress.rs": "7e3d5bfd33c27f0b0c3eacc8eb8ce5d896dc92d706878af8c788984a547c543c"
+  },
+  "output_receipts": {
+    "trace_sha256": "trace.sha256",
+    "stop_sha256": "35edf06b290ddef142aee34c337b5a6071cabc56e762befb914fc473e7503e6c",
+    "inspection_sha256": "4f04692eb40d1049df530c772407c76109ef35d5e92960066161d2a3034e5b65",
+    "event_audit_sha256": "19d3bfcfe391bbdd678240297d02e9678802d134f627856601f839b927fa406b",
+    "cycle_diagnostic_sha256": "04d4b917a7b7ae62d026b9c6cfd86a1e91ba0f9dca8cc82f88e03ee6f87d5f8e"
+  },
+  "acceptance": "Retain all rows. Existing strict inspector and normal checker unchanged. Duplicate-continuing diagnostic is not an accepted baseline; no normal-operation qualification is claimed.",
+  "smoke_endpoint_s": 0.001,
+  "smoke_seen_mask": 65535,
+  "smoke_rows": 5905,
+  "producer_exit": 0,
+  "compressor_exit": 0,
+  "wall_limit_s": 2700,
+  "post_run_input_hashes_match": true
+}

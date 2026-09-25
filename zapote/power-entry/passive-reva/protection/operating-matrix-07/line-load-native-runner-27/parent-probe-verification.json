@@ -1,0 +1,14 @@
+{
+  "status": "VERIFIED",
+  "original_receipt": "line-load-native-runner-27/fixtures/real-native-20us-summary.json",
+  "retained_copy": "line-load-native-runner-27/fixtures/real-native-20us-retained",
+  "gzip_integrity": true,
+  "payload_equal": true,
+  "payload_bytes": 37920,
+  "payload_sha256": "d4635ee53ab1d7e6ea06b5ba7b45b5acd9b881dea9834b8691babc3b55bd4e72",
+  "source_changes": [
+    "TSTOP=650m -> TSTOP=20u"
+  ],
+  "decoder_exit": 0,
+  "decoded_lines": 317
+}

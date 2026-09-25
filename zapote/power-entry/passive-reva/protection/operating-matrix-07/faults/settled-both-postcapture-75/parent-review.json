@@ -1,0 +1,27 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_NOT_EXECUTED",
+  "accepted": false,
+  "case": "BOTH-SHORT",
+  "recorded_at_utc": "2026-09-21T23:49:02.505007+00:00",
+  "source_sha256": {
+    "manifest.json": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b",
+    "case.cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51"
+  },
+  "checks": [
+    "Exact mechanical transform of parent-corrected69 verified byte-for-byte",
+    "Bash syntax and ShellCheck passed for both scripts",
+    "All eight pinned tools verified and pin list identical",
+    "Early refusal exit1 before output creation; no raw scan or solver"
+  ],
+  "corrections": [
+    "README corrected: separate legacy witness prepared, not executed."
+  ],
+  "files_sha256": {
+    "run.sh": "6d3908ee9f3edf3e2ab1872c7a6f312bb94198da3c23f8842930a41cd8f06f97",
+    "legacy-strict.sh": "2dfddff9588501b30fb6f6cb5c4632a9a65f7da474c5a47dce3ca41f0172c255",
+    "tools-parent.sha256": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+    "README.md": "9400bb17ee11345097ac65d56e83b54ebc4309aa0909b2f6cb53ce49a622c67a",
+    "preparation.json": "2619efe9a2481b85e36d1876764df2793a1d7bee502e3ac18315ee1ed43c13a8"
+  },
+  "pending": "Complete own capture, five-pass diagnostics, legacy witness, and parent electrical review."
+}

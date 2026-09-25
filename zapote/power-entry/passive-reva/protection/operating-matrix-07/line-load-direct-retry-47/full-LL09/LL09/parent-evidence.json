@@ -1,0 +1,68 @@
+{
+  "status": "PARENT_VERIFIED_COMPLETE_SOURCE_BOUND_NORMAL_CASE",
+  "utc": "2026-09-21T19:23:44.380896+00:00",
+  "case": "LL09",
+  "raw_sha256": "84812ef89e0c987d28343078c9fd17a5468a019a71505595023f74d4e064e2ba",
+  "raw_bytes": 2168688596,
+  "raw_independent_verification": "Parent session10064 independent shasum and pigz-t both0 after completed export. Parent session33042 terminal0 runner/monitor0.",
+  "source_sha256": {
+    "cold.cir": "4a34122626d8732c8377eb7c59f39fd2bf5c8922e11cfa76eb77e4e61921e4e4",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "tools_sha256": {
+    "/private/tmp/matrix07-direct-normal37-parent": "be6b73451f111636a2f0dbf67a4ce135c3ae8302b4dc50ee81da2386b124fc15",
+    "/private/tmp/matrix07-normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "/private/tmp/matrix07-checker": "24c95bea81b44a3d5038a32552297afed17547fcd1b3ddcfd99434e84638b85c",
+    "/private/tmp/matrix07-native-stream-host": "23008f5bba4c560d87c97fde0822949fba5bccab7223af0b64fd49c6b221aea0",
+    "/private/tmp/matrix07-event-metrics-host": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "/private/tmp/matrix07-normal15-event-audit-host": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6"
+  },
+  "source_identity_sha256": "6ad7ae080adbde851ec7149bf7a63bc652815bd90407760bd0ee7db3017a54bd",
+  "pipeline": {
+    "event_audit_exit": 0,
+    "checker_exit": 1,
+    "checker_normalizer_exit": 1,
+    "checker_decoder_exit": 1,
+    "checker_gzip_exit": -1,
+    "metrics_exit": 0,
+    "metrics_normalizer_exit": 0,
+    "metrics_decoder_exit": 0,
+    "metrics_gzip_exit": 0
+  },
+  "report_sha256": {
+    "checker.stderr": "1855573d9fc33446f61d747a68efd514f95533cd11f9812f87c72e242bcd7f19",
+    "parent-launch-source-verification.json": "a907ddd90d3e8901cd1ad70e5326483eb2750ed00708b30dd56361958e63ffcd",
+    "raw15-event-audit.txt": "01ea3aba76982290b88f84f0eb5af07ac64a1bade379e1cd86e40e023283d6e6",
+    "event-metrics.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "result.json": "98d1db713037db322a01309d1c09b60d228f20383ee01b1bd88ef8dc8656e28a",
+    "progress.tsv": "aeb573cd0f00c0986586b2647a4e6c66fc3b92daa5878b7af0fc4b4af0141ffb",
+    "first-invalid.tsv": "091b34a5c6d79c9e8bc5187423b57c35fb2684e79fabc57120e34ef73464d936",
+    "event-metrics.txt": "4fd9354bd6323a8effc51e68f15abba729a2a1537f5804e29ff1fe96279696f9",
+    "stop.txt": "f7ff1942baa6891412f3f79ded247d90ca316fce4b0f98224a31f1d246c96a86",
+    "native-export-receipt.json": "fe7be5b2c6b34fdd21c3605297620b655b9fd8d496faec92fc486cf58b78010b",
+    "checker-report.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-pipeline.json": "6dce3872882366574b198cd36ae33cee98f40fff42c3cb96b1eab197ec2b93f0",
+    "owned-events.tsv": "95c1f2fa605ed0f7b234700d6c0e65a703095005ca5488762f4edc4434ec28f4",
+    "capture-metadata.json": "04d2aa18f7055e8b551bff86f155d91460d00a53f4a778d6591156c8379a8889",
+    "raw-parent-verification.json": "576aad58e40ea50bf062d4246bdab30b933d8d1fe4063be2462857b62ef2589a",
+    "raw15-event-audit.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "case.json": "f16dd5af930d64aa5198f92e178df3e64c69e77dc4241e74f28bb453481e930b",
+    "transport-identity.json": "2806ba531945433844e038ef0698626b2eba3b907bc5ff06dbf6ab421f50eca2",
+    "raw.trace.raw.gz": "84812ef89e0c987d28343078c9fd17a5468a019a71505595023f74d4e064e2ba"
+  },
+  "independent_review_sha256": "b50e243e42b604ca90107ee46b39c6194ee29c1813f1aef03296fb4b0aed70a4",
+  "resource_review_sha256": "a5e97cf9bebc1c03d0b2400557809d35f95543a190f2d8a25c00886fa672279a",
+  "parent_checks": [
+    "Exact two source substitutions; five includes unchanged, current byte hashes verified.",
+    "Complete capture/export/audit/metrics agree on30,141,001rows650msendpoint; all complete childlegs0.",
+    "Legacy strict rejection retained; repeatedtime73, no backward rows.",
+    "No equal-time logic or boundary ambiguity; fullraw extrema/hullbounds inspected.",
+    "Fullprecision drift recomputed and all unchanged electrical screen margins positive."
+  ],
+  "acceptance_decision_in": "acceptance.json",
+  "resource_review_path": "../../resource-summary-parent.json"
+}

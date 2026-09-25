@@ -1,0 +1,42 @@
+{
+  "status": "PARENT_VERIFIED_ORIGINAL_VENDOR_MODEL_CONTENT",
+  "accepted_hardware": false,
+  "adopted_into_campaign": false,
+  "executed": false,
+  "exact_subckt": "TOR75_760800301_180u",
+  "model_elements": {
+    "series_resistance_ohm": 0.018,
+    "linear_inductance_H": 0.00018,
+    "inductor_Rser_ohm": 1e-05,
+    "terminal_parallel_resistance_ohm": 46900,
+    "terminal_parallel_capacitance_F": 1.158e-11
+  },
+  "dependencies": "No subcircuit dependencies in selected four-element network.",
+  "entries": {
+    "Disclaimer_READ_ME.txt": {
+      "bytes": 756,
+      "sha256": "a06eec7c421b098883721ce285ad569b1e3dbc0cfeeb9d78e1d58595ee2a086c"
+    },
+    "WE-TORPFC.asy": {
+      "bytes": 722,
+      "sha256": "2c29b699a4a3f44bc7434b0a8366ebf4f82c2527d0ec2b3c4693ac7a61179d94"
+    },
+    "WE-TORPFC.lib": {
+      "bytes": 3729,
+      "sha256": "81776ae67b004da39ff5f6c5d1568d1502aa1a92772e44837bd8c033c6a7dd3e"
+    }
+  },
+  "worker_hash_corrections": {
+    "WE-TORPFC.lib": {
+      "worker": "81776ae67b004da39ff5f6c5d1568d150aa1a92772e44837bd8c033c6a7dd3e",
+      "actual": "81776ae67b004da39ff5f6c5d1568d1502aa1a92772e44837bd8c033c6a7dd3e"
+    }
+  },
+  "interpretation_correction": "Worker core_loss_element=false is too categorical: Rp dissipates power as a fixed terminal loss element. No nonlinear magnetic/coreloss law, temperature network or saturation behavior is represented; intended physical loss allocation is not established.",
+  "ngspice_compatibility": "not executed or claimed; LTspice Rser syntax requires explicit compatibility verification before any future use",
+  "symbol_default_wrong_for_selected_part": true,
+  "main_conclusion": "Vendor package does not resolve current-dependent inductance or thermal/saturation bounds. Keep exact existing linear campaign model frozen; vendor parasitics could be a separately identified sensitivity case only.",
+  "acquisition_sha256": "462da06a58e0660074b80041c3dbb239eadcc1e417b373fd9d14b810c1d67782",
+  "worker_review_sha256": "d5b42206e795695ba7a099c9c6f7140b80560be97833a5cd23c7442eb46ddc49",
+  "datasheet_sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8"
+}

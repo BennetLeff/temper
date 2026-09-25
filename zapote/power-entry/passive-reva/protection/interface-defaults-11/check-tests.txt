@@ -1,0 +1,9 @@
+
+running 4 tests
+test tests::empty_windows_cannot_pass ... ok
+test tests::unrearmed_and_always_off_traces_fail ... ok
+test tests::missing_trace_cannot_pass ... ok
+test tests::nonfinite_input_is_rejected ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

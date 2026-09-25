@@ -1,0 +1,23 @@
+ngspice: 45.2
+
+SIGINT probe:
+  command: python3 run_probe.py
+  known_pid: 82493
+  signal: os.kill(pid, SIGINT)
+  returncode: -2
+  elapsed_s: 1.013
+  probe-partial.tsv: absent
+  post-tran meas/resume/wrdata: not reached
+
+Controlled stop/snapshot probe:
+  command: ngspice -b -o snapshot_probe.log snapshot_probe.cir
+  returncode: 0
+  stop breakpoint: time = 0.2 s
+  snapshot: probe.snap (4.6 KB)
+  result: snsave succeeded after controlled breakpoint
+
+Restore probe:
+  command: ngspice -b snapshot_resume.cir
+  returncode: 0, but no resumed.tsv
+  result: restore script requires the original circuit/script loading
+  arrangement; not treated as an operational resume proof.

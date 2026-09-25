@@ -1,0 +1,30 @@
+Passive gate-network probe: imposed voltage fall, NOT an LT4363 model
+* No MOSFET or load. D1 is open during discharge; recovery/parasitics excluded.
+* Old = MOSFET-side branch. Ref = controller-side branch.
+Vdrive drv 0 PWL(0 25 10u 25 10.01u 0 1m 0)
+R6ol drv qol 10
+R7ol qol col 100
+Col col 0 1.3u
+R6oh drv qoh 10
+R7oh qoh coh 100
+Coh coh 0 1.7u
+R6rl drv qrl 10
+R7rl drv crl 100
+Crl crl 0 1.3u
+R6rh drv qrh 10
+R7rh drv crh 100
+Crh crh 0 1.7u
+.options reltol=1e-6 abstol=1e-12 vntol=1e-8
+.control
+set noaskquit
+set wr_singlescale
+set wr_vecnames
+tran 1u 1m 0 1u
+meas tran old_lo_q FIND v(qol) AT=11u
+meas tran old_hi_q FIND v(qoh) AT=11u
+meas tran ref_lo_q FIND v(qrl) AT=11u
+meas tran ref_hi_q FIND v(qrh) AT=11u
+wrdata fast.tsv v(drv) v(qol) v(qoh) v(qrl) v(qrh) v(col) v(coh)
+quit
+.endc
+.end

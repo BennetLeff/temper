@@ -1,0 +1,13 @@
+
+running 8 tests
+test tests::count_overflow_is_rejected_before_multiplication ... ok
+test tests::unsupported_flags_byte_order_and_unknown_option_rejected ... ok
+test tests::normal15_rejects_diagnostic_extra_vectors ... ok
+test tests::reordered_equal_rows_are_streamed_and_internal_peak_preserved ... ok
+test tests::nonfinite_backward_and_trailing_rejected ... ok
+test tests::truncation_duplicate_header_and_bad_vector_rejected ... ok
+test tests::marker_split_across_reader_chunks_is_still_found ... ok
+test tests::bounded_header_bad_order_and_name_units_are_rejected ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

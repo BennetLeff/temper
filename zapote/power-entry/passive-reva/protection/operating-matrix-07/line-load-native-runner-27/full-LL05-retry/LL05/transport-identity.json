@@ -1,0 +1,6 @@
+{
+  "transport": "anonymous-pipe",
+  "native_export_path": "/dev/fd/7",
+  "native_cli_args": ["cold.cir","3600","0.65","/dev/fd/7","first-invalid.tsv"],
+  "compressor_stdin_fd": 7
+}

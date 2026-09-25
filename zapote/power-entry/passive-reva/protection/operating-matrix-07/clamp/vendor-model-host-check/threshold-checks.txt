@@ -1,0 +1,21 @@
+TEMP -40 C
+  SOC      pin=-0.285 V: shunt=-0.285078 V, shunt_I=28.508 A, ideal10mR=28.500 A, extra=0.03%, shift=-0.08 mV, diode=3.542e-7 A
+  PCL_typ  pin=-0.400 V: shunt=-0.400657 V, shunt_I=40.066 A, ideal10mR=40.000 A, extra=0.16%, shift=-0.66 mV, diode=2.988e-6 A
+  PCL_max  pin=-0.438 V: shunt=-0.439328 V, shunt_I=43.933 A, ideal10mR=43.800 A, extra=0.30%, shift=-1.33 mV, diode=6.038e-6 A
+TEMP -20 C
+  SOC      pin=-0.285 V: shunt=-0.285285 V, shunt_I=28.528 A, ideal10mR=28.500 A, extra=0.10%, shift=-0.28 mV, diode=1.293e-6 A
+  PCL_typ  pin=-0.400 V: shunt=-0.402033 V, shunt_I=40.203 A, ideal10mR=40.000 A, extra=0.51%, shift=-2.03 mV, diode=9.242e-6 A
+  PCL_max  pin=-0.438 V: shunt=-0.441887 V, shunt_I=44.189 A, ideal10mR=43.800 A, extra=0.89%, shift=-3.89 mV, diode=1.767e-5 A
+TEMP 25 C
+  SOC      pin=-0.285 V: shunt=-0.287826 V, shunt_I=28.783 A, ideal10mR=28.500 A, extra=0.99%, shift=-2.83 mV, diode=1.285e-5 A
+  PCL_typ  pin=-0.400 V: shunt=-0.415120 V, shunt_I=41.512 A, ideal10mR=40.000 A, extra=3.78%, shift=-15.12 mV, diode=6.873e-5 A
+  PCL_max  pin=-0.438 V: shunt=-0.464231 V, shunt_I=46.423 A, ideal10mR=43.800 A, extra=5.99%, shift=-26.23 mV, diode=1.192e-4 A
+TEMP 85 C
+  SOC      pin=-0.285 V: shunt=-0.310190 V, shunt_I=31.019 A, ideal10mR=28.500 A, extra=8.84%, shift=-25.19 mV, diode=1.145e-4 A
+  PCL_typ  pin=-0.400 V: shunt=-0.503052 V, shunt_I=50.305 A, ideal10mR=40.000 A, extra=25.76%, shift=-103.05 mV, diode=4.684e-4 A
+  PCL_max  pin=-0.438 V: shunt=-0.601217 V, shunt_I=60.122 A, ideal10mR=43.800 A, extra=37.26%, shift=-163.22 mV, diode=7.419e-4 A
+TEMP 125 C
+  SOC      pin=-0.285 V: shunt=-0.360821 V, shunt_I=36.082 A, ideal10mR=28.500 A, extra=26.60%, shift=-75.82 mV, diode=3.446e-4 A
+  PCL_typ  pin=-0.400 V: shunt=-0.671877 V, shunt_I=67.188 A, ideal10mR=40.000 A, extra=67.97%, shift=-271.88 mV, diode=1.236e-3 A
+  PCL_max  pin=-0.438 V: shunt=-0.849483 V, shunt_I=84.948 A, ideal10mR=43.800 A, extra=93.95%, shift=-411.48 mV, diode=1.870e-3 A
+PASS finite, monotone, complete threshold extraction

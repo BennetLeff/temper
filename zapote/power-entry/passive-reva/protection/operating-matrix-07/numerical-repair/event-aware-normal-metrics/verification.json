@@ -1,0 +1,47 @@
+{
+  "source_sha256": "e686b4d29d0cede142c9050dfcc738feb21f47bd1b8999c764ce1a756b94692e",
+  "binary_sha256": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+  "warning_clean": true,
+  "unit_tests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "oracle_runs": {
+    "base": {
+      "exit": 0,
+      "qualification": "NOT_CLAIMED",
+      "screens": 0
+    },
+    "equal_time_exact": {
+      "exit": 0,
+      "duplicate_rows": 1,
+      "boundary_duplicate_ambiguity": false
+    },
+    "equal_time_stress_peak": {
+      "exit": 0,
+      "whole_prefix_vds_peak_v": 700.0,
+      "screens": 1
+    },
+    "equal_time_cycle_boundary": {
+      "exit": 0,
+      "whole_prefix_vb_peak_v": 405.0,
+      "whole_prefix_vd_peak_v": 405.0,
+      "boundary_duplicate_ambiguity": true,
+      "selected3_storage_sumabs_delta_j": 13.810227487999992
+    }
+  },
+  "commands": [
+    "rustc --edition=2021 -D warnings --test metrics.rs -o /tmp/matrix07-event-metrics-tests && /tmp/matrix07-event-metrics-tests",
+    "rustc --edition=2021 -D warnings -O metrics.rs -o /tmp/matrix07-event-metrics",
+    "gzip -cd ../event-aware-normal-metrics-oracle/<fixture>.tsv.gz | /tmp/matrix07-event-metrics --end-s .05"
+  ],
+  "status": "PARENT_VERIFIED_DIAGNOSTIC_OUTPUT",
+  "parent_oracle_results": "parent-oracle-results.json",
+  "full_trace": {
+    "pipeline_exit": 0,
+    "rows": 30108912,
+    "duplicate_intervals": 66,
+    "screens": 0,
+    "report_sha256": "aae2b59407898158bf3f89d3df17d84416754e42aec4b29100a618760dd47646"
+  }
+}

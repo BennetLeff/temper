@@ -1,0 +1,38 @@
+[
+  {
+    "fixture": "current-loop",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 1.5547099590767175
+  },
+  {
+    "fixture": "functional",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 1.1780087079387158
+  },
+  {
+    "fixture": "soft-start",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 16.78682329203002
+  },
+  {
+    "fixture": "pwm-ramp",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 1.5289499161299318
+  },
+  {
+    "fixture": "pwm-hold",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 0.40101491613313556
+  },
+  {
+    "fixture": "integrated",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "wall_seconds": 8.570256415987387
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "status": "PARENT_REVIEWED_ANALYSIS_READINESS",
+  "utc": "2026-09-21T16:15:27.769615+00:00",
+  "document_sha256": "d53c95c1a79bbefaf4b15d231cace62ac39f8400a82ad8e2719f619eacadcd69",
+  "verified": [
+    "Selector cutoff/export/report interface matches Rustsource14",
+    "Metric and strict endpoint tolerance1ns; exact lastselected sample required",
+    "Normal switching guard unchanged",
+    "Faultmatrix F2-CREST requires1% localcrest; edge voltage alone insufficient"
+  ],
+  "parent_corrections": [
+    "Fixed shell continuation/printf escaping in legacy command",
+    "Fivepipeline children, notfour",
+    "Corrected wording about no-switch-check flag"
+  ],
+  "remaining": "After complete capture, execute ownprefix scan/audit/metrics/strict branch; measure local sampled crest in complete decoded stream, bind raw hashes and fullpipeline exits. No settledfault acceptance."
+}

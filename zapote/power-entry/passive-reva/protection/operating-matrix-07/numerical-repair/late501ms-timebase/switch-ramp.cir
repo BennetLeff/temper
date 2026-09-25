@@ -1,0 +1,13 @@
+* Bounded switch/RC timestamp fixture; diagnostic only
+Vdac in 0 PWL(0 2.19 .5015548 2.199999 .5015550 2.200001 .50156 2.21 .65 2.4)
+Vdd vdd 0 15
+.model SWPWM SW(Ron=1 Roff=1e12 Vt=1.7 Vh=.5)
+Sstate logic out in 0 SWPWM
+Vlogic logic 0 1
+Rlogic logic 0 1
+Rdrv out drv 1
+Cdrv drv 0 18.75n
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.tran 1n .65 0 1n
+.print tran v(in) v(out) v(drv)
+.end

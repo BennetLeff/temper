@@ -1,0 +1,19 @@
+* Slow 5 V/us PWM edge using the authored hysteretic logic interface.
+.include authored_logic_vendor_comphys.inc
+Vaux aux15 0 15
+Vdisable disable 0 0
+Vpwm pwm_input 0 PWL(0 0 2u 0 3u 5 5u 5 6u 0 8u 0)
+Xdriver disable pwm_input aux15 0 driver_out AUTH_UCC27511A_HV
+Rgate driver_out gate 10
+Rgs gate 0 10k
+Cgate gate 0 12n
+.tran 1n 8u
+.control
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+run
+wrdata authored-threshold-hysteretic.tsv v(pwm_input) v(driver_out) v(gate) v(aux15) v(disable) v(xdriver.pwm_state) v(xdriver.inm_state) v(xdriver.aux_state) v(xdriver.driver_req)
+quit
+.endc
+.end

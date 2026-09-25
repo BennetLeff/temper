@@ -1,0 +1,128 @@
+{
+  "date": "2026-09-22",
+  "scope": "prototype gate-network correction and bounded passive response study",
+  "status": "correction verified; full controller/FET transient qualification blocked",
+  "basis": {
+    "date": "2026-09-22",
+    "branch": "codex/power-entry-pkgs-1-4",
+    "commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+    "dirty": true,
+    "scope": "isolated prototype reference correction and bounded dynamic investigation",
+    "inputs": [
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/clamp.kicad_sch",
+        "sha256": "b48680aa0462caf4bc0977e8a12fc3160a91df1201277e8431dce9deb82f5dee"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/clamp-expected.tsv",
+        "sha256": "f2b25e223ec96a7ad11747a36b6e9ca7ae0db42c95d39263be4d99a6cd40a1d0"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/README.md",
+        "sha256": "bef65812a14f99a3f552d8b6b86738e258c29a672909740418ab5d839d2fe82b"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-parts-18/parts-screen.rs",
+        "sha256": "c1f443329cd64fcac18a82f2b8c1a08e3028daf3432e3468bad32abc0ca64ce7"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/auditor.rs",
+        "sha256": "3b94a081f519b966cdbd995cd55e776ff2926260411e867e49c48c5a9940e0ef"
+      },
+      {
+        "path": "zapote/power-entry/passive-reva/protection/interface-active-15/clamp/design.md",
+        "sha256": "66a2ffd863e4d1258f1a6d460e7a515a61fc566170dc648e8d85b9148f322643"
+      }
+    ]
+  },
+  "delegation": {
+    "model": "gpt-5.6-luna",
+    "assignments": [
+      "rev19_reference",
+      "rev19_reset",
+      "rev19_models",
+      "rev19_independent",
+      "rev19_final_check"
+    ],
+    "parent_dispositions": "review-resolution.md",
+    "interrupted_after_handback": true
+  },
+  "changes": {
+    "native_pin_net_changes": [
+      "R7.1: Q_GATE -> GATE_DRV",
+      "D1.2 (anode): Q_GATE -> GATE_DRV"
+    ],
+    "diode_cathode": "D1.1 remains CG",
+    "parts_changed": 0,
+    "reset_note": "120ms timer reset only; gate turn-off/output discharge separately unqualified"
+  },
+  "checks": {
+    "red_before_edit": "old revision18 netlist rejected",
+    "final_clamp_pins": 39,
+    "clamp_components": 14,
+    "unchanged_reset_reference_pins": 106,
+    "mutation_controls": [
+      "old branch rejected",
+      "wrong diode endpoint rejected",
+      "fixed-high HOT permission rejected"
+    ],
+    "erc_findings": 7,
+    "erc_unchanged": true,
+    "bom_unchanged": true,
+    "final_visual_review": true,
+    "passive_probes": {
+      "simulator": "ngspice45.2",
+      "runs": 4,
+      "closed_form_comparisons": 22,
+      "timestep_refinement_comparisons": 11,
+      "comparison_tolerance_V": 0.00005,
+      "failure_path_tests": 4,
+      "corrupted_real_log_rejected": true,
+      "controller_model": false,
+      "FET_model": false,
+      "load_model": false
+    },
+    "preservation": {
+      "frozen": [
+        {
+          "revision": "interface-capture-16",
+          "verified_files": 56
+        },
+        {
+          "revision": "interface-integration-17",
+          "verified_files": 12
+        },
+        {
+          "revision": "interface-parts-18",
+          "verified_files": 46
+        }
+      ],
+      "inputs_verified": 6,
+      "bom_identical": true,
+      "erc_findings_identical": true,
+      "erc_count": 7,
+      "corrupted_real_log_rejected": true
+    }
+  },
+  "reference": {
+    "retained_visual_revision": "B",
+    "current_official_text_revision": "C",
+    "current_revision_visual_retrieved": false
+  },
+  "remaining": [
+    "usable LT4363-1/FDB33N25 model and compatible runtime or actual bench captures",
+    "bounded source waveform, source impedance and converter startup/load behavior",
+    "actual driver-pin voltage below18V and Q1 VDS/current/time hot-SOA assessment",
+    "physical gate/current turnoff and output hold-up/restart behavior",
+    "environment, biased ceramic minima and mechanical fit",
+    "full producer/decoder and circuit integration"
+  ],
+  "full_compiled_candidate": {
+    "revision": 11,
+    "components": 136,
+    "unchanged": true
+  },
+  "pcb_changed": false,
+  "committed": false,
+  "pushed": false
+}

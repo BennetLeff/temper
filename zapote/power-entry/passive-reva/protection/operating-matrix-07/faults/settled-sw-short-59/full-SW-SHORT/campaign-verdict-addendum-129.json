@@ -1,0 +1,16 @@
+{
+  "status": "PARENT_REVIEWED_PREFIX_ADDENDUM_TO_INDETERMINATE_FAULT",
+  "case": "SW-SHORT",
+  "campaign_verdict": "INDETERMINATE",
+  "accepted_protection": false,
+  "own_normal_prefix_accepted": true,
+  "declared_endpoint_s": 0.662,
+  "observed_stop_s": 0.6544026486296868,
+  "cause": "Timestep abort; source-bound fullfault recording remains incomplete. Owncoldnormalprefixacceptedseparately.",
+  "prefix_receipt": "faults/sw-prefix-only-117/full-SW-SHORT/normal-prefix-acceptance-129.json",
+  "prefix_receipt_sha256": "cbd23c71bb5cb0a9a357d4a5b30f0f9a17bcd7e03cc9c713b23cc81de7c64e71",
+  "preserved_verdict": "faults/settled-sw-short-59/full-SW-SHORT/campaign-verdict-86.json",
+  "preserved_verdict_sha256": "30f05795f68b50fae1c6e6b1c977cb43eaf93e44a5d92950cbadbd962f00f635",
+  "bounded_contract": "faults/fault-matrix.md:126-134 allows retained INDETERMINATE attempt; no solver rerun or threshold relaxation.",
+  "remaining_physical_questions": "Failed-switch path isgate-independent; partialtail cannotprove fullfaultcurrentinterruption or retention."
+}

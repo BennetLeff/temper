@@ -1,0 +1,26 @@
+* limiting-envelope-13 open_vm5p000
+* Finite shunt pulse: 1 us delay, 10 ns edges, 4 us flat width.
+.param VAMP=-5.000 RSH=220.0
+VSHUNT shunt 0 PULSE(0 {VAMP} 1u 10n 10n 4u 8u)
+VMEAS shunt shunt_m 0
+R_ISENSE shunt_m isense {RSH}
+CISENSE isense 0 1n
+* OPEN CLAMP: no current path is connected.
+.options method=trap reltol=1e-6 abstol=1e-12 vntol=1e-9
+.save time v(shunt) v(shunt_m) v(isense) i(VMEAS)
+.tran 1n 8u 0 1n
+.control
+run
+let resistor_power=(v(shunt_m)-v(isense))*i(VMEAS)
+meas tran isense_max MAX v(isense) FROM=0 TO=8u
+meas tran isense_min MIN v(isense) FROM=0 TO=8u
+meas tran isense_flat AVG v(isense) FROM=4u TO=4.8u
+meas tran resistor_i_max MAX i(VMEAS) FROM=0 TO=8u
+meas tran resistor_i_min MIN i(VMEAS) FROM=0 TO=8u
+meas tran resistor_i_flat AVG i(VMEAS) FROM=4u TO=4.8u
+meas tran resistor_energy INTEG resistor_power FROM=1u TO=5.02u
+meas tran resistor_energy_total INTEG resistor_power FROM=0 TO=8u
+write open_vm5p000.raw time v(shunt) v(shunt_m) v(isense) i(VMEAS)
+quit
+.endc
+.end

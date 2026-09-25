@@ -1,0 +1,68 @@
+{
+  "sources": [
+    {
+      "path": "sources/ucc28180.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/ucc28180.pdf",
+      "sha256": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be",
+      "origin": "official PDF fetched2026-09-19",
+      "copied_from_relative_to_audit": null
+    },
+    {
+      "path": "sources/tlv3202.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/tlv3202.pdf",
+      "sha256": "1777bba814c74772bb54c6f1f56702985039043ce2fb2affaf996a83eaf1076e",
+      "origin": "official PDF fetched2026-09-19",
+      "copied_from_relative_to_audit": null
+    },
+    {
+      "path": "sources/sn74hcs21.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf",
+      "sha256": "c9fb5982e902b54d877ac8b3a33fe7bb4bcf890e579a9294f0543e7473ee6295",
+      "origin": "official PDF fetched2026-09-19",
+      "copied_from_relative_to_audit": null
+    },
+    {
+      "path": "sources/sn74hcs74.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/sn74hcs74.pdf",
+      "sha256": "3ea07ee8f5550bb882e323bfe71378210c7cadb19539d9cf1917f701ca7b3ca9",
+      "origin": "official PDF fetched2026-09-19",
+      "copied_from_relative_to_audit": null
+    },
+    {
+      "path": "sources/ucc27624.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/ucc27624.pdf",
+      "sha256": "b42590ddafb28a608aae30f5a2c333851cf11ded63daa03fbdef6df93ecb8a51",
+      "origin": "official PDF fetched2026-09-19",
+      "copied_from_relative_to_audit": null
+    },
+    {
+      "path": "sources/760800301.pdf",
+      "url": "https://www.we-online.com/components/products/datasheet/760800301.pdf",
+      "sha256": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+      "origin": "retained prior official PDF",
+      "copied_from_relative_to_audit": "../../../loss-budget/sources/760800301.pdf"
+    },
+    {
+      "path": "sources/Stackpole-HCSM-2019.pdf",
+      "url": "https://www.seielect.com/catalog/SEI-HCSM.pdf",
+      "sha256": "3b7f5335006da93130dab4c0bff5195a8561a76e3ce292e8aa07ec0871a8c3aa",
+      "origin": "retained prior official PDF",
+      "copied_from_relative_to_audit": "../../../shunt-repair/sources/Stackpole-HCSM-2019.pdf"
+    },
+    {
+      "path": "sources/stw65n65dm2ag.pdf",
+      "url": "https://www.st.com/resource/en/datasheet/stw65n65dm2ag.pdf",
+      "sha256": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
+      "origin": "retained prior official PDF",
+      "copied_from_relative_to_audit": "../../../loss-budget/sources/STW65N65DM2AG.pdf"
+    },
+    {
+      "path": "sources/tlv1704.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/tlv1704.pdf",
+      "sha256": "b971c8ca9ae7da43d67fa3486f202e6e688d8f5cc4b220268473fc0b4904c42b",
+      "origin": "retained prior official PDF",
+      "copied_from_relative_to_audit": "../sources/tlv1704.pdf"
+    }
+  ],
+  "fetch_note": "Sandbox DNS prevented curl initially; TI files fetched with network approval. ST live download failed HTTP/2 then timed out; retained official PDF used and current web datasheet consulted."
+}

@@ -1,0 +1,40 @@
+{
+  "status": "DISPOSITIONED_MODELED_FAULT_CASE",
+  "campaign_verdict": "FAIL",
+  "accepted_protection": false,
+  "utc": "2026-09-22T02:01:50.706063+00:00",
+  "case": "BOTH-SHORT",
+  "cause": "Unchanged all-row inductor-current screen exceeded: 435.79078242060086 A >100 A.",
+  "validator_error_verbatim": "REJECTED: all-row node screen Lboost: 435.79078242060086 > 100",
+  "formal_checker_verdict": null,
+  "checker_precedence": "event-aware-validation-22/audit.rs applies all-row node screens before fault_checks::check; no formal ProtectionGap category reached.",
+  "raw": {
+    "path": "faults/settled-both-short-65/full-BOTH-SHORT/raw.trace.raw.gz",
+    "sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+    "bytes": 5286116925,
+    "full_rows": 32036953,
+    "fields": 42,
+    "endpoint_s": 0.6619999999999999
+  },
+  "own_normal_prefix_accepted": true,
+  "own_phase_accepted": true,
+  "complete_trace": true,
+  "required_endpoint_s": 0.662,
+  "stage2_exits": "adapter_rc=0 validator_rc=1 decoder_rc=0 decompressor_rc=0",
+  "evidence_sha256": {
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/normal-prefix-acceptance.json": "d035c11c0a1673aa0c577eda34bc81dffb1b708f71ad435085b719797f06d94c",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/parent-phase-acceptance.json": "034353e4a73312fbdd9f6599453272e3995eb6d9589700b90002275e38fbc615",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/analysis-receipt.json": "de28683287ccb024c71d1fcb473c5f782616b326fe7dd9eebfe29877c1cd8ec4",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/post-injection-observations.json": "342fb23a5c55ac2518a5e96c64472627f2f6973f8fc7a22f9e4ae458aaa864a4",
+    "faults/settled-both-short-65/full-BOTH-SHORT/validator.stderr": "1cd4b79f169a76fedb640bfa8fefcdde88707b949e70c3f4fb3ae0977939c7f0",
+    "faults/settled-both-short-65/full-BOTH-SHORT/result.json": "8d1e992a9303bbc0b3a2161c842456d970b2426fd14c9d723ca2d8d9a948b48d",
+    "faults/both-short-parent-review-110.json": "b3345900c80dde72675dcf0a9b8a2478e5696f88816a70757f6cb4e14473af74",
+    "faults/event-aware-validation-22/audit.rs": "542af0dcc845f099b0329b3c6fdf092583b1b074aa12d9d5dc684e1e6d361119"
+  },
+  "stress_assessment": "Existing frozen55 samples show current persists after gate/latch/enable off; exact coincident peak diagnostic99 running separately. No continuous current-interruption or physical die/SOA claim.",
+  "limitations": [
+    "Idealized failed switch branch is gate-independent and included in Vchannel current.",
+    "Ideal short currents are model results, not physical device ratings or survival predictions.",
+    "No criteria widened and no new solver run for this disposition."
+  ]
+}

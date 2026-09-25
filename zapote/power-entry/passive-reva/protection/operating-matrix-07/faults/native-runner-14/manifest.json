@@ -1,0 +1,46 @@
+{
+  "status": "PREPARED_DIAGNOSTIC_CANDIDATE_NO_CAMPAIGN",
+  "purpose": "bounded native fault42 single-case transport supervisor",
+  "source": "supervisor.rs",
+  "source_sha256": "33ca143a9f83ae9ac3db3d45040cdad51123e8778f7c4532004d2711bd276363",
+  "binary": "/private/tmp/matrix07-fault-native-supervisor-parent",
+  "binary_sha256": "3bb74216e7650f3b09707c9e9fb778488ad42522250264f1ccebcaa8057f9000",
+  "fixture_source": "fixture/synthetic-native-host.rs",
+  "fixture_source_sha256": "f7aadafae5275786c00d01f518fae98a7e5a9055dbe1085982db04648e41b641",
+  "fixture_binary": "/tmp/matrix07-native-runner14-synthetic-host",
+  "fixture_binary_sha256": "7812ec3a32dd2dccd3011493058d6c548672e9339dfe8992c9ac28e0ee821f09",
+  "protocol": {
+    "native_host_args": [
+      "case.cir",
+      "wall_seconds",
+      "tstop_s",
+      "raw_fifo",
+      "first-invalid.tsv"
+    ],
+    "native_schema": "fault42",
+    "native_byte_order": "little",
+    "retained_artifact": "raw.trace.raw.gz",
+    "supplement": "/dev/null",
+    "max_children": 5,
+    "disk_floor_bytes": 10737418240
+  },
+  "kind_mapping": {
+    "f2-start": "adapter=f2-start, validator=f2-open",
+    "f2-crest": "adapter=f2-crest, validator=f2-open",
+    "f2-zero": "adapter=f2-zero, validator=f2-open",
+    "bypass-neg": "adapter=bypass-neg, validator=f2-open, requires --bypass",
+    "switch-short": "adapter=switch-short, validator=switch-short",
+    "diode-short": "adapter=diode-short, validator=diode-short",
+    "both-short": "adapter=both-short, validator=both-short"
+  },
+  "tests": {
+    "command": "rustc --edition=2021 -D warnings --test supervisor.rs -o /tmp/matrix07-fault-native-runner14-tests && /tmp/matrix07-fault-native-runner14-tests",
+    "passed": 3,
+    "failed": 0,
+    "synthetic_transport": "COMPLETE_REVIEW_PENDING, transport_complete=true, acceptance=false",
+    "early_host_negative": "missing metadata rejected before compressor wait; FIFOs removed",
+    "parent_tests_passed": 7
+  },
+  "acceptance": "none; transport/evidence only, no fault or hardware qualification",
+  "parent_review": "parent-review.json"
+}

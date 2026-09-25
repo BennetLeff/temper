@@ -1,0 +1,17 @@
+{
+  "deck_sha256": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+  "includes_sha256": "c614d6bf0aad5a5a200cbbf46ce564d2dc7aa4e7b0a210a6afecc17b74abaf24",
+  "tracked_sha256": "be4e56d6d071391ddd4f88b14faf4aef3363e2fc089f1c44205366dbe88fe4cd",
+  "normalize_sha256": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+  "checker_sha256": "24c95bea81b44a3d5038a32552297afed17547fcd1b3ddcfd99434e84638b85c",
+  "decoder_sha256": "23008f5bba4c560d87c97fde0822949fba5bccab7223af0b64fd49c6b221aea0",
+  "event_metrics_sha256": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+  "event_audit_sha256": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6",
+  "baseline": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/accepted-baseline-11/acceptance.json",
+  "selected_cases": ["LL01"],
+  "selection_mode": "explicit",
+  "tracked_cli_args": ["cold.cir", "3600", "0.65", "trace.fifo", "first-invalid.tsv"],
+  "first_invalid_snapshot": true,
+  "compressor": {"path": "/opt/homebrew/Cellar/pigz/2.8_1/bin/pigz", "sha256": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80", "threads": 4, "format": "gzip-compatible-pigz"},
+  "policy": "complete_review_pending"
+}

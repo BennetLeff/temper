@@ -1,0 +1,171 @@
+{
+  "status": "ACCEPTED_EXACT_MODELED_FAULT_CASE_NORMAL_PREFIX",
+  "accepted": true,
+  "utc": "2026-09-22T02:01:50.706063+00:00",
+  "scope": "Own BOTH-SHORT65 cold-start/normal prefix under event-aware-normal-v1 only; no fault protection or hardware acceptance.",
+  "path_base": "campaign root",
+  "raw": {
+    "path": "faults/settled-both-short-65/full-BOTH-SHORT/raw.trace.raw.gz",
+    "sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+    "bytes": 5286116925,
+    "full_rows": 32036953,
+    "fields": 42,
+    "endpoint_s": 0.6619999999999999
+  },
+  "normal_prefix": {
+    "cutoff_s": 0.65,
+    "selected_rows": 30109591,
+    "last_selected_time_s": 0.6499999876940904,
+    "cutoff_gap_s": 1.2305909624643618e-08,
+    "max_cutoff_gap_s": 1e-06,
+    "metrics_window_s": [
+      0.5999999876940904,
+      0.6499999876940904
+    ],
+    "fault_rising_edge_s": 0.6541666661706754,
+    "metrics": {
+      "vrms_v": 120.0,
+      "irms_a": 7.318003,
+      "input_power_w": 868.144984,
+      "load_power_w": 773.452906,
+      "pf": 0.988595,
+      "vb_mean_v": 383.377214,
+      "vb_min_v": 381.322638,
+      "vb_max_v": 385.378685,
+      "cycle_means_v": [
+        382.8587798497746,
+        383.38766725877025,
+        383.8851947230978
+      ],
+      "cycle_drift_fraction_derived": 0.0026809229077258616,
+      "cycle_drift_reported": 0.002681,
+      "il_peak_a_report_only": 30.649183,
+      "vd_peak_v": 385.488063,
+      "vds_peak_v": 386.78674,
+      "vgs_abs_peak_v": 14.982193,
+      "armed_fraction": 1.0,
+      "on_fraction": 1.0,
+      "three_state_energy_change_j": 1.3304262134956737,
+      "energy_delta_rate_w": 26.608524269913474,
+      "energy_residual_pin_pout_de_w": 68.0835529376178,
+      "selected_storage_sumabs_delta_j": 3.1543725307558174e-12
+    },
+    "screen_count": 0,
+    "repeated_time_audit": {
+      "rows": 30109591,
+      "equal_groups": 47,
+      "repeated_intervals": 64,
+      "max_group_rows": 3,
+      "missing_right": 0,
+      "backwards": 0,
+      "logic_changes": 0,
+      "boundary_groups": 0,
+      "e3_spread_j": 1.7009003384814868e-13,
+      "e3_sumabs_j": 2.6323037478888208e-12,
+      "all_original_rows_retained": true
+    }
+  },
+  "source_sha256": {
+    "faults/settled-both-short-65/full-BOTH-SHORT/authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "faults/settled-both-short-65/full-BOTH-SHORT/case.cir": "c35139cff49f8f43db43a4dca9cff13c06c0289150b09dab12ba5aff29ffcb51",
+    "faults/settled-both-short-65/full-BOTH-SHORT/clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "faults/settled-both-short-65/full-BOTH-SHORT/cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "faults/settled-both-short-65/full-BOTH-SHORT/manifest.json": "92345035c765b9132540e067b1ffe3ce06e4845095671328700386502dc0479b",
+    "faults/settled-both-short-65/full-BOTH-SHORT/protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "faults/settled-both-short-65/full-BOTH-SHORT/run-parameters.json": "d3c287517c7c2d8deb7793ab96654355d1e02ae0be2781be2fcb9455d65fb3cb",
+    "faults/settled-both-short-65/full-BOTH-SHORT/source-identity.json": "be38a818489323be8de3396c44a73378d800bb8ed308e32e4389b42cbc9a0dd8",
+    "faults/settled-both-short-65/full-BOTH-SHORT/standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "faults/settled-both-short-65/full-BOTH-SHORT/ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  },
+  "legacy": {
+    "status": "EXPECTED_STRICT_REJECTION",
+    "accepted": false,
+    "classification_reason": "REPEATED_TIMESTAMP",
+    "raw_before_sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+    "raw_after_sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+    "pipeline_status_order": [
+      "pigz",
+      "decoder",
+      "selector",
+      "normalizer",
+      "checker"
+    ],
+    "pipeline_statuses": [
+      141,
+      1,
+      1,
+      1,
+      1
+    ],
+    "checker_stderr": "checker.stderr",
+    "prefix_end_s": "0.649999987694090398",
+    "runner_exit": 1,
+    "transport_failures_are_not_acceptance": true
+  },
+  "pipeline_exits": {
+    "scan": [
+      0,
+      0,
+      0
+    ],
+    "audit": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "metrics": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "phase": [
+      0,
+      0,
+      0
+    ],
+    "observe": [
+      0,
+      0,
+      0
+    ]
+  },
+  "evidence_sha256": {
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/analysis-receipt.json": "de28683287ccb024c71d1fcb473c5f782616b326fe7dd9eebfe29877c1cd8ec4",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/preflight.json": "ad985fc303e8a58b0d403dc2451ae9514780db387e924481c9b65d65427fa592",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/prefault-scan.json": "dcf2ea6c5023f399b9a2b04c6f6a56fa67f0395473053c73355af40f5e915a33",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/normal15-audit.txt": "22f3baee808a6992ee25af4e93bd7f0a3d580f8c55f4cfc1d12ad342f6c254f8",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/normal15-events.tsv": "7aef7655e046c588987c3f2e14902eb39938dece386bd24a6cd090afa26acf8e",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/normal-metrics.txt": "0ad55c521bc9e8c561c1319a7b70847418823aa01fd1b4090d8ceee3a3b54131",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/legacy-strict/receipt.json": "fe16d9c877d34acc0ffd49fcb65c568c621f01ae0e869f4594c7d39108deb3fa",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/legacy-strict/checker.stderr": "7397a65dc28be1374bc8df822ac4b84693a821ccf2544f614ff0b25a19c39814",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/legacy-strict/pipeline.exit": "175bdbc71706c903e524dd6d875c3ab6ac16c186bae6a09d895464d0e9d9e9f2",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/phase.json": "c75105e19f901694f24b557e399c5e596cad4908b20f06d0a251d262bbcd4337",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/phase.exit": "a17138988e1387532b5cb0bd7a23f18a11d537123873e67154dada3c6359e53e",
+    "faults/settled-both-postcapture-75/run.sh": "6d3908ee9f3edf3e2ab1872c7a6f312bb94198da3c23f8842930a41cd8f06f97",
+    "faults/settled-both-postcapture-75/legacy-strict.sh": "2dfddff9588501b30fb6f6cb5c4632a9a65f7da474c5a47dce3ca41f0172c255",
+    "faults/settled-both-postcapture-75/tools-parent.sha256": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+    "faults/settled-both-postcapture-75/parent-review.json": "e71a597d3ea754204a4adf0aa74617ed556537d9053afbb7ee67f92cd178950a",
+    "faults/settled-both-postcapture-75/normal-phase-candidate-112.json": "a45bfa9518ee1432ce4228c05715d827d3e524831b667c9f628d9e98d3d3e889"
+  },
+  "tool_sha256_verified": {
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-prefault-selector-parent": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+    "/private/tmp/matrix07-normal15-event-audit-host": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6",
+    "/private/tmp/matrix07-normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "/private/tmp/matrix07-event-metrics-host": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "/private/tmp/matrix07-phase43-parent": "e546ddfb84c53b73303e465574fa29fdff7753768c3a71efda1f8b5f185be965",
+    "/private/tmp/matrix07-bypass55-parent": "3bff9b4312cf9bb3c2118219e0f3bc5406482d8c2b83b728ad851b663bb40f6c"
+  },
+  "parent_review_notes": [
+    "Reviewed actual frozen Rust metrics/audit and source/manifest hashes; candidate values checked against those outputs.",
+    "No raw samples removed or deduplicated; strict legacy rejection preserved, not reclassified as pass.",
+    "Candidate backwards=0 denotes successful Rust nondecreasing validation, not a separately emitted counter.",
+    "Drift reconstruction is presentation arithmetic only; numerical screens from frozen Rust.",
+    "Small repeated-time energy bounds address representative choice only, not total solver/model error.",
+    "Full archive hashes verified before/after in completed analysis and legacy receipts; current presence/size verified without redundant rehash."
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "status": "illustrative only; no qualified interruption or completion promotion",
+  "claims": [
+    {
+      "id": "static-budget",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "R error +/-0.0035, differential offset +/-0.008 V, each input bias +/-20 nA",
+      "part": "isolated F2 sensing and healthy-switch plant screen",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Illustrative F2-open plant with a healthy controllable switch and healthy boost diode; all conditions in window_screen.rs and README.md; no hardware protection qualification.",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "window_screen.rs",
+          "sha256": "161996028cd9713de4b0bd281b4ec11e0493e3157145e4c3582e3eb3d637b1ef"
+        },
+        {
+          "path": "README.md",
+          "sha256": "d2360c629d035c06620a47820c86c5c16d4056fc6423d962795f3a7f1d2e7226"
+        }
+      ]
+    },
+    {
+      "id": "plant-budget",
+      "origin": "assumption",
+      "inputs": [],
+      "quantity": "132Vac crest; 180uH; 19.8uF; 410V initial bank; assumed 40A at static trip; provisional ceiling500V",
+      "part": "isolated F2 sensing and healthy-switch plant screen",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Illustrative F2-open plant with a healthy controllable switch and healthy boost diode; all conditions in window_screen.rs and README.md; no hardware protection qualification.",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "window_screen.rs",
+          "sha256": "161996028cd9713de4b0bd281b4ec11e0493e3157145e4c3582e3eb3d637b1ef"
+        },
+        {
+          "path": "README.md",
+          "sha256": "d2360c629d035c06620a47820c86c5c16d4056fc6423d962795f3a7f1d2e7226"
+        }
+      ]
+    },
+    {
+      "id": "static-trip",
+      "origin": "derivation",
+      "inputs": [
+        "static-budget"
+      ],
+      "quantity": "latest diode trip432.085945V at bank410V, conditional static enumeration",
+      "part": "isolated F2 sensing and healthy-switch plant screen",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Illustrative F2-open plant with a healthy controllable switch and healthy boost diode; all conditions in window_screen.rs and README.md; no hardware protection qualification.",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "window_screen.rs",
+          "sha256": "161996028cd9713de4b0bd281b4ec11e0493e3157145e4c3582e3eb3d637b1ef"
+        },
+        {
+          "path": "screen.txt",
+          "sha256": "692e33bf2314cb816658faed6200b48ed16c5786d7e76179469a81ee9f469a3d"
+        }
+      ]
+    },
+    {
+      "id": "shutdown-budget",
+      "origin": "derivation",
+      "inputs": [
+        "static-trip",
+        "plant-budget"
+      ],
+      "quantity": "conditional10.660794us maximum total delay to provisional500V ceiling",
+      "part": "isolated F2 sensing and healthy-switch plant screen",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Illustrative F2-open plant with a healthy controllable switch and healthy boost diode; all conditions in window_screen.rs and README.md; no hardware protection qualification.",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "window_screen.rs",
+          "sha256": "161996028cd9713de4b0bd281b4ec11e0493e3157145e4c3582e3eb3d637b1ef"
+        },
+        {
+          "path": "screen.txt",
+          "sha256": "692e33bf2314cb816658faed6200b48ed16c5786d7e76179469a81ee9f469a3d"
+        }
+      ]
+    },
+    {
+      "id": "oracle-comparison",
+      "origin": "derivation",
+      "inputs": [
+        "static-trip",
+        "plant-budget"
+      ],
+      "quantity": "idealized ngspice460.0342V versus calculation460.119790V; numerical cross-check only",
+      "part": "isolated F2 sensing and healthy-switch plant screen",
+      "value_kind": "assumed",
+      "bound_kind": "point",
+      "source_condition": "Illustrative F2-open plant with a healthy controllable switch and healthy boost diode; all conditions in window_screen.rs and README.md; no hardware protection qualification.",
+      "fault_state": "not_applicable",
+      "assertion": "illustrative",
+      "evidence": [
+        {
+          "path": "commutation.cir",
+          "sha256": "9c8475de19b49649cd69be563348f5d2994f3dcf5f51c6e82edb7a075d5d0fb8"
+        },
+        {
+          "path": "commutation.log",
+          "sha256": "0344f64a38f25b36f5b0880b7099133c5a7e34894feed97c5f1e7c94e2a187e9"
+        },
+        {
+          "path": "screen.txt",
+          "sha256": "692e33bf2314cb816658faed6200b48ed16c5786d7e76179469a81ee9f469a3d"
+        },
+        {
+          "path": "tests.txt",
+          "sha256": "9bc0c659e738fc50c96353992644ea2d2bc44f9babd78043fb4a36bca510b930"
+        }
+      ]
+    }
+  ],
+  "protection_claims": [],
+  "promotions": []
+}

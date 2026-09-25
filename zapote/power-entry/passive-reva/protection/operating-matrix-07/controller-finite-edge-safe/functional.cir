@@ -1,0 +1,22 @@
+UCC28180 nominal pin-functional oracle fixture
+.include ucc28180.inc
+.param PCL_ENABLE=1
+Vcc vcc 0 PWL(0 0 10u 0 11u 10.5 30u 10.5 31u 12 60u 12 61u 10 90u 10 91u 9 120u 9 121u 15)
+Vvs vsense 0 PWL(0 5 200u 5 201u 5.6 220u 5.6 221u 5.2 250u 5.2 251u 5 300u 5 301u .5 320u .5 321u 5 430u 5 430.001u 4 445u 4 445.001u 5)
+Vis isense 0 PWL(0 -.1 350u -.1 350.001u -.5 360u -.5 360.001u -.1 400u -.1 400.001u .12 420u .12 420.001u -.1 450u -.1 450.001u -.30 470u -.30 470.001u -.1)
+* Pin-forced compensation isolates protection behavior; not a regulation test.
+Vvc vcomp 0 3
+Vic icomp 0 PWL(0 1 480u 1 480.001u .1 490u .1 490.001u 1)
+Xu vcc vsense isense icomp vcomp gate 0 UCC28180_FN PCL_ENABLE={PCL_ENABLE}
+Rgate gate 0 10k
+.options method=gear reltol=1e-4
+.tran 10n 500u 0 10n
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+wrdata functional.tsv v(vcc) v(vsense) v(isense) v(gate) v(xu.uv) v(xu.ov) v(xu.pcl_hold) v(xu.raw) v(xu.blank) i(Vvc)
+quit
+.endc
+.end

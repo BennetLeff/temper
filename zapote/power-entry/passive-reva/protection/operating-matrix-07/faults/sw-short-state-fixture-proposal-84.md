@@ -1,0 +1,16 @@
+# SW-SHORT state-conditioned fixture proposal
+
+This is a proposal only. It creates no circuit and runs no solver. The original SW-SHORT result remains rejected; a fixture result could not clear it.
+
+The smallest credible baseline is a late-state replay, not a zero-state edge bench. Retain the authored `AUTH_UCC27511A_H` hysteretic driver, the failed-MOS parallel short, the gate/output capacitances, both diode branches including the `Vdboost2sense` zero-volt probe, and the local/bulk reservoir load. Seed the available analog state from the final tail row: `v(vd)=384.1664524500678 V`, `v(vb)=384.1662050779034 V`, `v(sw)=0.1819944035111649 V`, `v(gate)=7.697733080488251e-7 V`, `i(Lboost)=181.99440390550896 A`, and `v(isense)=-0.8694092207431693 V`. Seed the saved controller observations (`v(q)=5 V`, `v(en)=5 V`, `v(fault)=0 V`, `v(xu.pcl_hold)=0 V`, `v(vcomp)=2.2743912201381 V`, `v(icomp)=5.9845099786521 V`, `v(pwm_input)=2.1999996968526125 V`, `v(pwm)=2.429564882611146 V`, `v(xdriver.driver_req)=15 V`, and `v(xdriver.drv_delay)=1.184285287142748e-7 V`) as initial conditions or prescribed boundary waveforms where the simulator requires a source. Preserve the failed-short command as already asserted and use the measured pre/post `driver_req` transition as a declared extrapolation around the unavailable post-abort input history.
+
+The baseline gate is strict: it must reproduce the same symptom class in the same local state—accepted timestamps repeating at the endpoint followed by the `6.25e-19 s` timestep collapse at the diode sense branch—before any counterfactual is interpreted. A normal run, a collapse at another node, or a reduced fixture pass is a non-reproduction.
+
+This replay cannot restore everything. The tail does not expose every capacitor charge/current, device charge state, mixed-signal primitive latch state, Newton predictor/history, or ngspice integration history. `q`, `en`, and the saved controller voltages are observations rather than serialized internal states. Therefore the proposed baseline is state-conditioned but not an exact restart; the `driver_req` continuation is explicitly extrapolated from the final transition and is not an exact replay of the unavailable future input. If the baseline does not reproduce the original symptom, stop: the useful next action is first-invalid instrumentation in a fresh full-plant run, not solver tuning or a reduced-circuit verdict.
+
+Only after a reproducing baseline would two counterfactuals be allowed:
+
+1. Hold `xdriver.driver_req` at its pre-transition near-zero value while retaining the measured electrical seeds. A disappearance or materially shifted collapse would support the late driver transition as a trigger.
+2. Keep the driver waveform and state seeds, but replace the ideal zero-volt diode-sense probe with a documented tiny finite series impedance. A disappearance or shifted collapse would support probe/topology stiffness.
+
+The prior late-time minimal-event fixture is relevant only as a limit: its reduced driver crosses the same 2.2 V threshold and remains strictly increasing, so a bare edge is insufficient. The finite-slew candidate also completed its reduced fixtures but moved gate timing farther from the vendor reference. Neither result supplies the missing plant state for this abort.

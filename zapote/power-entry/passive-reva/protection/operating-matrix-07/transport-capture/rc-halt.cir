@@ -1,0 +1,7 @@
+Headless shared API RC halt fixture
+V1 in 0 1
+R1 in out 1k
+C1 out 0 1u IC=0
+.tran 100u 10s 0 1u uic
+.save v(out)
+.end

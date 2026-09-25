@@ -1,0 +1,31 @@
+{
+  "status": "INDETERMINATE",
+  "model": {"kind": "conditional_conservative_screen", "double_count_warning": true, "instantaneous_current_is_not_bounded": true},
+  "node_limits": [
+    {"node":"VD_local_reservoir","rating_v":630,"operational_target_v":500,"target_kind":"chosen_conditional_screen","status":"conditional"},
+    {"node":"VB_bulk_bank","rating_v":450.0,"operational_target_v":410.0,"target_kind":"conditional_initial_state_only","status":"rating_only"},
+    {"node":"VDS","rating_v":650.0,"operational_target_v":null,"target_kind":"unresolved_switching_overshoot","status":"rating_only"},
+    {"node":"diode_reverse","rating_v":650.0,"operational_target_v":null,"target_kind":"unresolved_switching_overshoot","status":"rating_only"},
+    {"node":"VGS","abs_rating_v":25.0,"operational_target_v":15.0,"target_kind":"chosen_conditional_gate_drive","status":"conditional"}
+  ],
+  "revb_nominal_threshold_anchors": {"vd_high_tap_2p5v_derived_v":426.469072165,"vd_low_tap_2p5v_derived_v":441.645907473,"ucc28180_regulation_bus_nominal_v":389.615,"ucc28180_ovp_5p35v_anchor_v":416.888461538,"ucc28180_ovp_5p45v_anchor_v":424.680769231,"soc_typ_a":28.500000000,"soc_min_a":25.900000000,"kind":"nominal_threshold_anchor_not_operating_limit"},
+  "inputs": {"vin_rms_max_v":132.000000000,"c_min_f":0.000019800,"l_min_h":0.000100000,"l_max_h":0.000216000,"current_at_trip_a":50.000000000,"delay_s":0.000002000,"vd_start_v":432.085945000,"vb_initial_v":410.000000000,"vd_screen_v":500.000000000},
+  "evaluation": {"vin_peak_v":186.676190233,"current_start_a":50.000000000,"current_rise_a":3.733523805,"current_end_a":53.733523805,"vd_start_v":432.085945000,"vd_rise_during_delay_v":5.427628667,"vd_end_v":437.513573667,"cap_energy_increment_j":0.046726646,"inductor_energy_start_j":0.270000000,"inductor_energy_end_j":0.311827491,"vd_peak_v":493.949878108,"vd_screen_margin_v":6.050121892,"vd_rating_margin_v":136.050121892,"vb_rating_margin_v":40.000000000,"vds_rating_margin_v":null,"diode_rating_margin_v":null,"passes_vd_screen":true},
+  "boundary": {"allowable_delay_us_at_start_current":3.004125006,"allowable_current_a_at_delay":52.990136077},
+  "conditional_region": [
+    {"l_min_h":0.000180000,"l_max_h":0.000180000,"c_min_f":0.000019800,"current_start_a":40.000000000,"peak_at_2us_v":466.717279915,"peak_at_5us_v":477.395576442,"allowable_delay_us":10.660794062},
+    {"l_min_h":0.000180000,"l_max_h":0.000180000,"c_min_f":0.000019800,"current_start_a":45.000000000,"peak_at_2us_v":474.300331509,"peak_at_5us_v":485.846597428,"allowable_delay_us":8.405847728},
+    {"l_min_h":0.000180000,"l_max_h":0.000180000,"c_min_f":0.000019800,"current_start_a":50.000000000,"peak_at_2us_v":482.458774214,"peak_at_5us_v":494.809014627,"allowable_delay_us":6.204502455},
+    {"l_min_h":0.000180000,"l_max_h":0.000180000,"c_min_f":0.000019800,"current_start_a":60.000000000,"peak_at_2us_v":500.319115370,"peak_at_5us_v":514.097706080,"allowable_delay_us":1.928492175},
+    {"l_min_h":0.000144000,"l_max_h":0.000216000,"c_min_f":0.000019800,"current_start_a":40.000000000,"peak_at_2us_v":473.288696078,"peak_at_5us_v":486.166781212,"allowable_delay_us":7.955354148},
+    {"l_min_h":0.000144000,"l_max_h":0.000216000,"c_min_f":0.000019800,"current_start_a":45.000000000,"peak_at_2us_v":482.173101089,"peak_at_5us_v":496.012643499,"allowable_delay_us":5.822298452},
+    {"l_min_h":0.000144000,"l_max_h":0.000216000,"c_min_f":0.000019800,"current_start_a":50.000000000,"peak_at_2us_v":491.694361564,"peak_at_5us_v":506.413756916,"allowable_delay_us":3.719041182},
+    {"l_min_h":0.000144000,"l_max_h":0.000216000,"c_min_f":0.000019800,"current_start_a":60.000000000,"peak_at_2us_v":512.420414998,"peak_at_5us_v":528.676454844,"allowable_delay_us":null},
+    {"l_min_h":0.000100000,"l_max_h":0.000216000,"c_min_f":0.000019800,"current_start_a":40.000000000,"peak_at_2us_v":475.256557801,"peak_at_5us_v":491.711616683,"allowable_delay_us":6.395839671},
+    {"l_min_h":0.000100000,"l_max_h":0.000216000,"c_min_f":0.000019800,"current_start_a":45.000000000,"peak_at_2us_v":484.291531831,"peak_at_5us_v":501.880860721,"allowable_delay_us":4.692915369},
+    {"l_min_h":0.000100000,"l_max_h":0.000216000,"c_min_f":0.000019800,"current_start_a":50.000000000,"peak_at_2us_v":493.949878108,"peak_at_5us_v":512.574947826,"allowable_delay_us":3.004125006},
+    {"l_min_h":0.000100000,"l_max_h":0.000216000,"c_min_f":0.000019800,"current_start_a":60.000000000,"peak_at_2us_v":514.913099744,"peak_at_5us_v":535.342163615,"allowable_delay_us":null}
+  ],
+  "unknowns": ["effective_C_over_temperature_and_frequency","L(I,T) trajectory and saturation","UCC28180 PCL-to-gate maximum delay","loaded STW65N65DM2AG current cessation bound","wiring/fuse arcing and parasitic ringing","installed VD/VDS/diode transient acceptance"],
+  "sources": ["../f2-timing-02/README.md (retained source audit)","TI UCC28180D datasheet §7.5: 0.400 V typ / 0.438 V max PCL threshold; no applicable end-to-end delay maximum","Würth 760800301 datasheet: 180 uH ±20%; 43 A saturation figure typical at ΔL/L=30%, not a fault-current bound"]
+}

@@ -1,0 +1,8 @@
+Homebrew installed ngspice shared build evidence
+formula=/opt/homebrew/Cellar/libngspice/45.2/.brew/libngspice.rb
+source_url=https://downloads.sourceforge.net/project/ngspice/ng-spice-rework/45.2/ngspice-45.2.tar.gz
+source_sha256=ba8345f4c3774714c10f33d7da850d361cec7d14b3a295d0dc9fd96f7423812d
+configure_args=--with-ngshared --enable-cider --disable-openmp
+installed_version_observation=/opt/homebrew/bin/brew_list_versions: libngspice 45.2
+runtime_observation=driver-threshold-full-probe/host-run/run.log contains: Reducing trtol to 1 for xspice A devices
+binary_observation=strings /opt/homebrew/opt/libngspice/lib/libngspice.0.dylib contains XSPICE extensions included

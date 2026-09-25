@@ -1,0 +1,24 @@
+{
+  "status": "PARENT_REVIEWED_PREPARED_NOT_LAUNCHED",
+  "accepted": false,
+  "validation": [
+    "Exact SW-SHORT prepared case/manifest and6source files verified",
+    "All10 pinned tool/library/script hashes passed",
+    "/bin/bash -n and shellcheck passed"
+  ],
+  "files_sha256": {
+    "launch.sh": "998d6b7b83683dd2e818339128049ddaa4ac9631f0baa01f9ceaaa585cda8683",
+    "launch-worker.sh": "3997fde3be97dc766db971b9867f2da4cb6895b65ba6548664cbc6b1702c2d66",
+    "README.md": "d3a5623fe259cb096bf9f8ea8eb68e688cb39aaadebd79c63b4a4e1956bd1936",
+    "source-tool-binding.json": "59915549c7e4e10940be7124d896729d8905bf8956d7cbff1ba55a0088bd1da6",
+    "tools-parent.sha256": "082dd1572b3abd3f5e26562bb4945583cfae9633394692a46e881ee7dafa76f5"
+  },
+  "parent_correction": "Restored reviewed51 fail-closed process-filter handling and explicit monitor.exit/runner.exit recording; retained exact case-specific changes; added pinned-source recheck and materialized-copy comparison.",
+  "launch_conditions": [
+    "F2-ZERO terminal and parent reviewed",
+    ">=16GiBfree;10GiB runtime guard unchanged",
+    "No other known fullsolver",
+    "Fresh output and exact preparedsource/toolbytes"
+  ],
+  "scope": "Failed-short model graph only. Never protectionPASS, F2 heldclosed, categorical gap distinct from measured postdetector current."
+}

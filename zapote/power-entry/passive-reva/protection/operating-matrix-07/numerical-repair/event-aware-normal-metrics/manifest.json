@@ -1,0 +1,55 @@
+{
+  "status": "PARENT_REVIEWED_COMPLETE_DIAGNOSTIC",
+  "purpose": "streaming event-aware metrics over the maintained 12-column normal trace",
+  "source": {
+    "path": "metrics.rs",
+    "sha256": "e686b4d29d0cede142c9050dfcc738feb21f47bd1b8999c764ce1a756b94692e",
+    "binary": "/private/tmp/matrix07-event-metrics-host",
+    "binary_sha256": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "test_binary": "/private/tmp/matrix07-event-metrics-tests-host",
+    "test_binary_sha256": "ae0570897653692e5ff43d45f92f5ae954afa664e09679fe76267bc939c5218a"
+  },
+  "protocol": {
+    "input": "exact 12-column TSV header; stdin or --input FILE",
+    "required": [
+      "--end-s"
+    ],
+    "defaults": {
+      "mains_hz": 60.0,
+      "cycles": 3,
+      "max_gap_s": 0.001,
+      "max_step_s": 9.615384615384615e-07
+    },
+    "equal_time": "retain every row; zero-area integral; last row feeds next positive interval",
+    "boundaries": "exact equality when present, otherwise positive-interval interpolation; no snap tolerance",
+    "output_policy": "engineering_screen=REPORTED_NOT_ACCEPTED; qualification=NOT_CLAIMED"
+  },
+  "checker_binding": {
+    "path": "../../checker/operating_point_checker.rs",
+    "sha256": "845dde5ba649f8076c238b590f7fc11490e6a0a96bdbd4998f759429699c1d54"
+  },
+  "oracle": {
+    "directory": "../event-aware-normal-metrics-oracle",
+    "fixtures": {
+      "base.tsv.gz": "12464db4de421606aceeab6e14e7afc06d6695d7cdaf4dc23c92f28f98db4fd0",
+      "equal_time_exact.tsv.gz": "af1c5f9eeb1f456dc60503ca445115517bf8d5a9f345387a3f864c4a57062072",
+      "equal_time_stress_peak.tsv.gz": "7087060ff107334337c5066c421c25339daac15688ffeacbaa146b6279719f98",
+      "equal_time_cycle_boundary.tsv.gz": "9ebb4a4ce92920cb1d00a5683fb24fd17ef18a3f9c3399897a3b4cb1d87b3c38"
+    },
+    "timestamp_assertions_sha256": "02ddb2ca6d15e191b5d9a03ae580b861aa4910e9613710761b37bcd00248e84c",
+    "results": {
+      "base": "exit 0; vrms 120.208153; irms 3.535534; Pin 425 W; Pload 425 W; screens 0",
+      "equal_time_exact": "exit 0; duplicate_rows 1; boundary ambiguity false",
+      "equal_time_stress_peak": "exit 0; whole-prefix VDS peak 700 V; one diagnostic screen",
+      "equal_time_cycle_boundary": "exit 0; VB/VD peaks 405 V; boundary ambiguity true; nonzero equal-time storage impulse"
+    }
+  },
+  "tests": {
+    "command": "rustc --edition=2021 -D warnings --test metrics.rs -o /private/tmp/matrix07-event-metrics-tests-host",
+    "result": "8 parent tests passed, 0 failed; four independently rerun oracle fixtures",
+    "oracle_command": "for f in base equal_time_exact equal_time_stress_peak equal_time_cycle_boundary; do gzip -cd ../event-aware-normal-metrics-oracle/$f.tsv.gz | /tmp/matrix07-event-metrics --end-s .05; done"
+  },
+  "acceptance": "none; diagnostic metrics and screens do not establish normal-operation, thermal, hardware, or product qualification",
+  "parent_review": "parent-review.json",
+  "full_trace_report": "full-650ms-metrics.txt"
+}

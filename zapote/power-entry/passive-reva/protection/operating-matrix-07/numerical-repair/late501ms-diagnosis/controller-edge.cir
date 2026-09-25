@@ -1,0 +1,38 @@
+* Actual ADC/DFF/DAC PWM edge plus RevB hysteretic driver at captured 501 ms.
+.include authored_logic_hysteretic.inc
+.param EDGE=501.554914485680681m
+Vfive five 0 5
+Vreset reset 0 0
+Vaux aux15 0 15
+Vdisable disable 0 104.086126m
+Vraw raw 0 PWL(0 0 {EDGE} 0 {EDGE+1p} 5 {EDGE+200n} 5)
+Apwm_inputs [five raw reset] [pwm_data pwm_clk pwm_reset] UPWM_ADC
+Apwm pwm_data pwm_clk NULL pwm_reset pwm_q pwm_qn UDFF
+Apwm_out [pwm_q] [pwm_hold] UPWM_DAC
+.model UPWM_ADC adc_bridge(in_low=2.5 in_high=2.5 rise_delay=1n fall_delay=1n)
+.model UDFF d_dff(clk_delay=1n reset_delay=1n set_delay=1n rise_delay=1p fall_delay=1p ic=0)
+.model UPWM_DAC dac_bridge(out_low=0 out_high=5 out_undef=0 t_rise=1n t_fall=1n)
+Bgate pwm 0 V=3*V(pwm_hold)
+Cblank blank 0 1p IC=0
+Bblank 0 blank I=(V(pwm_hold)>2.5) ? 1u : -V(blank)/1
+Rpwm pwm pwm_input 1k
+Rpwmpd pwm_input 0 10k
+Xdriver disable pwm_input aux15 0 driver_out AUTH_UCC27511A_H
+Rgate driver_out gate 10
+Rgs gate 0 10k
+Cgd gate sw 112p
+Cgs gate 0 12n
+Csw sw 0 344p
+.options method=trap reltol=2e-4 abstol=1e-10 vntol=1e-7
+.save time v(raw) v(pwm_hold) v(blank) v(pwm) v(pwm_input) v(driver_out) v(gate) v(xdriver.pwm_state) v(xdriver.driver_req) v(xdriver.drv_delay)
+.tran 1n {EDGE+200n} {EDGE-20n} 1m uic
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+rusage tranpoints traniter rejected
+wrdata controller-edge.tsv v(raw) v(pwm_hold) v(blank) v(pwm) v(pwm_input) v(driver_out) v(gate) v(xdriver.pwm_state) v(xdriver.driver_req) v(xdriver.drv_delay)
+quit
+.endc
+.end

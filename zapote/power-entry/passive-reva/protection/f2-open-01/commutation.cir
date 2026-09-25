@@ -1,0 +1,18 @@
+Healthy-switch OFF commutation after F2 open; idealized devices, no controller
+VLINE input 0 186.676190233
+LBOOST input sw 180u IC=40
+DBOOST sw vd DMODEL
+CLOCAL vd 0 19.8u IC=432.085945
+RBLEED vd 0 450k
+ROFF sw 0 1e12
+.model DMODEL D(IS=1e-12 N=1 RS=0.001 CJO=10p TT=0)
+.tran 5n 200u uic
+.control
+set wr_singlescale
+set wr_vecnames
+run
+meas tran diode_peak MAX v(vd)
+wrdata commutation-trace.tsv v(vd) i(lboost)
+quit
+.endc
+.end

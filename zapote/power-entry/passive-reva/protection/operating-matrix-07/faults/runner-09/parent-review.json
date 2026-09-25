@@ -1,0 +1,16 @@
+{
+  "status": "PARENT_REVIEWED_TRANSPORT_ONLY",
+  "engineering_accepted": false,
+  "source_sha256": "b8dd6add9259f8400177ff777231b91978cc65edeb4076a27c07d3435bc22c3d",
+  "binary_sha256": "7f5819427007b22a8d57fd9943dca0ff871f95b8995f8ab9a3e7716dc9e93856",
+  "unit_tests": 7,
+  "files_sha256": {
+    "parent-tests.txt": "e16f426e9bb36e44d19201b99d92736deab027087dbec59c98f3b2ad667041c6",
+    "parent-integration.json": "0714884c85ae457bc865c1993e2f9e6858ce518056d8f6f81646d8e9ccd94707",
+    "parent-failure-controls.json": "8c9217fa322c28f4d040a440a5ab7b40f703dd7ac87ae98130cee1de42ec2fe8",
+    "parent-smoke/result.json": "1fe549c179d478926949673b4d2d63fc4d7c0ea551de278b7c69e39ef5e95238",
+    "manifest.json": "29af88650f2a76fd0f46ec08edf7491c8f0a17bac3a6eb438482f30c22b17505"
+  },
+  "corrections": "Unsupported includes fail closed; Unicode JSON preserved; expected protection-gap waits for successful upstream completion; post-run source hash checked. Parent corrected inherited missing-executable receipt claim and bound actual tested binary separately from worker rebuild.",
+  "scope": "Synthetic 42-column fixture and failure controls; no real fault simulation or protection acceptance."
+}

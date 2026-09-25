@@ -1,0 +1,12 @@
+{
+  "status":"REVIEW_PENDING",
+  "classification":"COMPLETE_REVIEW_PENDING",
+  "detail":"transport complete; validator result remains diagnostic",
+  "source_case":"/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07/faults/startup-compact-candidate-20",
+  "raw_trace_sha256":"9be2bbe73cd0aee5c6751566bfa818968deeb24d68d6b76d323f56f76cbfd05e",
+  "capture_points":6025180,
+  "child_exit_codes":[0,0,0,0],
+  "transport_complete":true,
+  "validator_success":true,
+  "acceptance":false
+}

@@ -1,0 +1,422 @@
+[18:29:59] INFO     Using project                                   common.py:72
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-07                               
+           INFO     Building default                                 build.py:38
+[18:30:03] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-07/elec/src/power_en             
+                    try_protection.ato:231:4                                    
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-07/elec/src/power_en             
+                    try_passive_reva.ato:PowerEntryPassiveReva::pro             
+                    tection.r_vd1. Declaring implicitly for now,                
+                    but in the future this may become an error...               
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-07/elec/src/power_en             
+                    try_protection.ato:235:4                                    
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-07/elec/src/power_en             
+                    try_passive_reva.ato:PowerEntryPassiveReva::pro             
+                    tection.r_vd2. Declaring implicitly for now,                
+                    but in the future this may become an error...               
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-07/elec/src/power_en             
+                    try_protection.ato:239:4                                    
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-07/elec/src/power_en             
+                    try_passive_reva.ato:PowerEntryPassiveReva::pro             
+                    tection.r_vd3. Declaring implicitly for now,                
+                    but in the future this may become an error...               
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-07/elec/src/power_en             
+                    try_protection.ato:243:4                                    
+                        Field 'value' not declared for                          
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry             
+                    /passive-reva/source-build-07/elec/src/power_en             
+                    try_passive_reva.ato:PowerEntryPassiveReva::pro             
+                    tection.r_vd4. Declaring implicitly for now,                
+                    but in the future this may become an error...               
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /private/tmp/temper-pkgs-1-4/zapote/power-entry/            
+                    passive-reva/source-build-07/build                          
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name                       ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│           U1 │ bridge                     │
+│           U2 │ holder                     │
+│           U3 │ cmc                        │
+│           U4 │ ntc                        │
+│           U5 │ bypass                     │
+│           U6 │ x2                         │
+│           U7 │ mov                        │
+│           U8 │ l_boost                    │
+│           U9 │ q_boost                    │
+│          U10 │ d_boost                    │
+│          U11 │ pfc                        │
+│          U12 │ shunt                      │
+│          U13 │ r_gate                     │
+│          U14 │ r_gate_pd                  │
+│          U15 │ r_relay_gate               │
+│          U16 │ r_relay_pd                 │
+│          U17 │ r_relay_drop               │
+│          U18 │ r_isense                   │
+│          U19 │ r_freq                     │
+│          U20 │ r_vtop                     │
+│          U21 │ r_vtop2                    │
+│          U22 │ r_vtop3                    │
+│          U23 │ r_vtop4                    │
+│          U24 │ r_vtop5                    │
+│          U25 │ r_vbottom                  │
+│          U26 │ r_vcomp                    │
+│          U27 │ c_vcc                      │
+│          U28 │ c_icomp                    │
+│          U29 │ c_vcomp                    │
+│          U30 │ c_vcomp_p                  │
+│          U31 │ c_isense                   │
+│          U32 │ c_vfeed                    │
+│          U33 │ relay_driver               │
+│          U34 │ relay_flyback              │
+│          U35 │ isense_clamp               │
+│          U36 │ c1                         │
+│          U37 │ c2                         │
+│          U38 │ c3                         │
+│          U39 │ c4                         │
+│          U40 │ c_hf                       │
+│          U41 │ y1                         │
+│          U42 │ mains                      │
+│          U43 │ aux                        │
+│          U44 │ control                    │
+│          U45 │ permit                     │
+│          U46 │ q_inhibit                  │
+│          U47 │ q_permit                   │
+│          U48 │ r_inhibit_pulldown         │
+│          U49 │ r_inhibit_pullup           │
+│          U50 │ r_permit_gate              │
+│          U51 │ r_permit_pd                │
+│          U52 │ output                     │
+│          U53 │ bleeder1                   │
+│          U54 │ bleeder2                   │
+│          U55 │ protection.compare_bus     │
+│          U56 │ protection.compare_aux     │
+│          U57 │ protection.buffer          │
+│          U58 │ protection.ldo             │
+│          U59 │ protection.por             │
+│          U60 │ protection.reference       │
+│          U61 │ protection.schmitt1        │
+│          U62 │ protection.schmitt2        │
+│          U63 │ protection.gates1          │
+│          U64 │ protection.gates2          │
+│          U65 │ protection.latch           │
+│          U66 │ protection.timer           │
+│          U67 │ protection.service         │
+│          U68 │ protection.r_vd1           │
+│          U69 │ protection.r_vd2           │
+│          U70 │ protection.r_vd3           │
+│          U71 │ protection.r_vd4           │
+│          U72 │ protection.r_vd5           │
+│          U73 │ protection.r_vd_low        │
+│          U74 │ protection.c_vd_filter     │
+│          U75 │ protection.r_vb1           │
+│          U76 │ protection.r_vb2           │
+│          U77 │ protection.r_vb3           │
+│          U78 │ protection.r_vb4           │
+│          U79 │ protection.r_vb5           │
+│          U80 │ protection.r_vb_low        │
+│          U81 │ protection.c_vb_filter     │
+│          U82 │ protection.r_ref           │
+│          U83 │ protection.r_delta_top     │
+│          U84 │ protection.r_delta_low     │
+│          U85 │ protection.r_pre_top       │
+│          U86 │ protection.r_pre_low       │
+│          U87 │ protection.r_ready_top     │
+│          U88 │ protection.r_ready_low     │
+│          U89 │ protection.r_uv_top        │
+│          U90 │ protection.r_uv_low        │
+│          U91 │ protection.r_ov_top        │
+│          U92 │ protection.r_ov_low        │
+│          U93 │ protection.r_vd_half_a     │
+│          U94 │ protection.r_vd_half_b     │
+│          U95 │ protection.r_vd_offset_a   │
+│          U96 │ protection.r_vd_offset_b   │
+│          U97 │ protection.r_vb_half_a     │
+│          U98 │ protection.r_vb_half_b     │
+│          U99 │ protection.r_vb_offset_a   │
+│         U100 │ protection.r_vb_offset_b   │
+│         U101 │ protection.pull_fast_ok_n  │
+│         U102 │ protection.pull_pre_ok     │
+│         U103 │ protection.pull_ready      │
+│         U104 │ protection.pull_por_n      │
+│         U105 │ protection.r_arm_input     │
+│         U106 │ protection.r_arm_pd        │
+│         U107 │ protection.c_arm           │
+│         U108 │ protection.r_permit_pd     │
+│         U109 │ protection.r_timer_set     │
+│         U110 │ protection.r_timer_div_top │
+│         U111 │ protection.r_timer_div_low │
+│         U112 │ protection.dec_compare_bus │
+│         U113 │ protection.dec_compare_aux │
+│         U114 │ protection.dec_buffer      │
+│         U115 │ protection.dec_por         │
+│         U116 │ protection.dec_schmitt1    │
+│         U117 │ protection.dec_schmitt2    │
+│         U118 │ protection.dec_gates1      │
+│         U119 │ protection.dec_gates2      │
+│         U120 │ protection.dec_latch       │
+│         U121 │ protection.dec_timer       │
+│         U122 │ protection.ldo_in          │
+│         U123 │ protection.ldo_out         │
+│         U124 │ protection.por_delay       │
+│         U125 │ gate_driver                │
+│         U126 │ f2_port                    │
+│         U127 │ local_bleeder1             │
+│         U128 │ local_bleeder2             │
+│         U129 │ local_bleeder3             │
+│         U130 │ gate_input                 │
+│         U131 │ gate_enable_pd             │
+│         U132 │ driver_bypass              │
+│         U133 │ driver_bulk                │
+└──────────────┴────────────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓                     ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ aux                        │ U43        │
+│ bleeder1                   │ U53        │
+│ bleeder2                   │ U54        │
+│ bridge                     │ U1         │
+│ bypass                     │ U5         │
+│ c1                         │ U36        │
+│ c2                         │ U37        │
+│ c3                         │ U38        │
+│ c4                         │ U39        │
+│ c_hf                       │ U40        │
+│ c_icomp                    │ U28        │
+│ c_isense                   │ U31        │
+│ c_vcc                      │ U27        │
+│ c_vcomp                    │ U29        │
+│ c_vcomp_p                  │ U30        │
+│ c_vfeed                    │ U32        │
+│ cmc                        │ U3         │
+│ control                    │ U44        │
+│ d_boost                    │ U10        │
+│ driver_bulk                │ U133       │
+│ driver_bypass              │ U132       │
+│ f2_port                    │ U126       │
+│ gate_driver                │ U125       │
+│ gate_enable_pd             │ U131       │
+│ gate_input                 │ U130       │
+│ holder                     │ U2         │
+│ isense_clamp               │ U35        │
+│ l_boost                    │ U8         │
+│ local_bleeder1             │ U127       │
+│ local_bleeder2             │ U128       │
+│ local_bleeder3             │ U129       │
+│ mains                      │ U42        │
+│ mov                        │ U7         │
+│ ntc                        │ U4         │
+│ output                     │ U52        │
+│ permit                     │ U45        │
+│ pfc                        │ U11        │
+│ protection.buffer          │ U57        │
+│ protection.c_arm           │ U107       │
+│ protection.c_vb_filter     │ U81        │
+│ protection.c_vd_filter     │ U74        │
+│ protection.compare_aux     │ U56        │
+│ protection.compare_bus     │ U55        │
+│ protection.dec_buffer      │ U114       │
+│ protection.dec_compare_aux │ U113       │
+│ protection.dec_compare_bus │ U112       │
+│ protection.dec_gates1      │ U118       │
+│ protection.dec_gates2      │ U119       │
+│ protection.dec_latch       │ U120       │
+│ protection.dec_por         │ U115       │
+│ protection.dec_schmitt1    │ U116       │
+│ protection.dec_schmitt2    │ U117       │
+│ protection.dec_timer       │ U121       │
+│ protection.gates1          │ U63        │
+│ protection.gates2          │ U64        │
+│ protection.latch           │ U65        │
+│ protection.ldo             │ U58        │
+│ protection.ldo_in          │ U122       │
+│ protection.ldo_out         │ U123       │
+│ protection.por             │ U59        │
+│ protection.por_delay       │ U124       │
+│ protection.pull_fast_ok_n  │ U101       │
+│ protection.pull_por_n      │ U104       │
+│ protection.pull_pre_ok     │ U102       │
+│ protection.pull_ready      │ U103       │
+│ protection.r_arm_input     │ U105       │
+│ protection.r_arm_pd        │ U106       │
+│ protection.r_delta_low     │ U84        │
+│ protection.r_delta_top     │ U83        │
+│ protection.r_ov_low        │ U92        │
+│ protection.r_ov_top        │ U91        │
+│ protection.r_permit_pd     │ U108       │
+│ protection.r_pre_low       │ U86        │
+│ protection.r_pre_top       │ U85        │
+│ protection.r_ready_low     │ U88        │
+│ protection.r_ready_top     │ U87        │
+│ protection.r_ref           │ U82        │
+│ protection.r_timer_div_low │ U111       │
+│ protection.r_timer_div_top │ U110       │
+│ protection.r_timer_set     │ U109       │
+│ protection.r_uv_low        │ U90        │
+│ protection.r_uv_top        │ U89        │
+│ protection.r_vb1           │ U75        │
+│ protection.r_vb2           │ U76        │
+│ protection.r_vb3           │ U77        │
+│ protection.r_vb4           │ U78        │
+│ protection.r_vb5           │ U79        │
+│ protection.r_vb_half_a     │ U97        │
+│ protection.r_vb_half_b     │ U98        │
+│ protection.r_vb_low        │ U80        │
+│ protection.r_vb_offset_a   │ U99        │
+│ protection.r_vb_offset_b   │ U100       │
+│ protection.r_vd1           │ U68        │
+│ protection.r_vd2           │ U69        │
+│ protection.r_vd3           │ U70        │
+│ protection.r_vd4           │ U71        │
+│ protection.r_vd5           │ U72        │
+│ protection.r_vd_half_a     │ U93        │
+│ protection.r_vd_half_b     │ U94        │
+│ protection.r_vd_low        │ U73        │
+│ protection.r_vd_offset_a   │ U95        │
+│ protection.r_vd_offset_b   │ U96        │
+│ protection.reference       │ U60        │
+│ protection.schmitt1        │ U61        │
+│ protection.schmitt2        │ U62        │
+│ protection.service         │ U67        │
+│ protection.timer           │ U66        │
+│ q_boost                    │ U9         │
+│ q_inhibit                  │ U46        │
+│ q_permit                   │ U47        │
+│ r_freq                     │ U19        │
+│ r_gate                     │ U13        │
+│ r_gate_pd                  │ U14        │
+│ r_inhibit_pulldown         │ U48        │
+│ r_inhibit_pullup           │ U49        │
+│ r_isense                   │ U18        │
+│ r_permit_gate              │ U50        │
+│ r_permit_pd                │ U51        │
+│ r_relay_drop               │ U17        │
+│ r_relay_gate               │ U15        │
+│ r_relay_pd                 │ U16        │
+│ r_vbottom                  │ U25        │
+│ r_vcomp                    │ U26        │
+│ r_vtop                     │ U20        │
+│ r_vtop2                    │ U21        │
+│ r_vtop3                    │ U22        │
+│ r_vtop4                    │ U23        │
+│ r_vtop5                    │ U24        │
+│ relay_driver               │ U33        │
+│ relay_flyback              │ U34        │
+│ shunt                      │ U12        │
+│ x2                         │ U6         │
+│ y1                         │ U41        │
+└────────────────────────────┴────────────┘
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint       ┃ LCSC           ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ GBJ2510-F       │ U1              │ Diode_THT:Diod… │ GBJ2510-F      │ 0.00  │
+│ 0031.2510       │ U2              │ Fuse:Fuseholde… │ 0031.2510      │ 0.00  │
+│ B82726S2163N030 │ U3              │ temper:CMC_B82… │ B82726S2163N0… │ 0.00  │
+│ SL32 10015      │ U4              │ temper:SL32_10… │ SL32 10015     │ 0.00  │
+│ RT33K012        │ U5              │ temper:Relay_S… │ RT33K012       │ 0.00  │
+│ B32922C3224M289 │ U6              │ Capacitor_THT:… │ B32922C3224M2… │ 0.00  │
+│ V150LA10AP      │ U7              │ Varistor:RV_Di… │ V150LA10AP     │ 0.00  │
+│ 760800301       │ U8              │ Inductor_THT_W… │ 760800301      │ 0.00  │
+│ STW65N65DM2AG   │ U9              │ Package_TO_SOT… │ STW65N65DM2AG  │ 0.00  │
+│ C3D20065D       │ U10             │ Package_TO_SOT… │ C3D20065D      │ 0.00  │
+│ UCC28180D       │ U11             │ Package_SO:SOI… │ UCC28180D      │ 0.00  │
+│ HCSM2818FT10L0  │ U12             │ temper:HCSM281… │ HCSM2818FT10L0 │ 0.00  │
+│ RC1206FR-0710RL │ U13             │ Resistor_SMD:R… │ RC1206FR-0710… │ 0.00  │
+│ RC1206FR-0710KL │ U14             │ Resistor_SMD:R… │ RC1206FR-0710… │ 0.00  │
+│ RC1206FR-071KL  │ U15,U50,U131    │ Resistor_SMD:R… │ RC1206FR-071KL │ 0.00  │
+│ RC1206FR-07100… │ U16,U48,U49,U51 │ Resistor_SMD:R… │ RC1206FR-0710… │ 0.00  │
+│ RC2512FR-0791RL │ U17             │ Resistor_SMD:R… │ RC2512FR-0791… │ 0.00  │
+│ RC1206FR-07220… │ U18             │ Resistor_SMD:R… │ RC1206FR-0722… │ 0.00  │
+│ RC1206FR-0716K… │ U19             │ Resistor_SMD:R… │ RC1206FR-0716… │ 0.00  │
+│ CRCW2512200KFK… │ U20,U21,U22,U2… │ Resistor_SMD:R… │ CRCW2512200KF… │ 0.00  │
+│ RC1206FR-0713KL │ U25             │ Resistor_SMD:R… │ RC1206FR-0713… │ 0.00  │
+│ RC1206FR-0740K… │ U26             │ Resistor_SMD:R… │ RC1206FR-0740… │ 0.00  │
+│ C0805C105K5RAC… │ U27,U133        │ Capacitor_SMD:… │ C0805C105K5RA… │ 0.00  │
+│ C0805C272J5GAC… │ U28             │ Capacitor_SMD:… │ C0805C272J5GA… │ 0.00  │
+│ GRM32ER71H475K… │ U29             │ Capacitor_SMD:… │ GRM32ER71H475… │ 0.00  │
+│ C0805C224K5RAC… │ U30             │ Capacitor_SMD:… │ C0805C224K5RA… │ 0.00  │
+│ C0805C102J5GAC… │ U31             │ Capacitor_SMD:… │ C0805C102J5GA… │ 0.00  │
+│ C0805C681J5GAC… │ U32             │ Capacitor_SMD:… │ C0805C681J5GA… │ 0.00  │
+│ AO3400A         │ U33,U46,U47     │ Package_TO_SOT… │ AO3400A        │ 0.00  │
+│ SS14            │ U34             │ Diode_SMD:D_SMA │ SS14           │ 0.00  │
+│ BAT54H,115      │ U35             │ Diode_SMD:D_SO… │ BAT54H,115     │ 0.00  │
+│ LGX2W561MELC50  │ U36,U37,U38,U39 │ Capacitor_THT:… │ LGX2W561MELC50 │ 0.00  │
+│ B32776P6226K000 │ U40             │ temper:B32776P… │ B32776P6226K0… │ 0.00  │
+│ VY1102M31Y5UQ6… │ U41             │ Capacitor_THT:… │ VY1102M31Y5UQ… │ 0.00  │
+│ 1714984         │ U42             │ temper:Phoenix… │ 1714984        │ 0.00  │
+│ 61300211121     │ U43,U44,U45     │ Connector_PinH… │ 61300211121    │ 0.00  │
+│ 1714971         │ U52,U126        │ temper:Phoenix… │ 1714971        │ 0.00  │
+│ RC2512FR-07150… │ U53,U54,U127,U… │ Resistor_SMD:R… │ RC2512FR-0715… │ 0.00  │
+│ TLV1704PWR      │ U55,U56         │ Package_SO:TSS… │ TLV1704PWR     │ 0.00  │
+│ OPA4197IPWR     │ U57             │ Package_SO:TSS… │ OPA4197IPWR    │ 0.00  │
+│ TPS7A1650DGNR   │ U58             │ temper:TPS7A16… │ TPS7A1650DGNR  │ 0.00  │
+│ TPS3808G50DBVR  │ U59             │ Package_TO_SOT… │ TPS3808G50DBVR │ 0.00  │
+│ LM4040A25IDBZR  │ U60             │ Package_TO_SOT… │ LM4040A25IDBZR │ 0.00  │
+│ SN74HCT14DR     │ U61             │ Package_SO:SOI… │ SN74HCT14DR    │ 0.00  │
+│ SN74HCS14PWR    │ U62             │ Package_SO:TSS… │ SN74HCS14PWR   │ 0.00  │
+│ SN74HCT08DR     │ U63,U64         │ Package_SO:SOI… │ SN74HCT08DR    │ 0.00  │
+│ SN74HCT74DR     │ U65             │ Package_SO:SOI… │ SN74HCT74DR    │ 0.00  │
+│ LTC6994IS6-1#T… │ U66             │ Package_TO_SOT… │ LTC6994IS6-1#… │ 0.00  │
+│ 61300411121     │ U67             │ Connector_PinH… │ 61300411121    │ 0.00  │
+│ TNPW1206200KBE… │ U68,U69,U70,U7… │ Resistor_SMD:R… │ TNPW1206200KB… │ 0.00  │
+│ TNPW12065K90BE… │ U73,U80         │ Resistor_SMD:R… │ TNPW12065K90B… │ 0.00  │
+│ C0805C101J5GAC… │ U74,U81         │ Capacitor_SMD:… │ C0805C101J5GA… │ 0.00  │
+│ TNPW120610K0BE… │ U82,U84,U87,U9… │ Resistor_SMD:R… │ TNPW120610K0B… │ 0.00  │
+│ TNPW120614K3BE… │ U85             │ Resistor_SMD:R… │ TNPW120614K3B… │ 0.00  │
+│ TNPW12065K62BE… │ U86             │ Resistor_SMD:R… │ TNPW12065K62B… │ 0.00  │
+│ TNPW120649K9BE… │ U88             │ Resistor_SMD:R… │ TNPW120649K9B… │ 0.00  │
+│ TNPW120648K1BE… │ U89             │ Resistor_SMD:R… │ TNPW120648K1B… │ 0.00  │
+│ TNPW120651K8BE… │ U91             │ Resistor_SMD:R… │ TNPW120651K8B… │ 0.00  │
+│ TNPW1206100KBE… │ U106,U108       │ Resistor_SMD:R… │ TNPW1206100KB… │ 0.00  │
+│ C0805C104K5RAC… │ U107,U112,U113… │ Capacitor_SMD:… │ C0805C104K5RA… │ 0.00  │
+│ TNPW1206383KBE… │ U109            │ Resistor_SMD:R… │ TNPW1206383KB… │ 0.00  │
+│ TNPW12061M00BE… │ U110            │ Resistor_SMD:R… │ TNPW12061M00B… │ 0.00  │
+│ TNPW1206681KBE… │ U111            │ Resistor_SMD:R… │ TNPW1206681KB… │ 0.00  │
+│ GRM32ER71H106K… │ U122,U123       │ Capacitor_SMD:… │ GRM32ER71H106… │ 0.00  │
+│ UCC27624DR      │ U125            │ Package_SO:SOI… │ UCC27624DR     │ 0.00  │
+│ RC1206FR-07100… │ U130            │ Resistor_SMD:R… │ RC1206FR-0710… │ 0.00  │
+└─────────────────┴─────────────────┴─────────────────┴────────────────┴───────┘
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Successfully built 'designator-map,             build.py:105
+                    clone-footprints, copy-3dmodels, bom,                       
+                    variable-report, netlist, assertions-report,                
+                    copy-footprints, layout-module-map' for                     
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

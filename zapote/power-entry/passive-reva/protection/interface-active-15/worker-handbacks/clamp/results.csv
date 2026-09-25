@@ -1,0 +1,10 @@
+quantity,value,unit,status
+VOUT_static_min,15.766787,V,calculated_corner
+VOUT_static_max,16.577142,V,calculated_corner
+ILIM_min,0.135014,A,calculated_datasheet_threshold_corner
+ILIM_max,0.168350,A,calculated_datasheet_threshold_corner
+normal_sense_drop,0.038154,V,calculated_load_corner
+Q1_power_35V,3.101491,W,conditional_fault_screen
+Q1_P2t_250us,0.002405,W2s,illustrative_only
+downstream_C_effective_min,35,uF,design_requirement_not_selected
+timer_example_10Vds_35uA_typ,250,us,typical_illustration_not_guarantee

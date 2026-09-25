@@ -1,0 +1,32 @@
+{
+  "status": "PARENT_REVIEWED_STREAMING_PREFIX_SELECTOR",
+  "accepted_fault": false,
+  "source_sha256": "b425ee9f565bc2f8ddf3c02e92c9cdb0536ec2cd9f93d5f729ef752c70352b77",
+  "binary": "/private/tmp/matrix07-prefault-selector-parent",
+  "binary_sha256": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+  "unit_tests": 6,
+  "parent_corrections": [
+    "Fixed off-by-one CLI argumentcount/scan-onlyindex",
+    "Required stdin/stdout campaignmode instead ofgiantdecodedtemporaryfile"
+  ],
+  "parent_cli_smoke": {
+    "input_rows": 2253,
+    "selected_rows": 210,
+    "last_selected_time_s": 4.957047867058121e-06,
+    "cutoff_s": 5e-06,
+    "selected_tokens_preserved": true,
+    "scan_and_select_reports": "parent-scan.json,parent-select.json",
+    "observed_injection_s": 9.999503975391388e-06
+  },
+  "requirements": [
+    "Callerrequires allpipelineexits0 and selectorreportOK; partialstdout neveraccepted",
+    "Normal15auditor andeventmetrics validateactualselectedsampleend; fullfaultadapter/validator enforcefullcaseend",
+    "Lineboundcheckedafterread; useboundedknownnative-decoder input",
+    "F2-START healthy-prefixonly; settledfaults requireactualnormalprefixandphase evidence"
+  ],
+  "source_tests_artifacts": {
+    "parent-scan.json": "8ee50b9d6ae2a32ad1e949388747d7d661e1829073fd72a3469e27677798d184",
+    "parent-select.json": "8ee50b9d6ae2a32ad1e949388747d7d661e1829073fd72a3469e27677798d184",
+    "parent-selected.tsv": "809afae70f3131383dfd5eb7702ca30665be8366747553b1c57a0edd584f7aa2"
+  }
+}

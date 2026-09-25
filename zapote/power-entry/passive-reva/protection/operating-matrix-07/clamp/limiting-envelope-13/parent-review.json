@@ -1,0 +1,34 @@
+{
+  "status": "PARENT_REVIEWED_CONDITIONAL_SENSITIVITY",
+  "selected_diode_qualified": false,
+  "original_peak_columns": "UNVALIDATED",
+  "verified": {
+    "fixture_count": 21,
+    "independent_flat_law": "max(0,(abs(VSH)-VF)/(220+.001))",
+    "peak_diagnostic_cases": 2,
+    "variants_per_case": 5,
+    "loose_peak_over_bound": [
+      1.893132,
+      1.281911
+    ],
+    "tight_trap_peak_over_bound_max": 1.000008,
+    "clamp_energy_spread_fraction_low_case": 7.821574248316044e-06
+  },
+  "parent_corrections": [
+    "Diagnosed loose-tolerance stiff-knee current spikes before adopting maxima",
+    "Relabelled diagnostic resistor positive maximum; not absolute current peak",
+    "Corrected energy invariance wording:lowcase changes~8ppm",
+    "Corrected monotonic-bound explanation to node equilibrium"
+  ],
+  "artifact_sha256": {
+    "README.md": "c7f2331725c22eaea3c380ccaa52bb4a0a090ce5879e1b8157e3dd7221880e8c",
+    "results.csv": "fcc07a36d1df32799ffe6344088398e82307829974e62dcdf5938338d659adc2",
+    "generate.rs": "b8c1f5ff2feba9bd31b245350cbc6e9e7d754b22e884d6159cb4e0b400fdfeed",
+    "check.rs": "a2475fdca1bfc68dcfcd42170d2432946a811ef5c76fa01b9124482b491f33a6",
+    "peak-diagnostic/README.md": "548d32f06a29c3b9b8c634b2e248ec77c62fc824644948dddd8b1352f2ad3cf6",
+    "peak-diagnostic/results.csv": "048f9876071b4f353e4d8ed1aed89f69e61b6290cf7b1eb0a2da826cb4b8942c",
+    "peak-diagnostic/check.rs": "d95f27b5fb5d37d49e74b511500c6bc4300fff2fc37a1843ad6cb4d71ce028f1",
+    "peak-diagnostic/generate.rs": "6c3a833f07a9a589cdd38a11fd3f5e29220fab2ebdcba149a12e159d48077996"
+  },
+  "scope": "Authored piecewise-clamp sensitivity only. No selected-Vishay low-current temperature or pulse/SOA guarantee. Tight two-case controls support numerical diagnosis, not blanket validation of original21peaks."
+}

@@ -1,0 +1,26 @@
+{
+  "revision": 27,
+  "date": "2026-09-22",
+  "status": "logical-to-hardware-fault-clear-counterexample",
+  "inputs_sha256": {
+    "revision13_handshake_rs": "f4d41bad394e107480b5d926945098383abd73095682d57e01a2503aafd6f377",
+    "revision26_rev11_control_source": "88c634936bcd850df8b0f7d8b7964ce771ec60e94066ac524dca0518e5a73831"
+  },
+  "files_sha256": {
+    "README.md": "af6830c143aab14441ad0c161175068021a6066fbf5018ab564816ae6f71ecc4",
+    "latch-boundary-tests.rs": "c4153f2ad0c619958ae022ae727c4b59a9ac541a39944b52e4e7adbe2dc4f7a0"
+  },
+  "checks": {
+    "rustc_test": {
+      "status": "pass",
+      "total": 19,
+      "new_boundary_tests": 2,
+      "observed_counterexample": "receiver Running=false with Rev11 modeled enable=true when clear_ok remains high"
+    }
+  },
+  "limits": [
+    "Rev11 DFF/final gate are modeled logically; no analog timing or fault propagation was measured",
+    "No physical link-fault detector or output driver was selected",
+    "No source, schematic or PCB of the compiled Rev26 candidate was changed"
+  ]
+}

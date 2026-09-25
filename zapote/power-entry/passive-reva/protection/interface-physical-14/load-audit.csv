@@ -1,0 +1,12 @@
+quantity,value,unit,scope
+relay_current_screen,38.035210,mA,23C_coil_minus10pct_dropR_minus1pct_zero_FETdrop
+disable_pullup_screen,15.909091,mA,aux15.75_Rminus1pct_zero_FETdrop
+remaining_in_75mA_after_two_terms,21.055699,mA,not_available_margin_until_other_loads_bounded
+gate_charge_example,15.492840,mA,120nC_typical_at10V_and_nominal129107Hz_not_bound
+qg_allowance_other_5mA,124.359635,nC,sensitivity_not_part_spec
+qg_allowance_other_10mA,85.632068,nC,sensitivity_not_part_spec
+qg_allowance_other_15mA,46.904501,nC,sensitivity_not_part_spec
+prior_conditional_load,111.630037,mA,nominal5V_and14.625V
+revised_conditional_load,114.473684,mA,logic5max5.25_and_protectedauxmin14.25_eta_assumed70pct
+all_path_R_max,3.275862,ohm,zero_switch_wire_drop_and_no_added_load
+logic_bleed_current,24.104683,mA,5.25V_220ohm_minus1pct

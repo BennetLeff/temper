@@ -1,0 +1,134 @@
+# Review-only Atopile transcription of Revision 19's 14-component clamp.
+# Authoritative pin/net oracle: ../interface-dynamics-19/clamp-expected.tsv.
+# This module does not establish source, load, SOA, reset, or product ratings.
+
+component AuxSurgeStopper:
+    footprint = "Package_SO:MSOP-12_3x4.039mm_P0.65mm"
+    mpn = "LT4363HMS-1#PBF"
+    signal FB ~ pin 1
+    signal OUT ~ pin 2
+    signal SNS ~ pin 3
+    signal GATE ~ pin 4
+    signal VCC ~ pin 5
+    signal SHDN ~ pin 6
+    signal GND1 ~ pin 7
+    signal UV ~ pin 8
+    signal GND2 ~ pin 9
+    signal FLT ~ pin 10
+    signal ENOUT ~ pin 11
+    signal TMR ~ pin 12
+
+component AuxPassFet:
+    footprint = "Package_TO_SOT_SMD:TO-263-2"
+    mpn = "FDB33N25"
+    signal G ~ pin 1
+    signal D ~ pin 2
+    signal S ~ pin 3
+
+component AuxClampResistor:
+    footprint = "Resistor_SMD:R_0805_2012Metric"
+    mpn = "TBD_REVIEW_ONLY"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxClampCapacitor:
+    footprint = "Capacitor_SMD:C_1206_3216Metric"
+    mpn = "TBD_REVIEW_ONLY"
+    value: farad
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component AuxClampDiode:
+    footprint = "Diode_SMD:D_SOD-123"
+    mpn = "1N4148W"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+module AuxClampRev19:
+    signal aux_raw
+    signal aux_protected
+    signal hot_gnd
+    signal service_reset_n
+    signal fault_observe
+    signal enout_observe
+    signal sns
+    signal fb
+    signal uv
+    signal gate_drv
+    signal q_gate
+    signal cg
+    signal tmr
+
+    u1 = new AuxSurgeStopper
+    q1 = new AuxPassFet
+    r1 = new AuxClampResistor
+    r2 = new AuxClampResistor
+    r3 = new AuxClampResistor
+    r4 = new AuxClampResistor
+    r5 = new AuxClampResistor
+    r6 = new AuxClampResistor
+    r7 = new AuxClampResistor
+    c1 = new AuxClampCapacitor
+    c2 = new AuxClampCapacitor
+    c3 = new AuxClampCapacitor
+    c4 = new AuxClampCapacitor
+    d1 = new AuxClampDiode
+
+    r1.value = 0.22ohm
+    r2.value = 59kohm
+    r3.value = 4.99kohm
+    r4.value = 91kohm
+    r5.value = 10kohm
+    r6.value = 10ohm
+    r7.value = 100ohm
+    c1.value = 100nF
+    c2.value = 100nF
+    c2.mpn = "C3216C0G2A104JT000E"
+    c3.value = 1.5uF
+    c3.mpn = "R75GN415050H0J"
+    c3.footprint = "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4"
+    c4.value = 330uF
+    c4.mpn = "63ZLJ330M10X20"
+    c4.footprint = "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm"
+
+    u1.FB ~ fb
+    u1.OUT ~ aux_protected
+    u1.SNS ~ sns
+    u1.GATE ~ gate_drv
+    u1.VCC ~ aux_raw
+    u1.SHDN ~ service_reset_n
+    u1.GND1 ~ hot_gnd
+    u1.UV ~ uv
+    u1.GND2 ~ hot_gnd
+    u1.FLT ~ fault_observe
+    u1.ENOUT ~ enout_observe
+    u1.TMR ~ tmr
+
+    q1.G ~ q_gate
+    q1.D ~ aux_raw
+    q1.S ~ sns
+    r1.p1 ~ sns
+    r1.p2 ~ aux_protected
+    r2.p1 ~ aux_protected
+    r2.p2 ~ fb
+    r3.p1 ~ fb
+    r3.p2 ~ hot_gnd
+    r4.p1 ~ aux_raw
+    r4.p2 ~ uv
+    r5.p1 ~ uv
+    r5.p2 ~ hot_gnd
+    r6.p1 ~ gate_drv
+    r6.p2 ~ q_gate
+    r7.p1 ~ gate_drv
+    r7.p2 ~ cg
+    c1.p1 ~ aux_raw
+    c1.p2 ~ hot_gnd
+    c2.p1 ~ tmr
+    c2.p2 ~ hot_gnd
+    c3.p1 ~ cg
+    c3.p2 ~ hot_gnd
+    c4.p1 ~ aux_protected
+    c4.p2 ~ hot_gnd
+    d1.K ~ cg
+    d1.A ~ gate_drv

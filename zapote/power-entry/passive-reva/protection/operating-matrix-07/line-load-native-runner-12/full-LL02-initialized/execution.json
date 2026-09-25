@@ -1,0 +1,38 @@
+{
+  "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+  "case": "LL02",
+  "line_v_rms": 108,
+  "rload_ohm": 208.230244479,
+  "target_end_s": 0.65,
+  "tool_session": 66777,
+  "runner_pid": 3679,
+  "solver_pid": 3962,
+  "observed_utc": "2026-09-21T02:45:27.222895+00:00",
+  "progress_line": "944.937957\t3.48261661620167751e-1\t53.578717\t2.947309624149e-4\t14878503\tfalse\t0\t0",
+  "minimum_free_bytes": 10737418240,
+  "runner_sha256": "09551942c747b3ff1aded2a8d399930914fd02fc53b732a5a6effc0af760b625",
+  "source_review": "../parent-review.json",
+  "launch_environment": {
+    "SPICE_SCRIPTS": "/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts"
+  },
+  "evidence_files": {
+    "cold.cir": "664cf804ea82c0554c1e58cc69e23a4a881c533f46718d83f831bb87c6dadc2a",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "case.json": "b84ba1092237fe01a3c69b05dc03944ae657474041931b00ea69676617e94642"
+  },
+  "hardware_sample": {
+    "solver_cpu_percent": 100.0,
+    "solver_rss_kib": 537728,
+    "solver_elapsed_s": 913,
+    "swap_used_mib": 7912.56
+  },
+  "parallel_decision": "Two staggered independent single-worker runners; after1min both~100percent CPU, LL01 speedroughlyunchanged, swapunchanged7.77GiB; keepboth andcontinuechecking. No third solver.",
+  "free_bytes": 35074863104,
+  "acceptance": "LL02/acceptance.json",
+  "runner_exit": 0,
+  "completed_at_utc": "2026-09-21T03:10:05.835906+00:00"
+}

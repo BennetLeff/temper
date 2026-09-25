@@ -1,0 +1,646 @@
+# F2 supervisor construction candidate. See passive-reva/protection/IMPLEMENTATION.md.
+# Pin maps transcribed from retained manufacturer PDFs. ALL ports HOT-referenced.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+component ProtectionComparator:
+    mpn = "TLV1704PWR"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal OB ~ pin 1
+    signal OA ~ pin 2
+    signal VCC ~ pin 3
+    signal NA ~ pin 4
+    signal PA ~ pin 5
+    signal NB ~ pin 6
+    signal PB ~ pin 7
+    signal NC ~ pin 8
+    signal PC ~ pin 9
+    signal ND ~ pin 10
+    signal PD ~ pin 11
+    signal GND ~ pin 12
+    signal OD ~ pin 13
+    signal OC ~ pin 14
+
+component ProtectionBuffer:
+    mpn = "OPA4197IPWR"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal OA ~ pin 1
+    signal NA ~ pin 2
+    signal PA ~ pin 3
+    signal VCC ~ pin 4
+    signal PB ~ pin 5
+    signal NB ~ pin 6
+    signal OB ~ pin 7
+    signal OC ~ pin 8
+    signal NC ~ pin 9
+    signal PC ~ pin 10
+    signal GND ~ pin 11
+    signal PD ~ pin 12
+    signal ND ~ pin 13
+    signal OD ~ pin 14
+
+component ProtectionLdo:
+    mpn = "TPS7A1650DGNR"
+    footprint = "Package_SO:HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm"
+    signal OUT ~ pin 1
+    signal DNC ~ pin 2
+    signal PG ~ pin 3
+    signal GND ~ pin 4
+    signal EN ~ pin 5
+    signal NC ~ pin 6
+    signal DELAY ~ pin 7
+    signal IN ~ pin 8
+    signal EP ~ pin 9
+
+component ProtectionPor:
+    mpn = "TPS3808G50DBVR"
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    signal RESET_N ~ pin 1
+    signal GND ~ pin 2
+    signal MR_N ~ pin 3
+    signal CT ~ pin 4
+    signal SENSE ~ pin 5
+    signal VCC ~ pin 6
+
+component ProtectionReference:
+    mpn = "LM4040A25IDBZR"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal K ~ pin 1
+    signal A ~ pin 2
+    signal NC ~ pin 3
+
+component ProtectionSchmitt:
+    mpn = "SN74HCT14DR"
+    footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+    signal IA ~ pin 1
+    signal OA ~ pin 2
+    signal IB ~ pin 3
+    signal OB ~ pin 4
+    signal IC ~ pin 5
+    signal OC ~ pin 6
+    signal GND ~ pin 7
+    signal OD ~ pin 8
+    signal ID ~ pin 9
+    signal OE ~ pin 10
+    signal IE ~ pin 11
+    signal OF ~ pin 12
+    signal IF ~ pin 13
+    signal VCC ~ pin 14
+
+component ProtectionAnd:
+    mpn = "SN74HCT08DR"
+    footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+    signal AA ~ pin 1
+    signal BA ~ pin 2
+    signal OA ~ pin 3
+    signal AB ~ pin 4
+    signal BB ~ pin 5
+    signal OB ~ pin 6
+    signal GND ~ pin 7
+    signal OC ~ pin 8
+    signal AC ~ pin 9
+    signal BC ~ pin 10
+    signal OD ~ pin 11
+    signal AD ~ pin 12
+    signal BD ~ pin 13
+    signal VCC ~ pin 14
+
+component ProtectionLatch:
+    mpn = "SN74HCT74DR"
+    footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+    signal CLR1_N ~ pin 1
+    signal D1 ~ pin 2
+    signal CK1 ~ pin 3
+    signal PRE1_N ~ pin 4
+    signal Q1 ~ pin 5
+    signal NQ1 ~ pin 6
+    signal GND ~ pin 7
+    signal NQ2 ~ pin 8
+    signal Q2 ~ pin 9
+    signal PRE2_N ~ pin 10
+    signal CK2 ~ pin 11
+    signal D2 ~ pin 12
+    signal CLR2_N ~ pin 13
+    signal VCC ~ pin 14
+
+component ProtectionTimer:
+    mpn = "LTC6994IS6-1#TRMPBF"
+    footprint = "Package_TO_SOT_SMD:TSOT-23-6"
+    signal IN ~ pin 1
+    signal GND ~ pin 2
+    signal SET ~ pin 3
+    signal DIV ~ pin 4
+    signal VCC ~ pin 5
+    signal OUT ~ pin 6
+
+component ProtectionR:
+    mpn = "TNPW120610K0BEEA"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component ProtectionC:
+    mpn = "C0805C104K5RACTU"
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component ProtectionHeader:
+    mpn = "61300411121"
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+    signal ARM ~ pin 1
+    signal LOAD_READY ~ pin 2
+    signal ARMED ~ pin 3
+    signal GND ~ pin 4
+
+component ProtectionGateDriver:
+    mpn = "UCC27624DR"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal ENA ~ pin 1
+    signal INA ~ pin 2
+    signal GND ~ pin 3
+    signal INB ~ pin 4
+    signal OUTB ~ pin 5
+    signal VDD ~ pin 6
+    signal OUTA ~ pin 7
+    signal ENB ~ pin 8
+
+module PowerEntryProtection:
+    signal vd
+    signal vb
+    signal aux
+    signal gnd
+    signal permit
+    signal run
+    signal logic5
+    signal ref25
+    signal vd_sense
+    signal vb_sense
+    signal vd_buf
+    signal vb_buf
+    signal delta_ref
+    signal delta_buf
+    signal vd_half
+    signal vb_half
+    signal vd_offset
+    signal vb_offset
+    signal fast_ok_n
+    signal pre_ok
+    signal ready
+    signal aux_uv
+    signal aux_ov
+    signal pre_ref
+    signal ready_ref
+    signal por_n
+    signal fault_n
+    signal arm_filter
+    signal arm_n
+    signal arm_edge
+    signal permit_n
+    signal permit_clean
+    signal pre_clean
+    signal ready_n
+    signal ready_clean
+    signal timeout_n
+    signal clear_n
+    signal arm_data
+    signal armed
+    signal request
+    signal qualified
+    signal watch
+    signal load_ready
+    signal arm_raw
+    signal analog_good
+    signal logic_good
+    compare_bus = new ProtectionComparator
+    compare_aux = new ProtectionComparator
+    buffer = new ProtectionBuffer
+    ldo = new ProtectionLdo
+    por = new ProtectionPor
+    reference = new ProtectionReference
+    schmitt1 = new ProtectionSchmitt
+    schmitt2 = new ProtectionSchmitt
+    gates1 = new ProtectionAnd
+    gates2 = new ProtectionAnd
+    latch = new ProtectionLatch
+    timer = new ProtectionTimer
+    service = new ProtectionHeader
+    r_vd1 = new ProtectionR
+    r_vd1.mpn = "TNPW1206200KBEEA"
+    r_vd1.value = 200000ohm
+    r_vd1.p1 ~ vd
+    r_vd2 = new ProtectionR
+    r_vd2.mpn = "TNPW1206200KBEEA"
+    r_vd2.value = 200000ohm
+    r_vd2.p1 ~ r_vd1.p2
+    r_vd3 = new ProtectionR
+    r_vd3.mpn = "TNPW1206200KBEEA"
+    r_vd3.value = 200000ohm
+    r_vd3.p1 ~ r_vd2.p2
+    r_vd4 = new ProtectionR
+    r_vd4.mpn = "TNPW1206200KBEEA"
+    r_vd4.value = 200000ohm
+    r_vd4.p1 ~ r_vd3.p2
+    r_vd5 = new ProtectionR
+    r_vd5.mpn = "TNPW1206200KBEEA"
+    r_vd5.value = 200000ohm
+    r_vd5.p1 ~ r_vd4.p2
+    r_vd5.p2 ~ vd_sense
+    r_vd_low = new ProtectionR
+    r_vd_low.mpn = "TNPW12065K90BEEA"
+    r_vd_low.value = 5900ohm
+    r_vd_low.p1 ~ vd_sense
+    r_vd_low.p2 ~ gnd
+    c_vd_filter = new ProtectionC
+    c_vd_filter.mpn = "C0805C101J5GACTU"
+    c_vd_filter.value = 100pF
+    c_vd_filter.p1 ~ vd_sense
+    c_vd_filter.p2 ~ gnd
+    r_vb1 = new ProtectionR
+    r_vb1.mpn = "TNPW1206200KBEEA"
+    r_vb1.value = 200000ohm
+    r_vb1.p1 ~ vb
+    r_vb2 = new ProtectionR
+    r_vb2.mpn = "TNPW1206200KBEEA"
+    r_vb2.value = 200000ohm
+    r_vb2.p1 ~ r_vb1.p2
+    r_vb3 = new ProtectionR
+    r_vb3.mpn = "TNPW1206200KBEEA"
+    r_vb3.value = 200000ohm
+    r_vb3.p1 ~ r_vb2.p2
+    r_vb4 = new ProtectionR
+    r_vb4.mpn = "TNPW1206200KBEEA"
+    r_vb4.value = 200000ohm
+    r_vb4.p1 ~ r_vb3.p2
+    r_vb5 = new ProtectionR
+    r_vb5.mpn = "TNPW1206200KBEEA"
+    r_vb5.value = 200000ohm
+    r_vb5.p1 ~ r_vb4.p2
+    r_vb5.p2 ~ vb_sense
+    r_vb_low = new ProtectionR
+    r_vb_low.mpn = "TNPW12065K90BEEA"
+    r_vb_low.value = 5900ohm
+    r_vb_low.p1 ~ vb_sense
+    r_vb_low.p2 ~ gnd
+    c_vb_filter = new ProtectionC
+    c_vb_filter.mpn = "C0805C101J5GACTU"
+    c_vb_filter.value = 100pF
+    c_vb_filter.p1 ~ vb_sense
+    c_vb_filter.p2 ~ gnd
+    r_ref = new ProtectionR
+    r_ref.mpn = "TNPW120610K0BEEA"
+    r_ref.value = 10000ohm
+    r_ref.p1 ~ aux
+    r_ref.p2 ~ ref25
+    r_delta_top = new ProtectionR
+    r_delta_top.mpn = "TNPW1206200KBEEA"
+    r_delta_top.value = 200000ohm
+    r_delta_top.p1 ~ ref25
+    r_delta_top.p2 ~ delta_ref
+    r_delta_low = new ProtectionR
+    r_delta_low.mpn = "TNPW120610K0BEEA"
+    r_delta_low.value = 10000ohm
+    r_delta_low.p1 ~ delta_ref
+    r_delta_low.p2 ~ gnd
+    r_pre_top = new ProtectionR
+    r_pre_top.mpn = "TNPW120614K3BEEA"
+    r_pre_top.value = 14300ohm
+    r_pre_top.p1 ~ ref25
+    r_pre_top.p2 ~ pre_ref
+    r_pre_low = new ProtectionR
+    r_pre_low.mpn = "TNPW12065K62BEEA"
+    r_pre_low.value = 5620ohm
+    r_pre_low.p1 ~ pre_ref
+    r_pre_low.p2 ~ gnd
+    r_ready_top = new ProtectionR
+    r_ready_top.mpn = "TNPW120610K0BEEA"
+    r_ready_top.value = 10000ohm
+    r_ready_top.p1 ~ ref25
+    r_ready_top.p2 ~ ready_ref
+    r_ready_low = new ProtectionR
+    r_ready_low.mpn = "TNPW120649K9BEEA"
+    r_ready_low.value = 49900ohm
+    r_ready_low.p1 ~ ready_ref
+    r_ready_low.p2 ~ gnd
+    r_uv_top = new ProtectionR
+    r_uv_top.mpn = "TNPW120648K1BEEA"
+    r_uv_top.value = 48100ohm
+    r_uv_top.p1 ~ aux
+    r_uv_top.p2 ~ aux_uv
+    r_uv_low = new ProtectionR
+    r_uv_low.mpn = "TNPW120610K0BEEA"
+    r_uv_low.value = 10000ohm
+    r_uv_low.p1 ~ aux_uv
+    r_uv_low.p2 ~ gnd
+    r_ov_top = new ProtectionR
+    r_ov_top.mpn = "TNPW120651K8BEEA"
+    r_ov_top.value = 51800ohm
+    r_ov_top.p1 ~ aux
+    r_ov_top.p2 ~ aux_ov
+    r_ov_low = new ProtectionR
+    r_ov_low.mpn = "TNPW120610K0BEEA"
+    r_ov_low.value = 10000ohm
+    r_ov_low.p1 ~ aux_ov
+    r_ov_low.p2 ~ gnd
+    r_vd_half_a = new ProtectionR
+    r_vd_half_a.mpn = "TNPW120610K0BEEA"
+    r_vd_half_a.value = 10000ohm
+    r_vd_half_a.p1 ~ vd_buf
+    r_vd_half_a.p2 ~ vd_half
+    r_vd_half_b = new ProtectionR
+    r_vd_half_b.mpn = "TNPW120610K0BEEA"
+    r_vd_half_b.value = 10000ohm
+    r_vd_half_b.p1 ~ vd_half
+    r_vd_half_b.p2 ~ gnd
+    r_vd_offset_a = new ProtectionR
+    r_vd_offset_a.mpn = "TNPW120610K0BEEA"
+    r_vd_offset_a.value = 10000ohm
+    r_vd_offset_a.p1 ~ vd_buf
+    r_vd_offset_a.p2 ~ vd_offset
+    r_vd_offset_b = new ProtectionR
+    r_vd_offset_b.mpn = "TNPW120610K0BEEA"
+    r_vd_offset_b.value = 10000ohm
+    r_vd_offset_b.p1 ~ vd_offset
+    r_vd_offset_b.p2 ~ delta_buf
+    r_vb_half_a = new ProtectionR
+    r_vb_half_a.mpn = "TNPW120610K0BEEA"
+    r_vb_half_a.value = 10000ohm
+    r_vb_half_a.p1 ~ vb_buf
+    r_vb_half_a.p2 ~ vb_half
+    r_vb_half_b = new ProtectionR
+    r_vb_half_b.mpn = "TNPW120610K0BEEA"
+    r_vb_half_b.value = 10000ohm
+    r_vb_half_b.p1 ~ vb_half
+    r_vb_half_b.p2 ~ gnd
+    r_vb_offset_a = new ProtectionR
+    r_vb_offset_a.mpn = "TNPW120610K0BEEA"
+    r_vb_offset_a.value = 10000ohm
+    r_vb_offset_a.p1 ~ vb_buf
+    r_vb_offset_a.p2 ~ vb_offset
+    r_vb_offset_b = new ProtectionR
+    r_vb_offset_b.mpn = "TNPW120610K0BEEA"
+    r_vb_offset_b.value = 10000ohm
+    r_vb_offset_b.p1 ~ vb_offset
+    r_vb_offset_b.p2 ~ delta_buf
+    pull_fast_ok_n = new ProtectionR
+    pull_fast_ok_n.mpn = "TNPW120610K0BEEA"
+    pull_fast_ok_n.value = 10000ohm
+    pull_fast_ok_n.p1 ~ logic5
+    pull_fast_ok_n.p2 ~ fast_ok_n
+    pull_pre_ok = new ProtectionR
+    pull_pre_ok.mpn = "TNPW120610K0BEEA"
+    pull_pre_ok.value = 10000ohm
+    pull_pre_ok.p1 ~ logic5
+    pull_pre_ok.p2 ~ pre_ok
+    pull_ready = new ProtectionR
+    pull_ready.mpn = "TNPW120610K0BEEA"
+    pull_ready.value = 10000ohm
+    pull_ready.p1 ~ logic5
+    pull_ready.p2 ~ ready
+    pull_por_n = new ProtectionR
+    pull_por_n.mpn = "TNPW120610K0BEEA"
+    pull_por_n.value = 10000ohm
+    pull_por_n.p1 ~ logic5
+    pull_por_n.p2 ~ por_n
+    r_arm_input = new ProtectionR
+    r_arm_input.mpn = "TNPW120610K0BEEA"
+    r_arm_input.value = 10000ohm
+    r_arm_input.p1 ~ service.ARM
+    r_arm_input.p2 ~ arm_filter
+    r_arm_pd = new ProtectionR
+    r_arm_pd.mpn = "TNPW1206100KBEEA"
+    r_arm_pd.value = 100000ohm
+    r_arm_pd.p1 ~ service.ARM
+    r_arm_pd.p2 ~ gnd
+    c_arm = new ProtectionC
+    c_arm.mpn = "C0805C104K5RACTU"
+    c_arm.value = 100nF
+    c_arm.p1 ~ arm_filter
+    c_arm.p2 ~ gnd
+    r_permit_pd = new ProtectionR
+    r_permit_pd.mpn = "TNPW1206100KBEEA"
+    r_permit_pd.value = 100000ohm
+    r_permit_pd.p1 ~ permit
+    r_permit_pd.p2 ~ gnd
+    r_timer_set = new ProtectionR
+    r_timer_set.mpn = "TNPW1206383KBEEA"
+    r_timer_set.value = 383000ohm
+    r_timer_set.p1 ~ timer.SET
+    r_timer_set.p2 ~ gnd
+    r_timer_div_top = new ProtectionR
+    r_timer_div_top.mpn = "TNPW12061M00BEEA"
+    r_timer_div_top.value = 1000000ohm
+    r_timer_div_top.p1 ~ logic5
+    r_timer_div_top.p2 ~ timer.DIV
+    r_timer_div_low = new ProtectionR
+    r_timer_div_low.mpn = "TNPW1206681KBEEA"
+    r_timer_div_low.value = 681000ohm
+    r_timer_div_low.p1 ~ timer.DIV
+    r_timer_div_low.p2 ~ gnd
+    dec_compare_bus = new ProtectionC
+    dec_compare_bus.mpn = "C0805C104K5RACTU"
+    dec_compare_bus.value = 100nF
+    dec_compare_bus.p1 ~ aux
+    dec_compare_bus.p2 ~ gnd
+    dec_compare_aux = new ProtectionC
+    dec_compare_aux.mpn = "C0805C104K5RACTU"
+    dec_compare_aux.value = 100nF
+    dec_compare_aux.p1 ~ aux
+    dec_compare_aux.p2 ~ gnd
+    dec_buffer = new ProtectionC
+    dec_buffer.mpn = "C0805C104K5RACTU"
+    dec_buffer.value = 100nF
+    dec_buffer.p1 ~ aux
+    dec_buffer.p2 ~ gnd
+    dec_por = new ProtectionC
+    dec_por.mpn = "C0805C104K5RACTU"
+    dec_por.value = 100nF
+    dec_por.p1 ~ logic5
+    dec_por.p2 ~ gnd
+    dec_schmitt1 = new ProtectionC
+    dec_schmitt1.mpn = "C0805C104K5RACTU"
+    dec_schmitt1.value = 100nF
+    dec_schmitt1.p1 ~ logic5
+    dec_schmitt1.p2 ~ gnd
+    dec_schmitt2 = new ProtectionC
+    dec_schmitt2.mpn = "C0805C104K5RACTU"
+    dec_schmitt2.value = 100nF
+    dec_schmitt2.p1 ~ logic5
+    dec_schmitt2.p2 ~ gnd
+    dec_gates1 = new ProtectionC
+    dec_gates1.mpn = "C0805C104K5RACTU"
+    dec_gates1.value = 100nF
+    dec_gates1.p1 ~ logic5
+    dec_gates1.p2 ~ gnd
+    dec_gates2 = new ProtectionC
+    dec_gates2.mpn = "C0805C104K5RACTU"
+    dec_gates2.value = 100nF
+    dec_gates2.p1 ~ logic5
+    dec_gates2.p2 ~ gnd
+    dec_latch = new ProtectionC
+    dec_latch.mpn = "C0805C104K5RACTU"
+    dec_latch.value = 100nF
+    dec_latch.p1 ~ logic5
+    dec_latch.p2 ~ gnd
+    dec_timer = new ProtectionC
+    dec_timer.mpn = "C0805C104K5RACTU"
+    dec_timer.value = 100nF
+    dec_timer.p1 ~ logic5
+    dec_timer.p2 ~ gnd
+    ldo_in = new ProtectionC
+    ldo_in.mpn = "GRM32ER71H106KA12L"
+    ldo_in.value = 10uF
+    ldo_in.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    ldo_in.p1 ~ aux
+    ldo_in.p2 ~ gnd
+    ldo_out = new ProtectionC
+    ldo_out.mpn = "GRM32ER71H106KA12L"
+    ldo_out.value = 10uF
+    ldo_out.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    ldo_out.p1 ~ logic5
+    ldo_out.p2 ~ gnd
+    por_delay = new ProtectionC
+    por_delay.mpn = "C0805C104K5RACTU"
+    por_delay.value = 100nF
+    por_delay.p1 ~ por.CT
+    por_delay.p2 ~ gnd
+    ldo.IN ~ aux
+    ldo.EN ~ aux
+    ldo.OUT ~ logic5
+    ldo.GND ~ gnd
+    ldo.EP ~ gnd
+    por.VCC ~ logic5
+    por.SENSE ~ logic5
+    por.GND ~ gnd
+    por.MR_N ~ fast_ok_n
+    por.RESET_N ~ por_n
+    reference.K ~ ref25
+    reference.A ~ gnd
+    buffer.PA ~ vd_sense
+    buffer.NA ~ buffer.OA
+    buffer.OA ~ vd_buf
+    buffer.PB ~ vb_sense
+    buffer.NB ~ buffer.OB
+    buffer.OB ~ vb_buf
+    buffer.PC ~ delta_ref
+    buffer.NC ~ buffer.OC
+    buffer.OC ~ delta_buf
+    buffer.PD ~ ref25
+    buffer.ND ~ buffer.OD
+    compare_bus.PA ~ ref25
+    compare_bus.NA ~ vd_buf
+    compare_bus.OA ~ fast_ok_n
+    compare_bus.PB ~ ref25
+    compare_bus.NB ~ vb_buf
+    compare_bus.OB ~ fast_ok_n
+    compare_bus.PC ~ vb_offset
+    compare_bus.NC ~ vd_half
+    compare_bus.OC ~ fast_ok_n
+    compare_bus.PD ~ vd_offset
+    compare_bus.ND ~ vb_half
+    compare_bus.OD ~ fast_ok_n
+    compare_aux.PA ~ aux_uv
+    compare_aux.NA ~ ref25
+    compare_aux.OA ~ fast_ok_n
+    compare_aux.PB ~ ref25
+    compare_aux.NB ~ aux_ov
+    compare_aux.OB ~ fast_ok_n
+    compare_aux.PC ~ vb_buf
+    compare_aux.NC ~ pre_ref
+    compare_aux.OC ~ pre_ok
+    compare_aux.PD ~ vb_buf
+    compare_aux.ND ~ ready_ref
+    compare_aux.OD ~ ready
+    schmitt1.IA ~ arm_filter
+    schmitt1.OA ~ arm_n
+    schmitt1.IB ~ arm_n
+    schmitt1.OB ~ arm_edge
+    schmitt1.IC ~ permit
+    schmitt1.OC ~ permit_n
+    schmitt1.ID ~ permit_n
+    schmitt1.OD ~ permit_clean
+    schmitt1.IE ~ fast_ok_n
+    schmitt1.OE ~ fault_n
+    schmitt1.IF ~ fault_n
+    schmitt1.OF ~ analog_good
+    schmitt2.IA ~ ready
+    schmitt2.OA ~ ready_n
+    schmitt2.IB ~ ready_n
+    schmitt2.OB ~ ready_clean
+    schmitt2.IC ~ pre_ok
+    schmitt2.OC ~ schmitt2.ID
+    schmitt2.OD ~ pre_clean
+    schmitt2.IE ~ timer.OUT
+    schmitt2.OE ~ timeout_n
+    schmitt2.IF ~ gnd
+    gates1.AA ~ analog_good
+    gates1.BA ~ por_n
+    gates1.OA ~ logic_good
+    gates1.AB ~ logic_good
+    gates1.BB ~ timeout_n
+    gates1.OB ~ clear_n
+    gates1.AC ~ permit_n
+    gates1.BC ~ pre_clean
+    gates1.OC ~ arm_data
+    gates1.AD ~ armed
+    gates1.BD ~ permit_clean
+    gates1.OD ~ request
+    gates2.AA ~ request
+    gates2.BA ~ pre_clean
+    gates2.OA ~ qualified
+    gates2.AB ~ qualified
+    gates2.BB ~ clear_n
+    gates2.OB ~ run
+    gates2.AC ~ run
+    gates2.BC ~ ready_clean
+    gates2.OC ~ load_ready
+    gates2.AD ~ permit_clean
+    gates2.BD ~ ready_n
+    gates2.OD ~ watch
+    latch.CLR1_N ~ clear_n
+    latch.PRE1_N ~ logic5
+    latch.D1 ~ arm_data
+    latch.CK1 ~ arm_edge
+    latch.Q1 ~ armed
+    latch.CLR2_N ~ gnd
+    latch.PRE2_N ~ logic5
+    latch.D2 ~ gnd
+    latch.CK2 ~ gnd
+    timer.IN ~ watch
+    service.GND ~ gnd
+    service.LOAD_READY ~ load_ready
+    service.ARMED ~ armed
+    compare_bus.VCC ~ aux
+    compare_bus.GND ~ gnd
+    compare_aux.VCC ~ aux
+    compare_aux.GND ~ gnd
+    buffer.VCC ~ aux
+    buffer.GND ~ gnd
+    schmitt1.VCC ~ logic5
+    schmitt1.GND ~ gnd
+    schmitt2.VCC ~ logic5
+    schmitt2.GND ~ gnd
+    gates1.VCC ~ logic5
+    gates1.GND ~ gnd
+    gates2.VCC ~ logic5
+    gates2.GND ~ gnd
+    latch.VCC ~ logic5
+    latch.GND ~ gnd
+    timer.VCC ~ logic5
+    timer.GND ~ gnd
+    run.override_net_name = "PROT_RUN"
+    logic5.override_net_name = "PROT_LOGIC5"
+    ref25.override_net_name = "PROT_REF25"
+    vd_sense.override_net_name = "PROT_VD_SENSE"
+    vb_sense.override_net_name = "PROT_VB_SENSE"
+    vd_buf.override_net_name = "PROT_VD_BUF"
+    vb_buf.override_net_name = "PROT_VB_BUF"
+    delta_buf.override_net_name = "PROT_DELTA_BUF"
+    fast_ok_n.override_net_name = "PROT_FAST_OK_N"
+    pre_ok.override_net_name = "PROT_PRE_OK"
+    ready.override_net_name = "PROT_READY"
+    por_n.override_net_name = "PROT_POR_N"
+    arm_edge.override_net_name = "PROT_ARM_EDGE"
+    clear_n.override_net_name = "PROT_CLEAR_N"
+    armed.override_net_name = "PROT_ARMED"
+    load_ready.override_net_name = "PROT_LOAD_READY"

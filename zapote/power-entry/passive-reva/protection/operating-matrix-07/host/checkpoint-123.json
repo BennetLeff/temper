@@ -1,0 +1,32 @@
+{
+  "at_utc": "2026-09-22T02:08:58.999775+00:00",
+  "status": "BOTH_DISPOSITION_COMPLETE_SW_PREFIX_LIVE_BYPASS_LIVE",
+  "goal_status": "active",
+  "previous_goal_turn": "no progress toward simulation closure: replied to power clarification using recorded105; revalidated and progressed nextavailablework this turn",
+  "this_goal_turn": "progress: legacy50106terminal0; ownBOTHprefix/phaseaccepted; verdict118FAIL retained; coincident34449terminal0/parent120 directly verifies currentwhileoff; Luna115powercorrection and116functionalrequirements reviewed122; index119 parentcorrected63characterhash andverified222priorfiles; SWownprefix117prepared/reviewed121/launched33018.",
+  "completed_sessions": {
+    "50106": 0,
+    "34449": 0
+  },
+  "live_sessions": {
+    "28321": "Final BYPASS66 solver/capture/checker; lastpolledlive",
+    "33018": "SWprefix117 archiveanalysis with frozen scan/audit/metrics/legacy; lastpolledlive"
+  },
+  "both_verdict": "FAIL435.79078242060086A>100A allrowscreen beforeformalProtectionGap; ownprefix/crestphaseaccepted118, same-row435.791Ainductor/435.636Afailedbranch whilegateoffatendpointverified120.",
+  "bypass_progress_last": "2075.563299\t6.03874708287370221e-1\t91.219744\t2.243814910549e-4\t27827107\ttrue\t47\t0\tfalse",
+  "free_bytes": 28490661888,
+  "artifacts_sha256": {
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/normal-prefix-acceptance.json": "d035c11c0a1673aa0c577eda34bc81dffb1b708f71ad435085b719797f06d94c",
+    "faults/settled-both-postcapture-75/full-BOTH-SHORT/parent-phase-acceptance.json": "034353e4a73312fbdd9f6599453272e3995eb6d9589700b90002275e38fbc615",
+    "faults/settled-both-short-65/full-BOTH-SHORT/campaign-verdict-118.json": "2db4cf5d912d5d232444a50247a6ea3ca1b04b3308dd8c5fac73176b7e9a3ca9",
+    "faults/coincident-stress-observability-99/parent-both-result-review-120.json": "f9a0421329ffc784c990066730eaec29e72822ab240f1cb93e59e7d9247970a3",
+    "faults/sw-prefix-only-117/parent-preparation-121.json": "888fd12a55ead5667f942a879cf23523f00686b8c7f664a48bda14719bb9c022",
+    "host/requirements-index-parent-review-122.json": "b36d5534177f63990333196194d56d8221d772ec707dd61c99f6609cfa0bedb8",
+    "host/protection-requirements-116.json": "97fa5f77667203655ff0a1b65cd7a944546001fd59bc8ce8eb7dbb4845b03246",
+    "host/reproducibility-addendum-119.json": "f15c12c0b58ade15c75f09a0f4ac9d6193120b852380f14a3c73f88fb89e3bc9",
+    "host/completion-audit-correction-115.json": "a7ecb675008c6bf236ae60f2de1c8cba25fe65cf321d6a8425ccffd7672dc87c"
+  },
+  "active_children": "none; completedchildreninterrupted",
+  "blocked_turn_count": 0,
+  "next": "Pollsame33018 and28321. Onearchiveanalysis atatime. When33018terminal inspectallpipelineexits/receipts/ownprefixmetrics/legacy, parentacceptprefixonly ifevidencepasses; SWoverallstaysINDETERMINATE/.662missing. WhenBYPASSterminal completecapturelaunchreviewed76run.sh onlyafter33018done, then76legacy andownprefix/phase+negativecontrolwaveformreview; rejectiononbypassflagaloneinsufficient. Consolidatefinalreport/index thenfullrequirementaudit. No morefullsolversplanned."
+}

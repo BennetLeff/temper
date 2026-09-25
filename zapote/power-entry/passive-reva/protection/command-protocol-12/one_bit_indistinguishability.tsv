@@ -1,0 +1,4 @@
+sample	healthy	received_arm	intentional_world	fault_world
+0	false	0	fault/reset	fault/reset
+1	true	0	producer_commands_low	producer_high_wire_open
+2	true	1	producer_commands_high	producer_high_wire_reconnects

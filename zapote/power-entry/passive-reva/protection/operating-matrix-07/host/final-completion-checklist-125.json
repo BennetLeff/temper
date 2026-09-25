@@ -1,0 +1,166 @@
+{
+  "status": "COMPLETION_UNPROVEN",
+  "checklist": "host/final-completion-checklist-125.md",
+  "generated_scope": "small regular files only; no raw/FIFO read or rehash; no solver run",
+  "requirements": [
+    {
+      "id": "cold_start_baseline",
+      "status": "MODELED_SCOPE_MET",
+      "evidence": [
+        "accepted-baseline-11/acceptance.json",
+        "host/operating-envelope-checkpoint-53.json"
+      ]
+    },
+    {
+      "id": "nine_line_load_points",
+      "status": "MODELED_SCOPE_MET",
+      "evidence": [
+        "host/operating-envelope-checkpoint-53.json"
+      ]
+    },
+    {
+      "id": "fault_exercise_and_interruption",
+      "status": "INCOMPLETE",
+      "evidence": [
+        "faults/fault-matrix.md",
+        "faults/sw-prefix-only-117/parent-preparation-121.json",
+        "faults/settled-bypass-postcapture-76/preparation.json",
+        "faults/settled-both-short-65/full-BOTH-SHORT/campaign-verdict-118.json"
+      ],
+      "blockers": [
+        "BYPASS waveform capture/postcapture/parent disposition pending",
+        "SW endpoint absent; prefix-only review cannot waive full endpoint",
+        "DIODE FAIL and BOTH FAIL retained"
+      ]
+    },
+    {
+      "id": "component_model_gaps",
+      "status": "DOCUMENTED_BOUNDED_NOT_PHYSICALLY_RESOLVED",
+      "evidence": [
+        "host/model-gap-closeout-12.md",
+        "host/clamp-evidence-gap-review-49.md",
+        "host/inductor-manufacturer-audit-72/vendor-model-parent-review-73.md",
+        "host/ucc28180-vendor-model-availability.md"
+      ]
+    },
+    {
+      "id": "final_reproducible_report",
+      "status": "PENDING",
+      "evidence": [
+        "host/reproducibility-addendum-119.md",
+        "host/requirements-index-parent-review-122.json"
+      ],
+      "blockers": [
+        "final report/index must incorporate BYPASS and SW dispositions"
+      ]
+    }
+  ],
+  "boundary": "No modeled receipt establishes hardware current interruption, thermal/SOA, fuse clearing, controller silicon behavior, or production safety.",
+  "files": [
+    {
+      "path": "GOAL.md",
+      "bytes": 51793,
+      "sha256": "e2317da73dee873d8f4c2964f4d3a49f3a6ff57e4ce79d4b77daefbdb34e77c7"
+    },
+    {
+      "path": "faults/fault-matrix.md",
+      "bytes": 8651,
+      "sha256": "df55bba086af019213f28302cdd6534d964e4b07f54aed5d52b65d1bf27a737b"
+    },
+    {
+      "path": "host/campaign-evidence-register-28.md",
+      "bytes": 21280,
+      "sha256": "ec8e77357e1b07064fa533f78d5cf193e97d5377c9b6885b7e49898f16c85c17"
+    },
+    {
+      "path": "host/operating-envelope-checkpoint-53.json",
+      "bytes": 56991,
+      "sha256": "b8cf5f50b73b8ae0c0fb9cd7d0bcacaddcd0f9099a450f680d85eafa2a345f5d"
+    },
+    {
+      "path": "accepted-baseline-11/acceptance.json",
+      "bytes": 4747,
+      "sha256": "18ce2902682b4cedb2880e260c15e731e599df4224dc842a70c85e9cadb6cf22"
+    },
+    {
+      "path": "host/completion-requirements-parent-review-86.json",
+      "bytes": 1452,
+      "sha256": "79c11e211828e6ba419447f3e0461f9880879f1ca4f33bf266f582800f1c26fc"
+    },
+    {
+      "path": "host/protection-requirements-116.md",
+      "bytes": 6627,
+      "sha256": "bece39c495278e61aebc3719526741e89aee3ebff577db7a9ebdabb0c77035ea"
+    },
+    {
+      "path": "host/protection-requirements-116.json",
+      "bytes": 4883,
+      "sha256": "97fa5f77667203655ff0a1b65cd7a944546001fd59bc8ce8eb7dbb4845b03246"
+    },
+    {
+      "path": "host/completion-audit-correction-115.md",
+      "bytes": 1712,
+      "sha256": "5796fbc41741236204e457712cc5265d2f8d3d82843cca6431d927dd41faaa9c"
+    },
+    {
+      "path": "host/completion-audit-correction-115.json",
+      "bytes": 1519,
+      "sha256": "a7ecb675008c6bf236ae60f2de1c8cba25fe65cf321d6a8425ccffd7672dc87c"
+    },
+    {
+      "path": "host/reproducibility-addendum-119.md",
+      "bytes": 1822,
+      "sha256": "f59507593346d82b1ac730734b3278b494c0e5ed10e87ad5f30022d8fbbf909c"
+    },
+    {
+      "path": "host/reproducibility-addendum-119.json",
+      "bytes": 9136,
+      "sha256": "f15c12c0b58ade15c75f09a0f4ac9d6193120b852380f14a3c73f88fb89e3bc9"
+    },
+    {
+      "path": "host/requirements-index-parent-review-122.json",
+      "bytes": 1932,
+      "sha256": "b36d5534177f63990333196194d56d8221d772ec707dd61c99f6609cfa0bedb8"
+    },
+    {
+      "path": "host/model-gap-closeout-12.md",
+      "bytes": 14464,
+      "sha256": "be3c43880127d2a1a879fb7edc60d6bd0d4582f1477b95ae2bd98ba578545e78"
+    },
+    {
+      "path": "host/clamp-evidence-gap-review-49.md",
+      "bytes": 9932,
+      "sha256": "ef5e5973d9060eab3ee86af42fd3c2c1b54acb2bc0684c55f80bfa57aec27ec8"
+    },
+    {
+      "path": "host/inductor-manufacturer-audit-72/vendor-model-parent-review-73.md",
+      "bytes": 1420,
+      "sha256": "86baf5c84bb7a4457a3ad7894a8c2980d536c0bafcfa6726f7ac21cde9389b83"
+    },
+    {
+      "path": "host/ucc28180-vendor-model-availability.md",
+      "bytes": 4359,
+      "sha256": "cc1b619e6611253d03689859caf1e9df2c7a04b0489b1ab7e396c638d7b082bd"
+    },
+    {
+      "path": "faults/sw-prefix-only-117/README.md",
+      "bytes": 2166,
+      "sha256": "5a1cc01cd2814252c0ac7982065cf9d072ae08e8b4522ebdbefcfc81796495b0"
+    },
+    {
+      "path": "faults/sw-prefix-only-117/parent-preparation-121.json",
+      "bytes": 1252,
+      "sha256": "888fd12a55ead5667f942a879cf23523f00686b8c7f664a48bda14719bb9c022"
+    },
+    {
+      "path": "faults/settled-bypass-postcapture-76/preparation.json",
+      "bytes": 1063,
+      "sha256": "79ecdfae39886a9b57cb9b297120f98d7a494ba600cb029d67810e222debaed7"
+    },
+    {
+      "path": "faults/settled-both-short-65/full-BOTH-SHORT/campaign-verdict-118.json",
+      "bytes": 2709,
+      "sha256": "2db4cf5d912d5d232444a50247a6ea3ca1b04b3308dd8c5fac73176b7e9a3ca9"
+    }
+  ]
+}

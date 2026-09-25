@@ -1,0 +1,18 @@
+   Compiling zapote-erc v0.1.0 (/private/tmp/temper-pkgs-1-4/zapote/packages/zapote-erc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.59s
+     Running tests/f2_sense.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/f2_sense-5e5585c5353feb12)
+
+running 3 tests
+test compiled_resistor_values_match_the_screened_divider ... ok
+test real_compiled_pins_preserve_both_relative_and_absolute_trip_directions ... ok
+test compiled_count_and_source_snapshot_are_current ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/passive_reva.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/passive_reva-c3d0cd7f90f56b13)
+
+running 1 test
+test compiled_passive_source_binds_exact_retained_native_board ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+

@@ -1,0 +1,17 @@
+PASS UVLO rising hysteresis
+PASS UVLO enabled
+PASS UVLO retained at10V
+PASS UVLO disabled at9V
+PASS UVLO recovery
+PASS OVP set
+PASS OVP retained at5.2V
+PASS OVP reset below5.1V
+PASS VSENSE standby
+PASS standby recovery
+PASS ISENSE openpin
+PASS ICOMP short
+PASS cycle-latched PCL with blanking and hold after comparator release
+PASS low-voltage EDR sources275uA
+PASS SOC 4k VCOMP discharge
+
+exit_code=0

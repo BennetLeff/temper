@@ -1,0 +1,12 @@
+{
+  "status": "REJECTED_NUMERICAL_ABORT_BEFORE_FAULT_INJECTION",
+  "full_fault_exercised": false,
+  "end_s": 0.004416872930817173,
+  "required_end_s": 0.089,
+  "planned_injection_s": 0.075,
+  "raw_rows": 24712,
+  "solver_message": "Timestep too small6.25e-19;vbody#branch",
+  "raw_sha256": "5fb16da3229eae36cb7933fed9ceb3685d8e6fba0ceb92cbb2225e8c2ae82328",
+  "pipeline": "host/pigz/decoder/decompressor0;adapter/validator1 rejectincompleteendpoint",
+  "next_action": "Bounded baseline-versus-instrumented startup probes; preserve thiscandidate/source/raw unchanged."
+}

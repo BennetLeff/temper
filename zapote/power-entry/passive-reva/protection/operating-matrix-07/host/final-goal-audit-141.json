@@ -1,0 +1,97 @@
+{
+  "status": "PARENT_ACCEPTED_COMPLETED_SIMULATION_ASSESSMENT",
+  "goal_objective_complete": true,
+  "at_utc": "2026-09-22T02:51:40.659171+00:00",
+  "completion_scope": "The authorized bounded simulation assessment is complete. Protection adequacy, a qualified continuous operating envelope, full switch-short fault coverage and hardware readiness are NOT established.",
+  "requirements": [
+    {
+      "requirement": 1,
+      "result": "SATISFIED_CONDITIONAL_MODEL_SCOPE",
+      "evidence": [
+        "accepted-baseline-11/acceptance.json",
+        "host/normal-coverage-review-134.json"
+      ],
+      "finding": "Complete 650ms cold startup and three-cycle baseline accepted under versioned event-aware-normal-v1 with unchanged electrical screens. Strict legacy duplicate-timestamp rejection remains retained, not converted to a pass."
+    },
+    {
+      "requirement": 2,
+      "result": "SATISFIED_DECLARED_DISCRETE_MATRIX",
+      "evidence": [
+        "host/operating-envelope-checkpoint-53.json",
+        "host/normal-screen-margins-89.json",
+        "host/normal-coverage-review-134.json"
+      ],
+      "finding": "All nine declared 108/120/132VAC by three-load points accepted; limits and minimum observed margins reported. This does not establish interpolation, full 1800W input operation, long-duration or thermal behavior."
+    },
+    {
+      "requirement": 3,
+      "result": "SATISFIED_BOUNDED_ASSESSMENT_WITH_EXPLICIT_COVERAGE_EXCLUSION",
+      "evidence": [
+        "faults/fault-matrix.md",
+        "faults/settled-sw-short-59/full-SW-SHORT/campaign-verdict-addendum-129.json",
+        "faults/settled-diode-short-64/full-DIODE-SHORT/campaign-verdict-98.json",
+        "faults/settled-both-short-65/full-BOTH-SHORT/campaign-verdict-118.json",
+        "faults/settled-bypass-neg-66/full-BYPASS-NEG/campaign-verdict-138.json",
+        "host/protection-requirements-116.md"
+      ],
+      "finding": "Prepared cases exercised and dispositioned. F2 cases pass exact model screens; diode and both-short cases fail; bypass negative control demonstrates absent latched shutdown and fails VD screen. SW-SHORT retains accepted own normal prefix but incomplete post-fault record and INDETERMINATE verdict under predeclared bounded-attempt contract. Gate-off is not credited as source or stored-energy interruption; faults are not tested at all grid corners."
+    },
+    {
+      "requirement": 4,
+      "result": "SATISFIED_EXPLICIT_CLAIM_BOUNDS_AND_NAMED_PHYSICAL_GAPS",
+      "evidence": [
+        "host/clamp-evidence-gap-review-49.md",
+        "clamp/datasheet-audit/report.md",
+        "clamp/host-rerun/checks.txt",
+        "host/ucc28180-vendor-model-availability.md",
+        "host/ucc28180-reference-deviations-107.md",
+        "host/inductor-manufacturer-audit-72/vendor-model-review-73.md"
+      ],
+      "finding": "Primary evidence bounds the claims to the authored models. Selected clamp low-current VF versus temperature/lot remains physically unbounded, hot fixtures fail selected engineering loading screens, saved positive ISENSE exceeds strict recommended 0V bound, and PCL is unexercised. Vendor model availability does not supply silicon correlation. Nonlinear magnetics, SOA, capacitor, auxiliary and fuse clearing behavior remain identified physical questions."
+    },
+    {
+      "requirement": 5,
+      "result": "SATISFIED_REPRODUCIBLE_FINAL_ASSESSMENT",
+      "evidence": [
+        "host/campaign-report-139.md",
+        "host/reproducibility-index-140.json",
+        "host/final-assessment-review-142.json",
+        "host/power-target-105.md",
+        "host/protection-requirements-116.md",
+        "checker/hardware-validation-spec.md"
+      ],
+      "finding": "Parent-reviewed report consolidates normal and fault findings, minimum margins, exact evidence and tool identities, reference deviations, functional protection implications, and hardware questions. Final index binds 361 small artifacts and records 17 raw archive identities from completed receipts; raw retention does not imply Google Drive backup coverage."
+    }
+  ],
+  "independent_review": {
+    "path": "host/final-assessment-review-142.json",
+    "finding_resolution": "Reviewer observed index140 absent during concurrent assembly. Index140 now exists and all report links resolve. Report wording now explicitly says cases assessed from retained runs, including incomplete SW-SHORT. No numerical/status correction was requested. Original review is preserved."
+  },
+  "parent_verification": {
+    "small_file_hashes_verified": 361,
+    "canonical_raw_identities_and_sizes_verified": 17,
+    "raw_bytes_retained": 58009430420,
+    "raw_rehashed_this_final_audit": false,
+    "local_report_link_occurrences_verified": 41,
+    "prior_candidate_hash_drift": [],
+    "bypass_completed_pipelines_all_zero": true,
+    "bypass_expected_strict_rejection_retained": true
+  },
+  "model_gaps_are_not_part_qualification": true,
+  "hardware_available": false,
+  "hardware_signoff": false,
+  "production_design_ready": false,
+  "outstanding_within_bounded_assessment": [],
+  "next_design_work": [
+    "Allocate nominal 1800W whole-appliance input budget before choosing DC bus power; retain low-line derating under a 15A constraint.",
+    "Choose and document controller/topology reference; PMP10948 is UCC28063 interleaved, while UCC28180 EVM/TIDA are same-controller references at different ratings.",
+    "Design independent failed-switch source interruption, local VD and bank-energy protection, inrush handling, detector coverage and restart interlock.",
+    "Requalify changed topology in simulation and later establish component and hardware behavior, including cooking parity."
+  ],
+  "artifact_sha256": {
+    "host/campaign-report-139.md": "6f7a66ac30751e38efe8739ba9fd2a647f88ff76ef19953d69b9bb04bc09407b",
+    "host/reproducibility-index-140.json": "4544c545e59b523ab472788290bb091014b86a740b94d13a32ce4733472f2af2",
+    "host/final-assessment-review-142.json": "658cf319fba14e38ed95b4d34dc9225891fa0ef685197d179ad2e0126794f250",
+    "host/final-assessment-review-142.md": "67b97aa44244748902841b052ca6dcab0e5e19e3fad88751e3038826d83ccf71"
+  }
+}

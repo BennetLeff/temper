@@ -1,0 +1,10 @@
+quantity,value,unit,interpretation
+gate_cap_min_acceptance,0.000001350000,F,conditional acceptance allocation; exact capacitors unselected
+total_output_cap_max_acceptance,0.000300000000,F,conditional acceptance allocation; exact capacitors unselected
+ceramic_max_example_only,0.000012000000,F,conditional acceptance allocation; exact capacitors unselected
+required_bulk_for_example,0.000120000000,F,conditional acceptance allocation; exact capacitors unselected
+ramp_current_screen,0.014444444444,A,conditional acceptance allocation; exact capacitors unselected
+operating_load_plus_support,0.115255259528,A,conditional acceptance allocation; exact capacitors unselected
+startup_current_screen,0.129699703972,A,conditional acceptance allocation; exact capacitors unselected
+nonfoldback_remaining_screen,0.072820548053,A,conditional acceptance allocation; exact capacitors unselected
+foldback_min_screen,0.067506750675,A,conditional acceptance allocation; exact capacitors unselected

@@ -1,0 +1,37 @@
+{
+  "status": "ACCEPTED_MODELED_NORMAL_GRID_POINT",
+  "case": "LL03",
+  "line_v_rms": 108,
+  "rload_ohm": 115.683469155,
+  "target_end_s": 0.65,
+  "solver_wall_limit_s": 3600,
+  "minimum_free_bytes": 10737418240,
+  "tool_session": 16007,
+  "runner_pid": 24658,
+  "solver_pid": 24925,
+  "source_review": "../parent-review.json",
+  "runner_sha256": "09551942c747b3ff1aded2a8d399930914fd02fc53b732a5a6effc0af760b625",
+  "source_sha256": "745df038d0f4142b8a2322580e7aea493561ddf4e7737e83466ba3e5e9b50b9f",
+  "launch_environment": {
+    "SPICE_SCRIPTS": "/opt/homebrew/Cellar/ngspice/45.2/share/ngspice/scripts",
+    "spinit_sha256": "b2e0359f8b549f6e27bc86f1bb9b7847b7f376c3758bf8297084807a45af2390"
+  },
+  "observed_utc": "2026-09-21T03:16:07.087103+00:00",
+  "progress_line": "1905.947143\t6.50000000000000022e-1\t100.000000\t3.224961186504e-4\t29479028\ttrue\t101\t0",
+  "free_bytes": 25065574400,
+  "parallel_decision": "LL03 occupies LL01 freed solver slot; onlyLL02+LL03solvers active; LL01 complete exit0 accepted separately.",
+  "evidence_files": {
+    "cold.cir": "4dec9f9c2d98b5b08403d985a5f2660b8d0c71f64ecf26fbee33d292ad9e5e8f",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b",
+    "case.json": "497032e7558a15d4c724f9f5fac6599c03bca533e5623ddf95ab137cfbc5f90b"
+  },
+  "completed_at_utc": "2026-09-21T03:32:22.922408+00:00",
+  "full_runner_exit": 0,
+  "acceptance": "LL03/acceptance.json",
+  "solver_wall_s": 1905.947143,
+  "total_case_wall_s": 2114.948
+}

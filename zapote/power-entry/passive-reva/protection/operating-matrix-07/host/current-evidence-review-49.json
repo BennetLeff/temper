@@ -1,0 +1,17 @@
+{
+  "status": "PARENT_REVIEWED_CHECKPOINT_49",
+  "created_at_utc": "2026-09-21T19:06:05.184778+00:00",
+  "artifacts": {
+    "host/operating-envelope-checkpoint-49.json": "2b785439938a14a55a8b099f5467dbd660ef46b91fe6f125e9f8176360b64923",
+    "host/operating-envelope-checkpoint-49.md": "5de1d2f489d32a6264a2e9b82e193d0259e8f7f594ee73cef7d59fae31e6688a",
+    "host/operating-envelope-checkpoint-49-parent.json": "6a3595c41512c4a22dbf11b7dbf643e5e252952ca32e1b03f8f9f9dc296e7dd3",
+    "host/clamp-evidence-gap-review-49.md": "ef5e5973d9060eab3ee86af42fd3c2c1b54acb2bc0684c55f80bfa57aec27ec8",
+    "faults/remaining-readiness-49.md": "c71c0666d5e5f76ce8ec9dff51d3b8bf46b00cc9b04039f3be1e20d5e8d19ade"
+  },
+  "findings": [
+    "Eight-point consolidation hashes, copied receipt fields and current small source files verified. No raw archives reread.",
+    "BYPASS adapter latch fields require a detector edge; no edge means default empty/zero metrics and is not proof of waveform absence. Frozen checker bypass verdict is immediate flag rejection. Future negative-control acceptance requires separate waveform evidence.",
+    "Parent corrected clamp review wording: conditional authored VF fixtures and a saved-pin scan cannot close/bound the selected Vishay temperature/lot guarantee; component-model requirement remains unresolved."
+  ],
+  "new_circuit_acceptances": false
+}

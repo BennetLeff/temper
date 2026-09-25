@@ -1,0 +1,5 @@
+PCL_MAX_ANCHOR_MODEL 25C: isense=-0.418288 V diode=8.960e-5 A shift=19.712 mV
+PCL_MAX_ANCHOR_MODEL 125C: isense=-0.322463 V diode=5.252e-4 A shift=115.537 mV
+NEGATIVE_EXCURSION: all 4 temperatures keep ISENSE above -1.1 V; diode current 18.739..19.730 mA
+NEGATIVE_TOPOLOGY_CONTROL: reversed clamp leaves ISENSE=-1.499950 V (expected fail)
+PASS bounded alternative-model checks; no production qualification implied

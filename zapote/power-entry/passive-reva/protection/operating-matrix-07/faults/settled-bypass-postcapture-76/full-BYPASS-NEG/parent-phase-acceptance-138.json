@@ -1,0 +1,64 @@
+{
+  "status": "ACCEPTED_EXACT_MODELED_CREST_PHASE_BOUND",
+  "accepted": true,
+  "utc": "2026-09-22T02:39:54.911275+00:00",
+  "scope": "Own BYPASS-NEG sampledcrestphaseonly; nofault/hardwarequalification.",
+  "raw_sha256": "75f444f8e422e445c2e5d65f21760af1658f0b14f05dcd088d1c80cd2b87b0a1",
+  "rows": 32287070,
+  "parameters": {
+    "end_s": 0.662,
+    "expected_event_s": 0.6541666666667,
+    "local_start_s": 0.65,
+    "local_end_s": 0.6583333333333,
+    "tolerance": 0.01
+  },
+  "counts": {
+    "rows": 32287070,
+    "local_equal_group_raw_rows": 7,
+    "local_equal_groups": 2,
+    "edge_count": 1,
+    "peak_tie_groups": 2
+  },
+  "edge_time_s": 0.6541666661706754,
+  "bounds": {
+    "max_source_spread_v_D_observed": 2.842170943040401e-14,
+    "max_source_spread_v_D_bound": 2.8421709430404014e-14,
+    "local_peak_abs_v_P": 169.70562748477144,
+    "edge_abs_lower_v": 169.7056274847684,
+    "edge_abs_upper_v": 169.7056274847685,
+    "peak_abs_lower_v": 169.70562748477138,
+    "criterion_error_using_representatives": 1.7585035537258278e-14,
+    "sufficient_bound_pass": true,
+    "peak_tie_first_s": 0.6541666666667001,
+    "peak_tie_last_s": 0.6541666666667028
+  },
+  "decision_authority": "Frozenphase43outward-roundedall-choicebound, unchanged1%crestcontract.",
+  "evidence_sha256": {
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/analysis-receipt.json": "244b2210a3a339096ff3476cf49e3c04c6c5e2b8224627fd6566acafdbdac98c",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/preflight.json": "4d52178a30c643c1676d51b47f5734b47bc85d4477f688214e27cf5cc52a2229",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/prefault-scan.json": "0c84f56e643b12b6eaaf8ff38a2289bc47ab502a705107246b18cf6649c31936",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/normal15-audit.txt": "283fc2d9b73353951a1a1a8646cca6d17df1e337185c3bcbdc717947d28f13fc",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/normal15-events.tsv": "f25cbf655f530ec4ab0258d8f51a1f62f8aded6ad8045808d504dcf62c223e9d",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/normal-metrics.txt": "de1d0856e6a3b663810a528d60b884154bf2b260bb3fae66122694a0a856a447",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/phase.json": "cfd669490016392fb309218232e387b2d243f3fefc4e1910bb94794428aaa343",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/post-injection-observations.json": "50ee632cc89a02439ea447a3225e3864b365df7317f3488b1b7e7f34bcb73573",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/legacy-strict/receipt.json": "a106c40232251911d77102e6101c041ae8243655962b277e4f1d84d954e66cbb",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/legacy-strict/checker.stderr": "805674da28c6d297a0db27e77538b29821f36005cbaa4ab94930305eb320b24a",
+    "faults/settled-bypass-postcapture-76/full-BYPASS-NEG/legacy-strict/pipeline.exit": "175bdbc71706c903e524dd6d875c3ab6ac16c186bae6a09d895464d0e9d9e9f2",
+    "faults/settled-bypass-postcapture-76/run.sh": "c20a250f513bb8d36a32749bd7118cf4cdaf9b64a6050a5e0730900e8044d455",
+    "faults/settled-bypass-postcapture-76/legacy-strict.sh": "852462b711e10dcd790a81032dbaabdff738f047954589ca0ecfabe33a6ee02e",
+    "faults/settled-bypass-postcapture-76/tools-parent.sha256": "c73951e24cf50cde435c148f0d5d60b70a96b0f050656da0f6fa8b42dda7b60e",
+    "faults/settled-bypass-postcapture-76/parent-review.json": "08b4d08477721a59f17e12602cba925475a9360db4cff3bc673874b58c20f89d",
+    "faults/settled-bypass-postcapture-76/normal-phase-candidate-136.json": "d6dcb6ed5eeaa1115f110a118b56cca905ea47fd09208f3c2b564a1a4cf51412"
+  },
+  "tool_sha256_verified": {
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-prefault-selector-parent": "c45bfa25ee4468deb2e39e924e4e7c65e89cba22f84d1d708507f2247addd884",
+    "/private/tmp/matrix07-normal15-event-audit-host": "be237328571b5c71c3f5e9f43234a6745941fef4eb6f1baa5b96863a31168ce6",
+    "/private/tmp/matrix07-normalize": "37f294b9ce4171c665318f857f9d672280e08b4bcf51990d0f29eea9d5cb59ff",
+    "/private/tmp/matrix07-event-metrics-host": "85085e0ade874d198e603a07f387be8440f0436747caea91b3adba38f7285c7c",
+    "/private/tmp/matrix07-phase43-parent": "e546ddfb84c53b73303e465574fa29fdff7753768c3a71efda1f8b5f185be965",
+    "/private/tmp/matrix07-bypass55-parent": "3bff9b4312cf9bb3c2118219e0f3bc5406482d8c2b83b728ad851b663bb40f6c"
+  }
+}

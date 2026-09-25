@@ -1,0 +1,32 @@
+{
+  "status": "COMPLETE_CAPTURE_BOUND_FOR_ANALYSIS",
+  "accepted": false,
+  "runner_exit": 1,
+  "capture_stage1": {
+    "host_success": true,
+    "pigz_success": true,
+    "host_rc": 0,
+    "pigz_rc": 0,
+    "metadata_status": "valid",
+    "raw_trace_bytes": 5286116925,
+    "raw_trace_sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166"
+  },
+  "points": 32036953,
+  "raw_sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+  "raw_bytes": 5286116925,
+  "runner_result": {
+    "status": "REVIEW_PENDING",
+    "classification": "VALIDATOR_REVIEW_PENDING",
+    "transport_complete": true,
+    "validator_success": false,
+    "raw_trace": "raw.trace.raw.gz",
+    "raw_trace_bytes": 5286116925,
+    "raw_trace_sha256": "52b33da8bbb29fd1038e575fd0d79c950ce086f4ad0b619903334164e66f7166",
+    "acceptance": false
+  },
+  "phase_interval_s": [
+    0.65,
+    0.6583333333333
+  ],
+  "note": "Terminal electrical/checker failure does not prevent diagnosis of complete raw capture; it is not waived."
+}

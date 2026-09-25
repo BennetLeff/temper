@@ -1,0 +1,18 @@
+{
+  "status": "PREPARED_DIAGNOSTIC_CANDIDATE_NO_CAMPAIGN",
+  "source_sha256": "69253ff8b1e9d3a828cc1d5e60af799ab3b41590b14c911e7f3abf7e82200231",
+  "binary_sha256": "43442d69ac89b7ce7d6c9ef24619b274533b22283e147216aaacf82a81efafab",
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "checks": {
+    "exact_fault42_schema": true,
+    "all_42_fields_finite": true,
+    "nondecreasing_equal_time_preserved": true,
+    "cutoff_prefix_original_tokens": true,
+    "full_input_reaches_cutoff": true,
+    "observed_fault_edge_ac_recorded": true,
+    "truncated_input_fails_closed": true,
+    "scan_only_emits_no_tsv": true
+  },
+  "acceptance": "none; transport/audit only"
+}

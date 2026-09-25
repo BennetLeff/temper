@@ -1,0 +1,407 @@
+{
+  "status": "census of rejected design; not a replacement BOM",
+  "source_manifest": "native-05/source-manifest.json",
+  "source_manifest_sha256": "2a7d75f0f60e9fb00ab55ac30f7e19cfbb7da693c82000f489313f826bac6c0f",
+  "total_components": 133,
+  "supervisor_components": 70,
+  "groups": [
+    {
+      "function": "High-voltage sensing",
+      "count": 14,
+      "components": [
+        {
+          "instance": "protection.r_vd1",
+          "reference": "U68",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_vd2",
+          "reference": "U69",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_vd3",
+          "reference": "U70",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_vd4",
+          "reference": "U71",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_vd5",
+          "reference": "U72",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_vb1",
+          "reference": "U75",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_vb2",
+          "reference": "U76",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_vb3",
+          "reference": "U77",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_vb4",
+          "reference": "U78",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_vb5",
+          "reference": "U79",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_vd_low",
+          "reference": "U73",
+          "mpn": "TNPW12065K90BEEA"
+        },
+        {
+          "instance": "protection.r_vb_low",
+          "reference": "U80",
+          "mpn": "TNPW12065K90BEEA"
+        },
+        {
+          "instance": "protection.c_vd_filter",
+          "reference": "U74",
+          "mpn": "C0805C101J5GACTU"
+        },
+        {
+          "instance": "protection.c_vb_filter",
+          "reference": "U81",
+          "mpn": "C0805C101J5GACTU"
+        }
+      ]
+    },
+    {
+      "function": "Buffered voltage-difference network",
+      "count": 12,
+      "components": [
+        {
+          "instance": "protection.buffer",
+          "reference": "U57",
+          "mpn": "OPA4197IPWR"
+        },
+        {
+          "instance": "protection.dec_buffer",
+          "reference": "U114",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.r_delta_top",
+          "reference": "U83",
+          "mpn": "TNPW1206200KBEEA"
+        },
+        {
+          "instance": "protection.r_delta_low",
+          "reference": "U84",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_vd_half_a",
+          "reference": "U93",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_vd_half_b",
+          "reference": "U94",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_vd_offset_a",
+          "reference": "U95",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_vd_offset_b",
+          "reference": "U96",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_vb_half_a",
+          "reference": "U97",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_vb_half_b",
+          "reference": "U98",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_vb_offset_a",
+          "reference": "U99",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_vb_offset_b",
+          "reference": "U100",
+          "mpn": "TNPW120610K0BEEA"
+        }
+      ]
+    },
+    {
+      "function": "Reference",
+      "count": 2,
+      "components": [
+        {
+          "instance": "protection.reference",
+          "reference": "U60",
+          "mpn": "LM4040A25IDBZR"
+        },
+        {
+          "instance": "protection.r_ref",
+          "reference": "U82",
+          "mpn": "TNPW120610K0BEEA"
+        }
+      ]
+    },
+    {
+      "function": "Auxiliary voltage dividers",
+      "count": 4,
+      "components": [
+        {
+          "instance": "protection.r_uv_top",
+          "reference": "U89",
+          "mpn": "TNPW120648K1BEEA"
+        },
+        {
+          "instance": "protection.r_uv_low",
+          "reference": "U90",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_ov_top",
+          "reference": "U91",
+          "mpn": "TNPW120651K8BEEA"
+        },
+        {
+          "instance": "protection.r_ov_low",
+          "reference": "U92",
+          "mpn": "TNPW120610K0BEEA"
+        }
+      ]
+    },
+    {
+      "function": "Comparator packages and bypass",
+      "count": 4,
+      "components": [
+        {
+          "instance": "protection.compare_bus",
+          "reference": "U55",
+          "mpn": "TLV1704PWR"
+        },
+        {
+          "instance": "protection.compare_aux",
+          "reference": "U56",
+          "mpn": "TLV1704PWR"
+        },
+        {
+          "instance": "protection.dec_compare_bus",
+          "reference": "U112",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.dec_compare_aux",
+          "reference": "U113",
+          "mpn": "C0805C104K5RACTU"
+        }
+      ]
+    },
+    {
+      "function": "Precharge, ready and startup timer",
+      "count": 11,
+      "components": [
+        {
+          "instance": "protection.r_pre_top",
+          "reference": "U85",
+          "mpn": "TNPW120614K3BEEA"
+        },
+        {
+          "instance": "protection.r_pre_low",
+          "reference": "U86",
+          "mpn": "TNPW12065K62BEEA"
+        },
+        {
+          "instance": "protection.r_ready_top",
+          "reference": "U87",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_ready_low",
+          "reference": "U88",
+          "mpn": "TNPW120649K9BEEA"
+        },
+        {
+          "instance": "protection.pull_pre_ok",
+          "reference": "U102",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.pull_ready",
+          "reference": "U103",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.timer",
+          "reference": "U66",
+          "mpn": "LTC6994IS6-1#TRMPBF"
+        },
+        {
+          "instance": "protection.dec_timer",
+          "reference": "U121",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.r_timer_set",
+          "reference": "U109",
+          "mpn": "TNPW1206383KBEEA"
+        },
+        {
+          "instance": "protection.r_timer_div_top",
+          "reference": "U110",
+          "mpn": "TNPW12061M00BEEA"
+        },
+        {
+          "instance": "protection.r_timer_div_low",
+          "reference": "U111",
+          "mpn": "TNPW1206681KBEEA"
+        }
+      ]
+    },
+    {
+      "function": "Latch, logic and control interface",
+      "count": 16,
+      "components": [
+        {
+          "instance": "protection.schmitt1",
+          "reference": "U61",
+          "mpn": "SN74HCT14DR"
+        },
+        {
+          "instance": "protection.schmitt2",
+          "reference": "U62",
+          "mpn": "SN74HCS14PWR"
+        },
+        {
+          "instance": "protection.dec_schmitt1",
+          "reference": "U116",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.dec_schmitt2",
+          "reference": "U117",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.gates1",
+          "reference": "U63",
+          "mpn": "SN74HCT08DR"
+        },
+        {
+          "instance": "protection.gates2",
+          "reference": "U64",
+          "mpn": "SN74HCT08DR"
+        },
+        {
+          "instance": "protection.dec_gates1",
+          "reference": "U118",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.dec_gates2",
+          "reference": "U119",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.latch",
+          "reference": "U65",
+          "mpn": "SN74HCT74DR"
+        },
+        {
+          "instance": "protection.dec_latch",
+          "reference": "U120",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.r_arm_input",
+          "reference": "U105",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.r_arm_pd",
+          "reference": "U106",
+          "mpn": "TNPW1206100KBEEA"
+        },
+        {
+          "instance": "protection.c_arm",
+          "reference": "U107",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.r_permit_pd",
+          "reference": "U108",
+          "mpn": "TNPW1206100KBEEA"
+        },
+        {
+          "instance": "protection.pull_fast_ok_n",
+          "reference": "U101",
+          "mpn": "TNPW120610K0BEEA"
+        },
+        {
+          "instance": "protection.service",
+          "reference": "U67",
+          "mpn": "61300411121"
+        }
+      ]
+    },
+    {
+      "function": "Logic supply and power-on reset",
+      "count": 7,
+      "components": [
+        {
+          "instance": "protection.ldo",
+          "reference": "U58",
+          "mpn": "TPS7A1650DGNR"
+        },
+        {
+          "instance": "protection.ldo_in",
+          "reference": "U122",
+          "mpn": "GRM32ER71H106KA12L"
+        },
+        {
+          "instance": "protection.ldo_out",
+          "reference": "U123",
+          "mpn": "GRM32ER71H106KA12L"
+        },
+        {
+          "instance": "protection.por",
+          "reference": "U59",
+          "mpn": "TPS3808G50DBVR"
+        },
+        {
+          "instance": "protection.dec_por",
+          "reference": "U115",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.por_delay",
+          "reference": "U124",
+          "mpn": "C0805C104K5RACTU"
+        },
+        {
+          "instance": "protection.pull_por_n",
+          "reference": "U104",
+          "mpn": "TNPW120610K0BEEA"
+        }
+      ]
+    }
+  ]
+}

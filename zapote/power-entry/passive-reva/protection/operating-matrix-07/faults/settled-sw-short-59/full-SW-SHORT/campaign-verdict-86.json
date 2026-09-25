@@ -1,0 +1,19 @@
+{
+  "case": "SW-SHORT",
+  "campaign_verdict": "INDETERMINATE",
+  "accepted": false,
+  "reason": "Solver stopped before the declared662ms endpoint; adapter and validator both rejected endpoint completeness.",
+  "bounded_attempt_contract": "faults/fault-matrix.md, Bounded execution gate",
+  "disposition_sha256": "d895d1824ca8fe356ea7fb9a3704e64b242566442684736ee5ef0cefdba01a52",
+  "raw_sha256": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+  "raw_bytes": 5088782620,
+  "raw_rows": 30686230,
+  "normal_prefix_status": "Own650ms prefix not independently accepted for this failed attempt; no transfer from other cases.",
+  "phase_status": "No complete declared crest interval; no phase acceptance.",
+  "observation_status": "Only partial fault interval and bound256-row diagnostic tail; no complete retained-off/no-rearm observation.",
+  "topology_status": "Failed MOS branch bypasses F2 and gate; topology cannot credit gate/F2 with interrupting mains-fed failed branch.",
+  "protection_gap_numeric_verdict": "Not assigned: incomplete endpoint precedes frozen behavioral categories.",
+  "tail_parent_review": "faults/sw-short-tail-parent-review-85.json",
+  "no_source_or_checker_changes": true,
+  "at_utc": "2026-09-22T00:13:51.355141+00:00"
+}

@@ -1,0 +1,18 @@
+{
+  "status": "PARENT_VERIFIED_RESOURCE_SUMMARY",
+  "samples": 422,
+  "minimum_observed_free_kib": 10959652,
+  "minimum_observed_free_gib": 10.45193862915039,
+  "maximum_owned_rss_sum_kib": 4273536,
+  "maximum_owned_rss_sum_gib": 4.0755615234375,
+  "swap_used_MiB": {
+    "first": 13874.56,
+    "maximum": 13874.56,
+    "last": 13682.56
+  },
+  "resource_samples_sha256": "170568fe820c8c38c141e4fcd3cf8efb8ef1a8fd03b9a71ee4ac48c967d9a54b",
+  "luna_summary_sha256": "013597c2ba2fbcad3e7c50540bb1a9d50b3d50507ffc2d497a2dfdd848a99471",
+  "parent_correction": "Worker summary reported419samples and minimum10,962,272KiB; terminal log actually has422complete samples and minimum10,959,652KiB. Worker summary retained; this complete-log count/extrema supersedes it. RSS/swap maxima agree.",
+  "limits": "Five-second samples do not bound instantaneous peaks; RSS sum can double-count shared pages and excludes swapped/compressed memory. Swap is host-wide. Disk-change cause unmeasured.",
+  "electrical_acceptance": false
+}

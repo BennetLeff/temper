@@ -1,0 +1,50 @@
+{
+  "status": "source audit and conditional simulation envelope complete; physical bounds INDETERMINATE",
+  "date": "2026-09-19",
+  "base_commit": "5dde29ab3e2f1223c2d33c129ced2cf647238307",
+  "dirty": true,
+  "hardware_available": false,
+  "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+  "new_spice_runs": 0,
+  "rust_tests_passed": 6,
+  "claims": 7,
+  "qualified_protection_claims": 0,
+  "promotions": 0,
+  "canonical_baseline_hashes_verified": {
+    "elec/src/power_entry_passive_reva.ato": "dd31c0addd5a5a5764955efca44d50d6fe89747f88c937e4c127398349b701d8",
+    "zapote/power-entry/passive-reva/candidate/section.kicad_pcb": "34e6fba9e6d323d795bba5bfe7ddfbcb5d158630cd2eb8cf95253b8e0263b2b9"
+  },
+  "prior_experiment_artifact_hashes_verified": 15,
+  "integration_review": {
+    "numeric_results": "README and constraints results checked against budget.txt; assumptions remain explicit",
+    "exact_parts": "UCC28180D, HCSM2818FT10L0, 760800301, STW65N65DM2AG; candidate chain named separately",
+    "condition_findings": [
+      "ISENSE bias specified at0V; reuse at negative trip explicitly assumed",
+      "UCC worked example supports input-referred threshold without second gain division",
+      "43A inductor saturation and STW switching times are typical",
+      "Component timing fixtures do not compose into a qualified assembly bound"
+    ],
+    "implemented": "calculation and source evidence only",
+    "unsupported": "physical peak current and total delay remain null",
+    "externally_missing": "applicable manufacturer bounds; no prototype for measurement"
+  },
+  "artifacts": {
+    "README.md": "f97d4f67c6455aedadd84728e1ccf86ed32adb7ad6089d044330291d770aea1a",
+    "budget.rs": "6b88eebd4c9390578398b851eaa9007b110f09c9e948410497b452d241a8eed1",
+    "budget.txt": "04b36efea5a87c94d16db02625a56b22cde24c7e808afaade7072f456711ac20",
+    "claims-check.txt": "a631bd37918c2017fbb8df02508924933960f56d0e9d90743c23bea6d997a2be",
+    "claims.json": "bc86ed90c36fc4bc9172f773209e0351cac57194d38d3e79cbc47e3146959005",
+    "constraints.json": "b990c7afc12e9f697ecf1b7845bccc60d3bf55eb745851d567ca655f626128e0",
+    "sources/760800301.pdf": "4b01fecaf517331dbc40cc291b2b0841904d8a221228b43541c72416c91217f8",
+    "sources/Stackpole-HCSM-2019.pdf": "3b7f5335006da93130dab4c0bff5195a8561a76e3ce292e8aa07ec0871a8c3aa",
+    "sources/sn74hcs21.pdf": "c9fb5982e902b54d877ac8b3a33fe7bb4bcf890e579a9294f0543e7473ee6295",
+    "sources/sn74hcs74.pdf": "3ea07ee8f5550bb882e323bfe71378210c7cadb19539d9cf1917f701ca7b3ca9",
+    "sources/stw65n65dm2ag.pdf": "6ead5993ed475f54b262779c621e36ebfafc5d6a3b73ff58e7fa1074f7398322",
+    "sources/tlv1704.pdf": "b971c8ca9ae7da43d67fa3486f202e6e688d8f5cc4b220268473fc0b4904c42b",
+    "sources/tlv3202.pdf": "1777bba814c74772bb54c6f1f56702985039043ce2fb2affaf996a83eaf1076e",
+    "sources/ucc27624.pdf": "b42590ddafb28a608aae30f5a2c333851cf11ded63daa03fbdef6df93ecb8a51",
+    "sources/ucc28180.pdf": "e1e1588c6854b43742a667c76df26f06d9ac51231f0176c43b2a46b63c1b00be",
+    "sources.json": "ddd1a808b6699d62b6c45bfef87e91b745de1626b5d2fd4efb7d3e7a06f156d7",
+    "tests.txt": "6c0635e36d82961cbbcb62d7b86f5753294320b14f5479826bea3e21a3b3a25f"
+  }
+}

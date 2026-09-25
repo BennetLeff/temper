@@ -1,0 +1,36 @@
+Passive gate-network probe: imposed 50uA sink, NOT an LT4363 model
+* No MOSFET or load. D1 is open during discharge; recovery/parasitics excluded.
+* Ten volts is capacitor-to-ground initialization, NOT a VGS initial state.
+Iol dol 0 50u
+R6ol dol qol 10
+R7ol qol col 100
+Col col 0 1.3u IC=10
+Ioh doh 0 50u
+R6oh doh qoh 10
+R7oh qoh coh 100
+Coh coh 0 1.7u IC=10
+Irl drl 0 50u
+R6rl drl qrl 10
+R7rl drl crl 100
+Crl crl 0 1.3u IC=10
+Irh drh 0 50u
+R6rh drh qrh 10
+R7rh drh crh 100
+Crh crh 0 1.7u IC=10
+.options reltol=1e-6 abstol=1e-12 vntol=1e-8
+.control
+set noaskquit
+set wr_singlescale
+set wr_vecnames
+tran 50u 120m 0 50u uic
+meas tran old_lo_q FIND v(qol) AT=120m
+meas tran old_hi_q FIND v(qoh) AT=120m
+meas tran ref_lo_q FIND v(qrl) AT=120m
+meas tran ref_hi_q FIND v(qrh) AT=120m
+meas tran old_hi_c FIND v(coh) AT=120m
+meas tran old_hi_driver FIND v(doh) AT=120m
+meas tran ref_hi_driver FIND v(drh) AT=120m
+wrdata weak-refined.tsv v(doh) v(qol) v(qoh) v(qrl) v(qrh) v(col) v(coh)
+quit
+.endc
+.end

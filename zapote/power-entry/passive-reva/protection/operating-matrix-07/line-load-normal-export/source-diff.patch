@@ -1,0 +1,198 @@
+--- ../normal-hysteretic-driver-candidate/progress.rs	2026-09-20 15:40:45
++++ progress.rs	2026-09-20 17:01:57
+@@ -43,6 +43,66 @@
+     b"xu.pcl_request", b"disable", b"xu.m1", b"xu.m2",
+ ];
+ 
++// The electrical deck retains its full `.save` inventory so ngspice still
++// delivers all diagnostics to the callback.  Successful grid exports only
++// need the original operating-point vectors; `time` is emitted implicitly by
++// wrdata and the 14 vectors below are the complete normalizer source set.
++const NORMAL_EXPORT: [&str; 14] = [
++    "v(acsrc)", "v(acn)", "i(Vac)", "v(load)", "v(vb)", "i(Lboost)",
++    "v(vd)", "v(sw)", "v(gate)", "v(q)", "v(en)", "v(fault)",
++    "v(vcomp)", "v(icomp)",
++];
++
++fn reduced_export_signals(deck: &str) -> Result<String, String> {
++    let saves: Vec<Vec<&str>> = deck
++        .lines()
++        .filter_map(|line| line.trim().strip_prefix(".save "))
++        .map(|line| line.split_whitespace().collect())
++        .collect();
++    if saves.len() != 1 {
++        return Err(format!("normal deck must contain exactly one .save line, found {}", saves.len()));
++    }
++    let columns = &saves[0];
++    if columns.first() != Some(&"time") {
++        return Err("normal .save line must begin with time".into());
++    }
++    for signal in NORMAL_EXPORT {
++        let count = columns.iter().filter(|column| **column == signal).count();
++        if count != 1 { return Err(format!("required normal export {signal} occurs {count} times")); }
++    }
++    for diagnostic in DIAG_NAMES {
++        let signal = std::str::from_utf8(diagnostic).map_err(|e| e.to_string())?;
++        let saved_name = format!("v({signal})");
++        let count = columns.iter().filter(|column| **column == saved_name).count();
++        if count != 1 { return Err(format!("required diagnostic {signal} occurs {count} times")); }
++    }
++    Ok(NORMAL_EXPORT.join(" "))
++}
++
++fn full_export_signals(deck: &str) -> Result<String, String> {
++    let saves: Vec<Vec<&str>> = deck
++        .lines()
++        .filter_map(|line| line.trim().strip_prefix(".save "))
++        .map(|line| line.split_whitespace().collect())
++        .collect();
++    if saves.len() != 1 {
++        return Err(format!("normal deck must contain exactly one .save line, found {}", saves.len()));
++    }
++    let columns = &saves[0];
++    if columns.first() != Some(&"time") {
++        return Err("normal .save line must begin with time".into());
++    }
++    let mut seen = std::collections::HashSet::new();
++    for signal in columns.iter().skip(1) {
++        if !seen.insert(*signal) { return Err(format!("duplicate saved signal {signal}")); }
++    }
++    Ok(columns[1..].join(" "))
++}
++
++fn select_export<'a>(all_saved_finite: bool, reduced: &'a str, full: &'a str) -> (&'a str, &'static str) {
++    if all_saved_finite { (reduced, "normal14_poststop") } else { (full, "full_saved_fallback_nonfinite") }
++}
++
+ #[derive(Clone, Copy)]
+ struct Snapshot {
+     previous_time_s: f64,
+@@ -59,6 +119,7 @@
+ static FIRST_INVALID: AtomicBool = AtomicBool::new(false);
+ static NAMES_SEEN: AtomicBool = AtomicBool::new(false);
+ static SEEN_NAMES_MASK: AtomicU64 = AtomicU64::new(0);
++static SAVED_NONFINITE: AtomicBool = AtomicBool::new(false);
+ static SNAPSHOT: Mutex<Option<Snapshot>> = Mutex::new(None);
+ static STOPPED_EVENTS: AtomicUsize = AtomicUsize::new(0);
+ 
+@@ -95,6 +156,16 @@
+     let p = unsafe { &*p };
+     if p.count <= 0 || p.values.is_null() { return 0; }
+     let values = unsafe { std::slice::from_raw_parts(p.values, p.count as usize) };
++    // Keep the reduced post-stop export fail-closed. If any saved real value
++    // is nonfinite, the export step below falls back to the full saved
++    // inventory so the normalizer sees and rejects the complete bad trace.
++    for &raw in values {
++        if raw.is_null() { continue; }
++        let value = unsafe { &*raw };
++        if !value.complex && !value.real.is_finite() {
++            SAVED_NONFINITE.store(true, Ordering::Release);
++        }
++    }
+     let mut time = None;
+     for &raw in values {
+         if raw.is_null() { continue; }
+@@ -200,9 +271,8 @@
+     let rc = unsafe { ngSpice_Init(Some(text), None, Some(exit), Some(data), Some(init_data), Some(bg), std::ptr::null_mut()) };
+     if rc != 0 { return Err(format!("init={rc}")); }
+     let deck = fs::read_to_string(&args[1]).map_err(|e| e.to_string())?;
+-    let signals = deck.lines().filter_map(|s| s.trim().strip_prefix(".save "))
+-        .flat_map(str::split_whitespace).filter(|s| *s != "time").collect::<Vec<_>>().join(" ");
+-    if signals.is_empty() { return Err("explicit .save signals required".into()); }
++    let reduced_signals = reduced_export_signals(&deck)?;
++    let full_signals = full_export_signals(&deck)?;
+     let lines: Vec<_> = deck.lines().map(CString::new).collect::<Result<_, _>>().map_err(|e| e.to_string())?;
+     let mut ptrs: Vec<_> = lines.iter().map(|s| s.as_ptr().cast_mut()).collect();
+     ptrs.push(std::ptr::null_mut());
+@@ -242,9 +312,11 @@
+     }
+     command("rusage tranpoints traniter rejected trancuriters trantime")?;
+     command("set wr_singlescale")?; command("set wr_vecnames")?; command("set numdgt=17")?;
++    let all_saved_finite = !SAVED_NONFINITE.load(Ordering::Acquire);
++    let (signals, export_mode) = select_export(all_saved_finite, reduced_signals.as_str(), full_signals.as_str());
+     fs::write("stop.txt", format!("reason={stop_reason}\nwall_s={:.6}\nsim_s={:.17e}\npoints={}\nfirst_invalid={}\n", start.elapsed().as_secs_f64(), if HAVE_TIME.load(Ordering::Acquire) { f64::from_bits(LAST_TIME_BITS.load(Ordering::Acquire)) } else { 0.0 }, POINTS.load(Ordering::Acquire), FIRST_INVALID.load(Ordering::Acquire))).map_err(|e| e.to_string())?;
+     write_snapshot(&args[5]).or_else(|e| if FIRST_INVALID.load(Ordering::Acquire) { Err(e) } else { fs::write(&args[5], "first_invalid=false\n").map_err(|x| x.to_string()) })?;
+-    fs::write("capture-metadata.json", format!("{{\n  \"stop_reason\": \"{stop_reason}\",\n  \"points\": {},\n  \"first_invalid\": {},\n  \"seen_names_mask\": {},\n  \"expected_names_mask\": {},\n  \"export_mode\": \"full_trace_path_or_fifo\",\n  \"vector_slicing_smoke\": \"rejected_full_length\"\n}}\n", POINTS.load(Ordering::Acquire), FIRST_INVALID.load(Ordering::Acquire), SEEN_NAMES_MASK.load(Ordering::Acquire), (1u64 << DIAG_NAMES.len()) - 1)).map_err(|e| e.to_string())?;
++    fs::write("capture-metadata.json", format!("{{\n  \"stop_reason\": \"{stop_reason}\",\n  \"points\": {},\n  \"first_invalid\": {},\n  \"seen_names_mask\": {},\n  \"expected_names_mask\": {},\n  \"all_saved_finite\": {all_saved_finite},\n  \"export_mode\": \"{export_mode}\",\n  \"vector_slicing_smoke\": \"rejected_full_length\"\n}}\n", POINTS.load(Ordering::Acquire), FIRST_INVALID.load(Ordering::Acquire), SEEN_NAMES_MASK.load(Ordering::Acquire), (1u64 << DIAG_NAMES.len()) - 1)).map_err(|e| e.to_string())?;
+     command(&format!("wrdata {} {signals}", args[4]))?;
+     println!("DIAGNOSTIC_ONLY reason={stop_reason} last_callback_time_s={:.17e}", if HAVE_TIME.load(Ordering::Acquire) { f64::from_bits(LAST_TIME_BITS.load(Ordering::Acquire)) } else { 0.0 });
+     Ok(())
+@@ -254,6 +326,7 @@
+ mod tests {
+     use super::*;
+     use std::ffi::CString;
++    static TEST_SERIAL: Mutex<()> = Mutex::new(());
+     #[test]
+     fn detects_first_nonincreasing_sample() {
+         assert!(!detect_nonincreasing(None, 0.0));
+@@ -269,6 +342,22 @@
+         assert_eq!(name_index(b"not_saved"), None);
+     }
+ 
++    #[test]
++    fn reduced_export_requires_normal_and_all_diagnostics() {
++        let mut columns = String::from(".save time ");
++        columns.push_str(&NORMAL_EXPORT.join(" "));
++        for diagnostic in DIAG_NAMES {
++            columns.push(' ');
++            columns.push_str("v(");
++            columns.push_str(std::str::from_utf8(diagnostic).unwrap());
++            columns.push(')');
++        }
++        let signals = reduced_export_signals(&columns).unwrap();
++        assert_eq!(signals.split_whitespace().count(), NORMAL_EXPORT.len());
++        assert!(!signals.split_whitespace().any(|name| name == "xu.raw"));
++        assert!(reduced_export_signals(".save time v(acsrc)\n").is_err());
++    }
++
+     fn invoke_point(time_s: f64, offset: f64) {
+         let mut names: Vec<CString> = vec![CString::new("time").unwrap()];
+         names.extend(DIAG_NAMES.iter().map(|name| CString::new(*name).unwrap()));
+@@ -286,12 +375,14 @@
+ 
+     #[test]
+     fn callback_captures_named_values_only_on_first_bad_time() {
++        let _serial = TEST_SERIAL.lock().unwrap();
+         HAVE_TIME.store(false, Ordering::Release);
+         LAST_TIME_BITS.store(0, Ordering::Release);
+         POINTS.store(0, Ordering::Release);
+         FIRST_INVALID.store(false, Ordering::Release);
+         NAMES_SEEN.store(false, Ordering::Release);
+         SEEN_NAMES_MASK.store(0, Ordering::Release);
++        SAVED_NONFINITE.store(false, Ordering::Release);
+         *SNAPSHOT.lock().unwrap() = None;
+         invoke_point(0.1, 10.0);
+         assert!(!FIRST_INVALID.load(Ordering::Acquire));
+@@ -307,4 +398,32 @@
+         assert_eq!(snapshot.missing_mask, 0);
+         assert_eq!(SEEN_NAMES_MASK.load(Ordering::Acquire), (1u64 << DIAG_NAMES.len()) - 1);
+     }
++
++    #[test]
++    fn finite_time_with_nonfinite_internal_value_forces_full_export() {
++        let _serial = TEST_SERIAL.lock().unwrap();
++        HAVE_TIME.store(false, Ordering::Release);
++        LAST_TIME_BITS.store(0, Ordering::Release);
++        POINTS.store(0, Ordering::Release);
++        FIRST_INVALID.store(false, Ordering::Release);
++        NAMES_SEEN.store(false, Ordering::Release);
++        SEEN_NAMES_MASK.store(0, Ordering::Release);
++        SAVED_NONFINITE.store(false, Ordering::Release);
++        let mut names: Vec<CString> = vec![CString::new("time").unwrap()];
++        names.extend(DIAG_NAMES.iter().map(|name| CString::new(*name).unwrap()));
++        let mut values: Vec<Value> = names.iter().enumerate().map(|(i, name)| Value {
++            name: name.as_ptr() as *mut c_char,
++            real: if i == 3 { f64::NAN } else if i == 0 { 0.25 } else { i as f64 },
++            imag: 0.0,
++            scale: i == 0,
++            complex: false,
++        }).collect();
++        let mut pointers: Vec<*mut Value> = values.iter_mut().map(|value| value as *mut Value).collect();
++        let mut packet = Values { count: pointers.len() as c_int, index: 0, values: pointers.as_mut_ptr() };
++        assert_eq!(data(&mut packet, 0, 0, std::ptr::null_mut()), 0);
++        assert!(!FIRST_INVALID.load(Ordering::Acquire));
++        assert!(SAVED_NONFINITE.load(Ordering::Acquire));
++        let (_, mode) = select_export(!SAVED_NONFINITE.load(Ordering::Acquire), "reduced", "full");
++        assert_eq!(mode, "full_saved_fallback_nonfinite");
++    }
+ }

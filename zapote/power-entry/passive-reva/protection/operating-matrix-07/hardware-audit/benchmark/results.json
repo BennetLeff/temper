@@ -1,0 +1,81 @@
+{
+  "reference_sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968",
+  "long_cold_run_concurrent": true,
+  "traces_removed_only_when_byte_identical_to_checked_reference": true,
+  "batches": [
+    {
+      "workers": 1,
+      "cases": [
+        {
+          "case": "workers-1-case-0",
+          "simulator_exit": 0,
+          "wall_seconds": 8.1780845830217,
+          "trace_sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968",
+          "identical_to_checked_reference": true
+        },
+        {
+          "case": "workers-1-case-1",
+          "simulator_exit": 0,
+          "wall_seconds": 8.105398667044938,
+          "trace_sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968",
+          "identical_to_checked_reference": true
+        }
+      ],
+      "batch_wall_seconds": 16.401136792032048
+    },
+    {
+      "workers": 2,
+      "cases": [
+        {
+          "case": "workers-2-case-0",
+          "simulator_exit": 0,
+          "wall_seconds": 8.359009833075106,
+          "trace_sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968",
+          "identical_to_checked_reference": true
+        },
+        {
+          "case": "workers-2-case-1",
+          "simulator_exit": 0,
+          "wall_seconds": 8.42035562498495,
+          "trace_sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968",
+          "identical_to_checked_reference": true
+        }
+      ],
+      "batch_wall_seconds": 8.474719499936327
+    },
+    {
+      "workers": 4,
+      "cases": [
+        {
+          "case": "workers-4-case-0",
+          "simulator_exit": 0,
+          "wall_seconds": 8.574128166073933,
+          "trace_sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968",
+          "identical_to_checked_reference": true
+        },
+        {
+          "case": "workers-4-case-1",
+          "simulator_exit": 0,
+          "wall_seconds": 8.611758125014603,
+          "trace_sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968",
+          "identical_to_checked_reference": true
+        },
+        {
+          "case": "workers-4-case-2",
+          "simulator_exit": 0,
+          "wall_seconds": 8.549956083996221,
+          "trace_sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968",
+          "identical_to_checked_reference": true
+        },
+        {
+          "case": "workers-4-case-3",
+          "simulator_exit": 0,
+          "wall_seconds": 8.57434816705063,
+          "trace_sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968",
+          "identical_to_checked_reference": true
+        }
+      ],
+      "batch_wall_seconds": 8.661575375124812
+    }
+  ]
+}

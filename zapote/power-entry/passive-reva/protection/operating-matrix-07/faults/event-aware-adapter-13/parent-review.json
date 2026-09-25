@@ -1,0 +1,26 @@
+{
+  "status": "PARENT_REVIEWED_DIAGNOSTIC_RAW42_ADAPTER",
+  "accepted_fault": false,
+  "source_sha256": "d534f0483abb576773a57acf7e78d2055f56d561f1a3f3a67cb0fa362edb79ef",
+  "binary_path": "/private/tmp/matrix07-fault-adapter-parent",
+  "binary_sha256": "53d2116c8d6d3eb0e16b9ba37e38d26e446a60f2c1cc1650c93da00baf9ed6ae",
+  "tests_passed": 22,
+  "warnings_denied": true,
+  "parent_corrections_verified": [
+    "Immediate previous LEFT and all original source indices",
+    "Both exact inclusive detector and strict health predicates preserved",
+    "q/en off inclusive at2.5V; prefault strictlyabove",
+    "Total rawrow cap includes LEFT/GROUP/RIGHT;4096pergroup/1024groups/100000total",
+    "Flush failure propagated"
+  ],
+  "required_companions": [
+    "exact fault42 native decoder and complete raw gzip",
+    "complete checked17 outer validator and source/case binding",
+    "parent decision on actual fault and branch-current evidence"
+  ],
+  "limitations": [
+    "SCHEMA_AND_EVIDENCE_OK is not protection PASS.",
+    "No storage accepted from process exit alone.",
+    "Healthy window fixed to declared mutation time; imported checker separately checks actual event-derived window."
+  ]
+}

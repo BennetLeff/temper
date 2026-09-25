@@ -1,0 +1,76 @@
+{
+  "revision": 28,
+  "date": "2026-09-22",
+  "status": "compiled-link-clear-review-candidate",
+  "inputs_sha256": {
+    "revision26_netlist": "b0000d79011f25b9b6bac3818f20d5d0cffac74759a8b2063e83e005f72af535",
+    "revision26_auditor": "24b013a22ec2adf8ac6ded32adf23dff6f7d9fc5cf43371ec89c2e07c552c6b6",
+    "revision13_handshake": "f4d41bad394e107480b5d926945098383abd73095682d57e01a2503aafd6f377"
+  },
+  "files_sha256": {
+    "README.md": "0e8a7c695ab1940d97b269c18ed56ec271c45e008a2208d3a14a8314578dd271",
+    "layout.json": "4dbfb63e47d9cae19f89eab3c35e55b22eac896d5af3e9ee7cf0c860fb71125e",
+    "audit-link-clear-tests.rs": "a3ddd6ae7acef85e2ceeb6328a914824100640a71258bc823bd129b856a88481",
+    "command-model/README.md": "df3a03c23817b8c658db05cb506ffdbebb23c5037f9123140390d7faab39bbf0",
+    "command-model/adapter-tests.rs": "8cdce5217c67d0554b9b53f86d821a48e906cc824a0a165e7d276263ab047dd5",
+    "source-candidate/ato.yaml": "8fb0801e8a19bc3414c39783429149cf90a2a4090dd39eb1f8a5af214da9e597",
+    "source-candidate/elec/src/aux_clamp_rev19.ato": "23c702b327db429c24ce01d4063bc7e611bfc6a6ca95aa46ca456f5559967f73",
+    "source-candidate/elec/src/power_entry_f2_shutdown_revb.ato": "e66a90ad0b23d667ad86e44ffdd8d20fee365339f9884b763faea34b57a628e4",
+    "source-candidate/elec/src/power_entry_pfc_control_candidate.ato": "19c375eca996cef11897489dd0aedda836a585d1ef1f32b37840b4125d455f7f",
+    "source-candidate/build/default.net": "820a65370be8e8dcabb89f2c5c41280bf6a3f7c8267fe8464318f64a1b2d38a2",
+    "source-candidate/build/default.csv": "040f67a58fcd03cde9e70b2c2a63f59e2dbe246196cf775a7c192fe7706132dd",
+    "source-candidate/build.log": "c57779c3adf894ee35e70ab146882c5dfc9e82c4f69b78e77a20784fff320aa4",
+    "native/power_entry_link_clear.kicad_sch": "e60863a92bec31854ecb41a998a531b9925e61960207d751baa883b36df1c233",
+    "native/erc.json": "a9bb2c685b43050fc113c3b729c33ffc2b172faa1681001c2510745a3f6f551d",
+    "native/renders/a0/power_entry_link_clear_a0.pdf": "08da40f6fb6ae95aaa8b6e59f421543c5c906016ceec6c3fa7bbfbda0cef2a69"
+  },
+  "checks": {
+    "atopile_0_2_69_offline_build": {
+      "status": "pass",
+      "instance_count": 154,
+      "repeat_build_outputs_identical": true
+    },
+    "rust_compiled_netlist_audit": {
+      "status": "pass",
+      "preserved_rev26_instances": 150,
+      "new_link_clear_instances": 4,
+      "new_pins": 11
+    },
+    "command_boundary_model": {
+      "status": "pass",
+      "total_rust_tests": 22,
+      "new_adapter_tests": 5
+    },
+    "native_export_oracle": {
+      "status": "pass",
+      "pin_assignments": 409,
+      "net_groups": 97
+    },
+    "native_regeneration_check": {
+      "status": "pass"
+    },
+    "kicad_erc_observation": {
+      "revision26_total": 327,
+      "revision28_total": 335,
+      "revision28_by_type": {
+        "lib_symbol_issues": 154,
+        "endpoint_off_grid": 153,
+        "footprint_link_issues": 16,
+        "isolated_pin_label": 12
+      }
+    },
+    "visual_inspection": {
+      "status": "reviewed-with-limitation",
+      "note": "A0 portrait contains the component grid; generated labels crowd and it is not a release schematic"
+    }
+  },
+  "open_boundaries": [
+    "HOT-side link detector/watchdog and reset-safe qualified-good producer",
+    "physical isolated transport and HOT command receiver",
+    "maximum permitted disable latency",
+    "ARM electrical pulse width/level and driver",
+    "source-reset abort path",
+    "bench turn-off/restart measurements",
+    "three new passive MPNs"
+  ]
+}

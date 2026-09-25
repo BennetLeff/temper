@@ -1,0 +1,17 @@
+{
+  "status": "planned_unexecuted",
+  "source_identity": {"deck": "PENDING_ACCEPTED_COLD_SOURCE", "sha256": "PENDING", "includes_sha256": "PENDING"},
+  "assumptions": {"bus_v": 389.615, "line_hz": 60.0, "line_current_limit_a": 15.0, "cap_w": 1800.0, "pf_for_load_choice": 1.0, "efficiency_for_load_choice": 0.9},
+  "points": [
+    {"id":"LL01","line_v_rms":108.000,"load_fraction":0.25,"conditional_cap_w":1458.000000,"target_load_w":364.500000,"rload_ohm":416.460488957,"status":"planned_unexecuted"},
+    {"id":"LL02","line_v_rms":108.000,"load_fraction":0.50,"conditional_cap_w":1458.000000,"target_load_w":729.000000,"rload_ohm":208.230244479,"status":"planned_unexecuted"},
+    {"id":"LL03","line_v_rms":108.000,"load_fraction":0.90,"conditional_cap_w":1458.000000,"target_load_w":1312.200000,"rload_ohm":115.683469155,"status":"planned_unexecuted"},
+    {"id":"LL04","line_v_rms":120.000,"load_fraction":0.25,"conditional_cap_w":1620.000000,"target_load_w":405.000000,"rload_ohm":374.814440062,"status":"planned_unexecuted"},
+    {"id":"LL05","line_v_rms":120.000,"load_fraction":0.50,"conditional_cap_w":1620.000000,"target_load_w":810.000000,"rload_ohm":187.407220031,"status":"planned_unexecuted"},
+    {"id":"LL06","line_v_rms":120.000,"load_fraction":0.90,"conditional_cap_w":1620.000000,"target_load_w":1458.000000,"rload_ohm":104.115122239,"status":"planned_unexecuted"},
+    {"id":"LL07","line_v_rms":132.000,"load_fraction":0.25,"conditional_cap_w":1620.000000,"target_load_w":405.000000,"rload_ohm":374.814440062,"status":"planned_unexecuted"},
+    {"id":"LL08","line_v_rms":132.000,"load_fraction":0.50,"conditional_cap_w":1620.000000,"target_load_w":810.000000,"rload_ohm":187.407220031,"status":"planned_unexecuted"},
+    {"id":"LL09","line_v_rms":132.000,"load_fraction":0.90,"conditional_cap_w":1620.000000,"target_load_w":1458.000000,"rload_ohm":104.115122239,"status":"planned_unexecuted"}
+  ],
+  "nominal_baseline": {"line_v_rms": 120.0, "rload_ohm": 190.0, "ideal_bus_load_w": 798.946569605, "status": "reference_only_not_grid_point"}
+}

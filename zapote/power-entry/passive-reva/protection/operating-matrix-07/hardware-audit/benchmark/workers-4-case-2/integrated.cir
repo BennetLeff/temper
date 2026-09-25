@@ -1,0 +1,71 @@
+Controller coupled source graph: precharged conditional witness
+.include ucc28180.inc
+.param RFREQ=16.2k VB_INIT=389.615 VD_INIT=389.615 DIV_INIT={VD_INIT*5820/992820}
+.param F2_OPEN=600u TSTOP=900u STEP=10n
+.param VCC_INIT=3.0
+* Full bridge: the source delivers the measured current; no behavioral rectifier.
+Vac acsrc acn SIN(0 169.7056275 60 0 0 90)
+Rsource acsrc acp .25
+Rreference acn 0 1e12
+Dbr1 acp rectp DBRIDGE
+Dbr2 acn rectp DBRIDGE
+Dbr3 bridge_minus acp DBRIDGE
+Dbr4 bridge_minus acn DBRIDGE
+.model DBRIDGE D(IS=1n N=1.5 RS=10m TT=0 CJO=100p)
+Rshunt bridge_minus 0 10m
+Rwind rectp lint 20m
+Lboost lint sw 180u IC=0
+Risense bridge_minus isense 220
+Cisense isense 0 1n IC=0
+* Parallel SiC legs and finite MOS/channel/body paths copied from04.
+Dboost1 sw vd DBOOST
+Dboost2 sw vd DBOOST
+.model DBOOST D(IS=1e-14 N=1.4 RS=20m CJO=45p M=0 VJ=1 TT=0 BV=650 IBV=1u)
+Msw sw gate channel_source channel_source STWMOS
+Vchannel channel_source 0 0
+.model STWMOS NMOS(VTO=4 KP=4 RD=1m RS=1m L=1u W=1u IS=1e-40)
+Vbody 0 body_anode 0
+Dbody body_anode sw DBODY
+.model DBODY D(IS=1n N=1.2 RS=10m CJO=1p TT=8n)
+Cds sw 0 344p
+Cgd gate sw 112p
+Cgs gate 0 12n
+Clocal vd 0 19.8u IC={VD_INIT}
+Rlocal vd 0 450k
+Cbank vb 0 2240u IC={VB_INIT}
+Rload vb 0 220
+Vf2ctl f2ctl 0 PWL(0 5 {F2_OPEN-1n} 5 {F2_OPEN} 0)
+Sf2 vd vb f2ctl 0 SWF2
+.model SWF2 SW(Ron=15m Roff=1e12 Vt=2.5 Vh=.1)
+* Retained actual controller compensation and sensing values.
+Rfb1 vb vsense 1meg
+Rfb2 vsense 0 13k
+Cvsense vsense 0 680p IC=5
+Cicomp icomp 0 2.7n IC=3
+Rvcomp vcomp vcomp_s 40.2k
+Cvcomp_s vcomp_s 0 4.7u IC={VCC_INIT}
+Cvcomp_p vcomp 0 220n IC={VCC_INIT}
+Xu aux15 vsense isense icomp vcomp pwm 0 UCC28180_FN RFREQ={RFREQ}
+* Rail ports are explicit stimuli pending source circuit integration.
+Vaux aux15 0 15
+Vlogic logic5 0 5
+Vpermit permit 0 5
+Varm arm 0 PWL(0 0 19u 0 20u 5 30u 5 30.001u 0)
+* Physical protection dividers, timer, fresh-edge latch and default-off driver.
+.include protection.inc
+* Stop PFC on latched local disable after deliberate arm; before arm its driver
+* is blocked. This is a prequalified warm controller initial condition, not cold startup. This logical clamp is an integration proposal, not installed CAD.
+Bstandby_req standby_req 0 V=(time>25u && V(q)<2.5) ? 5 : 0
+Sstandby vsense 0 standby_req 0 STANDBY
+.model STANDBY SW(Ron=5 Roff=1e12 Vt=2.5 Vh=.1)
+.options method=gear reltol=2e-4 abstol=1e-10 vntol=1e-7
+.tran {STEP} {TSTOP} 0 {STEP} uic
+.control
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+run
+wrdata integrated.tsv v(vd) v(vb) v(sw) v(gate) i(Lboost) i(Vchannel) i(Vbody) i(Vac) v(isense) v(vsense) v(vcomp) v(icomp) v(pwm) v(q) v(en) v(fault) v(f2ctl) v(xu.pcl_hold) v(xu.m1) v(xu.m2) v(xu.ov) v(arm) v(standby_req)
+quit
+.endc
+.end

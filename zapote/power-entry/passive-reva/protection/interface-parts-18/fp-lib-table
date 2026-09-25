@@ -1,0 +1,8 @@
+(fp_lib_table (version 7)
+(lib (name "Diode_SMD") (type "KiCad") (uri "${KICAD10_FOOTPRINT_DIR}/Diode_SMD.pretty") (options "") (descr "KiCad standard footprints; passive choices unqualified"))
+(lib (name "Package_SO") (type "KiCad") (uri "${KICAD10_FOOTPRINT_DIR}/Package_SO.pretty") (options "") (descr "KiCad standard footprints; passive choices unqualified"))
+(lib (name "Package_TO_SOT_SMD") (type "KiCad") (uri "${KICAD10_FOOTPRINT_DIR}/Package_TO_SOT_SMD.pretty") (options "") (descr "KiCad standard footprints; passive choices unqualified"))
+(lib (name "Resistor_SMD") (type "KiCad") (uri "${KICAD10_FOOTPRINT_DIR}/Resistor_SMD.pretty") (options "") (descr "KiCad standard footprints; passive choices unqualified"))
+(lib (name "Capacitor_SMD") (type "KiCad") (uri "${KICAD10_FOOTPRINT_DIR}/Capacitor_SMD.pretty") (options "") (descr "KiCad standard footprints; passive choices unqualified"))
+(lib (name "Capacitor_THT") (type "KiCad") (uri "${KICAD10_FOOTPRINT_DIR}/Capacitor_THT.pretty") (options "") (descr "KiCad standard footprints; passive choices unqualified"))
+)

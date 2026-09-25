@@ -1,0 +1,15 @@
+{
+  "status": "PARENT_VERIFIED_ENDPOINT_RELATIVE_CYCLE_WINDOWS",
+  "utc": "2026-09-21T17:41:14.515905+00:00",
+  "reviewer": "Luna /root/fault_readiness plus parent source verification",
+  "source_sha256": {
+    "numerical-repair/event-aware-normal-metrics/metrics.rs": "e686b4d29d0cede142c9050dfcc738feb21f47bd1b8999c764ce1a756b94692e",
+    "numerical-repair/normal15-event-audit-12/audit.rs": "782bfec8a96835e435585c922c22a553a29513fd5cece0de482911a05b524420",
+    "checker/operating_point_checker.rs": "845dde5ba649f8076c238b590f7fc11490e6a0a96bdbd4998f759429699c1d54"
+  },
+  "formula": "T=1/60; three consecutive cycle windows ending at actual PREFIX_END, starting at PREFIX_END-3*T. No floor-to-mains-cycle operation.",
+  "prefix_endpoint_requirement": "Use exact last_selected_time_s, positive finite <=.65 and within1us; same value for metrics/audit/strict endpoint checks.",
+  "parent_caveat": "Strict checker forms each right cycle boundary by x+period; metrics/audit derive boundaries from endpoint. Same mathematical windows, not a claim of bit-identical floating boundary expressions. Strict duplicate rejection remains separate.",
+  "full_trace_phase_endpoint_s": 0.662,
+  "electrical_acceptance": false
+}

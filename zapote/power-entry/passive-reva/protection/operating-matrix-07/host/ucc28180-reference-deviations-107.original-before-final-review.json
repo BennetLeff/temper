@@ -1,0 +1,24 @@
+{
+  "scope": "Read-only value/topology comparison; no adoption or simulation claim.",
+  "official_sources": {
+    "evm_guide": "https://www.ti.com/lit/pdf/sluuat3",
+    "tida_design_guide": "https://www.ti.com/lit/pdf/tidube1",
+    "evm_page": "https://www.ti.com/tool/UCC28180EVM-573",
+    "tida_page": "https://www.ti.com/tool/TIDA-00779"
+  },
+  "local_hashes": {
+    "accepted-baseline-11/cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "accepted-baseline-11/ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251"
+  },
+  "comparisons": [
+    {"topic":"current sense/shunt","local":"Rshunt=10 mOhm; Risense=220 ohm from bridge_minus to isense; Cisense=1 nF","evm":"Schematic p6: R4=0.032 ohm shunt; R2=221 ohm series ISENSE; C8=1000 pF. R3=17.8 kOhm is FREQ, not current sense","tida":"Exact current-sense resistor/filter values not transcribed from current-revision schematic","status":"shunt differs; local 220 ohm/1 nF filter is close to EVM 221 ohm/1 nF; scaling rationale unresolved"},
+    {"topic":"voltage feedback","local":"Rfb1=1 Mohm, Rfb2=13 kOhm, Cvsense=680 pF","evm":"Schematic p6: upper R9=332 kOhm, R10=332 kOhm, R11=340 kOhm, R12=0; R8=49.9 ohm series; lower R13=13.3 kOhm; C15=820 pF","tida":"Exact feedback network requires schematic-level comparison","status":"confirmed EVM value/topology mismatch; TIDA unresolved"},
+    {"topic":"ICOMP/VCOMP","local":"Cicomp=2.7 nF; Rvcomp=40.2 kOhm, Cvcomp_s=4.7 uF, Cvcomp_p=220 nF","evm":"Schematic p6: C7=2700 pF ICOMP; R6=22.6 kOhm with C13=4.7 uF and C14=0.47 uF VCOMP; R7=10 kOhm is GATE pulldown","tida":"Compensation design equations and 45 kHz choice documented; exact network comparison pending","status":"ICOMP capacitor matches; VCOMP network differs"},
+    {"topic":"frequency","local":"RFREQ=16.2 kOhm; surrogate FSW=2.0915334e9/RFREQ ~=129.107 kHz","evm":"120 kHz nominal with single FREQ resistor (guide p2–5)","tida":"45 kHz using 47 kOhm typical FREQ resistor (design guide p6)","status":"confirmed frequency/value mismatch"},
+    {"topic":"startup/VCC bias","local":"Vaux PWL 0 to 15 V at 5 ms; logic5 PWL; permit/arm/standby PWL","evm":"External regulated 12 V bias, at least 10 mA; startup procedure turns bias on before load (guide p7–9)","tida":"External 12 V bias for UCC28180/UCC27531/relay; approximately 55 mA and no bootstrap (design guide p9)","status":"confirmed local scripted rails differ; startup equivalence unresolved"},
+    {"topic":"gate drive","local":"Host surrogate Bgate behavioral output plus authored behavioral Xdriver AUTH_UCC27511A_H in protection.inc","evm":"UCC28180 integrated gate output (guide p1; schematic p6)","tida":"UCC28180 plus UCC27531D external low-side driver (design guide p4)","status":"confirmed implementation/model mismatch; local path includes an authored behavioral driver"},
+    {"topic":"magnetics/output","local":"Lboost=180 uH; Clocal=19.8 uF; Cbank=2240 uF; generic MOS/diode","evm":"L2=327 uH, 270 uF output capacitor, SPP20N60C3 and C3D04060A (schematic p6)","tida":"180 uH actual boost choke; 2040 uF selected bulk capacitance; 390 V/3.5 kW design guide p6–7","status":"confirmed value/device mismatch; local ratings/saturation not correlated"}
+  ],
+  "working_benchmark": "Breville Control Freak CMC850 is 1800 W mains input at 120 V/60 Hz; this is not a DC-output requirement. Local 15 A screen remains unchanged and low-line derating is unresolved.",
+  "next_comparisons": ["Read EVM and TIDA schematics side-by-side for exact ICOMP/VCOMP and current-sense RC connectivity.","Correlate startup/UVLO/OVP/OCP thresholds and gate timing against actual UCC28180 behavior.","Resolve inductor ripple/saturation, capacitor ripple current, thermal and induction-load dynamics before any scaling claim."]
+}

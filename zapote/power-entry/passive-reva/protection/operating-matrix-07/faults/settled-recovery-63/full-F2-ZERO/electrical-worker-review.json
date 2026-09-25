@@ -1,0 +1,51 @@
+{
+  "review": "electrical-worker-review",
+  "case": "F2-ZERO",
+  "source_bound": true,
+  "reanalysis": {
+    "classification": "COMPLETE_REVIEW_PENDING",
+    "capture_points": 36625031,
+    "child_exit_codes": [0, 0, 0, 0],
+    "transport_complete": true,
+    "validator_success": true,
+    "acceptance": false
+  },
+  "timing_s": {
+    "declared_injection": 0.658333333333300019,
+    "observed_injection": 0.658333332837275353,
+    "detector_rise": 0.659601272355642143,
+    "latch_off": 0.659601379123333720,
+    "detector_minus_injection": 0.001267939518366790,
+    "latch_off_delay": 0.000000106767691577,
+    "tstop_minus_latch_off": 0.022398620876666331,
+    "channel_last_above_0p10_after_injection": 0.659600484475521776,
+    "detector_minus_channel_last_above_0p10": 0.000000787880120368
+  },
+  "electrical_peaks": {
+    "channel_after_injection_a": 6.407917741577087,
+    "channel_after_detector_a": 0.000000000398502325,
+    "body_after_injection_a": 0.004736548067031815,
+    "lboost_after_injection_a": 5.262441411550861,
+    "f2_branch_after_injection_a": 0.016509479621618084,
+    "dboost1_branch_after_injection_a": 2.556379122086156,
+    "dboost2_branch_after_injection_a": 2.556379122086914,
+    "max_vd_v": 397.361401120003,
+    "max_vb_v": 385.86497048604275,
+    "max_sw_v": 398.5023250538854,
+    "max_gate_v": 14.982192728642518,
+    "max_il_a": 30.653817977920625
+  },
+  "screens": {
+    "checker_verdict": "Pass",
+    "equal_time_groups": 37,
+    "equal_time_raw_rows": 168,
+    "logic_changes": 0,
+    "retained_off_duration_s": 0.022398620876666331,
+    "channel_above_0p10_after_detector": false
+  },
+  "caveats": [
+    "Phase and local-crest qualification remain pending.",
+    "This is diagnostic electrical evidence only; acceptance remains false.",
+    "Capture metadata records first_invalid=true and duplicate_count=57; equal-time groups are retained and reported."
+  ]
+}

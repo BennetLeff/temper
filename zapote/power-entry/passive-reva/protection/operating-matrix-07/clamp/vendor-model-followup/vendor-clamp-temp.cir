@@ -1,0 +1,13 @@
+* Bounded temperature points; values are model behavior, not guaranteed limits.
+.title Diodes Inc BAV23C temperature screen
+.include diodes-bav23c.spice.txt
+VSHUNT shunt 0 DC -0.438
+RIN shunt isense 220
+DCLAMP 0 isense DI_BAV23C
+.temp -40 -20 25 85 125
+.control
+set noaskquit
+op
+print v(shunt) v(isense) @dclamp[id] i(vshunt)
+.endc
+.end

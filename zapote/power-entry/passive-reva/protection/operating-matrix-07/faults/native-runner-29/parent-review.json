@@ -1,0 +1,35 @@
+{
+  "status": "PARENT_REVIEWED_BOUNDED_FAULT_CAPTURE_TRANSPORT",
+  "utc": "2026-09-21T05:13:11.919857+00:00",
+  "source_sha256": "36cdf646133cfa893dee0440ee905e130e9e46ce62a23763bea7a7623dacc93d",
+  "binary": "/private/tmp/matrix07-fault-runner29-parent",
+  "binary_sha256": "d48731f7ac3fc2deeb53aa2926cf4d4e28c7ec1dcc1ac93d398b3180e5cf3dc7",
+  "lineage": "faults/native-runner-19/parent-review.json",
+  "tests": {
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0,
+    "log": "parent-tests.txt",
+    "log_sha256": "6623f29fa48c36d55811b8d61f0aca3400ed4381d7c0c95887c276ed72b2455e",
+    "command": "/private/tmp/matrix07-fault-runner29-parent-tests --include-ignored --test-threads=1",
+    "environment": "approved execution outside filesystem sandbox"
+  },
+  "parent_verified": [
+    "Production diff only replaces capture FIFO/shell with directly spawned compressor anonymous stdin, owned dynamic export descriptor, pre_exec CLOEXEC clear, writer drop after host spawn, and transport identity.",
+    "Source/checker/timing/kind mapping, disk floor, capture drain/footer/metadata/receipt error propagation and stage2 pipelines remain unchanged.",
+    "All12 tests observed pass, including mandatory successful inherited-fd host export with exact payload readback, compressor EOF after missing-host startup, delayed footer and child cleanup."
+  ],
+  "parent_corrections_requested": [
+    "Removed test branch that treated any child failure as pass; mandatory success explicitly executed.",
+    "Correct shell printf quoting and require decompressor success.",
+    "Candidate-specific manifest/README; retain prior19 lineage without inherited acceptance."
+  ],
+  "limits": [
+    "No real fault-host or full settled-fault simulation run through29 yet; full source-bound capture and unchanged validation still required.",
+    "Tiny tests support transport only, never electrical acceptance.",
+    "New test wait helper has bounded assertion but lacks kill-on-panic for raw Child; observed tests completed normally. Production retains ChildGuard cleanup.",
+    "Named adapter and validator FIFOs remain in stage2; no claim all FIFOs removed."
+  ],
+  "fault_acceptance": false,
+  "keep_free_gib": 10
+}

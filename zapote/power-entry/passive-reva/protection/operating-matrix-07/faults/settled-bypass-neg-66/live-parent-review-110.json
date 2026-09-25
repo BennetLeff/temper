@@ -1,0 +1,63 @@
+{
+  "status": "PARENT_VERIFIED_LIVE_SOURCE_BINDING",
+  "accepted": false,
+  "at_utc": "2026-09-22T01:36:10.552706+00:00",
+  "session_id": 28321,
+  "runner_pid": 10586,
+  "monitor_pid": 10587,
+  "materialized_source_sha256": {
+    "case.cir": "c6ea3dca688918137282ed3fd3d0ffa17c2b740d68ab52bab306ee3e8b228180",
+    "manifest.json": "4066ac5bf595b4aaca1b99c79035b5729d20bb217ffe1e5f3a4b6ca6a0003e01",
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "d9b499bbba3f2636ac926a3c8782943d3144798cfe4faa765ceaf7774628a025",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb",
+    "clamp.inc": "96cd8d6bfd3870b22403c39437ef2625f0a930f9e06632adcebbc45b61b9dcde",
+    "authored_logic_hysteretic.inc": "95ae31864ffa55bf33833849ee38c4654bbdb769c9c52976e25a5b4afb73445b"
+  },
+  "run_parameters": {
+    "tstop_s": 0.662,
+    "kind": "bypass-neg",
+    "mutation_s": 0.6541666666667,
+    "event_window_s": 0.002,
+    "expected_fault_s": 0.6541666666667,
+    "observation_s": 0.002,
+    "turnoff_s": 2e-06,
+    "max_gap_s": 2.5e-08,
+    "wall_seconds": 3600,
+    "export_timeout_s": 900,
+    "bypass": true
+  },
+  "identity_sha256": "f11633e95b0aea9ede61ff48ef2dcecda8af114330e54fe9bba30209761b9bed",
+  "launch_sha256": "5f5bb6c782a7dec819fcf44a2606e91146756f35c2859ed916b904cae0ddc16c",
+  "interpretation": "F2 opens at crest; detector Bfault bypass=1. Frozen bypass flag rejection is not waveform negative-control validation; own76prefix/phase/obs required.",
+  "resource_decision": {
+    "one_full_solver": true,
+    "one_archive_analysis_session": 54690,
+    "free_kib_before_launch": 27968760,
+    "two_vmstat_samples": {
+      "swapouts": [
+        3765336,
+        3765336
+      ],
+      "pageouts": [
+        2443426,
+        2443426
+      ],
+      "compressions": [
+        353752461,
+        353752461
+      ],
+      "swapins": [
+        1604874,
+        1604878
+      ],
+      "free_pages": [
+        268879,
+        274279
+      ],
+      "page_size": 16384
+    },
+    "reason": "No new swap-outs in sampled interval; archive scan owned RSS approximately5MiB; approximately4GiB free pages and26.7GiBdisk; allow one solver with monitoring. High historicalswapusage is not by itself active thrashing."
+  }
+}

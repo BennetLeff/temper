@@ -1,0 +1,722 @@
+DATA SHEET
+ METAL OXIDE VARISTORS
+         POWER SUPPLY
+                  14D series
+    RoHS compliant & Halogen free
+
+
+
+
+                                    Product specification– February 12, 2019 V.0
+               Circuit Protection                                                                      Product Specification   2
+                                                                                                                               13
+               METAL OXIDE VARISTORS               14D
+
+
+                                Metal Oxide Varistor (MOV) Data Sheet
+
+
+Features
+
+■ Wide operating voltage (V1mA) range from 18V to 1800V
+■ Fast responding to transient over-voltage
+■ Large absorbing transient energy capability
+■ Low clamping ratio and no follow-on current
+■ Meets MSL level 1, per J-STD-020
+■ Operating Temperature：-40℃ ~ +105℃
+■ Storage Temperature：-40℃ ~ +125℃
+■ Safety certification: UL: E327997
+                        CSA: 246579
+                        VDE: 40027827
+
+
+
+Applications
+
+■ Transistor, diode, IC, thyristor or triac semiconductor protection
+■ Surge protection in consumer electronics
+■ Surge protection in industrial electronics
+■ Surge protection in electronic home appliances, gas and petroleum appliances
+■ Relay and electromagnetic valve surge absorption
+
+
+
+Part Number Code
+
+
+
+
+                                                                                                  Packing
+                                                                                                  No suffix: Bulk
+                                                                               Pitch              TB: Tape & Box
+                           Tolerance
+                           K: ±10%                                             No suffix: 7.5mm   TR: Tape & Reel
+                                                                               P10: 10mm
+                                    Type
+                                    D: Disk                                       Lead Shape
+          Varistor Voltage                          Surge Series                  No suffix: Straight leads
+          180: 18V                                  No suffix: Standard type      O: Outside crimped leads
+          101: 100V                                 J: High Surge type            F: Y Kinked leads
+          102: 1000V
+
+                                          Element Diameter
+                                          14=14mm
+
+
+
+
+                                                                                                              www.yageo.com
+ Feb. 12, 2019 V.0
+              Circuit Protection                                                                         Product Specification   3
+                                                                                                                                 13
+              METAL OXIDE VARISTORS                     14D
+
+Dimensions
+
+
+
+              D                         D                T                                        D                T
+  H
+
+
+
+
+                                                                                     H1
+                              H1
+
+
+
+                    K≤3.0                      K≤3.0
+
+                                                   d1           F
+  L
+
+
+
+
+                      d                                                   e                             d
+
+
+
+
+                                                                                     L1
+                              L1
+
+
+
+
+                                               d
+                                                                                                  F
+                                      O Type                                                           F Type
+
+
+
+                    Table 1                                                       Table 2
+
+                                   Unit: mm                                                                         Unit: mm
+
+    Symbol                Dimension                     Model       T         e           Model          T                  e
+
+        H                 14.5~20.0                     180K    2.0~3.9       1.5         361K        2.9~5.2             2.7
+       H1                 17.0~21.0                     220K    2.1~4.0       1.6         391K        3.0~5.4             2.8
+    L(min.)                    20.0                     270K    2.1~4.1       1.8         431K        3.2~5.6             3.0
+   L1(min.)                    15.0                     330K    2.2~4.3       1.7         471K        3.3~5.8             3.2
+        D                 14.0~16.5                     390K    2.1~4.1       1.8         511K        3.4~6.1             3.4
+        F              7.5± 0.8/10.0± 1.0               470K    2.2~4.3       1.9         561K        3.6~6.4             3.6
+        T                     Table 2                   560K    2.3~4.6       2.1         621K        3.8~6.8             3.9
+    e(±0.8)                   Table 2                   680K    2.4~4.8       2.4         681K        4.0~7.1             4.2
+   d(±0.05)                    0.8                      820K    2.1~4.1       1.8         751K        4.3~7.2             4.3
+   d1(±0.4)                    1.4                      101K    2.4~4.2       2.0         781K        4.4~7.3             4.4
+                                                        121K    2.4~4.4       2.2         821K        4.6~7.5             4.6
+                                                        151K    2.2~4.1       1.8         911K        4.8~7.5             5.0
+                                                        181K    2.3~4.2       1.9         102K        5.4~8.0             5.0
+                                                        201K    2.4~4.3       2.0         112K        5.8~8.5             5.4
+                                                        221K    2.5~4.4       2.1         122K        5.9~9.0             5.8
+                                                        241K    2.6~4.5       2.2         142K        6.9~10.5            6.6
+                                                        271K    2.6~4.6       2.4         162K        7.4~11.0            7.4
+                                                        301K    2.7~4.6       2.5         182K        7.6~12.0            8.2
+                                                        331K    2.7~5.0       2.5
+
+
+
+
+                                                                                                               www.yageo.com
+Feb. 12, 2019 V.0
+               Circuit Protection                                                                                    Product Specification   4
+                                                                                                                                             13
+               METAL OXIDE VARISTORS                       14D
+
+Electrical Characteristics
+
+                          Maximum                                Maximum        Withstanding         Maximum                     Typical
+         Part                                 Varistor                                                               Rated
+                          Allowable                              Clamping          Surge              Energy                   Capacitance
+        Number                                Voltage                                                                Power
+                           Voltage                                Voltage         Current           (10/1000μs)                (Reference)
+                                                                                          I (A)               (J)
+               High                                                             I (A)                (J)
+Standard                VAC(V)   VDC(V)       V1mA(V)        IP(A)    VC(V)              High                High     (W)       @1KHz (pf)
+               Surge                                                          Standard            Standard
+                                                                                         Surge               Surge
+180KD14      180KD14J    11         14      18(15~21.6)          10    36      1000      2000       4.0       7.0     0.1          11100
+
+220KD14      220KD14J    14         18      22(19.5~26)          10    43      1000      2000       5.0       8.0     0.1           9100
+
+270KD14      270KD14J    17         22       27(24~31)           10    53      1000      2000       6.0      10.0     0.1           7400
+330KD14      330KD14J    20         26     33(29.5~36.5)         10    65      1000      2000       7.5      12.0     0.1           6100
+
+390KD14      390KD14J    25         31       39(35~43)           10    77      1000      2000       8.6      13.0     0.1           5100
+
+470KD14      470KD14J    30         38       47(42~52)           10    93      1000      2000       10.0     17.0     0.1           4300
+
+560KD14      560KD14J    35         45       56(50~62)           10   110      1000      2000       11.0     20.0     0.1           3600
+
+680KD14      680KD14J    40         56       68(61~75)           10   135      1000      2000       14.0     24.0     0.1           2900
+820KD14      820KD14J    50         65       82(74~90)           50   135      4500      6000       22.0     27.0     0.6           2400
+
+101KD14      101KD14J    60         85      100(90~110)          50   165      4500      6000       28.0     33.0     0.6           2000
+121KD14      121KD14J    75       100      120(108~132)          50   200      4500      6000       32.0     40.0     0.6           1700
+
+151KD14      151KD14J    95       125      150(135~165)          50   250      4500      6000       40.0     53.0     0.6           1300
+
+181KD14      181KD14J    115      150      180(162~198)          50   300      4500      6000       50.0     60.0     0.6           1100
+201KD14      201KD14J    130      170      200(180~220)          50   340      4500      6000       57.0     70.0     0.6           1000
+221KD14      221KD14J    140      180      220(198~242)          50   360      4500      6000       60.0     78.0     0.6            900
+241KD14      241KD14J    150      200      240(216~264)          50   395      4500      6000       63.0     84.0     0.6            830
+
+271KD14      271KD14J    175      225      270(243~297)          50   455      4500      6000       70.0     99.0     0.6            740
+
+301KD14      301KD14J    190      250      300(270~330)          50   500      4500      6000       77.0     108      0.6            670
+331KD14      331KD14J    210      275      330(297~363)          50   550      4500      6000       85.0     115      0.6            610
+
+361KD14      361KD14J    230      300      360(324~396)          50   595      4500      6000       93.0     130      0.6            560
+391KD14      391KD14J    250      320      390(351~429)          50   650      4500      6000       100      140      0.6            510
+
+431KD14      431KD14J    275      350      430(387~473)          50   710      4500      6000       115      155      0.6            460
+471KD14      471KD14J    300      385      470(423~517)          50   775      4500      6000       118      175      0.6            430
+
+511KD14      511KD14J    320      415      510(459~561)          50   845      4500      6000       121      180      0.6            390
+561KD14      561KD14J    350      460      560(504~616)          50   925      4500      6000       125      185      0.6            360
+
+621KD14      621KD14J    385      505      620(558~682)          50   1025     4500      6000       128      190      0.6            320
+681KD14      681KD14J    420      560      680(612~748)          50   1120     4500      6000       130      200      0.6            290
+751KD14      751KD14J    460      615      750(675~825)          50   1240     4500      6000       143      210      0.6            270
+
+781KD14      781KD14J    485      640      780(702~858)          50   1290     4500      6000       148      220      0.6            260
+
+821KD14      821KD14J    510      670      820(738~902)          50   1355     4500      6000       157      235      0.6            240
+
+911KD14      911KD14J    550      745      910(819~1001)         50   1500     4500      6000       175      255      0.6            220
+102KD14      102KD14J    625      825     1000(900~1100)         50   1650     4500      6000       190      280      0.6            200
+
+112KD14      112KD14J    680      895     1100(990~1210)         50   1815     4500      6000       213      310      0.6            180
+
+122KD14      122KD14J    750      990     1200(1080~1320)        50   1980     4500      6000       232      324      0.6            160
+142KD14      142KD14J    880     1140     1400(1260~1540)        50   2310     4500      6000       238      327      0.6            150
+
+162KD14      162KD14J   1000     1280     1600(1440~1760)        50   2640     4500      6000       243      331      0.6            140
+182KD14      182KD14J   1100     1465     1800(1620~1980)        50   2970     4500      5000       250      335      0.6            130
+Notes: 1. The tolerance of varistor voltage between 18V and 27V is more than 10%.
+      2. Varistor voltage≥1200V, structure diagram is F type.
+      3. Leakage Current (@83% of V1mA)：IR≤50μA (180K~680K) ; IR≤25μA (820K~182K)
+
+                                                                                                                            www.yageo.com
+ Feb. 12, 2019 V.0
+              Circuit Protection                                                                           Product Specification   5
+                                                                                                                                   13
+              METAL OXIDE VARISTORS                           14D
+
+Electrical Ratings
+
+           Items                                           Test Condition/Description                      Requirement
+
+                            The voltage between two terminals with the specified measuring
+    Varistor Voltage
+                            current 1mA.DC applied is called Vb.
+
+ Maximum Allowable          The recommended maximum sine wave voltage (RMS) or the
+      Voltage               Maximum DC voltage can be applied continuously.
+
+                            The maximum voltage between two terminals with the specification
+                            standard impulse current.
+                            Applied waveform: 8/20μs
+                                                                    Crest value
+                                                     100
+                                                      90
+                                       Current (%)
+
+
+
+
+ Maximum Clamping
+      Voltage
+                                                     50                                                  To meet the
+                                                                                                         Specified value
+                                                                       20µs
+                                                     10               8µs
+                                                      0
+                                                                       Time
+                                                                    Impulse Width
+
+
+                            The maximum average power that can be applied within the
+    Rated Wattage
+                            specified ambient temperature.
+
+                            The maximum energy within the varistor voltage change of ±10%
+          Energy
+                            when one impulse of 10/1000μs or 2ms is applied.
+
+ Withstanding Surge         The maximum current within the varistor voltage change of ±10%
+       Current              with the standard impulse current (8/20μs) applied one time.
+
+                                                     V1mA@85℃-V1mA@25℃          1
+                                                                            ×      × 100%(%/℃)
+                                                           V1mA@25℃             60
+    Varistor Voltage
+                                                                                                            ≤0.05%/℃
+   Temp. Coefficient
+                                                     V1mA@-40℃-V1mA@25℃         1
+                                                                            ×      × 100%(%/℃)
+                                                           V1mA@25℃             65
+
+                            The change of Vb shall be measured after the impulse listed below
+                            which is applied 10,000 times continuously with the interval of ten
+                            seconds at room temperature.
+
+        Surge Life                                             180K to 680K              75A (8/20μs)
+                                   14Φ series
+                                                               820K to 182K              150A (8/20μs)
+
+
+
+
+                                                                                                                 www.yageo.com
+Feb. 12, 2019 V.0
+              Circuit Protection                                                                                        Product Specification   6
+                                                                                                                                                13
+              METAL OXIDE VARISTORS                                14D
+
+Soldering Recommendation
+
+ Wave Lead Free Soldering Recommendation
+
+
+                                       300
+                                                                                              Soldering
+                                                            Preheating    Maximum Wave 265℃
+                                                                                                          Cooling
+                                       250
+                     Temperature (℃)
+
+
+
+
+                                       200
+
+
+                                       150
+
+
+                                       100
+
+
+                                       50
+
+
+                                        0
+                                             0     0.5     1       1.5     2     2.5      3          3.5            4
+
+                                                                     Time (minutes)
+
+
+
+                                                         Item                          Conditions
+                                                 Peak Temperature                        265℃
+                                                   Dipping Time                   10 seconds (max.)
+                                                     Soldering                           1 time
+
+
+
+ Recommendation Reworking Conditions with Soldering Iron
+
+
+                                                           Item                           Conditions
+                                             Temperature of Soldering Iron-tip          360℃ (max.)
+                                                     Soldering Time                    3 seconds (max.)
+                                                  Distance from Varistor                 2mm (min.)
+
+
+
+
+                                                                                                                              www.yageo.com
+Feb. 12, 2019 V.0
+               Circuit Protection                                                                   Product Specification   7
+                                                                                                                            13
+               METAL OXIDE VARISTORS                   14D
+
+Mechanical Characteristics
+
+            Items                               Test conditions / Methods                       Specifications
+                             Gradually applying the force specified and keeping the unit
+                             fixed for 10±1 sec.
+     Tensile Strength                     Terminal diameter (mm)       Force (kg)            No visible damage
+       of Terminals                            0.5＜d≤0.8                    1.0              | V1mA/V1mA |≤5%
+                                              0.8＜d≤1.25                    2.0
+                                                 1.25＜d                     4.0
+
+                             Hold specimen and apply the force specified below to each
+                             lead. Bend the specimen to 90°, then return to the original
+                             position. Repeat the procedure in the opposite direction.
+    Bending Strength                                                                         No visible damage
+                                          Terminal diameter (mm)       Force (kg)
+      of Terminals                                                                           | V1mA/V1mA |≤5%
+                                               0.5＜d≤0.8                  0.5
+                                              0.8＜d≤1.25                  1.0
+                                                 1.25＜d                   2.0
+
+                             Frequency range: 10~55 Hz
+                                                                                             No visible damage
+          Vibration          Amplitude: 0.75mm or 98m/s2
+                                                                                             | V1mA/V1mA |≤5%
+                             Direction: 3 mutually perpendicular directions, 2hrs each.
+                                                                                           At least 95% of terminal
+                             Solder Temp: 245±5℃
+       Solder ability                                                                      electrode is covered by
+                             Dipping Time: 2±0.5 sec
+                                                                                                  new solder
+     Resistance to           Solder Temp: 260±5℃                                             No visible damage
+     Soldering Heat          Dipping Time: 10±1 sec                                          | V1mA/V1mA |≤10%
+
+
+Reliability
+
+            Items                               Test conditions / Methods                       Specifications
+   High Temperature          Ambient Temp: 125±2℃
+                                                                                              | V1mA/V1mA |≤5%
+        Storage              Duration: 1000hrs
+    Low Temperature          Ambient Temp: -40±2℃
+                                                                                              | V1mA/V1mA |≤5%
+        Storage              Duration: 1000hrs
+                             Ambient Temp: 40±2℃, 90~95% R.H.
+          Humidity                                                                            | V1mA/V1mA |≤5%
+                             Duration: 1000hrs
+
+                             The conditions shown below shall be repeated 5 cycles
+                                    Step      Temperature (℃)      Period (minutes)
+                                      1              -40±3              30±3                 No visible damage
+   Temperature Cycle                  2       Room temperature          15±3                 | V1mA/V1mA |≤5%
+                                      3             125±3               30±3
+                                      4       Room temperature          15±3
+
+   High Temperature          Ambient Temp: 105±2℃       Duration: 1000hrs
+                                                                                             | V1mA/V1mA|≤10%
+         Load                Load: Max. Allowable Voltage In AC eara.
+                             Ambient Temp: 40±2℃, 90~95% R.H.                                No visible damage
+    Damp Heat Load
+                             Duration: 1000hrs   Load: Max. Allowable Voltage                | V1mA/V1mA |≤10%
+
+      Voltage Proof          Metal balls method, 2500Vac 1 min.                              No visible damage
+
+
+                                                                                                          www.yageo.com
+ Feb. 12, 2019 V.0
+                                        Circuit Protection                                                                                                             Product Specification    8
+                                                                                                                                                                                                13
+                                        METAL OXIDE VARISTORS                   14D
+
+Maximum Surge Current Derating Curve
+
+
+
+
+                                                        180KD14 to 680KD14                                                                     820KD14 to 182KD14
+                            10000                                                                                        10000
+                                                                                                                                   1
+                                                                                                                                   2
+
+                                                                                                                          1000     10
+                            1000       1
+                                       2                                                                                           102
+
+
+
+
+                                                                                         Max. Surge Current (A)
+ Max. Surge Current (A)
+
+
+
+
+                                      10                                                                                           103
+                                      1023                                                                                         104
+                              100     104                                                                                  100     105
+                                      10
+                                      105                                                                                          106
+                                      106
+                              10                                                                                            10
+
+
+
+                                1                                                                                            1
+
+
+
+                              0.1                                                                                          0.1
+                                 10               100                    1000    10000                                        10         100                    1000                    10000
+                                                              Td (μs)                                                                                Td (μs)
+
+
+
+
+                                                    180KD14J to 680KD14J                                                                   820KD14J to 182KD14J
+                            10000                                                                                        10000
+                                                                                                                                    1
+                                                                                                                                    2
+                                       1
+                                                                                                                                   10
+                             1000      2                                                                                  1000
+                                                                                                                                   102
+                                      10
+                                                                                                                                   103
+                                                                                                Max. Surge Current (A)
+   Max. Surge Current (A)
+
+
+
+
+                                      102
+                                      103                                                                                          104
+                              100     104                                                                                  100     105
+                                      105                                                                                          106
+                                      106
+
+                               10                                                                                           10
+
+
+
+                                1                                                                                            1
+
+
+
+                              0.1                                                                                          0.1
+                                 10               100                    1000    10000                                        10         100                    1000                   10000
+                                                              Td (μs)                                                                                Td (μs)
+
+
+
+
+                                                                                                                                                                             www.yageo.com
+Feb. 12, 2019 V.0
+              Circuit Protection                             Product Specification   9
+                                                                                     13
+              METAL OXIDE VARISTORS   14D
+
+Maximum Leakage Current and Maximum Clamping Voltage Curve
+
+
+
+
+                                                                   www.yageo.com
+Feb. 12, 2019 V.0
+              Circuit Protection                             Product Specification   10
+                                                                                     13
+              METAL OXIDE VARISTORS   14D
+
+Maximum Leakage Current and Maximum Clamping Voltage Curve
+
+
+
+
+                                                                   www.yageo.com
+Feb. 12, 2019 V.0
+              Circuit Protection                             Product Specification   11
+                                                                                     13
+              METAL OXIDE VARISTORS   14D
+
+Maximum Leakage Current and Maximum Clamping Voltage Curve
+
+
+
+
+                                                                   www.yageo.com
+Feb. 12, 2019 V.0
+              Circuit Protection                                                                        Product Specification   12
+                                                                                                                                13
+              METAL OXIDE VARISTORS                      14D
+
+Marking Code
+
+
+                                                               ① Brightking Logo
+                                                               ② Varistor Voltage
+                                                               ③ UL Accreditation Logo
+       ①                                                       ④ CSA Accreditation Logo
+                        XXXKDXXX
+       ②                                            ⑥          ⑤ VDE Accreditation Logo
+                                                    ⑦
+       ③                            XXX Y
+                                                               ⑥“J”is High Surge Code, no“J”is Standard Surge
+       ④                                            ⑧
+       ⑤                                            ⑨          ⑦ Disk Size
+                              VDE
+                                                               ⑧Product Line Code (“Y”may be A(a) thru Z(z))
+                                                               ⑨ Date Code
+
+
+
+
+Taping Dimensions
+
+                                                                                    Symbol          Dimensions (mm)
+
+                                                                                         P              25.4±1.0
+
+                                                                                         P0             12.7±1.0
+
+                                                                                         P1             8.95±0.7
+                         P2                 P                      h
+                                                                                         P2             12.7±1.3
+
+                                                                                         F               7.5±0.8
+             B                                                                           h                 0±4
+                                                        W2
+                    H                                                                    W              18.0±1.0
+                                                         W0
+                                                         W
+
+
+
+
+                                    D0                                                W0                12.0±1.0
+                         P1                     F       W1                            W1                 9.0±0.5
+                                    P0
+                                                               t
+                                                                                      W2                 3.0max
+
+                                                                                         H              20.0±2.0
+
+                                                                                      D0                 4.0±0.2
+
+                                                                                         t               0.6±0.3
+
+                                                                                         B               40max
+
+
+
+
+                                                                                                               www.yageo.com
+Feb. 12, 2019 V.0
+              Circuit Protection                                                                       Product Specification   13
+                                                                                                                               13
+              METAL OXIDE VARISTORS                        14D
+
+Quantity
+
+Packaging Dimensions (Unit: mm)                                                                         Quantity
+Exposure in bulk                                                                                       400pcs/bag
+                                                                                                        4bags/box
+                                                                                                      (180K~331K)
+                                                                                                       300pcs/bag
+                                                                                                        4bags/box
+                                                                                                      (361K~621K)
+                                                                                                       250pcs/bag
+                                                                                                        4bags/box
+
+
+
+
+                                                                            .
+                                                                           ax
+                                                                       5M
+                               125 Max.                                                               (681K~112K)
+
+
+
+
+                                                                      16
+                                                                                                       150pcs/bag
+                                                250 Max.
+                                                                                                        4bags/box
+                                                                                                      (122K~182K)
+Cut the feet in bulk                                                                                   400pcs/bag
+                                                                                                        4bags/box
+                                                                                                      (180K~331K)
+                                                                                                       300pcs/bag
+                                                                                                        4bags/box
+                                                                                                      (361K~621K)
+                                                                            .
+                                                                           ax
+                                                                      5M
+
+
+
+
+                         65 Max.                                                                       250pcs/bag
+                                                                      18
+
+
+
+
+                                                                                                        4bags/box
+                                             245 Max.
+                                                                                                      (681K~112K)
+                                                                                                       150pcs/bag
+                                                                                                        4bags/box
+                                                                                                      (122K~182K)
+Tape & Box                                                                                             750pcs/box
+                                                                                                      (180K~331K)
+
+                                                                                                       500pcs/box
+                                                                                                      (361K~621K)
+                                                                      .
+                                                                  ax
+                                                                 0M
+
+
+
+
+                     60 Max.
+                                                             25
+
+
+
+
+                                                                                                       400pcs/box
+                                          340 Max.                                                    (681K~751K)
+
+Tape & Reel
+                                                                                                      1000pcs/reel
+                                                                                                      (180K~331K)
+                                                                                                  .
+                                                                                                ax
+
+
+
+
+                                                                                                       750pcs/reel
+                                                                                           5M
+
+
+
+
+                                                            60 Max.
+                                                                                           36
+
+
+
+
+                                                                                                      (361K~621K)
+                                                                                365 Max.
+
+
+          55 Max.                                                                                      500pcs/reel
+                                      30±1
+                                    Φ365 Max.                                                         (681K~751K)
+
+
+
+
+                                                                                                             www.yageo.com
+Feb. 12, 2019 V.0
+

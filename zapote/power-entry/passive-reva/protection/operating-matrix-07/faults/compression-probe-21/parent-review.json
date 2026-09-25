@@ -1,0 +1,16 @@
+{
+  "status": "PARENT_VERIFIED_BOUNDED_PREFIX_STORAGE_BENCHMARK",
+  "adopted": false,
+  "sample_bytes": 33554432,
+  "source_prefix_matches_canonical_archive": true,
+  "all_four_saved_roundtrips_byte_equal": true,
+  "all_compressed_hashes_verified": true,
+  "xz_saving_vs_pigz_fraction": 0.2054363200178615,
+  "zstd_saving_vs_pigz_fraction": 0.022419038655818957,
+  "limitations": [
+    "Singleearlystartup32MiBsample; nofulltraceorlate/faultrepresentativeness",
+    "Memorymeasurement unavailable; walltimesworkermeasurements only",
+    "Workerused4formatsinsteadofrequestedmax3andfaultssubfolderinsteadofhost; no canonicalwrites; boundeddataretained",
+    "No pipelineformatadoptionorrecompression ofcanonical evidence"
+  ]
+}

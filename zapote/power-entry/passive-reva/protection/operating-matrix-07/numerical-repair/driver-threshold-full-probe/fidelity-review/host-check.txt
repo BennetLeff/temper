@@ -1,0 +1,5 @@
+vendor rising 2.264 V at 2452.732 ns; falling 1.080 V at 5783.987 ns; hysteresis 1.184 V
+authored rising 2.280 V at 2456.000 ns; falling 2.280 V at 5544.000 ns; hysteresis 0.000 V
+vendor gate4 rise 2490.995340 ns input 2.454977 V; fall 5932.935495 ns input 0.335323 V; peak 14.986900 V
+authored gate4 rise 2502.932154 ns input 2.514661 V; fall 5770.780475 ns input 1.146098 V; peak 14.982022 V
+driver-fidelity: VALID_COMPARISON (8048 vendor, 8020 authored rows); not a model-equivalence pass

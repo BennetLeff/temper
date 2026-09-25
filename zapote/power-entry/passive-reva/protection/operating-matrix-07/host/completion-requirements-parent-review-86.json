@@ -1,0 +1,16 @@
+{
+  "status": "PARENT_REVIEWED_REQUIREMENTS_GOAL_INCOMPLETE",
+  "objective_complete": false,
+  "worker_receipt_sha256": "e85642b9c4b88d8884b14eaace350480cef8bd60885d6065ff275b44ceaa5a60",
+  "corrections": [
+    "The current approved pipeline is event-aware: finite, nondecreasing complete raw rows with equal-time predicate/integral audits. The unchanged strictly-increasing legacy checker may reject duplicates; that rejection is retained, not treated as a new full-case failure by itself.",
+    "BYPASS-NEG frozen validator rejects the bypass flag before waveform validation. That rejection alone does not demonstrate negative-control behavior. Completed own normal/phase gates plus separate bound waveform observations from tool55 are required to assess what the bypass actually did.",
+    "Bounded contract permits an INDETERMINATE case disposition; it never turns missing post-abort behavior into a validated fault envelope. Final goal audit must explicitly retain that coverage exclusion."
+  ],
+  "next_required": [
+    "Finish same DIODE52815; on complete capture run reviewed74 then legacy and parent review; preserve incomplete captures if applicable.",
+    "Run BOTH65/75 and BYPASS66/76 independently and disposition all evidence.",
+    "Complete final source-bound reproducible report and explicit protection/model/hardware implications; audit whole objective before marking complete."
+  ],
+  "at_utc": "2026-09-22T00:13:51.355141+00:00"
+}

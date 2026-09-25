@@ -1,0 +1,32 @@
+{
+  "at_utc": "2026-09-22T00:13:51.355141+00:00",
+  "status": "SW_TAIL_AND_TOPOLOGY_REVIEWED_DIODE_RUNNING",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: SW incomplete run preserved and rejected, DIODE source-verified launch, tail extraction started",
+  "this_goal_turn": "progress: tail extraction terminal0, original endpoint signals inspected; parent corrected worker column confusion/causal claims; bounded INDETERMINATE campaign verdict retained; current requirements/protection strategy audited",
+  "completed_sessions": {
+    "3321": 0
+  },
+  "live_session": 52815,
+  "runner_pid": 54751,
+  "monitor_pid": 54752,
+  "latest_progress": "754.578496\t2.55412038223019555e-1\t38.581879\t2.746811613016e-4\t10571666\tfalse\t0\t0\tfalse",
+  "free_bytes": 42835394560,
+  "artifacts_sha256": {
+    "faults/sw-short-abort-diagnostic-79/receipt.json": "46c13b6bbb04776bd2ab9f3f0f7e5097751e9316f980594c824bd9cb6895e35c",
+    "faults/sw-short-tail-review-82.json": "adfc3567d841a0c87aa171357915ff3e27f4b2f51f783feaf5dd7a829c155793",
+    "faults/sw-short-tail-parent-review-85.json": "5d63d95bc17be7bed977c7a1a9146cf8cbbc0af7702361ebe6f06ea08925ab47",
+    "host/switch-short-strategy-review-83.md": "1f1d41435d31736390190ed335e13ddeff4c3ea273a184c25847b65f70a981e8",
+    "host/switch-short-strategy-review-83.json": "b0192182af639b68dd3af2c453f169e4a0fb21e1f1d21c8ab079abcbc5b92367",
+    "faults/sw-short-state-fixture-proposal-84.md": "9c187753cec9a544a8c0f7d759a68671fca6f8a7745ec40dc51a7ba3656b5701",
+    "host/completion-requirements-audit-85.json": "e85642b9c4b88d8884b14eaace350480cef8bd60885d6065ff275b44ceaa5a60",
+    "host/completion-requirements-parent-review-86.json": "79c11e211828e6ba419447f3e0461f9880879f1ca4f33bf266f582800f1c26fc",
+    "faults/settled-sw-short-59/full-SW-SHORT/campaign-verdict-86.json": "30f05795f68b50fae1c6e6b1c977cb43eaf93e44a5d92950cbadbd962f00f635",
+    "host/campaign-evidence-register-28.md": "ec8e77357e1b07064fa533f78d5cf193e97d5377c9b6885b7e49898f16c85c17",
+    "host/simulation-to-prototype-decisions.md": "2e4d5952ad3b3830d3706f3da455ce568fea3861b701d027b96230590bdaacc5"
+  },
+  "new_fault_acceptance": false,
+  "active_children": "none; all completed Luna children interrupted",
+  "blocked_turn_count": 0,
+  "next": "Follow same52815 to terminal, neverrestartsolelytimeout. For completecapture run74/run.sh then74/legacy-strict.sh then parent disposition. Afterwards BOTH65/75 and BYPASS66/76 sequentially. Bypass flag rejection alone insufficient: require own prefix/phase plus separate waveform55 evidence. SW approximate proposal84 not ready/executed; no source/checker change or blind retry."
+}

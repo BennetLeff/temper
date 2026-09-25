@@ -1,0 +1,495 @@
+# REVIEW-ONLY integration: 54-part donor minus redundant gate R/pulldown + RevB.
+# Not a build-ready PCB. Offboard fuse/local reservoir/logic/ARM interfaces unresolved.
+# Standalone active-PFC power entry prototype.
+# Architecture reference: TI SLUP348, pp. 9-13 (2 kW-class CCM PFC review).
+# Structural prototype only: the 15 A RMS input ceiling and 1,800 W nominal
+# class require low-line foldback and live thermal/ripple evidence.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+from "power_entry_f2_shutdown_revb.ato" import PowerEntryF2ShutdownRevB
+
+component PfcController:
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    mpn = "UCC28180D"
+    signal GND ~ pin 1
+    signal ICOMP ~ pin 2
+    signal ISENSE ~ pin 3
+    signal FREQ ~ pin 4
+    signal VCOMP ~ pin 5
+    signal VSENSE ~ pin 6
+    signal VCC ~ pin 7
+    signal GATE ~ pin 8
+
+component PfcFuseHolder:
+    footprint = "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_FUP_0031.2510_Horizontal_Closed"
+    mpn = "0031.2510"
+    current_rating = 16A
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcEmiChoke:
+    footprint = "temper:CMC_B82726S"
+    mpn = "B82726S2163N030"
+    current_rating = 16A
+    signal L1 ~ pin 1
+    signal N1 ~ pin 2
+    signal N2 ~ pin 3
+    signal L2 ~ pin 4
+
+component PfcNtc:
+    footprint = "temper:SL32_10015"
+    mpn = "SL32 10015"
+    current_rating = 15A
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcBypassRelay:
+    footprint = "temper:Relay_SPST_Schrack-RT33K012"
+    mpn = "RT33K012"
+    contact_current = 16A
+    signal COM ~ pin 4
+    signal NO ~ pin 3
+    signal coil1 ~ pin 1
+    signal coil2 ~ pin 2
+
+component PfcX2:
+    footprint = "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
+    mpn = "B32922C3224M289"
+    value = 0.22uF
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcMov:
+    footprint = "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm"
+    mpn = "V150LA10AP"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcBoostInductor:
+    footprint = "Inductor_THT_Wurth:L_Wurth_WE-TORPFC-T75"
+    mpn = "760800301"
+    inductance = 180uH
+    current_rating = 24.5A
+    voltage_rating = 1000V
+    datasheet = "https://www.we-online.com/components/products/datasheet/760800301.pdf"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcMosfet:
+    footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
+    mpn = "STW65N65DM2AG"
+    voltage_rating = 650V
+    current_rating = 65A
+    signal G ~ pin 1
+    signal D ~ pin 2
+    signal S ~ pin 3
+
+component PfcSiCDiode:
+    footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
+    mpn = "C3D20065D"
+    voltage_rating = 650V
+    current_rating = 20A
+    # C3D20065D is the 3-lead dual-die common-cathode package: A1/A2 are
+    # separate anodes and K is the common cathode.
+    signal A1 ~ pin 1
+    signal K ~ pin 2
+    signal A2 ~ pin 3
+
+component PfcResistor:
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    mpn = "Vishay-TNPW1206-192K-200V"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcCapacitor:
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    mpn = "Murata-GRM21-50V-0805"
+    value: farad
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcRelayDriver:
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    mpn = "AO3400A"
+    signal G ~ pin 1
+    signal S ~ pin 2
+    signal D ~ pin 3
+
+component PfcFlyback:
+    footprint = "Diode_SMD:D_SMA"
+    mpn = "SS14"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component PfcIsenseClamp:
+    # Candidate only: qualify VF/current/temperature before release.
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    mpn = "BAV23C-E3-08"
+    datasheet = "https://www.vishay.com/docs/86374/bav23c.pdf"
+    signal A ~ pin 1
+    signal A_unused ~ pin 2  # Intentionally NC; use one die only.
+    signal K ~ pin 3
+
+component PfcBridge:
+    footprint = "Diode_THT:Diode_Bridge_GBJ2510"
+    mpn = "GBJ2510-F"
+    voltage_rating = 1000V
+    current_rating = 25A
+    signal PLUS ~ pin 1
+    signal AC1 ~ pin 2
+    signal AC2 ~ pin 3
+    signal MINUS ~ pin 4
+
+component PfcBulkCap:
+    footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+    mpn = "LGX2W561MELC50"
+    value = 560uF
+    voltage_rating = 450V
+    ripple_current = 1.98A
+    # Nichicon LGX2W561MELC50 data: https://www.nichicon.co.jp/english/products/pdfs/e-lgx.pdf
+    signal plus ~ pin 1
+    signal minus ~ pin 2
+
+component PfcBusHfCap:
+    # TDK/EPCOS B32672P6474K000, 470 nF polypropylene, 630 VDC. Its
+    # manufacturer maximum body is 18 x 14 x 8 mm with 15 mm lead pitch;
+    # the candidate-local footprint records that envelope.
+    footprint = "temper:B32672P6474K000"
+    mpn = "B32672P6474K000"
+    dielectric = "PP"
+    voltage_rating = 630V
+    value = 470nF
+    signal plus ~ pin 1
+    signal minus ~ pin 2
+
+component PfcY1:
+    footprint = "Capacitor_THT:C_Disc_Vishay_VY1102M31Y5UQ63V0"
+    mpn = "VY1102M31Y5UQ63V0"
+    dielectric = "Y1"
+    voltage_rating = 500V
+    value = 1nF
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcMainsConnector:
+    footprint = "temper:Phoenix_1714984"
+    mpn = "1714984"
+    signal L ~ pin 1
+    signal N ~ pin 2
+    signal PE ~ pin 3
+
+component PfcAuxConnector:
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+    mpn = "61300211121"
+    signal V15 ~ pin 1
+    signal RTN ~ pin 2
+
+component PfcControlConnector:
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+    mpn = "61300211121"
+    signal CTRL ~ pin 1
+    signal GND ~ pin 2
+
+component PfcShunt:
+    footprint = "temper:HCSM2818FT10L0"
+    mpn = "HCSM2818FT10L0"
+    value = 10mohm
+    # 5 W is conditional: 500 mm2 pad/trace copper and body below 100 C.
+    # https://www.seielect.com/catalog/SEI-HCSM.pdf
+    power_rating = 5W
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PfcOutputConnector:
+    footprint = "temper:Phoenix_1714971"
+    mpn = "1714971"
+    current_rating = 32A
+    voltage_rating = 1000V
+    signal plus ~ pin 1
+    signal minus ~ pin 2
+
+component PfcBusBleeder:
+    footprint = "Resistor_SMD:R_2512_6332Metric"
+    mpn = "RC2512FR-07150KL"
+    value = 150kohm
+    power_rating = 1W
+    voltage_rating = 200V
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module PowerEntryPfcControlCandidate:
+    signal ac_l
+    signal ac_n
+    signal pe
+    signal relay_ctrl
+    signal hot_permit
+    signal control_gnd
+    signal aux_15v
+    signal aux_15v_return
+    signal hv_plus
+    signal hv_minus
+    # External interfaces, not installed components or validated producers.
+    # F2 joins local_vd to hv_plus; local reservoir joins local_vd to HOT0.
+    # They are intentionally not silently shorted in this control integration.
+    signal local_vd
+    signal logic5
+    signal hot_arm
+    protection = new PowerEntryF2ShutdownRevB
+    protection.vd ~ local_vd
+    protection.vb ~ hv_plus
+    protection.logic5 ~ logic5
+    protection.aux ~ aux_15v
+    protection.gnd ~ control_gnd
+    protection.permit ~ hot_permit
+    protection.arm ~ hot_arm
+    protection.pwm ~ pfc.GATE
+    protection.gate ~ q_boost.G
+
+    bridge = new PfcBridge
+    holder = new PfcFuseHolder
+    cmc = new PfcEmiChoke
+    ntc = new PfcNtc
+    bypass = new PfcBypassRelay
+    x2 = new PfcX2
+    mov = new PfcMov
+    l_boost = new PfcBoostInductor
+    q_boost = new PfcMosfet
+    d_boost = new PfcSiCDiode
+    pfc = new PfcController
+    shunt = new PfcShunt
+    r_relay_gate = new PfcResistor
+    r_relay_pd = new PfcResistor
+    r_relay_drop = new PfcResistor
+    r_isense = new PfcResistor
+    r_freq = new PfcResistor
+    r_vtop = new PfcResistor
+    r_vtop2 = new PfcResistor
+    r_vtop3 = new PfcResistor
+    r_vtop4 = new PfcResistor
+    r_vtop5 = new PfcResistor
+    r_vbottom = new PfcResistor
+    r_vcomp = new PfcResistor
+    c_vcc = new PfcCapacitor
+    c_icomp = new PfcCapacitor
+    c_vcomp = new PfcCapacitor
+    c_vcomp_p = new PfcCapacitor
+    c_isense = new PfcCapacitor
+    c_vfeed = new PfcCapacitor
+    relay_driver = new PfcRelayDriver
+    relay_flyback = new PfcFlyback
+    isense_clamp = new PfcIsenseClamp
+    c1 = new PfcBulkCap
+    c2 = new PfcBulkCap
+    c3 = new PfcBulkCap
+    c4 = new PfcBulkCap
+    c_hf = new PfcBusHfCap
+    y1 = new PfcY1
+    mains = new PfcMainsConnector
+    aux = new PfcAuxConnector
+    control = new PfcControlConnector
+    permit = new PfcControlConnector
+    q_inhibit = new PfcRelayDriver
+    q_permit = new PfcRelayDriver
+    r_inhibit_pulldown = new PfcResistor
+    r_inhibit_pullup = new PfcResistor
+    r_permit_gate = new PfcResistor
+    r_permit_pd = new PfcResistor
+    output = new PfcOutputConnector
+    bleeder1 = new PfcBusBleeder
+    bleeder2 = new PfcBusBleeder
+
+    # TI-style starting values; compensation and current limit require the
+    # controller datasheet/design calculation before qualification.
+    r_relay_gate.mpn = "RC1206FR-071KL"
+    r_relay_gate.value = 1kohm
+    r_relay_pd.mpn = "RC1206FR-07100KL"
+    r_relay_pd.value = 100kohm
+    r_relay_drop.mpn = "RC2512FR-0791RL"
+    r_relay_drop.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_relay_drop.value = 91ohm
+    # Yageo RC-series 2512 1W coil drop; nominal dissipation approximately 0.1W.8/tnpw.pdf
+    r_isense.mpn = "RC1206FR-07220RL"
+    r_isense.value = 220ohm
+    r_freq.mpn = "RC1206FR-0716K2L"
+    r_freq.value = 16.2kohm
+    r_vtop.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_vtop.mpn = "CRCW2512200KFKEG"
+    r_vtop.value = 200kohm
+    r_vtop2.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_vtop2.mpn = "CRCW2512200KFKEG"
+    r_vtop2.value = 200kohm
+    r_vtop3.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_vtop3.mpn = "CRCW2512200KFKEG"
+    r_vtop3.value = 200kohm
+    r_vtop4.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_vtop4.mpn = "CRCW2512200KFKEG"
+    r_vtop4.value = 200kohm
+    r_vtop5.footprint = "Resistor_SMD:R_2512_6332Metric"
+    r_vtop5.mpn = "CRCW2512200KFKEG"
+    r_vtop5.value = 200kohm
+    r_vbottom.mpn = "RC1206FR-0713KL"
+    r_vbottom.value = 13kohm
+    r_vcomp.mpn = "RC1206FR-0740K2L"
+    r_vcomp.value = 40.2kohm
+    r_inhibit_pullup.mpn = "RC1206FR-07100KL"
+    r_inhibit_pullup.value = 100kohm
+    r_inhibit_pulldown.mpn = "RC1206FR-07100KL"
+    r_inhibit_pulldown.value = 100kohm
+    r_permit_gate.mpn = "RC1206FR-071KL"
+    r_permit_gate.value = 1kohm
+    r_permit_pd.mpn = "RC1206FR-07100KL"
+    r_permit_pd.value = 100kohm
+    c_vcc.mpn = "C0805C105K5RACTU"
+    c_vcc.value = 1uF
+    c_icomp.mpn = "C0805C272J5GACTU"
+    c_icomp.value = 2.7nF
+    c_vcomp.mpn = "GRM32ER71H475KA88L"
+    c_vcomp.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    c_vcomp.value = 4.7uF
+    c_vcomp_p.mpn = "C0805C224K5RACTU"
+    c_vcomp_p.value = 220nF
+    c_isense.mpn = "C0805C102J5GACTU"
+    c_isense.value = 1nF
+    c_vfeed.mpn = "C0805C681J5GACTU"
+    c_vfeed.value = 680pF
+    # Kemet C0G/X7R data: https://www.kemet.com/en/us/capacitors/ceramic.html
+    # Murata GRM32ER71H475KA88L data: https://www.murata.com/en-us/products/productdetail?partno=GRM32ER71H475KA88L
+
+    # Fused EMI/NTC/bypass input stage precedes the active PFC bridge.
+    mains.L ~ ac_l
+    mains.N ~ ac_n
+    mains.PE ~ pe
+    aux.V15 ~ aux_15v
+    aux.RTN ~ aux_15v_return
+    control.CTRL ~ relay_ctrl
+    control.GND ~ control_gnd
+    # External HOT permit qualifies the retained local latch; HOT ARM must
+    # be a deliberate fresh edge after external precharge/continuity checks.
+    permit.CTRL ~ hot_permit
+    permit.GND ~ control_gnd
+    ac_l ~ holder.p1
+    # F1 is the replaceable 0034.3129 link installed in the single PCB
+    # holder; it is represented in the holder BOM, so no second footprint is
+    # emitted for the consumable.
+    holder.p2 ~ cmc.L1
+    holder.p2 ~ x2.p1
+    x2.p2 ~ ac_n
+    holder.p2 ~ mov.p1
+    mov.p2 ~ ac_n
+    cmc.L2 ~ ntc.p1
+    ntc.p2 ~ bridge.AC1
+    cmc.N1 ~ ac_n
+    cmc.N2 ~ bridge.AC2
+    cmc.L2 ~ bypass.COM
+    bypass.NO ~ bridge.AC1
+    bridge.PLUS ~ l_boost.p1
+    l_boost.p2 ~ q_boost.D
+    q_boost.S ~ control_gnd
+    control_gnd ~ shunt.p1
+    shunt.p2 ~ bridge.MINUS
+    d_boost.K ~ local_vd
+    d_boost.A1 ~ q_boost.D
+    d_boost.A2 ~ q_boost.D
+    # bridge.MINUS is the rectifier-side terminal of the shunt. Bus negative
+    # is the controller-side return and must not bypass the 10 mOhm shunt.
+    hv_minus ~ control_gnd
+    # Functional-earth noise return with reinforced spacing; this capacitor
+    # is the explicit chassis boundary, never a DC bond to PE.
+    hv_minus ~ y1.p1
+    y1.p2 ~ pe
+    # Bus negative is the controller-side HOT return; AUX is a HOT header,
+    # not an MCU/SELV interface.
+    c1.plus ~ hv_plus
+    c1.minus ~ control_gnd
+    c2.plus ~ hv_plus
+    c2.minus ~ control_gnd
+    c3.plus ~ hv_plus
+    c3.minus ~ control_gnd
+    c4.plus ~ hv_plus
+    c4.minus ~ control_gnd
+    # Local HF commutation bypass across the MOSFET/boost-diode switching
+    # loop, placed beside the bulk bank.
+    c_hf.plus ~ hv_plus
+    c_hf.minus ~ control_gnd
+    output.plus ~ hv_plus
+    output.minus ~ control_gnd
+    bleeder1.p1 ~ hv_plus
+    bleeder1.p2 ~ bleeder2.p1
+    bleeder2.p2 ~ control_gnd
+
+    # TI UCC28180 §8.3.5: VSENSE below 0.82 V disables PWM and discharges
+    # VCOMP. Default-on q_inhibit clamps VSENSE low; qualified local enable_good
+    # turns q_permit on, pulling q_inhibit's gate low and releasing VSENSE.
+    q_inhibit.D ~ pfc.VSENSE
+    q_inhibit.S ~ control_gnd
+    aux_15v ~ r_inhibit_pullup.p1
+    r_inhibit_pullup.p2 ~ q_inhibit.G
+    # 100k/100k divider limits AO3400A gate to 7.5V at 15V bias (<12V abs max).
+    r_inhibit_pulldown.p1 ~ q_inhibit.G
+    r_inhibit_pulldown.p2 ~ control_gnd
+    q_permit.D ~ q_inhibit.G
+    q_permit.S ~ control_gnd
+    protection.enable_good ~ r_permit_gate.p1
+    r_permit_gate.p2 ~ q_permit.G
+    r_permit_pd.p1 ~ q_permit.G
+    r_permit_pd.p2 ~ control_gnd
+
+    pfc.ISENSE ~ r_isense.p1
+    r_isense.p2 ~ shunt.p2
+    pfc.ISENSE ~ c_isense.p1
+    c_isense.p2 ~ control_gnd
+    # Negative ISENSE clamp AFTER the 220 ohm filter resistor.
+    isense_clamp.A ~ control_gnd
+    isense_clamp.K ~ pfc.ISENSE
+    pfc.GND ~ control_gnd
+    pfc.VCC ~ aux_15v
+    # AUX return is intentionally the HOT HV-minus reference.  The external
+    # bias supply is an isolated source; this connector is never MCU/SELV.
+    aux_15v_return ~ hv_minus
+    pfc.FREQ ~ r_freq.p1
+    r_freq.p2 ~ control_gnd
+    pfc.ICOMP ~ c_icomp.p1
+    c_icomp.p2 ~ control_gnd
+    pfc.VCOMP ~ r_vcomp.p1
+    r_vcomp.p2 ~ c_vcomp.p1
+    c_vcomp.p2 ~ control_gnd
+    pfc.VCOMP ~ c_vcomp_p.p1
+    c_vcomp_p.p2 ~ control_gnd
+    pfc.VSENSE ~ r_vbottom.p1
+    r_vbottom.p2 ~ control_gnd
+    local_vd ~ r_vtop.p1
+    r_vtop.p2 ~ r_vtop2.p1
+    r_vtop2.p2 ~ r_vtop3.p1
+    r_vtop3.p2 ~ r_vtop4.p1
+    r_vtop4.p2 ~ r_vtop5.p1
+    r_vtop5.p2 ~ pfc.VSENSE
+    pfc.VCC ~ c_vcc.p1
+    c_vcc.p2 ~ control_gnd
+    pfc.VSENSE ~ c_vfeed.p1
+    c_vfeed.p2 ~ control_gnd
+
+    # NTC bypass relay is HOT-side driven; external relay_ctrl must be treated
+    # as hazardous-referenced control until an interlock/isolation design is
+    # added.
+    aux_15v ~ r_relay_drop.p1
+    r_relay_drop.p2 ~ bypass.coil1
+    bypass.coil2 ~ relay_driver.D
+    relay_driver.S ~ control_gnd
+    relay_ctrl ~ r_relay_gate.p1
+    r_relay_gate.p2 ~ relay_driver.G
+    r_relay_pd.p1 ~ relay_driver.G
+    r_relay_pd.p2 ~ control_gnd
+    relay_flyback.K ~ bypass.coil1
+    relay_flyback.A ~ relay_driver.D
+
+    ac_l.override_net_name = "AC_L_RECTIFIED_INPUT"
+    ac_n.override_net_name = "AC_N_RECTIFIED_INPUT"
+    pe.override_net_name = "PE_CHASSIS"
+    relay_ctrl.override_net_name = "RELAY_BYPASS_CTRL"
+    hot_permit.override_net_name = "HOT_PERMIT_EXTERNAL"
+    control_gnd.override_net_name = "CONTROL_GND"
+    aux_15v.override_net_name = "AUX_15V_IN"
+    aux_15v_return.override_net_name = "AUX_15V_RETURN"
+    hv_plus.override_net_name = "PFC_BUS_PLUS_390V"
+    hv_minus.override_net_name = "PFC_BUS_MINUS"

@@ -1,0 +1,16 @@
+{
+  "status": "PARENT_VERIFIED_READ_ONLY_DUPLICATE_AUDIT",
+  "utc": "2026-09-21T05:58:54.240283+00:00",
+  "independently_verified": [
+    "Current>=50MiB regular-file set outside LL06 equals recorded30-file inventory",
+    "All six candidate files retain recorded size/inode/linkcount and match recorded full SHA256",
+    "Three equal-byte groups total335865668 duplicate logical bytes"
+  ],
+  "limits": [
+    "Physical allocated/shared APFS extents not measured; do not equate logical duplicate bytes with guaranteed df recovery.",
+    "Live LL06 excluded entirely.",
+    "No delete/move/recompress/hardlink performed; no meaningful multi-gigabyte recovery opportunity identified."
+  ],
+  "report_sha256": "974f4056453e5ca0c9097f6ac7184369b91c651447920e97b70b6f7f84f1efa4",
+  "document_sha256": "88bc1bd47906fae035b298d5e38d4f87ace0444b8f69d894d56764d24fdd4b78"
+}

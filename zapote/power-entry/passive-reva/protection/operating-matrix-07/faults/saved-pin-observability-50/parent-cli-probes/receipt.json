@@ -1,0 +1,45 @@
+{
+  "status": "PARENT_CLI_PROBES_PASS",
+  "cases": [
+    {
+      "name": "canonical",
+      "exit": 0,
+      "expected_success": true
+    },
+    {
+      "name": "reordered",
+      "exit": 0,
+      "expected_success": true
+    },
+    {
+      "name": "nonfinite_unsummarized_field",
+      "exit": 1,
+      "expected_success": false
+    },
+    {
+      "name": "missing_start",
+      "exit": 1,
+      "expected_success": false
+    },
+    {
+      "name": "unknown_same_width",
+      "exit": 1,
+      "expected_success": false
+    },
+    {
+      "name": "output_noclobber",
+      "exit": 1,
+      "expected_success": false
+    }
+  ],
+  "source_sha256": "59f01e7985fff860a5f04ef48246d493bbaf5f54134dedd76d4aafb93ba930fc",
+  "binary_sha256": "25d20aa032b56e5ed544d69f57206e60a5b6c36adfb52ce97a1b53bcae8edb87",
+  "input_schema_source": "host/direct-native-export-parent-37/fault-sameplot/direct.tsv first header line",
+  "input_hashes": {
+    "nonfinite_unsummarized_field.tsv": "a719caac71d67709257a06f0c62a22bd6b8ff2556ec45c85c6b6b97ed05ba59a",
+    "reordered.tsv": "87fcc8b0b39a11cc42039c5bd8ae9c971721d3f70f85875f4a2340ba7317c671",
+    "missing_start.tsv": "de4cd1db9a7a7a87b336a6a1b23476576e710d2e5a47885955c85ffbd4b4b2ea",
+    "canonical.tsv": "7227b4ea8386d29a9c3549d78307eeb103bba142f80fd1fa9205cedcc981b942",
+    "unknown_same_width.tsv": "40abaff1c19cbf27dccccb726b86a76ac3e94fdad6f7f5cb0bc699459baabdb6"
+  }
+}

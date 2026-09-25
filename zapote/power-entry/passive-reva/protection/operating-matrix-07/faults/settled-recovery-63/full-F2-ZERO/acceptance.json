@@ -1,0 +1,115 @@
+{
+  "status": "ACCEPTED_EXACT_MODELED_SETTLED_F2_ZERO_SCREENS",
+  "accepted": true,
+  "utc": "2026-09-21T23:17:13.525816+00:00",
+  "scope": "Exact source-bound120VAC/190ohm converter, own accepted normal prefix, ideal scriptedF2 opening at sampled mains zero. One prepared case; no general/hardware qualification.",
+  "raw": {
+    "path": "faults/settled-direct-capture-51/full-F2-ZERO/raw.trace.raw.gz",
+    "sha256": "7deb639fb05f7f63d2444e2d163aee4eb06b45349bc9cee120b9e112407b1bec",
+    "bytes": 5928407777,
+    "full_rows": 36625031,
+    "fields": 42
+  },
+  "normal_prefix_acceptance": "faults/settled-postcapture-58/full-F2-ZERO/normal-prefix-acceptance.json",
+  "phase_acceptance": "faults/settled-postcapture-58/full-F2-ZERO/parent-phase-acceptance.json",
+  "injection_s": 0.6583333328372754,
+  "detector_s": 0.6596012723556421,
+  "retained_off_s": 0.6596013791233337,
+  "injection_to_detector_s": 0.0012679395183667896,
+  "detector_to_retained_off_s": 1.0676769157669241e-07,
+  "last_channel_above_0_1_A_s": 0.6596004844755218,
+  "channel_low_before_detector_s": 7.878801203675678e-07,
+  "retained_off_observation_to_end_s": 0.02239862087666633,
+  "channel_peak_after_injection_A": 6.407917741577087,
+  "channel_peak_after_detector_A": 3.98502325053885e-10,
+  "passive_peak_after_detector_A": 3.7145642157278886,
+  "max_abs_fulltrace_nodes": {
+    "max_vd": 397.361401120003,
+    "max_vb": 385.86497048604275,
+    "max_sw": 398.5023250538854,
+    "max_gate": 14.982192728642518,
+    "max_il": 30.653817977920625
+  },
+  "branch_peaks_after_injection_A": {
+    "body_peak_after_injection_a": 0.004736548067031815,
+    "lboost_peak_after_injection_a": 5.262441411550861,
+    "f2_branch_peak_after_injection_a": 0.016509479621618084,
+    "dboost1_branch_peak_after_injection_a": 2.5563791220861565,
+    "dboost2_branch_peak_after_injection_a": 2.556379122088914
+  },
+  "frozen_checker_verdict": "Pass",
+  "gap_contract_s": {
+    "global_outer": 1e-06,
+    "local_frozen_inner": 2.5e-08
+  },
+  "complete_pipeline_exit_codes": {
+    "fault": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "scan": [
+      0,
+      0,
+      0
+    ],
+    "audit": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "metrics": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "phase": [
+      0,
+      0,
+      0
+    ]
+  },
+  "equal_time": {
+    "full_groups": 37,
+    "full_equal_intervals": 57,
+    "crossing_groups": 0,
+    "boundary_groups": 0
+  },
+  "evidence_sha256": {
+    "faults/settled-recovery-63/full-F2-ZERO/reanalysis-receipt.json": "a3b8532d4e829bd20d9618efdfe2673d12c37c29aa0f0b4971b4fe83ef105d61",
+    "faults/settled-recovery-63/full-F2-ZERO/source-binding.json": "41d7574040009353779d2a8d65f5bfa8b8e9e5f434816dbf44045d292264eb3e",
+    "faults/settled-recovery-63/full-F2-ZERO/gap-policy.json": "21c2c55110d562955cea3d9ab5239921e69a22eaacf6f24fed4caf8544dad981",
+    "faults/settled-recovery-63/full-F2-ZERO/pipeline-status.txt": "8831320de04732fd3d02bb92936da598ff16bf5782e1ca276dbf5e41b0348065",
+    "faults/settled-recovery-63/full-F2-ZERO/adapter-report.txt": "d72f7b7a9e3f70ed2a72bff6cb90c7c4bdd69a2b76700464e25097cfa3d91606",
+    "faults/settled-recovery-63/full-F2-ZERO/validator.stdout": "007486675e89834896a8a0ab6dd95302292705f75eadd2104822f7dadf448bf7",
+    "faults/settled-recovery-63/full-F2-ZERO/validator-events.tsv": "a3e7a777ef03764e9a7862c9d449e5467e621e0810157c8fc69c5a408e37ac51",
+    "faults/settled-recovery-63/full-F2-ZERO/electrical-worker-review.json": "6502bb968e520dd6c3bd50e94c9cee3bb9d41792e2769c81ca241fffe9420abb",
+    "faults/settled-postcapture-58/full-F2-ZERO/normal-prefix-acceptance.json": "cb045acd44eaf90a00fa7633c9ae34d11f750caefcc9344aed495eadd44336c3",
+    "faults/settled-postcapture-58/full-F2-ZERO/parent-phase-acceptance.json": "1e8856c57185f93076c5fbbe73d468a377ad833fc14ba44d1490f377d33a3d48",
+    "faults/settled-postcapture-58/full-F2-ZERO/phase.json": "2bf6ad3f5fa3e4f3af38ca83f8e2638da3908f4600682a98e21b2582a537955e",
+    "faults/settled-postcapture-58/full-F2-ZERO/analysis-receipt.json": "d749df691f54a9d43e92f47baafb3af38221baac96b0c0ad2d2d3d09b343ebec",
+    "faults/settled-direct-capture-51/full-F2-ZERO/parent-capture-verification-63.json": "83912f0af1d954f5fcfcc9d0485ee79a8bd2c5a2bb6c2afa6f771cb6aadbc07d",
+    "faults/settled-direct-capture-51/full-F2-ZERO/result.json": "72175559f3b2b796b73cb3519cf97591b5c4d0c926236053df147dd4e6b2b579",
+    "faults/settled-direct-capture-51/resource-summary-parent-62.json": "44b3dad906418721f883c71c2d5ddb95bf6cae4afff03926210694499675ca21"
+  },
+  "original_rejections_preserved": [
+    "faults/settled-direct-capture-51/full-F2-ZERO/result.json",
+    "faults/settled-direct-capture-51/full-F2-ZERO/adapter.stderr",
+    "faults/settled-postcapture-58/full-F2-ZERO/legacy-strict/receipt.json"
+  ],
+  "limitations": [
+    "Channel current fell below0.1A about0.788us before detector;107ns retained-off does not show causal interruption of flowingchannelcurrent.",
+    "Passive current remains with3.715A modeledpeak afterdetector. Gate-off is not complete energyinterruption.",
+    "Ideal F2 disconnect isolates bank only; no fuse arc/clearing/DC interrupt/I2t proof.",
+    "Authored controller and generic devices, nominal passives and unresolved selected-clamp bounds remain; no hardware correlation,thermal/SOA qualification or certification.",
+    "Original stage2 header error cause remains unknown; independent complete archive decode/reanalysis succeeded with same pinned decoder,adapter,validator; original failure remains recorded."
+  ],
+  "parent_review_corrections": [
+    "Electrical worker mislabeled pending phase as crest; actual zero phase independently accepted.",
+    "Normal worker drift denominator and bus-mean-only wording corrected in normal-parent-review67."
+  ]
+}

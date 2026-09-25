@@ -1,0 +1,27 @@
+{
+  "part": "STW65N65DM2AG",
+  "vendor": "STMicroelectronics",
+  "product_page": "https://www.st.com/en/power-transistors/stw65n65dm2ag.html",
+  "model_url": "https://www.st.com/resource/en/spice_model/stw65n65dm2ag_spice.zip",
+  "listing": {"format": "PSpice ZIP", "version": "1.0", "date": "2016-01-13"},
+  "retrieval": {
+    "attempts": 3,
+    "bytes_retained": 0,
+    "status": "listed_by_primary_source_but_unretrievable_here",
+    "attempt_details": [
+      {"sandbox": "restricted", "command_exit": 6, "result": "DNS resolution failure; not publisher evidence"},
+      {"sandbox": "require_escalated", "command_exit": "unknown_not_surfaced", "result": "tool returned no output and no file"},
+      {"sandbox": "require_escalated", "command_exit": 28, "result": "curl timed out after 30005 ms with zero bytes"}
+    ]
+  },
+  "sha256": null,
+  "size_bytes": null,
+  "zip_members": null,
+  "subcircuit": null,
+  "pin_order": null,
+  "temperature_behavior": null,
+  "encryption": null,
+  "ngspice_compatibility": null,
+  "executed": false,
+  "source_scope": "Exact-part ST listing only; no physical/model bounds inferred"
+}

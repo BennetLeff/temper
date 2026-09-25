@@ -1,0 +1,48 @@
+{
+  "revision": 25,
+  "date": "2026-09-22",
+  "status": "feasibility-report-only",
+  "report_sha256": "d1a325da04bbd86528e1cf7cfee063155d63934fa801c582cf799b46d6bc44d1",
+  "inputs": {
+    "revision11_netlist": {
+      "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/build/default.net",
+      "sha256": "c9971a9475191749a6d67c50c6ae2425b468e64b0c23b1d2e412ca866887ad92"
+    },
+    "revision11_top_ato": {
+      "path": "zapote/power-entry/passive-reva/protection/interface-defaults-11/source-candidate/elec/src/power_entry_pfc_control_candidate.ato",
+      "sha256": "8491fb2fba480bcfa45713a0c2d9f67563bc6f197b727528c570d4939c345006"
+    },
+    "revision19_clamp_schematic": {
+      "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-19/clamp.kicad_sch",
+      "sha256": "3068f722f43ac1dc61452cc2ec181f7db153b14c555cfa6860eb79d697c930a5"
+    },
+    "revision19_clamp_expected": {
+      "path": "zapote/power-entry/passive-reva/protection/interface-dynamics-19/clamp-expected.tsv",
+      "sha256": "ca709e6d2a86c269ef830df8bbfe3f61563c3488be2a46ca495393a930b7b8e7"
+    },
+    "revision16_reset_schematic": {
+      "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/reset.kicad_sch",
+      "sha256": "a87bdb095b994cbe36ef89918bdea7deb6b0ca51d955e69acdf40b937526d0cc"
+    },
+    "revision16_reset_expected": {
+      "path": "zapote/power-entry/passive-reva/protection/interface-capture-16/reset-expected.tsv",
+      "sha256": "e911835bddfc85383619bf3711cb6f3c43c1a8d317b67e3daae604f63d30e23c"
+    }
+  },
+  "checks": {
+    "local_markdown_links": {
+      "status": "pass",
+      "count": 3
+    },
+    "input_hashes_match_report": {
+      "status": "pass"
+    }
+  },
+  "not_performed": [
+    "authoritative source candidate",
+    "merged graph",
+    "ERC",
+    "native render",
+    "physical bench capture"
+  ]
+}

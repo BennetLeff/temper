@@ -1,0 +1,175 @@
+# Revision18 proposed part binding; not a compiled integrated candidate.
+# See ../README.md for evidence gaps and electrical acceptance conditions.
+# Corrected A5 bounded auxiliary producer.
+#
+# IRM-10-24 is the raw producer.  TPS7A4701 is set to 15 V and is the only
+# device connected to AUX_RAW.  TPS54202 VIN is AUX15, never AUX_RAW: the
+# latter can reach the IRM-10-24 OVP trigger range (27.6--32.4 V), above the
+# buck's 28 V recommended input limit.  ARM/PERMIT and the dominant shutdown
+# path remain host-owned ports; this module never ties them healthy.
+
+component TPS7A4701:
+    # TI lists TPS7A4701RGWR as the active RGW large-tape-and-reel orderable.
+    mpn = "TPS7A4701RGWR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps7a47.pdf"
+    footprint = "Package_DFN_QFN:VQFN-20-1EP_5x5mm_P0.5mm_EP3.4x3.4mm"
+    signal OUT ~ pin 1
+    signal NC2 ~ pin 2
+    signal FB ~ pin 3
+    signal P64V2 ~ pin 4
+    signal P64V1 ~ pin 5
+    signal P32 ~ pin 6
+    signal GND ~ pin 7
+    signal P16 ~ pin 8
+    signal P08 ~ pin 9
+    signal P04 ~ pin 10
+    signal P02 ~ pin 11
+    signal P01 ~ pin 12
+    signal EN ~ pin 13
+    signal NR ~ pin 14
+    signal IN ~ pin 15
+    signal IN ~ pin 16
+    signal NC17 ~ pin 17
+    signal NC18 ~ pin 18
+    signal NC19 ~ pin 19
+    signal OUT ~ pin 20
+    signal EP ~ pin 21
+
+component TPS54202:
+    mpn = "TPS54202DDCR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps54202.pdf"
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    signal GND ~ pin 1
+    signal SW ~ pin 2
+    signal VIN ~ pin 3
+    signal FB ~ pin 4
+    signal EN ~ pin 5
+    signal BOOT ~ pin 6
+
+component F2R:
+    # Generic conceptual resistor: exact passive sourcing is out of scope.
+    mpn = "GENERIC_RESISTOR"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component F2C:
+    # Generic conceptual capacitor: exact passive sourcing is out of scope.
+    mpn = "GENERIC_CAPACITOR"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component F2L:
+    # Generic conceptual inductor: exact passive sourcing is out of scope.
+    mpn = "GENERIC_INDUCTOR"
+    footprint = "Inductor_SMD:L_0603_1608Metric"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module Hot15Logic5Supply:
+    """IRM-10-24 -> regulated HOT15 -> 5 V buck.
+
+    AUX_RAW is a 24 V producer port with a 23.4--24.6 V tolerance range.
+    Its 27.6--32.4 V OVP number is a trigger range, not a clamp.  The
+    integration contract assumes 35 V maximum raw input; source overshoot is
+    unbounded until a separate transient qualification.  The TPS7A4701
+    output is 15 V ANY-OUT (1.4 + 6.4 + 6.4 + 0.8 V) and has a 47 uF nominal
+    output capacitor with >=10 uF effective capacitance required after
+    tolerance, bias and temperature.
+
+    AUX15 current is budgeted at 75 mA excluding the buck.  LOGIC5 is
+    budgeted at 75 mA.  The buck's input is AUX15, so its 4.5--28 V VIN
+    rating is respected even when AUX_RAW reaches its 35 V contract edge.
+    """
+    signal aux_raw
+    signal aux15
+    signal logic5
+    signal gnd
+    signal ldo_nr
+    signal buck_en
+    signal buck_sw
+    signal buck_boot
+    signal buck_fb
+    signal buck_out
+
+    ldo = new TPS7A4701
+    ldo.IN ~ aux_raw
+    ldo.EN ~ aux_raw
+    ldo.GND ~ gnd
+    # The VQFN exposed pad is a physical GND connection, not NC.
+    ldo.EP ~ gnd
+    ldo.OUT ~ aux15
+    ldo.FB ~ aux15
+
+    # 15 V ANY-OUT: internal 1.4 V base + 6.4 + 6.4 + 0.8 = 15 V.
+    # The 1.4 V term is internal; P16 is a separate program bit and stays open.
+    ldo.P64V1 ~ gnd
+    ldo.P64V2 ~ gnd
+    ldo.P08 ~ gnd
+
+    ldo.NR ~ ldo_nr
+    ldo_nr_c = new F2C
+    ldo_nr_c.value = 1uF
+    ldo_nr_c.p1 ~ ldo_nr
+    ldo_nr_c.p2 ~ gnd
+
+    ldo_cin = new F2C
+    ldo_cin.value = 10uF
+    ldo_cin.p1 ~ aux_raw
+    ldo_cin.p2 ~ gnd
+    ldo_cout = new F2C
+    ldo_cout.value = 47uF
+    # Effective capacitance after tolerance/DC-bias/temperature must be >=10uF.
+    ldo_cout.p1 ~ aux15
+    ldo_cout.p2 ~ gnd
+
+    buck = new TPS54202
+    # Deliberately regulated 15 V source: never aux_raw.
+    buck.VIN ~ aux15
+    buck.GND ~ gnd
+    buck.EN ~ buck_en
+    buck.SW ~ buck_sw
+    buck.BOOT ~ buck_boot
+    buck.FB ~ buck_fb
+
+    # EN = 1.589 V at AUX15=14.625 V before bias; 1 uA sinking bias leaves
+    # about 1.500 V with 89.13 kOhm Thevenin resistance (>1.28 V max rising).
+    buck_en_top = new F2R
+    buck_en_top.value = 820kohm
+    buck_en_bottom = new F2R
+    buck_en_bottom.value = 100kohm
+    buck_en_top.p1 ~ aux15
+    buck_en_top.p2 ~ buck_en
+    buck_en_bottom.p1 ~ buck_en
+    buck_en_bottom.p2 ~ gnd
+
+    buck_cin = new F2C
+    buck_cin.value = 10uF
+    buck_cin.mpn = "C3225X7R2A106KT000E"
+    buck_cin.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    buck_cin.p1 ~ aux15
+    buck_cin.p2 ~ gnd
+    buck_boot_c = new F2C
+    buck_boot_c.value = 100nF
+    buck_boot_c.p1 ~ buck_boot
+    buck_boot_c.p2 ~ buck_sw
+    buck_l = new F2L
+    buck_l.value = 15uH
+    buck_l.p1 ~ buck_sw
+    buck_l.p2 ~ buck_out
+    buck_cout = new F2C
+    buck_cout.value = 22uF
+    buck_cout.p1 ~ buck_out
+    buck_cout.p2 ~ gnd
+
+    # TPS54202 VREF is 0.596 V typical; 98.2k/13.3k gives 4.997 V nominal.
+    buck_rtop = new F2R
+    buck_rtop.value = 98.2kohm
+    buck_rbottom = new F2R
+    buck_rbottom.value = 13.3kohm
+    buck_rtop.p1 ~ buck_out
+    buck_rtop.p2 ~ buck_fb
+    buck_rbottom.p1 ~ buck_fb
+    buck_rbottom.p2 ~ gnd
+    buck_out ~ logic5

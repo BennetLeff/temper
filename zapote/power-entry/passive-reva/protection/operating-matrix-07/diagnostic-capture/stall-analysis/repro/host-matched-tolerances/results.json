@@ -1,0 +1,20 @@
+[
+  {
+    "fixture": "small",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "deck_sha256": "5e536df3e29e05f9a886ae8641c91bb6b13daabc7b5828f1f5cb70dc3fd27396"
+  },
+  {
+    "fixture": "large",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "deck_sha256": "228cac0b667e48f4e09de440d49ce0c8be4faf3244fbff520d164d86f3b7f690"
+  },
+  {
+    "fixture": "warm",
+    "simulator_exit": 0,
+    "checker_exit": 0,
+    "deck_sha256": "dac2da0e675d7aeeb21653aec0aea83576e8c46e16482005b8636386f4e0df0b"
+  }
+]

@@ -1,0 +1,44 @@
+* Host-authored nominal UCC28180 functional surrogate; NOT TI macro-model.
+* TI RevD sections8.3 and eq81..88,100. Full nonlinear silicon dynamics unknown.
+* External pins VCC VSENSE ISENSE ICOMP VCOMP GATE GND; RFREQ parameter.
+* FSW fitted source calculation16.2k=129107Hz, not oscillator corner bound.
+.subckt UCC28180_FN vcc vsense isense icomp vcomp gate gnd params: RFREQ=16.2k PCL_ENABLE=1
+.param FSW={2.0915334e9/RFREQ} PERIOD={1/FSW} K1=7 GMI=.95m
+Vfive five gnd 5
+* Hysteretic states: UVLO11.5V on/9.5V off; OVP5.45V set/5.10V reset.
+Suv five uv vcc gnd UVSW
+Ruv uv gnd 1k
+.model UVSW SW(Ron=1 Roff=1e12 Vt=10.5 Vh=1)
+Sov five ov vsense gnd OVSW
+Rov ov gnd 1k
+.model OVSW SW(Ron=1 Roff=1e12 Vt=5.275 Vh=.175)
+Bfault fault gnd V=(V(uv,gnd)<2.5 || V(vsense,gnd)<.82 || V(isense,gnd)>.085) ? 5 : 0
+* No ICOMP-open-pin claim: including it naively creates self-held startup fault.
+* Explicit externally compensated voltage amplifier, sourced toward VCOMP.
+* 1mA precharge below1.5V;40uA startup below85%; otherwise56uS/EDR280uS.
+Bss_done_raw ss_done_raw gnd V=(V(vsense,gnd)>4.9) ? 5 : 0
+Ass_inputs [five ss_done_raw fault] [ss_data ss_clk ss_reset] UADC
+Ass ss_data ss_clk NULL ss_reset ss_q ss_qn UDFF
+Ass_out [ss_q] [ss_done] UDAC
+Bvamp gnd vcomp I=(V(fault)>2.5) ? -V(vcomp,gnd)/40 : ((V(ss_done)<2.5 && V(vcomp,gnd)<1.5) ? 1m : ((V(vsense,gnd)>5.35 || V(isense,gnd)<-.285) ? -V(vcomp,gnd)/4k : ((V(ss_done)<2.5 && V(vsense,gnd)<4.25) ? 40u : limit((5-V(vsense,gnd))*((V(ss_done)>2.5 && (V(vsense,gnd)>5.25 || V(vsense,gnd)<4.75)) ? 280u : 56u),-275u,40u))))
+* Nonlinear gain + PWM slope from TI equations81..88.
+Bm1 m1 gnd V=(V(vcomp,gnd)<1) ? .068 : ((V(vcomp,gnd)<2) ? .156*V(vcomp,gnd)-.088 : ((V(vcomp,gnd)<4.5) ? .313*V(vcomp,gnd)-.401 : 1.007))
+Bm2 m2 gnd V=(V(vcomp,gnd)<.5) ? 0 : ((V(vcomp,gnd)<4.6) ? (FSW/65k)*.1223*(V(vcomp,gnd)-.5)^2 : (FSW/65k)*2.056)
+* Current averaging pole GMI*M1/(K1*Cicomp), TIeq100;±50uA nominal linear-range approximation.
+* Steady ICOMP=K1*(-2.5*ISENSE)/M1; combined ramp satisfies TIeq78.
+Biamp gnd icomp I=(V(fault)>2.5 || V(ov)>2.5) ? (3-V(icomp,gnd))/100 : limit(GMI*(-2.5*V(isense,gnd)-V(icomp,gnd)*V(m1)/K1),-50u,50u)
+Bphase phase gnd V=time-PERIOD*floor(time/PERIOD)
+Vclock cycle_reset gnd PULSE(5 0 20n 1n 1n {PERIOD-22n} {PERIOD})
+Braw raw gnd V=(V(phase)>570n && V(m2)*1e6*V(phase)>V(icomp,gnd)) ? 5 : 0
+* Blanking measured from actual leading gate request, not oscillator reset.
+Cblank blank gnd 1p IC=0
+Bblank gnd blank I=(V(raw)>2.5) ? 1u : -V(blank)/1
+Bpcl_request pcl_request gnd V=(PCL_ENABLE>.5 && V(raw)>2.5 && V(blank)>.3 && V(isense,gnd)<-.4) ? 5 : 0
+Apcl_inputs [five pcl_request cycle_reset] [pcl_data pcl_clk pcl_reset] UADC
+Apcl pcl_data pcl_clk NULL pcl_reset pcl_q pcl_qn UDFF
+Apcl_out [pcl_q] [pcl_hold] UDAC
+.model UADC adc_bridge(in_low=2.5 in_high=2.5)
+.model UDFF d_dff(clk_delay=1n reset_delay=1n set_delay=1n rise_delay=1p fall_delay=1p ic=0)
+.model UDAC dac_bridge(out_low=0 out_high=5 out_undef=2.5)
+Bgate gate gnd V=(V(raw)>2.5 && V(fault)<2.5 && V(ov)<2.5 && V(pcl_hold)<2.5) ? min(V(vcc,gnd),15.2) : 0
+.ends UCC28180_FN

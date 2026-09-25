@@ -1,0 +1,314 @@
+{
+  "audit": "storage-duplicate-audit-31",
+  "status": "READ_ONLY_AUDIT_NO_MUTATION",
+  "root": "/private/tmp/temper-pkgs-1-4/zapote/power-entry/passive-reva/protection/operating-matrix-07",
+  "snapshot_unix": 1789969849,
+  "method": {
+    "enumeration": "rg --files --hidden --no-ignore, then regular-file stat",
+    "large_threshold_bytes": 52428800,
+    "excluded_prefixes": [
+      "line-load-native-runner-27/full-LL06"
+    ],
+    "hash_policy": "SHA-256 only for equal-size regular-file groups >= threshold; no bytes read from excluded live prefix",
+    "mutation": "none (no delete, move, hardlink, recompress, or metadata edit)"
+  },
+  "filesystem_snapshot": {
+    "df_available_1024_blocks": 14896232,
+    "df_available_bytes": 15253741568,
+    "df_available_gib": 14.206153869628906
+  },
+  "inventory": {
+    "rg_file_entries": 3125,
+    "regular_files_stat_successfully": 3125,
+    "large_regular_files_excluding_live_prefix": 30,
+    "large_bytes_excluding_live_prefix": 34236377702,
+    "large_bytes_excluding_live_prefix_gib": 31.8851114269346,
+    "excluded_live_large_files_stat_only": [],
+    "large_files": [
+      {
+        "path": "controller-finite-edge-safe/integrated.tsv",
+        "bytes": 94196533,
+        "inode": 140987119,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "controller-finite-edge-safe/soft-start.tsv",
+        "bytes": 138336040,
+        "inode": 140987091,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "controller-finite-edge/integrated.tsv",
+        "bytes": 94196533,
+        "inode": 140977016,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "controller-finite-edge/soft-start.tsv",
+        "bytes": 138336040,
+        "inode": 140976981,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "diagnostic-capture/before-stall.tsv.gz",
+        "bytes": 113301528,
+        "inode": 140964597,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "diagnostic-capture/shared-replay/post-stall-halt.tsv.gz",
+        "bytes": 372259214,
+        "inode": 140964654,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "faults/compact-pacer-bench-18/pacer.raw",
+        "bytes": 69851527,
+        "inode": 141198441,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "faults/klu-native-16/decoded.tsv",
+        "bytes": 135578803,
+        "inode": 141195228,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "faults/startup-compact-candidate-20/raw.trace.raw.gz",
+        "bytes": 877149765,
+        "inode": 141201927,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "faults/startup-klu-candidate-17/raw.trace.raw.gz",
+        "bytes": 583086825,
+        "inode": 141198419,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "first-invalid-capture/run/trace.tsv.gz",
+        "bytes": 1709478195,
+        "inode": 141059278,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "line-load-native-runner-12/full-LL01-initialized/LL01/raw.trace.raw.gz",
+        "bytes": 2151465343,
+        "inode": 141188084,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "line-load-native-runner-12/full-LL02-initialized/LL02/raw.trace.raw.gz",
+        "bytes": 2132735226,
+        "inode": 141189470,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "line-load-native-runner-12/full-LL03-initialized/LL03/raw.trace.raw.gz",
+        "bytes": 2114596110,
+        "inode": 141193346,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "line-load-native-runner-12/full-LL04-initialized/LL04/raw.trace.raw.gz",
+        "bytes": 2189160539,
+        "inode": 141199612,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "line-load-native-runner-12/full-LL05-initialized/LL05/raw.trace.raw.gz",
+        "bytes": 783985070,
+        "inode": 141205740,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "line-load-native-runner-27/full-LL05-retry/LL05/raw.trace.raw.gz",
+        "bytes": 2167895869,
+        "inode": 141222162,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "normal-hysteretic-driver-candidate/trace.tsv.gz",
+        "bytes": 4024370873,
+        "inode": 141095800,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "normal-hysteretic-settling-extension/trace.tsv.gz",
+        "bytes": 4037304639,
+        "inode": 141117396,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "normal-tracked/trace.tsv.gz",
+        "bytes": 1519646185,
+        "inode": 141051028,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "normal-vendor-comphys-native-candidate/trace.tsv.gz",
+        "bytes": 1962876932,
+        "inode": 141135936,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "normal-vendor-driver-candidate/gear2-sensitivity/trace.tsv.gz",
+        "bytes": 104344358,
+        "inode": 141081060,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "normal-vendor-driver-candidate/tracked/run/trace.tsv.gz",
+        "bytes": 755075646,
+        "inode": 141078340,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "numerical-repair/driver-hysteresis-candidate/authored-late.tsv",
+        "bytes": 103332894,
+        "inode": 141086853,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "numerical-repair/driver-hysteresis-slew-candidate/authored-late.tsv",
+        "bytes": 103336110,
+        "inode": 141125758,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "numerical-repair/driver-threshold-full-probe/host-run/trace.tsv.gz",
+        "bytes": 144652788,
+        "inode": 141066513,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "numerical-repair/driver-vendor-comphys-candidate/authored-late.tsv",
+        "bytes": 103333095,
+        "inode": 141133362,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "numerical-repair/driver-vendor-comphys-native-candidate/authored-late.tsv",
+        "bytes": 103333095,
+        "inode": 141133859,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "numerical-repair/nonstopping-first-invalid/run/trace.tsv.gz",
+        "bytes": 5356097124,
+        "inode": 141161242,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      },
+      {
+        "path": "transport-capture/rc-resumed.tsv.gz",
+        "bytes": 53064803,
+        "inode": 140962866,
+        "hardlink_count": 1,
+        "excluded_live_path": false
+      }
+    ]
+  },
+  "equal_size_groups": [
+    {
+      "size_bytes": 94196533,
+      "members": [
+        {
+          "path": "controller-finite-edge-safe/integrated.tsv",
+          "bytes": 94196533,
+          "inode": 140987119,
+          "hardlink_count": 1,
+          "sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968"
+        },
+        {
+          "path": "controller-finite-edge/integrated.tsv",
+          "bytes": 94196533,
+          "inode": 140977016,
+          "hardlink_count": 1,
+          "sha256": "f46bd3d7d78663155a1fd9f4efb97f36d3ab0a6c516bac8afb2366e56f5ad968"
+        }
+      ],
+      "exact_duplicate": true,
+      "potential_reclaim_if_one_copy_were_authorized": 94196533
+    },
+    {
+      "size_bytes": 103333095,
+      "members": [
+        {
+          "path": "numerical-repair/driver-vendor-comphys-candidate/authored-late.tsv",
+          "bytes": 103333095,
+          "inode": 141133362,
+          "hardlink_count": 1,
+          "sha256": "67668931692668b6190ab5a25ffb13a4484c06b5b5f25e4a606c6147e503f553"
+        },
+        {
+          "path": "numerical-repair/driver-vendor-comphys-native-candidate/authored-late.tsv",
+          "bytes": 103333095,
+          "inode": 141133859,
+          "hardlink_count": 1,
+          "sha256": "67668931692668b6190ab5a25ffb13a4484c06b5b5f25e4a606c6147e503f553"
+        }
+      ],
+      "exact_duplicate": true,
+      "potential_reclaim_if_one_copy_were_authorized": 103333095
+    },
+    {
+      "size_bytes": 138336040,
+      "members": [
+        {
+          "path": "controller-finite-edge-safe/soft-start.tsv",
+          "bytes": 138336040,
+          "inode": 140987091,
+          "hardlink_count": 1,
+          "sha256": "ba35699dd68f30b5417bcf177238553d4ab8d19abd41b4bf98aee0bd1cc6cec8"
+        },
+        {
+          "path": "controller-finite-edge/soft-start.tsv",
+          "bytes": 138336040,
+          "inode": 140976981,
+          "hardlink_count": 1,
+          "sha256": "ba35699dd68f30b5417bcf177238553d4ab8d19abd41b4bf98aee0bd1cc6cec8"
+        }
+      ],
+      "exact_duplicate": true,
+      "potential_reclaim_if_one_copy_were_authorized": 138336040
+    }
+  ],
+  "conclusion": {
+    "exact_duplicate_groups": 3,
+    "exact_duplicate_bytes_if_one_copy_per_group_authorized": 335865668,
+    "exact_duplicate_gib_if_one_copy_per_group_authorized": 0.31279927864670753,
+    "recommended_action": "No automatic cleanup. All exact copies remain in place pending owner review because paths carry candidate/provenance context; distinct inodes show they are separate copies, not harmless hardlinks.",
+    "live_prefix_policy": "No conclusion about excluded full-LL06 contents; it was not read or hashed.",
+    "physical_reclaim_measured": false,
+    "parent_clarification": "335865668 bytes is duplicate logical size only, not physical reclaim; APFS shared extents unmeasured. No mutation recommended because gain is immaterial to campaign shortfall and retaining separate evidence artifacts avoids future write coupling."
+  }
+}

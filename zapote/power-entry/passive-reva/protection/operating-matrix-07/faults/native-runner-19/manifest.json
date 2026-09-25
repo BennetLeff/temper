@@ -1,0 +1,29 @@
+{
+  "status": "PARENT_REVIEWED_BOUNDED_NATIVE_FAULT_TRANSPORT",
+  "purpose": "native fault42 capture drain and semantic-stop reliability candidate",
+  "lineage": "../native-runner-14",
+  "source": "supervisor.rs",
+  "source_sha256": "571d449ed74eeddd6476f7ba2e0f32b9470334801d6917212f800c5eb0e6c7fb",
+  "binary": "/private/tmp/matrix07-fault-native-supervisor19-parent",
+  "binary_sha256": "e957c54a1b5405de14c70cf8e9676b556569d1d558309e1cf68f0a087046ace3",
+  "fixture_source": "fixture/synthetic-native-host.rs",
+  "fixture_source_sha256": "f7aadafae5275786c00d01f518fae98a7e5a9055dbe1085982db04648e41b641",
+  "delayed_footer_fixture_source": "fixture/slow-gzip.rs",
+  "delayed_footer_fixture_source_sha256": "0c4b16ff24f13fc3de3c32d4f96752b35739c463938800ba1a38a703dd7595cf",
+  "protocol": {
+    "positive_points_invalid_metadata": "drain compressor, record statuses/hash/bytes, then reject",
+    "zero_or_missing_metadata": "kill blocked compressor promptly and reject",
+    "disk_floor_bytes": 10737418240
+  },
+  "tests": {
+    "command": "rustc --edition=2021 -D warnings --test supervisor.rs -o /tmp/native-runner19-tests && /tmp/native-runner19-tests",
+    "passed": 9,
+    "failed": 0,
+    "positive_wall_limit_gzip_readback": true,
+    "old_ordering_truncation_regression": true,
+    "zero_missing_metadata_cleanup": true,
+    "parent_tests": "parent-tests.txt"
+  },
+  "acceptance": "none; transport/evidence only",
+  "worker_source_sha256_before_parent_onepoint_correction": "6d10d6dba1e003f6c3df7d382c207d53d3599c554bce5901c8c2f942e8a85241"
+}

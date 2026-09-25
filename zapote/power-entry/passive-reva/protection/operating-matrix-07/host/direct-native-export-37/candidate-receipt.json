@@ -1,0 +1,23 @@
+{
+  "status": "PREPARED_COPY_AVOIDANCE_CANDIDATE",
+  "accepted": false,
+  "source_sha256": {
+    "normal.rs": "33e5f973c9a38da9df40917a3e3d668cd3fac67773cbfcec37bd6ffa8bc30819",
+    "fault.rs": "18dccdb61dac9050a21ccb7f97a47458306e73de0ea541d5636691f4161765c4",
+    "native_export.rs": "2eebc6e7c08a77381d42b09b00355d4a4ab8398e3f3ec4a4d1260578a221e4d1"
+  },
+  "binary_sha256": {
+    "direct-normal-worker": "fbd0ef2ed66851bb292b7af5130110ce96862be4db876227113b7336279371e7",
+    "direct-fault-worker": "0d605851f494cbbc3961b66f1e6ea436e959196f49469a2403044c3eb6675d74"
+  },
+  "unit_tests": { "normal": 11, "fault": 10 },
+  "probes": {
+    "normal_rows": 316,
+    "fault_rows": 2253,
+    "normal_payload_bytes": 37920,
+    "fault_payload_bytes": 757008,
+    "separate_process_payload_equal": true,
+    "same_plot_proof": "PENDING_PARENT_TEST"
+  },
+  "copy_avoidance_only": true
+}

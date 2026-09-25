@@ -1,0 +1,14 @@
+* TPS54202 official TI model import smoke test, not a circuit simulation.
+* The main test is whether LTspice can parse the named .SUBCKT from TI's ZIP.
+Vsrc VIN 0 15
+Ven EN 0 3
+XU1 0 SW VIN FB EN BOOT TPS54202_TRANS
+L1 SW OUT 15u
+Cout OUT 0 22u
+Cboot BOOT SW 100n
+Rfbtop OUT FB 100k
+Rfbbot FB 0 13.3k
+Rload OUT 0 66.7
+.include /tmp/TPS54202_TRANS.LIB
+.tran 0 10m 0 1u
+.end

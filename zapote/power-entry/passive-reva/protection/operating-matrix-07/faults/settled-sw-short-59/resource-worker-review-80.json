@@ -1,0 +1,51 @@
+{
+  "status": "RESOURCE_REVIEW_COMPLETE",
+  "accepted": false,
+  "case": "SW-SHORT",
+  "session": 76829,
+  "runner_pid": 28932,
+  "monitor_pid": 28933,
+  "runner_exit": 1,
+  "monitor_exit": 0,
+  "native_stop_s": 2199.544551,
+  "simulator_reported_transient_s": 4398.88,
+  "monitor_elapsed_s": {
+    "first": 0,
+    "last": 2510
+  },
+  "resource_samples": {
+    "count": 499,
+    "source": "resource-samples.txt",
+    "sampling_interval_s": 5,
+    "owned_tree": "runner PID 28932 and descendants exactly as listed by each sample",
+    "min_filesystem_available_1024_blocks": 41808908,
+    "min_filesystem_available_bytes": 42812321792,
+    "min_filesystem_available_gib": 39.8720817566,
+    "max_owned_rss_kib": 4534496,
+    "max_owned_rss_gib": 4.32443237305,
+    "max_owned_rss_at_elapsed_s": 2228,
+    "max_owned_rss_at_utc": "2026-09-21T23:54:46Z",
+    "final_runner_absent_sample_elapsed_s": 2510
+  },
+  "global_swap_observation": {
+    "total_mib": 14336.0,
+    "used_min_mib": 13533.12,
+    "used_max_mib": 13952.25,
+    "free_min_mib": 383.75,
+    "scope": "host-global vm.swapusage; not attributable to runner tree"
+  },
+  "timing_receipts": {
+    "stage1_host_rc": 0,
+    "stage1_pigz_rc": 0,
+    "native_export_elapsed_s": 62.385,
+    "stage2_decoder_rc": 0,
+    "stage2_decompressor_rc": 0,
+    "stage2_adapter_rc": 1,
+    "stage2_validator_rc": 1,
+    "validator_reason": "trace endpoint differs from configured end",
+    "capture_points": 30686230,
+    "observed_stop_s": 0.6544026486296868,
+    "required_end_s": 0.662
+  },
+  "interpretation": "The run stopped before the required endpoint. The 4398.88 simulator-reported transient-time figure, 2199.544551 host runner wall time, and 2510 s monitor elapsed span are different clocks and are not equated. The owned tree's sampled RSS stayed below 4.33 GiB, but that alone does not establish absence of memory pressure because host-global swap reached 13952.25 MiB used (383.75 MiB free)."
+}

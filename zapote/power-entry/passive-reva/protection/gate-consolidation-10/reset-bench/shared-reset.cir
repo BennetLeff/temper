@@ -1,0 +1,28 @@
+* Isolated RESET wired-AND observation. Authored output model, not vendor model.
+* 5V logic rail, 10k shared pullup, 100k retained pulldown, assumed10pF total C.
+* Both assert -> AUX only -> neither -> logic only -> neither -> AUX only.
+Vlogic logic5 0 5
+Vlogic_assert logic_assert 0 PWL(0 5 10u 5 10.001u 0 30u 0 30.001u 5 40u 5 40.001u 0 60u 0)
+Vaux_assert aux_assert 0 PWL(0 5 20u 5 20.001u 0 50u 0 50.001u 5 60u 5)
+Slogic rails_ok 0 logic_assert 0 RESET_OD
+Saux rails_ok 0 aux_assert 0 RESET_OD
+.model RESET_OD SW(Ron=100 Roff=1e12 Vt=2.5 Vh=0.01)
+Rpull logic5 rails_ok 10k
+Rpd rails_ok 0 100k
+Crail rails_ok 0 10p
+.tran 10n 60u
+.control
+set wr_singlescale
+set wr_vecnames
+run
+meas tran both_assert FIND v(rails_ok) AT=5u
+meas tran aux_only_assert FIND v(rails_ok) AT=15u
+meas tran both_release FIND v(rails_ok) AT=25u
+meas tran logic_only_assert FIND v(rails_ok) AT=35u
+meas tran recovered FIND v(rails_ok) AT=45u
+meas tran aux_reassert FIND v(rails_ok) AT=55u
+meas tran release_to_3v5 WHEN v(rails_ok)=3.5 RISE=1
+wrdata shared-reset.tsv v(rails_ok) v(logic_assert) v(aux_assert) i(Vlogic)
+quit
+.endc
+.end

@@ -1,0 +1,44 @@
+[
+  {
+    "original": "repro/boundary-small.raw",
+    "sha256": "317556239a5c0e2916ada7b0e9c1342b6cb4afccb6e9c1160632f6fcf468d1b5",
+    "archive": "repro/boundary-small.raw.gz",
+    "archive_sha256": "cb943290fd1d37519435a49c7bf79d34bf656a8bab811ac6e0cba031181c162c",
+    "verified_lossless": true
+  },
+  {
+    "original": "repro/boundary-warm.raw",
+    "sha256": "89071398b603da77c2d9d8c0c406ce0930bd2a3e86e805fd076645a89a281e76",
+    "archive": "repro/boundary-warm.raw.gz",
+    "archive_sha256": "0ba13925341104d4d6fb67a386524e01e6a5ff800edaa2b0873301783bb4e1fa",
+    "verified_lossless": true
+  },
+  {
+    "original": "repro/boundary.raw",
+    "sha256": "5e79b974b110a2bbf8178cf5fc51055804e6ffdb28a167eef7a3fde731724ae3",
+    "archive": "repro/boundary.raw.gz",
+    "archive_sha256": "b2e7e5649294b4be2999d42e2512bb46a1862ab5a5d18df6c86bc91298ed4e8e",
+    "verified_lossless": true
+  },
+  {
+    "original": "repro/host-matched-tolerances/warm.raw",
+    "sha256": "57eb060bbaf90918f8de93b6397c71ac58dd0e93cc64d5fdbbe07abd00d872ac",
+    "archive": "repro/host-matched-tolerances/warm.raw.gz",
+    "archive_sha256": "e73a5f9f7eb377aa76cb590f436373c715b6ec33563f7d6951254393082f6f9f",
+    "verified_lossless": true
+  },
+  {
+    "original": "repro/host-matched-tolerances/large.raw",
+    "sha256": "f1e19037a27e8966090c49a38339c8e74375e6eee2ec6a5fe396dbc2b057704c",
+    "archive": "repro/host-matched-tolerances/large.raw.gz",
+    "archive_sha256": "ccdd08c449a074575a6034a8c83e77151177f0ad40c2bb691be00c866d6a4a6a",
+    "verified_lossless": true
+  },
+  {
+    "original": "repro/host-matched-tolerances/small.raw",
+    "sha256": "ca161387eaa2340b805154a1561ff92b08ea87f3ac07de0a3bde81931f33fd26",
+    "archive": "repro/host-matched-tolerances/small.raw.gz",
+    "archive_sha256": "14d1dc1dc3c26ced237bb7db636125b0ad78fd8f139a4371be74096ff1b8bdd5",
+    "verified_lossless": true
+  }
+]

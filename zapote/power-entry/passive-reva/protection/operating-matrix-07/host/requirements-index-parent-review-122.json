@@ -1,0 +1,28 @@
+{
+  "status": "PARENT_VERIFIED_REQUIREMENTS_AND_INTERIM_INDEX",
+  "accepted_protection": false,
+  "utc": "2026-09-22T02:07:55.922389+00:00",
+  "requirements_review": [
+    "Actual checkerpostdetector slice confirmed; historicalpostlatch wording corrected.",
+    "Independent failedMOS source interruption and distinct bank/local energy handling are unresolved functional requirements, not selectedhardware or evidenceofimplementation.",
+    "F2open model not controlleddisconnectproof; hardware observation specification not energizationprocedure.",
+    "1800W input target and lowline arithmetic corrected115, no inheritedTIefficiency."
+  ],
+  "index_review": "All222 original87 smallfiles verified;29 workeraddendumfiles checked, one truncatedhash corrected. Rawpresence/sizesonly. Added missingreceipts/commands and correctedstaleexclusions.",
+  "worker_mismatches": [
+    {
+      "path": "host/normal-screen-margins-89.md",
+      "worker": "22b46d924d235ac6da4565643ac5d672a2939dfa9dfc1c47111d294b95629ad",
+      "actual": "22b46d924d235ac6da4565643ac5d672a2939dfa9dfc1c47111d294b95629ad7"
+    }
+  ],
+  "files_sha256": {
+    "host/protection-requirements-116.md": "bece39c495278e61aebc3719526741e89aee3ebff577db7a9ebdabb0c77035ea",
+    "host/protection-requirements-116.json": "97fa5f77667203655ff0a1b65cd7a944546001fd59bc8ce8eb7dbb4845b03246",
+    "host/completion-audit-correction-115.md": "5796fbc41741236204e457712cc5265d2f8d3d82843cca6431d927dd41faaa9c",
+    "host/completion-audit-correction-115.json": "a7ecb675008c6bf236ae60f2de1c8cba25fe65cf321d6a8425ccffd7672dc87c",
+    "host/reproducibility-addendum-119.md": "f59507593346d82b1ac730734b3278b494c0e5ed10e87ad5f30022d8fbbf909c",
+    "host/reproducibility-addendum-119.json": "f15c12c0b58ade15c75f09a0f4ac9d6193120b852380f14a3c73f88fb89e3bc9"
+  },
+  "remaining": "SWownprefix review, BYPASScompletecapture/waveforms, consolidatedfinalreport/index and fullgoalaudit."
+}

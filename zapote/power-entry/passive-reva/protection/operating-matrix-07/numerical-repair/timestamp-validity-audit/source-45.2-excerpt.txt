@@ -1,0 +1,523 @@
+ngspice-45.2 exact-source excerpt (all blocks generated with nl -ba/sed from exact tar extraction)
+tarball sha256 ba8345f4c3774714c10f33d7da850d361cec7d14b3a295d0dc9fd96f7423812d
+
+--- src/spicelib/analysis/dctran.c lines 130-174 ---
+   130	#if defined CLUSTER || defined SHARED_MODULE
+   131	    int redostep;
+   132	#endif
+   133	    if(restart || ckt->CKTtime == 0) {
+   134	        delta=MIN(ckt->CKTfinalTime/100,ckt->CKTstep)/10;
+   135	
+   136	#ifdef STEPDEBUG
+   137	        printf("delta = %g    finalTime/100: %g    CKTstep: %g\n",delta,ckt->CKTfinalTime/100,ckt->CKTstep);
+   138	#endif
+   139	        /* begin LTRA code addition */
+   140	        if (ckt->CKTtimePoints != NULL)
+   141	            FREE(ckt->CKTtimePoints);
+   142	
+   143	        if (ckt->CKTstep >= ckt->CKTmaxStep)
+   144	            maxstepsize = ckt->CKTstep;
+   145	        else
+   146	            maxstepsize = ckt->CKTmaxStep;
+   147	
+   148	        ckt->CKTsizeIncr = 100;
+   149	        ckt->CKTtimeIndex = -1; /* before the DC soln has been stored */
+   150	        ckt->CKTtimeListSize = (int) ceil( ckt->CKTfinalTime / maxstepsize );
+   151	        ltra_num = CKTtypelook("LTRA");
+   152	        if (ltra_num >= 0 && ckt->CKThead[ltra_num] != NULL)
+   153	            ckt->CKTtimePoints = TMALLOC(double, ckt->CKTtimeListSize);
+   154	        /* end LTRA code addition */
+   155	
+   156	        if(ckt->CKTbreaks) FREE(ckt->CKTbreaks);
+   157	        ckt->CKTbreaks = TMALLOC(double, 2);
+   158	        if(ckt->CKTbreaks == NULL) return(E_NOMEM);
+   159	        ckt->CKTbreaks[0] = 0;
+   160	        ckt->CKTbreaks[1] = ckt->CKTfinalTime;
+   161	        ckt->CKTbreakSize = 2;
+   162	
+   163	#ifdef SHARED_MODULE
+   164	        add_bkpt();
+   165	#endif
+   166	
+   167	#ifdef XSPICE
+   168	/* gtri - begin - wbk - 12/19/90 - Modify setting of CKTminBreak */
+   169	        /* Set to 10 times delmin for ATESSE 1 compatibity */
+   170	        if(ckt->CKTminBreak==0) ckt->CKTminBreak = 10.0 * ckt->CKTdelmin;
+   171	/* gtri - end - wbk - 12/19/90 - Modify setting of CKTminBreak */
+   172	#else
+   173	        if(ckt->CKTminBreak==0) ckt->CKTminBreak=ckt->CKTmaxStep*5e-5;
+   174	#endif
+
+--- src/spicelib/analysis/dctran.c lines 398-420 ---
+   398	        ckt->CKTtimePoints[ckt->CKTtimeIndex] = ckt->CKTtime;
+   399	    }
+   400	    /* end LTRA code addition */
+   401	
+   402	    error = CKTaccept(ckt);
+   403	    /* check if current breakpoint is outdated; if so, clear */
+   404	    if (ckt->CKTtime > ckt->CKTbreaks[0]) CKTclrBreak(ckt);
+   405	
+   406	    if (ckt->CKTsoaCheck)
+   407	        error = CKTsoaCheck(ckt);
+   408	
+   409	    /*
+   410	 * Breakpoint handling scheme:
+   411	 * When a timepoint t is accepted (by CKTaccept), clear all previous
+   412	 * breakpoints, because they will never be needed again.
+   413	 *
+   414	 * t may itself be a breakpoint, or indistinguishably close. DON'T
+   415	 * clear t itself; recognise it as a breakpoint and act accordingly
+   416	 *
+   417	 * if t is not a breakpoint, limit the timestep so that the next
+   418	 * breakpoint is not crossed
+   419	 */
+   420	
+
+--- src/spicelib/analysis/dctran.c lines 430-500 ---
+   430	        return(error);
+   431	    }
+   432	#ifdef XSPICE
+   433	/* gtri - modify - wbk - 12/19/90 - Send IPC stuff */
+   434	
+   435	    if ((g_ipc.enabled) || wantevtdata) {
+   436	
+   437	        /* Send event-driven results */
+   438	        EVTdump(ckt, IPC_ANAL_TRAN, 0.0);
+   439	
+   440	        /* Then follow with analog results... */
+   441	
+   442	        /* Test to see if delta was cut by a breakpoint, */
+   443	        /* a non-convergence, or a too large truncation error */
+   444	        if(ipc_firsttime)
+   445	            ipc_delta_cut = IPC_FALSE;
+   446	        else if(ckt->CKTtime < (ipc_last_time + (0.999 * ipc_last_delta)))
+   447	            ipc_delta_cut = IPC_TRUE;
+   448	        else
+   449	            ipc_delta_cut = IPC_FALSE;
+   450	
+   451	        /* Record the data required to check for delta cuts */
+   452	        ipc_last_time = ckt->CKTtime;
+   453	        ipc_last_delta = MIN(ckt->CKTdelta, ckt->CKTmaxStep);
+   454	
+   455	        /* Send results data if time since last dump is greater */
+   456	        /* than 'mintime', or if first or second timepoints, */
+   457	        /* or if delta was cut */
+   458	        if( (ckt->CKTtime >= (g_ipc.mintime + g_ipc.last_time)) ||
+   459	            ipc_firsttime || ipc_secondtime || ipc_delta_cut ) {
+   460	
+   461	            if (wantevtdata)
+   462	                CKTdump(ckt, ckt->CKTtime, job->TRANplot);
+   463	            else {
+   464	                ipc_send_data_prefix(ckt->CKTtime);
+   465	                CKTdump(ckt, ckt->CKTtime, job->TRANplot);
+   466	                ipc_send_data_suffix();
+   467	            }
+   468	
+   469	            if(ipc_firsttime) {
+   470	                ipc_firsttime = IPC_FALSE;
+   471	                ipc_secondtime = IPC_TRUE;
+   472	            } else if(ipc_secondtime) {
+   473	                ipc_secondtime = IPC_FALSE;
+   474	            }
+   475	
+   476	            g_ipc.last_time = ckt->CKTtime;
+   477	        }
+   478	    } else
+   479	/* gtri - modify - wbk - 12/19/90 - Send IPC stuff */
+   480	#endif
+   481	#ifdef CLUSTER
+   482	        CLUoutput(ckt);
+   483	#endif
+   484	        if((ckt->CKTmode&MODEUIC && ckt->CKTtime > 0 && ckt->CKTtime >= ckt->CKTinitTime) 
+   485	                || (!(ckt->CKTmode&MODEUIC) && ckt->CKTtime >= ckt->CKTinitTime))
+   486	            CKTdump(ckt, ckt->CKTtime, job->TRANplot);
+   487	#ifdef XSPICE
+   488	/* gtri - begin - wbk - Update event queues/data for accepted timepoint */
+   489	    /* Note: this must be done AFTER sending results to SI so it can't */
+   490	    /* go next to CKTaccept() above */
+   491	    if(ckt->evt->counts.num_insts > 0)
+   492	        EVTaccept(ckt, ckt->CKTtime);
+   493	/* gtri - end - wbk - Update event queues/data for accepted timepoint */
+   494	#endif
+   495	    ckt->CKTstat->STAToldIter = ckt->CKTstat->STATnumIter;
+   496	    /* check for the end of the tran simulation, either by< stop time given,
+   497	       or final time has been reached. */
+   498	    if (have_autostop)
+   499	    /* time consuming autostop check only, when variable 'autostop' has been set
+   500	       before tran is started.*/
+
+--- src/spicelib/analysis/dctran.c lines 578-607 ---
+   578	        ckt->CKTdelta = MIN(ckt->CKTdelta, .1 * MIN(ckt->CKTsaveDelta,
+   579	            ckt->CKTbreaks[1] - ckt->CKTbreaks[0]));
+   580	
+   581	        if(firsttime) {
+   582	            /* set a breakpoint to reduce ringing of current in devices */
+   583	            if (ckt->CKTmode & MODEUIC)
+   584	                CKTsetBreak(ckt, ckt->CKTstep);
+   585	
+   586	            ckt->CKTdelta /= 10;
+   587	#ifdef STEPDEBUG
+   588	            (void)printf("delta cut for initial timepoint\n");
+   589	#endif
+   590	        }
+   591	
+   592	#ifndef XSPICE
+   593	        /* don't want to get below delmin for no reason */
+   594	        ckt->CKTdelta = MAX(ckt->CKTdelta, ckt->CKTdelmin*2.0);
+   595	#endif
+   596	
+   597	    }
+   598	
+   599	#ifndef XSPICE
+   600	    else if(ckt->CKTtime + ckt->CKTdelta >= ckt->CKTbreaks[0]) {
+   601	        ckt->CKTsaveDelta = ckt->CKTdelta;
+   602	        ckt->CKTdelta = ckt->CKTbreaks[0] - ckt->CKTtime;
+   603	#ifdef STEPDEBUG
+   604	        (void)printf("delta cut to %g to hit breakpoint\n",ckt->CKTdelta);
+   605	        fflush(stdout);
+   606	#endif
+   607	        ckt->CKTbreak = 1; /* why? the current pt. is not a bkpt. */
+
+--- src/spicelib/analysis/dctran.c lines 612-700 ---
+   612	#ifdef XSPICE
+   613	/* gtri - begin - wbk - Add Breakpoint stuff */
+   614	
+   615	    if(ckt->CKTtime + ckt->CKTdelta >= g_mif_info.breakpoint.current) {
+   616	        /* If next time > temporary breakpoint, force it to the breakpoint */
+   617	        /* And mark that timestep was set by temporary breakpoint */
+   618	        ckt->CKTsaveDelta = ckt->CKTdelta;
+   619	        ckt->CKTdelta = g_mif_info.breakpoint.current - ckt->CKTtime;
+   620	        g_mif_info.breakpoint.last = ckt->CKTtime + ckt->CKTdelta;
+   621	    } else {
+   622	        /* Else, mark that timestep was not set by temporary breakpoint */
+   623	        g_mif_info.breakpoint.last = 1.0e30;
+   624	    }
+   625	
+   626	/* gtri - end - wbk - Add Breakpoint stuff */
+   627	
+   628	/* gtri - begin - wbk - Modify Breakpoint stuff */
+   629	    /* Throw out any permanent breakpoint with time <= current time or in the
+   630	     * very near future, unless it the final stop break.
+   631	     */
+   632	#ifdef STEPDEBUG
+   633	    printf("    brk_pt: %g    ckt_time: %g    ckt_min_break: %g\n",
+   634	           ckt->CKTbreaks[0], ckt->CKTtime, ckt->CKTminBreak);
+   635	#endif
+   636	    while ((ckt->CKTbreaks[0] <= ckt->CKTtime + ckt->CKTminBreak ||
+   637	            AlmostEqualUlps(ckt->CKTbreaks[0], ckt->CKTtime, 100)) &&
+   638	           ckt->CKTbreaks[0] < ckt->CKTfinalTime) {
+   639	#ifdef STEPDEBUG
+   640	        printf("throwing out permanent breakpoint times <= current time "
+   641	               "(brk pt: %g)\n",
+   642	               ckt->CKTbreaks[0]);
+   643	        printf("    ckt_time: %g    ckt_min_break: %g\n",
+   644	               ckt->CKTtime, ckt->CKTminBreak);
+   645	#endif
+   646	        CKTclrBreak(ckt);
+   647	    }
+   648	    /* Force the breakpoint if appropriate */
+   649	    if(ckt->CKTtime + ckt->CKTdelta > ckt->CKTbreaks[0]) {
+   650	        ckt->CKTbreak = 1;
+   651	        ckt->CKTsaveDelta = ckt->CKTdelta;
+   652	        ckt->CKTdelta = ckt->CKTbreaks[0] - ckt->CKTtime;
+   653	    }
+   654	
+   655	/* gtri - end - wbk - Modify Breakpoint stuff */
+   656	
+   657	#ifdef SHARED_MODULE
+   658	        /* Either directly go to next time step, or modify ckt->CKTdelta depending on
+   659	           synchronization requirements. sharedsync() returns 0. */
+   660	    sharedsync(&ckt->CKTtime, &ckt->CKTdelta, 0, ckt->CKTfinalTime,
+   661	        ckt->CKTdelmin, 0, &ckt->CKTstat->STATrejected, 0);
+   662	#endif
+   663	
+   664	/* gtri - begin - wbk - Do event solution */
+   665	
+   666	    if(ckt->evt->counts.num_insts > 0) {
+   667	
+   668	        /* if time = 0 and op_alternate was specified as false during */
+   669	        /* dcop analysis, call any changed instances to let them */
+   670	        /* post their outputs with their associated delays */
+   671	        if((ckt->CKTtime == 0.0) && (! ckt->evt->options.op_alternate))
+   672	            EVTiter(ckt);
+   673	
+   674	        /* while there are events on the queue with event time <= next */
+   675	        /* projected analog time, process them */
+   676	        while((g_mif_info.circuit.evt_step = EVTnext_time(ckt))
+   677	               <= (ckt->CKTtime + ckt->CKTdelta)) {
+   678	
+   679	            /* Initialize temp analog bkpt to infinity */
+   680	            g_mif_info.breakpoint.current = 1e30;
+   681	
+   682	            /* Pull items off queue and process them */
+   683	            EVTdequeue(ckt, g_mif_info.circuit.evt_step);
+   684	            EVTiter(ckt);
+   685	
+   686	            /* If any instances have forced an earlier */
+   687	            /* next analog time, cut the delta */
+   688	            if(ckt->CKTbreaks[0] < g_mif_info.breakpoint.current)
+   689	                if(ckt->CKTbreaks[0] > ckt->CKTtime + ckt->CKTminBreak)
+   690	                    g_mif_info.breakpoint.current = ckt->CKTbreaks[0];
+   691	            if(g_mif_info.breakpoint.current < ckt->CKTtime + ckt->CKTdelta) {
+   692	                /* Breakpoint must be > last accepted timepoint */
+   693	                /* and >= current event time */
+   694	                if(g_mif_info.breakpoint.current >  ckt->CKTtime + ckt->CKTminBreak  &&
+   695	                   g_mif_info.breakpoint.current >= g_mif_info.circuit.evt_step) {
+   696	                    ckt->CKTsaveDelta = ckt->CKTdelta;
+   697	                    ckt->CKTdelta = g_mif_info.breakpoint.current - ckt->CKTtime;
+   698	                    g_mif_info.breakpoint.last = ckt->CKTtime + ckt->CKTdelta;
+   699	                }
+   700	            }
+
+--- src/spicelib/analysis/dctran.c lines 744-760 ---
+   744	
+   745	        ckt->CKTcurrentAnalysis = DOING_TRAN;
+   746	
+   747	/* gtri - end - wbk - 4/17/91 - Fix Berkeley bug */
+   748	        xspice_breakpoints_processed = 0;
+   749	#endif
+   750	        olddelta=ckt->CKTdelta;
+   751	        /* time abort? */
+   752	        ckt->CKTtime += ckt->CKTdelta;
+   753	#ifdef CLUSTER
+   754	        CLUinput(ckt);
+   755	#endif
+   756	        ckt->CKTdeltaOld[0]=ckt->CKTdelta;
+   757	        NIcomCof(ckt);
+   758	#ifdef PREDICTOR
+   759	        error = NIpred(ckt);
+   760	#endif /* PREDICTOR */
+
+--- src/spicelib/analysis/dctran.c lines 808-820 ---
+   808	#ifndef SHARED_MODULE
+   809	            ckt->CKTtime = ckt->CKTtime -ckt->CKTdelta;
+   810	            ckt->CKTstat->STATrejected ++;
+   811	#else
+   812	            redostep = 1;
+   813	#endif
+   814	#endif
+   815	            ckt->CKTdelta = ckt->CKTdelta/8;
+   816	#ifdef STEPDEBUG
+   817	            (void)printf("delta cut to %g for non-convergence\n",ckt->CKTdelta);
+   818	            fflush(stdout);
+   819	#endif
+   820	            if(firsttime) {
+
+--- src/spicelib/analysis/dctran.c lines 968-989 ---
+   968	                (void)printf(
+   969	                    "delta set to truncation error result:point rejected\n");
+   970	#endif
+   971	            }
+   972	        }
+   973	
+   974	        if (ckt->CKTdelta <= ckt->CKTdelmin) {
+   975	            if (olddelta > ckt->CKTdelmin) {
+   976	                ckt->CKTdelta = ckt->CKTdelmin;
+   977	#ifdef STEPDEBUG
+   978	                (void)printf("delta at delmin\n");
+   979	#endif
+   980	            } else {
+   981	                UPDATE_STATS(DOING_TRAN);
+   982	                errMsg = CKTtrouble(ckt, "Timestep too small");
+   983	                SPfrontEnd->OUTendPlot(job->TRANplot);
+   984	                job->TRANplot = NULL;
+   985	                UPDATE_STATS(0);
+   986	                return(E_TIMESTEP);
+   987	            }
+   988	        }
+   989	#ifdef XSPICE
+
+--- src/spicelib/analysis/traninit.c lines 17-39 ---
+    17	int TRANinit(CKTcircuit	*ckt, JOB *anal)
+    18	{
+    19	    TRANan *job = (TRANan *) anal;
+    20	
+    21	    ckt->CKTfinalTime = job->TRANfinalTime;
+    22	    ckt->CKTstep      = job->TRANstep;
+    23	    ckt->CKTinitTime  = job->TRANinitTime;
+    24	    ckt->CKTmaxStep   = job->TRANmaxStep;
+    25	
+    26	    /*  Maximum step size is limited to tstep given by .tran tstep tstop <tstart <tmax>>.
+    27	        May be overridden to a value (tstop - tstart)/50 by 'set nostepsizelimit'.
+    28	        Both may be overriden by setting tmax. */
+    29	    if(ckt->CKTmaxStep == 0) {
+    30	        if ((ckt->CKTstep < ( ckt->CKTfinalTime - ckt->CKTinitTime )/50.0) && !cp_getvar("nostepsizelimit", CP_BOOL, NULL, 0))
+    31	            ckt->CKTmaxStep = ckt->CKTstep;
+    32	        else
+    33	            ckt->CKTmaxStep = ( ckt->CKTfinalTime - ckt->CKTinitTime )/50.0;
+    34	    }
+    35	
+    36	    ckt->CKTdelmin = 1e-11*ckt->CKTmaxStep;	/* XXX */
+    37	    ckt->CKTmode = job->TRANmode;
+    38	
+    39	    return OK;
+
+--- src/spicelib/analysis/cktdojob.c lines 50-76 ---
+    50	    startTime = SPfrontEnd->IFseconds();
+    51	
+    52	    ckt->CKTtemp = task->TSKtemp;
+    53	    ckt->CKTnomTemp = task->TSKnomTemp;
+    54	    ckt->CKTmaxOrder = task->TSKmaxOrder;
+    55	    ckt->CKTintegrateMethod = task->TSKintegrateMethod;
+    56	    ckt->CKTindverbosity = task->TSKindverbosity;
+    57	    ckt->CKTxmu = task->TSKxmu;
+    58	    ckt->CKTbypass = task->TSKbypass;
+    59	    ckt->CKTdcMaxIter = task->TSKdcMaxIter;
+    60	    ckt->CKTdcTrcvMaxIter = task->TSKdcTrcvMaxIter;
+    61	    ckt->CKTtranMaxIter = task->TSKtranMaxIter;
+    62	    ckt->CKTnumSrcSteps = task->TSKnumSrcSteps;
+    63	    ckt->CKTnumGminSteps = task->TSKnumGminSteps;
+    64	    ckt->CKTgminFactor = task->TSKgminFactor;
+    65	    ckt->CKTminBreak = task->TSKminBreak;
+    66	    ckt->CKTabstol = task->TSKabstol;
+    67	    ckt->CKTpivotAbsTol = task->TSKpivotAbsTol;
+    68	    ckt->CKTpivotRelTol = task->TSKpivotRelTol;
+    69	    ckt->CKTreltol = task->TSKreltol;
+    70	    ckt->CKTchgtol = task->TSKchgtol;
+    71	    ckt->CKTvoltTol = task->TSKvoltTol;
+    72	    ckt->CKTgmin = task->TSKgmin;
+    73	    ckt->CKTgshunt = task->TSKgshunt;
+    74	    ckt->CKTcshunt = task->TSKcshunt;
+    75	    ckt->CKTdelmin = task->TSKdelmin;
+    76	    ckt->CKTtrtol = task->TSKtrtol;
+
+--- src/spicelib/analysis/cktdump.c lines 32-45 ---
+    32	void
+    33	CKTdump(CKTcircuit *ckt, double ref, runDesc *plot)
+    34	{
+    35	    IFvalue refData;
+    36	    IFvalue valData;
+    37	#ifdef CIDER    
+    38	    int i;
+    39	#endif
+    40	
+    41	    refData.rValue = ref;
+    42	    valData.v.numValue = ckt->CKTmaxEqNum-1;
+    43	    valData.v.vec.rVec = ckt->CKTrhsOld+1;
+    44	    SPfrontEnd->OUTpData (plot, &refData, &valData);
+    45	
+
+--- src/frontend/outitf.c lines 65-71 ---
+    65	/*Output data to spice module*/
+    66	#ifdef TCL_MODULE
+    67	#include "ngspice/tclspice.h"
+    68	#elif defined SHARED_MODULE
+    69	extern int sh_ExecutePerLoop(void);
+    70	extern int sh_vecinit(runDesc *run);
+    71	#endif
+
+--- src/frontend/outitf.c lines 779-789 ---
+   779	    if (ft_bpcheck(run->runPlot, run->pointCount) == FALSE)
+   780	        shouldstop = TRUE;
+   781	
+   782	#ifdef TCL_MODULE
+   783	    Tcl_ExecutePerLoop();
+   784	#elif defined SHARED_MODULE
+   785	    sh_ExecutePerLoop();
+   786	#endif
+   787	
+   788	    return OK;
+   789	} /* end of function OUTpData */
+
+--- src/sharedspice.c lines 2255-2288 ---
+  2255	int sh_ExecutePerLoop(void)
+  2256	{
+  2257	    struct dvec *d;
+  2258	    int i, veclen;
+  2259	//  double testval;
+  2260	    struct plot *pl = plot_cur;
+  2261	    /* return immediately if callback not wanted */
+  2262	    if (nodatawanted)
+  2263	        return 2;
+  2264	
+  2265	    /* get the data of the last entry to the plot vector */
+  2266	    veclen = pl->pl_dvecs->v_length - 1;
+  2267	    /* safeguard against vectors with 0 length (e.g. @c1[i] during ac simulation) */
+  2268	    if (veclen < 0)
+  2269	        return 2;
+  2270	    curvecvalsall->vecindex = veclen;
+  2271	    for (d = pl->pl_dvecs, i = 0; d; d = d->v_next, i++) {
+  2272	        /* test if real */
+  2273	        if (d->v_flags & VF_REAL) {
+  2274	            curvecvalsall->vecsa[i]->is_complex = FALSE;
+  2275	//          testval = d->v_realdata[veclen];
+  2276	            curvecvalsall->vecsa[i]->creal = d->v_realdata[veclen];
+  2277	            curvecvalsall->vecsa[i]->cimag = 0.;
+  2278	        }
+  2279	        else {
+  2280	            curvecvalsall->vecsa[i]->is_complex = TRUE;
+  2281	            curvecvalsall->vecsa[i]->creal = d->v_compdata[veclen].cx_real;
+  2282	            curvecvalsall->vecsa[i]->cimag = d->v_compdata[veclen].cx_imag;
+  2283	        }
+  2284	    }
+  2285	    /* now call the callback function to return the data to the caller */
+  2286	    datfcn(curvecvalsall, len, ng_ident, userptr);
+  2287	
+  2288	    return 0;
+
+--- src/include/ngspice/sharedspice.h lines 190-198 ---
+   190	    NG_BOOL is_complex;   /* if the data are complex numbers */
+   191	} vecvalues, *pvecvalues;
+   192	
+   193	typedef struct vecvaluesall {
+   194	    int veccount;      /* number of vectors in plot */
+   195	    int vecindex;      /* index of actual set of vectors. i.e. the number of accepted data points */
+   196	    pvecvalues *vecsa; /* values of actual set of vectors, indexed from 0 to veccount - 1 */
+   197	} vecvaluesall, *pvecvaluesall;
+   198	
+
+--- src/sharedspice.c lines 2428-2481 ---
+  2428	/*
+  2429	    ckttime   pointer to ckt->CKTtime, which already has been used trying to achieve
+  2430	              convergence, after olddelta had been added in the previous step.
+  2431	    cktdelta  pointer to newly defined ckt->CKTdelta, e.g. by recognizing truncation errors
+  2432	    olddelta  old ckt->CKTdelta, has already been added in the previous step.
+  2433	    finalt    final time CKTfinaltime
+  2434	    delmin    minimum delta CKTdelmin
+  2435	    redostep  if 0, converged,
+  2436	              if 1, either no convergence, need to redo with new ckt->CKTdelta
+  2437	              or ckt->CKTdelta has been reduced by truncation errors too large.
+  2438	    rejected  pointer to ckt->CKTstat->STATrejected, counts rejected time points.
+  2439	    loc       location of function call in dctran.c: 0: after breakpoint handling, 1: at end of for loop
+  2440	*/
+  2441	
+  2442	int
+  2443	sharedsync(double *pckttime, double *pcktdelta, double olddelta, double finalt,
+  2444	           double delmin, int redostep, int *rejected, int loc)
+  2445	{
+  2446	    /* standard procedure, cktdelta has been provided by ngspice */
+  2447	    if (!wantsync) {
+  2448	        if (redostep) {
+  2449	            *pckttime -= olddelta;
+  2450	            (*rejected)++;
+  2451	            return 1;
+  2452	        }
+  2453	        else
+  2454	            return 0;
+  2455	    /* synchronization required, to be done by changing cktdelta */
+  2456	    } else {
+  2457	        if (redostep) {
+  2458	            *pckttime -= olddelta;
+  2459	            (*rejected)++;
+  2460	            /* use cktdelta as suggested by ngspice or acquire new cktdelta
+  2461	            via pointer pcktdelta in user supplied callback */
+  2462	            getsync(*pckttime, pcktdelta, olddelta, redostep, ng_ident, loc, userptr);
+  2463	            /* never move beyond final time */
+  2464	            if (*pckttime + *pcktdelta > finalt)
+  2465	                *pcktdelta = finalt - *pckttime - 1.1 * delmin;
+  2466	            return 1;
+  2467	        }
+  2468	        else {
+  2469	            /* Use cktdelta as suggested by ngspice or acquire new cktdelta
+  2470	               via pointer pcktdelta in user supplied callback. Redo the previous
+  2471	               step if return value from getsync is 1. */
+  2472	            int retval = getsync(*pckttime, pcktdelta, olddelta, redostep, ng_ident, loc, userptr);
+  2473	            /* never move beyond final time */
+  2474	            if (*pckttime + *pcktdelta > finalt) {
+  2475	                double newdelta;
+  2476	
+  2477	                newdelta = finalt - *pckttime - 1.1 * delmin;
+  2478	                if (newdelta <= 0.0)
+  2479	                    newdelta = finalt - *pckttime;
+  2480	                *pcktdelta = newdelta;
+  2481	            }

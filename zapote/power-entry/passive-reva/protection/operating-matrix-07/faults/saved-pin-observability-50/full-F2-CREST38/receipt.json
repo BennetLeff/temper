@@ -1,0 +1,19 @@
+{
+  "status": "COMPLETE_DIAGNOSTIC",
+  "child_exits": [
+    0,
+    0,
+    0
+  ],
+  "resource_stop": null,
+  "minimum_free_bytes": 11226861568,
+  "raw_before_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "raw_after_sha256": "d78e8e2f7c28b8ba9c10ce499af2813202ede8b2e173c39cfdc0ee3d650484fd",
+  "wall_s": 174.97519729100168,
+  "tools_sha256": {
+    "/opt/homebrew/bin/pigz": "a05b6a8ff40a84f8c1fa4052e38a70a682e30f142f5fc7486356134572733a80",
+    "/private/tmp/matrix07-fault-native-decoder-parent": "af7d186fa543ebd8158947322b6c9049c17534c1662e8b9e9c2df53606b73658",
+    "/private/tmp/matrix07-saved-pin50-parent": "25d20aa032b56e5ed544d69f57206e60a5b6c36adfb52ce97a1b53bcae8edb87"
+  },
+  "accepted": false
+}

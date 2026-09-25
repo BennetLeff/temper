@@ -1,0 +1,136 @@
+{
+  "document": "reference-revision-08/power-budget",
+  "purpose": "Formula-driven planning budget for Temper PFC input power against the Breville Control Freak US nameplate class",
+  "status": "planning_assumptions_not_measured",
+  "scope": {
+    "benchmark": {
+      "model": "Breville/PolyScience Control Freak CMC850",
+      "input_voltage_v_rms": 120,
+      "frequency_hz": 60,
+      "nominal_input_power_w": 1800,
+      "power_range_w": [
+        100,
+        1800
+      ],
+      "source": {
+        "manufacturer_authored_spec_hosted_by_distributor": "https://www.webstaurantstore.com/documents/specsheets/specsheet_for_polyscience_cmc850bssusa_induction_cooking_system.pdf",
+        "breville_hosted_manual": "https://www.breville.com/content/dam/breville/us/en/assets/miscellaneous/instruction-manual/commercial/CMC850-instruction-manual.pdf",
+        "accessed": "2026-09-21",
+        "source_limit": "Supports the appliance input benchmark only; does not establish efficiency, PF waveform, auxiliary power, DC output, low-line behavior, or pan power."
+      }
+    },
+    "not_claimed": [
+      "1800 W DC output",
+      "1800 W delivered to a pan",
+      "vendor-guaranteed PFC efficiency",
+      "vendor-guaranteed power factor",
+      "branch-circuit or installation conclusion"
+    ]
+  },
+  "assumptions": {
+    "input_current_max_a_rms": 15.0,
+    "pf_nominal": 0.99,
+    "pf_sensitivity": [
+      0.97,
+      0.99,
+      1.0
+    ],
+    "pfc_efficiency_nominal": 0.95,
+    "pfc_efficiency_range": [
+      0.93,
+      0.97
+    ],
+    "dc_aux_nominal_w": 20.0,
+    "dc_aux_range_w": [
+      10.0,
+      30.0
+    ],
+    "auxiliary_allocation": "DC-bus-fed auxiliary budget only; actual supply topology unbound. For AC-fed auxiliaries use eta*(P_mains-P_aux_AC)."
+  },
+  "formulas": {
+    "apparent_power_va": "V_rms * I_rms",
+    "real_input_power_w": "apparent_power_va * PF",
+    "mains_limit_w": "min(1800, V_rms * 15 * PF)",
+    "dc_bus_w": "pfc_efficiency * mains_limit_w",
+    "inverter_input_w": "dc_bus_w - dc_aux_w"
+  },
+  "budget_pf_0_99_nominal_efficiency_0_95_aux_20w": [
+    {
+      "line_voltage_v": 108,
+      "apparent_power_at_15a_va": 1620.0,
+      "mains_limit_w": 1603.8,
+      "current_at_limit_a": 15.0,
+      "dc_bus_w": 1523.61,
+      "inverter_input_w": 1503.61,
+      "foldback_required": true
+    },
+    {
+      "line_voltage_v": 120,
+      "apparent_power_at_15a_va": 1800.0,
+      "mains_limit_w": 1782.0,
+      "current_at_limit_a": 15.0,
+      "dc_bus_w": 1692.9,
+      "inverter_input_w": 1672.9,
+      "foldback_required": true
+    },
+    {
+      "line_voltage_v": 132,
+      "apparent_power_at_15a_va": 1980.0,
+      "mains_limit_w": 1800.0,
+      "current_at_limit_a": 13.7741046832,
+      "dc_bus_w": 1710.0,
+      "inverter_input_w": 1690.0,
+      "foldback_required": false
+    }
+  ],
+  "inverter_input_sensitivity_w": [
+    {
+      "line_voltage_v": 108,
+      "mains_limit_w": 1603.8,
+      "low_eta_0_93_aux_30": 1461.534,
+      "nominal_eta_0_95_aux_20": 1503.61,
+      "high_eta_0_97_aux_10": 1545.686
+    },
+    {
+      "line_voltage_v": 120,
+      "mains_limit_w": 1782.0,
+      "low_eta_0_93_aux_30": 1627.26,
+      "nominal_eta_0_95_aux_20": 1672.9,
+      "high_eta_0_97_aux_10": 1718.54
+    },
+    {
+      "line_voltage_v": 132,
+      "mains_limit_w": 1800.0,
+      "low_eta_0_93_aux_30": 1644.0,
+      "nominal_eta_0_95_aux_20": 1690.0,
+      "high_eta_0_97_aux_10": 1736.0
+    }
+  ],
+  "low_line": {
+    "requested_power_w": 1800.0,
+    "line_voltage_v": 108,
+    "pf": 0.99,
+    "required_current_a": 16.835016835,
+    "status": "exceeds_15a_screen_and_requires_foldback",
+    "planning_real_power_ceiling_w": 1603.8
+  },
+  "existing_coverage_gap": [
+    "Nine discrete accepted PFC-model points do not include a measured 1800 W whole-appliance input point.",
+    "Ideal auxiliary rails omit physical fans, controller bias, inverter consumption, and real auxiliary power.",
+    "Existing Irms values are model screens, not complete-appliance current or PF evidence.",
+    "No continuous thermal, magnetic, capacitor-ripple, or cooking-performance result follows from the current campaign."
+  ],
+  "acceptance_requirements": [
+    "Measure synchronized whole-appliance Vrms, Irms, real W, VA, and PF at 108/120/132 V.",
+    "Enforce mains_limit_w = min(1800, V * 15 * PF) including low-line foldback.",
+    "Measure PFC input, DC-bus output, and physical auxiliary rails to replace planning assumptions.",
+    "Sustain the selected 120 V target while recording bus ripple, magnetic and semiconductor stress, capacitor ripple, and temperatures.",
+    "Qualify the downstream inverter and cooking behavior separately; do not call inverter input pan power.",
+    "Requalify protection on the changed topology.",
+    "Declare settled RMS window separately from startup/inrush limits; the power equation is not an instantaneous trip law."
+  ],
+  "arithmetic_check": {
+    "nominal_120v_pf_0_99": "1782.0 W mains -> 1692.9 W DC bus at 95% -> 1672.9 W inverter input after 20 W auxiliaries",
+    "exact_1800w_at_120v": "Requires PF >= 1.0 to remain at or below 15 A RMS; PF 0.99 would require 15.151515 A"
+  }
+}

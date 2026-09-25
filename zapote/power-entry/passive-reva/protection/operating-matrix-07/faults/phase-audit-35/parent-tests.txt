@@ -1,0 +1,16 @@
+
+running 11 tests
+test tests::oversized_header_is_rejected_before_unbounded_append ... ok
+test tests::an_early_tied_subpeak_is_cleared_by_a_later_unique_peak ... ok
+test tests::wrong_phase_is_rejected ... ok
+test tests::equal_time_marker_transition_is_rejected_even_when_source_matches ... ok
+test tests::valid_crest_reports_measured_neighbors_and_not_acceptance ... ok
+test tests::valid_zero_requires_edge_near_zero_and_adjacent_peak ... ok
+test tests::conflicting_equal_time_source_at_event_is_rejected ... ok
+test tests::initial_high_marker_is_rejected ... ok
+test tests::missing_or_duplicate_event_is_rejected ... ok
+test tests::backwards_and_nonfinite_rows_are_rejected ... ok
+test tests::incomplete_endpoint_or_interval_is_rejected ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

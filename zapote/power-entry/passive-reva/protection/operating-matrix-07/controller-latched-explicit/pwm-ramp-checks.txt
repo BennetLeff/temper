@@ -1,0 +1,6 @@
+PASS PWM crossing 0: measured=5.727022588810e-7s expected=5.725010000000e-7s
+PASS PWM crossing 1: measured=1.231984976512e-6s expected=1.231154634326e-6s
+PASS PWM crossing 2: measured=2.549267694144e-6s expected=2.548461902979e-6s
+PASS ICOMP-short inhibits gate without self-reset; nominal inferred PWM plateau only
+
+exit_code=0

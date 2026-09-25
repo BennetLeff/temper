@@ -1,0 +1,59 @@
+{
+  "status": "BOUND_TAIL_DIAGNOSTIC_REVIEWED_NO_FAULT_ACCEPTANCE",
+  "accepted": false,
+  "at_utc": "2026-09-22T00:11:46.067921+00:00",
+  "extraction_terminal_session": 3321,
+  "extraction_exit": 0,
+  "raw_sha256": "726acb2f278c1e53fda082da6f4e504b116c9a4b398e4490cfb9ddc4bbac60aa",
+  "tail_row_count": 256,
+  "first_row_literal_fields": {
+    "time": "6.54401466666699960e-1",
+    "v(sw)": "1.81316019928886712e-1",
+    "v(gate)": "7.71600457091980278e-7",
+    "v(q)": "5.00000000000000000e0",
+    "v(en)": "4.99999999999999378e0",
+    "v(fault)": "0.00000000000000000e0",
+    "i(Lboost)": "1.81316020323987999e2",
+    "i(Vchannel)": "1.81316019928886902e2",
+    "v(pwm_input)": "0.00000000000000000e0",
+    "v(xdriver.driver_req)": "2.03310269417437371e-19",
+    "v(xdriver.drv_delay)": "6.43022546910149549e-8",
+    "v(fault_inject)": "5.00000000000000000e0"
+  },
+  "last_row_literal_fields": {
+    "time": "6.54402648629686778e-1",
+    "v(sw)": "1.81994403511164887e-1",
+    "v(gate)": "7.69773308048825069e-7",
+    "v(q)": "5.00000000000000000e0",
+    "v(en)": "4.99999999999999378e0",
+    "v(fault)": "0.00000000000000000e0",
+    "i(Lboost)": "1.81994403905508960e2",
+    "i(Vchannel)": "1.81994403511165075e2",
+    "v(pwm_input)": "2.19999969685261254e0",
+    "v(xdriver.driver_req)": "1.49999999999999716e1",
+    "v(xdriver.drv_delay)": "1.18428528714274790e-7",
+    "v(fault_inject)": "5.00000000000000000e0"
+  },
+  "source_validation": "Pinned Rust native decoder completed all declared raw rows; finite fields, nondecreasing time, exact header/payload extent and no trailing bytes validated by faults/native-capture-13/fault_native_adapter.rs::run. Complete archive of a partial simulation, not a complete fault run.",
+  "worker82_corrections": [
+    "Other saved controller states do change: raw/PWM-hold/PWM/phase evolve. Only the specifically observed q/en/fault/PCL states remain steady and gate remains near zero.",
+    "Counterfactual from same saved state is unavailable as an exact restart: not all analog/device/digital/integration states were saved. Proposed approximate experiments cannot directly disprove a full-history mechanism.",
+    "Current above100A is a diagnostic sample beyond the frozen model screen, not a completed frozen checker verdict or a real component-current bound."
+  ],
+  "worker83_corrections": [
+    "Gate column was confused with switch-node column. v(sw)=0.181994403511164887V; v(gate)=7.69773308048825069e-7V at last row. The actual header is authoritative.",
+    "Low gate here is not a retained external shutdown witness: q/en remain high and fault is low; PWM begins rising in final rows.",
+    "A protective strategy need not require an electronic detector/latch if a suitably qualified independent passive interrupting device provides the required behavior. Specify function, not implementation."
+  ],
+  "proposal84_disposition": "NOT_READY_FOR_CAUSAL_TEST. It proposes seeding the final row with driver_req already15V while trying to reproduce the transition, and potentially forcing internal driver outputs. That would bypass the very native hysteretic event under investigation. Exact state restart absent; no fixture or solver change made. Preserve proposal for future refinement only.",
+  "next": "Retain fault as INDETERMINATE under bounded-attempt contract; continue prepared cases. No blind retry or acceptance-limit changes.",
+  "evidence_sha256": {
+    "faults/sw-short-abort-diagnostic-79/receipt.json": "46c13b6bbb04776bd2ab9f3f0f7e5097751e9316f980594c824bd9cb6895e35c",
+    "faults/sw-short-abort-diagnostic-79/header.tsv": "9ef6fed55770cb8c02127cef7843e314ea073b56a67c0d2dc383b95a8127c9ff",
+    "faults/sw-short-abort-diagnostic-79/last256-data.tsv": "1592af8297bc049c334a54019229c16dffc31818b109070209ab3e865da1c3dd",
+    "faults/sw-short-tail-review-82.json": "adfc3567d841a0c87aa171357915ff3e27f4b2f51f783feaf5dd7a829c155793",
+    "host/switch-short-strategy-review-83.json": "687c1e39d6a24c74872620eacc3548f234cc3d904b4e6cdac3e0bcdfab79188f",
+    "faults/sw-short-state-fixture-proposal-84.md": "9c187753cec9a544a8c0f7d759a68671fca6f8a7745ec40dc51a7ba3656b5701",
+    "faults/fault-matrix.md": "df55bba086af019213f28302cdd6534d964e4b07f54aed5d52b65d1bf27a737b"
+  }
+}

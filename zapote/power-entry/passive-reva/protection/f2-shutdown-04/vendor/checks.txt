@@ -1,0 +1,7 @@
+PASS default_off: 0.000000000V
+PASS disarmed_low: 0.006448188V
+PASS absent_aux: -0.000000002V
+PASS returned_aux_disarmed: 0.000005565V
+PASS positive enable: 14.964030V; observed RUNfall to gate4V: 0.211801us
+PASS startup gate peak 0.018467840V: startup-fast.log
+PASS startup gate peak 0.002293685V: startup-ramp.log

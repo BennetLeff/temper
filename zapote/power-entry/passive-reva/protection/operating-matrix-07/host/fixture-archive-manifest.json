@@ -1,0 +1,65 @@
+[
+  {
+    "source": "controller-probes/soft-start.tsv",
+    "source_sha256": "e138f3974af450b61c2a2d36250fe822afec2d4ed3ef2abe70b25c106617e85e",
+    "source_bytes": 135527893,
+    "archive": "controller-probes/soft-start.tsv.gz",
+    "archive_sha256": "1e74912a2bf01a84f8506695b0848153e1c76fa7cb3c5e3a44abdf096c191579",
+    "archive_bytes": 21881173,
+    "verification": "decompressed SHA256 equals source SHA256"
+  },
+  {
+    "source": "controller-latched/soft-start.tsv",
+    "source_sha256": "0dafc32a644f4bb6c267868d5be45106836cece454e4f663ead132c19f90e42e",
+    "source_bytes": 133152059,
+    "archive": "controller-latched/soft-start.tsv.gz",
+    "archive_sha256": "d269db2426fb18af54e83cdb733b7364c8dd8b2e7e0ca461fc3f4a1c76ea1f2d",
+    "archive_bytes": 21508857,
+    "verification": "decompressed SHA256 equals source SHA256"
+  },
+  {
+    "source": "controller-latched-explicit/integrated.tsv",
+    "source_sha256": "26e3ec79014b47ab156cb8f7315aa4863a88212f3ea6f7b4e47114496eec612b",
+    "source_bytes": 93195267,
+    "archive": "controller-latched-explicit/integrated.tsv.gz",
+    "archive_sha256": "79c0f3531e90de5a08be67ace3a8cb03c1d1d8e2a19f90463689a87919470f01",
+    "archive_bytes": 20536627,
+    "verification": "decompressed SHA256 equals source SHA256"
+  },
+  {
+    "source": "controller-latched-explicit/soft-start.tsv",
+    "source_sha256": "6477d7a23d08c644f0439669244b526738adcec6c4b33b8480c7f41815450634",
+    "source_bytes": 138336040,
+    "archive": "controller-latched-explicit/soft-start.tsv.gz",
+    "archive_sha256": "e44b58995db7903f0b794c39516326482d256d4e0fa0acf83b0dff0d696cfb47",
+    "archive_bytes": 22209510,
+    "verification": "decompressed SHA256 equals source SHA256"
+  },
+  {
+    "source": "runtime-experiment/digital-blank/integrated.tsv",
+    "source_sha256": "773659131d4c9bf9d5822b2ffb22665d73dfd61cd24cbf1318a96a84070a780f",
+    "source_bytes": 88933576,
+    "archive": "runtime-experiment/digital-blank/integrated.tsv.gz",
+    "archive_sha256": "35421870cc024a7a01bbb34e9fa3226fdc10b7ee0968eb1a5fbc2efb728a936c",
+    "archive_bytes": 19722455,
+    "verification": "decompressed SHA256 equals source SHA256"
+  },
+  {
+    "source": "runtime-experiment/baseline/integrated.tsv",
+    "source_sha256": "9390751e16363d632184c1b6b17bfc1c1304c49038d15eae6f3f469408725993",
+    "source_bytes": 92716270,
+    "archive": "runtime-experiment/baseline/integrated.tsv.gz",
+    "archive_sha256": "8ba39f913f302ca7bd1fd091e1321ca4d46fcb3eb4fb25fc5a44ae15e6f04ed7",
+    "archive_bytes": 20430691,
+    "verification": "decompressed SHA256 equals source SHA256"
+  },
+  {
+    "source": "runtime-experiment/klu/integrated.tsv",
+    "source_sha256": "3479312cd7e6a1d0f3e03e7aed1f4f7df5574016b18e48ad4d0bb84362386e50",
+    "source_bytes": 92680210,
+    "archive": "runtime-experiment/klu/integrated.tsv.gz",
+    "archive_sha256": "74fd9ddc8d79d7cddf34bdba9f17c47891f277a2760333307dbfd781a9d8fc56",
+    "archive_bytes": 20415029,
+    "verification": "decompressed SHA256 equals source SHA256"
+  }
+]

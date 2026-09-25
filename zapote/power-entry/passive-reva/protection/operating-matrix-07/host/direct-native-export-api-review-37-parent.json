@@ -1,0 +1,15 @@
+{
+  "status": "PARENT_REVIEWED_API_CONSTRAINTS_IMPLEMENTATION_PENDING",
+  "utc": "2026-09-21T16:46:16.103719+00:00",
+  "review_sha256": "96834e9b7d0962e160e68a72d52498711e4bff73503075fa05a3c11ae95f202f",
+  "abi_oracle_source_sha256": "210a95c86ce6e22d9ef1e20e1dc5bdd1f0953f48400ecb5cea6eae899d1c7c2f",
+  "abi_oracle_result_sha256": "1e4c67f5316bbe2a973d90d764df8e847ebda55de3fa46438f49222432251099",
+  "library_sha256": "3950a98c5b7b674fecbd78fdb4f68501f52f8b0f5f70472db77f3245e7353ba0",
+  "header_sha256": "bc9023fdafb8dfbd5d75392ed19c296f05a559e584473d864ddab1e9f25efa77",
+  "parent_corrections": [
+    "Realloclockdoesnotprotectreset; exclusiveidleAPIownership required",
+    "Genericarbitraryplot testsnotautomaticrequirement; frozenanalogscope mustbeexplicit",
+    "Sameplotprobestillrequired"
+  ],
+  "exporter_adopted": false
+}

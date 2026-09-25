@@ -1,0 +1,31 @@
+{
+  "scope": "First-pass primary-source comparison; no adoption or hardware claim.",
+  "official_sources": {
+    "pmp10948": "https://www.ti.com/tool/PMP10948",
+    "pmp10948_test_report": "https://www.ti.com/lit/pdf/TIDUBC5",
+    "pmp10948_bom": "https://www.ti.com/lit/pdf/TIDRJZ9",
+    "ucc28180_product": "https://www.ti.com/product/UCC28180",
+    "ucc28180_evm": "https://www.ti.com/tool/UCC28180EVM-573",
+    "ucc28180_evm_guide": "https://www.ti.com/lit/pdf/sluuat3",
+    "tida00779": "https://www.ti.com/tool/TIDA-00779"
+  },
+  "local_frozen_files": {
+    "cold.cir": "db9d544938b792aac009c1ee4fcf27f52a8283beb167e40262d495d4c098ac94",
+    "ucc28180-pwm-latch.inc": "2e885755aad4d03fb9c06d7c556faf23ad0ae7922f581d56752db78933b97251",
+    "protection.inc": "61385002bc7c55313814b7ea606c1198129da20a1f76cd44fe197de0468a70e8",
+    "standby.inc": "94d995d17a85ef932fe511bb2adbee02a1cd3fd1c88604b16d6b6929b31a50eb"
+  },
+  "confirmed_deviations": [
+    "PMP10948 is two interleaved transition-mode UCC28063 stages (750 W + 550 W classes); local deck is one boost leg with a host-authored UCC28180_FN surrogate and CCM-style current loop.",
+    "PMP10948 uses separate VBULK and B+ outputs; local deck has VD/VB model split joined by an ideal closed F2 and a single RLOAD.",
+    "Local deck uses generic STWMOS/DBOOST/DBODY and ideal probes; PMP BOM identifies 600 V Infineon MOSFETs, MUR860G diodes, and 160 uH inductors.",
+    "Local deck prescribes 15 V auxiliary, 5 V logic, permit/arm/standby PWL sequencing; this is not demonstrated to match either TI reference startup/bias network."
+  ],
+  "not_yet_compared": [
+    "Exact compensation component values and slope/ramp implementation against PMP10948 schematic or TIDA-00779 schematic.",
+    "Current-sense scaling, gate-driver delay, startup/bias circuitry, and protection thresholds against TI schematics.",
+    "Magnetic core/saturation, thermal, EMI, surge/EFT, and dynamic induction-load behavior."
+  ],
+  "conditional_scaling_gap": "At 120 VAC and 1.8 kW DC output, even 95.6% efficiency/PF near 0.999 implies about 1.88 kW input and 15.7 A RMS, above the local 15 A screen. This is a conditional arithmetic incompatibility, not a hardware rating.",
+  "conclusion": "Use PMP10948 for interleaving/high-power measurement context, UCC28180EVM-573 for controller-scale behavior, and TIDA-00779 for same-controller high-power CCM context. Do not import any reference as a validated local model without schematic/component/operating-range correlation."
+}

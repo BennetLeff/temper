@@ -1,0 +1,11 @@
+{
+  "status": "PARENT_REVIEWED_STREAMING_ADAPTER_CANDIDATE",
+  "production_adopted": false,
+  "tests_passed": 8,
+  "source_sha256": "d39e43eb716f676c78b4b06d8def62a4bd24e3fbfb6a7edb5d86d592a095f021",
+  "binary_sha256": "23008f5bba4c560d87c97fde0822949fba5bccab7223af0b64fd49c6b221aea0",
+  "parent_tests_sha256": "d4dcb580b6477d666d5b3106b8cba832726da1fbc69e8c4b348eb34d0d31aaa6",
+  "rows": 5905,
+  "fields_bit_identical": 183055,
+  "scope": "Tiny31 binary streamed into canonicaltext, all183055binary64 values matchwrdata. Exact current-host equivalence separatelyverified in native-api-equivalence-11; production runnerintegration remains."
+}

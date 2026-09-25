@@ -1,0 +1,9 @@
+* Expected-negative control: the original/reversed polarity does not clamp
+* a negative shunt.  The negative pin excursion must fail the -1.1 V limit.
+.include clamp.inc
+VSHUNT shunt 0 DC -5
+R_ISENSE shunt isense 220
+DREVERSED isense 0 BAV23C_TYP
+.op
+.print op v(shunt) v(isense) i(R_ISENSE) i(DREVERSED)
+.end
