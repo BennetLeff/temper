@@ -263,3 +263,35 @@ qualifiers and absent independent monitor progress keep authorization in
 lockout. A production link requires actual board implementations and source
 registration for the remaining hooks. Even a successful link would still
 need programmed-pin, rail, reset and timing captures before physical credit.
+
+## Board-backed cooker hook retry (source compile PASS, target link FAIL)
+
+The user approved a full-worktree Docker mount after automatic approval review
+initially rejected it for possible exposure of sensitive files to the
+third-party container. The same ESP-IDF `espressif/idf:release-v5.3` image
+then compiled the new `cooker_board_io.c` into the normal cooker target and
+reached `induction_cooker.elf` linking with
+`TEMPER_DIAGNOSTIC_LOCKOUT=OFF` and `TEMPER_REV38_TEST_IMAGE=OFF`.
+The captured local build log SHA-256 is
+`50061e511443b508839a15d0b551ee2d76191dc7e1f8893507425bebbb47b848`.
+Its final link **FAIL** has 26 distinct unresolved cooker functions:
+
+`button_is_pressed`, `button_set_enabled`, `buzzer_beep`,
+`buzzer_beep_continuous`, `buzzer_stop`, `display_show_fault`,
+`display_show_message`, `display_update_countdown`,
+`display_update_temperature`, `eeprom_log_fault`, `fan_set_auto_mode`,
+`fan_set_speed`, `is_fan_running`, `led_set_pattern`,
+`peripherals_enter_low_power`, `peripherals_exit_low_power`,
+`power_enable`, `power_set_level`, `pwm_disable_all`,
+`pwm_set_duty_cycle`, `read_dc_bus_current`,
+`test_display_communication`, `test_eeprom_read`, `test_fan_operation`,
+`test_hardware_comparators`, and `test_pwm_generation`.
+
+The newly implemented ADC initialization/calibration, nominal heatsink NTC
+conversion and fresh RTD POST functions are no longer in that unresolved
+set. The host suite passes 18/18 CTest entries, including the new board I/O
+test and an invalid-heatsink-sample hardware-cut regression. The ADC transfer,
+3.3 V divider rail, target timing, and physical analog comparator remain
+unqualified; a nominal software conversion cannot replace the analog trip.
+The normal cooker image still has no linked ELF or device capture, and Rev38
+authorization remains at zero timing lockout.

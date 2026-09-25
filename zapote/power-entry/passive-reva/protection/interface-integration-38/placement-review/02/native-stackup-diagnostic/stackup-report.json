@@ -1,0 +1,18 @@
+{
+  "status": "pass",
+  "findings": [
+    {
+      "rule": "DRC.BOARD.STACKUP",
+      "severity": "info",
+      "status": "pass",
+      "message": "6 copper layers; copper + dielectric + mask = 1.800000 mm, declared 1.800000 mm",
+      "object": "board.setup.stackup",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "DRC.BOARD.STACKUP"
+  ],
+  "coverage_gaps": []
+}

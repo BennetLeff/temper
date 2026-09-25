@@ -20,7 +20,7 @@ elseif(TEMPER_DIAGNOSTIC_LOCKOUT)
 else()
     # Keep this path honest: it currently fails to link until the actual
     # cooker peripheral and self-test implementations are registered.
-    set(TEMPER_ENTRY_SOURCES "main.c")
+    set(TEMPER_ENTRY_SOURCES "main.c" "cooker_board_io.c")
 endif()
 
 set(TEMPER_SOURCE_SOURCES
@@ -58,6 +58,7 @@ idf_component_register(
         "."
         ".."
         "../components/sensors/include"
+        "../components/safety/include"
     REQUIRES
         driver
         temper_hal

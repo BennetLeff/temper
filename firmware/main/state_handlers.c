@@ -640,7 +640,8 @@ void state_fault_update(void) {
 
     /* Monitor critical temperature even in fault — threshold from
      * config.yaml (interlocks: FAULT_STATE_MAX_TEMP_C) */
-    if (read_heatsink_temperature() > FAULT_STATE_MAX_TEMP_C) {
+    const float heatsink_c = read_heatsink_temperature();
+    if (!isfinite(heatsink_c) || heatsink_c > FAULT_STATE_MAX_TEMP_C) {
         trigger_hardware_shutdown();
     }
 

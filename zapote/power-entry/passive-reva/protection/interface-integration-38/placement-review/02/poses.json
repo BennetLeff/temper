@@ -1,0 +1,1477 @@
+{
+  "ac_input.aux_branch": [
+    28,
+    153,
+    0
+  ],
+  "ac_input.board_input": [
+    27,
+    42,
+    0
+  ],
+  "ac_input.bypass": [
+    112,
+    145,
+    0
+  ],
+  "ac_input.cmc": [
+    65,
+    63,
+    0
+  ],
+  "ac_input.coil_drop": [
+    214.01,
+    13.93,
+    0
+  ],
+  "ac_input.flyback": [
+    94.0,
+    14.15,
+    0
+  ],
+  "ac_input.mov": [
+    30.0,
+    7.4,
+    0
+  ],
+  "ac_input.ntc": [
+    91,
+    111,
+    0
+  ],
+  "ac_input.raw_aux": [
+    25,
+    190,
+    0
+  ],
+  "ac_input.relay_fet": [
+    153.61,
+    18.56,
+    0
+  ],
+  "ac_input.relay_gate_pd": [
+    158.82,
+    21.25,
+    0
+  ],
+  "ac_input.relay_gate_r": [
+    126.14,
+    19.53,
+    0
+  ],
+  "ac_input.x2": [
+    7.25,
+    9.25,
+    0
+  ],
+  "ac_input.y1": [
+    65,
+    45,
+    0
+  ],
+  "aux_cutoff.c_gate": [
+    30.74,
+    23.95,
+    0
+  ],
+  "aux_cutoff.c_out": [
+    181.54,
+    18.01,
+    0
+  ],
+  "aux_cutoff.cutoff": [
+    28.1,
+    14.35,
+    0
+  ],
+  "aux_cutoff.fets": [
+    127.54,
+    14.7,
+    0
+  ],
+  "aux_cutoff.ov_bottom": [
+    55.34,
+    23.89,
+    0
+  ],
+  "aux_cutoff.ov_top": [
+    81.36,
+    23.71,
+    0
+  ],
+  "aux_cutoff.r_gate": [
+    26.78,
+    23.95,
+    0
+  ],
+  "aux_cutoff.sense": [
+    85.67,
+    14.33,
+    0
+  ],
+  "aux_cutoff.uv_bottom": [
+    77.4,
+    23.71,
+    0
+  ],
+  "aux_cutoff.uv_top": [
+    22.82,
+    23.55,
+    0
+  ],
+  "aux_window.c_comparator": [
+    211.4,
+    23.31,
+    0
+  ],
+  "aux_window.c_window": [
+    215.36,
+    23.31,
+    0
+  ],
+  "aux_window.comparator": [
+    110.74,
+    14.7,
+    0
+  ],
+  "aux_window.fast_bottom": [
+    117.32,
+    22.39,
+    0
+  ],
+  "aux_window.fast_iso": [
+    125.24,
+    22.39,
+    0
+  ],
+  "aux_window.fast_top": [
+    113.36,
+    22.39,
+    0
+  ],
+  "aux_window.ov_bottom": [
+    199.52,
+    23.31,
+    0
+  ],
+  "aux_window.ov_iso": [
+    203.48,
+    23.31,
+    0
+  ],
+  "aux_window.ov_ref": [
+    207.44,
+    23.31,
+    0
+  ],
+  "aux_window.ov_top": [
+    227.24,
+    22.55,
+    0
+  ],
+  "aux_window.window": [
+    39.15,
+    18.5,
+    0
+  ],
+  "driver.base_bias": [
+    136.07,
+    13.93,
+    0
+  ],
+  "driver.base_pd": [
+    89.6,
+    20.89,
+    0
+  ],
+  "driver.c_driver_bulk": [
+    164.74,
+    18.01,
+    0
+  ],
+  "driver.c_driver_hf": [
+    167.54,
+    20.89,
+    0
+  ],
+  "driver.c_qualify": [
+    211.4,
+    20.85,
+    0
+  ],
+  "driver.c_release": [
+    215.36,
+    20.85,
+    0
+  ],
+  "driver.driver": [
+    224.14,
+    8.2,
+    0
+  ],
+  "driver.ena_pd": [
+    93.56,
+    20.89,
+    0
+  ],
+  "driver.ena_pu": [
+    187.12,
+    17.99,
+    0
+  ],
+  "driver.gate_pd": [
+    171.5,
+    20.89,
+    0
+  ],
+  "driver.gate_r": [
+    158.99,
+    17.99,
+    0
+  ],
+  "driver.permission_pd": [
+    207.44,
+    20.85,
+    0
+  ],
+  "driver.pwm_pd": [
+    163.58,
+    20.89,
+    0
+  ],
+  "driver.qualify": [
+    102.49,
+    8.25,
+    0
+  ],
+  "driver.release": [
+    62.45,
+    18.2,
+    0
+  ],
+  "driver.shunt": [
+    49.23,
+    18.5,
+    0
+  ],
+  "driver.stw": [
+    190,
+    132,
+    0
+  ],
+  "f2_detector.aux_window_pd": [
+    105.44,
+    22.39,
+    0
+  ],
+  "f2_detector.c_health": [
+    109.4,
+    22.39,
+    0
+  ],
+  "f2_detector.c_vb": [
+    150.7,
+    21.99,
+    0
+  ],
+  "f2_detector.c_vd": [
+    146.74,
+    21.99,
+    0
+  ],
+  "f2_detector.cmp_vb": [
+    102.34,
+    14.7,
+    0
+  ],
+  "f2_detector.cmp_vd": [
+    224.14,
+    14.6,
+    0
+  ],
+  "f2_detector.health": [
+    137.29,
+    8.25,
+    0
+  ],
+  "f2_detector.ref_bias": [
+    138.82,
+    21.99,
+    0
+  ],
+  "f2_detector.ref_bypass": [
+    142.78,
+    21.99,
+    0
+  ],
+  "f2_detector.reference": [
+    134.17,
+    18.56,
+    0
+  ],
+  "f2_detector.vb_div.bottom": [
+    13.34,
+    19.33,
+    0
+  ],
+  "f2_detector.vb_div.filter": [
+    130.9,
+    21.99,
+    0
+  ],
+  "f2_detector.vb_div.r1": [
+    79.28,
+    18.39,
+    0
+  ],
+  "f2_detector.vb_div.r2": [
+    84.84,
+    18.39,
+    0
+  ],
+  "f2_detector.vb_div.r3": [
+    30.14,
+    18.63,
+    0
+  ],
+  "f2_detector.vb_div.r4": [
+    67.78,
+    19.05,
+    0
+  ],
+  "f2_detector.vb_div.r5": [
+    73.34,
+    19.05,
+    0
+  ],
+  "f2_detector.vb_div.step": [
+    7.78,
+    19.33,
+    0
+  ],
+  "f2_detector.vb_mismatch_n": [
+    18.86,
+    22.19,
+    0
+  ],
+  "f2_detector.vb_mismatch_p": [
+    97.52,
+    22.39,
+    0
+  ],
+  "f2_detector.vb_ov": [
+    223.28,
+    22.29,
+    0
+  ],
+  "f2_detector.vb_ov_ref": [
+    219.32,
+    22.29,
+    0
+  ],
+  "f2_detector.vd_div.bottom": [
+    24.58,
+    18.23,
+    0
+  ],
+  "f2_detector.vd_div.filter": [
+    47.42,
+    21.93,
+    0
+  ],
+  "f2_detector.vd_div.r1": [
+    192.68,
+    17.99,
+    0
+  ],
+  "f2_detector.vd_div.r2": [
+    198.24,
+    17.99,
+    0
+  ],
+  "f2_detector.vd_div.r3": [
+    203.8,
+    17.99,
+    0
+  ],
+  "f2_detector.vd_div.r4": [
+    209.36,
+    17.99,
+    0
+  ],
+  "f2_detector.vd_div.r5": [
+    214.92,
+    17.99,
+    0
+  ],
+  "f2_detector.vd_div.step": [
+    92.78,
+    18.03,
+    0
+  ],
+  "f2_detector.vd_mismatch_n": [
+    101.48,
+    22.39,
+    0
+  ],
+  "f2_detector.vd_mismatch_p": [
+    14.9,
+    22.19,
+    0
+  ],
+  "f2_detector.vd_ov": [
+    10.94,
+    22.19,
+    0
+  ],
+  "f2_detector.vd_ov_ref": [
+    6.98,
+    22.19,
+    0
+  ],
+  "hot15_converter.boot_c": [
+    171.5,
+    23.35,
+    0
+  ],
+  "hot15_converter.buck": [
+    230.29,
+    7.45,
+    0
+  ],
+  "hot15_converter.cin_a": [
+    68.1,
+    15.32,
+    0
+  ],
+  "hot15_converter.cin_b": [
+    73.7,
+    15.32,
+    0
+  ],
+  "hot15_converter.cout_a": [
+    85.54,
+    8.45,
+    0
+  ],
+  "hot15_converter.cout_b": [
+    93.94,
+    8.45,
+    0
+  ],
+  "hot15_converter.fb_bottom": [
+    184.5,
+    23.35,
+    0
+  ],
+  "hot15_converter.fb_top": [
+    175.46,
+    23.35,
+    0
+  ],
+  "hot15_converter.inductor": [
+    69.31,
+    9.11,
+    0
+  ],
+  "hot15_converter.vcc_c": [
+    195.34,
+    21.1,
+    0
+  ],
+  "hot15_converter.vin_hf_a": [
+    170.34,
+    18.01,
+    0
+  ],
+  "hot15_converter.vin_hf_b": [
+    175.94,
+    18.01,
+    0
+  ],
+  "hot_logic5_converter.boot_c": [
+    34.7,
+    24.39,
+    0
+  ],
+  "hot_logic5_converter.buck": [
+    44.25,
+    18.5,
+    0
+  ],
+  "hot_logic5_converter.cin_a": [
+    7.8,
+    15.6,
+    0
+  ],
+  "hot_logic5_converter.cin_b": [
+    13.4,
+    15.6,
+    0
+  ],
+  "hot_logic5_converter.cin_hf": [
+    59.3,
+    24.09,
+    0
+  ],
+  "hot_logic5_converter.cout_a": [
+    19.0,
+    15.6,
+    0
+  ],
+  "hot_logic5_converter.cout_b": [
+    57.1,
+    18.1,
+    0
+  ],
+  "hot_logic5_converter.en_bottom": [
+    67.22,
+    24.37,
+    0
+  ],
+  "hot_logic5_converter.en_top": [
+    63.26,
+    24.37,
+    0
+  ],
+  "hot_logic5_converter.fb_bottom": [
+    42.62,
+    24.39,
+    0
+  ],
+  "hot_logic5_converter.fb_ff": [
+    46.58,
+    24.39,
+    0
+  ],
+  "hot_logic5_converter.fb_top": [
+    38.66,
+    24.39,
+    0
+  ],
+  "hot_logic5_converter.inductor": [
+    77.33,
+    9.11,
+    0
+  ],
+  "hot_rails.aux_bottom": [
+    73.44,
+    21.91,
+    0
+  ],
+  "hot_rails.aux_ct": [
+    39.5,
+    21.93,
+    0
+  ],
+  "hot_rails.aux_iso": [
+    35.54,
+    21.93,
+    0
+  ],
+  "hot_rails.aux_top": [
+    69.48,
+    21.91,
+    0
+  ],
+  "hot_rails.c_aux": [
+    53.64,
+    21.43,
+    0
+  ],
+  "hot_rails.c_logic": [
+    82.06,
+    21.25,
+    0
+  ],
+  "hot_rails.logic_bottom": [
+    27.62,
+    21.49,
+    0
+  ],
+  "hot_rails.logic_ct": [
+    61.56,
+    21.63,
+    0
+  ],
+  "hot_rails.logic_iso": [
+    31.58,
+    21.49,
+    0
+  ],
+  "hot_rails.logic_top": [
+    57.6,
+    21.43,
+    0
+  ],
+  "hot_rails.reset_pu": [
+    78.1,
+    21.25,
+    0
+  ],
+  "hot_rails.sup_aux": [
+    34.62,
+    18.52,
+    0
+  ],
+  "hot_rails.sup_logic": [
+    230.52,
+    17.34,
+    0
+  ],
+  "hot_watchdog.c_watchdog": [
+    23.66,
+    21.09,
+    0
+  ],
+  "hot_watchdog.cwd": [
+    175.46,
+    20.89,
+    0
+  ],
+  "hot_watchdog.watchdog": [
+    34.15,
+    14.55,
+    0
+  ],
+  "hot_watchdog.wdo_pu": [
+    179.42,
+    20.89,
+    0
+  ],
+  "pfc_control.c_icomp": [
+    230.54,
+    14.34,
+    0
+  ],
+  "pfc_control.c_isense": [
+    230.54,
+    11.38,
+    0
+  ],
+  "pfc_control.c_vcc": [
+    186.54,
+    21.1,
+    0
+  ],
+  "pfc_control.c_vcomp": [
+    39.4,
+    14.2,
+    0
+  ],
+  "pfc_control.c_vcomp_p": [
+    78.7,
+    14.7,
+    0
+  ],
+  "pfc_control.c_vfeed": [
+    190.94,
+    21.1,
+    0
+  ],
+  "pfc_control.inhibit_pd": [
+    109.46,
+    19.53,
+    0
+  ],
+  "pfc_control.inhibit_pu": [
+    103.9,
+    19.53,
+    0
+  ],
+  "pfc_control.isense_clamp": [
+    139.03,
+    18.56,
+    0
+  ],
+  "pfc_control.permit_pd": [
+    120.58,
+    19.53,
+    0
+  ],
+  "pfc_control.permit_r": [
+    115.02,
+    19.53,
+    0
+  ],
+  "pfc_control.pfc": [
+    119.14,
+    14.7,
+    0
+  ],
+  "pfc_control.q_inhibit": [
+    143.89,
+    18.56,
+    0
+  ],
+  "pfc_control.q_permit": [
+    148.75,
+    18.56,
+    0
+  ],
+  "pfc_control.r_freq": [
+    220.48,
+    19.43,
+    0
+  ],
+  "pfc_control.r_isense": [
+    18.9,
+    19.33,
+    0
+  ],
+  "pfc_control.r_vbottom": [
+    98.34,
+    19.53,
+    0
+  ],
+  "pfc_control.r_vcomp": [
+    226.04,
+    19.43,
+    0
+  ],
+  "pfc_control.r_vtop1": [
+    144.73,
+    13.93,
+    0
+  ],
+  "pfc_control.r_vtop2": [
+    153.39,
+    13.93,
+    0
+  ],
+  "pfc_control.r_vtop3": [
+    162.05,
+    13.93,
+    0
+  ],
+  "pfc_control.r_vtop4": [
+    170.71,
+    13.93,
+    0
+  ],
+  "pfc_control.r_vtop5": [
+    179.37,
+    13.93,
+    0
+  ],
+  "pfc_control.shunt": [
+    113,
+    81,
+    0
+  ],
+  "pfc_power.bleed1": [
+    188.03,
+    13.93,
+    0
+  ],
+  "pfc_power.bleed2": [
+    196.69,
+    13.93,
+    0
+  ],
+  "pfc_power.bleed3": [
+    205.35,
+    13.93,
+    0
+  ],
+  "pfc_power.bridge": [
+    95,
+    42,
+    0
+  ],
+  "pfc_power.bulk1": [
+    112,
+    171,
+    0
+  ],
+  "pfc_power.bulk2": [
+    150,
+    171,
+    0
+  ],
+  "pfc_power.bulk3": [
+    112,
+    212,
+    0
+  ],
+  "pfc_power.bulk4": [
+    153,
+    212,
+    0
+  ],
+  "pfc_power.d_boost": [
+    211,
+    132,
+    0
+  ],
+  "pfc_power.f2_vb_stud": [
+    214,
+    220,
+    0
+  ],
+  "pfc_power.f2_vd_stud": [
+    214,
+    185,
+    0
+  ],
+  "pfc_power.hf_c": [
+    180,
+    185,
+    0
+  ],
+  "pfc_power.l_boost": [
+    180,
+    74,
+    0
+  ],
+  "pfc_power.local_c": [
+    182,
+    154,
+    0
+  ],
+  "receiver.abort_pd": [
+    66.38,
+    26.83,
+    0
+  ],
+  "receiver.attempt_valid_pd": [
+    97.9,
+    24.85,
+    0
+  ],
+  "receiver.c_disarm_memory": [
+    117.0,
+    27.31,
+    0
+  ],
+  "receiver.c_history_reset_and": [
+    65.52,
+    21.91,
+    0
+  ],
+  "receiver.c_history_timing": [
+    117.7,
+    24.85,
+    0
+  ],
+  "receiver.c_iso1_hot": [
+    89.28,
+    25.81,
+    0
+  ],
+  "receiver.c_iso1_selv": [
+    22.82,
+    26.01,
+    0
+  ],
+  "receiver.c_iso2_hot": [
+    75.14,
+    26.17,
+    0
+  ],
+  "receiver.c_iso2_selv": [
+    79.1,
+    26.17,
+    0
+  ],
+  "receiver.c_permit_inverter": [
+    230.8,
+    20.09,
+    0
+  ],
+  "receiver.c_permit_loss_nand": [
+    121.28,
+    22.39,
+    0
+  ],
+  "receiver.c_permit_seen_memory": [
+    199.52,
+    20.85,
+    0
+  ],
+  "receiver.c_prep_abort_memory": [
+    14.9,
+    24.65,
+    0
+  ],
+  "receiver.c_prep_timing": [
+    109.78,
+    24.85,
+    0
+  ],
+  "receiver.c_prep_trip_and": [
+    10.94,
+    24.65,
+    0
+  ],
+  "receiver.c_reset_pulses": [
+    121.66,
+    24.85,
+    0
+  ],
+  "receiver.c_run_and": [
+    51.38,
+    23.89,
+    0
+  ],
+  "receiver.c_run_memory": [
+    6.98,
+    24.65,
+    0
+  ],
+  "receiver.c_rx": [
+    85.32,
+    25.81,
+    0
+  ],
+  "receiver.c_session_and": [
+    89.98,
+    23.35,
+    0
+  ],
+  "receiver.c_session_memory": [
+    167.54,
+    23.35,
+    0
+  ],
+  "receiver.disarm_memory": [
+    215.59,
+    8.25,
+    0
+  ],
+  "receiver.disarm_pd": [
+    10.94,
+    27.11,
+    0
+  ],
+  "receiver.disarm_sample_pd": [
+    120.96,
+    27.31,
+    0
+  ],
+  "receiver.fault_n_pd": [
+    6.98,
+    27.11,
+    0
+  ],
+  "receiver.history_reset_allowed_pd": [
+    43.46,
+    21.93,
+    0
+  ],
+  "receiver.history_reset_and": [
+    119.89,
+    8.25,
+    0
+  ],
+  "receiver.history_reset_d_pu": [
+    134.86,
+    21.99,
+    0
+  ],
+  "receiver.history_reset_pd": [
+    101.16,
+    27.31,
+    0
+  ],
+  "receiver.history_reset_raw_pd": [
+    230.98,
+    25.01,
+    0
+  ],
+  "receiver.iso_feedback": [
+    252,
+    105,
+    180
+  ],
+  "receiver.iso_protocol": [
+    252,
+    65,
+    180
+  ],
+  "receiver.permit_inverter": [
+    198.19,
+    8.25,
+    0
+  ],
+  "receiver.permit_loss_nand": [
+    128.59,
+    8.25,
+    0
+  ],
+  "receiver.permit_loss_ok_pd": [
+    86.02,
+    23.35,
+    0
+  ],
+  "receiver.permit_pd": [
+    50.54,
+    26.35,
+    0
+  ],
+  "receiver.permit_preset_pd": [
+    203.48,
+    20.85,
+    0
+  ],
+  "receiver.permit_seen_memory": [
+    206.89,
+    8.25,
+    0
+  ],
+  "receiver.permit_seen_pu": [
+    93.24,
+    27.31,
+    0
+  ],
+  "receiver.prep_abort_memory": [
+    189.49,
+    8.25,
+    0
+  ],
+  "receiver.prep_abort_ok_pd": [
+    93.94,
+    24.85,
+    0
+  ],
+  "receiver.prep_abort_pu": [
+    18.86,
+    27.11,
+    0
+  ],
+  "receiver.prep_reset_pd": [
+    97.2,
+    27.31,
+    0
+  ],
+  "receiver.prep_reset_raw_pd": [
+    125.62,
+    24.85,
+    0
+  ],
+  "receiver.prep_trip_and": [
+    111.19,
+    8.25,
+    0
+  ],
+  "receiver.prep_trip_ok_pd": [
+    18.86,
+    24.65,
+    0
+  ],
+  "receiver.r_history_timing": [
+    113.74,
+    24.85,
+    0
+  ],
+  "receiver.r_prep_timing": [
+    105.82,
+    24.85,
+    0
+  ],
+  "receiver.rails_pd": [
+    46.58,
+    26.85,
+    0
+  ],
+  "receiver.relay_driver_pd": [
+    26.78,
+    26.41,
+    0
+  ],
+  "receiver.relay_request_pd": [
+    54.5,
+    26.35,
+    0
+  ],
+  "receiver.reset_pullup": [
+    42.62,
+    26.85,
+    0
+  ],
+  "receiver.reset_pulses": [
+    180.79,
+    8.25,
+    0
+  ],
+  "receiver.revalidate_d_pd": [
+    163.58,
+    23.35,
+    0
+  ],
+  "receiver.revalidate_pd": [
+    105.12,
+    27.31,
+    0
+  ],
+  "receiver.run_and": [
+    163.39,
+    8.25,
+    0
+  ],
+  "receiver.run_clear_pd": [
+    71.18,
+    24.37,
+    0
+  ],
+  "receiver.run_memory": [
+    172.09,
+    8.25,
+    0
+  ],
+  "receiver.run_pd": [
+    14.9,
+    27.11,
+    0
+  ],
+  "receiver.run_set_pd": [
+    109.08,
+    27.31,
+    0
+  ],
+  "receiver.rx": [
+    48.65,
+    10.65,
+    0
+  ],
+  "receiver.session_and": [
+    145.99,
+    8.25,
+    0
+  ],
+  "receiver.session_clear_pd": [
+    70.34,
+    26.83,
+    0
+  ],
+  "receiver.session_memory": [
+    154.69,
+    8.25,
+    0
+  ],
+  "receiver.session_pd": [
+    62.42,
+    26.83,
+    0
+  ],
+  "receiver.source_health_pd": [
+    30.74,
+    26.41,
+    0
+  ],
+  "receiver.source_permit_fb_pd": [
+    34.7,
+    26.85,
+    0
+  ],
+  "receiver.source_session_fb_pd": [
+    38.66,
+    26.85,
+    0
+  ],
+  "receiver.source_stop_pd": [
+    58.46,
+    26.55,
+    0
+  ],
+  "receiver.watchdog_ok_pd": [
+    101.86,
+    24.85,
+    0
+  ],
+  "receiver.wdi_pd": [
+    113.04,
+    27.31,
+    0
+  ],
+  "source.c_health": [
+    324.98,
+    12.73,
+    0
+  ],
+  "source.c_inv": [
+    328.94,
+    12.73,
+    0
+  ],
+  "source.c_loss": [
+    336.86,
+    12.73,
+    0
+  ],
+  "source.c_permit": [
+    352.7,
+    14.19,
+    0
+  ],
+  "source.c_permit_clear": [
+    348.74,
+    14.19,
+    0
+  ],
+  "source.c_pulse": [
+    340.82,
+    12.73,
+    0
+  ],
+  "source.c_rail": [
+    321.02,
+    12.73,
+    0
+  ],
+  "source.c_reset_check": [
+    344.78,
+    12.73,
+    0
+  ],
+  "source.c_seen": [
+    332.9,
+    12.73,
+    0
+  ],
+  "source.c_watchdog": [
+    317.06,
+    12.73,
+    0
+  ],
+  "source.challenge_pd": [
+    285.38,
+    12.73,
+    0
+  ],
+  "source.clear_pd": [
+    301.22,
+    12.73,
+    0
+  ],
+  "source.cwd": [
+    313.1,
+    15.19,
+    0
+  ],
+  "source.health": [
+    285.05,
+    8.25,
+    0
+  ],
+  "source.health_pd": [
+    293.3,
+    12.73,
+    0
+  ],
+  "source.heartbeat_pd": [
+    321.02,
+    15.19,
+    0
+  ],
+  "source.interlock_pd": [
+    292.36,
+    17.65,
+    0
+  ],
+  "source.inv": [
+    293.75,
+    8.25,
+    0
+  ],
+  "source.loss": [
+    319.85,
+    8.25,
+    0
+  ],
+  "source.loss_pd": [
+    305.18,
+    12.73,
+    0
+  ],
+  "source.permit": [
+    345.95,
+    8.25,
+    0
+  ],
+  "source.permit_clear": [
+    337.25,
+    8.25,
+    0
+  ],
+  "source.permit_fb_pd": [
+    304.24,
+    17.65,
+    0
+  ],
+  "source.permit_q_pd": [
+    289.34,
+    12.73,
+    0
+  ],
+  "source.permit_set_pd": [
+    352.28,
+    9.27,
+    0
+  ],
+  "source.prewatchdog_pd": [
+    297.26,
+    12.73,
+    0
+  ],
+  "source.rail": [
+    352.0,
+    6.52,
+    0
+  ],
+  "source.rail_bottom": [
+    332.9,
+    15.19,
+    0
+  ],
+  "source.rail_ct": [
+    336.86,
+    15.19,
+    0
+  ],
+  "source.rail_reset_pu": [
+    340.82,
+    15.19,
+    0
+  ],
+  "source.rail_top": [
+    328.94,
+    15.19,
+    0
+  ],
+  "source.reset_c": [
+    284.44,
+    17.65,
+    0
+  ],
+  "source.reset_check": [
+    328.55,
+    8.25,
+    0
+  ],
+  "source.reset_d_pu": [
+    309.14,
+    12.73,
+    0
+  ],
+  "source.reset_good_pd": [
+    288.4,
+    17.65,
+    0
+  ],
+  "source.reset_r": [
+    280.48,
+    17.63,
+    0
+  ],
+  "source.seen": [
+    311.15,
+    8.25,
+    0
+  ],
+  "source.seen_preset_pd": [
+    313.1,
+    12.73,
+    0
+  ],
+  "source.seen_pu": [
+    344.78,
+    15.19,
+    0
+  ],
+  "source.seen_reset_pd": [
+    352.28,
+    11.73,
+    0
+  ],
+  "source.seen_reset_pulse": [
+    302.45,
+    8.25,
+    0
+  ],
+  "source.session_fb_pd": [
+    300.28,
+    17.65,
+    0
+  ],
+  "source.stop_pd": [
+    296.32,
+    17.65,
+    0
+  ],
+  "source.watchdog": [
+    280.95,
+    13.95,
+    0
+  ],
+  "source.wdi_pu": [
+    324.98,
+    15.19,
+    0
+  ],
+  "source.wdi_pulse_c": [
+    352.7,
+    16.65,
+    0
+  ],
+  "source.wdi_pulse_r": [
+    348.74,
+    16.65,
+    0
+  ],
+  "source.wdo_pu": [
+    317.06,
+    15.19,
+    0
+  ],
+  "source_mcu.challenge_pd": [
+    293.3,
+    15.19,
+    0
+  ],
+  "source_mcu.controller_port": [
+    315,
+    90,
+    0
+  ],
+  "source_mcu.exp_decoupling": [
+    309.14,
+    15.19,
+    0
+  ],
+  "source_mcu.exp_reset_pu": [
+    289.34,
+    15.19,
+    0
+  ],
+  "source_mcu.expander": [
+    276.35,
+    8.25,
+    0
+  ],
+  "source_mcu.port_decoupling": [
+    305.18,
+    15.19,
+    0
+  ],
+  "source_mcu.relay_request_pd": [
+    301.22,
+    15.19,
+    0
+  ],
+  "source_mcu.seen_request_pd": [
+    297.26,
+    15.19,
+    0
+  ],
+  "source_mcu.start": [
+    275.25,
+    13.7,
+    0
+  ],
+  "source_mcu.start_pu": [
+    285.38,
+    15.19,
+    0
+  ]
+}

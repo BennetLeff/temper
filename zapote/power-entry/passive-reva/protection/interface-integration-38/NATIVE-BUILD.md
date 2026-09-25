@@ -95,6 +95,19 @@ All 295 placed footprints match their vendored library definitions. This
 is a diagnostic result, not the reviewed, routed native deliverable or a
 functional pin-name, insulation, thermal or assembly approval.
 
+The [placement diagnostic 02](placement-review/02/README.md) moves three
+footprints from that shelf set and retains 292 unreviewed poses. Its saved
+board and schematic pass ERC, numeric source parity, schematic parity and
+the currently configured non-routing DRC checks; the board remains unrouted
+with KiCad's 499 unconnected-item report cap. `tools/build_native.py` now
+binds a provisional [six-layer 1.8 mm CAD stackup](stackup.json) into the
+generated board and source manifest. The reusable Rust
+`DRC.BOARD.STACKUP` gate passes thickness arithmetic on that diagnostic.
+No laminate CTI, fabricator stackup, insulation rule coverage or physical
+construction is approved by this result. The diagnostic is retained under
+`placement-review/02/native-stackup-diagnostic/`, not promoted to
+`native/section.kicad_pcb`.
+
 `INSULATION-BASIS.md` identifies another independent U7 blocker: the documented 409.307 V maximum static regulation
 falls in the project's >400–500 V PD3 creepage row (16.0 mm reinforced
 screen on Group IIIa FR-4; the separate Group I package screen is 12.6 mm).

@@ -1,0 +1,82 @@
+# Rev38 anchored native placement diagnostic 02
+
+**Status: diagnostic, 2026-09-24. U7 remains open.** The current
+`native-stackup-diagnostic/` is a saved 295-reference native probe built from
+the frozen `source-build-06` receipt
+`a164f33463b42748eefd4474be5f225077e191eae2378448eccad69b932b3d36`
+and the approved 360 × 250 mm **planning** envelope. It includes the
+provisional `stackup.json` (SHA-256
+`45bbfe06341177314ac3e9722ac2afcbf6eda05e8fc87cec052ade77aa98b488`)
+as both native PCB CAD data and a source-manifest input. The earlier
+pre-stackup diagnostic board had SHA-256
+`d28a745e2560fc478ea2b35708eec6ae2fa8d0df894429e10136aee7bec9cc75`
+and the same 0 ERC, 0 non-routing DRC, 0 schematic-parity, 499 capped
+unconnected result; its duplicate generated files were removed after the
+stackup-aware replay. This output is not a reviewed placement, routed board,
+approved insulation design, or fabrication release.
+
+`poses.json` starts from the prior diagnostic shelf pose set (SHA-256
+`46d114daca00f24e90a2362ae6ef9ff2b5ac65452d31afde73842fbddf73419b`).
+The 21 proposed anchor references already matched that set except for U229.
+Exactly three source-instance poses changed:
+
+| Source instance / reference | Before `(x, y, angle)` mm/deg | This probe | Reason |
+| --- | --- | --- | --- |
+| `pfc_power.local_c` / U229 | `(178, 154, 0)` | `(182, 154, 0)` | Apply the proposed local VD reservoir anchor. |
+| `ac_input.y1` / U246 | `(54.8, 10.5, 0)` | `(65, 45, 0)` | Remove three 0.15 mm clearances against U2 and a silkscreen collision with U259; screen a location between the AC/PE entry and CMC. The Y1 route and insulation path remain unreviewed. |
+| `hot15_converter.fb_bottom` / U263 | `(179.42, 23.35, 0)` | `(184.5, 23.35, 0)` | Remove U224 reference silkscreen overlap and two silkscreen-over-copper findings. Feedback-loop placement remains unreviewed. |
+
+All other 292 poses still come from the arbitrary shelf diagnostic. In
+particular, X2 U244 and MOV U245 remain at the top edge, outside a reviewed
+AC input layout. The isolation corridor, connector mating direction,
+mounting supports, capacitor vent and heatsink volumes have not been accepted.
+The generated board has no tracks, standalone vias, zones, slots, or mounting
+holes. `placement-overview.svg` shows the same diagnostic pose set in 2D;
+the stackup update changes CAD construction fields, not footprint positions.
+
+## Saved artifacts and checks
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `poses.json` | `ae0177b9adb8dc7540d27955cfacf502ce281a53404e0627770635ee394f47ab` |
+| `native-stackup-diagnostic/section.kicad_pcb` | `df9b02e9cb33a71ad58fa01295a22b4b6613744a06e1c060ef042c0adb080857` |
+| `native-stackup-diagnostic/section.kicad_sch` | `339154c9e3809782da312c8d85053ee9cfea2d87196b3b20652d25be9261201c` |
+| `native-stackup-diagnostic/source-manifest.json` | `c5a7d59bcbedc109df0cc4d14df673b31b2edfb1ff49751b77e0d30cbabddc7f` |
+| `native-stackup-diagnostic/drc-parity.json` | `e5cb27b8d200e62cb8121620d2a0f9b79ddd8e1491d246f118fcbd7822fe4427` |
+| `native-stackup-diagnostic/stackup-report.json` | `a770ff1c7676463f5ea0c1aecc5f2200e3dffea1a04806543d36e5b251e6ec67` |
+
+The updated native generator's source and raw-pad checks passed, and the
+manifest's board and stackup hashes match the saved inputs. KiCad 10.0.4 ERC
+with all severities reported **0 violations**. KiCad DRC with schematic
+parity and all severities reported **0 non-routing violations** and **0
+schematic parity issues**, down from seven non-routing findings in the
+previous shelf diagnostic. KiCad reported **499 unconnected items**, its
+output cap on this unrouted board; this is not a route-completion count.
+`FootprintNeedsUpdate` against the generated candidate-local libraries
+reported **0 mismatches across 295 placed footprints** on the final
+stackup-aware diagnostic. The board has zero routed tracks and zones.
+
+The reusable Rust `DRC.BOARD.STACKUP` gate reports **PASS**: six copper
+layers, with copper, dielectric and mask adding to **1.800000 mm**, equal to
+the declared board thickness. This is nominal CAD consistency only. The
+fabricator, finished thickness tolerance, laminate CTI, thermal/current
+construction and insulation schedule remain unselected.
+Changing only the board's general thickness to 1.7 mm in a temporary copy
+made the same Rust gate fail: the 1.800000 mm stackup sum differed from the
+1.700000 mm declaration. That negative control checks the gate's response to
+an invalid stackup; it does not qualify the selected materials.
+
+An independent export of the saved schematic compared named numeric
+`(net, reference, pin)` edges against the frozen compiled source after
+excluding the declared off-board F2 (U226): **295 references, 246 nets, and
+1,052 edges**, with zero missing or extra references or edges. The exported
+netlist is saved as `native-stackup-diagnostic/export.xml`. The source bridge's
+`source-manifest.json` records the source, pose and library identities.
+
+The DRC result uses the current generator's provisional board rules and
+ignored-check list. It cannot approve the 15.2 mm opposed-pad copper gap at
+the DWW isolators against the provisional 16.0 mm Group IIIa board-surface
+screen, the final air/creepage construction, current carrying copper, or the
+physical fault-response behavior. Reviewed placement and routing should
+follow U4 electrical review and the open fabricator stackup, supply,
+connector, and insulation decisions.

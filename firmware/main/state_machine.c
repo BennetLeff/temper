@@ -397,8 +397,10 @@ void transition_to(system_state_t new_state) {
 }
 
 bool check_safety_interlocks(void) {
-    /* Over-temperature check — threshold from config.yaml (interlocks:) */
-    if (read_heatsink_temperature() > OVER_TEMP_THRESHOLD) {
+    /* A failed NTC conversion cannot be interpreted as a cool heatsink.
+     * The independent analog trip remains the physical protection owner. */
+    const float heatsink_c = read_heatsink_temperature();
+    if (!isfinite(heatsink_c) || heatsink_c > OVER_TEMP_THRESHOLD) {
         enter_hardware_latched_fault(FAULT_OVER_TEMP);
         return true;
     }

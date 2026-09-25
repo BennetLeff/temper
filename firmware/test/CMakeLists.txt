@@ -41,6 +41,18 @@ add_executable(test_diagnostic_lockout
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/diagnostic_lockout.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostic_lockout.c
 )
+add_executable(test_cooker_board_io
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/cooker_board_io.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_cooker_board_io.c
+)
+target_compile_definitions(test_cooker_board_io PRIVATE COOKER_BOARD_IO_TESTING=1)
+target_include_directories(test_cooker_board_io PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety/include
+)
+target_link_libraries(test_cooker_board_io m)
 target_include_directories(test_diagnostic_lockout PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../main
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/include
@@ -433,6 +445,7 @@ add_test(NAME power_entry_authorization_tests COMMAND test_power_entry_authoriza
 add_test(NAME power_entry_source_runtime_tests COMMAND test_power_entry_source_runtime)
 add_test(NAME power_entry_esp32_adapter_tests COMMAND test_power_entry_esp32_adapter)
 add_test(NAME diagnostic_lockout_tests COMMAND test_diagnostic_lockout)
+add_test(NAME cooker_board_io_tests COMMAND test_cooker_board_io)
 add_test(NAME all_tests COMMAND test_runner)
 add_test(NAME state_machine_tests COMMAND test_state_machine_only)
 add_test(NAME max31865_tests COMMAND test_max31865_only)

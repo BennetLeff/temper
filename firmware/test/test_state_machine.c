@@ -18,6 +18,7 @@
 #include "../main/state_machine.h"
 #include "../main/state_handlers.h"
 #include "../config.h"
+#include <math.h>
 #include <string.h>
 
 /* Forward declare mock control functions from state_machine_stubs.c */
@@ -528,6 +529,20 @@ void test_sm_fault_on_over_temperature(void) {
     
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
+}
+
+void test_sm_missing_heatsink_sample_cuts_hardware(void) {
+    setup_test();
+    state_machine_set_target_temp(100.0f);
+    state_machine_force_state(STATE_PREHEAT);
+
+    mock_sm_set_heatsink_temperature(NAN);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
 }
 
 /**
@@ -1617,6 +1632,7 @@ void run_state_machine_tests(void) {
     
     /* Safety interlocks -> FAULT */
     RUN_TEST(test_sm_fault_on_over_temperature);
+    RUN_TEST(test_sm_missing_heatsink_sample_cuts_hardware);
     RUN_TEST(test_sm_fault_on_over_current);
     RUN_TEST(test_sm_fault_on_fan_failure);
     RUN_TEST(test_sm_fault_on_probe_open);
