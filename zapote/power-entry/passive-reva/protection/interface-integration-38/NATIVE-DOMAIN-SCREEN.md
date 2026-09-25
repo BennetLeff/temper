@@ -68,3 +68,5 @@ for board surface and air paths, package/slot/laminate construction,
 placement and routing, then a fresh native extraction and fault-path
 review. The current DWW pad geometry does not meet the provisional
 16.0 mm FR-4 surface-path screen by itself.
+`INSULATION-COVERAGE.md` records the exact named-net pair census without
+promoting this diagnostic distance check to a release rule.

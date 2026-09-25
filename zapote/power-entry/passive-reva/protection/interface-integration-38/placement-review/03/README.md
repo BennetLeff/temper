@@ -66,14 +66,18 @@ missing or extra edges (`source-native-parity.json`). KiCad exposes 1,070
 physical pad connections because several lands share an electrical pad
 number. The Rust native document binder checks the embedded exact PCB
 against native component, MPN, pad-net, UUID and copper census; its
-`rev38_native_domains` integration test passes. The same test keeps the
+`rev38_native_domains` integration test passes. A fresh KiCad 10.0.4
+`pcbnew` extraction from the saved board was byte-identical to this native
+export, corroborating pad geometry and layers separately from the binder.
+The same test keeps the
 provisional 16.0 mm SELV/live projected copper-distance result **FAIL**,
 including the unchanged 15.2 mm opposed DWW pad gap. The pin-side check
 covers 62 SELV, 183 live and one PE named nets; it is not a reviewed voltage
 or insulation schedule. The broad diagnostic reports 663 below-floor pad
 pairs, compared with 810 on the shelf board; these counts reflect a uniform
 provisional screen and cannot establish the required limits for individual
-net pairs.
+net pairs. `INSULATION-COVERAGE.md` records the exact 30,135-pair census
+and the unresolved release-rule inputs.
 
 The next U7 step is a physical placement review with real cable, fastener,
 thermal, field and assembly volumes, followed by a chosen insulation

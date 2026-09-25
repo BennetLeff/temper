@@ -153,14 +153,35 @@ fn assert_exact_source_native_parity(manifest: &str, export: &str) {
         let reference = references[instance];
         native_edges.insert((name, reference, pin));
     }
+    let mut pad_edges = BTreeSet::new();
+    let mut assigned_physical_pads = 0;
+    for component in native_components {
+        let instance = component["id"].as_str().unwrap();
+        let reference = references[instance];
+        for pad in component["footprint_pads"].as_array().unwrap() {
+            let net = pad["net"].as_str().unwrap();
+            if net.is_empty() {
+                continue;
+            }
+            let pin = pad["pad"].as_str().unwrap();
+            assert!(!pin.is_empty(), "assigned pad has no pin number");
+            assigned_physical_pads += 1;
+            pad_edges.insert((net, reference, pin));
+        }
+    }
     // KiCad exposes several physical lands under one numeric pad. Preserve
     // their UUID census in the binder; parity compares electrical pin edges.
     assert_eq!(native_connections.len(), 1_070);
+    assert_eq!(assigned_physical_pads, 1_070);
     assert_eq!(source_edges.len(), 1_052);
     assert_eq!(source_nets.len(), 246);
     assert_eq!(
         source_edges, native_edges,
         "source/native numeric pad edges differ"
+    );
+    assert_eq!(
+        native_edges, pad_edges,
+        "native connection/pad edges differ"
     );
 }
 
@@ -259,6 +280,21 @@ fn saved_placement_03_binds_all_pads_but_does_not_pass_the_provisional_barrier()
 fn placement_03_source_native_parity_rejects_one_wrong_net() {
     let mut export: serde_json::Value = serde_json::from_str(PLACEMENT_03_EXPORT).unwrap();
     export["connections"][0]["net"] = "wrong_net".into();
+    assert_exact_source_native_parity(PLACEMENT_03_MANIFEST, &export.to_string());
+}
+
+#[test]
+#[should_panic(expected = "native connection/pad edges differ")]
+fn placement_03_source_native_parity_rejects_a_stale_connection_projection() {
+    let mut export: serde_json::Value = serde_json::from_str(PLACEMENT_03_EXPORT).unwrap();
+    let pad = export["components"]
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .flat_map(|component| component["footprint_pads"].as_array_mut().unwrap())
+        .find(|pad| pad["net"].as_str() == Some("selv3v3"))
+        .unwrap();
+    pad["net"] = "selv_gnd".into();
     assert_exact_source_native_parity(PLACEMENT_03_MANIFEST, &export.to_string());
 }
 
