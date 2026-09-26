@@ -18,6 +18,10 @@ integrating them. The original `cooker-120v` plan checkout is retained.
 | Part 4: stackup, rules, placement review | Coordinator + reviewed source/stackup contributions | Stackup complete; insulation rules and placement remain blocked on D5 |
 | Parts 5–6: routing and final verification | After written placement approval | Pending |
 
+The table above records the original shelf milestone. For current four-layer
+routing and renewed D4 status, use [ROUTING.md](ROUTING.md) and
+[PLACEMENT-REVIEW.md](PLACEMENT-REVIEW.md).
+
 ## Baseline checks
 
 - `scripts/assert-base.sh ad5182330`: PASS.

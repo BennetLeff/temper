@@ -39,3 +39,12 @@ It verifies that an injected PCB bridge is detected. At that review's snapshot,
 the routed board still had the previous ten comparator positions; the pose test
 correctly failed. Final board validation must use the regenerated artifact.
 Supplement SHA-256: `f26788c32b5b9094a5dac5217d68e00fe13b6e17f8ebace5315a2a5220f1e282`.
+
+## Saved-copper identity guard
+
+The [implementation receipt](copper-identity-implementation.json) and
+[independent review](copper-identity-review.json) cover the later guard against
+KiCad reassigning authored track/via nets during save. The reviewer found no
+actionable defects in the four-file snapshot recorded in that receipt. Five
+Rust cases and a real KiCad saved-via mutation passed. Final board receipts
+are recorded separately under `native-06/verification/`.

@@ -1,10 +1,10 @@
 {
-  "input_board_sha256": "ac85068c1778caf943ac9a3e0e215622adcb39d2da2f96d85095bc85a998b8c4",
+  "input_board_sha256": "14b6ffb9128eb87ada8aead0a8ce7dcc3446ff1341f6b36071d800aef733eecd",
   "instruction_sha256": "d7be40e4a9286cfbaa12228b6231398c265a8b053f32f3ccf1cfcd307b7d4666",
   "adapter_sha256": "f649b3afb6e783c4c47a33af1a739f181cb54c78d5865588437677fc23bdde1c",
   "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
-  "replay_sha256": "412713bbe767f5e44b6860d9b79018edf447aba8d8f5a39358839f01eadd0c4c",
-  "output_board_sha256": "6fb2d967e68d65b78ece719736b81a5674eafcd953679977a428b85aa50bc24d",
+  "replay_sha256": "237f8a4ed998cbb83cfa853add49a52885a4349e2bbcbeed784be264ea9371a9",
+  "output_board_sha256": "278d17eaf790436469aaf8cdfbd430811e211689b7773624bb2c0f37a0f7e149",
   "operations": [
     {
       "net": "ac_l_in",
@@ -96,7 +96,37 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "1afe1a38-f271-4789-b9d0-68af4cd3bafa",
+          "kind": "track"
+        },
+        {
+          "uuid": "28dd084f-6980-48f1-9914-0cd319f3a123",
+          "kind": "track"
+        },
+        {
+          "uuid": "6add4494-abc7-40bf-ad35-56fd8e51b32b",
+          "kind": "track"
+        },
+        {
+          "uuid": "95f24860-e6cd-4ffb-9d06-738780cf2ff7",
+          "kind": "track"
+        },
+        {
+          "uuid": "995788e9-2803-456b-b055-62444ae8ca4b",
+          "kind": "track"
+        },
+        {
+          "uuid": "9b81855e-27b8-4cef-be6d-1af8388a092f",
+          "kind": "track"
+        },
+        {
+          "uuid": "b7ecf117-7574-40f3-80f8-f505950a31cd",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "l_f",
@@ -236,7 +266,53 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "002f36bc-e649-44df-a6e7-52936c170d28",
+          "kind": "track"
+        },
+        {
+          "uuid": "37d1029e-181e-4d95-a160-d75b1b17d250",
+          "kind": "track"
+        },
+        {
+          "uuid": "3a6b96a9-819f-4fc9-b3d9-824e09f030fa",
+          "kind": "track"
+        },
+        {
+          "uuid": "4bd33388-9b81-48ea-b79e-00f290e608b7",
+          "kind": "track"
+        },
+        {
+          "uuid": "66aae472-3689-4b6d-b108-591cd7d012b5",
+          "kind": "track"
+        },
+        {
+          "uuid": "72b5a68f-8009-4a06-b5d6-d71bc109bf2c",
+          "kind": "track"
+        },
+        {
+          "uuid": "98be5df0-40be-464f-9cb5-37d7a3d5e220",
+          "kind": "track"
+        },
+        {
+          "uuid": "a3ccbcdc-dd1b-4335-9007-d49aaa5bfda7",
+          "kind": "track"
+        },
+        {
+          "uuid": "ab3ffec8-98b1-45f6-826d-9130d15bca73",
+          "kind": "track"
+        },
+        {
+          "uuid": "d7a4fe2a-ff61-4c72-a3f2-7ae43b6d059b",
+          "kind": "track"
+        },
+        {
+          "uuid": "f01a227a-6b13-448f-ad0f-a69532f73785",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "ac_n_in",
@@ -556,7 +632,113 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "0b125bf0-40b1-4c4e-b5d6-34ec3289366d",
+          "kind": "track"
+        },
+        {
+          "uuid": "0b991d6c-40e8-41db-8067-86fb5c84bbe3",
+          "kind": "track"
+        },
+        {
+          "uuid": "0c6ee656-5bdf-4b30-b7a3-d493bf1bcd3e",
+          "kind": "track"
+        },
+        {
+          "uuid": "0ef9be22-32da-49de-8788-ae9fdafaa4a1",
+          "kind": "track"
+        },
+        {
+          "uuid": "121a9894-95db-41b4-a674-ae02ee05bcc9",
+          "kind": "track"
+        },
+        {
+          "uuid": "302c5c76-fa7e-4e46-afde-ab0dec212ead",
+          "kind": "track"
+        },
+        {
+          "uuid": "38fc4874-dbee-4fdd-9956-892fe562b64e",
+          "kind": "track"
+        },
+        {
+          "uuid": "406ad85d-a2d6-4555-bb93-22faddcd1638",
+          "kind": "track"
+        },
+        {
+          "uuid": "59668bfb-e193-45b7-9a12-00a29d06cbe8",
+          "kind": "track"
+        },
+        {
+          "uuid": "698347a1-d18f-49eb-9a20-b0c3872aaeb0",
+          "kind": "track"
+        },
+        {
+          "uuid": "773704ff-c0c2-43a7-87b1-51f8ff71e55c",
+          "kind": "track"
+        },
+        {
+          "uuid": "77ee1f37-50c2-468e-a6df-5df10a4858c8",
+          "kind": "track"
+        },
+        {
+          "uuid": "809601e3-5c7d-4929-a4e0-22e9ea23f614",
+          "kind": "track"
+        },
+        {
+          "uuid": "8d901f4a-9c50-431f-ba7b-6c9435f0482b",
+          "kind": "track"
+        },
+        {
+          "uuid": "c2c731ac-372e-42a4-932e-cac4d211bb83",
+          "kind": "track"
+        },
+        {
+          "uuid": "c8c7bbca-905a-4ba4-bbb9-7bfbb19a6cd5",
+          "kind": "track"
+        },
+        {
+          "uuid": "ccea74fe-da49-4eed-8488-c7be4f1aeba7",
+          "kind": "track"
+        },
+        {
+          "uuid": "cecea595-b445-4b37-8726-a5bf2b371ac7",
+          "kind": "track"
+        },
+        {
+          "uuid": "db216777-76b7-47e9-b81e-7ec05ff5f571",
+          "kind": "track"
+        },
+        {
+          "uuid": "dcd04285-31a1-483e-9063-60e5d659fe3c",
+          "kind": "track"
+        },
+        {
+          "uuid": "e147cf77-d915-4999-849f-906453e2fee0",
+          "kind": "track"
+        },
+        {
+          "uuid": "e8261cdb-2c3f-4666-a228-775033e0e62f",
+          "kind": "track"
+        },
+        {
+          "uuid": "e876d502-c076-4160-b635-1a3f82a34228",
+          "kind": "track"
+        },
+        {
+          "uuid": "ee2855d2-58b9-45f8-bfbc-e7527cb0283b",
+          "kind": "track"
+        },
+        {
+          "uuid": "f2038ef9-b143-4319-aad2-364e3f57b310",
+          "kind": "track"
+        },
+        {
+          "uuid": "f5de587e-8b73-43b4-aef0-f60e4032f68e",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "xbleed_mid",
@@ -588,7 +770,17 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "3d9785de-150f-49f3-ba02-9195500989d4",
+          "kind": "track"
+        },
+        {
+          "uuid": "4ea48a94-16b3-4064-be1d-2e4b38940ccf",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "l_filt",
@@ -752,7 +944,61 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "3d20f6a4-215f-47df-b822-589540ae9f70",
+          "kind": "track"
+        },
+        {
+          "uuid": "43a5f864-f00f-4008-aa5b-a75d10312607",
+          "kind": "track"
+        },
+        {
+          "uuid": "7cd0bc98-7f10-4fba-9aef-24462a3f8c1d",
+          "kind": "track"
+        },
+        {
+          "uuid": "82ec110d-44ef-4c75-8388-c4abd4f2a0df",
+          "kind": "track"
+        },
+        {
+          "uuid": "96518ff9-f2c5-43ec-a9d5-2cf014c580d2",
+          "kind": "track"
+        },
+        {
+          "uuid": "d83d555f-0ad4-4b7b-8924-756274758bf8",
+          "kind": "track"
+        },
+        {
+          "uuid": "e0296a2d-00cf-4ed4-be37-c04d7d2ee438",
+          "kind": "track"
+        },
+        {
+          "uuid": "e2da00ee-bc32-4c67-849a-3cc7d5a12dd6",
+          "kind": "track"
+        },
+        {
+          "uuid": "e6ac0f0b-9fcc-4f19-9008-454e067aa26b",
+          "kind": "track"
+        },
+        {
+          "uuid": "ee9135bf-7715-4da5-bde0-066956c370d9",
+          "kind": "track"
+        },
+        {
+          "uuid": "f101822f-4382-4c92-8580-a9987bdb49a9",
+          "kind": "track"
+        },
+        {
+          "uuid": "f504ecd2-50cb-403c-9541-0a281e0c1d74",
+          "kind": "track"
+        },
+        {
+          "uuid": "f9e02d32-8fe4-4167-b122-af95b8c9f113",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "n_filt",
@@ -940,7 +1186,69 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "03352ef4-a052-4b24-adc7-a45a909297ce",
+          "kind": "track"
+        },
+        {
+          "uuid": "05e59c6e-e193-431a-8fb2-00f005596d86",
+          "kind": "track"
+        },
+        {
+          "uuid": "0bdfb6e3-b9b4-4b0a-92cf-f18a1160a7b0",
+          "kind": "track"
+        },
+        {
+          "uuid": "1d2dc18e-6917-48b3-9b82-499b7e427276",
+          "kind": "track"
+        },
+        {
+          "uuid": "5241371c-576a-4a7f-9c02-cecc04e9783b",
+          "kind": "track"
+        },
+        {
+          "uuid": "b867c6ac-2858-4f57-9806-a80c02291797",
+          "kind": "track"
+        },
+        {
+          "uuid": "b94904b7-daa9-4338-8f73-31c8cd167bc4",
+          "kind": "track"
+        },
+        {
+          "uuid": "cb287589-6ad5-4568-9ec5-2a51c0329716",
+          "kind": "track"
+        },
+        {
+          "uuid": "cbf8a0db-ca7a-4904-8f11-2c50484a539a",
+          "kind": "track"
+        },
+        {
+          "uuid": "df7327a8-8ce1-4e95-9447-a62dc6a8b207",
+          "kind": "track"
+        },
+        {
+          "uuid": "e1748045-11a8-4eac-a3fd-d8c89c844e33",
+          "kind": "track"
+        },
+        {
+          "uuid": "e744cd9c-9f28-4158-b9dc-0c1101f77f28",
+          "kind": "track"
+        },
+        {
+          "uuid": "edeaeedd-9f02-45e4-819c-13a75d7c7620",
+          "kind": "track"
+        },
+        {
+          "uuid": "eeb7c385-8aae-463c-9317-8f8af3f6526a",
+          "kind": "track"
+        },
+        {
+          "uuid": "f4998094-cc2c-4831-886c-646604ab23df",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "tco_l",
@@ -984,7 +1292,21 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "873a5fa4-439d-4c50-86a3-13a3f0747386",
+          "kind": "track"
+        },
+        {
+          "uuid": "a1e3b7c4-1ba7-4a92-9ff7-de40f66126be",
+          "kind": "track"
+        },
+        {
+          "uuid": "e3c6ea03-ff95-4dc8-95f1-e8bb46662918",
+          "kind": "track"
+        }
+      ]
     }
   ]
 }

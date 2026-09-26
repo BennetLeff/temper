@@ -12,14 +12,15 @@ changes; the revised placement needs review.
 | D2 | Heatsink and airflow | **Approved 2026-09-25:** shared PE-bonded heatsink along a long edge, with electrically insulated MOSFETs and bridge. Airflow direction is still not chosen. |
 | D3 | Physical stackup | **Revised approval 2026-09-26:** four copper layers. Supersedes the two-layer default. Current proposed stackup is 1.6 mm overall, 70 µm copper on all four layers. Layer-count approval does not establish inner-plane ampacity or fabricator stackup acceptance. |
 | D4 | Review placement before routing | **Re-review required:** the 2026-09-26 routing approval covered native-04 at `341e3c70c` (board SHA-256 `c6c55ce8…`). Later placement and stackup changes require renewed review; D1/D3 approval does not supply it. Routing must keep local-capacitor returns through R5 current pads 1/4, keep Kelvin pads 2/3 separate, pair each gate drive with its source return, build overlapping bus/return copper, and enforce the provisional insulation rules. Not a fabrication or powered-operation release. See ROUTING-REVIEW-2026-09-26.md. |
-| D5 | Insulation basis and barrier parts | **Conditionally approved 2026-09-25 by the owner:** single-point controller-ground–PE functional bond and an 8.0 mm minimum placement target. Use verified laminate group IIIa or better (not IIIb above 50 V). This authorizes provisional barrier placement, not insulation qualification. The source now includes the removable 0 Ω functional link; its placement remains pending. Coilcraft evidence, applicable working-voltage/high-frequency rules and package/module certification scope remain open; increase spacing or change parts if those checks require it. See D5-BASIS.md. |
+| D5 | Insulation basis and barrier parts | **Conditionally approved 2026-09-25 by the owner:** single-point controller-ground–PE functional bond and an 8.0 mm minimum placement target. Use verified laminate group IIIa or better (not IIIb above 50 V). This authorizes provisional barrier placement, not insulation qualification. The source includes the removable 0 Ω functional link R38, placed beside the PE terminal inside the controller island in native-05; revised D4 review remains pending. Coilcraft evidence, applicable working-voltage/high-frequency rules and package/module certification scope remain open; increase spacing or change parts if those checks require it. See D5-BASIS.md. |
 | D6 | Mains entry and coil exit edges | **Approved 2026-09-25:** mains left, coil right, viewed from the component side with the heatsink at the top. |
 
 Part 4 §4.0 requires D1–D3 and D6 before deliberate placement. Part 4 §4.2
 requires D5 resolution before barrier placement; the conditional basis above now
 permits provisional barrier placement, with qualification still open. Section 4.5 requires written
-placement approval before Part 5 routing. No final rules, placement, routed
-board or fabrication package is represented as complete.
+placement approval before Part 5 routing. Native-05/native-06 are now the regenerated placement and routed review
+artifacts. Their prototype checks are recorded in PLACEMENT-REVIEW.md; renewed
+D4 and physical qualification remain open. No fabrication package is released.
 
 ## Prototype source revision, 2026-09-25
 

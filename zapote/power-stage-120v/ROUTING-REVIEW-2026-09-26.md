@@ -6,6 +6,10 @@ The owner approved **240 × 160 mm and four layers** during this review;
 DECISIONS.md records that decision. Revised placement D4 remains open.
 No source circuit, placement or routing was edited during this review.
 
+This is the historical checkpoint review, not the disposition of the later
+regenerated board. The implemented corrections and current acceptance evidence
+are in [ROUTING.md](ROUTING.md) and [PLACEMENT-REVIEW.md](PLACEMENT-REVIEW.md).
+
 ## Disposition
 
 **Do not approve the courtyard exemption as implemented.** A KiCad mutation

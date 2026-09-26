@@ -1,10 +1,10 @@
 {
-  "input_board_sha256": "fdb458a2efa0b37c3b62c5ef79f138418e15628e1d2f0697f7f7ac60afdd3ea0",
-  "instruction_sha256": "2ec608a9963a2b1697f44ec2e82e5ba01445c7adb9a190cc0d1dd2474181b823",
+  "input_board_sha256": "fe80a60ed3d6051b5d9771debf66156186a75a86b83600c899d6c7dc9f20e2cc",
+  "instruction_sha256": "cfd7dc8a4fd0f14549e9061269d525c8cd98ef8d4e943299538cb4ae3b5fb266",
   "adapter_sha256": "f649b3afb6e783c4c47a33af1a739f181cb54c78d5865588437677fc23bdde1c",
   "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
-  "replay_sha256": "412713bbe767f5e44b6860d9b79018edf447aba8d8f5a39358839f01eadd0c4c",
-  "output_board_sha256": "7370895be391ca68ed839c6a10fb385d4268228bd2d62f8599e2a403c4eddf84",
+  "replay_sha256": "237f8a4ed998cbb83cfa853add49a52885a4349e2bbcbeed784be264ea9371a9",
+  "output_board_sha256": "1d04d27d6b0bbf202d3f66f1d524deafa5aaa8dab136dc9161504a90f0ad3e90",
   "operations": [
     {
       "net": "leg_ret",
@@ -112,7 +112,7 @@
           ],
           "end_mm": [
             62.0,
-            22.0
+            21.8
           ],
           "width_mm": 0.3,
           "layer": "F.Cu"
@@ -196,7 +196,7 @@
           ],
           "end_mm": [
             62.0,
-            22.0
+            21.8
           ],
           "width_mm": 0.4,
           "layer": "B.Cu"
@@ -204,14 +204,14 @@
         {
           "start_mm": [
             62.0,
-            22.0
+            21.8
           ],
           "end_mm": [
             62.0,
             24.5
           ],
           "width_mm": 0.3,
-          "layer": "In1.Cu"
+          "layer": "B.Cu"
         },
         {
           "start_mm": [
@@ -223,7 +223,7 @@
             24.5
           ],
           "width_mm": 0.3,
-          "layer": "In1.Cu"
+          "layer": "B.Cu"
         },
         {
           "start_mm": [
@@ -235,7 +235,7 @@
             35.0
           ],
           "width_mm": 0.3,
-          "layer": "In1.Cu"
+          "layer": "B.Cu"
         },
         {
           "start_mm": [
@@ -247,7 +247,7 @@
             41.7
           ],
           "width_mm": 0.3,
-          "layer": "In1.Cu"
+          "layer": "B.Cu"
         },
         {
           "start_mm": [
@@ -295,7 +295,7 @@
             39.1
           ],
           "width_mm": 0.3,
-          "layer": "In1.Cu"
+          "layer": "B.Cu"
         },
         {
           "start_mm": [
@@ -307,7 +307,7 @@
             39.1
           ],
           "width_mm": 0.3,
-          "layer": "In1.Cu"
+          "layer": "B.Cu"
         },
         {
           "start_mm": [
@@ -319,7 +319,7 @@
             41.7
           ],
           "width_mm": 0.3,
-          "layer": "In1.Cu"
+          "layer": "B.Cu"
         },
         {
           "start_mm": [
@@ -331,7 +331,7 @@
             41.7
           ],
           "width_mm": 0.3,
-          "layer": "In1.Cu"
+          "layer": "B.Cu"
         },
         {
           "start_mm": [
@@ -343,7 +343,7 @@
             37.0
           ],
           "width_mm": 0.3,
-          "layer": "In1.Cu"
+          "layer": "B.Cu"
         },
         {
           "start_mm": [
@@ -531,47 +531,95 @@
             15.0
           ],
           "end_mm": [
-            95.0,
-            15.0
+            119.6,
+            20.5
           ],
           "width_mm": 0.3,
-          "layer": "In2.Cu"
+          "layer": "F.Cu"
         },
         {
           "start_mm": [
-            95.0,
-            15.0
+            119.6,
+            20.5
           ],
           "end_mm": [
-            90.0,
-            14.5
+            113.5,
+            20.5
           ],
           "width_mm": 0.3,
-          "layer": "In2.Cu"
+          "layer": "In1.Cu"
         },
         {
           "start_mm": [
-            90.0,
-            14.5
+            113.5,
+            20.5
           ],
           "end_mm": [
-            68.5,
-            14.5
+            113.5,
+            16.8
           ],
           "width_mm": 0.3,
-          "layer": "In2.Cu"
+          "layer": "In1.Cu"
         },
         {
           "start_mm": [
-            68.5,
-            14.5
+            113.5,
+            16.8
+          ],
+          "end_mm": [
+            75.2,
+            16.8
+          ],
+          "width_mm": 0.3,
+          "layer": "In1.Cu"
+        },
+        {
+          "start_mm": [
+            75.2,
+            16.8
+          ],
+          "end_mm": [
+            75.2,
+            18.5
+          ],
+          "width_mm": 0.3,
+          "layer": "In1.Cu"
+        },
+        {
+          "start_mm": [
+            75.2,
+            18.5
+          ],
+          "end_mm": [
+            72.5,
+            18.5
+          ],
+          "width_mm": 0.3,
+          "layer": "In1.Cu"
+        },
+        {
+          "start_mm": [
+            72.5,
+            18.5
+          ],
+          "end_mm": [
+            72.5,
+            17.0
+          ],
+          "width_mm": 0.3,
+          "layer": "In1.Cu"
+        },
+        {
+          "start_mm": [
+            72.5,
+            17.0
           ],
           "end_mm": [
             68.5,
             17.0
           ],
           "width_mm": 0.3,
-          "layer": "In2.Cu"
+          "layer": "In1.Cu"
         },
         {
           "start_mm": [
@@ -699,20 +747,20 @@
             26.3
           ],
           "end_mm": [
-            81.2,
-            23.0
+            82.5,
+            26.0
           ],
           "width_mm": 0.3,
           "layer": "In1.Cu"
         },
         {
           "start_mm": [
-            81.2,
-            23.0
+            82.5,
+            26.0
           ],
           "end_mm": [
             77.5,
-            23.0
+            26.0
           ],
           "width_mm": 0.3,
           "layer": "In1.Cu"
@@ -720,7 +768,7 @@
         {
           "start_mm": [
             77.5,
-            23.0
+            26.0
           ],
           "end_mm": [
             73.6,
@@ -735,8 +783,20 @@
             20.6
           ],
           "end_mm": [
-            81.2,
-            23.0
+            82.5,
+            22.0
+          ],
+          "width_mm": 0.3,
+          "layer": "In1.Cu"
+        },
+        {
+          "start_mm": [
+            82.5,
+            22.0
+          ],
+          "end_mm": [
+            82.5,
+            26.0
           ],
           "width_mm": 0.3,
           "layer": "In1.Cu"
@@ -842,7 +902,7 @@
         {
           "position_mm": [
             62.0,
-            22.0
+            21.8
           ],
           "diameter_mm": 0.8,
           "drill_mm": 0.4
@@ -938,7 +998,7 @@
         {
           "position_mm": [
             119.6,
-            15.0
+            20.5
           ],
           "diameter_mm": 0.8,
           "drill_mm": 0.4
@@ -1033,7 +1093,381 @@
           "priority": 2
         }
       ],
-      "mode": "add"
+      "mode": "add",
+      "authored_items": [
+        {
+          "uuid": "03bb6c1c-f792-480a-8856-c432e610d855",
+          "kind": "track"
+        },
+        {
+          "uuid": "071b364b-7550-4631-9ab7-8489b93c1f82",
+          "kind": "via"
+        },
+        {
+          "uuid": "0acb0676-cf3e-4d4b-848f-5d9929b13b0c",
+          "kind": "track"
+        },
+        {
+          "uuid": "0b099a19-eae4-486d-a134-eb52eb3341a6",
+          "kind": "track"
+        },
+        {
+          "uuid": "0fa71c6e-fd17-452d-9fa1-77bd0b8eb79c",
+          "kind": "track"
+        },
+        {
+          "uuid": "136924c2-8303-4c9c-98d0-a382af9de6d9",
+          "kind": "via"
+        },
+        {
+          "uuid": "148f7184-8194-49ee-b17d-a417637203d8",
+          "kind": "track"
+        },
+        {
+          "uuid": "18045bdf-2fc5-4f16-a5bd-3696c7e84c62",
+          "kind": "track"
+        },
+        {
+          "uuid": "1d9c5134-17e2-471e-81df-2a972995d31b",
+          "kind": "track"
+        },
+        {
+          "uuid": "212728a0-133a-4e1e-9138-3d80278cdd47",
+          "kind": "via"
+        },
+        {
+          "uuid": "2400b9b5-854b-4b72-b75e-9fa1c02f11fa",
+          "kind": "track"
+        },
+        {
+          "uuid": "26d2480f-65d7-4bd7-8604-f6061c12a043",
+          "kind": "via"
+        },
+        {
+          "uuid": "28469fef-1b00-4ed7-a031-b5f0f7bde8f2",
+          "kind": "track"
+        },
+        {
+          "uuid": "29ec7355-f634-4d91-9530-0a542eed8ed0",
+          "kind": "track"
+        },
+        {
+          "uuid": "2cab2c62-44db-4fa0-97c8-fe77dcf85326",
+          "kind": "track"
+        },
+        {
+          "uuid": "2dc87003-d055-45a4-908d-ec36af11fc6c",
+          "kind": "track"
+        },
+        {
+          "uuid": "3349bc05-0037-4c89-aeed-ad4a0d6c217b",
+          "kind": "track"
+        },
+        {
+          "uuid": "3b977cca-cab9-4f97-90e3-51fa369454d1",
+          "kind": "track"
+        },
+        {
+          "uuid": "3c635371-8792-44ec-b572-4cb11d828f73",
+          "kind": "via"
+        },
+        {
+          "uuid": "3e7c7ffc-cbea-4380-9f17-92ed83a306af",
+          "kind": "track"
+        },
+        {
+          "uuid": "3f23e706-e6e8-4529-a511-ae10f5f11cb4",
+          "kind": "track"
+        },
+        {
+          "uuid": "4055b0d7-6390-46f1-8126-3bb9b0ebd158",
+          "kind": "track"
+        },
+        {
+          "uuid": "41f45265-f84d-48c9-9615-4974235ba1cd",
+          "kind": "track"
+        },
+        {
+          "uuid": "42aeefab-8f2c-423c-8486-c066f19500aa",
+          "kind": "track"
+        },
+        {
+          "uuid": "4405b44e-2cec-4507-908d-f2e093d274d1",
+          "kind": "track"
+        },
+        {
+          "uuid": "47bfc422-e645-4858-8192-ecb8fc0e2e2f",
+          "kind": "via"
+        },
+        {
+          "uuid": "49067051-73c6-40ec-84ee-b54b0f3adfb6",
+          "kind": "track"
+        },
+        {
+          "uuid": "4e1f6eb2-0793-4225-ab5c-8c47d219ade2",
+          "kind": "track"
+        },
+        {
+          "uuid": "4edc3eb8-1089-4b13-a933-df340375a90b",
+          "kind": "track"
+        },
+        {
+          "uuid": "4f99c39d-181a-4e03-a7d8-351e77684218",
+          "kind": "track"
+        },
+        {
+          "uuid": "524a0aa7-b208-418c-a199-b3e4cbee90d4",
+          "kind": "via"
+        },
+        {
+          "uuid": "525afbd5-8954-4299-bb59-7ee1c5ff30d6",
+          "kind": "via"
+        },
+        {
+          "uuid": "5699c797-d043-4ecb-96dd-8535e79400a7",
+          "kind": "track"
+        },
+        {
+          "uuid": "58db4900-ddfd-4176-b891-39ed7fa629e6",
+          "kind": "via"
+        },
+        {
+          "uuid": "59911bdb-8075-4c63-9684-6ecb7e948f9e",
+          "kind": "via"
+        },
+        {
+          "uuid": "64025363-0e54-4103-928a-c3a087485cd5",
+          "kind": "track"
+        },
+        {
+          "uuid": "655c679d-7acb-46fb-92da-9c992749f311",
+          "kind": "track"
+        },
+        {
+          "uuid": "67e1e137-da3d-482d-9a81-82a25ffb00bc",
+          "kind": "track"
+        },
+        {
+          "uuid": "6e0bb946-3942-4142-9b03-917bccbf6a0c",
+          "kind": "track"
+        },
+        {
+          "uuid": "6ef26267-c3f9-4578-aa54-85bd9876a644",
+          "kind": "track"
+        },
+        {
+          "uuid": "740b8d5d-99b8-4fbf-a190-55aeaf79d190",
+          "kind": "track"
+        },
+        {
+          "uuid": "74fbbc2f-bc56-46e6-8110-7c048d6731e7",
+          "kind": "track"
+        },
+        {
+          "uuid": "78beb23d-6a0d-4a92-9cfb-88cfe144f677",
+          "kind": "track"
+        },
+        {
+          "uuid": "7d115d34-70c1-4577-b9c3-2e2e3d33369d",
+          "kind": "track"
+        },
+        {
+          "uuid": "8567d0ab-a940-4e53-8d89-0d6592973383",
+          "kind": "via"
+        },
+        {
+          "uuid": "8aff967b-a5e4-4a8f-8628-bac8af999e40",
+          "kind": "track"
+        },
+        {
+          "uuid": "8b243fd3-377b-406c-bf7a-b0d6157df6cd",
+          "kind": "track"
+        },
+        {
+          "uuid": "8d360713-9034-4063-980a-1e3e9a6bc39a",
+          "kind": "track"
+        },
+        {
+          "uuid": "91353d0c-e56e-448c-8428-412768e7dde6",
+          "kind": "track"
+        },
+        {
+          "uuid": "9204622e-4857-49e9-9885-41b873785aa3",
+          "kind": "track"
+        },
+        {
+          "uuid": "945a704b-f983-4998-9b62-62cec160206c",
+          "kind": "track"
+        },
+        {
+          "uuid": "9861561f-4801-41de-9df4-f6b3993cab59",
+          "kind": "track"
+        },
+        {
+          "uuid": "9ae65f2b-e81e-461d-ba03-5349214d50f2",
+          "kind": "track"
+        },
+        {
+          "uuid": "9da68ac9-a481-4ec2-8909-b38ffd97e2ae",
+          "kind": "track"
+        },
+        {
+          "uuid": "9e246b55-855f-4436-9671-c6e2b3b170da",
+          "kind": "via"
+        },
+        {
+          "uuid": "9ee1d78b-f80a-4a10-a327-b02a4f9ad280",
+          "kind": "via"
+        },
+        {
+          "uuid": "a36d5008-672f-4467-bbdf-b929d0ec8ea0",
+          "kind": "track"
+        },
+        {
+          "uuid": "a55c6fe7-926e-45d4-adb5-200bdc2ee6e4",
+          "kind": "track"
+        },
+        {
+          "uuid": "a9651029-5931-425e-b49c-55c2b7e95a76",
+          "kind": "track"
+        },
+        {
+          "uuid": "ada57af7-98cc-4b24-b394-6325e4414f50",
+          "kind": "track"
+        },
+        {
+          "uuid": "af51b03a-5d3e-4d93-85e2-f66d75ee1551",
+          "kind": "track"
+        },
+        {
+          "uuid": "b2fa0d69-f964-4726-a268-4ee12e6238c1",
+          "kind": "track"
+        },
+        {
+          "uuid": "b5c86d8c-ee0d-4bb9-93e6-120584e8ccb6",
+          "kind": "track"
+        },
+        {
+          "uuid": "b7a0174c-f76d-4815-b584-e850ce4919c2",
+          "kind": "track"
+        },
+        {
+          "uuid": "ba45ea0a-3449-46e7-a9dc-45c7cd6da3ff",
+          "kind": "via"
+        },
+        {
+          "uuid": "bbe59ba4-62dc-4881-b4f3-5d21e0701742",
+          "kind": "track"
+        },
+        {
+          "uuid": "c4d63f4f-6e03-4725-abc4-3e327576e0f1",
+          "kind": "track"
+        },
+        {
+          "uuid": "c507c92d-3003-49b4-90f6-99ab781ca998",
+          "kind": "track"
+        },
+        {
+          "uuid": "c5323e91-48c4-4e28-a995-9036ed7d96b8",
+          "kind": "track"
+        },
+        {
+          "uuid": "c7bde20f-89c6-4efc-8835-fee88b442c2c",
+          "kind": "track"
+        },
+        {
+          "uuid": "c9fcd341-811d-4071-8f54-492905614a49",
+          "kind": "via"
+        },
+        {
+          "uuid": "cc6a2387-9622-4886-afc5-514053adf38f",
+          "kind": "via"
+        },
+        {
+          "uuid": "d6db06d6-f5b8-4f60-af7a-23e9e2a8d2b4",
+          "kind": "via"
+        },
+        {
+          "uuid": "d773c396-5f92-4ac7-ac6e-673674ea5793",
+          "kind": "track"
+        },
+        {
+          "uuid": "d8229733-db90-4f55-b40d-4b00f558ff19",
+          "kind": "track"
+        },
+        {
+          "uuid": "d96f7e17-411a-4b5c-bbfa-203831d2dfdc",
+          "kind": "track"
+        },
+        {
+          "uuid": "db6efd6b-80cc-4c54-b836-a28b78831db3",
+          "kind": "track"
+        },
+        {
+          "uuid": "dec29419-4738-4d1b-9b47-37ed1e11ea6e",
+          "kind": "via"
+        },
+        {
+          "uuid": "df5187f0-dea2-4ae1-ad50-3c0732444c64",
+          "kind": "track"
+        },
+        {
+          "uuid": "e0dfdfa5-c823-419d-b3ce-fcbaeb40b3a3",
+          "kind": "track"
+        },
+        {
+          "uuid": "e1615e75-0bc6-46f4-bac7-66c927b10dc5",
+          "kind": "track"
+        },
+        {
+          "uuid": "e181202e-cb31-4305-be17-38ca25c09bcb",
+          "kind": "track"
+        },
+        {
+          "uuid": "e413df54-a458-4d50-b15c-076e160c2689",
+          "kind": "track"
+        },
+        {
+          "uuid": "e4a38d0e-aba2-478a-80d9-d30996cb1b36",
+          "kind": "track"
+        },
+        {
+          "uuid": "e6cfc645-093d-4920-9536-b578c750ada9",
+          "kind": "track"
+        },
+        {
+          "uuid": "e89aceec-b129-4ebf-ac28-de4f61388032",
+          "kind": "track"
+        },
+        {
+          "uuid": "ec8b55a7-e47c-4a29-b837-1c6d6b9a4854",
+          "kind": "track"
+        },
+        {
+          "uuid": "edb87838-bc36-4bad-a148-8dcbf04c48c6",
+          "kind": "track"
+        },
+        {
+          "uuid": "ef024748-ba50-4246-8ac4-d4c2fa2985b7",
+          "kind": "via"
+        },
+        {
+          "uuid": "f19063b1-2a81-448b-b707-bfe2f43a71a7",
+          "kind": "track"
+        },
+        {
+          "uuid": "f3d3e221-7190-4649-b96d-3d1f21bd5a57",
+          "kind": "track"
+        },
+        {
+          "uuid": "fa24e56d-7adb-43cc-ab6c-ee32bc0e6ff4",
+          "kind": "track"
+        },
+        {
+          "uuid": "fb18a158-f4e7-4fa2-a59b-626546603b66",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "hot5",
@@ -1056,39 +1490,63 @@
             19.475
           ],
           "end_mm": [
-            56.0,
-            22.0
+            59.0,
+            21.8
           ],
           "width_mm": 0.4,
           "layer": "F.Cu"
         },
         {
           "start_mm": [
-            56.0,
-            22.0
+            59.0,
+            21.8
           ],
           "end_mm": [
-            56.0,
-            29.0
+            63.0,
+            24.0
           ],
           "width_mm": 0.4,
-          "layer": "F.Cu"
+          "layer": "In1.Cu"
         },
         {
           "start_mm": [
-            56.0,
-            29.0
+            63.0,
+            24.0
           ],
           "end_mm": [
-            70.0,
-            29.0
+            69.0,
+            26.5
           ],
           "width_mm": 0.4,
-          "layer": "F.Cu"
+          "layer": "In1.Cu"
         },
         {
           "start_mm": [
-            70.0,
+            69.0,
+            26.5
+          ],
+          "end_mm": [
+            73.0,
+            26.5
+          ],
+          "width_mm": 0.4,
+          "layer": "In1.Cu"
+        },
+        {
+          "start_mm": [
+            73.0,
+            26.5
+          ],
+          "end_mm": [
+            73.0,
+            29.0
+          ],
+          "width_mm": 0.4,
+          "layer": "In1.Cu"
+        },
+        {
+          "start_mm": [
+            73.0,
             29.0
           ],
           "end_mm": [
@@ -1112,20 +1570,44 @@
         },
         {
           "start_mm": [
-            56.0,
-            26.0
+            73.0,
+            29.0
           ],
           "end_mm": [
-            42.0,
-            26.0
+            70.0,
+            29.0
           ],
           "width_mm": 0.4,
           "layer": "F.Cu"
         },
         {
           "start_mm": [
+            59.0,
+            21.8
+          ],
+          "end_mm": [
+            55.0,
+            25.5
+          ],
+          "width_mm": 0.4,
+          "layer": "In1.Cu"
+        },
+        {
+          "start_mm": [
+            55.0,
+            25.5
+          ],
+          "end_mm": [
             42.0,
-            26.0
+            25.5
+          ],
+          "width_mm": 0.4,
+          "layer": "In1.Cu"
+        },
+        {
+          "start_mm": [
+            42.0,
+            25.5
           ],
           "end_mm": [
             42.0,
@@ -1260,35 +1742,35 @@
             34.8
           ],
           "end_mm": [
-            74.0,
-            33.0
+            74.025,
+            36.0
           ],
           "width_mm": 0.3,
           "layer": "F.Cu"
         },
         {
           "start_mm": [
-            74.0,
-            33.0
-          ],
-          "end_mm": [
-            82.225,
-            33.0
-          ],
-          "width_mm": 0.3,
-          "layer": "B.Cu"
-        },
-        {
-          "start_mm": [
-            82.225,
-            33.0
+            74.025,
+            36.0
           ],
           "end_mm": [
             82.225,
             36.0
           ],
           "width_mm": 0.3,
-          "layer": "B.Cu"
+          "layer": "F.Cu"
+        },
+        {
+          "start_mm": [
+            82.225,
+            36.0
+          ],
+          "end_mm": [
+            82.225,
+            37.5
+          ],
+          "width_mm": 0.3,
+          "layer": "F.Cu"
         },
         {
           "start_mm": [
@@ -1316,138 +1798,6 @@
         },
         {
           "start_mm": [
-            74.0,
-            33.0
-          ],
-          "end_mm": [
-            72.0,
-            33.0
-          ],
-          "width_mm": 0.3,
-          "layer": "In2.Cu"
-        },
-        {
-          "start_mm": [
-            72.0,
-            33.0
-          ],
-          "end_mm": [
-            72.0,
-            23.5
-          ],
-          "width_mm": 0.3,
-          "layer": "In2.Cu"
-        },
-        {
-          "start_mm": [
-            72.0,
-            23.5
-          ],
-          "end_mm": [
-            79.8,
-            23.5
-          ],
-          "width_mm": 0.3,
-          "layer": "In2.Cu"
-        },
-        {
-          "start_mm": [
-            79.8,
-            23.5
-          ],
-          "end_mm": [
-            79.8,
-            20.5
-          ],
-          "width_mm": 0.3,
-          "layer": "In2.Cu"
-        },
-        {
-          "start_mm": [
-            79.8,
-            20.5
-          ],
-          "end_mm": [
-            80.0,
-            21.2
-          ],
-          "width_mm": 0.3,
-          "layer": "F.Cu"
-        },
-        {
-          "start_mm": [
-            80.0,
-            21.2
-          ],
-          "end_mm": [
-            81.175,
-            22.0
-          ],
-          "width_mm": 0.3,
-          "layer": "F.Cu"
-        },
-        {
-          "start_mm": [
-            79.8,
-            20.5
-          ],
-          "end_mm": [
-            78.8,
-            19.5
-          ],
-          "width_mm": 0.3,
-          "layer": "In1.Cu"
-        },
-        {
-          "start_mm": [
-            78.8,
-            19.5
-          ],
-          "end_mm": [
-            77.5,
-            19.5
-          ],
-          "width_mm": 0.3,
-          "layer": "In1.Cu"
-        },
-        {
-          "start_mm": [
-            77.5,
-            19.5
-          ],
-          "end_mm": [
-            75.5,
-            19.0
-          ],
-          "width_mm": 0.3,
-          "layer": "In1.Cu"
-        },
-        {
-          "start_mm": [
-            75.5,
-            19.0
-          ],
-          "end_mm": [
-            74.2,
-            16.0
-          ],
-          "width_mm": 0.3,
-          "layer": "In1.Cu"
-        },
-        {
-          "start_mm": [
-            74.2,
-            16.0
-          ],
-          "end_mm": [
-            73.1375,
-            18.05
-          ],
-          "width_mm": 0.3,
-          "layer": "F.Cu"
-        },
-        {
-          "start_mm": [
             70.0,
             29.0
           ],
@@ -1464,8 +1814,116 @@
             24.0
           ],
           "end_mm": [
+            70.0,
+            22.3
+          ],
+          "width_mm": 0.3,
+          "layer": "F.Cu"
+        },
+        {
+          "start_mm": [
+            70.0,
+            22.3
+          ],
+          "end_mm": [
             71.225,
             23.0
+          ],
+          "width_mm": 0.3,
+          "layer": "F.Cu"
+        },
+        {
+          "start_mm": [
+            70.0,
+            22.3
+          ],
+          "end_mm": [
+            70.0,
+            15.0
+          ],
+          "width_mm": 0.3,
+          "layer": "B.Cu"
+        },
+        {
+          "start_mm": [
+            70.0,
+            15.0
+          ],
+          "end_mm": [
+            74.0,
+            15.0
+          ],
+          "width_mm": 0.3,
+          "layer": "B.Cu"
+        },
+        {
+          "start_mm": [
+            74.0,
+            15.0
+          ],
+          "end_mm": [
+            74.0,
+            15.9
+          ],
+          "width_mm": 0.3,
+          "layer": "B.Cu"
+        },
+        {
+          "start_mm": [
+            74.0,
+            15.9
+          ],
+          "end_mm": [
+            73.1375,
+            18.05
+          ],
+          "width_mm": 0.3,
+          "layer": "F.Cu"
+        },
+        {
+          "start_mm": [
+            74.0,
+            15.9
+          ],
+          "end_mm": [
+            73.1,
+            15.9
+          ],
+          "width_mm": 0.3,
+          "layer": "B.Cu"
+        },
+        {
+          "start_mm": [
+            73.1,
+            15.9
+          ],
+          "end_mm": [
+            73.1,
+            23.0
+          ],
+          "width_mm": 0.3,
+          "layer": "B.Cu"
+        },
+        {
+          "start_mm": [
+            73.1,
+            23.0
+          ],
+          "end_mm": [
+            80.5,
+            23.0
+          ],
+          "width_mm": 0.3,
+          "layer": "B.Cu"
+        },
+        {
+          "start_mm": [
+            80.5,
+            23.0
+          ],
+          "end_mm": [
+            81.175,
+            22.0
           ],
           "width_mm": 0.3,
           "layer": "F.Cu"
@@ -1474,8 +1932,16 @@
       "vias": [
         {
           "position_mm": [
-            42.0,
-            26.0
+            59.0,
+            21.8
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            73.0,
+            29.0
           ],
           "diameter_mm": 0.8,
           "drill_mm": 0.4
@@ -1506,14 +1972,6 @@
         },
         {
           "position_mm": [
-            74.0,
-            33.0
-          ],
-          "diameter_mm": 0.8,
-          "drill_mm": 0.4
-        },
-        {
-          "position_mm": [
             82.225,
             36.0
           ],
@@ -1530,23 +1988,225 @@
         },
         {
           "position_mm": [
-            79.8,
-            20.5
+            70.0,
+            22.3
           ],
           "diameter_mm": 0.8,
           "drill_mm": 0.4
         },
         {
           "position_mm": [
-            74.2,
-            16.0
+            74.0,
+            15.9
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            80.5,
+            23.0
           ],
           "diameter_mm": 0.8,
           "drill_mm": 0.4
         }
       ],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "058011da-07af-4593-a1a2-8e15c103bc94",
+          "kind": "track"
+        },
+        {
+          "uuid": "0999b670-043d-4fc9-b6db-4e2ac46cf71c",
+          "kind": "track"
+        },
+        {
+          "uuid": "09f8ec92-f483-499d-8877-ec248293d260",
+          "kind": "via"
+        },
+        {
+          "uuid": "0d76a8cd-5f77-4b2f-80cb-de8be4e0979a",
+          "kind": "track"
+        },
+        {
+          "uuid": "10f25046-adad-462d-8c0a-99b2bfa78dfd",
+          "kind": "via"
+        },
+        {
+          "uuid": "18f9ca35-3a66-4ac6-beae-a45d912397e9",
+          "kind": "via"
+        },
+        {
+          "uuid": "1b9ebfa6-ace3-49ec-81af-149a152fa892",
+          "kind": "track"
+        },
+        {
+          "uuid": "21b79449-f749-4571-a9c3-422074db3701",
+          "kind": "track"
+        },
+        {
+          "uuid": "25a0abc9-76f5-4c76-9812-836a9f5c57ec",
+          "kind": "track"
+        },
+        {
+          "uuid": "27b05177-6952-44c4-853f-c24607d33cae",
+          "kind": "track"
+        },
+        {
+          "uuid": "2a46737c-15d1-46a0-96e4-9b608d534b7d",
+          "kind": "via"
+        },
+        {
+          "uuid": "33f989cd-5bd7-4382-85af-09570ef2dd43",
+          "kind": "track"
+        },
+        {
+          "uuid": "397d657a-50cb-4d3e-a52e-29e398b9c3cd",
+          "kind": "track"
+        },
+        {
+          "uuid": "3a24ebda-23bf-4457-bfa0-a2bf77ddb552",
+          "kind": "via"
+        },
+        {
+          "uuid": "49cf4afd-8e66-432b-817b-20e37cb2f997",
+          "kind": "track"
+        },
+        {
+          "uuid": "49ed84f5-9c74-42ca-b306-62dc4fc40d47",
+          "kind": "track"
+        },
+        {
+          "uuid": "4d90c7ee-fced-476c-9d3e-c0150d0f29c2",
+          "kind": "track"
+        },
+        {
+          "uuid": "53781665-02e9-427f-b502-9731772f3c58",
+          "kind": "track"
+        },
+        {
+          "uuid": "602539a0-5897-4f91-bbe1-fd99246a54e5",
+          "kind": "track"
+        },
+        {
+          "uuid": "62d6db8d-30fb-4a5a-99ea-c7a7ac58f9c8",
+          "kind": "via"
+        },
+        {
+          "uuid": "65a4a9fc-b05c-4b6c-ae69-1970ec700369",
+          "kind": "track"
+        },
+        {
+          "uuid": "6a1137a0-8c53-40fb-b008-a1cfea050291",
+          "kind": "track"
+        },
+        {
+          "uuid": "6a50fee0-a94f-48a1-be0d-0802745f6adf",
+          "kind": "track"
+        },
+        {
+          "uuid": "72b7d571-f940-4c29-af70-acec2907045d",
+          "kind": "track"
+        },
+        {
+          "uuid": "7cf0ca97-b749-448d-8564-a2d767cdae39",
+          "kind": "track"
+        },
+        {
+          "uuid": "88fa2308-6740-46f4-97f5-403858f71d59",
+          "kind": "via"
+        },
+        {
+          "uuid": "89ba2c85-f49e-49b2-a42d-e3564d7664c7",
+          "kind": "track"
+        },
+        {
+          "uuid": "8fd9a487-aafc-4cd4-b74d-6942517a6141",
+          "kind": "track"
+        },
+        {
+          "uuid": "96c309e4-0dec-4a12-bb17-129f3eb4406c",
+          "kind": "track"
+        },
+        {
+          "uuid": "97ac95ea-e4df-4c83-b18a-3a66d1094bc7",
+          "kind": "track"
+        },
+        {
+          "uuid": "9856af3e-88ec-420e-bb90-d8e07b26c976",
+          "kind": "via"
+        },
+        {
+          "uuid": "a0245055-5687-41f1-a603-3815a239d4b2",
+          "kind": "track"
+        },
+        {
+          "uuid": "a4fe334c-f2f5-4cea-8100-2b9f19e6c940",
+          "kind": "track"
+        },
+        {
+          "uuid": "a83db3b0-dd65-49a4-8618-70be28155457",
+          "kind": "track"
+        },
+        {
+          "uuid": "b6e4bf24-3a1e-43ef-846c-16c83f951bef",
+          "kind": "via"
+        },
+        {
+          "uuid": "b7edc65b-7876-4f2a-a11d-8f8f2f17a50c",
+          "kind": "track"
+        },
+        {
+          "uuid": "b9088ccb-33b8-4613-b1a8-b60a841d0940",
+          "kind": "track"
+        },
+        {
+          "uuid": "b9f53ef8-ef81-47f0-bae2-36f50727ffac",
+          "kind": "track"
+        },
+        {
+          "uuid": "be879d87-adac-4260-8362-9f097ec68d4b",
+          "kind": "via"
+        },
+        {
+          "uuid": "bfb2c98d-d173-4254-82e7-7c5f1b459f48",
+          "kind": "track"
+        },
+        {
+          "uuid": "c266809a-5ab1-43f3-9ba4-fd8877961f5d",
+          "kind": "track"
+        },
+        {
+          "uuid": "c86a445d-7ddc-4833-bcef-7b81801c060e",
+          "kind": "track"
+        },
+        {
+          "uuid": "cd48b467-e6fc-4591-b5ca-7cf8d9d6f1e8",
+          "kind": "track"
+        },
+        {
+          "uuid": "cdd6a78e-e523-49f1-a114-94e13b71aca1",
+          "kind": "track"
+        },
+        {
+          "uuid": "d52af2a6-9e1b-4ca3-aaef-268a7e2e5a74",
+          "kind": "track"
+        },
+        {
+          "uuid": "f0a926d8-46fe-43ba-bcab-dfccbc6266bc",
+          "kind": "track"
+        },
+        {
+          "uuid": "f6f84aa4-df32-4595-96a3-1020dc089c9f",
+          "kind": "track"
+        },
+        {
+          "uuid": "fe73db01-51af-4534-8ef0-48557d834317",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "v15_ls",
@@ -1750,7 +2410,7 @@
           ],
           "end_mm": [
             82.0,
-            28.0
+            27.2
           ],
           "width_mm": 0.4,
           "layer": "In2.Cu"
@@ -1758,11 +2418,11 @@
         {
           "start_mm": [
             82.0,
-            28.0
+            27.2
           ],
           "end_mm": [
             88.42,
-            28.0
+            27.2
           ],
           "width_mm": 0.4,
           "layer": "In2.Cu"
@@ -1770,7 +2430,7 @@
         {
           "start_mm": [
             88.42,
-            28.0
+            27.2
           ],
           "end_mm": [
             88.42,
@@ -1786,7 +2446,7 @@
           ],
           "end_mm": [
             88.42,
-            28.0
+            27.2
           ],
           "width_mm": 0.4,
           "layer": "In1.Cu"
@@ -1794,11 +2454,11 @@
         {
           "start_mm": [
             88.42,
-            28.0
+            27.2
           ],
           "end_mm": [
             118.0,
-            28.0
+            27.2
           ],
           "width_mm": 0.4,
           "layer": "In1.Cu"
@@ -1806,7 +2466,7 @@
         {
           "start_mm": [
             118.0,
-            28.0
+            27.2
           ],
           "end_mm": [
             118.0,
@@ -1830,7 +2490,7 @@
         {
           "start_mm": [
             106.1,
-            28.0
+            27.2
           ],
           "end_mm": [
             106.1,
@@ -1922,6 +2582,18 @@
           ],
           "width_mm": 0.3,
           "layer": "F.Cu"
+        },
+        {
+          "start_mm": [
+            118.0,
+            27.2
+          ],
+          "end_mm": [
+            118.0,
+            28.0
+          ],
+          "width_mm": 0.3,
+          "layer": "In1.Cu"
         },
         {
           "start_mm": [
@@ -2067,7 +2739,193 @@
         }
       ],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "0177f295-8897-4baa-8a58-3f871b737385",
+          "kind": "via"
+        },
+        {
+          "uuid": "0a4653a5-8e10-4ba9-995d-0df79ec86b9a",
+          "kind": "track"
+        },
+        {
+          "uuid": "0e2d652b-550d-4783-a778-c64be876c9ef",
+          "kind": "track"
+        },
+        {
+          "uuid": "0fbe48dc-29df-4855-b612-98beebb82487",
+          "kind": "track"
+        },
+        {
+          "uuid": "19bc13c3-0b1f-461f-8abf-6089719f8777",
+          "kind": "track"
+        },
+        {
+          "uuid": "29453669-4393-4207-8f1d-d8a65f62f053",
+          "kind": "track"
+        },
+        {
+          "uuid": "361c0c28-199d-45e8-8639-7495446cc897",
+          "kind": "track"
+        },
+        {
+          "uuid": "3a3b641b-7779-4f4f-8689-214513840bd8",
+          "kind": "track"
+        },
+        {
+          "uuid": "453512fe-c1ef-4a48-9c16-967de483b3c8",
+          "kind": "track"
+        },
+        {
+          "uuid": "464122aa-2e37-449a-9fb9-65495822e4de",
+          "kind": "track"
+        },
+        {
+          "uuid": "47fdd83c-3515-4404-bdd8-b1eab77c3051",
+          "kind": "track"
+        },
+        {
+          "uuid": "4fb33336-471a-4a15-96a0-3b21b8e6fdac",
+          "kind": "track"
+        },
+        {
+          "uuid": "5133b641-bec0-4690-be8b-f34506ed9cb9",
+          "kind": "track"
+        },
+        {
+          "uuid": "517b48b5-a377-4bf0-a18a-99f61ed02615",
+          "kind": "track"
+        },
+        {
+          "uuid": "5d2ea9a8-18f1-4489-bcf1-014e2f088153",
+          "kind": "track"
+        },
+        {
+          "uuid": "64e8ad40-bcd8-4964-a683-292c9e72e888",
+          "kind": "track"
+        },
+        {
+          "uuid": "65243806-0142-4f68-9696-f33da0fc60a4",
+          "kind": "via"
+        },
+        {
+          "uuid": "66148958-ab70-440b-97ca-f46f3d2c4e12",
+          "kind": "track"
+        },
+        {
+          "uuid": "6807896e-aaca-41a4-bd39-b4a9a479a9f4",
+          "kind": "track"
+        },
+        {
+          "uuid": "6a1792e9-9e07-4728-9074-65e30cfa14e9",
+          "kind": "track"
+        },
+        {
+          "uuid": "6aabb6fa-7f4f-43b4-82f8-c0f4f11af5d7",
+          "kind": "track"
+        },
+        {
+          "uuid": "6cdbc689-94d4-4131-85b4-dcca17f5a40f",
+          "kind": "track"
+        },
+        {
+          "uuid": "73292781-b61e-46bf-8224-f8ff31d9e8b7",
+          "kind": "track"
+        },
+        {
+          "uuid": "84924380-7c72-4e15-ba09-b3a056f39ec7",
+          "kind": "via"
+        },
+        {
+          "uuid": "84b28c10-3238-4793-a765-ff46f607eddb",
+          "kind": "via"
+        },
+        {
+          "uuid": "86c06aed-30d9-48cc-b6b4-c8691116e9a5",
+          "kind": "track"
+        },
+        {
+          "uuid": "87af8c36-2e5e-4c27-ad0b-db4d1c379ac3",
+          "kind": "track"
+        },
+        {
+          "uuid": "8fc3229e-5eb6-4856-925a-1d53c537a1f4",
+          "kind": "track"
+        },
+        {
+          "uuid": "943e9728-45de-4699-a6c9-348e23dc4602",
+          "kind": "track"
+        },
+        {
+          "uuid": "9d752e70-bc42-485c-aa0b-c303290ed174",
+          "kind": "via"
+        },
+        {
+          "uuid": "9e149d7a-310e-4c1f-888e-54f7e50ddda0",
+          "kind": "track"
+        },
+        {
+          "uuid": "a35edb43-d809-464a-8ce4-3d34a48818bf",
+          "kind": "via"
+        },
+        {
+          "uuid": "a8dc8b23-c883-439c-9d72-e02539672ff2",
+          "kind": "track"
+        },
+        {
+          "uuid": "acf365dc-fbfd-4831-bd45-20d976586c1d",
+          "kind": "track"
+        },
+        {
+          "uuid": "af5049b4-42ea-4339-a42d-301602a2fccf",
+          "kind": "track"
+        },
+        {
+          "uuid": "af5d0065-d8b9-487e-88cf-ada83b007abc",
+          "kind": "track"
+        },
+        {
+          "uuid": "cf24e640-8673-4a02-b89d-6afc87465d50",
+          "kind": "track"
+        },
+        {
+          "uuid": "db97056c-6ac4-404a-949f-8b9da1670e8d",
+          "kind": "track"
+        },
+        {
+          "uuid": "dd838cb3-9aa6-4621-abe6-4705207543a5",
+          "kind": "track"
+        },
+        {
+          "uuid": "e010f136-b1ed-4e2b-a778-a0eed3e4395b",
+          "kind": "via"
+        },
+        {
+          "uuid": "e2dabb1b-1294-478e-b0e8-3a9b5afb0826",
+          "kind": "track"
+        },
+        {
+          "uuid": "e3853c12-bc93-4ca7-891c-4009454796c2",
+          "kind": "track"
+        },
+        {
+          "uuid": "e6949f54-b67f-421a-842e-15df4de58f8b",
+          "kind": "track"
+        },
+        {
+          "uuid": "e981f461-79e0-4df5-8b78-7382f5e9c6f8",
+          "kind": "track"
+        },
+        {
+          "uuid": "ea9beedd-0ace-4844-911d-cabec1c95e60",
+          "kind": "track"
+        },
+        {
+          "uuid": "f0d83c47-c9ca-49ce-ba20-31a18b0b9961",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "vsense_in",
@@ -2252,7 +3110,73 @@
         }
       ],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "6fcf0e92-4f20-404b-b1d3-d140a412a592",
+          "kind": "track"
+        },
+        {
+          "uuid": "759040de-5aed-4262-843e-dd555efe9b4a",
+          "kind": "track"
+        },
+        {
+          "uuid": "8293ae07-8631-44e4-945c-f317c21932b5",
+          "kind": "track"
+        },
+        {
+          "uuid": "8a8e456b-e227-4b0d-8f4b-68cd2a2327da",
+          "kind": "track"
+        },
+        {
+          "uuid": "90f93b09-b2ca-460e-a365-9c908d71e47f",
+          "kind": "via"
+        },
+        {
+          "uuid": "997234ef-5edc-4275-8983-e9d9e98d3721",
+          "kind": "via"
+        },
+        {
+          "uuid": "9d0d7cad-0f63-471b-a3f9-f87bc45e127e",
+          "kind": "track"
+        },
+        {
+          "uuid": "a1a715a1-528e-4a3b-b3b1-2d0b0b56020a",
+          "kind": "track"
+        },
+        {
+          "uuid": "a2a80043-3074-4470-87c5-06eccdab9c97",
+          "kind": "track"
+        },
+        {
+          "uuid": "bb00e538-3e7c-42f7-ae46-9377a8738d2f",
+          "kind": "track"
+        },
+        {
+          "uuid": "bde958cd-7f78-430f-ba1e-0db90fb1f13f",
+          "kind": "track"
+        },
+        {
+          "uuid": "c40a94fc-6dff-424e-a6c7-e316b6e86987",
+          "kind": "via"
+        },
+        {
+          "uuid": "c4bb23f7-53f6-48c8-a67b-046c1932712f",
+          "kind": "via"
+        },
+        {
+          "uuid": "dec85b72-4151-46e4-a50a-0e7b8d02c3c9",
+          "kind": "track"
+        },
+        {
+          "uuid": "f09bf74c-39c7-49c5-bd85-0d2f76f5c5fd",
+          "kind": "track"
+        },
+        {
+          "uuid": "f542b93c-1b6f-4597-aecb-31db0e498ed6",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "ovp_thresh",
@@ -2308,7 +3232,25 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "3bab53e7-3535-4855-84f8-96539771c9ae",
+          "kind": "track"
+        },
+        {
+          "uuid": "4f4b09ee-ab73-4e45-acf1-d04845452b9a",
+          "kind": "track"
+        },
+        {
+          "uuid": "5a48cd9e-825f-4381-a77f-09ee3e4230fa",
+          "kind": "track"
+        },
+        {
+          "uuid": "e4ac4ba6-cd3a-4c35-94ac-a0f24b41ed21",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "ovp_ok_hot",
@@ -2481,7 +3423,69 @@
         }
       ],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "01e8897b-5371-4f9c-95ff-d78f728bba4a",
+          "kind": "track"
+        },
+        {
+          "uuid": "0becb1ce-ace7-450e-a6c2-b3872dd26c94",
+          "kind": "track"
+        },
+        {
+          "uuid": "19aa14e0-de9a-4757-8fd8-59bc5b54363b",
+          "kind": "track"
+        },
+        {
+          "uuid": "2ab6c3ae-28a4-455d-ab04-35b00b81bced",
+          "kind": "track"
+        },
+        {
+          "uuid": "33c3810a-3ee9-4afb-b53a-aef7a3343519",
+          "kind": "track"
+        },
+        {
+          "uuid": "75add6f3-d3b4-4d67-a47e-426ef81b8636",
+          "kind": "via"
+        },
+        {
+          "uuid": "a58b0ec1-07c7-40c5-b34a-2226bad64083",
+          "kind": "via"
+        },
+        {
+          "uuid": "ac1ea4d5-8239-4143-9f43-e616c8d7b573",
+          "kind": "track"
+        },
+        {
+          "uuid": "b36a5fb1-9ea0-41d4-8b8c-ddf95f00bcb2",
+          "kind": "track"
+        },
+        {
+          "uuid": "b9c145fd-d517-4e0e-aec6-584875252535",
+          "kind": "track"
+        },
+        {
+          "uuid": "c73a5a70-8382-4f61-975a-8c21baf0c4ac",
+          "kind": "via"
+        },
+        {
+          "uuid": "d727476a-3bb4-4c73-9737-ee3a96c288a2",
+          "kind": "track"
+        },
+        {
+          "uuid": "e860f7cf-3750-4d88-b511-88eddf75decf",
+          "kind": "via"
+        },
+        {
+          "uuid": "ee663125-6183-45b8-b264-2c6868d24d26",
+          "kind": "track"
+        },
+        {
+          "uuid": "efc59d8d-741d-49f5-8c14-c0d72d49a59f",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "ocp_ok_hot",
@@ -2514,6 +3518,54 @@
           "start_mm": [
             71.5,
             35.0
+          ],
+          "end_mm": [
+            71.5,
+            26.5
+          ],
+          "width_mm": 0.3,
+          "layer": "B.Cu"
+        },
+        {
+          "start_mm": [
+            71.5,
+            26.5
+          ],
+          "end_mm": [
+            68.8,
+            25.5
+          ],
+          "width_mm": 0.3,
+          "layer": "B.Cu"
+        },
+        {
+          "start_mm": [
+            68.8,
+            25.5
+          ],
+          "end_mm": [
+            68.8,
+            23.5
+          ],
+          "width_mm": 0.3,
+          "layer": "F.Cu"
+        },
+        {
+          "start_mm": [
+            68.8,
+            23.5
+          ],
+          "end_mm": [
+            71.5,
+            23.5
+          ],
+          "width_mm": 0.3,
+          "layer": "B.Cu"
+        },
+        {
+          "start_mm": [
+            71.5,
+            23.5
           ],
           "end_mm": [
             71.5,
@@ -2558,6 +3610,22 @@
         },
         {
           "position_mm": [
+            68.8,
+            25.5
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            68.8,
+            23.5
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
             71.0,
             16.0
           ],
@@ -2566,7 +3634,61 @@
         }
       ],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "05eca737-fbc3-4b11-9365-9f2c24d712bc",
+          "kind": "via"
+        },
+        {
+          "uuid": "07889972-0475-49cd-b656-c272a3f166f3",
+          "kind": "track"
+        },
+        {
+          "uuid": "14585784-a3a3-49cc-9951-6f86b4f41d72",
+          "kind": "track"
+        },
+        {
+          "uuid": "27bc01e9-6940-4a26-942b-1a34769d1c2c",
+          "kind": "via"
+        },
+        {
+          "uuid": "5184932f-19ba-4a27-b5a7-3c6881db1ab0",
+          "kind": "track"
+        },
+        {
+          "uuid": "59f647d0-3891-4419-92c2-52d5f5e9c6c5",
+          "kind": "track"
+        },
+        {
+          "uuid": "65e71a2f-1738-4508-81ac-8ea830367ffc",
+          "kind": "track"
+        },
+        {
+          "uuid": "7cd2f3da-4d8d-4da0-9e5d-5bb32689aadf",
+          "kind": "via"
+        },
+        {
+          "uuid": "9343f3b2-12a5-40cf-9f05-892f62a1a92a",
+          "kind": "via"
+        },
+        {
+          "uuid": "bbbad6bc-95e1-4155-b699-08373b64c4e5",
+          "kind": "track"
+        },
+        {
+          "uuid": "bd43487d-cbc5-4a12-8fe9-f9d53ddbb48b",
+          "kind": "track"
+        },
+        {
+          "uuid": "cb277b10-23e6-4db0-9cd7-75c276fa892a",
+          "kind": "track"
+        },
+        {
+          "uuid": "e051a084-5bd1-46b3-969b-97c5f8a475b1",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "bus_fault_hot",
@@ -2593,7 +3715,7 @@
             37.0
           ],
           "width_mm": 0.3,
-          "layer": "B.Cu"
+          "layer": "In2.Cu"
         },
         {
           "start_mm": [
@@ -2605,7 +3727,7 @@
             39.0
           ],
           "width_mm": 0.3,
-          "layer": "B.Cu"
+          "layer": "In2.Cu"
         },
         {
           "start_mm": [
@@ -2651,7 +3773,37 @@
         }
       ],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "161e27d6-8584-4115-a247-193c3b12f7bb",
+          "kind": "track"
+        },
+        {
+          "uuid": "4d8b7ede-62bb-4c8c-b3b6-db306760d5f9",
+          "kind": "track"
+        },
+        {
+          "uuid": "56dabe11-21ec-491a-a45e-c0242e3d1c5b",
+          "kind": "track"
+        },
+        {
+          "uuid": "b85b0285-b7a7-4277-8997-5a5e373a9d0d",
+          "kind": "track"
+        },
+        {
+          "uuid": "d1b6fa50-fa7d-4081-a89f-30138fa4b3b7",
+          "kind": "via"
+        },
+        {
+          "uuid": "de97460a-6845-40de-8c20-f1351476b29a",
+          "kind": "track"
+        },
+        {
+          "uuid": "e74ef199-350a-4caa-ae78-5be4f6d33d42",
+          "kind": "via"
+        }
+      ]
     },
     {
       "net": "ref25",
@@ -2770,6 +3922,18 @@
             27.0
           ],
           "end_mm": [
+            79.5,
+            27.0
+          ],
+          "width_mm": 0.3,
+          "layer": "In1.Cu"
+        },
+        {
+          "start_mm": [
+            79.5,
+            27.0
+          ],
+          "end_mm": [
             82.825,
             27.0
           ],
@@ -2864,6 +4028,14 @@
         },
         {
           "position_mm": [
+            79.5,
+            27.0
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
             82.825,
             20.5
           ],
@@ -2872,11 +4044,133 @@
         }
       ],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "1f72d2fd-b430-4648-9384-251978bbc31f",
+          "kind": "via"
+        },
+        {
+          "uuid": "313ed778-d5ef-4c14-a676-f903f8866243",
+          "kind": "via"
+        },
+        {
+          "uuid": "345b75d0-bc5b-4994-87ff-9dd3abb09c10",
+          "kind": "track"
+        },
+        {
+          "uuid": "372251d5-8519-47cc-9dff-9890a0ec69d9",
+          "kind": "track"
+        },
+        {
+          "uuid": "403b6613-c577-4a9d-899e-6ad890ac2f3c",
+          "kind": "track"
+        },
+        {
+          "uuid": "42ccd03b-d196-423b-b18b-459193c4e810",
+          "kind": "track"
+        },
+        {
+          "uuid": "5c483f8b-5df4-42ac-b2b9-813c07469b44",
+          "kind": "track"
+        },
+        {
+          "uuid": "6482227c-af51-435d-82e7-ab66dd7453d4",
+          "kind": "via"
+        },
+        {
+          "uuid": "71daa836-8db8-46c0-8072-84c30b550749",
+          "kind": "track"
+        },
+        {
+          "uuid": "79bdf5b9-9a37-437d-961f-5ac7bf0debe1",
+          "kind": "track"
+        },
+        {
+          "uuid": "8b940ff6-6ece-4b38-83a7-320328916234",
+          "kind": "track"
+        },
+        {
+          "uuid": "9954dab6-32cd-47fb-b994-25c8a1fe2432",
+          "kind": "via"
+        },
+        {
+          "uuid": "996df4aa-31b2-495a-8095-ce86af80a59f",
+          "kind": "track"
+        },
+        {
+          "uuid": "9eacd152-c2d5-4469-9a8b-dd0fab5dcdd3",
+          "kind": "track"
+        },
+        {
+          "uuid": "a5a41c6e-22f2-41a4-9a2b-8f3fdb264f2f",
+          "kind": "track"
+        },
+        {
+          "uuid": "a66d0683-1903-42d3-8d17-163c78d8fd65",
+          "kind": "track"
+        },
+        {
+          "uuid": "a8f52db1-dd79-4a5d-b5d4-d4700961d01a",
+          "kind": "track"
+        },
+        {
+          "uuid": "d4587c50-31f3-4991-809a-b5f881fbb46c",
+          "kind": "via"
+        },
+        {
+          "uuid": "ddeb0d78-ceb3-421a-9be4-d4b6270484cf",
+          "kind": "track"
+        },
+        {
+          "uuid": "ebf86ba3-be48-4091-b582-6f368d9c8075",
+          "kind": "track"
+        },
+        {
+          "uuid": "ec00a912-7a57-40b9-9879-a1e40ae2a7dc",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "ocp_kelvin_n",
       "segments": [
+        {
+          "start_mm": [
+            127.77,
+            16.03
+          ],
+          "end_mm": [
+            127.77,
+            19.8
+          ],
+          "width_mm": 0.3,
+          "layer": "F.Cu"
+        },
+        {
+          "start_mm": [
+            127.77,
+            19.8
+          ],
+          "end_mm": [
+            128.5,
+            19.8
+          ],
+          "width_mm": 0.3,
+          "layer": "F.Cu"
+        },
+        {
+          "start_mm": [
+            128.5,
+            19.8
+          ],
+          "end_mm": [
+            127.77,
+            16.03
+          ],
+          "width_mm": 0.3,
+          "layer": "In1.Cu"
+        },
         {
           "start_mm": [
             127.77,
@@ -2907,7 +4201,7 @@
             19.1
           ],
           "end_mm": [
-            113.5,
+            114.15,
             19.1
           ],
           "width_mm": 0.3,
@@ -2915,24 +4209,24 @@
         },
         {
           "start_mm": [
-            113.5,
+            114.15,
             19.1
           ],
           "end_mm": [
-            113.5,
-            16.5
+            114.15,
+            15.9
           ],
           "width_mm": 0.3,
           "layer": "In1.Cu"
         },
         {
           "start_mm": [
-            113.5,
-            16.5
+            114.15,
+            15.9
           ],
           "end_mm": [
             76.8,
-            16.5
+            15.9
           ],
           "width_mm": 0.3,
           "layer": "In1.Cu"
@@ -2940,14 +4234,14 @@
         {
           "start_mm": [
             76.8,
-            16.5
+            15.9
           ],
           "end_mm": [
             76.8,
             18.0
           ],
           "width_mm": 0.3,
-          "layer": "In1.Cu"
+          "layer": "B.Cu"
         },
         {
           "start_mm": [
@@ -2965,8 +4259,16 @@
       "vias": [
         {
           "position_mm": [
-            127.77,
-            16.03
+            128.5,
+            19.8
+          ],
+          "diameter_mm": 0.8,
+          "drill_mm": 0.4
+        },
+        {
+          "position_mm": [
+            76.8,
+            15.9
           ],
           "diameter_mm": 0.8,
           "drill_mm": 0.4
@@ -2981,7 +4283,61 @@
         }
       ],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "01a4e7d3-9122-4e3d-9257-44878eddcd35",
+          "kind": "track"
+        },
+        {
+          "uuid": "087f5b25-a84d-4105-9c15-4307fcc6f32b",
+          "kind": "track"
+        },
+        {
+          "uuid": "30bfa7e5-bbd2-4fa7-94c9-e9338caeecd6",
+          "kind": "via"
+        },
+        {
+          "uuid": "341401dc-36dd-4b37-b9fd-78b0f7c1422b",
+          "kind": "track"
+        },
+        {
+          "uuid": "3a094494-b4cd-47e3-99cb-026d26956db9",
+          "kind": "track"
+        },
+        {
+          "uuid": "5eed2a76-6624-4e9e-93e3-e8e6d86069b9",
+          "kind": "track"
+        },
+        {
+          "uuid": "65aa2694-e2f0-439a-a6bb-810145782b9c",
+          "kind": "track"
+        },
+        {
+          "uuid": "6e1f790c-d43b-4692-813e-8060253ca329",
+          "kind": "track"
+        },
+        {
+          "uuid": "84bb973e-dcb1-4a3c-8090-c8665e889c10",
+          "kind": "track"
+        },
+        {
+          "uuid": "9f1771ba-e830-47c1-8d0c-659f83ef3657",
+          "kind": "track"
+        },
+        {
+          "uuid": "b1f1cad3-2f0d-4b48-b8fe-dcd017d680bc",
+          "kind": "via"
+        },
+        {
+          "uuid": "b4851325-9b8b-4716-bef6-929c8fbf445f",
+          "kind": "track"
+        },
+        {
+          "uuid": "e521a1d6-96f8-4158-872a-1aa33c10844e",
+          "kind": "via"
+        }
+      ]
     },
     {
       "net": "ocp_node",
@@ -3049,7 +4405,29 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "755b56e1-b145-4b29-85e8-807dc3e80fdb",
+          "kind": "track"
+        },
+        {
+          "uuid": "81f29345-0809-496b-87e4-1e473e61d089",
+          "kind": "track"
+        },
+        {
+          "uuid": "ade977a9-a11b-48fe-b263-f275cf802466",
+          "kind": "track"
+        },
+        {
+          "uuid": "ae8fd2ff-2d4b-44a5-a205-bfcc58805803",
+          "kind": "track"
+        },
+        {
+          "uuid": "dbdbf624-8c8b-47d0-baff-6111931c165e",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "ocp_thresh",
@@ -3134,7 +4512,37 @@
         }
       ],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "05db11c6-f2fd-4248-b298-db364910906c",
+          "kind": "via"
+        },
+        {
+          "uuid": "3fccc4fe-dff8-4b9b-9f9e-181199c69392",
+          "kind": "track"
+        },
+        {
+          "uuid": "42be80ed-4570-4da8-8137-344ff02cccd0",
+          "kind": "track"
+        },
+        {
+          "uuid": "486a9b4e-a056-452a-8182-1faf7d150c64",
+          "kind": "track"
+        },
+        {
+          "uuid": "840febf8-1b04-4b47-b6e3-3a6b890911d9",
+          "kind": "track"
+        },
+        {
+          "uuid": "93a0d22f-7ef7-4c72-a1e4-70639bd7015a",
+          "kind": "via"
+        },
+        {
+          "uuid": "d717795b-b309-47f8-a643-5bb6323569e3",
+          "kind": "track"
+        }
+      ]
     }
   ]
 }

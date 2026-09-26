@@ -20,15 +20,20 @@ def batch_05_aux() -> Batch:
 
     # U3 regulator: C26 (HOT5) sits left of U3, C24 (V15) sits right.
     b.track("hot5", "F.Cu", 0.4, "U3.1", "C26.1")
-    b.track("hot5", "F.Cu", 0.4, "C26.1", [56.0, 22.0], [56.0, 29.0],
-            [70.0, 29.0], [74.0, 33.0], "C35.1")
-    b.track("hot5", "F.Cu", 0.4, [56.0, 26.0], [42.0, 26.0])
-    b.via("hot5", 42.0, 26.0)
+    # Keep exposed HOT5 copper above the bench lug and right of the fitted
+    # negative strap.  The branches to U4/U7 and the comparator run buried.
+    b.track("hot5", "F.Cu", 0.4, "C26.1", [59.0, 21.8])
+    b.via("hot5", 59.0, 21.8)
+    b.track("hot5", "In1.Cu", 0.4, [59.0, 21.8], [63.0, 24.0],
+            [69.0, 26.5], [73.0, 26.5], [73.0, 29.0])
+    b.via("hot5", 73.0, 29.0)
+    b.track("hot5", "F.Cu", 0.4, [73.0, 29.0], [74.0, 33.0], "C35.1")
+    b.track("hot5", "F.Cu", 0.4, [73.0, 29.0], [70.0, 29.0])
     b.track("leg_ret", "F.Cu", 0.3, "U3.2", [59.0, 16.0], "C26.2",
             [57.5, 14.5], [62.775, 14.5], "C25.2", [64.0, 14.5],
             [66.5, 14.5], "C24.2")
-    b.track("leg_ret", "F.Cu", 0.3, "U3.2", [62.0, 22.0])
-    b.via("leg_ret", 62.0, 22.0)
+    b.track("leg_ret", "F.Cu", 0.3, "U3.2", [62.0, 21.8])
+    b.via("leg_ret", 62.0, 21.8)
     b.track("v15_ls", "F.Cu", 0.3, "U3.3", "C24.1", [68.5, 21.5])
     b.via("v15_ls", 68.5, 21.5)
     b.track("v15_ls", "In1.Cu", 0.3, [68.5, 21.5], [65.0, 21.5],
@@ -39,11 +44,11 @@ def batch_05_aux() -> Batch:
     # Return and V15 from PS2 use the west side of C5 and avoid its live pads.
     b.track("leg_ret", "B.Cu", 0.4, "PS2.3", [47.0, 91.0], [47.0, 78.0],
             [42.0, 75.0], [42.0, 40.0],
-            [54.0, 36.0], [56.0, 25.5], [62.0, 22.0])
+            [54.0, 36.0], [56.0, 25.5], [62.0, 21.8])
     b.track("v15_ls", "B.Cu", 0.4, "PS2.4", [37.5, 80.0], [37.5, 41.0],
             [53.0, 35.0], [55.0, 24.0], [57.0, 20.0], [68.5, 20.0], [68.5, 21.5])
     # The U3-to-U8 control return crosses the HOT5 descent on In1.
-    b.track("leg_ret", "In1.Cu", 0.3, [62.0, 22.0], [62.0, 24.5],
+    b.track("leg_ret", "B.Cu", 0.3, [62.0, 21.8], [62.0, 24.5],
             [77.0, 24.5], [77.0, 35.0], [73.5, 41.7])
     b.via("leg_ret", 73.5, 41.7)
     b.track("leg_ret", "F.Cu", 0.3, [73.5, 41.7], "U8.3")
@@ -51,8 +56,8 @@ def batch_05_aux() -> Batch:
     b.via("leg_ret", 79.0, 31.0)
     b.track("leg_ret", "F.Cu", 0.3, "U9.7", [79.825, 39.1])
     b.via("leg_ret", 79.825, 39.1)
-    b.track("leg_ret", "In1.Cu", 0.3, [73.5, 41.7], [79.825, 39.1])
-    b.track("leg_ret", "In1.Cu", 0.3, [79.0, 31.0], [79.825, 39.1],
+    b.track("leg_ret", "B.Cu", 0.3, [73.5, 41.7], [79.825, 39.1])
+    b.track("leg_ret", "B.Cu", 0.3, [79.0, 31.0], [79.825, 39.1],
             [79.825, 41.7], [87.7, 41.7], [87.7, 37.0])
     b.track("leg_ret", "F.Cu", 0.3, "C36.2", [86.0, 35.0],
             [87.7, 35.0], [87.7, 37.0], "U9.1")
@@ -60,8 +65,8 @@ def batch_05_aux() -> Batch:
 
     # HOT5 descends between D3 and the island, then feeds U4/U7.  A separate
     # In2 lane takes it to U9 and the comparator side of the board.
-    b.track("hot5", "In1.Cu", 0.4, [42.0, 26.0], [42.0, 70.0],
-            [61.0, 72.0])
+    b.track("hot5", "In1.Cu", 0.4, [59.0, 21.8], [55.0, 25.5],
+            [42.0, 25.5], [42.0, 70.0], [61.0, 72.0])
     b.via("hot5", 61.0, 72.0)
     b.track("hot5", "B.Cu", 0.4, [61.0, 72.0], [60.175, 80.6])
     b.via("hot5", 60.175, 80.6)
@@ -74,22 +79,23 @@ def batch_05_aux() -> Batch:
     # U9's input pad is reached from the east so the adjacent fault output
     # can leave to the west without crossing the HOT5 trace.
     b.track("hot5", "F.Cu", 0.3, "C36.1", [82.225, 36.0])
-    b.track("hot5", "F.Cu", 0.3, "C35.1", [74.0, 33.0])
-    b.via("hot5", 74.0, 33.0)
-    b.track("hot5", "B.Cu", 0.3, [74.0, 33.0], [82.225, 33.0],
-            [82.225, 36.0], [85.7, 39.0])
+    b.track("hot5", "F.Cu", 0.3, "C35.1", [74.025, 36.0],
+            [82.225, 36.0], "C36.1")
+    b.track("hot5", "B.Cu", 0.3, [82.225, 36.0], [85.7, 39.0])
     b.via("hot5", 82.225, 36.0)
     b.via("hot5", 85.7, 39.0)
     b.track("hot5", "F.Cu", 0.3, [85.7, 39.0], "U9.3")
-    b.track("hot5", "In2.Cu", 0.3, [74.0, 33.0], [72.0, 33.0],
-            [72.0, 23.5], [79.8, 23.5], [79.8, 20.5])
-    b.via("hot5", 79.8, 20.5)
-    b.track("hot5", "F.Cu", 0.3, [79.8, 20.5], [80.0, 21.2], "R31.1")
-    b.track("hot5", "In1.Cu", 0.3, [79.8, 20.5], [78.8, 19.5],
-            [77.5, 19.5], [75.5, 19.0], [74.2, 16.0])
-    b.via("hot5", 74.2, 16.0)
-    b.track("hot5", "F.Cu", 0.3, [74.2, 16.0], "U6.5")
-    b.track("hot5", "F.Cu", 0.3, [70.0, 29.0], [70.0, 24.0], "C32.1")
+    b.track("hot5", "F.Cu", 0.3, [70.0, 29.0], [70.0, 24.0],
+            [70.0, 22.3], "C32.1")
+    b.via("hot5", 70.0, 22.3)
+    b.track("hot5", "B.Cu", 0.3, [70.0, 22.3], [70.0, 15.0],
+            [74.0, 15.0], [74.0, 15.9])
+    b.via("hot5", 74.0, 15.9)
+    b.track("hot5", "F.Cu", 0.3, [74.0, 15.9], "U6.5")
+    b.track("hot5", "B.Cu", 0.3, [74.0, 15.9], [73.1, 15.9],
+            [73.1, 23.0], [80.5, 23.0])
+    b.via("hot5", 80.5, 23.0)
+    b.track("hot5", "F.Cu", 0.3, [80.5, 23.0], "R31.1")
 
     # U4/U7 return island on In1.  PS2.3 is a through-hole anchor.  The
     # outline is 8 mm clear of the SELV-side U4 pads and nearby island pour.
@@ -112,10 +118,11 @@ def batch_05_aux() -> Batch:
     # The relocated comparator uses a paired top-edge Kelvin feed from R5.
     # The pair is distinct from the earlier LEG_RET current copper at R5.1.
     b.track("leg_ret", "F.Cu", 0.3, "R5.2", [121.5, 12.4],
-            [119.6, 15.0])
-    b.via("leg_ret", 119.6, 15.0)
-    b.track("leg_ret", "In2.Cu", 0.3, [119.6, 15.0], [95.0, 15.0],
-            [90.0, 14.5], [68.5, 14.5], [68.5, 17.0])
+            [119.6, 15.0], [119.6, 20.5])
+    b.via("leg_ret", 119.6, 20.5)
+    b.track("leg_ret", "In1.Cu", 0.3, [119.6, 20.5],
+            [113.5, 20.5], [113.5, 16.8], [75.2, 16.8],
+            [75.2, 18.5], [72.5, 18.5], [72.5, 17.0], [68.5, 17.0])
     b.via("leg_ret", 68.5, 17.0)
     b.track("leg_ret", "F.Cu", 0.3, [68.5, 17.0], [68.3, 19.0], "U6.2")
     b.track("leg_ret", "F.Cu", 0.3, "C24.2", [68.5, 17.0])
@@ -127,9 +134,10 @@ def batch_05_aux() -> Batch:
     b.via("leg_ret", 81.2, 20.6)
     b.track("leg_ret", "F.Cu", 0.3, "R35.2", "C31.2", [84.4, 26.3])
     b.via("leg_ret", 84.4, 26.3)
-    b.track("leg_ret", "In1.Cu", 0.3, [84.4, 26.3], [81.2, 23.0],
-            [77.5, 23.0], [73.6, 25.0])
-    b.track("leg_ret", "In1.Cu", 0.3, [81.2, 20.6], [81.2, 23.0])
+    b.track("leg_ret", "In1.Cu", 0.3, [84.4, 26.3], [82.5, 26.0],
+            [77.5, 26.0], [73.6, 25.0])
+    b.track("leg_ret", "In1.Cu", 0.3, [81.2, 20.6], [82.5, 22.0],
+            [82.5, 26.0])
 
     # Driver bypass returns stay local to their respective VSSB pins; they do
     # not join the control-return lane to R5.2.
@@ -174,12 +182,17 @@ def batch_05_aux() -> Batch:
     b.track("ocp_ok_hot", "F.Cu", 0.3, "U8.1", [72.5, 36.0])
     b.via("ocp_ok_hot", 72.5, 36.0)
     b.track("ocp_ok_hot", "B.Cu", 0.3, [72.5, 36.0],
-            [71.5, 35.0], [71.5, 17.0], [71.0, 16.0])
+            [71.5, 35.0], [71.5, 26.5], [68.8, 25.5])
+    b.via("ocp_ok_hot", 68.8, 25.5)
+    b.track("ocp_ok_hot", "F.Cu", 0.3, [68.8, 25.5], [68.8, 23.5])
+    b.via("ocp_ok_hot", 68.8, 23.5)
+    b.track("ocp_ok_hot", "B.Cu", 0.3, [68.8, 23.5],
+            [71.5, 23.5], [71.5, 17.0], [71.0, 16.0])
     b.via("ocp_ok_hot", 71.0, 16.0)
     b.track("ocp_ok_hot", "F.Cu", 0.3, [71.0, 16.0], "U6.1")
     b.track("bus_fault_hot", "F.Cu", 0.3, "U8.4", [78.5, 37.8])
     b.via("bus_fault_hot", 78.5, 37.8)
-    b.track("bus_fault_hot", "B.Cu", 0.3, [78.5, 37.8], [81.0, 37.0],
+    b.track("bus_fault_hot", "In2.Cu", 0.3, [78.5, 37.8], [81.0, 37.0],
             [81.0, 39.0])
     b.via("bus_fault_hot", 81.0, 39.0)
     b.track("bus_fault_hot", "F.Cu", 0.3, [81.0, 39.0], [83.635, 39.0], "U9.4")
@@ -195,7 +208,9 @@ def batch_05_aux() -> Batch:
             [56.0, 40.9], [75.5, 40.9], [75.5, 27.0])
     b.via("ref25", 75.5, 27.0)
     b.track("ref25", "F.Cu", 0.3, [75.5, 27.0], "R32.1", "R34.1")
-    b.track("ref25", "B.Cu", 0.3, [75.5, 27.0], [82.825, 27.0],
+    b.track("ref25", "In1.Cu", 0.3, [75.5, 27.0], [79.5, 27.0])
+    b.via("ref25", 79.5, 27.0)
+    b.track("ref25", "B.Cu", 0.3, [79.5, 27.0], [82.825, 27.0],
             [82.825, 20.5])
     b.via("ref25", 82.825, 20.5)
     b.track("ref25", "F.Cu", 0.3, [82.825, 20.5], "R31.2",
@@ -203,10 +218,17 @@ def batch_05_aux() -> Batch:
 
     # R5.3 senses the shunt's other Kelvin pin.  It travels through the
     # channel between the local BUS_P capacitors without touching HV_RET.
-    b.via("ocp_kelvin_n", 127.77, 16.03)
-    b.track("ocp_kelvin_n", "In1.Cu", 0.3, [127.77, 16.03],
-            [119.5, 16.6], [117.5, 19.1], [113.5, 19.1],
-            [113.5, 16.5], [76.8, 16.5], [76.8, 18.0])
+    # Place the layer transition southeast of R5.3.  A via directly on the
+    # pad pinches the BUS_P inner-layer throat below its current requirement.
+    b.track("ocp_kelvin_n", "F.Cu", 0.3, "R5.3",
+            [127.77, 19.8], [128.5, 19.8])
+    b.via("ocp_kelvin_n", 128.5, 19.8)
+    b.track("ocp_kelvin_n", "In1.Cu", 0.3, [128.5, 19.8],
+            [127.77, 16.03],
+            [119.5, 16.6], [117.5, 19.1], [114.15, 19.1],
+            [114.15, 15.9], [76.8, 15.9])
+    b.via("ocp_kelvin_n", 76.8, 15.9)
+    b.track("ocp_kelvin_n", "B.Cu", 0.3, [76.8, 15.9], [76.8, 18.0])
     b.via("ocp_kelvin_n", 76.8, 18.0)
     b.track("ocp_kelvin_n", "F.Cu", 0.3, [76.8, 18.0], "R33.2")
     b.track("ocp_node", "F.Cu", 0.3, "U6.3", [70.8625, 21.7],
@@ -222,10 +244,10 @@ def batch_05_aux() -> Batch:
     # connects the 100 nF C15 bypass to U2.11 without crossing OUTB/VSSB on
     # F.Cu; the V15 portion of that local loop is about 6.2 mm.
     b.track("v15_ls", "In2.Cu", 0.4, [68.5, 21.5], [70.5, 17.0],
-            [82.0, 17.0], [82.0, 28.0], [88.42, 28.0], "D2.2")
-    b.track("v15_ls", "In1.Cu", 0.4, "D2.2", [88.42, 28.0],
-            [118.0, 28.0], [118.0, 38.0], "D1.2")
-    b.track("v15_ls", "In1.Cu", 0.4, [106.1, 28.0], [106.1, 34.0])
+            [82.0, 17.0], [82.0, 27.2], [88.42, 27.2], "D2.2")
+    b.track("v15_ls", "In1.Cu", 0.4, "D2.2", [88.42, 27.2],
+            [118.0, 27.2], [118.0, 38.0], "D1.2")
+    b.track("v15_ls", "In1.Cu", 0.4, [106.1, 27.2], [106.1, 34.0])
     b.via("v15_ls", 106.1, 34.0)
     b.track("v15_ls", "F.Cu", 0.3, [106.1, 34.0], [105.905, 37.0], "U2.11")
     b.track("v15_ls", "F.Cu", 0.3, "C16.1", [106.1, 34.0])
@@ -235,7 +257,7 @@ def batch_05_aux() -> Batch:
     b.via("v15_ls", 109.5, 39.6)
     b.track("v15_ls", "F.Cu", 0.3, [106.1, 39.6], "U2.11")
     b.track("v15_ls", "F.Cu", 0.3, [109.5, 39.6], "C15.1")
-    b.track("v15_ls", "In1.Cu", 0.3, [118.0, 28.0],
+    b.track("v15_ls", "In1.Cu", 0.3, [118.0, 27.2], [118.0, 28.0],
             [150.45, 28.0], [150.45, 39.5])
     b.via("v15_ls", 150.45, 39.5)
     b.track("v15_ls", "F.Cu", 0.3, [150.45, 39.5], "U1.11")

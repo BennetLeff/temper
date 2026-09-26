@@ -1,7 +1,7 @@
 # power-stage-120v: full-bridge induction power stage
 
 Status: **source compiled and audited; 240 × 160 mm four-layer placement
-generated; native-06 routing and final verification in progress; physical NOT RUN.**
+generated; native-06 routed and checked for renewed D4 review; physical NOT RUN.**
 Design basis and justification: `docs/hardware/power-section-120v/` (POWER-SECTION.md,
 LOSS-REFACTOR.md, COIL-MC.md). Front-end decision: `docs/adr/2026-09-25-front-end-architecture-brief.md`.
 
@@ -97,7 +97,7 @@ Only these parts may cross HOT↔SELV, and the audit enforces each pin's side:
 The controller return has one removable functional 0 Ω PE link. It is not
 a protective-earth path and does not waive HOT-to-controller insulation.
 
-Final creepage and clearance rules are not yet written. The full-bridge differential
+Provisional creepage and clearance rules are applied to the routed board. The full-bridge differential
 RMS and peak voltages across each barrier remain unverified; the historical
 tank peak is not a sufficient basis for selecting creepage bands. See
 [RULES-PREFLIGHT.md](RULES-PREFLIGHT.md).
@@ -115,7 +115,7 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 | Gate-supply loss | UCC21550 UVLO holds outputs low; 10 kΩ gate-source hold-off |
 | Line surge | TMOV20RP175E (175 Vrms, 455 V clamp) ahead of 650 V MOSFETs |
 
-## Open before native board / fabrication
+## Open before fabrication and powered qualification
 
 1. **Coil measurement** (COIL-MC.md). Sets the resonant bank value (0.54 µF now, for 70 µH / 32 kHz), CT burden and frequency limits.
 2. **Parts to confirm against manufacturer drawings:**

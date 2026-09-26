@@ -92,32 +92,32 @@
    "vias": [
     {
      "position_mm": [
-      64.5,
-      33.3
+      67.2,
+      32.2
      ],
      "diameter_mm": 1.6,
      "drill_mm": 0.8
     },
     {
      "position_mm": [
-      66.3,
-      33.3
+      67.2,
+      34.0
      ],
      "diameter_mm": 1.6,
      "drill_mm": 0.8
     },
     {
      "position_mm": [
-      64.5,
-      34.7
+      68.5,
+      47.0
      ],
      "diameter_mm": 1.6,
      "drill_mm": 0.8
     },
     {
      "position_mm": [
-      66.3,
-      34.7
+      68.5,
+      48.8
      ],
      "diameter_mm": 1.6,
      "drill_mm": 0.8
@@ -320,6 +320,20 @@
    "paths": [
     {
      "layer": "F.Cu",
+     "width_mm": 5.0,
+     "points": [
+      [
+       83.5,
+       29.9
+      ],
+      [
+       90.0,
+       29.9
+      ]
+     ]
+    },
+    {
+     "layer": "F.Cu",
      "width_mm": 2.0,
      "points": [
       "R5.4",
@@ -372,6 +386,54 @@
     }
    ],
    "vias": [
+    {
+     "position_mm": [
+      83.5,
+      28.6
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
+      83.5,
+      30.4
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
+      85.3,
+      29.5
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
+      90.0,
+      28.6
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
+      90.0,
+      30.4
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
+      91.5,
+      29.5
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
     {
      "position_mm": [
       124.4,

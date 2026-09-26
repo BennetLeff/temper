@@ -1,15 +1,15 @@
 # Revised placement and routing review — native-05/native-06
 
-Status: work in progress, 2026-09-26. The owner approved the 240 × 160 mm
-outline and four layers. The revised placement still needs D4 review after
-routing and verification finish. This file is not an approval or a fabrication
-release. The earlier review is preserved in
+Status: ready for renewed written D4 review, 2026-09-26. The owner approved
+the 240 × 160 mm outline and four layers. All five routing batches are now
+integrated and checked. This file records the review basis, not owner approval
+or a fabrication release. The earlier review is preserved in
 [native-04/PLACEMENT-REVIEW.md](native-04/PLACEMENT-REVIEW.md).
 
 ![Current placement](native-05/placement-preview.png)
 
 The electrical source remains 114 components and 75 nets. Native-05 is the
-source-generated placement; native-06 is the active routed candidate. Routing
+source-generated placement; native-06 is the routed review candidate. Routing
 is explicit and reproducible from the JSON batches under `routes/`.
 
 ## Changes from the approved native-04 placement
@@ -43,15 +43,37 @@ sense on pad 3. The R5 internal connection is discussed in [ROUTING.md](ROUTING.
 
 ## Review evidence
 
-The final board must have current, hash-bound source/MPN/pad parity, filled-board
-stackup, native DRC, all-layer barrier, terminal-hardware and power-path checks.
-Intermediate clean DRC reports are not acceptance: native DRC alone does not
-check the provisional 8 mm plan-view barrier between different copper layers.
-Results will be recorded here when the remaining route and barrier fixes are
-integrated. See [ROUTING.md](ROUTING.md) for copper arrangement and pending gates.
+The routed board hash is `500cdb4b9f3491bfed2535099ad0ed2a59a461f12dd79a7aeedae18014b0f3fe`.
+[The verification packet](native-06/verification/README.md) records three
+full DRC runs with zero copper-spacing/schematic-match findings, the sole R5
+internal Kelvin connection, and 31 retained library/silkscreen warnings.
+All 114 part identities and 313 source pins match. The stackup and independent
+all-layer 8 mm barrier checks pass. Both normal and bring-up hardware envelopes
+clear front-side copper; mechanical conflicts are zero at the current poses.
 
-The terminal strap dimensions and lug envelopes remain provisional until
-measured hardware replaces them. J1 wire-entry orientation, enclosure fit,
-airflow, certification-lab review, Coilcraft insulation evidence and the RCA
-teardown remain open. Physical overshoot/clamp, protection, thermal, leakage,
-hipot and EMI tests have not run.
+Copper views, all viewed from the component side:
+[front](native-06/previews/front.png),
+[inner return](native-06/previews/inner-return.png),
+[inner bus](native-06/previews/inner-bus.png), and
+[back](native-06/previews/back.png).
+
+## What D4 would accept
+
+- The component moves and four-layer placement described above, including the
+  western comparator cluster and longer paired Kelvin-sense run.
+- Driver-to-series-resistor copper lengths of 38.2/43.3 mm on leg A and
+  30.8/35.4 mm on leg B. These exclude the resistor-to-gate stubs and do not
+  establish ringing or loop inductance.
+- The overlapping bus/return copper, 5 mm outer HV_RET bypass, and the via
+  banks described in the [power review](native-06/verification/power-review.md).
+  The western BUS_P width has roughly 6% nominal formula margin at 15 A;
+  local current sharing and via transfer remain model-dependent.
+- The current terminal/strap locations and provisional hardware envelopes,
+  with HOT5 and bus stitching moved clear of exposed metal. Measured hardware
+  must replace these estimates before fabrication.
+
+D4 does not close finished-copper/plating, thermal/current or insulation
+qualification. J1 wire entry, enclosure fit, airflow, certification-lab review,
+Coilcraft/module evidence and the RCA teardown remain open. Overshoot/clamp,
+protection timing, CT injection, leakage, hipot and EMI tests have not run.
+Three L1/J3 silk-outline overlaps remain for production cleanup.

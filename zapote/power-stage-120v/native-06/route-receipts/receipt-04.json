@@ -1,10 +1,10 @@
 {
-  "input_board_sha256": "fadb0097b365c11d4f45c46260418461820bebfe0a899fd8c56ac2b47b74da0f",
+  "input_board_sha256": "02da5d1dfe2c4b11eca870511e0fcade090a7f79fbbdb3304a69d99e2b75cd02",
   "instruction_sha256": "6b8cd40d152f9c56fe29922021858c3011bdcfbe7e235f94e2c2abee8b629514",
   "adapter_sha256": "f649b3afb6e783c4c47a33af1a739f181cb54c78d5865588437677fc23bdde1c",
   "buck_native_sha256": "f657df1a8935f0f6771c9a779504d4e9cb6d12de9b8c195987fd99d6bd142eab",
-  "replay_sha256": "412713bbe767f5e44b6860d9b79018edf447aba8d8f5a39358839f01eadd0c4c",
-  "output_board_sha256": "fdb458a2efa0b37c3b62c5ef79f138418e15628e1d2f0697f7f7ac60afdd3ea0",
+  "replay_sha256": "237f8a4ed998cbb83cfa853add49a52885a4349e2bbcbeed784be264ea9371a9",
+  "output_board_sha256": "fe80a60ed3d6051b5d9771debf66156186a75a86b83600c899d6c7dc9f20e2cc",
   "operations": [
     {
       "net": "sw_a",
@@ -84,7 +84,33 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "add"
+      "mode": "add",
+      "authored_items": [
+        {
+          "uuid": "1284c17b-2c92-46ed-a80e-e5e052de94f8",
+          "kind": "track"
+        },
+        {
+          "uuid": "3d931398-db2a-4fc9-9f74-0278be56a986",
+          "kind": "track"
+        },
+        {
+          "uuid": "5924cf9c-1a66-4e21-a01a-1e63528434e4",
+          "kind": "track"
+        },
+        {
+          "uuid": "5ecb14ac-c6d1-4a92-94cf-b0461b79e6af",
+          "kind": "track"
+        },
+        {
+          "uuid": "815e351b-bc0a-4e79-9ce0-fceb4e2dd799",
+          "kind": "track"
+        },
+        {
+          "uuid": "c603cddf-4b03-45f2-b74f-e85c88e2731b",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "sw_b",
@@ -189,7 +215,45 @@
         }
       ],
       "zones": [],
-      "mode": "add"
+      "mode": "add",
+      "authored_items": [
+        {
+          "uuid": "56b5be68-e568-42e1-a153-0383473edf9d",
+          "kind": "via"
+        },
+        {
+          "uuid": "67a3a4a3-4abf-4f84-88af-714d8629f24f",
+          "kind": "track"
+        },
+        {
+          "uuid": "8f6278ca-fa7c-483f-be40-a85bf32515fd",
+          "kind": "track"
+        },
+        {
+          "uuid": "a7f0385a-699c-4c6a-bf08-076eb7f3b1d0",
+          "kind": "track"
+        },
+        {
+          "uuid": "b16c8c04-ca1b-4ff2-a04f-e286a92d25b5",
+          "kind": "track"
+        },
+        {
+          "uuid": "c86c41c8-8677-43e1-8381-adac4db31860",
+          "kind": "track"
+        },
+        {
+          "uuid": "d818d2da-4a7e-4f9a-8688-576b221c82bb",
+          "kind": "via"
+        },
+        {
+          "uuid": "e4ecc4ac-d943-4ae7-b242-b0c5161970f4",
+          "kind": "track"
+        },
+        {
+          "uuid": "fe76dd08-59eb-446b-b916-fd0870d38652",
+          "kind": "via"
+        }
+      ]
     },
     {
       "net": "leg_ret",
@@ -374,7 +438,73 @@
         }
       ],
       "zones": [],
-      "mode": "add"
+      "mode": "add",
+      "authored_items": [
+        {
+          "uuid": "08812bf7-317e-452e-a6e0-9245dd4c56d0",
+          "kind": "track"
+        },
+        {
+          "uuid": "19fec052-92b7-4d8e-bced-843c1c7ccf6f",
+          "kind": "track"
+        },
+        {
+          "uuid": "1e194dcc-3a47-4cce-b9fa-c43f5c517c84",
+          "kind": "via"
+        },
+        {
+          "uuid": "1ebd2425-144f-412d-a5f5-3f316ab05e24",
+          "kind": "track"
+        },
+        {
+          "uuid": "2befa19e-dfb5-4ebc-8c09-0b9734a0ddfa",
+          "kind": "via"
+        },
+        {
+          "uuid": "4dcedc77-df19-45cf-9594-2c212c5e882e",
+          "kind": "track"
+        },
+        {
+          "uuid": "7ab524a7-8a4b-41d0-8000-cd649f40ebfb",
+          "kind": "track"
+        },
+        {
+          "uuid": "9456eccc-1b0b-4ed2-bed0-98a72fea2912",
+          "kind": "track"
+        },
+        {
+          "uuid": "9b719ef5-2d90-4d70-8ddc-f906b3ced0a9",
+          "kind": "track"
+        },
+        {
+          "uuid": "a84b069c-6cff-4e98-85f6-01892d2c8374",
+          "kind": "track"
+        },
+        {
+          "uuid": "bc7ffb23-8255-4ed1-bec4-198c1c514536",
+          "kind": "via"
+        },
+        {
+          "uuid": "bea466d5-8ce5-41f6-98b7-f8f7fc3514cb",
+          "kind": "via"
+        },
+        {
+          "uuid": "c05e5a9d-71de-4506-a9c1-f67b066a3e7a",
+          "kind": "track"
+        },
+        {
+          "uuid": "cc727fe6-3bfd-4256-943c-19a3a6052721",
+          "kind": "track"
+        },
+        {
+          "uuid": "ccc59fd3-37c3-4246-a978-e5ce72b6836a",
+          "kind": "track"
+        },
+        {
+          "uuid": "d4065571-265a-4d49-b26d-106fd626d59d",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "leg_b-gate_h",
@@ -406,7 +536,17 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "020ac548-27c2-490b-8da3-14d5dbb08277",
+          "kind": "track"
+        },
+        {
+          "uuid": "665026aa-1842-424b-9b94-4f9e47eac7ba",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "leg_b-gate_l",
@@ -438,7 +578,17 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "09cb5ab3-a3df-4c37-a7d9-72c0d5e185a7",
+          "kind": "track"
+        },
+        {
+          "uuid": "d137e0ab-62b7-4dac-a0d6-7d26de99017f",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "leg_a-gate_h",
@@ -470,7 +620,17 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "518f636c-8a75-44ee-b9b0-622e76729e1a",
+          "kind": "track"
+        },
+        {
+          "uuid": "8b409ac7-d1a3-4b0e-aacf-b6cf556f26ce",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "leg_a-gate_l",
@@ -502,7 +662,17 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "3f4ff9b3-b47b-4b5a-a015-7440b3fa89a7",
+          "kind": "track"
+        },
+        {
+          "uuid": "9a322238-7cae-4b4c-b13d-3c9e164702e2",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "leg_b-out_h",
@@ -558,7 +728,25 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "42217438-343d-4741-95ec-9e892044ee67",
+          "kind": "track"
+        },
+        {
+          "uuid": "6cb85fd2-1407-4772-b65a-59f1f3d74c64",
+          "kind": "track"
+        },
+        {
+          "uuid": "7382f071-6cf9-4d65-9f9f-df7e0a75751f",
+          "kind": "track"
+        },
+        {
+          "uuid": "d0f0c303-2622-4c7b-8208-1c64d723d9b5",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "leg_b-out_l",
@@ -614,7 +802,25 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "464c68f9-c3ab-458c-ba69-b4cae7319fcb",
+          "kind": "track"
+        },
+        {
+          "uuid": "4f8c5dcf-134e-4853-b68f-d885af51cd45",
+          "kind": "track"
+        },
+        {
+          "uuid": "7dd1c23f-3928-4113-a99a-6ba4d84356a7",
+          "kind": "track"
+        },
+        {
+          "uuid": "80e409bc-a155-4d81-892a-83e0565b5427",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "leg_a-out_h",
@@ -682,7 +888,29 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "53d5873b-a5be-4275-a37a-ed4d911c306d",
+          "kind": "track"
+        },
+        {
+          "uuid": "83f28cbf-1cfa-4bf9-8e1e-dd7201000bcd",
+          "kind": "track"
+        },
+        {
+          "uuid": "b48d2432-e691-472d-97e9-e1826b680715",
+          "kind": "track"
+        },
+        {
+          "uuid": "d662007a-4688-4034-9abb-212bcae40f1c",
+          "kind": "track"
+        },
+        {
+          "uuid": "da46252e-4784-4f71-ac79-eb59a2463af7",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "leg_a-out_l",
@@ -767,7 +995,37 @@
         }
       ],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "02f2daae-3438-4525-a15a-52d55782952e",
+          "kind": "track"
+        },
+        {
+          "uuid": "12a23682-c5a4-4435-8224-53179670486a",
+          "kind": "track"
+        },
+        {
+          "uuid": "30c7882e-9008-4de3-a7fe-8c265a676b69",
+          "kind": "via"
+        },
+        {
+          "uuid": "6322c6ba-2ed2-4efa-b7b3-fa6fb7dc7529",
+          "kind": "via"
+        },
+        {
+          "uuid": "a056519a-e7ac-4d21-8481-79e4aee7c202",
+          "kind": "track"
+        },
+        {
+          "uuid": "c71e514a-4229-4389-80f0-c503ce5ee960",
+          "kind": "track"
+        },
+        {
+          "uuid": "d7821c8f-a373-4e9c-8491-6310a7884005",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "leg_b-boot",
@@ -871,7 +1129,41 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "65cac0a8-1d6b-4535-8dac-4a4cf465dccf",
+          "kind": "track"
+        },
+        {
+          "uuid": "884aa1b5-5f7a-4173-b0d3-3e0e61bd056f",
+          "kind": "track"
+        },
+        {
+          "uuid": "98f5c70a-b682-4150-85a9-5a2e6cec2d88",
+          "kind": "track"
+        },
+        {
+          "uuid": "9a880742-c4d2-4e44-92b3-689fe19329d2",
+          "kind": "track"
+        },
+        {
+          "uuid": "ba4adb88-15e8-4af8-bbae-f9fa1fad7e7d",
+          "kind": "track"
+        },
+        {
+          "uuid": "bcfa3ed9-90b9-43d3-87c2-144789c973ca",
+          "kind": "track"
+        },
+        {
+          "uuid": "e2c668c6-b881-409e-b562-a3e011e61ebe",
+          "kind": "track"
+        },
+        {
+          "uuid": "f95f8fca-050a-4734-a413-392c264ccdd3",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "leg_a-boot",
@@ -951,7 +1243,33 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "176fa7c2-cd93-4dcd-8e2f-76434656ff9a",
+          "kind": "track"
+        },
+        {
+          "uuid": "28900864-dff0-4de4-be9c-6dd03589aab6",
+          "kind": "track"
+        },
+        {
+          "uuid": "2fb80077-57e6-4171-9ae1-7388af3057fc",
+          "kind": "track"
+        },
+        {
+          "uuid": "433bb7a6-86ba-493c-b032-926af2b4c20a",
+          "kind": "track"
+        },
+        {
+          "uuid": "f9e13c22-ceb5-4a38-aefe-76636b0d5bae",
+          "kind": "track"
+        },
+        {
+          "uuid": "fa7612b5-9e8d-4dbb-956d-9763d859b5fe",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "busbleed_mid",
@@ -995,7 +1313,21 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "5aa58fba-48e5-42e2-902e-208548c5f81a",
+          "kind": "track"
+        },
+        {
+          "uuid": "6f0cb13f-616a-436b-8d02-aec09196a8ed",
+          "kind": "track"
+        },
+        {
+          "uuid": "c12d3ed3-4acf-4bfe-962f-679192ae92a8",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "vdiv_1",
@@ -1039,7 +1371,21 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "68cca4a4-b902-481d-91a5-f0037afadb1e",
+          "kind": "track"
+        },
+        {
+          "uuid": "7fdc8e19-8606-4c53-a00a-cfae27a11c8b",
+          "kind": "track"
+        },
+        {
+          "uuid": "a58b80a8-fd32-4225-8832-a7a2960a5b87",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "vdiv_2",
@@ -1083,7 +1429,21 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "075cc192-e615-434e-8d8f-e2154f6c07ab",
+          "kind": "track"
+        },
+        {
+          "uuid": "50e24794-589a-4921-aedc-b313cd368efb",
+          "kind": "track"
+        },
+        {
+          "uuid": "bddf9ac5-467f-436e-a74a-64615c6d67f8",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "vdiv_3",
@@ -1127,7 +1487,21 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "1c8b9b8a-2661-4ffd-87ad-95dfb4e2b1d4",
+          "kind": "track"
+        },
+        {
+          "uuid": "5d9671d0-0f2c-40c0-b050-bbad476916a9",
+          "kind": "track"
+        },
+        {
+          "uuid": "a2a5a974-cb2f-40a5-94e4-13de886f899d",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "crbleed_1",
@@ -1159,7 +1533,17 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "4b90f0ea-3c38-4947-a0be-b9b884941dda",
+          "kind": "track"
+        },
+        {
+          "uuid": "74a87cc5-8b28-461e-83e4-1ea02cc0e46f",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "crbleed_2",
@@ -1203,7 +1587,21 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "38c9aae6-5ff4-4f26-8652-179e4756eb03",
+          "kind": "track"
+        },
+        {
+          "uuid": "758a4e4d-c658-450f-bdb3-8b8d0560dcbb",
+          "kind": "track"
+        },
+        {
+          "uuid": "d6a56abb-91ba-4076-8007-ca819fd9bdad",
+          "kind": "track"
+        }
+      ]
     },
     {
       "net": "crbleed_3",
@@ -1247,7 +1645,21 @@
       ],
       "vias": [],
       "zones": [],
-      "mode": "replace"
+      "mode": "replace",
+      "authored_items": [
+        {
+          "uuid": "1e42ed6a-a826-417c-a6e4-a5a4b8de5bbe",
+          "kind": "track"
+        },
+        {
+          "uuid": "33c48641-54a2-42d9-8f0d-eddf59a058a7",
+          "kind": "track"
+        },
+        {
+          "uuid": "dabfe278-92e0-430d-8549-2419137f1fc5",
+          "kind": "track"
+        }
+      ]
     }
   ]
 }

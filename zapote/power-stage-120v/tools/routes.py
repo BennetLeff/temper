@@ -74,7 +74,8 @@ def batch_01_power() -> Batch:
     # reserve this corridor. Stitch the upper end and terminate on D3.1.
     b.zone("bus_p", "B.Cu", [(63, 28), (69.4, 28), (69.4, 60), (61, 63),
                               (61, 67.5), (55, 67.5), (55, 63), (63, 60)], priority=2)
-    for x, y in ((64.5, 33.3), (66.3, 33.3), (64.5, 34.7), (66.3, 34.7),
+    # Keep exposed via annuli clear of the bring-up negative cable lug.
+    for x, y in ((67.2, 32.2), (67.2, 34.0), (68.5, 47.0), (68.5, 48.8),
                  (68.5, 53), (68.5, 54.8), (68.5, 56.6), (68.5, 58.4)):
         b.via("bus_p", x, y, power=True)
     # Surface links: high-side drains to their snubbers; D3 to the bleed
@@ -92,6 +93,12 @@ def batch_01_power() -> Batch:
     b.zone("hv_ret", "In1.Cu", [(40, 10), (100, 10), (100, 42), (66, 42), (66, 48),
                                  (56, 48), (56, 68), (44, 68), (44, 48), (40, 48)], priority=2)
     b.zone("hv_ret", "In1.Cu", rect(166, 8, 200, 18), priority=3)
+    # Parallel return across the narrow filled-plane sections by D2.
+    # The V15 trunk is at y=27.2 here so these stitches retain HV_RET.
+    b.track("hv_ret", "F.Cu", 5.0, [83.5, 29.9], [90.0, 29.9])
+    for x, y in ((83.5, 28.6), (83.5, 30.4), (85.3, 29.5),
+                 (90.0, 28.6), (90.0, 30.4), (91.5, 29.5)):
+        b.via("hv_ret", x, y, power=True)
     # Shunt HV_RET current pad 4 down to the plane.
     b.track("hv_ret", "F.Cu", 2.0, "R5.4", [124.4, 18.2])
     b.track("hv_ret", "F.Cu", 2.0, "R5.4", [126.2, 18.6])

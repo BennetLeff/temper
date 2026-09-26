@@ -1,6 +1,6 @@
 # Four-layer routing — native-06
 
-Status: routing and verification in progress. The owner approved a 240 × 160 mm
+Status: all five routing batches are integrated and checked for prototype review. The owner approved a 240 × 160 mm
 outline and four layers on 2026-09-26. Revised placement D4 is still required.
 This is a prototype review artifact, not a fabrication or powered-operation release.
 
@@ -49,13 +49,18 @@ IPC-2221 screening equation (`temper-geometry/src/trace_width_assignment.rs`),
 using the inner-layer coefficient and a 20 °C rise, gives approximately 5.9 A
 for that cross-section; it cannot justify the intended power current.
 
-The revised outline widens that return region and uses 70 µm inner copper.
-The same equation calls for about 14.9 mm at 19 A on an inner layer. Filled
-copper must be inspected again after the auxiliary routes, because signal
-clearances can split a plane. Adding disconnected strip widths is not proof
-of current sharing. The three short R5 pad-4 branches and their vias also
-need finished-plating and thermal verification; summing ideal branch ratings
-is not a qualified assembly rating.
+The revised return uses 70 µm inner copper. Auxiliary routing exposed two
+additional constraints: signal clearances can disconnect filled planes, and a
+connected plane can still have an undersized neck. The north Kelvin pair stays
+together; the auxiliary return fence moves to B.Cu so HV_RET can pass it.
+A 5.0 mm F.Cu HV_RET track and two banks of three 1.6/0.8 mm vias bypass the
+remaining narrow inner section near D2. The nominal outer-track screen is
+17.15 A at 20 °C rise. Finished via plating and current division remain
+unqualified. BUS_P also has a stitched B.Cu path around the TVS pin.
+
+The final filled-board power review records section widths and the assumptions
+behind the current-sharing model. Adding disconnected strip widths, adding
+ideal via ratings, or passing connectivity alone does not establish ampacity.
 
 The 2.4 mm terminal escapes on paired outer/inner mains layers have a combined
 nominal screen near 15 A only under ideal sharing. Terminal heating, copper
@@ -81,14 +86,40 @@ HOT spacing is enforced as clearance because KiCad's creepage engine cannot
 apply a footprint-local exception. See D5-BASIS.md for unresolved voltage,
 frequency, package and laminate qualification.
 
-## Evidence still to finish
+## Saved-copper identity
 
-Full DRC on the completed board (including creepage), disposition of the R5
-internal connection and zero other opens, source-to-pad
-and part-identity parity, filled-board stackup, conservative cross-layer barrier
-check, local escape mutation tests, final plane inspection and reviewer findings.
-Final reports and hashes belong beside the board. Intermediate DRC files are
-not acceptance receipts.
+KiCad can reassign unanchored tracks and vias to another net while saving a
+board with overlapping copper. DRC can then appear clean because it sees the
+reassigned nets. Each route receipt now records the requested net and UUID
+before saving. `tools/check_copper_identity.py` reads the saved bytes through
+the raw KiCad parser, then the Rust validator checks every authored track and
+via against all five receipt batches and their source hashes. Run it after
+zone filling and any operation that saves the board. A saved-via net mutation
+must fail; source-to-pad parity alone cannot detect this failure.
+
+Connectivity is independently grouped by connected **pad** UUIDs. A filled
+zone UUID may contain several disconnected islands, so sharing a zone UUID
+is not evidence that two pad groups connect.
+
+## Final review evidence
+
+The saved native-06 board has 560 tracks, 141 vias and 24 zones. Three full DRC
+runs report no copper-spacing or schematic-match findings, one documented R5
+internal connection, 28 library mismatches and three L1/J3 silkscreen overlaps.
+Source/MPN/pad identity, saved-copper identity, stackup, pad-only connectivity,
+all-layer barrier and both terminal-hardware configurations pass their stated
+checks. The source audit passes 48 tests, board/tool tests 43, and the Rust
+workspace 325. Exact hashes, commands and limits are in
+[native-06/verification](native-06/verification/README.md).
+
+The western BUS_P section has only about 6% nominal formula margin against
+15 A. The local BUS_P sharing result and the upper two-via transfer bank remain
+model-dependent. See the [filled-copper review](native-06/verification/power-review.md).
+Finished copper, via plating and actual waveforms can change the disposition.
+
+The terminal-envelope repair moves HOT5 below the surface near the negative
+strap/bench lug and relocates the BUS_P stitching vias. It does not enlarge
+an exemption or waive the hardware spacing floor.
 
 Physical tests have not run: overshoot/clamp energy, protection timing and
 brownout, CT injection, touch/leakage, hipot, thermal/current, and EMI. The
