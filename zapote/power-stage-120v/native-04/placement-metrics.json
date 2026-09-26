@@ -1,0 +1,312 @@
+{
+  "board": "native-04/section.kicad_pcb",
+  "barrier": {
+    "selv_to_hot": {
+      "min_mm": 8.1,
+      "between": [
+        "U1.1[pwm_ha]",
+        "U1.16[leg_a-boot]"
+      ]
+    },
+    "pe_to_hot": {
+      "min_mm": 8.5,
+      "between": [
+        "C3.2[pe]",
+        "C3.1[l_filt]"
+      ]
+    }
+  },
+  "commutation_bbox_mm": {
+    "x": [
+      66.6,
+      146.4
+    ],
+    "y": [
+      1.6,
+      26.8
+    ],
+    "area_mm2": 2011,
+    "members": [
+      "Q2",
+      "Q3",
+      "Q5",
+      "Q6",
+      "C38",
+      "C39",
+      "C40",
+      "C41",
+      "R5"
+    ]
+  },
+  "commutation_paths": {
+    "leg_a": {
+      "low_source_to_R5_pad1_mm": 21.7,
+      "per_capacitor": {
+        "C38": {
+          "high_drain_to_cap_bus_mm": 29.8,
+          "cap_return_to_R5_pad4_mm": 9.6,
+          "sum_with_source_to_R5_pad1_mm": 61.1
+        },
+        "C39": {
+          "high_drain_to_cap_bus_mm": 26.4,
+          "cap_return_to_R5_pad4_mm": 30.2,
+          "sum_with_source_to_R5_pad1_mm": 78.3
+        }
+      }
+    },
+    "leg_b": {
+      "low_source_to_R5_pad1_mm": 11.1,
+      "per_capacitor": {
+        "C40": {
+          "high_drain_to_cap_bus_mm": 28.8,
+          "cap_return_to_R5_pad4_mm": 8.3,
+          "sum_with_source_to_R5_pad1_mm": 48.1
+        },
+        "C41": {
+          "high_drain_to_cap_bus_mm": 27.4,
+          "cap_return_to_R5_pad4_mm": 28.9,
+          "sum_with_source_to_R5_pad1_mm": 67.3
+        }
+      }
+    }
+  },
+  "gate_paths": {
+    "leg_a high": {
+      "series_resistor_to_gate_mm": 6.9,
+      "driver_out_to_series_resistor_mm": 32.8
+    },
+    "leg_a low": {
+      "series_resistor_to_gate_mm": 6.9,
+      "driver_out_to_series_resistor_mm": 45.7
+    },
+    "leg_b high": {
+      "series_resistor_to_gate_mm": 6.9,
+      "driver_out_to_series_resistor_mm": 35.3
+    },
+    "leg_b low": {
+      "series_resistor_to_gate_mm": 6.9,
+      "driver_out_to_series_resistor_mm": 30.4
+    }
+  },
+  "heat_zone_parts": [
+    "BR1",
+    "C12",
+    "C13",
+    "C19",
+    "C20",
+    "Q2",
+    "Q3",
+    "Q5",
+    "Q6",
+    "R5"
+  ],
+  "heat_zone_unexpected": [],
+  "stud_screw_holes": {
+    "J10": {
+      "stud_net": "hv_ret",
+      "nearest_other_net_mm": 6.31,
+      "nearest": "J9.1[rect_n]"
+    },
+    "J2": {
+      "stud_net": "coil_feed",
+      "nearest_other_net_mm": 17.83,
+      "nearest": "T1.1[sw_a]"
+    },
+    "J5": {
+      "stud_net": "res_a",
+      "nearest_other_net_mm": 10.27,
+      "nearest": "R25.2[sw_b]"
+    },
+    "J7": {
+      "stud_net": "rect_p",
+      "nearest_other_net_mm": 6.32,
+      "nearest": "J8.1[bus_p]"
+    },
+    "J8": {
+      "stud_net": "bus_p",
+      "nearest_other_net_mm": 6.31,
+      "nearest": "J7.1[rect_p]"
+    },
+    "J9": {
+      "stud_net": "rect_n",
+      "nearest_other_net_mm": 6.32,
+      "nearest": "J10.1[hv_ret]"
+    }
+  },
+  "terminal_hardware": {
+    "normal": {
+      "items": {
+        "link_pos_strap": [
+          1.0,
+          69.0,
+          24.0,
+          79.0
+        ],
+        "link_neg_strap": [
+          1.0,
+          89.0,
+          24.0,
+          99.0
+        ],
+        "coil_feed_lug": [
+          206.0,
+          65.5,
+          227.0,
+          75.5
+        ],
+        "coil_return_lug": [
+          200.0,
+          146.0,
+          221.0,
+          156.0
+        ]
+      },
+      "closest_electrical": [
+        {
+          "item": "link_pos_strap",
+          "other": "R26.2",
+          "other_net": "vdiv_1",
+          "gap_mm": 4.12,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "item": "link_pos_strap",
+          "other": "R27.1",
+          "other_net": "vdiv_1",
+          "gap_mm": 4.12,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "item": "link_pos_strap",
+          "other": "R27.2",
+          "other_net": "vdiv_2",
+          "gap_mm": 4.12,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "item": "link_pos_strap",
+          "other": "R28.1",
+          "other_net": "vdiv_2",
+          "gap_mm": 4.12,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "item": "link_neg_strap",
+          "other": "PS2.3",
+          "other_net": "leg_ret",
+          "gap_mm": 4.25,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "item": "link_neg_strap",
+          "other": "PS2.4",
+          "other_net": "v15_ls",
+          "gap_mm": 4.25,
+          "required_mm": 3.2,
+          "ok": true
+        }
+      ],
+      "electrical_ok": true,
+      "mechanical_conflicts": [],
+      "mechanical_ok": true
+    },
+    "bring_up": {
+      "items": {
+        "rect_p_bare": [
+          14.5,
+          69.5,
+          23.5,
+          78.5
+        ],
+        "rect_n_bare": [
+          14.5,
+          89.5,
+          23.5,
+          98.5
+        ],
+        "bench_pos_lug": [
+          -10.0,
+          69.0,
+          11.0,
+          79.0
+        ],
+        "bench_neg_lug": [
+          -10.0,
+          89.0,
+          11.0,
+          99.0
+        ],
+        "coil_feed_lug": [
+          206.0,
+          65.5,
+          227.0,
+          75.5
+        ],
+        "coil_return_lug": [
+          200.0,
+          146.0,
+          221.0,
+          156.0
+        ]
+      },
+      "closest_electrical": [
+        {
+          "item": "bench_pos_lug",
+          "other": "J7.1",
+          "other_net": "rect_p",
+          "gap_mm": 3.46,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "item": "bench_pos_lug",
+          "other": "J7.1",
+          "other_net": "rect_p",
+          "gap_mm": 3.46,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "item": "bench_neg_lug",
+          "other": "J9.1",
+          "other_net": "rect_n",
+          "gap_mm": 3.46,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "item": "bench_neg_lug",
+          "other": "J9.1",
+          "other_net": "rect_n",
+          "gap_mm": 3.46,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "item": "rect_p_bare",
+          "other": "bench_pos_lug",
+          "other_net": "bus_p",
+          "gap_mm": 3.5,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "item": "rect_n_bare",
+          "other": "bench_neg_lug",
+          "other_net": "hv_ret",
+          "gap_mm": 3.5,
+          "required_mm": 3.2,
+          "ok": true
+        }
+      ],
+      "electrical_ok": true,
+      "mechanical_conflicts": [],
+      "mechanical_ok": true
+    }
+  }
+}

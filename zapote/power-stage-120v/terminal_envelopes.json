@@ -1,0 +1,131 @@
+{
+  "schema": "temper.power-stage-120v.terminal-envelopes.v2",
+  "status": "Placement-stage plan-view envelopes of exposed metal at each M4 stud; replace with measured hardware before fabrication.",
+  "hardware": {
+    "ring_lug": {
+      "part": "Wurth 5580406 (M4 ring, 10 mm wide, 21 mm long)",
+      "width_mm": 10.0,
+      "behind_stud_mm": 5.0,
+      "ahead_of_stud_mm": 16.0,
+      "note": "Exposed metal from the ring edge behind the stud to the barrel end; insulated cable beyond."
+    },
+    "bare_stud": {
+      "part": "M4 screw head with washer (DIN 125 M4, 9 mm OD)",
+      "square_mm": 9.0,
+      "note": "Screw and washer fitted without a lug."
+    },
+    "min_clearance_mm": {
+      "hot_to_other_hot": 3.2,
+      "tank_to_other_hot": 5.0,
+      "hot_to_selv_or_pe": 8.0,
+      "mechanical_mm": 0.5,
+      "note": "Electrical floors match the PCB rules. Mechanical: installed items may not overlap each other or any component other than the studs they mount on, independent of net membership."
+    },
+    "link_strap": {
+      "part": "Removable link strap, custom: tinned copper flat bar 10.0 mm wide x 1.5 mm thick x 23.0 mm long, two 4.3 mm holes at 13.0 mm pitch (5.0 mm from each end); M4 x 8 pan-head screws with spring and plain washers. PROVISIONAL: drawing and current rating to confirm.",
+      "width_mm": 10.0,
+      "beyond_stud_mm": 5.0,
+      "note": "One rigid part per link, fitted over both studs of a row; replaces two lugs, so nothing stacks or overlaps."
+    }
+  },
+  "configurations": {
+    "normal": {
+      "description": "Both bring-up links fitted as removable straps; coil connected.",
+      "items": [
+        {
+          "id": "link_pos_strap",
+          "hardware": "link_strap",
+          "studs": [
+            "J8",
+            "J7"
+          ]
+        },
+        {
+          "id": "link_neg_strap",
+          "hardware": "link_strap",
+          "studs": [
+            "J10",
+            "J9"
+          ]
+        },
+        {
+          "id": "coil_feed_lug",
+          "hardware": "ring_lug",
+          "studs": [
+            "J2"
+          ],
+          "direction": "+x"
+        },
+        {
+          "id": "coil_return_lug",
+          "hardware": "ring_lug",
+          "studs": [
+            "J5"
+          ],
+          "direction": "+x"
+        }
+      ]
+    },
+    "bring_up": {
+      "description": "Both straps removed; floating bench supply on the bus studs, leads leaving the left edge; rectifier studs bare and mains-live.",
+      "items": [
+        {
+          "id": "rect_p_bare",
+          "hardware": "bare_stud",
+          "studs": [
+            "J7"
+          ]
+        },
+        {
+          "id": "rect_n_bare",
+          "hardware": "bare_stud",
+          "studs": [
+            "J9"
+          ]
+        },
+        {
+          "id": "bench_pos_lug",
+          "hardware": "ring_lug",
+          "studs": [
+            "J8"
+          ],
+          "direction": "-x"
+        },
+        {
+          "id": "bench_neg_lug",
+          "hardware": "ring_lug",
+          "studs": [
+            "J10"
+          ],
+          "direction": "-x"
+        },
+        {
+          "id": "coil_feed_lug",
+          "hardware": "ring_lug",
+          "studs": [
+            "J2"
+          ],
+          "direction": "+x"
+        },
+        {
+          "id": "coil_return_lug",
+          "hardware": "ring_lug",
+          "studs": [
+            "J5"
+          ],
+          "direction": "+x"
+        }
+      ]
+    }
+  },
+  "cable_exits": {
+    "J1": "mains cord, wire entry toward the left edge; strain relief at the enclosure",
+    "J2": "coil lead, right edge",
+    "J5": "coil lead, right edge",
+    "J4": "controller harness, vertical exit, clamped; SELV wires must not rest on HOT parts",
+    "J6": "PE branch wire, vertical exit to the chassis stud; not in the protective-earth path",
+    "J3": "TCO loop, vertical exit",
+    "J8": "bench lead in bring-up only, left edge",
+    "J10": "bench lead in bring-up only, left edge"
+  }
+}

@@ -1,0 +1,20 @@
+# Reproducible input for the official KiCad Library Tools axial THT generator.
+# Source: Microchip DS00005551B, section 5, Figure 5-1 (revision B, Dec 2025).
+# The drawing gives body and lead dimensions but no formed PCB pitch.
+# This 20.00 mm pitch is an assembly choice that needs sample validation.
+generator: generators.tools.footprint.footprint_scripts_resistorlike.makeResistorAxialHorizontal
+generator_name: Microchip_MRT130KP295CV
+seriesname: MRT130KP
+rm: 20.0
+rmdisp: 20.0
+w: 12.954  # max body length BL, mm
+d: 7.874   # max body diameter BD, mm
+ddrill: 1.6  # max 1.3462 mm lead LD plus 0.254 mm diametral clearance
+R_POW: 0
+type: cyl
+deco: none  # bidirectional device has no cathode marking
+has3d: 0    # no package-accurate STEP/WRL supplied or generated
+classname: D
+lib_name: temper
+specialfpname: MRT130KP_Axial_P20.00mm_ReviewOnly
+add_description: Microchip MRT130KP295CV; DS00005551B Fig. 5-1; review-only formed pitch

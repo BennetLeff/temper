@@ -3,8 +3,9 @@
 //! Checks part identity, the HOT/SELV isolation boundary, and the
 //! safety-relevant joins (fail-safe driver disable, shoot-through shunt
 //! orientation, thermal-cutoff gate-supply loop, OCP polarity through the
-//! default-low isolator, tank series path, controller header map).
-//! Connectivity only: no voltage, timing, creepage or thermal claim.
+//! default-high isolator, tank series path, controller header map).
+//! Includes the conditional REF25 DC-bias corner in REFERENCE-BIAS.md;
+//! no bus-voltage bound, timing, creepage or thermal qualification.
 //!
 //!   rustc --edition=2021 -O zapote/power-stage-120v/audit.rs -o /tmp/ps_audit
 //!   /tmp/ps_audit zapote/power-stage-120v/frozen/default.net zapote/power-stage-120v/frozen/default.csv \
@@ -217,7 +218,7 @@ impl Model {
 
 const SELV_NETS: &[&str] = &[
     "v15_selv", "selv_gnd", "v3v3", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit",
-    "bus_ocp_ok", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
+    "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
     "leg_a-dis", "leg_a-permit_gate", "leg_a.driver-dt",
     "leg_b-dis", "leg_b-permit_gate", "leg_b.driver-dt",
 ];
@@ -227,23 +228,58 @@ const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
     ("leg_a.driver", "UCC21550BDWKR", &["1", "2", "3", "4", "5", "6", "7", "8"]),
     ("leg_b.driver", "UCC21550BDWKR", &["1", "2", "3", "4", "5", "6", "7", "8"]),
     ("u_vsense", "AMC1311BDWVR", &["5", "6", "7", "8"]),
-    ("u_iso", "ISO7710FDWR", &["9", "13", "14", "16"]),
+    ("u_iso", "ISO7710DWR", &["9", "13", "14", "16"]),
     ("t_ct", "CST3015-100ED", &["3", "4"]),
     ("ps_selv", "IRM-20-15", &["3", "4"]),
 ];
 
 /// Safety-relevant part identities (path -> MPN).
 const IDENTITY: &[(&str, &str)] = &[
+    ("j_mains", "1711725"),
+    ("j_pe", "1704004"),
+    ("j_coil", "74650074"),
+    ("j_coil_return", "74650074"),
+    ("link_pos.terminal_rect", "74650074"),
+    ("link_pos.terminal_bus", "74650074"),
+    ("link_neg.terminal_rect", "74650074"),
+    ("link_neg.terminal_bus", "74650074"),
+    ("c_bus1", "B32656G0275J000"),
+    ("c_bus2", "B32656G0275J000"),
+    ("c_hf_a1", "B32652A0104K000"),
+    ("c_hf_a2", "B32652A0104K000"),
+    ("c_hf_b1", "B32652A0104K000"),
+    ("c_hf_b2", "B32652A0104K000"),
+    ("cy1", "DE1E3RA222MA4BP01F"),
+    ("cy2", "DE1E3RA222MA4BP01F"),
     ("f1", "0326020.MXP"),
     ("rv1", "TMOV20RP175E"),
     ("br1", "GBJ2510-F"),
+    ("tvs_bus", "MRT130KP295CV"),
     ("r_shunt", "WSK2512R0010FEA"),
     ("leg_a.q_high", "IPW65R018CFD7"),
     ("leg_a.q_low", "IPW65R018CFD7"),
     ("leg_b.q_high", "IPW65R018CFD7"),
     ("leg_b.q_low", "IPW65R018CFD7"),
-    ("u_iso", "ISO7710FDWR"),
+    ("u_iso", "ISO7710DWR"),
     ("u_ocp", "TLV3201AIDBVR"),
+    ("u_ovp", "TLV3201AIDBVR"),
+    ("u_nand", "SN74LVC1G00DBVR"),
+    ("r_fe", "RC0603JR-070RL"),
+    ("u_ref", "LM4040A25IDBZR"),
+    ("u_ldo", "MC78L05ACHT1G"),
+    ("r_ref_bias", "RC0603FR-075K6L"),
+    ("r_ocp_ref", "RT0603BRD0710KL"),
+    ("r_ocp_sense", "RT0603BRD0710KL"),
+    // Trip thresholds: ~61 A OCP (10.5 k / 10.0 k) and ~280 V OVP (10 k / 140 k).
+    ("r_th_top", "RT0603BRD0710K5L"),
+    ("r_th_bot", "RT0603BRD0710KL"),
+    ("r_ovp_top", "RT0603BRD0710KL"),
+    ("r_ovp_bot", "RT0603BRD07140KL"),
+    ("r_div1", "RC1206FR-07470KL"),
+    ("r_div2", "RC1206FR-07470KL"),
+    ("r_div3", "RC1206FR-07470KL"),
+    ("r_div4", "RC1206FR-07470KL"),
+    ("r_div_bot", "RT0603BRD0715K8L"),
     ("ps_gate", "IRM-05-15"),
     ("ps_selv", "IRM-20-15"),
     ("t_ct", "CST3015-100ED"),
@@ -266,6 +302,24 @@ fn members(m: &Model, net: &str) -> BTreeSet<(String, String)> {
                 .collect()
         })
         .unwrap_or_default()
+}
+
+/// Minimum LM4040 cathode current with the selected three REF25 loads. This
+/// checks the reference's DC bias, not comparator response or trip timing.
+fn min_reference_cathode_current_ua(bias_ohm: f64) -> f64 {
+    // Source: MC78L05AC min 4.75 V, LM4040A25I 2.519 V maximum at
+    // 100 uA plus 1 mV current-regulation shift, and 80 uA minimum cathode
+    // current over its rated temperature range. The 1% bias resistor is
+    // high; all three 0.1% thin-film load strings are low.
+    let ref_max = 2.520;
+    let bias_current = (4.75 - ref_max) / (bias_ohm * 1.01);
+    // -0.15 V at OCP_KELVIN_N corresponds to 150 A through the 1 mΩ
+    // shunt. This bounds loading beyond the nominal 51–71 A trip spread;
+    // it does not assert that the power path survives a 150 A fault.
+    let ocp_offset_load = (ref_max + 0.15) / (20_000.0 * 0.999);
+    let ocp_threshold_load = ref_max / (20_500.0 * 0.999);
+    let ovp_threshold_load = ref_max / (150_000.0 * 0.999);
+    (bias_current - ocp_offset_load - ocp_threshold_load - ovp_threshold_load) * 1e6
 }
 
 fn audit(m: &Model) -> Vec<String> {
@@ -312,7 +366,9 @@ fn audit(m: &Model) -> Vec<String> {
     for (r, (s, h)) in &side {
         if *s && *h {
             let path = &m.comps[r].path;
-            if !BARRIER_PARTS.iter().any(|(p, _, _)| p == path) {
+            // PE is separate from live HOT, but is outside SELV_NETS. Only the
+            // exact functional link below may join PE and the controller return.
+            if path != "r_fe" && !BARRIER_PARTS.iter().any(|(p, _, _)| p == path) {
                 e.push(format!("{r} ({path}) bridges SELV and HOT nets"));
             }
         }
@@ -338,22 +394,59 @@ fn audit(m: &Model) -> Vec<String> {
         }
     }
 
+    expect(&mut e, m, "r_fe", "1", "pe");
+    expect(&mut e, m, "r_fe", "2", "selv_gnd");
+
     // 3. Mains entry: the fuse is the only path from the inlet L terminal.
     let l_in = members(m, "ac_l_in");
     let want: BTreeSet<(String, String)> = [("j_mains", "1"), ("f1", "1")].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
     if l_in != want {
         e.push(format!("ac_l_in must be exactly J1.1 and F1.1, found {:?}", l_in));
     }
-    expect(&mut e, m, "j_mains", "3", "pe");
+    expect(&mut e, m, "j_mains", "2", "ac_n_in");
+    if m.net_of("j_mains", "3").is_some() {
+        e.push("j_mains.3 must not exist on the L/N-only inlet".into());
+    }
+    // The cord's primary PE bond is made directly at the chassis stud.
+    // J_PE is a separately wired PCB branch, not that protective bond.
+    expect(&mut e, m, "j_pe", "1", "pe");
+    expect(&mut e, m, "j_pe", "2", "pe");
+    expect(&mut e, m, "cy1", "1", "l_filt");
+    expect(&mut e, m, "cy2", "1", "n_filt");
+    let pe = members(m, "pe");
+    let want: BTreeSet<(String, String)> = [
+        ("j_pe", "1"), ("j_pe", "2"), ("r_fe", "1"),
+        ("cy1", "2"), ("cy2", "2"),
+    ].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if pe != want {
+        e.push(format!("pe must join only the PE branch, Y capacitors and functional link, found {pe:?}"));
+    }
     // Common-mode choke: TDK windings are 1-4 (line) and 2-3 (neutral).
     expect(&mut e, m, "l1", "1", "l_f");
     expect(&mut e, m, "l1", "4", "l_filt");
     expect(&mut e, m, "l1", "2", "ac_n_in");
     expect(&mut e, m, "l1", "3", "n_filt");
 
-    // 4. Shoot-through shunt: every low-side source returns via LEG_RET,
-    //    the bus caps and bridge minus sit on HV_RET, and the shunt is the
-    //    only element joining them.
+    // 4. The two removable external rail links split rectifier from bridge
+    //    during floating low-voltage bring-up. With either link open there
+    //    must be no PCB-copper shortcut across it. The bridge-side bypass
+    //    capacitors return to HV_RET, never LEG_RET across the current shunt.
+    expect(&mut e, m, "br1", "1", "rect_p");
+    expect(&mut e, m, "br1", "4", "rect_n");
+    for (net, bridge_pin, link) in [
+        ("rect_p", "1", "link_pos.terminal_rect"),
+        ("rect_n", "4", "link_neg.terminal_rect"),
+    ] {
+        let got = members(m, net);
+        let want: BTreeSet<(String, String)> = [("br1", bridge_pin), (link, "1")]
+            .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+        if got != want {
+            e.push(format!("{net} must join only BR1 and its removable-link landing, found {got:?}"));
+        }
+    }
+    expect(&mut e, m, "link_pos.terminal_bus", "1", "bus_p");
+    expect(&mut e, m, "link_neg.terminal_bus", "1", "hv_ret");
+    // Shoot-through shunt: every low-side source returns via LEG_RET.
     expect(&mut e, m, "r_shunt", "1", "leg_ret");
     expect(&mut e, m, "r_shunt", "2", "leg_ret");
     expect(&mut e, m, "r_shunt", "3", "ocp_kelvin_n");
@@ -362,16 +455,31 @@ fn audit(m: &Model) -> Vec<String> {
         expect(&mut e, m, &format!("{leg}.q_low"), "3", "leg_ret");
         expect(&mut e, m, &format!("{leg}.q_high"), "2", "bus_p");
     }
-    expect(&mut e, m, "br1", "4", "hv_ret");
     for c in ["c_bus1", "c_bus2"] {
+        expect(&mut e, m, c, "1", "bus_p");
+        expect(&mut e, m, c, "2", "bus_p");
+        expect(&mut e, m, c, "3", "hv_ret");
+        expect(&mut e, m, c, "4", "hv_ret");
+    }
+    for c in ["c_hf_a1", "c_hf_a2", "c_hf_b1", "c_hf_b2"] {
         expect(&mut e, m, c, "1", "bus_p");
         expect(&mut e, m, c, "2", "hv_ret");
     }
-    let hv: Vec<_> = members(m, "hv_ret").into_iter().map(|(p, _)| p).collect();
-    for p in &hv {
-        if !matches!(p.as_str(), "br1" | "c_bus1" | "c_bus2" | "r_bus2" | "r_shunt") {
-            e.push(format!("{p} on hv_ret would bypass the shunt"));
-        }
+    // The TVS must protect the capacitor side of the shunt, not bridge the
+    // shunt and hide a fault current from the DC return measurement.
+    expect(&mut e, m, "tvs_bus", "1", "bus_p");
+    expect(&mut e, m, "tvs_bus", "2", "hv_ret");
+    let hv = members(m, "hv_ret");
+    let want: BTreeSet<(String, String)> = [
+        ("c_bus1", "3"), ("c_bus1", "4"),
+        ("c_bus2", "3"), ("c_bus2", "4"),
+        ("r_bus2", "2"), ("r_shunt", "4"), ("tvs_bus", "2"),
+        ("c_hf_a1", "2"), ("c_hf_a2", "2"),
+        ("c_hf_b1", "2"), ("c_hf_b2", "2"),
+        ("link_neg.terminal_bus", "1"),
+    ].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if hv != want {
+        e.push(format!("hv_ret has unexpected or missing members, possibly bypassing the shunt: {hv:?}"));
     }
 
     // 5. Legs: fail-safe DIS, dead time, bootstrap and gate hold-offs.
@@ -423,36 +531,119 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "u_ldo", "3", "v15_ls");
     expect(&mut e, m, "u_ldo", "1", "hot5");
 
-    // 7. OCP: node = offset + shunt Kelvin, comparator OK-high into the
-    //    default-low isolator, isolator output on header pin 10.
+    // 7. OCP and OVP: node = offset + shunt Kelvin; bus-sense node vs the
+    //    OVP threshold; both OK-high comparators NANDed into the default-high
+    //    isolator, isolator output on header pin 10.
+    expect(&mut e, m, "r_ref_bias", "1", "hot5");
+    expect(&mut e, m, "r_ref_bias", "2", "ref25");
+    let ref25 = members(m, "ref25");
+    let want: BTreeSet<(String, String)> = [
+        ("r_ref_bias", "2"), ("u_ref", "1"), ("r_ocp_ref", "1"),
+        ("r_th_top", "1"), ("r_ovp_top", "1"),
+    ]
+    .iter()
+    .map(|(path, pin)| (path.to_string(), pin.to_string()))
+    .collect();
+    if ref25 != want {
+        e.push(format!("ref25 has unexpected loads: {ref25:?}"));
+    }
+    let bias_ohm = match m.resolved.get("r_ref_bias").map(String::as_str) {
+        Some("RC0603FR-075K6L") => Some(5_600.0),
+        Some("RC0603FR-076K8L") => Some(6_800.0),
+        _ => None, // The identity check reports unknown resistor selections.
+    };
+    if let Some(bias_ohm) = bias_ohm {
+        let cathode_ua = min_reference_cathode_current_ua(bias_ohm);
+        if cathode_ua < 80.0 {
+            e.push(format!("reference cathode current {cathode_ua:.1} uA is below the 80 uA full-temperature minimum"));
+        }
+    }
     expect(&mut e, m, "r_ocp_sense", "2", "ocp_kelvin_n");
     expect(&mut e, m, "r_ocp_ref", "1", "ref25");
+    expect(&mut e, m, "r_ocp_ref", "2", "ocp_node");
+    expect(&mut e, m, "r_ocp_sense", "1", "ocp_node");
     expect(&mut e, m, "u_ocp", "3", "ocp_node");
     expect(&mut e, m, "u_ocp", "4", "ocp_thresh");
     expect(&mut e, m, "u_ocp", "1", "ocp_ok_hot");
     expect(&mut e, m, "u_ocp", "2", "leg_ret");
-    expect(&mut e, m, "u_iso", "4", "ocp_ok_hot");
-    expect(&mut e, m, "u_iso", "13", "bus_ocp_ok");
+    expect(&mut e, m, "u_ovp", "3", "ovp_thresh");
+    expect(&mut e, m, "u_ovp", "4", "vsense_in");
+    expect(&mut e, m, "u_ovp", "1", "ovp_ok_hot");
+    expect(&mut e, m, "u_ovp", "2", "leg_ret");
+    expect(&mut e, m, "u_ovp", "5", "hot5");
+    expect(&mut e, m, "r_ovp_top", "1", "ref25");
+    expect(&mut e, m, "r_ovp_top", "2", "ovp_thresh");
+    expect(&mut e, m, "r_ovp_bot", "1", "ovp_thresh");
+    expect(&mut e, m, "r_ovp_bot", "2", "leg_ret");
+    expect(&mut e, m, "r_th_top", "1", "ref25");
+    expect(&mut e, m, "r_th_top", "2", "ocp_thresh");
+    expect(&mut e, m, "r_th_bot", "1", "ocp_thresh");
+    expect(&mut e, m, "r_th_bot", "2", "leg_ret");
+    expect(&mut e, m, "u_nand", "1", "ocp_ok_hot");
+    expect(&mut e, m, "u_nand", "2", "ovp_ok_hot");
+    expect(&mut e, m, "u_nand", "4", "bus_fault_hot");
+    expect(&mut e, m, "u_nand", "3", "leg_ret");
+    expect(&mut e, m, "u_nand", "5", "hot5");
+    expect(&mut e, m, "u_iso", "4", "bus_fault_hot");
+    let bus_fault: BTreeSet<(String, String)> = members(m, "bus_fault_hot");
+    let want: BTreeSet<(String, String)> = [("u_nand", "4"), ("u_iso", "4")].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if bus_fault != want {
+        e.push(format!("bus_fault_hot must join only the NAND output and the isolator input, found {:?}", bus_fault));
+    }
+    expect(&mut e, m, "u_iso", "13", "bus_fault");
+    // The receiving pullup is off-board. Added local loads or another driver
+    // could suppress the fault while all existing pin checks still pass.
+    let fault_output = members(m, "bus_fault");
+    let want: BTreeSet<(String, String)> = [("u_iso", "13"), ("j_selv", "10")]
+        .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if fault_output != want {
+        e.push(format!("bus_fault has unexpected loads: {:?}", fault_output));
+    }
     expect(&mut e, m, "u_iso", "3", "hot5");
     expect(&mut e, m, "u_ref", "1", "ref25");
     expect(&mut e, m, "u_ref", "2", "leg_ret");
 
-    // 8. Tank: SW_A -> coil terminal -> CT primary -> C_res bank -> SW_B.
-    expect(&mut e, m, "j_coil", "1", "sw_a");
-    expect(&mut e, m, "j_coil", "2", "coil_ret");
-    expect(&mut e, m, "t_ct", "1", "coil_ret");
-    expect(&mut e, m, "t_ct", "2", "res_a");
+    // 8. Tank: SW_A -> CT primary -> coil terminal -> C_res bank -> SW_B.
+    //    The CT primary must sit on the switch node, not the resonant node.
+    expect(&mut e, m, "t_ct", "1", "sw_a");
+    expect(&mut e, m, "t_ct", "2", "coil_feed");
+    expect(&mut e, m, "j_coil", "1", "coil_feed");
+    expect(&mut e, m, "j_coil_return", "1", "res_a");
     for c in ["c_res1", "c_res2", "c_res3"] {
         expect(&mut e, m, c, "1", "res_a");
         expect(&mut e, m, c, "2", "sw_b");
     }
+    let feed: BTreeSet<(String, String)> = members(m, "coil_feed");
+    let want: BTreeSet<(String, String)> = [("t_ct", "2"), ("j_coil", "1")].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if feed != want {
+        e.push(format!("coil_feed must join only CT P2 and the coil terminal, found {:?}", feed));
+    }
     let res_a: BTreeSet<String> = members(m, "res_a").into_iter().map(|(p, _)| p).collect();
-    if res_a != ["t_ct", "c_res1", "c_res2", "c_res3"].iter().map(|s| s.to_string()).collect() {
-        e.push(format!("res_a must join only CT P2 and the resonant bank, found {:?}", res_a));
+    if res_a != ["j_coil_return", "c_res1", "c_res2", "c_res3", "r_crb1"].iter().map(|s| s.to_string()).collect() {
+        e.push(format!("res_a must join only the coil return, the resonant bank and its bleed, found {:?}", res_a));
+    }
+    // Resonant-bank bleed: four series resistors from RES_A to SW_B.
+    let chain = ["res_a", "crbleed_1", "crbleed_2", "crbleed_3", "sw_b"];
+    for (i, r) in ["r_crb1", "r_crb2", "r_crb3", "r_crb4"].iter().enumerate() {
+        expect(&mut e, m, r, "1", chain[i]);
+        expect(&mut e, m, r, "2", chain[i + 1]);
     }
 
-    // 9. Bus sense.
-    expect(&mut e, m, "r_div1", "1", "bus_p");
+    // 9. Bus sense also feeds OVP: every divider join must be intact.
+    let divider = ["bus_p", "vdiv_1", "vdiv_2", "vdiv_3", "vsense_in"];
+    for (i, path) in ["r_div1", "r_div2", "r_div3", "r_div4"].iter().enumerate() {
+        expect(&mut e, m, path, "1", divider[i]);
+        expect(&mut e, m, path, "2", divider[i + 1]);
+    }
+    expect(&mut e, m, "r_div_bot", "1", "vsense_in");
+    expect(&mut e, m, "r_div_bot", "2", "leg_ret");
+    let sense_members: BTreeSet<(String, String)> = [
+        ("r_div4", "2"), ("r_div_bot", "1"), ("c_div", "1"),
+        ("u_vsense", "2"), ("u_ovp", "4"),
+    ].iter().map(|(path, pin)| (path.to_string(), pin.to_string())).collect();
+    if members(m, "vsense_in") != sense_members {
+        e.push("vsense_in has unexpected loads or missing endpoints".into());
+    }
     expect(&mut e, m, "u_vsense", "2", "vsense_in");
     expect(&mut e, m, "u_vsense", "3", "leg_ret"); // SHTDN low = enabled
     expect(&mut e, m, "u_vsense", "7", "vbus_p");
@@ -461,7 +652,7 @@ fn audit(m: &Model) -> Vec<String> {
     // 10. Controller header map.
     let header = [
         "v15_selv", "selv_gnd", "v3v3", "selv_gnd", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb",
-        "permit", "bus_ocp_ok", "vbus_p", "vbus_n", "ct_s1", "ct_s2", "selv_gnd", "selv_gnd",
+        "permit", "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2", "selv_gnd", "selv_gnd",
     ];
     for (i, net) in header.iter().enumerate() {
         expect(&mut e, m, "j_selv", &(i + 1).to_string(), net);
@@ -576,10 +767,53 @@ mod tests {
     }
 
     #[test]
-    fn non_default_low_isolator_fails() {
+    fn default_low_isolator_fails() {
         let mut m = built();
-        m.set_part("u_iso", "ISO7710DWR");
-        fails(&m, "u_iso is ISO7710DWR");
+        m.set_part("u_iso", "ISO7710FDWR");
+        fails(&m, "u_iso is ISO7710FDWR");
+    }
+
+    #[test]
+    fn and_gate_with_healthy_high_output_fails() {
+        let mut m = built();
+        m.set_part("u_nand", "SN74LVC1G08DBVR");
+        fails(&m, "u_nand is SN74LVC1G08DBVR");
+    }
+
+    #[test]
+    fn fault_header_disconnected_from_isolator_fails() {
+        let mut m = built();
+        m.rewire("j_selv", "10", "floating");
+        fails(&m, "j_selv.10");
+    }
+
+    #[test]
+    fn extra_fault_output_load_fails() {
+        for other_net in ["selv_gnd", "permit"] {
+            let mut m = built();
+            let path = "r_fault_load";
+            let mpn = "RC0603JR-070RL";
+            m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into() });
+            m.resolved.insert(path.into(), mpn.into());
+            m.bom.insert("R999".into(), mpn.into());
+            m.nets.get_mut("bus_fault").unwrap().insert(("R999".into(), "1".into()));
+            m.nets.get_mut(other_net).unwrap().insert(("R999".into(), "2".into()));
+            fails(&m, "bus_fault has unexpected loads");
+        }
+    }
+
+    #[test]
+    fn functional_earth_link_to_live_hot_fails() {
+        let mut m = built();
+        m.rewire("r_fe", "1", "leg_ret");
+        fails(&m, "r_fe.1");
+    }
+
+    #[test]
+    fn disconnected_functional_earth_link_fails() {
+        let mut m = built();
+        m.rewire("r_fe", "2", "floating");
+        fails(&m, "r_fe.2");
     }
 
     #[test]
@@ -593,8 +827,228 @@ mod tests {
     #[test]
     fn resonant_capacitor_bypass_fails() {
         let mut m = built();
-        m.rewire("t_ct", "2", "sw_b");
-        fails(&m, "t_ct.2");
+        m.rewire("j_coil_return", "1", "sw_b");
+        fails(&m, "j_coil_return.1");
+    }
+
+    #[test]
+    fn ct_on_resonant_node_fails() {
+        let mut m = built();
+        m.rewire("t_ct", "1", "res_a");
+        m.rewire("j_coil_return", "1", "sw_a");
+        fails(&m, "t_ct.1");
+    }
+
+    #[test]
+    fn missing_resonant_bleed_fails() {
+        let mut m = built();
+        m.rewire("r_crb4", "2", "floating");
+        fails(&m, "r_crb4.2");
+    }
+
+    #[test]
+    fn swapped_ovp_comparator_inputs_fail() {
+        let mut m = built();
+        m.rewire("u_ovp", "3", "vsense_in");
+        m.rewire("u_ovp", "4", "ovp_thresh");
+        fails(&m, "u_ovp.3");
+    }
+
+    #[test]
+    fn ovp_bypassing_isolator_path_fails() {
+        let mut m = built();
+        m.rewire("u_iso", "4", "ocp_ok_hot");
+        fails(&m, "u_iso.4");
+    }
+
+    #[test]
+    fn old_91a_threshold_fails() {
+        let mut m = built();
+        m.set_part("r_th_bot", "RT0603BRD079K76L");
+        fails(&m, "r_th_bot is RT0603BRD079K76L");
+    }
+
+    #[test]
+    fn old_reference_bias_fails_full_temperature_corner() {
+        let mut m = built();
+        m.set_part("r_ref_bias", "RC0603FR-076K8L");
+        fails(&m, "reference cathode current");
+    }
+
+    #[test]
+    fn missing_bus_tvs_fails() {
+        let mut m = built();
+        let r = m.reff("tvs_bus").unwrap().to_string();
+        m.comps.remove(&r);
+        m.bom.remove(&r);
+        m.resolved.remove("tvs_bus");
+        for nodes in m.nets.values_mut() {
+            nodes.retain(|(node_ref, _)| node_ref != &r);
+        }
+        fails(&m, "tvs_bus missing");
+    }
+
+    #[test]
+    fn wrong_bus_tvs_mpn_fails() {
+        let mut m = built();
+        m.set_part("tvs_bus", "MRT130KP300CV");
+        fails(&m, "tvs_bus is MRT130KP300CV");
+    }
+
+    #[test]
+    fn bus_tvs_wrong_link_fails() {
+        let mut m = built();
+        m.rewire("tvs_bus", "1", "sw_a");
+        fails(&m, "tvs_bus.1");
+    }
+
+    #[test]
+    fn bus_tvs_bypassing_shunt_fails() {
+        let mut m = built();
+        m.rewire("tvs_bus", "2", "leg_ret");
+        fails(&m, "tvs_bus.2");
+    }
+
+    #[test]
+    fn old_coil_terminal_block_fails() {
+        let mut m = built();
+        m.set_part("j_coil", "1711725");
+        fails(&m, "j_coil is 1711725");
+    }
+
+    #[test]
+    fn old_three_position_mains_terminal_fails() {
+        let mut m = built();
+        m.set_part("j_mains", "1711039");
+        fails(&m, "j_mains is 1711039");
+    }
+
+    #[test]
+    fn pe_branch_to_mains_fails() {
+        let mut m = built();
+        m.rewire("j_pe", "2", "ac_n_in");
+        fails(&m, "j_pe.2");
+    }
+
+    #[test]
+    fn y_capacitor_line_side_must_follow_its_mains_conductor() {
+        let mut m = built();
+        m.rewire("cy2", "1", "l_filt");
+        fails(&m, "cy2.1");
+    }
+
+    #[test]
+    fn missing_pe_branch_fails() {
+        let mut m = built();
+        let r = m.reff("j_pe").unwrap().to_string();
+        m.comps.remove(&r);
+        m.bom.remove(&r);
+        m.resolved.remove("j_pe");
+        for nodes in m.nets.values_mut() {
+            nodes.retain(|(rr, _)| rr != &r);
+        }
+        fails(&m, "j_pe missing");
+    }
+
+    #[test]
+    fn wrong_bulk_capacitor_and_one_mispaired_pad_fail() {
+        let mut m = built();
+        m.set_part("c_bus1", "942C6W2P5K-F");
+        fails(&m, "c_bus1 is 942C6W2P5K-F");
+        let mut m = built();
+        m.rewire("c_bus2", "2", "hv_ret");
+        fails(&m, "c_bus2.2");
+    }
+
+    #[test]
+    fn local_bus_capacitor_cannot_bypass_shunt() {
+        for path in ["c_hf_a1", "c_hf_a2", "c_hf_b1", "c_hf_b2"] {
+            let mut m = built();
+            m.rewire(path, "2", "leg_ret");
+            fails(&m, &format!("{path}.2"));
+        }
+    }
+
+    #[test]
+    fn local_bus_capacitor_identity_is_pinned() {
+        let mut m = built();
+        m.set_part("c_hf_b2", "B32652A1104K000");
+        fails(&m, "c_hf_b2 is B32652A1104K000");
+    }
+
+    #[test]
+    fn removable_rail_link_landing_cannot_be_lost_or_swapped() {
+        for (path, needle) in [
+            ("link_pos.terminal_rect", "rect_p must join only"),
+            ("link_neg.terminal_rect", "rect_n must join only"),
+            ("link_pos.terminal_bus", "link_pos.terminal_bus.1"),
+            ("link_neg.terminal_bus", "link_neg.terminal_bus.1"),
+        ] {
+            let mut m = built();
+            m.rewire(path, "1", "floating_link");
+            fails(&m, needle);
+        }
+    }
+
+    #[test]
+    fn rectifier_rail_cannot_short_around_open_link() {
+        for (rect, bus) in [("rect_p", "bus_p"), ("rect_n", "hv_ret")] {
+            let mut m = built();
+            let path = "jumper_bypass";
+            let mpn = "RC1206FR-070RL";
+            m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into() });
+            m.resolved.insert(path.into(), mpn.into());
+            m.bom.insert("R999".into(), mpn.into());
+            m.nets.get_mut(rect).unwrap().insert(("R999".into(), "1".into()));
+            m.nets.get_mut(bus).unwrap().insert(("R999".into(), "2".into()));
+            fails(&m, &format!("{rect} must join only"));
+        }
+    }
+
+    #[test]
+    fn coil_return_terminal_must_be_separate_and_m4() {
+        let mut m = built();
+        m.rewire("j_coil_return", "1", "coil_feed");
+        fails(&m, "j_coil_return.1");
+        let mut m = built();
+        m.set_part("j_coil_return", "1711725");
+        fails(&m, "j_coil_return is 1711725");
+    }
+
+    #[test]
+    fn extra_shunt_bypass_fails_exact_hv_ret_membership() {
+        let mut m = built();
+        let path = "shunt_bypass";
+        let mpn = "RC1206FR-070RL";
+        m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into() });
+        m.resolved.insert(path.into(), mpn.into());
+        m.bom.insert("R999".into(), mpn.into());
+        m.nets.get_mut("hv_ret").unwrap().insert(("R999".into(), "1".into()));
+        m.nets.get_mut("leg_ret").unwrap().insert(("R999".into(), "2".into()));
+        fails(&m, "hv_ret has unexpected or missing members");
+    }
+
+    #[test]
+    fn selected_reference_bias_covers_shunt_loading_corner() {
+        assert!(min_reference_cathode_current_ua(5_600.0) >= 80.0);
+    }
+
+    #[test]
+    fn every_bus_divider_open_fails() {
+        for path in ["r_div1", "r_div2", "r_div3", "r_div4", "r_div_bot"] {
+            for pin in ["1", "2"] {
+                let mut m = built();
+                m.rewire(path, pin, "floating_divider");
+                fails(&m, &format!("{path}.{pin}"));
+            }
+        }
+    }
+
+    #[test]
+    fn extra_bus_sense_load_fails() {
+        let mut m = built();
+        m.rewire("r_bus1", "1", "vsense_in");
+        fails(&m, "vsense_in has unexpected loads");
     }
 
     #[test]

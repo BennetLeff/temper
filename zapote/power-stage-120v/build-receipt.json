@@ -4,20 +4,20 @@
   "atopile": "0.2.69 (uv tool run --offline)",
   "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
   "status": "compiled-and-exported",
-  "components": 91,
-  "nets": 67,
-  "audit": "PASS on frozen/; 18/18 tests (17 deliberate miswires fail)",
-  "reproducibility": "netlist and CSV byte-identical across two checkouts after absolute-path normalization",
+  "components": 114,
+  "nets": 75,
+  "audit": "PASS on frozen/; 48/48 tests, including dual rail disconnect bypass, local-cap shunt bypass, bulk four-pin mapping and terminal identity mutations",
+  "reproducibility": "Netlist and CSV byte-identical after root-path normalization between source-build-01 and independent /private/tmp/ps-approved-final-repro; resolved exports match after root normalization and separately validated raw net-hash provenance (2026-09-25)",
   "identity_authority": "frozen/resolved-components.json + frozen/default.csv (default.net libsource is footprint-aliased)",
   "sha256": {
     "ato.yaml": "ccb72f82cfe51d8002ba3333bce202f587971ea7eb439ec18d1693371139dd80",
-    "elec/src/parts.ato": "615977ea2a6327cf079dc8506bb6c7d464321b7873cd3478d3ef13b0cca503e4",
-    "elec/src/power_stage_120v.ato": "ecfbf62dcdd027110e5e8d15af29f0f6014f5e153d55268a283a2413caa1c5fb",
-    "audit.rs": "936e052d98e16d5139b22b5e51540486d1b0c12c6bcde9ac75f43ff3ffbf206d",
+    "elec/src/parts.ato": "76b7e66be8b1f34e088abb0f4451d5929d17f9c8214121bd318fb2090a1a58d6",
+    "elec/src/power_stage_120v.ato": "f3d6aef141d65851f5c66800671e472eaaa59d241fa3cc6ccb8e5c14a6cd2a29",
+    "audit.rs": "6f2dc1da4497d06458c9e3477306a8850a4715ee46086db0d8801a428861e048",
     "tools/circuit_export.py": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
-    "frozen/default.net": "205b8275f7cb9deb23be7cad400580a915f53a776ced0184d5600e6b69bf58e8",
-    "frozen/default.csv": "8f83aa127550526191d3025f93efd9f8d28f4b764520cc1d4fc0e0a6d2d5c7a1",
-    "frozen/resolved-components.json": "1b194b4211bf3943197bfa0fe3d4babb1c6d8322c9b211c4e7d15f6bc44057a1"
+    "frozen/default.net": "286991715ceb1519b9e62914a90a8a23d42e283e308b19d731841e73260a31ac",
+    "frozen/default.csv": "a7b74fd0bf9cc4981cbb275cbe25a81f12ada6d4f87c4f748d006ec634140c6e",
+    "frozen/resolved-components.json": "04d7c2f2d933f6a5eeec191488357b6f68794523ce7fdbe72edea970b70ef4e1"
   },
   "physical": "NOT RUN"
 }

@@ -1,0 +1,12 @@
+{
+  "schema": "temper.power-stage-120v.stackup.v1",
+  "status": "Approved D3 nominal CAD stackup; not a fabricator approval",
+  "board_thickness_mm": 1.6,
+  "layers": [
+    {"name": "F.Mask", "type": "Top Solder Mask", "thickness_mm": 0.01},
+    {"name": "F.Cu", "type": "copper", "thickness_mm": 0.07},
+    {"name": "dielectric 1", "type": "core", "thickness_mm": 1.44, "material": "FR4", "epsilon_r": 4.5, "loss_tangent": 0.02},
+    {"name": "B.Cu", "type": "copper", "thickness_mm": 0.07},
+    {"name": "B.Mask", "type": "Bottom Solder Mask", "thickness_mm": 0.01}
+  ]
+}

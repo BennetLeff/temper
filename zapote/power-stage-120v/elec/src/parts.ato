@@ -8,23 +8,33 @@
 
 # ---------------------------------------------------------------- mains entry
 
-component MainsTerminal3:
-    """Phoenix Contact MKDS 3/3-5,08 (1711039), 24 A, 400 V: L, N, PE."""
+component MainsTerminal2:
+    """Phoenix MKDS 3/2-5,08, L/N only. IEC 24 A; applicable UL use-group
+    rating must be checked. PE uses a separate chassis branch terminal."""
     designator_prefix = "J"
-    mpn = "1711039"
-    manufacturer = "Phoenix Contact"
-    footprint = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal"
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-    signal p3 ~ pin 3
-
-component CoilTerminal2:
-    """Phoenix Contact MKDS 3/2-5,08, 24 A, 400 V: coil leads. Order number
-    to confirm; the litz termination may replace it once the coil exists."""
-    designator_prefix = "J"
-    mpn = "1711026"
+    mpn = "1711725"
     manufacturer = "Phoenix Contact"
     footprint = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PowerTerminalM4:
+    """Wuerth REDCUBE THR M4, 50 A max at 20 C, 1.2 N m torque.
+    Four same-number solder pads are one metal terminal. No manufacturer
+    voltage rating: PCB, lug and wire spacing determine insulation."""
+    designator_prefix = "J"
+    mpn = "74650074"
+    manufacturer = "Wuerth Elektronik"
+    footprint = "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR"
+    signal p1 ~ pin 1
+
+component PeBranchTerminal:
+    """Phoenix KDS 3, one potential with two solder pins. Branch from the
+    chassis PE stud only; never in series with the primary cord PE bond."""
+    designator_prefix = "J"
+    mpn = "1704004"
+    manufacturer = "Phoenix Contact"
+    footprint = "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
@@ -75,7 +85,7 @@ component CapY1_2n2:
     designator_prefix = "C"
     mpn = "DE1E3RA222MA4BP01F"
     manufacturer = "Murata"
-    footprint = "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm"
+    footprint = "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
@@ -102,12 +112,37 @@ component BridgeGbj2510:
     signal AC2 ~ pin 3
     signal MINUS ~ pin 4
 
-component BusFilm2u5:
-    """CDE 942C6W2P5K-F 2.5 uF 600 Vdc PP film, 19.5 A rms (70 C, 100 kHz)."""
+component BusFilm2u7:
+    """TDK 2.7 uF +/-5%, 1000 VDC, four-pin radial polypropylene.
+    Drawing B1: pairs at each x end share an electrode; numbers are local
+    pad assignments. 22.8 A RMS at 85 C / 100 kHz, not an all-frequency rating."""
     designator_prefix = "C"
-    mpn = "942C6W2P5K-F"
-    manufacturer = "Cornell Dubilier"
-    footprint = "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly"
+    mpn = "B32656G0275J000"
+    manufacturer = "TDK"
+    footprint = "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+
+component LocalBus100n:
+    """TDK 100 nF +/-10%, 1000 VDC polypropylene, 15 mm pitch.
+    5.4 A RMS at 85 C / 100 kHz; local current sharing needs measurement."""
+    designator_prefix = "C"
+    mpn = "B32652A0104K000"
+    manufacturer = "TDK"
+    footprint = "temper:TDK_B32652A0104K000_P15.00_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BusTvsMrt130kp295:
+    """Microchip MRT130KP295CV bidirectional axial TVS across the DC link.
+    The footprint's formed lead pitch is an assembly selection; surge energy,
+    temperature and loop inductance still need hardware qualification."""
+    designator_prefix = "D"
+    mpn = "MRT130KP295CV"
+    manufacturer = "Microchip Technology"
+    footprint = "temper:MRT130KP_Axial_P20.00mm_ReviewOnly"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
@@ -352,7 +387,8 @@ component Amc1311:
     signal VDD2 ~ pin 8
 
 component R470k1206:
-    """Bus divider string element (4 in series, <= 50 V each at 198 V)."""
+    """Bus divider and resonant-bank bleed string element (4 in series:
+    <= 50 V each at 198 V bus; <= 160 V peak each at 640 V peak across C_res)."""
     designator_prefix = "R"
     mpn = "RC1206FR-07470KL"
     manufacturer = "Yageo"
@@ -430,32 +466,49 @@ component R10k5Thin:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R9k76Thin:
+component R140kThin:
+    """0.1 % thin film, bus OVP threshold bottom: 2.5 V * 140/150 = 2.333 V."""
     designator_prefix = "R"
-    mpn = "RT0603BRD079K76L"
+    mpn = "RT0603BRD07140KL"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R6k8Bias:
-    """LM4040 bias: (5.0-2.5)/6.8k = 368 uA vs ~250 uA network + 60 uA min."""
+component Nand2Lvc1g00:
+    """TI SN74LVC1G00DBVR single 2-input NAND. DBV: 1 A, 2 B, 3 GND, 4 Y,
+    5 VCC (SCES212AC, Pin Functions table)."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G00DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component R5k6Bias:
+    """LM4040 bias, including the OCP and OVP divider loads. Worst-case
+    cathode-current calculation: REFERENCE-BIAS.md."""
     designator_prefix = "R"
-    mpn = "RC0603FR-076K8L"
+    mpn = "RC0603FR-075K6L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Iso7710F:
-    """TI ISO7710FDWR, reinforced 5 kVrms, default-LOW output on input-side
+component Iso7710:
+    """TI ISO7710DWR, reinforced 5 kVrms, default-HIGH output on input-side
     power loss. DW: 1/7 GND1, 3 VCC1, 4 IN, 9/16 GND2, 13 OUT, 14 VCC2."""
     designator_prefix = "U"
-    mpn = "ISO7710FDWR"
+    mpn = "ISO7710DWR"
     manufacturer = "Texas Instruments"
-    footprint = "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm"
+    # TI DW0016B HV / isolation land pattern: 8.1 mm across the barrier
+    # (SLLSER9E p. 33); the IPC-7351 nominal pattern gives only 7.3 mm.
+    footprint = "lib:SOIC16W_DW0016B_HV"
     signal GND1 ~ pin 1
     signal NC2 ~ pin 2
     signal VCC1 ~ pin 3
@@ -497,3 +550,14 @@ component SelvHeader16:
     signal p14 ~ pin 14
     signal p15 ~ pin 15
     signal p16 ~ pin 16
+
+component FunctionalEarthLink:
+    """Removable functional 0 ohm link, never a protective-earth conductor.
+    HOT-to-controller insulation must remain valid with this link open."""
+    designator_prefix = "R"
+    mpn = "RC0603JR-070RL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2

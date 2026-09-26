@@ -86,6 +86,15 @@ def _outline(path: Path) -> tuple[float, float, float, float]:
     return x1, y1, x2, y2
 
 
+def _assign_board_bom_values(netlist: Any, bom_values: dict[str, str]) -> None:
+    """Use the same per-designator identity on board and schematic."""
+    missing = sorted(set(netlist.components) - set(bom_values))
+    if missing:
+        raise ValueError(f"board values missing BOM identities: {missing}")
+    for component in netlist.components.values():
+        component.value = bom_values[component.ref]
+
+
 def _filter_netlist(netlist: Any, refs: set[str]) -> Any:
     netlist.components = {
         ref: component
@@ -98,7 +107,7 @@ def _filter_netlist(netlist: Any, refs: set[str]) -> Any:
 
 
 def _require_source_hashes(repo: Path, source: Path, export: Any) -> dict[str, str]:
-    """Require source provenance and keep every hashed path inside ``source``."""
+    """Bind source and compiled files to the export, keeping paths contained."""
     repo_root = repo.resolve()
     source_root = source.resolve()
     try:
@@ -109,33 +118,38 @@ def _require_source_hashes(repo: Path, source: Path, export: Any) -> dict[str, s
         ) from exc
     if not isinstance(export, dict):
         raise ValueError("resolved source export must be a JSON object")
-    source_hashes = export.get("source_sha256")
-    if not isinstance(source_hashes, dict) or not source_hashes:
-        raise ValueError("resolved source export must contain a nonempty source_sha256 map")
     checked: dict[str, str] = {}
-    for relative, expected in source_hashes.items():
-        if not isinstance(relative, str) or not relative:
-            raise ValueError("source_sha256 keys must be nonempty relative paths")
-        relative_path = Path(relative)
-        if relative_path.is_absolute() or ".." in relative_path.parts:
-            raise ValueError(f"source hash path escapes source build: {relative!r}")
-        target = (source_root / relative_path).resolve()
-        try:
-            target.relative_to(source_root)
-        except ValueError as exc:
-            raise ValueError(f"source hash path escapes source build: {relative!r}") from exc
-        if not target.is_file():
-            raise FileNotFoundError(f"hashed source file is absent: {target}")
-        if (
-            not isinstance(expected, str)
-            or len(expected) != 64
-            or any(character not in "0123456789abcdefABCDEF" for character in expected)
-        ):
-            raise ValueError(f"invalid SHA-256 for source path: {relative!r}")
-        actual = sha256(target)
-        if actual.lower() != expected.lower():
-            raise ValueError(f"stale source: {relative}")
-        checked[relative] = actual
+    for map_name, label in (("source_sha256", "source"), ("build_sha256", "build artifact")):
+        hashes = export.get(map_name)
+        if not isinstance(hashes, dict) or not hashes:
+            raise ValueError(f"resolved source export must contain a nonempty {map_name} map")
+        if map_name == "build_sha256":
+            missing = {"build/default.net", "build/default.csv"} - hashes.keys()
+            if missing:
+                raise ValueError(f"build_sha256 missing compiled artifacts: {sorted(missing)}")
+        for relative, expected in hashes.items():
+            if not isinstance(relative, str) or not relative:
+                raise ValueError(f"{map_name} keys must be nonempty relative paths")
+            relative_path = Path(relative)
+            if relative_path.is_absolute() or ".." in relative_path.parts:
+                raise ValueError(f"{label} hash path escapes source build: {relative!r}")
+            target = (source_root / relative_path).resolve()
+            try:
+                target.relative_to(source_root)
+            except ValueError as exc:
+                raise ValueError(f"{label} hash path escapes source build: {relative!r}") from exc
+            if not target.is_file():
+                raise FileNotFoundError(f"hashed {label} file is absent: {target}")
+            if (
+                not isinstance(expected, str)
+                or len(expected) != 64
+                or any(character not in "0123456789abcdefABCDEF" for character in expected)
+            ):
+                raise ValueError(f"invalid SHA-256 for {label} path: {relative!r}")
+            actual = sha256(target)
+            if actual.lower() != expected.lower():
+                raise ValueError(f"stale {label}: {relative}")
+            checked[relative] = actual
     return checked
 
 
@@ -150,6 +164,8 @@ def build(
     entry_file: str = "elec/src/current_sense_unit.ato",
     title: str = "Standalone Current-Sensing Unit",
     local_libraries: Path | None = None,
+    sheet_name: str = "CurrentSense",
+    manifest_schema: str = "zapote.current-sense.native-source-manifest.v1",
 ) -> None:
     if output.exists():
         raise FileExistsError(f"refusing to overwrite native output: {output}")
@@ -264,8 +280,11 @@ def build(
         component["address"].split("::", 1)[1]: component["attributes"]
         for component in export["components"]
     }
-    for component in netlist.components.values():
-        component.value = attrs[component.sheetpath].get("value") or attrs[component.sheetpath]["mpn"]
+    # The resolved export supplies exact footprint/MPN identity, while its
+    # optional `value` is often a nominal (e.g. 100nF). KiCad parity compares
+    # the board Value with the schematic's BOM-sourced per-designator MPN.
+    all_bom_values = schematics.load_bom_values(csv_path)
+    _assign_board_bom_values(netlist, all_bom_values)
     pin_map = {(entry["reference"], entry["pin"]): entry["pad"] for entry in entries}
     board_path = output / "section.kicad_pcb"
     board_summary = skeleton.generate_candidate_board(
@@ -280,15 +299,14 @@ def build(
     )
 
     sch = _filter_netlist(schematics.parse_netlist(net_path), owned)
-    all_bom_values = schematics.load_bom_values(csv_path)
     schematics.apply_bom_values(
         sch, {ref: all_bom_values[ref] for ref in owned}
     )
     layout = schematics.SchematicLayout(
         root_sheet="section.kicad_sch",
-        sheets=("CurrentSense",),
-        sheet_files={"CurrentSense": "section.kicad_sch"},
-        module_to_sheet=dict.fromkeys(modules, "CurrentSense"),
+        sheets=(sheet_name,),
+        sheet_files={sheet_name: "section.kicad_sch"},
+        module_to_sheet=dict.fromkeys(modules, sheet_name),
         title=title,
         sheet_description=f"Generated from {entry_module} Atopile source",
         flat=True,
@@ -300,7 +318,7 @@ def build(
     if sha256(extension.artifact) != extension_sha:
         raise ValueError("strict source bridge artifact changed during generation")
     manifest = {
-        "schema": "zapote.current-sense.native-source-manifest.v1",
+        "schema": manifest_schema,
         "entry": f"{entry_file}:{entry_module}",
         "source": str(source),
         "module_prefixes": list(modules),
