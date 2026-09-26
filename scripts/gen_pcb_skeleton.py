@@ -634,6 +634,13 @@ def generate_candidate_board(
         }
         x, y, rot = staging[comp.ref]
         fp.position = Position(x, y, rot if rot else None)  # type: ignore[attr-defined]
+        if rot:
+            # KiCad stores pad orientation in board coordinates: a pad in a
+            # rotated footprint must carry the footprint rotation too, or it
+            # stays unrotated at its rotated position.
+            for pad in fp.pads:
+                angle = ((pad.position.angle or 0.0) + rot) % 360.0
+                pad.position.angle = angle if angle else None
 
         claimed: dict[str, tuple[str, str]] = {}
         for (ref, pin), pad_no in pin_map.items():

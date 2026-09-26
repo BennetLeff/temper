@@ -119,3 +119,20 @@ def test_mapped_pin_cannot_land_only_on_paste(tmp_path, monkeypatch):
             (0.0, 0.0, 40.0, 40.0), {"J10": (20.0, 20.0, 0.0)}, output,
         )
     assert not output.exists()
+
+
+def test_rotated_footprint_rotates_its_pads(tmp_path, monkeypatch):
+    """Pad orientation is absolute in a KiCad board: rotation must reach pads."""
+    from kiutils.board import Board
+
+    netlist, output = _candidate_terminal(tmp_path, monkeypatch, blank_copper=False)
+    path = tmp_path / "CandidatePaste.kicad_mod"
+    # Rectangular pads make orientation observable.
+    path.write_text(path.read_text().replace("circle", "rect").replace("(size 2 2)", "(size 3 1)"))
+    skeleton.generate_candidate_board(
+        netlist, {("J10", "1"): "1"}, set(), tmp_path / "unused-fp-lib-table",
+        (0.0, 0.0, 40.0, 40.0), {"J10": (20.0, 20.0, 90.0)}, output,
+    )
+    footprint = Board.from_file(str(output)).footprints[0]
+    assert footprint.position.angle == 90.0
+    assert {pad.position.angle for pad in footprint.pads} == {90.0}
