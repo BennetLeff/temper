@@ -29,6 +29,7 @@ def digest(value: object) -> str:
 
 def dump(board_path: Path) -> dict:
     board_path = board_path.resolve()
+    board_sha256 = hashlib.sha256(board_path.read_bytes()).hexdigest()
     board = pcbnew.LoadBoard(str(board_path))
     mm = pcbnew.ToMM
     copper = list(board.GetEnabledLayers().CuStack())
@@ -36,16 +37,14 @@ def dump(board_path: Path) -> dict:
     if not copper:
         raise ValueError("board has no enabled copper layers")
     items = []
-    pad_count = 0
-    track_count = 0
-    via_count = 0
     zone_count = 0
+    footprints = list(board.GetFootprints())
 
     # Non-pad copper graphics have no net classification in this adapter.
     for graphic in board.GetDrawings():
         if any(graphic.IsOnLayer(lid) for lid in copper):
             raise ValueError(f"unsupported board copper graphic: {graphic.GetClass()}")
-    for fp in board.GetFootprints():
+    for fp in footprints:
         for graphic in fp.GraphicalItems():
             if any(graphic.IsOnLayer(lid) for lid in copper):
                 raise ValueError(f"unsupported footprint copper graphic: {fp.GetReference()} {graphic.GetClass()}")
@@ -62,7 +61,6 @@ def dump(board_path: Path) -> dict:
             items.append({"kind": "pad", "ref": f"{fp.GetReference()}.{pad.GetNumber()}",
                           "net": pad.GetNetname(), "layers": layers,
                           "box": [mm(bb.GetX()), mm(bb.GetY()), mm(bb.GetRight()), mm(bb.GetBottom())]})
-            pad_count += 1
 
     for track in board.GetTracks():
         if track.Type() == pcbnew.PCB_VIA_T:
@@ -75,7 +73,6 @@ def dump(board_path: Path) -> dict:
             items.append({"kind": "via", "net": via.GetNetname(), "layers": list(names.values()),
                           "centre": [mm(pos.x), mm(pos.y)],
                           "radius": max(mm(via.GetWidth(lid)) for lid in copper) / 2})
-            via_count += 1
         elif track.GetClass() == "PCB_TRACK":
             if track.GetLayer() not in names:
                 raise ValueError(f"track lies on disabled copper layer: {track.GetLayerName()}")
@@ -85,7 +82,6 @@ def dump(board_path: Path) -> dict:
                           "start": [mm(track.GetStart().x), mm(track.GetStart().y)],
                           "end": [mm(track.GetEnd().x), mm(track.GetEnd().y)],
                           "width": mm(track.GetWidth())})
-            track_count += 1
         else:
             raise ValueError(f"unsupported copper track shape: {track.GetClass()}")
 
@@ -117,12 +113,14 @@ def dump(board_path: Path) -> dict:
                 items.append({"kind": "zone", "net": zone.GetNetname(), "layers": [names[lid]],
                               "polygon": pts})
 
-    counts = dict(Counter(item["kind"] for item in items))
-    census = {"footprints": len(list(board.GetFootprints())), "pads": pad_count,
-              "tracks": track_count, "vias": via_count, "zones": zone_count,
+    counts = Counter(item["kind"] for item in items)
+    census = {"footprints": len(footprints), "pads": counts["pad"],
+              "tracks": counts["track"], "vias": counts["via"], "zones": zone_count,
               "filled_zone_polygons": counts.get("zone", 0), "items": len(items)}
+    if hashlib.sha256(board_path.read_bytes()).hexdigest() != board_sha256:
+        raise ValueError("board changed during copper extraction")
     return {"schema": SCHEMA, "board_path": str(board_path),
-            "board_sha256": hashlib.sha256(board_path.read_bytes()).hexdigest(),
+            "board_sha256": board_sha256,
             "copper_layers": list(names.values()), "census": census,
             "items_sha256": digest(items), "items": items}
 

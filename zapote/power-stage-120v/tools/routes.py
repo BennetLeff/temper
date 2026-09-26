@@ -65,33 +65,41 @@ def batch_01_power() -> Batch:
     b = Batch("Claude Opus 5.5; explicit power planes and pours, no search")
 
     # BUS_P plane on In2: legs, left trunk to C5/J8/D3, right to C6.
-    b.zone("bus_p", "In2.Cu", rect(86, 0.6, 170, 31), priority=1)
-    b.zone("bus_p", "In2.Cu", [(54, 22), (86, 22), (86, 31), (69.5, 31), (69.5, 60),
+    b.zone("bus_p", "In2.Cu", rect(86, 0.6, 170, 42), priority=1)
+    b.zone("bus_p", "In2.Cu", [(54, 0.6), (86, 0.6), (86, 31), (69.5, 31), (69.5, 60),
                                 (61, 60), (61, 67.5), (55, 67.5), (55, 60), (18, 60), (18, 68), (8, 68), (8, 25),
-                                (18, 25), (18, 49.5), (54, 49.5)], priority=2)
+                                (18, 25), (18, 48.0), (54, 48.0)], priority=2)
     b.zone("bus_p", "In2.Cu", rect(166, 20, 200, 53.5), priority=3)
+    # Parallel outer copper around the TVS return pin; the auxiliary routes
+    # reserve this corridor. Stitch the upper end and terminate on D3.1.
+    b.zone("bus_p", "B.Cu", [(63, 28), (69.4, 28), (69.4, 60), (61, 63),
+                              (61, 67.5), (55, 67.5), (55, 63), (63, 60)], priority=2)
+    for x, y in ((64.5, 33.3), (66.3, 33.3), (64.5, 34.7), (66.3, 34.7),
+                 (68.5, 53), (68.5, 54.8), (68.5, 56.6), (68.5, 58.4)):
+        b.via("bus_p", x, y, power=True)
     # Surface links: high-side drains to their snubbers; D3 to the bleed
     # string and the divider head.
-    b.track("bus_p", "F.Cu", 0.8, "Q5.2", "C19.1")
-    b.track("bus_p", "F.Cu", 0.8, "Q2.2", "C12.1")
+    b.track("bus_p", "F.Cu", 0.8, "Q5.2", [98.0, 9.7], "C19.1")
+    b.track("bus_p", "F.Cu", 0.8, "Q2.2", [156.0, 9.7], "C12.1")
     # String links end at the far side of the end pads so the 3.2 mm spacing
     # to the next node holds outside the parts' bodies.
-    b.track("bus_p", "F.Cu", 1.0, "D3.1", [61.0, 64.95], [63.5, 63.4])
-    b.track("bus_p", "F.Cu", 0.6, [63.5, 63.4], [60.5, 66.5], [54.5, 69.5], [52.0, 72.0])
-    b.track("bus_p", "F.Cu", 0.4, [52.0, 72.0], [52.0, 74.2])
+    b.track("bus_p", "F.Cu", 0.4, "D3.1", [61.0, 64.95], [63.5, 64.1], [63.5, 63.4])
+    b.track("bus_p", "F.Cu", 0.4, [63.5, 64.1], [60.5, 66.5], [54.5, 69.5], [52.0, 72.0])
+    b.track("bus_p", "F.Cu", 0.4, [52.0, 72.0], [52.0, 73.4], [52.0, 74.2])
 
     # HV_RET plane on In1: capacitor row and trunks.
-    b.zone("hv_ret", "In1.Cu", rect(100, 12, 170, 30), priority=1)
-    b.zone("hv_ret", "In1.Cu", [(40, 24), (100, 24), (100, 30), (66, 30), (66, 48),
+    b.zone("hv_ret", "In1.Cu", rect(100, 10, 170, 42), priority=1)
+    b.zone("hv_ret", "In1.Cu", [(40, 10), (100, 10), (100, 42), (66, 42), (66, 48),
                                  (56, 48), (56, 68), (44, 68), (44, 48), (40, 48)], priority=2)
     b.zone("hv_ret", "In1.Cu", rect(166, 8, 200, 18), priority=3)
     # Shunt HV_RET current pad 4 down to the plane.
     b.track("hv_ret", "F.Cu", 2.0, "R5.4", [124.4, 18.2])
     b.track("hv_ret", "F.Cu", 2.0, "R5.4", [126.2, 18.6])
+    b.track("hv_ret", "F.Cu", 2.0, "R5.4", [122.6, 18.2])
     b.via("hv_ret", 124.4, 18.2, power=True)
     b.via("hv_ret", 126.2, 18.6, power=True)
-    b.track("hv_ret", "F.Cu", 0.5, [63.5, 46.6], [63.5, 45.0])
-    b.via("hv_ret", 63.5, 45.0)
+    b.via("hv_ret", 122.6, 18.2, power=True)
+    b.track("hv_ret", "F.Cu", 0.4, [63.5, 46.6], [63.5, 45.9], [61, 44.95], "D3.2")
 
     # LEG_RET on In1 across the low-side sources, into R5's current pad 1
     # (Kelvin pad 2 is kept off this copper).
@@ -100,27 +108,28 @@ def batch_01_power() -> Batch:
                                (128.4, 10.8), (126.2, 10.8)], priority=2)
     for x in (126.9, 128.4, 129.9):
         b.via("leg_ret", x, 7.4, power=True)
-    b.track("leg_ret", "F.Cu", 0.8, "C20.2", "Q6.3")
-    b.track("leg_ret", "F.Cu", 0.8, "C13.2", "Q3.3")
+    b.track("leg_ret", "F.Cu", 0.8, "C20.2", [121.45, 9.7], "Q6.3")
+    b.track("leg_ret", "F.Cu", 0.8, "C13.2", [143.45, 9.7], "Q3.3")
 
     # SW_B: bottom-layer link between the leg B pins, then a full-width band
     # under leg A to the resonant bank and C23.
     # The column to C21/C22 passes right of C6.2's BUS_P pad (the pour's
     # 3.2 mm clearance closes the gap on its left), then back to x >= 192,
     # 8 mm clear of T1's SELV pins.
-    b.zone("sw_b", "B.Cu", [(101.5, 0.6), (118.5, 0.6), (118.5, 26.5), (205, 26.5), (205, 41),
+    b.zone("sw_b", "B.Cu", [(86.5, 0.6), (118.5, 0.6), (118.5, 26.5), (205, 26.5), (205, 41),
                              (204, 41), (204, 57), (197, 60), (197, 128), (186, 128), (186, 92), (192, 92), (192, 41),
-                             (101.5, 41)], priority=1)
+                             (86.5, 41)], priority=1)
     b.zone("sw_b", "B.Cu", rect(207, 6, 215, 41), priority=2)
     b.track("sw_b", "B.Cu", 4.0, [199.0, 30.0], [209.0, 30.0])
-    # Leg B high-side gate return: SW_B pour under the OUTA path and hold-off.
-    b.zone("sw_b", "B.Cu", rect(86.5, 0.6, 101.5, 41), priority=3)
-    b.track("sw_b", "F.Cu", 0.8, "Q5.3", "C19.2")
-    b.track("sw_b", "F.Cu", 0.8, "Q6.2", "C20.1")
+    # One continuous outline includes the high-side gate return. Separate
+    # abutting zones leave KiCad's connectivity dependent on their seam.
+    b.track("sw_b", "F.Cu", 0.8, "Q5.3", [103.45, 9.7], "C19.2")
+    b.track("sw_b", "F.Cu", 0.8, "Q6.2", [116.0, 9.7], "C20.1")
     # Bleed-string foot: via 5 mm clear of the string's tank nodes.
     b.track("sw_b", "B.Cu", 1.0, [191.75, 128], [191.75, 140], [213.2, 140], [213.2, 151.5])
     b.via("sw_b", 213.2, 151.5)
-    b.track("sw_b", "F.Cu", 0.6, [213.2, 151.5], "R25.2")
+    b.track("sw_b", "F.Cu", 0.3, [213.2, 151.5], [214.57, 148.8],
+            [214.57, 145.0], "R25.2")
 
     # SW_A: top and bottom pours joining Q3's drain to Q2's source, then the
     # tank run to T1 on F.Cu.
@@ -139,8 +148,8 @@ def batch_01_power() -> Batch:
     # Strap stitched at its ends only: mid vias would block SW_B's column.
     for x, y in ((201.5, 22.0), (198.5, 72.0)):
         b.via("sw_a", x, y, power=True)
-    b.track("sw_a", "F.Cu", 0.8, "Q3.2", "C13.1")
-    b.track("sw_a", "F.Cu", 0.8, "Q2.3", "C12.2")
+    b.track("sw_a", "F.Cu", 0.8, "Q3.2", [138.0, 9.7], "C13.1")
+    b.track("sw_a", "F.Cu", 0.8, "Q2.3", [161.45, 9.7], "C12.2")
 
     # Coil feed T1 P2 -> J2 stud; RES_A trunk C23 -> C21 -> C22 -> J5.
     b.zone("coil_feed", "F.Cu", [(204.0, 60.4), (224, 60.4), (224, 64.5), (237, 64.5),
@@ -152,12 +161,14 @@ def batch_01_power() -> Batch:
     for x, y in ((217.0, 88.5), (217.0, 91.0), (219.5, 89.5)):
         b.via("res_a", x, y, power=True)
     b.track("res_a", "F.Cu", 3.0, [217.0, 88.5], [217.0, 91.0], [221.0, 91.0])
-    b.track("res_a", "F.Cu", 0.5, [228.0, 138.5], [188.537, 138.5], "R22.1")
+    b.track("res_a", "F.Cu", 0.3, [228.0, 138.5], [185.7, 138.5], [185.7, 145.0], "R22.1")
 
     # Rectifier to link studs.
-    b.zone("rect_p", "F.Cu", rect(7.5, 1.0, 19.5, 23.5), priority=1)
+    # Stop before the removable-link gap, including the bench lug envelope
+    # when the straps are removed (lug begins at y=25.5).
+    b.zone("rect_p", "F.Cu", rect(7.5, 1.0, 19.5, 22.2), priority=1)
     b.zone("rect_n", "F.Cu", [(38.5, 1.0), (44.5, 1.0), (44.5, 11.0), (52.5, 11.0),
-                              (52.5, 23.5), (41.0, 23.5), (41.0, 8.0), (38.5, 8.0)], priority=1)
+                              (52.5, 22.2), (41.0, 22.2), (41.0, 8.0), (38.5, 8.0)], priority=1)
     return b
 
 
@@ -165,43 +176,49 @@ def batch_02_mains() -> Batch:
     """Mains entry, filter and the L_FILT/N_FILT corridor to the bridge."""
     b = Batch("Claude Opus 5.5; explicit mains routes, no search")
     # Line: J1.1 -> F1 input clip, with an inner-layer parallel.
-    b.track("ac_l_in", "F.Cu", 4.0, [6.7, 150.455], [10.5, 148.5], [17.5, 148.5], [19.15, 153.0])
+    b.track("ac_l_in", "F.Cu", 2.4, [6.7, 150.455], [10.5, 148.5])
+    b.track("ac_l_in", "F.Cu", 4.0, [10.5, 148.5], [17.5, 148.5], [19.15, 153.0])
     b.track("ac_l_in", "F.Cu", 4.0, [19.15, 153.0], [26.75, 153.0])
-    b.track("ac_l_in", "In1.Cu", 3.0, [6.7, 150.455], [10.5, 148.5], [17.5, 148.5], [19.15, 153.0])
+    b.track("ac_l_in", "In1.Cu", 2.4, [6.7, 150.455], [10.5, 148.5])
+    b.track("ac_l_in", "In1.Cu", 3.0, [10.5, 148.5], [17.5, 148.5], [19.15, 153.0])
     # Fused line: F1 output clips -> L1 line input, RV1, C1, R1.
     b.track("l_f", "F.Cu", 4.0, [46.25, 153.0], [53.85, 153.0])
     b.track("l_f", "F.Cu", 4.0, [46.25, 153.0], [46.25, 144.0], [31.0, 139.0], "L1.1")
     b.track("l_f", "F.Cu", 4.0, [53.85, 153.0], "RV1.1")
     b.track("l_f", "F.Cu", 2.0, [46.25, 144.0], [52.75, 131.0], "C1.1")
-    b.track("l_f", "F.Cu", 0.4, "C1.1", [56.0, 120.5], [82.0, 120.5], [82.0, 122.1])
+    b.track("l_f", "F.Cu", 0.4, "C1.1", [56.0, 120.5], [82.0, 120.5],
+            [82.0, 121.4], [82.0, 122.1])
     # Neutral: J1.2 up the channel between J1 and F1 to L1's neutral input
     # (B.Cu, main current); MOV/X-cap branch on both inner layers.
     # Main current on B.Cu with an In2 parallel (In1 carries the line).
     for layer in ("B.Cu", "In2.Cu"):
-        b.track("ac_n_in", layer, 3.6, [6.7, 155.535], [13.0, 155.535], [13.0, 139.0], "L1.2")
+        b.track("ac_n_in", layer, 2.4, [6.7, 155.535], [6.7, 157.0], [13.0, 157.0])
+        b.track("ac_n_in", layer, 3.6, [13.0, 157.0], [13.0, 139.0], "L1.2")
     # MOV/X-cap branch on both inner layers: above L1's line pin, below
     # RV1's line pin, clear of the line trace on In1.
     for layer in ("In1.Cu", "In2.Cu"):
         b.track("ac_n_in", layer, 2.5, "L1.2", [19.0, 142.2], [56.0, 142.2], [58.0, 141.0],
                 [72.0, 141.0], "RV1.2")
         b.track("ac_n_in", layer, 2.0, [72.0, 141.0], [75.25, 138.0], "C1.2")
-    b.track("ac_n_in", "F.Cu", 0.6, "C1.2", [75.25, 132.0], [81.0, 132.0], "R2.2")
-    b.track("xbleed_mid", "F.Cu", 0.4, [82.0, 125.8], [82.0, 127.4])
+    b.track("ac_n_in", "F.Cu", 0.4, "C1.2", [75.25, 132.0], [81.0, 132.0],
+            [82.0, 131.8], "R2.2")
+    b.track("xbleed_mid", "F.Cu", 0.4, [82.0, 125.8], [82.0, 126.6], [82.0, 127.4])
 
     # L_FILT on F.Cu up the corridor under PS2 and C5 to C2 and BR1.
     b.track("l_filt", "F.Cu", 4.0, "L1.4", [29.7, 105.0], [29.7, 36.0], "C2.1")
     b.track("l_filt", "F.Cu", 4.0, "C2.1", [23.5, 28.5], [23.5, 9.0], "BR1.2")
-    b.track("l_filt", "F.Cu", 1.0, [29.7, 105.28], "J3.1")
+    b.track("l_filt", "F.Cu", 1.0, [29.7, 106.2], [36.45, 106.2])
     b.track("l_filt", "F.Cu", 1.5, "L1.4", [33.0, 108.0], [74.0, 108.0], [76.0, 112.0], "PS1.1")
     b.track("l_filt", "F.Cu", 1.0, [74.0, 108.0], [138.5, 108.0], "C3.1")
     # N_FILT on B.Cu directly under it, to C2, BR1, PS2, PS1 and the Y cap.
-    b.track("n_filt", "B.Cu", 4.0, "L1.3", [22.7, 108.0], [22.7, 12.35], "C2.2")
+    b.track("n_filt", "B.Cu", 4.0, "L1.3", [21.3, 108.0], [21.3, 101.0],
+            [23.4, 99.0], [23.4, 12.35], "C2.2")
     b.track("n_filt", "B.Cu", 4.0, "C2.2", [33.8, 8.0], "BR1.3")
-    b.track("n_filt", "B.Cu", 1.5, [22.7, 84.0], "PS2.1")
+    b.track("n_filt", "B.Cu", 1.5, [23.4, 84.0], "PS2.1")
     b.track("n_filt", "B.Cu", 1.5, "L1.3", [21.0, 113.0], [21.0, 122.0], [96.8, 122.0], "PS1.2")
     b.track("n_filt", "F.Cu", 1.0, "PS1.2", [96.8, 113.5], [145.5, 113.5], "C4.1")
     # Thermal-cutoff loop feed: J3 beside the corridor; TCO_L to PS2 on In1.
-    b.track("tco_l", "In1.Cu", 1.0, "J3.2", [34.5, 99.8], [8.0, 99.8], "PS2.2")
+    b.track("tco_l", "In1.Cu", 1.0, [36.45, 100.35], [34.5, 99.8], [8.0, 99.8], "PS2.2")
     return b
 
 
@@ -316,13 +333,13 @@ def batch_04_drive() -> Batch:
     # Hold-off source ends: R19 -> SW_B pour (B.Cu), R21 -> LEG_RET (In1).
     b.track("sw_b", "F.Cu", 0.5, "R19.2", [88.3, 10.6])
     b.via("sw_b", 88.3, 10.6)
-    b.track("leg_ret", "F.Cu", 0.5, "R21.2", [106.7, 10.2])
-    b.via("leg_ret", 106.7, 10.2)
+    b.track("leg_ret", "F.Cu", 0.5, "R21.2", [107.6, 10.2])
+    b.via("leg_ret", 107.6, 10.2)
 
     # Leg B high side: OUTA between C41's pads; return is the SW_B pour below.
     b.track("leg_b-out_h", "F.Cu", 0.8, "U2.15", [100.825, 30.0], [96.0, 25.0], [96.0, 16.5], "R18.1")
-    b.track("sw_b", "F.Cu", 0.8, "U2.14", [102.095, 39.0])
-    b.via("sw_b", 102.095, 39.0)
+    b.track("sw_b", "F.Cu", 0.6, "U2.14", [102.095, 33.0])
+    b.via("sw_b", 102.095, 33.0)
     # Leg B low side: OUTB right of C40's BUS_P pad, VSSB return beside it.
     # Both lanes pass between U2's VDDB capacitors (C16 above, C15 below),
     # then right of C40's BUS_P pad and left of U6; VSSB drops to In1 LEG_RET.
@@ -333,24 +350,22 @@ def batch_04_drive() -> Batch:
     b.track("leg_ret", "In1.Cu", 0.6, [114.9, 17.8], [114.9, 10.2])
 
     # Leg A high side: OUTA over C9, down the channel between C39's pads.
-    b.track("leg_a-out_h", "F.Cu", 0.8, "U1.15", [144.825, 38.5], [147.5, 30.5], [155.5, 30.5],
+    b.track("leg_a-out_h", "F.Cu", 0.8, "U1.15", [144.825, 38.5], [147.5, 28.5], [155.5, 28.5],
             [155.5, 17.0], "R10.1")
-    # OUTA fences U1's VSSA pin off from the SW_A pour: hop it back on In1.
-    b.track("sw_a", "F.Cu", 0.6, "U1.14", [146.1, 38.9])
-    b.via("sw_a", 146.1, 38.9)
-    b.track("sw_a", "In1.Cu", 0.6, [146.1, 38.9], [140.5, 36.5])
-    b.via("sw_a", 140.5, 36.5)
+    # Dedicated VSSA return follows OUTA all the way to the source pour.
+    b.track("sw_a", "F.Cu", 0.6, "U1.14", [146.095, 38.5], [148.5, 29.5],
+            [156.5, 29.5], [156.5, 17.0])
     # Leg A low side: OUTB and VSSB cross to Q3 on In1 (same group as HV_RET).
     b.track("leg_a-out_l", "F.Cu", 0.6, "U1.10", [151.8, 38.8])
     b.via("leg_a-out_l", 151.8, 38.8)
-    b.track("leg_a-out_l", "In1.Cu", 0.5, [151.8, 38.8], [151.8, 27.5], [136.5, 27.5], [134.8, 17.5])
+    b.track("leg_a-out_l", "In1.Cu", 0.5, [151.8, 38.8], [151.8, 26.9], [136.5, 26.9], [134.8, 17.5])
     b.via("leg_a-out_l", 134.8, 17.5)
     b.track("leg_a-out_l", "F.Cu", 0.6, [134.8, 17.5], "R12.1")
     b.track("leg_ret", "F.Cu", 0.6, "U1.9", [153.2, 38.6])
     b.via("leg_ret", 153.2, 38.6)
     # VSSB beside OUTB on In1, ending at a via inside the band (a full
     # crossing would split HV_RET), then F.Cu between R5's sense pad and R13 into the LEG_RET pour.
-    b.track("leg_ret", "In1.Cu", 0.5, [153.2, 38.6], [152.6, 37.8], [152.6, 26.7], [137.3, 26.7],
+    b.track("leg_ret", "In1.Cu", 0.5, [153.2, 38.6], [152.6, 37.8], [152.6, 26.1], [137.3, 26.1],
             [136.0, 18.6])
     b.via("leg_ret", 136.0, 18.6)
     b.track("leg_ret", "F.Cu", 0.5, [136.0, 18.6], [128.72, 18.6], [128.72, 11.6])
@@ -358,22 +373,27 @@ def batch_04_drive() -> Batch:
     # Bootstrap: diode cathode, boot caps and VDDA pin on each leg.
     for dx, boot, sw, d, cb, chf, drv in ((0.0, "leg_b-boot", "sw_b", "D2", "C17", "C18", "U2"),
                                           (44.0, "leg_a-boot", "sw_a", "D1", "C10", "C11", "U1")):
-        b.track(boot, "F.Cu", 0.8, f"{d}.1", [99.3 + dx, 36.0], [99.3 + dx, 40.3], f"{drv}.16")
+        if d == "D1":
+            b.track(boot, "F.Cu", 0.8, f"{d}.1", f"{cb}.1")
+        else:
+            b.track(boot, "F.Cu", 0.8, f"{d}.1", [99.3 + dx, 36.0], [99.3 + dx, 40.3], f"{drv}.16")
         b.track(boot, "F.Cu", 0.6, f"{drv}.16", [98.4 + dx, 41.7], [97.4 + dx, 41.7], f"{chf}.1")
         b.track(boot, "F.Cu", 0.8, [97.4 + dx, 41.7], [92.525 + dx, 41.7], f"{cb}.1")
         b.track(sw, "F.Cu", 0.8, f"{cb}.2", [95.475 + dx, 37.6], f"{chf}.2")
-    b.track("sw_b", "F.Cu", 0.6, "C18.2", [97.4, 36.6])
-    b.via("sw_b", 97.4, 36.6)
+    # Two short local returns above the auxiliary trunk; merging them on
+    # F.Cu would cross OUTA. Both vias leave In2 y=37..41 clear.
+    b.track("sw_b", "F.Cu", 0.6, "C18.2", [96.5, 36.8], [96.5, 35.5])
+    b.via("sw_b", 96.5, 35.5)
 
     # Resistor strings.
     # Links span only the gap between adjacent end pads.
-    b.track("busbleed_mid", "F.Cu", 0.4, [63.5, 50.3], [63.5, 59.6])
-    b.track("vdiv_1", "F.Cu", 0.3, [52.0, 77.8], [52.0, 78.9])
-    b.track("vdiv_2", "F.Cu", 0.3, [52.0, 82.5], [52.0, 83.6])
-    b.track("vdiv_3", "F.Cu", 0.3, [52.0, 87.2], [52.0, 88.3])
-    b.track("crbleed_1", "F.Cu", 0.3, [191.85, 145.0], [195.15, 145.0])
-    b.track("crbleed_2", "F.Cu", 0.3, [198.85, 145.0], [202.15, 145.0])
-    b.track("crbleed_3", "F.Cu", 0.3, [205.85, 145.0], [209.15, 145.0])
+    b.track("busbleed_mid", "F.Cu", 0.4, [63.5, 50.3], [63.5, 51.1], [63.5, 58.9], [63.5, 59.6])
+    b.track("vdiv_1", "F.Cu", 0.3, [52.0, 77.8], [52.0, 78.2], [52.0, 78.5], [52.0, 78.9])
+    b.track("vdiv_2", "F.Cu", 0.3, [52.0, 82.5], [52.0, 82.9], [52.0, 83.2], [52.0, 83.6])
+    b.track("vdiv_3", "F.Cu", 0.3, [52.0, 87.2], [52.0, 87.6], [52.0, 87.9], [52.0, 88.3])
+    b.track("crbleed_1", "F.Cu", 0.3, [191.85, 145.0], [194.35, 145.0], [195.15, 145.0])
+    b.track("crbleed_2", "F.Cu", 0.3, [198.85, 145.0], [199.5, 145.0], [201.5, 145.0], [202.15, 145.0])
+    b.track("crbleed_3", "F.Cu", 0.3, [205.85, 145.0], [206.0, 145.0], [206.5, 145.0], [209.15, 145.0])
     return b
 
 

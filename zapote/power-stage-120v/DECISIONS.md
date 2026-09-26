@@ -1,16 +1,17 @@
 # Placement decisions
 
-The 2026-09-25 implementation has reached the native shelf stage. This file
-records decision status. The owner approved the proposed D1–D3 and D6
-defaults on 2026-09-25. The owner subsequently approved D5 as a conditional
-placement basis; D4 remains open.
+This file records owner decisions. The owner approved the proposed D1–D3
+and D6 defaults on 2026-09-25, then D5 as a conditional placement basis.
+On 2026-09-26 the owner approved a revised 240 × 160 mm, four-layer design
+basis. D4 approval of native-04 does not cover the subsequent placement
+changes; the revised placement needs review.
 
 | ID | Decision | Current status |
 | --- | --- | --- |
-| D1 | Maximum board outline | **Approved 2026-09-25:** 220 × 160 mm maximum. |
+| D1 | Maximum board outline | **Revised approval 2026-09-26:** 240 × 160 mm. Supersedes the 220 × 160 mm default. Owner reply: “Approve 240 × 160 mm, four layers”. |
 | D2 | Heatsink and airflow | **Approved 2026-09-25:** shared PE-bonded heatsink along a long edge, with electrically insulated MOSFETs and bridge. Airflow direction is still not chosen. |
-| D3 | Physical stackup | **Approved 2026-09-25 and implemented in native-02:** two copper layers, 1.6 mm FR-4, 70 µm copper per side. Fabricator stackup acceptance remains separate. |
-| D4 | Review placement before routing | **Approved for routing 2026-09-26:** native-04 at `341e3c70c` (board SHA-256 `c6c55ce8…`). Routing must keep local-capacitor returns through R5 current pads 1/4, keep Kelvin pads 2/3 separate, pair each gate drive with its source return, build overlapping bus/return copper, and enforce the provisional insulation rules. Not a fabrication or powered-operation release. |
+| D3 | Physical stackup | **Revised approval 2026-09-26:** four copper layers. Supersedes the two-layer default. Current proposed stackup is 1.6 mm overall, 70 µm copper on all four layers. Layer-count approval does not establish inner-plane ampacity or fabricator stackup acceptance. |
+| D4 | Review placement before routing | **Re-review required:** the 2026-09-26 routing approval covered native-04 at `341e3c70c` (board SHA-256 `c6c55ce8…`). Later placement and stackup changes require renewed review; D1/D3 approval does not supply it. Routing must keep local-capacitor returns through R5 current pads 1/4, keep Kelvin pads 2/3 separate, pair each gate drive with its source return, build overlapping bus/return copper, and enforce the provisional insulation rules. Not a fabrication or powered-operation release. See ROUTING-REVIEW-2026-09-26.md. |
 | D5 | Insulation basis and barrier parts | **Conditionally approved 2026-09-25 by the owner:** single-point controller-ground–PE functional bond and an 8.0 mm minimum placement target. Use verified laminate group IIIa or better (not IIIb above 50 V). This authorizes provisional barrier placement, not insulation qualification. The source now includes the removable 0 Ω functional link; its placement remains pending. Coilcraft evidence, applicable working-voltage/high-frequency rules and package/module certification scope remain open; increase spacing or change parts if those checks require it. See D5-BASIS.md. |
 | D6 | Mains entry and coil exit edges | **Approved 2026-09-25:** mains left, coil right, viewed from the component side with the heatsink at the top. |
 
@@ -41,5 +42,5 @@ waiver from D5. See [ASSEMBLY.md](ASSEMBLY.md) and
 This is source-level approval. The new 114-part native projection, deliberate
 placement, complete copper, enclosure assembly, 20 A link capability at its
 operating temperature, and powered qualification are separate checks. D4
-remains open; no routing approval has been given. The lab call and RCA 12A3
+requires renewed review for the revised placement. The lab call and RCA 12A3
 teardown remain outstanding.

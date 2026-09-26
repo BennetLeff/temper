@@ -46,8 +46,8 @@ def sexpr_end(text: str, start: int) -> int:
 
 def footprint_blocks(board: str) -> list[str]:
     blocks = []
-    for match in re.finditer(r"\n  \(footprint ", board):
-        start = match.start() + 3
+    for match in re.finditer(r"\n[ \t]+\(footprint\s", board):
+        start = match.start() + match[0].index("(footprint")
         blocks.append(board[start:sexpr_end(board, start)])
     return blocks
 

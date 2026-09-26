@@ -1,7 +1,7 @@
 # power-stage-120v: full-bridge induction power stage
 
-Status: **source compiled and audited; native shelf generated and checked;
-placement and routing pending; physical NOT RUN.**
+Status: **source compiled and audited; 240 × 160 mm four-layer placement
+generated; native-06 routing and final verification in progress; physical NOT RUN.**
 Design basis and justification: `docs/hardware/power-section-120v/` (POWER-SECTION.md,
 LOSS-REFACTOR.md, COIL-MC.md). Front-end decision: `docs/adr/2026-09-25-front-end-architecture-brief.md`.
 
@@ -13,10 +13,12 @@ thermal, interlock and RTD boards connect through one SELV header.
 
 Native construction records: [progress](BUILD-PROGRESS.md),
 [toolchain](TOOLCHAIN.md), [local footprints](FOOTPRINTS.md),
-[current native results](NATIVE-02.md), [oracle assessment](ORACLE-REVIEW.md),
+[earlier native results](NATIVE-02.md), [current routing](ROUTING.md),
+[placement review](PLACEMENT-REVIEW.md), [oracle assessment](ORACLE-REVIEW.md),
 [placement decisions](DECISIONS.md), and
-[insulation preflight](RULES-PREFLIGHT.md). The outline and stackup defaults
-are approved. D5 now conditionally permits an 8.0 mm placement floor on
+[insulation preflight](RULES-PREFLIGHT.md). The revised 240 × 160 mm outline
+and four layers are approved; the revised placement needs renewed D4 review.
+D5 conditionally permits an 8.0 mm placement floor on
 verified group IIIa-or-better laminate with one functional PE bond; insulation
 qualification and airflow remain open. See [D5 basis](D5-BASIS.md).
 

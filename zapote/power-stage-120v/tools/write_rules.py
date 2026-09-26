@@ -20,7 +20,9 @@ at least as strict. Barrier rules keep both clearance and creepage.
 from __future__ import annotations
 
 import argparse
+import os
 import re
+import subprocess
 from pathlib import Path
 
 UNIT = Path(__file__).resolve().parents[1]
@@ -81,13 +83,51 @@ def board_nets(board: str) -> set[str]:
     return {name for name in re.findall(r'\(net (?:\d+ )?"([^"]*)"\)', board) if name}
 
 
+def sexpr_at(text: str, start: int) -> str:
+    """Return one KiCad S-expression, respecting strings and escaped quotes."""
+    depth = 0
+    quoted = False
+    escaped = False
+    for end in range(start, len(text)):
+        char = text[end]
+        if quoted:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                quoted = False
+        elif char == '"':
+            quoted = True
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return text[start : end + 1]
+    raise ValueError("unterminated KiCad S-expression")
+
+
 def footprint_nets(board: str) -> dict[str, set[str]]:
     """Reference -> set of nets on its pads."""
     out: dict[str, set[str]] = {}
-    # Generated boards indent with spaces, KiCad-saved boards with tabs.
-    for block in re.split(r"\n[ \t]+\(footprint ", board)[1:]:
-        ref = re.search(r'\(property "Reference" "([^"]+)"', block)[1]
-        nets = set(re.findall(r'\(net (?:\d+ )?"([^"]+)"\)', block))
+    # Only parse complete footprint and pad expressions. KiCad writes routed
+    # tracks after the final footprint, so splitting on footprint starts can
+    # silently assign every track net on the board to that last component.
+    for match in re.finditer(r"\n[ \t]+\(footprint\s", board):
+        block = sexpr_at(board, match.start() + match[0].index("(footprint"))
+        reference = re.search(r'\(property "Reference" "([^"]+)"', block)
+        if reference is None:
+            raise ValueError("footprint without Reference property")
+        ref = reference[1]
+        if ref in out:
+            raise ValueError(f"duplicate footprint Reference {ref}")
+        nets = set()
+        for pad_match in re.finditer(r"\n[ \t]+\(pad\s", block):
+            pad = sexpr_at(block, pad_match.start() + pad_match[0].index("(pad"))
+            net = re.search(r'\(net (?:\d+ )?"([^"]+)"\)', pad)
+            if net is not None:
+                nets.add(net[1])
         out[ref] = nets
     return out
 
@@ -96,7 +136,7 @@ def any_of(side: str, nets: set[str]) -> str:
     return "(" + " || ".join(f"{side}.NetName == '{n}'" for n in sorted(nets)) + ")"
 
 
-def rules(board: str, selv: set[str]) -> str:
+def rules(board: str, selv: set[str], pad_escape_rules: str = "") -> str:
     nets = board_nets(board)
     selv_all = selv | SELV_NC
     hot = set().union(*HOT_GROUPS.values())
@@ -124,30 +164,12 @@ def rules(board: str, selv: set[str]) -> str:
     same_fp = " || ".join(
         f"(A.memberOfFootprint('{r}') && B.memberOfFootprint('{r}'))" for r in multi
     )
-    # A trace leaving a pad of a two-group part starts inside the part's
-    # body, as close to the part's other pads as those pads are to each
-    # other. Inside the courtyard the part's rating governs: exempt copper of
-    # the part's own nets there. Foreign nets crossing the courtyard still count.
-    same_fp += " || " + " || ".join(
-        f"(A.intersectsCourtyard('{r}') && B.intersectsCourtyard('{r}') && "
-        f"{any_of('A', fp_nets[r] & hot_on_board)} && {any_of('B', fp_nets[r] & hot_on_board)})"
-        for r in multi
-    )
+    # Only the component's actual pads inherit its certified pin spacing.
+    # intersectsCourtyard() matches a whole track that merely touches the
+    # courtyard, including copper outside it, and cannot bound pad escapes.
     tank = TANK & nets
     a_hot, b_hot = any_of("A", hot_on_board), any_of("B", hot_on_board)
     out = ["(version 1)", ""]
-    out.append(
-        '(rule "SELV to HOT: reinforced, D5 provisional"\n'
-        f'  (condition "{any_of("A", selv_on_board)} && {b_hot}")\n'
-        f"  (constraint clearance (min {REINFORCED_MM}mm))\n"
-        f"  (constraint creepage (min {REINFORCED_MM}mm)))"
-    )
-    out.append(
-        '(rule "PE to HOT: D5 provisional floor"\n'
-        f'  (condition "{any_of("A", PE)} && {b_hot}")\n'
-        f"  (constraint clearance (min {REINFORCED_MM}mm))\n"
-        f"  (constraint creepage (min {REINFORCED_MM}mm)))"
-    )
     out.append(
         '(rule "HOT functional between potential groups"\n'
         f'  (condition "{a_hot} && {b_hot} && !({same_group})")\n'
@@ -166,6 +188,22 @@ def rules(board: str, selv: set[str]) -> str:
         f'  (condition "({same_fp}) && {a_hot} && {b_hot}")\n'
         "  (constraint clearance (min 0.2mm)))"
     )
+    if pad_escape_rules:
+        out.append(pad_escape_rules)
+    # KiCad's last matching rule wins. Keep both barrier floors after every
+    # component-local exception, even if a future escape request is misfiled.
+    out.append(
+        '(rule "SELV to HOT: reinforced, D5 provisional"\n'
+        f'  (condition "{any_of("A", selv_on_board)} && {b_hot}")\n'
+        f"  (constraint clearance (min {REINFORCED_MM}mm))\n"
+        f"  (constraint creepage (min {REINFORCED_MM}mm)))"
+    )
+    out.append(
+        '(rule "PE to HOT: D5 provisional floor"\n'
+        f'  (condition "{any_of("A", PE)} && {b_hot}")\n'
+        f"  (constraint clearance (min {REINFORCED_MM}mm))\n"
+        f"  (constraint creepage (min {REINFORCED_MM}mm)))"
+    )
     return "\n\n".join(out) + "\n"
 
 
@@ -173,7 +211,22 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("board", type=Path)
     args = parser.parse_args()
-    text = rules(args.board.read_text(encoding="utf-8"), audit_selv_nets(UNIT / "audit.rs"))
+    board = args.board.read_text(encoding="utf-8")
+    escape_rules = ""
+    if re.search(r'\(name "PE_', board):
+        # Rust validates the physical pad geometry, explicit net contract,
+        # and *entire* named rule-area polygons on every regeneration. KiCad
+        # zone refills can rewrite the board without changing those shapes.
+        kicad_python = os.environ.get(
+            "KICAD_PYTHON",
+            "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3",
+        )
+        verified = subprocess.run(
+            [kicad_python, str(UNIT / "tools" / "pad_escape.py"), "--verify", str(args.board)],
+            capture_output=True, text=True, check=True,
+        )
+        escape_rules = verified.stdout
+    text = rules(board, audit_selv_nets(UNIT / "audit.rs"), escape_rules)
     target = args.board.with_suffix(".kicad_dru")
     target.write_text(text, encoding="utf-8")
     print(target)

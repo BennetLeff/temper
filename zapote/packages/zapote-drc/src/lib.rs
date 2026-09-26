@@ -2,6 +2,8 @@
 
 pub mod current_sense;
 pub mod domain_clearance;
+pub mod pad_escape;
+pub mod power_barrier;
 pub(crate) mod donor_clearance;
 mod donor_geometry;
 mod donor_sexpr;

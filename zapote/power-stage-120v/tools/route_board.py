@@ -52,8 +52,11 @@ def preflight(placement: Path, output: Path) -> None:
     receipt = json.loads((UNIT / "build-receipt.json").read_text())
     for name in ("default.net", "default.csv", "resolved-components.json"):
         path = UNIT / "frozen" / name
-        if receipt.get("sha256", {}).get(f"frozen/{name}") != sha256(path):
+        current_hash = sha256(path)
+        if receipt.get("sha256", {}).get(f"frozen/{name}") != current_hash:
             raise ValueError(f"frozen source differs from its build receipt: {name}")
+        if manifest.get("input_hashes", {}).get(name) != current_hash:
+            raise ValueError(f"placement was generated from stale {name}")
     outline = json.loads((UNIT / "outline.json").read_text())["outline_mm"]
     expected_layers = tuple(
         layer["name"] for layer in json.loads((UNIT / "stackup.json").read_text())["layers"]
@@ -108,6 +111,8 @@ def replay(placement: Path, output: Path) -> None:
                  str(batch), str(receipts / batch.name.replace("routes-", "receipt-"))],
                 check=True,
             )
+        subprocess.run([sys.executable, str(UNIT / "tools/pad_escape.py"), "--apply",
+                        str(output / "section.kicad_pcb")], check=True)
         subprocess.run([sys.executable, str(UNIT / "tools/write_rules.py"),
                         str(output / "section.kicad_pcb")], check=True, stdout=subprocess.DEVNULL)
     except BaseException:

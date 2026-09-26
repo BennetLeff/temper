@@ -60,7 +60,7 @@ for leg, q, r, pd in (
     gx = LEG_X[f"{leg}.{q}"] - 5.45
     put(f"{leg}.{r}", gx, 12.6, 90)
     put(f"{leg}.{pd}", gx - 2.8, 12.1, 90)
-# Local HF capacitors in one row; every HV_RET pad converges under R5.
+# Local HF capacitors in one row; the inner pair is closest to R5.
 # Leg B at 0 deg (BUS_P left, HV_RET right); leg A at 180 deg (mirrored).
 put("c_hf_b1", 96.5, 22.0)     # pads x 89 / 104
 put("c_hf_b2", 75.9, 22.0)     # pads x 68.4 / 83.4 (3.2 mm to C40 BUS_P)
@@ -146,13 +146,26 @@ put("j_coil_return", 205.0, 151.0)
 put("r_crb1", 170.0, 145.0)
 put("r_crb2", 177.0, 145.0)
 put("r_crb3", 184.0, 145.0)
-put("r_crb4", 191.0, 145.0)
+put("r_crb4", 190.3, 145.0)  # leave 5 mm to the installed J5 lug after escape routing
 
 
 # ---- D1 widened to 240 mm: the approved right part shifts +20 mm ----------
 RIGHT_SHIFT_MM = 20.0
 for _inst, (_x, _y, _a) in list(PLAN.items()):
     PLAN[_inst] = (_x + RIGHT_SHIFT_MM, _y, _a)
+
+# Keep the comparator's through vias out of the SW_B power corridor. This
+# compact west cluster trades a longer, paired Kelvin run for broad copper
+# between the MOSFET leg and the resonant bank. Source connectivity is unchanged.
+for _inst in ("u_ocp", "u_ref", "r_ocp_sense", "r_ocp_ref", "r_th_top",
+              "r_th_bot", "c_th", "r_ref_bias", "c_ocp_node", "c_ocp_vcc"):
+    _x, _y, _a = PLAN[_inst]
+    PLAN[_inst] = (_x - 46.0, _y - 11.0, _a)
+
+# Put the bootstrap diode below the BUS_P/SW_B corridors. Its through-hole
+# pads otherwise choke both planes. PLAN stores the body centre; capture
+# projects this to a KiCad anchor at (131.5, 40.0).
+PLAN["leg_a.d_boot"] = (126.42, 40.0, 180)
 
 # ---- Left side, laid out around trunk corridors (240 x 160 board) --------
 # BR1 on the heatsink; each link pair hangs vertically under its DC pin.
@@ -171,8 +184,8 @@ put("r_bus2", 63.5, 48.5, 90)   # hv_ret (top) near D3.2
 # HOT 5 V regulator beside the negative link, near its loads.
 put("u_ldo", 62.0, 18.0, 90)
 put("c_ldo_in", 62.0, 13.5)
-put("c_ldo_out", 66.5, 18.0, 90)
-put("c_v15", 57.5, 18.0, 90)
+put("c_ldo_out", 57.5, 18.0, 90)
+put("c_v15", 66.5, 18.0, 90)
 # Bus sense on the island's left edge, below C5.
 put("u_vsense", 65.5, 84.0)
 put("c_vs2", 70.0, 77.0, 90)

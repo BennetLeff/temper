@@ -1,0 +1,24 @@
+{
+  "evidence": [
+    "Parser now accepts spaces or tabs before a top-level footprint and starts the balanced S-expression at the actual opening parenthesis. It captured all 114 real native-06 footprints; no parse errors.",
+    "native-05 capture matches poses.json exactly. native-06 differs on ten footprints, including u_ref and c_th, while routing/refinement continues.",
+    "Kelvin test calls KiCad pcbnew GetConnectedItems after BuildConnectivity. Native-06 original R5 pad 1/pad 2 clusters are disjoint: shared=0, sizes=48/110. Injecting a direct F.Cu bridge makes shared=159, sizes=159/159. The mutation demonstrates the test can detect the target bypass.",
+    "Selected pytest: 4 passed, 1 failed, 9 deselected. Only test_capture_accepts_kicad_saved_tab_indentation fails on the ten stale native-06 poses; pass it after final native-06 regeneration before relying on final gate."
+  ],
+  "file_sha256": {
+    "zapote/power-stage-120v/native-06/section.kicad_pcb": "062f38ee26b535712a9cdd4c8559d12f425551611af5db2420d0ba93c63811be",
+    "zapote/power-stage-120v/poses.json": "278f059ac52d2bb8ae3db5a121eb12182cd17ee8b7ef3b855bd21c89b83073f9",
+    "zapote/power-stage-120v/tests/test_kelvin_connection.py": "5f9142c119f2f6c34c4c93f00699de247125f7a302a82776c3fc7c787483876c",
+    "zapote/power-stage-120v/tests/test_placement_tools.py": "7df95f700c77305e654a20d397fdd1baaedeab97611fff55ef620490f2deb3d4",
+    "zapote/power-stage-120v/tools/capture_poses.py": "6fe97085e3ce0132063f0e0c5fccb95042ae09875ebd313f7917cdd7620896b1"
+  },
+  "limits": [
+    "GetConnectedItems checks saved-board copper connectivity, not shunt internal electrical behavior or current-sense accuracy.",
+    "The tab-indentation test currently doubles as a pose-freshness gate; its failure is artifact staleness, not a scanner defect."
+  ],
+  "prior_resolution": "/tmp/ps-finish/ce-review-resolution-20260926.json",
+  "reviewed_at_utc": "2026-09-26T20:09:18.687856+00:00",
+  "schema": "temper.power-stage-120v.ce-review-supplement.v1",
+  "scope": "capture_poses tab-indented footprint scanner and added placement/Kelvin tests only; canonical source read-only",
+  "verdict": "No new implementation finding. One expected final-artifact gate remains red because native-06 predates ten pose updates."
+}
