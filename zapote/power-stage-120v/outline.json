@@ -1,5 +1,10 @@
 {
   "schema": "temper.power-stage-120v.outline.v1",
-  "status": "PROVISIONAL shelf outline for native generation only; not a mechanical decision",
-  "outline_mm": [0, 0, 220, 160]
+  "status": "D1 widened to 240 x 160 mm on 2026-09-26 for routing corridors (owner decision)",
+  "outline_mm": [
+    0,
+    0,
+    240,
+    160
+  ]
 }

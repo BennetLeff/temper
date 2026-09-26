@@ -67,7 +67,7 @@
       ]
     },
     "bring_up": {
-      "description": "Both straps removed; floating bench supply on the bus studs, leads leaving the left edge; rectifier studs bare and mains-live.",
+      "description": "Both straps removed; floating bench supply on the bus studs: positive lead leaves J8 off the left edge, negative lead leaves J10 toward +x above C5; rectifier studs bare and mains-live.",
       "items": [
         {
           "id": "rect_p_bare",
@@ -97,7 +97,7 @@
           "studs": [
             "J10"
           ],
-          "direction": "-x"
+          "direction": "+x"
         },
         {
           "id": "coil_feed_lug",
@@ -126,6 +126,6 @@
     "J6": "PE branch wire, vertical exit to the chassis stud; not in the protective-earth path",
     "J3": "TCO loop, vertical exit",
     "J8": "bench lead in bring-up only, left edge",
-    "J10": "bench lead in bring-up only, left edge"
+    "J10": "bench lead in bring-up only, toward +x above C5, then up"
   }
 }

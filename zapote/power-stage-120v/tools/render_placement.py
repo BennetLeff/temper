@@ -27,10 +27,10 @@ def colour(net: str, domains: dict[str, str]) -> str:
 
 def main() -> None:
     world = json.load(open(sys.argv[1]))
-    fig, ax = plt.subplots(figsize=(22, 17), dpi=90)
-    ax.add_patch(Rectangle((0, 0), 220, 160, fill=False, lw=2, ec="k"))
-    ax.add_patch(Rectangle((5, -6), 140, 6, fc="#bbbbbb", ec="k"))
-    ax.text(75, -3, "HEATSINK (D2, x 5-145)", ha="center", va="center", fontsize=11)
+    fig, ax = plt.subplots(figsize=(24, 17), dpi=90)
+    ax.add_patch(Rectangle((0, 0), 240, 160, fill=False, lw=2, ec="k"))
+    ax.add_patch(Rectangle((12, -6), 153, 6, fc="#bbbbbb", ec="k"))
+    ax.text(88, -3, "HEATSINK (D2, x 12-165)", ha="center", va="center", fontsize=11)
     for ref, (x1, y1, x2, y2) in world["courtyards"].items():
         ax.add_patch(Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, ec="#e377c2", lw=0.8))
         ax.text((x1 + x2) / 2, (y1 + y2) / 2, ref, ha="center", va="center",
@@ -40,11 +40,11 @@ def main() -> None:
         c = colour(pad["net"], world["domains"])
         ax.add_patch(Rectangle((x1, y1), x2 - x1, y2 - y1, fc="white" if pad["npth"] else c,
                                ec="k" if pad["npth"] else c, lw=0.5))
-    ax.set_xlim(-3, 223)
+    ax.set_xlim(-3, 243)
     ax.set_ylim(163, -9)
     ax.set_aspect("equal")
     ax.grid(True, ls=":", lw=0.4)
-    ax.set_xticks(range(0, 221, 10))
+    ax.set_xticks(range(0, 241, 10))
     ax.set_yticks(range(0, 161, 10))
     ax.legend(handles=[Patch(color=c, label=l) for c, l in (
         ("#1a9850", "SELV (earthed ELV)"), ("#d4a017", "PE"), ("#2166ac", "mains / rectifier"),

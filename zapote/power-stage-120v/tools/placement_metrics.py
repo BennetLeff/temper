@@ -22,7 +22,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import write_rules  # noqa: E402
 
-HEATSINK_X = (5.0, 145.0)   # D2 heatsink span along the top edge
+HEATSINK_X = (12.0, 165.0)   # D2 heatsink span along the top edge
 HEAT_ZONE_MM = 10.0         # Part 4 rule 4
 STUDS = {"J2", "J5", "J7", "J8", "J9", "J10"}  # M4 studs: screw passes the NPTH
 # Parts allowed within HEAT_ZONE_MM of the heatsink: power devices, their

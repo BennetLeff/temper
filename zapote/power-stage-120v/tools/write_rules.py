@@ -78,16 +78,17 @@ def audit_selv_nets(audit: Path) -> set[str]:
 
 
 def board_nets(board: str) -> set[str]:
-    return {name for name in re.findall(r'\(net \d+ "([^"]*)"\)', board) if name}
+    return {name for name in re.findall(r'\(net (?:\d+ )?"([^"]*)"\)', board) if name}
 
 
-def footprint_groups(board: str, group_of: dict[str, str]) -> dict[str, set[str]]:
-    """Reference -> set of HOT groups its pads touch."""
+def footprint_nets(board: str) -> dict[str, set[str]]:
+    """Reference -> set of nets on its pads."""
     out: dict[str, set[str]] = {}
-    for block in re.split(r"\n  \(footprint ", board)[1:]:
+    # Generated boards indent with spaces, KiCad-saved boards with tabs.
+    for block in re.split(r"\n[ \t]+\(footprint ", board)[1:]:
         ref = re.search(r'\(property "Reference" "([^"]+)"', block)[1]
-        nets = set(re.findall(r'\(net \d+ "([^"]+)"\)', block))
-        out[ref] = {group_of[n] for n in nets if n in group_of}
+        nets = set(re.findall(r'\(net (?:\d+ )?"([^"]+)"\)', block))
+        out[ref] = nets
     return out
 
 
@@ -116,9 +117,21 @@ def rules(board: str, selv: set[str]) -> str:
         f"({any_of('A', g & nets)} && {any_of('B', g & nets)})"
         for g in HOT_GROUPS.values() if g & nets
     )
-    multi = sorted(r for r, gs in footprint_groups(board, group_of).items() if len(gs) > 1)
+    fp_nets = footprint_nets(board)
+    multi = sorted(r for r, ns in fp_nets.items() if len({group_of[n] for n in ns if n in group_of}) > 1)
+    if not multi:
+        raise ValueError("no multi-group footprints found; board parse failed")
     same_fp = " || ".join(
         f"(A.memberOfFootprint('{r}') && B.memberOfFootprint('{r}'))" for r in multi
+    )
+    # A trace leaving a pad of a two-group part starts inside the part's
+    # body, as close to the part's other pads as those pads are to each
+    # other. Inside the courtyard the part's rating governs: exempt copper of
+    # the part's own nets there. Foreign nets crossing the courtyard still count.
+    same_fp += " || " + " || ".join(
+        f"(A.intersectsCourtyard('{r}') && B.intersectsCourtyard('{r}') && "
+        f"{any_of('A', fp_nets[r] & hot_on_board)} && {any_of('B', fp_nets[r] & hot_on_board)})"
+        for r in multi
     )
     tank = TANK & nets
     a_hot, b_hot = any_of("A", hot_on_board), any_of("B", hot_on_board)

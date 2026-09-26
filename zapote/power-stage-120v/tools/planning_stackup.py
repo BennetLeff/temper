@@ -46,8 +46,16 @@ def apply_planning_stackup(output: Path, stackup_path: Path) -> None:
     if config.get("schema") != "temper.power-stage-120v.stackup.v1":
         raise ValueError("unexpected power-stage stackup schema")
     layers = config["layers"]
-    if [layer["name"] for layer in layers] != ["F.Mask", "F.Cu", "dielectric 1", "B.Cu", "B.Mask"]:
-        raise ValueError("unsupported two-layer stackup layer order")
+    # Supported stackups and the inner copper declarations each keeps.
+    supported = {
+        ("F.Mask", "F.Cu", "dielectric 1", "B.Cu", "B.Mask"): (),
+        ("F.Mask", "F.Cu", "dielectric 1", "In1.Cu", "dielectric 2", "In2.Cu",
+         "dielectric 3", "B.Cu", "B.Mask"): ("In1.Cu", "In2.Cu"),
+    }
+    order = tuple(layer["name"] for layer in layers)
+    if order not in supported:
+        raise ValueError("unsupported stackup layer order")
+    keep_inner = supported[order]
     records = ["    (stackup"]
     for layer in layers:
         fields = [
@@ -116,13 +124,15 @@ def apply_planning_stackup(output: Path, stackup_path: Path) -> None:
             block = block[: pad_end - 1] + f' (uuid "{identity}")' + block[pad_end - 1 :]
         board = board[:start] + block + board[end:]
 
-    # Remove the archived skeleton's four inner-layer declarations. Refuse
-    # unexpected input instead of silently retaining phantom copper layers.
+    # Remove the archived skeleton's inner-layer declarations that the stackup
+    # does not use. Refuse unexpected input instead of silently retaining
+    # phantom copper layers.
     for number, name in ((3, "In3.Cu"), (1, "In1.Cu"), (2, "In2.Cu"), (4, "In4.Cu")):
         line = f'    ({number} "{name}" signal)\n'
         if board.count(line) != 1:
             raise ValueError("generated copper layer declarations changed")
-        board = board.replace(line, "", 1)
+        if name not in keep_inner:
+            board = board.replace(line, "", 1)
     old_setup = "  (setup\n    (pad_to_mask_clearance 0.0)"
     if board.count(old_setup) != 1 or board.count("(thickness 1.6)") != 1:
         raise ValueError("generated board skeleton changed")

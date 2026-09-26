@@ -1,12 +1,61 @@
 {
   "schema": "temper.power-stage-120v.stackup.v1",
-  "status": "Approved D3 nominal CAD stackup; not a fabricator approval",
+  "status": "D3 changed to 4 layers on 2026-09-26 (owner decision). Nominal CAD stackup; PROVISIONAL until a fabricator confirms it. The thin core between In1 (HV_RET) and In2 (BUS_P) minimises commutation-loop inductance.",
   "board_thickness_mm": 1.6,
   "layers": [
-    {"name": "F.Mask", "type": "Top Solder Mask", "thickness_mm": 0.01},
-    {"name": "F.Cu", "type": "copper", "thickness_mm": 0.07},
-    {"name": "dielectric 1", "type": "core", "thickness_mm": 1.44, "material": "FR4", "epsilon_r": 4.5, "loss_tangent": 0.02},
-    {"name": "B.Cu", "type": "copper", "thickness_mm": 0.07},
-    {"name": "B.Mask", "type": "Bottom Solder Mask", "thickness_mm": 0.01}
+    {
+      "name": "F.Mask",
+      "type": "Top Solder Mask",
+      "thickness_mm": 0.01
+    },
+    {
+      "name": "F.Cu",
+      "type": "copper",
+      "thickness_mm": 0.07
+    },
+    {
+      "name": "dielectric 1",
+      "type": "prepreg",
+      "thickness_mm": 0.585,
+      "material": "FR4",
+      "epsilon_r": 4.4,
+      "loss_tangent": 0.02
+    },
+    {
+      "name": "In1.Cu",
+      "type": "copper",
+      "thickness_mm": 0.035
+    },
+    {
+      "name": "dielectric 2",
+      "type": "core",
+      "thickness_mm": 0.2,
+      "material": "FR4",
+      "epsilon_r": 4.5,
+      "loss_tangent": 0.02
+    },
+    {
+      "name": "In2.Cu",
+      "type": "copper",
+      "thickness_mm": 0.035
+    },
+    {
+      "name": "dielectric 3",
+      "type": "prepreg",
+      "thickness_mm": 0.585,
+      "material": "FR4",
+      "epsilon_r": 4.4,
+      "loss_tangent": 0.02
+    },
+    {
+      "name": "B.Cu",
+      "type": "copper",
+      "thickness_mm": 0.07
+    },
+    {
+      "name": "B.Mask",
+      "type": "Bottom Solder Mask",
+      "thickness_mm": 0.01
+    }
   ]
 }

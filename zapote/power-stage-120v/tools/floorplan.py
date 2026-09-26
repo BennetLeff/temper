@@ -7,8 +7,8 @@ each footprint's measured F.CrtYd bounds in its local frame:
     KICAD_PY tools/floorplan.py native-02/section.kicad_pcb --output poses.json
 
 Coordinates below are courtyard centres in mm (x right, y down) and KiCad
-orientation angles. Board 220 x 160 (D1). Heatsink along the top edge,
-x 5..145 (D2). Mains enters at the left, coil exits at the right (D6).
+orientation angles. Board 240 x 160 (D1, widened 2026-09-26). Heatsink along the top edge,
+x 12..165 (D2). Mains enters at the left, coil exits at the right (D6).
 
 Zones (see PLACEMENT-REVIEW.md):
   Top band      BR1 and four TO-247s on the heatsink; snubbers, gate
@@ -41,7 +41,6 @@ def put(inst: str, x: float, y: float, a: float = 0.0) -> None:
 
 # ---- Top band: heatsink row, legs closed up around the shunt --------------
 # TO-247 pads at centre-5.45 (gate), centre (drain), centre+5.45 (source).
-put("br1", 24.0, 4.6)
 LEG_X = {"leg_b.q_high": 78.0, "leg_b.q_low": 96.0, "leg_a.q_low": 118.0, "leg_a.q_high": 136.0}
 for q, x in LEG_X.items():
     put(q, x, 4.4)
@@ -93,8 +92,8 @@ for leg, x0 in (("leg_b", 76.5), ("leg_a", 120.5)):
 
 # ---- Shunt-side protection, below the local capacitors ---------------------
 # OCP comparator, reference and thresholds next to R5's Kelvin pad.
-put("u_ocp", 97.0, 30.0)
-put("c_ocp_vcc", 97.0, 34.0)
+put("u_ocp", 98.0, 30.0)
+put("c_ocp_vcc", 98.0, 34.0)
 put("r_ocp_sense", 101.5, 30.0, 90)
 put("r_ocp_ref", 101.5, 34.5, 90)
 put("c_ocp_node", 104.0, 30.0, 90)
@@ -112,41 +111,15 @@ put("c_iso1", 63.0, 37.5)
 put("u_nand", 54.8, 38.8)
 put("c_nand_vcc", 54.8, 34.8)
 # HOT 5 V regulator left of leg B, near its V15 source and U4.
-put("u_ldo", 52.0, 29.0, 90)
-put("c_ldo_in", 52.0, 24.0)
-put("c_ldo_out", 57.0, 29.0, 90)
-put("c_v15", 47.5, 29.0, 90)
 
 # ---- Bus side: bulk, clamp, bleed, bring-up links --------------------------
-put("c_bus1", 19.0, 44.5, 90)
 put("c_bus2", 164.5, 32.0, 90)
-put("tvs_bus", 40.5, 45.0, 90)
-put("r_bus1", 46.8, 40.5, 270)
-put("r_bus2", 46.8, 45.5, 270)
 # Bus-side studs on the board edge so bench leads exit straight off it;
 # rows 20 mm apart so the fitted link bars keep >= 3.2 mm (TERMINALS.md).
-put("link_pos.terminal_bus", 6.0, 74.0)
-put("link_pos.terminal_rect", 19.0, 74.0)
-put("link_neg.terminal_bus", 6.0, 94.0)
-put("link_neg.terminal_rect", 19.0, 94.0)
 
 # ---- Bus sense on the island's left edge ------------------------------------
 # AMC1311 at 0 deg: SELV pins (+x) face into the island. Divider string runs
 # down from the C5 bus terminals; OVP comparator reads its tap.
-put("u_vsense", 42.0, 75.0)
-put("c_vs2", 50.5, 71.5, 90)
-put("c_vs1", 34.2, 71.5, 90)
-put("r_div1", 29.0, 70.5, 270)
-put("r_div2", 29.0, 75.2, 270)
-put("r_div3", 29.0, 79.9, 270)
-put("r_div4", 29.0, 84.6, 270)
-put("r_div_bot", 34.2, 79.0, 90)
-put("c_div", 34.2, 83.0, 90)
-put("u_ovp", 36.5, 87.5)
-put("c_ovp_vcc", 36.5, 91.5)
-put("r_ovp_top", 33.0, 95.0, 90)
-put("r_ovp_bot", 36.0, 95.0, 90)
-put("c_ovp_th", 39.0, 95.0, 90)
 
 # ---- Island interior ------------------------------------------------------
 put("j_selv", 103.0, 66.0)
@@ -161,18 +134,8 @@ put("ps_selv", 66.4, 93.2, 90)   # outputs up into the island, AC down
 put("t_ct", 175.0, 70.5, 270)    # secondary faces the island (-x)
 
 # ---- Gate supply: left column, outputs up ----------------------------------
-put("ps_gate", 14.5, 124.0, 90)
-put("j_tco", 36.0, 106.0, 90)
 
 # ---- Mains: bottom band, J1 at the left edge -------------------------------
-put("j_mains", 8.0, 153.0, 270)  # wire entry (local +y) faces the left edge
-put("f1", 38.3, 153.0)
-put("rv1", 45.0, 135.0)
-put("cx1", 75.0, 138.0)
-put("rb1a", 64.0, 128.0)
-put("rb1b", 70.0, 128.0)
-put("l1", 115.0, 132.0, 180)
-put("cx2", 24.0, 16.0)
 
 # ---- Tank: right edge ------------------------------------------------------
 put("c_res3", 192.5, 32.0, 90)
@@ -184,6 +147,58 @@ put("r_crb1", 170.0, 145.0)
 put("r_crb2", 177.0, 145.0)
 put("r_crb3", 184.0, 145.0)
 put("r_crb4", 191.0, 145.0)
+
+
+# ---- D1 widened to 240 mm: the approved right part shifts +20 mm ----------
+RIGHT_SHIFT_MM = 20.0
+for _inst, (_x, _y, _a) in list(PLAN.items()):
+    PLAN[_inst] = (_x + RIGHT_SHIFT_MM, _y, _a)
+
+# ---- Left side, laid out around trunk corridors (240 x 160 board) --------
+# BR1 on the heatsink; each link pair hangs vertically under its DC pin.
+put("br1", 29.0, 4.6)
+put("cx2", 30.0, 23.6, 90)                 # X2 across BR1's AC pins
+put("link_pos.terminal_rect", 13.0, 17.5)  # under BR1 +
+put("link_pos.terminal_bus", 13.0, 30.5)
+put("link_neg.terminal_rect", 47.0, 17.5)  # under BR1 -
+put("link_neg.terminal_bus", 47.0, 30.5)
+# C5 at 0 deg: BUS_P pads under J8, HV_RET pads under J10. BUS_P runs on
+# B.Cu under its body; the mains and gate-supply pairs run on F.Cu under it.
+put("c_bus1", 31.75, 54.1)
+put("tvs_bus", 58.0, 54.95, 90)            # HV_RET pad at C5's HV_RET column
+put("r_bus1", 63.5, 61.5, 90)   # bus_p (bottom) near D3.1
+put("r_bus2", 63.5, 48.5, 90)   # hv_ret (top) near D3.2
+# HOT 5 V regulator beside the negative link, near its loads.
+put("u_ldo", 62.0, 18.0, 90)
+put("c_ldo_in", 62.0, 13.5)
+put("c_ldo_out", 66.5, 18.0, 90)
+put("c_v15", 57.5, 18.0, 90)
+# Bus sense on the island's left edge, below C5.
+put("u_vsense", 65.5, 84.0)
+put("c_vs2", 70.0, 77.0, 90)
+put("c_vs1", 57.0, 82.0, 90)
+put("r_div1", 52.0, 76.0, 270)
+put("r_div2", 52.0, 80.7, 270)
+put("r_div3", 52.0, 85.4, 270)
+put("r_div4", 52.0, 90.1, 270)
+put("r_div_bot", 57.0, 88.0, 90)
+put("c_div", 57.0, 92.0, 90)
+put("u_ovp", 62.0, 95.0)
+put("c_ovp_vcc", 66.5, 95.0)
+put("r_ovp_top", 58.0, 99.0, 90)
+put("r_ovp_bot", 61.0, 99.0, 90)
+put("c_ovp_th", 64.0, 99.0, 90)
+# Gate supply: the mains corridor runs under its body; outputs on the right.
+put("ps_gate", 24.25, 85.5)
+put("j_tco", 37.0, 103.3, 90)
+# Mains: J1 at the left edge, filter rising to the corridor.
+put("l1", 24.0, 123.0, 180)
+put("j_mains", 7.0, 153.0, 270)            # wire entry (local +y) faces the left edge
+put("f1", 36.5, 153.0)
+put("rv1", 68.2, 147.0)
+put("cx1", 64.0, 127.5)
+put("rb1a", 82.0, 124.0, 270)
+put("rb1b", 82.0, 129.2, 270)
 
 
 def rotate(x: float, y: float, angle: float) -> tuple[float, float]:
