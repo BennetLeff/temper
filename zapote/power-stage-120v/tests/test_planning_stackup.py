@@ -29,12 +29,14 @@ def test_stackup_projection_retains_source_identity_and_stable_pad_uuids(tmp_pat
     MODULE.apply_planning_stackup(tmp_path, UNIT / "stackup.json")
     first = board.read_bytes()
     manifest = json.loads((tmp_path / "source-manifest.json").read_text())
-    assert b'"In1.Cu"' not in first
+    assert b'"In1.Cu"' in first
+    assert b'"In2.Cu"' in first
+    assert b'"In3.Cu"' not in first
     assert first.count(b'(property "SourceInstance" ') == parts
     assert first.count(b'(property "MPN" ') == parts
     assert first.count(b"(uuid ") == first.count(b"(pad ")
     assert manifest["board_sha256"] == MODULE.sha256(board)
-    assert manifest["board"]["layers"] == ["F.Cu", "B.Cu"]
+    assert manifest["board"]["layers"] == ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
     assert manifest["input_hashes"]["stackup.json"] == MODULE.sha256(UNIT / "stackup.json")
     copy_native_01_shelf(tmp_path)
     MODULE.apply_planning_stackup(tmp_path, UNIT / "stackup.json")

@@ -142,7 +142,7 @@ def apply_planning_stackup(output: Path, stackup_path: Path) -> None:
     )
     manifest["input_hashes"]["stackup.json"] = sha256(stackup_path)
     manifest["input_hashes"]["planning_stackup.py"] = sha256(Path(__file__))
-    manifest["board"]["layers"] = ["F.Cu", "B.Cu"]
+    manifest["board"]["layers"] = ["F.Cu", *keep_inner, "B.Cu"]
     manifest["board_sha256"] = hashlib.sha256(board.encode()).hexdigest()
     board_path.write_text(board)
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
