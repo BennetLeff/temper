@@ -79,3 +79,42 @@ def test_every_group_is_documented_as_equipotential():
     for name, members in write_rules.HOT_GROUPS.items():
         if len(members) > 1:
             assert name in {"L_F", "MAINS_N", "LOW", "SW_A", "SW_B"}, name
+
+
+placement_metrics = load("placement_metrics")
+ENVELOPES = json.loads((UNIT / "terminal_envelopes.json").read_text())
+
+
+def overlaps(a, b):
+    return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
+
+
+def test_facing_jumper_lugs_at_13_mm_collide():
+    """The native-04 D4 counterexample: two lugs pointed at each other."""
+    lug = ENVELOPES["hardware"]["ring_lug"]
+    centres = {"J8": (6.0, 74.0), "J7": (19.0, 74.0)}
+    a = placement_metrics.item_box(centres, {"hardware": "ring_lug", "studs": ["J8"], "direction": "+x"}, lug)
+    b = placement_metrics.item_box(centres, {"hardware": "ring_lug", "studs": ["J7"], "direction": "-x"}, lug)
+    assert overlaps(a, b)
+
+
+def test_link_strap_is_one_item_spanning_both_studs():
+    strap = ENVELOPES["hardware"]["link_strap"]
+    centres = {"J8": (6.0, 74.0), "J7": (19.0, 74.0)}
+    box = placement_metrics.item_box(centres, {"hardware": "link_strap", "studs": ["J8", "J7"]}, strap)
+    assert box == [1.0, 69.0, 24.0, 79.0]
+
+
+def test_normal_configuration_uses_straps_not_facing_lugs():
+    items = ENVELOPES["configurations"]["normal"]["items"]
+    for item in items:
+        if len(item["studs"]) == 1:
+            assert item["hardware"] == "ring_lug" and item["studs"][0] in {"J2", "J5"}
+        else:
+            assert item["hardware"] == "link_strap"
+
+
+def test_committed_metrics_have_no_hardware_conflicts():
+    metrics = json.loads((UNIT / "native-04" / "placement-metrics.json").read_text())
+    for name, cfg in metrics["terminal_hardware"].items():
+        assert cfg["electrical_ok"] and cfg["mechanical_ok"], name

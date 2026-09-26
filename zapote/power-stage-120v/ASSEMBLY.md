@@ -29,25 +29,25 @@ is nominally 1.6 mm, so confirm the fabricated thickness and tolerance stay
 within the terminal's range before ordering. Also review copper weight,
 plated-hole process and the terminal's thermal profile with the assembler.
 
-Each removable link is an external insulated jumper: one cut-to-placement
-length of **LAPP 393807103**, 6 mm² H07RN-F cable, terminated with two
-**Würth 5580406** M4 tubular cable lugs. The two links require four lugs.
-Record final cut lengths and crimp tooling in the assembly traveler after
-placement; respect the cable bend radius and restrain the jumper so cable
-loads do not torque the solder joints. The published 6 mm² cable current
-table gives 36–44 A at 30 °C depending on installation. Establish at least
-20 A continuous capability at the actual enclosure temperature, including
-both contacts, before powered service. Do not infer it from wire size alone.
-[LAPP cable](https://imager.lapp.com/e/lapp/zybRELkT2Quue2uKplE5nA~~/PDB393807100EN.pdf),
-[LAPP current table](https://imager.lapp.com/e/lapp/ujPYFbZsZhfKtdMEoxkIYg~~),
+Each removable link is a rigid **strap** fitted over the two studs of one row
+(J8–J7, J10–J9; 13.0 mm stud pitch): tinned copper flat bar 10.0 × 1.5 ×
+23.0 mm with two 4.3 mm holes at 13.0 mm centres, 5.0 mm from each end, held
+by M4 × 8 pan-head screws with spring and plain washers. This is a custom part
+(PROVISIONAL): confirm the drawing, plating and at least 20 A continuous
+capability at the actual enclosure temperature, including both contacts,
+before powered service. A cable jumper with two ring lugs does not fit this
+pitch: two 10 × 21 mm lugs facing each other at 13 mm overlap by 19 × 10 mm
+(`terminal_envelopes.json`, checked by `tools/placement_metrics.py`).
+Bench-supply leads in bring-up use **Würth 5580406** M4 ring lugs on J8/J10,
+leaving the left board edge.
 [Würth lug](https://www.we-online.com/components/products/datasheet/5580406.pdf).
 
-M4 screws and locking washers must suit the actual lug stack and thread
+M4 screws and locking washers must suit the actual strap or lug stack and thread
 engagement, without bottoming or contacting other metal below the PCB.
 Record screw length, locking method and torque during the enclosure review;
 do not call a screw connection vibration-proof before retention testing.
 The coil lead termination must match the actual litz/pigtail conductor and
-crimp process; the 6 mm² link lug is not automatically suitable for it.
+crimp process; the bench-lead lug is not automatically suitable for it.
 
 The bare REDCUBE has no manufacturer voltage rating. Use at least 30 mm
 centers between the coil studs as an initial placement target (about 20 mm
@@ -67,20 +67,20 @@ torque, continuity and strain relief belong to the enclosure assembly.
 
 ## Normal and bring-up configurations
 
-| Mode | Positive jumper | Negative jumper | External DC input |
+| Mode | Positive strap | Negative strap | External DC input |
 | --- | --- | --- | --- |
 | Normal mains run | J7 RECT_P to J8 BUS_P fitted | J9 RECT_N to J10 HV_RET fitted | None |
 | Floating 30–60 V bench bus | Removed | Removed | Positive J8 BUS_P; negative J10 HV_RET |
 
 The source deliberately keeps each link's endpoints on separate nets and
-represents the physical landings. **The external jumpers, not PCB copper,
+represents the physical landings. **The external straps, not PCB copper,
 complete the normal circuit.** The audit requires each RECT net to contain
 only its BR1 output and rectifier-side terminal. All bulk and local bus
 capacitors, the TVS, bus bleed, divider and shunt stay downstream.
 
-Both jumpers must be removed while all supplies are disconnected and the
+Both straps must be removed while all supplies are disconnected and the
 bus and resonant capacitors are verified discharged. Secure the removed
-jumpers so they cannot fall onto the board. Connect the floating supply only
+straps so they cannot fall onto the board. Connect the floating supply only
 to J8/J10; connecting its negative to LEG_RET bypasses the OCP shunt.
 Independent verification of both open paths is required before mains or
 bench power is applied. A single open positive link is insufficient.
@@ -96,7 +96,7 @@ are not a substitute for the intended isolation.
 
 Before a powered procedure is released, verify on the assembled unpowered
 board that neither RECT terminal has continuity to either bus terminal with
-both jumpers removed, and verify the absence of unintended PCB or hardware
+both straps removed, and verify the absence of unintended PCB or hardware
 bridges. The source and unrouted-native checks do not perform this physical
 test. Interlock startup, current limit, fault shutdown and supply sequencing
 remain bench-validation items.

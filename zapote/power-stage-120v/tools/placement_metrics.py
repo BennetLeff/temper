@@ -33,14 +33,21 @@ GATE_AND_SNUBBER = {"C12", "C13", "C19", "C20", "R10", "R11", "R12", "R13",
 ENVELOPES = Path(__file__).resolve().parents[1] / "terminal_envelopes.json"
 
 
-def envelope_box(centre, hw, spec, direction):
-    """Plan-view rectangle of exposed stud metal (x1, y1, x2, y2)."""
-    cx, cy = centre
+def item_box(centres, item, spec):
+    """Plan-view rectangle (x1, y1, x2, y2) of one installed hardware item."""
+    hw = item["hardware"]
+    if hw == "link_strap":
+        (ax, ay), (bx, by) = (centres[r] for r in item["studs"])
+        w, e = spec["width_mm"] / 2, spec["beyond_stud_mm"]
+        if abs(bx - ax) >= abs(by - ay):
+            return [min(ax, bx) - e, ay - w, max(ax, bx) + e, ay + w]
+        return [ax - w, min(ay, by) - e, ax + w, max(ay, by) + e]
+    (cx, cy), = (centres[r] for r in item["studs"])
     if hw == "bare_stud":
         half = spec["square_mm"] / 2
         return [cx - half, cy - half, cx + half, cy + half]
     w, back, ahead = spec["width_mm"] / 2, spec["behind_stud_mm"], spec["ahead_of_stud_mm"]
-    dx, dy = direction
+    dx, dy = {"+x": (1, 0), "-x": (-1, 0), "+y": (0, 1), "-y": (0, -1)}[item["direction"]]
     if dx:
         x1, x2 = sorted((cx - dx * back, cx + dx * ahead))
         return [x1, cy - w, x2, cy + w]
@@ -122,59 +129,83 @@ def main() -> None:
             pos = fp.GetPosition()
             centres[fp.GetReference()] = (mm(pos.x), mm(pos.y))
     floors = env["hardware"]["min_clearance_mm"]
+    tank = write_rules.TANK
     configs = {}
     for name, cfg in env["configurations"].items():
-        metal = []
-        for ref, item in cfg["studs"].items():
-            if "toward" in item:
-                (ax, ay), (bx, by) = centres[ref], centres[item["toward"]]
-                d = ((bx > ax) - (bx < ax), 0) if abs(bx - ax) >= abs(by - ay) else (0, (by > ay) - (by < ay))
-            else:
-                d = {"+x": (1, 0), "-x": (-1, 0), "+y": (0, 1), "-y": (0, -1)}.get(item.get("direction", ""), (0, 0))
-            metal.append((ref, stud_net[ref], envelope_box(centres[ref], item["hardware"], env["hardware"][item["hardware"]], d)))
-        joined = {frozenset(j) for j in cfg["joined"]}
-        # A fitted link makes its two studs one conductor.
-        same = {ra: {ra} | {r for j in joined if ra in j for r in j} for ra, _n, _b in metal}
-        worst = []
-        for i, (ra, na, ba) in enumerate(metal):
-            targets = [(rb, nb, bb) for rb, nb, bb in metal[i + 1:]
-                       if rb not in same[ra] and nb != na]
-            targets += [(f"{r}.{n}", nt, b) for r, n, nt, b in pads
-                        if r not in same[ra] and nt != na]
-            for rb, nb, bb in targets:
-                barrier = domain(nb) in ("SELV", "PE")
-                need = floors["hot_to_selv_or_pe"] if barrier else floors["hot_to_other_hot"]
+        items = []
+        for item in cfg["items"]:
+            nets = {stud_net[r] for r in item["studs"]}
+            items.append((item["id"], set(item["studs"]), nets,
+                           item_box(centres, item, env["hardware"][item["hardware"]])))
+        # Electrical: live metal of each item against other-potential copper
+        # and other items' metal.
+        electrical = []
+        for i, (ia, sa, na, ba) in enumerate(items):
+            targets = [(ib, nb, bb) for ib, sb, nbs, bb in items[i + 1:]
+                       if not (na & nbs) for nb in sorted(nbs)]
+            targets += [(f"{r}.{n}", nt, b) for r, n, nt, b in pads if r not in sa and nt not in na]
+            for ib, nb, bb in targets:
+                if domain(nb) in ("SELV", "PE"):
+                    need = floors["hot_to_selv_or_pe"]
+                elif (na & tank) or nb in tank:
+                    need = floors["tank_to_other_hot"]
+                else:
+                    need = floors["hot_to_other_hot"]
                 gap = box_gap(ba, bb)
                 if gap < need + 2.0:
-                    worst.append({"stud": ra, "net": na, "other": rb, "other_net": nb,
-                                  "gap_mm": round(gap, 2), "required_mm": need, "ok": gap >= need})
-        worst.sort(key=lambda w: w["gap_mm"] - w["required_mm"])
-        interfere = sorted({r for ra, _n, ba in metal for r, b in fps.items()
-                            if r != ra and r not in STUDS and box_gap(ba, b) == 0.0})
-        configs[name] = {"closest": worst[:6], "all_ok": all(w["ok"] for w in worst),
-                         "envelope_over_courtyards": interfere}
+                    electrical.append({"item": ia, "other": ib, "other_net": nb,
+                                       "gap_mm": round(gap, 2), "required_mm": need, "ok": gap >= need})
+        electrical.sort(key=lambda w: w["gap_mm"] - w["required_mm"])
+        # Mechanical, independent of nets: items against each other and
+        # against every courtyard except the studs they mount on.
+        mech_floor = floors["mechanical_mm"]
+        mechanical = []
+        for i, (ia, sa, _na, ba) in enumerate(items):
+            for ib, _sb, _nb, bb in items[i + 1:]:
+                gap = box_gap(ba, bb)
+                overlap = ba[0] < bb[2] and bb[0] < ba[2] and ba[1] < bb[3] and bb[1] < ba[3]
+                if overlap or gap < mech_floor:
+                    mechanical.append({"item": ia, "other": ib, "gap_mm": 0.0 if overlap else round(gap, 2)})
+            for r, b in fps.items():
+                if r in sa:
+                    continue
+                overlap = ba[0] < b[2] and b[0] < ba[2] and ba[1] < b[3] and b[1] < ba[3]
+                if overlap:
+                    mechanical.append({"item": ia, "other": r, "gap_mm": 0.0})
+        configs[name] = {
+            "items": {ia: [round(v, 2) for v in ba] for ia, _s, _n, ba in items},
+            "closest_electrical": electrical[:6],
+            "electrical_ok": all(w["ok"] for w in electrical),
+            "mechanical_conflicts": mechanical,
+            "mechanical_ok": not mechanical,
+        }
 
-    # Commutation path lower bounds: low-side source -> R5 LEG_RET pad, and
-    # R5 HV_RET pad -> nearest local-capacitor HV_RET pad; high-side drain ->
-    # nearest local-capacitor BUS_P pad (pad centres, Manhattan).
+    # Commutation path lower bounds per local capacitor, through R5's current
+    # pads only (pad 1 LEG_RET, pad 4 HV_RET; pads 2/3 are Kelvin sense):
+    # high-side drain -> capacitor BUS_P -> capacitor HV_RET -> R5 pad 4,
+    # and low-side source -> R5 pad 1. Pad centres, Manhattan.
+    def pad_at(ref, number):
+        return [((b[0] + b[2]) / 2, (b[1] + b[3]) / 2) for r, n, _nt, b in pads if r == ref and n == number]
+
     def centres_of(ref, net):
         return [((b[0] + b[2]) / 2, (b[1] + b[3]) / 2) for r, _n, nt, b in pads if r == ref and nt == net]
 
     def nearest(points, others):
         return min(abs(a[0] - b[0]) + abs(a[1] - b[1]) for a in points for b in others)
 
-    hf_ret = {leg: [c for ref in refs for c in centres_of(ref, "hv_ret")]
-              for leg, refs in (("leg_a", ("C38", "C39")), ("leg_b", ("C40", "C41")))}
-    hf_bus = {leg: [c for ref in refs for c in centres_of(ref, "bus_p")]
-              for leg, refs in (("leg_a", ("C38", "C39")), ("leg_b", ("C40", "C41")))}
+    r5_in, r5_out = pad_at("R5", "1"), pad_at("R5", "4")
     loops = {}
-    for leg, low, high in (("leg_a", "Q3", "Q2"), ("leg_b", "Q6", "Q5")):
-        src = centres_of(low, "leg_ret")
-        loops[leg] = {
-            "low_source_to_shunt_mm": round(nearest(src, centres_of("R5", "leg_ret")), 1),
-            "shunt_to_local_cap_return_mm": round(nearest(centres_of("R5", "hv_ret"), hf_ret[leg]), 1),
-            "high_drain_to_local_cap_bus_mm": round(nearest(centres_of(high, "bus_p"), hf_bus[leg]), 1),
-        }
+    for leg, low, high, caps in (("leg_a", "Q3", "Q2", ("C38", "C39")),
+                                  ("leg_b", "Q6", "Q5", ("C40", "C41"))):
+        src_to_shunt = nearest(centres_of(low, "leg_ret"), r5_in)
+        per_cap = {}
+        for cap in caps:
+            drain_to_cap = nearest(centres_of(high, "bus_p"), centres_of(cap, "bus_p"))
+            cap_to_shunt = nearest(centres_of(cap, "hv_ret"), r5_out)
+            per_cap[cap] = {"high_drain_to_cap_bus_mm": round(drain_to_cap, 1),
+                            "cap_return_to_R5_pad4_mm": round(cap_to_shunt, 1),
+                            "sum_with_source_to_R5_pad1_mm": round(drain_to_cap + cap_to_shunt + src_to_shunt, 1)}
+        loops[leg] = {"low_source_to_R5_pad1_mm": round(src_to_shunt, 1), "per_capacitor": per_cap}
 
     commutation = ["Q2", "Q3", "Q5", "Q6", "C38", "C39", "C40", "C41", "R5"]
     xs = [v for r in commutation for v in (fps[r][0], fps[r][2])]

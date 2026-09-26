@@ -40,14 +40,34 @@
   },
   "commutation_paths": {
     "leg_a": {
-      "low_source_to_shunt_mm": 21.7,
-      "shunt_to_local_cap_return_mm": 9.6,
-      "high_drain_to_local_cap_bus_mm": 26.4
+      "low_source_to_R5_pad1_mm": 21.7,
+      "per_capacitor": {
+        "C38": {
+          "high_drain_to_cap_bus_mm": 29.8,
+          "cap_return_to_R5_pad4_mm": 9.6,
+          "sum_with_source_to_R5_pad1_mm": 61.1
+        },
+        "C39": {
+          "high_drain_to_cap_bus_mm": 26.4,
+          "cap_return_to_R5_pad4_mm": 30.2,
+          "sum_with_source_to_R5_pad1_mm": 78.3
+        }
+      }
     },
     "leg_b": {
-      "low_source_to_shunt_mm": 8.7,
-      "shunt_to_local_cap_return_mm": 8.3,
-      "high_drain_to_local_cap_bus_mm": 27.4
+      "low_source_to_R5_pad1_mm": 11.1,
+      "per_capacitor": {
+        "C40": {
+          "high_drain_to_cap_bus_mm": 28.8,
+          "cap_return_to_R5_pad4_mm": 8.3,
+          "sum_with_source_to_R5_pad1_mm": 48.1
+        },
+        "C41": {
+          "high_drain_to_cap_bus_mm": 27.4,
+          "cap_return_to_R5_pad4_mm": 28.9,
+          "sum_with_source_to_R5_pad1_mm": 67.3
+        }
+      }
     }
   },
   "gate_paths": {
@@ -115,19 +135,35 @@
   },
   "terminal_hardware": {
     "normal": {
-      "closest": [
+      "items": {
+        "link_pos_strap": [
+          1.0,
+          69.0,
+          24.0,
+          79.0
+        ],
+        "link_neg_strap": [
+          1.0,
+          89.0,
+          24.0,
+          99.0
+        ],
+        "coil_feed_lug": [
+          206.0,
+          65.5,
+          227.0,
+          75.5
+        ],
+        "coil_return_lug": [
+          200.0,
+          146.0,
+          221.0,
+          156.0
+        ]
+      },
+      "closest_electrical": [
         {
-          "stud": "J7",
-          "net": "rect_p",
-          "other": "R26.1",
-          "other_net": "bus_p",
-          "gap_mm": 4.12,
-          "required_mm": 3.2,
-          "ok": true
-        },
-        {
-          "stud": "J7",
-          "net": "rect_p",
+          "item": "link_pos_strap",
           "other": "R26.2",
           "other_net": "vdiv_1",
           "gap_mm": 4.12,
@@ -135,8 +171,7 @@
           "ok": true
         },
         {
-          "stud": "J7",
-          "net": "rect_p",
+          "item": "link_pos_strap",
           "other": "R27.1",
           "other_net": "vdiv_1",
           "gap_mm": 4.12,
@@ -144,8 +179,7 @@
           "ok": true
         },
         {
-          "stud": "J7",
-          "net": "rect_p",
+          "item": "link_pos_strap",
           "other": "R27.2",
           "other_net": "vdiv_2",
           "gap_mm": 4.12,
@@ -153,8 +187,7 @@
           "ok": true
         },
         {
-          "stud": "J7",
-          "net": "rect_p",
+          "item": "link_pos_strap",
           "other": "R28.1",
           "other_net": "vdiv_2",
           "gap_mm": 4.12,
@@ -162,23 +195,68 @@
           "ok": true
         },
         {
-          "stud": "J9",
-          "net": "rect_n",
+          "item": "link_neg_strap",
           "other": "PS2.3",
           "other_net": "leg_ret",
           "gap_mm": 4.25,
           "required_mm": 3.2,
           "ok": true
+        },
+        {
+          "item": "link_neg_strap",
+          "other": "PS2.4",
+          "other_net": "v15_ls",
+          "gap_mm": 4.25,
+          "required_mm": 3.2,
+          "ok": true
         }
       ],
-      "all_ok": true,
-      "envelope_over_courtyards": []
+      "electrical_ok": true,
+      "mechanical_conflicts": [],
+      "mechanical_ok": true
     },
     "bring_up": {
-      "closest": [
+      "items": {
+        "rect_p_bare": [
+          14.5,
+          69.5,
+          23.5,
+          78.5
+        ],
+        "rect_n_bare": [
+          14.5,
+          89.5,
+          23.5,
+          98.5
+        ],
+        "bench_pos_lug": [
+          -10.0,
+          69.0,
+          11.0,
+          79.0
+        ],
+        "bench_neg_lug": [
+          -10.0,
+          89.0,
+          11.0,
+          99.0
+        ],
+        "coil_feed_lug": [
+          206.0,
+          65.5,
+          227.0,
+          75.5
+        ],
+        "coil_return_lug": [
+          200.0,
+          146.0,
+          221.0,
+          156.0
+        ]
+      },
+      "closest_electrical": [
         {
-          "stud": "J8",
-          "net": "bus_p",
+          "item": "bench_pos_lug",
           "other": "J7.1",
           "other_net": "rect_p",
           "gap_mm": 3.46,
@@ -186,8 +264,7 @@
           "ok": true
         },
         {
-          "stud": "J8",
-          "net": "bus_p",
+          "item": "bench_pos_lug",
           "other": "J7.1",
           "other_net": "rect_p",
           "gap_mm": 3.46,
@@ -195,8 +272,7 @@
           "ok": true
         },
         {
-          "stud": "J10",
-          "net": "hv_ret",
+          "item": "bench_neg_lug",
           "other": "J9.1",
           "other_net": "rect_n",
           "gap_mm": 3.46,
@@ -204,8 +280,7 @@
           "ok": true
         },
         {
-          "stud": "J10",
-          "net": "hv_ret",
+          "item": "bench_neg_lug",
           "other": "J9.1",
           "other_net": "rect_n",
           "gap_mm": 3.46,
@@ -213,26 +288,25 @@
           "ok": true
         },
         {
-          "stud": "J7",
-          "net": "rect_p",
-          "other": "J8",
+          "item": "rect_p_bare",
+          "other": "bench_pos_lug",
           "other_net": "bus_p",
           "gap_mm": 3.5,
           "required_mm": 3.2,
           "ok": true
         },
         {
-          "stud": "J9",
-          "net": "rect_n",
-          "other": "J10",
+          "item": "rect_n_bare",
+          "other": "bench_neg_lug",
           "other_net": "hv_ret",
           "gap_mm": 3.5,
           "required_mm": 3.2,
           "ok": true
         }
       ],
-      "all_ok": true,
-      "envelope_over_courtyards": []
+      "electrical_ok": true,
+      "mechanical_conflicts": [],
+      "mechanical_ok": true
     }
   }
 }
