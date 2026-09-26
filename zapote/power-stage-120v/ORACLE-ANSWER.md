@@ -172,27 +172,32 @@ The five source changes required re-audit, re-freeze and a new native build
 4. S3: resonant-bank bleed resistor.
 5. Replace U7's footprint with an HV DW land pattern (≥ 8.0 mm across the barrier).
 
-The proposed uniform ≥8.0 mm reinforced, PD3, IIIa/IIIb barrier basis remains
-subject to D5 approval and Coilcraft package evidence before barrier placement.
+The owner has conditionally approved D5 for provisional placement with an
+8.0 mm floor and verified group IIIa-or-better laminate. The former IIIa/IIIb
+wording is superseded: IIIb is restricted above 50 V. Coilcraft evidence and
+final working-voltage/HF insulation qualification remain open (D5-BASIS.md).
 
 ## Implementation status (2026-09-25)
 
 All five source changes were made on `feat/ps-oracle-source-changes` and
 are integrated in `codex/power-stage-120v-build`. The later REF25 correction
-uses 5.6 kΩ (see REFERENCE-BIAS.md). The intended off-board shutdown path
-is **not yet compatible** with the existing active-high interlock inputs;
-see ORACLE-REVIEW.md before connecting J4.10.
+uses 5.6 kΩ (see REFERENCE-BIAS.md). A subsequent integration update uses
+U8 NAND and U9 non-F isolation, so J4.10 BUS_FAULT now matches the existing
+active-high interlock input. The owner approved a conditional D5 placement
+basis and R38 implements its functional PE link. HOT5 brownout and whole-chain
+qualification remain open; see FAULT-INTERFACE.md and D5-BASIS.md.
 
 | Change | Source | Evidence |
 | --- | --- | --- |
 | T1 on the switch node | SW_A → T1 → `coil_feed` → J2 → `res_a` → C21–C23 → SW_B | Audit asserts it; `ct_on_resonant_node_fails` mutation test |
 | OCP ≈ 61 A | `r_th_bot` 9.76 k → 10.0 k (R35); threshold 1.2195 V | Audit pins the threshold MPNs; `old_91a_threshold_fails` |
-| Bus OVP ≈ 280 V | U7 TLV3201 on the `vsense_in` tap vs 2.333 V (R36 10 k / R37 140 k); U8 SN74LVC1G08 ANDs OCP-OK and OVP-OK into U9 | `swapped_ovp_comparator_inputs_fail`, `ovp_bypassing_isolator_path_fails` |
+| Bus OVP ≈ 280 V | U7 TLV3201 on the `vsense_in` tap vs 2.333 V (R36 10 k / R37 140 k); U8 SN74LVC1G00 NANDs OCP-OK and OVP-OK into U9 ISO7710DWR (BUS_FAULT high on either trip) | `swapped_ovp_comparator_inputs_fail`, `ovp_bypassing_isolator_path_fails` |
 | Resonant-bank bleed | R22–R25, 4 × 470 k from `res_a` to SW_B | `missing_resonant_bleed_fails` |
 | U9 HV land pattern | `lib:SOIC16W_DW0016B_HV`, TI DW0016B HV option (SLLSER9E p. 33) | 8.1 mm measured across the barrier on the generated board |
 
-Result: 102 components, 73 nets; audit PASS; 27/27 audit tests. A native
-projection generated from this source has 102 footprints, 292/292 source
+Current result after the fault-high and functional-earth update: 103 components,
+73 nets; audit PASS; 32/32 audit tests. The native projection has 103 footprints,
+294/294 source
 pin connections on the right pad and net, schematic parity 0, DRC
 18 `lib_footprint_mismatch` warnings only, ERC warnings only. Designators
 after `u_ocp` moved (for example `u_iso` U7 → U9); the placement and routing

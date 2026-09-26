@@ -1,22 +1,23 @@
 # Second native projection — shelf, unrouted, approved stackup
 
 Generated and checked on 2026-09-25 in `worktrees/ps-build`, branch
-`codex/power-stage-120v-build`, from the audited 102-part source, including
-the five oracle source changes and the REF25 bias correction in
+`codex/power-stage-120v-build`, from the audited 103-part source, including
+the five oracle source changes, fault-high NAND/non-F isolator, removable
+functional PE link R38, and the REF25 bias correction in
 [REFERENCE-BIAS.md](REFERENCE-BIAS.md). Supersedes [native-01](NATIVE-01.md), which
 remains only as the pre-stackup fixture for `tests/test_planning_stackup.py`.
 
 **Shelf poses are not a placement. Nothing in native-02 is reviewed for
 layout, creepage, thermal or mechanical fit.**
 
-The provisional 220 × 160 mm outline (D1) holds all 102 parts in 150.51 mm
+The provisional 220 × 160 mm outline (D1) holds all 103 parts in 150.51 mm
 of shelf height with 5 mm margins and 3 mm courtyard gaps. The approved D3
 stackup (`stackup.json`: two copper layers, 70 µm, 1.44 mm FR-4 core, 1.6 mm
 total) was applied by `tools/planning_stackup.py`, which also adds
 `SourceInstance` and `MPN` properties to every footprint and deterministic
 pad UUIDs keyed by source instance (stable across designator renumbering), and removes the archived skeleton's four inner-layer declarations.
 
-The generated schematic uses 12 columns so all 102 parts fit within A1.
+The generated schematic uses 12 columns so all 103 parts fit within A1.
 The exported board and schematic were visually inspected after regeneration.
 Shelf annotation overlaps remain; this is a connectivity projection, not a
 finished layout or assembly drawing.
@@ -25,16 +26,16 @@ finished layout or assembly drawing.
 
 | Check | Measured result | Disposition |
 | --- | --- | --- |
-| Source audit | 102 components, 73 nets; PASS; 27/27 audit tests | PASS |
+| Source audit | 103 components, 73 nets; PASS; 32/32 audit tests | PASS |
 | Source reproducibility | Netlist and CSV byte-identical after path normalization between two independently compiled source snapshots | PASS |
-| Board footprint count | 102 | PASS |
-| Per-pad net parity vs `frozen/default.net` (independent of the manifest) | 292/292 source pin nodes on the mapped pad with the right net; only netless pads are J4's two locating holes | PASS |
-| Footprint MPN census vs `frozen/resolved-components.json` | 102/102 | PASS |
+| Board footprint count | 103 | PASS |
+| Per-pad net parity vs `frozen/default.net` (independent of the manifest) | 294/294 source pin nodes on the mapped pad with the right net; only netless pads are J4's two locating holes | PASS |
+| Footprint MPN census vs `frozen/resolved-components.json` | 103/103 | PASS |
 | Schematic parity | 0 | PASS |
 | Courtyard overlap, clearance | 0 | PASS for shelf; final insulation rules not yet applied |
 | DRC `violations` | 18 `lib_footprint_mismatch` warnings, no errors | Three runs agree; independent pcbnew comparison confirms identical pad geometry and non-text graphics (see native-02/footprint-comparison.json) |
-| DRC unconnected items | 221 | Expected on an unrouted board; 221 reported in each of three runs |
-| ERC | 233 warnings, 0 errors: 102 `lib_symbol_issues`, 101 `endpoint_off_grid`, 19 `footprint_link_issues`, 11 `isolated_pin_label` | Same classes as native-01, scaled by the added parts |
+| DRC unconnected items | 223 | Expected on an unrouted board; 223 reported in each of three runs |
+| ERC | 235 warnings, 0 errors: 103 `lib_symbol_issues`, 102 `endpoint_off_grid`, 19 `footprint_link_issues`, 11 `isolated_pin_label` | Same classes as native-01, scaled by the added parts |
 | Rust physical-stackup gate (`zapote-board`) | **PASS**: 2 copper layers, 1.600 mm stack = 1.600 mm declared | Was the expected native-01 failure; now resolved by D3 |
 | Barrier land patterns | U1/U2 8.10 mm, U9 (ISO7710) 8.10 mm, U4 (AMC1311) 8.85 mm across the barrier | Footprint geometry only; does not establish package-surface or complete insulation compliance |
 | Stackup tool tests | 4/4 | PASS |
@@ -79,10 +80,10 @@ as its complete source identity.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `native-02/section.kicad_pcb` | `0c0cf92e1d4ba35334e7af6f7f63e4edaee0c31b02a754fb3eeea0c0b26081fa` |
-| `native-02/section.kicad_sch` | `59d26f9d73f0f2c4251759c89c52e9aafd2d782cf1880d6af2801630c389412f` |
-| `native-02/source-manifest.json` | `ca818c19c1bd8d2c516239ae63240ef173f3785dc28377a769a0b6d41f9df530` |
-| `poses.json` | `b85a2075bd37c82cda2c54db9c4113991a4639ef840ac77f538836c7a73f179c` |
+| `native-02/section.kicad_pcb` | `04665a37c242e26ba6a2c6d74bdb623093d54ae3af55a8457e7f41a6e37ccbbb` |
+| `native-02/section.kicad_sch` | `9531602efde6d44c9912d2f85876291346210fce804f72c8e737e3cc65ac90ca` |
+| `native-02/source-manifest.json` | `6e2b1936f3994d2d4463a1011d0ba589e25d0ab6a91642d46b8eee7007e43c8a` |
+| `poses.json` | `fdc416e2953b135ff704e115ccf591839b6cf833344a323bd034cfa791a1c7c8` |
 | `outline.json` | `e629c0ff9e0de17674c523527df7bb33036429f5be286fabf8d6b147abf9f0bd` |
 | `stackup.json` | `f78b19657dd082fe74fa142fb7b294b7f31cf62ec5099304bab8f738b47cf473` |
 

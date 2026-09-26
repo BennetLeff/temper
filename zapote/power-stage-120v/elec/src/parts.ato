@@ -441,11 +441,11 @@ component R140kThin:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component And2Lvc1g08:
-    """TI SN74LVC1G08DBVR single 2-input AND. DBV: 1 A, 2 B, 3 GND, 4 Y,
-    5 VCC (SCES217AA, Pin Functions table)."""
+component Nand2Lvc1g00:
+    """TI SN74LVC1G00DBVR single 2-input NAND. DBV: 1 A, 2 B, 3 GND, 4 Y,
+    5 VCC (SCES212AC, Pin Functions table)."""
     designator_prefix = "U"
-    mpn = "SN74LVC1G08DBVR"
+    mpn = "SN74LVC1G00DBVR"
     manufacturer = "Texas Instruments"
     footprint = "Package_TO_SOT_SMD:SOT-23-5"
     signal A ~ pin 1
@@ -465,11 +465,11 @@ component R5k6Bias:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Iso7710F:
-    """TI ISO7710FDWR, reinforced 5 kVrms, default-LOW output on input-side
+component Iso7710:
+    """TI ISO7710DWR, reinforced 5 kVrms, default-HIGH output on input-side
     power loss. DW: 1/7 GND1, 3 VCC1, 4 IN, 9/16 GND2, 13 OUT, 14 VCC2."""
     designator_prefix = "U"
-    mpn = "ISO7710FDWR"
+    mpn = "ISO7710DWR"
     manufacturer = "Texas Instruments"
     # TI DW0016B HV / isolation land pattern: 8.1 mm across the barrier
     # (SLLSER9E p. 33); the IPC-7351 nominal pattern gives only 7.3 mm.
@@ -515,3 +515,14 @@ component SelvHeader16:
     signal p14 ~ pin 14
     signal p15 ~ pin 15
     signal p16 ~ pin 16
+
+component FunctionalEarthLink:
+    """Removable functional 0 ohm link, never a protective-earth conductor.
+    HOT-to-controller insulation must remain valid with this link open."""
+    designator_prefix = "R"
+    mpn = "RC0603JR-070RL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2

@@ -3,7 +3,7 @@
 //! Checks part identity, the HOT/SELV isolation boundary, and the
 //! safety-relevant joins (fail-safe driver disable, shoot-through shunt
 //! orientation, thermal-cutoff gate-supply loop, OCP polarity through the
-//! default-low isolator, tank series path, controller header map).
+//! default-high isolator, tank series path, controller header map).
 //! Includes the conditional REF25 DC-bias corner in REFERENCE-BIAS.md;
 //! no bus-voltage bound, timing, creepage or thermal qualification.
 //!
@@ -218,7 +218,7 @@ impl Model {
 
 const SELV_NETS: &[&str] = &[
     "v15_selv", "selv_gnd", "v3v3", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit",
-    "bus_ocp_ok", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
+    "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
     "leg_a-dis", "leg_a-permit_gate", "leg_a.driver-dt",
     "leg_b-dis", "leg_b-permit_gate", "leg_b.driver-dt",
 ];
@@ -228,7 +228,7 @@ const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
     ("leg_a.driver", "UCC21550BDWKR", &["1", "2", "3", "4", "5", "6", "7", "8"]),
     ("leg_b.driver", "UCC21550BDWKR", &["1", "2", "3", "4", "5", "6", "7", "8"]),
     ("u_vsense", "AMC1311BDWVR", &["5", "6", "7", "8"]),
-    ("u_iso", "ISO7710FDWR", &["9", "13", "14", "16"]),
+    ("u_iso", "ISO7710DWR", &["9", "13", "14", "16"]),
     ("t_ct", "CST3015-100ED", &["3", "4"]),
     ("ps_selv", "IRM-20-15", &["3", "4"]),
 ];
@@ -243,10 +243,11 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_a.q_low", "IPW65R018CFD7"),
     ("leg_b.q_high", "IPW65R018CFD7"),
     ("leg_b.q_low", "IPW65R018CFD7"),
-    ("u_iso", "ISO7710FDWR"),
+    ("u_iso", "ISO7710DWR"),
     ("u_ocp", "TLV3201AIDBVR"),
     ("u_ovp", "TLV3201AIDBVR"),
-    ("u_and", "SN74LVC1G08DBVR"),
+    ("u_nand", "SN74LVC1G00DBVR"),
+    ("r_fe", "RC0603JR-070RL"),
     ("u_ref", "LM4040A25IDBZR"),
     ("u_ldo", "MC78L05ACHT1G"),
     ("r_ref_bias", "RC0603FR-075K6L"),
@@ -348,7 +349,9 @@ fn audit(m: &Model) -> Vec<String> {
     for (r, (s, h)) in &side {
         if *s && *h {
             let path = &m.comps[r].path;
-            if !BARRIER_PARTS.iter().any(|(p, _, _)| p == path) {
+            // PE is separate from live HOT, but is outside SELV_NETS. Only the
+            // exact functional link below may join PE and the controller return.
+            if path != "r_fe" && !BARRIER_PARTS.iter().any(|(p, _, _)| p == path) {
                 e.push(format!("{r} ({path}) bridges SELV and HOT nets"));
             }
         }
@@ -373,6 +376,9 @@ fn audit(m: &Model) -> Vec<String> {
             }
         }
     }
+
+    expect(&mut e, m, "r_fe", "1", "pe");
+    expect(&mut e, m, "r_fe", "2", "selv_gnd");
 
     // 3. Mains entry: the fuse is the only path from the inlet L terminal.
     let l_in = members(m, "ac_l_in");
@@ -460,7 +466,7 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "u_ldo", "1", "hot5");
 
     // 7. OCP and OVP: node = offset + shunt Kelvin; bus-sense node vs the
-    //    OVP threshold; both OK-high comparators ANDed into the default-low
+    //    OVP threshold; both OK-high comparators NANDed into the default-high
     //    isolator, isolator output on header pin 10.
     expect(&mut e, m, "r_ref_bias", "1", "hot5");
     expect(&mut e, m, "r_ref_bias", "2", "ref25");
@@ -507,18 +513,26 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "r_th_top", "2", "ocp_thresh");
     expect(&mut e, m, "r_th_bot", "1", "ocp_thresh");
     expect(&mut e, m, "r_th_bot", "2", "leg_ret");
-    expect(&mut e, m, "u_and", "1", "ocp_ok_hot");
-    expect(&mut e, m, "u_and", "2", "ovp_ok_hot");
-    expect(&mut e, m, "u_and", "4", "bus_ok_hot");
-    expect(&mut e, m, "u_and", "3", "leg_ret");
-    expect(&mut e, m, "u_and", "5", "hot5");
-    expect(&mut e, m, "u_iso", "4", "bus_ok_hot");
-    let bus_ok: BTreeSet<(String, String)> = members(m, "bus_ok_hot");
-    let want: BTreeSet<(String, String)> = [("u_and", "4"), ("u_iso", "4")].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
-    if bus_ok != want {
-        e.push(format!("bus_ok_hot must join only the AND output and the isolator input, found {:?}", bus_ok));
+    expect(&mut e, m, "u_nand", "1", "ocp_ok_hot");
+    expect(&mut e, m, "u_nand", "2", "ovp_ok_hot");
+    expect(&mut e, m, "u_nand", "4", "bus_fault_hot");
+    expect(&mut e, m, "u_nand", "3", "leg_ret");
+    expect(&mut e, m, "u_nand", "5", "hot5");
+    expect(&mut e, m, "u_iso", "4", "bus_fault_hot");
+    let bus_fault: BTreeSet<(String, String)> = members(m, "bus_fault_hot");
+    let want: BTreeSet<(String, String)> = [("u_nand", "4"), ("u_iso", "4")].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if bus_fault != want {
+        e.push(format!("bus_fault_hot must join only the NAND output and the isolator input, found {:?}", bus_fault));
     }
-    expect(&mut e, m, "u_iso", "13", "bus_ocp_ok");
+    expect(&mut e, m, "u_iso", "13", "bus_fault");
+    // The receiving pullup is off-board. Added local loads or another driver
+    // could suppress the fault while all existing pin checks still pass.
+    let fault_output = members(m, "bus_fault");
+    let want: BTreeSet<(String, String)> = [("u_iso", "13"), ("j_selv", "10")]
+        .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if fault_output != want {
+        e.push(format!("bus_fault has unexpected loads: {:?}", fault_output));
+    }
     expect(&mut e, m, "u_iso", "3", "hot5");
     expect(&mut e, m, "u_ref", "1", "ref25");
     expect(&mut e, m, "u_ref", "2", "leg_ret");
@@ -572,7 +586,7 @@ fn audit(m: &Model) -> Vec<String> {
     // 10. Controller header map.
     let header = [
         "v15_selv", "selv_gnd", "v3v3", "selv_gnd", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb",
-        "permit", "bus_ocp_ok", "vbus_p", "vbus_n", "ct_s1", "ct_s2", "selv_gnd", "selv_gnd",
+        "permit", "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2", "selv_gnd", "selv_gnd",
     ];
     for (i, net) in header.iter().enumerate() {
         expect(&mut e, m, "j_selv", &(i + 1).to_string(), net);
@@ -687,10 +701,53 @@ mod tests {
     }
 
     #[test]
-    fn non_default_low_isolator_fails() {
+    fn default_low_isolator_fails() {
         let mut m = built();
-        m.set_part("u_iso", "ISO7710DWR");
-        fails(&m, "u_iso is ISO7710DWR");
+        m.set_part("u_iso", "ISO7710FDWR");
+        fails(&m, "u_iso is ISO7710FDWR");
+    }
+
+    #[test]
+    fn and_gate_with_healthy_high_output_fails() {
+        let mut m = built();
+        m.set_part("u_nand", "SN74LVC1G08DBVR");
+        fails(&m, "u_nand is SN74LVC1G08DBVR");
+    }
+
+    #[test]
+    fn fault_header_disconnected_from_isolator_fails() {
+        let mut m = built();
+        m.rewire("j_selv", "10", "floating");
+        fails(&m, "j_selv.10");
+    }
+
+    #[test]
+    fn extra_fault_output_load_fails() {
+        for other_net in ["selv_gnd", "permit"] {
+            let mut m = built();
+            let path = "r_fault_load";
+            let mpn = "RC0603JR-070RL";
+            m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into() });
+            m.resolved.insert(path.into(), mpn.into());
+            m.bom.insert("R999".into(), mpn.into());
+            m.nets.get_mut("bus_fault").unwrap().insert(("R999".into(), "1".into()));
+            m.nets.get_mut(other_net).unwrap().insert(("R999".into(), "2".into()));
+            fails(&m, "bus_fault has unexpected loads");
+        }
+    }
+
+    #[test]
+    fn functional_earth_link_to_live_hot_fails() {
+        let mut m = built();
+        m.rewire("r_fe", "1", "leg_ret");
+        fails(&m, "r_fe.1");
+    }
+
+    #[test]
+    fn disconnected_functional_earth_link_fails() {
+        let mut m = built();
+        m.rewire("r_fe", "2", "floating");
+        fails(&m, "r_fe.2");
     }
 
     #[test]

@@ -1,9 +1,9 @@
 {
-  "source_sha256": "5c422da5204bafb806b1fdc93991251268a441bd06a99eb8ed8b2015d644ece8",
-  "board_sha256": "0c0cf92e1d4ba35334e7af6f7f63e4edaee0c31b02a754fb3eeea0c0b26081fa",
-  "schematic_sha256": "59d26f9d73f0f2c4251759c89c52e9aafd2d782cf1880d6af2801630c389412f",
+  "source_sha256": "47e26497eec3a319388116692206ab89e8cc7f0960635f7d17d5eb0fd16729fc",
+  "board_sha256": "04665a37c242e26ba6a2c6d74bdb623093d54ae3af55a8457e7f41a6e37ccbbb",
+  "schematic_sha256": "9531602efde6d44c9912d2f85876291346210fce804f72c8e737e3cc65ac90ca",
   "schematic_partition_pass": true,
   "board_source_pass": true,
-  "mpn_census": 102,
-  "output": "ORACLE PASS: 292 pin assignments, 62 nets -- connectivity partitions isomorphic\nCANDIDATE ORACLE PASS: 102 footprints, 73 nets, raw pad numbers match compiled partitions\n"
+  "mpn_census": 103,
+  "output": "ORACLE PASS: 294 pin assignments, 62 nets -- connectivity partitions isomorphic\nCANDIDATE ORACLE PASS: 103 footprints, 73 nets, raw pad numbers match compiled partitions\n"
 }

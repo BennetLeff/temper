@@ -5,7 +5,7 @@
 # bridge of four IPW65R018CFD7; series resonant capacitor; tank CT to the
 # SELV current-sense board; DC-bus shunt OCP for shoot-through; thermal
 # cutoffs in series with the gate-driver supply; AMC1311 bus sense; bus
-# over-voltage comparator ANDed with the OCP into the same isolated OK line.
+# over-voltage comparator NANDed with the OCP into the isolated fault-high line.
 #
 # Domains:
 #   mains / HOT:  AC_*, L_*, N_*, BUS_P, HV_RET, LEG_RET, SW_*, tank nets.
@@ -13,7 +13,7 @@
 #                 comparator, AMC1311 side 1 and ISO7710 side 1 all return
 #                 to the leg side of the shunt (layout: star at shunt pad 2).
 #   SELV:         everything on the 16-pin controller header, isolated by
-#                 UCC21550, AMC1311, ISO7710F, CST3015 and the IRM-20-15.
+#                 UCC21550, AMC1311, ISO7710, CST3015 and the IRM-20-15.
 #
 # Coil-dependent values (resonant capacitance, CT burden on the
 # current-sense board) are provisional for the 70 uH / 32 kHz nominal coil
@@ -27,7 +27,7 @@ from "parts.ato" import R1k0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
 from "parts.ato" import CST3015_100E, Irm05_15, Irm20_15, TcoLoopHeader, Ldo78L05
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k5Thin, R140kThin, R5k6Bias
-from "parts.ato" import Iso7710F, SelvHeader16, And2Lvc1g08
+from "parts.ato" import Iso7710, SelvHeader16, Nand2Lvc1g00, FunctionalEarthLink
 
 module BridgeLeg:
     """One half-bridge leg: UCC21550 (A = high side, B = low side), fail-safe
@@ -184,7 +184,7 @@ module PowerStage120V:
     signal OCP_OK_HOT
     signal OVP_THRESH
     signal OVP_OK_HOT
-    signal BUS_OK_HOT
+    signal BUS_FAULT_HOT
     # SELV
     signal V15_SELV
     signal SELV_GND
@@ -194,7 +194,7 @@ module PowerStage120V:
     signal PWM_HB
     signal PWM_LB
     signal PERMIT
-    signal BUS_OCP_OK
+    signal BUS_FAULT
     signal VBUS_P
     signal VBUS_N
     signal CT_S1
@@ -410,7 +410,8 @@ module PowerStage120V:
     # OCP_THRESH = 2.5 * 10.0/(10.5+10.0) = 1.2195 V -> trip at ~61 A
     # (TLV3201 offset +/-5 mV max = +/-10 A; normal peak <= 45 A). The lower
     # trip reduces risk; returned tank energy is not bounded: ORACLE-REVIEW.md.
-    # Output high = OK; low (trip) or unpowered side 1 -> BUS_OCP_OK low.
+    # Comparator output high = OK. NAND + default-HIGH isolation make
+    # BUS_FAULT high on either trip or complete HOT-side power loss.
     r_ref_bias = new R5k6Bias
     r_ref_bias.value = 5.6kohm
     r_ref_bias.p1 ~ HOT5
@@ -476,26 +477,28 @@ module PowerStage120V:
     c_ovp_vcc.value = 100nF
     c_ovp_vcc.p1 ~ HOT5
     c_ovp_vcc.p2 ~ LEG_RET
-    # BUS_OK_HOT = OCP OK AND OVP OK; either fault drives BUS_OCP_OK low.
-    u_and = new And2Lvc1g08
-    u_and.A ~ OCP_OK_HOT
-    u_and.B ~ OVP_OK_HOT
-    u_and.Y ~ BUS_OK_HOT
-    u_and.VCC ~ HOT5
-    u_and.GND ~ LEG_RET
-    c_and_vcc = new C100n0603
-    c_and_vcc.value = 100nF
-    c_and_vcc.p1 ~ HOT5
-    c_and_vcc.p2 ~ LEG_RET
-    u_iso = new Iso7710F
+    # BUS_FAULT_HOT = NOT(OCP_OK_HOT AND OVP_OK_HOT).
+    # Healthy = low; either trip = high. ISO7710 (non-F) defaults high
+    # on input-side power loss while the SELV output supply remains valid.
+    u_nand = new Nand2Lvc1g00
+    u_nand.A ~ OCP_OK_HOT
+    u_nand.B ~ OVP_OK_HOT
+    u_nand.Y ~ BUS_FAULT_HOT
+    u_nand.VCC ~ HOT5
+    u_nand.GND ~ LEG_RET
+    c_nand_vcc = new C100n0603
+    c_nand_vcc.value = 100nF
+    c_nand_vcc.p1 ~ HOT5
+    c_nand_vcc.p2 ~ LEG_RET
+    u_iso = new Iso7710
     u_iso.VCC1 ~ HOT5
     u_iso.GND1 ~ LEG_RET
     u_iso.GND1B ~ LEG_RET
-    u_iso.IN ~ BUS_OK_HOT
+    u_iso.IN ~ BUS_FAULT_HOT
     u_iso.VCC2 ~ V3V3
     u_iso.GND2 ~ SELV_GND
     u_iso.GND2B ~ SELV_GND
-    u_iso.OUT ~ BUS_OCP_OK
+    u_iso.OUT ~ BUS_FAULT
     c_iso1 = new C100n0603
     c_iso1.value = 100nF
     c_iso1.p1 ~ HOT5
@@ -516,10 +519,18 @@ module PowerStage120V:
     j_selv.p7 ~ PWM_HB
     j_selv.p8 ~ PWM_LB
     j_selv.p9 ~ PERMIT
-    j_selv.p10 ~ BUS_OCP_OK
+    j_selv.p10 ~ BUS_FAULT
     j_selv.p11 ~ VBUS_P
     j_selv.p12 ~ VBUS_N
     j_selv.p13 ~ CT_S1
     j_selv.p14 ~ CT_S2
     j_selv.p15 ~ SELV_GND
     j_selv.p16 ~ SELV_GND
+
+    # D5 functional earth: place beside J1 PE common point. This link is
+    # not protective earthing. Reinforced isolation remains required with
+    # PE open; SELV_GND is the historical name of the earthed ELV return.
+    r_fe = new FunctionalEarthLink
+    r_fe.value = 0ohm
+    r_fe.p1 ~ PE
+    r_fe.p2 ~ SELV_GND

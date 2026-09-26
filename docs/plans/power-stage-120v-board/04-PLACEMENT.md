@@ -75,16 +75,21 @@ t.clearance_table_lookup(2500).value_mm()
 Use **PD3**. The repo decided PD3 for forced-air cooking boards (see
 `docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md` and the comments in
 `scripts/generate_kicad_dru.py`). Pick each boundary's voltage band from the
-worst-case working voltage below, and record every lookup result in `RULES.md`.
+qualified working-voltage analysis, and record each lookup and its applicability
+in `RULES.md`. The repository key `IIIa/IIIb` combines numeric values but does
+not waive the standard's IIIb restriction above 50 V: specify verified IIIa
+or better. D5 approves only an 8.0 mm provisional placement floor. Resolve
+working-voltage/HF requirements before treating any distance as final.
 
 | Boundary | Nets (A ↔ B) | Worst working voltage (from the design docs) | Insulation | Rule |
 | --- | --- | --- | --- | --- |
-| SELV ↔ HOT | A in the audit's `SELV_NETS` list; B any other net except PE | Rails and switch nodes 99 V rms / 198 V peak; mains 140 V rms (T1 now on `sw_a`, so no SELV part faces the resonant node) | **Reinforced, uniform ≥ 8.0 mm** (PD3, IIIa/IIIb, >125–250 band), per D5 proposal in `zapote/power-stage-120v/ORACLE-ANSWER.md` | clearance and creepage |
-| HOT ↔ PE | any HOT net ↔ `pe` | 140 V rms mains; tank nodes higher | Basic, at the matching band | clearance and creepage |
-| Line ↔ neutral before the bridge | `ac_l_in`, `l_f`, `l_filt` ↔ `ac_n_in`, `n_filt` | 140 V rms | Functional (table 17 value) | clearance |
-| Tank nodes ↔ other HOT | `sw_a`, `sw_b`, `coil_feed`, `res_a`, `crbleed_*` ↔ other HOT nets | up to ~640 V peak (`res_a`) | Functional, table 18 `>500-800` | creepage |
-| Bus ↔ low-voltage HOT | `bus_p` ↔ `hot5`, `v15_ls`, gate nets | ~200 V peak | Functional | clearance |
-| Everything else | — | ≤ 15 V | Default | 0.2 mm |
+| Controller ELV ↔ HOT | A in the audit's historical `SELV_NETS`; B live HOT | Not yet bounded; the rectifier does not cap DC-bus voltage at line crest | Reinforced objective; **≥8.0 mm provisional placement floor**, PD3, verified IIIa or better; D5-BASIS.md governs qualification | clearance and creepage |
+| HOT ↔ PE | live HOT ↔ `pe`, which R38 functionally bonds to controller return | Not yet bounded; include open-PE/common-mode and tank cases | Do not retain an automatic basic-only exemption: review every HOT-to-PE path as a possible bypass of controller reinforced isolation. Use the ≥8.0 mm provisional PCB floor; qualify heatsink insulators and Y-capacitor paths separately | clearance and creepage |
+| Line ↔ neutral before the bridge | `ac_l_in`, `l_f`, `l_filt` ↔ `ac_n_in`, `n_filt` | 140 V rms supply envelope; verify applicable abnormal/transient requirements | Functional, applicable table value | clearance |
+| Tank nodes ↔ other HOT | `sw_a`, `sw_b`, `coil_feed`, `res_a`, `crbleed_*` ↔ other HOT nets | The former ~640 V peak is an estimate, not a bound | Functional; determine table 18 and HF applicability from qualified stress | creepage |
+| Bus ↔ low-voltage HOT | `bus_p` ↔ `hot5`, `v15_ls`, gate nets | The former ~200 V peak is not a bound during tank energy return | Functional; final band unresolved | clearance |
+| Within each qualified low-voltage domain | — | ≤15 V only where the source establishes it | Provisional default; not an exemption for a domain crossing | 0.2 mm |
+
 
 **Step 2, compare against each barrier part's own package creepage.** Read the
 datasheet value for each part and fill this table in `RULES.md`:
@@ -92,10 +97,10 @@ datasheet value for each part and fill this table in `RULES.md`:
 | Part | Package | Datasheet external creepage (fill in) |
 | --- | --- | --- |
 | U1, U2 UCC21550BDWKR | SOIC-14 DWK | ___ mm |
-| U9 ISO7710FDWR | SOIC-16 DW, TI HV land pattern (8.1 mm pad gap) | ___ mm |
+| U9 ISO7710DWR | SOIC-16 DW, TI HV land pattern (8.1 mm pad gap) | ___ mm |
 | U4 AMC1311BDWVR | SOIC-8 DWV | ___ mm |
 | T1 CST3015-100ED | — | ≥ 8 mm (Coilcraft datasheet) |
-| PS1 IRM-20-15 | module | input/output pin distance from the MEAN WELL drawing |
+| PS1 IRM-20-15 | module | Obtain internal insulation/certification scope; pin span alone is not package creepage evidence |
 
 **If any package creepage is below the required SELV↔HOT reinforced value, STOP
 and ask the owner (decision D5).** This is the exact problem that left Rev38 with
@@ -142,8 +147,9 @@ Always place by instance path, and confirm the designator in
 | Z3b Leg-A driver | `leg_a.driver` U1, `leg_a.d_boot` D1, `leg_a.c_vcci` C7, `leg_a.c_ls` C8, `leg_a.c_ls_bulk` C9, `leg_a.c_boot` C10, `leg_a.c_boot_hf` C11, `leg_a.permit_fet` Q1, `leg_a.r_permit` R6, `leg_a.r_permit_pd` R7, `leg_a.r_dis_pu` R8, `leg_a.r_dt` R9 | U1 ≤ ~25 mm from Q2 and Q3 gates, output pins (9–16) facing the MOSFETs. **C7, Q1 and R6–R9 are on U1's SELV side (pins 1–8)** and belong in or at the edge of Z6 |
 | Z3c Leg-B driver | `leg_b.driver` U2, `leg_b.d_boot` D2, `leg_b.c_vcci` C14, `leg_b.c_ls` C15, `leg_b.c_ls_bulk` C16, `leg_b.c_boot` C17, `leg_b.c_boot_hf` C18, `leg_b.permit_fet` Q4, `leg_b.r_permit` R14, `leg_b.r_permit_pd` R15, `leg_b.r_dis_pu` R16, `leg_b.r_dt` R17 | Same as Z3b for Q5 and Q6. **C14, Q4 and R14–R17 are SELV-side** |
 | Z4 Tank | `c_res1` C21, `c_res2` C22, `c_res3` C23, `r_crb1..4` R22–R25, `t_ct` T1, `j_coil` J2 | Between the legs and J2 (coil-exit edge, D6). T1's primary (pins 1, 2) sits between `sw_a` and J2 pin 1 (`coil_feed`); its secondary (pins 3, 4) faces the SELV zone. The R22–R25 bleed string runs from `res_a` to `sw_b` alongside the C21–C23 bank, spreading ~640 V peak along its length |
-| Z5 HOT auxiliary | `ps_gate` PS2, `j_tco` J3, `u_ldo` U3, `c_v15` C24, `c_ldo_in` C25, `c_ldo_out` C26, `u_vsense` U4 (HOT side), `r_div1..4` R26–R29, `r_div_bot` R30, `c_div` C27, `c_vs1` C28, `u_ref` U5, `r_ref_bias` R31, `r_ocp_ref` R32, `r_ocp_sense` R33, `r_th_top` R34, `r_th_bot` R35, `c_ocp_node` C30, `c_th` C31, `u_ocp` U6, `c_ocp_vcc` C32, `r_ovp_top` R36, `r_ovp_bot` R37, `c_ovp_th` C33, `u_ovp` U7, `c_ovp_vcc` C34, `u_and` U8, `c_and_vcc` C35, `u_iso` U9 (HOT side), `c_iso1` C36 | Near R5: the OCP Kelvin sense (R5 pad 3) and the `leg_ret` star (R5 pad 2). U7 (OVP) reads `vsense_in` at R30/C27, so keep it next to U4. The R26–R29 string runs from `bus_p` toward U4, spreading the voltage along its length. PS2 away from the heatsink's hot air |
+| Z5 HOT auxiliary | `ps_gate` PS2, `j_tco` J3, `u_ldo` U3, `c_v15` C24, `c_ldo_in` C25, `c_ldo_out` C26, `u_vsense` U4 (HOT side), `r_div1..4` R26–R29, `r_div_bot` R30, `c_div` C27, `c_vs1` C28, `u_ref` U5, `r_ref_bias` R31, `r_ocp_ref` R32, `r_ocp_sense` R33, `r_th_top` R34, `r_th_bot` R35, `c_ocp_node` C30, `c_th` C31, `u_ocp` U6, `c_ocp_vcc` C32, `r_ovp_top` R36, `r_ovp_bot` R37, `c_ovp_th` C33, `u_ovp` U7, `c_ovp_vcc` C34, `u_nand` U8, `c_nand_vcc` C35, `u_iso` U9 (HOT side), `c_iso1` C36 | Near R5: the OCP Kelvin sense (R5 pad 3) and the `leg_ret` star (R5 pad 2). U7 (OVP) reads `vsense_in` at R30/C27, so keep it next to U4. The R26–R29 string runs from `bus_p` toward U4, spreading the voltage along its length. PS2 away from the heatsink's hot air |
 | Z6 SELV | `j_selv` J4, `ps_selv` PS1 (output pins 3, 4), `c_vs2` C29, `c_iso2` C37, plus the SELV-side parts of Z3b/Z3c, and the SELV pins of U1, U2, U4, U9 and T1 | A strip along one edge, separated from all HOT copper by the reinforced distance from 4.2. **C29 and C37 are SELV bypass capacitors** for U4 and U9's side 2; don't place them with Z5 |
+| Z6b Functional earth | `r_fe` R38 | One removable 0 Ω connection from controller return to J1 PE common point. Keep its controller-return trace and PE copper separated from live HOT by the provisional reinforced floor; do not route either through the HOT zone under a basic-only spacing assumption. The link is not a protective-earth conductor. |
 
 Placement rules (check each one; list the outcome in `PLACEMENT-REVIEW.md`):
 

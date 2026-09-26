@@ -27,7 +27,7 @@ temperature upward. Revision history:
 | Inverter | **Full bridge**, series resonant capacitor | Twice the drive voltage lets the coil have 4× impedance at half the current. Robust across cast iron to clad pans (COIL-MC.md: ~100 % of intended cookware at 114 V and 127 V vs ≤ 73 % for any half bridge). Same switch count and loss as the paralleled half bridge (LOSS-REFACTOR.md, B1 = A6). Cost: one more gate driver. |
 | Switch | 4 × Infineon **IPW65R018CFD7** (650 V, 18 mΩ, fast body diode) | ZVS resonant use. 650 V instead of 600 V for surge margin against the MOV's 455 V clamp. Paralleled superjunction beats single SiC here; IGBT tail loss is avoided. Must never run capacitive (body-diode hard recovery): the controller needs a phase inhibit. |
 | Gate drive | 2 × UCC21550B, per-leg bootstrap, fail-safe DIS | Circuit reused from the repo's verified gate-drive unit, moved onto the power board so the gate loops stay short. |
-| Bus current and voltage | 1 mΩ Kelvin shunt in the leg return + TLV3201; bus OVP TLV3201; AND; ISO7710F | Shoot-through never passes the tank CT. The ~61 A trip and the ~280 V bus OVP reach the SELV latch on one default-low isolated line. |
+| Bus current and voltage | 1 mΩ Kelvin shunt in the leg return + TLV3201; bus OVP TLV3201; NAND; ISO7710 | Shoot-through never passes the tank CT. The ~61 A trip and the ~280 V bus OVP reach the SELV latch on one default-high isolated fault line. |
 | Thermal backstop | Heatsink and under-glass Microtemp cutoffs in series with the gate-supply input | A non-electronic stop that removes all gate drive, so firmware is not relied on for over-temperature (IEC 60335-1 cl. 19 / Annex R burden). |
 | Supplies | IRM-20-15 (SELV) + IRM-05-15 (gate/HOT 5 V) | Certified modules (IEC/UL 62368-1, IEC 61558, 4.2 kVac I/O). HOT loads stay off the SELV supply. |
 
@@ -79,9 +79,9 @@ PE─J1.3─┐        ├─ CX1 1µF X2 ────┤ ═══════�
                 REF25 ─10.5k─ OCP_THRESH ─10.0k─ LEG_RET    (0.1 % thin film; trip ≈ 61 A)
                 REF25 ─10k─ OVP_THRESH ─140k─ LEG_RET       (2.333 V = VSENSE_IN at ≈ 280 V bus)
                 U6 TLV3201: + = OCP_NODE, − = OCP_THRESH → OCP_OK_HOT ─┐
-                U7 TLV3201: + = OVP_THRESH, − = VSENSE_IN → OVP_OK_HOT ─┴ U8 LVC1G08 AND → BUS_OK_HOT → U9 ISO7710F → BUS_OCP_OK (J4.10)
+                U7 TLV3201: + = OVP_THRESH, − = VSENSE_IN → OVP_OK_HOT ─┴ U8 LVC1G00 NAND → BUS_FAULT_HOT → U9 ISO7710 → BUS_FAULT (J4.10)
  - - - - - - - - - - - - - reinforced barrier: U1/U2 (primary side), U4, U9, T1, PS1 - - - - - - - - - - - - - - - -
-   J4 Micro-Fit 2×8: V15_SELV, SELV_GND×4, V3V3 in, PWM_HA/LA/HB/LB, PERMIT, BUS_OCP_OK, VBUS_P/N, CT_S1/S2
+   J4 Micro-Fit 2×8: V15_SELV, SELV_GND×4, V3V3 in, PWM_HA/LA/HB/LB, PERMIT, BUS_FAULT, VBUS_P/N, CT_S1/S2
 ```
 
 ## 4. Low-power holding (room temperature and up)
@@ -118,9 +118,9 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | U6 / U5 / R31 | 1 each | TLV3201AIDBVR / LM4040A25IDBZR / RC0603FR-075K6L (5.6k) | 40 ns comparator; 2.5 V reference, 120.8 µA cathode current at the checked DC corner (REFERENCE-BIAS.md); complete shutdown latency unqualified | V (selected ratings and DC corner) |
 | R32,R33 / R34 / R35 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 10K (0.1 %) | Offset and threshold network, trip ≈ 61 A (TLV3201 ±5 mV → ±10 A, before other tolerances). Lowered from 91 A as risk reduction; returned tank energy remains unbounded: ORACLE-REVIEW.md | V (nominal network); C (fault response) |
 | U7 / R36 / R37 / C33 | 1 each | TLV3201AIDBVR / RT0603BRD0710KL / RT0603BRD07140KL / 1 nF C0G | Bus OVP ≈ 280 V from the VSENSE_IN tap; hardware restart inhibit | V |
-| U8 | 1 | SN74LVC1G08DBVR | ANDs OCP-OK and OVP-OK into U9; either fault drives BUS_OCP_OK low | V |
+| U8 | 1 | SN74LVC1G00DBVR | NANDs OCP-OK and OVP-OK into U9; either fault drives BUS_FAULT high | V |
 | C30 / C31 | 1 / 1 | 100 pF / 1 nF C0G | ~0.5 µs node filter; threshold decoupling | V |
-| U9 | 1 | ISO7710FDWR | Reinforced 5 kVrms; **F = output low if side 1 unpowered**. TI DW0016B HV land pattern, 8.1 mm across the barrier | V |
+| U9 | 1 | ISO7710DWR | Reinforced 5 kVrms; **non-F = output high if side 1 unpowered and side 2 powered**. TI DW0016B HV land pattern, 8.1 mm across the barrier | V |
 | U4 / R26–R29 / R30 / C27 | 1 / 4 / 1 / 1 | AMC1311BDWVR / 470k 1206 / 15.8k 0.1 % / 1 nF | Bus sense 1/120 (198 V → 1.65 V of 2 V range); ≤ 50 V per 1206 | V |
 | BR1 | 1 | GBJ2510-F | 25 A 1000 V bridge, ~29 W on heatsink | V; F (on power-entry branch) |
 | F1 | 1 | 0326020.MXP + Littelfuse 102071 clips | 20 A slow-blow ceramic; 15 A ÷ 0.75 | V (fuse); C (clip rating) |
@@ -155,7 +155,7 @@ This is connectivity evidence only. Voltage, timing, creepage, thermal and EMI a
 1. Coil and pan measurement (COIL-MC.md): sets the resonant bank, CT burden and frequency limits.
 2. Confirm the "C" items above against manufacturer drawings; draw or vendor the "F" footprints.
 3. Glass-underside temperature at the maximum setpoint, to choose the under-glass cutoff rating.
-4. Controller-side hardware: fail-safe polarity interface from healthy-high BUS_OCP_OK to the existing healthy-low interlock input, CT phase inhibit, and a decided SELV–PE architecture. Direct connection is incompatible; complete shutdown and power-loss behavior remain unverified (ORACLE-REVIEW.md).
+4. Controller-side hardware: BUS_FAULT now matches the existing healthy-low/fault-high interlock input. CT phase inhibit, complete shutdown timing, HOT5 brownout and supply-loss behavior remain unverified (FAULT-INTERFACE.md). D5 conditionally approves one functional PE bond and an 8.0 mm placement floor; insulation qualification is still open (D5-BASIS.md).
 5. Native schematic and PCB with creepage rules (≈200 V bus, ≈430 V-peak tank nodes), then
    ERC/DRC/parity.
 6. Bench: dead time, gate resistors, snubbers, OCP trip, ZVS at light load and deep phase shift,

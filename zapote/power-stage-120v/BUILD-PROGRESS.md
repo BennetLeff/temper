@@ -151,3 +151,27 @@ UUID. The audit also rejects an extra load attached to VSENSE_IN. Final
 regeneration, source oracles, three DRC samples and the saved-stackup gate were
 repeated on the resulting board. Generated CSV line endings and native SVG
 whitespace remain verbatim; human-authored diffs pass whitespace checks.
+
+
+## Fault-high interface and conditional D5 — 2026-09-25
+
+Implemented U8 SN74LVC1G00DBVR NAND, U9 ISO7710DWR default-high isolation,
+and J4.10 BUS_FAULT. The old AND/F-polarity blocker is resolved at source
+and native-connectivity level. Added R38 (RC0603JR-070RL), the approved
+removable functional controller-ground/PE link. It is not protective earthing.
+D5 conditionally approves an 8.0 mm provisional floor using verified group
+IIIa or better; D4 placement approval, airflow and insulation qualification
+remain open. See FAULT-INTERFACE.md, D5-BASIS.md and DC-LINK-CLAMP.md.
+
+Verification: 103 parts, 73 nets, 32/32 Rust audit tests; 15/15 adapter tests;
+independent netlist/BOM reproduction; 294 source pin assignments and 103 MPNs
+match native output; three DRC runs each give 18 known annotation-only library
+warnings, 223 expected unrouted connections and zero parity findings. ERC:
+235 warnings, zero errors. Rust physical stackup gate passes at two layers,
+1.600 mm. Board/schematic previews visually inspected. Receipts and hashes
+are in build-receipt.json and native-02/verification.json.
+
+HOT5 startup/brownout remains unqualified: a failed 5 V regulator need not
+drop the independent 15 V gate-driver supply. No TVS has been installed;
+Microchip MRT130KP295CV is a researched candidate pending package preference
+and pulse/temperature/repetition qualification. Physical tests remain NOT RUN.

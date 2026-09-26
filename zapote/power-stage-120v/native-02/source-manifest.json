@@ -1,6 +1,6 @@
 {
   "board": {
-    "footprints": 102,
+    "footprints": 103,
     "layers": [
       "F.Cu",
       "B.Cu"
@@ -13,7 +13,7 @@
       160.0
     ]
   },
-  "board_sha256": "0c0cf92e1d4ba35334e7af6f7f63e4edaee0c31b02a754fb3eeea0c0b26081fa",
+  "board_sha256": "04665a37c242e26ba6a2c6d74bdb623093d54ae3af55a8457e7f41a6e37ccbbb",
   "bridge": {
     "components": [
       {
@@ -288,9 +288,9 @@
       },
       {
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "instance_path": "c_and_vcc",
+        "instance_path": "c_nand_vcc",
         "reference": "C35",
-        "tstamp": "aaac49f1-7673-e815-080b-439e7f472e27"
+        "tstamp": "6280c2e1-1474-f6eb-3125-38718d4ed4df"
       },
       {
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -441,6 +441,12 @@
         "instance_path": "r_ovp_bot",
         "reference": "R37",
         "tstamp": "35bbb906-f2c7-935f-0a2a-e65c41dc1d46"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "r_fe",
+        "reference": "R38",
+        "tstamp": "71b53846-306b-0cde-6aa3-f16d07d8ae48"
       },
       {
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
@@ -612,9 +618,9 @@
       },
       {
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
-        "instance_path": "u_and",
+        "instance_path": "u_nand",
         "reference": "U8",
-        "tstamp": "62d23949-3815-3d06-870a-bd64a1c10344"
+        "tstamp": "2a93ccf5-e0c8-bc4d-e93d-c9251a1c1ad0"
       },
       {
         "footprint": "lib:SOIC16W_DW0016B_HV",
@@ -682,6 +688,10 @@
           [
             "C4",
             "2"
+          ],
+          [
+            "R38",
+            "1"
           ]
         ]
       },
@@ -1507,7 +1517,7 @@
         ]
       },
       {
-        "name": "bus_ok_hot",
+        "name": "bus_fault_hot",
         "nodes": [
           [
             "U8",
@@ -1614,6 +1624,10 @@
           [
             "J4",
             "16"
+          ],
+          [
+            "R38",
+            "2"
           ]
         ]
       },
@@ -1744,7 +1758,7 @@
         ]
       },
       {
-        "name": "bus_ocp_ok",
+        "name": "bus_fault",
         "nodes": [
           [
             "U9",
@@ -2535,7 +2549,7 @@
     },
     {
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
-      "instance_path": "c_and_vcc",
+      "instance_path": "c_nand_vcc",
       "mpn": "C0603C104K5RACTU",
       "origins": {
         "footprint": "resolved-attr",
@@ -3243,6 +3257,19 @@
       "value": "140kohm"
     },
     {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "r_fe",
+      "mpn": "RC0603JR-070RL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R38",
+      "value": "0ohm"
+    },
+    {
       "footprint": "Resistor_SMD:R_1206_3216Metric",
       "instance_path": "r_bus2",
       "mpn": "RC1206FR-07220KL",
@@ -3429,8 +3456,8 @@
     },
     {
       "footprint": "Package_TO_SOT_SMD:SOT-23-5",
-      "instance_path": "u_and",
-      "mpn": "SN74LVC1G08DBVR",
+      "instance_path": "u_nand",
+      "mpn": "SN74LVC1G00DBVR",
       "origins": {
         "footprint": "resolved-attr",
         "mpn": "resolved-attr+csv",
@@ -3442,7 +3469,7 @@
     {
       "footprint": "lib:SOIC16W_DW0016B_HV",
       "instance_path": "u_iso",
-      "mpn": "ISO7710FDWR",
+      "mpn": "ISO7710DWR",
       "origins": {
         "footprint": "resolved-attr",
         "mpn": "resolved-attr+csv",
@@ -4006,9 +4033,9 @@
       },
       {
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "instance_path": "c_and_vcc",
+        "instance_path": "c_nand_vcc",
         "reference": "C35",
-        "tstamp": "aaac49f1-7673-e815-080b-439e7f472e27"
+        "tstamp": "6280c2e1-1474-f6eb-3125-38718d4ed4df"
       },
       {
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -4159,6 +4186,12 @@
         "instance_path": "r_ovp_bot",
         "reference": "R37",
         "tstamp": "35bbb906-f2c7-935f-0a2a-e65c41dc1d46"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "r_fe",
+        "reference": "R38",
+        "tstamp": "71b53846-306b-0cde-6aa3-f16d07d8ae48"
       },
       {
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
@@ -4330,9 +4363,9 @@
       },
       {
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
-        "instance_path": "u_and",
+        "instance_path": "u_nand",
         "reference": "U8",
-        "tstamp": "62d23949-3815-3d06-870a-bd64a1c10344"
+        "tstamp": "2a93ccf5-e0c8-bc4d-e93d-c9251a1c1ad0"
       },
       {
         "footprint": "lib:SOIC16W_DW0016B_HV",
@@ -4400,6 +4433,10 @@
           [
             "C4",
             "2"
+          ],
+          [
+            "R38",
+            "1"
           ]
         ]
       },
@@ -5225,7 +5262,7 @@
         ]
       },
       {
-        "name": "bus_ok_hot",
+        "name": "bus_fault_hot",
         "nodes": [
           [
             "U8",
@@ -5332,6 +5369,10 @@
           [
             "J4",
             "16"
+          ],
+          [
+            "R38",
+            "2"
           ]
         ]
       },
@@ -5462,7 +5503,7 @@
         ]
       },
       {
-        "name": "bus_ocp_ok",
+        "name": "bus_fault",
         "nodes": [
           [
             "U9",
@@ -5884,12 +5925,12 @@
     ]
   },
   "input_hashes": {
-    "default.csv": "d8c42a5ae0b585decaac495ee6464ba00c5bbc476c1a7ad3a621f436e04b983a",
-    "default.net": "5c422da5204bafb806b1fdc93991251268a441bd06a99eb8ed8b2015d644ece8",
+    "default.csv": "427d84ec7cae8a6bc2348210357dceb12976ffb1ad683e4d84318d76437eb8b2",
+    "default.net": "47e26497eec3a319388116692206ab89e8cc7f0960635f7d17d5eb0fd16729fc",
     "outline.json": "e629c0ff9e0de17674c523527df7bb33036429f5be286fabf8d6b147abf9f0bd",
     "planning_stackup.py": "797018675ee6ebfb59fc771bd9c1ecad9d6f90c6242d0245746e48cecc95f23a",
-    "poses.json": "b85a2075bd37c82cda2c54db9c4113991a4639ef840ac77f538836c7a73f179c",
-    "resolved-components.json": "d9c78a05980dc3bd3993cd08cf88536d6bb457c4598c3dd9a5ac7692411a908f",
+    "poses.json": "fdc416e2953b135ff704e115ccf591839b6cf833344a323bd034cfa791a1c7c8",
+    "resolved-components.json": "bdc24ac38c5fbb1e648a9c7769630f337de85fed899fb8e2108d6c2f36bde036",
     "stackup.json": "f78b19657dd082fe74fa142fb7b294b7f31cf62ec5099304bab8f738b47cf473"
   },
   "libraries": {
@@ -6029,11 +6070,6 @@
       112.275,
       0.0
     ],
-    "c_and_vcc": [
-      165.775,
-      138.305,
-      0.0
-    ],
     "c_bus1": [
       7.125,
       21.525,
@@ -6045,28 +6081,33 @@
       0.0
     ],
     "c_div": [
-      171.785,
+      165.775,
       138.305,
       0.0
     ],
     "c_iso1": [
-      177.795,
+      171.785,
       138.305,
       0.0
     ],
     "c_iso2": [
-      183.805,
+      177.795,
       138.305,
       0.0
     ],
     "c_ldo_in": [
-      189.815,
+      183.805,
       138.305,
       0.0
     ],
     "c_ldo_out": [
       137.575,
       126.625,
+      0.0
+    ],
+    "c_nand_vcc": [
+      189.815,
+      138.305,
       0.0
     ],
     "c_ocp_node": [
@@ -6439,28 +6480,33 @@
       144.755,
       0.0
     ],
-    "r_ocp_ref": [
+    "r_fe": [
       144.735,
       144.755,
       0.0
     ],
-    "r_ocp_sense": [
+    "r_ocp_ref": [
       150.745,
       144.755,
       0.0
     ],
-    "r_ovp_bot": [
+    "r_ocp_sense": [
       156.755,
       144.755,
       0.0
     ],
-    "r_ovp_top": [
+    "r_ovp_bot": [
       162.765,
       144.755,
       0.0
     ],
-    "r_ref_bias": [
+    "r_ovp_top": [
       168.775,
+      144.755,
+      0.0
+    ],
+    "r_ref_bias": [
+      174.785,
       144.755,
       0.0
     ],
@@ -6470,12 +6516,12 @@
       0.0
     ],
     "r_th_bot": [
-      174.785,
+      180.795,
       144.755,
       0.0
     ],
     "r_th_top": [
-      180.795,
+      186.805,
       144.755,
       0.0
     ],
@@ -6499,11 +6545,6 @@
       90.425,
       0.0
     ],
-    "u_and": [
-      183.225,
-      126.725,
-      0.0
-    ],
     "u_iso": [
       139.655,
       115.175,
@@ -6512,6 +6553,11 @@
     "u_ldo": [
       129.975,
       127.525,
+      0.0
+    ],
+    "u_nand": [
+      183.225,
+      126.725,
       0.0
     ],
     "u_ocp": [
@@ -6546,13 +6592,6 @@
       "footprint": "temper:Diode_Bridge_GBJ2510",
       "manufacturer": "Diodes Incorporated",
       "mpn": "GBJ2510-F"
-    },
-    "c_and_vcc": {
-      "designator_prefix": "C",
-      "footprint": "Capacitor_SMD:C_0603_1608Metric",
-      "manufacturer": "KEMET",
-      "mpn": "C0603C104K5RACTU",
-      "value": "100nF"
     },
     "c_bus1": {
       "designator_prefix": "C",
@@ -6600,6 +6639,13 @@
       "manufacturer": "Murata",
       "mpn": "GRM32ER71H106KA12L",
       "value": "10uF"
+    },
+    "c_nand_vcc": {
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF"
     },
     "c_ocp_node": {
       "designator_prefix": "C",
@@ -7090,6 +7136,13 @@
       "mpn": "RT0603BRD0715K8L",
       "value": "15.8kohm"
     },
+    "r_fe": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603JR-070RL",
+      "value": "0ohm"
+    },
     "r_ocp_ref": {
       "designator_prefix": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -7171,23 +7224,23 @@
       "manufacturer": "Coilcraft",
       "mpn": "CST3015-100ED"
     },
-    "u_and": {
-      "designator_prefix": "U",
-      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
-      "manufacturer": "Texas Instruments",
-      "mpn": "SN74LVC1G08DBVR"
-    },
     "u_iso": {
       "designator_prefix": "U",
       "footprint": "lib:SOIC16W_DW0016B_HV",
       "manufacturer": "Texas Instruments",
-      "mpn": "ISO7710FDWR"
+      "mpn": "ISO7710DWR"
     },
     "u_ldo": {
       "designator_prefix": "U",
       "footprint": "Package_TO_SOT_SMD:SOT-89-3",
       "manufacturer": "onsemi",
       "mpn": "MC78L05ACHT1G"
+    },
+    "u_nand": {
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G00DBVR"
     },
     "u_ocp": {
       "designator_prefix": "U",
@@ -7703,7 +7756,7 @@
     },
     {
       "alias_note": "",
-      "instance_path": "c_and_vcc",
+      "instance_path": "c_nand_vcc",
       "pad": "1",
       "pin": "1",
       "positional": false,
@@ -7711,7 +7764,7 @@
     },
     {
       "alias_note": "",
-      "instance_path": "c_and_vcc",
+      "instance_path": "c_nand_vcc",
       "pad": "2",
       "pin": "2",
       "positional": false,
@@ -8815,6 +8868,22 @@
     },
     {
       "alias_note": "",
+      "instance_path": "r_fe",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R38"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "r_fe",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R38"
+    },
+    {
+      "alias_note": "",
       "instance_path": "r_bus2",
       "pad": "1",
       "pin": "1",
@@ -9391,7 +9460,7 @@
     },
     {
       "alias_note": "",
-      "instance_path": "u_and",
+      "instance_path": "u_nand",
       "pad": "1",
       "pin": "1",
       "positional": false,
@@ -9399,7 +9468,7 @@
     },
     {
       "alias_note": "",
-      "instance_path": "u_and",
+      "instance_path": "u_nand",
       "pad": "2",
       "pin": "2",
       "positional": false,
@@ -9407,7 +9476,7 @@
     },
     {
       "alias_note": "",
-      "instance_path": "u_and",
+      "instance_path": "u_nand",
       "pad": "3",
       "pin": "3",
       "positional": false,
@@ -9415,7 +9484,7 @@
     },
     {
       "alias_note": "",
-      "instance_path": "u_and",
+      "instance_path": "u_nand",
       "pad": "4",
       "pin": "4",
       "positional": false,
@@ -9423,7 +9492,7 @@
     },
     {
       "alias_note": "",
-      "instance_path": "u_and",
+      "instance_path": "u_nand",
       "pad": "5",
       "pin": "5",
       "positional": false,

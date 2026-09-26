@@ -20,7 +20,7 @@ KICAD_PYTHON = Path(
     "Python.framework/Versions/Current/bin/python3"
 )
 # Must match the audited source (build-receipt.json "components").
-EXPECTED_COMPONENTS = 102
+EXPECTED_COMPONENTS = 103
 STOCK = Path("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints")
 
 

@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "d8c42a5ae0b585decaac495ee6464ba00c5bbc476c1a7ad3a621f436e04b983a",
+    "build/default.csv": "427d84ec7cae8a6bc2348210357dceb12976ffb1ad683e4d84318d76437eb8b2",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "5c422da5204bafb806b1fdc93991251268a441bd06a99eb8ed8b2015d644ece8",
+    "build/default.net": "47e26497eec3a319388116692206ab89e8cc7f0960635f7d17d5eb0fd16729fc",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -929,16 +929,16 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_and",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_nand",
       "attributes": {
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "SN74LVC1G08DBVR"
+        "mpn": "SN74LVC1G00DBVR"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_and_vcc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_nand_vcc",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -953,7 +953,7 @@
         "designator_prefix": "U",
         "footprint": "lib:SOIC16W_DW0016B_HV",
         "manufacturer": "Texas Instruments",
-        "mpn": "ISO7710FDWR"
+        "mpn": "ISO7710DWR"
       }
     },
     {
@@ -984,12 +984,22 @@
         "manufacturer": "Molex",
         "mpn": "0430451612"
       }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_fe",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC0603JR-070RL",
+        "value": "0ohm"
+      }
     }
   ],
   "entry": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/parts.ato": "e6b3ec178bcd723905cdeeb92bccd4843370e1a557e78911dd17e73803e7cdd5",
-    "elec/src/power_stage_120v.ato": "d5b2c1b9caf306508060809898a58c3f9767628a35faec0fa0fa96e2b5be82c1"
+    "elec/src/parts.ato": "62e1cd68a4128bc4940d62d491fae1f8090f1573855db09986c1c31390ea250c",
+    "elec/src/power_stage_120v.ato": "0e019b9a6e77e5aae186e2a55840dc4cc13db25a2a4d31ee5f4d6eeee7f6e027"
   }
 }

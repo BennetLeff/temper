@@ -1,7 +1,7 @@
 {
   "schema": "temper.power-stage-120v.native-verification.v1",
-  "measured_at_utc": "2026-09-26T00:22:37.324047+00:00",
-  "checkout_head": "38b1944e3aa52da4b016adf8d79da63c610bdd2b",
+  "measured_at_utc": "2026-09-26T01:36:28.137329+00:00",
+  "checkout_head": "97ee897f577de2f9a15dcb01722fadd2e27100aa",
   "dirty_at_measurement": true,
   "source_identity": "Content hashes below identify the corrected source; checkout HEAD precedes uncommitted changes.",
   "tool": "kicad-cli 10.0.4; pcbnew 10.0.4",
@@ -9,17 +9,17 @@
   "samples": {
     "drc.json": {
       "violations": 18,
-      "unconnected_items": 221,
+      "unconnected_items": 223,
       "schematic_parity": 0
     },
     "drc-02.json": {
       "violations": 18,
-      "unconnected_items": 221,
+      "unconnected_items": 223,
       "schematic_parity": 0
     },
     "drc-03.json": {
       "violations": 18,
-      "unconnected_items": 221,
+      "unconnected_items": 223,
       "schematic_parity": 0
     }
   },
@@ -29,8 +29,8 @@
       18
     ],
     "unconnected_items": [
-      221,
-      221
+      223,
+      223
     ],
     "schematic_parity": [
       0,
@@ -38,33 +38,35 @@
     ]
   },
   "source_sha256": {
-    "elec/src/parts.ato": "e6b3ec178bcd723905cdeeb92bccd4843370e1a557e78911dd17e73803e7cdd5",
-    "elec/src/power_stage_120v.ato": "d5b2c1b9caf306508060809898a58c3f9767628a35faec0fa0fa96e2b5be82c1",
-    "frozen/default.net": "5c422da5204bafb806b1fdc93991251268a441bd06a99eb8ed8b2015d644ece8",
-    "frozen/default.csv": "d8c42a5ae0b585decaac495ee6464ba00c5bbc476c1a7ad3a621f436e04b983a",
-    "frozen/resolved-components.json": "d9c78a05980dc3bd3993cd08cf88536d6bb457c4598c3dd9a5ac7692411a908f",
-    "audit.rs": "01f07d89d94e01b3c9463eafff98e5817baf41a0a5d6ffeeb1a4f97ea047e17e"
+    "elec/src/parts.ato": "62e1cd68a4128bc4940d62d491fae1f8090f1573855db09986c1c31390ea250c",
+    "elec/src/power_stage_120v.ato": "0e019b9a6e77e5aae186e2a55840dc4cc13db25a2a4d31ee5f4d6eeee7f6e027",
+    "frozen/default.net": "47e26497eec3a319388116692206ab89e8cc7f0960635f7d17d5eb0fd16729fc",
+    "frozen/default.csv": "427d84ec7cae8a6bc2348210357dceb12976ffb1ad683e4d84318d76437eb8b2",
+    "frozen/resolved-components.json": "bdc24ac38c5fbb1e648a9c7769630f337de85fed899fb8e2108d6c2f36bde036",
+    "audit.rs": "e7d1ae1fc84609143b3fb08fbb1521499d12faa853f18a58b745d52c12d42510"
   },
   "artifact_sha256": {
-    "section.kicad_pcb": "0c0cf92e1d4ba35334e7af6f7f63e4edaee0c31b02a754fb3eeea0c0b26081fa",
-    "section.kicad_sch": "59d26f9d73f0f2c4251759c89c52e9aafd2d782cf1880d6af2801630c389412f",
-    "source-manifest.json": "ca818c19c1bd8d2c516239ae63240ef173f3785dc28377a769a0b6d41f9df530",
-    "stackup.json": "ce9d46d79e80fb28e670a4a507184474a9f09842d78a5ee6dc03709c09eaf109",
-    "erc.json": "d910575dc396a52830abc95aca9e75ee3a5c7f02137656e31b9719ce4001d9d4",
-    "source-oracles.json": "ec6f101f38a6e44ef2ec5ef2d6f4ed5786989b5ddf3647fc08bee33fe86f609f",
-    "footprint-comparison.json": "dd899c43a91dfed836f3d864602d966a6cf5c36794ccc2e36849ab91c608b7db",
-    "drc.json": "8b650f5540d23527645bfd7287e5edd17d2fa0cd5cdab618874d751e60b88037",
-    "drc-02.json": "dd7166f2cf10d08eceb74b4a9ee07b9e247ff583f8ed65ed1ff18054b4fc52ab",
-    "drc-03.json": "0e70885c405bfc54ab6efd428c98b6cba3ab447310da663589095eb2f9b14aac"
+    "section.kicad_pcb": "04665a37c242e26ba6a2c6d74bdb623093d54ae3af55a8457e7f41a6e37ccbbb",
+    "section.kicad_sch": "9531602efde6d44c9912d2f85876291346210fce804f72c8e737e3cc65ac90ca",
+    "source-manifest.json": "6e2b1936f3994d2d4463a1011d0ba589e25d0ab6a91642d46b8eee7007e43c8a",
+    "stackup.json": "8215928a99b188806bfef8bdfa5190765156052295d1fad6a4624102866cfaa8",
+    "erc.json": "ba0f03e5aa8da72b1daa02c506d8ec34c53dbdc649cdbc3664b2b2ee17de27ca",
+    "source-oracles.json": "00575c88b2682da2ddb9a63a335e7556fbe6d5f3ea9c8e13cd7730b4befe5532",
+    "footprint-comparison.json": "a821612912242627249445d6a88142dcac3d382920751594621d02e3ebfddf61",
+    "drc.json": "7f07247e3eb885107ebbdfccbc960fd7ee3925a372ad3777609eddd276af064f",
+    "drc-02.json": "9939f459a996e3522e4f97498d2ab87303be183adf2784d2351afac3faf4c385",
+    "drc-03.json": "febeb36b7443abc2c00a111af58507974854ca225d02473fa18838b877181ee1"
   },
   "limits": [
-    "Unrouted shelf; final custom insulation rules absent pending D5.",
+    "Unrouted shelf; final insulation rules absent. D5 permits provisional placement only.",
     "No physical, powered, whole-chain shutdown or certification test run.",
-    "Interlock polarity adapter absent; direct connection is incompatible."
+    "BUS_FAULT polarity now matches interlock; HOT5 brownout/startup and supply/return-loss behavior unqualified.",
+    "TVS not selected or installed; package preference pending."
   ],
   "models": "Independent implementation/review agents: gpt-6-sol, xhigh.",
   "adapter_sha256": {
     "tools/planning_stackup.py": "797018675ee6ebfb59fc771bd9c1ecad9d6f90c6242d0245746e48cecc95f23a",
-    "scripts/gen_schematics.py": "1a16d9c942bf4549b18c32c65e2b4521b662decf4a87dee9f7b730f18f86c91d"
+    "scripts/gen_schematics.py": "1a16d9c942bf4549b18c32c65e2b4521b662decf4a87dee9f7b730f18f86c91d",
+    "tools/shelf_poses.py": "65f6ee7f33cc7932932463dc5ab8e325fb8749e6329cf813a15fca548950cb9d"
   }
 }

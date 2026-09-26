@@ -2,7 +2,7 @@
 
 Initial review, 2026-09-25. The owner's pasted answer proposed a functional earth
 bond, the >125–250 V band for most crossings, a different ISO7710 land pattern,
-and CT relocation. **D5 remains open:** the claimed rectifier voltage clamp
+and CT relocation. **D5 was open at that review:** the claimed rectifier voltage clamp
 is not established by this circuit. At that initial review no bond or CT
 source change had been made; the CT relocation was implemented later.
 The pasted answer contains damaged text; this document records the legible
@@ -50,21 +50,24 @@ do not establish package insulation or certification.
 
 The standalone interlock's [interface contract](../interlock/INTERFACES.md)
 requires active-high fault inputs (healthy low, with local pullups).
-Power-stage J4.10 instead provides BUS_OCP_OK (healthy high, fault or HOT-side
-power loss low). A direct connection inverts the intended protection.
-The off-board path therefore needs a fail-safe polarity adapter or a compatible
-latch input, followed by checks of fault assertion, loss of either supply,
-broken signal/return conductors and reset behavior. This adapter is not present
-in the 102-part source. The OVP comparator currently establishes only a local
-threshold/fault indication; an integrated restart inhibit is not yet proved.
-This is an additional blocker alongside D5 and physical timing qualification.
+The former BUS_OCP_OK output was healthy-high and incompatible. The current
+source replaces U8 with SN74LVC1G00DBVR and U9 with ISO7710DWR, and names
+J4.10 BUS_FAULT. It is healthy-low/fault-high, so the polarity adapter is no
+longer needed. [FAULT-INTERFACE.md](FAULT-INTERFACE.md) records the truth table
+and remaining HOT5 brownout, supply/return loss and timing qualification.
+
+The owner subsequently approved [D5's conditional placement basis](D5-BASIS.md):
+a single functional controller-return/PE bond and an 8.0 mm provisional floor.
+The source includes that removable link. This does not establish an insulation
+voltage bound or package/PCB certification. The TVS candidate assessment is in
+[DC-LINK-CLAMP.md](DC-LINK-CLAMP.md).
 
 ## Findings that carry forward
 
 - Reinforced isolation must not depend on continuity of a functional PE bond.
-  The proposed single-point removable 0 Ω connection from controller return
-  to PE is an architecture option for review. Its location, external USB/probe
-  paths, open-PE behavior and electrical classification remain to be resolved.
+  The approved single-point removable 0 Ω connection from controller return
+  to PE is now in the source. Its placement, external USB/probe paths, open-PE
+  behavior and final electrical classification remain to be resolved.
 - Creepage requires the applicable working-voltage convention, not substitution
   of the old half-bridge peak voltage into an RMS band. PCB and package paths
   need separate material and environmental evidence. The live repository
