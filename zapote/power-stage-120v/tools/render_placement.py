@@ -29,8 +29,8 @@ def main() -> None:
     world = json.load(open(sys.argv[1]))
     fig, ax = plt.subplots(figsize=(22, 17), dpi=90)
     ax.add_patch(Rectangle((0, 0), 220, 160, fill=False, lw=2, ec="k"))
-    ax.add_patch(Rectangle((5, -6), 155, 6, fc="#bbbbbb", ec="k"))
-    ax.text(82.5, -3, "HEATSINK (D2, x 5-160)", ha="center", va="center", fontsize=11)
+    ax.add_patch(Rectangle((5, -6), 140, 6, fc="#bbbbbb", ec="k"))
+    ax.text(75, -3, "HEATSINK (D2, x 5-145)", ha="center", va="center", fontsize=11)
     for ref, (x1, y1, x2, y2) in world["courtyards"].items():
         ax.add_patch(Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, ec="#e377c2", lw=0.8))
         ax.text((x1 + x2) / 2, (y1 + y2) / 2, ref, ha="center", va="center",
@@ -50,7 +50,7 @@ def main() -> None:
         ("#1a9850", "SELV (earthed ELV)"), ("#d4a017", "PE"), ("#2166ac", "mains / rectifier"),
         ("#d73027", "HOT"), ("#7b3294", "switch nodes / tank"))],
         loc="upper center", bbox_to_anchor=(0.5, -0.03), ncol=5)
-    ax.set_title("power-stage-120v native-03 placement (mm; mains left, coil right, heatsink top)")
+    ax.set_title(f"power-stage-120v {sys.argv[3] if len(sys.argv) > 3 else ''} placement (mm; mains left, coil right, heatsink top)")
     plt.savefig(sys.argv[2], bbox_inches="tight")
 
 

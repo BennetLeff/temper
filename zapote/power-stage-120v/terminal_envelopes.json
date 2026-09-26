@@ -1,0 +1,59 @@
+{
+  "schema": "temper.power-stage-120v.terminal-envelopes.v1",
+  "status": "Placement-stage plan-view envelopes of exposed metal at each M4 stud; replace with measured hardware before fabrication.",
+  "hardware": {
+    "ring_lug": {
+      "part": "Wurth 5580406 (M4 ring, 10 mm wide, 21 mm long)",
+      "width_mm": 10.0,
+      "behind_stud_mm": 5.0,
+      "ahead_of_stud_mm": 16.0,
+      "note": "Exposed metal from the ring edge behind the stud to the barrel end; insulated cable beyond."
+    },
+    "bare_stud": {
+      "part": "M4 screw head with washer (DIN 125 M4, 9 mm OD)",
+      "square_mm": 9.0,
+      "note": "Screw and washer fitted without a lug."
+    },
+    "min_clearance_mm": {
+      "hot_to_other_hot": 3.2,
+      "hot_to_selv_or_pe": 8.0,
+      "note": "Air clearance of live stud hardware; the same floors as the PCB rules."
+    }
+  },
+  "configurations": {
+    "normal": {
+      "description": "Both bring-up links fitted as lug-to-lug jumpers; coil connected.",
+      "studs": {
+        "J7": {"hardware": "ring_lug", "toward": "J8"},
+        "J8": {"hardware": "ring_lug", "toward": "J7"},
+        "J9": {"hardware": "ring_lug", "toward": "J10"},
+        "J10": {"hardware": "ring_lug", "toward": "J9"},
+        "J2": {"hardware": "ring_lug", "direction": "+x"},
+        "J5": {"hardware": "ring_lug", "direction": "+x"}
+      },
+      "joined": [["J7", "J8"], ["J9", "J10"]]
+    },
+    "bring_up": {
+      "description": "Both links removed; floating bench supply on the bus studs, leads leaving the left edge; rectifier studs bare and mains-live.",
+      "studs": {
+        "J7": {"hardware": "bare_stud"},
+        "J9": {"hardware": "bare_stud"},
+        "J8": {"hardware": "ring_lug", "direction": "-x"},
+        "J10": {"hardware": "ring_lug", "direction": "-x"},
+        "J2": {"hardware": "ring_lug", "direction": "+x"},
+        "J5": {"hardware": "ring_lug", "direction": "+x"}
+      },
+      "joined": []
+    }
+  },
+  "cable_exits": {
+    "J1": "mains cord, wire entry toward the left edge; strain relief at the enclosure",
+    "J2": "coil lead, right edge",
+    "J5": "coil lead, right edge",
+    "J4": "controller harness, vertical exit, clamped; SELV wires must not rest on HOT parts",
+    "J6": "PE branch wire, vertical exit to the chassis stud; not in the protective-earth path",
+    "J3": "TCO loop, vertical exit",
+    "J8": "bench lead in bring-up only, left edge",
+    "J10": "bench lead in bring-up only, left edge"
+  }
+}

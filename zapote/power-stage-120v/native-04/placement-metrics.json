@@ -1,0 +1,238 @@
+{
+  "board": "native-04/section.kicad_pcb",
+  "barrier": {
+    "selv_to_hot": {
+      "min_mm": 8.1,
+      "between": [
+        "U1.1[pwm_ha]",
+        "U1.16[leg_a-boot]"
+      ]
+    },
+    "pe_to_hot": {
+      "min_mm": 8.5,
+      "between": [
+        "C3.2[pe]",
+        "C3.1[l_filt]"
+      ]
+    }
+  },
+  "commutation_bbox_mm": {
+    "x": [
+      66.6,
+      146.4
+    ],
+    "y": [
+      1.6,
+      26.8
+    ],
+    "area_mm2": 2011,
+    "members": [
+      "Q2",
+      "Q3",
+      "Q5",
+      "Q6",
+      "C38",
+      "C39",
+      "C40",
+      "C41",
+      "R5"
+    ]
+  },
+  "commutation_paths": {
+    "leg_a": {
+      "low_source_to_shunt_mm": 21.7,
+      "shunt_to_local_cap_return_mm": 9.6,
+      "high_drain_to_local_cap_bus_mm": 26.4
+    },
+    "leg_b": {
+      "low_source_to_shunt_mm": 8.7,
+      "shunt_to_local_cap_return_mm": 8.3,
+      "high_drain_to_local_cap_bus_mm": 27.4
+    }
+  },
+  "gate_paths": {
+    "leg_a high": {
+      "series_resistor_to_gate_mm": 6.9,
+      "driver_out_to_series_resistor_mm": 32.8
+    },
+    "leg_a low": {
+      "series_resistor_to_gate_mm": 6.9,
+      "driver_out_to_series_resistor_mm": 45.7
+    },
+    "leg_b high": {
+      "series_resistor_to_gate_mm": 6.9,
+      "driver_out_to_series_resistor_mm": 35.3
+    },
+    "leg_b low": {
+      "series_resistor_to_gate_mm": 6.9,
+      "driver_out_to_series_resistor_mm": 30.4
+    }
+  },
+  "heat_zone_parts": [
+    "BR1",
+    "C12",
+    "C13",
+    "C19",
+    "C20",
+    "Q2",
+    "Q3",
+    "Q5",
+    "Q6",
+    "R5"
+  ],
+  "heat_zone_unexpected": [],
+  "stud_screw_holes": {
+    "J10": {
+      "stud_net": "hv_ret",
+      "nearest_other_net_mm": 6.31,
+      "nearest": "J9.1[rect_n]"
+    },
+    "J2": {
+      "stud_net": "coil_feed",
+      "nearest_other_net_mm": 17.83,
+      "nearest": "T1.1[sw_a]"
+    },
+    "J5": {
+      "stud_net": "res_a",
+      "nearest_other_net_mm": 10.27,
+      "nearest": "R25.2[sw_b]"
+    },
+    "J7": {
+      "stud_net": "rect_p",
+      "nearest_other_net_mm": 6.32,
+      "nearest": "J8.1[bus_p]"
+    },
+    "J8": {
+      "stud_net": "bus_p",
+      "nearest_other_net_mm": 6.31,
+      "nearest": "J7.1[rect_p]"
+    },
+    "J9": {
+      "stud_net": "rect_n",
+      "nearest_other_net_mm": 6.32,
+      "nearest": "J10.1[hv_ret]"
+    }
+  },
+  "terminal_hardware": {
+    "normal": {
+      "closest": [
+        {
+          "stud": "J7",
+          "net": "rect_p",
+          "other": "R26.1",
+          "other_net": "bus_p",
+          "gap_mm": 4.12,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "stud": "J7",
+          "net": "rect_p",
+          "other": "R26.2",
+          "other_net": "vdiv_1",
+          "gap_mm": 4.12,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "stud": "J7",
+          "net": "rect_p",
+          "other": "R27.1",
+          "other_net": "vdiv_1",
+          "gap_mm": 4.12,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "stud": "J7",
+          "net": "rect_p",
+          "other": "R27.2",
+          "other_net": "vdiv_2",
+          "gap_mm": 4.12,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "stud": "J7",
+          "net": "rect_p",
+          "other": "R28.1",
+          "other_net": "vdiv_2",
+          "gap_mm": 4.12,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "stud": "J9",
+          "net": "rect_n",
+          "other": "PS2.3",
+          "other_net": "leg_ret",
+          "gap_mm": 4.25,
+          "required_mm": 3.2,
+          "ok": true
+        }
+      ],
+      "all_ok": true,
+      "envelope_over_courtyards": []
+    },
+    "bring_up": {
+      "closest": [
+        {
+          "stud": "J8",
+          "net": "bus_p",
+          "other": "J7.1",
+          "other_net": "rect_p",
+          "gap_mm": 3.46,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "stud": "J8",
+          "net": "bus_p",
+          "other": "J7.1",
+          "other_net": "rect_p",
+          "gap_mm": 3.46,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "stud": "J10",
+          "net": "hv_ret",
+          "other": "J9.1",
+          "other_net": "rect_n",
+          "gap_mm": 3.46,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "stud": "J10",
+          "net": "hv_ret",
+          "other": "J9.1",
+          "other_net": "rect_n",
+          "gap_mm": 3.46,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "stud": "J7",
+          "net": "rect_p",
+          "other": "J8",
+          "other_net": "bus_p",
+          "gap_mm": 3.5,
+          "required_mm": 3.2,
+          "ok": true
+        },
+        {
+          "stud": "J9",
+          "net": "rect_n",
+          "other": "J10",
+          "other_net": "hv_ret",
+          "gap_mm": 3.5,
+          "required_mm": 3.2,
+          "ok": true
+        }
+      ],
+      "all_ok": true,
+      "envelope_over_courtyards": []
+    }
+  }
+}

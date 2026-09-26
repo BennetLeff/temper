@@ -18,7 +18,7 @@ def load(name):
 
 capture_poses = load("capture_poses")
 write_rules = load("write_rules")
-BOARD = UNIT / "native-03" / "section.kicad_pcb"
+BOARD = UNIT / "native-04" / "section.kicad_pcb"
 SOURCE = UNIT / "frozen" / "resolved-components.json"
 
 
@@ -55,3 +55,27 @@ def test_rules_reject_a_net_in_two_domains(monkeypatch):
     selv = write_rules.audit_selv_nets(UNIT / "audit.rs") | {"hot5"}
     with pytest.raises(ValueError, match="more than one domain"):
         write_rules.rules(BOARD.read_text(), selv)
+
+
+def test_distinct_potentials_never_share_a_group():
+    """Divider/bleed taps and nets across parts that can open are separate.
+
+    A shared group is exempt from functional spacing, so grouping two nets
+    with different normal-operation voltages silently disables the check.
+    """
+    group_of = {n: g for g, ns in write_rules.HOT_GROUPS.items() for n in ns}
+    must_differ = [
+        ("bus_p", "vdiv_1"), ("vdiv_1", "vdiv_2"), ("vdiv_2", "vdiv_3"),
+        ("vdiv_3", "vsense_in"), ("busbleed_mid", "bus_p"), ("busbleed_mid", "hv_ret"),
+        ("res_a", "crbleed_1"), ("crbleed_1", "crbleed_2"), ("crbleed_2", "crbleed_3"),
+        ("crbleed_3", "sw_b"), ("ac_l_in", "l_f"), ("l_filt", "tco_l"),
+        ("rect_p", "bus_p"), ("rect_n", "hv_ret"), ("xbleed_mid", "l_f"),
+    ]
+    for a, b in must_differ:
+        assert group_of[a] != group_of[b], (a, b)
+
+
+def test_every_group_is_documented_as_equipotential():
+    for name, members in write_rules.HOT_GROUPS.items():
+        if len(members) > 1:
+            assert name in {"L_F", "MAINS_N", "LOW", "SW_A", "SW_B"}, name

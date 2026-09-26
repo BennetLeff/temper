@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""First deliberate floorplan: courtyard-centre placement -> poses.json.
+"""Deliberate floorplan: courtyard-centre placement -> poses.json.
 
 Run under KiCad's Python (pcbnew) against a generated board, which supplies
 each footprint's measured F.CrtYd bounds in its local frame:
 
-    KICAD_PY tools/floorplan_v1.py native-02/section.kicad_pcb --output poses.json
+    KICAD_PY tools/floorplan.py native-02/section.kicad_pcb --output poses.json
 
 Coordinates below are courtyard centres in mm (x right, y down) and KiCad
 orientation angles. Board 220 x 160 (D1). Heatsink along the top edge,
-x 5..160 (D2). Mains enters at the left, coil exits at the right (D6).
+x 5..145 (D2). Mains enters at the left, coil exits at the right (D6).
 
 Zones (see PLACEMENT-REVIEW.md):
   Top band      BR1 and four TO-247s on the heatsink; snubbers, gate
@@ -39,93 +39,109 @@ def put(inst: str, x: float, y: float, a: float = 0.0) -> None:
     PLAN[inst] = (x, y, a)
 
 
-# ---- Top band: heatsink row (pads toward the heatsink edge) --------------
+# ---- Top band: heatsink row, legs closed up around the shunt --------------
+# TO-247 pads at centre-5.45 (gate), centre (drain), centre+5.45 (source).
 put("br1", 24.0, 4.6)
-LEG_X = {"leg_b.q_high": 56.0, "leg_b.q_low": 76.0, "leg_a.q_low": 130.0, "leg_a.q_high": 150.0}
+LEG_X = {"leg_b.q_high": 78.0, "leg_b.q_low": 96.0, "leg_a.q_low": 118.0, "leg_a.q_high": 136.0}
 for q, x in LEG_X.items():
     put(q, x, 4.4)
-# Snubbers directly across drain-source (pads 2-3) of each MOSFET.
-put("leg_b.c_snub_h", LEG_X["leg_b.q_high"] + 2.73, 9.3)
-put("leg_b.c_snub_l", LEG_X["leg_b.q_low"] + 2.73, 9.3)
-put("leg_a.c_snub_l", LEG_X["leg_a.q_low"] + 2.73, 9.3)
-put("leg_a.c_snub_h", LEG_X["leg_a.q_high"] + 2.73, 9.3)
-# Local HF bus capacitors, two per leg, in the row under the FET pairs.
-put("c_hf_b1", 57.0, 16.0)
-put("c_hf_b2", 76.4, 16.0)
-put("c_hf_a1", 130.6, 16.0)
-put("c_hf_a2", 150.0, 16.0)
-put("r_shunt", 103.0, 12.6)
+# Shunt between the low-side sources; at 270 deg its LEG_RET pads face the
+# sources (up) and its HV_RET pad faces the local capacitors (down).
+put("r_shunt", 106.5, 12.6, 270)
+# Snubbers across drain-source; gate series resistor and hold-off directly
+# under each gate pin (Part 4 rule; Infineon gate-loop guidance).
+put("leg_b.c_snub_h", LEG_X["leg_b.q_high"] + 2.73, 9.7)
+put("leg_b.c_snub_l", LEG_X["leg_b.q_low"] + 2.73, 9.7)
+put("leg_a.c_snub_l", LEG_X["leg_a.q_low"] + 2.73, 9.7)
+put("leg_a.c_snub_h", LEG_X["leg_a.q_high"] + 2.73, 9.7)
+for leg, q, r, pd in (
+    ("leg_b", "q_high", "r_gh", "r_gh_pd"), ("leg_b", "q_low", "r_gl", "r_gl_pd"),
+    ("leg_a", "q_high", "r_gh", "r_gh_pd"), ("leg_a", "q_low", "r_gl", "r_gl_pd"),
+):
+    gx = LEG_X[f"{leg}.{q}"] - 5.45
+    put(f"{leg}.{r}", gx, 12.6, 90)
+    put(f"{leg}.{pd}", gx - 2.8, 12.1, 90)
+# Local HF capacitors in one row; every HV_RET pad converges under R5.
+# Leg B at 0 deg (BUS_P left, HV_RET right); leg A at 180 deg (mirrored).
+put("c_hf_b1", 96.5, 22.0)     # pads x 89 / 104
+put("c_hf_b2", 75.9, 22.0)     # pads x 68.4 / 83.4 (3.2 mm to C40 BUS_P)
+put("c_hf_a1", 116.5, 22.0, 180)   # pads x 124 / 109
+put("c_hf_a2", 137.1, 22.0, 180)   # pads x 144.6 / 129.6
 
 # ---- Drivers straddling the island's top edge -----------------------------
-# SOIC16W at 90 deg: SELV pins (1-8) face +y into the island. Gate series
-# resistors and gate-source hold-offs sit at the driver outputs (row y~24).
-put("leg_b.driver", 66.0, 33.0, 90)
-put("leg_a.driver", 140.0, 33.0, 90)
-for leg, x in (("leg_b", 66.0), ("leg_a", 140.0)):
-    put(f"{leg}.r_gh", x - 3.0, 24.0, 90)
-    put(f"{leg}.r_gh_pd", x - 6.0, 24.0, 90)
-    put(f"{leg}.r_gl", x + 3.0, 24.0, 90)
-    put(f"{leg}.r_gl_pd", x + 6.0, 24.0, 90)
-    # Anode (V15_LS) left toward the LOW cluster, cathode (boot) right.
-    put(f"{leg}.d_boot", x - 14.5, 23.0, 180)
-    put(f"{leg}.c_boot", x - 14.0, 27.6)
-    put(f"{leg}.c_boot_hf", x - 9.5, 27.8)
-    put(f"{leg}.c_ls_bulk", x + 11.5, 27.6)
-    put(f"{leg}.c_ls", x + 11.5, 24.0)
+# SOIC16W at 90 deg: SELV pins face +y. HOT row left to right: pin 16 VDDA,
+# 15 OUTA (high), 14 VSSA | 11 VDDB, 10 OUTB (low), 9 VSSB. Each driver sits
+# midway between its two gates; leg A's outputs cross once (two layers).
+put("leg_b.driver", 84.0, 46.0, 90)
+put("leg_a.driver", 128.0, 46.0, 90)
+for leg, x in (("leg_b", 84.0), ("leg_a", 128.0)):
+    # Bootstrap on the VDDA (left) side, VDDB bypass on the right; HOT
+    # copper stays above y ~42.5 (8 mm from the SELV pads at y 50.9).
+    put(f"{leg}.d_boot", x - 10.5, 34.0, 180)
+    put(f"{leg}.c_boot", x - 10.0, 39.3)
+    put(f"{leg}.c_boot_hf", x - 6.6, 38.8, 90)
+    put(f"{leg}.c_ls_bulk", x + 7.5, 35.6)
+    put(f"{leg}.c_ls", x + 7.5, 39.6)
 # SELV-side support inside the island.
-for leg, x0 in (("leg_b", 58.0), ("leg_a", 132.0)):
-    put(f"{leg}.c_vcci", x0, 43.5)
-    put(f"{leg}.permit_fet", x0 + 5.0, 44.0)
-    put(f"{leg}.r_permit", x0 + 10.0, 43.5)
-    put(f"{leg}.r_permit_pd", x0 + 10.0, 46.5)
-    put(f"{leg}.r_dis_pu", x0 + 14.0, 43.5)
-    put(f"{leg}.r_dt", x0 + 14.0, 46.5)
+for leg, x0 in (("leg_b", 76.5), ("leg_a", 120.5)):
+    put(f"{leg}.c_vcci", x0, 56.5)
+    put(f"{leg}.permit_fet", x0 + 5.0, 57.0)
+    put(f"{leg}.r_permit", x0 + 10.0, 56.5)
+    put(f"{leg}.r_permit_pd", x0 + 10.0, 59.5)
+    put(f"{leg}.r_dis_pu", x0 + 14.0, 56.5)
+    put(f"{leg}.r_dt", x0 + 14.0, 59.5)
 
-# ---- Shunt-side protection between the legs --------------------------------
-# ISO7710 at 270 deg: SELV side (+x local) faces +y into the island.
-put("u_iso", 103.0, 33.0, 270)
-put("c_iso2", 103.0, 43.5)
-put("c_iso1", 96.0, 26.5)
-put("u_nand", 112.5, 25.8)
-put("c_nand_vcc", 117.0, 26.2)
-put("u_ocp", 92.5, 18.0)
-put("c_ocp_vcc", 92.5, 22.5)
-put("r_ocp_ref", 88.5, 14.0, 90)
-put("r_ocp_sense", 88.5, 18.5, 90)
-put("c_ocp_node", 88.5, 23.0, 90)
-put("r_th_top", 97.0, 17.5, 90)
-put("r_th_bot", 99.5, 17.5, 90)
-put("c_th", 102.0, 17.5, 90)
-put("u_ref", 106.5, 18.0)
-put("r_ref_bias", 110.5, 18.0, 90)
-put("u_ldo", 115.0, 12.8, 90)
-put("c_ldo_in", 115.0, 17.2)
-put("c_ldo_out", 114.5, 21.0)
-put("c_v15", 109.5, 22.3)
+# ---- Shunt-side protection, below the local capacitors ---------------------
+# OCP comparator, reference and thresholds next to R5's Kelvin pad.
+put("u_ocp", 97.0, 30.0)
+put("c_ocp_vcc", 97.0, 34.0)
+put("r_ocp_sense", 101.5, 30.0, 90)
+put("r_ocp_ref", 101.5, 34.5, 90)
+put("c_ocp_node", 104.0, 30.0, 90)
+put("u_ref", 108.0, 29.5)
+put("r_ref_bias", 108.0, 33.0)
+put("r_th_top", 104.0, 34.5, 90)
+put("r_th_bot", 106.5, 36.5, 90)
+put("c_th", 109.0, 36.5, 90)
+
+# ---- Fault isolator left of leg B, with the NAND that joins OCP and OVP ----
+# ISO7710 at 270 deg: SELV side faces +y into the island.
+put("u_iso", 63.0, 46.0, 270)
+put("c_iso2", 63.0, 56.5)
+put("c_iso1", 63.0, 37.5)
+put("u_nand", 54.8, 38.8)
+put("c_nand_vcc", 54.8, 34.8)
+# HOT 5 V regulator left of leg B, near its V15 source and U4.
+put("u_ldo", 52.0, 29.0, 90)
+put("c_ldo_in", 52.0, 24.0)
+put("c_ldo_out", 57.0, 29.0, 90)
+put("c_v15", 47.5, 29.0, 90)
 
 # ---- Bus side: bulk, clamp, bleed, bring-up links --------------------------
 put("c_bus1", 19.0, 44.5, 90)
-put("c_bus2", 179.0, 32.0, 90)
+put("c_bus2", 164.5, 32.0, 90)
 put("tvs_bus", 40.5, 45.0, 90)
 put("r_bus1", 46.8, 40.5, 270)
 put("r_bus2", 46.8, 45.5, 270)
-put("link_pos.terminal_rect", 6.0, 74.0)
-put("link_pos.terminal_bus", 17.5, 74.0)
-put("link_neg.terminal_rect", 6.0, 87.0)
-put("link_neg.terminal_bus", 17.5, 87.0)
+# Bus-side studs on the board edge so bench leads exit straight off it;
+# rows 20 mm apart so the fitted link bars keep >= 3.2 mm (TERMINALS.md).
+put("link_pos.terminal_bus", 6.0, 74.0)
+put("link_pos.terminal_rect", 19.0, 74.0)
+put("link_neg.terminal_bus", 6.0, 94.0)
+put("link_neg.terminal_rect", 19.0, 94.0)
 
 # ---- Bus sense on the island's left edge ------------------------------------
 # AMC1311 at 0 deg: SELV pins (+x) face into the island. Divider string runs
 # down from the C5 bus terminals; OVP comparator reads its tap.
 put("u_vsense", 42.0, 75.0)
 put("c_vs2", 50.5, 71.5, 90)
-put("c_vs1", 33.0, 71.5, 90)
-put("r_div1", 27.5, 70.5, 270)
-put("r_div2", 27.5, 75.2, 270)
-put("r_div3", 27.5, 79.9, 270)
-put("r_div4", 27.5, 84.6, 270)
-put("r_div_bot", 33.0, 79.0, 90)
-put("c_div", 33.0, 83.0, 90)
+put("c_vs1", 34.2, 71.5, 90)
+put("r_div1", 29.0, 70.5, 270)
+put("r_div2", 29.0, 75.2, 270)
+put("r_div3", 29.0, 79.9, 270)
+put("r_div4", 29.0, 84.6, 270)
+put("r_div_bot", 34.2, 79.0, 90)
+put("c_div", 34.2, 83.0, 90)
 put("u_ovp", 36.5, 87.5)
 put("c_ovp_vcc", 36.5, 91.5)
 put("r_ovp_top", 33.0, 95.0, 90)
@@ -133,23 +149,23 @@ put("r_ovp_bot", 36.0, 95.0, 90)
 put("c_ovp_th", 39.0, 95.0, 90)
 
 # ---- Island interior ------------------------------------------------------
-put("j_selv", 103.0, 53.0)
-put("r_fe", 83.5, 71.0)
-put("j_pe", 100.0, 71.5, 90)
+put("j_selv", 103.0, 66.0)
+put("r_fe", 83.5, 79.0)
+put("j_pe", 100.0, 79.5, 90)
 # Y1 capacitors straddle the island's bottom edge: PE pad up, line pad down.
-put("cy1", 118.5, 80.0, 90)
-put("cy2", 125.5, 80.0, 90)
+put("cy1", 118.5, 88.0, 90)
+put("cy2", 125.5, 88.0, 90)
 
 # ---- Barrier parts on the island's lower/right edges ----------------------
 put("ps_selv", 66.4, 93.2, 90)   # outputs up into the island, AC down
 put("t_ct", 175.0, 70.5, 270)    # secondary faces the island (-x)
 
 # ---- Gate supply: left column, outputs up ----------------------------------
-put("ps_gate", 14.5, 117.5, 90)
+put("ps_gate", 14.5, 124.0, 90)
 put("j_tco", 36.0, 106.0, 90)
 
 # ---- Mains: bottom band, J1 at the left edge -------------------------------
-put("j_mains", 8.0, 152.0, 270)  # wire entry (local +y) faces the left edge
+put("j_mains", 8.0, 153.0, 270)  # wire entry (local +y) faces the left edge
 put("f1", 38.3, 153.0)
 put("rv1", 45.0, 135.0)
 put("cx1", 75.0, 138.0)
@@ -159,7 +175,7 @@ put("l1", 115.0, 132.0, 180)
 put("cx2", 24.0, 16.0)
 
 # ---- Tank: right edge ------------------------------------------------------
-put("c_res3", 208.0, 32.0, 90)
+put("c_res3", 192.5, 32.0, 90)
 put("j_coil", 211.0, 70.5)
 put("c_res1", 193.0, 97.0, 180)
 put("c_res2", 193.0, 125.5, 180)

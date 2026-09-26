@@ -22,9 +22,30 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import write_rules  # noqa: E402
 
-HEATSINK_X = (5.0, 160.0)   # D2 heatsink span along the top edge
+HEATSINK_X = (5.0, 145.0)   # D2 heatsink span along the top edge
 HEAT_ZONE_MM = 10.0         # Part 4 rule 4
 STUDS = {"J2", "J5", "J7", "J8", "J9", "J10"}  # M4 studs: screw passes the NPTH
+# Parts allowed within HEAT_ZONE_MM of the heatsink: power devices, their
+# snubbers and gate networks (which belong at the gate pins), and the shunt.
+HEAT_ALLOWED_PREFIX = ("Q", "BR", "R5")
+GATE_AND_SNUBBER = {"C12", "C13", "C19", "C20", "R10", "R11", "R12", "R13",
+                    "R18", "R19", "R20", "R21"}
+ENVELOPES = Path(__file__).resolve().parents[1] / "terminal_envelopes.json"
+
+
+def envelope_box(centre, hw, spec, direction):
+    """Plan-view rectangle of exposed stud metal (x1, y1, x2, y2)."""
+    cx, cy = centre
+    if hw == "bare_stud":
+        half = spec["square_mm"] / 2
+        return [cx - half, cy - half, cx + half, cy + half]
+    w, back, ahead = spec["width_mm"] / 2, spec["behind_stud_mm"], spec["ahead_of_stud_mm"]
+    dx, dy = direction
+    if dx:
+        x1, x2 = sorted((cx - dx * back, cx + dx * ahead))
+        return [x1, cy - w, x2, cy + w]
+    y1, y2 = sorted((cy - dy * back, cy + dy * ahead))
+    return [cx - w, y1, cx + w, y2]
 
 
 def box_gap(a, b) -> float:
@@ -93,6 +114,68 @@ def main() -> None:
         gap, item = min(others)
         stud_holes[ref] = {"stud_net": net, "nearest_other_net_mm": round(gap, 2), "nearest": item}
 
+    # Installed terminal hardware (terminal_envelopes.json), both configurations.
+    env = json.loads(ENVELOPES.read_text())
+    centres = {}
+    for fp in board.GetFootprints():
+        if fp.GetReference() in STUDS:
+            pos = fp.GetPosition()
+            centres[fp.GetReference()] = (mm(pos.x), mm(pos.y))
+    floors = env["hardware"]["min_clearance_mm"]
+    configs = {}
+    for name, cfg in env["configurations"].items():
+        metal = []
+        for ref, item in cfg["studs"].items():
+            if "toward" in item:
+                (ax, ay), (bx, by) = centres[ref], centres[item["toward"]]
+                d = ((bx > ax) - (bx < ax), 0) if abs(bx - ax) >= abs(by - ay) else (0, (by > ay) - (by < ay))
+            else:
+                d = {"+x": (1, 0), "-x": (-1, 0), "+y": (0, 1), "-y": (0, -1)}.get(item.get("direction", ""), (0, 0))
+            metal.append((ref, stud_net[ref], envelope_box(centres[ref], item["hardware"], env["hardware"][item["hardware"]], d)))
+        joined = {frozenset(j) for j in cfg["joined"]}
+        # A fitted link makes its two studs one conductor.
+        same = {ra: {ra} | {r for j in joined if ra in j for r in j} for ra, _n, _b in metal}
+        worst = []
+        for i, (ra, na, ba) in enumerate(metal):
+            targets = [(rb, nb, bb) for rb, nb, bb in metal[i + 1:]
+                       if rb not in same[ra] and nb != na]
+            targets += [(f"{r}.{n}", nt, b) for r, n, nt, b in pads
+                        if r not in same[ra] and nt != na]
+            for rb, nb, bb in targets:
+                barrier = domain(nb) in ("SELV", "PE")
+                need = floors["hot_to_selv_or_pe"] if barrier else floors["hot_to_other_hot"]
+                gap = box_gap(ba, bb)
+                if gap < need + 2.0:
+                    worst.append({"stud": ra, "net": na, "other": rb, "other_net": nb,
+                                  "gap_mm": round(gap, 2), "required_mm": need, "ok": gap >= need})
+        worst.sort(key=lambda w: w["gap_mm"] - w["required_mm"])
+        interfere = sorted({r for ra, _n, ba in metal for r, b in fps.items()
+                            if r != ra and r not in STUDS and box_gap(ba, b) == 0.0})
+        configs[name] = {"closest": worst[:6], "all_ok": all(w["ok"] for w in worst),
+                         "envelope_over_courtyards": interfere}
+
+    # Commutation path lower bounds: low-side source -> R5 LEG_RET pad, and
+    # R5 HV_RET pad -> nearest local-capacitor HV_RET pad; high-side drain ->
+    # nearest local-capacitor BUS_P pad (pad centres, Manhattan).
+    def centres_of(ref, net):
+        return [((b[0] + b[2]) / 2, (b[1] + b[3]) / 2) for r, _n, nt, b in pads if r == ref and nt == net]
+
+    def nearest(points, others):
+        return min(abs(a[0] - b[0]) + abs(a[1] - b[1]) for a in points for b in others)
+
+    hf_ret = {leg: [c for ref in refs for c in centres_of(ref, "hv_ret")]
+              for leg, refs in (("leg_a", ("C38", "C39")), ("leg_b", ("C40", "C41")))}
+    hf_bus = {leg: [c for ref in refs for c in centres_of(ref, "bus_p")]
+              for leg, refs in (("leg_a", ("C38", "C39")), ("leg_b", ("C40", "C41")))}
+    loops = {}
+    for leg, low, high in (("leg_a", "Q3", "Q2"), ("leg_b", "Q6", "Q5")):
+        src = centres_of(low, "leg_ret")
+        loops[leg] = {
+            "low_source_to_shunt_mm": round(nearest(src, centres_of("R5", "leg_ret")), 1),
+            "shunt_to_local_cap_return_mm": round(nearest(centres_of("R5", "hv_ret"), hf_ret[leg]), 1),
+            "high_drain_to_local_cap_bus_mm": round(nearest(centres_of(high, "bus_p"), hf_bus[leg]), 1),
+        }
+
     commutation = ["Q2", "Q3", "Q5", "Q6", "C38", "C39", "C40", "C41", "R5"]
     xs = [v for r in commutation for v in (fps[r][0], fps[r][2])]
     ys = [v for r in commutation for v in (fps[r][1], fps[r][3])]
@@ -103,16 +186,27 @@ def main() -> None:
                 return ((b[0] + b[2]) / 2, (b[1] + b[3]) / 2)
         raise KeyError((ref, number))
 
+    def manhattan(a, b):
+        return round(abs(a[0] - b[0]) + abs(a[1] - b[1]), 1)
+
     gate = {}
-    for label, drv, out_pin, fet in (
-        ("leg_a high", "U1", "15", "Q2"), ("leg_a low", "U1", "10", "Q3"),
-        ("leg_b high", "U2", "15", "Q5"), ("leg_b low", "U2", "10", "Q6"),
+    for label, drv, out_pin, fet, res in (
+        ("leg_a high", "U1", "15", "Q2", "R10"), ("leg_a low", "U1", "10", "Q3", "R12"),
+        ("leg_b high", "U2", "15", "Q5", "R18"), ("leg_b low", "U2", "10", "Q6", "R20"),
     ):
-        (x1, y1), (x2, y2) = pad_centre(drv, out_pin), pad_centre(fet, "1")
-        gate[label] = {"driver_out_to_gate_manhattan_mm": round(abs(x1 - x2) + abs(y1 - y2), 1)}
+        out, gate_pad = pad_centre(drv, out_pin), pad_centre(fet, "1")
+        r_pads = [pad_centre(res, "1"), pad_centre(res, "2")]
+        near_gate = min(r_pads, key=lambda c: manhattan(c, gate_pad))
+        near_drv = r_pads[1] if near_gate is r_pads[0] else r_pads[0]
+        gate[label] = {
+            "series_resistor_to_gate_mm": manhattan(near_gate, gate_pad),
+            "driver_out_to_series_resistor_mm": manhattan(out, near_drv),
+        }
 
     heat = sorted(r for r, b in fps.items()
                   if b[1] < HEAT_ZONE_MM and b[2] > HEATSINK_X[0] and b[0] < HEATSINK_X[1])
+    heat_unexpected = [r for r in heat if not r.startswith(HEAT_ALLOWED_PREFIX)
+                       and r not in GATE_AND_SNUBBER]
     result = {
         "board": str(board_path),
         "barrier": {
@@ -124,9 +218,12 @@ def main() -> None:
             "area_mm2": round((max(xs) - min(xs)) * (max(ys) - min(ys))),
             "members": commutation,
         },
+        "commutation_paths": loops,
         "gate_paths": gate,
         "heat_zone_parts": heat,
+        "heat_zone_unexpected": heat_unexpected,
         "stud_screw_holes": stud_holes,
+        "terminal_hardware": configs,
     }
     print(json.dumps(result, indent=2))
 

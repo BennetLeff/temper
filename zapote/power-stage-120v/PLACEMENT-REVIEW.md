@@ -1,145 +1,167 @@
-# Placement review — native-03 (unrouted)
+# Placement review — native-04 (unrouted)
 
-First deliberate floorplan, 2026-09-26, branch `feat/ps-placement` from PR
-#1615 head `0e7484885`. Source unchanged: 114 components, 75 nets, audit PASS.
+Revised floorplan, 2026-09-26, responding to the D4 review of native-03
+(`757e30a65`). Source unchanged: 114 components, 75 nets, audit PASS.
 **Owner review required (D4). Routing (Part 5) must not start until the
-placement is approved in writing.**
+placement is approved in writing.** native-03 is kept as the reviewed prior
+version.
 
-![placement](native-03/placement-preview.png)
+![placement](native-04/placement-preview.png)
 
 Colours: green SELV (earthed ELV), gold PE, blue mains/rectifier, red other
 HOT, purple switch nodes and tank. Magenta outlines are courtyards. Full
-KiCad layers: [placement.svg](native-03/placement.svg).
+KiCad layers: [placement.svg](native-04/placement.svg).
+
+## Response to the native-03 D4 review
+
+| # | Finding | Change | Evidence (native-04) |
+| --- | --- | --- | --- |
+| 1 | Gate networks beside the drivers | Series resistors R10/R12/R18/R20 and hold-offs R11/R13/R19/R21 now sit directly under each gate pin. Each driver is centred between its two gates | Series resistor to gate pad: **6.9 mm** on all four. Driver output to resistor: 30–46 mm, to route as drive/return pairs (leg A's outputs cross once, since OUTA/OUTB order is fixed by the package) |
+| 2 | Shared-shunt loop 42/69 mm and the "~200 V gives margin" claim | Legs closed up around R5 (1.5 mm courtyard gaps). R5 at 270°: its LEG_RET pads face the low-side sources, its HV_RET pad faces the local capacitors. Leg B capacitors at 0°, leg A at 180°, so all four HV_RET pads converge under R5. Comparator cluster moved below the capacitor row. **Claim removed** | Low-side source → R5: **8.7 mm** (leg B), **21.7 mm** (leg A). R5 → nearest local-capacitor HV_RET: **8.3 / 9.6 mm**. High-side drain → local-capacitor BUS_P: 27.4 / 26.4 mm. Leg A's source is pin 3 on the far side of Q3, so its path is longer; turn-off overshoot at the MOSFET terminals remains a bench measurement |
+| 3 | Divider taps shared one exempt group | Groups rebuilt: nets share a group only if joined through something that cannot open **and** within ~30 V in normal operation. Every divider tap, bus-bleed tap and resonant-bleed tap is its own group; so are the nets across F1, the thermal cutoff and the bring-up links | Tests assert the principle. Two DRC mutations of native-04 (a `vdiv_1` track beside other-potential pads) are reported below |
+| 4 | Installed terminal hardware not checked | `terminal_envelopes.json` defines lug (Würth 5580406, 10 × 21 mm), washer, link and cable-exit envelopes for **normal** (links fitted) and **bring-up** (links removed, bench leads off the left edge) configurations. Link rows now 20 mm apart, bus studs on the board edge | Normal: closest live metal to another net 4.12 mm (≥ 3.2). Bring-up: 3.46 mm (bench lug on J8 to bare J7 stud). No envelope overlaps any component courtyard. See "Terminal hardware" |
+| — | Tank row listed C6 | Corrected: C6 is bulk bus; C23 is resonant | — |
 
 ## Result
 
 | Gate | Result |
 | --- | --- |
-| DRC with `section.kicad_dru` (clearance, creepage, courtyard) | **0 violations**; 28 `lib_footprint_mismatch` warnings (F.Fab text, as NATIVE-01/02) |
+| DRC with `section.kicad_dru` (clearance, creepage, courtyard) | **0 violations**; 28 `lib_footprint_mismatch` warnings (F.Fab text, as before) |
 | Schematic parity | 0 |
-| Per-pad net parity vs `frozen/default.net` (independent) | 313/313 source pin nodes; netless pads are stud paste apertures, stud and J4 locating holes |
-| Footprint MPN census vs resolved export | 114/114 |
+| Per-pad net parity vs `frozen/default.net` (independent) | 313/313 source pin nodes |
+| Footprint MPN census | 114/114 |
 | Rust physical-stackup gate | PASS |
-| ERC | 0 errors; warnings as native-02 (synthetic symbols, off-grid, isolated single-pin labels) |
+| ERC | 0 errors; warnings as before |
 | Unconnected items | 258 (unrouted) |
-| Barrier rule self-test | PASS (see below) |
-| Tests | 28 unit-local and current-sense tests, including new pose-capture, rule and pad-rotation tests |
+| Heat zone (10 mm of heatsink, x 5–145) | BR1, Q2/Q3/Q5/Q6, snubbers, R5 only; nothing unexpected |
+| Barrier (pad copper, independent of DRC) | SELV↔HOT min **8.10 mm** (inside U1's HV land pattern); PE↔HOT min **8.50 mm** (inside C3) |
+
+## Rules (`tools/write_rules.py` → `section.kicad_dru`)
+
+| Rule | Nets | Clearance | Creepage | Basis |
+| --- | --- | ---: | ---: | --- |
+| SELV ↔ HOT | audit SELV list + SELV-side NC pads ↔ all HOT | 8.0 mm | 8.0 mm | D5 provisional reinforced floor (PD3, IIIa, >125–250 V: 2 × 4.0 mm) |
+| PE ↔ HOT | `pe` ↔ all HOT | 8.0 mm | 8.0 mm | D5-BASIS |
+| HOT functional | different HOT potential groups | 3.2 mm | (as clearance) | Table 18, PD3, >125–250 V |
+| Tank functional | `res_a`, `crbleed_*` ↔ non-tank HOT | 5.0 mm | (as clearance) | Table 18, PD3, >250–400 V: margin for the 33–60 kHz tank voltage |
+| Same component, HOT pins | pads of one footprint | 0.2 mm | — | Component rating governs; never applied to SELV/PE rules |
+
+**Grouping principle.** Two HOT nets share a group, and so are exempt from
+each other's functional spacing, only if they are joined by a conductor or
+low-impedance element that is not expected to open (not a fuse, thermal
+cutoff, link, switch or divider resistor) and differ by at most ~30 V in
+normal operation. Groups with more than one net: `L_F` (l_f, l_filt: CMC
+winding), `MAINS_N` (CMC winding), `LOW` (≤15 V from LEG_RET; the shunt is
+1 mΩ), `SW_A`/`SW_B` (switch node with its bootstrap and high-side gate;
+T1's primary is one turn).
+
+**KiCad 10 finding.** Creepage rules are evaluated per net pair, so footprint
+conditions never match them; clearance rules see the item. Functional
+spacing is therefore enforced as clearance at the creepage value (at least as
+strict on a slotless board); barrier rules keep both constraints.
+
+**Self-tests.**
+- Barrier (on native-03): moving a SELV capacitor into the HOT cluster gave 24
+  SELV↔HOT violations; a PE pad at 7.07 mm gave PE↔HOT violations.
+- Functional (on native-04): a stray `vdiv_1` track beside C27/R28 is reported
+  as a 3.2 mm `HOT functional` violation. A second mutation with a `vdiv_1`
+  track beside only R28's `vdiv_2`/`vdiv_3` pads is reported as
+  `vdiv_1` ↔ `vdiv_3` at 1.01 mm against the 3.2 mm floor. Under the native-03
+  grouping this divider-tap case went unreported.
 
 ## Architecture: a SELV island
 
-The drivers must sit near their gates on the heatsink edge, and all SELV copper
-must be 8 mm from HOT copper. The SELV domain is therefore an **island** in the
-board interior, surrounded by HOT copper so every HOT net stays connected
-around it. Barrier parts straddle its edge:
+The drivers must sit near their gates and all SELV copper 8 mm from HOT
+copper, so the SELV domain is an island in the board interior, surrounded by
+HOT copper so every HOT net stays connected around it. Barrier parts straddle
+its edge:
 
 | Island edge | Barrier parts |
 | --- | --- |
 | Top, under each leg | U2 (leg B), U1 (leg A) UCC21550, SELV pins facing down |
-| Top, between the legs | U9 ISO7710 (fault line from the shunt comparators) |
+| Top, left of leg B | U9 ISO7710 (fault line), beside U8 NAND and near the OVP comparator |
 | Left | U4 AMC1311 (bus sense, beside C5's terminals) |
 | Right | T1 CST3015: primary on SW_A outside, secondary inside |
 | Bottom | PS1 IRM-20 (AC down, outputs up); C3/C4 Y1 capacitors (line pad down, PE pad up) |
 
-J4 (Micro-Fit 2×8) sits inside the island; its harness leaves vertically. The
-PE branch terminal J6 and the functional-earth link R38 are inside the
-island too: PE and the earthed ELV return are the same side of every barrier.
+J4 and the PE branch terminal J6 (with the functional-earth link R38) sit
+inside the island; PE and the earthed ELV return share every barrier.
 
 ## Zones
 
 | Zone | Parts | Notes |
 | --- | --- | --- |
-| Heatsink row (y < 10) | BR1, Q5/Q6 (leg B), Q3/Q2 (leg A), snubbers C19/C20/C13/C12 | Only these parts are within 10 mm of the heatsink (rule 4 met). TO-247 tabs toward the edge |
-| Local bus | C40/C41 (leg B), C38/C39 (leg A), R5 shunt between the legs | HF caps return to HV_RET after the shunt, so shoot-through through them is measured |
-| Shunt-side protection | U3 LDO, U5 ref, U6 OCP, U8 NAND, their passives | Between the HF-cap pairs, next to R5's Kelvin pads |
-| Bulk and clamp | C5 (left of leg B), C6 (right of leg A), D3 TVS at C5's terminals, R3/R4 bleed | |
-| Bring-up links | J7/J8 (rect_p/bus_p), J9/J10 (rect_n/hv_ret), left column | Both rails; studs 4.8 mm apart edge to edge |
-| Bus sense | U4, divider R26–R29, R30/C27, U7 OVP and its network | Left edge of the island, below C5 |
-| Mains | J1 (left edge) → F1 → RV1/C1/R1/R2 → L1 (outputs up) → C2 X2 **at BR1** | C2 sits directly under BR1 to keep the bridge input loop small |
-| Gate supply | PS2 (left column, outputs up), J3 TCO loop | V15_LS/LEG_RET reach the drivers up the left side |
-| Tank | T1, C6/C23 (top right), C21/C22, bleed R22–R25, studs J2 (coil feed) and J5 (coil return) on the right edge | D6: coil exits right |
+| Heatsink row | BR1, Q5/Q6 (leg B), Q3/Q2 (leg A) | TO-247 tabs toward the edge; legs 1.5 mm apart around R5 |
+| Under the legs | Snubbers across drain-source; gate resistor and hold-off at each gate; R5 between the low-side sources | |
+| Local bus | C41, C40 (leg B, 0°), C38, C39 (leg A, 180°) | All HV_RET pads converge under R5 |
+| Shunt-side OCP | U6, U5, R31–R35, C30–C32 | Below the capacitor row, next to R5's Kelvin pad |
+| Fault path | U9 ISO7710, U8 NAND, C35–C37 | Left of leg B |
+| HOT 5 V | U3, C24–C26 | Left of leg B, near V15 and U4 |
+| Bulk and clamp | C5 (left), C6 (right), D3 TVS at C5's terminals, R3/R4 bleed | |
+| Bring-up links | J8/J7 (bus_p/rect_p), J10/J9 (hv_ret/rect_n) | Rows 20 mm apart; bus studs on the edge |
+| Bus sense | U4, R26–R29, R30/C27/C28, U7 OVP and network | Island left edge, below C5 |
+| Mains | J1 (left edge) → F1 → RV1/C1/R1/R2 → L1 (outputs up) → C2 X2 **at BR1** | |
+| Gate supply | PS2 (left column, outputs up), J3 TCO loop | |
+| Tank | T1, C23 (resonant, top right), C21/C22, bleed R22–R25, studs J2/J5 on the right edge | C6 beside C23 is bulk bus, not tank |
 
-## Rules and values (`tools/write_rules.py` → `section.kicad_dru`)
+## Terminal hardware (`terminal_envelopes.json`)
 
-Domains come from `audit.rs` `SELV_NETS` plus explicit HOT potential groups;
-an unclassified or doubly classified net fails generation.
+Plan-view envelopes of exposed metal, checked against every other net's pad
+copper and other studs' metal, with fitted links treated as one conductor:
 
-| Rule | Nets | Clearance | Creepage | Basis |
-| --- | --- | ---: | ---: | --- |
-| SELV ↔ HOT | audit SELV list + SELV-side NC pads ↔ all HOT | 8.0 mm | 8.0 mm | D5 provisional reinforced floor (PD3, IIIa, >125–250 V: 2 × 4.0 mm) |
-| PE ↔ HOT | `pe` ↔ all HOT | 8.0 mm | 8.0 mm | D5-BASIS: same floor, since PE is linked to the controller return |
-| HOT functional | different HOT potential groups | 3.2 mm | (as clearance) | Table 18, PD3, >125–250 V |
-| Tank functional | `res_a`, `crbleed_*` ↔ other HOT | 5.0 mm | (as clearance) | Table 18, PD3, >250–400 V: margin for 33–60 kHz tank voltage |
-| Same component, HOT pins | pads of one footprint | 0.2 mm | — | Component rating governs; never applied to SELV/PE rules |
+| Configuration | Hardware | Closest live metal to another net |
+| --- | --- | --- |
+| Normal | Lug-to-lug jumpers J7–J8 and J9–J10; coil lugs on J2/J5 toward +x (off the right edge) | 4.12 mm (J7 link to R26), floor 3.2 mm |
+| Bring-up | Bench-lead lugs on J8/J10 toward −x (off the left edge); J7/J9 bare screw + washer, mains-live | 3.46 mm (J8 lug to J7 stud), floor 3.2 mm |
 
-**KiCad 10 finding:** creepage rules are evaluated per net pair, so footprint
-conditions (`memberOfFootprint`) never match them; they do match clearance.
-A component's own HOT pin spacing (TO-247 pins are 2.95 mm apart) therefore
-cannot be exempted from a creepage rule. Functional spacing is enforced as
-clearance at the creepage value, which for same-layer copper on a slotless
-board is at least as strict. Barrier rules keep both constraints.
+No envelope overlaps a component courtyard. Cable exits: J1 left edge; J2/J5
+right edge; J4 controller harness, J6 PE branch and J3 TCO loop leave
+vertically and are clamped; SELV and PE wires must not rest on HOT parts.
+Envelopes are placement-stage estimates: replace them with measured hardware
+(and heights) before fabrication.
 
-**Self-test:** on a copy of this board, moving SELV capacitor C37 into the
-shunt-side cluster produced 24 SELV↔HOT violations, and moving C4's PE pad
-7.07 mm from J3 produced PE↔HOT violations against the 8.0 mm floor. The
-rules fire; the clean result is meaningful.
+## Measurements (`native-04/placement-metrics.json`)
 
-## Measurements (`native-03/placement-metrics.json`, independent of DRC)
+1. **Barrier:** SELV↔HOT 8.10 mm, PE↔HOT 8.50 mm (pad copper, unrouted).
+   These do not cover future routing, zones, attached metal or the heatsink.
+2. **Commutation:** see finding 2. Combined courtyard box of the legs,
+   local capacitors and R5: x 66.6–146.4, y 1.6–26.8 mm. Inductance is not
+   claimed from geometry; turn-off overshoot at the MOSFET terminals, the
+   energy-return case and the clamp need bench measurement (DC-LINK-CLAMP.md).
+3. **Gates:** resistor-to-gate 6.9 mm; driver-to-resistor 30.4 / 35.3 (leg B
+   low / high), 32.8 / 45.7 mm (leg A high / low).
+4. **Heat:** only BR1, the MOSFETs, snubbers, gate networks and R5 near the
+   heatsink. Assumed airflow along the fins, exhausting past the right end.
+5. **Heavy parts:** C5/C6, C21/C22/C23, L1 and the IRM modules need adhesive
+   or a strap (ASSEMBLY.md).
+6. **Access:** F1, J1, J3, J4, J6 and all studs unobstructed; stud envelopes
+   as above.
 
-1. **Barrier.** Minimum SELV↔HOT pad distance on the board: **8.10 mm**, inside
-   U1 (its TI HV land pattern). Minimum PE↔HOT: **8.50 mm**, inside C3. Every
-   other crossing is larger.
-2. **Commutation.** Bounding box of Q2/Q3/Q5/Q6, C38–C41 and R5:
-   x 47.7–159.3, y 1.6–20.8 mm (≈2,140 mm² for both legs and the shared
-   shunt). Each leg's HF loop runs from its high-side drain through its HF
-   capacitors, the shunt and its low-side source, so the shunt position sets
-   the loop. See compromise 1.
-3. **Gate paths** (driver output pad to gate pad, Manhattan): leg B low
-   25 mm, leg A high 32 mm, leg B high 36 mm, leg A low 43 mm. Gate
-   resistors and hold-offs sit at the driver outputs; route each gate with
-   its source return as a tight pair.
-4. **Heat.** Within 10 mm of the heatsink edge: BR1, the four MOSFETs and
-   their snubbers only. Assumed airflow: along the heatsink fins, off-board,
-   exhausting past the right end; the film capacitors and IRM modules are not
-   in that path.
-5. **Heavy parts.** C5/C6 (4-pin radial, 48 mm tall), C21/C22/C23 (axial
-   942C), L1 and the IRM modules need adhesive or a strap. Room is left around
-   each; retention is an assembly item (ASSEMBLY.md).
-6. **Access.** F1, J1, J3, J4, J6 and all M4 studs are unobstructed. M4 stud
-   screw holes are ≥ 4.8 mm from any other net (link studs) and ≥ 10 mm on the
-   tank studs, so a protruding screw tip cannot bridge the functional rules;
-   specify screw length so tips do not pass through the board.
+## Remaining compromises
 
-## Known compromises (in priority order)
-
-1. **Commutation loop through the shared shunt.** The single shoot-through
-   shunt must sit in both legs' HF loops, and the shunt-side comparator
-   cluster occupies the space between the legs. Closing the legs up around R5
-   (moving U3/U5/U6/U8 below the HF caps) would roughly halve each loop, at
-   the cost of a longer Kelvin pair. Measure turn-off overshoot first; with
-   a 650 V MOSFET on a ≈200 V bus and the TVS at the bulk capacitors, Rev A
-   has margin.
-2. **Leg A low-side gate path, 43 mm.** UCC21550 OUTB faces away from Q3
-   because Q3 is kept next to the shunt. Acceptable with a paired route.
-3. **CMC-to-X2 run.** L1 is in the bottom band; C2 (X2) is at BR1 so the
-   bridge input loop is small, but L_FILT/N_FILT run about 150 mm from L1 to
-   BR1, mostly up the left side. Route as a tight pair.
-4. **J1 wire-entry side** is inferred from the Phoenix footprint graphics
-   (front face at local +y, placed facing the left edge). Confirm on the part.
+1. **Leg A's low-side source is 21.7 mm from R5.** The TO-247 pin order fixes
+   the source on the far side of Q3; mirroring leg A would lengthen it
+   further. Route LEG_RET as a pour on both layers.
+2. **Leg A's gate outputs cross once** (OUTA/OUTB order is fixed by the
+   package); route one output on the bottom layer as a tight pair.
+3. **CMC-to-X2 run.** C2 (X2) is at BR1; L_FILT/N_FILT run about 150 mm from
+   L1 up the left side. Route as a tight pair.
+4. **J1 wire-entry side** is inferred from the footprint graphics; confirm on
+   the part.
 
 ## Provisional
 
 D5 basis and every 8.0 mm value (lab review pending); Table 18 values from the
-combined IIIa/IIIb lookup; T1 CTI/PD evidence (Coilcraft); J2/J5 assembled
-connection and insulation; heatsink extent x 5–160 and airflow; heavy-part
-retention; J1 entry side. No routing, fabrication or electrical test is
-claimed.
+combined IIIa/IIIb lookup; T1 CTI/PD evidence (Coilcraft); terminal envelopes
+and heights; heatsink extent and airflow; heavy-part retention; J1 entry side.
+No routing, fabrication or electrical test is claimed.
 
 ## Decisions
 
 | ID | Status |
 | --- | --- |
-| D1 | 220 × 160 mm — used; the floorplan fits |
-| D2 | Shared PE-bonded heatsink along the top edge, x 5–160 — used |
+| D1 | 220 × 160 mm — used |
+| D2 | Shared PE-bonded heatsink along the top edge, x 5–145 — used |
 | D3 | 2 layers, 1.6 mm, 70 µm — applied (stackup gate PASS) |
 | D4 | **Open: placement approval required before routing** |
 | D5 | Conditionally approved basis (D5-BASIS.md) — encoded as the 8.0 mm rules |
@@ -147,39 +169,30 @@ claimed.
 
 ## Refining the placement
 
-Move parts in KiCad (`native-03/section.kicad_pcb`), save, then:
+Move parts in KiCad (`native-04/section.kicad_pcb`), save, then:
 
 ```sh
-python3 tools/capture_poses.py native-03/section.kicad_pcb     # writes poses.json
-rm -rf native-04 && ../../.venv/bin/python tools/build_native.py native-04 --stackup stackup.json
-python3 tools/write_rules.py native-04/section.kicad_pcb
-kicad-cli pcb drc --severity-all --schematic-parity --format json --output native-04/drc.json native-04/section.kicad_pcb
+python3 tools/capture_poses.py native-04/section.kicad_pcb     # writes poses.json
+rm -rf native-05 && ../../.venv/bin/python tools/build_native.py native-05 --stackup stackup.json
+python3 tools/write_rules.py native-05/section.kicad_pcb
+kicad-cli pcb drc --severity-all --schematic-parity --format json --output native-05/drc.json native-05/section.kicad_pcb
+KICAD_PY tools/placement_metrics.py native-05/section.kicad_pcb > native-05/placement-metrics.json
 ```
 
 Only positions and rotations survive capture; the board is regenerated from
 source, so no KiCad edit can change connectivity. The floorplan behind
-native-03 is `tools/floorplan_v1.py` (courtyard-centre coordinates, run under
-KiCad's Python against the unrotated native-02 shelf).
-
-## Generator fix found by this placement
-
-`scripts/gen_pcb_skeleton.py` wrote rotated footprints without rotating their
-pads: KiCad stores pad orientation in board coordinates, so SOIC pads stayed
-horizontal and shorted their neighbours (47 `shorting_items`). Every earlier
-native board was an all-0° shelf, so it never showed. Fixed, with a
-regression test that fails on the old code.
+native-04 is `tools/floorplan.py`.
 
 ## Identity
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `native-03/section.kicad_pcb` | `5bb75c7a80c8133f77fa52e324724e5c824079699237827acc6329a7126a77c3` |
-| `native-03/section.kicad_sch` | `5c4ce191ae868a28bee17418fd663b77193a3fab1c700614c6fdf7a1c8428fbf` |
-| `native-03/section.kicad_dru` | `476416ce1ec90720c2f2dc791b02ed47303698c79d8776e9bb6e8f3cbb2182e3` |
-| `native-03/source-manifest.json` | `b7148186e3d3f60cb4d0c2aca418983a6d2cbc784c1e297239baeffc8afaf3c6` |
-| `poses.json` | `a2922684134489035fffdb8c903c36b99a16177e93badb77b3292ea14d90e013` |
-| `outline.json` | `e629c0ff9e0de17674c523527df7bb33036429f5be286fabf8d6b147abf9f0bd` |
-| `stackup.json` | `f78b19657dd082fe74fa142fb7b294b7f31cf62ec5099304bab8f738b47cf473` |
+| `native-04/section.kicad_pcb` | `c6c55ce80f3b4165b8bd842c80affd82019e7f0519aa1d19c338b1521adc44fe` |
+| `native-04/section.kicad_sch` | `5c4ce191ae868a28bee17418fd663b77193a3fab1c700614c6fdf7a1c8428fbf` |
+| `native-04/section.kicad_dru` | `10d8c9a54ccef96d5aaa0bf64f99baae1549398ee10e14b10dae10ea108ba406` |
+| `native-04/source-manifest.json` | `fa8c10b94e0a707907718b864c4ae4214802b6301132e126c4aa53305153976b` |
+| `poses.json` | `97bd1a56fec72908c7ac8b4fc28a0dcf96266f5b68b19220a0d81fcaae423cfd` |
+| `terminal_envelopes.json` | `e11c53f507438c5fd770e447695f9c1227706884d866ccbf9188a551ef96e5fc` |
 
 Digital construction evidence only. Routing, fabrication, assembly, powered
 tests, thermal/EMI measurement and certification: **NOT RUN**.

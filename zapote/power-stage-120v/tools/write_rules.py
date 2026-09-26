@@ -32,24 +32,40 @@ TANK_CREEPAGE_MM = 5.0        # Table 18, PD3, >250-400 V: tank HF margin
 # Single-pin no-connect nets on the SELV side of their isolator packages.
 SELV_NC = {"nc10", "nc11", "nc12", "nc15", "leg_a.driver-nc_7", "leg_b.driver-nc_7"}
 
+# HOT potential groups. Nets share a group only when (a) they are joined by a
+# conductor or low-impedance element that is not expected to open (not a
+# fuse, thermal cutoff, switch or divider resistor), and (b) their
+# normal-operation difference is at most ~30 V. Every pair of nets in
+# different groups gets the functional spacing rule; a same-group pair is
+# exempt. Divider and bleed taps are therefore each their own group.
 HOT_GROUPS: dict[str, set[str]] = {
-    "MAINS_L": {"ac_l_in", "l_f", "l_filt", "tco_l"},
-    "MAINS_N": {"ac_n_in", "n_filt"},
-    "XBLEED": {"xbleed_mid"},
-    "RECT_P": {"rect_p"},
+    "AC_L_IN": {"ac_l_in"},                   # F1 can open: line vs l_f
+    "L_F": {"l_f", "l_filt"},                 # CMC winding: milliohms
+    "TCO_L": {"tco_l"},                       # thermal cutoff can open
+    "MAINS_N": {"ac_n_in", "n_filt"},         # CMC winding
+    "XBLEED": {"xbleed_mid"},                 # X-cap bleed tap (~line/2)
+    "RECT_P": {"rect_p"},                     # bring-up link can be open
     "RECT_N": {"rect_n"},
     "BUS_P": {"bus_p"},
-    "BUS_MID": {"busbleed_mid", "vdiv_1", "vdiv_2", "vdiv_3"},
-    "LOW": {
-        "hv_ret", "leg_ret", "ocp_kelvin_n", "hot5", "v15_ls", "ref25", "ocp_node",
+    "BUSBLEED": {"busbleed_mid"},             # bus/2
+    "VDIV_1": {"vdiv_1"},                     # bus x 3/4 (divider taps
+    "VDIV_2": {"vdiv_2"},                     #  differ by ~50-70 V each)
+    "VDIV_3": {"vdiv_3"},
+    "LOW": {                                  # <= 15 V from LEG_RET; the
+        "hv_ret", "leg_ret", "ocp_kelvin_n",  # shunt is 1 mOhm
+        "hot5", "v15_ls", "ref25", "ocp_node",
         "ocp_thresh", "ocp_ok_hot", "ovp_thresh", "ovp_ok_hot", "bus_fault_hot",
         "vsense_in", "leg_a-gate_l", "leg_a-out_l", "leg_b-gate_l", "leg_b-out_l",
         "nc", "nc2", "nc5", "nc6", "nc8",
     },
-    "SW_A": {"sw_a", "coil_feed", "leg_a-boot", "leg_a-gate_h", "leg_a-out_h"},
+    "SW_A": {"sw_a", "coil_feed", "leg_a-boot", "leg_a-gate_h", "leg_a-out_h"},  # T1 primary is one turn
     "SW_B": {"sw_b", "leg_b-boot", "leg_b-gate_h", "leg_b-out_h"},
-    "TANK": {"res_a", "crbleed_1", "crbleed_2", "crbleed_3"},
+    "RES_A": {"res_a"},                       # tank node
+    "CRBLEED_1": {"crbleed_1"},               # resonant-bleed taps
+    "CRBLEED_2": {"crbleed_2"},
+    "CRBLEED_3": {"crbleed_3"},
 }
+TANK = {"res_a", "crbleed_1", "crbleed_2", "crbleed_3"}
 PE = {"pe"}
 
 
@@ -104,7 +120,7 @@ def rules(board: str, selv: set[str]) -> str:
     same_fp = " || ".join(
         f"(A.memberOfFootprint('{r}') && B.memberOfFootprint('{r}'))" for r in multi
     )
-    tank = HOT_GROUPS["TANK"] & nets
+    tank = TANK & nets
     a_hot, b_hot = any_of("A", hot_on_board), any_of("B", hot_on_board)
     out = ["(version 1)", ""]
     out.append(
