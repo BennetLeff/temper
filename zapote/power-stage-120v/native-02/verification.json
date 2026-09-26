@@ -1,36 +1,36 @@
 {
   "schema": "temper.power-stage-120v.native-verification.v1",
-  "measured_at_utc": "2026-09-26T01:36:28.137329+00:00",
-  "checkout_head": "97ee897f577de2f9a15dcb01722fadd2e27100aa",
+  "measured_at_utc": "2026-09-26T03:07:29.155608+00:00",
+  "checkout_head": "54ed42cecd4b6ba5c62fb2dc28d0a8ac8c5321cd",
   "dirty_at_measurement": true,
   "source_identity": "Content hashes below identify the corrected source; checkout HEAD precedes uncommitted changes.",
   "tool": "kicad-cli 10.0.4; pcbnew 10.0.4",
   "sample_count": 3,
   "samples": {
     "drc.json": {
-      "violations": 18,
-      "unconnected_items": 223,
+      "violations": 28,
+      "unconnected_items": 258,
       "schematic_parity": 0
     },
     "drc-02.json": {
-      "violations": 18,
-      "unconnected_items": 223,
+      "violations": 28,
+      "unconnected_items": 258,
       "schematic_parity": 0
     },
     "drc-03.json": {
-      "violations": 18,
-      "unconnected_items": 223,
+      "violations": 28,
+      "unconnected_items": 258,
       "schematic_parity": 0
     }
   },
   "observed_range": {
     "violations": [
-      18,
-      18
+      28,
+      28
     ],
     "unconnected_items": [
-      223,
-      223
+      258,
+      258
     ],
     "schematic_parity": [
       0,
@@ -38,35 +38,51 @@
     ]
   },
   "source_sha256": {
-    "elec/src/parts.ato": "62e1cd68a4128bc4940d62d491fae1f8090f1573855db09986c1c31390ea250c",
-    "elec/src/power_stage_120v.ato": "0e019b9a6e77e5aae186e2a55840dc4cc13db25a2a4d31ee5f4d6eeee7f6e027",
-    "frozen/default.net": "47e26497eec3a319388116692206ab89e8cc7f0960635f7d17d5eb0fd16729fc",
-    "frozen/default.csv": "427d84ec7cae8a6bc2348210357dceb12976ffb1ad683e4d84318d76437eb8b2",
-    "frozen/resolved-components.json": "bdc24ac38c5fbb1e648a9c7769630f337de85fed899fb8e2108d6c2f36bde036",
-    "audit.rs": "e7d1ae1fc84609143b3fb08fbb1521499d12faa853f18a58b745d52c12d42510"
+    "elec/src/parts.ato": "76b7e66be8b1f34e088abb0f4451d5929d17f9c8214121bd318fb2090a1a58d6",
+    "elec/src/power_stage_120v.ato": "f3d6aef141d65851f5c66800671e472eaaa59d241fa3cc6ccb8e5c14a6cd2a29",
+    "frozen/default.net": "286991715ceb1519b9e62914a90a8a23d42e283e308b19d731841e73260a31ac",
+    "frozen/default.csv": "a7b74fd0bf9cc4981cbb275cbe25a81f12ada6d4f87c4f748d006ec634140c6e",
+    "frozen/resolved-components.json": "04d7c2f2d933f6a5eeec191488357b6f68794523ce7fdbe72edea970b70ef4e1",
+    "audit.rs": "6f2dc1da4497d06458c9e3477306a8850a4715ee46086db0d8801a428861e048"
   },
   "artifact_sha256": {
-    "section.kicad_pcb": "04665a37c242e26ba6a2c6d74bdb623093d54ae3af55a8457e7f41a6e37ccbbb",
-    "section.kicad_sch": "9531602efde6d44c9912d2f85876291346210fce804f72c8e737e3cc65ac90ca",
-    "source-manifest.json": "6e2b1936f3994d2d4463a1011d0ba589e25d0ab6a91642d46b8eee7007e43c8a",
-    "stackup.json": "8215928a99b188806bfef8bdfa5190765156052295d1fad6a4624102866cfaa8",
-    "erc.json": "ba0f03e5aa8da72b1daa02c506d8ec34c53dbdc649cdbc3664b2b2ee17de27ca",
-    "source-oracles.json": "00575c88b2682da2ddb9a63a335e7556fbe6d5f3ea9c8e13cd7730b4befe5532",
-    "footprint-comparison.json": "a821612912242627249445d6a88142dcac3d382920751594621d02e3ebfddf61",
-    "drc.json": "7f07247e3eb885107ebbdfccbc960fd7ee3925a372ad3777609eddd276af064f",
-    "drc-02.json": "9939f459a996e3522e4f97498d2ab87303be183adf2784d2351afac3faf4c385",
-    "drc-03.json": "febeb36b7443abc2c00a111af58507974854ca225d02473fa18838b877181ee1"
+    "section.kicad_pcb": "d571bfe0560d93ef20cca98648b595c69dbcff816ca778babb23b341a8a40fa9",
+    "section.kicad_sch": "5c4ce191ae868a28bee17418fd663b77193a3fab1c700614c6fdf7a1c8428fbf",
+    "source-manifest.json": "1fde8f30a8a65d6987191e46dcb3d8da6627238545b1d8c1581356ce5711e0d8",
+    "stackup.json": "e4ffb827b681f2b123b0f6f4bf8e84656659f3bd8be6f2a835bde3290ea21fc0",
+    "erc.json": "9736d47e2203004a36f531b4cd29ebce897163d5b5dc1b530321198cf0401f85",
+    "source-oracles.json": "ff4f7a60cf531fb8549bddea871da0834f99cda28d3bd99966be8721576d1376",
+    "footprint-comparison.json": "cc3495c0a5a2781a9b89a173ba250417da93cea5f4acc232d37992a27d4c1020",
+    "drc.json": "42edafe589df3bb1cc763a38711b424b7d148cf08e7131924f35534bdcd6bea6",
+    "drc-02.json": "ea42dcb03499ab48520c569a14697aba34e8e6379b9313d8a625bc1d05525842",
+    "drc-03.json": "f41e3f8b7a7c01364aec525f7e12a826f09ecd6a452f7873af39cb1518484b71",
+    "physical-pad-check.json": "588d808a42ec789d3e734a8af6bdea03cf848515accaa7b5ed8e10cf60d43d3f",
+    "board-preview.svg": "03fa9aad98518bea24d83b819d5f8ea967375a008ad8414f05ca4e3be4971039",
+    "schematic-preview/section.svg": "47ae43e1d5bf8733c30fecf0f974a2e8f3cf0bba6d52b783a0c9a82e7720a613"
   },
   "limits": [
     "Unrouted shelf; final insulation rules absent. D5 permits provisional placement only.",
     "No physical, powered, whole-chain shutdown or certification test run.",
     "BUS_FAULT polarity now matches interlock; HOT5 brownout/startup and supply/return-loss behavior unqualified.",
-    "TVS not selected or installed; package preference pending."
+    "TVS present as D3; pulse/temperature/repetition/surge coordination and formed-lead assembly unqualified. Procurement unresolved.",
+    "Approved parts are in source/native. Placement/routing, live-side guarding, terminal/lug/wire spacing, disconnect assembly, laminate and whole-system insulation qualification remain open."
   ],
   "models": "Independent implementation/review agents: gpt-6-sol, xhigh.",
   "adapter_sha256": {
     "tools/planning_stackup.py": "797018675ee6ebfb59fc771bd9c1ecad9d6f90c6242d0245746e48cecc95f23a",
     "scripts/gen_schematics.py": "1a16d9c942bf4549b18c32c65e2b4521b662decf4a87dee9f7b730f18f86c91d",
-    "tools/shelf_poses.py": "65f6ee7f33cc7932932463dc5ab8e325fb8749e6329cf813a15fca548950cb9d"
-  }
+    "tools/shelf_poses.py": "3671157dc9fa7f3fe6a943bfb277c76d897f370b328f31c370b0f11795b0ad83",
+    "scripts/gen_pcb_skeleton.py": "d074e059ff7e093a02d6efef2e89550e6a312137aa217029e89d77f2d65ad49d",
+    "zapote/packages/zapote-core/src/shelf.rs": "0777ff4521915aa81eb9978bea4fdca4774c35be0e957b898ae34c90a2a0f220"
+  },
+  "tests": {
+    "source_audit": 48,
+    "bus_cap_model": 6,
+    "shelf": 6,
+    "adapters_and_footprint_regressions": 22
+  },
+  "source_components": 114,
+  "source_nets": 75,
+  "physical_pad_check": "physical-pad-check.json",
+  "final_rebuild": "Terminal footprints bound to unit-local copies; regenerated PCB and schematic byte-identical, so existing three DRC samples, ERC and physical-pad results remain applicable."
 }

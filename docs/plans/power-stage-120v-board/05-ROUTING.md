@@ -15,9 +15,10 @@ Routes are written as JSON "instructions" and applied by
 `zapote/power-stage-120v/tools/apply_routes.py`. That's a thin wrapper around
 `zapote/rtd/apply_routes.py`, from Part 1. The replayer:
 
-- resolves pad endpoints written as `"REF.PAD"` (for example `"Q2.2"`) to exact
-  coordinates, and **refuses** a pad whose net differs from the instruction's net.
-  So routing can never change connectivity.
+- resolves unambiguous pad endpoints written as `"REF.PAD"` (for example
+  `"Q2.2"`) to exact coordinates, and **refuses** a pad whose net differs
+  from the instruction's net. Explicit coordinates require a separate
+  pad/net check; DRC must catch physical shorts after each batch.
 - is transactional: a failed instruction leaves the board untouched.
 - writes a receipt with input and output board hashes.
 
@@ -47,6 +48,13 @@ Instruction format (one file per routing batch, `routes-NN.json`):
 - Every bend is an explicit `[x, y]` point in mm. There is no autorouting.
 - Net names are the board's names, for example `sw_a` or `leg_a-gate_h`. List them
   from `native-0N/section.kicad_pcb` `(net ...)` entries; never guess.
+
+The six Würth 74650074 M4 terminals each have **four physical pads numbered
+1** on one metal part. `apply_routes.py` deliberately rejects `J2.1`,
+`J5.1`, and `J7.1`–`J10.1` as ambiguous. Use explicit coordinates taken from
+the regenerated board for those pads, then verify the net and copper against
+KiCad's pad data and DRC; coordinate points do not receive the replayer's
+`REF.PAD` net assertion. Check every physical pad, not just the symbol pin.
 
 Apply and check after **every** batch:
 
@@ -79,14 +87,14 @@ you used per net in `ROUTING.md`.
 
 | Net group | Nets | Design current | Route as |
 | --- | --- | --- | --- |
-| Mains in | `ac_l_in`, `l_f`, `l_filt`, `ac_n_in`, `n_filt` | 15 A rms | ≥ 4.1 mm, better 6 mm, or a zone |
-| Bus + legs | `bus_p`, `hv_ret`, `leg_ret`, `sw_a`, `sw_b` | ~19 A rms line-average (HF, bidirectional) | zones on both layers, via-stitched |
-| Tank | `coil_feed`, `res_a` | 18.7 A rms average, 26 A rms at line crest | zones, or ≥ 8.8 mm |
-| PE | `pe` | fault current until F1 clears | ≥ 4.1 mm, direct from J1 PE to the Y capacitors and the heatsink bond point |
+| Mains in | `ac_l_in`, `l_f`, `l_filt`, `ac_n_in`, `n_filt`, plus rectifier-side `rect_p`, `rect_n` | 15 A rms design input; check pulse and fault stress separately | ≥ 4.1 mm, preferably 6 mm or a qualified zone. `rect_p` stops at J7; `rect_n` stops at J9. Never connect either across its removable link in PCB copper |
+| Bus + legs | `bus_p`, `hv_ret`, `leg_ret`, `sw_a`, `sw_b` | ~19 A rms line-average (HF, bidirectional) | zones on both layers, via-stitched; all C38–C41 HV_RET returns must include R5 in the commutation path |
+| Tank | `coil_feed`, `res_a` | 18.7 A rms average, 26 A rms at line crest | zones, or ≥ 8.8 mm, to the separate J2/J5 M4 terminals; check exposed terminal/lug spacing for coil voltage and HF stress |
+| PE branch | `pe` | chassis stud supplies the primary cord-PE bond; PCB branch fault duty requires enclosure analysis | J6 to C3/C4 and R38 only, with ≥8.0 mm provisional HOT separation. Never rely on board copper or R38 for the primary protective-earth connection |
 | Gate drive | `leg_*-out_h/out_l/gate_h/gate_l`, and the source/Kelvin returns | 4 A source / 6 A sink peak, µs pulses | 0.8–1.0 mm, gate and return on adjacent paths, same layer, shortest possible |
 | 15 V gate supply, bootstrap | `v15_ls`, `leg_*-boot` | < 0.5 A | 0.5–0.8 mm |
 | Shunt Kelvin | R5 pad 3 (`ocp_kelvin_n`) and R5 pad 2 (`leg_ret`, used as the sense reference) | µA | **Separate 0.3 mm traces**, routed as a tight pair from R5's pads to R33 and U6's ground. Never share the power path |
-| Bus sense string | `bus_p` → R22 → … → R26 | µA | 0.3 mm; keep the string straight to spread voltage; creepage rules apply between string nodes |
+| Bus sense string | `bus_p` → R26–R29 → R30 | µA | 0.3 mm; keep the string straight to spread voltage; creepage rules apply between string nodes |
 | Logic HOT and SELV | everything else | < 0.1 A | 0.3 mm |
 
 ## Order of work (one batch per step, applied and checked before the next)
@@ -95,12 +103,20 @@ you used per net in `ROUTING.md`.
    reinforced distance of the other domain. Deliberately draw one test track
    across the barrier, see DRC fail, then remove it. Record this in `ROUTING.md`
    as proof the rule works.
-2. **Commutation loop:** `bus_p`, `hv_ret`, `leg_ret`, `sw_a`, `sw_b` as zones.
-   Keep the C5/C6 → high-side → low-side → R5 → C5/C6 loop tight, with top and bottom
-   copper overlapping (opposite current) where possible.
-3. **Tank:** `sw_a` → T1 → `coil_feed` → J2 → `res_a` → C21–C23 → `sw_b`; the R22–R25 bleed string from `res_a` to `sw_b` at 0.3 mm.
-4. **Mains entry:** J1 → F1 → RV1 → L1 → C2 → BR1, plus PE to C3, C4 and the
-   heatsink bond.
+2. **Commutation loops:** route `bus_p`, `hv_ret`, `leg_ret`, `sw_a`, `sw_b`
+   with C5/C6 and D3 near the power legs. Bring C38/C39 to leg A and
+   C40/C41 to leg B. Every local capacitor must connect BUS_P/HV_RET,
+   returning through R5's power path; a LEG_RET return blinds OCP. Keep
+   all paths short and broad while preserving separate Kelvin traces.
+3. **Tank:** `sw_a` → T1 → `coil_feed` → J2; external coil → J5 `res_a`
+   → C21–C23 → `sw_b`. Route the R22–R25 bleed string from `res_a` to
+   `sw_b` at 0.3 mm. Preserve the separate coil stud/lug insulation envelope.
+4. **Mains and disconnects:** J1 L/N → F1 → RV1 → L1 → C2 → BR1.
+   BR1+ `rect_p` reaches J7 only, and BR1− `rect_n` reaches J9 only;
+   downstream `bus_p` starts at J8 and `hv_ret` at J10. The external
+   jumpers J7–J8 and J9–J10 are removable hardware, never PCB copper.
+   Route J6's PE branch only to C3/C4 and R38; the cord PE bonds directly
+   to the chassis/heatsink stud off-board.
 5. **Gate loops**, per leg: driver OUTA/OUTB → gate resistor → gate, and each
    return to its own source pin (high side to `sw_*`, low side to `leg_ret`).
    Keep each gate loop's area minimal. The low-side return goes to the **source

@@ -1,23 +1,24 @@
 # Second native projection — shelf, unrouted, approved stackup
 
 Generated and checked on 2026-09-25 in `worktrees/ps-build`, branch
-`codex/power-stage-120v-build`, from the audited 103-part source, including
+`codex/power-stage-120v-build`, from the audited 114-part source, including
 the five oracle source changes, fault-high NAND/non-F isolator, removable
-functional PE link R38, and the REF25 bias correction in
+functional PE link R38, axial bus TVS D3, separate PE and M4 coil terminals, two removable external rail links, 5.8 µF
+bus bank, revised Y1 pads, and the REF25 bias correction in
 [REFERENCE-BIAS.md](REFERENCE-BIAS.md). Supersedes [native-01](NATIVE-01.md), which
 remains only as the pre-stackup fixture for `tests/test_planning_stackup.py`.
 
 **Shelf poses are not a placement. Nothing in native-02 is reviewed for
 layout, creepage, thermal or mechanical fit.**
 
-The provisional 220 × 160 mm outline (D1) holds all 103 parts in 150.51 mm
+The provisional 220 × 160 mm outline (D1) holds all 114 parts in 148.99 mm
 of shelf height with 5 mm margins and 3 mm courtyard gaps. The approved D3
 stackup (`stackup.json`: two copper layers, 70 µm, 1.44 mm FR-4 core, 1.6 mm
 total) was applied by `tools/planning_stackup.py`, which also adds
 `SourceInstance` and `MPN` properties to every footprint and deterministic
 pad UUIDs keyed by source instance (stable across designator renumbering), and removes the archived skeleton's four inner-layer declarations.
 
-The generated schematic uses 12 columns so all 103 parts fit within A1.
+The generated schematic uses 12 columns so all 114 parts fit within A1.
 The exported board and schematic were visually inspected after regeneration.
 Shelf annotation overlaps remain; this is a connectivity projection, not a
 finished layout or assembly drawing.
@@ -26,24 +27,24 @@ finished layout or assembly drawing.
 
 | Check | Measured result | Disposition |
 | --- | --- | --- |
-| Source audit | 103 components, 73 nets; PASS; 32/32 audit tests | PASS |
+| Source audit | 114 components, 75 nets; PASS; 48/48 audit tests | PASS |
 | Source reproducibility | Netlist and CSV byte-identical after path normalization between two independently compiled source snapshots | PASS |
-| Board footprint count | 103 | PASS |
-| Per-pad net parity vs `frozen/default.net` (independent of the manifest) | 294/294 source pin nodes on the mapped pad with the right net; only netless pads are J4's two locating holes | PASS |
-| Footprint MPN census vs `frozen/resolved-components.json` | 103/103 | PASS |
+| Board footprint count | 114 | PASS |
+| Per-pad net parity vs `frozen/default.net` (independent of the manifest) | 313/313 source pin nodes on the mapped pad with the right net; 333 physical copper pads verified; eight mechanical holes and 24 paste-only apertures are netless | PASS |
+| Footprint MPN census vs `frozen/resolved-components.json` | 114/114 | PASS |
 | Schematic parity | 0 | PASS |
 | Courtyard overlap, clearance | 0 | PASS for shelf; final insulation rules not yet applied |
-| DRC `violations` | 18 `lib_footprint_mismatch` warnings, no errors | Three runs agree; independent pcbnew comparison confirms identical pad geometry and non-text graphics (see native-02/footprint-comparison.json) |
-| DRC unconnected items | 223 | Expected on an unrouted board; 223 reported in each of three runs |
-| ERC | 235 warnings, 0 errors: 103 `lib_symbol_issues`, 102 `endpoint_off_grid`, 19 `footprint_link_issues`, 11 `isolated_pin_label` | Same classes as native-01, scaled by the added parts |
+| DRC `violations` | 28 `lib_footprint_mismatch` warnings, no errors | Three runs agree; independent pcbnew comparison confirms identical pad geometry and non-text graphics (see native-02/footprint-comparison.json) |
+| DRC unconnected items | 258 | Expected on an unrouted board; 258 reported in each of three runs |
+| ERC | 270 warnings, 0 errors: 114 `lib_symbol_issues`, 113 `endpoint_off_grid`, 32 `footprint_link_issues`, 11 `isolated_pin_label` | Same classes as native-01, scaled by the added parts |
 | Rust physical-stackup gate (`zapote-board`) | **PASS**: 2 copper layers, 1.600 mm stack = 1.600 mm declared | Was the expected native-01 failure; now resolved by D3 |
 | Barrier land patterns | U1/U2 8.10 mm, U9 (ISO7710) 8.10 mm, U4 (AMC1311) 8.85 mm across the barrier | Footprint geometry only; does not establish package-surface or complete insulation compliance |
-| Stackup tool tests | 4/4 | PASS |
+| Scoped adapter tests, including stackup and paste-only footprint regressions | 22/22 | PASS |
 | Copper tracks / vias / zones | None | Unrouted |
 
 Reports: `native-02/drc.json`, `drc-02.json`, `drc-03.json`,
 `erc.json`, `stackup.json`, `source-oracles.json` and
-`footprint-comparison.json` (all under `native-02/`).
+`footprint-comparison.json` and `physical-pad-check.json` (all under `native-02/`).
 KiCad reports its five default ignored checks in `drc.json`; no custom
 exclusions were added.
 
@@ -67,6 +68,9 @@ CARGO_TARGET_DIR=/tmp/ps-native-cargo cargo run --quiet --locked --offline --man
 /tmp/ps-check-venv/bin/python -m pytest -q tests/
 ```
 
+The native adapter and test environment both require `kiutils==1.4.8`; install
+it in the selected Python environments before running the commands above.
+
 Runtime: KiCad CLI 10.0.4; Atopile 0.2.69; rustc 1.92.0;
 CPython 3.14.7 native bridge; Python 3.12.12 test venv. The absolute Python
 paths above identify this run's host runtimes; configure equivalent fresh
@@ -80,10 +84,10 @@ as its complete source identity.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `native-02/section.kicad_pcb` | `04665a37c242e26ba6a2c6d74bdb623093d54ae3af55a8457e7f41a6e37ccbbb` |
-| `native-02/section.kicad_sch` | `9531602efde6d44c9912d2f85876291346210fce804f72c8e737e3cc65ac90ca` |
-| `native-02/source-manifest.json` | `6e2b1936f3994d2d4463a1011d0ba589e25d0ab6a91642d46b8eee7007e43c8a` |
-| `poses.json` | `fdc416e2953b135ff704e115ccf591839b6cf833344a323bd034cfa791a1c7c8` |
+| `native-02/section.kicad_pcb` | `d571bfe0560d93ef20cca98648b595c69dbcff816ca778babb23b341a8a40fa9` |
+| `native-02/section.kicad_sch` | `5c4ce191ae868a28bee17418fd663b77193a3fab1c700614c6fdf7a1c8428fbf` |
+| `native-02/source-manifest.json` | `1fde8f30a8a65d6987191e46dcb3d8da6627238545b1d8c1581356ce5711e0d8` |
+| `poses.json` | `3904a40508e062e31d8413e32908473573c5acacbe63c52d31dd9d574fc9d199` |
 | `outline.json` | `e629c0ff9e0de17674c523527df7bb33036429f5be286fabf8d6b147abf9f0bd` |
 | `stackup.json` | `f78b19657dd082fe74fa142fb7b294b7f31cf62ec5099304bab8f738b47cf473` |
 
@@ -91,3 +95,20 @@ Previews: [board](native-02/board-preview.svg) and
 [schematic](native-02/schematic-preview/section.svg).
 Digital construction evidence only. Physical assembly, powered tests,
 thermal/EMI measurements, insulation tests and certification: **NOT RUN**.
+
+J1 now carries L/N only, with PE on separate J6. C3/C4 nominal copper gap is
+8.50 mm. These resolve the prior package-spacing blockers but do not establish
+assembled creepage. The six M4 terminals retain all 24 paste apertures and all
+24 same-number copper pads; source/source-native checks cover each physical pad.
+The native adapter now excludes non-copper apertures from its electrical map
+while still failing closed on unmapped copper pads. Rust shelf ordering is by
+height, width, then instance path so the new parts fit the approved outline.
+
+Final insulation rules and deliberate placement remain unfinished. TVS surge
+performance, all terminal/lug and four-pin capacitor assembly details, HOT5
+behavior, physical tests, lab review and the RCA teardown remain open. See
+ASSEMBLY.md, DC-LINK-CLAMP.md and PROTOTYPE-POWER-LOOP.md.
+
+The final terminal-library vendoring rebuild produced byte-identical board and
+schematic files; only library-origin entries in the source manifest changed.
+The recorded DRC/ERC and pad measurements therefore apply to the final bytes.

@@ -235,9 +235,26 @@ const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
 
 /// Safety-relevant part identities (path -> MPN).
 const IDENTITY: &[(&str, &str)] = &[
+    ("j_mains", "1711725"),
+    ("j_pe", "1704004"),
+    ("j_coil", "74650074"),
+    ("j_coil_return", "74650074"),
+    ("link_pos.terminal_rect", "74650074"),
+    ("link_pos.terminal_bus", "74650074"),
+    ("link_neg.terminal_rect", "74650074"),
+    ("link_neg.terminal_bus", "74650074"),
+    ("c_bus1", "B32656G0275J000"),
+    ("c_bus2", "B32656G0275J000"),
+    ("c_hf_a1", "B32652A0104K000"),
+    ("c_hf_a2", "B32652A0104K000"),
+    ("c_hf_b1", "B32652A0104K000"),
+    ("c_hf_b2", "B32652A0104K000"),
+    ("cy1", "DE1E3RA222MA4BP01F"),
+    ("cy2", "DE1E3RA222MA4BP01F"),
     ("f1", "0326020.MXP"),
     ("rv1", "TMOV20RP175E"),
     ("br1", "GBJ2510-F"),
+    ("tvs_bus", "MRT130KP295CV"),
     ("r_shunt", "WSK2512R0010FEA"),
     ("leg_a.q_high", "IPW65R018CFD7"),
     ("leg_a.q_low", "IPW65R018CFD7"),
@@ -386,16 +403,50 @@ fn audit(m: &Model) -> Vec<String> {
     if l_in != want {
         e.push(format!("ac_l_in must be exactly J1.1 and F1.1, found {:?}", l_in));
     }
-    expect(&mut e, m, "j_mains", "3", "pe");
+    expect(&mut e, m, "j_mains", "2", "ac_n_in");
+    if m.net_of("j_mains", "3").is_some() {
+        e.push("j_mains.3 must not exist on the L/N-only inlet".into());
+    }
+    // The cord's primary PE bond is made directly at the chassis stud.
+    // J_PE is a separately wired PCB branch, not that protective bond.
+    expect(&mut e, m, "j_pe", "1", "pe");
+    expect(&mut e, m, "j_pe", "2", "pe");
+    expect(&mut e, m, "cy1", "1", "l_filt");
+    expect(&mut e, m, "cy2", "1", "n_filt");
+    let pe = members(m, "pe");
+    let want: BTreeSet<(String, String)> = [
+        ("j_pe", "1"), ("j_pe", "2"), ("r_fe", "1"),
+        ("cy1", "2"), ("cy2", "2"),
+    ].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if pe != want {
+        e.push(format!("pe must join only the PE branch, Y capacitors and functional link, found {pe:?}"));
+    }
     // Common-mode choke: TDK windings are 1-4 (line) and 2-3 (neutral).
     expect(&mut e, m, "l1", "1", "l_f");
     expect(&mut e, m, "l1", "4", "l_filt");
     expect(&mut e, m, "l1", "2", "ac_n_in");
     expect(&mut e, m, "l1", "3", "n_filt");
 
-    // 4. Shoot-through shunt: every low-side source returns via LEG_RET,
-    //    the bus caps and bridge minus sit on HV_RET, and the shunt is the
-    //    only element joining them.
+    // 4. The two removable external rail links split rectifier from bridge
+    //    during floating low-voltage bring-up. With either link open there
+    //    must be no PCB-copper shortcut across it. The bridge-side bypass
+    //    capacitors return to HV_RET, never LEG_RET across the current shunt.
+    expect(&mut e, m, "br1", "1", "rect_p");
+    expect(&mut e, m, "br1", "4", "rect_n");
+    for (net, bridge_pin, link) in [
+        ("rect_p", "1", "link_pos.terminal_rect"),
+        ("rect_n", "4", "link_neg.terminal_rect"),
+    ] {
+        let got = members(m, net);
+        let want: BTreeSet<(String, String)> = [("br1", bridge_pin), (link, "1")]
+            .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+        if got != want {
+            e.push(format!("{net} must join only BR1 and its removable-link landing, found {got:?}"));
+        }
+    }
+    expect(&mut e, m, "link_pos.terminal_bus", "1", "bus_p");
+    expect(&mut e, m, "link_neg.terminal_bus", "1", "hv_ret");
+    // Shoot-through shunt: every low-side source returns via LEG_RET.
     expect(&mut e, m, "r_shunt", "1", "leg_ret");
     expect(&mut e, m, "r_shunt", "2", "leg_ret");
     expect(&mut e, m, "r_shunt", "3", "ocp_kelvin_n");
@@ -404,16 +455,31 @@ fn audit(m: &Model) -> Vec<String> {
         expect(&mut e, m, &format!("{leg}.q_low"), "3", "leg_ret");
         expect(&mut e, m, &format!("{leg}.q_high"), "2", "bus_p");
     }
-    expect(&mut e, m, "br1", "4", "hv_ret");
     for c in ["c_bus1", "c_bus2"] {
+        expect(&mut e, m, c, "1", "bus_p");
+        expect(&mut e, m, c, "2", "bus_p");
+        expect(&mut e, m, c, "3", "hv_ret");
+        expect(&mut e, m, c, "4", "hv_ret");
+    }
+    for c in ["c_hf_a1", "c_hf_a2", "c_hf_b1", "c_hf_b2"] {
         expect(&mut e, m, c, "1", "bus_p");
         expect(&mut e, m, c, "2", "hv_ret");
     }
-    let hv: Vec<_> = members(m, "hv_ret").into_iter().map(|(p, _)| p).collect();
-    for p in &hv {
-        if !matches!(p.as_str(), "br1" | "c_bus1" | "c_bus2" | "r_bus2" | "r_shunt") {
-            e.push(format!("{p} on hv_ret would bypass the shunt"));
-        }
+    // The TVS must protect the capacitor side of the shunt, not bridge the
+    // shunt and hide a fault current from the DC return measurement.
+    expect(&mut e, m, "tvs_bus", "1", "bus_p");
+    expect(&mut e, m, "tvs_bus", "2", "hv_ret");
+    let hv = members(m, "hv_ret");
+    let want: BTreeSet<(String, String)> = [
+        ("c_bus1", "3"), ("c_bus1", "4"),
+        ("c_bus2", "3"), ("c_bus2", "4"),
+        ("r_bus2", "2"), ("r_shunt", "4"), ("tvs_bus", "2"),
+        ("c_hf_a1", "2"), ("c_hf_a2", "2"),
+        ("c_hf_b1", "2"), ("c_hf_b2", "2"),
+        ("link_neg.terminal_bus", "1"),
+    ].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if hv != want {
+        e.push(format!("hv_ret has unexpected or missing members, possibly bypassing the shunt: {hv:?}"));
     }
 
     // 5. Legs: fail-safe DIS, dead time, bootstrap and gate hold-offs.
@@ -542,7 +608,7 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "t_ct", "1", "sw_a");
     expect(&mut e, m, "t_ct", "2", "coil_feed");
     expect(&mut e, m, "j_coil", "1", "coil_feed");
-    expect(&mut e, m, "j_coil", "2", "res_a");
+    expect(&mut e, m, "j_coil_return", "1", "res_a");
     for c in ["c_res1", "c_res2", "c_res3"] {
         expect(&mut e, m, c, "1", "res_a");
         expect(&mut e, m, c, "2", "sw_b");
@@ -553,7 +619,7 @@ fn audit(m: &Model) -> Vec<String> {
         e.push(format!("coil_feed must join only CT P2 and the coil terminal, found {:?}", feed));
     }
     let res_a: BTreeSet<String> = members(m, "res_a").into_iter().map(|(p, _)| p).collect();
-    if res_a != ["j_coil", "c_res1", "c_res2", "c_res3", "r_crb1"].iter().map(|s| s.to_string()).collect() {
+    if res_a != ["j_coil_return", "c_res1", "c_res2", "c_res3", "r_crb1"].iter().map(|s| s.to_string()).collect() {
         e.push(format!("res_a must join only the coil return, the resonant bank and its bleed, found {:?}", res_a));
     }
     // Resonant-bank bleed: four series resistors from RES_A to SW_B.
@@ -761,15 +827,15 @@ mod tests {
     #[test]
     fn resonant_capacitor_bypass_fails() {
         let mut m = built();
-        m.rewire("j_coil", "2", "sw_b");
-        fails(&m, "j_coil.2");
+        m.rewire("j_coil_return", "1", "sw_b");
+        fails(&m, "j_coil_return.1");
     }
 
     #[test]
     fn ct_on_resonant_node_fails() {
         let mut m = built();
         m.rewire("t_ct", "1", "res_a");
-        m.rewire("j_coil", "2", "sw_a");
+        m.rewire("j_coil_return", "1", "sw_a");
         fails(&m, "t_ct.1");
     }
 
@@ -807,6 +873,159 @@ mod tests {
         let mut m = built();
         m.set_part("r_ref_bias", "RC0603FR-076K8L");
         fails(&m, "reference cathode current");
+    }
+
+    #[test]
+    fn missing_bus_tvs_fails() {
+        let mut m = built();
+        let r = m.reff("tvs_bus").unwrap().to_string();
+        m.comps.remove(&r);
+        m.bom.remove(&r);
+        m.resolved.remove("tvs_bus");
+        for nodes in m.nets.values_mut() {
+            nodes.retain(|(node_ref, _)| node_ref != &r);
+        }
+        fails(&m, "tvs_bus missing");
+    }
+
+    #[test]
+    fn wrong_bus_tvs_mpn_fails() {
+        let mut m = built();
+        m.set_part("tvs_bus", "MRT130KP300CV");
+        fails(&m, "tvs_bus is MRT130KP300CV");
+    }
+
+    #[test]
+    fn bus_tvs_wrong_link_fails() {
+        let mut m = built();
+        m.rewire("tvs_bus", "1", "sw_a");
+        fails(&m, "tvs_bus.1");
+    }
+
+    #[test]
+    fn bus_tvs_bypassing_shunt_fails() {
+        let mut m = built();
+        m.rewire("tvs_bus", "2", "leg_ret");
+        fails(&m, "tvs_bus.2");
+    }
+
+    #[test]
+    fn old_coil_terminal_block_fails() {
+        let mut m = built();
+        m.set_part("j_coil", "1711725");
+        fails(&m, "j_coil is 1711725");
+    }
+
+    #[test]
+    fn old_three_position_mains_terminal_fails() {
+        let mut m = built();
+        m.set_part("j_mains", "1711039");
+        fails(&m, "j_mains is 1711039");
+    }
+
+    #[test]
+    fn pe_branch_to_mains_fails() {
+        let mut m = built();
+        m.rewire("j_pe", "2", "ac_n_in");
+        fails(&m, "j_pe.2");
+    }
+
+    #[test]
+    fn y_capacitor_line_side_must_follow_its_mains_conductor() {
+        let mut m = built();
+        m.rewire("cy2", "1", "l_filt");
+        fails(&m, "cy2.1");
+    }
+
+    #[test]
+    fn missing_pe_branch_fails() {
+        let mut m = built();
+        let r = m.reff("j_pe").unwrap().to_string();
+        m.comps.remove(&r);
+        m.bom.remove(&r);
+        m.resolved.remove("j_pe");
+        for nodes in m.nets.values_mut() {
+            nodes.retain(|(rr, _)| rr != &r);
+        }
+        fails(&m, "j_pe missing");
+    }
+
+    #[test]
+    fn wrong_bulk_capacitor_and_one_mispaired_pad_fail() {
+        let mut m = built();
+        m.set_part("c_bus1", "942C6W2P5K-F");
+        fails(&m, "c_bus1 is 942C6W2P5K-F");
+        let mut m = built();
+        m.rewire("c_bus2", "2", "hv_ret");
+        fails(&m, "c_bus2.2");
+    }
+
+    #[test]
+    fn local_bus_capacitor_cannot_bypass_shunt() {
+        for path in ["c_hf_a1", "c_hf_a2", "c_hf_b1", "c_hf_b2"] {
+            let mut m = built();
+            m.rewire(path, "2", "leg_ret");
+            fails(&m, &format!("{path}.2"));
+        }
+    }
+
+    #[test]
+    fn local_bus_capacitor_identity_is_pinned() {
+        let mut m = built();
+        m.set_part("c_hf_b2", "B32652A1104K000");
+        fails(&m, "c_hf_b2 is B32652A1104K000");
+    }
+
+    #[test]
+    fn removable_rail_link_landing_cannot_be_lost_or_swapped() {
+        for (path, needle) in [
+            ("link_pos.terminal_rect", "rect_p must join only"),
+            ("link_neg.terminal_rect", "rect_n must join only"),
+            ("link_pos.terminal_bus", "link_pos.terminal_bus.1"),
+            ("link_neg.terminal_bus", "link_neg.terminal_bus.1"),
+        ] {
+            let mut m = built();
+            m.rewire(path, "1", "floating_link");
+            fails(&m, needle);
+        }
+    }
+
+    #[test]
+    fn rectifier_rail_cannot_short_around_open_link() {
+        for (rect, bus) in [("rect_p", "bus_p"), ("rect_n", "hv_ret")] {
+            let mut m = built();
+            let path = "jumper_bypass";
+            let mpn = "RC1206FR-070RL";
+            m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into() });
+            m.resolved.insert(path.into(), mpn.into());
+            m.bom.insert("R999".into(), mpn.into());
+            m.nets.get_mut(rect).unwrap().insert(("R999".into(), "1".into()));
+            m.nets.get_mut(bus).unwrap().insert(("R999".into(), "2".into()));
+            fails(&m, &format!("{rect} must join only"));
+        }
+    }
+
+    #[test]
+    fn coil_return_terminal_must_be_separate_and_m4() {
+        let mut m = built();
+        m.rewire("j_coil_return", "1", "coil_feed");
+        fails(&m, "j_coil_return.1");
+        let mut m = built();
+        m.set_part("j_coil_return", "1711725");
+        fails(&m, "j_coil_return is 1711725");
+    }
+
+    #[test]
+    fn extra_shunt_bypass_fails_exact_hv_ret_membership() {
+        let mut m = built();
+        let path = "shunt_bypass";
+        let mpn = "RC1206FR-070RL";
+        m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into() });
+        m.resolved.insert(path.into(), mpn.into());
+        m.bom.insert("R999".into(), mpn.into());
+        m.nets.get_mut("hv_ret").unwrap().insert(("R999".into(), "1".into()));
+        m.nets.get_mut("leg_ret").unwrap().insert(("R999".into(), "2".into()));
+        fails(&m, "hv_ret has unexpected or missing members");
     }
 
     #[test]

@@ -42,8 +42,8 @@ rustc --edition=2021 --test audit.rs -o /tmp/ps_audit_t && /tmp/ps_audit_t
 `frozen/` holds the reviewed build outputs. The netlist and resolved export embed absolute
 source paths, so a rebuild elsewhere differs only in those paths. The netlist and BOM were
 byte-identical, after path normalization, between two independent source snapshots (see the receipt).
-`build-receipt.json` pins the hashes. Current result: 103 components, 73 nets. The audit
-passes, and 32/32 tests pass, including deliberate miswires and the reference-bias regression.
+`build-receipt.json` pins the hashes. Current result: 114 components, 75 nets. The audit
+passes, and 48/48 tests pass, including deliberate miswires and the reference-bias regression.
 
 **Part identity comes from `resolved-components.json` and the CSV, never from `default.net`.**
 Atopile 0.2.69 writes a footprint-aliased part into the netlist's libsource field. In this
@@ -117,12 +117,12 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 
 1. **Coil measurement** (COIL-MC.md). Sets the resonant bank value (0.54 µF now, for 70 µH / 32 kHz), CT burden and frequency limits.
 2. **Parts to confirm against manufacturer drawings:**
-   - Phoenix 1711026 order code
+   - J1 is Phoenix 1711725 for L/N only; J6 is a Phoenix 1704004 PE branch from the chassis stud. J2/J5 and the four disconnect terminals use Würth 74650074; assembly, temperature and spacing qualification remain open.
    - Littelfuse 102071 clip current rating (≥ 20 A)
    - ~~TDK B82726S2203A020 pin numbering~~ (confirmed from datasheet 2026-09-25: windings 1-4, 2-3)
    - Molex 0430451612 order code
    - 942C AC voltage rating vs frequency (≈236 V rms at line crest, 35 kHz)
-3. **Footprint qualification:** all eight required local footprints are now
+3. **Footprint qualification:** all current local footprints are now
    in `libraries/`. [FOOTPRINTS.md](FOOTPRINTS.md) records their drawing
    references and provisional formed-lead, retention and assembly limits.
 4. **Under-glass cutoff rating:** needs a glass-underside temperature measurement at the 482 °F setpoint; heatsink cutoff about 120 °C, from available G4A ratings.

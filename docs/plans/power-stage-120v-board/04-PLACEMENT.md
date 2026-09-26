@@ -25,6 +25,11 @@ D1–D3 from `00-INDEX.md`; ask if they aren't given. Add:
 
 Default (D3): 2 layers, 1.6 mm, 70 µm copper both sides. Write `stackup.json`:
 
+The selected Würth 74650074 M4 terminals specify an **actual** 1.6–2.0 mm
+PCB thickness. Nominal 1.6 mm does not establish the fabricated minimum;
+confirm tolerance and THR reflow compatibility with the fabricator and
+assembler before release. Wave soldering is not applicable to this terminal.
+
 ```json
 {"schema": "temper.power-stage-120v.stackup.v1",
  "status": "planning CAD stackup; not a fabricator approval",
@@ -57,9 +62,10 @@ The diode-clamp argument and the later 468/511 V bus estimates do not prove
 those bounds; see `zapote/power-stage-120v/ORACLE-REVIEW.md`. Moving T1 to
 SW_A removes its direct resonant-node connection but retains high-frequency
 switch-node stress. Do not generate final insulation rules from this table
-until D5 establishes RMS, peak/transient and high-frequency requirements,
-including PE-open and external-earth cases. The ≥8.0 mm target and FR-4
-material-group assumption remain provisional.
+until RMS, peak/transient and high-frequency requirements are qualified,
+including PE-open and external-earth cases. D5 conditionally approves
+≥8.0 mm as a provisional placement floor with verified group IIIa-or-better
+laminate; the certification lab and Coilcraft evidence remain open.
 
 **Step 1, compute the required distances with the repo's own IEC 60335-1 tables.**
 The Rust extension must be built (`make extensions`, Part 1):
@@ -87,6 +93,7 @@ working-voltage/HF requirements before treating any distance as final.
 | HOT ↔ PE | live HOT ↔ `pe`, which R38 functionally bonds to controller return | Not yet bounded; include open-PE/common-mode and tank cases | Do not retain an automatic basic-only exemption: review every HOT-to-PE path as a possible bypass of controller reinforced isolation. Use the ≥8.0 mm provisional PCB floor; qualify heatsink insulators and Y-capacitor paths separately | clearance and creepage |
 | Line ↔ neutral before the bridge | `ac_l_in`, `l_f`, `l_filt` ↔ `ac_n_in`, `n_filt` | 140 V rms supply envelope; verify applicable abnormal/transient requirements | Functional, applicable table value | clearance |
 | Tank nodes ↔ other HOT | `sw_a`, `sw_b`, `coil_feed`, `res_a`, `crbleed_*` ↔ other HOT nets | The former ~640 V peak is an estimate, not a bound | Functional; determine table 18 and HF applicability from qualified stress | creepage |
+| Rectifier output ↔ downstream bus | `rect_p` ↔ `bus_p`; `rect_n` ↔ `hv_ret` at the removable J7/J8 and J9/J10 link pairs | Both rectifier output studs remain mains-live with links removed. The bench source connects only to J8/J10, after both links are physically open | Keep adequate assembled link-gap, PCB copper and lug insulation; verify isolation in both-link-open mode | clearance and assembly check |
 | Bus ↔ low-voltage HOT | `bus_p` ↔ `hot5`, `v15_ls`, gate nets | The former ~200 V peak is not a bound during tank energy return | Functional; final band unresolved | clearance |
 | Within each qualified low-voltage domain | — | ≤15 V only where the source establishes it | Provisional default; not an exemption for a domain crossing | 0.2 mm |
 
@@ -102,8 +109,9 @@ datasheet value for each part and fill this table in `RULES.md`:
 | T1 CST3015-100ED | — | ≥ 8 mm (Coilcraft datasheet) |
 | PS1 IRM-20-15 | module | Obtain internal insulation/certification scope; pin span alone is not package creepage evidence |
 
-**If any package creepage is below the required SELV↔HOT reinforced value, STOP
-and ask the owner (decision D5).** This is the exact problem that left Rev38 with
+**If any package creepage is below the qualified controller↔HOT reinforced
+value, STOP and report it before accepting the placement.** This is the
+problem that left Rev38 with
 104 unresolved barrier findings. Options to present:
 
 - (a) Keep PD3 and move to wider-package parts, for example the ISO7710 in the
@@ -113,8 +121,9 @@ and ask the owner (decision D5).** This is the exact problem that left Rev38 wit
 - (c) Board slots under the part add board creepage only, **not** package-surface
   creepage. They don't solve (a) by themselves.
 
-Don't continue placement near the barrier until D5 is decided. Placement of the
-pure-HOT zones (Z1–Z4 below) may proceed meanwhile.
+D5 has been conditionally decided for provisional placement. Keep the lab,
+Coilcraft and high-frequency findings visible in the review package; a larger
+qualified requirement requires redesign before release.
 
 **Step 3, write `tools/write_rules.py`,** which writes `<native>/section.kicad_dru`:
 
@@ -141,30 +150,37 @@ Always place by instance path, and confirm the designator in
 
 | Zone | Instance path → designator | Rules |
 | --- | --- | --- |
-| Z1 Mains entry | `j_mains` J1, `f1` F1, `rv1` RV1, `cx1` C1, `rb1a` R1, `rb1b` R2, `l1` L1, `cx2` C2, `cy1` C3, `cy2` C4 | At the cord-entry edge (D6). Order along the current path: J1 → F1 → RV1/C1 → L1 → C2. C3 and C4 go straight to J1's PE pin. Leave room around L1 (90 g) for a strap or adhesive |
-| Z2 Rectifier + bus | `br1` BR1, `c_bus1` C5, `c_bus2` C6, `r_bus1` R3, `r_bus2` R4, `r_shunt` R5 | BR1 on the heatsink edge (D2). C5 and C6 **within ~20 mm of the bridge legs**: they are the commutation capacitors. R5 between the low-side sources (`leg_ret`) and the C5/C6 negative terminals (`hv_ret`) |
+| Z1 Mains entry | `j_mains` J1, `f1` F1, `rv1` RV1, `cx1` C1, `rb1a` R1, `rb1b` R2, `l1` L1, `cx2` C2, `cy1` C3, `cy2` C4 | Cord-entry edge (D6): J1 → F1 → RV1/C1 → L1 → C2. C3/C4's PE pads go to separate J6, not J1. Their 10 mm-pitch local footprint has 1.5 mm pads and 8.5 mm nominal copper gap. Leave L1 retention space. |
+| Z2 Rectifier + bus | `br1` BR1, `c_bus1` C5, `c_bus2` C6, `r_bus1` R3, `r_bus2` R4, `r_shunt` R5, `tvs_bus` D3, `c_hf_a1/a2` C38/C39, `c_hf_b1/b2` C40/C41, `link_pos.terminal_rect/bus` J7/J8, `link_neg.terminal_rect/bus` J9/J10 | BR1 at the heatsink edge. C5/C6 are 42 × 33 mm, 48 mm tall radials. Place C38/C39 by leg A and C40/C41 by leg B; BUS_P/HV_RET returns include R5, never LEG_RET. D3 spans BUS_P/HV_RET near bulk. J7↔J8 and J9↔J10 have external removable jumpers and no PCB joins. Preserve insulated jumper/lug envelopes. |
 | Z3 Bridge legs | `leg_a.q_high` Q2, `leg_a.q_low` Q3, `leg_b.q_high` Q5, `leg_b.q_low` Q6; snubbers `leg_a.c_snub_h` C12, `leg_a.c_snub_l` C13, `leg_b.c_snub_h` C19, `leg_b.c_snub_l` C20; gate networks `leg_a.r_gh` R10, `leg_a.r_gh_pd` R11, `leg_a.r_gl` R12, `leg_a.r_gl_pd` R13, `leg_b.r_gh` R18, `leg_b.r_gh_pd` R19, `leg_b.r_gl` R20, `leg_b.r_gl_pd` R21 | MOSFETs standing on the heatsink edge. Each snubber **directly across its MOSFET's drain/source pins**. Gate resistors at the gate pins |
 | Z3b Leg-A driver | `leg_a.driver` U1, `leg_a.d_boot` D1, `leg_a.c_vcci` C7, `leg_a.c_ls` C8, `leg_a.c_ls_bulk` C9, `leg_a.c_boot` C10, `leg_a.c_boot_hf` C11, `leg_a.permit_fet` Q1, `leg_a.r_permit` R6, `leg_a.r_permit_pd` R7, `leg_a.r_dis_pu` R8, `leg_a.r_dt` R9 | U1 ≤ ~25 mm from Q2 and Q3 gates, output pins (9–16) facing the MOSFETs. **C7, Q1 and R6–R9 are on U1's SELV side (pins 1–8)** and belong in or at the edge of Z6 |
 | Z3c Leg-B driver | `leg_b.driver` U2, `leg_b.d_boot` D2, `leg_b.c_vcci` C14, `leg_b.c_ls` C15, `leg_b.c_ls_bulk` C16, `leg_b.c_boot` C17, `leg_b.c_boot_hf` C18, `leg_b.permit_fet` Q4, `leg_b.r_permit` R14, `leg_b.r_permit_pd` R15, `leg_b.r_dis_pu` R16, `leg_b.r_dt` R17 | Same as Z3b for Q5 and Q6. **C14, Q4 and R14–R17 are SELV-side** |
-| Z4 Tank | `c_res1` C21, `c_res2` C22, `c_res3` C23, `r_crb1..4` R22–R25, `t_ct` T1, `j_coil` J2 | Between the legs and J2 (coil-exit edge, D6). T1's primary (pins 1, 2) sits between `sw_a` and J2 pin 1 (`coil_feed`); its secondary (pins 3, 4) faces the SELV zone. The R22–R25 bleed string runs from `res_a` to `sw_b` alongside the C21–C23 bank, spreading ~640 V peak along its length |
+| Z4 Tank | `c_res1` C21, `c_res2` C22, `c_res3` C23, `r_crb1..4` R22–R25, `t_ct` T1, `j_coil` J2, `j_coil_return` J5 | Coil-exit edge (D6). T1 primary (pins 1, 2) sits between SW_A and J2 COIL_FEED; its secondary (pins 3, 4) faces the controller zone. The external coil spans J2 to J5 RES_A. Use separate M4 terminal/lug envelopes, initially ≥30 mm centers, then check actual high-frequency/fault insulation. R22–R25 span RES_A to SW_B beside the CDE bank. Earlier ~640 V peak was an example, not a bound. |
 | Z5 HOT auxiliary | `ps_gate` PS2, `j_tco` J3, `u_ldo` U3, `c_v15` C24, `c_ldo_in` C25, `c_ldo_out` C26, `u_vsense` U4 (HOT side), `r_div1..4` R26–R29, `r_div_bot` R30, `c_div` C27, `c_vs1` C28, `u_ref` U5, `r_ref_bias` R31, `r_ocp_ref` R32, `r_ocp_sense` R33, `r_th_top` R34, `r_th_bot` R35, `c_ocp_node` C30, `c_th` C31, `u_ocp` U6, `c_ocp_vcc` C32, `r_ovp_top` R36, `r_ovp_bot` R37, `c_ovp_th` C33, `u_ovp` U7, `c_ovp_vcc` C34, `u_nand` U8, `c_nand_vcc` C35, `u_iso` U9 (HOT side), `c_iso1` C36 | Near R5: the OCP Kelvin sense (R5 pad 3) and the `leg_ret` star (R5 pad 2). U7 (OVP) reads `vsense_in` at R30/C27, so keep it next to U4. The R26–R29 string runs from `bus_p` toward U4, spreading the voltage along its length. PS2 away from the heatsink's hot air |
 | Z6 SELV | `j_selv` J4, `ps_selv` PS1 (output pins 3, 4), `c_vs2` C29, `c_iso2` C37, plus the SELV-side parts of Z3b/Z3c, and the SELV pins of U1, U2, U4, U9 and T1 | A strip along one edge, separated from all HOT copper by the reinforced distance from 4.2. **C29 and C37 are SELV bypass capacitors** for U4 and U9's side 2; don't place them with Z5 |
-| Z6b Functional earth | `r_fe` R38 | One removable 0 Ω connection from controller return to J1 PE common point. Keep its controller-return trace and PE copper separated from live HOT by the provisional reinforced floor; do not route either through the HOT zone under a basic-only spacing assumption. The link is not a protective-earth conductor. |
+| Z6b Functional earth | `j_pe` J6, `r_fe` R38 | Cord PE bonds directly to the chassis/heatsink stud; a separate branch lands on J6 Phoenix 1704004. R38 is the removable 0 Ω controller-return bond near J6. Keep pads, traces and hardware ≥8 mm from HOT provisionally. Neither J6 nor R38 carries the primary protective-earth path. |
 
 Placement rules (check each one; list the outcome in `PLACEMENT-REVIEW.md`):
 
-1. **Commutation loop:** C5/C6 (+) → high-side drain → low-side source → R5 → C5/C6 (−).
-   Keep the enclosed area small. Record the bounding box of the four MOSFETs, C5, C6 and R5 in mm².
+1. **Commutation loops:** C5/C6 and C38–C41 BUS_P → high-side drain →
+   low-side source → R5 power pads → each capacitor's HV_RET. Keep area and
+   inductance small. Record capacitor, MOSFET and R5 bounds and identify both
+   local leg paths. Keep R5 Kelvin traces out of power copper.
 2. **Gate loops:** driver output pin → gate resistor → gate → source/Kelvin → driver
    return. Record each loop's bounding box.
 3. **Barrier:** draw a straight or stepped barrier line on `F.Fab` and `B.Fab` from edge to edge.
    Only the barrier parts may straddle it. Measure the minimum copper-to-copper
    distance across it.
-4. **Heat:** nothing but the MOSFETs, BR1 and their snubbers within 10 mm of the heatsink edge.
-   Keep the film capacitors and IRM modules out of the heatsink's exhaust path; record the assumed airflow direction.
-5. **Heavy parts:** L1, C5, C6, C21, C22 need mechanical retention. Leave space for
-   adhesive, a strap or a bracket, and note it.
-6. **Access:** fuse F1 and terminals J1, J2, J3, J4 reachable for service and wiring.
+4. **Heat:** MOSFETs and BR1 occupy the heatsink edge; snubbers and local
+   capacitors must fit close enough for the measured loop target without
+   overheating. Keep tall film capacitors and IRM modules out of exhaust;
+   record airflow direction, which D2 has not selected.
+5. **Heavy parts:** L1, C5/C6 and C21–C23 need retention and height checks;
+   four-pin radial mounting alone does not prove vibration survival. Leave
+   space for adhesive, straps or brackets as needed.
+6. **Access:** F1 and J1–J10 must be reachable for intended wiring, with
+   clearance for coil lugs and both removable bus jumpers. Check screws,
+   lug orientations and insulation envelopes in the enclosure.
 
 ## 4.4 Checks for each iteration
 

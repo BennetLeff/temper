@@ -175,3 +175,67 @@ HOT5 startup/brownout remains unqualified: a failed 5 V regulator need not
 drop the independent 15 V gate-driver supply. No TVS has been installed;
 Microchip MRT130KP295CV is a researched candidate pending package preference
 and pulse/temperature/repetition qualification. Physical tests remain NOT RUN.
+
+## Prototype clamp and power-loop review — 2026-09-25
+
+Added approved axial Microchip MRT130KP295CV as D3 across BUS_P/HV_RET,
+with a vendor-dimensioned bidirectional footprint and co-located generator
+input. The 20 mm formed pitch remains an assembly choice. Corrected J2 to
+Phoenix 1711725: the former 1711026 order code has 5.00 mm pitch, whereas
+the selected footprint is 5.08 mm. The current rating/use group still needs
+qualification against coil current.
+
+Verification on the integrated edits: 104 parts, 73 nets, 37/37 Rust audit
+tests, 15/15 adapter tests. Two independent builds reproduce the normalized
+netlist and BOM; resolved-export differences are only source paths and the
+validated hash of the path-bearing netlist. Source-to-native oracles check
+296 pin assignments and 104 MPNs. Three DRC runs each report 19
+annotation-only library warnings, 225 unrouted connections and zero parity
+findings. Independent pcbnew comparison confirms identical pad and non-text
+geometry. ERC reports 238 warnings and zero errors. Saved Rust stackup gate
+passes. Board and schematic previews were visually inspected.
+
+J1's existing HOT-to-PE gap is 2.48 mm and cannot meet D5; no waiver is
+introduced. A package-choice question is pending for a separate Phoenix
+1704004 PCB PE branch terminal and four local TDK B32652A0104K000 capacitors.
+These changes are not yet in source. Cord PE is intended to bond directly
+to the chassis, then branch separately to the PCB. The radial-capacitor
+comparison retains the current resonant bank; see PROTOTYPE-POWER-LOOP.md.
+
+The TVS catalog lookup found no stock and a 100-piece minimum at about
+USD 46 each. No parts have been ordered. Surge sharing, pulse duty, hot
+temperature, HOT5 behavior, insulation and physical measurements remain
+unqualified. This increment is local and uncommitted pending the remaining
+package choice; it is not a placement or fabrication release.
+
+Independent Sol xhigh review of the source/audit/footprint increment found no
+TVS wiring or dimension defect. It identified J2's qualification as an explicit
+pre-placement hold: the 18.7 A nominal tank RMS exceeds the catalog's UL 15 A
+group B / 10 A group D current values if applicable. The governing rating,
+voltage envelope and alternative coil termination must be settled before
+accepting its placement. This was a bounded local review, not the full
+shipping review; no new commit or push was performed.
+
+## Approved prototype source revision — 2026-09-25
+
+Supersedes the package-choice and J2-qualification holds in the preceding
+prototype review. The owner approved the local capacitors, radial bulk bank,
+separate PE branch, two M4 coil terminals, Y1 pad change and both removable
+rectifier links. The source and native-02 now contain 114 parts and 75 nets.
+All 48 source mutation tests, 6 capacitor-screen tests, and 6 shelf tests pass.
+Independent source builds reproduce the normalized netlist and BOM.
+
+Native/source oracles check 313 source pins, 333 physical copper pads and
+114 MPNs. Three DRC runs each give 28 annotation-only library mismatches,
+258 expected unrouted connections and zero parity findings. Independent
+pcbnew comparisons confirm the mismatched footprints' pad and non-text
+geometry. ERC has 270 warnings and no errors; saved-board Rust stackup
+passes. Board and schematic previews were inspected. A strict native-adapter
+fix preserves the M4 footprint's paste-only apertures without assigning nets
+to them, with rejection tests for unmapped copper. The shelf now orders by
+height and fits in 148.99 mm while keeping the original gaps and margins.
+
+The bus screen compares 5.0/5.4/5.8 µF but does not predict PF; 0.95 remains
+an input assumption. The lab call and RCA teardown have not happened. Final
+rules, deliberate placement, D4 routing approval and physical qualification
+remain separate stages. No fabrication release or powered test is claimed.

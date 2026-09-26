@@ -1,11 +1,11 @@
 {
   "board": {
-    "footprints": 103,
+    "footprints": 114,
     "layers": [
       "F.Cu",
       "B.Cu"
     ],
-    "nets": 73,
+    "nets": 75,
     "outline_mm": [
       0.0,
       0.0,
@@ -13,11 +13,11 @@
       160.0
     ]
   },
-  "board_sha256": "04665a37c242e26ba6a2c6d74bdb623093d54ae3af55a8457e7f41a6e37ccbbb",
+  "board_sha256": "d571bfe0560d93ef20cca98648b595c69dbcff816ca778babb23b341a8a40fa9",
   "bridge": {
     "components": [
       {
-        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal",
+        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
         "instance_path": "j_mains",
         "reference": "J1",
         "tstamp": "4595cd4c-dd61-3b43-b534-fdcaaf1f040c"
@@ -149,13 +149,13 @@
         "tstamp": "b1ae6788-9e21-e2c7-e6fb-cc110d91334a"
       },
       {
-        "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+        "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
         "instance_path": "cy1",
         "reference": "C3",
         "tstamp": "42845b09-2062-2504-4665-8db90d2a85ad"
       },
       {
-        "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+        "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
         "instance_path": "cy2",
         "reference": "C4",
         "tstamp": "0c516360-5617-62d4-3d3d-fb6127ff5e68"
@@ -167,13 +167,13 @@
         "tstamp": "c8895b6a-373e-2ae3-627b-faa4615cffc7"
       },
       {
-        "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
+        "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
         "instance_path": "c_bus1",
         "reference": "C5",
         "tstamp": "b32cb4dd-a367-3811-6203-9c5282062ebb"
       },
       {
-        "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
+        "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
         "instance_path": "c_bus2",
         "reference": "C6",
         "tstamp": "f25b7ab8-9aaa-048e-cc40-607a71e97be7"
@@ -551,10 +551,40 @@
         "tstamp": "6af25e8f-9422-5a3d-91a8-cc9f69f4a9f5"
       },
       {
-        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
         "instance_path": "j_coil",
         "reference": "J2",
         "tstamp": "1d144965-806e-235d-6f50-61a8d080c347"
+      },
+      {
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "instance_path": "j_coil_return",
+        "reference": "J5",
+        "tstamp": "7afb7e65-26a3-6d0c-668a-d41df0977d64"
+      },
+      {
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "instance_path": "link_pos.terminal_rect",
+        "reference": "J7",
+        "tstamp": "994a3951-e7d4-924e-1495-df7bf341395a"
+      },
+      {
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "instance_path": "link_pos.terminal_bus",
+        "reference": "J8",
+        "tstamp": "5abb4834-8145-bf54-83dd-a28429c6397d"
+      },
+      {
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "instance_path": "link_neg.terminal_rect",
+        "reference": "J9",
+        "tstamp": "1c220cbc-81e8-2350-673c-cdedb7eec5ae"
+      },
+      {
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "instance_path": "link_neg.terminal_bus",
+        "reference": "J10",
+        "tstamp": "f24cfb9b-dee8-7940-1ba4-43e3bdc2ceb4"
       },
       {
         "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
@@ -633,6 +663,42 @@
         "instance_path": "j_selv",
         "reference": "J4",
         "tstamp": "f58293b3-bb4f-4e3d-d98c-ba6e4e122009"
+      },
+      {
+        "footprint": "temper:MRT130KP_Axial_P20.00mm_ReviewOnly",
+        "instance_path": "tvs_bus",
+        "reference": "D3",
+        "tstamp": "3652e8b5-359c-87b2-e6eb-f56f1f53570d"
+      },
+      {
+        "footprint": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+        "instance_path": "j_pe",
+        "reference": "J6",
+        "tstamp": "a72cafa0-3de6-ecb5-42ff-31165c22938a"
+      },
+      {
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "instance_path": "c_hf_a1",
+        "reference": "C38",
+        "tstamp": "541494f2-91ef-53ed-3249-1299f171e216"
+      },
+      {
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "instance_path": "c_hf_a2",
+        "reference": "C39",
+        "tstamp": "a62f6b0c-36d9-1bef-2885-bf9df1a1d25f"
+      },
+      {
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "instance_path": "c_hf_b1",
+        "reference": "C40",
+        "tstamp": "5a1cc4b9-5c6a-2b55-9090-1e9f3107f618"
+      },
+      {
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "instance_path": "c_hf_b2",
+        "reference": "C41",
+        "tstamp": "06663133-d969-b1c1-aef3-80a7d9f2f7f0"
       }
     ],
     "nets": [
@@ -678,10 +744,6 @@
         "name": "pe",
         "nodes": [
           [
-            "J1",
-            "3"
-          ],
-          [
             "C3",
             "2"
           ],
@@ -692,6 +754,14 @@
           [
             "R38",
             "1"
+          ],
+          [
+            "J6",
+            "1"
+          ],
+          [
+            "J6",
+            "2"
           ]
         ]
       },
@@ -792,19 +862,49 @@
         ]
       },
       {
-        "name": "bus_p",
+        "name": "rect_p",
         "nodes": [
           [
             "BR1",
             "1"
           ],
           [
+            "J7",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "rect_n",
+        "nodes": [
+          [
+            "BR1",
+            "4"
+          ],
+          [
+            "J9",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "bus_p",
+        "nodes": [
+          [
             "C5",
             "1"
           ],
           [
+            "C5",
+            "2"
+          ],
+          [
             "C6",
             "1"
+          ],
+          [
+            "C6",
+            "2"
           ],
           [
             "R3",
@@ -829,6 +929,30 @@
           [
             "R26",
             "1"
+          ],
+          [
+            "D3",
+            "1"
+          ],
+          [
+            "C38",
+            "1"
+          ],
+          [
+            "C39",
+            "1"
+          ],
+          [
+            "C40",
+            "1"
+          ],
+          [
+            "C41",
+            "1"
+          ],
+          [
+            "J8",
+            "1"
           ]
         ]
       },
@@ -836,16 +960,20 @@
         "name": "hv_ret",
         "nodes": [
           [
-            "BR1",
-            "4"
+            "C5",
+            "3"
           ],
           [
             "C5",
-            "2"
+            "4"
           ],
           [
             "C6",
-            "2"
+            "3"
+          ],
+          [
+            "C6",
+            "4"
           ],
           [
             "R4",
@@ -854,6 +982,30 @@
           [
             "R5",
             "4"
+          ],
+          [
+            "D3",
+            "2"
+          ],
+          [
+            "C38",
+            "2"
+          ],
+          [
+            "C39",
+            "2"
+          ],
+          [
+            "C40",
+            "2"
+          ],
+          [
+            "C41",
+            "2"
+          ],
+          [
+            "J10",
+            "1"
           ]
         ]
       },
@@ -1142,10 +1294,6 @@
         "name": "res_a",
         "nodes": [
           [
-            "J2",
-            "2"
-          ],
-          [
             "C21",
             "1"
           ],
@@ -1159,6 +1307,10 @@
           ],
           [
             "R22",
+            "1"
+          ],
+          [
+            "J5",
             "1"
           ]
         ]
@@ -2471,7 +2623,7 @@
       "value": "100nF"
     },
     {
-      "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+      "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
       "instance_path": "cy1",
       "mpn": "DE1E3RA222MA4BP01F",
       "origins": {
@@ -2587,7 +2739,31 @@
       "value": "100nF"
     },
     {
-      "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "instance_path": "c_hf_a1",
+      "mpn": "B32652A0104K000",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "C38",
+      "value": null
+    },
+    {
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "instance_path": "c_hf_a2",
+      "mpn": "B32652A0104K000",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "C39",
+      "value": null
+    },
+    {
+      "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
       "instance_path": "cy2",
       "mpn": "DE1E3RA222MA4BP01F",
       "origins": {
@@ -2599,9 +2775,33 @@
       "value": null
     },
     {
-      "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "instance_path": "c_hf_b1",
+      "mpn": "B32652A0104K000",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "C40",
+      "value": null
+    },
+    {
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "instance_path": "c_hf_b2",
+      "mpn": "B32652A0104K000",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "C41",
+      "value": null
+    },
+    {
+      "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
       "instance_path": "c_bus1",
-      "mpn": "942C6W2P5K-F",
+      "mpn": "B32656G0275J000",
       "origins": {
         "footprint": "resolved-attr",
         "mpn": "resolved-attr+csv",
@@ -2611,9 +2811,9 @@
       "value": null
     },
     {
-      "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
+      "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
       "instance_path": "c_bus2",
-      "mpn": "942C6W2P5K-F",
+      "mpn": "B32656G0275J000",
       "origins": {
         "footprint": "resolved-attr",
         "mpn": "resolved-attr+csv",
@@ -2686,6 +2886,18 @@
       "value": null
     },
     {
+      "footprint": "temper:MRT130KP_Axial_P20.00mm_ReviewOnly",
+      "instance_path": "tvs_bus",
+      "mpn": "MRT130KP295CV",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "D3",
+      "value": null
+    },
+    {
       "footprint": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal",
       "instance_path": "f1",
       "mpn": "0326020.MXP",
@@ -2698,9 +2910,9 @@
       "value": null
     },
     {
-      "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal",
+      "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
       "instance_path": "j_mains",
-      "mpn": "1711039",
+      "mpn": "1711725",
       "origins": {
         "footprint": "resolved-attr",
         "mpn": "resolved-attr+csv",
@@ -2710,9 +2922,21 @@
       "value": null
     },
     {
-      "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "instance_path": "link_neg.terminal_bus",
+      "mpn": "74650074",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J10",
+      "value": null
+    },
+    {
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
       "instance_path": "j_coil",
-      "mpn": "1711026",
+      "mpn": "74650074",
       "origins": {
         "footprint": "resolved-attr",
         "mpn": "resolved-attr+csv",
@@ -2743,6 +2967,66 @@
         "reference": "netlist"
       },
       "reference": "J4",
+      "value": null
+    },
+    {
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "instance_path": "j_coil_return",
+      "mpn": "74650074",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J5",
+      "value": null
+    },
+    {
+      "footprint": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+      "instance_path": "j_pe",
+      "mpn": "1704004",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J6",
+      "value": null
+    },
+    {
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "instance_path": "link_pos.terminal_rect",
+      "mpn": "74650074",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J7",
+      "value": null
+    },
+    {
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "instance_path": "link_pos.terminal_bus",
+      "mpn": "74650074",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J8",
+      "value": null
+    },
+    {
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "instance_path": "link_neg.terminal_rect",
+      "mpn": "74650074",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J9",
       "value": null
     },
     {
@@ -3502,13 +3786,6 @@
       ],
       "sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f"
     },
-    "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm": {
-      "pads": [
-        "1",
-        "2"
-      ],
-      "sha256": "ebc5d714dabe0b874a0371e27028babcfb526c6508f6b7c35fa1fcedcb031161"
-    },
     "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4": {
       "pads": [
         "1",
@@ -3655,13 +3932,14 @@
       ],
       "sha256": "e3b06eda34b6c80468fef8b320e1710a8d768cdb078443257022da58112e71fe"
     },
-    "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal": {
+    "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR": {
       "pads": [
         "1",
-        "2",
-        "3"
+        "1",
+        "1",
+        "1"
       ],
-      "sha256": "dea0638b9221bc38c3cb196c9806f9238bc33053c46563d3135fc22ba9bdf88c"
+      "sha256": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8"
     },
     "lib:SOIC16W_DW0016B_HV": {
       "pads": [
@@ -3726,13 +4004,6 @@
       ],
       "sha256": "bad1891a78d5c7f934f13cc8dea511810fba739c3f4882d5516a1f4ef01ff06c"
     },
-    "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly": {
-      "pads": [
-        "1",
-        "2"
-      ],
-      "sha256": "ec86412a8bb80b19fb968d526cc7712f3f30a7b91e83785971dae8d006605367"
-    },
     "temper:CST3015": {
       "pads": [
         "1",
@@ -3751,6 +4022,43 @@
       ],
       "sha256": "a4ef38e48747d09cefd6e964686dd5b2c88c4a91127031952a20d3eb23543c5c"
     },
+    "temper:MRT130KP_Axial_P20.00mm_ReviewOnly": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "834fd22e3ef0102bb6895591110641bb20bf410ccfe6ccfcfbbcc39949e607ef"
+    },
+    "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "5ccb71103b01a699a5daba33b6bb19e27df1287f552bb2c7d1f587fe993d2b32"
+    },
+    "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "d5211b40ad46eddff4568412234d58b79e4cb9cf4b374da8cc293f4013ab5485"
+    },
+    "temper:TDK_B32652A0104K000_P15.00_ReviewOnly": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "45595807deb41189f9c86db29979a21033797b9d4be2f031e1bdf5805d2aa55f"
+    },
+    "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "sha256": "224675481fc4cc529d41ec25aba2274208f340270407963b870c2a8111c07c14"
+    },
     "temper:TMOV20RP_ReviewOnly": {
       "pads": [
         "1",
@@ -3762,7 +4070,7 @@
   "full_bridge": {
     "components": [
       {
-        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal",
+        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
         "instance_path": "j_mains",
         "reference": "J1",
         "tstamp": "4595cd4c-dd61-3b43-b534-fdcaaf1f040c"
@@ -3894,13 +4202,13 @@
         "tstamp": "b1ae6788-9e21-e2c7-e6fb-cc110d91334a"
       },
       {
-        "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+        "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
         "instance_path": "cy1",
         "reference": "C3",
         "tstamp": "42845b09-2062-2504-4665-8db90d2a85ad"
       },
       {
-        "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+        "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
         "instance_path": "cy2",
         "reference": "C4",
         "tstamp": "0c516360-5617-62d4-3d3d-fb6127ff5e68"
@@ -3912,13 +4220,13 @@
         "tstamp": "c8895b6a-373e-2ae3-627b-faa4615cffc7"
       },
       {
-        "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
+        "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
         "instance_path": "c_bus1",
         "reference": "C5",
         "tstamp": "b32cb4dd-a367-3811-6203-9c5282062ebb"
       },
       {
-        "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
+        "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
         "instance_path": "c_bus2",
         "reference": "C6",
         "tstamp": "f25b7ab8-9aaa-048e-cc40-607a71e97be7"
@@ -4296,10 +4604,40 @@
         "tstamp": "6af25e8f-9422-5a3d-91a8-cc9f69f4a9f5"
       },
       {
-        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
         "instance_path": "j_coil",
         "reference": "J2",
         "tstamp": "1d144965-806e-235d-6f50-61a8d080c347"
+      },
+      {
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "instance_path": "j_coil_return",
+        "reference": "J5",
+        "tstamp": "7afb7e65-26a3-6d0c-668a-d41df0977d64"
+      },
+      {
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "instance_path": "link_pos.terminal_rect",
+        "reference": "J7",
+        "tstamp": "994a3951-e7d4-924e-1495-df7bf341395a"
+      },
+      {
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "instance_path": "link_pos.terminal_bus",
+        "reference": "J8",
+        "tstamp": "5abb4834-8145-bf54-83dd-a28429c6397d"
+      },
+      {
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "instance_path": "link_neg.terminal_rect",
+        "reference": "J9",
+        "tstamp": "1c220cbc-81e8-2350-673c-cdedb7eec5ae"
+      },
+      {
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "instance_path": "link_neg.terminal_bus",
+        "reference": "J10",
+        "tstamp": "f24cfb9b-dee8-7940-1ba4-43e3bdc2ceb4"
       },
       {
         "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
@@ -4378,6 +4716,42 @@
         "instance_path": "j_selv",
         "reference": "J4",
         "tstamp": "f58293b3-bb4f-4e3d-d98c-ba6e4e122009"
+      },
+      {
+        "footprint": "temper:MRT130KP_Axial_P20.00mm_ReviewOnly",
+        "instance_path": "tvs_bus",
+        "reference": "D3",
+        "tstamp": "3652e8b5-359c-87b2-e6eb-f56f1f53570d"
+      },
+      {
+        "footprint": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+        "instance_path": "j_pe",
+        "reference": "J6",
+        "tstamp": "a72cafa0-3de6-ecb5-42ff-31165c22938a"
+      },
+      {
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "instance_path": "c_hf_a1",
+        "reference": "C38",
+        "tstamp": "541494f2-91ef-53ed-3249-1299f171e216"
+      },
+      {
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "instance_path": "c_hf_a2",
+        "reference": "C39",
+        "tstamp": "a62f6b0c-36d9-1bef-2885-bf9df1a1d25f"
+      },
+      {
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "instance_path": "c_hf_b1",
+        "reference": "C40",
+        "tstamp": "5a1cc4b9-5c6a-2b55-9090-1e9f3107f618"
+      },
+      {
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "instance_path": "c_hf_b2",
+        "reference": "C41",
+        "tstamp": "06663133-d969-b1c1-aef3-80a7d9f2f7f0"
       }
     ],
     "nets": [
@@ -4423,10 +4797,6 @@
         "name": "pe",
         "nodes": [
           [
-            "J1",
-            "3"
-          ],
-          [
             "C3",
             "2"
           ],
@@ -4437,6 +4807,14 @@
           [
             "R38",
             "1"
+          ],
+          [
+            "J6",
+            "1"
+          ],
+          [
+            "J6",
+            "2"
           ]
         ]
       },
@@ -4537,19 +4915,49 @@
         ]
       },
       {
-        "name": "bus_p",
+        "name": "rect_p",
         "nodes": [
           [
             "BR1",
             "1"
           ],
           [
+            "J7",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "rect_n",
+        "nodes": [
+          [
+            "BR1",
+            "4"
+          ],
+          [
+            "J9",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "bus_p",
+        "nodes": [
+          [
             "C5",
             "1"
           ],
           [
+            "C5",
+            "2"
+          ],
+          [
             "C6",
             "1"
+          ],
+          [
+            "C6",
+            "2"
           ],
           [
             "R3",
@@ -4574,6 +4982,30 @@
           [
             "R26",
             "1"
+          ],
+          [
+            "D3",
+            "1"
+          ],
+          [
+            "C38",
+            "1"
+          ],
+          [
+            "C39",
+            "1"
+          ],
+          [
+            "C40",
+            "1"
+          ],
+          [
+            "C41",
+            "1"
+          ],
+          [
+            "J8",
+            "1"
           ]
         ]
       },
@@ -4581,16 +5013,20 @@
         "name": "hv_ret",
         "nodes": [
           [
-            "BR1",
-            "4"
+            "C5",
+            "3"
           ],
           [
             "C5",
-            "2"
+            "4"
           ],
           [
             "C6",
-            "2"
+            "3"
+          ],
+          [
+            "C6",
+            "4"
           ],
           [
             "R4",
@@ -4599,6 +5035,30 @@
           [
             "R5",
             "4"
+          ],
+          [
+            "D3",
+            "2"
+          ],
+          [
+            "C38",
+            "2"
+          ],
+          [
+            "C39",
+            "2"
+          ],
+          [
+            "C40",
+            "2"
+          ],
+          [
+            "C41",
+            "2"
+          ],
+          [
+            "J10",
+            "1"
           ]
         ]
       },
@@ -4887,10 +5347,6 @@
         "name": "res_a",
         "nodes": [
           [
-            "J2",
-            "2"
-          ],
-          [
             "C21",
             "1"
           ],
@@ -4904,6 +5360,10 @@
           ],
           [
             "R22",
+            "1"
+          ],
+          [
+            "J5",
             "1"
           ]
         ]
@@ -5925,12 +6385,12 @@
     ]
   },
   "input_hashes": {
-    "default.csv": "427d84ec7cae8a6bc2348210357dceb12976ffb1ad683e4d84318d76437eb8b2",
-    "default.net": "47e26497eec3a319388116692206ab89e8cc7f0960635f7d17d5eb0fd16729fc",
+    "default.csv": "a7b74fd0bf9cc4981cbb275cbe25a81f12ada6d4f87c4f748d006ec634140c6e",
+    "default.net": "286991715ceb1519b9e62914a90a8a23d42e283e308b19d731841e73260a31ac",
     "outline.json": "e629c0ff9e0de17674c523527df7bb33036429f5be286fabf8d6b147abf9f0bd",
     "planning_stackup.py": "797018675ee6ebfb59fc771bd9c1ecad9d6f90c6242d0245746e48cecc95f23a",
-    "poses.json": "fdc416e2953b135ff704e115ccf591839b6cf833344a323bd034cfa791a1c7c8",
-    "resolved-components.json": "bdc24ac38c5fbb1e648a9c7769630f337de85fed899fb8e2108d6c2f36bde036",
+    "poses.json": "3904a40508e062e31d8413e32908473573c5acacbe63c52d31dd9d574fc9d199",
+    "resolved-components.json": "04d7c2f2d933f6a5eeec191488357b6f68794523ce7fdbe72edea970b70ef4e1",
     "stackup.json": "f78b19657dd082fe74fa142fb7b294b7f31cf62ec5099304bab8f738b47cf473"
   },
   "libraries": {
@@ -5945,10 +6405,6 @@
     "Capacitor_SMD:C_1210_3225Metric": {
       "sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
       "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_1210_3225Metric.kicad_mod"
-    },
-    "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm": {
-      "sha256": "ebc5d714dabe0b874a0371e27028babcfb526c6508f6b7c35fa1fcedcb031161",
-      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_THT.pretty/C_Disc_D10.5mm_W5.0mm_P10.00mm.kicad_mod"
     },
     "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4": {
       "sha256": "4b1197ebde30b4d6583acc2ee84a10ed78446ffd572565e52eb37b37e5432acd",
@@ -6012,11 +6468,11 @@
     },
     "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal": {
       "sha256": "e3b06eda34b6c80468fef8b320e1710a8d768cdb078443257022da58112e71fe",
-      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/TerminalBlock_Phoenix.pretty/TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal.kicad_mod"
+      "source": "zapote/power-stage-120v/libraries/TerminalBlock_Phoenix.pretty/TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal.kicad_mod"
     },
-    "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal": {
-      "sha256": "dea0638b9221bc38c3cb196c9806f9238bc33053c46563d3135fc22ba9bdf88c",
-      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/TerminalBlock_Phoenix.pretty/TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal.kicad_mod"
+    "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR": {
+      "sha256": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8",
+      "source": "zapote/power-stage-120v/libraries/TerminalBlock_Wuerth.pretty/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.kicad_mod"
     },
     "lib:SOIC16W_DW0016B_HV": {
       "sha256": "0122bebb19f2a697a3ee831907d6d402e7e27cb63b13b483b7a1b176db4091b0",
@@ -6038,10 +6494,6 @@
       "sha256": "bad1891a78d5c7f934f13cc8dea511810fba739c3f4882d5516a1f4ef01ff06c",
       "source": "zapote/power-stage-120v/libraries/temper.pretty/CDE_942C_D26.5_L34.0_Axial_ReviewOnly.kicad_mod"
     },
-    "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly": {
-      "sha256": "ec86412a8bb80b19fb968d526cc7712f3f30a7b91e83785971dae8d006605367",
-      "source": "zapote/power-stage-120v/libraries/temper.pretty/CDE_942C_D32.0_L54.0_Axial_ReviewOnly.kicad_mod"
-    },
     "temper:CST3015": {
       "sha256": "3c79ad69b9d37b4252ef7affa7774dcd55d613ce957b110e455523168ddb3621",
       "source": "zapote/power-stage-120v/libraries/temper.pretty/CST3015.kicad_mod"
@@ -6049,6 +6501,26 @@
     "temper:Diode_Bridge_GBJ2510": {
       "sha256": "a4ef38e48747d09cefd6e964686dd5b2c88c4a91127031952a20d3eb23543c5c",
       "source": "zapote/power-stage-120v/libraries/temper.pretty/Diode_Bridge_GBJ2510.kicad_mod"
+    },
+    "temper:MRT130KP_Axial_P20.00mm_ReviewOnly": {
+      "sha256": "834fd22e3ef0102bb6895591110641bb20bf410ccfe6ccfcfbbcc39949e607ef",
+      "source": "zapote/power-stage-120v/libraries/temper.pretty/MRT130KP_Axial_P20.00mm_ReviewOnly.kicad_mod"
+    },
+    "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly": {
+      "sha256": "5ccb71103b01a699a5daba33b6bb19e27df1287f552bb2c7d1f587fe993d2b32",
+      "source": "zapote/power-stage-120v/libraries/temper.pretty/Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly.kicad_mod"
+    },
+    "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly": {
+      "sha256": "d5211b40ad46eddff4568412234d58b79e4cb9cf4b374da8cc293f4013ab5485",
+      "source": "zapote/power-stage-120v/libraries/temper.pretty/Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly.kicad_mod"
+    },
+    "temper:TDK_B32652A0104K000_P15.00_ReviewOnly": {
+      "sha256": "45595807deb41189f9c86db29979a21033797b9d4be2f031e1bdf5805d2aa55f",
+      "source": "zapote/power-stage-120v/libraries/temper.pretty/TDK_B32652A0104K000_P15.00_ReviewOnly.kicad_mod"
+    },
+    "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly": {
+      "sha256": "224675481fc4cc529d41ec25aba2274208f340270407963b870c2a8111c07c14",
+      "source": "zapote/power-stage-120v/libraries/temper.pretty/TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly.kicad_mod"
     },
     "temper:TMOV20RP_ReviewOnly": {
       "sha256": "6d8ff131617aa7aacd71dd52a05d03b33366496b25b463a865371dc3b0a33eda",
@@ -6066,518 +6538,573 @@
   ],
   "poses": {
     "br1": [
-      58.835,
-      112.275,
+      57.875,
+      130.175,
       0.0
     ],
     "c_bus1": [
-      7.125,
-      21.525,
+      7.525,
+      11.625,
       0.0
     ],
     "c_bus2": [
-      76.875,
-      21.525,
+      53.075,
+      11.625,
       0.0
     ],
     "c_div": [
-      165.775,
-      138.305,
+      174.165,
+      136.985,
+      0.0
+    ],
+    "c_hf_a1": [
+      162.615,
+      106.025,
+      0.0
+    ],
+    "c_hf_a2": [
+      184.165,
+      106.025,
+      0.0
+    ],
+    "c_hf_b1": [
+      6.775,
+      119.875,
+      0.0
+    ],
+    "c_hf_b2": [
+      28.325,
+      119.875,
       0.0
     ],
     "c_iso1": [
-      171.785,
-      138.305,
+      180.175,
+      136.985,
       0.0
     ],
     "c_iso2": [
-      177.795,
-      138.305,
+      186.185,
+      136.985,
       0.0
     ],
     "c_ldo_in": [
-      183.805,
-      138.305,
+      192.195,
+      136.985,
       0.0
     ],
     "c_ldo_out": [
-      137.575,
-      126.625,
+      184.885,
+      129.275,
       0.0
     ],
     "c_nand_vcc": [
-      189.815,
-      138.305,
+      198.205,
+      136.985,
       0.0
     ],
     "c_ocp_node": [
-      195.825,
-      138.305,
+      204.215,
+      136.985,
       0.0
     ],
     "c_ocp_vcc": [
-      201.835,
-      138.305,
+      210.225,
+      136.985,
       0.0
     ],
     "c_ovp_th": [
-      207.845,
-      138.305,
+      6.505,
+      143.235,
       0.0
     ],
     "c_ovp_vcc": [
-      6.505,
-      144.755,
+      12.515,
+      143.235,
       0.0
     ],
     "c_res1": [
-      56.175,
-      54.825,
+      63.075,
+      55.325,
       0.0
     ],
     "c_res2": [
-      105.925,
-      54.825,
+      112.825,
+      55.325,
       0.0
     ],
     "c_res3": [
-      7.025,
-      84.125,
+      83.325,
+      82.325,
       0.0
     ],
     "c_th": [
-      12.515,
-      144.755,
+      18.525,
+      143.235,
       0.0
     ],
     "c_v15": [
-      145.225,
-      126.625,
+      192.535,
+      129.275,
       0.0
     ],
     "c_vs1": [
-      18.525,
-      144.755,
+      24.535,
+      143.235,
       0.0
     ],
     "c_vs2": [
-      24.535,
-      144.755,
+      30.545,
+      143.235,
       0.0
     ],
     "cx1": [
-      151.675,
-      79.625,
+      147.345,
+      77.825,
       0.0
     ],
     "cx2": [
-      181.725,
-      79.625,
+      177.395,
+      77.825,
       0.0
     ],
     "cy1": [
-      53.645,
-      127.775,
+      25.725,
+      130.425,
       0.0
     ],
     "cy2": [
-      69.195,
-      127.775,
+      41.275,
+      130.425,
       0.0
     ],
     "f1": [
-      109.925,
-      78.335,
+      61.785,
+      119.335,
       0.0
     ],
     "j_coil": [
-      92.625,
-      116.175,
+      54.915,
+      106.315,
+      0.0
+    ],
+    "j_coil_return": [
+      68.045,
+      106.315,
       0.0
     ],
     "j_mains": [
-      40.275,
-      116.175,
+      133.915,
+      78.725,
+      0.0
+    ],
+    "j_pe": [
+      163.265,
+      45.925,
       0.0
     ],
     "j_selv": [
-      9.105,
-      112.745,
+      132.735,
+      104.245,
       0.0
     ],
     "j_tco": [
-      26.925,
-      129.225,
+      50.575,
+      119.325,
       0.0
     ],
     "l1": [
-      23.025,
-      43.575,
+      140.675,
+      7.525,
       0.0
     ],
     "leg_a.c_boot": [
-      152.875,
-      126.625,
+      200.185,
+      129.275,
       0.0
     ],
     "leg_a.c_boot_hf": [
-      30.545,
-      144.755,
+      36.555,
+      143.235,
       0.0
     ],
     "leg_a.c_ls": [
-      36.555,
-      144.755,
+      42.565,
+      143.235,
       0.0
     ],
     "leg_a.c_ls_bulk": [
-      160.525,
-      126.625,
+      207.835,
+      129.275,
       0.0
     ],
     "leg_a.c_snub_h": [
-      14.235,
-      138.725,
+      22.625,
+      137.405,
       0.0
     ],
     "leg_a.c_snub_l": [
-      21.885,
-      138.725,
+      30.275,
+      137.405,
       0.0
     ],
     "leg_a.c_vcci": [
-      42.565,
-      144.755,
+      48.575,
+      143.235,
       0.0
     ],
     "leg_a.d_boot": [
-      84.845,
-      126.625,
+      152.115,
+      129.275,
       0.0
     ],
     "leg_a.driver": [
-      109.755,
-      115.175,
+      10.975,
+      106.675,
       0.0
     ],
     "leg_a.permit_fet": [
-      204.555,
-      126.725,
+      131.965,
+      129.375,
       0.0
     ],
     "leg_a.q_high": [
-      151.405,
-      112.355,
+      146.795,
+      117.705,
       0.0
     ],
     "leg_a.q_low": [
-      170.855,
-      112.355,
+      166.245,
+      117.705,
       0.0
     ],
     "leg_a.r_dis_pu": [
-      48.575,
-      144.755,
+      54.585,
+      143.235,
       0.0
     ],
     "leg_a.r_dt": [
-      54.585,
-      144.755,
+      60.595,
+      143.235,
       0.0
     ],
     "leg_a.r_gh": [
-      44.815,
-      138.705,
+      53.205,
+      137.385,
       0.0
     ],
     "leg_a.r_gh_pd": [
-      60.595,
-      144.755,
+      66.605,
+      143.235,
       0.0
     ],
     "leg_a.r_gl": [
-      52.425,
-      138.705,
+      60.815,
+      137.385,
       0.0
     ],
     "leg_a.r_gl_pd": [
-      66.605,
-      144.755,
+      72.615,
+      143.235,
       0.0
     ],
     "leg_a.r_permit": [
-      72.615,
-      144.755,
+      78.625,
+      143.235,
       0.0
     ],
     "leg_a.r_permit_pd": [
-      78.625,
-      144.755,
+      84.635,
+      143.235,
       0.0
     ],
     "leg_b.c_boot": [
-      168.175,
-      126.625,
+      7.325,
+      137.855,
       0.0
     ],
     "leg_b.c_boot_hf": [
-      84.635,
-      144.755,
+      90.645,
+      143.235,
       0.0
     ],
     "leg_b.c_ls": [
-      90.645,
-      144.755,
+      96.655,
+      143.235,
       0.0
     ],
     "leg_b.c_ls_bulk": [
-      175.825,
-      126.625,
+      14.975,
+      137.855,
       0.0
     ],
     "leg_b.c_snub_h": [
-      29.535,
-      138.725,
+      37.925,
+      137.405,
       0.0
     ],
     "leg_b.c_snub_l": [
-      37.185,
-      138.725,
+      45.575,
+      137.405,
       0.0
     ],
     "leg_b.c_vcci": [
-      96.655,
-      144.755,
+      102.665,
+      143.235,
       0.0
     ],
     "leg_b.d_boot": [
-      100.755,
-      126.625,
+      168.025,
+      129.275,
       0.0
     ],
     "leg_b.driver": [
-      124.705,
-      115.175,
+      25.925,
+      106.675,
       0.0
     ],
     "leg_b.permit_fet": [
-      211.465,
-      126.725,
+      138.875,
+      129.375,
       0.0
     ],
     "leg_b.q_high": [
-      190.305,
-      112.355,
+      185.695,
+      117.705,
       0.0
     ],
     "leg_b.q_low": [
       7.775,
-      127.605,
+      130.255,
       0.0
     ],
     "leg_b.r_dis_pu": [
-      102.665,
-      144.755,
+      108.675,
+      143.235,
       0.0
     ],
     "leg_b.r_dt": [
-      108.675,
-      144.755,
+      114.685,
+      143.235,
       0.0
     ],
     "leg_b.r_gh": [
-      60.035,
-      138.705,
+      68.425,
+      137.385,
       0.0
     ],
     "leg_b.r_gh_pd": [
-      114.685,
-      144.755,
+      120.695,
+      143.235,
       0.0
     ],
     "leg_b.r_gl": [
-      67.645,
-      138.705,
+      76.035,
+      137.385,
       0.0
     ],
     "leg_b.r_gl_pd": [
-      120.695,
-      144.755,
+      126.705,
+      143.235,
       0.0
     ],
     "leg_b.r_permit": [
-      126.705,
-      144.755,
+      132.715,
+      143.235,
       0.0
     ],
     "leg_b.r_permit_pd": [
-      132.715,
-      144.755,
+      138.725,
+      143.235,
+      0.0
+    ],
+    "link_neg.terminal_bus": [
+      81.175,
+      106.315,
+      0.0
+    ],
+    "link_neg.terminal_rect": [
+      94.305,
+      106.315,
+      0.0
+    ],
+    "link_pos.terminal_bus": [
+      107.435,
+      106.315,
+      0.0
+    ],
+    "link_pos.terminal_rect": [
+      120.565,
+      106.315,
       0.0
     ],
     "ps_gate": [
-      157.425,
-      52.525,
+      8.875,
+      83.775,
       0.0
     ],
     "ps_selv": [
-      148.175,
-      8.475,
+      8.675,
+      45.025,
       0.0
     ],
     "r_bus1": [
-      75.255,
-      138.705,
+      83.645,
+      137.385,
       0.0
     ],
     "r_bus2": [
-      82.865,
-      138.705,
+      91.255,
+      137.385,
       0.0
     ],
     "r_crb1": [
-      90.475,
-      138.705,
+      98.865,
+      137.385,
       0.0
     ],
     "r_crb2": [
-      98.085,
-      138.705,
+      106.475,
+      137.385,
       0.0
     ],
     "r_crb3": [
-      105.695,
-      138.705,
+      114.085,
+      137.385,
       0.0
     ],
     "r_crb4": [
-      113.305,
-      138.705,
+      121.695,
+      137.385,
       0.0
     ],
     "r_div1": [
-      120.915,
-      138.705,
+      129.305,
+      137.385,
       0.0
     ],
     "r_div2": [
-      128.525,
-      138.705,
+      136.915,
+      137.385,
       0.0
     ],
     "r_div3": [
-      136.135,
-      138.705,
+      144.525,
+      137.385,
       0.0
     ],
     "r_div4": [
-      143.745,
-      138.705,
+      152.135,
+      137.385,
       0.0
     ],
     "r_div_bot": [
-      138.725,
-      144.755,
+      144.735,
+      143.235,
       0.0
     ],
     "r_fe": [
-      144.735,
-      144.755,
+      150.745,
+      143.235,
       0.0
     ],
     "r_ocp_ref": [
-      150.745,
-      144.755,
+      156.755,
+      143.235,
       0.0
     ],
     "r_ocp_sense": [
-      156.755,
-      144.755,
+      162.765,
+      143.235,
       0.0
     ],
     "r_ovp_bot": [
-      162.765,
-      144.755,
+      168.775,
+      143.235,
       0.0
     ],
     "r_ovp_top": [
-      168.775,
-      144.755,
+      174.785,
+      143.235,
       0.0
     ],
     "r_ref_bias": [
-      174.785,
-      144.755,
+      180.795,
+      143.235,
       0.0
     ],
     "r_shunt": [
-      119.695,
-      126.925,
+      101.155,
+      129.575,
       0.0
     ],
     "r_th_bot": [
-      180.795,
-      144.755,
+      186.805,
+      143.235,
       0.0
     ],
     "r_th_top": [
-      186.805,
-      144.755,
+      192.815,
+      143.235,
       0.0
     ],
     "rb1a": [
-      151.355,
-      138.705,
+      159.745,
+      137.385,
       0.0
     ],
     "rb1b": [
-      158.965,
-      138.705,
+      167.355,
+      137.385,
       0.0
     ],
     "rv1": [
-      89.375,
-      86.125,
+      62.525,
+      84.325,
       0.0
     ],
     "t_ct": [
-      66.325,
-      90.425,
+      107.875,
+      21.325,
+      0.0
+    ],
+    "tvs_bus": [
+      103.135,
+      119.315,
       0.0
     ],
     "u_iso": [
-      139.655,
-      115.175,
+      40.875,
+      106.675,
       0.0
     ],
     "u_ldo": [
-      129.975,
-      127.525,
+      91.475,
+      130.175,
       0.0
     ],
     "u_nand": [
-      183.225,
-      126.725,
+      110.635,
+      129.375,
       0.0
     ],
     "u_ocp": [
-      190.375,
-      126.725,
+      117.785,
+      129.375,
       0.0
     ],
     "u_ovp": [
-      197.525,
-      126.725,
+      124.935,
+      129.375,
       0.0
     ],
     "u_ref": [
-      6.955,
-      139.275,
+      145.785,
+      129.375,
       0.0
     ],
     "u_vsense": [
-      42.865,
-      128.205,
+      134.515,
+      118.305,
       0.0
     ]
   },
@@ -6595,15 +7122,15 @@
     },
     "c_bus1": {
       "designator_prefix": "C",
-      "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
-      "manufacturer": "Cornell Dubilier",
-      "mpn": "942C6W2P5K-F"
+      "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32656G0275J000"
     },
     "c_bus2": {
       "designator_prefix": "C",
-      "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
-      "manufacturer": "Cornell Dubilier",
-      "mpn": "942C6W2P5K-F"
+      "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32656G0275J000"
     },
     "c_div": {
       "designator_prefix": "C",
@@ -6611,6 +7138,30 @@
       "manufacturer": "KEMET",
       "mpn": "C0603C102J5GACTU",
       "value": "1nF"
+    },
+    "c_hf_a1": {
+      "designator_prefix": "C",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32652A0104K000"
+    },
+    "c_hf_a2": {
+      "designator_prefix": "C",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32652A0104K000"
+    },
+    "c_hf_b1": {
+      "designator_prefix": "C",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32652A0104K000"
+    },
+    "c_hf_b2": {
+      "designator_prefix": "C",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32652A0104K000"
     },
     "c_iso1": {
       "designator_prefix": "C",
@@ -6735,13 +7286,13 @@
     },
     "cy1": {
       "designator_prefix": "C",
-      "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+      "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
       "manufacturer": "Murata",
       "mpn": "DE1E3RA222MA4BP01F"
     },
     "cy2": {
       "designator_prefix": "C",
-      "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+      "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
       "manufacturer": "Murata",
       "mpn": "DE1E3RA222MA4BP01F"
     },
@@ -6753,15 +7304,27 @@
     },
     "j_coil": {
       "designator_prefix": "J",
-      "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
-      "manufacturer": "Phoenix Contact",
-      "mpn": "1711026"
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074"
+    },
+    "j_coil_return": {
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074"
     },
     "j_mains": {
       "designator_prefix": "J",
-      "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal",
+      "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
       "manufacturer": "Phoenix Contact",
-      "mpn": "1711039"
+      "mpn": "1711725"
+    },
+    "j_pe": {
+      "designator_prefix": "J",
+      "footprint": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+      "manufacturer": "Phoenix Contact",
+      "mpn": "1704004"
     },
     "j_selv": {
       "designator_prefix": "J",
@@ -7047,6 +7610,30 @@
       "mpn": "RC0603FR-07100KL",
       "value": "100kohm"
     },
+    "link_neg.terminal_bus": {
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074"
+    },
+    "link_neg.terminal_rect": {
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074"
+    },
+    "link_pos.terminal_bus": {
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074"
+    },
+    "link_pos.terminal_rect": {
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074"
+    },
     "ps_gate": {
       "designator_prefix": "PS",
       "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-05-xx_THT",
@@ -7223,6 +7810,12 @@
       "footprint": "temper:CST3015",
       "manufacturer": "Coilcraft",
       "mpn": "CST3015-100ED"
+    },
+    "tvs_bus": {
+      "designator_prefix": "D",
+      "footprint": "temper:MRT130KP_Axial_P20.00mm_ReviewOnly",
+      "manufacturer": "Microchip Technology",
+      "mpn": "MRT130KP295CV"
     },
     "u_iso": {
       "designator_prefix": "U",
@@ -7804,6 +8397,38 @@
     },
     {
       "alias_note": "",
+      "instance_path": "c_hf_a1",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C38"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_hf_a1",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C38"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_hf_a2",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C39"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_hf_a2",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C39"
+    },
+    {
+      "alias_note": "",
       "instance_path": "cy2",
       "pad": "1",
       "pin": "1",
@@ -7817,6 +8442,38 @@
       "pin": "2",
       "positional": false,
       "reference": "C4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_hf_b1",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C40"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_hf_b1",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C40"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_hf_b2",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C41"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_hf_b2",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C41"
     },
     {
       "alias_note": "",
@@ -7836,153 +8493,193 @@
     },
     {
       "alias_note": "",
-      "instance_path": "c_bus2",
-      "pad": "1",
-      "pin": "1",
-      "positional": false,
-      "reference": "C6"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "c_bus2",
-      "pad": "2",
-      "pin": "2",
-      "positional": false,
-      "reference": "C6"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "leg_a.c_vcci",
-      "pad": "1",
-      "pin": "1",
-      "positional": false,
-      "reference": "C7"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "leg_a.c_vcci",
-      "pad": "2",
-      "pin": "2",
-      "positional": false,
-      "reference": "C7"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "leg_a.c_ls",
-      "pad": "1",
-      "pin": "1",
-      "positional": false,
-      "reference": "C8"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "leg_a.c_ls",
-      "pad": "2",
-      "pin": "2",
-      "positional": false,
-      "reference": "C8"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "leg_a.c_ls_bulk",
-      "pad": "1",
-      "pin": "1",
-      "positional": false,
-      "reference": "C9"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "leg_a.c_ls_bulk",
-      "pad": "2",
-      "pin": "2",
-      "positional": false,
-      "reference": "C9"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "leg_a.d_boot",
-      "pad": "1",
-      "pin": "1",
-      "positional": false,
-      "reference": "D1"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "leg_a.d_boot",
-      "pad": "2",
-      "pin": "2",
-      "positional": false,
-      "reference": "D1"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "leg_b.d_boot",
-      "pad": "1",
-      "pin": "1",
-      "positional": false,
-      "reference": "D2"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "leg_b.d_boot",
-      "pad": "2",
-      "pin": "2",
-      "positional": false,
-      "reference": "D2"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "f1",
-      "pad": "1",
-      "pin": "1",
-      "positional": false,
-      "reference": "F1"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "f1",
-      "pad": "2",
-      "pin": "2",
-      "positional": false,
-      "reference": "F1"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "j_mains",
-      "pad": "1",
-      "pin": "1",
-      "positional": false,
-      "reference": "J1"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "j_mains",
-      "pad": "2",
-      "pin": "2",
-      "positional": false,
-      "reference": "J1"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "j_mains",
+      "instance_path": "c_bus1",
       "pad": "3",
       "pin": "3",
       "positional": false,
+      "reference": "C5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_bus1",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "C5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_bus2",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_bus2",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_bus2",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "C6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "c_bus2",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "C6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "leg_a.c_vcci",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "leg_a.c_vcci",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "leg_a.c_ls",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "leg_a.c_ls",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "leg_a.c_ls_bulk",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C9"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "leg_a.c_ls_bulk",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C9"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "leg_a.d_boot",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "D1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "leg_a.d_boot",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "D1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "leg_b.d_boot",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "D2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "leg_b.d_boot",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "D2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "tvs_bus",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "D3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "tvs_bus",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "D3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "f1",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "F1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "f1",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "F1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "j_mains",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
       "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "j_mains",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "link_neg.terminal_bus",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J10"
     },
     {
       "alias_note": "",
       "instance_path": "j_coil",
       "pad": "1",
       "pin": "1",
-      "positional": false,
-      "reference": "J2"
-    },
-    {
-      "alias_note": "",
-      "instance_path": "j_coil",
-      "pad": "2",
-      "pin": "2",
       "positional": false,
       "reference": "J2"
     },
@@ -8129,6 +8826,54 @@
       "pin": "9",
       "positional": false,
       "reference": "J4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "j_coil_return",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "j_pe",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "j_pe",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "J6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "link_pos.terminal_rect",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "link_pos.terminal_bus",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "link_neg.terminal_rect",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J9"
     },
     {
       "alias_note": "",

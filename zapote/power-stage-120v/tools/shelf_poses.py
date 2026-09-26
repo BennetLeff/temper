@@ -20,7 +20,7 @@ KICAD_PYTHON = Path(
     "Python.framework/Versions/Current/bin/python3"
 )
 # Must match the audited source (build-receipt.json "components").
-EXPECTED_COMPONENTS = 103
+EXPECTED_COMPONENTS = 114
 STOCK = Path("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints")
 
 
@@ -69,8 +69,9 @@ def _footprint_file(name: str, libraries: Path) -> Path:
     nickname, separator, stem = name.partition(":")
     if not separator or not nickname or not stem or "/" in name or ".." in name:
         raise ValueError(f"invalid footprint nickname: {name!r}")
-    root = libraries if nickname in {"temper", "lib"} else STOCK
-    path = root / f"{nickname}.pretty" / f"{stem}.kicad_mod"
+    relative = Path(f"{nickname}.pretty") / f"{stem}.kicad_mod"
+    local = libraries / relative
+    path = local if local.is_file() or nickname in {"temper", "lib"} else STOCK / relative
     if not path.is_file():
         raise FileNotFoundError(f"footprint {name!r} not found at {path}")
     return path

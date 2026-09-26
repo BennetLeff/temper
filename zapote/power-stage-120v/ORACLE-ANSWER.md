@@ -8,6 +8,16 @@ no snubbers). They are design estimates, not measured bounds.
 Physical overshoot, touch-current, CT injection, hipot and emissions tests:
 **NOT RUN**. No fabrication or certification approval is implied.
 
+**Historical parameter notice (2026-09-25):** the bus-voltage simulation and
+heuristics below use the earlier 4.5 µF worst-tolerance model of a nominal
+5.0 µF/600 V CDE bus. The approved source now specifies two 2.7 µF/1000 V
+TDK bulk capacitors plus four 0.1 µF/1000 V local parts, nominal **5.8 µF**.
+The numbers below were not recomputed as a fault bound for that hardware;
+do not reuse the 468/511 V figures as MOSFET or TVS margins. The capacitor
+only sensitivity screen is [BUS-CAP-SCREEN.md](BUS-CAP-SCREEN.md); it does
+not simulate tank energy return. The 650 V MOSFET stress, local inductance
+and repeated TVS pulse still require measurement and qualification.
+
 ## Corrections to the earlier answer
 
 1. **The bridge does not clamp the rails to the mains crest.** The diodes
@@ -59,8 +69,9 @@ does not implement the previously reported damping/100–800 ns sweep.
   bus elevated while the restart inhibit remains below ≈280 V; the same
   heuristic then gives ≈556 V at 61 A or ≈597 V at 71 A for 100 µH, before
   accounting for Cr energy or switching overshoot.
-- The film bus is rated 600 VDC and the MOSFETs 650 V. The 91 A heuristic
-  approaches the capacitor rating even from a 198 V start.
+- At the time of this simulation, the film bus was rated 600 VDC and the
+  MOSFETs 650 V. The 91 A heuristic approached that former capacitor rating
+  even from a 198 V start; the approved capacitors are now rated 1000 VDC.
 
 **Controls and follow-up:**
 
@@ -71,11 +82,15 @@ does not implement the previously reported damping/100–800 ns sweep.
 | S3 | Add a bleed resistor across the resonant bank C21–C23 | After a trip Cr can hold up to ≈ ±250 V with no discharge path: a service-shock hazard. |
 | S4 (controller) | Never drive at or below the highest possible tank resonance: enforce a minimum switching frequency, and detect pan lift from the CT phase before sweeping | Makes the at-resonance trip a double fault. Controller-board firmware and hardware, not this board. |
 
-The need for a bus clamp remains open. A source-consistent fault analysis must
+The current source adds the approved MRT130KP295CV across BUS_P/HV_RET, but
+its assembled pulse, surge and clamp performance remains open. A
+source-consistent fault analysis must
 include the initial bus and Cr charge, the DC-shunt waveform, sense-filter and
 comparator delay, isolator/interlock/gate turn-off, and the tank CT protection.
 **Measure actual overshoot on the bench** at worst line phase and plausible
-restart states before accepting the 600 V / 650 V margins.
+restart states before accepting the 650 V MOSFET margin and the TVS stress.
+The approved bulk and local capacitors have 1000 VDC nameplate ratings;
+their transient current/temperature suitability still requires validation.
 
 **Controller ground ↔ PE: keep the single-point bond.** It defines the
 controller potential. The externally earthed controller case produces
@@ -123,10 +138,11 @@ limits for an elevated DC link or a demonstrated insulation classification.
 - IEC 60664-4 addresses periodic stress above 30 kHz. Relocating T1 removes
   its connection to the resonant junction but leaves it on switching node
   SW_A. High-frequency treatment at that crossing still needs review.
-- **Recommended basis:** design the entire SELV barrier to **≥ 8.0 mm**
-  (PD3, IIIa/IIIb, reinforced). That meets the >125–250 band everywhere, so
-  the per-node band argument above never has to be defended to a lab. The
-  band results are retained as conditional justification only.
+- **Current conditional basis:** place the entire controller/HOT PCB barrier
+  to **≥ 8.0 mm** (PD3, verified material group IIIa or better,
+  reinforced objective). This is a placement floor, not proof that the
+  >125–250 V band or any package surface/IEC 60664-4 requirement suffices.
+  The per-node band results are retained as historical estimates only.
 - **Former exception, now changed:** U7 (ISO7710FDWR, now U9) used KiCad's
   stock `SOIC-16W_7.5x10.3mm_P1.27mm` with a **7.25 mm** copper gap. U9 now
   uses TI's high-voltage DW land pattern at 8.1 mm. U4's stock SOIC-8 DWV
@@ -139,7 +155,8 @@ SW_A → J2 → coil → coil_ret → T1 → res_a → C21–C23 → SW_B.
 T1's primary sits at the resonant node: up to 242 V rms and 640 V pk at
 33–60 kHz relative to its SELV secondary.
 
-**Implemented source:** SW_A → T1 → J2 → coil → coil_ret → C21–C23 → SW_B.
+**Implemented source:** SW_A → T1 → J2 → external coil → J5 RES_A
+→ C21–C23 → SW_B.
 
 - T1's primary moves to a switch node. The 99 V rms / 198 V peak figures
   describe the line-following example, not a bound under bus pumping. SW_A
@@ -189,19 +206,25 @@ qualification remain open; see FAULT-INTERFACE.md and D5-BASIS.md.
 
 | Change | Source | Evidence |
 | --- | --- | --- |
-| T1 on the switch node | SW_A → T1 → `coil_feed` → J2 → `res_a` → C21–C23 → SW_B | Audit asserts it; `ct_on_resonant_node_fails` mutation test |
+| T1 on the switch node | SW_A → T1 → `coil_feed` → J2 → external coil → J5 `res_a` → C21–C23 → SW_B | Audit asserts the primary side; `ct_on_resonant_node_fails` mutation test |
 | OCP ≈ 61 A | `r_th_bot` 9.76 k → 10.0 k (R35); threshold 1.2195 V | Audit pins the threshold MPNs; `old_91a_threshold_fails` |
 | Bus OVP ≈ 280 V | U7 TLV3201 on the `vsense_in` tap vs 2.333 V (R36 10 k / R37 140 k); U8 SN74LVC1G00 NANDs OCP-OK and OVP-OK into U9 ISO7710DWR (BUS_FAULT high on either trip) | `swapped_ovp_comparator_inputs_fail`, `ovp_bypassing_isolator_path_fails` |
 | Resonant-bank bleed | R22–R25, 4 × 470 k from `res_a` to SW_B | `missing_resonant_bleed_fails` |
 | U9 HV land pattern | `lib:SOIC16W_DW0016B_HV`, TI DW0016B HV option (SLLSER9E p. 33) | 8.1 mm measured across the barrier on the generated board |
 
-Current result after the fault-high and functional-earth update: 103 components,
-73 nets; audit PASS; 32/32 audit tests. The native projection has 103 footprints,
-294/294 source
-pin connections on the right pad and net, schematic parity 0, DRC
-18 `lib_footprint_mismatch` warnings only, ERC warnings only. Designators
-after `u_ocp` moved (for example `u_iso` U7 → U9); the placement and routing
-plans and POWER-SECTION.md are updated to match.
+The axial TVS/J2 intermediate build measured 104 components and 73 nets;
+its audit passed 37/37 tests and its native projection had 104 footprints,
+296/296 source pin connections and zero schematic parity errors. **Those
+numbers are historical.** The later approved source revision changes C5/C6
+to 2.7 µF/1000 V TDK four-pin parts, adds four 100 nF/1000 V local capacitors
+on BUS_P/HV_RET, splits cord PE into chassis stud plus J6 PCB branch,
+replaces coil termination with separate J2/J5 M4 studs, makes C3/C4 pads
+smaller, and adds both external removable rail links J7–J10. This revision
+is now compiled and audited: 114 components, 75 nets and 48 passing audit
+tests. [NATIVE-02.md](NATIVE-02.md) records the regenerated native evidence.
+The links are external assembly connections; BR1 outputs and J7/J9 remain
+mains-live with mains present and the links removed. Designators after
+`u_ocp` moved in the earlier source changes (for example `u_iso` U7 → U9).
 
 The OCP comparator's ±5 mV offset alone corresponds to a 51–71 A threshold
 spread; other component and timing tolerances are not included. The 511 V

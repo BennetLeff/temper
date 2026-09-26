@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "427d84ec7cae8a6bc2348210357dceb12976ffb1ad683e4d84318d76437eb8b2",
+    "build/default.csv": "a7b74fd0bf9cc4981cbb275cbe25a81f12ada6d4f87c4f748d006ec634140c6e",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "47e26497eec3a319388116692206ab89e8cc7f0960635f7d17d5eb0fd16729fc",
+    "build/default.net": "286991715ceb1519b9e62914a90a8a23d42e283e308b19d731841e73260a31ac",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -11,9 +11,9 @@
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_mains",
       "attributes": {
         "designator_prefix": "J",
-        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal",
+        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
         "manufacturer": "Phoenix Contact",
-        "mpn": "1711039"
+        "mpn": "1711725"
       }
     },
     {
@@ -85,7 +85,7 @@
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::cy1",
       "attributes": {
         "designator_prefix": "C",
-        "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+        "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
         "manufacturer": "Murata",
         "mpn": "DE1E3RA222MA4BP01F"
       }
@@ -94,7 +94,7 @@
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::cy2",
       "attributes": {
         "designator_prefix": "C",
-        "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+        "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
         "manufacturer": "Murata",
         "mpn": "DE1E3RA222MA4BP01F"
       }
@@ -112,18 +112,18 @@
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_bus1",
       "attributes": {
         "designator_prefix": "C",
-        "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
-        "manufacturer": "Cornell Dubilier",
-        "mpn": "942C6W2P5K-F"
+        "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+        "manufacturer": "TDK",
+        "mpn": "B32656G0275J000"
       }
     },
     {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_bus2",
       "attributes": {
         "designator_prefix": "C",
-        "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
-        "manufacturer": "Cornell Dubilier",
-        "mpn": "942C6W2P5K-F"
+        "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+        "manufacturer": "TDK",
+        "mpn": "B32656G0275J000"
       }
     },
     {
@@ -554,9 +554,9 @@
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_coil",
       "attributes": {
         "designator_prefix": "J",
-        "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
-        "manufacturer": "Phoenix Contact",
-        "mpn": "1711026"
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "manufacturer": "Wuerth Elektronik",
+        "mpn": "74650074"
       }
     },
     {
@@ -994,12 +994,111 @@
         "mpn": "RC0603JR-070RL",
         "value": "0ohm"
       }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::tvs_bus",
+      "attributes": {
+        "designator_prefix": "D",
+        "footprint": "temper:MRT130KP_Axial_P20.00mm_ReviewOnly",
+        "manufacturer": "Microchip Technology",
+        "mpn": "MRT130KP295CV"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_coil_return",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "manufacturer": "Wuerth Elektronik",
+        "mpn": "74650074"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_pe",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+        "manufacturer": "Phoenix Contact",
+        "mpn": "1704004"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_a1",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "manufacturer": "TDK",
+        "mpn": "B32652A0104K000"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_a2",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "manufacturer": "TDK",
+        "mpn": "B32652A0104K000"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_b1",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "manufacturer": "TDK",
+        "mpn": "B32652A0104K000"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_b2",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+        "manufacturer": "TDK",
+        "mpn": "B32652A0104K000"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::link_pos.terminal_rect",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "manufacturer": "Wuerth Elektronik",
+        "mpn": "74650074"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::link_pos.terminal_bus",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "manufacturer": "Wuerth Elektronik",
+        "mpn": "74650074"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::link_neg.terminal_rect",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "manufacturer": "Wuerth Elektronik",
+        "mpn": "74650074"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::link_neg.terminal_bus",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+        "manufacturer": "Wuerth Elektronik",
+        "mpn": "74650074"
+      }
     }
   ],
   "entry": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/parts.ato": "62e1cd68a4128bc4940d62d491fae1f8090f1573855db09986c1c31390ea250c",
-    "elec/src/power_stage_120v.ato": "0e019b9a6e77e5aae186e2a55840dc4cc13db25a2a4d31ee5f4d6eeee7f6e027"
+    "elec/src/parts.ato": "76b7e66be8b1f34e088abb0f4451d5929d17f9c8214121bd318fb2090a1a58d6",
+    "elec/src/power_stage_120v.ato": "f3d6aef141d65851f5c66800671e472eaaa59d241fa3cc6ccb8e5c14a6cd2a29"
   }
 }

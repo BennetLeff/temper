@@ -6,6 +6,7 @@
   (lib (name "Diode_THT")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/Diode_THT.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "Fuse")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/Fuse.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "TerminalBlock_Phoenix")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/TerminalBlock_Phoenix.pretty")(options "")(descr "U2 candidate-local vendored copy"))
+  (lib (name "TerminalBlock_Wuerth")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/TerminalBlock_Wuerth.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "Connector_JST")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/Connector_JST.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "Connector_Molex")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/Connector_Molex.pretty")(options "")(descr "U2 candidate-local vendored copy"))
   (lib (name "Converter_ACDC")(type "KiCad")(uri "${KIPRJMOD}/candidate-libs/Converter_ACDC.pretty")(options "")(descr "U2 candidate-local vendored copy"))

@@ -19,8 +19,8 @@
 # current-sense board) are provisional for the 70 uH / 32 kHz nominal coil
 # until the coil and pan measurements in COIL-MC.md are taken.
 
-from "parts.ato" import MainsTerminal3, CoilTerminal2, MainsFuse20A, Tmov175, Cmc20A
-from "parts.ato" import CapX2_1u, CapY1_2n2, R120k1206, BridgeGbj2510, BusFilm2u5
+from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, MainsFuse20A, Tmov175, Cmc20A
+from "parts.ato" import CapX2_1u, CapY1_2n2, R120k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK
 from "parts.ato" import BootDiode, PermitFet, R3R9Gate, R39kDt, R10k0603, R100k0603
 from "parts.ato" import R1k0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
@@ -28,6 +28,19 @@ from "parts.ato" import CST3015_100E, Irm05_15, Irm20_15, TcoLoopHeader, Ldo78L0
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k5Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710, SelvHeader16, Nand2Lvc1g00, FunctionalEarthLink
+from "parts.ato" import BusTvsMrt130kp295
+
+module BusBringupLink:
+    """Two M4 landings for one removable insulated jumper (ASSEMBLY.md).
+    Separate source nets deliberately describe the OPEN link. Fit the
+    external jumper in normal operation; remove BOTH rail jumpers for
+    floating low-voltage DC bring-up. No PCB copper bridges these nets."""
+    signal rectifier
+    signal bus
+    terminal_rect = new PowerTerminalM4
+    terminal_bus = new PowerTerminalM4
+    terminal_rect.p1 ~ rectifier
+    terminal_bus.p1 ~ bus
 
 module BridgeLeg:
     """One half-bridge leg: UCC21550 (A = high side, B = low side), fail-safe
@@ -159,6 +172,8 @@ module PowerStage120V:
     signal XBLEED_MID
     signal L_FILT
     signal N_FILT
+    signal RECT_P
+    signal RECT_N
     signal BUS_P
     signal HV_RET
     signal BUSBLEED_MID
@@ -201,10 +216,9 @@ module PowerStage120V:
     signal CT_S2
 
     # ---------------- mains entry and EMI filter
-    j_mains = new MainsTerminal3
+    j_mains = new MainsTerminal2
     j_mains.p1 ~ AC_L_IN
     j_mains.p2 ~ AC_N_IN
-    j_mains.p3 ~ PE
     f1 = new MainsFuse20A
     f1.p1 ~ AC_L_IN
     f1.p2 ~ L_F
@@ -241,14 +255,18 @@ module PowerStage120V:
     br1 = new BridgeGbj2510
     br1.AC1 ~ L_FILT
     br1.AC2 ~ N_FILT
-    br1.PLUS ~ BUS_P
-    br1.MINUS ~ HV_RET
-    c_bus1 = new BusFilm2u5
+    br1.PLUS ~ RECT_P
+    br1.MINUS ~ RECT_N
+    c_bus1 = new BusFilm2u7
     c_bus1.p1 ~ BUS_P
-    c_bus1.p2 ~ HV_RET
-    c_bus2 = new BusFilm2u5
+    c_bus1.p2 ~ BUS_P
+    c_bus1.p3 ~ HV_RET
+    c_bus1.p4 ~ HV_RET
+    c_bus2 = new BusFilm2u7
     c_bus2.p1 ~ BUS_P
-    c_bus2.p2 ~ HV_RET
+    c_bus2.p2 ~ BUS_P
+    c_bus2.p3 ~ HV_RET
+    c_bus2.p4 ~ HV_RET
     r_bus1 = new R220k1206
     r_bus1.value = 220kohm
     r_bus1.p1 ~ BUS_P
@@ -296,9 +314,8 @@ module PowerStage120V:
     t_ct.P2 ~ COIL_FEED
     t_ct.S1 ~ CT_S1
     t_ct.S2 ~ CT_S2
-    j_coil = new CoilTerminal2
+    j_coil = new PowerTerminalM4
     j_coil.p1 ~ COIL_FEED
-    j_coil.p2 ~ RES_A
     # 0.22 + 0.22 + 0.10 = 0.54 uF for the nominal 70 uH / 32 kHz coil.
     c_res1 = new Res942C12P22
     c_res1.p1 ~ RES_A
@@ -527,10 +544,48 @@ module PowerStage120V:
     j_selv.p15 ~ SELV_GND
     j_selv.p16 ~ SELV_GND
 
-    # D5 functional earth: place beside J1 PE common point. This link is
+    # D5 functional earth: place beside the separate PCB PE branch terminal. This link is
     # not protective earthing. Reinforced isolation remains required with
     # PE open; SELV_GND is the historical name of the earthed ELV return.
     r_fe = new FunctionalEarthLink
     r_fe.value = 0ohm
     r_fe.p1 ~ PE
     r_fe.p2 ~ SELV_GND
+
+    # Place the bidirectional TVS at the DC-link capacitor terminals. This
+    # source join specifies protection topology, not the surge/energy rating
+    # of the assembled commutation loop.
+    tvs_bus = new BusTvsMrt130kp295
+    tvs_bus.p1 ~ BUS_P
+    tvs_bus.p2 ~ HV_RET
+
+    # Separate coil return stud; external coil connects j_coil to this stud.
+    j_coil_return = new PowerTerminalM4
+    j_coil_return.p1 ~ RES_A
+    j_pe = new PeBranchTerminal
+    j_pe.p1 ~ PE
+    j_pe.p2 ~ PE
+
+    # Two local capacitors per leg. HV_RET preserves shoot-through sensing;
+    # LEG_RET would bypass the shunt. Keep the shunt power path short/wide.
+    c_hf_a1 = new LocalBus100n
+    c_hf_a1.p1 ~ BUS_P
+    c_hf_a1.p2 ~ HV_RET
+    c_hf_a2 = new LocalBus100n
+    c_hf_a2.p1 ~ BUS_P
+    c_hf_a2.p2 ~ HV_RET
+    c_hf_b1 = new LocalBus100n
+    c_hf_b1.p1 ~ BUS_P
+    c_hf_b1.p2 ~ HV_RET
+    c_hf_b2 = new LocalBus100n
+    c_hf_b2.p1 ~ BUS_P
+    c_hf_b2.p2 ~ HV_RET
+
+    # RECT_* studs stay mains-live with links removed. Bench supply connects
+    # only to the bus-side studs (BUS_P/HV_RET), never to LEG_RET.
+    link_pos = new BusBringupLink
+    link_pos.rectifier ~ RECT_P
+    link_pos.bus ~ BUS_P
+    link_neg = new BusBringupLink
+    link_neg.rectifier ~ RECT_N
+    link_neg.bus ~ HV_RET

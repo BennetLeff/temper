@@ -1,7 +1,7 @@
 ---
 title: 120 V power section — schematic and justified BOM (full bridge)
 date: 2026-09-25
-status: source compiled and audited (zapote/power-stage-120v); native board, parts confirmation and physical tests open
+status: approved source revision in progress; refreshed native shelf and physical qualification open
 decision: docs/adr/2026-09-25-front-end-architecture-brief.md
 calculations: power_section.rs (loss comparison), coil_mc.rs (coil/pan robustness)
 source: zapote/power-stage-120v/elec/src/power_stage_120v.ato (build-receipt.json pins hashes)
@@ -23,9 +23,9 @@ temperature upward. Revision history:
 
 | Decision | Chosen | Why, and what was rejected |
 | --- | --- | --- |
-| Front end | Bridge rectifier + 5 µF film bus, no PFC | See the ADR. PFC gives ~2–5 % more power at the same current for 179 J stored energy and ~300 parts. |
+| Front end | Bridge rectifier + 5.8 µF nominal film bus, no PFC | C5/C6 supply 5.4 µF; four local capacitors supply 0.4 µF. The ADR's PFC comparison used the earlier 5.0 µF bus and is historical. The [capacitor screen](../../../zapote/power-stage-120v/BUS-CAP-SCREEN.md) does not calculate power factor. |
 | Inverter | **Full bridge**, series resonant capacitor | Twice the drive voltage lets the coil have 4× impedance at half the current. Robust across cast iron to clad pans (COIL-MC.md: ~100 % of intended cookware at 114 V and 127 V vs ≤ 73 % for any half bridge). Same switch count and loss as the paralleled half bridge (LOSS-REFACTOR.md, B1 = A6). Cost: one more gate driver. |
-| Switch | 4 × Infineon **IPW65R018CFD7** (650 V, 18 mΩ, fast body diode) | ZVS resonant use. 650 V instead of 600 V for surge margin against the MOV's 455 V clamp. Paralleled superjunction beats single SiC here; IGBT tail loss is avoided. Must never run capacitive (body-diode hard recovery): the controller needs a phase inhibit. |
+| Switch | 4 × Infineon **IPW65R018CFD7** (650 V, 18 mΩ, fast body diode) | ZVS resonant use. The MOV's quoted 455 V pulse clamp does not bound returned tank energy or voltage at the MOSFETs; D3 and physical overshoot tests carry the open 650 V margin check. Paralleled superjunction beats single SiC here; IGBT tail loss is avoided. The controller needs a phase inhibit to avoid capacitive operation and body-diode hard recovery. |
 | Gate drive | 2 × UCC21550B, per-leg bootstrap, fail-safe DIS | Circuit reused from the repo's verified gate-drive unit, moved onto the power board so the gate loops stay short. |
 | Bus current and voltage | 1 mΩ Kelvin shunt in the leg return + TLV3201; bus OVP TLV3201; NAND; ISO7710 | Shoot-through never passes the tank CT. The ~61 A trip and the ~280 V bus OVP reach the SELV latch on one default-high isolated fault line. |
 | Thermal backstop | Heatsink and under-glass Microtemp cutoffs in series with the gate-supply input | A non-electronic stop that removes all gate drive, so firmware is not relied on for over-temperature (IEC 60335-1 cl. 19 / Annex R burden). |
@@ -42,46 +42,52 @@ temperature upward. Revision history:
 | Efficiency | ~90–92 % at the 5 % coil target | LOSS-REFACTOR.md |
 | Operating frequency | ~33–39 kHz full power (p05–p95 over pans) | coil_mc.rs |
 | Lowest continuous power at 60 kHz | ~150 W median; phase-shift control and line-synchronous bursts go lower | coil_mc.rs |
-| Stored bus energy | 0.1 J | ADR |
+| Stored bus energy at 140 V RMS line crest | 0.114 J in nominal 5.8 µF bank | BUS-CAP-SCREEN.md; excludes returned tank energy |
 
 ## 3. Schematic
 
-The authoritative schematic is the Atopile source. The native KiCad schematic will be
-generated from it. This is the readable map.
+The authoritative schematic is the Atopile source. The native KiCad schematic
+is regenerated from it. This is the readable connection map; external coil,
+PE wire and removable link jumpers are assembly connections, not PCB net joins.
 
 ```text
-L ─J1.1─ F1 20A ─┬─ RV1 TMOV 175V ─┐                     BR1 GBJ2510
-N ─J1.2──────────┼─────────────────┤  L1 CMC 20A      ┌─────────┐ +  BUS_P ──┬─────────┬──────────────┬───────────┐
-PE─J1.3─┐        ├─ CX1 1µF X2 ────┤ ═══════════ ─┬───┤ ~     ~ ├──────────┐ │ C5,C6   │ R3+R4        │           │
-        │        └─ R1+R2 240k ────┘ ═══════════ ─┼───┤         │ −  HV_RET│ │ 2×2.5µF │ bleed        │           │
-        │                        CX2 1µF X2 ──────┤   └─────────┘          │ │ 942C    │              │           │
-        └──── CY1, CY2 2.2nF Y1 (L,N → PE)                                 │ └────┬────┘              │           │
-                                                                           └──────┴── R5 1mΩ shunt ── LEG_RET     │
-                                                                                     (pads 1/2 leg side,          │
-                                                                                      3/4 bus side; S2 Kelvin     │
-                                                                                      → OCP_KELVIN_N)             │
-   LEG A (U1 UCC21550)                                 LEG B (U2 UCC21550)                                        │
-   Q2 high: D=BUS_P  S=SW_A                            Q5 high: D=BUS_P  S=SW_B ◄──────────────────────────────────┘
-   Q3 low : D=SW_A   S=LEG_RET                         Q6 low : D=SW_B   S=LEG_RET
-   3.9Ω gate R, 10k G-S, 1nF/1kV D-S snubbers, UF4007 bootstrap, 10µF+100n per rail, 39k dead time
+J1.1 L → F1 → L1 winding 1–4 → L_FILT ─┐
+J1.2 N ─────→ L1 winding 2–3 → N_FILT ─┼→ BR1 GBJ2510
+ C1/R1+R2, RV1 before L1; C2 after L1 ┘
+ C3 L_FILT→PE; C4 N_FILT→PE (Y1, 10 mm pitch, 8.5 mm nominal pad gap)
+ Cord PE → chassis/heatsink stud → separate branch wire → J6 PE → C3/C4, R38
+ R38 0 Ω: PE → controller SELV_GND (functional bond only)
 
-   Tank:  SW_A ── T1 CST3015 primary ── COIL_FEED ── J2 (coil 70 µH nom.) ── RES_A ── C21∥C22∥C23 (0.22+0.22+0.10 µF 942C12) ── SW_B
-          R22–R25 4×470k bleed across C21–C23 (τ ≈ 1 s); T1 primary on the switch node (ORACLE-ANSWER.md Q4)
-          T1 secondary ── J4.13/14 → current-sense board (burden, tank OCP, phase comparator)
+BR1+ → RECT_P → J7 ── external removable jumper ── J8 → BUS_P
+BR1− → RECT_N → J9 ── external removable jumper ── J10 → HV_RET
+ BUS_P↔HV_RET: C5/C6 (2 × 2.7 µF TDK, four pins each),
+                C38–C41 (4 × 0.1 µF TDK, two per bridge leg),
+                D3 MRT130KP295CV TVS, R3+R4 bus bleed
+ HV_RET → R5 1 mΩ Kelvin shunt → LEG_RET
+ (R5 pad 1 power LEG_RET, pad 2 sense LEG_RET, pad 3 OCP_KELVIN_N,
+  pad 4 power HV_RET; keep Kelvin copper out of the power path)
 
-   Gate supply: L_FILT ── J3 (loop through heatsink + under-glass Microtemp TCOs) ── PS2 IRM-05-15 ── V15_LS / LEG_RET
-                V15_LS ── U3 78L05 ── HOT5 (U4, U6–U8, U9 side 1)
-   SELV supply: L_FILT/N_FILT ── PS1 IRM-20-15 ── V15_SELV / SELV_GND ── J4.1/2
+LEG A: Q2 high drain BUS_P, source SW_A; Q3 low drain SW_A, source LEG_RET
+LEG B: Q5 high drain BUS_P, source SW_B; Q6 low drain SW_B, source LEG_RET
+Each local bus capacitor returns to HV_RET; returning to LEG_RET would
+bypass R5 during shoot-through. Gate loops use U1/U2, 3.9 Ω gate resistors,
+10 kΩ gate-source returns, 1 nF/1 kV snubbers and UF4007 bootstraps.
 
-   Bus sense:   BUS_P ── R26–R29 4×470k ── VSENSE_IN ── 15.8k 0.1 % ── LEG_RET ;  U4 AMC1311 → VBUS_P/N (J4.11/12)
-   Shoot-through OCP and bus OVP (all ref. LEG_RET):
-                REF25 (U5 LM4040, 6.8k bias) ─10k─ OCP_NODE ─10k─ OCP_KELVIN_N ;  100 pF node filter
-                REF25 ─10.5k─ OCP_THRESH ─10.0k─ LEG_RET    (0.1 % thin film; trip ≈ 61 A)
-                REF25 ─10k─ OVP_THRESH ─140k─ LEG_RET       (2.333 V = VSENSE_IN at ≈ 280 V bus)
-                U6 TLV3201: + = OCP_NODE, − = OCP_THRESH → OCP_OK_HOT ─┐
-                U7 TLV3201: + = OVP_THRESH, − = VSENSE_IN → OVP_OK_HOT ─┴ U8 LVC1G00 NAND → BUS_FAULT_HOT → U9 ISO7710 → BUS_FAULT (J4.10)
- - - - - - - - - - - - - - reinforced barrier: U1/U2 (primary side), U4, U9, T1, PS1 - - - - - - - - - - - - - - - -
-   J4 Micro-Fit 2×8: V15_SELV, SELV_GND×4, V3V3 in, PWM_HA/LA/HB/LB, PERMIT, BUS_FAULT, VBUS_P/N, CT_S1/S2
+Tank: SW_A → T1 CST3015 primary → COIL_FEED → J2 M4 stud
+      → external coil → J5 M4 stud → RES_A → C21∥C22∥C23 (CDE 942C, 0.54 µF) → SW_B
+      R22–R25: 4 × 470 kΩ bleed across RES_A and SW_B (τ ≈ 1 s)
+      T1 secondary → J4.13/14 → current-sense board
+
+Gate auxiliary: L_FILT → J3 thermal cutoff loop → PS2 IRM-05-15
+                → V15_LS/LEG_RET → U3 78L05 → HOT5
+Controller supply: L_FILT/N_FILT → PS1 IRM-20-15 → V15_SELV/SELV_GND
+Bus sense: BUS_P → R26–R29 (4 × 470 kΩ) → VSENSE_IN → R30 15.8 kΩ → LEG_RET
+           U4 AMC1311 isolated output → J4.11/12 VBUS_P/N
+Fault: U5 LM4040 REF25 (5.6 kΩ bias); U6 OCP ≈ 61 A;
+       U7 OVP ≈ 280 V; U8 LVC1G00 NAND → U9 ISO7710DWR → J4.10 BUS_FAULT
+HOT/controller barrier: U1/U2, U4, U9, T1, PS1; D5 placement floor ≥8.0 mm.
+J4: V15_SELV, SELV_GND×4, V3V3 in, four PWMs, PERMIT, BUS_FAULT,
+    VBUS_P/N and CT_S1/S2.
 ```
 
 ## 4. Low-power holding (room temperature and up)
@@ -94,7 +100,7 @@ The full bridge gives two low-power mechanisms:
 
 The probe (RTD board) and under-glass sensor close the temperature loop.
 
-## 5. BOM with justification (from `zapote/power-stage-120v/build/default.csv`)
+## 5. BOM with justification (to reconcile with `zapote/power-stage-120v/frozen/default.csv` after re-freeze)
 
 Status: **V** = the rating that decides the choice was checked against the datasheet;
 **C** = identity chosen, a rating or order code still to confirm; **F** = footprint to draw or vendor.
@@ -110,10 +116,12 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | R11,R13,R19,R21 | 4 | RC0603FR-0710KL | Gate-source hold-off | V |
 | C12,C13,C19,C20 | 4 | GRM31A5C3A102JW01D | 1 nF 1 kV C0G drain-source snubbers | C |
 | C21,C22 / C23 | 2 / 1 | 942C12P22K-F / 942C12P1K-F | 0.54 µF series resonant bank for 70 µH / 32 kHz; 10.3 + 10.3 + 9.2 A vs ~18.7 A | V (current); C (AC V vs f); F |
-| R22–R25 | 4 | RC1206FR-07470KL | Resonant-bank bleed: an OCP trip can leave ~250 V on C_res; 1.88 M, τ ≈ 1 s, ≤ 160 V peak and ~7 mW each | V |
+| R22–R25 | 4 | RC1206FR-07470KL | Resonant-bank bleed: an OCP trip can leave ~250 V on C_res; 1.88 MΩ, τ ≈ 1 s. Check each resistor's voltage and heating over the actual tank waveform | V (part); C (waveform stress) |
 | T1 | 1 | CST3015-100ED | 1:100, 88 A, 5 kVrms reinforced; ~37 A peak tank | V |
-| C5,C6 | 2 | 942C6W2P5K-F | 5 µF film bus, 2 × 19.5 A rms rating vs ~23 A | V; F |
-| R3,R4 | 2 | RC1206FR-07220KL | Bus bleed, τ ≈ 2.2 s | V |
+| C5,C6 | 2 | B32656G0275J000 | 2 × 2.7 µF/1000 V four-pin TDK radial film bus, 5.4 µF nominal; confirm electrode pairing on received parts and assembly retention | V (catalog ratings); C (assembled stress) |
+| C38–C41 | 4 | B32652A0104K000 | 100 nF/1000 V, two per leg, BUS_P to HV_RET through the shunt power path | V (catalog ratings); C (assembled ripple and heat) |
+| D3 | 1 | MRT130KP295CV | DC-link TVS at C5/C6; actual terminal clamp and pulse energy need transient measurement | V (datasheet pulse); C (assembled surge) |
+| R3,R4 | 2 | RC1206FR-07220KL | 440 kΩ bus bleed, nominal τ ≈ 2.55 s at the new 5.8 µF total | V (part); C (actual discharge) |
 | R5 | 1 | WSK2512R0010FEA | 1 mΩ 4-terminal shunt, ~0.35 W | C (power at temperature) |
 | U6 / U5 / R31 | 1 each | TLV3201AIDBVR / LM4040A25IDBZR / RC0603FR-075K6L (5.6k) | 40 ns comparator; 2.5 V reference, 120.8 µA cathode current at the checked DC corner (REFERENCE-BIAS.md); complete shutdown latency unqualified | V (selected ratings and DC corner) |
 | R32,R33 / R34 / R35 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 10K (0.1 %) | Offset and threshold network, trip ≈ 61 A (TLV3201 ±5 mV → ±10 A, before other tolerances). Lowered from 91 A as risk reduction; returned tank energy remains unbounded: ORACLE-REVIEW.md | V (nominal network); C (fault response) |
@@ -127,11 +135,13 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | RV1 | 1 | TMOV20RP175E | 175 Vrms thermally protected MOV, 455 V clamp | C; F |
 | L1 | 1 | B82726S2203A020 | 20 A, 1.6 mH, ~4.5 mΩ (~2 W). Windings 1–4 and 2–3 per TDK drawing | V (pins); F |
 | C1,C2 / R1,R2 | 2 / 2 | R463R410000M1M / 120k 1206 | 1 µF X2 310 VAC; bleed to 24.7 V after 1 s (limit 34 V) | V |
-| C3,C4 | 2 | DE1E3RA222MA4BP01F | 2.2 nF Y1; ~0.2 mA leakage at 127 V | V |
+| C3,C4 | 2 | DE1E3RA222MA4BP01F | 2.2 nF Y1; 10 mm pitch and 1.5 mm local pads give 8.5 mm nominal copper gap; verify component and board insulation | V (part); C (assembly) |
 | PS1 | 1 | IRM-20-15 | SELV 15 V 1.4 A, 4.2 kVac, pin 1 = AC/L | V |
 | PS2 | 1 | IRM-05-15 | Gate/HOT 15 V, **pin 1 = AC/N** (differs from IRM-20) | V |
 | U3 | 1 | MC78L05ACHT1G | HOT 5 V from 15 V | V |
-| J1 / J2 | 1 / 1 | Phoenix 1711039 / 1711026 | 24 A 400 V screw terminals: mains / coil | V / C (order code) |
+| J1 | 1 | Phoenix 1711725 | Two-position, 5.08 mm L/N terminal; applicable UL use group/current still to confirm | V (identity); C (applicable current) |
+| J2,J5,J7–J10 | 6 | Würth 74650074 | Separate M4 coil studs and two pairs of removable-link studs; 50 A max at 20 °C, THR reflow, PCB 1.6–2.0 mm. No individual terminal voltage rating | V (part); C (assembled current and insulation) |
+| J6 | 1 | Phoenix 1704004 | One-position PCB PE branch from direct chassis bond; keep ≥8 mm from HOT | V (part); C (assembled earth path) |
 | J3 | 1 | B2P-VH(LF)(SN) | TCO loop, 250 V 10 A | V |
 | J4 | 1 | Molex 0430451612 | SELV 2×8 header | C (order code) |
 | C7,C8,…(14) / C9,C10,…(6) | 14 / 6 | C0603C104K5RACTU / GRM32ER71H106KA12L | Bypass and bootstrap | V |
@@ -141,26 +151,34 @@ and one under the glass (rating after thermal measurement; up to 257 °C availab
 
 ## 6. Verification so far
 
-- Atopile 0.2.69 build: 91 components, 67 nets, no errors.
-- Rust audit (`zapote/power-stage-120v/audit.rs`): PASS; 18/18 tests, 17 deliberate miswires caught.
-  It covers part identity against the resolved export (Atopile's netlist part field is aliased), the
-  HOT/SELV barrier pin sides, shunt orientation, fail-safe DIS, the TCO-gated supply, OCP polarity,
-  the tank path and the header map.
-- Hashes: `zapote/power-stage-120v/build-receipt.json`.
+- The prior 104-part source/native revision passed its audit, parity and
+  connectivity checks. The approved capacitor and terminal changes form a
+  newer source revision; consult its refreshed build and verification receipts
+  after regeneration before quoting current counts or test results.
+- The Rust audit checks part identity against the resolved export
+  (Atopile's netlist part field is aliased), HOT/controller barrier sides,
+  shunt orientation, the two open rectifier/bus links, the capacitor returns,
+  tank path, fault polarity and connector map.
 
 This is connectivity evidence only. Voltage, timing, creepage, thermal and EMI are not verified.
 
 ## 7. Open items, in decision order
 
-1. Coil and pan measurement (COIL-MC.md): sets the resonant bank, CT burden and frequency limits.
-2. Confirm the "C" items above against manufacturer drawings; draw or vendor the "F" footprints.
+1. Coil and pan measurement (COIL-MC.md): validates the retained resonant bank,
+   CT burden and operating frequency limits.
+2. Confirm the remaining "C" ratings above against the assembled waveform and
+   enclosure. Four-pin radial construction does not establish retention;
+   confirm the M4 THR profile and actual PCB thickness is within 1.6–2.0 mm.
 3. Glass-underside temperature at the maximum setpoint, to choose the under-glass cutoff rating.
 4. Controller-side hardware: BUS_FAULT now matches the existing healthy-low/fault-high interlock input. CT phase inhibit, complete shutdown timing, HOT5 brownout and supply-loss behavior remain unverified (FAULT-INTERFACE.md). D5 conditionally approves one functional PE bond and an 8.0 mm placement floor; insulation qualification is still open (D5-BASIS.md).
-5. Native schematic and PCB with creepage rules (≈200 V bus, ≈430 V-peak tank nodes), then
-   ERC/DRC/parity.
+5. Regenerated native source projection and qualified creepage rules; the
+   earlier bus/tank peak examples are not design bounds. Verify ERC/DRC/parity
+   after each native revision.
 6. Bench: dead time, gate resistors, snubbers, OCP trip, ZVS at light load and deep phase shift,
    conducted EMI pre-scan (FCC Part 18 / 15B).
-7. Certification basis: UL 858 vs UL 1026, NOM-003-SCFI.
+7. Certification basis and CT insulation evidence: UL 858 vs UL 1026,
+   NOM-003-SCFI, applicable IEC 60335-1 edition and IEC 60664-4 stress.
+   The certification-lab call and RCA 12A3 teardown have not occurred.
 
 ## Sources
 
@@ -173,5 +191,8 @@ This is connectivity evidence only. Voltage, timing, creepage, thermal and EMI a
 - Littelfuse 326 series 0326020: https://www.littelfuse.com/products/fuses-overcurrent-protection/fuses/cartridge-fuses/3ab-3ag-6-3x32mm-fuses-cartridge-fuses/326/0326020
 - Littelfuse TMOV: https://www.littelfuse.com/assetdocs/varistors-tmov-datasheet?assetguid=bd475732-1071-4352-b8aa-f78b0007eb05
 - TDK B82726S2203A020 (DigiKey): https://www.digikey.com/product-detail/en/tdk-electronics-inc/B82726S2203A020/495-5741-ND/3502593
-- Phoenix MKDS 3/3 1711039: https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-mkds-3-3-1711039
+- Phoenix 1711725: https://www.phoenixcontact.com/en-de/products/pcb-terminal-block-mkds-3-2-508-1711725
+- Phoenix 1704004: https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-kds-3-1704004
+- Würth 74650074: https://www.we-online.com/components/products/datasheet/74650074.pdf
+- TDK radial bus and local capacitors: https://product.tdk.com/en/system/files/dam/doc/product/capacitor/film/mkp_mfp/data_sheet/20/20/db/fc_2009/mkp_b32651_658.pdf
 - Vishay WSK2512: https://www.vishay.com/docs/30108/wsk2512.pdf

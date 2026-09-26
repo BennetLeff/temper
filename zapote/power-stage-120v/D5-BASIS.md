@@ -6,7 +6,7 @@ bond and an 8.0 mm minimum placement target, with Coilcraft evidence and the
 voltage/standards review still open. It does not approve fabrication or routing.
 D4 still requires review of the actual placement.
 
-Use one removable 0 Ω functional connection near J1's PE common point. It
+Use one removable 0 Ω functional connection near the separate J6 PE branch. It
 must not carry protective-earthing responsibility: maintain the full HOT-to-
 controller reinforced insulation requirement with PE open. Because the link
 connects PE to controller return, HOT-to-PE copper, Y-capacitor paths and
@@ -17,6 +17,15 @@ controller returns away from PE; external USB/probe earth paths need a system
 review. The historical net name SELV_GND remains an identifier, not a final
 SELV classification claim after earthing. Record the domain as earthed ELV,
 with its final classification to be confirmed by the certification lab.
+
+Cord PE bonds directly to the chassis/heatsink stud; its separate PCB branch
+lands at J6 (Phoenix 1704004). J1 carries only mains L/N. J6, its PCB trace
+and R38 are never in series with the primary PE bond. Maintain ≥8.0 mm
+provisional clearance from every HOT conductor to the PE branch, its
+hardware and the chassis connection. The C3/C4 local 10 mm-pitch footprint
+uses 1.5 mm pads for an 8.5 mm nominal copper edge gap; check finished
+board tolerances and the component surface path. This footprint change does
+not settle the package or system insulation qualification.
 
 The 8.0 mm floor applies to provisional PCB barrier geometry. It does not
 prove that every working-voltage or switching-frequency case needs only

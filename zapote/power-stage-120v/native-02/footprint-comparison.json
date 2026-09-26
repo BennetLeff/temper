@@ -1,5 +1,5 @@
 {
-  "board_sha256": "04665a37c242e26ba6a2c6d74bdb623093d54ae3af55a8457e7f41a6e37ccbbb",
+  "board_sha256": "d571bfe0560d93ef20cca98648b595c69dbcff816ca778babb23b341a8a40fa9",
   "tool": "pcbnew 10.0.4",
   "scope": "Footprints named by lib_footprint_mismatch; native integer units, shelf angle zero. Annotation fields are not asserted equal.",
   "compared_pad_fields": [
@@ -82,7 +82,7 @@
     },
     {
       "reference": "C3",
-      "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+      "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
       "exact_pad_geometry_matches": true,
       "graphic_class_layer_counts_match": true,
       "graphic_bbox_deltas": {
@@ -109,8 +109,64 @@
       }
     },
     {
+      "reference": "C38",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            5922619,
+            -848250,
+            3154762,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            5232143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "C39",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            5922619,
+            -848250,
+            3154762,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            5232143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
       "reference": "C4",
-      "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+      "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
       "exact_pad_geometry_matches": true,
       "graphic_class_layer_counts_match": true,
       "graphic_bbox_deltas": {
@@ -129,6 +185,62 @@
             "PCB_TEXT",
             "F.Fab",
             2732143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "C40",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            5922619,
+            -848250,
+            3154762,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            5232143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "C41",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            5922619,
+            -848250,
+            3154762,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            5232143,
             -848250,
             4535715,
             1696500
@@ -193,6 +305,34 @@
       }
     },
     {
+      "reference": "D3",
+      "footprint": "temper:MRT130KP_Axial_P20.00mm_ReviewOnly",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            8898810,
+            -848250,
+            2202381,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            7732143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
       "reference": "F1",
       "footprint": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal",
       "exact_pad_geometry_matches": true,
@@ -222,34 +362,6 @@
     },
     {
       "reference": "J1",
-      "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal",
-      "exact_pad_geometry_matches": true,
-      "graphic_class_layer_counts_match": true,
-      "graphic_bbox_deltas": {
-        "board_only": [
-          [
-            "PCB_TEXT",
-            "F.Fab",
-            4097857,
-            2251750,
-            1964286,
-            1696500
-          ]
-        ],
-        "library_only": [
-          [
-            "PCB_TEXT",
-            "F.Fab",
-            2812143,
-            2251750,
-            4535715,
-            1696500
-          ]
-        ]
-      }
-    },
-    {
-      "reference": "J2",
       "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
       "exact_pad_geometry_matches": true,
       "graphic_class_layer_counts_match": true,
@@ -270,6 +382,62 @@
             "F.Fab",
             272143,
             2251750,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "J10",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -1458333,
+            -848250,
+            2916667,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -2267857,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "J2",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -982143,
+            -848250,
+            1964286,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -2267857,
+            -848250,
             4535715,
             1696500
           ]
@@ -326,6 +494,118 @@
             "F.Fab",
             8232143,
             3351750,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "J5",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -982143,
+            -848250,
+            1964286,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -2267857,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "J7",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -982143,
+            -848250,
+            1964286,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -2267857,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "J8",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -982143,
+            -848250,
+            1964286,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -2267857,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "J9",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -982143,
+            -848250,
+            1964286,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -2267857,
+            -848250,
             4535715,
             1696500
           ]

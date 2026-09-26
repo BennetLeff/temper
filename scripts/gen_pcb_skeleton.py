@@ -546,6 +546,14 @@ def _restore_candidate_property_geometry(output_path: Path) -> None:
         output_path.write_text(restored, encoding="utf-8")
 
 
+def _candidate_copper_pad(pad: Any) -> bool:
+    """Paste-only SMD apertures are physical pads, but have no electrical net."""
+    return (
+        getattr(pad, "type", "") in ("smd", "thru_hole")
+        and any(str(layer).endswith(".Cu") for layer in (getattr(pad, "layers", ()) or ()))
+    )
+
+
 def generate_candidate_board(
     netlist: Netlist,
     pin_map: dict[tuple[str, str], str],
@@ -636,12 +644,14 @@ def generate_candidate_board(
                         f"pins '{claimed[pad_no][1]}' and '{pin}'"
                     )
                 claimed[pad_no] = (ref, pin)
+        mapped_numbers: set[str] = set()
         for pad in fp.pads:
-            if getattr(pad, "type", "") not in ("smd", "thru_hole"):
+            if not _candidate_copper_pad(pad):
                 continue
             if pad.number in claimed:
                 ref, pin = claimed[pad.number]
                 pad.net = net_table[pin_to_net[(ref, pin)]]
+                mapped_numbers.add(pad.number)
             elif (comp.ref, pad.number) in unconnected_pads:
                 continue
             else:
@@ -649,6 +659,11 @@ def generate_candidate_board(
                     f"candidate board: footprint pad '{pad.number}' on "
                     f"{comp.ref} is neither mapped nor explicitly unconnected"
                 )
+        if missing := set(claimed) - mapped_numbers:
+            raise ValueError(
+                f"candidate board: mapped pad(s) {sorted(missing)} on {comp.ref} "
+                "have no copper on the resolved footprint"
+            )
         footprints.append(fp)
 
     board.footprints = footprints
@@ -731,7 +746,7 @@ def candidate_oracle_verify(
             print(f"CANDIDATE ORACLE FAILURE: Sheetpath drift on {ref}")
             ok = False
         for pad in fp.pads:
-            if getattr(pad, "type", "") not in ("smd", "thru_hole"):
+            if not _candidate_copper_pad(pad):
                 continue
             net = getattr(pad, "net", None)
             net_name = getattr(net, "name", "") if net else ""

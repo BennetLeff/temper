@@ -16,6 +16,7 @@ dimensions and pin order; it is not a board-level insulation or assembly approva
 | F7 | `temper.pretty/CST3015.kicad_mod`<br>`3c79ad69b9d37b4252ef7affa7774dcd55d613ce957b110e455523168ddb3621` | [Coilcraft CST3015 datasheet](https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf), document 1608-2, revised 2025-09-08, p. 2 recommended land pattern; corrected donor `zapote/current-sense/candidate/candidate-libs/temper.pretty/CST3015_Datasheet2025.kicad_mod` | Pads 1 `(5.58,-11.55)` / 2 `(-5.58,-11.55)`, 4.8×9.0; pads 3 `(-6.88,13.75)` / 4 `(6.88,13.75)`, 3.0×4.6. Primary horizontal inner gap 6.36; secondary 10.76; primary-to-secondary vertical copper-edge gap **18.5**. | **VERIFIED:** drawing visually checked independently by coordinator and two Sol reviewers. The 18.5 dimension is an edge gap, not a row-center pitch. PCB geometry does not increase the package's published ≥8 mm insulation guarantee. |
 | F8 | `lib.pretty/SOIC16W_Isolated.kicad_mod`<br>`9e7dde8e635f41eb35de9cc01ab03629dcabc80b5e3edce53098ced058baa2a3` | [TI UCC21550 datasheet](https://www.ti.com/lit/ds/symlink/ucc21550.pdf), SLUSE89C revised August 2024, p. 50 DWK0014A HV/isolation land pattern; donor `pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod` | 14 SMD pads (1–11, 14–16), 1.65×0.6, x=±4.875, y on 1.27 pitch; nearest opposite copper edges 8.10 apart. | **VERIFIED:** byte-identical to donor (same hash); donor's stated HV land geometry matches the TI drawing. Board-level insulation still requires Part 4 review. |
 | F9 | `lib.pretty/SOIC16W_DW0016B_HV.kicad_mod`<br>`0122bebb19f2a697a3ee831907d6d402e7e27cb63b13b483b7a1b176db4091b0` | [TI ISO7710 datasheet](https://www.ti.com/lit/ds/symlink/iso7710.pdf), SLLSER9E revised December 2024, p. 33, DW0016B land pattern (drawing 4221009/B), "HV / ISOLATION OPTION" | 16 SMD pads 1.65×0.6, x=±4.875, y on 1.27 pitch; nearest opposite copper edges 8.10 apart. Derived from F8 with pads 12 and 13 restored. | **VERIFIED:** TI states 8.1 mm clearance/creepage for this option vs 7.3 mm for IPC-7351 nominal. Used by U9 ISO7710DWR (previously the stock KiCad SOIC-16W, 7.25 mm). |
+| F10 | `temper.pretty/MRT130KP_Axial_P20.00mm_ReviewOnly.kicad_mod`<br>`834fd22e3ef0102bb6895591110641bb20bf410ccfe6ccfcfbbcc39949e607ef` | [Microchip MRT130KP datasheet](https://ww1.microchip.com/downloads/aemDocuments/documents/HRDS/ProductDocuments/DataSheets/130-kW-Transient-Voltage-Suppressor-TVS-Device-00005551.pdf), DS00005551B, §5 Figure 5-1, p. 10 | Bidirectional axial TVS. Max body length 12.954, diameter 7.874; max lead diameter 1.3462. Pads 1 `(0,0)`, 2 `(20,0)`, each Ø3.2 / drill Ø1.6; Fab body `x=3.523–16.477`, `y=±3.937`. No cathode stripe. | **PROVISIONAL:** Microchip specifies body and lead dimensions, but no board pitch. The 20 mm formed-lead pitch, lead bends, standoff, and restraint must be checked with a sample. No package-accurate 3D model is supplied. |
 
 The current Littelfuse drawing gives `A=21–28 mm` and `D=18–23 mm` for this
 row; Part 2's older minima were 23 and 19 mm. Its maxima, lead count,
@@ -39,7 +40,55 @@ including pin numbers, before accepting this replacement. Both donor files
 remain unchanged. F8 is byte-for-byte identical to its donor.
 
 `kicad-cli fp upgrade --output /tmp/ps-fpcheck-temper` and the same command
-for `lib.pretty` parsed both libraries. `kicad-cli fp export svg` exported all
-eight footprints; the five authored outlines, silk, marker and pad positions
+for `lib.pretty` parsed both libraries. `kicad-cli fp export svg` exported the
+initial unit footprints; the five authored outlines, silk, marker and pad positions
 were visually inspected from rendered SVGs. The final corrected library also passes native vendoring and raw-pad source
 parity; see `NATIVE-01.md`.
+
+### F10 generator and assembly review
+
+The stock `Diode_THT:D_P600_R-6_P20.00mm_Horizontal` has a 9.1 × 9.1 mm body,
+so it does not represent Microchip's 12.954 × 7.874 mm maximum envelope.
+F10 is generated with the official KiCad Library Tools
+`makeResistorAxialHorizontal` function, commit
+`bdac8b071ccd57cd8dd35a8d7930ee69e3e8304a`, from the co-located
+[`MRT130KP_Axial_P20.00mm_ReviewOnly.yaml`](libraries/temper.pretty/MRT130KP_Axial_P20.00mm_ReviewOnly.yaml).
+The generator runs with `deco: none` because the part is bidirectional and
+Microchip says it has no cathode. A 1.6 mm drill leaves 0.254 mm diametral
+clearance against the largest specified lead. The pad annulus is 0.8 mm.
+The body ends 3.523 mm from each hole centre at maximum length.
+
+To reproduce F10 with this version of the library tools and PyYAML installed,
+run from the repository root with `KILT` pointing to that checkout:
+
+```bash
+PYTHONPATH="$KILT/src:$KILT" python3 - <<'PY'
+from pathlib import Path
+import yaml
+from generators.tools.cli_args import CLI_ARGS
+from generators.tools.footprint.footprint_scripts_resistorlike import makeResistorAxialHorizontal
+
+definition = Path('zapote/power-stage-120v/libraries/temper.pretty/MRT130KP_Axial_P20.00mm_ReviewOnly.yaml')
+parameters = yaml.safe_load(definition.read_text())
+assert parameters.pop('generator') == 'generators.tools.footprint.footprint_scripts_resistorlike.makeResistorAxialHorizontal'
+CLI_ARGS.__dict__.update(dry_run=False, separate_outputs=False, output_dir_footprints=definition.parent.parent)
+makeResistorAxialHorizontal(**parameters)
+PY
+```
+
+KiCad 10.0.4 loaded the footprint and reported pads 1 and 2 at `(0,0)` and
+`(20,0)`, both Ø3.2 / drill Ø1.6. `kicad-cli fp export svg` rendered it; the
+Fab body, Silkscreen, Courtyard and pads were visually inspected. The available
+library-tools checkout has no axial 3D generator, and the stock P600 3D body is
+the wrong size, so F10 intentionally has no model reference. Before fabrication,
+check formed lead fit and mounting height on a real device and add a matching
+model if mechanical interference analysis requires it.
+
+## Approved radial and terminal revision
+
+See [RADIAL-FOOTPRINTS.md](RADIAL-FOOTPRINTS.md) for the four added local patterns and
+co-located geometry/provenance YAML. C3/C4 now use 1.5 mm pads on 10 mm pitch for
+8.5 mm nominal copper gap. J1 contains L/N only; the separate J6 PE branch avoids
+the former fixed 2.48 mm HOT-to-PE terminal gap. Würth 74650074 uses the stock
+REDCUBE THR pattern; all four copper pads share logical pin 1. Neither a stock
+pattern nor a source audit qualifies lug clearance, assembly current or vibration.

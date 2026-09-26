@@ -112,10 +112,13 @@ pub fn pack(input: ShelfInput) -> Result<ShelfResult, String> {
         }
         parts.push((part.path, bounds));
     }
+    // Tall parts first keep later rows from inheriting a much taller part's
+    // height after their width is already committed.
     parts.sort_by(|a, b| {
-        let area_a = a.1.width() * a.1.height();
-        let area_b = b.1.width() * b.1.height();
-        area_b.cmp(&area_a).then_with(|| a.0.cmp(&b.0))
+        b.1.height()
+            .cmp(&a.1.height())
+            .then_with(|| b.1.width().cmp(&a.1.width()))
+            .then_with(|| a.0.cmp(&b.0))
     });
 
     let mut poses = BTreeMap::new();
@@ -240,5 +243,81 @@ mod tests {
         .unwrap();
         assert_eq!(result.poses["fallback"], [6.0, 6.0, 0.0]);
         assert_eq!(result.poses["neighbor"], [12.0, 5.0, 0.0]);
+    }
+
+    #[test]
+    fn height_order_packs_mixed_parts_inside_outline_without_overlap() {
+        let parts = [
+            part("low_wide", [-2.0, -1.0, 31.0, 14.0]),
+            part("tall", [0.0, 0.0, 19.0, 24.0]),
+            part("mid", [-1.0, -2.0, 15.0, 10.0]),
+            part("small_1", [0.0, 0.0, 4.0, 3.0]),
+            part("small_2", [0.0, 0.0, 4.0, 3.0]),
+            part("small_3", [0.0, 0.0, 4.0, 3.0]),
+        ];
+        let outline = [0.0, 0.0, 50.0, 80.0];
+        let result = pack(ShelfInput {
+            outline_mm: outline,
+            parts: parts
+                .iter()
+                .map(|p| {
+                    part(
+                        &p.path,
+                        [
+                            p.bounds.min_x,
+                            p.bounds.min_y,
+                            p.bounds.max_x,
+                            p.bounds.max_y,
+                        ],
+                    )
+                })
+                .collect(),
+        })
+        .unwrap();
+        let reversed = pack(ShelfInput {
+            outline_mm: outline,
+            parts: parts
+                .iter()
+                .rev()
+                .map(|p| {
+                    part(
+                        &p.path,
+                        [
+                            p.bounds.min_x,
+                            p.bounds.min_y,
+                            p.bounds.max_x,
+                            p.bounds.max_y,
+                        ],
+                    )
+                })
+                .collect(),
+        })
+        .unwrap();
+        assert_eq!(result.poses, reversed.poses);
+        assert_eq!(result.poses.len(), parts.len());
+        let boxes: Vec<[f64; 4]> = parts
+            .iter()
+            .map(|part| {
+                let [x, y, angle] = result.poses[&part.path];
+                assert_eq!(angle, 0.0);
+                let b = part.bounds;
+                let rect = [x + b.min_x, y + b.min_y, x + b.max_x, y + b.max_y];
+                assert!(rect[0] >= outline[0] + 5.0 && rect[1] >= outline[1] + 5.0);
+                assert!(rect[2] <= outline[2] - 5.0 && rect[3] <= outline[3] - 5.0);
+                rect
+            })
+            .collect();
+        for (i, a) in boxes.iter().enumerate() {
+            for b in boxes.iter().skip(i + 1) {
+                assert!(
+                    a[2] + 3.0 <= b[0]
+                        || b[2] + 3.0 <= a[0]
+                        || a[3] + 3.0 <= b[1]
+                        || b[3] + 3.0 <= a[1],
+                    "footprints lack a 3 mm separation: {a:?}, {b:?}"
+                );
+            }
+        }
+        assert_eq!(result.poses["tall"], [5.0, 5.0, 0.0]);
     }
 }
