@@ -8,9 +8,9 @@ defaults on 2026-09-25; D4 and D5 remain open.
 | --- | --- | --- |
 | D1 | Maximum board outline | **Approved 2026-09-25:** 220 × 160 mm maximum. |
 | D2 | Heatsink and airflow | **Approved 2026-09-25:** shared PE-bonded heatsink along a long edge, with electrically insulated MOSFETs and bridge. Airflow direction is still not chosen. |
-| D3 | Physical stackup | **Approved 2026-09-25:** two copper layers, 1.6 mm FR-4, 70 µm copper per side. The shelf generator's six-layer declarations are not this stackup; Part 4 must regenerate with it. |
+| D3 | Physical stackup | **Approved 2026-09-25 and implemented in native-02:** two copper layers, 1.6 mm FR-4, 70 µm copper per side. Fabricator stackup acceptance remains separate. |
 | D4 | Review placement before routing | Required by the accepted plan. No placement approval has been given. |
-| D5 | Insulation basis and barrier parts | Open. First establish the controller-side SELV_GND–PE reference architecture, then boundary working voltages and package/PCB requirements. See RULES-PREFLIGHT.md, ORACLE-REVIEW.md and ORACLE-ANSWER.md. Proposed basis: keep the single-point SELV_GND–PE bond and make the whole barrier ≥ 8.0 mm (PD3, IIIa/IIIb, reinforced), after the five source changes listed in ORACLE-ANSWER.md. Proposal only, awaiting owner approval and the Coilcraft CST3015 evidence. |
+| D5 | Insulation basis and barrier parts | **Open.** The proposed single-point SELV_GND–PE functional bond is not present in the source and has not been approved. A uniform ≥ 8.0 mm barrier is a provisional target, not a demonstrated PD3 requirement. The five source changes are implemented, but working-voltage bounds, high-frequency requirements, actual laminate CTI, package/module certification scope and Coilcraft CST3015 evidence remain unresolved. See ORACLE-REVIEW.md; the 468/511 V estimates do not close this decision. |
 | D6 | Mains entry and coil exit edges | **Approved 2026-09-25:** mains left, coil right, viewed from the component side with the heatsink at the top. |
 
 Part 4 §4.0 requires D1–D3 and D6 before deliberate placement. Part 4 §4.2

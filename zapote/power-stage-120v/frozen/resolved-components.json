@@ -1,14 +1,14 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "45c2651dd5e8cb32210a1df61b4641456589dc227c2864eeca3ca693e7d4ba21",
+    "build/default.csv": "d8c42a5ae0b585decaac495ee6464ba00c5bbc476c1a7ad3a621f436e04b983a",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "6c4532582f0bd82f5cd64cc5918a3e71b5dd8363fa630489a2b9d53d2e563e22",
+    "build/default.net": "5c422da5204bafb806b1fdc93991251268a441bd06a99eb8ed8b2015d644ece8",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_mains",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_mains",
       "attributes": {
         "designator_prefix": "J",
         "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal",
@@ -17,7 +17,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::f1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::f1",
       "attributes": {
         "designator_prefix": "F",
         "footprint": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal",
@@ -26,7 +26,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::rv1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::rv1",
       "attributes": {
         "designator_prefix": "RV",
         "footprint": "temper:TMOV20RP_ReviewOnly",
@@ -35,7 +35,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::cx1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::cx1",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
@@ -44,7 +44,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::rb1a",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::rb1a",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -54,7 +54,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::rb1b",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::rb1b",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -64,7 +64,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::l1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::l1",
       "attributes": {
         "designator_prefix": "L",
         "footprint": "temper:B82726S2_ReviewOnly",
@@ -73,7 +73,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::cx2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::cx2",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
@@ -82,7 +82,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::cy1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::cy1",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
@@ -91,7 +91,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::cy2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::cy2",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
@@ -100,7 +100,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::br1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::br1",
       "attributes": {
         "designator_prefix": "BR",
         "footprint": "temper:Diode_Bridge_GBJ2510",
@@ -109,7 +109,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_bus1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_bus1",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
@@ -118,7 +118,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_bus2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_bus2",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "temper:CDE_942C_D32.0_L54.0_Axial_ReviewOnly",
@@ -127,7 +127,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_bus1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_bus1",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -137,7 +137,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_bus2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_bus2",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -147,7 +147,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_shunt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_shunt",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm",
@@ -156,7 +156,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.driver",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.driver",
       "attributes": {
         "designator_prefix": "U",
         "footprint": "lib:SOIC16W_Isolated",
@@ -165,7 +165,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_vcci",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_vcci",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -175,7 +175,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.permit_fet",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.permit_fet",
       "attributes": {
         "designator_prefix": "Q",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
@@ -184,7 +184,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -194,7 +194,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit_pd",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -204,7 +204,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_dis_pu",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_dis_pu",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -214,7 +214,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_dt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_dt",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -224,7 +224,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -234,7 +234,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls_bulk",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls_bulk",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
@@ -244,7 +244,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.d_boot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.d_boot",
       "attributes": {
         "designator_prefix": "D",
         "footprint": "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal",
@@ -253,7 +253,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_boot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_boot",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
@@ -263,7 +263,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_boot_hf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_boot_hf",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -273,7 +273,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gh",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gh",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -283,7 +283,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gh_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gh_pd",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -293,7 +293,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gl",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gl",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -303,7 +303,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gl_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gl_pd",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -313,7 +313,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.q_high",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.q_high",
       "attributes": {
         "designator_prefix": "Q",
         "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
@@ -322,7 +322,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.q_low",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.q_low",
       "attributes": {
         "designator_prefix": "Q",
         "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
@@ -331,7 +331,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_snub_h",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_snub_h",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1206_3216Metric",
@@ -340,7 +340,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_snub_l",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_snub_l",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1206_3216Metric",
@@ -349,7 +349,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.driver",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.driver",
       "attributes": {
         "designator_prefix": "U",
         "footprint": "lib:SOIC16W_Isolated",
@@ -358,7 +358,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_vcci",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_vcci",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -368,7 +368,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.permit_fet",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.permit_fet",
       "attributes": {
         "designator_prefix": "Q",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
@@ -377,7 +377,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -387,7 +387,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit_pd",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -397,7 +397,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_dis_pu",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_dis_pu",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -407,7 +407,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_dt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_dt",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -417,7 +417,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -427,7 +427,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls_bulk",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls_bulk",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
@@ -437,7 +437,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.d_boot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.d_boot",
       "attributes": {
         "designator_prefix": "D",
         "footprint": "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal",
@@ -446,7 +446,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_boot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_boot",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
@@ -456,7 +456,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_boot_hf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_boot_hf",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -466,7 +466,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gh",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gh",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -476,7 +476,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gh_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gh_pd",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -486,7 +486,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gl",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gl",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -496,7 +496,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gl_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gl_pd",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -506,7 +506,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.q_high",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.q_high",
       "attributes": {
         "designator_prefix": "Q",
         "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
@@ -515,7 +515,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.q_low",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.q_low",
       "attributes": {
         "designator_prefix": "Q",
         "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
@@ -524,7 +524,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_snub_h",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_snub_h",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1206_3216Metric",
@@ -533,7 +533,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_snub_l",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_snub_l",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1206_3216Metric",
@@ -542,7 +542,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::t_ct",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::t_ct",
       "attributes": {
         "designator_prefix": "T",
         "footprint": "temper:CST3015",
@@ -551,7 +551,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_coil",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_coil",
       "attributes": {
         "designator_prefix": "J",
         "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
@@ -560,7 +560,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_res1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_res1",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
@@ -569,7 +569,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_res2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_res2",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
@@ -578,7 +578,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_res3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_res3",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "temper:CDE_942C_D19.0_L34.0_Axial_ReviewOnly",
@@ -587,7 +587,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_crb1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_crb1",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -597,7 +597,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_crb2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_crb2",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -607,7 +607,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_crb3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_crb3",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -617,7 +617,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_crb4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_crb4",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -627,7 +627,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::ps_selv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::ps_selv",
       "attributes": {
         "designator_prefix": "PS",
         "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
@@ -636,7 +636,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_tco",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_tco",
       "attributes": {
         "designator_prefix": "J",
         "footprint": "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
@@ -645,7 +645,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::ps_gate",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::ps_gate",
       "attributes": {
         "designator_prefix": "PS",
         "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-05-xx_THT",
@@ -654,7 +654,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_v15",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_v15",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
@@ -664,7 +664,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_ldo",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_ldo",
       "attributes": {
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-89-3",
@@ -673,7 +673,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ldo_in",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ldo_in",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -683,7 +683,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ldo_out",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ldo_out",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
@@ -693,7 +693,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_div1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_div1",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -703,7 +703,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_div2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_div2",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -713,7 +713,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_div3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_div3",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -723,7 +723,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_div4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_div4",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
@@ -733,7 +733,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_div_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_div_bot",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -743,7 +743,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_div",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_div",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -753,7 +753,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_vsense",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_vsense",
       "attributes": {
         "designator_prefix": "U",
         "footprint": "Package_SO:SOIC-8_7.5x5.85mm_P1.27mm",
@@ -762,7 +762,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_vs1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_vs1",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -772,7 +772,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_vs2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_vs2",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -782,17 +782,17 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_bias",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_bias",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RC0603FR-076K8L",
-        "value": "6.8kohm"
+        "mpn": "RC0603FR-075K6L",
+        "value": "5.6kohm"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_ref",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_ref",
       "attributes": {
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
@@ -801,7 +801,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_ocp_ref",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_ocp_ref",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -811,7 +811,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_ocp_sense",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_ocp_sense",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -821,7 +821,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ocp_node",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ocp_node",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -831,7 +831,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_th_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_th_top",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -841,7 +841,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_th_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_th_bot",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -851,7 +851,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_th",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_th",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -861,7 +861,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_ocp",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_ocp",
       "attributes": {
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
@@ -870,7 +870,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ocp_vcc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ocp_vcc",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -880,7 +880,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_ovp_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_ovp_top",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -890,7 +890,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_ovp_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::r_ovp_bot",
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -900,7 +900,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ovp_th",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ovp_th",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -910,7 +910,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_ovp",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_ovp",
       "attributes": {
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
@@ -919,7 +919,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ovp_vcc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_ovp_vcc",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -929,7 +929,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_and",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_and",
       "attributes": {
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
@@ -938,7 +938,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_and_vcc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_and_vcc",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -948,7 +948,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_iso",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::u_iso",
       "attributes": {
         "designator_prefix": "U",
         "footprint": "lib:SOIC16W_DW0016B_HV",
@@ -957,7 +957,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_iso1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_iso1",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -967,7 +967,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_iso2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::c_iso2",
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -977,7 +977,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_selv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V::j_selv",
       "attributes": {
         "designator_prefix": "J",
         "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
@@ -986,10 +986,10 @@
       }
     }
   ],
-  "entry": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V",
+  "entry": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/parts.ato": "31059251578e5d9ace14e5017c8c683c5c4a8e8b34f0fd2ee0669012b7563b16",
-    "elec/src/power_stage_120v.ato": "150f4cd07257318b7100f2582c874d1090cd08e6d407e30c5fe3040cc26e66e9"
+    "elec/src/parts.ato": "e6b3ec178bcd723905cdeeb92bccd4843370e1a557e78911dd17e73803e7cdd5",
+    "elec/src/power_stage_120v.ato": "d5b2c1b9caf306508060809898a58c3f9767628a35faec0fa0fa96e2b5be82c1"
   }
 }

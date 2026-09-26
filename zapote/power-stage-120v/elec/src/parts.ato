@@ -454,10 +454,11 @@ component And2Lvc1g08:
     signal Y ~ pin 4
     signal VCC ~ pin 5
 
-component R6k8Bias:
-    """LM4040 bias: (5.0-2.5)/6.8k = 368 uA vs ~270 uA OCP+OVP networks + 60 uA min."""
+component R5k6Bias:
+    """LM4040 bias, including the OCP and OVP divider loads. Worst-case
+    cathode-current calculation: REFERENCE-BIAS.md."""
     designator_prefix = "R"
-    mpn = "RC0603FR-076K8L"
+    mpn = "RC0603FR-075K6L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance

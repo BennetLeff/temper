@@ -13,10 +13,10 @@ thermal, interlock and RTD boards connect through one SELV header.
 
 Native construction records: [progress](BUILD-PROGRESS.md),
 [toolchain](TOOLCHAIN.md), [local footprints](FOOTPRINTS.md),
-[native results](NATIVE-01.md), [oracle assessment](ORACLE-REVIEW.md),
+[current native results](NATIVE-02.md), [oracle assessment](ORACLE-REVIEW.md),
 [placement decisions](DECISIONS.md), and
-[insulation preflight](RULES-PREFLIGHT.md). The shelf outline is provisional;
-the insulation basis and mechanical decisions must be resolved before the
+[insulation preflight](RULES-PREFLIGHT.md). The outline and stackup defaults
+are approved; airflow and the insulation basis remain open before the
 corresponding placement work.
 
 ## Build and verify
@@ -40,9 +40,9 @@ rustc --edition=2021 --test audit.rs -o /tmp/ps_audit_t && /tmp/ps_audit_t
 
 `frozen/` holds the reviewed build outputs. The netlist and resolved export embed absolute
 source paths, so a rebuild elsewhere differs only in those paths. The netlist and BOM were
-byte-identical, after path normalization, between two builds in different checkouts.
+byte-identical, after path normalization, between two independent source snapshots (see the receipt).
 `build-receipt.json` pins the hashes. Current result: 102 components, 73 nets. The audit
-passes, and 23/23 tests pass, 22 of them deliberate miswires that must fail.
+passes, and 27/27 tests pass, including deliberate miswires and the reference-bias regression.
 
 **Part identity comes from `resolved-components.json` and the CSV, never from `default.net`.**
 Atopile 0.2.69 writes a footprint-aliased part into the netlist's libsource field. In this
@@ -51,22 +51,34 @@ and the per-instance resolved export are correct, and the audit cross-checks the
 designator. `tools/circuit_export.py` is a verbatim copy of `harness-lab/circuit_export.py`
 from `archive/rev38-power-entry-2026-09-25`.
 
+## Open interlock compatibility requirement
+
+**Do not wire J4.10 directly to the existing standalone interlock's OCP or
+OVP input.** BUS_OCP_OK is high when healthy and low on fault/power loss;
+[the interlock](../interlock/INTERFACES.md) instead expects a healthy low and
+an active-high fault, with a local pullup. An explicitly designed fail-safe
+inverting interface or a compatible latch input is still required. Its
+power-off, broken-wire and return-path behavior and complete shutdown timing
+need a whole-chain test. The chains below describe intended behavior after
+that integration; this standalone shelf does not establish it. See issue
+[#1614](https://github.com/BennetLeff/temper/issues/1614).
+
 ## Controller header J4 (Molex Micro-Fit 3.0, 2x8, SELV)
 
 | Pin | Net | Direction / meaning |
 | ---: | --- | --- |
 | 1 | V15_SELV | Out: IRM-20-15 output for the controller, fan and sensor boards |
 | 2, 4, 15, 16 | SELV_GND | Return |
-| 3 | V3V3 | In: from the controller's 3.3 V regulator; powers the SELV sides of U1, U2, U4, U7 |
+| 3 | V3V3 | In: from the controller's 3.3 V regulator; powers the SELV sides of U1, U2, U4, U9 |
 | 5 / 6 | PWM_HA / PWM_LA | In: leg A high / low gate commands |
 | 7 / 8 | PWM_HB / PWM_LB | In: leg B high / low (four independent signals allow phase-shift control) |
 | 9 | PERMIT | In: active high. Low, floating or unpowered holds both drivers' DIS high (outputs off) |
-| 10 | BUS_OCP_OK | Out: high = bus current below ~91 A. Low = shoot-through trip **or** HOT side unpowered (ISO7710F defaults low). Feed the interlock latch that drops PERMIT |
+| 10 | BUS_OCP_OK | Out: high when the shunt OCP and bus OVP comparators both report OK (nominal ≈61 A and ≈280 V thresholds). Either fault or an unpowered HOT side makes the isolated output low. Requires a compatible receiver before it can drop PERMIT; see below |
 | 11 / 12 | VBUS_P / VBUS_N | Out: AMC1311 differential output. V(P) − V(N) ≈ bus voltage / 120 (unity-gain amplifier; 198 V → 1.65 V; confirm gain and common-mode on the datasheet) |
 | 13 / 14 | CT_S1 / CT_S2 | Out: tank CT secondary (1:100). The burden and OCP/phase comparators are on the current-sense board; retune its burden for the full-bridge peak |
 
 Required on the controller side (not on this board):
-- the latch that drops PERMIT on BUS_OCP_OK low, tank OCP, over-temperature or a watchdog timeout (the interlock board)
+- the latch and compatible input interface that drop PERMIT on BUS_OCP_OK low, tank OCP, over-temperature or a watchdog timeout
 - a CT zero-crossing phase comparator that inhibits switching before the tank goes capacitive
 - the SELV_GND to PE bonding decision
 
@@ -77,7 +89,7 @@ Only these parts may cross HOT↔SELV, and the audit enforces each pin's side:
 
 - UCC21550 (U1, U2)
 - AMC1311 (U4)
-- ISO7710F (U7)
+- ISO7710F (U9)
 - CST3015 (T1)
 - IRM-20-15 (PS1)
 
@@ -91,7 +103,8 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 | Fault | Path |
 | --- | --- |
 | Hard short or bridge failure | F1 20 A slow-blow ceramic |
-| Shoot-through / MOSFET short | 1 mΩ shunt → TLV3201 (~91 A) → ISO7710F → BUS_OCP_OK low → interlock latch → PERMIT low → DIS |
+| Shoot-through / MOSFET short | 1 mΩ DC-return shunt → TLV3201 (nominal ≈61 A) → AND gate → ISO7710F → BUS_OCP_OK low → interlock latch → PERMIT low → DIS |
+| Elevated DC bus | Bus divider → TLV3201 (nominal ≈280 V) → AND gate → ISO7710F → BUS_OCP_OK low → interlock latch → PERMIT low → DIS; this inhibits restart but does not clamp bus voltage |
 | Tank over-current / pan fault | CT → current-sense board comparators → interlock latch |
 | Heatsink or glass over-temperature | Off-board Microtemp cutoffs in the J3 loop open the IRM-05-15 input: all gate drive, HOT 5 V and BUS_OCP_OK drop. No electronics or firmware involved |
 | Controller hang / reset | Interlock-board watchdog; PERMIT floating = disabled |

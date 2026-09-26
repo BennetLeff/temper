@@ -1008,7 +1008,9 @@ def generate_flat_root_sheet(netlist: Netlist, layout: SchematicLayout) -> str:
     # Same column/grid contract as generate_sheet, so widths do not collide.
     GRID_X = 60.0 if wide else 40.0
     GRID_Y = 54.0 if wide else 30.0
-    COLS = 10 if wide else 5
+    # A1 holds ten rows at this pitch. Use its spare horizontal space for
+    # the 102-part power-stage candidate rather than clipping an eleventh row.
+    COLS = (12 if len(comps) > 100 else 10) if wide else 5
     for idx, comp in enumerate(comps):
         col = idx % COLS
         row = idx // COLS

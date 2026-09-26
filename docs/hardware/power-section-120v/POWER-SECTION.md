@@ -101,7 +101,7 @@ Status: **V** = the rating that decides the choice was checked against the datas
 
 | Ref | Qty | MPN | Why | Status |
 | --- | ---: | --- | --- | --- |
-| Q2,Q3,Q5,Q6 | 4 | IPW65R018CFD7 | 650 V vs ~200 V bus; ≤ ~460 V on a surge (MOV clamp) or ~356 V on a 61 A trip return (ORACLE-ANSWER.md); 18 mΩ max at 25 °C; fast body diode for ZVS | V |
+| Q2,Q3,Q5,Q6 | 4 | IPW65R018CFD7 | 650 V rating; transient and trip-return margin remains unqualified (ORACLE-REVIEW.md withdraws the earlier bus bound); 18 mΩ max at 25 °C; fast body diode for ZVS | V (rating); C (circuit stress) |
 | U1,U2 | 2 | UCC21550BDWKR | Reinforced 5 kVrms dual driver, 4 A/6 A, UVLO outputs low; repo-verified DWK pin map | V |
 | D1,D2 | 2 | UF4007-E3/54 | Bootstrap, 1000 V, same as gate-drive unit | V |
 | R10,R12,R18,R20 | 4 | RC1206FR-073R9L | Gate series 3.9 Ω (bench-tune) | V |
@@ -115,8 +115,8 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | C5,C6 | 2 | 942C6W2P5K-F | 5 µF film bus, 2 × 19.5 A rms rating vs ~23 A | V; F |
 | R3,R4 | 2 | RC1206FR-07220KL | Bus bleed, τ ≈ 2.2 s | V |
 | R5 | 1 | WSK2512R0010FEA | 1 mΩ 4-terminal shunt, ~0.35 W | C (power at temperature) |
-| U6 / U5 / R31 | 1 each | TLV3201AIDBVR / LM4040A25IDBZR / 6.8k | 40 ns comparator; 2.5 V reference, 368 µA bias | V |
-| R32,R33 / R34 / R35 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 10K (0.1 %) | Offset and threshold network, trip ≈ 61 A (TLV3201 ±5 mV → ±10 A; normal peak ≤ 45 A). Lowered from 91 A to bound returned tank energy: ORACLE-ANSWER.md Q1 | V |
+| U6 / U5 / R31 | 1 each | TLV3201AIDBVR / LM4040A25IDBZR / RC0603FR-075K6L (5.6k) | 40 ns comparator; 2.5 V reference, 120.8 µA cathode current at the checked DC corner (REFERENCE-BIAS.md); complete shutdown latency unqualified | V (selected ratings and DC corner) |
+| R32,R33 / R34 / R35 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 10K (0.1 %) | Offset and threshold network, trip ≈ 61 A (TLV3201 ±5 mV → ±10 A, before other tolerances). Lowered from 91 A as risk reduction; returned tank energy remains unbounded: ORACLE-REVIEW.md | V (nominal network); C (fault response) |
 | U7 / R36 / R37 / C33 | 1 each | TLV3201AIDBVR / RT0603BRD0710KL / RT0603BRD07140KL / 1 nF C0G | Bus OVP ≈ 280 V from the VSENSE_IN tap; hardware restart inhibit | V |
 | U8 | 1 | SN74LVC1G08DBVR | ANDs OCP-OK and OVP-OK into U9; either fault drives BUS_OCP_OK low | V |
 | C30 / C31 | 1 / 1 | 100 pF / 1 nF C0G | ~0.5 µs node filter; threshold decoupling | V |
@@ -155,7 +155,7 @@ This is connectivity evidence only. Voltage, timing, creepage, thermal and EMI a
 1. Coil and pan measurement (COIL-MC.md): sets the resonant bank, CT burden and frequency limits.
 2. Confirm the "C" items above against manufacturer drawings; draw or vendor the "F" footprints.
 3. Glass-underside temperature at the maximum setpoint, to choose the under-glass cutoff rating.
-4. Controller-side hardware: interlock latch on BUS_OCP_OK, CT phase inhibit, SELV–PE bond.
+4. Controller-side hardware: fail-safe polarity interface from healthy-high BUS_OCP_OK to the existing healthy-low interlock input, CT phase inhibit, and a decided SELV–PE architecture. Direct connection is incompatible; complete shutdown and power-loss behavior remain unverified (ORACLE-REVIEW.md).
 5. Native schematic and PCB with creepage rules (≈200 V bus, ≈430 V-peak tank nodes), then
    ERC/DRC/parity.
 6. Bench: dead time, gate resistors, snubbers, OCP trip, ZVS at light load and deep phase shift,

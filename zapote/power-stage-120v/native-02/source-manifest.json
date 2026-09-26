@@ -3,10 +3,6 @@
     "footprints": 102,
     "layers": [
       "F.Cu",
-      "In3.Cu",
-      "In1.Cu",
-      "In2.Cu",
-      "In4.Cu",
       "B.Cu"
     ],
     "nets": 73,
@@ -17,7 +13,7 @@
       160.0
     ]
   },
-  "board_sha256": "113ea4704a94a47b87586dc791e379818c89da8ab438073fccb8bb2317542178",
+  "board_sha256": "0c0cf92e1d4ba35334e7af6f7f63e4edaee0c31b02a754fb3eeea0c0b26081fa",
   "bridge": {
     "components": [
       {
@@ -3158,7 +3154,7 @@
     {
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "instance_path": "r_ref_bias",
-      "mpn": "RC0603FR-076K8L",
+      "mpn": "RC0603FR-075K6L",
       "origins": {
         "footprint": "resolved-attr",
         "mpn": "resolved-attr+csv",
@@ -3166,7 +3162,7 @@
         "value": "resolved-attr"
       },
       "reference": "R31",
-      "value": "6.8kohm"
+      "value": "5.6kohm"
     },
     {
       "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -5888,12 +5884,12 @@
     ]
   },
   "input_hashes": {
-    "default.csv": "45c2651dd5e8cb32210a1df61b4641456589dc227c2864eeca3ca693e7d4ba21",
-    "default.net": "6c4532582f0bd82f5cd64cc5918a3e71b5dd8363fa630489a2b9d53d2e563e22",
+    "default.csv": "d8c42a5ae0b585decaac495ee6464ba00c5bbc476c1a7ad3a621f436e04b983a",
+    "default.net": "5c422da5204bafb806b1fdc93991251268a441bd06a99eb8ed8b2015d644ece8",
     "outline.json": "e629c0ff9e0de17674c523527df7bb33036429f5be286fabf8d6b147abf9f0bd",
-    "planning_stackup.py": "ba6aa0172b5461087fd7b48f10f6009f0fe7fc9aafea08ce5668d3ce606c71ad",
+    "planning_stackup.py": "797018675ee6ebfb59fc771bd9c1ecad9d6f90c6242d0245746e48cecc95f23a",
     "poses.json": "b85a2075bd37c82cda2c54db9c4113991a4639ef840ac77f538836c7a73f179c",
-    "resolved-components.json": "8b6642a23ae33c20ef10c788c36ffec4fadcf1d84a584599f53d3567386dca69",
+    "resolved-components.json": "d9c78a05980dc3bd3993cd08cf88536d6bb457c4598c3dd9a5ac7692411a908f",
     "stackup.json": "f78b19657dd082fe74fa142fb7b294b7f31cf62ec5099304bab8f738b47cf473"
   },
   "libraries": {
@@ -6543,7 +6539,7 @@
   "schematic_files": [
     "section.kicad_sch"
   ],
-  "source": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01",
+  "source": "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/source-build-01",
   "source_attributes": {
     "br1": {
       "designator_prefix": "BR",
@@ -7126,8 +7122,8 @@
       "designator_prefix": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "manufacturer": "Yageo",
-      "mpn": "RC0603FR-076K8L",
-      "value": "6.8kohm"
+      "mpn": "RC0603FR-075K6L",
+      "value": "5.6kohm"
     },
     "r_shunt": {
       "designator_prefix": "R",
@@ -7219,10 +7215,10 @@
     }
   },
   "strict_bridge_extension": {
-    "detail": "temper_design_bundle_python: /Users/bennet/Desktop/temper/worktrees/ps-oracle/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so (built 2026-09-25T16:53:22) is fresh (no build stamp; mtime comparison)",
+    "detail": "temper_design_bundle_python: /Users/bennet/Desktop/temper/worktrees/ps-toolchain-sol/.venv/lib/python3.14/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-314-darwin.so (built 2026-09-25T14:56:55) is fresh (no build stamp; mtime comparison)",
     "freshness_method": "mtime",
-    "path": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so",
-    "sha256": "85cd4b4a446c9ef49746148ded4df3572fa22b0e6dbeddb64ce8237b2e42ca04"
+    "path": "/Users/bennet/Desktop/temper/worktrees/ps-toolchain-sol/.venv/lib/python3.14/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-314-darwin.so",
+    "sha256": "3cfae7fd068e252d0fa3680a4673c191d236643d8108df72807f838027cad09f"
   },
   "strict_pin_map": [
     {

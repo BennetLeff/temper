@@ -26,7 +26,7 @@ from "parts.ato" import BootDiode, PermitFet, R3R9Gate, R39kDt, R10k0603, R100k0
 from "parts.ato" import R1k0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
 from "parts.ato" import CST3015_100E, Irm05_15, Irm20_15, TcoLoopHeader, Ldo78L05
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
-from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k5Thin, R140kThin, R6k8Bias
+from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k5Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710F, SelvHeader16, And2Lvc1g08
 
 module BridgeLeg:
@@ -288,7 +288,7 @@ module PowerStage120V:
     leg_b.sw ~ SW_B
 
     # ---------------- resonant tank: SW_A -> CT -> coil -> C_res -> SW_B
-    # The CT primary sits on the switch node (<= Vbus to PE, ~99 V rms), not
+    # The CT primary sits on the switch node (HF insulation basis open), not
     # the resonant node (up to ~640 V pk at 33-60 kHz): see ORACLE-ANSWER.md
     # Q4. Tank current still enters P1, so the CT sign is unchanged.
     t_ct = new CST3015_100E
@@ -409,10 +409,10 @@ module PowerStage120V:
     # V(OCP_KELVIN_N) = -I*1 mohm. OCP_NODE = 1.25 V + 0.5 * V(KELVIN_N);
     # OCP_THRESH = 2.5 * 10.0/(10.5+10.0) = 1.2195 V -> trip at ~61 A
     # (TLV3201 offset +/-5 mV max = +/-10 A; normal peak <= 45 A). The lower
-    # trip bounds returned tank energy: ORACLE-ANSWER.md Q1.
+    # trip reduces risk; returned tank energy is not bounded: ORACLE-REVIEW.md.
     # Output high = OK; low (trip) or unpowered side 1 -> BUS_OCP_OK low.
-    r_ref_bias = new R6k8Bias
-    r_ref_bias.value = 6.8kohm
+    r_ref_bias = new R5k6Bias
+    r_ref_bias.value = 5.6kohm
     r_ref_bias.p1 ~ HOT5
     r_ref_bias.p2 ~ REF25
     u_ref = new Ref2V5

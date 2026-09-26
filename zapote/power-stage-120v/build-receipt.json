@@ -6,18 +6,18 @@
   "status": "compiled-and-exported",
   "components": 102,
   "nets": 73,
-  "audit": "PASS on frozen/; 23/23 tests (22 deliberate miswires fail)",
-  "reproducibility": "netlist and CSV byte-identical after absolute-path normalization between builds in worktrees/ps-build and worktrees/ps-oracle (2026-09-25, 102-part source)",
+  "audit": "PASS on frozen/; 27/27 tests, including former reference bias, all ten open-divider endpoints and unexpected sense-node load",
+  "reproducibility": "Netlist and CSV byte-identical after root-path normalization between source-build-01 and an independent /private/tmp/ps-reference-repro-build snapshot of the corrected source (2026-09-25)",
   "identity_authority": "frozen/resolved-components.json + frozen/default.csv (default.net libsource is footprint-aliased)",
   "sha256": {
     "ato.yaml": "ccb72f82cfe51d8002ba3333bce202f587971ea7eb439ec18d1693371139dd80",
-    "elec/src/parts.ato": "31059251578e5d9ace14e5017c8c683c5c4a8e8b34f0fd2ee0669012b7563b16",
-    "elec/src/power_stage_120v.ato": "150f4cd07257318b7100f2582c874d1090cd08e6d407e30c5fe3040cc26e66e9",
-    "audit.rs": "9326380d8d65422b8262a6243d17eb8371b67403ac47659e65aa9955d3b94a37",
+    "elec/src/parts.ato": "e6b3ec178bcd723905cdeeb92bccd4843370e1a557e78911dd17e73803e7cdd5",
+    "elec/src/power_stage_120v.ato": "d5b2c1b9caf306508060809898a58c3f9767628a35faec0fa0fa96e2b5be82c1",
+    "audit.rs": "01f07d89d94e01b3c9463eafff98e5817baf41a0a5d6ffeeb1a4f97ea047e17e",
     "tools/circuit_export.py": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
-    "frozen/default.net": "6c4532582f0bd82f5cd64cc5918a3e71b5dd8363fa630489a2b9d53d2e563e22",
-    "frozen/default.csv": "45c2651dd5e8cb32210a1df61b4641456589dc227c2864eeca3ca693e7d4ba21",
-    "frozen/resolved-components.json": "8b6642a23ae33c20ef10c788c36ffec4fadcf1d84a584599f53d3567386dca69"
+    "frozen/default.net": "5c422da5204bafb806b1fdc93991251268a441bd06a99eb8ed8b2015d644ece8",
+    "frozen/default.csv": "d8c42a5ae0b585decaac495ee6464ba00c5bbc476c1a7ad3a621f436e04b983a",
+    "frozen/resolved-components.json": "d9c78a05980dc3bd3993cd08cf88536d6bb457c4598c3dd9a5ac7692411a908f"
   },
   "physical": "NOT RUN"
 }

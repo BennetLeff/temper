@@ -1,4 +1,4 @@
-# Oracle answer: bus bound, boundary voltages, insulation consequences
+# Oracle answer: bus estimates, boundary voltages, insulation consequences
 
 Response to the focused questions in [ORACLE-REVIEW.md](ORACLE-REVIEW.md),
 2026-09-25. Supersedes the earlier external answer. Numbers come from
@@ -23,53 +23,59 @@ Physical overshoot, touch-current, CT injection, hipot and emissions tests:
    not established. It is withdrawn; IRM leakage must come from Mean Well data
    or measurement.
 
-## Q1: DC-link bound
+## Q1: DC-link estimates
 
-Assumptions: 127 V + 10 % line (198 V crest), bus 4.5 µF (5 µF − 10 %),
-Cr = 0.54 µF, turn-off at the worst switching phase, trip latency 300 ns.
+The supplied script starts at 127 V + 10 % line (198 V crest) with a 4.5 µF
+bus (5 µF − 10 %), Cr = 0.54 µF, zero initial tank current and capacitor
+voltage, and an ideal trip 300 ns after `abs(tank_current)` crosses the
+threshold. Its starting bus is a chosen case, not the highest voltage at which
+the ≈280 V restart inhibit could permit operation.
 
-**Bound.** Driven at resonance, the tank current envelope grows by about
+**Historical heuristic.** Driven at resonance, the tank current envelope grows by about
 ΔI ≈ 2·Vbus/Z₀ per half cycle (Z₀ = √(L/Cr): 29 A at 100 µH, 42 A at 48 µH).
-The comparator sees the instantaneous current, so when it trips the
-envelope can already be up to one step above the threshold. Returning all
-of ½·L·(I_trip + ΔI)² to the bus gives
+If the assumed trip follows the tank current, the envelope might exceed the
+threshold by a step. Counting only ½·L·(I_trip + ΔI)² as returned energy gives
 
-  Vbus,max ≤ √(Vcrest² + L·(I_trip + 2·Vcrest/Z₀)² / Cbus)
+  Vbus,heuristic = √(Vstart² + L·(I_trip + 2·Vstart/Z₀)² / Cbus)
 
-This is conservative: it ignores the energy left in Cr and dissipated in the
-pan. Simulated trajectories (`tools/bus_voltage_sim.py`, scanned over pan
-damping and 100–800 ns trip latency) stay below it.
+This is **not a conservative upper bound**: Cr can hold energy that later
+charges the bus, and the actual 1 mΩ DC-return shunt does not measure
+`abs(tank_current)` directly. `tools/bus_voltage_sim.py` prints one trajectory
+per listed OCP case with pan resistance 0.3 Ω and 300 ns assumed latency. It
+does not implement the previously reported damping/100–800 ns sweep.
 
 | Case | 48 µH | 100 µH |
 | --- | ---: | ---: |
-| Normal shutdown at full power (simulated, worst phase) | 234 V | 222 V (70 µH) |
-| OCP trip at 91 A, driven at resonance: bound (simulated worst) | 477 V (389 V) | **599 V** (521 V) |
-| OCP trip at 61 A, driven at resonance: bound (simulated worst) | 390 V (333 V) | **468 V** (376 V) |
-| OCP trip at 71 A (top of the comparator-offset spread): bound | — | 511 V |
+| Normal shutdown at full power (sampled trace) | 234 V | 222 V (70 µH) |
+| OCP trip at 91 A, driven at resonance: heuristic | 477 V | **599 V** |
+| OCP trip at 61 A, driven at resonance: heuristic | 390 V | **468 V** |
+| OCP trip at 71 A (top of the comparator-offset spread): heuristic | — | 511 V |
 | Differential surge, limited by RV1 (TMOV20RP175E) clamp | ≈ 460 V | ≈ 460 V |
 
-- Fixed-frequency drive above resonance cannot reach 91 A (53–78 A even with
-  the pan removed). The trip is reached only by driving at or near resonance:
-  a controller fault, a start-up sweep through resonance, or a lifted pan.
-- Line phase: the worst case is turn-off at the line crest. Turn-off near the
-  line zero returns little energy, since tank current scales with the bus.
-- The film bus is rated 600 VDC and the MOSFETs 650 V. At a 91 A trip the
-  bound reaches the capacitor rating before any ringing.
+- Earlier estimates put some above-resonance, pan-removed currents at 53–78 A.
+  The lowered 61 A threshold can therefore trip in that case. Driving at or
+  near resonance, a start-up sweep and pan lift need separate fault analysis.
+- The 198 V start approximates the high-line crest. A prior trip can leave the
+  bus elevated while the restart inhibit remains below ≈280 V; the same
+  heuristic then gives ≈556 V at 61 A or ≈597 V at 71 A for 100 µH, before
+  accounting for Cr energy or switching overshoot.
+- The film bus is rated 600 VDC and the MOSFETs 650 V. The 91 A heuristic
+  approaches the capacitor rating even from a 198 V start.
 
-**Missing controls (recommended source changes):**
+**Controls and follow-up:**
 
 | # | Control | Effect |
 | --- | --- | --- |
-| S1 | Lower the OCP trip from ≈ 91 A to ≈ 61 A (retune the threshold divider) | Worst-case bound 599 → 468 V (511 V at the top of the offset spread). Still above the 45 A worst normal peak (48 µH, high line) by the full offset spread. |
+| S1 | Lower the OCP trip from ≈ 91 A to ≈ 61 A (retune the threshold divider) | The 198 V-start heuristic falls from 599 to 468 V (511 V at the top of the offset spread). The 51 A low end of the stated offset spread is about 6 A above the estimated 45 A loaded normal peak, before other tolerances. |
 | S2 | Add a HOT-side bus over-voltage comparator on the bus divider into the existing fault latch, ≈ 280 V | Hardware restart inhibit. The bus bleed takes seconds, so firmware must not restart into a pumped bus. |
 | S3 | Add a bleed resistor across the resonant bank C21–C23 | After a trip Cr can hold up to ≈ ±250 V with no discharge path: a service-shock hazard. |
 | S4 (controller) | Never drive at or below the highest possible tank resonance: enforce a minimum switching frequency, and detect pan lift from the CT phase before sweeping | Makes the at-resonance trip a double fault. Controller-board firmware and hardware, not this board. |
 
-A bus TVS clamp is not required once S1 is in: the S1 bound (≤ 511 V) and the
-surge case (≈ 460 V) are within the 600 V / 650 V ratings. The margin to the
-capacitor is small, so **measure the actual overshoot on the bench** (trip at
-resonance with the pan lifted, worst line phase) before accepting that. If it
-exceeds ≈ 520 V, add a bus clamp.
+The need for a bus clamp remains open. A source-consistent fault analysis must
+include the initial bus and Cr charge, the DC-shunt waveform, sense-filter and
+comparator delay, isolator/interlock/gate turn-off, and the tank CT protection.
+**Measure actual overshoot on the bench** at worst line phase and plausible
+restart states before accepting the 600 V / 650 V margins.
 
 **Controller ground ↔ PE: keep the single-point bond.** It defines the
 controller potential. The externally earthed controller case produces
@@ -84,10 +90,12 @@ unpolarized Mexican outlets) gives the same numbers.
 | Node | Crossing | Rated 127 V | 127 V + 10 % | Band (rms) |
 | --- | --- | --- | --- | --- |
 | BUS_P, HV_RET, SW_A, SW_B | U1, U2 (UCC21550), U4 (AMC1311), U9 (ISO7710; U7 before the source change) | 90 V rms, 180 V pk | 99 V rms, 198 V pk | >50–125 |
-| RES_A / coil_ret (T1 primary today) | T1 | 165–220 V rms, 457–582 V pk at 33–60 kHz | up to 242 V rms, 640 V pk | >125–250, plus HF |
+| RES_A / coil_ret (T1 primary before relocation) | T1 in the earlier source | 165–220 V rms, 457–582 V pk at 33–60 kHz | up to 242 V rms, 640 V pk | >125–250, plus HF |
 | PS1 (IRM-20-15) mains input, kept separate from the DC rails | PS1 | 127 V rms, 180 V pk | 140 V rms, 198 V pk | >125–250 (127 V is just above 125) |
 
-The RES_A range spans the 70 µH and 48 µH loaded coils.
+The RES_A range spans the 70 µH and 48 µH loaded coils. These rail and
+switch-node figures assume a line-following bus in the model. They are not
+limits for an elevated DC link or a demonstrated insulation classification.
 
 - **PE open:** the PE net floats to ≈ (L+N)/2 through the 2.2 nF Y
   capacitors C3/C4, so every difference roughly halves (≈ 64 V rms on the
@@ -112,33 +120,32 @@ The RES_A range spans the 70 µH and 48 µH loaded coils.
 
 - Reinforced clearance is set by the impulse step (2.5 kV → 4 kV): about
   3 mm (Table 16). **Verify this.** It does not govern next to 8 mm creepage.
-- IEC 60664-4 applies above 30 kHz. It matters only at the tank node
-  (RES_A/coil_ret), i.e. at T1 in the current topology.
+- IEC 60664-4 addresses periodic stress above 30 kHz. Relocating T1 removes
+  its connection to the resonant junction but leaves it on switching node
+  SW_A. High-frequency treatment at that crossing still needs review.
 - **Recommended basis:** design the entire SELV barrier to **≥ 8.0 mm**
   (PD3, IIIa/IIIb, reinforced). That meets the >125–250 band everywhere, so
   the per-node band argument above never has to be defended to a lab. The
   band results are retained as conditional justification only.
-- **Current exception (now fixed, see below):** U7 (ISO7710FDWR, now U9) uses KiCad's stock
-  `SOIC-16W_7.5x10.3mm_P1.27mm`, which gives **7.25 mm** copper across the
-  barrier. It meets 4.8 mm for its rail crossing but not the uniform 8.0 mm
-  basis. Replace it with TI's high-voltage DW land pattern, as was done for
-  U1/U2 (`SOIC16W_Isolated`, 8.1 mm). U4's stock SOIC-8 DWV pattern gives
-  8.85 mm and is fine.
+- **Former exception, now changed:** U7 (ISO7710FDWR, now U9) used KiCad's
+  stock `SOIC-16W_7.5x10.3mm_P1.27mm` with a **7.25 mm** copper gap. U9 now
+  uses TI's high-voltage DW land pattern at 8.1 mm. U4's stock SOIC-8 DWV
+  pattern gives 8.85 mm. Package surface ratings still need separate review.
 
 ## Q4: CT relocation
 
-**Current source (confirmed from the frozen netlist):**
+**Previous source (confirmed from the earlier frozen netlist):**
 SW_A → J2 → coil → coil_ret → T1 → res_a → C21–C23 → SW_B.
 T1's primary sits at the resonant node: up to 242 V rms and 640 V pk at
 33–60 kHz relative to its SELV secondary.
 
-**Proposed:** SW_A → T1 → J2 → coil → coil_ret → C21–C23 → SW_B.
+**Implemented source:** SW_A → T1 → J2 → coil → coil_ret → C21–C23 → SW_B.
 
-- T1's primary moves to a switch node: 99 V rms, 198 V pk. The crossing drops
-  to the >50–125 band and the IEC 60664-4 HF question at T1 disappears.
-- The dv/dt seen through T1's interwinding capacitance is unchanged: the
-  res_a node already carries SW_B's edges.
-- No BOM change. Firmware may need to flip the current-sense sign.
+- T1's primary moves to a switch node. The 99 V rms / 198 V peak figures
+  describe the line-following example, not a bound under bus pumping. SW_A
+  still switches at tens of kHz, so its IEC 60664-4 treatment remains open.
+- Interwinding common-mode injection and current-sense polarity need bench
+  verification after the relocation. No CT BOM change was made.
 - Either way, the 18.5 mm PCB gap exceeds 8.0 mm. The PCB gap does not add to
   the package's own insulation (≥ 8 mm published).
 - **Evidence still required from Coilcraft:** the certificate behind
@@ -154,9 +161,10 @@ Evidence still required for other parts:
 - **Mean Well IRM-20-15:** the safety approval and leakage current data sheet
   values.
 
-## Source changes to make before placement
+## Source changes made before placement
 
-Each requires re-audit, re-freeze and a new native build (Parts 1 and 3).
+The five source changes required re-audit, re-freeze and a new native build
+(Parts 1 and 3).
 
 1. Relocate T1 (Q4).
 2. S1: OCP trip ≈ 60 A.
@@ -164,12 +172,16 @@ Each requires re-audit, re-freeze and a new native build (Parts 1 and 3).
 4. S3: resonant-bank bleed resistor.
 5. Replace U7's footprint with an HV DW land pattern (≥ 8.0 mm across the barrier).
 
-Then Part 4 proceeds with D5 set to "uniform ≥ 8.0 mm reinforced, PD3,
-IIIa/IIIb", conditional on the Coilcraft evidence.
+The proposed uniform ≥8.0 mm reinforced, PD3, IIIa/IIIb barrier basis remains
+subject to D5 approval and Coilcraft package evidence before barrier placement.
 
 ## Implementation status (2026-09-25)
 
-All five source changes are made on `feat/ps-oracle-source-changes`:
+All five source changes were made on `feat/ps-oracle-source-changes` and
+are integrated in `codex/power-stage-120v-build`. The later REF25 correction
+uses 5.6 kΩ (see REFERENCE-BIAS.md). The intended off-board shutdown path
+is **not yet compatible** with the existing active-high interlock inputs;
+see ORACLE-REVIEW.md before connecting J4.10.
 
 | Change | Source | Evidence |
 | --- | --- | --- |
@@ -179,14 +191,15 @@ All five source changes are made on `feat/ps-oracle-source-changes`:
 | Resonant-bank bleed | R22–R25, 4 × 470 k from `res_a` to SW_B | `missing_resonant_bleed_fails` |
 | U9 HV land pattern | `lib:SOIC16W_DW0016B_HV`, TI DW0016B HV option (SLLSER9E p. 33) | 8.1 mm measured across the barrier on the generated board |
 
-Result: 102 components, 73 nets; audit PASS; 23/23 audit tests. A native
+Result: 102 components, 73 nets; audit PASS; 27/27 audit tests. A native
 projection generated from this source has 102 footprints, 292/292 source
 pin connections on the right pad and net, schematic parity 0, DRC
 18 `lib_footprint_mismatch` warnings only, ERC warnings only. Designators
 after `u_ocp` moved (for example `u_iso` U7 → U9); the placement and routing
 plans and POWER-SECTION.md are updated to match.
 
-The OCP comparator's ±5 mV offset gives a 51–71 A trip spread. At 71 A the
-conservative bound is 511 V, still below the 600 V bus capacitors and 650 V
-MOSFETs (Q1). The OVP threshold is a restart inhibit: it acts through the
-controller latch, like the OCP.
+The OCP comparator's ±5 mV offset alone corresponds to a 51–71 A threshold
+spread; other component and timing tolerances are not included. The 511 V
+figure at 71 A is a 198 V-start heuristic, not a rating margin or an upper
+bound (Q1). The OVP threshold is a restart inhibit through the controller
+latch, like the OCP; it does not clamp an already rising bus.

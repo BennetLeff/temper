@@ -4,7 +4,8 @@
 //! safety-relevant joins (fail-safe driver disable, shoot-through shunt
 //! orientation, thermal-cutoff gate-supply loop, OCP polarity through the
 //! default-low isolator, tank series path, controller header map).
-//! Connectivity only: no voltage, timing, creepage or thermal claim.
+//! Includes the conditional REF25 DC-bias corner in REFERENCE-BIAS.md;
+//! no bus-voltage bound, timing, creepage or thermal qualification.
 //!
 //!   rustc --edition=2021 -O zapote/power-stage-120v/audit.rs -o /tmp/ps_audit
 //!   /tmp/ps_audit zapote/power-stage-120v/frozen/default.net zapote/power-stage-120v/frozen/default.csv \
@@ -246,11 +247,21 @@ const IDENTITY: &[(&str, &str)] = &[
     ("u_ocp", "TLV3201AIDBVR"),
     ("u_ovp", "TLV3201AIDBVR"),
     ("u_and", "SN74LVC1G08DBVR"),
+    ("u_ref", "LM4040A25IDBZR"),
+    ("u_ldo", "MC78L05ACHT1G"),
+    ("r_ref_bias", "RC0603FR-075K6L"),
+    ("r_ocp_ref", "RT0603BRD0710KL"),
+    ("r_ocp_sense", "RT0603BRD0710KL"),
     // Trip thresholds: ~61 A OCP (10.5 k / 10.0 k) and ~280 V OVP (10 k / 140 k).
     ("r_th_top", "RT0603BRD0710K5L"),
     ("r_th_bot", "RT0603BRD0710KL"),
     ("r_ovp_top", "RT0603BRD0710KL"),
     ("r_ovp_bot", "RT0603BRD07140KL"),
+    ("r_div1", "RC1206FR-07470KL"),
+    ("r_div2", "RC1206FR-07470KL"),
+    ("r_div3", "RC1206FR-07470KL"),
+    ("r_div4", "RC1206FR-07470KL"),
+    ("r_div_bot", "RT0603BRD0715K8L"),
     ("ps_gate", "IRM-05-15"),
     ("ps_selv", "IRM-20-15"),
     ("t_ct", "CST3015-100ED"),
@@ -273,6 +284,24 @@ fn members(m: &Model, net: &str) -> BTreeSet<(String, String)> {
                 .collect()
         })
         .unwrap_or_default()
+}
+
+/// Minimum LM4040 cathode current with the selected three REF25 loads. This
+/// checks the reference's DC bias, not comparator response or trip timing.
+fn min_reference_cathode_current_ua(bias_ohm: f64) -> f64 {
+    // Source: MC78L05AC min 4.75 V, LM4040A25I 2.519 V maximum at
+    // 100 uA plus 1 mV current-regulation shift, and 80 uA minimum cathode
+    // current over its rated temperature range. The 1% bias resistor is
+    // high; all three 0.1% thin-film load strings are low.
+    let ref_max = 2.520;
+    let bias_current = (4.75 - ref_max) / (bias_ohm * 1.01);
+    // -0.15 V at OCP_KELVIN_N corresponds to 150 A through the 1 mΩ
+    // shunt. This bounds loading beyond the nominal 51–71 A trip spread;
+    // it does not assert that the power path survives a 150 A fault.
+    let ocp_offset_load = (ref_max + 0.15) / (20_000.0 * 0.999);
+    let ocp_threshold_load = ref_max / (20_500.0 * 0.999);
+    let ovp_threshold_load = ref_max / (150_000.0 * 0.999);
+    (bias_current - ocp_offset_load - ocp_threshold_load - ovp_threshold_load) * 1e6
 }
 
 fn audit(m: &Model) -> Vec<String> {
@@ -433,8 +462,34 @@ fn audit(m: &Model) -> Vec<String> {
     // 7. OCP and OVP: node = offset + shunt Kelvin; bus-sense node vs the
     //    OVP threshold; both OK-high comparators ANDed into the default-low
     //    isolator, isolator output on header pin 10.
+    expect(&mut e, m, "r_ref_bias", "1", "hot5");
+    expect(&mut e, m, "r_ref_bias", "2", "ref25");
+    let ref25 = members(m, "ref25");
+    let want: BTreeSet<(String, String)> = [
+        ("r_ref_bias", "2"), ("u_ref", "1"), ("r_ocp_ref", "1"),
+        ("r_th_top", "1"), ("r_ovp_top", "1"),
+    ]
+    .iter()
+    .map(|(path, pin)| (path.to_string(), pin.to_string()))
+    .collect();
+    if ref25 != want {
+        e.push(format!("ref25 has unexpected loads: {ref25:?}"));
+    }
+    let bias_ohm = match m.resolved.get("r_ref_bias").map(String::as_str) {
+        Some("RC0603FR-075K6L") => Some(5_600.0),
+        Some("RC0603FR-076K8L") => Some(6_800.0),
+        _ => None, // The identity check reports unknown resistor selections.
+    };
+    if let Some(bias_ohm) = bias_ohm {
+        let cathode_ua = min_reference_cathode_current_ua(bias_ohm);
+        if cathode_ua < 80.0 {
+            e.push(format!("reference cathode current {cathode_ua:.1} uA is below the 80 uA full-temperature minimum"));
+        }
+    }
     expect(&mut e, m, "r_ocp_sense", "2", "ocp_kelvin_n");
     expect(&mut e, m, "r_ocp_ref", "1", "ref25");
+    expect(&mut e, m, "r_ocp_ref", "2", "ocp_node");
+    expect(&mut e, m, "r_ocp_sense", "1", "ocp_node");
     expect(&mut e, m, "u_ocp", "3", "ocp_node");
     expect(&mut e, m, "u_ocp", "4", "ocp_thresh");
     expect(&mut e, m, "u_ocp", "1", "ocp_ok_hot");
@@ -446,8 +501,11 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "u_ovp", "5", "hot5");
     expect(&mut e, m, "r_ovp_top", "1", "ref25");
     expect(&mut e, m, "r_ovp_top", "2", "ovp_thresh");
+    expect(&mut e, m, "r_ovp_bot", "1", "ovp_thresh");
     expect(&mut e, m, "r_ovp_bot", "2", "leg_ret");
     expect(&mut e, m, "r_th_top", "1", "ref25");
+    expect(&mut e, m, "r_th_top", "2", "ocp_thresh");
+    expect(&mut e, m, "r_th_bot", "1", "ocp_thresh");
     expect(&mut e, m, "r_th_bot", "2", "leg_ret");
     expect(&mut e, m, "u_and", "1", "ocp_ok_hot");
     expect(&mut e, m, "u_and", "2", "ovp_ok_hot");
@@ -491,8 +549,21 @@ fn audit(m: &Model) -> Vec<String> {
         expect(&mut e, m, r, "2", chain[i + 1]);
     }
 
-    // 9. Bus sense.
-    expect(&mut e, m, "r_div1", "1", "bus_p");
+    // 9. Bus sense also feeds OVP: every divider join must be intact.
+    let divider = ["bus_p", "vdiv_1", "vdiv_2", "vdiv_3", "vsense_in"];
+    for (i, path) in ["r_div1", "r_div2", "r_div3", "r_div4"].iter().enumerate() {
+        expect(&mut e, m, path, "1", divider[i]);
+        expect(&mut e, m, path, "2", divider[i + 1]);
+    }
+    expect(&mut e, m, "r_div_bot", "1", "vsense_in");
+    expect(&mut e, m, "r_div_bot", "2", "leg_ret");
+    let sense_members: BTreeSet<(String, String)> = [
+        ("r_div4", "2"), ("r_div_bot", "1"), ("c_div", "1"),
+        ("u_vsense", "2"), ("u_ovp", "4"),
+    ].iter().map(|(path, pin)| (path.to_string(), pin.to_string())).collect();
+    if members(m, "vsense_in") != sense_members {
+        e.push("vsense_in has unexpected loads or missing endpoints".into());
+    }
     expect(&mut e, m, "u_vsense", "2", "vsense_in");
     expect(&mut e, m, "u_vsense", "3", "leg_ret"); // SHTDN low = enabled
     expect(&mut e, m, "u_vsense", "7", "vbus_p");
@@ -672,6 +743,36 @@ mod tests {
         let mut m = built();
         m.set_part("r_th_bot", "RT0603BRD079K76L");
         fails(&m, "r_th_bot is RT0603BRD079K76L");
+    }
+
+    #[test]
+    fn old_reference_bias_fails_full_temperature_corner() {
+        let mut m = built();
+        m.set_part("r_ref_bias", "RC0603FR-076K8L");
+        fails(&m, "reference cathode current");
+    }
+
+    #[test]
+    fn selected_reference_bias_covers_shunt_loading_corner() {
+        assert!(min_reference_cathode_current_ua(5_600.0) >= 80.0);
+    }
+
+    #[test]
+    fn every_bus_divider_open_fails() {
+        for path in ["r_div1", "r_div2", "r_div3", "r_div4", "r_div_bot"] {
+            for pin in ["1", "2"] {
+                let mut m = built();
+                m.rewire(path, pin, "floating_divider");
+                fails(&m, &format!("{path}.{pin}"));
+            }
+        }
+    }
+
+    #[test]
+    fn extra_bus_sense_load_fails() {
+        let mut m = built();
+        m.rewire("r_bus1", "1", "vsense_in");
+        fails(&m, "vsense_in has unexpected loads");
     }
 
     #[test]

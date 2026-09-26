@@ -51,6 +51,16 @@ must now **pass** `DRC.BOARD.STACKUP`.
 
 ## 4.2 Insulation and spacing rules: numbers first
 
+**2026-09-25 integration correction:** the numerical voltage entries below
+are inherited planning estimates, not established worst-case working voltages.
+The diode-clamp argument and the later 468/511 V bus estimates do not prove
+those bounds; see `zapote/power-stage-120v/ORACLE-REVIEW.md`. Moving T1 to
+SW_A removes its direct resonant-node connection but retains high-frequency
+switch-node stress. Do not generate final insulation rules from this table
+until D5 establishes RMS, peak/transient and high-frequency requirements,
+including PE-open and external-earth cases. The ≥8.0 mm target and FR-4
+material-group assumption remain provisional.
+
 **Step 1, compute the required distances with the repo's own IEC 60335-1 tables.**
 The Rust extension must be built (`make extensions`, Part 1):
 
@@ -153,7 +163,7 @@ Placement rules (check each one; list the outcome in `PLACEMENT-REVIEW.md`):
 ## 4.4 Checks for each iteration
 
 ```sh
-python3 tools/build_native.py native-0N            # regenerates with the current poses and stackup
+python3 tools/build_native.py native-0N --stackup stackup.json
 python3 tools/write_rules.py native-0N/section.kicad_pcb
 kicad-cli pcb drc --severity-all --schematic-parity --format json \
   --output native-0N/drc.json native-0N/section.kicad_pcb

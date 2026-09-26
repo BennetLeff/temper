@@ -6,10 +6,14 @@ at the instantaneous rectified bus. At turn-off all four switches open; the
 body diodes present -sign(i)*Vbus to the tank and return |i| to the bus
 capacitor. The rectifier diodes block while Vbus > |v_line|, so the bus only
 rises. Ring-down continues until |v_Cr| <= Vbus. Ideal diodes, no stray
-inductance, no snubbers: an estimate, not a bound on measured overshoot.
+inductance, no snubbers: an illustration, not a bound on measured overshoot.
+The trip model detects absolute tank current; the actual OCP comparator senses
+the DC-return shunt through an RC filter. The printed cases start at the line
+crest with zero tank current and capacitor voltage, use one pan resistance and
+one 300 ns assumed delay, and do not scan damping or latency.
 
-Node-to-PE statistics assume N at earth; the diode bounds make the result
-symmetric in L and N, so reversed polarity gives the same values.
+Node-to-PE statistics assume N at earth and a bus following the rectified line.
+They do not include a bus elevated by returned tank energy.
 """
 
 from __future__ import annotations
@@ -58,6 +62,7 @@ def steady_states(L: float, R: float, f: float, vb: float, cycles: int = 60):
 
 
 def trip_state(L: float, R: float, vb: float, itrip: float, latency: float = 300e-9):
+    """Trip on absolute tank current as an idealized sensing surrogate."""
     f0 = 1 / (2 * math.pi * math.sqrt(L * CR))
     period = 1 / f0
     i = vc = t = 0.0
@@ -74,8 +79,11 @@ def trip_state(L: float, R: float, vb: float, itrip: float, latency: float = 300
 
 
 def envelope_bound(L: float, itrip: float, vb: float) -> float:
-    """Conservative bus bound: the at-resonance envelope can exceed the trip
-    by one half-cycle step 2*Vbus/Z0, and all of 1/2 L I^2 returns to Cbus."""
+    """Historical heuristic, not a bound: transfer only estimated L energy.
+
+    Cr energy, a precharged bus and the real OCP sensing path are omitted.
+    The function name is retained for users of this exploratory script.
+    """
     z0 = math.sqrt(L / CR)
     env = itrip + 2 * vb / z0
     return math.sqrt(vb * vb + L * env * env / CBUS)
@@ -97,7 +105,7 @@ def node_rms(vrms: float, vcr_crest: float, fsw: float = 33e3, fl: float = 60, n
         vcr = vcr_crest * (vb / vpk) * math.sin(ph - math.pi / 2)
         for name, v in (
             ("BUS_P/HV_RET/SW_x", swa),
-            ("RES_A (T1 today)", swb + vcr),
+            ("RES_A (old T1)", swb + vcr),
             ("PS1 L input", vl),
         ):
             acc[name] = acc.get(name, 0.0) + v * v
@@ -118,7 +126,7 @@ def main() -> None:
             vb, vcr = ringdown(i, vc, vb0, L, 0.3)
             print(
                 f"OCP {itrip} A at resonance, L {L * 1e6:.0f} uH: one trajectory {vb:.0f} V, "
-                f"Cr left {vcr:.0f} V; envelope bound {envelope_bound(L, itrip, vb0):.0f} V"
+                f"Cr left {vcr:.0f} V; envelope heuristic {envelope_bound(L, itrip, vb0):.0f} V"
             )
     for label, vrms, vcr in (
         ("rated 127 V, 70 uH", 127, 277),
