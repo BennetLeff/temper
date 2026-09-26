@@ -10,7 +10,7 @@ placement basis; D4 remains open.
 | D1 | Maximum board outline | **Approved 2026-09-25:** 220 × 160 mm maximum. |
 | D2 | Heatsink and airflow | **Approved 2026-09-25:** shared PE-bonded heatsink along a long edge, with electrically insulated MOSFETs and bridge. Airflow direction is still not chosen. |
 | D3 | Physical stackup | **Approved 2026-09-25 and implemented in native-02:** two copper layers, 1.6 mm FR-4, 70 µm copper per side. Fabricator stackup acceptance remains separate. |
-| D4 | Review placement before routing | Required by the accepted plan. No placement approval has been given. |
+| D4 | Review placement before routing | **Awaiting owner review.** First floorplan native-03 (2026-09-26) passes DRC with the D5 rules, parity 0 and the stackup gate; see PLACEMENT-REVIEW.md. No routing until written approval. |
 | D5 | Insulation basis and barrier parts | **Conditionally approved 2026-09-25 by the owner:** single-point controller-ground–PE functional bond and an 8.0 mm minimum placement target. Use verified laminate group IIIa or better (not IIIb above 50 V). This authorizes provisional barrier placement, not insulation qualification. The source now includes the removable 0 Ω functional link; its placement remains pending. Coilcraft evidence, applicable working-voltage/high-frequency rules and package/module certification scope remain open; increase spacing or change parts if those checks require it. See D5-BASIS.md. |
 | D6 | Mains entry and coil exit edges | **Approved 2026-09-25:** mains left, coil right, viewed from the component side with the heatsink at the top. |
 

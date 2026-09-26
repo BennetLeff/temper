@@ -1,5 +1,8 @@
 # Second native projection — shelf, unrouted, approved stackup
 
+> `poses.json` now holds the native-03 floorplan ([PLACEMENT-REVIEW.md](PLACEMENT-REVIEW.md)).
+> The shelf poses that reproduce native-02 are at commit `0e7484885`.
+
 Generated and checked on 2026-09-25 in `worktrees/ps-build`, branch
 `codex/power-stage-120v-build`, from the audited 114-part source, including
 the five oracle source changes, fault-high NAND/non-F isolator, removable
