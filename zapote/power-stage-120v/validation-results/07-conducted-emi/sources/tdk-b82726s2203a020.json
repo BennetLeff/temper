@@ -1,0 +1,18 @@
+{
+  "part": "B82726S2203A020",
+  "manufacturer": "TDK Electronics",
+  "url": "https://www.tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s22x3.pdf",
+  "retrieved_utc_date": "2026-09-27",
+  "revision": "May 2026",
+  "downloaded_pdf_sha256": "e8002bfe4af13edf3709f33d21d9b2f834dd04223707abdaffad9293116f3f46",
+  "pdf_committed": false,
+  "pdf_redistribution_note": "The document itself restricts reproduction and dissemination; retain URL and hash only.",
+  "page_4_characteristics": {
+    "rated_current_a": 20,
+    "nominal_inductance_per_winding_mh": 1.6,
+    "typical_stray_inductance_uh": 18,
+    "typical_resistance_per_winding_mohm": 4.5,
+    "inductance_tolerance_percent": [-30, 50]
+  },
+  "page_5_impedance_curve": "Typical for windings in parallel at 20 °C; no tabulated self-resonance or winding capacitance."
+}
