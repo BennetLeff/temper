@@ -92,6 +92,54 @@
    "vias": [
     {
      "position_mm": [
+      58.5,
+      2.5
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
+      58.5,
+      4.5
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
+      58.5,
+      6.5
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
+      81.5,
+      2.5
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
+      81.5,
+      4.5
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
+      81.5,
+      6.5
+     ],
+     "diameter_mm": 1.6,
+     "drill_mm": 0.8
+    },
+    {
+     "position_mm": [
       67.2,
       32.2
      ],
@@ -307,6 +355,29 @@
       [
        63,
        60
+      ]
+     ],
+     "clearance_mm": 0.3,
+     "priority": 2
+    },
+    {
+     "layer": "B.Cu",
+     "outline_mm": [
+      [
+       56,
+       0.6
+      ],
+      [
+       84,
+       0.6
+      ],
+      [
+       84,
+       11.5
+      ],
+      [
+       56,
+       11.5
       ]
      ],
      "clearance_mm": 0.3,
@@ -588,7 +659,7 @@
     {
      "position_mm": [
       126.9,
-      7.4
+      4.3
      ],
      "diameter_mm": 1.6,
      "drill_mm": 0.8
@@ -596,7 +667,7 @@
     {
      "position_mm": [
       128.4,
-      7.4
+      4.3
      ],
      "diameter_mm": 1.6,
      "drill_mm": 0.8
@@ -604,7 +675,7 @@
     {
      "position_mm": [
       129.9,
-      7.4
+      4.3
      ],
      "diameter_mm": 1.6,
      "drill_mm": 0.8
@@ -639,14 +710,14 @@
      "outline_mm": [
       [
        126.2,
-       6.6
+       3.4
       ],
       [
-       130.6,
-       6.6
+       130.8,
+       3.4
       ],
       [
-       130.6,
+       130.8,
        12.0
       ],
       [

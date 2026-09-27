@@ -74,6 +74,13 @@ def batch_01_power() -> Batch:
     # reserve this corridor. Stitch the upper end and terminate on D3.1.
     b.zone("bus_p", "B.Cu", [(63, 28), (69.4, 28), (69.4, 60), (61, 63),
                               (61, 67.5), (55, 67.5), (55, 63), (63, 60)], priority=2)
+    # D4 condition 1: outer-layer parallel to the western In2 neck (x ~74),
+    # which aux vias at y ~16 squeeze to 11.7 mm. Stitched at both ends; the
+    # fill keeps 3.2 mm from the aux copper above and SW_B at x 86.5.
+    b.zone("bus_p", "B.Cu", rect(56, 0.6, 84, 11.5), priority=2)
+    for x in (58.5, 81.5):
+        for y in (2.5, 4.5, 6.5):
+            b.via("bus_p", x, y, power=True)
     # Keep exposed via annuli clear of the bring-up negative cable lug.
     for x, y in ((67.2, 32.2), (67.2, 34.0), (68.5, 47.0), (68.5, 48.8),
                  (68.5, 53), (68.5, 54.8), (68.5, 56.6), (68.5, 58.4)):
@@ -111,10 +118,13 @@ def batch_01_power() -> Batch:
     # LEG_RET on In1 across the low-side sources, into R5's current pad 1
     # (Kelvin pad 2 is kept off this copper).
     b.zone("leg_ret", "In1.Cu", rect(104, 0.6, 148, 10.8), priority=2)
-    b.zone("leg_ret", "F.Cu", [(126.2, 6.6), (130.6, 6.6), (130.6, 12.0), (128.4, 12.0),
+    # D4 condition 1: the via row sits at y 4.3, where its In2 clearance
+    # holes merge with the TO-247 pin holes, widening the BUS_P branch
+    # below it (it was 3.2 mm at x 125.75 with the row at y 7.4).
+    b.zone("leg_ret", "F.Cu", [(126.2, 3.4), (130.8, 3.4), (130.8, 12.0), (128.4, 12.0),
                                (128.4, 10.8), (126.2, 10.8)], priority=2)
     for x in (126.9, 128.4, 129.9):
-        b.via("leg_ret", x, 7.4, power=True)
+        b.via("leg_ret", x, 4.3, power=True)
     b.track("leg_ret", "F.Cu", 0.8, "C20.2", [121.45, 9.7], "Q6.3")
     b.track("leg_ret", "F.Cu", 0.8, "C13.2", [143.45, 9.7], "Q3.3")
 
