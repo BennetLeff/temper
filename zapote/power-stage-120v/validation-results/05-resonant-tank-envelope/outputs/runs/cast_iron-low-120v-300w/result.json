@@ -1,0 +1,28 @@
+{
+  "deck": "/Users/bennet/Desktop/temper/worktrees/ps-sim-05/zapote/power-stage-120v/validation-plan/sim-kit/05-tank/tank.cir",
+  "params": {
+    "VRMS": "120",
+    "FREQ": "49720.33375012",
+    "LLOAD": "5.18e-05",
+    "RPAN40": "2.52",
+    "RCOIL": "0.105"
+  },
+  "run_dir": "/Users/bennet/Desktop/temper/worktrees/ps-sim-05/zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/outputs/runs/cast_iron-low-120v-300w",
+  "aborted": false,
+  "meas": {
+    "i_rms": 10.1653,
+    "i_pk": 22.55679,
+    "vc_pk": 118.1682,
+    "vc_rms": 60.0699,
+    "p_avg": 301.1233
+  },
+  "failed": [],
+  "log_tail": [
+    "",
+    "Total DRAM available = 32768.000 MB.",
+    "DRAM currently available =  339.156 MB.",
+    "Maximum ngspice program size =   25.578 MB.",
+    "Current ngspice program size =   25.578 MB.",
+    ""
+  ]
+}

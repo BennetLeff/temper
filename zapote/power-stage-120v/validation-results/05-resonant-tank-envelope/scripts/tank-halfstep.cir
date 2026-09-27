@@ -1,0 +1,29 @@
+* Task 05: series-resonant tank over one rectified-line half-cycle.
+* Run: python3 ../common/run_ngspice.py tank.cir VRMS=120 FREQ=35k LLOAD=50u RPAN40=2.0 RCOIL=0.25
+*
+* Drive: ideal full bridge, +/- Vbus square wave at FREQ with Vbus = |Vpk sin(2 pi 60 t)|
+* (the bus is unfiltered; ~5.8 uF only smooths switching ripple). Dead time and
+* MOSFET drops are ignored: use this deck for tank stresses, not losses.
+* Load (docs/hardware/power-section-120v/coil_mc.rs priors, 70 uH coil):
+*   LLOAD = 70 uH x kl, kl 0.58-0.90         -> 40.6-63 uH
+*   RPAN40 = 70 x r40, r40 0.012-0.052 ohm/uH -> 0.84-3.64 ohm at 40 kHz,
+*            scaled by (FREQ/40k)^0.5 (skin-effect assumption in coil_mc.rs)
+*   RCOIL = 70 x q, q 0.0015-0.0060 ohm/uH    -> 0.105-0.42 ohm
+.include ../common/options.inc
+.param VRMS=120 FREQ=35k LLOAD=50u RPAN40=2.0 RCOIL=0.25 CRES=0.54u
+.include params.inc
+.param VPK={VRMS*1.41421356} RTOT={RCOIL + RPAN40*sqrt(FREQ/40k)}
+
+Bdrv drv 0 V={VPK*abs(sin(6.283185307*60*time))*tanh(sin(6.283185307*FREQ*time)/0.02)}
+Rt drv a {RTOT}
+Lt a b {LLOAD}
+Vim b c 0
+Cr c 0 {CRES}
+
+.tran 25n 8.3333m 0 25n
+.meas tran i_rms RMS i(Vim) from=0 to=8.3333m
+.meas tran i_pk MAX par('abs(i(Vim))') from=0 to=8.3333m
+.meas tran vc_pk MAX par('abs(v(c))') from=0 to=8.3333m
+.meas tran vc_rms RMS v(c) from=0 to=8.3333m
+.meas tran p_avg AVG par('i(Vim)*i(Vim)*RTOT') from=0 to=8.3333m
+.end
