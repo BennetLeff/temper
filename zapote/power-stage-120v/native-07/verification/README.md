@@ -50,4 +50,9 @@ B.Cu). They read `../copper.json`. The outputs are `bus-sheet.txt`,
 The parallel screen sums each layer's independent screen. It does not model
 how current actually shares between In2 and B.Cu, and it gives no via-bank
 current rating. The finished copper and plating, thermal/current qualification,
-and every native-06 open item still apply. Copper previews were not regenerated.
+and every native-06 open item still apply.
+
+Copper previews, viewed from the component side and rendered with the
+native-06 settings (receipt: `../previews/render-receipt.json`):
+[front](../previews/front.png), [inner return](../previews/inner-return.png),
+[inner bus](../previews/inner-bus.png) and [back](../previews/back.png).
