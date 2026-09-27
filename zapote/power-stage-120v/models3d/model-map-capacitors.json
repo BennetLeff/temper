@@ -67,6 +67,19 @@
       "dimensions_verified_mm": {"disc_diameter": 9, "disc_thickness": 4, "lead_pitch": 10, "lead_diameter": 0.6},
       "geometry_note": "Disc and lead shape are illustrative; mounted height and stand-off are not specified in the cited part table.",
       "sha256": "e516b7bc17521af73d334e3da8eed0c43d0583b33132acf86f6f450f9d472fc1"
+    },
+    {
+      "references": ["C1", "C2"],
+      "footprint": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
+      "path": "${KIPRJMOD}/../models3d/capacitors/KEMET_R463N410000N1M.step",
+      "offset_mm": [0, 0, 0],
+      "rotation_deg": [0, 0, 0],
+      "scale": [1, 1, 1],
+      "status": "provisional-dimensioned",
+      "source_urls": ["https://content.kemet.com/datasheets/KEM_F3095_R46_X2_310_110C.pdf"],
+      "dimensions_verified_mm": {"body_length": 26.8, "body_width": 11.2, "body_height": 20.1, "lead_pitch": 22.5, "lead_diameter": 0.8},
+      "geometry_note": "Datasheet page-3 maximum body (not nominal), centred on the pitch midpoint with 0.5 mm stand-off; case edge detail is illustrative.",
+      "sha256": "ca4a6472700aac00885209335a0f2ce5a46665f238e8be72b0a499c675f56315"
     }
   ]
 }

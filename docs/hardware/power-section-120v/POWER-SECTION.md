@@ -137,7 +137,7 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | F1 | 1 | 0326020.MXP + Littelfuse 102071 clips | 20 A slow-blow ceramic; 15 A ÷ 0.75 | V (fuse); C (clip rating) |
 | RV1 | 1 | TMOV20RP175E | 175 Vrms thermally protected MOV, 455 V clamp | C; F |
 | L1 | 1 | B82726S2203A020 | 20 A, 1.6 mH, ~4.5 mΩ (~2 W). Windings 1–4 and 2–3 per TDK drawing | V (pins); F |
-| C1,C2 / R1,R2 | 2 / 2 | R463R410000M1M / 120k 1206 | 1 µF X2 310 VAC; bleed to 24.7 V after 1 s (limit 34 V) | V |
+| C1,C2 / R1,R2 | 2 / 2 | R463N410000N1M / 120k 1206 | 1 µF X2 310 VAC; bleed to 24.7 V after 1 s (limit 34 V) | V |
 | C3,C4 | 2 | DE1E3RA222MA4BP01F | 2.2 nF Y1; 10 mm pitch and 1.5 mm local pads give 8.5 mm nominal copper gap; verify component and board insulation | V (part); C (assembly) |
 | PS1 | 1 | IRM-20-15 | SELV 15 V 1.4 A, 4.2 kVac, pin 1 = AC/L | V |
 | PS2 | 1 | IRM-05-15 | Gate/HOT 15 V, **pin 1 = AC/N** (differs from IRM-20) | V |

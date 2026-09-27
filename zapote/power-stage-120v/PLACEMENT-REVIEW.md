@@ -110,3 +110,15 @@ Evidence: [native-11/verification](native-11/verification/README.md),
 conditions. Add one bench item to condition 2: with the tank running, check
 CT_ZC and CT_MON for switching-node pickup, and verify the tank-CT trip at the
 ~55 A design point with injected primary current.
+
+## Native-14/15 delta, 2026-09-27: C1/C2 X2 correction
+
+C1/C2 change to KEMET R463N410000N1M on a new footprint whose courtyard is
+0.35 mm wider per side (maximum body plus 0.25 mm across, plus 0.10 mm at the
+ends). Poses and pads are unchanged and the placement metrics are identical
+to native-12. C1 is now 1.56 mm from RV1 and 1.91 mm from PS1, both
+courtyard to courtyard. C2 is unchanged against C5 (0.16 mm; 0.60 mm
+worst-case body to body) and BR1 (2.91 mm), and stays outside the heat-sink
+zone. Evidence: [native-15/verification](native-15/verification/README.md).
+Reviewer recommendation (Claude): carry the D4 approval to native-14/15.
+Awaiting owner confirmation.

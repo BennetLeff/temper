@@ -6,18 +6,18 @@
   "status": "compiled-and-exported",
   "components": 135,
   "nets": 83,
-  "audit": "PASS on frozen/; 53 passed audit tests (2026-09-27: BAS116H clamps, 100 ohm permit / 1 k DIS pull-up)",
+  "audit": "PASS on frozen/; 53 passed audit tests (2026-09-27: C1/C2 KEMET R463N410000N1M X2, 22.5 mm pitch; C1/C2 added to identity)",
   "reproducibility": "Rebuilt 2026-09-27 via tools/build_source.py into source-build-01 (worktree ps-oracle); frozen/ copies that build.",
   "identity_authority": "frozen/resolved-components.json + frozen/default.csv (default.net libsource is footprint-aliased)",
   "sha256": {
     "ato.yaml": "ccb72f82cfe51d8002ba3333bce202f587971ea7eb439ec18d1693371139dd80",
-    "elec/src/parts.ato": "c543fd19432c0bf6f6972754e12ced592cf560d7f43719521905049e0f691d1b",
+    "elec/src/parts.ato": "fbd826ca405cf57d5fcb59e9bced369153080e5880685feb184cbc2ede9ed076",
     "elec/src/power_stage_120v.ato": "03f157fc83cad18daaa392ca3a85ec3202a3d0c89c60b4566ab9248d1cfc7112",
-    "audit.rs": "a9d155c439ef7c0fd0ac17ab3d2773c079c3a97adb24bf6a4a962ec7298b12ac",
+    "audit.rs": "04b6ea9ccd357a7b47b800ab859f64f3a05171af160dbc6190091e317f8054a9",
     "tools/circuit_export.py": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
-    "frozen/default.net": "3af92998c059eb7ef3ba4940384230a1c9cf4dfbf5a822a89ff2453e36738556",
-    "frozen/default.csv": "e85486fde382f61f8f675caab3d28c5450da4b8a9844fbe91050e12eaf1263e4",
-    "frozen/resolved-components.json": "74591f86137379f402894ce815387a0a1dd1ad4a5479dfbc4b74f3bf56d6c8ef"
+    "frozen/default.net": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
+    "frozen/default.csv": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67",
+    "frozen/resolved-components.json": "839dadb30b1a0e4ea144a3d60d7417544d5b7a61e6032b6703b828324c882193"
   },
   "physical": "NOT RUN"
 }

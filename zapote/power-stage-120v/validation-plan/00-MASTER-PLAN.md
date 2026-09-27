@@ -54,21 +54,23 @@ tasks need separate worktrees and must not both build Rust or the native bridge.
   ~37 A peak; 33–39 kHz at full power, up to 60 kHz at light load; nominal
   dead time ≈ 348 ns; OCP trip ≈ 61 A; OVP ≈ 280 V; bus crest ≈ 170 V at
   120 V rms and ≈ 198 V at 140 V rms line crest.
-- **Board file:** `native-13/section.kicad_pcb`. This supersedes native-09,
+- **Board file:** `native-15/section.kicad_pcb`. This supersedes native-09,
   which the rest of this section still describes; see
-  `native-13/verification/README.md` for the delta. Native-13 adds the tank-CT
-  detector (U10–U13) and has BAS116H clamps and a 100 Ω / 1 kΩ permit/DIS
-  network. It's 240 × 160 mm with 4 layers:
+  `native-13/verification/README.md` and `native-15/verification/README.md`
+  for the deltas. Native-13 adds the tank-CT detector (U10–U13) and has
+  BAS116H clamps and a 100 Ω / 1 kΩ permit/DIS network. Native-15 corrects
+  C1/C2 to KEMET R463N410000N1M (22.5 mm pitch); its copper is identical to
+  native-13's, so copper results from native-13 still apply. It's 240 × 160 mm with 4 layers:
   - F.Cu: parts and power pours
   - In1: HV_RET return plane
   - In2: BUS_P plane
   - B.Cu: SW_B band and pours
 
-  It's built to JLCPCB stackup JLC041622-7628 (`stackup.json`). The active native-13
-  presentation revision has SHA-256 `8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129`;
-  its copper is identical to the electrically verified native-13 revision
-  `ce1cf6361d1f30a8345d58b01b3511c695c7212d2c621808bc6dabe5b73960b6`
-  (`native-13/verification/README.md`).
+  It's built to JLCPCB stackup JLC041622-7628 (`stackup.json`). The active native-15
+  presentation revision has SHA-256 `a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155`;
+  its copper is identical to the electrically verified native-15 revision
+  `bec1df670d5965bff852b5c0e674dbfa2a6396767c78f213f88b58eddad9ab5f`
+  (`native-15/verification/README.md`).
   **Record the SHA-256 of the board you actually analyse in every result.**
 - **Source of truth for parts:** `frozen/default.csv` and
   `frozen/resolved-components.json`. Never take part identity from
@@ -143,7 +145,7 @@ start from it:
 
 ```sh
 KP=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
-$KP tools/copper_dump.py native-13/section.kicad_pcb /tmp/copper.json
+$KP tools/copper_dump.py native-15/section.kicad_pcb /tmp/copper.json
 ```
 
 The DRC must run with the board's sibling files present (`section.kicad_dru`,
@@ -151,10 +153,10 @@ The DRC must run with the board's sibling files present (`section.kicad_dru`,
 
 ```sh
 kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all \
-  --format json --output /tmp/drc.json native-13/section.kicad_pcb
+  --format json --output /tmp/drc.json native-15/section.kicad_pcb
 ```
 
-Documented native-13 baseline (not rerun by this simulation round): 0 copper findings, 28 `lib_footprint_mismatch`, 3
+Documented native-15 baseline (the same as native-13's): 0 copper findings, 28 `lib_footprint_mismatch`, 3
 `silk_overlap`, and 1 unconnected item (the intended R5 Kelvin split).
 
 ## 4. Where results go
@@ -175,7 +177,7 @@ validation-results/01-switching-parasitics/
 ```markdown
 # NN <task name> — result
 
-- Board: native-13/section.kicad_pcb, SHA-256 <hash>
+- Board: native-15/section.kicad_pcb, SHA-256 <hash>
 - Date, tool versions, operator/model
 - Evidence class: <class>
 - Verdict: PASS / FAIL / BLOCKED / PASS WITH CONDITIONS

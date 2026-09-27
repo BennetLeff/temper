@@ -11,7 +11,7 @@
 .param MODE=0
 * L1 B82726S2203A020 current-compensated choke (FILL_ME from TDK datasheet)
 .param LCM=2m LLEAK=20u RCHOKE=10m CCHOKE=15p
-* X caps C1/C2 (R463R410000M1M 1 uF) ESR/ESL (FILL_ME), Y caps C3/C4 2.2 nF
+* X caps C1/C2 (R463N410000N1M 1 uF) ESR/ESL (FILL_ME), Y caps C3/C4 2.2 nF
 .param CX=1u ESLX=15n ESRX=10m CY=2.2n
 * Bus capacitance, switch-node to PE (heatsink) coupling through the pads (FILL_ME)
 .param CBUS=5.8u CPE=60p

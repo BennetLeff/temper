@@ -1,7 +1,9 @@
 # Capacitor assembly envelopes
 
-These five `.step` files are original, simple 3D envelopes for eleven native-09
-capacitor footprints. They are **not manufacturer CAD** or evidence of a
+These six `.step` files are original, simple 3D envelopes for thirteen
+capacitor footprints (eleven from native-09, plus the KEMET R463N410000N1M X2
+capacitors C1/C2 from native-14, which are modelled at the datasheet's
+maximum body, not nominal). They are **not manufacturer CAD** or evidence of a
 mechanical fit. The body dimensions and pad pitches come from the linked
 manufacturer tables in `../model-map-capacitors.json`. The shape of molded
 corners, lead bends, and stand-off is illustrative. For the Murata disc, only

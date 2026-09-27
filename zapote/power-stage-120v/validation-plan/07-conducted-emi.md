@@ -43,7 +43,7 @@ cooking) and **Part 15B** (POWER-SECTION.md §7).
 
 **Input filter, in circuit order (read the netlist to confirm):**
 - **Fuse and surge:** F1, RV1 (MOV; model as its capacitance, from the datasheet).
-- **X capacitors:** C1, C2 (R463R410000M1M, 1 µF X2), with ESR and ESL.
+- **X capacitors:** C1, C2 (R463N410000N1M from native-15, 1 µF X2), with ESR and ESL.
 - **Common-mode choke:** L1 (B82726S2203A020). From its datasheet take the CM
   inductance, the leakage (DM) inductance, the winding resistance, and the
   impedance-vs-frequency curve. Model the self-resonance with a parallel C.

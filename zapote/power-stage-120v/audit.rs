@@ -275,6 +275,8 @@ const IDENTITY: &[(&str, &str)] = &[
     ("c_hf_b2", "B32652A0104K000"),
     ("cy1", "DE1E3RA222MA4BP01F"),
     ("cy2", "DE1E3RA222MA4BP01F"),
+    ("cx1", "R463N410000N1M"),
+    ("cx2", "R463N410000N1M"),
     ("f1", "0326020.MXP"),
     ("rv1", "TMOV20RP175E"),
     ("br1", "GBJ2510-F"),

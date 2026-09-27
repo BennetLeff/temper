@@ -79,6 +79,9 @@ def main() -> None:
     film_box(42, 33, 48, 18.75, -10.15,
              [(0, 0), (0, -20.3), (37.5, 0), (37.5, -20.3)], 1.2,
              "TDK_B32656G0275J000.wrl")
+    # KEMET R463N410000N1M (C1, C2): page-3 maximum body, centred on the pitch.
+    film_box(26.8, 11.2, 20.1, 11.25, 0, [(0, 0), (22.5, 0)], 0.8,
+             "KEMET_R463N410000N1M.wrl")
     murata()
 
 

@@ -1,5 +1,8 @@
 # C1/C2 replacement review — proposal only
 
+> **Implemented 2026-09-27 in native-14/15** after the owner approved it; see
+> `native-15/verification/README.md`. The note below is kept as written.
+
 Reviewed 2026-09-27 against source revision `267dcee72` and unchanged native-13
 board SHA-256 `8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129`.
 No part, footprint, board or placement approval is recorded by this note.

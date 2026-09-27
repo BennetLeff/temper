@@ -18,7 +18,7 @@ def load(name):
 
 capture_poses = load("capture_poses")
 write_rules = load("write_rules")
-BOARD = UNIT / "native-12" / "section.kicad_pcb"
+BOARD = UNIT / "native-14" / "section.kicad_pcb"
 SOURCE = UNIT / "frozen" / "resolved-components.json"
 
 
@@ -28,7 +28,7 @@ def test_capture_round_trips_the_generated_board():
 
 
 def test_capture_accepts_kicad_saved_tab_indentation():
-    board = UNIT / "native-13" / "section.kicad_pcb"
+    board = UNIT / "native-15" / "section.kicad_pcb"
     assert "\n\t(footprint " in board.read_text()
     poses = capture_poses.capture(board, capture_poses.source_instances(SOURCE))
     assert poses == json.loads((UNIT / "poses.json").read_text())
@@ -122,6 +122,6 @@ def test_normal_configuration_uses_straps_not_facing_lugs():
 
 
 def test_committed_metrics_have_no_hardware_conflicts():
-    metrics = json.loads((UNIT / "native-12" / "placement-metrics.json").read_text())
+    metrics = json.loads((UNIT / "native-14" / "placement-metrics.json").read_text())
     for name, cfg in metrics["terminal_hardware"].items():
         assert cfg["electrical_ok"] and cfg["mechanical_ok"], name

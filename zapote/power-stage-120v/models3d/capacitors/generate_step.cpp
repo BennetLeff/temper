@@ -108,6 +108,9 @@ int main(int argc, char** argv) {
         // KiCad model Y grows opposite footprint Y; four pads occupy y=0,20.3.
         film(directory, "TDK_B32656G0275J000.step", -2.25, -26.65,
              42, 33, 48, 37.5, -20.3, 1.2);
+        // KEMET R463N410000N1M (C1, C2): page-3 maximum body, centred on the pitch.
+        film(directory, "KEMET_R463N410000N1M.step", -2.15, -5.6,
+             26.8, 11.2, 20.1, 22.5, 0, 0.8);
         murata(directory);
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';

@@ -337,7 +337,7 @@ transient is too slow for 150 kHz–30 MHz resolution.
    - L1 B82726S2203A020: common-mode inductance, leakage (DM) inductance,
      winding capacitance (from its impedance curve's self-resonance) and
      resistance
-   - X capacitors R463R410000M1M: ESR and ESL
+   - X capacitors R463N410000N1M (native-15; was R463R410000M1M): ESR and ESL
    - CPE: the switch-node-to-heatsink capacitance through the TO-247 tab
      insulating pad, `ε0·εr·A/d`. Take the exposed tab area A from the
      PG-TO247-3 package drawing in the IPW65R018CFD7 datasheet (record the
