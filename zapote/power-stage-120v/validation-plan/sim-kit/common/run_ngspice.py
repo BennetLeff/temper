@@ -9,7 +9,10 @@
 - Decks include "params.inc", "../common/options.inc" style paths are
   rewritten to absolute paths, and models/vendor/IFX_CFD7_650V.lib is
   available as "IFX_CFD7_650V.lib".
-- Prints {"params": ..., "meas": {name: value}, "failed": [...], "log_tail": ...}.
+- Prints {"params": ..., "meas": {name: value}, "failed": [...], "log_tail": ...,
+  "returncode": ..., "raw_returncode": ...}. Full logs are in <run dir>/run.log
+  (and raw_run.log). Before using any result, also check that every .meas you
+  need is present and that the waveform covers the whole .tran window.
   A .meas that ngspice could not evaluate is listed in "failed". An aborted run
   (for example "Timestep too small") sets "aborted": true; treat that as a
   failed run, never as a result.
@@ -47,9 +50,12 @@ def run(deck: Path, params: dict[str, str], keep: Path | None = None, raw: bool 
     # second run of the same deck.
     proc = subprocess.run(["ngspice", "-b", deck.name], cwd=work, capture_output=True, text=True, timeout=1800)
     out = proc.stdout + proc.stderr
+    raw_rc = None
     if raw:
-        subprocess.run(["ngspice", "-b", "-r", "waves.raw", deck.name], cwd=work,
-                       capture_output=True, text=True, timeout=1800)
+        rproc = subprocess.run(["ngspice", "-b", "-r", "waves.raw", deck.name], cwd=work,
+                               capture_output=True, text=True, timeout=1800)
+        raw_rc = rproc.returncode
+        (work / "raw_run.log").write_text(rproc.stdout + rproc.stderr)
     meas, failed = {}, []
     for line in out.splitlines():
         m = MEAS.match(line)
@@ -60,8 +66,12 @@ def run(deck: Path, params: dict[str, str], keep: Path | None = None, raw: bool 
                 pass
         if "failed" in line.lower() and "meas" in line.lower():
             failed.append(line.strip())
+    (work / "run.log").write_text(out)
     aborted = bool(re.search(r"Timestep too small|simulation\(s\) aborted|singular matrix|fatal error", out, re.I))
+    # A nonzero exit or a failed waveform run also counts as aborted.
+    aborted = aborted or proc.returncode != 0 or (raw and (raw_rc != 0 or not (work / "waves.raw").is_file()))
     return {"deck": str(deck), "params": params, "run_dir": str(work), "aborted": aborted,
+            "returncode": proc.returncode, "raw_returncode": raw_rc,
             "meas": meas, "failed": failed, "log_tail": out.splitlines()[-6:]}
 
 

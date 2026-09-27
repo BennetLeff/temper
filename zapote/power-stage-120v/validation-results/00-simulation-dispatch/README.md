@@ -82,3 +82,26 @@ coverage or remove the model limitations.
 All five result sets are committed on `codex/ps-sim-validation`. The native-13
 board hash is unchanged; no source, routing, placement, shared simulation-kit
 or vendor-model files were committed by this round.
+
+## Kit corrections after this round (2026-09-27, Claude)
+
+The shared kit defects that the task-04 audit and the coordinator reported are
+fixed in `validation-plan/sim-kit/`. Results already recorded above were
+produced with the uncorrected kit, and they stand as recorded.
+
+- **`04-current/sheet_solver.py`:**
+  - The via barrel length is split across hops by real layer spacing.
+  - Resistance is loss-equivalent, ΣV·I / I², with source voltages reported.
+  - Off-copper injection points are refused.
+  - A connectivity preflight excludes unused islands and refuses a source with
+    no sink.
+  - Seven self-tests pass. They include the audit's four-layer via
+    (0.5811 mΩ) and unequal-source (2.8996 mΩ) cases, now matching the
+    analytic values.
+- **`common/run_ngspice.py`:**
+  - It reports `returncode` and `raw_returncode`.
+  - A nonzero exit or a failed waveform run counts as aborted.
+  - Full logs are saved as `run.log` and `raw_run.log`.
+
+Still open from the coordinator notes: the switching deck is not a
+complementary-drive ZVS model. Extending it is task-01 work.
