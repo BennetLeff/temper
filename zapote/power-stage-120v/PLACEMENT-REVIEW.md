@@ -84,3 +84,29 @@ qualification. J1 wire entry, enclosure fit, airflow, certification-lab review,
 Coilcraft/module evidence and the RCA teardown remain open. Overshoot/clamp,
 protection timing, CT injection, leakage, hipot and EMI tests have not run.
 Three L1/J3 silk-outline overlaps remain for production cleanup.
+
+## Native-10/11 delta for renewed D4 (2026-09-27)
+
+What changed since the conditionally approved native-05/06 placement (via
+native-07/09):
+
+- **Parts:** 21 new parts. The tank-CT detector sits on a new SELV island lobe at T1's
+  secondary (x 158–183.5, y 61.8–86); U13/C47 sit beside J4. The 114 existing
+  poses are unchanged.
+- **Island edges:** the lobe keeps ≥ 8 mm plan-view to HOT copper on every
+  layer. It is 8.15 mm to SW_B's B.Cu step (the chamfer), 9.6 mm to C6's BUS_P
+  pad and 18 mm to T1's primary. The island's original east edge moved from
+  exactly 8.000 mm to 8.5 mm from In2 BUS_P.
+- **CT termination:** T1's secondary now terminates at the burden, about 10 mm
+  of trace from the CT pins. No CT secondary net reaches J4.
+- **Unchanged:** power paths, gate loops, the R5 Kelvin arrangement, and every
+  D4 condition. The power screens are identical to native-09.
+
+Evidence: [native-11/verification](native-11/verification/README.md),
+[presentation](native-11/verification/presentation/README.md) and
+[task 06 resolution](validation-results/06-controller-interface/README.md).
+
+Reviewer recommendation (Claude): approve native-10/11 under the existing D4
+conditions. Add one bench item to condition 2: with the tank running, check
+CT_ZC and CT_MON for switching-node pickup, and verify the tank-CT trip at the
+~55 A design point with injected primary current.
