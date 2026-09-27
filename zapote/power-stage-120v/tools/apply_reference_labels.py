@@ -14,6 +14,13 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+UNIT = Path(__file__).resolve().parents[1]
+# JLCPCB legend minimums (https://jlcpcb.com/capabilities/pcb-capabilities,
+# read 2026-09-26): text height >= 1.0 mm, line width >= 0.15 mm.
+MIN_SIZE_MM = 1.0
+MIN_THICKNESS_MM = 0.15
+
+
 def mm_position(x: float, y: float) -> pcbnew.VECTOR2I:
     return pcbnew.VECTOR2I(pcbnew.FromMM(x), pcbnew.FromMM(y))
 
@@ -26,8 +33,9 @@ def apply(board_path: Path, labels_path: Path, output_path: Path, receipt_path: 
     board = io.LoadBoard(str(board_path), None)
     footprints = {fp.GetReference(): fp for fp in board.GetFootprints()}
     positions = labels["references"]
-    if len(footprints) != 114 or set(footprints) != set(positions):
-        raise ValueError("reference labels must cover the exact 114-footprint board")
+    expected = json.loads((UNIT / "build-receipt.json").read_text())["components"]
+    if len(footprints) != expected or set(footprints) != set(positions):
+        raise ValueError(f"reference labels must cover the exact {expected}-footprint board")
 
     for name, instruction in positions.items():
         fp = footprints[name]
@@ -46,13 +54,14 @@ def apply(board_path: Path, labels_path: Path, output_path: Path, receipt_path: 
         if not (0 < x < 240 and 0 < y < 160):
             raise ValueError(f"{name} label lies outside the board")
         size = instruction["size"]
-        if not (0.7 <= size <= 1.2):
-            raise ValueError(f"{name} label size outside allowed range")
+        thickness = instruction.get("thickness", MIN_THICKNESS_MM)
+        if not (MIN_SIZE_MM <= size <= 1.5) or thickness < MIN_THICKNESS_MM:
+            raise ValueError(f"{name} label below the fabricator legend minimum")
         ref.SetLayer(pcbnew.F_SilkS)
         ref.SetTextAngle(pcbnew.EDA_ANGLE(0, pcbnew.DEGREES_T))
         ref.SetPosition(mm_position(x, y))
         ref.SetTextSize(mm_position(size, size))
-        ref.SetTextThickness(pcbnew.FromMM(0.12))
+        ref.SetTextThickness(pcbnew.FromMM(thickness))
         ref.SetVisible(True)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,5 +1,9 @@
 # Native-11 verification, 2026-09-27: tank-CT detector
 
+The active board is now the [label/model presentation revision](presentation/README.md),
+whose copper is identical to this record. The reports below are the electrical
+verification of the pre-presentation board.
+
 Board SHA-256: `2fec2924d64cf0e6a45b7a131b2797488e0edf13edecde1a21d45162febe1cbb`.
 
 Native-11 is native-09's routing plus the tank-CT detector. The detector fixes
@@ -50,8 +54,3 @@ powered-operation release, and the placement change needs renewed D4 review.
 Previews: [front](../previews/front.png), [inner return](../previews/inner-return.png),
 [inner bus](../previews/inner-bus.png), [back](../previews/back.png).
 
-## Not carried over
-
-The owner's label and 3D-model presentation revision was applied to native-09.
-Its tools expect the 114-part board, so it still has to be extended to the
-21 new parts. Designator text size is still below JLCPCB's minimum (task 08).

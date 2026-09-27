@@ -193,7 +193,7 @@ Update this table when a task finishes (link the result README).
 | 05 | not started | — | — |
 | 06 | partial (CT check done; fixed in native-11) | [CT burden](../validation-results/06-controller-interface/README.md) | CT: FAIL on native-09 → fixed in native-11 (source change; renewed D4 review needed) |
 | 07 | not started | — | — |
-| 08 | not started | — | — |
+| 08 | partial (silkscreen step done) | [native-11 presentation](../native-11/verification/presentation/README.md) | Designators at 1.0/0.15 mm, copper unchanged; Gerber/BOM/sourcing steps not started |
 | 09 | not started | — | — |
 
 ## 6. What this plan does not do

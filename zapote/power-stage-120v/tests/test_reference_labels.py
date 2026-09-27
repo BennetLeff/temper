@@ -27,6 +27,8 @@ for f in b.GetFootprints():
     gap = max(bounds[0] - x, 0, x - bounds[2], bounds[1] - y, y - bounds[3])
     rows[f.GetReference()] = {
         'at': [round(x, 3), round(y, 3)],
+        'size_mm': mm(r.GetTextHeight()),
+        'thickness_mm': mm(r.GetTextThickness()),
         'visible': r.IsVisible(),
         'front_silkscreen': r.GetLayer() == pcbnew.F_SilkS,
         'courtyard_gap_mm': gap,
@@ -40,21 +42,23 @@ print(json.dumps(rows))
 """
 
 
-def test_native_09_references_are_visible_and_source_fields_are_hidden():
+def test_native_11_references_are_visible_legible_and_source_fields_are_hidden():
     if not KICAD_PY.is_file():
         pytest.skip("KiCad pcbnew Python is unavailable")
     result = subprocess.run(
-        [str(KICAD_PY), "-c", PROBE, str(UNIT / "native-09/section.kicad_pcb")],
+        [str(KICAD_PY), "-c", PROBE, str(UNIT / "native-11/section.kicad_pcb")],
         text=True,
         capture_output=True,
         check=True,
     )
     actual = json.loads(result.stdout)
     expected = json.loads((UNIT / "reference-labels.json").read_text())["references"]
-    assert len(actual) == 114
+    assert len(actual) == json.loads((UNIT / "build-receipt.json").read_text())["components"]
     assert set(actual) == set(expected)
     for name, row in actual.items():
         assert row["at"] == expected[name]["at"], name
         assert row["visible"] and row["front_silkscreen"], name
         assert row["courtyard_gap_mm"] <= 4.0, name
         assert row["metadata_hidden_near_footprint"], name
+        # JLCPCB legend minimum: 1.0 mm text, 0.15 mm stroke.
+        assert row["size_mm"] >= 1.0 - 1e-6 and row["thickness_mm"] >= 0.15 - 1e-6, name
