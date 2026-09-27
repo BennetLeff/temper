@@ -1,5 +1,10 @@
 # 04 Board current density and copper temperature — blocked instrument audit
 
+**Update:** the four analytic defects below were corrected in the kit, but a
+native-13 raster-connectivity defect still blocks board numbers. See the
+[second-round report](round2/README.md). The remainder of this file preserves
+the first-round evidence against the earlier kit revision.
+
 - Board: `native-13/section.kicad_pcb`, SHA-256 `8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129`.
 - Kit revision: `36ba41f249eea0b9c78c9d7bdd6e38ea04bb37f9`; starter solver SHA-256 `e6666e2d763fee3af53a82c5f4bd7c495a313c7e541c907727fdedfff2fa3c00`.
 - Date: 2026-09-27. Runtime: KiCad/pcbnew 10.0.4, ngspice 45.2, Miniforge Python 3.12.12, NumPy 2.4.6, SciPy 1.18.0, Shapely 2.1.2.
