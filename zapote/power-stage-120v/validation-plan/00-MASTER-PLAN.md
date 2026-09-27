@@ -6,6 +6,10 @@ validations and simulations to run on the routed board **before** fabrication
 release. Physical tests (hipot, leakage, measured EMI, measured temperature)
 come later; each task lists the physical test that finally confirms it.
 
+**Next round: [ROUND-3.md](ROUND-3.md)** says, item by item, how to close
+what rounds 1–2 left blocked, in what order, and which decisions need the
+owner.
+
 Every task has its own document. Read this master plan first, then only the
 task document you're assigned. **For the simulation tasks (01, 02, 04, 05,
 07), also follow [SIMULATION-RUNBOOK.md](SIMULATION-RUNBOOK.md)** and its
