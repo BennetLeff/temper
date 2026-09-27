@@ -13,7 +13,7 @@ import pytest
 UNIT = Path(__file__).resolve().parents[1]
 TOOLS = UNIT / "tools"
 NATIVE04 = UNIT / "native-04" / "section.kicad_pcb"
-NATIVE05 = UNIT / "native-05"
+PLACEMENT = UNIT / "native-08"  # current placement (JLCPCB stackup)
 KICAD_PY = Path(os.environ.get(
     "TEMPER_PCBNEW_PYTHON",
     "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3",
@@ -56,7 +56,7 @@ def test_replay_rejects_placement_with_stale_frozen_source(tmp_path, source_name
     placement = tmp_path / "placement"
     placement.mkdir()
     for name in ("section.kicad_pcb", "source-manifest.json"):
-        shutil.copyfile(NATIVE05 / name, placement / name)
+        shutil.copyfile(PLACEMENT / name, placement / name)
     baseline = subprocess.run(
         [str(KICAD_PY), "-c", "import sys; sys.path.insert(0, sys.argv[1]); "
          "import route_board; from pathlib import Path; "
@@ -113,7 +113,7 @@ def test_saved_board_change_during_extraction_is_rejected(tmp_path, script, func
     if not KICAD_PY.is_file():
         pytest.skip("KiCad pcbnew Python is not installed")
     board = tmp_path / "section.kicad_pcb"
-    shutil.copyfile(NATIVE05 / "section.kicad_pcb", board)
+    shutil.copyfile(PLACEMENT / "section.kicad_pcb", board)
     code = """
 import importlib.util
 import pathlib
@@ -149,7 +149,7 @@ def test_native_parity_rejects_mutated_frozen_source(tmp_path, source_name):
     frozen.mkdir()
     for name in ("default.net", "default.csv", "resolved-components.json"):
         shutil.copyfile(UNIT / "frozen" / name, frozen / name)
-    args = (NATIVE05 / "section.kicad_pcb", NATIVE05 / "source-manifest.json",
+    args = (PLACEMENT / "section.kicad_pcb", PLACEMENT / "source-manifest.json",
             frozen / "default.net", binary)
     baseline = run_kicad("check_native_parity.py", *args)
     assert baseline.returncode == 0, baseline.stderr
@@ -165,8 +165,8 @@ def test_real_pcbnew_adapter_rejects_saved_pad_net_mutation(tmp_path):
     if not binary or not Path(binary).is_file() or not KICAD_PY.is_file():
         pytest.skip("requires the native parity binary and KiCad Python")
     board = tmp_path / "section.kicad_pcb"
-    shutil.copyfile(NATIVE05 / "section.kicad_pcb", board)
-    args = (board, NATIVE05 / "source-manifest.json", UNIT / "frozen/default.net", binary)
+    shutil.copyfile(PLACEMENT / "section.kicad_pcb", board)
+    args = (board, PLACEMENT / "source-manifest.json", UNIT / "frozen/default.net", binary)
     baseline = run_kicad("check_native_parity.py", *args)
     assert baseline.returncode == 0, baseline.stderr
     code = """

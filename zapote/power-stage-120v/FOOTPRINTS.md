@@ -92,3 +92,12 @@ co-located geometry/provenance YAML. C3/C4 now use 1.5 mm pads on 10 mm pitch fo
 the former fixed 2.48 mm HOT-to-PE terminal gap. Würth 74650074 uses the stock
 REDCUBE THR pattern; all four copper pads share logical pin 1. Neither a stock
 pattern nor a source audit qualifies lug clearance, assembly current or vibration.
+
+## Local override: J4 Molex Micro-Fit 3.0 (2026-09-26)
+
+`libraries/Connector_Molex.pretty/Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical.kicad_mod`
+is the KiCad stock footprint with its 16 plated pads enlarged from 1.5 to 1.6 mm.
+JLCPCB's 2 oz rule requires an annular ring of at least 0.254 mm; the stock pad
+gave 0.24 mm. The Molex 1.02 mm hole and 3.0 mm pitch are unchanged, and the
+gap between pads is 1.4 mm (SELV side). The native builder resolves local
+libraries before stock and records this path as the footprint's provenance.

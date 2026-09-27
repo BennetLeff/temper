@@ -31,7 +31,7 @@ def test_rust_does_not_underreport_pinned_oracle_on_real_filled_board(tmp_path):
     assert hashlib.sha256(ORACLE.read_bytes()).hexdigest() == ORACLE_SHA256
     if not KICAD_PY.is_file():
         pytest.skip("KiCad pcbnew Python is not installed")
-    board = UNIT / "native-06" / "section.kicad_pcb"
+    board = UNIT / "native-09" / "section.kicad_pcb"
     evidence_path = tmp_path / "copper.json"
     result = subprocess.run(
         [str(KICAD_PY), str(UNIT / "tools/copper_dump.py"), str(board), str(evidence_path)],

@@ -130,13 +130,13 @@ def batch_05_aux() -> Batch:
     b.via("leg_ret", 73.6, 25.0)
     b.track("leg_ret", "In1.Cu", 0.3, [73.6, 25.0], [72.0, 23.0],
             [68.5, 17.0])
-    b.track("leg_ret", "F.Cu", 0.3, "C30.2", "U5.2", [81.2, 20.6])
-    b.via("leg_ret", 81.2, 20.6)
+    b.track("leg_ret", "F.Cu", 0.3, "C30.2", "U5.2", [81.15, 20.6])
+    b.via("leg_ret", 81.15, 20.6)
     b.track("leg_ret", "F.Cu", 0.3, "R35.2", "C31.2", [84.4, 26.3])
     b.via("leg_ret", 84.4, 26.3)
     b.track("leg_ret", "In1.Cu", 0.3, [84.4, 26.3], [82.5, 26.0],
             [77.5, 26.0], [73.6, 25.0])
-    b.track("leg_ret", "In1.Cu", 0.3, [81.2, 20.6], [82.5, 22.0],
+    b.track("leg_ret", "In1.Cu", 0.3, [81.15, 20.6], [82.5, 22.0],
             [82.5, 26.0])
 
     # Driver bypass returns stay local to their respective VSSB pins; they do
@@ -225,8 +225,8 @@ def batch_05_aux() -> Batch:
     b.via("ocp_kelvin_n", 128.5, 19.8)
     b.track("ocp_kelvin_n", "In1.Cu", 0.3, [128.5, 19.8],
             [127.77, 16.03],
-            [119.5, 16.6], [117.5, 19.1], [114.15, 19.1],
-            [114.15, 15.9], [76.8, 15.9])
+            [119.5, 16.6], [117.5, 19.1], [114.1, 19.1],
+            [114.1, 15.9], [76.8, 15.9])
     b.via("ocp_kelvin_n", 76.8, 15.9)
     b.track("ocp_kelvin_n", "B.Cu", 0.3, [76.8, 15.9], [76.8, 18.0])
     b.via("ocp_kelvin_n", 76.8, 18.0)

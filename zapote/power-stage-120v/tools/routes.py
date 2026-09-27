@@ -28,7 +28,8 @@ UNIT = Path(__file__).resolve().parents[1]
 OUT = UNIT / "routes"
 
 POWER_VIA = {"diameter_mm": 1.6, "drill_mm": 0.8}
-SIGNAL_VIA = {"diameter_mm": 0.8, "drill_mm": 0.4}
+# JLCPCB 2 oz annular ring >= 0.254 mm: 0.85 pad on 0.3 drill gives 0.275 mm.
+SIGNAL_VIA = {"diameter_mm": 0.85, "drill_mm": 0.3}
 
 
 class Batch:

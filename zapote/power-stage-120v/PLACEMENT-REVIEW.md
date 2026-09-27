@@ -4,7 +4,9 @@ Status: renewed D4 **conditionally approved** by the owner on 2026-09-26 at
 `3c07eea57`; the conditions are recorded in [DECISIONS.md](DECISIONS.md) D4. Condition 1 (BUS_P copper)
 must close before fabrication.
 Native-07 addresses condition 1 (BUS_P copper) without moving parts; see
-[native-07/verification](native-07/verification/README.md). The owner approved
+[native-07/verification](native-07/verification/README.md). Native-08/09 are the same
+placement and routing built to JLCPCB's stackup and 2 oz rules; see
+[native-09/verification](native-09/verification/README.md) and [FAB-JLCPCB.md](FAB-JLCPCB.md). The owner approved
 the 240 × 160 mm outline and four layers. All five routing batches are now
 integrated and checked. This file records the review basis, not owner approval
 or a fabrication release. The earlier review is preserved in
