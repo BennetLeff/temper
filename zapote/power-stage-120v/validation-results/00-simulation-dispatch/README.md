@@ -105,3 +105,10 @@ produced with the uncorrected kit, and they stand as recorded.
 
 Still open from the coordinator notes: the switching deck is not a
 complementary-drive ZVS model. Extending it is task-01 work.
+
+## Follow-up on the corrected kit
+
+See [round two](round2/README.md) for independent repair checks, the renewed
+task-04 native-copper topology audit, task-01 complementary-drive model work,
+and the C1/C2 replacement review. The preceding round remains historical
+evidence against `36ba41f24`; the follow-up starts from `267dcee72`.

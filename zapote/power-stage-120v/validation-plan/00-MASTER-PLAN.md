@@ -194,10 +194,10 @@ Update this table when a task finishes (link the result README).
 
 | # | Status | Result | Verdict |
 | --- | --- | --- | --- |
-| 01 | partial; blocked | [switching](../validation-results/01-switching-parasitics/README.md) | Incomplete paired current paths; capacitor ESL missing; starter deck cannot establish ZVS |
+| 01 | complementary reference model checked; board verdict blocked | [switching round two](../validation-results/01-switching-parasitics/round2/README.md) | Both transition directions and deadtime diagnostics exercised; board loop/return inductances and capacitor ESL still missing |
 | 02 | partial SPICE; full verdict blocked | [protection](../validation-results/02-protection-timing/README.md) | 12 CT and 20 shunt cases; CT stalls and small-overdrive timing unresolved; no final gate-off/stress verdict |
 | 03 | not started | — | — |
-| 04 | instrument audit complete; board solve blocked | [copper solver](../validation-results/04-board-current-thermal/README.md) | Four analytic probes expose solver defects; no board thermal verdict |
+| 04 | round-two geometry audit; board solve blocked | [copper solver](../validation-results/04-board-current-thermal/round2/README.md) | Original four repairs pass; native-13 raster creates false connections across copper gaps |
 | 05 | partial; blocked | [tank envelope](../validation-results/05-resonant-tank-envelope/README.md) | 9/135 cases; hot capacitor ratings, ZVS and trip topology unresolved |
 | 06 | partial (CT check done; fixed in native-11) | [CT burden](../validation-results/06-controller-interface/README.md) | CT: FAIL on native-09 → fixed in native-11 (source change; renewed D4 review needed) |
 | 07 | intake complete; blocked | [EMI](../validation-results/07-conducted-emi/README.md) | C1/C2 specified part requires 27.5 mm pitch; PCB has 22.5 mm; EMI inputs/model incomplete |

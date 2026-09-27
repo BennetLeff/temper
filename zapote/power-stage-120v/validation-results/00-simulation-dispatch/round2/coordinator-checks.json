@@ -1,0 +1,29 @@
+{
+  "base_commit": "267dcee72",
+  "board_sha256": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+  "task04_replay": {
+    "exact_json_match": true,
+    "result_sha256": "9a6d0cecbb9469a179b71d60eed721dfb1648db37ba47f758fb2fdd68f521af9",
+    "void_crossing_edges": 70,
+    "component_crossing_edges": 4,
+    "generic_probe": {
+      "physical_gap_mm": 0.2,
+      "pitch_mm": 0.25,
+      "solver_accepted": true,
+      "false_resistance_ohm": 0.0001307142857142858
+    }
+  },
+  "task01_reference_replay": {
+    "case": "dir0_i2_dt348_step0.2ns",
+    "numerical_match": true,
+    "values": {
+      "command_gap_ns": 347.9999999999999,
+      "incoming_die_vds_before_command_v": 195.47557901350504,
+      "incoming_die_vds_at_gate_3v_v": 194.97666115435777,
+      "raw_peak_vds_l_v": 463.7459614584315,
+      "raw_peak_vds_h_v": 199.31460304462186
+    },
+    "ngspice_returncode": 0,
+    "raw_returncode": 0
+  }
+}
