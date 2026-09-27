@@ -22,14 +22,14 @@
 from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, MainsFuse20A, Tmov175, Cmc20A
 from "parts.ato" import CapX2_1u, CapY1_2n2, R120k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK
-from "parts.ato" import BootDiode, PermitFet, R3R9Gate, R39kDt, R10k0603, R100k0603
+from "parts.ato" import BootDiode, PermitFet, R3R9Gate, R39kDt, R10k0603, R100k0603, R100R0603
 from "parts.ato" import R1k0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
 from "parts.ato" import CST3015_100E, Irm05_15, Irm20_15, TcoLoopHeader, Ldo78L05
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k5Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710, SelvHeader16, Nand2Lvc1g00, FunctionalEarthLink
 from "parts.ato" import BusTvsMrt130kp295
-from "parts.ato" import Burden1R5, C100nC0G1206, R1kThin, R3k32Thin, R1k1206, ClampBat54h, Or3Lvc1g332
+from "parts.ato" import Burden1R5, C100nC0G1206, R1kThin, R3k32Thin, R1k1206, ClampBas116h, Or3Lvc1g332
 
 module BusBringupLink:
     """Two M4 landings for one removable insulated jumper (ASSEMBLY.md).
@@ -77,12 +77,14 @@ module BridgeLeg:
 
     # DIS is active-high. PERMIT high turns the FET on and pulls DIS low.
     permit_fet = new PermitFet
-    r_permit = new R1k0603
-    r_permit.value = 1kohm
+    # 100 ohm gate drive and a 1 k DIS pullup keep PERMIT -> DIS near 0.35 us
+    # worst case (was ~3.5 us with 1 k / 10 k): validation-results/02.
+    r_permit = new R100R0603
+    r_permit.value = 100ohm
     r_permit_pd = new R100k0603
     r_permit_pd.value = 100kohm
-    r_dis_pu = new R10k0603
-    r_dis_pu.value = 10kohm
+    r_dis_pu = new R1k0603
+    r_dis_pu.value = 1kohm
     permit ~ r_permit.p1
     r_permit.p2 ~ permit_gate
     permit_gate ~ permit_fet.G
@@ -606,7 +608,7 @@ module PowerStage120V:
     # (validation-results/06-controller-interface). Ported from
     # zapote/current-sense/circuit/current_sense_unit.ato: floating 1.5 ohm
     # burden around a bypassed 1.65 V midpoint (CT_S2), 1 k series input with
-    # BAT54H rail clamps, and a comparator per polarity. References 3.32k/10k
+    # low-leakage BAS116H rail clamps, and a comparator per polarity. References 3.32k/10k
     # put the tank over-current trip at ~55 A (DC corner band 50.9-59.5 A:
     # tools/ct_detector). A third comparator gives the zero crossing; the
     # biased current waveform leaves through 1 k. The trip ORs with the
@@ -635,10 +637,10 @@ module PowerStage120V:
     r_ct_series.value = 1kohm
     r_ct_series.p1 ~ CT_S1
     r_ct_series.p2 ~ CT_SENSE_MON
-    d_ct_hi = new ClampBat54h
+    d_ct_hi = new ClampBas116h
     d_ct_hi.A ~ CT_SENSE_MON
     d_ct_hi.K ~ V3V3
-    d_ct_lo = new ClampBat54h
+    d_ct_lo = new ClampBas116h
     d_ct_lo.A ~ SELV_GND
     d_ct_lo.K ~ CT_SENSE_MON
     r_ct_hi_top = new R3k32Thin

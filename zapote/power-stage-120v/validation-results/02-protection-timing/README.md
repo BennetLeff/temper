@@ -7,9 +7,10 @@
   `sources/datasheets.json`. The trip bands come from the Rust corner model.
   This is not SPICE; the full ngspice work in [task 02](../../validation-plan/02-protection-timing.md)
   is still to do.
-- **Verdict: two design findings, each with a no-layout fix (owner decision).**
-  The other detector items are bounded and acceptable, subject to bench
-  confirmation.
+- **Verdict: two design findings, both fixed in native-12/13** (owner approved
+  2026-09-27; part-number swaps only). The other detector items are bounded
+  and acceptable, subject to bench confirmation. In `detector_chain.json`,
+  "as_built" is the previous native-11 values and "improved" is native-13.
 
 ## Summary
 
@@ -40,7 +41,7 @@
 - **Summing:** delays are summed as worst-case links, with no statistical
   combination.
 
-## Fixes proposed (not implemented)
+## Fixes (applied in native-12/13, 2026-09-27)
 
 Both are part-number swaps on existing footprints, so there's no placement or
 copper change:

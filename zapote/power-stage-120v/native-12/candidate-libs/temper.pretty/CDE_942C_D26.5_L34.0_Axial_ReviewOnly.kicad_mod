@@ -1,0 +1,54 @@
+(footprint "CDE_942C_D26.5_L34.0_Axial_ReviewOnly"
+	(version 20260206)
+	(generator "kicad-footprint-generator")
+	(layer "F.Cu")
+	(descr "CDE 942C12P22K-F, Type 942C non-polar axial film; D 26.5mm L 34.0mm lead 1.2mm, formed pitch 42.5mm. Heavy part: secure with adhesive or strap. Verify lead forming at assembly. No polarity mark.")
+	(tags "nonpolar film axial capacitor CDE 942C")
+	(property "Reference" "REF**"
+		(at 21.25 -15.25 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "CDE_942C_D26.5_L34.0_Axial_ReviewOnly"
+		(at 21.25 15.25 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "KiLib_Generator" "capacitor/THT/other"
+		(at 0 0 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line (start 4.25 -13.25) (end 38.25 -13.25) (stroke (width 0.1) (type solid)) (layer "F.Fab"))
+	(fp_line (start 38.25 -13.25) (end 38.25 13.25) (stroke (width 0.1) (type solid)) (layer "F.Fab"))
+	(fp_line (start 38.25 13.25) (end 4.25 13.25) (stroke (width 0.1) (type solid)) (layer "F.Fab"))
+	(fp_line (start 4.25 13.25) (end 4.25 -13.25) (stroke (width 0.1) (type solid)) (layer "F.Fab"))
+	(fp_line (start 4.1 -13.4) (end 38.4 -13.4) (stroke (width 0.12) (type solid)) (layer "F.SilkS"))
+	(fp_line (start 38.4 -13.4) (end 38.4 13.4) (stroke (width 0.12) (type solid)) (layer "F.SilkS"))
+	(fp_line (start 38.4 13.4) (end 4.1 13.4) (stroke (width 0.12) (type solid)) (layer "F.SilkS"))
+	(fp_line (start 4.1 13.4) (end 4.1 -13.4) (stroke (width 0.12) (type solid)) (layer "F.SilkS"))
+	(fp_line (start -2.1 -13.75) (end 44.6 -13.75) (stroke (width 0.05) (type solid)) (layer "F.CrtYd"))
+	(fp_line (start 44.6 -13.75) (end 44.6 13.75) (stroke (width 0.05) (type solid)) (layer "F.CrtYd"))
+	(fp_line (start 44.6 13.75) (end -2.1 13.75) (stroke (width 0.05) (type solid)) (layer "F.CrtYd"))
+	(fp_line (start -2.1 13.75) (end -2.1 -13.75) (stroke (width 0.05) (type solid)) (layer "F.CrtYd"))
+	(pad "1" thru_hole rect (at 0 0) (size 3.2 3.2) (drill 1.6) (layers "*.Cu" "*.Mask"))
+	(pad "2" thru_hole circle (at 42.5 0) (size 3.2 3.2) (drill 1.6) (layers "*.Cu" "*.Mask"))
+)

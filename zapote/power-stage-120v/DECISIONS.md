@@ -17,6 +17,8 @@ native-05 placement and native-06 routing, with three conditions (below).
 
 
 **D4 note, 2026-09-27:** the owner approved adding the tank-CT detector, so T1's secondary is terminated on this board (validation-results/06-controller-interface). That is a placement change: 21 parts on a new SELV island lobe by T1, and U13/C47 beside J4. **Renewed D4 approved by the owner on 2026-09-27** (reply: “approve”) for native-10 (placement) and native-11 (routed; electrical board `2fec2924…`, active presentation board `05141028…`), under conditions 1–3. Condition 1 still holds on native-11: the power screens are unchanged. Condition 2 adds a bench item: with the tank running, check CT_ZC and CT_MON for switching-node pickup, and verify the tank-CT trip at the ~55 A design point with injected primary current. Not a fabrication or powered-operation release.
+
+**2026-09-27, native-12/13:** the owner approved two part-number swaps from validation task 02. D4/D5 change from BAT54H to BAS116H (hot leakage). R14/R6 change to 100 Ω and R16/R8 to 1 kΩ, which speeds the PERMIT → DIS path. Poses, footprints, pads, tracks and vias are identical to native-10/11. The zone refill differs by ≤ 0.10 mm². The D4 approval above therefore carries to native-12 (placement) and native-13 (routed; electrical `ce1cf636…`, active presentation board `8056fc95…`).
 Part 4 §4.0 requires D1–D3 and D6 before deliberate placement. Part 4 §4.2
 requires D5 resolution before barrier placement; the conditional basis above now
 permits provisional barrier placement, with qualification still open. Section 4.5 requires written

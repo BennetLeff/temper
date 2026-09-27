@@ -5,7 +5,9 @@ The detector on this board is a port of the reviewed standalone design in
 
 - a floating 1.50 Ω burden across T1's secondary, around a 1.65 V midpoint
   bypassed by 100 nF
-- a 1 kΩ series input with BAT54H clamps to the rails
+- a 1 kΩ series input with low-leakage BAS116H clamps to the rails (BAT54H
+  until native-13; its hot leakage widened the band; see
+  validation-results/02-protection-timing)
 - one TLV3201 per polarity
 - 3.3 V from J4.3
 
@@ -33,7 +35,7 @@ rustc --test ct_detector_model.rs -o /tmp/ctdet_t && /tmp/ctdet_t   # 6 tests
 - **Bounded DC corner band:** 50.93–59.51 A. It enumerates 65,536 corners of:
   - resistor tolerances
   - ±5 % rail
-  - BAT54H leakage at 25 °C
+  - clamp leakage (±4 µA, which bounds BAS116H's ≤ 2 × 80 nA at 150 °C)
   - host-monitor load
   - comparator input bias, offset and CMRR
 

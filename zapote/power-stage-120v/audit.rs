@@ -314,8 +314,8 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_ct_bias_bot", "RT0603BRD071KL"),
     ("c_ct_bias", "GRM31C5C1H104JA01L"),
     ("r_ct_series", "RC1206FR-071KL"),
-    ("d_ct_hi", "BAT54H,115"),
-    ("d_ct_lo", "BAT54H,115"),
+    ("d_ct_hi", "BAS116H,115"),
+    ("d_ct_lo", "BAS116H,115"),
     ("r_ct_hi_top", "RT0603BRD073K32L"),
     ("r_ct_hi_bot", "RT0603BRD0710KL"),
     ("r_ct_lo_top", "RT0603BRD0710KL"),
@@ -324,6 +324,11 @@ const IDENTITY: &[(&str, &str)] = &[
     ("u_ct_neg", "TLV3201AIDBVR"),
     ("u_ct_zc", "TLV3201AIDBVR"),
     ("u_fault_or", "SN74LVC1G332DBVR"),
+    // Fast PERMIT -> DIS path (validation-results/02-protection-timing).
+    ("leg_a.r_permit", "RC0603FR-07100RL"),
+    ("leg_b.r_permit", "RC0603FR-07100RL"),
+    ("leg_a.r_dis_pu", "RC0603FR-071KL"),
+    ("leg_b.r_dis_pu", "RC0603FR-071KL"),
 ];
 
 fn expect(errs: &mut Vec<String>, m: &Model, path: &str, pin: &str, net: &str) {

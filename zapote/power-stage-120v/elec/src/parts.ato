@@ -256,6 +256,17 @@ component R10k0603:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component R100R0603:
+    """Permit FET gate series resistor: 100 ohm keeps PERMIT -> DIS fast
+    (validation-results/02-protection-timing)."""
+    designator_prefix = "R"
+    mpn = "RC0603FR-07100RL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component R100k0603:
     designator_prefix = "R"
     mpn = "RC0603FR-07100KL"
@@ -617,10 +628,13 @@ component R1k1206:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component ClampBat54h:
-    """Nexperia BAT54H,115 Schottky, SOD123F: 1 K, 2 A (datasheet Table 2)."""
+component ClampBas116h:
+    """Nexperia BAS116H,115 low-leakage switching diode, SOD123F: 1 K, 2 A
+    (datasheet Table 2). IR <= 80 nA at 150 C (Table 7): BAT54H's hot leakage
+    (~300 uA typ at 125 C) shifted the CT trip band through the bias source
+    (validation-results/02-protection-timing)."""
     designator_prefix = "D"
-    mpn = "BAT54H,115"
+    mpn = "BAS116H,115"
     manufacturer = "Nexperia"
     footprint = "Diode_SMD:D_SOD-123F"
     signal K ~ pin 1

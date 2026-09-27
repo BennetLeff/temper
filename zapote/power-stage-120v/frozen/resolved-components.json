@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "81c18c75dd61667ce875607bd08563929375322c00a40b8d2b9e833d24ece719",
+    "build/default.csv": "e85486fde382f61f8f675caab3d28c5450da4b8a9844fbe91050e12eaf1263e4",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "e7b80116f4e01f1e889a703a2844f2ce5af8aff091c6fbc478cf8035b1f44e7e",
+    "build/default.net": "3af92998c059eb7ef3ba4940384230a1c9cf4dfbf5a822a89ff2453e36738556",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -189,8 +189,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RC0603FR-071KL",
-        "value": "1kohm"
+        "mpn": "RC0603FR-07100RL",
+        "value": "100ohm"
       }
     },
     {
@@ -209,8 +209,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
-        "value": "10kohm"
+        "mpn": "RC0603FR-071KL",
+        "value": "1kohm"
       }
     },
     {
@@ -382,8 +382,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RC0603FR-071KL",
-        "value": "1kohm"
+        "mpn": "RC0603FR-07100RL",
+        "value": "100ohm"
       }
     },
     {
@@ -402,8 +402,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
-        "value": "10kohm"
+        "mpn": "RC0603FR-071KL",
+        "value": "1kohm"
       }
     },
     {
@@ -1160,7 +1160,7 @@
         "designator_prefix": "D",
         "footprint": "Diode_SMD:D_SOD-123F",
         "manufacturer": "Nexperia",
-        "mpn": "BAT54H,115"
+        "mpn": "BAS116H,115"
       }
     },
     {
@@ -1169,7 +1169,7 @@
         "designator_prefix": "D",
         "footprint": "Diode_SMD:D_SOD-123F",
         "manufacturer": "Nexperia",
-        "mpn": "BAT54H,115"
+        "mpn": "BAS116H,115"
       }
     },
     {
@@ -1302,7 +1302,7 @@
   "entry": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/source-build-01/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/parts.ato": "a3c449b9d57540cb5bd82fea272ac94faaa8d2b0e96c8abf9f9c11c738223d94",
-    "elec/src/power_stage_120v.ato": "89293ff2780392266b37c1d630184025932d38150f5d9fa4c9da7fa0df85d280"
+    "elec/src/parts.ato": "c543fd19432c0bf6f6972754e12ced592cf560d7f43719521905049e0f691d1b",
+    "elec/src/power_stage_120v.ato": "03f157fc83cad18daaa392ca3a85ec3202a3d0c89c60b4566ab9248d1cfc7112"
   }
 }

@@ -1,0 +1,81 @@
+{
+  "board_sha256": "ce1cf6361d1f30a8345d58b01b3511c695c7212d2c621808bc6dabe5b73960b6",
+  "west_bus_single_in2_min": {
+    "x_mm": 73.9,
+    "y_min_mm": 0.6,
+    "y_max_mm": 12.2745,
+    "width_mm": 11.6745,
+    "nominal_ipc_a": 14.413438886028763
+  },
+  "west_bus_single_in2_max": {
+    "x_mm": 84.0,
+    "y_min_mm": 0.6,
+    "y_max_mm": 14.246611054895013,
+    "width_mm": 13.646611054895013,
+    "nominal_ipc_a": 16.140346025266616
+  },
+  "sw_b_main_bcu_min": {
+    "x_mm": 153.1,
+    "y_min_mm": 26.5,
+    "y_max_mm": 34.9745,
+    "width_mm": 8.474499999999999,
+    "nominal_ipc_a": 25.250181623283005
+  },
+  "bus_p_transfer_vias": {
+    "upper": [
+      [
+        67.2,
+        32.2
+      ],
+      [
+        67.2,
+        34.0
+      ]
+    ],
+    "mid": [
+      [
+        68.5,
+        47.0
+      ],
+      [
+        68.5,
+        48.8
+      ]
+    ],
+    "lower": [
+      [
+        68.5,
+        53.0
+      ],
+      [
+        68.5,
+        54.8
+      ],
+      [
+        68.5,
+        56.6
+      ],
+      [
+        68.5,
+        58.4
+      ]
+    ]
+  },
+  "via_resistance_sensitivity": {
+    "10": {
+      "via_barrel_mohm": 1.0563172519284316,
+      "all_15a_through_upper_two_each_a": 7.5,
+      "all_15a_through_upper_two_each_mw": 59.41784542097428,
+      "all_19a_through_upper_two_each_a": 9.5,
+      "all_19a_through_upper_two_each_mw": 95.33263198654096
+    },
+    "15": {
+      "via_barrel_mohm": 0.6998911853268139,
+      "all_15a_through_upper_two_each_a": 7.5,
+      "all_15a_through_upper_two_each_mw": 39.368879174633285,
+      "all_19a_through_upper_two_each_a": 9.5,
+      "all_19a_through_upper_two_each_mw": 63.16517947574496
+    }
+  },
+  "scope": "Nominal 70um/2oz IPC-2221B, 20C rise; via resistance only, no via ampacity or actual branch current model"
+}

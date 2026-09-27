@@ -125,6 +125,7 @@ def main() -> None:
             "phase_error_deg": {f"{i} A pk": round(zc_phase_error(i, VOS_MAX), 1) for i in (2, 5, 10, 37)}}
     # Tank over-current ramp: bus / coil inductance (198 V crest at 140 V rms; 280 V OVP).
     ramps = {"198 V / 70 uH": 198 / 70, "280 V / 70 uH": 280 / 70}
+    # "previous" = native-11 (R14/R6 1 k, R16/R8 10 k); "improved" = native-13 as built.
     as_built = {p: chain(1e3, 10e3, p) for p in ("tank_ct", "shunt_ocp")}
     improved = {p: chain(100.0, 1e3, p) for p in ("tank_ct", "shunt_ocp")}
     peak = {name: {"as_built_A": overshoot(59.51, s, as_built["tank_ct"]["total_us"]),
