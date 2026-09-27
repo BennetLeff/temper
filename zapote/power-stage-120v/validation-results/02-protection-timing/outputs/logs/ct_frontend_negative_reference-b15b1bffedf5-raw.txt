@@ -1,0 +1,58 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * task 02 ct front end. copy of sim-kit/02-chain/ct_frontend.cir at
+
+ASCII raw file "waves.raw"
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+No. of Data Columns : 40
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+ipri                                         0
+ct_s2                                     1.65
+ctx                                       1.65
+ct_s1                                     1.65
+vcc                                        3.3
+sense                                     1.65
+ref_hi                                 2.47748
+ref_lo                                0.822523
+pos_i                                        0
+pos_d                                        0
+neg_i                                        0
+neg_d                                        0
+zc_i                                0.00110666
+zc_d                                0.00110666
+or_i                                         0
+or_d                                         0
+bor#branch                                   0
+bzc#branch                        -2.21331e-05
+bneg#branch                                  0
+bpos#branch                                  0
+bip#branch                                   0
+lmag#branch                        2.03282e-16
+vcc#branch                          -0.0021455
+
+ Reference value :  7.12599e-05
+ Reference value :  1.37043e-04
+No. of Data Rows : 40448
+
+Total analysis time (seconds) = 0.776991
+
+Total elapsed time (seconds) = 0.782
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  147.453 MB.
+Maximum ngspice program size =   10.281 MB.
+Current ngspice program size =   10.281 MB.
+
+
+No .measure possible in batch mode (-b) with -r rawfile set!
+Remove rawfile and use .print or .plot or
+select interactive mode (optionally with .control section) instead.
