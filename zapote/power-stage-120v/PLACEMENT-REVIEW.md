@@ -120,5 +120,5 @@ to native-12. C1 is now 1.56 mm from RV1 and 1.91 mm from PS1, both
 courtyard to courtyard. C2 is unchanged against C5 (0.16 mm; 0.60 mm
 worst-case body to body) and BR1 (2.91 mm), and stays outside the heat-sink
 zone. Evidence: [native-15/verification](native-15/verification/README.md).
-Reviewer recommendation (Claude): carry the D4 approval to native-14/15.
-Awaiting owner confirmation.
+**Owner approved 2026-09-27:** the D4 approval carries to native-14/15
+(see DECISIONS.md).
