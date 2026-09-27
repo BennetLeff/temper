@@ -1,0 +1,96 @@
+[
+  {
+    "kind": "ct",
+    "params": {
+      "FREQ": "33000",
+      "I0": "37",
+      "SLOPE": "3e6",
+      "VOS": "0",
+      "TPD": "55e-9",
+      "TSTOP": "200e-6"
+    },
+    "log_sha256": "0b4cd4f67cbe79da1ebcfef59b6ac7a247964646afdae67a2adefac8cdb66f68",
+    "raw_crossings_s": {
+      "t_ip_trip": 6.512663267417005e-06,
+      "t_in_trip": 1.8261560458852735e-05,
+      "t_or": 6.7593433156592325e-06,
+      "matching_ipri_zero": 9.090909091161583e-05,
+      "zc_lag": 1.9230908838416055e-07
+    },
+    "meas_crossings_s": {
+      "t_ip_trip": 6.51266e-06,
+      "t_in_trip": 1.82616e-05,
+      "t_or": 6.75934e-06
+    },
+    "raw_final_time_s": 0.0002
+  },
+  {
+    "kind": "ct",
+    "params": {
+      "FREQ": "33000",
+      "I0": "37",
+      "SLOPE": "3e6",
+      "VOS": "0.004",
+      "TPD": "55e-9",
+      "TSTOP": "200e-6"
+    },
+    "log_sha256": "82effee2769754ab9d32894ac4dc22ee7c22ec8289d98a302721aa560256eda1",
+    "raw_crossings_s": {
+      "t_ip_trip": 6.512663267417005e-06,
+      "t_in_trip": 1.8261560458852735e-05,
+      "t_or": 6.809600458279625e-06,
+      "matching_ipri_zero": 6.0606060607845784e-05,
+      "zc_lag": 2.012393921542189e-07
+    },
+    "meas_crossings_s": {
+      "t_ip_trip": 6.51266e-06,
+      "t_in_trip": 1.82616e-05,
+      "t_or": 6.8096e-06
+    },
+    "raw_final_time_s": 0.0002
+  },
+  {
+    "kind": "ct",
+    "params": {
+      "FREQ": "33000",
+      "I0": "37",
+      "SLOPE": "1e6",
+      "VOS": "-0.004",
+      "TPD": "45e-9",
+      "TSTOP": "200e-6"
+    },
+    "log_sha256": "bb9fd30d2343f56a6c38c8a2281557c4de5b1b918af7340850f47026f51cba3a",
+    "raw_crossings_s": {
+      "t_ip_trip": 3.4549689122507875e-05,
+      "t_in_trip": 2.1171287310968078e-05,
+      "t_or": 2.1274324481164387e-05,
+      "matching_ipri_zero": 9.090909086290282e-05,
+      "zc_lag": 1.703091370971804e-07
+    },
+    "meas_crossings_s": {
+      "t_ip_trip": 3.45497e-05,
+      "t_in_trip": 2.11713e-05,
+      "t_or": 2.12743e-05
+    },
+    "raw_final_time_s": 0.0002
+  },
+  {
+    "kind": "ocp",
+    "params": {
+      "SLOPE": "3e6",
+      "VOS": "0.005",
+      "TPD": "55e-9",
+      "TSTOP": "50e-6"
+    },
+    "log_sha256": "c5a31352ab97963b584f5b8458633103f9fd2d709d5029368e123d9bbb022dea",
+    "raw_crossings_s": {
+      "t_i_trip": 2.033333333333333e-05,
+      "t_ok_low": 1.7546869933442676e-05
+    },
+    "meas_crossings_s": {
+      "t_i_trip": 2.03333e-05,
+      "t_ok_low": 1.75469e-05
+    },
+    "raw_final_time_s": 5e-05
+  }
+]
