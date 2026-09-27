@@ -91,9 +91,9 @@ def apply_planning_stackup(output: Path, stackup_path: Path) -> None:
             raise ValueError(f"missing unique source identity: {instance}")
         board = board.replace(
             field,
-            field
-            + f'\n    (property "SourceInstance" {json.dumps(instance)})'
-            + f'\n    (property "MPN" {json.dumps(mpn)})',
+            field[:-1] + ' (hide yes))'
+            + f'\n    (property "SourceInstance" {json.dumps(instance)} (hide yes))'
+            + f'\n    (property "MPN" {json.dumps(mpn)} (hide yes))',
             1,
         )
 

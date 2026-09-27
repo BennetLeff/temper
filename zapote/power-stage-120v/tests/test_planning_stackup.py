@@ -34,6 +34,8 @@ def test_stackup_projection_retains_source_identity_and_stable_pad_uuids(tmp_pat
     assert b'"In3.Cu"' not in first
     assert first.count(b'(property "SourceInstance" ') == parts
     assert first.count(b'(property "MPN" ') == parts
+    for name in ("Sheetpath", "SourceInstance", "MPN"):
+        assert len(re.findall(rf'\(property "{name}" [^\n]*\(hide yes\)\)', first.decode())) == parts
     assert first.count(b"(uuid ") == first.count(b"(pad ")
     assert manifest["board_sha256"] == MODULE.sha256(board)
     assert manifest["board"]["layers"] == ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
