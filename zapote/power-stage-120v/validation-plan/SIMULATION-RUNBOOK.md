@@ -377,18 +377,34 @@ Use the Miniforge Python.
    - one `add_layer()` per layer, with that net's filled zone polygons plus
      its tracks buffered to their width (shapely)
    - 70 µm outer and **61 µm inner** thickness
-   - `add_via()` for every via of that net, with a 0.3 mm (signal) or
-     0.8 mm (power) drill, 18 µm plating (JLCPCB average) and 1.6 mm length
+   - `add_via()` for every via of that net, with its real drill from the
+     copper dump, 18 µm plating (JLCPCB average) and 1.6 mm length. Leave
+     `filled=False`: an empty via is a thin tube, and current passing it in a
+     plane goes around the hole
+   - `add_via(..., filled=True)` for every through-hole pad (C5/C6, C38–C41,
+     the TO-247 pins, J-links): the soldered lead makes the hole
+     equipotential. Inject at the pad centre; the solver attaches a point
+     inside a filled drill to the barrel and **refuses** a point inside an
+     empty via drill
+   - SMD pads are copper polygons; inject at a point on the pad copper
+   - don't subtract drills yourself: the solver removes every barrel's
+     drill from each layer it passes
    - pads as injection points: the capacitor pads and MOSFET pins the task 04
      doc lists
 3. **Check for zone holes first:** run
    `native-06/verification/power-probes/copper_zones_with_holes.py` under
    KiCad Python on native-13. The copper dump's polygons don't subtract holes.
-4. **Solve** with pitch 0.25 mm; drop to 0.3 mm if memory is short.
+4. **Pitch: 0.125 mm on native-13.** Run
+   `validation-results/04-board-current-thermal/round3/scripts/kit_topology_native13.py`
+   first. At 0.25 mm the grid never joins separate copper, but it splits real
+   necks narrower than the pitch (leg_ret: 49 grid components vs 24 physical
+   on F.Cu). At 0.125 mm every net and layer matches. If you change pitch,
+   rerun it: grid components must equal physical components, and none may
+   span two.
 5. **Report** the path resistance, I²R per net, via currents and the maximum
    current per mm of width per layer.
-6. **Convergence check (required):** re-solve one net at pitch 0.5 and
-   0.125 mm. R must converge to within 3 %, or report it didn't.
+6. **Convergence check (required):** re-solve one net at pitch 0.25 and
+   0.0625 mm (the region around it only, if memory is short). R must converge to within 3 %, or report it didn't.
 7. **Thermal:** extend with a 2.5-D finite-difference heat solve as task 04
    describes. This isn't in the kit; write it, and test it against the
    analytic temperature rise of a uniformly heated strip first.
