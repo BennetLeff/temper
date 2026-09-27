@@ -1,6 +1,7 @@
 # Power-stage-120v validation master plan
 
-Status: plan written 2026-09-26; no task started. This plan covers the desk
+Status: simulation round executed 2026-09-27 against native-13; tasks 01, 02,
+04, 05 and 07 have partial or blocked results (see §5). This plan covers the desk
 validations and simulations to run on the routed board **before** fabrication
 release. Physical tests (hipot, leakage, measured EMI, measured temperature)
 come later; each task lists the physical test that finally confirms it.
@@ -63,11 +64,11 @@ tasks need separate worktrees and must not both build Rust or the native bridge.
   - In2: BUS_P plane
   - B.Cu: SW_B band and pours
 
-  It's built to JLCPCB stackup JLC041622-7628 (`stackup.json`). The current
-  presentation revision has SHA-256 `f45f2ffdcaf4b41ba6c9259e711d8f070471e4606ff8b7277dd85c1ed5775b4b`;
-  its copper is identical to the electrically verified
-  `ccaa385921f686d6d08859cf4e81fb2e93014c434a935996a85257a1f3594112`
-  (`native-09/verification/README.md`, `native-09/verification/presentation/README.md`).
+  It's built to JLCPCB stackup JLC041622-7628 (`stackup.json`). The active native-13
+  presentation revision has SHA-256 `8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129`;
+  its copper is identical to the electrically verified native-13 revision
+  `ce1cf6361d1f30a8345d58b01b3511c695c7212d2c621808bc6dabe5b73960b6`
+  (`native-13/verification/README.md`).
   **Record the SHA-256 of the board you actually analyse in every result.**
 - **Source of truth for parts:** `frozen/default.csv` and
   `frozen/resolved-components.json`. Never take part identity from
@@ -142,7 +143,7 @@ start from it:
 
 ```sh
 KP=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
-$KP tools/copper_dump.py native-09/section.kicad_pcb /tmp/copper.json
+$KP tools/copper_dump.py native-13/section.kicad_pcb /tmp/copper.json
 ```
 
 The DRC must run with the board's sibling files present (`section.kicad_dru`,
@@ -150,10 +151,10 @@ The DRC must run with the board's sibling files present (`section.kicad_dru`,
 
 ```sh
 kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all \
-  --format json --output /tmp/drc.json native-09/section.kicad_pcb
+  --format json --output /tmp/drc.json native-13/section.kicad_pcb
 ```
 
-Expected baseline: 0 copper findings, 28 `lib_footprint_mismatch`, 3
+Documented native-13 baseline (not rerun by this simulation round): 0 copper findings, 28 `lib_footprint_mismatch`, 3
 `silk_overlap`, and 1 unconnected item (the intended R5 Kelvin split).
 
 ## 4. Where results go
@@ -174,7 +175,7 @@ validation-results/01-switching-parasitics/
 ```markdown
 # NN <task name> — result
 
-- Board: native-09/section.kicad_pcb, SHA-256 <hash>
+- Board: native-13/section.kicad_pcb, SHA-256 <hash>
 - Date, tool versions, operator/model
 - Evidence class: <class>
 - Verdict: PASS / FAIL / BLOCKED / PASS WITH CONDITIONS
@@ -193,13 +194,13 @@ Update this table when a task finishes (link the result README).
 
 | # | Status | Result | Verdict |
 | --- | --- | --- | --- |
-| 01 | not started | — | — |
-| 02 | partial (detector + chain bounded calcs) | [detector/chain](../validation-results/02-protection-timing/README.md) | 2 findings fixed in native-13 (BAS116H clamps; PERMIT path 4.1 → 1.0 µs); SPICE not started |
+| 01 | partial; blocked | [switching](../validation-results/01-switching-parasitics/README.md) | Incomplete paired current paths; capacitor ESL missing; starter deck cannot establish ZVS |
+| 02 | partial SPICE; full verdict blocked | [protection](../validation-results/02-protection-timing/README.md) | 12 CT and 20 shunt cases; CT stalls and small-overdrive timing unresolved; no final gate-off/stress verdict |
 | 03 | not started | — | — |
-| 04 | not started | — | — |
-| 05 | not started | — | — |
+| 04 | instrument audit complete; board solve blocked | [copper solver](../validation-results/04-board-current-thermal/README.md) | Four analytic probes expose solver defects; no board thermal verdict |
+| 05 | partial; blocked | [tank envelope](../validation-results/05-resonant-tank-envelope/README.md) | 9/135 cases; hot capacitor ratings, ZVS and trip topology unresolved |
 | 06 | partial (CT check done; fixed in native-11) | [CT burden](../validation-results/06-controller-interface/README.md) | CT: FAIL on native-09 → fixed in native-11 (source change; renewed D4 review needed) |
-| 07 | not started | — | — |
+| 07 | intake complete; blocked | [EMI](../validation-results/07-conducted-emi/README.md) | C1/C2 specified part requires 27.5 mm pitch; PCB has 22.5 mm; EMI inputs/model incomplete |
 | 08 | partial (silkscreen step done) | [native-11 presentation](../native-11/verification/presentation/README.md) | Designators at 1.0/0.15 mm, copper unchanged; Gerber/BOM/sourcing steps not started |
 | 09 | not started | — | — |
 
