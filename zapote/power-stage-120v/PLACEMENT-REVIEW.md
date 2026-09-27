@@ -1,6 +1,8 @@
 # Revised placement and routing review — native-05/native-06
 
-Status: ready for renewed written D4 review, 2026-09-26. The owner approved
+Status: renewed D4 **conditionally approved** by the owner on 2026-09-26 at
+`3c07eea57`; the conditions are recorded in [DECISIONS.md](DECISIONS.md) D4. Condition 1 (BUS_P copper)
+must close before fabrication. The owner approved
 the 240 × 160 mm outline and four layers. All five routing batches are now
 integrated and checked. This file records the review basis, not owner approval
 or a fabrication release. The earlier review is preserved in
