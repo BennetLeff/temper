@@ -1,0 +1,72 @@
+{
+  "schema": "power-stage-3d-model-map-v1",
+  "coordinate_system": "Model coordinates are millimeters. Model Y is opposite KiCad footprint-local Y; zero offsets/rotations/scales were verified against C5's four pad positions in KiCad 10.0.4 GLB export.",
+  "license": "Self-authored parametric geometry; no manufacturer CAD redistributed. See repository LICENSE.",
+  "models": [
+    {
+      "references": ["C21", "C22"],
+      "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
+      "path": "${KIPRJMOD}/../models3d/capacitors/CDE_942C12P22K-F.step",
+      "offset_mm": [0, 0, 0],
+      "rotation_deg": [0, 0, 0],
+      "scale": [1, 1, 1],
+      "status": "provisional-dimensioned",
+      "source_urls": ["https://www.cde.com/resources/catalogs/942C.pdf"],
+      "dimensions_verified_mm": {"body_length": 34, "body_diameter": 26.5, "lead_diameter": 1.2},
+      "geometry_note": "Simple cylindrical body and bent leads; lead stand-off and molding details are illustrative.",
+      "sha256": "1ba5d3b3aeab9f63c870f6bc59f246dd34062564c5db924c363db544561b1db5"
+    },
+    {
+      "references": ["C23"],
+      "footprint": "temper:CDE_942C_D19.0_L34.0_Axial_ReviewOnly",
+      "path": "${KIPRJMOD}/../models3d/capacitors/CDE_942C12P1K-F.step",
+      "offset_mm": [0, 0, 0],
+      "rotation_deg": [0, 0, 0],
+      "scale": [1, 1, 1],
+      "status": "provisional-dimensioned",
+      "source_urls": ["https://www.cde.com/resources/catalogs/942C.pdf"],
+      "dimensions_verified_mm": {"body_length": 34, "body_diameter": 19, "lead_diameter": 1},
+      "geometry_note": "Simple cylindrical body and bent leads; lead stand-off and molding details are illustrative.",
+      "sha256": "d847a7fe2fd9b46ebb51ab5243026ca840adf7e285f5781ea321bd21d5c973ad"
+    },
+    {
+      "references": ["C38", "C39", "C40", "C41"],
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "path": "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step",
+      "offset_mm": [0, 0, 0],
+      "rotation_deg": [0, 0, 0],
+      "scale": [1, 1, 1],
+      "status": "provisional-dimensioned",
+      "source_urls": ["https://www.tdk-electronics.tdk.com/inf/20/20/db/fc_2009/MKP_B32651_658.pdf"],
+      "dimensions_verified_mm": {"body_length": 18, "body_width": 9, "body_height": 17.5, "lead_pitch": 15},
+      "geometry_note": "Simple rectangular case and straight leads; case edge detail is illustrative.",
+      "sha256": "0df5794113e79f640c373c71e0f1af890ab66ce070f02e38e3aed8e71969000e"
+    },
+    {
+      "references": ["C5", "C6"],
+      "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+      "path": "${KIPRJMOD}/../models3d/capacitors/TDK_B32656G0275J000.step",
+      "offset_mm": [0, 0, 0],
+      "rotation_deg": [0, 0, 0],
+      "scale": [1, 1, 1],
+      "status": "provisional-dimensioned",
+      "source_urls": ["https://www.tdk-electronics.tdk.com/inf/20/20/db/fc_2009/MKP_B32651_658.pdf"],
+      "dimensions_verified_mm": {"body_length": 42, "body_width": 33, "body_height": 48, "lead_pitch_x": 37.5, "lead_pitch_y": 20.3},
+      "geometry_note": "Simple rectangular case and four straight leads; case edge detail is illustrative.",
+      "sha256": "1472b12fa3bf8c3f8b4b67e931243d88f108e0fd6a91f49ec160435dc9861007"
+    },
+    {
+      "references": ["C3", "C4"],
+      "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+      "path": "${KIPRJMOD}/../models3d/capacitors/Murata_DE1E3RA222MA4BP01F.step",
+      "offset_mm": [0, 0, 0],
+      "rotation_deg": [0, 0, 0],
+      "scale": [1, 1, 1],
+      "status": "provisional-dimensioned",
+      "source_urls": ["https://pim.murata.com/asset/pim4/ceramicCapacitorLead/DE1_RA_P01F_E_PDF_CERAMICCAPACITORLEAD"],
+      "dimensions_verified_mm": {"disc_diameter": 9, "disc_thickness": 4, "lead_pitch": 10, "lead_diameter": 0.6},
+      "geometry_note": "Disc and lead shape are illustrative; mounted height and stand-off are not specified in the cited part table.",
+      "sha256": "e516b7bc17521af73d334e3da8eed0c43d0583b33132acf86f6f450f9d472fc1"
+    }
+  ]
+}

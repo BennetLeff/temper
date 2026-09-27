@@ -1,5 +1,9 @@
 # Native-09 verification, 2026-09-26: designed to JLCPCB
 
+The active board now includes the [label/model presentation revision](presentation/README.md).
+Its current hash and fresh checks are recorded there. The reports below remain
+the original electrical verification of the pre-presentation board.
+
 Board SHA-256: `ccaa385921f686d6d08859cf4e81fb2e93014c434a935996a85257a1f3594112`.
 
 Native-09 is native-07's routing, replayed onto **native-08**. Native-08 is the
