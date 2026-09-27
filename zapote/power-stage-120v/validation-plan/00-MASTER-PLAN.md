@@ -187,7 +187,7 @@ Update this table when a task finishes (link the result README).
 | # | Status | Result | Verdict |
 | --- | --- | --- | --- |
 | 01 | not started | — | — |
-| 02 | not started | — | — |
+| 02 | partial (detector + chain bounded calcs) | [detector/chain](../validation-results/02-protection-timing/README.md) | 2 findings with no-layout fixes (clamp leakage, 4 µs PERMIT path); SPICE not started |
 | 03 | not started | — | — |
 | 04 | not started | — | — |
 | 05 | not started | — | — |
