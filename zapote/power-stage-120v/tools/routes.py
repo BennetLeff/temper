@@ -242,8 +242,12 @@ def batch_02_mains() -> Batch:
 
 # SELV island. Planes: In1 = V3V3, In2 = SELV_GND (also a B.Cu pour). The
 # outline keeps >= 8 mm plan-view from every HOT item on any layer.
-ISLAND = [(77.8, 50.2), (158, 50.2), (158, 84), (90, 84), (90, 88.0), (73.2, 88.0), (69.2, 85),
-          (69.2, 74), (77.8, 68)]
+# The east lobe (x 158-183.5, y 61.8-86) carries the tank-CT detector at T1's
+# secondary; it keeps >= 8 mm to C6/BUS_P, SW_B's column (chamfer toward its
+# x 186 step at y 92) and T1's primary. The x 157.5 edge keeps 8.5 mm (was
+# exactly 8.0) to the In2 BUS_P fill at x 166.
+ISLAND = [(77.8, 50.2), (157.5, 50.2), (157.5, 61.8), (183.5, 61.8), (183.5, 83.8), (180.5, 86.0), (158, 86.0),
+          (158, 84), (90, 84), (90, 88.0), (73.2, 88.0), (69.2, 85), (69.2, 74), (77.8, 68)]
 
 # Plane ties: pad -> via position (stub on F.Cu).
 TIES = {
@@ -318,16 +322,16 @@ def batch_03_selv() -> Batch:
     b.track("pwm_lb", "In2.Cu", 0.3, [100.825, 54.3], [100.825, 62.5], [133.5, 62.5], "J4.8")
 
     # Isolator fault line (In2), bus sense (F.Cu pair), SELV 15 V, CT pair.
-    b.track("bus_fault", "F.Cu", 0.3, "U9.13", [83.0, 53.2])
-    b.via("bus_fault", 83.0, 53.2)
-    b.track("bus_fault", "In2.Cu", 0.3, [83.0, 53.2], [91.0, 61.0], [91.0, 65.58], [113.9, 65.58], "J4.10")
+    # The isolator's output now feeds the fault OR (U13) beside J4.10.
+    b.track("bus_fault_iso", "F.Cu", 0.3, "U9.13", [83.0, 53.2])
+    b.via("bus_fault_iso", 83.0, 53.2)
+    b.track("bus_fault_iso", "In2.Cu", 0.3, [83.0, 53.2], [91.0, 61.0], [91.0, 65.58], [103.0, 65.58],
+            [104.46, 67.14], [104.46, 68.2])
+    b.via("bus_fault_iso", 104.46, 68.2)
+    b.track("bus_fault_iso", "F.Cu", 0.3, [104.46, 68.2], "U13.1")
     b.track("vbus_p", "F.Cu", 0.3, "U4.7", [78.0, 83.365], [86.0, 73.5], [116.0, 73.5], [118.5, 71.0], "J4.11")
     b.track("vbus_n", "F.Cu", 0.3, "U4.6", [79.0, 84.635], [87.0, 74.5], [117.0, 74.5], [121.5, 71.0], "J4.12")
     b.track("v15_selv", "F.Cu", 0.8, "J4.1", [110.5, 66.0], [92.0, 66.0], [88.8, 69.2], "PS1.4")
-    b.track("ct_s1", "F.Cu", 0.4, "J4.13", [124.5, 72.0], [170.0, 72.0], [170.0, 63.62], "T1.3")
-    b.track("ct_s2", "B.Cu", 0.4, "J4.14", [127.5, 71.0], [172.0, 71.0], [172.0, 75.5])
-    b.via("ct_s2", 172.0, 75.5)
-    b.track("ct_s2", "F.Cu", 0.4, [172.0, 75.5], [172.0, 77.38], "T1.4")
 
     # PE branch: functional-earth link R38, J6, Y1 capacitor PE pads.
     b.track("pe", "F.Cu", 2.0, "R38.1", [102.675, 77.0], [110.6, 77.0], "J6.1")
@@ -415,11 +419,93 @@ def batch_04_drive() -> Batch:
     return b
 
 
+def batch_06_ct() -> Batch:
+    """Tank-CT detector at T1's secondary, its lanes to J4/U13, plane ties."""
+    b = Batch("Claude Opus 5.5; explicit tank-CT detector routes, no search")
+    # Planes and ties from batch 03 stay; this batch only adds to them.
+    for net in ("v3v3", "selv_gnd"):
+        b.nets.setdefault(net, {"net": net, "mode": "add", "paths": [], "vias": [], "zones": []})
+    ties = {
+        "v3v3": {"D4.1": (163.2, 64.0), "C45.1": (165.85, 69.4), "C44.1": (165.85, 75.4),
+                 "C46.1": (165.85, 81.4), "R43.1": (171.6, 77.35), "R45.1": (159.1, 74.45),
+                 "R40.1": (174.5, 82.0), "U13.5": (108.4, 71.0), "C47.1": (102.2, 72.6)},
+        "selv_gnd": {"D5.2": (168.75, 67.6), "U11.2": (163.35, 72.0), "U10.2": (163.35, 78.0),
+                     "U12.2": (163.35, 84.0), "C45.2": (169.75, 69.4), "C44.2": (169.75, 75.4),
+                     "C46.2": (169.75, 81.4), "R44.2": (171.6, 78.95), "R46.2": (159.1, 72.95),
+                     "R41.2": (177.5, 82.0), "C43.2": (177.9, 84.0), "C47.2": (102.2, 68.4)},
+    }
+    for net, pads in ties.items():
+        for pad, (x, y) in pads.items():
+            b.track(net, "F.Cu", 0.4, pad, [x, y])
+            b.via(net, x, y)
+
+    # Secondary loop: burden and its capacitor between T1.3 and T1.4.
+    b.track("ct_s1", "F.Cu", 0.5, "T1.3", [177.0, 63.62], "R39.1")
+    b.track("ct_s1", "F.Cu", 0.5, [177.0, 65.5], "R42.1")
+    b.track("ct_s1", "F.Cu", 0.5, [174.5, 65.5], "C42.1")
+    b.track("ct_s2", "F.Cu", 0.5, "T1.4", [177.0, 77.38], "R39.2")
+    b.track("ct_s2", "F.Cu", 0.5, [177.0, 74.2], [174.5, 74.2], "C42.2")
+    # Bias midpoint: 1 k / 1 k and its bypass; also the zero-cross reference.
+    b.track("ct_s2", "F.Cu", 0.4, [177.0, 77.38], "R41.1")
+    b.track("ct_s2", "F.Cu", 0.4, "R41.1", "R40.2")
+    b.track("ct_s2", "F.Cu", 0.3, "R40.2", [172.5, 79.17], [172.5, 84.95], "U12.4")
+    b.track("ct_s2", "F.Cu", 0.3, [172.5, 84.0], "C43.1")
+
+    # SENSE: series resistor, clamps, negative IN- on F.Cu; positive and
+    # zero-cross IN+ through a B.Cu spine.
+    b.track("ct_sense_mon", "F.Cu", 0.3, "D4.2", [167.4, 65.5], "R42.2")
+    b.track("ct_sense_mon", "F.Cu", 0.3, "D5.1", [165.6, 65.5], [167.4, 65.5])
+    b.track("ct_sense_mon", "F.Cu", 0.3, "R42.2", [171.0, 66.9], [171.0, 72.95], "U11.4")
+    b.track("ct_sense_mon", "F.Cu", 0.3, [171.0, 72.95], [171.0, 74.0])
+    b.via("ct_sense_mon", 171.0, 74.0)
+    b.track("ct_sense_mon", "B.Cu", 0.3, [171.0, 74.0], [173.0, 76.0], [173.0, 80.15], [164.86, 80.15])
+    b.via("ct_sense_mon", 164.86, 80.15)
+    b.track("ct_sense_mon", "F.Cu", 0.3, "U10.3", [164.86, 80.15])
+    b.track("ct_sense_mon", "B.Cu", 0.3, [164.86, 80.15], [162.5, 80.15], [162.5, 85.1], [163.2, 85.8])
+    b.via("ct_sense_mon", 163.2, 85.8)
+    b.track("ct_sense_mon", "F.Cu", 0.3, "U12.3", [163.9, 85.8], [163.2, 85.8], "R47.1")
+
+    # References and supplies local to each comparator.
+    b.track("ct_ref_lo", "F.Cu", 0.3, "U11.3", "R46.1")
+    b.track("ct_ref_lo", "F.Cu", 0.3, "R46.1", "R45.2")
+    b.track("ct_ref_hi", "F.Cu", 0.3, "U10.4", "R44.1")
+    b.track("ct_ref_hi", "F.Cu", 0.3, "R44.1", "R43.2")
+    for u, c in (("U11", "C45"), ("U10", "C44"), ("U12", "C46")):
+        b.track("v3v3", "F.Cu", 0.3, f"{u}.5", f"{c}.1")
+
+    # West lanes, ordered by source so none cross: OC_NEG 71.5, OC_POS 72.5,
+    # ZC 73.5, MON 74.5. ZC/MON finish on B.Cu at J4's through pins; the
+    # over-current lines hop the J4 bus-sense pair on B.Cu to U13.
+    b.track("ct_oc_neg", "F.Cu", 0.3, "U11.1", [160.0, 71.05], [159.0, 71.5], [123.3, 71.5])
+    b.via("ct_oc_neg", 123.3, 71.5)
+    # Below J4's locating peg (NPTH at 109.5, 68.02).
+    b.track("ct_oc_neg", "B.Cu", 0.3, [123.3, 71.5], [121.6, 69.8], [108.8, 69.8], [108.4, 69.4])
+    b.via("ct_oc_neg", 108.4, 69.4)
+    b.track("ct_oc_neg", "F.Cu", 0.3, [108.4, 69.4], "U13.6")
+    b.track("ct_oc_pos", "F.Cu", 0.3, "U10.1", [157.4, 77.05], [157.4, 72.5], [122.3, 72.5])
+    b.via("ct_oc_pos", 122.3, 72.5)
+    b.track("ct_oc_pos", "B.Cu", 0.3, [122.3, 72.5], [104.4, 72.5], [103.8, 72.7])
+    b.via("ct_oc_pos", 103.8, 72.7)
+    b.track("ct_oc_pos", "F.Cu", 0.3, [103.8, 72.7], "U13.3")
+    b.track("ct_zc", "F.Cu", 0.3, "U12.1", [156.4, 83.05], [156.4, 73.5], [126.0, 73.5])
+    b.via("ct_zc", 126.0, 73.5)
+    b.track("ct_zc", "B.Cu", 0.3, [126.0, 73.5], [124.5, 72.0], "J4.13")
+    b.track("ct_mon", "F.Cu", 0.3, "R47.2", [155.4, 85.8], [155.4, 74.5], [129.0, 74.5])
+    b.via("ct_mon", 129.0, 74.5)
+    b.track("ct_mon", "B.Cu", 0.3, [129.0, 74.5], [127.5, 73.0], "J4.14")
+
+    # Fault OR: output to J4.10; ground through its bypass capacitor.
+    b.track("bus_fault", "F.Cu", 0.3, "U13.4", [107.7, 72.4], [113.2, 72.4], [115.5, 70.1], "J4.10")
+    b.track("selv_gnd", "F.Cu", 0.3, "U13.2", [103.4, 70.5], "C47.2")
+    return b
+
+
 def main() -> None:
     batch_01_power().write("routes-01.json")
     batch_02_mains().write("routes-02.json")
     batch_03_selv().write("routes-03.json")
     batch_04_drive().write("routes-04.json")
+    batch_06_ct().write("routes-06.json")
     print("routes written")
 
 

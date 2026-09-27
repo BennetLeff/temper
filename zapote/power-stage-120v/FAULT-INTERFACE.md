@@ -1,14 +1,18 @@
 # Fault-high controller interface
 
 U8 uses SN74LVC1G00DBVR and U9 uses ISO7710DWR (without F).
-J4.10 is BUS_FAULT. The NAND output is NOT(OCP_OK_HOT AND OVP_OK_HOT).
+J4.10 is BUS_FAULT = OR(isolated bus fault, CT_OC_POS, CT_OC_NEG), from U13
+(SN74LVC1G332DBVR, 3-input OR, SELV side, powered from J4.3). The isolated
+bus fault is the ISO7710 output of NOT(OCP_OK_HOT AND OVP_OK_HOT). The
+tank-CT comparators (U10 positive, U11 negative) trip at ≈55 A either
+polarity; see tools/ct_detector/README.md.
 Both selected devices retain their previous pad mappings; U9 retains the
 8.1 mm high-voltage land pattern.
 
 | Condition | J4.10 | Receiving interlock |
 | --- | --- | --- |
-| OCP and OVP both healthy, supplies valid | Low | Healthy |
-| OCP trips, OVP trips, or both trip | High | Fault |
+| OCP, OVP and tank-CT healthy, supplies valid | Low | Healthy |
+| Any of OCP, OVP or tank-CT over-current trips | High | Fault |
 | HOT input side fully unpowered; controller output supply valid | High after isolator default-output delay | Fault |
 | Signal conductor broken; interlock supply/return valid | Power-board output is disconnected; receiving input rises through its 10 kΩ pullup | Fault |
 
@@ -25,6 +29,10 @@ This truth table does not qualify an open return wire, missing controller
 supply, shutdown delay or latch/reset sequencing.
 
 TI SCES212AC §4 gives the NAND's DBV pins A1, B2, GND3, Y4, VCC5.
+TI SCES489E page 1 gives the SN74LVC1G332 DBV pins A1, GND2, B3, Y4, VCC5,
+C6; tpd ≤ 4.5 ns at 3.3 V. Its VOH at 3.3 V with the interlock's ≈350 µA load
+is near VCC, which meets the ≥2.7 V requirement; re-check VOH at the lowest rail
+when the interlock load is qualified.
 TI SLLSER9E §7.4 makes the ISO7710 output follow its input when powered and
 default high on input-side power loss with the output side powered.
 [SN74LVC1G00](https://www.ti.com/lit/ds/symlink/sn74lvc1g00.pdf),

@@ -1,0 +1,82 @@
+{
+  "board_sha256": "2fec2924d64cf0e6a45b7a131b2797488e0edf13edecde1a21d45162febe1cbb",
+  "renderer": "CairoSVG 2.9.1",
+  "renders": [
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "F.Cu,F.Silkscreen,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-11/previews/front.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-11/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "svg_sha256": "0d72df4097620a4e79239c2dece5db317567a223bf6827d75c2af0b9239cc7e3",
+      "png_sha256": "93fabda55cb10733b833d5488f0770600fabb5f5d2a5c4ca228d1748fad745ca"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "In1.Cu,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-11/previews/inner-return.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-11/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "svg_sha256": "2acc047e5976d5215c3851594cf87e5b8482069f80b334e0aedf0b47745b1e68",
+      "png_sha256": "aeaf26ff9973ed2dd51a4585cbd779556509774e501bd1fdca20790aeb0b2de0"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "In2.Cu,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-11/previews/inner-bus.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-11/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "svg_sha256": "7b788e961ec90fd8dcad434f57281a7c3b9f5dca116d1184bd824baf24f676c7",
+      "png_sha256": "6dfc386e4b76aa2537b6bc3da5ca4e1a869a17f5aa0517efa6fe99f39600a69f"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "B.Cu,B.Silkscreen,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-11/previews/back.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-11/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "svg_sha256": "309d44b8fcb381a2cd677051e45d0a4515f8ec9340e41ddecc90c837deef0b77",
+      "png_sha256": "eac6d1be34680c66a5085f4e12122265d5df82db286ed9e742de4280125fcd86"
+    }
+  ]
+}

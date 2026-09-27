@@ -191,7 +191,7 @@ Update this table when a task finishes (link the result README).
 | 03 | not started | — | — |
 | 04 | not started | — | — |
 | 05 | not started | — | — |
-| 06 | partial (CT check done) | [CT burden](../validation-results/06-controller-interface/README.md) | **FAIL**: CT secondary has no burden anywhere; escalated |
+| 06 | partial (CT check done; fixed in native-11) | [CT burden](../validation-results/06-controller-interface/README.md) | CT: FAIL on native-09 → fixed in native-11 (source change; renewed D4 review needed) |
 | 07 | not started | — | — |
 | 08 | not started | — | — |
 | 09 | not started | — | — |

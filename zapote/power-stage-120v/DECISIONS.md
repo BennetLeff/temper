@@ -15,6 +15,8 @@ native-05 placement and native-06 routing, with three conditions (below).
 | D5 | Insulation basis and barrier parts | **Conditionally approved 2026-09-25 by the owner:** single-point controller-ground–PE functional bond and an 8.0 mm minimum placement target. Use verified laminate group IIIa or better (not IIIb above 50 V). This authorizes provisional barrier placement, not insulation qualification. The source includes the removable 0 Ω functional link R38, placed beside the PE terminal inside the controller island in native-05; covered by the renewed D4 approval. Coilcraft evidence, applicable working-voltage/high-frequency rules and package/module certification scope remain open; increase spacing or change parts if those checks require it. See D5-BASIS.md. |
 | D6 | Mains entry and coil exit edges | **Approved 2026-09-25:** mains left, coil right, viewed from the component side with the heatsink at the top. |
 
+
+**D4 note, 2026-09-27:** the owner approved adding the tank-CT detector, so T1's secondary is terminated on this board (validation-results/06-controller-interface). That is a placement change: 21 parts on a new SELV island lobe by T1, and U13/C47 beside J4. Native-10 (placement) and native-11 (routed) need renewed D4 review. Conditions 1–3 carry over, and condition 1 still holds on native-11 (power screens unchanged).
 Part 4 §4.0 requires D1–D3 and D6 before deliberate placement. Part 4 §4.2
 requires D5 resolution before barrier placement; the conditional basis above now
 permits provisional barrier placement, with qualification still open. Section 4.5 requires written

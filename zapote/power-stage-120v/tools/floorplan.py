@@ -212,7 +212,35 @@ put("rv1", 68.2, 147.0)
 put("cx1", 64.0, 127.5)
 put("rb1a", 82.0, 124.0, 270)
 put("rb1b", 82.0, 129.2, 270)
-
+# ---- Tank-CT detector on the island's east lobe, at T1's secondary -------
+# The burden sits between T1.3 and T1.4 so the secondary never leaves this
+# corner unterminated; comparators beside it, references on the lobe's west
+# side. The lobe (x 158-183.5, y 61.8-86) keeps >= 8 mm to C6/BUS_P, SW_B's
+# column and T1's primary.
+put("r_ct_burden", 177.0, 70.5, 270)       # pad 1 (CT_S1) up toward T1.3
+put("c_ct_burden", 174.5, 70.5, 270)
+put("r_ct_series", 171.0, 65.5, 180)        # CT_S1 east, SENSE west
+put("d_ct_hi", 166.0, 64.0)
+put("d_ct_lo", 166.0, 67.0)
+# Comparators stacked by output order (west lanes never cross): negative
+# trip, positive trip, zero-cross; 6 mm pitch clears the VCC caps above.
+put("u_ct_neg", 166.0, 72.0)
+put("c_ct_neg", 167.9, 69.4)
+put("u_ct_pos", 166.0, 78.0)
+put("c_ct_pos", 167.9, 75.4)
+put("u_ct_zc", 166.0, 84.0)
+put("c_ct_zc", 167.9, 81.4)
+put("r_ct_lo_bot", 161.0, 72.95, 180)       # REF_LO beside the negative IN+
+put("r_ct_lo_top", 161.0, 74.45)
+put("r_ct_hi_top", 169.7, 77.35, 180)       # REF_HI beside the positive IN-
+put("r_ct_hi_bot", 169.7, 78.95)
+put("r_ct_bias_top", 174.5, 80.0, 90)
+put("r_ct_bias_bot", 177.5, 80.0, 270)
+put("c_ct_bias", 176.0, 84.0)                # below T1's courtyard
+put("r_ct_mon", 161.0, 85.8, 180)
+# The fault OR beside J4.10, west of J4's courtyard.
+put("u_fault_or", 105.6, 70.5)
+put("c_fault_or", 102.2, 70.5, 90)
 
 def rotate(x: float, y: float, angle: float) -> tuple[float, float]:
     """KiCad footprint rotation (y down, positive angle counter-clockwise)."""

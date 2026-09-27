@@ -143,6 +143,28 @@ fn load_resolved(json: &str) -> BTreeMap<String, String> {
     out
 }
 
+/// Split one CSV record (RFC 4180 quoting: "" is a literal quote).
+fn csv_fields(line: &str) -> Result<Vec<String>, String> {
+    let mut fields = Vec::new();
+    let mut cur = String::new();
+    let mut quoted = false;
+    let mut chars = line.chars().peekable();
+    while let Some(c) = chars.next() {
+        match (quoted, c) {
+            (true, '"') if chars.peek() == Some(&'"') => { cur.push('"'); chars.next(); }
+            (true, '"') => quoted = false,
+            (false, '"') if cur.is_empty() => quoted = true,
+            (false, ',') => fields.push(std::mem::take(&mut cur)),
+            (_, c) => cur.push(c),
+        }
+    }
+    if quoted {
+        return Err("unterminated quoted csv field".into());
+    }
+    fields.push(cur);
+    Ok(fields)
+}
+
 fn load(net_text: &str, csv_text: &str, resolved_json: &str) -> Result<Model, String> {
     let root = parse(net_text)?;
     let mut m = Model::default();
@@ -169,15 +191,15 @@ fn load(net_text: &str, csv_text: &str, resolved_json: &str) -> Result<Model, St
         }
     }
     for line in csv_text.lines().skip(1) {
-        // Comment,"Designator list",Footprint,LCSC,Price
-        let (mpn, rest) = line.split_once(',').ok_or("bad csv line")?;
-        let refs = if let Some(stripped) = rest.strip_prefix('"') {
-            stripped.split_once('"').ok_or("unterminated designators")?.0.to_string()
-        } else {
-            rest.split(',').next().unwrap_or("").to_string()
+        // Comment,"Designator list",Footprint,LCSC,Price. Fields may be
+        // quoted and contain commas (e.g. Nexperia "BAT54H,115").
+        let fields = csv_fields(line)?;
+        let (mpn, refs) = match (fields.first(), fields.get(1)) {
+            (Some(a), Some(b)) => (a.clone(), b.clone()),
+            _ => return Err("bad csv line".into()),
         };
         for r in refs.split(',') {
-            m.bom.insert(r.trim().to_string(), mpn.to_string());
+            m.bom.insert(r.trim().to_string(), mpn.clone());
         }
     }
     m.resolved = load_resolved(resolved_json);
@@ -219,6 +241,8 @@ impl Model {
 const SELV_NETS: &[&str] = &[
     "v15_selv", "selv_gnd", "v3v3", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit",
     "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
+    "ct_sense_mon", "ct_ref_hi", "ct_ref_lo", "ct_oc_pos", "ct_oc_neg", "ct_zc", "ct_mon",
+    "bus_fault_iso",
     "leg_a-dis", "leg_a-permit_gate", "leg_a.driver-dt",
     "leg_b-dis", "leg_b-permit_gate", "leg_b.driver-dt",
 ];
@@ -283,6 +307,23 @@ const IDENTITY: &[(&str, &str)] = &[
     ("ps_gate", "IRM-05-15"),
     ("ps_selv", "IRM-20-15"),
     ("t_ct", "CST3015-100ED"),
+    // Tank-CT detector (tools/ct_detector): burden, trip references, clamps.
+    ("r_ct_burden", "RC1206FR-071R5L"),
+    ("c_ct_burden", "GRM31C5C1H104JA01L"),
+    ("r_ct_bias_top", "RT0603BRD071KL"),
+    ("r_ct_bias_bot", "RT0603BRD071KL"),
+    ("c_ct_bias", "GRM31C5C1H104JA01L"),
+    ("r_ct_series", "RC1206FR-071KL"),
+    ("d_ct_hi", "BAT54H,115"),
+    ("d_ct_lo", "BAT54H,115"),
+    ("r_ct_hi_top", "RT0603BRD073K32L"),
+    ("r_ct_hi_bot", "RT0603BRD0710KL"),
+    ("r_ct_lo_top", "RT0603BRD0710KL"),
+    ("r_ct_lo_bot", "RT0603BRD073K32L"),
+    ("u_ct_pos", "TLV3201AIDBVR"),
+    ("u_ct_neg", "TLV3201AIDBVR"),
+    ("u_ct_zc", "TLV3201AIDBVR"),
+    ("u_fault_or", "SN74LVC1G332DBVR"),
 ];
 
 fn expect(errs: &mut Vec<String>, m: &Model, path: &str, pin: &str, net: &str) {
@@ -590,11 +631,19 @@ fn audit(m: &Model) -> Vec<String> {
     if bus_fault != want {
         e.push(format!("bus_fault_hot must join only the NAND output and the isolator input, found {:?}", bus_fault));
     }
-    expect(&mut e, m, "u_iso", "13", "bus_fault");
+    expect(&mut e, m, "u_iso", "13", "bus_fault_iso");
+    let iso_out = members(m, "bus_fault_iso");
+    let want: BTreeSet<(String, String)> = [("u_iso", "13"), ("u_fault_or", "1")]
+        .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if iso_out != want {
+        e.push(format!("bus_fault_iso must join only the isolator output and the fault OR, found {:?}", iso_out));
+    }
+    // BUS_FAULT = OR(isolated bus fault, CT over-current either polarity).
     // The receiving pullup is off-board. Added local loads or another driver
     // could suppress the fault while all existing pin checks still pass.
+    expect(&mut e, m, "u_fault_or", "4", "bus_fault");
     let fault_output = members(m, "bus_fault");
-    let want: BTreeSet<(String, String)> = [("u_iso", "13"), ("j_selv", "10")]
+    let want: BTreeSet<(String, String)> = [("u_fault_or", "4"), ("j_selv", "10")]
         .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
     if fault_output != want {
         e.push(format!("bus_fault has unexpected loads: {:?}", fault_output));
@@ -652,13 +701,75 @@ fn audit(m: &Model) -> Vec<String> {
     // 10. Controller header map.
     let header = [
         "v15_selv", "selv_gnd", "v3v3", "selv_gnd", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb",
-        "permit", "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2", "selv_gnd", "selv_gnd",
+        "permit", "bus_fault", "vbus_p", "vbus_n", "ct_zc", "ct_mon", "selv_gnd", "selv_gnd",
     ];
     for (i, net) in header.iter().enumerate() {
         expect(&mut e, m, "j_selv", &(i + 1).to_string(), net);
     }
+
+    // 11. Tank CT: the secondary is terminated on this board, at the CT, and
+    //     never reaches the connector (an open secondary spikes to hundreds of
+    //     volts: validation-results/06-controller-interface).
     expect(&mut e, m, "t_ct", "3", "ct_s1");
     expect(&mut e, m, "t_ct", "4", "ct_s2");
+    expect(&mut e, m, "r_ct_burden", "1", "ct_s1");
+    expect(&mut e, m, "r_ct_burden", "2", "ct_s2");
+    for net in ["ct_s1", "ct_s2"] {
+        if members(m, net).iter().any(|(p, _)| p == "j_selv") {
+            e.push(format!("CT secondary {net} reaches the SELV header; terminate it on this board"));
+        }
+    }
+    let s1: BTreeSet<(String, String)> = [("t_ct", "3"), ("r_ct_burden", "1"), ("c_ct_burden", "1"), ("r_ct_series", "1")]
+        .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if members(m, "ct_s1") != s1 {
+        e.push(format!("ct_s1 must join only the CT, burden, burden capacitor and series input, found {:?}", members(m, "ct_s1")));
+    }
+    // Bias midpoint: 1 k / 1 k from V3V3, bypassed; also the zero-cross reference.
+    expect(&mut e, m, "r_ct_bias_top", "1", "v3v3");
+    expect(&mut e, m, "r_ct_bias_top", "2", "ct_s2");
+    expect(&mut e, m, "r_ct_bias_bot", "1", "ct_s2");
+    expect(&mut e, m, "r_ct_bias_bot", "2", "selv_gnd");
+    expect(&mut e, m, "c_ct_bias", "1", "ct_s2");
+    expect(&mut e, m, "c_ct_bias", "2", "selv_gnd");
+    expect(&mut e, m, "r_ct_series", "2", "ct_sense_mon");
+    expect(&mut e, m, "d_ct_hi", "2", "ct_sense_mon"); // anode
+    expect(&mut e, m, "d_ct_hi", "1", "v3v3");         // cathode
+    expect(&mut e, m, "d_ct_lo", "1", "ct_sense_mon"); // cathode
+    expect(&mut e, m, "d_ct_lo", "2", "selv_gnd");     // anode
+    // Trip references: REF_HI = 3.3 * 10/13.32, REF_LO = 3.3 * 3.32/13.32.
+    expect(&mut e, m, "r_ct_hi_top", "1", "v3v3");
+    expect(&mut e, m, "r_ct_hi_top", "2", "ct_ref_hi");
+    expect(&mut e, m, "r_ct_hi_bot", "1", "ct_ref_hi");
+    expect(&mut e, m, "r_ct_hi_bot", "2", "selv_gnd");
+    expect(&mut e, m, "r_ct_lo_top", "1", "v3v3");
+    expect(&mut e, m, "r_ct_lo_top", "2", "ct_ref_lo");
+    expect(&mut e, m, "r_ct_lo_bot", "1", "ct_ref_lo");
+    expect(&mut e, m, "r_ct_lo_bot", "2", "selv_gnd");
+    // TLV3201 DBV: 1 OUT, 2 GND, 3 IN+, 4 IN-, 5 VCC.
+    for (u, inp, inn, out) in [("u_ct_pos", "ct_sense_mon", "ct_ref_hi", "ct_oc_pos"),
+                               ("u_ct_neg", "ct_ref_lo", "ct_sense_mon", "ct_oc_neg"),
+                               ("u_ct_zc", "ct_sense_mon", "ct_s2", "ct_zc")] {
+        expect(&mut e, m, u, "3", inp);
+        expect(&mut e, m, u, "4", inn);
+        expect(&mut e, m, u, "1", out);
+        expect(&mut e, m, u, "5", "v3v3");
+        expect(&mut e, m, u, "2", "selv_gnd");
+    }
+    // LVC1G332 DBV: 1 A, 2 GND, 3 B, 4 Y, 5 VCC, 6 C.
+    expect(&mut e, m, "u_fault_or", "1", "bus_fault_iso");
+    expect(&mut e, m, "u_fault_or", "3", "ct_oc_pos");
+    expect(&mut e, m, "u_fault_or", "6", "ct_oc_neg");
+    expect(&mut e, m, "u_fault_or", "5", "v3v3");
+    expect(&mut e, m, "u_fault_or", "2", "selv_gnd");
+    expect(&mut e, m, "r_ct_mon", "1", "ct_sense_mon");
+    expect(&mut e, m, "r_ct_mon", "2", "ct_mon");
+    for (net, want) in [("ct_zc", [("u_ct_zc", "1"), ("j_selv", "13")]),
+                        ("ct_mon", [("r_ct_mon", "2"), ("j_selv", "14")])] {
+        let w: BTreeSet<(String, String)> = want.iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+        if members(m, net) != w {
+            e.push(format!("{net} has unexpected loads: {:?}", members(m, net)));
+        }
+    }
     e
 }
 
@@ -757,6 +868,43 @@ mod tests {
         let mut m = built();
         m.rewire("leg_a.permit_fet", "2", "leg_ret");
         fails(&m, "bridges SELV and HOT");
+    }
+
+    #[test]
+    fn csv_fields_handle_quoted_commas() {
+        assert_eq!(csv_fields(r#""BAT54H,115","D4,D5",fp,"BAT54H,115",0.00"#).unwrap(),
+                   vec!["BAT54H,115", "D4,D5", "fp", "BAT54H,115", "0.00"]);
+        assert_eq!(csv_fields("TLV3201AIDBVR,U6,fp,x,0").unwrap()[1], "U6");
+        assert!(csv_fields(r#""open,1"#).is_err());
+    }
+
+    #[test]
+    fn ct_secondary_on_header_fails() {
+        let mut m = built();
+        m.rewire("j_selv", "13", "ct_s1");
+        fails(&m, "CT secondary ct_s1 reaches the SELV header");
+    }
+
+    #[test]
+    fn missing_ct_burden_fails() {
+        let mut m = built();
+        m.rewire("r_ct_burden", "1", "floating_test");
+        fails(&m, "r_ct_burden.1");
+    }
+
+    #[test]
+    fn ct_fault_bypassing_or_fails() {
+        let mut m = built();
+        m.rewire("u_fault_or", "3", "selv_gnd");
+        fails(&m, "u_fault_or.3");
+    }
+
+    #[test]
+    fn swapped_ct_clamp_fails() {
+        let mut m = built();
+        m.rewire("d_ct_hi", "1", "ct_sense_mon");
+        m.rewire("d_ct_hi", "2", "v3v3");
+        fails(&m, "d_ct_hi");
     }
 
     #[test]

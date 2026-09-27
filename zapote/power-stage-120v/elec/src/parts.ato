@@ -561,3 +561,81 @@ component FunctionalEarthLink:
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
+
+# ------------------------------------------------------- tank-CT detector (SELV)
+# Ported from zapote/current-sense/circuit/current_sense_unit.ato; model and
+# retuned trip band: tools/ct_detector/ct_detector_model.rs.
+
+component Burden1R5:
+    """CT burden, 1.50 ohm 1 % 0.25 W, across T1's secondary at the CT.
+    1.5 ohm keeps the biased swing within the 3.3 V rail up to 88 A."""
+    designator_prefix = "R"
+    mpn = "RC1206FR-071R5L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C100nC0G1206:
+    """100 nF 5 % C0G 50 V: burden shunt and bias-midpoint bypass."""
+    designator_prefix = "C"
+    mpn = "GRM31C5C1H104JA01L"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_1206_3216Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R1kThin:
+    """0.1 % thin film, CT bias midpoint divider."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD071KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R3k32Thin:
+    """0.1 % thin film, CT trip references: 3.3 V * 10/13.32 = 2.477 V."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD073K32L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R1k1206:
+    """1 kohm 1 % 1206 series input from the CT secondary to SENSE_MON."""
+    designator_prefix = "R"
+    mpn = "RC1206FR-071KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component ClampBat54h:
+    """Nexperia BAT54H,115 Schottky, SOD123F: 1 K, 2 A (datasheet Table 2)."""
+    designator_prefix = "D"
+    mpn = "BAT54H,115"
+    manufacturer = "Nexperia"
+    footprint = "Diode_SMD:D_SOD-123F"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component Or3Lvc1g332:
+    """TI SN74LVC1G332DBVR single 3-input OR. DBV top view: 1 A, 2 GND, 3 B,
+    4 Y, 5 VCC, 6 C (SCES489E page 1). tpd <= 4.5 ns at 3.3 V."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G332DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    signal A ~ pin 1
+    signal GND ~ pin 2
+    signal B ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+    signal C ~ pin 6

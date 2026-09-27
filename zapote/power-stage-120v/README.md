@@ -74,13 +74,14 @@ return-wire faults and complete shutdown timing remain unqualified; see
 | 5 / 6 | PWM_HA / PWM_LA | In: leg A high / low gate commands |
 | 7 / 8 | PWM_HB / PWM_LB | In: leg B high / low (four independent signals allow phase-shift control) |
 | 9 | PERMIT | In: active high. Low, floating or unpowered holds both drivers' DIS high (outputs off) |
-| 10 | BUS_FAULT | Out: healthy low; either shunt OCP or bus OVP trip high (nominal ≈61 A and ≈280 V). Fully unpowered HOT side defaults high while the controller supply is valid. |
+| 10 | BUS_FAULT | Out: healthy low; high on shunt OCP (≈61 A), bus OVP (≈280 V) or tank-CT over-current either polarity (≈55 A; DC corner band 50.9–59.5 A). U13 ORs the isolated bus fault with the tank-CT comparators on the SELV side. Fully unpowered HOT side defaults high while the controller supply is valid. |
 | 11 / 12 | VBUS_P / VBUS_N | Out: AMC1311 differential output. V(P) − V(N) ≈ bus voltage / 120 (unity-gain amplifier; 198 V → 1.65 V; confirm gain and common-mode on the datasheet) |
-| 13 / 14 | CT_S1 / CT_S2 | Out: tank CT secondary (1:100). The burden and OCP/phase comparators are on the current-sense board; retune its burden for the full-bridge peak |
+| 13 | CT_ZC | Out: tank-current zero crossing (TLV3201 push-pull, 3.3 V logic). Undefined with no tank current: the controller must ignore it when idle |
+| 14 | CT_MON | Out: biased tank-current waveform through 1 kΩ: 1.65 V + I_tank × 15 mV/A (1:100 into 1.5 Ω). The host input must be high impedance (≥ 10 MΩ assumed by the model) |
 
 Required on the controller side (not on this board):
 - the active-high-fault latch that drops PERMIT on BUS_FAULT high, tank OCP, over-temperature or a watchdog timeout
-- a CT zero-crossing phase comparator that inhibits switching before the tank goes capacitive
+- phase control from CT_ZC that inhibits switching before the tank goes capacitive (the comparator is on this board; the inhibit logic is not)
 - integration respecting the single functional PE bond implemented on this board
 
 ## Domains and barrier

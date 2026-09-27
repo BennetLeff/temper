@@ -8,8 +8,9 @@
 - Evidence class:
   - netlist and connectivity facts: **exact structural**
   - voltages: **simulation/model-based**, first-order
-- **Verdict: FAIL, escalate to the owner.** The tank CT secondary leaves this
-  board with no burden anywhere in the design, on a SELV connector.
+- **Verdict: FAIL on native-09, escalated. Resolved in native-11** (owner approved
+  the fix 2026-09-27): the CT is terminated on this board. See "Resolution" below.
+  The native-09 finding is kept as recorded.
 
 ## Summary
 
@@ -134,3 +135,41 @@ for n in ("ct_s1", "ct_s2"):
 EOF
 git grep -n -i "ct_s1" -- ':!*.kicad_pcb' ':!*.net' ':!*.json'   # consumers
 ```
+
+## Resolution (native-10/11, 2026-09-27)
+
+The owner approved the senior-designer fix: terminate the CT at T1 and
+condition it on this board.
+
+- **Source:** 21 parts added at the end of `PowerStage120V`, so no existing
+  designator renumbered. They are:
+  - the floating 1.5 Ω burden with 100 nF across it (R39, C42)
+  - the 1 k/1 k bias midpoint with its bypass (R40, R41, C43)
+  - the 1 k series input and BAT54H rail clamps (R42, D4, D5)
+  - the ≈55 A bipolar comparators (U10 positive, U11 negative) with 0.1 %
+    references (R43–R46)
+  - the zero-cross comparator (U12)
+  - the 3-input OR of the isolated bus fault and both CT trips onto BUS_FAULT (U13)
+  - the 1 k monitor output (R47)
+  - bypass capacitors (C44–C47)
+
+  J4.13/14 are now CT_ZC and CT_MON.
+- **Model:** `tools/ct_detector/` holds the current-sense unit's reviewed Rust
+  model, with the references retuned to 3.32 k/10 k. Nominal trip is 55.2 A.
+  The bounded DC corner band is 50.9–59.5 A. Its 6 tests pass.
+- **Audit:** `audit.rs` now fails if either CT secondary net reaches J4, if the
+  burden is missing, or if the OR is bypassed. The fault-path tests are
+  updated, and the CSV parser now handles quoted commas
+  (`"BAT54H,115"`). There are 53 tests.
+- **Board:** native-10 is the placement; the 114 existing poses are unchanged.
+  native-11 is routed, and its gates are in `native-11/verification/README.md`.
+  The CT nets now join only the burden, its capacitor, the series input and
+  the bias network.
+
+The open item is renewed D4 review of the placement change. Bench
+qualification from the detector's own list also remains:
+- CT transfer and saturation
+- clamp leakage when hot
+- comparator hysteresis and offset
+- zero-cross behaviour at idle
+- the complete trip-to-gate-off timing (task 02)

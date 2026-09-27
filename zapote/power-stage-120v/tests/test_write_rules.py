@@ -37,7 +37,7 @@ def test_footprint_nets_only_come_from_pad_expressions():
 
 
 def test_rule_does_not_exempt_tracks_merely_touching_courtyard():
-    board = (UNIT / "native-04" / "section.kicad_pcb").read_text()
+    board = (UNIT / "native-10" / "section.kicad_pcb").read_text()
     selv = write_rules.audit_selv_nets(UNIT / "audit.rs")
     rules = write_rules.rules(board, selv)
     assert "intersectsCourtyard" not in rules
@@ -45,7 +45,7 @@ def test_rule_does_not_exempt_tracks_merely_touching_courtyard():
 
 
 def test_barrier_rules_have_final_priority_over_escape_rules():
-    board = (UNIT / "native-04" / "section.kicad_pcb").read_text()
+    board = (UNIT / "native-10" / "section.kicad_pcb").read_text()
     selv = write_rules.audit_selv_nets(UNIT / "audit.rs")
     # KiCad applies its last matching rule. Even a bad future request must
     # never make a component-local relaxation outrank either 8 mm barrier.

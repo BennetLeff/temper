@@ -29,6 +29,7 @@ from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k5Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710, SelvHeader16, Nand2Lvc1g00, FunctionalEarthLink
 from "parts.ato" import BusTvsMrt130kp295
+from "parts.ato" import Burden1R5, C100nC0G1206, R1kThin, R3k32Thin, R1k1206, ClampBat54h, Or3Lvc1g332
 
 module BusBringupLink:
     """Two M4 landings for one removable insulated jumper (ASSEMBLY.md).
@@ -214,6 +215,14 @@ module PowerStage120V:
     signal VBUS_N
     signal CT_S1
     signal CT_S2
+    signal CT_SENSE_MON
+    signal CT_REF_HI
+    signal CT_REF_LO
+    signal CT_OC_POS
+    signal CT_OC_NEG
+    signal CT_ZC
+    signal CT_MON
+    signal BUS_FAULT_ISO
 
     # ---------------- mains entry and EMI filter
     j_mains = new MainsTerminal2
@@ -515,7 +524,7 @@ module PowerStage120V:
     u_iso.VCC2 ~ V3V3
     u_iso.GND2 ~ SELV_GND
     u_iso.GND2B ~ SELV_GND
-    u_iso.OUT ~ BUS_FAULT
+    u_iso.OUT ~ BUS_FAULT_ISO
     c_iso1 = new C100n0603
     c_iso1.value = 100nF
     c_iso1.p1 ~ HOT5
@@ -539,8 +548,8 @@ module PowerStage120V:
     j_selv.p10 ~ BUS_FAULT
     j_selv.p11 ~ VBUS_P
     j_selv.p12 ~ VBUS_N
-    j_selv.p13 ~ CT_S1
-    j_selv.p14 ~ CT_S2
+    j_selv.p13 ~ CT_ZC
+    j_selv.p14 ~ CT_MON
     j_selv.p15 ~ SELV_GND
     j_selv.p16 ~ SELV_GND
 
@@ -589,3 +598,108 @@ module PowerStage120V:
     link_neg = new BusBringupLink
     link_neg.rectifier ~ RECT_N
     link_neg.bus ~ HV_RET
+
+    # ---------------- tank-CT detector (SELV), at T1
+    # Kept last in the module so existing designators do not renumber.
+    # T1's secondary is terminated here and never crosses the connector: an
+    # open CT secondary spikes to hundreds of volts on SELV pins
+    # (validation-results/06-controller-interface). Ported from
+    # zapote/current-sense/circuit/current_sense_unit.ato: floating 1.5 ohm
+    # burden around a bypassed 1.65 V midpoint (CT_S2), 1 k series input with
+    # BAT54H rail clamps, and a comparator per polarity. References 3.32k/10k
+    # put the tank over-current trip at ~55 A (DC corner band 50.9-59.5 A:
+    # tools/ct_detector). A third comparator gives the zero crossing; the
+    # biased current waveform leaves through 1 k. The trip ORs with the
+    # isolated bus fault onto the existing active-high BUS_FAULT line.
+    r_ct_burden = new Burden1R5
+    r_ct_burden.value = 1.5ohm
+    r_ct_burden.p1 ~ CT_S1
+    r_ct_burden.p2 ~ CT_S2
+    c_ct_burden = new C100nC0G1206
+    c_ct_burden.value = 100nF
+    c_ct_burden.p1 ~ CT_S1
+    c_ct_burden.p2 ~ CT_S2
+    r_ct_bias_top = new R1kThin
+    r_ct_bias_top.value = 1kohm
+    r_ct_bias_top.p1 ~ V3V3
+    r_ct_bias_top.p2 ~ CT_S2
+    r_ct_bias_bot = new R1kThin
+    r_ct_bias_bot.value = 1kohm
+    r_ct_bias_bot.p1 ~ CT_S2
+    r_ct_bias_bot.p2 ~ SELV_GND
+    c_ct_bias = new C100nC0G1206
+    c_ct_bias.value = 100nF
+    c_ct_bias.p1 ~ CT_S2
+    c_ct_bias.p2 ~ SELV_GND
+    r_ct_series = new R1k1206
+    r_ct_series.value = 1kohm
+    r_ct_series.p1 ~ CT_S1
+    r_ct_series.p2 ~ CT_SENSE_MON
+    d_ct_hi = new ClampBat54h
+    d_ct_hi.A ~ CT_SENSE_MON
+    d_ct_hi.K ~ V3V3
+    d_ct_lo = new ClampBat54h
+    d_ct_lo.A ~ SELV_GND
+    d_ct_lo.K ~ CT_SENSE_MON
+    r_ct_hi_top = new R3k32Thin
+    r_ct_hi_top.value = 3.32kohm
+    r_ct_hi_top.p1 ~ V3V3
+    r_ct_hi_top.p2 ~ CT_REF_HI
+    r_ct_hi_bot = new R10kThin
+    r_ct_hi_bot.value = 10kohm
+    r_ct_hi_bot.p1 ~ CT_REF_HI
+    r_ct_hi_bot.p2 ~ SELV_GND
+    r_ct_lo_top = new R10kThin
+    r_ct_lo_top.value = 10kohm
+    r_ct_lo_top.p1 ~ V3V3
+    r_ct_lo_top.p2 ~ CT_REF_LO
+    r_ct_lo_bot = new R3k32Thin
+    r_ct_lo_bot.value = 3.32kohm
+    r_ct_lo_bot.p1 ~ CT_REF_LO
+    r_ct_lo_bot.p2 ~ SELV_GND
+    u_ct_pos = new Tlv3201
+    u_ct_pos.INP ~ CT_SENSE_MON
+    u_ct_pos.INN ~ CT_REF_HI
+    u_ct_pos.OUT ~ CT_OC_POS
+    u_ct_pos.VCC ~ V3V3
+    u_ct_pos.GND ~ SELV_GND
+    c_ct_pos = new C100n0603
+    c_ct_pos.value = 100nF
+    c_ct_pos.p1 ~ V3V3
+    c_ct_pos.p2 ~ SELV_GND
+    u_ct_neg = new Tlv3201
+    u_ct_neg.INP ~ CT_REF_LO
+    u_ct_neg.INN ~ CT_SENSE_MON
+    u_ct_neg.OUT ~ CT_OC_NEG
+    u_ct_neg.VCC ~ V3V3
+    u_ct_neg.GND ~ SELV_GND
+    c_ct_neg = new C100n0603
+    c_ct_neg.value = 100nF
+    c_ct_neg.p1 ~ V3V3
+    c_ct_neg.p2 ~ SELV_GND
+    u_ct_zc = new Tlv3201
+    u_ct_zc.INP ~ CT_SENSE_MON
+    u_ct_zc.INN ~ CT_S2
+    u_ct_zc.OUT ~ CT_ZC
+    u_ct_zc.VCC ~ V3V3
+    u_ct_zc.GND ~ SELV_GND
+    c_ct_zc = new C100n0603
+    c_ct_zc.value = 100nF
+    c_ct_zc.p1 ~ V3V3
+    c_ct_zc.p2 ~ SELV_GND
+    u_fault_or = new Or3Lvc1g332
+    u_fault_or.A ~ BUS_FAULT_ISO
+    u_fault_or.B ~ CT_OC_POS
+    u_fault_or.C ~ CT_OC_NEG
+    u_fault_or.Y ~ BUS_FAULT
+    u_fault_or.VCC ~ V3V3
+    u_fault_or.GND ~ SELV_GND
+    c_fault_or = new C100n0603
+    c_fault_or.value = 100nF
+    c_fault_or.p1 ~ V3V3
+    c_fault_or.p2 ~ SELV_GND
+    r_ct_mon = new R1k0603
+    r_ct_mon.value = 1kohm
+    r_ct_mon.p1 ~ CT_SENSE_MON
+    r_ct_mon.p2 ~ CT_MON
+

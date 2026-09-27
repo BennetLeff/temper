@@ -84,10 +84,13 @@ Controller supply: L_FILT/N_FILT → PS1 IRM-20-15 → V15_SELV/SELV_GND
 Bus sense: BUS_P → R26–R29 (4 × 470 kΩ) → VSENSE_IN → R30 15.8 kΩ → LEG_RET
            U4 AMC1311 isolated output → J4.11/12 VBUS_P/N
 Fault: U5 LM4040 REF25 (5.6 kΩ bias); U6 OCP ≈ 61 A;
-       U7 OVP ≈ 280 V; U8 LVC1G00 NAND → U9 ISO7710DWR → J4.10 BUS_FAULT
+       U7 OVP ≈ 280 V; U8 LVC1G00 NAND → U9 ISO7710DWR → U13 LVC1G332 OR → J4.10 BUS_FAULT
+Tank CT: T1 secondary terminated at the CT (1.5 Ω floating burden, 1.65 V bias);
+       U10/U11 TLV3201 bipolar trip ≈55 A → U13; U12 zero cross → J4.13 CT_ZC;
+       biased waveform → J4.14 CT_MON
 HOT/controller barrier: U1/U2, U4, U9, T1, PS1; D5 placement floor ≥8.0 mm.
 J4: V15_SELV, SELV_GND×4, V3V3 in, four PWMs, PERMIT, BUS_FAULT,
-    VBUS_P/N and CT_S1/S2.
+    VBUS_P/N, CT_ZC and CT_MON (the CT secondary never leaves the board).
 ```
 
 ## 4. Low-power holding (room temperature and up)

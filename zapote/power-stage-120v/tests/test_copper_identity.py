@@ -43,8 +43,8 @@ def test_saved_route_via_net_reassignment_is_rejected(tmp_path):
     board_dir = tmp_path / "routed"
     board_dir.mkdir()
     board = board_dir / "section.kicad_pcb"
-    shutil.copyfile(UNIT / "native-08/section.kicad_pcb", board)
-    shutil.copyfile(UNIT / "native-08/source-manifest.json", board_dir / "source-manifest.json")
+    shutil.copyfile(UNIT / "native-10/section.kicad_pcb", board)
+    shutil.copyfile(UNIT / "native-10/source-manifest.json", board_dir / "source-manifest.json")
     route_dir = tmp_path / "routes"
     route_dir.mkdir()
     route = route_dir / "routes-01.json"
