@@ -1,0 +1,39 @@
+{
+  "deck": "/Users/bennet/Desktop/temper/worktrees/ps-sim01-r2/zapote/power-stage-120v/validation-results/01-switching-parasitics/round2/complementary_leg.cir",
+  "params": {
+    "VBUS": "198",
+    "IL": "2",
+    "DIR": "0",
+    "DT": "348n",
+    "TRMAX": "0.1n",
+    "LD_HS": "4n",
+    "LS_HS": "4n",
+    "LD_LS": "4n",
+    "LS_LS": "4n",
+    "LCAP": "3n",
+    "LBULK": "30n",
+    "LCS": "1n",
+    "LG": "20n"
+  },
+  "run_dir": "/Users/bennet/Desktop/temper/worktrees/ps-sim01-r2/zapote/power-stage-120v/validation-results/01-switching-parasitics/round2/outputs/runs/dir0_i2_dt348_step0.1ns",
+  "aborted": false,
+  "returncode": 0,
+  "raw_returncode": 0,
+  "meas": {
+    "vds_ls_die_pk": 462.6375,
+    "vds_hs_die_pk": 199.315,
+    "vgs_ls_die_max": 14.98587,
+    "vgs_ls_die_min": -0.9270908,
+    "vgs_hs_die_max": 14.3568,
+    "vgs_hs_die_min": -0.002051027
+  },
+  "failed": [],
+  "log_tail": [
+    "DRAM currently available =  487.578 MB.",
+    "Maximum ngspice program size =   14.297 MB.",
+    "Current ngspice program size =   14.297 MB.",
+    "",
+    "Note: Starting dynamic gmin stepping",
+    "Note: Dynamic gmin stepping completed"
+  ]
+}

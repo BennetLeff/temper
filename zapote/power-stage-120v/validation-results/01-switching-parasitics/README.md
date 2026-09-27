@@ -1,5 +1,7 @@
 # 01 Layout parasitics and switching transient — partial result
 
+The [round-2 complementary-drive check](round2/README.md) validates both modeled gate commands, deadtime and light-load behavior with clearly labeled reference inductances. It does not change this board-level blocked verdict.
+
 - Board: `native-13/section.kicad_pcb`, SHA-256 `8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129`
 - Date: 2026-09-27. Source/kit commit: `36ba41f249eea0b9c78c9d7bdd6e38ea04bb37f9` on `codex/ps-sim-01`. Operator: Codex simulation worker.
 - Tools: KiCad 10.0.4 board reader, Python 3.12.12 and Shapely 2.1.2, ngspice 45.2. Vendor model: Infineon `IPW65R018CFD7_L1`; model file SHA-256 is in [source review](sources/SOURCE-REVIEW.md).
