@@ -191,7 +191,7 @@ Update this table when a task finishes (link the result README).
 | 03 | not started | — | — |
 | 04 | not started | — | — |
 | 05 | not started | — | — |
-| 06 | not started | — | — |
+| 06 | partial (CT check done) | [CT burden](../validation-results/06-controller-interface/README.md) | **FAIL**: CT secondary has no burden anywhere; escalated |
 | 07 | not started | — | — |
 | 08 | not started | — | — |
 | 09 | not started | — | — |
