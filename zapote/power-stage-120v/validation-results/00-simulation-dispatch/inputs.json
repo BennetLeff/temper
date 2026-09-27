@@ -26,7 +26,7 @@
   "ngspice_version": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
   "model": "gpt-6-sol",
   "reasoning_effort": "xhigh",
-  "smoke_gate": "16/16 PASS; see smoke-test.log",
+  "smoke_gate": "16/16 PASS; see smoke-test.txt",
   "tasks": [
     "01",
     "02",
