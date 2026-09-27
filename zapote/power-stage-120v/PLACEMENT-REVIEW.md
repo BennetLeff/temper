@@ -106,7 +106,7 @@ Evidence: [native-11/verification](native-11/verification/README.md),
 [presentation](native-11/verification/presentation/README.md) and
 [task 06 resolution](validation-results/06-controller-interface/README.md).
 
-Reviewer recommendation (Claude): approve native-10/11 under the existing D4
+**Owner approved 2026-09-27** (see DECISIONS.md). Reviewer recommendation (Claude): approve native-10/11 under the existing D4
 conditions. Add one bench item to condition 2: with the tank running, check
 CT_ZC and CT_MON for switching-node pickup, and verify the tank-CT trip at the
 ~55 A design point with injected primary current.

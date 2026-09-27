@@ -16,7 +16,7 @@ native-05 placement and native-06 routing, with three conditions (below).
 | D6 | Mains entry and coil exit edges | **Approved 2026-09-25:** mains left, coil right, viewed from the component side with the heatsink at the top. |
 
 
-**D4 note, 2026-09-27:** the owner approved adding the tank-CT detector, so T1's secondary is terminated on this board (validation-results/06-controller-interface). That is a placement change: 21 parts on a new SELV island lobe by T1, and U13/C47 beside J4. Native-10 (placement) and native-11 (routed) need renewed D4 review. Conditions 1–3 carry over, and condition 1 still holds on native-11 (power screens unchanged).
+**D4 note, 2026-09-27:** the owner approved adding the tank-CT detector, so T1's secondary is terminated on this board (validation-results/06-controller-interface). That is a placement change: 21 parts on a new SELV island lobe by T1, and U13/C47 beside J4. **Renewed D4 approved by the owner on 2026-09-27** (reply: “approve”) for native-10 (placement) and native-11 (routed; electrical board `2fec2924…`, active presentation board `05141028…`), under conditions 1–3. Condition 1 still holds on native-11: the power screens are unchanged. Condition 2 adds a bench item: with the tank running, check CT_ZC and CT_MON for switching-node pickup, and verify the tank-CT trip at the ~55 A design point with injected primary current. Not a fabrication or powered-operation release.
 Part 4 §4.0 requires D1–D3 and D6 before deliberate placement. Part 4 §4.2
 requires D5 resolution before barrier placement; the conditional basis above now
 permits provisional barrier placement, with qualification still open. Section 4.5 requires written
