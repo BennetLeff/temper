@@ -199,10 +199,10 @@ Update this table when a task finishes (link the result README).
 | 01 | complementary reference model checked; board verdict blocked | [switching round two](../validation-results/01-switching-parasitics/round2/README.md) | Both transition directions and deadtime diagnostics exercised; board loop/return inductances and capacitor ESL still missing |
 | 02 | partial SPICE; full verdict blocked | [protection](../validation-results/02-protection-timing/README.md) | 12 CT and 20 shunt cases; CT stalls and small-overdrive timing unresolved; no final gate-off/stress verdict |
 | 03 | not started | — | — |
-| 04 | round-two geometry audit; board solve blocked | [copper solver](../validation-results/04-board-current-thermal/round2/README.md) | Original four repairs pass; native-13 raster creates false connections across copper gaps |
+| 04 | solver fixed (round 3); board solve ready to run | [copper solver](../validation-results/04-board-current-thermal/round3/README.md) | Gap and drill defects fixed; 0 false joins on native-13 copper; run at 0.125 mm pitch; heat sources (03) still needed for the thermal part |
 | 05 | partial; blocked | [tank envelope](../validation-results/05-resonant-tank-envelope/README.md) | 9/135 cases; hot capacitor ratings, ZVS and trip topology unresolved |
 | 06 | partial (CT check done; fixed in native-11) | [CT burden](../validation-results/06-controller-interface/README.md) | CT: FAIL on native-09 → fixed in native-11 (source change; renewed D4 review needed) |
-| 07 | intake complete; blocked | [EMI](../validation-results/07-conducted-emi/README.md) | C1/C2 specified part requires 27.5 mm pitch; PCB has 22.5 mm; EMI inputs/model incomplete |
+| 07 | intake complete; blocked on inputs | [EMI](../validation-results/07-conducted-emi/README.md) | C1/C2 pitch defect fixed in native-15 (R463N410000N1M); EMI inputs/model still incomplete |
 | 08 | partial (silkscreen step done) | [native-11 presentation](../native-11/verification/presentation/README.md) | Designators at 1.0/0.15 mm, copper unchanged; Gerber/BOM/sourcing steps not started |
 | 09 | not started | — | — |
 
