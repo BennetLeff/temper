@@ -4,6 +4,12 @@ Part of the [master plan](00-MASTER-PLAN.md). Read the master plan's ground
 rules first. This task needs task 03's `board_heat_sources.json`. Without it,
 run the copper self-heating part alone and mark the result partial.
 
+
+> **Update 2026-09-27:** the board is now **native-13**, with the tank-CT
+> detector, BAS116H clamps and a 100 Ω / 1 kΩ permit/DIS network. Use
+> [SIMULATION-RUNBOOK.md](SIMULATION-RUNBOOK.md) and `sim-kit/` for the
+> procedure; this document keeps the goals and pass criteria.
+
 ## Goal
 
 Replace the IPC-2221 width screens with a real solution of how current spreads

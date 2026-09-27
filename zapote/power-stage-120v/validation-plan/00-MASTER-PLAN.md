@@ -6,7 +6,10 @@ release. Physical tests (hipot, leakage, measured EMI, measured temperature)
 come later; each task lists the physical test that finally confirms it.
 
 Every task has its own document. Read this master plan first, then only the
-task document you're assigned.
+task document you're assigned. **For the simulation tasks (01, 02, 04, 05,
+07), also follow [SIMULATION-RUNBOOK.md](SIMULATION-RUNBOOK.md)** and its
+tested starter kit in [`sim-kit/`](sim-kit/). Run `sim-kit/smoke_test.py`
+before anything else.
 
 | # | Task | Doc | Finds | Depends on |
 | --- | --- | --- | --- | --- |
@@ -50,7 +53,11 @@ tasks need separate worktrees and must not both build Rust or the native bridge.
   ~37 A peak; 33–39 kHz at full power, up to 60 kHz at light load; nominal
   dead time ≈ 348 ns; OCP trip ≈ 61 A; OVP ≈ 280 V; bus crest ≈ 170 V at
   120 V rms and ≈ 198 V at 140 V rms line crest.
-- **Board file:** `native-09/section.kicad_pcb`. It's 240 × 160 mm with 4 layers:
+- **Board file:** `native-13/section.kicad_pcb`. This supersedes native-09,
+  which the rest of this section still describes; see
+  `native-13/verification/README.md` for the delta. Native-13 adds the tank-CT
+  detector (U10–U13) and has BAS116H clamps and a 100 Ω / 1 kΩ permit/DIS
+  network. It's 240 × 160 mm with 4 layers:
   - F.Cu: parts and power pours
   - In1: HV_RET return plane
   - In2: BUS_P plane

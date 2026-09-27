@@ -4,6 +4,12 @@ Part of the [master plan](00-MASTER-PLAN.md). Read the master plan's ground
 rules first. This task uses task 01's switch-node edge rate. Without it, sweep
 1–20 V/ns and mark the result provisional.
 
+
+> **Update 2026-09-27:** the board is now **native-13**, with the tank-CT
+> detector, BAS116H clamps and a 100 Ω / 1 kΩ permit/DIS network. Use
+> [SIMULATION-RUNBOOK.md](SIMULATION-RUNBOOK.md) and `sim-kit/` for the
+> procedure; this document keeps the goals and pass criteria.
+
 ## Goal
 
 Estimate the conducted emissions at the mains terminals J1 (line and neutral)

@@ -5,6 +5,12 @@ rules first. This task needs task 01's loop inductance and fault turn-off
 waveform. If 01 isn't done, use its analytic range (10–40 nH) and mark the
 result provisional.
 
+
+> **Update 2026-09-27:** the board is now **native-13**, with the tank-CT
+> detector, BAS116H clamps and a 100 Ω / 1 kΩ permit/DIS network. Use
+> [SIMULATION-RUNBOOK.md](SIMULATION-RUNBOOK.md) and `sim-kit/` for the
+> procedure; this document keeps the goals and pass criteria.
+
 ## Goal
 
 Answer three questions with worst-case numbers:
