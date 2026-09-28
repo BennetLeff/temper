@@ -16,8 +16,7 @@ carried it; KiCad's DRC and our JLCPCB check both accepted it.
 - `scripts/gen_pcb_skeleton.py::_load_footprint` reads both flags by value
   (tests: `scripts/tests/test_gen_pcb_skeleton_pad_flags.py`). The generator
   is shared with the current-sense, thermal-sense, gate-drive and interlock
-  builds; the RTD, thermal-sense and current-sense candidate boards also
-  carry the old flag and need their own rebuild.
+  builds. A later [native outer-land census](../../validation-results/round5-coordination/related-board-outer-lands.json) at `91888bb29` found zero missing outer lands in the current RTD, thermal-sense and current-sense candidates (14, 10 and 6 PTH pads). The earlier blanket rebuild recommendation is withdrawn for those exact hashes; audit any other intended revision separately.
 - `tools/pth_layer_policy.py` (run by `tools/build_native.py`) sets a
   deliberate policy on every PTH pad: **keep both outer lands, remove inner
   rings where nothing connects** (`remove_unused_layers yes`,

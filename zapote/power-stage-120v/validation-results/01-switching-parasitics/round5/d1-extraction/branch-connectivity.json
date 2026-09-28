@@ -1,0 +1,1037 @@
+[
+  {
+    "link_audit": "link-audit-a-m5-p0p125.json",
+    "leg": "A",
+    "margin_mm": 5.0,
+    "pitch_mm": 0.125,
+    "status": "SAME_LAYER_ONLY_NO_BARRELS",
+    "branches": [
+      {
+        "name": "P_BUS_C38",
+        "from_ref": "C38.1",
+        "to_ref": "Q2.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 4,
+            "to_component_count": 9
+          },
+          {
+            "layer": "In2.Cu",
+            "same_component": true,
+            "from_component_count": 3,
+            "to_component_count": 3
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": false,
+            "from_component_count": 4,
+            "to_component_count": 9
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_BUS_C39",
+        "from_ref": "C39.1",
+        "to_ref": "Q2.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 2,
+            "to_component_count": 9
+          },
+          {
+            "layer": "In2.Cu",
+            "same_component": true,
+            "from_component_count": 2,
+            "to_component_count": 3
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": false,
+            "from_component_count": 2,
+            "to_component_count": 9
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_SW",
+        "from_ref": "Q2.3",
+        "to_ref": "Q3.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 5,
+            "to_component_count": 3
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": true,
+            "from_component_count": 5,
+            "to_component_count": 3
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_SOURCE",
+        "from_ref": "Q3.3",
+        "to_ref": "R5.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 5,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "P_RETURN_C38",
+        "from_ref": "R5.4",
+        "to_ref": "C38.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 4
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "P_RETURN_C39",
+        "from_ref": "R5.4",
+        "to_ref": "C39.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 2
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GH_OUT",
+        "from_ref": "U1.15",
+        "to_ref": "R10.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 2
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GH_GATE",
+        "from_ref": "R10.2",
+        "to_ref": "Q2.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 5
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GH_RETURN",
+        "from_ref": "Q2.3",
+        "to_ref": "U1.14",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 5,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GL_OUT",
+        "from_ref": "U1.10",
+        "to_ref": "R12.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 2
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GL_GATE",
+        "from_ref": "R12.2",
+        "to_ref": "Q3.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 5
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GL_RETURN",
+        "from_ref": "Q3.3",
+        "to_ref": "U1.9",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 5,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      }
+    ]
+  },
+  {
+    "link_audit": "link-audit-a-m5-p0p25.json",
+    "leg": "A",
+    "margin_mm": 5.0,
+    "pitch_mm": 0.25,
+    "status": "SAME_LAYER_ONLY_NO_BARRELS",
+    "branches": [
+      {
+        "name": "P_BUS_C38",
+        "from_ref": "C38.1",
+        "to_ref": "Q2.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 2,
+            "to_component_count": 1
+          },
+          {
+            "layer": "In2.Cu",
+            "same_component": true,
+            "from_component_count": 2,
+            "to_component_count": 1
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": false,
+            "from_component_count": 2,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_BUS_C39",
+        "from_ref": "C39.1",
+        "to_ref": "Q2.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "In2.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_SW",
+        "from_ref": "Q2.3",
+        "to_ref": "Q3.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_SOURCE",
+        "from_ref": "Q3.3",
+        "to_ref": "R5.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "P_RETURN_C38",
+        "from_ref": "R5.4",
+        "to_ref": "C38.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 2
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "P_RETURN_C39",
+        "from_ref": "R5.4",
+        "to_ref": "C39.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GH_OUT",
+        "from_ref": "U1.15",
+        "to_ref": "R10.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GH_GATE",
+        "from_ref": "R10.2",
+        "to_ref": "Q2.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 3
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GH_RETURN",
+        "from_ref": "Q2.3",
+        "to_ref": "U1.14",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GL_OUT",
+        "from_ref": "U1.10",
+        "to_ref": "R12.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GL_GATE",
+        "from_ref": "R12.2",
+        "to_ref": "Q3.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 3
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GL_RETURN",
+        "from_ref": "Q3.3",
+        "to_ref": "U1.9",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      }
+    ]
+  },
+  {
+    "link_audit": "link-audit-a-m5-p0p5.json",
+    "leg": "A",
+    "margin_mm": 5.0,
+    "pitch_mm": 0.5,
+    "status": "SAME_LAYER_ONLY_NO_BARRELS",
+    "branches": [
+      {
+        "name": "P_BUS_C38",
+        "from_ref": "C38.1",
+        "to_ref": "Q2.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "In2.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_BUS_C39",
+        "from_ref": "C39.1",
+        "to_ref": "Q2.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "In2.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_SW",
+        "from_ref": "Q2.3",
+        "to_ref": "Q3.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_SOURCE",
+        "from_ref": "Q3.3",
+        "to_ref": "R5.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "P_RETURN_C38",
+        "from_ref": "R5.4",
+        "to_ref": "C38.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "P_RETURN_C39",
+        "from_ref": "R5.4",
+        "to_ref": "C39.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GH_OUT",
+        "from_ref": "U1.15",
+        "to_ref": "R10.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GH_GATE",
+        "from_ref": "R10.2",
+        "to_ref": "Q2.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GH_RETURN",
+        "from_ref": "Q2.3",
+        "to_ref": "U1.14",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GL_OUT",
+        "from_ref": "U1.10",
+        "to_ref": "R12.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GL_GATE",
+        "from_ref": "R12.2",
+        "to_ref": "Q3.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GL_RETURN",
+        "from_ref": "Q3.3",
+        "to_ref": "U1.9",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      }
+    ]
+  },
+  {
+    "link_audit": "link-audit-b-m5-p0p125.json",
+    "leg": "B",
+    "margin_mm": 5.0,
+    "pitch_mm": 0.125,
+    "status": "SAME_LAYER_ONLY_NO_BARRELS",
+    "branches": [
+      {
+        "name": "P_BUS_C40",
+        "from_ref": "C40.1",
+        "to_ref": "Q5.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 6,
+            "to_component_count": 3
+          },
+          {
+            "layer": "In2.Cu",
+            "same_component": true,
+            "from_component_count": 2,
+            "to_component_count": 3
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": false,
+            "from_component_count": 6,
+            "to_component_count": 3
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_BUS_C41",
+        "from_ref": "C41.1",
+        "to_ref": "Q5.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 3,
+            "to_component_count": 3
+          },
+          {
+            "layer": "In2.Cu",
+            "same_component": true,
+            "from_component_count": 3,
+            "to_component_count": 3
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": false,
+            "from_component_count": 3,
+            "to_component_count": 3
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_SW",
+        "from_ref": "Q5.3",
+        "to_ref": "Q6.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 3
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 3
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_SOURCE",
+        "from_ref": "Q6.3",
+        "to_ref": "R5.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "P_RETURN_C40",
+        "from_ref": "R5.4",
+        "to_ref": "C40.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 6
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "P_RETURN_C41",
+        "from_ref": "R5.4",
+        "to_ref": "C41.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 3
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GH_OUT",
+        "from_ref": "U2.15",
+        "to_ref": "R18.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GH_GATE",
+        "from_ref": "R18.2",
+        "to_ref": "Q5.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 3
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GH_RETURN",
+        "from_ref": "Q5.3",
+        "to_ref": "U2.14",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GL_OUT",
+        "from_ref": "U2.10",
+        "to_ref": "R20.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GL_GATE",
+        "from_ref": "R20.2",
+        "to_ref": "Q6.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 3
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GL_RETURN",
+        "from_ref": "Q6.3",
+        "to_ref": "U2.9",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      }
+    ]
+  },
+  {
+    "link_audit": "link-audit-b-m5-p0p25.json",
+    "leg": "B",
+    "margin_mm": 5.0,
+    "pitch_mm": 0.25,
+    "status": "SAME_LAYER_ONLY_NO_BARRELS",
+    "branches": [
+      {
+        "name": "P_BUS_C40",
+        "from_ref": "C40.1",
+        "to_ref": "Q5.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 3,
+            "to_component_count": 1
+          },
+          {
+            "layer": "In2.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": false,
+            "from_component_count": 3,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_BUS_C41",
+        "from_ref": "C41.1",
+        "to_ref": "Q5.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "In2.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_SW",
+        "from_ref": "Q5.3",
+        "to_ref": "Q6.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          },
+          {
+            "layer": "B.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "P_SOURCE",
+        "from_ref": "Q6.3",
+        "to_ref": "R5.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "P_RETURN_C40",
+        "from_ref": "R5.4",
+        "to_ref": "C40.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 3
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "P_RETURN_C41",
+        "from_ref": "R5.4",
+        "to_ref": "C41.2",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GH_OUT",
+        "from_ref": "U2.15",
+        "to_ref": "R18.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GH_GATE",
+        "from_ref": "R18.2",
+        "to_ref": "Q5.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GH_RETURN",
+        "from_ref": "Q5.3",
+        "to_ref": "U2.14",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      },
+      {
+        "name": "GL_OUT",
+        "from_ref": "U2.10",
+        "to_ref": "R20.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GL_GATE",
+        "from_ref": "R20.2",
+        "to_ref": "Q6.1",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": true,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": true
+      },
+      {
+        "name": "GL_RETURN",
+        "from_ref": "Q6.3",
+        "to_ref": "U2.9",
+        "same_layer_checks": [
+          {
+            "layer": "F.Cu",
+            "same_component": false,
+            "from_component_count": 1,
+            "to_component_count": 1
+          }
+        ],
+        "any_same_layer_connection": false
+      }
+    ]
+  }
+]

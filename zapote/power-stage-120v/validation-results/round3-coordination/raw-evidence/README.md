@@ -7,11 +7,7 @@ files of 2 MB or more: 3,327 files, 546 MB) goes to the GitHub release
 `ps120-validation-round3-raw-v1`, asset `ps120-round3-raw-evidence.tar`
 (SHA-256 in `asset.env`).
 
-**Status, 2026-09-28: the release is not yet published** (the repository is
-public, so publishing needs the owner). Until it is, the raw files exist only
-in the `ps-r3-integration` worktree. The tarball is rebuilt byte-for-byte by
-`build_archive.py`; a test extraction verified 3,327/3,327 files. The owner chose this split on 2026-09-28 (storage
-option 1).
+**Published 2026-09-28:** [round-3 evidence release](https://github.com/BennetLeff/temper/releases/tag/ps120-validation-round3-raw-v1), with explicit owner approval. The rebuilt archive and GitHub's uploaded asset digest both match `asset.env`: `a4690f17bb2e4ccf4d9527bc3c114b0447a21d54375a7dd601de7c5be9eccd10`. Asset size is 549,529,600 bytes. The tag targets `91888bb29e318eef09c0a292245de88b9016d250`; this is historical round-3 evidence, not a hardware release. Local copies remain available. The tarball is rebuilt byte-for-byte by `build_archive.py`; a test extraction verified 3,327/3,327 files. The owner chose this split on 2026-09-28 (storage option 1).
 
 - `manifest.json`: every archived file's path, size and SHA-256. The rule is
   recorded in the file.

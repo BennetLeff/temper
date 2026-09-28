@@ -1,5 +1,7 @@
 # Round 4 execution record and monitoring handoff
 
+Storage update, 2026-09-28: the owner approved and the coordinator published the [round-4 raw evidence release](raw-evidence/README.md). Its five assets preserve all 12,027 files in the unchanged raw manifest. Local-only statements below describe the original round-4 handback.
+
 **Evidence collected; board validation remains blocked.** This packet follows [ROUND-4.md](../../validation-plan/ROUND-4.md) at PR #1615 revision `829ee9debc08ce239bc2dffe0938c4fec2429545`. A/D are authorized; C evaluates timing only. B remains held. No PCB, component or firmware change was made. Final integration review is recorded in [QUALITY.md](QUALITY.md).
 
 ## Read this first

@@ -1,0 +1,50 @@
+{
+  "solver_commit": "363e43ed57ad3b9affa11cba5a86624fad0edaa9",
+  "solver_sha256": "79c7faac90f8aeb2ac5d805b66f2e4dd70baf3988af0fe3444e3d1fcf83184a4",
+  "source_induct_c_sha256": "94eb918fd62c4c6e5db022608282ac32ba495952744a8f12c1888d1a967f75e6",
+  "source_plane_sha256": "9042d1fabdeb01aa9c7c5055d67b60969817264f46f22a627077052a60f9a5fa",
+  "sigma_S_per_m": 58000000.0,
+  "sigma_input_S_per_mm": 58000.0,
+  "runs": {
+    "wire": {
+      "deck_sha256": "a6e1360bd0574fca19d6bf3925b14d7e0ceb21af6f9c3ef8b6785b052b3d9b9c",
+      "exit_code": 0,
+      "log_sha256": "35176843f42d965b6328e3d939198d8b9e62a03aefec807c0e3e10e2e9638b00",
+      "R_ohm": 0.000862069,
+      "X_ohm": 2.77557e-07,
+      "z_sha256": "e805a5a97fe81ad842e79f9d05761facda051e3d518e340a4d790138069efab5"
+    },
+    "plane_20": {
+      "deck_sha256": "f7faefa65ed428943314fd9d52912184fbe51d86a91dac8207994f85e9c8f6f9",
+      "exit_code": 0,
+      "log_sha256": "9588cc4cf02e93ebdbcf3d3f409a96e33b49a4c8a2496047e867114029570135",
+      "R_ohm": 0.0029191,
+      "X_ohm": 0.172832,
+      "z_sha256": "b2b771e03a50da42e8139fb98a6e3b4a1c444316626fdd4cfc0f4ac7a25c2f00",
+      "L_nH": 2.7507067124458455
+    },
+    "plane_40": {
+      "deck_sha256": "759a28f4a5a78996469614b85c9a2b6ed9a9a6cd641266818842264cea13b9d1",
+      "exit_code": 0,
+      "log_sha256": "c7c9bacd5aab7c12cb10eb824c6955b877d40baade19325c12fe6ffb2e2c8909",
+      "R_ohm": 0.00324338,
+      "X_ohm": 0.185221,
+      "z_sha256": "726793ea874ad5f70808c02f026773a99a47dc678beb4e9e6c3c96a48070de67",
+      "L_nH": 2.9478837714423944
+    },
+    "plane_80": {
+      "deck_sha256": "8dde6e2d18e5aeb8bd2102fb93a7ac97cb980f7e541890cc37f7140ba62e7af2",
+      "exit_code": 0,
+      "log_sha256": "39015f54747a8b82aff97efffd9d3c8590f91b0db61cf8f8bd223ee40e299179",
+      "R_ohm": 0.00356669,
+      "X_ohm": 0.193543,
+      "z_sha256": "d1866409f6f4b47a1ca8d0ba896478274701c5cf753f18800e06b69ac34efd21",
+      "L_nH": 3.08033251508347
+    }
+  },
+  "wire_analytic_R_ohm": 0.0008620689655172415,
+  "wire_R_error_percent": 3.999999997894577e-06,
+  "plane_dc_R_floor_ohm": 0.002826455624646693,
+  "plane_40_to_80_L_change_percent": 4.493011051662621,
+  "status": "PASS_DIMENSIONAL_SANITY"
+}

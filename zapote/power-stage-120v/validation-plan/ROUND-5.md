@@ -1,5 +1,7 @@
 # Validation round 5: board inductance, then the switching verdict
 
+Execution update, 2026-09-28: see the [round-5 handback](../validation-results/round5-coordination/README.md). D1 remains software-blocked, the bench procedure is delivered, both raw-evidence releases are published, and the related-board rebuild premise was withdrawn for the audited candidate hashes. The procedures below remain the acceptance contract; a blocked report does not complete their dependent solves.
+
 Part of the [master plan](00-MASTER-PLAN.md). Read the master plan's ground
 rules (§2), [ROUND-4.md](ROUND-4.md) and the
 [round-4 execution record](../validation-results/round4-coordination/README.md)
@@ -156,9 +158,9 @@ same way the models were. Deliver `validation-plan/BENCH-SWITCHING.md`:
 | # | Item | Why now |
 | --- | --- | --- |
 | O4 | JLCPCB: CTI ≥ 175 V guaranteed on the order? | Fab release gate |
-| O9 | LCSC numbers or consignment for 57 BOM lines | JLCPCB assembly needs them; none exist |
-| O10 | Publish the round-3 raw-evidence release; decide storage for round-4 raw files (12,027 files, local only) | Replay from another machine |
-| O11 | Rebuild the RTD, thermal-sense and current-sense candidate boards with the fixed generator | They carry the same missing-land flag |
+| O9 | Qualify LCSC candidates or consignment for 57 BOM lines | [50 identity candidates](../validation-results/round5-coordination/sourcing/README.md); stock, package/assembly qualification and F1 clips remain open |
+| O10 | Published: [round 3](../validation-results/round3-coordination/raw-evidence/README.md) and [round 4](../validation-results/round4-coordination/raw-evidence/README.md) | Restore 3,327 / 12,027 verified files from GitHub evidence releases |
+| O11 | Blanket rebuild recommendation withdrawn for current RTD, thermal-sense and current-sense candidate hashes | [Native census](../validation-results/round5-coordination/related-board-outer-lands.json): zero missing outer lands; audit any other intended revision separately |
 | O1–O3 | Pad and heatsink, CDE capacitor rating, TDK ESL | Still open from round 3 |
 
 ## Hand back (every item)

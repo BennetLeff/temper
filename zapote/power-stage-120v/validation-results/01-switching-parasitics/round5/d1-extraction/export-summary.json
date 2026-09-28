@@ -1,0 +1,21 @@
+{
+  "board_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+  "approved_exporter_sha256": "b9d8543c37aaa218ab068a82f089a36bc69311d24f162201596b4947b8f29c61",
+  "extended_exporter_sha256": "c677399d199a5ee5e07d47ede4e72ef98e4fd0d6f0858753375a443a112fb196",
+  "output_sha256": "d7d9783859bf20932c4e2355e96924e408f4b3ebc427506b8b4f9f2558fb2a8a",
+  "kicad_version": "10.0.4",
+  "primitive_count": 803,
+  "barrel_count": 147,
+  "suppressed_pad_layers": 134,
+  "included_gate_nets": [
+    "leg_a-gate_h",
+    "leg_a-gate_l",
+    "leg_a-out_h",
+    "leg_a-out_l",
+    "leg_b-gate_h",
+    "leg_b-gate_l",
+    "leg_b-out_h",
+    "leg_b-out_l"
+  ],
+  "mapped_branch_count_per_leg": 12
+}

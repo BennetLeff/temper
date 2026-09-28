@@ -1,5 +1,7 @@
 # Round 4 quality record
 
+Storage update, 2026-09-28: the owner approved and the coordinator published the [round-4 raw evidence release](raw-evidence/README.md). Its five assets preserve all 12,027 files in the unchanged raw manifest. Local-only statements below describe the original round-4 handback.
+
 Full integration review is complete; its original findings are retained in [review-full/review.json](review-full/review.json). The closure record below distinguishes replay-integrity fixes from the physical validation work that remains blocked.
 
 ## Coordinator curve extractor

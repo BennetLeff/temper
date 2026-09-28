@@ -1,8 +1,9 @@
 # Power-stage-120v validation master plan
 
-Status: round-four evidence collected 2026-09-28 against native-15; the current-limited
-tank grid is complete, reference switching/loss results are conditional, and board
-inductance extraction is software-blocked (see §5). This plan covers the desk
+Status: round-five native-17 extraction diagnostics and bench procedure collected
+2026-09-28. The current-limited tank grid is complete; reference switching/loss
+results remain conditional, and board inductance extraction is software-blocked
+(see §5). This plan covers the desk
 validations and simulations to run on the routed board **before** fabrication
 release. Physical tests (hipot, leakage, measured EMI, measured temperature)
 come later; each task lists the physical test that finally confirms it.
@@ -17,8 +18,8 @@ Owner decisions on the round-3 findings (2026-09-28) and the review
 dossiers are in [decision-review](../validation-results/round3-coordination/decision-review/README.md).
 **Round 4: [ROUND-4.md](ROUND-4.md)** carries out those decisions (A, D, C).
 **Round 5: [ROUND-5.md](ROUND-5.md)** narrows D1 to the commutation cell and gate loops on native-17, then D2/C1/C2, plus a bench plan.
-Its [execution record and monitoring handoff](../validation-results/round4-coordination/README.md)
-links the latest evidence and exact remaining blockers.
+The [round-5 execution record and monitoring handoff](../validation-results/round5-coordination/README.md)
+links the latest evidence and remaining blockers; the [round-4 record](../validation-results/round4-coordination/README.md) retains historical reference results.
 Raw round-3 evidence is a release asset; restore it with
 [raw-evidence/restore.sh](../validation-results/round3-coordination/raw-evidence/restore.sh).
 
@@ -218,14 +219,14 @@ Update this table when a task finishes (link the result README).
 
 | # | Status | Result | Verdict |
 | --- | --- | --- | --- |
-| 01 | round 4 reference studies complete; board extraction software-blocked | [round 4 handoff](../validation-results/round4-coordination/README.md), [D1](../validation-results/01-switching-parasitics/round4/d1-extraction/README.md) | C1 reference timing map and conditional C2 subtotal delivered; legacy D2 peak reproduced with current probes; no accepted board matrix, so board-dependent C1/D2 grid remains unrun |
+| 01 | round 5 native-17 extraction software-blocked; bench procedure delivered | [round 5 handoff](../validation-results/round5-coordination/README.md), [D1](../validation-results/01-switching-parasitics/round5/d1-extraction/README.md), [bench procedure](BENCH-SWITCHING.md) | Corrected solver fixtures and native export pass; no-drop native mesh and full port contract remain unresolved; no accepted matrix/fallback, so D2/C1/C2 board reruns remain held. Round-4 reference results are retained. |
 | 02 | round 3 partial; static criterion failed | [protection round three](../validation-results/02-protection-timing/round3/README.md) | All 108 ideal CT cases complete; shunt minimum 38.44 A fails 44 A criterion; ramp timing, actual gate-off and HOT5 slow-fall fail-safe guarantee unresolved |
 | 03 | round 3 conditional budget complete; cooling choice blocked | [loss and thermal budget](../validation-results/03-loss-thermal-budget/round3/README.md) | Two pad options, heatsink requirement and 42-part heat map delivered; switching/auxiliary losses, installed contact and airflow remain unqualified |
 | 04 | round 4 re-extraction on native-17 complete; operating temperature still blocked | [task 04 round 4](../validation-results/04-board-current-thermal/round4/README.md) | FlashLayer-aware export: 35/35 A4 cases rerun (SW_B R +8 %, peak 12.6 A/mm; others within 0.1 %–1.7 %); mains L/N added; B3 peaks +0.06–0.8 °C, still mesh-sensitive and conditional |
 | 05 | round 4 current-limited grid complete; controller/part qualification blocked | [A derated grid](../validation-results/05-resonant-tank-envelope/round4/a-derated/README.md) | 270 cases at actual 42/40.45 A ceilings meet the frequency cap; 63/69 cases derated and 73 per ceiling still exceed static shunt minimum; neither ceiling is an approved firmware setpoint; hot capacitor rating and board ZVS remain open |
 | 06 | partial (CT check done; fixed in native-11) | [CT burden](../validation-results/06-controller-interface/README.md) | CT: FAIL on native-09 → fixed in native-11 (source change; renewed D4 review needed) |
 | 07 | round 3 model and fixtures complete; margins blocked | [EMI round three](../validation-results/07-conducted-emi/round3/README.md) | Floating-bus/PE return and opposed legs checked; component fits and assumed 35/60 kHz peak spectra saved; qualified edges, DM bus-current source and physical parasitics missing |
-| 08 | native-17 candidate package generated and independently reviewed; not released | [fab package](../validation-results/08-manufacturing-package/native-17/README.md) | Gerbers/drill/BOM/CPL/fab note; gerbv review: 293/293 plated holes with outer copper both sides, masks, silk; negative control on native-15 fails as expected; no LCSC numbers yet |
+| 08 | native-17 candidate package generated and independently reviewed; not released | [fab package](../validation-results/08-manufacturing-package/native-17/README.md) | Gerbers/drill/BOM/CPL/fab note; gerbv review: 293/293 plated holes with outer copper both sides, masks, silk; negative control on native-15 fails as expected; [50 catalog identity candidates](../validation-results/round5-coordination/sourcing/README.md) for 57 BOM lines, assembly/stock qualification and clip entries still open |
 | 09 | not started | — | — |
 
 ## 6. What this plan does not do
