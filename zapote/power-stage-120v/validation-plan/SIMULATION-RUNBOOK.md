@@ -373,7 +373,8 @@ Use the Miniforge Python.
 
 1. Run `sheet_solver.py --selftest`. It must print `SELFTEST PASS`.
 2. **For each power net** (bus_p, hv_ret, leg_ret, sw_a, sw_b), from the
-   copper dump:
+   copper export (use `tools/export_power_copper.py`, which is `FlashLayer`-aware;
+   `tools/copper_dump.py` over-counts unconnected pad rings):
    - one `add_layer()` per layer, with that net's filled zone polygons plus
      its tracks buffered to their width (shapely)
    - 70 µm outer and **61 µm inner** thickness

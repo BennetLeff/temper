@@ -1,0 +1,410 @@
+{
+  "status": "conditional_experiment",
+  "source_revision": "44417ae1489fd00e2d652fd3b2c1582b76d17630",
+  "board_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+  "stackup_sha256": "4022df3f3b96530ece8727e96e523691352234c4ed0de00f0cb93227cc89a37d",
+  "geometry_sha256": "84c692a3ef205ae05e4f356dfb836ce75d0ea52eb47030972eac32eaa49e670b",
+  "kicad_version": "10.0.4",
+  "runtime": {
+    "python": "3.12.12",
+    "numpy": "2.4.6",
+    "scipy": "1.18.0",
+    "shapely": "2.1.2"
+  },
+  "script_sha256": "261d6ce146cee239631e008d355610c56394a93bca1cc1a5c8bdee6550770ab5",
+  "case": "none",
+  "pitch_mm": 2.0,
+  "h_w_m2k_each_face": 25.0,
+  "ambient_c": 50.0,
+  "layer_names": [
+    "F.Cu",
+    "dielectric 1",
+    "In1.Cu",
+    "dielectric 2",
+    "In2.Cu",
+    "dielectric 3",
+    "B.Cu"
+  ],
+  "layer_thickness_mm": [
+    0.07,
+    0.4355,
+    0.061,
+    0.5,
+    0.061,
+    0.4355,
+    0.07
+  ],
+  "k_cu_w_mk": 390.0,
+  "k_fr4_w_mk": 0.3,
+  "board_cells": 9600,
+  "copper_cells_by_layer": {
+    "F.Cu": 1271,
+    "In1.Cu": 2120,
+    "In2.Cu": 2174,
+    "B.Cu": 2196
+  },
+  "material_node_count_by_layer": {
+    "F.Cu": {
+      "copper": 1271,
+      "fr4": 8329
+    },
+    "dielectric 1": {
+      "fr4": 9600
+    },
+    "In1.Cu": {
+      "copper": 2120,
+      "fr4": 7480
+    },
+    "dielectric 2": {
+      "fr4": 9600
+    },
+    "In2.Cu": {
+      "copper": 2174,
+      "fr4": 7426
+    },
+    "dielectric 3": {
+      "fr4": 9600
+    },
+    "B.Cu": {
+      "copper": 2196,
+      "fr4": 7404
+    }
+  },
+  "heat_w_by_layer": {
+    "F.Cu": 3.57184964,
+    "dielectric 1": 0.0,
+    "In1.Cu": 0.0,
+    "dielectric 2": 0.0,
+    "In2.Cu": 0.0,
+    "dielectric 3": 0.0,
+    "B.Cu": 0.057
+  },
+  "thermal_barrel_links": 700,
+  "a4": null,
+  "a6": {
+    "a6_heat_file": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/validation-results/04-board-current-thermal/round4/reextract-b3/inputs/a6-board-heat-sources.json",
+    "a6_heat_sha256": "51b6a94102c1896a9108e6936e245dcb9415623f44a045486f56da2ca3305cd1",
+    "a6_status": "partial conditional heat map; not a complete B3 input",
+    "mode": "nominal",
+    "parts_applied_w": 3.62884964,
+    "omitted_parts": [
+      {
+        "ref": "BR1",
+        "reason": "modeled as heatsink power; lead heat unknown"
+      },
+      {
+        "ref": "C1",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C12",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C13",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C19",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C2",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C20",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C38",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C39",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C40",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C41",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C5",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "C6",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "D3",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "PS1",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "PS2",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "Q2",
+        "reason": "modeled as heatsink power; lead heat unknown"
+      },
+      {
+        "ref": "Q3",
+        "reason": "modeled as heatsink power; lead heat unknown"
+      },
+      {
+        "ref": "Q5",
+        "reason": "modeled as heatsink power; lead heat unknown"
+      },
+      {
+        "ref": "Q6",
+        "reason": "modeled as heatsink power; lead heat unknown"
+      },
+      {
+        "ref": "R10",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "R12",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "R18",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "R20",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "R26",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "R27",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "R28",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "R29",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "T1",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "U1",
+        "reason": "unknown board fraction or loss"
+      },
+      {
+        "ref": "U2",
+        "reason": "unknown board fraction or loss"
+      }
+    ],
+    "all_complete_flags_false": true
+  },
+  "a6_parts_applied": [
+    {
+      "ref": "C21",
+      "watts_to_board": 0.45900407,
+      "source_watts": 0.45900407,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": false,
+      "pad_layer": "F.Cu",
+      "pad_cell_count": 4,
+      "nearest_cell_fallback": false,
+      "x_mm": 213.0,
+      "y_mm": 97.0,
+      "conditional_pad_cell_mean_c": 68.00363478638283,
+      "conditional_pad_cell_max_c": 77.07862125821542
+    },
+    {
+      "ref": "C22",
+      "watts_to_board": 0.45900407,
+      "source_watts": 0.45900407,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": false,
+      "pad_layer": "F.Cu",
+      "pad_cell_count": 6,
+      "nearest_cell_fallback": false,
+      "x_mm": 213.0,
+      "y_mm": 125.5,
+      "conditional_pad_cell_mean_c": 64.3982979910629,
+      "conditional_pad_cell_max_c": 72.4083716467209
+    },
+    {
+      "ref": "C23",
+      "watts_to_board": 0.07902963,
+      "source_watts": 0.07902963,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": false,
+      "pad_layer": "F.Cu",
+      "pad_cell_count": 2,
+      "nearest_cell_fallback": false,
+      "x_mm": 212.5,
+      "y_mm": 32.0,
+      "conditional_pad_cell_mean_c": 55.17334260881751,
+      "conditional_pad_cell_max_c": 55.338735302882974
+    },
+    {
+      "ref": "L1",
+      "watts_to_board": 2.025,
+      "source_watts": 2.025,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": false,
+      "pad_layer": "F.Cu",
+      "pad_cell_count": 8,
+      "nearest_cell_fallback": false,
+      "x_mm": 24.0,
+      "y_mm": 123.0,
+      "conditional_pad_cell_mean_c": 115.79854786341458,
+      "conditional_pad_cell_max_c": 129.49690431967645
+    },
+    {
+      "ref": "R22",
+      "watts_to_board": 0.00494435,
+      "source_watts": 0.00494435,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": false,
+      "pad_layer": "F.Cu",
+      "pad_cell_count": 2,
+      "nearest_cell_fallback": false,
+      "x_mm": 190.0,
+      "y_mm": 145.0,
+      "conditional_pad_cell_mean_c": 52.38762803926193,
+      "conditional_pad_cell_max_c": 52.400710508780676
+    },
+    {
+      "ref": "R23",
+      "watts_to_board": 0.00494435,
+      "source_watts": 0.00494435,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": false,
+      "pad_layer": "F.Cu",
+      "pad_cell_count": 2,
+      "nearest_cell_fallback": false,
+      "x_mm": 197.0,
+      "y_mm": 145.0,
+      "conditional_pad_cell_mean_c": 52.81569515363424,
+      "conditional_pad_cell_max_c": 53.21107294100309
+    },
+    {
+      "ref": "R24",
+      "watts_to_board": 0.00494435,
+      "source_watts": 0.00494435,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": false,
+      "pad_layer": "F.Cu",
+      "pad_cell_count": 2,
+      "nearest_cell_fallback": false,
+      "x_mm": 204.0,
+      "y_mm": 145.0,
+      "conditional_pad_cell_mean_c": 53.28094027328903,
+      "conditional_pad_cell_max_c": 53.29906454894037
+    },
+    {
+      "ref": "R25",
+      "watts_to_board": 0.00494435,
+      "source_watts": 0.00494435,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": false,
+      "pad_layer": "F.Cu",
+      "pad_cell_count": 1,
+      "nearest_cell_fallback": false,
+      "x_mm": 210.3,
+      "y_mm": 145.0,
+      "conditional_pad_cell_mean_c": 53.398253733281756,
+      "conditional_pad_cell_max_c": 53.398253733281756
+    },
+    {
+      "ref": "R39",
+      "watts_to_board": 0.06913512,
+      "source_watts": 0.06913512,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": false,
+      "pad_layer": "F.Cu",
+      "pad_cell_count": 1,
+      "nearest_cell_fallback": false,
+      "x_mm": 177.0,
+      "y_mm": 70.5,
+      "conditional_pad_cell_mean_c": 56.5310066742097,
+      "conditional_pad_cell_max_c": 56.5310066742097
+    },
+    {
+      "ref": "R5",
+      "watts_to_board": 0.46089935,
+      "source_watts": 0.46089935,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": false,
+      "pad_layer": "F.Cu",
+      "pad_cell_count": 3,
+      "nearest_cell_fallback": false,
+      "x_mm": 126.5,
+      "y_mm": 12.600000000000001,
+      "conditional_pad_cell_mean_c": 71.07498453756831,
+      "conditional_pad_cell_max_c": 76.33016397466606
+    },
+    {
+      "ref": "U3",
+      "watts_to_board": 0.057,
+      "source_watts": 0.057,
+      "assumed_board_fraction": 1.0,
+      "unquantified_loss": true,
+      "pad_layer": "B.Cu",
+      "pad_cell_count": 1,
+      "nearest_cell_fallback": true,
+      "x_mm": 62.0,
+      "y_mm": 19.60625,
+      "conditional_pad_cell_mean_c": 86.20654371475283,
+      "conditional_pad_cell_max_c": 86.20654371475283
+    }
+  ],
+  "balance": {
+    "source_w": 3.62884964,
+    "convection_w": 3.6288496366170175,
+    "fixed_end_w": 0.0,
+    "fixed_bottom_w": 0.0,
+    "balance_w": 3.382982338706597e-09,
+    "cg_iterations": 441,
+    "relative_residual": 9.902636040283255e-10
+  },
+  "peak": {
+    "temperature_c": 129.49690431967645,
+    "rise_k": 79.49690431967645,
+    "x_mm": 19.0,
+    "y_mm": 109.0,
+    "layer": "F.Cu"
+  },
+  "largest_local_copper_minus_fr4": {
+    "copper_minus_adjacent_fr4_k": 8.164517241274076,
+    "x_mm": 19.0,
+    "y_mm": 137.0,
+    "layer": "F.Cu",
+    "fr4_sheet_indices": [
+      1
+    ]
+  },
+  "empty_via_board_cell_proxies": [],
+  "limits": [
+    "A4 case, if present, is one imposed current path, not a simultaneous operating load",
+    "A6 map is partial; unknown part losses and heat fractions remain",
+    "local pad-cell temperatures are not package body or junction temperatures and have no rating verdict",
+    "via-adjacent board-cell temperatures are not barrel-wall temperatures",
+    "10 um mask on each face excluded from solid; convection acts directly on outer thermal sheet",
+    "18 um plated barrels included as axial links; drill voids and solder/lead cores not spatially resolved",
+    "component source spread over actual KiCad pad copper cells; no body/contact/air heat path",
+    "convection h on both exposed faces is an assumed boundary, not measured enclosure airflow"
+  ]
+}
