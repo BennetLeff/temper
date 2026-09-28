@@ -16,6 +16,7 @@ Round-three execution and reviewed handbacks are tracked in the
 Owner decisions on the round-3 findings (2026-09-28) and the review
 dossiers are in [decision-review](../validation-results/round3-coordination/decision-review/README.md).
 **Round 4: [ROUND-4.md](ROUND-4.md)** carries out those decisions (A, D, C).
+**Round 5: [ROUND-5.md](ROUND-5.md)** narrows D1 to the commutation cell and gate loops on native-17, then D2/C1/C2, plus a bench plan.
 Its [execution record and monitoring handoff](../validation-results/round4-coordination/README.md)
 links the latest evidence and exact remaining blockers.
 Raw round-3 evidence is a release asset; restore it with
@@ -224,7 +225,7 @@ Update this table when a task finishes (link the result README).
 | 05 | round 4 current-limited grid complete; controller/part qualification blocked | [A derated grid](../validation-results/05-resonant-tank-envelope/round4/a-derated/README.md) | 270 cases at actual 42/40.45 A ceilings meet the frequency cap; 63/69 cases derated and 73 per ceiling still exceed static shunt minimum; neither ceiling is an approved firmware setpoint; hot capacitor rating and board ZVS remain open |
 | 06 | partial (CT check done; fixed in native-11) | [CT burden](../validation-results/06-controller-interface/README.md) | CT: FAIL on native-09 → fixed in native-11 (source change; renewed D4 review needed) |
 | 07 | round 3 model and fixtures complete; margins blocked | [EMI round three](../validation-results/07-conducted-emi/round3/README.md) | Floating-bus/PE return and opposed legs checked; component fits and assumed 35/60 kHz peak spectra saved; qualified edges, DM bus-current source and physical parasitics missing |
-| 08 | partial (silkscreen step done) | [native-11 presentation](../native-11/verification/presentation/README.md) | Designators at 1.0/0.15 mm, copper unchanged; Gerber/BOM/sourcing steps not started |
+| 08 | native-17 candidate package generated and independently reviewed; not released | [fab package](../validation-results/08-manufacturing-package/native-17/README.md) | Gerbers/drill/BOM/CPL/fab note; gerbv review: 293/293 plated holes with outer copper both sides, masks, silk; negative control on native-15 fails as expected; no LCSC numbers yet |
 | 09 | not started | — | — |
 
 ## 6. What this plan does not do
