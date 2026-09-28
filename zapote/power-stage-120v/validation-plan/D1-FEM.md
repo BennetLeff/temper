@@ -59,6 +59,50 @@ they name.
      flat, as specified;
    - geometry audit: every closure touches exactly its two pads at every h.
 
+## Amendments after round 8 (2026-09-28)
+
+Round 8 (`validation-results/round8-coordination/README.md`): Palace builds;
+Elmer's 64-bit direct solver (`BigUmfpack`) solves the mesh that failed
+before, so the earlier failure was an index/allocation limit, not RAM. Two
+fixture questions remain.
+
+1. **Replace the plate band with an exact thin-gap fixture.** The
+   2.85–3.14 nH band leaned on Wheeler's formula, which is for infinitely
+   long strips; the fixture's shorted end and port sheet can plausibly move
+   the value by a percent or two. The band is therefore not an exact oracle,
+   and the plate result (2.828 nH at 80 mm) is *not* judged against it any
+   more. Don't lower it either. Instead:
+   - **thin-gap coax:** inner radius 5.0 mm, outer 5.5 mm (0.5 mm gap, like
+     the board's plane pairs), length 50 mm, shorted at one end, port at the
+     other. Exact: L = (µ0/2π)·ln(1.1)·0.05 m = **0.95310 nH**. Require the
+     same 2 % criterion, including the sampled-current interval. This
+     tests what the plate was meant to test (field resolution in a thin gap
+     between broad conductors) against an exact answer;
+   - keep the plate as a **cross-solver check**: once Palace qualifies,
+     Palace and Elmer must agree on the plate within 1 %.
+2. **Redo the plate domain study with a fixed near-field mesh.** The
+   20/40/80 mm steps changed the result by +0.48 % then +0.43 %. The field
+   of a closed current loop falls off fast enough outside that each
+   doubling of the box should shrink the change several-fold, so these
+   nearly equal steps suggest the mesh near the plates changed with the box.
+   Keep the mesh within 10 mm of the plates identical (same sizing field,
+   check the node counts there match) and add only outer air. Accept the
+   margin when the step shrinks and falls below 0.5 %.
+3. **Palace: reproduce its own magnetostatic example first.** The coax
+   solve diverged (1,000 iterations, residual 8.8×10⁶). Before debugging our
+   fixture, run the pinned Palace commit's shipped magnetostatic example
+   (the two-rings inductance case in `examples/`) unchanged, and compare
+   with the results its documentation publishes. If it converges and
+   matches, diff our coax configuration against it (solver type,
+   preconditioner, element order, boundary types, source definition, mesh
+   units) and change one thing at a time. If it doesn't, the build is at
+   fault, and that's the finding. The rings case also becomes the
+   **mutual-inductance fixture** from §5A, for both solvers.
+
+The rest of §5 (coax regression, board crop, mesh, bridge, heatsink) is
+unchanged. Memory for the board is still unknown; decide on the 64 GB
+desktop only after a qualified solver shows its memory use on the fixtures.
+
 ## Amendments after round 7 (2026-09-28)
 
 Round 7 (`validation-results/round7-coordination/README.md`) is blocked at
