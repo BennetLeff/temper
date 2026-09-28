@@ -59,6 +59,56 @@ they name.
      flat, as specified;
    - geometry audit: every closure touches exactly its two pads at every h.
 
+## Amendments after round 7 (2026-09-28)
+
+Round 7 (`validation-results/round7-coordination/README.md`) is blocked at
+the plate fixture. Three findings change the plan.
+
+1. **Palace attempt 3 failed on a library-name collision, and a fourth
+   attempt is authorized for that fix only.** The final link selected
+   `/opt/homebrew/lib/libgs.dylib`, which is **Ghostscript**
+   (`../Cellar/ghostscript/10.07.1/lib/libgs.dylib`), not GSLIB, so MFEM's
+   GSLIB symbols (`_gslib_tensor_mxm` and others) were unresolved. The cause
+   is known exactly. For attempt 4:
+   - set `PALACE_WITH_GSLIB=OFF` (the magnetostatic inductance matrix
+     doesn't need GSLIB's interpolation), and rebuild MFEM without GSLIB so
+     nothing references it; or, if GSLIB must stay on, pass the
+     superbuild's `libgs.a` by full path;
+   - **fail fast before linking:** search the generated link command for
+     any `/opt/homebrew/lib/libgs` and stop if found;
+   - everything else as in the round-6 amendment (default CPU
+     dependencies, ARPACK on, MFEM bound and proven). One working session.
+     If it fails on a *different* cause, stop and report.
+
+   Why this is worth it: see item 2.
+2. **Elmer direct can't solve the board.** UMFPACK ran out of memory
+   (`-1`) on a 165,394-tetrahedron plate mesh on this 32 GiB machine. A
+   board crop with several conductors, thin gaps and a 20 mm air margin will
+   be many times larger. Elmer direct stays the reference for the fixtures;
+   **the board needs a scalable solver**, which means Palace (its AMS-
+   preconditioned solve). If Palace attempt 4 fails too, stop: the next
+   options are (a) a machine with far more memory for a direct solve, or
+   (b) a commercial extractor, and both are owner decisions.
+3. **Plate fixture: grow the air box before judging it.** The finest
+   result, 2.802628 nH, is 1.66 % below the band, but it's still rising
+   with refinement (2.715, 2.760, 2.793, 2.803 nH), and the air box is only
+   20 mm around a 10 mm plate pair. The box's outer boundary condition
+   suppresses the fringing field, which lowers the inductance. Wheeler's
+   thin-strip formula (1965, eq. 31) gives 2.873 nH, inside the band, so
+   the band stays at **2.85–3.14 nH**; don't lower it to fit a result. Do:
+   - air margins of 20, 40 and 80 mm at the same plate and gap sizing,
+     with the exterior graded coarse far from the plates so the tetrahedron
+     count stays within the direct solver's memory (coarse far-field
+     elements are fine there);
+   - accept when the value changes by ≤ 0.5 % between the last two margins
+     **and** lies in the band;
+   - with Palace, repeat the plate and coax fixtures and require agreement
+     with the Elmer direct results within 1 %.
+
+   The coax fixture now passes on two meshes, including the sampled-current
+   interval (−0.50 % to −0.19 %, and −0.50 % to −0.35 %). Keep it as the
+   regression check for every solver change.
+
 ## 0. Why the method changed
 
 Rounds 4 and 5 turned the copper into FastHenry wire segments on a pixel
