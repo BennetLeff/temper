@@ -1,0 +1,7 @@
+/Users/bennet/.matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/matplotlib-9t8lb4ts because there was an issue with the default path (/Users/bennet/.matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+Matplotlib is building the font cache; this may take a moment.
+current_density_B_Cu.png
+current_density_In2_Cu.png
+current_density_F_Cu.png
+current_density_In1_Cu.png

@@ -1,0 +1,17 @@
+ok   01-switching/leg.cir {'EVENT_ON': '0', 'IL': '37'} vds_ls_die_pk = 225.611 (ref 225.6 +/- 3 %)
+ok   01-switching/leg.cir {'EVENT_ON': '0', 'IL': '37'} vgs_hs_die_max = 0.8416177 (ref 0.8 +/- 50 %)
+ok   01-switching/leg.cir {'EVENT_ON': '0', 'IL': '37'} id_ls_pk = 37.23324 (ref 37.23 +/- 1 %)
+ok   01-switching/leg.cir {'EVENT_ON': '0', 'IL': '61'} vds_ls_die_pk = 283.0016 (ref 283 +/- 3 %)
+ok   01-switching/leg.cir {'EVENT_ON': '0', 'IL': '61'} id_ls_pk = 61.24641 (ref 61.25 +/- 1 %)
+ok   01-switching/leg.cir {'EVENT_ON': '1', 'IL': '20'} vds_hs_die_pk = 553.4656 (ref 553.5 +/- 5 %)
+ok   01-switching/leg.cir {'EVENT_ON': '1', 'IL': '20'} id_ls_pk = 110.4073 (ref 110.4 +/- 5 %)
+ok   02-chain/ct_frontend.cir {'FREQ': '35k', 'I0': '37', 'SLOPE': '3e6'} t_ip_trip = 6.34408e-06 (ref 6.344e-06 +/- 1 %)
+ok   02-chain/ct_frontend.cir {'FREQ': '35k', 'I0': '37', 'SLOPE': '3e6'} t_pos_trip = 6.58942e-06 (ref 6.589e-06 +/- 1 %)
+ok   02-chain/ct_frontend.cir {'FREQ': '35k', 'I0': '37', 'SLOPE': '3e6'} sense_max = 3.794248 (ref 3.794 +/- 2 %)
+ok   02-chain/ocp_frontend.cir {'SLOPE': '3e6'} t_i_trip = 2.03333e-05 (ref 2.03333e-05 +/- 1 %)
+ok   05-tank/tank.cir {} i_rms = 32.405 (ref 32.41 +/- 2 %)
+ok   05-tank/tank.cir {} vc_pk = 547.1409 (ref 547.1 +/- 2 %)
+ok   05-tank/tank.cir {} p_avg = 2226.889 (ref 2227 +/- 3 %)
+ok   07-emi CM transfer at 30 MHz (ref -54.6 dB +/- 1 dB)
+ok   04-current solver self-test
+SMOKE PASS

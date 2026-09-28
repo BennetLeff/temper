@@ -1,0 +1,40 @@
+{
+  "evidence_class": "datasheet source audit; unresolved physical qualification",
+  "source": {
+    "file": "../sources/942C.pdf",
+    "url": "https://www.cde.com/resources/catalogs/942C.pdf",
+    "sha256": "f99395446ba25a0adcef85862ff9eaee90bac68fae6664decccab1ebea3e4310",
+    "revision": "no printed revision; PDF created 2021-11-16"
+  },
+  "exact_parts": {
+    "942C12P22K-F": {
+      "capacitance_f": 2.2e-7,
+      "nominal_current_a_rms": 10.3,
+      "rating_condition": "70 C, 100 kHz",
+      "typical_esr_ohm": 0.006,
+      "typical_esl_h": 2.6e-8,
+      "source_location": "printed page 3, 1200 Vdc table"
+    },
+    "942C12P1K-F": {
+      "capacitance_f": 1e-7,
+      "nominal_current_a_rms": 9.2,
+      "rating_condition": "70 C, 100 kHz",
+      "typical_esr_ohm": 0.005,
+      "typical_esl_h": 2.3e-8,
+      "source_location": "printed page 3, 1200 Vdc table"
+    }
+  },
+  "requested_rating_frequency_band_hz": [34000, 60000],
+  "evaluated_grid_frequency_range_hz": [30739.48195932453, 57646.79519244583],
+  "temperature_band_c": [70, 85],
+  "voltage_curve": "printed page 4: 25 C curves for 0.10, 0.33 and 0.90 uF; no exact 0.22 uF hot curve",
+  "required_calculation": "I_allow=min(sqrt(P_max/ESR(f,T)), V_allow(f,T)*2*pi*f*C)",
+  "missing_inputs": [
+    "exact-part ESR or dissipation factor versus frequency and temperature across the actual 30.74-57.65 kHz grid",
+    "thermal resistance or allowable self-heating power at the installed cooling condition",
+    "hot 70-85 C permissible voltage versus frequency for exact 0.22 uF and 0.10 uF parts"
+  ],
+  "status": "BLOCKED",
+  "reason": "A single current rating at 70 C/100 kHz and typical ESR values cannot be transported to the actual 30.74-57.65 kHz grid or 85 C as a bound.",
+  "cheapest_resolution": "CDE applications confirmation or exact-part curves/table for both current and voltage over at least 30.7-60 kHz at 70-85 C with installation cooling assumption"
+}

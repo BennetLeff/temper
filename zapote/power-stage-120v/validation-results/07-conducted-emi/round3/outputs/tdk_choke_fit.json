@@ -1,0 +1,182 @@
+{
+  "source_url": "https://www.alldatasheet.com/html-pdf/327493/EPCOS/B82726S2203A020/650/4/B82726S2203A020.html",
+  "source_page_image_url": "https://www.alldatasheet.com/htmldatasheet2/327493/EPCOS/B82726S2203A020/650/4/B82726S2203A020.png",
+  "source_image_sha256": "c290332c3dd42337bf5c1ec0aff0ee9e193b805e7b9a09cf1646461152aa01e3",
+  "source_revision": "TDK/EPCOS 10/08, plot IND0783-T; May 2026 sheet uses same plot identifier but numeric stray L revised 15 to 18 uH",
+  "measurement": "typical magnitude, both windings in parallel, 20 C",
+  "calibration_pixels": {
+    "x": [
+      [
+        134,
+        10000.0
+      ],
+      [
+        400,
+        10000000.0
+      ]
+    ],
+    "y": [
+      [
+        807,
+        10.0
+      ],
+      [
+        466,
+        1000000.0
+      ]
+    ]
+  },
+  "fit_kind": "heuristic parallel RLC constrained by May 2026 nominal L and 18-uH stray inductance",
+  "parallel_inductance_h": 0.0015955000000000001,
+  "parallel_dc_resistance_ohm": 0.00225,
+  "parallel_damping_resistance_ohm": 6345.718180002907,
+  "damping_resistance_per_winding_ohm": 12691.436360005813,
+  "parallel_capacitance_f": 2.2155637163759824e-11,
+  "capacitance_per_winding_f": 1.1077818581879912e-11,
+  "self_resonance_hz": 846505.1512394742,
+  "fit_rmse_db": 0.3448623233431348,
+  "fit_max_abs_error_db": 0.8472297104108923,
+  "digitization_sensitivity": {
+    "method": "uniform independent +/-2 pixel jitter for 200 seeded trials plus four +/-2-pixel systematic corners; not part tolerance",
+    "parallel_capacitance_pf_range": [
+      19.726214186955033,
+      24.884914915271363
+    ],
+    "parallel_damping_resistance_ohm_range": [
+      5731.390422628246,
+      7001.766989406591
+    ],
+    "self_resonance_hz_range": [
+      798736.7140306769,
+      897118.5879630323
+    ]
+  },
+  "points": [
+    {
+      "frequency_hz": 11686.088553466521,
+      "digitized_impedance_ohm": 106.26566439795376,
+      "fit_impedance_ohm": 117.153278686441,
+      "fit_error_db": 0.8472297104108923
+    },
+    {
+      "frequency_hz": 15151.342924760515,
+      "digitized_impedance_ohm": 139.21787954903255,
+      "fit_impedance_ohm": 151.89460647359655,
+      "fit_error_db": 0.7569467678924303
+    },
+    {
+      "frequency_hz": 19644.142809066267,
+      "digitized_impedance_ohm": 188.65130945542987,
+      "fit_impedance_ohm": 196.94016390269366,
+      "fit_error_db": 0.37348941953194303
+    },
+    {
+      "frequency_hz": 29000.53534911486,
+      "digitized_impedance_ohm": 273.49547583658995,
+      "fit_impedance_ohm": 290.7610234073613,
+      "fit_error_db": 0.5317208434024724
+    },
+    {
+      "frequency_hz": 42813.32398719396,
+      "digitized_impedance_ohm": 410.11270705513,
+      "fit_impedance_ohm": 429.3106349635265,
+      "fit_error_db": 0.39736842461123134
+    },
+    {
+      "frequency_hz": 63205.06462265646,
+      "digitized_impedance_ohm": 614.9733628083117,
+      "fit_impedance_ohm": 633.9836045984392,
+      "fit_error_db": 0.26443443570405334
+    },
+    {
+      "frequency_hz": 93309.27435461663,
+      "digitized_impedance_ohm": 891.5518952590332,
+      "fit_impedance_ohm": 936.5443641989599,
+      "fit_error_db": 0.4276345441003986
+    },
+    {
+      "frequency_hz": 137751.9465024669,
+      "digitized_impedance_ohm": 1336.9024117359702,
+      "fit_impedance_ohm": 1384.3365915486186,
+      "fit_error_db": 0.3028398362961304
+    },
+    {
+      "frequency_hz": 203362.40846866745,
+      "digitized_impedance_ohm": 2073.5549199176794,
+      "fit_impedance_ohm": 2047.7884716616584,
+      "fit_error_db": -0.10860897560052829
+    },
+    {
+      "frequency_hz": 300222.75712406315,
+      "digitized_impedance_ohm": 3109.342919964865,
+      "fit_impedance_ohm": 3026.0657986211713,
+      "fit_error_db": -0.2358050926773304
+    },
+    {
+      "frequency_hz": 443217.13424760854,
+      "digitized_impedance_ohm": 4507.740889208259,
+      "fit_impedance_ohm": 4405.598529988761,
+      "fit_error_db": -0.19908051437677834
+    },
+    {
+      "frequency_hz": 574643.4968715974,
+      "digitized_impedance_ohm": 5519.954321281568,
+      "fit_impedance_ohm": 5455.967575514076,
+      "fit_error_db": -0.1012740640152667
+    },
+    {
+      "frequency_hz": 745041.4773728917,
+      "digitized_impedance_ohm": 6318.100215684828,
+      "fit_impedance_ohm": 6232.504026870603,
+      "fit_error_db": -0.11847884973793116
+    },
+    {
+      "frequency_hz": 965967.2580093843,
+      "digitized_impedance_ohm": 6108.347750946853,
+      "fit_impedance_ohm": 6224.860170787877,
+      "fit_error_db": 0.16411693284559412
+    },
+    {
+      "frequency_hz": 1252403.7545350743,
+      "digitized_impedance_ohm": 5336.699231206308,
+      "fit_impedance_ohm": 5439.215710445303,
+      "fit_error_db": 0.16527110593041733
+    },
+    {
+      "frequency_hz": 1623776.7391887242,
+      "digitized_impedance_ohm": 4358.089929325677,
+      "fit_impedance_ohm": 4388.24071678012,
+      "fit_error_db": 0.05988510160716516
+    },
+    {
+      "frequency_hz": 2397172.2859894685,
+      "digitized_impedance_ohm": 3006.1168996559245,
+      "fit_impedance_ohm": 3013.034701583507,
+      "fit_error_db": 0.019965368715678646
+    },
+    {
+      "frequency_hz": 3538931.6954909842,
+      "digitized_impedance_ohm": 2004.7156738825254,
+      "fit_impedance_ohm": 2038.8770549237797,
+      "fit_error_db": 0.14676505036876505
+    },
+    {
+      "frequency_hz": 5224504.562541793,
+      "digitized_impedance_ohm": 1382.8098465136145,
+      "fit_impedance_ohm": 1378.3206883558892,
+      "fit_error_db": -0.028243769130323133
+    },
+    {
+      "frequency_hz": 7712906.117627992,
+      "digitized_impedance_ohm": 953.8325541754901,
+      "fit_impedance_ohm": 932.4822642330123,
+      "fit_error_db": -0.1966312092591196
+    },
+    {
+      "frequency_hz": 9743652.89779753,
+      "digitized_impedance_ohm": 753.0656608133104,
+      "fit_impedance_ohm": 737.8173570998507,
+      "fit_error_db": -0.17767953635218559
+    }
+  ]
+}

@@ -1,14 +1,21 @@
 # Power-stage-120v validation master plan
 
-Status: simulation round executed 2026-09-27 against native-13; tasks 01, 02,
-04, 05 and 07 have partial or blocked results (see §5). This plan covers the desk
+Status: round-three validation executed 2026-09-27 against native-15; tasks
+01–05 and 07 have model findings, partial or blocked results (see §5). This plan covers the desk
 validations and simulations to run on the routed board **before** fabrication
 release. Physical tests (hipot, leakage, measured EMI, measured temperature)
 come later; each task lists the physical test that finally confirms it.
 
-**Next round: [ROUND-3.md](ROUND-3.md)** says, item by item, how to close
+**Round 3: [ROUND-3.md](ROUND-3.md)** says, item by item, how to close
 what rounds 1–2 left blocked, in what order, and which decisions need the
 owner.
+
+Round-three execution and reviewed handbacks are tracked in the
+[execution record](../validation-results/round3-coordination/README.md).
+Owner decisions on the round-3 findings (2026-09-28) and the review
+dossiers are in [decision-review](../validation-results/round3-coordination/decision-review/README.md).
+Raw round-3 evidence is a release asset; restore it with
+[raw-evidence/restore.sh](../validation-results/round3-coordination/raw-evidence/restore.sh).
 
 Every task has its own document. Read this master plan first, then only the
 task document you're assigned. **For the simulation tasks (01, 02, 04, 05,
@@ -200,13 +207,13 @@ Update this table when a task finishes (link the result README).
 
 | # | Status | Result | Verdict |
 | --- | --- | --- | --- |
-| 01 | complementary reference model checked; board verdict blocked | [switching round two](../validation-results/01-switching-parasitics/round2/README.md) | Both transition directions and deadtime diagnostics exercised; board loop/return inductances and capacitor ESL still missing |
-| 02 | partial SPICE; full verdict blocked | [protection](../validation-results/02-protection-timing/README.md) | 12 CT and 20 shunt cases; CT stalls and small-overdrive timing unresolved; no final gate-off/stress verdict |
-| 03 | not started | — | — |
-| 04 | solver fixed (round 3); board solve ready to run | [copper solver](../validation-results/04-board-current-thermal/round3/README.md) | Gap and drill defects fixed; 0 false joins on native-13 copper; run at 0.125 mm pitch; heat sources (03) still needed for the thermal part |
-| 05 | partial; blocked | [tank envelope](../validation-results/05-resonant-tank-envelope/README.md) | 9/135 cases; hot capacitor ratings, ZVS and trip topology unresolved |
+| 01 | round 3 model criteria failed; physical qualification blocked | [switching round three](../validation-results/01-switching-parasitics/round3/README.md) | A1 edge independence failed; heuristic board-inductance B1 stopped at first VDS/off-gate failure; parasitic bounds and remaining grid unresolved |
+| 02 | round 3 partial; static criterion failed | [protection round three](../validation-results/02-protection-timing/round3/README.md) | All 108 ideal CT cases complete; shunt minimum 38.44 A fails 44 A criterion; ramp timing, actual gate-off and HOT5 slow-fall fail-safe guarantee unresolved |
+| 03 | round 3 conditional budget complete; cooling choice blocked | [loss and thermal budget](../validation-results/03-loss-thermal-budget/round3/README.md) | Two pad options, heatsink requirement and 42-part heat map delivered; switching/auxiliary losses, installed contact and airflow remain unqualified |
+| 04 | round 3 electrical and conditional thermal studies complete; operating temperature blocked | [copper](../validation-results/04-board-current-thermal/round3/a4-copper/README.md), [thermal](../validation-results/04-board-current-thermal/round3/b3-thermal/README.md) | BUS_P resistance spread 1.985%; thermal analytic checks pass but local peaks vary with mesh; actual operating heat/current covariance incomplete |
+| 05 | round 3 numerical work complete; acceptance blocked | [tank round three](../validation-results/05-resonant-tank-envelope/round3/README.md) | 135 ideal grid cases, R5 RMS and finite-bus trip complete; hot capacitor ratings and validated ZVS map absent; protection limits sustained operating cases |
 | 06 | partial (CT check done; fixed in native-11) | [CT burden](../validation-results/06-controller-interface/README.md) | CT: FAIL on native-09 → fixed in native-11 (source change; renewed D4 review needed) |
-| 07 | intake complete; blocked on inputs | [EMI](../validation-results/07-conducted-emi/README.md) | C1/C2 pitch defect fixed in native-15 (R463N410000N1M); EMI inputs/model still incomplete |
+| 07 | round 3 model and fixtures complete; margins blocked | [EMI round three](../validation-results/07-conducted-emi/round3/README.md) | Floating-bus/PE return and opposed legs checked; component fits and assumed 35/60 kHz peak spectra saved; qualified edges, DM bus-current source and physical parasitics missing |
 | 08 | partial (silkscreen step done) | [native-11 presentation](../native-11/verification/presentation/README.md) | Designators at 1.0/0.15 mm, copper unchanged; Gerber/BOM/sourcing steps not started |
 | 09 | not started | — | — |
 

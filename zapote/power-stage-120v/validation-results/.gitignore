@@ -1,0 +1,8 @@
+# Round-3 raw evidence lives in a GitHub release asset, not in git.
+# Restore with round3-coordination/raw-evidence/restore.sh; manifest.json lists every file.
+**/round3/**/outputs/runs/
+**/round3/**/*.npz
+**/round3/**/*.raw
+**/round3/**/*.raw.gz
+/03-loss-thermal-budget/round3/inputs/switching-events.csv
+/05-resonant-tank-envelope/round3/outputs/switching-events.csv

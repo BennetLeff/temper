@@ -175,7 +175,11 @@ cases that completed in round 2 must reproduce within 1 %. If one of the
 changes fixes the stall, rerun the full 108-case CT grid. Don't loosen
 tolerances; if nothing works, report the case as still blocked with the logs.
 
-**A3.2 Small-overdrive delay.** The TLV3201's 55 ns maximum is specified at
+**A3.2 Small-overdrive delay.** *Correction (round-3 result): the premise
+below is wrong. The datasheet's 55 ns maximum is a step-response
+specification at 20 mV overdrive and doesn't bound an arbitrary slow ramp.
+Treat "20 mV + 55 ns" as a conditional extrapolation only; see
+`validation-results/02-protection-timing/round3/README.md`.* The TLV3201's 55 ns maximum is specified at
 20 mV overdrive (SBOS561C p. 5), but near the threshold the input moves far
 less than 20 mV in 55 ns. Use this **bound**, which follows from the
 datasheet alone:
