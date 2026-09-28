@@ -8,6 +8,13 @@ Limits are from https://jlcpcb.com/capabilities/pcb-capabilities as read on
 >= 0.15 mm; via drill >= 0.15 mm; PTH drill 0.15-6.3 mm; via hole-to-hole
 >= 0.2 mm; 4-layer size <= 663 x 593 mm). Copper spacing itself is enforced
 by the board's DRC rules (Default netclass 0.2 mm), not re-measured here.
+
+Every plated through-hole pad must also have copper (KiCad FlashLayer) on
+both F.Cu and B.Cu: a lead needs a solder land and the barrel an outer ring.
+KiCad's DRC accepts a pad whose outer copper was removed by
+remove_unused_layers, so this is checked here. (Native-08 to native-15 had
+23 PTH pads with neither outer land, from a builder that read
+"(remove_unused_layers no)" as yes.)
 """
 from __future__ import annotations
 
@@ -47,6 +54,10 @@ def main() -> None:
             if ring < LIMITS["annular_ring_mm"] - 1e-9 or not lo <= mm(d.x) <= hi:
                 fails.append({"kind": "pad", "ref": f"{fp.GetReference()}.{p.GetNumber()}",
                               "ring_mm": round(ring, 4), "drill_mm": mm(d.x)})
+            missing = [n for n, lid in (("F.Cu", pcbnew.F_Cu), ("B.Cu", pcbnew.B_Cu)) if not p.FlashLayer(lid)]
+            if missing:
+                fails.append({"kind": "pth_outer_land_missing", "ref": f"{fp.GetReference()}.{p.GetNumber()}",
+                              "net": p.GetNetname(), "missing": missing})
     bb = board.GetBoardEdgesBoundingBox()
     size = sorted([mm(bb.GetWidth()), mm(bb.GetHeight())], reverse=True)
     if size[0] > LIMITS["board_max_mm"][0] or size[1] > LIMITS["board_max_mm"][1]:

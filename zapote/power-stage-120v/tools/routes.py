@@ -194,10 +194,12 @@ def batch_02_mains() -> Batch:
     """Mains entry, filter and the L_FILT/N_FILT corridor to the bridge."""
     b = Batch("Claude Opus 5.5; explicit mains routes, no search")
     # Line: J1.1 -> F1 input clip, with an inner-layer parallel.
-    b.track("ac_l_in", "F.Cu", 2.4, [6.7, 150.455], [10.5, 148.5])
+    # PTH pads keep both outer lands (tools/pth_layer_policy.py), so J1.2's
+    # F.Cu land faces this track: start on J1.1's far side for 3.2 mm L-N.
+    b.track("ac_l_in", "F.Cu", 2.4, [6.7, 149.555], [10.5, 148.5])
     b.track("ac_l_in", "F.Cu", 4.0, [10.5, 148.5], [17.5, 148.5], [19.15, 153.0])
     b.track("ac_l_in", "F.Cu", 4.0, [19.15, 153.0], [26.75, 153.0])
-    b.track("ac_l_in", "In1.Cu", 2.4, [6.7, 150.455], [10.5, 148.5])
+    b.track("ac_l_in", "In1.Cu", 2.4, [6.7, 149.555], [10.5, 148.5])
     b.track("ac_l_in", "In1.Cu", 3.0, [10.5, 148.5], [17.5, 148.5], [19.15, 153.0])
     # Fused line: F1 output clips -> L1 line input, RV1, C1, R1.
     b.track("l_f", "F.Cu", 4.0, [46.25, 153.0], [53.85, 153.0])
@@ -209,9 +211,12 @@ def batch_02_mains() -> Batch:
     # Neutral: J1.2 up the channel between J1 and F1 to L1's neutral input
     # (B.Cu, main current); MOV/X-cap branch on both inner layers.
     # Main current on B.Cu with an In2 parallel (In1 carries the line).
-    for layer in ("B.Cu", "In2.Cu"):
-        b.track("ac_n_in", layer, 2.4, [6.7, 155.535], [6.7, 157.0], [13.0, 157.0])
-        b.track("ac_n_in", layer, 3.6, [13.0, 157.0], [13.0, 139.0], "L1.2")
+    # J1.1 and F1.1 keep B.Cu lands, so the B.Cu run is 3.0 mm wide and
+    # centred in the channel: 3.325 mm to each line land. In2 has no line
+    # ring there and keeps 3.6 mm. Both start on J1.2's far side.
+    for layer, x, w in (("B.Cu", 12.825, 3.0), ("In2.Cu", 13.0, 3.6)):
+        b.track("ac_n_in", layer, 2.4, [6.7, 156.435], [6.7, 157.0], [x, 157.0])
+        b.track("ac_n_in", layer, w, [x, 157.0], [x, 139.0], "L1.2")
     # MOV/X-cap branch on both inner layers: above L1's line pin, below
     # RV1's line pin, clear of the line trace on In1.
     for layer in ("In1.Cu", "In2.Cu"):
@@ -225,7 +230,7 @@ def batch_02_mains() -> Batch:
     # L_FILT on F.Cu up the corridor under PS2 and C5 to C2 and BR1.
     b.track("l_filt", "F.Cu", 4.0, "L1.4", [29.7, 105.0], [29.7, 36.0], "C2.1")
     b.track("l_filt", "F.Cu", 4.0, "C2.1", [23.5, 28.5], [23.5, 9.0], "BR1.2")
-    b.track("l_filt", "F.Cu", 1.0, [29.7, 106.2], [36.45, 106.2])
+    b.track("l_filt", "F.Cu", 1.0, [29.7, 106.45], [36.45, 106.45])
     b.track("l_filt", "F.Cu", 1.5, "L1.4", [33.0, 108.0], [74.0, 108.0], [76.0, 112.0], "PS1.1")
     b.track("l_filt", "F.Cu", 1.0, [74.0, 108.0], [138.5, 108.0], "C3.1")
     # N_FILT on B.Cu directly under it, to C2, BR1, PS2, PS1 and the Y cap.

@@ -42,11 +42,11 @@ print(json.dumps(rows))
 """
 
 
-def test_native_15_references_are_visible_legible_and_source_fields_are_hidden():
+def test_native_17_references_are_visible_legible_and_source_fields_are_hidden():
     if not KICAD_PY.is_file():
         pytest.skip("KiCad pcbnew Python is unavailable")
     result = subprocess.run(
-        [str(KICAD_PY), "-c", PROBE, str(UNIT / "native-15/section.kicad_pcb")],
+        [str(KICAD_PY), "-c", PROBE, str(UNIT / "native-17/section.kicad_pcb")],
         text=True,
         capture_output=True,
         check=True,

@@ -301,6 +301,37 @@ PAD_BETWEEN = 4.0  # mm between adjacent courtyard edges
 PAD_ROWS = 3.0  # mm between courtyard edges vertically
 
 
+_PAD_LAYER_FLAGS = (("remove_unused_layers", "removeUnusedLayers"), ("keep_end_layers", "keepEndLayers"))
+
+
+def _load_footprint(fp_path: Path):
+    """Load a footprint with kiutils, reading pad layer flags by their value.
+
+    kiutils 1.4.8 sets ``removeUnusedLayers``/``keepEndLayers`` when the
+    token is present, so KiCad 7+'s ``(remove_unused_layers no)`` became
+    true and was written back as a bare ``(remove_unused_layers)``. KiCad
+    then removed every unconnected layer from those PTH pads, outer layers
+    included (power-stage native-08..15: 23 pads with no solder land).
+    Take each flag from the raw file: bare or ``yes`` is true, ``no`` or
+    absent is false.
+    """
+    from kiutils.footprint import Footprint
+
+    fp = Footprint.from_file(str(fp_path))
+    root = _sexp(Path(fp_path).read_text(encoding="utf-8"))[0]
+    raw_pads = [node for node in root if isinstance(node, list) and node and node[0] == "pad"]
+    if len(raw_pads) != len(fp.pads):
+        raise ValueError(f"{fp_path}: kiutils pad count {len(fp.pads)} != file pad count {len(raw_pads)}")
+    for pad, raw in zip(fp.pads, raw_pads):
+        for token, attr in _PAD_LAYER_FLAGS:
+            nodes = [n for n in raw if isinstance(n, list) and n and n[0] == token]
+            value = nodes[0][1] if nodes and len(nodes[0]) > 1 else ("yes" if nodes else "no")
+            if value not in ("yes", "no"):
+                raise ValueError(f"{fp_path}: pad {raw[1]} has {token} {value!r}")
+            setattr(pad, attr, value == "yes")
+    return fp
+
+
 def _courtyard_bbox(fp) -> tuple[float, float] | None:
     """Return (width, height) from courtyard graphics, or None."""
     min_x = min_y = float("inf")
@@ -372,7 +403,7 @@ def generate_board(
 
     for comp in components:
         fp_path = resolve_footprint(comp.footprint, fp_lib_table_path)
-        fp = Footprint.from_file(str(fp_path))
+        fp = _load_footprint(fp_path)
         fp.libId = comp.footprint  # type: ignore[attr-defined]
         fp.tstamp = _uuid_from_seed(f"fp:{comp.tstamp}")  # type: ignore[attr-defined]
         fp.tedit = _uuid_from_seed(f"tedit:{comp.tstamp}")[:8]  # type: ignore[attr-defined]
@@ -622,7 +653,7 @@ def generate_candidate_board(
                 f"candidate board: no neutral staging position for {comp.ref}"
             )
         fp_path = resolve_footprint(comp.footprint, fp_lib_table_path)
-        fp = Footprint.from_file(str(fp_path))
+        fp = _load_footprint(fp_path)
         fp.libId = comp.footprint  # type: ignore[attr-defined]
         fp.tstamp = _uuid_from_seed(f"fp:{comp.tstamp}")  # type: ignore[attr-defined]
         fp.tedit = _uuid_from_seed(f"tedit:{comp.tstamp}")[:8]  # type: ignore[attr-defined]

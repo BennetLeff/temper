@@ -69,7 +69,7 @@ tasks need separate worktrees and must not both build Rust or the native bridge.
   ~37 A peak; 33–39 kHz at full power, up to 60 kHz at light load; nominal
   dead time ≈ 348 ns; OCP trip ≈ 61 A; OVP ≈ 280 V; bus crest ≈ 170 V at
   120 V rms and ≈ 198 V at 140 V rms line crest.
-- **Board file:** `native-15/section.kicad_pcb`. This supersedes native-09,
+- **Board file:** `native-17/section.kicad_pcb` (native-15 had PTH pads without outer lands; see `native-17/verification/README.md`). This supersedes native-09,
   which the rest of this section still describes; see
   `native-13/verification/README.md` and `native-15/verification/README.md`
   for the deltas. Native-13 adds the tank-CT detector (U10–U13) and has

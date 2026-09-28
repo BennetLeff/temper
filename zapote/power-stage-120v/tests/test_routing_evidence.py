@@ -13,7 +13,7 @@ import pytest
 UNIT = Path(__file__).resolve().parents[1]
 TOOLS = UNIT / "tools"
 NATIVE04 = UNIT / "native-04" / "section.kicad_pcb"
-PLACEMENT = UNIT / "native-14"  # current placement (JLCPCB stackup)
+PLACEMENT = UNIT / "native-16"  # current placement (JLCPCB stackup)
 KICAD_PY = Path(os.environ.get(
     "TEMPER_PCBNEW_PYTHON",
     "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3",

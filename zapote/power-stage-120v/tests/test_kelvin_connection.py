@@ -42,7 +42,7 @@ def test_kelvin_pickup_is_separate_and_a_copper_bridge_is_detected(mutation):
         pytest.skip("KiCad pcbnew Python is not installed")
     result = subprocess.run(
         [str(KICAD_PY), "-c", PROBE,
-         str(UNIT / "native-15/section.kicad_pcb"), mutation],
+         str(UNIT / "native-17/section.kicad_pcb"), mutation],
         capture_output=True, text=True, check=True,
     )
     evidence = json.loads(result.stdout)

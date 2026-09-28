@@ -59,8 +59,8 @@ def batch_05_aux() -> Batch:
     b.track("leg_ret", "B.Cu", 0.3, [73.5, 41.7], [79.825, 39.1])
     b.track("leg_ret", "B.Cu", 0.3, [79.0, 31.0], [79.825, 39.1],
             [79.825, 41.7], [87.7, 41.7], [87.7, 37.0])
-    b.track("leg_ret", "F.Cu", 0.3, "C36.2", [86.0, 35.0],
-            [87.7, 35.0], [87.7, 37.0], "U9.1")
+    # Around D2.2 (it keeps an F.Cu land), not through it.
+    b.track("leg_ret", "F.Cu", 0.3, "C36.2", [86.0, 37.0], [87.7, 37.0], "U9.1")
     b.via("leg_ret", 87.7, 37.0)
 
     # HOT5 descends between D3 and the island, then feeds U4/U7.  A separate
@@ -214,7 +214,7 @@ def batch_05_aux() -> Batch:
             [82.825, 20.5])
     b.via("ref25", 82.825, 20.5)
     b.track("ref25", "F.Cu", 0.3, [82.825, 20.5], "R31.2",
-            [84.2, 20.5], [84.2, 16.0], "U5.1")
+            [84.05, 20.5], [84.05, 16.0], "U5.1")
 
     # R5.3 senses the shunt's other Kelvin pin.  It travels through the
     # channel between the local BUS_P capacitors without touching HV_RET.

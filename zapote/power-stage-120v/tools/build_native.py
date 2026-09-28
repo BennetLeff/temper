@@ -8,6 +8,7 @@ REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO / "zapote/current-sense/tools"))
 from build_current_sense_native import build  # noqa: E402
 from planning_stackup import apply_planning_stackup  # noqa: E402
+from pth_layer_policy import apply as apply_pth_layer_policy  # noqa: E402
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
@@ -32,3 +33,4 @@ if __name__ == "__main__":
 
     if args.stackup is not None:
         apply_planning_stackup(args.output.resolve(), args.stackup.resolve())
+    apply_pth_layer_policy(args.output.resolve())
