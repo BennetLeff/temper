@@ -18,6 +18,7 @@ Owner decisions on the round-3 findings (2026-09-28) and the review
 dossiers are in [decision-review](../validation-results/round3-coordination/decision-review/README.md).
 **Round 4: [ROUND-4.md](ROUND-4.md)** carries out those decisions (A, D, C).
 **Round 5: [ROUND-5.md](ROUND-5.md)** narrows D1 to the commutation cell and gate loops on native-17, then D2/C1/C2, plus a bench plan.
+**D1 by finite elements: [D1-FEM.md](D1-FEM.md)** replaces round 5's FastHenry method for the board loop inductances (owner decision 2026-09-28: simulate, don't defer to the bench).
 The [round-5 execution record and monitoring handoff](../validation-results/round5-coordination/README.md)
 links the latest evidence and remaining blockers; the [round-4 record](../validation-results/round4-coordination/README.md) retains historical reference results.
 Raw round-3 evidence is a release asset; restore it with

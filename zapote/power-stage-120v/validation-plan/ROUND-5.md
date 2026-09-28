@@ -52,6 +52,12 @@ Run R5-D1 and R5-B in parallel; the rest follows D1.
 
 ## R5-D1: extract only what the deck needs
 
+> **Superseded 2026-09-28 by [D1-FEM.md](D1-FEM.md).** The FastHenry
+> raster method below stopped twice on meshing. D1-FEM extracts the same
+> inductances from KiCad's 3-D copper with a conformal finite-element
+> mesh (gmsh) and solver (Palace), with component-located ports. Kept for
+> the record.
+
 **Deliverable:** for each leg, a coupled R+jωL matrix over **eight ports**
 (corrected 2026-09-28: the first version said six and listed one gate loop,
 but each leg has a high-side and a low-side gate circuit):
