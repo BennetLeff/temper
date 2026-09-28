@@ -1,7 +1,8 @@
 # Power-stage-120v validation master plan
 
-Status: round-three validation executed 2026-09-27 against native-15; tasks
-01–05 and 07 have model findings, partial or blocked results (see §5). This plan covers the desk
+Status: round-four evidence collected 2026-09-28 against native-15; the current-limited
+tank grid is complete, reference switching/loss results are conditional, and board
+inductance extraction is software-blocked (see §5). This plan covers the desk
 validations and simulations to run on the routed board **before** fabrication
 release. Physical tests (hipot, leakage, measured EMI, measured temperature)
 come later; each task lists the physical test that finally confirms it.
@@ -14,7 +15,9 @@ Round-three execution and reviewed handbacks are tracked in the
 [execution record](../validation-results/round3-coordination/README.md).
 Owner decisions on the round-3 findings (2026-09-28) and the review
 dossiers are in [decision-review](../validation-results/round3-coordination/decision-review/README.md).
-**Next round: [ROUND-4.md](ROUND-4.md)** carries out those decisions (A, D, C).
+**Round 4: [ROUND-4.md](ROUND-4.md)** carries out those decisions (A, D, C).
+Its [execution record and monitoring handoff](../validation-results/round4-coordination/README.md)
+links the latest evidence and exact remaining blockers.
 Raw round-3 evidence is a release asset; restore it with
 [raw-evidence/restore.sh](../validation-results/round3-coordination/raw-evidence/restore.sh).
 
@@ -151,6 +154,12 @@ tasks need separate worktrees and must not both build Rust or the native bridge.
 | gerbv | not installed (`brew install gerbv`) | Gerber review (08) |
 | FreeCAD | not checked | Mechanical (09) |
 
+**Round-4 correction:** the historical copper census omits KiCad `FlashLayer`
+filtering and is not qualified for physical copper/thermal solves. Use the
+[corrected D1 export and geometry audit](../validation-results/01-switching-parasitics/round4/d1-extraction/README.md)
+and subtract drill voids after the final conductor union. The historical command
+below is retained for provenance, not as a qualified geometry input.
+
 The copper census tool `tools/copper_dump.py` (run under KiCad Python) writes
 every pad, track, via and filled-zone polygon with net and layer. Most tasks
 start from it:
@@ -208,11 +217,11 @@ Update this table when a task finishes (link the result README).
 
 | # | Status | Result | Verdict |
 | --- | --- | --- | --- |
-| 01 | round 3 model criteria failed; physical qualification blocked | [switching round three](../validation-results/01-switching-parasitics/round3/README.md) | A1 edge independence failed; heuristic board-inductance B1 stopped at first VDS/off-gate failure; parasitic bounds and remaining grid unresolved |
+| 01 | round 4 reference studies complete; board extraction software-blocked | [round 4 handoff](../validation-results/round4-coordination/README.md), [D1](../validation-results/01-switching-parasitics/round4/d1-extraction/README.md) | C1 reference timing map and conditional C2 subtotal delivered; legacy D2 peak reproduced with current probes; no accepted board matrix, so board-dependent C1/D2 grid remains unrun |
 | 02 | round 3 partial; static criterion failed | [protection round three](../validation-results/02-protection-timing/round3/README.md) | All 108 ideal CT cases complete; shunt minimum 38.44 A fails 44 A criterion; ramp timing, actual gate-off and HOT5 slow-fall fail-safe guarantee unresolved |
 | 03 | round 3 conditional budget complete; cooling choice blocked | [loss and thermal budget](../validation-results/03-loss-thermal-budget/round3/README.md) | Two pad options, heatsink requirement and 42-part heat map delivered; switching/auxiliary losses, installed contact and airflow remain unqualified |
-| 04 | round 3 electrical and conditional thermal studies complete; operating temperature blocked | [copper](../validation-results/04-board-current-thermal/round3/a4-copper/README.md), [thermal](../validation-results/04-board-current-thermal/round3/b3-thermal/README.md) | BUS_P resistance spread 1.985%; thermal analytic checks pass but local peaks vary with mesh; actual operating heat/current covariance incomplete |
-| 05 | round 3 numerical work complete; acceptance blocked | [tank round three](../validation-results/05-resonant-tank-envelope/round3/README.md) | 135 ideal grid cases, R5 RMS and finite-bus trip complete; hot capacitor ratings and validated ZVS map absent; protection limits sustained operating cases |
+| 04 | round 3 copper/thermal geometry input requires correction and re-solve | [D1 export correction](../validation-results/01-switching-parasitics/round4/d1-extraction/README.md), [historical thermal](../validation-results/04-board-current-thermal/round3/b3-thermal/README.md) | Historical export included unflashed pad copper and needs final-union drill exclusion; prior B3 copper/thermal conclusions are unqualified pending re-extraction; numerical error direction unknown |
+| 05 | round 4 current-limited grid complete; controller/part qualification blocked | [A derated grid](../validation-results/05-resonant-tank-envelope/round4/a-derated/README.md) | 270 cases at actual 42/40.45 A ceilings meet the frequency cap; 63/69 cases derated and 73 per ceiling still exceed static shunt minimum; neither ceiling is an approved firmware setpoint; hot capacitor rating and board ZVS remain open |
 | 06 | partial (CT check done; fixed in native-11) | [CT burden](../validation-results/06-controller-interface/README.md) | CT: FAIL on native-09 → fixed in native-11 (source change; renewed D4 review needed) |
 | 07 | round 3 model and fixtures complete; margins blocked | [EMI round three](../validation-results/07-conducted-emi/round3/README.md) | Floating-bus/PE return and opposed legs checked; component fits and assumed 35/60 kHz peak spectra saved; qualified edges, DM bus-current source and physical parasitics missing |
 | 08 | partial (silkscreen step done) | [native-11 presentation](../native-11/verification/presentation/README.md) | Designators at 1.0/0.15 mm, copper unchanged; Gerber/BOM/sourcing steps not started |

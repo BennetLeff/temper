@@ -1,0 +1,82 @@
+* Task 01 round 2: complementary half-bridge with one transition and dead time.
+* DIR=0: low side on first; low side off at T1, high side on at T1+DT.
+* DIR=1: high side on first; high side off at T1, low side on at T1+DT.
+* Positive IL denotes magnitude. The load sign reverses with DIR.
+* This deck establishes model mechanics with reference inductances only. It
+* cannot predict native-13 voltage stress until board L/ESL are known.
+* The load is an ideal current source (a very large inductor); see the task doc
+* for when to use the full-tank deck instead.
+*
+* IMPORTANT: the Infineon L1 subcircuit already contains the TO-247 leads
+* (Ld 1.88 nH, Ls 2.82 nH, Lg 8.32 nH) and Rg,int 2.7 ohm. The L* parameters
+* below are BOARD copper and capacitor ESL only; do not add package L again.
+* Pin-level VGS/VDS include lead-inductance voltage at ns di/dt. Judge oxide
+* and avalanche stress with the *_die measures (nodes xq?.g, xq?.s, xq?.dd).
+
+.include IFX_CFD7_650V.lib
+.include ../common/options.inc
+
+* ---- defaults; params.inc (written by run_ngspice.py) overrides them
+.param VBUS=198 IL=37 DIR=0 T1=2u DT=348n TRMAX=0.2n
+.param LD_HS=4n LS_HS=4n LD_LS=4n LS_LS=4n LCAP=3n LBULK=30n
+.param LCS=1n LG_HS=20n LG_LS=20n RG=3.9 ROL=0.55 ROH=5 VDRV=15 CSNUB=1n
+.param CLOC=0.4u CBULK=5.4u
+.include params.inc
+.param GL0={VDRV*(1-DIR)} GL1={VDRV*DIR}
+.param GH0={VDRV*DIR} GH1={VDRV*(1-DIR)}
+.param TLS={T1+DIR*DT} THS={T1+(1-DIR)*DT}
+.param ILOAD_SIGNED={IL*(1-2*DIR)}
+
+* ---- DC bus: bulk capacitors behind the western bus, local film caps at the leg
+Vbus src 0 {VBUS}
+Rsrc src bulk 10m
+Cbulk bulk 0 {CBULK}
+Lbulk bulk bus {LBULK}
+Lcap bus capn {LCAP}
+Rcap capn capm 5m
+Cloc capm 0 {CLOC}
+
+* ---- power loop: bus -> HS drain ... LS source -> return (shunt included)
+Ldhs bus d_hs {LD_HS}
+XQH d_hs g_hs s_hs IPW65R018CFD7_L1
+Lshs s_hs sw {LS_HS}
+Ldls sw d_ls1 {LD_LS}
+Vids d_ls1 d_ls 0
+XQL d_ls g_ls s_ls IPW65R018CFD7_L1
+Lcs s_ls kret {LCS}
+Lsls kret shunt {LS_LS}
+Rshunt shunt 0 1m
+Csnh d_hs s_hs {CSNUB}
+Csnl d_ls s_ls {CSNUB}
+
+* ---- load: current into the switch node, ramped from 0 so the start state is
+* trivially consistent: the DC operating point is solved at 0 A (it fails to
+* converge with the full current applied at t = 0).
+Iload bus sw PWL(0 0 1u {ILOAD_SIGNED})
+
+* ---- continuous push-pull output approximation: ROH when command is 15 V,
+* ROL when 0 V. The 5 ns ramp blends the two conductances to avoid an ideal
+* switch discontinuity that prevents CFD7 model convergence at the edge.
+* Both pull networks share the driver return after the common-source LCS.
+Vgl_cmd gl_cmd kret PULSE({GL0} {GL1} {TLS} 5n 5n 10u 20u)
+Bgl gdl kret I={v(gdl,kret)*(1-v(gl_cmd,kret)/VDRV)/ROL+(v(gdl,kret)-VDRV)*v(gl_cmd,kret)/(VDRV*ROH)}
+Rgl gdl gdl3 {RG}
+Lgl gdl3 g_ls {LG_LS}
+Rholdl g_ls s_ls 10k
+* ---- high-side driver returns to its own source pin, not kret
+Vgh_cmd gh_cmd s_hs PULSE({GH0} {GH1} {THS} 5n 5n 10u 20u)
+Bgh gdh s_hs I={v(gdh,s_hs)*(1-v(gh_cmd,s_hs)/VDRV)/ROL+(v(gdh,s_hs)-VDRV)*v(gh_cmd,s_hs)/(VDRV*ROH)}
+Rgh gdh gdh3 {RG}
+Lgh gdh3 g_hs {LG_HS}
+Rholdh g_hs s_hs 10k
+
+.tran {TRMAX} {T1+DT+0.8u} 0 {TRMAX}
+.save v(sw) v(xql.dd) v(xql.g) v(xql.s) v(xqh.dd) v(xqh.g) v(xqh.s) v(gl_cmd) v(kret) v(gh_cmd) v(s_hs) i(vids)
+
+.meas tran vds_ls_die_pk MAX par('v(xql.dd)-v(xql.s)') from={T1} to={T1+DT+0.75u}
+.meas tran vds_hs_die_pk MAX par('v(xqh.dd)-v(xqh.s)') from={T1} to={T1+DT+0.75u}
+.meas tran vgs_ls_die_max MAX par('v(xql.g)-v(xql.s)') from={T1} to={T1+DT+0.75u}
+.meas tran vgs_ls_die_min MIN par('v(xql.g)-v(xql.s)') from={T1} to={T1+DT+0.75u}
+.meas tran vgs_hs_die_max MAX par('v(xqh.g)-v(xqh.s)') from={T1} to={T1+DT+0.75u}
+.meas tran vgs_hs_die_min MIN par('v(xqh.g)-v(xqh.s)') from={T1} to={T1+DT+0.75u}
+.end

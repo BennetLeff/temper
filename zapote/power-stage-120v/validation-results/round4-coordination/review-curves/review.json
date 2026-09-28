@@ -1,0 +1,109 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "scope": {
+    "base": "829ee9debc08ce239bc2dffe0938c4fec2429545",
+    "branch": "codex/ps-r4-integration",
+    "head_sha": "829ee9debc08ce239bc2dffe0938c4fec2429545",
+    "pr_url": "https://github.com/BennetLeff/temper/pull/1615",
+    "files_changed": 4
+  },
+  "intent": "Review only the completed curve-extraction support unit for ROUND-4 C2: read the existing Infineon PDF diagrams into typical Vf at25/125C and Eoss curves with reproducible provenance and explicit domains. A/C1/D1/C2/D2 execution is still in progress and outside this four-file review. Wrong curve identity, axis mapping or interpolation coverage can silently bias the eventual loss comparison; no hardware approval is intended.\n",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "adversarial"
+  ],
+  "findings": [
+    {
+      "title": "Grid-stroke centering shifts the voltage axis and low-bus Eoss readings",
+      "severity": "P2",
+      "file": "zapote/power-stage-120v/validation-results/round4-coordination/extract_loss_curves.py",
+      "line": 21,
+      "confidence": 100,
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Calibrate X0 from the PDF numeric tick-label centers (80.8706pt at0V and296.9291pt at500V), verify the curve origin independently, and regenerate the CSV/provenance. Preserve the existing typical-value caveats.",
+      "first_evidence": "zapote/power-stage-120v/validation-results/round4-coordination/extract_loss_curves.py:21 -- X0, XSPAN = 81.0706, 216.0585",
+      "why_it_matters": "The current origin shifts each Eoss query by0.463V. At10V the committed table says3.8686uJ instead of3.6230uJ from the actual tick-calibrated line, a6.8% error larger than the quoted0.2uJ graph-reading scale.",
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/round4-coordination/extract_loss_curves.py:21 -- X0, XSPAN = 81.0706, 216.0585",
+        "PDF page10 tick0 spans78.6466..83.0946pt, center80.8706; tick500 spans290.2571..303.6011pt, center296.9291.",
+        "In-memory intersections of the same582 line segments at10V: current origin3.868614uJ; tick-centered origin3.622990uJ. At1V the discrepancy is0.142722 versus0.069647uJ.",
+        "The separate400V Co(er) calibration still passes under both origins, so it does not detect this low-voltage axis bias."
+      ],
+      "#": 1,
+      "reviewers": [
+        "correctness"
+      ],
+      "independent_reviewers": []
+    }
+  ],
+  "actionable_findings": [
+    {
+      "title": "Grid-stroke centering shifts the voltage axis and low-bus Eoss readings",
+      "severity": "P2",
+      "file": "zapote/power-stage-120v/validation-results/round4-coordination/extract_loss_curves.py",
+      "line": 21,
+      "confidence": 100,
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Calibrate X0 from the PDF numeric tick-label centers (80.8706pt at0V and296.9291pt at500V), verify the curve origin independently, and regenerate the CSV/provenance. Preserve the existing typical-value caveats.",
+      "first_evidence": "zapote/power-stage-120v/validation-results/round4-coordination/extract_loss_curves.py:21 -- X0, XSPAN = 81.0706, 216.0585",
+      "why_it_matters": "The current origin shifts each Eoss query by0.463V. At10V the committed table says3.8686uJ instead of3.6230uJ from the actual tick-calibrated line, a6.8% error larger than the quoted0.2uJ graph-reading scale.",
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/round4-coordination/extract_loss_curves.py:21 -- X0, XSPAN = 81.0706, 216.0585",
+        "PDF page10 tick0 spans78.6466..83.0946pt, center80.8706; tick500 spans290.2571..303.6011pt, center296.9291.",
+        "In-memory intersections of the same582 line segments at10V: current origin3.868614uJ; tick-centered origin3.622990uJ. At1V the discrepancy is0.142722 versus0.069647uJ.",
+        "The separate400V Co(er) calibration still passes under both origins, so it does not detect this low-voltage axis bias."
+      ],
+      "#": 1,
+      "reviewers": [
+        "correctness"
+      ],
+      "independent_reviewers": []
+    }
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan_source": "explicit",
+    "plan": "zapote/power-stage-120v/validation-plan/ROUND-4.md",
+    "scope": "C2 datasheet curve extraction support unit only",
+    "complete": true,
+    "remaining": "Remaining round-4 simulations intentionally outside this staged unit; curve calibration fix required."
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Typical graph readings are not worst-case device bounds."
+  ],
+  "testing_gaps": [
+    "Add independent numeric tick-axis calibration; 400 V table cross-check does not catch low-bus bias."
+  ],
+  "coverage": {
+    "depth": "focused",
+    "independent_read": "Separate-context local Sol adversarial reviewer returned no findings. User explicitly selected Sol agents; no cross-provider route was used and no cross-model independence is claimed.",
+    "criteria": [
+      "AGENTS.md",
+      "CLAUDE.md (AGENTS pointer)",
+      "zapote/AGENTS.md"
+    ],
+    "criteria_fallback": true,
+    "compound_packs": "not applied",
+    "not_assessed": [
+      "learnings",
+      "agent-native gaps",
+      "deployment notes",
+      "remaining round-4 worker outputs"
+    ],
+    "validator": "none; focused path"
+  },
+  "artifact_path": "/tmp/compound-engineering-501/ce-code-review/20260928-r4-curves-gks3j_k4",
+  "run_id": "20260928-r4-curves-gks3j_k4"
+}

@@ -1,0 +1,27 @@
+{
+  "evidence_class": "simulation/model-based conditional reference-inductance screen",
+  "source_revision": "829ee9debc08ce239bc2dffe0938c4fec2429545",
+  "native15_board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "input_sha256": {
+    "c1_source_raw_sha256": "a0b501e23a4c8e8edf812451befd63e051869479c6181a67329967493b8106a1",
+    "a_cases": "09f955e20df7bc7d71bb65567bf5aec9a1234ffbc35fac45718739c3cb2fdb70",
+    "a_events": "eb14fc83494fc3513dd21a1271221b6883a335f3cc07ffc3deb5374fc78c200b",
+    "a_event_schema": "40de836152d2ef10eb84eba4b3a968254100fe3e76d40242297c196c5bb9779d",
+    "a_summary": "5e60f8cc353aba0f0eec34aa7aff139d3bf395792294564c87ca0471577e6f0d",
+    "c1_thresholds": "581fc9c51f4b37e85b5670de297ade67027eb4a704b9ac865a9f948967b6848d",
+    "c1_signed10": "202ed24776c0d379cad807c361bb59b5d323f957263286a71ccf54a03ee903e3",
+    "c1_waveform_metrics": "a58246bb80afb471ab2a85ba97aba9f5c0f3f00104b011a1f5518973adcbcdc3",
+    "c1_catalog": "773cde599933f4ab1441272ce97cb567f3962319f7062430f691e50de66fcf72",
+    "c1_raw_sha256_manifest": "a0b501e23a4c8e8edf812451befd63e051869479c6181a67329967493b8106a1",
+    "c1_catalog_manifest": "2d3d581ca30949025ac4c45c673bafcbacf7b3f5af5ecc4ddd1187b7651e5d62",
+    "diode_vf_curve": "4c585d12b49e3a322f31e7963f9c739d5c5f359c10e6787270a1e89f3b83d95d",
+    "eoss_curve": "685ab47676200a64519866dafcedbe3d261f0387fe6aa12020e451d8240d554c",
+    "curve_provenance": "aeaf40536c5e57ef0f88010849d948b0bd4280046d893292c5dbff14bd1e526b"
+  },
+  "a_case_count": 270,
+  "a_event_count": 190336,
+  "output_rows": 1620,
+  "normal_model_l_scale": 1,
+  "event_mapping": "one full-bridge event = one DIR0 plus one DIR1 commutation",
+  "caveat": "unmodeled events remain missing, no hot or physical board verdict"
+}

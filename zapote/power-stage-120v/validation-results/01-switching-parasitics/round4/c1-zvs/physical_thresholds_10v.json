@@ -1,0 +1,3409 @@
+{
+  "evidence_class": "simulation/model-based; reference inductances only",
+  "reason": "At 10 V the body-diode forward drop can exceed the strict 0.5 V absolute-5% band despite complete commutation",
+  "criterion": "max signed incoming die VDS in full 20 ns precommand window <= +5% VBUS; negative diode-clamped VDS is discharged, not hard Eoss",
+  "diode_clamp_corroboration": "continuous forward -i(V_sense2)>=0.1 A throughout window is reported separately; charge is not inferred from external drain current",
+  "threshold_estimate": "midpoint of sampled fail/pass bracket, half-width <=0.25 A; not a physical guarantee",
+  "rows": [
+    {
+      "id": "r39_max_v10_d0_l1",
+      "bus_v": 10,
+      "direction": 0,
+      "rdt_kohm": 39,
+      "timing_corner": "max",
+      "deadtime_ns": 383.0040632054176,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        8.5,
+        9.0
+      ],
+      "physical_commutation_midpoint_a": 8.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            8.5,
+            9.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 8.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.486972640187513,
+          "pre20_signed_vds_max_v": 9.514324272200323,
+          "pre20_forward_diode_min_a": 2.99118338179e-09,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i0.50000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.97363258638067,
+          "pre20_signed_vds_max_v": 9.023834165740942,
+          "pre20_forward_diode_min_a": 5.97817956672e-08,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 7.885931155571989,
+          "pre20_signed_vds_max_v": 7.998225489147602,
+          "pre20_forward_diode_min_a": 2.16486946792e-07,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i2.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 5.497689878714665,
+          "pre20_signed_vds_max_v": 5.801391892108834,
+          "pre20_forward_diode_min_a": 7.08909057605e-07,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.6196895084622243,
+          "pre20_signed_vds_max_v": 1.3172560127912993,
+          "pre20_forward_diode_min_a": 2.33551392947761e-06,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i8.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.08378007726795325,
+          "pre20_signed_vds_max_v": 0.8122829549740188,
+          "pre20_forward_diode_min_a": 2.6449920011959642e-06,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i8.50000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 9.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6258365460739144,
+          "pre20_signed_vds_max_v": 0.3327421881748081,
+          "pre20_forward_diode_min_a": 3.0336952504898965e-06,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i9.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 10.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6794797454946937,
+          "pre20_signed_vds_max_v": -0.6416135202345946,
+          "pre20_forward_diode_min_a": 6.46339494292,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i10.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7197726422968797,
+          "pre20_signed_vds_max_v": -0.704088749114009,
+          "pre20_forward_diode_min_a": 9.772998366337013,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7702856245986909,
+          "pre20_signed_vds_max_v": -0.7622111339864626,
+          "pre20_forward_diode_min_a": 17.589988227022392,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8440109646450846,
+          "pre20_signed_vds_max_v": -0.8352156743032767,
+          "pre20_forward_diode_min_a": 28.98346718161273,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8803903013265557,
+          "pre20_signed_vds_max_v": -0.8315055818076137,
+          "pre20_forward_diode_min_a": 25.04062455904271,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9622143649324747,
+          "pre20_signed_vds_max_v": -0.9571349604000012,
+          "pre20_forward_diode_min_a": 53.5867788997,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.127878850734132,
+          "pre20_signed_vds_max_v": -1.1100557675999987,
+          "pre20_forward_diode_min_a": 87.3395440634,
+          "waveform": "outputs/runs/v10_d0_dt383.0040632054176_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r39_max_v10_d1_l1",
+      "bus_v": 10,
+      "direction": 1,
+      "rdt_kohm": 39,
+      "timing_corner": "max",
+      "deadtime_ns": 383.0040632054176,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        8.5,
+        9.0
+      ],
+      "physical_commutation_midpoint_a": 8.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            8.5,
+            9.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 8.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.527609171629422,
+          "pre20_signed_vds_max_v": 9.553893730382763,
+          "pre20_forward_diode_min_a": 8.99888739582e-09,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i0.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.012662462328612,
+          "pre20_signed_vds_max_v": 9.060004882322238,
+          "pre20_forward_diode_min_a": 6.1492240481e-08,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 7.919904090409887,
+          "pre20_signed_vds_max_v": 8.026190465887595,
+          "pre20_forward_diode_min_a": 2.09355756058e-07,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i2.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 5.5154556711658085,
+          "pre20_signed_vds_max_v": 5.808824947957364,
+          "pre20_forward_diode_min_a": 6.78939685344e-07,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.5981102589403713,
+          "pre20_signed_vds_max_v": 1.282022717068965,
+          "pre20_forward_diode_min_a": 2.295202669124222e-06,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i8.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.057206260039901785,
+          "pre20_signed_vds_max_v": 0.7712228905117436,
+          "pre20_forward_diode_min_a": 2.6057157286346744e-06,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i8.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 9.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.63005302555194,
+          "pre20_signed_vds_max_v": 0.2850348480578887,
+          "pre20_forward_diode_min_a": 2.9996136182785583e-06,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i9.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 10.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6800973711818987,
+          "pre20_signed_vds_max_v": -0.6467903202543507,
+          "pre20_forward_diode_min_a": 6.34294174162,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i10.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7198954127750489,
+          "pre20_signed_vds_max_v": -0.7052388368090767,
+          "pre20_forward_diode_min_a": 9.726563732631776,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7698511004459937,
+          "pre20_signed_vds_max_v": -0.7626987448039455,
+          "pre20_forward_diode_min_a": 17.513897578892852,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8435091942329975,
+          "pre20_signed_vds_max_v": -0.8328954435096073,
+          "pre20_forward_diode_min_a": 28.375843603473637,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8794352815542955,
+          "pre20_signed_vds_max_v": -0.8277016347974432,
+          "pre20_forward_diode_min_a": 24.03052969307823,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9292925735887583,
+          "pre20_signed_vds_max_v": -0.9082490508876407,
+          "pre20_forward_diode_min_a": 41.8287050235,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.1234928367164752,
+          "pre20_signed_vds_max_v": -1.0813939480911805,
+          "pre20_forward_diode_min_a": 80.02078681137522,
+          "waveform": "outputs/runs/v10_d1_dt383.0040632054176_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r39_min_v10_d0_l1",
+      "bus_v": 10,
+      "direction": 0,
+      "rdt_kohm": 39,
+      "timing_corner": "min",
+      "deadtime_ns": 313.79593679458236,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        20.0,
+        20.5
+      ],
+      "physical_commutation_midpoint_a": 20.25,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            20.0,
+            20.5
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 20.25,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.74000156753891,
+          "pre20_signed_vds_max_v": 9.853495048610322,
+          "pre20_forward_diode_min_a": 1.940257622711999e-07,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i0.50000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.327118908895814,
+          "pre20_signed_vds_max_v": 9.50337104094984,
+          "pre20_forward_diode_min_a": 3.44916563482e-07,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.483878159468103,
+          "pre20_signed_vds_max_v": 8.788630153026343,
+          "pre20_forward_diode_min_a": 6.04384784621e-07,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i2.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.754027023208015,
+          "pre20_signed_vds_max_v": 7.324215228654784,
+          "pre20_forward_diode_min_a": 1.19999748371e-06,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 3.335138083748271,
+          "pre20_signed_vds_max_v": 4.43205069528825,
+          "pre20_forward_diode_min_a": 2.780000936542708e-06,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i8.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.9322716721737293,
+          "pre20_signed_vds_max_v": 2.4537428727197326,
+          "pre20_forward_diode_min_a": 4.769617667089296e-06,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6526289145004358,
+          "pre20_signed_vds_max_v": 1.4232893822981694,
+          "pre20_forward_diode_min_a": 6.605244312112905e-06,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 20.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7417623203143059,
+          "pre20_signed_vds_max_v": 0.5583095463477808,
+          "pre20_forward_diode_min_a": 9.019899957088825e-06,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i20.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 20.5,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7479329215140049,
+          "pre20_signed_vds_max_v": 0.4536868967971405,
+          "pre20_forward_diode_min_a": 9.392404360288579e-06,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i20.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 21.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7539216424138581,
+          "pre20_signed_vds_max_v": 0.3495984074057201,
+          "pre20_forward_diode_min_a": 9.788910294362937e-06,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i21.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 22.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7654835501136408,
+          "pre20_signed_vds_max_v": 0.14286633867795814,
+          "pre20_forward_diode_min_a": 1.067358215117383e-05,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i22.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7871879674129342,
+          "pre20_signed_vds_max_v": -0.2655539622447567,
+          "pre20_forward_diode_min_a": 0.0015671746733723596,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9834057663999989,
+          "pre20_signed_vds_max_v": -0.9538747779999994,
+          "pre20_forward_diode_min_a": 57.29829424051285,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9842945295000014,
+          "pre20_signed_vds_max_v": -0.9693282791000009,
+          "pre20_forward_diode_min_a": 59.8345460047,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.1911326954999986,
+          "pre20_signed_vds_max_v": -1.1511262906999988,
+          "pre20_forward_diode_min_a": 101.089111088,
+          "waveform": "outputs/runs/v10_d0_dt313.79593679458236_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r39_min_v10_d1_l1",
+      "bus_v": 10,
+      "direction": 1,
+      "rdt_kohm": 39,
+      "timing_corner": "min",
+      "deadtime_ns": 313.79593679458236,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        18.5,
+        19.0
+      ],
+      "physical_commutation_midpoint_a": 18.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            18.5,
+            19.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 18.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.740364000238703,
+          "pre20_signed_vds_max_v": 9.83558738487897,
+          "pre20_forward_diode_min_a": 1.625277692826145e-07,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i0.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.321531200751519,
+          "pre20_signed_vds_max_v": 9.478405872514376,
+          "pre20_forward_diode_min_a": 3.00440051225e-07,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.466404547974149,
+          "pre20_signed_vds_max_v": 8.750079447884099,
+          "pre20_forward_diode_min_a": 5.56002086152e-07,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i2.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.712770205741894,
+          "pre20_signed_vds_max_v": 7.259932777525753,
+          "pre20_forward_diode_min_a": 1.14717110312e-06,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 3.252064864182795,
+          "pre20_signed_vds_max_v": 4.324005214602183,
+          "pre20_forward_diode_min_a": 2.73065547361e-06,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i8.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.767078492630103,
+          "pre20_signed_vds_max_v": 2.260118889238945,
+          "pre20_forward_diode_min_a": 4.7718590652937875e-06,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6806147001743089,
+          "pre20_signed_vds_max_v": 1.157989155867435,
+          "pre20_forward_diode_min_a": 6.711979741320475e-06,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 18.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7219086739350752,
+          "pre20_signed_vds_max_v": 0.687867281810723,
+          "pre20_forward_diode_min_a": 7.932113953745472e-06,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i18.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 18.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7290524439139552,
+          "pre20_signed_vds_max_v": 0.5731788778982008,
+          "pre20_forward_diode_min_a": 8.27843789799722e-06,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i18.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 19.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7357616607933916,
+          "pre20_signed_vds_max_v": 0.45939729725602835,
+          "pre20_forward_diode_min_a": 8.64654011087937e-06,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i19.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 20.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.748412783832971,
+          "pre20_signed_vds_max_v": 0.23415840239618912,
+          "pre20_forward_diode_min_a": 9.464751255224904e-06,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i20.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7928936042614503,
+          "pre20_signed_vds_max_v": -0.6831840528957814,
+          "pre20_forward_diode_min_a": 18.988707053556816,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.992338348936,
+          "pre20_signed_vds_max_v": -0.9612001004169999,
+          "pre20_forward_diode_min_a": 58.04414085025845,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.0538662864686326,
+          "pre20_signed_vds_max_v": -1.00072074155,
+          "pre20_forward_diode_min_a": 65.9581288108,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.2377600409010001,
+          "pre20_signed_vds_max_v": -1.19630031104,
+          "pre20_forward_diode_min_a": 111.945810453,
+          "waveform": "outputs/runs/v10_d1_dt313.79593679458236_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r39_typ_v10_d0_l0.5",
+      "bus_v": 10,
+      "direction": 0,
+      "rdt_kohm": 39,
+      "timing_corner": "typ",
+      "deadtime_ns": 348.4,
+      "reference_l_scale": 0.5,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        10.5,
+        11.0
+      ],
+      "physical_commutation_midpoint_a": 10.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            10.5,
+            11.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 10.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.623385055692333,
+          "pre20_signed_vds_max_v": 9.677826820629,
+          "pre20_forward_diode_min_a": -1.45596577891e-07,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i0.50000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.213086425546999,
+          "pre20_signed_vds_max_v": 9.240668210241,
+          "pre20_forward_diode_min_a": -8.78196671193e-08,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i1.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.318952872820002,
+          "pre20_signed_vds_max_v": 8.35873640377,
+          "pre20_forward_diode_min_a": 5.15362643515e-08,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i2.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.3106278166400065,
+          "pre20_signed_vds_max_v": 6.538926929040005,
+          "pre20_forward_diode_min_a": 4.62158186591e-07,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i4.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 2.0464420733800157,
+          "pre20_signed_vds_max_v": 2.7441217044500137,
+          "pre20_forward_diode_min_a": 1.8992285259099965e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i8.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 10.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.18635724670001944,
+          "pre20_signed_vds_max_v": 1.0669610463600196,
+          "pre20_forward_diode_min_a": 2.987697147599993e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i10.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 10.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.5305663692654025,
+          "pre20_signed_vds_max_v": 0.7035173804000187,
+          "pre20_forward_diode_min_a": 3.3492630402199906e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i10.50000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 11.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6498531797999973,
+          "pre20_signed_vds_max_v": 0.3638404503000202,
+          "pre20_forward_diode_min_a": 3.776401503629986e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i11.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6871196648999983,
+          "pre20_signed_vds_max_v": -0.5597544110413991,
+          "pre20_forward_diode_min_a": 4.900138615578431,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i12.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7539828092999996,
+          "pre20_signed_vds_max_v": -0.7304466371197172,
+          "pre20_forward_diode_min_a": 14.707046719757356,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i16.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8361610084999995,
+          "pre20_signed_vds_max_v": -0.8269805122196703,
+          "pre20_forward_diode_min_a": 30.653945945618954,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i24.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9510630846224429,
+          "pre20_signed_vds_max_v": -0.9084296772,
+          "pre20_forward_diode_min_a": 43.213548766700235,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i40.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9962062350334197,
+          "pre20_signed_vds_max_v": -0.9661006543999994,
+          "pre20_forward_diode_min_a": 55.7154863147003,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i60.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.1704988743000015,
+          "pre20_signed_vds_max_v": -1.151590058,
+          "pre20_forward_diode_min_a": 97.65861555150002,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i100.00000_l0.5_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r39_typ_v10_d0_l1",
+      "bus_v": 10,
+      "direction": 0,
+      "rdt_kohm": 39,
+      "timing_corner": "typ",
+      "deadtime_ns": 348.4,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        10.5,
+        11.0
+      ],
+      "physical_commutation_midpoint_a": 10.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            10.5,
+            11.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 10.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.560098686010502,
+          "pre20_signed_vds_max_v": 9.656713019762362,
+          "pre20_forward_diode_min_a": 1.55189989316e-07,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i0.50000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.085214020865001,
+          "pre20_signed_vds_max_v": 9.211318831452003,
+          "pre20_forward_diode_min_a": 2.11100479059e-07,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.101593250324783,
+          "pre20_signed_vds_max_v": 8.297995002600782,
+          "pre20_forward_diode_min_a": 3.57062618723e-07,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i2.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.031452260700008,
+          "pre20_signed_vds_max_v": 6.410627091048759,
+          "pre20_forward_diode_min_a": 8.0523823618e-07,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 1.8446060157200082,
+          "pre20_signed_vds_max_v": 2.6514297320699995,
+          "pre20_forward_diode_min_a": 2.35155864465e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i8.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 10.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.09936415140001911,
+          "pre20_signed_vds_max_v": 1.0851986967000218,
+          "pre20_forward_diode_min_a": 3.65768106075e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i10.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 10.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.5740654713499627,
+          "pre20_signed_vds_max_v": 0.7669388696000224,
+          "pre20_forward_diode_min_a": 4.026178043859998e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i10.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 11.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6513504850999982,
+          "pre20_signed_vds_max_v": 0.47589900210002495,
+          "pre20_forward_diode_min_a": 4.435549845439993e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i11.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.686444515199999,
+          "pre20_signed_vds_max_v": -0.04639633129997362,
+          "pre20_forward_diode_min_a": 6.047367222519569e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7513201657751734,
+          "pre20_signed_vds_max_v": -0.7242198621059167,
+          "pre20_forward_diode_min_a": 15.20296921126128,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8408152706,
+          "pre20_signed_vds_max_v": -0.8187803689758506,
+          "pre20_forward_diode_min_a": 30.008011515331805,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9506762874000021,
+          "pre20_signed_vds_max_v": -0.9142291042000015,
+          "pre20_forward_diode_min_a": 44.57461255330028,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9770920409999988,
+          "pre20_signed_vds_max_v": -0.9662413111000028,
+          "pre20_forward_diode_min_a": 56.2734212299,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.1691553247000002,
+          "pre20_signed_vds_max_v": -1.1438054490999967,
+          "pre20_forward_diode_min_a": 96.2238592527,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r39_typ_v10_d0_l3",
+      "bus_v": 10,
+      "direction": 0,
+      "rdt_kohm": 39,
+      "timing_corner": "typ",
+      "deadtime_ns": 348.4,
+      "reference_l_scale": 3.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        12.0,
+        12.5
+      ],
+      "physical_commutation_midpoint_a": 12.25,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            12.0,
+            12.5
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 12.25,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.736081941097,
+          "pre20_signed_vds_max_v": 9.739743639013,
+          "pre20_forward_diode_min_a": -2.2617687116636712e-08,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i0.50000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.1940503417225,
+          "pre20_signed_vds_max_v": 9.2841074308245,
+          "pre20_forward_diode_min_a": 1.682970520525e-07,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i1.00000_l3_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.096915168280002,
+          "pre20_signed_vds_max_v": 8.360343900515,
+          "pre20_forward_diode_min_a": 5.51989292136e-07,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i2.00000_l3_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 5.888983628110012,
+          "pre20_signed_vds_max_v": 6.49181771385751,
+          "pre20_forward_diode_min_a": 1.39502476968e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i4.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 1.6840008890200238,
+          "pre20_signed_vds_max_v": 2.8579119976600253,
+          "pre20_forward_diode_min_a": 3.484509443439998e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i8.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6896147869999987,
+          "pre20_signed_vds_max_v": 0.5072697935000301,
+          "pre20_forward_diode_min_a": 6.027447928213723e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i12.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.5,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7006313032999988,
+          "pre20_signed_vds_max_v": 0.3007520854000356,
+          "pre20_forward_diode_min_a": 6.46179600486996e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i12.50000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 13.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7099263197000001,
+          "pre20_signed_vds_max_v": 0.10052788130003515,
+          "pre20_forward_diode_min_a": 6.96736682524994e-06,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i13.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 14.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7263831672999991,
+          "pre20_signed_vds_max_v": -0.5311927507002333,
+          "pre20_forward_diode_min_a": 4.655399124687477,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i14.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7519558844999985,
+          "pre20_signed_vds_max_v": -0.7027311394295804,
+          "pre20_forward_diode_min_a": 15.479832622055017,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i16.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8710339868000005,
+          "pre20_signed_vds_max_v": -0.8546197201000005,
+          "pre20_forward_diode_min_a": 36.7477002443,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i24.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9759239757699998,
+          "pre20_signed_vds_max_v": -0.9408313554000003,
+          "pre20_forward_diode_min_a": 50.7237279511,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i40.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9714464921000001,
+          "pre20_signed_vds_max_v": -0.9507945028999991,
+          "pre20_forward_diode_min_a": 53.0918905499,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i60.00000_l3_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.1931118987999998,
+          "pre20_signed_vds_max_v": -1.1595921400999991,
+          "pre20_forward_diode_min_a": 100.96225135,
+          "waveform": "outputs/runs/v10_d0_dt348.4_i100.00000_l3_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r39_typ_v10_d1_l0.5",
+      "bus_v": 10,
+      "direction": 1,
+      "rdt_kohm": 39,
+      "timing_corner": "typ",
+      "deadtime_ns": 348.4,
+      "reference_l_scale": 0.5,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        10.5,
+        11.0
+      ],
+      "physical_commutation_midpoint_a": 10.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            10.5,
+            11.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 10.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.644156818306866,
+          "pre20_signed_vds_max_v": 9.6865964551666,
+          "pre20_forward_diode_min_a": -1.19081015202e-07,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i0.50000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.2372496194105,
+          "pre20_signed_vds_max_v": 9.2536802215081,
+          "pre20_forward_diode_min_a": -6.32519271598e-08,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i1.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.3399142283852,
+          "pre20_signed_vds_max_v": 8.389560559116202,
+          "pre20_forward_diode_min_a": 7.2218607725e-08,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i2.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.346422978715006,
+          "pre20_signed_vds_max_v": 6.582015745020494,
+          "pre20_forward_diode_min_a": 4.757850591969998e-07,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i4.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 2.0957270247200164,
+          "pre20_signed_vds_max_v": 2.799389620656714,
+          "pre20_forward_diode_min_a": 1.9043160529999962e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i8.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 10.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.22675596632121947,
+          "pre20_signed_vds_max_v": 1.1116701200640184,
+          "pre20_forward_diode_min_a": 2.979523370809993e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i10.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 10.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.45146376211866385,
+          "pre20_signed_vds_max_v": 0.7433953482320195,
+          "pre20_forward_diode_min_a": 3.3344322439599907e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i10.50000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 11.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6469503844309981,
+          "pre20_signed_vds_max_v": 0.39878565316102055,
+          "pre20_forward_diode_min_a": 3.7528810497499865e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i11.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6862211839569993,
+          "pre20_signed_vds_max_v": -0.5278489966993464,
+          "pre20_forward_diode_min_a": 3.3242684676184564,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i12.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7534745019869995,
+          "pre20_signed_vds_max_v": -0.7300394552087094,
+          "pre20_forward_diode_min_a": 14.637589749151424,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i16.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.835226880077,
+          "pre20_signed_vds_max_v": -0.8265616753298145,
+          "pre20_forward_diode_min_a": 30.485645477100043,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i24.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.947803648063963,
+          "pre20_signed_vds_max_v": -0.904836836900001,
+          "pre20_forward_diode_min_a": 42.365175277100285,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i40.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9816708479916899,
+          "pre20_signed_vds_max_v": -0.9399057477200008,
+          "pre20_forward_diode_min_a": 49.32724423950017,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i60.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.1911786784770002,
+          "pre20_signed_vds_max_v": -1.1356366982000008,
+          "pre20_forward_diode_min_a": 93.40362442090031,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i100.00000_l0.5_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r39_typ_v10_d1_l1",
+      "bus_v": 10,
+      "direction": 1,
+      "rdt_kohm": 39,
+      "timing_corner": "typ",
+      "deadtime_ns": 348.4,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        10.5,
+        11.0
+      ],
+      "physical_commutation_midpoint_a": 10.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            10.5,
+            11.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 10.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.592338975521,
+          "pre20_signed_vds_max_v": 9.671897710641284,
+          "pre20_forward_diode_min_a": 1.24320561526e-07,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i0.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.113107485359002,
+          "pre20_signed_vds_max_v": 9.221193664929503,
+          "pre20_forward_diode_min_a": 1.77502089592e-07,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.119775666041004,
+          "pre20_signed_vds_max_v": 8.296841592726004,
+          "pre20_forward_diode_min_a": 3.19156829275e-07,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i2.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.027361668670007,
+          "pre20_signed_vds_max_v": 6.386213500226009,
+          "pre20_forward_diode_min_a": 7.6143749827e-07,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 1.7973160747910155,
+          "pre20_signed_vds_max_v": 2.584694448062018,
+          "pre20_forward_diode_min_a": 2.30726152124e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i8.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 10.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.020058885046019,
+          "pre20_signed_vds_max_v": 0.9833018235446221,
+          "pre20_forward_diode_min_a": 3.63403566815e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i10.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 10.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6132813173519945,
+          "pre20_signed_vds_max_v": 0.653502410631923,
+          "pre20_forward_diode_min_a": 4.016199533909998e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i10.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 11.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6583682050489987,
+          "pre20_signed_vds_max_v": 0.3513703293252241,
+          "pre20_forward_diode_min_a": 4.451295577689993e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i11.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6895736632799994,
+          "pre20_signed_vds_max_v": -0.39275148283680517,
+          "pre20_forward_diode_min_a": 0.18913706867071525,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7528049821079997,
+          "pre20_signed_vds_max_v": -0.7285240621531197,
+          "pre20_forward_diode_min_a": 15.365292708447171,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8417919229866998,
+          "pre20_signed_vds_max_v": -0.8221574145386478,
+          "pre20_forward_diode_min_a": 30.37833848296606,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9569418686199997,
+          "pre20_signed_vds_max_v": -0.9153450342800007,
+          "pre20_forward_diode_min_a": 44.61412775970028,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9950716874524601,
+          "pre20_signed_vds_max_v": -0.9599250943300006,
+          "pre20_forward_diode_min_a": 53.94961537660028,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.20147605439,
+          "pre20_signed_vds_max_v": -1.1651077693300018,
+          "pre20_forward_diode_min_a": 100.48339792600044,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r39_typ_v10_d1_l3",
+      "bus_v": 10,
+      "direction": 1,
+      "rdt_kohm": 39,
+      "timing_corner": "typ",
+      "deadtime_ns": 348.4,
+      "reference_l_scale": 3.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        13.5,
+        14.0
+      ],
+      "physical_commutation_midpoint_a": 13.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            13.5,
+            14.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 13.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.745171207724502,
+          "pre20_signed_vds_max_v": 9.779431543181268,
+          "pre20_forward_diode_min_a": 4.48359662180177e-08,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i0.50000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.247530611469402,
+          "pre20_signed_vds_max_v": 9.368976421516152,
+          "pre20_forward_diode_min_a": 2.35052225532e-07,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i1.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.236157216114005,
+          "pre20_signed_vds_max_v": 8.53190195226796,
+          "pre20_forward_diode_min_a": 6.16021820763e-07,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i2.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.1807841132060135,
+          "pre20_signed_vds_max_v": 6.817534581626214,
+          "pre20_forward_diode_min_a": 1.45012283081e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i4.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 2.173285666736025,
+          "pre20_signed_vds_max_v": 3.397142899356027,
+          "pre20_forward_diode_min_a": 3.5026471481899993e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i8.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6473493576969943,
+          "pre20_signed_vds_max_v": 1.1004740897127356,
+          "pre20_forward_diode_min_a": 5.771879942969982e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i12.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 13.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6917342388279984,
+          "pre20_signed_vds_max_v": 0.7124300215680376,
+          "pre20_forward_diode_min_a": 6.46418482073997e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i13.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 13.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7031634454099988,
+          "pre20_signed_vds_max_v": 0.5273053570900385,
+          "pre20_forward_diode_min_a": 6.856607230569962e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i13.50000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 14.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.712300068339999,
+          "pre20_signed_vds_max_v": 0.34670737971003945,
+          "pre20_forward_diode_min_a": 7.290939216879951e-06,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i14.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7421745802699992,
+          "pre20_signed_vds_max_v": -0.572360952491207,
+          "pre20_forward_diode_min_a": 7.992639832103491,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i16.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.861744749159,
+          "pre20_signed_vds_max_v": -0.8419092780584309,
+          "pre20_forward_diode_min_a": 35.4020293475,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i24.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.0037217737600006,
+          "pre20_signed_vds_max_v": -0.9722582360300001,
+          "pre20_forward_diode_min_a": 57.6741177241,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i40.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.0744321101185441,
+          "pre20_signed_vds_max_v": -1.0322121543300007,
+          "pre20_forward_diode_min_a": 70.2222581063,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i60.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.159731136099,
+          "pre20_signed_vds_max_v": -1.1463054910100008,
+          "pre20_forward_diode_min_a": 96.31121905440023,
+          "waveform": "outputs/runs/v10_d1_dt348.4_i100.00000_l3_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r51_max_v10_d0_l1",
+      "bus_v": 10,
+      "direction": 0,
+      "rdt_kohm": 51,
+      "timing_corner": "max",
+      "deadtime_ns": 496.4541760722347,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        5.0,
+        5.5
+      ],
+      "physical_commutation_midpoint_a": 5.25,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            5.0,
+            5.5
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 5.25,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.380050032025864,
+          "pre20_signed_vds_max_v": 9.469431198802639,
+          "pre20_forward_diode_min_a": 1.2837864897487352e-07,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i0.50000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.469747413018043,
+          "pre20_signed_vds_max_v": 8.643810007181724,
+          "pre20_forward_diode_min_a": 3.2755061499628486e-07,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.526516241690051,
+          "pre20_signed_vds_max_v": 6.875452155030098,
+          "pre20_forward_diode_min_a": 7.774425735729242e-07,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i2.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 2.492817984553714,
+          "pre20_signed_vds_max_v": 3.106174608550737,
+          "pre20_forward_diode_min_a": 1.72751108955e-06,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 5.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.6461344589122355,
+          "pre20_signed_vds_max_v": 1.3166884736353344,
+          "pre20_forward_diode_min_a": 2.31812894437e-06,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i5.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 5.5,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.5336152466141898,
+          "pre20_signed_vds_max_v": 0.4843057832417075,
+          "pre20_forward_diode_min_a": 2.7351915130109484e-06,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i5.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6621460387023657,
+          "pre20_signed_vds_max_v": -0.5982270331279338,
+          "pre20_forward_diode_min_a": 4.929140951437609,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i6.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7226663513006649,
+          "pre20_signed_vds_max_v": -0.7144333845768441,
+          "pre20_forward_diode_min_a": 9.766246330227743,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i8.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7520000968516074,
+          "pre20_signed_vds_max_v": -0.7495762764996645,
+          "pre20_forward_diode_min_a": 12.957909086211977,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7611599493003104,
+          "pre20_signed_vds_max_v": -0.7603623332999998,
+          "pre20_forward_diode_min_a": 14.3549703737,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7982521685027157,
+          "pre20_signed_vds_max_v": -0.7797275101810661,
+          "pre20_forward_diode_min_a": 17.30245525665178,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9795312752999994,
+          "pre20_signed_vds_max_v": -0.9514977296000016,
+          "pre20_forward_diode_min_a": 52.762222443,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.014231528699998,
+          "pre20_signed_vds_max_v": -1.0094608691990647,
+          "pre20_forward_diode_min_a": 64.97011383595854,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.206175119800001,
+          "pre20_signed_vds_max_v": -1.1253778890764372,
+          "pre20_forward_diode_min_a": 90.32986998098363,
+          "waveform": "outputs/runs/v10_d0_dt496.4541760722347_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r51_max_v10_d1_l1",
+      "bus_v": 10,
+      "direction": 1,
+      "rdt_kohm": 51,
+      "timing_corner": "max",
+      "deadtime_ns": 496.4541760722347,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        5.5,
+        6.0
+      ],
+      "physical_commutation_midpoint_a": 5.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            5.5,
+            6.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 5.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.384567694561703,
+          "pre20_signed_vds_max_v": 9.465984994358251,
+          "pre20_forward_diode_min_a": 1.212641775880867e-07,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i0.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.484556555807922,
+          "pre20_signed_vds_max_v": 8.649899121168977,
+          "pre20_forward_diode_min_a": 3.1734414796366967e-07,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.555726744726738,
+          "pre20_signed_vds_max_v": 6.895847299545065,
+          "pre20_forward_diode_min_a": 7.631179369630856e-07,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i2.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 2.5242040470004916,
+          "pre20_signed_vds_max_v": 3.1316070619320553,
+          "pre20_forward_diode_min_a": 1.7032683981e-06,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 5.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.6724480805983637,
+          "pre20_signed_vds_max_v": 1.3380886440499564,
+          "pre20_forward_diode_min_a": 2.30052866162e-06,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i5.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 5.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.49371894725212623,
+          "pre20_signed_vds_max_v": 0.5029823792116213,
+          "pre20_forward_diode_min_a": 2.70981221848758e-06,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i5.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6611688000403899,
+          "pre20_signed_vds_max_v": -0.5921293836938661,
+          "pre20_forward_diode_min_a": 4.7621914148950815,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i6.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7221585679398596,
+          "pre20_signed_vds_max_v": -0.7140452597910393,
+          "pre20_forward_diode_min_a": 9.706435919521825,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i8.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7509564143498864,
+          "pre20_signed_vds_max_v": -0.748563009724678,
+          "pre20_forward_diode_min_a": 12.790272328415774,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7606072332574146,
+          "pre20_signed_vds_max_v": -0.7591577078785,
+          "pre20_forward_diode_min_a": 14.156093360249812,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.800320390182956,
+          "pre20_signed_vds_max_v": -0.779308718410569,
+          "pre20_forward_diode_min_a": 17.367461620489898,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9816527671970001,
+          "pre20_signed_vds_max_v": -0.9476850519299997,
+          "pre20_forward_diode_min_a": 51.7914991836,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9868582052049749,
+          "pre20_signed_vds_max_v": -0.955766659096957,
+          "pre20_forward_diode_min_a": 52.01206402610076,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.1113225708137213,
+          "pre20_signed_vds_max_v": -1.095818433986,
+          "pre20_forward_diode_min_a": 83.102298118,
+          "waveform": "outputs/runs/v10_d1_dt496.4541760722347_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r51_min_v10_d0_l1",
+      "bus_v": 10,
+      "direction": 0,
+      "rdt_kohm": 51,
+      "timing_corner": "min",
+      "deadtime_ns": 406.74582392776523,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        7.5,
+        8.0
+      ],
+      "physical_commutation_midpoint_a": 7.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            7.5,
+            8.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 7.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.486977546458,
+          "pre20_signed_vds_max_v": 9.498777194754604,
+          "pre20_forward_diode_min_a": -6.36564128944e-08,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i0.50000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.941787140004317,
+          "pre20_signed_vds_max_v": 8.968295313812146,
+          "pre20_forward_diode_min_a": 3.23578168131e-08,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 7.7474364358217676,
+          "pre20_signed_vds_max_v": 7.866771390683398,
+          "pre20_forward_diode_min_a": 2.1910652673113343e-07,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i2.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 5.072682151606987,
+          "pre20_signed_vds_max_v": 5.4382125288230005,
+          "pre20_forward_diode_min_a": 7.859148654886579e-07,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 2.2792225704379048,
+          "pre20_signed_vds_max_v": 2.8785817368659057,
+          "pre20_forward_diode_min_a": 1.583044482090879e-06,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i6.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 7.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.9665030427805145,
+          "pre20_signed_vds_max_v": 1.6449334952932102,
+          "pre20_forward_diode_min_a": 2.0576091972299913e-06,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i7.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 7.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.34806263088305595,
+          "pre20_signed_vds_max_v": 1.055230540547877,
+          "pre20_forward_diode_min_a": 2.3382540498035545e-06,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i7.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.5684814193388181,
+          "pre20_signed_vds_max_v": 0.4883249332536154,
+          "pre20_forward_diode_min_a": 2.6844629056894555e-06,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i8.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7344872759987325,
+          "pre20_signed_vds_max_v": -0.7221408230533111,
+          "pre20_forward_diode_min_a": 11.046898959091612,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7722758980000002,
+          "pre20_signed_vds_max_v": -0.7710706541492298,
+          "pre20_forward_diode_min_a": 17.432779905481244,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8322610504894062,
+          "pre20_signed_vds_max_v": -0.813263205202256,
+          "pre20_forward_diode_min_a": 23.475011825328952,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8257044076845176,
+          "pre20_signed_vds_max_v": -0.7935732550017941,
+          "pre20_forward_diode_min_a": 17.14376656409152,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.96561198359862,
+          "pre20_signed_vds_max_v": -0.9581670371999991,
+          "pre20_forward_diode_min_a": 53.7933951787,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.2139774812000006,
+          "pre20_signed_vds_max_v": -1.1189562265033237,
+          "pre20_forward_diode_min_a": 89.51397182407703,
+          "waveform": "outputs/runs/v10_d0_dt406.74582392776523_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r51_min_v10_d1_l1",
+      "bus_v": 10,
+      "direction": 1,
+      "rdt_kohm": 51,
+      "timing_corner": "min",
+      "deadtime_ns": 406.74582392776523,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        7.5,
+        8.0
+      ],
+      "physical_commutation_midpoint_a": 7.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            7.5,
+            8.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 7.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.525736568420399,
+          "pre20_signed_vds_max_v": 9.528606380442799,
+          "pre20_forward_diode_min_a": -3.71944582037e-08,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i0.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.972747374346783,
+          "pre20_signed_vds_max_v": 9.006769438266415,
+          "pre20_forward_diode_min_a": 4.89301733182e-08,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 7.778607351618974,
+          "pre20_signed_vds_max_v": 7.900924312434528,
+          "pre20_forward_diode_min_a": 2.1814867117091518e-07,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i2.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 5.095067945992849,
+          "pre20_signed_vds_max_v": 5.457198340161739,
+          "pre20_forward_diode_min_a": 7.704687987693262e-07,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 2.285259146526262,
+          "pre20_signed_vds_max_v": 2.8779428768837962,
+          "pre20_forward_diode_min_a": 1.5581985629471243e-06,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i6.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 7.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.964193815771791,
+          "pre20_signed_vds_max_v": 1.6345465262344514,
+          "pre20_forward_diode_min_a": 2.0284678453055878e-06,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i7.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 7.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.3419404793061377,
+          "pre20_signed_vds_max_v": 1.0402379005352764,
+          "pre20_forward_diode_min_a": 2.3069768474800776e-06,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i7.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.5752732332750106,
+          "pre20_signed_vds_max_v": 0.4689233853312716,
+          "pre20_forward_diode_min_a": 2.65172994905934e-06,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i8.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7340994837867959,
+          "pre20_signed_vds_max_v": -0.7222566348511078,
+          "pre20_forward_diode_min_a": 10.96961651849203,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.771100424878,
+          "pre20_signed_vds_max_v": -0.7703788758542942,
+          "pre20_forward_diode_min_a": 17.08749216029123,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8296886890130983,
+          "pre20_signed_vds_max_v": -0.8095977576423439,
+          "pre20_forward_diode_min_a": 22.634201202641965,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8207464509194875,
+          "pre20_signed_vds_max_v": -0.7846978205090311,
+          "pre20_forward_diode_min_a": 15.058446105830054,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9896537223578792,
+          "pre20_signed_vds_max_v": -0.9048853381058299,
+          "pre20_forward_diode_min_a": 41.1596419701,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.2378512899773302,
+          "pre20_signed_vds_max_v": -1.06883698568,
+          "pre20_forward_diode_min_a": 77.1389153498,
+          "waveform": "outputs/runs/v10_d1_dt406.74582392776523_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r51_typ_v10_d0_l0.5",
+      "bus_v": 10,
+      "direction": 0,
+      "rdt_kohm": 51,
+      "timing_corner": "typ",
+      "deadtime_ns": 451.59999999999997,
+      "reference_l_scale": 0.5,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        6.0,
+        6.5
+      ],
+      "physical_commutation_midpoint_a": 6.25,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            6.0,
+            6.5
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 6.25,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.330215207023002,
+          "pre20_signed_vds_max_v": 9.451686357769757,
+          "pre20_forward_diode_min_a": 2.02325699705e-07,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i0.50000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.539154146060003,
+          "pre20_signed_vds_max_v": 8.727676510580006,
+          "pre20_forward_diode_min_a": 3.41486261976e-07,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i1.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.8662838602900065,
+          "pre20_signed_vds_max_v": 7.201335752310007,
+          "pre20_forward_diode_min_a": 6.81188983118e-07,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i2.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 3.336920026270012,
+          "pre20_signed_vds_max_v": 3.9332409272400146,
+          "pre20_forward_diode_min_a": 1.48666779368e-06,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i4.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.10979395100001388,
+          "pre20_signed_vds_max_v": 0.8205968298800163,
+          "pre20_forward_diode_min_a": 2.64088790169e-06,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i6.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.5,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6411987627999993,
+          "pre20_signed_vds_max_v": 0.12111350900001577,
+          "pre20_forward_diode_min_a": 3.302532410359998e-06,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i6.50000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 7.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6723194373000002,
+          "pre20_signed_vds_max_v": -0.6409161612733867,
+          "pre20_forward_diode_min_a": 5.867736593280004,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i7.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7049872941999984,
+          "pre20_signed_vds_max_v": -0.6931291405213975,
+          "pre20_forward_diode_min_a": 8.165894951791534,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i8.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7563342765974306,
+          "pre20_signed_vds_max_v": -0.7528451041000005,
+          "pre20_forward_diode_min_a": 13.752860824600035,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i12.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7685651927447227,
+          "pre20_signed_vds_max_v": -0.7645746228999997,
+          "pre20_forward_diode_min_a": 15.094216577000008,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i16.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7991964872999993,
+          "pre20_signed_vds_max_v": -0.7858297762842537,
+          "pre20_forward_diode_min_a": 18.182474247858842,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i24.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9660860742999996,
+          "pre20_signed_vds_max_v": -0.8929080536669382,
+          "pre20_forward_diode_min_a": 41.83537063231886,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i40.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.0393537627999991,
+          "pre20_signed_vds_max_v": -1.0159612245105574,
+          "pre20_forward_diode_min_a": 67.35291343523023,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i60.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.2047876946786276,
+          "pre20_signed_vds_max_v": -1.1913834976000008,
+          "pre20_forward_diode_min_a": 106.08529462800009,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i100.00000_l0.5_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r51_typ_v10_d0_l1",
+      "bus_v": 10,
+      "direction": 0,
+      "rdt_kohm": 51,
+      "timing_corner": "typ",
+      "deadtime_ns": 451.59999999999997,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        6.5,
+        7.0
+      ],
+      "physical_commutation_midpoint_a": 6.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            6.5,
+            7.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 6.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.523906046829001,
+          "pre20_signed_vds_max_v": 9.529047974979,
+          "pre20_forward_diode_min_a": -4.991214756374954e-08,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i0.50000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.810076234750003,
+          "pre20_signed_vds_max_v": 8.892816985970002,
+          "pre20_forward_diode_min_a": 1.0877142188999814e-07,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 7.27389925158,
+          "pre20_signed_vds_max_v": 7.529580139915957,
+          "pre20_forward_diode_min_a": 4.7546339216905816e-07,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i2.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 3.8935684940500135,
+          "pre20_signed_vds_max_v": 4.47928962895126,
+          "pre20_forward_diode_min_a": 1.3856912241712445e-06,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.6428976369999999,
+          "pre20_signed_vds_max_v": 1.4102911039449921,
+          "pre20_forward_diode_min_a": 2.4522376884250046e-06,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i6.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.0917670443569245,
+          "pre20_signed_vds_max_v": 0.7024646152000003,
+          "pre20_forward_diode_min_a": 2.81421146718e-06,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i6.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 7.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6565262894999994,
+          "pre20_signed_vds_max_v": 0.02817610515001298,
+          "pre20_forward_diode_min_a": 3.374371959677472e-06,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i7.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6968291927499992,
+          "pre20_signed_vds_max_v": -0.6751058725701797,
+          "pre20_forward_diode_min_a": 6.858903906256574,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i8.00000_l1_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7509895670999994,
+          "pre20_signed_vds_max_v": -0.7458336071361638,
+          "pre20_forward_diode_min_a": 13.672871145213083,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7683661465946292,
+          "pre20_signed_vds_max_v": -0.7640968492991527,
+          "pre20_forward_diode_min_a": 15.0617141171724,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7887914120939039,
+          "pre20_signed_vds_max_v": -0.7766030943000005,
+          "pre20_forward_diode_min_a": 15.813825519000016,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9712344948000009,
+          "pre20_signed_vds_max_v": -0.8051292620025521,
+          "pre20_forward_diode_min_a": 21.32298885562884,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.0099851653999998,
+          "pre20_signed_vds_max_v": -0.9979423521611207,
+          "pre20_forward_diode_min_a": 63.11366469864974,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.1703059823498692,
+          "pre20_signed_vds_max_v": -1.1465187756999988,
+          "pre20_forward_diode_min_a": 95.3232825416,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r51_typ_v10_d0_l3",
+      "bus_v": 10,
+      "direction": 0,
+      "rdt_kohm": 51,
+      "timing_corner": "typ",
+      "deadtime_ns": 451.59999999999997,
+      "reference_l_scale": 3.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        6.0,
+        6.5
+      ],
+      "physical_commutation_midpoint_a": 6.25,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            6.0,
+            6.5
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 6.25,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.512475419972002,
+          "pre20_signed_vds_max_v": 9.582894643377186,
+          "pre20_forward_diode_min_a": 1.1707263762235147e-07,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i0.50000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.735020232495001,
+          "pre20_signed_vds_max_v": 8.821857610054998,
+          "pre20_forward_diode_min_a": 1.66941413299e-07,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i1.00000_l3_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 7.090615716280001,
+          "pre20_signed_vds_max_v": 7.238540371289998,
+          "pre20_forward_diode_min_a": 3.1032650893e-07,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i2.00000_l3_s0.1/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 3.610184071320007,
+          "pre20_signed_vds_max_v": 3.9496038234625055,
+          "pre20_forward_diode_min_a": 8.79385788479e-07,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i4.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.329852905700011,
+          "pre20_signed_vds_max_v": 0.8243504169000109,
+          "pre20_forward_diode_min_a": 1.83975262012e-06,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i6.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.5,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6195352816999997,
+          "pre20_signed_vds_max_v": 0.10893010004375367,
+          "pre20_forward_diode_min_a": 2.2779839417674996e-06,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i6.50000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 7.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6605374754999996,
+          "pre20_signed_vds_max_v": -0.6377644341011436,
+          "pre20_forward_diode_min_a": 4.31543864909,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i7.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6893001245999989,
+          "pre20_signed_vds_max_v": -0.6833191896478952,
+          "pre20_forward_diode_min_a": 5.97050773235,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i8.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7476317282,
+          "pre20_signed_vds_max_v": -0.7470009542000007,
+          "pre20_forward_diode_min_a": 12.864407015200012,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i12.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7904069597535179,
+          "pre20_signed_vds_max_v": -0.7839962392000006,
+          "pre20_forward_diode_min_a": 18.588927164100042,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i16.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8275972274145637,
+          "pre20_signed_vds_max_v": -0.8035109251,
+          "pre20_forward_diode_min_a": 20.418882876200115,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i24.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8370555061853492,
+          "pre20_signed_vds_max_v": -0.8084193344000005,
+          "pre20_forward_diode_min_a": 20.311797901000105,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i40.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9766346285999994,
+          "pre20_signed_vds_max_v": -0.9744125910937993,
+          "pre20_forward_diode_min_a": 57.35830214172145,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i60.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.201196281549997,
+          "pre20_signed_vds_max_v": -1.0948656066000026,
+          "pre20_forward_diode_min_a": 83.492194687,
+          "waveform": "outputs/runs/v10_d0_dt451.59999999999997_i100.00000_l3_s0.1/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r51_typ_v10_d1_l0.5",
+      "bus_v": 10,
+      "direction": 1,
+      "rdt_kohm": 51,
+      "timing_corner": "typ",
+      "deadtime_ns": 451.59999999999997,
+      "reference_l_scale": 0.5,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        6.0,
+        6.5
+      ],
+      "physical_commutation_midpoint_a": 6.25,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            6.0,
+            6.5
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 6.25,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.354823597409,
+          "pre20_signed_vds_max_v": 9.466206509612938,
+          "pre20_forward_diode_min_a": 1.84902152857e-07,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i0.50000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.569733106682003,
+          "pre20_signed_vds_max_v": 8.748106123413903,
+          "pre20_forward_diode_min_a": 3.23105311052e-07,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i1.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 6.907471394159006,
+          "pre20_signed_vds_max_v": 7.232680189310709,
+          "pre20_forward_diode_min_a": 6.61389083593e-07,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i2.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 3.3894548664400115,
+          "pre20_signed_vds_max_v": 3.979009067168313,
+          "pre20_forward_diode_min_a": 1.46761875915e-06,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i4.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.16142607494901348,
+          "pre20_signed_vds_max_v": 0.8687902906138167,
+          "pre20_forward_diode_min_a": 2.59734264738e-06,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i6.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.5,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6371356339329989,
+          "pre20_signed_vds_max_v": 0.16861244654801685,
+          "pre20_forward_diode_min_a": 3.245175797219999e-06,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i6.50000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 7.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6706374461439997,
+          "pre20_signed_vds_max_v": -0.6359634177999778,
+          "pre20_forward_diode_min_a": 5.779137898690007,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i7.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7038285174686497,
+          "pre20_signed_vds_max_v": -0.6917683978111652,
+          "pre20_forward_diode_min_a": 8.036217643879034,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i8.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7560032107484335,
+          "pre20_signed_vds_max_v": -0.7524868118060001,
+          "pre20_forward_diode_min_a": 13.695379923900033,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i12.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.768320941296311,
+          "pre20_signed_vds_max_v": -0.764337900685,
+          "pre20_forward_diode_min_a": 15.057991706700008,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i16.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8000110315599993,
+          "pre20_signed_vds_max_v": -0.7859922784026624,
+          "pre20_forward_diode_min_a": 18.25963381854053,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i24.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.970472630841,
+          "pre20_signed_vds_max_v": -0.9296375179230001,
+          "pre20_forward_diode_min_a": 50.1069475549,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i40.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.0555312481320258,
+          "pre20_signed_vds_max_v": -1.0380121140170004,
+          "pre20_forward_diode_min_a": 71.74041304290013,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i60.00000_l0.5_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.1976666512768,
+          "pre20_signed_vds_max_v": -1.1689202507500012,
+          "pre20_forward_diode_min_a": 100.54190504600032,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i100.00000_l0.5_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r51_typ_v10_d1_l1",
+      "bus_v": 10,
+      "direction": 1,
+      "rdt_kohm": 51,
+      "timing_corner": "typ",
+      "deadtime_ns": 451.59999999999997,
+      "reference_l_scale": 1.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        6.5,
+        7.0
+      ],
+      "physical_commutation_midpoint_a": 6.75,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            6.5,
+            7.0
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 6.75,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.523838777015701,
+          "pre20_signed_vds_max_v": 9.53716501360848,
+          "pre20_forward_diode_min_a": -1.9840377865588523e-08,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i0.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.8172028272841,
+          "pre20_signed_vds_max_v": 8.9091038923546,
+          "pre20_forward_diode_min_a": 1.3341881265099828e-07,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i1.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 7.292051179853717,
+          "pre20_signed_vds_max_v": 7.552394055537704,
+          "pre20_forward_diode_min_a": 4.896999468519965e-07,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i2.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 3.915565059511613,
+          "pre20_signed_vds_max_v": 4.501394267751011,
+          "pre20_forward_diode_min_a": 1.385932466669994e-06,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i4.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.6554586109760165,
+          "pre20_signed_vds_max_v": 1.4204918835460156,
+          "pre20_forward_diode_min_a": 2.441179441249991e-06,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i6.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.07370968321098323,
+          "pre20_signed_vds_max_v": 0.7092803779643891,
+          "pre20_forward_diode_min_a": 2.799357495482911e-06,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i6.50000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 7.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6559996451176195,
+          "pre20_signed_vds_max_v": 0.032042664728983414,
+          "pre20_forward_diode_min_a": 3.350081299320036e-06,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i7.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6965519857239995,
+          "pre20_signed_vds_max_v": -0.6749086611581634,
+          "pre20_forward_diode_min_a": 6.8122062401582815,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i8.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7500474816838999,
+          "pre20_signed_vds_max_v": -0.7450977289191935,
+          "pre20_forward_diode_min_a": 13.517408621928386,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i12.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7663682643331371,
+          "pre20_signed_vds_max_v": -0.7621176027640001,
+          "pre20_forward_diode_min_a": 14.691361797900017,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i16.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7847590400322462,
+          "pre20_signed_vds_max_v": -0.7734668889390001,
+          "pre20_forward_diode_min_a": 15.238093852400008,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i24.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.9816719647400003,
+          "pre20_signed_vds_max_v": -0.8019200214666062,
+          "pre20_forward_diode_min_a": 20.86058259567663,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i40.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.0587992984951822,
+          "pre20_signed_vds_max_v": -1.0233890493800002,
+          "pre20_forward_diode_min_a": 68.3764701065,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i60.00000_l1_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.2190837225000002,
+          "pre20_signed_vds_max_v": -1.1659558831499997,
+          "pre20_forward_diode_min_a": 99.8437007086,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i100.00000_l1_s0.2/commutation.csv.gz"
+        }
+      ]
+    },
+    {
+      "id": "r51_typ_v10_d1_l3",
+      "bus_v": 10,
+      "direction": 1,
+      "rdt_kohm": 51,
+      "timing_corner": "typ",
+      "deadtime_ns": 451.59999999999997,
+      "reference_l_scale": 3.0,
+      "status": "bracketed",
+      "physical_commutation_bracket_a": [
+        6.0,
+        6.5
+      ],
+      "physical_commutation_midpoint_a": 6.25,
+      "crossing_intervals": [
+        {
+          "bracket_a": [
+            6.0,
+            6.5
+          ],
+          "low_pass": false,
+          "high_pass": true,
+          "midpoint_a": 6.25,
+          "half_width_a": 0.25
+        }
+      ],
+      "sampled_observations": [
+        {
+          "current_a": 0.5,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 9.5031472002014,
+          "pre20_signed_vds_max_v": 9.556364658029839,
+          "pre20_forward_diode_min_a": 8.922691449555186e-08,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i0.50000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 1.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 8.755786921871602,
+          "pre20_signed_vds_max_v": 8.830285482391801,
+          "pre20_forward_diode_min_a": 1.35085735216e-07,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i1.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 2.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 7.177725913784503,
+          "pre20_signed_vds_max_v": 7.321008481557681,
+          "pre20_forward_diode_min_a": 2.94887453862e-07,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i2.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 4.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 3.824466850297007,
+          "pre20_signed_vds_max_v": 4.171670345120008,
+          "pre20_forward_diode_min_a": 8.87806013653e-07,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i4.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.0,
+          "positive_die_vds_discharged": false,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": 0.6187124116330106,
+          "pre20_signed_vds_max_v": 1.1355016941410117,
+          "pre20_forward_diode_min_a": 1.82292461914e-06,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i6.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 6.5,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": false,
+          "strict_abs_5pct": true,
+          "pre20_signed_vds_min_v": -0.2945628213821601,
+          "pre20_signed_vds_max_v": 0.433452010121,
+          "pre20_forward_diode_min_a": 2.20109118563e-06,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i6.50000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 7.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6504158256539996,
+          "pre20_signed_vds_max_v": -0.573110496441897,
+          "pre20_forward_diode_min_a": 3.618767128609298,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i7.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 8.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.6853079183093999,
+          "pre20_signed_vds_max_v": -0.6770450901426334,
+          "pre20_forward_diode_min_a": 5.80577482951,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i8.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 12.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7453288735629999,
+          "pre20_signed_vds_max_v": -0.7445027069785488,
+          "pre20_forward_diode_min_a": 12.76469026760001,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i12.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 16.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.7875272347732563,
+          "pre20_signed_vds_max_v": -0.782735052154,
+          "pre20_forward_diode_min_a": 18.529476131200035,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i16.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 24.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.822534023254752,
+          "pre20_signed_vds_max_v": -0.800924105000001,
+          "pre20_forward_diode_min_a": 20.09157449800011,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i24.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 40.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8438836623627322,
+          "pre20_signed_vds_max_v": -0.80750400578,
+          "pre20_forward_diode_min_a": 19.614559881800144,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i40.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 60.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -0.8828863714443042,
+          "pre20_signed_vds_max_v": -0.851746398360001,
+          "pre20_forward_diode_min_a": 28.6745504359001,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i60.00000_l3_s0.2/commutation.csv.gz"
+        },
+        {
+          "current_a": 100.0,
+          "positive_die_vds_discharged": true,
+          "continuous_forward_diode_clamp": true,
+          "strict_abs_5pct": false,
+          "pre20_signed_vds_min_v": -1.172955808230896,
+          "pre20_signed_vds_max_v": -1.1512407534799998,
+          "pre20_forward_diode_min_a": 96.47434076940003,
+          "waveform": "outputs/runs/v10_d1_dt451.59999999999997_i100.00000_l3_s0.2/commutation.csv.gz"
+        }
+      ]
+    }
+  ]
+}

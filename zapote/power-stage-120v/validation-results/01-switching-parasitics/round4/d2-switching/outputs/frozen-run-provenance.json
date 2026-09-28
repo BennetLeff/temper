@@ -1,0 +1,58 @@
+{
+  "source_revision": "829ee9debc08ce239bc2dffe0938c4fec2429545",
+  "evidence_class": "simulation/model-based diagnostics on heuristic A2 scalar inputs; no board bound",
+  "frozen_inputs_sha256": {
+    "board": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+    "original_deck": "bc3c4e72d174694c9637906c7af18f010cdd5da938054f84a3196a842a5d830c",
+    "heuristic_a2": "4365536d40dfdc2580e01ac10657874f72f4ce873e331d0248581c061bf49b35",
+    "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+    "frozen_netlist_reported": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f"
+  },
+  "decks_sha256": {
+    "legacy_control": "bc3c4e72d174694c9637906c7af18f010cdd5da938054f84a3196a842a5d830c",
+    "extended_instrumented": "1c40e36e1bb6ef6e3fc04295b5a57975e9e5d7030e3dd7788d4fabe9bba6cf04",
+    "heuristic_ideal_offgate": "abec22fe1f0aad590748ddd0605e5a9b40a7561330c32499c3e7332d0e29f8cf"
+  },
+  "runs": {
+    "legacy_control_0.2": {
+      "raw_sha256": "7f8dadf12d72de00deda1faa8113439a98425ae71379f43a7ec744db5cd485c5",
+      "copied_deck_sha256": "14efe8294b5e2e18018e907a42a819fbf7b708e15311ac8a798f08c4f4f02f9a",
+      "params_inc_sha256": "856d7245cc5338e7b1249f1a9b7f2e5dd5142d2cf88cb105f12b61551467c038",
+      "run_log_sha256": "c027798e708b24854fb0b168906d2e22009a85104aec574b3d6d09123cfea64e",
+      "raw_run_log_sha256": "e08112badc08792f40db7834f4ebc00dd2c1597b0398c66584dbe813694663a0",
+      "exit_status_recorded": true
+    },
+    "extended_instrumented_0.2": {
+      "raw_sha256": "9955c8f841a25722e18abcf6cfe539575ec6ba1e30fa272c66824aa563e13dba",
+      "copied_deck_sha256": "ca74c7e47ca3d7cf000e356dfbabdca1130ecfe156fb42f5ef7ac18c7b763b34",
+      "params_inc_sha256": "856d7245cc5338e7b1249f1a9b7f2e5dd5142d2cf88cb105f12b61551467c038",
+      "run_log_sha256": "f7393d1d3ae82910f2d33c2dc681214ab259e0956148901ecccd5b26bba63f0c",
+      "raw_run_log_sha256": "fbd7e9914cc006bd47d36dadfa9603109a31bfd20ed557f62785760e43dee64c",
+      "exit_status_recorded": false
+    },
+    "extended_instrumented_0.1": {
+      "raw_sha256": "19fe7b2ff345b4f1aaf5d0189513c8c4d7f2c0e45c0270583ffe9b2e2f5c1dd0",
+      "copied_deck_sha256": "ca74c7e47ca3d7cf000e356dfbabdca1130ecfe156fb42f5ef7ac18c7b763b34",
+      "params_inc_sha256": "650f336d82b83a93a7c5da536b6caaedfb537f82a772a492da52ac96cc1b0f63",
+      "run_log_sha256": "22932c66fc4c722fbf9d430bf8f13d33a5d222c70551346153cda3085275ddd8",
+      "raw_run_log_sha256": "23664b6d33657931cc7ca9680d1be475e60955d60e81410acc67f516f32c8c55",
+      "exit_status_recorded": false
+    },
+    "heuristic_ideal_offgate_0.2": {
+      "raw_sha256": "2c4d5c08af5f739c69c529d8069463821c9e117c37f25e6045de049c2a1b15c3",
+      "copied_deck_sha256": "383cc4ab2b39d769d061e82b8ab3e65669ca2b3e13f5cbb4a169521252915868",
+      "params_inc_sha256": "856d7245cc5338e7b1249f1a9b7f2e5dd5142d2cf88cb105f12b61551467c038",
+      "run_log_sha256": "ac7d6e7e25c9c241f11625846feabe05b13c4bb68eaed515101bb3023e3dda77",
+      "raw_run_log_sha256": "a168009e6553a8c91f9873ddab8c820d30e7d690df488919ac2a1bf8a7d4cd34",
+      "exit_status_recorded": false
+    },
+    "heuristic_ideal_offgate_0.1": {
+      "raw_sha256": "3091798943a5cd0bfc6231636860744fb256b41c79dace5209fb3fd339fc512e",
+      "copied_deck_sha256": "383cc4ab2b39d769d061e82b8ab3e65669ca2b3e13f5cbb4a169521252915868",
+      "params_inc_sha256": "650f336d82b83a93a7c5da536b6caaedfb537f82a772a492da52ac96cc1b0f63",
+      "run_log_sha256": "db090fe51eb6f70348dec4dee8531fc8b6d2884a90f496d412c59ada53be5c90",
+      "raw_run_log_sha256": "b358114bef09e1ed738b054e160e587cef308123b33aabe18fd498ea87773c8e",
+      "exit_status_recorded": false
+    }
+  }
+}
