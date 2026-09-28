@@ -1,0 +1,38 @@
+{
+  "date_utc": "2026-09-28",
+  "base_commit": "dd3695326d416c6d818f4296ef2db6b0dffd2286",
+  "board": {
+    "path": "native-17/section.kicad_pcb",
+    "sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162"
+  },
+  "copper_step": {
+    "path": "validation-results/01-switching-parasitics/round6/d1-fem/raw/native17-copper.step",
+    "sha256": "07e8a14caa1f2b1888576dbece1e4356350f593d3bef12cc5d4d928a6ac17aff",
+    "status": "verified round-6 input, not consumed by any board solve in round 7"
+  },
+  "palace": {
+    "source_commit": "ca04eddeaa1d8f5345b8a51b5ce5cc578da3a8c7",
+    "third_attempt_start_utc": "2026-09-28 20:13:27 UTC",
+    "third_attempt_end_utc": "2026-09-28 20:21:34 UTC",
+    "outcome": "final executable link failed on unresolved gslib symbols; no executable and no valid otool runtime linkage",
+    "final_inner_mfem_library": "/tmp/ps-r6-fem-build1/lib/libmfem.a",
+    "final_inner_gslib_library": "/opt/homebrew/lib/libgs.dylib",
+    "installed_mfem_sha256": "a6080448df3db82213d8e5f0ce535e22c7b0ae614aa7d3b2f79f5516561addbe",
+    "build_mfem_sha256": "c1da7ed2c1ec7ef5a1bbbfa96354160f01659d171050ce78377abe4b847402c1",
+    "mfem_archive_comparison": "270 ordered members and all member payload hashes identical; archive metadata differs (parent's read-only audit)"
+  },
+  "elmer": {
+    "source_commit": "a19504ac53ec222e3355e182b08f2ff280c2203a",
+    "solver_binary": "/tmp/ps-r6-fem-elmer-install/bin/ElmerSolver",
+    "solver_sha256": "b12d9ea79bc83345c7458e9d991447f53186b0d814d4a54692a93f89e8747355",
+    "reported_version": "26.2-unknown",
+    "direct_solver": "UMFPACK with Elmer tree gauge"
+  },
+  "tools": {
+    "python": "3.12.12 /Users/bennet/Miniforge3/bin/python3",
+    "gmsh_api": "4.15.2 via PYTHONPATH=/opt/homebrew/lib",
+    "numpy": "2.4.6",
+    "scipy": "1.18.0",
+    "cmake": "4.4.3"
+  }
+}

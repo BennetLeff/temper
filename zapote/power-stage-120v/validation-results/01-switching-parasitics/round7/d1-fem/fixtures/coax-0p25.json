@@ -1,0 +1,15 @@
+{
+  "Problem": {"Type": "Magnetostatic", "Verbose": 2, "Output": "raw/fixtures/coax-0p25-postpro"},
+  "Model": {"Mesh": "../../round6/d1-fem/raw/coax-0p25.msh", "L0": 0.001},
+  "Domains": {"Materials": [{"Attributes": [1], "Permeability": 1.0}]},
+  "Boundaries": {
+    "PEC": {"Attributes": [2]},
+    "SurfaceCurrent": [{"Index": 1, "Attributes": [3], "Direction": "+R", "CoordinateSystem": "Cylindrical"}]
+  },
+  "Solver": {
+    "Order": 2,
+    "Device": "CPU",
+    "Magnetostatic": {"Save": 0, "InactivePorts": "Open"},
+    "Linear": {"Type": "AMS", "KSPType": "CG", "Tol": 1e-8, "MaxIts": 1000}
+  }
+}
