@@ -18,7 +18,7 @@ and insulation qualification; the CTI confirmation below).
 | Surface finish | Lead-free HASL or ENIG |
 | Solder mask / silk | Green / white |
 | Impedance control | None |
-| Vias | Tented both sides (mask covers vias) |
+| Vias | Tented (mask over vias) on 353 of 354 via sides; one via side has a mask opening |
 | Drills | 293 plated (177 vias, 116 component holes), 8 non-plated |
 
 Deviations and notes:

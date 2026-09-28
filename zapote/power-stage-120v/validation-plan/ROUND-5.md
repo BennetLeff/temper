@@ -52,13 +52,22 @@ Run R5-D1 and R5-B in parallel; the rest follows D1.
 
 ## R5-D1: extract only what the deck needs
 
-**Deliverable:** for each leg, a coupled R+jωL matrix over **six ports**:
-1. local bus capacitors (C38/C39 or C40/C41, BUS_P side) → high-side drain;
+**Deliverable:** for each leg, a coupled R+jωL matrix over **eight ports**
+(corrected 2026-09-28: the first version said six and listed one gate loop,
+but each leg has a high-side and a low-side gate circuit):
+1. local bus capacitors → high-side drain. The two local capacitors
+   (C38/C39 or C40/C41) are one port with their BUS_P pads tied, since they
+   are in parallel; report the current split between them from the solve;
 2. high-side source → low-side drain (switch node);
 3. low-side source → R5 (with the shared return);
-4. R5 → local capacitor return pads;
-5. gate loop: driver output → gate resistor → gate pin;
-6. gate return: source pin → driver ground.
+4. R5 → local capacitor return pads (tied as in port 1);
+5. high-side gate drive: driver output → gate resistor → gate pin;
+6. high-side gate return: source pin → driver high-side ground;
+7. low-side gate drive: driver output → gate resistor → gate pin;
+8. low-side gate return: source pin → driver low-side ground.
+
+Gate resistors, MOSFET packages, capacitors and drivers are external
+components: the copper model ends at their pads and must not short them.
 
 Deliver it as `spice_coupled.inc` (L and K statements) plus the matrix JSON,
 at 1, 10 and 30 MHz.
@@ -74,9 +83,10 @@ at 1, 10 and 30 MHz.
 2. **Mesh without dropping connections.** Use a native-contained segment
    mesh as round 4 did, with one change: **no copper link may be omitted**.
    Where a fitted width falls below the solver's practical minimum, give it
-   a *narrower* width than the copper (at least 20 µm, recorded). A narrower
-   conductor has more inductance, so this errs high. Count and report every
-   such link. Every emitted element must lie inside native copper; check it.
+   a *narrower* width than the copper (at least 20 µm, recorded). This tends
+   to raise an isolated self inductance, but it does **not** bound every
+   coupled term or the switching waveform (round-5 review), so report every
+   such link and treat the result as an approximation. Every emitted element must lie inside native copper; check it.
 3. **Crop by convergence, not by eye.** Start with a crop equal to the
    bounding box of the six ports' pads plus a margin M. Solve at
    M = 5, 10, 20 and 40 mm. Stop when every self term and every mutual term

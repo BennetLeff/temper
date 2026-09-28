@@ -50,6 +50,40 @@ Record the off device's maximum positive VGS through its partner's turn-off, dio
 
 If a valid waveform fails, change **one reversible control at a time after discharge**. First evaluate the affected leg-A gate resistor (R10/R12) for turn-off behavior (larger series resistance may reduce di/dt and VDS overshoot but delay turn-off); then for turn-on behavior (larger resistance may suppress partner Miller pickup but increase switching loss). The single fitted series resistor affects both directions, so separate on/off control would require an explicit designed resistor/diode option and a fresh source/board review; do not pretend it exists on native-17. Restore/document each tested value and check U1 drive, dead time, loss and protection timing. Next evaluate the affected snubber (C12/C13), with its voltage/current/thermal stress and loss measured. Finally consider only the layout changes R5-D2 identifies after D1: those require a new board revision, extraction, simulations, fabrication review and a new bench baseline. R18/R20 and C19/C20 are the corresponding leg-B parts, not knobs for the required leg-A test. Any proposed change to native copper, assembly or source is reported to the owner; this plan changes none.
 
+## Review additions (Claude, 2026-09-28)
+
+These add to the procedure above; they don't relax any of it.
+
+1. **T1 carries the fixture current.** The load path runs J2 → T1 primary →
+   `sw_a`, so the current transformer sees a DC pulse. Its secondary voltage
+   is about `I/100 × (R39 1.5 Ω + DCR 1.5 Ω)`, and the Coilcraft table gives
+   638 V·µs (the values in `validation-plan/sim-kit/02-chain/ct_frontend.cir`).
+   Keep each shot's integral, ramp plus freewheel plus second pulse, at or
+   below **320 V·µs** (half the rating). At 37 A the ramp alone uses
+   `0.5 × 0.37 A × 3 Ω × t₁`: about 41 V·µs with a 100 µH inductor at
+   50 V, 103 V·µs with 250 µH, and 411 V·µs with 1 mH (over budget). Each
+   10 µs of freewheel at 37 A adds about 11 V·µs. **Use a 100–250 µH
+   fixture inductor.** Between shots, allow at least 10 ms for the CT to
+   reset (magnetizing 3.2 mH into about 3 Ω is τ ≈ 1.1 ms). These figures
+   are estimates from the datasheet table; recompute them with the measured
+   fixture inductance.
+2. **The protection chain is live, so record it.** The tank-CT detector
+   (static trip 50.6–60.0 A) shouldn't act below 37 A. The shunt OCP's
+   worst-case static band is **38.4–85.6 A** (task 02 round 3), so it *may*
+   assert BUS_FAULT inside this campaign. Capture BUS_FAULT (J4.10) and U6's
+   output (`ocp_ok_hot`) on spare channels or a logic analyzer on the same
+   trigger. A BUS_FAULT below 37 A is a finding, not a fixture fault: record
+   the drain current at which it asserted. This measures the real shunt trip
+   point, the evidence the held decision B needs.
+3. **Measure the commutation-loop inductance from the ringing.** After each
+   turn-off, fit the VDS ringing frequency `f` and its decay. With the
+   device's datasheet Coss at the bus voltage plus the 1 nF snubber as `C`,
+   `L_loop ≈ 1 / ((2πf)² C)`. To separate L from an unknown parasitic C, repeat
+   one row (100 V, 20 A) with a second snubber value (for example 2.2 nF, after
+   discharge) and solve the two frequencies for both. Report `L_loop` with its
+   uncertainty. This is the quantity R5-D1 couldn't extract, and D2 can use
+   it as a calibrated input.
+
 ## Raw record for every shot
 
 Keep the native instrument waveform file **and** a lossless exported CSV, screenshot, scope setup file and hash manifest in an ignored per-shot `outputs/runs/` directory; publish reviewed summaries separately. A row is usable only if all mandatory channels cover the entire event without clipping. Suggested metadata:
