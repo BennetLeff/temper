@@ -14,6 +14,7 @@ Round-three execution and reviewed handbacks are tracked in the
 [execution record](../validation-results/round3-coordination/README.md).
 Owner decisions on the round-3 findings (2026-09-28) and the review
 dossiers are in [decision-review](../validation-results/round3-coordination/decision-review/README.md).
+**Next round: [ROUND-4.md](ROUND-4.md)** carries out those decisions (A, D, C).
 Raw round-3 evidence is a release asset; restore it with
 [raw-evidence/restore.sh](../validation-results/round3-coordination/raw-evidence/restore.sh).
 
