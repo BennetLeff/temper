@@ -19,7 +19,7 @@ dossiers are in [decision-review](../validation-results/round3-coordination/deci
 **Round 4: [ROUND-4.md](ROUND-4.md)** carries out those decisions (A, D, C).
 **Round 5: [ROUND-5.md](ROUND-5.md)** narrows D1 to the commutation cell and gate loops on native-17, then D2/C1/C2, plus a bench plan.
 **D1 by finite elements: [D1-FEM.md](D1-FEM.md)** replaces round 5's FastHenry method for the board loop inductances (owner decision 2026-09-28: simulate, don't defer to the bench).
-The [round-7 FEM execution record](../validation-results/round7-coordination/README.md) records the approved third Palace build and the current plate-fixture qualification blocker; the [round-6 record](../validation-results/round6-coordination/README.md) remains historical evidence.
+The [round-8 FEM execution record](../validation-results/round8-coordination/README.md) records the successful fourth Palace build, the 64-bit Elmer recovery, and the remaining plate and Palace-coax qualification failures. The [round-7 record](../validation-results/round7-coordination/README.md) and [round-6 record](../validation-results/round6-coordination/README.md) remain historical evidence.
 The [round-5 execution record and monitoring handoff](../validation-results/round5-coordination/README.md)
 links the latest evidence and remaining blockers; the [round-4 record](../validation-results/round4-coordination/README.md) retains historical reference results.
 Raw round-3 evidence is a release asset; restore it with
@@ -154,8 +154,8 @@ tasks need separate worktrees and must not both build Rust or the native bridge.
 | gmsh | installed | Meshing (04, optional) |
 | Python with numpy/scipy/shapely (`/Users/bennet/Miniforge3/bin/python3`) | installed | Scripts, sheet solves |
 | Rust toolchain; built checkers under `/tmp/ps-native-cargo/debug/` (`zapote-board`, `zapote-power-native-parity`, `zapote-power-copper-identity`) | installed | Board gates |
-| Elmer 26.2 (`/tmp/ps-r6-fem-elmer-install`) | built locally; coax qualified, plate blocked | [Round-7 FEM evidence](../validation-results/01-switching-parasitics/round7/d1-fem/README.md); direct UMFPACK only |
-| Palace | third and final authorized build failed at link | No qualified runtime; see round-7 evidence |
+| Elmer 26.2 (`/tmp/ps-r6-fem-elmer-install`) | Big Umfpack coax qualified; plate domain-change check passes but value is below band | [Round-8 Elmer evidence](../validation-results/01-switching-parasitics/round8/elmer/README.md); 64-bit direct backend; MUMPS unavailable |
+| Palace (`/tmp/ps-r8-palace-build4/palace-build/palace-arm64.bin`) | authorized fourth build passed; first coax solve did not converge | [Round-8 Palace evidence](../validation-results/01-switching-parasitics/round8/palace/README.md); runtime not qualified |
 | FastHenry2, openEMS | not rechecked in round 7 | Not used by the current D1-FEM method |
 | gerbv | not installed (`brew install gerbv`) | Gerber review (08) |
 | FreeCAD | not checked | Mechanical (09) |
@@ -223,7 +223,7 @@ Update this table when a task finishes (link the result README).
 
 | # | Status | Result | Verdict |
 | --- | --- | --- | --- |
-| 01 | round 7 FEM blocked on plate qualification; bench procedure delivered | [round 7 handoff](../validation-results/round7-coordination/README.md), [D1 FEM](../validation-results/01-switching-parasitics/round7/d1-fem/README.md), [bench procedure](BENCH-SWITCHING.md) | Palace attempt 3 failed at final link; no fourth attempt. Elmer direct coax passes the amended sampled-current criterion on two meshes. Finest full plate result is 2.802628 nH, below 2.85–3.14 nH; exterior/domain sensitivity remains unresolved. Mutual and board extraction not run; no matrix; D2/C1/C2 remain held. |
+| 01 | round 8 FEM blocked on plate and Palace-coax qualification; bench procedure delivered | [round 8 handoff](../validation-results/round8-coordination/README.md), [Elmer](../validation-results/01-switching-parasitics/round8/elmer/README.md), [Palace](../validation-results/01-switching-parasitics/round8/palace/README.md), [bench procedure](BENCH-SWITCHING.md) | Palace attempt 4 builds but first coax solve fails to converge. Big Umfpack recovers the prior failed mesh and passes both coax regressions. Plate 20/40/80 mm results are 2.802628/2.816182/2.828260 nH: final change 0.4289% passes, but value remains below 2.85–3.14 nH. Mutual and board extraction not run; no matrix; D2/C1/C2 held. |
 | 02 | round 3 partial; static criterion failed | [protection round three](../validation-results/02-protection-timing/round3/README.md) | All 108 ideal CT cases complete; shunt minimum 38.44 A fails 44 A criterion; ramp timing, actual gate-off and HOT5 slow-fall fail-safe guarantee unresolved |
 | 03 | round 3 conditional budget complete; cooling choice blocked | [loss and thermal budget](../validation-results/03-loss-thermal-budget/round3/README.md) | Two pad options, heatsink requirement and 42-part heat map delivered; switching/auxiliary losses, installed contact and airflow remain unqualified |
 | 04 | round 4 re-extraction on native-17 complete; operating temperature still blocked | [task 04 round 4](../validation-results/04-board-current-thermal/round4/README.md) | FlashLayer-aware export: 35/35 A4 cases rerun (SW_B R +8 %, peak 12.6 A/mm; others within 0.1 %–1.7 %); mains L/N added; B3 peaks +0.06–0.8 °C, still mesh-sensitive and conditional |
