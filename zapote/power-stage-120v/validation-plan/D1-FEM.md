@@ -11,6 +11,54 @@ rather than on a fabricated board.
 Written 2026-09-28 against PR #1615. Owner decision: simulate this rather
 than defer it to the bench.
 
+## Amendments after round 6 (2026-09-28)
+
+Round 6 (`validation-results/01-switching-parasitics/round6/d1-fem/`)
+stopped before any board solve. These amendments supersede the sections
+they name.
+
+1. **Palace: one more build is authorized (a third attempt), done
+   deliberately.** Both failures were configuration choices: attempt 1
+   switched off both eigen backends, one of which Palace requires; attempt 2
+   linked Homebrew's MFEM instead of the superbuild's. For attempt 3:
+   - keep Palace's default dependency set, with ARPACK (and SLEPc if it
+     builds) on; switch off only GPU items (MAGMA);
+   - bind MFEM explicitly to the superbuild (`MFEM_DIR` **and**
+     `MFEM_LIBRARY` and its include path), and prove the binding from the
+     final CMake cache and `otool -L` on the Palace binary before running;
+   - time-box it to one working session. If it fails, record the log and
+     move to item 2; don't try a fourth time.
+2. **Elmer direct is an accepted fallback for fixtures.** Round 6's
+   direct (UMFPACK, tree-gauge) coax solve gave 13.745 nH against
+   13.863 nH exact (−0.85 % at 0.25 mm), inside §5A's 2 %. The iterative
+   Hypre/AMS path is **not** accepted: it stagnated (residual 9.7 against
+   1e-9) while reporting success, and round 6's verifier rightly rejects it.
+   With whichever solver runs, finish §5A (plate pair, then mutual) before
+   the board. For the board, check that a direct solve fits in memory. If
+   it doesn't, an iterative solver is acceptable only after it reproduces
+   the direct coax and plate results within 1 %.
+3. **Current conservation is part of the fixture error.** Round 6's
+   current-sheet source carried 0.9997–1.0111 A across sampled cuts. Report
+   the cut spread with every fixture, and fold it into the error bar (the
+   2 % criterion applies to the whole range, not a chosen normalization).
+4. **Closures must not cross other copper (replaces the bridge and port
+   geometry in §3 step 3).** On a TO-247 the pins run G–D–S in a line, so a
+   straight G–S bridge passes through the drain pad (round 6's negative
+   control shows this on Q2, Q3, Q5 and Q6). A capacitor's 15 mm port sheet
+   laid flat would cross top-layer copper between its pads. So:
+   - build every closure (bridge or port sheet) that would cross other
+     copper as a **raised arch**: vertical legs from the two pads to height
+     h above the top copper, and a span at h, contacting exactly its two pads;
+   - solve each loop at **h = 1, 2 and 3 mm** and extrapolate the loop
+     inductance linearly to h = 0. This removes the arch's own contribution;
+     the component's real lead and body inductance stays in its SPICE model.
+     Report all three values and the fit; if the fit isn't linear within 5 %,
+     say so;
+   - closures between adjacent pads that cross nothing (D–S of each MOSFET,
+     the driver's adjacent SMD pins, R5 pads 1–4, the gate resistors) stay
+     flat, as specified;
+   - geometry audit: every closure touches exactly its two pads at every h.
+
 ## 0. Why the method changed
 
 Rounds 4 and 5 turned the copper into FastHenry wire segments on a pixel
