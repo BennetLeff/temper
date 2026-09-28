@@ -19,6 +19,7 @@ dossiers are in [decision-review](../validation-results/round3-coordination/deci
 **Round 4: [ROUND-4.md](ROUND-4.md)** carries out those decisions (A, D, C).
 **Round 5: [ROUND-5.md](ROUND-5.md)** narrows D1 to the commutation cell and gate loops on native-17, then D2/C1/C2, plus a bench plan.
 **D1 by finite elements: [D1-FEM.md](D1-FEM.md)** replaces round 5's FastHenry method for the board loop inductances (owner decision 2026-09-28: simulate, don't defer to the bench).
+The [round-6 FEM execution record](../validation-results/round6-coordination/README.md) records the current solver-qualification blocker and the local handback.
 The [round-5 execution record and monitoring handoff](../validation-results/round5-coordination/README.md)
 links the latest evidence and remaining blockers; the [round-4 record](../validation-results/round4-coordination/README.md) retains historical reference results.
 Raw round-3 evidence is a release asset; restore it with
@@ -220,7 +221,7 @@ Update this table when a task finishes (link the result README).
 
 | # | Status | Result | Verdict |
 | --- | --- | --- | --- |
-| 01 | round 5 native-17 extraction software-blocked; bench procedure delivered | [round 5 handoff](../validation-results/round5-coordination/README.md), [D1](../validation-results/01-switching-parasitics/round5/d1-extraction/README.md), [bench procedure](BENCH-SWITCHING.md) | Corrected solver fixtures and native export pass; no-drop native mesh and full port contract remain unresolved; no accepted matrix/fallback, so D2/C1/C2 board reruns remain held. Round-4 reference results are retained. |
+| 01 | round 6 FEM blocked at solver qualification; bench procedure delivered | [round 6 handoff](../validation-results/round6-coordination/README.md), [D1 FEM](../validation-results/01-switching-parasitics/round6/d1-fem/README.md), [bench procedure](BENCH-SWITCHING.md) | D1-FEM defines four loop ports per leg. Palace’s two builds failed configuration/link checks; Elmer builds and upstream tests pass, but its iterative coax solve fails despite exit 0. Direct coax is a numerical diagnostic only. No board matrix; D2/C1/C2 remain held. |
 | 02 | round 3 partial; static criterion failed | [protection round three](../validation-results/02-protection-timing/round3/README.md) | All 108 ideal CT cases complete; shunt minimum 38.44 A fails 44 A criterion; ramp timing, actual gate-off and HOT5 slow-fall fail-safe guarantee unresolved |
 | 03 | round 3 conditional budget complete; cooling choice blocked | [loss and thermal budget](../validation-results/03-loss-thermal-budget/round3/README.md) | Two pad options, heatsink requirement and 42-part heat map delivered; switching/auxiliary losses, installed contact and airflow remain unqualified |
 | 04 | round 4 re-extraction on native-17 complete; operating temperature still blocked | [task 04 round 4](../validation-results/04-board-current-thermal/round4/README.md) | FlashLayer-aware export: 35/35 A4 cases rerun (SW_B R +8 %, peak 12.6 A/mm; others within 0.1 %–1.7 %); mains L/N added; B3 peaks +0.06–0.8 °C, still mesh-sensitive and conditional |

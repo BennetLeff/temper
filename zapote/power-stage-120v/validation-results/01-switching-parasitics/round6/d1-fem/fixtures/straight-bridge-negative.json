@@ -1,0 +1,69 @@
+{
+  "board": "../../../../native-17/section.kicad_pcb",
+  "negative_control": {
+    "Q2": {
+      "gate_pad1_mm": [
+        150.55,
+        4.215
+      ],
+      "drain_pad2_mm": [
+        156.0,
+        4.215
+      ],
+      "source_pad3_mm": [
+        161.45,
+        4.215
+      ],
+      "drain_projection": 0.5,
+      "drain_center_on_straight_gate_source_segment": true
+    },
+    "Q3": {
+      "gate_pad1_mm": [
+        132.55,
+        4.215
+      ],
+      "drain_pad2_mm": [
+        138.0,
+        4.215
+      ],
+      "source_pad3_mm": [
+        143.45,
+        4.215
+      ],
+      "drain_projection": 0.5,
+      "drain_center_on_straight_gate_source_segment": true
+    },
+    "Q5": {
+      "gate_pad1_mm": [
+        92.55,
+        4.215
+      ],
+      "drain_pad2_mm": [
+        98.0,
+        4.215
+      ],
+      "source_pad3_mm": [
+        103.45,
+        4.215
+      ],
+      "drain_projection": 0.5,
+      "drain_center_on_straight_gate_source_segment": true
+    },
+    "Q6": {
+      "gate_pad1_mm": [
+        110.55,
+        4.215
+      ],
+      "drain_pad2_mm": [
+        116.0,
+        4.215
+      ],
+      "source_pad3_mm": [
+        121.45,
+        4.215
+      ],
+      "drain_projection": 0.5,
+      "drain_center_on_straight_gate_source_segment": true
+    }
+  }
+}
