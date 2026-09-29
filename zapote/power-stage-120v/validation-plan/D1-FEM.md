@@ -59,6 +59,32 @@ they name.
      flat, as specified;
    - geometry audit: every closure touches exactly its two pads at every h.
 
+## Amendments after round 9 (2026-09-28)
+
+Round 9 (`validation-results/01-switching-parasitics/round9/README.md`):
+Palace's build is correct (its `rings` example reproduces the reference),
+and it is exact (10⁻¹⁰) for a flat port **on the domain boundary**. It is
+**not** qualified for **interior** port sheets: the exact interior-port
+section fixture diverges, and on the open plate pair (thin or 70 µm thick)
+it converges to 3.27 nH, above a rigorous upper bound of 3.1416 nH that
+Elmer and Wheeler respect. Every board port is an interior sheet. For round
+10:
+
+1. **Report upstream.** Open a Palace GitHub issue with the two minimal
+   reproducers (`make_plate_section.py --behind 2`, and the thick-plate
+   fixture with the bound argument) and the pinned commit. Cheap, and may
+   resolve it.
+2. **Elmer carries the board fixtures meanwhile.** Run on Elmer (64-bit
+   direct): the exact section fixture with the port on the boundary and
+   2 mm inside (both must give 3.1416 nH within 1 %), and the thick-plate
+   board-style fixture (must be ≤ 3.1416 nH and near 2.85 nH). Record peak
+   memory for each; that decides whether the board needs the 64 GB desktop
+   or a lower-memory direct solver (MUMPS).
+3. **Palace sources stay flat and constant-direction** if it becomes usable;
+   the board's port and arch-span sheets already are.
+4. Palace's rings mutual isn't accepted as the mutual fixture until its
+   interior port is qualified; run the rings geometry in Elmer as well.
+
 ## Amendments after round 8 (2026-09-28)
 
 Round 8 (`validation-results/round8-coordination/README.md`): Palace builds;

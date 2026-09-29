@@ -1,0 +1,112 @@
+{
+ "solver": "Palace, /tmp/ps-r8-palace-build4/palace-build/palace-arm64.bin sha256 d581869906ca59b2f9fa479f41155df6ceca5a4b11bfe941b4aae360e4a30cfd",
+ "runs": [
+  {
+   "case": "rings (Palace example, probe removed)",
+   "note": "Palace build check",
+   "converged": true,
+   "iterations": 45,
+   "M_nH": [
+    [
+     0.04273875548705,
+     0.001960237936312
+    ],
+    [
+     0.001960237936312,
+     0.7141029006276
+    ]
+   ],
+   "reference_nH": [
+    [
+     0.0427387579021,
+     0.001960237983953
+    ],
+    [
+     0.001960237983953,
+     0.7141029007109
+    ]
+   ],
+   "analytic_pH": {
+    "M_aa": 41.78537,
+    "M_bb": 707.205,
+    "M_ab": 1.973921
+   }
+  },
+  {
+   "case": "section, port on boundary, p2",
+   "note": "exact",
+   "converged": true,
+   "iterations": 16,
+   "L_nH": 3.141592653175,
+   "error_vs_exact": -1.3203274087475778e-10,
+   "exact_nH": 3.141592653589793
+  },
+  {
+   "case": "section, interior port (2 mm behind), p1",
+   "note": "exact",
+   "converged": false,
+   "relative_residual": 0.04861,
+   "L_nH": 263456191124.49997,
+   "exact_nH": 3.141592653589793
+  },
+  {
+   "case": "section, interior port (2 mm behind), p2",
+   "note": "exact",
+   "converged": false,
+   "relative_residual": 569600.0,
+   "L_nH": 1.194662053743e+31,
+   "exact_nH": 3.141592653589793
+  },
+  {
+   "case": "coax, interior annular port +R, p2",
+   "note": "exact; stopped at 250 iterations while diverging",
+   "converged": false,
+   "relative_residual": null,
+   "L_nH": null,
+   "exact_nH": 13.862943611198906
+  },
+  {
+   "case": "toroidal cavity, curved band port +Z, p2",
+   "note": "exact",
+   "converged": false,
+   "relative_residual": 17860.0,
+   "L_nH": 7.323181584484e+31,
+   "exact_nH": 13.862943611198906
+  },
+  {
+   "case": "open plates, zero-thickness (round-8 Elmer mesh m20), p1",
+   "note": "Elmer p1 same mesh 2.802628 nH; bound <= 3.141593",
+   "converged": true,
+   "iterations": 96,
+   "L_nH": 3.117766192867
+  },
+  {
+   "case": "open plates, zero-thickness (round-8 Elmer mesh m20), p2",
+   "note": "Elmer 2.802628 nH; bound <= 3.141593",
+   "converged": true,
+   "iterations": 65,
+   "L_nH": 3.265686430423
+  },
+  {
+   "case": "open plates, zero-thickness (round-8 Elmer mesh m80), p2",
+   "note": "Elmer 2.828260 nH; bound <= 3.141593",
+   "converged": true,
+   "iterations": 64,
+   "L_nH": 3.286583028811
+  },
+  {
+   "case": "open plates, 70 um thick, interior port, m40, p1",
+   "note": "bound <= 3.141593; Wheeler 2.873 (2-D)",
+   "converged": true,
+   "iterations": 95,
+   "L_nH": 3.184969981094
+  },
+  {
+   "case": "open plates, 70 um thick, interior port, m40, p2",
+   "note": "bound <= 3.141593; Wheeler 2.873 (2-D)",
+   "converged": true,
+   "iterations": 65,
+   "L_nH": 3.2710158204860003
+  }
+ ]
+}
