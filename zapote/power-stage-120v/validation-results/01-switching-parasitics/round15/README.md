@@ -26,6 +26,7 @@
 | I1, P1 alone | 606 k tets (3 mm margin/air) | aborted at 1500, residual 1.07e-2 (201 s, 2.2 GB) |
 | Direct, P1 alone | same 606 k | 18.256 nH, 24.1 GB peak, 26 min — **not a result** (leaky source, below) |
 | I1, P1 alone, ports fixed | 609 k tets | aborted at 3000, residual 3.5e-3 (388 s) |
+| Direct, P1 alone, ports fixed | same 609 k | 18.151 nH, 26.4 GB peak, 27 min — the reference an iterative solve on this mesh must reproduce; not a board value (1.2 mm edges, 3 mm air, one arch height) |
 
 ## Cause 1 (fixed): the P1/P2 sources leaked into the air
 

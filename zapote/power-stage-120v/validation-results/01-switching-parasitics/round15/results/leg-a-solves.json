@@ -540,6 +540,35 @@
     "2900": 0.004284,
     "3000": 0.003508
    }
+  },
+  "small-v2-direct (consistent source; reference for the iterative fix, not a board value)": {
+   "label": "small-v2-direct",
+   "mesh": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/r15/legA-small-v2.msh",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 9.075265e-09,
+   "inductance_nH": 18.15053,
+   "peak_memory_GB": 26.447039952,
+   "max_rss_GB": 13.409288192,
+   "wall_s": 1599.85,
+   "solver": "direct Big Umfpack",
+   "tol": null,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": true,
+   "k_A_per_m": [
+    -2500.0,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
   }
  }
 }
