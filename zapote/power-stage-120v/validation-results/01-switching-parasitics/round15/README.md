@@ -1,5 +1,9 @@
 # D1-FEM round 15: defeatured leg-A mesh, first board solves
 
+> **Superseded (round 16):** this mesh had two spurious PEC columns (dropped
+> 2-D faces) shorting all four layers, so the 18.151 nH direct result below is
+> wrong. See `../round16/README.md`.
+
 - Board: unchanged native-17 copper export
   (`../../04-board-current-thermal/round4/reextract-b3/inputs/native17-all-copper.json.gz`).
 - Mesher: `scripts/mesh25d_simple.py` (2.5-D extrusion of a defeatured

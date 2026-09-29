@@ -59,6 +59,20 @@ they name.
      flat, as specified;
    - geometry audit: every closure touches exactly its two pads at every h.
 
+## Amendments after round 16 (2026-09-29)
+
+Round 16 (`validation-results/01-switching-parasitics/round16/README.md`):
+- **Solver: Hypre GMRES(100) + singular AMS**, on the 24-core Linux box
+  (Elmer with MPI + Hypre). Exact on every fixture; on a board mesh it
+  matches the direct solve (18.15053 nH both). It replaces the round-12
+  iterative solver, which does not converge on board meshes. Convergence
+  is judged from Hypre's own summary line (Elmer ignores Abort Not
+  Converged on the Hypre path).
+- **No dropped 2-D faces.** A dropped face extrudes into a PEC column: two
+  of them shorted all four layers of leg A (spurious vias) and cut P1 from
+  29.8 to 18.2 nH. Round 15's number is withdrawn. The mesher merges thin
+  faces and refuses to drop any; `pec_columns.py` must report zero.
+
 ## Amendments after round 15 (2026-09-29)
 
 Round 15 (`validation-results/01-switching-parasitics/round15/README.md`)
