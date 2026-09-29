@@ -64,7 +64,7 @@ Solver 2
   Calculate Magnetic Field Strength = Logical True
   Calculate Elemental Fields = Logical True
   Separate Magnetic Energy = Logical True
-  Linear System Solver = Iterative
+{calc_extra}  Linear System Solver = Iterative
   Linear System Iterative Method = CG
   Linear System Preconditioning = ILU0
   Linear System Max Iterations = 2000
@@ -80,7 +80,20 @@ Boundary Condition 2
   Magnetic Field Strength 2 = Real {k1}
   Magnetic Field Strength 3 = Real {k2}
 End
-{extra}"""
+{extra}{vtu}"""
+VTU = """Solver 3
+  Exec Solver = After Saving
+  Equation = "ResultOutput"
+  Procedure = "ResultOutputSolve" "ResultOutputSolver"
+  Output File Name = "case"
+  Vtu Format = Logical True
+  Discontinuous Galerkin = Logical True
+  Save Bulk Only = Logical True
+  Scalar Field 1 = String "none"
+  Vector Field 1 = String "magnetic flux density e"
+  Save Geometry Ids = Logical True
+End
+"""
 PORT2 = """Boundary Condition 3
   Target Boundaries(1) = {port}
   Magnetic Field Strength 1 = Real {k0}
@@ -111,6 +124,8 @@ def main() -> None:
     ap.add_argument("--ams-singular", action="store_true", help="AMS Singular Matrix (zero conductivity everywhere)")
     ap.add_argument("--solver-line", action="append", default=[],
                     help="extra line for the AV solver section, e.g. 'AMS Cycle Type = Integer 13' (repeatable)")
+    ap.add_argument("--vtu", action="store_true",
+                    help="write the elemental vector potential (Magnetic Vector Potential E) to VTU, for mutuals by reciprocity")
     ap.add_argument("--np", type=int, default=1, help="MPI ranks (ElmerGrid METIS partition + ElmerSolver_mpi)")
     ap.add_argument("--tree-gauge", action="store_true", help="iterative solve with Elmer's tree gauge (removes the gradient null space)")
     a = ap.parse_args()
@@ -158,7 +173,9 @@ def main() -> None:
     (work / "case.sif").write_text(SIF.format(outlevel=10 if a.hypre_ams else 5, linear=linear, npec=len(a.pec), pec=" ".join(map(str, a.pec)),
                                               port=a.port, k0=a.k[0], k1=a.k[1], k2=a.k[2],
                                               extra=PORT2.format(port=a.port2, k0=a.k2[0], k1=a.k2[1], k2=a.k2[2])
-                                              if a.port2 else ""))
+                                              if a.port2 else "",
+                                              calc_extra="  Calculate Magnetic Vector Potential = Logical True\n" if a.vtu else "",
+                                              vtu=VTU if a.vtu else ""))
     linux = sys.platform.startswith("linux")
     solver = (f"mpirun -np {a.np} {elmer}/bin/ElmerSolver_mpi" if a.np > 1 else f"{elmer}/bin/ElmerSolver")
     if a.np > 1:
