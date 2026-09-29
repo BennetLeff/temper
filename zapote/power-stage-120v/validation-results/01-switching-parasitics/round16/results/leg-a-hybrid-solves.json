@@ -1828,5 +1828,36 @@
    1.493,
    1.563
   ]
+ },
+ "remote_direct_column_free_mesh": {
+  "label": "D-board",
+  "mesh": "/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh",
+  "exit_code": 0,
+  "all_done": true,
+  "energy_J": 1.488546e-08,
+  "inductance_nH": 29.77092,
+  "peak_memory_GB": 31.67836,
+  "max_rss_GB": 31.67836,
+  "wall_s": 7757.0,
+  "np": 1,
+  "solver": "direct Big Umfpack",
+  "tol": null,
+  "tree_gauge": true,
+  "last_iteration": null,
+  "last_residual": null,
+  "converged": true,
+  "k_A_per_m": [
+   -2500.0,
+   0.0,
+   0.0
+  ],
+  "pec": [
+   2,
+   3
+  ],
+  "port": 10,
+  "port2": null,
+  "k2_A_per_m": null,
+  "scale_m": 0.001
  }
 }

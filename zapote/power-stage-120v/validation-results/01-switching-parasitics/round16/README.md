@@ -60,7 +60,7 @@ to the outer box.
 | Round 15, extruded air | 2 | 18.15053 nH (direct: 18.15053) |
 | Round 16, free-tet outer air | 2 | 18.543654 nH |
 | Round 16, + size follows segments | 2 | (see results) |
-| Round 16, + thin-face merge | **0** | **29.77092 nH** (9356 its, 25 min) |
+| Round 16, + thin-face merge | **0** | **29.77092 nH** (9356 its, 25 min; direct: **29.77092**, 2 h 9 min, 31.7 GB) |
 
 The mesher now merges thin faces instead of dropping them and refuses to
 build if any face would be dropped. Negative control: with `--thin 0` it
