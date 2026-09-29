@@ -59,6 +59,16 @@ they name.
      flat, as specified;
    - geometry audit: every closure touches exactly its two pads at every h.
 
+## Amendments after round 12 (2026-09-28)
+
+Round 12 (`validation-results/01-switching-parasitics/round12/README.md`):
+**the board solver is Elmer with BiCGStab(l) (degree 4) + ILU1**, tolerance
+1e-10, `Abort Not Converged = True` (proven by a negative control), no tree
+gauge. It reproduces every exact fixture and the direct solver exactly, at
+about 1/7 of the direct memory, growing about linearly; the leg-A board
+estimate is 9–23 GB, within this Mac. Round 13: fix the last barrel
+conflict, add ports and arches, solve leg A.
+
 ## Amendments after round 11 (2026-09-28)
 
 Round 11 (`validation-results/01-switching-parasitics/round11/README.md`)
