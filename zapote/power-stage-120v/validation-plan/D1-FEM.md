@@ -59,6 +59,17 @@ they name.
      flat, as specified;
    - geometry audit: every closure touches exactly its two pads at every h.
 
+## Amendments after round 11 (2026-09-28)
+
+Round 11 (`validation-results/01-switching-parasitics/round11/README.md`)
+sized the leg-A mesh: 3.2–9.5 million tetrahedra (0.25/0.6 to 0.15/0.4 mm
+at copper edges/faces), which extrapolates to roughly 140–550 GB for a
+direct solve, beyond both machines. **The board needs an iterative
+solver**, so round 12 qualifies one against the exact fixtures before any
+board solve. §3's geometry route changes: build copper from the layer
+polygons (`round11/scripts/build_crop_geometry.py`), not KiCad's fused
+STEP, which didn't mesh; one barrel defect remains open.
+
 ## Amendments after round 10 (2026-09-28)
 
 Round 10 (`validation-results/01-switching-parasitics/round10/README.md`):
