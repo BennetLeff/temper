@@ -1,0 +1,545 @@
+{
+ "summary": "Leg-A 2.5-D mesh solves. The first board solves stalled because the P1/P2 port strips were snapped onto pad edges and leaked 0.133 A of 1 A into the air (inconsistent source). Fixed (0.4 mm unsnapped strips, leak gate in the mesher); the iterative solve then still stalls near 4e-3 (open). The direct 18.26 nH used the leaky source and is not a result.",
+ "meshes": {
+  "legA-coarse (5.5M, leaky ports)": {
+   "mesher": 5525142
+  },
+  "legA-he1.2 (1.08M, leaky ports)": {
+   "quality": {
+    "tets": 1081602,
+    "q_min": 1.5276591363624293e-05,
+    "q_below": {
+     "0.1": 114769,
+     "0.05": 37230,
+     "0.01": 8047,
+     "0.001": 803
+    },
+    "aspect_percentiles": {
+     "50": 4.972616794009726,
+     "90": 25.39580599667036,
+     "99": 111.97905594931099,
+     "99.9": 508.0748053655739,
+     "100": 7954.446101523881
+    },
+    "aspect_above": {
+     "10": 348914,
+     "30": 72763,
+     "100": 12372,
+     "1000": 430
+    }
+   }
+  },
+  "legA-small-m3-a3 (606k, leaky ports)": {
+   "quality": {
+    "tets": 606528,
+    "q_min": 1.0861885769945415e-05,
+    "q_below": {
+     "0.1": 38440,
+     "0.05": 17945,
+     "0.01": 4140,
+     "0.001": 669
+    },
+    "aspect_percentiles": {
+     "50": 4.548130446627031,
+     "90": 22.25427624984643,
+     "99": 66.6587212953675,
+     "99.9": 418.36808440765503,
+     "100": 2187.8442967002834
+    },
+    "aspect_above": {
+     "10": 177235,
+     "30": 18078,
+     "100": 3876,
+     "1000": 170
+    }
+   },
+   "port_divergence": [
+    {
+     "port": "P1_C38",
+     "port_current_A": 1.0,
+     "air_nodes": 86,
+     "leak_sum_abs_A": 0.1333333333333317,
+     "leak_max_A": 0.01666666666666633,
+     "pec_net_A": 0.0,
+     "worst": [
+      [
+       [
+        130.17,
+        -22.28,
+        2.563
+       ],
+       -0.01666666666666633
+      ],
+      [
+       [
+        142.86,
+        -21.72,
+        2.563
+       ],
+       0.016666666666666316
+      ],
+      [
+       [
+        143.49,
+        -21.7,
+        2.563
+       ],
+       0.016666666666666302
+      ]
+     ]
+    },
+    {
+     "port": "P2_C39",
+     "port_current_A": 1.0,
+     "air_nodes": 70,
+     "leak_sum_abs_A": 0.13333333333333117,
+     "leak_max_A": 0.01666666666666633,
+     "pec_net_A": 0.0,
+     "worst": [
+      [
+       [
+        150.77,
+        -22.28,
+        2.563
+       ],
+       -0.01666666666666633
+      ],
+      [
+       [
+        164.09,
+        -21.7,
+        2.563
+       ],
+       0.01666666666666631
+      ],
+      [
+       [
+        163.46,
+        -21.72,
+        2.563
+       ],
+       0.016666666666666302
+      ]
+     ]
+    },
+    {
+     "port": "P3_gate_high",
+     "port_current_A": 1.0,
+     "air_nodes": 7,
+     "leak_sum_abs_A": 1.1449174941446927e-16,
+     "leak_max_A": 5.551115123125783e-17,
+     "pec_net_A": 2.7755575615628914e-17,
+     "worst": [
+      [
+       [
+        145.23,
+        -41.13,
+        2.563
+       ],
+       -5.551115123125783e-17
+      ],
+      [
+       [
+        145.5,
+        -41.43,
+        2.563
+       ],
+       2.7755575615628914e-17
+      ],
+      [
+       [
+        145.51,
+        -40.83,
+        2.563
+       ],
+       -2.7755575615628914e-17
+      ]
+     ]
+    },
+    {
+     "port": "P4_gate_low",
+     "port_current_A": 1.0,
+     "air_nodes": 2,
+     "leak_sum_abs_A": 5.551115123125783e-17,
+     "leak_max_A": 5.551115123125783e-17,
+     "pec_net_A": 2.7755575615628914e-17,
+     "worst": [
+      [
+       [
+        151.57,
+        -40.83,
+        2.563
+       ],
+       -5.551115123125783e-17
+      ],
+      [
+       [
+        151.762,
+        -41.136,
+        2.563
+       ],
+       0.0
+      ]
+     ]
+    }
+   ]
+  },
+  "legA-small-v2 (fixed ports)": {
+   "mesher": {
+    "port_leak_A": [
+     {
+      "port": "P1_C38",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P2_C39",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P3_gate_high",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P4_gate_low",
+      "leak_A": 0.0
+     }
+    ],
+    "port_w_mm": 0.4,
+    "leg": "A",
+    "barrels_included": true,
+    "barrels": 20,
+    "arch_h_mm": 1.0,
+    "h_edge_mm": 1.2,
+    "h_far_mm": 3.0,
+    "dz_max_mm": 0.8,
+    "margin_mm": 3.0,
+    "air_mm": 3.0,
+    "segments": 2723,
+    "faces_2d": 635,
+    "degenerate_faces_skipped": 2,
+    "skipped_area_mm2": 0.0001000000000004975,
+    "outline_polygons": 117,
+    "open_r_mm": 0.1,
+    "simplify_mm": 0.05,
+    "min_area_mm2": 0.05,
+    "grid_mm": 0.01,
+    "tri_area_min_mm2": 9.999999999885925e-05,
+    "tri_area_below_1e-6": 0,
+    "triangles_2d": 10297,
+    "z_levels": 23,
+    "tets": 609264,
+    "nodes": 119039,
+    "pec_faces": 48000,
+    "farfield_faces": 27402,
+    "zero_volume_tets": 0,
+    "mesh2d_s": 0.4,
+    "total_s": 1.7
+   },
+   "quality": {
+    "tets": 609264,
+    "q_min": 1.0861885769945415e-05,
+    "q_below": {
+     "0.1": 40326,
+     "0.05": 18657,
+     "0.01": 4237,
+     "0.001": 669
+    },
+    "aspect_percentiles": {
+     "50": 4.591532792189744,
+     "90": 22.397702286228057,
+     "99": 71.64432154744195,
+     "99.9": 418.0983688001104,
+     "100": 2187.8442967002834
+    },
+    "aspect_above": {
+     "10": 179032,
+     "30": 19158,
+     "100": 4108,
+     "1000": 170
+    }
+   },
+   "port_divergence": [
+    {
+     "port": "P1_C38",
+     "port_current_A": 1.0,
+     "air_nodes": 78,
+     "leak_sum_abs_A": 0.0,
+     "leak_max_A": 0.0,
+     "pec_net_A": 0.0,
+     "worst": [
+      [
+       [
+        142.84,
+        -21.8,
+        2.563
+       ],
+       0.0
+      ],
+      [
+       [
+        142.82,
+        -21.8,
+        2.563
+       ],
+       0.0
+      ],
+      [
+       [
+        142.82,
+        -21.85,
+        2.563
+       ],
+       0.0
+      ]
+     ]
+    },
+    {
+     "port": "P2_C39",
+     "port_current_A": 1.0,
+     "air_nodes": 61,
+     "leak_sum_abs_A": 0.0,
+     "leak_max_A": 0.0,
+     "pec_net_A": 0.0,
+     "worst": [
+      [
+       [
+        163.42,
+        -21.8,
+        2.563
+       ],
+       0.0
+      ],
+      [
+       [
+        163.44,
+        -21.8,
+        2.563
+       ],
+       0.0
+      ],
+      [
+       [
+        163.42,
+        -21.85,
+        2.563
+       ],
+       0.0
+      ]
+     ]
+    },
+    {
+     "port": "P3_gate_high",
+     "port_current_A": 1.0,
+     "air_nodes": 7,
+     "leak_sum_abs_A": 0.0,
+     "leak_max_A": 0.0,
+     "pec_net_A": 0.0,
+     "worst": [
+      [
+       [
+        145.649,
+        -41.125,
+        2.563
+       ],
+       0.0
+      ],
+      [
+       [
+        145.5,
+        -41.33,
+        2.563
+       ],
+       0.0
+      ],
+      [
+       [
+        145.51,
+        -40.92,
+        2.563
+       ],
+       0.0
+      ]
+     ]
+    },
+    {
+     "port": "P4_gate_low",
+     "port_current_A": 1.0,
+     "air_nodes": 2,
+     "leak_sum_abs_A": 0.0,
+     "leak_max_A": 0.0,
+     "pec_net_A": 0.0,
+     "worst": [
+      [
+       [
+        151.756,
+        -41.132,
+        2.563
+       ],
+       0.0
+      ],
+      [
+       [
+        151.54,
+        -40.92,
+        2.563
+       ],
+       0.0
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ "solves": {
+  "coarse-5.5M-I1 (killed at ~1660 its, 31 min)": {
+   "residual_samples": {
+    "10": 0.0969,
+    "20": 0.0502,
+    "30": 0.0263,
+    "210": 0.0116,
+    "410": 0.0208,
+    "610": 0.0105,
+    "810": 0.0102,
+    "1010": 0.00957,
+    "1210": 0.0105,
+    "1410": 0.0097,
+    "1610": 0.0101,
+    "1660": 0.0104
+   },
+   "note": "log not kept; samples transcribed from the live log"
+  },
+  "he1.2-I1 (killed at 320 its)": {
+   "residual_history": {
+    "10": 0.1424,
+    "20": 0.06992,
+    "30": 0.03994,
+    "100": 0.01967,
+    "200": 0.1866,
+    "300": 0.01496,
+    "400": 0.01451
+   }
+  },
+  "small-m3-a3-I1": {
+   "label": "legA-small-m3-a3",
+   "mesh": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/r15/legA-small-m3-a3.msh",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 2.228996208,
+   "max_rss_GB": 2.347712512,
+   "wall_s": 201.1,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 1500,
+   "last_residual": 0.01065,
+   "converged": false,
+   "k_A_per_m": [
+    -1666.6666666666667,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
+  },
+  "small-m3-a3-direct (leaky source: NOT a result)": {
+   "label": "legA-small-m3-a3",
+   "mesh": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/r15/legA-small-m3-a3.msh",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 9.127774e-09,
+   "inductance_nH": 18.255548,
+   "peak_memory_GB": 24.084219688,
+   "max_rss_GB": 8.124956672,
+   "wall_s": 1553.81,
+   "solver": "direct Big Umfpack",
+   "tol": null,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": true,
+   "k_A_per_m": [
+    -1666.6666666666667,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
+  },
+  "small-v2-I1": {
+   "label": "small-v2-I1",
+   "mesh": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/r15/legA-small-v2.msh",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 2.183940232,
+   "max_rss_GB": 2.445672448,
+   "wall_s": 387.64,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 3000,
+   "last_residual": 0.003508,
+   "converged": false,
+   "k_A_per_m": [
+    -2500.0,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "residual_history": {
+    "10": 0.1443,
+    "20": 0.07362,
+    "30": 0.04073,
+    "100": 0.01384,
+    "200": 0.009727,
+    "300": 0.008639,
+    "400": 0.007609,
+    "500": 0.006743,
+    "600": 0.00652,
+    "700": 0.005839,
+    "800": 0.008442,
+    "900": 0.005123,
+    "1000": 0.004643,
+    "1100": 0.00435,
+    "1200": 0.01563,
+    "1300": 0.003688,
+    "1400": 0.003774,
+    "1500": 0.004044,
+    "1600": 0.01264,
+    "1700": 0.004224,
+    "1800": 0.004077,
+    "1900": 0.004128,
+    "2000": 0.004053,
+    "2100": 0.004016,
+    "2200": 0.003826,
+    "2300": 0.003702,
+    "2400": 0.00404,
+    "2500": 0.003757,
+    "2600": 0.003877,
+    "2700": 0.003897,
+    "2800": 0.003817,
+    "2900": 0.004284,
+    "3000": 0.003508
+   }
+  }
+ }
+}

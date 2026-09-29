@@ -59,6 +59,22 @@ they name.
      flat, as specified;
    - geometry audit: every closure touches exactly its two pads at every h.
 
+## Amendments after round 15 (2026-09-29)
+
+Round 15 (`validation-results/01-switching-parasitics/round15/README.md`)
+meshed leg A (defeatured 2.5-D, 5.5 M tets at 0.35 mm) but the first
+solves stalled. Two rules follow:
+- **Every port source must be discretely divergence-free off PEC.** Snapped
+  port strips leaked 0.133 A of 1 A into the air, which makes the ungauged
+  system unsolvable iteratively, while a direct solve with a tree gauge
+  returns a wrong number without complaint. Port strips are 0.4 mm wide
+  (legs 0.6 mm) and never snapped; the mesher refuses a mesh with more than
+  1e-9 A of leakage (`round15/scripts/port_divergence.py` checks any mesh).
+- **Element quality is part of solver qualification.** The board mesh has
+  thousands of tets with aspect ratio above 100 (none in the fixtures), and
+  the iterative solve still stalls after the port fix. The outer air gets a
+  free tet mesh; only the board and closure band is extruded.
+
 ## Amendments after round 13 (2026-09-28)
 
 Round 13 (`validation-results/01-switching-parasitics/round13/README.md`)
