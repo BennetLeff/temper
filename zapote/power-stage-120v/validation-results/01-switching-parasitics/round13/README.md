@@ -23,8 +23,8 @@
 
 | Construction | Failure |
 | --- | --- |
-| Gap prisms imprinted on the layer faces | segments intersect at a 16-gon vertex on In1 (C40.2) |
-| Barrels merged after simplification, boolean tolerance 0.1 µm (HXT; also Delaunay) | same spot; Delaunay: boundary recovery failed |
+| Gap prisms imprinted on the layer faces | segments intersect on the top of In1 at (130.15, board y 4.36) mm |
+| Barrels merged after simplification, boolean tolerance 0.1 µm (HXT; also Delaunay) | segments intersect at a 16-gon vertex on the top of In1 at C40.2; Delaunay: boundary recovery failed |
 | Layers split into barrel 16-gons plus the rest | 58 air volumes (micro-gaps) and duplicate facets |
 | Gap prisms 5 µm into the layers, fused per net | segments intersect on the underside of In2 at the edge of the 3.8 mm BUS_P clearance hole around C39.2; the same at 0.15/0.4 mm |
 
