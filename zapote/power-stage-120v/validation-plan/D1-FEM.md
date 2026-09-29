@@ -59,6 +59,23 @@ they name.
      flat, as specified;
    - geometry audit: every closure touches exactly its two pads at every h.
 
+## Amendments after round 10 (2026-09-28)
+
+Round 10 (`validation-results/01-switching-parasitics/round10/README.md`):
+**Elmer is qualified for the board's port type.** It is exact for a flat
+port on the boundary and inside the air (3.141592 nH both), and for self and
+mutual inductance with an interior port (two-port section: M = 1.884956 nH
+exact). The board-style thick plates converge from below toward about
+2.83 nH, under the 3.1416 nH bound. Palace's `rings` geometry is dropped as a
+fixture for both solvers; the two-port section replaces it. The GitHub
+report to Palace is deferred by the owner.
+
+The open question is memory (peak ~ N^1.27; 9.9 GB at 403k tetrahedra).
+Round 11: mesh the leg-A board crop without solving, at 0.5 and 0.35 mm near
+the copper, and choose the machine from the tetrahedron count (this Mac, the
+64 GB desktop, or a lower-memory solver). Regression fixtures for any change:
+the boundary and interior sections, the two-port section, the thick plates.
+
 ## Amendments after round 9 (2026-09-28)
 
 Round 9 (`validation-results/01-switching-parasitics/round9/README.md`):

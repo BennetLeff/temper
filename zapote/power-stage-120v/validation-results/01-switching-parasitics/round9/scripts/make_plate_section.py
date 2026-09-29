@@ -34,6 +34,8 @@ def main() -> None:
     ap.add_argument("--h", type=float, required=True)
     ap.add_argument("--behind", type=float, default=0.0,
                     help="extend the plates this far behind the port, making the port an interior sheet")
+    ap.add_argument("--second-port", type=float, default=None,
+                    help="add an interior port at x = this (physical group 5), for an exact mutual")
     a = ap.parse_args()
     d, w, l = a.gap, a.width, a.length
     gmsh.initialize()
@@ -48,6 +50,14 @@ def main() -> None:
         out, omap = gmsh.model.occ.fragment([(3, box)], [(2, rect)])
         vols = [t for dd, t in out if dd == 3]
         interior_port = [t for dd, t in omap[1]]
+    second = []
+    if a.second_port is not None:
+        r2 = gmsh.model.occ.addRectangle(0, 0, 0, d, w)
+        gmsh.model.occ.rotate([(2, r2)], 0, 0, 0, 0, 1, 0, -math.pi / 2)
+        gmsh.model.occ.translate([(2, r2)], a.second_port, 0, 0)
+        out, omap = gmsh.model.occ.fragment([(3, v) for v in vols], [(2, r2)])
+        vols = [t for dd, t in out if dd == 3]
+        second = [t for dd, t in omap[-1]]
     gmsh.model.occ.synchronize()
     groups = {"pec": [], "sides": [], "port": list(interior_port)}
     for _, s in gmsh.model.getBoundary([(3, v) for v in vols], combined=True, oriented=False):
@@ -65,6 +75,8 @@ def main() -> None:
     gmsh.model.addPhysicalGroup(2, groups["pec"], 2, "pec")
     gmsh.model.addPhysicalGroup(2, groups["sides"], 3, "sides")
     gmsh.model.addPhysicalGroup(2, groups["port"], 4, "port")
+    if second:
+        gmsh.model.addPhysicalGroup(2, second, 5, "port2")
     gmsh.option.setNumber("Mesh.MeshSizeMin", a.h)
     gmsh.option.setNumber("Mesh.MeshSizeMax", a.h)
     gmsh.option.setNumber("Mesh.Algorithm3D", 1)
@@ -74,7 +86,11 @@ def main() -> None:
     n = len(gmsh.model.mesh.getElementsByType(4)[0])
     gmsh.finalize()
     exact = 4e-7 * math.pi * d * l / w * 1e-3
-    print(f"tets {n}  exact_nH {exact * 1e9:.6f}")
+    msg = f"tets {n}  exact_nH {exact * 1e9:.6f}"
+    if a.second_port is not None:
+        l2 = 4e-7 * math.pi * d * (l - a.second_port) / w * 1e-3
+        msg += f"  exact_L22_and_M_nH {l2 * 1e9:.6f}"
+    print(msg)
 
 
 if __name__ == "__main__":
