@@ -59,6 +59,17 @@ they name.
      flat, as specified;
    - geometry audit: every closure touches exactly its two pads at every h.
 
+## Amendments after round 13 (2026-09-28)
+
+Round 13 (`validation-results/01-switching-parasitics/round13/README.md`)
+built the full leg-A model (copper, barrels, 11 closures, 4 ports; clean
+surface mesh), but every 3-D mesh attempt failed at a local spot where OCC
+boolean geometry meets. **Round 14 replaces the 3-D boolean construction
+with a 2.5-D layered mesh**: one conforming 2-D mesh of all layer, barrel
+and closure outlines, extruded through the stack, with cells marked copper
+or air per layer. The solver (round 12) and the ports/closures definition
+are unchanged.
+
 ## Amendments after round 12 (2026-09-28)
 
 Round 12 (`validation-results/01-switching-parasitics/round12/README.md`):

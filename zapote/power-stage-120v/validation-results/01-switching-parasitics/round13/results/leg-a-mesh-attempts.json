@@ -1,0 +1,50 @@
+{
+ "leg": "A",
+ "closures": "closures-legA.json",
+ "ports": 4,
+ "bridges": 7,
+ "attempts": [
+  {
+   "attempt": "16-gon barrels 2-D union, imprint, HXT",
+   "error": "HXT 3D mesh failed",
+   "detail": "PLC Error:  Two segments intersect at point (130.154,-4.3629,1.0575).",
+   "copper_volumes": 234,
+   "air_volumes": 3
+  },
+  {
+   "attempt": "barrels merged after simplify, boolean tol 1e-4, HXT",
+   "error": "HXT 3D mesh failed",
+   "detail": "PLC Error:  Two segments intersect at point (123.579,-21.5773,1.0575).",
+   "copper_volumes": 234,
+   "air_volumes": 3
+  },
+  {
+   "attempt": "same, Delaunay 3-D",
+   "error": "Could not recover boundary mesh: error 2",
+   "detail": "Could not recover boundary mesh: error 2",
+   "copper_volumes": 234,
+   "air_volumes": 3
+  },
+  {
+   "attempt": "layers split into barrel 16-gons + rest",
+   "error": "HXT 3D mesh failed",
+   "detail": "Found two exactly self-intersecting facets (dihedral angle  0.00000E+00).",
+   "copper_volumes": 325,
+   "air_volumes": 58
+  },
+  {
+   "attempt": "gap prisms 5 um into layers, fused per net (0.25/0.6)",
+   "error": "HXT 3D mesh failed",
+   "detail": "PLC Error:  Two segments intersect at point (152.148,-24.6638,0.4355).",
+   "copper_volumes": 75,
+   "air_volumes": 2
+  },
+  {
+   "attempt": "same, 0.15/0.4",
+   "error": "HXT 3D mesh failed",
+   "detail": "PLC Error:  Two segments intersect at point (148.313,-18.5416,0.4355).",
+   "copper_volumes": 75,
+   "air_volumes": 2
+  }
+ ]
+}
