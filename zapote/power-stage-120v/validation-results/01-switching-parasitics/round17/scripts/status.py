@@ -36,6 +36,8 @@ def bar(res, tol, width=24) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("work")
+    ap.add_argument("--expect-its", type=int, default=None,
+                    help="expected iterations for the running solve when no finished solve on its mesh exists")
     a = ap.parse_args()
     work = Path(a.work)
     st = json.loads((work / "status.json").read_text())
@@ -43,7 +45,7 @@ def main() -> None:
     age = time.time() - (work / "status.json").stat().st_mtime
     print(f"campaign started {st['started']}  tol {tol}  ranks {st['np']}  status.json updated {int(age)} s ago")
     cur = st.get("current", {})
-    walls = {}
+    walls, its_by_e = {}, {}
     queued = []
     print(f"{'solve':34s} {'state':10s} {'L (nH)':>10s} {'its':>6s} {'wall':>7s}  progress")
     for case in st["cases"]:
@@ -61,12 +63,18 @@ def main() -> None:
             if r is not None:
                 state = "done" if r["converged"] else "FAILED"
                 walls.setdefault(e, []).append(r["wall_s"] or 0)
+                if r["converged"]:
+                    its_by_e.setdefault(e, []).append(r["last_iteration"])
                 print(f"{name:34s} {state:10s} {r['inductance_nH'] or float('nan'):10.4f} "
                       f"{r['last_iteration'] or 0:6d} {hms(r['wall_s']):>7s}")
             elif cur.get("run") == name:
+                ref = (sum(its_by_e[e]) / len(its_by_e[e])) if its_by_e.get(e) else a.expect_its
+                eta_its = ((ref - cur.get("iteration", 0)) / cur["its_per_s"]
+                           if ref and cur.get("its_per_s") else None)
                 print(f"{name:34s} {'running':10s} {'':>10s} {cur.get('iteration', 0):6d} {hms(cur.get('elapsed_s')):>7s}  "
                       f"{bar(cur.get('residual'), tol)} res {cur.get('residual') or 0:.1e} "
-                      f"{cur.get('its_per_s', '?')} it/s eta {hms(cur.get('eta_s'))} mem {cur.get('rss_GB')} GB"
+                      f"{cur.get('its_per_s', '?')} it/s eta {hms(eta_its)} (by iterations, ref {int(ref) if ref else '?'}) "
+                      f"/ {hms(cur.get('eta_s'))} (by trend) mem {cur.get('rss_GB')} GB"
                       + (f"  {cur['phase']}" if cur.get("phase") else ""))
             else:
                 print(f"{name:34s} {'queued':10s}")
