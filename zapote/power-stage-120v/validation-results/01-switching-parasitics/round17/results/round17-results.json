@@ -1,0 +1,122 @@
+{
+ "P1_h1_e0.35_standalone": {
+  "solve": {
+   "label": "P1-h1-e035",
+   "mesh": "legA-h1-e035.msh",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.652341e-08,
+   "inductance_nH": 33.04682,
+   "peak_memory_GB": 3.962164,
+   "max_rss_GB": 3.962164,
+   "wall_s": 13551.0,
+   "np": 12,
+   "solver": "iterative Hypre GMRES(100) + AMS",
+   "tol": 1e-08,
+   "tree_gauge": false,
+   "last_iteration": 9119,
+   "last_residual": 9.95754e-09,
+   "converged": true,
+   "k_A_per_m": [
+    -2500.0,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
+  },
+  "mesh": {
+   "tets": 7943078,
+   "zero_volume_tets": 0,
+   "triangles_2d": 94087,
+   "z_levels": 24,
+   "thin_faces_merged": 389,
+   "port_leak_A": [
+    {
+     "port": "P1_C38",
+     "leak_A": 0.0
+    },
+    {
+     "port": "P2_C39",
+     "leak_A": 0.0
+    },
+    {
+     "port": "P3_gate_high",
+     "leak_A": 0.0
+    },
+    {
+     "port": "P4_gate_low",
+     "leak_A": 0.0
+    }
+   ],
+   "margin_mm": 10.0,
+   "air_mm": 10.0,
+   "h_edge_mm": 0.35,
+   "h_far_mm": 4.0,
+   "dz_max_mm": 0.45,
+   "arch_h_mm": 1.0,
+   "total_s": 61.6
+  },
+  "note": "no VTU; shared the box with the AMS scan for part of the run; the campaign re-solves P1 with VTU (repeatability check)"
+ },
+ "ams_scan_small_mesh_P1": {
+  "T-base": [
+   3000,
+   6.50974e-06,
+   1662.28,
+   29.75274
+  ],
+  "T-thr5": [
+   3000,
+   5.96992e-06,
+   1711.82,
+   29.7541
+  ],
+  "T-rt2": [
+   3000,
+   1.1093e-05,
+   2110.41,
+   29.73426
+  ],
+  "T-c13": "crash",
+  "T-c14": "crash",
+  "T-c13-rt2-thr5": "crash",
+  "columns": [
+   "iterations",
+   "residual",
+   "wall_s",
+   "L_nH"
+  ]
+ },
+ "reciprocity_fixture": {
+  "exact": [
+   3.141593,
+   1.884956,
+   1.884956
+  ],
+  "mac_direct_1part": [
+   3.141593,
+   1.884956,
+   1.884956,
+   3.48e-11
+  ],
+  "remote_gmres_ams_4part": [
+   3.141593,
+   1.884956,
+   1.884956,
+   3.14e-11
+  ],
+  "columns": [
+   "L11",
+   "L22",
+   "M",
+   "spread"
+  ]
+ }
+}

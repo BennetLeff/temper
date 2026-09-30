@@ -30,9 +30,12 @@ def run(cmd: list[str], log: Path) -> int:
 
 
 def result(path: Path) -> dict:
-    for line in path.read_text().splitlines():
+    """The RESULT line (gate and mesher scripts), else the last JSON line (run_elmer.py)."""
+    lines = path.read_text().splitlines()
+    for line in lines:
         if line.startswith("RESULT "):
             return json.loads(line[7:])
+    for line in reversed(lines):
         if line.startswith("{"):
             return json.loads(line)
     raise ValueError(f"no result in {path}")
