@@ -59,3 +59,10 @@ height.
 1:0.5, 1:0.7 — mesh, gates (no PEC columns, zero leakage, closed loops),
 four single-port solves with VTU, matrix. First fine mesh: 7.94 M tets,
 47 GB on 12 ranks, gates pass. Results to follow in `results/`.
+
+Observability: `campaign.py` reads each solve's Hypre residual every 30 s
+and keeps `WORKDIR/status.json` current (iteration, residual, rate over the
+last 10 min, ETA from a log-residual fit over the last ~500 iterations,
+memory); `campaign.log` gets START / PROGRESS (every 5 min, with a bar in
+orders of magnitude to the tolerance) / DONE / GATES / MATRIX / FAIL lines.
+`scripts/status.py WORKDIR` prints the whole campaign as a table.
