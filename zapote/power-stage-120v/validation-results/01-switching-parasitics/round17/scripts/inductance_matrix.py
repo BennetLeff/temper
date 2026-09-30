@@ -9,16 +9,17 @@ each port driven alone at 1 A:
 
 B = curl A is constant in each tetrahedron. Elmer writes it as the elemental
 field "magnetic flux density e" (run_elmer.py --vtu: Discontinuous Galerkin,
-bulk only). One defect: at nodes on an interior boundary (the port sheets)
-the written value comes from the tet on the other side, so each tet's B is
-taken from its nodes that are not on a port sheet (every non-degenerate tet
-has one). The within-tet spread of the remaining nodes is reported; it must
-be at round-off.
+bulk only, Average Within Materials = False — the writer's default averages
+DG fields within each body, which smooths the per-tet values; round 17 found
+that only on a non-uniform field, the uniform plate fixture cannot show it).
 
-Checked exactly on the two-port plate section (L11 3.141593, L22 1.884956,
-M 1.884956 nH). The diagonal must also match each solve's own 2W/I^2.
+Two gates, either failing exits nonzero:
+- the within-tet spread of B (largest deviation / largest |B|) is at
+  round-off, so B really is per-tet constant;
+- each diagonal L_ii matches that solve's own 2W/I^2 (run_elmer.py .out
+  file next to RUN_DIR) to 1e-5 relative.
 
-    inductance_matrix.py MESH.msh --port 10 RUN_DIR_P1 --port 11 RUN_DIR_P2 ...
+    inductance_matrix.py MESH.msh --port 10 RUN_DIR_P1 [--port 11 RUN_DIR_P2 ...]
 
 RUN_DIR is a run_elmer.py work directory (VTU under RUN_DIR/mesh). All runs
 must use the same mesh and the same number of MPI ranks (same partitions).
@@ -28,12 +29,14 @@ from __future__ import annotations
 import argparse
 import glob
 import json
+from pathlib import Path
+
 import meshio
 import numpy as np
 
-from check_ports import read_msh
-
 MU0 = 4e-7 * np.pi
+SPREAD_MAX = 1e-9
+DIAG_REL_MAX = 1e-5
 
 
 def vtus(run: str) -> list[str]:
@@ -42,27 +45,28 @@ def vtus(run: str) -> list[str]:
     return files
 
 
+def energy_L(run: str) -> float | None:
+    out = Path(run).with_suffix(".out")
+    if not out.exists():
+        return None
+    for line in reversed(out.read_text().splitlines()):
+        if line.startswith("{"):
+            return json.loads(line).get("inductance_nH")
+    return None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("msh")
+    ap.add_argument("msh", help="the gmsh mesh (recorded for provenance)")
     ap.add_argument("--port", nargs=2, action="append", required=True, metavar=("PHYS", "RUN_DIR"))
-    ap.add_argument("--scale", type=float, default=1e-3)
-    ap.add_argument("--port-groups", type=int, nargs="*", default=None,
-                    help="all port physical groups in the mesh (default: every group >= 10)")
     a = ap.parse_args()
-    nodes, tris = read_msh(a.msh)
-    groups = set(a.port_groups) if a.port_groups else {p for p, _ in tris if p >= 10}
-    q = 1e-9
-    port_pts = {tuple(np.round(np.array(nodes[v]) * a.scale / q).astype(np.int64))
-                for p, t in tris if p in groups for v in t}
     names = [p for p, _ in a.port]
     runs = [r for _, r in a.port]
     files = [vtus(r) for r in runs]
     assert len({len(f) for f in files}) == 1, "runs have different partition counts"
     n = len(runs)
     L = np.zeros((n, n))
-    dev, bmax = 0.0, 0.0            # largest within-tet deviation, largest |B| (all runs)
-    ntet = 0
+    dev, bmax, ntet = 0.0, 0.0, 0
     for part in range(len(files[0])):
         Bs, vol, cref = [], None, None
         for i in range(n):
@@ -76,14 +80,10 @@ def main() -> None:
                                        np.cross(P[:, 2] - P[:, 0], P[:, 3] - P[:, 0]))) / 6
             else:
                 assert c.shape == cref.shape and np.allclose(c, cref), "tets differ between runs"
-            R = np.round(m.points / q).astype(np.int64)
-            on = np.fromiter((tuple(r) in port_pts for r in map(tuple, R)), bool, len(R))[tet]
-            w = (~on).astype(float)
-            assert (w.sum(1) > 0).all(), "a tet has every node on a port sheet"
             B = m.point_data["magnetic flux density e"][tet]
-            Bt = (B * w[:, :, None]).sum(1) / w.sum(1)[:, None]
+            Bt = B.mean(1)
             bmax = max(bmax, float(np.abs(B).max()))
-            dev = max(dev, float(np.abs((B - Bt[:, None, :]) * w[:, :, None]).max()))
+            dev = max(dev, float(np.abs(B - Bt[:, None, :]).max()))
             Bs.append(Bt)
         ntet += len(vol)
         for i in range(n):
@@ -91,11 +91,20 @@ def main() -> None:
                 L[i, j] += float((vol * (Bs[i] * Bs[j]).sum(1)).sum()) / MU0
     L = np.triu(L) + np.triu(L, 1).T
     spread = dev / bmax
+    diag_check = []
+    for i, r in enumerate(runs):
+        e = energy_L(r)
+        rel = abs(L[i, i] * 1e9 - e) / e if e else None
+        diag_check.append({"port": names[i], "L_from_B_nH": round(L[i, i] * 1e9, 6), "L_energy_nH": e,
+                           "rel_diff": rel})
     res = {"ports": names, "L_nH": (L * 1e9).round(6).tolist(), "tets": ntet,
-           "partitions": len(files[0]), "max_within_tet_spread": spread}
+           "partitions": len(files[0]), "max_within_tet_spread": spread, "diagonal_vs_energy": diag_check}
     print("RESULT " + json.dumps(res))
-    if spread > 1e-6:
+    if spread > SPREAD_MAX:
         raise SystemExit(f"elemental B not constant per tet (spread {spread:.3g})")
+    bad = [d for d in diag_check if d["rel_diff"] is None or d["rel_diff"] > DIAG_REL_MAX]
+    if bad:
+        raise SystemExit(f"diagonal does not match the solver energy: {bad}")
 
 
 if __name__ == "__main__":

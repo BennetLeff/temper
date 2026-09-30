@@ -198,6 +198,16 @@ def main() -> None:
                                 "--maxit", str(a.maxit), "--np", str(a.np), "--vtu", "--label", rd.name],
                                out, rd, status, work, a.tol)
             r = result(out)
+            if r["converged"]:
+                # Field-output gate right away (not after all four ports): the
+                # self-inductance from the VTU B field must equal the energy.
+                chk = rd.with_suffix(".bcheck.txt")
+                rc = run([py, str(HERE / "inductance_matrix.py"), str(msh), "--port", str(p["physical"]), str(rd)], chk)
+                if rc:
+                    print(f"FAIL {rd.name}: field-output gate: {chk.read_text().strip()[-400:]}", flush=True)
+                    status["current"] = {"state": f"stopped: field-output gate failed for {rd.name}"}
+                    (work / "status.json").write_text(json.dumps(status, indent=1))
+                    sys.exit(1)
             status["done"].append({"run": rd.name, "converged": r["converged"], "L_nH": r["inductance_nH"],
                                    "iterations": r["last_iteration"], "wall_s": r["wall_s"]})
             status["current"] = {"state": "between solves"}
@@ -208,8 +218,8 @@ def main() -> None:
                 runs += ["--port", str(p["physical"]), str(rd)]
         if len(runs) == 3 * len(info["ports"]):
             mat = work / f"{tag}.matrix.txt"
-            run([py, str(HERE / "inductance_matrix.py"), str(msh)] + runs, mat)
-            print(f"MATRIX {tag}: {mat.read_text().strip()[:600]}", flush=True)
+            rc = run([py, str(HERE / "inductance_matrix.py"), str(msh)] + runs, mat)
+            print(f"{'MATRIX' if rc == 0 else 'FAIL matrix'} {tag}: {mat.read_text().strip()[:700]}", flush=True)
     status["current"] = {"state": "campaign finished"}
     (work / "status.json").write_text(json.dumps(status, indent=1))
     print("CAMPAIGN FINISHED", flush=True)

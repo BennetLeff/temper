@@ -33,7 +33,7 @@ Simulation
   Simulation Type = Steady
   Steady State Max Iterations = 1
   Max Output Level = {outlevel}
-End
+{outfile}End
 Constants
   Permeability of Vacuum = 1.2566370614359173e-6
 End
@@ -88,6 +88,9 @@ VTU = """Solver 3
   Output File Name = "case"
   Vtu Format = Logical True
   Discontinuous Galerkin = Logical True
+  ! The writer otherwise averages DG fields within each body (default True),
+  ! which smooths the per-tet curl that inductance_matrix.py needs (round 17).
+  Average Within Materials = Logical False
   Save Bulk Only = Logical True
   Scalar Field 1 = String "none"
   Vector Field 1 = String "magnetic flux density e"
@@ -170,7 +173,7 @@ def main() -> None:
     else:
         linear = "  Linear System Solver = Direct\n  Linear System Direct Method = Big Umfpack"
     # Hypre reports its own convergence only at output level >= 10 (per-iteration print)
-    (work / "case.sif").write_text(SIF.format(outlevel=10 if a.hypre_ams else 5, linear=linear, npec=len(a.pec), pec=" ".join(map(str, a.pec)),
+    (work / "case.sif").write_text(SIF.format(outfile='  Output File = "case.result"\n' if a.vtu else "", outlevel=10 if a.hypre_ams else 5, linear=linear, npec=len(a.pec), pec=" ".join(map(str, a.pec)),
                                               port=a.port, k0=a.k[0], k1=a.k[1], k2=a.k[2],
                                               extra=PORT2.format(port=a.port2, k0=a.k2[0], k1=a.k2[1], k2=a.k2[2])
                                               if a.port2 else "",

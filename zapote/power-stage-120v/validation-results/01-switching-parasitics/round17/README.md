@@ -1,5 +1,12 @@
 # D1-FEM round 17: full inductance matrices from single-port solves (in progress)
 
+> **Correction (2026-09-30):** the first qualification in §3 used a
+> uniform-field fixture and missed a defect: Elmer's VTU writer averages DG
+> fields within each body by default, smoothing the per-tet B. The first
+> leg-A matrix came out low (diagonal 29.68/28.47/23.50/30.62 vs energy
+> 33.05/31.84/29.57/40.31 nH) and failed its spread check; it is withdrawn.
+> Fixed and re-qualified on non-uniform fields and on the board — see §5.
+
 - Board: native-17 export, leg A, closures as round 16.
 - Mesher: `scripts/mesh25d_hybrid.py` (round 16, with the gates) — one fix:
   the stray-node check in the outer-box meshing was quadratic and never
@@ -66,3 +73,22 @@ last 10 min, ETA from a log-residual fit over the last ~500 iterations,
 memory); `campaign.log` gets START / PROGRESS (every 5 min, with a bar in
 orders of magnitude to the tolerance) / DONE / GATES / MATRIX / FAIL lines.
 `scripts/status.py WORKDIR` prints the whole campaign as a table.
+
+## 5. Mutual-inductance re-qualification (after the DG-averaging defect)
+
+`run_elmer.py --vtu` now sets `Average Within Materials = False` and saves
+the solution (`Output File`), so fields can be reprocessed without
+re-solving. `inductance_matrix.py` now gates on (a) within-tet spread at
+round-off and (b) each diagonal matching its solve's energy to 1e-5;
+`campaign.py` runs that gate after every solve and stops on failure, and
+checks the matrix exit code. `scripts/qualify_mutual_remote.sh`:
+
+| Check | From B fields | Independent | Spread |
+| --- | ---: | ---: | ---: |
+| Q1 plate + floating block (non-uniform), L | 2.762937 nH | 2.762936 (energy) | 9e-16 |
+| Q2 two-port plate, L11 / L22 / M | 3.141593 / 1.884956 / 1.884956 | exact | 2e-15 |
+| Q3 board, coarse leg A, M12 (P1–P2) | 18.106446 nH | 18.106450 (pair-solve energy) | 1e-15 |
+
+The four h1 solves (energies valid: P1 33.047, P2 31.843, P3 29.573,
+P4 40.308 nH) are re-run for their fields; their averaged outputs are
+archived on the remote box (`r17/averaged-vtu-runs`).
