@@ -59,7 +59,8 @@ import shapely
 from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, Polygon, box
 from shapely.ops import unary_union
 
-LOOP_NETS = {"A": {"bus_p", "hv_ret", "leg_ret", "sw_a", "leg_a-out_h", "leg_a-gate_h", "leg_a-out_l", "leg_a-gate_l"}}
+LOOP_NETS = {"A": {"bus_p", "hv_ret", "leg_ret", "sw_a", "leg_a-out_h", "leg_a-gate_h", "leg_a-out_l", "leg_a-gate_l"},
+             "B": {"bus_p", "hv_ret", "leg_ret", "sw_b", "leg_b-out_h", "leg_b-gate_h", "leg_b-out_l", "leg_b-gate_l"}}
 LEGS = {"A": (125.865, 4.215, 164.6, 41.125), "B": (88.4, 4.215, 127.135, 41.125)}
 LAYERS = {"B.Cu": (-0.07, 0.0), "In2.Cu": (0.4355, 0.4965), "In1.Cu": (0.9965, 1.0575), "F.Cu": (1.493, 1.563)}
 Z_BOTTOM, Z_TOP = -0.07, 1.563

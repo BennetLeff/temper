@@ -15,7 +15,8 @@ import math
 import time
 from pathlib import Path
 
-PORTS = ["P1_C38", "P2_C39", "P3_gate_high", "P4_gate_low"]
+PORTS = {"A": ["P1_C38", "P2_C39", "P3_gate_high", "P4_gate_low"],
+         "B": ["P1_C40", "P2_C41", "P3_gate_high", "P4_gate_low"]}
 
 
 def hms(s) -> str:
@@ -50,8 +51,9 @@ def main() -> None:
     print(f"{'solve':34s} {'state':10s} {'L (nH)':>10s} {'its':>6s} {'wall':>7s}  progress")
     for case in st["cases"]:
         h, e = case.split(":")
-        tag = f"legA-h{h}-e{e.replace('.', 'p')}"
-        for p in PORTS:
+        leg = st.get("leg", "A")
+        tag = f"leg{leg}-h{h}-e{e.replace('.', 'p')}"
+        for p in PORTS[leg]:
             name = f"{tag}-{p}"
             out = work / f"{name}.out"
             r = None

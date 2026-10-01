@@ -142,24 +142,25 @@ def main() -> None:
     ap.add_argument("--cases", nargs="+", required=True, help="arch_h:h_edge pairs, in order")
     ap.add_argument("--elmer", required=True)
     ap.add_argument("--np", type=int, default=12)
+    ap.add_argument("--leg", choices=("A", "B"), default="A")
     ap.add_argument("--tol", type=float, default=1e-8)
     ap.add_argument("--maxit", type=int, default=40000)
     a = ap.parse_args()
     work = Path(a.work)
     work.mkdir(parents=True, exist_ok=True)
     py = sys.executable
-    status = {"started": time.strftime("%Y-%m-%d %H:%M:%S"), "cases": a.cases, "tol": a.tol, "np": a.np,
+    status = {"started": time.strftime("%Y-%m-%d %H:%M:%S"), "leg": a.leg, "cases": a.cases, "tol": a.tol, "np": a.np,
               "done": [], "current": {"state": "starting"}}
     (work / "status.json").write_text(json.dumps(status, indent=1))
     while subprocess.run(["pgrep", "-x", "ElmerSolver_mpi"], capture_output=True).returncode == 0:
         time.sleep(60)                                   # one solve at a time (memory)
     for case in a.cases:
         h, e = case.split(":")
-        tag = f"legA-h{h}-e{e.replace('.', 'p')}"
+        tag = f"leg{a.leg}-h{h}-e{e.replace('.', 'p')}"
         msh, mlog = work / f"{tag}.msh", work / f"{tag}.log"
         if not msh.exists():
-            rc = run([py, str(HERE / "mesh25d_hybrid.py"), str(EXPORT), str(msh), "--leg", "A",
-                      "--closures", str(ROOT / "closures-legA.json"), "--arch-h", h, "--h-edge", e,
+            rc = run([py, str(HERE / "mesh25d_hybrid.py"), str(EXPORT), str(msh), "--leg", a.leg,
+                      "--closures", str(ROOT / f"closures-leg{a.leg}.json"), "--arch-h", h, "--h-edge", e,
                       "--h-far", "4", "--dz-max", "0.45", "--simplify", "0.05"], mlog)
             if rc:
                 print(f"FAIL {tag}: mesh failed, see {mlog}", flush=True)
@@ -168,7 +169,7 @@ def main() -> None:
         gates = {}
         for name, cmd in (("columns", [py, str(HERE / "pec_columns.py"), str(msh)]),
                           ("loops", [py, str(HERE / "port_loops.py"), str(msh), str(mlog),
-                                     "--closures", str(ROOT / "closures-legA.json")])):
+                                     "--closures", str(ROOT / f"closures-leg{a.leg}.json")])):
             g = work / f"{tag}.{name}.txt"
             if not g.exists():
                 run(cmd, g)
