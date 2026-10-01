@@ -126,3 +126,19 @@ P1 board-only (flat connection across C38) ≈ 33.05 − (6.6…9.1) ≈ 24–26
 **Flaw:** the gate–source bridges sit at h + 1 mm (they cross over the
 drain–source bridges), so they do not extrapolate away; gate-loop values
 would stay ~2–3 nH high. Arch–arch mutual coupling is not modelled.
+
+## 8. Geometry fix: gate–source bridges at 2h (campaign v2)
+
+The hand estimate (§7) showed the level-1 gate–source bridges, at h + 1 mm,
+would leave ~2–3 nH in the gate loops after the h → 0 extrapolation. They
+now sit at 2h (`mesh25d_hybrid.py`; the mesher refuses heights where they
+would touch the level-0 legs or bars), so every closure vanishes at h = 0.
+With that, the hand-model extrapolation error is −0.9…+1.1 nH (straight
+line through 1, 2 mm) and −0.5…+0.9 nH (parabola through 1, 2, 3 mm) for
+all four loops (`results/arch-estimate.json.txt`).
+
+Every solve contains every closure, so the whole campaign restarted
+(`r17/camp2` on the remote box). The §6 matrix belongs to the old geometry
+(`r17/camp-v1-gs-at-h-plus-1mm`): its power-loop diagonal (P1, P2) is
+affected only through the changed neighbouring bridges; its gate-loop
+entries and power–gate mutuals are superseded.

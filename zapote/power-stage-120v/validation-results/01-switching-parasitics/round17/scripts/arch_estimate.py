@@ -20,8 +20,8 @@ to a flat strip lying on the top copper (h = 0):
 For each loop this prints dL at h = 1, 2, 3 and what a straight line
 (through 1, 2 mm) and a parabola (through 1, 2, 3 mm) would extrapolate to
 at h = 0, i.e. the extrapolation error if this model held. Level-1 closures
-(gate-source bridges) sit at h + 1, so they do NOT vanish at h = 0: their
-remaining 1 mm arch is reported separately.
+(gate-source bridges) sit at 2h; the column "left at h=0" must be zero
+(it was 2-3 nH when they sat at h + 1 mm, before the round-17 fix).
 
 Mutual coupling between arches (e.g. Q2_GS directly above Q2_DS) is not
 modelled; it enters the off-diagonal terms.
@@ -64,7 +64,7 @@ def arch(cl: dict, h: float, d: float) -> float:
     (ax, ay), (bx, by) = cl["a"], cl["b"]
     span = math.hypot(bx - ax, by - ay) - LEG_W
     w = 0.4 if cl["kind"] == "port" else 0.6
-    t = h + cl.get("level", 0) * 1.0              # height of the strip above the top copper
+    t = h * (1 + cl.get("level", 0))              # level-1 bridges sit at 2h (round 17 fix)
     return strip_per_mm(w, t + d) * span + 2 * leg(t)
 
 

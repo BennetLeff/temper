@@ -366,7 +366,13 @@ def main() -> None:
 
     # Closures: legs (copper columns), bridge bars (thin copper slabs), port strips (driven faces).
     closures = json.load(open(a.closures))
-    z_span = {0: Z_TOP + a.arch_h, 1: Z_TOP + a.arch_h + 1.0}
+    # Level-1 closures (gate-source bridges crossing over the drain-source
+    # bridges) sit at 2h, not h + 1 mm, so they also vanish in the h -> 0
+    # extrapolation (round 17: at h + 1 mm they left ~2-3 nH in the gate loops).
+    # They must clear the level-0 bars and leg tops: 2h - BAR_T/2 > h + LEG_EXTRA.
+    z_span = {0: Z_TOP + a.arch_h, 1: Z_TOP + 2 * a.arch_h}
+    if a.arch_h - BAR_T / 2 <= LEG_EXTRA:
+        raise SystemExit(f"arch height {a.arch_h} mm too low: level-1 bridges would touch level-0 legs/bars")
     legs = defaultdict(list)          # level -> leg squares (columns from Z_TOP to span + LEG_EXTRA)
     bars = defaultdict(list)          # level -> bar rectangles
     ports = []
