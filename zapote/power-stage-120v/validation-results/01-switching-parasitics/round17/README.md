@@ -145,3 +145,15 @@ the regenerated mesh: 33.04682 nH, identical to seven digits (field gate
 spread 1.4e-15, diagonal vs energy 7e-10). The 1 mm runs from
 `camp-v1-gs-at-h-plus-1mm` are linked into `camp2`; the redundant re-run
 is kept in `camp2/h1-rerun-identical-geometry`.
+
+## 9. First test of the hand estimate: it overestimates the arches
+
+P1 at h = 2 mm (campaign v2, 8.91 M tets, 9409 iterations, 4.0 h):
+37.85134 nH. Simulated L(2) − L(1) = 37.85134 − 33.04682 = **4.80 nH**
+against the §7 prediction of 7.3–8.0 nH: the hand model overestimates the
+arch increment by ~1.6x (it treats each strip and leg in isolation, with no
+partial cancellation from nearby return copper or between a closure's two
+legs). Its ±1 nH extrapolation-error estimate is therefore not relied on;
+the 3 mm solves test the curvature directly. Provisional straight-line
+value through 1 and 2 mm: P1(h → 0) ≈ 2·33.047 − 37.851 = 28.24 nH
+(board with a flat connection across C38; package inductance not included).
