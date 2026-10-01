@@ -12,7 +12,7 @@ from these sources. Part numbers are from `native-17/section.kicad_pcb`.
 | (cross-check) | TO-247 common-source inductance, measured | 5.5–7.8 nH (three devices, on PCB) | Aikawa et al., IFEEC 2017–ECCE Asia, pp. 1172–1177, Table I, doi:10.1109/IFEEC.2017.7992207 |
 | R5 | Vishay WSK2512R0010FEA, 1 mΩ 4-terminal | **0.5–5 nH** | Vishay WSK2512 datasheet, doc 30108, rev. 11-Dec-2023, p. 1 ("Very low inductance 0.5 nH to 5 nH") |
 | C38, C39 | TDK B32652A0104K000, 100 nF 1000 VDC, 15 mm pitch, body 9.0 × 17.5 × 18.0 mm | **≤ ~20 nH (upper bound only)** | TDK Film Capacitors General Technical Information (Oct 2025) §2.5: "the maximum value is 1 nH per mm of lead length and capacitor length"; body length from the B3265x datasheet. No part-specific typical value found (TDK's product pages refuse automated fetches; the datasheet's impedance chart is a family curve, too coarse to read for one part). |
-| R10, R12 | Yageo RC1206FR-073R9L (1206) | not found in the datasheet | — |
+| R10, R12 | Yageo RC1206FR-073R9L (1206) | not yet looked up | — |
 
 What this means for the loops (power loop through one capacitor, both FETs,
 R5): package terms ≈ 2 × (1.88 + 2.82) = **9.4 nH** for the FETs + **0.5–5 nH**
