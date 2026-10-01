@@ -244,5 +244,130 @@
    "wall_s"
   ],
   "note": "energies valid; their VTU was averaged, so the campaign re-solves them for mutuals"
+ },
+ "legA_h1_e0.35_matrix": {
+  "ports": [
+   "P1_C38",
+   "P2_C39",
+   "P3_gate_high",
+   "P4_gate_low"
+  ],
+  "L_nH": [
+   [
+    33.046825,
+    19.990889,
+    3.791995,
+    5.672854
+   ],
+   [
+    19.990889,
+    31.842623,
+    3.594674,
+    5.634263
+   ],
+   [
+    3.791995,
+    3.594674,
+    29.572796,
+    -0.302835
+   ],
+   [
+    5.672854,
+    5.634263,
+    -0.302835,
+    40.307785
+   ]
+  ],
+  "k": [
+   [
+    1.0,
+    0.6163,
+    0.1213,
+    0.1554
+   ],
+   [
+    0.6163,
+    1.0,
+    0.1171,
+    0.1573
+   ],
+   [
+    0.1213,
+    0.1171,
+    1.0,
+    -0.0088
+   ],
+   [
+    0.1554,
+    0.1573,
+    -0.0088,
+    1.0
+   ]
+  ],
+  "C38_C39_parallel_loop_nH": 26.203,
+  "gates": {
+   "max_within_tet_spread": 1.0560177044640498e-15,
+   "diagonal_vs_energy": [
+    {
+     "port": "10",
+     "L_from_B_nH": 33.046825,
+     "L_energy_nH": 33.04682,
+     "rel_diff": 1.536460379369986e-07
+    },
+    {
+     "port": "11",
+     "L_from_B_nH": 31.842623,
+     "L_energy_nH": 31.84262,
+     "rel_diff": 7.959755285213826e-08
+    },
+    {
+     "port": "12",
+     "L_from_B_nH": 29.572796,
+     "L_energy_nH": 29.572799999999997,
+     "rel_diff": 1.472908745741488e-07
+    },
+    {
+     "port": "13",
+     "L_from_B_nH": 40.307785,
+     "L_energy_nH": 40.30778,
+     "rel_diff": 1.2777087587239672e-07
+    }
+   ]
+  },
+  "solves": [
+   {
+    "label": "legA-h1-e0p35-P1_C38",
+    "inductance_nH": 33.04682,
+    "last_iteration": 9119,
+    "last_residual": 9.95754e-09,
+    "wall_s": 12074.0,
+    "converged": true
+   },
+   {
+    "label": "legA-h1-e0p35-P2_C39",
+    "inductance_nH": 31.84262,
+    "last_iteration": 8168,
+    "last_residual": 9.99912e-09,
+    "wall_s": 10819.0,
+    "converged": true
+   },
+   {
+    "label": "legA-h1-e0p35-P3_gate_high",
+    "inductance_nH": 29.572799999999997,
+    "last_iteration": 10161,
+    "last_residual": 9.99521e-09,
+    "wall_s": 13437.0,
+    "converged": true
+   },
+   {
+    "label": "legA-h1-e0p35-P4_gate_low",
+    "inductance_nH": 40.30778,
+    "last_iteration": 8920,
+    "last_residual": 9.99736e-09,
+    "wall_s": 11805.0,
+    "converged": true
+   }
+  ],
+  "caveat": "1 mm closure arches included; not the board value until the h->0 extrapolation, mesh convergence, air-box check and package inductance are done"
  }
 }

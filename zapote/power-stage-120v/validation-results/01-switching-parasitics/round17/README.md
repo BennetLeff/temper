@@ -92,3 +92,20 @@ checks the matrix exit code. `scripts/qualify_mutual_remote.sh`:
 The four h1 solves (energies valid: P1 33.047, P2 31.843, P3 29.573,
 P4 40.308 nH) are re-run for their fields; their averaged outputs are
 archived on the remote box (`r17/averaged-vtu-runs`).
+
+## 6. First valid matrix: leg A, 1 mm arches, 0.35 mm mesh (7.94 M tets)
+
+Gates: within-tet spread 1.1e-15; every diagonal matches its solve's energy
+to ≤ 2e-7.
+
+| nH | P1 C38 | P2 C39 | P3 gate high | P4 gate low |
+| --- | ---: | ---: | ---: | ---: |
+| P1 | 33.047 | 19.991 | 3.792 | 5.673 |
+| P2 | 19.991 | 31.843 | 3.595 | 5.634 |
+| P3 | 3.792 | 3.595 | 29.573 | -0.303 |
+| P4 | 5.673 | 5.634 | -0.303 | 40.308 |
+
+Coupling k: C38–C39 0.6163, power–gate 0.1213 / 0.1554 / 0.1171 / 0.1573, gate–gate -0.0088.
+C38 ∥ C39 effective loop: 26.20 nH. These include the 1 mm closure arches:
+not the board value until the h → 0 extrapolation (2 and 3 mm running),
+mesh convergence, the air-box check and package inductance are done.
