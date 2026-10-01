@@ -137,8 +137,11 @@ With that, the hand-model extrapolation error is −0.9…+1.1 nH (straight
 line through 1, 2 mm) and −0.5…+0.9 nH (parabola through 1, 2, 3 mm) for
 all four loops (`results/arch-estimate.json.txt`).
 
-Every solve contains every closure, so the whole campaign restarted
-(`r17/camp2` on the remote box). The §6 matrix belongs to the old geometry
-(`r17/camp-v1-gs-at-h-plus-1mm`): its power-loop diagonal (P1, P2) is
-affected only through the changed neighbouring bridges; its gate-loop
-entries and power–gate mutuals are superseded.
+Every solve contains every closure, so the campaign restarted
+(`r17/camp2` on the remote box) for h = 2 and 3 mm. **Correction:** at
+h = 1 mm, 2h = h + 1 mm, so the 1 mm geometry did not change and the §6
+matrix stands for the new geometry. Confirmed by re-solving P1 at 1 mm on
+the regenerated mesh: 33.04682 nH, identical to seven digits (field gate
+spread 1.4e-15, diagonal vs energy 7e-10). The 1 mm runs from
+`camp-v1-gs-at-h-plus-1mm` are linked into `camp2`; the redundant re-run
+is kept in `camp2/h1-rerun-identical-geometry`.
