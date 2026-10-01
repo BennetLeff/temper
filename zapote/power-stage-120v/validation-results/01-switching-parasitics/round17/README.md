@@ -109,3 +109,20 @@ Coupling k: C38–C39 0.6163, power–gate 0.1213 / 0.1554 / 0.1171 / 0.1573, ga
 C38 ∥ C39 effective loop: 26.20 nH. These include the 1 mm closure arches:
 not the board value until the h → 0 extrapolation (2 and 3 mm running),
 mesh convergence, the air-box check and package inductance are done.
+
+## 7. Hand estimate of the arches (`scripts/arch_estimate.py`)
+
+Strip-over-plane (Wheeler/Hammerstad, air) plus two vertical legs per
+closure, return plane bracketed at 0.5 mm (In1) and 1.07 mm (In2) below the
+top copper; relative to a flat strip on the top copper (h = 0).
+
+| Loop | dL(1) | dL(2) | dL(3) | straight-line error at 0 | parabola error at 0 | level-1 arch left at h = 0 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| P1/P2 | 6.6–9.1 | 13.9–17.0 | 21.3–24.8 | −0.7…+1.1 | −0.5…+0.9 | 0 |
+| P3/P4 | 3.8–4.3 | 8.5–9.2 | 13.6–14.4 | −0.9…−0.6 | −0.6…−0.4 | 2.0–2.9 |
+
+(nH.) Predictions to check: P1's simulated L(2) − L(1) should be 7.3–8.0 nH;
+P1 board-only (flat connection across C38) ≈ 33.05 − (6.6…9.1) ≈ 24–26.5 nH.
+**Flaw:** the gate–source bridges sit at h + 1 mm (they cross over the
+drain–source bridges), so they do not extrapolate away; gate-loop values
+would stay ~2–3 nH high. Arch–arch mutual coupling is not modelled.
