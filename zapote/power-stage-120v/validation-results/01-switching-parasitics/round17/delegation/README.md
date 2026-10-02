@@ -15,9 +15,10 @@ only your brief.
 | [D-7 capacitor ESL](D7-capacitor-esl.md) | ESL of C38–C41 and bulk C5/C6 from TDK models/curves | small |
 | [D-8 double-pulse plan](D8-double-pulse-plan.md) | Bench procedure to measure diode recovery (S4) and gate dead time | small |
 | [D-9 review](D9-review-followups.md) | Adversarial review of the D-4 follow-up commits (f5a1c8083 onward) | medium |
+| [D-10 J4 interface](D10-controller-interface.md) | Power-stage task 06 in full: all 16 J4 pins against every counterpart board (controller read-only) | medium |
 
-D-1..D-4 are complete (`out-D1`..`out-D4`). D-5..D-9 are independent of
-each other except D-8, which should cite D-5/D-6 if they are done first.
+D-1..D-4 are complete (`out-D1`..`out-D4`). D-5..D-10 are independent of
+each other except D-8 (cite D-5/D-6 if done first) and D-10's dead-time check (cite D-5).
 
 **Paths:** `round17/...` means
 `zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/...`;
