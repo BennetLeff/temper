@@ -227,3 +227,31 @@ below 520 V (max 514.7 / 501.1 V); S4 still fails off-gate. Use
 1.06–20 nH as the local ESL sweep. The 5-port deck still uses one LESL for
 C6; with C6 at 19.2 nH (vs 10 nH used) the bulk branch carries less edge
 current, so the bulk A/B/C coupling effect above is, if anything, overstated.
+
+## Grid on the best matrix (`legA-h0-best.matrix.txt`, `results/grid-best/`)
+
+Best matrix: fine quad(1,2,3) + coarse low-height correction [cubic(0.5,1,2,3)
+− quad(1,2,3)] + crop correction (SPD, min eig 8.90 nH). ESL 1.06 / 5 / 10 /
+20 nH (D-7), all five dead times: **680 cases, 10 aborted**. Every case is
+reported against both off-gate criteria (`grid.py`: 3.0 V at 25 °C; D-6's
+provisional 1.9 V hot screen).
+
+| Case | 250 ns | 307 ns | 348 ns | 391 ns | 450 ns |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| S1 nominal, 3.0 V / hot | 0 / 0 of 24 | 0 / 0 | **24 / 0** | 24 / 24 | 24 / 24 |
+| S2 overcurrent | 0 / 0 of 16 | 0 / 0 | 12 / 0 | 16 / 16 | 16 / 16 |
+| S3 light load | 0 / 0 of 72 | 47 / 0 | 69 / 0 | 70 / 46 | 70 / 52 |
+| S4 hard turn-on | 0 / 0 of 24 | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+
+- Against 3.0 V: 372 / 680 pass, the same pattern as grid v2. Nominal S1 at
+  348 ns: off-gate 2.08–2.59 V, ZVS in all 24, die VDS ≤ 385 V.
+- **Against the 1.9 V hot screen: 178 / 680; nominal operation passes only
+  at ≥ 391 ns.** At the nominal 348 ns every S1 and S2 case fails it.
+- S4: die VDS 441–536 V, off-gate 3.44–5.21 V; fails everywhere.
+- **Aborts (10):** S3 280 V, direction 1: 5 A at ESL 20 nH and 10 A at
+  1.06 nH, at every dead time ("timestep too small", node `bus`, at 2 µs and
+  2 ps respectively). Indeterminate, not passes. The same operating points
+  at neighbouring ESL (19 / 21 nH; 1.0 / 1.1 nH) converge with smooth
+  results (348 ns: VDS 384 / 383 V and 296 / 296 V, off-gate 1.98 / 1.98 V and
+  2.09 / 2.09 V), so the aborts are isolated solver failures, not a masked
+  stress.

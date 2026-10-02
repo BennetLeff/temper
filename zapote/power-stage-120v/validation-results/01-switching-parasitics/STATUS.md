@@ -13,8 +13,8 @@ model-based throughout. **No physical qualification is claimed.**
 
 | Question | Current answer | Confidence |
 | --- | --- | --- |
-| Board loop inductances (leg A) | Extracted by FEM as a 4-port matrix (C38 loop, C39 loop, two gate loops), extrapolated to zero closure height, crop-corrected | provisional: 3 mm points still solving |
-| Nominal operation (S1, 170–280 V, 37 A, 348 ns dead time) | **passes the 25 °C criterion** (off-gate 2.0–2.6 V < 3.0 V, die VDS within limit, ZVS in all 18 cases) but **fails D-6's provisional hot screen** (< 1.9 V) | **open**: the 3.0 V criterion is optimistic at hot junction (FINDINGS F5) |
+| Board loop inductances (leg A) | Extracted by FEM as a 4-port matrix (C38 loop, C39 loop, two gate loops); **best matrix** = fine parabola through 1/2/3 mm + coarse low-height correction + crop correction | model result; mesh not fully converged (M1); 0.5 mm curvature transferred from the coarse mesh (M2) |
+| Nominal operation (S1, 170–280 V, 37 A, 348 ns dead time) | **passes the 25 °C criterion** (best matrix, ESL 1.06–20 nH: off-gate 2.08–2.59 V < 3.0 V, die VDS ≤ 385 V, ZVS in all 24) but **fails D-6's provisional hot screen** (< 1.9 V) at 348 ns; passes it at ≥ 391 ns | **open**: the 3.0 V criterion is optimistic at hot junction (FINDINGS F5) |
 | Dead-time margin | off-gate limit crossed **between 307 and 348 ns**; 307 ns fails every nominal case (3.45–4.01 V) | **open risk**: D-5 found the firmware does not establish ≥ 500 ns at the gates; keep 307 ns (F1) |
 | Hard turn-on (S4, −20 A) | **fails at every dead time**: die VDS up to 543 V (> 520 V), off-gate up to 5.1 V | **open risk**: hinges on the body-diode recovery model (D-3, D-8) |
 | Overcurrent (S2, 280 V / 61–71 A) | passes at ≥ 391 ns; 2 marginal fails at 348 ns (3.12–3.14 V) | model result |
@@ -31,19 +31,20 @@ threshold at 25 °C − 0.5 V) and D-6's provisional hot screen **< 1.9 V**
 
 | Item | File | Notes |
 | --- | --- | --- |
-| Board matrix, h → 0, crop-corrected | [`round17/d2/legA-h0-lin12-m20corr.matrix.txt`](round17/d2/legA-h0-lin12-m20corr.matrix.txt) | straight line through 1 and 2 mm closures + per-entry 20 mm crop correction; SPD |
+| **Board matrix (best)** | [`round17/d2/legA-h0-best.matrix.txt`](round17/d2/legA-h0-best.matrix.txt) | fine quad(1,2,3) + coarse [cubic − quad(1,2,3)] + crop correction; SPD, min eig 8.90 nH |
+| Earlier straight-line matrix | [`round17/d2/legA-h0-lin12-m20corr.matrix.txt`](round17/d2/legA-h0-lin12-m20corr.matrix.txt) | lin(1,2) + crop correction; understates power-to-gate coupling (M2) |
 | Same, uncorrected | [`round17/d2/legA-h0-lin12.matrix.txt`](round17/d2/legA-h0-lin12.matrix.txt) | grid v2 ran on this; the correction changes no verdict |
 | SPICE deck | [`round17/d2/leg_matrix.cir`](round17/d2/leg_matrix.cir) | Infineon IPW65R018CFD7 L1 model (package L included); 5-port bulk variant [`leg_matrix5.cir`](round17/d2/leg_matrix5.cir) |
 | Package / part inductances | [`round17/PACKAGE-INDUCTANCE.md`](round17/PACKAGE-INDUCTANCE.md) | capacitor ESL swept 5/10/20 nH (assumed; D-7) |
-| Grid results | [`round17/d2/results/grid-h0-lin12-v2/`](round17/d2/results/grid-h0-lin12-v2/) (510 cases), [`grid-h0-lin12-m20corr/`](round17/d2/results/grid-h0-lin12-m20corr/) (240) | fixed grid code (D-4 findings) |
+| **Grid results (best)** | [`round17/d2/results/grid-best/`](round17/d2/results/grid-best/) (680 cases, ESL 1.06–20 nH, 3.0 V and 1.9 V verdicts; 10 isolated solver aborts) | earlier: `grid-h0-lin12-v2/` (510), `grid-h0-lin12-m20corr/` (240) |
 
-Leg A matrix, h → 0 lin12, crop-corrected (nH; P1 C38, P2 C39, P3 gate high, P4 gate low):
+Leg A best matrix (nH; P1 C38, P2 C39, P3 gate high, P4 gate low):
 
 ```
-P1  26.59  16.09   3.54   5.08
-P2  16.09  25.97   3.30   5.29
-P3   3.54   3.30  25.94  -0.21
-P4   5.08   5.29  -0.21  36.30
+P1  24.60  15.32   4.04   5.49
+P2  15.32  23.85   3.87   5.74
+P3   4.04   3.87  24.26  -0.26
+P4   5.49   5.74  -0.26  35.68
 ```
 
 ## How far to trust it
@@ -72,9 +73,9 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 
 | Work | Where | State |
 | --- | --- | --- |
-| 3 mm closure matrix (fine mesh) → parabolic extrapolation | remote box | P1, P2 done; P3, P4 running |
+| Mesh convergence point (fine, 0.5 mm edges, h = 1 mm) | remote box | running |
 | Leg B matrix | remote box | **paused** until the enclosure layout settles (restart note in the remote's `r17/chain_legB.out`) |
-| Extrapolation test with 0.5 / 2 / 3 mm closures on the coarse mesh | Mac | 0.5 and 2 mm done; 3 mm solving |
+
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
 | D-7 capacitor ESL | delegated | waiting on TDK model access |
 | D-11 bus-sense range (AMC1311B linear to ~240 V, < 280 V OVP; from D-10) | delegated | brief written |
