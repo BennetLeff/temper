@@ -27,7 +27,8 @@ warning emissions were existing `needless_borrow`, `manual_range_contains`, and
 Targeted rustfmt, `ruff check zapote/tools/layout_snapshot.py`, and `git diff
 --check` passed. No claim of a warning-free legacy workspace is made.
 
-The native fact fixture is
-`../../packages/zapote-drc/tests/fixtures/native17-layout.json.gz`, captured with
-KiCad 10.0.4. It is not a synthetic external-schema example. The native report's
-`snapshot_sha256` is the SHA-256 of its decompressed bytes.
+The initial v1 snapshot is retained inside `native-edit-proof.tar.gz`.
+The test fixture at `../../packages/zapote-drc/tests/fixtures/native17-layout.json.gz`
+has since been recaptured with required v2 plating/contact fields; see the
+[conductor follow-up](../conductor-evidence/README.md). The report above retains
+its original v1 snapshot hash and must not be compared to that newer fixture.

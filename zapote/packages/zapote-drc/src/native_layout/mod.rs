@@ -1,10 +1,12 @@
 //! Native-board layout analysis. Geometry is read by pcbnew, policy and metrics
 //! live here. A geometry screen never supplies a missing physical model.
+mod contacts;
 mod geometry;
 mod paths;
 mod report;
 #[cfg(test)]
 mod tests;
+pub use contacts::PadEntry;
 pub use paths::Route;
 pub use report::{compare, evaluate, Delta, Measurement, NativeReport};
 use serde::{Deserialize, Serialize};
@@ -40,6 +42,7 @@ pub struct Pad {
     pub net: String,
     pub position_mm: [f64; 2],
     pub layers: Vec<String>,
+    pub plated_through: bool,
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -51,6 +54,7 @@ pub struct Track {
     pub end_mm: [f64; 2],
     pub width_mm: f64,
     pub length_mm: f64,
+    pub pad_contacts: Vec<String>,
     pub start_contacts: Vec<String>,
     pub end_contacts: Vec<String>,
 }
@@ -108,7 +112,7 @@ pub fn digest(bytes: &[u8]) -> String {
 impl Snapshot {
     pub fn validate(&self, board: &[u8]) -> Result<()> {
         require(
-            self.schema == "zapote.layout-native.v1",
+            self.schema == "zapote.layout-native.v2",
             "unsupported native layout schema",
         )?;
         require(
@@ -192,6 +196,15 @@ impl Snapshot {
                 "invalid native track dimensions",
             )?;
             require(self.layers.contains(&t.layer), "track on undeclared layer")?;
+            let contacts: BTreeSet<_> = t.pad_contacts.iter().collect();
+            require(
+                contacts.len() == t.pad_contacts.len()
+                    && t.start_contacts
+                        .iter()
+                        .chain(&t.end_contacts)
+                        .all(|id| contacts.contains(id)),
+                "inconsistent native track pad contacts",
+            )?;
             require(
                 (geometry::distance(t.start_mm, t.end_mm) - t.length_mm).abs() <= 0.000002,
                 "straight track length differs from native endpoints",

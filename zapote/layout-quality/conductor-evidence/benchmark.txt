@@ -1,0 +1,10 @@
+    Blocking waiting for file lock on build directory
+   Compiling proptest v1.11.0
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc)
+    Finished `bench` profile [optimized] target(s) in 28.30s
+     Running benches/layout_quality.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/layout_quality-fcec50671df7671b)
+64-node factorization: 44.5 us/iteration (100 iterations)
+64-node solve with object report: 16.3 us/iteration (10000 iterations)
+1000+1000 sparse patches with 1000 pair reports: 713.1 us/iteration (100 iterations)
+1000 sparse envelopes with 999 pair reports: 402.4 us/iteration (100 iterations)
+native-17 complete geometry report (641 tracks, 395 pad contacts): 321.10 ms/iteration (25 iterations)

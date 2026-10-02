@@ -24,7 +24,8 @@ Rust helper in Temper or requalified all historical solver studies.
 | Operating limits | `p3::run` calls `operating_limits::validate(None, None)` | Integrated call, missing thermal and shutdown timing inputs. Not acceptance. Applies to gate-drive/current-sense/interlock in current runner. |
 | Power-stage electrical models | Gate-drive ERC calls power-stage model functions, including dead-time calculation | Model-based calculations; not a native 120 V waveform/current extraction pipeline. |
 | Branch-current graph | `power_branches::analyze` | Only test callers found in current Zapote tree (`branch_cut_oracle` plus module tests); no board runner consumer. |
-| Pad/contact geometry and capacity | `power_contact::entry/capacity_a` | Only test callers found; the P1 report still says actual entry/current/neck validation is unimplemented. |
+| Pad/contact geometry | Native `check-layout` → `native_layout::contacts` → `power_contact::entry_regions` | Now measures all 395 native-17 track/pad contacts using filled pad copper, including holes. Structured witnesses identify track, physical pad UUID, net and layer. This does not yet feed the smaller gate-drive P1 acceptance path. |
+| Contact capacity | `power_contact::capacity_a` | Still test-only; sampled entry width does not establish minimum-cut ampacity, operating current or heating. |
 | Pad escape | `zapote-pad-escape` CLI → `pad_escape::plan` | Standalone caller accepting supplied JSON; not a common saved-board acceptance rule. |
 | Fault loop | `zapote-fault-loop` CLI → `fault_loop::loop_inconsistencies` | Standalone source-netlist/assignment check; necessary connectivity only, not actual branch-current proof. |
 | 120 V source audit | `power-stage-120v/audit.rs` consumes frozen netlist/BOM/resolved identity | Fresh PASS: 135 components, 83 nets; 53 mutation/regression tests passed. Frozen source inputs, not fresh Atopile compilation. |
@@ -74,9 +75,13 @@ unit's source contract or claim that all of P1/P2/P3 now qualify the full bridge
    and register the applicable existing gates under that spec. Keep source parity,
    barrier and native ERC/DRC evidence together rather than assuming standalone
    receipts are executed by the five-unit runner.
-2. Reconstruct and discretize native zone/pad/via conductors, including interior
-   junctions. Connect `power_contact` and `power_branches` to actual board-derived
-   graphs and source-defined load cases. A tree cannot determine parallel sharing.
+2. Reconstruct and discretize native zone/pad/via conductors. Exact endpoint-on-track
+   junctions, mid-track vias and plated pad barrel connectivity are now supported;
+   the native-17 path census improved from 22/35 to 23/35. Zone interiors,
+   crossing/overlapping copper and off-centre contacts still need geometry work.
+   `power_contact` now has a native consumer; connect `power_branches` to complete
+   board-derived graphs and source-defined load cases. A tree cannot determine
+   parallel sharing, and a sampled contact chord is not a neck capacity.
 3. Feed extracted mutual/shared inductances and adopted operating slews into gate,
    Kelvin and return models for both bridge legs; supply decoupling component
    parasitics/effective values and complete current loops.

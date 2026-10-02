@@ -1,5 +1,5 @@
 //! Run with cargo bench -p zapote-drc --bench layout_quality.
-use std::{hint::black_box, time::Instant};
+use std::{hint::black_box, io::Read, time::Instant};
 use zapote_drc::layout_quality::copper::{Edge, Network};
 use zapote_drc::layout_quality::{assembly, capacitance};
 fn main() {
@@ -75,4 +75,20 @@ fn main() {
         "1000 sparse envelopes with 999 pair reports: {:.1} us/iteration (100 iterations)",
         start.elapsed().as_secs_f64() * 1e4
     );
+
+    // Captured production geometry; excludes native extraction and JSON parsing.
+    let mut decoded = Vec::new();
+    flate2::read::GzDecoder::new(&include_bytes!("../tests/fixtures/native17-layout.json.gz")[..])
+        .read_to_end(&mut decoded)
+        .unwrap();
+    let snapshot: zapote_drc::native_layout::Snapshot = serde_json::from_slice(&decoded).unwrap();
+    let board = include_bytes!("../../../power-stage-120v/native-17/section.kicad_pcb");
+    let start = Instant::now();
+    for _ in 0..25 {
+        black_box(
+            zapote_drc::native_layout::evaluate(black_box(&snapshot), black_box(board)).unwrap(),
+        );
+    }
+    println!("native-17 complete geometry report (641 tracks, 395 pad contacts): {:.2} ms/iteration (25 iterations)",
+        start.elapsed().as_secs_f64() * 40.);
 }

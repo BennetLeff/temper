@@ -44,8 +44,8 @@ reviewed profile update. This is not a substitute for source-to-native parity.
 | Kelvin | Shunt→sense input paths, lengths and track R | Shared current and pickup/transfer models |
 | Switch coupling | Unioned filled copper, holes, adjacent layer overlap and declared dielectric stack | Fringing, coplanar/shielded fields and operating dv/dt |
 | Decoupling | Supply/return endpoint distances and supported routed paths | Effective C, ESR/ESL and complete branch inductance |
-| Returns | Actual supported track/via paths; explicit gaps when no path is reconstructed | Zone interiors, interior T-junctions, pad barrels, common-current model |
-| Copper | Every straight track's uniform-conductor R at 20 °C | Zone/pad/via current distribution, plating, crowding, AC and thermal solution |
+| Returns | Track/via paths, exact endpoint-on-track junctions, mid-track vias, plated pad barrels; explicit reconstruction gaps | Zone interiors, crossing/overlapping copper, off-centre contacts, common-current model |
+| Copper | Every straight track's R at 20 °C and every native track/pad entry's sampled copper chord | Full conductor current distribution, minimum-cut width, plating R, crowding, AC and thermal solution |
 | EMI | Raw/filtered net projected adjacent-layer overlap | Magnetic bypass and victim transfer impedance |
 | Thermal | Named heater/victim component distances | Losses, assembly heat transfer and drift coefficients |
 | Assembly | Same-side native courtyard gap within 5 mm and overlap area | 3D bodies, hardware, tolerances and access envelopes |
@@ -65,6 +65,50 @@ edits that invalidate them. Polygonization uses 1 µm error; the projected C mod
 is neither an upper bound nor a complete coupling estimate. Zero projected
 overlap does not mean zero real coupling.
 
+Track junctions use integer nanometre coordinates and exact collinearity, indexed
+by net/layer and x range. Splitting a track distributes its length and resistance
+proportionally; it does not charge the full original resistance for each piece.
+Only native plated-through pads join flashed layers through a barrel. Barrel/via
+length follows the stackup; their resistance remains excluded from track R.
+
+`pad_entries` contains every native track/pad contact, including contacts away
+from the track endpoints. The shared Rust `power_contact` kernel measures filled
+pad copper with all holes preserved. `entry_chord_mm` is the largest sampled
+contiguous cross-section shared by the pad and the straight trace body. A partial
+witness is useful layout feedback, not a minimum-cut or current-rating verdict.
+Zero means no straight-body witness; rounded-cap contacts can still conduct.
+Polygon approximation can also make nearly full-width chords slightly smaller.
+No witness is allowed to become a full-width result through numeric tolerance.
+
+Native snapshot and report schemas are now v2: plating and complete native pad
+contacts are required fields, and reports include typed pad-entry witnesses.
+Old baselines must be remeasured with the current evaluator and extractor.
+
+## Conductor integration follow-up
+
+The [new live report](conductor-evidence/native17-report.json) evaluates 1,723
+measurements, 23 of 35 requested paths and all 395 track/pad contacts. C16's return
+path is now reconstructed at 18.2661 mm; KiCad's independent connectivity queries
+confirmed all nine object transitions. Twelve requested paths still have explicit
+reconstruction gaps. The board was not edited.
+
+Of the 395 contacts, 351 have full-width witnesses, 39 partial witnesses, and 5
+have no straight-section witness. Examples worth inspecting include the 0.8 mm
+traces at U1.15/U2.15 with 0.6 mm sampled pad chords, and the C10.2/C17.2 return
+entries with approximately 0.1334 mm chords. These measurements do not alone
+establish a failure or justify a board edit.
+
+The scratch-board proof halves U1.15's attached trace from 0.8 to 0.4 mm: section
+resistance doubles, the route resistance changes by the expected amount, and the
+entry witness changes from partial (0.6 mm) to full-width (0.4 mm). The smaller
+chord is not universally an improvement; resistance and contact metrics remain
+separate. Source PCB bytes are checked unchanged.
+
+Release benchmark: 321.10 ms per full native-17 Rust report over 25 iterations,
+excluding extraction/JSON parsing; a full live run took 2.100 s on this host.
+These are observed timings, not cross-machine guarantees.
+[Evidence and test details](conductor-evidence/README.md).
+
 ## Provenance and repeatability
 
 Every run retains extractor stdout/stderr, command, PCB SHA-256, snapshot hash,
@@ -79,7 +123,7 @@ Electrical dimensions come from the saved ordered stackup; adjacent capacitance
 uses the sum of dielectric thickness/epsilon between copper surfaces. Duplicate
 copper overlap is unioned, holes are retained, and unflashed copper is excluded.
 
-## Retained live evidence
+## Initial integration evidence (v1)
 
 [Native-17 report](native-evidence/native17-report.json): KiCad 10.0.4,
 PCB SHA-256 `16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162`.

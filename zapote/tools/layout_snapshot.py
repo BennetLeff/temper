@@ -68,6 +68,7 @@ def extract(path: Path) -> dict[str, Any]:
                 continue
             pads.append({"uuid": uid, "reference": ref, "number": pad.GetNumber(),
                          "net": pad.GetNetname(), "position_mm": xy(pad.GetPosition()),
+                         "plated_through": pad.GetAttribute() == p.PAD_ATTRIB_PTH,
                          "layers": [board.GetLayerName(layer) for layer in flashed]})
             for layer in flashed:
                 copper.append({"uuid": uid, "kind": "pad", "net": pad.GetNetname(),
@@ -81,12 +82,14 @@ def extract(path: Path) -> dict[str, Any]:
                          "position_mm": xy(item.GetPosition()),
                          "layers": [board.GetLayerName(layer) for layer in layers if item.IsOnLayer(layer)]})
         elif item.GetClass() == "PCB_TRACK":
+            contacts = list(connectivity.GetConnectedPads(item))
             tracks.append({"uuid": uid, "net": item.GetNetname(),
                            "layer": board.GetLayerName(item.GetLayer()),
                            "start_mm": xy(item.GetStart()), "end_mm": xy(item.GetEnd()),
                            "width_mm": p.ToMM(item.GetWidth()), "length_mm": p.ToMM(item.GetLength()),
-                           "start_contacts": [v.m_Uuid.AsString() for v in connectivity.GetConnectedPads(item) if v.HitTest(item.GetStart())],
-                           "end_contacts": [v.m_Uuid.AsString() for v in connectivity.GetConnectedPads(item) if v.HitTest(item.GetEnd())]})
+                           "pad_contacts": [v.m_Uuid.AsString() for v in contacts],
+                           "start_contacts": [v.m_Uuid.AsString() for v in contacts if v.HitTest(item.GetStart())],
+                           "end_contacts": [v.m_Uuid.AsString() for v in contacts if v.HitTest(item.GetEnd())]})
         else:
             gaps.append(uid + ": unsupported routed item " + item.GetClass())
         for layer in layers:
@@ -119,7 +122,7 @@ def extract(path: Path) -> dict[str, Any]:
             gaps.append(item.m_Uuid.AsString() + ": unsupported board copper graphic")
     if path.read_bytes() != before:
         raise ValueError("board changed during extraction")
-    return {"schema": "zapote.layout-native.v1", "board_sha256": hashlib.sha256(before).hexdigest(),
+    return {"schema": "zapote.layout-native.v2", "board_sha256": hashlib.sha256(before).hexdigest(),
             "extractor_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "tool_version": p.Version(), "polygon_error_mm": 0.001,
             "layers": [board.GetLayerName(layer) for layer in layers],

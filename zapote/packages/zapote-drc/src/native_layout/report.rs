@@ -30,6 +30,7 @@ pub struct NativeReport {
     pub profile: String,
     pub measurements: Vec<Measurement>,
     pub routes: BTreeMap<String, super::Route>,
+    pub pad_entries: Vec<super::PadEntry>,
     pub coverage: Vec<Coverage>,
     pub geometry_gaps: Vec<String>,
     pub population: BTreeMap<String, usize>,
@@ -45,7 +46,7 @@ pub struct Delta {
     pub change: Option<f64>,
 }
 impl NativeReport {
-    fn metric(&mut self, measurement: Measurement) -> Result<()> {
+    pub(super) fn metric(&mut self, measurement: Measurement) -> Result<()> {
         finite(measurement.value)?;
         self.measurements.push(measurement);
         Ok(())
@@ -121,11 +122,12 @@ pub fn evaluate(snapshot: &Snapshot, board: &[u8]) -> Result<NativeReport> {
         )?;
     }
     let mut report = NativeReport {
-        schema: "zapote.layout-native-report.v1".into(),
+        schema: "zapote.layout-native-report.v2".into(),
         board_sha256: snapshot.board_sha256.clone(),
         profile: "power-stage-120v.v1".into(),
         measurements: vec![],
         routes: BTreeMap::new(),
+        pad_entries: vec![],
         coverage: vec![],
         geometry_gaps: snapshot.gaps.clone(),
         population: BTreeMap::from([
@@ -139,7 +141,8 @@ pub fn evaluate(snapshot: &Snapshot, board: &[u8]) -> Result<NativeReport> {
         interpretation: concat!(
             "Native layout measurements and comparison screens; not a board acceptance ",
             "verdict. Route lengths include straight pad-centre links, exclude zone ",
-            "interiors and unsupported junctions. DC track resistance excludes ",
+            "interiors and unsupported copper intersections. Exact endpoint-on-track ",
+            "junctions and plated pad barrels are included. DC track resistance excludes ",
             "pad/via/spreading resistance. No missing coupling, current, thermal or ",
             "tolerance model is assigned zero."
         )
@@ -147,6 +150,7 @@ pub fn evaluate(snapshot: &Snapshot, board: &[u8]) -> Result<NativeReport> {
     };
     measure_routes(snapshot, &stack, &mut report)?;
     track_resistance(snapshot, &stack, &mut report)?;
+    super::contacts::measure(snapshot, &mut report)?;
     assembly(snapshot, &components, &mut report)?;
     thermal(&components, &mut report)?;
     coupling(snapshot, &stack, &mut report)?;

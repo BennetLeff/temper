@@ -44,6 +44,7 @@ impl Graph {
         let mut pads: Vec<_> = snapshot.pads.iter().collect();
         pads.sort_by_key(|pad| &pad.uuid);
         for pad in pads {
+            let mut barrel = vec![];
             for layer in &pad.layers {
                 let (_, l) = layers
                     .get(layer.as_str())
@@ -56,15 +57,18 @@ impl Graph {
                     .or_default()
                     .push(id);
                 pad_nodes.insert((pad.uuid.as_str(), layer.as_str()), (id, pad));
+                barrel.push(id);
+            }
+            if pad.plated_through {
+                graph.connect_vertical(barrel, format!("barrel:{}", pad.uuid));
             }
         }
         let mut tracks: Vec<_> = snapshot.tracks.iter().collect();
         tracks.sort_by_key(|track| &track.uuid);
-        for track in tracks {
+        for track in &tracks {
             let (layer_index, layer) = layers
                 .get(track.layer.as_str())
                 .ok_or("track layer absent from stackup")?;
-            let mut ends = vec![];
             for (position, contacts) in [
                 (track.start_mm, &track.start_contacts),
                 (track.end_mm, &track.end_contacts),
@@ -91,21 +95,7 @@ impl Graph {
                         format!("pad:{}", pad.uuid),
                     );
                 }
-                ends.push(node);
             }
-            let resistance = crate::layout_quality::copper::resistance_ohm(
-                track.length_mm,
-                track.width_mm * layer.thickness_mm,
-                1.724e-8,
-            )
-            .map_err(|e| e.to_string())?;
-            graph.connect(
-                ends[0],
-                ends[1],
-                track.length_mm,
-                resistance,
-                track.uuid.clone(),
-            );
         }
         let mut vias: Vec<_> = snapshot.vias.iter().collect();
         vias.sort_by_key(|via| &via.uuid);
@@ -126,13 +116,57 @@ impl Graph {
                 });
                 attached.push(node);
             }
-            attached.sort_by(|a, b| graph.positions[*a][2].total_cmp(&graph.positions[*b][2]));
-            for pair in attached.windows(2) {
-                let length = (graph.positions[pair[0]][2] - graph.positions[pair[1]][2]).abs();
-                graph.connect(pair[0], pair[1], length, 0.0, format!("via:{}", via.uuid));
+            graph.connect_vertical(attached, format!("via:{}", via.uuid));
+        }
+        // Range queries restrict candidates to the same net/layer and x interval.
+        // Exact integer collinearity cannot bridge even a 1 nm centreline gap.
+        // Include via anchors before splitting, so mid-track vias also attach.
+        for track in tracks {
+            let (index, layer) = layers[track.layer.as_str()];
+            let a = [nm(track.start_mm[0])?, nm(track.start_mm[1])?];
+            let b = [nm(track.end_mm[0])?, nm(track.end_mm[1])?];
+            let dx = i128::from(b[0]) - i128::from(a[0]);
+            let dy = i128::from(b[1]) - i128::from(a[1]);
+            let norm = dx * dx + dy * dy;
+            require(norm > 0, "zero native track length")?;
+            let lo = (track.net.as_str(), index, a[0].min(b[0]), i64::MIN);
+            let hi = (track.net.as_str(), index, a[0].max(b[0]), i64::MAX);
+            let mut cuts = vec![];
+            for ((_, _, x, y), node) in nodes.range(lo..=hi) {
+                let px = i128::from(*x) - i128::from(a[0]);
+                let py = i128::from(*y) - i128::from(a[1]);
+                let along = px * dx + py * dy;
+                if px * dy == py * dx && (0..=norm).contains(&along) {
+                    cuts.push((along, *node));
+                }
+            }
+            cuts.sort_unstable();
+            let resistance = crate::layout_quality::copper::resistance_ohm(
+                track.length_mm,
+                track.width_mm * layer.thickness_mm,
+                1.724e-8,
+            )
+            .map_err(|e| e.to_string())?;
+            for pair in cuts.windows(2) {
+                let fraction = (pair[1].0 - pair[0].0) as f64 / norm as f64;
+                graph.connect(
+                    pair[0].1,
+                    pair[1].1,
+                    track.length_mm * fraction,
+                    resistance * fraction,
+                    track.uuid.clone(),
+                );
             }
         }
         Ok(graph)
+    }
+    fn connect_vertical(&mut self, mut nodes: Vec<usize>, object: String) {
+        nodes.sort_by(|a, b| self.positions[*a][2].total_cmp(&self.positions[*b][2]));
+        for pair in nodes.windows(2) {
+            let length = (self.positions[pair[0]][2] - self.positions[pair[1]][2]).abs();
+            // Connectivity/length only. Plating and spreading R remain unmodelled.
+            self.connect(pair[0], pair[1], length, 0.0, object.clone());
+        }
     }
     fn add_node(&mut self, position: [f64; 3]) -> usize {
         let id = self.positions.len();
@@ -220,7 +254,7 @@ impl Graph {
                 }
             }
         }
-        Err("no track/via centreline path; zones, interior T-junctions and pad barrels require a fuller conductor model".into())
+        Err("no supported centreline path; zone interiors, crossing/overlapping copper and off-centre pad/via contacts require a fuller conductor model".into())
     }
 }
 fn nm(v: f64) -> Result<i64> {
