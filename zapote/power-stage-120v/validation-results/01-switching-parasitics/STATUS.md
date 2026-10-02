@@ -3,7 +3,7 @@
 **Read this first.** It is the current answer for task 01 and is updated as
 results land. The round folders are the lab notebook behind it
 ([ROUNDS.md](ROUNDS.md)); open findings and risks are in
-[FINDINGS.md](FINDINGS.md). Last updated 2026-10-02.
+[FINDINGS.md](FINDINGS.md). Last updated 2026-10-03.
 
 Board: `native-17/section.kicad_pcb`. Leg A (Q2 high / Q3 low, driver U1)
 is extracted and simulated; leg B is queued. Evidence class: simulation and
@@ -14,16 +14,18 @@ model-based throughout. **No physical qualification is claimed.**
 | Question | Current answer | Confidence |
 | --- | --- | --- |
 | Board loop inductances (leg A) | Extracted by FEM as a 4-port matrix (C38 loop, C39 loop, two gate loops), extrapolated to zero closure height, crop-corrected | provisional: 3 mm points still solving |
-| Nominal operation (S1, 170–280 V, 37 A, 348 ns dead time) | **passes**: die VDS within limit, off-gate 2.03–2.54 V (< 3.0 V), soft-switches (ZVS) in all 18 cases | model result |
-| Dead-time margin | off-gate limit crossed **between 307 and 348 ns**; 307 ns fails every nominal case (3.45–4.01 V) | **open risk**: real worst-case dead time unknown (D-5) |
+| Nominal operation (S1, 170–280 V, 37 A, 348 ns dead time) | **passes the 25 °C criterion** (off-gate 2.0–2.6 V < 3.0 V, die VDS within limit, ZVS in all 18 cases) but **fails D-6's provisional hot screen** (< 1.9 V) | **open**: the 3.0 V criterion is optimistic at hot junction (FINDINGS F5) |
+| Dead-time margin | off-gate limit crossed **between 307 and 348 ns**; 307 ns fails every nominal case (3.45–4.01 V) | **open risk**: D-5 found the firmware does not establish ≥ 500 ns at the gates; keep 307 ns (F1) |
 | Hard turn-on (S4, −20 A) | **fails at every dead time**: die VDS up to 543 V (> 520 V), off-gate up to 5.1 V | **open risk**: hinges on the body-diode recovery model (D-3, D-8) |
 | Overcurrent (S2, 280 V / 61–71 A) | passes at ≥ 391 ns; 2 marginal fails at 348 ns (3.12–3.14 V) | model result |
 | Light load (S3, 2–10 A) | passes at ≥ 348 ns; 12 fails at 307 ns | model result |
+| Gate-drive remedy | D-6: ≈1 Ω discharge + 1 nF Cgs + −2 V off-bias passes **all** 32 decision cases (incl. S4 and 307 ns) against the 1.9 V screen: off-gate ≤ 0.51 V, die VDS ≤ 484 V, ZVS kept | **proposal**: needs a negative bias rail (board change, owner decision); 27 °C; refinement not fully converged (F6) |
 
 Verdict definitions, criteria and all cases: [round17/d2/README.md](round17/d2/README.md).
-Criteria: die VDS ≤ 520 V (S2 ≤ 585 V), off-device VGS < 3.0 V
-(3.5 V min threshold − 0.5 V; D-6 checks it at hot junction), |VGS| ≤ 30 V,
-ZVS for nominal S1 at 348 ns.
+Criteria: die VDS ≤ 520 V (S2 ≤ 585 V), |VGS| ≤ 30 V, ZVS for nominal S1 at
+348 ns, and off-device VGS reported against **both** < 3.0 V (3.5 V minimum
+threshold at 25 °C − 0.5 V) and D-6's provisional hot screen **< 1.9 V**
+(model-derived; no guaranteed hot minimum exists) until vendor data settles it.
 
 ## Current best inputs
 
@@ -73,8 +75,10 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | 3 mm closure matrix (fine mesh) → parabolic extrapolation | remote box | P1, P2 done; P3, P4 running |
 | Leg B matrix | remote box | queued after leg A |
 | Extrapolation test with 0.5 / 2 / 3 mm closures on the coarse mesh | Mac | 0.5 and 2 mm done; 3 mm solving |
-| D-5 gate dead time, D-6 off-gate remedies, D-7 capacitor ESL, D-8 double-pulse plan, D-9 review, D-10 J4 interface | delegated ([briefs](round17/delegation/README.md)) | not started |
-| Diode-recovery data, TI timing limits at 39 kΩ, controller dead time, C38 ESL | outside input | open |
+| D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
+| D-7 capacitor ESL | delegated | waiting on TDK model access |
+| D-11 bus-sense range (AMC1311B linear to ~240 V, < 280 V OVP; from D-10) | delegated | brief written |
+| Diode-recovery data, TI timing limits at 39 kΩ, deployed four-PWM controller and harness, gate-drive remedy and hot criterion (owner), C38 ESL | outside input / owner | open |
 
 ## Superseded results (do not use)
 

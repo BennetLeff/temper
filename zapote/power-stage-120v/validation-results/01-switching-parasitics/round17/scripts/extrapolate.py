@@ -116,7 +116,7 @@ def main() -> None:
         selftest()
         return
     Ls = {float(h): read_matrix(f, a.names) for h, f in a.matrix}
-    ports = matrix_gate.common_identity({f: matrix_gate.read(f)[1] for _, f in a.matrix})
+    ports = matrix_gate.common_identity({f: matrix_gate.read(f)[1] for _, f in a.matrix}, a.names)
     names = a.names or [p["name"] for p in ports]
     for h, f in a.matrix:
         matrix_gate.check(Ls[float(h)], f)

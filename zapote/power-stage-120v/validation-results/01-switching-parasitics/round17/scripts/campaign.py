@@ -125,6 +125,26 @@ def solve_observed(cmd: list[str], out: Path, rd: Path, status: dict, work: Path
         return proc.returncode
 
 
+def receipt_check(r: dict, want: dict) -> str | None:
+    """None if a finished run's receipt meets the requested contract, else the reason.
+
+    D-9 review (P2): resume used to accept any converged run, so a loose-
+    tolerance or other-mesh solve could be relabelled. A run without a receipt
+    (made before receipts existed) is refused, not silently reused."""
+    if "mesh_sha256" not in r:
+        return "no receipt (pre-receipt run); use a new campaign directory"
+    for key, val in want.items():
+        got = r.get(key)
+        same = (got == val if not isinstance(val, list)
+                else isinstance(got, list) and len(got) == len(val)
+                and all(abs(float(x) - float(y)) <= 1e-9 * max(1.0, abs(float(y))) for x, y in zip(got, val)))
+        if not same:
+            return f"{key} is {got!r}, requested {val!r}"
+    if not (r.get("last_residual") is not None and r["last_residual"] <= want["tol"]):
+        return f"last residual {r.get('last_residual')} above tol {want['tol']}"
+    return None
+
+
 def result(path: Path) -> dict:
     """The RESULT line (gate and mesher scripts), else the last JSON line (run_elmer.py)."""
     lines = path.read_text().splitlines()
@@ -157,6 +177,7 @@ def main() -> None:
     # mesher, closures, runner or board export needs a new directory.
     manifest = {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in
                 (HERE / "mesh25d_hybrid.py", HERE / "run_elmer.py", HERE / "inductance_matrix.py",
+                 HERE / "pec_columns.py", HERE / "port_loops.py",          # mesh gates are reused too (D-9)
                  ROOT / f"closures-leg{a.leg}.json", EXPORT.resolve())}
     mfile = work / f"manifest-leg{a.leg}.json"
     if mfile.exists():
@@ -189,6 +210,7 @@ def main() -> None:
                 print(f"FAIL {tag}: mesh failed, see {mlog}", flush=True)
                 continue
         info = result(mlog)
+        msh_sha = hashlib.sha256(msh.read_bytes()).hexdigest()
         gates = {}
         for name, cmd in (("columns", [py, str(HERE / "pec_columns.py"), str(msh)]),
                           ("loops", [py, str(HERE / "port_loops.py"), str(msh), str(mlog),
@@ -208,10 +230,18 @@ def main() -> None:
             k = [c * p["k_A_per_m"] for c in p["direction"]]
             rd = work / f"{tag}-{p['name']}"
             out = rd.with_suffix(".out")
+            want = {"mesh_sha256": msh_sha, "port": p["physical"], "k_A_per_m": k, "tol": a.tol,
+                    "maxit": a.maxit, "np": a.np, "solver": "iterative Hypre GMRES(100) + AMS", "converged": True}
             try:
-                done = out.exists() and bool(result(out).get("converged"))
+                old = result(out) if out.exists() else None
             except ValueError:                       # interrupted run: no result line
-                done = False
+                old = None
+            why = receipt_check(old, want) if old and old.get("converged") else "not finished"
+            if old and old.get("converged") and why and why.startswith("no receipt"):
+                raise SystemExit(f"{rd.name}: {why}")
+            done = why is None
+            if old and old.get("converged") and why:
+                print(f"RERUN {rd.name}: {why}", flush=True)
             if not done:
                 if rd.exists():
                     subprocess.run(["rm", "-rf", str(rd)])

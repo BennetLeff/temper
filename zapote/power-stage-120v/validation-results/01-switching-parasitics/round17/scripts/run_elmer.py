@@ -14,6 +14,7 @@ peak memory.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import sys
 import json
 import re
@@ -211,7 +212,13 @@ def main() -> None:
         # lines in the log belong to the field-calculation CG solve, so gate on
         # Hypre's own summary of the AV solve.
         its = re.findall(r"SolveHypre: Required iterations (\d+) \(method \d+\) to norm (\S+)", log)
+    sha = lambda f: hashlib.sha256(Path(f).read_bytes()).hexdigest()
+    binary = elmer / "bin" / ("ElmerSolver_mpi" if a.np > 1 else "ElmerSolver")
+    # Receipt (D-9 review, P2): what produced this run, so a resumed campaign or
+    # a matrix composition can check it against what it asks for.
     result = {"label": a.label or Path(a.mesh).stem, "mesh": str(a.mesh), "exit_code": rc,
+              "mesh_sha256": sha(a.mesh), "sif_sha256": sha(work / "case.sif"),
+              "elmer_solver_sha256": sha(binary) if binary.exists() else None, "maxit": a.maxit,
               "all_done": "ALL DONE" in log, "energy_J": energy,
               "inductance_nH": 2 * energy * 1e9 if energy is not None else None,
               "peak_memory_GB": peak_b / 1e9 if peak_b else None,

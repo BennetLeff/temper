@@ -51,6 +51,8 @@ import run_d2
 
 DT = (250, 307, 348, 391, 450)
 NOMINAL_DT = 348
+OFF_GATE_25C = 3.0      # V: 3.5 V min VGS(th) at 25 C - 0.5 V
+OFF_GATE_HOT = 1.9      # V: D-6's provisional hot-junction screen (model-derived, not a guaranteed bound)
 HERE = Path(__file__).resolve().parent
 
 
@@ -147,7 +149,8 @@ def one(args):
            "vgs_off_at_partner_cmd": m.get(f"vgs_{off}_at_partner")}
     lim = 585.0 if s == "S2" else 520.0
     row["pass_vds"] = row["vds_pk"] is not None and row["vds_pk"] <= lim
-    row["pass_off_gate"] = row["vgs_off_max"] is not None and row["vgs_off_max"] < 3.0
+    row["pass_off_gate"] = row["vgs_off_max"] is not None and row["vgs_off_max"] < OFF_GATE_25C
+    row["pass_off_gate_hot"] = row["vgs_off_max"] is not None and row["vgs_off_max"] < OFF_GATE_HOT
     # Cause, when the off gate fails: still above 3.0 V at the partner's on
     # command = dead time too short (shoot-through); else a later rebound.
     at_cmd = row["vgs_off_at_partner_cmd"]
@@ -160,6 +163,8 @@ def one(args):
     row["stress_pass"] = (not r["aborted"]) and row["pass_vds"] and row["pass_off_gate"] and row["pass_vgs_transient"]
     zvs_required = s == "S1" and dt == NOMINAL_DT
     row["task_pass"] = row["stress_pass"] and (row["zvs"] or not zvs_required)
+    # Same verdict against the hot-junction screen (both are reported; FINDINGS F5)
+    row["task_pass_hot"] = row["task_pass"] and row["pass_off_gate_hot"]
     row["pass"] = row["task_pass"]
     row["identity"] = ident
     res_file.parent.mkdir(parents=True, exist_ok=True)
@@ -177,6 +182,7 @@ def summarize(rows: list[dict]) -> dict:
     s1n = [r for r in rows if r["case"] == "S1" and r["dt_ns"] == NOMINAL_DT]
     return {"cases": len(rows), "aborted": sum(r["aborted"] for r in rows),
             "task_pass": sum(r["task_pass"] for r in rows), "task_fail": sum(not r["task_pass"] for r in rows),
+            "task_pass_hot_screen": sum(r.get("task_pass_hot", False) for r in rows),
             "stress_pass": sum(r["stress_pass"] for r in rows), "stress_fail": sum(not r["stress_pass"] for r in rows),
             "fail_by_criterion": {k: sum(not r[k] for r in rows) for k in ("pass_vds", "pass_off_gate", "pass_vgs_transient")},
             "off_gate_fail_causes": {c: sum(r.get("off_gate_cause") == c for r in rows) for c in ("above_limit_at_partner_cmd", "later_peak", "unknown", "aborted")},

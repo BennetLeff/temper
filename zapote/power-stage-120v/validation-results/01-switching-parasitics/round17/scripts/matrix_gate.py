@@ -47,9 +47,11 @@ def identity(d: dict) -> list[dict] | None:
     return None
 
 
-def common_identity(dicts: dict[str, dict]) -> list[dict]:
+def common_identity(dicts: dict[str, dict], fallback_names: list[str] | None = None) -> list[dict]:
     """The identity shared by all inputs; refuse disagreement in name, id or signed K.
-    An input without any identity must have ascending physical port ids."""
+    An input without any identity must have ascending physical port ids. If no
+    input records an identity, explicit fallback_names (e.g. extrapolate.py
+    --names) are used and marked as asserted, not recorded."""
     known = {}
     for label, d in dicts.items():
         ident = identity(d)
@@ -60,7 +62,9 @@ def common_identity(dicts: dict[str, dict]) -> list[dict]:
             continue
         known[label] = ident
     if not known:
-        raise SystemExit("no input records port identities")
+        if not fallback_names:
+            raise SystemExit("no input records port identities")
+        return [{"name": n, "physical": None, "k_A_per_m": None, "asserted_by_caller": True} for n in fallback_names]
     ref_label, ref = next(iter(known.items()))
     merged = [dict(p) for p in ref]
     for label, ident in known.items():

@@ -47,14 +47,23 @@ def vtus(run: str) -> list[str]:
     return files
 
 
-def energy_L(run: str) -> float | None:
+def run_result(run: str) -> dict | None:
+    """run_elmer.py's result (receipt) for a run directory: <run>/result.json, else the .out file."""
+    rj = Path(run) / "result.json"
+    if rj.exists():
+        return json.loads(rj.read_text())
     out = Path(run).with_suffix(".out")
     if not out.exists():
         return None
     for line in reversed(out.read_text().splitlines()):
         if line.startswith("{"):
-            return json.loads(line).get("inductance_nH")
+            return json.loads(line)
     return None
+
+
+def energy_L(run: str) -> float | None:
+    r = run_result(run)
+    return r.get("inductance_nH") if r else None
 
 
 def sif_port(run: str) -> tuple[int, list[float]]:
@@ -85,6 +94,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("msh", help="the gmsh mesh; must exist, with its mesher log beside it")
     ap.add_argument("--port", nargs=2, action="append", required=True, metavar=("PHYS", "RUN_DIR"))
+    ap.add_argument("--legacy-no-receipt", action="store_true",
+                    help="accept runs made before run_elmer.py recorded mesh/SIF hashes (recorded in the output)")
     a = ap.parse_args()
     names = [p for p, _ in a.port]
     runs = [r for _, r in a.port]
@@ -94,6 +105,21 @@ def main() -> None:
     if not Path(a.msh).exists():
         raise SystemExit(f"mesh {a.msh} not found")
     mp = mesh_ports(a.msh)
+    # Receipts (D-9 review, P2): each run must have been solved on this exact
+    # mesh, with the SIF that is in its directory now.
+    mesh_sha = hashlib.sha256(Path(a.msh).read_bytes()).hexdigest()
+    legacy = []
+    for run in runs:
+        r = run_result(run) or {}
+        if "mesh_sha256" not in r:
+            if not a.legacy_no_receipt:
+                raise SystemExit(f"{run}: no run receipt (mesh hash); pass --legacy-no-receipt to accept and record it")
+            legacy.append(run)
+            continue
+        if r["mesh_sha256"] != mesh_sha:
+            raise SystemExit(f"{run}: solved on mesh {r['mesh_sha256'][:12]}, not {Path(a.msh).name} {mesh_sha[:12]}")
+        if r.get("sif_sha256") != hashlib.sha256((Path(run) / "case.sif").read_bytes()).hexdigest():
+            raise SystemExit(f"{run}: case.sif changed since the solve")
     port_ids = []
     for phys, run in zip(names, runs):
         pid, k = sif_port(run)
@@ -140,7 +166,7 @@ def main() -> None:
         diag_check.append({"port": names[i], "L_from_B_nH": round(L[i, i] * 1e9, 6), "L_energy_nH": e,
                            "rel_diff": rel})
     res = {"ports": names, "port_identity": port_ids,
-           "mesh_sha256": hashlib.sha256(Path(a.msh).read_bytes()).hexdigest(),
+           "mesh_sha256": mesh_sha, "legacy_runs_without_receipt": legacy,
            "L_nH": (L * 1e9).round(6).tolist(), "tets": ntet,
            "partitions": len(files[0]), "max_within_tet_spread": spread, "diagonal_vs_energy": diag_check}
     print("RESULT " + json.dumps(res))
