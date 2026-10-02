@@ -157,3 +157,23 @@ legs). Its ±1 nH extrapolation-error estimate is therefore not relied on;
 the 3 mm solves test the curvature directly. Provisional straight-line
 value through 1 and 2 mm: P1(h → 0) ≈ 2·33.047 − 37.851 = 28.24 nH
 (board with a flat connection across C38; package inductance not included).
+
+## 10. Sensitivity (Mac, P1 at h = 1 mm, 1.0 mm edges; )
+
+The Mac stack (Elmer a19504a + Hypre 2.32, conda-forge osx-arm64) first
+reproduced the exact two-port plate (3.141593 / 1.884956 / 1.884956 nH).
+
+| Variant | L(P1) | vs base |
+| --- | ---: | ---: |
+| base: margin 10, air 10, simplify 50 µm (2.21 M tets) | 31.829 nH | — |
+| air box 20 mm | 32.048 nH | +0.69 % |
+| crop margin 15 mm | 30.309 nH | **-4.78 %** |
+| simplify 100 µm | 31.624 nH | -0.65 % |
+
+Air box and defeaturing are below 1 %. **The crop margin is not:** 10 → 15 mm
+lowers P1 by ~5 % (planes truncated at the crop edge remove return paths), so
+the 10 mm campaign values are high by an amount not yet bounded. Margin
+20 mm could not be meshed (pinched 2-D faces in the extended region; the
+mesher's gate refused rather than drop them). The same P1 on the 0.35 mm
+mesh is 33.047 nH (+3.8 % vs this 1.0 mm base): mesh and margin errors have
+opposite signs. Numbers in .

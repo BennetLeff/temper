@@ -1,0 +1,90 @@
+{
+ "mac_qualification_two_port": {
+  "ports": [
+   "4",
+   "5"
+  ],
+  "L_nH": [
+   [
+    3.141593,
+    1.884956
+   ],
+   [
+    1.884956,
+    1.884956
+   ]
+  ],
+  "tets": 91029,
+  "partitions": 4,
+  "max_within_tet_spread": 2.1569516879798907e-15,
+  "diagonal_vs_energy": [
+   {
+    "port": "4",
+    "L_from_B_nH": 3.141593,
+    "L_energy_nH": 3.1415919999999997,
+    "rel_diff": 2.081325175843222e-07
+   },
+   {
+    "port": "5",
+    "L_from_B_nH": 1.884956,
+    "L_energy_nH": 1.8849555999999998,
+    "rel_diff": 4.187473984015617e-09
+   }
+  ]
+ },
+ "P1_h1_sensitivity": {
+  "base": {
+   "L_nH": 31.82936,
+   "converged": true,
+   "iterations": 7868,
+   "wall_s": 2602.06,
+   "tets": 2206581,
+   "margin_mm": 10.0,
+   "air_mm": 10.0,
+   "simplify_mm": 0.05,
+   "h_edge_mm": 1.0,
+   "thin_mm": 0.03,
+   "change_vs_base_pct": 0.0
+  },
+  "air20": {
+   "L_nH": 32.04824,
+   "converged": true,
+   "iterations": 5412,
+   "wall_s": 2327.23,
+   "tets": 2887652,
+   "margin_mm": 10.0,
+   "air_mm": 20.0,
+   "simplify_mm": 0.05,
+   "h_edge_mm": 1.0,
+   "thin_mm": 0.03,
+   "change_vs_base_pct": 0.69
+  },
+  "margin15": {
+   "L_nH": 30.308560000000003,
+   "converged": true,
+   "iterations": 6079,
+   "wall_s": 881.24,
+   "tets": 2631724,
+   "margin_mm": 15.0,
+   "air_mm": 10.0,
+   "simplify_mm": 0.05,
+   "h_edge_mm": 1.0,
+   "thin_mm": 0.03,
+   "change_vs_base_pct": -4.78
+  },
+  "simp0p1": {
+   "L_nH": 31.623800000000003,
+   "converged": true,
+   "iterations": 6773,
+   "wall_s": 5074.64,
+   "tets": 1952122,
+   "margin_mm": 10.0,
+   "air_mm": 10.0,
+   "simplify_mm": 0.1,
+   "h_edge_mm": 1.0,
+   "thin_mm": 0.03,
+   "change_vs_base_pct": -0.65
+  }
+ },
+ "note": "Mac Elmer a19504a + Hypre 2.32 (conda-forge osx-arm64), GMRES(100)+singular AMS, 10 ranks, tol 1e-8; margin 20 mm could not be meshed (pinched 2-D faces; gate refused)"
+}
