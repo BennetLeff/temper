@@ -20,6 +20,7 @@ model-based throughout. **No physical qualification is claimed.**
 | Overcurrent (S2, 280 V / 61–71 A) | passes at ≥ 391 ns; 2 marginal fails at 348 ns (3.12–3.14 V) | model result |
 | Light load (S3, 2–10 A) | passes at ≥ 348 ns; 12 fails at 307 ns | model result |
 | Gate-drive remedy | D-6: ≈1 Ω discharge + 1 nF Cgs + −2 V off-bias passes **all** 32 decision cases (incl. S4 and 307 ns) against the 1.9 V screen: off-gate ≤ 0.51 V, die VDS ≤ 484 V, ZVS kept | **proposal**: needs a negative bias rail (board change, owner decision); 27 °C; refinement not fully converged (F6) |
+| Longer dead time (alternative remedy) | 443 ns nominal (≈ 391–498 ns with tolerance) passes the 1.9 V hot screen with ZVS for all nominal and overcurrent cases; a DT-resistor value change | **candidate** (FINDINGS F7): S4 not fixed; losses (D-15) and hot transients (D-13) pending |
 
 Verdict definitions, criteria and all cases: [round17/d2/README.md](round17/d2/README.md).
 Criteria: die VDS ≤ 520 V (S2 ≤ 585 V), |VGS| ≤ 30 V, ZVS for nominal S1 at

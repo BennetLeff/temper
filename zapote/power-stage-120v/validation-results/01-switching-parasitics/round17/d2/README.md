@@ -255,3 +255,26 @@ provisional 1.9 V hot screen).
   results (348 ns: VDS 384 / 383 V and 296 / 296 V, off-gate 1.98 / 1.98 V and
   2.09 / 2.09 V), so the aborts are isolated solver failures, not a masked
   stress.
+
+## Longer dead time as the hot-screen remedy (FINDINGS F7, `results/grid-best-longdt/`)
+
+Best matrix, ESL 1.06 / 5 / 10 / 20 nH, dead times 391 / 443 / 498 ns:
+a 443 ns nominal with D-1's tolerance stack scaled (307–391 ns around
+348) gives ≈ 391 ns minimum and ≈ 498 ns maximum. ZVS is required at the
+443 ns nominal (`grid.py --nominal-dt 443`). 408 cases, 6 aborted (the same
+two S3 280 V points as in `grid-best`, at every dead time).
+
+| Case (3.0 V / 1.9 V hot / ZVS) | 391 ns | 443 ns | 498 ns |
+| --- | ---: | ---: | ---: |
+| S1 nominal (of 24) | 24 / 24 / 24 | 24 / 24 / 24 | 24 / 24 / 24 |
+| S2 overcurrent (of 16) | 16 / 16 / 16 | 16 / 16 / 16 | 16 / 16 / 16 |
+| S3 light load (of 72) | 70 / 46 / 0 | 70 / 48 / 0 | 70 / 66 / 23 |
+| S4 hard turn-on (of 24) | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
+
+- Across the whole 391–498 ns band, nominal S1 and S2 pass the hot screen
+  with ZVS: S1 off-gate ≤ 1.06 V, S2 ≤ 1.72 V (0.18 V margin), die VDS ≤ 385 V.
+- Light load (S3) does not soft-switch at 391–443 ns (it does not at 348 ns
+  either); its hot-screen pass rate rises with dead time.
+- S4 hard turn-on fails at every dead time; F7 does not address it.
+- Not yet evaluated: switching and diode-conduction loss vs dead time (D-15),
+  hot-junction transients (D-13), build details (D-12).

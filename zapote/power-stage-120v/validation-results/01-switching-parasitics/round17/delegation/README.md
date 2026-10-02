@@ -17,8 +17,12 @@ only your brief.
 | [D-9 review](D9-review-followups.md) | Adversarial review of the D-4 follow-up commits (f5a1c8083 onward) | medium |
 | [D-10 J4 interface](D10-controller-interface.md) | Power-stage task 06 in full: all 16 J4 pins against every counterpart board (controller read-only) | medium |
 | [D-11 bus-sense range](D11-bus-sense-range.md) | AMC1311B leaves its linear range at ~240 V (< 280 V OVP); divider values, receiver and overrange behaviour | small |
+| [D-12 remedy proposals](D12-remedy-proposals.md) | Build-level comparison of the two hot-screen remedies: negative bias (F6) vs longer dead time (F7): circuit, parts, BOM, layout/rerun impact | medium |
+| [D-13 hot switching](D13-hot-switching.md) | D2 transients at Tj 27/100/150 °C (vendor model uses TEMP), baseline and both remedies, judged against the hot threshold | medium |
+| [D-14 solver robustness](D14-solver-robustness.md) | Why some D2 runs abort ("timestep too small"); a physics-neutral fix, qualified; timestep convergence | medium |
+| [D-15 losses vs dead time](D15-losses-dead-time.md) | Round-4 C1/C2 (ZVS map, switching losses) rerun on the FEM matrix, 307–498 ns: the cost of F7 | medium |
 
-D-1..D-6 and D-8..D-10 are complete (`out-D*`); D-7 awaits TDK model data. D-5..D-10 are independent of
+D-1..D-11 are complete (`out-D*`). D-5..D-10 are independent of
 each other except D-8 (cite D-5/D-6 if done first) and D-10's dead-time check (cite D-5).
 
 **Paths:** `round17/...` means

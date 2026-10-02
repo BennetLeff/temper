@@ -87,14 +87,15 @@ def includes(deck: Path) -> dict[str, str]:
     return out
 
 
-def identity(L, overrides: dict | None = None) -> dict:
+def identity(L, overrides: dict | None = None, nominal_dt: int = NOMINAL_DT) -> dict:
     """Everything a case result depends on, hashed (D-9 review, P2: includes,
     runner and simulator build too, not only the deck and this file)."""
     deck = deck_for(L)
     return {"matrix": hashlib.sha256(json.dumps([[round(float(v), 9) for v in row] for row in L]).encode()).hexdigest(),
             "deck": _sha(deck), "includes": includes(deck), "run_d2": _sha(HERE / "run_d2.py"),
             "runner": _sha(run_d2.KIT / "common" / "run_ngspice.py"), "ngspice": ngspice_version(),
-            "grid": _sha(Path(__file__).resolve()), "overrides": dict(sorted((overrides or {}).items()))}
+            "grid": _sha(Path(__file__).resolve()), "overrides": dict(sorted((overrides or {}).items())),
+            "nominal_dt_ns": nominal_dt}
 
 
 # Scenario parameters that the case tuple, labels and acceptance logic are
@@ -103,16 +104,17 @@ SCENARIO_KEYS = {"VBUS", "IL", "DIR", "DT", "LESL", "LSHUNT", "TRMAX", "T1"}
 ESL = (5, 10, 20)
 
 
-def cases(only: set[str] | None, esl=None):
+def cases(only: set[str] | None, esl=None, dts=None):
     esls = tuple(esl) if esl else ESL
+    dts = tuple(dts) if dts else DT
     rows = []
-    for vbus, il, d, dt, esl in itertools.product((170, 198, 280), (37,), (0, 1), DT, esls):
+    for vbus, il, d, dt, esl in itertools.product((170, 198, 280), (37,), (0, 1), dts, esls):
         rows.append(("S1", vbus, il, d, dt, esl))
-    for il, d, dt, esl in itertools.product((61, 71), (0, 1), DT, esls):
+    for il, d, dt, esl in itertools.product((61, 71), (0, 1), dts, esls):
         rows.append(("S2", 280, il, d, dt, esl))
-    for vbus, il, d, dt, esl in itertools.product((170, 198, 280), (2, 5, 10), (0, 1), DT, esls):
+    for vbus, il, d, dt, esl in itertools.product((170, 198, 280), (2, 5, 10), (0, 1), dts, esls):
         rows.append(("S3", vbus, il, d, dt, esl))
-    for vbus, d, dt, esl in itertools.product((170, 198, 280), (0, 1), DT, esls):
+    for vbus, d, dt, esl in itertools.product((170, 198, 280), (0, 1), dts, esls):
         rows.append(("S4", vbus, -20, d, dt, esl))
     return [r for r in rows if not only or r[0] in only]
 
@@ -123,10 +125,11 @@ def tag(c) -> str:
 
 
 def one(args):
-    c, L, out, overrides = args
+    c, L, out, overrides, *rest = args
+    nominal_dt = rest[0] if rest else NOMINAL_DT
     s, vbus, il, d, dt, esl = c
     res_file = out / "cases" / f"{tag(c)}.json"
-    ident = identity(L, overrides)
+    ident = identity(L, overrides, nominal_dt)
     if res_file.exists():
         old = json.loads(res_file.read_text())
         if old.get("identity") == ident:
@@ -161,7 +164,7 @@ def one(args):
     row["pass_vgs_transient"] = row["vgs_abs_max"] is not None and row["vgs_abs_max"] <= 30.0
     row["zvs"] = (row["vds_incoming_at_on"] is not None and row["vds_incoming_at_on"] <= 0.05 * vbus)
     row["stress_pass"] = (not r["aborted"]) and row["pass_vds"] and row["pass_off_gate"] and row["pass_vgs_transient"]
-    zvs_required = s == "S1" and dt == NOMINAL_DT
+    zvs_required = s == "S1" and dt == nominal_dt
     row["task_pass"] = row["stress_pass"] and (row["zvs"] or not zvs_required)
     # Same verdict against the hot-junction screen (both are reported; FINDINGS F5)
     row["task_pass_hot"] = row["task_pass"] and row["pass_off_gate_hot"]
@@ -172,22 +175,23 @@ def one(args):
     return row
 
 
-def summarize(rows: list[dict]) -> dict:
+def summarize(rows: list[dict], nominal_dt: int = NOMINAL_DT) -> dict:
     worst = {}
     for key, better in (("vds_pk", max), ("vgs_off_max", max), ("vgs_abs_max", max)):
         vals = [r for r in rows if r.get(key) is not None]
         if vals:
             w = better(vals, key=lambda r: r[key])
             worst[key] = {k: w[k] for k in ("case", "vbus", "il", "dir", "dt_ns", "esl_nH", key)}
-    s1n = [r for r in rows if r["case"] == "S1" and r["dt_ns"] == NOMINAL_DT]
+    s1n = [r for r in rows if r["case"] == "S1" and r["dt_ns"] == nominal_dt]
     return {"cases": len(rows), "aborted": sum(r["aborted"] for r in rows),
             "task_pass": sum(r["task_pass"] for r in rows), "task_fail": sum(not r["task_pass"] for r in rows),
             "task_pass_hot_screen": sum(r.get("task_pass_hot", False) for r in rows),
             "stress_pass": sum(r["stress_pass"] for r in rows), "stress_fail": sum(not r["stress_pass"] for r in rows),
             "fail_by_criterion": {k: sum(not r[k] for r in rows) for k in ("pass_vds", "pass_off_gate", "pass_vgs_transient")},
             "off_gate_fail_causes": {c: sum(r.get("off_gate_cause") == c for r in rows) for c in ("above_limit_at_partner_cmd", "later_peak", "unknown", "aborted")},
-            "off_gate_fails_by_dt_ns": {dt: sum((not r["pass_off_gate"]) and r["dt_ns"] == dt for r in rows) for dt in DT},
-            "zvs_S1_at_348ns": {"yes": sum(r["zvs"] for r in s1n), "no": sum(not r["zvs"] for r in s1n)},
+            "off_gate_fails_by_dt_ns": {dt: sum((not r["pass_off_gate"]) and r["dt_ns"] == dt for r in rows)
+                                        for dt in sorted({r["dt_ns"] for r in rows})},
+            f"zvs_S1_at_{nominal_dt}ns": {"yes": sum(r["zvs"] for r in s1n), "no": sum(not r["zvs"] for r in s1n)},
             "worst": worst}
 
 
@@ -198,7 +202,9 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--only", default=None, help="comma list of S1,S2,S3,S4")
     ap.add_argument("--limit", type=int, default=None, help="run only the first N cases (smoke test)")
-    ap.add_argument("--dt", default=None, help="comma list of dead times (ns) to run; default all")
+    ap.add_argument("--dt", default=None, help="comma list of dead times (ns), replacing the default 250,307,348,391,450")
+    ap.add_argument("--nominal-dt", type=int, default=NOMINAL_DT,
+                    help="dead time (ns) at which nominal S1 must soft-switch (ZVS); default 348")
     ap.add_argument("--esl", default=None, help="comma list of capacitor ESL values (nH), replacing the default 5,10,20")
     ap.add_argument("--set", action="append", default=[], metavar="PARAM=VALUE",
                     help="deck parameter override applied after the matrix, e.g. K35=0 (recorded in the identity)")
@@ -211,14 +217,13 @@ def main() -> None:
     out.mkdir(parents=True, exist_ok=True)
     L = run_d2.read_L(a.matrix)
     esl = [float(x) if "." in x else int(x) for x in a.esl.split(",")] if a.esl else None
-    todo = cases(set(a.only.split(",")) if a.only else None, esl)
-    if a.dt:
-        todo = [c for c in todo if c[4] in {int(x) for x in a.dt.split(",")}]
+    todo = cases(set(a.only.split(",")) if a.only else None, esl,
+                 [int(x) for x in a.dt.split(",")] if a.dt else None)
     todo = todo[: a.limit]
     (out / "matrix_used.txt").write_text(Path(a.matrix).read_text())
     rows = []
     with ProcessPoolExecutor(a.workers) as ex:
-        futs = [ex.submit(one, (c, L, out, overrides)) for c in todo]
+        futs = [ex.submit(one, (c, L, out, overrides, a.nominal_dt)) for c in todo]
         for i, f in enumerate(as_completed(futs), 1):
             r = f.result()
             rows.append(r)
@@ -227,7 +232,7 @@ def main() -> None:
     with open(out / "results.jsonl", "w") as fh:
         for r in sorted(rows, key=lambda r: (r["case"], r["vbus"], r["il"], r["dir"], r["dt_ns"], r["esl_nH"])):
             fh.write(json.dumps(r) + "\n")
-    summ = summarize(rows)
+    summ = summarize(rows, a.nominal_dt)
     (out / "summary.json").write_text(json.dumps(summ, indent=1))
     print("RESULT " + json.dumps(summ))
 
