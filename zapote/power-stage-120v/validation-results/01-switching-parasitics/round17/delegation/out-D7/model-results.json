@@ -1,0 +1,127 @@
+{
+  "archive_sha256": "e534e423ccaf7566b3eef32fb8120ffff53bb27e33a7cd17e5eca50a10f55f0a",
+  "library_sha256": "45ee84837444e3d7abe714c4ee14c7b939fd78c2618101cdcd85bf04f41489e6",
+  "solver_RLC_sanity_error_ohm": 0.0,
+  "parts": {
+    "B32652A0104K": {
+      "C_nominal_F": 1e-07,
+      "Cs_model_F": 1.0004e-07,
+      "Ls_series_nH": 0.56365,
+      "SRF_Hz": 15458224.929530945,
+      "L_SRF_nH_using_nominal_C": 1.0600369860099736,
+      "L_SRF_nH_using_model_Cs": 1.059613140753672,
+      "nodal_vs_reduction_max_error_ohm": 5.760754232691321e-11,
+      "samples": [
+        {
+          "frequency_Hz": 100000.0,
+          "Z_real_ohm": 0.017828210953269197,
+          "Z_imag_ohm": -15.92602246422518,
+          "L_equiv_nH_using_nominal_C": -16.756079155605324,
+          "below_model_SRF": true
+        },
+        {
+          "frequency_Hz": 500000.0,
+          "Z_real_ohm": 0.017006325279070044,
+          "Z_imag_ohm": -3.175675256736929,
+          "L_equiv_nH_using_nominal_C": 2.363006894765699,
+          "below_model_SRF": true
+        },
+        {
+          "frequency_Hz": 1000000.0,
+          "Z_real_ohm": 0.019283034128823495,
+          "Z_imag_ohm": -1.5745928998546603,
+          "L_equiv_nH_using_nominal_C": 2.698715736573537,
+          "below_model_SRF": true
+        },
+        {
+          "frequency_Hz": 2000000.0,
+          "Z_real_ohm": 0.02435393651996638,
+          "Z_imag_ohm": -0.7630730225116289,
+          "L_equiv_nH_using_nominal_C": 2.602318040061681,
+          "below_model_SRF": true
+        },
+        {
+          "frequency_Hz": 5000000.0,
+          "Z_real_ohm": 0.04774828690453114,
+          "Z_imag_ohm": -0.2508218180009519,
+          "L_equiv_nH_using_nominal_C": 2.1482119302043325,
+          "below_model_SRF": true
+        },
+        {
+          "frequency_Hz": 10000000.0,
+          "Z_real_ohm": 0.08453264739836662,
+          "Z_imag_ohm": -0.06746790301100344,
+          "L_equiv_nH_using_nominal_C": 1.4592445646338676,
+          "below_model_SRF": true
+        },
+        {
+          "frequency_Hz": 20000000.0,
+          "Z_real_ohm": 0.11497795936566807,
+          "Z_imag_ohm": 0.03238520119334339,
+          "L_equiv_nH_using_nominal_C": 0.8909706404119185,
+          "below_model_SRF": false
+        }
+      ]
+    },
+    "B32656G0275J": {
+      "C_nominal_F": 2.7e-06,
+      "Cs_model_F": 2.7013e-06,
+      "Ls_series_nH": 11.364,
+      "SRF_Hz": 699020.7206815695,
+      "L_SRF_nH_using_nominal_C": 19.19978653274978,
+      "L_SRF_nH_using_model_Cs": 19.19054663992315,
+      "nodal_vs_reduction_max_error_ohm": 5.293173599491018e-10,
+      "samples": [
+        {
+          "frequency_Hz": 100000.0,
+          "Z_real_ohm": 0.0038980604576141793,
+          "Z_imag_ohm": -0.5760626586567498,
+          "L_equiv_nH_using_nominal_C": 21.326911240614532,
+          "below_model_SRF": true
+        },
+        {
+          "frequency_Hz": 500000.0,
+          "Z_real_ohm": 0.009664904314142395,
+          "Z_imag_ohm": -0.056655870886130444,
+          "L_equiv_nH_using_nominal_C": 19.492240498569235,
+          "below_model_SRF": true
+        },
+        {
+          "frequency_Hz": 1000000.0,
+          "Z_real_ohm": 0.019273839482015668,
+          "Z_imag_ohm": 0.05940254781623695,
+          "L_equiv_nH_using_nominal_C": 18.83580019520102,
+          "below_model_SRF": false
+        },
+        {
+          "frequency_Hz": 2000000.0,
+          "Z_real_ohm": 0.048622697811017274,
+          "Z_imag_ohm": 0.19035033985338573,
+          "L_equiv_nH_using_nominal_C": 17.492996522942832,
+          "below_model_SRF": false
+        },
+        {
+          "frequency_Hz": 5000000.0,
+          "Z_real_ohm": 0.12542178611424365,
+          "Z_imag_ohm": 0.43219956644385277,
+          "L_equiv_nH_using_nominal_C": 14.132603123462415,
+          "below_model_SRF": false
+        },
+        {
+          "frequency_Hz": 10000000.0,
+          "Z_real_ohm": 0.16745924469667714,
+          "Z_imag_ohm": 0.7669917521479143,
+          "L_equiv_nH_using_nominal_C": 12.30086877728538,
+          "below_model_SRF": false
+        },
+        {
+          "frequency_Hz": 20000000.0,
+          "Z_real_ohm": 0.18307090555149816,
+          "Z_imag_ohm": 1.4573828560586224,
+          "L_equiv_nH_using_nominal_C": 11.620938253650682,
+          "below_model_SRF": false
+        }
+      ]
+    }
+  }
+}
