@@ -84,6 +84,32 @@
    "h_edge_mm": 1.0,
    "thin_mm": 0.03,
    "change_vs_base_pct": -0.65
+  },
+  "margin20": {
+   "L_nH": 30.20984,
+   "converged": true,
+   "iterations": 5585,
+   "wall_s": 918.84,
+   "tets": 2930756,
+   "margin_mm": 20.0,
+   "air_mm": 10.0,
+   "simplify_mm": 0.05,
+   "h_edge_mm": 1.0,
+   "thin_mm": 0.03,
+   "change_vs_base_pct": -5.09
+  },
+  "margin25": {
+   "L_nH": 30.2398,
+   "converged": true,
+   "iterations": 5673,
+   "wall_s": 948.14,
+   "tets": 3142509,
+   "margin_mm": 25.0,
+   "air_mm": 10.0,
+   "simplify_mm": 0.05,
+   "h_edge_mm": 1.0,
+   "thin_mm": 0.03,
+   "change_vs_base_pct": -4.99
   }
  },
  "note": "Mac Elmer a19504a + Hypre 2.32 (conda-forge osx-arm64), GMRES(100)+singular AMS, 10 ranks, tol 1e-8; margin 20 mm could not be meshed (pinched 2-D faces; gate refused)"

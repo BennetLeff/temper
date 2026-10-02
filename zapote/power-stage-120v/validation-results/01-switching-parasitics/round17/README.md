@@ -173,7 +173,9 @@ reproduced the exact two-port plate (3.141593 / 1.884956 / 1.884956 nH).
 Air box and defeaturing are below 1 %. **The crop margin is not:** 10 → 15 mm
 lowers P1 by ~5 % (planes truncated at the crop edge remove return paths), so
 the 10 mm campaign values are high by an amount not yet bounded. Margin
-20 mm could not be meshed (pinched 2-D faces in the extended region; the
-mesher's gate refused rather than drop them). The same P1 on the 0.35 mm
+20 and 25 mm were added after fixing the mesher's pinch check (commit
+66f61d9e8): P1 = 30.210 nH (20 mm, -5.09 %) and 30.240 nH (25 mm, -4.99 %).
+**The margin effect has converged by 20 mm** (20 → 25 mm: +0.10 %); the
+per-entry correction uses 20 mm. The same P1 on the 0.35 mm
 mesh is 33.047 nH (+3.8 % vs this 1.0 mm base): mesh and margin errors have
 opposite signs. Numbers in `results/sensitivity-mac.json`.
