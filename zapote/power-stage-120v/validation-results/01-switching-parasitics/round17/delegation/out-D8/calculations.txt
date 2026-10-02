@@ -1,0 +1,16 @@
+Proposed L=100uH; native bus=5.8uF nominal; external reservoir=100uF; dump=10kohm
+Vbus I_target ideal_t1_us L_energy_J board_bus_J total_bus_J ideal_droop_V dump_initial_W ideal_dump_to_1V_s
+50 20.0 40.000000 0.020000 0.007250 0.132250 3.935608 0.250000 4.138920
+100 20.0 20.000000 0.020000 0.029000 0.529000 1.908572 1.000000 4.872270
+170 20.0 11.764706 0.020000 0.083810 1.528810 1.115637 2.890000 5.433675
+198 20.0 10.101010 0.020000 0.113692 2.073892 0.957040 3.920400 5.594987
+Separate coupon only (no native board or T1), same proposed L and external C:
+400 58.2 14.550000 0.169362 n/a 8.000000 4.256699 16.000000 5.991465
+Native T1 planning proxy uses N=100,R_secondary_total=3ohm, I=20A.
+V=50 ramp_plus_10us_nominal_tail_Vus=18.000000
+V=100 ramp_plus_10us_nominal_tail_Vus=12.000000
+V=170 ramp_plus_10us_nominal_tail_Vus=9.529412
+V=198 ramp_plus_10us_nominal_tail_Vus=9.030303
+Native final decay integral bound conditional L110uH I22A R0.3135ohm: 0.007719298 A.s; nominal CT 231.578947 Vus
+At 198V, 1us second pulse adds ideal 1.98A; at 400V, 6us adds ideal 24A.
+All outputs ideal planning estimates; use measured C,L,V,I and losses for an actual shot.
