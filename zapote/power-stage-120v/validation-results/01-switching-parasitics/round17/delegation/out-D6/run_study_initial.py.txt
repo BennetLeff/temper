@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""D6 simulation orchestration only; unchanged upstream runner and matrix conversion."""
+from __future__ import annotations
+import argparse
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+R17 = HERE.parents[1]
+D2 = R17 / 'd2'
+sys.path.insert(0, str(D2))
+import run_d2
+
+VARIANTS = {'baseline': {}, 'roff1': {'roff': 1}, 'roff2': {'roff': 2},
+            'cgs1n': {'cgs': '1n'}, 'cgs2p2n': {'cgs': '2.2n'}, 'cgs4p7n': {'cgs': '4.7n'},
+            'neg2': {'bias': -2}, 'neg4': {'bias': -4},
+            'roff1_neg4': {'roff': 1, 'bias': -4}}
+
+def sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def deck_for(name: str) -> Path:
+    text = (D2 / 'leg_matrix.cir').read_text()
+    opt = VARIANTS[name]
+    extra = ['* D6 instrumentation: die drain current inferred through vendor R_Rd=74.4u ohm.',
+             '* Signed and positive VDS*ID overlap are proxies, not channel heat.']
+    if 'roff' in opt:
+        extra += ['* Proposal diode: anode toward gate, cathode toward driver; no qualified part.',
+                  '.model Dproposal D(Is=1n N=1 Rs=0.1 Cjo=10p Tt=5n)',
+                  'Doffl gdl3 dlo Dproposal', f"Roffl dlo gdl {opt['roff']}",
+                  'Doffh gdh3 dho Dproposal', f"Roffh dho gdh {opt['roff']}"]
+    if 'cgs' in opt:
+        extra += [f"Cexl g_ls s_ls {opt['cgs']}", f"Cexh g_hs sw {opt['cgs']}"]
+    if 'bias' in opt:
+        bias = opt['bias']
+        text = text.replace('v(gdl,s_ls)*(1-', f'(v(gdl,s_ls)-({bias}))*(1-')
+        text = text.replace('v(gdh,sw)*(1-', f'(v(gdh,sw)-({bias}))*(1-')
+        extra += [f'* Proposal fixed split rails +15/{bias}V, ideal bias sources, not existing bootstrap.']
+    for dev in ('l', 'h'):
+        power = f'(v(xq{dev}.dd)-v(xq{dev}.s))*(v(xq{dev}.ldrd)-v(xq{dev}.dd))/7.44e-5'
+        for window, start, end in (('off', 'T1', 'T1+DT'), ('on', 'T1+DT', 'T1+DT+0.75u')):
+            for kind, expression in (('signed', power), ('positive', f'max(0,{power})')):
+                extra.append(f".meas tran e_{dev}_{window}_{kind} INTEG par('{expression}') from={{{start}}} to={{{end}}}")
+    text = text.replace('.end', '\n'.join(extra) + '\n.end')
+    path = HERE / 'decks' / f'{name}.cir'
+    path.parent.mkdir(exist_ok=True)
+    path.write_text(text)
+    return path
+
+def cases() -> list[tuple[str, int, int, int, int]]:
+    return [(s,v,i,d,dt) for s,v,i,dt in
+            [("S1",v,37,dt) for v in (170,198,280) for dt in (307,348)] +
+            [('S2',280,71,348), ('S4',198,-20,348)] for d in (0,1)]
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--variants', default=','.join(VARIANTS))
+    ap.add_argument('--original', action='store_true', help='original grid-v2 matrix baseline')
+    ap.add_argument('--limit', type=int)
+    ap.add_argument('--step', default='0.2n')
+    args = ap.parse_args()
+    matrix = D2 / ('legA-h0-lin12.matrix.txt' if args.original else 'legA-h0-lin12-m20corr.matrix.txt')
+    ident = {str(p.relative_to(R17)): sha(p) for p in (matrix, D2/'leg_matrix.cir', D2/'run_d2.py', Path(__file__))}
+    ident['vendor'] = sha(run_d2.KIT/'models/vendor/IFX_CFD7_650V.lib')
+    ident['runner'] = sha(run_d2.KIT/'common/run_ngspice.py')
+    ident['options'] = sha(run_d2.KIT/'common/options.inc')
+    ident['source_commit'] = subprocess.check_output(['git','rev-parse','HEAD'], cwd=HERE, text=True).strip()
+    ident['ngspice'] = subprocess.check_output(['ngspice','--version'], text=True).splitlines()[1:4]
+    group = ('original' if args.original else 'corrected') + ('_'+args.step if args.step != '0.2n' else '')
+    out = HERE/'results'/group
+    out.mkdir(parents=True, exist_ok=True)
+    (out/'identity.json').write_text(json.dumps(ident, indent=2)+'\n')
+    for variant in args.variants.split(','):
+        deck = deck_for(variant)
+        for s,v,i,d,dt in cases()[:args.limit]:
+            tag = f'{variant}_{s}_v{v}_i{i}_d{d}_dt{dt}'
+            params = run_d2.matrix_params(run_d2.read_L(str(matrix)))
+            params.update(VBUS=str(v), IL=str(i), DIR=str(d), LESL='10n', LSHUNT='2n', DT=f'{dt}n', TRMAX=args.step)
+            run_dir = out/tag
+            result = run_d2.run(deck, params, keep=run_dir)
+            # Licensed copy made by upstream runner is not evidence we can commit.
+            (run_dir/'IFX_CFD7_650V.lib').unlink(missing_ok=True)
+            # Deck retained once in decks/, params and full raw simulator log per case.
+            (run_dir/deck.name).unlink(missing_ok=True)
+            (run_dir/'.spiceinit').unlink(missing_ok=True)
+            off, inc = ('ls','hs') if d == 0 else ('hs','ls')
+            m = result['meas']
+            required = [f'vgs_{off}_off_max',f'vds_{inc}_at_on','vds_ls_die_pk','vds_hs_die_pk'] + [f'e_{q}_{w}_{k}' for q in ('l','h') for w in ('off','on') for k in ('signed','positive')]
+            if result['aborted'] or any(k not in m for k in required):
+                raise RuntimeError(f'Invalid simulation {tag}: {result}')
+            row = {'variant':variant,'case':s,'vbus':v,'il':i,'dir':d,'dt_ns':dt,
+                   'vgs_off_max':m[f'vgs_{off}_off_max'], 'vds_pk':max(m['vds_ls_die_pk'],m['vds_hs_die_pk']),
+                   'vds_incoming_at_on':m[f'vds_{inc}_at_on'], 'meas':m,'params':params,
+                   'deck_sha256':sha(deck),'aborted':result['aborted']}
+            (run_dir/'result.json').write_text(json.dumps(row,indent=2)+'\n')
+            print(json.dumps({k:val for k,val in row.items() if k not in ('meas','params')}),flush=True)
+
+if __name__ == '__main__':
+    main()
