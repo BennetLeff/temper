@@ -11,6 +11,7 @@ pub fn run(
     python: &Path,
     output: &Path,
     baseline: Option<&Path>,
+    currents: bool,
 ) -> Result<serde_json::Value> {
     let started = Instant::now();
     let board_path = board_path.canonicalize().context("resolve saved board")?;
@@ -52,7 +53,16 @@ pub fn run(
         snapshot.extractor_sha256 == native_layout::digest(&script_bytes),
         "native extractor identity mismatch"
     );
-    let report = native_layout::evaluate(&snapshot, &board).map_err(anyhow::Error::msg)?;
+    let mut report = native_layout::evaluate(&snapshot, &board).map_err(anyhow::Error::msg)?;
+    let current_report = currents
+        .then(|| native_layout::current::evaluate(&snapshot, &board))
+        .transpose()
+        .map_err(anyhow::Error::msg)?;
+    if let Some(current) = &current_report {
+        current
+            .append_measurements(&snapshot, &mut report)
+            .map_err(anyhow::Error::msg)?;
+    }
     let binary = fs::read(std::env::current_exe()?)?;
     let evaluator_sha256 = native_layout::digest(&binary);
     let baseline_bytes = baseline.map(fs::read).transpose()?;
@@ -76,7 +86,7 @@ pub fn run(
         .output()?;
     ensure!(state.status.success(), "cannot identify source dirty state");
     let output_value = json!({
-        "schema":"zapote.live-layout.v1", "native": report, "comparison":comparison,
+        "schema":"zapote.live-layout.v1", "native": report, "comparison":comparison, "current":current_report,
         "snapshot_sha256":native_layout::digest(&result.stdout),
         "extractor_sha256":snapshot.extractor_sha256, "kicad_version":snapshot.tool_version,
         "evaluator_sha256":evaluator_sha256, "elapsed_ms":started.elapsed().as_millis(),

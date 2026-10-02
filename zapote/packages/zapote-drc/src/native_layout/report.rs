@@ -30,6 +30,8 @@ pub struct NativeReport {
     pub profile: String,
     pub measurements: Vec<Measurement>,
     pub routes: BTreeMap<String, super::Route>,
+    pub copper_paths: BTreeMap<String, super::CopperPath>,
+    pub centerline_gaps: Vec<String>,
     pub pad_entries: Vec<super::PadEntry>,
     pub coverage: Vec<Coverage>,
     pub geometry_gaps: Vec<String>,
@@ -122,11 +124,13 @@ pub fn evaluate(snapshot: &Snapshot, board: &[u8]) -> Result<NativeReport> {
         )?;
     }
     let mut report = NativeReport {
-        schema: "zapote.layout-native-report.v2".into(),
+        schema: "zapote.layout-native-report.v3".into(),
         board_sha256: snapshot.board_sha256.clone(),
         profile: "power-stage-120v.v1".into(),
         measurements: vec![],
         routes: BTreeMap::new(),
+        copper_paths: BTreeMap::new(),
+        centerline_gaps: vec![],
         pad_entries: vec![],
         coverage: vec![],
         geometry_gaps: snapshot.gaps.clone(),
@@ -143,7 +147,9 @@ pub fn evaluate(snapshot: &Snapshot, board: &[u8]) -> Result<NativeReport> {
             "verdict. Route lengths include straight pad-centre links, exclude zone ",
             "interiors and unsupported copper intersections. Exact endpoint-on-track ",
             "junctions and plated pad barrels are included. DC track resistance excludes ",
-            "pad/via/spreading resistance. No missing coupling, current, thermal or ",
+            "pad/via/spreading resistance. Separate copper_paths include filled zones ",
+            "and off-centre contacts; their mesh-dependent lengths are not L/R. ",
+            "No missing coupling, current, thermal or ",
             "tolerance model is assigned zero."
         )
         .into(),
@@ -160,9 +166,9 @@ pub fn evaluate(snapshot: &Snapshot, board: &[u8]) -> Result<NativeReport> {
         (Family::KelvinSense,"Shared-current graph, magnetic/electric pickup and sense-input transfer functions"),
         (Family::SwitchCoupling,"Fringing, same-layer electric fields, shielding and actual differential dv/dt"),
         (Family::Decoupling,"Effective biased capacitance, ESR/ESL and complete extracted supply/return inductance"),
-        (Family::ReturnPath,"Distributed zone returns, common-path currents and shared inductance"),
-        (Family::CopperDistribution,concat!("Zone/pad/via discretization and operating current injections; section R is ",
-"not current distribution")),
+        (Family::ReturnPath,"Operating common-path currents and shared inductance; copper witnesses are connectivity only"),
+        (Family::CopperDistribution,concat!("Operating waveforms, annular crowding, AC and thermal feedback; ",
+"check-current separately runs the conditional A4 DC sheet profile")),
         (Family::EmiBypass,"Magnetic bypass and victim transfer impedance; projected overlap is not filter insertion loss"),
         (Family::ThermalInfluence,"Assembly-specific transfer coefficients, source losses and drift coefficients"),
         (Family::AssemblyMargin,"Actual 3D package/hardware envelopes, tolerances and access reservations"),
@@ -232,6 +238,7 @@ fn measure_routes(
     report: &mut NativeReport,
 ) -> Result<()> {
     let graph = Graph::new(snapshot, stack)?;
+    let conductors = super::conductors::Conductors::new(snapshot, stack)?;
     let mut route = |family, label: String, from: (&str, &str), to: (&str, &str)| -> Result<()> {
         let a = snapshot
             .pads
@@ -285,7 +292,22 @@ fn measure_routes(
                     interpretation:
                         "Uniform copper at 20 C; excludes pad/via/spreading and AC effects".into(),
                 })?;
-                report.routes.insert(label, path);
+                report.routes.insert(label.clone(), path);
+            }
+            Err(error) => report.centerline_gaps.push(format!("{label}: {error}")),
+        }
+        match conductors.route(from, to) {
+            Ok(path) => {
+                report.metric(Measurement {
+                    family,
+                    id: label.clone(),
+                    objects: vec![a.uuid.clone(), b.uuid.clone()],
+                    location_mm: a.position_mm,
+                    metric: "copper_witness_length_mm".into(),
+                    value: path.length_mm,
+                    interpretation: path.interpretation.clone(),
+                })?;
+                report.copper_paths.insert(label, path);
             }
             Err(error) => report.geometry_gaps.push(format!("{label}: {error}")),
         }

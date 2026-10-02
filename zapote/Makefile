@@ -19,8 +19,9 @@ build:
 	$(CARGO) build --locked --workspace --bins --examples
 
 check:
-	$(CARGO) test --locked --workspace
+	$(CARGO) test --release --locked --workspace
 	$(MAKE) check-layout
+	$(MAKE) check-current
 	$(MAKE) check-units
 
 # Live geometry feedback after a placement/routing edit. This is measurement
@@ -30,6 +31,12 @@ check:
 check-layout:
 	@mkdir -p "$$(dirname "$(LAYOUT_RUN_DIR)")"
 	$(CARGO) run --release --quiet --locked --bin zapote-layout-quality -- --native "$(LAYOUT_BOARD)" --python "$(KICAD_PYTHON)" --output "$(LAYOUT_RUN_DIR)" $(if $(LAYOUT_BASELINE),--baseline "$(LAYOUT_BASELINE)")
+
+CURRENT_RUN_DIR ?= validation/runs/current-$(shell date -u +%Y%m%dT%H%M%SZ)
+.PHONY: check-current
+check-current:
+	@mkdir -p "$$(dirname "$(CURRENT_RUN_DIR)")"
+	$(CARGO) run --release --quiet --locked --bin zapote-layout-quality -- --native "$(LAYOUT_BOARD)" --python "$(KICAD_PYTHON)" --output "$(CURRENT_RUN_DIR)" --current-profile a4-two-terminal.v1 $(if $(CURRENT_BASELINE),--baseline "$(CURRENT_BASELINE)")
 
 # Run the costly retained FEM replay in release; focused cargo tests stay debug.
 # The runner's exit 2 means incomplete evidence. Make maps any recipe failure

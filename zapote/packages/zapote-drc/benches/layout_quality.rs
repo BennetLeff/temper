@@ -91,4 +91,14 @@ fn main() {
     }
     println!("native-17 complete geometry report (641 tracks, 395 pad contacts): {:.2} ms/iteration (25 iterations)",
         start.elapsed().as_secs_f64() * 40.);
+    let start = Instant::now();
+    for _ in 0..3 {
+        let report =
+            zapote_drc::native_layout::current::evaluate(black_box(&snapshot), black_box(board))
+                .unwrap();
+        assert_eq!(report.status, "conditional_numerics_complete");
+        black_box(report);
+    }
+    println!("native-17 conditional current profile (14 cases, two meshes): {:.2} ms/iteration (3 iterations)",
+        start.elapsed().as_secs_f64()*1000./3.);
 }

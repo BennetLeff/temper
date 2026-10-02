@@ -42,6 +42,9 @@ fn live_native17_census_routes_and_incomplete_coverage_are_retained() {
     assert_eq!(report.population["tracks"], 641);
     assert_eq!(report.population["vias"], 177);
     assert_eq!(report.routes.len(), 23);
+    assert_eq!(report.copper_paths.len(), 35);
+    assert!(report.geometry_gaps.is_empty());
+    assert_eq!(report.centerline_gaps.len(), 12);
     assert!(report.routes.contains_key("decoupling/C16/return"));
     assert_eq!(report.coverage.len(), 9);
     assert!(report
@@ -53,13 +56,9 @@ fn live_native17_census_routes_and_incomplete_coverage_are_retained() {
         (metric(&report, "gate/A-high/gate", "routed_centerline_mm").value - 6.9225).abs() < 1e-9
     );
     assert!(report
-        .geometry_gaps
-        .iter()
-        .any(|g| g.starts_with("return/A-high:")));
-    assert!(!report
         .measurements
         .iter()
-        .any(|m| m.id == "return/A-high" && m.metric == "routed_centerline_mm"));
+        .any(|m| m.id == "return/A-high" && m.metric == "copper_witness_length_mm"));
     assert!(compare(&report, &report)
         .unwrap()
         .iter()
@@ -205,6 +204,7 @@ fn chain(length: f64, width: f64, gap: f64) -> (Snapshot, crate::stackup::Layout
             position_mm: [x, 0.],
             layers: vec!["F.Cu".into()],
             plated_through: false,
+            drill_mm: [0.; 2],
         })
         .collect();
     snapshot.tracks = vec![
@@ -370,6 +370,7 @@ fn mid_track_via_joins_only_its_declared_span_and_net() {
     snapshot.pads[1].layers = vec!["B.Cu".into()];
     snapshot.pads[1].position_mm = [7., 10.];
     snapshot.vias.push(Via {
+        drill_mm: 0.3,
         uuid: "v0".into(),
         net: "signal".into(),
         position_mm: [7., 0.],
@@ -454,4 +455,37 @@ proptest! {
         prop_assert!((a.intersection(&b).unsigned_area()-expected).abs()<1e-8);
         prop_assert!((a.union(&b).unsigned_area()-(2.*w*h-expected)).abs()<1e-8);
     }
+}
+
+#[test]
+fn captured_native_current_profile_solves_every_case_and_preserves_plating_sensitivity() {
+    let snapshot = captured();
+    let current = current::evaluate(&snapshot, BOARD).unwrap();
+    assert_eq!(current.status, "conditional_numerics_complete");
+    assert_eq!(current.cases.len(), 14);
+    for pair in current.cases.chunks_exact(2) {
+        let thicker = pair[0].refined.as_ref().unwrap();
+        let thinner = pair[1].refined.as_ref().unwrap();
+        assert!(thinner.resistance_ohm >= thicker.resistance_ohm * (1. - 1e-8));
+        for case in pair {
+            let solution = case.refined.as_ref().unwrap();
+            assert!(case.resistance_change_fraction.unwrap() < 0.03);
+            assert!(solution.max_kcl_residual_a < case.imposed_current_a * 1e-6);
+            assert!(solution.relative_energy_error < 1e-6);
+        }
+    }
+    let mut report = evaluate(&snapshot, BOARD).unwrap();
+    current.append_measurements(&snapshot, &mut report).unwrap();
+    assert_eq!(
+        report
+            .measurements
+            .iter()
+            .filter(|m| m.id.starts_with("current/"))
+            .count(),
+        28
+    );
+    assert!(compare(&report, &report)
+        .unwrap()
+        .iter()
+        .all(|d| d.change == Some(0.)));
 }

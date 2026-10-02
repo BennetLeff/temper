@@ -32,6 +32,7 @@ Rust helper in Temper or requalified all historical solver studies.
 | 120 V native parity | `tools/check_native_parity.py` → `zapote-power-native-parity` | Fresh PASS against native-17 presentation PCB; 135 components, 368 source pins, 388 connected copper pads including 20 duplicate physical pads. |
 | 120 V barrier | `tools/barrier_check.py` → `zapote-power-barrier` → `power_barrier` | Existing real native copper caller and retained native-17 receipts. Not rerun here; its coarse export is unsuitable for capacitance/current distribution. |
 | New layout feedback | `check` → `check-layout` → live pcbnew snapshot → Rust `native_layout` | Fresh native-17 run and deliberate saved-board mutation proof. See NATIVE.md for exact metrics and omissions. |
+| Native DC copper distribution | `check` → `check-current` → filled native copper/drills → Rust sheet FEM and sparse Cholesky | All 14 conditional A4 two-terminal/plating cases solve at two mesh sizes; R/loss deltas, layer peaks and individual barrel currents retained. Operating waveforms, annular crowding, AC and thermal qualification remain missing. |
 | Original nine layout model kernels | `zapote-layout-quality BOARD < scenarios.json` → `layout_quality::report::run` | Still model-input based. Native feedback directly reuses track resistance and plate-capacitance calculations; it does not fabricate the inputs needed by the other electrical/thermal/3D kernels. |
 
 The legacy registry includes clearance, body/courtyard overlap, containment,
@@ -75,13 +76,15 @@ unit's source contract or claim that all of P1/P2/P3 now qualify the full bridge
    and register the applicable existing gates under that spec. Keep source parity,
    barrier and native ERC/DRC evidence together rather than assuming standalone
    receipts are executed by the five-unit runner.
-2. Reconstruct and discretize native zone/pad/via conductors. Exact endpoint-on-track
-   junctions, mid-track vias and plated pad barrel connectivity are now supported;
-   the native-17 path census improved from 22/35 to 23/35. Zone interiors,
-   crossing/overlapping copper and off-centre contacts still need geometry work.
-   `power_contact` now has a native consumer; connect `power_branches` to complete
-   board-derived graphs and source-defined load cases. A tree cannot determine
-   parallel sharing, and a sampled contact chord is not a neck capacity.
+2. Native zone/pad/via meshing and a conditional DC distribution solve are now
+   connected: 35/35 requested paths, seven two-terminal cases at 12/18 um assumed
+   plating, each checked at two mesh sizes. The next current integration is the
+   complete source-defined switching-state/multiterminal injection model and its
+   RMS/time weighting, followed by annular/lead resistance, AC and thermal effects.
+   `power_branches` itself remains test-only; the native FEM solves parallel paths
+   directly rather than presenting a tree as a distribution model. `power_contact`
+   has a native consumer; sampled contact chords still do not establish capacity.
+   See [current scope and evidence](CURRENT.md).
 3. Feed extracted mutual/shared inductances and adopted operating slews into gate,
    Kelvin and return models for both bridge legs; supply decoupling component
    parasitics/effective values and complete current loops.

@@ -69,6 +69,7 @@ def extract(path: Path) -> dict[str, Any]:
             pads.append({"uuid": uid, "reference": ref, "number": pad.GetNumber(),
                          "net": pad.GetNetname(), "position_mm": xy(pad.GetPosition()),
                          "plated_through": pad.GetAttribute() == p.PAD_ATTRIB_PTH,
+                         "drill_mm": xy(pad.GetDrillSize()),
                          "layers": [board.GetLayerName(layer) for layer in flashed]})
             for layer in flashed:
                 copper.append({"uuid": uid, "kind": "pad", "net": pad.GetNetname(),
@@ -79,6 +80,7 @@ def extract(path: Path) -> dict[str, Any]:
         uid = item.m_Uuid.AsString()
         if item.Type() == p.PCB_VIA_T:
             vias.append({"uuid": uid, "net": item.GetNetname(),
+                         "drill_mm": p.ToMM(item.GetDrillValue()),
                          "position_mm": xy(item.GetPosition()),
                          "layers": [board.GetLayerName(layer) for layer in layers if item.IsOnLayer(layer)]})
         elif item.GetClass() == "PCB_TRACK":
@@ -122,7 +124,7 @@ def extract(path: Path) -> dict[str, Any]:
             gaps.append(item.m_Uuid.AsString() + ": unsupported board copper graphic")
     if path.read_bytes() != before:
         raise ValueError("board changed during extraction")
-    return {"schema": "zapote.layout-native.v2", "board_sha256": hashlib.sha256(before).hexdigest(),
+    return {"schema": "zapote.layout-native.v3", "board_sha256": hashlib.sha256(before).hexdigest(),
             "extractor_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "tool_version": p.Version(), "polygon_error_mm": 0.001,
             "layers": [board.GetLayerName(layer) for layer in layers],

@@ -1,11 +1,18 @@
 //! Native-board layout analysis. Geometry is read by pcbnew, policy and metrics
 //! live here. A geometry screen never supplies a missing physical model.
+mod conductors;
 mod contacts;
+pub mod current;
 mod geometry;
+mod mesh;
+#[cfg(test)]
+mod mesh_tests;
 mod paths;
 mod report;
+mod sheet;
 #[cfg(test)]
 mod tests;
+pub use conductors::CopperPath;
 pub use contacts::PadEntry;
 pub use paths::Route;
 pub use report::{compare, evaluate, Delta, Measurement, NativeReport};
@@ -43,6 +50,7 @@ pub struct Pad {
     pub position_mm: [f64; 2],
     pub layers: Vec<String>,
     pub plated_through: bool,
+    pub drill_mm: [f64; 2],
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -65,6 +73,7 @@ pub struct Via {
     pub net: String,
     pub position_mm: [f64; 2],
     pub layers: Vec<String>,
+    pub drill_mm: f64,
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -112,7 +121,7 @@ pub fn digest(bytes: &[u8]) -> String {
 impl Snapshot {
     pub fn validate(&self, board: &[u8]) -> Result<()> {
         require(
-            self.schema == "zapote.layout-native.v2",
+            self.schema == "zapote.layout-native.v3",
             "unsupported native layout schema",
         )?;
         require(
@@ -154,6 +163,11 @@ impl Snapshot {
         )?;
         let mut logical_pins = BTreeMap::new();
         for p in &self.pads {
+            require(
+                p.drill_mm.iter().all(|d| d.is_finite() && *d >= 0.)
+                    && (!p.plated_through || p.drill_mm.iter().all(|d| *d > 0.)),
+                "invalid native pad drill",
+            )?;
             if let Some(net) = logical_pins.insert((&p.reference, &p.number), &p.net) {
                 require(
                     net == &p.net,
@@ -211,6 +225,10 @@ impl Snapshot {
             )?;
         }
         for v in &self.vias {
+            require(
+                v.drill_mm.is_finite() && v.drill_mm > 0.,
+                "invalid native via drill",
+            )?;
             require(
                 v.layers.len() >= 2
                     && v.layers.iter().all(|l| self.layers.contains(l))

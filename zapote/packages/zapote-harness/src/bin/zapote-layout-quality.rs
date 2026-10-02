@@ -58,6 +58,7 @@ fn native(args: &[std::ffi::OsString]) -> Result<ExitCode> {
         .unwrap_or_else(|| PathBuf::from("python3"));
     let mut output = None;
     let mut baseline = None;
+    let mut currents = false;
     let mut seen = std::collections::BTreeSet::new();
     let mut options = args[1..].chunks_exact(2);
     for option in &mut options {
@@ -66,6 +67,7 @@ fn native(args: &[std::ffi::OsString]) -> Result<ExitCode> {
             Some("--python") => python = PathBuf::from(&option[1]),
             Some("--output") => output = Some(PathBuf::from(&option[1])),
             Some("--baseline") => baseline = Some(PathBuf::from(&option[1])),
+            Some("--current-profile") if option[1] == "a4-two-terminal.v1" => currents = true,
             _ => bail!("unknown native option: {:?}", option[0]),
         }
     }
@@ -79,11 +81,16 @@ fn native(args: &[std::ffi::OsString]) -> Result<ExitCode> {
         &python,
         &output,
         baseline.as_deref(),
+        currents,
     )?;
     println!("{}", serde_json::to_string_pretty(&report)?);
     // Successful measurement is not electrical acceptance. Coverage is explicit
     // in every report; an extraction failure still exits 2 through main().
-    Ok(ExitCode::SUCCESS)
+    Ok(if report["current"]["status"] == "incomplete" {
+        ExitCode::from(2)
+    } else {
+        ExitCode::SUCCESS
+    })
 }
 fn main() -> ExitCode {
     match run() {

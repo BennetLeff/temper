@@ -1,8 +1,8 @@
 # Native placement and routing feedback
 
 `make -C zapote check-layout` now reads the saved 120 V PCB through KiCad and
-computes Rust layout measurements. `make -C zapote check` includes this step
-before the five-unit acceptance runner. It does not edit or route the PCB.
+computes Rust layout measurements. `make -C zapote check` includes this step and the conditional
+[current study](CURRENT.md) before the five-unit acceptance runner. It does not edit or route the PCB.
 
 ```sh
 make -C zapote check-layout \
@@ -44,8 +44,8 @@ reviewed profile update. This is not a substitute for source-to-native parity.
 | Kelvin | Shunt→sense input paths, lengths and track R | Shared current and pickup/transfer models |
 | Switch coupling | Unioned filled copper, holes, adjacent layer overlap and declared dielectric stack | Fringing, coplanar/shielded fields and operating dv/dt |
 | Decoupling | Supply/return endpoint distances and supported routed paths | Effective C, ESR/ESL and complete branch inductance |
-| Returns | Track/via paths, exact endpoint-on-track junctions, mid-track vias, plated pad barrels; explicit reconstruction gaps | Zone interiors, crossing/overlapping copper, off-centre contacts, common-current model |
-| Copper | Every straight track's R at 20 °C and every native track/pad entry's sampled copper chord | Full conductor current distribution, minimum-cut width, plating R, crowding, AC and thermal solution |
+| Returns | Track paths plus filled-copper triangulation, holes, islands, off-centre contacts and abstract plated-barrel links | Operating common-current and shared-inductance models |
+| Copper | Every track's R, sampled pad-entry chords; `check-current` adds conditional sheet/barrel current, R and loss | Operating waveforms, minimum-cut width, annular crowding, AC and thermal solution |
 | EMI | Raw/filtered net projected adjacent-layer overlap | Magnetic bypass and victim transfer impedance |
 | Thermal | Named heater/victim component distances | Losses, assembly heat transfer and drift coefficients |
 | Assembly | Same-side native courtyard gap within 5 mm and overlap area | 3D bodies, hardware, tolerances and access envelopes |
@@ -80,11 +80,27 @@ Zero means no straight-body witness; rounded-cap contacts can still conduct.
 Polygon approximation can also make nearly full-width chords slightly smaller.
 No witness is allowed to become a full-width result through numeric tolerance.
 
-Native snapshot and report schemas are now v2: plating and complete native pad
-contacts are required fields, and reports include typed pad-entry witnesses.
+Native snapshot and report schemas are now v3: native drill dimensions are
+required, and reports distinguish centreline gaps from full-copper path gaps.
 Old baselines must be remeasured with the current evaluator and extractor.
 
-## Conductor integration follow-up
+## Filled-copper integration (v3)
+
+All **35/35** requested paths now reconstruct through the saved copper, including
+all four gate returns. KiCad's own connectivity queries confirm the endpoint
+connections. The older centreline graph still resolves 23/35; its 12 limitations
+are retained separately in `centerline_gaps`, not reported as electrical opens.
+
+`copper_paths` follows triangle edges inside the actual planar copper, preserving
+holes and separate islands. Cross-layer barrel segments are abstract connections
+between flashed annuli, not traced barrel-wall geometry. Witness lengths depend
+on the mesh: do not optimize them as routed length, loop inductance or current
+flow. R/loss comes from the separate [current solve](CURRENT.md).
+
+[Latest evidence](mesh-evidence/README.md) retains the full current/native run,
+independent closed-form and native checks, scratch-board mutations, and timings.
+
+## Previous conductor integration (v2)
 
 The [new live report](conductor-evidence/native17-report.json) evaluates 1,723
 measurements, 23 of 35 requested paths and all 395 track/pad contacts. C16's return

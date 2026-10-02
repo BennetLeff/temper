@@ -59,7 +59,24 @@ for a,z in zip(ids,ids[1:]):
     assert z in {v.m_Uuid.AsString() for v in neighbours}, (a,z)
     checked.append([a,z])
 assert len(checked)>2
-print(json.dumps({'native_connected_transitions':checked, 'version':p.Version()}))
+report=json.load(open(sys.argv[2]))['native']
+paths=[]
+for metric in report['measurements']:
+    if metric['metric']!='copper_witness_length_mm':
+        continue
+    a,z=metric['objects']
+    seen={a}
+    queue=[objects[a]]
+    while queue and z not in seen:
+        for other in c.GetConnectedItems(queue.pop()):
+            uid=other.m_Uuid.AsString()
+            if uid not in seen:
+                seen.add(uid)
+                queue.append(other)
+    assert z in seen, metric['id']
+    paths.append(metric['id'])
+assert len(paths)==35
+print(json.dumps({'native_connected_transitions':checked, 'native_connected_paths':paths, 'version':p.Version()}))
 "#,
         )
         .arg(&board)
@@ -188,4 +205,118 @@ fn native_options_fail_closed_without_launching_kicad() {
         assert!(result.stdout.is_empty());
         assert!(!result.stderr.is_empty());
     }
+}
+
+#[test]
+#[ignore = "requires live KiCad; verifies native current extraction, deltas and cut copper"]
+fn native_current_changes_with_stackup_and_reports_removed_copper_as_missing() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let board = root.join("power-stage-120v/native-17/section.kicad_pcb");
+    let original = fs::read(&board).unwrap();
+    let dir = std::env::temp_dir().join(format!(
+        "zapote-native-current-proof-{}",
+        std::process::id()
+    ));
+    fs::create_dir(&dir).unwrap();
+    let run = |board: &Path, name: &str, baseline: Option<&Path>, expected: i32| {
+        let mut command = Command::new(env!("CARGO_BIN_EXE_zapote-layout-quality"));
+        command
+            .arg("--native")
+            .arg(board)
+            .arg("--python")
+            .arg(std::env::var_os("KICAD_PYTHON").unwrap())
+            .arg("--output")
+            .arg(dir.join(name))
+            .args(["--current-profile", "a4-two-terminal.v1"]);
+        if let Some(b) = baseline {
+            command.arg("--baseline").arg(b);
+        }
+        let result = command.output().unwrap();
+        assert_eq!(
+            result.status.code(),
+            Some(expected),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        serde_json::from_slice::<Value>(&result.stdout).unwrap()
+    };
+    let before = run(&board, "before", None, 0);
+    assert_eq!(before["current"]["status"], "conditional_numerics_complete");
+    let text = std::str::from_utf8(&original).unwrap();
+    assert_eq!(text.matches("(thickness 0.07)").count(), 2);
+    assert_eq!(text.matches("(thickness 0.061)").count(), 2);
+    let thin = dir.join("thin.kicad_pcb");
+    fs::write(
+        &thin,
+        text.replace("(thickness 0.07)", "(thickness 0.035)")
+            .replace("(thickness 0.061)", "(thickness 0.0305)")
+            .replace("(thickness 1.653)", "(thickness 1.522)"),
+    )
+    .unwrap();
+    let after = run(&thin, "thin", Some(&dir.join("before/report.json")), 0);
+    let delta = after["comparison"]["changes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|d| {
+            d["id"] == "current/coil-feed/plating-18um" && d["metric"] == "dc_resistance_ohm_20c"
+        })
+        .unwrap();
+    assert!(
+        (delta["after"].as_f64().unwrap() / delta["before"].as_f64().unwrap() - 2.).abs() < 1e-6
+    );
+    let cut = dir.join("cut.kicad_pcb");
+    let mutation = Command::new(std::env::var_os("KICAD_PYTHON").unwrap())
+        .arg("-c")
+        .arg(
+            r#"
+import sys,wx,pcbnew as p
+app=wx.App(False)
+b=p.LoadBoard(sys.argv[1])
+removed=0
+for item in list(b.GetTracks())+list(b.Zones()):
+    if item.GetNetname()=='coil_feed':
+        b.Remove(item)
+        removed+=1
+assert removed>0
+p.SaveBoard(sys.argv[2],b)
+print(removed)
+"#,
+        )
+        .arg(&board)
+        .arg(&cut)
+        .output()
+        .unwrap();
+    fs::write(dir.join("mutation.stdout"), &mutation.stdout).unwrap();
+    fs::write(dir.join("mutation.stderr"), &mutation.stderr).unwrap();
+    assert!(
+        mutation.status.success(),
+        "{}",
+        String::from_utf8_lossy(&mutation.stderr)
+    );
+    let cut_report = run(&cut, "cut", Some(&dir.join("before/report.json")), 2);
+    let case = cut_report["current"]["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["id"] == "coil-feed/plating-18um")
+        .unwrap();
+    assert!(case["refined"].is_null());
+    assert!(case["gaps"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|g| g.as_str().unwrap().contains("disconnected")));
+    let delta = cut_report["comparison"]["changes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|d| {
+            d["id"] == "current/coil-feed/plating-18um" && d["metric"] == "dc_resistance_ohm_20c"
+        })
+        .unwrap();
+    assert!(delta["before"].as_f64().unwrap() > 0.);
+    assert!(delta["after"].is_null() && delta["change"].is_null());
+    assert_eq!(fs::read(&board).unwrap(), original);
+    eprintln!("Native current edit proof retained at {}", dir.display());
 }
