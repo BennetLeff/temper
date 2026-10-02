@@ -1,0 +1,17 @@
+.param LP1=26.5944n
+.param LP2=25.9745n
+.param LP3=25.9394n
+.param LP4=36.2982n
+.param K12=0.61234757
+.param K13=0.134853193
+.param K14=0.163596468
+.param K23=0.126952541
+.param K24=0.172340472
+.param K34=-0.00695459601
+.param VBUS=280
+.param IL=37
+.param DIR=0
+.param LESL=10n
+.param LSHUNT=2n
+.param DT=348n
+.param TRMAX=0.2n

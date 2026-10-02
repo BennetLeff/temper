@@ -1,0 +1,34 @@
+[
+  {
+    "tag": "baseline_S1_d0_0.2n",
+    "fine_minus_coarse": {
+      "vgs_ls_off_max": -0.0027249999999998664,
+      "vds_ls_die_pk": 0.11369999999999436,
+      "vds_hs_die_pk": 0.0014000000000180535
+    }
+  },
+  {
+    "tag": "baseline_S4_d0_0.2n",
+    "fine_minus_coarse": {
+      "vgs_ls_off_max": -0.006653999999999272,
+      "vds_ls_die_pk": -1.421100000000024,
+      "vds_hs_die_pk": -0.0005999999999914962
+    }
+  },
+  {
+    "tag": "roff1_cgs2p2n_S1_d0_0.2n",
+    "fine_minus_coarse": {
+      "vgs_ls_off_max": -0.00010310000000002262,
+      "vds_ls_die_pk": 0.024900000000002365,
+      "vds_hs_die_pk": 0.0018000000000029104
+    }
+  },
+  {
+    "tag": "roff1_cgs2p2n_S4_d0_0.2n",
+    "fine_minus_coarse": {
+      "vgs_ls_off_max": -0.004665000000000141,
+      "vds_ls_die_pk": -2.1999999999999886,
+      "vds_hs_die_pk": 0.0014999999999929514
+    }
+  }
+]

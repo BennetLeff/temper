@@ -1,0 +1,22 @@
+{
+  "source_commit": "1f09223516cc37d00f73b5e5e6d33a0197d7a30d",
+  "measurement_source_state": "D6 files uncommitted during runs; exact script versions and decks are content-hashed; no other source edits",
+  "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "model": "GPT-6 Astra",
+  "input_and_script_sha256": {
+    "datasheets/ucc21550.pdf": "f600571197e32da4b915f986da003d95d73294dd8e428d7a4e6dcc89bbe29207",
+    "zapote/power-stage-120v/frozen/default.net": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
+    "zapote/power-stage-120v/frozen/default.csv": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67",
+    "zapote/power-stage-120v/native-17/section.kicad_pcb": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round5/bench-plan/sources/infineon-ipw65r018cfd7.pdf": "c364050a04a434bd173da6486fd51f4baf540ee9e4e1ebbe07aed57e279943f2",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/README.md": "dc98030a264cd6a46c25f4eebfd372609fba3ec1b43b60487544f1b08e4ed4e1",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/D6-off-gate-mitigation.md": "c203c1278465ba47e2ed87836bf3791b14f26c64e7592dff1607f7b0e1b93397",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/run_study.py": "0552c78097a0f27d56919fb423791a00feb0675a60feefd03b69ff231e020ed0",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/summarize.py": "871ab19e2a5a583b7b687f7aabfb25572d351f02e2be6e075f33efdb52d8ca38",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/replay_one.py": "1683c71fe1e8549ea088a4d854861f2b638054f35953d2b804577ef592d10172",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/run_combinations.py": "d30f882611e7e9588ef7d18e0f70ab28bcd300f7294df13c5077ba641c815af9",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/probe_waveforms.py": "40c343c173b8c528af301226674ac10c85220ed160fbb9ee8d350c6681681c0c",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/probe_waveforms_initial.py.txt": "f1563eba56abab7bf526a09d5997b85ca890d33e8c33b73ec5b4b7fd22bf0cb7",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/run_study_initial.py.txt": "6b40277979a30aa2f111292b87d4fd29c09de8f0a88c33b0e05a4d2073240385"
+  }
+}
