@@ -10,6 +10,14 @@ only your brief.
 | [D-2 driver model](D2-driver-model.md) | Is the D2 deck's driver approximation (5 Ω pull-up, 0.55 Ω pull-down, 5 ns ramp) faithful, and what are the gate resistors' inductances? | small |
 | [D-3 diode recovery](D3-diode-recovery.md) | Does the Infineon IPW65R018CFD7 L1 model's body-diode recovery match the datasheet? | medium |
 | [D-4 review](D4-review.md) | Adversarial review of round 17's matrix → SPICE mapping, extrapolation and margin correction | medium |
+| [D-5 gate dead time](D5-gate-dead-time.md) | Worst-case dead time at the gates: firmware MCPWM + signal path + driver DT combined | small |
+| [D-6 off-gate remedies](D6-off-gate-mitigation.md) | Which gate-drive remedy (Rg_off, Cgs, negative bias, Miller clamp) fixes the off-gate failures, at what cost; is the 3.0 V criterion right | medium |
+| [D-7 capacitor ESL](D7-capacitor-esl.md) | ESL of C38–C41 and bulk C5/C6 from TDK models/curves | small |
+| [D-8 double-pulse plan](D8-double-pulse-plan.md) | Bench procedure to measure diode recovery (S4) and gate dead time | small |
+| [D-9 review](D9-review-followups.md) | Adversarial review of the D-4 follow-up commits (f5a1c8083 onward) | medium |
+
+D-1..D-4 are complete (`out-D1`..`out-D4`). D-5..D-9 are independent of
+each other except D-8, which should cite D-5/D-6 if they are done first.
 
 **Paths:** `round17/...` means
 `zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/...`;
