@@ -1,0 +1,88 @@
+{
+  "retrieved": "2026-10-02",
+  "policy": "URLs and exact PDF hashes; no vendor models redistributed",
+  "documents": [
+    {
+      "part": "ucc21550",
+      "url": "https://www.ti.com/lit/ds/symlink/ucc21550.pdf",
+      "revision": "SLUSE89C, August2024",
+      "locator": "pp9-10, section7.3.1, p25",
+      "sha256": "f600571197e32da4b915f986da003d95d73294dd8e428d7a4e6dcc89bbe29207"
+    },
+    {
+      "part": "amc1311",
+      "url": "https://www.ti.com/lit/ds/symlink/amc1311.pdf",
+      "revision": "SBAS786C, June2022",
+      "locator": "pp10-11",
+      "sha256": "4a80cec704b1f432d03456356464691761809852cd071aca4fab60d784c33f57"
+    },
+    {
+      "part": "iso7710",
+      "url": "https://www.ti.com/lit/ds/symlink/iso7710.pdf",
+      "revision": "SLLSER9E, December2024",
+      "locator": "sections5.11-5.12,5.16,7.4",
+      "sha256": "42fc3c704c9ca0c451282373b4a7ffb22d4691d56029b2b485ab111f3cc431c5"
+    },
+    {
+      "part": "sn74lvc1g332",
+      "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf",
+      "revision": "SCES489E, December2013",
+      "locator": "pp4-5",
+      "sha256": "5ecad3180cb93664b358a9cb6a724e012fc9b124e6ae0d1004c9ae6600549f21"
+    },
+    {
+      "part": "sn74lvc1g74",
+      "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g74.pdf",
+      "revision": "SCES794G, September2021",
+      "locator": "p7",
+      "sha256": "e46a5a867fec742290000dca5ed3b291535f3c4418ef2ae267acc4ab51b26d8a"
+    },
+    {
+      "part": "tlv3201",
+      "url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+      "revision": "SBOS561C, May2024",
+      "locator": "pp5-6; current allowances are condition-specific",
+      "sha256": "a672c9ca6517733059451d887028a1b1569d73ba328746befe015b8d952f0c02"
+    },
+    {
+      "part": "ao3400a",
+      "url": "https://www.aosmd.com/sites/default/files/res/datasheets/AO3400A.pdf",
+      "revision": "Rev3.1, July2023",
+      "locator": "p2",
+      "sha256": "9c60d0b6c1ddc7609a4b788a91181468d8ffe6c3e9ba425c3d8ffc5ba88c5033"
+    },
+    {
+      "part": "irm20",
+      "url": "https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF",
+      "revision": "2025-11-21",
+      "locator": "pp2-3",
+      "sha256": "aa1afdbcdf0bf6db796710e26bd5e258f4857ffb1c14bd1ac3d94af86f3b8789"
+    },
+    {
+      "part": "esp32",
+      "url": "https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf",
+      "revision": "v1.8, March2026",
+      "locator": "pp27-28 Table6-3; high-impedance25Ccondition",
+      "sha256": "27d71971da07c280c6068d08c74720d1a25b8f20cf8494dc1765bdd28d40d435"
+    }
+  ],
+  "web_only": [
+    {
+      "part": "BAS116H",
+      "url": "https://assets.nexperia.com/documents/data-sheet/BAS116H.pdf",
+      "revision": "Rev3,31May2011",
+      "locator": "p3 Table7",
+      "retrieval": "web PDF read; curl403; no downloaded hash, no all-fault clamp bound claimed"
+    },
+    {
+      "part": "Molex430451612",
+      "url": "https://www.molex.com/en-us/products/part-detail/430451612",
+      "retrieval": "primary product page; not an assembly qualification"
+    },
+    {
+      "part": "Molex430451612drawing",
+      "url": "https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/salesdrawingpdf/430/43045/430451612_sd.pdf",
+      "retrieval": "web opened one-page image PDF; curl transport failed; exact assembly still unspecified"
+    }
+  ]
+}

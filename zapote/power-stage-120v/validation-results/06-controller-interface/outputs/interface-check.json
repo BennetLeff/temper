@@ -1,0 +1,5778 @@
+{
+  "calculations": {
+    "adc_cases": [
+      {
+        "actual_ADC_code": null,
+        "amc_input_nominal_v": 0.0,
+        "bus_v": 0,
+        "hypothetical_12bit_3v3_differential_code": 0,
+        "in_guaranteed_input_range_nominal": true,
+        "nominal_linear_outn_v": 1.44,
+        "nominal_linear_outp_v": 1.44
+      },
+      {
+        "actual_ADC_code": null,
+        "amc_input_nominal_v": 1.6501740689946196,
+        "bus_v": 198,
+        "hypothetical_12bit_3v3_differential_code": 2048,
+        "in_guaranteed_input_range_nominal": true,
+        "nominal_linear_outn_v": 0.6149129655026901,
+        "nominal_linear_outp_v": 2.2650870344973097
+      },
+      {
+        "actual_ADC_code": null,
+        "amc_input_nominal_v": 2.333579491507543,
+        "bus_v": 280,
+        "hypothetical_12bit_3v3_differential_code": null,
+        "in_guaranteed_input_range_nominal": false,
+        "nominal_linear_outn_v": null,
+        "nominal_linear_outp_v": null
+      }
+    ],
+    "amc_2V_bus_limit_nominal_v": 239.9746835443038,
+    "amc_2V_bus_limit_tolerance_low_v": 237.35957713172908,
+    "amc_input_280V_tolerance_low_v": 2.3083737972976066,
+    "bias_divider_max_a": 0.001734234234234234,
+    "ct_nominal_burden_power_18A7rms_w": 0.0524535,
+    "ct_nominal_monitor_v": {
+      "0": [
+        1.65,
+        1.65
+      ],
+      "37": [
+        1.0949999999999998,
+        2.205
+      ],
+      "61": [
+        0.7349999999999999,
+        2.565
+      ],
+      "71": [
+        0.585,
+        2.715
+      ]
+    },
+    "dis_pulls_max_a": 0.007,
+    "ground_contacts": [
+      2,
+      4,
+      15,
+      16
+    ],
+    "interlock_fault_pullup_max_a": 0.00035,
+    "interlock_sink_with_20uA_allowance_a": 0.00037,
+    "permit_gate_at_2V7_min_v": 2.6972482618742495,
+    "permit_including_interlock_pulldown_max_a": 0.0004199300699300699,
+    "permit_two_pulldowns_max_a": 6.993006993006993e-05,
+    "pwm_high_impedance_example_VOH_v": 2.64,
+    "pwm_high_impedance_example_VOL_v": 0.33,
+    "pwm_pulldown_max_a": 6.929999999999999e-05,
+    "reference_dividers_max_a": 0.0005207910613316018,
+    "v3v3_conditional_allowance_a": 0.031860025295565836
+  },
+  "counterpart_native_connectors_and_selected_nodes": {
+    "controller_monolith": {
+      "C14": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-2.55",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.55",
+              "0"
+            ],
+            "net": "PWR_RTN"
+          }
+        },
+        "value": "?"
+      },
+      "C2": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "10",
+              "0"
+            ],
+            "net": "PWR_RTN"
+          }
+        },
+        "value": "?"
+      },
+      "C24": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "15",
+              "0"
+            ],
+            "net": "hb-gnd"
+          }
+        },
+        "value": "?"
+      },
+      "C28": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.775",
+              "0"
+            ],
+            "net": "I_SENSE"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.775",
+              "0"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "?"
+      },
+      "C36": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.775",
+              "0"
+            ],
+            "net": "V_BUS_SENSE"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.775",
+              "0"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "?"
+      },
+      "C4": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "10",
+              "0"
+            ],
+            "net": "PWR_RTN"
+          }
+        },
+        "value": "?"
+      },
+      "J1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "rtd_force_p"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.5",
+              "0"
+            ],
+            "net": "rtd_sense_p"
+          },
+          "3": {
+            "local_xy_mm": [
+              "5",
+              "0"
+            ],
+            "net": "rtd_sense_n"
+          },
+          "4": {
+            "local_xy_mm": [
+              "7.5",
+              "0"
+            ],
+            "net": "rtd_force_n"
+          }
+        },
+        "value": "?"
+      },
+      "J2": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "thermal.j_fan-p1"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0",
+              "2.54"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "?"
+      },
+      "PS1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0",
+              "10.75"
+            ],
+            "net": "PWR_RTN"
+          },
+          "3": {
+            "local_xy_mm": [
+              "38.5",
+              "10.75"
+            ],
+            "net": "+15V"
+          },
+          "4": {
+            "local_xy_mm": [
+              "38.5",
+              "2.75"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "?"
+      },
+      "R20": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "PWM_HS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "ina"
+          }
+        },
+        "value": "?"
+      },
+      "R21": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "PWM_LS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "inb"
+          }
+        },
+        "value": "?"
+      },
+      "R25": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-1.4625",
+              "0"
+            ],
+            "net": "I_SENSE"
+          },
+          "2": {
+            "local_xy_mm": [
+              "1.4625",
+              "0"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "?"
+      },
+      "R26": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "+3V3"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "I_SENSE"
+          }
+        },
+        "value": "?"
+      },
+      "R27": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "I_SENSE"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "?"
+      },
+      "R4": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-2.9625",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.9625",
+              "0"
+            ],
+            "net": "PWR_RTN"
+          }
+        },
+        "value": "?"
+      },
+      "R46": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-1.4625",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "1.4625",
+              "0"
+            ],
+            "net": "safety.ovp.r_div_top1-p2"
+          }
+        },
+        "value": "?"
+      },
+      "R51": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-1.4625",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "1.4625",
+              "0"
+            ],
+            "net": "safety.ovp.r_adc_top1-p2"
+          }
+        },
+        "value": "?"
+      },
+      "R53": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-1.4625",
+              "0"
+            ],
+            "net": "safety.ovp.r_adc_top2-p2"
+          },
+          "2": {
+            "local_xy_mm": [
+              "1.4625",
+              "0"
+            ],
+            "net": "V_BUS_SENSE"
+          }
+        },
+        "value": "?"
+      },
+      "R54": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "V_BUS_SENSE"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "?"
+      },
+      "R6": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "22.86",
+              "0"
+            ],
+            "net": "discharge.r_dis1a-p2"
+          }
+        },
+        "value": "?"
+      },
+      "T1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "7.68",
+              "-6.85"
+            ],
+            "net": "tank-out"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-7.68",
+              "-6.85"
+            ],
+            "net": "PWR_RTN"
+          },
+          "3": {
+            "local_xy_mm": [
+              "-6.88",
+              "6.95"
+            ],
+            "net": "I_SENSE"
+          },
+          "4": {
+            "local_xy_mm": [
+              "6.88",
+              "6.95"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "?"
+      },
+      "TP1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "SHUTDOWN"
+          }
+        },
+        "value": "?"
+      },
+      "TP2": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "SHUTDOWN"
+          }
+        },
+        "value": "?"
+      },
+      "U1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "2": {
+            "local_xy_mm": [
+              "5.08",
+              "0"
+            ],
+            "net": "power_in.ntc-no"
+          }
+        },
+        "value": "?"
+      },
+      "U15": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-1.1375",
+              "-0.95"
+            ],
+            "net": "safety.ocp-line"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-1.1375",
+              "0"
+            ],
+            "net": "gnd"
+          },
+          "3": {
+            "local_xy_mm": [
+              "-1.1375",
+              "0.95"
+            ],
+            "net": "I_SENSE"
+          },
+          "4": {
+            "local_xy_mm": [
+              "1.1375",
+              "0.95"
+            ],
+            "net": "safety.ocp.comp-inn"
+          },
+          "5": {
+            "local_xy_mm": [
+              "1.1375",
+              "-0.95"
+            ],
+            "net": "+3V3"
+          }
+        },
+        "value": "?"
+      },
+      "U26": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-2.475",
+              "-3.81"
+            ],
+            "net": "safety.fault_or3-y2"
+          },
+          "10": {
+            "local_xy_mm": [
+              "2.475",
+              "1.27"
+            ],
+            "net": "SHUTDOWN"
+          },
+          "11": {
+            "local_xy_mm": [
+              "2.475",
+              "0"
+            ],
+            "net": "safety.fault_or-b2"
+          },
+          "12": {
+            "local_xy_mm": [
+              "2.475",
+              "-1.27"
+            ],
+            "net": "WDT_RESET_N"
+          },
+          "13": {
+            "local_xy_mm": [
+              "2.475",
+              "-2.54"
+            ],
+            "net": "+3V3"
+          },
+          "14": {
+            "local_xy_mm": [
+              "2.475",
+              "-3.81"
+            ],
+            "net": "+3V3"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-2.475",
+              "-2.54"
+            ],
+            "net": "+3V3"
+          },
+          "3": {
+            "local_xy_mm": [
+              "-2.475",
+              "-1.27"
+            ],
+            "net": "y1"
+          },
+          "4": {
+            "local_xy_mm": [
+              "-2.475",
+              "0"
+            ],
+            "net": "y1"
+          },
+          "5": {
+            "local_xy_mm": [
+              "-2.475",
+              "1.27"
+            ],
+            "net": "safety.latch-b2"
+          },
+          "6": {
+            "local_xy_mm": [
+              "-2.475",
+              "2.54"
+            ],
+            "net": "SHUTDOWN"
+          },
+          "7": {
+            "local_xy_mm": [
+              "-2.475",
+              "3.81"
+            ],
+            "net": "gnd"
+          },
+          "8": {
+            "local_xy_mm": [
+              "2.475",
+              "3.81"
+            ],
+            "net": "safety.latch-b2"
+          },
+          "9": {
+            "local_xy_mm": [
+              "2.475",
+              "2.54"
+            ],
+            "net": "safety.fault_any_or-y2"
+          }
+        },
+        "value": "?"
+      },
+      "U27": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-9",
+              "10.16"
+            ],
+            "net": "gnd"
+          },
+          "10": {
+            "local_xy_mm": [
+              "-9",
+              "-1.27"
+            ],
+            "net": "SHUTDOWN"
+          },
+          "11": {
+            "local_xy_mm": [
+              "-9",
+              "-3.81"
+            ],
+            "net": "gpio18"
+          },
+          "12": {
+            "local_xy_mm": [
+              "-9",
+              "-5.08"
+            ],
+            "net": "RTD_SCK"
+          },
+          "13": {
+            "local_xy_mm": [
+              "-9",
+              "-6.35"
+            ],
+            "net": "usb_dn"
+          },
+          "14": {
+            "local_xy_mm": [
+              "-9",
+              "-7.62"
+            ],
+            "net": "usb_dp"
+          },
+          "15": {
+            "local_xy_mm": [
+              "-9",
+              "-8.89"
+            ],
+            "net": "safety-line"
+          },
+          "16": {
+            "local_xy_mm": [
+              "-9",
+              "-10.16"
+            ],
+            "net": "io46"
+          },
+          "17": {
+            "local_xy_mm": [
+              "-5",
+              "-12.75"
+            ],
+            "net": "RTD_DRDY"
+          },
+          "18": {
+            "local_xy_mm": [
+              "-2",
+              "-12.75"
+            ],
+            "net": "RTD_CS_N"
+          },
+          "19": {
+            "local_xy_mm": [
+              "1",
+              "-12.75"
+            ],
+            "net": "RTD_SDI"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-9",
+              "8.89"
+            ],
+            "net": "+3V3"
+          },
+          "20": {
+            "local_xy_mm": [
+              "4",
+              "-12.75"
+            ],
+            "net": "RTD_SDO"
+          },
+          "21": {
+            "local_xy_mm": [
+              "7",
+              "-12.75"
+            ],
+            "net": "io13"
+          },
+          "22": {
+            "local_xy_mm": [
+              "9",
+              "-10.16"
+            ],
+            "net": "safety-line-2"
+          },
+          "23": {
+            "local_xy_mm": [
+              "9",
+              "-8.89"
+            ],
+            "net": "gpio21"
+          },
+          "24": {
+            "local_xy_mm": [
+              "9",
+              "-7.62"
+            ],
+            "net": "DISCHARGE_CTRL"
+          },
+          "25": {
+            "local_xy_mm": [
+              "9",
+              "-6.35"
+            ],
+            "net": "io48"
+          },
+          "26": {
+            "local_xy_mm": [
+              "9",
+              "-5.08"
+            ],
+            "net": "io45"
+          },
+          "27": {
+            "local_xy_mm": [
+              "9",
+              "-3.81"
+            ],
+            "net": "io0"
+          },
+          "28": {
+            "local_xy_mm": [
+              "9",
+              "-2.54"
+            ],
+            "net": "gpio35"
+          },
+          "29": {
+            "local_xy_mm": [
+              "9",
+              "-1.27"
+            ],
+            "net": "gpio36"
+          },
+          "3": {
+            "local_xy_mm": [
+              "-9",
+              "7.62"
+            ],
+            "net": "en"
+          },
+          "30": {
+            "local_xy_mm": [
+              "9",
+              "0"
+            ],
+            "net": "gpio37"
+          },
+          "31": {
+            "local_xy_mm": [
+              "9",
+              "1.27"
+            ],
+            "net": "i2c_sda_ui"
+          },
+          "32": {
+            "local_xy_mm": [
+              "9",
+              "2.54"
+            ],
+            "net": "i2c_scl_ui"
+          },
+          "33": {
+            "local_xy_mm": [
+              "9",
+              "3.81"
+            ],
+            "net": "io40"
+          },
+          "34": {
+            "local_xy_mm": [
+              "9",
+              "5.08"
+            ],
+            "net": "io41"
+          },
+          "35": {
+            "local_xy_mm": [
+              "9",
+              "6.35"
+            ],
+            "net": "io42"
+          },
+          "36": {
+            "local_xy_mm": [
+              "9",
+              "7.62"
+            ],
+            "net": "rx"
+          },
+          "37": {
+            "local_xy_mm": [
+              "9",
+              "8.89"
+            ],
+            "net": "tx"
+          },
+          "38": {
+            "local_xy_mm": [
+              "9",
+              "10.16"
+            ],
+            "net": "V_BUS_SENSE"
+          },
+          "39": {
+            "local_xy_mm": [
+              "5",
+              "12.75"
+            ],
+            "net": "I_SENSE"
+          },
+          "4": {
+            "local_xy_mm": [
+              "-9",
+              "6.35"
+            ],
+            "net": "PWM_HS"
+          },
+          "5": {
+            "local_xy_mm": [
+              "-9",
+              "5.08"
+            ],
+            "net": "PWM_LS"
+          },
+          "6": {
+            "local_xy_mm": [
+              "-9",
+              "3.81"
+            ],
+            "net": "WDT_RESET_N"
+          },
+          "7": {
+            "local_xy_mm": [
+              "-9",
+              "2.54"
+            ],
+            "net": "WDT_KICK"
+          },
+          "8": {
+            "local_xy_mm": [
+              "-9",
+              "1.27"
+            ],
+            "net": "safety-line-3"
+          },
+          "9": {
+            "local_xy_mm": [
+              "-9",
+              "0"
+            ],
+            "net": "RELAY_CTRL"
+          }
+        },
+        "value": "?"
+      },
+      "U4": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "hb.power_loop.q_high-g"
+          },
+          "2": {
+            "local_xy_mm": [
+              "5.45",
+              "0"
+            ],
+            "net": "+170V_BUS"
+          },
+          "3": {
+            "local_xy_mm": [
+              "10.9",
+              "0"
+            ],
+            "net": "SW_NODE"
+          }
+        },
+        "value": "?"
+      },
+      "U6": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-4.875",
+              "-4.445"
+            ],
+            "net": "ina"
+          },
+          "10": {
+            "local_xy_mm": [
+              "4.875",
+              "3.175"
+            ],
+            "net": "input"
+          },
+          "11": {
+            "local_xy_mm": [
+              "4.875",
+              "1.905"
+            ],
+            "net": "+15V_LS"
+          },
+          "14": {
+            "local_xy_mm": [
+              "4.875",
+              "-1.905"
+            ],
+            "net": "hb.gate_hs.driver-p2"
+          },
+          "15": {
+            "local_xy_mm": [
+              "4.875",
+              "-3.175"
+            ],
+            "net": "GATE_HS"
+          },
+          "16": {
+            "local_xy_mm": [
+              "4.875",
+              "-4.445"
+            ],
+            "net": "hb.gate_hs.driver-p1-1"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-4.875",
+              "-3.175"
+            ],
+            "net": "inb"
+          },
+          "3": {
+            "local_xy_mm": [
+              "-4.875",
+              "-1.905"
+            ],
+            "net": "+3V3"
+          },
+          "4": {
+            "local_xy_mm": [
+              "-4.875",
+              "-0.635"
+            ],
+            "net": "gnd"
+          },
+          "5": {
+            "local_xy_mm": [
+              "-4.875",
+              "0.635"
+            ],
+            "net": "SHUTDOWN"
+          },
+          "6": {
+            "local_xy_mm": [
+              "-4.875",
+              "1.905"
+            ],
+            "net": "hb.gate_hs.driver-p1"
+          },
+          "7": {
+            "local_xy_mm": [
+              "-4.875",
+              "3.175"
+            ],
+            "net": "nc_7"
+          },
+          "8": {
+            "local_xy_mm": [
+              "-4.875",
+              "4.445"
+            ],
+            "net": "+3V3"
+          },
+          "9": {
+            "local_xy_mm": [
+              "4.875",
+              "4.445"
+            ],
+            "net": "hb-gnd"
+          }
+        },
+        "value": "?"
+      }
+    },
+    "current-sense": {
+      "J1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "PRIMARY_IN"
+          },
+          "2": {
+            "local_xy_mm": [
+              "25",
+              "0"
+            ],
+            "net": "PRIMARY_OUT"
+          }
+        },
+        "value": "NON_PURCHASED_BARE_LANDS"
+      },
+      "J2": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "+3V3"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.5",
+              "0"
+            ],
+            "net": "gnd"
+          },
+          "3": {
+            "local_xy_mm": [
+              "5",
+              "0"
+            ],
+            "net": "OCP_FAULT"
+          },
+          "4": {
+            "local_xy_mm": [
+              "7.5",
+              "0"
+            ],
+            "net": "SENSE_MON"
+          }
+        },
+        "value": "B4B-XH-A(LF)(SN)"
+      }
+    },
+    "gate-drive": {
+      "J1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "pwm_h"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.5",
+              "0"
+            ],
+            "net": "pwm_l"
+          },
+          "3": {
+            "local_xy_mm": [
+              "5",
+              "0"
+            ],
+            "net": "permit"
+          },
+          "4": {
+            "local_xy_mm": [
+              "7.5",
+              "0"
+            ],
+            "net": "ctrl_gnd"
+          }
+        },
+        "value": "B4B-XH-A(LF)(SN)"
+      },
+      "J2": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "v15_ls"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0",
+              "2.54"
+            ],
+            "net": "gate_l_kelvin"
+          }
+        },
+        "value": "61300211121"
+      },
+      "J3": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "gate_h_out"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0",
+              "2.54"
+            ],
+            "net": "gate_h_kelvin"
+          }
+        },
+        "value": "61300211121"
+      },
+      "J4": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "gate_l_out"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0",
+              "2.54"
+            ],
+            "net": "gate_l_kelvin"
+          }
+        },
+        "value": "61300211121"
+      },
+      "J5": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "v3v3"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0",
+              "2.54"
+            ],
+            "net": "ctrl_gnd"
+          }
+        },
+        "value": "61300211121"
+      },
+      "R1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "permit"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "g"
+          }
+        },
+        "value": "RC0603FR-071KL"
+      },
+      "U1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-4.875",
+              "-4.445"
+            ],
+            "net": "pwm_h"
+          },
+          "10": {
+            "local_xy_mm": [
+              "4.875",
+              "3.175"
+            ],
+            "net": "outb"
+          },
+          "11": {
+            "local_xy_mm": [
+              "4.875",
+              "1.905"
+            ],
+            "net": "v15_ls"
+          },
+          "14": {
+            "local_xy_mm": [
+              "4.875",
+              "-1.905"
+            ],
+            "net": "gate_h_kelvin"
+          },
+          "15": {
+            "local_xy_mm": [
+              "4.875",
+              "-3.175"
+            ],
+            "net": "outa"
+          },
+          "16": {
+            "local_xy_mm": [
+              "4.875",
+              "-4.445"
+            ],
+            "net": "vdda"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-4.875",
+              "-3.175"
+            ],
+            "net": "pwm_l"
+          },
+          "3": {
+            "local_xy_mm": [
+              "-4.875",
+              "-1.905"
+            ],
+            "net": "v3v3"
+          },
+          "4": {
+            "local_xy_mm": [
+              "-4.875",
+              "-0.635"
+            ],
+            "net": "ctrl_gnd"
+          },
+          "5": {
+            "local_xy_mm": [
+              "-4.875",
+              "0.635"
+            ],
+            "net": "dis"
+          },
+          "6": {
+            "local_xy_mm": [
+              "-4.875",
+              "1.905"
+            ],
+            "net": "dt"
+          },
+          "7": {
+            "local_xy_mm": [
+              "-4.875",
+              "3.175"
+            ],
+            "net": "nc_7"
+          },
+          "8": {
+            "local_xy_mm": [
+              "-4.875",
+              "4.445"
+            ],
+            "net": "v3v3"
+          },
+          "9": {
+            "local_xy_mm": [
+              "4.875",
+              "4.445"
+            ],
+            "net": "gate_l_kelvin"
+          }
+        },
+        "value": "UCC21550BDWKR"
+      }
+    },
+    "interlock": {
+      "J1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "gnd"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.5",
+              "0"
+            ],
+            "net": "ocp_fault"
+          },
+          "3": {
+            "local_xy_mm": [
+              "5",
+              "0"
+            ],
+            "net": "ovp_fault"
+          },
+          "4": {
+            "local_xy_mm": [
+              "7.5",
+              "0"
+            ],
+            "net": "hs_fault"
+          },
+          "5": {
+            "local_xy_mm": [
+              "10",
+              "0"
+            ],
+            "net": "coil_fault"
+          },
+          "6": {
+            "local_xy_mm": [
+              "12.5",
+              "0"
+            ],
+            "net": "rtd_fault"
+          },
+          "7": {
+            "local_xy_mm": [
+              "15",
+              "0"
+            ],
+            "net": "runaway_fault"
+          },
+          "8": {
+            "local_xy_mm": [
+              "17.5",
+              "0"
+            ],
+            "net": "aux_fault"
+          }
+        },
+        "value": "B8B-XH-A(LF)(SN)"
+      },
+      "J2": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "vcc"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.5",
+              "0"
+            ],
+            "net": "gnd"
+          },
+          "3": {
+            "local_xy_mm": [
+              "5",
+              "0"
+            ],
+            "net": "wdi"
+          },
+          "4": {
+            "local_xy_mm": [
+              "7.5",
+              "0"
+            ],
+            "net": "reset_n"
+          },
+          "5": {
+            "local_xy_mm": [
+              "10",
+              "0"
+            ],
+            "net": "sensor_live"
+          },
+          "6": {
+            "local_xy_mm": [
+              "12.5",
+              "0"
+            ],
+            "net": "permit"
+          },
+          "7": {
+            "local_xy_mm": [
+              "15",
+              "0"
+            ],
+            "net": "latched_fault"
+          },
+          "8": {
+            "local_xy_mm": [
+              "17.5",
+              "0"
+            ],
+            "net": "wdt_good"
+          }
+        },
+        "value": "B8B-XH-A(LF)(SN)"
+      },
+      "R11": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "permit"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "RC0603FR-0710KL"
+      },
+      "U4": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-1.4",
+              "-0.75"
+            ],
+            "net": "reset_clock"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-1.4",
+              "-0.25"
+            ],
+            "net": "vcc"
+          },
+          "3": {
+            "local_xy_mm": [
+              "-1.4",
+              "0.25"
+            ],
+            "net": "latched_fault"
+          },
+          "4": {
+            "local_xy_mm": [
+              "-1.4",
+              "0.75"
+            ],
+            "net": "gnd"
+          },
+          "5": {
+            "local_xy_mm": [
+              "1.4",
+              "0.75"
+            ],
+            "net": "permit"
+          },
+          "6": {
+            "local_xy_mm": [
+              "1.4",
+              "0.25"
+            ],
+            "net": "all_good"
+          },
+          "7": {
+            "local_xy_mm": [
+              "1.4",
+              "-0.25"
+            ],
+            "net": "vcc"
+          },
+          "8": {
+            "local_xy_mm": [
+              "1.4",
+              "-0.75"
+            ],
+            "net": "vcc"
+          }
+        },
+        "value": "SN74LVC1G74DCUR"
+      }
+    },
+    "power": {
+      "J1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "ac_l_in"
+          },
+          "2": {
+            "local_xy_mm": [
+              "5.08",
+              "0"
+            ],
+            "net": "ac_n_in"
+          }
+        },
+        "value": "1711725"
+      },
+      "J10": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "2.935",
+              "2.935"
+            ],
+            "net": "hv_ret"
+          }
+        },
+        "value": "74650074"
+      },
+      "J2": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "2.935",
+              "2.935"
+            ],
+            "net": "coil_feed"
+          }
+        },
+        "value": "74650074"
+      },
+      "J3": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "l_filt"
+          },
+          "2": {
+            "local_xy_mm": [
+              "3.96",
+              "0"
+            ],
+            "net": "tco_l"
+          }
+        },
+        "value": "B2P-VH(LF)(SN)"
+      },
+      "J4": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "v15_selv"
+          },
+          "10": {
+            "local_xy_mm": [
+              "3",
+              "3"
+            ],
+            "net": "bus_fault"
+          },
+          "11": {
+            "local_xy_mm": [
+              "6",
+              "3"
+            ],
+            "net": "vbus_p"
+          },
+          "12": {
+            "local_xy_mm": [
+              "9",
+              "3"
+            ],
+            "net": "vbus_n"
+          },
+          "13": {
+            "local_xy_mm": [
+              "12",
+              "3"
+            ],
+            "net": "ct_zc"
+          },
+          "14": {
+            "local_xy_mm": [
+              "15",
+              "3"
+            ],
+            "net": "ct_mon"
+          },
+          "15": {
+            "local_xy_mm": [
+              "18",
+              "3"
+            ],
+            "net": "selv_gnd"
+          },
+          "16": {
+            "local_xy_mm": [
+              "21",
+              "3"
+            ],
+            "net": "selv_gnd"
+          },
+          "2": {
+            "local_xy_mm": [
+              "3",
+              "0"
+            ],
+            "net": "selv_gnd"
+          },
+          "3": {
+            "local_xy_mm": [
+              "6",
+              "0"
+            ],
+            "net": "v3v3"
+          },
+          "4": {
+            "local_xy_mm": [
+              "9",
+              "0"
+            ],
+            "net": "selv_gnd"
+          },
+          "5": {
+            "local_xy_mm": [
+              "12",
+              "0"
+            ],
+            "net": "pwm_ha"
+          },
+          "6": {
+            "local_xy_mm": [
+              "15",
+              "0"
+            ],
+            "net": "pwm_la"
+          },
+          "7": {
+            "local_xy_mm": [
+              "18",
+              "0"
+            ],
+            "net": "pwm_hb"
+          },
+          "8": {
+            "local_xy_mm": [
+              "21",
+              "0"
+            ],
+            "net": "pwm_lb"
+          },
+          "9": {
+            "local_xy_mm": [
+              "0",
+              "3"
+            ],
+            "net": "permit"
+          }
+        },
+        "value": "0430451612"
+      },
+      "J5": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "2.935",
+              "2.935"
+            ],
+            "net": "res_a"
+          }
+        },
+        "value": "74650074"
+      },
+      "J6": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "pe"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0",
+              "15.24"
+            ],
+            "net": "pe"
+          }
+        },
+        "value": "1704004"
+      },
+      "J7": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "2.935",
+              "2.935"
+            ],
+            "net": "rect_p"
+          }
+        },
+        "value": "74650074"
+      },
+      "J8": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "2.935",
+              "2.935"
+            ],
+            "net": "bus_p"
+          }
+        },
+        "value": "74650074"
+      },
+      "J9": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "2.935",
+              "2.935"
+            ],
+            "net": "rect_n"
+          }
+        },
+        "value": "74650074"
+      },
+      "Q1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.9375",
+              "-0.95"
+            ],
+            "net": "leg_a-permit_gate"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-0.9375",
+              "0.95"
+            ],
+            "net": "selv_gnd"
+          },
+          "3": {
+            "local_xy_mm": [
+              "0.9375",
+              "0"
+            ],
+            "net": "leg_a-dis"
+          }
+        },
+        "value": "AO3400A"
+      },
+      "Q4": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.9375",
+              "-0.95"
+            ],
+            "net": "leg_b-permit_gate"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-0.9375",
+              "0.95"
+            ],
+            "net": "selv_gnd"
+          },
+          "3": {
+            "local_xy_mm": [
+              "0.9375",
+              "0"
+            ],
+            "net": "leg_b-dis"
+          }
+        },
+        "value": "AO3400A"
+      },
+      "R14": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "permit"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "leg_b-permit_gate"
+          }
+        },
+        "value": "RC0603FR-07100RL"
+      },
+      "R15": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "leg_b-permit_gate"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "selv_gnd"
+          }
+        },
+        "value": "RC0603FR-07100KL"
+      },
+      "R6": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "permit"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "leg_a-permit_gate"
+          }
+        },
+        "value": "RC0603FR-07100RL"
+      },
+      "R7": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.825",
+              "0"
+            ],
+            "net": "leg_a-permit_gate"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.825",
+              "0"
+            ],
+            "net": "selv_gnd"
+          }
+        },
+        "value": "RC0603FR-07100KL"
+      },
+      "U1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-4.875",
+              "-4.445"
+            ],
+            "net": "pwm_ha"
+          },
+          "10": {
+            "local_xy_mm": [
+              "4.875",
+              "3.175"
+            ],
+            "net": "leg_a-out_l"
+          },
+          "11": {
+            "local_xy_mm": [
+              "4.875",
+              "1.905"
+            ],
+            "net": "v15_ls"
+          },
+          "14": {
+            "local_xy_mm": [
+              "4.875",
+              "-1.905"
+            ],
+            "net": "sw_a"
+          },
+          "15": {
+            "local_xy_mm": [
+              "4.875",
+              "-3.175"
+            ],
+            "net": "leg_a-out_h"
+          },
+          "16": {
+            "local_xy_mm": [
+              "4.875",
+              "-4.445"
+            ],
+            "net": "leg_a-boot"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-4.875",
+              "-3.175"
+            ],
+            "net": "pwm_la"
+          },
+          "3": {
+            "local_xy_mm": [
+              "-4.875",
+              "-1.905"
+            ],
+            "net": "v3v3"
+          },
+          "4": {
+            "local_xy_mm": [
+              "-4.875",
+              "-0.635"
+            ],
+            "net": "selv_gnd"
+          },
+          "5": {
+            "local_xy_mm": [
+              "-4.875",
+              "0.635"
+            ],
+            "net": "leg_a-dis"
+          },
+          "6": {
+            "local_xy_mm": [
+              "-4.875",
+              "1.905"
+            ],
+            "net": "leg_a.driver-dt"
+          },
+          "7": {
+            "local_xy_mm": [
+              "-4.875",
+              "3.175"
+            ],
+            "net": "leg_a.driver-nc_7"
+          },
+          "8": {
+            "local_xy_mm": [
+              "-4.875",
+              "4.445"
+            ],
+            "net": "v3v3"
+          },
+          "9": {
+            "local_xy_mm": [
+              "4.875",
+              "4.445"
+            ],
+            "net": "leg_ret"
+          }
+        },
+        "value": "UCC21550BDWKR"
+      },
+      "U2": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-4.875",
+              "-4.445"
+            ],
+            "net": "pwm_hb"
+          },
+          "10": {
+            "local_xy_mm": [
+              "4.875",
+              "3.175"
+            ],
+            "net": "leg_b-out_l"
+          },
+          "11": {
+            "local_xy_mm": [
+              "4.875",
+              "1.905"
+            ],
+            "net": "v15_ls"
+          },
+          "14": {
+            "local_xy_mm": [
+              "4.875",
+              "-1.905"
+            ],
+            "net": "sw_b"
+          },
+          "15": {
+            "local_xy_mm": [
+              "4.875",
+              "-3.175"
+            ],
+            "net": "leg_b-out_h"
+          },
+          "16": {
+            "local_xy_mm": [
+              "4.875",
+              "-4.445"
+            ],
+            "net": "leg_b-boot"
+          },
+          "2": {
+            "local_xy_mm": [
+              "-4.875",
+              "-3.175"
+            ],
+            "net": "pwm_lb"
+          },
+          "3": {
+            "local_xy_mm": [
+              "-4.875",
+              "-1.905"
+            ],
+            "net": "v3v3"
+          },
+          "4": {
+            "local_xy_mm": [
+              "-4.875",
+              "-0.635"
+            ],
+            "net": "selv_gnd"
+          },
+          "5": {
+            "local_xy_mm": [
+              "-4.875",
+              "0.635"
+            ],
+            "net": "leg_b-dis"
+          },
+          "6": {
+            "local_xy_mm": [
+              "-4.875",
+              "1.905"
+            ],
+            "net": "leg_b.driver-dt"
+          },
+          "7": {
+            "local_xy_mm": [
+              "-4.875",
+              "3.175"
+            ],
+            "net": "leg_b.driver-nc_7"
+          },
+          "8": {
+            "local_xy_mm": [
+              "-4.875",
+              "4.445"
+            ],
+            "net": "v3v3"
+          },
+          "9": {
+            "local_xy_mm": [
+              "4.875",
+              "4.445"
+            ],
+            "net": "leg_ret"
+          }
+        },
+        "value": "UCC21550BDWKR"
+      }
+    },
+    "rtd": {
+      "J1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "rtd_force_p"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.5",
+              "0"
+            ],
+            "net": "rtd_sense_p"
+          },
+          "3": {
+            "local_xy_mm": [
+              "5",
+              "0"
+            ],
+            "net": "rtd_sense_n"
+          },
+          "4": {
+            "local_xy_mm": [
+              "7.5",
+              "0"
+            ],
+            "net": "rtd_force_n"
+          }
+        },
+        "value": "B4B-XH-A(LF)(SN)"
+      },
+      "J2": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "-0.635",
+              "-2.54"
+            ],
+            "net": "+3V3"
+          },
+          "10": {
+            "local_xy_mm": [
+              "0.635",
+              "2.54"
+            ],
+            "net": "SHARED_REF_2V5"
+          },
+          "2": {
+            "local_xy_mm": [
+              "0.635",
+              "-2.54"
+            ],
+            "net": "gnd"
+          },
+          "3": {
+            "local_xy_mm": [
+              "-0.635",
+              "-1.27"
+            ],
+            "net": "gnd"
+          },
+          "4": {
+            "local_xy_mm": [
+              "0.635",
+              "-1.27"
+            ],
+            "net": "RTD_SCK"
+          },
+          "5": {
+            "local_xy_mm": [
+              "-0.635",
+              "0"
+            ],
+            "net": "RTD_SDI"
+          },
+          "6": {
+            "local_xy_mm": [
+              "0.635",
+              "0"
+            ],
+            "net": "RTD_SDO"
+          },
+          "7": {
+            "local_xy_mm": [
+              "-0.635",
+              "1.27"
+            ],
+            "net": "RTD_CS_N"
+          },
+          "8": {
+            "local_xy_mm": [
+              "0.635",
+              "1.27"
+            ],
+            "net": "RTD_DRDY"
+          },
+          "9": {
+            "local_xy_mm": [
+              "-0.635",
+              "2.54"
+            ],
+            "net": "RTD_HW_FAULT"
+          }
+        },
+        "value": "FTSH-105-01-F-D"
+      }
+    },
+    "thermal-sense": {
+      "J1": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "HS_SENSE"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.5",
+              "0"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "B2B-XH-A(LF)(SN)"
+      },
+      "J2": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "COIL_SENSE"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.5",
+              "0"
+            ],
+            "net": "gnd"
+          }
+        },
+        "value": "B2B-XH-A(LF)(SN)"
+      },
+      "J3": {
+        "pads": {
+          "1": {
+            "local_xy_mm": [
+              "0",
+              "0"
+            ],
+            "net": "+3V3"
+          },
+          "2": {
+            "local_xy_mm": [
+              "2.5",
+              "0"
+            ],
+            "net": "gnd"
+          },
+          "3": {
+            "local_xy_mm": [
+              "5",
+              "0"
+            ],
+            "net": "HS_FAULT"
+          },
+          "4": {
+            "local_xy_mm": [
+              "7.5",
+              "0"
+            ],
+            "net": "COIL_FAULT"
+          },
+          "5": {
+            "local_xy_mm": [
+              "10",
+              "0"
+            ],
+            "net": "HS_SENSE"
+          },
+          "6": {
+            "local_xy_mm": [
+              "12.5",
+              "0"
+            ],
+            "net": "COIL_SENSE"
+          }
+        },
+        "value": "B6B-XH-A(LF)(SN)"
+      }
+    }
+  },
+  "evidence_class": "exact structural and explicitly conditional calculation",
+  "harness_status": "No declared mapping. Candidate roles are not cable correspondence.",
+  "historical_readme_preserved": true,
+  "historical_readme_sha256": "cbc69412f7ccd66711844a4b65d5eb791cd5c7f96ed2991ea5e267db8fcdc13a",
+  "input_sha256": {
+    "elec/src/components.ato": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+    "elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+    "elec/src/modules.ato": "b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5",
+    "firmware/components/hal/include/temper_pins.h": "aa14b7d63de14b3a08185f3e714d2a72622cefdfb56fe5745825fdb0d3cf1c3b",
+    "pcb/temper.kicad_pcb": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "zapote/current-sense/INTERFACES.md": "2de35ef3a2e9c65d7f16146adfa92f39eb1be08362b5e649037ae60d0df4934d",
+    "zapote/current-sense/candidate/section.kicad_pcb": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+    "zapote/current-sense/source-build-04/elec/src/current_sense_unit.ato": "973de56249de1b18c779650e1506605ce9db574102df9f86846662519ae79898",
+    "zapote/gate-drive/INTERFACES.md": "0878a207318954b5cf915dbe33ce206857d4fe62444b8d58cb8b0c7915f73104",
+    "zapote/gate-drive/candidate/section.kicad_pcb": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+    "zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato": "6e81398feb135f9a7382033173beda50f7a9cb8b7602ccab00a032f4fe40b2b1",
+    "zapote/interlock/INTERFACES.md": "5155e7d34ed58b4fae9fd4731a9e11730a6082c99c191e2518d20bb0f850b508",
+    "zapote/interlock/candidate/section.kicad_pcb": "09017d5c8ffa4414220adab11190829bb603e2e7063588f3838a75650fbfbe87",
+    "zapote/interlock/interface-contract.json": "fdce38c47354a03b3dd5fbdbad2e6a9f2f709acd683e6611f0c202d52c239bb5",
+    "zapote/interlock/source-build-02/elec/src/interlock_unit.ato": "8e457eaa3c50c810e0877ce5b533faae4a751f966a1f9e1c39bb6b4fe067276d",
+    "zapote/ports.toml": "e19ce8761f7f60adc9860b782cf8930b6043ea409a558291f605d0c6086d8d53",
+    "zapote/power-stage-120v/elec/src/parts.ato": "fbd826ca405cf57d5fcb59e9bced369153080e5880685feb184cbc2ede9ed076",
+    "zapote/power-stage-120v/elec/src/power_stage_120v.ato": "03f157fc83cad18daaa392ca3a85ec3202a3d0c89c60b4566ab9248d1cfc7112",
+    "zapote/power-stage-120v/frozen/default.csv": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67",
+    "zapote/power-stage-120v/frozen/default.net": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
+    "zapote/power-stage-120v/frozen/resolved-components.json": "839dadb30b1a0e4ea144a3d60d7417544d5b7a61e6032b6703b828324c882193",
+    "zapote/power-stage-120v/native-17/section.kicad_pcb": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+    "zapote/project.toml": "c173ccccdc00dbb8577adb837a38d0b5cbfe7a6d1570b898fca7c99dda25051e",
+    "zapote/rtd/unit/HANDOFF.md": "26f116051046b0555994d34079965aee9dd1d19712c002d617e9da70b3859176",
+    "zapote/rtd/unit/candidate/section.kicad_pcb": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+    "zapote/rtd/unit/candidate/source-manifest.json": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+    "zapote/rtd/unit/profile.json": "1531be367ea889ec8e7e45a2cb1e3bcd134a09d59ddf98eabfb23f228e529a98",
+    "zapote/thermal-sense/INTERFACES.md": "eb7ae7fd93914325193a819fbd961d57987d5c7974f01e3a3bf636c6ee442410",
+    "zapote/thermal-sense/candidate/section.kicad_pcb": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+    "zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato": "0597bd4a07f31d20fb0c15961a6b907ac772c87bdd592f6d24d1be48a5fce6cd"
+  },
+  "j4": [
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "v15_selv",
+      "netlist": "v15_selv",
+      "nodes": [
+        "J4.1",
+        "PS1.4"
+      ],
+      "pin": 1,
+      "source": "V15_SELV"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "selv_gnd",
+      "netlist": "selv_gnd",
+      "nodes": [
+        "C14.2",
+        "C29.2",
+        "C37.2",
+        "C43.2",
+        "C44.2",
+        "C45.2",
+        "C46.2",
+        "C47.2",
+        "C7.2",
+        "D5.2",
+        "J4.15",
+        "J4.16",
+        "J4.2",
+        "J4.4",
+        "PS1.3",
+        "Q1.2",
+        "Q4.2",
+        "R15.2",
+        "R17.2",
+        "R38.2",
+        "R41.2",
+        "R44.2",
+        "R46.2",
+        "R7.2",
+        "R9.2",
+        "U1.4",
+        "U10.2",
+        "U11.2",
+        "U12.2",
+        "U13.2",
+        "U2.4",
+        "U4.5",
+        "U9.16",
+        "U9.9"
+      ],
+      "pin": 2,
+      "source": "SELV_GND"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "v3v3",
+      "netlist": "v3v3",
+      "nodes": [
+        "C14.1",
+        "C29.1",
+        "C37.1",
+        "C44.1",
+        "C45.1",
+        "C46.1",
+        "C47.1",
+        "C7.1",
+        "D4.1",
+        "J4.3",
+        "R16.2",
+        "R40.1",
+        "R43.1",
+        "R45.1",
+        "R8.2",
+        "U1.3",
+        "U1.8",
+        "U10.5",
+        "U11.5",
+        "U12.5",
+        "U13.5",
+        "U2.3",
+        "U2.8",
+        "U4.8",
+        "U9.14"
+      ],
+      "pin": 3,
+      "source": "V3V3"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "selv_gnd",
+      "netlist": "selv_gnd",
+      "nodes": [
+        "C14.2",
+        "C29.2",
+        "C37.2",
+        "C43.2",
+        "C44.2",
+        "C45.2",
+        "C46.2",
+        "C47.2",
+        "C7.2",
+        "D5.2",
+        "J4.15",
+        "J4.16",
+        "J4.2",
+        "J4.4",
+        "PS1.3",
+        "Q1.2",
+        "Q4.2",
+        "R15.2",
+        "R17.2",
+        "R38.2",
+        "R41.2",
+        "R44.2",
+        "R46.2",
+        "R7.2",
+        "R9.2",
+        "U1.4",
+        "U10.2",
+        "U11.2",
+        "U12.2",
+        "U13.2",
+        "U2.4",
+        "U4.5",
+        "U9.16",
+        "U9.9"
+      ],
+      "pin": 4,
+      "source": "SELV_GND"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "pwm_ha",
+      "netlist": "pwm_ha",
+      "nodes": [
+        "J4.5",
+        "U1.1"
+      ],
+      "pin": 5,
+      "source": "PWM_HA"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "pwm_la",
+      "netlist": "pwm_la",
+      "nodes": [
+        "J4.6",
+        "U1.2"
+      ],
+      "pin": 6,
+      "source": "PWM_LA"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "pwm_hb",
+      "netlist": "pwm_hb",
+      "nodes": [
+        "J4.7",
+        "U2.1"
+      ],
+      "pin": 7,
+      "source": "PWM_HB"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "pwm_lb",
+      "netlist": "pwm_lb",
+      "nodes": [
+        "J4.8",
+        "U2.2"
+      ],
+      "pin": 8,
+      "source": "PWM_LB"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "permit",
+      "netlist": "permit",
+      "nodes": [
+        "J4.9",
+        "R14.1",
+        "R6.1"
+      ],
+      "pin": 9,
+      "source": "PERMIT"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "bus_fault",
+      "netlist": "bus_fault",
+      "nodes": [
+        "J4.10",
+        "U13.4"
+      ],
+      "pin": 10,
+      "source": "BUS_FAULT"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "vbus_p",
+      "netlist": "vbus_p",
+      "nodes": [
+        "J4.11",
+        "U4.7"
+      ],
+      "pin": 11,
+      "source": "VBUS_P"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "vbus_n",
+      "netlist": "vbus_n",
+      "nodes": [
+        "J4.12",
+        "U4.6"
+      ],
+      "pin": 12,
+      "source": "VBUS_N"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "ct_zc",
+      "netlist": "ct_zc",
+      "nodes": [
+        "J4.13",
+        "U12.1"
+      ],
+      "pin": 13,
+      "source": "CT_ZC"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "ct_mon",
+      "netlist": "ct_mon",
+      "nodes": [
+        "J4.14",
+        "R47.2"
+      ],
+      "pin": 14,
+      "source": "CT_MON"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "selv_gnd",
+      "netlist": "selv_gnd",
+      "nodes": [
+        "C14.2",
+        "C29.2",
+        "C37.2",
+        "C43.2",
+        "C44.2",
+        "C45.2",
+        "C46.2",
+        "C47.2",
+        "C7.2",
+        "D5.2",
+        "J4.15",
+        "J4.16",
+        "J4.2",
+        "J4.4",
+        "PS1.3",
+        "Q1.2",
+        "Q4.2",
+        "R15.2",
+        "R17.2",
+        "R38.2",
+        "R41.2",
+        "R44.2",
+        "R46.2",
+        "R7.2",
+        "R9.2",
+        "U1.4",
+        "U10.2",
+        "U11.2",
+        "U12.2",
+        "U13.2",
+        "U2.4",
+        "U4.5",
+        "U9.16",
+        "U9.9"
+      ],
+      "pin": 15,
+      "source": "SELV_GND"
+    },
+    {
+      "cable_counterpart": null,
+      "equal": true,
+      "native": "selv_gnd",
+      "netlist": "selv_gnd",
+      "nodes": [
+        "C14.2",
+        "C29.2",
+        "C37.2",
+        "C43.2",
+        "C44.2",
+        "C45.2",
+        "C46.2",
+        "C47.2",
+        "C7.2",
+        "D5.2",
+        "J4.15",
+        "J4.16",
+        "J4.2",
+        "J4.4",
+        "PS1.3",
+        "Q1.2",
+        "Q4.2",
+        "R15.2",
+        "R17.2",
+        "R38.2",
+        "R41.2",
+        "R44.2",
+        "R46.2",
+        "R7.2",
+        "R9.2",
+        "U1.4",
+        "U10.2",
+        "U11.2",
+        "U12.2",
+        "U13.2",
+        "U2.4",
+        "U4.5",
+        "U9.16",
+        "U9.9"
+      ],
+      "pin": 16,
+      "source": "SELV_GND"
+    }
+  ],
+  "power_key_native_netlist_differences": {},
+  "power_key_nets": {
+    "bus_fault": [
+      "J4.10",
+      "U13.4"
+    ],
+    "bus_fault_iso": [
+      "U13.1",
+      "U9.13"
+    ],
+    "ct_mon": [
+      "J4.14",
+      "R47.2"
+    ],
+    "ct_oc_neg": [
+      "U11.1",
+      "U13.6"
+    ],
+    "ct_oc_pos": [
+      "U10.1",
+      "U13.3"
+    ],
+    "ct_ref_hi": [
+      "R43.2",
+      "R44.1",
+      "U10.4"
+    ],
+    "ct_ref_lo": [
+      "R45.2",
+      "R46.1",
+      "U11.3"
+    ],
+    "ct_s1": [
+      "C42.1",
+      "R39.1",
+      "R42.1",
+      "T1.3"
+    ],
+    "ct_s2": [
+      "C42.2",
+      "C43.1",
+      "R39.2",
+      "R40.2",
+      "R41.1",
+      "T1.4",
+      "U12.4"
+    ],
+    "ct_sense_mon": [
+      "D4.2",
+      "D5.1",
+      "R42.2",
+      "R47.1",
+      "U10.3",
+      "U11.4",
+      "U12.3"
+    ],
+    "ct_zc": [
+      "J4.13",
+      "U12.1"
+    ],
+    "leg_a-permit_gate": [
+      "Q1.1",
+      "R6.2",
+      "R7.1"
+    ],
+    "leg_b-permit_gate": [
+      "Q4.1",
+      "R14.2",
+      "R15.1"
+    ],
+    "pe": [
+      "C3.2",
+      "C4.2",
+      "J6.1",
+      "J6.2",
+      "R38.1"
+    ],
+    "selv_gnd": [
+      "C14.2",
+      "C29.2",
+      "C37.2",
+      "C43.2",
+      "C44.2",
+      "C45.2",
+      "C46.2",
+      "C47.2",
+      "C7.2",
+      "D5.2",
+      "J4.15",
+      "J4.16",
+      "J4.2",
+      "J4.4",
+      "PS1.3",
+      "Q1.2",
+      "Q4.2",
+      "R15.2",
+      "R17.2",
+      "R38.2",
+      "R41.2",
+      "R44.2",
+      "R46.2",
+      "R7.2",
+      "R9.2",
+      "U1.4",
+      "U10.2",
+      "U11.2",
+      "U12.2",
+      "U13.2",
+      "U2.4",
+      "U4.5",
+      "U9.16",
+      "U9.9"
+    ],
+    "v15_selv": [
+      "J4.1",
+      "PS1.4"
+    ],
+    "v3v3": [
+      "C14.1",
+      "C29.1",
+      "C37.1",
+      "C44.1",
+      "C45.1",
+      "C46.1",
+      "C47.1",
+      "C7.1",
+      "D4.1",
+      "J4.3",
+      "R16.2",
+      "R40.1",
+      "R43.1",
+      "R45.1",
+      "R8.2",
+      "U1.3",
+      "U1.8",
+      "U10.5",
+      "U11.5",
+      "U12.5",
+      "U13.5",
+      "U2.3",
+      "U2.8",
+      "U4.8",
+      "U9.14"
+    ],
+    "vbus_n": [
+      "J4.12",
+      "U4.6"
+    ],
+    "vbus_p": [
+      "J4.11",
+      "U4.7"
+    ]
+  },
+  "runtime": "Python standard library; no native or Rust builds",
+  "source_commit": "587447466ba1fbf04eab29d8d099a2cacc9b2726",
+  "source_lines": {
+    "elec/src/components.ato": [
+      {
+        "line": 663,
+        "text": "    # SPI pins (remapped to avoid conflict with PWM/Control)"
+      },
+      {
+        "line": 669,
+        "text": "    # GPIO for PWM"
+      }
+    ],
+    "elec/src/main.ato": [
+      {
+        "line": 8,
+        "text": "# - ESP32-S3 controls PWM, monitors sensors, kicks watchdog"
+      },
+      {
+        "line": 666,
+        "text": "    # Software configured: 300ns (in MCPWM registers)"
+      },
+      {
+        "line": 753,
+        "text": "    gnd ~ pe  # SELV ground reference: bonded to protective earth, NOT to power_return"
+      },
+      {
+        "line": 807,
+        "text": "    # PWM from MCU"
+      },
+      {
+        "line": 808,
+        "text": "    mcu.pwm_h ~ hb.pwm_h"
+      },
+      {
+        "line": 809,
+        "text": "    mcu.pwm_l ~ hb.pwm_l"
+      },
+      {
+        "line": 810,
+        "text": "    hb.pwm_h.override_net_name = \"PWM_HS\""
+      },
+      {
+        "line": 811,
+        "text": "    hb.pwm_l.override_net_name = \"PWM_LS\""
+      },
+      {
+        "line": 870,
+        "text": "    mcu.adc_v_bus.override_net_name = \"V_BUS_SENSE\""
+      },
+      {
+        "line": 871,
+        "text": "    safety.ovp.adc_v_bus.line ~ mcu.adc_v_bus"
+      }
+    ],
+    "elec/src/modules.ato": [
+      {
+        "line": 129,
+        "text": "    signal pwm_in_a"
+      },
+      {
+        "line": 130,
+        "text": "    signal pwm_in_b"
+      },
+      {
+        "line": 133,
+        "text": "    pwm_in_a ~ r_filt_a.p1"
+      },
+      {
+        "line": 134,
+        "text": "    r_filt_a.p2 ~ driver.INA"
+      },
+      {
+        "line": 135,
+        "text": "    driver.INA ~ c_filt_a.p1"
+      },
+      {
+        "line": 136,
+        "text": "    c_filt_a.p2 ~ driver.GNDI"
+      },
+      {
+        "line": 138,
+        "text": "    pwm_in_b ~ r_filt_b.p1"
+      },
+      {
+        "line": 139,
+        "text": "    r_filt_b.p2 ~ driver.INB"
+      },
+      {
+        "line": 140,
+        "text": "    driver.INB ~ c_filt_b.p1"
+      },
+      {
+        "line": 141,
+        "text": "    c_filt_b.p2 ~ driver.GNDI"
+      },
+      {
+        "line": 179,
+        "text": "    driver.OUTA ~ rg_on.p1"
+      },
+      {
+        "line": 180,
+        "text": "    rg_on.p2 ~ drive.out"
+      },
+      {
+        "line": 181,
+        "text": "    rgs.p1 ~ drive.out"
+      },
+      {
+        "line": 182,
+        "text": "    rgs.p2 ~ drive.vss"
+      },
+      {
+        "line": 192,
+        "text": "    # driver.OUTA ~ rg_on.p1"
+      },
+      {
+        "line": 193,
+        "text": "    # rg_on.p2 ~ drive.out"
+      },
+      {
+        "line": 194,
+        "text": "    # rgs.p1 ~ drive.out"
+      },
+      {
+        "line": 195,
+        "text": "    # rgs.p2 ~ drive.vss"
+      },
+      {
+        "line": 200,
+        "text": "    boot_cap.p2 ~ driver.VSSA"
+      },
+      {
+        "line": 201,
+        "text": "    boot_cap.p1 ~ driver.VDDA"
+      },
+      {
+        "line": 234,
+        "text": "    input ~ rg_on.p1"
+      },
+      {
+        "line": 235,
+        "text": "    input_ref ~ rgs.p2"
+      },
+      {
+        "line": 236,
+        "text": "    rg_on.p2 ~ drive.out"
+      },
+      {
+        "line": 237,
+        "text": "    rgs.p1 ~ drive.out"
+      },
+      {
+        "line": 238,
+        "text": "    rgs.p2 ~ drive.vss"
+      },
+      {
+        "line": 243,
+        "text": "    signal pwm_h"
+      },
+      {
+        "line": 244,
+        "text": "    pwm_h.required = true"
+      },
+      {
+        "line": 245,
+        "text": "    signal pwm_l"
+      },
+      {
+        "line": 246,
+        "text": "    pwm_l.required = true"
+      },
+      {
+        "line": 247,
+        "text": "    # HalfBridge owns the required declarations for the shared PWM inputs;"
+      },
+      {
+        "line": 277,
+        "text": "    dt_res.p1 ~ gate_hs.driver.DT"
+      },
+      {
+        "line": 278,
+        "text": "    dt_res.p2 ~ gate_hs.driver.GNDI"
+      },
+      {
+        "line": 300,
+        "text": "    power_3v3.vcc ~ c_vcci1.p1"
+      },
+      {
+        "line": 301,
+        "text": "    c_vcci1.p2 ~ power_3v3.gnd"
+      },
+      {
+        "line": 309,
+        "text": "    power_3v3.vcc ~ c_vcci2.p1"
+      },
+      {
+        "line": 310,
+        "text": "    c_vcci2.p2 ~ power_3v3.gnd"
+      },
+      {
+        "line": 332,
+        "text": "    gate_hs.driver.VDDA ~ c_vdda.p1"
+      },
+      {
+        "line": 333,
+        "text": "    c_vdda.p2 ~ gate_hs.driver.VSSA"
+      },
+      {
+        "line": 344,
+        "text": "    gate_hs.driver.VDDB ~ c_vddb.p1"
+      },
+      {
+        "line": 345,
+        "text": "    c_vddb.p2 ~ gate_hs.driver.VSSB"
+      },
+      {
+        "line": 354,
+        "text": "    dc_bus.hv_plus ~ c_dc_hf.p1"
+      },
+      {
+        "line": 355,
+        "text": "    c_dc_hf.p2 ~ dc_bus.hv_minus"
+      },
+      {
+        "line": 368,
+        "text": "    pwm_h ~ gate_hs.pwm_in_a"
+      },
+      {
+        "line": 369,
+        "text": "    pwm_l ~ gate_hs.pwm_in_b"
+      },
+      {
+        "line": 625,
+        "text": "    in ~ c_tank1.p1"
+      },
+      {
+        "line": 626,
+        "text": "    in ~ c_tank2.p1"
+      },
+      {
+        "line": 627,
+        "text": "    in ~ c_tank3.p1"
+      },
+      {
+        "line": 628,
+        "text": "    c_tank1.p2 ~ inductor_conn.p1"
+      },
+      {
+        "line": 629,
+        "text": "    c_tank2.p2 ~ inductor_conn.p1"
+      },
+      {
+        "line": 630,
+        "text": "    c_tank3.p2 ~ inductor_conn.p1"
+      },
+      {
+        "line": 631,
+        "text": "    inductor_conn.p2 ~ out"
+      },
+      {
+        "line": 881,
+        "text": "    ac_l ~ fuse.p1"
+      },
+      {
+        "line": 883,
+        "text": "    fuse.p2 ~ mov.p1"
+      },
+      {
+        "line": 884,
+        "text": "    mov.p2 ~ ac_n"
+      },
+      {
+        "line": 885,
+        "text": "    fuse.p2 ~ c_x2.p1"
+      },
+      {
+        "line": 886,
+        "text": "    c_x2.p2 ~ ac_n"
+      },
+      {
+        "line": 891,
+        "text": "    fuse.p2 ~ cmc.W1_1"
+      },
+      {
+        "line": 892,
+        "text": "    cmc.W1_2 ~ ntc.p1"
+      },
+      {
+        "line": 893,
+        "text": "    ntc.p2 ~ d1.A"
+      },
+      {
+        "line": 898,
+        "text": "    r_gate.p1 ~ relay_ctrl"
+      },
+      {
+        "line": 899,
+        "text": "    r_gate.p2 ~ q_relay_drv.G"
+      },
+      {
+        "line": 900,
+        "text": "    r_gate_pd.p1 ~ q_relay_drv.G"
+      },
+      {
+        "line": 901,
+        "text": "    r_gate_pd.p2 ~ gnd"
+      },
+      {
+        "line": 903,
+        "text": "    r_relay_drop.p1 ~ power_15v.vcc"
+      },
+      {
+        "line": 904,
+        "text": "    r_relay_drop.p2 ~ bypass_relay.coil1"
+      },
+      {
+        "line": 927,
+        "text": "    r_bleed1.p1 ~ dc_bus.hv_plus"
+      },
+      {
+        "line": 928,
+        "text": "    r_bleed1.p2 ~ dc_bus.gnd_ref"
+      },
+      {
+        "line": 929,
+        "text": "    r_bleed2.p1 ~ dc_bus.gnd_ref"
+      },
+      {
+        "line": 930,
+        "text": "    r_bleed2.p2 ~ dc_bus.hv_minus"
+      },
+      {
+        "line": 1024,
+        "text": "    dc_bus.gnd_ref ~ y_cap_pe.p1"
+      },
+      {
+        "line": 1025,
+        "text": "    y_cap_pe.p2 ~ pe"
+      },
+      {
+        "line": 1378,
+        "text": "    hv_plus ~ r_dis1a.p1"
+      },
+      {
+        "line": 1379,
+        "text": "    r_dis1a.p2 ~ r_dis1b.p1"
+      },
+      {
+        "line": 1380,
+        "text": "    r_dis1b.p2 ~ k_dis1.NC"
+      },
+      {
+        "line": 1384,
+        "text": "    mid ~ r_dis2a.p1"
+      },
+      {
+        "line": 1385,
+        "text": "    r_dis2a.p2 ~ r_dis2b.p1"
+      },
+      {
+        "line": 1386,
+        "text": "    r_dis2b.p2 ~ k_dis2.NC"
+      },
+      {
+        "line": 1392,
+        "text": "    k_dis1.NC ~ r_snub1.p1"
+      },
+      {
+        "line": 1393,
+        "text": "    r_snub1.p2 ~ c_snub1.p1"
+      },
+      {
+        "line": 1394,
+        "text": "    c_snub1.p2 ~ k_dis1.COM"
+      },
+      {
+        "line": 1395,
+        "text": "    k_dis2.NC ~ r_snub2.p1"
+      },
+      {
+        "line": 1396,
+        "text": "    r_snub2.p2 ~ c_snub2.p1"
+      },
+      {
+        "line": 1397,
+        "text": "    c_snub2.p2 ~ k_dis2.COM"
+      },
+      {
+        "line": 1400,
+        "text": "    ctrl ~ r_gate.p1"
+      },
+      {
+        "line": 1401,
+        "text": "    r_gate.p2 ~ q_dis_drv.G"
+      },
+      {
+        "line": 1402,
+        "text": "    r_gate_pd.p1 ~ q_dis_drv.G"
+      },
+      {
+        "line": 1403,
+        "text": "    r_gate_pd.p2 ~ gnd"
+      },
+      {
+        "line": 1406,
+        "text": "    power_15v.vcc ~ r_coil1.p1"
+      },
+      {
+        "line": 1407,
+        "text": "    r_coil1.p2 ~ k_dis1.coil1"
+      },
+      {
+        "line": 1412,
+        "text": "    power_15v.vcc ~ r_coil2.p1"
+      },
+      {
+        "line": 1413,
+        "text": "    r_coil2.p2 ~ k_dis2.coil1"
+      },
+      {
+        "line": 1501,
+        "text": "    power_in.vcc ~ c_in.p1"
+      },
+      {
+        "line": 1502,
+        "text": "    c_in.p2 ~ power_in.gnd"
+      },
+      {
+        "line": 1507,
+        "text": "    buck.BOOT ~ c_boot.p1"
+      },
+      {
+        "line": 1508,
+        "text": "    c_boot.p2 ~ buck.SW"
+      },
+      {
+        "line": 1510,
+        "text": "    buck.SW ~ l_out.p1"
+      },
+      {
+        "line": 1511,
+        "text": "    l_out.p2 ~ power_out.vcc"
+      },
+      {
+        "line": 1513,
+        "text": "    power_out.vcc ~ c_out1.p1"
+      },
+      {
+        "line": 1514,
+        "text": "    c_out1.p2 ~ power_out.gnd"
+      },
+      {
+        "line": 1515,
+        "text": "    power_out.vcc ~ c_out2.p1"
+      },
+      {
+        "line": 1516,
+        "text": "    c_out2.p2 ~ power_out.gnd"
+      },
+      {
+        "line": 1517,
+        "text": "    power_out.vcc ~ c_out_hf.p1"
+      },
+      {
+        "line": 1518,
+        "text": "    c_out_hf.p2 ~ power_out.gnd"
+      },
+      {
+        "line": 1520,
+        "text": "    power_out.vcc ~ r_fb_top.p1"
+      },
+      {
+        "line": 1521,
+        "text": "    r_fb_top.p2 ~ buck.FB"
+      },
+      {
+        "line": 1522,
+        "text": "    buck.FB ~ r_fb_bot.p1"
+      },
+      {
+        "line": 1523,
+        "text": "    r_fb_bot.p2 ~ power_out.gnd"
+      },
+      {
+        "line": 1602,
+        "text": "    power_in.vcc ~ c_in_bulk.p1"
+      },
+      {
+        "line": 1603,
+        "text": "    c_in_bulk.p2 ~ power_in.gnd"
+      },
+      {
+        "line": 1609,
+        "text": "    power_out.vcc ~ c_out.p1"
+      },
+      {
+        "line": 1610,
+        "text": "    c_out.p2 ~ power_out.gnd"
+      },
+      {
+        "line": 1611,
+        "text": "    power_out.vcc ~ c_out_hf.p1"
+      },
+      {
+        "line": 1612,
+        "text": "    c_out_hf.p2 ~ power_out.gnd"
+      },
+      {
+        "line": 1658,
+        "text": "    power_15v.vcc ~ r_fan_drop.p1"
+      },
+      {
+        "line": 1659,
+        "text": "    r_fan_drop.p2 ~ j_fan.p1"
+      },
+      {
+        "line": 1660,
+        "text": "    j_fan.p2 ~ power_15v.gnd"
+      },
+      {
+        "line": 1701,
+        "text": "    # transient; the latch kills PWM within microseconds. Confirm the part's"
+      },
+      {
+        "line": 1730,
+        "text": "    ct.S1 ~ r_burden.p1"
+      },
+      {
+        "line": 1732,
+        "text": "    r_burden.p2 ~ i_sense.reference"
+      },
+      {
+        "line": 1734,
+        "text": "    i_sense.line ~ c_filter.p1"
+      },
+      {
+        "line": 1735,
+        "text": "    c_filter.p2 ~ i_sense.reference"
+      },
+      {
+        "line": 1750,
+        "text": "    vcc_3v3_ct ~ r_bias_top.p1"
+      },
+      {
+        "line": 1751,
+        "text": "    r_bias_top.p2 ~ i_sense.line"
+      },
+      {
+        "line": 1752,
+        "text": "    i_sense.line ~ r_bias_bot.p1"
+      },
+      {
+        "line": 1753,
+        "text": "    r_bias_bot.p2 ~ i_sense.reference"
+      },
+      {
+        "line": 1851,
+        "text": "    power.vcc ~ fb_power.p1"
+      },
+      {
+        "line": 1852,
+        "text": "    fb_power.p2 ~ adc.VDD"
+      },
+      {
+        "line": 1853,
+        "text": "    fb_power.p2 ~ adc.DVDD"
+      },
+      {
+        "line": 1854,
+        "text": "    fb_power.p2 ~ c_vdd.p1 # Decoupling cap after bead"
+      },
+      {
+        "line": 1856,
+        "text": "    c_vdd.p2 ~ power.gnd"
+      },
+      {
+        "line": 1894,
+        "text": "    power.vcc ~ c_reference.p1"
+      },
+      {
+        "line": 1895,
+        "text": "    c_reference.p2 ~ power.gnd"
+      },
+      {
+        "line": 1896,
+        "text": "    fb_power.p2 ~ c_low_window.p1"
+      },
+      {
+        "line": 1897,
+        "text": "    c_low_window.p2 ~ power.gnd"
+      },
+      {
+        "line": 1898,
+        "text": "    fb_power.p2 ~ c_high_window.p1"
+      },
+      {
+        "line": 1899,
+        "text": "    c_high_window.p2 ~ power.gnd"
+      },
+      {
+        "line": 1900,
+        "text": "    fb_power.p2 ~ c_window_and.p1"
+      },
+      {
+        "line": 1901,
+        "text": "    c_window_and.p2 ~ power.gnd"
+      },
+      {
+        "line": 1902,
+        "text": "    power.vcc ~ c_rail_monitor.p1"
+      },
+      {
+        "line": 1903,
+        "text": "    c_rail_monitor.p2 ~ power.gnd"
+      },
+      {
+        "line": 1904,
+        "text": "    fb_power.p2 ~ c_fault_nand.p1"
+      },
+      {
+        "line": 1905,
+        "text": "    c_fault_nand.p2 ~ power.gnd"
+      },
+      {
+        "line": 1908,
+        "text": "    cs.line ~ r_cs.p1"
+      },
+      {
+        "line": 1909,
+        "text": "    r_cs.p2 ~ adc.CS_N"
+      },
+      {
+        "line": 1911,
+        "text": "    spi.sclk ~ r_sclk.p1"
+      },
+      {
+        "line": 1912,
+        "text": "    r_sclk.p2 ~ adc.SCLK"
+      },
+      {
+        "line": 1914,
+        "text": "    spi.mosi ~ r_mosi.p1"
+      },
+      {
+        "line": 1915,
+        "text": "    r_mosi.p2 ~ adc.SDI"
+      },
+      {
+        "line": 1917,
+        "text": "    adc.SDO ~ r_miso.p1"
+      },
+      {
+        "line": 1918,
+        "text": "    r_miso.p2 ~ spi.miso"
+      },
+      {
+        "line": 1927,
+        "text": "    adc.REFIN_P ~ r_ref.p1"
+      },
+      {
+        "line": 1928,
+        "text": "    r_ref.p2 ~ adc.REFIN_N"
+      },
+      {
+        "line": 1966,
+        "text": "    low_window.VCC ~ fb_power.p2"
+      },
+      {
+        "line": 1967,
+        "text": "    high_window.VCC ~ fb_power.p2"
+      },
+      {
+        "line": 1971,
+        "text": "    reference.VBIAS ~ r_low_top.p1"
+      },
+      {
+        "line": 1972,
+        "text": "    r_low_top.p2 ~ low_window.INN"
+      },
+      {
+        "line": 1973,
+        "text": "    low_window.INN ~ r_low_bottom.p1"
+      },
+      {
+        "line": 1974,
+        "text": "    r_low_bottom.p2 ~ power.gnd"
+      },
+      {
+        "line": 1976,
+        "text": "    # permitted RTD voltage window."
+      },
+      {
+        "line": 1977,
+        "text": "    reference.VBIAS ~ r_high_top.p1"
+      },
+      {
+        "line": 1978,
+        "text": "    r_high_top.p2 ~ high_window.INP"
+      },
+      {
+        "line": 1979,
+        "text": "    high_window.INP ~ r_high_bottom.p1"
+      },
+      {
+        "line": 1980,
+        "text": "    r_high_bottom.p2 ~ power.gnd"
+      },
+      {
+        "line": 1984,
+        "text": "    window_and.VCC ~ fb_power.p2"
+      },
+      {
+        "line": 1993,
+        "text": "    window_and.Y ~ r_window_ok_pulldown.p1"
+      },
+      {
+        "line": 1994,
+        "text": "    r_window_ok_pulldown.p2 ~ power.gnd"
+      },
+      {
+        "line": 2023,
+        "text": "    fb_power.p2 ~ r_avdd_top.p1"
+      },
+      {
+        "line": 2024,
+        "text": "    r_avdd_top.p2 ~ rail_monitor.INA_P"
+      },
+      {
+        "line": 2025,
+        "text": "    rail_monitor.INA_P ~ r_avdd_bottom.p1"
+      },
+      {
+        "line": 2026,
+        "text": "    r_avdd_bottom.p2 ~ power.gnd"
+      },
+      {
+        "line": 2030,
+        "text": "    power.vcc ~ r_rail_ok_pullup.p1"
+      },
+      {
+        "line": 2031,
+        "text": "    r_rail_ok_pullup.p2 ~ rail_monitor.OUTA"
+      },
+      {
+        "line": 2037,
+        "text": "    fault_nand.VCC ~ fb_power.p2"
+      },
+      {
+        "line": 2044,
+        "text": "    power.vcc ~ r_fault_pullup.p1"
+      },
+      {
+        "line": 2045,
+        "text": "    r_fault_pullup.p2 ~ rtd_hw_fault.line"
+      },
+      {
+        "line": 2065,
+        "text": "    j_rtd1.p1 ~ rtd_force_p   # Bias+  = MAX31865 FORCE+"
+      },
+      {
+        "line": 2066,
+        "text": "    j_rtd1.p2 ~ rtd_sense_p   # Sense+ = MAX31865 RTDIN+"
+      },
+      {
+        "line": 2067,
+        "text": "    j_rtd1.p3 ~ rtd_sense_n   # Sense- = MAX31865 RTDIN-"
+      },
+      {
+        "line": 2068,
+        "text": "    j_rtd1.p4 ~ rtd_force_n   # Bias-  = MAX31865 FORCE-"
+      },
+      {
+        "line": 2111,
+        "text": "    power.vcc ~ r_ref_top.p1"
+      },
+      {
+        "line": 2112,
+        "text": "    r_ref_top.p2 ~ comp.INN"
+      },
+      {
+        "line": 2113,
+        "text": "    comp.INN ~ r_ref_bot.p1"
+      },
+      {
+        "line": 2114,
+        "text": "    r_ref_bot.p2 ~ power.gnd"
+      },
+      {
+        "line": 2191,
+        "text": "    the adc_v_bus divider (r_adc_top1-3/r_adc_bot) both return to"
+      },
+      {
+        "line": 2194,
+        "text": "    either rubber-stamped or reflexively isolated: IEC 60335-1 permits a"
+      },
+      {
+        "line": 2201,
+        "text": "    already satisfied (a); the adc_v_bus divider's PRIOR single 510k"
+      },
+      {
+        "line": 2303,
+        "text": "    v_bus.line ~ r_div_top1.p1"
+      },
+      {
+        "line": 2304,
+        "text": "    r_div_top1.p2 ~ r_div_top2.p1"
+      },
+      {
+        "line": 2305,
+        "text": "    r_div_top2.p2 ~ r_div_top3.p1"
+      },
+      {
+        "line": 2306,
+        "text": "    r_div_top3.p2 ~ comp.INP"
+      },
+      {
+        "line": 2307,
+        "text": "    comp.INP ~ r_div_bot.p1"
+      },
+      {
+        "line": 2308,
+        "text": "    r_div_bot.p2 ~ power.gnd"
+      },
+      {
+        "line": 2356,
+        "text": "    comp.INP ~ r_hyst.p1"
+      },
+      {
+        "line": 2357,
+        "text": "    r_hyst.p2 ~ comp.OUT"
+      },
+      {
+        "line": 2391,
+        "text": "    adc_v_bus = new ElectricSignal"
+      },
+      {
+        "line": 2392,
+        "text": "    adc_v_bus.reference ~ power.gnd"
+      },
+      {
+        "line": 2433,
+        "text": "    v_bus.line ~ r_adc_top1.p1"
+      },
+      {
+        "line": 2434,
+        "text": "    r_adc_top1.p2 ~ r_adc_top2.p1"
+      },
+      {
+        "line": 2435,
+        "text": "    r_adc_top2.p2 ~ r_adc_top3.p1"
+      },
+      {
+        "line": 2436,
+        "text": "    r_adc_top3.p2 ~ adc_v_bus.line"
+      },
+      {
+        "line": 2437,
+        "text": "    adc_v_bus.line ~ r_adc_bot.p1"
+      },
+      {
+        "line": 2438,
+        "text": "    r_adc_bot.p2 ~ power.gnd"
+      },
+      {
+        "line": 2439,
+        "text": "    adc_v_bus.line ~ c_adc_filter.p1"
+      },
+      {
+        "line": 2440,
+        "text": "    c_adc_filter.p2 ~ power.gnd"
+      },
+      {
+        "line": 2489,
+        "text": "    power.vcc ~ r_ntc_fixed.p1"
+      },
+      {
+        "line": 2490,
+        "text": "    r_ntc_fixed.p2 ~ ntc_sense.line"
+      },
+      {
+        "line": 2491,
+        "text": "    ntc_sense.line ~ ntc.p1"
+      },
+      {
+        "line": 2492,
+        "text": "    ntc.p2 ~ power.gnd"
+      },
+      {
+        "line": 2521,
+        "text": "    power.vcc ~ r_ref_top.p1"
+      },
+      {
+        "line": 2522,
+        "text": "    r_ref_top.p2 ~ comp.INP"
+      },
+      {
+        "line": 2523,
+        "text": "    comp.INP ~ r_ref_bot.p1"
+      },
+      {
+        "line": 2524,
+        "text": "    r_ref_bot.p2 ~ power.gnd"
+      },
+      {
+        "line": 2531,
+        "text": "    comp.INP ~ r_hyst.p1"
+      },
+      {
+        "line": 2532,
+        "text": "    r_hyst.p2 ~ comp.OUT"
+      },
+      {
+        "line": 2598,
+        "text": "    power.vcc ~ r_ntc_fixed.p1"
+      },
+      {
+        "line": 2599,
+        "text": "    r_ntc_fixed.p2 ~ ntc_sense.line"
+      },
+      {
+        "line": 2600,
+        "text": "    ntc_sense.line ~ ntc.p1"
+      },
+      {
+        "line": 2601,
+        "text": "    ntc.p2 ~ power.gnd"
+      },
+      {
+        "line": 2614,
+        "text": "    power.vcc ~ r_ref_top.p1"
+      },
+      {
+        "line": 2615,
+        "text": "    r_ref_top.p2 ~ comp.INP"
+      },
+      {
+        "line": 2616,
+        "text": "    comp.INP ~ r_ref_bot.p1"
+      },
+      {
+        "line": 2617,
+        "text": "    r_ref_bot.p2 ~ power.gnd"
+      },
+      {
+        "line": 2624,
+        "text": "    comp.INP ~ r_hyst.p1"
+      },
+      {
+        "line": 2625,
+        "text": "    r_hyst.p2 ~ comp.OUT"
+      },
+      {
+        "line": 2913,
+        "text": "    ct.S1 ~ r_burden.p1"
+      },
+      {
+        "line": 2915,
+        "text": "    r_burden.p2 ~ power.gnd"
+      },
+      {
+        "line": 2917,
+        "text": "    i_sense.line ~ c_filter.p1"
+      },
+      {
+        "line": 2918,
+        "text": "    c_filter.p2 ~ power.gnd"
+      },
+      {
+        "line": 2959,
+        "text": "    power.vcc ~ c_bypass.p1"
+      },
+      {
+        "line": 2960,
+        "text": "    c_bypass.p2 ~ power.gnd"
+      },
+      {
+        "line": 3110,
+        "text": "    power.vcc ~ r_div_top.p1"
+      },
+      {
+        "line": 3111,
+        "text": "    r_div_top.p2 ~ mon.INA_P"
+      },
+      {
+        "line": 3112,
+        "text": "    mon.INA_P ~ r_div_bot.p1"
+      },
+      {
+        "line": 3113,
+        "text": "    r_div_bot.p2 ~ power.gnd"
+      },
+      {
+        "line": 3115,
+        "text": "    mon.INA_P ~ r_hyst.p1"
+      },
+      {
+        "line": 3116,
+        "text": "    r_hyst.p2 ~ mon.OUTA"
+      },
+      {
+        "line": 3118,
+        "text": "    power.vcc ~ r_outa_pullup.p1"
+      },
+      {
+        "line": 3119,
+        "text": "    r_outa_pullup.p2 ~ mon.OUTA"
+      },
+      {
+        "line": 3135,
+        "text": "    power.vcc ~ r_fault_pullup.p1"
+      },
+      {
+        "line": 3136,
+        "text": "    r_fault_pullup.p2 ~ fault.line"
+      },
+      {
+        "line": 3364,
+        "text": "    tp_shutdown.p1 ~ shutdown.line"
+      },
+      {
+        "line": 3366,
+        "text": "    tp_fault.p1 ~ fault_status.line"
+      },
+      {
+        "line": 3381,
+        "text": "    tp_ocp2_fault.p1 ~ ocp2.fault.line"
+      },
+      {
+        "line": 3395,
+        "text": "    tp_uvlo2_fault.p1 ~ uvlo_logic.fault.line"
+      },
+      {
+        "line": 3494,
+        "text": "    signal pwm_h"
+      },
+      {
+        "line": 3495,
+        "text": "    signal pwm_l"
+      },
+      {
+        "line": 3496,
+        "text": "    # HalfBridge owns the required declarations for the shared PWM inputs;"
+      },
+      {
+        "line": 3500,
+        "text": "    signal adc_v_bus"
+      },
+      {
+        "line": 3501,
+        "text": "    adc_v_bus.required = true"
+      },
+      {
+        "line": 3533,
+        "text": "    power.vcc ~ c_vcc1.p1"
+      },
+      {
+        "line": 3534,
+        "text": "    c_vcc1.p2 ~ power.gnd"
+      },
+      {
+        "line": 3535,
+        "text": "    power.vcc ~ c_vcc2.p1"
+      },
+      {
+        "line": 3536,
+        "text": "    c_vcc2.p2 ~ power.gnd"
+      },
+      {
+        "line": 3538,
+        "text": "    power.vcc ~ r_en.p1"
+      },
+      {
+        "line": 3539,
+        "text": "    r_en.p2 ~ mcu.EN"
+      },
+      {
+        "line": 3540,
+        "text": "    mcu.EN ~ c_en.p1"
+      },
+      {
+        "line": 3541,
+        "text": "    c_en.p2 ~ power.gnd"
+      },
+      {
+        "line": 3552,
+        "text": "    power.vcc ~ r_boot.p1"
+      },
+      {
+        "line": 3553,
+        "text": "    r_boot.p2 ~ mcu.IO0"
+      },
+      {
+        "line": 3557,
+        "text": "    btn_reset.p1 ~ mcu.EN"
+      },
+      {
+        "line": 3558,
+        "text": "    btn_reset.p2 ~ power.gnd"
+      },
+      {
+        "line": 3562,
+        "text": "    btn_boot.p1 ~ mcu.IO0"
+      },
+      {
+        "line": 3563,
+        "text": "    btn_boot.p2 ~ power.gnd"
+      },
+      {
+        "line": 3570,
+        "text": "    power.vcc ~ r_sda_pullup.p1"
+      },
+      {
+        "line": 3571,
+        "text": "    r_sda_pullup.p2 ~ mcu.IO38  # SDA"
+      },
+      {
+        "line": 3577,
+        "text": "    power.vcc ~ r_scl_pullup.p1"
+      },
+      {
+        "line": 3578,
+        "text": "    r_scl_pullup.p2 ~ mcu.IO39  # SCL"
+      },
+      {
+        "line": 3580,
+        "text": "    mcu.IO4 ~ pwm_h"
+      },
+      {
+        "line": 3581,
+        "text": "    mcu.IO5 ~ pwm_l"
+      },
+      {
+        "line": 3583,
+        "text": "    mcu.GPIO2 ~ adc_v_bus"
+      },
+      {
+        "line": 3606,
+        "text": "    # and GPIO5 are already reserved for PWM_H/PWM_L."
+      }
+    ],
+    "firmware/components/hal/include/temper_pins.h": [
+      {
+        "line": 20,
+        "text": " * Gate Driver PWM Pins (UCC21550)"
+      },
+      {
+        "line": 23,
+        "text": " * Uses MCPWM peripheral for hardware dead-time insertion."
+      },
+      {
+        "line": 27,
+        "text": "#define PIN_PWM_HI              4"
+      },
+      {
+        "line": 30,
+        "text": "#define PIN_PWM_LO              5"
+      },
+      {
+        "line": 134,
+        "text": " * MCPWM Configuration"
+      },
+      {
+        "line": 137,
+        "text": "/** MCPWM unit for gate driver (0 or 1) */"
+      },
+      {
+        "line": 138,
+        "text": "#define MCPWM_UNIT_GATE_DRIVER  0"
+      },
+      {
+        "line": 140,
+        "text": "/** MCPWM timer for gate driver (0, 1, or 2) */"
+      },
+      {
+        "line": 141,
+        "text": "#define MCPWM_TIMER_GATE_DRIVER 0"
+      }
+    ],
+    "zapote/current-sense/source-build-04/elec/src/current_sense_unit.ato": [
+      {
+        "line": 138,
+        "text": "    primary_in.line ~ primary_lands.p1"
+      },
+      {
+        "line": 139,
+        "text": "    primary_lands.p1 ~ ct.P1"
+      },
+      {
+        "line": 140,
+        "text": "    ct.P2 ~ primary_lands.p2"
+      },
+      {
+        "line": 141,
+        "text": "    primary_lands.p2 ~ primary_out.line"
+      },
+      {
+        "line": 145,
+        "text": "    ct.S1 ~ burden.p1"
+      },
+      {
+        "line": 146,
+        "text": "    burden.p2 ~ ct.S2"
+      },
+      {
+        "line": 147,
+        "text": "    ct.S1 ~ c_burden.p1"
+      },
+      {
+        "line": 148,
+        "text": "    c_burden.p2 ~ ct.S2"
+      },
+      {
+        "line": 150,
+        "text": "    v_bias ~ c_bias_bypass.p1"
+      },
+      {
+        "line": 151,
+        "text": "    c_bias_bypass.p2 ~ power.gnd"
+      },
+      {
+        "line": 152,
+        "text": "    power.vcc ~ r_bias_top.p1"
+      },
+      {
+        "line": 153,
+        "text": "    r_bias_top.p2 ~ v_bias"
+      },
+      {
+        "line": 154,
+        "text": "    v_bias ~ r_bias_bottom.p1"
+      },
+      {
+        "line": 155,
+        "text": "    r_bias_bottom.p2 ~ power.gnd"
+      },
+      {
+        "line": 159,
+        "text": "    ct.S1 ~ r_sense_series.p1"
+      },
+      {
+        "line": 160,
+        "text": "    r_sense_series.p2 ~ sense_mon.line"
+      },
+      {
+        "line": 166,
+        "text": "    power.vcc ~ r_ref_hi_top.p1"
+      },
+      {
+        "line": 167,
+        "text": "    r_ref_hi_top.p2 ~ ref_hi"
+      },
+      {
+        "line": 168,
+        "text": "    ref_hi ~ r_ref_hi_bottom.p1"
+      },
+      {
+        "line": 169,
+        "text": "    r_ref_hi_bottom.p2 ~ power.gnd"
+      },
+      {
+        "line": 170,
+        "text": "    power.vcc ~ r_ref_lo_top.p1"
+      },
+      {
+        "line": 171,
+        "text": "    r_ref_lo_top.p2 ~ ref_lo"
+      },
+      {
+        "line": 172,
+        "text": "    ref_lo ~ r_ref_lo_bottom.p1"
+      },
+      {
+        "line": 173,
+        "text": "    r_ref_lo_bottom.p2 ~ power.gnd"
+      },
+      {
+        "line": 177,
+        "text": "    power.vcc ~ c_comp_pos.p1"
+      },
+      {
+        "line": 178,
+        "text": "    c_comp_pos.p2 ~ power.gnd"
+      },
+      {
+        "line": 183,
+        "text": "    power.vcc ~ c_comp_neg.p1"
+      },
+      {
+        "line": 184,
+        "text": "    c_comp_neg.p2 ~ power.gnd"
+      },
+      {
+        "line": 190,
+        "text": "    power.vcc ~ c_or_bypass.p1"
+      },
+      {
+        "line": 191,
+        "text": "    c_or_bypass.p2 ~ power.gnd"
+      },
+      {
+        "line": 206,
+        "text": "    host.p1 ~ power.vcc"
+      },
+      {
+        "line": 207,
+        "text": "    host.p2 ~ power.gnd"
+      },
+      {
+        "line": 208,
+        "text": "    host.p3 ~ fault.line"
+      },
+      {
+        "line": 209,
+        "text": "    host.p4 ~ sense_mon.line"
+      }
+    ],
+    "zapote/gate-drive/source-build-09/elec/src/gate_drive_unit.ato": [
+      {
+        "line": 12,
+        "text": "# PERMIT is active-high through the AO3400A inverter. A gate pulldown"
+      },
+      {
+        "line": 13,
+        "text": "# and DIS pullup hold the powered driver disabled when PERMIT is absent."
+      },
+      {
+        "line": 39,
+        "text": "    # Host/control connector: PWM_H, PWM_L, PERMIT, CTRL_GND."
+      },
+      {
+        "line": 41,
+        "text": "    signal pwm_h"
+      },
+      {
+        "line": 42,
+        "text": "    signal pwm_l"
+      },
+      {
+        "line": 43,
+        "text": "    signal permit"
+      },
+      {
+        "line": 45,
+        "text": "    host.p1 ~ pwm_h"
+      },
+      {
+        "line": 46,
+        "text": "    host.p2 ~ pwm_l"
+      },
+      {
+        "line": 47,
+        "text": "    host.p3 ~ permit"
+      },
+      {
+        "line": 48,
+        "text": "    host.p4 ~ ctrl_gnd"
+      },
+      {
+        "line": 54,
+        "text": "    supply.p1 ~ v15_ls"
+      },
+      {
+        "line": 55,
+        "text": "    supply.p2 ~ hv_minus"
+      },
+      {
+        "line": 64,
+        "text": "    gate_h.p1 ~ gate_h_out"
+      },
+      {
+        "line": 65,
+        "text": "    gate_h.p2 ~ gate_h_kelvin"
+      },
+      {
+        "line": 66,
+        "text": "    gate_l.p1 ~ gate_l_out"
+      },
+      {
+        "line": 67,
+        "text": "    gate_l.p2 ~ gate_l_kelvin"
+      },
+      {
+        "line": 80,
+        "text": "    vcc_3v3.p1 ~ v3v3"
+      },
+      {
+        "line": 81,
+        "text": "    vcc_3v3.p2 ~ ctrl_gnd"
+      },
+      {
+        "line": 88,
+        "text": "    v3v3 ~ c_vcci.p1"
+      },
+      {
+        "line": 89,
+        "text": "    c_vcci.p2 ~ ctrl_gnd"
+      },
+      {
+        "line": 94,
+        "text": "    # Safe-disable receiver. DIS is active-high. Q_PERMIT is an N-MOSFET"
+      },
+      {
+        "line": 95,
+        "text": "    # open-drain inverter: PERMIT high pulls DIS low (enabled), while a"
+      },
+      {
+        "line": 96,
+        "text": "    # floating or unpowered PERMIT is held low by R_PERMIT_PD and leaves DIS"
+      },
+      {
+        "line": 99,
+        "text": "    permit_sw = new AO3400A"
+      },
+      {
+        "line": 100,
+        "text": "    r_permit_series = new Resistor"
+      },
+      {
+        "line": 101,
+        "text": "    r_permit_series.value = 1kohm +/- 1%"
+      },
+      {
+        "line": 102,
+        "text": "    r_permit_series.mpn = \"RC0603FR-071KL\""
+      },
+      {
+        "line": 103,
+        "text": "    r_permit_series.footprint = \"Resistor_SMD:R_0603_1608Metric\""
+      },
+      {
+        "line": 104,
+        "text": "    r_permit_pd = new Resistor"
+      },
+      {
+        "line": 105,
+        "text": "    r_permit_pd.value = 100kohm +/- 5%"
+      },
+      {
+        "line": 106,
+        "text": "    r_permit_pd.mpn = \"RC0603FR-07100KL\""
+      },
+      {
+        "line": 107,
+        "text": "    r_permit_pd.footprint = \"Resistor_SMD:R_0603_1608Metric\""
+      },
+      {
+        "line": 112,
+        "text": "    permit ~ r_permit_series.p1"
+      },
+      {
+        "line": 113,
+        "text": "    r_permit_series.p2 ~ permit_sw.G"
+      },
+      {
+        "line": 114,
+        "text": "    permit_sw.S ~ ctrl_gnd"
+      },
+      {
+        "line": 115,
+        "text": "    permit_sw.D ~ driver.DIS"
+      },
+      {
+        "line": 116,
+        "text": "    permit_sw.G ~ r_permit_pd.p1"
+      },
+      {
+        "line": 117,
+        "text": "    r_permit_pd.p2 ~ ctrl_gnd"
+      },
+      {
+        "line": 118,
+        "text": "    driver.DIS ~ r_dis_pu.p1"
+      },
+      {
+        "line": 119,
+        "text": "    r_dis_pu.p2 ~ v3v3"
+      },
+      {
+        "line": 132,
+        "text": "    dt.p1 ~ driver.DT"
+      },
+      {
+        "line": 133,
+        "text": "    dt.p2 ~ ctrl_gnd"
+      },
+      {
+        "line": 142,
+        "text": "    v15_ls ~ c_ls.p1"
+      },
+      {
+        "line": 143,
+        "text": "    c_ls.p2 ~ hv_minus"
+      },
+      {
+        "line": 150,
+        "text": "    v15_ls ~ c_ls_bulk.p1"
+      },
+      {
+        "line": 151,
+        "text": "    c_ls_bulk.p2 ~ hv_minus"
+      },
+      {
+        "line": 170,
+        "text": "    c_boot.p1 ~ driver.VDDA"
+      },
+      {
+        "line": 171,
+        "text": "    c_boot.p2 ~ driver.VSSA"
+      },
+      {
+        "line": 185,
+        "text": "    driver.OUTA ~ rg_h.p1"
+      },
+      {
+        "line": 186,
+        "text": "    rg_h.p2 ~ gate_h_out"
+      },
+      {
+        "line": 187,
+        "text": "    rgs_h.p1 ~ gate_h_out"
+      },
+      {
+        "line": 188,
+        "text": "    rgs_h.p2 ~ gate_h_kelvin"
+      },
+      {
+        "line": 201,
+        "text": "    driver.OUTB ~ rg_l.p1"
+      },
+      {
+        "line": 202,
+        "text": "    rg_l.p2 ~ gate_l_out"
+      },
+      {
+        "line": 203,
+        "text": "    rgs_l.p1 ~ gate_l_out"
+      },
+      {
+        "line": 204,
+        "text": "    rgs_l.p2 ~ gate_l_kelvin"
+      },
+      {
+        "line": 207,
+        "text": "    # Complementary PWM inputs and explicit timing floor."
+      },
+      {
+        "line": 208,
+        "text": "    pwm_h ~ driver.INA"
+      },
+      {
+        "line": 209,
+        "text": "    pwm_l ~ driver.INB"
+      }
+    ],
+    "zapote/interlock/source-build-02/elec/src/interlock_unit.ato": [
+      {
+        "line": 131,
+        "text": "    signal permit"
+      },
+      {
+        "line": 181,
+        "text": "    permit_pulldown = new Resistor"
+      },
+      {
+        "line": 182,
+        "text": "    permit_pulldown.value = 10kohm +/- 1%"
+      },
+      {
+        "line": 183,
+        "text": "    permit_pulldown.mpn = \"RC0603FR-0710KL\""
+      },
+      {
+        "line": 184,
+        "text": "    permit_pulldown.footprint = \"Resistor_SMD:R_0603_1608Metric\""
+      },
+      {
+        "line": 215,
+        "text": "    vcc ~ host.p1"
+      },
+      {
+        "line": 216,
+        "text": "    vcc ~ fault_inv_bypass.p1"
+      },
+      {
+        "line": 218,
+        "text": "    vcc ~ control_inv_bypass.p1"
+      },
+      {
+        "line": 220,
+        "text": "    vcc ~ aggregate_bypass.p1"
+      },
+      {
+        "line": 222,
+        "text": "    vcc ~ latch_bypass.p1"
+      },
+      {
+        "line": 224,
+        "text": "    vcc ~ watchdog_bypass.p1"
+      },
+      {
+        "line": 226,
+        "text": "    vcc ~ common_bypass.p1"
+      },
+      {
+        "line": 228,
+        "text": "    vcc ~ ocp_pullup.p1"
+      },
+      {
+        "line": 229,
+        "text": "    vcc ~ ovp_pullup.p1"
+      },
+      {
+        "line": 230,
+        "text": "    vcc ~ hs_pullup.p1"
+      },
+      {
+        "line": 231,
+        "text": "    vcc ~ coil_pullup.p1"
+      },
+      {
+        "line": 232,
+        "text": "    vcc ~ rtd_pullup.p1"
+      },
+      {
+        "line": 233,
+        "text": "    vcc ~ runaway_pullup.p1"
+      },
+      {
+        "line": 234,
+        "text": "    vcc ~ aux_pullup.p1"
+      },
+      {
+        "line": 238,
+        "text": "    vcc ~ reset_pullup.p1"
+      },
+      {
+        "line": 239,
+        "text": "    gnd ~ host.p2"
+      },
+      {
+        "line": 240,
+        "text": "    gnd ~ faults.p1"
+      },
+      {
+        "line": 241,
+        "text": "    gnd ~ fault_inv_bypass.p2"
+      },
+      {
+        "line": 243,
+        "text": "    gnd ~ control_inv_bypass.p2"
+      },
+      {
+        "line": 245,
+        "text": "    gnd ~ aggregate_bypass.p2"
+      },
+      {
+        "line": 247,
+        "text": "    gnd ~ latch_bypass.p2"
+      },
+      {
+        "line": 249,
+        "text": "    gnd ~ watchdog_bypass.p2"
+      },
+      {
+        "line": 251,
+        "text": "    gnd ~ common_bypass.p2"
+      },
+      {
+        "line": 253,
+        "text": "    gnd ~ wdi_pulldown.p2"
+      },
+      {
+        "line": 254,
+        "text": "    gnd ~ live_pulldown.p2"
+      },
+      {
+        "line": 255,
+        "text": "    gnd ~ permit_pulldown.p2"
+      },
+      {
+        "line": 257,
+        "text": "    ocp_fault ~ faults.p2"
+      },
+      {
+        "line": 259,
+        "text": "    ocp_fault ~ ocp_pullup.p2"
+      },
+      {
+        "line": 262,
+        "text": "    ovp_fault ~ faults.p3"
+      },
+      {
+        "line": 264,
+        "text": "    ovp_fault ~ ovp_pullup.p2"
+      },
+      {
+        "line": 267,
+        "text": "    hs_fault ~ faults.p4"
+      },
+      {
+        "line": 269,
+        "text": "    hs_fault ~ hs_pullup.p2"
+      },
+      {
+        "line": 272,
+        "text": "    coil_fault ~ faults.p5"
+      },
+      {
+        "line": 274,
+        "text": "    coil_fault ~ coil_pullup.p2"
+      },
+      {
+        "line": 277,
+        "text": "    rtd_fault ~ faults.p6"
+      },
+      {
+        "line": 279,
+        "text": "    rtd_fault ~ rtd_pullup.p2"
+      },
+      {
+        "line": 282,
+        "text": "    runaway_fault ~ faults.p7"
+      },
+      {
+        "line": 284,
+        "text": "    runaway_fault ~ runaway_pullup.p2"
+      },
+      {
+        "line": 287,
+        "text": "    aux_fault ~ faults.p8"
+      },
+      {
+        "line": 289,
+        "text": "    aux_fault ~ aux_pullup.p2"
+      },
+      {
+        "line": 292,
+        "text": "    wdi ~ host.p3"
+      },
+      {
+        "line": 294,
+        "text": "    wdi ~ wdi_pulldown.p1"
+      },
+      {
+        "line": 295,
+        "text": "    reset_n ~ host.p4"
+      },
+      {
+        "line": 296,
+        "text": "    reset_n ~ reset_pullup.p2"
+      },
+      {
+        "line": 298,
+        "text": "    sensor_live ~ host.p5"
+      },
+      {
+        "line": 299,
+        "text": "    sensor_live ~ live_pulldown.p1"
+      },
+      {
+        "line": 305,
+        "text": "    permit ~ host.p6"
+      },
+      {
+        "line": 306,
+        "text": "    permit ~ latch.Q"
+      },
+      {
+        "line": 307,
+        "text": "    permit ~ permit_pulldown.p1"
+      },
+      {
+        "line": 308,
+        "text": "    latched_fault ~ host.p7"
+      },
+      {
+        "line": 310,
+        "text": "    wdt_good ~ host.p8"
+      }
+    ],
+    "zapote/ports.toml": [],
+    "zapote/power-stage-120v/elec/src/parts.ato": [
+      {
+        "line": 263,
+        "text": "    \"\"\"Permit FET gate series resistor: 100 ohm keeps PERMIT -> DIS fast"
+      }
+    ],
+    "zapote/power-stage-120v/elec/src/power_stage_120v.ato": [
+      {
+        "line": 43,
+        "text": "    terminal_rect.p1 ~ rectifier"
+      },
+      {
+        "line": 44,
+        "text": "    terminal_bus.p1 ~ bus"
+      },
+      {
+        "line": 49,
+        "text": "    PERMIT low, floating or unpowered leaves DIS high (outputs disabled).\"\"\""
+      },
+      {
+        "line": 52,
+        "text": "    signal pwm_h"
+      },
+      {
+        "line": 53,
+        "text": "    signal pwm_l"
+      },
+      {
+        "line": 54,
+        "text": "    signal permit"
+      },
+      {
+        "line": 65,
+        "text": "    signal permit_gate"
+      },
+      {
+        "line": 71,
+        "text": "    driver.INA ~ pwm_h"
+      },
+      {
+        "line": 72,
+        "text": "    driver.INB ~ pwm_l"
+      },
+      {
+        "line": 75,
+        "text": "    c_vcci.p1 ~ v3v3"
+      },
+      {
+        "line": 76,
+        "text": "    c_vcci.p2 ~ selv_gnd"
+      },
+      {
+        "line": 78,
+        "text": "    # DIS is active-high. PERMIT high turns the FET on and pulls DIS low."
+      },
+      {
+        "line": 79,
+        "text": "    permit_fet = new PermitFet"
+      },
+      {
+        "line": 80,
+        "text": "    # 100 ohm gate drive and a 1 k DIS pullup keep PERMIT -> DIS near 0.35 us"
+      },
+      {
+        "line": 82,
+        "text": "    r_permit = new R100R0603"
+      },
+      {
+        "line": 83,
+        "text": "    r_permit.value = 100ohm"
+      },
+      {
+        "line": 84,
+        "text": "    r_permit_pd = new R100k0603"
+      },
+      {
+        "line": 85,
+        "text": "    r_permit_pd.value = 100kohm"
+      },
+      {
+        "line": 88,
+        "text": "    permit ~ r_permit.p1"
+      },
+      {
+        "line": 89,
+        "text": "    r_permit.p2 ~ permit_gate"
+      },
+      {
+        "line": 90,
+        "text": "    permit_gate ~ permit_fet.G"
+      },
+      {
+        "line": 91,
+        "text": "    permit_gate ~ r_permit_pd.p1"
+      },
+      {
+        "line": 92,
+        "text": "    r_permit_pd.p2 ~ selv_gnd"
+      },
+      {
+        "line": 93,
+        "text": "    permit_fet.S ~ selv_gnd"
+      },
+      {
+        "line": 94,
+        "text": "    permit_fet.D ~ dis"
+      },
+      {
+        "line": 96,
+        "text": "    dis ~ r_dis_pu.p1"
+      },
+      {
+        "line": 97,
+        "text": "    r_dis_pu.p2 ~ v3v3"
+      },
+      {
+        "line": 102,
+        "text": "    r_dt.p1 ~ driver.DT"
+      },
+      {
+        "line": 103,
+        "text": "    r_dt.p2 ~ selv_gnd"
+      },
+      {
+        "line": 110,
+        "text": "    c_ls.p1 ~ v15_ls"
+      },
+      {
+        "line": 111,
+        "text": "    c_ls.p2 ~ hot_gnd"
+      },
+      {
+        "line": 114,
+        "text": "    c_ls_bulk.p1 ~ v15_ls"
+      },
+      {
+        "line": 115,
+        "text": "    c_ls_bulk.p2 ~ hot_gnd"
+      },
+      {
+        "line": 125,
+        "text": "    c_boot.p1 ~ boot"
+      },
+      {
+        "line": 126,
+        "text": "    c_boot.p2 ~ sw"
+      },
+      {
+        "line": 129,
+        "text": "    c_boot_hf.p1 ~ boot"
+      },
+      {
+        "line": 130,
+        "text": "    c_boot_hf.p2 ~ sw"
+      },
+      {
+        "line": 136,
+        "text": "    r_gh.p1 ~ out_h"
+      },
+      {
+        "line": 137,
+        "text": "    r_gh.p2 ~ gate_h"
+      },
+      {
+        "line": 140,
+        "text": "    r_gh_pd.p1 ~ gate_h"
+      },
+      {
+        "line": 141,
+        "text": "    r_gh_pd.p2 ~ sw"
+      },
+      {
+        "line": 145,
+        "text": "    r_gl.p1 ~ out_l"
+      },
+      {
+        "line": 146,
+        "text": "    r_gl.p2 ~ gate_l"
+      },
+      {
+        "line": 149,
+        "text": "    r_gl_pd.p1 ~ gate_l"
+      },
+      {
+        "line": 150,
+        "text": "    r_gl_pd.p2 ~ hot_gnd"
+      },
+      {
+        "line": 162,
+        "text": "    c_snub_h.p1 ~ bus_p"
+      },
+      {
+        "line": 163,
+        "text": "    c_snub_h.p2 ~ sw"
+      },
+      {
+        "line": 165,
+        "text": "    c_snub_l.p1 ~ sw"
+      },
+      {
+        "line": 166,
+        "text": "    c_snub_l.p2 ~ hot_gnd"
+      },
+      {
+        "line": 210,
+        "text": "    signal PWM_HA"
+      },
+      {
+        "line": 211,
+        "text": "    signal PWM_LA"
+      },
+      {
+        "line": 212,
+        "text": "    signal PWM_HB"
+      },
+      {
+        "line": 213,
+        "text": "    signal PWM_LB"
+      },
+      {
+        "line": 214,
+        "text": "    signal PERMIT"
+      },
+      {
+        "line": 231,
+        "text": "    j_mains.p1 ~ AC_L_IN"
+      },
+      {
+        "line": 232,
+        "text": "    j_mains.p2 ~ AC_N_IN"
+      },
+      {
+        "line": 234,
+        "text": "    f1.p1 ~ AC_L_IN"
+      },
+      {
+        "line": 235,
+        "text": "    f1.p2 ~ L_F"
+      },
+      {
+        "line": 237,
+        "text": "    rv1.p1 ~ L_F"
+      },
+      {
+        "line": 238,
+        "text": "    rv1.p2 ~ AC_N_IN"
+      },
+      {
+        "line": 240,
+        "text": "    cx1.p1 ~ L_F"
+      },
+      {
+        "line": 241,
+        "text": "    cx1.p2 ~ AC_N_IN"
+      },
+      {
+        "line": 244,
+        "text": "    rb1a.p1 ~ L_F"
+      },
+      {
+        "line": 245,
+        "text": "    rb1a.p2 ~ XBLEED_MID"
+      },
+      {
+        "line": 248,
+        "text": "    rb1b.p1 ~ XBLEED_MID"
+      },
+      {
+        "line": 249,
+        "text": "    rb1b.p2 ~ AC_N_IN"
+      },
+      {
+        "line": 256,
+        "text": "    cx2.p1 ~ L_FILT"
+      },
+      {
+        "line": 257,
+        "text": "    cx2.p2 ~ N_FILT"
+      },
+      {
+        "line": 259,
+        "text": "    cy1.p1 ~ L_FILT"
+      },
+      {
+        "line": 260,
+        "text": "    cy1.p2 ~ PE"
+      },
+      {
+        "line": 262,
+        "text": "    cy2.p1 ~ N_FILT"
+      },
+      {
+        "line": 263,
+        "text": "    cy2.p2 ~ PE"
+      },
+      {
+        "line": 272,
+        "text": "    c_bus1.p1 ~ BUS_P"
+      },
+      {
+        "line": 273,
+        "text": "    c_bus1.p2 ~ BUS_P"
+      },
+      {
+        "line": 274,
+        "text": "    c_bus1.p3 ~ HV_RET"
+      },
+      {
+        "line": 275,
+        "text": "    c_bus1.p4 ~ HV_RET"
+      },
+      {
+        "line": 277,
+        "text": "    c_bus2.p1 ~ BUS_P"
+      },
+      {
+        "line": 278,
+        "text": "    c_bus2.p2 ~ BUS_P"
+      },
+      {
+        "line": 279,
+        "text": "    c_bus2.p3 ~ HV_RET"
+      },
+      {
+        "line": 280,
+        "text": "    c_bus2.p4 ~ HV_RET"
+      },
+      {
+        "line": 283,
+        "text": "    r_bus1.p1 ~ BUS_P"
+      },
+      {
+        "line": 284,
+        "text": "    r_bus1.p2 ~ BUSBLEED_MID"
+      },
+      {
+        "line": 287,
+        "text": "    r_bus2.p1 ~ BUSBLEED_MID"
+      },
+      {
+        "line": 288,
+        "text": "    r_bus2.p2 ~ HV_RET"
+      },
+      {
+        "line": 301,
+        "text": "    leg_a.pwm_h ~ PWM_HA"
+      },
+      {
+        "line": 302,
+        "text": "    leg_a.pwm_l ~ PWM_LA"
+      },
+      {
+        "line": 303,
+        "text": "    leg_a.permit ~ PERMIT"
+      },
+      {
+        "line": 311,
+        "text": "    leg_b.pwm_h ~ PWM_HB"
+      },
+      {
+        "line": 312,
+        "text": "    leg_b.pwm_l ~ PWM_LB"
+      },
+      {
+        "line": 313,
+        "text": "    leg_b.permit ~ PERMIT"
+      },
+      {
+        "line": 329,
+        "text": "    j_coil.p1 ~ COIL_FEED"
+      },
+      {
+        "line": 332,
+        "text": "    c_res1.p1 ~ RES_A"
+      },
+      {
+        "line": 333,
+        "text": "    c_res1.p2 ~ SW_B"
+      },
+      {
+        "line": 335,
+        "text": "    c_res2.p1 ~ RES_A"
+      },
+      {
+        "line": 336,
+        "text": "    c_res2.p2 ~ SW_B"
+      },
+      {
+        "line": 338,
+        "text": "    c_res3.p1 ~ RES_A"
+      },
+      {
+        "line": 339,
+        "text": "    c_res3.p2 ~ SW_B"
+      },
+      {
+        "line": 344,
+        "text": "    r_crb1.p1 ~ RES_A"
+      },
+      {
+        "line": 345,
+        "text": "    r_crb1.p2 ~ CRBLEED_1"
+      },
+      {
+        "line": 348,
+        "text": "    r_crb2.p1 ~ CRBLEED_1"
+      },
+      {
+        "line": 349,
+        "text": "    r_crb2.p2 ~ CRBLEED_2"
+      },
+      {
+        "line": 352,
+        "text": "    r_crb3.p1 ~ CRBLEED_2"
+      },
+      {
+        "line": 353,
+        "text": "    r_crb3.p2 ~ CRBLEED_3"
+      },
+      {
+        "line": 356,
+        "text": "    r_crb4.p1 ~ CRBLEED_3"
+      },
+      {
+        "line": 357,
+        "text": "    r_crb4.p2 ~ SW_B"
+      },
+      {
+        "line": 369,
+        "text": "    j_tco.p1 ~ L_FILT"
+      },
+      {
+        "line": 370,
+        "text": "    j_tco.p2 ~ TCO_L"
+      },
+      {
+        "line": 378,
+        "text": "    c_v15.p1 ~ V15_LS"
+      },
+      {
+        "line": 379,
+        "text": "    c_v15.p2 ~ LEG_RET"
+      },
+      {
+        "line": 386,
+        "text": "    c_ldo_in.p1 ~ V15_LS"
+      },
+      {
+        "line": 387,
+        "text": "    c_ldo_in.p2 ~ LEG_RET"
+      },
+      {
+        "line": 390,
+        "text": "    c_ldo_out.p1 ~ HOT5"
+      },
+      {
+        "line": 391,
+        "text": "    c_ldo_out.p2 ~ LEG_RET"
+      },
+      {
+        "line": 396,
+        "text": "    r_div1.p1 ~ BUS_P"
+      },
+      {
+        "line": 397,
+        "text": "    r_div1.p2 ~ VDIV_1"
+      },
+      {
+        "line": 400,
+        "text": "    r_div2.p1 ~ VDIV_1"
+      },
+      {
+        "line": 401,
+        "text": "    r_div2.p2 ~ VDIV_2"
+      },
+      {
+        "line": 404,
+        "text": "    r_div3.p1 ~ VDIV_2"
+      },
+      {
+        "line": 405,
+        "text": "    r_div3.p2 ~ VDIV_3"
+      },
+      {
+        "line": 408,
+        "text": "    r_div4.p1 ~ VDIV_3"
+      },
+      {
+        "line": 409,
+        "text": "    r_div4.p2 ~ VSENSE_IN"
+      },
+      {
+        "line": 412,
+        "text": "    r_div_bot.p1 ~ VSENSE_IN"
+      },
+      {
+        "line": 413,
+        "text": "    r_div_bot.p2 ~ LEG_RET"
+      },
+      {
+        "line": 416,
+        "text": "    c_div.p1 ~ VSENSE_IN"
+      },
+      {
+        "line": 417,
+        "text": "    c_div.p2 ~ LEG_RET"
+      },
+      {
+        "line": 429,
+        "text": "    c_vs1.p1 ~ HOT5"
+      },
+      {
+        "line": 430,
+        "text": "    c_vs1.p2 ~ LEG_RET"
+      },
+      {
+        "line": 433,
+        "text": "    c_vs2.p1 ~ V3V3"
+      },
+      {
+        "line": 434,
+        "text": "    c_vs2.p2 ~ SELV_GND"
+      },
+      {
+        "line": 445,
+        "text": "    r_ref_bias.p1 ~ HOT5"
+      },
+      {
+        "line": 446,
+        "text": "    r_ref_bias.p2 ~ REF25"
+      },
+      {
+        "line": 452,
+        "text": "    r_ocp_ref.p1 ~ REF25"
+      },
+      {
+        "line": 453,
+        "text": "    r_ocp_ref.p2 ~ OCP_NODE"
+      },
+      {
+        "line": 456,
+        "text": "    r_ocp_sense.p1 ~ OCP_NODE"
+      },
+      {
+        "line": 457,
+        "text": "    r_ocp_sense.p2 ~ OCP_KELVIN_N"
+      },
+      {
+        "line": 460,
+        "text": "    c_ocp_node.p1 ~ OCP_NODE"
+      },
+      {
+        "line": 461,
+        "text": "    c_ocp_node.p2 ~ LEG_RET"
+      },
+      {
+        "line": 464,
+        "text": "    r_th_top.p1 ~ REF25"
+      },
+      {
+        "line": 465,
+        "text": "    r_th_top.p2 ~ OCP_THRESH"
+      },
+      {
+        "line": 468,
+        "text": "    r_th_bot.p1 ~ OCP_THRESH"
+      },
+      {
+        "line": 469,
+        "text": "    r_th_bot.p2 ~ LEG_RET"
+      },
+      {
+        "line": 472,
+        "text": "    c_th.p1 ~ OCP_THRESH"
+      },
+      {
+        "line": 473,
+        "text": "    c_th.p2 ~ LEG_RET"
+      },
+      {
+        "line": 482,
+        "text": "    c_ocp_vcc.p1 ~ HOT5"
+      },
+      {
+        "line": 483,
+        "text": "    c_ocp_vcc.p2 ~ LEG_RET"
+      },
+      {
+        "line": 488,
+        "text": "    r_ovp_top.p1 ~ REF25"
+      },
+      {
+        "line": 489,
+        "text": "    r_ovp_top.p2 ~ OVP_THRESH"
+      },
+      {
+        "line": 492,
+        "text": "    r_ovp_bot.p1 ~ OVP_THRESH"
+      },
+      {
+        "line": 493,
+        "text": "    r_ovp_bot.p2 ~ LEG_RET"
+      },
+      {
+        "line": 496,
+        "text": "    c_ovp_th.p1 ~ OVP_THRESH"
+      },
+      {
+        "line": 497,
+        "text": "    c_ovp_th.p2 ~ LEG_RET"
+      },
+      {
+        "line": 506,
+        "text": "    c_ovp_vcc.p1 ~ HOT5"
+      },
+      {
+        "line": 507,
+        "text": "    c_ovp_vcc.p2 ~ LEG_RET"
+      },
+      {
+        "line": 519,
+        "text": "    c_nand_vcc.p1 ~ HOT5"
+      },
+      {
+        "line": 520,
+        "text": "    c_nand_vcc.p2 ~ LEG_RET"
+      },
+      {
+        "line": 532,
+        "text": "    c_iso1.p1 ~ HOT5"
+      },
+      {
+        "line": 533,
+        "text": "    c_iso1.p2 ~ LEG_RET"
+      },
+      {
+        "line": 536,
+        "text": "    c_iso2.p1 ~ V3V3"
+      },
+      {
+        "line": 537,
+        "text": "    c_iso2.p2 ~ SELV_GND"
+      },
+      {
+        "line": 541,
+        "text": "    j_selv.p1 ~ V15_SELV"
+      },
+      {
+        "line": 542,
+        "text": "    j_selv.p2 ~ SELV_GND"
+      },
+      {
+        "line": 543,
+        "text": "    j_selv.p3 ~ V3V3"
+      },
+      {
+        "line": 544,
+        "text": "    j_selv.p4 ~ SELV_GND"
+      },
+      {
+        "line": 545,
+        "text": "    j_selv.p5 ~ PWM_HA"
+      },
+      {
+        "line": 546,
+        "text": "    j_selv.p6 ~ PWM_LA"
+      },
+      {
+        "line": 547,
+        "text": "    j_selv.p7 ~ PWM_HB"
+      },
+      {
+        "line": 548,
+        "text": "    j_selv.p8 ~ PWM_LB"
+      },
+      {
+        "line": 549,
+        "text": "    j_selv.p9 ~ PERMIT"
+      },
+      {
+        "line": 550,
+        "text": "    j_selv.p10 ~ BUS_FAULT"
+      },
+      {
+        "line": 551,
+        "text": "    j_selv.p11 ~ VBUS_P"
+      },
+      {
+        "line": 552,
+        "text": "    j_selv.p12 ~ VBUS_N"
+      },
+      {
+        "line": 553,
+        "text": "    j_selv.p13 ~ CT_ZC"
+      },
+      {
+        "line": 554,
+        "text": "    j_selv.p14 ~ CT_MON"
+      },
+      {
+        "line": 555,
+        "text": "    j_selv.p15 ~ SELV_GND"
+      },
+      {
+        "line": 556,
+        "text": "    j_selv.p16 ~ SELV_GND"
+      },
+      {
+        "line": 562,
+        "text": "    r_fe.value = 0ohm"
+      },
+      {
+        "line": 563,
+        "text": "    r_fe.p1 ~ PE"
+      },
+      {
+        "line": 564,
+        "text": "    r_fe.p2 ~ SELV_GND"
+      },
+      {
+        "line": 570,
+        "text": "    tvs_bus.p1 ~ BUS_P"
+      },
+      {
+        "line": 571,
+        "text": "    tvs_bus.p2 ~ HV_RET"
+      },
+      {
+        "line": 575,
+        "text": "    j_coil_return.p1 ~ RES_A"
+      },
+      {
+        "line": 577,
+        "text": "    j_pe.p1 ~ PE"
+      },
+      {
+        "line": 578,
+        "text": "    j_pe.p2 ~ PE"
+      },
+      {
+        "line": 583,
+        "text": "    c_hf_a1.p1 ~ BUS_P"
+      },
+      {
+        "line": 584,
+        "text": "    c_hf_a1.p2 ~ HV_RET"
+      },
+      {
+        "line": 586,
+        "text": "    c_hf_a2.p1 ~ BUS_P"
+      },
+      {
+        "line": 587,
+        "text": "    c_hf_a2.p2 ~ HV_RET"
+      },
+      {
+        "line": 589,
+        "text": "    c_hf_b1.p1 ~ BUS_P"
+      },
+      {
+        "line": 590,
+        "text": "    c_hf_b1.p2 ~ HV_RET"
+      },
+      {
+        "line": 592,
+        "text": "    c_hf_b2.p1 ~ BUS_P"
+      },
+      {
+        "line": 593,
+        "text": "    c_hf_b2.p2 ~ HV_RET"
+      },
+      {
+        "line": 618,
+        "text": "    r_ct_burden.p1 ~ CT_S1"
+      },
+      {
+        "line": 619,
+        "text": "    r_ct_burden.p2 ~ CT_S2"
+      },
+      {
+        "line": 622,
+        "text": "    c_ct_burden.p1 ~ CT_S1"
+      },
+      {
+        "line": 623,
+        "text": "    c_ct_burden.p2 ~ CT_S2"
+      },
+      {
+        "line": 626,
+        "text": "    r_ct_bias_top.p1 ~ V3V3"
+      },
+      {
+        "line": 627,
+        "text": "    r_ct_bias_top.p2 ~ CT_S2"
+      },
+      {
+        "line": 630,
+        "text": "    r_ct_bias_bot.p1 ~ CT_S2"
+      },
+      {
+        "line": 631,
+        "text": "    r_ct_bias_bot.p2 ~ SELV_GND"
+      },
+      {
+        "line": 634,
+        "text": "    c_ct_bias.p1 ~ CT_S2"
+      },
+      {
+        "line": 635,
+        "text": "    c_ct_bias.p2 ~ SELV_GND"
+      },
+      {
+        "line": 638,
+        "text": "    r_ct_series.p1 ~ CT_S1"
+      },
+      {
+        "line": 639,
+        "text": "    r_ct_series.p2 ~ CT_SENSE_MON"
+      },
+      {
+        "line": 648,
+        "text": "    r_ct_hi_top.p1 ~ V3V3"
+      },
+      {
+        "line": 649,
+        "text": "    r_ct_hi_top.p2 ~ CT_REF_HI"
+      },
+      {
+        "line": 652,
+        "text": "    r_ct_hi_bot.p1 ~ CT_REF_HI"
+      },
+      {
+        "line": 653,
+        "text": "    r_ct_hi_bot.p2 ~ SELV_GND"
+      },
+      {
+        "line": 656,
+        "text": "    r_ct_lo_top.p1 ~ V3V3"
+      },
+      {
+        "line": 657,
+        "text": "    r_ct_lo_top.p2 ~ CT_REF_LO"
+      },
+      {
+        "line": 660,
+        "text": "    r_ct_lo_bot.p1 ~ CT_REF_LO"
+      },
+      {
+        "line": 661,
+        "text": "    r_ct_lo_bot.p2 ~ SELV_GND"
+      },
+      {
+        "line": 670,
+        "text": "    c_ct_pos.p1 ~ V3V3"
+      },
+      {
+        "line": 671,
+        "text": "    c_ct_pos.p2 ~ SELV_GND"
+      },
+      {
+        "line": 680,
+        "text": "    c_ct_neg.p1 ~ V3V3"
+      },
+      {
+        "line": 681,
+        "text": "    c_ct_neg.p2 ~ SELV_GND"
+      },
+      {
+        "line": 690,
+        "text": "    c_ct_zc.p1 ~ V3V3"
+      },
+      {
+        "line": 691,
+        "text": "    c_ct_zc.p2 ~ SELV_GND"
+      },
+      {
+        "line": 701,
+        "text": "    c_fault_or.p1 ~ V3V3"
+      },
+      {
+        "line": 702,
+        "text": "    c_fault_or.p2 ~ SELV_GND"
+      },
+      {
+        "line": 705,
+        "text": "    r_ct_mon.p1 ~ CT_SENSE_MON"
+      },
+      {
+        "line": 706,
+        "text": "    r_ct_mon.p2 ~ CT_MON"
+      }
+    ],
+    "zapote/project.toml": [],
+    "zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato": [
+      {
+        "line": 153,
+        "text": "    host.p1 ~ vcc"
+      },
+      {
+        "line": 154,
+        "text": "    host.p2 ~ gnd"
+      },
+      {
+        "line": 155,
+        "text": "    host.p3 ~ hs_fault"
+      },
+      {
+        "line": 156,
+        "text": "    host.p4 ~ coil_fault"
+      },
+      {
+        "line": 157,
+        "text": "    host.p5 ~ hs_sense"
+      },
+      {
+        "line": 158,
+        "text": "    host.p6 ~ coil_sense"
+      },
+      {
+        "line": 159,
+        "text": "    heatsink_probe.p1 ~ hs_sense"
+      },
+      {
+        "line": 160,
+        "text": "    heatsink_probe.p2 ~ gnd"
+      },
+      {
+        "line": 161,
+        "text": "    coil_probe.p1 ~ coil_sense"
+      },
+      {
+        "line": 162,
+        "text": "    coil_probe.p2 ~ gnd"
+      },
+      {
+        "line": 163,
+        "text": "    hs_fixed.p1 ~ vcc"
+      },
+      {
+        "line": 164,
+        "text": "    hs_fixed.p2 ~ hs_sense"
+      },
+      {
+        "line": 165,
+        "text": "    hs_top.p1 ~ vcc"
+      },
+      {
+        "line": 166,
+        "text": "    hs_top.p2 ~ hs_ref"
+      },
+      {
+        "line": 167,
+        "text": "    hs_bottom.p1 ~ hs_ref"
+      },
+      {
+        "line": 168,
+        "text": "    hs_bottom.p2 ~ gnd"
+      },
+      {
+        "line": 169,
+        "text": "    hs_hyst.p1 ~ hs_ref"
+      },
+      {
+        "line": 170,
+        "text": "    hs_hyst.p2 ~ hs_hot"
+      },
+      {
+        "line": 171,
+        "text": "    hs_filter.p1 ~ hs_sense"
+      },
+      {
+        "line": 172,
+        "text": "    hs_filter.p2 ~ gnd"
+      },
+      {
+        "line": 173,
+        "text": "    hs_bypass.p1 ~ vcc"
+      },
+      {
+        "line": 174,
+        "text": "    hs_bypass.p2 ~ gnd"
+      },
+      {
+        "line": 180,
+        "text": "    coil_fixed.p1 ~ vcc"
+      },
+      {
+        "line": 181,
+        "text": "    coil_fixed.p2 ~ coil_sense"
+      },
+      {
+        "line": 182,
+        "text": "    coil_top.p1 ~ vcc"
+      },
+      {
+        "line": 183,
+        "text": "    coil_top.p2 ~ coil_ref"
+      },
+      {
+        "line": 184,
+        "text": "    coil_bottom.p1 ~ coil_ref"
+      },
+      {
+        "line": 185,
+        "text": "    coil_bottom.p2 ~ gnd"
+      },
+      {
+        "line": 186,
+        "text": "    coil_hyst.p1 ~ coil_ref"
+      },
+      {
+        "line": 187,
+        "text": "    coil_hyst.p2 ~ coil_hot"
+      },
+      {
+        "line": 188,
+        "text": "    coil_filter.p1 ~ coil_sense"
+      },
+      {
+        "line": 189,
+        "text": "    coil_filter.p2 ~ gnd"
+      },
+      {
+        "line": 190,
+        "text": "    coil_bypass.p1 ~ vcc"
+      },
+      {
+        "line": 191,
+        "text": "    coil_bypass.p2 ~ gnd"
+      },
+      {
+        "line": 208,
+        "text": "    hs_open_bypass.p1 ~ vcc"
+      },
+      {
+        "line": 209,
+        "text": "    hs_open_bypass.p2 ~ gnd"
+      },
+      {
+        "line": 210,
+        "text": "    hs_or_bypass.p1 ~ vcc"
+      },
+      {
+        "line": 211,
+        "text": "    hs_or_bypass.p2 ~ gnd"
+      },
+      {
+        "line": 223,
+        "text": "    coil_open_bypass.p1 ~ vcc"
+      },
+      {
+        "line": 224,
+        "text": "    coil_open_bypass.p2 ~ gnd"
+      },
+      {
+        "line": 225,
+        "text": "    coil_or_bypass.p1 ~ vcc"
+      },
+      {
+        "line": 226,
+        "text": "    coil_or_bypass.p2 ~ gnd"
+      },
+      {
+        "line": 228,
+        "text": "    open_top.p1 ~ vcc"
+      },
+      {
+        "line": 229,
+        "text": "    open_top.p2 ~ open_ref"
+      },
+      {
+        "line": 230,
+        "text": "    open_bottom.p1 ~ open_ref"
+      },
+      {
+        "line": 231,
+        "text": "    open_bottom.p2 ~ gnd"
+      }
+    ]
+  }
+}
