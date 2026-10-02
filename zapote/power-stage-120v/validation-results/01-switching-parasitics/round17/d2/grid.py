@@ -10,7 +10,9 @@ Cases (the task's Step 3, single-transition deck leg_matrix.cir):
   S3 light load      IL = 2, 5, 10 A                  170/198/280 V
   S4 hard turn-on    IL = -20 A (partner diode on)    170/198/280 V
 each for DIR 0/1 (low-side / high-side turned off first), dead time
-250/348/450 ns and capacitor ESL 5/10/20 nH (TDK bound <= ~20 nH).
+250/307/348/391/450 ns (250/450 stress corners; 307/348/391 the D-1
+estimated min/nominal/max for the fitted 39 kOhm, not guaranteed limits)
+and capacitor ESL 5/10/20 nH (TDK bound <= ~20 nH).
 
 Criteria (task table):
   VDS die peak            <= 520 V (S1, S3, S4), <= 585 V (S2 at 280 V)
@@ -20,13 +22,23 @@ Criteria (task table):
   ZVS (S1 at 348 ns)      incoming die VDS at its on command <= 5 % of VBUS
 A case that aborts in ngspice counts as FAIL (no result).
 
-Resumable: a case whose result file exists is not rerun. Writes
-DIR/results.jsonl (one line per case) and DIR/summary.json (worst case per
-criterion, pass/fail counts).
+Two verdicts per case (D-4 review, P1): `stress_pass` (abort, VDS, off-gate,
+VGS transient) and `task_pass` = stress_pass and, for S1 at the nominal
+348 ns, ZVS. The off-gate label is a timing observation, not a diagnosis
+(D-4, P2): `above_limit_at_partner_cmd` (the off gate is still >= 3.0 V at
+the partner's on command), `later_peak` (it is below then, and peaks above
+later), `unknown` (a measurement is missing), `aborted`.
+
+Resumable, with identity: each case file stores the SHA-256 of the matrix
+values, the deck, run_d2.py, this file and the vendor model library; a case
+is reused only if all match, otherwise it is rerun (D-4, P1: a reused
+directory must not attribute old simulations to a new matrix). Writes
+DIR/results.jsonl and DIR/summary.json.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import itertools
 import json
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -34,7 +46,21 @@ from pathlib import Path
 
 import run_d2
 
-DT = (250, 348, 450)
+DT = (250, 307, 348, 391, 450)
+NOMINAL_DT = 348
+HERE = Path(__file__).resolve().parent
+
+
+def _sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else "missing"
+
+
+def identity(L) -> dict:
+    """Everything a case result depends on, hashed."""
+    vendor = run_d2.KIT / "models" / "vendor" / "IFX_CFD7_650V.lib"
+    return {"matrix": hashlib.sha256(json.dumps([[round(float(v), 9) for v in row] for row in L]).encode()).hexdigest(),
+            "deck": _sha(run_d2.DECK), "run_d2": _sha(HERE / "run_d2.py"), "grid": _sha(Path(__file__).resolve()),
+            "vendor_model": _sha(vendor)}
 ESL = (5, 10, 20)
 
 
@@ -60,8 +86,12 @@ def one(args):
     c, L, out = args
     s, vbus, il, d, dt, esl = c
     res_file = out / "cases" / f"{tag(c)}.json"
+    ident = identity(L)
     if res_file.exists():
-        return json.loads(res_file.read_text())
+        old = json.loads(res_file.read_text())
+        if old.get("identity") == ident:
+            return old
+        # stale: different matrix, deck, model or code -> rerun, never reuse
     p = run_d2.matrix_params(L)
     p.update(VBUS=str(vbus), IL=str(il), DIR=str(d), LESL=f"{esl}n", LSHUNT="2n", DT=f"{dt}n", TRMAX="0.2n")
     r = run_d2.run(run_d2.DECK, p, keep=out / "runs" / tag(c))
@@ -81,11 +111,18 @@ def one(args):
     row["pass_off_gate"] = row["vgs_off_max"] is not None and row["vgs_off_max"] < 3.0
     # Cause, when the off gate fails: still above 3.0 V at the partner's on
     # command = dead time too short (shoot-through); else a later rebound.
-    row["off_gate_cause"] = (None if row["pass_off_gate"] else "aborted" if r["aborted"] or row["vgs_off_max"] is None else
-                             "deadtime_too_short" if (row["vgs_off_at_partner_cmd"] or 0) >= 3.0 else "rebound")
+    at_cmd = row["vgs_off_at_partner_cmd"]
+    row["off_gate_cause"] = (None if row["pass_off_gate"] else
+                             "aborted" if r["aborted"] else
+                             "unknown" if row["vgs_off_max"] is None or at_cmd is None else
+                             "above_limit_at_partner_cmd" if at_cmd >= 3.0 else "later_peak")
     row["pass_vgs_transient"] = row["vgs_abs_max"] is not None and row["vgs_abs_max"] <= 30.0
     row["zvs"] = (row["vds_incoming_at_on"] is not None and row["vds_incoming_at_on"] <= 0.05 * vbus)
-    row["pass"] = (not r["aborted"]) and row["pass_vds"] and row["pass_off_gate"] and row["pass_vgs_transient"]
+    row["stress_pass"] = (not r["aborted"]) and row["pass_vds"] and row["pass_off_gate"] and row["pass_vgs_transient"]
+    zvs_required = s == "S1" and dt == NOMINAL_DT
+    row["task_pass"] = row["stress_pass"] and (row["zvs"] or not zvs_required)
+    row["pass"] = row["task_pass"]
+    row["identity"] = ident
     res_file.parent.mkdir(parents=True, exist_ok=True)
     res_file.write_text(json.dumps(row))
     return row
@@ -98,11 +135,12 @@ def summarize(rows: list[dict]) -> dict:
         if vals:
             w = better(vals, key=lambda r: r[key])
             worst[key] = {k: w[k] for k in ("case", "vbus", "il", "dir", "dt_ns", "esl_nH", key)}
-    s1n = [r for r in rows if r["case"] == "S1" and r["dt_ns"] == 348]
+    s1n = [r for r in rows if r["case"] == "S1" and r["dt_ns"] == NOMINAL_DT]
     return {"cases": len(rows), "aborted": sum(r["aborted"] for r in rows),
-            "pass": sum(r["pass"] for r in rows), "fail": sum(not r["pass"] for r in rows),
+            "task_pass": sum(r["task_pass"] for r in rows), "task_fail": sum(not r["task_pass"] for r in rows),
+            "stress_pass": sum(r["stress_pass"] for r in rows), "stress_fail": sum(not r["stress_pass"] for r in rows),
             "fail_by_criterion": {k: sum(not r[k] for r in rows) for k in ("pass_vds", "pass_off_gate", "pass_vgs_transient")},
-            "off_gate_fail_causes": {c: sum(r.get("off_gate_cause") == c for r in rows) for c in ("deadtime_too_short", "rebound", "aborted")},
+            "off_gate_fail_causes": {c: sum(r.get("off_gate_cause") == c for r in rows) for c in ("above_limit_at_partner_cmd", "later_peak", "unknown", "aborted")},
             "off_gate_fails_by_dt_ns": {dt: sum((not r["pass_off_gate"]) and r["dt_ns"] == dt for r in rows) for dt in DT},
             "zvs_S1_at_348ns": {"yes": sum(r["zvs"] for r in s1n), "no": sum(not r["zvs"] for r in s1n)},
             "worst": worst}

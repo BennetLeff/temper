@@ -20,6 +20,7 @@ prints a dashboard.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import re
@@ -151,6 +152,21 @@ def main() -> None:
     work = Path(a.work)
     work.mkdir(parents=True, exist_ok=True)
     py = sys.executable
+    # Provenance (D-4 review, P1): meshes and converged solves are reused by
+    # name, so a directory is bound to the inputs that produced it. A changed
+    # mesher, closures, runner or board export needs a new directory.
+    manifest = {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in
+                (HERE / "mesh25d_hybrid.py", HERE / "run_elmer.py", HERE / "inductance_matrix.py",
+                 ROOT / f"closures-leg{a.leg}.json", EXPORT.resolve())}
+    mfile = work / f"manifest-leg{a.leg}.json"
+    if mfile.exists():
+        old = json.loads(mfile.read_text())
+        changed = sorted(k for k in set(old) | set(manifest) if old.get(k) != manifest.get(k))
+        if changed:
+            raise SystemExit(f"{work} was produced with different inputs ({', '.join(changed)}); "
+                             f"use a new campaign directory")
+    else:
+        mfile.write_text(json.dumps(manifest, indent=1))
     status = {"started": time.strftime("%Y-%m-%d %H:%M:%S"), "leg": a.leg, "cases": a.cases, "tol": a.tol, "np": a.np,
               "done": [], "current": {"state": "starting"}}
     (work / "status.json").write_text(json.dumps(status, indent=1))

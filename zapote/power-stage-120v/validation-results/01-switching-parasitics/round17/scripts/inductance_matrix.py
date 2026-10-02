@@ -28,7 +28,9 @@ from __future__ import annotations
 
 import argparse
 import glob
+import hashlib
 import json
+import re
 from pathlib import Path
 
 import meshio
@@ -55,13 +57,53 @@ def energy_L(run: str) -> float | None:
     return None
 
 
+def sif_port(run: str) -> tuple[int, list[float]]:
+    """The single driven port's physical id and K vector from the run's case.sif."""
+    txt = (Path(run) / "case.sif").read_text()
+    blocks = re.findall(r"Boundary Condition \d+\n  Target Boundaries\(1\) = (\d+)\n"
+                        r"  Magnetic Field Strength 1 = Real (\S+)\n  Magnetic Field Strength 2 = Real (\S+)\n"
+                        r"  Magnetic Field Strength 3 = Real (\S+)", txt)
+    if len(blocks) != 1:
+        raise SystemExit(f"{run}: expected exactly one driven port in case.sif, found {len(blocks)}")
+    b = blocks[0]
+    return int(b[0]), [float(b[1]), float(b[2]), float(b[3])]
+
+
+def mesh_ports(msh: str) -> dict[int, dict]:
+    """Port definitions the mesher recorded (RESULT line in <mesh>.log): physical -> name, K."""
+    log = Path(msh).with_suffix(".log")
+    if not log.exists():
+        raise SystemExit(f"mesher log {log} not found: cannot check port identity")
+    for line in log.read_text().splitlines():
+        if line.startswith("RESULT "):
+            return {p["physical"]: {"name": p["name"], "k": [c * p["k_A_per_m"] for c in p["direction"]]}
+                    for p in json.loads(line[7:])["ports"]}
+    raise SystemExit(f"no RESULT line in {log}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("msh", help="the gmsh mesh (recorded for provenance)")
+    ap.add_argument("msh", help="the gmsh mesh; must exist, with its mesher log beside it")
     ap.add_argument("--port", nargs=2, action="append", required=True, metavar=("PHYS", "RUN_DIR"))
     a = ap.parse_args()
     names = [p for p, _ in a.port]
     runs = [r for _, r in a.port]
+    # Identity (D-4 review, P2): the energy and within-tet gates are blind to a
+    # reversed or swapped excitation, so check every run against the mesh's
+    # own port record: driven physical id and signed K must match exactly.
+    if not Path(a.msh).exists():
+        raise SystemExit(f"mesh {a.msh} not found")
+    mp = mesh_ports(a.msh)
+    port_ids = []
+    for phys, run in zip(names, runs):
+        pid, k = sif_port(run)
+        if pid != int(phys):
+            raise SystemExit(f"{run}: drives port {pid}, but was given as port {phys}")
+        if pid not in mp or not np.allclose(k, mp[pid]["k"], rtol=1e-9, atol=1e-6):
+            raise SystemExit(f"{run}: K {k} does not match the mesh's port {pid} "
+                             f"{mp.get(pid, {}).get('name')} K {mp.get(pid, {}).get('k')}")
+        port_ids.append({"physical": pid, "name": mp[pid]["name"], "k_A_per_m": k,
+                         "sif_sha256": hashlib.sha256((Path(run) / "case.sif").read_bytes()).hexdigest()})
     files = [vtus(r) for r in runs]
     assert len({len(f) for f in files}) == 1, "runs have different partition counts"
     n = len(runs)
@@ -97,7 +139,9 @@ def main() -> None:
         rel = abs(L[i, i] * 1e9 - e) / e if e else None
         diag_check.append({"port": names[i], "L_from_B_nH": round(L[i, i] * 1e9, 6), "L_energy_nH": e,
                            "rel_diff": rel})
-    res = {"ports": names, "L_nH": (L * 1e9).round(6).tolist(), "tets": ntet,
+    res = {"ports": names, "port_identity": port_ids,
+           "mesh_sha256": hashlib.sha256(Path(a.msh).read_bytes()).hexdigest(),
+           "L_nH": (L * 1e9).round(6).tolist(), "tets": ntet,
            "partitions": len(files[0]), "max_within_tet_spread": spread, "diagonal_vs_energy": diag_check}
     print("RESULT " + json.dumps(res))
     if spread > SPREAD_MAX:

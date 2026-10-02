@@ -34,9 +34,19 @@ MEAS = ("vds_ls_die_pk", "vds_hs_die_pk", "vgs_ls_die_max", "vgs_ls_die_min", "v
 
 
 def read_L(path: str) -> list[list[float]]:
+    """Port matrix in deck order P1 (first cap), P2, P3 (gate high), P4 (gate low).
+    The order is checked (D-4 review, P2): recorded port names must start with
+    P1..P4 in sequence; otherwise physical ids must ascend; extrapolate.py
+    output carries its names."""
     for line in open(path):
         if line.startswith("RESULT "):
             d = json.loads(line[7:])
+            names = [p["name"] for p in d.get("port_identity", [])] or d.get("names") or []
+            if names and [n[:2] for n in names] != ["P1", "P2", "P3", "P4"]:
+                raise SystemExit(f"{path}: port order {names} is not P1..P4")
+            phys = [int(p) for p in d.get("ports", []) if str(p).isdigit()]
+            if phys and phys != sorted(phys):
+                raise SystemExit(f"{path}: ports {phys} not ascending")
             return d.get("L0_nH") or d["L_nH"]
     raise ValueError(f"no RESULT in {path}")
 

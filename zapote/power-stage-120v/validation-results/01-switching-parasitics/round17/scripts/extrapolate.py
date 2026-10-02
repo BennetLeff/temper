@@ -6,8 +6,10 @@ value is the h -> 0 limit. For each matrix entry L_ij(h) this reports:
   lin12  straight line through h = 1, 2 mm at 0:   2 L(1) - L(2)
   lsq    least-squares line through 1, 2, 3 at 0  (needs 3 heights)
   quad   parabola through 1, 2, 3 at 0:           3 L(1) - 3 L(2) + L(3)
-The value used is quad when three heights exist (else lin12); the spread
-of the available estimates is reported as the extrapolation uncertainty.
+The value used is quad when three heights exist (else lin12). The spread of
+the available estimates is a METHOD spread, not an error bound (D-4 review,
+P2): a higher-order term invisible at the sampled heights can move every
+estimate together, and with two heights the spread is identically zero.
 
 Gate: the extrapolated matrix must be symmetric positive definite (a
 physical inductance matrix); otherwise exit nonzero.
@@ -31,10 +33,20 @@ import math
 import numpy as np
 
 
-def read_matrix(path: str) -> np.ndarray:
+def read_matrix(path: str, names: list[str] | None = None) -> np.ndarray:
+    """L (nH) from an inductance_matrix.py RESULT line, with its port order checked
+    (D-4 review, P2): against `names` when the file records port identities, else
+    the physical ids must be ascending (10, 11, 12, 13 = P1..P4)."""
     for line in open(path):
         if line.startswith("RESULT "):
-            return np.array(json.loads(line[7:])["L_nH"], dtype=float)
+            d = json.loads(line[7:])
+            ids = d.get("port_identity")
+            if ids and names and [p["name"] for p in ids] != list(names):
+                raise SystemExit(f"{path}: port order {[p['name'] for p in ids]} != expected {list(names)}")
+            phys = [int(p) for p in d.get("ports", [])]
+            if phys and phys != sorted(phys):
+                raise SystemExit(f"{path}: ports {phys} not in ascending order")
+            return np.array(d["L_nH"], dtype=float)
     raise ValueError(f"no RESULT line in {path}")
 
 
@@ -101,15 +113,16 @@ def main() -> None:
     if a.selftest:
         selftest()
         return
-    Ls = {float(h): read_matrix(f) for h, f in a.matrix}
+    Ls = {float(h): read_matrix(f, a.names) for h, f in a.matrix}
     names = a.names
     r = extrapolate(Ls)
     L0 = r["L0"]
     sym = np.allclose(L0, L0.T)
     eig = np.linalg.eigvalsh((L0 + L0.T) / 2)
     res = {"heights_mm": sorted(Ls), "method": r["method"], "names": names,
-           "L0_nH": L0.round(4).tolist(), "L0_low_nH": r["low"].round(4).tolist(),
-           "L0_high_nH": r["high"].round(4).tolist(),
+           "L0_nH": L0.round(4).tolist(), "method_spread_low_nH": r["low"].round(4).tolist(),
+           "method_spread_high_nH": r["high"].round(4).tolist(),
+           "note": "method spread, not an error bound",
            "estimates_nH": {k: v.round(4).tolist() for k, v in r["estimates"].items()},
            "k0": [[round(L0[i, j] / math.sqrt(L0[i, i] * L0[j, j]), 4) for j in range(len(names))]
                   for i in range(len(names))],
