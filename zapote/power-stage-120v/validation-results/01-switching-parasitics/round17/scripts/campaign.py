@@ -143,7 +143,7 @@ def main() -> None:
     ap.add_argument("--cases", nargs="+", required=True, help="arch_h:h_edge pairs, in order")
     ap.add_argument("--elmer", required=True)
     ap.add_argument("--np", type=int, default=12)
-    ap.add_argument("--leg", choices=("A", "B"), default="A")
+    ap.add_argument("--leg", choices=("A", "B", "A5"), default="A")
     ap.add_argument("--margin", type=float, default=10.0, help="crop margin around the leg (mm)")
     ap.add_argument("--air", type=float, default=10.0, help="air box beyond the crop (mm)")
     ap.add_argument("--tol", type=float, default=1e-8)

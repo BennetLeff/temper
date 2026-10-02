@@ -42,8 +42,8 @@ def read_L(path: str) -> list[list[float]]:
         if line.startswith("RESULT "):
             d = json.loads(line[7:])
             names = [p["name"] for p in d.get("port_identity", [])] or d.get("names") or []
-            if names and [n[:2] for n in names] != ["P1", "P2", "P3", "P4"]:
-                raise SystemExit(f"{path}: port order {names} is not P1..P4")
+            if names and [n[:2] for n in names] != [f"P{k + 1}" for k in range(len(names))]:
+                raise SystemExit(f"{path}: port order {names} is not P1..P{len(names)}")
             phys = [int(p) for p in d.get("ports", []) if str(p).isdigit()]
             if phys and phys != sorted(phys):
                 raise SystemExit(f"{path}: ports {phys} not ascending")
@@ -52,9 +52,10 @@ def read_L(path: str) -> list[list[float]]:
 
 
 def matrix_params(L: list[list[float]]) -> dict[str, str]:
-    p = {f"LP{i + 1}": f"{L[i][i]:.9g}n" for i in range(4)}
-    for i in range(4):
-        for j in range(i + 1, 4):
+    n = len(L)                       # 4 (leg_matrix.cir) or 5 (leg_matrix5.cir, P5 = bulk C6)
+    p = {f"LP{i + 1}": f"{L[i][i]:.9g}n" for i in range(n)}
+    for i in range(n):
+        for j in range(i + 1, n):
             p[f"K{i + 1}{j + 1}"] = f"{L[i][j] / math.sqrt(L[i][i] * L[j][j]):.9g}"
     return p
 

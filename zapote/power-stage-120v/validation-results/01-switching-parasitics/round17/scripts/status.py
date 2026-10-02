@@ -16,6 +16,7 @@ import time
 from pathlib import Path
 
 PORTS = {"A": ["P1_C38", "P2_C39", "P3_gate_high", "P4_gate_low"],
+         "A5": ["P1_C38", "P2_C39", "P3_gate_high", "P4_gate_low", "P5_C6_bulk"],
          "B": ["P1_C40", "P2_C41", "P3_gate_high", "P4_gate_low"]}
 
 
