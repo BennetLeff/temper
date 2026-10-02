@@ -97,4 +97,14 @@ K34 L_P3 L_P4 {K34}
 * on command to the end of the window.
 .meas tran vgs_ls_off_max MAX par('v(xql.g)-v(xql.s)') from={T1+DT} to={T1+DT+0.75u}
 .meas tran vgs_hs_off_max MAX par('v(xqh.g)-v(xqh.s)') from={T1+DT} to={T1+DT+0.75u}
+* Incoming device's die VDS at its own on command (ZVS check: ~0 V means
+* the load current already discharged it): HS at THS for DIR=0, LS at TLS for
+* DIR=1 (each measured for both directions; the runner picks the right one).
+.meas tran vds_hs_at_on FIND par('v(xqh.dd)-v(xqh.s)') AT={THS}
+.meas tran vds_ls_at_on FIND par('v(xql.dd)-v(xql.s)') AT={TLS}
+* Turned-off device's die VGS at the partner's on command (T1+DT): above
+* threshold there means the dead time was too short (shoot-through risk), as
+* opposed to a later rebound (false turn-on).
+.meas tran vgs_ls_at_partner FIND par('v(xql.g)-v(xql.s)') AT={T1+DT}
+.meas tran vgs_hs_at_partner FIND par('v(xqh.g)-v(xqh.s)') AT={T1+DT}
 .end
