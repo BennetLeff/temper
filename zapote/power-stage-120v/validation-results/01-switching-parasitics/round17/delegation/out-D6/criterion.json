@@ -1,0 +1,13 @@
+{
+  "model_vth_25C_V": 4.062434,
+  "model_vth_150C_V": 2.98794,
+  "model_drift_25_to_150_V": -1.0744939999999996,
+  "model_average_tempco_mV_C": -8.595951999999997,
+  "screen_unrounded_V": 1.9255060000000004,
+  "recommended_screen_V": 1.9,
+  "qualification": "Engineering screen only, not guaranteed hot minimum or limit.",
+  "sha256": {
+    "threshold.py": "67fa5eeef6a03a3cb65d2cc06ac086580d3c4c7bb86fdef2afc5da2ad1b3c23e",
+    "threshold.cir": "9b943a9458c2029d810694c567d26a465c69a468700ffbe97d9d19130dd61dc5"
+  }
+}
