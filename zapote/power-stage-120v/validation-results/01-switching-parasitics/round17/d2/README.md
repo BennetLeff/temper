@@ -151,3 +151,33 @@ S1/S2/S4 at 307 and 348 ns, ESL 10 nH, 32 cases each:
 Basis: coarse mesh at 1 mm closures, not the h → 0 fine matrix; given
 shifts of ≤ 0.3 V, a fine 5-port extraction is not warranted unless a
 decision case sits within ~0.3 V of the 3.0 V limit.
+
+## Zero-height extrapolation test with 0.5 mm closures (`results/extrap-test/`)
+
+Coarse mesh (1.0 mm edges, 10 mm crop), full matrices at h = 0.5, 1, 2 mm
+(`../results/matrices/legA-h{0p5,1,2}-e1p0-m10.matrix.txt`). The closure
+inductance is not linear in h near zero: P1 rises 6.1 nH/mm between 0.5
+and 1 mm but 4.8 nH/mm between 1 and 2 mm (P2 6.7 / 5.3, P3 4.6 / 3.6).
+Against the straight line through 1 and 2 mm (what the campaign uses), a
+parabola through 0.5 / 1 / 2 mm gives, entry by entry:
+
+- self-inductances **−1.6 … −7.3 %** (power loops −6.3 / −7.3 %);
+- power-to-gate mutuals **+7 … +16 %**; gate-to-gate M34 −24 % (more negative).
+
+So lin(1, 2) is not conservative for the coupling terms that drive the
+off-gate criterion. `../scripts/extrap_delta.py` adds this coarse-mesh
+difference to the current best matrix (`legA-h0-quad05-m20corr.matrix.txt`,
+SPD, min eig 9.06 nH; transfer assumed, as for the crop correction).
+Decision cases (S1/S2/S4 at 307 and 348 ns, ESL 10 nH, 32 cases) on both
+matrices with the current code:
+
+- **no verdict changes** (9/32 pass on both);
+- off-gate **+0.04 … +0.19 V in every case**; nominal S1 at 348 ns peaks at
+  2.58 V (was 2.51 V), margin 0.42 V to the 3.0 V limit;
+- die VDS −25.5 … +5.3 V;
+- S2 280 V / 71 A, LS first, 348 ns: 3.08 → 3.22 V (fails on both).
+
+Caveat: the 0.5 mm closure strips (0.6 mm wide) are narrower than the 1.0 mm
+mesh edges, so part of the curvature may be mesh error; the fine-mesh
+parabola through 1 / 2 / 3 mm (remote, last port solving) and the coarse 3 mm
+matrix (Mac) are the cross-checks.
