@@ -73,12 +73,31 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | Work | Where | State |
 | --- | --- | --- |
 | 3 mm closure matrix (fine mesh) → parabolic extrapolation | remote box | P1, P2 done; P3, P4 running |
-| Leg B matrix | remote box | queued after leg A |
+| Leg B matrix | remote box | **paused** until the enclosure layout settles (restart note in the remote's `r17/chain_legB.out`) |
 | Extrapolation test with 0.5 / 2 / 3 mm closures on the coarse mesh | Mac | 0.5 and 2 mm done; 3 mm solving |
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
 | D-7 capacitor ESL | delegated | waiting on TDK model access |
 | D-11 bus-sense range (AMC1311B linear to ~240 V, < 280 V OVP; from D-10) | delegated | brief written |
 | Diode-recovery data, TI timing limits at 39 kΩ, deployed four-PWM controller and harness, gate-drive remedy and hot criterion (owner), C38 ESL | outside input / owner | open |
+
+## Board revisions: does a change need a rerun?
+
+The extraction covers native-17. Copper more than 20 mm outside a leg's box
+changed L by < 0.1 % (crop convergence), so moves elsewhere (connectors,
+supplies, mounting, outline) do not need the FEM rerun. To check a new
+revision:
+
+```sh
+python3 round17/scripts/leg_region_diff.py ../../native-17/section.kicad_pcb ../../native-NN/section.kicad_pcb
+```
+
+It compares footprints, pads, tracks, vias and zone fills inside each leg's
+FEM region, and the stackup; it prints per leg `UNCHANGED` (no rerun) or
+`CHANGED` (rerun that leg), exit code 2 if any rerun is needed. A change to
+a power MOSFET's footprint or 3-D model offset is flagged separately: the
+vendor model assumes standard TO-247 leads, so a taller mounting or longer
+leads adds source/drain inductance that the board FEM does not see. Test:
+`round17/scripts/test_leg_region_diff.py`.
 
 ## Superseded results (do not use)
 
