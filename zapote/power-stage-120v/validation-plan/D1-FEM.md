@@ -59,6 +59,48 @@ they name.
      flat, as specified;
    - geometry audit: every closure touches exactly its two pads at every h.
 
+## Amendments after round 17 (2026-10-01)
+
+Round 17 (`validation-results/01-switching-parasitics/round17/README.md`):
+- **Mutuals from single-port solves.** L_ij = (1/μ0) Σ vol·B_i·B_j over
+  tets is exact for lowest-order edge elements, so the full port matrix
+  needs one solve per port (not ports + pairs). Elmer's VTU writer must be
+  told `Average Within Materials = False` (its default averages DG fields
+  within each body). Gates per solve: within-tet B spread at round-off and
+  diagonal = the solve's energy to 1e-5. Qualified on a non-uniform fixture
+  and on the board (M12 from fields 18.106446 vs 18.106450 nH from a pair
+  solve's energy). A uniform-field fixture does not qualify a field-output
+  path.
+- **Closures all vanish at h = 0.** Level-1 bridges (gate–source, crossing
+  over drain–source) sit at 2h, not h + 1 mm. At h = 1 mm both rules give
+  2 mm, so 1 mm results are unaffected.
+- **Extrapolation:** per matrix entry, straight line (1, 2 mm), least-squares
+  line and parabola (1, 2, 3 mm); the parabola is used and the spread of the
+  three reported (`scripts/extrapolate.py`); the result must be symmetric
+  positive definite. The closed-form strip-over-plane arch estimate
+  overestimates the arch increment by 1.6–1.9× and is not used to bound the
+  extrapolation.
+- **Model-size sensitivities** (P1, h = 1 mm, 1.0 mm mesh): air box 10 → 20 mm
+  +0.7 %; defeaturing 50 → 100 µm −0.6 %; crop margin 10 → 15 mm **−4.8 %**.
+  The crop margin is a first-order term. The fine campaign (10 mm margin)
+  is corrected per matrix entry by ΔL_ij = L_ij(20 mm) − L_ij(10 mm) from
+  1.0 mm-mesh matrices at h = 1 mm, with P1 at 10/15/20/25 mm showing
+  whether 20 mm has converged; the correction and its residual are
+  reported with the result. (A fine-mesh 20 mm-margin solve is ~12 M tets,
+  beyond the remote box's memory.)
+- **Mesh convergence** is not yet asymptotic (P1 at h = 1: 31.83 / 32.27 /
+  33.05 nH at 1.0 / 0.7 / 0.35 mm); the 0.5 mm point decides whether a
+  Richardson estimate is usable; otherwise the finest value is reported with
+  the observed trend as its uncertainty.
+- **Package inductance** (`round17/PACKAGE-INDUCTANCE.md`): FETs from
+  Infineon's model (already inside the L1 subcircuit, not added again),
+  shunt 0.5–5 nH, C38/C39 ESL only bounded (≤ ~20 nH) — swept 5/10/20 nH
+  in D2 until measured.
+- **D2** uses the FEM matrix as four coupled inductors in round 3's deck
+  (`round17/d2/`), wiring-checked against round 3 at ~0 board L. The
+  off-gate criterion is split by cause: still above 3.0 V at the partner's
+  on command (dead time too short) vs a later rebound (false turn-on).
+
 ## Amendments after round 16 (2026-09-29)
 
 Round 16 (`validation-results/01-switching-parasitics/round16/README.md`):

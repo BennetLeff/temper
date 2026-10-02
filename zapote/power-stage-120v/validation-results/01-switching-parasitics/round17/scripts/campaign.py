@@ -143,6 +143,8 @@ def main() -> None:
     ap.add_argument("--elmer", required=True)
     ap.add_argument("--np", type=int, default=12)
     ap.add_argument("--leg", choices=("A", "B"), default="A")
+    ap.add_argument("--margin", type=float, default=10.0, help="crop margin around the leg (mm)")
+    ap.add_argument("--air", type=float, default=10.0, help="air box beyond the crop (mm)")
     ap.add_argument("--tol", type=float, default=1e-8)
     ap.add_argument("--maxit", type=int, default=40000)
     a = ap.parse_args()
@@ -157,11 +159,14 @@ def main() -> None:
     for case in a.cases:
         h, e = case.split(":")
         tag = f"leg{a.leg}-h{h}-e{e.replace('.', 'p')}"
+        if a.margin != 10.0 or a.air != 10.0:
+            tag += f"-m{a.margin:g}-a{a.air:g}"
         msh, mlog = work / f"{tag}.msh", work / f"{tag}.log"
         if not msh.exists():
             rc = run([py, str(HERE / "mesh25d_hybrid.py"), str(EXPORT), str(msh), "--leg", a.leg,
                       "--closures", str(ROOT / f"closures-leg{a.leg}.json"), "--arch-h", h, "--h-edge", e,
-                      "--h-far", "4", "--dz-max", "0.45", "--simplify", "0.05"], mlog)
+                      "--h-far", "4", "--dz-max", "0.45", "--simplify", "0.05",
+                      "--margin", str(a.margin), "--air", str(a.air)], mlog)
             if rc:
                 print(f"FAIL {tag}: mesh failed, see {mlog}", flush=True)
                 continue
