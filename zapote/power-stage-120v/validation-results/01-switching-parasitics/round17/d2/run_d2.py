@@ -25,7 +25,9 @@ HERE = Path(__file__).resolve().parent
 POWER = HERE.parents[3]
 KIT = POWER / "validation-plan" / "sim-kit"
 sys.path.insert(0, str(KIT / "common"))
+sys.path.insert(0, str(HERE.parent / "scripts"))
 from run_ngspice import run  # noqa: E402
+import matrix_gate  # noqa: E402
 
 DECK = HERE / "leg_matrix.cir"
 R3DECK = POWER / "validation-results/01-switching-parasitics/round3/b1-board-grid/complementary_leg.cir"
@@ -47,7 +49,9 @@ def read_L(path: str) -> list[list[float]]:
             phys = [int(p) for p in d.get("ports", []) if str(p).isdigit()]
             if phys and phys != sorted(phys):
                 raise SystemExit(f"{path}: ports {phys} not ascending")
-            return d.get("L0_nH") or d["L_nH"]
+            L = d.get("L0_nH") or d["L_nH"]
+            matrix_gate.check(L, path)                    # square, finite, symmetric, SPD (D-9)
+            return L
     raise ValueError(f"no RESULT in {path}")
 
 

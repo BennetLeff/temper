@@ -127,8 +127,8 @@ model was re-extracted with a fifth FEM port at bulk capacitor C6
 (`closures-legA5.json`; coarse mesh, h = 1 mm, 10 mm crop; matrix
 `../results/matrices/legA5-h1-e1p0-m10.matrix.txt`, SPD, gates at round-off).
 C6 couples to the gate loops about as strongly as the local capacitors do
-(M53 3.34, M54 5.47 nH vs M13 3.75, M14 5.56 nH); the four existing loops
-moved < 0.1 %. Three variants on the same basis (h = 1 mm, 1.0 mm mesh),
+(M53 3.34, M54 5.47 nH vs M13 3.75, M14 5.56 nH); the four existing
+self-inductances moved < 0.1 % (largest mutual change 0.0027 nH, M12). Three variants on the same basis (h = 1 mm, 1.0 mm mesh),
 S1/S2/S4 at 307 and 348 ns, ESL 10 nH, 32 cases each:
 
 | Variant | Deck | Pass |
@@ -208,3 +208,22 @@ per entry (nH):
   correction. Planned best matrix: fine quad(1,2,3) + coarse
   [cubic − quad(1,2,3)] + crop correction (`scripts/extrap_delta.py
   --base quad123 --h3 …`, then `scripts/margin_correct.py`).
+
+## Capacitor ESL from TDK models (D-7, `results/esl-test/`)
+
+D-7 (`../delegation/out-D7/`) derived resonance-equivalent ESL from TDK's
+typical models: **C38–C41 1.060 nH**, **C5/C6 19.200 nH** (typical model
+values, not mounted-part bounds; lead geometry unresolved). The grid's
+5/10/20 nH sweep therefore started above the typical value. Decision cases
+(S1/S2/S4 at 307/348 ns, 32 cases) at 1.06 vs 5 nH, both matrices:
+
+| Matrix | Pass 1.06 / 5 nH | ΔVDS | Δ off-gate | S1 348 ns off-gate (1.06 nH) |
+| --- | ---: | ---: | ---: | ---: |
+| `legA-h0-lin12-m20corr` | 9 / 9 | −13.9 … +2.7 V | −0.065 … +0.064 V | 2.53 V |
+| `legA-h0-quad05-m20corr` | 9 / 9 | −15.2 … +2.9 V | −0.096 … +0.067 V | 2.57 V |
+
+No verdict changes, no aborts, ZVS kept. At 1.06 nH S4's die VDS falls
+below 520 V (max 514.7 / 501.1 V); S4 still fails off-gate. Use
+1.06–20 nH as the local ESL sweep. The 5-port deck still uses one LESL for
+C6; with C6 at 19.2 nH (vs 10 nH used) the bulk branch carries less edge
+current, so the bulk A/B/C coupling effect above is, if anything, overstated.

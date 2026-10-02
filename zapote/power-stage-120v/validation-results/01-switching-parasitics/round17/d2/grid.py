@@ -38,9 +38,12 @@ DIR/results.jsonl and DIR/summary.json.
 from __future__ import annotations
 
 import argparse
+import functools
 import hashlib
 import itertools
 import json
+import re
+import subprocess
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
@@ -60,24 +63,54 @@ def deck_for(L) -> Path:
     return {4: run_d2.DECK, 5: HERE / "leg_matrix5.cir"}[len(L)]
 
 
+@functools.lru_cache(maxsize=None)
+def ngspice_version() -> str:
+    out = subprocess.run(["ngspice", "-v"], capture_output=True, text=True)
+    m = re.search(r"ngspice-(\S+)", out.stdout + out.stderr)
+    return m[1] if m else "unknown"
+
+
+def includes(deck: Path) -> dict[str, str]:
+    """Hashes of the deck's .include files as the runner resolves them (vendor
+    lib from the kit, '../common/' from the kit's common/, params.inc excluded:
+    it is generated from the case parameters, which are already identity)."""
+    out = {}
+    for name in re.findall(r"^\.include\s+(\S+)", deck.read_text(), re.M):
+        if name == "params.inc":
+            continue
+        path = (run_d2.KIT / "models" / "vendor" / name if name.endswith(".lib")
+                else run_d2.KIT / "common" / name.split("../common/", 1)[1] if name.startswith("../common/")
+                else deck.parent / name)
+        out[name] = _sha(path)
+    return out
+
+
 def identity(L, overrides: dict | None = None) -> dict:
-    """Everything a case result depends on, hashed."""
-    vendor = run_d2.KIT / "models" / "vendor" / "IFX_CFD7_650V.lib"
+    """Everything a case result depends on, hashed (D-9 review, P2: includes,
+    runner and simulator build too, not only the deck and this file)."""
+    deck = deck_for(L)
     return {"matrix": hashlib.sha256(json.dumps([[round(float(v), 9) for v in row] for row in L]).encode()).hexdigest(),
-            "deck": _sha(deck_for(L)), "run_d2": _sha(HERE / "run_d2.py"), "grid": _sha(Path(__file__).resolve()),
-            "vendor_model": _sha(vendor), "overrides": dict(sorted((overrides or {}).items()))}
+            "deck": _sha(deck), "includes": includes(deck), "run_d2": _sha(HERE / "run_d2.py"),
+            "runner": _sha(run_d2.KIT / "common" / "run_ngspice.py"), "ngspice": ngspice_version(),
+            "grid": _sha(Path(__file__).resolve()), "overrides": dict(sorted((overrides or {}).items()))}
+
+
+# Scenario parameters that the case tuple, labels and acceptance logic are
+# derived from; --set must not change them (D-9 review, P2).
+SCENARIO_KEYS = {"VBUS", "IL", "DIR", "DT", "LESL", "LSHUNT", "TRMAX", "T1"}
 ESL = (5, 10, 20)
 
 
-def cases(only: set[str] | None):
+def cases(only: set[str] | None, esl=None):
+    esls = tuple(esl) if esl else ESL
     rows = []
-    for vbus, il, d, dt, esl in itertools.product((170, 198, 280), (37,), (0, 1), DT, ESL):
+    for vbus, il, d, dt, esl in itertools.product((170, 198, 280), (37,), (0, 1), DT, esls):
         rows.append(("S1", vbus, il, d, dt, esl))
-    for il, d, dt, esl in itertools.product((61, 71), (0, 1), DT, ESL):
+    for il, d, dt, esl in itertools.product((61, 71), (0, 1), DT, esls):
         rows.append(("S2", 280, il, d, dt, esl))
-    for vbus, il, d, dt, esl in itertools.product((170, 198, 280), (2, 5, 10), (0, 1), DT, ESL):
+    for vbus, il, d, dt, esl in itertools.product((170, 198, 280), (2, 5, 10), (0, 1), DT, esls):
         rows.append(("S3", vbus, il, d, dt, esl))
-    for vbus, d, dt, esl in itertools.product((170, 198, 280), (0, 1), DT, ESL):
+    for vbus, d, dt, esl in itertools.product((170, 198, 280), (0, 1), DT, esls):
         rows.append(("S4", vbus, -20, d, dt, esl))
     return [r for r in rows if not only or r[0] in only]
 
@@ -160,20 +193,22 @@ def main() -> None:
     ap.add_argument("--only", default=None, help="comma list of S1,S2,S3,S4")
     ap.add_argument("--limit", type=int, default=None, help="run only the first N cases (smoke test)")
     ap.add_argument("--dt", default=None, help="comma list of dead times (ns) to run; default all")
-    ap.add_argument("--esl", default=None, help="comma list of ESL values (nH) to run; default all")
+    ap.add_argument("--esl", default=None, help="comma list of capacitor ESL values (nH), replacing the default 5,10,20")
     ap.add_argument("--set", action="append", default=[], metavar="PARAM=VALUE",
                     help="deck parameter override applied after the matrix, e.g. K35=0 (recorded in the identity)")
     a = ap.parse_args()
+    overrides = dict(kv.split("=", 1) for kv in a.set)
+    bad = sorted(k for k in overrides if k.upper() in SCENARIO_KEYS)
+    if bad:
+        raise SystemExit(f"--set may not override scenario parameters {bad}; use the case filters instead")
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     L = run_d2.read_L(a.matrix)
-    todo = cases(set(a.only.split(",")) if a.only else None)
+    esl = [float(x) if "." in x else int(x) for x in a.esl.split(",")] if a.esl else None
+    todo = cases(set(a.only.split(",")) if a.only else None, esl)
     if a.dt:
         todo = [c for c in todo if c[4] in {int(x) for x in a.dt.split(",")}]
-    if a.esl:
-        todo = [c for c in todo if c[5] in {int(x) for x in a.esl.split(",")}]
     todo = todo[: a.limit]
-    overrides = dict(kv.split("=", 1) for kv in a.set)
     (out / "matrix_used.txt").write_text(Path(a.matrix).read_text())
     rows = []
     with ProcessPoolExecutor(a.workers) as ex:

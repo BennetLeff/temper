@@ -32,6 +32,8 @@ import math
 
 import numpy as np
 
+import matrix_gate
+
 
 def read_matrix(path: str, names: list[str] | None = None) -> np.ndarray:
     """L (nH) from an inductance_matrix.py RESULT line, with its port order checked
@@ -114,25 +116,25 @@ def main() -> None:
         selftest()
         return
     Ls = {float(h): read_matrix(f, a.names) for h, f in a.matrix}
-    names = a.names
+    ports = matrix_gate.common_identity({f: matrix_gate.read(f)[1] for _, f in a.matrix})
+    names = a.names or [p["name"] for p in ports]
+    for h, f in a.matrix:
+        matrix_gate.check(Ls[float(h)], f)
     r = extrapolate(Ls)
     L0 = r["L0"]
-    sym = np.allclose(L0, L0.T)
-    eig = np.linalg.eigvalsh((L0 + L0.T) / 2)
-    res = {"heights_mm": sorted(Ls), "method": r["method"], "names": names,
+    eig = matrix_gate.check(L0, "extrapolated matrix")         # gates before anything is written
+    res = {"heights_mm": sorted(Ls), "method": r["method"], "names": names, "port_identity": ports,
            "L0_nH": L0.round(4).tolist(), "method_spread_low_nH": r["low"].round(4).tolist(),
            "method_spread_high_nH": r["high"].round(4).tolist(),
            "note": "method spread, not an error bound",
            "estimates_nH": {k: v.round(4).tolist() for k, v in r["estimates"].items()},
            "k0": [[round(L0[i, j] / math.sqrt(L0[i, i] * L0[j, j]), 4) for j in range(len(names))]
                   for i in range(len(names))],
-           "symmetric": bool(sym), "min_eigenvalue_nH": float(eig.min())}
+           "symmetric": True, "min_eigenvalue_nH": eig}
     print("RESULT " + json.dumps(res))
     for i, ni in enumerate(names):
         print(f"{ni:14s} L0 = {L0[i, i]:8.3f} nH  [{r['low'][i, i]:.3f} .. {r['high'][i, i]:.3f}]  "
               + "  ".join(f"h{h:g}={Ls[h][i, i]:.3f}" for h in sorted(Ls)))
-    if not (sym and eig.min() > 0):
-        raise SystemExit(f"extrapolated matrix is not symmetric positive definite (min eig {eig.min():.4g} nH)")
     if a.spice:
         note = f"leg port matrix extrapolated to h=0 ({r['method']}) from h = {sorted(Ls)} mm"
         open(a.spice, "w").write(spice(L0, names, a.subckt, note))

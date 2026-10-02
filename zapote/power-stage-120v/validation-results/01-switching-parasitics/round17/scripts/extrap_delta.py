@@ -25,14 +25,7 @@ import json
 
 import numpy as np
 
-
-def read(path: str) -> tuple[np.ndarray, dict]:
-    d = json.loads([line for line in open(path) if line.startswith("RESULT ")][-1][7:])
-    return np.array(d.get("L0_nH") or d["L_nH"], dtype=float), d
-
-
-def names(d: dict) -> list[str] | None:
-    return [p["name"] for p in d.get("port_identity", [])] or d.get("names")
+import matrix_gate
 
 
 def main() -> None:
@@ -45,10 +38,10 @@ def main() -> None:
     if a.base == "quad123" and not a.h3:
         raise SystemExit("--base quad123 needs --h3")
     keys = ("h05", "h1", "h2") + (("h3",) if a.h3 else ())
-    mats = {k: read(getattr(a, k)) for k in keys + ("target",)}
-    known = [n for n in (names(d) for _, d in mats.values()) if n]
-    if not known or any(n != known[0] for n in known):
-        raise SystemExit(f"port orders differ or are missing: {[names(d) for _, d in mats.values()]}")
+    mats = {k: matrix_gate.read(getattr(a, k)) for k in keys + ("target",)}
+    ports = matrix_gate.common_identity({getattr(a, k): d for k, (_, d) in mats.items()})
+    for k, (L, _) in mats.items():
+        matrix_gate.check(L, getattr(a, k))
     hs = {"h05": 0.5, "h1": 1.0, "h2": 2.0, "h3": 3.0}
     H = np.array([hs[k] for k in keys])
     Y = np.stack([mats[k][0] for k in keys])
@@ -62,17 +55,15 @@ def main() -> None:
     base = 2 * Y[1] - Y[2] if a.base == "lin12" else poly0(H[1:], Y[1:])
     dL = best - base
     out = mats["target"][0] + dL
-    eig = np.linalg.eigvalsh((out + out.T) / 2)
-    res = {"names": known[0], "L0_nH": out.round(4).tolist(), "extrapolation_delta_nH": dL.round(4).tolist(),
+    eig = matrix_gate.check(out, "corrected matrix")           # gates before anything is written
+    res = {"names": [p["name"] for p in ports], "port_identity": ports, "L0_nH": out.round(4).tolist(), "extrapolation_delta_nH": dL.round(4).tolist(),
            "coarse_best_nH": best.round(4).tolist(), "coarse_base_nH": base.round(4).tolist(),
            "best": f"polynomial through h = {H.tolist()} mm", "base": a.base,
-           "min_eigenvalue_nH": float(eig.min()),
+           "min_eigenvalue_nH": eig,
            "sources": {k: getattr(a, k) for k in keys + ("target",)},
            "note": "coarse-mesh best - base added to the target; transfer from coarse to fine mesh assumed"}
     open(a.out, "w").write("RESULT " + json.dumps(res) + "\n")
     print("RESULT " + json.dumps(res))
-    if eig.min() <= 0:
-        raise SystemExit(f"corrected matrix not positive definite (min eig {eig.min():.4g} nH)")
 
 
 if __name__ == "__main__":

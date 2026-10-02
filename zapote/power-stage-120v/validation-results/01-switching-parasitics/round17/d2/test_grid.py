@@ -55,8 +55,33 @@ def main() -> None:
         assert missing["off_gate_cause"] == "unknown", missing["off_gate_cause"]
         # off-nominal S1 does not require ZVS
         assert missing["task_pass"] == missing["stress_pass"]
+        # D-9 (P2): a change in the simulator build, the runner or a deck include
+        # must force a rerun, not reuse.
+        n0 = len(calls)
+        meas = dict(MEAS)
+        with patch.object(grid, "ngspice_version", lambda: "other-build"):
+            grid.one((case, (100 * np.eye(4)).tolist(), out, None))
+        assert len(calls) == n0 + 1, "simulator change reused a cached case"
+        real_sha = grid._sha
+        with patch.object(grid, "_sha", lambda p: "changed" if p.name == "run_ngspice.py" else real_sha(p)):
+            grid.one((case, (100 * np.eye(4)).tolist(), out, None))
+        assert len(calls) == n0 + 2, "runner change reused a cached case"
+        with patch.object(grid, "includes", lambda deck: {"../common/options.inc": "changed"}):
+            grid.one((case, (100 * np.eye(4)).tolist(), out, None))
+        assert len(calls) == n0 + 3, "include change reused a cached case"
+    # D-9 (P2): --set may not override scenario parameters
+    for bad in ("DIR=1", "DT=250n", "vbus=280", "LESL=5n"):
+        with patch.object(sys, "argv", ["grid.py", "--matrix", "x", "--out", "y", "--set", bad]), \
+                patch.object(run_d2, "read_L", lambda p: np.eye(4).tolist()):
+            try:
+                grid.main()
+            except SystemExit as e:
+                assert "scenario" in str(e), e
+            else:
+                raise AssertionError(f"--set {bad} was accepted")
     assert len(grid.cases(None)) == 510, len(grid.cases(None))
-    print("PASS test_grid: identity-checked reuse, ZVS in task verdict, unknown cause label, 510 cases")
+    print("PASS test_grid: identity-checked reuse (matrix, simulator, runner, includes), ZVS in task verdict, "
+          "unknown cause label, scenario overrides refused, 510 cases")
 
 
 if __name__ == "__main__":

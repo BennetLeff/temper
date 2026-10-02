@@ -23,3 +23,11 @@ seated lead length used on this board) would remove it.
 
 Gate loops: each FET adds Lg + Ls = **11.1 nH** inside its package, plus the
 gate resistor and the driver output (not quantified here).
+
+**Update 2026-10-03 (D-7, `delegation/out-D7/`):** TDK's typical PSpice
+models (TDK_B32651-8.lib v1.10) give resonance-equivalent ESL of
+**1.060 nH for C38–C41** (B32652A0104K000) and **19.200 nH for C5/C6**
+(B32656G0275J000). These are typical-model values, not mounted-part bounds;
+lead length above the board is not included. The D2 local-capacitor sweep
+is 1.06–20 nH; at 1.06 nH no decision verdict changes (`d2/README.md`).
+
