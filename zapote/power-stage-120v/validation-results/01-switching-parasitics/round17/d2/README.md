@@ -32,3 +32,33 @@ inductance, where the FEM gives power-to-gate coupling k = 0.12–0.16.
 10 mm crop margin which round 17's sensitivity runs show overstates L by
 several percent), no S2 fault (61/71 A at 280 V), S3, S4, DIR=1 or
 dead-time corners yet. The full grid runs on the h -> 0 matrix.
+
+## Full grid on the 1 mm matrix (provisional; `grid.py`, `results/grid-h1/`)
+
+306 cases (task Step 3: S1 37 A, S2 61/71 A at 280 V, S3 2/5/10 A, S4 −20 A
+hard turn-on; buses 170/198/280 V; both directions; dead time 250/348/450
+ns; capacitor ESL 5/10/20 nH). 162 pass, 144 fail, 6 aborted in ngspice
+(S3, 280 V, 2/5 A, HS turned off first, ESL 20 nH).
+
+| Case | dt 250 ns | dt 348 ns | dt 450 ns | Cause |
+| --- | --- | --- | --- | --- |
+| S1 nominal | 18/18 fail | 0/18 | 0/18 | gate still above 3 V at the partner's on command |
+| S2 fault 61/71 A | 12/12 fail | 2/12 (71 A, LS-first: 3.05–3.15 V) | 0/12 | same |
+| S3 light load | 54/54 fail | 2/54 | 2/54 | same at 250 ns; 6 aborted runs |
+| **S4 hard turn-on** | **18/18 fail** | **18/18 fail** | **18/18 fail** | **gate rebound 3.2–5.0 V; VDS 484–544 V (> 520 V in 33)** |
+
+- ZVS holds in every S1 case at 348 ns.
+- At 250 ns dead time the turned-off gate has not yet fallen below 3 V when
+  the partner is commanded on (shoot-through risk): a gate-drive timing
+  result, little dependent on board inductance; the driver is an
+  output-resistance approximation.
+- **S4 mechanism** (170 V, −20 A, 348 ns, ESL 10 nH waveform): the LS body
+  diode's reverse-recovery current reaches +89 A, then snaps (LS die VDS
+  24 → 400 V in ~4 ns, ~95 V/ns, 15 A/ns); the loop rings at ~41 MHz (24 ns),
+  overshooting to 541 V; the dV/dt couples through Cgd and lifts the LS gate
+  to 4.4 V (> 3.5 V min threshold). Hard turn-on occurs only when ZVS is
+  lost, so S4 bounds an operating region, not nominal operation. Diode
+  recovery is from Infineon's 27 °C L1 model and the 1 mm matrix includes
+  the closure arches, so both magnitude and margin are provisional. Fixes
+  (named per the task, not implemented): negative gate-off bias or an
+  active Miller clamp; slower high-side turn-on to soften the recovery.

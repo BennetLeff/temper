@@ -81,7 +81,7 @@ def one(args):
     row["pass_off_gate"] = row["vgs_off_max"] is not None and row["vgs_off_max"] < 3.0
     # Cause, when the off gate fails: still above 3.0 V at the partner's on
     # command = dead time too short (shoot-through); else a later rebound.
-    row["off_gate_cause"] = (None if row["pass_off_gate"] else
+    row["off_gate_cause"] = (None if row["pass_off_gate"] else "aborted" if r["aborted"] or row["vgs_off_max"] is None else
                              "deadtime_too_short" if (row["vgs_off_at_partner_cmd"] or 0) >= 3.0 else "rebound")
     row["pass_vgs_transient"] = row["vgs_abs_max"] is not None and row["vgs_abs_max"] <= 30.0
     row["zvs"] = (row["vds_incoming_at_on"] is not None and row["vds_incoming_at_on"] <= 0.05 * vbus)
@@ -102,7 +102,7 @@ def summarize(rows: list[dict]) -> dict:
     return {"cases": len(rows), "aborted": sum(r["aborted"] for r in rows),
             "pass": sum(r["pass"] for r in rows), "fail": sum(not r["pass"] for r in rows),
             "fail_by_criterion": {k: sum(not r[k] for r in rows) for k in ("pass_vds", "pass_off_gate", "pass_vgs_transient")},
-            "off_gate_fail_causes": {c: sum(r.get("off_gate_cause") == c for r in rows) for c in ("deadtime_too_short", "rebound")},
+            "off_gate_fail_causes": {c: sum(r.get("off_gate_cause") == c for r in rows) for c in ("deadtime_too_short", "rebound", "aborted")},
             "off_gate_fails_by_dt_ns": {dt: sum((not r["pass_off_gate"]) and r["dt_ns"] == dt for r in rows) for dt in DT},
             "zvs_S1_at_348ns": {"yes": sum(r["zvs"] for r in s1n), "no": sum(not r["zvs"] for r in s1n)},
             "worst": worst}
