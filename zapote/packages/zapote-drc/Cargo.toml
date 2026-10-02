@@ -10,9 +10,11 @@ zapote-core = { path = "../zapote-core" }
 serde_json.workspace = true
 sha2.workspace = true
 serde.workspace = true
+geo = { version = "0.29.3", default-features = false }
 
 [dev-dependencies]
 proptest = "1"
+flate2 = "1"
 
 [[bench]]
 name = "layout_quality"

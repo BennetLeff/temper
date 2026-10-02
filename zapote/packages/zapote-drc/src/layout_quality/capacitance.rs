@@ -124,10 +124,7 @@ pub fn broadside(
                 continue;
             }
             let separation = positive((a.z_mm - b.z_mm).abs(), "broadside separation")?;
-            let c = positive(
-                0.008_854_187_812_8 * relative_permittivity * area / separation,
-                "capacitance estimate",
-            )?;
+            let c = parallel_plate_pf(area, separation, relative_permittivity)?;
             pairs.push(Pair {
                 aggressor: a.object.clone(),
                 victim: b.object.clone(),
@@ -145,4 +142,24 @@ pub fn broadside(
             .then(a.victim.cmp(&b.victim))
     });
     Ok(pairs)
+}
+
+/// Parallel-plate estimate from a positive, independently measured overlap area.
+/// Units are mm², mm, and dimensionless relative permittivity; output is pF.
+/// No fringing or shielding is represented.
+///
+/// # Errors
+/// Rejects nonpositive/nonfinite geometry and an unrepresentable result.
+pub fn parallel_plate_pf(
+    area_mm2: f64,
+    separation_mm: f64,
+    relative_permittivity: f64,
+) -> Result<f64, Error> {
+    positive(
+        0.008_854_187_812_8
+            * positive(relative_permittivity, "relative_permittivity")?
+            * positive(area_mm2, "overlap area")?
+            / positive(separation_mm, "separation")?,
+        "capacitance estimate",
+    )
 }

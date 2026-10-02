@@ -6,6 +6,8 @@ KICAD_PYTHON ?= python3
 # Paths here are relative to zapote/ (or absolute). Override for a maintained variant.
 UNIT_MANIFEST ?= validation/units.json
 RUN_DIR ?= validation/runs/$(shell date -u +%Y%m%dT%H%M%SZ)
+LAYOUT_BOARD ?= power-stage-120v/native-17/section.kicad_pcb
+LAYOUT_RUN_DIR ?= validation/runs/layout-$(shell date -u +%Y%m%dT%H%M%SZ)
 # Register each maintained Zapote unit here. Missing files fail closed.
 UNIT_BOARDS := rtd/unit/candidate/section.kicad_pcb current-sense/candidate/section.kicad_pcb thermal-sense/candidate/section.kicad_pcb interlock/candidate/section.kicad_pcb gate-drive/candidate/section.kicad_pcb
 
@@ -18,7 +20,16 @@ build:
 
 check:
 	$(CARGO) test --locked --workspace
+	$(MAKE) check-layout
 	$(MAKE) check-units
+
+# Live geometry feedback after a placement/routing edit. This is measurement
+# success, not electrical acceptance; report.json retains every model/input gap.
+# LAYOUT_BASELINE optionally names a report made with the same evaluator.
+.PHONY: check-layout
+check-layout:
+	@mkdir -p "$$(dirname "$(LAYOUT_RUN_DIR)")"
+	$(CARGO) run --release --quiet --locked --bin zapote-layout-quality -- --native "$(LAYOUT_BOARD)" --python "$(KICAD_PYTHON)" --output "$(LAYOUT_RUN_DIR)" $(if $(LAYOUT_BASELINE),--baseline "$(LAYOUT_BASELINE)")
 
 # Run the costly retained FEM replay in release; focused cargo tests stay debug.
 # The runner's exit 2 means incomplete evidence. Make maps any recipe failure

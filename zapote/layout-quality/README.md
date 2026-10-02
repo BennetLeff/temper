@@ -3,10 +3,14 @@
 Nine advisory Rust checks for comparing Zapote placement and routing candidates.
 Implementation: `zapote-drc::layout_quality`. Batch CLI: `zapote-layout-quality`.
 These checks do not place or route the board and do not modify native artifacts.
+For direct saved-board feedback, use the [native integration](NATIVE.md):
+`make -C zapote check-layout`. It now runs under `make -C zapote check` and
+supports board-to-board deltas. The [integration audit](INTEGRATION-AUDIT.md)
+separates executed checks, missing inputs and unconnected kernels.
 The [validation record](evidence/README.md) includes tests, benchmarks, lint
 limitations and the native-17 example output.
 
-## Run
+## Supplied-model mode
 
 From the repository root:
 
@@ -30,7 +34,7 @@ means bad input, stale board binding, invalid calculations or missing coverage.
 Case errors are retained beside successful cases. Batch identity/JSON errors are
 sent to stderr without emitting a partial report.
 
-The CLI verifies the full SHA-256 of saved board bytes and records the request's
+This supplied-model mode verifies the full SHA-256 of saved board bytes and records the request's
 SHA-256. It does not parse KiCad or prove the supplied model was extracted from
 those bytes. `source_revision`, `basis`, object identities and `assumptions` must
 identify that provenance. Prepare a fresh input after relevant geometry, BOM,
@@ -60,8 +64,9 @@ Rectangle patches must represent actual filled material, not the bounding boxes
 of tracks/pads/zones. Subdivide without overlap and exclude holes. Coordinates
 are already in board space: this code does not apply another KiCad rotation.
 For arbitrary polygons or accurate coupling, supply field-extracted terms to the
-electrical kernels. The native adapter/field extraction remains upstream; this
-change does not turn the board's existing coarse copper census into an extractor.
+electrical kernels. Native mode now provides polygon-based adjacent-layer
+projections using its own KiCad capture; field extraction remains separate.
+The board's existing coarse copper census is not used for these projections.
 
 For copper, a section area must be actual conducting area. A via/barrel section
 requires its plated area, not the drill area. Use `resistance_ohm()` only for

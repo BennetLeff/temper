@@ -6,6 +6,9 @@ use zapote_drc::layout_quality::report::{self, Status};
 
 fn run() -> Result<ExitCode> {
     let args: Vec<_> = std::env::args_os().skip(1).collect();
+    if args.first().is_some_and(|arg| arg == "--native") {
+        return native(&args[1..]);
+    }
     if args.len() != 1 {
         bail!("usage: zapote-layout-quality BOARD.kicad_pcb < scenarios.json");
     }
@@ -43,6 +46,44 @@ fn run() -> Result<ExitCode> {
     } else {
         0
     }))
+}
+
+fn native(args: &[std::ffi::OsString]) -> Result<ExitCode> {
+    use std::path::{Path, PathBuf};
+    let board = args
+        .first()
+        .context("--native requires a saved board path")?;
+    let mut python = std::env::var_os("KICAD_PYTHON")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("python3"));
+    let mut output = None;
+    let mut baseline = None;
+    let mut seen = std::collections::BTreeSet::new();
+    let mut options = args[1..].chunks_exact(2);
+    for option in &mut options {
+        anyhow::ensure!(seen.insert(option[0].clone()), "duplicate native option");
+        match option[0].to_str() {
+            Some("--python") => python = PathBuf::from(&option[1]),
+            Some("--output") => output = Some(PathBuf::from(&option[1])),
+            Some("--baseline") => baseline = Some(PathBuf::from(&option[1])),
+            _ => bail!("unknown native option: {:?}", option[0]),
+        }
+    }
+    anyhow::ensure!(
+        options.remainder().is_empty(),
+        "native option needs a value"
+    );
+    let output = output.context("--native requires --output NEW_EVIDENCE_DIRECTORY")?;
+    let report = zapote_harness::layout_native::run(
+        Path::new(board),
+        &python,
+        &output,
+        baseline.as_deref(),
+    )?;
+    println!("{}", serde_json::to_string_pretty(&report)?);
+    // Successful measurement is not electrical acceptance. Coverage is explicit
+    // in every report; an extraction failure still exits 2 through main().
+    Ok(ExitCode::SUCCESS)
 }
 fn main() -> ExitCode {
     match run() {

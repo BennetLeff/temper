@@ -1976,3 +1976,6 @@ pub mod power_branches;
 
 /// Advisory electrical, geometric and assembly metrics for layout comparison.
 pub mod layout_quality;
+
+/// Source-bound layout measurements from a live KiCad geometry snapshot.
+pub mod native_layout;
