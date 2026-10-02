@@ -48,7 +48,8 @@ P4   5.08   5.29  -0.21  36.30
 
 Checked and passing: the solver (exact on qualification fixtures), the
 reciprocity mutuals (independent pair-solve energies: M12 on a coarse
-mesh 18.106446 vs 18.106450 nH; M13 3.747410 vs 3.747422 nH), port identity and orientation, the circuit wiring (agrees with
+mesh 18.106446 vs 18.106450 nH; M13 3.747410 vs 3.747422 nH; M34
+−0.295904 vs −0.295900 nH, sign confirmed), port identity and orientation, the circuit wiring (agrees with
 round 3's deck to < 1 % at near-zero board L), the air box (+0.7 %) and
 defeaturing (−0.7 %). Crop margin: converged by 20 mm, corrected per entry,
 no verdict changes.
@@ -70,7 +71,6 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | --- | --- | --- |
 | 3 mm closure matrix (fine mesh) → parabolic extrapolation | remote box | P1, P2 done; P3, P4 running |
 | Leg B matrix | remote box | queued after leg A |
-| Signed pair check P3+P4 (gate-to-gate, M34 < 0) | Mac | running |
 | 5-port bulk model (port at C6) | Mac | queued |
 | Extrapolation test with 0.5 / 2 / 3 mm closures on the coarse mesh | Mac | queued |
 | D-5 gate dead time, D-6 off-gate remedies, D-7 capacitor ESL, D-8 double-pulse plan, D-9 review, D-10 J4 interface | delegated ([briefs](round17/delegation/README.md)) | not started |

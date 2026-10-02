@@ -29,7 +29,7 @@ limit, judged not to change any conclusion).
 | M5 | Driver modelled as DC output resistances (5 Ω / 0.55 Ω, typical); no transient boost | ACCEPTED | [out-D2](round17/delegation/out-D2/README.md) | boosted variant changes S4 only slightly (560 V, 4.85 V); revisit if D-6 depends on it |
 | M6 | Gate resistor package inductance generic (2 nH), not Yageo-specific | ACCEPTED | out-D2 | — |
 | M7 | Zero-height result is a reference-geometry extrapolation, not removal of every closure conductor (D-4 P2) | ACCEPTED | [out-D4](round17/delegation/out-D4/README.md) | — |
-| M8 | Signed mutuals: M12 and M13 confirmed by pair-solve energy; M34 (small, negative) pending | OPEN | `scripts/pair_check.sh`, Mac `pairs.log` | P3+P4 pair solve (running) |
+| M8 | Signed mutuals confirmed by independent pair-solve energy (coarse mesh): M12; M13 3.747422 vs 3.747410 nH; M34 −0.295900 vs −0.295904 nH (sign confirmed) | CLOSED | [`round17/results/pair-check-h1-e1p0.txt`](round17/results/pair-check-h1-e1p0.txt), `scripts/pair_check.sh` | — |
 
 ## Software defects (closed)
 
