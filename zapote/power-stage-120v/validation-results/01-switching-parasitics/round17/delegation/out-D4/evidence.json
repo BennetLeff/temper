@@ -1,0 +1,255 @@
+{
+  "extrapolation_and_mapping": {
+    "actual_K": {
+      "K12": "0.620844074",
+      "K13": "0.134146761",
+      "K14": "0.164910165",
+      "K23": "0.127616195",
+      "K24": "0.17451875",
+      "K34": "-0.00657285378"
+    },
+    "actual_eigenvalues_nH": [
+      10.356624825572634,
+      24.289874981241418,
+      32.76188887423385,
+      49.65193131895208
+    ],
+    "actual_lin12_L_nH": [
+      [
+        28.242303,
+        16.978472999999997,
+        3.632701,
+        5.285405
+      ],
+      [
+        16.978472999999997,
+        26.480859000000002,
+        3.346349,
+        5.416128
+      ],
+      [
+        3.632701,
+        3.346349,
+        25.965626999999998,
+        -0.20199200000000006
+      ],
+      [
+        5.285405,
+        5.416128,
+        -0.20199200000000006,
+        36.371531000000004
+      ]
+    ],
+    "actual_lin12_range_width_max_nH": 0.0,
+    "matrix_spice_roundtrip_max_error_nH": 1.142863981229425e-08,
+    "synthetic_hidden_cubic": {
+      "estimated_L0_nH": 30.0,
+      "reported_spread_nH": 7.105427357601002e-15,
+      "true_L0_nH": 24.0
+    },
+    "synthetic_margin_interaction": {
+      "coarse_h1_delta_nH": -2.0,
+      "correction_error_nH": 2.3000000000000007,
+      "fine_h0_delta_nH": -4.300000000000001
+    },
+    "synthetic_missing_bulk_mode": {
+      "physical_board_source_voltage_V": 10.0,
+      "relocated_capacitor_model_board_voltage_V": 0.0,
+      "shared_source_nH": 5.0,
+      "slew_A_per_ns": 2.0
+    }
+  },
+  "geometry": {
+    "flat_GS_crossings": [
+      {
+        "GS_span_mm": [
+          150.55,
+          161.45
+        ],
+        "drain_inside_flat_GS_span": true,
+        "drain_x_mm": 156.0,
+        "fet": "Q2"
+      },
+      {
+        "GS_span_mm": [
+          132.55,
+          143.45
+        ],
+        "drain_inside_flat_GS_span": true,
+        "drain_x_mm": 138.0,
+        "fet": "Q3"
+      }
+    ],
+    "mesher_minimum_h_mm_exclusive": 0.35,
+    "ports": [
+      {
+        "a": [
+          144.0,
+          22.0
+        ],
+        "b": [
+          129.0,
+          22.0
+        ],
+        "name": "P1_C38",
+        "note": "C38.1 bus_p -> C38.2 hv_ret"
+      },
+      {
+        "a": [
+          164.6,
+          22.0
+        ],
+        "b": [
+          149.6,
+          22.0
+        ],
+        "name": "P2_C39",
+        "note": "C39.1 bus_p -> C39.2 hv_ret"
+      },
+      {
+        "a": [
+          144.825,
+          41.125
+        ],
+        "b": [
+          146.095,
+          41.125
+        ],
+        "name": "P3_gate_high",
+        "note": "U1.15 out_h -> U1.14 sw_a"
+      },
+      {
+        "a": [
+          151.175,
+          41.125
+        ],
+        "b": [
+          152.445,
+          41.125
+        ],
+        "name": "P4_gate_low",
+        "note": "U1.10 out_l -> U1.9 leg_ret"
+      }
+    ]
+  },
+  "grid": {
+    "case_count": 306,
+    "different_matrix_cache_hit": true,
+    "missing_at_partner_measure_cause": "rebound",
+    "simulator_calls_for_two_distinct_cases_and_one_changed_matrix": 2,
+    "synthetic_non_zvs_row": {
+      "aborted": false,
+      "case": "S1",
+      "dir": 0,
+      "dt_ns": 348,
+      "esl_nH": 10,
+      "il": 37,
+      "off_gate_cause": null,
+      "pass": true,
+      "pass_off_gate": true,
+      "pass_vds": true,
+      "pass_vgs_transient": true,
+      "vbus": 170,
+      "vds_incoming_at_on": 100.0,
+      "vds_pk": 200.0,
+      "vgs_abs_max": 15.0,
+      "vgs_off_at_partner_cmd": 2.0,
+      "vgs_off_max": 2.0,
+      "zvs": false
+    }
+  },
+  "reciprocity": {
+    "baseline": {
+      "L_nH": [
+        [
+          132.629119,
+          66.31456
+        ],
+        [
+          66.31456,
+          165.786399
+        ]
+      ],
+      "diagonal_vs_energy": [
+        {
+          "L_energy_nH": 132.62911924324612,
+          "L_from_B_nH": 132.629119,
+          "port": "10",
+          "rel_diff": 2.1429464051765033e-16
+        },
+        {
+          "L_energy_nH": 165.78639905405763,
+          "L_from_B_nH": 165.786399,
+          "port": "11",
+          "rel_diff": 0.0
+        }
+      ],
+      "max_within_tet_spread": 0.0,
+      "partitions": 1,
+      "ports": [
+        "10",
+        "11"
+      ],
+      "tets": 1
+    },
+    "both_production_gate_exit_codes": [
+      0,
+      0
+    ],
+    "nonexistent_mesh_argument_accepted": true,
+    "one_port_orientation_flipped": {
+      "L_nH": [
+        [
+          132.629119,
+          -66.31456
+        ],
+        [
+          -66.31456,
+          165.786399
+        ]
+      ],
+      "diagonal_vs_energy": [
+        {
+          "L_energy_nH": 132.62911924324612,
+          "L_from_B_nH": 132.629119,
+          "port": "10",
+          "rel_diff": 2.1429464051765033e-16
+        },
+        {
+          "L_energy_nH": 165.78639905405763,
+          "L_from_B_nH": 165.786399,
+          "port": "11",
+          "rel_diff": 0.0
+        }
+      ],
+      "max_within_tet_spread": 0.0,
+      "partitions": 1,
+      "ports": [
+        "10",
+        "11"
+      ],
+      "tets": 1
+    }
+  },
+  "reviewer": "OpenAI GPT-6 Astra / Codex",
+  "runtime": {
+    "meshio": "5.3.5",
+    "numpy": "2.4.6",
+    "python": "3.12.12"
+  },
+  "scope": "review only; synthetic counterexamples are not board measurements",
+  "source_revision": "67aec36f8c876a7026c07ce3752105ab34d3ce46",
+  "source_sha256": {
+    "closures-legA.json": "dc5f7710544d1a2592fd2f1ef78704431f1099ab87ca7c3e4c4c34156e0cace8",
+    "closures-legB.json": "da818c5b7ab370cabb0160fcab77dee63512647d49a88f4d64d1c0942a3ed4a0",
+    "d2/grid.py": "d3c15b0ffa587b513e11620cd744ed697da53a2e03c1b9912fb6a01d5ab40497",
+    "d2/legA-h1-e0p35.matrix.txt": "2a3f4f428cda463412f3d26464d5c6b8b21dde846b348a5385011f8e31b1b5f0",
+    "d2/legA-h2-e0p35.matrix.txt": "5fbcfdc400115a15d91e89c78bba03d4db431941ebfeec75dc3a7eb7d42d2421",
+    "d2/leg_matrix.cir": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+    "d2/run_d2.py": "1ea37c6c1b23c51e5dc694935c3d90336f45892432e17949d75df6a4d19e6579",
+    "scripts/campaign.py": "f8b2f719ed5a0b9eea852034d4527862d390ddb1a4b9d86dde455217b1733b73",
+    "scripts/extrapolate.py": "e6d98059b6f9a2997793f68c5fbbbd5cf6fe3cf601d17060780d9d6c594c81f6",
+    "scripts/inductance_matrix.py": "282887dc4a5042797536cf81fc71113ea8ebc2479a3dbee5e4adc599f82d1695",
+    "scripts/mesh25d_hybrid.py": "259a5fa3762b5ce02a959e763214b6c547101db978e697e71e454926361cc3b2"
+  }
+}
