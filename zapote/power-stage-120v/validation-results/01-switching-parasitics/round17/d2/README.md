@@ -113,3 +113,9 @@ stress and task counts are equal: every nominal S1 case at 348 ns soft-switches
 All of this is on the provisional lin12 matrix and the 4-port deck, which
 omits the bulk-path coupling (README §11 at round-17 level); results move
 with the 3 mm extrapolation, the crop correction and the 5-port check.
+
+**Crop-margin correction** (`legA-h0-lin12-m20corr.matrix.txt`,
+`results/grid-h0-lin12-m20corr/`, S1/S2/S4 = 240 cases): no verdict
+changes against grid v2; die VDS moves −3.1 … +1.0 V and off-gate peak
+−0.055 … +0.037 V. The ~2–5 % crop error in the power loops does not
+affect any conclusion above.
