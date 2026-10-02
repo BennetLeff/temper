@@ -181,3 +181,30 @@ Caveat: the 0.5 mm closure strips (0.6 mm wide) are narrower than the 1.0 mm
 mesh edges, so part of the curvature may be mesh error; the fine-mesh
 parabola through 1 / 2 / 3 mm (remote, last port solving) and the coarse 3 mm
 matrix (Mac) are the cross-checks.
+
+**With the coarse 3 mm matrix** (`legA-h3-e1p0-m10`), zero-height estimates
+per entry (nH):
+
+| Entry | lin(1,2) | quad(1,2,3) | quad(0.5,1,2) | cubic(0.5,1,2,3) |
+| --- | ---: | ---: | ---: | ---: |
+| L11 | 27.05 | 26.84 | 25.33 | 25.03 |
+| L22 | 25.21 | 24.90 | 23.37 | 23.06 |
+| L33 | 24.43 | 24.55 | 23.03 | 22.73 |
+| L44 | 34.09 | 34.11 | 33.55 | 33.44 |
+| M13 | 3.59 | 3.79 | 4.04 | 4.09 |
+| M14 | 5.18 | 5.35 | 5.55 | 5.59 |
+| M23 | 3.31 | 3.55 | 3.82 | 3.88 |
+| M24 | 5.30 | 5.48 | 5.70 | 5.74 |
+
+- The power-to-gate mutuals are **not monotonic in h**: M13 is
+  3.84 / 3.75 / 3.91 / 4.26 nH at 0.5 / 1 / 2 / 3 mm, with a minimum near 1 mm,
+  so the raw 0.5 mm value already exceeds lin(1,2).
+- quad(1,2,3), the fine campaign's planned method, captures about 45 % of
+  the mutual increase and almost none of the self-inductance drop; the
+  0.5 mm point decides it (cubic and quad(0.5,1,2) agree to ~0.3 nH).
+- Coarse and fine meshes agree on the 1→2→3 mm slopes to ~1 %
+  (P1 4.79/4.59 vs 4.80/4.62; P2 5.34/5.03 vs 5.36/5.08; P3 3.59/3.70 vs
+  3.61/3.75 nH/mm), which supports transferring the coarse low-height
+  correction. Planned best matrix: fine quad(1,2,3) + coarse
+  [cubic − quad(1,2,3)] + crop correction (`scripts/extrap_delta.py
+  --base quad123 --h3 …`, then `scripts/margin_correct.py`).
