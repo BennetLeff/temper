@@ -15,6 +15,27 @@ counterpart: the root controller's `V_BUS_SENSE` (U27.38, GPIO2) is
 single-ended and already driven. Bus OVP itself is the separate comparator
 U7 and is **not** affected; this is the controller's measurement path.
 
+## Owner decision (2026-10-03), after the first pass (draft PR #1635)
+
+The first pass found that U4 and the OVP comparator U7 **share** the divider
+(`vsense_in` = R29/R30 node feeds U4.2 and U7.4): rescaling it for U4 would
+move OVP to ≥ 326.7 V. The owner chose to **keep the divider unchanged**:
+
+- U4 is specified as linear up to the bus at which VIN = 2 V (≈ 240 V,
+  corners 237.4–242.6 V), which covers 170–198 V operation with headroom;
+- above that the reading is **over-range**; protection is U7's hardware OVP
+  at 280 V, unchanged;
+- no board change to R26–R30, R36/R37 or U7.
+
+Task items 1, 3 and 4 below remain; **item 2 (divider options) is dropped**.
+Add item 5.
+
+5. **Over-range and trip consistency:** with the unchanged divider, give the
+   U4 reading (or code) at 240 / 260 / 280 V and the OVP trip spread from
+   R36/R37 and U7's offset (cite TLV3201/U7 datasheet pages), and state the
+   firmware rule (e.g. "reading ≥ X ⇒ treat as ≥ 240 V, fault-level; rely on
+   U7"). Confirm the measurement accuracy over 0–240 V meets item 1's need.
+
 ## Task
 
 1. **Required range:** from `docs/hardware/power-section-120v/POWER-SECTION.md`
