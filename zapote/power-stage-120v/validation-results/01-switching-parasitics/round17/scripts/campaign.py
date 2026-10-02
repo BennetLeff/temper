@@ -174,7 +174,9 @@ def main() -> None:
         time.sleep(60)                                   # one solve at a time (memory)
     for case in a.cases:
         h, e = case.split(":")
-        tag = f"leg{a.leg}-h{h}-e{e.replace('.', 'p')}"
+        # No '.' in tags: run paths use Path.with_suffix(".out"), which would
+        # treat "h0.5-..." as a suffix and make every port share one file.
+        tag = f"leg{a.leg}-h{h.replace('.', 'p')}-e{e.replace('.', 'p')}"
         if a.margin != 10.0 or a.air != 10.0:
             tag += f"-m{a.margin:g}-a{a.air:g}"
         msh, mlog = work / f"{tag}.msh", work / f"{tag}.log"
