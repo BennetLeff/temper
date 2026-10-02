@@ -1,3 +1,8 @@
+> **Current status: see [STATUS.md](STATUS.md)** (current answer),
+> [FINDINGS.md](FINDINGS.md) (open risks) and [ROUNDS.md](ROUNDS.md) (index of
+> rounds 1–17). The text below is the **round-1 record** (native-13, 2026-09-27);
+> its BLOCKED verdict is superseded by the round-17 FEM extraction.
+
 # 01 Layout parasitics and switching transient — partial result
 
 The [round-2 complementary-drive check](round2/README.md) validates both modeled gate commands, deadtime and light-load behavior with clearly labeled reference inductances. It does not change this board-level blocked verdict.

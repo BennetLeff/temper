@@ -1,5 +1,8 @@
 # D1-FEM round 17: full inductance matrices from single-port solves (in progress)
 
+> Lab notebook for round 17, in the order things happened. The current
+> answer is [../STATUS.md](../STATUS.md); open items are [../FINDINGS.md](../FINDINGS.md).
+
 > **Correction (2026-09-30):** the first qualification in §3 used a
 > uniform-field fixture and missed a defect: Elmer's VTU writer averages DG
 > fields within each body by default, smoothing the per-tet B. The first

@@ -47,8 +47,8 @@ P4   5.08   5.29  -0.21  36.30
 ## How far to trust it
 
 Checked and passing: the solver (exact on qualification fixtures), the
-reciprocity mutuals (pair-solve energy: M12 to 1e-15, M13 to 1.8e-7
-relative), port identity and orientation, the circuit wiring (agrees with
+reciprocity mutuals (independent pair-solve energies: M12 on a coarse
+mesh 18.106446 vs 18.106450 nH; M13 3.747410 vs 3.747422 nH), port identity and orientation, the circuit wiring (agrees with
 round 3's deck to < 1 % at near-zero board L), the air box (+0.7 %) and
 defeaturing (−0.7 %). Crop margin: converged by 20 mm, corrected per entry,
 no verdict changes.

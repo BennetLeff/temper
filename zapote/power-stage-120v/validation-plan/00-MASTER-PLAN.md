@@ -1,9 +1,14 @@
 # Power-stage-120v validation master plan
 
-Status: round-five native-17 extraction diagnostics and bench procedure collected
-2026-09-28. The current-limited tank grid is complete; reference switching/loss
-results remain conditional, and board inductance extraction is software-blocked
-(see §5). This plan covers the desk
+Status (2026-10-02): task 01's board inductance extraction is no longer
+blocked. Round 17 extracted leg A's loop inductances by FEM and ran the
+switching grid on them. Nominal operation passes; dead-time margin and hard
+turn-on are open risks. Current answer:
+[01 STATUS](../validation-results/01-switching-parasitics/STATUS.md), open
+items: [01 FINDINGS](../validation-results/01-switching-parasitics/FINDINGS.md).
+The current-limited tank grid is complete; C1/C2 (dead-time ZVS and losses)
+can now be rerun on the FEM matrix. The round-5 status of §5 below is
+historical. This plan covers the desk
 validations and simulations to run on the routed board **before** fabrication
 release. Physical tests (hipot, leakage, measured EMI, measured temperature)
 come later; each task lists the physical test that finally confirms it.
