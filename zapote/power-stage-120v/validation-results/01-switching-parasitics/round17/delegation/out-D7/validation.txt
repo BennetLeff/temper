@@ -19,5 +19,28 @@ brief forbids edits outside out-D7 and no derived drift was found.
 git diff --check
 Exit 0.
 
-No Rust/native build, ngspice run or firmware change needed for this audit.
-No verified model ESL or physical qualification claimed.
+No Rust/native build or firmware change performed. No physical qualification claimed.
+
+Follow-up after user-authorized TDK license acceptance:
+/private/tmp/temper-r17-audit-tools/bin/python zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D7/model_analysis.py /Users/bennet/Downloads/tdk-b32651-8-ps-ux-en-tar.tar --ngspice /opt/homebrew/bin/ngspice
+Exit 0; authentic archive hash matched; model-evidence.json saved.
+Unmodified TDK library v1.10; ngspice45.2 with local ngbehavior=ps.
+Analytical vs ngspice complex impedance, 6001 points/model:
+local max relative difference 5.537724671505798e-9;
+bulk max relative difference 3.0715858782165683e-6.
+Acceptance tolerance 1e-5 is numerical, not vendor model accuracy.
+SRF relative differences 5.415936725761128e-7 and 7.005665751957935e-7.
+Initial run without PSpice compatibility rejected nested parameterized
+subcircuit; compatibility mode fixed loading without editing vendor bytes.
+
+Negative source-provenance check:
+model_analysis.py /private/tmp/r17-tdk-models.tar
+Exit 1 as expected: old HTML license-page response rejected by SHA-256
+before tar parsing. No stale temporary model file used.
+
+Import-boundary gate and read-only regen check rerun after model-analysis
+changes; results remain 5 kept/0 broken and all derived artifacts consistent.
+
+
+Coordinator independently reran model_analysis.py with --ngspice:
+exit 0 and output byte-identical to committed model-evidence.json.

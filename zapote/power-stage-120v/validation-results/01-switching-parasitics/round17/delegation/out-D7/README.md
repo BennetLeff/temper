@@ -1,92 +1,117 @@
-**C38–C41 / B32652A0104K000: no verified ESL range yet; retain 5/10/20 nH only as an assumed sensitivity sweep—TDK lists an exact model, but downloading it requires license acceptance.**
+**C38–C41 / B32652A0104K000: TDK's typical full-model resonance implies 1.060 nH; use an exploratory 1.060–20 nH sweep including the vendor-model anchors and legacy stress points, not a production bound.**
 
-**C5/C6 / B32656G0275J000: no verified ESL range yet; TDK also lists an exact model, and the local-capacitor sweep must not be promoted to a bulk-capacitor specification.**
+**C5/C6 / B32656G0275J000: TDK's typical full-model resonance implies 19.200 nH; sweep independent bulk ESL at 11.364 / 19.200 / 23.447 nH as model-informed sensitivity points, not a mounted-part bound.**
 
-## Method and result
+## Method
 
-D-7 audited the frozen BOM, netlist and native-17 board identities at
-`f9b13b483d6d4ed52439d4da419c7670bab6966c`, then followed the TDK product
-page to its series datasheet, general technical information and film-model
-library. [evidence.json](evidence.json) records input hashes and the six
-reference/part matches. No identity contradiction was found. Design files,
-existing decks and round-17 results were not changed.
+The user authorized TDK license acceptance; the coordinator then downloaded
+the exact B3265* PSpice Unix archive through TDK's official table. Its
+SHA-256 is `5eb5219af01c3fdaf80e68343fe9815960cc9d6696e216eccc9ddb78d9574df2`.
+[model_analysis.py](model_analysis.py) rejects any other archive hash,
+reads members without unpacking them into the repository, and evaluates
+the complete equivalent circuit. The library is **TDK_B32651-8.lib,
+v1.10, 2025-03-21**. [model-evidence.json](model-evidence.json) records
+archive/member hashes, parameter locations, calculations and the independent
+ngspice check. No licensed source model is committed.
 
-The investigation found **part-specific models**, not merely a family
-estimate. TDK's public PSpice library README lists `B32652A0104K` and
-`B32656G0275J` in `TDK_B32651-8.lib`, version **1.10**, assembled
-**2025-03-21**. The ordering suffix `000` is absent from these model names;
-matching the electrical part stem is established, but the modeled lead
-geometry cannot be established without the archive. TDK describes the models
-as typical and limits expected accuracy to below the first resonance. An
-extracted model inductance would therefore be a typical model parameter,
-not a production or mounted-assembly bound. [S2]
+The exact electrical-part subcircuits are `B32652A0104K` (library lines
+269–282) and `B32656G0275J` (9287–9300). The `000` ordering suffix is
+absent from the model names. The frozen BOM/netlist/native-17 part identities
+match at source revision `f9b13b483d6d4ed52439d4da419c7670bab6966c`;
+[evidence.json](evidence.json) records the six references and input hashes.
+No board/netlist/datasheet contradiction was found.
 
-No model inductance was extracted. Direct `curl` returned HTTP 403. An
-independent retry with a browser user-agent and TDK referrer returned HTTP
-200 **HTML**, not a tar archive; its title and canonical link identify
-TDK's license-acceptance page. `tar tf` rejected it. The browser download
-also returned no usable file. The form explicitly requires accepting a
-license agreement; that action was not performed. These outcomes are
-recorded in [source-status.json](source-status.json). Do not treat an HTTP
-success or the `.tar` filename as proof of model acquisition.
+TDK's `BASE1` is **not a single series RLC**. It contains RC dispersion,
+two series-connected `R || L` sections, `Cs1`, `Ls1`, and an overall
+parallel leakage resistor. Consequently, taking `Ls1` alone or simply
+adding all three inductors does not reproduce the resonance. The script
+computes the first capacitive-to-inductive zero of the full complex
+impedance, then applies `L_equiv = 1 / ((2π f_SR)² C_nominal)`.
+This is a resonance-equivalent scalar, not a broadband replacement model.
 
-## Source numbers and what they establish
+## Numbers and sources
 
-| Item | Verified source fact | ESL implication |
+All model numbers in this table are extracted or calculated by the
+committed script and output; they are typical-model results, not measured
+parts or curve readings.
+
+| Quantity | B32652A0104K / local | B32656G0275J / bulk |
 | --- | --- | --- |
-| B32652A0104K000 | 100 nF ±10%, nominal 15 mm pitch; product page gives 18 × 9 × 17.5 mm maximum body and untaped leads of 6−1 mm | Package identity, not ESL. [S1, S3] |
-| B32656G0275J000 | Model list: 2.7 µF ±5%; series drawing B1: B32656G is four-pin, 37.5 mm primary pitch | A two-terminal model still needs its four-lead connection/reference-plane definition. [S1, S2] |
-| Family impedance graph | B3265*A/G/J/T, June 2026, printed p. 37, unnumbered “Impedance Z versus frequency f (typical values)” | Graph located, but no trustworthy part-specific SRF was read; no inferred ESL reported. [S1] |
-| General self-inductance rule | October 2025, printed p. 20, §2.5, relates maximum inductance to capacitor length **and lead length**, at 1 nH/mm | It does not establish the existing “≤ ~20 nH” mounted bound without the lead geometry and reference plane. [S4] |
+| Nominal capacitance | 100 nF | 2.7 µF |
+| Model `Cs1` | 100.04 nF | 2.7013 µF |
+| Model `Ls1` | 0.56365 nH | 11.364 nH |
+| Model `Lp61`, shunted by `Rp61` | 0.95082 nH, 0.0037462 Ω | 4.1527 nH, 0.0041465 Ω |
+| Model `Lp71`, shunted by `Rp71` | 2.120 nH, 0.11376 Ω | 7.9304 nH, 0.18227 Ω |
+| Low-frequency sum of inductive branches | 3.63447 nH | 23.4471 nH |
+| Full-model first SRF | 15.458225 MHz | 0.699020721 MHz |
+| SRF-equivalent ESL using nominal C | **1.060037 nH** | **19.199787 nH** |
+| Full-model real impedance at SRF | 0.105917 Ω | 0.0129195 Ω |
 
-The prior `PACKAGE-INDUCTANCE.md` bound needs qualification: body length
-alone omits the lead-length term in its own cited rule. The datasheet's
-supplied lead length does not say how far the installed body sits above
-the board or where the electrical reference plane lies. This is a
-limitation in the interpretation of an evidence document, not a
-board/netlist/datasheet contradiction.
+The inductive branches alone contribute a frequency-dependent effective
+inductance `Ls1 + Lp61/(1+(ω Lp61/Rp61)²) +
+Lp71/(1+(ω Lp71/Rp71)²)`. The other RC sections still contribute to the
+full terminal impedance. Neither end of that expression's range is a
+physical tolerance limit for the capacitor.
 
-The script provides `L = 1 / ((2π f_SR)² C)` arithmetic without inventing
-an SRF. Its default output gives the **implied**, unmeasured resonance
-frequencies of the inherited 5/10/20 nH choices, for comparison with a
-future impedance measurement:
+ngspice **45.2**, in PSpice compatibility mode (`ngbehavior=ps`), loaded
+the full vendor library **byte-unmodified**. Both models were driven by
+an AC current source and compared over **6001 points, 1 kHz–1 GHz**.
+Maximum relative complex-impedance differences were **5.54e-9 local**
+and **3.08e-6 bulk**, below the stated **1e-5 numerical-check tolerance**.
+The interpolated ngspice resonances were **15.458233 MHz** and
+**0.699021210 MHz**, within **7.01e-7 relative** of the analytical roots.
+The output includes representative frequency points. This wide sweep
+checks implementation agreement only; it does **not** validate physical
+model accuracy above resonance. TDK's README describes typical parts and
+expects accurate results only below the first resonance. [S2]
 
-| Assumed ESL | 100 nF implied SRF | 2.7 µF implied SRF |
-| --- | --- | --- |
-| 5 nH | 7.118 MHz | 1.370 MHz |
-| 10 nH | 5.033 MHz | 0.969 MHz |
-| 20 nH | 3.559 MHz | 0.685 MHz |
+There is no plot-reading uncertainty: these are numerical model values.
+Model-fit accuracy, production spread and mounting-reference uncertainty
+are unspecified; the numerical residual must not be presented as their
+uncertainty. The family impedance graph was located at printed p. 37 of
+the June 2026 series datasheet, but no part-specific curve was digitized
+or used to claim independent physical validation. [S1]
 
-Numbers above come from [esl_arithmetic.py](esl_arithmetic.py) and
-[evidence.json](evidence.json), using nominal capacitance. They are
-arithmetic transformations of assumptions, **not curve readings or vendor
-ESL evidence**. No reading uncertainty is assigned because no reading was
-made. A future SRF interval must be propagated inversely with its square,
-with capacitance uncertainty included separately.
-
-## Mounting, FEM and sweep recommendation
+## FEM boundary, mounting and recommended sweeps
 
 The brief establishes that FEM reaches the PCB pads and excludes the
-capacitor body and leads above the board. Added ESL must represent only
-that omitted part path, referenced to those pads. Do not add PCB loop
-inductance again. Conversely, do not subtract a guessed lead inductance
-from an uninspected vendor model. Establish the modeled cut length,
-terminal pairing and measurement plane first; include any remaining
-assembly lead length exactly once.
+capacitor body and leads above the board. Added capacitor impedance must
+represent that omitted path, without adding PCB loop inductance twice.
+The model header and archive README do not specify cut-lead length,
+mounting standoff, measurement reference plane or the four-pin terminal
+pairing. The models expose only `A1` and `A2`. Thus the typical model is
+available, but transfer to the mounted assembly remains conditional.
+Do not subtract a guessed lead term or silently assume the supplied
+lead length is the model's reference condition.
 
-The current five-port deck has a further limitation visible in
-`d2/leg_matrix5.cir`: `Lesl6`, `Lesl38` and `Lesl39` share `LESL`.
-`Cbulk5` has no separate component ESL, while its path uses heuristic
-`LBULK`. Thus independently sourced bulk and local values would require
-separate parameters and an explicit C5 component/path split in later
-work. This report does not edit that deck.
+The local part has nominal 15 mm pitch, maximum 18 × 9 × 17.5 mm body
+and supplied 6−1 mm leads. B32656G is a four-pin part with nominal
+37.5 mm primary pitch. [S1, S3] The general technical rule relates
+inductance to both capacitor length and lead length at 1 nH/mm. [S4]
+The earlier `PACKAGE-INDUCTANCE.md` claim “≤ ~20 nH” therefore does not
+establish a mounted bound without a defined lead geometry/reference plane.
 
-For now, retain the local **5/10/20 nH exploratory sweep** for continuity;
-there is no source-supported reason here to narrow it, and it is not a
-proven enclosure of production parts. For bulk, **no vendor-supported
-range is recommended yet**. If exploratory bulk sensitivity uses those
-same values, label them assumptions and vary bulk independently from the
-local capacitors. Do not close FINDINGS M4 on this report.
+Recommended scalar sensitivity points, all in nH:
+
+- **Local: 1.060037 / 3.63447 / 5 / 10 / 20.** The first two are the
+  resonance-equivalent value and low-frequency inductive-branch sum.
+  The remaining points retain the inherited exploratory sweep; they are
+  assembly stress assumptions, not vendor tolerances. Adding the lower
+  typical anchor is warranted; narrowing to it is not.
+- **Bulk: 11.364 / 19.199787 / 23.4471**, independently for C5 and C6.
+  These are the model's explicit series term, resonance-equivalent value
+  and inductive-branch sum. They test scalar-model sensitivity; they do
+  not bound added lead inductance or guarantee assembly coverage.
+
+When practical, use the full licensed frequency-dependent model for a
+separate typical comparison. A scalar ESL plus the existing fixed ESR
+cannot preserve all of its loss and dispersion.
+
+The existing five-port deck `d2/leg_matrix5.cir` shares `LESL` between
+`Lesl6`, `Lesl38` and `Lesl39`; `Cbulk5` has no separate component ESL
+and its path uses heuristic `LBULK`. A later integration must separate
+local and bulk parameters, and C5's part/path terms. This report changes
+no deck, board or existing round-17 result.
 
 ## Sources
 
@@ -105,24 +130,28 @@ local capacitors. Do not close FINDINGS M4 on this report.
   **October 2025**, printed pp. 20–21, §§2.5–2.6:
   [official PDF](https://en.tdk.eu/download/530754/bb7f3c742f09af6f8ef473fd34f6000e/pdf-generaltechnicalinformation.pdf).
 - **S5:** TDK, [Important notes and License Agreement](https://www.tdk-electronics.tdk.com/en/2905240/design-support/design-tools/important-notes-and-license-agreement),
-  live page, accessed 2026-10-02; model access requires license acceptance.
+  live page, accessed 2026-10-02; user authorized license acceptance before the successful download.
 
-## Reproduce and limits
+## Reproduce and remaining qualification
 
-From the repository root, using Python 3.12 and only its standard library:
+After accepting TDK's license, download the S2 archive to a private local
+path. Do not add the archive or library to git. From the repository root:
 
 ```sh
+python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D7/model_analysis.py /path/to/tdk-b32651-8-ps-ux-en-tar.tar --ngspice /opt/homebrew/bin/ngspice
 python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D7/esl_arithmetic.py
 ```
 
-To calculate from a future actual reading, pass both `--capacitance-nf`
-and `--srf-mhz`; record the reading, source, lead geometry and uncertainty
-alongside the result. The script does not turn entered values into evidence.
+Python 3.12 uses only the standard library. The optional ngspice check
+places an unmodified temporary library and deck outside the repository,
+then removes them. It needs no MOSFET model because this is a capacitor-only
+AC test. Omitting `--ngspice` runs just the analytical extraction. The
+separate arithmetic script also accepts an externally measured capacitance
+and SRF; input values alone do not establish evidence.
 
-**Owner action:** accept the TDK license if appropriate and obtain the
-archive, then provide its local path for an exact-model extraction and
-lead-plane audit. Save the archive SHA-256 and model revision at that
-point. No vendor model has been obtained or redistributed here; there is
-therefore no model hash to report. If model lead geometry remains
-unspecified, request it from TDK or measure a sample at the intended
-mounting geometry. D-7 numeric closure remains incomplete until then.
+**Owner/integration decisions:** adopt separate bulk/local model inputs;
+obtain TDK's model lead/reference-plane definition or measure an installed
+sample; retain assembly margin until that is known. The vendor-typical
+ESL question is answered, but a mounted maximum and physical switching
+qualification remain open. FINDINGS M4 may now cite verified typical
+models; it must not become an unconditional physical bound.
