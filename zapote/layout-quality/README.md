@@ -1,5 +1,11 @@
 # Layout-quality checks
 
+**Start here:** [all Zapote checks and commands](../CHECKS.md).
+For saved boards, use [native geometry](NATIVE.md) or
+[native current / resistance / loss](CURRENT.md); the latter includes geometry.
+[Latest native evidence](mesh-evidence/README.md) contains the actual board runs
+and mutation proofs. The supplied-model mode below is a separate entry point.
+
 Nine advisory Rust checks for comparing Zapote placement and routing candidates.
 Implementation: `zapote-drc::layout_quality`. Batch CLI: `zapote-layout-quality`.
 These checks do not place or route the board and do not modify native artifacts.

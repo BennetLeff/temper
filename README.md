@@ -130,6 +130,11 @@ graph TD
 
 ## Get Started in 60 Seconds
 
+For Zapote / 120 V board work, start with the
+[ERC, DRC and layout check index](zapote/CHECKS.md), or run
+`make -C zapote help`. It lists runnable checks, Rust implementations, evidence,
+comparison commands, and the distinction between local integration and CI.
+
 Build and run the firmware test suite:
 
 ```bash

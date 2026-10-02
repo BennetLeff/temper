@@ -69,3 +69,19 @@ check-boards:
 board-check:
 	@test -n "$(BOARD)" || { echo 'Usage: make -C zapote board-check BOARD=/absolute/path/to/board.kicad_pcb' >&2; exit 2; }
 	$(CARGO) run --quiet --locked --bin zapote-board -- "$(BOARD)"
+
+.PHONY: help
+help:
+	@printf '%s\n' \
+	  'Zapote checks: see zapote/CHECKS.md for setup, scope, evidence and CI status.' \
+	  'Run from the repository root: make -C zapote TARGET' \
+	  '  check-layout          Native placement/routing measurements and comparisons' \
+	  '  check-current         Layout plus conditional DC current, resistance and loss' \
+	  '  check-units           ERC/DRC and engineering checks for five maintained units' \
+	  '  board-check BOARD=... Physical stackup of one saved PCB (stackup only)' \
+	  '  check-boards          Stackup checks for the maintained unit board list' \
+	  '  check-native-oracle   Native manufacturing extraction tests' \
+	  '  check-thermal-oracle  External Gmsh/Elmer reference check' \
+	  '  check                 Release Rust tests, layout, current, then unit checks' \
+	  'Native checks require KICAD_PYTHON; unit checks also require KICAD_CLI.' \
+	  'Successful layout/current measurement is not full board acceptance.'

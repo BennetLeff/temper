@@ -2,6 +2,9 @@
 
 Zapote is a project boundary inside Temper, not an isolated checkout.
 
+- Start check discovery at [CHECKS.md](CHECKS.md) or `make -C zapote help`.
+  It links actual commands, Rust owners, evidence, model gaps and the CI checkpoint.
+  Consult the linked integration audit before assuming a kernel is executed.
 - Keep Temper's product sources in place: `pcb/`, `elec/`, `firmware/`,
   `simulation/`, `components/`, and `datasheets/` remain shared inputs.
   Existing packages and harness code are donors: copy needed Rust code and
