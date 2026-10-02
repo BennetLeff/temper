@@ -1973,3 +1973,6 @@ pub mod power_integrity;
 pub mod switching;
 pub mod power_contact;
 pub mod power_branches;
+
+/// Advisory electrical, geometric and assembly metrics for layout comparison.
+pub mod layout_quality;

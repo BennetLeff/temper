@@ -10,3 +10,10 @@ zapote-core = { path = "../zapote-core" }
 serde_json.workspace = true
 sha2.workspace = true
 serde.workspace = true
+
+[dev-dependencies]
+proptest = "1"
+
+[[bench]]
+name = "layout_quality"
+harness = false
