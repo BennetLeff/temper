@@ -1,0 +1,23 @@
+{
+  "accessed_date": "2026-10-02",
+  "exact_model_listing": {
+    "url": "https://www.tdk-electronics.tdk.com/en/2970296/design-support/design-tools/film-capacitors/model-libraries/film-capacitors-readme-and-history/2976028",
+    "library": "TDK_B32651-8.lib",
+    "version": "1.10",
+    "assembled": "2025-03-21",
+    "names": ["B32652A0104K", "B32656G0275J"],
+    "model_contents_acquired": false
+  },
+  "archive_url": "https://www.tdk-electronics.tdk.com/download/2976030/8705da5784307ba596394f297843723b/tdk-b32651-8-ps-ux-en-tar.tar",
+  "attempts": [
+    {"method": "curl --max-time 30 -L --fail", "exit_code": 22, "outcome": "HTTP 403"},
+    {"method": "independent coordinator curl with Mozilla/5.0 user-agent and TDK referrer", "exit_code": 0, "outcome": "HTML license agreement; tar tf rejected, not model archive"},
+    {"method": "browser downloadMedia", "outcome": "no usable file/path; interrupted"}
+  ],
+  "redirect_document_title": "Design tools: Important notes | TDK Electronics - TDK Europe",
+  "redirect_document_canonical": "https://www.tdk-electronics.tdk.com/en/2905240/design-support/design-tools/important-notes-and-license-agreement",
+  "license_acceptance_performed": false,
+  "model_sha256": null,
+  "srf_curve_reading": null,
+  "vendor_esl_nh": null
+}

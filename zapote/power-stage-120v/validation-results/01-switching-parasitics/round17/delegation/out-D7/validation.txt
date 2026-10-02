@@ -1,0 +1,23 @@
+D7 validation, 2026-10-02; base f9b13b483d6d4ed52439d4da419c7670bab6966c
+Python 3.12.12; model/provider: GPT-6 / OpenAI
+
+scripts/assert-base.sh f9b13b483d6d4ed52439d4da419c7670bab6966c
+ASSERT-BASE OK (before branch commit)
+
+/private/tmp/temper-r17-audit-tools/bin/python zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D7/esl_arithmetic.py
+Exit 0; saved evidence.json. Six board/BOM/netlist part identities matched.
+
+UV_CACHE_DIR=/private/tmp/temper-r17-uv-cache UV_PROJECT_ENVIRONMENT=/private/tmp/temper-r17-audit-tools PATH=/private/tmp/temper-r17-audit-tools/bin:$PATH PYTHONPATH=packages/temper-placer/src /private/tmp/temper-r17-audit-tools/bin/python scripts/import_linter_gate.py
+Exit 0; 5 kept, 0 broken; Import boundary gate PASSED — 0 new violations.
+Earlier sandbox attempts failed on cache access; successful run used escalation.
+
+PATH=/private/tmp/temper-r17-audit-tools/bin:$PATH /private/tmp/temper-r17-audit-tools/bin/python scripts/regen_derived.py --check
+Exit 0; all derived artifacts consistent.
+Read-only equivalent of regen-check used; mutating regeneration omitted because
+brief forbids edits outside out-D7 and no derived drift was found.
+
+git diff --check
+Exit 0.
+
+No Rust/native build, ngspice run or firmware change needed for this audit.
+No verified model ESL or physical qualification claimed.
