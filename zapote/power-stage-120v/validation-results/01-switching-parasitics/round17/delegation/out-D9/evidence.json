@@ -1,0 +1,808 @@
+{
+  "bulk_geometry": {
+    "A5_default_crop_max_x_mm": 184.35,
+    "C6_pads": {
+      "1": {
+        "net": "bus_p",
+        "world_mm": [
+          174.35,
+          50.75
+        ]
+      },
+      "2": {
+        "net": "bus_p",
+        "world_mm": [
+          194.65,
+          50.75
+        ]
+      },
+      "3": {
+        "net": "hv_ret",
+        "world_mm": [
+          174.35,
+          13.25
+        ]
+      },
+      "4": {
+        "net": "hv_ret",
+        "world_mm": [
+          194.65,
+          13.25
+        ]
+      }
+    },
+    "P5_matches_inner_pads": true,
+    "board_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+    "outer_pad_centers_outside_default_crop": [
+      "2",
+      "4"
+    ]
+  },
+  "campaign": {
+    "declared_ranks": [
+      10,
+      12
+    ],
+    "declared_tolerances": [
+      1e-08,
+      1e-12
+    ],
+    "manifest_equal_after_tol_np_elmer_change": true,
+    "manifest_keys": [
+      "closures-legA.json",
+      "inductance_matrix.py",
+      "mesh25d_hybrid.py",
+      "native17-all-copper.json.gz",
+      "run_elmer.py"
+    ],
+    "second_status_accepts_cached_converged_solve": true,
+    "solver_calls": 0
+  },
+  "committed": {
+    "all_VDS_failures_are_S4": true,
+    "all_case_files_match": true,
+    "all_task_failures_include_offgate": true,
+    "bulk_estimate_range_V": [
+      13.972913669110778,
+      48.31869032648747
+    ],
+    "bulk_slew_range_A_per_ns": [
+      3.8464265337382053,
+      8.921306904689255
+    ],
+    "case_count": 510,
+    "distinct_vendor_hashes": [
+      "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+    ],
+    "generated_5port_deck_matches": true,
+    "nonvendor_identity_matches_current": {
+      "deck": true,
+      "grid": true,
+      "matrix": true,
+      "run_d2": true
+    },
+    "pass_table": {
+      "S1": {
+        "250": {
+          "pass": 0,
+          "total": 18
+        },
+        "307": {
+          "pass": 0,
+          "total": 18
+        },
+        "348": {
+          "pass": 18,
+          "total": 18
+        },
+        "391": {
+          "pass": 18,
+          "total": 18
+        },
+        "450": {
+          "pass": 18,
+          "total": 18
+        }
+      },
+      "S2": {
+        "250": {
+          "pass": 0,
+          "total": 12
+        },
+        "307": {
+          "pass": 0,
+          "total": 12
+        },
+        "348": {
+          "pass": 10,
+          "total": 12
+        },
+        "391": {
+          "pass": 12,
+          "total": 12
+        },
+        "450": {
+          "pass": 12,
+          "total": 12
+        }
+      },
+      "S3": {
+        "250": {
+          "pass": 0,
+          "total": 54
+        },
+        "307": {
+          "pass": 42,
+          "total": 54
+        },
+        "348": {
+          "pass": 54,
+          "total": 54
+        },
+        "391": {
+          "pass": 54,
+          "total": 54
+        },
+        "450": {
+          "pass": 54,
+          "total": 54
+        }
+      },
+      "S4": {
+        "250": {
+          "pass": 0,
+          "total": 18
+        },
+        "307": {
+          "pass": 0,
+          "total": 18
+        },
+        "348": {
+          "pass": 0,
+          "total": 18
+        },
+        "391": {
+          "pass": 0,
+          "total": 18
+        },
+        "450": {
+          "pass": 0,
+          "total": 18
+        }
+      }
+    },
+    "ranges": {
+      "S1_dt250": {
+        "VDS_max_V": 383.8901,
+        "failure_rows": [],
+        "offgate_range_V": [
+          5.198449,
+          5.298764
+        ]
+      },
+      "S1_dt307": {
+        "VDS_max_V": 383.9848,
+        "failure_rows": [],
+        "offgate_range_V": [
+          3.445921,
+          4.010873
+        ]
+      },
+      "S1_dt348": {
+        "VDS_max_V": 383.9848,
+        "failure_rows": [],
+        "offgate_range_V": [
+          2.031975,
+          2.539109
+        ]
+      },
+      "S2_dt348": {
+        "VDS_max_V": 378.6258,
+        "failure_rows": [
+          {
+            "aborted": false,
+            "case": "S2",
+            "dir": 0,
+            "dt_ns": 348,
+            "esl_nH": 5,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 71,
+            "off_gate_cause": "above_limit_at_partner_cmd",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 280,
+            "vds_incoming_at_on": -1.037812,
+            "vds_pk": 338.6304,
+            "vgs_abs_max": 14.86419,
+            "vgs_off_at_partner_cmd": 3.141668,
+            "vgs_off_max": 3.141668,
+            "zvs": true
+          },
+          {
+            "aborted": false,
+            "case": "S2",
+            "dir": 0,
+            "dt_ns": 348,
+            "esl_nH": 10,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 71,
+            "off_gate_cause": "above_limit_at_partner_cmd",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 280,
+            "vds_incoming_at_on": -1.031519,
+            "vds_pk": 339.7208,
+            "vgs_abs_max": 14.85872,
+            "vgs_off_at_partner_cmd": 3.119821,
+            "vgs_off_max": 3.119821,
+            "zvs": true
+          }
+        ],
+        "offgate_range_V": [
+          2.191843,
+          3.141668
+        ]
+      },
+      "S3_dt307": {
+        "VDS_max_V": 437.7702,
+        "failure_rows": [
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 0,
+            "dt_ns": 307,
+            "esl_nH": 5,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 170,
+            "vds_incoming_at_on": 168.2175,
+            "vds_pk": 416.4379,
+            "vgs_abs_max": 14.98321,
+            "vgs_off_at_partner_cmd": 2.320144,
+            "vgs_off_max": 3.42693,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 0,
+            "dt_ns": 307,
+            "esl_nH": 10,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 170,
+            "vds_incoming_at_on": 167.9032,
+            "vds_pk": 423.0841,
+            "vgs_abs_max": 14.98306,
+            "vgs_off_at_partner_cmd": 2.321107,
+            "vgs_off_max": 3.396621,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 0,
+            "dt_ns": 307,
+            "esl_nH": 20,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 170,
+            "vds_incoming_at_on": 167.632,
+            "vds_pk": 431.0278,
+            "vgs_abs_max": 14.98397,
+            "vgs_off_at_partner_cmd": 2.322173,
+            "vgs_off_max": 3.325468,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 1,
+            "dt_ns": 307,
+            "esl_nH": 5,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 170,
+            "vds_incoming_at_on": 168.2341,
+            "vds_pk": 382.268,
+            "vgs_abs_max": 14.9859,
+            "vgs_off_at_partner_cmd": 2.333716,
+            "vgs_off_max": 3.040757,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 1,
+            "dt_ns": 307,
+            "esl_nH": 10,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 170,
+            "vds_incoming_at_on": 167.9523,
+            "vds_pk": 395.8493,
+            "vgs_abs_max": 14.9859,
+            "vgs_off_at_partner_cmd": 2.333609,
+            "vgs_off_max": 3.033422,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 1,
+            "dt_ns": 307,
+            "esl_nH": 20,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 170,
+            "vds_incoming_at_on": 167.6909,
+            "vds_pk": 415.1014,
+            "vgs_abs_max": 14.9859,
+            "vgs_off_at_partner_cmd": 2.335599,
+            "vgs_off_max": 3.009144,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 0,
+            "dt_ns": 307,
+            "esl_nH": 5,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 198,
+            "vds_incoming_at_on": 196.2955,
+            "vds_pk": 413.0801,
+            "vgs_abs_max": 14.98321,
+            "vgs_off_at_partner_cmd": 2.320368,
+            "vgs_off_max": 3.323074,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 0,
+            "dt_ns": 307,
+            "esl_nH": 10,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 198,
+            "vds_incoming_at_on": 195.9985,
+            "vds_pk": 419.5352,
+            "vgs_abs_max": 14.98306,
+            "vgs_off_at_partner_cmd": 2.321022,
+            "vgs_off_max": 3.292958,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 0,
+            "dt_ns": 307,
+            "esl_nH": 20,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 198,
+            "vds_incoming_at_on": 195.6225,
+            "vds_pk": 427.6597,
+            "vgs_abs_max": 14.98397,
+            "vgs_off_at_partner_cmd": 2.321708,
+            "vgs_off_max": 3.225693,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 0,
+            "dt_ns": 307,
+            "esl_nH": 5,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 280,
+            "vds_incoming_at_on": 278.3935,
+            "vds_pk": 422.0848,
+            "vgs_abs_max": 14.98321,
+            "vgs_off_at_partner_cmd": 2.320975,
+            "vgs_off_max": 3.1245,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 0,
+            "dt_ns": 307,
+            "esl_nH": 10,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 280,
+            "vds_incoming_at_on": 278.1808,
+            "vds_pk": 427.6517,
+            "vgs_abs_max": 14.98305,
+            "vgs_off_at_partner_cmd": 2.321151,
+            "vgs_off_max": 3.095011,
+            "zvs": false
+          },
+          {
+            "aborted": false,
+            "case": "S3",
+            "dir": 0,
+            "dt_ns": 307,
+            "esl_nH": 20,
+            "identity": {
+              "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+              "grid": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+              "matrix": "34f631202bc1065cbcc33afd11e5ec6ec60feb0d7bb9620378ba647a0b21eb07",
+              "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+              "vendor_model": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+            },
+            "il": 2,
+            "off_gate_cause": "later_peak",
+            "pass": false,
+            "pass_off_gate": false,
+            "pass_vds": true,
+            "pass_vgs_transient": true,
+            "stress_pass": false,
+            "task_pass": false,
+            "vbus": 280,
+            "vds_incoming_at_on": 277.6804,
+            "vds_pk": 437.7702,
+            "vgs_abs_max": 14.98397,
+            "vgs_off_at_partner_cmd": 2.320951,
+            "vgs_off_max": 3.036167,
+            "zvs": false
+          }
+        ],
+        "offgate_range_V": [
+          2.7069,
+          3.42693
+        ]
+      },
+      "S4_dtNone": {
+        "VDS_max_V": 543.3696,
+        "failure_rows": [],
+        "offgate_range_V": [
+          3.247721,
+          5.136092
+        ]
+      }
+    },
+    "summary": {
+      "aborted": 0,
+      "cases": 510,
+      "fail_by_criterion": {
+        "pass_off_gate": 218,
+        "pass_vds": 39,
+        "pass_vgs_transient": 0
+      },
+      "off_gate_fail_causes": {
+        "aborted": 0,
+        "above_limit_at_partner_cmd": 116,
+        "later_peak": 102,
+        "unknown": 0
+      },
+      "off_gate_fails_by_dt_ns": {
+        "250": 102,
+        "307": 60,
+        "348": 20,
+        "391": 18,
+        "450": 18
+      },
+      "stress_fail": 218,
+      "stress_pass": 292,
+      "task_fail": 218,
+      "task_pass": 292,
+      "worst": {
+        "vds_pk": {
+          "case": "S4",
+          "dir": 0,
+          "dt_ns": 450,
+          "esl_nH": 20,
+          "il": -20,
+          "vbus": 170,
+          "vds_pk": 543.3696
+        },
+        "vgs_abs_max": {
+          "case": "S4",
+          "dir": 0,
+          "dt_ns": 250,
+          "esl_nH": 10,
+          "il": -20,
+          "vbus": 280,
+          "vgs_abs_max": 15.02275
+        },
+        "vgs_off_max": {
+          "case": "S2",
+          "dir": 0,
+          "dt_ns": 250,
+          "esl_nH": 5,
+          "il": 71,
+          "vbus": 280,
+          "vgs_off_max": 5.734807
+        }
+      },
+      "zvs_S1_at_348ns": {
+        "no": 0,
+        "yes": 18
+      }
+    },
+    "summary_matches_saved": true
+  },
+  "extraction": {
+    "baseline_mutual_nH": 66.31456,
+    "production_exit_codes": [
+      0,
+      0
+    ],
+    "reversed_mutual_nH": -66.31456,
+    "sif_identities_unchanged": true,
+    "unchanged_sif_reversed_vtu_accepted": true,
+    "unrelated_mesh_accepted": true
+  },
+  "grid": {
+    "changed_matrix_rerun": true,
+    "identity_keys": [
+      "deck",
+      "grid",
+      "matrix",
+      "run_d2",
+      "vendor_model"
+    ],
+    "missing_partner_label": "unknown",
+    "non_zvs_nominal_stress_pass": true,
+    "non_zvs_nominal_task_pass": false,
+    "options_change_reused_case": true,
+    "options_sha_changed": true
+  },
+  "matrices": {
+    "actual_corrected_matrix_nH": [
+      [
+        26.5944,
+        16.0941,
+        3.5419,
+        5.0829
+      ],
+      [
+        16.0941,
+        25.9745,
+        3.2953,
+        5.2918
+      ],
+      [
+        3.5419,
+        3.2953,
+        25.9394,
+        -0.2134
+      ],
+      [
+        5.0829,
+        5.2918,
+        -0.2134,
+        36.2982
+      ]
+    ],
+    "actual_correction_nH": [
+      [
+        -1.6479,
+        -0.8844,
+        -0.0908,
+        -0.2025
+      ],
+      [
+        -0.8844,
+        -0.5064,
+        -0.051,
+        -0.1243
+      ],
+      [
+        -0.0908,
+        -0.051,
+        -0.0262,
+        -0.0114
+      ],
+      [
+        -0.2025,
+        -0.1243,
+        -0.0114,
+        -0.0733
+      ]
+    ],
+    "actual_min_eigenvalue_nH": 10.184556900778835,
+    "actual_symmetric": true,
+    "asymmetric_matrix_accepted_by_margin_cli": true,
+    "synthetic_max_asymmetry_nH": 2.0,
+    "synthetic_symmetrized_min_eigenvalue_nH": 19.0,
+    "unlabeled_matrix_accepted_by_both_readers": true
+  },
+  "pair": {
+    "same_sign": false,
+    "synthetic_L_both_nH": 42.0,
+    "synthetic_M_energy_nH": 1.0,
+    "synthetic_M_matrix_nH": -1.0,
+    "unconverged_opposite_sign_comparison_returns_normally": true
+  },
+  "reviewed_head": "1f09223516cc37d00f73b5e5e6d33a0197d7a30d",
+  "runtime": {
+    "meshio": "5.3.5",
+    "numpy": "2.4.6",
+    "python": "3.12.12"
+  },
+  "scope": "synthetic fixtures plus arithmetic replay; no hardware-error estimate",
+  "source_sha256": {
+    "closures-legA5.json": "639a495f8e392c41fce49a4c118dab92d5cdb664f6d31708bf5897cb1c5115f7",
+    "d2/bulk_mode.py": "56cb915e9725d7210fa2cbdb74d494d089b6a7a9acb91ffda2bfd1fa1e91735c",
+    "d2/grid.py": "02a48788b02dbc46da7cb02b0a9f050b05bef8c24df9c89b11b857e40299d294",
+    "d2/leg_matrix5.cir": "7a065bfc9ad738eac1e98d9e604d44feb17f0df2c140e39cf56c8f120e88d7ed",
+    "d2/make_deck5.py": "f9590606225d6e99aae058ad19e2e66ee1369432e2f8a8497572708e228584ff",
+    "d2/results/grid-h0-lin12-v2/results.jsonl": "ea75a01d759af7d5ec0ed6f9694124fd21ec48263f884374ffad8fb550686124",
+    "d2/run_d2.py": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+    "scripts/campaign.py": "762ecb20e70eb52f7475af886ad6e8c5783a479b27d8ae93b76e2f1d37c1d877",
+    "scripts/extrapolate.py": "adf363066ed3c94974e250aab57d253cd42be3ac2bebc7b78c1ce55b84d3fad7",
+    "scripts/inductance_matrix.py": "6967fa43f85288fa9472a54f3ffd695b438d74c300a5d2228da3ec2c095a7bfc",
+    "scripts/margin_correct.py": "66da102b7519e418e343d47f1e5d1c7ea45c58aa919d58a9495eab0e76cfa728",
+    "scripts/mesh25d_hybrid.py": "60f3c94cac7a869bb59870587d6cae1d3a3adc941fc8edba1f511147314a52be",
+    "scripts/pair_check.sh": "636f4ac9a62b5d2905ac94785ee418e2afe9ef6b79c8a285eeb3fc94607654a8"
+  }
+}
