@@ -78,3 +78,38 @@ die VDS 461–543 V (> 520 V in 23 of 54, all < 650 V), off-gate rebound
 changes the result: the S4 outcome is set by the diode recovery and the
 gate drive more than by the loop inductance (see the delegation briefs
 D-1 to D-3).
+
+## Grid v2 on the same matrix, fixed `grid.py` (`results/grid-h0-lin12-v2/`)
+
+Rerun after the D-4 fixes (identity-checked reuse, ZVS in the task verdict,
+timing-only cause labels), with D-1's tolerance corners 307 and 391 ns added:
+510 cases, 0 aborted, **292 task pass / 218 fail**. Every failure includes the
+off-gate criterion (< 3.0 V); 39 also exceed 520 V die VDS (all S4). The
+stress and task counts are equal: every nominal S1 case at 348 ns soft-switches
+(ZVS), so the ZVS condition removed no passes here.
+
+| Case | 250 ns | 307 ns | 348 ns | 391 ns | 450 ns |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| S1 nominal 37 A | 0/18 | 0/18 | 18/18 | 18/18 | 18/18 |
+| S2 OCP 61/71 A, 280 V | 0/12 | 0/12 | 10/12 | 12/12 | 12/12 |
+| S3 light load 2–10 A | 0/54 | 42/54 | 54/54 | 54/54 | 54/54 |
+| S4 hard turn-on, −20 A | 0/18 | 0/18 | 0/18 | 0/18 | 0/18 |
+
+- **307 ns, D-1's lower tolerance estimate, fails nominal S1 everywhere:**
+  off-gate 3.45–4.01 V (limit 3.0 V; 250 ns: 5.2–5.3 V), all at the partner's
+  on command, i.e. the off device's gate has not yet discharged. At 348 ns
+  S1 off-gate is 2.03–2.54 V. The dead-time margin is therefore between
+  307 and 348 ns, and D-1's interval (307–391 ns) is an estimate, not a
+  guaranteed bound, so **dead time is a live risk**, not a stress corner to
+  discard.
+- S2 at 348 ns: the two failures are 280 V/71 A, LS first, ESL 5/10 nH,
+  3.12–3.14 V (marginal).
+- S3 at 307 ns: 12 failures at 2 A, 3.01–3.43 V, labelled `later_peak`
+  (the peak comes after the partner's command; a timing observation, not a
+  diagnosed cause).
+- S4 fails at every dead time: die VDS up to 543.4 V, off-gate 3.25–5.14 V,
+  unchanged from v1. D-3 (diode recovery) is the open question there.
+
+All of this is on the provisional lin12 matrix and the 4-port deck, which
+omits the bulk-path coupling (README §11 at round-17 level); results move
+with the 3 mm extrapolation, the crop correction and the 5-port check.
