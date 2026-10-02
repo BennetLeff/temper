@@ -38,20 +38,20 @@ def main() -> None:
     case = ("S1", 170, 37, 0, 348, 10)
     with tempfile.TemporaryDirectory(dir=HERE) as tmp, patch.object(run_d2, "run", fake_run):
         out = Path(tmp)
-        first = grid.one((case, np.eye(4).tolist(), out))
+        first = grid.one((case, np.eye(4).tolist(), out, None))
         # 2. non-ZVS nominal S1 (incoming VDS 100 V of 170 V): stress passes, task fails
         assert first["stress_pass"] and not first["zvs"] and not first["task_pass"] and not first["pass"], first
         # 1. same directory, changed matrix: must rerun, not reuse
-        second = grid.one((case, (100 * np.eye(4)).tolist(), out))
+        second = grid.one((case, (100 * np.eye(4)).tolist(), out, None))
         assert len(calls) == 2, "changed matrix reused a cached case"
         assert second["identity"]["matrix"] != first["identity"]["matrix"]
         # ... while an identical rerun is reused
-        grid.one((case, (100 * np.eye(4)).tolist(), out))
+        grid.one((case, (100 * np.eye(4)).tolist(), out, None))
         assert len(calls) == 2, "identical inputs were not reused"
         # 3. missing partner-command sample with a failing peak: 'unknown', not 'rebound'
         meas["vgs_ls_off_max"] = 4.0
         meas.pop("vgs_ls_at_partner")
-        missing = grid.one((("S1", 170, 37, 0, 450, 10), np.eye(4).tolist(), out))
+        missing = grid.one((("S1", 170, 37, 0, 450, 10), np.eye(4).tolist(), out, None))
         assert missing["off_gate_cause"] == "unknown", missing["off_gate_cause"]
         # off-nominal S1 does not require ZVS
         assert missing["task_pass"] == missing["stress_pass"]

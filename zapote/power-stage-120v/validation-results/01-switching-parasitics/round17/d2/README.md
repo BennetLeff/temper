@@ -119,3 +119,35 @@ with the 3 mm extrapolation, the crop correction and the 5-port check.
 changes against grid v2; die VDS moves −3.1 … +1.0 V and off-gate peak
 −0.055 … +0.037 V. The ~2–5 % crop error in the power loops does not
 affect any conclusion above.
+
+## Bulk current mode: 5-port A/B/C test (`results/bulk-ab/`)
+
+Closes the D-4 P1 current-mode question for the decision cases. The leg-A
+model was re-extracted with a fifth FEM port at bulk capacitor C6
+(`closures-legA5.json`; coarse mesh, h = 1 mm, 10 mm crop; matrix
+`../results/matrices/legA5-h1-e1p0-m10.matrix.txt`, SPD, gates at round-off).
+C6 couples to the gate loops about as strongly as the local capacitors do
+(M53 3.34, M54 5.47 nH vs M13 3.75, M14 5.56 nH); the four existing loops
+moved < 0.1 %. Three variants on the same basis (h = 1 mm, 1.0 mm mesh),
+S1/S2/S4 at 307 and 348 ns, ESL 10 nH, 32 cases each:
+
+| Variant | Deck | Pass |
+| --- | --- | ---: |
+| a | 4-port, bulk 5.4 µF through LBULK | 9/32 |
+| b | 5-port, C5 via LBULK + C6 via FEM L_P5, P5 couplings zeroed | 10/32 |
+| c | 5-port, full coupling | 10/32 |
+
+- Bulk split (a → b): die VDS −22 … +1 V, off-gate −0.29 … +0.05 V.
+- **The omitted coupling itself (b → c): VDS −23 … +14 V, off-gate
+  −0.11 … +0.29 V.**
+- Only one verdict flips: S2 280 V / 71 A, LS first, 348 ns (3.07 V in a →
+  2.92 V in c). All S1 verdicts, every S4 failure and the 307 ns failures
+  are unchanged.
+- The `bulk_mode.py` EMF estimate (14–48 V) was far too pessimistic:
+  peak slew × mutual overstates the gate-loop effect, which the gate
+  resistance and the brevity of the peaks suppress. It is kept as recorded,
+  superseded by this direct test.
+
+Basis: coarse mesh at 1 mm closures, not the h → 0 fine matrix; given
+shifts of ≤ 0.3 V, a fine 5-port extraction is not warranted unless a
+decision case sits within ~0.3 V of the 3.0 V limit.

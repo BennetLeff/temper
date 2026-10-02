@@ -55,12 +55,17 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else "missing"
 
 
-def identity(L) -> dict:
+def deck_for(L) -> Path:
+    """4-port matrix -> leg_matrix.cir; 5-port (P5 = bulk C6) -> leg_matrix5.cir."""
+    return {4: run_d2.DECK, 5: HERE / "leg_matrix5.cir"}[len(L)]
+
+
+def identity(L, overrides: dict | None = None) -> dict:
     """Everything a case result depends on, hashed."""
     vendor = run_d2.KIT / "models" / "vendor" / "IFX_CFD7_650V.lib"
     return {"matrix": hashlib.sha256(json.dumps([[round(float(v), 9) for v in row] for row in L]).encode()).hexdigest(),
-            "deck": _sha(run_d2.DECK), "run_d2": _sha(HERE / "run_d2.py"), "grid": _sha(Path(__file__).resolve()),
-            "vendor_model": _sha(vendor)}
+            "deck": _sha(deck_for(L)), "run_d2": _sha(HERE / "run_d2.py"), "grid": _sha(Path(__file__).resolve()),
+            "vendor_model": _sha(vendor), "overrides": dict(sorted((overrides or {}).items()))}
 ESL = (5, 10, 20)
 
 
@@ -83,10 +88,10 @@ def tag(c) -> str:
 
 
 def one(args):
-    c, L, out = args
+    c, L, out, overrides = args
     s, vbus, il, d, dt, esl = c
     res_file = out / "cases" / f"{tag(c)}.json"
-    ident = identity(L)
+    ident = identity(L, overrides)
     if res_file.exists():
         old = json.loads(res_file.read_text())
         if old.get("identity") == ident:
@@ -94,7 +99,8 @@ def one(args):
         # stale: different matrix, deck, model or code -> rerun, never reuse
     p = run_d2.matrix_params(L)
     p.update(VBUS=str(vbus), IL=str(il), DIR=str(d), LESL=f"{esl}n", LSHUNT="2n", DT=f"{dt}n", TRMAX="0.2n")
-    r = run_d2.run(run_d2.DECK, p, keep=out / "runs" / tag(c))
+    p.update(overrides or {})
+    r = run_d2.run(deck_for(L), p, keep=out / "runs" / tag(c))
     m = r["meas"]
     off = "ls" if d == 0 else "hs"                     # device turned off at T1
     inc = "hs" if d == 0 else "ls"                     # device turned on after the dead time
@@ -153,15 +159,25 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--only", default=None, help="comma list of S1,S2,S3,S4")
     ap.add_argument("--limit", type=int, default=None, help="run only the first N cases (smoke test)")
+    ap.add_argument("--dt", default=None, help="comma list of dead times (ns) to run; default all")
+    ap.add_argument("--esl", default=None, help="comma list of ESL values (nH) to run; default all")
+    ap.add_argument("--set", action="append", default=[], metavar="PARAM=VALUE",
+                    help="deck parameter override applied after the matrix, e.g. K35=0 (recorded in the identity)")
     a = ap.parse_args()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     L = run_d2.read_L(a.matrix)
-    todo = cases(set(a.only.split(",")) if a.only else None)[: a.limit]
+    todo = cases(set(a.only.split(",")) if a.only else None)
+    if a.dt:
+        todo = [c for c in todo if c[4] in {int(x) for x in a.dt.split(",")}]
+    if a.esl:
+        todo = [c for c in todo if c[5] in {int(x) for x in a.esl.split(",")}]
+    todo = todo[: a.limit]
+    overrides = dict(kv.split("=", 1) for kv in a.set)
     (out / "matrix_used.txt").write_text(Path(a.matrix).read_text())
     rows = []
     with ProcessPoolExecutor(a.workers) as ex:
-        futs = [ex.submit(one, (c, L, out)) for c in todo]
+        futs = [ex.submit(one, (c, L, out, overrides)) for c in todo]
         for i, f in enumerate(as_completed(futs), 1):
             r = f.result()
             rows.append(r)

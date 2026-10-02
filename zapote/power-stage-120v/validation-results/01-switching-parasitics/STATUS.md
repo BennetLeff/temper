@@ -59,8 +59,8 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
   1.0 / 0.7 / 0.35 mm edges).
 - **Extrapolation to zero closure height:** early 3 mm diagonals move P1/P2
   by −0.6 % / −1.1 % from the straight line.
-- **Bulk-capacitor current path:** not yet in the FEM; this is the largest
-  unrepresented effect.
+- **Bulk-capacitor current path:** tested with a 5-port model; it shifts
+  off-gate by ≤ 0.3 V and flips one marginal S2 case (FINDINGS F3).
 - **Diode recovery model** (S4).
 - **Dead time at the gates** (D-5).
 - **Capacitor ESL** (D-7).
@@ -71,8 +71,7 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | --- | --- | --- |
 | 3 mm closure matrix (fine mesh) → parabolic extrapolation | remote box | P1, P2 done; P3, P4 running |
 | Leg B matrix | remote box | queued after leg A |
-| 5-port bulk model (port at C6) | Mac | queued |
-| Extrapolation test with 0.5 / 2 / 3 mm closures on the coarse mesh | Mac | queued |
+| Extrapolation test with 0.5 / 2 / 3 mm closures on the coarse mesh | Mac | 0.5 mm solving |
 | D-5 gate dead time, D-6 off-gate remedies, D-7 capacitor ESL, D-8 double-pulse plan, D-9 review, D-10 J4 interface | delegated ([briefs](round17/delegation/README.md)) | not started |
 | Diode-recovery data, TI timing limits at 39 kΩ, controller dead time, C38 ESL | outside input | open |
 
