@@ -1,10 +1,430 @@
 {
-  "base_revision": "4574380993f525cdfa4f41702416b398a22689c3",
+  "analysis": {
+    "policy": {
+      "calibrated_overrange_mV": 1210,
+      "invalid_low_mV": 100,
+      "nominal_overrange_bus_v": 230.37569620253163,
+      "rearm_below_mV_manual_only": 1100,
+      "sample_rate_hz_proposal": 20000,
+      "stale_timeout_us_proposal": 150
+    },
+    "profiles": {
+      "0_to_85C_conditional": {
+        "adc_min_at_vin_2_v": 1.2205904869648638,
+        "assumptions": {
+          "amc_bias": 1e-07,
+          "amc_gain": 0.009214400000000001,
+          "amc_offset": 0.0033,
+          "dt": 60,
+          "name": "0_to_85C_conditional",
+          "reference_error": 0.02,
+          "u7_bias": 5e-09
+        },
+        "linear_bus_endpoint_v": [
+          235.40271873992126,
+          244.60376619496682
+        ],
+        "normal_198V_no_false_overrange_under_assumptions": true,
+        "overrange_threshold_bus_crossing_v": [
+          219.24296438633496,
+          241.97826133450081
+        ],
+        "ovp_R36_R37_and_offset_only_v": [
+          279.396988780537,
+          280.5435350870383
+        ],
+        "ovp_expanded_partial_stack_v": [
+          271.9021934952706,
+          288.20867296334507
+        ],
+        "rows": [
+          {
+            "adc_interval_v_if_linear": [
+              0.2297484369129863,
+              0.27022984402948347
+            ],
+            "bus_v": 0,
+            "guaranteed_linear_under_assumptions": true,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 0.25,
+            "indicated_bus_v_if_linear": [
+              -4.8598624430836175,
+              4.854650419125918
+            ],
+            "input_v": [
+              -0.0016494723864497428,
+              0.0016494723864497428
+            ],
+            "max_abs_error_v_if_linear": 4.8598624430836175,
+            "nominal_input_v": 0.0
+          },
+          {
+            "adc_interval_v_if_linear": [
+              0.2703706527930151,
+              0.3129952132228827
+            ],
+            "bus_v": 10,
+            "guaranteed_linear_under_assumptions": true,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 0.291671062348349,
+            "indicated_bus_v_if_linear": [
+              4.888440957594684,
+              15.11725635796722
+            ],
+            "input_v": [
+              0.080182851928254,
+              0.08654018810589635
+            ],
+            "max_abs_error_v_if_linear": 5.11725635796722,
+            "nominal_input_v": 0.08334212469669797
+          },
+          {
+            "adc_interval_v_if_linear": [
+              0.9196616159829961,
+              0.9980032021788119
+            ],
+            "bus_v": 170,
+            "guaranteed_linear_under_assumptions": true,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 0.9584080599219327,
+            "indicated_bus_v_if_linear": [
+              160.7018343772866,
+              179.50183173298626
+            ],
+            "input_v": [
+              1.389500040963514,
+              1.4447916396170422
+            ],
+            "max_abs_error_v_if_linear": 9.501831732986261,
+            "nominal_input_v": 1.4168161198438654
+          },
+          {
+            "adc_interval_v_if_linear": [
+              1.0326050881057314,
+              1.1185465206602734
+            ],
+            "bus_v": 198,
+            "guaranteed_linear_under_assumptions": true,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 1.0750870344973098,
+            "indicated_bus_v_if_linear": [
+              187.80540835833486,
+              208.4291764389552
+            ],
+            "input_v": [
+              1.6186305490446846,
+              1.6824856436314926
+            ],
+            "max_abs_error_v_if_linear": 10.42917643895521,
+            "nominal_input_v": 1.6501740689946198
+          },
+          {
+            "adc_interval_v_if_linear": [
+              1.1616833419602859,
+              1.2563103132105151
+            ],
+            "bus_v": 230,
+            "guaranteed_linear_under_assumptions": true,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 1.2084344340120268,
+            "indicated_bus_v_if_linear": [
+              218.7809214795329,
+              241.4889989600626
+            ],
+            "input_v": [
+              1.8804939868517365,
+              1.9541359339337216
+            ],
+            "max_abs_error_v_if_linear": 11.488998960062588,
+            "nominal_input_v": 1.9168688680240533
+          },
+          {
+            "adc_interval_v_if_linear": null,
+            "bus_v": 240,
+            "guaranteed_linear_under_assumptions": false,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 1.2501054963603755,
+            "indicated_bus_v_if_linear": null,
+            "input_v": [
+              1.9623263111664404,
+              2.039026649653168
+            ],
+            "max_abs_error_v_if_linear": null,
+            "nominal_input_v": 2.000210992720751
+          },
+          {
+            "adc_interval_v_if_linear": null,
+            "bus_v": 260,
+            "guaranteed_linear_under_assumptions": false,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 1.3334476210570736,
+            "indicated_bus_v_if_linear": null,
+            "input_v": [
+              2.125990959795848,
+              2.2088080810920614
+            ],
+            "max_abs_error_v_if_linear": null,
+            "nominal_input_v": 2.166895242114147
+          },
+          {
+            "adc_interval_v_if_linear": null,
+            "bus_v": 280,
+            "guaranteed_linear_under_assumptions": false,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 1.4167897457537715,
+            "indicated_bus_v_if_linear": null,
+            "input_v": [
+              2.2896556084252557,
+              2.3785895125309544
+            ],
+            "max_abs_error_v_if_linear": null,
+            "nominal_input_v": 2.333579491507543
+          }
+        ],
+        "zero_adc_interval_v": [
+          0.2297484369129863,
+          0.27022984402948347
+        ]
+      },
+      "25C_conditional": {
+        "adc_min_at_vin_2_v": 1.233959280916925,
+        "assumptions": {
+          "amc_bias": 1.5e-08,
+          "amc_gain": 0.002,
+          "amc_offset": 0.0015,
+          "dt": 0,
+          "name": "25C_conditional",
+          "reference_error": 0.0035,
+          "u7_bias": 5e-11
+        },
+        "linear_bus_endpoint_v": [
+          237.331561397243,
+          242.6236590836474
+        ],
+        "normal_198V_no_false_overrange_under_assumptions": true,
+        "overrange_threshold_bus_crossing_v": [
+          224.0784419444687,
+          236.78794885930182
+        ],
+        "ovp_R36_R37_and_offset_only_v": [
+          279.5731403342813,
+          280.3677232314273
+        ],
+        "ovp_expanded_partial_stack_v": [
+          276.11080591314783,
+          283.85410817247987
+        ],
+        "rows": [
+          {
+            "adc_interval_v_if_linear": [
+              0.23617637255046642,
+              0.263819578643673
+            ],
+            "bus_v": 0,
+            "guaranteed_linear_under_assumptions": true,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 0.25,
+            "indicated_bus_v_if_linear": [
+              -3.3173206226361724,
+              3.316349011731048
+            ],
+            "input_v": [
+              -0.0002360615469965305,
+              0.0002360615469965305
+            ],
+            "max_abs_error_v_if_linear": 3.3173206226361724,
+            "nominal_input_v": 0.0
+          },
+          {
+            "adc_interval_v_if_linear": [
+              0.27734283516181557,
+              0.30600591569691693
+            ],
+            "bus_v": 10,
+            "guaranteed_linear_under_assumptions": true,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 0.291671062348349,
+            "indicated_bus_v_if_linear": [
+              6.561588215160754,
+              13.440001895976597
+            ],
+            "input_v": [
+              0.08220585978506084,
+              0.08449640714451358
+            ],
+            "max_abs_error_v_if_linear": 3.4400018959765966,
+            "nominal_input_v": 0.08334212469669797
+          },
+          {
+            "adc_interval_v_if_linear": [
+              0.9357932338878976,
+              0.9812538876088374
+            ],
+            "bus_v": 170,
+            "guaranteed_linear_under_assumptions": true,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 0.9584080599219327,
+            "indicated_bus_v_if_linear": [
+              164.57301427907294,
+              175.48242026947264
+            ],
+            "input_v": [
+              1.401276601097979,
+              1.4326619367047866
+            ],
+            "max_abs_error_v_if_linear": 5.482420269472641,
+            "nominal_input_v": 1.4168161198438654
+          },
+          {
+            "adc_interval_v_if_linear": [
+              1.0507509408136373,
+              1.0996909378761057
+            ],
+            "bus_v": 198,
+            "guaranteed_linear_under_assumptions": true,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 1.0750870344973098,
+            "indicated_bus_v_if_linear": [
+              192.15995361955615,
+              203.90431392728115
+            ],
+            "input_v": [
+              1.6321139808277394,
+              1.6685909043778342
+            ],
+            "max_abs_error_v_if_linear": 5.904313927281152,
+            "nominal_input_v": 1.6501740689946198
+          },
+          {
+            "adc_interval_v_if_linear": [
+              1.182131177300197,
+              1.2350475667529839
+            ],
+            "bus_v": 230,
+            "guaranteed_linear_under_assumptions": true,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 1.2084344340120268,
+            "indicated_bus_v_if_linear": [
+              223.6878842943941,
+              236.38647810763376
+            ],
+            "input_v": [
+              1.8959281290903232,
+              1.9382240102898889
+            ],
+            "max_abs_error_v_if_linear": 6.386478107633764,
+            "nominal_input_v": 1.9168688680240533
+          },
+          {
+            "adc_interval_v_if_linear": null,
+            "bus_v": 240,
+            "guaranteed_linear_under_assumptions": false,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 1.2501054963603755,
+            "indicated_bus_v_if_linear": null,
+            "input_v": [
+              1.9783700504223805,
+              2.0224843558874057
+            ],
+            "max_abs_error_v_if_linear": null,
+            "nominal_input_v": 2.000210992720751
+          },
+          {
+            "adc_interval_v_if_linear": null,
+            "bus_v": 260,
+            "guaranteed_linear_under_assumptions": false,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 1.3334476210570736,
+            "indicated_bus_v_if_linear": null,
+            "input_v": [
+              2.143253893086495,
+              2.19100504708244
+            ],
+            "max_abs_error_v_if_linear": null,
+            "nominal_input_v": 2.166895242114147
+          },
+          {
+            "adc_interval_v_if_linear": null,
+            "bus_v": 280,
+            "guaranteed_linear_under_assumptions": false,
+            "ideal_transfer_adc_v_NOT_valid_overrange_prediction": 1.4167897457537715,
+            "indicated_bus_v_if_linear": null,
+            "input_v": [
+              2.30813773575061,
+              2.359525738277474
+            ],
+            "max_abs_error_v_if_linear": null,
+            "nominal_input_v": 2.333579491507543
+          }
+        ],
+        "zero_adc_interval_v": [
+          0.23617637255046642,
+          0.263819578643673
+        ]
+      }
+    },
+    "proposed_requirements_not_owner_specifications": {
+      "crossing_error_estimate_us": 154.4988224393922,
+      "crossing_timing_us": 250,
+      "magnitude_percent_at_170_and_198": 6,
+      "zero_absolute_error_V": 5
+    },
+    "receiver_and_timing": {
+      "ideal_resolution_estimate_bus_V_per_step_1p6V_4096": 0.09374011075949368,
+      "ideal_rx_demand_at_failsafe_minus2p5_V": -1.0,
+      "input_filter_tau_us_nominal": 15.668319442979216,
+      "local_reference_current_max_mA": 0.9704195694294702,
+      "local_reference_current_min_mA": 0.5839354205690838,
+      "nominal_adc_delta_170_to_198_mV": 116.67897457537715,
+      "nominal_rx_output_at_clip_2p49_V": 1.495,
+      "normal_max_amc_output_current_uA_nominal": 74.66666666666667,
+      "normal_output_pin_range_v_for_diff_0_to_2": [
+        0.3899999999999999,
+        2.49
+      ],
+      "output_filter_tau_us_proposal": 10.0,
+      "receiver_plus_input_range_v_for_diff_0_to_2": [
+        0.63,
+        0.9966666666666667
+      ],
+      "sample_interval_us_proposal": 50.0,
+      "sinusoid_170V_60Hz_near_zero_slope_V_per_us_estimate": 0.06408849013323178,
+      "trip_hysteresis_1p2mV_typical_equivalent_bus_V": 0.14398481012658226,
+      "volts_bus_per_mV_adc": 0.2399746835443038
+    },
+    "scope": "conditional DC stacks, not an unconditional system/safety bound"
+  },
+  "base_revision": "83c02a9a06383f020227ce57a14bc37a18c956ff",
+  "initial_blocker_nominal_only": {
+    "bottom_ohm": 15800.0,
+    "counterexample_bottom_ohm_NOT_RECOMMENDED": 12400.0,
+    "counterexample_ovp_trip_v": 356.0967741935484,
+    "current_linear_bus_limit_v": 239.9746835443038,
+    "current_ovp_trip_v": 279.97046413502113,
+    "minimum_ovp_trip_if_280V_maps_to_at_most_2V": 326.6666666666667,
+    "ovp_reference_v": 2.3333333333333335,
+    "range_table": [
+      {
+        "bus_v": 170,
+        "counterexample_u4_input_v": 1.1139294018177974,
+        "current_u4_input_v": 1.4168161198438654
+      },
+      {
+        "bus_v": 198,
+        "counterexample_u4_input_v": 1.2974001268230817,
+        "current_u4_input_v": 1.6501740689946198
+      },
+      {
+        "bus_v": 240,
+        "counterexample_u4_input_v": 1.5726062143310082,
+        "current_u4_input_v": 2.000210992720751
+      },
+      {
+        "bus_v": 280,
+        "counterexample_u4_input_v": 1.8347072500528427,
+        "current_u4_input_v": 2.333579491507543
+      }
+    ],
+    "top_ohm": 1880000.0
+  },
   "input_sha256": {
+    "docs/hardware/power-section-120v/POWER-SECTION.md": "b9125d13b57fb0232f8f4a723938f12836cb917f5fd00f719bef725f9f2b64c4",
+    "firmware/components/hal/esp32/hal_adc_esp32.c": "4f170201feff03b6bd8d0e85455c0e609476e139ea5bd0c5d23f5ea998784965",
+    "firmware/components/hal/include/temper_pins.h": "aa14b7d63de14b3a08185f3e714d2a72622cefdfb56fe5745825fdb0d3cf1c3b",
+    "firmware/main/main.c": "acd398a76b3e1aa02de07a2955a507557410b6d25f4aed2a7b374ed3d81e8afb",
+    "firmware/main/state_handlers.c": "f722e64fc46969dee1ccdccd4bd11110d2f3bcc5a44a0a725fd18158d61f6a0c",
+    "firmware/test/test_common.h": "d79fe9a00ce59e3dd88bcabf6b9a7e52a7c3753ddb280b6219cfcc8abd2e7ba5",
+    "zapote/power-stage-120v/REFERENCE-BIAS.md": "7a669a867232e4eafca89a62195a9550db4e7f747931facafd27d33aa740d2b0",
     "zapote/power-stage-120v/elec/src/power_stage_120v.ato": "03f157fc83cad18daaa392ca3a85ec3202a3d0c89c60b4566ab9248d1cfc7112",
     "zapote/power-stage-120v/frozen/default.csv": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67",
     "zapote/power-stage-120v/frozen/default.net": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
     "zapote/power-stage-120v/native-17/section.kicad_pcb": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/D11-bus-sense-range.md": "c144564ddbfb58082e5224b92a401fdc26b312c3865b9070624e10f2b3df8fcb",
     "zapote/power-stage-120v/validation-results/06-controller-interface/scripts/interface_check.py": "d7a9704e6bfb929c940de34cb99ad39d4fe017b400fcb3fe9ac63968f7e4d3b4"
   },
   "model_provider": "OpenAI GPT-6 / Codex",
@@ -294,38 +714,6 @@
       ]
     }
   },
-  "nominal_only": {
-    "bottom_ohm": 15800.0,
-    "counterexample_bottom_ohm_NOT_RECOMMENDED": 12400.0,
-    "counterexample_ovp_trip_v": 356.0967741935484,
-    "current_linear_bus_limit_v": 239.9746835443038,
-    "current_ovp_trip_v": 279.97046413502113,
-    "minimum_ovp_trip_if_280V_maps_to_at_most_2V": 326.6666666666667,
-    "ovp_reference_v": 2.3333333333333335,
-    "range_table": [
-      {
-        "bus_v": 170,
-        "counterexample_u4_input_v": 1.1139294018177974,
-        "current_u4_input_v": 1.4168161198438654
-      },
-      {
-        "bus_v": 198,
-        "counterexample_u4_input_v": 1.2974001268230817,
-        "current_u4_input_v": 1.6501740689946198
-      },
-      {
-        "bus_v": 240,
-        "counterexample_u4_input_v": 1.5726062143310082,
-        "current_u4_input_v": 2.000210992720751
-      },
-      {
-        "bus_v": 280,
-        "counterexample_u4_input_v": 1.8347072500528427,
-        "current_u4_input_v": 2.333579491507543
-      }
-    ],
-    "top_ohm": 1880000.0
-  },
   "runtime": "3.12.12",
   "source_lines": {
     "r_div_bot.value = 15.8kohm": 411,
@@ -334,5 +722,5 @@
     "u_ovp.INN ~ VSENSE_IN": 502,
     "u_vsense.VINP ~ VSENSE_IN": 421
   },
-  "status": "BLOCKED_SCOPE_SHARED_OVP_DIVIDER"
+  "status": "PROPOSAL_KEEP_DIVIDER_CONDITIONAL_ACCURACY"
 }
