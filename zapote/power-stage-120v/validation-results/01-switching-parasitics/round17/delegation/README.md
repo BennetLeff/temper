@@ -11,6 +11,11 @@ only your brief.
 | [D-3 diode recovery](D3-diode-recovery.md) | Does the Infineon IPW65R018CFD7 L1 model's body-diode recovery match the datasheet? | medium |
 | [D-4 review](D4-review.md) | Adversarial review of round 17's matrix → SPICE mapping, extrapolation and margin correction | medium |
 
+**Paths:** `round17/...` means
+`zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/...`;
+`validation-plan/...`, `native-17/...` and `frozen/...` are under
+`zapote/power-stage-120v/`; `docs/...` is at the repository root.
+
 ## Ground rules (all briefs)
 
 - **Branch:** start from `origin/codex/power-stage-120v-build` at or after
