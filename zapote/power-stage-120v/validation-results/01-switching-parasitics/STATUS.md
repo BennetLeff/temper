@@ -75,11 +75,10 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | --- | --- | --- |
 | Mesh convergence point (fine, 0.5 mm edges, h = 1 mm) | remote box | running |
 | Leg B matrix | remote box | **paused** until the enclosure layout settles (restart note in the remote's `r17/chain_legB.out`) |
-
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
-| D-7 capacitor ESL | delegated | waiting on TDK model access |
-| D-11 bus-sense range (AMC1311B linear to ~240 V, < 280 V OVP; from D-10) | delegated | brief written |
-| Diode-recovery data, TI timing limits at 39 kΩ, deployed four-PWM controller and harness, gate-drive remedy and hot criterion (owner), C38 ESL | outside input / owner | open |
+| D-7 capacitor ESL | delegated | **done, merged** (#1634): C38–C41 1.06 nH, C5/C6 19.2 nH typical-model values; grid now sweeps 1.06–20 nH |
+| D-11 bus-sense range (task 06) | delegated | **done, merged** (#1635): keep the shared divider and U7; add a controller-side OPA2388 difference receiver; latch measurement over-range at calibrated ADC ≥ 1.210 V. Owner: ADC allocation, accuracy/timing targets, early-fault policy |
+| Diode-recovery data, TI timing limits at 39 kΩ, deployed four-PWM controller and harness, gate-drive remedy and hot criterion (owner), mounted C38 ESL (lead length) | outside input / owner | open |
 
 ## Board revisions: does a change need a rerun?
 
