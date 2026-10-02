@@ -62,3 +62,19 @@ ns; capacitor ESL 5/10/20 nH). 162 pass, 144 fail, 6 aborted in ngspice
   the closure arches, so both magnitude and margin are provisional. Fixes
   (named per the task, not implemented): negative gate-off bias or an
   active Miller clamp; slower high-side turn-on to soften the recovery.
+
+## Grid on the straight-line h -> 0 matrix (`legA-h0-lin12.matrix.txt`, `results/grid-h0-lin12/`)
+
+Board-only matrix extrapolated from 1 and 2 mm (provisional until 3 mm):
+L = 28.24 / 26.48 / 25.97 / 36.37 nH (P1..P4), k12 0.62, power-to-gate
+k 0.13–0.17; C38 ∥ C39 board loop ≈ 22.1 nH. Positive definite.
+
+166 pass, 140 fail, 0 aborted. Same pattern as the 1 mm matrix: every
+case fails at 250 ns dead time (gate still on at the partner's command);
+at 348/450 ns only S2 71 A LS-first (2 cases, marginal) and **all of S4**
+fail. S3's 348/450 ns failures and the six aborted runs disappear. S4:
+die VDS 461–543 V (> 520 V in 23 of 54, all < 650 V), off-gate rebound
+3.25–5.14 V. Highest VDS outside S4: 449.8 V. Removing the arches barely
+changes the result: the S4 outcome is set by the diode recovery and the
+gate drive more than by the loop inductance (see the delegation briefs
+D-1 to D-3).
