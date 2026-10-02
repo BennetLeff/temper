@@ -1,0 +1,338 @@
+{
+  "base_revision": "4574380993f525cdfa4f41702416b398a22689c3",
+  "input_sha256": {
+    "zapote/power-stage-120v/elec/src/power_stage_120v.ato": "03f157fc83cad18daaa392ca3a85ec3202a3d0c89c60b4566ab9248d1cfc7112",
+    "zapote/power-stage-120v/frozen/default.csv": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67",
+    "zapote/power-stage-120v/frozen/default.net": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
+    "zapote/power-stage-120v/native-17/section.kicad_pcb": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+    "zapote/power-stage-120v/validation-results/06-controller-interface/scripts/interface_check.py": "d7a9704e6bfb929c940de34cb99ad39d4fe017b400fcb3fe9ac63968f7e4d3b4"
+  },
+  "model_provider": "OpenAI GPT-6 / Codex",
+  "native_parts": {
+    "R26": {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "line": 26093,
+      "pads": {
+        "1": [
+          {
+            "line": 26235,
+            "net": "bus_p"
+          }
+        ],
+        "2": [
+          {
+            "line": 26243,
+            "net": "vdiv_1"
+          }
+        ]
+      },
+      "sheetpath": "r_div1",
+      "value": "RC1206FR-07470KL"
+    },
+    "R27": {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "line": 26632,
+      "pads": {
+        "1": [
+          {
+            "line": 26774,
+            "net": "vdiv_1"
+          }
+        ],
+        "2": [
+          {
+            "line": 26782,
+            "net": "vdiv_2"
+          }
+        ]
+      },
+      "sheetpath": "r_div2",
+      "value": "RC1206FR-07470KL"
+    },
+    "R28": {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "line": 11896,
+      "pads": {
+        "1": [
+          {
+            "line": 12038,
+            "net": "vdiv_2"
+          }
+        ],
+        "2": [
+          {
+            "line": 12046,
+            "net": "vdiv_3"
+          }
+        ]
+      },
+      "sheetpath": "r_div3",
+      "value": "RC1206FR-07470KL"
+    },
+    "R29": {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "line": 10205,
+      "pads": {
+        "1": [
+          {
+            "line": 10347,
+            "net": "vdiv_3"
+          }
+        ],
+        "2": [
+          {
+            "line": 10355,
+            "net": "vsense_in"
+          }
+        ]
+      },
+      "sheetpath": "r_div4",
+      "value": "RC1206FR-07470KL"
+    },
+    "R30": {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "line": 28253,
+      "pads": {
+        "1": [
+          {
+            "line": 28395,
+            "net": "vsense_in"
+          }
+        ],
+        "2": [
+          {
+            "line": 28403,
+            "net": "leg_ret"
+          }
+        ]
+      },
+      "sheetpath": "r_div_bot",
+      "value": "RT0603BRD0715K8L"
+    },
+    "R36": {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "line": 8364,
+      "pads": {
+        "1": [
+          {
+            "line": 8506,
+            "net": "ref25"
+          }
+        ],
+        "2": [
+          {
+            "line": 8514,
+            "net": "ovp_thresh"
+          }
+        ]
+      },
+      "sheetpath": "r_ovp_top",
+      "value": "RT0603BRD0710KL"
+    },
+    "R37": {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "line": 27094,
+      "pads": {
+        "1": [
+          {
+            "line": 27236,
+            "net": "ovp_thresh"
+          }
+        ],
+        "2": [
+          {
+            "line": 27244,
+            "net": "leg_ret"
+          }
+        ]
+      },
+      "sheetpath": "r_ovp_bot",
+      "value": "RT0603BRD07140KL"
+    },
+    "U4": {
+      "footprint": "Package_SO:SOIC-8_7.5x5.85mm_P1.27mm",
+      "line": 10865,
+      "pads": {
+        "1": [
+          {
+            "line": 11120,
+            "net": "hot5"
+          }
+        ],
+        "2": [
+          {
+            "line": 11128,
+            "net": "vsense_in"
+          }
+        ],
+        "3": [
+          {
+            "line": 11136,
+            "net": "leg_ret"
+          }
+        ],
+        "4": [
+          {
+            "line": 11144,
+            "net": "leg_ret"
+          }
+        ],
+        "5": [
+          {
+            "line": 11152,
+            "net": "selv_gnd"
+          }
+        ],
+        "6": [
+          {
+            "line": 11160,
+            "net": "vbus_n"
+          }
+        ],
+        "7": [
+          {
+            "line": 11168,
+            "net": "vbus_p"
+          }
+        ],
+        "8": [
+          {
+            "line": 11176,
+            "net": "v3v3"
+          }
+        ]
+      },
+      "sheetpath": "u_vsense",
+      "value": "AMC1311BDWVR"
+    },
+    "U7": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "line": 12909,
+      "pads": {
+        "1": [
+          {
+            "line": 13263,
+            "net": "ovp_ok_hot"
+          }
+        ],
+        "2": [
+          {
+            "line": 13271,
+            "net": "leg_ret"
+          }
+        ],
+        "3": [
+          {
+            "line": 13279,
+            "net": "ovp_thresh"
+          }
+        ],
+        "4": [
+          {
+            "line": 13287,
+            "net": "vsense_in"
+          }
+        ],
+        "5": [
+          {
+            "line": 13295,
+            "net": "hot5"
+          }
+        ]
+      },
+      "sheetpath": "u_ovp",
+      "value": "TLV3201AIDBVR"
+    }
+  },
+  "nets": {
+    "ovp_thresh": {
+      "native_matches": true,
+      "netlist_line": 1393,
+      "nodes": [
+        [
+          "C33",
+          "1"
+        ],
+        [
+          "R36",
+          "2"
+        ],
+        [
+          "R37",
+          "1"
+        ],
+        [
+          "U7",
+          "3"
+        ]
+      ]
+    },
+    "vsense_in": {
+      "native_matches": true,
+      "netlist_line": 1365,
+      "nodes": [
+        [
+          "C27",
+          "1"
+        ],
+        [
+          "R29",
+          "2"
+        ],
+        [
+          "R30",
+          "1"
+        ],
+        [
+          "U4",
+          "2"
+        ],
+        [
+          "U7",
+          "4"
+        ]
+      ]
+    }
+  },
+  "nominal_only": {
+    "bottom_ohm": 15800.0,
+    "counterexample_bottom_ohm_NOT_RECOMMENDED": 12400.0,
+    "counterexample_ovp_trip_v": 356.0967741935484,
+    "current_linear_bus_limit_v": 239.9746835443038,
+    "current_ovp_trip_v": 279.97046413502113,
+    "minimum_ovp_trip_if_280V_maps_to_at_most_2V": 326.6666666666667,
+    "ovp_reference_v": 2.3333333333333335,
+    "range_table": [
+      {
+        "bus_v": 170,
+        "counterexample_u4_input_v": 1.1139294018177974,
+        "current_u4_input_v": 1.4168161198438654
+      },
+      {
+        "bus_v": 198,
+        "counterexample_u4_input_v": 1.2974001268230817,
+        "current_u4_input_v": 1.6501740689946198
+      },
+      {
+        "bus_v": 240,
+        "counterexample_u4_input_v": 1.5726062143310082,
+        "current_u4_input_v": 2.000210992720751
+      },
+      {
+        "bus_v": 280,
+        "counterexample_u4_input_v": 1.8347072500528427,
+        "current_u4_input_v": 2.333579491507543
+      }
+    ],
+    "top_ohm": 1880000.0
+  },
+  "runtime": "3.12.12",
+  "source_lines": {
+    "r_div_bot.value = 15.8kohm": 411,
+    "r_ovp_bot.value = 140kohm": 491,
+    "r_ovp_top.value = 10kohm": 487,
+    "u_ovp.INN ~ VSENSE_IN": 502,
+    "u_vsense.VINP ~ VSENSE_IN": 421
+  },
+  "status": "BLOCKED_SCOPE_SHARED_OVP_DIVIDER"
+}
