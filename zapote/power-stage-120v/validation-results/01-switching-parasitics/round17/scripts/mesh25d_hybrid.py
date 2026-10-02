@@ -422,9 +422,17 @@ def main() -> None:
         faces2d = [g_ for f_ in faces2d for g_ in polys(f_)]
 
     def touching(poly):
+        """A ring that revisits a grid point after rounding: a real pinch.
+
+        Consecutive vertices that round to the same grid point (an off-grid
+        crossing a few microns from a grid vertex) are not a pinch: loop()
+        rounds the same way and drops the zero-length edge between them, so
+        they are collapsed before the check (round 17: rejecting them blocked
+        the 20 mm-margin crops)."""
         for ring in [poly.exterior, *poly.interiors]:
             c = [(round(x / GRID), round(y / GRID)) for x, y in ring.coords[:-1]]
-            if len(c) != len(set(c)):
+            c = [p_ for i, p_ in enumerate(c) if p_ != c[i - 1]]          # collapse runs, incl. wrap-around
+            if len(c) < 3 or len(c) != len(set(c)):
                 return True
         return False
     bad = [f_ for f_ in faces2d if touching(f_)]
@@ -464,6 +472,9 @@ def main() -> None:
     # into neighbours above (merge_thin); anything left over is an error.
     skipped = [f_ for f_ in faces2d if f_.area < 1e-4 or touching(f_)]
     if skipped:
+        for f_ in skipped:
+            print("DIAG_SKIPPED " + json.dumps({"area": f_.area, "length": f_.length, "width": 2 * f_.area / f_.length,
+                                                "touching": touching(f_), "wkt": f_.wkt[:2000]}), flush=True)
         raise SystemExit(f"{len(skipped)} degenerate 2-D faces would become PEC columns: "
                          f"{[[round(v, 3) for v in f_.representative_point().coords[0]] for f_ in skipped[:6]]}"
                          " (raise --thin)")
