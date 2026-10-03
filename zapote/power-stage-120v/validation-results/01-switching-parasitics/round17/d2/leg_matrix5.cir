@@ -32,6 +32,9 @@
 
 .include IFX_CFD7_650V.lib
 .include ../common/options.inc
+* D-14 (delegation/out-D14): raise the transient iteration limit; resolves
+* the 'timestep too small' aborts without changing converged results.
+.options itl4=100000
 
 * ---- defaults; params.inc (written by the runner) overrides them
 .param VBUS=170 IL=37 DIR=0 T1=2u DT=348n TRMAX=0.2n
