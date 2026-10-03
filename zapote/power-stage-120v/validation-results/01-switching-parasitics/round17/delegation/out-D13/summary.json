@@ -1,0 +1,287 @@
+[
+  {
+    "view": "baseline all",
+    "temp_C": 27,
+    "attempted": 56,
+    "indeterminate": 0,
+    "off_max_V": 5.078517,
+    "vds_max_V": 511.1413,
+    "vgs_abs_max_V": 15.0227,
+    "off_failures": {
+      "off_model": 24,
+      "off_3V": 26,
+      "off_1p9V": 40
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 36,
+    "zvs_S1_complete": 36,
+    "energy_min_uJ": 84.02041500000001,
+    "energy_max_uJ": 789.752793
+  },
+  {
+    "view": "baseline all",
+    "temp_C": 100,
+    "attempted": 56,
+    "indeterminate": 0,
+    "off_max_V": 5.036497,
+    "vds_max_V": 512.8953,
+    "vgs_abs_max_V": 15.02271,
+    "off_failures": {
+      "off_model": 27,
+      "off_3V": 27,
+      "off_1p9V": 40
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 36,
+    "zvs_S1_complete": 36,
+    "energy_min_uJ": 93.65257799999999,
+    "energy_max_uJ": 784.924198
+  },
+  {
+    "view": "baseline all",
+    "temp_C": 150,
+    "attempted": 56,
+    "indeterminate": 2,
+    "off_max_V": 4.905446,
+    "vds_max_V": 513.7754,
+    "vgs_abs_max_V": 15.02271,
+    "off_failures": {
+      "off_model": 34,
+      "off_3V": 26,
+      "off_1p9V": 38
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 24,
+    "zvs_S1_complete": 36,
+    "energy_min_uJ": 102.09180500000001,
+    "energy_max_uJ": 782.91598
+  },
+  {
+    "view": "F6 all",
+    "temp_C": 27,
+    "attempted": 56,
+    "indeterminate": 0,
+    "off_max_V": 0.5116853,
+    "vds_max_V": 482.247,
+    "vgs_abs_max_V": 15.02227,
+    "off_failures": {
+      "off_model": 0,
+      "off_3V": 0,
+      "off_1p9V": 0
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 36,
+    "zvs_S1_complete": 36,
+    "energy_min_uJ": 61.08673,
+    "energy_max_uJ": 766.6474
+  },
+  {
+    "view": "F6 all",
+    "temp_C": 100,
+    "attempted": 56,
+    "indeterminate": 0,
+    "off_max_V": 0.283947,
+    "vds_max_V": 475.2766,
+    "vgs_abs_max_V": 15.02749,
+    "off_failures": {
+      "off_model": 0,
+      "off_3V": 0,
+      "off_1p9V": 0
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 36,
+    "zvs_S1_complete": 36,
+    "energy_min_uJ": 63.129540000000006,
+    "energy_max_uJ": 763.6898899999999
+  },
+  {
+    "view": "F6 all",
+    "temp_C": 150,
+    "attempted": 56,
+    "indeterminate": 56,
+    "off_max_V": null,
+    "vds_max_V": null,
+    "vgs_abs_max_V": null,
+    "off_failures": {
+      "off_model": 0,
+      "off_3V": 0,
+      "off_1p9V": 0
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 0,
+    "zvs_S1_complete": 0,
+    "energy_min_uJ": null,
+    "energy_max_uJ": null
+  },
+  {
+    "view": "baseline nominal",
+    "temp_C": 27,
+    "attempted": 20,
+    "indeterminate": 0,
+    "off_max_V": 4.523586,
+    "vds_max_V": 511.1413,
+    "vgs_abs_max_V": 15.0227,
+    "off_failures": {
+      "off_model": 4,
+      "off_3V": 6,
+      "off_1p9V": 20
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 12,
+    "zvs_S1_complete": 12,
+    "energy_min_uJ": 84.86018000000001,
+    "energy_max_uJ": 788.8050870000001
+  },
+  {
+    "view": "baseline nominal",
+    "temp_C": 100,
+    "attempted": 20,
+    "indeterminate": 0,
+    "off_max_V": 4.480325,
+    "vds_max_V": 512.8953,
+    "vgs_abs_max_V": 15.02271,
+    "off_failures": {
+      "off_model": 7,
+      "off_3V": 7,
+      "off_1p9V": 20
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 12,
+    "zvs_S1_complete": 12,
+    "energy_min_uJ": 96.037269,
+    "energy_max_uJ": 784.1929580000001
+  },
+  {
+    "view": "baseline nominal",
+    "temp_C": 150,
+    "attempted": 20,
+    "indeterminate": 1,
+    "off_max_V": 4.440149,
+    "vds_max_V": 513.7754,
+    "vgs_abs_max_V": 15.02271,
+    "off_failures": {
+      "off_model": 15,
+      "off_3V": 7,
+      "off_1p9V": 19
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 12,
+    "zvs_S1_complete": 12,
+    "energy_min_uJ": 103.098331,
+    "energy_max_uJ": 782.91598
+  },
+  {
+    "view": "F6 nominal",
+    "temp_C": 27,
+    "attempted": 20,
+    "indeterminate": 0,
+    "off_max_V": 0.5116853,
+    "vds_max_V": 482.247,
+    "vgs_abs_max_V": 15.02227,
+    "off_failures": {
+      "off_model": 0,
+      "off_3V": 0,
+      "off_1p9V": 0
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 12,
+    "zvs_S1_complete": 12,
+    "energy_min_uJ": 62.33508,
+    "energy_max_uJ": 765.43923
+  },
+  {
+    "view": "F6 nominal",
+    "temp_C": 100,
+    "attempted": 20,
+    "indeterminate": 0,
+    "off_max_V": 0.283947,
+    "vds_max_V": 474.8672,
+    "vgs_abs_max_V": 15.02749,
+    "off_failures": {
+      "off_model": 0,
+      "off_3V": 0,
+      "off_1p9V": 0
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 12,
+    "zvs_S1_complete": 12,
+    "energy_min_uJ": 63.652370000000005,
+    "energy_max_uJ": 762.82841
+  },
+  {
+    "view": "F6 nominal",
+    "temp_C": 150,
+    "attempted": 20,
+    "indeterminate": 20,
+    "off_max_V": null,
+    "vds_max_V": null,
+    "vgs_abs_max_V": null,
+    "off_failures": {
+      "off_model": 0,
+      "off_3V": 0,
+      "off_1p9V": 0
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 0,
+    "zvs_S1_complete": 0,
+    "energy_min_uJ": null,
+    "energy_max_uJ": null
+  },
+  {
+    "view": "F7 nominal",
+    "temp_C": 27,
+    "attempted": 20,
+    "indeterminate": 0,
+    "off_max_V": 4.182724,
+    "vds_max_V": 510.9661,
+    "vgs_abs_max_V": 15.0227,
+    "off_failures": {
+      "off_model": 4,
+      "off_3V": 4,
+      "off_1p9V": 4
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 12,
+    "zvs_S1_complete": 12,
+    "energy_min_uJ": 87.52716,
+    "energy_max_uJ": 789.752793
+  },
+  {
+    "view": "F7 nominal",
+    "temp_C": 100,
+    "attempted": 20,
+    "indeterminate": 0,
+    "off_max_V": 4.134434,
+    "vds_max_V": 512.1218,
+    "vgs_abs_max_V": 15.02271,
+    "off_failures": {
+      "off_model": 4,
+      "off_3V": 4,
+      "off_1p9V": 4
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 12,
+    "zvs_S1_complete": 12,
+    "energy_min_uJ": 98.85358,
+    "energy_max_uJ": 784.924198
+  },
+  {
+    "view": "F7 nominal",
+    "temp_C": 150,
+    "attempted": 20,
+    "indeterminate": 1,
+    "off_max_V": 4.101881,
+    "vds_max_V": 513.0911,
+    "vgs_abs_max_V": 15.02271,
+    "off_failures": {
+      "off_model": 3,
+      "off_3V": 3,
+      "off_1p9V": 3
+    },
+    "vds_failures": 0,
+    "zvs_S1_yes": 12,
+    "zvs_S1_complete": 12,
+    "energy_min_uJ": 106.23,
+    "energy_max_uJ": 781.221497
+  }
+]
