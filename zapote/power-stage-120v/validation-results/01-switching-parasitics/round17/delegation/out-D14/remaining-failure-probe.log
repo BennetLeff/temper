@@ -1,0 +1,10 @@
+d6_lin_off1_c1_neg2_S2_v280_i71_d0_dt348_itl10k_step0.2n: OK []
+d6_lin_off1_c1_neg2_S2_v280_i71_d0_dt348_itl10k_step0.1n: OK []
+d6_lin_off1_c1_neg2_S2_v280_i71_d0_dt348_itl4_abstol8_step0.2n: OK []
+d6_lin_off1_c1_neg2_S2_v280_i71_d0_dt348_itl10k_step0.05n: OK []
+d6_lin_off1_c1_neg2_S2_v280_i71_d0_dt348_itl4_abstol8_step0.1n: OK []
+d6_lin_off1_c1_neg2_S2_v280_i71_d0_dt348_itl4_vntol5_step0.2n: OK []
+d6_lin_off1_c1_neg2_S2_v280_i71_d0_dt348_itl4_vntol5_step0.1n: FAIL ['doAnalyses: TRAN:  Timestep too small; time = 2.348e-06, timestep = 1.25e-22: trouble with node "bus"', 'run simulation(s) aborted']
+d6_lin_off1_c1_neg2_S2_v280_i71_d0_dt348_itl4_abstol8_step0.05n: OK []
+d6_lin_off1_c1_neg2_S2_v280_i71_d0_dt348_itl4_vntol5_step0.05n: OK []
+COMPLETED 9 runs; failed 1

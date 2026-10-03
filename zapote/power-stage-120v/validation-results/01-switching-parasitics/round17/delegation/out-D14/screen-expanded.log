@@ -1,0 +1,11 @@
+best_S3_v280_i10_d1_dt250_esl1.06_old_step0.2n: FAIL ['doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node "bus"', 'run simulation(s) aborted']
+best_S3_v280_i10_d1_dt250_esl1.06_tight_step0.2n: FAIL ['doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node "bus"', 'run simulation(s) aborted']
+best_S3_v280_i10_d1_dt250_esl1.06_itl4_step0.2n: OK []
+best_S3_v280_i10_d1_dt250_esl1.06_gmin12_step0.2n: OK []
+best_S3_v280_i10_d1_dt250_esl1.06_abstol8_step0.2n: OK []
+best_S3_v280_i10_d1_dt250_esl1.06_trap_step0.2n: FAIL ['doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node "bus"', 'run simulation(s) aborted']
+best_S3_v280_i10_d1_dt250_esl1.06_vntol5_step0.2n: OK []
+best_S3_v280_i10_d1_dt250_esl1.06_trtol1_step0.2n: FAIL ['doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node "bus"', 'run simulation(s) aborted']
+best_S3_v280_i10_d1_dt250_esl1.06_chgtol18_step0.2n: FAIL ['doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node "bus"', 'run simulation(s) aborted']
+best_S3_v280_i10_d1_dt250_esl1.06_noopiter_step0.2n: OK []
+COMPLETED 50 runs; failed 26
