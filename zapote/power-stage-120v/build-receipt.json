@@ -1,0 +1,23 @@
+{
+  "schema": "temper.power-stage-120v.source-build.v1",
+  "entry": "elec/src/power_stage_120v.ato:PowerStage120V",
+  "atopile": "0.2.69 (uv tool run --offline)",
+  "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+  "status": "compiled-and-exported",
+  "components": 142,
+  "nets": 88,
+  "audit": "PASS on frozen/; 58 passed audit tests, including five HOT5 supervisor mutation tests (2026-10-03)",
+  "reproducibility": "Rebuilt 2026-10-03 with pinned offline atopile 0.2.69 in the mit-product-guidance worktree; frozen/ copies build/default.net, build/default.csv, and the resolved component export. Source-only HOT5 correction on top of ps-oracle fda5ab9ece24ef1ee6f2317604c5ca73367d5201. Compared incoming frozen/default.net path-to-designator mapping: all 135 retained with zero changes; seven new parts appended.",
+  "identity_authority": "frozen/resolved-components.json + frozen/default.csv (default.net libsource is footprint-aliased)",
+  "sha256": {
+    "ato.yaml": "ccb72f82cfe51d8002ba3333bce202f587971ea7eb439ec18d1693371139dd80",
+    "elec/src/parts.ato": "2bfc94ad2b7f0f4cac85797cd5fa902ce21eb6d2b8bb09a9b03b481c093118e2",
+    "elec/src/power_stage_120v.ato": "0bdb5a33c357d5704e0c8a0a300790f7fea64466f57d9f728ded4ad28c1dd4de",
+    "audit.rs": "481c23adb2d724cd54380b2aaf0f4631f7751441a97b66282c3772ae689a2a39",
+    "tools/circuit_export.py": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
+    "frozen/default.net": "26f95d5aa092d3aba2890421204d53aab16ce332c2e81d22990de64fb30ddb02",
+    "frozen/default.csv": "6cdae33f6ef49ba9c6a95df2cd07ec72b82070e4acaae1deab394c7f54d8262b",
+    "frozen/resolved-components.json": "400057b89d41f743c16d993d2e15ea6255a11e1f263d5d25fedf75c0430204da"
+  },
+  "physical": "NOT RUN"
+}

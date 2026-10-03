@@ -1,5 +1,7 @@
 # Temper product review using the MIT-derived skills
 
+**Historical intake:** this report reviewed the selected 91-part electrical package and folded/R2 enclosures. The [resolution work](../resolution/README.md) reconciles it with native-18 (135 parts/83 nets), the existing interlock, and the later approved R4 enclosure. Use that successor record for current design decisions; retain this report as the original evidence and finding definitions.
+
 **Temper has a credible basis for further prototype work, but the reviewed evidence does not support manufacturing or powered-use release.** R2 improves the nominal mechanics relative to the folded-aluminum study. The newer full-bridge electrical candidate has reproducible connectivity checks, but no native PCB in the reviewed package. Its packaging therefore cannot inherit the older board's fit results.
 
 This review applies four independently tested skills: product taste, mechanical review, PCB/power review, and manufacturing review. The user requested comparison of **both** enclosure packages. [Baseline and hashes](baseline.md) identify the actual working files; their untracked state matters. Course methods are distinguished from Temper findings and proposed tests in the detailed [electrical](electrical-review.md), [mechanical](mechanical-review.md), and [product/manufacturing](product-manufacturing-review.md) reports.

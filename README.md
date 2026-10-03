@@ -113,7 +113,7 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*All 21 tracked top-level directories. Generated -- a new directory without a description fails CI.*
+*All 24 tracked top-level directories. Generated -- a new directory without a description fails CI.*
 
 | Directory | Purpose |
 |---|---|
@@ -131,13 +131,16 @@ For contributors working on architecture, verification, or toolchain internals:
 | `firmware/` | ESP32-S3 firmware (C), 8-state machine and protection monitoring |
 | `max31865/` | KiCad library for the MAX31865 RTD front-end (predates components/) |
 | `metrics/` | Recorded routing/placement metric snapshots (JSON) |
+| `output/` | Revisioned mechanical sources, historical geometry inputs, and validation receipts |
 | `output_gerbers/` | Exported Gerber/drill artifacts from a past routed revision |
 | `packages/` | Python and Rust workspace members -- placer, DRC, geometry, router |
 | `pcb/` | KiCad project: schematics, board, and project settings |
 | `power_pcb_dataset/` | Regression corpus, baselines, and DRC ceilings |
 | `scripts/` | CI gates, generators, and one-off analysis tooling |
 | `simulation/` | ngspice models and protection-gate simulation harnesses |
+| `skills/` | Source-grounded agent skills for product, mechanical, PCB, and manufacturing reviews |
 | `tools/` | Developer utilities not wired into CI gates |
+| `zapote/` | Isolated circuit source candidates, compiled exports, and connectivity audits |
 
 <!-- END GENERATED: repo-map -->
 
