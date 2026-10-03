@@ -19,7 +19,7 @@ model-based throughout. **No physical qualification is claimed.**
 | Hard turn-on (S4, −20 A) | **fails at every dead time**: die VDS up to 543 V (> 520 V), off-gate up to 5.1 V | **open risk**: hinges on the body-diode recovery model (D-3, D-8) |
 | Overcurrent (S2, 280 V / 61–71 A) | passes at ≥ 391 ns; 2 marginal fails at 348 ns (3.12–3.14 V) | model result |
 | Light load (S3, 2–10 A) | passes at ≥ 348 ns; 12 fails at 307 ns | model result |
-| Hot-screen remedy | **Decided (F7, for native-18):** R9/R17 → 49.9 kΩ ±0.1 % (≈ 397–488 ns). All nominal and overcurrent cases pass the 1.9 V hot screen with ZVS across that band and at 27/100/150 °C; ≈ +0.1 W per switch | DECISIONS.md 2026-10-03; implementation D-16; timing to confirm at bring-up |
+| Hot-screen remedy | **Decided and implemented in native-18 (F7):** R9/R17 → 49.9 kΩ ±0.1 % (≈ 397–488 ns). All nominal and overcurrent cases pass the 1.9 V hot screen with ZVS across that band and at 27/100/150 °C; ≈ +0.1 W per switch | DECISIONS.md 2026-10-03; implementation D-16; timing to confirm at bring-up |
 | Negative-bias remedy (F6) | passes everything incl. S4 at 27/100 °C; 150 °C indeterminate (placeholder Schottky model); needs an isolated negative supply and a layout change | **kept in reserve** for S4 if the bench shows the snap-off is real (FINDINGS F6) |
 
 Verdict definitions, criteria and all cases: [round17/d2/README.md](round17/d2/README.md).
@@ -78,7 +78,7 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | Leg B matrix | remote box | **paused** until the enclosure layout settles (restart note in the remote's `r17/chain_legB.out`) |
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
 | D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |
-| D-16 native-18 (R9/R17 value change) | delegated | brief written |
+| D-16 native-18 (R9/R17 value change) | delegated | **done, merged** (#1640): native-18 board diff is only R9/R17 Value/MPN; copper identical; no FEM rerun; D4 carry-over conditions met |
 | D-17 protection gate-off (task 02 on the FEM matrix) | delegated | brief written |
 | D-18 loss/thermal (heatsink, airflow), D-19 conducted EMI, D-20 controller requirements, D-21 firmware dead-time fix | delegated | briefs written |
 | D-7 capacitor ESL | delegated | **done, merged** (#1634): C38–C41 1.06 nH, C5/C6 19.2 nH typical-model values; grid now sweeps 1.06–20 nH |
