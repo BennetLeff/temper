@@ -278,3 +278,28 @@ two S3 280 V points as in `grid-best`, at every dead time).
 - S4 hard turn-on fails at every dead time; F7 does not address it.
 - Not yet evaluated: switching and diode-conduction loss vs dead time (D-15),
   hot-junction transients (D-13), build details (D-12).
+
+## Mesh convergence and its effect (FINDINGS M1, `results/mesh-sensitivity/`)
+
+Leg A at h = 1 mm on four meshes (1.0 / 0.7 / 0.5 / 0.35 mm edges;
+`../results/matrices/legA-h1-e{1p0-m10,0p7-fine,0p5-fine}.matrix.txt`,
+`legA-h1-e0p35.matrix.txt`):
+
+- **mutual inductances converge**: steps shrink; the power-to-gate couplings
+  that drive the off-gate criterion move 0.3–0.6 % at the last step
+  (M13 3.747 / 3.768 / 3.780 / 3.792 nH);
+- **self-inductances do not**: +1.2–1.7 % per ~0.7× refinement with no
+  shrinking (L11 31.836 / 32.272 / 32.636 / 33.047 nH), consistent with an
+  unresolved edge singularity in thin copper; no asymptote can be extrapolated.
+
+Effect, bounded pessimistically: `legA-h0-best-meshpess.matrix.txt` = best +
+3 × (L[0.35] − L[0.5]) per entry (+1.2 … +2.1 nH on self-inductances, ≤ 0.5 nH
+on mutuals; SPD). Native-18 decision cases (S1/S2/S4 at 391 / 443 / 498 ns,
+443 ns nominal, ESL 1.06 and 10 nH, 96 cases) against `grid-best-longdt`:
+**no verdict changes** (3.0 V and 1.9 V criteria, ZVS 12/12 at 443 ns);
+off-gate −0.073 … +0.047 V, die VDS −2.9 … +6.9 V; S1/S2 off-gate ≤ 1.74 V.
+One case aborted (S2 280 V / 71 A, direction 0, 443 ns, 10 nH, node `bus`);
+rerun with D-14's `.options itl4=100000` it converges at 1.569 V (passes,
+ZVS), and the same option reproduces the best-matrix result for that case to
+every printed digit (1.588991 V, 335.2273 V) — further evidence that the
+option does not change physics.

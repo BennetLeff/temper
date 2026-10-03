@@ -13,7 +13,7 @@ model-based throughout. **No physical qualification is claimed.**
 
 | Question | Current answer | Confidence |
 | --- | --- | --- |
-| Board loop inductances (leg A) | Extracted by FEM as a 4-port matrix (C38 loop, C39 loop, two gate loops); **best matrix** = fine parabola through 1/2/3 mm + coarse low-height correction + crop correction | model result; mesh not fully converged (M1); 0.5 mm curvature transferred from the coarse mesh (M2) |
+| Board loop inductances (leg A) | Extracted by FEM as a 4-port matrix (C38 loop, C39 loop, two gate loops); **best matrix** = fine parabola through 1/2/3 mm + coarse low-height correction + crop correction | model result; self-L mesh error bounded, no verdict effect (M1); 0.5 mm curvature transferred from the coarse mesh (M2) |
 | Nominal operation (S1, 170–280 V, 37 A, 348 ns dead time) | **passes the 25 °C criterion** (best matrix, ESL 1.06–20 nH: off-gate 2.08–2.59 V < 3.0 V, die VDS ≤ 385 V, ZVS in all 24) but **fails D-6's provisional hot screen** (< 1.9 V) at 348 ns; passes it at ≥ 391 ns | **open**: the 3.0 V criterion is optimistic at hot junction (FINDINGS F5) |
 | Dead-time margin | off-gate limit crossed **between 307 and 348 ns**; 307 ns fails every nominal case (3.45–4.01 V) | **open risk**: D-5 found the firmware does not establish ≥ 500 ns at the gates; keep 307 ns (F1) |
 | Hard turn-on (S4, −20 A) | **fails at every dead time**: die VDS up to 543 V (> 520 V), off-gate up to 5.1 V | **open risk**: hinges on the body-diode recovery model (D-3, D-8) |
@@ -59,8 +59,9 @@ defeaturing (−0.7 %). Crop margin: converged by 20 mm, corrected per entry,
 no verdict changes.
 
 Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
-- **Mesh:** P1 is not yet mesh-converged (31.84 / 32.27 / 33.05 nH at
-  1.0 / 0.7 / 0.35 mm edges).
+- **Mesh:** self-inductances are not mesh-converged (+1.2–1.7 % per
+  refinement); mutuals are. A pessimistic +4–6 % on self-L changes no
+  native-18 verdict (FINDINGS M1).
 - **Extrapolation to zero closure height:** curved near zero. A 0.5 mm test
   raises power-to-gate coupling 7–16 % and off-gate by 0.04–0.19 V; no
   verdict changes (FINDINGS M2).
@@ -74,7 +75,6 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 
 | Work | Where | State |
 | --- | --- | --- |
-| Mesh convergence point (fine, 0.5 mm edges, h = 1 mm) | remote box | running |
 | Leg B matrix | remote box | **paused** until the enclosure layout settles (restart note in the remote's `r17/chain_legB.out`) |
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
 | D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |
