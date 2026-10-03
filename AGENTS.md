@@ -1,5 +1,20 @@
 # Instructions for AI Agents
 
+## Product design guidance
+
+For consequential product, enclosure, PCB/power, or manufacturing decisions, use
+the relevant source-backed skill under `skills/`: `temper-product-taste`,
+`temper-mechanical-review`, `temper-pcb-power-review`, or
+`temper-manufacturing-review`. Read only the skill relevant to the decision and
+scale its review to the change. The methods and source map are in
+`docs/research/mit-product-design/README.md`.
+
+Resolve the current design artifact before transferring any earlier result:
+the legacy PCB, newer power-stage source, and enclosure prototypes have different
+identities and maturity. Coursework informs design methods; actual component,
+supplier, product-standard, and test evidence sets acceptance limits. Geometry,
+connectivity, and simulation passes do not by themselves qualify hardware.
+
 ## Project Context
 
 **This is the Temper induction cooker project:**

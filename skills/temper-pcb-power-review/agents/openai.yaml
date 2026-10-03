@@ -1,0 +1,4 @@
+interface:
+  display_name: "Temper PCB and Power Review"
+  short_description: "Review switching paths, protection, thermal, and EMI"
+  default_prompt: "Use $temper-pcb-power-review to review the current Temper design and identify the next evidence needed."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Temper Product Taste"
+  short_description: "Ground product choices in cooking needs and evidence"
+  default_prompt: "Use $temper-product-taste to review the current Temper design and identify the next evidence needed."

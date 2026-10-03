@@ -1,0 +1,17 @@
+# Raw course material remains a local research cache; original URLs and hashes
+# are versioned. Copyright and OCW third-party exceptions vary by item.
+/mechanical/*.pdf
+/mechanical/*.html
+/mechanical/indexes/
+/mechanical/text/
+/electronics/pdfs/
+/electronics/text/
+/product-manufacturing/pdfs/
+/video/*.pdf
+/video/*.txt
+/video/*.html
+/video/fetch_transcripts.py
+/application/electrical-evidence/*.pdf
+# Snapshots include another task's untracked product source. Keep it local;
+# publish our review and hashes without publishing that task's source changes.
+/application/inputs/
