@@ -30,8 +30,13 @@ void setUp(void) {
     hal_pwm = &mock_pwm_ops_impl;
     
     // Default valid state
+    memset(&mock_pwm_state, 0, sizeof(mock_pwm_state));
     mock_pwm_state.frequency_hz = 38000;
     mock_pwm_state.dead_time_ns = 500;
+    mock_pwm_state.dead_time_ticks = 40;
+    mock_pwm_state.timer_resolution_hz = HAL_PWM_TIMER_RESOLUTION_HZ;
+    mock_pwm_state.configured = true;
+    mock_pwm_state.complementary = true;
     mock_pwm_state.running = true;
     mock_pwm_get_state_return = HAL_OK;
     
@@ -72,7 +77,7 @@ void test_self_test_mismatch(void) {
 }
 
 void test_self_test_bad_deadtime(void) {
-    mock_pwm_state.dead_time_ns = 100; // Too short (<300)
+    mock_pwm_state.dead_time_ticks = 8; // Too short (<300)
     TEST_ASSERT_EQUAL(PWM_GUARD_ERR_DEADTIME, pwm_guard_self_test());
 }
 
@@ -102,4 +107,21 @@ void test_integrity_check_corruption(void) {
     mock_pwm_state.frequency_hz = 38001; 
     
     TEST_ASSERT_EQUAL(PWM_GUARD_ERR_CORRUPTION, pwm_guard_check_integrity());
+}
+
+void test_guard_programmed_state_failures(void) {
+    mock_pwm_state.dead_time_ns = 500; /* A plausible cached request must not help. */
+    mock_pwm_state.dead_time_ticks = 23;
+    TEST_ASSERT_EQUAL(PWM_GUARD_ERR_DEADTIME,pwm_guard_self_test());
+    mock_pwm_state.dead_time_ticks = 81;
+    TEST_ASSERT_EQUAL(PWM_GUARD_ERR_DEADTIME,pwm_guard_self_test());
+    mock_pwm_state.dead_time_ticks = 25; /* 312.5 ns is valid. */
+    TEST_ASSERT_EQUAL(PWM_GUARD_OK,pwm_guard_self_test());
+    mock_pwm_state.configured = false;
+    TEST_ASSERT_EQUAL(PWM_GUARD_ERR_DEADTIME,pwm_guard_check_integrity());
+    mock_pwm_state.configured = true;
+    mock_pwm_get_state_return = HAL_ERROR;
+    TEST_ASSERT_EQUAL(PWM_GUARD_ERR_NULL,pwm_guard_check_integrity());
+    hal_pwm = NULL;
+    TEST_ASSERT_EQUAL(PWM_GUARD_ERR_NULL,pwm_guard_check_integrity());
 }
