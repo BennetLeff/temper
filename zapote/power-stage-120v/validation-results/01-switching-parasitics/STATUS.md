@@ -80,7 +80,10 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |
 | D-16 native-18 (R9/R17 value change) | delegated | **done, merged** (#1640): native-18 board diff is only R9/R17 Value/MPN; copper identical; no FEM rerun; D4 carry-over conditions met |
 | D-17 protection gate-off (task 02 on the FEM matrix) | delegated | brief written |
-| D-18 loss/thermal (heatsink, airflow), D-19 conducted EMI, D-20 controller requirements, D-21 firmware dead-time fix | delegated | briefs written |
+| D-18 loss/thermal | delegated | **done, merged** (#1641): sink ≤ 0.15 °C/W, ≥ 20 CFM, interface ≤ 1.0 °C/W, coil→mains airflow; decided 2026-10-03 (DECISIONS.md) |
+| D-19 conducted EMI | delegated | **merged, partial** (#1644): conditional −24.2 dB AV at 210 kHz; most periodic cases aborted. Follow-up D-22 (filter sizing) brief written |
+| D-20 controller requirements | delegated | **done, merged** (#1642): 54 requirements; O05/O06/O07/O13 decided 2026-10-03 (200 ns controller gap) |
+| D-21 firmware dead-time fix | delegated | **draft** (#1643): reviewed; blocking item: verify the forced safe state drives both gates low on target |
 | D-7 capacitor ESL | delegated | **done, merged** (#1634): C38–C41 1.06 nH, C5/C6 19.2 nH typical-model values; grid now sweeps 1.06–20 nH |
 | D-11 bus-sense range (task 06) | delegated | **done, merged** (#1635); targets, ADC1 allocation and the 1.210 V over-range latch decided 2026-10-03 (DECISIONS.md) |
 | Diode-recovery data, TI timing limits at 39 kΩ, deployed four-PWM controller and harness, mounted C38 ESL (lead length) | outside input / owner | open |

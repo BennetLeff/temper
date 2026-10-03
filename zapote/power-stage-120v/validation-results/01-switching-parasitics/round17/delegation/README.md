@@ -27,8 +27,9 @@ only your brief.
 | [D-19 conducted EMI](D19-conducted-emi-edges.md) | Task 07 with the real switch-node edges: spectrum and margin, filter change or not | medium |
 | [D-20 controller requirements](D20-controller-requirements.md) | One testable requirements document for the controller (J4, PWM/dead-time ownership, protection, bus sense) from D-5/D-10/D-11 and decisions | medium |
 | [D-21 firmware dead time](D21-firmware-dead-time.md) | **Firmware change (draft PR):** fix MCPWM dead-time configuration, error propagation and readback found by D-5, with host tests | medium |
+| [D-22 EMI filter](D22-emi-filter.md) | Converge D-19's periodic EMI source over the envelope and size an additional damped DM stage for ≥ 6 dB margin, with parts, volume and placement | medium |
 
-D-1..D-15 are complete (`out-D*`). D-5..D-10 are independent of
+D-1..D-20 are complete (`out-D*`; D-19 partial); D-21 is a draft PR. D-5..D-10 are independent of
 each other except D-8 (cite D-5/D-6 if done first) and D-10's dead-time check (cite D-5).
 
 **Paths:** `round17/...` means
