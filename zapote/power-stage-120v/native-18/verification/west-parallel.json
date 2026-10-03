@@ -1,0 +1,17 @@
+{
+ "board_sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+ "demand_a": 15.0,
+ "worst_between_stitch_banks": {
+  "x_mm": 61.1,
+  "in2_mm": 7.275,
+  "bcu_mm": 7.275,
+  "screen_a": 32.83
+ },
+ "utilization": 0.457,
+ "in2_only_worst": {
+  "x_mm": 61.1,
+  "in2_mm": 7.275,
+  "bcu_mm": 7.275,
+  "screen_a": 32.83
+ }
+}
