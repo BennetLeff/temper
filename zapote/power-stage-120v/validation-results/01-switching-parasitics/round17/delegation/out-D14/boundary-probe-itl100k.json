@@ -1,0 +1,72 @@
+[
+  {
+    "name": "near_S3_v170_i2_d0_dt498_esl10",
+    "params": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "170",
+      "IL": "2",
+      "DIR": "0",
+      "DT": "498n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.025n"
+    },
+    "deck": "d2/leg_matrix.cir",
+    "group": "near-threshold",
+    "option": "itl100k",
+    "identity": {
+      "source_deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+      "options": ".options itl4=100000",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "IL": "2",
+        "DIR": "0",
+        "DT": "498n",
+        "LESL": "10n",
+        "LSHUNT": "2n",
+        "TRMAX": "0.025n"
+      },
+      "common": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "vendor": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+    },
+    "complete": true,
+    "meas": {
+      "vds_ls_die_pk": 339.7115,
+      "vds_hs_die_pk": 171.605,
+      "vgs_ls_die_max": 14.98306,
+      "vgs_ls_die_min": -1.580302,
+      "vgs_hs_die_max": 14.32649,
+      "vgs_hs_die_min": -0.0193489,
+      "vgs_ls_off_max": 1.89964,
+      "vgs_hs_off_max": 14.32649,
+      "vds_hs_at_on": 164.3086,
+      "vds_ls_at_on": 0.02835992,
+      "vgs_ls_at_partner": 0.607957,
+      "vgs_hs_at_partner": -0.01078151,
+      "end_time": 3.298e-06
+    },
+    "aborted": false,
+    "failed": [],
+    "returncode": 0,
+    "failure_lines": []
+  }
+]
