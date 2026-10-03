@@ -19,8 +19,8 @@ model-based throughout. **No physical qualification is claimed.**
 | Hard turn-on (S4, −20 A) | **fails at every dead time**: die VDS up to 543 V (> 520 V), off-gate up to 5.1 V | **open risk**: hinges on the body-diode recovery model (D-3, D-8) |
 | Overcurrent (S2, 280 V / 61–71 A) | passes at ≥ 391 ns; 2 marginal fails at 348 ns (3.12–3.14 V) | model result |
 | Light load (S3, 2–10 A) | passes at ≥ 348 ns; 12 fails at 307 ns | model result |
-| Gate-drive remedy | D-6: ≈1 Ω discharge + 1 nF Cgs + −2 V off-bias passes **all** 32 decision cases (incl. S4 and 307 ns) against the 1.9 V screen: off-gate ≤ 0.51 V, die VDS ≤ 484 V, ZVS kept | **proposal**: needs a negative bias rail (board change, owner decision); 27 °C; refinement not fully converged (F6) |
-| Longer dead time (alternative remedy) | 443 ns nominal (≈ 391–498 ns with tolerance) passes the 1.9 V hot screen with ZVS for all nominal and overcurrent cases; a DT-resistor value change | **candidate** (FINDINGS F7): S4 not fixed; losses (D-15) and hot transients (D-13) pending |
+| Hot-screen remedy | **Decided (F7, for native-18):** R9/R17 → 49.9 kΩ ±0.1 % (≈ 397–488 ns). All nominal and overcurrent cases pass the 1.9 V hot screen with ZVS across that band and at 27/100/150 °C; ≈ +0.1 W per switch | DECISIONS.md 2026-10-03; implementation D-16; timing to confirm at bring-up |
+| Negative-bias remedy (F6) | passes everything incl. S4 at 27/100 °C; 150 °C indeterminate (placeholder Schottky model); needs an isolated negative supply and a layout change | **kept in reserve** for S4 if the bench shows the snap-off is real (FINDINGS F6) |
 
 Verdict definitions, criteria and all cases: [round17/d2/README.md](round17/d2/README.md).
 Criteria: die VDS ≤ 520 V (S2 ≤ 585 V), |VGS| ≤ 30 V, ZVS for nominal S1 at
@@ -77,9 +77,11 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | Mesh convergence point (fine, 0.5 mm edges, h = 1 mm) | remote box | running |
 | Leg B matrix | remote box | **paused** until the enclosure layout settles (restart note in the remote's `r17/chain_legB.out`) |
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
+| D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |
+| D-16 native-18 (R9/R17 value change) | delegated | brief written |
 | D-7 capacitor ESL | delegated | **done, merged** (#1634): C38–C41 1.06 nH, C5/C6 19.2 nH typical-model values; grid now sweeps 1.06–20 nH |
 | D-11 bus-sense range (task 06) | delegated | **done, merged** (#1635): keep the shared divider and U7; add a controller-side OPA2388 difference receiver; latch measurement over-range at calibrated ADC ≥ 1.210 V. Owner: ADC allocation, accuracy/timing targets, early-fault policy |
-| Diode-recovery data, TI timing limits at 39 kΩ, deployed four-PWM controller and harness, gate-drive remedy and hot criterion (owner), mounted C38 ESL (lead length) | outside input / owner | open |
+| Diode-recovery data, TI timing limits at 39 kΩ, deployed four-PWM controller and harness, mounted C38 ESL (lead length) | outside input / owner | open |
 
 ## Board revisions: does a change need a rerun?
 
