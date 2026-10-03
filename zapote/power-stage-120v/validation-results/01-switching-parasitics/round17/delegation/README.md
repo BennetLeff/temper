@@ -23,6 +23,10 @@ only your brief.
 | [D-15 losses vs dead time](D15-losses-dead-time.md) | Round-4 C1/C2 (ZVS map, switching losses) rerun on the FEM matrix, 307–498 ns: the cost of F7 | medium |
 | [D-16 native-18](D16-native18-dt-resistors.md) | **Design change** (owner decision 2026-10-03): R9/R17 → 49.9 kΩ ±0.1 %, value-only native-18, verified copper-identical | medium |
 | [D-17 protection gate-off](D17-protection-gate-off.md) | Task 02 on the FEM matrix: fault current at actual gate-off, device survival, input to the held R34/R35 retune (decision B) | medium |
+| [D-18 loss/thermal](D18-loss-thermal-update.md) | Task 03 on round-17 results at 443 ns: loss table, heatsink Rth and airflow direction for the enclosure, R5 check | medium |
+| [D-19 conducted EMI](D19-conducted-emi-edges.md) | Task 07 with the real switch-node edges: spectrum and margin, filter change or not | medium |
+| [D-20 controller requirements](D20-controller-requirements.md) | One testable requirements document for the controller (J4, PWM/dead-time ownership, protection, bus sense) from D-5/D-10/D-11 and decisions | medium |
+| [D-21 firmware dead time](D21-firmware-dead-time.md) | **Firmware change (draft PR):** fix MCPWM dead-time configuration, error propagation and readback found by D-5, with host tests | medium |
 
 D-1..D-15 are complete (`out-D*`). D-5..D-10 are independent of
 each other except D-8 (cite D-5/D-6 if done first) and D-10's dead-time check (cite D-5).

@@ -80,6 +80,7 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |
 | D-16 native-18 (R9/R17 value change) | delegated | brief written |
 | D-17 protection gate-off (task 02 on the FEM matrix) | delegated | brief written |
+| D-18 loss/thermal (heatsink, airflow), D-19 conducted EMI, D-20 controller requirements, D-21 firmware dead-time fix | delegated | briefs written |
 | D-7 capacitor ESL | delegated | **done, merged** (#1634): C38–C41 1.06 nH, C5/C6 19.2 nH typical-model values; grid now sweeps 1.06–20 nH |
 | D-11 bus-sense range (task 06) | delegated | **done, merged** (#1635); targets, ADC1 allocation and the 1.210 V over-range latch decided 2026-10-03 (DECISIONS.md) |
 | Diode-recovery data, TI timing limits at 39 kΩ, deployed four-PWM controller and harness, mounted C38 ESL (lead length) | outside input / owner | open |
