@@ -477,3 +477,11 @@ add_test(NAME sil_fault_tests
     COMMAND test_sil_fault_injection
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+# D21: execute the real ESP32 PWM HAL against a failure-injecting SDK model.
+add_executable(test_pwm_esp32 test_pwm_esp32.c pwm_sdk_stub/sdk_stub.c
+    ../components/hal/esp32/hal_pwm_esp32.c unity/unity.c)
+target_include_directories(test_pwm_esp32 PRIVATE pwm_sdk_stub unity ../components/hal/include)
+add_test(NAME pwm_esp32 COMMAND test_pwm_esp32)
+
+add_test(NAME pwm_guard COMMAND test_pwm_guard_only)

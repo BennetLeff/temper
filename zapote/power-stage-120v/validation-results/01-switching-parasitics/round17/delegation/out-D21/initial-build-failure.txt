@@ -1,0 +1,275 @@
+[  0%] Built target gen_transition_table
+[  2%] Built target gen_fault_list
+[  2%] Building C object CMakeFiles/test_runner.dir/unity/unity.c.o
+[  2%] Built target gen_config
+[  2%] Building C object CMakeFiles/test_pid_only.dir/unity/unity.c.o
+[  2%] Building C object CMakeFiles/test_low_temp_only.dir/unity/unity.c.o
+[  2%] Building C object CMakeFiles/test_safety_only.dir/unity/unity.c.o
+[  2%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/hal_init_mock.c.o
+[  5%] Building C object CMakeFiles/test_pid_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pid_control.c.o
+[  5%] Building C object CMakeFiles/test_low_temp_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/low_temp_control.c.o
+[  5%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/hal_init_mock.c.o
+[  5%] Building C object CMakeFiles/test_pid_only.dir/test_pid_control.c.o
+[  7%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_gpio.c.o
+[  7%] Building C object CMakeFiles/test_low_temp_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pid_control.c.o
+[  7%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_gpio.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_pid_control.c:167:11: warning: unused variable 'output1' [-Wunused-variable]
+  167 |     float output1 = pid_compute(&pid, 100.0f, 100.0f, dt);
+      |           ^~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_pid_control.c:22:13: warning: unused function 'pid_test_setup' [-Wunused-function]
+   22 | static void pid_test_setup(void) {
+      |             ^~~~~~~~~~~~~~
+2 warnings generated.
+[  8%] Building C object CMakeFiles/test_low_temp_only.dir/test_low_temp_control.c.o
+[  8%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_adc.c.o
+[  8%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_adc.c.o
+[  9%] Building C object CMakeFiles/test_pid_only.dir/test_main_pid.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_low_temp_control.c:23:33: warning: unused parameter 'duty' [-Wunused-parameter]
+   23 | void pwm_set_duty_cycle(uint8_t duty) {
+      |                                 ^
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_low_temp_control.c:37:13: warning: unused function 'low_temp_test_teardown' [-Wunused-function]
+   37 | static void low_temp_test_teardown(void) {
+      |             ^~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[  9%] Linking C executable test_pid_only
+[ 11%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_pwm.c.o
+[ 11%] Building C object CMakeFiles/test_low_temp_only.dir/test_main_low_temp.c.o
+[ 11%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_pwm.c.o
+[ 11%] Linking C executable test_low_temp_only
+[ 11%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_spi.c.o
+[ 12%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_spi.c.o
+[ 12%] Built target test_pid_only
+[ 13%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_timer.c.o
+[ 13%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_timer.c.o
+[ 13%] Built target test_low_temp_only
+[ 13%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pid_control.c.o
+[ 14%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c.o
+[ 14%] Building C object CMakeFiles/test_pan_detection_only.dir/unity/unity.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c:356:11: warning: unused variable 'abs_error' [-Wunused-variable]
+  356 |     float abs_error = fabsf(error);
+      |           ^~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c:499:17: warning: unused variable 'sim_freq_safe' [-Wunused-variable]
+  499 |     static bool sim_freq_safe = true;
+      |                 ^~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c:178:17: warning: unused variable 'last_update_time_us' [-Wunused-variable]
+  178 | static uint64_t last_update_time_us = 0;
+      |                 ^~~~~~~~~~~~~~~~~~~
+[ 15%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/zvs_monitor.c.o
+3 warnings generated.
+[ 16%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/low_temp_control.c.o
+[ 17%] Building C object CMakeFiles/test_pan_detection_only.dir/pan_detect_logic.c.o
+[ 18%] Building C object CMakeFiles/test_pll_only.dir/unity/unity.c.o
+[ 18%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/safety/safety.c.o
+[ 19%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c.o
+[ 19%] Building C object CMakeFiles/test_pan_detection_only.dir/test_pan_detection.c.o
+[ 20%] Building C object CMakeFiles/test_pll_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c:356:11: warning: unused variable 'abs_error' [-Wunused-variable]
+  356 |     float abs_error = fabsf(error);
+      |           ^~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c:499:17: warning: unused variable 'sim_freq_safe' [-Wunused-variable]
+  499 |     static bool sim_freq_safe = true;
+      |                 ^~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c:178:17: warning: unused variable 'last_update_time_us' [-Wunused-variable]
+  178 | static uint64_t last_update_time_us = 0;
+      |                 ^~~~~~~~~~~~~~~~~~~
+[ 21%] Building C object CMakeFiles/test_safety_only.dir/test_safety.c.o
+3 warnings generated.
+[ 21%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/zvs_monitor.c.o
+[ 22%] Building C object CMakeFiles/test_pan_detection_only.dir/test_main_pan_detection.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c:356:11: warning: unused variable 'abs_error' [-Wunused-variable]
+  356 |     float abs_error = fabsf(error);
+      |           ^~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c:499:17: warning: unused variable 'sim_freq_safe' [-Wunused-variable]
+  499 |     static bool sim_freq_safe = true;
+      |                 ^~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pll_control.c:178:17: warning: unused variable 'last_update_time_us' [-Wunused-variable]
+  178 | static uint64_t last_update_time_us = 0;
+      |                 ^~~~~~~~~~~~~~~~~~~
+3 warnings generated.
+[ 22%] Building C object CMakeFiles/test_pll_only.dir/test_pll_control.c.o
+[ 22%] Building C object CMakeFiles/test_safety_only.dir/test_main_safety.c.o
+[ 23%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/safety/safety.c.o
+[ 24%] Linking C executable test_pan_detection_only
+[ 25%] Linking C executable test_safety_only
+[ 26%] Building C object CMakeFiles/test_pll_only.dir/test_main_pll.c.o
+[ 26%] Building C object CMakeFiles/test_runner.dir/test_main.c.o
+[ 26%] Built target test_pan_detection_only
+[ 27%] Building C object CMakeFiles/test_runner.dir/test_pid_control.c.o
+[ 27%] Linking C executable test_pll_only
+[ 27%] Building C object CMakeFiles/test_runner.dir/test_low_temp_control.c.o
+[ 27%] Built target test_safety_only
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_pid_control.c:167:11: warning: unused variable 'output1' [-Wunused-variable]
+  167 |     float output1 = pid_compute(&pid, 100.0f, 100.0f, dt);
+      |           ^~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_pid_control.c:22:13: warning: unused function 'pid_test_setup' [-Wunused-function]
+   22 | static void pid_test_setup(void) {
+      |             ^~~~~~~~~~~~~~
+2 warnings generated.
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_low_temp_control.c:23:33: warning: unused parameter 'duty' [-Wunused-parameter]
+   23 | void pwm_set_duty_cycle(uint8_t duty) {
+      |                                 ^
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_low_temp_control.c:37:13: warning: unused function 'low_temp_test_teardown' [-Wunused-function]
+   37 | static void low_temp_test_teardown(void) {
+      |             ^~~~~~~~~~~~~~~~~~~~~~
+[ 28%] Building C object CMakeFiles/test_cascade_pid_only.dir/unity/unity.c.o
+2 warnings generated.
+[ 29%] Building C object CMakeFiles/test_runner.dir/test_safety.c.o
+[ 29%] Built target test_pll_only
+[ 29%] Building C object CMakeFiles/test_cascade_pid_integration_only.dir/unity/unity.c.o
+[ 29%] Building C object CMakeFiles/test_integration_only.dir/unity/unity.c.o
+[ 29%] Building C object CMakeFiles/test_cascade_pid_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pid_control.c.o
+[ 30%] Linking C executable test_runner
+[ 31%] Building C object CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pid_control.c.o
+[ 32%] Building C object CMakeFiles/test_cascade_pid_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/cascade_pid.c.o
+[ 33%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/main/state_machine.c.o
+[ 33%] Built target test_runner
+[ 33%] Building C object CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/cascade_pid.c.o
+[ 33%] Building C object CMakeFiles/test_cascade_pid_only.dir/test_cascade_pid.c.o
+[ 33%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/main/state_handlers.c.o
+[ 34%] Building C object CMakeFiles/test_thermal_mass_only.dir/unity/unity.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_cascade_pid.c:91:11: warning: unused variable 'output' [-Wunused-variable]
+   91 |     float output = cascade_pid_update(&cascade, 100.0f, 50.0f, 25.0f, dt);
+      |           ^~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/main/state_handlers.c:207:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  207 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_cascade_pid.c:24:13: warning: unused function 'cascade_test_setup' [-Wunused-function]
+   24 | static void cascade_test_setup(void) {
+      |             ^~~~~~~~~~~~~~~~~~
+[ 35%] Building C object CMakeFiles/test_cascade_pid_integration_only.dir/test_integration_cascade_pid.c.o
+1 warning generated.
+2 warnings generated.
+[ 36%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/low_temp_control.c.o
+[ 37%] Building C object CMakeFiles/test_cascade_pid_only.dir/test_main_cascade_pid.c.o
+[ 37%] Building C object CMakeFiles/test_thermal_mass_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pid_control.c.o
+[ 37%] Building C object CMakeFiles/test_cascade_pid_integration_only.dir/test_main_integration_cascade_pid.c.o
+[ 37%] Linking C executable test_cascade_pid_only
+[ 38%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pid_control.c.o
+[ 39%] Building C object CMakeFiles/test_thermal_mass_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/thermal_mass.c.o
+[ 40%] Linking C executable test_cascade_pid_integration_only
+[ 40%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/thermal_mass.c.o
+[ 40%] Built target test_cascade_pid_only
+[ 40%] Building C object CMakeFiles/test_thermal_mass_only.dir/test_thermal_mass.c.o
+[ 41%] Built target test_cascade_pid_integration_only
+[ 41%] Building C object CMakeFiles/test_adc_guard_only.dir/unity/unity.c.o
+[ 42%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/profiles.c.o
+[ 43%] Building C object CMakeFiles/test_pwm_guard_only.dir/unity/unity.c.o
+[ 44%] Building C object CMakeFiles/test_thermal_mass_only.dir/test_main_thermal_mass.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/profiles.c:21:53: warning: unused parameter 'current_temp' [-Wunused-parameter]
+   21 | bool profile_update(profile_status_t *status, float current_temp, uint32_t now_ms) {
+      |                                                     ^
+1 warning generated.
+[ 44%] Building C object CMakeFiles/test_adc_guard_only.dir/test_main_adc_guard.c.o
+[ 44%] Building C object CMakeFiles/test_integration_only.dir/state_machine_stubs.c.o
+[ 45%] Linking C executable test_thermal_mass_only
+[ 45%] Building C object CMakeFiles/test_pwm_guard_only.dir/test_main_pwm_guard.c.o
+[ 46%] Building C object CMakeFiles/test_adc_guard_only.dir/test_adc_guard.c.o
+[ 47%] Building C object CMakeFiles/test_integration_only.dir/test_integration.c.o
+[ 48%] Building C object CMakeFiles/test_pwm_guard_only.dir/test_pwm_guard.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_adc_guard.c:16:46: warning: unused parameter 'channel' [-Wunused-parameter]
+   16 | hal_status_t mock_read_raw(hal_adc_channel_t channel, uint16_t *value) {
+      |                                              ^
+[ 48%] Built target test_thermal_mass_only
+1 warning generated.
+[ 49%] Building C object CMakeFiles/test_adc_guard_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/safety/adc_guard.c.o
+[ 49%] Building C object CMakeFiles/test_integration_only.dir/test_main_integration.c.o
+[ 50%] Building C object CMakeFiles/test_ntc_guard_only.dir/unity/unity.c.o
+[ 50%] Building C object CMakeFiles/test_pwm_guard_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/safety/pwm_guard.c.o
+[ 50%] Building C object CMakeFiles/test_adc_guard_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/mock_adc.c.o
+[ 51%] Linking C executable test_integration_only
+[ 51%] Building C object CMakeFiles/test_ntc_guard_only.dir/test_main_ntc_guard.c.o
+[ 52%] Linking C executable test_pwm_guard_only
+[ 53%] Linking C executable test_adc_guard_only
+[ 54%] Building C object CMakeFiles/test_ntc_guard_only.dir/test_ntc_guard.c.o
+[ 54%] Built target test_integration_only
+[ 54%] Building C object CMakeFiles/test_ntc_guard_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/safety/ntc_guard.c.o
+[ 54%] Built target test_pwm_guard_only
+[ 55%] Building C object CMakeFiles/test_fan_guard_only.dir/unity/unity.c.o
+[ 55%] Built target test_adc_guard_only
+[ 55%] Building C object CMakeFiles/test_fan_guard_only.dir/test_main_fan_guard.c.o
+[ 56%] Building C object CMakeFiles/test_fan_guard_only.dir/test_fan_guard.c.o
+[ 57%] Linking C executable test_ntc_guard_only
+[ 57%] Building C object CMakeFiles/test_fan_guard_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/safety/fan_guard.c.o
+[ 58%] Building C object CMakeFiles/test_coil_guard_only.dir/unity/unity.c.o
+[ 58%] Built target test_ntc_guard_only
+[ 58%] Building C object CMakeFiles/test_ui_only.dir/unity/unity.c.o
+[ 59%] Building C object CMakeFiles/test_coil_guard_only.dir/test_main_coil_guard.c.o
+[ 60%] Linking C executable test_fan_guard_only
+[ 60%] Building C object CMakeFiles/test_coil_guard_only.dir/test_coil_guard.c.o
+[ 61%] Building C object CMakeFiles/test_ui_only.dir/test_main_ui.c.o
+[ 62%] Building C object CMakeFiles/test_probe_detection_only.dir/unity/unity.c.o
+[ 62%] Built target test_fan_guard_only
+[ 63%] Building C object CMakeFiles/test_coil_guard_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/safety/coil_guard.c.o
+[ 63%] Building C object CMakeFiles/test_ui_only.dir/test_ui.c.o
+[ 63%] Building C object CMakeFiles/test_profiles_only.dir/unity/unity.c.o
+[ 63%] Building C object CMakeFiles/test_probe_detection_only.dir/test_main_probe_detection.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_ui.c:27:42: warning: unused parameter 'level' [-Wunused-parameter]
+   27 | void state_machine_set_intensity(uint8_t level) {}
+      |                                          ^
+1 warning generated.
+[ 63%] Linking C executable test_coil_guard_only
+[ 64%] Building C object CMakeFiles/test_ui_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/main/ui.c.o
+[ 65%] Building C object CMakeFiles/test_profiles_only.dir/test_main_profiles.c.o
+[ 66%] Building C object CMakeFiles/test_probe_detection_only.dir/test_probe_detection.c.o
+[ 66%] Building C object CMakeFiles/test_ui_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/hal_encoder_mock.c.o
+[ 66%] Built target test_coil_guard_only
+[ 66%] Building C object CMakeFiles/test_profiles_only.dir/test_profiles.c.o
+[ 66%] Building C object CMakeFiles/test_probe_detection_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/cascade_pid.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/hal_encoder_mock.c:13:67: warning: unused parameter 'config' [-Wunused-parameter]
+   13 | static hal_status_t mock_encoder_init(const hal_encoder_config_t *config) {
+      |                                                                   ^
+1 warning generated.
+[ 66%] Building C object CMakeFiles/test_sil_fault_injection.dir/unity/unity.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_profiles.c:24:5: error: incompatible pointer to integer conversion passing 'const cooking_profile_t *' (aka 'const struct cooking_profile_t *') to parameter of type 'int' [-Wint-conversion]
+   24 |     TEST_ASSERT_EQUAL(simmer, status.active_profile);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/unity/unity.h:224:58: note: expanded from macro 'TEST_ASSERT_EQUAL'
+  224 | #define TEST_ASSERT_EQUAL(expected, actual)              TEST_ASSERT_EQUAL_INT((expected), (actual))
+      |                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/unity/unity.h:222:78: note: expanded from macro 'TEST_ASSERT_EQUAL_INT'
+  222 | #define TEST_ASSERT_EQUAL_INT(expected, actual)          UnityAssertEqualInt((expected), (actual), NULL, __LINE__)
+      |                                                                              ^~~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/unity/unity.h:106:36: note: passing argument to parameter 'expected' here
+  106 | void UnityAssertEqualInt(const int expected,
+      |                                    ^
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_profiles.c:24:5: error: incompatible pointer to integer conversion passing 'const cooking_profile_t *' (aka 'const struct cooking_profile_t *') to parameter of type 'int' [-Wint-conversion]
+   24 |     TEST_ASSERT_EQUAL(simmer, status.active_profile);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/unity/unity.h:224:58: note: expanded from macro 'TEST_ASSERT_EQUAL'
+  224 | #define TEST_ASSERT_EQUAL(expected, actual)              T[ 67%] Building C object CMakeFiles/test_ui_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/hal/mock/hal_led_mock.c.o
+EST_ASSERT_EQUAL_INT((expected), (actual))
+      |                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/unity/unity.h:222:90: note: expanded from macro 'TEST_ASSERT_EQUAL_INT'
+  222 | #define TEST_ASSERT_EQUAL_INT(expected, actual)          UnityAssertEqualInt((expected), (actual), NULL, __LINE__)
+      |                                                                                          ^~~~~~~~
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/unity/unity.h:107:36: note: passing argument to parameter 'actual' here
+  107 |                          const int actual,
+      |                                    ^
+2 errors generated.
+make[2]: *** [CMakeFiles/test_profiles_only.dir/test_profiles.c.o] Error 1
+make[1]: *** [CMakeFiles/test_profiles_only.dir/all] Error 2
+make[1]: *** Waiting for unfinished jobs....
+[ 68%] Building C object CMakeFiles/test_probe_detection_only.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pid_control.c.o
+[ 69%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/main/state_machine.c.o
+[ 70%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/main/state_handlers.c.o
+[ 71%] Linking C executable test_ui_only
+[ 72%] Linking C executable test_probe_detection_only
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/main/state_handlers.c:207:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  207 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+[ 72%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/low_temp_control.c.o
+1 warning generated.
+[ 73%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/pid_control.c.o
+[ 73%] Built target test_ui_only
+[ 73%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/thermal_mass.c.o
+[ 74%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/profiles.c.o
+[ 74%] Built target test_probe_detection_only
+[ 74%] Building C object CMakeFiles/test_sil_fault_injection.dir/state_machine_stubs.c.o
+[ 75%] Building C object CMakeFiles/test_sil_fault_injection.dir/test_sil_fault_injection.c.o
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/components/control/profiles.c:21:53: warning: unused parameter 'current_temp' [-Wunused-parameter]
+   21 | bool profile_update(profile_status_t *status, float current_temp, uint32_t now_ms) {
+      |                                                     ^
+1 warning generated.
+[ 75%] Linking C executable test_sil_fault_injection
+[ 75%] Built target test_sil_fault_injection
+make: *** [all] Error 2

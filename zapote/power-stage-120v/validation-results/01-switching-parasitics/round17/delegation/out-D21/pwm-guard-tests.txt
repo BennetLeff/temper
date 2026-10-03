@@ -1,0 +1,13 @@
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_main_pwm_guard.c:19:test_validate_frequency_ok:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_main_pwm_guard.c:20:test_validate_frequency_fail:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_main_pwm_guard.c:21:test_self_test_pass:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_main_pwm_guard.c:22:test_self_test_bad_freq:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_main_pwm_guard.c:23:test_self_test_mismatch:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_main_pwm_guard.c:24:test_self_test_bad_deadtime:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_main_pwm_guard.c:25:test_integrity_check_measured_pass:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_main_pwm_guard.c:26:test_integrity_check_measured_fail:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_main_pwm_guard.c:27:test_integrity_check_corruption:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21/temper/firmware/test/test_main_pwm_guard.c:28:test_guard_programmed_state_failures:PASS
+-----------------------
+10 Tests 0 Failures 0 Ignored
+OK

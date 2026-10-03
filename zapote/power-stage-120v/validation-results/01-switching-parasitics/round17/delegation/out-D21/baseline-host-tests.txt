@@ -1,0 +1,31 @@
+Test project /tmp/d21-baseline/build
+      Start  1: all_tests
+ 1/13 Test  #1: all_tests ........................   Passed    0.20 sec
+      Start  2: state_machine_tests
+ 2/13 Test  #2: state_machine_tests ..............   Passed    0.18 sec
+      Start  3: max31865_tests
+ 3/13 Test  #3: max31865_tests ...................   Passed    0.31 sec
+      Start  4: pid_tests
+ 4/13 Test  #4: pid_tests ........................   Passed    0.19 sec
+      Start  5: cascade_pid_tests
+ 5/13 Test  #5: cascade_pid_tests ................   Passed    0.32 sec
+      Start  6: cascade_pid_integration_tests
+ 6/13 Test  #6: cascade_pid_integration_tests ....   Passed    0.18 sec
+      Start  7: thermal_mass_tests
+ 7/13 Test  #7: thermal_mass_tests ...............   Passed    0.18 sec
+      Start  8: low_temp_tests
+ 8/13 Test  #8: low_temp_tests ...................   Passed    0.18 sec
+      Start  9: safety_tests
+ 9/13 Test  #9: safety_tests .....................   Passed    0.18 sec
+      Start 10: pan_detection_tests
+10/13 Test #10: pan_detection_tests ..............   Passed    0.22 sec
+      Start 11: pll_tests
+11/13 Test #11: pll_tests ........................   Passed    0.18 sec
+      Start 12: integration_tests
+12/13 Test #12: integration_tests ................   Passed    0.25 sec
+      Start 13: sil_fault_tests
+13/13 Test #13: sil_fault_tests ..................   Passed    0.18 sec
+
+100% tests passed out of 13
+
+Total Test time (real) =   2.76 sec
