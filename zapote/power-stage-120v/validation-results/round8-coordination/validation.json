@@ -1,0 +1,101 @@
+{
+  "source_revision": "8b1615c8a622c05ee979014b1059b57cbc9e604f",
+  "evidence_class": "source/build provenance and simulation/model-based",
+  "native17_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+  "raw_evidence": {
+    "elmer": {
+      "files": 96,
+      "bytes": 163951580,
+      "sha256_and_exact_inventory": "pass"
+    },
+    "palace": {
+      "files": 67,
+      "bytes": 54144443,
+      "sha256_and_exact_inventory": "pass"
+    },
+    "total_files": 163,
+    "total_bytes": 218096023,
+    "licensed_vendor_model_extensions": "none",
+    "git_tracking": "ignored"
+  },
+  "checks": {
+    "ruff": "pass",
+    "python_ast": {
+      "files": 3,
+      "status": "pass"
+    },
+    "zsh_syntax": {
+      "files": 11,
+      "status": "pass"
+    },
+    "fixture_and_result_json": {
+      "files": 7,
+      "status": "pass"
+    },
+    "elmer_summary_reproduction": "coax-evaluation.json and plate-margins.json match parsed committed values exactly",
+    "elmer_input_identity": "all five mesh files and restricted SIF deltas match for three cases",
+    "identity_negative_controls": [
+      "changed mesh.header rejected",
+      "additional SIF delta rejected"
+    ],
+    "palace_prelink_positive": "pass",
+    "palace_prelink_negative_controls": [
+      "Ghostscript rejected",
+      "additional Homebrew MFEM rejected",
+      "historical MFEM rejected"
+    ],
+    "palace_failed_solve_rejection": "explicit nonconvergence rejected despite finite terminal matrix CSV",
+    "import_boundary_gate": "pass: 5 kept, 0 broken; initial sandbox-denied cache run was a tool error, then scoped permission allowed the unchanged check to finish",
+    "make_regen": "pass; no tracked generated changes",
+    "make_regen_check": "pass; all derived artifacts consistent; existing empty-imports manifest warning",
+    "local_markdown_links": {
+      "status": "pass",
+      "count": 8
+    }
+  },
+  "simplification": {
+    "skill": "ce-simplify-code",
+    "review_model": "gpt-6-sol",
+    "passes": [
+      "reuse",
+      "quality",
+      "efficiency"
+    ],
+    "applied": 0,
+    "skipped": 1,
+    "skip_reason": "Replacing the explicit numerical plate band check with a historical status-string comparison adds coupling and obscures the stated criterion; no behavior change warranted. Other passes reported no findings."
+  },
+  "verification_strategy": {
+    "behavior_changed": "new one-off replay and evidence-checking scripts; no product code changes",
+    "existing_checks_reused": "round-7 coax evaluation, plate summary, geometry/source audits and mesh conversion; round-6 Elmer fixture verification",
+    "baseline_evidence": "preserved failed round-7 UMFPACK case and failed third Palace link; identical-mesh reruns and source/binary identity checks",
+    "new_failure_evidence": "prelink negative controls, mutated input identity rejection and real Palace nonconvergence rejection",
+    "limits": "no claim of pre-implementation red tests; no expensive field solve or build rerun by coordinator"
+  },
+  "qualification": {
+    "elmer_coax": "pass on both meshes over sampled-current interval",
+    "plate_last_domain_change_percent": 0.42887853128809894,
+    "plate_domain_change": "pass",
+    "plate_final_inductance_nH": 2.82826,
+    "plate_required_band_nH": [
+      2.85,
+      3.14
+    ],
+    "plate_band": "fail",
+    "palace_build": "pass with documented wrapper-provenance limitation",
+    "palace_coax": "fail: explicit nonconvergence at 1000 iterations",
+    "mutual_board_and_downstream": "not run; held"
+  },
+  "review": {
+    "skill": "ce-code-review",
+    "status": "complete",
+    "run_id": "ce-code-review-r8-final.4j_ffsz7",
+    "receipt": "review/review.json",
+    "original_verdict": "Ready with fixes",
+    "findings": 1,
+    "resolved": 1,
+    "unresolved": 0,
+    "resolution": "P3 D1-FEM relative link corrected and verified to resolve; source receipt preserved unchanged",
+    "coverage": "Sequential local Sol review lenses, no independent external peer"
+  }
+}

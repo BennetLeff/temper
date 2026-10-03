@@ -1,0 +1,81 @@
+{
+  "evidence_class": "simulation/model-based",
+  "cases": [
+    {
+      "label": "plates-box0p25-far12-m20",
+      "tetrahedra": 226819,
+      "air_margin_mm": 20.0,
+      "gap_size_mm": 0.25,
+      "far_size_mm": 12.0,
+      "plate_edge_mm_quantiles": {
+        "0": 0.18082637730181922,
+        "0.5": 0.24999999999999645,
+        "0.9": 0.25000008506202753,
+        "0.99": 0.2816161402976538,
+        "1": 0.32479518687599357
+      },
+      "exit_code": 0,
+      "all_done": true,
+      "edge_unknowns": 264897,
+      "source_current_sampled_range_A": [
+        1.0,
+        1.0
+      ],
+      "energy_J": 1.401314e-09,
+      "inductance_nH": 2.802628,
+      "status": "solved_outside_band"
+    },
+    {
+      "label": "plates-box0p25-far12-m40",
+      "tetrahedra": 264195,
+      "air_margin_mm": 40.0,
+      "gap_size_mm": 0.25,
+      "far_size_mm": 12.0,
+      "plate_edge_mm_quantiles": {
+        "0": 0.18082637730181922,
+        "0.5": 0.24999999999999645,
+        "0.9": 0.25000008506202753,
+        "0.99": 0.2816161402976538,
+        "1": 0.32479518687599357
+      },
+      "exit_code": 0,
+      "all_done": true,
+      "edge_unknowns": 308370,
+      "source_current_sampled_range_A": [
+        1.0,
+        1.0
+      ],
+      "energy_J": 1.408091e-09,
+      "inductance_nH": 2.816182,
+      "status": "solved_outside_band"
+    },
+    {
+      "label": "plates-box0p25-far12-m80",
+      "tetrahedra": 417956,
+      "air_margin_mm": 80.0,
+      "gap_size_mm": 0.25,
+      "far_size_mm": 12.0,
+      "plate_edge_mm_quantiles": {
+        "0": 0.18082637730181922,
+        "0.5": 0.24999999999999645,
+        "0.9": 0.25000008506202753,
+        "0.99": 0.2816161402976538,
+        "1": 0.32479518687599357
+      },
+      "exit_code": 0,
+      "all_done": true,
+      "edge_unknowns": 488212,
+      "source_current_sampled_range_A": [
+        1.0,
+        1.0
+      ],
+      "energy_J": 1.41413e-09,
+      "inductance_nH": 2.8282599999999998,
+      "status": "solved_outside_band"
+    }
+  ],
+  "last_two_relative_change_pct": 0.42887853128809894,
+  "last_two_change_at_most_0p5pct": true,
+  "final_inside_required_2p85_to_3p14_nH": false,
+  "all_plate_criteria_pass": false
+}

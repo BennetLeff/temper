@@ -1,0 +1,1863 @@
+{
+ "summary": "Hypre GMRES(100)+singular AMS converges on board meshes and matches the direct solve (18.15053 nH both, round-15 mesh). Every mesh with dropped 2-D faces had two PEC columns shorting all four layers (spurious vias): 18.15/18.54 nH are wrong. Column-free mesh (thin-face merge): P1 = 29.77092 nH (crude mesh, one arch height; not the board value).",
+ "meshes": {
+  "hyb (band + free outer air)": {
+   "mesher": {
+    "tets": 550682,
+    "zero_volume_tets": 0,
+    "z_levels": 19,
+    "triangles_2d": 10303,
+    "port_leak_A": [
+     {
+      "port": "P1_C38",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P2_C39",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P3_gate_high",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P4_gate_low",
+      "leak_A": 0.0
+     }
+    ]
+   },
+   "quality": {
+    "tets": 550682,
+    "q_min": 1.0861885769945415e-05,
+    "q_below": {
+     "0.1": 32221,
+     "0.05": 13959,
+     "0.01": 3494,
+     "0.001": 555
+    },
+    "aspect_percentiles": {
+     "50": 4.170433378102914,
+     "90": 22.089159699222495,
+     "99": 47.765049984280004,
+     "99.9": 346.7920088553796,
+     "100": 2477.140125192479
+    },
+    "aspect_above": {
+     "10": 162156,
+     "30": 12309,
+     "100": 2337,
+     "1000": 115
+    }
+   }
+  },
+  "hyb + size follows boundary": {
+   "mesher": {
+    "tets": 858785,
+    "zero_volume_tets": 0,
+    "z_levels": 19,
+    "triangles_2d": 16133,
+    "port_leak_A": [
+     {
+      "port": "P1_C38",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P2_C39",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P3_gate_high",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P4_gate_low",
+      "leak_A": 0.0
+     }
+    ]
+   },
+   "quality": {
+    "tets": 858785,
+    "q_min": 1.0861885769945415e-05,
+    "q_below": {
+     "0.1": 26388,
+     "0.05": 13977,
+     "0.01": 3496,
+     "0.001": 558
+    },
+    "aspect_percentiles": {
+     "50": 3.627064767682925,
+     "90": 17.221903179292568,
+     "99": 33.92188739507809,
+     "99.9": 246.539996757916,
+     "100": 1926.2045120977448
+    },
+    "aspect_above": {
+     "10": 184274,
+     "30": 11313,
+     "100": 2342,
+     "1000": 113
+    }
+   }
+  },
+  "hyb + thin-face merge (board mesh used below)": {
+   "mesher": {
+    "tets": 850640,
+    "zero_volume_tets": 0,
+    "z_levels": 19,
+    "triangles_2d": 16037,
+    "port_leak_A": [
+     {
+      "port": "P1_C38",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P2_C39",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P3_gate_high",
+      "leak_A": 0.0
+     },
+     {
+      "port": "P4_gate_low",
+      "leak_A": 0.0
+     }
+    ],
+    "thin_faces_merged": 272
+   },
+   "quality": {
+    "tets": 850640,
+    "q_min": 1.0861885769945415e-05,
+    "q_below": {
+     "0.1": 13464,
+     "0.05": 4042,
+     "0.01": 736,
+     "0.001": 252
+    },
+    "aspect_percentiles": {
+     "50": 3.5957490026876324,
+     "90": 16.305283728680074,
+     "99": 26.752104227753055,
+     "99.9": 68.66144428587607,
+     "100": 1689.8535470142954
+    },
+    "aspect_above": {
+     "10": 171290,
+     "30": 4569,
+     "100": 497,
+     "1000": 2
+    }
+   },
+   "port_loops": {
+    "pec_components": 5,
+    "ports": [
+     {
+      "port": "P1_C38",
+      "pec_components_touched": 1,
+      "closed_loop": true,
+      "components": [
+       {
+        "nodes": 35772,
+        "farfield": false,
+        "bbox": [
+         [
+          122.87,
+          -44.13,
+          -0.07
+         ],
+         [
+          167.6,
+          -1.21,
+          3.86
+         ]
+        ]
+       }
+      ]
+     },
+     {
+      "port": "P2_C39",
+      "pec_components_touched": 1,
+      "closed_loop": true,
+      "components": [
+       {
+        "nodes": 35772,
+        "farfield": false,
+        "bbox": [
+         [
+          122.87,
+          -44.13,
+          -0.07
+         ],
+         [
+          167.6,
+          -1.21,
+          3.86
+         ]
+        ]
+       }
+      ]
+     },
+     {
+      "port": "P3_gate_high",
+      "pec_components_touched": 1,
+      "closed_loop": true,
+      "components": [
+       {
+        "nodes": 35772,
+        "farfield": false,
+        "bbox": [
+         [
+          122.87,
+          -44.13,
+          -0.07
+         ],
+         [
+          167.6,
+          -1.21,
+          3.86
+         ]
+        ]
+       }
+      ]
+     },
+     {
+      "port": "P4_gate_low",
+      "pec_components_touched": 1,
+      "closed_loop": true,
+      "components": [
+       {
+        "nodes": 35772,
+        "farfield": false,
+        "bbox": [
+         [
+          122.87,
+          -44.13,
+          -0.07
+         ],
+         [
+          167.6,
+          -1.21,
+          3.86
+         ]
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "local_solves_P1": {
+  "hyb-I1": {
+   "label": "hyb-I1",
+   "mesh": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/r16/legA-small-hyb-a1.msh",
+   "exit_code": -15,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 1.946109944,
+   "max_rss_GB": 2.189197312,
+   "wall_s": 140.09,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 1210,
+   "last_residual": 0.004627,
+   "converged": false,
+   "k_A_per_m": [
+    -2500.0,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "residual_history": {
+    "100": 0.01779,
+    "500": 0.01586,
+    "1000": 0.005125
+   }
+  },
+  "thin-I1": {
+   "label": "thin-I1",
+   "mesh": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/r16/legA-small-hyb-t0.02-c0.msh",
+   "exit_code": -15,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 2.838940432,
+   "max_rss_GB": 3.31759616,
+   "wall_s": 218.9,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 1210,
+   "last_residual": 0.009949,
+   "converged": false,
+   "k_A_per_m": [
+    -2500.0,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "residual_history": {
+    "100": 0.01803,
+    "500": 0.01151,
+    "1000": 0.008528
+   }
+  },
+  "thin-tree-gauge-I1": {
+   "label": "tg",
+   "mesh": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/r16/legA-small-hyb-t0.02-c0.msh",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 3.072904144,
+   "max_rss_GB": 3.01940736,
+   "wall_s": 547.8,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "tree_gauge": true,
+   "last_iteration": 3000,
+   "last_residual": 0.006328,
+   "converged": false,
+   "k_A_per_m": [
+    -2500.0,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "residual_history": {
+    "100": 0.02034,
+    "500": 0.009496,
+    "1000": 0.008014,
+    "1500": 0.008409,
+    "2000": 0.00948,
+    "2500": 0.007417,
+    "3000": 0.006328
+   }
+  },
+  "thin-GCR": {
+   "label": "gcr",
+   "mesh": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/r16/legA-small-hyb-t0.02-c0.msh",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 4.473671592,
+   "max_rss_GB": 4.425105408,
+   "wall_s": 374.53,
+   "solver": "iterative GCR + ILU1",
+   "tol": 1e-10,
+   "tree_gauge": false,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    -2500.0,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "residual_history": {}
+  },
+  "thin-IDRS": {
+   "label": "idrs",
+   "mesh": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/r16/legA-small-hyb-t0.02-c0.msh",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 2.893368152,
+   "max_rss_GB": 2.932555776,
+   "wall_s": 98.34,
+   "solver": "iterative Idrs + ILU1",
+   "tol": 1e-10,
+   "tree_gauge": false,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    -2500.0,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "residual_history": {}
+  }
+ },
+ "remote_hypre_ams": {
+  "fixtures_and_board": [
+   {
+    "label": "A-sect-boundary",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/sect-h0p25.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.570796e-09,
+    "inductance_nH": 3.1415919999999997,
+    "peak_memory_GB": 0.48712,
+    "max_rss_GB": 0.48712,
+    "wall_s": 7.6,
+    "np": 1,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 60,
+    "last_residual": 4.7584e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 4,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "A-sect-interior",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/secti-h0p25.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.570796e-09,
+    "inductance_nH": 3.1415919999999997,
+    "peak_memory_GB": 0.50334,
+    "max_rss_GB": 0.50334,
+    "wall_s": 7.57,
+    "np": 1,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 56,
+    "last_residual": 9.89578e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 4,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "A-sect2-L11",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/sect2.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.570796e-09,
+    "inductance_nH": 3.1415919999999997,
+    "peak_memory_GB": 0.487192,
+    "max_rss_GB": 0.487192,
+    "wall_s": 7.25,
+    "np": 1,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 57,
+    "last_residual": 5.40653e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 4,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "A-sect2-L22",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/sect2.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 9.424778e-10,
+    "inductance_nH": 1.8849555999999998,
+    "peak_memory_GB": 0.487768,
+    "max_rss_GB": 0.487768,
+    "wall_s": 7.37,
+    "np": 1,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 61,
+    "last_residual": 8.69095e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 5,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "A-sect2-both",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/sect2.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 4.39823e-09,
+    "inductance_nH": 8.79646,
+    "peak_memory_GB": 0.487208,
+    "max_rss_GB": 0.487208,
+    "wall_s": 7.42,
+    "np": 1,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 62,
+    "last_residual": 1.78796e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 4,
+    "port2": 5,
+    "k2_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "scale_m": 0.001
+   },
+   {
+    "label": "A-thick-h0p35",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/thick-m40-h0p35.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.404494e-09,
+    "inductance_nH": 2.808988,
+    "peak_memory_GB": 1.773404,
+    "max_rss_GB": 1.773404,
+    "wall_s": 31.83,
+    "np": 1,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 81,
+    "last_residual": 1.96431e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 4,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "A-board-np8",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.498544e+18,
+    "inductance_nH": 2.997088e+27,
+    "peak_memory_GB": 0.622772,
+    "max_rss_GB": 0.622772,
+    "wall_s": 918.69,
+    "np": 8,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 5000,
+    "last_residual": 169174000000.0,
+    "converged": false,
+    "k_A_per_m": [
+     -2500.0,
+     0.0,
+     0.0
+    ],
+    "pec": [
+     2,
+     3
+    ],
+    "port": 10,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "A-board-np1",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh",
+    "exit_code": 143,
+    "all_done": false,
+    "energy_J": null,
+    "inductance_nH": null,
+    "peak_memory_GB": 3.677412,
+    "max_rss_GB": 3.677412,
+    "wall_s": 27.67,
+    "np": 1,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": null,
+    "last_residual": null,
+    "converged": false,
+    "k_A_per_m": [
+     -2500.0,
+     0.0,
+     0.0
+    ],
+    "pec": [
+     2,
+     3
+    ],
+    "port": 10,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   }
+  ],
+  "board_np8_residual_history": {
+   "1": 0.485842,
+   "50": 0.01914697,
+   "100": 0.03960502,
+   "200": 0.009172619,
+   "400": 0.004229497,
+   "600": 0.001717879,
+   "1000": 0.0001160517,
+   "2000": 7.498015e-09,
+   "3000": 207957.9,
+   "4000": 193109300000.0,
+   "5000": 169173600000.0
+  },
+  "pcg_ams_fixture_note": "Hypre PCG+AMS on the plate section hit 5000 iterations at 6.46e-10 (> 1e-10): not qualified; BiCGStab (method 702) used"
+ },
+ "remote_bisection_probes": {
+  "runs": [
+   {
+    "label": "V0-base",
+    "mesh": "/home/bennet/temper-fem/r16/probe/V0-base.msh",
+    "exit_code": 1,
+    "all_done": false,
+    "energy_J": null,
+    "inductance_nH": null,
+    "peak_memory_GB": 0.61852,
+    "max_rss_GB": 0.61852,
+    "wall_s": 116.08,
+    "np": 8,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 400,
+    "last_residual": 0.00160246,
+    "converged": false,
+    "k_A_per_m": [
+     -2500.0,
+     0.0,
+     0.0
+    ],
+    "pec": [
+     2,
+     3
+    ],
+    "port": 10,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "V1-nobarrels",
+    "mesh": "/home/bennet/temper-fem/r16/probe/V1-nobarrels.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.172057e-05,
+    "inductance_nH": 23441.14,
+    "peak_memory_GB": 0.583916,
+    "max_rss_GB": 0.583916,
+    "wall_s": 111.53,
+    "np": 8,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 400,
+    "last_residual": 0.932947,
+    "converged": false,
+    "k_A_per_m": [
+     -2500.0,
+     0.0,
+     0.0
+    ],
+    "pec": [
+     2,
+     3
+    ],
+    "port": 10,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "V2-P1only",
+    "mesh": "/home/bennet/temper-fem/r16/probe/V2-P1only.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.278054e-08,
+    "inductance_nH": 25.56108,
+    "peak_memory_GB": 0.524508,
+    "max_rss_GB": 0.524508,
+    "wall_s": 92.84,
+    "np": 8,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 400,
+    "last_residual": 0.0176931,
+    "converged": false,
+    "k_A_per_m": [
+     -2500.0,
+     0.0,
+     0.0
+    ],
+    "pec": [
+     2,
+     3
+    ],
+    "port": 10,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "V3-P1only-nobarrels",
+    "mesh": "/home/bennet/temper-fem/r16/probe/V3-P1only-nobarrels.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 0.04774605,
+    "inductance_nH": 95492100.0,
+    "peak_memory_GB": 0.499552,
+    "max_rss_GB": 0.499552,
+    "wall_s": 90.75,
+    "np": 8,
+    "solver": "iterative Hypre BiCGStab + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 400,
+    "last_residual": 107.24,
+    "converged": false,
+    "k_A_per_m": [
+     -2500.0,
+     0.0,
+     0.0
+    ],
+    "pec": [
+     2,
+     3
+    ],
+    "port": 10,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   }
+  ],
+  "residual_history": {
+   "V0-base": {
+    "1": 0.4985521,
+    "50": 0.01873108,
+    "100": 0.01867594,
+    "200": 0.01032717,
+    "400": 0.001602457
+   },
+   "V1-nobarrels": {
+    "1": 0.5015546,
+    "50": 0.251083,
+    "100": 0.2943191,
+    "200": 0.8363469,
+    "400": 0.9329467
+   },
+   "V2-P1only": {
+    "1": 0.5079205,
+    "50": 0.02032983,
+    "100": 0.09501571,
+    "200": 0.01763438,
+    "400": 0.01769312
+   },
+   "V3-P1only-nobarrels": {
+    "1": 0.5123894,
+    "50": 0.7388235,
+    "100": 1.375617,
+    "200": 4.424356,
+    "400": 107.2402
+   }
+  },
+  "port_loops": [
+   {
+    "pec_components": 5,
+    "ports": [
+     {
+      "port": "P1_C38",
+      "pec_components_touched": 1,
+      "closed_loop": true,
+      "components": [
+       {
+        "nodes": 35812,
+        "farfield": false,
+        "bbox": [
+         [
+          122.87,
+          -44.13,
+          -0.07
+         ],
+         [
+          167.6,
+          -1.21,
+          3.86
+         ]
+        ]
+       }
+      ]
+     },
+     {
+      "port": "P2_C39",
+      "pec_components_touched": 1,
+      "closed_loop": true,
+      "components": [
+       {
+        "nodes": 35812,
+        "farfield": false,
+        "bbox": [
+         [
+          122.87,
+          -44.13,
+          -0.07
+         ],
+         [
+          167.6,
+          -1.21,
+          3.86
+         ]
+        ]
+       }
+      ]
+     },
+     {
+      "port": "P3_gate_high",
+      "pec_components_touched": 1,
+      "closed_loop": true,
+      "components": [
+       {
+        "nodes": 35812,
+        "farfield": false,
+        "bbox": [
+         [
+          122.87,
+          -44.13,
+          -0.07
+         ],
+         [
+          167.6,
+          -1.21,
+          3.86
+         ]
+        ]
+       }
+      ]
+     },
+     {
+      "port": "P4_gate_low",
+      "pec_components_touched": 1,
+      "closed_loop": true,
+      "components": [
+       {
+        "nodes": 35812,
+        "farfield": false,
+        "bbox": [
+         [
+          122.87,
+          -44.13,
+          -0.07
+         ],
+         [
+          167.6,
+          -1.21,
+          3.86
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "closure_ends": [
+     {
+      "closure": "P1_C38",
+      "kind": "port",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "P2_C39",
+      "kind": "port",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "P3_gate_high",
+      "kind": "port",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "P4_gate_low",
+      "kind": "port",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "Q2_DS",
+      "kind": "bridge",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "Q3_DS",
+      "kind": "bridge",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "R5_1_4",
+      "kind": "bridge",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "R10",
+      "kind": "bridge",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "R12",
+      "kind": "bridge",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "Q2_GS",
+      "kind": "bridge",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "Q3_GS",
+      "kind": "bridge",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     }
+    ],
+    "variant": "V0-base"
+   },
+   {
+    "pec_components": 42,
+    "ports": [
+     {
+      "port": "P1_C38",
+      "pec_components_touched": 2,
+      "closed_loop": false,
+      "components": [
+       {
+        "nodes": 122,
+        "farfield": false,
+        "bbox": [
+         [
+          127.8,
+          -23.2,
+          1.49
+         ],
+         [
+          130.2,
+          -20.8,
+          2.86
+         ]
+        ]
+       },
+       {
+        "nodes": 196,
+        "farfield": false,
+        "bbox": [
+         [
+          142.8,
+          -23.2,
+          1.49
+         ],
+         [
+          145.2,
+          -20.8,
+          2.86
+         ]
+        ]
+       }
+      ]
+     },
+     {
+      "port": "P2_C39",
+      "pec_components_touched": 2,
+      "closed_loop": false,
+      "components": [
+       {
+        "nodes": 210,
+        "farfield": false,
+        "bbox": [
+         [
+          163.4,
+          -23.2,
+          1.49
+         ],
+         [
+          165.8,
+          -20.8,
+          2.86
+         ]
+        ]
+       },
+       {
+        "nodes": 122,
+        "farfield": false,
+        "bbox": [
+         [
+          148.4,
+          -23.2,
+          1.49
+         ],
+         [
+          150.8,
+          -20.8,
+          2.86
+         ]
+        ]
+       }
+      ]
+     },
+     {
+      "port": "P3_gate_high",
+      "pec_components_touched": 1,
+      "closed_loop": true,
+      "components": [
+       {
+        "nodes": 5320,
+        "farfield": false,
+        "bbox": [
+         [
+          129.28,
+          -41.94,
+          1.49
+         ],
+         [
+          167.6,
+          -1.21,
+          3.86
+         ]
+        ]
+       }
+      ]
+     },
+     {
+      "port": "P4_gate_low",
+      "pec_components_touched": 2,
+      "closed_loop": false,
+      "components": [
+       {
+        "nodes": 275,
+        "farfield": false,
+        "bbox": [
+         [
+          152.14,
+          -41.95,
+          1.49
+         ],
+         [
+          157.55,
+          -34.25,
+          2.86
+         ]
+        ]
+       },
+       {
+        "nodes": 155,
+        "farfield": false,
+        "bbox": [
+         [
+          150.88,
+          -41.95,
+          1.49
+         ],
+         [
+          152.26,
+          -38.38,
+          2.86
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "closure_ends": [
+     {
+      "closure": "P1_C38",
+      "kind": "port",
+      "a_body": [
+       18
+      ],
+      "b_body": [
+       27
+      ]
+     },
+     {
+      "closure": "P2_C39",
+      "kind": "port",
+      "a_body": [
+       16
+      ],
+      "b_body": [
+       26
+      ]
+     },
+     {
+      "closure": "P3_gate_high",
+      "kind": "port",
+      "a_body": [
+       3
+      ],
+      "b_body": [
+       3
+      ]
+     },
+     {
+      "closure": "P4_gate_low",
+      "kind": "port",
+      "a_body": [
+       24
+      ],
+      "b_body": [
+       11
+      ]
+     },
+     {
+      "closure": "Q2_DS",
+      "kind": "bridge",
+      "a_body": [
+       3
+      ],
+      "b_body": [
+       3
+      ]
+     },
+     {
+      "closure": "Q3_DS",
+      "kind": "bridge",
+      "a_body": [
+       3
+      ],
+      "b_body": [
+       3
+      ]
+     },
+     {
+      "closure": "R5_1_4",
+      "kind": "bridge",
+      "a_body": [
+       6
+      ],
+      "b_body": [
+       6
+      ]
+     },
+     {
+      "closure": "R10",
+      "kind": "bridge",
+      "a_body": [
+       3
+      ],
+      "b_body": [
+       3
+      ]
+     },
+     {
+      "closure": "R12",
+      "kind": "bridge",
+      "a_body": [
+       3
+      ],
+      "b_body": [
+       3
+      ]
+     },
+     {
+      "closure": "Q2_GS",
+      "kind": "bridge",
+      "a_body": [
+       3
+      ],
+      "b_body": [
+       3
+      ]
+     },
+     {
+      "closure": "Q3_GS",
+      "kind": "bridge",
+      "a_body": [
+       3
+      ],
+      "b_body": [
+       3
+      ]
+     }
+    ],
+    "variant": "V1-nobarrels"
+   },
+   {
+    "pec_components": 10,
+    "ports": [
+     {
+      "port": "P1_C38",
+      "pec_components_touched": 2,
+      "closed_loop": false,
+      "components": [
+       {
+        "nodes": 20788,
+        "farfield": false,
+        "bbox": [
+         [
+          122.87,
+          -44.13,
+          -0.07
+         ],
+         [
+          167.6,
+          -1.21,
+          2.86
+         ]
+        ]
+       },
+       {
+        "nodes": 10404,
+        "farfield": false,
+        "bbox": [
+         [
+          122.87,
+          -42.0,
+          -0.07
+         ],
+         [
+          167.6,
+          -8.0,
+          2.86
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "closure_ends": [
+     {
+      "closure": "P1_C38",
+      "kind": "port",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       1
+      ]
+     },
+     {
+      "closure": "Q2_DS",
+      "kind": "bridge",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     },
+     {
+      "closure": "Q3_DS",
+      "kind": "bridge",
+      "a_body": [
+       0
+      ],
+      "b_body": [
+       0
+      ]
+     }
+    ],
+    "variant": "V2-P1only"
+   },
+   {
+    "pec_components": 47,
+    "ports": [
+     {
+      "port": "P1_C38",
+      "pec_components_touched": 2,
+      "closed_loop": false,
+      "components": [
+       {
+        "nodes": 122,
+        "farfield": false,
+        "bbox": [
+         [
+          127.8,
+          -23.2,
+          1.49
+         ],
+         [
+          130.2,
+          -20.8,
+          2.86
+         ]
+        ]
+       },
+       {
+        "nodes": 196,
+        "farfield": false,
+        "bbox": [
+         [
+          142.8,
+          -23.2,
+          1.49
+         ],
+         [
+          145.2,
+          -20.8,
+          2.86
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "closure_ends": [
+     {
+      "closure": "P1_C38",
+      "kind": "port",
+      "a_body": [
+       22
+      ],
+      "b_body": [
+       30
+      ]
+     },
+     {
+      "closure": "Q2_DS",
+      "kind": "bridge",
+      "a_body": [
+       3
+      ],
+      "b_body": [
+       3
+      ]
+     },
+     {
+      "closure": "Q3_DS",
+      "kind": "bridge",
+      "a_body": [
+       3
+      ],
+      "b_body": [
+       3
+      ]
+     }
+    ],
+    "variant": "V3-P1only-nobarrels"
+   }
+  ],
+  "note": "V2/V3 omit the R5_1_4 shunt bridge, so P1's loop is open by construction (probe design error, kept as a negative control for port_loops.py)"
+ },
+ "remote_gmres_ams": {
+  "fixtures_and_board": [
+   {
+    "label": "G-sect-boundary",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/sect-h0p25.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.570796e-09,
+    "inductance_nH": 3.1415919999999997,
+    "peak_memory_GB": 0.578204,
+    "max_rss_GB": 0.578204,
+    "wall_s": 9.22,
+    "np": 1,
+    "solver": "iterative Hypre GMRES(100) + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 85,
+    "last_residual": 6.9703e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 4,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "G-sect-interior",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/secti-h0p25.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.570796e-09,
+    "inductance_nH": 3.1415919999999997,
+    "peak_memory_GB": 0.595896,
+    "max_rss_GB": 0.595896,
+    "wall_s": 9.48,
+    "np": 1,
+    "solver": "iterative Hypre GMRES(100) + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 83,
+    "last_residual": 4.94306e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 4,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "G-sect2-L11",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/sect2.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.570796e-09,
+    "inductance_nH": 3.1415919999999997,
+    "peak_memory_GB": 0.57568,
+    "max_rss_GB": 0.57568,
+    "wall_s": 8.92,
+    "np": 1,
+    "solver": "iterative Hypre GMRES(100) + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 82,
+    "last_residual": 7.31562e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 4,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "G-sect2-L22",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/sect2.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 9.424778e-10,
+    "inductance_nH": 1.8849555999999998,
+    "peak_memory_GB": 0.574872,
+    "max_rss_GB": 0.574872,
+    "wall_s": 9.01,
+    "np": 1,
+    "solver": "iterative Hypre GMRES(100) + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 82,
+    "last_residual": 5.85361e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 5,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "G-sect2-both",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/sect2.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 4.39823e-09,
+    "inductance_nH": 8.79646,
+    "peak_memory_GB": 0.57424,
+    "max_rss_GB": 0.57424,
+    "wall_s": 8.82,
+    "np": 1,
+    "solver": "iterative Hypre GMRES(100) + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 81,
+    "last_residual": 9.19866e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 4,
+    "port2": 5,
+    "k2_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "scale_m": 0.001
+   },
+   {
+    "label": "G-thick-h0p35",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/thick-m40-h0p35.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.404494e-09,
+    "inductance_nH": 2.808988,
+    "peak_memory_GB": 2.087332,
+    "max_rss_GB": 2.087332,
+    "wall_s": 43.77,
+    "np": 1,
+    "solver": "iterative Hypre GMRES(100) + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 117,
+    "last_residual": 9.60787e-11,
+    "converged": true,
+    "k_A_per_m": [
+     0.0,
+     0.0,
+     100.0
+    ],
+    "pec": [
+     2
+    ],
+    "port": 4,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   },
+   {
+    "label": "G-board-np8",
+    "mesh": "/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.488532e-08,
+    "inductance_nH": 29.77064,
+    "peak_memory_GB": 0.726884,
+    "max_rss_GB": 0.726884,
+    "wall_s": 801.71,
+    "np": 8,
+    "solver": "iterative Hypre GMRES(100) + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 5000,
+    "last_residual": 1.11495e-07,
+    "converged": false,
+    "k_A_per_m": [
+     -2500.0,
+     0.0,
+     0.0
+    ],
+    "pec": [
+     2,
+     3
+    ],
+    "port": 10,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   }
+  ],
+  "board_20k": [
+   {
+    "label": "G-board-np8-20k",
+    "mesh": "meshes/legA-small-thin.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 1.488546e-08,
+    "inductance_nH": 29.77092,
+    "peak_memory_GB": 0.727764,
+    "max_rss_GB": 0.727764,
+    "wall_s": 1499.13,
+    "np": 8,
+    "solver": "iterative Hypre GMRES(100) + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 9356,
+    "last_residual": 5.06061e-11,
+    "converged": true,
+    "k_A_per_m": [
+     -2500.0,
+     0.0,
+     0.0
+    ],
+    "pec": [
+     2,
+     3
+    ],
+    "port": 10,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   }
+  ],
+  "round15_mesh_vs_direct": [
+   {
+    "label": "G-r15v2-np8",
+    "mesh": "meshes/legA-small-v2.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 9.075265e-09,
+    "inductance_nH": 18.15053,
+    "peak_memory_GB": 0.5403,
+    "max_rss_GB": 0.5403,
+    "wall_s": 1500.25,
+    "np": 8,
+    "solver": "iterative Hypre GMRES(100) + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 6164,
+    "last_residual": 9.98556e-11,
+    "converged": true,
+    "k_A_per_m": [
+     -2500.0,
+     0.0,
+     0.0
+    ],
+    "pec": [
+     2,
+     3
+    ],
+    "port": 10,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   }
+  ],
+  "hybrid_only_mesh": [
+   {
+    "label": "G-hyb-np8",
+    "mesh": "meshes/legA-small-hyb-a1.msh",
+    "exit_code": 0,
+    "all_done": true,
+    "energy_J": 9.271827e-09,
+    "inductance_nH": 18.543654,
+    "peak_memory_GB": 0.479776,
+    "max_rss_GB": 0.479776,
+    "wall_s": 1715.33,
+    "np": 8,
+    "solver": "iterative Hypre GMRES(100) + AMS",
+    "tol": 1e-10,
+    "tree_gauge": false,
+    "last_iteration": 8835,
+    "last_residual": 9.72377e-11,
+    "converged": true,
+    "k_A_per_m": [
+     -2500.0,
+     0.0,
+     0.0
+    ],
+    "pec": [
+     2,
+     3
+    ],
+    "port": 10,
+    "port2": null,
+    "k2_A_per_m": null,
+    "scale_m": 0.001
+   }
+  ],
+  "hypre_summaries": [
+   "out/G-board-np8-20k SolveHypre: Required iterations 9356 (method 802) to norm 5.06061e-11",
+   "out/G-r15v2-np8 SolveHypre: Required iterations 6164 (method 802) to norm 9.98556e-11",
+   "out/G-hyb-np8 SolveHypre: Required iterations 8835 (method 802) to norm 9.72377e-11"
+  ]
+ },
+ "floating_pec_fixture": {
+  "D-float0": 2.772904,
+  "G-float0": 2.772904,
+  "D-float2": 2.762936,
+  "G-float2": 2.762936,
+  "note": "make_float_fixture.py --margin 10 --h-near 0.5 --h-far 4; direct vs GMRES+AMS (4 ranks) agree with and without 2 floating PEC blocks"
+ },
+ "pec_columns": {
+  "legA-small-v2 (r15)": {
+   "inner_farfield_triangles": 252,
+   "xy": [
+    [
+     135.6,
+     -7.4
+    ],
+    [
+     136.4,
+     -18.5
+    ]
+   ]
+  },
+  "legA-small-hyb-a1": {
+   "inner_farfield_triangles": 208
+  },
+  "legA-small-hyb-eb1": {
+   "inner_farfield_triangles": 208
+  },
+  "legA-small-hyb-t0.02-c0 (29.77 nH)": {
+   "inner_farfield_triangles": 0
+  },
+  "column_copper_contacts_z_mm": [
+   -0.07,
+   0.0,
+   0.4355,
+   0.4965,
+   0.9965,
+   1.0575,
+   1.493,
+   1.563
+  ]
+ },
+ "remote_direct_column_free_mesh": {
+  "label": "D-board",
+  "mesh": "/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh",
+  "exit_code": 0,
+  "all_done": true,
+  "energy_J": 1.488546e-08,
+  "inductance_nH": 29.77092,
+  "peak_memory_GB": 31.67836,
+  "max_rss_GB": 31.67836,
+  "wall_s": 7757.0,
+  "np": 1,
+  "solver": "direct Big Umfpack",
+  "tol": null,
+  "tree_gauge": true,
+  "last_iteration": null,
+  "last_residual": null,
+  "converged": true,
+  "k_A_per_m": [
+   -2500.0,
+   0.0,
+   0.0
+  ],
+  "pec": [
+   2,
+   3
+  ],
+  "port": 10,
+  "port2": null,
+  "k2_A_per_m": null,
+  "scale_m": 0.001
+ }
+}

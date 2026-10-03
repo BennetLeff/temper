@@ -1,0 +1,27 @@
+{
+  "status": "PASS_WITH_EXPLICIT_UNRESOLVED_PHYSICS",
+  "checks": {
+    "board_hash_bound": true,
+    "stackup_hash_bound": true,
+    "input_hashes_bound": true,
+    "analytic_plane_pair_10x50_0p5_mm": true,
+    "analytic_wire_external_50x1_mm": true,
+    "internal_L_distinguished": true,
+    "solver_not_misreported": true,
+    "all_power_routes_connected_at_0p25_mm": true,
+    "all_gate_return_routes_connected_at_0p25_mm": true,
+    "all_route_ports_annotated": true,
+    "scenario_ordered": true,
+    "full_deck_scenarios_present": true,
+    "assumed_capacitor_ESL_flagged": true,
+    "bulk_internal_ESL_unresolved": true,
+    "Q3_coarse_return_not_claimed_converged": true
+  },
+  "failures": [],
+  "physics_unresolved": [
+    "FastHenry build and 5% analytic field-solver validation",
+    "10 MHz current distribution/mutual inductance and field mesh convergence",
+    "Q3 return path coarse-raster convergence",
+    "bulk capacitor internal ESL and physical bounds"
+  ]
+}

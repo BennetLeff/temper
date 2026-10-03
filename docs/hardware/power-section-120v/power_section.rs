@@ -1,4 +1,6 @@
-// 120 V-class unfiltered-bus half-bridge power-section screen.
+// 120 V-class power-section screen. The historical tank sections use a
+// half-bridge reference. A separate bus-capacitance section compares the
+// selected full-bridge prototype's capacitance without reusing that load.
 //
 // First-harmonic, line-cycle-averaged model (same method family as
 // zapote/inverter/evidence/plant_screen.rs). Every number it prints is a
@@ -188,6 +190,26 @@ fn bridge_loss(i_line_rms: f64) -> f64 {
     let (vf0, rf) = (0.75, 0.02);
     let i_avg = i_line_rms * 2.0 * 2f64.sqrt() / PI; // sinusoidal line current
     2.0 * vf0 * i_avg + 2.0 * rf * i_line_rms * i_line_rms
+}
+
+struct BusCapPoint {
+    energy_at_line_crest_j: f64,
+    ideal_hf_ripple_v_per_a: f64,
+    ideal_line_slope_current_a: f64,
+}
+
+/// Capacitor-only sensitivity. The line-slope term is C*d|Vline|/dt with an
+/// ideal 140 V, 60 Hz line-following bus, not a prediction of rectifier input
+/// current or power factor. The HF term assumes a sinusoidal 33 kHz current
+/// across the ideal equivalent capacitance and omits ESR, ESL and routing
+/// inductance.
+fn bus_cap_point(c_f: f64, line_v_rms: f64, line_hz: f64, hf_hz: f64) -> BusCapPoint {
+    let line_crest = line_v_rms * 2f64.sqrt();
+    BusCapPoint {
+        energy_at_line_crest_j: 0.5 * c_f * line_crest * line_crest,
+        ideal_hf_ripple_v_per_a: 1.0 / (2.0 * PI * hf_hz * c_f),
+        ideal_line_slope_current_a: 2.0 * PI * line_hz * c_f * line_crest,
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -454,6 +476,7 @@ fn main() {
     let pt = evaluate(&t, &s, 120.0, f_full);
     let dv = pt.i_bus_hf_rms / (2.0 * PI * f_full * c_bus);
     println!("bus HF ripple (rms current {:.1} A) on 5 uF: {:.1} V rms", pt.i_bus_hf_rms, dv);
+    println!("# The preceding HF-current example belongs to the historical half-bridge tank, not the 70 uH / 0.54 uF full bridge.");
     let cx = 2.0e-6;
     let r_bleed = 2.0 * 120e3;
     let tau = r_bleed * cx;
@@ -469,6 +492,23 @@ fn main() {
     let qg = 193e-9;
     let fmax = 60e3;
     println!("gate supply: 2 x Qg 193 nC x 15 V x {:.0} kHz = {:.2} W", fmax / 1e3, 2.0 * qg * 15.0 * fmax);
+
+    println!();
+    println!("## Full-bridge prototype bus-capacitance sensitivity");
+    println!("# Two 2.7 uF bulk capacitors plus four 0.1 uF local capacitors: 5.8 uF total.");
+    println!("# At 140 V rms, 60 Hz and 33 kHz: ideal capacitive figures only; PF=0.95 above is an assumed input, not calculated here.");
+    println!("# This screen excludes rectifier conduction, source impedance, control response, ESR/ESL and non-sinusoidal switching current.");
+    println!("case,C_uF,energy_at_line_crest_J,ideal_33kHz_ripple_V_per_A,ideal_60Hz_CdVdt_peak_A");
+    for (name, c_f) in [
+        ("original_bulk", 5.0e-6),
+        ("new_bulk", 2.0 * 2.7e-6),
+        ("new_bulk_and_local", 2.0 * 2.7e-6 + 4.0 * 0.1e-6),
+    ] {
+        let p = bus_cap_point(c_f, 140.0, 60.0, 33_000.0);
+        println!("{name},{:.1},{:.3},{:.3},{:.3}", c_f * 1e6,
+            p.energy_at_line_crest_j, p.ideal_hf_ripple_v_per_a,
+            p.ideal_line_slope_current_a);
+    }
 
     loss_refactor(&t);
 }
@@ -510,5 +550,19 @@ mod tests {
     fn unreachable_power_is_reported() {
         let t = resistive_tank();
         assert!(freq_for_power(&t, &IHW40N65R5, 120.0, 1e6, 20.0).is_none());
+    }
+
+    #[test]
+    fn ideal_hf_ripple_tracks_inverse_total_capacitance() {
+        let before = bus_cap_point(5.0e-6, 140.0, 60.0, 33_000.0);
+        let after = bus_cap_point(5.8e-6, 140.0, 60.0, 33_000.0);
+        assert!((after.ideal_hf_ripple_v_per_a / before.ideal_hf_ripple_v_per_a
+            - 5.0 / 5.8).abs() < 1e-12);
+    }
+
+    #[test]
+    fn capacitor_energy_uses_140v_rms_line_crest() {
+        let p = bus_cap_point(5.8e-6, 140.0, 60.0, 33_000.0);
+        assert!((p.energy_at_line_crest_j - 5.8e-6 * 140.0 * 140.0).abs() < 1e-12);
     }
 }

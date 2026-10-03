@@ -27,7 +27,8 @@ WHAT COUNTS AS WIRED
 --------------------
 A symbol registered with `m.add_function(wrap_pyfunction!(NAME, m)?)?` or
 `m.add_class::<NAME>()` exists to be called from Python. It is WIRED if any
-NON-TEST Python file references it -- `packages/*/src/**`, `scripts/`, `tools/`.
+NON-TEST Python file references it -- `packages/*/src/**`, `scripts/`, `tools/`,
+`harness-lab/`, or `zapote/`.
 Test files prove equivalence; they do not put a kernel into production.
 
 Both import spellings count, and this matters: the one correctly wired module
@@ -819,7 +820,7 @@ def rust_production_references() -> tuple[set[str], list[str]]:
 
 def production_references() -> tuple[set[str], list[str]]:
     """Identifiers referenced by every non-test Python source, and unparseable files."""
-    roots = ["packages", "scripts", "tools"]
+    roots = ["packages", "scripts", "tools", "harness-lab", "zapote"]
     names: set[str] = set()
     unparseable: list[str] = []
     for root in roots:
@@ -827,7 +828,7 @@ def production_references() -> tuple[set[str], list[str]]:
         if not base.is_dir():
             continue
         for py in base.rglob("*.py"):
-            p = str(py)
+            p = "/" + py.relative_to(REPO_ROOT).as_posix()
             if "/tests/" in p or "/test_" in p:
                 continue
             if "phase5_" in p and p.endswith("_mutations.py"):

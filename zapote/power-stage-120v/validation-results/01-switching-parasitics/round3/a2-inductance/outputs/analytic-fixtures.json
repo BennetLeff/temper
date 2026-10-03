@@ -1,0 +1,13 @@
+{
+  "analytic_reference": {
+    "plane_pair_nH": 3.1415926535897936,
+    "wire_partial_external_nH": 42.983173665480365,
+    "wire_partial_with_dc_internal_nH": 45.483173665480365,
+    "frequency_Hz": 10000000.0,
+    "wire_shape_note": "The deck is square-section; the round-wire expression is a scale check, not an exact 5% oracle for that cross-section."
+  },
+  "solver_status": "UNRUN_NO_EXECUTABLE",
+  "solver_validation_within_5_percent": null,
+  "two_mesh_convergence_within_5_percent": null,
+  "note": "Generated decks are not solver results. Do not infer a FastHenry validation pass from analytic values."
+}

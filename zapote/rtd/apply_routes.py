@@ -18,7 +18,8 @@ import buck_native
 
 def _replay(board_path, instruction_path, receipt_path):
     before = hashlib.sha256(board_path.read_bytes()).hexdigest()
-    instruction = json.loads(instruction_path.read_text())
+    instruction_bytes = instruction_path.read_bytes()
+    instruction = json.loads(instruction_bytes)
     board = buck_native.load(board_path)
     pads = {}
     for fp in board.GetFootprints():
@@ -37,6 +38,9 @@ def _replay(board_path, instruction_path, receipt_path):
     receipts = []
     for operation in instruction['nets']:
         net = operation['net']
+        before_tracks = {
+            item.m_Uuid.AsString() for item in buck_native.load(board_path).GetTracks()
+        }
         segments = []
         for path in operation['paths']:
             points = []
@@ -85,9 +89,26 @@ def _replay(board_path, instruction_path, receipt_path):
                         copy.SetNet(target.FindNet(net))
                         target.Add(copy)
                 buck_native.save(target, board_path)
-        receipts.append({'net': net, 'segments': segments, 'vias': vias, 'zones': zones, 'mode': operation.get('mode', 'replace')})
+        authored_items = []
+        for item in buck_native.load(board_path).GetTracks():
+            uuid = item.m_Uuid.AsString()
+            if uuid not in before_tracks:
+                authored_items.append({
+                    'uuid': uuid,
+                    'kind': 'via' if item.Type() == pcbnew.PCB_VIA_T else 'track',
+                })
+                if item.GetNetname() != net:
+                    raise ValueError(f'new {uuid}: expected net {net}, actual {item.GetNetname()}')
+        if len(authored_items) != len(segments) + len(vias):
+            raise ValueError(
+                f'{net}: created {len(authored_items)} track/via UUIDs for '
+                f'{len(segments)} segments and {len(vias)} vias'
+            )
+        receipts.append({'net': net, 'segments': segments, 'vias': vias, 'zones': zones,
+                         'mode': operation.get('mode', 'replace'),
+                         'authored_items': sorted(authored_items, key=lambda item: item['uuid'])})
     receipt_path.write_text(json.dumps({'input_board_sha256': before,
-        'instruction_sha256': hashlib.sha256(instruction_path.read_bytes()).hexdigest(),
+        'instruction_sha256': hashlib.sha256(instruction_bytes).hexdigest(),
         'adapter_sha256': hashlib.sha256((REPO / 'harness-lab/block_native.py').read_bytes()).hexdigest(),
         'buck_native_sha256': hashlib.sha256((REPO / 'harness-lab/buck_native.py').read_bytes()).hexdigest(),
         'replay_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),

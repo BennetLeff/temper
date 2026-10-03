@@ -1,0 +1,26 @@
+{
+  "source_revision": "a5eddd2bec65d0dd026bdd47087947b0b22cbfd6",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+  "model_provider": "OpenAI GPT-6 agent",
+  "argv": [
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D13/run.py",
+    "--mode",
+    "threshold"
+  ],
+  "ngspice": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "inputs": {
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D13/run.py": "f8699b1bd0e70c0d7b1a1947a9c2b4d70485b3b8677666e954776054ec959cc7",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legA-h0-best.matrix.txt": "c6f8fde3c97a2283eaceed2ef2dd860845ba78849fe5b0e580aece37620801a4",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/decks/baseline.cir": "9122ddacdae534e748fb6f390e568de815fe9895b17dbbd8718d47c2e9bc227a",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/decks/off1_c1_neg2.cir": "273a973f7c1bc42fa621e7933abe9ba04d2cc85bf52f080faeca715aec8e7750",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/run_ngspice.py": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/options.inc": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "zapote/power-stage-120v/validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+  },
+  "decks": {
+    "F6.cir": "ff3d358c5bba420dd27024126dc46f13707bd61859cdd3c9bb9ab93397d652b5",
+    "baseline.cir": "fd03de77877a35336bc9f4c4a9eaa578cdc809fd59d03b590f966e2674f3b148",
+    "threshold.cir": "9b943a9458c2029d810694c567d26a465c69a468700ffbe97d9d19130dd61dc5"
+  }
+}

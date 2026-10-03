@@ -1,0 +1,33 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * a5.3 all-gates-off tank freewheel to finite dc-link capacitance.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 20022
+
+  Measurements for Transient Analysis
+
+bus_peak            =  2.737457e+02 at=  3.302457e-05
+bus_final           =  2.737457e+02
+cap_final           =  -2.293220e+02
+i_final             =  2.294362e-08
+shunt_abs_peak      =  5.868977e+01 at=  8.012300e-06
+cap_abs_peak        =  8.222968e+02 at=  1.250000e-10
+
+
+Total analysis time (seconds) = 0.071364
+
+Total elapsed time (seconds) = 0.076 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  380.031 MB.
+Maximum ngspice program size =   11.250 MB.
+Current ngspice program size =   11.250 MB.
+

@@ -1,0 +1,110 @@
+[
+  {
+    "scenario": "balanced",
+    "switching_hz": 35000.0,
+    "max_cm_peak_dbuv": -154.28279143972216,
+    "at_hz": 14385000.0
+  },
+  {
+    "scenario": "balanced",
+    "switching_hz": 60000.0,
+    "max_cm_peak_dbuv": -151.13592422756344,
+    "at_hz": 11940000.0
+  },
+  {
+    "scenario": "tab_mismatch_20pct",
+    "switching_hz": 35000.0,
+    "max_cm_peak_dbuv": 59.96681488388976,
+    "at_hz": 175000.0
+  },
+  {
+    "scenario": "tab_mismatch_20pct",
+    "switching_hz": 60000.0,
+    "max_cm_peak_dbuv": 64.1876904516337,
+    "at_hz": 180000.0
+  },
+  {
+    "scenario": "edge_mismatch_20pct",
+    "switching_hz": 35000.0,
+    "max_cm_peak_dbuv": 32.55971377488043,
+    "at_hz": 17115000.0
+  },
+  {
+    "scenario": "edge_mismatch_20pct",
+    "switching_hz": 60000.0,
+    "max_cm_peak_dbuv": 37.241371120753165,
+    "at_hz": 17100000.0
+  },
+  {
+    "scenario": "both_mismatches",
+    "switching_hz": 35000.0,
+    "max_cm_peak_dbuv": 59.96854110592743,
+    "at_hz": 175000.0
+  },
+  {
+    "scenario": "both_mismatches",
+    "switching_hz": 60000.0,
+    "max_cm_peak_dbuv": 64.18951670436725,
+    "at_hz": 180000.0
+  },
+  {
+    "scenario": "coil_pe_10pf",
+    "switching_hz": 35000.0,
+    "max_cm_peak_dbuv": 60.05187229183028,
+    "at_hz": 175000.0
+  },
+  {
+    "scenario": "coil_pe_10pf",
+    "switching_hz": 60000.0,
+    "max_cm_peak_dbuv": 64.27224475835416,
+    "at_hz": 180000.0
+  },
+  {
+    "scenario": "coil_pe_100pf",
+    "switching_hz": 35000.0,
+    "max_cm_peak_dbuv": 59.86574929462165,
+    "at_hz": 175000.0
+  },
+  {
+    "scenario": "coil_pe_100pf",
+    "switching_hz": 60000.0,
+    "max_cm_peak_dbuv": 64.08747797456118,
+    "at_hz": 180000.0
+  },
+  {
+    "scenario": "choke_l_minus_30pct",
+    "switching_hz": 35000.0,
+    "max_cm_peak_dbuv": 63.45625116810875,
+    "at_hz": 175000.0
+  },
+  {
+    "scenario": "choke_l_minus_30pct",
+    "switching_hz": 60000.0,
+    "max_cm_peak_dbuv": 67.64519336428091,
+    "at_hz": 180000.0
+  },
+  {
+    "scenario": "edge_1v_per_ns",
+    "switching_hz": 35000.0,
+    "max_cm_peak_dbuv": 59.99763524624242,
+    "at_hz": 175000.0
+  },
+  {
+    "scenario": "edge_1v_per_ns",
+    "switching_hz": 60000.0,
+    "max_cm_peak_dbuv": 64.22028474015025,
+    "at_hz": 180000.0
+  },
+  {
+    "scenario": "edge_20v_per_ns",
+    "switching_hz": 35000.0,
+    "max_cm_peak_dbuv": 59.96739700454205,
+    "at_hz": 175000.0
+  },
+  {
+    "scenario": "edge_20v_per_ns",
+    "switching_hz": 60000.0,
+    "max_cm_peak_dbuv": 64.18830631180656,
+    "at_hz": 180000.0
+  }
+]

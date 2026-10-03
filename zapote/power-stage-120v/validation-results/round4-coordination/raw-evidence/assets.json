@@ -1,0 +1,49 @@
+{
+  "schema": "ps120-round4-raw-assets-v1",
+  "tag": "ps120-validation-round4-raw-v1",
+  "raw_manifest_sha256": "40ef4b2194c89dc841cef736fddac93f258cc23319b0128abbb5ff75724cccb5",
+  "file_count": 12027,
+  "file_bytes": 5923554281,
+  "assets": [
+    {
+      "name": "ps120-round4-raw-part-01-of-05.tar",
+      "bytes": 1301698560,
+      "sha256": "4b88476f9055677c7d738b6822d5446c2f1ac41298fe00cc2473ccf840ed7c66",
+      "file_count": 6636,
+      "first_path": "01-switching-parasitics/round4/c1-zvs/outputs/runs/source-before-lint/refine_physical.py",
+      "last_path": "01-switching-parasitics/round4/snubber-voltage-check/outputs/runs/v198_d1_dt348.4_i40.00000_l1_s0.2/ngspice.log.gz"
+    },
+    {
+      "name": "ps120-round4-raw-part-02-of-05.tar",
+      "bytes": 1381857280,
+      "sha256": "50ba65987209d4ade9ae2fd39315965e171f2b3e62ed7c79b5457dd7806aa286",
+      "file_count": 947,
+      "first_path": "01-switching-parasitics/round4/snubber-voltage-check/outputs/runs/v198_d1_dt348.4_i40.00000_l1_s0.2/waves.raw.gz",
+      "last_path": "05-resonant-tank-envelope/round4/a-derated/outputs/runs/40.45a/offset_or_small_pan-low-120v-1710w/tank.cir"
+    },
+    {
+      "name": "ps120-round4-raw-part-03-of-05.tar",
+      "bytes": 1384017920,
+      "sha256": "c2542eb0c509ea5a65150ef63669d64d62422961f2b7b011bb49d0e5359d799b",
+      "file_count": 940,
+      "first_path": "05-resonant-tank-envelope/round4/a-derated/outputs/runs/40.45a/offset_or_small_pan-low-120v-1710w/waves.raw.gz",
+      "last_path": "05-resonant-tank-envelope/round4/a-derated/outputs/runs/42a/cast_iron-mid-140v-300w/tank.cir"
+    },
+    {
+      "name": "ps120-round4-raw-part-04-of-05.tar",
+      "bytes": 1346897920,
+      "sha256": "38c80c7b92f89e56780a99c47732f8b9f7ac1f008f393b7e9b74d2c5723ecae2",
+      "file_count": 3150,
+      "first_path": "05-resonant-tank-envelope/round4/a-derated/outputs/runs/42a/cast_iron-mid-140v-300w/waves.raw.gz",
+      "last_path": "05-resonant-tank-envelope/round4/a-derated/outputs/runs/superseded-numerical/40.45a/cast_iron-mid-140v-1710w/tank.cir"
+    },
+    {
+      "name": "ps120-round4-raw-part-05-of-05.tar",
+      "bytes": 529162240,
+      "sha256": "652160c6e2214dc5616dc9bb323ddc0a1b053011b3b081c338f42908a1d99e89",
+      "file_count": 354,
+      "first_path": "05-resonant-tank-envelope/round4/a-derated/outputs/runs/superseded-numerical/40.45a/cast_iron-mid-140v-1710w/waves.raw.gz",
+      "last_path": "05-resonant-tank-envelope/round4/a-derated/outputs/runs/superseded-numerical/42a/triply_clad_GUESS-mid-108v-1710w/waves.raw.gz"
+    }
+  ]
+}

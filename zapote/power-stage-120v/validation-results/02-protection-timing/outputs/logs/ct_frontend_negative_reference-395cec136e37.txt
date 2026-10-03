@@ -1,0 +1,61 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * task 02 ct front end. copy of sim-kit/02-chain/ct_frontend.cir at
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+ipri                                         0
+ct_s2                                     1.65
+ctx                                       1.65
+ct_s1                                     1.65
+vcc                                        3.3
+sense                                     1.65
+ref_hi                                 2.47748
+ref_lo                                0.822523
+pos_i                                        0
+pos_d                                        0
+neg_i                                        0
+neg_d                                        0
+zc_i                                   3.29889
+zc_d                                   3.29889
+or_i                                         0
+or_d                                         0
+bor#branch                                   0
+bzc#branch                          -0.0659779
+bneg#branch                                  0
+bpos#branch                                  0
+bip#branch                                   0
+lmag#branch                        2.03282e-16
+vcc#branch                          -0.0021455
+
+
+No. of Data Rows : 40456
+
+  Measurements for Transient Analysis
+
+t_ip_trip           =   3.45497e-05
+t_in_trip           =   2.11713e-05
+t_pos_trip          =   3.47295e-05
+t_or                =   2.12843e-05
+t_ip_zero           =   9.09091e-05
+t_zc                =   9.10894e-05
+sense_max           =  3.794703e+00 at=  1.289069e-04
+
+
+Total analysis time (seconds) = 0.21825
+
+Total elapsed time (seconds) = 0.223
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  421.250 MB.
+Maximum ngspice program size =   12.172 MB.
+Current ngspice program size =   12.172 MB.

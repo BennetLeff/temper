@@ -1,0 +1,383 @@
+{
+  "case_count": 135,
+  "status_counts": {
+    "frequency-control": 135
+  },
+  "evaluated_grid_only": true,
+  "pan_classes": [
+    "carbon_or_430_steel",
+    "cast_iron",
+    "low_R_silargan_like",
+    "offset_or_small_pan",
+    "triply_clad_GUESS"
+  ],
+  "corners": [
+    "high",
+    "low",
+    "mid"
+  ],
+  "line_vrms": [
+    108.0,
+    120.0,
+    140.0
+  ],
+  "power_targets_w": [
+    300.0,
+    855.0,
+    1710.0
+  ],
+  "extrema": {
+    "frequency_hz": {
+      "min": {
+        "value": 30739.48195932453,
+        "run_id": "offset_or_small_pan-high-108v-1710w"
+      },
+      "max": {
+        "value": 57646.79519244583,
+        "run_id": "low_R_silargan_like-mid-140v-300w"
+      }
+    },
+    "f_res_hz": {
+      "min": {
+        "value": 27286.8232023395,
+        "run_id": "offset_or_small_pan-high-108v-1710w"
+      },
+      "max": {
+        "value": 33990.70989783674,
+        "run_id": "low_R_silargan_like-low-108v-1710w"
+      }
+    },
+    "i_rms_a": {
+      "min": {
+        "value": 8.01957,
+        "run_id": "cast_iron-high-140v-300w"
+      },
+      "max": {
+        "value": 44.6958,
+        "run_id": "offset_or_small_pan-low-108v-1710w"
+      }
+    },
+    "i_pk_a": {
+      "min": {
+        "value": 18.05012,
+        "run_id": "cast_iron-high-140v-300w"
+      },
+      "max": {
+        "value": 90.61737,
+        "run_id": "offset_or_small_pan-low-140v-1710w"
+      }
+    },
+    "vc_pk_v": {
+      "min": {
+        "value": 85.23774,
+        "run_id": "cast_iron-high-140v-300w"
+      },
+      "max": {
+        "value": 822.2969,
+        "run_id": "offset_or_small_pan-low-108v-1710w"
+      }
+    },
+    "vc_rms_v": {
+      "min": {
+        "value": 43.4007,
+        "run_id": "cast_iron-high-140v-300w"
+      },
+      "max": {
+        "value": 412.53,
+        "run_id": "offset_or_small_pan-low-108v-1710w"
+      }
+    },
+    "c21_i_rms_a": {
+      "min": {
+        "value": 3.267232222222222,
+        "run_id": "cast_iron-high-140v-300w"
+      },
+      "max": {
+        "value": 18.2094,
+        "run_id": "offset_or_small_pan-low-108v-1710w"
+      }
+    },
+    "c22_i_rms_a": {
+      "min": {
+        "value": 3.267232222222222,
+        "run_id": "cast_iron-high-140v-300w"
+      },
+      "max": {
+        "value": 18.2094,
+        "run_id": "offset_or_small_pan-low-108v-1710w"
+      }
+    },
+    "c23_i_rms_a": {
+      "min": {
+        "value": 1.4851055555555555,
+        "run_id": "cast_iron-high-140v-300w"
+      },
+      "max": {
+        "value": 8.277,
+        "run_id": "offset_or_small_pan-low-108v-1710w"
+      }
+    },
+    "bleed_each_v_pk_v": {
+      "min": {
+        "value": 21.309435,
+        "run_id": "cast_iron-high-140v-300w"
+      },
+      "max": {
+        "value": 205.574225,
+        "run_id": "offset_or_small_pan-low-108v-1710w"
+      }
+    },
+    "bleed_each_p_avg_w": {
+      "min": {
+        "value": 0.0002504814841077128,
+        "run_id": "cast_iron-high-140v-300w"
+      },
+      "max": {
+        "value": 0.022630452247340425,
+        "run_id": "offset_or_small_pan-low-108v-1710w"
+      }
+    },
+    "c_energy_pk_j": {
+      "min": {
+        "value": 0.0019616775264830522,
+        "run_id": "cast_iron-high-140v-300w"
+      },
+      "max": {
+        "value": 0.18256649177239473,
+        "run_id": "offset_or_small_pan-low-108v-1710w"
+      }
+    }
+  },
+  "capacitor_current_verdict": "BLOCKED: exact 942C12P22K-F and 942C12P1K-F current limit at operating frequency and 70-85 C not published",
+  "zvs_verdict": "BLOCKED: qualified board ZVS thresholds unavailable; reference thresholds fail the independence gate",
+  "r5_rms_rule": "ideal diagonal conduction: R5 RMS equals tank RMS; switching dead-time correction unquantified",
+  "bleed_resistor_screen": {
+    "maximum_working_voltage_v": 200,
+    "working_voltage_basis": "DC or AC RMS; not instantaneous peak",
+    "datasheet_source": "sources/rc1206.pdf printed pages 4-5, Yageo RC1206 V.2",
+    "maximum_per_resistor_rms_v": 103.1325,
+    "cases_above_working_voltage": [],
+    "cases_with_peak_above_200_v": [
+      "offset_or_small_pan-low-108v-1710w",
+      "offset_or_small_pan-low-120v-1710w"
+    ],
+    "interpretation": "Each 470-kohm resistor sees nominal one-quarter tank-bank voltage. No evaluated RMS voltage exceeds the 200 V continuous DC/AC-RMS rating. Two peaks exceed 200 V, which is not itself a working-voltage failure. Repetitive waveform/peak stress, temperature and actual sharing require their own qualification."
+  },
+  "ct_88a_task_screen": {
+    "cases_above_88a": [
+      "offset_or_small_pan-low-108v-1710w",
+      "offset_or_small_pan-low-120v-1710w",
+      "offset_or_small_pan-low-140v-1710w"
+    ],
+    "interpretation": "Three unconstrained low-coupling full-power cases exceed the task's 88 A screen; Coilcraft labels 88 A sensed-current thermal reference, not an absolute instantaneous peak limit."
+  },
+  "protection_screen": {
+    "source_file": "sources/a3-thresholds.json",
+    "source_sha256": "ae11cac0cc3abb2f5d85bfe07a80fd7b2eaf8f4a1bc1d914ac54806610291195",
+    "source_evidence_class": "bounded static circuit calculation plus distribution-assumed Monte Carlo",
+    "ct_static_threshold_range_a": [
+      50.558351037317024,
+      60.01430697046711
+    ],
+    "ocp_static_threshold_range_a": [
+      38.438184034366216,
+      85.55103286449716
+    ],
+    "ct_nominal_a": 55.16516516516517,
+    "ocp_nominal_a": 60.97560975609761,
+    "ct_peak_above_min_cases": [
+      "cast_iron-low-108v-1710w",
+      "cast_iron-low-120v-1710w",
+      "cast_iron-low-140v-1710w",
+      "carbon_or_430_steel-low-108v-1710w",
+      "carbon_or_430_steel-low-120v-1710w",
+      "carbon_or_430_steel-low-140v-1710w",
+      "triply_clad_GUESS-low-108v-1710w",
+      "triply_clad_GUESS-low-108v-855w",
+      "triply_clad_GUESS-low-120v-1710w",
+      "triply_clad_GUESS-low-120v-855w",
+      "triply_clad_GUESS-low-140v-1710w",
+      "triply_clad_GUESS-low-140v-855w",
+      "triply_clad_GUESS-mid-108v-1710w",
+      "triply_clad_GUESS-mid-120v-1710w",
+      "triply_clad_GUESS-mid-140v-1710w",
+      "triply_clad_GUESS-high-108v-1710w",
+      "triply_clad_GUESS-high-120v-1710w",
+      "triply_clad_GUESS-high-140v-1710w",
+      "low_R_silargan_like-low-108v-1710w",
+      "low_R_silargan_like-low-120v-1710w",
+      "low_R_silargan_like-low-140v-1710w",
+      "low_R_silargan_like-mid-108v-1710w",
+      "low_R_silargan_like-mid-120v-1710w",
+      "low_R_silargan_like-mid-140v-1710w",
+      "low_R_silargan_like-high-108v-1710w",
+      "low_R_silargan_like-high-120v-1710w",
+      "low_R_silargan_like-high-140v-1710w",
+      "offset_or_small_pan-low-108v-1710w",
+      "offset_or_small_pan-low-108v-855w",
+      "offset_or_small_pan-low-120v-1710w",
+      "offset_or_small_pan-low-120v-855w",
+      "offset_or_small_pan-low-140v-1710w",
+      "offset_or_small_pan-low-140v-855w",
+      "offset_or_small_pan-mid-108v-1710w",
+      "offset_or_small_pan-mid-108v-855w",
+      "offset_or_small_pan-mid-120v-1710w",
+      "offset_or_small_pan-mid-120v-855w",
+      "offset_or_small_pan-mid-140v-1710w",
+      "offset_or_small_pan-mid-140v-855w",
+      "offset_or_small_pan-high-108v-1710w",
+      "offset_or_small_pan-high-120v-1710w",
+      "offset_or_small_pan-high-140v-1710w"
+    ],
+    "ct_peak_above_nominal_cases": [
+      "carbon_or_430_steel-low-108v-1710w",
+      "carbon_or_430_steel-low-120v-1710w",
+      "carbon_or_430_steel-low-140v-1710w",
+      "triply_clad_GUESS-low-108v-1710w",
+      "triply_clad_GUESS-low-120v-1710w",
+      "triply_clad_GUESS-low-140v-1710w",
+      "triply_clad_GUESS-mid-108v-1710w",
+      "triply_clad_GUESS-mid-120v-1710w",
+      "triply_clad_GUESS-mid-140v-1710w",
+      "low_R_silargan_like-low-108v-1710w",
+      "low_R_silargan_like-low-120v-1710w",
+      "low_R_silargan_like-low-140v-1710w",
+      "low_R_silargan_like-mid-108v-1710w",
+      "low_R_silargan_like-mid-120v-1710w",
+      "low_R_silargan_like-mid-140v-1710w",
+      "offset_or_small_pan-low-108v-1710w",
+      "offset_or_small_pan-low-108v-855w",
+      "offset_or_small_pan-low-120v-1710w",
+      "offset_or_small_pan-low-120v-855w",
+      "offset_or_small_pan-low-140v-1710w",
+      "offset_or_small_pan-low-140v-855w",
+      "offset_or_small_pan-mid-108v-1710w",
+      "offset_or_small_pan-mid-120v-1710w",
+      "offset_or_small_pan-mid-140v-1710w",
+      "offset_or_small_pan-high-108v-1710w",
+      "offset_or_small_pan-high-120v-1710w",
+      "offset_or_small_pan-high-140v-1710w"
+    ],
+    "ct_peak_above_max_cases": [
+      "triply_clad_GUESS-low-108v-1710w",
+      "triply_clad_GUESS-low-120v-1710w",
+      "triply_clad_GUESS-low-140v-1710w",
+      "low_R_silargan_like-low-108v-1710w",
+      "low_R_silargan_like-low-120v-1710w",
+      "low_R_silargan_like-low-140v-1710w",
+      "offset_or_small_pan-low-108v-1710w",
+      "offset_or_small_pan-low-108v-855w",
+      "offset_or_small_pan-low-120v-1710w",
+      "offset_or_small_pan-low-120v-855w",
+      "offset_or_small_pan-low-140v-1710w",
+      "offset_or_small_pan-low-140v-855w",
+      "offset_or_small_pan-mid-108v-1710w",
+      "offset_or_small_pan-mid-120v-1710w",
+      "offset_or_small_pan-mid-140v-1710w",
+      "offset_or_small_pan-high-108v-1710w",
+      "offset_or_small_pan-high-120v-1710w",
+      "offset_or_small_pan-high-140v-1710w"
+    ],
+    "ocp_peak_above_min_cases": [
+      "cast_iron-low-108v-1710w",
+      "cast_iron-low-120v-1710w",
+      "cast_iron-low-140v-1710w",
+      "cast_iron-mid-108v-1710w",
+      "cast_iron-mid-120v-1710w",
+      "cast_iron-mid-140v-1710w",
+      "cast_iron-high-108v-1710w",
+      "cast_iron-high-120v-1710w",
+      "cast_iron-high-140v-1710w",
+      "carbon_or_430_steel-low-108v-1710w",
+      "carbon_or_430_steel-low-108v-855w",
+      "carbon_or_430_steel-low-120v-1710w",
+      "carbon_or_430_steel-low-120v-855w",
+      "carbon_or_430_steel-low-140v-1710w",
+      "carbon_or_430_steel-low-140v-855w",
+      "carbon_or_430_steel-mid-108v-1710w",
+      "carbon_or_430_steel-mid-120v-1710w",
+      "carbon_or_430_steel-mid-140v-1710w",
+      "carbon_or_430_steel-high-108v-1710w",
+      "carbon_or_430_steel-high-120v-1710w",
+      "carbon_or_430_steel-high-140v-1710w",
+      "triply_clad_GUESS-low-108v-1710w",
+      "triply_clad_GUESS-low-108v-855w",
+      "triply_clad_GUESS-low-120v-1710w",
+      "triply_clad_GUESS-low-120v-855w",
+      "triply_clad_GUESS-low-140v-1710w",
+      "triply_clad_GUESS-low-140v-855w",
+      "triply_clad_GUESS-mid-108v-1710w",
+      "triply_clad_GUESS-mid-108v-855w",
+      "triply_clad_GUESS-mid-120v-1710w",
+      "triply_clad_GUESS-mid-120v-855w",
+      "triply_clad_GUESS-mid-140v-1710w",
+      "triply_clad_GUESS-mid-140v-855w",
+      "triply_clad_GUESS-high-108v-1710w",
+      "triply_clad_GUESS-high-120v-1710w",
+      "triply_clad_GUESS-high-140v-1710w",
+      "low_R_silargan_like-low-108v-1710w",
+      "low_R_silargan_like-low-108v-855w",
+      "low_R_silargan_like-low-120v-1710w",
+      "low_R_silargan_like-low-120v-855w",
+      "low_R_silargan_like-low-140v-1710w",
+      "low_R_silargan_like-low-140v-855w",
+      "low_R_silargan_like-mid-108v-1710w",
+      "low_R_silargan_like-mid-108v-855w",
+      "low_R_silargan_like-mid-120v-1710w",
+      "low_R_silargan_like-mid-120v-855w",
+      "low_R_silargan_like-mid-140v-1710w",
+      "low_R_silargan_like-mid-140v-855w",
+      "low_R_silargan_like-high-108v-1710w",
+      "low_R_silargan_like-high-120v-1710w",
+      "low_R_silargan_like-high-140v-1710w",
+      "low_R_silargan_like-high-140v-855w",
+      "offset_or_small_pan-low-108v-1710w",
+      "offset_or_small_pan-low-108v-855w",
+      "offset_or_small_pan-low-108v-300w",
+      "offset_or_small_pan-low-120v-1710w",
+      "offset_or_small_pan-low-120v-855w",
+      "offset_or_small_pan-low-120v-300w",
+      "offset_or_small_pan-low-140v-1710w",
+      "offset_or_small_pan-low-140v-855w",
+      "offset_or_small_pan-low-140v-300w",
+      "offset_or_small_pan-mid-108v-1710w",
+      "offset_or_small_pan-mid-108v-855w",
+      "offset_or_small_pan-mid-120v-1710w",
+      "offset_or_small_pan-mid-120v-855w",
+      "offset_or_small_pan-mid-140v-1710w",
+      "offset_or_small_pan-mid-140v-855w",
+      "offset_or_small_pan-high-108v-1710w",
+      "offset_or_small_pan-high-108v-855w",
+      "offset_or_small_pan-high-120v-1710w",
+      "offset_or_small_pan-high-120v-855w",
+      "offset_or_small_pan-high-140v-1710w",
+      "offset_or_small_pan-high-140v-855w"
+    ],
+    "ocp_peak_above_nominal_cases": [
+      "triply_clad_GUESS-low-108v-1710w",
+      "triply_clad_GUESS-low-120v-1710w",
+      "triply_clad_GUESS-low-140v-1710w",
+      "low_R_silargan_like-low-108v-1710w",
+      "low_R_silargan_like-low-120v-1710w",
+      "low_R_silargan_like-low-140v-1710w",
+      "offset_or_small_pan-low-108v-1710w",
+      "offset_or_small_pan-low-108v-855w",
+      "offset_or_small_pan-low-120v-1710w",
+      "offset_or_small_pan-low-120v-855w",
+      "offset_or_small_pan-low-140v-1710w",
+      "offset_or_small_pan-low-140v-855w",
+      "offset_or_small_pan-mid-108v-1710w",
+      "offset_or_small_pan-mid-120v-1710w",
+      "offset_or_small_pan-mid-140v-1710w",
+      "offset_or_small_pan-high-108v-1710w",
+      "offset_or_small_pan-high-120v-1710w",
+      "offset_or_small_pan-high-140v-1710w"
+    ],
+    "ocp_peak_above_max_cases": [
+      "offset_or_small_pan-low-108v-1710w",
+      "offset_or_small_pan-low-120v-1710w",
+      "offset_or_small_pan-low-140v-1710w"
+    ],
+    "interpretation": "Instantaneous peak compared with static thresholds only; delay and phase duration still need A3 dynamic timing. Unconstrained requested-power cases crossing a threshold are not automatically sustainable thermal operating points; all simulated stresses remain retained."
+  }
+}

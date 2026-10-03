@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 pub mod current_sense;
+pub mod shelf;
 pub mod unit;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

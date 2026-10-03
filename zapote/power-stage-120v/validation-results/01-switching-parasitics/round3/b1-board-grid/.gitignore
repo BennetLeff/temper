@@ -1,0 +1,5 @@
+# Raw run directories are archived as a release asset; see round3-coordination/raw-evidence.
+!outputs/**/*.log
+**/IFX_CFD7_650V.lib
+**/cfd7-650.zip
+**/__pycache__/

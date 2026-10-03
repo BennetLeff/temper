@@ -1,0 +1,27 @@
+{
+  "source_revision": "f9b13b483d6d4ed52439d4da419c7670bab6966c",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+  "ngspice": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "inputs": {
+    "temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/run.py": "e396044da423af9ab46c945e96d4508a2b8f928654272bf06dbece25d99be027",
+    "temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+    "temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/run_d2.py": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+    "temper/zapote/power-stage-120v/validation-plan/sim-kit/common/run_ngspice.py": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0",
+    "temper/zapote/power-stage-120v/validation-plan/sim-kit/common/options.inc": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "temper/zapote/power-stage-120v/validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+    "temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legA-h0-lin12-m20corr.matrix.txt": "ce41f90b307e04c9c7d540cda88c538330682e48bf22423a228e8cf362dd3a4f",
+    "temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legA-h0-quad05-m20corr.matrix.txt": "5276e34cef7ebf69fcb8fa863ada7d3a85bd857bd00f0cd4c91813db33588940",
+    "temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legA-h0-lin12.matrix.txt": "22a9129a291bf7de52e81ab37e3e51871c9e17882882034e67df446679429d00"
+  },
+  "decks": {
+    "baseline": "9122ddacdae534e748fb6f390e568de815fe9895b17dbbd8718d47c2e9bc227a",
+    "off1_c1_neg2": "273a973f7c1bc42fa621e7933abe9ba04d2cc85bf52f080faeca715aec8e7750"
+  },
+  "argv": [
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/refine.py",
+    "--step",
+    ".1",
+    "--workers",
+    "2"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "pads": {
+    "SIL_PAD_400_0p229mm": {
+      "bridge_assumed_whole_back_area_mm2": 585.0899999999999,
+      "c_tab_to_pe_max_pf_1khz_epsilon": 51.06411355890272,
+      "c_tab_to_pe_min_pf_1khz_epsilon": 32.148846271087955,
+      "epsilon_r_1khz": 5.5,
+      "impedance_c_in2_per_w_50psi": 1.45,
+      "mos_tab_area_max_mm2": 240.12637249838124,
+      "mos_tab_area_min_mm2": 151.17829914308896,
+      "qualification": "typical 50psi material data; actual TO-247 pressure/contact and RF epsilon unknown",
+      "rtheta_cs_bridge_optimistic_c_per_w": 1.5988685501375859,
+      "rtheta_cs_mos_typical_50psi_c_per_w": 6.187938383369257,
+      "source_page": "Henkel guide printed p63",
+      "thickness_mm": 0.229
+    },
+    "SIL_PAD_K10_0p152mm": {
+      "bridge_assumed_whole_back_area_mm2": 585.0899999999999,
+      "c_tab_to_pe_max_pf_1khz_epsilon": 51.754334232605586,
+      "c_tab_to_pe_min_pf_1khz_epsilon": 32.583394073556,
+      "epsilon_r_1khz": 3.7,
+      "impedance_c_in2_per_w_50psi": 0.41,
+      "mos_tab_area_max_mm2": 240.12637249838124,
+      "mos_tab_area_min_mm2": 151.17829914308896,
+      "qualification": "typical 50psi material data; actual TO-247 pressure/contact and RF epsilon unknown",
+      "rtheta_cs_bridge_optimistic_c_per_w": 0.45209386590097256,
+      "rtheta_cs_mos_typical_50psi_c_per_w": 1.7496929221940658,
+      "source_page": "Henkel guide printed p75",
+      "thickness_mm": 0.152
+    }
+  }
+}

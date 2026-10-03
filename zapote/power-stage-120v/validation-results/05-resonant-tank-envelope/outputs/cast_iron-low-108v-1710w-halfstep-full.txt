@@ -1,0 +1,52 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * task 05: series-resonant tank over one rectified-line half-cycle.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+drv                                          0
+a                                            0
+b                                            0
+c                                            0
+pa_00                                        0
+pa_01                                        0
+pa_02                                        0
+bpa_02#branch                                0
+vim#branch                                   0
+bpa_01#branch                                0
+bpa_00#branch                                0
+bdrv#branch                                  0
+lt#branch                                    0
+
+ Reference value :  2.43541e-03
+ Reference value :  4.99206e-03
+ Reference value :  7.52859e-03
+No. of Data Rows : 333346
+
+  Measurements for Transient Analysis
+
+i_rms               =   2.64400e+01 from=  0.00000e+00 to=  8.33330e-03
+i_pk                =  5.147432e+01 at=  4.186836e-03
+vc_pk               =  4.521379e+02 at=  4.179111e-03
+vc_rms              =   2.24994e+02 from=  0.00000e+00 to=  8.33330e-03
+p_avg               =  1.711981e+03 from=  0.000000e+00 to=  8.333300e-03
+
+
+Total analysis time (seconds) = 0.817452
+
+Total elapsed time (seconds) = 0.827 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  169.906 MB.
+Maximum ngspice program size =   33.219 MB.
+Current ngspice program size =   33.219 MB.
+

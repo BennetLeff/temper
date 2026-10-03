@@ -1,0 +1,560 @@
+{
+  "status": "complete",
+  "verdict": "Not ready",
+  "verdict_reason": "The reviewed snapshot permits stale source or part-number artifacts to pass the routed-board verification path (#1, #2). Those high-severity false passes must be closed before this fail-closed gate can be relied on; the remaining findings concern insulation evidence and test coverage.",
+  "scope": {
+    "base": "10121aec58bf12bfa94e02e2a70e7466e7ea3bb9",
+    "branch": "",
+    "head_sha": "b230bb5fd75445c36baa02ead03eb3de943d7da8",
+    "pr_url": null,
+    "files_changed": 14
+  },
+  "intent": "Make power-stage routed-board verification fail closed while accepting bounded explicit same-part HOT pad escapes. Reject stale route inputs, incomplete copper exports, bad insulation rules, and routed native boards that differ from frozen source pins or part numbers.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "agent-native",
+    "learnings",
+    "reliability",
+    "adversarial"
+  ],
+  "findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "evidence": [
+        "zapote/power-stage-120v/tools/route_board.py:55:         if receipt.get(\"sha256\", {}).get(f\"frozen/{name}\") != sha256(path):",
+        "zapote/power-stage-120v/tools/route_board.py:49-51 checks manifest input_hashes only for SOURCE_INPUTS (poses, outline, stackup, and planning_stackup.py); the frozen-file loop at 53-56 has no manifest comparison.",
+        "zapote/current-sense/tools/build_current_sense_native.py:332-337 records default.net, default.csv, and resolved-components.json hashes in every generated source manifest.",
+        "zapote/power-stage-120v/tools/route_board.py:53:     for name in (\"default.net\", \"default.csv\", \"resolved-components.json\"):",
+        "At lines 55\u201356, this loop compares each current frozen file only with build-receipt.json. It never compares manifest['input_hashes'][name] with that same file, although the native generator records all three hashes in the placement manifest.",
+        "Lines 46\u201351 verify the old board against its own manifest and check only poses, outline, stackup and planning_stackup.py against current inputs. A new netlist with the same placement therefore satisfies every check before output.mkdir() and route replay."
+      ],
+      "file": "zapote/power-stage-120v/tools/route_board.py",
+      "first_evidence": "zapote/power-stage-120v/tools/route_board.py:55:         if receipt.get(\"sha256\", {}).get(f\"frozen/{name}\") != sha256(path):",
+      "independent_reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "line": 55,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "severity": "P1",
+      "suggested_fix": "Within the frozen-source loop, also require manifest['input_hashes'][name] == sha256(path) for each of default.net, default.csv and resolved-components.json, then add a regression with a placement whose manifest retains the previous netlist hash while the frozen source and receipt agree on the new hash.",
+      "title": "Replay accepts placements from older frozen source",
+      "why_it_matters": "A source-only wiring change can leave poses, outline, stackup and component count unchanged. If the frozen source and its receipt are updated while the placement manifest and board remain from the preceding source, preflight accepts both independently and replays copper onto the stale net assignments. The separate native-parity gate would reject this if run afterward, but this route command itself claims to reject stale input and can produce a misleading routed artifact first.",
+      "validation_status": "confirmed",
+      "validation_reason": "With a source-only re-freeze that preserves placement inputs and footprint count, route_board.py:49-56 compares the manifest only to poses/outline/stackup and the frozen files only to the receipt, despite the generator recording frozen hashes in the manifest, so an old four-layer placement can pass; incidence was not measured and an old-manifest/new-frozen fixture would show it."
+    },
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs:275:         field(&manifest[\"input_hashes\"], \"default.net\")? == netlist_sha256,",
+        "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs:80-81 takes the expected MPN and footprint from the manifest; lines 196-201 compare the board only to those manifest values.",
+        "zapote/power-stage-120v/build-receipt.json identifies frozen/resolved-components.json plus frozen/default.csv as the exact part-number identity authority, yet neither file is read by this gate."
+      ],
+      "file": "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs",
+      "first_evidence": "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs:275:         field(&manifest[\"input_hashes\"], \"default.net\")? == netlist_sha256,",
+      "independent_reviewers": [
+        "correctness"
+      ],
+      "line": 275,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness"
+      ],
+      "severity": "P1",
+      "suggested_fix": "Pass frozen/default.csv and frozen/resolved-components.json to the parity binary, verify their hashes against the manifest input_hashes and current build receipt, and compare expected MPN/footprint identities derived from those frozen files. Include a mutation test where only the frozen BOM or resolved part number changes while default.net and the old board remain unchanged.",
+      "title": "Native parity can accept a stale part-number manifest",
+      "why_it_matters": "The parity gate reads expected MPN and footprint values from the manifest, then authenticates only its default.net hash. A board and manifest from an older BOM or resolved-component export can therefore agree with each other and pass even when the frozen part-number authority has changed independently of the netlist. The gate does not establish parity with the current frozen part numbers it promises to check.",
+      "validation_status": "confirmed",
+      "validation_reason": "When frozen BOM or resolved-part identity changes without changing default.net, zapote-power-native-parity.rs:259-277 authenticates only the netlist while lines 80-81 and 196-201 trust the old manifest for MPN/footprint, so an old board and manifest can agree and pass; incidence was not measured and a BOM-only mutation would demonstrate it."
+    },
+    {
+      "#": 3,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/tests/test_routing_evidence.py:37:     assert \"stale\" in result.stderr or \"wrong enabled copper layers\" in result.stderr",
+        "zapote/power-stage-120v/tests/test_routing_evidence.py:35 passes native-04 as the only stale-placement fixture; route_board.py:72-74 independently rejects its copper-layer mismatch."
+      ],
+      "file": "zapote/power-stage-120v/tests/test_routing_evidence.py",
+      "first_evidence": "zapote/power-stage-120v/tests/test_routing_evidence.py:37:     assert \"stale\" in result.stderr or \"wrong enabled copper layers\" in result.stderr",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 37,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Use a valid four-layer placement fixture, mutate exactly one source input or manifest hash, and assert the specific stale-input error with no output directory. Keep a separate test for the two-layer guard.",
+      "title": "Stale-placement test can pass through the layer guard",
+      "why_it_matters": "The fixture is both stale and two-layer, and the assertion accepts either failure. Removing or breaking the new source-freshness checks would leave this test green whenever the independent copper-layer guard rejects native-04. It therefore does not prove the stale-input behavior it names.",
+      "validation_status": "confirmed",
+      "validation_reason": "The cited test uses native-04, whose manifest declares two copper layers while current stackup declares four, and accepts the independent wrong-enabled-layers error at test_routing_evidence.py:37, so it stays green if stale-input detection is removed; the checked fixture itself establishes the precondition."
+    },
+    {
+      "#": 4,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/tests/test_write_rules.py:53:     generated = write_rules.rules(board, selv, escape)",
+        "zapote/power-stage-120v/tests/test_write_rules.py:54-59 asserts only the order of text lines beginning with '(rule '.",
+        "zapote/power-stage-120v/tools/write_rules.py:216-231 contains the production PE_ detection, Rust verification subprocess, and rule-file write path absent from this test."
+      ],
+      "file": "zapote/power-stage-120v/tests/test_write_rules.py",
+      "first_evidence": "zapote/power-stage-120v/tests/test_write_rules.py:53:     generated = write_rules.rules(board, selv, escape)",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 53,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Add an integration test with a saved board containing PE_ areas that runs write_rules.py end to end, then invokes kicad-cli DRC against a controlled clearance case to prove the generated rule file parses and the final barrier rule takes effect.",
+      "title": "Rule-priority test bypasses production rule generation",
+      "why_it_matters": "The test passes a hand-written escape rule directly to the pure string builder and checks rule-name order. It cannot catch failure in the production path that detects saved PE_ areas, invokes pad_escape --verify, writes the .kicad_dru, or asks KiCad to parse and apply the resulting conditions. An invalid or missing routed-board rule file can coexist with a green test.",
+      "validation_status": "confirmed",
+      "validation_reason": "For a saved board with PE_ areas, write_rules.py:216-231 must detect those areas, verify them through Rust, and write KiCad rules, whereas test_write_rules.py:53-59 bypasses that path and inspects only rule-name order; incidence was not measured and a PE_ board run through the command and KiCad DRC would test it."
+    },
+    {
+      "#": 5,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/tools/barrier_check.py:61:             result = make_valid(result)",
+        "zapote/AGENTS.md:36-37: 'Rust owns engineering rule implementation and verdicts. Python may transport inputs/results and call native KiCad, but must not duplicate rule logic.'",
+        "zapote/AGENTS.md:13-15: 'Keep the working Python/KiCad adapter and host for now; thin glue to Rust is allowed. New engineering rules/tests are Rust.'",
+        "zapote/power-stage-120v/tools/barrier_check.py:111-137 keeps the geometry-distance acceptance verdict in Python, and the changed zone-repair path feeds that verdict."
+      ],
+      "file": "zapote/power-stage-120v/tools/barrier_check.py",
+      "first_evidence": "zapote/power-stage-120v/tools/barrier_check.py:61:             result = make_valid(result)",
+      "independent_reviewers": [
+        "project-standards"
+      ],
+      "line": 61,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "project-standards"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Put the new copper geometry validation and plan-view barrier verdict in zapote-drc with Rust tests, and keep copper_dump.py as the pcbnew transport adapter. Preserve an integration test that feeds a captured KiCad copper export into the Rust validator.",
+      "title": "New barrier geometry logic remains in Python",
+      "why_it_matters": "The changed plan-view insulation gate adds a new geometry repair path in the Python verifier that determines which copper shapes are measured and therefore whether the board passes. This leaves new engineering verdict logic outside the Rust authority required for Zapote, increasing the chance that the physical gate diverges from the project's validated rule owner.",
+      "validation_status": "confirmed",
+      "validation_reason": "If KiCad exports a self-touching filled-zone polygon, the newly added Python make_valid path at barrier_check.py:55-61 changes the geometry consumed by its Python distance verdict at lines 111-137, despite zapote/AGENTS.md:36-37 assigning engineering verdicts to Rust; incidence was not measured and a captured touching-contour export would show it."
+    },
+    {
+      "#": 6,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/tools/check_native_parity.py:23: def extract(board_path: Path) -> dict:",
+        "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs:335-382 tests only check(&manifest(), &native()) with constructed JSON; the selected Python tests contain no call to check_native_parity.py or extract().",
+        "zapote/power-stage-120v/tools/check_native_parity.py:57-68 is the production adapter-to-binary entry point."
+      ],
+      "file": "zapote/power-stage-120v/tools/check_native_parity.py",
+      "first_evidence": "zapote/power-stage-120v/tools/check_native_parity.py:23: def extract(board_path: Path) -> dict:",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 23,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Run check_native_parity.py against a copied real saved board and generated manifest, then mutate one pad net and one MPN on the board and assert the actual command rejects each change. Keep the Rust unit tests for mapping edge cases.",
+      "title": "Parity tests never exercise the pcbnew adapter",
+      "why_it_matters": "The Rust unit tests create native-pad JSON by hand and call check directly. The actual board verifier depends on pcbnew's footprint fields, pad attributes, UUIDs, and enabled-layer enumeration, then binds the extract to board bytes and launches Rust. A mismatch in that adapter or CLI contract can make real board parity fail or misreport while all current parity tests pass.",
+      "validation_status": "confirmed",
+      "validation_reason": "If pcbnew returns an unexpected real footprint field, pad attribute, UUID, or layer set, constructed JSON tests of Rust check() at zapote-power-native-parity.rs:335-382 cannot catch an error in check_native_parity.py:23-68, and the inspected Python tests never call that adapter; incidence was not measured and a copied saved-board command test would show it."
+    },
+    {
+      "#": 7,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/tools/copper_dump.py:120:             \"board_sha256\": hashlib.sha256(board_path.read_bytes()).hexdigest(),",
+        "zapote/power-stage-120v/tools/barrier_check.py:73:     if not board_path.is_file() or hashlib.sha256(board_path.read_bytes()).hexdigest() != evidence[\"board_sha256\"]:",
+        "copper_dump.py loads the board before enumeration at line 32 but does not read its bytes for board_sha256 until line 120. A save between those two operations makes the exported items and hash describe different board states.",
+        "The new checker recomputes only the current file hash; its items_sha256 covers the exported items, not their relation to the bytes that pcbnew loaded."
+      ],
+      "file": "zapote/power-stage-120v/tools/copper_dump.py",
+      "first_evidence": "zapote/power-stage-120v/tools/copper_dump.py:120:             \"board_sha256\": hashlib.sha256(board_path.read_bytes()).hexdigest(),",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 120,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "In copper_dump, hash the file immediately before pcbnew.LoadBoard, then hash it again after geometry enumeration and reject if the two values differ. Emit the initial hash only after the equality check; add a test that mutates the file between load and export.",
+      "title": "Concurrent board save binds old copper to new bytes",
+      "why_it_matters": "The new board-hash check accepts a copper report made from a different board snapshot if another process saves the board during export. In that sequence, pcbnew reads the old geometry, the board changes, copper_dump hashes the new bytes, and barrier_check sees a matching current hash while checking the old copper. A newly introduced cross-layer barrier violation can therefore be missed during concurrent work.",
+      "validation_status": "confirmed",
+      "validation_reason": "If another process saves the board after copper_dump.py:32 loads it but before line 120 hashes its bytes, the exported old copper receives the new file hash and passes barrier_check.py:73's current-file comparison; incidence was not measured and a controlled intervening save would exercise the race.",
+      "protected_subject": "concurrency"
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "evidence": [
+        "zapote/power-stage-120v/tools/route_board.py:55:         if receipt.get(\"sha256\", {}).get(f\"frozen/{name}\") != sha256(path):",
+        "zapote/power-stage-120v/tools/route_board.py:49-51 checks manifest input_hashes only for SOURCE_INPUTS (poses, outline, stackup, and planning_stackup.py); the frozen-file loop at 53-56 has no manifest comparison.",
+        "zapote/current-sense/tools/build_current_sense_native.py:332-337 records default.net, default.csv, and resolved-components.json hashes in every generated source manifest.",
+        "zapote/power-stage-120v/tools/route_board.py:53:     for name in (\"default.net\", \"default.csv\", \"resolved-components.json\"):",
+        "At lines 55\u201356, this loop compares each current frozen file only with build-receipt.json. It never compares manifest['input_hashes'][name] with that same file, although the native generator records all three hashes in the placement manifest.",
+        "Lines 46\u201351 verify the old board against its own manifest and check only poses, outline, stackup and planning_stackup.py against current inputs. A new netlist with the same placement therefore satisfies every check before output.mkdir() and route replay."
+      ],
+      "file": "zapote/power-stage-120v/tools/route_board.py",
+      "first_evidence": "zapote/power-stage-120v/tools/route_board.py:55:         if receipt.get(\"sha256\", {}).get(f\"frozen/{name}\") != sha256(path):",
+      "independent_reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "line": 55,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "severity": "P1",
+      "suggested_fix": "Within the frozen-source loop, also require manifest['input_hashes'][name] == sha256(path) for each of default.net, default.csv and resolved-components.json, then add a regression with a placement whose manifest retains the previous netlist hash while the frozen source and receipt agree on the new hash.",
+      "title": "Replay accepts placements from older frozen source",
+      "why_it_matters": "A source-only wiring change can leave poses, outline, stackup and component count unchanged. If the frozen source and its receipt are updated while the placement manifest and board remain from the preceding source, preflight accepts both independently and replays copper onto the stale net assignments. The separate native-parity gate would reject this if run afterward, but this route command itself claims to reject stale input and can produce a misleading routed artifact first.",
+      "validation_status": "confirmed",
+      "validation_reason": "With a source-only re-freeze that preserves placement inputs and footprint count, route_board.py:49-56 compares the manifest only to poses/outline/stackup and the frozen files only to the receipt, despite the generator recording frozen hashes in the manifest, so an old four-layer placement can pass; incidence was not measured and an old-manifest/new-frozen fixture would show it."
+    },
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs:275:         field(&manifest[\"input_hashes\"], \"default.net\")? == netlist_sha256,",
+        "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs:80-81 takes the expected MPN and footprint from the manifest; lines 196-201 compare the board only to those manifest values.",
+        "zapote/power-stage-120v/build-receipt.json identifies frozen/resolved-components.json plus frozen/default.csv as the exact part-number identity authority, yet neither file is read by this gate."
+      ],
+      "file": "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs",
+      "first_evidence": "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs:275:         field(&manifest[\"input_hashes\"], \"default.net\")? == netlist_sha256,",
+      "independent_reviewers": [
+        "correctness"
+      ],
+      "line": 275,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness"
+      ],
+      "severity": "P1",
+      "suggested_fix": "Pass frozen/default.csv and frozen/resolved-components.json to the parity binary, verify their hashes against the manifest input_hashes and current build receipt, and compare expected MPN/footprint identities derived from those frozen files. Include a mutation test where only the frozen BOM or resolved part number changes while default.net and the old board remain unchanged.",
+      "title": "Native parity can accept a stale part-number manifest",
+      "why_it_matters": "The parity gate reads expected MPN and footprint values from the manifest, then authenticates only its default.net hash. A board and manifest from an older BOM or resolved-component export can therefore agree with each other and pass even when the frozen part-number authority has changed independently of the netlist. The gate does not establish parity with the current frozen part numbers it promises to check.",
+      "validation_status": "confirmed",
+      "validation_reason": "When frozen BOM or resolved-part identity changes without changing default.net, zapote-power-native-parity.rs:259-277 authenticates only the netlist while lines 80-81 and 196-201 trust the old manifest for MPN/footprint, so an old board and manifest can agree and pass; incidence was not measured and a BOM-only mutation would demonstrate it."
+    },
+    {
+      "#": 3,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/tests/test_routing_evidence.py:37:     assert \"stale\" in result.stderr or \"wrong enabled copper layers\" in result.stderr",
+        "zapote/power-stage-120v/tests/test_routing_evidence.py:35 passes native-04 as the only stale-placement fixture; route_board.py:72-74 independently rejects its copper-layer mismatch."
+      ],
+      "file": "zapote/power-stage-120v/tests/test_routing_evidence.py",
+      "first_evidence": "zapote/power-stage-120v/tests/test_routing_evidence.py:37:     assert \"stale\" in result.stderr or \"wrong enabled copper layers\" in result.stderr",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 37,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Use a valid four-layer placement fixture, mutate exactly one source input or manifest hash, and assert the specific stale-input error with no output directory. Keep a separate test for the two-layer guard.",
+      "title": "Stale-placement test can pass through the layer guard",
+      "why_it_matters": "The fixture is both stale and two-layer, and the assertion accepts either failure. Removing or breaking the new source-freshness checks would leave this test green whenever the independent copper-layer guard rejects native-04. It therefore does not prove the stale-input behavior it names.",
+      "validation_status": "confirmed",
+      "validation_reason": "The cited test uses native-04, whose manifest declares two copper layers while current stackup declares four, and accepts the independent wrong-enabled-layers error at test_routing_evidence.py:37, so it stays green if stale-input detection is removed; the checked fixture itself establishes the precondition."
+    },
+    {
+      "#": 4,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/tests/test_write_rules.py:53:     generated = write_rules.rules(board, selv, escape)",
+        "zapote/power-stage-120v/tests/test_write_rules.py:54-59 asserts only the order of text lines beginning with '(rule '.",
+        "zapote/power-stage-120v/tools/write_rules.py:216-231 contains the production PE_ detection, Rust verification subprocess, and rule-file write path absent from this test."
+      ],
+      "file": "zapote/power-stage-120v/tests/test_write_rules.py",
+      "first_evidence": "zapote/power-stage-120v/tests/test_write_rules.py:53:     generated = write_rules.rules(board, selv, escape)",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 53,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Add an integration test with a saved board containing PE_ areas that runs write_rules.py end to end, then invokes kicad-cli DRC against a controlled clearance case to prove the generated rule file parses and the final barrier rule takes effect.",
+      "title": "Rule-priority test bypasses production rule generation",
+      "why_it_matters": "The test passes a hand-written escape rule directly to the pure string builder and checks rule-name order. It cannot catch failure in the production path that detects saved PE_ areas, invokes pad_escape --verify, writes the .kicad_dru, or asks KiCad to parse and apply the resulting conditions. An invalid or missing routed-board rule file can coexist with a green test.",
+      "validation_status": "confirmed",
+      "validation_reason": "For a saved board with PE_ areas, write_rules.py:216-231 must detect those areas, verify them through Rust, and write KiCad rules, whereas test_write_rules.py:53-59 bypasses that path and inspects only rule-name order; incidence was not measured and a PE_ board run through the command and KiCad DRC would test it."
+    },
+    {
+      "#": 5,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/tools/barrier_check.py:61:             result = make_valid(result)",
+        "zapote/AGENTS.md:36-37: 'Rust owns engineering rule implementation and verdicts. Python may transport inputs/results and call native KiCad, but must not duplicate rule logic.'",
+        "zapote/AGENTS.md:13-15: 'Keep the working Python/KiCad adapter and host for now; thin glue to Rust is allowed. New engineering rules/tests are Rust.'",
+        "zapote/power-stage-120v/tools/barrier_check.py:111-137 keeps the geometry-distance acceptance verdict in Python, and the changed zone-repair path feeds that verdict."
+      ],
+      "file": "zapote/power-stage-120v/tools/barrier_check.py",
+      "first_evidence": "zapote/power-stage-120v/tools/barrier_check.py:61:             result = make_valid(result)",
+      "independent_reviewers": [
+        "project-standards"
+      ],
+      "line": 61,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "project-standards"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Put the new copper geometry validation and plan-view barrier verdict in zapote-drc with Rust tests, and keep copper_dump.py as the pcbnew transport adapter. Preserve an integration test that feeds a captured KiCad copper export into the Rust validator.",
+      "title": "New barrier geometry logic remains in Python",
+      "why_it_matters": "The changed plan-view insulation gate adds a new geometry repair path in the Python verifier that determines which copper shapes are measured and therefore whether the board passes. This leaves new engineering verdict logic outside the Rust authority required for Zapote, increasing the chance that the physical gate diverges from the project's validated rule owner.",
+      "validation_status": "confirmed",
+      "validation_reason": "If KiCad exports a self-touching filled-zone polygon, the newly added Python make_valid path at barrier_check.py:55-61 changes the geometry consumed by its Python distance verdict at lines 111-137, despite zapote/AGENTS.md:36-37 assigning engineering verdicts to Rust; incidence was not measured and a captured touching-contour export would show it."
+    },
+    {
+      "#": 6,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/tools/check_native_parity.py:23: def extract(board_path: Path) -> dict:",
+        "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs:335-382 tests only check(&manifest(), &native()) with constructed JSON; the selected Python tests contain no call to check_native_parity.py or extract().",
+        "zapote/power-stage-120v/tools/check_native_parity.py:57-68 is the production adapter-to-binary entry point."
+      ],
+      "file": "zapote/power-stage-120v/tools/check_native_parity.py",
+      "first_evidence": "zapote/power-stage-120v/tools/check_native_parity.py:23: def extract(board_path: Path) -> dict:",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 23,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Run check_native_parity.py against a copied real saved board and generated manifest, then mutate one pad net and one MPN on the board and assert the actual command rejects each change. Keep the Rust unit tests for mapping edge cases.",
+      "title": "Parity tests never exercise the pcbnew adapter",
+      "why_it_matters": "The Rust unit tests create native-pad JSON by hand and call check directly. The actual board verifier depends on pcbnew's footprint fields, pad attributes, UUIDs, and enabled-layer enumeration, then binds the extract to board bytes and launches Rust. A mismatch in that adapter or CLI contract can make real board parity fail or misreport while all current parity tests pass.",
+      "validation_status": "confirmed",
+      "validation_reason": "If pcbnew returns an unexpected real footprint field, pad attribute, UUID, or layer set, constructed JSON tests of Rust check() at zapote-power-native-parity.rs:335-382 cannot catch an error in check_native_parity.py:23-68, and the inspected Python tests never call that adapter; incidence was not measured and a copied saved-board command test would show it."
+    },
+    {
+      "#": 7,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/tools/copper_dump.py:120:             \"board_sha256\": hashlib.sha256(board_path.read_bytes()).hexdigest(),",
+        "zapote/power-stage-120v/tools/barrier_check.py:73:     if not board_path.is_file() or hashlib.sha256(board_path.read_bytes()).hexdigest() != evidence[\"board_sha256\"]:",
+        "copper_dump.py loads the board before enumeration at line 32 but does not read its bytes for board_sha256 until line 120. A save between those two operations makes the exported items and hash describe different board states.",
+        "The new checker recomputes only the current file hash; its items_sha256 covers the exported items, not their relation to the bytes that pcbnew loaded."
+      ],
+      "file": "zapote/power-stage-120v/tools/copper_dump.py",
+      "first_evidence": "zapote/power-stage-120v/tools/copper_dump.py:120:             \"board_sha256\": hashlib.sha256(board_path.read_bytes()).hexdigest(),",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 120,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "In copper_dump, hash the file immediately before pcbnew.LoadBoard, then hash it again after geometry enumeration and reject if the two values differ. Emit the initial hash only after the equality check; add a test that mutates the file between load and export.",
+      "title": "Concurrent board save binds old copper to new bytes",
+      "why_it_matters": "The new board-hash check accepts a copper report made from a different board snapshot if another process saves the board during export. In that sequence, pcbnew reads the old geometry, the board changes, copper_dump hashes the new bytes, and barrier_check sees a matching current hash while checking the old copper. A newly introduced cross-layer barrier violation can therefore be missed during concurrent work.",
+      "validation_status": "confirmed",
+      "validation_reason": "If another process saves the board after copper_dump.py:32 loads it but before line 120 hashes its bytes, the exported old copper receives the new file hash and passes barrier_check.py:73's current-file comparison; incidence was not measured and a controlled intervening save would exercise the race.",
+      "protected_subject": "concurrency"
+    }
+  ],
+  "triage_groups": [
+    {
+      "title": "Source identity and regression coverage",
+      "findings": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "context": "Apply queue: placement freshness and native parity depend on source identity across separate artifacts.",
+      "preferred_resolution": "Bind current frozen inputs to both manifests (#1, #2), then add discriminating route and pcbnew adapter tests (#3, #6).",
+      "why": "The tests need to exercise the final source-bound commands after the identity checks are repaired."
+    },
+    {
+      "title": "Insulation verification evidence",
+      "findings": [
+        4,
+        5,
+        7
+      ],
+      "context": "Decision gate: rule generation and copper evidence determine whether the insulation checks are trustworthy.",
+      "preferred_resolution": "Settle Rust ownership of the barrier verdict (#5), then exercise the saved rule file through KiCad (#4) and bind copper enumeration to one board snapshot (#7).",
+      "why": "The end-to-end proof should exercise the chosen authoritative rule path and a stable board snapshot."
+    }
+  ],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "Generated-safety netlist-to-PCB parity gate",
+      "citation": "docs/solutions/tooling-decisions/generated-safety-netlist-to-pcb-parity-gate-2026-07-13.md",
+      "note": "A route must reject a stale physical board before replay; this history informs findings #1 and #2."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Three silent failures in a measurement pipeline",
+      "citation": "docs/solutions/best-practices/three-silent-failures-measurement-pipeline-2026-07-07.md",
+      "note": "Fail on KiCad rejection or missing and empty classifications rather than treating them as clean output."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Physical isolation barrier requires domain-first floorplan",
+      "citation": "docs/solutions/architecture-patterns/physical-isolation-barrier-requires-domain-first-floorplan-2026-07-30.md",
+      "note": "A pairwise plan-view copper pass does not establish corridor topology or package-surface insulation."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Netclass-aware clearance single source of truth",
+      "citation": "docs/solutions/architecture-patterns/netclass-clearance-ssot-designrules-consumer-chain-2026-07-07.md",
+      "note": "Keep placement, routing, generated KiCad rules, and verification on one effective constraint authority."
+    },
+    {
+      "type": "known_pattern",
+      "title": "A ratchet whose inputs are not pinned cannot be ratcheted",
+      "citation": "docs/solutions/best-practices/ratchet-inputs-must-be-pinned-2026-07-29.md",
+      "note": "Persist rule bytes, KiCad version, and invocation with any later reproducible DRC result; no ratchet was introduced here."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "The parity, plan-view barrier, KiCad DRC and stackup checks remain separate commands. A PASS from one is not a complete routed-board acceptance receipt; the caller must enforce the entire ordered gate sequence.",
+    "The pad-escape adapter starts cargo run without a subprocess deadline. A blocked shared build lock would leave route replay waiting with a partial output directory; no production hang was established in this review."
+  ],
+  "testing_gaps": [
+    "test_barrier_rejects_unsupported_or_missing_copper mutates only an item kind; no added test exercises checked_items' missing-pad census or check()'s absent HOT/barrier-copper rejection."
+  ],
+  "coverage": {
+    "depth": "full",
+    "scope_notes": [
+      "Scope is a stable scratch snapshot from ps-build at commit b230bb5fd plus selected uncommitted tools; route coordinates, CAD, and docs are outside review.",
+      "The real pad_escapes.json was copied only as contextual data and is not part of the reviewed diff.",
+      "The parent reports that a real saved-board J4.1 pad-net mutation was run and correctly rejected by native parity; this run did not independently execute that mutation."
+    ],
+    "peer_review": "External Claude cross-model review was not run: automatic approval review rejected sending this private source diff to Anthropic without specific user authorization. Local adversarial review completed; no source was sent externally.",
+    "validation": {
+      "outcome": "one batch of seven mapped verdicts returned within the wait bound",
+      "confirmed": 7,
+      "rejected": 0,
+      "unresolved": 0,
+      "malformed": 0,
+      "failed": 0,
+      "shortcut_skipped": 0,
+      "reasons": {
+        "1": "With a source-only re-freeze that preserves placement inputs and footprint count, route_board.py:49-56 compares the manifest only to poses/outline/stackup and the frozen files only to the receipt, despite the generator recording frozen hashes in the manifest, so an old four-layer placement can pass; incidence was not measured and an old-manifest/new-frozen fixture would show it.",
+        "2": "When frozen BOM or resolved-part identity changes without changing default.net, zapote-power-native-parity.rs:259-277 authenticates only the netlist while lines 80-81 and 196-201 trust the old manifest for MPN/footprint, so an old board and manifest can agree and pass; incidence was not measured and a BOM-only mutation would demonstrate it.",
+        "3": "The cited test uses native-04, whose manifest declares two copper layers while current stackup declares four, and accepts the independent wrong-enabled-layers error at test_routing_evidence.py:37, so it stays green if stale-input detection is removed; the checked fixture itself establishes the precondition.",
+        "4": "For a saved board with PE_ areas, write_rules.py:216-231 must detect those areas, verify them through Rust, and write KiCad rules, whereas test_write_rules.py:53-59 bypasses that path and inspects only rule-name order; incidence was not measured and a PE_ board run through the command and KiCad DRC would test it.",
+        "5": "If KiCad exports a self-touching filled-zone polygon, the newly added Python make_valid path at barrier_check.py:55-61 changes the geometry consumed by its Python distance verdict at lines 111-137, despite zapote/AGENTS.md:36-37 assigning engineering verdicts to Rust; incidence was not measured and a captured touching-contour export would show it.",
+        "6": "If pcbnew returns an unexpected real footprint field, pad attribute, UUID, or layer set, constructed JSON tests of Rust check() at zapote-power-native-parity.rs:335-382 cannot catch an error in check_native_parity.py:23-68, and the inspected Python tests never call that adapter; incidence was not measured and a copied saved-board command test would show it.",
+        "7": "If another process saves the board after copper_dump.py:32 loads it but before line 120 hashes its bytes, the exported old copper receives the new file hash and passes barrier_check.py:73's current-file comparison; incidence was not measured and a controlled intervening save would exercise the race."
+      },
+      "protected_subjects": {
+        "7": "concurrency"
+      },
+      "protected_subject_reclassifications": 0,
+      "degraded_p0_p1": []
+    },
+    "suppressed": {
+      "total": 0,
+      "by_anchor": {},
+      "mode_aware_demotions": 1,
+      "quote_demotions": 0,
+      "first_evidence_backfilled": 0,
+      "malformed_findings": 0
+    },
+    "failed_reviewers": [],
+    "timed_out_reviewers": [],
+    "plan_discovery": "No plan was discovered, so settlement suppression was not evaluated.",
+    "compound_packs": {
+      "roots": [],
+      "errors": [],
+      "warnings": []
+    },
+    "residual_risks": [
+      "The parity, plan-view barrier, KiCad DRC and stackup checks remain separate commands. A PASS from one is not a complete routed-board acceptance receipt; the caller must enforce the entire ordered gate sequence.",
+      "The pad-escape adapter starts cargo run without a subprocess deadline. A blocked shared build lock would leave route replay waiting with a partial output directory; no production hang was established in this review."
+    ],
+    "testing_gaps": [
+      "test_barrier_rejects_unsupported_or_missing_copper mutates only an item kind; no added test exercises checked_items' missing-pad census or check()'s absent HOT/barrier-copper rejection."
+    ],
+    "fix_order": "Close source freshness and part-number identity (#1, #2), then harden board-snapshot and insulation verification (#7, #5, #4), and add discriminating tests (#3, #6)."
+  },
+  "artifact_path": "/tmp/compound-engineering-501/ce-code-review/20260926-130435-18f33ef2",
+  "run_id": "20260926-130435-18f33ef2"
+}

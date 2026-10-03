@@ -1,0 +1,10 @@
+2026-09-27, task-01 source acquisition (no PDF saved)
+1. sandbox curl -fL --max-time 20 https://product.tdk.com/en/system/files/dam/doc/product/capacitor/film/mkp_mfp/data_sheet/20/20/db/fc_2009/mkp_b32651_658.pdf
+   curl: (6) Could not resolve host: product.tdk.com
+2. approved network curl -fL --max-time 30 https://product.tdk.com/system/files/dam/doc/product/capacitor/film/mkp_mfp/data_sheet/20/20/db/fc_2009/mkp_b32651_658.pdf
+   curl: (56) The requested URL returned error: 403
+3. approved network curl -fL --max-time 30 -A 'Mozilla/5.0' https://product.tdk.com/en/system/files/dam/doc/product/capacitor/film/mkp_mfp/data_sheet/20/20/db/fc_2009/mkp_b32651_658.pdf
+   curl: (56) The requested URL returned error: 403
+4. approved network curl -fL --max-time 30 https://www.tdk-electronics.tdk.com/inf/20/20/db/fc_2009/MKP_B32651_658.pdf
+   curl: (22) The requested URL returned error: 403
+The web document reader retrieved indexed text for source review, but did not provide the PDF bytes to hash or preserve.

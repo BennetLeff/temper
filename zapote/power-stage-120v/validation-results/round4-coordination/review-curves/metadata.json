@@ -1,0 +1,59 @@
+{
+  "branch": "codex/ps-r4-integration",
+  "completed_at": "2026-09-28T05:38:45.534890+00:00",
+  "cost": {
+    "host": "codex",
+    "scope": {
+      "changed_lines": 634,
+      "depth": "focused",
+      "exec_nontest_lines": 152,
+      "size_band": "small",
+      "unclassified_lines": {
+        ".csv": 432,
+        ".json": 50
+      }
+    },
+    "stages": [
+      {
+        "elapsed_seconds": 0.041,
+        "ended_at": "2026-09-28T05:25:49.541093+00:00",
+        "facts": {
+          "changed_lines": 634,
+          "depth": "focused",
+          "exec_nontest_lines": 152,
+          "size_band": "small",
+          "unclassified_lines": {
+            ".csv": 432,
+            ".json": 50
+          }
+        },
+        "stage": "scope",
+        "started_at": "2026-09-28T05:25:49.500004+00:00"
+      },
+      {
+        "candidates": 1,
+        "elapsed_seconds": 776.021,
+        "ended_at": "2026-09-28T05:38:45.561765+00:00",
+        "stage": "review",
+        "started_at": "2026-09-28T05:25:49.541093+00:00"
+      },
+      {
+        "elapsed_seconds": 0.026,
+        "ended_at": "2026-09-28T05:38:45.587679+00:00",
+        "stage": "receipt",
+        "started_at": "2026-09-28T05:38:45.561765+00:00"
+      }
+    ],
+    "status": "complete",
+    "totals": {
+      "artifact_bytes": 58723,
+      "candidates": 1,
+      "elapsed_seconds": 776.088,
+      "reviewers": 0
+    },
+    "truncated_events": 0
+  },
+  "head_sha": "829ee9debc08ce239bc2dffe0938c4fec2429545",
+  "run_id": "20260928-r4-curves-gks3j_k4",
+  "verdict": "Ready with fixes"
+}

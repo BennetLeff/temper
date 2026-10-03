@@ -1,0 +1,12 @@
+{
+  "sample_count": 262144,
+  "fs_hz": 35000.0,
+  "edge_s": 3.4e-08,
+  "harmonics": [
+    5,
+    51,
+    501
+  ],
+  "max_relative_complex_error": 1.0359211502006601e-05,
+  "convention": "2*abs(FFT coefficient) is sinusoidal peak line voltage"
+}

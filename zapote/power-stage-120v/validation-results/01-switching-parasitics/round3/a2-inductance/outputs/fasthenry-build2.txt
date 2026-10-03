@@ -1,0 +1,190 @@
+cd src/fasthenry ; /Library/Developer/CommandLineTools/usr/bin/make fasthenry
+cc -O2 -DFOUR -std=gnu89 -Wno-implicit-function-declaration -Wno-deprecated-non-prototype -Wno-incompatible-pointer-types -Wno-int-conversion   -c -o induct.o induct.c
+induct.c:354:5: warning: '/*' within block comment [-Wcomment]
+  354 |     /* indsys->MtZM = (CX **)MatrixAlloc(num_mesh, num_mesh, sizeof(CX)); */
+      |     ^
+induct.c:443:51: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+  443 |   printf("Total Memory allocated: %d kilobytes\n",memcount/1024);
+      |                                   ~~              ^~~~~~~~~~~~~
+      |                                   %ld
+induct.c:1492:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+ 1492 | }
+      | ^
+induct.c:1519:1: warning: non-void function does not return a value [-Wreturn-type]
+ 1519 | }
+      | ^
+induct.c:1558:1: warning: non-void function does not return a value [-Wreturn-type]
+ 1558 | }
+      | ^
+induct.c:1623:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+ 1623 | }
+      | ^
+induct.c:1711:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+ 1711 | }
+      | ^
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'unsigned long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:171:8: note: expanded from macro 'CALLOC'
+  170 |        (void)fprintf(stderr, " (NULL pointer on %d byte request)\n",        \
+      |                                                 ~~
+  171 |                      (NUM)*sizeof(TYPE));                                   \
+      |                      ^~~~~~~~~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:120:3: note: expanded from macro 'DUMPALLOCSIZ'
+  119 |                 "Total Memory Allocated: %d kilobytes (brk = 0x%x)\n", \
+      |                                          ~~
+  120 |                 memcount/1024, sbrk(0));                               \
+      |                 ^~~~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:123:3: note: expanded from macro 'DUMPALLOCSIZ'
+  122 |   (void)fprintf(stderr, " Q2M  matrix memory allocated: %7.d kilobytes\n",\
+      |                                                         ~~~~
+  123 |                 memQ2M/1024);                                          \
+      |                 ^~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:126:3: note: expanded from macro 'DUMPALLOCSIZ'
+  125 |   (void)fprintf(stderr, " Q2L  matrix memory allocated: %7.d kilobytes\n",\
+      |                                                         ~~~~
+  126 |                 memQ2L/1024);                                          \
+      |                 ^~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:129:3: note: expanded from macro 'DUMPALLOCSIZ'
+  128 |   (void)fprintf(stderr, " Q2P  matrix memory allocated: %7.d kilobytes\n",\
+      |                                                         ~~~~
+  129 |                 memQ2P/1024);                                          \
+      |                 ^~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:132:3: note: expanded from macro 'DUMPALLOCSIZ'
+  131 |   (void)fprintf(stderr, " L2L  matrix memory allocated: %7.d kilobytes\n",\
+      |                                                         ~~~~
+  132 |                 memL2L/1024);                                          \
+      |                 ^~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:135:3: note: expanded from macro 'DUMPALLOCSIZ'
+  134 |   (void)fprintf(stderr, " M2M  matrix memory allocated: %7.d kilobytes\n",\
+      |                                                         ~~~~
+  135 |                 memM2M/1024);                                          \
+      |                 ^~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:138:3: note: expanded from macro 'DUMPALLOCSIZ'
+  137 |   (void)fprintf(stderr, " M2L  matrix memory allocated: %7.d kilobytes\n",\
+      |                                                         ~~~~
+  138 |                 memM2L/1024);                                          \
+      |                 ^~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:141:3: note: expanded from macro 'DUMPALLOCSIZ'
+  140 |   (void)fprintf(stderr, " M2P  matrix memory allocated: %7.d kilobytes\n",\
+      |                                                         ~~~~
+  141 |                 memM2P/1024);                                          \
+      |                 ^~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:144:3: note: expanded from macro 'DUMPALLOCSIZ'
+  143 |   (void)fprintf(stderr, " L2P  matrix memory allocated: %7.d kilobytes\n",\
+      |                                                         ~~~~
+  144 |                 memL2P/1024);                                          \
+      |                 ^~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:147:3: note: expanded from macro 'DUMPALLOCSIZ'
+  146 |   (void)fprintf(stderr, " Q2PD matrix memory allocated: %7.d kilobytes\n",\
+      |                                                         ~~~~
+  147 |                 memQ2PD/1024);                                          \
+      |                 ^~~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:150:3: note: expanded from macro 'DUMPALLOCSIZ'
+  149 |   (void)fprintf(stderr, " Miscellaneous mem. allocated: %7.d kilobytes\n",\
+      |                                                         ~~~~
+  150 |                 memMSC/1024);                                          \
+      |                 ^~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:153:3: note: expanded from macro 'DUMPALLOCSIZ'
+  152 |   (void)fprintf(stderr, " Inductance mem. allocated: %7.d kilobytes\n",\
+      |                                                      ~~~~
+  153 |                 memIND/1024);                                          \
+      |                 ^~~~~~~~~~~
+induct.c:1720:3: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
+ 1720 |   CALLOC(blah, number*size, char, OFF, IND);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./mulGlobal.h:172:8: note: expanded from macro 'CALLOC'
+  172 |        DUMPALLOCSIZ;                                                        \
+      |        ^~~~~~~~~~~~
+./mulGlobal.h:156:3: note: expanded from macro 'DUMPALLOCSIZ'
+  155 |   (void)fprintf(stderr, " Total memory (check w/above): %7.d kilobytes\n",\
+      |                                                         ~~~~
+  156 |                 memcount/1024);                                        \
+      |                 ^~~~~~~~~~~~~
+induct.c:1804:1: warning: non-void function does not return a value [-Wreturn-type]
+ 1804 | }
+      | ^
+induct.c:1819:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+ 1819 | }
+      | ^
+induct.c:1833:3: error: non-void function 'cx_dumpMat_totextfile' should return a value [-Wreturn-mismatch]
+ 1833 |   return;
+      |   ^
+induct.c:1848:3: error: non-void function 'dumpMat_totextfile' should return a value [-Wreturn-mismatch]
+ 1848 |   return;
+      |   ^
+23 warnings and 2 errors generated.
+make[1]: *** [induct.o] Error 1
+make: *** [fasthenry] Error 2

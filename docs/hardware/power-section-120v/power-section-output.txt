@@ -41,11 +41,21 @@ f_kHz,phase_deg,p_tank_W,i_turnoff_pk_A,per_switch_W
 ## Passive sizing checks
 bus film cap energy at 140 V line peak: 0.098 J
 bus HF ripple (rms current 21.6 A) on 5 uF: 18.1 V rms
+# The preceding HF-current example belongs to the historical half-bridge tank, not the 70 uH / 0.54 uF full bridge.
 X-cap bleed: 2 x 120k across 2.0 uF -> tau 0.48 s; plug voltage after 1 s from 198 V pk: 24.7 V (limit 34 V)
 X-cap bleed dissipation at 140 V: 82 mW
 fuse: 15 A continuous / 0.75 derating -> >= 20.0 A rating
 CT 1:100, 1.0 ohm burden: 0.72 V pk at 72.1 A pk; volt-time per half cycle 9.5 V-us (limit 638)
 gate supply: 2 x Qg 193 nC x 15 V x 60 kHz = 0.35 W
+
+## Full-bridge prototype bus-capacitance sensitivity
+# Two 2.7 uF bulk capacitors plus four 0.1 uF local capacitors: 5.8 uF total.
+# At 140 V rms, 60 Hz and 33 kHz: ideal capacitive figures only; PF=0.95 above is an assumed input, not calculated here.
+# This screen excludes rectifier conduction, source impedance, control response, ESR/ESL and non-sinusoidal switching current.
+case,C_uF,energy_at_line_crest_J,ideal_33kHz_ripple_V_per_A,ideal_60Hz_CdVdt_peak_A
+original_bulk,5.0,0.098,0.965,0.373
+new_bulk,5.4,0.106,0.893,0.403
+new_bulk_and_local,5.8,0.114,0.832,0.433
 
 ## Loss refactor comparison at 120 V, 15 A input limit, PF 0.95
 # fixed allowance 9.8 W (EMI, cap ESR, wiring, aux); dead time 390 ns

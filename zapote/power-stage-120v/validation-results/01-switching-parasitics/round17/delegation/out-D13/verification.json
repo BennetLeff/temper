@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-02",
+  "checks": "PASS: source hashes, exact executed source, completed-case gate/VDS assertions, archive members, license exclusion; see analysis-check.log and archive-check.log",
+  "main": {
+    "attempted": 336,
+    "complete": 278
+  },
+  "archive_members": 1660,
+  "archive_bytes": 235935,
+  "tooling_sha256": {
+    "pack.py": "0b1fac03efdb935182938005345c7715c7413e77864560d04f3063dd07b018e5",
+    "run.py": "852fc1f472fabdd01773f48efd5425ee39f32d8a482a1610fb190da1c6a50caa",
+    "exploratory.py": "c16790f40f84fb1ed8145407f3c5a5f58e872761e8738465312eb5204ad3ca2b",
+    "analyze.py": "c7b62d7cdcea171e6e81ec00b6d341aef23baaecc84a9969d1be58b0c91afe1c"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "thresholds": 140,
+  "status_counts": {
+    "no_pass_through_100a": 20,
+    "bracketed": 120
+  },
+  "physical_10v_rows": 20,
+  "waveform_cases": 2118,
+  "half_step_checks": 82,
+  "initial_half_step_peak_failures": 2,
+  "unresolved_half_step_peak_failures": 0,
+  "half_step_classification_flips": 0,
+  "sources_verified": 15
+}
+AUDIT PASS

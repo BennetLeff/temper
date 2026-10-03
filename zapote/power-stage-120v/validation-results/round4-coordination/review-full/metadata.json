@@ -1,0 +1,74 @@
+{
+  "branch": "codex/ps-r4-integration",
+  "completed_at": "2026-09-28T14:08:34.362861+00:00",
+  "cost": {
+    "host": "codex",
+    "scope": {
+      "changed_lines": 302024,
+      "depth": "full",
+      "exec_nontest_lines": 5723,
+      "size_band": "large",
+      "unclassified_lines": 295831
+    },
+    "stages": [
+      {
+        "elapsed_seconds": 29.821,
+        "ended_at": "2026-09-28T06:29:50.477084+00:00",
+        "facts": {
+          "changed_lines": 302024,
+          "depth": "full",
+          "exec_nontest_lines": 5723,
+          "size_band": "large",
+          "unclassified_lines": 295831
+        },
+        "stage": "scope",
+        "started_at": "2026-09-28T06:29:20.656540+00:00"
+      },
+      {
+        "elapsed_seconds": 181.546,
+        "ended_at": "2026-09-28T06:32:52.023511+00:00",
+        "reviewers": 8,
+        "stage": "select",
+        "started_at": "2026-09-28T06:29:50.477084+00:00"
+      },
+      {
+        "candidates": 7,
+        "elapsed_seconds": 7932.061,
+        "ended_at": "2026-09-28T08:45:04.084422+00:00",
+        "stage": "dispatch",
+        "started_at": "2026-09-28T06:32:52.023511+00:00"
+      },
+      {
+        "candidates": 6,
+        "elapsed_seconds": 0.058,
+        "ended_at": "2026-09-28T14:03:03.982843+00:00",
+        "stage": "merge",
+        "started_at": "2026-09-28T14:03:03.924941+00:00"
+      },
+      {
+        "elapsed_seconds": 132.0,
+        "ended_at": "2026-09-28T14:05:46.694817+00:00",
+        "stage": "validate",
+        "started_at": "2026-09-28T14:03:34.695082+00:00"
+      },
+      {
+        "candidates": 6,
+        "elapsed_seconds": 103.195,
+        "ended_at": "2026-09-28T14:08:34.392834+00:00",
+        "stage": "report",
+        "started_at": "2026-09-28T14:06:51.197596+00:00"
+      }
+    ],
+    "status": "complete",
+    "totals": {
+      "artifact_bytes": 58272053,
+      "candidates": 7,
+      "elapsed_seconds": 8378.681,
+      "reviewers": 8
+    },
+    "truncated_events": 0
+  },
+  "head_sha": "829ee9debc08ce239bc2dffe0938c4fec2429545",
+  "run_id": "20260928-002920-7c489fec",
+  "verdict": "Ready with fixes"
+}

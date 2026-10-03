@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -27,6 +28,18 @@ def _load_tool(name: str):
 
 build_native = _load_tool("build_current_sense_native.py")
 native_checks = _load_tool("run_current_sense_native_checks.py")
+
+
+def _compiled_fixture(source: Path) -> dict[str, str]:
+    """Use the actual committed power-stage netlist and BOM, not toy bytes."""
+    frozen = TOOLS.parents[1] / "power-stage-120v" / "frozen"
+    (source / "build").mkdir()
+    hashes = {}
+    for name in ("default.net", "default.csv"):
+        target = source / "build" / name
+        shutil.copyfile(frozen / name, target)
+        hashes[f"build/{name}"] = hashlib.sha256(target.read_bytes()).hexdigest()
+    return hashes
 
 
 def _write_json(path: Path, value: object) -> None:
@@ -96,7 +109,10 @@ def test_source_hash_map_is_required_and_contained(tmp_path: Path) -> None:
     source_file.parent.mkdir(parents=True)
     source_file.write_text("component CurrentSenseUnit:\n", encoding="utf-8")
     digest = hashlib.sha256(source_file.read_bytes()).hexdigest()
-    export = {"source_sha256": {"elec/src/current_sense_unit.ato": digest}}
+    export = {
+        "source_sha256": {"elec/src/current_sense_unit.ato": digest},
+        "build_sha256": _compiled_fixture(source),
+    }
     assert build_native._require_source_hashes(repo, source, export)
 
     with pytest.raises(ValueError, match="nonempty source_sha256"):
@@ -109,3 +125,38 @@ def test_source_hash_map_is_required_and_contained(tmp_path: Path) -> None:
         build_native._require_source_hashes(
             repo, tmp_path / "outside", export
         )
+
+
+@pytest.mark.parametrize("artifact", ["build/default.net", "build/default.csv"])
+def test_compiled_artifact_changes_after_export_are_rejected(
+    tmp_path: Path, artifact: str
+) -> None:
+    repo = tmp_path / "repo"
+    source = repo / "source-build"
+    source.mkdir(parents=True)
+    source_file = source / "entry.ato"
+    source_file.write_text("module Example:\n")
+    export = {
+        "source_sha256": {"entry.ato": hashlib.sha256(source_file.read_bytes()).hexdigest()},
+        "build_sha256": _compiled_fixture(source),
+    }
+    assert build_native._require_source_hashes(repo, source, export)
+    target = source / artifact
+    original = target.read_bytes()
+    # Both replacements keep the file parseable; changing whitespace also
+    # must invalidate the exact exporter receipt.
+    target.write_bytes(original + b"\n")
+    with pytest.raises(ValueError, match="stale build artifact"):
+        build_native._require_source_hashes(repo, source, export)
+    target.write_bytes(original)
+    del export["build_sha256"][artifact]
+    with pytest.raises(ValueError, match="missing compiled artifacts"):
+        build_native._require_source_hashes(repo, source, export)
+
+
+def test_compiled_hash_map_cannot_be_missing(tmp_path: Path) -> None:
+    source_file = tmp_path / "entry.ato"
+    source_file.write_text("module Example:\n")
+    export = {"source_sha256": {"entry.ato": hashlib.sha256(source_file.read_bytes()).hexdigest()}}
+    with pytest.raises(ValueError, match="nonempty build_sha256"):
+        build_native._require_source_hashes(tmp_path, tmp_path, export)

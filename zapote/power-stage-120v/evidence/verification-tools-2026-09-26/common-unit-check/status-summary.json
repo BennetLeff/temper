@@ -1,0 +1,220 @@
+[
+  {
+    "unit": "rtd",
+    "status": "indeterminate",
+    "sections": {
+      "common_checks": {
+        "status": "pass",
+        "coverage_gaps": []
+      },
+      "manufacturing_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+          "source-declared fabrication limits are required",
+          "fabrication envelope '' is prototype/source-declared, not fabrication-qualified",
+          "assembly process is required"
+        ]
+      },
+      "native_checks": {
+        "status": "pass",
+        "coverage_gaps": []
+      },
+      "qualification": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "hardware not run"
+        ]
+      },
+      "unit_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "device applicability remains indeterminate",
+          "local_rtd_avdd_loss has conditional nominal timing only; guaranteed maximum remains a physical integration obligation"
+        ]
+      }
+    }
+  },
+  {
+    "unit": "current-sense",
+    "status": "indeterminate",
+    "sections": {
+      "common_checks": {
+        "status": "pass",
+        "coverage_gaps": []
+      },
+      "manufacturing_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "unsupported native geometry: D1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: D2: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J1: no closed native F.Fab body polygon",
+          "unsupported native geometry: J2: open F.Fab detail lines are not a closed body polygon",
+          "source-declared fabrication limits are required",
+          "fabrication envelope '' is prototype/source-declared, not fabrication-qualified",
+          "assembly process is required"
+        ]
+      },
+      "native_checks": {
+        "status": "pass",
+        "coverage_gaps": []
+      },
+      "operating_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "no device operating point supplied",
+          "no shutdown timing contract supplied"
+        ]
+      },
+      "qualification": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "hardware not run"
+        ]
+      },
+      "unit_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+          "comparator_to_latch_timing applicability is unsupported: INDETERMINATE",
+          "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE",
+          "hardware applicability is unsupported: NOT_RUN",
+          "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE",
+          "primary_copper_and_terminal applicability is unsupported: NOT_RUN",
+          "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC"
+        ]
+      }
+    }
+  },
+  {
+    "unit": "gate-drive",
+    "status": "indeterminate",
+    "sections": {
+      "common_checks": {
+        "status": "pass",
+        "coverage_gaps": []
+      },
+      "manufacturing_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "unsupported native geometry: D1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+          "source-declared fabrication limits are required",
+          "fabrication envelope '' is prototype/source-declared, not fabrication-qualified",
+          "assembly process is required"
+        ]
+      },
+      "native_checks": {
+        "status": "pass",
+        "coverage_gaps": []
+      },
+      "operating_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "no device operating point supplied",
+          "no shutdown timing contract supplied",
+          "path high-side gate drive has no proven commutation-loop geometry",
+          "path low-side gate drive has no proven commutation-loop geometry"
+        ]
+      },
+      "power_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "Net and via candidates use nominal saved outer copper and an assumed 20 C rise. Branch extraction, exact pad-entry geometry, and surface-path modeling remain software gaps. Reviewed RMS/peak waveforms, plating/sharing, and material/cutout inputs are also absent."
+        ]
+      },
+      "qualification": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "hardware not run"
+        ]
+      },
+      "unit_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "unlisted native nets are out of scope: ctrl_gnd, dis, dt, g, nc_7, permit, pwm_h, pwm_l, v3v3",
+          "Spacing thresholds are prototype requirements; insulation system certification is not established.",
+          "Dead-time interpolation uses an assumed characterization envelope; measured timing is NOT RUN.",
+          "Bootstrap effective capacitance, diode recovery, gate charge, ringing and loaded thermal performance are NOT RUN.",
+          "Native ERC/DRC reports must additionally pass zapote-native-reports with their command receipts."
+        ]
+      }
+    }
+  },
+  {
+    "unit": "interlock",
+    "status": "indeterminate",
+    "sections": {
+      "common_checks": {
+        "status": "pass",
+        "coverage_gaps": []
+      },
+      "manufacturing_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J2: open F.Fab detail lines are not a closed body polygon",
+          "source-declared fabrication limits are required",
+          "fabrication envelope '' is prototype/source-declared, not fabrication-qualified",
+          "assembly process is required"
+        ]
+      },
+      "native_checks": {
+        "status": "pass",
+        "coverage_gaps": []
+      },
+      "operating_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "no device operating point supplied",
+          "no shutdown timing contract supplied"
+        ]
+      },
+      "qualification": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "hardware not run"
+        ]
+      },
+      "unit_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": []
+      }
+    }
+  },
+  {
+    "unit": "thermal-sense",
+    "status": "indeterminate",
+    "sections": {
+      "common_checks": {
+        "status": "pass",
+        "coverage_gaps": []
+      },
+      "manufacturing_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J2: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J3: open F.Fab detail lines are not a closed body polygon",
+          "source-declared fabrication limits are required",
+          "fabrication envelope '' is prototype/source-declared, not fabrication-qualified",
+          "assembly process is required"
+        ]
+      },
+      "native_checks": {
+        "status": "pass",
+        "coverage_gaps": []
+      },
+      "qualification": {
+        "status": "indeterminate",
+        "coverage_gaps": [
+          "hardware not run"
+        ]
+      },
+      "unit_checks": {
+        "status": "indeterminate",
+        "coverage_gaps": []
+      }
+    }
+  }
+]

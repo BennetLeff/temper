@@ -1,0 +1,107 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "scope": {
+    "base": "HEAD",
+    "branch": "codex/ps-r5-integration",
+    "head_sha": "8b1615c8a622c05ee979014b1059b57cbc9e604f",
+    "pr_url": null,
+    "files_changed": 32
+  },
+  "intent": "Record the authorized Round 8 Elmer and Palace fixture work for D1 FEM, preserving solver and input identities and reproducer scripts. Keep the plate and Palace coax failures explicit and hold mutual, board, and downstream work.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "reliability",
+    "adversarial"
+  ],
+  "findings": [
+    {
+      "#": 1,
+      "title": "Fix the D1 procedure link in the Elmer packet",
+      "severity": "P3",
+      "file": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round8/elmer/README.md",
+      "line": 4,
+      "confidence": 100,
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Change the target to ../../../../validation-plan/D1-FEM.md and verify the link resolves from the Elmer README directory.",
+      "first_evidence": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round8/elmer/README.md:4 -- solver and finite air-box setup in the [D1 FEM procedure](../../../../../validation-plan/D1-FEM.md).",
+      "why_it_matters": "Readers following the packet to its governing acceptance procedure reach a missing path, which makes this evidence handoff harder to audit.",
+      "evidence": [
+        "The current target resolves to zapote/validation-plan/D1-FEM.md, which does not exist. The plan is zapote/power-stage-120v/validation-plan/D1-FEM.md; four parent traversals are required."
+      ],
+      "reviewers": [
+        "correctness",
+        "project-standards"
+      ],
+      "independent_reviewers": []
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "title": "Fix the D1 procedure link in the Elmer packet",
+      "severity": "P3",
+      "file": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round8/elmer/README.md",
+      "line": 4,
+      "confidence": 100,
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Change the target to ../../../../validation-plan/D1-FEM.md and verify the link resolves from the Elmer README directory.",
+      "first_evidence": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round8/elmer/README.md:4 -- solver and finite air-box setup in the [D1 FEM procedure](../../../../../validation-plan/D1-FEM.md).",
+      "why_it_matters": "Readers following the packet to its governing acceptance procedure reach a missing path, which makes this evidence handoff harder to audit.",
+      "evidence": [
+        "The current target resolves to zapote/validation-plan/D1-FEM.md, which does not exist. The plan is zapote/power-stage-120v/validation-plan/D1-FEM.md; four parent traversals are required."
+      ],
+      "reviewers": [
+        "correctness",
+        "project-standards"
+      ],
+      "independent_reviewers": []
+    }
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan": "zapote/power-stage-120v/validation-plan/D1-FEM.md",
+    "status": "scoped_round8_requirements_met_with_documentation_fix",
+    "held_items": [
+      "mutual fixture",
+      "board extraction",
+      "D2/C1/C2"
+    ]
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Plate 80 mm result remains below the fixed 2.85-3.14 nH band despite passing the final domain-change criterion.",
+    "Palace coax solve did not converge; its finite outputs are rejected.",
+    "The build wrapper bytes executed during MFEM install are unavailable, and Palace native exit status was not separately captured; both limits are documented."
+  ],
+  "testing_gaps": [
+    "This review used recorded solver logs and cheap source checks; no FEM build or solve was rerun."
+  ],
+  "coverage": {
+    "depth": "full",
+    "scope_note": "Explicit scope includes untracked Round 8 files; git diff HEAD alone only covers the master plan edit.",
+    "execution": "Sequential local Sol review lenses under project task mapping; no external peer or additional subagents.",
+    "independent_persona_coverage": false,
+    "checks": [
+      "read root and zapote AGENTS.md",
+      "reviewed D1-FEM acceptance amendments and Round 8 scripts, reports, JSON, and raw log excerpts",
+      "Python AST and zsh syntax checks passed",
+      "relative Markdown links checked; one broken target found"
+    ],
+    "line_accounting": "600 physical lines of new Python/zsh scripts; 852 changed lines of docs/data including eight master-plan diff lines. The stock scope helper only counts the tracked master-plan edit, so the explicit untracked scope was counted separately."
+  },
+  "artifact_path": "/tmp/ce-code-review-r8-final.4j_ffsz7",
+  "run_id": "ce-code-review-r8-final.4j_ffsz7"
+}

@@ -1,0 +1,5 @@
+# Preserve simulator diagnostics with the measured results.
+!outputs/**/*.log
+**/IFX_CFD7_650V.lib
+**/cfd7-650.zip
+**/__pycache__/

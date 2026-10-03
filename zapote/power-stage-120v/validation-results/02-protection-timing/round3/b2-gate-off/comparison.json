@@ -1,0 +1,48 @@
+{
+  "status": "BLOCKED: actual gate-off current and dynamic F3",
+  "inputs": {
+    "05-resonant-tank-envelope/round3/outputs/trip/summary.json": "79ed5b5e3069b93029685b0fa48d76591f4282e17aae0b7dde1fe21c826e7bae",
+    "02-protection-timing/round3/outputs/thresholds.json": "ae11cac0cc3abb2f5d85bfe07a80fd7b2eaf8f4a1bc1d914ac54806610291195"
+  },
+  "same_state_trip_comparisons": [
+    {
+      "case": "low_bus_cap",
+      "bus_peak_v": 273.7472836054053,
+      "ovp_static_min_v": 272.08725056508,
+      "ovp_static_max_v": 288.0166299667094,
+      "exceeds_static_ovp_min": true,
+      "d3_standoff_v": 295.0,
+      "headroom_to_d3_standoff_v": 21.2527163945947,
+      "same_state_isolated_model_energy_ceiling_v": 299.726633882584,
+      "ceiling_scope": "No replenishment, no spatial overshoot, exactly A5's initial state"
+    },
+    {
+      "case": "nominal",
+      "bus_peak_v": 269.5416794746537,
+      "ovp_static_min_v": 272.08725056508,
+      "ovp_static_max_v": 288.0166299667094,
+      "exceeds_static_ovp_min": false,
+      "d3_standoff_v": 295.0,
+      "headroom_to_d3_standoff_v": 25.458320525346323,
+      "same_state_isolated_model_energy_ceiling_v": 293.7366804310423,
+      "ceiling_scope": "No replenishment, no spatial overshoot, exactly A5's initial state"
+    },
+    {
+      "case": "high_bus_cap",
+      "bus_peak_v": 265.5733332031223,
+      "ovp_static_min_v": 272.08725056508,
+      "ovp_static_max_v": 288.0166299667094,
+      "exceeds_static_ovp_min": false,
+      "d3_standoff_v": 295.0,
+      "headroom_to_d3_standoff_v": 29.426666796877726,
+      "same_state_isolated_model_energy_ceiling_v": 288.24839599626137,
+      "ceiling_scope": "No replenishment, no spatial overshoot, exactly A5's initial state"
+    }
+  ],
+  "missing": [
+    "Comparator latency qualified for the actual ramp/overdrive waveform",
+    "Downstream interlock/PERMIT timing and actual persistent gate-off state",
+    "Same-time tank current and capacitor voltage at that gate-off instant",
+    "Qualified commutation/clamp parasitics, hot clamp pulse and repetition limits"
+  ]
+}

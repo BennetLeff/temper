@@ -1,0 +1,17 @@
+{
+  "archives": [
+    {
+      "path": "/tmp/ps-r6-fem-build1/lib/libmfem.a",
+      "sha256": "a6080448df3db82213d8e5f0ce535e22c7b0ae614aa7d3b2f79f5516561addbe",
+      "members": 270
+    },
+    {
+      "path": "/tmp/ps-r6-fem-build1/extern/mfem-build/libmfem.a",
+      "sha256": "c1da7ed2c1ec7ef5a1bbbfa96354160f01659d171050ce78377abe4b847402c1",
+      "members": 270
+    }
+  ],
+  "same_ordered_member_names": true,
+  "different_members": [],
+  "equal_object_members": 269
+}

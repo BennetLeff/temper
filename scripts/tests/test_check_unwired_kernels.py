@@ -14,7 +14,6 @@ from check_unwired_kernels import (  # noqa: E402
     write_inventory,
 )
 
-
 FIXED_COPPER_SYMBOLS = {
     "fixed_copper_local_pad_half_py",
     "fixed_copper_other_pad_item_geom_py",
@@ -23,6 +22,28 @@ FIXED_COPPER_SYMBOLS = {
     "fixed_copper_via_item_geom_py",
     "fixed_copper_zone_item_rect_py",
 }
+
+
+def test_native_bridge_callers_are_scanned_but_their_tests_are_not(tmp_path: Path, monkeypatch) -> None:
+    import check_unwired_kernels as scanner
+
+    for directory, symbol in (
+        ("harness-lab", "candidate_check_freshness"),
+        ("zapote/power-stage-120v/tools", "candidate_convert_bridge"),
+    ):
+        source = tmp_path / directory / "adapter.py"
+        source.parent.mkdir(parents=True)
+        source.write_text(f"bundle.{symbol}()\n")
+        tests = source.parent / "tests"
+        tests.mkdir()
+        (tests / "test_adapter.py").write_text("bundle.test_only_kernel()\n")
+    monkeypatch.setattr(scanner, "REPO_ROOT", tmp_path)
+
+    names, unreadable = scanner.production_references()
+
+    assert not unreadable
+    assert {"candidate_check_freshness", "candidate_convert_bridge"} <= names
+    assert "test_only_kernel" not in names
 
 
 def test_rust_literal_dynamic_calls_are_identified() -> None:

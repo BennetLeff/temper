@@ -1,0 +1,52 @@
+{
+  "date_utc": "2026-09-27",
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "x_capacitors": {
+    "board_part": "R463N410000N1M",
+    "available_k_sim_scenario_part": "R46KN4100JHP1M",
+    "classification": "related R46 1-uF 22.5-mm part; different voltage code; scenario only",
+    "k_sim_conditions": "version 3.0.7.15, 25 C, 0 V DC bias; 100 Hz-10 MHz",
+    "exact_part_qualification": "BLOCKED: exact R463N410000N1M K-SIM result or impedance measurement"
+  },
+  "choke": {
+    "part": "B82726S2203A020",
+    "datasheet_url": "https://www.tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s22x3.pdf",
+    "datasheet_revision": "May 2026",
+    "nominal_inductance_per_winding_h": 0.0016,
+    "tolerance": [-0.30, 0.50],
+    "typical_stray_inductance_h": 0.000018,
+    "typical_dc_resistance_per_winding_ohm": 0.0045,
+    "page_5_curve_condition": "typical impedance with windings in parallel at 20 C",
+    "winding_capacitance_f": 1.1078e-11,
+    "curve_fit_status": "digitized heuristic from TDK-authored 10/08 archive image; 22.156 pF equivalent parallel-winding capacitance, 12.691 kohm per winding damping; fit RMSE 0.345 dB; May 2026 plot identifier is the same but numerical stray L changed 15 to 18 uH",
+    "tdk_official_model_status": "exact code is in v1.35 model library but model download requires license acceptance; no access authorized yet"
+  },
+  "mov": {
+    "part": "TMOV20RP175E",
+    "datasheet_url": "https://www.littelfuse.com/assetdocs/varistors-tmov-datasheet?assetguid=bd475732-1071-4352-b8aa-f78b0007eb05",
+    "typical_capacitance_f": 1.4e-9,
+    "measurement_frequency_hz": 1000000
+  },
+  "rectifier": {
+    "part": "GBJ2510",
+    "datasheet_url": "https://www.diodes.com/assets/Datasheets/GBJ25005-GBJ2510.pdf",
+    "typical_junction_capacitance_per_diode_f": 85e-12,
+    "junction_capacitance_condition": "1 MHz, 4 V reverse bias; not qualified at 170 V",
+    "case_description": "molded plastic, 2500 Vrms high case dielectric strength; no exposed electrical drain tab",
+    "case_to_pe_coupling": "10 pF per bus rail in deck is assumed; pad-only area formula would be an upper bound because molded package dielectric is in series"
+  },
+  "pad_source": "pad_options_from_a6.json; copy of ps-r3-a6/03-loss-thermal-budget/round3/outputs/pad_options.json, SHA-256 10d7f30265457429c33ec737dea979975ecd002336bfd7ad7bf9b3989eab272d",
+  "mos_pad_options": {
+    "SIL_PAD_400": {"thickness_mm": 0.229, "epsilon_r_at_1khz": 5.5, "c_tab_to_pe_pf_range": [32.15, 51.06]},
+    "SIL_PAD_K10": {"thickness_mm": 0.152, "epsilon_r_at_1khz": 3.7, "c_tab_to_pe_pf_range": [32.58, 51.75]}
+  },
+  "assumed": {
+    "coil_to_pe_total_capacitance_f_sweep": [10e-12, 100e-12],
+    "pe_bond_resistance_ohm": 0.01,
+    "pe_bond_inductance_h": 100e-9,
+    "bus_bulk_esl_h": 20e-9,
+    "bus_local_esl_h": 5e-9,
+    "bus_bulk_esr_ohm": 0.02,
+    "bus_local_esr_ohm": 0.01
+  }
+}

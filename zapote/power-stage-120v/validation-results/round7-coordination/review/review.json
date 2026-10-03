@@ -1,0 +1,65 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {
+    "base": "dd3695326d416c6d818f4296ef2db6b0dffd2286",
+    "branch": "codex/ps-r5-integration",
+    "head_sha": "dd3695326d416c6d818f4296ef2db6b0dffd2286",
+    "pr_url": null,
+    "files_changed": 36
+  },
+  "intent": "Round-7 D1 FEM evidence handback: Palace attempt 3 failed at the GSLIB final link; Elmer coax met the sampled-current interval on two meshes, while the finest plate value was below band and exterior sensitivity remained unresolved. Mutual and board extraction, and D2/C1/C2, stay held.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "reliability",
+    "adversarial"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan": "zapote/power-stage-120v/validation-plan/D1-FEM.md",
+    "status": "complete_for_blocked_handback",
+    "notes": [
+      "Scientific results and stopping points are distinguished from board acceptance.",
+      "Raw provenance and fresh-rerun instructions are separated.",
+      "No board matrix or downstream acceptance was claimed."
+    ]
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "The plate finest value (2.802628 nH) remains below the 2.85\u20133.14 nH interval; exterior sensitivity is unresolved.",
+    "The Palace attempt-3 GSLIB link failure and unrun mutual/board matrix leave D1 blocked as the handback states."
+  ],
+  "testing_gaps": [
+    "This review did not repeat expensive FEM solves or Palace builds. It assessed saved evidence, source, reproduction commands, and parent-reported focused verification."
+  ],
+  "coverage": {
+    "depth": "full",
+    "execution": "sequential inline review lenses in one context under repository AGENTS.md Task mapping; not independent reviewers",
+    "external_peer": "not run because user required all work to stay on this machine",
+    "scoped_files": 36,
+    "untracked_included": 35,
+    "raw_excluded": "358 ignored raw files; parent verified their SHA manifest separately",
+    "resolved_during_review": [
+      "Plate summary now fails closed on absent or inconsistent 1 A source audit and malformed final solver log; 22 focused mutations pass per parent receipt.",
+      "README now separates original raw-manifest verification from clean scratch reruns."
+    ],
+    "validator": "empty batch after parent corrections; zero remaining candidates",
+    "gates_reported_by_parent": [
+      "358/358 raw SHA checks",
+      "both summaries regenerate byte-identically before correction; corrected plate summary preserves previous parsed fields except added current range",
+      "22 plate summary mutation checks",
+      "ruff, import boundary, make regen and regen-check"
+    ]
+  },
+  "artifact_path": "/tmp/compound-engineering-501/ce-code-review/20260928-152038-748b39ca",
+  "run_id": "20260928-152038-748b39ca"
+}

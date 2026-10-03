@@ -1,0 +1,53 @@
+
+running 48 tests
+test tests::bootstrap_diode_reversed_fails ... ok
+test tests::ct_on_resonant_node_fails ... ok
+test tests::bom_alias_fails ... ok
+test tests::choke_winding_crossed_fails ... ok
+test tests::built_netlist_passes ... ok
+test tests::default_low_isolator_fails ... ok
+test tests::disconnected_functional_earth_link_fails ... ok
+test tests::bus_tvs_wrong_link_fails ... ok
+test tests::bus_tvs_bypassing_shunt_fails ... ok
+test tests::and_gate_with_healthy_high_output_fails ... ok
+test tests::fault_header_disconnected_from_isolator_fails ... ok
+test tests::coil_return_terminal_must_be_separate_and_m4 ... ok
+test tests::fuse_bypass_fails ... ok
+test tests::header_pin_swap_fails ... ok
+test tests::irm05_line_neutral_swap_fails ... ok
+test tests::extra_bus_sense_load_fails ... ok
+test tests::isolator_output_on_hot_side_fails ... ok
+test tests::functional_earth_link_to_live_hot_fails ... ok
+test tests::extra_shunt_bypass_fails_exact_hv_ret_membership ... ok
+test tests::gate_supply_bypassing_tco_fails ... ok
+test tests::local_bus_capacitor_identity_is_pinned ... ok
+test tests::extra_fault_output_load_fails ... ok
+test tests::low_side_source_bypassing_shunt_fails ... ok
+test tests::missing_dis_pullup_fails ... ok
+test tests::missing_bus_tvs_fails ... ok
+test tests::missing_resonant_bleed_fails ... ok
+test tests::old_coil_terminal_block_fails ... ok
+test tests::old_reference_bias_fails_full_temperature_corner ... ok
+test tests::old_three_position_mains_terminal_fails ... ok
+test tests::selected_reference_bias_covers_shunt_loading_corner ... ok
+test tests::ovp_bypassing_isolator_path_fails ... ok
+test tests::pe_branch_to_mains_fails ... ok
+test tests::old_91a_threshold_fails ... ok
+test tests::permit_gate_without_pulldown_fails ... ok
+test tests::missing_pe_branch_fails ... ok
+test tests::swapped_ocp_comparator_inputs_fail ... ok
+test tests::swapped_ovp_comparator_inputs_fail ... ok
+test tests::swapped_shunt_current_terminals_fail ... ok
+test tests::wrong_bus_tvs_mpn_fails ... ok
+test tests::rectifier_rail_cannot_short_around_open_link ... ok
+test tests::resolved_identity_swap_fails ... ok
+test tests::selv_ground_tied_to_hot_fails ... ok
+test tests::resonant_capacitor_bypass_fails ... ok
+test tests::y_capacitor_line_side_must_follow_its_mains_conductor ... ok
+test tests::wrong_bulk_capacitor_and_one_mispaired_pad_fail ... ok
+test tests::removable_rail_link_landing_cannot_be_lost_or_swapped ... ok
+test tests::local_bus_capacitor_cannot_bypass_shunt ... ok
+test tests::every_bus_divider_open_fails ... ok
+
+test result: ok. 48 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
