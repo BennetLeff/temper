@@ -1,0 +1,63 @@
+{
+  "line_checks": [
+    {
+      "line_RMS_V": 120,
+      "line_peak_V": 169.7056274847714,
+      "choke_copper_typical_20C_W": 2.025,
+      "choke_copper_hot_6mOhm_estimate_W": 2.7,
+      "damping_line_RMS_A": 0.23387784078311072,
+      "damping_line_W": 0.2239917678563705,
+      "bleed_pair_max_initial_W": 0.5052631578947369,
+      "bleed_each_max_initial_W": 0.25263157894736843,
+      "bleed_each_max_initial_RMS_V": 63.0,
+      "Y_leakage_added_one_energized_plus20pct_mA": 0.37457837527281823,
+      "X2p2_line_RMS_A": 0.1094782207922971,
+      "X4p7_line_RMS_A": 0.23388528987445287,
+      "damper_cold_start_energy_J": 0.07444800000000001,
+      "damper_opposite_polarity_reclose_energy_J": 0.29779200000000006
+    },
+    {
+      "line_RMS_V": 140,
+      "line_peak_V": 197.9898987322333,
+      "choke_copper_typical_20C_W": 2.025,
+      "choke_copper_hot_6mOhm_estimate_W": 2.7,
+      "damping_line_RMS_A": 0.27285748091362916,
+      "damping_line_W": 0.3048776840267265,
+      "bleed_pair_max_initial_W": 0.6877192982456141,
+      "bleed_each_max_initial_W": 0.34385964912280703,
+      "bleed_each_max_initial_RMS_V": 73.5,
+      "Y_leakage_added_one_energized_plus20pct_mA": 0.43700810448495453,
+      "X2p2_line_RMS_A": 0.12772459092434663,
+      "X4p7_line_RMS_A": 0.27286617152019504,
+      "damper_cold_start_energy_J": 0.101332,
+      "damper_opposite_polarity_reclose_energy_J": 0.405328
+    }
+  ],
+  "bleed": {
+    "capacitance_assumed_max_F": 1.5159999999999999e-05,
+    "resistance_stacked_assumption_Ohm": 33736.7,
+    "time_constant_s": 0.5114483719999999,
+    "time_198V_to_34V_s": 0.90109812117655,
+    "voltage_after_1s_from_140Vrms_crest_V": 28.02184681840355,
+    "scope": "all stated connected X capacitors; healthy resistor pair; no active backfeed or rectifier DC-link discharge credit"
+  },
+  "planning_cost_USD": {
+    "choke": 13.73,
+    "X2p2u": 2.05,
+    "two_X4p7u": 6.76,
+    "two_Y4p7n_allowance": 2.0,
+    "two_Y2p2n_allowance": 2.0,
+    "damper_allowance": 2.0,
+    "two_bleed_allowance": 1.0,
+    "carrier_terminals_cover_allowance": 15.0
+  },
+  "parts_subtotal_USD": 29.54,
+  "module_material_estimate_USD": 44.54,
+  "module_envelope_mm": [
+    110,
+    80,
+    50
+  ],
+  "module_volume_L": 0.44,
+  "module_heat_allocation_W": 8
+}
