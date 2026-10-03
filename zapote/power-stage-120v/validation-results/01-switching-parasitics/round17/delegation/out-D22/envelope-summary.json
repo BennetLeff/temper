@@ -1,0 +1,1064 @@
+{
+  "numerical_reserve_dB": 1.0,
+  "expected_cases": 16,
+  "numerically_qualified_cases": 3,
+  "all_cases_meet_6dB": false,
+  "cases": [
+    {
+      "bus_V": 170,
+      "frequency_Hz": 35000,
+      "R_ohm": 2,
+      "ESL_nH": 1.06,
+      "qualified": false,
+      "case": "envelope-v170-f35000-r2-e1.06-s0.125",
+      "step_ns": 0.125,
+      "input_power_estimate_W": 912.5590019992375,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v170-f35000-r2-e1.06-s0.125",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -24.20830616911688,
+          "QP_dB": -14.20830616911688,
+          "Hz": 210000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f35000-r2-e1.06-s0.125",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -24.113535097694765,
+          "QP_dB": -14.113535097694765,
+          "Hz": 210000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f35000-r2-e1.06-s0.125",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -5.644341278980349,
+          "QP_dB": 4.355658721019651,
+          "Hz": 175000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v170-f35000-r2-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 14.15135509379828,
+          "QP_dB": 24.15135509379828,
+          "Hz": 210000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f35000-r2-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "DM",
+          "AV_dB": 14.670204985881512,
+          "QP_dB": 24.67020498588151,
+          "Hz": 210000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f35000-r2-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 14.41308581582431,
+          "QP_dB": 24.41308581582431,
+          "Hz": 175000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 13.15135509379828,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.3165638393110086
+    },
+    {
+      "bus_V": 170,
+      "frequency_Hz": 35000,
+      "R_ohm": 2,
+      "ESL_nH": 10,
+      "qualified": false,
+      "case": "envelope-v170-f35000-r2-e10-s0.25",
+      "step_ns": 0.25,
+      "input_power_estimate_W": 912.3916179154179,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v170-f35000-r2-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -24.207908096662322,
+          "QP_dB": -14.207908096662322,
+          "Hz": 210000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f35000-r2-e10-s0.25",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -24.113632286104078,
+          "QP_dB": -14.113632286104078,
+          "Hz": 210000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f35000-r2-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -5.645346257643013,
+          "QP_dB": 4.354653742356987,
+          "Hz": 175000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v170-f35000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 14.15393371172938,
+          "QP_dB": 24.15393371172938,
+          "Hz": 210000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f35000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "DM",
+          "AV_dB": 14.670107739743074,
+          "QP_dB": 24.670107739743074,
+          "Hz": 210000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f35000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 14.412080837070093,
+          "QP_dB": 24.412080837070093,
+          "Hz": 175000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 13.15393371172938,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 1.8733254167221887
+    },
+    {
+      "bus_V": 170,
+      "frequency_Hz": 35000,
+      "R_ohm": 100,
+      "ESL_nH": 1.06,
+      "qualified": false,
+      "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+      "step_ns": 0.25,
+      "input_power_estimate_W": 295.5808870286913,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -8.290252738615706,
+          "QP_dB": 1.709747261384294,
+          "Hz": 29960000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -3.122077790174103,
+          "QP_dB": 6.877922209825897,
+          "Hz": 29960000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -5.640714281815619,
+          "QP_dB": 4.359285718184381,
+          "Hz": 175000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 14.416311420219735,
+          "QP_dB": 24.416311420219735,
+          "Hz": 175000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+          "scenario": "all_high_parasitics",
+          "mode": "DM",
+          "AV_dB": 36.778307133842176,
+          "QP_dB": 46.778307133842176,
+          "Hz": 29960000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 14.416712667056998,
+          "QP_dB": 24.416712667057,
+          "Hz": 175000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 13.416311420219735,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.3408367191923958
+    },
+    {
+      "bus_V": 170,
+      "frequency_Hz": 35000,
+      "R_ohm": 100,
+      "ESL_nH": 10,
+      "qualified": true,
+      "case": "envelope-v170-f35000-r100-e10-s0.125",
+      "step_ns": 0.125,
+      "input_power_estimate_W": 295.6072983307115,
+      "status": "numerically qualified",
+      "original": {
+        "terminal": {
+          "case": "envelope-v170-f35000-r100-e10-s0.125",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -15.391301268392496,
+          "QP_dB": -5.391301268392496,
+          "Hz": 29960000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f35000-r100-e10-s0.125",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -10.622988030888479,
+          "QP_dB": -0.6229880308884788,
+          "Hz": 29960000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f35000-r100-e10-s0.125",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -12.977021164579199,
+          "QP_dB": -2.977021164579199,
+          "Hz": 29960000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v170-f35000-r100-e10-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 14.416381793543941,
+          "QP_dB": 24.41638179354394,
+          "Hz": 175000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f35000-r100-e10-s0.125",
+          "scenario": "all_high_parasitics",
+          "mode": "DM",
+          "AV_dB": 29.277272627735783,
+          "QP_dB": 39.27727262773578,
+          "Hz": 29960000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f35000-r100-e10-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 14.416782839758483,
+          "QP_dB": 24.416782839758483,
+          "Hz": 175000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 13.416381793543941,
+      "meets_6dB": true,
+      "maximum_step_change_dB": 0.1305442728435935
+    },
+    {
+      "bus_V": 170,
+      "frequency_Hz": 60000,
+      "R_ohm": 2,
+      "ESL_nH": 1.06,
+      "qualified": false,
+      "case": "envelope-v170-f60000-r2-e1.06-s0.125",
+      "step_ns": 0.125,
+      "input_power_estimate_W": 104.67149892616781,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v170-f60000-r2-e1.06-s0.125",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -16.1435142293613,
+          "QP_dB": -6.143514229361301,
+          "Hz": 240000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f60000-r2-e1.06-s0.125",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -16.024570395715642,
+          "QP_dB": -6.024570395715642,
+          "Hz": 240000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f60000-r2-e1.06-s0.125",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -10.059982648098853,
+          "QP_dB": -0.059982648098852565,
+          "Hz": 180000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v170-f60000-r2-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 10.608470066630488,
+          "QP_dB": 20.60847006663049,
+          "Hz": 180000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f60000-r2-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "DM",
+          "AV_dB": 25.58093628292138,
+          "QP_dB": 35.580936282921385,
+          "Hz": 240000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f60000-r2-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 10.608855512475259,
+          "QP_dB": 20.60885551247526,
+          "Hz": 180000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 9.608470066630488,
+      "meets_6dB": false,
+      "maximum_step_change_dB": null
+    },
+    {
+      "bus_V": 170,
+      "frequency_Hz": 60000,
+      "R_ohm": 2,
+      "ESL_nH": 10,
+      "qualified": false,
+      "case": "envelope-v170-f60000-r2-e10-s0.25",
+      "step_ns": 0.25,
+      "input_power_estimate_W": 104.38716951002111,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v170-f60000-r2-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -16.15242842938852,
+          "QP_dB": -6.152428429388522,
+          "Hz": 240000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f60000-r2-e10-s0.25",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -16.024722408216306,
+          "QP_dB": -6.024722408216306,
+          "Hz": 240000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f60000-r2-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -10.05907429970786,
+          "QP_dB": -0.05907429970785927,
+          "Hz": 180000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v170-f60000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 10.609378976190541,
+          "QP_dB": 20.60937897619054,
+          "Hz": 180000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f60000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "DM",
+          "AV_dB": 25.580785125147532,
+          "QP_dB": 35.58078512514753,
+          "Hz": 240000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f60000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 10.60976386073888,
+          "QP_dB": 20.60976386073888,
+          "Hz": 180000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 9.609378976190541,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.6559932260192145
+    },
+    {
+      "bus_V": 170,
+      "frequency_Hz": 60000,
+      "R_ohm": 100,
+      "ESL_nH": 1.06,
+      "qualified": true,
+      "case": "envelope-v170-f60000-r100-e1.06-s0.125",
+      "step_ns": 0.125,
+      "input_power_estimate_W": 295.81443999171654,
+      "status": "numerically qualified",
+      "original": {
+        "terminal": {
+          "case": "envelope-v170-f60000-r100-e1.06-s0.125",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -12.99015296745354,
+          "QP_dB": -2.9901529674535396,
+          "Hz": 30000000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f60000-r100-e1.06-s0.125",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -7.844348524274395,
+          "QP_dB": 2.1556514757256053,
+          "Hz": 30000000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f60000-r100-e1.06-s0.125",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -10.282674793326805,
+          "QP_dB": -0.28267479332680523,
+          "Hz": 30000000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v170-f60000-r100-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 10.60403021378336,
+          "QP_dB": 20.60403021378336,
+          "Hz": 180000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f60000-r100-e1.06-s0.125",
+          "scenario": "all_high_parasitics",
+          "mode": "DM",
+          "AV_dB": 32.01667868481427,
+          "QP_dB": 42.01667868481427,
+          "Hz": 30000000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f60000-r100-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 10.604416086648776,
+          "QP_dB": 20.604416086648776,
+          "Hz": 180000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 9.60403021378336,
+      "meets_6dB": true,
+      "maximum_step_change_dB": 0.11283239968746273
+    },
+    {
+      "bus_V": 170,
+      "frequency_Hz": 60000,
+      "R_ohm": 100,
+      "ESL_nH": 10,
+      "qualified": true,
+      "case": "envelope-v170-f60000-r100-e10-s0.125",
+      "step_ns": 0.125,
+      "input_power_estimate_W": 295.85692688420943,
+      "status": "numerically qualified",
+      "original": {
+        "terminal": {
+          "case": "envelope-v170-f60000-r100-e10-s0.125",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -20.10780932832212,
+          "QP_dB": -10.10780932832212,
+          "Hz": 30000000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f60000-r100-e10-s0.125",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -15.41457920853179,
+          "QP_dB": -5.414579208531791,
+          "Hz": 30000000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f60000-r100-e10-s0.125",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -17.668718125331395,
+          "QP_dB": -7.668718125331395,
+          "Hz": 30000000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v170-f60000-r100-e10-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 10.604883995178838,
+          "QP_dB": 20.604883995178838,
+          "Hz": 180000.0
+        },
+        "DM": {
+          "case": "envelope-v170-f60000-r100-e10-s0.125",
+          "scenario": "all_high_parasitics",
+          "mode": "DM",
+          "AV_dB": 24.44631311295383,
+          "QP_dB": 34.44631311295383,
+          "Hz": 30000000.0
+        },
+        "CM": {
+          "case": "envelope-v170-f60000-r100-e10-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 10.605269861784826,
+          "QP_dB": 20.605269861784826,
+          "Hz": 180000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 9.604883995178838,
+      "meets_6dB": true,
+      "maximum_step_change_dB": 0.12679452762446886
+    },
+    {
+      "bus_V": 198,
+      "frequency_Hz": 35000,
+      "R_ohm": 2,
+      "ESL_nH": 1.06,
+      "qualified": false,
+      "case": "envelope-v198-f35000-r2-e1.06-s0.125",
+      "step_ns": 0.125,
+      "input_power_estimate_W": 1241.3207852213725,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v198-f35000-r2-e1.06-s0.125",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -25.530268189079408,
+          "QP_dB": -15.530268189079408,
+          "Hz": 210000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f35000-r2-e1.06-s0.125",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -25.43561685435772,
+          "QP_dB": -15.435616854357718,
+          "Hz": 210000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f35000-r2-e1.06-s0.125",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -6.968953871607653,
+          "QP_dB": 3.0310461283923473,
+          "Hz": 175000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v198-f35000-r2-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 12.829922929973975,
+          "QP_dB": 22.829922929973975,
+          "Hz": 210000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f35000-r2-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "DM",
+          "AV_dB": 13.348123213678932,
+          "QP_dB": 23.34812321367893,
+          "Hz": 210000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f35000-r2-e1.06-s0.125",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 13.0884732429178,
+          "QP_dB": 23.0884732429178,
+          "Hz": 175000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 11.829922929973975,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.07917718404643281
+    },
+    {
+      "bus_V": 198,
+      "frequency_Hz": 35000,
+      "R_ohm": 2,
+      "ESL_nH": 10,
+      "qualified": false,
+      "case": "envelope-v198-f35000-r2-e10-s0.25",
+      "step_ns": 0.25,
+      "input_power_estimate_W": 1240.8697787685762,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v198-f35000-r2-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -25.53006374764675,
+          "QP_dB": -15.53006374764675,
+          "Hz": 210000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f35000-r2-e10-s0.25",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -25.435887811737885,
+          "QP_dB": -15.435887811737885,
+          "Hz": 210000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f35000-r2-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -6.9699580879937315,
+          "QP_dB": 3.0300419120062685,
+          "Hz": 175000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v198-f35000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 12.832220121098672,
+          "QP_dB": 22.832220121098672,
+          "Hz": 210000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f35000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "DM",
+          "AV_dB": 13.34785220095192,
+          "QP_dB": 23.34785220095192,
+          "Hz": 210000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f35000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 13.08746901019741,
+          "QP_dB": 23.08746901019741,
+          "Hz": 175000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 11.832220121098672,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.4158111731928358
+    },
+    {
+      "bus_V": 198,
+      "frequency_Hz": 35000,
+      "R_ohm": 100,
+      "ESL_nH": 1.06,
+      "qualified": false,
+      "case": "envelope-v198-f35000-r100-e1.06-s0.25",
+      "step_ns": 0.25,
+      "input_power_estimate_W": 393.5296899476224,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v198-f35000-r100-e1.06-s0.25",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -7.395914823725171,
+          "QP_dB": 2.604085176274829,
+          "Hz": 29960000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f35000-r100-e1.06-s0.25",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -1.873822486291381,
+          "QP_dB": 8.126177513708619,
+          "Hz": 29960000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f35000-r100-e1.06-s0.25",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -6.964698374650993,
+          "QP_dB": 3.035301625349007,
+          "Hz": 175000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v198-f35000-r100-e1.06-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 13.092327214426312,
+          "QP_dB": 23.092327214426312,
+          "Hz": 175000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f35000-r100-e1.06-s0.25",
+          "scenario": "all_high_parasitics",
+          "mode": "DM",
+          "AV_dB": 38.02760058159434,
+          "QP_dB": 48.02760058159434,
+          "Hz": 29960000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f35000-r100-e1.06-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 13.092728574570266,
+          "QP_dB": 23.092728574570266,
+          "Hz": 175000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 12.092327214426312,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.2544994443185544
+    },
+    {
+      "bus_V": 198,
+      "frequency_Hz": 35000,
+      "R_ohm": 100,
+      "ESL_nH": 10,
+      "qualified": false,
+      "case": "envelope-v198-f35000-r100-e10-s0.25",
+      "step_ns": 0.25,
+      "input_power_estimate_W": 393.5620975414811,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v198-f35000-r100-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -14.809810220078234,
+          "QP_dB": -4.8098102200782336,
+          "Hz": 29960000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f35000-r100-e10-s0.25",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -9.820647012780967,
+          "QP_dB": 0.17935298721903337,
+          "Hz": 29960000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f35000-r100-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -12.548128687707646,
+          "QP_dB": -2.5481286877076457,
+          "Hz": 29960000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v198-f35000-r100-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 13.092384957719723,
+          "QP_dB": 23.092384957719723,
+          "Hz": 175000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f35000-r100-e10-s0.25",
+          "scenario": "all_high_parasitics",
+          "mode": "DM",
+          "AV_dB": 30.080388592986676,
+          "QP_dB": 40.08038859298668,
+          "Hz": 29960000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f35000-r100-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 13.092786075660797,
+          "QP_dB": 23.092786075660797,
+          "Hz": 175000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 12.092384957719723,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.37644003654823166
+    },
+    {
+      "bus_V": 198,
+      "frequency_Hz": 60000,
+      "R_ohm": 2,
+      "ESL_nH": 1.06,
+      "qualified": false,
+      "case": "envelope-v198-f60000-r2-e1.06-s0.25",
+      "step_ns": 0.25,
+      "input_power_estimate_W": 142.0514085578455,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v198-f60000-r2-e1.06-s0.25",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -17.466807323828533,
+          "QP_dB": -7.466807323828533,
+          "Hz": 240000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f60000-r2-e1.06-s0.25",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -17.350513771036063,
+          "QP_dB": -7.350513771036063,
+          "Hz": 240000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f60000-r2-e1.06-s0.25",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -11.387638164667862,
+          "QP_dB": -1.3876381646678624,
+          "Hz": 180000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v198-f60000-r2-e1.06-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 9.280815841907227,
+          "QP_dB": 19.280815841907227,
+          "Hz": 180000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f60000-r2-e1.06-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "DM",
+          "AV_dB": 24.254992650095474,
+          "QP_dB": 34.254992650095474,
+          "Hz": 240000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f60000-r2-e1.06-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 9.281199992815168,
+          "QP_dB": 19.281199992815168,
+          "Hz": 180000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 8.280815841907227,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.5896664819490169
+    },
+    {
+      "bus_V": 198,
+      "frequency_Hz": 60000,
+      "R_ohm": 2,
+      "ESL_nH": 10,
+      "qualified": false,
+      "case": "envelope-v198-f60000-r2-e10-s0.25",
+      "step_ns": 0.25,
+      "input_power_estimate_W": 141.6484201668022,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v198-f60000-r2-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -17.480309320437783,
+          "QP_dB": -7.480309320437783,
+          "Hz": 240000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f60000-r2-e10-s0.25",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -17.350660453100176,
+          "QP_dB": -7.350660453100176,
+          "Hz": 240000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f60000-r2-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -11.386720797694409,
+          "QP_dB": -1.3867207976944087,
+          "Hz": 180000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v198-f60000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 9.281731889763037,
+          "QP_dB": 19.281731889763037,
+          "Hz": 180000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f60000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "DM",
+          "AV_dB": 24.25484726637295,
+          "QP_dB": 34.25484726637295,
+          "Hz": 240000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f60000-r2-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 9.282117363172716,
+          "QP_dB": 19.282117363172716,
+          "Hz": 180000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 8.281731889763037,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.8490651586028832
+    },
+    {
+      "bus_V": 198,
+      "frequency_Hz": 60000,
+      "R_ohm": 100,
+      "ESL_nH": 1.06,
+      "qualified": false,
+      "case": "envelope-v198-f60000-r100-e1.06-s0.25",
+      "step_ns": 0.25,
+      "input_power_estimate_W": 388.55040183608304,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v198-f60000-r100-e1.06-s0.25",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -12.13165719897684,
+          "QP_dB": -2.131657198976839,
+          "Hz": 30000000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f60000-r100-e1.06-s0.25",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -6.685055775243569,
+          "QP_dB": 3.314944224756431,
+          "Hz": 30000000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f60000-r100-e1.06-s0.25",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -11.388313306847579,
+          "QP_dB": -1.3883133068475786,
+          "Hz": 180000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v198-f60000-r100-e1.06-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 9.280138576660207,
+          "QP_dB": 19.280138576660207,
+          "Hz": 180000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f60000-r100-e1.06-s0.25",
+          "scenario": "all_high_parasitics",
+          "mode": "DM",
+          "AV_dB": 33.17694341426413,
+          "QP_dB": 43.17694341426413,
+          "Hz": 30000000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f60000-r100-e1.06-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 9.28052485391268,
+          "QP_dB": 19.28052485391268,
+          "Hz": 180000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 8.280138576660207,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.26052275864517327
+    },
+    {
+      "bus_V": 198,
+      "frequency_Hz": 60000,
+      "R_ohm": 100,
+      "ESL_nH": 10,
+      "qualified": false,
+      "case": "envelope-v198-f60000-r100-e10-s0.25",
+      "step_ns": 0.25,
+      "input_power_estimate_W": 388.5950900238979,
+      "status": "complete; refinement pending/failed",
+      "original": {
+        "terminal": {
+          "case": "envelope-v198-f60000-r100-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "terminal",
+          "AV_dB": -19.490455136442293,
+          "QP_dB": -9.490455136442293,
+          "Hz": 30000000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f60000-r100-e10-s0.25",
+          "scenario": "original_nominal",
+          "mode": "DM",
+          "AV_dB": -14.58035262449053,
+          "QP_dB": -4.58035262449053,
+          "Hz": 30000000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f60000-r100-e10-s0.25",
+          "scenario": "original_combined",
+          "mode": "CM",
+          "AV_dB": -17.187586788158157,
+          "QP_dB": -7.187586788158157,
+          "Hz": 30000000.0
+        }
+      },
+      "proposed": {
+        "terminal": {
+          "case": "envelope-v198-f60000-r100-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "terminal",
+          "AV_dB": 9.280874804209795,
+          "QP_dB": 19.280874804209795,
+          "Hz": 180000.0
+        },
+        "DM": {
+          "case": "envelope-v198-f60000-r100-e10-s0.25",
+          "scenario": "all_high_parasitics",
+          "mode": "DM",
+          "AV_dB": 25.281265751917573,
+          "QP_dB": 35.28126575191757,
+          "Hz": 30000000.0
+        },
+        "CM": {
+          "case": "envelope-v198-f60000-r100-e10-s0.25",
+          "scenario": "old_low_leakage",
+          "mode": "CM",
+          "AV_dB": 9.281260510827273,
+          "QP_dB": 19.281260510827273,
+          "Hz": 180000.0
+        }
+      },
+      "proposed_margin_after_reserve_dB": 8.280874804209795,
+      "meets_6dB": false,
+      "maximum_step_change_dB": 0.37196069274343735
+    }
+  ]
+}
