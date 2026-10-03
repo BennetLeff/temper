@@ -22,7 +22,7 @@
 from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, MainsFuse20A, Tmov175, Cmc20A
 from "parts.ato" import CapX2_1u, CapY1_2n2, R120k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK
-from "parts.ato" import BootDiode, PermitFet, R3R9Gate, R39kDt, R10k0603, R100k0603, R100R0603
+from "parts.ato" import BootDiode, PermitFet, R3R9Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
 from "parts.ato" import R1k0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
 from "parts.ato" import CST3015_100E, Irm05_15, Irm20_15, TcoLoopHeader, Ldo78L05
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
@@ -96,9 +96,9 @@ module BridgeLeg:
     dis ~ r_dis_pu.p1
     r_dis_pu.p2 ~ v3v3
 
-    # TI: tDT ~= 8.6 * RDT[kohm] + 13 ns -> ~348 ns nominal; bench-tune.
-    r_dt = new R39kDt
-    r_dt.value = 39kohm
+    # TI: tDT ~= 8.6 * RDT[kohm] + 13 ns -> ~442 ns nominal; verify at bring-up.
+    r_dt = new R49k9Dt
+    r_dt.value = 49.9kohm
     r_dt.p1 ~ driver.DT
     r_dt.p2 ~ selv_gnd
 

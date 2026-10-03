@@ -1,0 +1,37 @@
+[
+  {
+    "output": "geometry-via.json",
+    "argv": [
+      "/Users/bennet/Miniforge3/bin/python3",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/power-probes/geometry_via_screen.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "west-parallel.json",
+    "argv": [
+      "/Users/bennet/Miniforge3/bin/python3",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/power-probes/west_parallel_screen.py",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/copper.json"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "bus-sheet.txt",
+    "argv": [
+      "/Users/bennet/Miniforge3/bin/python3",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/power-probes/final49-bus-sheet.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "hardware-surface.json",
+    "argv": [
+      "/Users/bennet/Miniforge3/bin/python3",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/power-probes/hardware_surface_screen.py",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/copper.json",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/native-18-placement-metrics.json"
+    ],
+    "returncode": 0
+  }
+]

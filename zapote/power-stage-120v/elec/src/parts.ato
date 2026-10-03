@@ -241,9 +241,9 @@ component R3R9Gate:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R39kDt:
+component R49k9Dt:
     designator_prefix = "R"
-    mpn = "RC0603FR-0739KL"
+    mpn = "RT0603BRD0749K9L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
