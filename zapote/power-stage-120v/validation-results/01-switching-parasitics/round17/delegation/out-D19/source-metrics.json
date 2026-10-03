@@ -1,0 +1,32 @@
+[
+  {
+    "case": "v170-r2-e1.06-f35000-s0.5-c24",
+    "tank_current_reconstructed_peak_A": 31.94892278799926,
+    "tank_current_reconstructed_RMS_A": 21.08505588076936,
+    "current_at_first_off_command_A": -31.810763527340573,
+    "current_at_opposite_off_command_A": 31.810770359168114,
+    "tank_resistor_power_W": 889.1591629903331,
+    "inverter_input_estimate_W": 912.5548699113057,
+    "input_minus_tank_estimate_W": 23.395706920972543
+  },
+  {
+    "case": "v170-r2-e1.06-f60000-s0.5-c48",
+    "tank_current_reconstructed_peak_A": 11.861190700760218,
+    "tank_current_reconstructed_RMS_A": 7.125443046971502,
+    "current_at_first_off_command_A": -11.234481954732416,
+    "current_at_opposite_off_command_A": 11.234481120647562,
+    "tank_resistor_power_W": 101.54387723126905,
+    "inverter_input_estimate_W": 104.67615286188757,
+    "input_minus_tank_estimate_W": 3.1322756306185227
+  },
+  {
+    "case": "v170-r2-e1.06-f60000-s2-c48",
+    "tank_current_reconstructed_peak_A": 11.861195898089955,
+    "tank_current_reconstructed_RMS_A": 7.125443187110116,
+    "current_at_first_off_command_A": -11.234535031972666,
+    "current_at_opposite_off_command_A": 11.234536110124772,
+    "tank_resistor_power_W": 101.54388122546793,
+    "inverter_input_estimate_W": 104.74375617989406,
+    "input_minus_tank_estimate_W": 3.199874954426136
+  }
+]
