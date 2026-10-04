@@ -498,8 +498,8 @@
   {
     "campaign": "additional-refinement",
     "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "complete",
+    "elapsed_seconds": 8789.638800041983,
     "timeout_seconds": 14400,
     "detail": ""
   },
@@ -522,24 +522,24 @@
   {
     "campaign": "weak-refinement",
     "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "complete",
+    "elapsed_seconds": 7097.748305041809,
     "timeout_seconds": 12000,
     "detail": ""
   },
   {
     "campaign": "retry-refinement",
     "case": "envelope-v198-f60000-r100-e1.06-s0.08",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "indeterminate",
+    "elapsed_seconds": 3693.112118249992,
     "timeout_seconds": 12000,
-    "detail": ""
+    "detail": "doAnalyses: TRAN:  Timestep too small; time = 0.000543667, timestep = 1e-22: trouble with node \"bus\""
   },
   {
     "campaign": "last-refinement",
     "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "complete",
+    "elapsed_seconds": 5355.912083416013,
     "timeout_seconds": 12000,
     "detail": ""
   },
@@ -554,8 +554,16 @@
   {
     "campaign": "terminal-refinement",
     "case": "envelope-v170-f60000-r2-e10-s0.08",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "complete",
+    "elapsed_seconds": 4509.9804438750725,
+    "timeout_seconds": 12000,
+    "detail": ""
+  },
+  {
+    "campaign": "final-light-refinement",
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "outcome": "complete",
+    "elapsed_seconds": 5825.164219334023,
     "timeout_seconds": 12000,
     "detail": ""
   },

@@ -27,6 +27,12 @@ def qualified(comparisons, label):
     return True
 
 
+def complete_receiver_coverage(rows):
+    """A missing scenario/mode must not hide the worst receiver margin."""
+    expected = {(scenario, mode) for scenario in load("filter-scenarios.json") for mode in ("L", "N", "terminal", "DM", "CM")}
+    return len(rows) == len(expected) and {(r["scenario"], r["mode"]) for r in rows} == expected
+
+
 def write_attempts():
     """Account for every scheduled point, including failures without spectra."""
     text = [
@@ -36,7 +42,7 @@ def write_attempts():
         "| --- | --- | --- | ---: | ---: | --- |",
     ]
     rows = []
-    for campaign in ("envelope-0.5", "envelope-0.25", "envelope-0.125", "anchor-0.0625", "targeted-refinement", "additional-refinement", "fine-refinement", "recovery-refinement", "weak-refinement", "retry-refinement", "last-refinement", "closing-refinement", "terminal-refinement", "diagnostic", "tight-diagnostic", "trap-diagnostic", "klu-diagnostic", "bypass-diagnostic"):
+    for campaign in ("envelope-0.5", "envelope-0.25", "envelope-0.125", "anchor-0.0625", "targeted-refinement", "additional-refinement", "fine-refinement", "recovery-refinement", "weak-refinement", "retry-refinement", "last-refinement", "closing-refinement", "terminal-refinement", "final-light-refinement", "diagnostic", "tight-diagnostic", "trap-diagnostic", "klu-diagnostic", "bypass-diagnostic"):
         for item in load(campaign + ".json"):
             label = item["label"]
             path = HERE / "periodic-runs" / label / "result.json"
@@ -63,6 +69,7 @@ def write_attempts():
 
 def main():
     write_attempts()
+    pending = any(row["outcome"] == "pending" for row in load("attempts.json"))
     margins = load("qualified-margin-results.json")
     comparisons = load("convergence-summary.json")
     captures = [
@@ -101,18 +108,24 @@ def main():
         finest = min(completed, key=lambda r: (r["identity"]["config"]["step"], -r["identity"]["config"]["cycles"]))
         label = finest["label"]
         selected = [r for r in margins if r["case"] == label]
-        if not selected:
-            row["status"] = "complete; receiver analysis pending"
+        if not selected or not complete_receiver_coverage(selected):
+            row["status"] = (
+                "complete; receiver analysis pending" if not selected
+                else "complete; receiver coverage incomplete"
+            )
             rows.append(row)
             continue
         row.update(
             case=label,
             step_ns=finest["identity"]["config"]["step"],
+            cycles=finest["identity"]["config"]["cycles"],
             input_power_estimate_W=finest["input_power_estimate_W"],
             qualified=qualified(comparisons, label),
         )
         row["status"] = (
-            "numerically qualified" if row["qualified"] else "complete; refinement pending/failed"
+            "numerically qualified" if row["qualified"] else (
+                "complete; refinement pending/failed" if pending else "complete; numerical checks failed"
+            )
         )
         reasons = []
         for kind in ("step", "cycle"):
@@ -144,9 +157,15 @@ def main():
             (r["maximum_significant_line_change_dB"] for r in steps), default=None
         )
         rows.append(row)
+    accepted = [r for r in rows if r["qualified"]]
+    accepted_minimum = min((r["proposed"]["terminal"]["AV_dB"] for r in accepted), default=None)
     summary = {
         "numerical_reserve_dB": RESERVE_DB,
         "expected_cases": 16,
+        "attempts_pending": pending,
+        "qualified_minimum_proposed_AV_dB": accepted_minimum,
+        "qualified_minimum_after_reserve_dB": accepted_minimum - RESERVE_DB if accepted_minimum is not None else None,
+        "all_qualified_cases_meet_6dB": bool(accepted) and all(r["meets_6dB"] for r in accepted),
         "numerically_qualified_cases": sum(r["qualified"] for r in rows),
         "all_cases_meet_6dB": all(r.get("meets_6dB", False) for r in rows),
         "cases": rows,
@@ -184,20 +203,22 @@ def main():
         "",
         "Significant-line checks use the 0.2 dB target. Weak-line checks require the absolute complex difference to be no more than `10**(0.2/20)-1` times the AV-minus-40-dB floor. Step and cycle checks are separate; passing the significant-line column alone does not qualify a case.",
         "",
-        "| Bus V | kHz | R Ω | ESL nH | Finest step ns | Largest significant-line step change dB | Failed checks | Status |",
-        "| ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
+        "| Bus V | kHz | R Ω | ESL nH | Cycles | Finest step ns | Largest significant-line step change dB | Failed checks | Status |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
     ]
     for row in rows:
         delta = row.get("maximum_step_change_dB")
         delta_text = "—" if delta is None else f"{delta:.4f}"
         text.append(
-            f"| {row['bus_V']} | {row['frequency_Hz'] / 1000:g} | {row['R_ohm']} | {row['ESL_nH']} | {row.get('step_ns', '—')} | {delta_text} | {'; '.join(row.get('failed_checks', [])) or '—'} | {row['status']} |"
+            f"| {row['bus_V']} | {row['frequency_Hz'] / 1000:g} | {row['R_ohm']} | {row['ESL_nH']} | {row.get('cycles', '—')} | {row.get('step_ns', '—')} | {delta_text} | {'; '.join(row.get('failed_checks', [])) or '—'} | {row['status']} |"
         )
     text += [
         "",
         f"Qualified {summary['numerically_qualified_cases']}/16; all cases meet ≥6 dB after the explicit {RESERVE_DB:g} dB planning reserve: **{summary['all_cases_meet_6dB']}**.",
         "",
     ]
+    if accepted_minimum is not None:
+        text += [f"Within the qualified subset, the minimum proposed AV margin is **{accepted_minimum:.4f} dB**, or **{accepted_minimum - RESERVE_DB:.4f} dB** after the planning reserve. Unqualified cases do not enter that acceptance claim.", ""]
     (HERE / "TABLES.md").write_text("\n".join(text))
     readme = HERE / "README.md"
     if readme.exists():

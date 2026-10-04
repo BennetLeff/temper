@@ -1,6 +1,6 @@
 # D-22 evidence review
 
-**The evidence report is reviewable; the filter is not qualified for release.** D-22's full-envelope timestep requirement remains open. The report must keep the conditional enclosure recommendation separate from any ≥6 dB acceptance claim.
+**All 16 source cases pass numerical qualification, and the proposed stage exceeds the 6 dB modeled-margin target after reserve.** The evidence report is ready for review. Hardware release remains conditional on the component, leakage, PE-layout and coupled-system qualifications below.
 
 The review was performed sequentially in the main session, following the repository's instruction to keep subagent work inline. It is **not an independent or cross-model review**. The selected lenses were correctness, evidence fidelity, failure handling, testing, maintainability, performance and project scope. Code reuse/simplicity was checked before this pass; the exploratory topology variants remain because their recorded outputs must be reproducible.
 
@@ -14,15 +14,19 @@ The review was performed sequentially in the main session, following the reposit
 - Fresh campaign output can be directed to a separate directory, preserving historical captures and their provenance.
 - Failure labels distinguish significant-line, weak-line and missing-comparison checks. Cycle evidence is retained even when an adjacent timestep aborts; a missing step comparison still prevents qualification.
 
+- Receiver CSV packaging verifies every member byte and the archive hash before deleting loose copies. Repacking refuses to drop previously archived members; replay checks both archive coverage and content.
+
+- Receiver-margin coverage also requires every scenario and each of L/N/terminal/DM/CM exactly once before taking minima. A missing worst-case record cannot silently improve a reported margin.
+
 ## Requirements coverage
 
 | Brief item | Evidence | Status |
 | --- | --- | --- |
 | Reproduce D-19's two settled cases first | `reproduction.json`, baseline raw captures | Pass, bit-identical spectra |
-| Complete the 16-case source envelope | `envelope-0.5-results.json` | Pass for initial endpoint/cycle-RMS screen; not spectral qualification |
-| Establish timestep convergence / resolve 6.72 dB movement | `resampling.json`, `convergence-summary.json`, refinement and diagnostic campaigns | Open: step sensitivity and finer-step aborts remain |
-| PE-referenced QP/AV and separate modes | Every-line CSVs and complete-envelope tables | Provisional calculations; failed numerical cases do not receive qualified margins |
-| ≥6 dB added-stage margin | `envelope-summary.json` combines coverage and margin gates | Not established over the envelope |
+| Complete the 16-case source envelope | `envelope-0.5-results.json`, `envelope-summary.json` | Pass; final spectral qualification covers all 16 points |
+| Establish timestep convergence / resolve 6.72 dB movement | `resampling.json`, `convergence-summary.json`, refinement and diagnostic campaigns | Pass under the declared finite-refinement criterion; failed trials remain indeterminate |
+| PE-referenced QP/AV and separate modes | Every-line CSVs and complete-envelope tables | All 16 selected sources qualified; CW-equivalent detector and physical-model limitations remain |
+| ≥6 dB added-stage margin | `envelope-summary.json` combines coverage and margin gates | Pass over all 16 cases and declared sensitivities: minimum AV margin 8.28 dB after reserve |
 | Orderable parts, ratings, losses, damping, bleed, cost and size | `PARTS.md`, budget, harmonic losses, passive damping and packing evidence | Conditional proposal; hot biased choke, capacitor ripple and complete-appliance leakage/loop checks remain |
 | Outside both FEM regions | `placement.json`, source mesher boxes and plot | Pass for the stated reservation and unchanged original geometry |
 | Output-only scope and licensed-model exclusion | Git diff, input hashes and provenance manifest | Input hashes match the required base; staged scope is checked before each publication |

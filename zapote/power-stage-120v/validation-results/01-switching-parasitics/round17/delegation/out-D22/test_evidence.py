@@ -112,6 +112,46 @@ class EvidenceTests(unittest.TestCase):
         rows[0]["passes_0p2dB_target"] = False
         self.assertFalse(qualified(rows, "case"))
 
+    def test_missing_receiver_scenario_cannot_hide_worst_margin(self):
+        from summarize import complete_receiver_coverage
+
+        recorded = json.loads((Path(__file__).parent / "qualified-margin-results.json").read_text())
+        rows = [row for row in recorded if row["case"] == recorded[0]["case"]]
+        self.assertEqual(len(rows), 28 * 5)
+        self.assertTrue(complete_receiver_coverage(rows))
+        self.assertFalse(complete_receiver_coverage(rows[:-1]))
+        self.assertFalse(complete_receiver_coverage(rows + [rows[0]]))
+        self.assertFalse(complete_receiver_coverage(rows[:-1] + [rows[0]]))
+
+    def test_archive_rejects_changed_bytes_and_missing_coverage(self):
+        import hashlib
+        import io
+        import tarfile
+
+        from pack_spectra import verify_archive
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "sample.tar.gz"
+            payload = b"known receiver evidence\n"
+            with tarfile.open(path, "w:gz") as archive:
+                item = tarfile.TarInfo("receiver.csv")
+                item.size = len(payload)
+                archive.addfile(item, io.BytesIO(payload))
+            record = {"archive": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "members_sha256": {"receiver.csv": hashlib.sha256(payload).hexdigest()}}
+            self.assertEqual(verify_archive(record, root), 1)
+            changed = copy.deepcopy(record)
+            changed["members_sha256"]["receiver.csv"] = "0" * 64
+            with self.assertRaisesRegex(ValueError, "member changed"):
+                verify_archive(changed, root)
+            missing = copy.deepcopy(record)
+            missing["members_sha256"]["absent.csv"] = "0" * 64
+            with self.assertRaisesRegex(ValueError, "coverage differs"):
+                verify_archive(missing, root)
+            path.write_bytes(path.read_bytes() + b"unexpected")
+            with self.assertRaisesRegex(ValueError, "changed archive"):
+                verify_archive(record, root)
+
     def test_refinement_rejects_changed_physics_window_and_model(self):
         from numeric_compare import assert_same_operating_point
 

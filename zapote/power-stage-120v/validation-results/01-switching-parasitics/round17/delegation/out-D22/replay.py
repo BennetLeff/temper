@@ -3,15 +3,15 @@
 
 import argparse
 import gzip
-import hashlib
 import json
-from pathlib import Path
 import subprocess
 import tempfile
-import tarfile
+from pathlib import Path
+
 import numpy as np
-from periodic import analyze, read_binary
 from filter_stage import MODEL
+from pack_spectra import verify_archive
+from periodic import analyze, read_binary
 
 HERE = Path(__file__).resolve().parent
 
@@ -63,22 +63,15 @@ def main():
     if not verified or (args.ac and not ac):
         raise ValueError("no evidence found to replay")
     archive_records = json.loads((HERE / "exploratory-ac-archive.json").read_text())
-    archived_count = 0
-    for archive_manifest in archive_records:
-        archive_path = HERE / archive_manifest["archive"]
-        assert hashlib.sha256(archive_path.read_bytes()).hexdigest() == archive_manifest["sha256"]
-        expected_members = archive_manifest["members_sha256"]
-        with tarfile.open(archive_path, "r:gz") as archive:
-            members = archive.getmembers()
-            assert len(members) == len(expected_members)
-            assert {member.name for member in members} == set(expected_members)
-            for member in members:
-                assert member.isfile()
-                assert hashlib.sha256(archive.extractfile(member).read()).hexdigest() == expected_members[member.name]
-        archived_count += len(expected_members)
-    report = {"completed_raw_captures_replayed": verified, "AC_decks_rerun": ac, "exploratory_AC_archive_members_verified": archived_count, "status": "PASS"}
+    archived_count = sum(verify_archive(record) for record in archive_records)
+    spectral_manifest = HERE / "receiver-spectra-archive.json"
+    spectral_count = (
+        sum(verify_archive(record) for record in json.loads(spectral_manifest.read_text()))
+        if spectral_manifest.exists() else 0
+    )
+    report = {"completed_raw_captures_replayed": verified, "AC_decks_rerun": ac, "exploratory_AC_archive_members_verified": archived_count, "receiver_spectrum_archive_members_verified": spectral_count, "status": "PASS"}
     (HERE / "replay-results.json").write_text(json.dumps(report, indent=2) + "\n")
-    print("PASS:", len(verified), "raw captures;", len(ac), "AC decks;", archived_count, "archived AC files")
+    print("PASS:", len(verified), "raw captures;", len(ac), "AC decks;", archived_count, "archived AC files;", spectral_count, "archived receiver CSVs")
 
 
 if __name__ == "__main__":

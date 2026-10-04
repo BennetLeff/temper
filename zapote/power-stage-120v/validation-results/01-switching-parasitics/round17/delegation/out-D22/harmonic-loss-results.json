@@ -5460,6 +5460,396 @@
     "added_choke_HF_copper_W": 0.00022294412676921463
   },
   {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "proposed_nominal",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.079818356028986,
+      "i(lnewx)": 0.6575720596706803,
+      "i(lxin)": 0.04623303093284494,
+      "i(lcmaddl)": 0.04535799780022975,
+      "i(lcmaddn)": 0.04534398436430096,
+      "i(lyaddl)": 0.00039270345608277674,
+      "i(lyaddn)": 0.0003598597321775009
+    },
+    "damping_HF_W": 0.024846782840762867,
+    "added_choke_HF_copper_W": 1.8510411971140274e-05
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09282595756309461,
+      "i(lnewx)": 0.7217211658793571,
+      "i(lxin)": 0.13923143871679886,
+      "i(lcmaddl)": 0.13629424523635605,
+      "i(lcmaddn)": 0.1363071461904681,
+      "i(lyaddl)": 0.0012268281656996082,
+      "i(lyaddn)": 0.0012323783461664533
+    },
+    "damping_HF_W": 0.035285216137784785,
+    "added_choke_HF_copper_W": 0.00022293455632282566
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.08170543037329135,
+      "i(lnewx)": 0.635750677839373,
+      "i(lxin)": 0.03197592984131548,
+      "i(lcmaddl)": 0.03140712506345724,
+      "i(lcmaddn)": 0.031421337706018716,
+      "i(lyaddl)": 0.0011700193945304751,
+      "i(lyaddn)": 0.0011752009371601931
+    },
+    "damping_HF_W": 0.027337308258425095,
+    "added_choke_HF_copper_W": 1.1842247807923906e-05
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09282563054850498,
+      "i(lnewx)": 0.7217186239279676,
+      "i(lxin)": 0.13923094847691067,
+      "i(lcmaddl)": 0.13624711484458818,
+      "i(lcmaddn)": 0.13636637036654933,
+      "i(lyaddl)": 0.0013295618269579684,
+      "i(lyaddn)": 0.0013756929428177121
+    },
+    "damping_HF_W": 0.035284967527149276,
+    "added_choke_HF_copper_W": 0.0002229543796225278
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.08170514277290755,
+      "i(lnewx)": 0.6357484399756316,
+      "i(lxin)": 0.031975817807175684,
+      "i(lcmaddl)": 0.03137922642065876,
+      "i(lcmaddn)": 0.03150143531717942,
+      "i(lyaddl)": 0.0012699447513731057,
+      "i(lyaddn)": 0.0013128025677355724
+    },
+    "damping_HF_W": 0.027337115805941243,
+    "added_choke_HF_copper_W": 1.1861977666808446e-05
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09282595751906034,
+      "i(lnewx)": 0.7217211655432583,
+      "i(lxin)": 0.13923143861807943,
+      "i(lcmaddl)": 0.13626853773764888,
+      "i(lcmaddn)": 0.13627467362754203,
+      "i(lyaddl)": 0.00037815499697538594,
+      "i(lyaddn)": 0.00039526231026298215
+    },
+    "damping_HF_W": 0.03528521610430796,
+    "added_choke_HF_copper_W": 0.0002228394062967008
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.08170543032136462,
+      "i(lnewx)": 0.6357506775165174,
+      "i(lxin)": 0.03197592976223292,
+      "i(lcmaddl)": 0.031294338513891275,
+      "i(lcmaddn)": 0.031300470622826586,
+      "i(lyaddl)": 0.00034848231927974815,
+      "i(lyaddn)": 0.0003649839334718982
+    },
+    "damping_HF_W": 0.027337308223677418,
+    "added_choke_HF_copper_W": 1.1754330505394692e-05
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09282562666556647,
+      "i(lnewx)": 0.7217185939732349,
+      "i(lxin)": 0.13923094228805566,
+      "i(lcmaddl)": 0.13624330894372588,
+      "i(lcmaddn)": 0.13629892589308717,
+      "i(lyaddl)": 0.0003123192032066134,
+      "i(lyaddn)": 0.0004696556248524831
+    },
+    "damping_HF_W": 0.035284964575176735,
+    "added_choke_HF_copper_W": 0.00022283781858926883
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.08170513919471745,
+      "i(lnewx)": 0.6357484132110723,
+      "i(lxin)": 0.03197581575746903,
+      "i(lcmaddl)": 0.03126903989546579,
+      "i(lcmaddn)": 0.03132552345707054,
+      "i(lyaddl)": 0.0002865978535531787,
+      "i(lyaddn)": 0.0004374682486713573
+    },
+    "damping_HF_W": 0.027337113411541287,
+    "added_choke_HF_copper_W": 1.1754247655062249e-05
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09282595782874145,
+      "i(lnewx)": 0.7217211679375506,
+      "i(lxin)": 0.13923143905583193,
+      "i(lcmaddl)": 0.13629070134159757,
+      "i(lcmaddn)": 0.13627336252683314,
+      "i(lyaddl)": 0.0007850133448350461,
+      "i(lyaddn)": 0.0007729172627487032
+    },
+    "damping_HF_W": 0.035285216339741354,
+    "added_choke_HF_copper_W": 0.0002228735076393254
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.08170543058248078,
+      "i(lnewx)": 0.6357506795978813,
+      "i(lxin)": 0.03197592981383877,
+      "i(lcmaddl)": 0.03135429726516866,
+      "i(lcmaddn)": 0.031335568650194816,
+      "i(lyaddl)": 0.0007824125402492272,
+      "i(lyaddn)": 0.0007718109807317833
+    },
+    "damping_HF_W": 0.027337308398407856,
+    "added_choke_HF_copper_W": 1.1790058917741812e-05
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09282565112822837,
+      "i(lnewx)": 0.7217187829041948,
+      "i(lxin)": 0.13923097880413587,
+      "i(lcmaddl)": 0.13634496180035538,
+      "i(lcmaddn)": 0.1362146063126608,
+      "i(lyaddl)": 0.0007788612730338573,
+      "i(lyaddn)": 0.0006855956913555072
+    },
+    "damping_HF_W": 0.03528498317271932,
+    "added_choke_HF_copper_W": 0.00022286620548752126
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.08170516060563761,
+      "i(lnewx)": 0.6357485789777834,
+      "i(lxin)": 0.03197582371695935,
+      "i(lcmaddl)": 0.03140075210959154,
+      "i(lcmaddn)": 0.03127227229629759,
+      "i(lyaddl)": 0.0007680862712936455,
+      "i(lyaddn)": 0.0006867811502682639
+    },
+    "damping_HF_W": 0.02733712773898348,
+    "added_choke_HF_copper_W": 1.1783773485730796e-05
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09282595781695872,
+      "i(lnewx)": 0.7217211678429919,
+      "i(lxin)": 0.13923143906592747,
+      "i(lcmaddl)": 0.1362743012438679,
+      "i(lcmaddn)": 0.13626897319516668,
+      "i(lyaddl)": 0.00038279590909182863,
+      "i(lyaddn)": 0.0003664449024990078
+    },
+    "damping_HF_W": 0.035285216330783596,
+    "added_choke_HF_copper_W": 0.0002228395094110171
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.08170543058344358,
+      "i(lnewx)": 0.6357506795372259,
+      "i(lxin)": 0.03197592986545246,
+      "i(lcmaddl)": 0.03130027516389103,
+      "i(lcmaddn)": 0.03129480550255821,
+      "i(lyaddl)": 0.0003513944929962321,
+      "i(lyaddn)": 0.0003357330834920333
+    },
+    "damping_HF_W": 0.02733730839905213,
+    "added_choke_HF_copper_W": 1.175443246066945e-05
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09282565061203031,
+      "i(lnewx)": 0.7217187788857063,
+      "i(lxin)": 0.1392309782681213,
+      "i(lcmaddl)": 0.13629168760627575,
+      "i(lcmaddn)": 0.13625067852116393,
+      "i(lyaddl)": 0.0004375199594813646,
+      "i(lyaddn)": 0.00031629666456654473
+    },
+    "damping_HF_W": 0.03528498278028383,
+    "added_choke_HF_copper_W": 0.0002228380290482653
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0817051602529601,
+      "i(lnewx)": 0.6357485756701583,
+      "i(lxin)": 0.03197582401885318,
+      "i(lcmaddl)": 0.031317707190993006,
+      "i(lcmaddn)": 0.031277138861743166,
+      "i(lyaddl)": 0.00040402990023221845,
+      "i(lyaddn)": 0.00028915015861302013
+    },
+    "damping_HF_W": 0.02733712750298394,
+    "added_choke_HF_copper_W": 1.1754349194465239e-05
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "high_caps",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0752479848683585,
+      "i(lnewx)": 0.7160381984237273,
+      "i(lxin)": 0.10415790367345618,
+      "i(lcmaddl)": 0.10229869897079721,
+      "i(lcmaddn)": 0.10241478845294516,
+      "i(lyaddl)": 0.0005179351185950188,
+      "i(lyaddn)": 0.000700335352057091
+    },
+    "damping_HF_W": 0.023186951533535963,
+    "added_choke_HF_copper_W": 0.00012572287622987578
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "high_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09300536371109952,
+      "i(lnewx)": 0.7362154814452003,
+      "i(lxin)": 0.1391832258784028,
+      "i(lcmaddl)": 0.136225551956938,
+      "i(lcmaddn)": 0.13634538504595753,
+      "i(lyaddl)": 0.0013474588659762152,
+      "i(lyaddn)": 0.0013936925001217036
+    },
+    "damping_HF_W": 0.035421740495643846,
+    "added_choke_HF_copper_W": 0.00022288479017581697
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "low_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09274369309239125,
+      "i(lnewx)": 0.7181341782044423,
+      "i(lxin)": 0.1399366415038929,
+      "i(lcmaddl)": 0.13692499414698342,
+      "i(lcmaddn)": 0.13704397859811823,
+      "i(lyaddl)": 0.0013189782422202555,
+      "i(lyaddn)": 0.0013657686239585787
+    },
+    "damping_HF_W": 0.03522270273146213,
+    "added_choke_HF_copper_W": 0.00022517703655291758
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "low_damping",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10240501615910341,
+      "i(lnewx)": 0.7220266328233207,
+      "i(lxin)": 0.13911452818162212,
+      "i(lcmaddl)": 0.13611198830347282,
+      "i(lcmaddn)": 0.13623241608319192,
+      "i(lyaddl)": 0.001330469706318182,
+      "i(lyaddn)": 0.0013766616099268512
+    },
+    "damping_HF_W": 0.03885354707449379,
+    "added_choke_HF_copper_W": 0.00022251446731073188
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "high_RF_loss",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0925140013277846,
+      "i(lnewx)": 0.7146123952313873,
+      "i(lxin)": 0.1386255329271784,
+      "i(lcmaddl)": 0.13568155998387652,
+      "i(lcmaddn)": 0.13578558849637973,
+      "i(lyaddl)": 0.0008585599823195604,
+      "i(lyaddn)": 0.0009203769077811585
+    },
+    "damping_HF_W": 0.03504845160866867,
+    "added_choke_HF_copper_W": 0.0002210832705777987
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "low_RF_loss",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09282647461421564,
+      "i(lnewx)": 0.7217251587093279,
+      "i(lxin)": 0.13923245057868022,
+      "i(lcmaddl)": 0.13627152348074079,
+      "i(lcmaddn)": 0.1363944744732767,
+      "i(lyaddl)": 0.0017139614878798257,
+      "i(lyaddn)": 0.001751185398013222
+    },
+    "damping_HF_W": 0.03528560922419833,
+    "added_choke_HF_copper_W": 0.00022304028467162054
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "old_low_leakage",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.2277011464644348,
+      "i(lnewx)": 1.7692603721872504,
+      "i(lxin)": 0.3415854322733582,
+      "i(lcmaddl)": 0.33426561133107663,
+      "i(lcmaddn)": 0.33438665504020354,
+      "i(lyaddl)": 0.0009248183905886389,
+      "i(lyaddn)": 0.001079773928392459
+    },
+    "damping_HF_W": 0.21231679055448763,
+    "added_choke_HF_copper_W": 0.0013412876039250868
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "all_high_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.2280732895937559,
+      "i(lnewx)": 1.8041104987404655,
+      "i(lxin)": 0.34135513512765436,
+      "i(lcmaddl)": 0.3340999307988715,
+      "i(lcmaddn)": 0.3342212660506879,
+      "i(lyaddl)": 0.0009506196178195363,
+      "i(lyaddn)": 0.001102576402253774
+    },
+    "damping_HF_W": 0.21301135711995006,
+    "added_choke_HF_copper_W": 0.0013399597106420126
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "scenario": "tabs_reversed",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09282563055905445,
+      "i(lnewx)": 0.7217186239487479,
+      "i(lxin)": 0.13923094897170732,
+      "i(lcmaddl)": 0.13624720734312606,
+      "i(lcmaddn)": 0.13636627869901538,
+      "i(lyaddl)": 0.0013295602084179862,
+      "i(lyaddn)": 0.0013756931075126304
+    },
+    "damping_HF_W": 0.03528496753516943,
+    "added_choke_HF_copper_W": 0.00022295438085010995
+  },
+  {
     "case": "envelope-v170-f35000-r2-e10-c32-s0.1",
     "scenario": "proposed_nominal",
     "harmonic_current_RMS_A": {
@@ -10140,6 +10530,396 @@
     "added_choke_HF_copper_W": 1.2907806139505667e-07
   },
   {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "proposed_nominal",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004583182413952977,
+      "i(lnewx)": 0.0666739979556694,
+      "i(lxin)": 0.0013847858812277415,
+      "i(lcmaddl)": 0.001376937833020758,
+      "i(lcmaddn)": 0.0013761912282507032,
+      "i(lyaddl)": 0.0004493412848159682,
+      "i(lyaddn)": 0.00045616102430308945
+    },
+    "damping_HF_W": 8.192168805431456e-05,
+    "added_choke_HF_copper_W": 1.705437041723136e-08
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004895802898835824,
+      "i(lnewx)": 0.06701101831133795,
+      "i(lxin)": 0.003292320447919267,
+      "i(lcmaddl)": 0.003280639313352241,
+      "i(lcmaddn)": 0.0032790513743789318,
+      "i(lyaddl)": 0.00042689830364853903,
+      "i(lyaddn)": 0.0004000016193256149
+    },
+    "damping_HF_W": 9.81525882693007e-05,
+    "added_choke_HF_copper_W": 1.2908863332077177e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004760226325475956,
+      "i(lnewx)": 0.06516838214836917,
+      "i(lxin)": 0.0009956259902684165,
+      "i(lcmaddl)": 0.001021045350902856,
+      "i(lcmaddn)": 0.001019764514953295,
+      "i(lyaddl)": 0.00042725024737727524,
+      "i(lyaddn)": 0.000400369042160076
+    },
+    "damping_HF_W": 9.279169537264396e-05,
+    "added_choke_HF_copper_W": 1.249471964734959e-08
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004895786394011923,
+      "i(lnewx)": 0.067010790993392,
+      "i(lxin)": 0.0032923093436423366,
+      "i(lcmaddl)": 0.003282620465826938,
+      "i(lcmaddn)": 0.0032769170409256473,
+      "i(lyaddl)": 0.0004384018610791655,
+      "i(lyaddn)": 0.00039880067466960685
+    },
+    "damping_HF_W": 9.815192648266933e-05,
+    "added_choke_HF_copper_W": 1.2908269449464857e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004760210277453068,
+      "i(lnewx)": 0.06516816098289276,
+      "i(lxin)": 0.0009956226368613944,
+      "i(lcmaddl)": 0.0010228338258074941,
+      "i(lcmaddn)": 0.0010175370191670024,
+      "i(lyaddl)": 0.00043871512192724673,
+      "i(lyaddn)": 0.0003991683922018953
+    },
+    "damping_HF_W": 9.27910697214084e-05,
+    "added_choke_HF_copper_W": 1.2489423723547583e-08
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00489580289972508,
+      "i(lnewx)": 0.06701101831298657,
+      "i(lxin)": 0.003292320454429454,
+      "i(lcmaddl)": 0.0032722584222398565,
+      "i(lcmaddn)": 0.0032715972831371043,
+      "i(lyaddl)": 0.00039943706787940673,
+      "i(lyaddn)": 0.00037058672469326395
+    },
+    "damping_HF_W": 9.815258830495688e-05,
+    "added_choke_HF_copper_W": 1.2846614378969855e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004760226326016548,
+      "i(lnewx)": 0.06516838214892189,
+      "i(lxin)": 0.0009956259909713458,
+      "i(lcmaddl)": 0.00099463905614301,
+      "i(lcmaddn)": 0.0009940920125276914,
+      "i(lyaddl)": 0.0003995918733797093,
+      "i(lyaddn)": 0.00037074376493920826
+    },
+    "damping_HF_W": 9.279169539371962e-05,
+    "added_choke_HF_copper_W": 1.1865154688258481e-08
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004895786398128071,
+      "i(lnewx)": 0.06701079094502482,
+      "i(lxin)": 0.0032923094055457595,
+      "i(lcmaddl)": 0.0032731356148504305,
+      "i(lcmaddn)": 0.003270722029611564,
+      "i(lyaddl)": 0.00041302777445664216,
+      "i(lyaddn)": 0.0003709131943087649
+    },
+    "damping_HF_W": 9.815192664771245e-05,
+    "added_choke_HF_copper_W": 1.2846623608913215e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004760210278182239,
+      "i(lnewx)": 0.06516816092494887,
+      "i(lxin)": 0.0009956226429119989,
+      "i(lcmaddl)": 0.0009955471430004588,
+      "i(lcmaddn)": 0.0009932561099433835,
+      "i(lyaddl)": 0.0004131615224700751,
+      "i(lyaddn)": 0.000371082885530303
+    },
+    "damping_HF_W": 9.279106974983595e-05,
+    "added_choke_HF_copper_W": 1.1866030883257431e-08
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004895802897427098,
+      "i(lnewx)": 0.06701101827042998,
+      "i(lxin)": 0.0032923204592723958,
+      "i(lcmaddl)": 0.0033284894009114217,
+      "i(lcmaddn)": 0.0033270549410191826,
+      "i(lyaddl)": 0.0008094700291860302,
+      "i(lyaddn)": 0.000795707058494195
+    },
+    "damping_HF_W": 9.815258821281555e-05,
+    "added_choke_HF_copper_W": 1.32888817635239e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004760226323415238,
+      "i(lnewx)": 0.06516838210636788,
+      "i(lxin)": 0.000995625991048196,
+      "i(lcmaddl)": 0.0011656478404608202,
+      "i(lcmaddn)": 0.0011647442122575628,
+      "i(lyaddl)": 0.000807146733298669,
+      "i(lyaddn)": 0.000793336909216814
+    },
+    "damping_HF_W": 9.279169529230428e-05,
+    "added_choke_HF_copper_W": 1.6292183807750785e-08
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004895786221217947,
+      "i(lnewx)": 0.06701078843007582,
+      "i(lxin)": 0.003292309349181313,
+      "i(lcmaddl)": 0.00333041995407131,
+      "i(lcmaddn)": 0.003327718919105804,
+      "i(lyaddl)": 0.0008236503159190052,
+      "i(lyaddn)": 0.0008038566002810141
+    },
+    "damping_HF_W": 9.815191955423742e-05,
+    "added_choke_HF_copper_W": 1.329924616503063e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0047602101025766164,
+      "i(lnewx)": 0.06516815846851236,
+      "i(lxin)": 0.0009956226122425182,
+      "i(lcmaddl)": 0.0011698732122264234,
+      "i(lcmaddn)": 0.001167887222936379,
+      "i(lyaddl)": 0.000821210592905509,
+      "i(lyaddn)": 0.0008013523471428269
+    },
+    "damping_HF_W": 9.27910629036538e-05,
+    "added_choke_HF_copper_W": 1.6395383389098106e-08
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0048958028937137596,
+      "i(lnewx)": 0.06701101825837998,
+      "i(lxin)": 0.0032923204350164023,
+      "i(lcmaddl)": 0.0032881334491078034,
+      "i(lcmaddn)": 0.003288213402559123,
+      "i(lyaddl)": 0.0009352234508011126,
+      "i(lyaddn)": 0.0009233499945004821
+    },
+    "damping_HF_W": 9.81525880639232e-05,
+    "added_choke_HF_copper_W": 1.2974501375946615e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004760226321035291,
+      "i(lnewx)": 0.06516838209861121,
+      "i(lxin)": 0.0009956259884163882,
+      "i(lcmaddl)": 0.00104684034640376,
+      "i(lcmaddn)": 0.0010467906258199032,
+      "i(lyaddl)": 0.000935614998117848,
+      "i(lyaddn)": 0.0009237385928837865
+    },
+    "damping_HF_W": 9.279169519951903e-05,
+    "added_choke_HF_copper_W": 1.3149871950979011e-08
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004895786180398516,
+      "i(lnewx)": 0.06701078829367353,
+      "i(lxin)": 0.0032923090847820228,
+      "i(lcmaddl)": 0.003287790018520678,
+      "i(lcmaddn)": 0.0032873207295429437,
+      "i(lyaddl)": 0.000926247469734905,
+      "i(lyaddn)": 0.0009087209760661832
+    },
+    "damping_HF_W": 9.815191791752155e-05,
+    "added_choke_HF_copper_W": 1.2969624470860173e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004760210076257578,
+      "i(lnewx)": 0.06516815837888329,
+      "i(lxin)": 0.0009956225834728944,
+      "i(lcmaddl)": 0.001045191667334767,
+      "i(lcmaddn)": 0.0010446244215423076,
+      "i(lyaddl)": 0.0009267217712562714,
+      "i(lyaddn)": 0.000909197906942295
+    },
+    "damping_HF_W": 9.279106187757662e-05,
+    "added_choke_HF_copper_W": 1.3101994821291788e-08
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "high_caps",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004078512417108427,
+      "i(lnewx)": 0.06879122353337232,
+      "i(lxin)": 0.0026861383424639147,
+      "i(lcmaddl)": 0.002680907947051195,
+      "i(lcmaddn)": 0.0026775650178586857,
+      "i(lyaddl)": 0.00038589896443842807,
+      "i(lyaddn)": 0.00038523230218653984
+    },
+    "damping_HF_W": 6.811730918199871e-05,
+    "added_choke_HF_copper_W": 8.613973107253702e-08
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "high_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004558820436165082,
+      "i(lnewx)": 0.06858555866729243,
+      "i(lxin)": 0.0031918809215206643,
+      "i(lcmaddl)": 0.003183724353607232,
+      "i(lcmaddn)": 0.0031781461182161484,
+      "i(lyaddl)": 0.00031835422976370727,
+      "i(lyaddn)": 0.0003196444450529241
+    },
+    "damping_HF_W": 8.510574523485922e-05,
+    "added_choke_HF_copper_W": 1.2142028105090493e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "low_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004971204209671594,
+      "i(lnewx)": 0.06645664929859872,
+      "i(lxin)": 0.00335177812347817,
+      "i(lcmaddl)": 0.003341229295671956,
+      "i(lcmaddn)": 0.0033354601658879966,
+      "i(lyaddl)": 0.0003594692031227456,
+      "i(lyaddn)": 0.0003663358752685086
+    },
+    "damping_HF_W": 0.00010119920794998069,
+    "added_choke_HF_copper_W": 1.3373464634689256e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "low_damping",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00539944352020372,
+      "i(lnewx)": 0.06721936702685184,
+      "i(lxin)": 0.003286177980919617,
+      "i(lcmaddl)": 0.0032759962476269075,
+      "i(lcmaddn)": 0.003270315864972123,
+      "i(lyaddl)": 0.0004513061822139842,
+      "i(lyaddn)": 0.0003979422184157389
+    },
+    "damping_HF_W": 0.00010801553416475812,
+    "added_choke_HF_copper_W": 1.2856270362692367e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "high_RF_loss",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.004958586845682954,
+      "i(lnewx)": 0.06651396680521401,
+      "i(lxin)": 0.003332549598655688,
+      "i(lcmaddl)": 0.0033230862685465897,
+      "i(lcmaddn)": 0.0033176480158288186,
+      "i(lyaddl)": 0.00041874919331691293,
+      "i(lyaddn)": 0.00039826741512065275
+    },
+    "damping_HF_W": 0.00010068615445780721,
+    "added_choke_HF_copper_W": 1.3229814423081476e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "low_RF_loss",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0048958034898352225,
+      "i(lnewx)": 0.06701102378550418,
+      "i(lxin)": 0.0032923231442288895,
+      "i(lcmaddl)": 0.0032827575911346415,
+      "i(lcmaddn)": 0.003277009360757757,
+      "i(lyaddl)": 0.0004396008991399684,
+      "i(lyaddn)": 0.00039930359736387266
+    },
+    "damping_HF_W": 9.815261196638382e-05,
+    "added_choke_HF_copper_W": 1.2909172651587648e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "old_low_leakage",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.010880486131468239,
+      "i(lnewx)": 0.14889975707073114,
+      "i(lxin)": 0.0073171791775389055,
+      "i(lcmaddl)": 0.007276988954908994,
+      "i(lcmaddn)": 0.007268703921749111,
+      "i(lyaddl)": 0.00039963688284431646,
+      "i(lyaddn)": 0.000365203164451917
+    },
+    "damping_HF_W": 0.0004847864867817126,
+    "added_choke_HF_copper_W": 6.347317497115103e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "all_high_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.01009759970173067,
+      "i(lnewx)": 0.15184133001126546,
+      "i(lxin)": 0.007070101253160882,
+      "i(lcmaddl)": 0.007032948186597571,
+      "i(lcmaddn)": 0.007024890358584534,
+      "i(lyaddl)": 0.0003543388991490532,
+      "i(lyaddn)": 0.00035277076523033843
+    },
+    "damping_HF_W": 0.0004175324233205225,
+    "added_choke_HF_copper_W": 5.928686684730002e-07
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "scenario": "tabs_reversed",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0048957864384348146,
+      "i(lnewx)": 0.06701079113590776,
+      "i(lxin)": 0.0032923096347188424,
+      "i(lcmaddl)": 0.0032826357785621374,
+      "i(lcmaddn)": 0.0032769022471197755,
+      "i(lyaddl)": 0.0004384021021898702,
+      "i(lyaddn)": 0.0003988005802835503
+    },
+    "damping_HF_W": 9.815192826387138e-05,
+    "added_choke_HF_copper_W": 1.2908271595124933e-07
+  },
+  {
     "case": "envelope-v170-f60000-r2-e10-s0.1",
     "scenario": "proposed_nominal",
     "harmonic_current_RMS_A": {
@@ -13650,6 +14430,396 @@
     "added_choke_HF_copper_W": 1.6075622364078993e-07
   },
   {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "proposed_nominal",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09294582571186699,
+      "i(lnewx)": 0.7657206462323458,
+      "i(lxin)": 0.053836832428254315,
+      "i(lcmaddl)": 0.05281789733756476,
+      "i(lcmaddn)": 0.05280155523997445,
+      "i(lyaddl)": 0.0005227851082551129,
+      "i(lyaddn)": 0.0004907565825970486
+    },
+    "damping_HF_W": 0.033691813417316946,
+    "added_choke_HF_copper_W": 2.5099805317147218e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809274676032436,
+      "i(lnewx)": 0.8404201554867272,
+      "i(lxin)": 0.1621303973546063,
+      "i(lcmaddl)": 0.1587101286911695,
+      "i(lcmaddn)": 0.1587251871366756,
+      "i(lyaddl)": 0.0014343395552187058,
+      "i(lyaddn)": 0.0014422827023063693
+    },
+    "damping_HF_W": 0.047846151589474646,
+    "added_choke_HF_copper_W": 0.00030229553988444163
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.095143260617282,
+      "i(lnewx)": 0.740310346776002,
+      "i(lxin)": 0.037234910630280234,
+      "i(lcmaddl)": 0.036572596127765006,
+      "i(lcmaddn)": 0.036589176726126806,
+      "i(lyaddl)": 0.0013684534943439214,
+      "i(lyaddn)": 0.0013760391945922444
+    },
+    "damping_HF_W": 0.03706892296743653,
+    "added_choke_HF_copper_W": 1.605793584612211e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809236585329143,
+      "i(lnewx)": 0.8404171945892501,
+      "i(lxin)": 0.16212982632265716,
+      "i(lcmaddl)": 0.15865523312447563,
+      "i(lcmaddn)": 0.15879417133007925,
+      "i(lyaddl)": 0.0015532480936567795,
+      "i(lyaddn)": 0.0016093586861766825
+    },
+    "damping_HF_W": 0.047845814380844585,
+    "added_choke_HF_copper_W": 0.00030232243107712966
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514292561943524,
+      "i(lnewx)": 0.7403077400747762,
+      "i(lxin)": 0.037234780131303824,
+      "i(lcmaddl)": 0.03654010472052004,
+      "i(lcmaddn)": 0.036682476582668704,
+      "i(lyaddl)": 0.0014840455335999982,
+      "i(lyaddn)": 0.0015364630694113092
+    },
+    "damping_HF_W": 0.03706866192976696,
+    "added_choke_HF_copper_W": 1.6084700047347653e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809274670893824,
+      "i(lnewx)": 0.8404201550944943,
+      "i(lxin)": 0.16213039723956046,
+      "i(lcmaddl)": 0.15868018951517726,
+      "i(lcmaddn)": 0.15868735022278255,
+      "i(lyaddl)": 0.0004578129084826206,
+      "i(lyaddn)": 0.00048153321476713775
+    },
+    "damping_HF_W": 0.04784615154398357,
+    "added_choke_HF_copper_W": 0.00030216646599180366
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514326055674524,
+      "i(lnewx)": 0.7403103463993433,
+      "i(lxin)": 0.03723491053828793,
+      "i(lcmaddl)": 0.03644121223875893,
+      "i(lcmaddn)": 0.03644836911231722,
+      "i(lyaddl)": 0.0004247196926472359,
+      "i(lyaddn)": 0.0004479862349305106
+    },
+    "damping_HF_W": 0.03706892292026489,
+    "added_choke_HF_copper_W": 1.593867336226796e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809236132953631,
+      "i(lnewx)": 0.8404171596908224,
+      "i(lxin)": 0.16212981911351362,
+      "i(lcmaddl)": 0.1586508035561113,
+      "i(lcmaddn)": 0.1587155987202911,
+      "i(lyaddl)": 0.00038329518004494203,
+      "i(lyaddn)": 0.0005674313465401112
+    },
+    "damping_HF_W": 0.04784581037607067,
+    "added_choke_HF_copper_W": 0.0003021643124768417
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514292145112554,
+      "i(lnewx)": 0.7403077088938173,
+      "i(lxin)": 0.03723477774532045,
+      "i(lcmaddl)": 0.0364117448873471,
+      "i(lcmaddn)": 0.036477550174421364,
+      "i(lyaddl)": 0.0003550458032950792,
+      "i(lyaddn)": 0.0005314290000722916
+    },
+    "damping_HF_W": 0.03706865868173441,
+    "added_choke_HF_copper_W": 1.5938560994812052e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809274707034063,
+      "i(lnewx)": 0.8404201578886553,
+      "i(lxin)": 0.16213039775046453,
+      "i(lcmaddl)": 0.15870603334763078,
+      "i(lcmaddn)": 0.1586857982402521,
+      "i(lyaddl)": 0.0009228245154814968,
+      "i(lyaddn)": 0.0009112083960041734
+    },
+    "damping_HF_W": 0.04784615186392572,
+    "added_choke_HF_copper_W": 0.00030221272550451177
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514326086148767,
+      "i(lnewx)": 0.7403103488283448,
+      "i(lxin)": 0.037234910598591464,
+      "i(lcmaddl)": 0.036511084577556405,
+      "i(lcmaddn)": 0.03648923187931381,
+      "i(lyaddl)": 0.0009198440670300018,
+      "i(lyaddn)": 0.0009099619161991515
+    },
+    "damping_HF_W": 0.037068923157727286,
+    "added_choke_HF_copper_W": 1.5987140041030853e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809238983059492,
+      "i(lnewx)": 0.840417379811165,
+      "i(lxin)": 0.16212986165773602,
+      "i(lcmaddl)": 0.15876923703469464,
+      "i(lcmaddn)": 0.1586173574281301,
+      "i(lyaddl)": 0.0009151654931105803,
+      "i(lyaddn)": 0.0008126364925785525
+    },
+    "damping_HF_W": 0.04784583560738968,
+    "added_choke_HF_copper_W": 0.0003022028202363734
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514294639661548,
+      "i(lnewx)": 0.7403079020258183,
+      "i(lxin)": 0.03723478701860853,
+      "i(lcmaddl)": 0.036565195521213775,
+      "i(lcmaddn)": 0.03641550171691512,
+      "i(lyaddl)": 0.0009027481768013075,
+      "i(lyaddn)": 0.000814023157756631
+    },
+    "damping_HF_W": 0.03706867811977476,
+    "added_choke_HF_copper_W": 1.5978613732795442e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.108092747056591,
+      "i(lnewx)": 0.8404201577783168,
+      "i(lxin)": 0.16213039776220645,
+      "i(lcmaddl)": 0.15868691562634502,
+      "i(lcmaddn)": 0.15868069759049216,
+      "i(lyaddl)": 0.000463050883340703,
+      "i(lyaddn)": 0.0004495245986348388
+    },
+    "damping_HF_W": 0.047846151851753456,
+    "added_choke_HF_copper_W": 0.00030216660587284786
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514326086259578,
+      "i(lnewx)": 0.740310348757538,
+      "i(lxin)": 0.037234910658745006,
+      "i(lcmaddl)": 0.036448140144704745,
+      "i(lcmaddn)": 0.03644175752187773,
+      "i(lyaddl)": 0.0004279964044698751,
+      "i(lyaddn)": 0.0004157710811717556
+    },
+    "damping_HF_W": 0.03706892315859075,
+    "added_choke_HF_copper_W": 1.5938811667748216e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809238922889196,
+      "i(lnewx)": 0.8404173751270441,
+      "i(lxin)": 0.162129861032883,
+      "i(lcmaddl)": 0.15870716736000567,
+      "i(lcmaddn)": 0.15865938787029318,
+      "i(lyaddl)": 0.0005237170828515526,
+      "i(lyaddn)": 0.00039807237491902824
+    },
+    "damping_HF_W": 0.047845835074716084,
+    "added_choke_HF_copper_W": 0.0003021645979848779
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514294598549611,
+      "i(lnewx)": 0.740307898170234,
+      "i(lxin)": 0.037234787370419686,
+      "i(lcmaddl)": 0.03646844511584446,
+      "i(lcmaddn)": 0.036421179273223865,
+      "i(lyaddl)": 0.00048588668629968634,
+      "i(lyaddn)": 0.00036907158328356766
+    },
+    "damping_HF_W": 0.03706867779942202,
+    "added_choke_HF_copper_W": 1.5938698732918027e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "high_caps",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0876237805940701,
+      "i(lnewx)": 0.8338025097921352,
+      "i(lxin)": 0.12128842753846979,
+      "i(lcmaddl)": 0.11912341410919562,
+      "i(lcmaddn)": 0.11925866097202696,
+      "i(lyaddl)": 0.0006105704331662618,
+      "i(lyaddn)": 0.0008213667692361027
+    },
+    "damping_HF_W": 0.03144111076032272,
+    "added_choke_HF_copper_W": 0.00017047809603523066
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "high_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10830166043553618,
+      "i(lnewx)": 0.8572982891122185,
+      "i(lxin)": 0.16207425505823644,
+      "i(lcmaddl)": 0.15863012430871548,
+      "i(lcmaddn)": 0.15876973539893113,
+      "i(lyaddl)": 0.0015688503904965753,
+      "i(lyaddn)": 0.0016228530597102693
+    },
+    "damping_HF_W": 0.048031277329420675,
+    "added_choke_HF_copper_W": 0.00030222807130107077
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "low_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10799695221918561,
+      "i(lnewx)": 0.8362432320383787,
+      "i(lxin)": 0.1629515824163019,
+      "i(lcmaddl)": 0.1594446008118008,
+      "i(lcmaddn)": 0.15958322320630253,
+      "i(lyaddl)": 0.0015409058262223054,
+      "i(lyaddn)": 0.0015957941228235731
+    },
+    "damping_HF_W": 0.04776138421495237,
+    "added_choke_HF_copper_W": 0.0003053363151416825
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "low_damping",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.11924724247784073,
+      "i(lnewx)": 0.8407758553078211,
+      "i(lxin)": 0.16199425875342807,
+      "i(lcmaddl)": 0.15849788227939524,
+      "i(lcmaddn)": 0.15863818653236128,
+      "i(lyaddl)": 0.001554316618305641,
+      "i(lyaddn)": 0.0016104987301742589
+    },
+    "damping_HF_W": 0.05268474742689793,
+    "added_choke_HF_copper_W": 0.0003017259174799757
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "high_RF_loss",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10772948363702081,
+      "i(lnewx)": 0.8321422319435156,
+      "i(lxin)": 0.1614248399114887,
+      "i(lcmaddl)": 0.1579966585195719,
+      "i(lcmaddn)": 0.1581178542138593,
+      "i(lyaddl)": 0.0010070406987930014,
+      "i(lyaddn)": 0.0010821648618731356
+    },
+    "damping_HF_W": 0.047525102535042954,
+    "added_choke_HF_copper_W": 0.0002997851995472728
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "low_RF_loss",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809334873964824,
+      "i(lnewx)": 0.8404248041256722,
+      "i(lxin)": 0.16213157547011986,
+      "i(lcmaddl)": 0.15868366632914602,
+      "i(lcmaddn)": 0.15882691072810537,
+      "i(lyaddl)": 0.001999926048753647,
+      "i(lyaddn)": 0.0020451722992656583
+    },
+    "damping_HF_W": 0.04784668451097122,
+    "added_choke_HF_copper_W": 0.00030243896118655985
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "old_low_leakage",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.2651504303953988,
+      "i(lnewx)": 2.060244608526722,
+      "i(lxin)": 0.39776491864007163,
+      "i(lcmaddl)": 0.3892411992620047,
+      "i(lcmaddn)": 0.3893822139655679,
+      "i(lyaddl)": 0.0010774384895753664,
+      "i(lyaddn)": 0.0012598226125806922
+    },
+    "damping_HF_W": 0.2878979542756531,
+    "added_choke_HF_copper_W": 0.0018187633185339056
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "all_high_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.2655837814712837,
+      "i(lnewx)": 2.1008264294522543,
+      "i(lxin)": 0.3974967454985117,
+      "i(lcmaddl)": 0.3890482699843715,
+      "i(lcmaddn)": 0.38918962432195253,
+      "i(lyaddl)": 0.0010969926720114506,
+      "i(lyaddn)": 0.0012759572501538227
+    },
+    "damping_HF_W": 0.28883978069550204,
+    "added_choke_HF_copper_W": 0.0018169627203461697
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "scenario": "tabs_reversed",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809236586570849,
+      "i(lnewx)": 0.8404171946137168,
+      "i(lxin)": 0.16212982690495337,
+      "i(lcmaddl)": 0.15865534272637458,
+      "i(lcmaddn)": 0.1587940627069928,
+      "i(lyaddl)": 0.0015532462053875658,
+      "i(lyaddn)": 0.0016093588677243526
+    },
+    "damping_HF_W": 0.047845814391837105,
+    "added_choke_HF_copper_W": 0.00030232243275969445
+  },
+  {
     "case": "envelope-v198-f35000-r2-e1.06-c32-s0.25",
     "scenario": "proposed_nominal",
     "harmonic_current_RMS_A": {
@@ -15208,6 +16378,396 @@
     },
     "damping_HF_W": 0.04784522463353849,
     "added_choke_HF_copper_W": 0.0003023187713596585
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "proposed_nominal",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09294835529918842,
+      "i(lnewx)": 0.7657415861990107,
+      "i(lxin)": 0.0538382967656473,
+      "i(lcmaddl)": 0.052819318447033296,
+      "i(lcmaddn)": 0.052803006765924865,
+      "i(lyaddl)": 0.0006768560707861509,
+      "i(lyaddn)": 0.0006572145528824667
+    },
+    "damping_HF_W": 0.03369364733601426,
+    "added_choke_HF_copper_W": 2.5101170661291386e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809568731811851,
+      "i(lnewx)": 0.8404430494850945,
+      "i(lxin)": 0.16213480704911717,
+      "i(lcmaddl)": 0.15871446495644398,
+      "i(lcmaddn)": 0.15872948154251312,
+      "i(lyaddl)": 0.0014615092658686298,
+      "i(lyaddn)": 0.0014615777896753463
+    },
+    "damping_HF_W": 0.047848754840699545,
+    "added_choke_HF_copper_W": 0.0003023119781829918
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514584904777842,
+      "i(lnewx)": 0.7403305223225962,
+      "i(lxin)": 0.03723592338034063,
+      "i(lcmaddl)": 0.0365736068318395,
+      "i(lcmaddn)": 0.03659014357928497,
+      "i(lyaddl)": 0.001396948243898308,
+      "i(lyaddn)": 0.0013962896568190046
+    },
+    "damping_HF_W": 0.0370709399602377,
+    "added_choke_HF_copper_W": 1.6058803943055998e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809530653576328,
+      "i(lnewx)": 0.8404400894942238,
+      "i(lxin)": 0.16213423620455122,
+      "i(lcmaddl)": 0.15865958836160282,
+      "i(lcmaddn)": 0.1587984468491735,
+      "i(lyaddl)": 0.0015814628726427285,
+      "i(lyaddn)": 0.0016265031560253262
+    },
+    "damping_HF_W": 0.047848417733273266,
+    "added_choke_HF_copper_W": 0.0003023388702046982
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514551415946564,
+      "i(lnewx)": 0.7403279164017861,
+      "i(lxin)": 0.0372357929240381,
+      "i(lcmaddl)": 0.03654113423082331,
+      "i(lcmaddn)": 0.0366834235970118,
+      "i(lyaddl)": 0.001513590643065507,
+      "i(lyaddn)": 0.0015544467155274757
+    },
+    "damping_HF_W": 0.03707067900081986,
+    "added_choke_HF_copper_W": 1.6085568346037096e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809568726687,
+      "i(lnewx)": 0.8404430490939218,
+      "i(lxin)": 0.16213480693430296,
+      "i(lcmaddl)": 0.15868451511366588,
+      "i(lcmaddn)": 0.15869165652159978,
+      "i(lyaddl)": 0.0005368927961290176,
+      "i(lyaddn)": 0.0005365515659111167
+    },
+    "damping_HF_W": 0.04784875479532905,
+    "added_choke_HF_copper_W": 0.00030218290311857197
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514584898737323,
+      "i(lnewx)": 0.7403305219468947,
+      "i(lxin)": 0.037235923288444134,
+      "i(lcmaddl)": 0.03644221331563372,
+      "i(lcmaddn)": 0.03644935049244107,
+      "i(lyaddl)": 0.0005090870185806208,
+      "i(lyaddn)": 0.0005067711771203578
+    },
+    "damping_HF_W": 0.03707093991316729,
+    "added_choke_HF_copper_W": 1.5939540375977798e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.1080953020146529,
+      "i(lnewx)": 0.8404400546162016,
+      "i(lxin)": 0.1621342289996376,
+      "i(lcmaddl)": 0.15865513811735962,
+      "i(lcmaddn)": 0.15871989642928236,
+      "i(lyaddl)": 0.0004851167224058432,
+      "i(lyaddn)": 0.0006143574029647721
+    },
+    "damping_HF_W": 0.047848413730731794,
+    "added_choke_HF_copper_W": 0.0003021807502413635
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514550999359857,
+      "i(lnewx)": 0.740327885239077,
+      "i(lxin)": 0.037235790539473144,
+      "i(lcmaddl)": 0.036412755028559715,
+      "i(lcmaddn)": 0.036478522570157254,
+      "i(lyaddl)": 0.0004632523607233897,
+      "i(lyaddn)": 0.0005813636757793792
+    },
+    "damping_HF_W": 0.03707067575460234,
+    "added_choke_HF_copper_W": 1.5939428026028237e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.108095687627296,
+      "i(lnewx)": 0.8404430518805538,
+      "i(lxin)": 0.16213480744375375,
+      "i(lcmaddl)": 0.15871032130831791,
+      "i(lcmaddn)": 0.15869014173360826,
+      "i(lyaddl)": 0.0009644815068910832,
+      "i(lyaddn)": 0.0009414752926788045
+    },
+    "damping_HF_W": 0.047848755114415525,
+    "added_choke_HF_copper_W": 0.00030222916303933317
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514584929126266,
+      "i(lnewx)": 0.7403305243692938,
+      "i(lxin)": 0.03723592334843912,
+      "i(lcmaddl)": 0.03651204700332617,
+      "i(lcmaddn)": 0.036490249906940594,
+      "i(lyaddl)": 0.0009616971290182788,
+      "i(lyaddn)": 0.0009403249007244357
+    },
+    "damping_HF_W": 0.037070940149971456,
+    "added_choke_HF_copper_W": 1.5988007487864465e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809533049762547,
+      "i(lnewx)": 0.8404402745970885,
+      "i(lxin)": 0.162134271516809,
+      "i(lcmaddl)": 0.15877350176822472,
+      "i(lcmaddn)": 0.15862172453480766,
+      "i(lyaddl)": 0.0009622169905235426,
+      "i(lyaddn)": 0.0008461303499145688
+    },
+    "damping_HF_W": 0.04784843894672565,
+    "added_choke_HF_copper_W": 0.00030221925814884513
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514553492323365,
+      "i(lnewx)": 0.7403280782486757,
+      "i(lxin)": 0.037235799806784785,
+      "i(lcmaddl)": 0.036566135037304555,
+      "i(lcmaddn)": 0.03641654300726149,
+      "i(lyaddl)": 0.0009504854219729273,
+      "i(lyaddn)": 0.0008475198276521061
+    },
+    "damping_HF_W": 0.03707069518081678,
+    "added_choke_HF_copper_W": 1.5979481016996705e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809568761358392,
+      "i(lnewx)": 0.840443051770507,
+      "i(lxin)": 0.16213480745553766,
+      "i(lcmaddl)": 0.15869122311924577,
+      "i(lcmaddn)": 0.1586850219908022,
+      "i(lyaddl)": 0.0005413344697606489,
+      "i(lyaddn)": 0.0005080657987763584
+    },
+    "damping_HF_W": 0.04784875510227616,
+    "added_choke_HF_copper_W": 0.0003021830429958217
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514584929239793,
+      "i(lnewx)": 0.7403305242987319,
+      "i(lxin)": 0.0372359234085769,
+      "i(lcmaddl)": 0.03644912292235373,
+      "i(lcmaddn)": 0.03644275719477795,
+      "i(lyaddl)": 0.0005117955929135267,
+      "i(lyaddn)": 0.00047857155453974665
+    },
+    "damping_HF_W": 0.03707094015085611,
+    "added_choke_HF_copper_W": 1.5939678682598352e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809532989668909,
+      "i(lnewx)": 0.8404402699189082,
+      "i(lxin)": 0.16213427089297325,
+      "i(lcmaddl)": 0.15871146803830066,
+      "i(lcmaddn)": 0.15866371941143406,
+      "i(lyaddl)": 0.0006022029093258138,
+      "i(lyaddn)": 0.0004626141026643436
+    },
+    "damping_HF_W": 0.04784843841471621,
+    "added_choke_HF_copper_W": 0.0003021810356660569
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.09514553451273523,
+      "i(lnewx)": 0.7403280743982128,
+      "i(lxin)": 0.037235800158593006,
+      "i(lcmaddl)": 0.036469420994647964,
+      "i(lcmaddn)": 0.036422185918737325,
+      "i(lyaddl)": 0.0005697248466150917,
+      "i(lyaddn)": 0.0004380235926878736
+    },
+    "damping_HF_W": 0.037070694860939196,
+    "added_choke_HF_copper_W": 1.5939565768703623e-05
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "high_caps",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.08762616429821168,
+      "i(lnewx)": 0.8338252086345582,
+      "i(lxin)": 0.12129172656433884,
+      "i(lcmaddl)": 0.11912669419395508,
+      "i(lcmaddn)": 0.1192618645824332,
+      "i(lyaddl)": 0.0006140715676590184,
+      "i(lyaddn)": 0.000824231944131006
+    },
+    "damping_HF_W": 0.031442821422082386,
+    "added_choke_HF_copper_W": 0.00017048736967955236
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "high_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10830460652324912,
+      "i(lnewx)": 0.8573216339826449,
+      "i(lxin)": 0.162078663426331,
+      "i(lcmaddl)": 0.15863447896569,
+      "i(lcmaddn)": 0.15877401002333144,
+      "i(lyaddl)": 0.0015699373294793607,
+      "i(lyaddn)": 0.001624437842403751
+    },
+    "damping_HF_W": 0.048033890517068065,
+    "added_choke_HF_copper_W": 0.00030224450505362936
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "low_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10799989048617184,
+      "i(lnewx)": 0.8362659995808154,
+      "i(lxin)": 0.16295601465322315,
+      "i(lcmaddl)": 0.15944897748277656,
+      "i(lcmaddn)": 0.15958752030369708,
+      "i(lyaddl)": 0.001549919611087072,
+      "i(lyaddn)": 0.0016062651053065909
+    },
+    "damping_HF_W": 0.04776398313287782,
+    "added_choke_HF_copper_W": 0.0003053529183419155
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "low_damping",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.11925048658615235,
+      "i(lnewx)": 0.8407987604697252,
+      "i(lxin)": 0.1619986649474299,
+      "i(lcmaddl)": 0.15850223385741685,
+      "i(lcmaddn)": 0.15864245718246306,
+      "i(lyaddl)": 0.0015860558606452877,
+      "i(lyaddn)": 0.001627323775249262
+    },
+    "damping_HF_W": 0.05268761403158135,
+    "added_choke_HF_copper_W": 0.0003017423241520853
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "high_RF_loss",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10773241447207861,
+      "i(lnewx)": 0.8321649017075038,
+      "i(lxin)": 0.1614292306213791,
+      "i(lcmaddl)": 0.15800099036655332,
+      "i(lcmaddn)": 0.15812211911323795,
+      "i(lyaddl)": 0.001043689224720035,
+      "i(lyaddn)": 0.0011088199073159826
+    },
+    "damping_HF_W": 0.04752768845909339,
+    "added_choke_HF_copper_W": 0.0002998015050580362
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "low_RF_loss",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809628944865544,
+      "i(lnewx)": 0.8404476991969989,
+      "i(lxin)": 0.1621359853998967,
+      "i(lcmaddl)": 0.15868802280596575,
+      "i(lcmaddn)": 0.15883118406219277,
+      "i(lyaddl)": 0.002021961943174967,
+      "i(lyaddn)": 0.0020585868387392593
+    },
+    "damping_HF_W": 0.0478492879105639,
+    "added_choke_HF_copper_W": 0.00030245540167598916
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "old_low_leakage",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.2651576431577721,
+      "i(lnewx)": 2.0603006828544457,
+      "i(lxin)": 0.39777573767848945,
+      "i(lcmaddl)": 0.3892518251002363,
+      "i(lcmaddn)": 0.38939276606937195,
+      "i(lyaddl)": 0.0010996708887469763,
+      "i(lyaddn)": 0.0012700886016512394
+    },
+    "damping_HF_W": 0.2879136175938112,
+    "added_choke_HF_copper_W": 0.0018188622576661294
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "all_high_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.2655910058224905,
+      "i(lnewx)": 2.100883611916952,
+      "i(lxin)": 0.3975075572300917,
+      "i(lcmaddl)": 0.38905889062845456,
+      "i(lcmaddn)": 0.38920017109351157,
+      "i(lyaddl)": 0.0011008676678397257,
+      "i(lyaddn)": 0.0012803254812943335
+    },
+    "damping_HF_W": 0.2888554948207199,
+    "added_choke_HF_copper_W": 0.0018170615613375748
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "scenario": "tabs_reversed",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.10809530654826248,
+      "i(lnewx)": 0.8404400895188519,
+      "i(lxin)": 0.1621342367906965,
+      "i(lcmaddl)": 0.15865969832816157,
+      "i(lcmaddn)": 0.15879833786745165,
+      "i(lyaddl)": 0.0015814610358156986,
+      "i(lyaddn)": 0.001626503325938038
+    },
+    "damping_HF_W": 0.04784841774433882,
+    "added_choke_HF_copper_W": 0.0003023388718982914
   },
   {
     "case": "envelope-v198-f35000-r2-e10-c32-s0.125",
@@ -17158,6 +18718,396 @@
     },
     "damping_HF_W": 0.04784772435392207,
     "added_choke_HF_copper_W": 0.0003023345536466579
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "proposed_nominal",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00011782809596812453,
+      "i(lnewx)": 0.002102964141962436,
+      "i(lxin)": 3.317214979536372e-05,
+      "i(lcmaddl)": 3.30099288564236e-05,
+      "i(lcmaddn)": 3.277616792548021e-05,
+      "i(lyaddl)": 0.0011751335878031255,
+      "i(lyaddn)": 0.0012052921588408992
+    },
+    "damping_HF_W": 5.41454947779469e-08,
+    "added_choke_HF_copper_W": 9.737696641434412e-12
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00012005590012305449,
+      "i(lnewx)": 0.0019017009941014232,
+      "i(lxin)": 7.883227789146636e-05,
+      "i(lcmaddl)": 0.0003069264185713539,
+      "i(lcmaddn)": 0.0002958561500948571,
+      "i(lyaddl)": 0.0007730456725259823,
+      "i(lyaddn)": 0.0008624025658158737
+    },
+    "damping_HF_W": 5.9022951437091235e-08,
+    "added_choke_HF_copper_W": 1.0904081277959315e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00011689940328103973,
+      "i(lnewx)": 0.0018640462084163747,
+      "i(lxin)": 2.38427376283073e-05,
+      "i(lcmaddl)": 0.00029459508352419356,
+      "i(lcmaddn)": 0.0002924459679130163,
+      "i(lyaddl)": 0.0007736386577542024,
+      "i(lyaddn)": 0.000863005372287064
+    },
+    "damping_HF_W": 5.596010164616164e-08,
+    "added_choke_HF_copper_W": 1.0338654443112453e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0001200456295131045,
+      "i(lnewx)": 0.0019013376296305852,
+      "i(lxin)": 7.882899036520316e-05,
+      "i(lcmaddl)": 0.0003060160070823738,
+      "i(lcmaddn)": 0.0002948286070446974,
+      "i(lyaddl)": 0.0007784033949603861,
+      "i(lyaddn)": 0.0009332006762592126
+    },
+    "damping_HF_W": 5.9012853211483954e-08,
+    "added_choke_HF_copper_W": 1.0834182247353363e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00011688906520935537,
+      "i(lnewx)": 0.0018636767667525225,
+      "i(lxin)": 2.384184266207812e-05,
+      "i(lcmaddl)": 0.00029359474080572015,
+      "i(lcmaddn)": 0.00029140406691807714,
+      "i(lyaddl)": 0.0007789476568481668,
+      "i(lyaddn)": 0.0009337719137249575
+    },
+    "damping_HF_W": 5.595020435079183e-08,
+    "added_choke_HF_copper_W": 1.026685212271039e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00012005595674699351,
+      "i(lnewx)": 0.00190170115092422,
+      "i(lxin)": 7.883265800234339e-05,
+      "i(lcmaddl)": 0.0001476651565232682,
+      "i(lcmaddn)": 0.00013814229604593165,
+      "i(lyaddl)": 0.0007528683635203017,
+      "i(lyaddn)": 0.0008443635380924402
+    },
+    "damping_HF_W": 5.902300711303532e-08,
+    "added_choke_HF_copper_W": 2.453297544472987e-10
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00011689944007118883,
+      "i(lnewx)": 0.0018640463094463627,
+      "i(lxin)": 2.38427795472297e-05,
+      "i(lcmaddl)": 0.0001232437296134065,
+      "i(lcmaddn)": 0.00012113869546470651,
+      "i(lyaddl)": 0.0007533176087245603,
+      "i(lyaddn)": 0.0008448366897365735
+    },
+    "damping_HF_W": 5.596013686928083e-08,
+    "added_choke_HF_copper_W": 1.7918160256748013e-10
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00012004619533064102,
+      "i(lnewx)": 0.0019013391911782377,
+      "i(lxin)": 7.883279221854147e-05,
+      "i(lcmaddl)": 0.00014812646728176528,
+      "i(lcmaddn)": 0.00013841889384790692,
+      "i(lyaddl)": 0.0007594166270703454,
+      "i(lyaddn)": 0.0009174230859500031
+    },
+    "damping_HF_W": 5.90134095097191e-08,
+    "added_choke_HF_copper_W": 2.4660744290072405e-10
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0001168894325910204,
+      "i(lnewx)": 0.0018636777702181475,
+      "i(lxin)": 2.3842261807772825e-05,
+      "i(lcmaddl)": 0.00012370741944083493,
+      "i(lcmaddn)": 0.00012154532956205957,
+      "i(lyaddl)": 0.0007598265839140955,
+      "i(lyaddn)": 0.0009178815336525998
+    },
+    "damping_HF_W": 5.5950556053690626e-08,
+    "added_choke_HF_copper_W": 1.80460756578362e-10
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0001200560171745232,
+      "i(lnewx)": 0.0019017012994807275,
+      "i(lxin)": 7.883307610200666e-05,
+      "i(lcmaddl)": 0.0007254197561007764,
+      "i(lcmaddn)": 0.0007178748042405089,
+      "i(lyaddl)": 0.0011134825284978864,
+      "i(lyaddn)": 0.0011773328061839032
+    },
+    "damping_HF_W": 5.902306652891953e-08,
+    "added_choke_HF_copper_W": 6.249468342627953e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00011689947765737856,
+      "i(lnewx)": 0.0018640463944940432,
+      "i(lxin)": 2.384282423103602e-05,
+      "i(lcmaddl)": 0.000718935587711709,
+      "i(lcmaddn)": 0.0007174053141231559,
+      "i(lyaddl)": 0.0011114182413475163,
+      "i(lyaddn)": 0.001175433267319467
+    },
+    "damping_HF_W": 5.596017285454574e-08,
+    "added_choke_HF_copper_W": 6.189232584063148e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00012004676715849521,
+      "i(lnewx)": 0.0019013403920446572,
+      "i(lxin)": 7.883688329580652e-05,
+      "i(lcmaddl)": 0.00073361848017872,
+      "i(lcmaddn)": 0.0007259671608059465,
+      "i(lyaddl)": 0.001125534927193916,
+      "i(lyaddn)": 0.0012377460311221577
+    },
+    "damping_HF_W": 5.901397171981843e-08,
+    "added_choke_HF_copper_W": 6.391346358170291e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0001168897807755532,
+      "i(lnewx)": 0.0018636783563979746,
+      "i(lxin)": 2.384269621314757e-05,
+      "i(lcmaddl)": 0.0007270356634457557,
+      "i(lcmaddn)": 0.0007254822805931772,
+      "i(lyaddl)": 0.0011233156528824392,
+      "i(lyaddn)": 0.0012358171883418607
+    },
+    "damping_HF_W": 5.5950889379754454e-08,
+    "added_choke_HF_copper_W": 6.329432372260126e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00012005581164428279,
+      "i(lnewx)": 0.0019017007281199204,
+      "i(lxin)": 7.88316978330299e-05,
+      "i(lcmaddl)": 0.0004053168090192405,
+      "i(lcmaddn)": 0.0004073920420682051,
+      "i(lyaddl)": 0.0012400415056021007,
+      "i(lyaddn)": 0.0012976885704117105
+    },
+    "damping_HF_W": 5.902286443967894e-08,
+    "added_choke_HF_copper_W": 1.9814999496842505e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00011689934633639956,
+      "i(lnewx)": 0.0018640460318329808,
+      "i(lxin)": 2.3842674814922694e-05,
+      "i(lcmaddl)": 0.0004002456093053042,
+      "i(lcmaddn)": 0.00040043943526995354,
+      "i(lyaddl)": 0.001240646374805382,
+      "i(lyaddn)": 0.001298311963382809
+    },
+    "damping_HF_W": 5.596004712702834e-08,
+    "added_choke_HF_copper_W": 1.923289734524961e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00012004452061002778,
+      "i(lnewx)": 0.0019013341457114416,
+      "i(lxin)": 7.882181911187388e-05,
+      "i(lcmaddl)": 0.0003986202188260822,
+      "i(lcmaddn)": 0.0004006420740930147,
+      "i(lyaddl)": 0.0012290603920877563,
+      "i(lyaddn)": 0.0013325910282894326
+    },
+    "damping_HF_W": 5.901176297217221e-08,
+    "added_choke_HF_copper_W": 1.916472902343038e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00011688834371000243,
+      "i(lnewx)": 0.0018636743869042474,
+      "i(lxin)": 2.384106125642408e-05,
+      "i(lcmaddl)": 0.00039343811508883416,
+      "i(lcmaddn)": 0.00039362367137109946,
+      "i(lyaddl)": 0.0012297313825680239,
+      "i(lyaddn)": 0.001333290128691194
+    },
+    "damping_HF_W": 5.594951364612108e-08,
+    "added_choke_HF_copper_W": 1.8583988704099082e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "high_caps",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0001008049415263749,
+      "i(lnewx)": 0.0019558166119512752,
+      "i(lxin)": 6.426487612116926e-05,
+      "i(lcmaddl)": 0.00024649502535240096,
+      "i(lcmaddn)": 0.0002387211186216369,
+      "i(lyaddl)": 0.0007017141754233487,
+      "i(lyaddn)": 0.0007376039533073521
+    },
+    "damping_HF_W": 4.161190038697635e-08,
+    "added_choke_HF_copper_W": 7.064854199966786e-10
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "high_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0001103613953072917,
+      "i(lnewx)": 0.0020068554524748485,
+      "i(lxin)": 7.649727561651626e-05,
+      "i(lcmaddl)": 0.00030577864701216063,
+      "i(lcmaddn)": 0.0002945665806237482,
+      "i(lyaddl)": 0.0005819723808317097,
+      "i(lyaddn)": 0.0005967740720127264
+    },
+    "damping_HF_W": 4.987561586623559e-08,
+    "added_choke_HF_copper_W": 1.0816203083337282e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "low_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00012765119138256605,
+      "i(lnewx)": 0.001854341260531065,
+      "i(lxin)": 8.027674047062559e-05,
+      "i(lcmaddl)": 0.0003062388150345885,
+      "i(lcmaddn)": 0.0002950065221747563,
+      "i(lyaddl)": 0.0006722300231818318,
+      "i(lyaddn)": 0.0007136194296838187
+    },
+    "damping_HF_W": 6.672731517838592e-08,
+    "added_choke_HF_copper_W": 1.0848663597566033e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "low_damping",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.0001321396176055913,
+      "i(lnewx)": 0.0019471705929058937,
+      "i(lxin)": 7.867297975940255e-05,
+      "i(lcmaddl)": 0.0003060118325028194,
+      "i(lcmaddn)": 0.00029474615548945776,
+      "i(lyaddl)": 0.0008402434457525269,
+      "i(lyaddn)": 0.0009825101644372668
+    },
+    "damping_HF_W": 6.469255499422677e-08,
+    "added_choke_HF_copper_W": 1.0831112268452954e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "high_RF_loss",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00012184018282064203,
+      "i(lnewx)": 0.0018485260154431722,
+      "i(lxin)": 7.982384318001536e-05,
+      "i(lcmaddl)": 0.00030063656720058637,
+      "i(lcmaddn)": 0.00029005919973762673,
+      "i(lyaddl)": 0.0007245820848055098,
+      "i(lyaddn)": 0.000890208250153364
+    },
+    "damping_HF_W": 6.07903984632978e-08,
+    "added_choke_HF_copper_W": 1.0471001093435107e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "low_RF_loss",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00012003938782643142,
+      "i(lnewx)": 0.0019010570237631556,
+      "i(lxin)": 7.882935100589454e-05,
+      "i(lcmaddl)": 0.0003075235420786296,
+      "i(lcmaddn)": 0.00029628345529524145,
+      "i(lyaddl)": 0.0007793118975811845,
+      "i(lyaddn)": 0.0009302566170375126
+    },
+    "damping_HF_W": 5.900671670880336e-08,
+    "added_choke_HF_copper_W": 1.094127688885644e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "old_low_leakage",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00026511418217295917,
+      "i(lnewx)": 0.004273718263617687,
+      "i(lxin)": 0.00017539476775250854,
+      "i(lcmaddl)": 0.0003601008353564332,
+      "i(lcmaddn)": 0.0003340014688244942,
+      "i(lyaddl)": 0.0007549678266709067,
+      "i(lyaddn)": 0.0008499387997932844
+    },
+    "damping_HF_W": 2.8781924366792545e-07,
+    "added_choke_HF_copper_W": 1.4473775568079236e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "all_high_parasitics",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00024354259822004866,
+      "i(lnewx)": 0.004251895662552267,
+      "i(lxin)": 0.00016950124926215642,
+      "i(lcmaddl)": 0.00035736521124307756,
+      "i(lcmaddn)": 0.00033106388206094635,
+      "i(lyaddl)": 0.0009806792061605744,
+      "i(lyaddn)": 0.0009661901259182382
+    },
+    "damping_HF_W": 2.428867233201265e-07,
+    "added_choke_HF_copper_W": 1.4238791292724418e-09
+  },
+  {
+    "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+    "scenario": "tabs_reversed",
+    "harmonic_current_RMS_A": {
+      "i(ldamp)": 0.00012004568826914948,
+      "i(lnewx)": 0.0019013377936455127,
+      "i(lxin)": 7.882938424360499e-05,
+      "i(lcmaddl)": 0.0003060285647288093,
+      "i(lcmaddn)": 0.0002948157687519518,
+      "i(lyaddl)": 0.0007784034040802504,
+      "i(lyaddn)": 0.0009332006432429396
+    },
+    "damping_HF_W": 5.9012910978896566e-08,
+    "added_choke_HF_copper_W": 1.083418919608676e-09
   },
   {
     "case": "envelope-v198-f60000-r100-e1.06-s0.25",

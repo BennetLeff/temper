@@ -12,6 +12,7 @@
 {'case': 'envelope-v170-f35000-r2-e1.06-s0.125', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 14.15135509379828, 'QP_dB': 24.15135509379828, 'Hz': 210000.0}
 {'case': 'envelope-v170-f35000-r2-e1.06-s0.25', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 14.15119819249886, 'QP_dB': 24.15119819249886, 'Hz': 210000.0}
 {'case': 'envelope-v170-f35000-r2-e1.06-s0.5', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 14.150957411136453, 'QP_dB': 24.150957411136453, 'Hz': 210000.0}
+{'case': 'envelope-v170-f35000-r2-e10-c32-s0.05', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 14.154018609563735, 'QP_dB': 24.154018609563735, 'Hz': 210000.0}
 {'case': 'envelope-v170-f35000-r2-e10-c32-s0.1', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 14.153996484095238, 'QP_dB': 24.153996484095238, 'Hz': 210000.0}
 {'case': 'envelope-v170-f35000-r2-e10-s0.25', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 14.15393371172938, 'QP_dB': 24.15393371172938, 'Hz': 210000.0}
 {'case': 'envelope-v170-f35000-r2-e10-s0.5', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 14.153639340911816, 'QP_dB': 24.153639340911816, 'Hz': 210000.0}
@@ -33,10 +34,12 @@
 {'case': 'envelope-v198-f35000-r100-e10-s0.1', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 13.092388237415904, 'QP_dB': 23.092388237415904, 'Hz': 175000.0}
 {'case': 'envelope-v198-f35000-r100-e10-s0.25', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 13.092384957719723, 'QP_dB': 23.092384957719723, 'Hz': 175000.0}
 {'case': 'envelope-v198-f35000-r100-e10-s0.5', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 13.092368465212132, 'QP_dB': 23.092368465212132, 'Hz': 175000.0}
+{'case': 'envelope-v198-f35000-r2-e1.06-c32-s0.08', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 12.829852994899838, 'QP_dB': 22.829852994899838, 'Hz': 210000.0}
 {'case': 'envelope-v198-f35000-r2-e1.06-c32-s0.25', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 12.82964096704982, 'QP_dB': 22.82964096704982, 'Hz': 210000.0}
 {'case': 'envelope-v198-f35000-r2-e1.06-s0.125', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 12.829922929973975, 'QP_dB': 22.829922929973975, 'Hz': 210000.0}
 {'case': 'envelope-v198-f35000-r2-e1.06-s0.25', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 12.829743196707405, 'QP_dB': 22.829743196707405, 'Hz': 210000.0}
 {'case': 'envelope-v198-f35000-r2-e1.06-s0.5', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 12.82937957274273, 'QP_dB': 22.82937957274273, 'Hz': 210000.0}
+{'case': 'envelope-v198-f35000-r2-e10-c32-s0.0625', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 12.832223713622945, 'QP_dB': 22.832223713622945, 'Hz': 210000.0}
 {'case': 'envelope-v198-f35000-r2-e10-c32-s0.125', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 12.832206578442516, 'QP_dB': 22.832206578442516, 'Hz': 210000.0}
 {'case': 'envelope-v198-f35000-r2-e10-c32-s0.25', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 12.832117324738164, 'QP_dB': 22.832117324738164, 'Hz': 210000.0}
 {'case': 'envelope-v198-f35000-r2-e10-s0.125', 'scenario': 'old_low_leakage', 'mode': 'terminal', 'AV_dB': 12.832309159754857, 'QP_dB': 22.832309159754857, 'Hz': 210000.0}

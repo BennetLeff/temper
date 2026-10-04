@@ -29,3 +29,9 @@ The 198 V / 35 kHz / 2 ohm / 1.06 nH 0.1 ns recovery also aborted, at 273.429 us
 The 170 V / 60 kHz / 2 ohm / 10 nH 0.1 ns run completes, but its significant-line difference from 0.25 ns is 0.202466 dB and the weak-line check also fails. `closing-refinement.json` declares a 0.0625 ns run against the complete 0.1 ns reference over the same 48 cycles. The 0.2 dB target is applied without rounding.
 
 The 170 V / 60 kHz / 2 ohm / 10 nH 0.0625 ns run aborted during startup. `terminal-refinement.json` tests 0.08 ns against the complete 0.1 ns capture over the same 48 cycles. This is the final additional attempt for this point; failure remains unqualified.
+
+The 198 V / 60 kHz / 100 ohm / 1.06 nH 0.08 ns run also aborted. `final-light-refinement.json` makes a final standard half-step trial at 0.0625 ns against the complete 0.25 ns reference over 48 cycles. The intermediate 0.125, 0.1 and 0.08 ns failures remain indeterminate; only a complete capture passing both spectral checks can qualify the operating point.
+
+## Final outcome
+
+All declared attempts are terminal. All 16 operating points pass the unchanged significant-line, weak-line and cycle checks. The final 170 V / 60 kHz / 2 ohm / 10 nH refinement changes significant lines by at most 0.014200 dB; the final 198 V / 60 kHz / 100 ohm / 1.06 nH refinement changes them by at most 0.102047 dB. The complete coverage and failure history are in `TABLES.md`, `convergence-summary.json` and `ATTEMPTS.md`. This resolves the original 6.72 dB movement under the declared finite-refinement criterion; it does not establish a universal numerical-error bound.

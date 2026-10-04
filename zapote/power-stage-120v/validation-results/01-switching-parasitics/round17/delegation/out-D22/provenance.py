@@ -92,7 +92,7 @@ def main():
         and p.name not in ("provenance.json", "provenance.log")
         and not (
             p.parent == HERE
-            and p.name in ("envelope-0.125.log", "anchor-0.0625.log", "targeted-refinement.log", "additional-refinement.log", "fine-refinement.log", "recovery-refinement.log", "weak-refinement.log", "retry-refinement.log", "last-refinement.log", "closing-refinement.log", "terminal-refinement.log")
+            and p.name in ("envelope-0.125.log", "anchor-0.0625.log", "targeted-refinement.log", "additional-refinement.log", "fine-refinement.log", "recovery-refinement.log", "weak-refinement.log", "retry-refinement.log", "last-refinement.log", "closing-refinement.log", "terminal-refinement.log", "final-light-refinement.log")
             and not (HERE / (p.stem + "-results.json")).exists()
         )
         and not (
