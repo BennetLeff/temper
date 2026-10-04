@@ -1,3 +1,5 @@
+> Implementation update: [native19 routed candidate and verification](NATIVE19.md). The native18 findings below are historical baseline evidence.
+
 # PCB integration readiness — 2026-10-04
 
 The next useful hardware milestone is an integrated engineering prototype.

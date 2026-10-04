@@ -1,0 +1,364 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "verdict_reason": "Three confirmed P2 reproduction defects remain. Pin replay to committed footprint libraries (#1), connect audited source exports to both native builders (#3), then correct the model regeneration guide (#2). This verdict concerns the code and evidence packet; fabrication and energization remain unreleased.",
+  "scope": {
+    "base": "80e716110",
+    "branch": "codex/mit-product-guidance",
+    "head_sha": "80e716110fb7ff05d5cc4011c1ac370f70498fad",
+    "pr_url": null,
+    "files_changed": 213,
+    "mode": "standalone",
+    "reviewed_checkout": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance"
+  },
+  "intent": "Prepare the few-engineering-prototype milestone: integrate HOT5 and corrected Kelvin shunt in native19, reproduce bounded power/EMI evidence, develop cooling/control cold studies, and provide a first-unit build/test packet. Preserve explicit unknowns: no physical measurements or fabrication/energization release; old board simulations do not automatically qualify changed copper or installed geometry.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "learnings",
+    "reliability",
+    "adversarial"
+  ],
+  "findings": [
+    {
+      "#": 1,
+      "autofix_class": "gated_auto",
+      "confidence": 100,
+      "evidence": [
+        "zapote/power-stage-120v/prototype-closure/pcb/build_candidate.py:69-71 -- shutil.copy2(\n            libroot / (lib + \".pretty\") / (name + \".kicad_mod\"), local / (name + \".kicad_mod\")\n        )",
+        "AGENTS.md:1053-1054 -- **Library**: Use local `components/` for symbols/footprints. **Do not rely on global libraries.**"
+      ],
+      "file": "zapote/power-stage-120v/prototype-closure/pcb/build_candidate.py",
+      "first_evidence": "zapote/power-stage-120v/prototype-closure/pcb/build_candidate.py:69-71 -- shutil.copy2(\n            libroot / (lib + \".pretty\") / (name + \".kicad_mod\"), local / (name + \".kicad_mod\")\n        )",
+      "independent_reviewers": [
+        "project-standards"
+      ],
+      "line": 69,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "project-standards"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Remove the global libroot dependency and unconditional shutil.copy2 from build(); require each authored footprint to exist in native-19/candidate-libs and load it there. Keep any future library acquisition as an explicit separate update. Replay in an isolated output copy with the installed footprint directory unavailable or altered, then confirm the footprint-library hashes stay unchanged and the expected board/parity checks still pass.",
+      "title": "Replay must use the committed footprint libraries",
+      "why_it_matters": "Rebuilding native19 overwrites the reviewed candidate-local footprints with whichever versions are installed in the machine's KiCad application, and fails when that macOS installation path is unavailable even though the required footprints are already committed. The baseline-board hash and pad/net identity checks do not pin those replacement footprint geometries. Loading the committed candidate-libs directly preserves the reviewed R5/HOT5 geometry and satisfies the explicit local-library rule.",
+      "validation_status": "confirmed",
+      "validation_reason": "The newly added build_candidate.py:63-72 unconditionally overwrites candidate-local footprint files from the installed KiCad directory before loading them, and the documented replay invokes this path with nonempty poses including R5, so a changed installed footprint replaces the reviewed geometry without a geometry hash guard, contrary to AGENTS.md:1053-1054; current local and installed R5 hashes match, so differing-library incidence was not measured.",
+      "protected_subject": "data-loss"
+    },
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/native-19/models3d/README.md:22 -- \"$KICAD_PY\" tools/apply_reference_labels.py native-09/section.kicad_pcb \\"
+      ],
+      "file": "zapote/power-stage-120v/native-19/models3d/README.md",
+      "first_evidence": "zapote/power-stage-120v/native-19/models3d/README.md:22 -- \"$KICAD_PY\" tools/apply_reference_labels.py native-09/section.kicad_pcb \\",
+      "independent_reviewers": [
+        "maintainability"
+      ],
+      "line": 22,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "maintainability"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Replace the copied native09 regeneration section with links to ../verification/reproduction-commands.json and ../verification/model-inventory.json; document ${KIPRJMOD}/models3d/ as the native19 location. Label any retained native09 counts and model maps as historical provenance rather than current assignments.",
+      "title": "Native19 model guide invokes absent historical adapters",
+      "why_it_matters": "A maintainer following the new native19 model directory's regeneration instructions cannot reproduce the candidate: both named finishing adapters are absent from this checkout, and the commands target native09. The same guide prescribes the old sibling model directory despite build_candidate.py explicitly relocating models inside native19. Pointing this copied guide at the existing native19 reproduction and inventory records removes a conflicting maintenance path without adding another generator.",
+      "validation_status": "confirmed",
+      "validation_reason": "Following the newly added native-19/models3d/README.md:19-24 fails because neither prescribed adapter exists in the unit's tools directory, while lines 14-15 prescribe the native09 sibling location that build_candidate.py:109-112 explicitly relocates for native19; the required precondition is following this guide, and the missing paths were verified directly."
+    },
+    {
+      "#": 3,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/native-19/verification/reproduction-commands.json:20 --       \"command\": \"cp build/default.net frozen/default.net; cp build/default.csv frozen/default.csv; cp build/resolved-components.json frozen/resolved-components.json\",",
+        "zapote/power-stage-120v/prototype-closure/pcb/build_candidate.py:43-45 -- out = UNIT / \"native-19\"; netlist = source.parse_netlist(out / \"frozen/default.net\"); exported = json.loads((out / \"frozen/resolved-components.json\").read_text()). The source_pad_nets_match check compares the output only against this native snapshot.",
+        "Read-only verification confirmed all three current frozen copies are byte-identical, all eight final native-design hashes and twenty final receipt hashes match, and all thirteen manufacturing input hashes plus its board hash match. The finding concerns the missing reproduction boundary, not those current receipts."
+      ],
+      "file": "zapote/power-stage-120v/native-19/verification/reproduction-commands.json",
+      "first_evidence": "zapote/power-stage-120v/native-19/verification/reproduction-commands.json:20 --       \"command\": \"cp build/default.net frozen/default.net; cp build/default.csv frozen/default.csv; cp build/resolved-components.json frozen/resolved-components.json\",",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 20,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "After the compiled exports pass the source audit, explicitly synchronize the three native-19/frozen files and check byte equality before either builder runs. Alternatively have both builders consume the audited top-level frozen exports directly and write the native snapshot from that input. Add a negative check demonstrating that a divergent native snapshot is rejected before producing a board/schematic.",
+      "title": "Source rebuild can validate an older native circuit",
+      "why_it_matters": "The documented reproduction sequence audits freshly compiled top-level frozen exports but regenerates the PCB and schematic from the separate native-19/frozen exports, which the sequence never updates or compares. A changed source export can therefore pass the source audit while DRC/ERC validate the previous circuit; their mutual schematic parity cannot reveal that both consumed the stale copy. The presently committed copies do match, so this is a reproduction/verification defect rather than evidence that the saved candidate is mismatched.",
+      "validation_status": "confirmed",
+      "validation_reason": "The newly added reproduction-commands.json:20-37 copies and audits only top-level frozen exports, while build_candidate.py:43-45 and build_schematic.py:31-33 consume native-19/frozen without synchronization or equality checks, so a source revision that passes the audit while the native snapshot remains old reaches both builders unchanged; all three current snapshot pairs have matching SHA256 hashes, and divergent-source incidence was not measured."
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "autofix_class": "gated_auto",
+      "confidence": 100,
+      "evidence": [
+        "zapote/power-stage-120v/prototype-closure/pcb/build_candidate.py:69-71 -- shutil.copy2(\n            libroot / (lib + \".pretty\") / (name + \".kicad_mod\"), local / (name + \".kicad_mod\")\n        )",
+        "AGENTS.md:1053-1054 -- **Library**: Use local `components/` for symbols/footprints. **Do not rely on global libraries.**"
+      ],
+      "file": "zapote/power-stage-120v/prototype-closure/pcb/build_candidate.py",
+      "first_evidence": "zapote/power-stage-120v/prototype-closure/pcb/build_candidate.py:69-71 -- shutil.copy2(\n            libroot / (lib + \".pretty\") / (name + \".kicad_mod\"), local / (name + \".kicad_mod\")\n        )",
+      "independent_reviewers": [
+        "project-standards"
+      ],
+      "line": 69,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "project-standards"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Remove the global libroot dependency and unconditional shutil.copy2 from build(); require each authored footprint to exist in native-19/candidate-libs and load it there. Keep any future library acquisition as an explicit separate update. Replay in an isolated output copy with the installed footprint directory unavailable or altered, then confirm the footprint-library hashes stay unchanged and the expected board/parity checks still pass.",
+      "title": "Replay must use the committed footprint libraries",
+      "why_it_matters": "Rebuilding native19 overwrites the reviewed candidate-local footprints with whichever versions are installed in the machine's KiCad application, and fails when that macOS installation path is unavailable even though the required footprints are already committed. The baseline-board hash and pad/net identity checks do not pin those replacement footprint geometries. Loading the committed candidate-libs directly preserves the reviewed R5/HOT5 geometry and satisfies the explicit local-library rule.",
+      "validation_status": "confirmed",
+      "validation_reason": "The newly added build_candidate.py:63-72 unconditionally overwrites candidate-local footprint files from the installed KiCad directory before loading them, and the documented replay invokes this path with nonempty poses including R5, so a changed installed footprint replaces the reviewed geometry without a geometry hash guard, contrary to AGENTS.md:1053-1054; current local and installed R5 hashes match, so differing-library incidence was not measured.",
+      "protected_subject": "data-loss"
+    },
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/native-19/models3d/README.md:22 -- \"$KICAD_PY\" tools/apply_reference_labels.py native-09/section.kicad_pcb \\"
+      ],
+      "file": "zapote/power-stage-120v/native-19/models3d/README.md",
+      "first_evidence": "zapote/power-stage-120v/native-19/models3d/README.md:22 -- \"$KICAD_PY\" tools/apply_reference_labels.py native-09/section.kicad_pcb \\",
+      "independent_reviewers": [
+        "maintainability"
+      ],
+      "line": 22,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "maintainability"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Replace the copied native09 regeneration section with links to ../verification/reproduction-commands.json and ../verification/model-inventory.json; document ${KIPRJMOD}/models3d/ as the native19 location. Label any retained native09 counts and model maps as historical provenance rather than current assignments.",
+      "title": "Native19 model guide invokes absent historical adapters",
+      "why_it_matters": "A maintainer following the new native19 model directory's regeneration instructions cannot reproduce the candidate: both named finishing adapters are absent from this checkout, and the commands target native09. The same guide prescribes the old sibling model directory despite build_candidate.py explicitly relocating models inside native19. Pointing this copied guide at the existing native19 reproduction and inventory records removes a conflicting maintenance path without adding another generator.",
+      "validation_status": "confirmed",
+      "validation_reason": "Following the newly added native-19/models3d/README.md:19-24 fails because neither prescribed adapter exists in the unit's tools directory, while lines 14-15 prescribe the native09 sibling location that build_candidate.py:109-112 explicitly relocates for native19; the required precondition is following this guide, and the missing paths were verified directly."
+    },
+    {
+      "#": 3,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/native-19/verification/reproduction-commands.json:20 --       \"command\": \"cp build/default.net frozen/default.net; cp build/default.csv frozen/default.csv; cp build/resolved-components.json frozen/resolved-components.json\",",
+        "zapote/power-stage-120v/prototype-closure/pcb/build_candidate.py:43-45 -- out = UNIT / \"native-19\"; netlist = source.parse_netlist(out / \"frozen/default.net\"); exported = json.loads((out / \"frozen/resolved-components.json\").read_text()). The source_pad_nets_match check compares the output only against this native snapshot.",
+        "Read-only verification confirmed all three current frozen copies are byte-identical, all eight final native-design hashes and twenty final receipt hashes match, and all thirteen manufacturing input hashes plus its board hash match. The finding concerns the missing reproduction boundary, not those current receipts."
+      ],
+      "file": "zapote/power-stage-120v/native-19/verification/reproduction-commands.json",
+      "first_evidence": "zapote/power-stage-120v/native-19/verification/reproduction-commands.json:20 --       \"command\": \"cp build/default.net frozen/default.net; cp build/default.csv frozen/default.csv; cp build/resolved-components.json frozen/resolved-components.json\",",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 20,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "After the compiled exports pass the source audit, explicitly synchronize the three native-19/frozen files and check byte equality before either builder runs. Alternatively have both builders consume the audited top-level frozen exports directly and write the native snapshot from that input. Add a negative check demonstrating that a divergent native snapshot is rejected before producing a board/schematic.",
+      "title": "Source rebuild can validate an older native circuit",
+      "why_it_matters": "The documented reproduction sequence audits freshly compiled top-level frozen exports but regenerates the PCB and schematic from the separate native-19/frozen exports, which the sequence never updates or compares. A changed source export can therefore pass the source audit while DRC/ERC validate the previous circuit; their mutual schematic parity cannot reveal that both consumed the stale copy. The presently committed copies do match, so this is a reproduction/verification defect rather than evidence that the saved candidate is mismatched.",
+      "validation_status": "confirmed",
+      "validation_reason": "The newly added reproduction-commands.json:20-37 copies and audits only top-level frozen exports, while build_candidate.py:43-45 and build_schematic.py:31-33 consume native-19/frozen without synchronization or equality checks, so a source revision that passes the audit while the native snapshot remains old reaches both builders unchanged; all three current snapshot pairs have matching SHA256 hashes, and divergent-source incidence was not measured."
+    }
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "Model checks do not establish physical correspondence",
+      "citation": "docs/solutions/best-practices/invariants-verify-model-not-reality-2026-07-09.md",
+      "note": "model checks do not establish physical correspondence; native19 extraction, loaded Kelvin reference, installed cooling/airflow and hardware qualification remain acknowledged open gates."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Calibration point must equal design point",
+      "citation": "docs/solutions/best-practices/calibration-point-must-equal-design-point-2026-07-28.md",
+      "note": "the conditional turnoff sweep uses imposed current and hypothetical delays; its results are not measured trip currents or a qualified operating envelope."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Check component identity against circuit assumptions",
+      "citation": "docs/solutions/logic-errors/ntc-mpn-encodes-10k-circuit-designed-for-100k-2026-07-16.md",
+      "note": "the corrected R5 MPN, Kelvin terminals and T2.21mm footprint are checked together; identity does not establish pulse/thermal survivability."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Routing checks do not replace the DRC oracle",
+      "citation": "docs/solutions/logic-errors/deterministic-pipeline-drc-oracle-only-checks-routing-not-real-drc.md",
+      "note": "committed KiCad receipts support zero error-severity violations, with 39 retained warnings, not zero DRC violations; the reviewer did not rerun KiCad."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Measurements carry content identity and scope",
+      "citation": "docs/solutions/best-practices/a-measurement-carries-its-commit-2026-07-26.md",
+      "note": "content hashes and declared scope identify evidence. Final native19 hashes were checked; native18 FEM reuse is explicitly not authorized and fabrication/energization remain unreleased."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Native19 changes both FEM leg regions and introduces a loaded Kelvin reference. The retained native18 commutation results do not establish native19 parasitics or sense-reference error; the candidate README and integration verification correctly preserve these as release holds.",
+    "The cooling collision evidence covers the 135-component native18 population, while the native19 candidate contains 142 components. The current study explicitly excludes native19 HOT5 additions, so its nominal noninterference result cannot qualify the final installed assembly."
+  ],
+  "testing_gaps": [],
+  "coverage": {
+    "depth": "full",
+    "reviewer_selection": [
+      {
+        "reviewer": "correctness",
+        "tier": "session",
+        "reason": "always-on"
+      },
+      {
+        "reviewer": "project-standards",
+        "tier": "session",
+        "reason": "root instruction criteria"
+      },
+      {
+        "reviewer": "testing",
+        "tier": "session",
+        "reason": "new validation harnesses and source-audit mutations"
+      },
+      {
+        "reviewer": "maintainability",
+        "tier": "session",
+        "reason": "1998 executable changed lines"
+      },
+      {
+        "reviewer": "learnings",
+        "tier": "session",
+        "reason": "matched measurement and KiCad prior incidents"
+      },
+      {
+        "reviewer": "reliability",
+        "tier": "session",
+        "reason": "input guards and failed-run evidence"
+      },
+      {
+        "reviewer": "adversarial",
+        "tier": "session",
+        "reason": "silent-pass checks and changed generators"
+      }
+    ],
+    "standards": {
+      "criteria": [
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "fallback_named": true,
+      "not_run_reason": null
+    },
+    "compound_packs": {
+      "roots": [],
+      "errors": [],
+      "warnings": []
+    },
+    "suppressed_by_confidence": {},
+    "mode_aware_demotions": 0,
+    "first_evidence_backfilled": 0,
+    "first_evidence_demoted": 0,
+    "semantic_duplicates_merged": 0,
+    "validator": {
+      "outcome": "verdicts",
+      "batches": 1,
+      "selected": 3,
+      "confirmed": 3,
+      "rejected": 0,
+      "unresolved": 0,
+      "malformed": 0,
+      "failed": 0,
+      "shortcut_skipped": 0,
+      "shortcut_basis": "No quote-anchored cross-model corroboration exists.",
+      "verdicts_landed": true,
+      "bound_exceeded": false,
+      "protected_subject_reclassifications": [],
+      "degraded_blockers": [],
+      "per_finding": [
+        {
+          "#": 1,
+          "status": "confirmed",
+          "protected_subject": "data-loss",
+          "reason": "The newly added build_candidate.py:63-72 unconditionally overwrites candidate-local footprint files from the installed KiCad directory before loading them, and the documented replay invokes this path with nonempty poses including R5, so a changed installed footprint replaces the reviewed geometry without a geometry hash guard, contrary to AGENTS.md:1053-1054; current local and installed R5 hashes match, so differing-library incidence was not measured."
+        },
+        {
+          "#": 2,
+          "status": "confirmed",
+          "protected_subject": null,
+          "reason": "Following the newly added native-19/models3d/README.md:19-24 fails because neither prescribed adapter exists in the unit's tools directory, while lines 14-15 prescribe the native09 sibling location that build_candidate.py:109-112 explicitly relocates for native19; the required precondition is following this guide, and the missing paths were verified directly."
+        },
+        {
+          "#": 3,
+          "status": "confirmed",
+          "protected_subject": null,
+          "reason": "The newly added reproduction-commands.json:20-37 copies and audits only top-level frozen exports, while build_candidate.py:43-45 and build_schematic.py:31-33 consume native-19/frozen without synchronization or equality checks, so a source revision that passes the audit while the native snapshot remains old reaches both builders unchanged; all three current snapshot pairs have matching SHA256 hashes, and divergent-source incidence was not measured."
+        }
+      ]
+    },
+    "cross_model": {
+      "selected": true,
+      "target": "claude",
+      "route": "claude",
+      "preference_source": "default",
+      "outcome": "in-process-fallback",
+      "artifact": null,
+      "coverage": "Cross-model pass not started: automatic approval review rejected sending project diff/source to Claude without explicit payload/destination authorization. Astra in-process adversarial review completed instead."
+    },
+    "failed_reviewers": [],
+    "timed_out_reviewers": [],
+    "settlement_suppression_evaluated": false,
+    "untracked_excluded": [
+      "output/temper-prototype-closure/{power,emi}/ local replay outputs",
+      "output/temper-prototype-closure/pcb/temper-power-native19-candidate.step",
+      "native19 intermediate DRC/ERC receipts; exact list in /private/tmp/compound-engineering-501/ce-code-review/temper-prototype-20261004-132238/untracked.txt"
+    ],
+    "notes": [
+      "AGENTS.md and CLAUDE.md used as instruction-file standards fallback; no scoped CODING_STANDARDS.md found.",
+      "Astra model override follows explicit user request for all subagents.",
+      "Generated native19 repetition reviewed through generators, source mappings, manifests and representative outputs.",
+      "Final PCB receipt/document additions were staged during review; live source code remained frozen. Earlier correctness and standards passes cover code; final receipt identities were independently checked by testing, reliability and learnings.",
+      "Untracked intermediate runs and local generated STEP assemblies are excluded; retained manufacturer/provisional component assets are part of native19.",
+      "Cross-model pass not started: automatic approval review rejected sending project diff/source to Claude without explicit payload/destination authorization. Astra in-process adversarial review completed instead.",
+      "Reviewed workspace is /Users/bennet/Desktop/temper/worktrees/mit-product-guidance, verified on codex/mit-product-guidance at 80e716110fb7ff05d5cc4011c1ac370f70498fad. The inherited /Users/bennet/Desktop/temper cwd is a different checkout and was not used as reviewed source.",
+      "Three distinct, actionable P2 reproduction defects remain; no semantic duplicates, confidence suppressions, malformed findings, first-evidence demotions, or mode-aware demotions. first_evidence_backfilled: 0.",
+      "Settlement suppression was not evaluated because no plan was discovered.",
+      "Validator shortcut skipped 0 findings: no quote-anchored cross-model corroboration exists. All 3 actionable findings selected for one validator batch.",
+      "The testing reviewer independently checked shell syntax, all 81 archived conditional-result acceptance cases and two negative controls, corrected contact intervals and historical sign-error negatives, plus final native19 manifest/source-copy hashes. Rust audit execution, KiCad/CadQuery generation and external EMI simulations were not independently rerun by that reviewer; committed receipts support those results.",
+      "Merge inspection confirmed the cited source lines, the absent documented model adapters, the source-audit/native-snapshot split, and byte equality of the three presently committed frozen export copies. It performed no build, simulation, physical test or project mutation.",
+      "One validator batch returned within its bound: 3 confirmed, 0 rejected, unresolved, malformed or failed; 0 shortcut-skipped. Findings #1 and #3 establish permitted failure paths; differing-library and divergent-source incidence were not measured.",
+      "Report inspection rechecked all cited changed lines in the reviewed checkout. No project files were changed; no fixes were applied."
+    ]
+  },
+  "artifact_path": "/private/tmp/compound-engineering-501/ce-code-review/temper-prototype-20261004-132238",
+  "run_id": "temper-prototype-20261004-132238"
+}

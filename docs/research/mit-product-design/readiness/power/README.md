@@ -1,5 +1,7 @@
 # Power-stage readiness — 2026-10-04
 
+Execution follow-up: [D17 commutation evidence, exact capacitor limits and interlock ECO](closure-2026-10-04.md). This adds digital evidence; no physical measurement or operating-envelope release is claimed.
+
 **Next deliverable: a characterized coil/bank and a bounded controller operating envelope for a few engineering prototypes to test. Production power and fault survival remain unqualified.** No assembled Temper hardware exists. Keep the current 120/127 V, 60 Hz, 15 A input target, approved exterior and hardware trip thresholds while collecting the missing evidence. The prototype cohort is the user's first milestone; it is not a production release.
 
 ## What is current

@@ -9,9 +9,10 @@
 #
 # Domains:
 #   mains / HOT:  AC_*, L_*, N_*, BUS_P, HV_RET, LEG_RET, SW_*, tank nets.
-#                 HOT_GND is LEG_RET: gate-driver low sides, the OCP
-#                 comparator, AMC1311 side 1 and ISO7710 side 1 all return
-#                 to the leg side of the shunt (layout: star at shunt pad 2).
+#                 LEG_RET carries gate-driver recharge and bridge current.
+#                 OCP_KELVIN_P returns the LDO, protection and isolated hot
+#                 control circuits to the separate R5 sense terminal. This is
+#                 a loaded Kelvin reference, not a zero-current sense lead.
 #   SELV:         everything on the 16-pin controller header, isolated by
 #                 UCC21550, AMC1311, ISO7710, CST3015 and the IRM-20-15.
 #
@@ -182,6 +183,7 @@ module PowerStage120V:
     signal HV_RET
     signal BUSBLEED_MID
     signal LEG_RET
+    signal OCP_KELVIN_P
     signal SW_A
     signal SW_B
     signal COIL_FEED
@@ -290,11 +292,13 @@ module PowerStage120V:
     r_bus2.value = 220kohm
     r_bus2.p1 ~ BUSBLEED_MID
     r_bus2.p2 ~ HV_RET
+    # Keep I1 and E1 on different PCB nets: the selected four-terminal part
+    # joins them internally. Gate-supply recharge returns through I1, never E1.
     # Legs return through the shunt to the bus capacitors, so shoot-through
     # current (which never enters the tank CT) is measured here.
     r_shunt = new Shunt1m
     r_shunt.I1 ~ LEG_RET
-    r_shunt.S1 ~ LEG_RET
+    r_shunt.S1 ~ OCP_KELVIN_P
     r_shunt.S2 ~ OCP_KELVIN_N
     r_shunt.I2 ~ HV_RET
 
@@ -383,16 +387,16 @@ module PowerStage120V:
     c_v15.p2 ~ LEG_RET
     u_ldo = new Ldo78L05
     u_ldo.IN ~ V15_LS
-    u_ldo.GND ~ LEG_RET
+    u_ldo.GND ~ OCP_KELVIN_P
     u_ldo.OUT ~ HOT5
     c_ldo_in = new C100n0603
     c_ldo_in.value = 100nF
     c_ldo_in.p1 ~ V15_LS
-    c_ldo_in.p2 ~ LEG_RET
+    c_ldo_in.p2 ~ OCP_KELVIN_P
     c_ldo_out = new C10u1210
     c_ldo_out.value = 10uF
     c_ldo_out.p1 ~ HOT5
-    c_ldo_out.p2 ~ LEG_RET
+    c_ldo_out.p2 ~ OCP_KELVIN_P
 
     # ---------------- bus voltage sense: 1.88 M / 15.8 k = 1/120
     r_div1 = new R470k1206
@@ -414,16 +418,16 @@ module PowerStage120V:
     r_div_bot = new R15k8Thin
     r_div_bot.value = 15.8kohm
     r_div_bot.p1 ~ VSENSE_IN
-    r_div_bot.p2 ~ LEG_RET
+    r_div_bot.p2 ~ OCP_KELVIN_P
     c_div = new C1nC0G0603
     c_div.value = 1nF
     c_div.p1 ~ VSENSE_IN
-    c_div.p2 ~ LEG_RET
+    c_div.p2 ~ OCP_KELVIN_P
     u_vsense = new Amc1311
     u_vsense.VDD1 ~ HOT5
-    u_vsense.GND1 ~ LEG_RET
+    u_vsense.GND1 ~ OCP_KELVIN_P
     u_vsense.VINP ~ VSENSE_IN
-    u_vsense.SHTDN ~ LEG_RET
+    u_vsense.SHTDN ~ OCP_KELVIN_P
     u_vsense.VDD2 ~ V3V3
     u_vsense.GND2 ~ SELV_GND
     u_vsense.VOUTP ~ VBUS_P
@@ -431,7 +435,7 @@ module PowerStage120V:
     c_vs1 = new C100n0603
     c_vs1.value = 100nF
     c_vs1.p1 ~ HOT5
-    c_vs1.p2 ~ LEG_RET
+    c_vs1.p2 ~ OCP_KELVIN_P
     c_vs2 = new C100n0603
     c_vs2.value = 100nF
     c_vs2.p1 ~ V3V3
@@ -450,7 +454,7 @@ module PowerStage120V:
     r_ref_bias.p2 ~ REF25
     u_ref = new Ref2V5
     u_ref.K ~ REF25
-    u_ref.A ~ LEG_RET
+    u_ref.A ~ OCP_KELVIN_P
     r_ocp_ref = new R10kThin
     r_ocp_ref.value = 10kohm
     r_ocp_ref.p1 ~ REF25
@@ -462,7 +466,7 @@ module PowerStage120V:
     c_ocp_node = new C100pC0G0603
     c_ocp_node.value = 100pF
     c_ocp_node.p1 ~ OCP_NODE
-    c_ocp_node.p2 ~ LEG_RET
+    c_ocp_node.p2 ~ OCP_KELVIN_P
     r_th_top = new R10k5Thin
     r_th_top.value = 10.5kohm
     r_th_top.p1 ~ REF25
@@ -470,21 +474,21 @@ module PowerStage120V:
     r_th_bot = new R10kThin
     r_th_bot.value = 10kohm
     r_th_bot.p1 ~ OCP_THRESH
-    r_th_bot.p2 ~ LEG_RET
+    r_th_bot.p2 ~ OCP_KELVIN_P
     c_th = new C1nC0G0603
     c_th.value = 1nF
     c_th.p1 ~ OCP_THRESH
-    c_th.p2 ~ LEG_RET
+    c_th.p2 ~ OCP_KELVIN_P
     u_ocp = new Tlv3201
     u_ocp.VCC ~ HOT5
-    u_ocp.GND ~ LEG_RET
+    u_ocp.GND ~ OCP_KELVIN_P
     u_ocp.INP ~ OCP_NODE
     u_ocp.INN ~ OCP_THRESH
     u_ocp.OUT ~ OCP_OK_HOT
     c_ocp_vcc = new C100n0603
     c_ocp_vcc.value = 100nF
     c_ocp_vcc.p1 ~ HOT5
-    c_ocp_vcc.p2 ~ LEG_RET
+    c_ocp_vcc.p2 ~ OCP_KELVIN_P
     # Bus OVP: VSENSE_IN = Vbus/120 vs 2.5 * 140/150 = 2.333 V -> ~280 V.
     # Output high = OK. Hardware restart inhibit through the controller latch.
     r_ovp_top = new R10kThin
@@ -494,21 +498,21 @@ module PowerStage120V:
     r_ovp_bot = new R140kThin
     r_ovp_bot.value = 140kohm
     r_ovp_bot.p1 ~ OVP_THRESH
-    r_ovp_bot.p2 ~ LEG_RET
+    r_ovp_bot.p2 ~ OCP_KELVIN_P
     c_ovp_th = new C1nC0G0603
     c_ovp_th.value = 1nF
     c_ovp_th.p1 ~ OVP_THRESH
-    c_ovp_th.p2 ~ LEG_RET
+    c_ovp_th.p2 ~ OCP_KELVIN_P
     u_ovp = new Tlv3201
     u_ovp.VCC ~ HOT5
-    u_ovp.GND ~ LEG_RET
+    u_ovp.GND ~ OCP_KELVIN_P
     u_ovp.INP ~ OVP_THRESH
     u_ovp.INN ~ VSENSE_IN
     u_ovp.OUT ~ OVP_OK_HOT
     c_ovp_vcc = new C100n0603
     c_ovp_vcc.value = 100nF
     c_ovp_vcc.p1 ~ HOT5
-    c_ovp_vcc.p2 ~ LEG_RET
+    c_ovp_vcc.p2 ~ OCP_KELVIN_P
     # BUS_FAULT_HOT = NOT(OCP_OK_HOT AND OVP_OK_HOT AND HOT5_OK_HOT).
     # Healthy = low; either trip = high. ISO7710 (non-F) defaults high
     # on input-side power loss while the SELV output supply remains valid.
@@ -518,15 +522,15 @@ module PowerStage120V:
     u_nand.C ~ HOT5_OK_HOT
     u_nand.Y ~ BUS_FAULT_HOT
     u_nand.VCC ~ HOT5
-    u_nand.GND ~ LEG_RET
+    u_nand.GND ~ OCP_KELVIN_P
     c_nand_vcc = new C100n0603
     c_nand_vcc.value = 100nF
     c_nand_vcc.p1 ~ HOT5
-    c_nand_vcc.p2 ~ LEG_RET
+    c_nand_vcc.p2 ~ OCP_KELVIN_P
     u_iso = new Iso7710
     u_iso.VCC1 ~ HOT5
-    u_iso.GND1 ~ LEG_RET
-    u_iso.GND1B ~ LEG_RET
+    u_iso.GND1 ~ OCP_KELVIN_P
+    u_iso.GND1B ~ OCP_KELVIN_P
     u_iso.IN ~ BUS_FAULT_HOT
     u_iso.VCC2 ~ V3V3
     u_iso.GND2 ~ SELV_GND
@@ -535,7 +539,7 @@ module PowerStage120V:
     c_iso1 = new C100n0603
     c_iso1.value = 100nF
     c_iso1.p1 ~ HOT5
-    c_iso1.p2 ~ LEG_RET
+    c_iso1.p2 ~ OCP_KELVIN_P
     c_iso2 = new C100n0603
     c_iso2.value = 100nF
     c_iso2.p1 ~ V3V3
@@ -716,9 +720,9 @@ module PowerStage120V:
     # TPS3700 uses V15_LS independently of the HOT5 rail it measures.
     u_hot5_uv = new Hot5Supervisor
     u_hot5_uv.VDD ~ V15_LS
-    u_hot5_uv.GND ~ LEG_RET
+    u_hot5_uv.GND ~ OCP_KELVIN_P
     u_hot5_uv.INA ~ HOT5_UV_SENSE
-    u_hot5_uv.INB ~ LEG_RET
+    u_hot5_uv.INB ~ OCP_KELVIN_P
     u_hot5_uv.OUTA ~ HOT5_UV_RAW
     r_hot5_uv_top = new R105kThin
     r_hot5_uv_top.value = 105kohm
@@ -727,7 +731,7 @@ module PowerStage120V:
     r_hot5_uv_bot = new R10kThin
     r_hot5_uv_bot.value = 10kohm
     r_hot5_uv_bot.p1 ~ HOT5_UV_SENSE
-    r_hot5_uv_bot.p2 ~ LEG_RET
+    r_hot5_uv_bot.p2 ~ OCP_KELVIN_P
     r_hot5_uv_pull = new R10kThin
     r_hot5_uv_pull.value = 10kohm
     r_hot5_uv_pull.p1 ~ HOT5
@@ -735,13 +739,13 @@ module PowerStage120V:
     c_hot5_uv = new C100n0603
     c_hot5_uv.value = 100nF
     c_hot5_uv.p1 ~ V15_LS
-    c_hot5_uv.p2 ~ LEG_RET
+    c_hot5_uv.p2 ~ OCP_KELVIN_P
     u_hot5_schmitt = new Hot5SchmittBuffer
     u_hot5_schmitt.VCC ~ HOT5
-    u_hot5_schmitt.GND ~ LEG_RET
+    u_hot5_schmitt.GND ~ OCP_KELVIN_P
     u_hot5_schmitt.A ~ HOT5_UV_RAW
     u_hot5_schmitt.Y ~ HOT5_OK_HOT
     c_hot5_schmitt = new C100n0603
     c_hot5_schmitt.value = 100nF
     c_hot5_schmitt.p1 ~ HOT5
-    c_hot5_schmitt.p2 ~ LEG_RET
+    c_hot5_schmitt.p2 ~ OCP_KELVIN_P

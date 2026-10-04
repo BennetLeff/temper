@@ -160,11 +160,13 @@ component R220k1206:
     signal p2 ~ pin 2
 
 component Shunt1m:
-    """Vishay WSK2512R0010FEA 1 mOhm 4-terminal. Pads 1/4 current, 2/3 sense."""
+    """Vishay WSK25121L000FEA 1 mOhm 4-terminal. KiCad pads 1/4 current I1/I2, 2/3 sense E1/E2.
+    Vishay doc 30108: 1 mOhm uses T=2.21 mm and low-ohm L marking.
+    Same-end terminal relationships are internal to the part, not PCB joins."""
     designator_prefix = "R"
-    mpn = "WSK2512R0010FEA"
+    mpn = "WSK25121L000FEA"
     manufacturer = "Vishay Dale"
-    footprint = "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm"
+    footprint = "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm"
     signal I1 ~ pin 1
     signal S1 ~ pin 2
     signal S2 ~ pin 3
