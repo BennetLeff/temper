@@ -1,0 +1,26 @@
+# Manufacturing readiness — engineering prototypes, then repeatability
+
+Prepared 2026-10-04 against `dea4649ff`. **No assembled hardware exists.** Preserve the approved R4 exterior and US/Mexico 120/127 V, 60 Hz, 15 A product direction. The user selected a few engineering prototypes to test on 2026-10-04, preceded by inexpensive cold-fit and material coupons. Build and instrument the first unit before completing its siblings, incorporating its findings. These are learning builds; each has a serial, defined test role and individual acceptance record. A supplier pilot follows only after its purpose and quantity are justified by the failures and process variation observed.
+
+The current digital assembly is not a single manufacturing revision: the corrected R4 STEP contains a historical board, native-18 is 135 components/83 nets, and the HOT5 source candidate is 142/88. The current-board populated STEP, cooling system, coil/bank operating envelope, actual button electronics and several material/process choices must be joined before releasing powered-prototype parts. See the [existing resolution](../../resolution/README.md) for the verified corrections and their limits.
+
+## The work in order
+
+| Stage | Work that may proceed | Exit evidence and responsible decision | Present status |
+| --- | --- | --- | --- |
+| G0 — cold mockup and coupons | Print/machine fit-only carrier; build switch/stop stack; supplier bend coupon; lens/stud bond and seal coupons; obtain coil/pan impedance data using power team's low-energy method | Mechanical owner records physical fit, tool access, both switch travel bounds and revised drawing. Process owner records supplier feedback and coupon observations. A cold-fit pass cannot qualify a printed material for heat or electrical insulation. | Can prepare now; material/switch choices and sample sourcing still needed |
+| G1 — a few engineering prototypes | Build a small revision-matched cohort of enclosure, PCB, cooling/coil assembly and firmware under [traveler](build-traveler.md). Qualify board bring-up and protection before sustained whole-unit heat runs. | Electrical, mechanical and test owners sign the exact build manifest, station procedure, resolved critical interfaces and power-stage operating envelope. Safety reviewer signs construction/test basis. Blank mandatory limit or mismatched board is a hold. | HOLD: current native-board/HOT5 integration, power envelope, cooling fit, UI implementation, material limits and station unresolved |
+| G2 — supplier repeatability pilot | Supplier builds consecutive serialized units with controlled drawings, fixtures, process instructions and inspection. Include independent setup/lot variation selected from actual G1 risks. | Quality/manufacturing owner defines quantity, coverage and acceptance **before** the pilot. All safety-critical defects resolved; deviations, rework, first-pass yield and dimensional distributions recorded. One excellent hand-built unit cannot establish repeatability. | HOLD pending G1 learning and frozen supplier process |
+| G3 — production release | Build using approved manufacturing records, purchasing controls, validated screens and change process | Product/electrical/mechanical/quality/compliance owners approve design qualification, market requirements, complete production pack and pilot evidence. Required certification/conformity process completed for chosen markets; labeling/manual and traceability settled. | HOLD; no production release implied |
+
+**Parallel work now:** power team establishes measured coil/pan envelope and capacitor application limits; PCB team joins source/layout and protection; mechanical team closes current-board/cooling/control stacks; manufacturing prepares RFQs/coupons, test station and build records. These streams meet at G1. Do not purchase a full set of final power boards or cut provisional production flats while their interfaces can still move.
+
+## Packet for the engineering friend
+
+- [Build traveler](build-traveler.md): step dependencies, hold points, checks before concealment, records and service/retest sequence.
+- [Critical-to-quality matrix](critical-to-quality.md): acceptance authorities, methods, ownership and qualification versus production screening.
+- [Supplier requests and prototype resources](supplier-requests.md): exact input packs, purchasing holds, and hardware/instruments grouped by task; drafts only, nothing sent.
+- [Release records](release-records.md): blank manifest, measurement/deviation record and production pack definition.
+- The [source and scope check](release-records.md#source-and-market-scope-check) records current official classification sources and unresolved market decisions.
+
+No cost, lead time, production quantity, supplier capability, material rating or physical pass is invented here. Quote the first engineering unit, additional prototype units, and coupon/fixture work separately; request pricing for a later pilot only after its quantity is selected. Account separately for assembly labor, destructive-test specimens, tooling, measurement fixtures, test-lab time, freight and rework. Existing `output/temper-engineering-validation` references in older notes point outside this checkout; this packet does not require that absent folder to run its recordkeeping.

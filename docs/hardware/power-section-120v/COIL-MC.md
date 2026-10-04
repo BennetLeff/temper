@@ -7,6 +7,17 @@ calculation: coil_mc.rs → coil-mc-output.txt (11/11 self-tests, seed 20260925,
 
 # Coil/pan Monte Carlo
 
+**2026-10-04 current-envelope correction:** the 45 A value below remains a
+historical comparative screen, not a released normal-operation allocation.
+The independent shunt detector has a conditional static band of
+**38.44–85.55 A** at +85 °C board with an assumed +50 °C R5 rise; the broader
+CT temperature/tolerance calculation gives **50.56–60.01 A**. The older
+50.93–59.51 A CT-only result does not supersede the shunt constraint.
+The threshold parts and relevant net endpoints are unchanged on native-18
+and the HOT5 candidate. All full-power percentages below omit shunt dynamic
+behavior and therefore cannot demonstrate implementable power. No new
+current limit is selected. See the [reconciliation and next-build gates](../../research/mit-product-design/readiness/power/README.md).
+
 ## What this can and cannot tell us
 
 It **can** rank coil targets and topologies across a plausible spread of
@@ -40,7 +51,7 @@ Other pans only need to stay within limits at reduced power, as commercial cooke
 
 **Comparative screens, not qualified limits.**
 - phase ≥ 20° (ZVS margin)
-- tank peak ≤ 45 A, using the current source's normal-operation analysis allocation. The old 85 A screen exceeded native-18's modeled 50.93–59.51 A tank-CT trip band. This is not an implemented firmware regulator or a guaranteed dynamic trip margin.
+- tank peak ≤ 45 A, retained solely for comparison with the prior model correction. The old 85 A screen exceeded the tank-CT band, but 45 A still overlaps the independent shunt's conditional static trip band. This is not an implemented firmware regulator or a guaranteed dynamic trip margin.
 - resonant capacitor ≤ 650 V line-crest peak (**assumed ranking knob**; the
   selected 942C12P22K-F / 942C12P1K-F bank has no verified hot 30–50 kHz
   continuous voltage/current envelope)
@@ -102,8 +113,9 @@ frequency probe, not a worst-case voltage claim.
 ## What to measure first (ranked by how much it moves the decision)
 
 1. **Your actual cookware on one coil:** R_pan and L_loaded for each pan, especially
-   tri-ply/clad, which has no anchor now. These pan ratios transfer to any coil
-   turn count.
+   tri-ply/clad, which has no anchor now. These ratios can inform a turn-count
+   hypothesis, but a changed winding, ferrite, diameter or gap needs its own
+   measurement; they do not qualify an arbitrary replacement coil.
 2. **Coil winding resistance with no pan:** sets efficiency (LOSS-REFACTOR.md), not feasibility.
 3. **Resonant capacitor AC rating at 30–50 kHz**, including 942C bank-element
    sharing, ripple current, case temperature and transient duty. The 650 V

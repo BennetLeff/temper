@@ -9,6 +9,14 @@ source: zapote/power-stage-120v/elec/src/power_stage_120v.ato (build-receipt.jso
 
 # 120 V power section: schematic and justified BOM
 
+**2026-10-04 readiness correction:** there is no released normal operating
+current envelope. The 45 A comparative coil model overlaps the independent
+shunt detector's conditional 38.44–85.55 A static band (+85 °C board,
+assumed +50 °C R5 rise); the broader CT band is 50.56–60.01 A. Native-18's
+dead-time resistor change and the HOT5 addition do not retune either
+threshold network. Shunt retuning remains on hold pending complete fault
+timing and device-survival evidence. See the [power readiness record](../../research/mit-product-design/readiness/power/README.md).
+
 This design narrative was imported from `ps-oracle` at `fda5ab9ece24ef1ee6f2317604c5ca73367d5201`. The [source candidate](../../../zapote/power-stage-120v/build-receipt.json) now includes the HOT5 monitor and has **142 components / 88 nets**; the existing native-18 board has **135 / 83** and does not include that change. The abbreviated BOM below is not a fabrication BOM. Use the frozen resolved export for all component identities and the [resolution record](../../research/mit-product-design/resolution/README.md) for open qualification work.
 
 Targets: 120 V (US) and 127 V (Mexico), 60 Hz, 15 A input limit, holding from room
@@ -25,10 +33,10 @@ temperature upward. Revision history:
 | Decision | Chosen | Why, and what was rejected |
 | --- | --- | --- |
 | Front end | Bridge rectifier + 5.8 µF nominal film bus, no PFC | C5/C6 supply 5.4 µF; four local capacitors supply 0.4 µF. The ADR's PFC comparison used the earlier 5.0 µF bus and is historical. The [capacitor screen](power-section-output.txt) does not calculate power factor. |
-| Inverter | **Full bridge**, series resonant capacitor | The topology is retained, but the former near-100% coil claim is withdrawn: it used an 85 A screen incompatible with current protection. With the current 45 A normal-operation analysis allocation, the selected 70 µH / 0.54 µF model reaches full power on 14.8% / 4.3% of assumed intended-pan draws at 114/127 V. Real coil/pan data and the permitted power envelope must be reconciled before freezing this bank. |
+| Inverter | **Full bridge**, series resonant capacitor | The topology is retained, but the former near-100% coil claim is withdrawn: it used an 85 A screen incompatible with current protection. With the historical comparative 45 A screen, the selected 70 µH / 0.54 µF model reports full power on 14.8% / 4.3% of assumed intended-pan draws at 114/127 V; those rows omit shunt dynamics and do not establish implementable power. Real coil/pan data and the permitted power envelope must be reconciled before freezing this bank. |
 | Switch | 4 × Infineon **IPW65R018CFD7** (650 V, 18 mΩ, fast body diode) | ZVS resonant use. The MOV's quoted 455 V pulse clamp does not bound returned tank energy or voltage at the MOSFETs; D3 and physical overshoot tests carry the open 650 V margin check. One device per switch position. The controller needs a phase inhibit to avoid capacitive operation and body-diode hard recovery. |
 | Gate drive | 2 × UCC21550B, per-leg bootstrap, active-high DIS | Circuit reused from the repo's gate-drive unit with checked source connectivity, moved onto the power board so the gate loops stay short. Physical sequencing and fault extinction remain unqualified. |
-| Bus current and voltage | 1 mΩ Kelvin shunt in the leg return + TLV3201; bus OVP TLV3201; NAND; ISO7710 | Shoot-through never passes the tank CT. The ~61 A trip and the ~280 V bus OVP reach the SELV latch on one default-high isolated fault line. |
+| Bus current and voltage | 1 mΩ Kelvin shunt in the leg return + TLV3201; bus OVP TLV3201; NAND; ISO7710 | Leg shoot-through bypasses the tank CT. Shunt trip is ~61 A nominal, with a conditional static 38.44–85.55 A band at +85 °C board / assumed +50 °C R5 rise; OVP is ~280 V nominal (272.09–288.02 V conditional static band). Both feed the isolated fault line; complete current-extinction timing remains unqualified. |
 | Thermal backstop | Heatsink and under-glass Microtemp cutoffs in series with the gate-supply input | A non-electronic stop that removes all gate drive, so firmware is not relied on for over-temperature (IEC 60335-1 cl. 19 / Annex R burden). |
 | Supplies | IRM-20-15 (SELV) + IRM-05-15 (gate/HOT 5 V) | Certified modules (IEC/UL 62368-1, IEC 61558, 4.2 kVac I/O). HOT loads stay off the SELV supply. |
 
@@ -77,14 +85,15 @@ bypass R5 during shoot-through. Gate loops use U1/U2, 3.9 Ω gate resistors,
 Tank: SW_A → T1 CST3015 primary → COIL_FEED → J2 M4 stud
       → external coil → J5 M4 stud → RES_A → C21∥C22∥C23 (CDE 942C, 0.54 µF) → SW_B
       R22–R25: 4 × 470 kΩ bleed across RES_A and SW_B (τ ≈ 1 s)
-      T1 secondary → J4.13/14 → current-sense board
+      T1 secondary → on-board CT detector; J4.13/14 carry CT_ZC/CT_MON
 
 Gate auxiliary: L_FILT → J3 thermal cutoff loop → PS2 IRM-05-15
                 → V15_LS/LEG_RET → U3 78L05 → HOT5
 Controller supply: L_FILT/N_FILT → PS1 IRM-20-15 → V15_SELV/SELV_GND
 Bus sense: BUS_P → R26–R29 (4 × 470 kΩ) → VSENSE_IN → R30 15.8 kΩ → LEG_RET
            U4 AMC1311 isolated output → J4.11/12 VBUS_P/N
-Fault: U5 LM4040 REF25 (5.6 kΩ bias); U6 OCP ≈ 61 A;
+Fault: U5 LM4040 REF25 (5.6 kΩ bias); U6 OCP ≈ 61 A nominal;
+       conditional static OCP 38.44–85.55 A at +85 C board / R5 +50 C;
        U7 OVP ≈ 280 V; OCP_OK + OVP_OK + HOT5_OK → U8 LVC1G10 NAND
        V15-powered TPS3700 HOT5 detector → LVC1G17 Schmitt → HOT5_OK
        U8 → U9 ISO7710DWR → U13 LVC1G332 OR → J4.10 BUS_FAULT
@@ -130,7 +139,7 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | R3,R4 | 2 | RC1206FR-07220KL | 440 kΩ bus bleed, nominal τ ≈ 2.55 s at the new 5.8 µF total | V (part); C (actual discharge) |
 | R5 | 1 | WSK2512R0010FEA | 1 mΩ 4-terminal shunt, ~0.35 W | C (power at temperature) |
 | U6 / U5 / R31 | 1 each | TLV3201AIDBVR / LM4040A25IDBZR / RC0603FR-075K6L (5.6k) | 40 ns comparator; 2.5 V reference, 120.8 µA cathode current at the checked DC corner (REFERENCE-BIAS.md); complete shutdown latency unqualified | V (selected ratings and DC corner) |
-| R32,R33 / R34 / R35 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 10K (0.1 %) | Offset and threshold network, trip ≈ 61 A (TLV3201 ±5 mV → ±10 A, before other tolerances). Lowered from 91 A as risk reduction; returned tank energy remains unbounded: ORACLE-REVIEW.md | V (nominal network); C (fault response) |
+| R32,R33 / R34 / R35 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 10K (0.1 %) | Trip ≈ 61 A nominal; 38.44–85.55 A conditional static band at +85 °C board / assumed +50 °C R5 rise, including reference, resistor/TCR, ±4 mV comparator offset and bias. Retuning remains on hold pending fault survival; returned tank energy is not bounded by this nominal threshold. | V (nominal network); C (fault response) |
 | U7 / R36 / R37 / C33 | 1 each | TLV3201AIDBVR / RT0603BRD0710KL / RT0603BRD07140KL / 1 nF C0G | Bus OVP ≈ 280 V from the VSENSE_IN tap; hardware restart inhibit | V |
 | U8 | 1 | SN74LVC1G10DBVR | NANDs OCP-OK, OVP-OK and HOT5-OK into U9; any low input drives BUS_FAULT high | V (source identity); C (physical fault chain) |
 | C30 / C31 | 1 / 1 | 100 pF / 1 nF C0G | ~0.5 µs node filter; threshold decoupling | V |

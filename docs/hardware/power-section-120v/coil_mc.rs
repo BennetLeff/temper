@@ -68,9 +68,9 @@ const FREQ_EXP: f64 = 0.5; // R_pan ∝ f^0.5 (ASSUMED skin-effect scaling)
 
 // ---------- design constraints ----------
 const PHASE_MIN_DEG: f64 = 20.0; // ZVS margin at the operating point
-// Analysis allocation from the current source's normal peak <=45 A, below
-// native-18's 50.93–59.51 A modeled CT trip band. This is not an implemented
-// firmware current regulator or a measured dynamic protection guarantee.
+// Historical comparative allocation, not an operating limit. The broader
+// protection calculation gives shunt 38.44–85.55 A and CT 50.56–60.01 A
+// static bands; 45 A overlaps the shunt band. See readiness/power/README.md.
 const I_PK_MAX: f64 = 45.0;
 // Comparison knob only. 942C's 1,200 Vdc and 430 Vac at 60 Hz do not establish
 // an allowable 30–50 kHz voltage at temperature for the selected bank.
@@ -431,7 +431,9 @@ fn main() {
              PHASE_MIN_DEG, I_PK_MAX, COMPARATIVE_VC_PK, F_MIN / 1e3, F_MAX / 1e3, PF);
     println!("# Selected bank 942C12P22K-F x2 + 942C12P1K-F: 1200 Vdc, 430 Vac at 60 Hz catalog; 30-50 kHz hot waveform envelope NOT ESTABLISHED.");
     println!("# Cap RMS estimate is first-harmonic switching-ripple line-cycle RMS, not an actual waveform, AC-frequency rating or safe margin. P95 only among modeled full-power draws; half-bridge low-frequency/DC voltage is excluded.");
-    println!("# 45 A peak is the current design's normal-operation analysis allocation, not the obsolete 85 A screen; native-18 CT DC trip model 50.93–59.51 A. Dynamic limits and firmware enforcement remain unverified.");
+    println!("# CURRENT ENVELOPE UNRELEASED: 45 A is a historical comparative screen, not a normal-operation command or an implementable full-power claim.");
+    println!("# Independent detectors: shunt static 38.44–85.55 A (+85 C board, assumed +50 C R5 rise); CT static 50.56–60.01 A (temperature/tolerance model). 45 A overlaps the shunt band; the older CT-only 50.93–59.51 A model does not resolve it.");
+    println!("# model_full_power fields use the historical comparative screens only. Shunt dynamics, control error/overshoot, fault-to-current-extinction and selected capacitor limits are NOT qualified; do not use these rows to release firmware or hardware.");
     println!("# Loss proxy: full bridge four single 650 V IPW65R018CFD7 (35 mohm/position); half bridge four parallel-paired historical 600 V CFD7 (17.5 mohm/position); hot/switching loss unverified.");
     let header = "design,topology,L0_uH,f_ref_kHz,line_V,model_full_power_pct,screen_unreachable_pct,eff_p05_pct,eff_p50_pct,cap_crest_p95_V,cap_line_rms_p95_V";
 
@@ -598,8 +600,9 @@ mod tests {
 
     #[test]
     fn selected_carbon_pan_at_high_line_cannot_claim_full_power_above_ct_trip() {
-        // Native-18 CT detector trips at 50.93–59.51 A in its documented DC
-        // corner model. The former 85 A screen accepted this case at 61.64 A.
+        // The former 85 A screen accepted this case at 61.64 A, above even
+        // the broader CT static model's 60.01 A maximum. Rejecting it does
+        // not qualify the remaining 45 A-screen cases against the shunt.
         let design = Design { name: "selected", topo: Topo::Full, l0_uh: 70.0,
             f_ref: selected_cap_reference_frequency() };
         let pan = Sample { pan: 1, l0: 70.0, kl: 0.80, r40: 0.029,

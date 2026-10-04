@@ -3,7 +3,9 @@
 # Comparative screens: phase>=20deg, Ipk<=45A, Vc_crest<=650V (UNQUALIFIED), 20-60 kHz, 15 A line, PF 0.95
 # Selected bank 942C12P22K-F x2 + 942C12P1K-F: 1200 Vdc, 430 Vac at 60 Hz catalog; 30-50 kHz hot waveform envelope NOT ESTABLISHED.
 # Cap RMS estimate is first-harmonic switching-ripple line-cycle RMS, not an actual waveform, AC-frequency rating or safe margin. P95 only among modeled full-power draws; half-bridge low-frequency/DC voltage is excluded.
-# 45 A peak is the current design's normal-operation analysis allocation, not the obsolete 85 A screen; native-18 CT DC trip model 50.93–59.51 A. Dynamic limits and firmware enforcement remain unverified.
+# CURRENT ENVELOPE UNRELEASED: 45 A is a historical comparative screen, not a normal-operation command or an implementable full-power claim.
+# Independent detectors: shunt static 38.44–85.55 A (+85 C board, assumed +50 C R5 rise); CT static 50.56–60.01 A (temperature/tolerance model). 45 A overlaps the shunt band; the older CT-only 50.93–59.51 A model does not resolve it.
+# model_full_power fields use the historical comparative screens only. Shunt dynamics, control error/overshoot, fault-to-current-extinction and selected capacitor limits are NOT qualified; do not use these rows to release firmware or hardware.
 # Loss proxy: full bridge four single 650 V IPW65R018CFD7 (35 mohm/position); half bridge four parallel-paired historical 600 V CFD7 (17.5 mohm/position); hot/switching loss unverified.
 
 ## Grid search at 114 V, n=4000 per point: top 6 per topology

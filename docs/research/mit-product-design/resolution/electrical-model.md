@@ -1,5 +1,14 @@
 # Resonant bank and power-model correction
 
+**2026-10-04 reconciliation:** this record documents the initial correction.
+The [power readiness review](../readiness/power/README.md) subsequently checked
+the separate shunt detector: its conditional static range is 38.44–85.55 A at
++85 °C board with an assumed +50 °C R5 rise, while the broader CT calculation
+gives 50.56–60.01 A. The 45 A screen below is retained for historical numerical
+comparison only. It is not a demonstrated normal operating range. The two
+detectors see different waveforms, so static threshold comparison also does
+not predict the complete dynamic trip response.
+
 **Scope and source.** The seven files in `docs/hardware/power-section-120v/` were copied from `worktrees/ps-oracle` at `fda5ab9ece24ef1ee6f2317604c5ca73367d5201`, then corrected here. The actual source concept remains `zapote/power-stage-120v`: a full bridge of four single IPW65R018CFD7 switches and a 0.54 µF series bank of two 942C12P22K-F and one 942C12P1K-F. The copied historical half-bridge and 600 V rows are alternatives, not the selected BOM.
 
 ## Reproduced defect
@@ -12,7 +21,7 @@ The [CDE 942C catalog](https://www.cde.com/resources/catalogs/942C.pdf), PDF p. 
 
 `coil_mc.rs` now labels the 650 V threshold as an **unqualified comparative screen** and removes the `unsafe` field and claim. It calculates line-crest capacitor voltage and idealized line-cycle AC RMS at operating points. It models four single 650 V switches with a provisional **35 mΩ hot per position** proxy, without calling that resistance a verified selected-part limit. It reports a selected 70 µH / 0.54 µF point and enumerates 160 simultaneous parameter endpoints for each of 108, 114, 127 and 140 V RMS line. These are deterministic probes over assumed bounds; they do not establish a physical worst case.
 
-**Parent verification found another consequential stale assumption:** the model's 85 A peak allowance exceeded native-18's documented 50.93–59.51 A CT trip band. A 140 V carbon/steel probe (`L0=70 µH`, `kL=0.80`, `r40=0.029 Ω/µH`, `q=0.0015 Ω/µH`, `C=0.54 µF`) claimed full power at **61.64 A peak**. The regression test failed before correction. The model now uses the current circuit source's **45 A normal-operation analysis allocation**. This is not a new firmware limit or proof of dynamic trip behavior; it prevents the comparative model from promising power that its own protection architecture cannot support.
+**Initial parent verification found another consequential stale assumption:** the model's 85 A peak allowance exceeded native-18's older documented 50.93–59.51 A CT trip band. A 140 V carbon/steel probe (`L0=70 µH`, `kL=0.80`, `r40=0.029 Ω/µH`, `q=0.0015 Ω/µH`, `C=0.54 µF`) claimed full power at **61.64 A peak**. The regression test failed before correction. The initial correction used **45 A**, copied from the circuit source's normal-operation comment. The subsequent shunt reconciliation above establishes that this is only a historical comparative screen, not a supported controller allocation. The previous inference that it resolved compatibility with the protection architecture is withdrawn; no firmware limit has been changed.
 
 With that correction, at 114 V the selected point reports **14.8% modeled full-power among assumed intended-pan draws**, **88.7% median efficiency among those full-power draws**, 401 V p95 capacitor line-crest peak and 200 V estimated switching-ripple line-cycle RMS. At 127 V: **4.3%**, 88.2%, 400 V and 200 V. The best sampled grid point moves to 140 µH/22 kHz (82.0% at 114 V); it is an alternative to investigate, not an approved coil replacement. Endpoint full-power counts are **25/160, 20/160, 12/160, 5/160** at 108/114/127/140 V. Conditional maxima exclude reduced-power cases and faults, so they are not bounds on actual bank stress. Do not raise OCP thresholds merely to recover the former model pass rate. Measure real coil/pan impedance and reconcile the power requirement first.
 
