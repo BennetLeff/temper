@@ -1,0 +1,43 @@
+{
+  "input_manifest_sha256": "a47379f77d816a27c553626d074c50e87ac9b4f7e636386d1226d47ccaf850b0",
+  "matplotlib": "3.10.8",
+  "numpy": "2.4.6",
+  "outputs": {
+    "candidate_corners.csv": "ac94b73ed8fab3a4539b444ab3ec6c457aeddf0c1777692f8b2f822eff9a43cc",
+    "cascade_pid-tests.txt": "62d6a26dfe5fb8c1f28e1ed9975baebd4db3d950e6320d4120e48eb42daa6139",
+    "controller.png": "de83156a0b45d5747275f04984255d999e64d899b42d6ed5549ad4ca55ef6229",
+    "controller_summary.csv": "f34c79a73ddbf9d523787059fa279803ae55573e04f878cba97f279e3f9d8903",
+    "controller_traces.csv.gz": "5c5da052f9e52dd384511c038873e95918ffa11a815bcf3b97705c5d55a31109",
+    "coupled.csv": "e2948a0924083e437bdb0a07a775be7b2c5ec993ab7dbcda0aa852e6c7fb4269",
+    "cutoff.csv": "ebf52d68ddec1c66a0f6f5875a2e990e33d219df5359dea9fc283835e9f6304a",
+    "hardening.png": "9d10a42bd3a0f3a2eb8e5e119ce39259e2d7e81b17b860cdcf0e57d45215d346",
+    "mechanical.csv.gz": "fcde13054a4b58fe5e517e5d5ce4c5a74d825e2d07d5b9e27f8b9351c6b88639",
+    "overview.png": "d379fda89e4f3d035480953f9110a8949893d98bfa181d4762fada275ef512e9",
+    "overview.svg": "b5cad152257e0983d5c8d8070efec835a75f174467ad1d0738eb86027d77d727",
+    "parasitic_heat.csv": "a38cd3fdd7475b110884124bc744697b7ec61488a792a1915d02050fedffc4db",
+    "plot-log.txt": "f9ce4b351e52b0d45f6937f6b6cbb86abd79c1bdeff2179a845dffa743b86923",
+    "probe_detection-tests.txt": "7ac49ee81b5b64c65c76cb4e9faea57030f2db79c6cee51d25a527406400f281",
+    "radial_profiles.csv": "48685cd04a4d515990fb26f5a3709f0c82324d3c9582a5b5c7a3aea4c91dab82",
+    "radial_summary.csv": "4e7b6717e4a92b0fda43ecd4fb9e2237d2f62e776b93b71cb31b6521d5f683f4",
+    "run-log.txt": "b4dd04a9f815ab79c5553ce057a3320acb58be87e5dc5759bc2715078c3dc201",
+    "scenarios.csv": "d628e26f54eb13099bf07e31b064fa877aad17b8e8f7f25c6eb9da472424e770",
+    "sensitivity.csv": "2f8674608238597ed8c605cac112d524f37fecdc930aa766c8e9983a2dafbc7e",
+    "summary.json": "f9ce4b351e52b0d45f6937f6b6cbb86abd79c1bdeff2179a845dffa743b86923",
+    "tests.txt": "3152bf291ffcd22745d086711cd0ceb10e5163111e78346957cc5e1fe37c0362",
+    "thermal.csv": "fb38c4bff860be879917bacb2ff17a9fa993a7ae13ca6ecdcc65a3e30ff4da86",
+    "traces.csv.gz": "3a8d6123bac523decae7e4d570969d0921f040de268f2fab3dbe5538c9fca7a9"
+  },
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+  "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+  "sources": {
+    "audit.py": "89147164eaa16b7f1aebd363d39b2ed043a008b0c906e32b4a4ba0322054bd54",
+    "controller.rs": "7db03c5b814cb7b7fd86117119ce20b337967bd75bac8dd9843868b66e670c88",
+    "controller_bridge.c": "19b5c283046836993c7be3a6e651c08c1f118d42732d502b6c3f19a270159606",
+    "main.rs": "3c11f7739faf16939fd1ba14cd24cb5f52cb468432f6edff4f51f532da188153",
+    "model.rs": "c29c3a9603228ac05817c71f37464900916069453dd504d7c7fbbc1ecc025369",
+    "render.py": "074365821bf0ace5c3b9f0065ea41821afebbe8cd3298cd444c640f959746221",
+    "run.sh": "d7a88627a337f6e62919ae51698f57e4ce54b5e52690de338b199d33dfa03f40"
+  },
+  "status": "executed simulation; physical validation not performed"
+}

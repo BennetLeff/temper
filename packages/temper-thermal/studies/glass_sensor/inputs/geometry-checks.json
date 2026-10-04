@@ -1,0 +1,215 @@
+{
+  "status": "computed geometry only; no force/thermal/EMC/seal/material validation",
+  "states": {
+    "sensor-diaphragm-rest": {
+      "parts": 22,
+      "all_valid": true,
+      "roundtrip_solids": 22,
+      "roundtrip_all_valid": true,
+      "rigid_overlaps": []
+    },
+    "sensor-diaphragm-loaded": {
+      "parts": 22,
+      "all_valid": true,
+      "roundtrip_solids": 22,
+      "roundtrip_all_valid": true,
+      "rigid_overlaps": []
+    },
+    "sensor-diaphragm-full": {
+      "parts": 22,
+      "all_valid": true,
+      "roundtrip_solids": 22,
+      "roundtrip_all_valid": true,
+      "rigid_overlaps": []
+    },
+    "sensor-bellows-rest": {
+      "parts": 24,
+      "all_valid": true,
+      "roundtrip_solids": 24,
+      "roundtrip_all_valid": true,
+      "rigid_overlaps": []
+    },
+    "sensor-bellows-loaded": {
+      "parts": 24,
+      "all_valid": true,
+      "roundtrip_solids": 24,
+      "roundtrip_all_valid": true,
+      "rigid_overlaps": []
+    },
+    "sensor-bellows-full": {
+      "parts": 24,
+      "all_valid": true,
+      "roundtrip_solids": 24,
+      "roundtrip_all_valid": true,
+      "rigid_overlaps": []
+    }
+  },
+  "tolerance_assumptions": {
+    "stem_d_mm": [
+      5.97,
+      6.03
+    ],
+    "guide_bore_d_mm": [
+      6.35,
+      6.45
+    ],
+    "radial_running_clearance_mm": [
+      0.16,
+      0.24
+    ],
+    "lower_stop_stack_mm": [
+      1.05,
+      1.35
+    ],
+    "glass_hole_d_mm": [
+      17.9,
+      18.1
+    ],
+    "neck_d_mm": [
+      16.95,
+      17.05
+    ],
+    "minimum_radial_glass_clearance_mm": 0.425
+  },
+  "sweeps": [
+    {
+      "variant": "diaphragm",
+      "stem_d": 6.03,
+      "bore_d": 6.35,
+      "stop_gap": 1.05,
+      "requested_travel": 0.0,
+      "actual_stop_limited_travel": 0.0,
+      "blocked_before_requested": false,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "diaphragm",
+      "stem_d": 6.03,
+      "bore_d": 6.35,
+      "stop_gap": 1.05,
+      "requested_travel": 0.6,
+      "actual_stop_limited_travel": 0.6,
+      "blocked_before_requested": false,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "diaphragm",
+      "stem_d": 6.03,
+      "bore_d": 6.35,
+      "stop_gap": 1.05,
+      "requested_travel": 1.2,
+      "actual_stop_limited_travel": 1.05,
+      "blocked_before_requested": true,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "diaphragm",
+      "stem_d": 5.97,
+      "bore_d": 6.45,
+      "stop_gap": 1.35,
+      "requested_travel": 0.0,
+      "actual_stop_limited_travel": 0.0,
+      "blocked_before_requested": false,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "diaphragm",
+      "stem_d": 5.97,
+      "bore_d": 6.45,
+      "stop_gap": 1.35,
+      "requested_travel": 0.6,
+      "actual_stop_limited_travel": 0.6,
+      "blocked_before_requested": false,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "diaphragm",
+      "stem_d": 5.97,
+      "bore_d": 6.45,
+      "stop_gap": 1.35,
+      "requested_travel": 1.2,
+      "actual_stop_limited_travel": 1.2,
+      "blocked_before_requested": false,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "bellows",
+      "stem_d": 6.03,
+      "bore_d": 6.35,
+      "stop_gap": 1.05,
+      "requested_travel": 0.0,
+      "actual_stop_limited_travel": 0.0,
+      "blocked_before_requested": false,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "bellows",
+      "stem_d": 6.03,
+      "bore_d": 6.35,
+      "stop_gap": 1.05,
+      "requested_travel": 0.6,
+      "actual_stop_limited_travel": 0.6,
+      "blocked_before_requested": false,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "bellows",
+      "stem_d": 6.03,
+      "bore_d": 6.35,
+      "stop_gap": 1.05,
+      "requested_travel": 1.2,
+      "actual_stop_limited_travel": 1.05,
+      "blocked_before_requested": true,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "bellows",
+      "stem_d": 5.97,
+      "bore_d": 6.45,
+      "stop_gap": 1.35,
+      "requested_travel": 0.0,
+      "actual_stop_limited_travel": 0.0,
+      "blocked_before_requested": false,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "bellows",
+      "stem_d": 5.97,
+      "bore_d": 6.45,
+      "stop_gap": 1.35,
+      "requested_travel": 0.6,
+      "actual_stop_limited_travel": 0.6,
+      "blocked_before_requested": false,
+      "rigid_overlaps": [],
+      "valid": true
+    },
+    {
+      "variant": "bellows",
+      "stem_d": 5.97,
+      "bore_d": 6.45,
+      "stop_gap": 1.35,
+      "requested_travel": 1.2,
+      "actual_stop_limited_travel": 1.2,
+      "blocked_before_requested": false,
+      "rigid_overlaps": [],
+      "valid": true
+    }
+  ],
+  "exploded_section": {
+    "parts": 19,
+    "all_valid": true,
+    "roundtrip_solids": 24,
+    "roundtrip_all_valid": true,
+    "rigid_overlaps": []
+  }
+}

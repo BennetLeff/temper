@@ -1,0 +1,16 @@
+id,subsystem,metric,proposed_screen,conditions,status,test_id
+S01,sensor,Local steady error,abs(error)+expanded_uncertainty <=2 C,40 to100 C measured local reference; stable60s; calibrated installed assembly,PROPOSED,S-TEMP
+S02,sensor,Local steady error,abs(error)+expanded_uncertainty <=5 C,above100 to250 C; only within reviewed assembly ratings; stable60s,PROPOSED,S-TEMP
+S03,sensor,Contact step response,t90 <=3 s,field-free controlled reference step >=20 C; reference transition separately recorded; assembled cartridge,PROPOSED,S-DYNAMIC
+S04,sensor,Total force characterization,screen0.2/0.4/0.6 N measured at tip,include seal friction and gravity; supported minimum pan must not rock; not a spring specification,EXPERIMENT,S-FORCE
+S05,sensor,Lost contact,temperature mode must stop issuing heat commands within1s of confirmed loss,deliberately lift/recess pan while induction pan presence remains; cold input simulation first,PROPOSED,S-LOSS
+S06,sensor,Seal endurance,no leakage or sticking; repeat S01/S02/S04,1000 defined wipe/actuation cycles screening only; chemistry/temperature recorded; not product lifetime qualification,PROPOSED,S-CLEAN
+K01,knob,Angular accuracy,wrapped absolute error + expanded_uncertainty <=2 deg,full360deg both directions; calibration validated on separate rotations,PROPOSED,K-ANGLE
+K02,knob,Unintended actions,zero unintended heat-start/press/target-change events,defined1000 reattachments plus stationary and turning trials; report exposure not zero-risk claim,PROPOSED,K-EVENT
+K03,knob,Tactile force and torque,benchmark commercial mechanical encoder first,blind comparison dry/wet/oily/gloved users; log distributions then freeze numerical band,BENCHMARK_REQUIRED,K-FEEL
+K04,knob,Stationary-base torque margin,minimum base-slip torque >=2x maximum operating detent torque,each tested contamination condition; both directions; panel35deg; same run setup,PROPOSED,K-HOLD
+K05,knob,Removal and press force,select band from measured benchmark and usability results,pull normal to fascia and intentional peel separately; no invented final ergonomic force spec,BENCHMARK_REQUIRED,K-FEEL
+K06,knob,Post-cleaning function,repeat K01/K02/K04 without new failures,1000 removal/wipe cycles screening; no immersion assumption,PROPOSED,K-CLEAN
+I01,integration,Temperature margin,measured max + expanded_uncertainty below derated part limit,actual coil/fan/wiring/closed enclosure; limits selected from actual component ratings,COMPONENT_DATA_REQUIRED,I-SOAK
+I02,integration,Interference,repeat S01/S02/K01/K02 across reviewed power envelope,actual induction station; reference instrument interference also assessed,PROPOSED,I-EMI
+I03,integration,Service and routing,no pinch/rub/hot-zone conflicts and serviceable cartridge/puck,actual hardware CAD/dimensions plus physical assembly; no fit claim from placeholder PCB,PHYSICAL_FIT_REQUIRED,I-FIT

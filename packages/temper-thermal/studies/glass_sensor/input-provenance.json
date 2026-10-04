@@ -1,0 +1,85 @@
+{
+  "study_date": "2026-10-04",
+  "repository_base": "c601fab9f18532f548cada22d63b1c884199e27d",
+  "cad_source_checkout_head": "84c5e5b61000d45eec09834cb23e6bba8fa51169",
+  "inputs": [
+    {
+      "kind": "snapshot",
+      "path": "inputs/geometry-checks.json",
+      "original": "/Users/bennet/Desktop/temper/output/temper-inbox-cad/sensor/geometry-checks.json",
+      "sha256": "d465d203db9a519eac70c57911d782fe71986bcb2da9ac3d363012ff3f29439d",
+      "status": "untracked CAD/proposed criteria snapshot; not physically validated"
+    },
+    {
+      "kind": "snapshot",
+      "path": "inputs/mechanism.py.txt",
+      "original": "/Users/bennet/Desktop/temper/output/temper-inbox-cad/sensor/mechanism.py",
+      "sha256": "878a0e708f0754efa2b7ea3dc338dee7bc0376475258e1d3bf8427e5058f9dca",
+      "status": "untracked CAD/proposed criteria snapshot; not physically validated"
+    },
+    {
+      "kind": "snapshot",
+      "path": "inputs/parts.json",
+      "original": "/Users/bennet/Desktop/temper/output/temper-inbox-cad/sensor/parts.json",
+      "sha256": "5226a5d863bfbb8de964583d3c48ae1cc5bde80da346a892c1f5db449765afcb",
+      "status": "untracked CAD/proposed criteria snapshot; not physically validated"
+    },
+    {
+      "kind": "snapshot",
+      "path": "inputs/requirements.csv",
+      "original": "/Users/bennet/Desktop/temper/output/temper-engineering-validation/requirements.csv",
+      "sha256": "17641cae0164c26c44aed116e4feb7bac98228278111a0dc1b99f91f00397713",
+      "status": "untracked CAD/proposed criteria snapshot; not physically validated"
+    },
+    {
+      "kind": "repository",
+      "path": "firmware/components/control/pid_control.c",
+      "sha256": "9b05f5029cd6a4ff4fe51d8ec937282c15422f6b56f5af7010f2c3303399ecd3"
+    },
+    {
+      "kind": "repository",
+      "path": "firmware/components/control/pid_control.h",
+      "sha256": "44497126fd828fcc34061f625ddaf9c96164f75b747e1c9c915eeea18aeb6d14"
+    },
+    {
+      "kind": "repository",
+      "path": "firmware/components/control/cascade_pid.c",
+      "sha256": "9918548d1df194a941d17a711e9f2d9bf53382e933ed801c46b5409dfe3114f9"
+    },
+    {
+      "kind": "repository",
+      "path": "firmware/components/control/cascade_pid.h",
+      "sha256": "1935ab68a83440018037e6fde531ea8c5bee30adc8405327343ed50b0a9f53e6"
+    },
+    {
+      "kind": "repository",
+      "path": "firmware/test/test_main_cascade_pid.c",
+      "sha256": "aeca2ff626bc1fadd6b461d947b870a7da52a77821fad8ee24258fd0ef1371ca"
+    },
+    {
+      "kind": "repository",
+      "path": "firmware/test/test_cascade_pid.c",
+      "sha256": "87c0d8e745ae9b3aba1fe2de338ff4d19d2677b818aa893fbdb2bf221b3de96c"
+    },
+    {
+      "kind": "repository",
+      "path": "firmware/test/test_main_probe_detection.c",
+      "sha256": "d78fadd50ff792d7e3c59f0c6fefede253fc8f1b99f479493edba377da2ed3f3"
+    },
+    {
+      "kind": "repository",
+      "path": "firmware/test/test_probe_detection.c",
+      "sha256": "2366bf57a8011fe4c58007de3e8915584e2b7a86bf10b160e0ff94b948172e51"
+    },
+    {
+      "kind": "repository",
+      "path": "firmware/test/unity/unity.c",
+      "sha256": "95e7935af87f0f691ec8549852e4f97fe373e72928dc4219a38b6e3f7f137375"
+    },
+    {
+      "kind": "repository",
+      "path": "firmware/test/unity/unity.h",
+      "sha256": "58951439c8069ba3221bff75e4bf86fce47dd176dd5fb12b0e3c255a55cce0fb"
+    }
+  ]
+}

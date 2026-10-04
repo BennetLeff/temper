@@ -1,0 +1,98 @@
+{
+  "mechanical_cases": 97200,
+  "thermal_cases": 2916,
+  "candidate_cases": 432,
+  "candidate_model_screen_passes": 222,
+  "radial_runs": 60,
+  "max_radial_mesh_change_C": 0.1523300000000063,
+  "max_radial_time_change_C": 0.00907000000000835,
+  "max_energy_residual_J": 5e-09,
+  "scenarios": [
+    {
+      "case": "CAD_mid",
+      "t90_s": "6.590",
+      "error100_C": "3.1894",
+      "error200_C": "5.6393",
+      "delay_s": "3.0565"
+    },
+    {
+      "case": "poor_contact",
+      "t90_s": "21.680",
+      "error100_C": "8.7510",
+      "error200_C": "15.2459",
+      "delay_s": "9.6182"
+    },
+    {
+      "case": "thin_face_bond",
+      "t90_s": "4.250",
+      "error100_C": "2.5510",
+      "error200_C": "4.4447",
+      "delay_s": "1.8889"
+    },
+    {
+      "case": "conditional_candidate",
+      "t90_s": "1.570",
+      "error100_C": "0.7309",
+      "error200_C": "1.3390",
+      "delay_s": "0.7567"
+    },
+    {
+      "case": "aged_bond_leak",
+      "t90_s": "11.340",
+      "error100_C": "15.3002",
+      "error200_C": "27.2537",
+      "delay_s": "5.9756"
+    },
+    {
+      "case": "larger_chip",
+      "t90_s": "7.130",
+      "error100_C": "3.2120",
+      "error200_C": "5.6815",
+      "delay_s": "3.3965"
+    }
+  ],
+  "radial_nominal": [
+    {
+      "material": "steel",
+      "cells": "80",
+      "dt_s": "0.2",
+      "pan_glass_h": "200",
+      "hole": "true",
+      "time_s": "120",
+      "center_pan_C": "86.43168",
+      "hottest_pan_C": "200.37603",
+      "hottest_glass_C": "134.07774",
+      "sensor_C": "84.14655",
+      "energy_residual_J": "-0.000000001"
+    },
+    {
+      "material": "cast_iron",
+      "cells": "80",
+      "dt_s": "0.2",
+      "pan_glass_h": "200",
+      "hole": "true",
+      "time_s": "120",
+      "center_pan_C": "136.92793",
+      "hottest_pan_C": "182.66823",
+      "hottest_glass_C": "124.34354",
+      "sensor_C": "132.23052",
+      "energy_residual_J": "-0.000000000"
+    },
+    {
+      "material": "aluminum_core_proxy",
+      "cells": "80",
+      "dt_s": "0.2",
+      "pan_glass_h": "200",
+      "hole": "true",
+      "time_s": "120",
+      "center_pan_C": "186.87735",
+      "hottest_pan_C": "199.66400",
+      "hottest_glass_C": "136.06221",
+      "sensor_C": "180.08393",
+      "energy_residual_J": "0.000000005"
+    }
+  ],
+  "controller_runs": 60,
+  "coupled_cases": 1152,
+  "hypothetical_gate_trace_assertions": "all commands zero from 61 s; all module commands in 0..100 percent"
+}

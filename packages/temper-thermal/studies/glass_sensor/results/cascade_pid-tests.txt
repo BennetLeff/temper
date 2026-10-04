@@ -1,0 +1,31 @@
+
+=== Cascade PID Controller Tests ===
+
+test_cascade_pid.c:454:test_cascade_init_sets_default_gains:PASS
+test_cascade_pid.c:455:test_cascade_init_starts_in_single_mode:PASS
+test_cascade_pid.c:456:test_cascade_init_sets_output_limits:PASS
+test_cascade_pid.c:457:test_cascade_init_clears_state:PASS
+test_cascade_pid.c:460:test_cascade_switches_to_dual_mode_when_probe_connected:PASS
+test_cascade_pid.c:461:test_cascade_switches_to_single_mode_when_probe_disconnected:PASS
+test_cascade_pid.c:462:test_cascade_counts_mode_switches:PASS
+test_cascade_pid.c:465:test_dual_loop_outer_loop_controls_pan_setpoint:PASS
+test_cascade_pid.c:466:test_dual_loop_inner_loop_responds_to_pan_temperature:PASS
+test_cascade_pid.c:467:test_dual_loop_pan_temperature_limiting:PASS
+test_cascade_pid.c:470:test_single_loop_direct_pan_control:PASS
+test_cascade_pid.c:471:test_single_loop_ignores_liquid_probe:PASS
+test_cascade_pid.c:474:test_bumpless_transfer_to_dual_mode:PASS
+test_cascade_pid.c:475:test_bumpless_transfer_resets_outer_integrator:PASS
+test_cascade_pid.c:478:test_cascade_configure_sets_time_constants:PASS
+test_cascade_pid.c:479:test_cascade_set_pan_limits_updates_pid:PASS
+test_cascade_pid.c:482:test_probe_connected_with_valid_temperature:PASS
+test_cascade_pid.c:483:test_probe_disconnected_with_zero_temperature:PASS
+test_cascade_pid.c:484:test_probe_disconnected_with_nan_temperature:PASS
+test_cascade_pid.c:485:test_probe_timeout_disconnects_probe:PASS
+test_cascade_pid.c:488:test_cascade_tracks_outer_loop_error:PASS
+test_cascade_pid.c:489:test_cascade_resets_metrics_on_reset:PASS
+test_cascade_pid.c:492:test_cascade_handles_invalid_dt:PASS
+test_cascade_pid.c:493:test_cascade_handles_nan_inputs:PASS
+test_cascade_pid.c:494:test_cascade_force_single_loop:PASS
+-----------------------
+25 Tests 0 Failures 0 Ignored
+OK

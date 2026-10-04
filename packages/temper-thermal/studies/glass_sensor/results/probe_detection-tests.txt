@@ -1,0 +1,7 @@
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_main_probe_detection.c:12:test_probe_init_defaults:PASS
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_main_probe_detection.c:13:test_probe_detects_air_on_rapid_rise:PASS
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_main_probe_detection.c:14:test_probe_detects_food_on_slow_rise:PASS
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_main_probe_detection.c:15:test_probe_fallback_logic:PASS
+-----------------------
+4 Tests 0 Failures 0 Ignored
+OK

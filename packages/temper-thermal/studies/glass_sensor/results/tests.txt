@@ -1,0 +1,18 @@
+
+running 14 tests
+test tests::eccentric_load_reduces_available_force ... ok
+test tests::hard_stop_lifts_pan ... ok
+test tests::light_flat_pan_compresses_soft_probe ... ok
+test tests::hot_contact_loss_can_be_thermally_invisible ... ok
+test tests::proposed_flat_pan_force_envelope_stays_below_tipping_limit ... ok
+test tests::recess_outside_reach_has_no_contact ... ok
+test tests::radial_power_is_exactly_500_watts ... ok
+test tests::seal_can_prevent_return ... ok
+test tests::steady_probe_matches_resistor_reduction ... ok
+test tests::radial_uniform_boundary_stays_uniform ... ok
+test tests::closed_network_conserves_energy ... ok
+test tests::step_time_converges ... ok
+test tests::backward_euler_matches_analytic_rc ... ok
+test tests::step_response_is_monotone_and_bounded ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
