@@ -4,11 +4,12 @@
 import argparse
 import hashlib
 import json
-from pathlib import Path
 import platform
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from pathlib import Path
+
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
@@ -42,6 +43,8 @@ def main():
     inputs += [
         PS / "validation-plan/sim-kit/common/options.inc",
         PS / "validation-results/07-conducted-emi/round3/scripts/emi_topology.cir",
+        PS / "validation-results/07-conducted-emi/round3/scripts/fit_choke.py",
+        PS / "validation-results/07-conducted-emi/round3/outputs/tdk_choke_fit.json",
         HERE.parents[1] / "scripts/mesh25d_hybrid.py",
         HERE.parents[1] / "scripts/leg_region_diff.py",
     ]
@@ -89,7 +92,7 @@ def main():
         and p.name not in ("provenance.json", "provenance.log")
         and not (
             p.parent == HERE
-            and p.name in ("envelope-0.125.log", "anchor-0.0625.log")
+            and p.name in ("envelope-0.125.log", "anchor-0.0625.log", "targeted-refinement.log", "additional-refinement.log", "fine-refinement.log", "recovery-refinement.log", "weak-refinement.log", "retry-refinement.log", "last-refinement.log", "closing-refinement.log", "terminal-refinement.log")
             and not (HERE / (p.stem + "-results.json")).exists()
         )
         and not (
@@ -108,7 +111,7 @@ def main():
             ["git", "branch", "--show-current"], cwd=ROOT, text=True
         ).strip(),
         "authored_by": "GPT-6 / OpenAI",
-        "recorded_UTC": datetime.now(timezone.utc).isoformat(),
+        "recorded_UTC": datetime.now(UTC).isoformat(),
         "runtime": {
             "python": sys.version,
             "numpy": np.__version__,

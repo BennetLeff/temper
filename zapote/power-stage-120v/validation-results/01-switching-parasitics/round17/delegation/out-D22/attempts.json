@@ -330,73 +330,233 @@
   {
     "campaign": "envelope-0.125",
     "case": "envelope-v198-f35000-r2-e10-s0.125",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "complete",
+    "elapsed_seconds": 2620.122116500046,
     "timeout_seconds": 7200,
     "detail": ""
   },
   {
     "campaign": "envelope-0.125",
     "case": "envelope-v198-f35000-r100-e1.06-s0.125",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "complete",
+    "elapsed_seconds": 2597.3657926670276,
     "timeout_seconds": 7200,
     "detail": ""
   },
   {
     "campaign": "envelope-0.125",
     "case": "envelope-v198-f35000-r100-e10-s0.125",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "indeterminate",
+    "elapsed_seconds": 211.1790794590488,
     "timeout_seconds": 7200,
-    "detail": ""
+    "detail": "doAnalyses: TRAN:  Timestep too small; time = 1.62907e-05, timestep = 1.5625e-22: trouble with node \"bus\""
   },
   {
     "campaign": "envelope-0.125",
     "case": "envelope-v198-f60000-r2-e1.06-s0.125",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "complete",
+    "elapsed_seconds": 3026.756203250028,
     "timeout_seconds": 7200,
     "detail": ""
   },
   {
     "campaign": "envelope-0.125",
     "case": "envelope-v198-f60000-r2-e10-s0.125",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "complete",
+    "elapsed_seconds": 3020.687472541118,
     "timeout_seconds": 7200,
     "detail": ""
   },
   {
     "campaign": "envelope-0.125",
     "case": "envelope-v198-f60000-r100-e1.06-s0.125",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "indeterminate",
+    "elapsed_seconds": 2910.1962565421127,
     "timeout_seconds": 7200,
-    "detail": ""
+    "detail": "doAnalyses: TRAN:  Timestep too small; time = 0.000718667, timestep = 1.5625e-22: trouble with node \"bus\""
   },
   {
     "campaign": "envelope-0.125",
     "case": "envelope-v198-f60000-r100-e10-s0.125",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "complete",
+    "elapsed_seconds": 3304.67891662498,
     "timeout_seconds": 7200,
     "detail": ""
   },
   {
     "campaign": "anchor-0.0625",
     "case": "envelope-v170-f35000-r2-e1.06-s0.0625",
-    "outcome": "pending",
-    "elapsed_seconds": null,
+    "outcome": "complete",
+    "elapsed_seconds": 5132.5530271250755,
     "timeout_seconds": 9000,
     "detail": ""
   },
   {
     "campaign": "anchor-0.0625",
     "case": "envelope-v170-f60000-r2-e1.06-s0.0625",
+    "outcome": "complete",
+    "elapsed_seconds": 6085.170368375024,
+    "timeout_seconds": 9000,
+    "detail": ""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v170-f35000-r2-e1.06-c32-s0.0625",
+    "outcome": "complete",
+    "elapsed_seconds": 7740.802171541844,
+    "timeout_seconds": 12000,
+    "detail": ""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.0625",
+    "outcome": "indeterminate",
+    "elapsed_seconds": 209.178250500001,
+    "timeout_seconds": 12000,
+    "detail": "doAnalyses: TRAN:  Timestep too small; time = 2e-06, timestep = 7.8125e-23: trouble with node \"bus\""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.1",
+    "outcome": "complete",
+    "elapsed_seconds": 4893.061451750109,
+    "timeout_seconds": 9000,
+    "detail": ""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v170-f35000-r2-e1.06-c32-s0.125",
+    "outcome": "complete",
+    "elapsed_seconds": 3453.9940093751065,
+    "timeout_seconds": 9000,
+    "detail": ""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.125",
+    "outcome": "indeterminate",
+    "elapsed_seconds": 3877.3755947919562,
+    "timeout_seconds": 9000,
+    "detail": "doAnalyses: TRAN:  Timestep too small; time = 0.000873872, timestep = 1.5625e-22: trouble with node \"bus\""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.125",
+    "outcome": "complete",
+    "elapsed_seconds": 3588.3865959579125,
+    "timeout_seconds": 9000,
+    "detail": ""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.25",
+    "outcome": "complete",
+    "elapsed_seconds": 1935.113045499893,
+    "timeout_seconds": 9000,
+    "detail": ""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.25",
+    "outcome": "complete",
+    "elapsed_seconds": 1963.4152024579234,
+    "timeout_seconds": 9000,
+    "detail": ""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v170-f35000-r100-e1.06-s0.1",
+    "outcome": "complete",
+    "elapsed_seconds": 3794.3638543749694,
+    "timeout_seconds": 9000,
+    "detail": ""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v198-f35000-r100-e10-s0.1",
+    "outcome": "complete",
+    "elapsed_seconds": 3757.158856125083,
+    "timeout_seconds": 9000,
+    "detail": ""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v170-f60000-r2-e10-s0.1",
+    "outcome": "complete",
+    "elapsed_seconds": 4006.72904774989,
+    "timeout_seconds": 9000,
+    "detail": ""
+  },
+  {
+    "campaign": "targeted-refinement",
+    "case": "envelope-v198-f60000-r100-e1.06-s0.1",
+    "outcome": "indeterminate",
+    "elapsed_seconds": 557.7785679169465,
+    "timeout_seconds": 9000,
+    "detail": "doAnalyses: TRAN:  Timestep too small; time = 6.03333e-05, timestep = 1.25e-22: trouble with node \"bus\""
+  },
+  {
+    "campaign": "additional-refinement",
+    "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
     "outcome": "pending",
     "elapsed_seconds": null,
-    "timeout_seconds": 9000,
+    "timeout_seconds": 14400,
+    "detail": ""
+  },
+  {
+    "campaign": "fine-refinement",
+    "case": "envelope-v198-f60000-r2-e10-s0.0625",
+    "outcome": "complete",
+    "elapsed_seconds": 6303.986594749847,
+    "timeout_seconds": 12000,
+    "detail": ""
+  },
+  {
+    "campaign": "recovery-refinement",
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.1",
+    "outcome": "indeterminate",
+    "elapsed_seconds": 1735.4057940000203,
+    "timeout_seconds": 12000,
+    "detail": "doAnalyses: TRAN:  Timestep too small; time = 0.000273429, timestep = 1.25e-22: trouble with node \"bus\""
+  },
+  {
+    "campaign": "weak-refinement",
+    "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+    "outcome": "pending",
+    "elapsed_seconds": null,
+    "timeout_seconds": 12000,
+    "detail": ""
+  },
+  {
+    "campaign": "retry-refinement",
+    "case": "envelope-v198-f60000-r100-e1.06-s0.08",
+    "outcome": "pending",
+    "elapsed_seconds": null,
+    "timeout_seconds": 12000,
+    "detail": ""
+  },
+  {
+    "campaign": "last-refinement",
+    "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+    "outcome": "pending",
+    "elapsed_seconds": null,
+    "timeout_seconds": 12000,
+    "detail": ""
+  },
+  {
+    "campaign": "closing-refinement",
+    "case": "envelope-v170-f60000-r2-e10-s0.0625",
+    "outcome": "indeterminate",
+    "elapsed_seconds": 185.4782897918485,
+    "timeout_seconds": 12000,
+    "detail": "doAnalyses: TRAN:  Timestep too small; time = 2e-06, timestep = 7.8125e-23: trouble with node \"bus\""
+  },
+  {
+    "campaign": "terminal-refinement",
+    "case": "envelope-v170-f60000-r2-e10-s0.08",
+    "outcome": "pending",
+    "elapsed_seconds": null,
+    "timeout_seconds": 12000,
     "detail": ""
   },
   {
@@ -429,7 +589,7 @@
     "outcome": "indeterminate",
     "elapsed_seconds": 600.0182589171454,
     "timeout_seconds": 600,
-    "detail": "wall-clock timeout; indeterminate"
+    "detail": "runner timeout; indeterminate"
   },
   {
     "campaign": "diagnostic",
@@ -461,7 +621,7 @@
     "outcome": "indeterminate",
     "elapsed_seconds": 600.018209458096,
     "timeout_seconds": 600,
-    "detail": "wall-clock timeout; indeterminate"
+    "detail": "runner timeout; indeterminate"
   },
   {
     "campaign": "tight-diagnostic",
@@ -517,6 +677,6 @@
     "outcome": "indeterminate",
     "elapsed_seconds": 600.7226305420045,
     "timeout_seconds": 600,
-    "detail": "wall-clock timeout; indeterminate"
+    "detail": "runner timeout; indeterminate"
   }
 ]

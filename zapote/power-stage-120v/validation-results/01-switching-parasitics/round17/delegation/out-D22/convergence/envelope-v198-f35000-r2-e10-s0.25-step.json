@@ -11,6 +11,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.015938906515721097,
     "minimum_AV_a_dB": -25.395958644140322,
     "minimum_AV_b_dB": -25.39597495893271,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": true,
     "passes_0p2dB_target": false
   },
   {
@@ -25,6 +27,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.016288342977956057,
     "minimum_AV_a_dB": -25.475852979743323,
     "minimum_AV_b_dB": -25.475804218740308,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": true,
     "passes_0p2dB_target": false
   },
   {
@@ -39,6 +43,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.0,
     "minimum_AV_a_dB": -25.34189614190373,
     "minimum_AV_b_dB": -25.3419384203184,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": true,
     "passes_0p2dB_target": false
   },
   {
@@ -53,6 +59,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.0,
     "minimum_AV_a_dB": -25.530138889211884,
     "minimum_AV_b_dB": -25.53006374764675,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": true,
     "passes_0p2dB_target": false
   },
   {
@@ -67,6 +75,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.04377255025502793,
     "minimum_AV_a_dB": 28.642622442276043,
     "minimum_AV_b_dB": 28.64219471352384,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -81,6 +91,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.02281542611949866,
     "minimum_AV_a_dB": 27.55839783279074,
     "minimum_AV_b_dB": 27.55884879213708,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": true,
     "passes_0p2dB_target": true
   },
   {
@@ -95,6 +107,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.11841461895174887,
     "minimum_AV_a_dB": 15.06663124685086,
     "minimum_AV_b_dB": 15.066636207506278,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -109,6 +123,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.11006497741055477,
     "minimum_AV_a_dB": 15.067147655594617,
     "minimum_AV_b_dB": 15.067137348956997,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -123,6 +139,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.0998878211430226,
     "minimum_AV_a_dB": 15.029757303898279,
     "minimum_AV_b_dB": 15.02975707052159,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -137,6 +155,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.10441284870491595,
     "minimum_AV_a_dB": 15.02992251745249,
     "minimum_AV_b_dB": 15.029917404784975,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -151,6 +171,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.06878478819436407,
     "minimum_AV_a_dB": 15.268153887306525,
     "minimum_AV_b_dB": 15.268158065526677,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -165,6 +187,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07299303424881057,
     "minimum_AV_a_dB": 15.26867074372656,
     "minimum_AV_b_dB": 15.268659311273261,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -179,6 +203,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07038508392009919,
     "minimum_AV_a_dB": 15.23128084143054,
     "minimum_AV_b_dB": 15.231279708818029,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -193,6 +219,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07835166290886332,
     "minimum_AV_a_dB": 15.231446202503442,
     "minimum_AV_b_dB": 15.23144008081686,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -207,6 +235,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.11848090756408115,
     "minimum_AV_a_dB": 20.15647343507142,
     "minimum_AV_b_dB": 20.156311685673707,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -221,6 +251,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.11013543412619833,
     "minimum_AV_a_dB": 19.926053431912557,
     "minimum_AV_b_dB": 19.926246400907637,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -235,6 +267,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.09994283715008191,
     "minimum_AV_a_dB": 21.681845069995084,
     "minimum_AV_b_dB": 21.681848573855092,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -249,6 +283,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.10448356880403259,
     "minimum_AV_a_dB": 21.68228126054202,
     "minimum_AV_b_dB": 21.68227241047113,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -263,6 +299,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.06882741201333895,
     "minimum_AV_a_dB": 20.581459281196125,
     "minimum_AV_b_dB": 20.581129445746896,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -277,6 +315,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07304022406836477,
     "minimum_AV_a_dB": 19.518395795070937,
     "minimum_AV_b_dB": 19.518737700054878,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -291,6 +331,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07042796065152883,
     "minimum_AV_a_dB": 21.883271853836604,
     "minimum_AV_b_dB": 21.88327454465194,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -305,6 +347,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07840376813177871,
     "minimum_AV_a_dB": 21.88370887536645,
     "minimum_AV_b_dB": 21.883698930081998,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -319,6 +363,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.11848189431872395,
     "minimum_AV_a_dB": 20.148485865040207,
     "minimum_AV_b_dB": 20.1483366391156,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -333,6 +379,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.11013561998255789,
     "minimum_AV_a_dB": 19.934062367285442,
     "minimum_AV_b_dB": 19.934242939682264,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -347,6 +395,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.09994341702753594,
     "minimum_AV_a_dB": 22.66092970082515,
     "minimum_AV_b_dB": 22.660933942829566,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -361,6 +411,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.10448282618048901,
     "minimum_AV_a_dB": 22.661418149165264,
     "minimum_AV_b_dB": 22.661408560909024,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -375,6 +427,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.06882788232079365,
     "minimum_AV_a_dB": 20.543776943503687,
     "minimum_AV_b_dB": 20.54347135047005,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -389,6 +443,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07304075071588483,
     "minimum_AV_a_dB": 19.553985047816475,
     "minimum_AV_b_dB": 19.554305131709597,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -403,6 +459,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.070428177790298,
     "minimum_AV_a_dB": 22.842039003950255,
     "minimum_AV_b_dB": 22.842042434327585,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -417,6 +475,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07840398609777594,
     "minimum_AV_a_dB": 22.842528305340323,
     "minimum_AV_b_dB": 22.84251762045247,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -431,6 +491,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.11854822328188533,
     "minimum_AV_a_dB": 20.10426059352981,
     "minimum_AV_b_dB": 20.10418524589904,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -445,6 +507,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.11020611912174726,
     "minimum_AV_a_dB": 19.978592732698722,
     "minimum_AV_b_dB": 19.978699522794635,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -459,6 +523,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.09999846706551685,
     "minimum_AV_a_dB": 29.295686221495984,
     "minimum_AV_b_dB": 29.295699963639375,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -473,6 +539,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.10455358931762572,
     "minimum_AV_a_dB": 29.29688232568594,
     "minimum_AV_b_dB": 29.296863235637332,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -487,6 +555,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.06887053347000725,
     "minimum_AV_a_dB": 20.31569361926902,
     "minimum_AV_b_dB": 20.31553206435011,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -501,6 +571,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07308797060143236,
     "minimum_AV_a_dB": 19.77430208436367,
     "minimum_AV_b_dB": 19.774486774290445,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -515,6 +587,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.06248650779010393,
     "minimum_AV_a_dB": 29.47678355278551,
     "minimum_AV_b_dB": 29.47679668231428,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -529,6 +603,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07845612429172069,
     "minimum_AV_a_dB": 29.024028702180992,
     "minimum_AV_b_dB": 29.024538487686733,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -543,6 +619,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.0068452637747953935,
     "minimum_AV_a_dB": 19.24710559565223,
     "minimum_AV_b_dB": 19.24710965545512,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": true,
     "passes_0p2dB_target": true
   },
   {
@@ -557,6 +635,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.006476724915287775,
     "minimum_AV_a_dB": 19.24760576935372,
     "minimum_AV_b_dB": 19.24759445548611,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": true,
     "passes_0p2dB_target": true
   },
   {
@@ -571,6 +651,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07959888369130805,
     "minimum_AV_a_dB": 15.885158259528225,
     "minimum_AV_b_dB": 15.885161873437589,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -585,6 +667,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.08414981333526193,
     "minimum_AV_a_dB": 15.885637116088887,
     "minimum_AV_b_dB": 15.885626247955862,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -599,6 +683,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.0035209325424895056,
     "minimum_AV_a_dB": 14.965140885239826,
     "minimum_AV_b_dB": 14.96514534622375,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": true,
     "passes_0p2dB_target": true
   },
   {
@@ -613,6 +699,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.003794567352260163,
     "minimum_AV_a_dB": 14.965676970271822,
     "minimum_AV_b_dB": 14.965665255046368,
+    "passes_significant_line_target": true,
+    "passes_weak_line_target": true,
     "passes_0p2dB_target": true
   },
   {
@@ -627,6 +715,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.051956584958301265,
     "minimum_AV_a_dB": 15.268071656421071,
     "minimum_AV_b_dB": 15.26807653960433,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -641,6 +731,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.05914837257797568,
     "minimum_AV_a_dB": 15.268649332138025,
     "minimum_AV_b_dB": 15.268637194500585,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -655,6 +747,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.09067849224101428,
     "minimum_AV_a_dB": 14.402523080096493,
     "minimum_AV_b_dB": 14.40252817098694,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -669,6 +763,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.10818381181155652,
     "minimum_AV_a_dB": 14.40312596594977,
     "minimum_AV_b_dB": 14.403113620449943,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -683,6 +779,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.06887852809121713,
     "minimum_AV_a_dB": 15.49504618924793,
     "minimum_AV_b_dB": 15.49504861721227,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -697,6 +795,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.073109237566881,
     "minimum_AV_a_dB": 15.495417151289772,
     "minimum_AV_b_dB": 15.495407469551154,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -711,6 +811,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.0581294268675009,
     "minimum_AV_a_dB": 13.087047755007376,
     "minimum_AV_b_dB": 13.08705707206284,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -725,6 +827,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.05815694827997698,
     "minimum_AV_a_dB": 12.831885850719807,
     "minimum_AV_b_dB": 12.832220121098672,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -739,6 +843,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07159424415155027,
     "minimum_AV_a_dB": 13.70514256739073,
     "minimum_AV_b_dB": 13.705150844895833,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -753,6 +859,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.07741488760446405,
     "minimum_AV_a_dB": 13.705922944898838,
     "minimum_AV_b_dB": 13.705907354432064,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -767,6 +875,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.06885010388601374,
     "minimum_AV_a_dB": 15.268170101267494,
     "minimum_AV_b_dB": 15.26816107078681,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   },
   {
@@ -781,6 +891,8 @@
     "maximum_weak_complex_difference_relative_to_floor": 0.0730610092395181,
     "minimum_AV_a_dB": 15.268634559585543,
     "minimum_AV_b_dB": 15.268641139829114,
+    "passes_significant_line_target": false,
+    "passes_weak_line_target": false,
     "passes_0p2dB_target": false
   }
 ]

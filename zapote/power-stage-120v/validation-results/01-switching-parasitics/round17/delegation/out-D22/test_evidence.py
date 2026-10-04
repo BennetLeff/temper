@@ -1,11 +1,14 @@
 """Reject incomplete source evidence; preserve the round-3 receiver fixture."""
 
-import unittest
-import numpy as np
-from periodic import analyze, read_binary
-from filter_stage import BASE_DECK, MODEL, deck_text
-from pathlib import Path
+import copy
+import json
 import tempfile
+import unittest
+from pathlib import Path
+
+import numpy as np
+from filter_stage import BASE_DECK, MODEL, deck_text
+from periodic import analyze, read_binary
 
 
 class EvidenceTests(unittest.TestCase):
@@ -89,8 +92,8 @@ class EvidenceTests(unittest.TestCase):
                 np.testing.assert_allclose(fft["bus_current_A"][:2], [6, -0.3j], atol=1e-8)
 
     def test_incomplete_convergence_coverage_never_qualifies(self):
-        from summarize import qualified
         from qualify_filter import scenarios
+        from summarize import qualified
 
         rows = [
             {
@@ -108,6 +111,24 @@ class EvidenceTests(unittest.TestCase):
         self.assertFalse(qualified(rows + [rows[0]], "case"))
         rows[0]["passes_0p2dB_target"] = False
         self.assertFalse(qualified(rows, "case"))
+
+    def test_refinement_rejects_changed_physics_window_and_model(self):
+        from numeric_compare import assert_same_operating_point
+
+        root = Path(__file__).resolve().parent / "periodic-runs"
+        coarse = json.loads((root / "envelope-v170-f35000-r2-e1.06-s0.5/result.json").read_text())
+        fine = json.loads((root / "envelope-v170-f35000-r2-e1.06-s0.25/result.json").read_text())
+        assert_same_operating_point(coarse, fine)
+        for key, value in (("RTANK", "100"), ("CYCLES", "32"), ("VBUS", "198")):
+            changed = copy.deepcopy(fine)
+            changed["identity"]["params"][key] = value
+            with self.assertRaisesRegex(ValueError, "operating point"):
+                assert_same_operating_point(coarse, changed)
+        for key in ("deck_sha256", "vendor_sha256", "common_options_sha256", "simulator_sha256"):
+            changed = copy.deepcopy(fine)
+            changed["identity"][key] = "different"
+            with self.assertRaisesRegex(ValueError, "identity"):
+                assert_same_operating_point(coarse, changed)
 
     def test_unknown_ac_parameter_is_rejected(self):
         with self.assertRaises(ValueError):

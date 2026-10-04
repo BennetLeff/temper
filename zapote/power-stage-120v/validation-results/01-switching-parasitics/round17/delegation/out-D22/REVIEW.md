@@ -12,6 +12,7 @@ The review was performed sequentially in the main session, following the reposit
 - A raw/AC replay with no evidence cannot report PASS.
 - Resampling now uses a D-22-owned transfer cache. A rerun proved that this scope correction preserved every previously recorded resampling number exactly.
 - Fresh campaign output can be directed to a separate directory, preserving historical captures and their provenance.
+- Failure labels distinguish significant-line, weak-line and missing-comparison checks. Cycle evidence is retained even when an adjacent timestep aborts; a missing step comparison still prevents qualification.
 
 ## Requirements coverage
 
