@@ -1,0 +1,13 @@
+scenario,cases,mechanical_permissions,false_mechanical_permissions,false_thermal_permissions,old_false_mechanical_permissions
+clean_loaded,300,272,0,0,0
+released,300,75,75,75,0
+guide_jam_pan_removed,300,75,75,75,300
+seal_jam_pan_removed,300,75,75,75,300
+island_jam_pan_removed,300,272,272,272,300
+insulating_debris,300,272,0,272,0
+overload_stop,300,0,0,0,0
+witness_rod_seized,300,272,272,272,300
+sensor_frozen_fresh,300,272,272,272,300
+sensor_stale,300,0,0,0,0
+optical_blocked,300,0,0,0,0
+reference_shift,300,300,300,300,0
