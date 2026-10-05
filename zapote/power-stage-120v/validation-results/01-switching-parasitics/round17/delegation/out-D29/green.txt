@@ -221,27 +221,6 @@ init 220 PASS
 init 221 PASS
 init 222 PASS
 init 223 PASS
-init 224 PASS
-init 225 PASS
-init 226 PASS
-init 227 PASS
-init 228 PASS
-init 229 PASS
-init 230 PASS
-init 231 PASS
-init 232 PASS
-init 233 PASS
-init 234 PASS
-init 235 PASS
-init 236 PASS
-init 237 PASS
-init 238 PASS
-init 239 PASS
-init 240 PASS
-init 241 PASS
-init 242 PASS
-init 243 PASS
-init 244 PASS
 update 1 PASS
 update 2 PASS
 update 3 PASS
@@ -277,9 +256,6 @@ update 32 PASS
 update 33 PASS
 update 34 PASS
 update 35 PASS
-update 36 PASS
-update 37 PASS
-update 38 PASS
 cleanup 1 PASS
 cleanup 2 PASS
 cleanup 3 PASS
@@ -347,11 +323,5 @@ cleanup 64 PASS
 cleanup 65 PASS
 cleanup 66 PASS
 cleanup 67 PASS
-cleanup 68 PASS
-cleanup 69 PASS
-cleanup 70 PASS
-cleanup 71 PASS
-cleanup 72 PASS
-cleanup 73 PASS
-request/inhibit: 30/30 single-failure positions PASS
-PASS: 244 init, 38 update, 73 cleanup fault positions; phase endpoints/aliases, NULL, timeout, request rejection, persistent GPIO errors and void-inhibit error latch
+request/inhibit: 27/27 single-failure positions PASS
+PASS: 223 init, 35 update, 67 cleanup fault positions; phase endpoints/aliases, NULL, timeout, request rejection, persistent GPIO errors and void-inhibit error latch

@@ -21,7 +21,7 @@ static void destroy(struct obj *o) { valid(o); for(int i=0;i<used;i++) assert(!p
  * https://github.com/espressif/esp-idf/blob/e0991facf5ecb362af6aac1fae972139eb38d2e4/components/esp_driver_gpio/src/gpio.c#L436-L448
  */
 static void reset_pin(int p) { mode[p]=GPIO_MODE_DISABLE; up[p]=1; down[p]=0; route[p]=0; }
-esp_err_t gpio_reset_pin(int p) { CHECK(); reset_pin(p); return ESP_OK; }
+esp_err_t gpio_reset_pin(int p) { CHECK(); assert(p!=R5_REQUEST); reset_pin(p); return ESP_OK; }
 esp_err_t gpio_set_level(int p,int v) { CHECK(); assert(v==0); level[p]=v; return ESP_OK; }
 esp_err_t gpio_set_direction(int p,int v) { CHECK(); mode[p]=v; return ESP_OK; }
 esp_err_t gpio_pullup_dis(int p) { CHECK(); up[p]=0; return ESP_OK; }
@@ -76,7 +76,7 @@ int main(void) {
  fresh();assert(!r5_pwm_init(0));pads();
  fresh();assert(r5_pwm_init(&b));no_stop_event=1;c=cycle(.5f);assert(!b.apply_cycle(b.context,&c));pads();
  fresh();assert(r5_pwm_init(&b));assert(!b.set_request(b.context,true));pads();
- const char *gpio_failures[]={"gpio_set_level","gpio_reset_pin","gpio_set_direction","gpio_pullup_dis","gpio_pulldown_en"};
+ const char *gpio_failures[]={"gpio_config","gpio_set_level","gpio_reset_pin","gpio_set_direction","gpio_pullup_dis","gpio_pulldown_en"};
  for(unsigned i=0;i<sizeof gpio_failures/sizeof gpio_failures[0];i++) {
   fresh();assert(r5_pwm_init(&b));persistent=gpio_failures[i];assert(!b.set_request(b.context,false));persistent=0;
   assert(!b.apply_cycle(b.context,&hw.programmed));pads();

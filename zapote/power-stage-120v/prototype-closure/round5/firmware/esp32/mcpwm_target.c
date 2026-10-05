@@ -29,11 +29,17 @@ static bool IRAM_ATTR stopped(mcpwm_timer_handle_t timer,const mcpwm_timer_event
  * the error; external pull-downs/PERMIT remain necessary on hardware failure. */
 static bool restore_pads(target_t *t)
 {
-    const int pins[5]={R5_REQUEST,R5_PWM_AH,R5_PWM_AL,R5_PWM_BH,R5_PWM_BL};
     bool ok=true;
     t->request=false;
-    for(unsigned i=0;i<5;++i) {
-        int pin=pins[i];
+    /* REQUEST never belongs to MCPWM. Do not reset it and briefly enable a
+     * pull-up: preload low before configuring its dedicated GPIO output. */
+    if(gpio_set_level(R5_REQUEST,0)!=ESP_OK) ok=false;
+    gpio_config_t request_io={.pin_bit_mask=1ULL<<R5_REQUEST,
+      .mode=GPIO_MODE_OUTPUT,.pull_down_en=GPIO_PULLDOWN_ENABLE};
+    if(gpio_config(&request_io)!=ESP_OK) ok=false;
+    if(gpio_set_level(R5_REQUEST,0)!=ESP_OK) ok=false;
+    for(unsigned i=0;i<4;++i) {
+        int pin=pwm_pins[i];
         if(gpio_set_level(pin,0)!=ESP_OK) ok=false;
         if(gpio_reset_pin(pin)!=ESP_OK) ok=false;
         if(gpio_set_level(pin,0)!=ESP_OK) ok=false;
