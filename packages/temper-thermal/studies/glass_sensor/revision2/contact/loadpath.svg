@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 810" role="img" aria-label="Cap-local sensing island and reaction load paths">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>
+<rect width="1280" height="810" fill="#f8fafb"/><g font-family="Arial,sans-serif" fill="#162936">
+<text x="35" y="42" font-size="27" font-weight="bold">Cap-local load path — dry bench concept</text>
+<text x="35" y="72" font-size="16">Not to scale. The lower stem may jam while the upper island still unloads.</text>
+<rect x="80" y="105" width="570" height="28" rx="4" fill="#445362"/><text x="675" y="126" font-size="18">Pan bottom</text>
+<path d="M365 139V174" stroke="#bd4d2b" stroke-width="4" marker-end="url(#arrow)"/><text x="415" y="162" fill="#9d381d" font-size="17">Actual cap load F</text>
+<rect x="291" y="180" width="149" height="13" rx="3" fill="#9cabb6"/><text x="675" y="189" font-size="17">Ø8 × 0.15 mm cap; retention to island only</text>
+<rect x="310" y="198" width="111" height="30" rx="4" fill="#d7bd8b"/><text x="675" y="220" font-size="17">RTD + ceramic sensing island</text>
+<rect x="70" y="212" width="204" height="30" fill="#bdd9e2"/><rect x="458" y="212" width="190" height="30" fill="#bdd9e2"/>
+<text x="86" y="234" font-size="15">Nominal glass</text>
+<path d="M199 288H296V257H435V288H539" fill="none" stroke="#704b9d" stroke-width="8"/>
+<text x="675" y="280" font-size="17">3 separate X750 foil flexures</text><text x="675" y="304" font-size="15">L7 × W2.1 × t0.08 mm; target total k ≈ 2 N/mm</text>
+<path d="M170 298H290V330H447V298H568V360H170z" fill="#c7d0d6" stroke="#536774" stroke-width="2"/>
+<path d="M367 282V317" stroke="#bd4d2b" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="675" y="344" font-size="17">Main carrier + 0.25 mm overload stop</text>
+<text x="675" y="367" font-size="15">Stop contact invalidates normal load indication</text>
+<rect x="313" y="362" width="110" height="156" fill="#c7d0d6" stroke="#536774" stroke-width="2"/>
+<rect x="331" y="361" width="74" height="164" fill="#f8fafb"/>
+<rect x="248" y="411" width="62" height="48" fill="#6e8693"/><rect x="426" y="411" width="62" height="48" fill="#6e8693"/>
+<path d="M158 437H240M578 437H496" stroke="#177580" stroke-width="4" marker-end="url(#arrow)"/>
+<text x="42" y="397" fill="#12636c" font-size="16">Guide / main seal reactions</text>
+<text x="675" y="431" font-size="17">These reactions enter the carrier below</text><text x="675" y="455" font-size="17">the sensing flexures, not the cap.</text>
+<path d="M353 229V615" stroke="#cc912f" stroke-width="5"/><path d="M384 340V659" stroke="#59858d" stroke-width="5"/>
+<text x="55" y="560" font-size="16">Matched Ø0.4 mm ceramic witness rods</text><text x="55" y="584" font-size="15">No sliding rod seals; no contact with bore</text>
+<rect x="329" y="615" width="48" height="9" fill="#cc912f"/><rect x="360" y="660" width="48" height="9" fill="#59858d"/>
+<path d="M348 711V629M389 754V675" stroke="#ba3434" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<rect x="272" y="714" width="100" height="40" rx="4" fill="#315166"/><rect x="382" y="757" width="100" height="36" rx="4" fill="#315166"/>
+<text x="40" y="692" font-size="16">Cold-zone laser metrology, external rig</text>
+<text x="550" y="611" font-size="19" font-weight="bold">Measure δ = cap marker − carrier marker − unloaded zero</text>
+<text x="550" y="646" font-size="17">Main motion is common; local flexure deflection remains.</text>
+<text x="550" y="684" font-size="17" fill="#9d381d">Island jam, seized witness rod or credible frozen reading</text>
+<text x="550" y="708" font-size="17" fill="#9d381d">can still mimic cap load. Mechanical load ≠ thermal contact.</text>
+<text x="550" y="753" font-size="16">Sealed variant needs static optical windows and a qualified</text>
+<text x="550" y="775" font-size="16">barrier/load budget; this dry fixture is not spill sealed.</text>
+</g></svg>

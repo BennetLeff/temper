@@ -1,0 +1,35 @@
+{
+  "status": "dry-bench-concept-and-simulation-complete",
+  "hardware_validated": false,
+  "production_detector_backend": "unchanged; unavailable",
+  "sealed_product_qualified": false,
+  "base_commit": "470ac33eced8a46791eff201efc2a8a57d0ee0c9",
+  "rust_tests_passed": 10,
+  "broad_fault_cases": 3600,
+  "bounded_fault_cases": 972,
+  "interval_budget_cases": 605,
+  "series_force_cases": 36,
+  "release_dynamics_cases": 45,
+  "pulse_identifiability_cases": 40,
+  "bench_metrology": "two Micro-Epsilon ILD1420-10CL1 heads, 0–50 C cold zone",
+  "conditional_requirements": {
+    "minimum_cap_force_n": 0.12,
+    "maximum_parasitic_force_n": 0.01,
+    "total_differential_error_um": 15,
+    "island_rate_n_per_mm": [1.6, 2.4],
+    "loaded_lower_threshold_um": 25,
+    "overload_reject_threshold_um": 220,
+    "mechanical_stop_um": 250,
+    "loaded_margin_um": 5.833333,
+    "unloaded_margin_um": 3.75
+  },
+  "bounded_main_guide_jam_false_permissions": 0,
+  "bounded_main_guide_jam_cases": 81,
+  "remaining_blind_faults": [
+    "Cap island seized after acquisition",
+    "Witness rod seized at a believable loaded position",
+    "Sensor frozen while fresh timestamps remain believable",
+    "Reference shift outside the calibrated error budget",
+    "Insulating debris transmits mechanical force without thermal contact"
+  ]
+}
